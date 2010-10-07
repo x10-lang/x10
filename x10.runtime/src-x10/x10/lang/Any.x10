@@ -13,7 +13,7 @@ package x10.lang;
 
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
-import x10.compiler.NonEscaping;
+import x10.compiler.NoThisAccess;
 
 /**
  * The top of the type hierarchy.
@@ -52,7 +52,7 @@ public interface Any {
      */
     @Native("java", "x10.rtt.Types.typeName(#0)")
     @Native("c++", "x10aux::type_name(#0)")
-    @NonEscaping("")
+    @NoThisAccess
     def typeName():String;
 
     /**
@@ -90,7 +90,7 @@ public interface Any {
      *
      * @return the hash code of this entity.
      */
-    @Native("java", "((Object)(#0)).hashCode()")
+    @Native("java", "((java.lang.Object)(#0)).hashCode()")
     @Native("c++", "x10aux::hash_code(#0)")
     def hashCode():Int;
 }

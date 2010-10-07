@@ -18,16 +18,8 @@ public class UShortType<T> extends RuntimeType<T> {
         super(c);
     }
 
-    public UShortType(Class<?> c, Variance... variances) {
-        super(c, variances);
-    }
-
     public UShortType(Class<?>c, Type<?>[] parents) {
         super(c, parents);
-    }
-
-    public UShortType(Class<?> c, Variance[] variances, Type<?>[] parents) {
-        super(c, variances, parents);
     }
 
     @Override

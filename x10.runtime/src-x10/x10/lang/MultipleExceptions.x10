@@ -19,44 +19,46 @@ import x10.io.Printer;
  * @author Christian Grothoff
  * @author tardieu
  */
-public class MultipleExceptions(exceptions: ValRail[Throwable]) extends RuntimeException {
+public class MultipleExceptions(exceptions:Array[Throwable]{rail}) extends RuntimeException {
 
-    public def this(stack: Stack[Throwable]) {
+    public def this(stack:Stack[Throwable]) {
         val s = new Stack[Throwable]();
         // flatten MultipleExceptions in the stack
-        for (t in stack.toValRail()) {
+        for (t in stack) {
             if (t instanceof MultipleExceptions) {
-                for (u: Throwable in (t as MultipleExceptions).exceptions) 
+                for (u: Throwable in (t as MultipleExceptions).exceptions.values()) 
 		    s.push(u); 
             } else {
                 s.push(t);
             }
         }
-        property(s.toValRail());
+        property(s.toArray());
     }
 
     public def this(t: Throwable) {
         val s = new Stack[Throwable]();
         if (t instanceof MultipleExceptions) {
-            for (u: Throwable in (t as MultipleExceptions).exceptions) 
+            for (u: Throwable in (t as MultipleExceptions).exceptions.values()) 
 		s.push(u); 
         } else {
             s.push(t);
         }
-        property(s.toValRail());
+        property(s.toArray());
     }
 
     // workarounds for XTENLANG-283, 284
 
     public def printStackTrace(): void {
         //super.printStackTrace();
-        for (t: Throwable in exceptions) {
+        for (t: Throwable in exceptions.values()) {
 	        t.printStackTrace();
         }
     }
 
     public def printStackTrace(p:Printer): void {
         //super.printStackTrace(p);
-        //for (t: Throwable in exceptions) t.printStackTrace(p);
+        for (t: Throwable in exceptions.values()) {
+            t.printStackTrace(p);
+        }
     }
 }

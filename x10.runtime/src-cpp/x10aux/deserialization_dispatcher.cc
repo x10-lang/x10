@@ -36,13 +36,14 @@ template<class T> T *zrealloc (T *buf, size_t was, size_t now)
 
 serialization_id_t DeserializationDispatcher::addDeserializer (Deserializer deser, bool is_async,
                                                                CUDAPre cuda_pre,
+                                                               CUDAPost cuda_post,
                                                                const char *cubin,
                                                                const char *kernel)
 {
     if (NULL == it) {
         it = new (system_alloc<DeserializationDispatcher>()) DeserializationDispatcher();
     }
-    return it->addDeserializer_(deser, is_async, cuda_pre, cubin, kernel);
+    return it->addDeserializer_(deser, is_async, cuda_pre, cuda_post, cubin, kernel);
 }
 
 static void ensure_data_size (DeserializationDispatcher::Data *&data_v,
@@ -56,6 +57,7 @@ static void ensure_data_size (DeserializationDispatcher::Data *&data_v,
 
 serialization_id_t DeserializationDispatcher::addDeserializer_ (Deserializer deser, bool is_async,
                                                                 CUDAPre cuda_pre,
+                                                                CUDAPost cuda_post,
                                                                 const char *cubin,
                                                                 const char *kernel)
 {
@@ -69,6 +71,7 @@ serialization_id_t DeserializationDispatcher::addDeserializer_ (Deserializer des
     data_v[r].deser = deser;
     data_v[r].has_mt = is_async;
     data_v[r].cuda_pre = cuda_pre;
+    data_v[r].cuda_post = cuda_post;
     data_v[r].cubin = cubin;
     data_v[r].kernel = kernel;
     return r;
@@ -76,6 +79,10 @@ serialization_id_t DeserializationDispatcher::addDeserializer_ (Deserializer des
 
 CUDAPre DeserializationDispatcher::getCUDAPre_(serialization_id_t id)
 { return data_v[id].cuda_pre; }
+
+
+CUDAPost DeserializationDispatcher::getCUDAPost_(serialization_id_t id)
+{ return data_v[id].cuda_post; }
 
 
 

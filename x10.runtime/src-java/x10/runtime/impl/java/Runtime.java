@@ -51,7 +51,7 @@ public abstract class Runtime implements Runnable {
 		// build up Array[String] for args
 		x10.array.Array<String> aargs = new x10.array.Array<String>(x10.rtt.Types.STRING, args.length);
 		for (int i=0; i<args.length; i++) {
-		    aargs.set$G(args[i], i);
+		    aargs.set_0_$$x10$array$Array_T$G(args[i], i);
 		}
 		
 		// execute root x10 activity
@@ -133,6 +133,25 @@ public abstract class Runtime implements Runnable {
             throw new WrappedRuntimeException(e);
         }
         runAtLocal(id, body);
+    }
+
+    /**
+     * Synchronously executes body at place(id)
+     */
+    public static x10.core.fun.VoidFun_0_0 deepCopy(x10.core.fun.VoidFun_0_0 body) {
+        try {
+            // copy body
+            java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+            new java.io.ObjectOutputStream(baos).writeObject(body);
+            body = (x10.core.fun.VoidFun_0_0) new java.io.ObjectInputStream(new java.io.ByteArrayInputStream(baos.toByteArray())).readObject();
+        } catch (java.io.IOException e) {
+            e.printStackTrace();
+            throw new WrappedRuntimeException(e);
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+            throw new WrappedRuntimeException(e);
+        }
+        return body;
     }
 
 	/**

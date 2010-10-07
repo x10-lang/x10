@@ -42,10 +42,6 @@ namespace x10 {
                 _outputStream.write(b, off, len);
             }
 
-            virtual void write(x10aux::ref<x10::lang::ValRail<x10_byte> > b,x10_int off,x10_int len) {
-                _outputStream.write(b, off, len);
-            }
-
             virtual void flush() {
                 _outputStream.flush();
             }

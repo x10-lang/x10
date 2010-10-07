@@ -111,6 +111,7 @@ import x10.util.ClosureSynthesizer;
  */
 public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	public static final String DUMMY_ASYNC = "$dummyAsync";
+	public static final int EXPAND_MACROS_DEPTH=25;
 
     public X10TypeSystem_c() {
         super();
@@ -225,7 +226,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         env(context).checkOverride(ct, mi0, mj0);
     }
 
-    public MethodInstance findImplementingMethod(ClassType ct, MethodInstance jmi, boolean includeAbstract, Context context) {
+    public X10MethodInstance findImplementingMethod(ClassType ct, MethodInstance jmi, boolean includeAbstract, Context context) {
         X10MethodInstance mi = (X10MethodInstance) jmi;
 
         XVar thisVar = ((X10ClassDef) ct.def()).thisVar(); // XTerms.makeLocal(XTerms.makeFreshName("this"));
@@ -251,7 +252,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
                     // mi and mj are both accessible from ct (e.g.,
                     // mi is declared in an interface that ct implements,
                     // and mj is defined in a superclass of ct).
-                    return mj;
+                    return (X10MethodInstance) mj;
                 }
             }
             if (curr.typeEquals(mi.container(), context)) {
@@ -1370,7 +1371,15 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
             iterableType_ = load("x10.lang.Iterable"); // java file
         return iterableType_;
     }
-    
+  
+    protected ClassType customSerializationType_;
+
+    public Type CustomSerialization() {
+        if (customSerializationType_ == null)
+            customSerializationType_ = load("x10.io.CustomSerialization"); // java file
+        return customSerializationType_;
+    }
+ 
     protected ClassType reducibleType_;
 
     public Type Reducible() {
@@ -1398,6 +1407,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
     public Type Iterator(Type index) {
         return X10TypeMixin.instantiate(Iterator(), index);
     }
+   
 
     protected ClassType iteratorType_;
 
@@ -1578,14 +1588,21 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
     }
 
     public Type expandMacros(Type t) {
+    	return expandMacros(t, 0);
+    }
+    private Type expandMacros(Type t, int depth) {
+    	if (depth > EXPAND_MACROS_DEPTH) {
+    		System.err.println("Reached max macro expansion depth with " + t + " (at " + t.position());
+    		return unknownType(Position.COMPILER_GENERATED); // bottom
+    	}
         if (t instanceof AnnotatedType)
-            return expandMacros(((AnnotatedType) t).baseType());
+            return expandMacros(((AnnotatedType) t).baseType(), depth+1);
         if (t instanceof MacroType)
-            return expandMacros(((MacroType) t).definedType());
+            return expandMacros(((MacroType) t).definedType(), depth+1);
         if (t instanceof ConstrainedType) {
             ConstrainedType ct = (ConstrainedType) t;
             Type base = ct.baseType().get();
-            Type ebase = expandMacros(base);
+            Type ebase = expandMacros(base, depth+1);
             if (base == ebase)
                 return t;
             CConstraint c = ct.constraint().get();
@@ -2255,6 +2272,19 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         }
 
         return false;
+    }
+
+    @Override
+    public boolean descendsFrom(ClassDef child, ClassDef ancestor) {
+        ClassDef a = classDefOf(Any());
+
+        if (ancestor == a)
+            return true;
+
+        if (child == a)
+            return false;
+
+        return super.descendsFrom(child, ancestor);
     }
 
     @Override

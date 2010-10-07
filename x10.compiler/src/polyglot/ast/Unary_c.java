@@ -82,19 +82,15 @@ public class Unary_c extends Expr_c implements Unary
 	    op == PRE_INC || op == PRE_DEC) {
 
 	    if (! expr.type().isNumeric()) {
-		throw new SemanticException("Operand of " + op +
-		    " operator must be numeric.", expr.position());
+		throw new SemanticException("Operand must be numeric.", expr.position());
 	    }
 
             if (! (expr instanceof Variable)) {
-		throw new SemanticException("Operand of " + op +
-		    " operator must be a variable.", expr.position());
+		throw new SemanticException("Operand must be a variable.", expr.position());
             }
             
             if (((Variable) expr).flags().isFinal()) {
-		throw new SemanticException("Operand of " + op +
-		    " operator must be a non-final variable.",
-                    expr.position());
+		throw new SemanticException("Operand must be a non-final variable.",  expr.position());
             }
 
 	    return type(expr.type());
@@ -102,8 +98,7 @@ public class Unary_c extends Expr_c implements Unary
 
 	if (op == BIT_NOT) {
 	    if (! ts.isImplicitCastValid(expr.type(), ts.Long(), tc.context())) {
-		throw new SemanticException("Operand of " + op +
-		    " operator must be numeric.", expr.position());
+		throw new SemanticException("Operand must be numeric.", expr.position());
 	    }
 
 	    return type(ts.promote(expr.type()));
@@ -111,8 +106,7 @@ public class Unary_c extends Expr_c implements Unary
 
 	if (op == NEG || op == POS) {
 	    if (! expr.type().isNumeric()) {
-		throw new SemanticException("Operand of " + op +
-		    " operator must be numeric.", expr.position());
+		throw new SemanticException("Operand must be numeric.", expr.position());
 	    }
 
 	    return type(ts.promote(expr.type()));
@@ -120,8 +114,7 @@ public class Unary_c extends Expr_c implements Unary
 
 	if (op == NOT) {
 	    if (! expr.type().isBoolean()) {
-		throw new SemanticException("Operand of " + op +
-		    " operator must be boolean.", expr.position());
+		throw new SemanticException("Operand must be boolean.", expr.position());
 	    }
 
 	    return type(expr.type());

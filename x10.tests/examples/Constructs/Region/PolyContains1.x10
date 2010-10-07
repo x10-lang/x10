@@ -19,7 +19,7 @@ class PolyContains1 extends TestRegion {
 
     public def run() {
 
-        val u: Region = Region.makeRectangular([0,0], [4,4]);
+        val u: Region = Region.makeRectangular(new Array[int][0,0], new Array[int][4,4]);
     
         var b1: Region = Region.makeBanded(5, 1, 1);
         prArray("makeBanded(5,1,1)", b1);
@@ -64,8 +64,8 @@ class PolyContains1 extends TestRegion {
         "    2  . . 4 . . . . . . . \n"+
         "    3  . . . 9 . . . . . . \n"+
         "    4  . . . . 6 . . . . . \n"+
-        "contains (0,0)(1,1)(2,2)(3,3)(4,4)\n"+
-        "does not contain (0,1)(0,2)(0,3)(0,4)(1,0)(1,2)(1,3)(1,4)(2,0)(2,1)(2,3)(2,4)(3,0)(3,1)(3,2)(3,4)(4,0)(4,1)(4,2)(4,3)\n"+
+        "contains [0,0][1,1][2,2][3,3][4,4]\n"+
+        "does not contain [0,1][0,2][0,3][0,4][1,0][1,2][1,3][1,4][2,0][2,1][2,3][2,4][3,0][3,1][3,2][3,4][4,0][4,1][4,2][4,3]\n"+
         "--- PolyContains1: makeBanded(5,1,2)\n"+
         "rank 2\n"+
         "rect false\n"+

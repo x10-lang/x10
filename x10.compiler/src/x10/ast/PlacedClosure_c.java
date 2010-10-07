@@ -88,6 +88,18 @@ public class PlacedClosure_c extends Closure_c implements PlacedClosure {
     	return n;
     }
     
+    boolean placeError=false;
+    
+    @Override
+    public Node typeCheck(ContextVisitor tc)  {
+    	X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+    	if (placeError) { // this means we were not able to convert this.place into a term of type Place.
+    		Errors.issue(tc.job(), 
+    				new Errors.AtArgMustBePlace(this.place, ts.Place(), this.position()));
+    	}
+
+    	return super.typeCheck(tc);
+    }
   @Override
     public Node typeCheckOverride(Node parent, ContextVisitor tc) {
     	
@@ -104,6 +116,7 @@ public class PlacedClosure_c extends Closure_c implements PlacedClosure {
     		try {
     		    placeTerm = PlaceChecker.computePlaceTerm(e, (X10Context) tc.context(), ts);
     		} catch (SemanticException se) {
+    			placeError=true;
     		    CConstraint d = new CConstraint();
     		    XTerm term = PlaceChecker.makePlace();
     		    try {

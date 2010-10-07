@@ -34,7 +34,7 @@ public class FutureMethodInvokeRev_MustFailCompile extends x10Test {
     val c = (future (here.next()) new C[String]("a")).force();
 
     public def run02(): boolean = {
-    		val p = Place.places(1);
+    		val p = Place.place(1);
     		val cc = this.c;
             val f = future (p) {
             	// cannot access a field that is not global

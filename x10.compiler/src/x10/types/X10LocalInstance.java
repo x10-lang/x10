@@ -12,6 +12,7 @@
 package x10.types;
 
 import polyglot.types.LocalInstance;
+import polyglot.types.Name;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeObject;
@@ -26,5 +27,6 @@ public interface X10LocalInstance extends LocalInstance, TypeObject, X10Use<X10L
 
     public X10LocalInstance error(SemanticException e);
 
+    public X10LocalInstance name(Name name);
     public X10LocalInstance type(Type t);
 }

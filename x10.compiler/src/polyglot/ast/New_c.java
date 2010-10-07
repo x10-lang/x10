@@ -15,6 +15,7 @@ import polyglot.frontend.Goal;
 import polyglot.types.*;
 import polyglot.util.*;
 import polyglot.visit.*;
+import x10.errors.Errors;
 
 /**
  * A <code>New</code> is an immutable representation of the use of the
@@ -346,8 +347,7 @@ public class New_c extends Expr_c implements New
         }
         
         if (outer == null) {
-            throw new SemanticException("Could not find non-static member class \"" +
-                                        name + "\".", position());
+            throw new SemanticException("Could not find non-static member class \"" + name + "\".", position());
         }
         
         // Create the qualifier.
@@ -411,9 +411,7 @@ public class New_c extends Expr_c implements New
             Type qt = qualifier.type();
 
             if (! qt.isClass()) {
-                throw new SemanticException(
-                    "Cannot instantiate member class of a non-class type.",
-                    qualifier.position());
+                throw new SemanticException("Cannot instantiate member class of a non-class type.", qualifier.position());
             }
             
             // Disambiguate the type node as a member of the qualifier type.
@@ -423,9 +421,7 @@ public class New_c extends Expr_c implements New
             // instantiated must be inner.
 	    if (! ct.isInnerClass()) {
             if (!(qualifier instanceof Special)) // Yoav added "this" qualifier for non-static anonymous classes
-                throw new SemanticException(
-                    "Cannot provide a containing instance for non-inner class " +
-		    ct.fullName() + ".", qualifier.position());
+                throw new SemanticException("Cannot provide a containing instance for non-inner class " + ct.fullName() + ".", qualifier.position());
             }
         }
         else {
@@ -434,9 +430,7 @@ public class New_c extends Expr_c implements New
             if (ct.isMember()) {
                 for (ClassType t = ct; t.isMember(); t = t.outer()) {
                     if (! t.flags().isStatic()) {
-                        throw new SemanticException(
-                            "Cannot allocate non-static member class \"" +
-                            t + "\".", position());
+                        throw new SemanticException("Cannot allocate non-static member class \"" +t + "\".", position());
                     }
                 }
             }
@@ -448,29 +442,37 @@ public class New_c extends Expr_c implements New
 
 	if (this.body == null) {
 	    if (ct.flags().isInterface()) {
-		throw new SemanticException(
-		    "Cannot instantiate an interface.", position());
+		throw new SemanticException("Cannot instantiate an interface.", position());
 	    }
 
 	    if (ct.flags().isAbstract()) {
-		throw new SemanticException(
-		    "Cannot instantiate an abstract class.", position());
+		throw new SemanticException("Cannot instantiate an abstract class.", position());
 	    }
 	}
 	else {
 	    if (ct.flags().isFinal()) {
-		throw new SemanticException(
-		    "Cannot create an anonymous subclass of a final class.",
-                    position());
+		throw new SemanticException("Cannot create an anonymous subclass of a final class.", position());
             }
 
 	    if (ct.flags().isInterface() && ! arguments.isEmpty()) {
-	        throw new SemanticException(
-		    "Cannot pass arguments to an anonymous class that " +
-		    "implements an interface.",
-		    arguments.get(0).position());
+	        throw new SemanticException("Cannot pass arguments to an anonymous class that implements an interface.",arguments.get(0).position());
 	    }
 	}
+    }
+
+    @Override
+    public Node conformanceCheck(ContextVisitor tc) {
+        if (body == null) {
+            return this;
+        }
+        // Check that the anonymous class implements all abstract methods that it needs to.
+        try {
+            TypeSystem ts = tc.typeSystem();
+            ts.checkClassConformance(anonType.asType(), enterChildScope(body, tc.context()));
+        } catch (SemanticException e) {
+            Errors.issue(tc.job(), e, this);
+        }
+        return this;
     }
 
     public Type childExpectedType(Expr child, AscriptionVisitor av) {

@@ -319,15 +319,23 @@ static void cuda_pre (const x10rt_msg_params *p, size_t *blocks, size_t *threads
     assert(buf.consumed() <= p->len);
 }
 
-static void cuda_post (const x10rt_msg_params *p, void *env)
+static void cuda_post (const x10rt_msg_params *p, size_t blocks, size_t threads, size_t shm,
+                       size_t argc, char *argv, size_t cmemc, char *cmemv)
 {
     _X_(ANSI_X10RT<<"Receiving a kernel post callback, deserialising..."<<ANSI_RESET);
-    //remote_free(p->dest_place, (x10_ulong)(size_t)env);
-    x10aux::deserialization_buffer buf(static_cast<char*>(p->msg));
-    x10aux::ref<x10::lang::Reference> fs = buf.read<x10aux::ref<x10::lang::Reference> >();
-    x10aux::ref<x10::lang::Runtime> rt = x10::lang::PlaceLocalHandle_methods<x10aux::ref<x10::lang::Runtime> >::apply(x10::lang::Runtime::FMGL(runtime));
-    (fs.operator->()->*(x10aux::findITable<x10::lang::Runtime__FinishState>(fs->_getITables())->notifyActivityCreation))();
-    (fs.operator->()->*(x10aux::findITable<x10::lang::Runtime__FinishState>(fs->_getITables())->notifyActivityTermination))();
+    {
+        serialization_id_t sid = x10aux::DeserializationDispatcher::getSerializationId(p->type);
+        x10aux::deserialization_buffer buf(static_cast<char*>(p->msg));
+        x10aux::CUDAPost post = x10aux::DeserializationDispatcher::getCUDAPost(sid);
+        post(buf, p->dest_place, blocks, threads, shm, argc, argv, cmemc, cmemv);
+    }
+    {
+        x10aux::deserialization_buffer buf(static_cast<char*>(p->msg));
+        x10aux::ref<x10::lang::Reference> fs = buf.read<x10aux::ref<x10::lang::Reference> >();
+        x10aux::ref<x10::lang::Runtime> rt = x10::lang::PlaceLocalHandle_methods<x10aux::ref<x10::lang::Runtime> >::apply(x10::lang::Runtime::FMGL(runtime));
+        (fs.operator->()->*(x10aux::findITable<x10::lang::Runtime__FinishState>(fs->_getITables())->notifyActivityCreation))();
+        (fs.operator->()->*(x10aux::findITable<x10::lang::Runtime__FinishState>(fs->_getITables())->notifyActivityTermination))();
+    }
 }
 
 x10aux::msg_type x10aux::register_async_handler (const char *cubin, const char *kernel)

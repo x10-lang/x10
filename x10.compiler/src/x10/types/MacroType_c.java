@@ -240,7 +240,10 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 	public Type definedType() {
 		if (definedType == null)
 			return Types.get(def().definedType());
-		Type t = X10TypeMixin.processFlags(flags(), Types.get(definedType));
+		Ref<? extends Type> dt = definedType;
+		definedType = Types.ref(typeSystem().unknownType(position())); // guard against recursion
+		Type t = X10TypeMixin.processFlags(flags(), Types.get(dt));
+		definedType = dt;
 		return t;
 	}
 	public MacroType definedType(Type t) {

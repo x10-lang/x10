@@ -181,8 +181,7 @@ public class SystemResolver extends CachingResolver implements TopLevelResolver 
         }
 
         if (q instanceof Type && packageExists(name)) {
-            throw new SemanticException("Type \"" + name +
-                        "\" clashes with package of the same name.", q.position());
+            throw new SemanticException("Type \"" + name +"\" clashes with package of the same name.", q.position());
         }
     }
 

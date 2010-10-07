@@ -10,7 +10,7 @@
  */
 
 import harness.x10Test;
-// OPTIONS: -STATIC_CALLS
+//OPTIONS: -STATIC_CALLS
 
 /**
 Like NestedExpression2_MFC, except uses a typedef.

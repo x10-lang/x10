@@ -27,7 +27,7 @@ public class MultiDimensionalJavaArray extends x10Test {
         val MAJ = 0..9;
         val a = new Array[Array[Double](1)](MIN, (Point) => new Array[Double](MAJ));
 
-        for (val [i,j]: Point(2) in ([MIN, MAJ] as Region))
+        for (val [i,j]: Point(2) in MIN*MAJ)
             a(i)(j) = (i * j / PI);
 
         val d = a(MIN.max(0)/2);

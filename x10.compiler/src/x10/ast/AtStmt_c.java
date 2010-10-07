@@ -124,6 +124,7 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
 	}
 
     XConstrainedTerm placeTerm;
+    boolean placeError = false;
   
     @Override
     public Node typeCheckOverride(Node parent, ContextVisitor tc) {
@@ -143,6 +144,7 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
                 XTerm term = PlaceChecker.makePlace();
                 try {
                     placeTerm = XConstrainedTerm.instantiate(d, term);
+                    placeError = true;
                 } catch (XFailure z) {
                     throw new InternalCompilerError("Cannot construct placeTerm from term  and constraint.");
                 }
@@ -154,7 +156,17 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
     	
     	return null;
     }
-   
+   @Override
+   public Node typeCheck(ContextVisitor tc) throws SemanticException {
+		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+	   if (placeError) { // this means we were not able to convert this.place into a term of type Place.
+		   Errors.issue(tc.job(), 
+					new Errors.AtArgMustBePlace(this.place, ts.Place(), this.position()));
+	   }
+	
+		return super.typeCheck(tc);
+   }
+    
 	/** Visit the children of the statement. */
 	public Node visitChildren(NodeVisitor v) {
 		Expr place = (Expr) visitChild(this.place, v);

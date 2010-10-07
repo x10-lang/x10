@@ -27,6 +27,11 @@ public class RailBuilder[T] implements Builder[T,Rail[T]] {
         return this;
     }
 
+    public def insert(loc:Int, items:Rail[T]):RailBuilder[T] {
+        buf.insert(loc, items);
+        return this;
+    }
+
     public def length(): Int {
         return buf.length();
     }

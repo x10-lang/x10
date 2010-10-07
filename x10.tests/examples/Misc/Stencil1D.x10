@@ -40,7 +40,7 @@ public class Stencil1D extends x10Test {
        val blocks = block(1..N, P);
        for (; delta > epsilon; iters++) {
           delta = 0;
-          finish foreach ([p]:Point(1) in 0..P-1) {
+          finish for ([p]:Point(1) in 0..P-1) async {
              val myDelta  = step(A, blocks(p));
              atomic  delta= Math.max(delta, myDelta);
           }
@@ -48,14 +48,14 @@ public class Stencil1D extends x10Test {
        return true;
     }
 
-    public static def block(R: Region(1), P:Int):ValRail[Region(1)](P) = {
+    public static def block(R: Region(1), P:Int):Rail[Region(1)](P) = {
         assert P >=0;
         val low = R.min()(0), high = R.max()(0), count = high-low+1;
         val baseSize = count/P, extra = count - baseSize*P;
-        ValRail.make[Region(1)](P, (i:int):Region(1) => {
+        Rail.make[Region(1)](P, (i:int):Region(1) => {
           val start = low+i*baseSize+ (i < extra? i:extra);
           start..start+baseSize+(i < extra?0:-1)
-          })
+        })
     }
 
     public static def main(args: Array[String](1)) {

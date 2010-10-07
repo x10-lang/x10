@@ -21,7 +21,7 @@ public class NoFutureForceInWhen extends x10Test {
 	   try {
 		 val b=true;
 		 val x = Future.make[int](()=>0);
-	     when (b=true) {
+	     when (b==true) {
 		    x.force();
 	     }
 	   } catch (IllegalOperationException) {

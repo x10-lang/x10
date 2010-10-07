@@ -41,11 +41,13 @@ import polyglot.ast.ConstructorDecl;
 import polyglot.ast.Eval;
 import polyglot.ast.FieldDecl;
 import polyglot.ast.For;
+import polyglot.ast.Formal;
 import polyglot.ast.If;
 import polyglot.ast.LocalDecl;
 import polyglot.ast.MethodDecl;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
+import polyglot.ast.ProcedureDecl;
 import polyglot.ast.Return;
 import polyglot.ast.SourceCollection;
 import polyglot.ast.SourceFile;
@@ -219,13 +221,14 @@ public class X10CPPTranslator extends Translator {
 		                });
 		            }
 		            if (n instanceof FieldDecl)
+		            	lineNumberMap.addClassMemberVariable(((FieldDecl)n).name().toString(), ((FieldDecl)n).type().toString(), Emitter.mangled_non_method_name(context.currentClass().toString()));
+		            else if (n instanceof LocalDecl && !((LocalDecl)n).position().isCompilerGenerated())
+		            	lineNumberMap.addLocalVariableMapping(((LocalDecl)n).name().toString(), ((LocalDecl)n).type().toString(), line, parent.position().endLine(), file);
+		            else if (def != null)
 		            {
-		            	lineNumberMap.addClassMemberVariable(((FieldDecl)n).name().toString(), ((FieldDecl)n).type().toString());
-		            }
-		            else if (n instanceof LocalDecl)
-		            {
-		            	if (!((LocalDecl)n).position().isCompilerGenerated())
-		            		lineNumberMap.addLocalVariableMapping(((LocalDecl)n).name().toString(), ((LocalDecl)n).type().toString(), line);
+		            	List<Formal> args = ((ProcedureDecl)parent).formals();
+		            	for (int i=0; i<args.size(); i++)
+		            		lineNumberMap.addLocalVariableMapping(args.get(i).name().toString(), args.get(i).type().toString(), line, parent.position().endLine(), file);
 		            }
 		        }
 		    }
@@ -475,6 +478,9 @@ public class X10CPPTranslator extends Translator {
 	}
 
     public static boolean doPostCompile(Options options, ErrorQueue eq, Collection<String> outputFiles, String[] cxxCmd) {
+    	return doPostCompile(options, eq, outputFiles, cxxCmd, false);
+    }
+    public static boolean doPostCompile(Options options, ErrorQueue eq, Collection<String> outputFiles, String[] cxxCmd, boolean noError) {
         if (Report.should_report(postcompile, 1)) {
         	StringBuffer cmdStr = new StringBuffer();
         	for (int i = 0; i < cxxCmd.length; i++)
@@ -517,15 +523,15 @@ public class X10CPPTranslator extends Translator {
         	}
 
         	if (output != null)
-        		eq.enqueue(proc.exitValue() > 0 ? ErrorInfo.POST_COMPILER_ERROR : ErrorInfo.WARNING, output);
+        		eq.enqueue((proc.exitValue() > 0 && !noError) ? ErrorInfo.POST_COMPILER_ERROR : ErrorInfo.WARNING, output);
         	if (proc.exitValue() > 0) {
-        		eq.enqueue(ErrorInfo.POST_COMPILER_ERROR,
+        		eq.enqueue(noError?ErrorInfo.WARNING:ErrorInfo.POST_COMPILER_ERROR,
         				"Non-zero return code: " + proc.exitValue());
         		return false;
         	}
         }
         catch(Exception e) {
-        	eq.enqueue(ErrorInfo.POST_COMPILER_ERROR, e.getMessage() != null ? e.getMessage() : e.toString());
+        	eq.enqueue(noError?ErrorInfo.WARNING:ErrorInfo.POST_COMPILER_ERROR, e.getMessage() != null ? e.getMessage() : e.toString());
         	return false;
         }
         return true;

@@ -25,37 +25,37 @@ class UniqueDist extends Dist(1){rect} {
 
 
     def this():UniqueDist{self.rank==1,self.rect,self.unique} {
-	super([0..Place.MAX_PLACES-1], true, false, Place(0));
+	super(0..Place.MAX_PLACES-1, true, false, Place(0));
     }
 
 
-    public def places():ValRail[Place] {
-        return Place.places;
-    }
+    public def places():Sequence[Place]=Place.places();
 
-    public def regions():ValRail[Region(rank)] {
-	return	ValRail.make[Region(rank)](Place.MAX_PLACES, (i:int)=>[i..i] as Region(rank));
+    public def numPlaces():int = Place.MAX_PLACES;
+
+    public def regions():Sequence[Region(rank)] {
+	return	new Array[Region(rank)](Place.MAX_PLACES, (i:int)=>((i..i) as Region(rank))).sequence();
     }
 
     public def get(p:Place):Region(rank) {
         if (p == here) {
             if (regionForHere == null) {
-                regionForHere = [here.id..here.id];
+                regionForHere = (here.id..here.id) as Region(rank);
             }
 	    return regionForHere;
         } else {
-            return [p.id..p.id];
+            return (p.id..p.id) as Region(rank);
         }
     }
 
     public def apply(p:Place):Region(rank) = get(p);
 
     public def apply(pt:Point(rank)):Place {
-	return Place.places(pt(0));
+	return Place.place(pt(0));
     }
 
     public def apply(i0:int){rank==1} {
-	return Place.places(i0);
+	return Place.place(i0);
     }
 
     public def restriction(r:Region(rank)):Dist(rank) {

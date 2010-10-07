@@ -55,7 +55,10 @@ import x10.ast.SubtypeTest;
 import x10.ast.X10NodeFactory;
 import x10.ast.X10IntLit_c;
 import x10.ast.X10StringLit_c;
+import x10.ast.Async;
+import x10.ast.AnnotationNode;
 import x10.constraint.XFailure;
+import x10.constraint.XLit;
 import x10.constraint.XNameWrapper;
 import x10.constraint.XVar;
 import x10.constraint.XTerm;
@@ -64,6 +67,7 @@ import x10.errors.Errors;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
 import x10.types.constraints.XConstrainedTerm;
+import x10.extension.X10Del;
 
 /** 
  * Utilities for dealing with X10 dependent types.
@@ -86,7 +90,95 @@ public class X10TypeMixin {
 		    }
         return null;
     }
-    
+	/**
+	 * Return the type Array[type]{self.region.rank==1, self.size==size}.
+	 * @param type
+	 * @param pos
+	 * @return
+	 */
+	public static Type makeArrayRailOf(Type type, int size, Position pos) {
+		X10TypeSystem ts = (X10TypeSystem) type.typeSystem();
+		Type r = ts.Array();
+		Type t = (X10ClassType) X10TypeMixin.instantiate(r, type);
+		CConstraint c = new CConstraint();
+		FieldInstance sizeField = ((X10ClassType) t).fieldNamed(Name.make("size"));
+		if (sizeField == null)
+			throw new InternalCompilerError("Could not find size field of " + t, pos);
+
+		FieldInstance regionField = ((X10ClassType) t).fieldNamed(Name.make("region"));
+		if (regionField == null)
+			throw new InternalCompilerError("Could not find region field of " + t, pos);
+
+		FieldInstance rankField = ((X10ClassType) ts.Region()).fieldNamed(Name.make("rank"));
+		if (rankField == null)
+			throw new InternalCompilerError("Could not find rank field of " + ts.Region(), pos);
+		try {
+
+			XVar selfSize = ts.xtypeTranslator().trans(c, c.self(), sizeField);
+			XLit sizeLiteral = ts.xtypeTranslator().trans(size);
+			c.addBinding(selfSize, sizeLiteral);
+
+			XVar selfRegion = ts.xtypeTranslator().trans(c, c.self(), regionField);
+			XVar selfRegionRank = ts.xtypeTranslator().trans(c, selfRegion, rankField);
+			XLit rankLiteral = XTerms.makeLit(1);
+			c.addBinding(selfRegionRank, rankLiteral);
+			c.toString();
+			t = X10TypeMixin.xclause(t, c);
+
+		} catch (XFailure z) {
+			throw new InternalCompilerError("Could not create Array[T]{self.region.rank==1,self.size==size}");
+		}
+		return t;
+	}
+    /**
+     * Return the type Array[type]{self.region.rank==1,self.region.rect==true,self.region.zeroBased==true}.
+     * @param type
+     * @param pos
+     * @return
+     */
+    public static Type makeArrayRailOf(Type type, Position pos) {
+        X10TypeSystem ts = (X10TypeSystem) type.typeSystem();
+        Type r = ts.Array();
+        Type t = (X10ClassType) X10TypeMixin.instantiate(r, type);
+        CConstraint c = new CConstraint();
+        FieldInstance regionField = ((X10ClassType) t).fieldNamed(Name.make("region"));
+        if (regionField == null)
+            throw new InternalCompilerError("Could not find region field of " + t, pos);
+        FieldInstance rankField = ((X10ClassType) ts.Region()).fieldNamed(Name.make("rank"));
+        if (rankField == null)
+            throw new InternalCompilerError("Could not find rank field of " + ts.Region(), pos);
+        FieldInstance rectField = ((X10ClassType) ts.Region()).fieldNamed(Name.make("rect"));
+        if (rectField == null)
+            throw new InternalCompilerError("Could not find rectField field of " + ts.Region(), pos);
+        FieldInstance zeroBasedField = ((X10ClassType) ts.Region()).fieldNamed(Name.make("zeroBased"));
+        if (zeroBasedField == null)
+            throw new InternalCompilerError("Could not find zeroBased field of " + ts.Region(), pos);
+        try {
+
+            XVar selfRegion = ts.xtypeTranslator().trans(c, c.self(), regionField);
+            XVar selfRegionRank = ts.xtypeTranslator().trans(c, selfRegion, rankField);
+            XVar selfRegionRect = ts.xtypeTranslator().trans(c, selfRegion, rectField);
+            XVar selfRegionZeroBased = ts.xtypeTranslator().trans(c, selfRegion, zeroBasedField);
+
+            XLit rankLiteral = XTerms.makeLit(1);
+            c.addBinding(selfRegionRank, rankLiteral);
+            c.addBinding(selfRegionRect, XTerms.TRUE);
+            c.addBinding(selfRegionZeroBased, XTerms.TRUE);
+            c.toString();
+            t = X10TypeMixin.xclause(t, c);
+
+        } catch (XFailure z) {
+            throw new InternalCompilerError("Could not create Array[T]{self.region.rank==1,self.region.rect==true,self.region.zeroBased==true}");
+        }
+        return t;
+    }
+    public static Type typeArg(Type t, int i) {
+    	if (t instanceof X10ParsedClassType) {
+    		 X10ParsedClassType ct = (X10ParsedClassType) t;
+    		return ct.typeArguments().get(i);
+    	} 
+    	return typeArg(X10TypeMixin.baseType(t), i);
+    }
     public static Type instantiate(Type t, Type... typeArg) {
 	if (t instanceof X10ParsedClassType) {
 	    X10ParsedClassType ct = (X10ParsedClassType) t;
@@ -827,6 +919,7 @@ public class X10TypeMixin {
 	    return val;
 	}
 
+	
 	public static boolean isRankOne(Type t, X10Context context) {
 	    X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
 	    return xts.ONE().equals(X10TypeMixin.rank(t, context));
@@ -863,6 +956,47 @@ public class X10TypeMixin {
 	    X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
 	    return findOrSynthesize(t, Name.make("rank"));
 	}
+	/**
+	 * Add the constraint self.rank==x to t unless
+	 * that causes an inconsistency.
+	 * @param t
+	 * @param x
+	 * @return
+	 */
+	public static Type addRank(Type t, int x) {
+	    X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
+	    XTerm xt = findOrSynthesize(t, Name.make("rank"));
+	    try {
+	    t = addBinding(t, xt, XTerms.makeLit(new Integer(x)));
+	    return t;
+	    } catch (XFailure f) {
+	    	return t; // without the binding added.
+	    }
+	 
+	}
+	public static Type addRect(Type t) {
+	    X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
+	    XTerm xt = findOrSynthesize(t, Name.make("rect"));
+	    try {
+	    t = addBinding(t, xt, XTerms.TRUE);
+	    return t;
+	    } catch (XFailure f) {
+	    	return t; // without the binding added.
+	    }
+	 
+	}
+	public static Type addZeroBased(Type t) {
+	    X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
+	    XTerm xt = findOrSynthesize(t, Name.make("zeroBased"));
+	    try {
+	    t = addBinding(t, xt, XTerms.TRUE);
+	    return t;
+	    } catch (XFailure f) {
+	    	return t; // without the binding added.
+	    }
+	 
+	}
+	
 
 	public static Type railBaseType(Type t) {
 	    t = baseType(t);
@@ -999,22 +1133,11 @@ public class X10TypeMixin {
     public static boolean isSuppressTransientErrorField(X10FieldDef def,X10TypeSystem ts) {
         return isDefAnnotated(def,ts,"x10.compiler.SuppressTransientError");
     }
-    public static String getNonEscapingReadsFrom(X10ProcedureDef def,X10TypeSystem ts) {
-        try {
-            Type at = (Type) ts.systemResolver().find(QName.make("x10.compiler.NonEscaping"));
-            final List<Type> annotations = def.annotationsMatching(at);
-            if (annotations.isEmpty()) return null;
-            Type first = annotations.get(0);
-            if (!(first instanceof X10ParsedClassType_c)) return null;
-            X10ParsedClassType_c nonEscaping = (X10ParsedClassType_c) first;
-            final List<Expr> list = nonEscaping.propertyInitializers();
-            if (list.size()!=1) return ""; // @NonEscaping is like @NonEscaping("")
-            Expr arg = list.get(0);
-            if (arg==null || !(arg instanceof X10StringLit_c)) return ""; // @NonEscaping(null) is like @NonEscaping("")
-            return ((X10StringLit_c) arg).stringValue();
-        } catch (SemanticException e) {
-            return null;
-        }
+    public static boolean isNoThisAccess(X10ProcedureDef def,X10TypeSystem ts) {
+        return isDefAnnotated(def,ts,"x10.compiler.NoThisAccess");
+    }
+    public static boolean isNonEscaping(X10ProcedureDef def,X10TypeSystem ts) {
+        return isDefAnnotated(def,ts,"x10.compiler.NonEscaping");
     }
     public static boolean isDefAnnotated(X10Def def,X10TypeSystem ts, String name) {
         try {

@@ -158,10 +158,7 @@ public class Formal_c extends Term_c implements Formal
         }
 
         if (outerLocal != null && ! li.equals(outerLocal.def()) && c.isLocal(li.name())) {
-            throw new SemanticException(
-                "Local variable \"" + name + "\" multiply defined.  "
-                    + "Previous definition at " + outerLocal.position() + ".",
-                position());
+            throw new SemanticException("Local variable \"" + name + "\" multiply defined. Previous definition at " + outerLocal.position() + ".",position());
         }
 
 	TypeSystem ts = tc.typeSystem();

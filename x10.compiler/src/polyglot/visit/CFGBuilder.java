@@ -14,6 +14,7 @@ import polyglot.ast.*;
 import polyglot.main.Report;
 import polyglot.types.*;
 import polyglot.util.*;
+import x10.ast.Async;
 
 /**
  * Class used to construct a CFG.
@@ -127,6 +128,10 @@ public class CFGBuilder implements Copy
       for (CFGBuilder v = this; v != null; v = v.outer) {
         Term c = v.innermostTarget;
 
+        if (c instanceof Async) {
+            throw new CFGBuildError("Cannot "+b.kind()+" in an async", b.position());
+        }
+          
         if (c instanceof Try) {
           Try tr = (Try) c;
           if (tr.finallyBlock() != null) {

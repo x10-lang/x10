@@ -123,8 +123,7 @@ public class NewArray_c extends Expr_c implements NewArray
 
         for (Expr expr : dims) {
             if (! ts.isImplicitCastValid(expr.type(), ts.Int(), tc.context())) {
-                throw new SemanticException("Array dimension must be an integer.",
-                        expr.position());
+                throw new SemanticException("Array dimension must be an integer.", expr.position());
             }
         }
 

@@ -20,7 +20,7 @@ public class NoFutureMakeInWhen extends x10Test {
 	public def run(): boolean = {
 	   try {
 		 val b=true;
-	     when (b=true) {
+	     when (b==true) {
 		    val x = Future.make[int](()=>0);
 	     }
 	   } catch (IllegalOperationException) {

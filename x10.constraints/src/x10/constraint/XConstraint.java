@@ -336,7 +336,7 @@ public class XConstraint implements Cloneable {
         	// that do not involve X1,..., Xn are entailed by c.
         	//if (p.term() ==null ||  p.term().isEQV())
         	//	continue;
-        	p.dump(null, result,  true);
+        	p.dump(null, result,  true, false);
         }
         return result;
     }
@@ -352,6 +352,9 @@ public class XConstraint implements Cloneable {
     public List<XTerm> extConstraints() {
         return extConstraints(new ArrayList<XTerm>());
     }
+    public List<XTerm> extConstraintsHideFake() {
+        return extConstraintsHideFake(new ArrayList<XTerm>());
+    }
 
     /**
 	 * Return (appended to result) a list of bindings t1-> t2 equivalent to the current
@@ -364,11 +367,18 @@ public class XConstraint implements Cloneable {
         if (roots == null)
             return result;
         for (XPromise p : roots.values()) {
-            p.dump(null, result, false);
+            p.dump(null, result, false, false);
         }
         return result;
     }
-    
+    public List<XTerm> extConstraintsHideFake(List<XTerm> result) {
+        if (roots == null)
+            return result;
+        for (XPromise p : roots.values()) {
+            p.dump(null, result, false, true);
+        }
+        return result;
+    }
 	/**
 	 * Does this entail a != b?
 	 * @param a
@@ -569,7 +579,7 @@ public class XConstraint implements Cloneable {
             str += constr.substring(1, constr.length() - 1);
         }
         else {
-            String constr = c.extConstraints().toString();
+            String constr = c.extConstraintsHideFake().toString();
             str += constr.substring(1, constr.length() - 1);
         }
         
@@ -919,7 +929,6 @@ public class XConstraint implements Cloneable {
         }
     }
     
-    @SuppressWarnings({ "unchecked"})
 	protected void applySubstitution(XTerm y, XVar x) throws XFailure {
         if (roots == null) {
             // nothing to substitute

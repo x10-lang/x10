@@ -29,7 +29,6 @@ namespace x10 {
     namespace lang {
 
         template<class T> class Rail;
-        template<class T> class ValRail;
 
         class String : public Object {
             const char *FMGL(content);
@@ -112,16 +111,16 @@ namespace x10 {
                 return substring(start, this->length());
             }
 
-            x10aux::ref<ValRail<x10aux::ref<String> > > split(x10aux::ref<String> pat);
+            x10aux::ref<Rail<x10aux::ref<String> > > split(x10aux::ref<String> pat);
 
             // Forwarding method needed so that String can be used in Generic contexts (T <: (nat)=>char)
             x10_char apply(x10_int i) { return charAt(i); }
             
             x10_char charAt(x10_int i);
 
-            x10aux::ref<ValRail<x10_char> > chars();
+            x10aux::ref<Rail<x10_char> > chars();
 
-            x10aux::ref<ValRail<x10_byte> > bytes();
+            x10aux::ref<Rail<x10_byte> > bytes();
 
             static void _serialize(x10aux::ref<String> this_,
                                    x10aux::serialization_buffer &buf);
@@ -141,10 +140,7 @@ namespace x10 {
             virtual void _destructor();
 
             static x10aux::ref<String> format(x10aux::ref<String> format,
-                                              x10aux::ref<ValRail<x10aux::ref<Any> > > parms);
-
-            static x10aux::ref<String> format(x10aux::ref<String> format,
-                                              x10aux::ref<Rail<x10aux::ref<Any> > > parms);
+                                              x10aux::ref<x10::array::Array<x10aux::ref<Any> > > parms);
 
             virtual x10_boolean equals(x10aux::ref<x10::lang::Any> p0);
 

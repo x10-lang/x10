@@ -36,6 +36,7 @@ import x10.types.X10Context;
 import x10.types.X10Flags;
 import x10.types.X10MethodInstance;
 import x10.types.X10TypeSystem;
+import x10.types.checker.Checker;
 import x10.types.checker.PlaceChecker;
 
 /**
@@ -82,15 +83,14 @@ public class ForLoop_c extends X10Loop_c implements ForLoop {
 	    // TODO: generate a cast if STATIC_CALLS is off
 	    X10MethodInstance mi = null;
 	    Expr domain = result.domain();
-	    mi = ClosureCall_c.findAppropriateMethod(tc, domain.type(), ITERATOR, Collections.<Type>emptyList(), Collections.<Type>emptyList());
+	    mi = Checker.findAppropriateMethod(tc, domain.type(), ITERATOR, Collections.<Type>emptyList(), Collections.<Type>emptyList());
 	    assert (mi != null);
 	    domain = (Expr) PlaceChecker.makeReceiverLocalIfNecessary(tc, domain, X10Flags.toX10Flags(mi.flags()));
 	    if (domain != null) {
 	        if (domain != result.domain()) result = result.domain(domain);
 	    } else if (!xts.isUnknown(result.domain().type())) {
 	        Errors.issue(tc.job(),
-	                new SemanticException("The domain of this iterated for loop must be local",
-	                        result.domain().position()));
+	                new SemanticException("The domain of this iterated for loop must be local",result.domain().position()));
 	    }
 	    return result;
 	}

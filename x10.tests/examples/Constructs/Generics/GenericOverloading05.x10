@@ -27,8 +27,8 @@ public class GenericOverloading05 extends GenericTest {
 
     def m(String) = 0;
     def m(int) = 1;
-    def m(ValRail[String]) = 2;
-    def m(ValRail[int]) = 3;
+    def m(Array[String]) = 2;
+    def m(Array[int]) = 3;
 
     public def run(): boolean = {
 

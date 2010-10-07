@@ -4,6 +4,7 @@ import java.util.Map;
 
 public class CodedErrorInfo extends ErrorInfo {
 	int errorCode;
+	public static final String ERROR_CODE_KEY= "errorCode";
 	Map<String, Object> attributes;
 
 	public CodedErrorInfo(int kind, String message, Position position,
@@ -13,7 +14,7 @@ public class CodedErrorInfo extends ErrorInfo {
 	}
 
 	public int getErrorCode() {
-		return (Integer) attributes.get("ERROR_CODE");
+		return (Integer) attributes.get(ERROR_CODE_KEY);
 	}
 
 	public Map<String, Object> getAttributes() {

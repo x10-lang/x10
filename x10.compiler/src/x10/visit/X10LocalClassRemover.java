@@ -12,19 +12,12 @@
 package x10.visit;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
-import polyglot.ast.Call;
 import polyglot.ast.ClassBody;
 import polyglot.ast.ClassDecl;
 import polyglot.ast.ConstructorCall;
 import polyglot.ast.Expr;
-import polyglot.ast.Field;
-import polyglot.ast.FieldAssign;
-import polyglot.ast.Formal;
-import polyglot.ast.Local;
-import polyglot.ast.LocalDecl;
 import polyglot.ast.New;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
@@ -33,13 +26,11 @@ import polyglot.frontend.Job;
 import polyglot.types.ClassDef;
 import polyglot.types.CodeDef;
 import polyglot.types.ConstructorDef;
-import polyglot.types.ConstructorInstance;
 import polyglot.types.Context;
 import polyglot.types.FieldDef;
-import polyglot.types.LocalDef;
+import polyglot.types.LocalInstance;
 import polyglot.types.MethodDef;
 import polyglot.types.Name;
-import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
@@ -51,21 +42,17 @@ import polyglot.visit.InnerClassRemover;
 import polyglot.visit.LocalClassRemover;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.TypeBuilder;
-import x10.ast.AssignPropertyCall;
-import x10.ast.Closure;
-import x10.ast.ClosureCall;
-import x10.ast.DepParameterExpr;
-import x10.ast.SettableAssign;
 import x10.ast.TypeParamNode;
 import x10.ast.X10ClassDecl;
 import x10.ast.X10NodeFactory;
-import x10.types.ClosureDef;
 import x10.types.ParameterType;
 import x10.types.TypeParamSubst;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
+import x10.types.X10CodeDef;
 import x10.types.X10ConstructorInstance;
 import x10.types.X10Context_c;
+import x10.types.X10MethodDef;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 
@@ -80,78 +67,6 @@ public class X10LocalClassRemover extends LocalClassRemover {
         return nf.CanonicalTypeNode(pos, ts.Object());
     }
 
-//    protected static TypeParamSubst subst(X10ClassType container) {
-//        X10ClassDef def = (X10ClassDef) container.def();
-//
-//        List<Type> typeArgs = new ArrayList<Type>();
-//        List<ParameterType> typeParams = new ArrayList<ParameterType>();
-//
-//        X10ClassDef outer = (X10ClassDef) Types.get(def.outer());
-//        if (def.typeParameters().size() > 0) {
-//            for (int i = 0; i < container.typeArguments().size(); i++) {
-//                Type ti = container.typeArguments().get(i);
-//                if (ti instanceof ParameterType) {
-//                    ParameterType pt = (ParameterType) ti;
-//                    if (Types.get(pt.def()) == def) {
-//                        X10ClassType outerType = (X10ClassType) outer.asType();
-//                        if (outerType.typeArguments().size() > 0) {
-//                            int j = i - container.typeArguments().size() + outerType.typeArguments().size();
-//                            assert 0 <= j && j < outerType.typeArguments().size() : "def " + def + "#" + def.typeParameters() + " outerType " + outerType + "#" + outerType.typeArguments() + " j " + j;
-//                            Type otj = outerType.typeArguments().get(j);
-//                            typeArgs.add(otj);
-//                            typeParams.add(pt);
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//
-//        if (typeParams.size() > 0) {
-//            X10TypeSystem ts = (X10TypeSystem) def.typeSystem();
-//            TypeParamSubst subst = new TypeParamSubst(ts, typeArgs, typeParams);
-//            return subst;
-//        }
-//
-//        return null;
-//    }
-    
-    protected static TypeParamSubst inverseSubst(X10ClassType container) {
-        X10ClassDef def = (X10ClassDef) container.def();
-        
-        List<Type> typeArgs = new ArrayList<Type>();
-        List<ParameterType> typeParams = new ArrayList<ParameterType>();
-        
-        X10ClassDef outer = (X10ClassDef) Types.get(def.outer());
-        if (def.typeParameters().size() > 0) {
-            for (int i = 0; i < container.typeArguments().size(); i++) {
-                Type ti = container.typeArguments().get(i);
-                if (ti instanceof ParameterType) {
-                    ParameterType pt = (ParameterType) ti;
-                    if (Types.get(pt.def()) == def) {
-                        X10ClassType outerType = (X10ClassType) outer.asType();
-                        if (outerType.typeArguments().size() > 0) {
-                            int j = i - container.typeArguments().size() + outerType.typeArguments().size();
-                            assert 0 <= j && j < outerType.typeArguments().size() : "def " + def + "#" + def.typeParameters() + " outerType " + outerType + "#" + outerType.typeArguments() + " j " + j;
-                            Type otj = outerType.typeArguments().get(j);
-                            if (otj instanceof ParameterType) {
-                                typeParams.add((ParameterType) otj);
-                                typeArgs.add(pt);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        
-        if (typeArgs.size() > 0) {
-            X10TypeSystem ts = (X10TypeSystem) def.typeSystem();
-            TypeParamSubst subst = new TypeParamSubst(ts, typeArgs, typeParams);
-            return subst;
-        }
-        
-        return null;
-    }
-
     protected class X10ConstructorCallRewriter extends ConstructorCallRewriter {
         private List<? extends Type> typeArgs;
         public X10ConstructorCallRewriter(List<FieldDef> fields, ClassDef ct, List<? extends Type> typeArgs) {
@@ -164,7 +79,7 @@ public class X10LocalClassRemover extends LocalClassRemover {
             
             if (n_ instanceof New) {
                 New neu = (New) n_;
-                ConstructorInstance ci = neu.constructorInstance();
+                X10ConstructorInstance ci = (X10ConstructorInstance) neu.constructorInstance();
                 ConstructorDef nci = ci.def();
                 X10ClassType container = (X10ClassType) Types.get(nci.container());
                 
@@ -172,9 +87,10 @@ public class X10LocalClassRemover extends LocalClassRemover {
                     X10ClassType type = (X10ClassType) X10TypeMixin.baseType(neu.objectType().type());
                     List<Type> ta = new ArrayList<Type>(type.typeArguments());
                     List<ParameterType> params = type.x10Def().typeParameters();
-                    if (ta.equals(params) || (ta.isEmpty() && !params.isEmpty())) {
+                    if (!params.isEmpty() && (ta.equals(params) || ta.isEmpty())) {
                         ta.clear();
                         ta.addAll(typeArgs);
+                        assert (typeArgs.size() == params.size());
                     }
                     TypeParamSubst subst = new TypeParamSubst((X10TypeSystem) ts, ta, params);
                     X10ConstructorInstance xci = (X10ConstructorInstance) subst.reinstantiate(ci);
@@ -198,8 +114,8 @@ public class X10LocalClassRemover extends LocalClassRemover {
         }
     }
 
-    public X10LocalClassRemover(Job job, TypeSystem ts, NodeFactory nf) {
-        super(job, ts, nf);
+    public X10LocalClassRemover(X10InnerClassRemover icrv) {
+        super(icrv);
     }
 
     @Override
@@ -217,166 +133,83 @@ public class X10LocalClassRemover extends LocalClassRemover {
         return t;
     }
 
+    /**
+     * Rewrites the class L as follows:
+     * <pre>
+     * class X[A,B]{g} {
+     *     def m[C,D](){h} {
+     *         class L[E,F]{c} extends S[A,B,C,D,E,F] {
+     *             body
+     *         }
+     *         val v = new L[P,Q]();
+     *     }
+     * }
+     * </pre>
+     * to
+     * <pre>
+     * class X[A,B]{g} {
+     *     class L'[E,F,C',D']{c[C'/C,D'/D]&&h[C'/C,D'/D]} extends S[A,B,C',D',E,F] {
+     *         body[C'/C,D'/D]
+     *     }
+     *     def m[C,D]() {
+     *         val v = new L[P,Q,C,D]();
+     *     }
+     * }
+     * </pre>
+     */
     @Override
     protected ClassDecl rewriteLocalClass(ClassDecl n, List<FieldDef> newFields) {
-        if (n instanceof X10ClassDecl && n.classDef().isMember() && !n.classDef().flags().isStatic()) {
-            X10ClassDecl cd = (X10ClassDecl) n;
-            X10ClassDef def = (X10ClassDef) cd.classDef();
-            X10ClassDef outer = (X10ClassDef) Types.get(def.outer());
-            assert outer != null;
+        assert (n instanceof X10ClassDecl && n.classDef().isMember());
+        X10ClassDecl cd = (X10ClassDecl) n;
+        X10ClassDef def = cd.classDef();
+        X10ClassDef outer = (X10ClassDef) Types.get(def.outer());
+        X10CodeDef method = (X10CodeDef) context.currentCode();
+        assert outer != null;
+        assert method != null;
 
-            List<TypeParamNode> params = new ArrayList<TypeParamNode>();
+        List<TypeParamNode> params = new ArrayList<TypeParamNode>();
+        List<ParameterType> typeParameters = new ArrayList<ParameterType>();
+        List<ParameterType.Variance> variances = new ArrayList<ParameterType.Variance>();
 
-            for (int i = 0; i < outer.typeParameters().size(); i++) {
-                ParameterType p = outer.typeParameters().get(i);
-                ParameterType.Variance v = outer.variances().get(i);
-
-                X10NodeFactory xnf = (X10NodeFactory) nf;
-                TypeParamNode pn = xnf.TypeParamNode(n.position(), xnf.Id(n.position(), Name.makeFresh(p.name())), v);
-                TypeBuilder tb = new TypeBuilder(job, ts, nf);
-                try {
-                    tb = tb.pushClass(outer);
-                    tb = tb.pushClass(def);
-                    pn = (TypeParamNode) pn.del().buildTypes(tb);
-                    def.addTypeParameter(pn.type(), v);
-                }
-                catch (SemanticException e) {
-                    throw new InternalCompilerError(e);
-                }
-                params.add(pn);
-            }
-
-            if (! params.isEmpty()) {
-                cd = cd.typeParameters(params);
-                TypeParamSubst subst = new TypeParamSubst((X10TypeSystem) ts, def.typeParameters(), outer.typeParameters());
-                cd = rewriteTypeParams(subst, cd, outer);
-            }
-
-            n = cd.body((ClassBody) rewriteConstructorCalls(cd.body(), def, newFields, def.typeParameters()));
-        } else {
-            n = n.body((ClassBody) rewriteConstructorCalls(n.body(), n.classDef(), newFields));
+        typeParameters.addAll(method.typeParameters());
+        for (ParameterType pt : method.typeParameters()) {
+            // methods cannot have variant type parameters
+            variances.add(ParameterType.Variance.INVARIANT);
         }
 
-        return InnerClassRemover.addFieldsToClass(n, newFields, ts, nf, false);
+        for (int i = 0; i < typeParameters.size(); i++) {
+            ParameterType p = typeParameters.get(i);
+            ParameterType.Variance v = variances.get(i);
+
+            X10NodeFactory xnf = (X10NodeFactory) nf;
+            TypeParamNode pn = xnf.TypeParamNode(n.position(), xnf.Id(n.position(), Name.makeFresh(p.name())), v);
+            TypeBuilder tb = new TypeBuilder(job, ts, nf);
+            try {
+                tb = tb.pushClass(outer);
+                tb = tb.pushCode(method);
+                tb = tb.pushClass(def);
+                pn = (TypeParamNode) pn.del().buildTypes(tb);
+                def.addTypeParameter(pn.type(), v);
+            }
+            catch (SemanticException e) {
+                throw new InternalCompilerError(e);
+            }
+            params.add(pn);
+        }
+
+        if (! params.isEmpty()) {
+            cd = cd.typeParameters(params);
+            TypeParamSubst subst = new TypeParamSubst((X10TypeSystem) ts, def.typeParameters(), typeParameters);
+            cd = rewriteTypeParams(subst, cd);
+        }
+
+        n = cd.body((ClassBody) rewriteConstructorCalls(cd.body(), def, newFields, def.typeParameters()));
+
+        return icrv.addFieldsToClass(n, newFields, ts, nf, false);
     }
 
-    private X10ClassDecl rewriteTypeParams(final TypeParamSubst subst, X10ClassDecl cd, final X10ClassDef outer) {
-        return (X10ClassDecl) cd.visit(new NodeVisitor() {
-            final HashMap<LocalDef, LocalDef> vars = new HashMap<LocalDef, LocalDef>();
-            // TODO: integrate this with instantiate() in the Inliner
-            @Override
-            public Node leave(Node old, Node n, NodeVisitor v) {
-                if (n instanceof TypeParamNode) {
-                    TypeParamNode pn = (TypeParamNode) n;
-                    if (pn.type().def().get() == outer) {
-                        ParameterType pt = subst.reinstantiate(pn.type());
-                        if (pt == pn.type()) {
-                            assert false : "parameter " + pt + " not found in " + outer;
-                        }
-                        pn = pn.name(nf.Id(pn.position(), pt.name()));
-                        pn = pn.type(pt);
-                    }
-                    return pn;
-                }
-                if (n instanceof TypeNode) {
-                    TypeNode tn = (TypeNode) n;
-                    Type t = tn.type();
-                    Type t2 = subst.reinstantiateType(t);
-                    if (t != t2)
-                        ((Ref<Type>) tn.typeRef()).update(t2);
-                    return tn;
-                }
-                if (n instanceof LocalDecl) {
-                    LocalDecl d = (LocalDecl) n;
-                    boolean sigChanged = d.type() != ((LocalDecl) old).type(); // conservative compare detects changes in substructure
-                    if (sigChanged) {
-                        LocalDef ld = d.localDef();
-                        Name name = ld.name();
-                        LocalDef ild = ts.localDef(ld.position(), ld.flags(), d.type().typeRef(), name);
-                        vars.put(ld, ild);
-                        d = d.localDef(ild);
-                    }
-                    return d;
-                }
-                if (n instanceof ConstructorCall) {
-                    ConstructorCall c = (ConstructorCall) n;
-                    return c.constructorInstance(subst.reinstantiate(c.constructorInstance()));
-                }
-                if (n instanceof Expr) {
-                    Expr e = (Expr) n;
-                    Type t = e.type();
-                    t = subst.reinstantiateType(t);
-                    e = e.type(t);
-                    if (n instanceof Call) {
-                        Call c = (Call) n;
-                        return c.methodInstance(subst.reinstantiate(c.methodInstance()));
-                    }
-                    if (n instanceof New) {
-                        New x = (New) n;
-                        return x.constructorInstance(subst.reinstantiate(x.constructorInstance()));
-                    }
-                    if (n instanceof ClosureCall) {
-                        ClosureCall c = (ClosureCall) n;
-                        return c.closureInstance(subst.reinstantiate(c.closureInstance()));
-                    }
-                    if (n instanceof Field) {
-                        Field f = (Field) n;
-                        return f.fieldInstance(subst.reinstantiate(f.fieldInstance()));
-                    }
-                    if (n instanceof Local) {
-                        Local l = (Local) n;
-                        return l.localInstance(subst.reinstantiate(getLocal(l.localInstance().def()).asInstance()));
-                    }
-                    if (n instanceof FieldAssign) {
-                        FieldAssign f = (FieldAssign) n;
-                        return f.fieldInstance(subst.reinstantiate(f.fieldInstance()));
-                    }
-                    if (n instanceof Closure) {
-                        Closure d = (Closure) n;
-                        boolean sigChanged = d.returnType() != ((Closure) old).returnType();
-                        List<Ref<? extends Type>> argTypes = new ArrayList<Ref<? extends Type>>();
-                        List<LocalDef> formalNames = new ArrayList<LocalDef>();
-                        List<Formal> params = d.formals();
-                        List<Formal> oldParams = ((Closure) old).formals();
-                        for (int i = 0; i < params.size(); i++) {
-                            Formal p = params.get(i);
-                            sigChanged |= p != oldParams.get(i);
-                            argTypes.add(p.type().typeRef());
-                            formalNames.add(p.localDef());
-                        }
-                        sigChanged |= d.guard() != ((Closure) old).guard();
-                        List<Ref <? extends Type>> excTypes = new ArrayList<Ref<? extends Type>>();
-                      
-                        if (sigChanged) {
-                            ClosureDef cd = (ClosureDef) d.closureDef();
-                            DepParameterExpr g = d.guard();
-                            ClosureDef icd = ((X10TypeSystem) ts).closureDef(cd.position(), cd.typeContainer(), cd.methodContainer(),
-                                                         d.returnType().typeRef(),
-                                                         argTypes, cd.thisVar(), formalNames,
-                                                         g == null ? null : g.valueConstraint(),
-                                                          null);
-                            return d.closureDef(icd);
-                        }
-                        return d;
-                    }
-                    if (n instanceof AssignPropertyCall) {
-                        AssignPropertyCall a = (AssignPropertyCall) n;
-                        return a.properties(subst.reinstantiate(a.properties()));
-                    }
-                    if (n instanceof SettableAssign) {
-                        SettableAssign a = (SettableAssign) n;
-                        return a.methodInstance(subst.reinstantiate(a.methodInstance()))
-                                .applyMethodInstance(subst.reinstantiate(a.applyMethodInstance()));
-                    }
-                    return e;
-                }
-                return n;
-            }
-            private LocalDef getLocal(LocalDef def) {
-                LocalDef remappedDef = vars.get(def);
-                return remappedDef != null ? remappedDef : def;
-            }
-        });
+    private X10ClassDecl rewriteTypeParams(final TypeParamSubst subst, X10ClassDecl cd) {
+        return (X10ClassDecl) cd.visit(new NodeTransformingVisitor(job, ts, nf, new TypeParamSubstTransformer(subst)).context(context));
     }
 
     @Override
@@ -398,13 +231,6 @@ public class X10LocalClassRemover extends LocalClassRemover {
         }
         // FIX:XTENLANG-1159
         return xcon.isValInScopeInClass(name);
-    }
-    
-    @Override
-    protected Node rewriteConstructorCalls(Node s, final ClassDef ct, final List<FieldDef> fields) {
-        X10ClassDef def = (X10ClassDef) ct;
-        X10ClassDef outer = (X10ClassDef) Types.get(def.outer());
-        return rewriteConstructorCalls(s, ct, fields, outer.typeParameters());
     }
     
     protected Node rewriteConstructorCalls(Node s, final ClassDef ct, final List<FieldDef> fields, List<? extends Type> typeArgs) {

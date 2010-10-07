@@ -11,9 +11,6 @@
 
 package x10.rtt;
 
-import x10.core.fun.Fun_0_1;
-import x10.core.fun.Fun_0_2;
-
 
 public class DoubleType extends RuntimeType<Double> {
     public DoubleType() {
@@ -51,8 +48,7 @@ public class DoubleType extends RuntimeType<Double> {
     
     @Override
     public Double setArray(Object array, int i, Double v) {
-        ((double[]) array)[i] = v;
-        return v;
+        return ((double[]) array)[i] = v;
     }
     
     @Override
@@ -60,138 +56,4 @@ public class DoubleType extends RuntimeType<Double> {
     	return ((double[]) array).length;
     }
     
-    @Override
-    public Fun_0_1<Double, Double> absOperator() {
-        return new Fun_0_1<Double, Double>() {
-            public Double apply(Double x, Type t) {
-                return (double) Math.abs(x);
-            }
-            public RuntimeType<?> getRTT() { return _RTT; }
-            public Type<?> getParam(int i) {if (i == 0 || i == 1) return Types.DOUBLE; return null;}
-        };
-    }
-    @Override
-    public Fun_0_1<Double, Double> scaleOperator(final int k) {
-        return new Fun_0_1<Double, Double>() {
-            public Double apply(Double x, Type t) {
-                return (double) (x * k);
-            }
-            public RuntimeType<?> getRTT() { return _RTT; }
-            public Type<?> getParam(int i) {if (i == 0 || i == 1) return Types.DOUBLE; return null;}
-        };
-    }
-    
-    @Override
-    public Fun_0_2<Double, Double, Double> addOperator() {
-        return new Fun_0_2<Double, Double, Double>() {
-            public Double apply(Double x, Type t1, Double y, Type t2) {
-                return (double) (x + y);
-            }
-            public RuntimeType<?> getRTT() { return _RTT; }
-            public Type<?> getParam(int i) {if (i == 0 || i == 1 || i == 2) return Types.DOUBLE; return null;}
-        };
-    }
-    @Override
-    public Fun_0_2<Double, Double, Double> subOperator() {
-        return new Fun_0_2<Double, Double, Double>() {
-            public Double apply(Double x, Type t1, Double y, Type t2) {
-                return (double) (x - y);
-            }
-            public RuntimeType<?> getRTT() { return _RTT; }
-            public Type<?> getParam(int i) {if (i == 0 || i == 1 || i == 2) return Types.DOUBLE; return null;}
-        };
-    }
-    @Override
-    public Fun_0_2<Double, Double, Double> mulOperator() {
-        return new Fun_0_2<Double, Double, Double>() {
-            public Double apply(Double x, Type t1, Double y, Type t2) {
-                return (double) (x * y);
-            }
-            public RuntimeType<?> getRTT() { return _RTT; }
-            public Type<?> getParam(int i) {if (i == 0 || i == 1 || i == 2) return Types.DOUBLE; return null;}
-        };
-    }
-    @Override
-    public Fun_0_2<Double, Double, Double> divOperator() {
-        return new Fun_0_2<Double, Double, Double>() {
-            public Double apply(Double x, Type t1, Double y, Type t2) {
-                return (double) (x / y);
-            }
-            public RuntimeType<?> getRTT() { return _RTT; }
-            public Type<?> getParam(int i) {if (i == 0 || i == 1 || i == 2) return Types.DOUBLE; return null;}
-        };
-    }
-    @Override
-    public Fun_0_2<Double, Double, Double> modOperator() {
-        return new Fun_0_2<Double, Double, Double>() {
-            public Double apply(Double x, Type t1, Double y, Type t2) {
-                return (double) (x % y);
-            }
-            public RuntimeType<?> getRTT() { return _RTT; }
-            public Type<?> getParam(int i) {if (i == 0 || i == 1 || i == 2) return Types.DOUBLE; return null;}
-
-        };
-    }
-    @Override
-    public Fun_0_2<Double, Double, Double> maxOperator() {
-        return new Fun_0_2<Double, Double, Double>() {
-            public Double apply(Double x, Type t1, Double y, Type t2) {
-                return (x > y ? x : y);
-            }
-            public RuntimeType<?> getRTT() { return _RTT; }
-            public Type<?> getParam(int i) {if (i == 0 || i == 1 || i == 2) return Types.DOUBLE; return null;}
-        };
-    }
-    @Override
-    public Fun_0_2<Double, Double, Double> minOperator() {
-        return new Fun_0_2<Double, Double, Double>() {
-            public Double apply(Double x, Type t1, Double y, Type t2) {
-                return (x < y ? x : y);
-            }
-            public RuntimeType<?> getRTT() { return _RTT; }
-            public Type<?> getParam(int i) {if (i == 0 || i == 1 || i == 2) return Types.DOUBLE; return null;}
-        };
-    }
-    
-    @Override
-    public Fun_0_1<Double, Double> negOperator() {
-        return new Fun_0_1<Double, Double>() {
-            public Double apply(Double x, Type t) {
-                return (double) -x;
-            }
-            public RuntimeType<?> getRTT() { return _RTT; }
-            public Type<?> getParam(int i) {if (i == 0 || i == 1) return Types.DOUBLE; return null;}
-        };
-    }
-    
-    @Override
-    public Fun_0_1<Double, Double> posOperator() {
-        return new Fun_0_1<Double, Double>() {
-            public Double apply(Double x, Type t) {
-                return (double) +x;
-            }
-            public RuntimeType<?> getRTT() { return _RTT; }
-            public Type<?> getParam(int i) {if (i == 0 || i == 1) return Types.DOUBLE; return null;}
-        };
-    }
-    
-    @Override
-    public Double minValue() {
-        return Double.MIN_VALUE;
-    }
-
-    @Override
-    public Double maxValue() {
-        return Double.MAX_VALUE;
-    }
-    
-    @Override
-    public Double zeroValue() {
-        return 0.0;
-    }
-    
-    @Override
-    public Double unitValue() {
-        return 1.0;
-    }
 }

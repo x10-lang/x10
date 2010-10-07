@@ -84,7 +84,9 @@ import polyglot.visit.NodeVisitor;
 import polyglot.visit.PruningVisitor;
 import polyglot.visit.ReachChecker;
 import polyglot.visit.Translator;
+import x10.ast.X10NodeFactory;
 import x10.ast.X10NodeFactory_c;
+import x10.compiler.ws.WSCodeGenerator;
 import x10.errors.Warnings;
 import x10.extension.X10Ext;
 import x10.finish.table.CallTableKey;
@@ -101,7 +103,6 @@ import x10.types.X10TypeSystem;
 import x10.types.X10TypeSystem_c;
 import x10.visit.CheckNativeAnnotationsVisitor;
 import x10.visit.Desugarer;
-import x10.visit.ExprFlattener;
 import x10.visit.ExpressionFlattener;
 import x10.visit.FieldInitializerMover;
 import x10.visit.FinishAsyncVisitor;
@@ -395,17 +396,16 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            goals.add(ConformanceChecked(job));
 
            // Data-flow analyses
-           goals.add(ReachabilityChecked(job));
+           goals.add(ReachabilityChecked(job)); // This must be the first dataflow analysis (see DataFlow.reportCFG_Errors)
        //    goals.add(ExceptionsChecked(job));
            goals.add(ExitPathsChecked(job));
            goals.add(InitializationsChecked(job));
            goals.add(ConstructorCallsChecked(job));
            goals.add(ForwardReferencesChecked(job));
 //           goals.add(CheckNativeAnnotations(job));
+           goals.add(CheckEscapingThis(job));
            goals.add(CheckASTForErrors(job));
 //           goals.add(TypeCheckBarrier());
-
-           goals.add(new VisitorGoal("CheckEscapingThis", job, new CheckEscapingThis.Main(job)));
 
            goals.add(End(job));
        }
@@ -454,11 +454,8 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            goals.add(Serialized(job));
            if (x10.Configuration.WORK_STEALING) {
                Goal wsCodeGenGoal = WSCodeGenerator(job);
-               if(wsCodeGenGoal != null) {
-                   goals.add(wsCodeGenGoal);                   
-                   wsCodeGenGoal.addPrereq(TypeCheckBarrier());
-                   //wsCodeGenGoal.addPrereq(WSExpressionFlattener(job));
-               }
+               goals.add(wsCodeGenGoal);                   
+               wsCodeGenGoal.addPrereq(WSCallGraphBarrier());
            }
            
            // try retypechecking before inlining
@@ -809,6 +806,10 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            return new ForgivingVisitorGoal("ForwardRefsChecked", job, new FwdReferenceChecker(job, ts, nf)).intern(this);
        }
 
+       public Goal CheckEscapingThis(Job job) {
+           return new VisitorGoal("CheckEscapingThis", job, new CheckEscapingThis.Main(job)).intern(this);
+       }
+
 
        public String nativeAnnotationLanguage() { return "java"; }
 
@@ -857,12 +858,6 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            return new ValidatingVisitorGoal("X10RewriteAtomicMethods", job, new RewriteAtomicMethodVisitor(job, ts, nf)).intern(this);
        }
        
-       public Goal X10ExprFlattened(Job job) {
-           TypeSystem ts = extInfo.typeSystem();
-           NodeFactory nf = extInfo.nodeFactory();
-           return new ValidatingVisitorGoal("X10ExprFlattened", job, new ExprFlattener(job, ts, nf)).intern(this);
-       }
-       
        public Goal X10Expanded(Job job) {
            TypeSystem ts = extInfo.typeSystem();
            NodeFactory nf = extInfo.nodeFactory();
@@ -880,32 +875,27 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            NodeFactory nf = extInfo.nodeFactory();
            return new ValidatingVisitorGoal("MainMethodFinder", job, new MainMethodFinder(job, ts, nf, hasMain)).intern(this);
        }
+       
+       public Goal WSCallGraphBarrier() {
+           final X10TypeSystem ts = (X10TypeSystem) extInfo.typeSystem();
+           final X10NodeFactory nf = (X10NodeFactory) extInfo.nodeFactory();
+           return new AllBarrierGoal("WSCallGraphBarrier", this) {
+               @Override
+               public Goal prereqForJob(Job job) {
+                   return TypeChecked(job);
+               }
+               @Override
+               public boolean runTask() {
+                   WSCodeGenerator.buildCallGraph(ts, nf, nativeAnnotationLanguage());
+                   return true;
+               }
+           }.intern(this);
+       }
 
        public Goal WSCodeGenerator(Job job) {
            TypeSystem ts = extInfo.typeSystem();
            NodeFactory nf = extInfo.nodeFactory();
-
-           Goal result = null;          
-                      
-           try {
-               //Use reflect to load the class from
-               ClassLoader cl = Thread.currentThread().getContextClassLoader();
-               Class<?> c = cl
-               .loadClass("x10.compiler.ws.WSCodeGenerator");
-               Constructor<?> con = c.getConstructor(Job.class,
-                                                     TypeSystem.class,
-                                                     NodeFactory.class,
-                                                     String.class);
-               ContextVisitor wsvisitor = (ContextVisitor) con.newInstance(job, ts, nf, nativeAnnotationLanguage());
-               result = new ValidatingVisitorGoal("WSCodeGenerator", job, wsvisitor).intern(this);
-           }
-           catch (ClassNotFoundException e) {
-               System.err.println("[X10_WS_ERR]Cannot load Work-Stealing code gen class. Ignore Work-Stealing transform.");
-           } catch (Throwable e) {
-               System.err.println("[X10_WS_ERR]Error in load Work-Stealing code gen class. Ignore Work-Stealing transform.");
-               e.printStackTrace();
-           }
-           return result;
+           return new ValidatingVisitorGoal("WSCodeGenerator", job, new WSCodeGenerator(job, ts, nf)).intern(this);
        }
        
        public Goal Desugarer(Job job) {

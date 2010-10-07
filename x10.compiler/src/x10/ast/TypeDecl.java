@@ -15,6 +15,9 @@ import polyglot.ast.ClassMember;
 import polyglot.ast.TopLevelDecl;
 import x10.types.TypeDef;
 
-public interface TypeDecl extends TopLevelDecl, ClassMember {
+public interface TypeDecl extends TopLevelDecl, ClassMember, Guarded {
     TypeDef typeDef();
+
+    DepParameterExpr guard();
+    TypeDecl guard(DepParameterExpr e);
 }

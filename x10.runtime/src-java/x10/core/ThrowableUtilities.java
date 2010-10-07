@@ -19,13 +19,13 @@ import x10.rtt.RuntimeType;
 
 public class ThrowableUtilities {
 
-    public static ValRail<String> getStackTrace(Throwable t) {
+    public static Rail<String> getStackTrace(Throwable t) {
         StackTraceElement[] elements = t.getStackTrace();
         String str[] = new String[elements.length];
         for (int i=0 ; i<elements.length ; ++i) {
             str[i] = elements[i].toString();
         }
-        return new ValRail<String>(new RuntimeType<String>(String.class),str.length,(Object)str);
+        return new Rail<String>(new RuntimeType<String>(String.class),str.length,(Object)str);
     }
     
     public static void printStackTrace(Throwable t, Object/*x10.io.Printer*/ p) {

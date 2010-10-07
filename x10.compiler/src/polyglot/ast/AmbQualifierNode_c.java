@@ -50,13 +50,13 @@ public class AmbQualifierNode_c extends Node_c implements AmbQualifierNode
 	return this.qual;
     }
 
-    public AmbQualifierNode qual(Prefix qual) {
+    protected AmbQualifierNode qual(Prefix qual) {
 	AmbQualifierNode_c n = (AmbQualifierNode_c) copy();
 	n.qual = qual;
 	return n;
     }
 
-    public AmbQualifierNode qualifier(LazyRef<Qualifier> qualifier) {
+    protected AmbQualifierNode qualifierRef(LazyRef<Qualifier> qualifier) {
 	AmbQualifierNode_c n = (AmbQualifierNode_c) copy();
 	n.qualifier = qualifier;
 	return n;
@@ -82,7 +82,7 @@ public class AmbQualifierNode_c extends Node_c implements AmbQualifierNode
     public Node buildTypes(TypeBuilder tb) throws SemanticException {
         TypeSystem ts = tb.typeSystem();
         LazyRef<Qualifier> sym = Types.<Qualifier>lazyRef(ts.unknownQualifier(position()), new SetResolverGoal(tb.job()));
-        return qualifier(sym);
+        return qualifierRef(sym);
     }
     
 	public Qualifier qualifier() {
@@ -109,9 +109,7 @@ public class AmbQualifierNode_c extends Node_c implements AmbQualifierNode
 				return n;
 			}
 
-			ex = new SemanticException("Could not find type or package \"" +
-					(qual == null ? name.toString() : qual.toString() + "." + name.toString()) +
-					"\".", position());
+			ex = new SemanticException("Could not find type or package \"" + (qual == null ? name.toString() : qual.toString() + "." + name.toString()) + "\".", position());
 		}
 		catch (SemanticException e) {
 			ex = e;

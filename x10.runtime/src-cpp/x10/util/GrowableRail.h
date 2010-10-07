@@ -22,7 +22,8 @@
 #include <x10/lang/Object.h>
 
 namespace x10 {
-
+    namespace array { template <class T> class Array; } 
+    
     namespace util {
 
         void _initRTTHelper_GrowableRail(x10aux::RuntimeType *location, const x10aux::RuntimeType *rtt);
@@ -65,19 +66,19 @@ namespace x10 {
             T set(T v, x10_int i);
 
             void add(T v);
-            void insert(x10_int loc, x10aux::ref<x10::lang::ValRail<T> > items);
+            void insert(x10_int loc, x10aux::ref<x10::lang::Rail<T> > items);
 
             T apply(x10_int i);
 
             void removeLast();
 
-            x10aux::ref<x10::lang::ValRail<T> > moveSectionToValRail(x10_int i, x10_int j);
+            x10aux::ref<x10::lang::Rail<T> > moveSectionToRail(x10_int i, x10_int j);
 
             x10_int length();
 
-            x10aux::ref<x10::lang::Rail<T> > toRail();
+            x10aux::ref<x10::array::Array<T> > toArray();
 
-            x10aux::ref<x10::lang::ValRail<T> > toValRail();
+            x10aux::ref<x10::lang::Rail<T> > toRail();
 
             void setLength(x10_int newLength);
 
@@ -99,6 +100,7 @@ namespace x10 {
 #ifndef __X10_UTIL_GROWABLERAIL_H_NODEPS
 #define __X10_UTIL_GROWABLERAIL_H_NODEPS
 #include <x10/lang/Rail.h>
+#include <x10/array/Array.h>
 #ifndef X10_UTIL_GROWABLERAIL_H_IMPLEMENTATION
 #define X10_UTIL_GROWABLERAIL_H_IMPLEMENTATION
 
@@ -128,7 +130,7 @@ namespace x10 {
         }
 
         template<class T> inline void GrowableRail<T>::insert(x10_int loc,
-                    x10aux::ref<x10::lang::ValRail<T> > items) {
+                    x10aux::ref<x10::lang::Rail<T> > items) {
             int addLen = items->FMGL(length);
             int newLen = _len + addLen;
             int movLen = _len - loc;
@@ -151,10 +153,10 @@ namespace x10 {
             shrink(_len+1);
         }
 
-        template<class T> x10aux::ref<x10::lang::ValRail<T> > GrowableRail<T>::moveSectionToValRail(int i, int j) {
-            int l = j - i + 1;
+        template<class T> x10aux::ref<x10::lang::Rail<T> > GrowableRail<T>::moveSectionToRail(x10_int i, x10_int j) {
+            x10_int l = j - i + 1;
             if (l < 0) l = 0;
-            x10aux::ref<x10::lang::ValRail<T> > ans = x10::lang::ValRail<T>::make(l);
+            x10aux::ref<x10::lang::Rail<T> > ans = x10::lang::Rail<void>::make<T>(l);
             if (l < 1) return ans;
             for (int k=0; k<l; k++) {
                 (*ans)[k] = (*_array)[i+k];
@@ -176,10 +178,10 @@ namespace x10 {
             return ans;
         }
 
-        template<class T> x10aux::ref<x10::lang::ValRail<T> > GrowableRail<T>::toValRail() {
-            x10aux::ref<x10::lang::ValRail<T> > ans = x10::lang::ValRail<T>::make(_len);
+        template<class T> x10aux::ref<x10::array::Array<T> > GrowableRail<T>::toArray() {
+            x10aux::ref<x10::array::Array<T> > ans = x10::array::Array<T>::_make(_len);
             for (int i=0; i<_len; i++) {
-                (*ans)[i] = (*_array)[i];
+                ans->set((*_array)[i], i);
             }
             return ans;
         }
@@ -273,7 +275,7 @@ namespace x10 {
         }
 
         template<class T> const x10aux::serialization_id_t GrowableRail<T>::_serialization_id =
-            x10aux::DeserializationDispatcher::addDeserializer(GrowableRail<T>::template _deserializer<Reference>);
+            x10aux::DeserializationDispatcher::addDeserializer(GrowableRail<T>::template _deserializer<x10::lang::Reference>);
 
         template<> class GrowableRail<void> {
         public:

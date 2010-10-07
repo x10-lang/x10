@@ -15,7 +15,6 @@ import harness.x10Test;
  * Synthetic benchmark to time array accesses.
  */
 public class ArrayIndexing extends x10Test {
-	var _tests: ValRail[String] = [ "testDouble" ];
 
 	static verbose: boolean = false;
 
@@ -54,10 +53,10 @@ public class ArrayIndexing extends x10Test {
                 var range4D: Region(4);
 
 		// Note: cannot do anything fancy with starting index--assume 0 based
-		range1D = [0..kArraySize];
-		range2D = [0..kArraySize, 0..kArraySize];
-		range3D = [1..4, 3..4, 1..20];
-		range4D = [0..2, 0..4, 2..10, 1..10];
+		range1D = 0..kArraySize;
+		range2D = (0..kArraySize)*(0..kArraySize);
+		range3D = (1..4)*(3..4)*(1..20);
+		range4D = (0..2)*(0..4)*(2..10)*(1..10);
 
 		x10.io.Console.OUT.println("Testing double arrays...");
 		var start: long = System.currentTimeMillis();

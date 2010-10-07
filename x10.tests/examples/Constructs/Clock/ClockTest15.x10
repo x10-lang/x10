@@ -79,31 +79,31 @@ public class ClockTest15 extends x10Test {
 		finish /* A0 */ async {
 			val a = Clock.make();
 			val b = Clock.make();
-			/* A1 */ async  clocked (a) at(here) {
+			/* A1 */ async  clocked (a)  {
 				atomic x++;
 				next;
 				var tmp: int;
 				atomic tmp = x;
-				x10.io.Console.OUT.println("A1 advanced, x = "+tmp);
+				x10.io.Console.OUT.println("A1 advanced, x (expected 2) = "+tmp);
 				chk (tmp == 2);
 				next;
 			}
-			/* A2 */ async  clocked (a, b) at(here) {
+			/* A2 */ async  clocked (a, b)  {
 				atomic x++;
 				next;
 				var tmp: int;
 				atomic tmp = x;
-				x10.io.Console.OUT.println("A2 advanced, x = "+tmp);
+				x10.io.Console.OUT.println("A2 advanced, x (expected 3) = "+tmp);
 				chk (tmp == 3);
 				next;
 			}
-			/* A3 */ async  clocked (b) at(here){
+			/* A3 */ async  clocked (b) {
 				Activity.sleep(5000);
 				atomic x++;
 				next;
 				var tmp: int;
 				atomic tmp = x;
-				x10.io.Console.OUT.println("A3 advanced, x = "+tmp);
+				x10.io.Console.OUT.println("A3 advanced, x (expected 3) = "+tmp);
 				chk (tmp == 3);
 				next;
 			}

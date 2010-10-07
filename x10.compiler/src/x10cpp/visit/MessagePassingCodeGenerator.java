@@ -45,6 +45,7 @@ import static x10cpp.visit.SharedVarsMethods.chevrons;
 import static x10cpp.visit.SharedVarsMethods.getId;
 import static x10cpp.visit.SharedVarsMethods.getUniqueId_;
 import static x10cpp.visit.SharedVarsMethods.make_ref;
+import static x10cpp.visit.SharedVarsMethods.make_captured_lval;
 import static x10cpp.visit.SharedVarsMethods.refsAsPointers;
 
 import java.util.ArrayList;
@@ -140,6 +141,7 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
+import polyglot.types.VarDef;
 import polyglot.types.VarInstance;
 import polyglot.util.CodeWriter;
 import polyglot.util.CollectionUtil;
@@ -210,6 +212,7 @@ import x10.types.X10Def;
 import x10.types.X10FieldDef;
 import x10.types.X10FieldInstance;
 import x10.types.X10Flags;
+import x10.types.X10LocalDef;
 import x10.types.X10MethodDef;
 import x10.types.X10MethodInstance;
 import x10.types.X10ParsedClassType_c;
@@ -1017,7 +1020,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		// (h,cc) pairing for non-generic classes.
 
 		// TODO: sort by namespace and combine things in the same namespace
-		X10SearchVisitor<Node> xTypes = new X10SearchVisitor<Node>(X10CanonicalTypeNode_c.class, Closure_c.class);
+		X10SearchVisitor<Node> xTypes = new X10SearchVisitor<Node>(X10CanonicalTypeNode_c.class, Closure_c.class, Tuple_c.class);
 		n.visit(xTypes);
 		ArrayList<ClassType> types = new ArrayList<ClassType>();
 		Set<ClassType> dupes = new HashSet<ClassType>();
@@ -1033,6 +1036,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		            ClassType c = t.type().toClass();
 		            assert (c.interfaces().size() == 1);
                     extractAllClassTypes(c.interfaces().get(0), types, dupes);
+		        } else if (tn instanceof Tuple_c) {
+		            extractAllClassTypes(((Tuple_c) tn).type(), types, dupes);
 		        }
 		    }
         }
@@ -2476,7 +2481,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             Type annotation = (Type) xts.systemResolver().find(QName.make("x10.compiler.StackAllocate"));
             if (!((X10Ext) dec.ext()).annotationMatching(annotation).isEmpty()) {
                 stackAllocate = true;
-                System.err.println("@StackAllocate " + dec);
+//                System.err.println("@StackAllocate " + dec);
             }
         } catch (SemanticException e) { 
             /* Ignore exception when looking for annotation */  
@@ -3283,7 +3288,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		    Type annotation = (Type) xts.systemResolver().find(QName.make("x10.compiler.StackAllocate"));
 		    if (!((X10Ext) n.ext()).annotationMatching(annotation).isEmpty()) {
 		        stackAllocate = true;
-		        System.err.println("@StackAllocate " + n);
+//		        System.err.println("@StackAllocate " + n);
 		    }
 		} catch (SemanticException e) {}
 		
@@ -4085,14 +4090,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         inc.newline(); inc.forceNewline();
 
         inc.write("// captured environment"); inc.newline();
-        List<Type> ats = closureDef.annotationsNamed(QName.make("x10.compiler.Ref"));
-        List<VarInstance<?>> refs = new ArrayList<VarInstance<?>>();
-        for (Type at : ats) {
-            Expr exp = ((X10ParsedClassType_c) at).propertyInitializer(0);
-            if (exp instanceof X10Local_c) {
-                refs.add(((X10Local_c) exp).varInstance());
-            }
-        }
+        List<VarInstance<?>> refs = computeBoxedRefs(c, closureDef);
 
         emitter.printDeclarationList(inc, c, c.variables, refs);
         inc.forceNewline();
@@ -4102,7 +4100,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         inc.write("return "+SERIALIZATION_ID_FIELD+";"); inc.end(); inc.newline();
         inc.write("}"); inc.newline(); inc.forceNewline();
 
-        generateClosureSerializationFunctions(c, cnamet, inc, n.body());
+        generateClosureSerializationFunctions(c, cnamet, inc, n.body(), refs);
 
 //        inc.write(cname+"("+SERIALIZATION_MARKER+") { }");
 //        inc.newline(); inc.forceNewline();
@@ -4116,7 +4114,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                 name = SAVED_THIS;
             else name = mangled_non_method_name(name);
             if (refs.contains(var)) {
-                inc.write(Emitter.translateType(var.type(), true) + "& " + name);
+                inc.write(make_captured_lval(var.type()) + " " + name);
             } else {
                 inc.write(Emitter.translateType(var.type(), true) + " " + name);
             }
@@ -4219,7 +4217,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                 name = SAVED_THIS;
             else if (X10TypeMixin.isX10Struct(var.type())) // FIXME: duplication from visit(X10Special_c)
                 name = "this_";
-            sw.write(name);
+            if (refs.contains(var)) {
+                sw.write("&("+name+")");
+            } else {
+                sw.write(name);
+            }
         }
         sw.write(")");
         if (!stackAllocateClosure) {
@@ -4230,9 +4232,30 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         emitter.exitClosure(c);
     }
 
-    protected void generateClosureSerializationFunctions(X10CPPContext_c c, String cnamet, StreamWrapper inc, Block block) {
-        inc.write("// TODO: handle serialization of ref fields correctly"); inc.newline(); inc.forceNewline();
+    protected List<VarInstance<?>> computeBoxedRefs(X10CPPContext_c c, ClosureDef closureDef) {
+        List<Type> ats = closureDef.annotationsNamed(QName.make("x10.compiler.Ref"));
+        List<VarInstance<?>> refs = new ArrayList<VarInstance<?>>();
+        for (Type at : ats) {
+            Expr exp = ((X10ParsedClassType_c) at).propertyInitializer(0);
+            if (exp instanceof X10Local_c) {
+                refs.add(((X10Local_c) exp).varInstance());
+            }
+        }
+        
+        for (VarInstance<?> var : c.variables) {
+            VarDef def = var.def();
+            if ((def instanceof X10LocalDef)) {
+                X10LocalDef ld = ((X10LocalDef)def);
+                if (ld.isAsyncInit() || !ld.flags().isFinal()) {
+                    refs.add(var);
+                }
+            }
+        }
+        return refs;
+    }
 
+    protected void generateClosureSerializationFunctions(X10CPPContext_c c, String cnamet, StreamWrapper inc, 
+                                                         Block block, List<VarInstance<?>> refs) {
         inc.write("void "+SERIALIZE_BODY_METHOD+"("+SERIALIZATION_BUFFER+" &buf) {");
         inc.newline(4); inc.begin(0);
         // FIXME: factor out this loop
@@ -4240,9 +4263,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             if (i > 0) inc.newline();
             VarInstance<?> var = (VarInstance<?>) c.variables.get(i);
             String name = var.name().toString();
-            if (name.equals(THIS))
+            if (name.equals(THIS)) {
                 name = SAVED_THIS;
-            else name = mangled_non_method_name(name);
+            } else {
+                name = mangled_non_method_name(name);
+            }
             inc.write("buf.write(this->" + name + ");");
         }
         inc.end(); inc.newline();
@@ -4257,12 +4282,19 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         for (int i = 0; i < c.variables.size(); i++) {
             VarInstance<?> var = (VarInstance<?>) c.variables.get(i);
             Type t = var.type();
-            String type = Emitter.translateType(t, true);
+            String type;
+            if (refs.contains(var)) {
+                type = make_captured_lval(t);
+            } else {
+                type = Emitter.translateType(t, true);
+            }
             String name = var.name().toString();
-            if (name.equals(THIS))
+            if (name.equals(THIS)) {
                 name = SAVED_THIS;
-            else name = mangled_non_method_name(name);
-            inc.write(type + " that_"+name+" = buf.read"+chevrons(Emitter.translateType(var.type(), true))+"();");
+            } else {
+                name = mangled_non_method_name(name);
+            }
+            inc.write(type + " that_"+name+" = buf.read"+chevrons(type)+"();");
             inc.newline();
         }
         inc.write(make_ref(cnamet)+" this_ = new (storage) "+cnamet+"(");
@@ -4341,7 +4373,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	            return n;
 	        X10NodeFactory xnf = (X10NodeFactory) nf;
 	        X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
-	        Position pos = n.position();
+	        Position pos = n.position().markCompilerGenerated();
 	        List<Stmt> newBody = new ArrayList<Stmt>();
 	        if (ret != null) {
 	            newBody.add(xnf.LocalDecl(pos, xnf.FlagsNode(pos, xts.NoFlags()),
@@ -4366,7 +4398,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	            return n;
 	        assert ((ret == null) == (n.expr() == null));
 	        X10NodeFactory xnf = (X10NodeFactory) nf;
-	        Position pos = n.position();
+	        Position pos = n.position().markCompilerGenerated();
 	        List<Stmt> retSeq = new ArrayList<Stmt>();
 	        if (ret != null) {
 	            Type rt = ret.type().get();
@@ -4795,36 +4827,28 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    return (t.isBoolean() || t.isByte() || t.isShort() || t.isInt() || t.isLong() ||
 	            t.isFloat() || t.isDouble());
 	}
-	private static final int NON_POD_LIMIT = 6;
 
 	public void visit(Tuple_c c) {
 	    X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
 	    Context context = tr.context();
 
-		// Handles Rails initializer.
+		// Handles Array initializer.
 		Type T = X10TypeMixin.getParameterType(c.type(), 0);		
 		String type = Emitter.translateType(c.type());
-		boolean needsInitLoop = !isPODType(T) && c.arguments().size() > NON_POD_LIMIT;
 		String tmp = getId();
 		// [DC] this cast is needed to ensure everything has a ref type
 		// otherwise overloads don't seem to work properly
 		sw.write("("+make_ref(type)+")");
-		if (needsInitLoop) {
-		    sw.write("(__extension__ ({");
-		    sw.newline(4); sw.begin(0);
-		    sw.write(type+"* "+tmp+" = ");
-		}
-		sw.write("x10aux::alloc_rail<");
-		sw.write(Emitter.translateType(T, true));
-		sw.write(",");
-		sw.allowBreak(0, " ");
-		sw.write(type);
-		sw.write(" >("+c.arguments().size());
+
+		sw.write("(__extension__ ({");
+		sw.newline(4); sw.begin(0);
+		sw.write(make_ref(type)+" "+tmp+"(");
+
+		sw.write("x10::array::Array"+chevrons(Emitter.translateType(T, true)));
+		sw.writeln("::_make("+c.arguments().size()+"));");
 		int count = 0;
 		for (Expr e : c.arguments()) {
-		    if (needsInitLoop && ++count > NON_POD_LIMIT)
-		        break;
-		    sw.write(",");
+		    sw.write(tmp+"->set(");
 		    boolean rhsNeedsCast = !xts.typeDeepBaseEquals(T, e.type(), context);
 		    if (rhsNeedsCast) {
 		        // Cast is needed to ensure conversion/autoboxing.
@@ -4834,35 +4858,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		    c.printSubExpr(e, false, sw, tr);
 		    if (rhsNeedsCast)
 		        sw.write(")");
+		    sw.writeln(", "+(count++)+");");
 		}
-		sw.write(")");
-		if (needsInitLoop) {
-		    sw.write(";");
-		    sw.newline();
-		    String raw = getId();
-		    sw.write(Emitter.translateType(T, true)+"* "+raw+" = "+tmp+"->raw();");
-		    sw.newline();
-		    count = 0;
-		    for (Expr e : c.arguments()) {
-		        if (++count <= NON_POD_LIMIT)
-		            continue;
-		        sw.write(raw+"["+(count-1)+"] = ");
-		        boolean rhsNeedsCast = !xts.typeDeepBaseEquals(T, e.type(), context);
-		        if (rhsNeedsCast) {
-		            // Cast is needed to ensure conversion/autoboxing.
-		            // However, it is statically correct to do the assignment, therefore it can be unchecked.
-		            sw.write("x10aux::class_cast_unchecked" + chevrons(Emitter.translateType(T, true)) + "(");
-		        }
-		        c.printSubExpr(e, false, sw, tr);
-		        if (rhsNeedsCast)
-		            sw.write(")");
-		        sw.write(";");
-		        sw.newline();
-		    }
-		    sw.write(tmp+";");
-		    sw.end(); sw.newline();
-		    sw.write("}))");
-		}
+		sw.write(tmp+";");
+		sw.end(); sw.newline();
+		sw.write("}))");
 	}
 
 	public void visit(When_c n) {

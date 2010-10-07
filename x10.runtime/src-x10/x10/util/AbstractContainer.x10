@@ -21,14 +21,6 @@ public abstract class AbstractContainer[+T] implements Container[T] {
   public abstract def clone(): Container[T];
   public abstract def iterator(): Iterator[T];
   
-  public def toValRail(): ValRail[T] {
-      val g = new GrowableRail[T](size());
-      for (x: T in this) {
-          g.add(x);
-      }
-      return g.toValRail();
-  }
-      
   public def toRail(): Rail[T] {
       val g = new GrowableRail[T](size());
       for (x: T in this) {

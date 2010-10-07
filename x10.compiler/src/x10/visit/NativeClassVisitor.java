@@ -64,6 +64,8 @@ import x10.types.X10TypeSystem;
  * Visitor that expands @NativeClass and @NativeDef annotations.
  */
 public class NativeClassVisitor extends ContextVisitor {
+    public static final Name NATIVE_FIELD_NAME = Name.make("__NATIVE_FIELD__");
+
     final String theLanguage;
     final X10TypeSystem xts;
     final X10NodeFactory xnf;
@@ -172,7 +174,7 @@ public class NativeClassVisitor extends ContextVisitor {
         }
 
         // add field with native type
-        Name fname = Name.make("__NATIVE_FIELD__");
+        Name fname = NATIVE_FIELD_NAME;
         Id fid = xnf.Id(p, fname);
         ClassType ftype = fake.asType();
         CanonicalTypeNode ftnode = xnf.CanonicalTypeNode(p, ftype);

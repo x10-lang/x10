@@ -21,7 +21,7 @@ public class AsyncFieldAccess extends x10Test {
 	@SuppressTransientError transient var t: GlobalRef[T] = GlobalRef[T](null);
 	public def run(): boolean = {
 		var Second: Place = Place.FIRST_PLACE.next();
-		var r: Region = [0..0];
+		val r  = 0..0;
 		val D: Dist = r->Second;
 		val root = this.root;
 		finish ateach (val p: Point in D) {

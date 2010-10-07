@@ -65,6 +65,7 @@ import x10.types.X10MethodInstance;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.X10TypeSystem_c;
+import x10.types.checker.Checker;
 import x10.types.checker.Converter;
 import x10.types.matcher.DumbMethodMatcher;
 import x10.visit.X10TypeChecker;
@@ -246,7 +247,7 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 		args.addAll(index);
 
 		// First try to find the method without implicit conversions.
-		mi = ClosureCall_c.findAppropriateMethod(tc, array.type(), SET, typeArgs, actualTypes);
+		mi = Checker.findAppropriateMethod(tc, array.type(), SET, typeArgs, actualTypes);
 		if (mi.error() != null) {
 		    // Now, try to find the method with implicit conversions, making them explicit.
 		    try {
@@ -270,7 +271,7 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 		actualTypes.remove(0);
 
 		// First try to find the method without implicit conversions.
-		ami = ClosureCall_c.findAppropriateMethod(tc, array.type(), ClosureCall.APPLY, typeArgs, actualTypes);
+		ami = Checker.findAppropriateMethod(tc, array.type(), ClosureCall.APPLY, typeArgs, actualTypes);
 		if (ami.error() != null) {
 		    Type bt = X10TypeMixin.baseType(array.type());
 		    boolean arrayP = xts.isX10Array(bt) || xts.isX10DistArray(bt);

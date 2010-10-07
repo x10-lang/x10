@@ -11,6 +11,7 @@
 
 package x10.array;
 
+import x10.compiler.CompilerFlags;
 import x10.compiler.Header;
 import x10.compiler.Inline;
 import x10.compiler.Native;
@@ -129,20 +130,11 @@ public class DistArray[T] (
     final protected def layout() = localHandle().layout;
 
 
-    @Native("java", "(!`NO_CHECKS`)")
-    @Native("c++", "BOUNDS_CHECK_BOOL")
-    private native def checkBounds():boolean;
-
-    @Native("java", "(!`NO_CHECKS`)")
-    @Native("c++", "PLACE_CHECK_BOOL")
-    private native def checkPlace():boolean;
-
-
     public final def apply(pt: Point(rank)): T {
-        if (checkBounds() && !region.contains(pt)) {
+        if (CompilerFlags.checkBounds() && !region.contains(pt)) {
             raiseBoundsError(pt);
         }
-        if (checkPlace() && dist(pt) != here) {
+        if (CompilerFlags.checkPlace() && dist(pt) != here) {
             raisePlaceError(pt);
         }
         return raw()(layout().offset(pt));
@@ -154,40 +146,40 @@ public class DistArray[T] (
     public final def get(pt: Point(rank)): T = apply(pt);
 
     final public def apply(i0: int){rank==1}: T {
-        if (checkBounds() && !region.contains(i0)) {
+        if (CompilerFlags.checkBounds() && !region.contains(i0)) {
             raiseBoundsError(i0);
         }
-        if (checkPlace() && dist(i0) != here) {
+        if (CompilerFlags.checkPlace() && dist(i0) != here) {
             raisePlaceError(i0);
         }
         return raw()(layout().offset(i0));
     }
 
     final public def apply(i0: int, i1: int){rank==2}: T {
-        if (checkBounds() && !region.contains(i0, i1)) {
+        if (CompilerFlags.checkBounds() && !region.contains(i0, i1)) {
             raiseBoundsError(i0, i1);
         }
-        if (checkPlace() && dist(i0, i1) != here) {
+        if (CompilerFlags.checkPlace() && dist(i0, i1) != here) {
             raisePlaceError(i0,i1);
         }
         return raw()(layout().offset(i0,i1));
     }
 
     final public def apply(i0: int, i1: int, i2: int){rank==3}: T {
-        if (checkBounds() && !region.contains(i0, i1, i2)) {
+        if (CompilerFlags.checkBounds() && !region.contains(i0, i1, i2)) {
             raiseBoundsError(i0, i1, i2);
         }
-        if (checkPlace() && dist(i0,i1,i2) != here) {
+        if (CompilerFlags.checkPlace() && dist(i0,i1,i2) != here) {
             raisePlaceError(i0,i1,i2);
         }
         return raw()(layout().offset(i0,i1,i2));
     }
 
     final public def apply(i0: int, i1: int, i2: int, i3: int){rank==4}: T {
-        if (checkBounds() && !region.contains(i0, i1, i2, i3)) {
+        if (CompilerFlags.checkBounds() && !region.contains(i0, i1, i2, i3)) {
             raiseBoundsError(i0, i1, i2, i3);
         }
-        if (checkPlace() && dist(i0,i1,i2,i3) != here) {
+        if (CompilerFlags.checkPlace() && dist(i0,i1,i2,i3) != here) {
             raisePlaceError(i0,i1,i2,i3);
         }
         return raw()(layout().offset(i0,i1,i2,i3));
@@ -196,10 +188,10 @@ public class DistArray[T] (
 
     // XXXX settable order
     public final def set(v: T, pt: Point(rank)): T {
-        if (checkBounds() && !region.contains(pt)) {
+        if (CompilerFlags.checkBounds() && !region.contains(pt)) {
             raiseBoundsError(pt);
         }
-        if (checkPlace() && dist(pt) != here) {
+        if (CompilerFlags.checkPlace() && dist(pt) != here) {
             raisePlaceError(pt);
         }
         val r = raw();
@@ -208,10 +200,10 @@ public class DistArray[T] (
     }
 
     final public def set(v: T, i0: int){rank==1}: T {
-        if (checkBounds() && !region.contains(i0)) {
+        if (CompilerFlags.checkBounds() && !region.contains(i0)) {
             raiseBoundsError(i0);
         }
-        if (checkPlace() && dist(i0) != here) {
+        if (CompilerFlags.checkPlace() && dist(i0) != here) {
             raisePlaceError(i0);
         }
         raw()(layout().offset(i0)) = v;
@@ -219,10 +211,10 @@ public class DistArray[T] (
     }
 
     final public def set(v: T, i0: int, i1: int){rank==2}: T {
-        if (checkBounds() && !region.contains(i0, i1)) {
+        if (CompilerFlags.checkBounds() && !region.contains(i0, i1)) {
             raiseBoundsError(i0, i1);
         }
-        if (checkPlace() && dist(i0,i1) != here) {
+        if (CompilerFlags.checkPlace() && dist(i0,i1) != here) {
             raisePlaceError(i0,i1);
         }
         raw()(layout().offset(i0,i1)) = v;
@@ -230,10 +222,10 @@ public class DistArray[T] (
     }
 
     final public def set(v: T, i0: int, i1: int, i2: int){rank==3}: T {
-        if (checkBounds() && !region.contains(i0, i1, i2)) {
+        if (CompilerFlags.checkBounds() && !region.contains(i0, i1, i2)) {
             raiseBoundsError(i0, i1, i2);
         }
-        if (checkPlace() && dist(i0,i1,i2) != here) {
+        if (CompilerFlags.checkPlace() && dist(i0,i1,i2) != here) {
             raisePlaceError(i0,i1,i2);
         }
         raw()(layout().offset(i0,i1,i2)) = v;
@@ -241,10 +233,10 @@ public class DistArray[T] (
     }
 
     final public def set(v: T, i0: int, i1: int, i2: int, i3: int){rank==4}: T {
-        if (checkBounds() && !region.contains(i0, i1, i2, i3)) {
+        if (CompilerFlags.checkBounds() && !region.contains(i0, i1, i2, i3)) {
             raiseBoundsError(i0, i1, i2, i3);
         }
-        if (checkPlace() && dist(i0,i1,i2,i3) != here) {
+        if (CompilerFlags.checkPlace() && dist(i0,i1,i2,i3) != here) {
             raisePlaceError(i0,i1,i2,i3);
         }
         raw()(layout().offset(i0,i1,i2,i3)) = v;
@@ -274,7 +266,7 @@ public class DistArray[T] (
         val plsInit:()=>LocalState[T] = () => {
             val region = dist.get(here);
             val localLayout = RectLayout(region);
-            val localRaw = IndexedMemoryChunk.allocate[T](localLayout.size());
+            val localRaw = IndexedMemoryChunk.allocate[T](localLayout.size(), true);
 
 	    return new LocalState[T](localLayout, localRaw);
         };
@@ -331,57 +323,33 @@ public class DistArray[T] (
         = make[T]((dist | r) as Dist(rank), ((p:Point)=>op(this(p as Point(rank)), src(p as Point(rank)))));
 
     public def reduce(op:(T,T)=>T, unit:T):T {
-
         // scatter
-        val ps:ValRail[Place] = dist.places();
-        val results = Rail.make[T](ps.length, (p:Int) => unit);
-        val r = 0..(ps.length-1);
-        
-        
-        finish foreach (p:Point(1)  in r) {
-        	results(p(0)) = at (ps(p(0))) {
-        	    var result: T = unit;
-                val a = (this | here) as DistArray[T](rank);
-                for (pt:Point(dist.region.rank)  in a.region)
-                    result = op(result, a(pt));
-                return result;
+        // TODO: recode using Team collective APIs to improve scalability
+        // TODO: optimize scatter inner loop for locally rect regions
+        val results = Rail.make[T](dist.numPlaces(), (p:Int) => unit);
+	finish for (where in dist.places()) {
+	    async {
+                results(where.id) = at (where) {
+                    var localRes:T = unit;
+                    for (pt in dist(where)) {
+                        localRes = op(localRes, this(pt));
+                    }
+                    localRes
+                };
             };
         }
 
         // gather
         var result: T = unit;
-        for (var i:int = 0; i < results.length; i++) 
+        for (var i:int = 0; i<results.length; i++) {
             result = op(result, results(i));
+        }
 
         return result;
     }            
-
-/*
-    public def reduce(op:(T,T)=>T, unit:T):T {
-
-        // scatter
-        val ps = dist.places();
-        val results = ValRail.make[Future[T]](ps.length, (p:Int) => {
-            future(ps(p)) {
-                var result: T = unit;
-                val a = (this | here) as DistArray[T](rank);
-                for (pt:Point(rank) in a)
-                    result = op(result, a(pt));
-                return result;
-            }
-        });
-
-        // gather
-        var result: T = unit;
-        for (var i:int = 0; i < results.length; i++) 
-            result = op(result, results(i).force());
-
-        return result;
-    }            
-*/
 
     @Incomplete public def scan(op:(T,T)=>T, unit:T): DistArray[T](dist) {
-                throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException();
     }
 
 

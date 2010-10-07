@@ -95,6 +95,12 @@ public class X10Return_c extends Return_c {
 	    return removeLocals((X10Context) ctx.pop(), c, thisCode);
 	}
 
+    public static boolean isAsyncCode(CodeDef ci) {
+        return (ci != null)
+				&& (ci instanceof MethodDef)
+				&& ((MethodDef) ci).name().toString().equals(X10TypeSystem_c.DUMMY_ASYNC);
+    }
+
 	@Override
 	public Node typeCheck(ContextVisitor tc) {
 		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
@@ -102,9 +108,7 @@ public class X10Return_c extends Return_c {
 	
 		CodeDef ci = c.currentCode();
 		
-		if ((ci != null) 
-				&& (ci instanceof MethodDef)
-				&& ((MethodDef) ci).name().toString().equals(X10TypeSystem_c.DUMMY_ASYNC)) {
+		if (isAsyncCode(ci)) {
 		    Errors.issue(tc.job(), new SemanticException("Cannot return from an async."), this);
 		    return this;
 		}
@@ -244,15 +248,12 @@ public class X10Return_c extends Return_c {
         CodeDef ci = c.currentCode();
         
         if (ci instanceof InitializerDef) {
-            throw new SemanticException(
-        	"Cannot return from an initializer block.", position());
+            throw new SemanticException("Cannot return from an initializer block.", position());
         }
         
         if (ci instanceof ConstructorDef) {
             if (expr != null) {
-        	throw new SemanticException(
-        	    "Cannot return a value from " + ci + ".",
-        	    position());
+        	throw new SemanticException("Cannot return a value from " + ci + ".",position());
             }
         
             return this;
@@ -276,24 +277,20 @@ public class X10Return_c extends Return_c {
         
             if (returnType.isVoid()) {
                 if (expr != null) {
-                    throw new SemanticException("Cannot return a value from " +
-                        fi + ".", position());
+                    throw new SemanticException("Cannot return a value from " +fi + ".", position());
                 }
                 else {
                     return this;
                 }
             }
             else if (expr == null) {
-                throw new SemanticException("Must return a value from " +
-                    fi + ".", position());
+                throw new SemanticException("Must return a value from " +fi + ".", position());
             }
         
             if (ts.isImplicitCastValid(expr.type(), returnType, c)) {
                 return this;
             }
-        
-            throw new SemanticException("Cannot return expression of type " +
-        	expr.type() + " from " + fi + ".", expr.position());
+            throw new Errors.CannotReturnExpr(expr.type(), returnType, expr.position());
         }
         
         throw new SemanticException("Cannot return from this context.", position());

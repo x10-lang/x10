@@ -10,6 +10,7 @@
  */
 
 import harness.x10Test;
+import x10.compiler.NonEscaping;
 
 /**
  * @author yoav
@@ -66,7 +67,7 @@ class XTENLANG_1565 extends x10Test {
 		// j:[1,2,1,2]
 		f(j);
 	}
-	final def f(i:Int):Int=i+1;
+	@NonEscaping final def f(i:Int):Int=i+1;
 
     public def run(): boolean {
         return true;

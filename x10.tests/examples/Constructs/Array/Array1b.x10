@@ -22,25 +22,23 @@ public class Array1b extends x10Test {
     public def run(): boolean = {
 
         val e = 1..10;
-        val r = [e, e] as Region;
+        val r = e*e;
 
         chk(r.equals((1..10)*(1..10)));
-        //final dist d = r->here;
+        val d = Dist.makeConstant((1..10)*(1..10), here);
 
-        val d = Dist.makeConstant([1..10, 1..10], here);
-
-        chk(d.equals(Dist.makeConstant([1..10, 1..10], here)));
-        chk(d.equals(Dist.makeConstant([e, e], here)));
+        chk(d.equals(Dist.makeConstant((1..10)*(1..10), here)));
+        chk(d.equals(Dist.makeConstant(e*e, here)));
         chk(d.equals(Dist.makeConstant(r, here)));
 
         val ia = DistArray.make[int](d, (Point)=>0);
 
-        for (val p[i]: Point in e) for (val q[j]: Point in e) {
+        for (p[i] in e) for (q[j] in e) {
             chk(ia(i, j) == 0);
             ia(i, j) = i+j;
         }
 
-        for (val p[i,j]: Point(2) in ia.region) {
+        for (p[i,j]  in ia.region) {
             val q1[m,n] = [i, j] as Point;
             chk(i == m);
             chk(j == n);

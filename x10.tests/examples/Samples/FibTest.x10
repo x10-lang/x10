@@ -13,9 +13,8 @@ import harness.x10Test;
 
 public class FibTest extends x10Test {
     public def run():boolean {
-        val f = new Fib(12);
-	f.run();
-	chk(f.r == 144);
+	val res = Fib.fib(12);
+	chk(res == 144);
 	return true;
     }
 

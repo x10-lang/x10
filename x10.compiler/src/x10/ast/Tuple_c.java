@@ -36,6 +36,7 @@ import polyglot.visit.PrettyPrinter;
 import polyglot.visit.Translator;
 import x10.constraint.XFailure;
 import x10.constraint.XLit;
+import x10.constraint.XTerms;
 import x10.constraint.XVar;
 import x10.types.X10ClassType;
 import x10.types.X10TypeMixin;
@@ -44,8 +45,10 @@ import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint;
 
 /** 
- * An immutable representation of the X10 rail constructor [e1, ..., ek]. 
- * This behaves like a Java array initializer except that the type is NativeValRail[T], not T[].
+ * An immutable representation of the list of elements in an X10 array constructor
+ * new Array[T]{ e1,..., ek}. 
+ * 
+ * There is no surface syntax for a Tuple_c. Rather it is access
  */
 public class Tuple_c extends Expr_c implements Tuple {
     
@@ -121,7 +124,7 @@ public class Tuple_c extends Expr_c implements Tuple {
         
         X10TypeSystem ts = (X10TypeSystem) av.typeSystem();
         
-        if (! ts.isValRail(t)) {
+        if (! ts.isArray(t)) {
             return child.type();
             // Don't complain when we have implicit coercions!
 //            throw new InternalCompilerError("Type of rail constructor must be a " + ts.ValRail() + ", not " + t + ".", position());
@@ -159,11 +162,12 @@ public class Tuple_c extends Expr_c implements Tuple {
 	    Type type = null;
 
 	    for (Expr e : elements) {
+	    	Type eType = X10TypeMixin.baseType(e.type());
 		if (type == null) {
-		    type = e.type();
+		    type = eType;
 		}
 		else {
-		    type = ts.leastCommonAncestor(type, e.type(), tc.context());
+		    type = ts.leastCommonAncestor(type, eType, tc.context());
 		}
 	    }
 
@@ -171,22 +175,7 @@ public class Tuple_c extends Expr_c implements Tuple {
 	        type = ts.Any(); // should be bottom type, not top
 	    }
 
-	    Type r = ts.ValRail();
-	    Type t = (X10ClassType) X10TypeMixin.instantiate(r, type);
-	    CConstraint c = new CConstraint();
-	    FieldInstance lengthField = ((X10ClassType) t).fieldNamed(Name.make("length"));
-	    if (lengthField == null)
-	        throw new InternalCompilerError("Could not find length field of " + t, position());
-	    try {
-	        XVar selfLength = ts.xtypeTranslator().trans(c, c.self(), lengthField);
-	        XLit sizeLiteral = ts.xtypeTranslator().trans(elements.size());
-	        c.addBinding(selfLength, sizeLiteral);
-	        c.toString();
-	        t = X10TypeMixin.xclause(t, c);
-	    }
-	    catch (XFailure e) {
-	        throw new SemanticException(e);
-	    }
+	    Type t = X10TypeMixin.makeArrayRailOf(type, elements.size(), position());
 	    return type(t);
 	}
 
@@ -209,7 +198,7 @@ public class Tuple_c extends Expr_c implements Tuple {
 	
 	@Override
 	public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
-	    w.write("[");
+	    w.write("{");
 
 	    for (Iterator<Expr> i = elements.iterator(); i.hasNext(); ) {
 		Expr e = i.next();
@@ -222,7 +211,7 @@ public class Tuple_c extends Expr_c implements Tuple {
 		}
 	    }
 
-	    w.write("]");
+	    w.write("}");
 	}
 	
 	@Override

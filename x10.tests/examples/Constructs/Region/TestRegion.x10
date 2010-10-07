@@ -269,8 +269,7 @@ abstract public class TestRegion extends x10Test {
     }
 
     def r(a: int, b: int, c: int, d: int): Region(2) {
-        //return Region.makeRectangular([a,c], [b,d]);
-        return [a..b, c..d] as Region(2);
+        return (a..b)*(c..d);
     }
 
     // a simple mechanism of somewhat dubious utility to allow

@@ -32,7 +32,7 @@ public class PlaceCheckInRail2_MustFailCompile extends x10Test {
         val gr = GlobalRef[Rail[C]](r);
        
         // should fail typecheck
-            (future (Place.places(1)) gr()(0).foo()).force();
+            (future (Place.place(1)) gr()(0).foo()).force();
         
         x10.io.Console.OUT.println("01 fails");
         return false;

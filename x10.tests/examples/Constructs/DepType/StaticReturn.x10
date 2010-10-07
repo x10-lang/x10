@@ -21,7 +21,7 @@ public class StaticReturn extends x10Test {
 		return true;
 	}
 	def starY(): Dist{rank==2} = {
-		var d: Dist{rank==2} = Dist.makeConstant([0..1, 0..1], here);
+		var d: Dist{rank==2} = Dist.makeConstant((0..1)*(0..1), here);
 		return d;
 	}
 	public static def main(Array[String](1))  {

@@ -13,7 +13,6 @@ package x10.ast;
 
 import polyglot.ast.Expr;
 import polyglot.types.Type;
-import x10.visit.ExprFlattener;
 
 /** The AST node for the X10 construct future (P) {e}
  *

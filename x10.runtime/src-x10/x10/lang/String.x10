@@ -124,23 +124,23 @@ public final class String implements (Int) => Char/*TODO, (Range) => String*//*T
     public native def charAt(index: Int): Char;
 
     /**
-     * Converts this String to a ValRail of Chars.
-     * @return a ValRail of Chars whose length is the length of this String and
+     * Converts this String to a Rail of Chars.
+     * @return a Rail of Chars whose length is the length of this String and
      *         whose contents are initialized to contain the Chars in this String.
      * @see #bytes()
      */
-    @Native("java", "x10.core.RailFactory.<java.lang.Character>makeValRailFromJavaArray(x10.rtt.Types.CHAR, (#0).toCharArray())")
+    @Native("java", "x10.core.RailFactory.<java.lang.Character>makeRailFromJavaArray(x10.rtt.Types.CHAR, (#0).toCharArray())")
     @Native("c++", "(#0)->chars()")
-    public native def chars(): ValRail[Char];
+    public native def chars():Rail[Char];
 
     /**
      * Encodes this String into a sequence of Bytes using the platform's default charset.
-     * @return the ValRail of Bytes representing this String in the default charset.
+     * @return the Rail of Bytes representing this String in the default charset.
      * @see #chars()
      */
-    @Native("java", "x10.core.RailFactory.<java.lang.Byte>makeValRailFromJavaArray(x10.rtt.Types.BYTE, (#0).getBytes())")
+    @Native("java", "x10.core.RailFactory.<java.lang.Byte>makeRailFromJavaArray(x10.rtt.Types.BYTE, (#0).getBytes())")
     @Native("c++", "(#0)->bytes()")
-    public native def bytes(): ValRail[Byte];
+    public native def bytes():Rail[Byte];
 
     /**
      * Returns a new String that is a substring of this String.
@@ -336,14 +336,14 @@ public final class String implements (Int) => Char/*TODO, (Range) => String*//*T
 
     /**
      * Splits this String around matches of the given regular expression.
-     * Trailing empty strings are not included in the resulting ValRail.
+     * Trailing empty strings are not included in the resulting Rail.
      * @param regex the delimiting regular expression.
-     * @return the ValRail of Strings computed by splitting this String around matches of the given regular expression.
+     * @return the Rail of Strings computed by splitting this String around matches of the given regular expression.
      */
-    @Native("java", "x10.core.RailFactory.<java.lang.String>makeValRailFromJavaArray(x10.rtt.Types.STRING, (#0).split(#1))")
+    @Native("java", "x10.core.RailFactory.<java.lang.String>makeRailFromJavaArray(x10.rtt.Types.STRING, (#0).split(#1))")
 //    @Native("java", "x10.core.StringAux.split((#0), (#1))")
     @Native("c++", "(#0)->split(#1)")
-    public native def split(regex: String): ValRail[String];
+    public native def split(regex: String): Rail[String];
 
 
     /**
@@ -376,9 +376,9 @@ public final class String implements (Int) => Char/*TODO, (Range) => String*//*T
      * @param args the arguments referenced by the format specifiers in the format string.
      * @return a formatted string.
      */
-    @Native("java", "java.lang.String.format(#1,(#2).getBoxedArray())")
+    @Native("java", "java.lang.String.format(#1,(Object[]) (#2).raw().value)")
     @Native("c++", "x10::lang::String::format(#1,#2)")
-    public native static def format(fmt: String, args: ValRail[Any]): String;
+    public native static def format(fmt: String, args:Array[Any]): String;
 
 
     // FIXME: Locale sensitivity

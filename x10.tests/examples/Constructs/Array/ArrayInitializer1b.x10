@@ -20,7 +20,7 @@ public class ArrayInitializer1b extends x10Test {
     public def run(): boolean = {
 
         val e = 0..9;
-        val r = [e, e, e] as Region(3);
+        val r = e*e*e;
         val ia = new Array[Int](r, ([i,j,k]:Point)=> i);
 
         for (val p[i,j,k]:Point(3) in ia.region) chk(ia(p) == i); 

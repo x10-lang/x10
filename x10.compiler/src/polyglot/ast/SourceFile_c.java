@@ -176,8 +176,7 @@ public class SourceFile_c extends Node_c implements SourceFile
 	    Name s = d.name().id();
 
 	    if (names.contains(s)) {
-		throw new SemanticException("Duplicate declaration: \"" + s + 
-		    "\".", d.position());
+		throw new SemanticException("Duplicate declaration: \"" + s + "\".", d.position());
 	    }
 
 	    names.add(s);

@@ -82,7 +82,7 @@ public class NQueensPar {
             }
             if (q.size() == 0) {
                 val R = block(0..N-1, P);
-                foreach ([q] in 0..P-1)
+                for ([q] in 0..P-1) async
                   search(R(q));
             } else search(0..N-1);
         }
@@ -94,7 +94,7 @@ public class NQueensPar {
         //warmup
         //finish new NQueensPar(12, 1).start();
         val ps = [1,2,4];
-        for (var i:Int = 0; i < ps.length; i++) {
+        for (var i:Int = 0; i < ps.size; i++) {
             println("starting " + ps(i) + " threads");
             val nq = new NQueensPar(n,ps(i));
             var start:Long = -System.nanoTime();

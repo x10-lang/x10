@@ -40,9 +40,7 @@ public class X10Do_c extends Do_c {
         TypeSystem ts = tc.typeSystem();
 
         if (! ts.isSubtype(cond.type(), ts.Boolean(), tc.context())) {
-            throw new SemanticException(
-                    "Condition of do statement must have boolean type, and not " + cond.type() + ".",
-                    cond.position());
+            throw new SemanticException("Condition of do statement must have boolean type, and not " + cond.type() + ".",cond.position());
         }
 
         return this;

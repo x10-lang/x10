@@ -45,6 +45,7 @@ import x10.types.X10MethodInstance;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.X10TypeSystem_c;
+import x10.types.checker.Checker;
 import x10.types.checker.Converter;
 import x10.types.checker.PlaceChecker;
 import x10.visit.X10TypeChecker;
@@ -81,7 +82,7 @@ public class X10Unary_c extends Unary_c {
     }
 
     /**
-     * Type check a binary expression. Must take care of various cases because
+     * Type check a unary expression. Must take care of various cases because
      * of operators on regions, distributions, points, places and arrays.
      * An alternative implementation strategy is to resolve each into a method
      * call.
@@ -160,7 +161,7 @@ public class X10Unary_c extends Unary_c {
                     for (Expr a : args) {
                         actualTypes.add(a.type());
                     }
-                    X10MethodInstance mi = ClosureCall_c.findAppropriateMethod(tc, target.type(), SettableAssign.SET, tArgs, actualTypes);
+                    X10MethodInstance mi = Checker.findAppropriateMethod(tc, target.type(), SettableAssign.SET, tArgs, actualTypes);
                     if (mi.error() != null) {
                         Errors.issue(tc.job(), new SemanticException("Unable to perform operation", mi.error()), this);
                     }
@@ -197,9 +198,7 @@ public class X10Unary_c extends Unary_c {
                     Type resultType = mi.returnType();
                     if (!ts.isSubtype(resultType, et, tc.context())) {
                         Errors.issue(tc.job(),
-                                new SemanticException("Incompatible return type of binary operator "+binaryOp+" found:" +
-                                                      "\n\t operator return type: " + resultType +
-                                                      "\n\t expression type: "+et, expr.position()));
+                                new SemanticException("Incompatible return type of binary operator "+binaryOp+" found:\n\t operator return type: " + resultType + "\n\t expression type: "+et, expr.position()));
                     }
                 }
             }

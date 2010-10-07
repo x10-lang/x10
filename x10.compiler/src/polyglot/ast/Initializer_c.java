@@ -191,8 +191,7 @@ public class Initializer_c extends Term_c implements Initializer
         if (flags.isStatic() &&
               initializerDef().container().get().toClass().isInnerClass()) {
             // it's a static initializer in an inner class.
-            throw new SemanticException("Inner classes cannot declare " + 
-                    "static initializers.", this.position());             
+            throw new SemanticException("Inner classes cannot declare static initializers.", this.position());
         }
 
 	return this;

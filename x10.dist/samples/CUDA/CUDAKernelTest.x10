@@ -49,19 +49,22 @@ public class CUDAKernelTest {
     public static def main (args:Array[String](1)) {
         val len = args.size==1 ? Int.parse(args(0)) : 1000;
 
-        for (host in Place.places) at (host) {
+        for (host in Place.places()) at (host) {
 
             val init = new Array[Float](len,(i:Int)=>i as Float);
             val recv = new Array[Float](len,(i:Int)=>0.0 as Float);
 
             var done_work:Boolean = false;
 
-            for (gpu in here.children()) if (gpu.isCUDA()) {
+            for (gpu in here.children().values()) if (gpu.isCUDA()) {
+                Console.OUT.println("Running test on GPU called "+gpu);
                 doWork(init, recv, gpu, len);
                 done_work = true;
             }
 
             if (!done_work) {
+                Console.OUT.println("Running test on CPU called "+here);
+                Console.OUT.println("Set X10RT_ACCELS=ALL to use GPUs if you have them.");
                 doWork(init, recv, here, len);
             }
         }

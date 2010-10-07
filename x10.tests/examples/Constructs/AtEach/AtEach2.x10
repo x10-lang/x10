@@ -22,7 +22,7 @@ public class AtEach2 extends x10Test {
     transient var nplaces: int = 0;
 
     public def run(): boolean = {
-        val d: Dist = Dist.makeUnique(Place.places);
+        val d: Dist = Dist.makeUnique();
         val root = this.root;
         finish ateach (p in d) {
             // remember if here and d[i] disagree

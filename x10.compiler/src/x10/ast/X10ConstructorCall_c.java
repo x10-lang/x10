@@ -164,33 +164,24 @@ public class X10ConstructorCall_c extends ConstructorCall_c implements X10Constr
 	        // }
 	        if (qualifier != null) {
 	            if (kind != SUPER) {
-	                throw new SemanticException("Can only qualify a \"super\"" +
-	                                            "constructor invocation.",
-	                                            position());
+	                throw new SemanticException("Can only qualify a \"super\" constructor invocation.", position());
 	            }
 
 	            if (!superType.isClass() || !superType.toClass().isInnerClass() ||
 	                    superType.toClass().inStaticContext()) {
-	                throw new SemanticException("The class \"" + superType + "\"" +
-	                                            " is not an inner class, or was declared in a static " +
-	                                            "context; a qualified constructor invocation cannot " +
-	                                            "be used.", position());
+	                throw new SemanticException("The class \"" + superType + "\" is not an inner class, or was declared in a static context; a qualified constructor invocation cannot be used.", position());
 	            }
 
 	            Type qt = qualifier.type();
 
 	            if (! qt.isClass() || !qt.isSubtype(superType.toClass().container(), context)) {
-	                throw new SemanticException("The type of the qualifier " +
-	                                            "\"" + qt + "\" does not match the immediately enclosing " +
-	                                            "class  of the super class \"" +
-	                                            superType.toClass().container() + "\".", qualifier.position());
+	                throw new SemanticException("The type of the qualifier \"" + qt + "\" does not match the immediately enclosing class of the super class \"" +superType.toClass().container() + "\".", qualifier.position());
 	            }
 	        }
 
 	        if (kind == SUPER) {
 	            if (! superType.isClass() && !ts.isUnknown(superType)) {
-	                throw new SemanticException("Super type of " + ct +
-	                                            " is not a class.", position());
+	                throw new SemanticException("Super type of " + ct + " is not a class.", position());
 	            }
 
 	            Expr q = qualifier;
@@ -216,13 +207,10 @@ public class X10ConstructorCall_c extends ConstructorCall_c implements X10Constr
 	                }
 
 	                if (e == null) {
-	                    throw new SemanticException(ct + " must have an enclosing instance" +
-	                                                " that is a subtype of " + superContainer, position());
+	                    throw new SemanticException(ct + " must have an enclosing instance that is a subtype of " + superContainer, position());
 	                }               
 	                if (e == ct) {
-	                    throw new SemanticException(ct + " is a subtype of " + superContainer + 
-	                                                "; an enclosing instance that is a subtype of " + superContainer +
-	                                                " must be specified in the super constructor call.", position());
+	                    throw new SemanticException(ct + " is a subtype of " + superContainer +"; an enclosing instance that is a subtype of " + superContainer + " must be specified in the super constructor call.", position());
 	                }
 	            }
 
@@ -269,8 +257,7 @@ public class X10ConstructorCall_c extends ConstructorCall_c implements X10Constr
 	    if (n.kind().equals(ConstructorCall.SUPER)) {
 			Context ctx = context;
 			if (! (ctx.inCode()) || ! (ctx.currentCode() instanceof X10ConstructorDef))
-				throw new SemanticException("A call to super must occur only in the body of a constructor.",
-						position());
+				throw new SemanticException("A call to super must occur only in the body of a constructor.",position());
 			
 
 			// The constructor *within which this super call happens*.

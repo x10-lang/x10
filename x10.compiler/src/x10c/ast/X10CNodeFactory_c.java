@@ -11,8 +11,11 @@
 
 package x10c.ast;
 
+import java.util.List;
+
 import polyglot.ast.Expr;
 import polyglot.ast.Id;
+import polyglot.ast.TypeNode;
 import polyglot.ast.Assign.Operator;
 import polyglot.types.Type;
 import polyglot.util.Position;
@@ -43,6 +46,13 @@ public class X10CNodeFactory_c extends X10NodeFactory_c {
         BackingArrayAccessAssign n = new X10CBackingArrayAccessAssign_c(this, pos, rail, index, op, right);
         n = (BackingArrayAccessAssign) n.ext(extFactory().extArrayAccessAssign());
         n = (BackingArrayAccessAssign) n.del(delFactory().delArrayAccessAssign());
+        return n;
+    }
+
+    public BackingArrayNewArray BackingArrayNewArray(Position pos, TypeNode baseType, List<Expr> dims, int addDims, Type type) {
+        BackingArrayNewArray n = new X10CBackingArrayNewArray_c(pos, baseType, dims, addDims, type);
+        n = (BackingArrayNewArray) n.ext(extFactory().extArrayAccess());
+        n = (BackingArrayNewArray) n.del(delFactory().delArrayAccess());
         return n;
     }
 }

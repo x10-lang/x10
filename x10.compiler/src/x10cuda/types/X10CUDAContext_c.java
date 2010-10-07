@@ -87,7 +87,7 @@ public class X10CUDAContext_c extends X10CPPContext_c {
             j.compiler().outputFiles().add(wrappingClass()+".cu");
             ((X10CPPCompilerOptions)j.extensionInfo().getOptions()).compilationUnits().add(wrappingClass()+".cu");
             cudaStream.write("#include <x10aux/config.h>"); cudaStream.newline();
-            cudaStream.write("#include <x10aux/kernel.cuh>"); cudaStream.newline();
+            cudaStream.write("#include <x10aux/cuda_kernel.cuh>"); cudaStream.newline();
             cudaStream.forceNewline();
             cudaStream.write("extern __shared__ char __shm[];"); cudaStream.newline();
             cudaStream.write("extern __constant__ char __cmem[64*1024];"); cudaStream.newline();

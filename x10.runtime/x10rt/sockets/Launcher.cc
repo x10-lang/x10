@@ -150,6 +150,13 @@ void Launcher::startChildren()
 	_childCerrorLinks = (int *) malloc(sizeof(int) * (_numchildren+1));
 	_childControlLinks = (int *) malloc(sizeof(int) * (_numchildren+1));
 
+	if (!getenv(X10LAUNCHER_CWD))
+	{
+		char dir[1024];
+		getcwd(dir, sizeof(dir));
+		setenv(X10LAUNCHER_CWD, dir, 1);
+	}
+
 	if (!_pidlst || !_childControlLinks || !_childCoutLinks || !_childCerrorLinks)
 		DIE("%u: failed in alloca()", _myproc);
 
@@ -194,6 +201,7 @@ void Launcher::startChildren()
 				#ifdef DEBUG
 					fprintf(stderr, "Runtime %u forked.  Running exec.\n", _myproc);
 				#endif
+				chdir(getenv(X10LAUNCHER_CWD));
 				if (execvp(_argv[0], _argv))
 					// can't get here, if the exec succeeded
 					DIE("Launcher %u: runtime exec failed", _myproc);
@@ -311,11 +319,8 @@ void Launcher::handleRequestsLoop()
 		#ifdef DEBUG
 			fprintf(stderr, "Launcher %u: killing pid=%d\n", _myproc, _pidlst[i]);
 		#endif
-		int status1;
 		kill(_pidlst[i], SIGTERM);
-		waitpid(_pidlst[i], &status1, WNOHANG);
-		if (status1 != 0)
-			status = status1;
+		waitpid(_pidlst[i], &status, WNOHANG); // status is the status of the last child (the local runtime)
 	}
 	// shut down any connections if they still exist
 	handleDeadParent();
@@ -715,7 +720,9 @@ int Launcher::forwardMessage(struct ctrl_msg* message, char* data)
 
 	int ret = TCP::write(destFD, message, sizeof(struct ctrl_msg));
 	if (ret < (int)sizeof(struct ctrl_msg))
-		DIE("Failed to forward message");
+		DIE("Launcher %u: Failed to forward message to %s", _myproc,
+			destFD==_parentLauncherControlLink?"parent launcher":
+			(destFD==_childControlLinks[0]?"child launcher 0":"child launcher 1"));
 	if (message->datalen > 0)
 		ret = TCP::write(destFD, data, message->datalen);
 
@@ -760,11 +767,33 @@ void Launcher::cb_sighandler_cld(int signo)
 void Launcher::startSSHclient(uint32_t id, char* masterPort, char* remotehost)
 {
 	char * cmd = (char *) _realpath;
-	char ** argv = (char **) alloca (sizeof(char *) * (_argc+8));
+	char ** argv = (char **) alloca (sizeof(char *) * (_argc+32));
 	int z = 0;
 	argv[z] = _ssh_command;
 	argv[++z] = remotehost;
 //	argv[++z] = (char *) "/usr/bin/env";
+
+	// deal with known runtime environment variables
+	const char* envVariables[] = {
+	"X10_ENABLE_ASSERTIONS", "X10_RXTX", "GC_PRINT_ADDRESS_MAP","X10_NO_ANSI_COLORS",
+	"X10RT_MPI_THREAD_MULTIPLE", "X10_DISABLE_DEALLOC", "X10_TRACE_ALLOC", "X10_TRACE_ALL",
+	"X10_TRACE_INIT", "X10_TRACE_X10RT", "X10_TRACE_NET", "X10_TRACE_SER", "X10_NTHREADS",
+	"X10RT_CUDA_DMA_SLICE", "X10RT_EMULATE_REMOTE_OP", "X10RT_EMULATE_COLLECTIVES",
+	"X10RT_MPI_THREAD_MULTIPLE", "X10_STATIC_THREADS", "X10_NO_STEALS", "X10RT_ACCELS"};
+	for (unsigned i=0; i<(sizeof envVariables)/sizeof(char*); i++)
+	{
+		char* ev = getenv(envVariables[i]);
+		if (ev != NULL)
+		{
+			#ifdef DEBUG
+				fprintf(stderr, "Launcher %u: copying environment variable %s=%s for child %u.\n", _myproc, envVariables[i], ev, id);
+			#endif
+			argv[++z] = (char*) alloca(32+sizeof(ev));
+			sprintf(argv[z], "%s=%s", envVariables[i], ev);
+		}
+	}
+
+	// add on our own environment variables
 	argv[++z] = (char*) alloca(256);
 	sprintf(argv[z], X10LAUNCHER_HOSTFILE"=%s", _hostfname);
 	argv[++z] = (char*) alloca(256);
@@ -775,6 +804,8 @@ void Launcher::startSSHclient(uint32_t id, char* masterPort, char* remotehost)
 	sprintf(argv[z], X10LAUNCHER_MYID"=%d", id);
 	argv[++z] = (char*) alloca(100);
 	sprintf(argv[z], X10LAUNCHER_NPROCS"=%d", _nplaces);
+	argv[++z] = (char*) alloca(1024);
+	sprintf(argv[z], X10LAUNCHER_CWD"=%s", getenv(X10LAUNCHER_CWD));
 	argv[++z] = cmd;
 	for (int i = 1; i < _argc; i++)
 		argv[z + i] = _argv[i];

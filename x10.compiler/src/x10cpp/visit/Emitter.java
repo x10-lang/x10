@@ -13,6 +13,7 @@ package x10cpp.visit;
 
 import static x10cpp.visit.ASTQuery.getCppBoxRep;
 import static x10cpp.visit.ASTQuery.getCppRep;
+import static x10cpp.visit.SharedVarsMethods.CONSTRUCTOR;
 import static x10cpp.visit.SharedVarsMethods.DESERIALIZATION_BUFFER;
 import static x10cpp.visit.SharedVarsMethods.DESERIALIZER_METHOD;
 import static x10cpp.visit.SharedVarsMethods.DESERIALIZE_BODY_METHOD;
@@ -26,6 +27,7 @@ import static x10cpp.visit.SharedVarsMethods.SERIALIZE_METHOD;
 import static x10cpp.visit.SharedVarsMethods.THIS;
 import static x10cpp.visit.SharedVarsMethods.chevrons;
 import static x10cpp.visit.SharedVarsMethods.make_ref;
+import static x10cpp.visit.SharedVarsMethods.make_captured_lval;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -56,6 +58,7 @@ import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.Types;
+import polyglot.types.VarDef;
 import polyglot.types.VarInstance;
 import polyglot.util.CodeWriter;
 import polyglot.util.ErrorInfo;
@@ -72,6 +75,7 @@ import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10ConstructorDef;
 import x10.types.X10Flags;
+import x10.types.X10LocalDef;
 import x10.types.X10MethodDef;
 import x10.types.X10MethodInstance;
 import x10.types.X10TypeMixin;
@@ -857,7 +861,7 @@ public class Emitter {
 				h.write(flags.retain(Flags.STATIC).translate());
 		}
 
-		if (query.hasAnnotation(n, "x10.lang.shared")) {
+		if (query.hasAnnotation(n, "x10.lang.shared") || query.hasAnnotation(n, "x10.compiler.Volatile")) {
 			h.write("volatile ");
 		}
 
@@ -922,10 +926,14 @@ public class Emitter {
 	void printDeclarationList(CodeWriter w, X10CPPContext_c c, ArrayList<VarInstance<?>> vars, boolean saved_this_mechanism, boolean writable, List<VarInstance<?>> refs) {
 		for (int i = 0; i < vars.size(); i++) {
 			VarInstance<?> var = vars.get(i);
+			VarDef def = var.def();
 			Type t = var.type();
-			String type = translateType(t, true);
-			if ((writable && !var.name().toString().equals(THIS)) || refs.contains(var)) // this is a temporary ref
-			    type = type + "&"; // FIXME: Hack to get writable args in finally closures
+			String type;
+			if ((writable && !var.name().toString().equals(THIS)) || refs.contains(var)) {
+			    type = make_captured_lval(t);
+			} else {
+			    type = translateType(t, true);
+			}
 			String name = var.name().toString();
 			if (saved_this_mechanism && name.equals(THIS)) {
 				assert (c.isInsideClosure()); // FIXME: Krishna, why did you add this test?
@@ -943,6 +951,7 @@ public class Emitter {
         X10ClassType ct = (X10ClassType) type.toClass();
         X10TypeSystem ts = (X10TypeSystem) type.typeSystem();
         X10CPPContext_c context = (X10CPPContext_c) tr.context();
+        Type parent = type.superClass();
         ClassifiedStream w = sw.body();
         ClassifiedStream h = sw.header();
         h.forceNewline();
@@ -995,7 +1004,6 @@ public class Emitter {
             h.forceNewline();
         }
 
-
         // _serialize_body()
         h.write("public: ");
         if (!type.flags().isFinal())
@@ -1007,30 +1015,34 @@ public class Emitter {
         w.write("void "+klass+"::"+SERIALIZE_BODY_METHOD+
                     "("+SERIALIZATION_BUFFER+"& buf) {");
         w.newline(4); w.begin(0);
-        Type parent = type.superClass();
-        if (parent != null && parent.isClass()) {
-            w.write(translateType(parent)+"::"+SERIALIZE_BODY_METHOD+"(buf);");
-            w.newline();
-        }
-        for (int i = 0; i < type.fields().size(); i++) {
-            if (i != 0)
+        if (type.isSubtype(ts.CustomSerialization(), context)) {
+            w.writeln("/* NOTE: Implements x10.io.CustomSerialization */");
+            w.writeln("buf.write(this->serialize());");
+        } else {
+            if (parent != null && parent.isClass()) {
+                w.write(translateType(parent)+"::"+SERIALIZE_BODY_METHOD+"(buf);");
                 w.newline();
-            FieldInstance f = (FieldInstance) type.fields().get(i);
-            
-            if (f.flags().isStatic() || query.isSyntheticField(f.name().toString()))
-                continue;
-            if (f.flags().isTransient()) // don't serialize transient fields
-                continue;
-            String fieldName = mangled_field_name(f.name().toString());
-            w.write("buf.write(this->"+fieldName+");"); w.newline();
-        }
-        // Special case x10.lang.Array to serialize the contents of rawChunk too
-        if (ts.isX10Array(type)) {
-            w.write("for (x10_int i = 0; i<this->FMGL(rawLength); i++) {");
-            w.newline(4); w.begin(0);
-            w.write("buf.write(this->FMGL(raw)->apply(i));");
-            w.end(); w.newline();
-            w.write("}");
+            }
+            for (int i = 0; i < type.fields().size(); i++) {
+                if (i != 0)
+                    w.newline();
+                FieldInstance f = (FieldInstance) type.fields().get(i);
+
+                if (f.flags().isStatic() || query.isSyntheticField(f.name().toString()))
+                    continue;
+                if (f.flags().isTransient()) // don't serialize transient fields
+                    continue;
+                String fieldName = mangled_field_name(f.name().toString());
+                w.write("buf.write(this->"+fieldName+");"); w.newline();
+            }
+            // Special case x10.lang.Array to serialize the contents of rawChunk too
+            if (ts.isX10Array(type)) {
+                w.write("for (x10_int i = 0; i<this->FMGL(rawLength); i++) {");
+                w.newline(4); w.begin(0);
+                w.write("buf.write(this->FMGL(raw)->apply(i));");
+                w.end(); w.newline();
+                w.write("}");
+            }
         }
         w.end(); w.newline();
         w.write("}");
@@ -1047,7 +1059,7 @@ public class Emitter {
             sw.write(make_ref("__T")+" "+klass+"::"+DESERIALIZER_METHOD+"("+DESERIALIZATION_BUFFER+"& buf) {");
             sw.newline(4); sw.begin(0);
             sw.writeln(make_ref(klass)+" this_ = "+
-                       "new (x10aux::alloc"+chevrons(klass)+"()) "+klass+"();");
+                       "new (memset(x10aux::alloc"+chevrons(klass)+"(), 0, sizeof("+klass+"))) "+klass+"();");
             sw.writeln("buf.record_reference(this_);");
             sw.writeln("this_->"+DESERIALIZE_BODY_METHOD+"(buf);");
             sw.write("return this_;");
@@ -1090,31 +1102,37 @@ public class Emitter {
         printTemplateSignature(ct.typeArguments(), w);
         w.write("void "+klass+"::"+DESERIALIZE_BODY_METHOD+"("+DESERIALIZATION_BUFFER+"& buf) {");
         w.newline(4); w.begin(0);
-        if (parent != null && parent.isClass()) {
-            w.write(translateType(parent)+"::"+DESERIALIZE_BODY_METHOD+"(buf);");
-            w.newline();
-        }
-        for (int i = 0; i < type.fields().size(); i++) {
-            if (i != 0)
+        if (type.isSubtype(ts.CustomSerialization(), context)) {
+            w.writeln("/* NOTE: Implements x10.io.CustomSerialization */");
+            w.writeln(translateType(ts.Any(), true)+ "val_ = buf.read"+chevrons(translateType(ts.Any(), true))+"();");
+            w.writeln(CONSTRUCTOR+"(val_);");
+        } else {
+            if (parent != null && parent.isClass()) {
+                w.write(translateType(parent)+"::"+DESERIALIZE_BODY_METHOD+"(buf);");
                 w.newline();
-            FieldInstance f = (FieldInstance) type.fields().get(i);
-            if (f.flags().isStatic() || query.isSyntheticField(f.name().toString()))
-                continue;
-            if (f.flags().isTransient()) // don't serialize transient fields of classes
-                continue;
-            String fieldName = mangled_field_name(f.name().toString());
-            w.write(fieldName+" = buf.read"+chevrons(translateType(f.type(),true))+"();");
-        }
-        // Special case x10.lang.Array to deserialize the contents of rawChunk too
-        if (ts.isX10Array(type)) {
-            String elemType = translateType(ct.typeArguments().get(0),true);
-            w.newline();
-            w.writeln("FMGL(raw) = x10::util::IndexedMemoryChunk<void>::allocate"+chevrons(elemType)+"(FMGL(rawLength),8,false,false);");
-            w.write("for (x10_int i = 0; i<this->FMGL(rawLength); i++) {");
-            w.newline(4); w.begin(0);
-            w.write("this->FMGL(raw)->set(buf.read"+chevrons(elemType)+"(), i);");
-            w.end(); w.newline();
-            w.write("}");
+            }
+            for (int i = 0; i < type.fields().size(); i++) {
+                if (i != 0)
+                    w.newline();
+                FieldInstance f = (FieldInstance) type.fields().get(i);
+                if (f.flags().isStatic() || query.isSyntheticField(f.name().toString()))
+                    continue;
+                if (f.flags().isTransient()) // don't serialize transient fields of classes
+                    continue;
+                String fieldName = mangled_field_name(f.name().toString());
+                w.write(fieldName+" = buf.read"+chevrons(translateType(f.type(),true))+"();");
+            }
+            // Special case x10.lang.Array to deserialize the contents of rawChunk too
+            if (ts.isX10Array(type)) {
+                String elemType = translateType(ct.typeArguments().get(0),true);
+                w.newline();
+                w.writeln("FMGL(raw) = x10::util::IndexedMemoryChunk<void>::allocate"+chevrons(elemType)+"(FMGL(rawLength),8,false,false);");
+                w.write("for (x10_int i = 0; i<this->FMGL(rawLength); i++) {");
+                w.newline(4); w.begin(0);
+                w.write("this->FMGL(raw)->set(buf.read"+chevrons(elemType)+"(), i);");
+                w.end(); w.newline();
+                w.write("}");
+            }
         }
         w.end(); w.newline();
         w.write("}");

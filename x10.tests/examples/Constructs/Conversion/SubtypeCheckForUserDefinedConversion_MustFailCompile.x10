@@ -15,7 +15,7 @@ import harness.x10Test;
  */
 public class SubtypeCheckForUserDefinedConversion_MustFailCompile extends x10Test {
     static class Foo {}
-    public static operator (p:ValRail[Int]) = new Foo();
+    public static operator (p:Array[Int]) = new Foo();
     public def run()=true;
     public static def main(Array[String](1)) {
 	new SubtypeCheckForUserDefinedConversion_MustFailCompile().execute();

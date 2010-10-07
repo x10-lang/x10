@@ -99,6 +99,7 @@ common/x10rt_emu.o: include/x10rt_net.h include/x10rt_types.h
 common/x10rt_emu.o: common/x10rt_internal.h include/x10rt_ser.h
 common/x10rt_emu_coll.o: include/x10rt_types.h common/x10rt_internal.h
 common/x10rt_emu_coll.o: include/x10rt_net.h include/x10rt_ser.h
+common/x10rt_emu_coll.o: include/x10rt_cpp.h
 common/x10rt_front.o: include/x10rt_front.h include/x10rt_types.h
 common/x10rt_front.o: include/x10rt_logical.h
 common/x10rt_logical.o: include/x10rt_logical.h include/x10rt_types.h
@@ -109,12 +110,15 @@ jni/jni_message.o: include/x10rt_types.h
 jni/jni_x10rt.o: include/x10_x10rt_X10RT.h include/x10rt_front.h
 jni/jni_x10rt.o: include/x10rt_types.h
 mpi/x10rt_mpi.o: include/x10rt_net.h include/x10rt_types.h
-standalone/x10rt_standalone.o: include/x10rt_net.h include/x10rt_types.h
+sockets/Launcher.o: sockets/Launcher.h sockets/TCP.h
+sockets/Launcher_Init.o: sockets/TCP.h sockets/Launcher.h
+sockets/tcp.o: sockets/TCP.h
 sockets/x10rt_sockets.o: include/x10rt_net.h include/x10rt_types.h
+sockets/x10rt_sockets.o: sockets/Launcher.h sockets/TCP.h
+standalone/x10rt_standalone.o: include/x10rt_net.h include/x10rt_types.h
 test/x10rt_basic.o: include/x10rt_front.h include/x10rt_types.h
 test/x10rt_coll.o: include/x10rt_front.h include/x10rt_types.h
-test/x10rt_coll.o: include/x10rt_ser.h include/x10rt_net.h
-test/x10rt_coll.o: include/x10rt_logical.h common/x10rt_internal.h
+test/x10rt_coll.o: include/x10rt_ser.h
 test/x10rt_gups.o: include/x10rt_front.h include/x10rt_types.h
 test/x10rt_gups.o: include/x10rt_ser.h include/x10rt_net.h
 test/x10rt_gups.o: include/x10rt_logical.h

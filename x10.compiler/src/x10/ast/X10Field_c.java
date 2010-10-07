@@ -230,9 +230,7 @@ public class X10Field_c extends Field_c {
 						}
 					}
 
-					throw new SemanticException("Cannot access field " + name + " of " + tCt 
-							+ " in class declaration header; the field may be a member of a superclass.",
-							position());
+					throw new SemanticException("Cannot access field " + name + " of " + tCt+ " in class declaration header; the field may be a member of a superclass.",position());
 				}
 			}
 		}

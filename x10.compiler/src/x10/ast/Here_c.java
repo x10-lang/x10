@@ -82,7 +82,7 @@ public class Here_c extends Expr_c
 		if (h != null) {
 			CConstraint cc = new CConstraint();
 			try {
-				cc.addSelfBinding(xc.currentPlaceTerm());
+				cc.addSelfBinding(h);
 			}
 			catch (XFailure e) {
 				throw new SemanticException("Constraint on here is inconsistent; " + e.getMessage(), position());

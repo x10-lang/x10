@@ -549,12 +549,12 @@ public final struct ULong /*TODO implements Arithmetic[ULong], Bitwise[ULong], O
             return (this.longVal & 0xFFFFFFFFFFFFFFFFL).toString();
 
         // array representation of long.MAX_VALUE + 1
-        var offs : ValRail[Int] = [0,9,2,2,3,3,7,2,0,3,6,8,5,4,7,7,5,8,0,8];
+        val offs <: Array[Int] = [0,9,2,2,3,3,7,2,0,3,6,8,5,4,7,7,5,8,0,8];
         // result buffer
-        val buf : Rail[Char] = Rail.make[Char](20, (i:Int)=>'0');
+        val buf <: Rail[Char] = Rail.make[Char](20, (i:Int)=>'0');
         // drop sign bit
         var a : Long = this.longVal & 0x7FFFFFFFFFFFFFFFL;
-        var pos : Int = offs.length();
+        var pos : Int = offs.size();
         var carry : Int = 0;
         while (pos > 0) {
             var digit : Int = ((a % 10) as Int) + offs(--pos) + carry;

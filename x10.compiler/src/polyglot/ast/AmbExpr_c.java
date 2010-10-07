@@ -71,8 +71,7 @@ public class AmbExpr_c extends Expr_c implements AmbExpr
         return n;
     }
 
-    throw new SemanticException("Could not find field or local " +
-                                "variable \"" + name + "\".", pos);
+    throw new SemanticException("Could not find field or local variable \"" + name + "\".", pos);
   }
 
   public Node typeCheck(ContextVisitor tc) throws SemanticException {

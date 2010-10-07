@@ -38,20 +38,10 @@ public class OutputStreamWriter extends Writer {
         @Native("c++", "(#0)->write(#1)")
         public native def write(Rail[Byte]): Void; //throws IOException
         
-        // @Native("java", "#0.write((#1).getByteArray())")
-        @Native("java", "try { #0.write((#1).getByteArray()); } catch (java.io.IOException e) { throw new x10.io.IOException(e.getMessage()); }")
-        @Native("c++", "(#0)->write(#1)")
-        public native def write(ValRail[Byte]): Void; //throws IOException
-        
         // @Native("java", "#0.write((#1).getByteArray(), #2, #3)")
         @Native("java", "try { #0.write((#1).getByteArray(), #2, #3); } catch (java.io.IOException e) { throw new x10.io.IOException(e.getMessage()); }")
         @Native("c++", "(#0)->write(#1)")
         public native def write(Rail[Byte], Int, Int): Void; //throws IOException
-        
-        // @Native("java", "#0.write((#1).getByteArray(), #2, #3)")
-        @Native("java", "try { #0.write((#1).getByteArray(), #2, #3); } catch (java.io.IOException e) { throw new x10.io.IOException(e.getMessage()); }")
-        @Native("c++", "(#0)->write(#1)")
-        public native def write(ValRail[Byte], Int, Int): Void; //throws IOException
     }
 
     val out: OutputStream;
@@ -71,22 +61,12 @@ public class OutputStreamWriter extends Writer {
     public def write(x: Byte): Void //throws IOException 
     = out.write(x);
     
-    public def write(buf: ValRail[Byte]): Void //throws IOException 
-    {
-        out.write(buf);
-    }
-
     public def write(buf: Rail[Byte]): Void //throws IOException 
     {
         out.write(buf);
     }
 
     public def write(buf:Rail[Byte], off: Int, len: Int): Void //throws IOException 
-    {
-        out.write(buf, off, len);
-    }
-
-    public def write(buf: ValRail[Byte], off: Int, len: Int): Void //throws IOException
     {
         out.write(buf, off, len);
     }

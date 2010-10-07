@@ -366,7 +366,7 @@ class XPromise_c implements XPromise, Serializable {
         return false;
     }
 
-    public void dump(XVar path, List<XTerm> result, boolean dumpEQV) {
+    public void dump(XVar path, List<XTerm> result, boolean dumpEQV, boolean hideFake) {
         XTerm t1 = path == null? term() : path;
         if (t1 == null)
             return;
@@ -377,6 +377,10 @@ class XPromise_c implements XPromise, Serializable {
         if (value != null) {
         		if (dumpEQV || ! t1.hasEQV()) {
         			XTerm t2 = lookup().var();
+        			if (hideFake && t1 instanceof XField && ((XField) t1).hidden)
+        				return;
+        			if (hideFake && t2 instanceof XField && ((XField) t2).hidden)
+        				return;
         			result.add( XTerms.makeEquals(t1, t2));
         		}
             return;
@@ -391,7 +395,7 @@ class XPromise_c implements XPromise, Serializable {
         			XName name = m.getKey();
         			XPromise p = m.getValue();
         			XVar path2 =  v==null? null : XTerms.makeField(v, name);
-        			p.dump(path2, result, dumpEQV);
+        			p.dump(path2, result, dumpEQV, hideFake);
         		}
         	}
         if (disEquals != null) {

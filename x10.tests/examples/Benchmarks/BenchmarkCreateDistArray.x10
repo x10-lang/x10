@@ -22,12 +22,12 @@ public class BenchmarkCreateDistArray(elementsPerPlace : Int) extends x10Test {
 
 	public def run(): Boolean = {
         // create a dummy array distributed to every place, to make sure they're all ready
-        val m = DistArray.make[Int](Dist.makeUnique(Place.places));
+        val m = DistArray.make[Int](Dist.makeUnique());
 
         val arraySize = elementsPerPlace * Place.MAX_PLACES;
 
         val start = System.nanoTime();
-        val a = DistArray.make[Int](Dist.makeBlock([0..arraySize-1]));
+        val a = DistArray.make[Int](Dist.makeBlock(0..arraySize-1));
         val stop = System.nanoTime();
 
         // do something with elements afterwards

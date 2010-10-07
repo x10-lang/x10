@@ -216,8 +216,7 @@ public class ExceptionChecker extends ErrorHandlingVisitor
          * @throws SemanticException 
          */
         void uncaughtType(Type t, Position pos) throws SemanticException {
-            throw new SemanticException("The exception \"" + t + 
-              "\" must either be caught or declared to be thrown.", pos);
+            throw new SemanticException("The exception \"" + t +"\" must either be caught or declared to be thrown.", pos);
         }
     }
     public static class CodeTypeReporter extends UncaughtReporter {
@@ -228,7 +227,7 @@ public class ExceptionChecker extends ErrorHandlingVisitor
         void uncaughtType(Type t, Position pos) throws SemanticException {
         	SemanticException e = new SemanticException(codeType + " cannot throw a \"" + t + "\"; the exception must either be caught or declared to be thrown.", pos);
             Map<String, Object> map = new HashMap<String, Object>();
-            map.put("ERROR_CODE", 1001);
+            map.put(CodedErrorInfo.ERROR_CODE_KEY, 1001);
             map.put("TYPE", t.toString());
             e.setAttributes(map);
             throw e;

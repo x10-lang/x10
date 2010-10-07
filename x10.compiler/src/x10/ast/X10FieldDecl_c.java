@@ -59,7 +59,6 @@ import x10.errors.Errors;
 import x10.extension.X10Del;
 import x10.extension.X10Del_c;
 import x10.extension.X10Ext;
-import x10.types.ConstrainedType_c;
 import x10.types.ParameterType;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
@@ -68,7 +67,6 @@ import x10.types.X10Def;
 import x10.types.X10FieldDef;
 import x10.types.X10Flags;
 import x10.types.X10InitializerDef;
-import x10.types.X10ParsedClassType_c;
 
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
@@ -102,7 +100,32 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
         }
         return c;
     }
-    
+
+    @Override
+    public X10FieldDecl_c flags(FlagsNode flags) {
+        return (X10FieldDecl_c) super.flags(flags);
+    }
+    @Override
+    public X10FieldDecl_c type(TypeNode type) {
+        return (X10FieldDecl_c) super.type(type);
+    }
+    @Override
+    public X10FieldDecl_c name(Id name) {
+        return (X10FieldDecl_c) super.name(name);
+    }
+    @Override
+    public X10FieldDecl_c init(Expr init) {
+        return (X10FieldDecl_c) super.init(init);
+    }
+    @Override
+    public X10FieldDecl_c fieldDef(FieldDef mi) {
+        return (X10FieldDecl_c) super.fieldDef(mi);
+    }
+    @Override
+    public X10FieldDef fieldDef() {
+        return (X10FieldDef) super.fieldDef();
+    }
+
     protected X10FieldDecl_c reconstruct(TypeNode hasType) {
     	if (this.hasType != hasType)  {
     		X10FieldDecl_c n = (X10FieldDecl_c) copy();
@@ -170,8 +193,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
         // should be reported as an error.
         if (flags().flags().isStatic() && (!flags().flags().isFinal())) {
             Errors.issue(tc.job(),
-                    new SemanticException("Cannot declare static non-final field.",
-                                        position()));
+                    new SemanticException("Cannot declare static non-final field.",position()));
         }
         
         FieldDef fi = fieldDef();
@@ -183,8 +205,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
             X10Flags x10flags = X10Flags.toX10Flags(fi.flags());
             if (! x10flags.isFinal()) 
                 Errors.issue(tc.job(),
-                        new SemanticException("Illegal " + fi +  "; structs cannot have var fields.",
-                                position()));
+                        new SemanticException("Illegal " + fi +  "; structs cannot have var fields.",position()));
         }
         
         checkVariance(tc);

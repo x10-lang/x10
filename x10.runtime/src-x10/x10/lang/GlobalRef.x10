@@ -27,9 +27,9 @@ import x10.compiler.Native;
 @NativeRep("java", "x10.core.GlobalRef<#1>", null, "new x10.rtt.ParameterizedType(x10.core.GlobalRef._RTT, #2)")
 @NativeRep("c++", "x10::lang::GlobalRef<#1 >", "x10::lang::GlobalRef<#1 >", null)
 public struct GlobalRef[T](
-    @Native("java", "((#0).home)")
+    @Native("java", "(#0).home")
     @Native("c++", "x10::lang::Place_methods::place((#0)->location)")
-    home:Place) { 
+    home:Place) {T <: Object} { 
 
    /** 
     * Create a value encapsulating the given object of type T.
@@ -50,15 +50,15 @@ public struct GlobalRef[T](
     * what the compiler would have generated.
     */
 
-    @Native("java", "((Object)#0).toString()")
+    @Native("java", "(#0).toString()")
     @Native("c++", "(#0)->toString()")
     public native def  toString():String;
 
-    @Native("java", "((Object)#0).equals(#1)")
+    @Native("java", "(#0).equals(#1)")
     @Native("c++", "(#0)->equals(#1)")
     public native def equals(that:Any):Boolean;
 
-    @Native("java", "((Object)#0).hashCode()")
+    @Native("java", "(#0).hashCode()")
     @Native("c++", "(#0)->hashCode()")
     public native def  hashCode():Int;
 }

@@ -21,10 +21,10 @@ public class Array1Exploded extends x10Test {
 
     public def run(): boolean = {
 
-        val r = [1..10, 1..10] as Region;
+        val r = (1..10)*(1..10);
         val ia = new Array[int](r);
 
-        for (val p[i,j]: Point(2) in [1..10, 1..10] as Region) {
+        for (val p[i,j]: Point(2) in (1..10)*(1..10)) {
             chk(ia(p) == 0);
             ia(p) = i+j;
         }

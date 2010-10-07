@@ -29,6 +29,7 @@ import polyglot.frontend.Job;
 import polyglot.types.ClassDef;
 import polyglot.types.ConstructorInstance;
 import polyglot.types.FieldInstance;
+import polyglot.types.FunctionDef;
 import polyglot.types.MethodInstance;
 import polyglot.types.ProcedureDef;
 import polyglot.types.ProcedureInstance;
@@ -37,6 +38,9 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.Types;
 import polyglot.types.VarInstance;
+import polyglot.types.MemberDef;
+import polyglot.types.TypeObject;
+import polyglot.types.ClassType;
 import polyglot.types.TypeSystem_c.ConstructorMatcher;
 import polyglot.types.TypeSystem_c.MethodMatcher;
 import polyglot.util.CodedErrorInfo;
@@ -91,37 +95,113 @@ public class Errors {
 
 	public static interface DepTypeException {}
 	public static interface ConversionException {}
+    public static class EqualByTypeAndPosException extends SemanticException {
 
-	public static class CannotAssign extends SemanticException {
+        public EqualByTypeAndPosException(String m, Position position) {
+            super(m,position);
+        }
+		public final boolean equals(Object o) {
+			if (o==null || o.getClass()!=this.getClass() )
+				return false;
+			return posEquals(((EqualByTypeAndPosException)o).position(),position());
+		}
+        public final void issue(Job job) {
+            Errors.issue(job, this);
+        }
+    }
+
+    // todo Yoav added: I use serialVersionUID=1L like lpg parser. We should increment it if an class changes.
+    
+    public static class ClassCannotHaveSuperInterface extends EqualByTypeAndPosException {
+		private static final long serialVersionUID = -1L;
+		public ClassCannotHaveSuperInterface(ClassType type, Position p) {
+			super("Class " + type + " cannot have a superinterface.", p);
+		}
+	}
+    public static class SuperInterfaceNotInterface extends EqualByTypeAndPosException {
+		private static final long serialVersionUID = -1L;
+		public SuperInterfaceNotInterface(Type t, ClassType type, Position p) {
+			super("Superinterface " + t + " of " + type + " is not an interface.", p);
+		}
+	}
+    public static class CannotHaveSuperclass extends EqualByTypeAndPosException {
+		private static final long serialVersionUID = -1L;
+		public CannotHaveSuperclass(ClassType type, Position p) {
+			super("Class \"" + type + "\" cannot have a superclass.", p);
+		}
+	}
+    public static class ExtendedFinalClass extends EqualByTypeAndPosException {
+		private static final long serialVersionUID = -1L;
+		public ExtendedFinalClass(ClassType type, Position p) {
+			super("Cannot extend final class \"" + type.superClass() + "\".", p);
+		}
+	}
+    public static class ExtendedNonClass extends EqualByTypeAndPosException {
+		private static final long serialVersionUID = -1L;
+		public ExtendedNonClass(ClassType type, Position p) {
+			super("Cannot extend non-class \"" + type.superClass() + "\".", p);
+		}
+	}
+    public static class InnerDeclaredStatic extends EqualByTypeAndPosException {
+		private static final long serialVersionUID = -1L;
+		public InnerDeclaredStatic(ClassType type, Position p) {
+			super("Inner classes cannot declare static member classes.", p);
+		}
+	}
+    public static class InnerDeclaredInterface extends EqualByTypeAndPosException {
+		private static final long serialVersionUID = -1L;
+		public InnerDeclaredInterface(ClassType type, Position p) {
+			super("Inner classes cannot declare member interfaces.", p);
+		}
+	}
+    public static class SameNameLocal extends EqualByTypeAndPosException {
+		private static final long serialVersionUID = -1L;
+		public SameNameLocal(ClassType type, Position p) {
+			super("Cannot declare local " +
+                                    "class \"" + type + "\" within the same " +
+                                    "method, constructor or initializer as another " +
+                                    "local class of the same name.", p);
+		}
+	}
+
+    public static class SameNameClass extends EqualByTypeAndPosException {
+		private static final long serialVersionUID = -1L;
+		public SameNameClass(ClassType type, Position p) {
+			super("Cannot declare member " +
+                                "class \"" + type.fullName() +
+                                "\" inside class with the " +
+                                "same name.", p);
+		}
+    }
+	public static class DuplicateMember extends EqualByTypeAndPosException {
+		private static final long serialVersionUID = -1L;
+		public DuplicateMember(TypeObject def) {
+			super("Duplicate member " + def, def.position());
+		}
+	}
+
+	public static class CannotAssign extends EqualByTypeAndPosException {
 		private static final long serialVersionUID = -4243637083971033996L;
 		public CannotAssign(Expr expr, Type targetType, Position pos) {
 			super("Cannot assign expression to target."
 					+ "\n\t Expression: " + expr
-					+ "\n\t Type: " + expr.type()
-					+ "\n\t Expected type: " + targetType, pos);
-		}
-		public boolean equals(Object o) {
-			if (o==null || ! (o instanceof CannotAssign) )
-				return false;
-			return((CannotAssign)o).position().equals(position());
+					+ "\n\t Expected type: " + targetType
+					+ "\n\t Found type: " + expr.type()
+					, pos);
 		}
 	}
-	public static class FieldInitTypeWrong extends SemanticException {
+	public static class FieldInitTypeWrong extends EqualByTypeAndPosException {
 		private static final long serialVersionUID = 4778277210134359519L;
 
 		public FieldInitTypeWrong(Expr expr, Type targetType, Position pos) {
 			super("The type of the field initializer is not a subtype of the field type."
 					+ "\n\t Expression: " + expr
-					+ "\n\t Type: " + expr.type()
-					+ "\n\t Expected type: " + targetType, pos);
-		}
-		public boolean equals(Object o) {
-			if (o==null || ! (o instanceof FieldInitTypeWrong) )
-				return false;
-			return((FieldInitTypeWrong)o).position().equals(position());
+					+ "\n\t Expected type: " + targetType
+					+ "\n\t Found type: " + expr.type()
+					, pos);
 		}
 	}
-	public static class IncompatibleReturnType extends SemanticException {
+	public static class IncompatibleReturnType extends EqualByTypeAndPosException {
 		private static final long serialVersionUID = -6220163900080278288L;
 
 		public IncompatibleReturnType(MethodInstance mi, MethodInstance mj) {
@@ -130,38 +210,23 @@ public class Errors {
 					+ "\n\t Expected Type: " + mj.returnType()
 					+ "\n\t Found Type: " + mi.returnType(), mi.position());
 		}
-		public boolean equals(Object o) {
-			if (o==null || ! (o instanceof IncompatibleReturnType) )
-				return false;
-			return((IncompatibleReturnType)o).position().equals(position());
-		}
 	}
 
-	public static class InvalidParameter extends SemanticException {
+	public static class InvalidParameter extends EqualByTypeAndPosException {
 		private static final long serialVersionUID = -1351185257724314440L;
 		public InvalidParameter(Type from, Type to, Position pos) {
-			super("Invalid Parameter.\n\t expected type: " + to + "\n\t found: " + from, pos);
-		}
-		public boolean equals(Object o) {
-			if (o==null || ! (o instanceof InvalidParameter) )
-				return false;
-			return((InvalidParameter)o).position().equals(position());
+			super("   Invalid Parameter.\n\t Expected type: " + to + "\n\t Found type: " + from, pos);
 		}
 	}
 
-	public static class NoAssignmentInDepType extends SemanticException implements DepTypeException {
+	public static class NoAssignmentInDepType extends EqualByTypeAndPosException implements DepTypeException {
 		private static final long serialVersionUID = 8343234065357158485L;
 		public NoAssignmentInDepType(FieldAssign f, Position pos) {
-			super("Assignment may not appear in a dependent type: \n\t Error: " + f, pos);
-		}
-		public boolean equals(Object o) {
-			if (o==null || ! (o instanceof NoAssignmentInDepType) )
-				return false;
-			return((NoAssignmentInDepType)o).position().equals(position());
+			super("Assignment may not appear in a constrained type: \n\t Error: " + f, pos);
 		}
 	}
 
-	public static class PlaceTypeException extends SemanticException {
+	public static class PlaceTypeException extends EqualByTypeAndPosException {
 		private static final long serialVersionUID = -8998234559836889448L;
 
 		public PlaceTypeException(String s, Position p) {
@@ -172,11 +237,6 @@ public class Errors {
 		private static final long serialVersionUID = -7491337042919050786L;
 		public PlaceTypeErrorFieldShouldBeGlobal(Field f, Position pos) {
 			super("Place type error: Field should be global. \n\t Field: " + f, pos);
-		}
-		public boolean equals(Object o) {
-			if (o==null || ! (o instanceof PlaceTypeErrorFieldShouldBeGlobal) )
-				return false;
-			return((PlaceTypeErrorFieldShouldBeGlobal)o).position().equals(position());
 		}
 	}
 	public static class PlaceTypeErrorFieldShouldBeLocalOrGlobal extends PlaceTypeException {
@@ -189,11 +249,6 @@ public class Errors {
 					+ "\n\t Current place: " + place,
 					pos);
 		}
-		public boolean equals(Object o) {
-			if (o==null || ! (o instanceof PlaceTypeErrorFieldShouldBeLocalOrGlobal) )
-				return false;
-			return posEquals(this.position(), ((SemanticError) o).position());
-		}
 	}
 
 	public static class PlaceTypeErrorMethodShouldBeGlobal extends PlaceTypeException {
@@ -202,11 +257,6 @@ public class Errors {
 		public PlaceTypeErrorMethodShouldBeGlobal(Call c, Position pos) {
 			super("Place type error: Method should be global. (Called within a global method.) " +
 					"\n\t Method: " + c.name(), pos);
-		}
-		public boolean equals(Object o) {
-			if (o==null || ! (o instanceof PlaceTypeErrorMethodShouldBeGlobal) )
-				return false;
-			return posEquals(this.position(), ((SemanticError) o).position());
 		}
 	}
 	public static class PlaceTypeErrorMethodShouldBeLocalOrGlobal extends  PlaceTypeException {
@@ -219,70 +269,44 @@ public class Errors {
 					+ "\n\t Current place: " + place
 					+ "\n\t Method: " + c.name(), pos);
 		}
-		public boolean equals(Object o) {
-			if (o==null || ! (o instanceof PlaceTypeErrorMethodShouldBeLocalOrGlobal) )
-				return false;
-
-			return posEquals(this.position(), ((SemanticError) o).position());
-		}
 	}
 	static boolean posEquals(Position a, Position b) {
 		return a.line()==b.line() && a.column()==b.column();
 	}
-	public static class DependentClauseErrorFieldMustBeFinal extends SemanticException implements DepTypeException {
+	public static class DependentClauseErrorFieldMustBeFinal extends EqualByTypeAndPosException implements DepTypeException {
 		private static final long serialVersionUID = 8737323529719693415L;
 		public DependentClauseErrorFieldMustBeFinal(Field f,Position pos) {
-			super("Only final fields are permitted in dependent clauses."
+			super("Only val fields are permitted in constraints."
 					+ "\n\t Field: " + f, pos);
-		}
-		public boolean equals(Object o) {
-			if (o==null || ! (o instanceof DependentClauseErrorFieldMustBeFinal) )
-				return false;
-			return((DependentClauseErrorFieldMustBeFinal)o).position().equals(position());
 		}
 	}
 
-	public static class DependentClauseErrorSelfMayAccessOnlyProperties extends SemanticException implements DepTypeException {
+	public static class DependentClauseErrorSelfMayAccessOnlyProperties extends EqualByTypeAndPosException implements DepTypeException {
 		private static final long serialVersionUID = 8019315512496243771L;
 		public DependentClauseErrorSelfMayAccessOnlyProperties(FieldInstance fi,Position pos) {
-			super("Only properties may be prefixed with self in a dependent clause."
+			super("Only properties may be prefixed with self in a constraint."
 					+ "\n\t Field: " + fi.name()
 					+ "\n\t Container: " + fi.container(), pos);
 		}
-		public boolean equals(Object o) {
-			if (o==null || ! (o instanceof DependentClauseErrorSelfMayAccessOnlyProperties) )
-				return false;
-			return((DependentClauseErrorSelfMayAccessOnlyProperties)o).position().equals(position());
-		}
 	}
 
-	public static class DependentClauseIsInconsistent extends SemanticException {
+	public static class DependentClauseIsInconsistent extends EqualByTypeAndPosException {
 	    private static final long serialVersionUID = -737687218058693221L;
 	    public DependentClauseIsInconsistent(String entity, DepParameterExpr e) {
-	        super("The "+entity+"'s dependent clause is inconsistent.",
+	        super("The "+entity+"'s constraint is inconsistent.",
 	              e == null ? null : e.position());
-	    }
-	    public boolean equals(Object o) {
-	        if (o==null || ! (o instanceof DependentClauseIsInconsistent) )
-	            return false;
-	        return((DependentClauseIsInconsistent)o).position().equals(position());
 	    }
 	}
 
-	public static class CannotAccessStaticFieldOfTypeParameter extends SemanticException {
+	public static class CannotAccessStaticFieldOfTypeParameter extends EqualByTypeAndPosException {
 		private static final long serialVersionUID = -8016592273145691613L;
 		public CannotAccessStaticFieldOfTypeParameter(Type t,Position pos) {
 			super("Cannot access static field of a type parameter"
 					+ "\n\t Type Parameter: " + t, pos);
 		}
-		public boolean equals(Object o) {
-			if (o==null || ! (o instanceof CannotAccessStaticFieldOfTypeParameter) )
-				return false;
-			return((CannotAccessStaticFieldOfTypeParameter)o).position().equals(position());
-		}
 	}
 
-	public static class CannotConvertToType extends SemanticException implements ConversionException {
+	public static class CannotConvertToType extends EqualByTypeAndPosException implements ConversionException {
 		private static final long serialVersionUID = 5580836853775144578L;
 
 		public CannotConvertToType(Type fromType,  Type toType, Position pos) {
@@ -291,14 +315,9 @@ public class Errors {
 					+ "\n\t To type: " + toType,
 					pos);
 		}
-		public boolean equals(Object o) {
-			if (o==null || ! (o instanceof CannotConvertToType) )
-				return false;
-			return((CannotConvertToType)o).position().equals(position());
-		}
 	}
 
-	public static class CannotConvertExprToType extends SemanticException implements ConversionException {
+	public static class CannotConvertExprToType extends EqualByTypeAndPosException implements ConversionException {
 		private static final long serialVersionUID = -3353656656440601443L;
 		public CannotConvertExprToType(Expr expr, Converter.ConversionType conversion,  Type toType, Position pos) {
 			super("Cannot "
@@ -309,55 +328,35 @@ public class Errors {
 					+ "\n\t To type: " + toType,
 					pos);
 		}
-		public boolean equals(Object o) {
-			if (o==null || ! (o instanceof CannotConvertExprToType) )
-				return false;
-			return((CannotConvertExprToType)o).position().equals(position());
-		}
 	}
 
-	public static class InconsistentReturnType extends SemanticException {
+	public static class InconsistentReturnType extends EqualByTypeAndPosException {
 		private static final long serialVersionUID = 5928425853367539997L;
 
 		public <PI extends X10ProcedureInstance<?>> InconsistentReturnType(Type t, PI me) {
 			super("Inconsistent return type."
 					+ "\n\t ReturnType: " + t
-					+ "\n\t Invocation: " + me
-					+ "\n\t Position: " + me.position());
-		}
-		public boolean equals(Object o) {
-			if (o==null || ! (o instanceof InconsistentReturnType) )
-				return false;
-			return((InconsistentReturnType)o).position().equals(position());
+					+ "\n\t Invocation: " + me,
+                    me.position());
 		}
 	}
-	public static class GlobalFieldIsVar extends SemanticException {
+	public static class GlobalFieldIsVar extends EqualByTypeAndPosException {
 		private static final long serialVersionUID = 57613769584666608L;
 		public GlobalFieldIsVar(X10FieldDecl f) {
 			super("Global field cannot be var."
 					+ "\n\t Field: " + f.name(),
 					f.position());
 		}
-		public boolean equals(Object o) {
-			if (o==null || ! (o instanceof GlobalFieldIsVar) )
-				return false;
-			return((GlobalFieldIsVar)o).position().equals(position());
-		}
 	}
-	public static class CannotAssignToProperty extends SemanticException {
+	public static class CannotAssignToProperty extends EqualByTypeAndPosException {
 		private static final long serialVersionUID = 3461823901187721248L;
 		public CannotAssignToProperty(X10FieldInstance f, Position p) {
 			super("Must use property(...) to assign to a property."
 					+ "\n\t Property: " + f.name(),
 					p);
 		}
-		public boolean equals(Object o) {
-			if (o==null || ! (o instanceof CannotAssignToProperty) )
-				return false;
-			return((CannotAssignToProperty)o).position().equals(position());
-		}
 	}
-	public static class TernaryConditionalTypeUndetermined extends SemanticException {
+	public static class TernaryConditionalTypeUndetermined extends EqualByTypeAndPosException {
 		private static final long serialVersionUID = -3724235800269996470L;
 		public TernaryConditionalTypeUndetermined(Type t1, Type t2, Position p) {
 			super("Could not determine type of ternary conditional expression. "
@@ -366,50 +365,30 @@ public class Errors {
 					+ "\n\t T2: " + t2,
 					p);
 		}
-		public boolean equals(Object o) {
-			if (o==null || ! (o instanceof TernaryConditionalTypeUndetermined) )
-				return false;
-			return((TernaryConditionalTypeUndetermined)o).position().equals(position());
-		}
 	}
-	public static class TypedefMustBeStatic extends SemanticException {
+	public static class TypedefMustBeStatic extends EqualByTypeAndPosException {
 	    private static final long serialVersionUID = -1088534868188898121L;
 	    public TypedefMustBeStatic(MacroType mt, Position pos) {
 	        super("Illegal type def " + mt + ": type-defs must be static.", pos);
 	    }
-	    public boolean equals(Object o) {
-	        if (o==null || ! (o instanceof TypedefMustBeStatic) )
-	            return false;
-	        return((TypedefMustBeStatic)o).position().equals(position());
-	    }
 	}
-	public static class StructMustBeStatic extends SemanticException {
+	public static class StructMustBeStatic extends EqualByTypeAndPosException {
 		private static final long serialVersionUID = 1450037642852701286L;
 		public StructMustBeStatic(X10ClassDecl cd) {
 			super("Struct must be declared static."
 					+ "\n\t Struct: " + cd.name(),
 					cd.position());
 		}
-		public boolean equals(Object o) {
-			if (o==null || ! (o instanceof StructMustBeStatic) )
-				return false;
-			return((StructMustBeStatic)o).position().equals(position());
-		}
 	}
-	public static class NewOfStructNotPermitted extends SemanticException {
+	public static class NewOfStructNotPermitted extends EqualByTypeAndPosException {
 		private static final long serialVersionUID = 2484875712265904017L;
 		public NewOfStructNotPermitted(New n) {
 			super("Struct constructor invocations must not use \"new\"."
 					+ "\n\t Struct: " + n.toString(),
 					n.position());
 		}
-		public boolean equals(Object o) {
-			if (o==null || ! (o instanceof NewOfStructNotPermitted) )
-				return false;
-			return((NewOfStructNotPermitted)o).position().equals(position());
-		}
 	}
-	public static class InstanceofError extends SemanticException {
+	public static class InstanceofError extends EqualByTypeAndPosException {
 		private static final long serialVersionUID = -3026696944876868780L;
 		public InstanceofError(Type left, Type right, Position pos) {
 			super("Left operand of instanceof must be castable to right type."
@@ -417,40 +396,25 @@ public class Errors {
 					+ "\n\t Right type: " + right,
 					pos);
 		}
-		public boolean equals(Object o) {
-			if (o==null || ! (o instanceof InstanceofError) )
-				return false;
-			return((InstanceofError)o).position().equals(position());
-		}
 	}
-	public static class VarMustBeFinalInTypeDef extends SemanticException {
+	public static class VarMustBeFinalInTypeDef extends EqualByTypeAndPosException {
 		private static final long serialVersionUID = -1828548933164244089L;
 		public VarMustBeFinalInTypeDef(String name, Position pos) {
 			super("Variable must be immutable (val) in type def."
 					+ "\n\t Variable: " + name,
 					pos);
 		}
-		public boolean equals(Object o) {
-			if (o==null || ! (o instanceof VarMustBeFinalInTypeDef) )
-				return false;
-			return((VarMustBeFinalInTypeDef)o).position().equals(position());
-		}
 	}
-	public static class VarMustBeAccessibleInTypeDef extends SemanticException {
+	public static class VarMustBeAccessibleInTypeDef extends EqualByTypeAndPosException {
 		private static final long serialVersionUID = -1984266198367743732L;
 		public VarMustBeAccessibleInTypeDef(VarInstance<?> var, Position pos) {
 			super("Variable must be accessible in type."
 					+ "\n\t Variable: " + var,
 					pos);
 		}
-		public boolean equals(Object o) {
-			if (o==null || ! (o instanceof VarMustBeAccessibleInTypeDef) )
-				return false;
-			return((VarMustBeAccessibleInTypeDef)o).position().equals(position());
-		}
 	}
 
-	public static class CannotExtendTwoInstancesSameInterfaceLimitation extends SemanticException {
+	public static class CannotExtendTwoInstancesSameInterfaceLimitation extends EqualByTypeAndPosException {
 		private static final long serialVersionUID = -1984266198367743732L;
 		public CannotExtendTwoInstancesSameInterfaceLimitation(Type t1, Type t2, Position pos) {
 			super("LIMITATION: Cannot extend different instantiations of the same type."
@@ -458,28 +422,18 @@ public class Errors {
 					+ "\n\t Type 2: " + t2,
 					pos);
 		}
-		public boolean equals(Object o) {
-			if (o==null || ! (o instanceof CannotExtendTwoInstancesSameInterfaceLimitation) )
-				return false;
-			return((CannotExtendTwoInstancesSameInterfaceLimitation)o).position().equals(position());
-		}
 	}
 
-	public static class TypeIsNotASubtypeOfTypeBound extends SemanticException {
+	public static class TypeIsNotASubtypeOfTypeBound extends EqualByTypeAndPosException {
 	    private static final long serialVersionUID = 5054688602611389407L;
 	    public TypeIsNotASubtypeOfTypeBound(Type type, Type hasType, Position pos) {
 	        super("Computed type is not a subtype of type bound." +
 	              "\n\t Computed Type: " + type +
 	              "\n\t Type Bound: " + hasType, pos);
 	    }
-	    public boolean equals(Object o) {
-	        if (o==null || ! (o instanceof TypeIsNotASubtypeOfTypeBound) )
-	            return false;
-	        return((TypeIsNotASubtypeOfTypeBound)o).position().equals(position());
-	    }
 	}
 
-	public static class TypeIsMissingParameters extends SemanticException {
+	public static class TypeIsMissingParameters extends EqualByTypeAndPosException {
 		private static final long serialVersionUID = 1254563921501323608L;
 		public TypeIsMissingParameters(Type t1, List<ParameterType> t2, Position pos) {
 			super("Type is missing parameters."
@@ -487,14 +441,9 @@ public class Errors {
 					+ "\n\t Expected parameters: " + t2,
 					pos);
 		}
-		public boolean equals(Object o) {
-			if (o==null || ! (o instanceof TypeIsMissingParameters) )
-				return false;
-			return((TypeIsMissingParameters)o).position().equals(position());
-		}
 	}
 
-	public static class CannotAssignToElement extends SemanticException {
+	public static class CannotAssignToElement extends EqualByTypeAndPosException {
 		private static final long serialVersionUID = -9118489907802078734L;
 		public CannotAssignToElement(String leftString, boolean arrayP, Expr right, Type t, Position pos, SemanticException cause) {
 			super(toMessage(leftString, arrayP, right, t, cause), pos);
@@ -509,13 +458,8 @@ public class Errors {
 					+ "\n\t Type: " + t
 					+ "\n\t Cause: " + cause.getMessage();
 		}
-		public boolean equals(Object o) {
-			if (o==null || ! (o instanceof CannotAssignToElement) )
-				return false;
-			return((CannotAssignToElement)o).position().equals(position());
-		}
 	}
-	public static class CannotPerformAssignmentOperation extends SemanticException {
+	public static class CannotPerformAssignmentOperation extends EqualByTypeAndPosException {
 	    private static final long serialVersionUID = 2577635917256629928L;
 	    public CannotPerformAssignmentOperation(String leftString, boolean arrayP, String op, Expr right, Type t, Position pos, SemanticException error) {
 	        super("Cannot perform assignment expression to " + (arrayP ? "array " : "rail ") + "element of given type."
@@ -527,13 +471,8 @@ public class Errors {
 	              + "\n\t Because of: " + error.getMessage(),
 	              pos);
 	    }
-	    public boolean equals(Object o) {
-	        if (o==null || ! (o instanceof CannotPerformAssignmentOperation) )
-	            return false;
-	        return((CannotPerformAssignmentOperation)o).position().equals(position());
-	    }
 	}
-	public static class AssignSetMethodCantBeStatic extends SemanticException {
+	public static class AssignSetMethodCantBeStatic extends EqualByTypeAndPosException {
 		private static final long serialVersionUID = 2179749179921672516L;
 		public AssignSetMethodCantBeStatic(MethodInstance mi, Expr array,  Position pos) {
 			super("The set method for array cannot be static."
@@ -541,14 +480,9 @@ public class Errors {
 					+ "\n\t Method: " + mi,
 					pos);
 		}
-		public boolean equals(Object o) {
-			if (o==null || ! (o instanceof CannotAssignToElement) )
-				return false;
-			return((CannotAssignToElement)o).position().equals(position());
-		}
 	}
 
-	public static class ConstructorReturnTypeNotEntailed extends SemanticException {
+	public static class ConstructorReturnTypeNotEntailed extends EqualByTypeAndPosException {
 		private static final long serialVersionUID = -4705861378590877043L;
 		public ConstructorReturnTypeNotEntailed(CConstraint known, CConstraint ret,  Position pos) {
 			super("Instances created by this constructor do not satisfy return type"
@@ -556,13 +490,8 @@ public class Errors {
 					+ "\n\t Constraint required: " + ret,
 					pos);
 		}
-		public boolean equals(Object o) {
-			if (o==null || ! (o instanceof ConstructorReturnTypeNotEntailed) )
-				return false;
-			return((ConstructorReturnTypeNotEntailed)o).position().equals(position());
-		}
 	}
-	public static class InconsistentInvariant extends SemanticException {
+	public static class InconsistentInvariant extends EqualByTypeAndPosException {
 	    private static final long serialVersionUID = 243905319528026232L;
 	    public InconsistentInvariant(X10ClassDef cd,  Position pos) {
 	        super("Class invariant is inconsistent."
@@ -570,52 +499,32 @@ public class Errors {
 	              + "\n\t Class: " + cd,
 	              pos);
 	    }
-	    public boolean equals(Object o) {
-	        if (o==null || ! (o instanceof InconsistentInvariant) )
-	            return false;
-	        return((InconsistentInvariant)o).position().equals(position());
-	    }
 	}
-	public static class ThisNotPermittedInConstructorFormals extends SemanticException {
+	public static class ThisNotPermittedInConstructorFormals extends EqualByTypeAndPosException {
 	    private static final long serialVersionUID = -7998660806293584830L;
 	    public ThisNotPermittedInConstructorFormals(List<Formal> formals, Position pos) {
 	        super("This or super cannot be used (implicitly or explicitly) in a constructor formal type."
 	              + "\n\t Formals: "  + formals,
 	              pos);
 	    }
-	    public boolean equals(Object o) {
-	        if (o==null || ! (o instanceof ThisNotPermittedInConstructorFormals ) )
-	            return false;
-	        return((ThisNotPermittedInConstructorFormals )o).position().equals(position());
-	    }
 	}
-	public static class ThisNotPermittedInConstructorReturnType extends SemanticException {
+	public static class ThisNotPermittedInConstructorReturnType extends EqualByTypeAndPosException {
 	    private static final long serialVersionUID = 751592738631688909L;
 	    public ThisNotPermittedInConstructorReturnType(TypeNode type, Position pos) {
 	        super("This or super cannot be used (implicitly or explicitly) in a constructor return type."
 	              + "\n\t Type: "  + type,
 	              pos);
 	    }
-	    public boolean equals(Object o) {
-	        if (o==null || ! (o instanceof ThisNotPermittedInConstructorReturnType ) )
-	            return false;
-	        return((ThisNotPermittedInConstructorReturnType )o).position().equals(position());
-	    }
 	}
-	public static class ThisNotPermittedInPropertyInitializer extends SemanticException {
+	public static class ThisNotPermittedInPropertyInitializer extends EqualByTypeAndPosException {
 	    private static final long serialVersionUID = -7457369484612652452L;
 	    public ThisNotPermittedInPropertyInitializer(Expr init, Position pos) {
 	        super("This or super cannot be used (implicitly or explicitly) in a property initializer."
 	              + "\n\t Expr: "  + init,
 	              pos);
 	    }
-	    public boolean equals(Object o) {
-	        if (o==null || ! (o instanceof ThisNotPermittedInPropertyInitializer ) )
-	            return false;
-	        return((ThisNotPermittedInPropertyInitializer )o).position().equals(position());
-	    }
 	}
-	public static class MethodOrStaticConstructorNotFound extends SemanticException {
+	public static class MethodOrStaticConstructorNotFound extends EqualByTypeAndPosException {
 	    private static final long serialVersionUID = -6230289868576516608L;
 	    public MethodOrStaticConstructorNotFound(MethodMatcher mm,  Position pos) {
 	        super("Method or static constructor not found for given matcher."
@@ -623,7 +532,7 @@ public class Errors {
 	              pos);
 	        
 	        Map<String, Object> map = new HashMap<String, Object>();
-		    map.put("ERROR_CODE", 1002);
+		    map.put(CodedErrorInfo.ERROR_CODE_KEY, 1002);
 		    map.put("METHOD", mm.name().toString());
 		    map.put("ARGUMENTS", mm.argumentString());
 		    setAttributes(map);
@@ -633,13 +542,8 @@ public class Errors {
 	                + "\n\t Matcher: "  + mm,
 	                pos);
 	    }
-	    public boolean equals(Object o) {
-	        if (o==null || ! (o instanceof MethodOrStaticConstructorNotFound ) )
-	            return false;
-	        return((MethodOrStaticConstructorNotFound )o).position().equals(position());
-	    }
 	}
-	public static class AmbiguousCall extends SemanticException {
+	public static class AmbiguousCall extends EqualByTypeAndPosException {
 	    private static final long serialVersionUID = 2449179239460432298L;
         public AmbiguousCall(ProcedureInstance<?> pi,  Expr cc, Position pos) {
             super("Ambiguous call: the given procedure and closure match."
@@ -653,13 +557,8 @@ public class Errors {
 	              + "\n\t Struct constructor: " + ci,
 	              pos);
 	    }
-	    public boolean equals(Object o) {
-	        if (o==null || ! (o instanceof AmbiguousCall ) )
-	            return false;
-	        return((AmbiguousCall)o).position().equals(position());
-	    }
 	}
-	public static class AmbiguousOperator extends SemanticException {
+	public static class AmbiguousOperator extends EqualByTypeAndPosException {
 	    private static final long serialVersionUID = 2747145999189438964L;
 	    private static String matchingMethods(List<MethodInstance> mis) {
 	        StringBuilder sb = new StringBuilder();
@@ -672,13 +571,8 @@ public class Errors {
 	    public AmbiguousOperator(Binary.Operator op, List<MethodInstance> mis,  Position pos) {
 	        super("Ambiguous operator '" + op + "': all of\n" + matchingMethods(mis) + "match.", pos);
 	    }
-	    public boolean equals(Object o) {
-	        if (o==null || ! (o instanceof AmbiguousOperator ) )
-	            return false;
-	        return((AmbiguousOperator)o).position().equals(position());
-	    }
 	}
-	public static class OnlyValMayHaveHasType extends SemanticException {
+	public static class OnlyValMayHaveHasType extends EqualByTypeAndPosException {
 		private static final long serialVersionUID = -4705861378590877043L;
 		public OnlyValMayHaveHasType(X10FieldDecl field) {
 			super("Only val fields may have a has type."
@@ -686,91 +580,56 @@ public class Errors {
 					+ "\n\t Field has type: " + field.hasType(),
 					field.position());
 		}
-		public boolean equals(Object o) {
-			if (o==null || ! (o instanceof OnlyValMayHaveHasType) )
-				return false;
-			return((OnlyValMayHaveHasType)o).position().equals(position());
-		}
 	}
-	public static class CannotFindIndexType extends SemanticException {
+	public static class CannotFindIndexType extends EqualByTypeAndPosException {
 		private static final long serialVersionUID = -8300517312728182918L;
 		public CannotFindIndexType(Type type, Position position) {
 			super("Cannot determine index type for given type."
 					+ "\n\t Type: "  + type,
 					position);
 		}
-		public boolean equals(Object o) {
-			if (o==null || ! (o instanceof CannotFindIndexType) )
-				return false;
-			return((CannotFindIndexType)o).position().equals(position());
-		}
 	}
 
-	public static class CannotTranslateStaticField extends SemanticException {
+	public static class CannotTranslateStaticField extends EqualByTypeAndPosException {
 		private static final long serialVersionUID = -950551311327307252L;
 		public CannotTranslateStaticField(Type type, Position position) {
 			super("Cannot translate a static field of non-class type"
 					+ "\n\t Type: "  + type,
 					position);
 		}
-		public boolean equals(Object o) {
-			if (o==null || ! (o instanceof CannotTranslateStaticField) )
-				return false;
-			return((CannotTranslateStaticField)o).position().equals(position());
-		}
 	}
 
-	public static class CannotDisambiguate extends SemanticException {
+	public static class CannotDisambiguate extends EqualByTypeAndPosException {
 		private static final long serialVersionUID = -4594440281666152534L;
 		public CannotDisambiguate(Node n, Position position) {
 			super("Cannot disambiguate " + n, position);
 		}
-		public boolean equals(Object o) {
-			if (o==null || ! (o instanceof CannotDisambiguate) )
-				return false;
-			return((CannotDisambiguate)o).position().equals(position());
-		}
 	}
 
-	public static class CannotGenerateCast extends SemanticException {
+	public static class CannotGenerateCast extends EqualByTypeAndPosException {
 		private static final long serialVersionUID = 8124533664575933282L;
 		public CannotGenerateCast(Node n, Position position) {
 			super("Place type error with this expression. Cannot generate dynamic cast." +
 					"\n\t Expression: " + n, position);
 		}
-		public boolean equals(Object o) {
-			if (o==null || ! (o instanceof CannotGenerateCast) )
-				return false;
-			return((CannotGenerateCast)o).position().equals(position());
-		}
 	}
 
-	public static class ClassMustHaveClassSupertype extends SemanticException {
+	public static class ClassMustHaveClassSupertype extends EqualByTypeAndPosException {
 	    private static final long serialVersionUID = -7826831387240378409L;
 	    public ClassMustHaveClassSupertype(Ref<? extends Type> superType, ClassDef type, Position pos) {
 	        super(superType + " cannot be the superclass for " + type +
 	              "; a class must subclass a class.", pos);
 	    }
-	    public boolean equals(Object o) {
-	        if (o==null || ! (o instanceof ClassMustHaveClassSupertype) )
-	            return false;
-	        return((ClassMustHaveClassSupertype)o).position().equals(position());
-	    }
 	}
-	public static class NoCollectingFinishFound extends SemanticException {
+	public static class NoCollectingFinishFound extends EqualByTypeAndPosException {
 		private static final long serialVersionUID = 9107601200096892236L;
 		public NoCollectingFinishFound(String offer, Position position) {
 			super("Cannot find enclosing collecting finish for offer statement."
 					+ "\n\t Offer: "  + offer,
 					position);
 		}
-		public boolean equals(Object o) {
-			if (o==null || ! (o instanceof NoCollectingFinishFound) )
-				return false;
-			return((NoCollectingFinishFound)o).position().equals(position());
-		}
 	}
-	public static class OfferDoesNotMatchCollectingFinishType extends SemanticException {
+	public static class OfferDoesNotMatchCollectingFinishType extends EqualByTypeAndPosException {
 		private static final long serialVersionUID = -4277756733682836855L;
 		public OfferDoesNotMatchCollectingFinishType(Type eType, Type fType, Position position) {
 			super("The type of the offer expression does not match the type of the collecting finish."
@@ -778,13 +637,8 @@ public class Errors {
 					+ "\n\t Collecting finish type: "  + fType,
 					position);
 		}
-		public boolean equals(Object o) {
-			if (o==null || ! (o instanceof OfferDoesNotMatchCollectingFinishType) )
-				return false;
-			return((OfferDoesNotMatchCollectingFinishType)o).position().equals(position());
-		}
 	}
-	public static class IsNotReducible extends SemanticException {
+	public static class IsNotReducible extends EqualByTypeAndPosException {
 		private static final long serialVersionUID = 6604309927252841516L;
 		public IsNotReducible(Expr expr,  Position position) {
 			super("The reducer must be of type Reducible[T], for some type T."
@@ -792,73 +646,76 @@ public class Errors {
 					+ "\n\t Reducer type: "  + expr.type(),
 					position);
 		}
-		public boolean equals(Object o) {
-			if (o==null || ! (o instanceof OfferDoesNotMatchCollectingFinishType) )
-				return false;
-			return((OfferDoesNotMatchCollectingFinishType)o).position().equals(position());
-		}
 	}
-	public static class CannotCallCodeThatOffers extends SemanticException {
+	public static class CannotCallCodeThatOffers extends EqualByTypeAndPosException {
 		private static final long serialVersionUID = 1561991534265566375L;
 		public CannotCallCodeThatOffers(X10ProcedureInstance<? extends ProcedureDef> pi,  Position position) {
 			super("Code that can offer values of given type is invoked in a context which does not expect offers."
 					+ "\n\t Offer type: " + Types.get(pi.offerType()),
 					position);
 		}
-		public boolean equals(Object o) {
-			if (o==null || ! (o instanceof CannotCallCodeThatOffers) )
-				return false;
-			return((CannotCallCodeThatOffers)o).position().equals(position());
-		}
 	}
-	public static class OfferTypeMismatch extends SemanticException {
+	public static class OfferTypeMismatch extends EqualByTypeAndPosException {
 		private static final long serialVersionUID = 6476600577193965991L;
 		public OfferTypeMismatch(Type actualType, Type expectedType,   Position position) {
 			super("Offer type mismatch."
+					+ "\n\t Expected offer type: " + expectedType
 					+ "\n\t Found offer type: " + actualType
-					+ "\n\t Expected offer type: " + expectedType,
+					,
 					position);
 		}
-		public boolean equals(Object o) {
-			if (o==null || ! (o instanceof OfferTypeMismatch) )
-				return false;
-			return((OfferTypeMismatch)o).position().equals(position());
-		}
 	}
-	public static class StructMayNotBeGlobal extends SemanticException {
+	public static class StructMayNotBeGlobal extends EqualByTypeAndPosException {
 		private static final long serialVersionUID = 6179492565190231102L;
 		public StructMayNotBeGlobal(Position position, X10ClassDecl cd) {
 			super("global modifier cannot be used for structs."
 					+ "\n\t Struct declaration: " + cd.name(), 
 					position);
 		}
-		public boolean equals(Object o) {
-			if (o==null || ! (o instanceof OfferTypeMismatch) )
-				return false;
-			return((OfferTypeMismatch)o).position().equals(position());
-		}
 	}
-	public static class GlobalClassMustHaveGlobalClassSupertype extends SemanticException {
+	public static class GlobalClassMustHaveGlobalClassSupertype extends EqualByTypeAndPosException {
 		private static final long serialVersionUID = 2237512073167205925L;
 		public GlobalClassMustHaveGlobalClassSupertype(Ref<? extends Type> superType, ClassDef type, Position pos) {
 	        super(superType + " cannot be the superclass for " + type +
 	              "; a global class must subclass a global class.", pos);
 	    }
-	    public boolean equals(Object o) {
-	        if (o==null || ! (o instanceof GlobalClassMustHaveGlobalClassSupertype) )
-	            return false;
-	        return((GlobalClassMustHaveGlobalClassSupertype)o).position().equals(position());
-	    }
 	}
-	public static class IllegalClockedAccess extends SemanticException {
+	public static class IllegalClockedAccess extends EqualByTypeAndPosException {
 		private static final long serialVersionUID = -5824261892277076305L;
 		public IllegalClockedAccess(Field field,  Position pos) {
 	        super(field + " must be accessed in a clocked context.", pos);
 	    }
-	    public boolean equals(Object o) {
-	        if (o==null || ! (o instanceof IllegalClockedAccess) )
-	            return false;
-	        return((IllegalClockedAccess)o).position().equals(position());
+	}
+	public static class CannotReturnExpr extends EqualByTypeAndPosException {
+		private static final long serialVersionUID = 211999857915638603L;
+		public CannotReturnExpr(Type type,  Type returnType, Position pos) {
+	        super("Cannot return expression of given type."
+	        		+ "\n\t type: " + type
+	        		+ "\n\t desired Type:" + returnType, pos);
+	    }
+	}
+	public static class ArrayLiteralMustBeOfArrayType extends EqualByTypeAndPosException {
+		private static final long serialVersionUID = 3059270665285777371L;
+		public ArrayLiteralMustBeOfArrayType(String typeName,   Position pos) {
+	        super("An array literal must start with 'new Array...'.", pos);
+	    }
+	}
+	public static class ArrayLiteralTypeMismatch extends EqualByTypeAndPosException {
+		private static final long serialVersionUID = -8344153029213631407L;
+		public ArrayLiteralTypeMismatch(Expr e, Type itype) {
+	        super("The literal is not of the given type"
+	        		+ "\n\t expr:" + e
+	        		+ "\n\t type: " + e.type()
+	        		+ "\n\t desired type: " + itype, e.position());
+	    }
+	}
+	public static class AtArgMustBePlace extends EqualByTypeAndPosException {
+		private static final long serialVersionUID = -2736877234203434252L;
+		public AtArgMustBePlace(Expr e, Type placeType, Position pos) {
+	        super("The place argument to the at statement cannot be converted to type Place."
+	        		+ "\n\t expr:" + e
+	        		+ "\n\t type: " + e.type()
+	        		+ "\n\t desired type: " + placeType, pos);
 	    }
 	}
 }

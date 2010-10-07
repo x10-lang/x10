@@ -29,9 +29,10 @@ extern "C" int fileno (FILE *__stream);
 #define X10LAUNCHER_SSH "X10LAUNCHER_SSH" // the ssh command.  This doesn't normally need to be set.
 #define X10LAUNCHER_PARENT "X10LAUNCHER_PARENT" // the hostname:port of the parent launcher.  This is set by the launcher.
 #define X10LAUNCHER_RUNTIME "X10LAUNCHER_RUNTIME" // this is a flag to run as a runtime or a launcher.  Set by the launcher.
+#define X10LAUNCHER_CWD "X10LAUNCHER_CWD" // the working directory of the program
 
 // Enable/disable debug information
-#define DEBUG 1
+//#define DEBUG 1
 
 enum CTRL_MSG_TYPE {HELLO, GOODBYE, PORT_REQUEST, PORT_RESPONSE};
 struct ctrl_msg
@@ -86,7 +87,7 @@ class Launcher
 		int _argc; /* argc copied from init */
 		char _realpath[512]; /* real path of executable */
 		char _ssh_command[64]; /* the SSH command. */
-		char _hostfname[256]; /* host file name */
+		char _hostfname[512]; /* host file name */
 		uint32_t _nplaces; /* number of processors in job */
 		uint32_t _myproc; /* my processor ID */
 

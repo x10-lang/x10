@@ -88,9 +88,7 @@ public class AmbTypeNode_c extends TypeNode_c implements AmbTypeNode {
               return n;
           }
 
-          ex = new SemanticException("Could not find type \"" +
-                                     (prefix == null ? name.id() : prefix.toString() + "." + name.id()) +
-                                     "\".", position());
+          ex = new SemanticException("Could not find type \"" + (prefix == null ? name.id() : prefix.toString() + "." + name.id()) + "\".", position());
       }
       catch (SemanticException e) {
           ex = e;

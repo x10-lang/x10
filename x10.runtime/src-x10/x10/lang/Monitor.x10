@@ -16,42 +16,50 @@ import x10.compiler.Global;
 import x10.util.Stack;
 
 @Pinned public class Monitor extends Lock {
-	static type Thread = Runtime.Thread;
-        /**
-         * Parked threads
-         */
-        private val threads = new Stack[Thread]();
+    public def this() { super(); }
 
-        /**
-         * Park calling thread
-         * Increment blocked thread count
-         * Must be called while holding the lock
-         * Must not be called while holding the lock more than once
-         */
-        def await():void {
-            Runtime.increaseParallelism();
-            val thread = Thread.currentThread();
-            threads.push(thread);
-            while (threads.contains(thread)) {
-                unlock();
-                Runtime.park();
-                lock();
-            }
-        }
+    private def this(Any) {
+        throw new UnsupportedOperationException("Cannot deserialize "+typeName());
+    }
 
-        /**
-         * Unpark every thread
-         * Decrement blocked thread count
-         * Release the lock
-         * Must be called while holding the lock
-         */
-        def release():void {
-            val size = threads.size();
-            if (size > 0) {
-                Runtime.decreaseParallelism(size);
-                for (var i:Int = 0; i<size; i++) Runtime.unpark(threads.pop());
-            }
+
+    static type Thread = Runtime.Thread;
+
+    /**
+     * Parked threads
+     */
+    private val threads = new Stack[Thread]();
+
+    /**
+     * Park calling thread
+     * Increment blocked thread count
+     * Must be called while holding the lock
+     * Must not be called while holding the lock more than once
+     */
+    def await():void {
+        Runtime.increaseParallelism();
+        val thread = Thread.currentThread();
+        threads.push(thread);
+        while (threads.contains(thread)) {
             unlock();
+            Runtime.park();
+            lock();
         }
     }
+
+    /**
+     * Unpark every thread
+     * Decrement blocked thread count
+     * Release the lock
+     * Must be called while holding the lock
+     */
+    def release():void {
+        val size = threads.size();
+        if (size > 0) {
+            Runtime.decreaseParallelism(size);
+            for (var i:Int = 0; i<size; i++) Runtime.unpark(threads.pop());
+        }
+        unlock();
+    }
+}
 

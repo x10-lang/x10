@@ -18,16 +18,8 @@ public class UByteType<T> extends RuntimeType<T> {
         super(c);
     }
 
-    public UByteType(Class<?> c, Variance... variances) {
-        super(c, variances);
-    }
-
     public UByteType(Class<?>c, Type<?>[] parents) {
         super(c, parents);
-    }
-
-    public UByteType(Class<?> c, Variance[] variances, Type<?>[] parents) {
-        super(c, variances, parents);
     }
 
     @Override

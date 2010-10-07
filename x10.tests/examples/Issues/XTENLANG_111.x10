@@ -18,7 +18,7 @@ import harness.x10Test;
 class XTENLANG_111 extends x10Test {
 
     static class P {
-        public static operator (r: ValRail[int]): P { throw new RuntimeException(); }
+        public static operator (r: Array[int]): P { throw new RuntimeException(); }
     }
     
     static class A {

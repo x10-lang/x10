@@ -29,10 +29,10 @@ public final class GrowableRail[T] implements Indexable[Int,T], Settable[Int,T] 
     @Native("c++", "(#0)->add(#1)")
     public native def add(T): Void;
 
-    /** Insert an existing valrail to the rail at specified location, incrementing length. */
+    /** Insert an rail to the rail at specified location, incrementing length. */
     @Native("java", "(#0).insert(#1, #2)")
     @Native("c++", "(#0)->insert(#1, #2)")
-    public native def insert(p:Int, items:ValRail[T]): Void;
+    public native def insert(p:Int, items:Rail[T]): Void;
 
     /** Get the Int element of the rail, failing unless 0 &lt;= Int &lt; length. */
     @Native("java", "(#0).apply$G(#1)")
@@ -60,24 +60,24 @@ public final class GrowableRail[T] implements Indexable[Int,T], Settable[Int,T] 
     public native def removeLast(): Void;
 
     /**
-     * Transfer elements between i and j (inclusive) into a new ValRail,
+     * Transfer elements between i and j (inclusive) into a new Rail,
      * in the order in which they appear in this rail.  The elements
      * following element j are shifted over to position i.
      * (j-i+1) must be no greater than s, the size of the rail.
      * On return the rail has s-(j-i+1) elements.
      */
-    @Native("java", "(#0).moveSectionToValRail(#1, #2)")
-    @Native("c++", "(#0)->moveSectionToValRail(#1, #2)")
-    public native def moveSectionToValRail(i:Int, j:Int): ValRail[T];
+    @Native("java", "(#0).moveSectionToRail(#1, #2)")
+    @Native("c++", "(#0)->moveSectionToRail(#1, #2)")
+    public native def moveSectionToRail(i:Int, j:Int): Rail[T];
 
     /** Convert to a mutable rail.  This copies the content of the rail. */
     @Native("java", "(#0).toRail()")
     @Native("c++", "(#0)->toRail()")
     public native def toRail(): Rail[T];
 
-    /** Convert to an immutable rail.  This copies the content of the rail. */
-    @Native("java", "(#0).toValRail()")
-    @Native("c++", "(#0)->toValRail()")
-    public native def toValRail(): ValRail[T];
+    /** Convert to a mutable array.  This copies the content of the rail. */
+    @Native("java", "(#0).toArray()")
+    @Native("c++", "(#0)->toArray()")
+    public native def toArray():Array[T](1){self.rail};
 }
 

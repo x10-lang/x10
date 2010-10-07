@@ -16,7 +16,7 @@ public class KMeansDist {
 
     static val DIM=2, CLUSTERS=4, POINTS=2000, ITERATIONS=50;
 
-    static val points_region = [0,0]..[POINTS-1,DIM-1];
+    static val points_region = (0..POINTS-1)*(0..DIM-1);
 
     public static def main (Array[String]) {
         val rnd = PlaceLocalHandle.make[Random](Dist.makeUnique(), () => new Random(0));
@@ -86,8 +86,9 @@ public class KMeansDist {
                 }
             }
 
+
             for (var j:Int=0 ; j<DIM*CLUSTERS ; ++j) {
-	        old_central_clusters(j) = central_clusters(j);
+                old_central_clusters(j) = central_clusters(j);
                 central_clusters(j) = 0;
             }
 
@@ -96,14 +97,17 @@ public class KMeansDist {
             }
 
             finish {
+                val central_clusters_gr = GlobalRef(central_clusters);
+                val central_cluster_counts_gr = GlobalRef(central_cluster_counts);
+                val there = here;
                 for (d in points_dist.places()) async {
                
-                    at (Place.FIRST_PLACE) atomic {
+                    at (there) atomic {
                         for (var j:Int=0 ; j<DIM*CLUSTERS ; ++j) {
-                            central_clusters(j) += local_new_clusters()(j);
+                            central_clusters_gr()(j) += local_new_clusters()(j);
                         }
                         for (var j:Int=0 ; j<CLUSTERS ; ++j) {
-                            central_cluster_counts(j) += local_cluster_counts()(j);
+                            central_cluster_counts_gr()(j) += local_cluster_counts()(j);
                         }
                     }
                 }

@@ -53,7 +53,7 @@ public final class PlaceLocalHandle<T> implements java.io.Serializable {
     return (T)data;
   }
 
-  public void set(T data) {
+  public void set_0_$$x10$lang$PlaceLocalHandle_T(T data) {
     int here = Thread.currentThread().home().id;
     assert objects[here] == null : "At "+here+" set called on already initialized local object";
     objects[here] = data;

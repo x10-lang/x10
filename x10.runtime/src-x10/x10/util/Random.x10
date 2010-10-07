@@ -10,6 +10,7 @@
  */
 
 package x10.util;
+import x10.compiler.NonEscaping;
 
 /** Random number generator. */
 public class Random {
@@ -21,7 +22,7 @@ public class Random {
         setSeed(seed);
     }
     
-    public final def setSeed(seed: Long): void {
+    @NonEscaping public final def setSeed(seed: Long): void {
         init(seed);
     }
      
@@ -131,7 +132,7 @@ public class Random {
     private var index: int;
     private var MT: Rail[int];
 
-    public final def init(seed: long): Void {
+    @NonEscaping public final def init(seed: long): Void {
         val mt = Rail.make[int](N);
         MT=mt;
         // Ensure the seed is nonzero.

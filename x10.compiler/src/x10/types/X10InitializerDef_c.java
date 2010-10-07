@@ -21,6 +21,7 @@ import polyglot.types.QName;
 import polyglot.types.Ref;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
+import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
 import x10.constraint.XVar;
@@ -69,6 +70,13 @@ public class X10InitializerDef_c extends InitializerDef_c implements X10Initiali
         return X10TypeObjectMixin.annotationsNamed(this, fullName);
     }
     // END ANNOTATION MIXIN
+
+    public List<ParameterType> typeParameters() {
+        return Collections.<ParameterType>emptyList(); // initializers can't have type parameters
+    }
+    public void setTypeParameters(List<ParameterType> typeParameters) {
+        throw new InternalCompilerError("Attempting to set the type parameters of an initializer def");
+    }
 
     /** An X10 Initializer cannot have an explicit typeguard.
      * 

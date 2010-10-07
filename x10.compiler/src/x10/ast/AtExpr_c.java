@@ -40,8 +40,6 @@ import x10.types.X10NamedType;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.checker.PlaceChecker;
-import x10.visit.ExprFlattener;
-import x10.visit.ExprFlattener.Flattener;
 
 
 /** A <code>AtExp </code> is a representation of the X10 at construct:

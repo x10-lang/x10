@@ -26,7 +26,7 @@ public class PlaceCheck1 extends x10Test {
 		var ret: boolean;
 		x10.io.Console.OUT.println("num places = " + Place.MAX_PLACES);
 		// this test only works with > 1 place
-		if (Place.places.length <= 1) {
+		if (Place.numPlaces() <= 1) {
 			x10.io.Console.OUT.println("This test requires at least 2 places.");
 			ret = false;
 		} else {

@@ -27,7 +27,7 @@ public class AtThisIntoAtHere1_MustFailCompile extends x10Test {
 	        private val y:GlobalRef[Test]{self.home==x.home}  = GlobalRef[Test](this);
 
 	     def n() { 
-	    	 val p = Place.places(1);
+	    	 val p = Place.place(1);
 	    	 at (x) {
 	    		
 	    		 at (p)
