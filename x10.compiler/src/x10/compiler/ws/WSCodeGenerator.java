@@ -172,7 +172,7 @@ public class WSCodeGenerator extends ContextVisitor {
                     System.out.println();
                     System.out.println("[WS_INFO] Add new methods and nested classes to class: " + n);
                 }
-                cDecl = Synthesizer.addNestedClasses(cDecl, classes);
+                cDecl = Synthesizer.addInnerClasses(cDecl, classes);
                 cDecl = Synthesizer.addMethods(cDecl, getMethodDecls(cDef));
                 return cDecl;
             }

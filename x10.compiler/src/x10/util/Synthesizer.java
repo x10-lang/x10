@@ -826,7 +826,7 @@ public class Synthesizer {
      *            the inner classes to be inserted into the class
      * @return A newly created class with inner classes as members
      */
-    public static X10ClassDecl addNestedClasses(X10ClassDecl cDecl, List<X10ClassDecl> innerClasses) {
+    public static X10ClassDecl addInnerClasses(X10ClassDecl cDecl, List<X10ClassDecl> innerClasses) {
 
         List<ClassMember> cMembers = new ArrayList<ClassMember>();
         ClassBody body = cDecl.body();
@@ -836,9 +836,13 @@ public class Synthesizer {
 
         for (X10ClassDecl icDecl : innerClasses) {
             X10ClassDef icDef = (X10ClassDef) icDecl.classDef();
+            icDef.kind(ClassDef.MEMBER);
             icDef.setPackage(cDef.package_());
+            icDef.outer(Types.<ClassDef> ref(cDef));
+
             cMembers.add(icDecl);
             cDef.addMemberClass(Types.<ClassType> ref(icDef.asType()));
+
         }
 
         return (X10ClassDecl) cDecl.body(body.members(cMembers));
