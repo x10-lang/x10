@@ -89,7 +89,7 @@ import x10.visit.X10TypeChecker;
  *
  * @author vj Dec 9, 2004
  */
-public abstract class X10Loop_c extends Loop_c implements X10Loop, Loop {
+public abstract class X10Loop_c extends Loop_c implements X10Loop {
 	protected Formal formal;
 	protected Expr domain;
 	protected Stmt body;
