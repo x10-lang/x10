@@ -21,6 +21,7 @@ import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.UnknownType;
 import x10.constraint.XFailure;
+import x10.constraint.XLocal;
 import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.types.ConstrainedType;
@@ -28,7 +29,10 @@ import x10.types.MacroType;
 import x10.types.ParameterType;
 import x10.types.TypeParamSubst;
 import x10.types.X10ClassType;
+import x10.types.X10ConstructorInstance;
 import x10.types.X10FieldInstance;
+import x10.types.X10LocalInstance;
+import x10.types.X10MethodInstance;
 import x10.types.X10ParsedClassType;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
@@ -350,4 +354,72 @@ public class Subst {
     public static X10FieldInstance subst(X10FieldInstance fi, XTerm y, XVar x) throws SemanticException {
         return subst(fi, new XTerm[] { y }, new XVar[] { x });
     }
+
+    public static X10LocalInstance subst(X10LocalInstance li, XTerm[] y, XVar[] x) throws SemanticException {
+        Type ft = subst(li.type(), y, x);
+        return li.type(ft);
+    }
+
+    public static X10LocalInstance subst(X10LocalInstance li, XTerm y, XVar x) throws SemanticException {
+        return subst(li, new XTerm[] { y }, new XVar[] { x });
+    }
+
+    /**
+     * @param ci
+     * @param y
+     * @param x
+     * @return
+     * @throws SemanticException 
+     */
+    public static X10ConstructorInstance subst(X10ConstructorInstance ci, XTerm[] y, XVar[] x) throws SemanticException {
+        Type returnType = ci.returnType();
+        Type newReturnType = subst(returnType, y, x);
+        if (newReturnType != returnType) {
+            ci = ci.returnType(newReturnType);
+        }
+        List<Type> formalTypes = ci.formalTypes();
+        List<Type> newFormalTypes = subst(formalTypes, y, x);
+        if (newFormalTypes != formalTypes) {
+            ci = ci.formalTypes(newFormalTypes);
+        }
+        StructType ct = (StructType) subst(ci.container(), y, x);
+        if (ct != ci.container()) {
+            ci =  (X10ConstructorInstance) ci.container(ct);
+        }
+        return ci;
+    }
+
+    public static X10ConstructorInstance subst(X10ConstructorInstance ci, XTerm y, XVar x) throws SemanticException {
+        return subst(ci, new XTerm[] { y }, new XVar[] { x });
+    }
+
+    /**
+     * @param ci
+     * @param y
+     * @param x
+     * @return
+     * @throws SemanticException 
+     */
+    public static X10MethodInstance subst(X10MethodInstance mi, XTerm[] y, XVar[] x) throws SemanticException {
+        Type returnType = mi.returnType();
+        Type newReturnType = subst(returnType, y, x);
+        if (newReturnType != returnType) {
+            mi = mi.returnType(newReturnType);
+        }
+        List<Type> formalTypes = mi.formalTypes();
+        List<Type> newFormalTypes = subst(formalTypes, y, x);
+        if (newFormalTypes != formalTypes) {
+            mi = mi.formalTypes(newFormalTypes);
+        }
+        StructType ct = (StructType) subst(mi.container(), y, x);
+        if (ct != mi.container()) {
+            mi =  (X10MethodInstance) mi.container(ct);
+        }
+        return mi;
+    }
+
+    public static X10MethodInstance subst(X10MethodInstance mi, XTerm y, XVar x) throws SemanticException {
+        return subst(mi, new XTerm[] { y }, new XVar[] { x });
+    }
+
 }
