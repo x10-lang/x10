@@ -47,7 +47,6 @@ import x10.ast.LocalTypeDef;
 import x10.ast.Next;
 import x10.ast.ParExpr;
 import x10.ast.PlaceCast;
-import x10.ast.Point;
 import x10.ast.Range;
 import x10.ast.Region;
 import x10.ast.SettableAssign;
@@ -331,7 +330,7 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 	    List clocks = a.clocks();
 
 	    CAstNode args[] = new CAstNode[ clocks.size()+2 ];
-	    args[0] = walkNodes(a.place(), context);
+//	    args[0] = walkNodes(a.place(), context);
 	    for(int i = 0; i < clocks.size(); i++) {
 	    	args[i+1] = walkNodes((Node)clocks.get(i), context);
 	    }
@@ -564,11 +563,6 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 	}
 
 	public CAstNode visit(Range r, WalkContext context) {
-	    // TODO Auto-generated method stub
-	    return null;
-	}
-
-	public CAstNode visit(Point p, WalkContext context) {
 	    // TODO Auto-generated method stub
 	    return null;
 	}
@@ -972,10 +966,13 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 	}
 
 	public Collection getExceptionTypes() {
+	    return null;
+/* there are not checked exceptions in X10
 	    if (excTypes == null) {
 		excTypes= mapTypes(closureType.throwTypes());
 	    }
 	    return excTypes;
+*/
 	}
 
 	public CAstType getReturnType() {

@@ -11,10 +11,11 @@ import polyglot.frontend.ExtensionInfo;
 import polyglot.frontend.Job;
 import polyglot.frontend.SourceGoal_c;
 import polyglot.main.Report;
+/* FIXME: uncomment after fixing compiler
 import x10.finish.table.CallTableKey;
 import x10.finish.table.CallTableUtil;
 import x10.finish.table.CallTableVal;
-
+*/
 import com.ibm.wala.cast.java.translator.polyglot.PolyglotIdentityMapper;
 import com.ibm.wala.cast.tree.CAstEntity;
 import com.ibm.wala.cast.x10.analysis.X10FinishAsyncAnalysis;
@@ -124,6 +125,8 @@ public class X102IRGoal extends SourceGoal_c {
         }
     	
     }
+
+    /* FIXME: uncomment after fixing compiler
     public static HashMap<CallTableKey, LinkedList<CallTableVal>> analyze() throws Exception {
         boolean[] options = {
         		false, // whether to do fixed-point computation on calltable
@@ -165,5 +168,5 @@ public class X102IRGoal extends SourceGoal_c {
 			Report.report(5,"done!");
 		return calltable;
 	}
-    
+    */
 }
