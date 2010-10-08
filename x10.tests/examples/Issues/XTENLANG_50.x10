@@ -14,16 +14,15 @@ import harness.x10Test;
 /**
  * @author bdlucas 10/2008
  */
-
 class XTENLANG_50 extends x10Test {
 
     static class R(rank:int) {
     
-        public static def make(val rs: Array[R]{rect}): R{self.rank==rs.size} {
-            return new R(rs.size) as R{self.rank==rs.size};
+        public static def make(val rs: Array[R]): R{self.rank==rs.size} {
+            return new R(rs.size);
         }
     
-        public static operator (rs:Array[R]{rect}) = make(rs);
+        public static operator (rs:Array[R]) = make(rs);
     
         def this(rank:int) = property(rank);
     }
