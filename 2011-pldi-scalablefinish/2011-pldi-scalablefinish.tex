@@ -45,11 +45,31 @@
 \authorinfo{Olivier Tarduer}
            {IBM T.J Watson Research Center}
            {tardieu@us.ibm.com}
-
+\authorinfo{Stephen A. Edwards}
+           {Columbia University}
+           {sedwards@cs.columbia.edu}
+\
 \maketitle
 
 \begin{abstract}
-This is the text of the abstract.
+Dynamic parallelism is a model of computation, which allows arbitrary number of 
+asynchronous activities spawned on the fly. These activities operate in parallel, 
+and are sequenced by synchronization primitives when necessary. 
+The synchronization problem, a form of Distributed Termination Detection (DTD), 
+is a classical problem in distributed computing. It is difficult to achieve efficiently, 
+because solving this problem requires the knowledge of a system's global state. 
+
+We tackle the termination detection problem in X10, an object-oriented 
+parallel programming language. It supports dynamic parallelism and global 
+barriers. For example, the statement \emph{finish s} continues its execution 
+when \emph{s} terminates, and is implemented in X10's standard library 
+by a classic DTD algorithm. 
+Therefore, in the paper we identify four special patterns for \emph{finish} 
+together with four optimized algorithms. 
+We also present a static analysis technique that will find out which pattern 
+a \emph{finish} belongs to. Finally we report our findings for a small
+set of benchmarks on IBM's supercomputer, BlueGens. 
+
 \end{abstract}
 
 \category{CR-number}{subcategory}{third-level}
@@ -59,11 +79,13 @@ term1, term2
 
 \keywords
 static analysis, communication pattern, scalability, x10 programming language
-
 \section{Introduction}
+
 \section{The X10 Programming Language}
-\section{\emph{finish} and \emph{async} in X10}
-\section{Static Analysis}
+\subsection{\emph{async}}
+\subsection{\emph{finish}}
+\subsection{\emph{ateach}}
+\section{Communication Graph Construction and Analysis}
 \section{Code Optimizer}
 \section{Results}
 \section{Related Work}

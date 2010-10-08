@@ -479,14 +479,17 @@ public final class Runtime {
 	}
 
 	def notify2():Void {
+                //Console.OUT.println("enter notify");
     		lock();
     		count--;
     		if (count != 0) {
     			unlock();
+                        //Console.OUT.println("leave without release");
     			return;
-			}
-			release();
-			unlock();
+		}
+		release();
+		unlock();
+                //Console.OUT.println("release");
 	}
 
     	private def pushExceptionLocal(t:Throwable):Void {
@@ -1593,14 +1596,18 @@ public final class Runtime {
     public static def runUniqueAsync(place:Place, body:()=>Void):Void {
     	val state = currentState();
     	val ok = safe();
-        var closure:()=>Void;
-        if (ok) {
-            closure = ()=>execute(new UniqueActivity(body, state, true));
-        } else {
-            closure = ()=>execute(new UniqueActivity(body, state, false));
+    	if (place.id == hereInt()) {
+    		execute(new UniqueActivity(body, state, ok));
+	} else {
+        	var closure:()=>Void;
+        	if (ok) {
+            		closure = ()=>execute(new UniqueActivity(body, state, true));
+        	} else {
+            		closure = ()=>execute(new UniqueActivity(body, state, false));
+        	}
+        	runAtNative(place.id, closure);
+        	dealloc(closure);
         }
-        runAtNative(place.id, closure);
-        dealloc(closure);
     }
     public static def runTailAsync(place:Place, body:()=>Void, isParent:Boolean):Void {
     	val state = currentState() as RootFinish;
