@@ -231,6 +231,9 @@ public class KMeansCUDA {
                             Console.OUT.println("reduce: "+r_time/1E3);
                         }
 
+                        CUDAUtilities.deleteRemoteArray(gpu_points);
+                        CUDAUtilities.deleteRemoteArray(gpu_nearest);
+
                     } // gpus
 
                 } // hosts
