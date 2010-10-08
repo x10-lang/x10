@@ -40,6 +40,8 @@ ifeq ($(X10RT_PLATFORM), bgp)
 endif
 ifeq ($(X10RT_PLATFORM), aix_xlc)
   LAPI_CXX	 := mpCC_r
+  LAPI_LDFLAGS   += -Wl,-binitfini:poe_remote_main -L/usr/lpp/ppe.poe/lib
+  LAPI_LDLIBS    += -lmpi_r -lvtd_r -llapi_r -lpthread -lm
   WPLATFORM      := aix_xlc
   PLATFORM_SUPPORTS_LAPI       := yes
   #PLATFORM_SUPPORTS_SOCKETS    := yes
