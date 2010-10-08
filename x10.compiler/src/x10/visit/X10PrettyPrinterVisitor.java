@@ -2496,6 +2496,24 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             //X10 unique
             er.coerce(n, n.init(), n.type().type());
         }
+        // assign default value for access vars in at or async
+        else if (!n.flags().flags().isFinal()) {
+            Type type = X10TypeMixin.baseType(n.type().type());
+            X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
+
+            w.write(" =");
+            w.allowBreak(2, " ");
+
+            if (xts.isBoolean(type)) {
+                w.write(" false");
+            }
+            else if (!xts.isUnsigned(type) && xts.isChar(type) || xts.isNumeric(type)) {
+                w.write(" 0");
+            }
+            else {
+                w.write(" null");
+            }
+        }
 
         if (printSemi) {
             w.write(";");
