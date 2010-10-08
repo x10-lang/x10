@@ -39,20 +39,20 @@ ifeq ($(X10RT_PLATFORM), bgp)
   BGP_LDLIBS     += -ldcmf.cnk -ldcmfcoll.cnk -lSPI.cna -lpthread -lrt -lm
 endif
 ifeq ($(X10RT_PLATFORM), aix_xlc)
-  LAPI_CXX	 := mpCC_r
-  LAPI_LDFLAGS   += -Wl,-binitfini:poe_remote_main -L/usr/lpp/ppe.poe/lib
-  LAPI_LDLIBS    += -lmpi_r -lvtd_r -llapi_r -lpthread -lm
+  LAPI_LDFLAGS   += -Wl,-binitfini:poe_remote_main 
+  LAPI_LDDEPS    := -L/usr/lpp/ppe.poe/lib -lmpi_r -lvtd_r -llapi_r -lpthread -lm
+  LAPI_LDLIBS    += $(LAPI_LDDEPS)
   WPLATFORM      := aix_xlc
   PLATFORM_SUPPORTS_LAPI       := yes
-  #PLATFORM_SUPPORTS_SOCKETS    := yes
+  # PLATFORM_SUPPORTS_SOCKETS    := yes
   PLATFORM_SUPPORTS_PANE       := yes
 endif
 ifeq ($(X10RT_PLATFORM), aix_gcc)
   WPLATFORM      := aix_g++4
   PLATFORM_SUPPORTS_LAPI       := yes
-  LAPI_CXX	 := $(CXX)
-  LAPI_LDFLAGS   += -Wl,-binitfini:poe_remote_main -L/usr/lpp/ppe.poe/lib
-  LAPI_LDLIBS    += -lmpi_r -lvtd_r -llapi_r -lpthread -lm
+  LAPI_LDFLAGS   += -Wl,-binitfini:poe_remote_main 
+  LAPI_LDDEPS    := -L/usr/lpp/ppe.poe/lib -lmpi_r -lvtd_r -llapi_r -lpthread -lm
+  LAPI_LDLIBS    += $(LAPI_LDDEPS)
   PANE_LDFLAGS   += -Wl,-binitfini:poe_remote_main -L/usr/lpp/ppe.poe/lib
   PANE_ARLIBS     = -llapi_r -lpthread -lm
   PANE_LDLIBS    += -lmpi_r -lvtd_r $(PANE_ARLIBS)
@@ -62,34 +62,30 @@ endif
 ifeq ($(X10RT_PLATFORM), linux_ppc_64_gcc)
   WPLATFORM      := linux_ppc_64_g++4
   PLATFORM_SUPPORTS_LAPI       := yes
-  LAPI_CXX	 := $(CXX)
-  LAPI_LDFLAGS   += -L/opt/ibmhpc/ppe.poe/lib
-  LAPI_LDLIBS    += -lpoe -lmpi_ibm -llapi
+  LAPI_LDDEPS    := -L/opt/ibmhpc/ppe.poe/lib -lpoe -lmpi_ibm -llapi
+  LAPI_LDLIBS    += $(LAPI_LDDEPS)
   PLATFORM_SUPPORTS_SOCKETS    := yes
 endif
 ifeq ($(X10RT_PLATFORM), linux_ppc_64_xlc)
   WPLATFORM      := linux_ppc_64_xlc
   PLATFORM_SUPPORTS_LAPI       := yes
-  LAPI_CXX	 := mpCC_r
-  LAPI_LDFLAGS   += -L/opt/ibmhpc/ppe.poe/lib
-  LAPI_LDLIBS    += -lpoe -lmpi_ibm -llapi
+  LAPI_LDDEPS    := -L/opt/ibmhpc/ppe.poe/lib -lpoe -lmpi_ibm -llapi
+  LAPI_LDLIBS    += $(LAPI_LDDEPS)
   PLATFORM_SUPPORTS_SOCKETS    := yes
 endif
 ifeq ($(X10RT_PLATFORM), linux_x86_64)
   WPLATFORM      := linux_x86_64_g++4
   PLATFORM_SUPPORTS_LAPI       := yes
-  LAPI_CXX	 := $(CXX)
-  LAPI_LDFLAGS   += -L/opt/ibmhpc/ppe.poe/lib
-  LAPI_LDLIBS    += -lpoe -lmpi_ibm -llapi
+  LAPI_LDDEPS    := -L/opt/ibmhpc/ppe.poe/lib -lpoe -lmpi_ibm -llapi
+  LAPI_LDLIBS    += $(LAPI_LDDEPS)
   PLATFORM_SUPPORTS_SOCKETS    := yes
 endif
 ifeq ($(X10RT_PLATFORM), linux_x86_32)
   WPLATFORM      := linux_x86_g++4
 # TODO: re-enable when we build the 32 bit lapi version of pgas and post it.
 #  PLATFORM_SUPPORTS_LAPI       := yes
-  LAPI_CXX	 := $(CXX)
-  LAPI_LDFLAGS   += -L/opt/ibmhpc/ppe.poe/lib
-  LAPI_LDLIBS    += -lpoe -lmpi_ibm -llapi
+  LAPI_LDDEPS    := -L/opt/ibmhpc/ppe.poe/lib -lpoe -lmpi_ibm -llapi
+  LAPI_LDLIBS    += $(LAPI_LDDEPS)
   PLATFORM_SUPPORTS_SOCKETS    := yes
 endif
 ifeq ($(X10RT_PLATFORM), cygwin)
@@ -285,14 +281,14 @@ $(PGAS_DYNLIB_LAPI): $(COMMON_OBJS) lib/libxlpgas_lapi.a
 else
 $(PGAS_DYNLIB_LAPI): $(COMMON_OBJS) lib/libxlpgas_lapi.a
 ifeq ($(X10RT_PLATFORM),aix_xlc)
-	$(SHLINK) $(CXXFLAGS) $(CXXFLAGS_SHARED) $(LDFLAGS_SHARED) $(LAPI_LDFLAGS) -o $@ $^
+	$(SHLINK) $(CXXFLAGS) $(CXXFLAGS_SHARED) $(LDFLAGS_SHARED) $(LAPI_LDDEPS) -o $@ $^
 else
-	$(CXX) $(CXXFLAGS) $(CXXFLAGS_SHARED) $(LDFLAGS_SHARED) $(LAPI_LDFLAGS) -o $@ $^
+	$(CXX) $(CXXFLAGS) $(CXXFLAGS_SHARED) $(LDFLAGS_SHARED) $(LAPI_LDDEPS) -o $@ $^
 endif
 endif
 
 etc/x10rt_pgas_lapi.properties:
-	echo "CXX=$(LAPI_CXX)" > $@
+	echo "CXX=$(CXX)" > $@
 	echo "LDFLAGS=$(LAPI_LDFLAGS)" >> $@
 	echo "LDLIBS=$(LAPI_LDLIBS)" >> $@
 
