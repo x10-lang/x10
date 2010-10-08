@@ -6,7 +6,6 @@ import x10.compiler.Native;
 import x10.compiler.NativeRep;
 import x10.compiler.NativeCPPInclude;
 import x10.compiler.NativeCPPCompilationUnit;
-import x10.compiler.NoSuperCall;
 import x10.compiler.Uninitialized;
 import x10.util.Random;
 
@@ -30,7 +29,7 @@ public abstract class Frame {
     public val up:Frame;
 
     // constructor
-    @NoSuperCall @Header public def this(up:Frame) {
+    @Header public def this(up:Frame) {
         this.up = up;
     }
 
