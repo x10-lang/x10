@@ -12,33 +12,31 @@
 import harness.x10Test;
 
 /**
- * An async cannot access a var variable unless there is
- * a finish "between" the async and the var declaration.
+ * Checking that asyncs may initialize vals
+ * and that a var may be accessed from an async
+ * body so long as it is declared outside of the
+ * enclosing finish of the async.
  */
-public class AsyncTest4_MustFailCompile extends x10Test {
+public class AsyncTest4 extends x10Test {
 
     public static N: int = 20;
 
     public def run(): boolean = {
-        finish {
-            var s: int = 0;
-            for (var i: int = 0; i < N; i++) {
-                //==> compiler error expected here
-                async x10.io.Console.OUT.println("s="+s+" i="+i);
-                s += i;
-            }
-        }
-
-        var s:int = 0;
+        var s: int = 0;
         for (var i: int = 0; i < N; i++) {
-            // no compiler error here because s declared outside the finish
             finish async x10.io.Console.OUT.println("s="+s+" i="+i);
             s += i;
         }
+	chk(s == 190);
+
+        val y: int;
+        finish async { async y = 3; }
+        x10.io.Console.OUT.println("y="+y);
+	chk(y == 3);
         return true;
     }
 
     public static def main(Array[String](1)) {
-        new AsyncTest4_MustFailCompile().execute();
+        new AsyncTest4().execute();
     }
 }
