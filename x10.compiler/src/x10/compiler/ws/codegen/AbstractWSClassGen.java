@@ -314,7 +314,7 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
     protected void prepareMethodSynths(){
         fastMSynth = classSynth.createMethod(compilerPos, FAST.toString());
         fastMSynth.setFlag(Flags.PUBLIC);
-        if (!xts.isSubtype(getClassType(), wts.mainFrameType))
+        if (!(this instanceof WSMainMethodClassGen))
                 fastMSynth.addAnnotation(genInlineAnnotation());
         fastMSynth.addFormal(compilerPos, Flags.FINAL, wts.workerType, WORKER.toString());
         
