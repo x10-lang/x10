@@ -19,6 +19,10 @@ import java.util.HashSet;
 import java.util.Iterator;
 
 public class RunTestSuite {
+    // I have 3 kind of markers:
+    // "// ... ERR"  - marks an error
+    // "// ... ShouldNotBeERR" - the compiler reports an error, but it shouldn't
+    // ShouldBeErr - the compiler doesn't report an error, but it should
 
     // todo: some _MustFailCompile in the test suite cause compiler crashes
     // todo: add support for various options, like testing with STATIC_CALLS/DYNAMIC_CALLS
@@ -27,7 +31,9 @@ public class RunTestSuite {
     // Inside those files we should have "//.*ERR" markers that we use to test the position of the errors is correct.
     //_MustFailTimeout means that when running the file it will have an infinite loop
     private static final String[] EXCLUDE_FILES_WITH_SUFFIX = {
-            "_DYNAMIC_CALLS.x10","_MustFailCompile.x10",
+            "_DYNAMIC_CALLS.x10",
+            "NonX10Constructs_MustFailCompile.x10",
+            "_MustFailCompile.x10",
     };
     private static final String[] EXCLUDE_FILES = {
             "NOT_WORKING","SSCA2","FT-alltoall","FT-global"
@@ -92,7 +98,7 @@ public class RunTestSuite {
                 assert dir.isDirectory() : "The first command line argument must be the directory of x10.tests, and you passed: "+dir;
                 int before = files.size();
                 recurse(dir,files);
-                assert before<files.size() : "Didn't find any .x10 files to compile in any subdirectory of "+dir;
+                if (before==files.size()) System.out.println("Warning: Didn't find any .x10 files to compile in any subdirectory of "+dir);
             }
         }
         if (ONE_FILE_AT_A_TIME) {
@@ -114,6 +120,7 @@ public class RunTestSuite {
         for (File f : files) {
             final BufferedReader in = new BufferedReader(new FileReader(f));
             String firstLine = in.readLine();
+            assert firstLine!=null : f;
             in.close();
             if (firstLine.contains("IGNORE_FILE"))
                 continue;
@@ -210,7 +217,7 @@ public class RunTestSuite {
         if (files.size()>=MAX_FILES_NUM) return;
         for (File f : dir.listFiles()) {
             String name = f.getName();
-            if (shouldIgnoreFile(name)) continue;
+            if (!f.isDirectory() && shouldIgnoreFile(name)) continue;
             if (files.size()>=MAX_FILES_NUM) return;
             if (f.isDirectory())
                 recurse(f, files);

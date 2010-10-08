@@ -43,7 +43,6 @@ import polyglot.types.Flags;
 import polyglot.types.InitializerDef;
 import polyglot.types.LazyRef;
 import polyglot.types.LocalDef;
-import polyglot.types.LocalInstance;
 import polyglot.types.Matcher;
 import polyglot.types.MethodDef;
 import polyglot.types.MethodInstance;
@@ -53,7 +52,6 @@ import polyglot.types.NoClassException;
 import polyglot.types.NoMemberException;
 import polyglot.types.NullType;
 import polyglot.types.ObjectType;
-import polyglot.types.ParsedClassType;
 import polyglot.types.PrimitiveType;
 import polyglot.types.ProcedureDef;
 import polyglot.types.ProcedureInstance;
@@ -110,7 +108,7 @@ import x10.util.ClosureSynthesizer;
  * @author vj
  */
 public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
-	public static final String DUMMY_ASYNC = "$dummyAsync";
+	public static final String DUMMY_AT_ASYNC = "$dummyAsync"; // for async/at/ateach
 	public static final int EXPAND_MACROS_DEPTH=25;
 
     public X10TypeSystem_c() {
@@ -1020,7 +1018,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 
     	// set up null thisVar for method def's, so the outer contexts are searched for thisVar.
     	return methodDef(pos, container, flags, returnType, name, Collections.<ParameterType>emptyList(), argTypes, 
-    	        name.toString().contains(DUMMY_ASYNC) ? null : thisVar, dummyLocalDefs(argTypes), null, null,  offerType,
+    	        name.toString().contains(DUMMY_AT_ASYNC) ? null : thisVar, dummyLocalDefs(argTypes), null, null,  offerType,
     	                null);
     }
     
@@ -1068,7 +1066,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
     	// Need to create a new one on each call. Portions of this methodDef, such as thisVar may be destructively modified later.
                 return methodDef(Position.COMPILER_GENERATED, Types.ref((StructType) Runtime()), isStatic ? Public().Static() : Public(),
                 		Types.ref(VOID_),
-                		Name.make(DUMMY_ASYNC), Collections.<Ref<? extends Type>>emptyList());
+                		Name.make(DUMMY_AT_ASYNC), Collections.<Ref<? extends Type>>emptyList());
     }
 
     public ClosureDef closureDef(Position p, Ref<? extends ClassType> typeContainer, Ref<? extends CodeInstance<?>> methodContainer,

@@ -451,27 +451,7 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		return n;
 	}
 
-//	 Wrap the body in a block to facilitate code transformations
-	public ForEach ForEach(Position pos, Formal formal, Expr domain,
-						   List<Expr> clocks, Stmt body)
-	{
-		ForEach n = new ForEach_c(pos, formal, domain, clocks, asBlock(body));
-		X10ExtFactory_c ext_fac = (X10ExtFactory_c) extFactory();
-		n = (ForEach) n.ext(ext_fac.extForEachImpl());
-		X10DelFactory_c del_fac = (X10DelFactory_c) delFactory();
-		n = (ForEach) n.del(del_fac.delForEachImpl());
-		return n;
-	}
-	public ForEach ForEach(Position pos, Formal formal, Expr domain,
-			Stmt body)
-	{
-		ForEach n = new ForEach_c(pos, formal, domain, asBlock(body));
-		X10ExtFactory_c ext_fac = (X10ExtFactory_c) extFactory();
-		n = (ForEach) n.ext(ext_fac.extForEachImpl());
-		X10DelFactory_c del_fac = (X10DelFactory_c) delFactory();
-		n = (ForEach) n.del(del_fac.delForEachImpl());
-		return n;
-	}
+
 
 	// Wrap the body in a block to facilitate code transformations
 	public Finish Finish(Position pos, Stmt body, boolean clocked) {

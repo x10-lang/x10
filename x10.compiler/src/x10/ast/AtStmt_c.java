@@ -52,6 +52,7 @@ import x10.types.X10Context;
 import x10.types.X10MethodDef;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
+import x10.types.X10Context_c;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.XConstrainedTerm;
@@ -174,10 +175,10 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
 		return reconstruct(place, body);
 	}
 
-	public Context enterScope(Context c) {
+    public static Context createDummyAsync(Context c, boolean isAsyncOrAt) {        
         X10TypeSystem ts = (X10TypeSystem) c.typeSystem();
         X10MethodDef asyncInstance = (X10MethodDef) ts.asyncCodeInstance(c.inStaticContext());
-    
+
         if (c.currentCode() instanceof X10MethodDef) {
             X10MethodDef outer = (X10MethodDef) c.currentCode();
             XVar thisVar = outer.thisVar();
@@ -189,7 +190,11 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
             }
         }
         c = c.pushCode(asyncInstance);
+        ((X10Context_c)c).x10Kind = isAsyncOrAt ? X10Context_c.X10Kind.Async : X10Context_c.X10Kind.At;
         return c;
+    }
+	public Context enterScope(Context c) {
+        return createDummyAsync(c, false);
 	}
 
 	@Override

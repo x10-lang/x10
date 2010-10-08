@@ -72,7 +72,6 @@ import x10.ast.Await;
 import x10.ast.Closure;
 import x10.ast.ClosureCall;
 import x10.ast.Finish;
-import x10.ast.ForEach;
 import x10.ast.ForLoop;
 import x10.ast.Future;
 import x10.ast.Here;
@@ -726,7 +725,6 @@ public final class ExpressionFlattener extends ContextVisitor {
         else if (stmt instanceof AtStmt)    return flattenAtStmt((AtStmt) stmt);
         else if (stmt instanceof Await)     return flattenAwait((Await) stmt);
         else if (stmt instanceof When)      return flattenWhen((When) stmt);
-        else if (stmt instanceof ForEach)   return flattenForEach((ForEach) stmt);
         else if (stmt instanceof AtEach)    return flattenAtEach((AtEach) stmt);
         else if (stmt instanceof AssignPropertyCall) return flattenAssignPropertyCall((AssignPropertyCall) stmt);
         else if (stmt instanceof ConstructorCall)    return flattenConstructorCall((ConstructorCall) stmt);
@@ -813,22 +811,6 @@ public final class ExpressionFlattener extends ContextVisitor {
     private StmtSeq flattenWhen(When stmt) {
         assert false;
         return syn.toStmtSeq(stmt);
-    }
-
-    /**
-     * Flatten a ForEach statement.
-     * <pre>
-     * foreach (x in ({s1; e1})) S  ->  s1; val t1 = e1; foreach (x in t1) S; 
-     * </pre>
-     * 
-     * @param stmt the ForEach statement to flatten
-     * @return a flat statement with the same semantics as stmt
-     */
-    private StmtSeq flattenForEach(ForEach stmt) {
-        List<Stmt> stmts = new ArrayList<Stmt>();
-        Expr domain = getPrimaryAndStatements(stmt.domain(), stmts);
-        stmts.add(stmt.domain(domain));
-        return syn.toStmtSeq(stmt.position(), stmts);
     }
 
     /**

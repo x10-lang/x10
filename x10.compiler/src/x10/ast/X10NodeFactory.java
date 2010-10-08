@@ -116,9 +116,6 @@ public interface X10NodeFactory extends NodeFactory {
 	Await Await(Position pos, Expr expr);
 
 	X10Loop ForLoop(Position pos, Formal formal, Expr domain, Stmt body);
-	X10Loop ForEach(Position pos, Formal formal, Expr domain, List<Expr> clocks,
-					Stmt body);
-	X10Loop ForEach(Position pos, Formal formal, Expr domain, Stmt body);
 	X10Loop AtEach(Position pos, Formal formal, Expr domain, List<Expr> clocks,
 				   Stmt body);
 	X10Loop AtEach(Position pos, Formal formal, Expr domain, Stmt body);

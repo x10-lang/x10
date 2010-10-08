@@ -91,21 +91,10 @@ public abstract class X10ClockedLoop_c extends X10Loop_c implements Clocked {
 	}
 
 	public Context enterChildScope(Node child, Context c) {
-	    X10Context xc = (X10Context) c;
 	    if (child == this.body) {
-	        X10TypeSystem ts = (X10TypeSystem) c.typeSystem();
-	        X10MethodDef asyncInstance = (X10MethodDef) ts.asyncCodeInstance(c.inStaticContext());
-	        if (xc.currentCode() instanceof X10MethodDef) {
-	            X10MethodDef outer = (X10MethodDef) c.currentCode();
-	            List<ParameterType> capturedTypes = outer.typeParameters();
-	            if (!capturedTypes.isEmpty()) {
-	                asyncInstance = ((X10MethodDef) asyncInstance.copy());
-	                asyncInstance.setTypeParameters(capturedTypes);
-	            }
-	        }
-	        xc = (X10Context) xc.pushCode(asyncInstance);
+	        return AtStmt_c.createDummyAsync(c,false); // only subclass is AtEach (so it is an at, not an async)
 	    }
-	    return xc;
+	    return c;
 	}
 
 	

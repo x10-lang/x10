@@ -167,7 +167,6 @@ import x10.ast.ClosureCall_c;
 import x10.ast.Closure_c;
 import x10.ast.ConstantDistMaker_c;
 import x10.ast.Finish_c;
-import x10.ast.ForEach_c;
 import x10.ast.ForLoop_c;
 import x10.ast.Future_c;
 import x10.ast.Here_c;
@@ -3896,11 +3895,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		sw.write("}");
 		sw.newline(0);
 	}
-
-
-    public void visit(ForEach_c n) {
-        assert (false) : ("ForEach should have been desugared earlier");
-    }
 
     public void visit(AtEach_c n) {
         assert (false) : ("AtEach should have been desugared earlier");

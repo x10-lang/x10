@@ -516,10 +516,10 @@ class TestAsync {
          val m:Int, n:Int, q:Int;
 
          x=1;
-		 async { use(x); x=4; use(x); }
+		 finish async { use(x); x=4; use(x); }
 		 use(x);
-         async { y=4; use(x); use(y); }
-		 use(y); // ERR: "y" may not have been initialized
+         finish async { y=4; use(x); use(y); }
+		 use(y);
 
 		 i=1;
 		 use(i);
@@ -574,7 +574,7 @@ class TestAsync {
          x=1;
 		 finish async { use2(101,1,x); x=4; use2(102,4,x); }
 		 use2(103,4,x);
-         async { y=5; use2(104,4,x); use2(105,5,y); }
+         finish async { y=5; use2(104,4,x); use2(105,5,y); }
 
 		 i=1;
 		 use2(106,1,i);
@@ -1039,6 +1039,21 @@ class TestFieldInitForwardRef {
 }
 
 
+    // We allow default values for:
+    //    * a type that can be null  (e.g., Any, closures, but not a struct or Any{self!=null} )
+    //    * primitive/basic structs  (user defined structs do not have a default).
+    // includes: Int, Long, ULong, UInt, Float, Double, Boolean, Char
+    // excludes: Short,UShort,Byte,UByte  (because we do not have a literal of that type, there is a jira opened for Charles)
+class SimpleUserDefinedStructTest {
+	static struct S {
+	  val x:int = 4;
+	  val y:int = 0;
+	}
+
+	static class C {
+	  var s:S; // ERR: Field 's' was not definitely assigned.
+	}
+}
 struct UserDefinedStruct {}
 class TestFieldsWithoutDefaults[T] {
 	// generic parameter test
@@ -1355,6 +1370,53 @@ class Possel811 { //XTENLANG-811
   }
 }
 
+class LocalVarInAsyncTests {
+	def simple() {
+		var i:Int = 2;
+		finish async i++;
+	}
+	def atAndAsync() {
+		var i:Int = 2;
+		val p = here;
+		finish at (here.next()) async {
+		  finish async at (p) 
+			  i++; // ok
+		}
+	}
+	def test1() {		
+		var i:Int = 2;
+		finish async {
+		  finish async i++; // ok
+		}
+	}
+	def test2() {
+		var i:Int = 2;
+		finish {
+			val x= ()=> { async 
+				i++; // ERR: cannot capture local var in a closure
+			};
+		}
+	}
+	var flag:Boolean;
+	def test3() {
+		var i:Int = 2;
+		if (flag) {
+		  finish async i++; // ok
+		}
+	}
+	def test4() {
+		var i:Int = 2;
+		async 
+			i++;  // ERR: Local var 'i' cannot be captured in an async if there is no enclosing finish in the same scoping-level as 'i'; consider changing 'i' from var to val.
+		async async
+			i++; // ERR
+		async finish async finish async finish async async
+			i++; // ERR
+		async {
+		  finish async i++; // ERR
+		}
+	}
+}
 class AccessOfVarIllegalFromClosure { // XTENLANG-1888
 	val x:Int = 1;
 	var y:Int = 1;
@@ -1390,13 +1452,16 @@ class AccessOfVarIllegalFromClosure { // XTENLANG-1888
 			use(q);
 		});
 		use(() => { var q:Int = 1; async
-			use(q);
+			use(q); // ERR
 		});
-		use(() => { finish async { var q:Int = 1; async
+		use(() => { var q:Int = 1; finish async { async
 			use(q);
 		}});
+		use(() => { finish async { var q:Int = 1; async
+			use(q); // ERR
+		}});
 		use(() => { finish { var q:Int = 1; async { async
-			use(q);
+			use(q); // ERR
 		}}});
 		use(() => { finish { async { async {var q:Int = 1; 
 			use(q);
@@ -1406,6 +1471,27 @@ class AccessOfVarIllegalFromClosure { // XTENLANG-1888
 			var q:Int = 1; 
 		}}}});
 		val w = q;
+	}
+}
+
+class TestCaptureVarInClosureAsyncInnerAnon {
+	def test() {
+		var x:Int = 2;
+		class Inner {
+			val y = 
+				x+2; // ERR: Local variable "x" is accessed from an inner class or a closure, and must be declared final.
+		}
+		val inner = new Inner();
+		val anonymous = new Object() {
+			val y =
+				x+2; // ERR: Local variable "x" is accessed from an inner class or a closure, and must be declared final.
+		};
+		val closure = () =>
+			x+2; // ERR: Local variable "x" is accessed from an inner class or a closure, and must be declared final.
+		finish async { 
+			val y =
+				x+2;
+		}
 	}
 }
 class TestVarAccessInClosures {
@@ -1529,17 +1615,17 @@ class TestGlobalRefHomeAt { // see http://jira.codehaus.org/browse/XTENLANG-1905
 
 		at (r.home()) {
 			use(r()); 
-			use(r2()); // todo ERR
-			use(r3()); // todo ERR
+			use(r2()); // ShouldNotBeERR
+			use(r3()); // ShouldNotBeERR
 		}
 		at (r2.home()) {
-			use(r()); // todo ERR
+			use(r()); // ShouldNotBeERR
 			use(r2()); 
-			use(r3());// todo ERR
+			use(r3());// ShouldNotBeERR
 		}
 		at (r3.home()) {
-			use(r()); // todo ERR
-			use(r2()); // todo ERR
+			use(r()); // ShouldNotBeERR
+			use(r2()); // ShouldNotBeERR
 			use(r3());
 		}
 		at (here.next()) {
@@ -1549,17 +1635,17 @@ class TestGlobalRefHomeAt { // see http://jira.codehaus.org/browse/XTENLANG-1905
 			
 			at (r.home()) {
 				use(r()); 
-				use(r2()); // todo ERR
-				use(r3()); // todo ERR
+				use(r2()); // ShouldNotBeERR
+				use(r3()); // ShouldNotBeERR
 			}
 			at (r2.home()) {
-				use(r()); // todo ERR
+				use(r()); // ShouldNotBeERR
 				use(r2()); 
-				use(r3());// todo ERR
+				use(r3());// ShouldNotBeERR
 			}
 			at (r3.home()) {
-				use(r()); // todo ERR
-				use(r2()); // todo ERR
+				use(r()); // ShouldNotBeERR
+				use(r2()); // ShouldNotBeERR
 				use(r3());
 			}
 		}
@@ -1575,3 +1661,45 @@ class B564 extends A564[String,String] {
 	// B.foo(String,String,String) cannot override A.foo(T,U,String); attempting to use incompatible return type.  found: int required: void
 }
 
+
+class ReturnStatementTest {
+	
+	static def ok(b:Boolean):Int {
+		if (b) 
+			return 1;
+		else {
+			async {
+				val closure = () => {
+					return 3;
+				};
+			}
+		}
+		at (here.next())
+			return 2; // ShouldNotBeERR: Cannot return value from void method or closure.
+		finish {
+			async { val y=1; }
+			return 3;
+		}
+	}
+	static def err1(b:Boolean):Int {
+		if (b) return 1;
+		async 
+			return 2; // ERR: Cannot return from an async.
+		return 3;
+	}
+	static def err2(b:Boolean):Int {
+		async at (here) 
+			return 1; // ERR: Cannot return from an async.
+		return 2;
+	}
+	static def err3(b:Boolean):Int {
+		at (here) async
+			return 1; // ERR: Cannot return from an async.
+		return 2;
+	}
+	static def err4(b:Boolean):Int {
+		finish async 
+			return 1; // ERR: Cannot return from an async.
+		return 2;
+	}
+}

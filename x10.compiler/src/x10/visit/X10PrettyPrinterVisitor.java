@@ -117,7 +117,6 @@ import x10.ast.ClosureCall_c;
 import x10.ast.Closure_c;
 import x10.ast.Contains_c;
 import x10.ast.Finish_c;
-import x10.ast.ForEach_c;
 import x10.ast.ForLoop_c;
 import x10.ast.Future_c;
 import x10.ast.Here_c;
@@ -257,7 +256,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	    if (
 	        n instanceof Async_c || n instanceof AtStmt_c || n instanceof Atomic_c || n instanceof Here_c 
 	        || n instanceof Await_c || n instanceof Next_c || n instanceof Future_c || n instanceof AtExpr_c
-	        || n instanceof ForEach_c || n instanceof AtEach_c || n instanceof When_c
+	        || n instanceof AtEach_c || n instanceof When_c
 	        || n instanceof Finish_c || n instanceof Contains_c
 	    ) {
 	        tr.job().compiler().errorQueue().enqueue(ErrorInfo.SEMANTIC_ERROR,
