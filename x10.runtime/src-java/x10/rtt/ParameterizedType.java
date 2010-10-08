@@ -27,32 +27,22 @@ public final class ParameterizedType<T> implements Type<T>{
     }
     
     public final boolean isSubtype(Type<?> o) {
+        if (this == o) return true;
+        if (o == Types.ANY) return true;
+        if (o == Types.OBJECT) return !Types.isStructType(this);
         if (!o.getJavaClass().isAssignableFrom(rtt.base)) {
             return false;
         }
-        if (rtt.variances == null) {return true;} 
-        if (o instanceof ParameterizedType<?>) {
-            Type<?>[] parameters = ((ParameterizedType<?>) o).params;
-            for (int i = 0; i < rtt.variances.length ; i ++) {
-                switch (rtt.variances[i]) {
-                case INVARIANT:
-                    if (!params[i].equals(parameters[i])) {
-                        return false;
-                    }
-                    break;
-                case COVARIANT:
-                    if (!params[i].isSubtype(parameters[i])) {
-                        return false;
-                    }
-                    break;
-                case CONTRAVARIANT: 
-                    if (!parameters[i].isSubtype(params[i])) {
-                        return false;
-                    }
-                    break;
-                }
+        if (o instanceof ParameterizedType) {
+            ParameterizedType<?> pt = (ParameterizedType<?>) o;
+            if (pt.getRuntimeType().isSuperType(pt.params, (RuntimeType<?>) rtt, params)) {
+                return true;
             }
-            return true;
+        }
+        else if (o instanceof RuntimeType) {
+            if (((RuntimeType<?>) o).isSuperType(null, (RuntimeType<?>) rtt, params)) {
+                return true;
+            }
         }
         return false;
     }
