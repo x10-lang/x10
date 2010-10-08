@@ -214,7 +214,6 @@ void x10aux::run_at(x10aux::place p, x10aux::ref<Reference> body) {
                 sid == x10_runtime_Runtime__closure__6::_serialization_id ||
                 sid == x10_runtime_Runtime__closure__5::_serialization_id);
 */
-
         x10aux::ref<nightmarish_hack> body_ = body;
 
 

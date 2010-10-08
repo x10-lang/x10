@@ -1,5 +1,6 @@
 package FT;
-
+import x10.compiler.FinishAsync;
+import x10.compiler.AteachUniDist;
 import x10.compiler.Native;
 import x10.lang.PlaceLocalHandle;
 import x10.compiler.NativeCPPInclude;
@@ -61,7 +62,13 @@ class fft {
         static def make(I:Int, nRows:Int, localSize:Int, N:Long, SQRTN:Int, verify:Boolean, Cs:PlaceLocalHandle[Rail[Double]]):Block! {
             val block = new Block(I, nRows, localSize, N, SQRTN, verify, Cs);
             block.init(localSize, verify);
-            finish ateach ((p) in unique) {} // initialize transport
+            @FinishAsync(0,0,true,3) 
+            finish{ 
+                    @AteachUniDist 
+                    ateach ((p) in unique) {
+                    	//Console.OUT.println(p);
+                    } // initialize transport
+            }
             return block;
         }
 
@@ -94,7 +101,7 @@ class fft {
         }
 
         def transpose() {           
-//           x10.io.Console.OUT.println("begin transpose");                   
+           x10.io.Console.OUT.println("begin transpose");                   
             val n0 = Place.MAX_PLACES;
             val n1 = nRows;
             val n2 = SQRTN;           
@@ -117,16 +124,16 @@ class fft {
                         }
                     }
                 }
-//           x10.io.Console.OUT.println("before copyto");
+           x10.io.Console.OUT.println("before copyto");
            if (Place.places(k) != here) B.copyTo(k * chunkSize, Place.places(k), Cs, dstIndex, chunkSize);
            else {
              for ((i): Point in [k*chunkSize..(k+1)*chunkSize-1]) {
                 C(i) = B(i); 
              }
            }
-//           x10.io.Console.OUT.println("after copyto");
+           x10.io.Console.OUT.println("after copyto");
             }
-//           x10.io.Console.OUT.println("end transpose");                   
+            x10.io.Console.OUT.println("end transpose");                   
         }
 
         def scatter() {
@@ -155,21 +162,31 @@ class fft {
     }
 
     static def transpose_A(FFT:PlaceLocalHandle[Block]) {
-//        x10.io.Console.OUT.println("before FFT()" );
-//        x10.io.Console.OUT.println(FFT());
-        finish ateach((p) in Dist.makeUnique()) FFT().transpose();
-//        x10.io.Console.OUT.println("after FFT()" );
-        finish ateach ((p) in unique) FFT().transpose();
-        finish ateach ((p) in unique) FFT().scatter();
-//        x10.io.Console.OUT.println("after transpose");
+        x10.io.Console.OUT.println("before FFT()" );
+        x10.io.Console.OUT.println(FFT());
+        @FinishAsync(0,0,true,3) finish{ 
+                @AteachUniDist ateach((p) in Dist.makeUnique()) FFT().transpose();
+        }
+        x10.io.Console.OUT.println("after FFT()" );
+        @FinishAsync(0,0,true,3) finish{ 
+                @AteachUniDist ateach ((p) in unique) FFT().transpose();
+        }
+        @FinishAsync(0,0,true,3) finish{ 
+                @AteachUniDist ateach ((p) in unique) FFT().scatter();
+        }
+        x10.io.Console.OUT.println("after transpose");
     }
 
     static def bytwiddle_A(FFT:PlaceLocalHandle[Block], sign:Int) {
-        finish ateach ((p) in unique) FFT().bytwiddle(sign);
+        @FinishAsync(0,0,true,3) finish{ 
+                @AteachUniDist ateach ((p) in unique) FFT().bytwiddle(sign);
+        }
     }
 
     static def rowFFTS_A(FFT:PlaceLocalHandle[Block], fwd:Boolean) { 
-        finish ateach ((p) in unique) FFT().rowFFTS(fwd);
+        @FinishAsync(0,0,true,3) finish{ 
+                @AteachUniDist ateach ((p) in unique) FFT().rowFFTS(fwd);
+        }
     }
 
     static def format(t:Long) = (t as Double) * 1.0e-9;
@@ -197,7 +214,9 @@ class fft {
     }
         
     static def check(FFT:PlaceLocalHandle[Block]) { 
-        finish ateach ((p) in unique) FFT().check();
+        @FinishAsync(0,0,true,3) finish{ 
+                @AteachUniDist ateach ((p) in unique) FFT().check();
+        }
     }
     
     public static def main(args:Rail[String]!) {
@@ -219,6 +238,7 @@ class fft {
         }
 
         // Initialization
+        //Console.OUT.println("Initialization");
         val Cs = PlaceLocalHandle.make[Rail[Double]](unique, ()=>Rail.make[Double](localSize));
         val FFT = PlaceLocalHandle.make[Block](unique, ()=>Block.make(here.id, nRows, localSize, N, SQRTN, verify, Cs));
 

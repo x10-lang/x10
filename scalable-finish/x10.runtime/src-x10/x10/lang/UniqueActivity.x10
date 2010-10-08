@@ -56,13 +56,19 @@ public class UniqueActivity extends Activity{
    			if (here.equals(finishState.home)) {
    				(finishState as Runtime.UniqueRootFinish!).notify2();
 			} else {
-				val closure = () => { 
+                                //Console.OUT.println("before closure");
+				val closure = () => {
+                    assert(finishState!=null);
+                    Console.OUT.println(finishState!=null);
 					(finishState as Runtime.UniqueRootFinish!).notify2();
 				};
+                                //Console.OUT.println("before run at");
 				Runtime.runAtNative(finishState.home.id, closure);
+                                //Console.OUT.println("after run at");
 				Runtime.dealloc(closure);
 			}
    		} 
    		Runtime.dealloc(body);
+   		//Console.OUT.println("activity terminate");
 	}
 }
