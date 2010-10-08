@@ -2507,7 +2507,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             if (xts.isBoolean(type)) {
                 w.write(" false");
             }
-            else if (!xts.isUnsigned(type) && xts.isChar(type) || xts.isNumeric(type)) {
+            else if (!xts.isUnsigned(type) && (xts.isChar(type) || xts.isNumeric(type))) {
                 w.write(" 0");
             }
             else {
