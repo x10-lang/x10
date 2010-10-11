@@ -57,10 +57,10 @@ public class WSMethodFrameClassGen extends WSRegularFrameClassGen {
     public WSMethodFrameClassGen(Job job, X10NodeFactory xnf, X10Context xct,
                                   MethodDef methodDef, MethodDecl methodDecl, WSTransformState wsTransformState) {
     
-        super(job, xnf, xct, wsTransformState, null/*A method has no parent*/,
+        super(job, xnf, xct, wsTransformState,
              WSCodeGenUtility.getMethodBodyClassName(methodDef));
+
         this.methodDecl = methodDecl;
-        frameDepth = 0;
         //now consider the flags/kind and outer class
         if(methodDef.flags().isStatic()){
             classSynth.setFlags(Flags.STATIC.Final());//class is static
@@ -69,10 +69,14 @@ public class WSMethodFrameClassGen extends WSRegularFrameClassGen {
             classSynth.setFlags(Flags.FINAL);//class is not static
         }
         //class is nested
-        classSynth.setKind(ClassDef.MEMBER);
         ClassType outerClassType = (ClassType) methodDef.container().get();
         ClassDef outerClassDef = outerClassType.def();
         classSynth.setOuter(outerClassDef);
+        
+        addPCFieldToClass();        
+        //now prepare all kinds of method synthesizer
+        prepareMethodSynths();
+
         
         //processing the return
         returnFlagName = ((X10Context)xct).makeFreshName("returnFlag");

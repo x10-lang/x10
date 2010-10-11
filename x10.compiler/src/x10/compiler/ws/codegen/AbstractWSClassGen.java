@@ -95,46 +95,75 @@ import x10.visit.ExpressionFlattener;
  *
  */
 public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
-    final Job job;
-    
-    //Common static variable
-    static protected Position compilerPos = Position.COMPILER_GENERATED;    
-    static protected Name FAST = Name.make("fast");
-    static protected Name PUSH = Name.make("push");
-    static protected Name POLL = Name.make("poll");
-    static protected Name RESUME = Name.make("resume");
-    static protected Name BACK = Name.make("back");
-    static protected Name MOVE = Name.make("move");
-    static protected Name WORKER = Name.make("worker");
-    static protected Name FRAME = Name.make("frame");
-    static protected Name PC = Name.make("_pc");
-    static protected Name FF = Name.make("ff");
-    static protected Name UP = Name.make("up");
-    static protected Name ASYNCS = Name.make("asyncs");
-    static protected Name REDO = Name.make("redo");
-        
-    
-    
-    //Fields for class code gen
-    protected WSTransformState wts;
-    protected X10TypeSystem xts;
-    protected X10NodeFactory xnf;
-    protected X10Context xct;
-    protected Synthesizer synth; //stateless synthesizer
-    protected ClassSynth classSynth; //stateful synthesizer for class gen
+    static final protected Position compilerPos = Position.COMPILER_GENERATED;
+    static final protected Name FAST = Name.make("fast");
+    static final protected Name PUSH = Name.make("push");
+    static final protected Name POLL = Name.make("poll");
+    static final protected Name RESUME = Name.make("resume");
+    static final protected Name BACK = Name.make("back");
+    static final protected Name MOVE = Name.make("move");
+    static final protected Name WORKER = Name.make("worker");
+    static final protected Name FRAME = Name.make("frame");
+    static final protected Name PC = Name.make("_pc");
+    static final protected Name FF = Name.make("ff");
+    static final protected Name UP = Name.make("up");
+    static final protected Name ASYNCS = Name.make("asyncs");
+    static final protected Name REDO = Name.make("redo");
+
+    final protected Job job;
+    final protected X10NodeFactory xnf;
+    final protected X10TypeSystem xts;
+    final protected X10Context xct;
+    final protected WSTransformState wts;
+    final protected Synthesizer synth; //stateless synthesizer
+
+    final protected HashSet<Name> fieldNames; //store names of all fields in current frame
+    final protected String className; //used for child to query, and form child's name
+    final protected ClassSynth classSynth; //stateful synthesizer for class gen
+    final protected int frameDepth; //the depth to parent;
+
     protected MethodSynth fastMSynth;
     protected MethodSynth resumeMSynth;
     protected MethodSynth backMSynth;
-    
-    //Fields to store the frame's info
 
-    protected HashSet<Name> fieldNames; //store all the fields' name in current frame
-    protected String className; //used for child to query, and form child's name
+    //Fields to store the frame's info
     
     //Fields to maintain the tree
-    protected int frameDepth; //the depth to parent;
     final private AbstractWSClassGen parent;
     private List<AbstractWSClassGen> children; //lazy initialization
+    
+    
+    private AbstractWSClassGen(Job job, X10Context xct, WSTransformState wts, AbstractWSClassGen parent,
+            String className, ClassType frameType, int frameDepth) {
+        this.job = job;
+        xnf = (X10NodeFactory) job.extensionInfo().nodeFactory();
+        xts = (X10TypeSystem) job.extensionInfo().typeSystem();
+        synth = new Synthesizer(xnf, xts);
+        this.xct = xct;
+        this.wts = wts;
+        this.parent = parent;
+        this.className = className;
+        classSynth = new ClassSynth(job, xnf, xct, frameType, className);
+        classSynth.setKind(ClassDef.MEMBER);
+        fieldNames = new HashSet<Name>(); //used to store all other fields' names
+        this.frameDepth = frameDepth;
+    }
+
+    protected AbstractWSClassGen(Job job, X10NodeFactory xnf, X10Context xct, WSTransformState wts,
+            String className, ClassType frameType) {
+        this(job, xct, wts, null, className, frameType, 0);
+    }
+
+    protected AbstractWSClassGen(AbstractWSClassGen frame, AbstractWSClassGen parent,
+            String classNamePrefix, ClassType frameType) {
+        this(frame.job, frame.xct, frame.wts, parent, classNamePrefix + frame.assignChildId(), frameType,
+                frame.frameDepth + 1);
+        frame.addChild(this);
+        classSynth.setFlags(frame.classSynth.getClassDef().flags());
+        classSynth.setOuter(frame.classSynth.getOuter());
+    }
+
+
     
     /**
      * Return direct children
@@ -239,25 +268,6 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
     //TODO: interfaces to query one specific parent    
     //From the list, we could query all added inner classes
 
-    
-    public AbstractWSClassGen(Job job, X10NodeFactory xnf, X10Context xct,
-            WSTransformState wsTransformState, AbstractWSClassGen parent) {
-        super();
-        this.job = job;
-        this.xnf = xnf;
-        this.parent = parent;
-        this.wts = wsTransformState;
-        if(parent != null){
-            parent.addChild(this); //add it to parent
-        }
-        this.xct = xct;
-        this.xts = (X10TypeSystem) xct.typeSystem(); //type system from from context
-        synth = new Synthesizer(xnf, xts);
-        
-        //initial other fields
-        fieldNames = new HashSet<Name>(); //used to store all other fields' names
-    } 
-    
     public String getClassName() {
         return className;
     }

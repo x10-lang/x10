@@ -61,17 +61,11 @@ public class WSAsyncClassGen extends AbstractWSClassGen {
     
     public WSAsyncClassGen(AbstractWSClassGen parent, Async a) {
         //Note in building the tree, we use parentFinish as async frame's up frame
-        super(parent.job, parent.getX10NodeFactory(), parent.getX10Context(), parent.getWSTransformState(), getFinishFrameOfAsyncFrame(parent));
+        super(parent, getFinishFrameOfAsyncFrame(parent),
+                WSCodeGenUtility.getFAsyncStmtClassName(parent.getClassName()), parent.wts.asyncFrameType);
         //and record it's parent continuation to looking for accessible local variables
         Stmt asyncStmt = a.body();
         this.parentK = parent;
-        frameDepth = parent.frameDepth + 1;
-        //special case, the async frame has no direct parent finish frame
-        if(getFinishFrameOfAsyncFrame(parent) == null){
-            //we need make sure the class still could be added into the class tree
-            parentK.addChild(this);
-        }
-        
         
         if(asyncStmt instanceof Block){
             asyncBlock = (Block) asyncStmt;
@@ -80,15 +74,6 @@ public class WSAsyncClassGen extends AbstractWSClassGen {
             asyncBlock = xnf.Block(asyncStmt.position(), asyncStmt);
         }
         outFinishScopeLocalAssign = new ArrayList<LocalAssign>();
-
-        className = WSCodeGenUtility.getFAsyncStmtClassName(parent.getClassName())
-                    + parent.assignChildId();
-        classSynth = new ClassSynth(job, xnf, xct, wts.asyncFrameType, className);
-
-        ClassDef classDef = parent.classSynth.getClassDef();
-        classSynth.setFlags(classDef.flags());    
-        classSynth.setKind(classDef.kind());
-        classSynth.setOuter(parent.classSynth.getOuter());
         
         formals = new ArrayList<Pair<Name, Type>>();
         

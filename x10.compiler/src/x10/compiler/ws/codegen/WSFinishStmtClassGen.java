@@ -27,22 +27,10 @@ public class WSFinishStmtClassGen extends AbstractWSClassGen {
     protected Finish finish;
 
     public WSFinishStmtClassGen(AbstractWSClassGen parent, Finish finish) {
-        super(parent.job, parent.getX10NodeFactory(), parent.getX10Context(), parent.getWSTransformState(),
-              parent);
+        super(parent, parent, WSCodeGenUtility.getFinishStmtClassName(parent.getClassName()),
+                parent.wts.finishFrameType);
 
         this.finish = finish;
-
-        // className like "_fib_finish_1";
-        className = WSCodeGenUtility.getFinishStmtClassName(parent.getClassName())
-                    + parent.assignChildId();
-        classSynth = new ClassSynth(job, xnf, xct, wts.finishFrameType, className);
-        classSynth.setKind(ClassDef.MEMBER);
-        //note the flag should according to the method's type
-        ClassDef classDef = parent.classSynth.getClassDef();
-        classSynth.setFlags(classDef.flags());    
-        classSynth.setKind(classDef.kind());
-        classSynth.setOuter(parent.classSynth.getOuter());
-        this.frameDepth = parent.frameDepth + 1;
         
         addPCFieldToClass();        
         //now prepare all kinds of method synthesizer

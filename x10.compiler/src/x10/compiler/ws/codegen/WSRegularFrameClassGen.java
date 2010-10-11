@@ -74,26 +74,9 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
 
     // constructor for called from all other places, normal regular frame/main
     // frame/continuation frame
-    protected WSRegularFrameClassGen(Job job, X10NodeFactory xnf, X10Context xct, WSTransformState wsTransformState,
-            AbstractWSClassGen parent, String classNamePrefix) {
-        super(job, xnf, xct, wsTransformState, parent);
-        
-        int classSequenceId = (parent == null) ? -1 : parent.assignChildId();
-        className = (classSequenceId == -1) ? classNamePrefix : (classNamePrefix + classSequenceId);
-        classSynth = new ClassSynth(job, xnf, xct, wts.regularFrameType, className);
-
-        // note the flag should according to the method's type
-        if (parent != null) {
-            ClassDef classDef = parent.classSynth.getClassDef();
-            classSynth.setFlags(classDef.flags());
-            classSynth.setKind(classDef.kind());
-            classSynth.setOuter(parent.classSynth.getOuter());
-            this.frameDepth = parent.frameDepth + 1;
-        }
-        
-        addPCFieldToClass();        
-        //now prepare all kinds of method synthesizer
-        prepareMethodSynths();
+    protected WSRegularFrameClassGen(Job job, X10NodeFactory xnf, X10Context xct, WSTransformState wts,
+           String className) {
+        super(job, xnf, xct, wts, className, wts.regularFrameType);
     }
 
     /**
@@ -104,9 +87,11 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
      * @param classNamePrefix
      */
     protected WSRegularFrameClassGen(AbstractWSClassGen parent, Stmt codeBody, String classNamePrefix) {
-        this(parent.job, parent.getX10NodeFactory(), parent.getX10Context(), parent.getWSTransformState(), parent, classNamePrefix);
+        super(parent, parent, classNamePrefix, parent.wts.regularFrameType);
+        addPCFieldToClass();        
+        //now prepare all kinds of method synthesizer
+        prepareMethodSynths();
         this.codeBlock = codeBody == null ? null : synth.toBlock(codeBody); //switch frame will have null codeBody
-        
     }
 
 
