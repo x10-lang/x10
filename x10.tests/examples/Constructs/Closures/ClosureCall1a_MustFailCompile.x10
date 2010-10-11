@@ -1,3 +1,4 @@
+// Yoav added: IGNORE_FILE
 /*
  *  This file is part of the X10 project (http://x10-lang.org).
  *
@@ -26,11 +27,11 @@ import harness.x10Test;
 
 public class ClosureCall1a_MustFailCompile extends ClosureTest {
 
-    class V           {const name = "V";}
-    class W extends V {const name = "W";}
-    class X extends V {const name = "X";}
-    class Y extends X {const name = "Y";}
-    class Z extends X {const name = "Z";}
+    class V           {public static val name = "V";}
+    class W extends V {public static val name = "W";}
+    class X extends V {public static val name = "X";}
+    class Y extends X {public static val name = "Y";}
+    class Z extends X {public static val name = "Z";}
 
     public def run(): boolean = {
 
