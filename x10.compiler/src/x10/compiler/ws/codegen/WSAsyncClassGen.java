@@ -50,36 +50,19 @@ import x10.util.synthesizer.SwitchSynth;
  *
  */
 public class WSAsyncClassGen extends AbstractWSClassGen {
-
-    protected Block asyncBlock;
-    protected AbstractWSClassGen parentK; //used to store its parent continuation
-    
-    
-    protected List<Pair<Name,Type>> formals; //the formals are not real formals, but local var copied from parent frames;
-    protected List<LocalAssign> outFinishScopeLocalAssign;//all the locals in this scope need be processed in move
-    
+    protected final Block asyncBlock;
+    protected final AbstractWSClassGen parentK; //used to store its parent continuation    
+    protected final List<Pair<Name,Type>> formals; //the formals are not real formals, but local var copied from parent frames;
+    protected final List<LocalAssign> outFinishScopeLocalAssign;//all the locals in this scope need be processed in move
     
     public WSAsyncClassGen(AbstractWSClassGen parent, Async a) {
         //Note in building the tree, we use parentFinish as async frame's up frame
         super(parent, getFinishFrameOfAsyncFrame(parent),
                 WSCodeGenUtility.getFAsyncStmtClassName(parent.getClassName()), parent.wts.asyncFrameType);
-        //and record it's parent continuation to looking for accessible local variables
-        Stmt asyncStmt = a.body();
-        this.parentK = parent;
-        
-        if(asyncStmt instanceof Block){
-            asyncBlock = (Block) asyncStmt;
-        }
-        else{
-            asyncBlock = xnf.Block(asyncStmt.position(), asyncStmt);
-        }
-        outFinishScopeLocalAssign = new ArrayList<LocalAssign>();
-        
+        asyncBlock = synth.toBlock(a.body());
+        parentK = parent; //record parent continuation
         formals = new ArrayList<Pair<Name, Type>>();
-        
-        addPCFieldToClass();
-        //now prepare all kinds of method synthesizer
-        prepareMethodSynths();
+        outFinishScopeLocalAssign = new ArrayList<LocalAssign>();
     }
 
     public void genClass() throws SemanticException {
@@ -213,7 +196,7 @@ public class WSAsyncClassGen extends AbstractWSClassGen {
             //then process the original local, and infact the reference is built
             FieldAssign fAssign = (FieldAssign) this.replaceLocalVarRefWithFieldAccess(assign, localDeclaredVar);
               
-            Expr leftContainerRef = getFieldContainerRef(name, getParent(), moveFfRef); //search the field from async's parent(finish)
+            Expr leftContainerRef = getFieldContainerRef(name, getUpFrame(), moveFfRef); //search the field from async's parent(finish)
             Expr moveAssign = synth.makeFieldToFieldAssign(compilerPos, leftContainerRef, name, fAssign.target(), name, xct);                    
             moveBodySynth.addStmt(xnf.Eval(compilerPos, moveAssign));  
         }

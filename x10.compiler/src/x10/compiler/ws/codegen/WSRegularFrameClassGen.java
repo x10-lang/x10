@@ -21,6 +21,7 @@ import polyglot.ast.Switch;
 import polyglot.ast.Try;
 import polyglot.frontend.Job;
 import polyglot.types.ClassDef;
+import polyglot.types.ClassType;
 import polyglot.types.Flags;
 import polyglot.types.Name;
 import polyglot.types.SemanticException;
@@ -61,9 +62,7 @@ import x10.util.synthesizer.SwitchSynth;
  * 
  */
 public class WSRegularFrameClassGen extends AbstractWSClassGen {
-    // general regular frame attributes
-    //List<LocalDecl> locals; // original method's all locals
-    Block codeBlock; // store all code block
+    protected final Block codeBlock; // store all code block
 
     //this flag is set to true when genReturnCheckStmt() is called.
     //And set to false every time a new statement is processed.
@@ -72,11 +71,10 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
     //we need add an additional return to prevent the java path has no "return x" at the end of the method
     boolean isReturnPathChanged;
 
-    // constructor for called from all other places, normal regular frame/main
-    // frame/continuation frame
     protected WSRegularFrameClassGen(Job job, X10NodeFactory xnf, X10Context xct, WSTransformState wts,
-           String className) {
-        super(job, xnf, xct, wts, className, wts.regularFrameType);
+           String className, Block body, ClassDef outer, Flags flags) {
+        super(job, xnf, xct, wts, className, wts.regularFrameType, flags, outer);
+        this.codeBlock = (Block) WSCodeGenUtility.setSpeicalQualifier(body, outer, xnf);
     }
 
     /**
@@ -88,9 +86,6 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
      */
     protected WSRegularFrameClassGen(AbstractWSClassGen parent, Stmt codeBody, String classNamePrefix) {
         super(parent, parent, classNamePrefix, parent.wts.regularFrameType);
-        addPCFieldToClass();        
-        //now prepare all kinds of method synthesizer
-        prepareMethodSynths();
         this.codeBlock = codeBody == null ? null : synth.toBlock(codeBody); //switch frame will have null codeBody
     }
 

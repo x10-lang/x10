@@ -23,18 +23,13 @@ import x10.util.synthesizer.SwitchSynth;
  * 
  */
 public class WSFinishStmtClassGen extends AbstractWSClassGen {
+    protected final Finish finishStmt;
 
-    protected Finish finish;
-
-    public WSFinishStmtClassGen(AbstractWSClassGen parent, Finish finish) {
-        super(parent, parent, WSCodeGenUtility.getFinishStmtClassName(parent.getClassName()),
+    public WSFinishStmtClassGen(AbstractWSClassGen parent, Finish finishStmt) {
+        super(parent, parent,
+                WSCodeGenUtility.getFinishStmtClassName(parent.getClassName()),
                 parent.wts.finishFrameType);
-
-        this.finish = finish;
-        
-        addPCFieldToClass();        
-        //now prepare all kinds of method synthesizer
-        prepareMethodSynths();
+        this.finishStmt = finishStmt;
     }
 
     @Override
@@ -75,11 +70,11 @@ public class WSFinishStmtClassGen extends AbstractWSClassGen {
         
         //
         Block finishBody;
-        if(finish.body() instanceof Block){
-            finishBody = (Block) finish.body();
+        if(finishStmt.body() instanceof Block){
+            finishBody = (Block) finishStmt.body();
         }
         else{
-            finishBody = xnf.Block(finish.body().position(), finish.body());
+            finishBody = xnf.Block(finishStmt.body().position(), finishStmt.body());
         }
         
         AbstractWSClassGen childFrameGen = genChildFrame(wts.regularFrameType, finishBody, WSCodeGenUtility.getBlockFrameClassName(getClassName()));

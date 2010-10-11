@@ -55,27 +55,16 @@ public class WSMethodFrameClassGen extends WSRegularFrameClassGen {
     
 
     public WSMethodFrameClassGen(Job job, X10NodeFactory xnf, X10Context xct,
-                                  MethodDef methodDef, MethodDecl methodDecl, WSTransformState wsTransformState) {
+                                  MethodDef methodDef, MethodDecl methodDecl, WSTransformState wts) {
     
-        super(job, xnf, xct, wsTransformState,
-             WSCodeGenUtility.getMethodBodyClassName(methodDef));
+        super(job, xnf, xct, wts, WSCodeGenUtility.getMethodBodyClassName(methodDef),
+             methodDecl.body(), ((ClassType) methodDef.container().get()).def(),
+             methodDef.flags().isStatic() ? Flags.FINAL.Static() : Flags.FINAL);
+        //And if the method is instance method, need process the method body's all special
+        //this/super need set the qualifier
 
         this.methodDecl = methodDecl;
-        //now consider the flags/kind and outer class
-        if(methodDef.flags().isStatic()){
-            classSynth.setFlags(Flags.STATIC.Final());//class is static
-        }
-        else{
-            classSynth.setFlags(Flags.FINAL);//class is not static
-        }
-        //class is nested
-        ClassType outerClassType = (ClassType) methodDef.container().get();
-        ClassDef outerClassDef = outerClassType.def();
-        classSynth.setOuter(outerClassDef);
         
-        addPCFieldToClass();        
-        //now prepare all kinds of method synthesizer
-        prepareMethodSynths();
 
         
         //processing the return
@@ -105,14 +94,6 @@ public class WSMethodFrameClassGen extends WSRegularFrameClassGen {
         fastWrapperMethodSynth.setReturnType(returnType);
        
         formals = methodDecl.formals(); //record all formals
-        Block block = methodDecl.body();
-        //And if the method is instance method, need process the method body's all special
-        //this/super need set the qualifier
-        ClassDef outerDef = classSynth.getOuter();
-        if(outerDef != null){
-            block = (Block) WSCodeGenUtility.setSpeicalQualifier(block, outerDef, xnf);
-        }        
-        this.codeBlock = block;
         
         //finally changes fast/slow method's return type
         fastMSynth.setReturnType(returnType);

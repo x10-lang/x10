@@ -25,14 +25,12 @@ import x10.util.synthesizer.SwitchSynth;
  *
  */
 public class WSWhileDoLoopClassGen extends WSRegularFrameClassGen {
-
-    Loop loopStmt;
+    protected final Loop loopStmt;
     
-    public WSWhileDoLoopClassGen(AbstractWSClassGen parent, Loop loopS) {
-        super(parent, loopS.body(), 
+    public WSWhileDoLoopClassGen(AbstractWSClassGen parent, Loop loopStmt) {
+        super(parent, loopStmt.body(),
               WSCodeGenUtility.getLoopClassName(parent.getClassName()));
-    
-        this.loopStmt = loopS;
+        this.loopStmt = loopStmt;
     }
     
     

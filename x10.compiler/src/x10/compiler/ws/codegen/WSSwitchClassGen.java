@@ -30,13 +30,11 @@ import x10.util.synthesizer.SwitchSynth;
  *
  */
 public class WSSwitchClassGen extends WSRegularFrameClassGen {
-
-    Switch switchStmt;
+    protected final Switch switchStmt;
     
     public WSSwitchClassGen(AbstractWSClassGen parent, Switch switchStmt) {
-        super(parent, null, 
+        super(parent, null,
               WSCodeGenUtility.getSwitchClassName(parent.getClassName()));
-    
         this.switchStmt = switchStmt;
     }
     

@@ -26,18 +26,12 @@ import x10.util.synthesizer.SwitchSynth;
  *
  */
 public class WSWhenFrameClassGen extends WSRegularFrameClassGen {
-
-    When whenStmt;
+    protected final When whenStmt;
     
     public WSWhenFrameClassGen(AbstractWSClassGen parent, When whenStmt) {
-        super(parent, whenStmt.stmt(), 
+        super(parent, whenStmt.stmt(),
               WSCodeGenUtility.getWhenClassName(parent.getClassName()));
-        
         this.whenStmt = whenStmt;
-        
-        //when class's parent is WhenFrame
-        classSynth.setSuperType(wts.regularFrameType);
-
     }
     
     

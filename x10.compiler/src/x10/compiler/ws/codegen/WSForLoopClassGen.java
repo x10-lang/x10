@@ -31,14 +31,12 @@ import x10.util.synthesizer.SwitchSynth;
  *
  */
 public class WSForLoopClassGen extends WSRegularFrameClassGen {
-
-    For forStmt;
+    protected final For forStmt;
     
-    public WSForLoopClassGen(AbstractWSClassGen parent, For forS) {
-        super(parent, forS.body(), 
+    public WSForLoopClassGen(AbstractWSClassGen parent, For forStmt) {
+        super(parent, forStmt.body(),
               WSCodeGenUtility.getLoopClassName(parent.getClassName()));
-    
-        this.forStmt = forS;
+        this.forStmt = forStmt;
     }
     
     
