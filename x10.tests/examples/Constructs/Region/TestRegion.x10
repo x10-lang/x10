@@ -109,7 +109,7 @@ abstract public class TestRegion extends x10Test {
                 } else {
                     // XTENLANG-34, XTENLANG-211
                     val d = (o as Box[double]).value;
-                    Out.print((d as int)+"");
+                    Out.print(""+(d as int));
                 }
 
                 if (rank==1)
