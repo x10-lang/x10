@@ -507,7 +507,7 @@ public class TypeEnv_c implements TypeEnv {
      * <i>more specific</i> is defined as JLS 15.11.2.2
      */
     public <T extends ProcedureDef> boolean moreSpecific(ProcedureInstance<T> p1, ProcedureInstance<T> p2) {
-	return p1.moreSpecific(p2, context);
+	return p1.moreSpecific(null, p2, context);
     }
 
     /**
@@ -817,7 +817,8 @@ public class TypeEnv_c implements TypeEnv {
      *            TODO
      */
     public List<ConstructorInstance> findAcceptableConstructors(Type container, ConstructorMatcher matcher) throws SemanticException {
-	SemanticException error = null;
+	assert false; // should be overridden by X10TypeEnv_c.findAcceptableConstructors.
+    	SemanticException error = null;
 
 	List<ConstructorInstance> acceptable = new ArrayList<ConstructorInstance>();
 

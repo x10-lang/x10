@@ -400,8 +400,8 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 	}
 	
 
-	public boolean moreSpecific(ProcedureInstance<TypeDef> p, Context context) {
-	    return X10TypeMixin.moreSpecificImpl(this, p, context);
+	public boolean moreSpecific(Type ct, ProcedureInstance<TypeDef> p, Context context) {
+	    return X10TypeMixin.moreSpecificImpl(ct, this, p, context);
 	}
 	
 	public Type returnType() {

@@ -295,7 +295,8 @@ public class TypeConstraint implements Copy, Serializable {
 		
 	}
 
-	public static <PI extends X10ProcedureInstance<?>> Type[] inferTypeArguments(PI me, Type thisType, List<Type> actuals, List<Type> formals, List<Type> typeFormals, X10Context context) throws SemanticException {
+	public static <PI extends X10ProcedureInstance<?>> Type[] inferTypeArguments(PI me, Type thisType, List<Type> actuals, List<Type> formals, 
+			List<Type> typeFormals, X10Context context) throws SemanticException {
 	    X10TypeSystem xts = (X10TypeSystem) thisType.typeSystem();
 	
 	    TypeConstraint tenv = new TypeConstraint();
@@ -333,6 +334,7 @@ public class TypeConstraint implements Copy, Serializable {
 	        Type ytype = new ParameterType_c(xts, me.position(), Name.makeFresh(), Types.ref((X10ProcedureDef) me.def()));
 	
 	        // TODO: should enforce this statically
+	        if (! (xtype instanceof ParameterType))
 	        assert xtype instanceof ParameterType : xtype + " is not a ParameterType, is a " + (xtype != null ? xtype.getClass().getName() : "null");
 	
 	        tenv.addTerm(new SubtypeConstraint(xtype, ytype, true));
@@ -576,8 +578,14 @@ public class TypeConstraint implements Copy, Serializable {
 	            Y[i] = upperBound;
 	        else if (lowerBound != null)
 	            Y[i] = lowerBound;
-	        else
-	            throw new SemanticException("Could not infer type for type parameter " + X[i] + ".", me.position());
+	        else {
+	        	System.err.println("Diagnostic: No constraint on type parameters. " 
+	        			 +
+	        			"Returning Any instead of throwing an exception."
+	        			 + (X[i] != null ? "\n\t: Position: " +  X[i].position().toString() : ""));
+	        	Y[i] = xts.Any();
+	           // throw new SemanticException("Could not infer type for type parameter " + X[i] + ".", me.position());
+	        }
 	    }
 	}
 }

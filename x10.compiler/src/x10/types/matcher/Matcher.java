@@ -60,6 +60,11 @@ import x10.types.constraints.XConstrainedTerm;
  */
 public class Matcher {
 
+	// Generic method resolution interacts with type inference.
+	// The new (2.1) semantics requires that for instance methods, given a this Type
+	// t and a method name m and actual type args, we proceed in two stages.
+	// First we determine the set S of applicable and available methods.
+	// 
 	public static <PI extends X10ProcedureInstance<?>> PI inferAndCheckAndInstantiate(X10Context context, PI me, 
 			Type thisType, 
 			List<Type> typeActuals, 
@@ -102,7 +107,7 @@ public class Matcher {
 	 * @return  -- An instantiated version of me, with actuals substituted for formals in actual types and return types. 
 	 * @throws SemanticException
 	 */
-	static <PI extends X10ProcedureInstance<?>> PI instantiate2(final X10Context context, final PI me, 
+	private static <PI extends X10ProcedureInstance<?>> PI instantiate2(final X10Context context, final PI me, 
 	    		/*inout*/ Type[] thisTypeArray,  
 	    		List<Type> typeActuals, 
 	    		List<Type> actuals, 
@@ -343,8 +348,8 @@ public class Matcher {
 
 		    final List<Type> myFormals =  new ArrayList<Type>(newMe.formalTypes()); // copy 
 		    for (int i = 0; i < formals.size(); i++) {
-		        Type ytype = actuals.get(i);
-		        Type xtype = Subst.subst(formals.get(i), y2eqv, x2, Y, X); 
+		        Type ytype =  Subst.subst(actuals.get(i), y2eqv, x2, Y, X);
+		        Type xtype = Subst.subst(myFormals.get(i), y2eqv, x2, Y, X); 
 
 		        if (! xts.consistent(xtype, context2)) {
 		            throw new SemanticException("Parameter type " + xtype + " of call is inconsistent in calling context.");

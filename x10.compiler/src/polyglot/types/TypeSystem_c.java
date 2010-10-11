@@ -808,6 +808,9 @@ public abstract class TypeSystem_c implements TypeSystem
 	public Context context() {
 	    return context;
 	}
+	public Type container() {
+		return container;
+	}
 
 	public Name name() {
 	    return Name.make("this");
@@ -860,6 +863,9 @@ public abstract class TypeSystem_c implements TypeSystem
 	    MethodMatcher n = copy();
 	    n.container = container;
 	    return n;
+	}
+	public Type container() {
+		return container;
 	}
 
 	public MethodMatcher copy() {
@@ -926,6 +932,9 @@ public abstract class TypeSystem_c implements TypeSystem
 	    return context;
 	}
 
+	public Type container() {
+		return container;
+	}
 	public FieldMatcher container(Type container) {
 	    FieldMatcher n = copy();
 	    n.container = container;
@@ -977,6 +986,9 @@ public abstract class TypeSystem_c implements TypeSystem
 	    this.context = context;
 	}
 
+	public Type container() {
+		return container;
+	}
 	public String signature() {
 	    return name.toString();
 	}
@@ -1025,6 +1037,7 @@ public abstract class TypeSystem_c implements TypeSystem
 	    return name;
 	}
 
+	
 	public Named instantiate(Named t) throws SemanticException {
 	    if (! t.name().equals(name)) {
 		return null;
@@ -1070,7 +1083,7 @@ public abstract class TypeSystem_c implements TypeSystem
 	}
 
 	Collection<MethodInstance> maximal =
-	    findMostSpecificProcedures(acceptable, (Matcher<MethodInstance>) matcher, context);
+	    findMostSpecificProcedures(container, acceptable, (Matcher<MethodInstance>) matcher, context);
 
 	if (maximal.size() > 1) {
 	    StringBuffer sb = new StringBuffer();
@@ -1126,11 +1139,17 @@ public abstract class TypeSystem_c implements TypeSystem
     public <S extends ProcedureDef, T extends ProcedureInstance<S>> Collection<T>
     findMostSpecificProcedures(List<T> acceptable, Matcher<T> matcher, Context context)
     throws SemanticException {
+    	return findMostSpecificProcedures(null, acceptable, matcher, context);
+    }
+    public <S extends ProcedureDef, T extends ProcedureInstance<S>> Collection<T>
+    findMostSpecificProcedures(Type container, List<T> acceptable, Matcher<T> matcher, Context context)
+    throws SemanticException {
 	
 	// now, use JLS 15.11.2.2
 	// First sort from most- to least-specific.
-	Comparator<T> msc = mostSpecificComparator(matcher, context);
-	acceptable = new ArrayList<T>(acceptable); // make into array list to sort
+	Comparator<T> msc = mostSpecificComparator(container, matcher, context);
+	ArrayList<T> acceptable2 = new ArrayList<T>(acceptable); // make into array list to sort
+
 	Collections.<T>sort(acceptable, msc);
 
 	List<T> maximal = new ArrayList<T>(acceptable.size());
@@ -1190,7 +1209,7 @@ public abstract class TypeSystem_c implements TypeSystem
 	return maximal;
     }
 
-    protected <S extends ProcedureDef, T extends ProcedureInstance<S>> Comparator<T> mostSpecificComparator(Matcher<T> matcher, Context context) {
+    protected <S extends ProcedureDef, T extends ProcedureInstance<S>> Comparator<T> mostSpecificComparator(Type container, Matcher<T> matcher, Context context) {
 	return new MostSpecificComparator<S,T>(context);
     }
 
@@ -1230,15 +1249,17 @@ public abstract class TypeSystem_c implements TypeSystem
     /**
      * Class to handle the comparisons; dispatches to moreSpecific method.
      */
-    protected static class MostSpecificComparator<S extends ProcedureDef, T extends ProcedureInstance<S>> implements Comparator<T> {
-	Context context;
+    public static class MostSpecificComparator<S extends ProcedureDef, T extends ProcedureInstance<S>> implements Comparator<T> {
+	protected Context context;
+
 	public MostSpecificComparator(Context context) {
 	    this.context = context;
+	    
 	}
 	public int compare(T p1, T p2) {
-	    if (p1.moreSpecific(p2, context))
+	    if (p1.moreSpecific(null, p2, context))
 		return -1;
-	    if (p2.moreSpecific(p1, context))
+	    if (p2.moreSpecific(null, p1, context))
 		return 1;
 	    return 0;
 	}
@@ -1301,12 +1322,13 @@ public abstract class TypeSystem_c implements TypeSystem
 			    Report.report(3, "Trying " + mi);
 
 			try {
+				MethodInstance oldmi = mi;
 			    mi = matcher.instantiate(mi);
 
 			    if (mi == null) {
 				continue;
 			    }
-
+			    mi.setOrigMI(oldmi);
 			    if (isAccessible(mi, context)) {
 				if (Report.should_report(Report.types, 3)) {
 				    Report.report(3, "->acceptable: " + mi + " in "
