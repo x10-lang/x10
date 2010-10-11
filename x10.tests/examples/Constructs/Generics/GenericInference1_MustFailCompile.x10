@@ -13,7 +13,7 @@ import harness.x10Test;
 
 
 /**
- * A call to a polymorphic method, closure, or constructor may omit
+ * A call to a polymorphic method, closure, or staticructor may omit
  * the explicit type arguments. If the method has a type parameter T,
  * the type argument corresponding to T is inferred to be the least
  * common ancestor of the types of any formal parameters of type T.
@@ -23,11 +23,11 @@ import harness.x10Test;
 
 public class GenericInference1_MustFailCompile extends GenericTest {
 
-    class V           {const name = "V";};
-    class W extends V {const name = "W";}
-    class X extends V {const name = "X";};
-    class Y extends X {const name = "Y";};
-    class Z extends X {const name = "Z";};
+    class V           {static name = "V";};
+    class W extends V {static name = "W";}
+    class X extends V {static name = "X";};
+    class Y extends X {static name = "Y";};
+    class Z extends X {static name = "Z";};
 
     def m[T](){T<:X} = T.name;
 

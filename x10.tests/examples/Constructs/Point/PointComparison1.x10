@@ -20,11 +20,11 @@ import harness.x10Test;
 class PointComparison1 extends TestPoint {
 
     def comp(a: Point, b: Point) {a.rank==b.rank} {
-        pr(a + "> " + b + " " + (a > b));
-        pr(a + "< " + b + " " + (a < b));
-        pr(a + ">=" + b + " " + (a >= b));
-        pr(a + "<=" + b + " " + (a <= b));
-        pr(a + ".equals" + b + " " + (a.equals(b)));
+        pr(""+ a+ "> " + b + " " + (a > b));
+        pr(""+ a+ "< " + b + " " + (a < b));
+        pr(""+ a+ ">=" + b + " " + (a >= b));
+        pr(""+ a+ "<=" + b + " " + (a <= b));
+        pr(""+ a+ ".equals" + b + " " + (a.equals(b)));
     }
 
     public def run() {

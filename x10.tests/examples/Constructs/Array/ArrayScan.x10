@@ -44,7 +44,7 @@ public class ArrayScan extends TestArray {
         val aa = a as Array[double](1);
         out.println("--- " + msg);
         for (pt:Point(1) in aa)
-            out.print(aa(pt) + " ");
+            out.print("" + aa(pt) + " ");
         out.println();
     }
 

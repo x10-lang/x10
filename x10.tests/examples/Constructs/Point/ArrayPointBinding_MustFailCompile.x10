@@ -21,7 +21,7 @@ public class ArrayPointBinding_MustFailCompile extends x10Test {
 
     public def run(): boolean = {
 
-        p[i,j]: Rail[Point] = new Rail[Point](1);
+        p[i,j]: Array[Point] = new Array[Point](1);
         p(0) = [1,2];
 
         return (i == 1 && j == 2);

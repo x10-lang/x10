@@ -49,10 +49,10 @@ public class InitNonNullable_MustFailCompile extends x10Test {
 		chk(bna.val(9).data == 19);
 		var tmp7: Node = (bna.val(9).next) as Node;
 		chk(bna.val(9).next.data == 19);
-		val A: Array[Node] = new Array[Node]([0..9]->here) as Array[Node];
-		var tmp8: Node = (A(2)) as Node;
+		val A <: Array[Node] = new Array[Node](0..9, (p:Point(1))=>new Node());
+		var tmp8  = A(2);
 		chk(A(2).data == 19);
-		var tmp9: Node = (A(2).next) as Node;
+		var tmp9  = A(2).next;
 		chk(A(2).next.data == 19);
 		return true;
 	}
@@ -74,6 +74,6 @@ public class InitNonNullable_MustFailCompile extends x10Test {
 	}
 
 	static class BoxedNodeArray {
-		public var val: Array[Node];
+		public var val: Array[Node](1);
 	}
 }

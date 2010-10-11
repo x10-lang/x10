@@ -489,7 +489,7 @@ public class TypeConstraint implements Copy, Serializable {
 	    }
 	}
 
-	public static <PI extends X10ProcedureInstance<?>> void inferTypeArguments(X10Context context, PI me, TypeConstraint tenv,
+	private static <PI extends X10ProcedureInstance<?>> void inferTypeArguments(X10Context context, PI me, TypeConstraint tenv,
 	        ParameterType[] X, Type[] Y, Type[] Z, XVar[] x, XVar[] y, XVar ythis, XVar xthis) throws SemanticException
 	{
 	    X10TypeSystem xts = (X10TypeSystem) me.typeSystem();
@@ -579,7 +579,7 @@ public class TypeConstraint implements Copy, Serializable {
 	        else if (lowerBound != null)
 	            Y[i] = lowerBound;
 	        else {
-	        	System.err.println("Diagnostic: No constraint on type parameters. " 
+	        	System.err.println("(Diagnostic) No constraint on type parameters. " 
 	        			 +
 	        			"Returning Any instead of throwing an exception."
 	        			 + (X[i] != null ? "\n\t: Position: " +  X[i].position().toString() : ""));

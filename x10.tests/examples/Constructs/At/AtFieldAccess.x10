@@ -18,10 +18,10 @@ public class AtFieldAccess extends x10Test {
 
 	var t: T;
 	public def run():boolean {
-		var Second:Place = Place.FIRST_PLACE.next();
-		var r: Region = 0..0;
+		val Second = Place.FIRST_PLACE.next();
+		val r  = 0..0;
 		val D = r->Second;
-		for (p: Point in D.region) {
+		for (p  in D.region) {
 			t = at (D(p)) new T();
 		}
 		val tt = this.t;

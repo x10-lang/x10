@@ -1266,6 +1266,26 @@ then we substitute 0/false/null in all the constraints in C and if they all eval
 	    return null;
 	}
 
+	/**
+	 * Determine if xp1 is more specific than xp2 given some (unknown) current call c to a method m or a constructor
+	 * for a class or interface Q (in the given context). (Note that xp1 and xp2 may not be function definitions since
+	 * no method resolution is not necessary for function definitions.)
+	 * 
+	 * <p> We may assume that xp1 and xp2 are instantiations of underlying (possibly generic) procedure definitions, 
+	 * pd1 and pd2 (respectively) that lie in the applicable and available method call set for c. 
+	 * 
+	 * <p> The determination is done as follows. First, if xp1 is an instance of a static method on a class C1, and xp2
+	 * is an instance of a static method on a class C2, and C1 is distinct from C2 but descends from it,
+	 * Otherwise we examine pd1 and pd2 -- the underlying possibly generic method definitions. Now pd1 is more 
+	 * specific than pd2 if a call can be made to pd2 with the information available about pd1's arguments. As usual,
+	 * type parameters of pd2 (if any) are permitted to be instantiated during this process.
+	 * @param ct -- represents the container on which both xp1 and xp2 are available. Ignored now. TODO: Remove the machinery
+	 * introduced to permit ct to be available in this call to moreSpecificImpl.
+	 * @param xp1 -- the instantiated procedure definition.
+	 * @param xp2
+	 * @param context
+	 * @return
+	 */
 	public static boolean moreSpecificImpl(Type ct, ProcedureInstance<?> xp1, ProcedureInstance<?> xp2, Context context) {
 	    X10TypeSystem ts = (X10TypeSystem) xp1.typeSystem();
 	    Type ct1 = xp2 instanceof MemberInstance<?> ? ((MemberInstance<?>) xp1).container() : null;
@@ -1288,18 +1308,28 @@ then we substitute 0/false/null in all the constraints in C and if they all eval
 	    if (descends && ! ts.hasSameClassDef(t1, t2) && flags1.isStatic() && flags2.isStatic()) {
 	        return true;
 	    }
-	    boolean java = javaStyleMoreSpecificMethod(xp1, xp2, (X10Context) context, ts, ct1, t1, t2,descends);
+	    // For now (10/10/10) we check using both styles and mark the cases in which results are different
+	    // as a diagnostic output for the compiler. 
+	    boolean java = javaStyleMoreSpecificMethod(xp1, xp2, (X10Context) context, ct1, t1, t2,descends);
 	    boolean old = oldStyleMoreSpecificMethod(xp1, xp2, (X10Context) context, ts, ct1, t1, t2, descends);
 	    if (java != old) {
-	    	System.out.println("Discrepency in moreSpecific computation for:"
+	    	System.out.println("(Warning) Please check definitions p1 and p2." +
+	    			((java && ! old) ? "p1 is now more specific than p2; it was not in 2.0.6."
+	    					: "p1 is now not more specific than p2; it was in 2.0.6.")
 	    			+ "\n\t: p1: " + xp1
 	    			+ "\n\t: at " + xp1.position()
 	    			+ "\n\t: p2: " + xp2
-	    			+ "\n\t: at " + xp2.position()
-	    			+ "\n\t: java/old=" + java + "/" + old);
+	    			+ "\n\t: at " + xp2.position());
 	    }
+	    // Change this to return old to re-enable 2.0.6 style computation.
 	    return  java; 
 	}
+	// This is taken from the 2.0.6 implementation.
+	// This contains logic for pre-generic Java. One determines
+	// that a method MI1 is more specific than MI2 if each argument of
+	// MI1 is a subtype of the corresponding argument of MI2. That is,
+	// MI2 is taken as the instance of the method definition for the given
+	// call. Hence no type inference is done. 
 	private static boolean oldStyleMoreSpecificMethod(
 			ProcedureInstance<?> xp1, ProcedureInstance<?> xp2,
 			Context context, X10TypeSystem ts, Type ct1, Type t1, Type t2,
@@ -1343,69 +1373,83 @@ then we substitute 0/false/null in all the constraints in C and if they all eval
 	
 	    return true;
 	}
+	/**
+	 * 
+	 * @param xp1 -- the first procedure instance
+	 * @param xp2 -- the second procedure instance
+	 * @param context -- the context for the original call
+	 * @param ts
+	 * @param ct1
+	 * @param t1 -- base type of ct1
+	 * @param t2 -- base type of the container of xp2.
+	 * @param descends -- does t1 descend from t2?
+	 * @return
+	 */
 	private static boolean javaStyleMoreSpecificMethod(
 			ProcedureInstance<?> xp1, ProcedureInstance<?> xp2,
-			X10Context context, X10TypeSystem ts, Type ct1, Type t1, Type t2,
+			X10Context context, Type ct1, Type t1, Type t2,
 			boolean descends) {
 		assert xp1 != null;
 		assert xp2 != null;
+		assert context != null;
+		X10TypeSystem ts = (X10TypeSystem) context.typeSystem();
 	    	List<Type> typeArgs = Collections.<Type>emptyList();
 	    	try {
 	    		if (xp2 instanceof X10MethodInstance) {
-	    			// For X10 2.1, instance generic methods
-	    			// are not supported. Hence ThisMI is the same as MI.
-	    			
-	    			// Static methods cannot refer to class type parameters, hence
-	    			// the only type instantiations introduced in MI are for 
-	    			// method type parameters. Also, static methods cannot refer to this
-	    			// hence there are no this constraints to transfer over. 
-	    			// Therefore ThisMI is the same as OrigMI.
+	    			// Both xp1 and xp2 should be X10MethodInstance's 
 	    			X10MethodInstance xmi2 = (X10MethodInstance) xp2;
-	    			
-	    			X10MethodInstance thisMI2 = // xmi2.flags().isStatic() ? 
-	    					(X10MethodInstance) xmi2.origMI();
-	    					//: xmi2;
-	    			assert thisMI2 != null;
+	    			X10MethodInstance origMI2 = (X10MethodInstance) xmi2.origMI();
+	    			assert origMI2 != null;
 	    			
 	    			if (! (xp1 instanceof X10MethodInstance))
 	    				return false;
 	    			X10MethodInstance xmi1 = (X10MethodInstance) xp1;
-	    			X10MethodInstance thisMI1 = // xmi1.flags().isStatic() ? 
-	    					(X10MethodInstance)xmi1.origMI();
-	    					//: xmi1;
-	    			if (thisMI1 == null)
-	    			assert thisMI1 != null;
-	    			//typeArgs = thisMI1.typeParameters();
-	    			List<Type> argTypes = new ArrayList<Type>(thisMI1.formalTypes());
+	    			X10MethodInstance origMI1 = (X10MethodInstance)xmi1.origMI();
+	    			assert origMI1 != null;
+	    			
+	    			// Now determine that a call can be made to thisMI2 using the
+	    			// argument list obtained from thisMI1. If not, return false.
+	    			List<Type> argTypes = new ArrayList<Type>(origMI1.formalTypes());
 	    			if (xp2.formalTypes().size() != argTypes.size())
 	        			return false;
+	    			// TODO: Establish that the current context is aware of the method
+	    			// guard for xmi1.
+	    			
 	    			if (typeArgs.isEmpty() || typeArgs.size() == xmi2.typeParameters().size()) {
 	    				MethodInstance r = Matcher.inferAndCheckAndInstantiate(context, 
-	    						thisMI2, ct1, typeArgs, argTypes, xp2.position());
+	    						origMI2, ct1, typeArgs, argTypes, xp2.position());
 	    				if (r == null)
 	    					return false;
 	    			}
 	    		} else  if (xp2 instanceof X10ConstructorInstance) {
+	    			// Both xp1 and xp2 should be X10ConstructorInstance's 
 	                X10ConstructorInstance xmi2 = (X10ConstructorInstance) xp2;
+	                X10ConstructorInstance origMI2 = (X10ConstructorInstance) xmi2.origMI();
+	                assert origMI2 != null;
+	                
 	            	if (! (xp1 instanceof X10ConstructorInstance))
 	    				return false;
-	            	X10ConstructorInstance origMI1 = (X10ConstructorInstance) ((X10ConstructorInstance) xp1).origMI();
+	            	X10ConstructorInstance xmi1 = (X10ConstructorInstance) xp1;
+	            	X10ConstructorInstance origMI1 = (X10ConstructorInstance) xmi1.origMI();
+	            	assert origMI1 != null;
 	            	List<Type> argTypes = new ArrayList<Type>(origMI1.formalTypes());
 	    			if (xp2.formalTypes().size() != argTypes.size())
 	        			return false;
-	    			X10ConstructorInstance origMI2 = (X10ConstructorInstance) xmi2.origMI();
+	    			// TODO: Figure out how to do type inference.
 	                X10ConstructorInstance r = Matcher.inferAndCheckAndInstantiate( context, 
 	                        origMI2, ct1, typeArgs, argTypes, xp2.position());
 	                if (r == null)
 	                	return false;
 	            }	else {
-	    		System.out.println("Unhandled MoreSpecificMatcher case: " + xp2 + " class " + xp2.getClass());
-	    		assert false;	
+	            	// Should not happen.
+	            	System.out.println("Diagnostic. Unhandled MoreSpecificMatcher case: " + xp2 + " class " + xp2.getClass());
+	            	assert false;	
 	            }
 	    	} catch (SemanticException z) {  		
 	    		return false;
 	    	}
-	
+	// I have kept the logic below from 2.0.6 for now. 
+	// TODO: Determine whether this should stay or not.
 	    // If the formal types are all equal, check the containers; otherwise p1 is more specific.
 	    for (int i = 0; i < xp1.formalTypes().size(); i++) {
 	        Type f1 = xp1.formalTypes().get(i);
