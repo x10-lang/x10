@@ -62,8 +62,6 @@ import x10.util.synthesizer.SwitchSynth;
  * 
  */
 public class WSRegularFrameClassGen extends AbstractWSClassGen {
-    protected final Block codeBlock; // store all code block
-
     //this flag is set to true when genReturnCheckStmt() is called.
     //And set to false every time a new statement is processed.
     //In this cause, the original full coverage return was limited.
@@ -71,22 +69,16 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
     //we need add an additional return to prevent the java path has no "return x" at the end of the method
     boolean isReturnPathChanged;
 
+    // method frames
     protected WSRegularFrameClassGen(Job job, X10NodeFactory xnf, X10Context xct, WSTransformState wts,
-           String className, Block body, ClassDef outer, Flags flags) {
-        super(job, xnf, xct, wts, className, wts.regularFrameType, flags, outer);
-        this.codeBlock = (Block) WSCodeGenUtility.setSpeicalQualifier(body, outer, xnf);
+           String className, Stmt stmt, ClassDef outer, Flags flags) {
+        super(job, xnf, xct, wts, className, wts.regularFrameType, flags, outer,
+                WSCodeGenUtility.setSpeicalQualifier(stmt, outer, xnf));
     }
 
-    /**
-     * Constructor. All states grabbed from parent. And have code block with it.
-     * 
-     * @param parent
-     * @param codeBlock
-     * @param classNamePrefix
-     */
-    protected WSRegularFrameClassGen(AbstractWSClassGen parent, Stmt codeBody, String classNamePrefix) {
-        super(parent, parent, classNamePrefix, parent.wts.regularFrameType);
-        this.codeBlock = codeBody == null ? null : synth.toBlock(codeBody); //switch frame will have null codeBody
+    // nested frames
+    protected WSRegularFrameClassGen(AbstractWSClassGen parent, Stmt stmt, String classNamePrefix) {
+        super(parent, parent, classNamePrefix, parent.wts.regularFrameType, stmt);
     }
 
 

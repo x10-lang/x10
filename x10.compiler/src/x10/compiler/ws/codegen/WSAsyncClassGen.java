@@ -50,7 +50,6 @@ import x10.util.synthesizer.SwitchSynth;
  *
  */
 public class WSAsyncClassGen extends AbstractWSClassGen {
-    protected final Block asyncBlock;
     protected final AbstractWSClassGen parentK; //used to store its parent continuation    
     protected final List<Pair<Name,Type>> formals; //the formals are not real formals, but local var copied from parent frames;
     protected final List<LocalAssign> outFinishScopeLocalAssign;//all the locals in this scope need be processed in move
@@ -58,8 +57,8 @@ public class WSAsyncClassGen extends AbstractWSClassGen {
     public WSAsyncClassGen(AbstractWSClassGen parent, Async a) {
         //Note in building the tree, we use parentFinish as async frame's up frame
         super(parent, getFinishFrameOfAsyncFrame(parent),
-                WSCodeGenUtility.getFAsyncStmtClassName(parent.getClassName()), parent.wts.asyncFrameType);
-        asyncBlock = synth.toBlock(a.body());
+                WSCodeGenUtility.getFAsyncStmtClassName(parent.getClassName()),
+                parent.wts.asyncFrameType, a.body());
         parentK = parent; //record parent continuation
         formals = new ArrayList<Pair<Name, Type>>();
         outFinishScopeLocalAssign = new ArrayList<LocalAssign>();
@@ -99,8 +98,8 @@ public class WSAsyncClassGen extends AbstractWSClassGen {
         HashSet<Name> localDeclaredVar = new HashSet<Name>(); //all locals with these names will not be replaced
         
         //first check whether the block contains concurrent construct, if it is, transform the whole as a regular frame
-        boolean containsConcurrent = WSCodeGenUtility.containsConcurrentConstruct(asyncBlock);
-        int concurrentCallNum = WSCodeGenUtility.calcConcurrentCallNums(asyncBlock, wts);
+        boolean containsConcurrent = WSCodeGenUtility.containsConcurrentConstruct(codeBlock);
+        int concurrentCallNum = WSCodeGenUtility.calcConcurrentCallNums(codeBlock, wts);
         
         //FIXME: still have problems, if there is a loop.
         //So only one situation; only have one top level call or assign call, need use pattern detector
@@ -108,7 +107,7 @@ public class WSAsyncClassGen extends AbstractWSClassGen {
             //if contains a async, finish, just create a new frame
             //if the concurrent calls' num > 1, just creat a new regular frame to handle
             
-            AbstractWSClassGen childFrameGen = genChildFrame(wts.regularFrameType, asyncBlock, WSCodeGenUtility.getBlockFrameClassName(getClassName()));
+            AbstractWSClassGen childFrameGen = genChildFrame(wts.regularFrameType, codeBlock, WSCodeGenUtility.getBlockFrameClassName(getClassName()));
             TransCodes callCodes = this.genInvocateFrameStmts(1, childFrameGen);
             
             //now add codes to three path;
@@ -122,7 +121,7 @@ public class WSAsyncClassGen extends AbstractWSClassGen {
         else{
             //transform code one by one
             //in this case, no more frame will be generated.
-            ArrayList<Stmt> bodyStmts = new ArrayList<Stmt>(asyncBlock.statements());
+            ArrayList<Stmt> bodyStmts = new ArrayList<Stmt>(codeBlock.statements());
             
             int pcValue = 0; //The current pc value. Will increase every time an inner class is created
             int prePcValue = 0; //the last time's pc value. If pc value is changed, need generate a switch case

@@ -23,13 +23,10 @@ import x10.util.synthesizer.SwitchSynth;
  * 
  */
 public class WSFinishStmtClassGen extends AbstractWSClassGen {
-    protected final Finish finishStmt;
-
     public WSFinishStmtClassGen(AbstractWSClassGen parent, Finish finishStmt) {
         super(parent, parent,
                 WSCodeGenUtility.getFinishStmtClassName(parent.getClassName()),
-                parent.wts.finishFrameType);
-        this.finishStmt = finishStmt;
+                parent.wts.finishFrameType, finishStmt.body());
     }
 
     @Override
@@ -68,16 +65,7 @@ public class WSFinishStmtClassGen extends AbstractWSClassGen {
         SwitchSynth resumeSwitchSynth = resumeBodySynth.createSwitchStmt(compilerPos, pcRef);
         SwitchSynth backSwitchSynth = backBodySynth.createSwitchStmt(compilerPos, pcRef);        
         
-        //
-        Block finishBody;
-        if(finishStmt.body() instanceof Block){
-            finishBody = (Block) finishStmt.body();
-        }
-        else{
-            finishBody = xnf.Block(finishStmt.body().position(), finishStmt.body());
-        }
-        
-        AbstractWSClassGen childFrameGen = genChildFrame(wts.regularFrameType, finishBody, WSCodeGenUtility.getBlockFrameClassName(getClassName()));
+        AbstractWSClassGen childFrameGen = genChildFrame(wts.regularFrameType, codeBlock, WSCodeGenUtility.getBlockFrameClassName(getClassName()));
         TransCodes callCodes = this.genInvocateFrameStmts(1, childFrameGen);
         
         //now add codes to three path;

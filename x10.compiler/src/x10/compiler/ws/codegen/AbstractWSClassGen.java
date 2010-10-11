@@ -9,6 +9,7 @@ import java.util.Set;
 
 import polyglot.ast.Assign;
 import polyglot.ast.Binary;
+import polyglot.ast.Block;
 import polyglot.ast.Call;
 import polyglot.ast.ClassBody;
 import polyglot.ast.Do;
@@ -117,6 +118,8 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
     final protected WSTransformState wts;
     final protected Synthesizer synth; //stateless synthesizer
 
+    final protected Block codeBlock; // store all code block
+
     final protected HashSet<Name> fieldNames; //store names of all fields in current frame
     final protected String className; //used for child to query, and form child's name
     final protected ClassSynth classSynth; //stateful synthesizer for class gen
@@ -132,7 +135,7 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
 
 
     private AbstractWSClassGen(Job job, X10Context xct, WSTransformState wts, AbstractWSClassGen up,
-            String className, ClassType frameType, int frameDepth, Flags flags, ClassDef outer) {
+            String className, ClassType frameType, int frameDepth, Flags flags, ClassDef outer, Stmt stmt) {
         this.job = job;
         xnf = (X10NodeFactory) job.extensionInfo().nodeFactory();
         xts = (X10TypeSystem) job.extensionInfo().typeSystem();
@@ -140,6 +143,8 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
         this.xct = xct;
         this.wts = wts;
         this.up = up;
+        
+        this.codeBlock = stmt == null ? null : synth.toBlock(stmt); // switch statement has null codeBlock
         
         this.className = className;
         classSynth = new ClassSynth(job, xnf, xct, frameType, className);
@@ -171,16 +176,16 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
 
     // method frames
     protected AbstractWSClassGen(Job job, X10NodeFactory xnf, X10Context xct, WSTransformState wts,
-            String className, ClassType frameType, Flags flags, ClassDef outer) {
-        this(job, xct, wts, null, className, frameType, 0, flags, outer);
+            String className, ClassType frameType, Flags flags, ClassDef outer, Stmt stmt) {
+        this(job, xct, wts, null, className, frameType, 0, flags, outer, stmt);
     }
 
     // nested frames
     protected AbstractWSClassGen(AbstractWSClassGen parent, AbstractWSClassGen up,
-            String classNamePrefix, ClassType frameType) {
+            String classNamePrefix, ClassType frameType, Stmt stmt) {
         this(parent.job, parent.xct, parent.wts, up, classNamePrefix + parent.assignChildId(), frameType,
                 parent.frameDepth + 1, parent.classSynth.getClassDef().flags(),
-                parent.classSynth.getOuter());
+                parent.classSynth.getOuter(), stmt);
         parent.addChild(this);
     }
 
