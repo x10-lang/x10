@@ -69,6 +69,7 @@ import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.errors.Errors;
+import x10.errors.Warnings;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.DepthBoundReached;
 import x10.types.constraints.TypeConstraint;
@@ -1313,6 +1314,7 @@ then we substitute 0/false/null in all the constraints in C and if they all eval
 	    boolean java = javaStyleMoreSpecificMethod(xp1, xp2, (X10Context) context, ct1, t1, t2,descends);
 	    boolean old = oldStyleMoreSpecificMethod(xp1, xp2, (X10Context) context, ts, ct1, t1, t2, descends);
 	    if (java != old) {
+	    	
 	    	System.out.println("(Warning) Please check definitions p1 and p2." +
 	    			((java && ! old) ? "p1 is now more specific than p2; it was not in 2.0.6."
 	    					: "p1 is now not more specific than p2; it was in 2.0.6.")
@@ -1442,7 +1444,7 @@ then we substitute 0/false/null in all the constraints in C and if they all eval
 	                	return false;
 	            }	else {
 	            	// Should not happen.
-	            	System.out.println("Diagnostic. Unhandled MoreSpecificMatcher case: " + xp2 + " class " + xp2.getClass());
+	            	// System.out.println("Diagnostic. Unhandled MoreSpecificMatcher case: " + xp2 + " class " + xp2.getClass());
 	            	assert false;	
 	            }
 	    	} catch (SemanticException z) {  		

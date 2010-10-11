@@ -514,7 +514,9 @@ public class CConstraint extends XConstraint  implements ThisVar {
 		if (t == null)
 			return null;
 		if (depth > MAX_DEPTH) {
-			System.err.println("(Diagnostic) Reached max depth when projecting " + t);
+			System.err.println("(Warning) Reached threshold when checking constraints. If type-checking fails "
+					+ "\n please insert a dynamic cast."
+					+ "\n\t Term: "+ t);
 			return new CConstraint();
 		}
 		CConstraint r = m.get(t);

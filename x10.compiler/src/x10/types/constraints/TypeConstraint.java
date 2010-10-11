@@ -579,10 +579,11 @@ public class TypeConstraint implements Copy, Serializable {
 	        else if (lowerBound != null)
 	            Y[i] = lowerBound;
 	        else {
-	        	System.err.println("(Diagnostic) No constraint on type parameters. " 
+	        	/*System.err.println("(Diagnostic) No constraint on type parameters. " 
 	        			 +
 	        			"Returning Any instead of throwing an exception."
 	        			 + (X[i] != null ? "\n\t: Position: " +  X[i].position().toString() : ""));
+	        			 */
 	        	Y[i] = xts.Any();
 	           // throw new SemanticException("Could not infer type for type parameter " + X[i] + ".", me.position());
 	        }
