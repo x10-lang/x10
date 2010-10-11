@@ -1077,9 +1077,10 @@ public abstract class TypeSystem_c implements TypeSystem
 
 	if (acceptable.size() == 0) {
 	    throw new NoMemberException(NoMemberException.METHOD,
-	                                "No valid method call found for " + matcher.signature() +
-	                                " in " +
-	                                container + ".");
+	                                "No valid method call found for call in given type."
+	    		+ "\n\t Call: " + matcher.signature() 
+	    		+ "\n\t Type: " + container);
+	                             
 	}
 
 	Collection<MethodInstance> maximal =
@@ -1394,10 +1395,10 @@ public abstract class TypeSystem_c implements TypeSystem
 	
 	if (acceptable.size() == 0) {
 	    if (error == null) {
-		error = new NoMemberException(NoMemberException.METHOD,
-		                              "No valid method call found for " + matcher.signature() +
-		                              " in " +
-		                              container + ".");
+	    	  throw new NoMemberException(NoMemberException.METHOD,
+                      "No valid method call found for call in given type."
+	+ "\n\t Call: " + matcher.signature() 
+	+ "\n\t Type: " + container);
 	    }
 	    throw error;
 	}

@@ -32,6 +32,7 @@ import polyglot.frontend.Globals;
 import polyglot.frontend.Job;
 import polyglot.main.Report;
 import polyglot.types.ClassDef;
+import polyglot.types.ConstructorInstance;
 import polyglot.types.Context;
 import polyglot.types.Def;
 import polyglot.types.Matcher;
@@ -249,6 +250,13 @@ public class Converter {
 					}
 				}
 				PI smi2 = (PI) matcher.instantiate(raw);
+				if (smi2 instanceof MethodInstance) {
+				((MethodInstance) smi2).setOrigMI((MethodInstance) raw);
+				} else {
+					if (smi2 instanceof ConstructorInstance) {
+						((ConstructorInstance) smi2).setOrigMI((ConstructorInstance) raw);
+					}
+				}
 				// ((X10ProcedureInstance) smi2).returnType();
 				acceptable.add(smi2);
 				newArgs.put(smi2.def(), transformedArgs);

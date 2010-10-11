@@ -514,7 +514,7 @@ public class CConstraint extends XConstraint  implements ThisVar {
 		if (t == null)
 			return null;
 		if (depth > MAX_DEPTH) {
-			System.err.println("Warning: Reached max depth when projecting " + t);
+			System.err.println("(Diagnostic) Reached max depth when projecting " + t);
 			return new CConstraint();
 		}
 		CConstraint r = m.get(t);

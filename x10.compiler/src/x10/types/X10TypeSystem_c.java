@@ -2328,10 +2328,10 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         Context context = matcher.context();
         List<MethodInstance> acceptable = findAcceptableMethods(container, matcher);
         if (acceptable.size() == 0) {
-            throw new NoMemberException(NoMemberException.METHOD,
-                                        "No valid method call found for " + matcher.signature() +
-                                        " in " +
-                                        container + ".");
+        	  throw new NoMemberException(NoMemberException.METHOD,
+                      "No valid method call found for call in given type."
+	+ "\n\t Call: " + matcher.signature() 
+	+ "\n\t Type: " + container);
         }
         Collection<MethodInstance> maximal =
             findMostSpecificProcedures(acceptable, (Matcher<MethodInstance>) matcher, context);
