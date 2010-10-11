@@ -82,7 +82,6 @@ public class WSTransformState {
     public final ClassType transientType; //annotation type
     public final ClassType headerType; //annotation type
     public final ClassType uninitializedType; //annotation type
-    public final ClassType futureType;
     public final Boolean realloc; // whether or not to generate code for frame migration
 
     private final WSCallGraph callGraph;
@@ -114,8 +113,7 @@ public class WSTransformState {
         transientType = xts.load("x10.compiler.Ephemeral");
         headerType = xts.load("x10.compiler.Header");
         uninitializedType = xts.load("x10.compiler.Uninitialized");
-        futureType = xts.load("x10.util.Future");
-
+        
         callGraph = new WSCallGraph();
         
         //start to iterate the ast in jobs and build all;

@@ -179,7 +179,7 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
             }
 
             //use code pattern detector to detect
-            CodePatternDetector.Pattern pattern = patternDetctor.detectAndTransform(s);
+            CodePatternDetector.Pattern pattern = CodePatternDetector.detectAndTransform(s, wts);
             switch(pattern){
             case Simple:
                 codes = transNormalStmt(s, prePcValue, localDeclaredVar);

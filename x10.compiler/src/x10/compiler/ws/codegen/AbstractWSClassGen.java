@@ -126,8 +126,6 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
     protected MethodSynth resumeMSynth;
     protected MethodSynth backMSynth;
     
-    protected CodePatternDetector patternDetctor;
-    
     //Fields to store the frame's info
 
     protected HashSet<Name> fieldNames; //store all the fields' name in current frame
@@ -255,7 +253,6 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
         this.xct = xct;
         this.xts = (X10TypeSystem) xct.typeSystem(); //type system from from context
         synth = new Synthesizer(xnf, xts);
-        patternDetctor = new CodePatternDetector(xnf, xct, wts);
         
         //initial other fields
         fieldNames = new HashSet<Name>(); //used to store all other fields' names
