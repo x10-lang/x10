@@ -100,12 +100,12 @@ public class DistBounds3D extends x10Test {
      */
     static class dist2 {
 
-        // Java has poor support for enum
+        // X10 has poor support for enum
         static BLOCK: int = 0;
         static CONSTANT: int = 1;
-        //const CYCLIC: int = 2;
-        //const RANDOM: int = 3;
-        //const ARBITRARY: int = 4;
+        //public static val CYCLIC: int = 2;
+        //public static val RANDOM: int = 3;
+        //public static val ARBITRARY: int = 4;
         static N_DIST_TYPES: int = 2; //5;
 
         /**

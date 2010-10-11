@@ -62,30 +62,30 @@ endif
 ifeq ($(X10RT_PLATFORM), linux_ppc_64_gcc)
   WPLATFORM      := linux_ppc_64_g++4
   PLATFORM_SUPPORTS_LAPI       := yes
-  LAPI_LDDEPS    := -L/opt/ibmhpc/ppe.poe/lib -lpoe -lmpi_ibm -llapi
-  LAPI_LDLIBS    += $(LAPI_LDDEPS)
+  LAPI_LDDEPS    := 
+  LAPI_LDLIBS    += $(LAPI_LDDEPS) -L/opt/ibmhpc/ppe.poe/lib -lpoe -lmpi_ibm -llapi
   PLATFORM_SUPPORTS_SOCKETS    := yes
 endif
 ifeq ($(X10RT_PLATFORM), linux_ppc_64_xlc)
   WPLATFORM      := linux_ppc_64_xlc
   PLATFORM_SUPPORTS_LAPI       := yes
-  LAPI_LDDEPS    := -L/opt/ibmhpc/ppe.poe/lib -lpoe -lmpi_ibm -llapi
-  LAPI_LDLIBS    += $(LAPI_LDDEPS)
+  LAPI_LDDEPS    := 
+  LAPI_LDLIBS    += $(LAPI_LDDEPS) -L/opt/ibmhpc/ppe.poe/lib -lpoe -lmpi_ibm -llapi
   PLATFORM_SUPPORTS_SOCKETS    := yes
 endif
 ifeq ($(X10RT_PLATFORM), linux_x86_64)
   WPLATFORM      := linux_x86_64_g++4
   PLATFORM_SUPPORTS_LAPI       := yes
-  LAPI_LDDEPS    := -L/opt/ibmhpc/ppe.poe/lib -lpoe -lmpi_ibm -llapi
-  LAPI_LDLIBS    += $(LAPI_LDDEPS)
+  LAPI_LDDEPS    := 
+  LAPI_LDLIBS    += $(LAPI_LDDEPS) -L/opt/ibmhpc/ppe.poe/lib -lpoe -lmpi_ibm -llapi
   PLATFORM_SUPPORTS_SOCKETS    := yes
 endif
 ifeq ($(X10RT_PLATFORM), linux_x86_32)
   WPLATFORM      := linux_x86_g++4
 # TODO: re-enable when we build the 32 bit lapi version of pgas and post it.
 #  PLATFORM_SUPPORTS_LAPI       := yes
-  LAPI_LDDEPS    := -L/opt/ibmhpc/ppe.poe/lib -lpoe -lmpi_ibm -llapi
-  LAPI_LDLIBS    += $(LAPI_LDDEPS)
+  LAPI_LDDEPS    := 
+  LAPI_LDLIBS    += $(LAPI_LDDEPS) -L/opt/ibmhpc/ppe.poe/lib -lpoe -lmpi_ibm -llapi
   PLATFORM_SUPPORTS_SOCKETS    := yes
 endif
 ifeq ($(X10RT_PLATFORM), cygwin)

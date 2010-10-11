@@ -34,7 +34,7 @@ public class ProcedureInstance_c<T extends ProcedureDef> extends Use_c<T> implem
         return this.formalTypes;
     }
 
-
+   
     /**
      * Returns whether <code>this</code> is <i>more specific</i> than
      * <code>p</code>, where <i>more specific</i> is defined as JLS
@@ -44,7 +44,11 @@ public class ProcedureInstance_c<T extends ProcedureDef> extends Use_c<T> implem
      * does not include any info regarding Java 1.2, so all inner class
      * rules are found empirically using jikes and javac.
      */
-    public boolean moreSpecific(ProcedureInstance<T> p, Context context) {
+    public boolean moreSpecific(Type container, ProcedureInstance<T> p, Context context) {
+    	
+    	// vj: Should never be invoked
+    	assert false;
+    	
         ProcedureInstance<T> p1 = this;
         ProcedureInstance<T> p2 = p;
 

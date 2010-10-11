@@ -529,8 +529,9 @@ public final class String implements (Int) => Char/*TODO, (Range) => String*//*T
      * @param x the given entity
      * @param y the given String
      * @return the resulting String
-     */
+    
     @Native("java", "((#4) + (#5))")
     @Native("c++",  "((#4) + (#5))")
     public native static operator[T] (x:T) + (y:String): String;
+     */
 }

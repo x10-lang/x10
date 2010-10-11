@@ -188,29 +188,30 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         }
     }
 
+    
     public void checkOverride(ClassType ct, MethodInstance mi0, MethodInstance mj0) throws SemanticException {
-        X10MethodInstance mi = (X10MethodInstance) mi0;
-        X10MethodInstance mj = (X10MethodInstance) mj0;
+    	 X10MethodInstance mi = (X10MethodInstance) mi0;
+         X10MethodInstance mj = (X10MethodInstance) mj0;
 
-        XVar thisVar =  XTerms.makeUQV(XTerms.makeFreshName("this")); // XTerms.makeLocal(XTerms.makeFreshName("this"));
+         XVar thisVar =  XTerms.makeUQV(XTerms.makeFreshName("this")); // XTerms.makeLocal(XTerms.makeFreshName("this"));
 
-        List<XVar> ys = new ArrayList<XVar>(2);
-        List<XVar> xs = new ArrayList<XVar>(2);
+         List<XVar> ys = new ArrayList<XVar>(2);
+         List<XVar> xs = new ArrayList<XVar>(2);
 
-        X10MethodInstance_c.buildSubst(ct, ys, xs, thisVar);
-        X10MethodInstance_c.buildSubst(mi, ys, xs, thisVar);
-        X10MethodInstance_c.buildSubst(mj, ys, xs, thisVar);
-        final XVar[] y = ys.toArray(new XVar[ys.size()]);
-        final XVar[] x = xs.toArray(new XVar[ys.size()]);
+         X10MethodInstance_c.buildSubst(ct, ys, xs, thisVar);
+         X10MethodInstance_c.buildSubst(mi, ys, xs, thisVar);
+         X10MethodInstance_c.buildSubst(mj, ys, xs, thisVar);
+         final XVar[] y = ys.toArray(new XVar[ys.size()]);
+         final XVar[] x = xs.toArray(new XVar[ys.size()]);
 
-        Context cxt = context; // PlaceChecker.pushHereTerm(mi.def(), (X10Context) context);
-        X10TypeEnv_c newEnv = new X10TypeEnv_c(cxt);
-        mi = newEnv.fixThis(mi, y, x);
-        mj = newEnv.fixThis(mj, y, x);
+         Context cxt = context; // PlaceChecker.pushHereTerm(mi.def(), (X10Context) context);
+         X10TypeEnv_c newEnv = new X10TypeEnv_c(cxt);
+         mi = newEnv.fixThis(mi, y, x);
+         mj = newEnv.fixThis(mj, y, x);
 
-        // Force evaluation to help debugging.
-        mi.returnType();
-        mj.returnType();
+         // Force evaluation to help debugging.
+         mi.returnType();
+         mj.returnType();
 
         newEnv.checkOverride(mi, mj, true);
     }
@@ -511,7 +512,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 //                worklist.addAll(b);
 //            }
         
-            // Expand macros, remove constraints
+            // Expand macros
             Type expanded = X10TypeMixin.baseType(w);
             if (expanded instanceof ParameterType) {
                 ParameterType pt = (ParameterType) expanded;
@@ -1929,12 +1930,13 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 		Report.report(3, "Trying " + ci);
 
 	    try {
+	    	ConstructorInstance oldCI = ci;
 	    	ci = matcher.instantiate(ci);
 
 	    	if (ci == null) {
 	    		continue;
 	    	}
-
+	    	ci.setOrigMI(oldCI);
 	    	if (isAccessible(ci)) {
 	    		if (Report.should_report(Report.types, 3))
 	    			Report.report(3, "->acceptable: " + ci);

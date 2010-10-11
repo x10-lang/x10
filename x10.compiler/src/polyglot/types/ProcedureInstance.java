@@ -40,7 +40,7 @@ public interface ProcedureInstance<T extends ProcedureDef> extends CodeInstance<
      * in terms of method overloading.
      * @param context TODO
      */
-    boolean moreSpecific(ProcedureInstance<T> pi, Context context);
+    boolean moreSpecific(Type ct, ProcedureInstance<T> pi, Context context);
 
     /**
      * Returns true if the procedure has the given arguments.

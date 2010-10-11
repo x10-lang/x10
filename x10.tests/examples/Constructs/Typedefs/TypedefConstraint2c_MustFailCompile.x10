@@ -17,9 +17,9 @@ import harness.x10Test;
 
 public class TypedefConstraint2c_MustFailCompile extends TypedefTest {
 
-    class X           {const name = "X";}
-    class Y extends X {const name = "Y";}
-    class Z extends Y {const name = "Z";}
+    class X           {public static val name = "X";}
+    class Y extends X {public static val name = "Y";}
+    class Z extends Y {public static val name = "Z";}
 
     class FOO[T]{T<:X} {
         //val name = T.name;

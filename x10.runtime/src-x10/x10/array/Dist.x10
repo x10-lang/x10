@@ -568,7 +568,7 @@ public abstract class Dist(
         var first:boolean = true;
         for (p:Place in places()) {
             if (!first) s += ",";
-            s +=  get(p) + "->" + p.id;
+            s +=  "" + get(p) + "->" + p.id;
             first = false;
         }
         s += ")";

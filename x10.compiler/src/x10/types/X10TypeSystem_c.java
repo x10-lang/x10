@@ -43,6 +43,7 @@ import polyglot.types.Flags;
 import polyglot.types.InitializerDef;
 import polyglot.types.LazyRef;
 import polyglot.types.LocalDef;
+import polyglot.types.LocalInstance;
 import polyglot.types.Matcher;
 import polyglot.types.MethodDef;
 import polyglot.types.MethodInstance;
@@ -52,6 +53,7 @@ import polyglot.types.NoClassException;
 import polyglot.types.NoMemberException;
 import polyglot.types.NullType;
 import polyglot.types.ObjectType;
+import polyglot.types.ParsedClassType;
 import polyglot.types.PrimitiveType;
 import polyglot.types.ProcedureDef;
 import polyglot.types.ProcedureInstance;
@@ -67,6 +69,7 @@ import polyglot.types.TypeSystem_c;
 import polyglot.types.Types;
 import polyglot.types.UnknownType;
 import polyglot.types.VarDef;
+import polyglot.types.TypeSystem_c.MostSpecificComparator;
 import polyglot.util.CollectionUtil;
 import polyglot.util.ErrorInfo;
 import polyglot.util.InternalCompilerError;
@@ -371,23 +374,32 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return env(context).findAcceptableTypeDefs(container, matcher);
     }
 
+    @Override
+    protected <S extends ProcedureDef, T extends ProcedureInstance<S>> Comparator<T> mostSpecificComparator(Type ct, Matcher<T> matcher, Context context) {
+    	return new X10MostSpecificComparator<S,T>(ct, matcher, context);
+        }
     protected static class X10MostSpecificComparator<S extends ProcedureDef, T extends ProcedureInstance<S>> extends MostSpecificComparator<S, T> {
         private Matcher<T> matcher;
+        Type container;
 
-        protected X10MostSpecificComparator(Matcher<T> matcher, Context context) {
+        protected X10MostSpecificComparator(Type container, Matcher<T> matcher, Context context) {
             super(context);
             this.matcher = matcher;
+            this.container=container;
         }
-
+        
         public int compare(T p1, T p2) {
-            int cmp = super.compare(p1, p2);
-            return cmp;
-        }
-    }
+    	    if (p1.moreSpecific(container, p2, context))
+    		return -1;
+    	    if (p2.moreSpecific(container, p1, context))
+    		return 1;
+    	    return 0;
+    	}
 
-    @Override
-    protected <S extends ProcedureDef, T extends ProcedureInstance<S>> Comparator<T> mostSpecificComparator(Matcher<T> matcher, Context context) {
-        return new X10MostSpecificComparator<S, T>(matcher, context);
+        public Type container() {
+        	return container;
+        }
+       
     }
 
     private boolean contains(Collection<Type> c, Type x) {
@@ -2316,10 +2328,10 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         Context context = matcher.context();
         List<MethodInstance> acceptable = findAcceptableMethods(container, matcher);
         if (acceptable.size() == 0) {
-            throw new NoMemberException(NoMemberException.METHOD,
-                                        "No valid method call found for " + matcher.signature() +
-                                        " in " +
-                                        container + ".");
+        	  throw new NoMemberException(NoMemberException.METHOD,
+                      "No valid method call found for call in given type."
+	+ "\n\t Call: " + matcher.signature() 
+	+ "\n\t Type: " + container);
         }
         Collection<MethodInstance> maximal =
             findMostSpecificProcedures(acceptable, (Matcher<MethodInstance>) matcher, context);

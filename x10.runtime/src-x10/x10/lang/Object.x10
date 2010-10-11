@@ -31,18 +31,11 @@ public class Object
     public native def this();
 
     /**
-     * Return true if the given entity is an Object, and this object is equal
-     * to the given entity in an implementation-dependent way.
-     * The usual properties of symmetry, commutativity, and purity should
-     * apply, i.e., x.equals(x) should always be true; if x.equals(y) is true,
-     * then so should y.equals(x) be; and x.equals(y) should return the same
-     * value on subsequent invocations.
+     * Return true if the given entity is an Object, and is == to this. The method should 
+     * be overridden in user classes that wish to define their own notion of equality.
      *
-     * Note that the method is safe, so the implementations cannot
-     * spawn activities at other places.  So, either the equality comparison
-     * has to be based on only information available at the current place, 
-     * or the implementation has to throw an exception if the information is not available.
-     *
+     * <p>  Please see the documentation for x10.lang.Any.equals.
+     * @seeAlso x10.lang.Any
      * @param that the given entity
      * @return true if this object is equal to the given entity.
      */
@@ -51,16 +44,12 @@ public class Object
     public native def equals(that:Any): boolean;
 
     /**
-     * Return the implementation-defined hash code of this object.
-     * The implementation should be pure, i.e., x.hashCode() should return the
-     * same value on subsequent invocations, with an additional invariant that
-     * if x.equals(y) is true, then x.hashCode() should equal y.hashCode().
-     *
-     * Note that the method is safe, so the implementations cannot
-     * spawn activities at other places.  So, either the equality comparison
-     * has to be based on only information available at the current place, 
-     * or the implementation has to throw an exception if the information is not available.
-     *
+     * Return the default (implementation-defined) hash code of this object. The method
+     * should be overridden in user classes that wish to define their own notion of equality
+     * so that if two objects are not equal they do not have the same hash code.
+     * 
+     * <p>  Please see the documentation for x10.lang.Any.hashCode().
+     * @seeAlso x10.lang.Any
      * @return the hash code of this object.
      */
     @Native("java", "#0.hashCode()")
@@ -68,7 +57,7 @@ public class Object
     public native def hashCode() : Int;
 
     /**
-     * Return the string representation of this object.
+     * Return the default string representation of this object.
      *
      * Note that the method is safe, so the implementations cannot
      * spawn activities at other places.  So, either the string representation

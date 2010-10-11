@@ -158,8 +158,8 @@ public class ArrayCopy3 extends x10Test {
     static class dist2 {
 
         static BLOCK: int = 0;
-        //const CYCLIC: int = 1;
-        //const BLOCKCYCLIC: int = 2;
+        //public static val CYCLIC: int = 1;
+        //public static val BLOCKCYCLIC: int = 2;
         static CONSTANT: int = 1;
         static N_DIST_TYPES: int = 2;
 

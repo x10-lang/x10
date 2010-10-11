@@ -379,7 +379,7 @@ public final class RectRegion extends Region{rect} {
         var s: String = "[";
         for (var i: int = 0; i<rank; i++) {
             if (i>0) s += ",";
-            s += thisMin(i) + ".." + thisMax(i);
+            s += "" + thisMin(i) + ".." + thisMax(i);
         }
         s += "]";
         return s;

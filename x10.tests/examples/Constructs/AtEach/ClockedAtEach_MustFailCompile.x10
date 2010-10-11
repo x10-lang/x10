@@ -1,3 +1,4 @@
+// Yoav added: IGNORE_FILE
 /*
  *  This file is part of the X10 project (http://x10-lang.org).
  *
@@ -20,7 +21,7 @@ public class ClockedAtEach_MustFailCompile extends x10Test {
         clocked finish {
             val D_Base = Dist.makeUnique();
             val P = 4;
-            clocked ateach (z in D_Base)  {
+            clocked ateach (z in D_Base)  { // ERR: Syntax error: Token "async" expected after this input
                 next;
             }
         }

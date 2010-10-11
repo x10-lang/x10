@@ -21,15 +21,15 @@ import harness.x10Test;
  */
 public class NoStaticMutable1_MustFailCompile extends x10Test {
 	//<== compiler error must occur on next line
-	static var x1: int = 0;
+	static var x1: int = 0; // ERR
 
-	const x2: int = 0;
+	static val x2: int = 0;
 	public static x3: int = 0;
 
 	//<== compiler error must occur on next line
-	static var f1: foo = new foo(1);
+	static var f1: foo = new foo(1);  // ERR
 
-	const f2: foo = new foo(1);
+	public static val f2: foo = new foo(1);
 	public static f3: foo = new foo(1);
 
 	public def run(): boolean = {
