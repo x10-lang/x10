@@ -80,7 +80,7 @@ public class KMeansSPMD {
                         // carve out local portion of points (point-major)
                         val offset = (here.id*num_slices*num_slice_points) + slice*num_slice_points;
                         if (!quiet)
-                            Console.OUT.println(h+" gets "+offset+" len "+num_slice_points);
+                            Console.OUT.println(h.toString()+" gets "+offset+" len "+num_slice_points);
                         val num_slice_points_stride = num_slice_points;
                         val init = (i:int) => {
                             val d=i/num_slice_points_stride, p=i%num_slice_points_stride;
@@ -159,14 +159,14 @@ public class KMeansSPMD {
 
                         if (offset==0) {
                             val stop_time = System.currentTimeMillis();
-                            if (!quiet) Console.OUT.print(num_global_points+" "+num_clusters+" "+dim+" ");
+                            if (!quiet) Console.OUT.print(num_global_points.toString()+" "+num_clusters+" "+dim+" ");
                             Console.OUT.println((stop_time-start_time)/1E3);
                         }
                         for (var i:Int=0 ; i<team.size() ; ++i) {
                             if (role == i) {                            
-                                Console.OUT.println(role+": Computation time: "+compute_time/1E9);
-                                Console.OUT.println(role+": barrier time: "+barrier_time/1E9);
-                                Console.OUT.println(role+": Communication time: "+comm_time/1E9);
+                                Console.OUT.println(role.toString()+": Computation time: "+compute_time/1E9);
+                                Console.OUT.println(role.toString()+": barrier time: "+barrier_time/1E9);
+                                Console.OUT.println(role.toString()+": Communication time: "+comm_time/1E9);
                             }
                             team.barrier(role);
                             if (role==0) {
