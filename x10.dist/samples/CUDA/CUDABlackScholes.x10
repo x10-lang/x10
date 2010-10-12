@@ -84,7 +84,6 @@ public class CUDABlackScholes {
 
         // Problem parameters
         val OPT_N = 4000000;
-        val NUM_ITERATIONS = 512;
         val RISKFREE = 0.02f;
         val VOLATILITY = 0.30f;
 
@@ -97,6 +96,7 @@ public class CUDABlackScholes {
         }
 
         val gpu = here.children().size==0 ? here : here.child(0);
+        val NUM_ITERATIONS = gpu==here ? 32 : 512;
         val cpu = here;
         val rand = new Random();
 
