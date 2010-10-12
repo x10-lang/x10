@@ -715,7 +715,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             sh.writeln("#include <x10aux/ref.h>");
             sh.writeln("#include <x10aux/RTT.h>");
             sh.writeln("#include <x10aux/serialization.h>");
-            sh.writeln("#include <x10aux/struct_equals.h>");
             sh.forceNewline(0);
         }
 

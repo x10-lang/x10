@@ -121,6 +121,10 @@ template<class T> x10_boolean x10::util::IndexedMemoryChunk<T>::_struct_equals(x
     return _struct_equals(x10aux::class_cast<x10::util::IndexedMemoryChunk<T> >(that));
 }
 
+template<class T> x10_boolean x10::util::IndexedMemoryChunk<T>::_struct_equals(x10::util::IndexedMemoryChunk<T> that) { 
+    return x10aux::struct_equals(data, that->data);
+}
+
 template<class T> x10aux::ref<x10::lang::String> x10::util::IndexedMemoryChunk<T>::toString() {
     char* tmp = x10aux::alloc_printf("x10.util.IndexedMemoryChunk<%s>(%llx)", x10aux::getRTT<T>()->name(), data);
     return x10::lang::String::Steal(tmp);
