@@ -139,10 +139,10 @@ public class XTypeTranslator {
 		return trans(new CConstraint(), target, fi, t);
 	}
 	
-	Object fakeKey = new Object();
+	public static final Object FAKE_KEY = new Object();
 	public XTerm transFakeField(CConstraint c, XTerm target, String name)  {
 		//XName field = XTerms.makeName(fi.def(), Types.get(fi.def().container()) + "#" + fi.name().toString());
-		XName field = XTerms.makeName(fakeKey,  name);
+		XName field = XTerms.makeName(FAKE_KEY,  name);
 		return XTerms.makeFakeField((XVar) target, field);
 	}
 	public XTerm trans(CConstraint c, XTerm target, FieldInstance fi, Type t) throws SemanticException {
@@ -291,31 +291,6 @@ public class XTypeTranslator {
 	
 	public static Type subst(Type t, XTerm y, XVar x) throws SemanticException {
 	    return Subst.subst(t, y, x);
-	}
-
-	private XTerm transClassType(X10ClassType t) {
-	    X10ClassDef def = t.x10Def();
-	    
-	    int n = def.typeParameters().size();
-	    if (n == 0)
-		return XTerms.makeLit(def);
-	    
-	    List<XTerm> terms = new ArrayList<XTerm>();
-
-	    if (t.isIdentityInstantiation()) {
-		for (int i = 0; i < n; i++) {
-		    XTerm ti = trans(def.typeParameters().get(i));
-		    terms.add(ti);
-		}
-		return XTerms.makeAtom(XTerms.makeName(def), terms);
-	    }
-	    
-	    List<Type> args = t.typeArguments();
-	    for (int i = 0; i < n; i++) {
-		XTerm ti = trans(args.get(i));
-		terms.add(ti);
-	    }
-	    return XTerms.makeAtom(XTerms.makeName(def), terms);
 	}
 
 	public XLit trans(int t) {
