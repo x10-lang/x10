@@ -17,7 +17,7 @@ import harness.x10Test;
  * body so long as it is declared outside of the
  * enclosing finish of the async.
  */
-public class AsyncTest4 extends x10Test {
+public class AsyncTest6 extends x10Test {
 
     public static N: int = 20;
 
@@ -37,6 +37,6 @@ public class AsyncTest4 extends x10Test {
     }
 
     public static def main(Array[String](1)) {
-        new AsyncTest4().execute();
+        new AsyncTest6().execute();
     }
 }
