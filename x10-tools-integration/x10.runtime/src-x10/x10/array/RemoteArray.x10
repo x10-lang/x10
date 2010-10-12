@@ -70,6 +70,8 @@ public class RemoteArray[T](home:Place, region:Region, size:Int) {} {
 
     public def apply(p:Point{self.rank==this.rank}) {here==home} = array()(p);
 
+    public def apply() {here==home} = array();
+
     public def hashCode() = array.hashCode();
 }
 

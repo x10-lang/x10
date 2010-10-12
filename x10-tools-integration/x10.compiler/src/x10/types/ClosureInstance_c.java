@@ -79,8 +79,8 @@ public class ClosureInstance_c extends FunctionInstance_c<ClosureDef> implements
     	return true;
     }
 
-    public boolean moreSpecific(ProcedureInstance<ClosureDef> p, Context context) {
-        return X10TypeMixin.moreSpecificImpl(this, p, context);
+    public boolean moreSpecific(Type ct, ProcedureInstance<ClosureDef> p, Context context) {
+        return X10TypeMixin.moreSpecificImpl(ct, this, p, context);
     }
 
     public String signature() {

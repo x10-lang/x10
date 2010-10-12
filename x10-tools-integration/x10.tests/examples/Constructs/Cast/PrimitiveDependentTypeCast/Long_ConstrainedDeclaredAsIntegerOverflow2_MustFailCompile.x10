@@ -18,7 +18,7 @@ import harness.x10Test;
  * @author vcave
  
  **/
-public class Long_ConstrainedDeclaredAsIntegerOverFlow2_MustFailCompile extends x10Test {
+public class Long_ConstrainedDeclaredAsIntegerOverflow2_MustFailCompile extends x10Test {
 
 	 public def run(): boolean = {
 		var result: boolean = false;
@@ -37,7 +37,7 @@ public class Long_ConstrainedDeclaredAsIntegerOverFlow2_MustFailCompile extends 
 	}
 
 	public static def main(var args: Array[String](1)): void = {
-		new  Long_ConstrainedDeclaredAsIntegerOverFlow2_MustFailCompile().execute();
+		new  Long_ConstrainedDeclaredAsIntegerOverflow2_MustFailCompile().execute();
 	}
 
 }

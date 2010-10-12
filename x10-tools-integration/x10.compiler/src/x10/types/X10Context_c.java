@@ -49,29 +49,22 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import polyglot.main.Report;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.CodeDef;
-import polyglot.types.CodeInstance;
 import polyglot.types.Context;
 import polyglot.types.Context_c;
 import polyglot.types.FieldInstance;
 import polyglot.types.ImportTable;
 import polyglot.types.LocalDef;
 import polyglot.types.LocalInstance;
-import polyglot.types.Matcher;
 import polyglot.types.MethodDef;
 import polyglot.types.MethodInstance;
 import polyglot.types.Name;
 import polyglot.types.Named;
-import polyglot.types.QName;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
@@ -82,17 +75,9 @@ import polyglot.types.VarDef;
 import polyglot.types.VarInstance;
 import polyglot.util.CollectionUtil;
 import x10.constraint.XFailure;
-import x10.constraint.XField;
-import x10.constraint.XFormula;
-import x10.constraint.XLit;
-import x10.constraint.XLocal;
-import x10.constraint.XName;
-import x10.constraint.XNameWrapper;
 import x10.constraint.XTerm;
-import x10.constraint.XTerms;
 import x10.constraint.XVar;
 import x10.types.checker.PlaceChecker;
-import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
 import x10.types.constraints.XConstrainedTerm;
@@ -230,11 +215,12 @@ public class X10Context_c extends Context_c implements X10Context {
 		cxt.currentPlaceTerm = t;
 		return cxt;
     }
-    
-    boolean inClockedFinishScope=false;
-    public X10Context pushClockedFinishScope() {
+
+    protected boolean inClockedFinishScope=false;
+    public X10Context pushFinishScope(boolean isClocked) {
     	X10Context_c cxt = (X10Context_c) super.pushBlock();
-		cxt.inClockedFinishScope = true;
+		cxt.x10Kind = X10Kind.Finish;
+		cxt.inClockedFinishScope = isClocked;
 		return cxt;
     }
     public boolean inClockedFinishScope() {
@@ -324,10 +310,6 @@ public class X10Context_c extends Context_c implements X10Context {
 	protected VarDef varWhoseTypeIsBeingElaborated = null;
 	public boolean inDepType() { return depType != null; }
 
-	protected boolean inSafeCode;
-	protected boolean inSequentialCode;
-	protected boolean inLocalCode;
-	protected boolean inNonBlockingCode;
 	protected boolean inLoopHeader;
 	protected boolean inAnnotation;
 	protected boolean inAnonObjectScope;
@@ -390,11 +372,34 @@ public class X10Context_c extends Context_c implements X10Context {
 	public boolean isLocal(Name name) {
 		return depType == null ? super.isLocal(name) : pop().isLocal(name);
 	}
-	public boolean isLocalIncludingAsync(Name name) {
+	public boolean isLocalIncludingAsyncAt(Name name) {
         if (isLocal(name)) return true;
-        if (outer!=null && X10Return_c.isAsyncCode(currentCode())) return ((X10Context_c)outer).isLocalIncludingAsync(name);
+        if (outer!=null && isDummyCode(currentCode())) return ((X10Context_c)outer).isLocalIncludingAsyncAt(name);
         return false;
     }
+    public static boolean isDummyCode(CodeDef ci) {
+        return (ci != null)
+				&& (ci instanceof MethodDef)
+				&& ((MethodDef) ci).name().toString().equals(X10TypeSystem_c.DUMMY_AT_ASYNC);
+    }
+    public boolean inAsyncScope() {
+        return x10Kind== X10Kind.Async ? true :
+                outer==null || (isCode() && !isDummyCode(currentCode())) ? false :
+                ((X10Context_c)outer).inAsyncScope();        
+    }
+	public boolean isSequentialAccess(boolean isSeqential, Name name) { // there is no async without an enclosing finish   
+        if (findVariableInThisScope(name)!=null) return isSeqential;
+        if (outer!=null) {
+            X10Context_c o = (X10Context_c)outer;
+            return
+                o.isSequentialAccess(
+                        x10Kind==X10Kind.Finish ? true :
+                        x10Kind==X10Kind.Async ? false :
+                        isSeqential,name);
+        }
+        return true; // not in this scope (like a field), so access is ok
+    }
+
 
 
 	public boolean isValInScopeInClass(Name name) {
@@ -654,6 +659,15 @@ public class X10Context_c extends Context_c implements X10Context {
 	/**
 	 * enters a method
 	 */
+    public enum X10Kind { None, Async, At, Finish; }
+    public X10Kind x10Kind = X10Kind.None;
+
+	public Object copy() {
+		X10Context_c res = (X10Context_c) super.copy();
+        res.x10Kind = X10Kind.None;
+        return res;
+    }
+    
 	public Context pushCode(CodeDef ci) {
 		//System.err.println("Pushing code " + ci);
 		assert (depType == null);
@@ -895,6 +909,6 @@ public class X10Context_c extends Context_c implements X10Context {
 			}
 			return n;
 		}
-	}		
-	
+	}
+
 }

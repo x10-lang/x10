@@ -304,7 +304,7 @@ public class TypeTransformer extends NodeTransformer {
         return remappedRef;
     }
 
-    private final HashMap<X10LocalDef, X10LocalDef> vars = new HashMap<X10LocalDef, X10LocalDef>();
+    protected final HashMap<X10LocalDef, X10LocalDef> vars = new HashMap<X10LocalDef, X10LocalDef>();
 
     protected void mapLocal(X10LocalDef def, X10LocalDef newDef) {
         vars.put(def, newDef);

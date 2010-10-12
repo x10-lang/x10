@@ -19,7 +19,8 @@ import harness.x10Test;
 public class IntLitHexBad_MustFailCompile extends x10Test {
 
 	public def run(): boolean ={
-		x10.io.Console.OUT.println(0xR);
+		x10.io.Console.OUT.println(
+		    0xR); // ERR: Syntax error: Invalid token: "0x" 
 		return true;
 	}
 

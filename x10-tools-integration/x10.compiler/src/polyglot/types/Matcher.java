@@ -6,6 +6,7 @@ package polyglot.types;
 public interface Matcher<T> {
     T instantiate(T matched) throws SemanticException;
     
+   
     Name name();
     String signature();
 

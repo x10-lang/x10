@@ -69,7 +69,6 @@ import polyglot.visit.TypeBuilder;
 import x10.Configuration;
 import x10.ExtensionInfo;
 import x10.ast.AnnotationNode;
-import x10.ast.ArrayLiteral;
 import x10.ast.Async;
 import x10.ast.AtEach;
 import x10.ast.AtExpr;
@@ -80,7 +79,6 @@ import x10.ast.Closure;
 import x10.ast.DepParameterExpr;
 import x10.ast.Finish;
 import x10.ast.FinishExpr;
-import x10.ast.ForEach;
 import x10.ast.FunctionTypeNode;
 import x10.ast.Future;
 import x10.ast.Here;
@@ -336,8 +334,6 @@ public class Desugarer extends ContextVisitor {
             return visitOffer((Offer) n);
         if (n instanceof Return)
             return visitReturn((Return) n);
-        if (n instanceof ForEach)
-            return visitForEach((ForEach) n);
         if (n instanceof AtEach)
             return visitAtEach((AtEach) n);
         if (n instanceof Eval)
@@ -359,8 +355,6 @@ public class Desugarer extends ContextVisitor {
             return visitLocalDecl((LocalDecl) n);
         if (n instanceof Resume)
             return visitResume((Resume) n);
-        if (n instanceof ArrayLiteral)
-        	return visitArrayLiteral((ArrayLiteral) n);
         return n;
     }
 
@@ -1036,16 +1030,6 @@ public class Desugarer extends ContextVisitor {
       	return n;
     }
 
-    // foreach (p in D) S; -> for (p in D) async S;
-    private Stmt visitForEach(ForEach f) throws SemanticException {
-        Position pos = f.position();
-        // Have to desugar some newly-created nodes
-        Expr here = visitHere(xnf.Here(f.body().position()));
-        Stmt body = async(f.body().position(), f.body(), f.clocks(), here, null);
-        X10Formal formal = (X10Formal) f.formal();
-        return xnf.ForLoop(pos, formal, f.domain(), body).locals(formal.explode(this));
-    }
-
     // ateach (p in D) S; ->
     //    { Runtime.ensureNotInAtomic(); val d = D.dist; for (p in d.places()) async (p) for (pt in d|here) async S; }
     private Stmt visitAtEach(AtEach a) throws SemanticException {
@@ -1484,11 +1468,6 @@ public class Desugarer extends ContextVisitor {
         Closure c = synth.makeClosure(pos, xts.Boolean(), Collections.singletonList(x), body, (X10Context) context);
         X10MethodInstance ci = c.closureDef().asType().applyMethod();
         return xnf.ClosureCall(pos, c, Collections.singletonList(e)).closureInstance(ci).type(xts.Boolean());
-    }
-    
-    private Expr visitArrayLiteral(ArrayLiteral n) throws SemanticException {
-        Position pos = n.position();
-        return n.tuple().type(n.type());
     }
 
     public static class Substitution<T extends Node> extends ErrorHandlingVisitor {

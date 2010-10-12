@@ -1,3 +1,4 @@
+// Yoav added: IGNORE_FILE
 /*
  *  This file is part of the X10 project (http://x10-lang.org).
  *
@@ -13,7 +14,7 @@ import harness.x10Test;
 
 
 /**
- * A call to a polymorphic method, closure, or constructor may omit
+ * A call to a polymorphic method, closure, or staticructor may omit
  * the explicit type arguments. If the method has a type parameter T,
  * the type argument corresponding to T is inferred to be the least
  * common ancestor of the types of any formal parameters of type T.
@@ -23,18 +24,22 @@ import harness.x10Test;
 
 public class GenericInference1_MustFailCompile extends GenericTest {
 
-    class V           {const name = "V";};
-    class W extends V {const name = "W";}
-    class X extends V {const name = "X";};
-    class Y extends X {const name = "Y";};
-    class Z extends X {const name = "Z";};
+    class V           {static name = "V";};
+    class W extends V {static name = "W";}
+    class X extends V {static name = "X";};
+    class Y extends X {static name = "Y";};
+    class Z extends X {static name = "Z";};
 
-    def m[T](){T<:X} = T.name;
+    def m[T](){T<:X} =
+        T.name; // ERR: Cannot access static field of a type parameter
 
     public def run(): boolean = {
 
         // must fail compile
-        val a = m();
+        val a =
+            m(); // Err or not an Err:
+                    // used to be: Method m[T](){}[T <: GenericInference1_MustFailCompile.X]: x10.lang.String{self=="X"} in GenericInference1_MustFailCompile{self==GenericInference1_MustFailCompile#this} cannot be called with arguments (); Could not infer type for type parameter T.
+                    // now: (Diagnostic) No constraint on type parameters. Returning Any instead of throwing an exception.
         check("a", a, "hi");
 
         return result;

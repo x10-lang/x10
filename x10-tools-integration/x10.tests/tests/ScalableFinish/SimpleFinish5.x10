@@ -15,14 +15,16 @@ public class SimpleFinish5 {
                         	async{}
 			}
                         for(var p:int = 0; p<Place.MAX_PLACES; p++){
-                            async at (Place.place(p)){
+                            val p_ = p;
+                            async at (Place.place(p_)){
                                 for(var pp:int = 0; pp<50; pp++){
                                      async{}
                                 }
                             }
                         }
                         for(var p3:int = Place.MAX_PLACES-1; p3>=0;p3--){
-                            async at (Place.place(p3)){}
+                            val p3_ = p3;
+                            async at (Place.place(p3_)){}
                         }
                     }
 		}

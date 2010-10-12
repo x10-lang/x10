@@ -18,7 +18,7 @@ import harness.x10Test;
 public class StructCannotSubclassClass_MustFailCompile extends x10Test {
 
 	class B {}
-    struct A extends B {
+    struct A extends B { // ERR: Syntax error: Token "implements" expected instead of this input
 	 val x:int=5;
     }
 

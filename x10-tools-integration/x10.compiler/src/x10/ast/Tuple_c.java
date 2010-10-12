@@ -19,6 +19,7 @@ import polyglot.ast.Expr_c;
 import polyglot.ast.Node;
 import polyglot.ast.Precedence;
 import polyglot.ast.Term;
+import polyglot.ast.TypeNode;
 import polyglot.types.FieldInstance;
 import polyglot.types.Name;
 import polyglot.types.SemanticException;
@@ -43,6 +44,7 @@ import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint;
+import x10.errors.Errors;
 
 /** 
  * An immutable representation of the list of elements in an X10 array constructor
@@ -53,10 +55,12 @@ import x10.types.constraints.CConstraint;
 public class Tuple_c extends Expr_c implements Tuple {
     
     protected List<Expr> elements;
+    protected TypeNode indexType;
 
-    public Tuple_c(Position pos, List<Expr> elements) {
+    public Tuple_c(Position pos, List<Expr> elements, TypeNode indexType) {
 	super(pos);
-	assert(elements != null);
+        this.indexType = indexType;
+        assert(elements != null);
 	this.elements = TypedList.copyAndCheck(elements, Expr.class, true);
     }
     
@@ -99,9 +103,10 @@ public class Tuple_c extends Expr_c implements Tuple {
     }
 
     /** Reconstruct the initializer. */
-    protected Tuple_c reconstruct(List<Expr> elements) {
-	if (! CollectionUtil.allEqual(elements, this.elements)) {
+    protected Tuple_c reconstruct(TypeNode tn, List<Expr> elements) {
+	if (tn!=indexType || ! CollectionUtil.allEqual(elements, this.elements)) {
 	    Tuple_c n = (Tuple_c) copy();
+        n.indexType = tn;
 	    n.elements = TypedList.copyAndCheck(elements, Expr.class, true);
 	    return n;
 	}
@@ -111,8 +116,10 @@ public class Tuple_c extends Expr_c implements Tuple {
 
     /** Visit the children of the initializer. */
     public Node visitChildren(NodeVisitor v) {
+    TypeNode tn = null;
+    if (indexType!=null) tn = (TypeNode) visitChild( this.indexType, v );
 	List<Expr> elements = visitList(this.elements, v);
-	return reconstruct(elements);
+	return reconstruct(tn,elements);
     }
 
     public Type childExpectedType(Expr child, AscriptionVisitor av) {
@@ -146,11 +153,20 @@ public class Tuple_c extends Expr_c implements Tuple {
         return child.type();
     }
 
+	public TypeNode indexType() {
+		return indexType;
+	}
     public Term firstChild() {
-        return listChild(elements, null);
+        return indexType!=null ? indexType : listChild(elements, null);
     }
 
     public <S> List<S> acceptCFG(CFGBuilder v, List<S> succs) {
+        if (indexType!=null) {
+            if (elements.size()>0)
+                v.visitCFG(indexType, elements.get(0), ENTRY);
+            else
+                v.visitCFG(indexType, this, EXIT);
+        }
         v.visitCFGList(elements, this, EXIT);
         return succs;
     }
@@ -175,13 +191,28 @@ public class Tuple_c extends Expr_c implements Tuple {
 	        type = ts.Any(); // should be bottom type, not top
 	    }
 
-	    Type t = X10TypeMixin.makeArrayRailOf(type, elements.size(), position());
-	    return type(t);
+	    Type resultType = X10TypeMixin.makeArrayRailOf(type, elements.size(), position());
+
+        if (indexType!=null) {
+            Type iType = indexType.type();
+	        List<Expr> vals = arguments();
+	        for (Expr e : vals) {
+	    	  Type t = e.type();
+	    	  if (! ts.isSubtype(t, iType, tc.context()))
+	    		  Errors.issue(tc.job(),
+	    			      new Errors.ArrayLiteralTypeMismatch(e, iType));
+	        }
+		    resultType = X10TypeMixin.makeArrayRailOf(iType, arguments().size(), position());
+        }
+	    return type(resultType);
 	}
 
 	@Override
 	public String toString() {
 	    StringBuilder sb = new StringBuilder();
+        if (indexType!=null) {
+            sb.append("new Array[").append(indexType).append("]");
+        }
 	    sb.append("[");
 	    for (Iterator<Expr> i = elements.iterator(); i.hasNext(); ) {
 		Expr e = i.next();
@@ -198,6 +229,11 @@ public class Tuple_c extends Expr_c implements Tuple {
 	
 	@Override
 	public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
+        if (indexType!=null) {
+            w.write("new Array[");
+	    	printBlock(indexType, w, tr);
+	    	w.write("]");
+        }
 	    w.write("{");
 
 	    for (Iterator<Expr> i = elements.iterator(); i.hasNext(); ) {

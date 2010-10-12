@@ -90,7 +90,7 @@
     </target>
     <target name="xrx-xdoc" depends="build">
         <mkdir dir="${xrx.xdoc.output.dir}"/>
-        <fileset id="xrx.files" dir="${xrx.src.dir}" includes="**/*.x10"/>
+        <fileset id="xrx.files" dir="${xrx.src.dir}" includes="**/*.x10" excludes="**/compiler/ws/**/*.x10" />
         <pathconvert property="xrx.list" refid="xrx.files" dirsep="/" pathsep=" "/>
         <echo message="x10doc -d ${xrx.xdoc.output.dir} ${xrx.list}"/>
         <exec executable="${bash.exe}" failonerror="true" dir="${basedir}/bin">

@@ -32,8 +32,10 @@ public class InterfaceProp_MustFailCompile extends x10Test {
 	interface  J(k:int) extends I{
       public def a():void;
 	}
-	class E(k:int) implements J{
-      public def this(kk:int):E= { k = kk;}
+	class E(k:int) implements J{ // ERR: InterfaceProp_MustFailCompile.E should be declared abstract; it does not define i(): x10.lang.Int, which is declared in InterfaceProp_MustFailCompile.I
+      public def this(kk:int):E= {
+        property(kk);
+      }
       public def a():void {
         val x:int;
       }

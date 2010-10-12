@@ -61,9 +61,17 @@ public class RuntimeType<T> implements Type<T> {
     
     public boolean isSubtype(Type<?> o) {
         if (this == o) return true;
+        if (o == Types.ANY) return true;
+        if (o == Types.OBJECT) return !Types.isStructType(this);
         if (o instanceof RuntimeType<?>) {
             RuntimeType<?> rt = (RuntimeType<?>) o;
             if (rt.base.isAssignableFrom(base)) {
+                return true;
+            }
+        }
+        if (o instanceof ParameterizedType) {
+            ParameterizedType<?> pt = (ParameterizedType<?>) o;
+            if (pt.getRuntimeType().isSuperType(pt.getParams(), (RuntimeType<?>) this, null)) {
                 return true;
             }
         }
@@ -151,24 +159,26 @@ public class RuntimeType<T> implements Type<T> {
 
     // e.g. C[T1,T2]:Super[Int, T1] -> C[Int,Double]:Super[Int,Int] 
     private final boolean instantiateCheck(Type<?>[] params, RuntimeType<?> rtt, Object o) {
-        for (Type<?> t : rtt.parents) {
-            if (base.isAssignableFrom(t.getJavaClass())) {
-                if (t instanceof ParameterizedType<?>) {
-                    ParameterizedType<?> pt = (ParameterizedType<?>) t;
-                    Type<?>[] paramsT = pt.getParams();
-                    Type<?>[] newParamsT = new Type<?>[paramsT.length];
-                    for (int i = 0; i < paramsT.length; i ++ ) {
-                        if (paramsT[i] != null && paramsT[i] instanceof UnresolvedType) {
-                            int index = ((UnresolvedType) paramsT[i]).index;
-                            assert(index == -1);
-                            newParamsT[i] = rtt;
+        if (rtt.parents != null) {
+            for (Type<?> t : rtt.parents) {
+                if (base.isAssignableFrom(t.getJavaClass())) {
+                    if (t instanceof ParameterizedType<?>) {
+                        ParameterizedType<?> pt = (ParameterizedType<?>) t;
+                        Type<?>[] paramsT = pt.getParams();
+                        Type<?>[] newParamsT = new Type<?>[paramsT.length];
+                        for (int i = 0; i < paramsT.length; i ++ ) {
+                            if (paramsT[i] != null && paramsT[i] instanceof UnresolvedType) {
+                                int index = ((UnresolvedType) paramsT[i]).index;
+                                assert(index == -1);
+                                newParamsT[i] = rtt;
+                            }
+                            else {
+                                newParamsT[i] = paramsT[i];
+                            }
                         }
-                        else {
-                            newParamsT[i] = paramsT[i];
+                        if (isSuperType(params, pt.getRuntimeType(), newParamsT)) {
+                            return true;
                         }
-                    }
-                    if (subtypeof(params, pt.getRuntimeType(), newParamsT)) {
-                        return true;
                     }
                 }
             }
@@ -178,22 +188,27 @@ public class RuntimeType<T> implements Type<T> {
 
     // e.g. C[T1,T2]:Super[Int, T1] -> C[Int,Double]:Super[Int,Int] 
     private final boolean instantiateCheck(Type<?>[] params, RuntimeType<?> rtt, Any any) {
-        for (Type<?> t : rtt.parents) {
-            if (base.isAssignableFrom(t.getJavaClass())) {
-                if (t instanceof ParameterizedType<?>) {
-                    ParameterizedType<?> pt = (ParameterizedType<?>) t;
-                    Type<?>[] paramsT = pt.getParams();
-                    Type<?>[] newParamsT = new Type<?>[paramsT.length];
-                    for (int i = 0; i < paramsT.length; i ++ ) {
-                        if (paramsT[i] != null && paramsT[i] instanceof UnresolvedType) {
-                            int index = ((UnresolvedType) paramsT[i]).index;
-                            newParamsT[i]= index == -1 ? rtt : any.getParam(index);
+        if (rtt.parents != null) {
+            for (Type<?> t : rtt.parents) {
+                if (base.isAssignableFrom(t.getJavaClass())) {
+                    if (t instanceof ParameterizedType<?>) {
+                        ParameterizedType<?> pt = (ParameterizedType<?>) t;
+                        Type<?>[] paramsT = pt.getParams();
+                        Type<?>[] newParamsT = new Type<?>[paramsT.length];
+                        for (int i = 0; i < paramsT.length; i ++ ) {
+                            if (paramsT[i] != null && paramsT[i] instanceof UnresolvedType) {
+                                int index = ((UnresolvedType) paramsT[i]).index;
+                                newParamsT[i]= index == -1 ? rtt : any.getParam(index);
+                            }
+                            else {
+                                newParamsT[i] = paramsT[i];
+                            }
                         }
-                        else {
-                            newParamsT[i] = paramsT[i];
+                        if (isSuperType(params, pt.getRuntimeType(), newParamsT)) {
+                            return true;
                         }
                     }
-                    if (subtypeof(params, pt.getRuntimeType(), newParamsT)) {
+                    if (t instanceof RuntimeType && equals(t)) {
                         return true;
                     }
                 }
@@ -204,22 +219,27 @@ public class RuntimeType<T> implements Type<T> {
     
     // e.g. C[T1,T2]:Super[Int, T1] -> C[Int,Double]:Super[Int,Int] 
     private final boolean instantiateCheck(Type<?>[] params, RuntimeType<?> rtt, Type<?>[] paramsRTT) {
-        for (Type<?> t : rtt.parents) {
-            if (base.isAssignableFrom(t.getJavaClass())) {
-                if (t instanceof ParameterizedType<?>) {
-                    ParameterizedType<?> pt = (ParameterizedType<?>) t;
-                    Type<?>[] paramsT = pt.getParams();
-                    Type<?>[] newParamsT = new Type<?>[paramsT.length];
-                    for (int i = 0; i < paramsT.length; i ++ ) {
-                        if (paramsT[i] != null && paramsT[i] instanceof UnresolvedType) {
-                            int index = ((UnresolvedType) paramsT[i]).index;
-                            newParamsT[i] = index == -1 ? rtt : paramsRTT[index];
+        if (rtt.parents != null) {
+            for (Type<?> t : rtt.parents) {
+                if (base.isAssignableFrom(t.getJavaClass())) {
+                    if (t instanceof ParameterizedType<?>) {
+                        ParameterizedType<?> pt = (ParameterizedType<?>) t;
+                        Type<?>[] paramsT = pt.getParams();
+                        Type<?>[] newParamsT = new Type<?>[paramsT.length];
+                        for (int i = 0; i < paramsT.length; i ++ ) {
+                            if (paramsT[i] != null && paramsT[i] instanceof UnresolvedType) {
+                                int index = ((UnresolvedType) paramsT[i]).index;
+                                newParamsT[i] = index == -1 ? rtt : paramsRTT[index];
+                            }
+                            else {
+                                newParamsT[i] = paramsT[i];
+                            }
                         }
-                        else {
-                            newParamsT[i] = paramsT[i];
+                        if (isSuperType(params, pt.getRuntimeType(), newParamsT)) {
+                            return true;
                         }
                     }
-                    if (subtypeof(params, pt.getRuntimeType(), newParamsT)) {
+                    if (t instanceof RuntimeType && equals(t)) {
                         return true;
                     }
                 }
@@ -229,19 +249,21 @@ public class RuntimeType<T> implements Type<T> {
     }
     
     // check "type and paramsType" <: "this and params"
-    private final boolean subtypeof(Type<?>[] params, RuntimeType<?> rtt, Type<?>[] paramsType) {
+    final boolean isSuperType(Type<?>[] params, RuntimeType<?> rtt, Type<?>[] paramsType) {
         if (base == rtt.getJavaClass()) {
-            for (int i = 0, s = params.length; i < s; i ++) {
-                switch (variances[i]) {
-                case INVARIANT:
-                    if (!params[i].equals(paramsType[i])) {return false;}
-                    break;
-                case COVARIANT:
-                    if (!paramsType[i].isSubtype(params[i])) {return false;}
-                    break;
-                case CONTRAVARIANT:
-                    if (!params[i].isSubtype(paramsType[i])) {return false;}
-                    break;
+            if (params != null) {
+                for (int i = 0, s = params.length; i < s; i ++) {
+                    switch (variances[i]) {
+                    case INVARIANT:
+                        if (!params[i].equals(paramsType[i])) {return false;}
+                        break;
+                    case COVARIANT:
+                        if (!paramsType[i].isSubtype(params[i])) {return false;}
+                        break;
+                    case CONTRAVARIANT:
+                        if (!params[i].isSubtype(paramsType[i])) {return false;}
+                        break;
+                    }
                 }
             }
             return true;

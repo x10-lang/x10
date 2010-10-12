@@ -50,68 +50,28 @@ import x10.util.synthesizer.SwitchSynth;
  *
  */
 public class WSAsyncClassGen extends AbstractWSClassGen {
-
-    protected Block asyncBlock;
-    protected AbstractWSClassGen parentK; //used to store its parent continuation
-    
-    
-    protected List<Pair<Name,Type>> formals; //the formals are not real formals, but local var copied from parent frames;
-    protected List<LocalAssign> outFinishScopeLocalAssign;//all the locals in this scope need be processed in move
-    
+    protected final AbstractWSClassGen parentK; //used to store its parent continuation    
+    protected final List<Pair<Name,Type>> formals; //the formals are not real formals, but local var copied from parent frames;
+    protected final List<LocalAssign> outFinishScopeLocalAssign;//all the locals in this scope need be processed in move
     
     public WSAsyncClassGen(AbstractWSClassGen parent, Async a) {
         //Note in building the tree, we use parentFinish as async frame's up frame
-        super(parent.job, parent.getX10NodeFactory(), parent.getX10Context(), parent.getWSTransformState(), getFinishFrameOfAsyncFrame(parent));
-        //and record it's parent continuation to looking for accessible local variables
-        Stmt asyncStmt = a.body();
-        this.parentK = parent;
-        frameDepth = parent.frameDepth + 1;
-        //special case, the async frame has no direct parent finish frame
-        if(getFinishFrameOfAsyncFrame(parent) == null){
-            //we need make sure the class still could be added into the class tree
-            parentK.addChild(this);
-        }
-        
-        
-        if(asyncStmt instanceof Block){
-            asyncBlock = (Block) asyncStmt;
-        }
-        else{
-            asyncBlock = xnf.Block(asyncStmt.position(), asyncStmt);
-        }
-        outFinishScopeLocalAssign = new ArrayList<LocalAssign>();
-
-        className = WSCodeGenUtility.getFAsyncStmtClassName(parent.getClassName())
-                    + parent.assignChildId();
-        classSynth = new ClassSynth(job, xnf, xct, wts.asyncFrameType, className);
-
-        ClassDef classDef = parent.classSynth.getClassDef();
-        classSynth.setFlags(classDef.flags());    
-        classSynth.setKind(classDef.kind());
-        classSynth.setOuter(parent.classSynth.getOuter());
-        
+        super(parent, getFinishFrameOfAsyncFrame(parent),
+                WSCodeGenUtility.getFAsyncStmtClassName(parent.getClassName()),
+                parent.wts.asyncFrameType, a.body());
+        parentK = parent; //record parent continuation
         formals = new ArrayList<Pair<Name, Type>>();
-        
-        addPCFieldToClass();
-        //now prepare all kinds of method synthesizer
-        prepareMethodSynths();
+        outFinishScopeLocalAssign = new ArrayList<LocalAssign>();
     }
 
-    public void genClass() throws SemanticException {
-
-        genTreeMethods(); //fast/resume/move
-        
-        genClassConstructor();
-        if (wts.realloc) genCopyConstructor(compilerPos);
-        if (wts.realloc) genRemapMethod();
-    }
     
     /**
      * Will generate fast, back and move method
      * 
      * @throws SemanticException
      */
-    protected void genTreeMethods() throws SemanticException {
+    @Override
+    protected void genMethods() throws SemanticException {
 
         CodeBlockSynth fastBodySynth = fastMSynth.getMethodBodySynth(compilerPos);
         CodeBlockSynth resumeBodySynth = resumeMSynth.getMethodBodySynth(compilerPos);
@@ -131,8 +91,8 @@ public class WSAsyncClassGen extends AbstractWSClassGen {
         HashSet<Name> localDeclaredVar = new HashSet<Name>(); //all locals with these names will not be replaced
         
         //first check whether the block contains concurrent construct, if it is, transform the whole as a regular frame
-        boolean containsConcurrent = WSCodeGenUtility.containsConcurrentConstruct(asyncBlock);
-        int concurrentCallNum = WSCodeGenUtility.calcConcurrentCallNums(asyncBlock, wts);
+        boolean containsConcurrent = WSCodeGenUtility.containsConcurrentConstruct(codeBlock);
+        int concurrentCallNum = WSCodeGenUtility.calcConcurrentCallNums(codeBlock, wts);
         
         //FIXME: still have problems, if there is a loop.
         //So only one situation; only have one top level call or assign call, need use pattern detector
@@ -140,7 +100,7 @@ public class WSAsyncClassGen extends AbstractWSClassGen {
             //if contains a async, finish, just create a new frame
             //if the concurrent calls' num > 1, just creat a new regular frame to handle
             
-            AbstractWSClassGen childFrameGen = genChildFrame(wts.regularFrameType, asyncBlock, WSCodeGenUtility.getBlockFrameClassName(getClassName()));
+            AbstractWSClassGen childFrameGen = genChildFrame(wts.regularFrameType, codeBlock, WSCodeGenUtility.getBlockFrameClassName(getClassName()));
             TransCodes callCodes = this.genInvocateFrameStmts(1, childFrameGen);
             
             //now add codes to three path;
@@ -154,7 +114,7 @@ public class WSAsyncClassGen extends AbstractWSClassGen {
         else{
             //transform code one by one
             //in this case, no more frame will be generated.
-            ArrayList<Stmt> bodyStmts = new ArrayList<Stmt>(asyncBlock.statements());
+            ArrayList<Stmt> bodyStmts = new ArrayList<Stmt>(codeBlock.statements());
             
             int pcValue = 0; //The current pc value. Will increase every time an inner class is created
             int prePcValue = 0; //the last time's pc value. If pc value is changed, need generate a switch case
@@ -176,7 +136,7 @@ public class WSAsyncClassGen extends AbstractWSClassGen {
                 }
 
                 //use code pattern detector to detect
-                CodePatternDetector.Pattern pattern = patternDetctor.detectAndTransform(s);
+                CodePatternDetector.Pattern pattern = CodePatternDetector.detectAndTransform(s, wts);
                 switch(pattern){
                 case Simple:
                     codes = transNormalStmt(s, prePcValue, localDeclaredVar);
@@ -228,7 +188,7 @@ public class WSAsyncClassGen extends AbstractWSClassGen {
             //then process the original local, and infact the reference is built
             FieldAssign fAssign = (FieldAssign) this.replaceLocalVarRefWithFieldAccess(assign, localDeclaredVar);
               
-            Expr leftContainerRef = getFieldContainerRef(name, getParent(), moveFfRef); //search the field from async's parent(finish)
+            Expr leftContainerRef = getFieldContainerRef(name, getUpFrame(), moveFfRef); //search the field from async's parent(finish)
             Expr moveAssign = synth.makeFieldToFieldAssign(compilerPos, leftContainerRef, name, fAssign.target(), name, xct);                    
             moveBodySynth.addStmt(xnf.Eval(compilerPos, moveAssign));  
         }
@@ -250,15 +210,13 @@ public class WSAsyncClassGen extends AbstractWSClassGen {
         return icSynth.genStmt();
     }
 
-    private void genClassConstructor() throws SemanticException {        
+    protected void genClassConstructor() throws SemanticException {        
         //now generate another constructor
         /* 
            @Inline def this(up:Frame!) {
                super(up, up);
            }
         */
-        ConstructorSynth conSynth = classSynth.createConstructor(compilerPos);
-        conSynth.addAnnotation(genHeaderAnnotation());
         Expr upRef = conSynth.addFormal(compilerPos, Flags.FINAL, wts.frameType, "up"); //up:Frame!
         
         CodeBlockSynth codeBlockSynth = conSynth.createConstructorBody(compilerPos);
@@ -277,7 +235,6 @@ public class WSAsyncClassGen extends AbstractWSClassGen {
                               synth.makeFieldAssign(compilerPos, thisRef, formalName, fRef, xct));
             codeBlockSynth.addStmt(s);
         }
-        
     }
     
     

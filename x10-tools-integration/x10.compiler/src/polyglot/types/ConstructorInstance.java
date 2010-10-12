@@ -7,4 +7,6 @@ public interface ConstructorInstance extends ProcedureInstance<ConstructorDef>, 
     ConstructorInstance container(StructType container);
     ConstructorInstance formalTypes(List<Type> formalTypes);
     ConstructorInstance throwTypes(List<Type> throwTypes);
+    void setOrigMI(ConstructorInstance orig);
+    ConstructorInstance origMI();
 }

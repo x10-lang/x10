@@ -52,4 +52,11 @@ public class ConstructorInstance_c extends ProcedureInstance_c<ConstructorDef> i
     		List<Type> argumentTypes) throws SemanticException {
     	return this;
     }
+    protected ConstructorInstance origCI;
+    public void setOrigMI(ConstructorInstance ci) {
+    	this.origCI = ci;
+    }
+    public ConstructorInstance origMI() {
+    	return origCI;
+    }
 }

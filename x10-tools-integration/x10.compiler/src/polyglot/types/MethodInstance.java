@@ -53,4 +53,7 @@ public interface MethodInstance extends FunctionInstance<MethodDef>, MemberInsta
     boolean isSameMethod(MethodInstance mi, Context context);
 
     public MethodInstance returnTypeRef(Ref<? extends Type> returnType);
+    
+    void setOrigMI(MethodInstance orig);
+    MethodInstance origMI();
 }

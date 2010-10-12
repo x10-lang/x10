@@ -25,5 +25,6 @@ public abstract class AsyncFrame extends Frame {
             worker.unroll(upcast[FinishFrame,Frame](ff));
             throw Stolen.STOLEN;
         }
+        return;
     }
 }

@@ -167,7 +167,6 @@ import x10.ast.ClosureCall_c;
 import x10.ast.Closure_c;
 import x10.ast.ConstantDistMaker_c;
 import x10.ast.Finish_c;
-import x10.ast.ForEach_c;
 import x10.ast.ForLoop_c;
 import x10.ast.Future_c;
 import x10.ast.Here_c;
@@ -716,7 +715,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             sh.writeln("#include <x10aux/ref.h>");
             sh.writeln("#include <x10aux/RTT.h>");
             sh.writeln("#include <x10aux/serialization.h>");
-            sh.writeln("#include <x10aux/struct_equals.h>");
             sh.forceNewline(0);
         }
 
@@ -1030,7 +1028,13 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		    for (Node tn : typeNodesAndClosures) {
 		        if (tn instanceof X10CanonicalTypeNode_c) {
 		            X10CanonicalTypeNode_c t = (X10CanonicalTypeNode_c) tn;
-		            extractAllClassTypes(t.type(), types, dupes);
+		            Type tt = t.type();
+                    if (tt.isClass() && tt.toClass().isAnonymous()) {
+                        ClassType c = tt.toClass();
+                        assert (c.interfaces().size() == 1);
+                        tt = c.interfaces().get(0);
+                    }
+		            extractAllClassTypes(tt, types, dupes);
 		        } else if (tn instanceof Closure_c) {
                     Closure_c t = (Closure_c) tn;
 		            ClassType c = t.type().toClass();
@@ -3890,11 +3894,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		sw.write("}");
 		sw.newline(0);
 	}
-
-
-    public void visit(ForEach_c n) {
-        assert (false) : ("ForEach should have been desugared earlier");
-    }
 
     public void visit(AtEach_c n) {
         assert (false) : ("AtEach should have been desugared earlier");

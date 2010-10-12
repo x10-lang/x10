@@ -19,7 +19,7 @@ GZIP            ?= gzip
 override CXXFLAGS += -Iinclude -Icommon ${JNI_INCLUDES}
 
 # these are used only for building tests
-override LDFLAGS         += -Llib -lpthread
+override LDFLAGS         += -L$(X10_HOME)/x10.runtime/x10rt/lib -lpthread
 
 BASE_TESTS      = test/x10rt_basic test/x10rt_gups test/x10rt_topology test/x10rt_coll
 

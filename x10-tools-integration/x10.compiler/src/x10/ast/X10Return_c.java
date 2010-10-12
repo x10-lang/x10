@@ -11,10 +11,7 @@
 
 package x10.ast;
 
-import polyglot.ast.Assign;
-import polyglot.ast.Call;
 import polyglot.ast.Expr;
-import polyglot.ast.New;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.Return_c;
@@ -24,9 +21,7 @@ import polyglot.types.Context;
 import polyglot.types.FunctionDef;
 import polyglot.types.InitializerDef;
 import polyglot.types.LocalDef;
-import polyglot.types.LocalInstance;
 import polyglot.types.MethodDef;
-import polyglot.types.Name;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
@@ -34,7 +29,6 @@ import polyglot.types.Types;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
-import x10.Configuration;
 import x10.constraint.XEQV;
 import x10.constraint.XFailure;
 import x10.constraint.XLocal;
@@ -48,6 +42,7 @@ import x10.types.X10ProcedureDef;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.X10TypeSystem_c;
+import x10.types.X10Context_c;
 import x10.types.checker.Converter;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
@@ -95,12 +90,6 @@ public class X10Return_c extends Return_c {
 	    return removeLocals((X10Context) ctx.pop(), c, thisCode);
 	}
 
-    public static boolean isAsyncCode(CodeDef ci) {
-        return (ci != null)
-				&& (ci instanceof MethodDef)
-				&& ((MethodDef) ci).name().toString().equals(X10TypeSystem_c.DUMMY_ASYNC);
-    }
-
 	@Override
 	public Node typeCheck(ContextVisitor tc) {
 		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
@@ -108,7 +97,7 @@ public class X10Return_c extends Return_c {
 	
 		CodeDef ci = c.currentCode();
 		
-		if (isAsyncCode(ci)) {
+		if (((X10Context_c)c).inAsyncScope()) { // can return from an at but not from an async
 		    Errors.issue(tc.job(), new SemanticException("Cannot return from an async."), this);
 		    return this;
 		}

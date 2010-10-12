@@ -84,7 +84,6 @@ public class CUDABlackScholes {
 
         // Problem parameters
         val OPT_N = 4000000;
-        val NUM_ITERATIONS = 512;
         val RISKFREE = 0.02f;
         val VOLATILITY = 0.30f;
 
@@ -97,6 +96,7 @@ public class CUDABlackScholes {
         }
 
         val gpu = here.children().size==0 ? here : here.child(0);
+        val NUM_ITERATIONS = gpu==here ? 32 : 512;
         val cpu = here;
         val rand = new Random();
 
@@ -135,6 +135,12 @@ public class CUDABlackScholes {
         Console.OUT.println("BlackScholesGPU() time    : " + gpuTime/(1.0e-6f) + " msec");
         Console.OUT.println("Effective memory bandwidth: " + (5 * OPT_N * 4) * 1.0e-9f / (gpuTime * 1.0E-9f) + " GB/s");
         Console.OUT.println("Gigaoptions per second    : " + ((2 * OPT_N) * 1.0e-9f) / (gpuTime * 1.0e-9f));
+
+        CUDAUtilities.deleteRemoteArray(d_CallResult);
+        CUDAUtilities.deleteRemoteArray(d_PutResult);
+        CUDAUtilities.deleteRemoteArray(d_StockPrice);
+        CUDAUtilities.deleteRemoteArray(d_OptionStrike);
+        CUDAUtilities.deleteRemoteArray(d_OptionYears);
 
         // Read back GPU results
         finish {

@@ -5,7 +5,6 @@
 #include <x10aux/ref.h>
 #include <x10aux/RTT.h>
 #include <x10aux/serialization.h>
-#include <x10aux/struct_equals.h>
 
 #include <assert.h>
 
@@ -31,6 +30,8 @@ namespace x10 {
     
             x10_ulong data; /* TODO: We would like this to be const */
             T *raw (void) const { return (T*)(size_t)data; }
+            T &operator[] (int index) { return raw()[index]; }
+            const T &operator[] (int index) const { return raw()[index]; }
 
             IndexedMemoryChunk(): data(0) {}
             IndexedMemoryChunk(T* _data): data((size_t)_data) {}
@@ -69,9 +70,7 @@ namespace x10 {
     
             x10_boolean _struct_equals(x10aux::ref<x10::lang::Any>);
     
-            x10_boolean _struct_equals(x10::util::IndexedMemoryChunk<T> that) { 
-                return x10aux::struct_equals(data, that->data);
-            }
+            x10_boolean _struct_equals(x10::util::IndexedMemoryChunk<T> that);
     
             x10aux::ref<x10::lang::String> toString();
     

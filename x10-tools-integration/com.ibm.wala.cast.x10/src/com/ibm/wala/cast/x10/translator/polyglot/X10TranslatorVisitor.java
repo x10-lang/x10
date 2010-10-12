@@ -20,7 +20,6 @@ import x10.ast.LocalTypeDef;
 import x10.ast.Next;
 import x10.ast.ParExpr;
 import x10.ast.PlaceCast;
-import x10.ast.Point;
 import x10.ast.Range;
 import x10.ast.Region;
 import x10.ast.SettableAssign;
@@ -50,7 +49,6 @@ public interface X10TranslatorVisitor extends TranslatingVisitor {
     CAstNode visit(Next n, WalkContext context);
     CAstNode visit(ParExpr expr, WalkContext wc);
     CAstNode visit(PlaceCast pc, WalkContext context);
-    CAstNode visit(Point p, WalkContext context);
     CAstNode visit(Region r, WalkContext context);
     CAstNode visit(Range r, WalkContext context);
     CAstNode visit(Tuple t, WalkContext context);

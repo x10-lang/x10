@@ -92,8 +92,14 @@
         <condition property="platform" value="win32"><os family="windows"/></condition>
         <condition property="platform" value="linux"><os name="Linux"/></condition>
         <condition property="platform" value="macosx"><os name="Mac OS X"/></condition>
-        <!-- Work around Mac OS's Java reporting x86 as i386 -->
-        <condition property="arch" value="x86" else="${os.arch}"><equals arg1="${os.arch}" arg2="i386"/></condition>
+        <condition property="arch" value="x86" else="${os.arch}">
+            <or>
+                <!-- Work around Mac OS's Java reporting x86 as i386 -->
+                <equals arg1="${os.arch}" arg2="i386"/>
+                <!-- Treat amd64 as x86 -->
+                <equals arg1="${os.arch}" arg2="amd64"/>
+            </or>
+        </condition>
         <property name="lpg.executable.location" location="${lpg.location}.${platform}_${arch}"/>
         <property name="lpg.executable" location="${lpg.executable.location}/lpgexe/lpg-${platform}_${arch}"/>
         <!--

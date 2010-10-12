@@ -89,7 +89,7 @@ import x10.visit.X10TypeChecker;
  *
  * @author vj Dec 9, 2004
  */
-public abstract class X10Loop_c extends Loop_c implements X10Loop, Loop {
+public abstract class X10Loop_c extends Loop_c implements X10Loop {
 	protected Formal formal;
 	protected Expr domain;
 	protected Stmt body;
@@ -193,7 +193,11 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop, Loop {
 		}
 		
 		try {
-		    throw new SemanticException("Loop domain " + domainType + " is not a subtype of Iterable[" + formalType + "].", position());
+			// The expected type is Iterable[Foo]. The constraints on domainType dont matter
+			// for this failure, so strip them.
+		    throw new SemanticException("Loop domain is not of expected type." 
+		    		+ "\n\t Expected type: Iterable[" + formalType + "]" 
+		    		+ "\n\t Actual type: " + X10TypeMixin.baseType(domainType), position());
 		}
 		catch (SemanticException e) {
 		    tc.errorQueue().enqueue(ErrorInfo.SEMANTIC_ERROR, "ERROR: " + e.getMessage(), position());

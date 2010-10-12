@@ -1,3 +1,4 @@
+// Yoav added: IGNORE_FILE
 /*
  *  This file is part of the X10 project (http://x10-lang.org).
  *
@@ -28,7 +29,9 @@ public class ClosureTypeParameters2a_MustFailCompile extends ClosureTest {
     public def run(): boolean = {
         
         class C[T]{T==Y} {val f = ()=> "hi";}
-        check("new C[Z]().f()", new C[Z]().f(), "hi");
+        check("new C[Z]().f()",
+            new C[Z] // ShouldBeErr: used "Z" whereas the class invariant said it must be "Y"
+            ().f(), "hi");
 
         return result;
     }

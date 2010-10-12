@@ -527,8 +527,8 @@ public class Errors {
 	public static class MethodOrStaticConstructorNotFound extends EqualByTypeAndPosException {
 	    private static final long serialVersionUID = -6230289868576516608L;
 	    public MethodOrStaticConstructorNotFound(MethodMatcher mm,  Position pos) {
-	        super("Method or static constructor not found for given matcher."
-	              + "\n\t Matcher: "  + mm,
+	        super("Method or static constructor not found for given call."
+	              + "\n\t Call: "  + mm,
 	              pos);
 	        
 	        Map<String, Object> map = new HashMap<String, Object>();
@@ -538,8 +538,8 @@ public class Errors {
 		    setAttributes(map);
 	    }
 	    public MethodOrStaticConstructorNotFound(ConstructorMatcher mm,  Position pos) {
-	        super("Method or static constructor not found for given matcher."
-	                + "\n\t Matcher: "  + mm,
+	        super("Method or static constructor not found for given call"
+	                + "\n\t Call: "  + mm,
 	                pos);
 	    }
 	}

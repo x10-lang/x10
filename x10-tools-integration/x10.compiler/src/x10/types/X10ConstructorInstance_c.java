@@ -47,8 +47,18 @@ import x10.types.constraints.TypeConstraint;
 
 /**
  * An X10ConstructorInstance_c varies from a ConstructorInstance_c only in that it
- * maintains a returnType. If an explicit returnType is not declared in the constructor
- * then the returnType is simply a noClause variant of the container.
+ * maintains a returnType, and a guard. 
+ * 
+ * <p>If an explicit returnType is not declared in the constructor
+ * then the returnType is simply the container together with the constraints 
+ * introduced by the property call in the body of the constructor (if the container has
+ * properties).
+ * 
+ * <p> It also has a typeParameteres() method. This currently returns null. 
+ * Constructor definitions may not specify type parameters. The type parameters of
+ * the container are intended to be in effect in the constructor declaration.
+ * 
+ *  
  * @author vj
  *
  */
@@ -61,8 +71,8 @@ public class X10ConstructorInstance_c extends ConstructorInstance_c implements X
     }
     
     @Override
-    public boolean moreSpecific(ProcedureInstance<ConstructorDef> p, Context context) {
-        return X10TypeMixin.moreSpecificImpl(this, p, context);
+    public boolean moreSpecific(Type ct, ProcedureInstance<ConstructorDef> p, Context context) {
+        return X10TypeMixin.moreSpecificImpl(ct, this, p, context);
     }
 
     public X10ConstructorDef x10Def() {

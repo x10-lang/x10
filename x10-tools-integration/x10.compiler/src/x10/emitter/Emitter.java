@@ -2934,8 +2934,7 @@ public class Emitter {
         }
 
         if (mis.size() != 1) {
-            // TODO
-            w.write("throw new java.lang.RuntimeException();");
+            w.write("throw new x10.lang.Error(\"not implemented dispatch mechanism based on contra-variant type completely\");");
         }
         
         w.write("}");

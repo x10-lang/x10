@@ -20,7 +20,7 @@ public class ArgMustBeBoolean_MustFailCompile extends x10Test {
         var b: int;
 
 	public def run(): boolean = {
-		await b; // must fail at compile time.
+		when(b) {} // ERR: condition must be Boolean. must fail at compile time.
 		return true;
 	}
 

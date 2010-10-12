@@ -14,18 +14,17 @@ import harness.x10Test;
 /**
  * @author bdlucas 12/2008
  */
-
-class XTENLANG_242_A {
-    val name1 = typeName();
-    def name2() = typeName();
-}
+public class XTENLANG_242 extends x10Test {
+    static class A {
+        val name1 = typeName();
+        def name2() = typeName();
+    }
     
-class XTENLANG_242_B extends XTENLANG_242_A {}
-    
-class XTENLANG_242 extends x10Test {
+    static class B extends A {}
 
     public def run():boolean {
-        return new XTENLANG_242_B().name1.equals("XTENLANG_242_B") && new XTENLANG_242_B().name2().equals("XTENLANG_242_B");
+	chk(this.typeName().equals("XTENLANG_242"));
+        return new B().name1.equals("XTENLANG_242.B") && new B().name2().equals("XTENLANG_242.B");
     }
 
     public static def main(Array[String](1)) {

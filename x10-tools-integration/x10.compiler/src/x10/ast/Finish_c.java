@@ -68,8 +68,7 @@ public class Finish_c extends Stmt_c implements Finish {
     @Override
 	public Context enterChildScope(Node child, Context c) {
     	c = super.enterChildScope(child,c);
-    	if (clocked)
-    		c=((X10Context) c).pushClockedFinishScope();
+        c=((X10Context) c).pushFinishScope(clocked);
     	addDecls(c);
     	return c;
 	}

@@ -21,6 +21,7 @@ import polyglot.frontend.Job;
 import polyglot.frontend.Scheduler;
 import polyglot.types.TypeSystem;
 import x10.ExtensionInfo.X10Scheduler.ValidatingVisitorGoal;
+import x10.visit.EarlyDesugarer;
 import x10.visit.Inliner;
 
 public class Optimizer {
@@ -37,16 +38,14 @@ public class Optimizer {
 
     public List<Goal> goals(Job job, Goal flattener) {
         List<Goal> goals = new ArrayList<Goal>();
-
-        if (x10.Configuration.INLINE_OPTIMIZATIONS) {
-            goals.add(Inliner(job));
-        }
         goals.add(LoopUnrolling(job));
         goals.add(ForLoopOptimizations(job));
         if (x10.Configuration.INLINE_OPTIMIZATIONS) {
-          goals.add(flattener);
-      }
-
+            goals.add(EarlyDesugarer(job));
+            goals.add(Inliner(job));
+            goals.add(flattener);
+        }
+        
         // TODO: add an empty goal that prereqs the above
         return goals;
     }
@@ -63,6 +62,13 @@ public class Optimizer {
         TypeSystem ts = extInfo.typeSystem();
         NodeFactory nf = extInfo.nodeFactory();
         return new ValidatingVisitorGoal("Loop Unrolling", job, new LoopUnroller(job, ts, nf)).intern(scheduler);
+    }
+
+    public Goal EarlyDesugarer(Job job) {
+        ExtensionInfo extInfo = job.extensionInfo();
+        TypeSystem ts = extInfo.typeSystem();
+        NodeFactory nf = extInfo.nodeFactory();
+        return new ValidatingVisitorGoal("Early Desugaring", job, new EarlyDesugarer(job, ts, nf)).intern(scheduler);
     }
 
     public Goal Inliner(Job job) {

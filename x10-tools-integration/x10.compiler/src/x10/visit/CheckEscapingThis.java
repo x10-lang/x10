@@ -289,7 +289,8 @@ public class CheckEscapingThis extends NodeVisitor
                     // report the field that wasn't written to
                     for (FieldDef f : fields)
                         // a VAR marked with @Uninitialized is not tracked
-                        if (!newInfo.seqWrite.contains(f) && !X10TypeMixin.isUninitializedField((X10FieldDef)f,(X10TypeSystem)ts)) {
+                        if (!f.flags().isFinal() // final fields are reported already in InitChecker 
+                            && !newInfo.seqWrite.contains(f) && !X10TypeMixin.isUninitializedField((X10FieldDef)f,(X10TypeSystem)ts)) {
                             final Position pos = currDecl.position();
                             if (pos.isCompilerGenerated()) // auto-generated ctor
                                 reportError("Field '"+f.name()+"' was not definitely assigned.", f.position());
@@ -383,8 +384,9 @@ public class CheckEscapingThis extends NodeVisitor
                 case Start:
                     assert false : "There must be a super call (either explicit or implicit)";
                 case SawCtor:
-                    if (hasProperties && wasSuperCall)
-                        reportError("You must call 'property(...)' at least once",ctor.position());
+                    // InitChecker checks it: property(...) might not have been called 
+                    //if (hasProperties && wasSuperCall)
+                    //    reportError("You must call 'property(...)' at least once",ctor.position());
                     break;
             }
         }

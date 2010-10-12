@@ -56,8 +56,8 @@ import x10.types.constraints.TypeConstraint;
 import x10.types.matcher.Matcher;
 
 /**
- * A representation of a MethodInstance. This implements the requirement that method
- * annotations such as sequential, local, nonblocking, safe are preserved on overriding.
+ * A representation of a MethodInstance.  
+ * 
  * @author vj
  *
  */
@@ -69,8 +69,8 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
     }
 
     @Override
-    public boolean moreSpecific(ProcedureInstance<MethodDef> p, Context context) {
-        return X10TypeMixin.moreSpecificImpl(this, p, context);
+    public boolean moreSpecific(Type container, ProcedureInstance<MethodDef> p, Context context) {
+        return X10TypeMixin.moreSpecificImpl(container, this, p, context);
     }
 
     public static class NoClauseVariant implements Transformation<Type, Type> {
@@ -219,9 +219,10 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
     }
 
     public static void buildSubst(X10MethodInstance mi, List<XVar> ys, List<XVar> xs, XVar thisVar) {
-        if (mi.x10Def().thisVar() != null && mi.x10Def().thisVar() != thisVar) {
+    	XVar mdThisVar = mi.x10Def().thisVar();
+        if (mdThisVar != null && mdThisVar != thisVar && ! xs.contains(mdThisVar)) {
             ys.add(thisVar);
-            xs.add(mi.x10Def().thisVar());
+            xs.add(mdThisVar);
         }
 
         buildSubst(mi.container(), ys, xs, thisVar);
@@ -231,7 +232,8 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
         Type container = X10TypeMixin.baseType(t);
         if (container instanceof X10ClassType) {
             X10ClassDef cd = ((X10ClassType) container).x10Def();
-            if (cd.thisVar() != null && cd.thisVar() != thisVar) {
+            XVar cdThisVar = cd.thisVar();
+            if (cdThisVar != null && cdThisVar != thisVar && ! xs.contains(cdThisVar) ) {
                 ys.add(thisVar);
                 xs.add(cd.thisVar());
             }

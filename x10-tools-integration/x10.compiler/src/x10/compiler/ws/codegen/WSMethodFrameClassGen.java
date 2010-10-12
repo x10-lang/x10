@@ -1,6 +1,7 @@
 package x10.compiler.ws.codegen;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import polyglot.ast.Block;
@@ -29,6 +30,7 @@ import x10.compiler.ws.util.WSCodeGenUtility;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10Context;
+import x10.types.X10Flags;
 import x10.util.synthesizer.CodeBlockSynth;
 import x10.util.synthesizer.ConstructorSynth;
 import x10.util.synthesizer.FieldSynth;
@@ -36,6 +38,7 @@ import x10.util.synthesizer.InstanceCallSynth;
 import x10.util.synthesizer.MethodSynth;
 import x10.util.synthesizer.NewInstanceSynth;
 import x10.util.synthesizer.NewLocalVarSynth;
+import x10.visit.X10PrettyPrinterVisitor;
 
 /**
  * @author Haichuan
@@ -52,28 +55,28 @@ public class WSMethodFrameClassGen extends WSRegularFrameClassGen {
     protected MethodSynth fastWrapperMethodSynth;
     protected Name returnFieldName;
     protected Name returnFlagName; //=> boolean returnFlagName;
+    protected final boolean isMain;
     
 
     public WSMethodFrameClassGen(Job job, X10NodeFactory xnf, X10Context xct,
-                                  MethodDef methodDef, MethodDecl methodDecl, WSTransformState wsTransformState) {
+                                  MethodDef methodDef, MethodDecl methodDecl, WSTransformState wts) {
+        this(job, xnf, xct, methodDef, methodDecl, wts,
+                X10PrettyPrinterVisitor.isMainMethodInstance(methodDef.asInstance(), xct));
+    }
+    public WSMethodFrameClassGen(Job job, X10NodeFactory xnf, X10Context xct,
+                                  MethodDef methodDef, MethodDecl methodDecl, WSTransformState wts,
+                                  boolean isMain) {
     
-        super(job, xnf, xct, wsTransformState, null/*A method has no parent*/,
-             WSCodeGenUtility.getMethodBodyClassName(methodDef));
+        super(job, xnf, xct, wts, WSCodeGenUtility.getMethodBodyClassName(methodDef),
+             methodDecl.body(), ((ClassType) methodDef.container().get()).def(),
+             methodDef.flags().isStatic() ? Flags.FINAL.Static() : Flags.FINAL,
+                     isMain ? wts.mainFrameType : wts.regularFrameType);
+        //And if the method is instance method, need process the method body's all special
+        //this/super need set the qualifier
+        this.isMain = isMain;
         this.methodDecl = methodDecl;
-        frameDepth = 0;
-        //now consider the flags/kind and outer class
-        if(methodDef.flags().isStatic()){
-            classSynth.setFlags(Flags.STATIC.Final());//class is static
-            classSynth.setKind(null);//override top-level default
-        }
-        else{
-            classSynth.setFlags(Flags.FINAL);//class is not static
-            classSynth.setKind(ClassDef.MEMBER);
-        }
-        //class is nested
-        ClassType outerClassType = (ClassType) methodDef.container().get();
-        ClassDef outerClassDef = outerClassType.def();
-        classSynth.setOuter(outerClassDef);
+        
+
         
         //processing the return
         returnFlagName = ((X10Context)xct).makeFreshName("returnFlag");
@@ -102,14 +105,6 @@ public class WSMethodFrameClassGen extends WSRegularFrameClassGen {
         fastWrapperMethodSynth.setReturnType(returnType);
        
         formals = methodDecl.formals(); //record all formals
-        Block block = methodDecl.body();
-        //And if the method is instance method, need process the method body's all special
-        //this/super need set the qualifier
-        ClassDef outerDef = classSynth.getOuter();
-        if(outerDef != null){
-            block = (Block) WSCodeGenUtility.setSpeicalQualifier(block, outerDef, xnf);
-        }        
-        this.codeBlock = block;
         
         //finally changes fast/slow method's return type
         fastMSynth.setReturnType(returnType);
@@ -142,21 +137,53 @@ public class WSMethodFrameClassGen extends WSRegularFrameClassGen {
         }
     }
     
-    public void genClass() throws SemanticException {
-        //do the formals translation
-        
+    public MethodDecl transform() throws SemanticException {
         Type returnType = methodDecl.methodDef().returnType().get();
         if (returnType != xts.Void()){
             genApplyMethod(returnType);
         }
         
-        super.genClass(); //transform: method skeleton/methods body/constructors/remap
+        genClass();
+
         genWSMethod(fastWrapperMethodSynth); //now generate fast/slow path, register them and put them in container class
+
+        if (isMain) {
+            return getNewMainMethod();
+        } else {
+            return null;
+        }
+    }
+    
+    public MethodDecl getNewMainMethod() throws SemanticException{
+        
+        NewInstanceSynth rSynth = new NewInstanceSynth(xnf, xct, compilerPos, wts.rootFinishType);
+        InstanceCallSynth riSynth = new InstanceCallSynth(xnf, xct, rSynth.genExpr(), "init");
+        NewLocalVarSynth nvSynth = new NewLocalVarSynth(xnf, xct, compilerPos, Name.make("rootFinish"), X10Flags.FINAL, riSynth.genExpr(), wts.rootFinishType, Collections.EMPTY_LIST);
+
+        //new _main(args)
+        NewInstanceSynth niSynth = new NewInstanceSynth(xnf, xct, compilerPos, this.getClassType());
+        niSynth.addArgument(wts.frameType, nvSynth.getLocal());
+        niSynth.addArgument(wts.finishFrameType, nvSynth.getLocal());
+        for(Formal f : formals){
+            //now add the type
+            Type fType = f.localDef().type().get(); 
+            Expr formalRef = xnf.Local(compilerPos, xnf.Id(compilerPos, f.name().id())).localInstance(f.localDef().asInstance()).type(fType);
+            niSynth.addArgument(fType, formalRef);
+        }
+        Expr newMainExpr = niSynth.genExpr();
+        // new _main(args).run();
+        InstanceCallSynth icSynth = new InstanceCallSynth(xnf, xct, newMainExpr, "run");
+        //icSynth.setMethodLocationType(mainFrameType); //the run is in main
+        CodeBlockSynth cbSynth = new CodeBlockSynth(xnf, xct, methodDecl.body().position());
+        cbSynth.addStmt(nvSynth.genStmt());
+        cbSynth.addStmt(icSynth.genStmt());
+
+        return (MethodDecl) methodDecl.body(cbSynth.close());
     }
 
     
-    protected ConstructorSynth genClassConstructor() throws SemanticException{
-        ConstructorSynth conSynth = super.genClassConstructor();
+    protected void genClassConstructor() throws SemanticException{
+        super.genClassConstructor();
         //Continue to add other statements
         CodeBlockSynth conCodeSynth = conSynth.createConstructorBody(compilerPos);
         //all formals as constructor's formal
@@ -170,7 +197,6 @@ public class WSMethodFrameClassGen extends WSRegularFrameClassGen {
             
             conCodeSynth.addStmt(s);
         }
-        return conSynth;
     }
     
     /**

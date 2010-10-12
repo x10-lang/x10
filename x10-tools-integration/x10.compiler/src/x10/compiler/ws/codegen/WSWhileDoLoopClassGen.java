@@ -25,14 +25,12 @@ import x10.util.synthesizer.SwitchSynth;
  *
  */
 public class WSWhileDoLoopClassGen extends WSRegularFrameClassGen {
-
-    Loop loopStmt;
+    protected final Loop loopStmt;
     
-    public WSWhileDoLoopClassGen(AbstractWSClassGen parent, Loop loopS) {
-        super(parent, loopS.body(), 
+    public WSWhileDoLoopClassGen(AbstractWSClassGen parent, Loop loopStmt) {
+        super(parent, loopStmt.body(),
               WSCodeGenUtility.getLoopClassName(parent.getClassName()));
-    
-        this.loopStmt = loopS;
+        this.loopStmt = loopStmt;
     }
     
     
@@ -41,7 +39,8 @@ public class WSWhileDoLoopClassGen extends WSRegularFrameClassGen {
      * since loop will transform the loop into while in slow path
      * @see x10.compiler.ws.codegen.WSRegularFrameClassGen#genThreeMethods()
      */
-    protected void genThreeMethods() throws SemanticException {
+    @Override
+    protected void genMethods() throws SemanticException {
         Triple<CodeBlockSynth, SwitchSynth, SwitchSynth> bodyCodes = transformMethodBody();
         
         //the results are just the bodies of fast/slow/back
