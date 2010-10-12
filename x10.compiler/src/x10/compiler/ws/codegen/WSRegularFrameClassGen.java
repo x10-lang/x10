@@ -81,8 +81,8 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
         super(parent, parent, classNamePrefix, parent.wts.regularFrameType, stmt);
     }
 
-
-    protected void genTreeMethods() throws SemanticException {
+    @Override
+    protected void genMethods() throws SemanticException {
 
         Triple<CodeBlockSynth, SwitchSynth, SwitchSynth> bodyCodes = transformMethodBody();
 

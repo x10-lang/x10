@@ -37,7 +37,8 @@ public class WSFinishStmtClassGen extends AbstractWSClassGen {
         superCallSynth.addArgument(wts.frameType, upRef);
     }
 
-    protected void genTreeMethods() throws SemanticException {
+    @Override
+    protected void genMethods() throws SemanticException {
         
         CodeBlockSynth fastBodySynth = fastMSynth.getMethodBodySynth(compilerPos);
         CodeBlockSynth resumeBodySynth = resumeMSynth.getMethodBodySynth(compilerPos);

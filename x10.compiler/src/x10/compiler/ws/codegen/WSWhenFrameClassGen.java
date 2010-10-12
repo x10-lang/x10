@@ -40,7 +40,8 @@ public class WSWhenFrameClassGen extends WSRegularFrameClassGen {
      * Besides the fast/resume/back, it needs a condition method
      * @see x10.compiler.ws.codegen.WSRegularFrameClassGen#genThreeMethods()
      */
-    protected void genThreeMethods() throws SemanticException { 
+    @Override
+    protected void genMethods() throws SemanticException { 
         //firstly translate the bodies
         Triple<CodeBlockSynth, SwitchSynth, SwitchSynth> bodyCodes = transformMethodBody();
         

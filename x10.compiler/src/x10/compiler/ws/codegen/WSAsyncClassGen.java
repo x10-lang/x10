@@ -70,7 +70,8 @@ public class WSAsyncClassGen extends AbstractWSClassGen {
      * 
      * @throws SemanticException
      */
-    protected void genTreeMethods() throws SemanticException {
+    @Override
+    protected void genMethods() throws SemanticException {
 
         CodeBlockSynth fastBodySynth = fastMSynth.getMethodBodySynth(compilerPos);
         CodeBlockSynth resumeBodySynth = resumeMSynth.getMethodBodySynth(compilerPos);

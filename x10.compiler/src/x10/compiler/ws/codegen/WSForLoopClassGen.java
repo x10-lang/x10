@@ -45,7 +45,8 @@ public class WSForLoopClassGen extends WSRegularFrameClassGen {
      * since for loop will transform the for into while in slow path
      * @see x10.compiler.ws.codegen.WSRegularFrameClassGen#genThreeMethods()
      */
-    protected void genThreeMethods() throws SemanticException {
+    @Override
+    protected void genMethods() throws SemanticException {
         
         //Firstly process all the initial, update, condition
         List<ForInit> forInits = new ArrayList<ForInit>();

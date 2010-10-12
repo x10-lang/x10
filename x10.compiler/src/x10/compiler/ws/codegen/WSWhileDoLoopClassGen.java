@@ -39,7 +39,8 @@ public class WSWhileDoLoopClassGen extends WSRegularFrameClassGen {
      * since loop will transform the loop into while in slow path
      * @see x10.compiler.ws.codegen.WSRegularFrameClassGen#genThreeMethods()
      */
-    protected void genThreeMethods() throws SemanticException {
+    @Override
+    protected void genMethods() throws SemanticException {
         Triple<CodeBlockSynth, SwitchSynth, SwitchSynth> bodyCodes = transformMethodBody();
         
         //the results are just the bodies of fast/slow/back
