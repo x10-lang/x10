@@ -1315,7 +1315,7 @@ then we substitute 0/false/null in all the constraints in C and if they all eval
 	    boolean old = oldStyleMoreSpecificMethod(xp1, xp2, (X10Context) context, ts, ct1, t1, t2, descends);
 	    if (java != old) {
 	    	
-	    	System.out.println("(Warning) Please check definitions p1 and p2." +
+	    	System.out.println("(Warning) Please check definitions p1 and p2.  " +
 	    			((java && ! old) ? "p1 is now more specific than p2; it was not in 2.0.6."
 	    					: "p1 is now not more specific than p2; it was in 2.0.6.")
 	    			+ "\n\t: p1: " + xp1
