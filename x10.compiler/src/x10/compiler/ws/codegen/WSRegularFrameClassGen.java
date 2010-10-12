@@ -71,8 +71,8 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
 
     // method frames
     protected WSRegularFrameClassGen(Job job, X10NodeFactory xnf, X10Context xct, WSTransformState wts,
-           String className, Stmt stmt, ClassDef outer, Flags flags) {
-        super(job, xnf, xct, wts, className, wts.regularFrameType, flags, outer,
+           String className, Stmt stmt, ClassDef outer, Flags flags, ClassType superType) {
+        super(job, xnf, xct, wts, className, superType, flags, outer,
                 WSCodeGenUtility.setSpeicalQualifier(stmt, outer, xnf));
     }
 
@@ -422,7 +422,6 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
     protected TransCodes transAsync(Stmt a, int prePcValue) throws SemanticException {
 
         TransCodes transCodes = new TransCodes(prePcValue + 1);
-//        classSynth.setSuperType(wts.continuationType); //make sure it is a continuation
 
         AbstractWSClassGen asyncClassGen = genChildFrame(wts.asyncFrameType, a, null);
         

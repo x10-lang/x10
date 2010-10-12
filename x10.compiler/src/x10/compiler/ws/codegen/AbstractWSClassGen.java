@@ -158,8 +158,9 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
         
         fastMSynth = classSynth.createMethod(compilerPos, FAST.toString());
         fastMSynth.setFlag(Flags.PUBLIC);
-        if (!(this instanceof WSMainMethodClassGen))
-                fastMSynth.addAnnotation(genInlineAnnotation());
+        if (!(xts.isSubtype(frameType, wts.mainFrameType))) {
+            fastMSynth.addAnnotation(genInlineAnnotation());
+        }
         fastMSynth.addFormal(compilerPos, Flags.FINAL, wts.workerType, WORKER.toString());
         
         resumeMSynth = classSynth.createMethod(compilerPos, RESUME.toString());
@@ -260,13 +261,11 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
      * @param child
      * @return the child's sequence id used form the child frame's name
      */
-    public int addChild(AbstractWSClassGen child) {
+    public void addChild(AbstractWSClassGen child) {
         if(children == null){
             children = new ArrayList<AbstractWSClassGen>();
         }
-        int num = children.size();
         children.add(child);
-        return num; //return the number of itself
     }
     
     
