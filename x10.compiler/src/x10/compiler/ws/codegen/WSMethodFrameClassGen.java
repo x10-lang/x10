@@ -158,8 +158,8 @@ public class WSMethodFrameClassGen extends WSRegularFrameClassGen {
         
         NewInstanceSynth rSynth = new NewInstanceSynth(xnf, xct, compilerPos, wts.rootFinishType);
         InstanceCallSynth riSynth = new InstanceCallSynth(xnf, xct, rSynth.genExpr(), "init");
-        NewLocalVarSynth nvSynth = new NewLocalVarSynth(xnf, xct, compilerPos, Name.make("rootFinish"), X10Flags.FINAL, riSynth.genExpr(), wts.finishFrameType, Collections.EMPTY_LIST);
-        
+        NewLocalVarSynth nvSynth = new NewLocalVarSynth(xnf, xct, compilerPos, Name.make("rootFinish"), X10Flags.FINAL, riSynth.genExpr(), wts.rootFinishType, Collections.EMPTY_LIST);
+
         //new _main(args)
         NewInstanceSynth niSynth = new NewInstanceSynth(xnf, xct, compilerPos, this.getClassType());
         niSynth.addArgument(wts.frameType, nvSynth.getLocal());

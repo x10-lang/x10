@@ -456,7 +456,7 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
         //first parameter in constructor, parent
         if(xts.isSubtype(newClassType, wts.asyncFrameType)){
             Expr ffRef = synth.makeFieldAccess(compilerPos, getThisRef(), FF, xct);
-            Expr parentRef = genUpcastCall(getClassType(), wts.frameType, ffRef);
+            Expr parentRef = genUpcastCall(wts.finishFrameType, wts.frameType, ffRef);
             niSynth.addArgument(wts.frameType, parentRef);
         }
         else{ //upcast[_selfType,Frame](this);
