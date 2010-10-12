@@ -377,9 +377,9 @@ class XPromise_c implements XPromise, Serializable {
         if (value != null) {
         		if (dumpEQV || ! t1.hasEQV()) {
         			XTerm t2 = lookup().var();
-        			if (hideFake && t1 instanceof XField && ((XField) t1).hidden)
+        			if (hideFake && t1 instanceof XField && ((XField) t1).isHidden())
         				return;
-        			if (hideFake && t2 instanceof XField && ((XField) t2).hidden)
+        			if (hideFake && t2 instanceof XField && ((XField) t2).isHidden())
         				return;
         			result.add( XTerms.makeEquals(t1, t2));
         		}
@@ -394,7 +394,16 @@ class XPromise_c implements XPromise, Serializable {
         		for (Map.Entry<XName,XPromise> m : fields.entrySet()) {
         			XName name = m.getKey();
         			XPromise p = m.getValue();
-        			XVar path2 =  v==null? null : XTerms.makeField(v, name);
+        			XTerm t = p.term();
+        			XVar path2 = null;
+        			if (v != null && !(t instanceof XField) && !((XField) t).receiver().equals(v)) {
+        			    assert false;
+//        			    path2 = XTerms.makeField(v, name);
+        			}
+//        			path2 = v == null ? null : (XVar) t;
+        			boolean hidden = t instanceof XField ? ((XField) t).isHidden() : false;
+        			path2 = v == null ? null :
+        			    (hidden ? XTerms.makeFakeField(v, name) : XTerms.makeField(v, name));
         			p.dump(path2, result, dumpEQV, hideFake);
         		}
         	}
