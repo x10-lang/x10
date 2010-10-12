@@ -24,7 +24,6 @@ import java.util.List;
  */
 public abstract class XTerm implements  Serializable, Cloneable {
 
-	
 	public XTerm() {
 		super();
 	}
@@ -146,5 +145,8 @@ public abstract class XTerm implements  Serializable, Cloneable {
 	 */
 	abstract XPromise internIntoConstraint(XConstraint constraint, XPromise last)
 	throws XFailure;
+
+	public abstract int hashCode();
+	public abstract boolean equals(Object o);
 
 }

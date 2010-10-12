@@ -249,7 +249,7 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
 			    
 			    // Disable this for now since it can cause an infinite loop.
 			    // TODO: vj 08/12/09 Revisit this.
-			    if (false && result.consistent()) {
+			    /*if (false && result.consistent()) {
 				    // Verify that the realclause, as it stands, entails the assertions of the 
 				    // property.
 				    for (X10FieldDef fi : properties) {
@@ -265,14 +265,14 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
 							    new SemanticException("The real clause, " + result + ", does not satisfy constraints from " + fi + ".", position());
 					    }
 				    }
-			    }
+			    }*/
 		    }
-		    catch (XFailure e) {
+		  /*  catch (XFailure e) {
 		    	CConstraint result = new CConstraint();
 			    result.setInconsistent();
 			    this.rootClause = Types.ref(result);
 			    this.rootClauseInvalid = new SemanticException(e.getMessage(), position());
-		    }
+		    }*/
 		    finally {
 			    computing = false;
 		    }

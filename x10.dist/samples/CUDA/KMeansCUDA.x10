@@ -223,13 +223,16 @@ public class KMeansCUDA {
 
                         if (offset==0) {
                             val toplevel_stop_time = System.currentTimeMillis();
-                            if (!quiet) Console.OUT.print(num_global_points+" "+num_clusters+" 4 ");
+                            if (!quiet) Console.OUT.print(""+num_global_points+" "+num_clusters+" 4 ");
                             Console.OUT.println((toplevel_stop_time-toplevel_start_time)/1E3);
                             Console.OUT.println("kernel: "+k_time/1E3);
                             Console.OUT.println("dma: "+d_time/1E3);
                             Console.OUT.println("cpu: "+c_time/1E3);
                             Console.OUT.println("reduce: "+r_time/1E3);
                         }
+
+                        CUDAUtilities.deleteRemoteArray(gpu_points);
+                        CUDAUtilities.deleteRemoteArray(gpu_nearest);
 
                     } // gpus
 

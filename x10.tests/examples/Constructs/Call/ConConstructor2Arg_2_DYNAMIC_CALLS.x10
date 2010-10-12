@@ -15,18 +15,18 @@ import harness.x10Test;
  * Check that a cast is created for an instance call with a simple clause.
  * @author vj
  */
-public class ConConstructor2Arg_2 extends x10Test {
+public class ConConstructor2Arg_2_DYNAMIC_CALLS extends x10Test {
 	static class A(i:Int) {}
 	def this() {}
 	def this(q:A{self.i==2}, i:Int(q.i)){}
 	def this(i:Int) {
-		// This call will compile only if -strictCalls is not set.
+		// This call will compile only if -STATIC_CALLS is not set.
 		this(new A(i),i+1);
 	}
 	
 	public def run(): boolean {
 		try {
-			val x = new ConConstructor2Arg_2(2);
+			val x = new ConConstructor2Arg_2_DYNAMIC_CALLS(2);
 			return false;
 		} catch (ClassCastException) {
 			return true;
@@ -34,7 +34,7 @@ public class ConConstructor2Arg_2 extends x10Test {
 	}
 
 	public static def main(Array[String](1)) {
-		new ConConstructor2Arg_2().execute();
+		new ConConstructor2Arg_2_DYNAMIC_CALLS().execute();
 	}
 
 

@@ -13,16 +13,16 @@ package x10.ast;
 
 import java.util.List;
 
-import polyglot.ast.CompoundStmt;
 import polyglot.ast.Expr;
 import polyglot.ast.Formal;
+import polyglot.ast.Loop;
 import polyglot.ast.Stmt;
 
 /**
  * @author vj Dec 9, 2004
  * @author igor Jan 19, 2006
  */
-public interface X10Loop extends CompoundStmt {
+public interface X10Loop extends Loop {
 	public enum LoopKind {
 		FOR,
 		FOREACH,

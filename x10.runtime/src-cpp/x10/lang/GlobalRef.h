@@ -96,6 +96,10 @@ template<class T> x10_boolean x10::lang::GlobalRef<T>::_struct_equals(x10aux::re
     return _struct_equals(x10aux::class_cast<x10::lang::GlobalRef<T> >(that));
 }
 
+template<class T> x10_boolean x10::lang::GlobalRef<T>::_struct_equals(x10::lang::GlobalRef<T> that) { 
+    return (location == that->location) && x10aux::struct_equals(value, that->value);
+}
+
 template<class T> x10aux::ref<x10::lang::String> x10::lang::GlobalRef<T>::toString() {
     char* tmp = x10aux::alloc_printf("x10.lang.GlobalRef<%s>", x10aux::getRTT<T>()->name());
     return x10::lang::String::Steal(tmp);

@@ -58,8 +58,8 @@ class PolyContains2 extends TestRegion {
         "    1  . 1 2 3 . . . . . . \n"+
         "    2  . . 4 6 . . . . . . \n"+
         "    3  . . . 9 . . . . . . \n"+
-        "contains (0,0)(0,1)(0,2)(0,3)(1,1)(1,2)(1,3)(2,2)(2,3)(3,3)\n"+
-        "does not contain (1,0)(2,0)(2,1)(3,0)(3,1)(3,2)\n"+
+        "contains [0,0][0,1][0,2][0,3][1,1][1,2][1,3][2,2][2,3][3,3]\n"+
+        "does not contain [1,0][2,0][2,1][3,0][3,1][3,2]\n"+
         "--- PolyContains2: makeLowerTriangular(4)\n"+
         "rank 2\n"+
         "rect false\n"+

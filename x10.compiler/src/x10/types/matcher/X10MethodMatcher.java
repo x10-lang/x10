@@ -36,6 +36,7 @@ public class X10MethodMatcher extends TypeSystem_c.MethodMatcher {
         this.typeArgs = typeArgs;
     }
 
+    
     public List<Type> arguments() {
         return argTypes;
     }

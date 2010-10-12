@@ -27,14 +27,16 @@ public class NonFinalVariable_MustFailCompile extends x10Test {
 class Test(i: int) {
 	
 	   public def this(ii:int):Test = {
-	     i = ii;
+	     property(ii);
 	   }
 	}
 	
 	
 	public def run(): boolean = {
 	   var ii: int = 52;
-	   var a: Test{i==ii} = new Test(52);
+	   var a:
+	    Test{i==ii} // ERR 
+	    = new Test(52);
 	    return true;
 	}
 	public static def main(var args: Array[String](1)): void = {

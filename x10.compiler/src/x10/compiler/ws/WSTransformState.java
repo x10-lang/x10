@@ -33,9 +33,6 @@ import polyglot.util.Pair;
 import x10.ast.X10ClassDecl;
 import x10.ast.X10MethodDecl;
 import x10.ast.X10NodeFactory;
-import x10.compiler.ws.codegen.AbstractWSClassGen;
-import x10.compiler.ws.codegen.WSMainMethodClassGen;
-import x10.compiler.ws.codegen.WSMethodFrameClassGen;
 import x10.compiler.ws.util.WSCallGraph;
 import x10.compiler.ws.util.WSCallGraphNode;
 import x10.types.X10Context;
@@ -82,7 +79,6 @@ public class WSTransformState {
     public final ClassType transientType; //annotation type
     public final ClassType headerType; //annotation type
     public final ClassType uninitializedType; //annotation type
-    public final ClassType futureType;
     public final Boolean realloc; // whether or not to generate code for frame migration
 
     private final WSCallGraph callGraph;
@@ -114,8 +110,7 @@ public class WSTransformState {
         transientType = xts.load("x10.compiler.Ephemeral");
         headerType = xts.load("x10.compiler.Header");
         uninitializedType = xts.load("x10.compiler.Uninitialized");
-        futureType = xts.load("x10.util.Future");
-
+        
         callGraph = new WSCallGraph();
         
         //start to iterate the ast in jobs and build all;

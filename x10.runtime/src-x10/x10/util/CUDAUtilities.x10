@@ -53,7 +53,6 @@ public class CUDAUtilities {
         @Native("c++",
             "x10_ulong addr = x10aux::remote_alloc(gpu.FMGL(id), ((size_t)numElements)*sizeof(FMGL(T)));\n"+
             "IndexedMemoryChunk<FMGL(T)> imc(addr);\n"+
-            // TODO: initialise
             "initCUDAArray<FMGL(T)>(gpu,init,imc,numElements);\n"+
             "return x10::array::RemoteArray<FMGL(T)>::_make(gpu, reg, imc, numElements);\n"
         ) { }
@@ -91,6 +90,17 @@ public class CUDAUtilities {
             return makeCUDAArray(place, numElements, chunk);
         } else {
             return at (place) new RemoteArray(new Array[T](numElements, (p:Int)=>init(p)));
+        }
+    }
+
+    public static def deleteRemoteArray[T] (arr: RemoteArray[T]{self.rank==1}) : Void
+    {
+        val place = arr.home;
+        if (place.isCUDA()) {
+            @Native("c++",
+                "IndexedMemoryChunk<FMGL(T)> imc = arr->apply()->raw();\n"+
+                "x10aux::remote_free(place.FMGL(id), (x10_ulong)(size_t)imc->raw());\n"
+            ) { }
         }
     }
 }

@@ -89,8 +89,8 @@ import x10.ast.X10NodeFactory_c;
 import x10.compiler.ws.WSCodeGenerator;
 import x10.errors.Warnings;
 import x10.extension.X10Ext;
-import x10.finish.table.CallTableKey;
-import x10.finish.table.CallTableVal;
+//import x10.finish.table.CallTableKey;
+//import x10.finish.table.CallTableVal;
 import x10.optimizations.Optimizer;
 import x10.parser.X10Lexer;
 import x10.parser.X10Parser;
@@ -105,7 +105,7 @@ import x10.visit.CheckNativeAnnotationsVisitor;
 import x10.visit.Desugarer;
 import x10.visit.ExpressionFlattener;
 import x10.visit.FieldInitializerMover;
-import x10.visit.FinishAsyncVisitor;
+//import x10.visit.FinishAsyncVisitor;
 import x10.visit.MainMethodFinder;
 import x10.visit.NativeClassVisitor;
 import x10.visit.RewriteAtomicMethodVisitor;
@@ -135,7 +135,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 
 	public static final String XML_FILE_EXTENSION = "x10ml";
 	public static final String XML_FILE_DOT_EXTENSION = "." + XML_FILE_EXTENSION;
-	private static HashMap<CallTableKey, LinkedList<CallTableVal>> calltable = new HashMap<CallTableKey, LinkedList<CallTableVal>>();
+//	private static HashMap<CallTableKey, LinkedList<CallTableVal>> calltable = new HashMap<CallTableKey, LinkedList<CallTableVal>>();
     public static String clock = "clock";
 
     static {
@@ -571,7 +571,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                    return goal;
                }
                public boolean runTask() {
-                   calltable = X10Scheduler.<HashMap<CallTableKey, LinkedList<CallTableVal>>>invokeGeneric(method);
+//                   calltable = X10Scheduler.<HashMap<CallTableKey, LinkedList<CallTableVal>>>invokeGeneric(method);
                    return true;
                }
            }.intern(this);
@@ -953,9 +953,9 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                    try {
                        TypeSystem ts = extInfo.typeSystem();
                        NodeFactory nf = extInfo.nodeFactory();
-                       FinishAsyncVisitor favisitor = new FinishAsyncVisitor(job, ts, nf, nativeAnnotationLanguage(), calltable);
-                       Goal finish = new ValidatingVisitorGoal("FinishAsyncs", job, favisitor).intern(s);
-                       finish.runTask();
+//                       FinishAsyncVisitor favisitor = new FinishAsyncVisitor(job, ts, nf, nativeAnnotationLanguage(), calltable);
+//                       Goal finish = new ValidatingVisitorGoal("FinishAsyncs", job, favisitor).intern(s);
+//                       finish.runTask();
                    } catch (Throwable t) {}
                    return true;
                }

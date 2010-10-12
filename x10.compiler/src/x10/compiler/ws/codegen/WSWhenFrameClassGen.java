@@ -26,18 +26,12 @@ import x10.util.synthesizer.SwitchSynth;
  *
  */
 public class WSWhenFrameClassGen extends WSRegularFrameClassGen {
-
-    When whenStmt;
+    protected final When whenStmt;
     
     public WSWhenFrameClassGen(AbstractWSClassGen parent, When whenStmt) {
-        super(parent, whenStmt.stmt(), 
+        super(parent, whenStmt.stmt(),
               WSCodeGenUtility.getWhenClassName(parent.getClassName()));
-        
         this.whenStmt = whenStmt;
-        
-        //when class's parent is WhenFrame
-        classSynth.setSuperType(wts.regularFrameType);
-
     }
     
     
@@ -46,7 +40,8 @@ public class WSWhenFrameClassGen extends WSRegularFrameClassGen {
      * Besides the fast/resume/back, it needs a condition method
      * @see x10.compiler.ws.codegen.WSRegularFrameClassGen#genThreeMethods()
      */
-    protected void genThreeMethods() throws SemanticException { 
+    @Override
+    protected void genMethods() throws SemanticException { 
         //firstly translate the bodies
         Triple<CodeBlockSynth, SwitchSynth, SwitchSynth> bodyCodes = transformMethodBody();
         

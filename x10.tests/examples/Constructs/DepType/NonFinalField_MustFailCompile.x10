@@ -28,12 +28,13 @@ public class NonFinalField_MustFailCompile extends x10Test {
 	class Test(i: int) {
 	
 	   public def this(ii:int):Test = {
-	     i = ii;
+	     property(ii);
 	   }
 	}
 	
 	public def run(): boolean = {
-	   var a: Test =  new Test(52) as Test{i==52, bad};
+	   var a: Test =  new Test(52) as
+	    Test{i==52, bad}; // ERR
 	    return true;
 	}
 	public static def main(var args: Array[String](1)): void = {

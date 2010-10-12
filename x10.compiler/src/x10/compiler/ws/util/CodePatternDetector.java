@@ -85,20 +85,6 @@ public class CodePatternDetector {
                   Unsupport, // async, future's place is not here
                   };
                   
-                  
-    static Name FORCE = Name.make("force");
-        
-    X10NodeFactory xnf;
-    X10TypeSystem xts;
-    X10Context xct;
-    WSTransformState wts;
-    public CodePatternDetector(X10NodeFactory xnf, X10Context xct, WSTransformState wts){
-        this.xnf = xnf;
-        this.xct = xct;
-        this.xts = (X10TypeSystem) xct.typeSystem();
-        this.wts = wts;
-    }
-    
     /**
      * Check an input statement and return the corresponding restored statement
      * 
@@ -106,7 +92,7 @@ public class CodePatternDetector {
      * @param stmt
      * @return
      */
-    public Pattern detectAndTransform(final Stmt stmt){
+    public static Pattern detectAndTransform(final Stmt stmt, final WSTransformState wts){
         
         if(!WSCodeGenUtility.isComplexCodeNode(stmt, wts)){
             return Pattern.Simple;
@@ -134,7 +120,7 @@ public class CodePatternDetector {
         }
         
         if(stmt instanceof Eval){
-            return detectEval(stmt);
+            return detectEval(stmt, wts);
         }
         
         //next if
@@ -252,7 +238,7 @@ public class CodePatternDetector {
         return Pattern.Unsupport;
     }
 
-    private Pattern detectEval(final Stmt stmt) {
+    private static Pattern detectEval(final Stmt stmt, final WSTransformState wts) {
         //should > 0. Other wise will not be sent to here for pattern detection
         int concurrentCallNum = WSCodeGenUtility.calcConcurrentCallNums(stmt, wts);
         assert(concurrentCallNum > 0);

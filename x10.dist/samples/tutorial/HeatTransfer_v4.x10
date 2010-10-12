@@ -51,12 +51,11 @@ public class HeatTransfer_v4 {
     }
 
     def run() {
-        clocked finish async {
-            //val c = Clock.make();
+        clocked finish {
             val D_Base = Dist.makeUnique(D.places());
             val diff = DistArray.make[Double](D_Base);
             val scratch = DistArray.make[Double](D_Base);
-            clocked ateach (z in D_Base)  {
+	    for (z in D_Base) clocked async at (D_Base(z)) {
                 do {
                     diff(z) = 0;
                     for (p:Point(2) in D | here) {

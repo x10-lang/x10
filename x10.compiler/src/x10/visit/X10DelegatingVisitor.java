@@ -102,7 +102,6 @@ import x10.ast.Closure_c;
 import x10.ast.ConstantDistMaker_c;
 import x10.ast.DepParameterExpr_c;
 import x10.ast.Finish_c;
-import x10.ast.ForEach_c;
 import x10.ast.ForLoop_c;
 import x10.ast.Future_c;
 import x10.ast.Here_c;
@@ -174,7 +173,6 @@ public class X10DelegatingVisitor {
 		if (n instanceof AmbTypeNode_c) { visit((AmbTypeNode_c)n); return; }
 		if (n instanceof TypeNode_c) { visit((TypeNode_c)n); return; }
 		if (n instanceof TypeDecl_c) { visit((TypeDecl_c)n); return; }
-		if (n instanceof ForEach_c) { visit((ForEach_c)n); return; }
 		if (n instanceof AtEach_c) { visit((AtEach_c)n); return; }
 		if (n instanceof X10ClockedLoop_c) { visit((X10ClockedLoop_c)n); return; }
 		if (n instanceof ForLoop_c) { visit((ForLoop_c)n); return; }
@@ -438,7 +436,6 @@ public class X10DelegatingVisitor {
 					public void visit(ForLoop_c n) { visit((X10Loop_c)n); }
 					public void visit(X10ClockedLoop_c n) { visit((X10Loop_c)n); }
 						public void visit(AtEach_c n) { visit((X10ClockedLoop_c)n); }
-						public void visit(ForEach_c n) { visit((X10ClockedLoop_c)n); }
 			public void visit(TypeDecl_c n) { visit((Term_c)n); }
 			public void visit(TypeNode_c n) { visit((Term_c)n); }
 				public void visit(AmbTypeNode_c n) { visit((TypeNode_c)n); }

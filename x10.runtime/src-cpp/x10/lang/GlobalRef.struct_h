@@ -5,7 +5,6 @@
 #include <x10aux/ref.h>
 #include <x10aux/RTT.h>
 #include <x10aux/serialization.h>
-#include <x10aux/struct_equals.h>
 
 namespace x10 {
     namespace lang { 
@@ -50,9 +49,7 @@ namespace x10 {
     
             x10_boolean _struct_equals(x10aux::ref<x10::lang::Any>);
     
-            x10_boolean _struct_equals(GlobalRef<T> that) { 
-                return (location == that->location) && x10aux::struct_equals(value, that->value);
-            }
+            x10_boolean _struct_equals(GlobalRef<T> that);
     
             x10aux::ref<x10::lang::String> toString();
     

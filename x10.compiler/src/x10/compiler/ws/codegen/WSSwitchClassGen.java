@@ -30,13 +30,11 @@ import x10.util.synthesizer.SwitchSynth;
  *
  */
 public class WSSwitchClassGen extends WSRegularFrameClassGen {
-
-    Switch switchStmt;
+    protected final Switch switchStmt;
     
     public WSSwitchClassGen(AbstractWSClassGen parent, Switch switchStmt) {
-        super(parent, null, 
+        super(parent, null,
               WSCodeGenUtility.getSwitchClassName(parent.getClassName()));
-    
         this.switchStmt = switchStmt;
     }
     
@@ -46,7 +44,8 @@ public class WSSwitchClassGen extends WSRegularFrameClassGen {
      * The switch's transformation is very complex. Please refer the ppt design doc in X10 wiki
      * @see x10.compiler.ws.codegen.WSRegularFrameClassGen#genThreeMethods()
      */
-    protected void genThreeMethods() throws SemanticException {        
+    @Override
+    protected void genMethods() throws SemanticException {        
         //now prepare the body synth
         CodeBlockSynth fastBodySynth = fastMSynth.getMethodBodySynth(switchStmt.position());
         CodeBlockSynth resumeBodySynth = resumeMSynth.getMethodBodySynth(switchStmt.position());

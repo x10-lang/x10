@@ -117,7 +117,16 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
 		return n;
 	}
 	
-	  /** Reconstruct the declaration. */
+    public NodeVisitor typeCheckEnter(TypeChecker tc) {
+        try {
+            return super.typeCheckEnter(tc);
+        } catch (SemanticException e) {
+            Errors.issue(tc.job(), e, this);
+            return tc;
+        }
+    }
+
+    /** Reconstruct the declaration. */
     protected LocalDecl_c reconstruct(FlagsNode flags, TypeNode type, TypeNode htn, Id name, Expr init) {
         if (this.flags != flags || this.type != type || this.hasType != htn || this.name != name || this.init != init) {
         	X10LocalDecl_c n =  (X10LocalDecl_c) reconstruct(flags, type, name, init);

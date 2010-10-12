@@ -604,18 +604,20 @@ public class PolyglotJava2CAstTranslator implements TranslatorToCAst {
 
     @SuppressWarnings("unchecked")
     private void handleThrowsFromCall(ProcedureInstance procedureInstance, Node callAstNode, WalkContext wc) {
-      List<Type> throwTypes = procedureInstance.throwTypes();
+/* there are no checked exceptions in X10
+        List<Type> throwTypes = procedureInstance.throwTypes();
       for (Iterator<Type> iter = IteratorPlusOne.make(throwTypes.iterator(), fREType); iter.hasNext();) {
         Type thrownType = (Type) iter.next();
-        Collection/* <Pair<Type,Node>> */catchTargets = wc.getCatchTargets(thrownType);
+        Collection catchTargets = wc.getCatchTargets(thrownType);
 
         for (Iterator targetIter = catchTargets.iterator(); targetIter.hasNext();) {
-          Pair/* <Type,Node> */catchTarget = (Pair/* <Type,Node> */) targetIter.next();
+          Pair catchTarget = (Pair) targetIter.next();
 
           wc.cfg().add(callAstNode, catchTarget.snd, catchTarget.fst);
         }
       }
-    }
+*/
+  }
 
     public CAstNode visit(Call c, WalkContext wc) {
       MethodInstance methodInstance = c.methodInstance();
@@ -1807,22 +1809,14 @@ public class PolyglotJava2CAstTranslator implements TranslatorToCAst {
         }
 
         public Collection/* <CAstType> */getExceptionTypes() {
+          return null;
+/* there are no checked exceptions in X10
           if (fExceptionTypes == null) {
             fExceptionTypes = new LinkedHashSet<CAstType>();
-
-            if (fPd instanceof ProcedureInstance) {
-              List exceptions = ((ProcedureInstance) fPd).throwTypes();
-
-              if (exceptions != null) {
-                for (Iterator iterator = exceptions.iterator(); iterator.hasNext();) {
-                  Type type = (Type) iterator.next();
-                  fExceptionTypes.add(fMc.getTypeDictionary().getCAstTypeFor(type));
-                }
-              }
-            }
           }
 
           return fExceptionTypes;
+*/
         }
 
         public int getArgumentCount() {

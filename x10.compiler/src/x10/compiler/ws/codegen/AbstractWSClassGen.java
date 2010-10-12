@@ -9,6 +9,7 @@ import java.util.Set;
 
 import polyglot.ast.Assign;
 import polyglot.ast.Binary;
+import polyglot.ast.Block;
 import polyglot.ast.Call;
 import polyglot.ast.ClassBody;
 import polyglot.ast.Do;
@@ -95,48 +96,105 @@ import x10.visit.ExpressionFlattener;
  *
  */
 public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
-    final Job job;
-    
-    //Common static variable
-    static protected Position compilerPos = Position.COMPILER_GENERATED;    
-    static protected Name FAST = Name.make("fast");
-    static protected Name PUSH = Name.make("push");
-    static protected Name POLL = Name.make("poll");
-    static protected Name RESUME = Name.make("resume");
-    static protected Name BACK = Name.make("back");
-    static protected Name MOVE = Name.make("move");
-    static protected Name WORKER = Name.make("worker");
-    static protected Name FRAME = Name.make("frame");
-    static protected Name PC = Name.make("_pc");
-    static protected Name FF = Name.make("ff");
-    static protected Name UP = Name.make("up");
-    static protected Name ASYNCS = Name.make("asyncs");
-    static protected Name REDO = Name.make("redo");
-        
-    
-    
-    //Fields for class code gen
-    protected WSTransformState wts;
-    protected X10TypeSystem xts;
-    protected X10NodeFactory xnf;
-    protected X10Context xct;
-    protected Synthesizer synth; //stateless synthesizer
-    protected ClassSynth classSynth; //stateful synthesizer for class gen
-    protected MethodSynth fastMSynth;
-    protected MethodSynth resumeMSynth;
-    protected MethodSynth backMSynth;
-    
-    protected CodePatternDetector patternDetctor;
-    
-    //Fields to store the frame's info
+    static final protected Position compilerPos = Position.COMPILER_GENERATED;
+    static final protected Name FAST = Name.make("fast");
+    static final protected Name PUSH = Name.make("push");
+    static final protected Name POLL = Name.make("poll");
+    static final protected Name RESUME = Name.make("resume");
+    static final protected Name BACK = Name.make("back");
+    static final protected Name MOVE = Name.make("move");
+    static final protected Name WORKER = Name.make("worker");
+    static final protected Name FRAME = Name.make("frame");
+    static final protected Name PC = Name.make("_pc");
+    static final protected Name FF = Name.make("ff");
+    static final protected Name UP = Name.make("up");
+    static final protected Name ASYNCS = Name.make("asyncs");
+    static final protected Name REDO = Name.make("redo");
 
-    protected HashSet<Name> fieldNames; //store all the fields' name in current frame
-    protected String className; //used for child to query, and form child's name
-    
+    final protected Job job;
+    final protected X10NodeFactory xnf;
+    final protected X10TypeSystem xts;
+    final protected X10Context xct;
+    final protected WSTransformState wts;
+    final protected Synthesizer synth; //stateless synthesizer
+
+    final protected Block codeBlock; // store all code block
+
+    final protected HashSet<Name> fieldNames; //store names of all fields in current frame
+    final protected String className; //used for child to query, and form child's name
+    final protected ClassSynth classSynth; //stateful synthesizer for class gen
+    final protected int frameDepth; //the depth to parent;
+
+    final protected MethodSynth fastMSynth;
+    final protected MethodSynth resumeMSynth;
+    final protected MethodSynth backMSynth;
+    final protected ConstructorSynth conSynth;
+
     //Fields to maintain the tree
-    protected int frameDepth; //the depth to parent;
-    final private AbstractWSClassGen parent;
+    final private AbstractWSClassGen up;
     private List<AbstractWSClassGen> children; //lazy initialization
+
+
+    private AbstractWSClassGen(Job job, X10Context xct, WSTransformState wts, AbstractWSClassGen up,
+            String className, ClassType frameType, int frameDepth, Flags flags, ClassDef outer, Stmt stmt) {
+        this.job = job;
+        xnf = (X10NodeFactory) job.extensionInfo().nodeFactory();
+        xts = (X10TypeSystem) job.extensionInfo().typeSystem();
+        synth = new Synthesizer(xnf, xts);
+        this.xct = xct;
+        this.wts = wts;
+        this.up = up;
+        
+        this.codeBlock = stmt == null ? null : synth.toBlock(stmt); // switch statement has null codeBlock
+        
+        this.className = className;
+        classSynth = new ClassSynth(job, xnf, xct, frameType, className);
+        classSynth.setKind(ClassDef.MEMBER);
+        classSynth.setFlags(flags);
+        classSynth.setOuter(outer);
+        
+        fieldNames = new HashSet<Name>(); //used to store all other fields' names
+        
+        this.frameDepth = frameDepth;
+        
+        fastMSynth = classSynth.createMethod(compilerPos, FAST.toString());
+        fastMSynth.setFlag(Flags.PUBLIC);
+        if (!(xts.isSubtype(frameType, wts.mainFrameType))) {
+            fastMSynth.addAnnotation(genInlineAnnotation());
+        }
+        fastMSynth.addFormal(compilerPos, Flags.FINAL, wts.workerType, WORKER.toString());
+        
+        resumeMSynth = classSynth.createMethod(compilerPos, RESUME.toString());
+        resumeMSynth.setFlag(Flags.PUBLIC);
+        resumeMSynth.addFormal(compilerPos, Flags.FINAL, wts.workerType, WORKER.toString());
+        
+        backMSynth = classSynth.createMethod(compilerPos, BACK.toString());
+        backMSynth.setFlag(Flags.PUBLIC);
+        backMSynth.addFormal(compilerPos, Flags.FINAL, wts.workerType, WORKER.toString());
+        backMSynth.addFormal(compilerPos, Flags.FINAL, wts.frameType, FRAME.toString());
+
+        conSynth = classSynth.createConstructor(compilerPos);
+        conSynth.addAnnotation(genHeaderAnnotation());
+
+        addPCField();
+    }
+
+    // method frames
+    protected AbstractWSClassGen(Job job, X10NodeFactory xnf, X10Context xct, WSTransformState wts,
+            String className, ClassType frameType, Flags flags, ClassDef outer, Stmt stmt) {
+        this(job, xct, wts, null, className, frameType, 0, flags, outer, stmt);
+    }
+
+    // nested frames
+    protected AbstractWSClassGen(AbstractWSClassGen parent, AbstractWSClassGen up,
+            String classNamePrefix, ClassType frameType, Stmt stmt) {
+        this(parent.job, parent.xct, parent.wts, up, classNamePrefix + parent.assignChildId(), frameType,
+                parent.frameDepth + 1, parent.classSynth.getClassDef().flags(),
+                parent.classSynth.getOuter(), stmt);
+        parent.addChild(this);
+    }
+
+
     
     /**
      * Return direct children
@@ -207,13 +265,11 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
      * @param child
      * @return the child's sequence id used form the child frame's name
      */
-    public int addChild(AbstractWSClassGen child) {
+    public void addChild(AbstractWSClassGen child) {
         if(children == null){
             children = new ArrayList<AbstractWSClassGen>();
         }
-        int num = children.size();
         children.add(child);
-        return num; //return the number of itself
     }
     
     
@@ -230,8 +286,8 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
         return retId;  
     }
     
-    public AbstractWSClassGen getParent() {
-        return parent;
+    public AbstractWSClassGen getUpFrame() {
+        return up;
     }
     
     public X10ClassDef getClassDef(){
@@ -241,26 +297,6 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
     //TODO: interfaces to query one specific parent    
     //From the list, we could query all added inner classes
 
-    
-    public AbstractWSClassGen(Job job, X10NodeFactory xnf, X10Context xct,
-            WSTransformState wsTransformState, AbstractWSClassGen parent) {
-        super();
-        this.job = job;
-        this.xnf = xnf;
-        this.parent = parent;
-        this.wts = wsTransformState;
-        if(parent != null){
-            parent.addChild(this); //add it to parent
-        }
-        this.xct = xct;
-        this.xts = (X10TypeSystem) xct.typeSystem(); //type system from from context
-        synth = new Synthesizer(xnf, xts);
-        patternDetctor = new CodePatternDetector(xnf, xct, wts);
-        
-        //initial other fields
-        fieldNames = new HashSet<Name>(); //used to store all other fields' names
-    } 
-    
     public String getClassName() {
         return className;
     }
@@ -282,7 +318,17 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
      * Need add the new inner class to its parent frame class
      * @throws SemanticException
      */
-    abstract protected void genClass() throws SemanticException;
+    public final void genClass() throws SemanticException {
+        genMethods(); //fast/resume/move
+        genClassConstructor();
+        if (wts.realloc) genCopyConstructor(compilerPos);
+        if (wts.realloc) genRemapMethod();
+    }
+
+    protected abstract void genMethods() throws SemanticException;
+
+    protected abstract void genClassConstructor() throws SemanticException;
+    
     
     /**
      * Trigger class generation, and close the class synth
@@ -301,31 +347,9 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
     /**
      * Create "@Uninitialized var pc:Int;"
      */
-    protected void addPCFieldToClass(){
-        //async frame need a pc 
-        //@Uninitialized var pc:Int;
+    protected void addPCField(){
         FieldSynth pcFieldSynth = classSynth.createField(compilerPos, PC.toString(), xts.Int());
-        pcFieldSynth.addAnnotation(genUninitializedAnnotation());    
-    }
-    
-    /**
-     * Prepare all methods synthesizers, should be called in different children class's constructors
-     */
-    protected void prepareMethodSynths(){
-        fastMSynth = classSynth.createMethod(compilerPos, FAST.toString());
-        fastMSynth.setFlag(Flags.PUBLIC);
-        if (!xts.isSubtype(getClassType(), wts.mainFrameType))
-                fastMSynth.addAnnotation(genInlineAnnotation());
-        fastMSynth.addFormal(compilerPos, Flags.FINAL, wts.workerType, WORKER.toString());
-        
-        resumeMSynth = classSynth.createMethod(compilerPos, RESUME.toString());
-        resumeMSynth.setFlag(Flags.PUBLIC);
-        resumeMSynth.addFormal(compilerPos, Flags.FINAL, wts.workerType, WORKER.toString());
-
-        backMSynth = classSynth.createMethod(compilerPos, BACK.toString());
-        backMSynth.setFlag(Flags.PUBLIC);
-        backMSynth.addFormal(compilerPos, Flags.FINAL, wts.workerType, WORKER.toString());
-        backMSynth.addFormal(compilerPos, Flags.FINAL, wts.frameType, FRAME.toString());
+        pcFieldSynth.addAnnotation(genUninitializedAnnotation());
     }
     
     
@@ -432,7 +456,7 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
         //first parameter in constructor, parent
         if(xts.isSubtype(newClassType, wts.asyncFrameType)){
             Expr ffRef = synth.makeFieldAccess(compilerPos, getThisRef(), FF, xct);
-            Expr parentRef = genUpcastCall(getClassType(), wts.frameType, ffRef);
+            Expr parentRef = genUpcastCall(wts.finishFrameType, wts.frameType, ffRef);
             niSynth.addArgument(wts.frameType, parentRef);
         }
         else{ //upcast[_selfType,Frame](this);
@@ -626,7 +650,7 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
             if (classGen instanceof WSMethodFrameClassGen) {
                 return ((WSMethodFrameClassGen) classGen).getReturnFieldName();
             }
-            classGen = (AbstractWSClassGen) classGen.getParent();
+            classGen = (AbstractWSClassGen) classGen.getUpFrame();
         }
         return null; // Not found, should throw exception
     }
@@ -643,7 +667,7 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
             if (classGen instanceof WSMethodFrameClassGen) {
                 return ((WSMethodFrameClassGen) classGen).getReturnFlagName();
             }
-            classGen = (AbstractWSClassGen) classGen.getParent();
+            classGen = (AbstractWSClassGen) classGen.getUpFrame();
         }
         return null; // Not found, should throw exception
     }
@@ -1173,7 +1197,7 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
             if(parentFrame instanceof WSFinishStmtClassGen){
                 return parentFrame;
             }
-            parentFrame = parentFrame.getParent();
+            parentFrame = parentFrame.getUpFrame();
         }
         return null; //not found, return null;
     }
@@ -1210,7 +1234,7 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
         //but async frames have up to point its finish, and k points to its continuation
         //look for up field first, then continuation
         
-        AbstractWSClassGen parentClassFrame = classFrame.getParent();
+        AbstractWSClassGen parentClassFrame = classFrame.getUpFrame();
         if(parentClassFrame != null){ //it's possible the parent is null, for an async has no direct finish
             refContainer.push("up", parentClassFrame);
             lookForField(fieldName, refContainer, parentClassFrame);
@@ -1282,7 +1306,7 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
                     curFrame = ((WSAsyncClassGen)curFrame).parentK;
                 }
                 else{
-                    curFrame = curFrame.parent;
+                    curFrame = curFrame.up;
                 }
             }
             
@@ -1330,7 +1354,7 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
             AbstractWSClassGen classFrame = startFrame;
             for(Pair<String, Type> p : refStructure){
                 if(p.fst().equals("up")){
-                    classFrame = classFrame.getParent();
+                    classFrame = classFrame.getUpFrame();
                 }
                 else{
                     System.err.println("[WS_ERR]Async frame move():should not use k to reference a field!!!");
@@ -1381,7 +1405,7 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
                     
                     for(Pair<String, Type> p : refStructure){
                         if(p.fst().equals("up")){
-                            classFrame = classFrame.getParent();
+                            classFrame = classFrame.getUpFrame();
                         }
                         else{
                             classFrame = ((WSAsyncClassGen)classFrame).parentK;
@@ -1426,7 +1450,7 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
         AbstractWSClassGen classFrame = this;
         for(Pair<String, Type> pair : refStructure){
             if(pair.fst().equals("up")){
-                classFrame = classFrame.parent;
+                classFrame = classFrame.up;
             }
             else{
                 foundKInRef = true;

@@ -120,7 +120,7 @@ public class PlaceChecker {
 	 * @return
 	 */
 	static XTerm homeVar(XTerm target, X10TypeSystem xts)  {
-		return xts.xtypeTranslator().transFakeField(new CConstraint(), target, "here");
+		return xts.xtypeTranslator().transFakeField(new CConstraint(), target, "$$here");
 	}
 	static XTerm globalRefHomeVar(XTerm target, X10TypeSystem xts)  {
 		return xts.xtypeTranslator().trans(new CConstraint(), target, GlobalRefHome(xts));

@@ -14,28 +14,16 @@ import harness.x10Test;
 /**
  * Checking that constructor calls check for number of args.
  */
-struct S1 {
-  val x:int;
-  val y:int;
-
-  public def this(a:int, b:int) { x = a; y = b; }
-
-  public final def sum() = x + y;
-}
-
-/*This isn't valid X10
-struct S2 extends struct S1 {
-  val z:int;
-  public def this(a:int, b:int, c:int) {
-    super(a, b);
-    z =c;
-  }
-  
-  public final def sum2() = sum() + z;
-}
-*/
 public class StructCall extends x10Test  {
-	
+    static struct S1 {
+      val x:int;
+      val y:int;
+
+      public def this(a:int, b:int) { x = a; y = b; }
+
+      public final def sum() = x + y;
+    }
+
 	public def run():boolean {
 		  val a:S1 = S1(1);
           return true;

@@ -31,11 +31,11 @@ public class ClosureTypeParameters1c extends ClosureTest {
 /*
 The following block of class definitions messed up compilation, but were not
 otherwise being used. I have commented them out.
-    class V           {const name = "V";}
-    class W extends V {const name = "W";}
-    class X extends V {const name = "X";}
-    class Y extends X {const name = "Y";}
-    class Z extends X {const name = "Z";}
+    class V           {public static val name = "V";}
+    class W extends V {public static val name = "W";}
+    class X extends V {public static val name = "X";}
+    class Y extends X {public static val name = "Y";}
+    class Z extends X {public static val name = "Z";}
 */
 
     public def run(): boolean = {

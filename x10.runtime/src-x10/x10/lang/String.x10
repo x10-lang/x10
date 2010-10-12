@@ -43,10 +43,17 @@ public final class String implements (Int) => Char/*TODO, (Range) => String*//*T
 
 
     /**
+     * Construct a String from an Array[Char].
+     */
+    @Native("java", "new java.lang.String((#1).raw().getCharArray(),#2,#3)")
+    public native def this(r:Array[Char], offset:Int, length:Int): String;
+
+    /**
      * Construct a String from a Rail[Char].
      */
     @Native("java", "new java.lang.String((#1).getCharArray(),#2,#3)")
     public native def this(r:Rail[Char], offset:Int, length:Int): String;
+
 
     /**
      * Return true if the given entity is a String, and this String is equal
@@ -522,8 +529,9 @@ public final class String implements (Int) => Char/*TODO, (Range) => String*//*T
      * @param x the given entity
      * @param y the given String
      * @return the resulting String
-     */
+    
     @Native("java", "((#4) + (#5))")
     @Native("c++",  "((#4) + (#5))")
     public native static operator[T] (x:T) + (y:String): String;
+     */
 }

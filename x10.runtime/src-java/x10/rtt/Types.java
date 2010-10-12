@@ -158,12 +158,22 @@ public class Types {
         public String typeName() {
             return "x10.lang.Object";
         }
+        
+        @Override
+        public boolean isSubtype(x10.rtt.Type<?> o) {
+            return o == OBJECT || o == ANY;
+        };
     };
     public static Type<Object> ANY = new RuntimeType<Object>(Object.class) {
         @Override
         public String typeName() {
             return "x10.lang.Any";
         }
+        
+        @Override
+        public boolean isSubtype(x10.rtt.Type<?> o) {
+            return o == ANY;
+        };
     };
 
     public static Type<?> UBYTE;
@@ -213,13 +223,16 @@ public class Types {
         return null;
     }
 
-    private static boolean isStructType(Type<?> rtt) {
+    static boolean isStructType(Type<?> rtt) {
         if (
             rtt == BOOLEAN
             || rtt == BYTE  || rtt == SHORT  || rtt == CHAR || rtt == INT   || rtt == LONG
             || rtt == UBYTE  || rtt == USHORT  || rtt == UINT   || rtt == ULONG
             || rtt == FLOAT || rtt == DOUBLE
             ) {
+            return true;
+        }
+        else if (rtt.isSubtype(x10.core.Struct._RTT)) {
             return true;
         }
         return false;

@@ -28,7 +28,7 @@ public class ArrayMap extends TestArray {
         val a: DistArray[double](dist) = DistArray.make[double](dist, (p:Point)=>p(0) as double);
         for (pt:Point(1) in a) {
             val x = (at (a.dist(pt)) Future.make[double](()=>a(pt)))();
-            out.print(x + " ");
+            out.print("" + x + " ");
         }
         out.println();
 
@@ -36,7 +36,7 @@ public class ArrayMap extends TestArray {
         val b = a.map((a:double)=>1.5*a) as DistArray[double](dist);
         for (pt:Point(1) in b) {
             val x = (at (b.dist(pt)) Future.make[double](()=>b(pt)))();
-            out.print(x + " ");
+            out.print("" + x + " ");
         }
         out.println();
 

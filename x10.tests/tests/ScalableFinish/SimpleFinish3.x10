@@ -12,7 +12,8 @@ public class SimpleFinish3 {
              		@FinishAsync(1,1,false,2)
             		finish {
                     		for(var p:int = 0; p<Place.MAX_PLACES; p++){
-                            		async at (Place.place(p)){}
+                    		    val p_ = p;
+                            		async at (Place.place(p_)){}
                      		}
             		}	
 	    	}

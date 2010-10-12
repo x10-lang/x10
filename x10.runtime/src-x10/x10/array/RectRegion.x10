@@ -11,6 +11,7 @@
 
 package x10.array;
 
+import x10.compiler.TempNoInline_1;
 
 /**
  * A RectRegion is a finite dense rectangular region with a specified rank.
@@ -153,8 +154,8 @@ public final class RectRegion extends Region{rect} {
 
     protected def computeBoundingBox():RectRegion(rank)=this; 
     
-    public def min():(int)=>int = (i:int)=> min(i);
-    public def max():(int)=>int = (i:int)=> max(i);
+    public @TempNoInline_1 def min():(int)=>int = (i:int)=> min(i);
+    public @TempNoInline_1 def max():(int)=>int = (i:int)=> max(i);
 
     public def contains(that:Region(rank)): boolean {
        if (that instanceof RectRegion) {
@@ -231,9 +232,9 @@ public final class RectRegion extends Region{rect} {
      * Return a PolyRegion with the same set of points as this region. This permits
      * general algorithms for intersection, restriction etc to be applied to RectRegion's.
      */
-    public def toPolyRegion() {
+    public @TempNoInline_1 def toPolyRegion() {
     	if (polyRep==null) {
-            polyRep = Region.makeRectangularPoly(new Array[int](rank, min()), new Array[int](rank, max()));
+            polyRep = @TempNoInline_1 Region.makeRectangularPoly(new Array[int](rank, min()), new Array[int](rank, max()));
     	}
     	return polyRep;
     }
@@ -378,7 +379,7 @@ public final class RectRegion extends Region{rect} {
         var s: String = "[";
         for (var i: int = 0; i<rank; i++) {
             if (i>0) s += ",";
-            s += thisMin(i) + ".." + thisMax(i);
+            s += "" + thisMin(i) + ".." + thisMax(i);
         }
         s += "]";
         return s;
@@ -408,8 +409,8 @@ public final class RectRegion extends Region{rect} {
         public def set(axis:int, position: int) {
         	// ???
         }
-        public def min(axis:int):int = RectRegion.this.min()(axis);
-        public def max(axis:int):int = RectRegion.this.max()(axis);
+        public @TempNoInline_1 def min(axis:int):int = RectRegion.this.min()(axis);
+        public @TempNoInline_1 def max(axis:int):int = RectRegion.this.max()(axis);
     }
     private class Scanners implements Iterator[Region.Scanner] {
 

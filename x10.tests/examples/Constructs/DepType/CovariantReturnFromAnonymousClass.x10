@@ -30,7 +30,7 @@ public class CovariantReturnFromAnonymousClass extends x10Test {
 	}
 	
 	public def run(): boolean = {
-	   x10.io.Console.OUT.println((new I() {
+	   x10.io.Console.OUT.println("" + (new I() {
 		   public def test(): void = {
 			   x10.io.Console.OUT.println("Inner Class test invoked.");
 		   }

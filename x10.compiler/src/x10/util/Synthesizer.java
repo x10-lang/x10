@@ -826,7 +826,7 @@ public class Synthesizer {
      *            the inner classes to be inserted into the class
      * @return A newly created class with inner classes as members
      */
-    public static X10ClassDecl addInnerClasses(X10ClassDecl cDecl, List<X10ClassDecl> innerClasses) {
+    public static X10ClassDecl addNestedClasses(X10ClassDecl cDecl, List<X10ClassDecl> innerClasses) {
 
         List<ClassMember> cMembers = new ArrayList<ClassMember>();
         ClassBody body = cDecl.body();
@@ -836,9 +836,9 @@ public class Synthesizer {
 
         for (X10ClassDecl icDecl : innerClasses) {
             X10ClassDef icDef = (X10ClassDef) icDecl.classDef();
-            icDef.kind(ClassDef.MEMBER);
+//            icDef.kind(ClassDef.MEMBER);
             icDef.setPackage(cDef.package_());
-            icDef.outer(Types.<ClassDef> ref(cDef));
+//            icDef.outer(Types.<ClassDef> ref(cDef));
 
             cMembers.add(icDecl);
             cDef.addMemberClass(Types.<ClassType> ref(icDef.asType()));
@@ -1292,9 +1292,8 @@ public class Synthesizer {
      */ 
     public X10ClassDecl createClassWithConstructor(Position p, 
                                                    X10ClassDef cDef,
-                                                   X10Context context) throws SemanticException {
-
-       
+                                                   X10Context context) throws SemanticException
+    {
         X10ClassDecl cDecl = createClass(p, cDef, context);
         
         //add default constructor
@@ -1317,7 +1316,6 @@ public class Synthesizer {
         cDef.addConstructor(xDef);
         
         return (X10ClassDecl) cDecl.body(cb.members(cm));
-      
     }
             
     /**
@@ -1329,9 +1327,7 @@ public class Synthesizer {
      * @param tc
      * @return
      * @throws SemanticException
-     * 
      */
-    
     // TODO: This has to be made to work with nested types.
     public X10CanonicalTypeNode makeCanonicalTypeNodeWithDepExpr(Position pos, Type type, ContextVisitor tc) {
     	X10NodeFactory nf = ((X10NodeFactory) tc.nodeFactory());
@@ -1373,173 +1369,201 @@ public class Synthesizer {
 		if (! (tn instanceof X10CanonicalTypeNode))
 			assert tn instanceof X10CanonicalTypeNode;
 		return (X10CanonicalTypeNode) tn;
-	
     }
-	   /**
+
+    /**
      * Return a synthesized AST for a constraint. Used when generating code from implicit casts.
-     * @param c -- the constraint
-     * @return -- the expr corresponding to the constraint
-     * @seeAlso -- X10TypeTransltor.constraint(...): it generates a constraint from an AST.
+     * @param c the constraint
+     * @return the expression corresponding to the constraint
+     * @seeAlso X10TypeTranslator.constraint(...): it generates a constraint from an AST.
      */
-	Expr makeExpr(XTerm t, Position pos) {
-		if (t instanceof XField) 
-			return makeExpr((XField) t, pos);
-		if (t instanceof XLit)
-			return makeExpr((XLit) t, pos);
-		if (t instanceof XEquals)
-			return makeExpr((XEquals) t, pos);
-		if (t instanceof XDisEquals)
-			return makeExpr((XDisEquals) t, pos);
-		if (t instanceof XEQV)
-			return makeExpr((XEQV) t, pos); // this must occur before XLocal_c
-		if (t instanceof XLocal)
-			return makeExpr((XLocal) t, pos);
-		if (t instanceof XNot)
-			return makeExpr((XNot) t, pos);
-		if (t instanceof XFormula)
-			return makeExpr((XFormula) t, pos);
-		return null;
-	}
-	Expr makeExpr(XField t, Position pos) {
-		Receiver r = makeExpr(t.receiver(), pos);
-		if (r == null && t.receiver() instanceof XLit) {
-		    Object val = ((XLit) t.receiver()).val();
-		    if (val instanceof QName) {
-		        r = xnf.TypeNodeFromQualifiedName(pos, (QName) val);
-		    }
-		}
-		String str = t.field().toString();
-		int i = str.indexOf("#");
-		//TypeNode tn = null;
-		if (i > 0) {
-		    // FIXME: should we create a type node and cast?  Can we ever access fields of a superclass?
-		    //String typeName = str.substring(0, i);
-		    //tn = xnf.TypeNodeFromQualifiedName(pos,  QName.make(typeName));
-		    str = str.substring(i+1);
-		    if (str.endsWith("()"))
-		        str = str.substring(0, str.length()-2);
-		}
-		return xnf.Field(pos, r, xnf.Id(pos, Name.make(str)));
-	}
-	Expr makeExpr(XEQV t, Position pos) {
-		String str = t.toString();
-		//if (str.startsWith("_place"))
-		//	assert ! str.startsWith("_place") : "Place var: "+str;
-		int i = str.indexOf("#");
-		TypeNode tn = null;
-		if (i > 0) {
-			String typeName = str.substring(0, i);
-			tn = xnf.TypeNodeFromQualifiedName(pos,  QName.make(typeName));
-			str = str.substring(i+1);
-		}
-		if (str.equals("self"))
-			return tn == null ? xnf.Special(pos, X10Special.SELF) : xnf.Special(pos, X10Special.SELF, tn);
-		if (str.equals("this"))
-			return tn == null ? xnf.Special(pos, X10Special.THIS) : xnf.Special(pos, X10Special.THIS, tn);
-		
-		return xnf.AmbExpr(pos, xnf.Id(pos,Name.make(str)));
-	}
-	Expr makeExpr(XLocal t, Position pos) {
-		String str = t.name().toString();
-		//if (str.startsWith("_place"))
-		//	assert ! str.startsWith("_place") : "Place var: "+str;
-		if (str.equals("here"))
-			return xnf.Here(pos);
-		int i = str.indexOf("#");
-		TypeNode tn = null;
-		if (i > 0) {
-			String typeName = str.substring(0, i);
-			tn = xnf.TypeNodeFromQualifiedName(pos,  QName.make(typeName));
-			str = str.substring(i+1);
-		}
-		if (str.equals("self"))
-			return tn == null ? xnf.Special(pos, X10Special.SELF) : xnf.Special(pos, X10Special.SELF, tn);
-		if (str.equals("this"))
-			return tn == null ? xnf.Special(pos, X10Special.THIS) : xnf.Special(pos, X10Special.THIS, tn);
-		return xnf.AmbExpr(pos, xnf.Id(pos,Name.make(str)));
-	}
-	
-	Expr makeExpr(XNot t, Position pos) {
-		return xnf.Unary(pos, makeExpr(t.arguments().get(0), pos), Unary.NOT);
-	}
-	
-	Expr makeExpr(XLit t, Position pos) {
-		Object val = t.val();
-		if (val== null)
-			return xnf.NullLit(pos);
-		if (val instanceof String)
-			return xnf.StringLit(pos, (String) val);
-		if (val instanceof Integer)
-			return xnf.IntLit(pos, IntLit.INT, ((Integer) val).intValue());
-		if (val instanceof Long)
-			return xnf.IntLit(pos, IntLit.LONG, ((Long) val).longValue());
-		if (val instanceof Boolean)
-			return xnf.BooleanLit(pos, ((Boolean) val).booleanValue());
-		if (val instanceof Character)
-			return xnf.CharLit(pos, ((Character) val).charValue());
-		if (val instanceof Float)
-			return xnf.FloatLit(pos, FloatLit.FLOAT, ((Float) val).doubleValue());
-		if (val instanceof Double)
-			return xnf.FloatLit(pos, FloatLit.DOUBLE, ((Double) val).doubleValue());
-		return null;
-	}
-	Expr makeExpr(XEquals t, Position pos) {
-		Expr left = makeExpr(t.arguments().get(0), pos);
-		Expr right = makeExpr(t.arguments().get(1), pos);
-		if (left == null)
-			assert left != null;
-		if (right == null)
-			assert right != null;
-		return xnf.Binary(pos, left, Binary.EQ, right);
-	}
-	Expr makeExpr(XDisEquals t, Position pos) {
-		Expr left = makeExpr(t.arguments().get(0), pos);
-		Expr right = makeExpr(t.arguments().get(1), pos);
-		return xnf.Binary(pos, left, Binary.NE, right);
-	}
-	Expr makeExpr(XFormula t, Position pos) {
-		List<Expr> args = new ArrayList<Expr>();
-		for (XTerm a : t.arguments()) {
-			args.add(makeExpr(a, pos));
-		}
-		String op = t.asExprOperator().toString();
-		if (op.equals(XTerms.asExprAndName.toString())) {
-			return xnf.Binary(pos, args.get(0), Binary.COND_AND, args.get(1));
-		}
-		if (op.equals(XTerms.asExprEqualsName.toString())) {
-			return xnf.Binary(pos, args.get(0), Binary.EQ, args.get(1));
-		}
-		if (op.equals(XTerms.asExprDisEqualsName.toString())) {
-			return xnf.Binary(pos, args.get(0), Binary.NE, args.get(1));
-		}
-		if (op.equals(XTerms.asExprNotName.toString())) {
-			return xnf.Unary(pos, Unary.NOT, args.get(0));
-		}
-		
-		// FIXME: [IP] Hack to handle the "at" atom added by XTypeTranslator for structs
-		//if (n.toString().equals("at")) {
-		//	Receiver r = args.remove(0);
-		//	return xnf.Call(pos, r, xnf.Id(pos, n), args);
-		//} else {
-			return xnf.Call(pos, xnf.Id(pos, Name.make(op)), args);
-		//}
-	}	
-	
-	
-    public List<Expr> makeExpr(CConstraint c, Position pos) {
-    	List<Expr> es = new ArrayList<Expr>();
-    	if (c==null)
-    		return es;
-    	List<XTerm> terms  = c.extConstraints();
-   
-    	for (XTerm term : terms) {
-    		es.add(makeExpr(term, pos));
-    	}
-    	return es;
+    Expr makeExpr(XTerm t, Position pos) {
+        if (t instanceof XField) 
+            return makeExpr((XField) t, pos);
+        if (t instanceof XLit)
+            return makeExpr((XLit) t, pos);
+        if (t instanceof XEquals)
+            return makeExpr((XEquals) t, pos);
+        if (t instanceof XDisEquals)
+            return makeExpr((XDisEquals) t, pos);
+        if (t instanceof XEQV)
+            return makeExpr((XEQV) t, pos); // this must occur before XLocal_c
+        if (t instanceof XLocal)
+            return makeExpr((XLocal) t, pos);
+        if (t instanceof XNot)
+            return makeExpr((XNot) t, pos);
+        if (t instanceof XFormula)
+            return makeExpr((XFormula) t, pos);
+        // FIXME: warn about being unable to translate the term
+        return null;
     }
-    
+
+    TypeNode makeTypeNode(XVar receiver, Position pos) {
+        if (!(receiver instanceof XLit))
+            return null;
+        Object val = ((XLit) receiver).val();
+        if (!(val instanceof QName))
+            return null;
+        return xnf.TypeNodeFromQualifiedName(pos, (QName) val);
+    }
+
+    Expr makeExpr(XField t, Position pos) {
+        if (t.isHidden())
+            return null;
+        Receiver r = makeExpr(t.receiver(), pos);
+        if (r == null) {
+            r = makeTypeNode(t.receiver(), pos);
+        }
+        if (r == null)
+            return null;
+        String str = t.field().toString();
+        int i = str.indexOf("#");
+        //TypeNode tn = null;
+        if (i > 0) {
+            // FIXME: should we create a type node and cast?  Can we ever access fields of a superclass?
+            //String typeName = str.substring(0, i);
+            //tn = xnf.TypeNodeFromQualifiedName(pos,  QName.make(typeName));
+            str = str.substring(i+1);
+            if (str.endsWith("()"))
+                str = str.substring(0, str.length()-2);
+        }
+        return xnf.Field(pos, r, xnf.Id(pos, Name.make(str)));
+    }
+
+    // FIXME: merge with makeExpr(XLocal, Position)
+    Expr makeExpr(XEQV t, Position pos) {
+        String str = t.toString();
+        //if (str.startsWith("_place"))
+        //	assert ! str.startsWith("_place") : "Place var: "+str;
+        int i = str.indexOf("#");
+        TypeNode tn = null;
+        if (i > 0) {
+            String typeName = str.substring(0, i);
+            tn = xnf.TypeNodeFromQualifiedName(pos,  QName.make(typeName));
+            str = str.substring(i+1);
+        }
+        if (str.equals("self") || str.equals("this")) {
+            X10Special.Kind kind = str.equals("self") ? X10Special.SELF : X10Special.THIS;
+            return tn == null ? xnf.Special(pos, kind) : xnf.Special(pos, kind, tn);
+        }
+        return xnf.AmbExpr(pos, xnf.Id(pos,Name.make(str)));
+    }
+
+    // FIXME: merge with makeExpr(XEQV, Position)
+    Expr makeExpr(XLocal t, Position pos) {
+        String str = t.name().toString();
+        //if (str.startsWith("_place"))
+        //	assert ! str.startsWith("_place") : "Place var: "+str;
+        if (str.equals("here"))
+            return xnf.Here(pos);
+        int i = str.indexOf("#");
+        TypeNode tn = null;
+        if (i > 0) {
+            String typeName = str.substring(0, i);
+            tn = xnf.TypeNodeFromQualifiedName(pos,  QName.make(typeName));
+            str = str.substring(i+1);
+        }
+        if (str.equals("self") || str.equals("this")) {
+            X10Special.Kind kind = str.equals("self") ? X10Special.SELF : X10Special.THIS;
+            return tn == null ? xnf.Special(pos, kind) : xnf.Special(pos, kind, tn);
+        }
+        return xnf.AmbExpr(pos, xnf.Id(pos,Name.make(str)));
+    }
+
+    Expr makeExpr(XNot t, Position pos) {
+        Expr expr = makeExpr(t.arguments().get(0), pos);
+        if (expr == null)
+            return null;
+        return xnf.Unary(pos, expr, Unary.NOT);
+    }
+
+    Expr makeExpr(XLit t, Position pos) {
+        Object val = t.val();
+        if (val == null)
+            return xnf.NullLit(pos);
+        if (val instanceof String)
+            return xnf.StringLit(pos, (String) val);
+        if (val instanceof Integer)
+            return xnf.IntLit(pos, IntLit.INT, ((Integer) val).intValue());
+        if (val instanceof Long)
+            return xnf.IntLit(pos, IntLit.LONG, ((Long) val).longValue());
+        if (val instanceof Boolean)
+            return xnf.BooleanLit(pos, ((Boolean) val).booleanValue());
+        if (val instanceof Character)
+            return xnf.CharLit(pos, ((Character) val).charValue());
+        if (val instanceof Float)
+            return xnf.FloatLit(pos, FloatLit.FLOAT, ((Float) val).doubleValue());
+        if (val instanceof Double)
+            return xnf.FloatLit(pos, FloatLit.DOUBLE, ((Double) val).doubleValue());
+        if (val instanceof QName) // will get picked up later
+            return null;
+        // FIXME: warn about being unable to translate the literal
+        return null;
+    }
+
+    Expr makeExpr(XEquals t, Position pos) {
+        Expr left = makeExpr(t.arguments().get(0), pos);
+        Expr right = makeExpr(t.arguments().get(1), pos);
+        if (left == null || right == null)
+            return null;
+        return xnf.Binary(pos, left, Binary.EQ, right);
+    }
+
+    Expr makeExpr(XDisEquals t, Position pos) {
+        Expr left = makeExpr(t.arguments().get(0), pos);
+        Expr right = makeExpr(t.arguments().get(1), pos);
+        if (left == null || right == null)
+            return null;
+        return xnf.Binary(pos, left, Binary.NE, right);
+    }
+
+    Expr makeExpr(XFormula t, Position pos) {
+        List<Expr> args = new ArrayList<Expr>();
+        for (XTerm a : t.arguments()) {
+            Expr e = makeExpr(a, pos);
+            if (e == null)
+                return null;
+            args.add(e);
+        }
+        String op = t.asExprOperator().toString();
+        if (op.equals(XTerms.asExprAndName.toString())) {
+            return xnf.Binary(pos, args.get(0), Binary.COND_AND, args.get(1));
+        }
+        if (op.equals(XTerms.asExprEqualsName.toString())) {
+            return xnf.Binary(pos, args.get(0), Binary.EQ, args.get(1));
+        }
+        if (op.equals(XTerms.asExprDisEqualsName.toString())) {
+            return xnf.Binary(pos, args.get(0), Binary.NE, args.get(1));
+        }
+        if (op.equals(XTerms.asExprNotName.toString())) {
+            return xnf.Unary(pos, Unary.NOT, args.get(0));
+        }
+
+        // FIXME: [IP] Hack to handle the "at" atom added by XTypeTranslator for structs
+        //if (n.toString().equals("at")) {
+        //	Receiver r = args.remove(0);
+        //	return xnf.Call(pos, r, xnf.Id(pos, n), args);
+        //} else {
+            return xnf.Call(pos, xnf.Id(pos, Name.make(op)), args);
+        //}
+    }
+
+    public List<Expr> makeExpr(CConstraint c, Position pos) {
+        List<Expr> es = new ArrayList<Expr>();
+        if (c==null)
+            return es;
+        List<XTerm> terms  = c.extConstraints();
+
+        for (XTerm term : terms) {
+            Expr e = makeExpr(term, pos);
+            if (e != null)
+                es.add(e);
+        }
+        return es;
+    }
+
     //Some 
-    
+
     /**
      * Get an int value expression
      * @param value

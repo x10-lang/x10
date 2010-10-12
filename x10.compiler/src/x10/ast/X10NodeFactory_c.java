@@ -411,12 +411,6 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		return X10New(pos, qualifier, objectType, Collections.<TypeNode>emptyList(), arguments, body);
 	}
 	
-	public ArrayLiteral ArrayLiteral(Position pos, TypeNode arrayType, TypeNode argType, Tuple values) {
-		ArrayLiteral n = new ArrayLiteral_c(pos, arrayType, argType, (Tuple_c) values);
-		n = (ArrayLiteral) n.ext(extFactory().extExpr());
-		return (ArrayLiteral) n.del(delFactory().delExpr());
-	}
-
 //	 Wrap the body in a block to facilitate code transformations
 	public AtEach AtEach(Position pos, Formal formal, Expr domain,
 						 List<Expr> clocks, Stmt body)
@@ -457,27 +451,7 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		return n;
 	}
 
-//	 Wrap the body in a block to facilitate code transformations
-	public ForEach ForEach(Position pos, Formal formal, Expr domain,
-						   List<Expr> clocks, Stmt body)
-	{
-		ForEach n = new ForEach_c(pos, formal, domain, clocks, asBlock(body));
-		X10ExtFactory_c ext_fac = (X10ExtFactory_c) extFactory();
-		n = (ForEach) n.ext(ext_fac.extForEachImpl());
-		X10DelFactory_c del_fac = (X10DelFactory_c) delFactory();
-		n = (ForEach) n.del(del_fac.delForEachImpl());
-		return n;
-	}
-	public ForEach ForEach(Position pos, Formal formal, Expr domain,
-			Stmt body)
-	{
-		ForEach n = new ForEach_c(pos, formal, domain, asBlock(body));
-		X10ExtFactory_c ext_fac = (X10ExtFactory_c) extFactory();
-		n = (ForEach) n.ext(ext_fac.extForEachImpl());
-		X10DelFactory_c del_fac = (X10DelFactory_c) delFactory();
-		n = (ForEach) n.del(del_fac.delForEachImpl());
-		return n;
-	}
+
 
 	// Wrap the body in a block to facilitate code transformations
 	public Finish Finish(Position pos, Stmt body, boolean clocked) {
@@ -543,8 +517,12 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 	}
 
 	public Tuple Tuple(Position pos, List<Expr> a) {
+        return Tuple(pos,null, a);
+
+    }
+	public Tuple Tuple(Position pos, TypeNode indexType, List<Expr> a) {
 		//Report.report(1, "X10NodeFactory_c making tuple " + p + " " + r + " " + a);
-		Tuple n = new Tuple_c(pos, a);
+		Tuple n = new Tuple_c(pos, a, indexType);
 		n = (Tuple) n.ext(extFactory().extCall());
 		n = (Tuple) n.del(delFactory().delCall());
 		return n;

@@ -324,78 +324,81 @@ ref<Rail<ref<String> > > Throwable::getStackTrace() {
             const char *msg = "No stacktrace recorded.";
             FMGL(cachedStackTrace) = alloc_rail<ref<String>,Rail<ref<String> > >(1, String::Lit(msg));
         }
+        else
+        {
+			// build up a fake stack from our saved addresses
+			// the fake stack doesn't need anything more than back-pointers and enough offset to hold the frame references
+			unsigned long* fakeStack = (unsigned long *)malloc((FMGL(trace_size)+1) * 3 * sizeof(unsigned long)); // pointer, junk, link register, junk, junk, junk
+			long i;
+			for (i=0; i<FMGL(trace_size); i++)
+			{
+				fakeStack[i*3] = (unsigned long)&(fakeStack[(i+1)*3]);
+				fakeStack[i*3+1] = 0xdeadbeef;
+				fakeStack[i*3+2] = (unsigned long)FMGL(trace)[i];
+			}
+			fakeStack[i*3] = 0;
 
-    	// build up a fake stack from our saved addresses
-    	// the fake stack doesn't need anything more than back-pointers and enough offset to hold the frame references
-    	unsigned long* fakeStack = (unsigned long *)malloc((FMGL(trace_size)+1) * 3 * sizeof(unsigned long)); // pointer, junk, link register, junk, junk, junk
-    	long i;
-    	for (i=0; i<FMGL(trace_size); i++)
-    	{
-    		fakeStack[i*3] = (unsigned long)&(fakeStack[(i+1)*3]);
-    		fakeStack[i*3+1] = 0xdeadbeef;
-    		fakeStack[i*3+2] = (unsigned long)FMGL(trace)[i];
-    	}
-    	fakeStack[i*3] = 0;
+			// manipulate the existing stack to point to our fake stack
+			unsigned long stackPointer;
+			#if defined(_LP64)
+				__asm__ __volatile__ ("std 1, %0 \n\t" : "=m" (stackPointer));
+			#else
+				__asm__ __volatile__ ("stw 1, %0 \n\t" : "=m" (stackPointer));
+			#endif
 
-    	// manipulate the existing stack to point to our fake stack
-    	unsigned long stackPointer;
-		#if defined(_LP64)
-			__asm__ __volatile__ ("std 1, %0 \n\t" : "=m" (stackPointer));
-		#else
-			__asm__ __volatile__ ("stw 1, %0 \n\t" : "=m" (stackPointer));
-		#endif
+			unsigned long originalStackPointer = stackPointer;
+			*((unsigned long*)stackPointer) = (unsigned long)fakeStack; // this line overwrites the back chain pointer in the stack to the fake one.
 
-    	unsigned long originalStackPointer = stackPointer;
-    	*((unsigned long*)stackPointer) = (unsigned long)fakeStack; // this line overwrites the back chain pointer in the stack to the fake one.
+			// call the original slow backtrace method to convert the offsets into text
+			// this overwrites the contents of "trace" and value of "trace_size", which are no longer needed.
+			FMGL(trace_size) = ::backtrace(FMGL(trace), sizeof(FMGL(trace))/sizeof(*FMGL(trace)));
 
-    	// call the original slow backtrace method to convert the offsets into text
-    	// this overwrites the contents of "trace" and value of "trace_size", which are no longer needed.
-    	FMGL(trace_size) = ::backtrace(FMGL(trace), sizeof(FMGL(trace))/sizeof(*FMGL(trace)));
+			// replace the stack frame pointer to point to the real stack again
+			*((unsigned long*)stackPointer) = originalStackPointer;
 
-    	// replace the stack frame pointer to point to the real stack again
-    	*((unsigned long*)stackPointer) = originalStackPointer;
+			// delete the fake stack, which is no longer needed
+			free(fakeStack);
 
-    	// delete the fake stack, which is no longer needed
-    	free(fakeStack);
+			// from here on down, proceed as before
+			ref<Rail<ref<String> > > rail =
+				alloc_rail<ref<String>,Rail<ref<String> > >(FMGL(trace_size));
+			char *msg;
+			for (int i=0 ; i<FMGL(trace_size) ; ++i) {
+				char* s = (char*)FMGL(trace)[i];
+				char* c = strstr(s, " : ");
+				if (c == NULL) {
+					(*rail)[i] = String::Lit("???????");
+					continue;
+				}
+				c[0] = '\0';
+				c += 3;
+				char* n = strchr(c, '\n');
+				if (n != NULL)
+					*n = '\0';
+				s = demangle_symbol(s);
+				char* f = strstr(c, " # ");
+				if (f != NULL) {
+					unsigned long l = strtoul(c, NULL, 10);
+					char* p = strchr(f, '<');
+					if (p != NULL) {
+						f = p + 1;
+						char* z = strchr(f, '>');
+						if (z != NULL)
+							*z = '\0';
+					} else {
+						f += 3;
+					}
+					msg = alloc_printf("%s (%s:%d)", s, f, l);
+				} else {
+					msg = alloc_printf("%s (offset %s)", s, c);
+					f = c;
+				}
+				(*rail)[i] = String::Lit(msg);
+				::free(msg);
 
-    	// from here on down, proceed as before
-        ref<Rail<ref<String> > > rail =
-            alloc_rail<ref<String>,Rail<ref<String> > >(FMGL(trace_size));
-        char *msg;
-        for (int i=0 ; i<FMGL(trace_size) ; ++i) {
-            char* s = (char*)FMGL(trace)[i];
-            char* c = strstr(s, " : ");
-            if (c == NULL) {
-                (*rail)[i] = String::Lit("???????");
-                continue;
-            }
-            c[0] = '\0';
-            c += 3;
-            char* n = strchr(c, '\n');
-            if (n != NULL)
-                *n = '\0';
-            s = demangle_symbol(s);
-            char* f = strstr(c, " # ");
-            if (f != NULL) {
-                unsigned long l = strtoul(c, NULL, 10);
-                char* p = strchr(f, '<');
-                if (p != NULL) {
-                    f = p + 1;
-                    char* z = strchr(f, '>');
-                    if (z != NULL)
-                        *z = '\0';
-                } else {
-                    f += 3;
-                }
-                msg = alloc_printf("%s (%s:%d)", s, f, l);
-            } else {
-                msg = alloc_printf("%s (offset %s)", s, c);
-                f = c;
-            }
-            (*rail)[i] = String::Lit(msg);
-            ::free(msg);
+			}
+			FMGL(cachedStackTrace) = rail;
         }
-        FMGL(cachedStackTrace) = rail;
     #else
         const char *msg = "Detailed stacktraces not supported on this platform.";
         FMGL(cachedStackTrace) = alloc_rail<ref<String>,Rail<ref<String> > >(1, String::Lit(msg));

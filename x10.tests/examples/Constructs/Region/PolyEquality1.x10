@@ -39,7 +39,7 @@ class PolyEquality1 extends TestRegion {
 
 
     def comp(a: Region, b: Region{self.rank==a.rank}): void {
-        pr(a + "==" + b + " " + a.equals(b) + " " + a.equals(b));
+        pr(""+a + "==" + b + " " + a.equals(b) + " " + a.equals(b));
     }
     def expected() =
         "[0..5,1..6]==[1..6,2..7] false false\n"+

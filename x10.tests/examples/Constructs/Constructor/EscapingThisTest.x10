@@ -188,7 +188,7 @@ class TestSuperThisAndPropertyCalls(p:Int) extends SomeSuper87 {
 		this(i); // ERR: Can use 'this' only after 'property(...)'
 		property(1); // ERR: You cannot call 'property(...)' after 'this(...)'
 	}
-	def this(x:Double) { super(1); } // ERR: You must call 'property(...)' at least once	ERR: Final field "p" might not have been initialized
+	def this(x:Double) { super(1); } // ERR: property(...) might not have been called
 	def this(x:Float) { property(1); } 
 	def this(x:Char) { 
 		// val x = 3; // I can't check this error, because it is a parsing error: the call to "super(...)" must be the first statement.
@@ -275,11 +275,11 @@ static class SubWithProperties(y:Int) extends WithProperties {
 	def this(i:Float) {
 		property(1);
 	}
-	def this(i:String) { // ERR: You must call 'property(...)' at least once	 ERR: Final field "y" might not have been initialized
+	def this(i:String) { // ERR: property(...) might not have been called
 	}
-	def this(i:Any) { // ERR: Final field "y" might not have been initialized
+	def this(i:Any) {
 		property(1);
-		property(1); // ERR: You can call 'property(...)' at most once		ERR: Property "y" might already have been initialized
+		property(1); // ERR: You can call 'property(...)' at most once	
 	}
 }
 static class SubWithoutProperties extends WithProperties {
@@ -298,24 +298,36 @@ static class SubWithoutProperties extends WithProperties {
 
 
 
-class TestPropertyCalls(p:Int) {
-	def this() {} // ERR: Final field "p" might not have been initialized	ERR: You must call 'property(...)' at least once
+class TestPropertyCalls(p:Int, p2:Int) {
+	def this() {} // ERR: property(...) might not have been called
+	def this(x:Float) {
+		property(1); // ERR: The property initializer must have the same number of arguments as properties for the class.
+	}
 	def this(i:Int) {
-		property(1);
+		val x:Int;
+		if (i==1)
+			x=2;
+		else
+			x=3;
+		property(x,2);
 	}
-	def this(b:Boolean) { // ERR: Final field "p" might not have been initialized
-		property(1);
-		property(1); // ERR: Property "p" might already have been initialized	ERR: You can call 'property(...)' at most once
+	def this(i:String) { // ERR: property(...) might not have been called
+		async property(1,2); // ERR: A property statement may only occur in the body of a constructor.   (todo: err could be improved)
 	}
-	def this(b:Double) { // ERR: Final field "p" might not have been initialized
-		if (p==1) // ERR: must call 'property(...)' immediately after the 'super(...)' call.
-			property(1);
+	def this(b:Boolean) { 
+		property(1,2);
+		property(1,2); // ERR: You can call 'property(...)' at most once
 	}
+	def this(b:Double) { // ERR: property(...) might not have been called
+		if (b==1) 
+			property(1,2);
+	}
+
 	def m() {
-		property(1); // ERR: A property statement may only occur in the body of a constructor.
+		property(1,2); // ERR: A property statement may only occur in the body of a constructor.
 	}
 	static def q() {
-		property(1); // ERR: A property statement may only occur in the body of a constructor.
+		property(1,2); // ERR: A property statement may only occur in the body of a constructor.
 	}
 }
 
@@ -516,10 +528,10 @@ class TestAsync {
          val m:Int, n:Int, q:Int;
 
          x=1;
-		 async { use(x); x=4; use(x); }
+		 finish async { use(x); x=4; use(x); }
 		 use(x);
-         async { y=4; use(x); use(y); }
-		 use(y); // ERR: "y" may not have been initialized
+         finish async { y=4; use(x); use(y); }
+		 use(y);
 
 		 i=1;
 		 use(i);
@@ -574,7 +586,7 @@ class TestAsync {
          x=1;
 		 finish async { use2(101,1,x); x=4; use2(102,4,x); }
 		 use2(103,4,x);
-         async { y=5; use2(104,4,x); use2(105,5,y); }
+         finish async { y=5; use2(104,4,x); use2(105,5,y); }
 
 		 i=1;
 		 use2(106,1,i);
@@ -1039,6 +1051,21 @@ class TestFieldInitForwardRef {
 }
 
 
+    // We allow default values for:
+    //    * a type that can be null  (e.g., Any, closures, but not a struct or Any{self!=null} )
+    //    * primitive/basic structs  (user defined structs do not have a default).
+    // includes: Int, Long, ULong, UInt, Float, Double, Boolean, Char
+    // excludes: Short,UShort,Byte,UByte  (because we do not have a literal of that type, there is a jira opened for Charles)
+class SimpleUserDefinedStructTest {
+	static struct S {
+	  val x:int = 4;
+	  val y:int = 0;
+	}
+
+	static class C {
+	  var s:S; // ERR: Field 's' was not definitely assigned.
+	}
+}
 struct UserDefinedStruct {}
 class TestFieldsWithoutDefaults[T] {
 	// generic parameter test
@@ -1355,6 +1382,53 @@ class Possel811 { //XTENLANG-811
   }
 }
 
+class LocalVarInAsyncTests {
+	def simple() {
+		var i:Int = 2;
+		finish async i++;
+	}
+	def atAndAsync() {
+		var i:Int = 2;
+		val p = here;
+		finish at (here.next()) async {
+		  finish async at (p) 
+			  i++; // ok
+		}
+	}
+	def test1() {		
+		var i:Int = 2;
+		finish async {
+		  finish async i++; // ok
+		}
+	}
+	def test2() {
+		var i:Int = 2;
+		finish {
+			val x= ()=> { async 
+				i++; // ERR: cannot capture local var in a closure
+			};
+		}
+	}
+	var flag:Boolean;
+	def test3() {
+		var i:Int = 2;
+		if (flag) {
+		  finish async i++; // ok
+		}
+	}
+	def test4() {
+		var i:Int = 2;
+		async 
+			i++;  // ERR: Local var 'i' cannot be captured in an async if there is no enclosing finish in the same scoping-level as 'i'; consider changing 'i' from var to val.
+		async async
+			i++; // ERR
+		async finish async finish async finish async async
+			i++; // ERR
+		async {
+		  finish async i++; // ERR
+		}
+	}
+}
 class AccessOfVarIllegalFromClosure { // XTENLANG-1888
 	val x:Int = 1;
 	var y:Int = 1;
@@ -1390,13 +1464,16 @@ class AccessOfVarIllegalFromClosure { // XTENLANG-1888
 			use(q);
 		});
 		use(() => { var q:Int = 1; async
-			use(q);
+			use(q); // ERR
 		});
-		use(() => { finish async { var q:Int = 1; async
+		use(() => { var q:Int = 1; finish async { async
 			use(q);
 		}});
+		use(() => { finish async { var q:Int = 1; async
+			use(q); // ERR
+		}});
 		use(() => { finish { var q:Int = 1; async { async
-			use(q);
+			use(q); // ERR
 		}}});
 		use(() => { finish { async { async {var q:Int = 1; 
 			use(q);
@@ -1406,6 +1483,27 @@ class AccessOfVarIllegalFromClosure { // XTENLANG-1888
 			var q:Int = 1; 
 		}}}});
 		val w = q;
+	}
+}
+
+class TestCaptureVarInClosureAsyncInnerAnon {
+	def test() {
+		var x:Int = 2;
+		class Inner {
+			val y = 
+				x+2; // ERR: Local variable "x" is accessed from an inner class or a closure, and must be declared final.
+		}
+		val inner = new Inner();
+		val anonymous = new Object() {
+			val y =
+				x+2; // ERR: Local variable "x" is accessed from an inner class or a closure, and must be declared final.
+		};
+		val closure = () =>
+			x+2; // ERR: Local variable "x" is accessed from an inner class or a closure, and must be declared final.
+		finish async { 
+			val y =
+				x+2;
+		}
 	}
 }
 class TestVarAccessInClosures {
@@ -1438,10 +1536,11 @@ class TestVarAccessInClosures {
 
 
 class TestOnlyLocalVarAccess {
-	// for some reason, the origin of "frame" is null. I couldn't reproduce it...
+	// for some reason, the origin of "frame" is null. I couldn't reproduce it... see XTENLANG-1902
 	//C:\cygwin\home\Yoav\intellij\sourceforge\x10.runtime\src-x10\x10\compiler\ws\Worker.x10:86,18-22
 	//Message: Semantic Error: Local variable "frame" is accessed at a different place, and must be declared final.
 	var i:Int;
+	static def testInferReturnType()=test0(null);
 	static def test0(var b:TestOnlyLocalVarAccess) {
 		b.i++;
 	}
@@ -1507,9 +1606,145 @@ class TestOnlyLocalVarAccess {
         var n: int = 1;
 		at (here) n=2;
 		finish ateach ([i] in a.dist | 
-			(0..n)) { // todo ERR: it shouldn't give an error!
+			(0..n)) { // checks XTENLANG-1902
 			n++; // ERR: Local variable "n" is accessed at a different place, and must be declared final.
 		}
 	}
 
+}
+
+
+class TestGlobalRefHomeAt { // see http://jira.codehaus.org/browse/XTENLANG-1905
+	def test() {
+		val p = here;
+		val r:GlobalRef[TestGlobalRefHomeAt]{home==p} = GlobalRef[TestGlobalRefHomeAt](this);
+		val r2:GlobalRef[TestGlobalRefHomeAt]{home==p} = r;
+		val r3:GlobalRef[TestGlobalRefHomeAt]{home==p} = GlobalRef[TestGlobalRefHomeAt](this);
+
+		use(r());
+		use(r2());
+		use(r3());
+
+		at (r.home()) {
+			use(r()); 
+			use(r2()); // ShouldNotBeERR
+			use(r3()); // ShouldNotBeERR
+		}
+		at (r2.home()) {
+			use(r()); // ShouldNotBeERR
+			use(r2()); 
+			use(r3());// ShouldNotBeERR
+		}
+		at (r3.home()) {
+			use(r()); // ShouldNotBeERR
+			use(r2()); // ShouldNotBeERR
+			use(r3());
+		}
+		at (here.next()) {
+			use(r()); // ERR
+			use(r2()); // ERR
+			use(r3()); // ERR			
+			
+			at (r.home()) {
+				use(r()); 
+				use(r2()); // ShouldNotBeERR
+				use(r3()); // ShouldNotBeERR
+			}
+			at (r2.home()) {
+				use(r()); // ShouldNotBeERR
+				use(r2()); 
+				use(r3());// ShouldNotBeERR
+			}
+			at (r3.home()) {
+				use(r()); // ShouldNotBeERR
+				use(r2()); // ShouldNotBeERR
+				use(r3());
+			}
+		}
+	}
+	def use(x:Any) {}
+}
+
+class A564[T,U] {
+    def foo(x:T,y:U, z:String):void {}
+}
+class B564 extends A564[String,String] {
+    def foo(x:String,y:String, z:String):Int { return 1; } // ERR: foo(x: x10.lang.String, y: x10.lang.String, z: x10.lang.String): x10.lang.Int in B cannot override foo(x: x10.lang.String, y: x10.lang.String, z: x10.lang.String): x10.lang.Void in A[x10.lang.String, x10.lang.String]; attempting to use incompatible return type.
+	// B.foo(String,String,String) cannot override A.foo(T,U,String); attempting to use incompatible return type.  found: int required: void
+}
+
+
+class ReturnStatementTest {
+	
+	static def ok(b:Boolean):Int {
+		if (b) 
+			return 1;
+		else {
+			async {
+				val closure = () => {
+					return 3;
+				};
+			}
+		}
+		at (here.next())
+			return 2; // ShouldNotBeERR: Cannot return value from void method or closure.
+		finish {
+			async { val y=1; }
+			return 3;
+		}
+	}
+	static def err1(b:Boolean):Int {
+		if (b) return 1;
+		async 
+			return 2; // ERR: Cannot return from an async.
+		return 3;
+	}
+	static def err2(b:Boolean):Int {
+		async at (here) 
+			return 1; // ERR: Cannot return from an async.
+		return 2;
+	}
+	static def err3(b:Boolean):Int {
+		at (here) async
+			return 1; // ERR: Cannot return from an async.
+		return 2;
+	}
+	static def err4(b:Boolean):Int {
+		finish async 
+			return 1; // ERR: Cannot return from an async.
+		return 2;
+	}
+}
+
+
+// Test method resolution
+
+class TestMethodResolution {
+  def m(Int)="";
+  def m(Long)=true;
+  def m(Any)=3;
+  def test(flag:Boolean) {
+	val arr = [1,2l]; // infers Array[Any]
+	val x = flag ? 1 : 2l; // infers Long
+    val i1:Boolean = m(x); 
+    val i2:Int = m(arr(0)); // ShouldBeErr
+  }
+
+  
+	def check[T](t:T)=1;
+	def check(t:Any)="";
+	def testGenerics() {
+		val r1:Int = check(1); // ShouldBeErr: should resolve to the non-generic method
+		val r2:Int = (check.(Any))(1); // ShouldBeErr: should DEFNITELY resolve to the non-generic method
+        val r3:Int = check[Int](1); // be explicit
+		val r4:Int = (check.(Any))(1); // ShouldBeErr: ahhh?  be explicit
+		// todo: What is the syntax for generic method selection?
+		// neither "(m.[String](String))" nor "(m[String].(String))" parses.
+	}
+}
+class UseMacroInNewExpr(i:Int) {	
+    public static type Bar = UseMacroInNewExpr{i==2};
+	static def test() {
+		val y = new Bar(2); // ERR: Constructor return type UseMacroInNewExpr is not a subtype of UseMacroInNewExpr{self.i==2}.
+	}
 }

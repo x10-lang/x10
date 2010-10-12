@@ -69,6 +69,7 @@ import polyglot.types.TypeSystem_c;
 import polyglot.types.Types;
 import polyglot.types.UnknownType;
 import polyglot.types.VarDef;
+import polyglot.types.TypeSystem_c.MostSpecificComparator;
 import polyglot.util.CollectionUtil;
 import polyglot.util.ErrorInfo;
 import polyglot.util.InternalCompilerError;
@@ -110,7 +111,7 @@ import x10.util.ClosureSynthesizer;
  * @author vj
  */
 public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
-	public static final String DUMMY_ASYNC = "$dummyAsync";
+	public static final String DUMMY_AT_ASYNC = "$dummyAsync"; // for async/at/ateach
 	public static final int EXPAND_MACROS_DEPTH=25;
 
     public X10TypeSystem_c() {
@@ -373,23 +374,32 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return env(context).findAcceptableTypeDefs(container, matcher);
     }
 
+    @Override
+    protected <S extends ProcedureDef, T extends ProcedureInstance<S>> Comparator<T> mostSpecificComparator(Type ct, Matcher<T> matcher, Context context) {
+    	return new X10MostSpecificComparator<S,T>(ct, matcher, context);
+        }
     protected static class X10MostSpecificComparator<S extends ProcedureDef, T extends ProcedureInstance<S>> extends MostSpecificComparator<S, T> {
         private Matcher<T> matcher;
+        Type container;
 
-        protected X10MostSpecificComparator(Matcher<T> matcher, Context context) {
+        protected X10MostSpecificComparator(Type container, Matcher<T> matcher, Context context) {
             super(context);
             this.matcher = matcher;
+            this.container=container;
         }
-
+        
         public int compare(T p1, T p2) {
-            int cmp = super.compare(p1, p2);
-            return cmp;
-        }
-    }
+    	    if (p1.moreSpecific(container, p2, context))
+    		return -1;
+    	    if (p2.moreSpecific(container, p1, context))
+    		return 1;
+    	    return 0;
+    	}
 
-    @Override
-    protected <S extends ProcedureDef, T extends ProcedureInstance<S>> Comparator<T> mostSpecificComparator(Matcher<T> matcher, Context context) {
-        return new X10MostSpecificComparator<S, T>(matcher, context);
+        public Type container() {
+        	return container;
+        }
+       
     }
 
     private boolean contains(Collection<Type> c, Type x) {
@@ -1020,7 +1030,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 
     	// set up null thisVar for method def's, so the outer contexts are searched for thisVar.
     	return methodDef(pos, container, flags, returnType, name, Collections.<ParameterType>emptyList(), argTypes, 
-    	        name.toString().contains(DUMMY_ASYNC) ? null : thisVar, dummyLocalDefs(argTypes), null, null,  offerType,
+    	        name.toString().contains(DUMMY_AT_ASYNC) ? null : thisVar, dummyLocalDefs(argTypes), null, null,  offerType,
     	                null);
     }
     
@@ -1068,7 +1078,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
     	// Need to create a new one on each call. Portions of this methodDef, such as thisVar may be destructively modified later.
                 return methodDef(Position.COMPILER_GENERATED, Types.ref((StructType) Runtime()), isStatic ? Public().Static() : Public(),
                 		Types.ref(VOID_),
-                		Name.make(DUMMY_ASYNC), Collections.<Ref<? extends Type>>emptyList());
+                		Name.make(DUMMY_AT_ASYNC), Collections.<Ref<? extends Type>>emptyList());
     }
 
     public ClosureDef closureDef(Position p, Ref<? extends ClassType> typeContainer, Ref<? extends CodeInstance<?>> methodContainer,
@@ -2318,10 +2328,10 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         Context context = matcher.context();
         List<MethodInstance> acceptable = findAcceptableMethods(container, matcher);
         if (acceptable.size() == 0) {
-            throw new NoMemberException(NoMemberException.METHOD,
-                                        "No valid method call found for " + matcher.signature() +
-                                        " in " +
-                                        container + ".");
+        	  throw new NoMemberException(NoMemberException.METHOD,
+                      "No valid method call found for call in given type."
+	+ "\n\t Call: " + matcher.signature() 
+	+ "\n\t Type: " + container);
         }
         Collection<MethodInstance> maximal =
             findMostSpecificProcedures(acceptable, (Matcher<MethodInstance>) matcher, context);

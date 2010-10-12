@@ -118,11 +118,11 @@ public class ArrayCopy1 extends x10Test {
     static class dist2 {
 
         static BLOCK: int = 0;
-        //const CYCLIC: int = 1;
-        //const BLOCKCYCLIC: int = 2;
+        //public static val CYCLIC: int = 1;
+        //public static val BLOCKCYCLIC: int = 2;
         static CONSTANT: int = 1;
-        //const RANDOM: int = 4;
-        //const ARBITRARY: int = 5;
+        //public static val RANDOM: int = 4;
+        //public static val ARBITRARY: int = 5;
         static N_DIST_TYPES: int = 2; //6;
 
         /**

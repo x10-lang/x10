@@ -88,7 +88,7 @@ public final class Cell[T] {
      * @param x the given Cell
      * @return the value stored in the given Cell.
      */
-    public static operator[T](x:Cell[T]) = x();
+    public static operator[V](x:Cell[V]) = x();
 
     /**
      * Create a new Cell with the given value stored in it.
@@ -97,7 +97,7 @@ public final class Cell[T] {
      * @param x the given value
      * @return a new Cell with the given value stored in it.
      */
-    public static operator[T](x:T) = make[T](x);
+    public static operator[W](x:W) = make[W](x);
 }
 
 // vim:tabstop=4:shiftwidth=4:expandtab

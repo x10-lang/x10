@@ -99,4 +99,10 @@ public class MethodInstance_c extends FunctionInstance_c<MethodDef> implements M
     public final List<MethodInstance> implemented(Context context) {
         return ts.implemented(this, context);
     }
+    
+    protected MethodInstance origMI;
+    public MethodInstance origMI() { return origMI;}
+    public void setOrigMI(MethodInstance origMI) {
+    	this.origMI = origMI;
+    }
 }

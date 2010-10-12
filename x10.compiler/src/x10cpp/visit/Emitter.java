@@ -659,7 +659,7 @@ public class Emitter {
 
 	void printRTTDefn(X10ClassType ct, CodeWriter h) {
 	    X10TypeSystem_c xts = (X10TypeSystem_c) ct.typeSystem();
-	    String x10name = fullName(ct).toString();
+	    String x10name = fullName(ct).toString().replace('$','.');
 	    int numParents = 0;
 	    if (ct.superClass() != null) {
 	        numParents++;
@@ -686,7 +686,7 @@ public class Emitter {
 	        } else {
 	            h.write("const x10aux::RuntimeType** parents = NULL; "); h.newline();
 	        }
-	        h.write("rtt.initStageTwo(\""+fullName(ct)+"\", "+numParents+ ", parents, 0, NULL, NULL);");
+	        h.write("rtt.initStageTwo(\""+x10name+"\", "+numParents+ ", parents, 0, NULL, NULL);");
 	        if (ct.isX10Struct() && isPointerless(ct)) {
 	            h.newline(); h.write("rtt.containsPtrs = false;");
 	        }
