@@ -188,7 +188,7 @@ class TestSuperThisAndPropertyCalls(p:Int) extends SomeSuper87 {
 		this(i); // ERR: Can use 'this' only after 'property(...)'
 		property(1); // ERR: You cannot call 'property(...)' after 'this(...)'
 	}
-	def this(x:Double) { super(1); } // ERR: You must call 'property(...)' at least once	ERR: Final field "p" might not have been initialized
+	def this(x:Double) { super(1); } // ERR: property(...) might not have been called
 	def this(x:Float) { property(1); } 
 	def this(x:Char) { 
 		// val x = 3; // I can't check this error, because it is a parsing error: the call to "super(...)" must be the first statement.
@@ -275,11 +275,11 @@ static class SubWithProperties(y:Int) extends WithProperties {
 	def this(i:Float) {
 		property(1);
 	}
-	def this(i:String) { // ERR: You must call 'property(...)' at least once	 ERR: Final field "y" might not have been initialized
+	def this(i:String) { // ERR: property(...) might not have been called
 	}
-	def this(i:Any) { // ERR: Final field "y" might not have been initialized
+	def this(i:Any) {
 		property(1);
-		property(1); // ERR: You can call 'property(...)' at most once		ERR: Property "y" might already have been initialized
+		property(1); // ERR: You can call 'property(...)' at most once	
 	}
 }
 static class SubWithoutProperties extends WithProperties {
@@ -298,24 +298,36 @@ static class SubWithoutProperties extends WithProperties {
 
 
 
-class TestPropertyCalls(p:Int) {
-	def this() {} // ERR: Final field "p" might not have been initialized	ERR: You must call 'property(...)' at least once
+class TestPropertyCalls(p:Int, p2:Int) {
+	def this() {} // ERR: property(...) might not have been called
+	def this(x:Float) {
+		property(1); // ERR: The property initializer must have the same number of arguments as properties for the class.
+	}
 	def this(i:Int) {
-		property(1);
+		val x:Int;
+		if (i==1)
+			x=2;
+		else
+			x=3;
+		property(x,2);
 	}
-	def this(b:Boolean) { // ERR: Final field "p" might not have been initialized
-		property(1);
-		property(1); // ERR: Property "p" might already have been initialized	ERR: You can call 'property(...)' at most once
+	def this(i:String) { // ERR: property(...) might not have been called
+		async property(1,2); // ERR: A property statement may only occur in the body of a constructor.   (todo: err could be improved)
 	}
-	def this(b:Double) { // ERR: Final field "p" might not have been initialized
-		if (p==1) // ERR: must call 'property(...)' immediately after the 'super(...)' call.
-			property(1);
+	def this(b:Boolean) { 
+		property(1,2);
+		property(1,2); // ERR: You can call 'property(...)' at most once
 	}
+	def this(b:Double) { // ERR: property(...) might not have been called
+		if (b==1) 
+			property(1,2);
+	}
+
 	def m() {
-		property(1); // ERR: A property statement may only occur in the body of a constructor.
+		property(1,2); // ERR: A property statement may only occur in the body of a constructor.
 	}
 	static def q() {
-		property(1); // ERR: A property statement may only occur in the body of a constructor.
+		property(1,2); // ERR: A property statement may only occur in the body of a constructor.
 	}
 }
 
@@ -1701,5 +1713,38 @@ class ReturnStatementTest {
 		finish async 
 			return 1; // ERR: Cannot return from an async.
 		return 2;
+	}
+}
+
+
+// Test method resolution
+
+class TestMethodResolution {
+  def m(Int)="";
+  def m(Long)=true;
+  def m(Any)=3;
+  def test(flag:Boolean) {
+	val arr = [1,2l]; // infers Array[Any]
+	val x = flag ? 1 : 2l; // infers Long
+    val i1:Boolean = m(x); 
+    val i2:Int = m(arr(0)); // ShouldBeErr
+  }
+
+  
+	def check[T](t:T)=1;
+	def check(t:Any)="";
+	def testGenerics() {
+		val r1:Int = check(1); // ShouldBeErr: should resolve to the non-generic method
+		val r2:Int = (check.(Any))(1); // ShouldBeErr: should DEFNITELY resolve to the non-generic method
+        val r3:Int = check[Int](1); // be explicit
+		val r4:Int = (check.(Any))(1); // ShouldBeErr: ahhh?  be explicit
+		// todo: What is the syntax for generic method selection?
+		// neither "(m.[String](String))" nor "(m[String].(String))" parses.
+	}
+}
+class UseMacroInNewExpr(i:Int) {	
+    public static type Bar = UseMacroInNewExpr{i==2};
+	static def test() {
+		val y = new Bar(2); // ERR: Constructor return type UseMacroInNewExpr is not a subtype of UseMacroInNewExpr{self.i==2}.
 	}
 }

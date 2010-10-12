@@ -17,7 +17,7 @@
  * <p>
  * It also can serve as an example of using a closure.
  */
-public class Integrate { 
+public class IntegrateTutorial { 
   static val epsilon = 1.0e-9;
 
   val fun:(double)=>double;
@@ -47,7 +47,7 @@ public class Integrate {
   }
  
   public static def main(args:Array[String](1)) {
-    val obj = new Integrate((x:double)=>(x*x + 1.0) * x);
+    val obj = new IntegrateTutorial((x:double)=>(x*x + 1.0) * x);
     val xMax = args.size > 0 ? Int.parse(args(0)) : 10;
     val area = obj.computeArea(0, xMax);
     Console.OUT.println("The area of (x*x +1) * x from 0 to "+xMax+" is "+area);

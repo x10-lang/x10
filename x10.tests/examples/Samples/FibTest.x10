@@ -13,7 +13,7 @@ import harness.x10Test;
 
 public class FibTest extends x10Test {
     public def run():boolean {
-	val res = Fib.fib(12);
+	val res = Fibonacci.fib(12);
 	chk(res == 144);
 	return true;
     }

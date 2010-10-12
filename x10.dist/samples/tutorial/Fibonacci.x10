@@ -21,14 +21,14 @@ import x10.io.Console;
  * The heart of the example is the <code>run</code> method,
  * which directly embodies the recursive definition of 
  * <pre>
- *   Fib(n) = Fib(n-1)+Fib(n-2);
+ *   fib(n) = fib(n-1)+fib(n-2);
  * </pre>
- * by using an <code>async</code> to compute <code>Fib(n-1)</code> while
- * the current activity computes <code>Fib(n-2)</code>.  A <code>finish</code>
+ * by using an <code>async</code> to compute <code>fib(n-1)</code> while
+ * the current activity computes <code>fib(n-2)</code>.  A <code>finish</code>
  * is used to ensure that both computations are complete before 
- * their results are added together to compute <code>Fib(n)</code>
+ * their results are added together to compute <code>fib(n)</code>
  */
-public class Fib {
+public class Fibonacci {
 
   public static def fib(n:int) {
     if (n<=2) return 1;
@@ -44,9 +44,9 @@ public class Fib {
 
   public static def main(args:Array[String](1)) {
     val n = (args.size > 0) ? int.parse(args(0)) : 10;
-    Console.OUT.println("Computing Fib("+n+")");
+    Console.OUT.println("Computing fib("+n+")");
     val f = fib(n);
-    Console.OUT.println("Fib("+n+") = "+f);
+    Console.OUT.println("fib("+n+") = "+f);
   }
 }
 

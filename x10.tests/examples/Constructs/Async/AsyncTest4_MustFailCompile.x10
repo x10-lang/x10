@@ -24,7 +24,10 @@ public class AsyncTest4_MustFailCompile extends x10Test {
             var s: int = 0;
             for (var i: int = 0; i < N; i++) {
                 //==> compiler error expected here
-                async x10.io.Console.OUT.println("s="+s+" i="+i);
+                async x10.io.Console.OUT.println("s="+
+                    s+ // ERR: cannot be captured in an async if there is no enclosing finish in the same scoping-level
+                    " i="+
+                    i); // ERR: cannot be captured in an async if there is no enclosing finish in the same scoping-level
                 s += i;
             }
         }

@@ -26,7 +26,7 @@ import harness.x10Test;
 public class UninitializedProperty_MustFailCompile(i:int, j:int) extends x10Test {
 
 	public def this(i:int, j:int):UninitializedProperty_MustFailCompile = {
-	    this.i=i; 
+	    property(i); // ERR
 	}
 	public def run()=true;
 	
