@@ -138,7 +138,15 @@ public class WSMethodFrameClassGen extends WSRegularFrameClassGen {
     }
     
     public MethodDecl transform() throws SemanticException {
+        Type returnType = methodDecl.methodDef().returnType().get();
+        if (returnType != xts.Void()){
+            genApplyMethod(returnType);
+        }
+        
         genClass();
+
+        genWSMethod(fastWrapperMethodSynth); //now generate fast/slow path, register them and put them in container class
+
         if (isMain) {
             return getNewMainMethod();
         } else {
@@ -172,22 +180,10 @@ public class WSMethodFrameClassGen extends WSRegularFrameClassGen {
 
         return (MethodDecl) methodDecl.body(cbSynth.close());
     }
-    
-    public void genClass() throws SemanticException {
-        //do the formals translation
-        
-        Type returnType = methodDecl.methodDef().returnType().get();
-        if (returnType != xts.Void()){
-            genApplyMethod(returnType);
-        }
-        
-        super.genClass(); //transform: method skeleton/methods body/constructors/remap
-        genWSMethod(fastWrapperMethodSynth); //now generate fast/slow path, register them and put them in container class
-    }
 
     
-    protected ConstructorSynth genClassConstructor() throws SemanticException{
-        ConstructorSynth conSynth = super.genClassConstructor();
+    protected void genClassConstructor() throws SemanticException{
+        super.genClassConstructor();
         //Continue to add other statements
         CodeBlockSynth conCodeSynth = conSynth.createConstructorBody(compilerPos);
         //all formals as constructor's formal
@@ -201,7 +197,6 @@ public class WSMethodFrameClassGen extends WSRegularFrameClassGen {
             
             conCodeSynth.addStmt(s);
         }
-        return conSynth;
     }
     
     /**

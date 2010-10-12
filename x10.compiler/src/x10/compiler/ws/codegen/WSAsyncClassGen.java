@@ -64,14 +64,6 @@ public class WSAsyncClassGen extends AbstractWSClassGen {
         outFinishScopeLocalAssign = new ArrayList<LocalAssign>();
     }
 
-    public void genClass() throws SemanticException {
-
-        genTreeMethods(); //fast/resume/move
-        
-        genClassConstructor();
-        if (wts.realloc) genCopyConstructor(compilerPos);
-        if (wts.realloc) genRemapMethod();
-    }
     
     /**
      * Will generate fast, back and move method
@@ -217,15 +209,13 @@ public class WSAsyncClassGen extends AbstractWSClassGen {
         return icSynth.genStmt();
     }
 
-    private void genClassConstructor() throws SemanticException {        
+    protected void genClassConstructor() throws SemanticException {        
         //now generate another constructor
         /* 
            @Inline def this(up:Frame!) {
                super(up, up);
            }
         */
-        ConstructorSynth conSynth = classSynth.createConstructor(compilerPos);
-        conSynth.addAnnotation(genHeaderAnnotation());
         Expr upRef = conSynth.addFormal(compilerPos, Flags.FINAL, wts.frameType, "up"); //up:Frame!
         
         CodeBlockSynth codeBlockSynth = conSynth.createConstructorBody(compilerPos);
@@ -244,7 +234,6 @@ public class WSAsyncClassGen extends AbstractWSClassGen {
                               synth.makeFieldAssign(compilerPos, thisRef, formalName, fRef, xct));
             codeBlockSynth.addStmt(s);
         }
-        
     }
     
     

@@ -128,6 +128,7 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
     final protected MethodSynth fastMSynth;
     final protected MethodSynth resumeMSynth;
     final protected MethodSynth backMSynth;
+    final protected ConstructorSynth conSynth;
 
     //Fields to maintain the tree
     final private AbstractWSClassGen up;
@@ -171,6 +172,9 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
         backMSynth.setFlag(Flags.PUBLIC);
         backMSynth.addFormal(compilerPos, Flags.FINAL, wts.workerType, WORKER.toString());
         backMSynth.addFormal(compilerPos, Flags.FINAL, wts.frameType, FRAME.toString());
+
+        conSynth = classSynth.createConstructor(compilerPos);
+        conSynth.addAnnotation(genHeaderAnnotation());
 
         addPCField();
     }
@@ -314,7 +318,17 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
      * Need add the new inner class to its parent frame class
      * @throws SemanticException
      */
-    abstract protected void genClass() throws SemanticException;
+    public final void genClass() throws SemanticException {
+        genTreeMethods(); //fast/resume/move
+        genClassConstructor();
+        if (wts.realloc) genCopyConstructor(compilerPos);
+        if (wts.realloc) genRemapMethod();
+    }
+
+    protected abstract void genTreeMethods() throws SemanticException;
+
+    protected abstract void genClassConstructor() throws SemanticException;
+    
     
     /**
      * Trigger class generation, and close the class synth

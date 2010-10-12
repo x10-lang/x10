@@ -29,24 +29,7 @@ public class WSFinishStmtClassGen extends AbstractWSClassGen {
                 parent.wts.finishFrameType, finishStmt.body());
     }
 
-    @Override
-    public void genClass() throws SemanticException {
-
-        genClassConstructors();
-
-        if (wts.realloc) genRemapMethod();
-        
-        genThreeMethods(); //fast, resume, back
-    }
-
-    protected void genClassConstructors() throws SemanticException {
-        //finishstmt class doesn't have fields
-        //gen copy constructor
-        if (wts.realloc) genCopyConstructor(compilerPos);
-        
-        //now generate another con
-        ConstructorSynth conSynth = classSynth.createConstructor(compilerPos);
-        conSynth.addAnnotation(genHeaderAnnotation());
+    protected void genClassConstructor() throws SemanticException {
         Expr upRef = conSynth.addFormal(compilerPos, Flags.FINAL, wts.frameType, "up"); //up:Frame!
         
         CodeBlockSynth codeBlockSynth = conSynth.createConstructorBody(compilerPos);
@@ -54,7 +37,7 @@ public class WSFinishStmtClassGen extends AbstractWSClassGen {
         superCallSynth.addArgument(wts.frameType, upRef);
     }
 
-    protected void genThreeMethods() throws SemanticException {
+    protected void genTreeMethods() throws SemanticException {
         
         CodeBlockSynth fastBodySynth = fastMSynth.getMethodBodySynth(compilerPos);
         CodeBlockSynth resumeBodySynth = resumeMSynth.getMethodBodySynth(compilerPos);

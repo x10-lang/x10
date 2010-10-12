@@ -82,17 +82,7 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
     }
 
 
-    protected void genClass() throws SemanticException {
-
-        genThreeMethods(); //fast,resume,back
-        genClassConstructor();
-        if (wts.realloc) genCopyConstructor(compilerPos); // copy constructors used for remap();
-        if (wts.realloc) genRemapMethod();
-        
-
-    }
-
-    protected void genThreeMethods() throws SemanticException {
+    protected void genTreeMethods() throws SemanticException {
 
         Triple<CodeBlockSynth, SwitchSynth, SwitchSynth> bodyCodes = transformMethodBody();
 
@@ -602,10 +592,8 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
         return returnCheck;
     }
 
-    protected ConstructorSynth genClassConstructor() throws SemanticException {
+    protected void genClassConstructor() throws SemanticException {
         // add all constructors
-        ConstructorSynth conSynth = classSynth.createConstructor(compilerPos);
-        conSynth.addAnnotation(genHeaderAnnotation());
         CodeBlockSynth conCodeSynth = conSynth.createConstructorBody(compilerPos);
 
         Expr upRef = conSynth.addFormal(compilerPos, Flags.FINAL, wts.frameType, "up");
@@ -613,7 +601,5 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
         SuperCallSynth superCallSynth = conCodeSynth.createSuperCall(compilerPos, classSynth.getDef());
         superCallSynth.addArgument(wts.frameType, upRef);
         superCallSynth.addArgument(wts.finishFrameType, ffRef);
-
-        return conSynth;
     }
 }
