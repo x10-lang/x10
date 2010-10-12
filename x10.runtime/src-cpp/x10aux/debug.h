@@ -176,6 +176,7 @@ struct _MetaDebugInfo_t {
   unsigned x10classMapListSize;   // the size in bytes of the X10 class mapping list
   unsigned x10closureMapListSize; // the size in bytes of the X10 async closure mapping list
   unsigned x10arrayMapListSize;   // the size in bytes of the X10 array mapping list
+  unsigned x10refMapListSize;     // the size in bytes of the X10 reference mapping list
 
   const char*                   x10strings;        // The string table
   const struct _X10sourceFile*  x10sourceList;     // The list of X10 source files
@@ -186,6 +187,7 @@ struct _MetaDebugInfo_t {
   const struct _X10ClassMap*    x10classMapList;   // The class mapping list
   const struct _X10ClosureMap*  x10closureMapList; // The async closure mapping list
   const struct _X10ArrayMap*    x10arrayMapList;   // The array mapping list
+  const struct _X10RefMap*      x10refMapList;     // The reference mapping list
 };
 
 //extern void _X10_Entry_Hook();     // A hook at the start of every X10 method.
