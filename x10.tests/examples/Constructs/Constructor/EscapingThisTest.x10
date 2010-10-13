@@ -1,6 +1,9 @@
-import x10.compiler.*; // @Uncounted @NonEscaping @NoThisAccess
-// test object initialization
+package x10.yoav.tests;
 
+import x10.compiler.*; // @Uncounted @NonEscaping @NoThisAccess
+import x10.util.*;
+
+// test object initialization (and more)
 
 class InfiniteInit234 {
 	var i:Int{self!=0};
@@ -1740,11 +1743,5 @@ class TestMethodResolution {
 		val r4:Int = (check.(Any))(1); // ShouldBeErr: ahhh?  be explicit
 		// todo: What is the syntax for generic method selection?
 		// neither "(m.[String](String))" nor "(m[String].(String))" parses.
-	}
-}
-class UseMacroInNewExpr(i:Int) {	
-    public static type Bar = UseMacroInNewExpr{i==2};
-	static def test() {
-		val y = new Bar(2); // ERR: Constructor return type UseMacroInNewExpr is not a subtype of UseMacroInNewExpr{self.i==2}.
 	}
 }

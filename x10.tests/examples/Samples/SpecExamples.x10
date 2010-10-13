@@ -1,0 +1,95 @@
+package x10.spec.examples;
+
+import x10.compiler.*; // @Uncounted @NonEscaping @NoThisAccess
+import x10.util.*;
+
+
+class UseMacroInNewExpr(i:Int) {	
+    public static type Bar = UseMacroInNewExpr{i==2};
+	static def test() {
+		val y = new Bar(2); // ERR: Constructor return type UseMacroInNewExpr is not a subtype of UseMacroInNewExpr{self.i==2}. todo: should be a better error message
+	}
+}
+class TestClosureAlphaRenaming {
+	def test() {
+	 var x:(a:Int, b:Rail[String]{b.length==a}) => Boolean = null;
+	 var y:(b:Int, a:Rail[String]{a.length==b}) => Boolean = null;
+	 x=y; // ShouldNotBeERR: Cannot assign expression to target.	 Expression: y	 Expected type: (a1:x10.lang.Int, a2:x10.lang.Rail[x10.lang.String]{self.length==a})=> x10.lang.Boolean	 Found type: (a1:x10.lang.Int, a2:x10.lang.Rail[x10.lang.String]{self.length==b})=> x10.lang.Boolean
+	 y=x; // ShouldNotBeERR: 
+	}
+}
+
+class TypeInferenceBugs {
+	def choose[T](a: T, b: T): T = a;
+	def m(intSet: Set[Int], intList: List[Int]) {
+		val y = choose(intSet, intList);
+		val y1:Set[Int] = choose(intSet, intList); // ERR
+		val y2:Collection[Int] = choose(intSet, intList); // ShouldNotBeERR: Cannot assign expression to target.	 Expression: choose(intSet, intList)	 Expected type: x10.util.Collection[x10.lang.Int]	 Found type: x10.lang.Any{}
+		val y3:Collection[Int] = choose[Collection[Int]](intSet, intList);
+	}
+}
+abstract class Mat(rows:Int, cols:Int) {
+	static type Mat(r:Int, c:Int) = Mat{self.rows==r&&self.cols==c};
+	static def makeMat(r:Int,c:Int) : Mat(r,c) = null;
+	abstract operator this + (y:Mat(this.rows,this.cols))
+	:Mat(this.rows, this.cols);
+	abstract operator this * (y:Mat) {this.cols == y.rows}
+	:Mat(this.rows, y.cols);
+
+	static def example(a:Int, b:Int, c:Int) {
+		val axb1 : Mat(a,b) = makeMat(a,b);
+		val axb2 : Mat(a,b) = makeMat(a,b);
+		val bxc : Mat(b,c) = makeMat(b,c);
+		val axc : Mat(a,c) = (axb1 +axb2) * bxc;
+
+		val err1 = axb1 + bxc; // ERR: Method operator+(y: x10.manual.examples.Mat{self.cols==x10.manual.examples.Mat#this.cols, self.rows==x10.manual.examples.Mat#this.rows}): x10.manual.examples.Mat{self.cols==x10.manual.examples.Mat#this.cols, self.rows==x10.manual.examples.Mat#this.rows} in x10.manual.examples.Mat{self==axb1, axb1.cols==b, axb1.rows==a} cannot be called with arguments (x10.manual.examples.Mat{self==bxc, bxc.cols==c, bxc.rows==b});    Invalid Parameter.	 Expected type: x10.manual.examples.Mat{self.cols==axb1.cols, self.rows==axb1.rows}	 Found type: x10.manual.examples.Mat{self==bxc, bxc.cols==c, bxc.rows==b}
+		val err2 =  bxc * axb1; // ERR: Method operator*(y: x10.manual.examples.Mat){x10.manual.examples.Mat#this.cols==y.rows}[]: x10.manual.examples.Mat{self.cols==y.cols, self.rows==x10.manual.examples.Mat#this.rows} in x10.manual.examples.Mat{self==bxc, bxc.cols==c, bxc.rows==b} cannot be called with arguments (x10.manual.examples.Mat{self==axb1, axb1.cols==b, axb1.rows==a}); Call invalid; calling environment does not entail the method guard.
+	}
+}
+class DestructurePointTest {
+	static def destructurePoint() {
+		val [i] : Point = Point.make(11);
+		val p[j,k] = Point.make(22,33);
+		val q[l,m] = [44,55]; // coerces an array to a point.
+	}
+	static def iterateExample() {	
+		var sum : Int = 0;
+		for ([i] in 1..100) sum += i;
+	}
+}
+class FormalParameters {
+	static def inc(var i:Int) { i += 1; }
+	static def test() {
+		var j:Int = 1;
+		inc(j); // "j" is not changed
+		assert j==1;
+	}
+}
+class Locals {
+	static def main(r: Array[String](1)):Void {
+		val a : Int;
+		a = r.size;
+		val b : String;
+		if (a == 5) b = "five?"; else b = "" + a + " args";
+	}
+}
+/*
+When ref is included in the language:
+
+class RefExample {
+	static def inc(ref i:Int) { i += 1; }
+	static def test() {
+		var j:Int{self==1} = 1;
+		inc(j); // "j" IS changed! ShouldBeErr: subtyping for "ref" must be exact!
+		assert j==2;
+	}
+
+    // another example
+    static def foo(ref i:Int) {
+      bar(i); // ShouldBeErr: subtyping for "ref" must be exact!
+    }
+    static def bar(ref i:Any) {
+      i = "as";
+    }
+}
+*/
