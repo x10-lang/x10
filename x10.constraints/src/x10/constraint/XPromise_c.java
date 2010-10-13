@@ -414,11 +414,17 @@ class XPromise_c implements XPromise, Serializable {
         }
     }
 
+    private boolean toStringMark = false;
     public String toString() {
-        return var + ((value != null) 
-        		? "->" + value 
-        				: ((fields != null) ? fields.toString() : "")
-        				+ (disEquals != null ? " != " + disEquals.toString() : ""));
+        if (toStringMark)
+            return "...";
+        toStringMark = true;
+        String res = var + ((value != null)
+                ? "->" + value 
+                        : ((fields != null) ? fields.toString() : "")
+                        + (disEquals != null ? " != " + disEquals.toString() : ""));
+        toStringMark = false;
+        return res;
     }
 
     public void replaceDescendant(XPromise y, XPromise x, XConstraint c) {
