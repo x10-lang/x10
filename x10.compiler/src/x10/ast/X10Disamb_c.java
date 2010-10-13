@@ -162,9 +162,9 @@ public class X10Disamb_c extends Disamb_c {
 	            FieldInstance fi = (FieldInstance) vi;
 	            X10TypeSystem xts = (X10TypeSystem) v.typeSystem();
 	            Context p = c;
-	            // Pop back to the right context before proceeding
-	            while (p.pop() != null && ((p.currentClass() != null && !xts.typeEquals(p.currentClass(), fi.container(), p)) || p.currentCode() instanceof ClosureDef))
-	                p = p.pop();
+	            // FIXME: [IP] should we pop back to the right context before proceeding?
+	            //while (p.pop() != null && ((p.currentClass() != null && !xts.typeEquals(p.currentClass(), fi.container(), p)) || p.currentCode() instanceof ClosureDef))
+	            //    p = p.pop();
 	            if (p.inStaticContext() && !fi.flags().isStatic())
 	                throw new SemanticException("Cannot access a non-static field "+this.name+" from a static context.", pos);
 	        }
