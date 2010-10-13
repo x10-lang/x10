@@ -491,12 +491,13 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            if (x10.Configuration.CHECK_INVARIANTS) {
                ArrayList<Goal> newGoals = new ArrayList<Goal>(goals.size()*2);
                boolean reachedTypeChecking = false;
+               int ctr = 0;
                for (Goal g : goals) {
                    newGoals.add(g);
                    if (!reachedTypeChecking)
-                       newGoals.add(new VisitorGoal("PositionInvariantChecker", job, new PositionInvariantChecker(job, g.name())));
+                       newGoals.add(new VisitorGoal("PositionInvariantChecker"+(ctr++), job, new PositionInvariantChecker(job, g.name())).intern(this));
                    if (g==TypeChecked(job)) {
-                       newGoals.add(new VisitorGoal("InstanceInvariantChecker", job, new InstanceInvariantChecker(job)));
+                       newGoals.add(new VisitorGoal("InstanceInvariantChecker", job, new InstanceInvariantChecker(job)).intern(this));
                        reachedTypeChecking = true;
                    }
                }
