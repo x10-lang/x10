@@ -12,6 +12,7 @@
 package x10.array;
 
 import x10.compiler.TempNoInline_1;
+import x10.compiler.CompilerFlags;
 
 /**
  * A RectRegion is a finite dense rectangular region with a specified rank.
@@ -192,7 +193,7 @@ public final class RectRegion extends Region{rect} {
     }
 
     public def contains(i0:int, i1:int){rank==2}:boolean { 
-        if (zeroBased) {
+        if (CompilerFlags.useUnsigned() && zeroBased) {
             return ((i0 as UInt) <= (max0 as UInt)) &&
                    ((i1 as UInt) <= (max1 as UInt));
         } else {
@@ -202,7 +203,7 @@ public final class RectRegion extends Region{rect} {
     }
 
     public def contains(i0:int, i1:int, i2:int){rank==3}:boolean {
-        if (zeroBased) {
+        if (CompilerFlags.useUnsigned() && zeroBased) {
             return ((i0 as UInt) <= (max0 as UInt)) &&
                    ((i1 as UInt) <= (max1 as UInt)) &&
                    ((i2 as UInt) <= (max2 as UInt));
@@ -214,7 +215,7 @@ public final class RectRegion extends Region{rect} {
     }
 
     public def contains(i0:int, i1:int, i2:int, i3:int){rank==4}:boolean {
-        if (zeroBased) {
+        if (CompilerFlags.useUnsigned() && zeroBased) {
             return ((i0 as UInt) <= (max0 as UInt)) &&
                    ((i1 as UInt) <= (max1 as UInt)) &&
                    ((i2 as UInt) <= (max2 as UInt)) &&
