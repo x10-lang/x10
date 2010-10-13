@@ -320,14 +320,14 @@ public class InitChecker extends DataFlow
         MinMaxInitCount finish() {
             return new MinMaxInitCount(minAsync,maxAsync,minAsync,maxAsync);//[c,d,c,d]
         }
-        static MinMaxInitCount join(X10TypeSystem xts, Term node, boolean entry, MinMaxInitCount initCount1, MinMaxInitCount initCount2) {
+        static MinMaxInitCount join(X10TypeSystem xts, VarDef v, Term node, boolean entry, MinMaxInitCount initCount1, MinMaxInitCount initCount2) {
             assert !(node instanceof Finish);
             if (initCount1 == null) return initCount2;
             if (initCount2 == null) return initCount1;
 
             if (!entry && node instanceof Async_c) {
                 Async_c async = (Async_c) node;
-                // one flow must be smaller than the other (the one coming after the PLACE is
+                // one flow must be smaller than the other (the one coming from the entry of the Async is
                 // smaller or equal to the one coming after the BODY)
                 MinMaxInitCount small =
                                 // is initCount1 the min?
@@ -354,7 +354,10 @@ public class InitChecker extends DataFlow
                 //async if (flag) S
                 //so the statement in S might or might not get executed.
                 //Therefore even after a "finish" we still can't use anything assigned in S.
-                
+
+                if (!initCount1.equals(initCount2) && v instanceof X10LocalDef) {
+                    ((X10LocalDef)v).setAsyncInit();
+                }
                 return new MinMaxInitCount(small.minSeq, small.maxSeq, isUncounted ? small.minAsync : big.minAsync, big.maxAsync); // [a',b', c, d]
             }
             // normal join: [min(a,a'), max(b,b'), min(c,c'), max(d,d')]
@@ -706,7 +709,7 @@ public class InitChecker extends DataFlow
                     VarDef v = (VarDef)e.getKey();
                     MinMaxInitCount initCount1 = m.get(v);
                     MinMaxInitCount initCount2 = (MinMaxInitCount)e.getValue();
-                    m.put(v, MinMaxInitCount.join((X10TypeSystem)ts,node,entry,initCount1, initCount2));
+                    m.put(v, MinMaxInitCount.join((X10TypeSystem)ts,v,node,entry,initCount1, initCount2));
                 }
             }
         }
@@ -760,9 +763,6 @@ public class InitChecker extends DataFlow
                 if (!before.equals(after) && after.equals(MinMaxInitCount.ONE) && flags !=null && flags.isFinal()) {
                     if (ext.asyncInitVal ==null) ext.asyncInitVal = new HashSet<VarDef>();
                     ext.asyncInitVal.add(v);
-                    if (v instanceof X10LocalDef) {
-                        ((X10LocalDef)v).setAsyncInit();
-                    }
                     break; // optimization, cause we already added "v"
                 }
             }
