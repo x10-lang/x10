@@ -25,6 +25,7 @@ import polyglot.ast.AmbExpr;
 import polyglot.ast.AmbTypeNode;
 import polyglot.ast.Assign;
 import polyglot.ast.Block;
+import polyglot.ast.BooleanLit;
 import polyglot.ast.Call;
 import polyglot.ast.ClassDecl;
 import polyglot.ast.ClassMember;
@@ -43,6 +44,7 @@ import polyglot.ast.TypeNode;
 import polyglot.frontend.ExtensionInfo;
 import polyglot.frontend.Goal;
 import polyglot.frontend.Job;
+import polyglot.types.Context;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.FunctionDef;
@@ -906,7 +908,7 @@ public class Inliner extends ContextVisitor {
      */
     private X10MethodDecl normalizeMethod(X10MethodDecl decl, LocalDecl thisFormal) {
         LocalDef thisDef = null == thisFormal ? null : thisFormal.localDef();
-        return (X10MethodDecl) decl.visit(new InliningRewriter(decl, thisDef));
+        return (X10MethodDecl) decl.visit(new InliningRewriter(decl, thisDef, job(), typeSystem(), nodeFactory(), context()));
     }
 
     /**
@@ -914,7 +916,7 @@ public class Inliner extends ContextVisitor {
      * @return
      */
     private Closure normalizeClosure(Closure lit) {
-        return (Closure) lit.visit(new InliningRewriter(lit));
+        return (Closure) lit.visit(new InliningRewriter(lit, job(), typeSystem(), nodeFactory(), context()));
     }
 
     public Node propagateConstants(Node n) {
@@ -1295,7 +1297,7 @@ public class Inliner extends ContextVisitor {
      * 
      * @author igor TODO: factor out into its own class
      */
-    public class InliningRewriter extends ContextVisitor {
+    public static class InliningRewriter extends ContextVisitor {
         private final FunctionDef def;
         private final LocalDef ths;
         private final LocalDef ret;
@@ -1303,17 +1305,17 @@ public class Inliner extends ContextVisitor {
         private int returnCount;
         private int throwCount;
 
-        public InliningRewriter(Closure closure) {
-            this(closure.closureDef(), null, closure.body().statements());
+        public InliningRewriter(Closure closure, Job j, TypeSystem ts, NodeFactory nf, Context ctx) {
+            this(closure.closureDef(), null, closure.body().statements(), j, ts, nf, ctx);
         }
 
-        public InliningRewriter(X10MethodDecl decl, LocalDef ths) {
-            this(decl.methodDef(), ths, decl.body().statements());
+        public InliningRewriter(X10MethodDecl decl, LocalDef ths, Job j, TypeSystem ts, NodeFactory nf, Context ctx) {
+            this(decl.methodDef(), ths, decl.body().statements(), j, ts, nf, ctx);
         }
 
-        private InliningRewriter(FunctionDef def, LocalDef ths, List<Stmt> body) {
-            super(Inliner.this.job(), Inliner.this.typeSystem(), Inliner.this.nodeFactory());
-            this.context = Inliner.this.context();
+        private InliningRewriter(FunctionDef def, LocalDef ths, List<Stmt> body, Job j, TypeSystem ts, NodeFactory nf, Context ctx) {
+        	super(j, ts, nf);
+            this.context = ctx;
             this.def = def;
             this.ths = ths;
             this.returnCount = 0;
@@ -1383,7 +1385,7 @@ public class Inliner extends ContextVisitor {
                                            xnf.Id(pos, ret.name()) ).localDef(ret));
             }
             if (0 < returnCount) {
-                newBody.add(xnf.Labeled(pos, xnf.Id(pos, label), xnf.Do(pos, body, syn.createFalse(pos))));
+                newBody.add(xnf.Labeled(pos, xnf.Id(pos, label), xnf.Do(pos, body, (BooleanLit) xnf.BooleanLit(pos, false).type(xts.Boolean()))));
             } else {
                 newBody.addAll(body.statements());
             }
