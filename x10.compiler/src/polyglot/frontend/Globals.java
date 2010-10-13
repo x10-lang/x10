@@ -15,18 +15,9 @@ public class Globals {
         compiler.set(c);
     }
     
-    public static Compiler Compiler() { return compiler.get(); }
+    private static Compiler Compiler() { return compiler.get(); }
 
-    public static ExtensionInfo Extension() { return Compiler().sourceExtension(); }
+    private static ExtensionInfo Extension() { return Compiler().sourceExtension(); }
 
     public static Options Options() { return Extension().getOptions(); }
-    public static Stats Stats() { return Extension().getStats(); }
-
-   // public static TypeSystem TS() { return Extension().typeSystem(); }
-
-   // public static NodeFactory NF() { return Extension().nodeFactory(); }
-
-    public static Scheduler Scheduler() { return Extension().scheduler(); }
-    public static Job currentJob() { return Scheduler().currentJob(); }
-    public static Goal currentGoal() { return Scheduler().currentGoal(); }
 }

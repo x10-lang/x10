@@ -309,7 +309,7 @@ public class Disamb_c implements Disamb
 		sym.update(t);
 
 		// Reset the resolver goal to one that can run when the ref is deserialized.
-		Goal resolver = Globals.Scheduler().LookupGlobalType(sym);
+		Goal resolver = v.job().extensionInfo().scheduler().LookupGlobalType(sym);
 		resolver.update(Goal.Status.SUCCESS);
 		sym.setResolver(resolver);
 

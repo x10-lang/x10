@@ -524,11 +524,11 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
             return (ClassType) typeForName(qualName);
         }
         catch (SemanticException e) {
-            Globals.Compiler().errorQueue().enqueue(
+            extensionInfo().compiler().errorQueue().enqueue(
                                                     ErrorInfo.INTERNAL_ERROR,
                                                     "Cannot load X10 runtime class \"" + name
                                                             + "\".  Is the X10 runtime library in your classpath or sourcepath?");
-            Goal goal = Globals.currentGoal();
+            Goal goal = extensionInfo().scheduler().currentGoal();
             if (goal != null)
                 goal.fail();
             return createFakeClass(qualName, e);

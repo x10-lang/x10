@@ -510,7 +510,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
        @Override
        protected Goal EndAll() {
     	   if (PrintWeakCallsCount == null) {
-    		   PrintWeakCallsCount = new PrintWeakCallsCount((ExtensionInfo) extInfo);
+    		   PrintWeakCallsCount = new PrintWeakCallsCount((ExtensionInfo) extInfo).intern(this);
     		   Goal postcompiled = PostCompiled();
     		   PrintWeakCallsCount.addPrereq(postcompiled);
     	   }
@@ -579,7 +579,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 
        public Goal TypeCheckBarrier() {
            String name = "TypeCheckBarrier";
-    	   if (Globals.Options().compile_command_line_only) {
+    	   if (extInfo.getOptions().compile_command_line_only) {
                return new BarrierGoal(name, commandLineJobs()) {
                    private static final long serialVersionUID = -1495893515710977644L;
                    @Override
@@ -610,7 +610,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
        
        public Goal CodeGenBarrier() {
            String name = "CodeGenBarrier";
-           if (Globals.Options().compile_command_line_only) {
+           if (extInfo.getOptions().compile_command_line_only) {
                return new BarrierGoal(name, commandLineJobs()) {
                    private static final long serialVersionUID = 2258041064037983928L;
                    @Override

@@ -12,8 +12,10 @@ public abstract class AbstractGoal_c extends LazyRef_c<Goal.Status> implements G
 
 	String name;
 	public List<Goal> prereqs;
+	protected Scheduler scheduler = null;
 
-	public Goal intern(Scheduler scheduler) {
+	public final Goal intern(Scheduler scheduler) {
+		this.scheduler = scheduler;
 		return scheduler.intern(this);
 	}
 
@@ -93,15 +95,15 @@ public abstract class AbstractGoal_c extends LazyRef_c<Goal.Status> implements G
 			Report.report(4, "running goal " + goal);
 
 		if (Report.should_report(Report.frontend, 5)) {
-			if (Globals.Scheduler().currentGoal() != null) {
-				Report.report(5, "CURRENT = " + Globals.Scheduler().currentGoal());
+			if (scheduler.currentGoal() != null) {
+				Report.report(5, "CURRENT = " + scheduler.currentGoal());
 				Report.report(5, "SPAWN   = " + goal);
 			}
 		}
 
 		boolean result = false;
 		try {
-			result = Globals.Scheduler().runPass(this);
+			result = scheduler.runPass(this);
 			if (state() == Goal.Status.RUNNING_WILL_FAIL)
 			    result = false;
 		}

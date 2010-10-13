@@ -453,9 +453,9 @@ public abstract class DataFlow extends ErrorHandlingVisitor
                 
                 long t4 = System.currentTimeMillis();
 
-                Globals.Stats().accumulate("DataFlow.cfg.build", (t2-t1));
-                Globals.Stats().accumulate("DataFlow.dataflow", (t3-t2));
-                Globals.Stats().accumulate("DataFlow.post", (t4-t3));
+                job().extensionInfo().getStats().accumulate("DataFlow.cfg.build", (t2-t1));
+                job().extensionInfo().getStats().accumulate("DataFlow.dataflow", (t3-t2));
+                job().extensionInfo().getStats().accumulate("DataFlow.post", (t4-t3));
 
                 // push the CFG onto the stack if we are dataflowing on entry
                 if (dataflowOnEntry)

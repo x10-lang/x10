@@ -26,6 +26,7 @@ public class TypeCheckFragmentGoal<T> extends AbstractGoal_c {
 	this.v = v;
 	this.r = r;
 	this.mightFail = mightFail;
+	this.scheduler = v.job().extensionInfo().scheduler();
     }
     
     public List<Goal> prereqs() {

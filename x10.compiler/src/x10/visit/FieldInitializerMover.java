@@ -88,7 +88,7 @@ public class FieldInitializerMover extends ContextVisitor {
     }
     
     protected ConstructorCall superCall(Type superType) throws SemanticException {
-        Position CG = Position.compilerGenerated();
+        Position CG = Position.COMPILER_GENERATED;
         assert (superType.isClass());
         Expr qualifier = null;
         if (superType.toClass().def().isMember() && !superType.toClass().flags().isStatic())

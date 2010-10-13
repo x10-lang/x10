@@ -256,9 +256,6 @@ public class LoopUnroller extends ContextVisitor {
 
     public boolean checkFinalConditions() {
         try {
-            if (Globals.Compiler() == null) {
-                Globals.initialize(xts.extensionInfo().compiler());
-            }
             boolean status= findLoopParams();
             if (status) {
                 status= checkForInductionVarRefs();

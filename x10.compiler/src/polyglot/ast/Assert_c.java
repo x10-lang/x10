@@ -121,7 +121,7 @@ public class Assert_c extends Stmt_c implements Assert
     }
 
     public void translate(CodeWriter w, Translator tr) {
-        if (! Globals.Options().assertions) {
+        if (! tr.job().extensionInfo().getOptions().assertions) {
             w.write(";");
         }
         else {

@@ -43,26 +43,26 @@ public class Position implements Serializable, Copy
     public static final int THIS_METHOD = 1;
     public static final int CALLER = THIS_METHOD + 1;
 
-    /**
-     * Get a compiler generated position using the caller at the given stack
-     * depth.  Depth 1 is the caller.  Depth 2 is the caller's caller, etc.
-     */ 
-    public static Position compilerGenerated(int depth) {
-    	if (! Globals.Options().precise_compiler_generated_positions)
-            return COMPILER_GENERATED;
-        StackTraceElement[] stack = new Exception().getStackTrace();
-        if (depth < stack.length) {
-            return new Position(true, null, stack[depth].getFileName() + " (compiler generated)", stack[depth].getLineNumber());
-        }
-        else {
-            return COMPILER_GENERATED;
-        }
-    }
-
-    /** Get a compiler generated position. */ 
-    public static Position compilerGenerated() {
-        return compilerGenerated(CALLER);
-    }
+//    /**
+//     * Get a compiler generated position using the caller at the given stack
+//     * depth.  Depth 1 is the caller.  Depth 2 is the caller's caller, etc.
+//     */ 
+//    public static Position compilerGenerated(int depth) {
+//    	if (! Globals.Options().precise_compiler_generated_positions)
+//            return COMPILER_GENERATED;
+//        StackTraceElement[] stack = new Exception().getStackTrace();
+//        if (depth < stack.length) {
+//            return new Position(true, null, stack[depth].getFileName() + " (compiler generated)", stack[depth].getLineNumber());
+//        }
+//        else {
+//            return COMPILER_GENERATED;
+//        }
+//    }
+//
+//    /** Get a compiler generated position. */ 
+//    public static Position compilerGenerated() {
+//        return compilerGenerated(CALLER);
+//    }
 
     public boolean isCompilerGenerated() {
         return compilerGenerated;
@@ -73,7 +73,7 @@ public class Position implements Serializable, Copy
 	    return (Position) super.clone();
 	} catch (CloneNotSupportedException e) {
 	    assert false;
-	    return Position.compilerGenerated();
+	    return Position.COMPILER_GENERATED;
 	}
     }
     

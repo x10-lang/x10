@@ -14,10 +14,6 @@ import polyglot.types.TypeSystem;
 /** Visitor which performs type checking on the AST. */
 public class TypeComputer extends ContextVisitor
 {
-    public Goal goal() {
-        return Globals.currentGoal();
-    }
-    
     public TypeComputer(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf);
     }

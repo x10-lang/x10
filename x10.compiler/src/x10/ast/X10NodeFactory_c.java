@@ -37,22 +37,15 @@ import x10.types.checker.Converter.ConversionType;
  */
 public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 
-	protected ExtensionInfo extInfo;
 	public X10NodeFactory_c(ExtensionInfo extInfo) {
-		super(new X10ExtFactory_c(), new X10DelFactory_c());
-		this.extInfo = extInfo;
+		this(extInfo, new X10ExtFactory_c(), new X10DelFactory_c());
 	}
 	
 	protected X10NodeFactory_c(ExtensionInfo extInfo, ExtFactory extFact, DelFactory delFact) {
-		super(extFact, delFact);
-		this.extInfo = extInfo;
+		super(extInfo, extFact, delFact);
 	}
 
-	protected X10NodeFactory_c(ExtFactory extFact) {
-		super(extFact);
-	}
-
-	public final ExtensionInfo extensionInfo() { return extInfo; }
+	public ExtensionInfo extensionInfo() { return (ExtensionInfo) super.extensionInfo(); }
 
 	public Disamb disamb() {
 		return new X10Disamb_c();
@@ -371,8 +364,6 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 	}
 	
 	public Expr ConstantDistMaker(Position pos, Expr e1, Expr e2) {
-		NodeFactory nf = this;
-		TypeSystem ts = this.extensionInfo().typeSystem();
 		Receiver x10LangDistributionFactory = ReceiverFromQualifiedName(pos, QName.make("x10.array.Dist"));
 		List<Expr> l = new TypedList<Expr>(new LinkedList<Expr>(), Expr.class, false);
 		l.add(e1);
@@ -703,14 +694,11 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		return n;
 	}
 	public Expr RegionMaker(Position pos, Expr e1, Expr e2) {
-		NodeFactory nf = this;
-		TypeSystem ts = this.extensionInfo().typeSystem();
-		
 		List<Expr> l = new TypedList<Expr>(new LinkedList<Expr>(), Expr.class, false);
 		l.add(e1);
 		l.add(e2);
 
-		Call n = new RegionMaker_c(pos, nf.TypeNodeFromQualifiedName(pos, QName.make("x10.array.Region")), nf.Id(pos, "makeRectangular"), l);
+		Call n = new RegionMaker_c(pos, TypeNodeFromQualifiedName(pos, QName.make("x10.array.Region")), Id(pos, "makeRectangular"), l);
 		n = (Call) n.ext(extFactory().extExpr());
 		n = (Call) n.del(delFactory().delExpr());
 		return n;
