@@ -107,6 +107,11 @@ public class X10CUDAContext_c extends X10CPPContext_c {
     LocalDecl autoThreads;
     public void autoThreads(LocalDecl v) { this.autoThreads = v; }
     public LocalDecl autoThreads() { return this.autoThreads; }
+	
+    Name shmIterationVar;
+    public void shmIterationVar(Name v) { this.shmIterationVar = v; }
+    public Name shmIterationVar() { return this.shmIterationVar; }
+	
 
 }
 

@@ -464,7 +464,7 @@ public final class Array[T](
      * @see #apply(Int)
      * @see #set(T, Point)
      */
-    @Native("cuda", "(#0).apply(#1,#2)")
+    @Native("cuda", "(#0).set(#1,#2)")
     public @Header @Inline def set(v:T, i0:int){rank==1}:T {
 	if (CompilerFlags.useUnsigned() && cachedRail) {
             if (CompilerFlags.checkBounds() && !((i0 as UInt) < (size as UInt))) {

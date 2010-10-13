@@ -558,12 +558,12 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 		}
 	}
 
-	public static Block checkAsync(Stmt s) {
+	public static Block checkAsync(Stmt s, boolean clocked) {
 		try {
-			if (!checkStaticCall(s, "Runtime", "runAsync", 1))
+			if (!checkStaticCall(s, "Runtime", "runAsync", clocked?2:1))
 				return null;
 			Call async_call = (Call) (((Eval) s).expr());
-			Expr async_arg = async_call.arguments().get(0);
+			Expr async_arg = async_call.arguments().get(clocked?1:0);
 			Closure async_closure = (Closure) async_arg;
 			if (async_closure.formals().size() != 0)
 				return null;
@@ -653,7 +653,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 				MultipleValues outer = processLoop(for_block);
 				b = (Block_c) outer.body;
 
-				b = (Block_c) checkAsync(b.statements().get(0));
+				b = (Block_c) checkAsync(b.statements().get(0), false);
 				complainIfNot(b != null, "An async for the block", outer.body);
 
 				Stmt last = b.statements().get(b.statements().size() - 1);
@@ -679,14 +679,13 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 							0);
 
 					Type rail_type_arg = rail_type_arg_node.type();
+					String rail_type_arg_ = Emitter.translateType(rail_type_arg, true);
 					// TODO: support other types
-					complainIfNot(rail_type_arg.isFloat(),
-							"An array of type float", rail_type_arg_node);
 					if (init_new.arguments().size() == 2) {
 						Expr num_elements = init_new.arguments().get(0);
 						Expr rail_init_closure = init_new.arguments().get(1);
 						shm.addArrayInitClosure(ld, num_elements,
-								rail_init_closure);
+								rail_init_closure, rail_type_arg_);
 					} else {
 						complainIfNot(init_new.arguments().size() == 1,
 								"val <var> = new Array[T](other_array)",
@@ -694,11 +693,10 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 						Expr src_array = init_new.arguments().get(0);
 						complainIfNot(
 								xts().isArray(src_array.type())
-										|| xts()
-												.isRemoteArray(src_array.type()),
+										|| xts().isRemoteArray(src_array.type()),
 								"SHM to be initialised from array or remote array type",
 								src_array);
-						shm.addArrayInitArray(ld, src_array);
+						shm.addArrayInitArray(ld, src_array, rail_type_arg_);
 					}
 				}
 
@@ -714,7 +712,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 				complainIfNot(b.statements().size() == 1,
 						"A block with a single statement", b);
 				Stmt async = b.statements().get(0);
-				Block async_body = checkAsync(async);
+				Block async_body = checkAsync(async, true);
 
 				// b = (Block_c) async_body;
 				context().setCUDAKernelCFG(outer.max, outer.var, inner.max,
@@ -799,12 +797,11 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 
 			generateStruct("__cuda", inc, env);
 
-			inc
-					.write("static void "
-							+ SharedVarsMethods.POST_CUDA_METHOD
-							+ "("
-							+ DESERIALIZATION_BUFFER
-							+ " &__buf, x10aux::place __gpu, size_t __blocks, size_t __threads, size_t __shm, size_t argc, char *argv, size_t cmemc, char *cmemv) {");
+			inc.write("static void "
+						+ SharedVarsMethods.POST_CUDA_METHOD
+						+ "("
+						+ DESERIALIZATION_BUFFER
+						+ " &__buf, x10aux::place __gpu, size_t __blocks, size_t __threads, size_t __shm, size_t argc, char *argv, size_t cmemc, char *cmemv) {");
 			inc.newline(4);
 			inc.begin(0);
 
@@ -833,9 +830,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 					String name = var.name().toString();
 					if (isIntArray(t) || isFloatArray(t)) {
 						if (!xts().isRemoteArray(t)) {
-							inc
-									.write("x10aux::remote_free(__gpu, (x10_ulong)(size_t)__env."
-											+ name + ".raw);");
+							inc.write("x10aux::remote_free(__gpu, (x10_ulong)(size_t)__env." + name + ".raw);");
 						}
 					}
 					inc.newline();
@@ -971,11 +966,9 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 					inc.end();
 					inc.newline();
 				} else {
-					inc
-							.write("x10_ulong __remote_env = x10aux::remote_alloc(__gpu, sizeof(__env));");
+					inc.write("x10_ulong __remote_env = x10aux::remote_alloc(__gpu, sizeof(__env));");
 					inc.newline();
-					inc
-							.write("x10aux::cuda_put(__gpu, __remote_env, &__env, sizeof(__env));");
+					inc.write("x10aux::cuda_put(__gpu, __remote_env, &__env, sizeof(__env));");
 					inc.newline();
 					inc.write("::memcpy(argv, &__remote_env, sizeof (void*));");
 					inc.newline();
@@ -1159,6 +1152,8 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 				out.write("blockIdx.x");
 			} else if (ln == context().threadsVar()) {
 				out.write("threadIdx.x");
+			} else if (ln == context().shmIterationVar()) {
+				out.write("__i");
 			} else if (context().shm().has(ln)) {
 				out.write(ln.toString());
 			} else if (context().isKernelParam(ln)) {

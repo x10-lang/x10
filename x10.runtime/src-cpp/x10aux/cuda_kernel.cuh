@@ -35,7 +35,7 @@ namespace x10aux {
         x10_int size;
         T *raw;
         __device__ T &apply (x10_int i) { return raw[i]; }
-        __device__ T apply (const T &v, x10_int i) { return raw[i] = v; }
+        __device__ T set (const T &v, x10_int i) { return raw[i] = v; }
     };
 }
 

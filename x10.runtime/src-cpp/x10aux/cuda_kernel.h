@@ -18,7 +18,7 @@ namespace x10aux {
         x10_int size;
         T *raw;
         T &apply (x10_int i) { return raw[i]; }
-        T apply (const T &v, x10_int i) { return raw[i] = v; }
+        T set (const T &v, x10_int i) { return raw[i] = v; }
     };
 }
 
