@@ -90,7 +90,7 @@ public class ExtensionInfo extends x10.ExtensionInfo {
 						return scheduler.End(job);
 					return null;
 				}
-	        };
+	        }.intern(this);
 		}
 	}
 }
