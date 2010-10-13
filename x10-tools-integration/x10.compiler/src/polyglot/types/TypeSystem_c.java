@@ -1633,7 +1633,7 @@ public abstract class TypeSystem_c implements TypeSystem
 
 		TypeSystem_c ts = this;
 		LazyRef<ClassDef> sym = Types.lazyRef(unknownClassDef(), null);
-		Goal resolver = Globals.Scheduler().LookupGlobalTypeDef(sym, name);
+		Goal resolver = extInfo.scheduler().LookupGlobalTypeDef(sym, name);
 		resolver.update(Goal.Status.SUCCESS);
 		sym.setResolver(resolver);
 		return sym;

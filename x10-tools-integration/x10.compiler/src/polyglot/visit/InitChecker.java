@@ -1157,10 +1157,10 @@ public class InitChecker extends DataFlow
 
         long t3 = System.currentTimeMillis();
 
-        Globals.Stats().accumulate("InitChecker.check", 1);
-        Globals.Stats().accumulate("InitChecker.1", (t2-t));
-        Globals.Stats().accumulate("InitChecker.2", (t3-t2));
-        Globals.Stats().accumulate("InitChecker.1+2", (t3-t));
+        job().extensionInfo().getStats().accumulate("InitChecker.check", 1);
+        job().extensionInfo().getStats().accumulate("InitChecker.1", (t2-t));
+        job().extensionInfo().getStats().accumulate("InitChecker.2", (t3-t2));
+        job().extensionInfo().getStats().accumulate("InitChecker.1+2", (t3-t));
     }
 
     /**

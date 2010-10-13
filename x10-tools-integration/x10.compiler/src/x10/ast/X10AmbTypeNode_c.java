@@ -159,7 +159,7 @@ public class X10AmbTypeNode_c extends AmbTypeNode_c implements X10AmbTypeNode, A
               sym.update(mt);
               
               // Reset the resolver goal to one that can run when the ref is deserialized.
-              Goal resolver = Globals.Scheduler().LookupGlobalType(sym);
+              Goal resolver = tc.job().extensionInfo().scheduler().LookupGlobalType(sym);
               resolver.update(Goal.Status.SUCCESS);
               sym.setResolver(resolver);
 
@@ -187,7 +187,7 @@ public class X10AmbTypeNode_c extends AmbTypeNode_c implements X10AmbTypeNode, A
               }*/
               
               // Reset the resolver goal to one that can run when the ref is deserialized.
-              Goal resolver = Globals.Scheduler().LookupGlobalType(sym);
+              Goal resolver = tc.job().extensionInfo().scheduler().LookupGlobalType(sym);
               resolver.update(Goal.Status.SUCCESS);
               sym.setResolver(resolver);
               return postprocess((CanonicalTypeNode) tn, this, ar);   

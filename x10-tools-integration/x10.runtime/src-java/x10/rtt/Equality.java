@@ -89,10 +89,6 @@ public class Equality {
         // Struct equality is value equality that implys non-null.
         if (a == null || b == null) return false;
         
-        // String is not struct but equality is value based.
-        if (a instanceof String && b instanceof String)
-            return a.equals(b);
-        
         // equality of structs are follows
         if (a instanceof Boolean && b instanceof Boolean)
             return (boolean) (Boolean) a == (boolean) (Boolean) b;

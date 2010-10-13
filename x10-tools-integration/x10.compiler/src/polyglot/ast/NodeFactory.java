@@ -10,6 +10,7 @@ package polyglot.ast;
 
 import java.util.List;
 
+import polyglot.frontend.ExtensionInfo;
 import polyglot.types.*;
 import polyglot.types.Package;
 import polyglot.util.Position;
@@ -22,6 +23,11 @@ import polyglot.util.Position;
 public interface NodeFactory
 {
 
+	/**
+	 * Returns the ExtensionInfo object associated with this factory.
+	 */
+	public ExtensionInfo extensionInfo();
+	
     /**
      * Returns a disambiguator for nodes from this factory.
      */

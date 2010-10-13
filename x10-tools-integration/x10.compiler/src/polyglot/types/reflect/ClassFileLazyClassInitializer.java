@@ -290,10 +290,10 @@ public class ClassFileLazyClassInitializer {
         LazyRef<ClassDef> sym = Types.lazyRef(ts.unknownClassDef(), null);
         
         if (flags == null) {
-            sym.setResolver(Globals.Scheduler().LookupGlobalTypeDef(sym, QName.make(name)));
+            sym.setResolver(ts.extensionInfo().scheduler().LookupGlobalTypeDef(sym, QName.make(name)));
         }
         else {
-            sym.setResolver(Globals.Scheduler().LookupGlobalTypeDefAndSetFlags(sym, QName.make(name), flags));
+            sym.setResolver(ts.extensionInfo().scheduler().LookupGlobalTypeDefAndSetFlags(sym, QName.make(name), flags));
         }
         return sym;
     }

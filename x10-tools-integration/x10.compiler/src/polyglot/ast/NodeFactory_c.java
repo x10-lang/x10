@@ -10,6 +10,7 @@ package polyglot.ast;
 
 import java.util.List;
 
+import polyglot.frontend.ExtensionInfo;
 import polyglot.types.*;
 import polyglot.types.Package;
 import polyglot.util.*;
@@ -23,24 +24,12 @@ public class NodeFactory_c extends AbstractNodeFactory_c
 {
     private final ExtFactory extFactory;
     private final DelFactory delFactory;
+	private final ExtensionInfo extInfo;
     
-    // use an empty implementation of AbstractExtFactory_c and
-    // AbstractDelFactory_c, so we don't need to do null checks
-    protected static class EmptyExtFactory extends AbstractExtFactory_c { }
-    protected static class EmptyDelFactory extends AbstractDelFactory_c { }
-    
-    public NodeFactory_c() {
-        this(new EmptyExtFactory(), 
-             new EmptyDelFactory()); 
-    }
-    public NodeFactory_c(ExtFactory extFactory) {
-        this(extFactory, 
-             new EmptyDelFactory()); 
-    }
-    public NodeFactory_c(ExtFactory extFactory,
-                           DelFactory delFactory ) {
-        this.extFactory = extFactory; 
-        this.delFactory = delFactory; 
+    public NodeFactory_c(ExtensionInfo extInfo, ExtFactory extFactory, DelFactory delFactory) {
+        this.extInfo = extInfo;
+        this.extFactory = extFactory;
+        this.delFactory = delFactory;
     }
     
     protected ExtFactory extFactory() {
@@ -50,6 +39,10 @@ public class NodeFactory_c extends AbstractNodeFactory_c
     protected DelFactory delFactory() {
         return this.delFactory;
     }
+
+	public ExtensionInfo extensionInfo() {
+		return extInfo;
+	}
 
     /**
      * Utility method to find an instance of an Extension Factory
@@ -354,7 +347,7 @@ public class NodeFactory_c extends AbstractNodeFactory_c
     }
     
     public Import Import(Position pos, Import.Kind kind, QName name) {
-        Import n = new Import_c(pos, kind, name);
+        Import n = new Import_c(pos, kind, name, this);
         n = (Import)n.ext(extFactory.extImport());
         n = (Import)n.del(delFactory.delImport());
         return n;
