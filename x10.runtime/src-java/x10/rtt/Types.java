@@ -11,7 +11,6 @@
 
 package x10.rtt;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
@@ -96,12 +95,6 @@ public class Types {
             return "x10.io.FileWriter.FileOutputStream";
         }
     };
-    public static Type<File> NATIVE_FILE = new RuntimeType<File>(File.class) {
-        @Override
-        public String typeName() {
-            return "x10.io.File.NativeFile";
-        }
-    };
 
     public static RuntimeType<Comparable<?>> COMPARABLE;
     static {
@@ -182,9 +175,6 @@ public class Types {
         if (o instanceof OutputStream) return OUTPUT_STREAM;
         if (o instanceof FileInputStream) return FILE_INPUT_STREAM;
         if (o instanceof FileOutputStream) return FILE_OUTPUT_STREAM;
-        if (o instanceof File) return NATIVE_FILE;
-        // Note: new x10.lang.Object() returns x10.core.Ref instead of java.lang.Object  
-//        if (Object.class.equals(o.getClass())) return OBJECT;
         return null;
     }
 
