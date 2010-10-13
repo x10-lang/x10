@@ -32,7 +32,8 @@ void Launcher::Setup(int argc, char ** argv)
 
 	// check to see if we need to launch stuff, or if we need to execute the runtime.
 	// we just skip the launcher and run the program if the user hasn't set X10LAUNCHER_NPROCS
-	if (!getenv(X10LAUNCHER_NPROCS) || getenv(X10LAUNCHER_RUNTIME))
+	if (getenv(X10LAUNCHER_RUNTIME) || !getenv(X10LAUNCHER_NPROCS) ||
+			(strcmp(getenv(X10LAUNCHER_NPROCS), "1")==0 && !getenv(X10LAUNCHER_HOSTFILE)))
 		return;
 
 	_singleton = (Launcher *) malloc(sizeof(Launcher));

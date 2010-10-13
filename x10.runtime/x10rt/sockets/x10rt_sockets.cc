@@ -244,11 +244,20 @@ void x10rt_net_init (int * argc, char ***argv, x10rt_msg_type *counter)
 	{
 		fprintf(stderr, "%s not set.  Assuming 1 place, running locally\n", X10LAUNCHER_NPROCS);
 		state.numPlaces = 1;
-		state.myPlaceId = 0;
-		return; // nothing to set up in the network layer, since we're all alone.
+	}
+	else
+	{
+		state.numPlaces = atol(NPROCS);
+		if (state.numPlaces <= 0) // atol failed
+			error("X10LAUNCHER_NPROCS is not set to a valid number of places!");
 	}
 
-	state.numPlaces = atol(NPROCS);
+	if (state.numPlaces == 1)
+	{
+		state.myPlaceId = 0;
+		return; // If there is only 1 place, then there are no sockets to set up.
+	}
+
 	// determine my place ID
 	char* ID = getenv(X10LAUNCHER_MYID);
 	if (ID == NULL)
