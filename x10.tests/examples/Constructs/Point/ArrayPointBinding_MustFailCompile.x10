@@ -21,10 +21,11 @@ public class ArrayPointBinding_MustFailCompile extends x10Test {
 
     public def run(): boolean = {
 
-        p[i,j]: Array[Point] = new Array[Point](1);
+        val p[i,j]: Array[Point](1) = new Array[Point](2);
         p(0) = [1,2];
+        p(1) = [3,4];
 
-        return (i == 1 && j == 2);
+        return (i(0) == 1 && j(1) == 4);
     }
 
     public static def main(args: Array[String](1)): void = {
