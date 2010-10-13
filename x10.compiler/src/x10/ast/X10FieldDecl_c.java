@@ -161,6 +161,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 		    final Node n = this;
 		    r.setResolver(new AbstractGoal_c("ConstantValue") {
 		        private static final long serialVersionUID = -4839673421806815982L;
+		        { this.scheduler = tc.job().extensionInfo().scheduler(); }
 		        public boolean runTask() {
 		            if (state() == Goal.Status.RUNNING_RECURSIVE || state() == Goal.Status.RUNNING_WILL_FAIL) {
 		                // The field is not constant if the initializer is recursive.

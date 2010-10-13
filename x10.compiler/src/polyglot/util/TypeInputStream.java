@@ -79,7 +79,7 @@ public class TypeInputStream extends ObjectInputStream {
             return ((Internable) o).intern();
         }
         else if (o instanceof Goal) {
-            return ((Goal) o).intern(Globals.Scheduler());
+            return ((Goal) o).intern(ts.extensionInfo().scheduler());
         }
         else {
             if (Report.should_report(Report.serialize, 2)) {    

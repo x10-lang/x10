@@ -223,13 +223,13 @@ public class JLScheduler extends Scheduler {
            }.intern(this);
        }
 
-    public static class LookupGlobalType extends TypeObjectGoal_c<Type> {
+    public class LookupGlobalType extends TypeObjectGoal_c<Type> {
         private static final long serialVersionUID = 3031200221165141846L;
 
         public LookupGlobalType(String name, Ref<Type> v) {
             super(name, v);
             ref = Types.lazyRef(null);
-			Goal g = Globals.Scheduler().LookupGlobalTypeDef(ref, null);
+			Goal g = JLScheduler.this.LookupGlobalTypeDef(ref, null);
 			ref.setResolver(g);
         }
         
@@ -242,7 +242,7 @@ public class JLScheduler extends Scheduler {
         }
     }
 
-    protected static class LookupGlobalTypeDefAndSetFlags extends TypeObjectGoal_c<ClassDef> {
+    protected class LookupGlobalTypeDefAndSetFlags extends TypeObjectGoal_c<ClassDef> {
         private static final long serialVersionUID = -1038006362196297872L;
 
         protected QName className;
@@ -279,7 +279,7 @@ public class JLScheduler extends Scheduler {
         		}
         	}
         	catch (SemanticException e) {
-        		Globals.Compiler().errorQueue().enqueue(ErrorInfo.SEMANTIC_ERROR, e.getMessage(), e.position());
+        		extInfo.compiler().errorQueue().enqueue(ErrorInfo.SEMANTIC_ERROR, e.getMessage(), e.position());
         	}
         	return false;
         }

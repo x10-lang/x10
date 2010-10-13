@@ -254,7 +254,7 @@ public class AmbMacroTypeNode_c extends AmbTypeNode_c implements AmbMacroTypeNod
                 sym.update(mt);
                 
                 // Reset the resolver goal to one that can run when the ref is deserialized.
-                Goal resolver = Globals.Scheduler().LookupGlobalType(sym);
+                Goal resolver = tc.job().extensionInfo().scheduler().LookupGlobalType(sym);
                 resolver.update(Goal.Status.SUCCESS);
                 sym.setResolver(resolver);
 

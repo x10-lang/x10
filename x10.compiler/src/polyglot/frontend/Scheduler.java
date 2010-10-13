@@ -55,8 +55,8 @@ public abstract class Scheduler {
     // TODO: remove this, we only need to intern the goal status, not the goal itself.
     // Actually, the lazy ref to the goal status is the goal.  The run() method is the resolver for the lazy ref.
     public Goal intern(Goal goal) {
-        Globals.Stats().accumulate("intern", 1);
-        Globals.Stats().accumulate("intern:" + (goal instanceof VisitorGoal ? ((VisitorGoal) goal).v.getClass().getName() : goal.getClass().getName()), 1);
+        extInfo.getStats().accumulate("intern", 1);
+        extInfo.getStats().accumulate("intern:" + (goal instanceof VisitorGoal ? ((VisitorGoal) goal).v.getClass().getName() : goal.getClass().getName()), 1);
         Goal g = internCache.get(goal);
         if (g == null) {
             g = goal;
@@ -137,7 +137,7 @@ public abstract class Scheduler {
     public boolean shouldCompile(Job job) {
 	if (commandLineJobs().contains(job))
 	    return true;
-        if (Globals.Options().compile_command_line_only)
+        if (extInfo.getOptions().compile_command_line_only)
             return false;
         return shouldCompile.contains(job);
     }

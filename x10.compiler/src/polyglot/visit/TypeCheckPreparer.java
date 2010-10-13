@@ -20,10 +20,6 @@ public class TypeCheckPreparer extends ContextVisitor
 {
 	private Map<Node,Node> memo;
 	
-    public Goal goal() {
-        return Globals.currentGoal();
-    }
-    
     public TypeCheckPreparer(Job job, TypeSystem ts, NodeFactory nf, Map<Node,Node> memo) {
         super(job, ts, nf);
         this.setMemo(memo);

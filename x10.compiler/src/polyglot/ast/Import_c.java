@@ -24,12 +24,14 @@ public class Import_c extends Node_c implements Import
 {
     protected Kind kind;
     protected QName name;
+    protected final NodeFactory nf;
 
-    public Import_c(Position pos, Kind kind, QName name) {
+    public Import_c(Position pos, Kind kind, QName name, NodeFactory nf) {
 	super(pos);
 	assert(kind != null && name != null);
 	this.name = name;
 	this.kind = kind;
+	this.nf = nf;
     }
 
     /** Get the name of the import. */
@@ -107,7 +109,7 @@ public class Import_c extends Node_c implements Import
 
     /** Write the import to an output file. */
     public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
-	if (! Globals.Options().fully_qualified_names) {
+	if (! nf.extensionInfo().getOptions().fully_qualified_names) {
 	    w.write("import ");
 	    w.write(name.toString());
 
