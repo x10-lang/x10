@@ -989,9 +989,9 @@ public class LineNumberMap extends StringTable {
         else
         	w.writeln("NULL,");
         if (!arrayMap.isEmpty())
-        	w.write("_X10ArrayMapList");
+        	w.writeln("_X10ArrayMapList,");
         else
-        	w.write("NULL");
+        	w.writeln("NULL,");
         if (!refMap.isEmpty())
         	w.write("_X10RefMapList");
         else
