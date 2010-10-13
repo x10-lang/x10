@@ -142,7 +142,7 @@ public class KMeansCUDA {
                                     threads = CUDAUtilities.autoThreads();
                                 finish for ([block] in 0..blocks-1) async {
                                     val clustercache = new Array[Float](clusters_copy);
-                                    clocked finish for ([thread] in 0..threads-1) async {
+                                    clocked finish for ([thread] in 0..threads-1) clocked async {
                                         val tid = block * threads + thread;
                                         val tids = blocks * threads;
                                         for (var p:Int=tid ; p<num_local_points ; p+=tids) {

@@ -23,7 +23,7 @@ public class CUDAKernelTest {
 
         finish async at (p) @CUDA {
             finish for ([block] in 0..7) async {
-                clocked finish for ([thread] in 0..63) async {
+                clocked finish for ([thread] in 0..63) clocked async {
                     val tid = block*64 + thread;
                     val tids = 8*64;
                     for (var i:Int=tid ; i<len ; i+=tids) {
