@@ -67,11 +67,25 @@ namespace x10aux {
     } };
 
     template<class T, class U> struct StructEquals<ref<T>,U> { static inline GPUSAFE x10_boolean _(ref<T> x, U y) {
-        return false; // a ref and a struct
+        // ref and struct. The ref could be an IBox<U>, so we have to handle that special case
+        ref<x10::lang::Reference> xAsRef(x);
+        if (!x.isNull() && xAsRef->_type()->equals(getRTT<U>())) {
+            ref<x10::lang::IBox<U> > xAsIBox(x);
+            return struct_equals(xAsIBox->value, y);
+        } else {
+            return false;
+        }
     } };
 
     template<class T, class U> struct StructEquals<T,ref<U> > { static inline GPUSAFE x10_boolean _(T x, ref<U> y) {
-        return false; // a struct and a ref
+        // struct and ref. The ref could be an IBox<T>, so we have to handle that special case
+        ref<x10::lang::Reference> yAsRef(y);
+        if (!y.isNull() && yAsRef->_type()->equals(getRTT<T>())) {
+            ref<x10::lang::IBox<T> > yAsIBox(y);
+            return struct_equals(x, yAsIBox->value);
+        } else {
+            return false;
+        }
     } };
 
     template<class T, class U> struct StructEquals<ref<T>,ref<U> > { static inline GPUSAFE x10_boolean _(ref<T> x, ref<U> y) {

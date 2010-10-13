@@ -1782,7 +1782,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                                             public void expand(Translator tr2) {
                                                 for (Stmt stmt : statements) {
                                                     if (stmt instanceof X10Return_c) {
-                                                        w.write("array");
+                                                        w.write("array$");
                                                         w.write("[");
                                                         w.write(id.toString());
                                                         w.write("] = ");
@@ -1801,9 +1801,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                                             public void expand(Translator tr2) {
                                                 ex.expand();
                                                 w.write("[] ");
-                                                w.write("array = new ");
+                                                w.write("array$ = new ");
                                                 ex.expand();
-                                                w.write("[length];");
+                                                w.write("[length$];");
                                             }
                                         };
                                         
@@ -1818,13 +1818,13 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	                                };
 	                                er.dumpRegex("rail-make", components, tr2, 
 	                                        "(new " + JAVA_LANG_OBJECT + "() {" +
-	                                    	    "final #0<#1> apply(int length) {" +
+	                                    	    "final #0<#1> apply(int length$) {" +
 	                                    	        "#6" + 
-	                                    	        "for (int #5$ = 0; #5$ < length; #5$++) {" +
+	                                    	        "for (int #5$ = 0; #5$ < length$; #5$++) {" +
 	                                    		    "final int #5 = #5$;" +
 	                                    		    "#4" +
 	                                    		"}" +
-	                                    		"return new #0<#1>(#2, #3, array);" +
+	                                    		"return new #0<#1>(#2, length$, array$);" +
 	                                             "}" +
 	                                         "}.apply(#3))");
 	                                

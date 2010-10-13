@@ -491,12 +491,13 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            if (x10.Configuration.CHECK_INVARIANTS) {
                ArrayList<Goal> newGoals = new ArrayList<Goal>(goals.size()*2);
                boolean reachedTypeChecking = false;
+               int ctr = 0;
                for (Goal g : goals) {
                    newGoals.add(g);
                    if (!reachedTypeChecking)
-                       newGoals.add(new VisitorGoal("PositionInvariantChecker", job, new PositionInvariantChecker(job, g.name())));
+                       newGoals.add(new VisitorGoal("PositionInvariantChecker"+(ctr++), job, new PositionInvariantChecker(job, g.name())).intern(this));
                    if (g==TypeChecked(job)) {
-                       newGoals.add(new VisitorGoal("InstanceInvariantChecker", job, new InstanceInvariantChecker(job)));
+                       newGoals.add(new VisitorGoal("InstanceInvariantChecker", job, new InstanceInvariantChecker(job)).intern(this));
                        reachedTypeChecking = true;
                    }
                }
@@ -510,7 +511,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
        @Override
        protected Goal EndAll() {
     	   if (PrintWeakCallsCount == null) {
-    		   PrintWeakCallsCount = new PrintWeakCallsCount((ExtensionInfo) extInfo);
+    		   PrintWeakCallsCount = new PrintWeakCallsCount((ExtensionInfo) extInfo).intern(this);
     		   Goal postcompiled = PostCompiled();
     		   PrintWeakCallsCount.addPrereq(postcompiled);
     	   }
@@ -579,7 +580,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 
        public Goal TypeCheckBarrier() {
            String name = "TypeCheckBarrier";
-    	   if (Globals.Options().compile_command_line_only) {
+    	   if (extInfo.getOptions().compile_command_line_only) {
                return new BarrierGoal(name, commandLineJobs()) {
                    private static final long serialVersionUID = -1495893515710977644L;
                    @Override
@@ -610,7 +611,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
        
        public Goal CodeGenBarrier() {
            String name = "CodeGenBarrier";
-           if (Globals.Options().compile_command_line_only) {
+           if (extInfo.getOptions().compile_command_line_only) {
                return new BarrierGoal(name, commandLineJobs()) {
                    private static final long serialVersionUID = 2258041064037983928L;
                    @Override

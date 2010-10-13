@@ -76,27 +76,34 @@ public class Errors {
 	}
 	public static void issue(Job job, SemanticException e, Node n) {
 		ExtensionInfo ei = (ExtensionInfo) job.extensionInfo();
-		if (e.getCause() == null && e.position() == null && n != null)
-			e = new SemanticException(e.getMessage(), n.position());
-		boolean newP = ei.errorSet().add(e);
+		issue(ei, e, getPosition(n));
+	}
+	public static void issue(ExtensionInfo extInfo, SemanticException e, Position p) {
+		if (e.getCause() == null && e.position() == null && p != null)
+			e = new SemanticException(e.getMessage(), p);
+		boolean newP = extInfo.errorSet().add(e);
 		if (newP && e.getMessage() != null) {
 
 			Position position = e.position();
 
-			if (position == null && n != null) {
-				position = n.position();
+			if (position == null && p != null) {
+				position = p;
 			}
 			
 			ErrorInfo errorInfo = new CodedErrorInfo(ErrorInfo.SEMANTIC_ERROR,
 			 					e.getMessage(), position, e.attributes());
-			job.compiler().errorQueue().enqueue(errorInfo);
+			extInfo.compiler().errorQueue().enqueue(errorInfo);
 		}
+	}
+
+	private static Position getPosition(Node n) {
+		return n == null ? null : n.position();
 	}
 
 	public static interface DepTypeException {}
 	public static interface ConversionException {}
     public static class EqualByTypeAndPosException extends SemanticException {
-
+        private static final long serialVersionUID = -5707886878408735177L;
         public EqualByTypeAndPosException(String m, Position position) {
             super(m,position);
         }

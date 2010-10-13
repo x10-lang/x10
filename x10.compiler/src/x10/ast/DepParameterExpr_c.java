@@ -157,8 +157,8 @@ public class DepParameterExpr_c extends Node_c implements DepParameterExpr {
     
     public Node buildTypes(TypeBuilder tb) throws SemanticException {
     	DepParameterExpr_c n = (DepParameterExpr_c) copy();
-    	n.valueConstraint = Types.<CConstraint>lazyRef(new CConstraint(), new SetResolverGoal(tb.job()));
-    	n.typeConstraint = Types.<TypeConstraint>lazyRef(new TypeConstraint(), new SetResolverGoal(tb.job()));
+    	n.valueConstraint = Types.<CConstraint>lazyRef(new CConstraint(), new SetResolverGoal(tb.job()).intern(tb.job().extensionInfo().scheduler()));
+    	n.typeConstraint = Types.<TypeConstraint>lazyRef(new TypeConstraint(), new SetResolverGoal(tb.job()).intern(tb.job().extensionInfo().scheduler()));
     	return n;
       }
 

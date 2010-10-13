@@ -352,7 +352,7 @@ public final class Array[T](
     	}
     	public def apply(i:Int)=array(i);
     }
- 
+
     /**
      * Return the element of this array corresponding to the given index.
      * Only applies to one-dimensional arrays.
@@ -365,7 +365,7 @@ public final class Array[T](
      */
     @Native("cuda", "(#0).apply(#1)")
     public @Header @Inline def apply(i0:int){rank==1}:T {
-	if (cachedRail) {
+	if (CompilerFlags.useUnsigned() && cachedRail) {
             if (CompilerFlags.checkBounds() && !((i0 as UInt) < (size as UInt))) {
                 raiseBoundsError(i0);
             }
@@ -466,7 +466,7 @@ public final class Array[T](
      */
     @Native("cuda", "(#0).apply(#1,#2)")
     public @Header @Inline def set(v:T, i0:int){rank==1}:T {
-	if (cachedRail) {
+	if (CompilerFlags.useUnsigned() && cachedRail) {
             if (CompilerFlags.checkBounds() && !((i0 as UInt) < (size as UInt))) {
                 raiseBoundsError(i0);
             }

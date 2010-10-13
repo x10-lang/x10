@@ -220,7 +220,7 @@ public class ErrorHandlingVisitor extends NodeVisitor
     }
 
     public Goal goal() {
-        return Globals.currentGoal();
+        return job().extensionInfo().scheduler().currentGoal();
     }
     
     /**

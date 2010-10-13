@@ -53,8 +53,6 @@ public class X10CPPSourceClassResolver extends X10SourceClassResolver {
             return null;
         }
         
-        Options options = Globals.Options();
-        
         Source source = ext.sourceLoader().classSource(name);
         if (source == null)
             return null;

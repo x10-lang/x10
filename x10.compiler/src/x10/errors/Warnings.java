@@ -18,10 +18,12 @@ public class Warnings {
 		issue(job, new ErrorInfo(ErrorInfo.WARNING, message, pos));
 	}
 	public static void issue(Job job, ErrorInfo e) {
-		ExtensionInfo ei = (ExtensionInfo) job.extensionInfo();
-		boolean newP = ei.warningSet().add(e);
+		issue((ExtensionInfo) job.extensionInfo(), e);
+	}
+	public static void issue(ExtensionInfo extInfo, ErrorInfo e) {
+		boolean newP = extInfo.warningSet().add(e);
 		if (newP) {
-		    job.compiler().errorQueue().enqueue(e);
+			extInfo.compiler().errorQueue().enqueue(e);
 		}
 	}
 }
