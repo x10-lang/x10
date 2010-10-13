@@ -235,7 +235,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 		X10Flags xf = X10Flags.toX10Flags(mi.flags());
 		if (xf.isProperty()) {
 			final LazyRef<XTerm> bodyRef = Types.lazyRef(null);
-			bodyRef.setResolver(new SetResolverGoal(tb.job()));
+			bodyRef.setResolver(new SetResolverGoal(tb.job()).intern(tb.job().extensionInfo().scheduler()));
 			mi.body(bodyRef);
 		}
 
