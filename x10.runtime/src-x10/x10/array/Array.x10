@@ -822,7 +822,7 @@ public final class Array[T](
      * specified portion of the Array referenced by the destination RemoteArray.
      * The index arguments that are used to specify the start of the source
      * and destination regions are interpreted as of they were the result
-     * of calling @link{Region@indexOf} on the Point that specifies the
+     * of calling {@link Region#indexOf} on the Point that specifies the
      * start of the copy region.  Note that for Arrays that have the 
      * <code>rail</code> property, this exactly corresponds to the index
      * that would be used to access the element via apply or set.
@@ -932,7 +932,7 @@ public final class Array[T](
      * the source RemoteArray to the specified portion of the destination Array.
      * The index arguments that are used to specify the start of the source
      * and destination regions are interpreted as of they were the result
-     * of calling @link{Region@indexOf} on the Point that specifies the
+     * of calling {@link Region#indexOf} on the Point that specifies the
      * start of the copy region.  Note that for Arrays that have the 
      * <code>rail</code> property, this exactly corresponds to the index
      * that would be used to access the element via apply or set.
@@ -1021,7 +1021,7 @@ public final class Array[T](
      * specified portion of the destination Array.
      * The index arguments that are used to specify the start of the source
      * and destination regions are interpreted as of they were the result
-     * of calling @link{Region@indexOf} on the Point that specifies the
+     * of calling {@link Region#indexOf} on the Point that specifies the
      * start of the copy region.  Note that for Arrays that have the 
      * <code>rail</code> property, this exactly corresponds to the index
      * that would be used to access the element via apply or set.
