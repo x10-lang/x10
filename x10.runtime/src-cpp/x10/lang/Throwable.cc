@@ -46,9 +46,7 @@ Throwable::_serialize_body(x10aux::serialization_buffer &buf) {
     this->Object::_serialize_body(buf);
     buf.write(FMGL(cause));
     buf.write(FMGL(message));
-#ifndef NO_CHECKS
     getStackTrace(); // ensure cachedStackTrace has been computed before serializing it
-#endif
     buf.write(FMGL(cachedStackTrace));
 }
 
@@ -57,7 +55,8 @@ Throwable::_deserialize_body(x10aux::deserialization_buffer &buf) {
     this->Object::_deserialize_body(buf);
     FMGL(cause) = buf.read<x10aux::ref<Throwable> >();
     FMGL(message) = buf.read<x10aux::ref<String> >();
-    FMGL(cachedStackTrace) = buf.read<StringRail>();
+    FMGL(cachedStackTrace) = buf.read<x10aux::ref<Rail<x10aux::ref<String> > > >();
+    FMGL(trace_size) = 0;
 }
 
 x10aux::ref<Throwable>
@@ -305,20 +304,21 @@ ref<Rail<ref<String> > > Throwable::getStackTrace() {
         if (FMGL(trace_size) <= 0) {
             const char *msg = "No stacktrace recorded.";
             FMGL(cachedStackTrace) = alloc_rail<ref<String>,Rail<ref<String> > >(1, String::Lit(msg));
+        } else {
+            ref<Rail<ref<String> > > rail =
+                alloc_rail<ref<String>,Rail<ref<String> > >(FMGL(trace_size));
+            char **messages = ::backtrace_symbols(FMGL(trace), FMGL(trace_size));
+            for (int i=0 ; i<FMGL(trace_size) ; ++i) {
+                char *filename; char *symbol; size_t addr;
+                extract_frame(messages[i],filename,symbol,addr);
+                char *msg = symbol;
+                (*rail)[i] = String::Lit(msg);
+                ::free(msg);
+                ::free(filename);
+            }
+            ::free(messages); // malloced by backtrace_symbols
+            FMGL(cachedStackTrace) = rail;
         }
-        ref<Rail<ref<String> > > rail =
-            alloc_rail<ref<String>,Rail<ref<String> > >(FMGL(trace_size));
-        char **messages = ::backtrace_symbols(FMGL(trace), FMGL(trace_size));
-        for (int i=0 ; i<FMGL(trace_size) ; ++i) {
-            char *filename; char *symbol; size_t addr;
-            extract_frame(messages[i],filename,symbol,addr);
-            char *msg = symbol;
-            (*rail)[i] = String::Lit(msg);
-            ::free(msg);
-            ::free(filename);
-        }
-        ::free(messages); // malloced by backtrace_symbols
-        FMGL(cachedStackTrace) = rail;
         #elif defined(_AIX)
         if (FMGL(trace_size) <= 0) {
             const char *msg = "No stacktrace recorded.";
@@ -410,14 +410,14 @@ ref<Rail<ref<String> > > Throwable::getStackTrace() {
 
 void Throwable::printStackTrace() {
     fprintf(stderr, "%s\n", this->toString()->c_str());
-    StringRail trace = this->getStackTrace();
+    x10aux::ref<Rail<x10aux::ref<String> > > trace = this->getStackTrace();
     for (int i = 0; i < trace->FMGL(length); ++i)
         fprintf(stderr, "\tat %s\n", (*trace)[i]->c_str());
 }
 
 void Throwable::printStackTrace(x10aux::ref<x10::io::Printer> printer) {
     printer->println(toString());
-    StringRail trace = this->getStackTrace();
+    x10aux::ref<Rail<x10aux::ref<String> > > trace = this->getStackTrace();
     for (int i=0 ; i<trace->FMGL(length) ; ++i) { 
         printer->print(x10::lang::String::Lit("\tat "));
         printer->println((*trace)[i]);
