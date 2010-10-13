@@ -81,7 +81,7 @@ public class AmbQualifierNode_c extends Node_c implements AmbQualifierNode
 
     public Node buildTypes(TypeBuilder tb) throws SemanticException {
         TypeSystem ts = tb.typeSystem();
-        LazyRef<Qualifier> sym = Types.<Qualifier>lazyRef(ts.unknownQualifier(position()), new SetResolverGoal(tb.job()));
+        LazyRef<Qualifier> sym = Types.<Qualifier>lazyRef(ts.unknownQualifier(position()), new SetResolverGoal(tb.job()).intern(tb.job().extensionInfo().scheduler()));
         return qualifierRef(sym);
     }
     
