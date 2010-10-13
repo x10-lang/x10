@@ -11,14 +11,10 @@
 
 package x10.lang;
 
-import x10.compiler.Native;
-import x10.compiler.NativeRep;
-
 /**
  * Thrown to indicate that the code has attempted to cast an object to a subclass of which it is
  * not an instance.
  */
-// @NativeRep("java", "java.lang.ClassCastException", null, null)
 public class ClassCastException extends RuntimeException {
 
     /**

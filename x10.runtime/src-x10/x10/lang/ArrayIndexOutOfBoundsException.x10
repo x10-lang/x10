@@ -11,14 +11,10 @@
 
 package x10.lang;
 
-import x10.compiler.Native;
-import x10.compiler.NativeRep;
-
 /**
  * Thrown to indicate that an array has been accessed with an illegal index.
  * For example, the point is outside of the array's region.
  */
-// @NativeRep("java", "java.lang.ArrayIndexOutOfBoundsException", null, null)
 public class ArrayIndexOutOfBoundsException extends RuntimeException {
 
     /**

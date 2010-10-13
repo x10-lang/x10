@@ -18,12 +18,10 @@ import x10.io.Printer;
 import x10.io.Console;
 
 @NativeRep("java", "x10.runtime.impl.java.X10Throwable", null, "x10.runtime.impl.java.X10Throwable._RTT")
-// @NativeRep("java", "java.lang.RuntimeException", null, null)
 @NativeRep("c++", "x10aux::ref<x10::lang::Throwable>", "x10::lang::Throwable", null)
 public class Throwable {
     @Native("java", "#0.getCause()")
     @Native("c++", "(#0)->getCause()")
-
     val cause:Throwable;
 
     @Native("java", "#0.getMessage()")

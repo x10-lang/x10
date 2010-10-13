@@ -11,13 +11,9 @@
 
 package x10.lang;
 
-import x10.compiler.Native;
-import x10.compiler.NativeRep;
-
 /**
  * Thrown to indicate that a method has been passed an illegal or inappropriate argument.
  */
-// @NativeRep("java", "java.lang.IllegalArgumentException", null, null)
 public class IllegalArgumentException extends RuntimeException {
 
     /**
