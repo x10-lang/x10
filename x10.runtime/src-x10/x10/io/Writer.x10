@@ -65,7 +65,7 @@ public abstract class Writer {
         }
     }
     
-    @Native("java", "new java.lang.Object() { java.io.OutputStream eval(final x10.io.Writer w) { return new java.io.OutputStream() { public void write(int x) throws x10.io.IOException { w.write((byte) x); } }; } }.eval(#0)")
+    @Native("java", "new java.lang.Object() { x10.core.io.OutputStream eval(final x10.io.Writer w) { return new x10.core.io.OutputStream() { public void write(int x) throws x10.io.IOException { w.write((byte) x); } }; } }.eval(#0)")
     private def oos(): OutputStreamWriter.OutputStream {
         return oos();
     }

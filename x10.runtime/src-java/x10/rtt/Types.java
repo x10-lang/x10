@@ -11,11 +11,6 @@
 
 package x10.rtt;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-
 import x10.core.Any;
 import x10.core.fun.Fun_0_1;
 
@@ -61,40 +56,6 @@ public class Types {
     public static Type<Long> LONG = new LongType();
     public static Type<Float> FLOAT = new FloatType();
     public static Type<Double> DOUBLE = new DoubleType();
-    public static Type<InputStream> INPUT_STREAM = new RuntimeType<InputStream>(InputStream.class) {
-        @Override
-        public String typeName() {
-            return "x10.io.InputStreamReader.InputStream";
-        }
-    };
-    public static Type<OutputStream> OUTPUT_STREAM = new RuntimeType<OutputStream>(OutputStream.class) {
-        @Override
-        public String typeName() {
-            return "x10.io.OutputStreamWriter.OutputStream";
-        }
-    };
-    public static Type<FileInputStream> FILE_INPUT_STREAM = new RuntimeType<FileInputStream>(
-        FileInputStream.class,
-        new Type[] {
-            Types.INPUT_STREAM
-        }
-    ) {
-        @Override
-        public String typeName() {
-            return "x10.io.FileReader.FileInputStream";
-        }
-    };
-    public static Type<FileOutputStream> FILE_OUTPUT_STREAM = new RuntimeType<FileOutputStream>(
-        FileOutputStream.class,
-        new Type[] {
-            Types.OUTPUT_STREAM
-        }
-    ) {
-        @Override
-        public String typeName() {
-            return "x10.io.FileWriter.FileOutputStream";
-        }
-    };
 
     public static RuntimeType<Comparable<?>> COMPARABLE;
     static {
@@ -171,10 +132,6 @@ public class Types {
         if (o instanceof Float) return FLOAT;
         if (o instanceof Double) return DOUBLE;
         if (o instanceof String) return STRING;
-        if (o instanceof InputStream) return INPUT_STREAM;
-        if (o instanceof OutputStream) return OUTPUT_STREAM;
-        if (o instanceof FileInputStream) return FILE_INPUT_STREAM;
-        if (o instanceof FileOutputStream) return FILE_OUTPUT_STREAM;
         return null;
     }
 

@@ -71,7 +71,31 @@ public class X10Throwable extends java.lang.RuntimeException implements RefI {
         }
 
         try {
-            X10Throwable t = (X10Throwable) Class.forName(newExcName).getConstructor(new Class[] { String.class }).newInstance(new Object[] { e.getMessage() });
+            X10Throwable t = Class.forName(newExcName).asSubclass(X10Throwable.class).getConstructor(new Class[] { String.class }).newInstance(new Object[] { e.getMessage() });
+            t.setStackTrace(e.getStackTrace());
+            return t;
+        } catch (java.lang.ClassNotFoundException e1) {
+        } catch (java.lang.InstantiationException e2) {
+        } catch (java.lang.IllegalAccessException e3) {
+        } catch (java.lang.NoSuchMethodException e4) {
+        } catch (java.lang.reflect.InvocationTargetException e5) {
+        }
+        throw new java.lang.Error();
+    }
+
+    static public X10Throwable getCorrespondingX10Exception(java.lang.Exception e) {
+        String newExcName = "x10.lang.Exception";
+        
+        if (e instanceof java.io.FileNotFoundException) {
+            newExcName = "x10.io.FileNotFoundException";
+        } else if (e instanceof java.io.IOException) {
+            newExcName = "java.io.IOException";
+        } else {
+            // no corresponding x10 exceptions defined
+        }
+
+        try {
+            X10Throwable t = Class.forName(newExcName).asSubclass(X10Throwable.class).getConstructor(new Class[] { String.class }).newInstance(new Object[] { e.getMessage() });
             t.setStackTrace(e.getStackTrace());
             return t;
         } catch (java.lang.ClassNotFoundException e1) {
@@ -92,7 +116,7 @@ public class X10Throwable extends java.lang.RuntimeException implements RefI {
         }
 
         try {
-            X10Throwable t = (X10Throwable) Class.forName(newExcName).getConstructor(new Class[] { String.class }).newInstance(new Object[] { e.getMessage() });
+            X10Throwable t = Class.forName(newExcName).asSubclass(X10Throwable.class).getConstructor(new Class[] { String.class }).newInstance(new Object[] { e.getMessage() });
             t.setStackTrace(e.getStackTrace());
             return t;
         } catch (java.lang.ClassNotFoundException e1) {

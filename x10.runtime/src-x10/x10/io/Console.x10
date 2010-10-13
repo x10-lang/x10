@@ -14,15 +14,15 @@ package x10.io;
 import x10.compiler.Native;
 
 public class Console {
-        @Native("java", "java.lang.System.out")
+        @Native("java", "new x10.core.io.OutputStream(java.lang.System.out)")
         @Native("c++", "x10::io::OutputStreamWriter__OutputStream::STANDARD_OUT()")
         private native static def realOut(): OutputStreamWriter.OutputStream;
 
-        @Native("java", "new java.io.FileOutputStream(java.io.FileDescriptor.err)")
+        @Native("java", "new x10.core.io.OutputStream(java.lang.System.err)")
         @Native("c++", "x10::io::OutputStreamWriter__OutputStream::STANDARD_ERR()")
         private native static def realErr(): OutputStreamWriter.OutputStream;
 
-        @Native("java", "java.lang.System.in")
+        @Native("java", "new x10.core.io.InputStream(java.lang.System.in)")
         @Native("c++", "x10::io::InputStreamReader__InputStream::STANDARD_IN()")
         private native static def realIn(): InputStreamReader.InputStream;
     
