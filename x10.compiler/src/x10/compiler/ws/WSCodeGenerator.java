@@ -112,7 +112,8 @@ public class WSCodeGenerator extends ContextVisitor {
                 throw new SemanticException("Work-Stealing doesn't support at: " + r, n.position());
             }
         }
-        if(n instanceof Closure){
+        if(n instanceof Closure && !(n instanceof PlacedClosure)){
+            //match with WSCallGraph, not handle PlacedClosure
             Closure closure = (Closure)n;           
             ClosureDef cDef = closure.closureDef();
             if(wts.isTargetProcedure(cDef)){
