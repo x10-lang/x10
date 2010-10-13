@@ -55,7 +55,7 @@ public struct ClockedIndexedMemoryChunk[T] {
     }
 
     public def this(numElements:int, c: Clock) {
-    	chunk = Rail.make[ClockedVar[T]](numElements, (int) => new ClockedOpLessVar[T](c as Clock!));
+    	chunk = Rail.make[ClockedVar[T]](numElements, (int) => new ClockedOpLessVar[T](c as Clock!) as ClockedVar[T]);
     }
 
 
