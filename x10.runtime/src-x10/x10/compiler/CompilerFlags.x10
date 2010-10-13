@@ -33,4 +33,13 @@ public class CompilerFlags {
     @Native("java", "(!`NO_CHECKS`)")
     @Native("c++", "PLACE_CHECK_BOOL")
     public static native def checkPlace():boolean;
+
+    /**
+     * Should bounds checking operations be optimized by using unsigned compares
+     */
+    @Native("java", "false")
+    @Native("c++", "true")
+    public static native def useUnsigned():boolean;
+
+
 }
