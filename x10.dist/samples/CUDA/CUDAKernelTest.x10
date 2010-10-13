@@ -22,8 +22,8 @@ public class CUDAKernelTest {
         val remote = CUDAUtilities.makeRemoteArray[Float](p,len,(Int)=>0.0 as Float); // allocate 
 
         finish async at (p) @CUDA {
-            for ([block] in 0..7) {
-                for ([thread] in 0..63) async {
+            finish for ([block] in 0..7) async {
+                clocked finish for ([thread] in 0..63) async {
                     val tid = block*64 + thread;
                     val tids = 8*64;
                     for (var i:Int=tid ; i<len ; i+=tids) {

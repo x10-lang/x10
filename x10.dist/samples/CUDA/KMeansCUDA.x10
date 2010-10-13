@@ -140,9 +140,9 @@ public class KMeansCUDA {
                             finish async at (gpu) @CUDA @CUDADirectParams {
                                 val blocks = CUDAUtilities.autoBlocks(),
                                     threads = CUDAUtilities.autoThreads();
-                                for ([block] in 0..blocks-1) {
+                                finish for ([block] in 0..blocks-1) async {
                                     val clustercache = new Array[Float](clusters_copy);
-                                    for ([thread] in 0..threads-1) async {
+                                    clocked finish for ([thread] in 0..threads-1) async {
                                         val tid = block * threads + thread;
                                         val tids = blocks * threads;
                                         for (var p:Int=tid ; p<num_local_points ; p+=tids) {

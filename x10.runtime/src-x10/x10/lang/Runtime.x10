@@ -1807,6 +1807,7 @@ import x10.util.Box;
     /**
      * Next statement = next on all clocks in parallel.
      */
+    @Native("cuda", "__syncthreads()")
     public static def next():void {
     	ensureNotInAtomic();
     	clockPhases().next();
