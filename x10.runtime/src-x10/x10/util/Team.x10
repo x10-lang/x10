@@ -32,7 +32,9 @@ public struct Team {
         @Native("c++",
                 "x10rt_team nu_team = 0;" +
                 "x10rt_team_new(places->length(), (x10rt_place*)places->raw(), x10rt_team_setter, &nu_team);" +
+                "x10::lang::Runtime::increaseParallelism();" +
                 "while (nu_team==0) x10rt_probe();" +
+                "x10::lang::Runtime::decreaseParallelism(1);" +
                 "id = nu_team;") { }
         this.id = id;
     }
@@ -42,7 +44,9 @@ public struct Team {
         @Native("c++",
                 "x10rt_team nu_team = 0;" +
                 "x10rt_team_new(places->FMGL(rawLength), (x10rt_place*)places->raw()->raw(), x10rt_team_setter, &nu_team);" +
+                "x10::lang::Runtime::increaseParallelism();" +
                 "while (nu_team==0) x10rt_probe();" +
+                "x10::lang::Runtime::decreaseParallelism(1);" +
                 "id = nu_team;") { }
         this.id = id;
     }
@@ -63,7 +67,9 @@ public struct Team {
         @Native("c++",
                 "int finished = 0;" +
                 "x10rt_barrier(this_.FMGL(id), role, x10rt_one_setter, &finished);" +
-                "while (!finished) x10rt_probe();") {}
+                "x10::lang::Runtime::increaseParallelism();" +
+                "while (!finished) x10rt_probe();" +
+                "x10::lang::Runtime::decreaseParallelism(1);") {}
     }
 
     /** Blocks until all members have received their part of root's array.
@@ -91,13 +97,17 @@ public struct Team {
         @Native("c++",
                 "int finished = 0;" +
                 "x10rt_scatter(this_.FMGL(id), role, root, &src->raw()[src_off], &dst->raw()[dst_off], sizeof(FMGL(T)), count, x10rt_one_setter, &finished);" +
-                "while (!finished) x10rt_probe();") {}
+                "x10::lang::Runtime::increaseParallelism();" +
+                "while (!finished) x10rt_probe();" +
+                "x10::lang::Runtime::decreaseParallelism(1);") {}
     }
     public def scatter[T] (role:Int, root:Int, src:Array[T], src_off:Int, dst:Array[T], dst_off:Int, count:Int) : void {
         @Native("c++",
                 "int finished = 0;" +
                 "x10rt_scatter(this_.FMGL(id), role, root, &src->raw()->raw()[src_off], &dst->raw()->raw()[dst_off], sizeof(FMGL(T)), count, x10rt_one_setter, &finished);" +
-                "while (!finished) x10rt_probe();") {}
+                "x10::lang::Runtime::increaseParallelism();" +
+                "while (!finished) x10rt_probe();" +
+                "x10::lang::Runtime::decreaseParallelism(1);") {}
     }
     
     /** Blocks until all members have received root's array.
@@ -120,13 +130,17 @@ public struct Team {
         @Native("c++",
                 "int finished = 0;" +
                 "x10rt_bcast(this_.FMGL(id), role, root, &src->raw()[src_off], &dst->raw()[dst_off], sizeof(FMGL(T)), count, x10rt_one_setter, &finished);" +
-                "while (!finished) x10rt_probe();") {}
+                "x10::lang::Runtime::increaseParallelism();" +
+                "while (!finished) x10rt_probe();" +
+                "x10::lang::Runtime::decreaseParallelism(1);") {}
     }
     public def bcast[T] (role:Int, root:Int, src:Array[T], src_off:Int, dst:Array[T], dst_off:Int, count:Int) : void {
         @Native("c++",
                 "int finished = 0;" +
                 "x10rt_bcast(this_.FMGL(id), role, root, &src->raw()->raw()[src_off], &dst->raw()->raw()[dst_off], sizeof(FMGL(T)), count, x10rt_one_setter, &finished);" +
-                "while (!finished) x10rt_probe();") {}
+                "x10::lang::Runtime::increaseParallelism();" +
+                "while (!finished) x10rt_probe();" +
+                "x10::lang::Runtime::decreaseParallelism(1);") {}
     }
     
     /** Blocks until all members have received their part of each other member's array.
@@ -152,13 +166,17 @@ public struct Team {
         @Native("c++",
                 "int finished = 0;" +
                 "x10rt_alltoall(this_.FMGL(id), role, &src->raw()[src_off], &dst->raw()[dst_off], sizeof(FMGL(T)), count, x10rt_one_setter, &finished);" +
-                "while (!finished) x10rt_probe();") {}
+                "x10::lang::Runtime::increaseParallelism();" +
+                "while (!finished) x10rt_probe();" +
+                "x10::lang::Runtime::decreaseParallelism(1);") {}
     }
     public def alltoall[T] (role:Int, src:Array[T], src_off:Int, dst:Array[T], dst_off:Int, count:Int) : void {
         @Native("c++",
                 "int finished = 0;" +
                 "x10rt_alltoall(this_.FMGL(id), role, &src->raw()->raw()[src_off], &dst->raw()->raw()[dst_off], sizeof(FMGL(T)), count, x10rt_one_setter, &finished);" +
-                "while (!finished) x10rt_probe();") {}
+                "x10::lang::Runtime::increaseParallelism();" +
+                "while (!finished) x10rt_probe();" +
+                "x10::lang::Runtime::decreaseParallelism(1);") {}
     }
 
     /** Indicates the operation to perform when reducing. */
@@ -183,14 +201,18 @@ public struct Team {
                 "int finished = 0;" +
                 "x10rt_red_type type = x10rt_get_red_type<FMGL(T)>();" +
                 "x10rt_allreduce(this_.FMGL(id), role, &src->raw()[src_off], &dst->raw()[dst_off], (x10rt_red_op_type)op, type, count, x10rt_one_setter, &finished);" +
-                "while (!finished) x10rt_probe();") {}
+                "x10::lang::Runtime::increaseParallelism();" +
+                "while (!finished) x10rt_probe();" +
+                "x10::lang::Runtime::decreaseParallelism(1);") {}
     }
     private def allreduce_[T] (role:Int, src:Array[T], src_off:Int, dst:Array[T], dst_off:Int, count:Int, op:Int) : void {
         @Native("c++",
                 "int finished = 0;" +
                 "x10rt_red_type type = x10rt_get_red_type<FMGL(T)>();" +
                 "x10rt_allreduce(this_.FMGL(id), role, &src->raw()->raw()[src_off], &dst->raw()->raw()[dst_off], (x10rt_red_op_type)op, type, count, x10rt_one_setter, &finished);" +
-                "while (!finished) x10rt_probe();") {}
+                "x10::lang::Runtime::increaseParallelism();" +
+                "while (!finished) x10rt_probe();" +
+                "x10::lang::Runtime::decreaseParallelism(1);") {}
     }
 
     /* using overloading is the correct thing to do here since the set of supported
@@ -271,7 +293,9 @@ public struct Team {
                 "int finished = 0;" +
                 "x10rt_red_type type = x10rt_get_red_type<FMGL(T)>();" +
                 "x10rt_allreduce(this_.FMGL(id), role, &src, &dst, (x10rt_red_op_type)op, type, 1, x10rt_one_setter, &finished);" +
-                "while (!finished) x10rt_probe();") { dst = src; }
+                "x10::lang::Runtime::increaseParallelism();" +
+                "while (!finished) x10rt_probe();" +
+                "x10::lang::Runtime::decreaseParallelism(1);") { dst = src; }
         return dst;
     }
 
@@ -304,7 +328,9 @@ public struct Team {
                 "x10rt_dbl_s32 src = {v, idx};" +
                 "x10rt_dbl_s32 dst;" +
                 "x10rt_allreduce(this_.FMGL(id), role, &src, &dst, X10RT_RED_OP_MAX, X10RT_RED_TYPE_DBL_S32, 1, x10rt_one_setter, &finished);" +
+                "x10::lang::Runtime::increaseParallelism();" +
                 "while (!finished) x10rt_probe();" +
+                "x10::lang::Runtime::decreaseParallelism(1);" +
                 "r = dst.idx;") { r = 0; }
         return r;
     }
@@ -317,7 +343,9 @@ public struct Team {
                 "x10rt_dbl_s32 src = {v, idx};" +
                 "x10rt_dbl_s32 dst;" +
                 "x10rt_allreduce(this_.FMGL(id), role, &src, &dst, X10RT_RED_OP_MIN, X10RT_RED_TYPE_DBL_S32, 1, x10rt_one_setter, &finished);" +
+                "x10::lang::Runtime::increaseParallelism();" +
                 "while (!finished) x10rt_probe();" +
+                "x10::lang::Runtime::decreaseParallelism(1);" +
                 "r = dst.idx;") { r = 0; }
         return r;
     }
@@ -341,7 +369,9 @@ public struct Team {
         @Native("c++",
                 "x10rt_team nu_team = 0;" +
                 "x10rt_team_split(this_.FMGL(id), role, color, new_role, x10rt_team_setter, &nu_team);" +
+                "x10::lang::Runtime::increaseParallelism();" +
                 "while (nu_team==0) x10rt_probe();" +
+                "x10::lang::Runtime::decreaseParallelism(1);" +
                 "id = nu_team;") { }
         return Team(id);
     }
@@ -355,7 +385,9 @@ public struct Team {
         @Native("c++",
                 "int finished = 0;" +
                 "x10rt_team_del(this_.FMGL(id), role, x10rt_one_setter, &finished);" +
-                "while (!finished) x10rt_probe();") { }
+                "x10::lang::Runtime::increaseParallelism();" +
+                "while (!finished) x10rt_probe();" +
+                "x10::lang::Runtime::decreaseParallelism(1);") { }
     }
     
 }
