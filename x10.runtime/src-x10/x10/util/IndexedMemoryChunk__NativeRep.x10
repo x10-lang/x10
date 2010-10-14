@@ -54,6 +54,20 @@ public abstract class IndexedMemoryChunk__NativeRep {
             }
         }
     }
+
+    public static def copyTo[T](src:IndexedMemoryChunk[T], srcIndex:int,
+                                dstPlace:Place, dst:IndexedMemoryChunk[T], dstIndex:int,
+                                numElems:int, notifier:()=>void):void {
+        copyTo[T](src, srcIndex, dstPlace, dst, dstIndex, numElems);
+        notifier();
+    }
+
+    public static def copyFrom[T](dst:IndexedMemoryChunk[T], dstIndex:int, 
+                                  srcPlace:Place, src:IndexedMemoryChunk[T], srcIndex:int, 
+                                  numElems:int, notifier:()=>void):void {
+        copyFrom[T](dst,dstIndex,srcPlace,src,srcIndex,numElems);
+        notifier();
+    }
 }
 
 // vim:shiftwidth=4:tabstop=4:expandtab
