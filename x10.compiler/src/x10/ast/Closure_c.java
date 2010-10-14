@@ -397,15 +397,14 @@ public class Closure_c extends Expr_c implements Closure {
 		if (n.returnType() instanceof UnknownTypeNode) {
 			NodeFactory nf = tc.nodeFactory();
 			X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
-			// Body had no return statement.  Set to void.
 			Ref<Type> tr = ((Ref<Type>) n.returnType().typeRef());
 			Type t = tr.getCached();
-			if (ts.isUnknown(t)) {
+			if (!tr.known() && ts.isUnknown(t)) {
+				// Body had no return statement.  Set to void.
 				t = ts.Void();
 			}
 			tr.update(t);
 			n = (Closure_c) n.returnType(nf.CanonicalTypeNode(n.returnType().position(), t));
-
 		}
 
 		// Create an anonymous subclass of the closure type.

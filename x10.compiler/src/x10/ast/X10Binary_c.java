@@ -305,7 +305,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
         Type lbase = X10TypeMixin.baseType(left.type());
         Type rbase = X10TypeMixin.baseType(right.type());
         if (xts.hasUnknown(lbase) || xts.hasUnknown(rbase))
-        	return  this.type(xts.unknownType(position()));
+        	return this.type(xts.unknownType(position()));
         
         if (op == EQ || op == NE || op == LT || op == GT || op == LE || op == GE) {
             Object lv = left.isConstant() ? left.constantValue() : null;

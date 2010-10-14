@@ -33,7 +33,7 @@ public class TypeCheckReturnTypeGoal extends TypeCheckFragmentGoal<Type> {
 	@Override
 	protected Node process(Node parent, Node n, TypeChecker v) {
 		Node m = super.process(parent, n, v);
-		if (r().getCached() instanceof UnknownType) {
+		if (!r().known() && r().getCached() instanceof UnknownType) {
 			// Body had no return statement.  Set to void.
 			r().update(v.typeSystem().Void());
 		}
