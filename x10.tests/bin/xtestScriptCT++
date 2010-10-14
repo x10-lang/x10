@@ -606,13 +606,13 @@ function main {
 	if [[ "$(uname -s)" == "AIX" ]]; then
 		X10CPP="$X10CPP -x10rt pgas_lapi"
 	elif [[ "$(uname -s)" == "Linux" && "$(uname -m)" == "x86_64" ]]; then
-	    X10CPP="$X10CPP -x10rt sockets"
+	    X10CPP="$X10CPP -x10rt pgas_sockets"
 	elif [[ "$(uname -s)" == "Linux" && "$(uname -m)" == "ppc64" ]]; then
-	    X10CPP="$X10CPP -x10rt sockets"
+	    X10CPP="$X10CPP -x10rt pgas_sockets"
 	elif [[ "$(uname -s)" == "SunOS" && "$(uname -p)" == "sparc" ]]; then
-	    X10CPP="$X10CPP -x10rt sockets"
+	    X10CPP="$X10CPP -x10rt pgas_sockets"
 	elif [[ "$(uname -s)" == CYGWIN* && "$(uname -m)" == "i686" ]]; then
-	    X10CPP="$X10CPP -x10rt sockets"
+	    X10CPP="$X10CPP -x10rt pgas_sockets"
 	fi
 
 	if [[ ! -f $X10_HOME/x10.dist/include/x10rt.h ]]; then
@@ -781,9 +781,9 @@ done
 			fi
 fi
 if [[ "$(uname -s)" == CYGWIN* ]]; then
-			run_cmd="X10LAUNCHER_NPROCS=${my_nplaces} X10LAUNCHER_HOSTFILE=NONE /usr/bin/time -p ./${tctarget}.exe"
+			run_cmd="/usr/bin/time -p mpirun -np $my_nplaces ./${tctarget}.exe"
 else
-			run_cmd="X10LAUNCHER_NPROCS=${my_nplaces} X10LAUNCHER_HOSTFILE=NONE /usr/bin/time -p ./${tctarget}"
+			run_cmd="/usr/bin/time -p mpirun -np $my_nplaces ./${tctarget}"
 fi
 			printf "\n${run_cmd}\n" >> $tcoutdat
 		fi
