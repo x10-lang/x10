@@ -1539,15 +1539,37 @@ class TestVarAccessInClosures {
 
 
 class TestOnlyLocalVarAccess {
-	// for some reason, the origin of "frame" is null. I couldn't reproduce it... see XTENLANG-1902
-	//C:\cygwin\home\Yoav\intellij\sourceforge\x10.runtime\src-x10\x10\compiler\ws\Worker.x10:86,18-22
-	//Message: Semantic Error: Local variable "frame" is accessed at a different place, and must be declared final.
+	// for some reason, the origin of "frame" is null. I can reproduce it using type inference: see XTENLANG-1902
 	var i:Int;
 	static def testInferReturnType()=test0(null);
-	static def test0(var b:TestOnlyLocalVarAccess) {
+	static def test0(var b:TestOnlyLocalVarAccess) { // we type-checking test0 twice: once to infer its return type (then "b"'s placeTerm is null), then a second time to really type-check it (then the placeTerm is fine)
 		b.i++;
 	}
 
+	static def use(x:Any) {}
+	static def testUse() {
+		var x:Int = 0;
+		at (here) use(x);
+		use(x);
+		at (here.next()) 
+			use(x); // ERR: Local variable "x" is accessed at a different place, and must be declared final.
+		val place1 = here;
+		val place2 = place1;
+		at (here.next()) {
+			use(x); // ERR: Local variable "x" is accessed at a different place, and must be declared final.
+			at (place1) 
+				use(x);
+			at (place2) 
+				use(x);
+			at (place2) at (here) 
+				use(x);
+			at (place2) at (here.next()) 
+				use(x); // ERR: Local variable "x" is accessed at a different place, and must be declared final.
+			at (place1) at (place2) 
+				use(x);
+		}
+		use(x);
+	}
 	static def test0() {
 		var x:Int = 0;
 		at (here) x=20;
@@ -1613,7 +1635,22 @@ class TestOnlyLocalVarAccess {
 			n++; // ERR: Local variable "n" is accessed at a different place, and must be declared final.
 		}
 	}
-
+}
+class TestValInitUsingAt { // see XTENLANG-1942
+	static def test() {
+		val x:Int;
+		at (here.next()) 
+			x = 2;
+		val y = x; // ShouldNotBeERR: Semantic Error: "x" may not have been initialized
+	}
+    static def test2() {
+        var x_tmp:Int = 0; // we have to initialize it (otherwise, the dataflow
+        val p = here;
+        at (p.next())
+          at (p)
+            x_tmp = 2;
+        val x = x_tmp; // if we hadn't initialized x_tmp, then the dataflow would complain that "x_tmp" may not have been initialized
+    }
 }
 
 
@@ -1722,7 +1759,7 @@ class ReturnStatementTest {
 
 // Test method resolution
 
-class TestMethodResolution {
+class TestMethodResolution { // see XTENLANG-1915
   def m(Int)="";
   def m(Long)=true;
   def m(Any)=3;
@@ -1743,5 +1780,228 @@ class TestMethodResolution {
 		val r4:Int = (check.(Any))(1); // ShouldBeErr: ahhh?  be explicit
 		// todo: What is the syntax for generic method selection?
 		// neither "(m.[String](String))" nor "(m[String].(String))" parses.
+	}
+}
+
+
+class TestHereInGenericTypes { // see also XTENLANG-1922
+	static class R {
+	  val x:Place{self==here} = here;
+	}
+	static def foo(y:Place{self==here}) {
+		assert y==here; // will fail at runtime! but according to the static type it should succeed!
+	}
+	static def bar(y:Place{self==here}) {
+		at (here.next()) foo(y); // ERR: todo: how can we report an error message that won't contain _place6 ?
+		// Today's error: Method foo(y: x10.lang.Place{self==here}): x10.lang.Void in TestHereInGenericTypes{self==TestHereInGenericTypes#this} cannot be called with arguments (x10.lang.Place{self==y, _place6==y});    Invalid Parameter.
+//	 Expected type: x10.lang.Place{self==here}
+//	 Found type: x10.lang.Place{self==y, _place6==y}
+	}
+  static def testR() {
+	val r = new R();
+	at (here.next()) {
+	  val r2:R = r; // This is the only "hole" in my proof: you can say that the type of "r" changed when it crossed the "at" boundary. But that will puzzle programmers...
+	  foo(r2.x); // we didn't cross any "at", so from claim 3, the type of "r2.x" didn't change.
+	}
+  }
+
+
+
+  private static class Box[T](t:T) {}
+  def test() {
+    val b:Box[Place{self==here}] = null;
+	val p1:Place{self==here} = b.t;
+	val HERE = here;
+	at (here.next()) {
+		val b2:Box[Place{self==here}] = b; // ERR
+		val p2:Place{self==here} = b.t; // ERR
+		val b3:Box[Place{self==HERE}] = b;
+		val p3:Place{self==HERE} = b.t;
+	}
+  }
+  
+	static def m(p:Place{self==here}) {}
+	static def test1(p:Place{self==here}) {
+		m(p); // ok
+		at (here.next()) {
+			m(p); // ERR
+		}
+	}
+	static def test2(p:Place) {p==here} {
+		m(p); // OK
+		at (here.next()) {
+			m(p); // ShouldBeErr (XTENLANG-1929)
+		}
+	}
+}
+
+class TestInterfaceInvariants { // see XTENLANG-1930
+	interface I(p:Int) {p==1} {}
+	class C(p:Int) implements I {
+		def this() { 
+			property(0); // ShouldBeErr
+		}
+	}
+	interface I2 extends I{p==2} {} // ShouldBeErr
+	interface I3 {p==3} extends I2 {} // ShouldBeErr
+	static def test(i:I) {
+		var i2:I{p==1} = i; // ShouldNotBeERR
+	}
+}
+
+class OuterThisConstraint(i:Int) { // see XTENLANG-1932
+	def m1():OuterThisConstraint{self.i==this.i} = this;
+	class Inner {
+		def m2():OuterThisConstraint{self.i==OuterThisConstraint.this.i} = OuterThisConstraint.this;
+	}
+	static def test(a:OuterThisConstraint{i==3}) {
+		val inner:OuterThisConstraint{self.i==3}.Inner = a.new Inner();
+		val x1:OuterThisConstraint{i==3} = a.m1();
+		val x2:OuterThisConstraint{i==3} = inner.m2(); // ShouldNotBeERR: Cannot assign expression to target.	 Expression: inner.m2()	 Expected type: OuterThisConstraint{self.i==3}	 Found type: OuterThisConstraint{self.i==A#this.i, inner!=null}
+	}
+}
+
+class NullaryPropertyMethod {
+	static class E(x:Int) {
+		property y() = x==2;
+		property z = x==2;
+		
+		public static def test() {		
+			val e = new E(2);
+			var e1:E{y()} = null; // ShouldNotBeERR: Method or static constructor not found
+			e1 = e as E{y()}; // ShouldNotBeERR: Method or static constructor not found
+			var e2:E{z} = null;
+			e2 = e as E{z};
+			var e3:E{y} = null;
+			e3 = e as E{y};
+			var e4:E{z()} = null; // ShouldNotBeERR: Method or static constructor not found
+			e4 = e as E{z()}; // ShouldNotBeERR: Method or static constructor not found
+		}
+		public static def main(Array[String]) {
+			val e = new E(2);
+			var e1:E{self.y()} = null;
+			e1 = e as E{self.y()};
+			var e2:E{self.z} = null;
+			e2 = e as E{self.z};
+			var e3:E{self.y} = null;
+			e3 = e as E{self.y};
+			var e4:E{self.z()} = null;
+			e4 = e as E{self.z()};
+		}
+	}
+}
+class TestXtenLang1938 { // see XTENLANG-1938
+	public static def main(Array[String]) {
+		val h = new TestXtenLang1938();
+		val x = h+h; // ShouldNotBeERR: Local variable cannot have type x10.lang.Void
+		// h+h; // doesn't parse! maybe it should?
+
+	}
+	static operator (p:TestXtenLang1938) + (q:TestXtenLang1938) { // ShouldBeErr: operators results are parsed as expressions (so now they can't return void)
+		Console.OUT.println("overloaded +");
+	}
+}
+/**
+see: 
+http://jira.codehaus.org/browse/XTENLANG-1445
+http://jira.codehaus.org/browse/XTENLANG-865
+http://jira.codehaus.org/browse/XTENLANG-638
+http://jira.codehaus.org/browse/XTENLANG-1470
+http://jira.codehaus.org/browse/XTENLANG-1519
+*/
+class TestCoAndContraVarianceInInterfaces {
+	interface Covariant[+T] {
+		def get():T;
+		def set(t:T):void; // ShouldBeErr
+	}
+	interface Contravariant[-T] {
+		def get():T; // ShouldBeErr
+		def set(t:T):void; 
+	}
+	interface Invariant[T] {
+		def get():T;
+		def set(t:T):void;
+	}
+
+	// check extends
+	interface E1[+T] extends Covariant[T] {}
+	interface E2[-T] extends Covariant[T] {} // ShouldBeErr
+	interface E3[+T] extends Contravariant[T] {} // ShouldBeErr
+	interface E4[-T] extends Contravariant[T] {} 
+	interface E5[+T] extends 
+		Contravariant[T], // ShouldBeErr
+		Covariant[T] {} 
+	interface E6[-T] extends 
+		Contravariant[T],
+		Covariant[T] {} // ShouldBeErr
+	interface E7[T] extends Contravariant[T],Covariant[T] {}
+	interface E8[+T] extends Contravariant[Contravariant[T]] {}
+	interface E9[-T] extends Contravariant[Contravariant[
+		T // ShouldBeErr (error should be on the use of T): "Cannot use contravariant type parameter T in a covariant position"
+		]] {} 
+	interface E10[-T] extends Invariant[T] {} // ShouldBeErr: "Cannot use contravariant type parameter T in an invariant position"
+
+	interface GenericsAndVariance[+CO,-CR,IN] {
+		def ok1(CR,IN):CO;
+		def ok2(CR,IN):IN;
+		def ok3(CR,IN):void;
+		def ok4():Contravariant[CR];
+		def ok5():Contravariant[IN];
+		def ok6():Contravariant[Contravariant[Contravariant[CR]]];
+		def ok7():Covariant[CO];
+		def ok8():Covariant[IN];
+		def ok9(GenericsAndVariance[CR,CO,IN]):void;
+		def ok10():GenericsAndVariance[CO,CR,IN];
+		def ok11(GenericsAndVariance[IN,IN,IN]):void;
+		def ok12():GenericsAndVariance[IN,IN,IN];
+		def ok13( (CO)=>void, ()=>CR, ()=>IN, (IN)=>IN ): ((CR)=>CO);
+
+		def err1():CR; // ShouldBeErr
+		def err2(CO):void; // ShouldBeErr
+		def err3():Contravariant[CO]; // ShouldBeErr
+		def err4():Covariant[CR]; // ShouldBeErr
+		def err5(GenericsAndVariance[CO,IN,IN]):void; // ShouldBeErr
+		def err6(GenericsAndVariance[IN,CR,IN]):void; // ShouldBeErr
+		def err7(GenericsAndVariance[IN,IN,CO]):void; // ShouldBeErr
+		def err8(GenericsAndVariance[IN,IN,CR]):void; // ShouldBeErr
+		def err9():GenericsAndVariance[CR,IN,IN]; // ShouldBeErr
+		def err10(): ( (CO)=>void ); // ShouldBeErr
+		def err11(): ( ()=>CR ); // ShouldBeErr
+		def err12((CR)=>void):void; // ShouldBeErr
+		def err13(()=>CO):void; // ShouldBeErr
+	}
+
+	// todo: what about constraints? and properties fields and methods?
+	interface Constraints[+CO,-CR,IN](p1:CO,p2:IN,p3:(CR)=>void) 
+		// todo: can we variance in the constraint?
+		{ CO <: CR ,
+		  CO <: IN ,
+  		  CR <: CO ,
+  		  CR <: IN ,
+  		  IN <: CO ,
+  		  IN <: CR ,
+		  IN <: String,
+		  CO <: String,
+		  CR <: String,
+		  String <: CO,
+		  String <: CR,
+		  String <: IN,
+  		  CO <: Contravariant[CO] ,
+  		  CR <: Covariant[CR]
+		}
+	{
+		// todo: can we use variance in method guards?
+		def m():void { CO <: CR };
+		// todo: property methods?
+		property pm():CO;
+	}
+
+	interface Comparable[+T] {}
+	static class Foo implements Comparable[Foo] {
+		def test() {
+			val x:Comparable[Foo] = this;
+			val y:Comparable[Comparable[Foo]] = this;
+			val z:Comparable[Comparable[Comparable[Foo]]] = this;
+		}
 	}
 }

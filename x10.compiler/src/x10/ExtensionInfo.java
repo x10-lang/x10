@@ -570,7 +570,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                private static final long serialVersionUID = -3692329571101709400L;
                @Override
                public Goal prereqForJob(Job job) {
-                   if (!scheduler.commandLineJobs().contains(job) &&
+                   if (!super.scheduler.commandLineJobs().contains(job) &&
                            ((ExtensionInfo) extInfo).manifestContains(job.source().path())) {
                        return null;
                    }
@@ -599,7 +599,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                    private static final long serialVersionUID = 6757229496093951388L;
                    @Override
                    public Goal prereqForJob(Job job) {
-                       if (!scheduler.commandLineJobs().contains(job) &&
+                       if (!super.scheduler.commandLineJobs().contains(job) &&
                                ((ExtensionInfo) extInfo).manifestContains(job.source().path()))
                        {
                            return null;
@@ -630,7 +630,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                    private static final long serialVersionUID = 4089824072381830523L;
                    @Override
                    public Goal prereqForJob(Job job) {
-                       if (!scheduler.commandLineJobs().contains(job) &&
+                       if (!super.scheduler.commandLineJobs().contains(job) &&
                                ((ExtensionInfo) extInfo).manifestContains(job.source().path()))
                        {
                            return null;
@@ -949,7 +949,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                @Override
                public Goal prereqForJob(Job job) {
                    //TODO: probably need to also annotation code in "runtime"
-                   if (!scheduler.commandLineJobs().contains(job) &&
+                   if (!super.scheduler.commandLineJobs().contains(job) &&
                            ((ExtensionInfo) extInfo).manifestContains(job.source().path())) {
                        return null;
                    }

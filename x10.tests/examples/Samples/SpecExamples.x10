@@ -80,7 +80,7 @@ class RefExample {
 	static def inc(ref i:Int) { i += 1; }
 	static def test() {
 		var j:Int{self==1} = 1;
-		inc(j); // "j" IS changed! ShouldBeErr: subtyping for "ref" must be exact!
+        inc(j); // "j" IS changed! ShouldBeErr: subtyping for "ref" must be exact! With DYNAMIC_CALLS there should be a check after the method returns.
 		assert j==2;
 	}
 
@@ -93,3 +93,60 @@ class RefExample {
     }
 }
 */
+
+class InterfacesExamples {
+	interface KnowsPi {
+	PI = 3.14159265358;
+	}
+
+
+	interface E1 {static val a = 1;}
+	interface E2 {static val a = 2;}
+	interface E3 extends E1, E2{}
+	class Example711A implements E3 {
+	def example1() = a; // ERR: Could not find field or local variable "a".
+	def example2() = E1.a + E2.a;
+	}
+
+	interface I1 { static val a = 1;}
+	interface I2 extends I1 {}
+	interface I3 extends I1 {}
+	interface I4 extends I2,I3 {}
+	class Example711B implements I4 {
+	def example() = a;
+	}
+}
+
+class Crash {
+	val f : (Int) => String = (Int)=>"";
+	def f(Int) = false;
+	def test() {
+		val x = f(3); // ERR: Ambiguous call: the given procedure and closure match.	 Procedure: method Crash.f(id$2: x10.lang.Int)	 Closure: Crash.this.f(3)
+	}
+}
+
+class SuperTest {
+	class A {
+		val f = 3;
+	}
+	class B extends A {
+		val f = 4;
+		class C extends B {
+			// C is both a subclass and inner class of B
+			val f = 5;
+			val t1:Int{self==4} = super.f;
+			val t2:Int{self==4} = B.this.f;
+			val t3:Int{self==3} = B.super.f;
+		}
+	}
+}
+
+class PropertyMethodExample(x:Int, y:Int) {
+	def this(x:Int, y:Int) { property(x,y); }
+	property eq() = (x==y);
+	property is(z:Int) = x==z && y==z;
+	def example( a : Example{eq()}, b : Example{is(3)} ) {}
+}
+class Oddvec { // ShouldBeErr?  no corresponding apply method defined.
+public def set(newval:Int, i:Int) = {}
+}
