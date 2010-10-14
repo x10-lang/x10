@@ -109,7 +109,7 @@ implements X10ParsedClassType
                     typeArguments.addAll(c.typeArguments);
                     typeParameters.addAll(tp);
                 }
-                if (!c.isMember())
+                if (!c.isMember() || c.flags().isStatic())
                     break;
             }
             cacheSubst = new TypeParamSubst((X10TypeSystem) ts, typeArguments, typeParameters);
@@ -341,11 +341,15 @@ implements X10ParsedClassType
 	public X10ParsedClassType typeArguments(List<Type> typeArgs) {
 	    if (typeArgs == this.typeArguments) return this;
 	    X10ParsedClassType_c n = (X10ParsedClassType_c) copy();
-	    n.typeArguments = TypedList.copyAndCheck(typeArgs, Type.class, false);
-	    try {
-	    n.thisVar = X10TypeMixin.getThisVar(typeArgs);
-	    } catch (XFailure z) {
-	    	throw new InternalCompilerError(z.toString() + " for type " + this);
+	    if (typeArgs == null) {
+	        n.typeArguments = null;
+	    } else {
+	        n.typeArguments = TypedList.copyAndCheck(typeArgs, Type.class, false);
+	        try {
+	            n.thisVar = X10TypeMixin.getThisVar(typeArgs);
+	        } catch (XFailure z) {
+	            throw new InternalCompilerError(z.toString() + " for type " + this);
+	        }
 	    }
 	    n.cacheSubst = null;
 	    return n;

@@ -508,16 +508,26 @@ public class X10InnerClassRemover extends InnerClassRemover {
     }
 
     private X10ParsedClassType propagateTypeArgumentsToInnermostType(X10ParsedClassType t) {
-        if (t.isMember() && (!t.flags().isStatic() || t.typeArguments().size() != t.x10Def().typeParameters().size())) {
+        if (t.isMember()) {
             t = t.container(propagateTypeArgumentsToInnermostType((X10ParsedClassType) t.container()));
-            List<Type> containerArgs = t.container().typeArguments();
-            List<Type> newTypeArgs = new ArrayList<Type>(t.typeArguments());
-            newTypeArgs.addAll(containerArgs);
-            if (!containerArgs.isEmpty()) {
-                t = t.typeArguments(newTypeArgs);
+            if (!t.flags().isStatic() || t.typeArguments().size() != t.x10Def().typeParameters().size()) {
+                List<Type> containerArgs = t.container().typeArguments();
+                List<Type> newTypeArgs = new ArrayList<Type>(t.typeArguments());
+                newTypeArgs.addAll(containerArgs);
+                if (!containerArgs.isEmpty()) {
+                    t = t.typeArguments(newTypeArgs);
+                }
             }
+            t = t.container(resetTypeArguments((X10ParsedClassType) t.container()));
         }
         return t;
+    }
+
+    private X10ParsedClassType resetTypeArguments(X10ParsedClassType t) {
+        if (t.isMember()) {
+            t = t.container(resetTypeArguments((X10ParsedClassType) t.container()));
+        }
+        return t.typeArguments(null);
     }
 
     private void gatherOuterTypeParameters(X10ClassDef def, List<ParameterType> typeParameters, List<Variance> variances) {
