@@ -17,13 +17,13 @@ import x10.util.IndexedMemoryChunk;
 
 /**
  * A class that encapsulates sufficient information about a remote
- * array to enable DMA opertations via Array.copyTo and Array.copyFrom
+ * array to enable DMA operations via Array.copyTo and Array.copyFrom
  * to be performed on the encapsulated Array.<p>
  *
  * Because copyTo and copyFrom are low-level interfaces that do not necessarily require
  * the source and destination arrays to have equivalent regions, the Region of the
  * array is not cached directly in the RemoteArray object (to minimize serialized bytes).
- * If the Region is actually needed, it can be retreived by using the array GlobalRef
+ * If the Region is actually needed, it can be retrieved by using the array GlobalRef
  * to return to the referenced array's home location and access its region.
  */
 public class RemoteArray[T](home:Place, region:Region, size:Int) {} {
