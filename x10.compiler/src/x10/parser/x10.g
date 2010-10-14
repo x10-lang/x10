@@ -419,7 +419,7 @@
                 int o0 = msgLocation[0];
                 int o1 = msgLocation[0] + msgLocation[1];
         
-                Position pos = new JPGPosition(file.getPath(),
+                Position pos = new JPGPosition("",
                             file.getPath(), l0, c0, l1, c1+1, o0, o1);
         
                 String msg = getErrorMessageFor(errorCode, errorInfo);
