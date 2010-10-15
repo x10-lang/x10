@@ -48,7 +48,7 @@ void Deque::growQueue() {
     int oldSize = oldQ->capacity;
     int newSize = oldSize << 1;
     if (newSize > MAXIMUM_QUEUE_CAPACITY) {
-        assert(false); /* throw new RuntimeException("Queue capacity exceeded"); */
+        UNIMPLEMENTED("Queue capacity exceeded");
     }
     Slots *newQ = x10aux::alloc<Slots>();
     newQ->capacity = newSize;
