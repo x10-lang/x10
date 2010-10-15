@@ -136,10 +136,10 @@ public struct IndexedMemoryChunk[T] {
 
     @Native("java", "x10.util.IndexedMemoryChunk__NativeRep.copyTo_0_$_x10$util$IndexedMemoryChunk__NativeRep_T_$_3_$_x10$util$IndexedMemoryChunk__NativeRep_T_$(#8, #0,#1,#2,#3,#4,#5,#6)")
     @Native("c++", "(#0)->copyTo(#1,#2,#3,#4,#5,#6)")
-    public native def asyncCopyTo (srcIndex:int, 
-                                   dstPlace:Place, dst:IndexedMemoryChunk[T], dstIndex:int, 
-                                   numElems:int,
-                                   notifier:()=>void):void;
+    public native def uncountedCopyTo (srcIndex:int, 
+                                       dstPlace:Place, dst:IndexedMemoryChunk[T], dstIndex:int, 
+                                       numElems:int,
+                                       notifier:()=>void):void;
 
 
     /**
@@ -169,9 +169,9 @@ public struct IndexedMemoryChunk[T] {
 
     @Native("java", "x10.util.IndexedMemoryChunk__NativeRep.copyFrom_0_$_x10$util$IndexedMemoryChunk__NativeRep_T_$_3_$_x10$util$IndexedMemoryChunk__NativeRep_T_$(#8, #0,#1,#2,#3,#4,#5,#6)")
     @Native("c++", "(#0)->copyFrom(#1,#2,#3,#4,#5,#6)")
-    public native def asyncCopyFrom(dstIndex:int,
-                                    srcPlace:Place, src:IndexedMemoryChunk[T], srcIndex:int,
-                                    numElems:int, notifier:()=>void):void;
+    public native def uncountedCopyFrom(dstIndex:int,
+                                        srcPlace:Place, src:IndexedMemoryChunk[T], srcIndex:int,
+                                        numElems:int, notifier:()=>void):void;
 
    /*
     * @Native methods from Any because the handwritten C++ code doesn't 100% match 

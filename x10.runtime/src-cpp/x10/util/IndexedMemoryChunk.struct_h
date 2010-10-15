@@ -52,6 +52,14 @@ namespace x10 {
                           x10::util::IndexedMemoryChunk<T> src,
                           x10_int srcIndex, x10_int numElems);
 
+    	    void copyTo(x10_int srcIndex, x10::lang::Place dstPlace,
+                        x10::util::IndexedMemoryChunk<T> dst,
+                        x10_int dstIndex, x10_int numElems, x10aux::ref<x10::lang::Reference> notif);
+
+    	    void copyFrom(x10_int dstIndex, x10::lang::Place srcPlace,
+                          x10::util::IndexedMemoryChunk<T> src,
+                          x10_int srcIndex, x10_int numElems, x10aux::ref<x10::lang::Reference> notif);
+
             x10::util::IndexedMemoryChunk<T>* operator->() { return this; }
         
             static void _serialize(x10::util::IndexedMemoryChunk<T> this_, x10aux::serialization_buffer& buf);
