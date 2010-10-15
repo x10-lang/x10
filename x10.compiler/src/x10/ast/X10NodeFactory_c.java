@@ -347,12 +347,6 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		return (X10ClassDecl) ClassDecl(pos, flags, name, Collections.<TypeParamNode>emptyList(), Collections.<PropertyDecl>emptyList(), superClass, interfaces, body, tci);
 	}
 
-	public Await Await(Position pos, Expr expr) {
-		Await n = new Await_c(pos, expr);
-		n = (Await) n.ext(extFactory().extStmt());
-		return (Await) n.del(delFactory().delStmt());
-	}
-
 	public Call X10Call(Position pos, Receiver target, Id name, List<TypeNode> typeArguments, List<Expr> args) {
 		Call n = new X10Call_c(pos, target, name, typeArguments, args);
 		n = (Call) n.ext(extFactory().extExpr());

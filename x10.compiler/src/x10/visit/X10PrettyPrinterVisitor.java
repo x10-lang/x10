@@ -111,7 +111,6 @@ import x10.ast.AtEach_c;
 import x10.ast.AtExpr_c;
 import x10.ast.AtStmt_c;
 import x10.ast.Atomic_c;
-import x10.ast.Await_c;
 import x10.ast.ClosureCall;
 import x10.ast.ClosureCall_c;
 import x10.ast.Closure_c;
@@ -255,7 +254,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	    // already known unhandled node type
 	    if (
 	        n instanceof Async_c || n instanceof AtStmt_c || n instanceof Atomic_c || n instanceof Here_c 
-	        || n instanceof Await_c || n instanceof Next_c || n instanceof Future_c || n instanceof AtExpr_c
+	        || n instanceof Next_c || n instanceof Future_c || n instanceof AtExpr_c
 	        || n instanceof AtEach_c || n instanceof When_c
 	        || n instanceof Finish_c || n instanceof Contains_c
 	    ) {

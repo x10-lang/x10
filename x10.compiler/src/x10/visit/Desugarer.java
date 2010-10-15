@@ -74,7 +74,6 @@ import x10.ast.AtEach;
 import x10.ast.AtExpr;
 import x10.ast.AtStmt;
 import x10.ast.Atomic;
-import x10.ast.Await;
 import x10.ast.Closure;
 import x10.ast.DepParameterExpr;
 import x10.ast.Finish;
@@ -324,8 +323,6 @@ public class Desugarer extends ContextVisitor {
             return visitNext((Next) n);
         if (n instanceof Atomic)
             return visitAtomic((Atomic) n);
-        if (n instanceof Await)
-            return visitAwait((Await) n);
         if (n instanceof When)
             return visitWhen((When) n);
         if (n instanceof Finish)
@@ -678,21 +675,6 @@ public class Desugarer extends ContextVisitor {
         Block tryBlock = xnf.Block(pos, xnf.Eval(pos, call(pos, ENTER_ATOMIC, xts.Void())), a.body());
         Block finallyBlock = xnf.Block(pos, xnf.Eval(pos, call(pos, EXIT_ATOMIC, xts.Void())));
         return xnf.Try(pos, tryBlock, Collections.<Catch>emptyList(), finallyBlock);
-    }
-
-    // await(E); ->
-    //    try { Runtime.enterAtomicWhen(); while (!E) Runtime.await(); } finally { Runtime.exitAtomic(); }
-    private Stmt visitAwait(Await a) throws SemanticException {
-        Position pos = a.position();
-        return xnf.Try(pos,
-        		xnf.Block(pos,
-                		xnf.Eval(pos, call(pos, ENTER_ATOMIC_WHEN, xts.Void())),
-                        xnf.While(pos,
-                        		xnf.Unary(pos, a.expr(), Unary.NOT).type(xts.Boolean()),  // TODO: handle constraints (should be done in the synthesizer)
-                        		xnf.Eval(pos, call(pos, AWAIT, xts.Void())))),
-        		Collections.<Catch>emptyList(),
-        		xnf.Block(pos,
-        				xnf.Eval(pos, call(pos, EXIT_ATOMIC, xts.Void()))));
     }
 
     private Stmt wrap(Position pos, Stmt s) {

@@ -160,7 +160,6 @@ import x10.ast.AtEach_c;
 import x10.ast.AtExpr_c;
 import x10.ast.AtStmt_c;
 import x10.ast.Atomic_c;
-import x10.ast.Await_c;
 import x10.ast.Closure;
 import x10.ast.ClosureCall;
 import x10.ast.ClosureCall_c;
@@ -3615,10 +3614,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 	public void visit(Atomic_c a) {
         assert (false) : ("Atomic should have been desugared earlier");
-	}
-
-	public void visit(Await_c n) {
-        assert (false) : ("Await should have been desugared earlier");
 	}
 
 	public void visit(Next_c n) {

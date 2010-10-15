@@ -113,7 +113,6 @@ public interface X10NodeFactory extends NodeFactory {
 		    List<PropertyDecl> properties,
               DepParameterExpr ci, TypeNode superClass,
               List<TypeNode> interfaces, ClassBody body);
-	Await Await(Position pos, Expr expr);
 
 	X10Loop ForLoop(Position pos, Formal formal, Expr domain, Stmt body);
 	X10Loop AtEach(Position pos, Formal formal, Expr domain, List<Expr> clocks,

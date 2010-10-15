@@ -92,7 +92,6 @@ import polyglot.ast.Unary_c;
 import polyglot.ast.While_c;
 import polyglot.frontend.Compiler;
 import x10.ast.AssignPropertyCall_c;
-import x10.ast.Await_c;
 import x10.ast.Closure;
 import x10.ast.ClosureCall_c;
 import x10.ast.Closure_c;
@@ -1005,13 +1004,6 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 	@Override
 	public void visit(AssignPropertyCall_c n) {
 		// TODO Auto-generated method stub
-		super.visit(n);
-	}
-
-	@Override
-	public void visit(Await_c n) {
-		complainIfNot2(!generatingKernel(), "Await not allowed in @CUDA code.",
-				n, false);
 		super.visit(n);
 	}
 

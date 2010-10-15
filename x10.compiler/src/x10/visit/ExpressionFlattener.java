@@ -68,7 +68,6 @@ import x10.ast.AtEach;
 import x10.ast.AtExpr;
 import x10.ast.AtStmt;
 import x10.ast.Atomic;
-import x10.ast.Await;
 import x10.ast.Closure;
 import x10.ast.ClosureCall;
 import x10.ast.Finish;
@@ -723,7 +722,6 @@ public final class ExpressionFlattener extends ContextVisitor {
         else if (stmt instanceof Assert)    return flattenAssert((Assert) stmt);
         else if (stmt instanceof Async)     return flattenAsync((Async) stmt);
         else if (stmt instanceof AtStmt)    return flattenAtStmt((AtStmt) stmt);
-        else if (stmt instanceof Await)     return flattenAwait((Await) stmt);
         else if (stmt instanceof When)      return flattenWhen((When) stmt);
         else if (stmt instanceof AtEach)    return flattenAtEach((AtEach) stmt);
         else if (stmt instanceof AssignPropertyCall) return flattenAssignPropertyCall((AssignPropertyCall) stmt);
@@ -775,23 +773,6 @@ public final class ExpressionFlattener extends ContextVisitor {
      * TODO: handle StmtExpr's in the Java back end.
      */
     private StmtSeq flattenAssert(Assert stmt) {
-        assert false;
-        return syn.toStmtSeq(stmt);
-    }
-
-    /**
-     * Flatten an await statement.
-     * The semantics of a flat assertion require the backend to be able to handle a StmtExpr.  The java back-end cannot.
-     * For the time being await statements are not flattened.
-     * <pre>
-     * await (({s1; e1}));  ->  await (({s1; e1})); // no-op 
-     * </pre>
-     * 
-     * @param stmt the await statement to flatten
-     * @return a flat statement with the same semantics as stmt
-     * TODO: handle StmtExpr's in the Java back end.
-     */
-    private StmtSeq flattenAwait(Await stmt) {
         assert false;
         return syn.toStmtSeq(stmt);
     }

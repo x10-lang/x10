@@ -81,7 +81,6 @@
     at
     ateach
     atomic
-    await
     break
     case
     catch
@@ -172,11 +171,6 @@
               | a t o m i c
         /.$BeginAction
                 $setResult($_atomic);
-          $EndAction
-        ./
-              | a w a i t
-        /.$BeginAction
-                $setResult($_await);
           $EndAction
         ./
               | b r e a k

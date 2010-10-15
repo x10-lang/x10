@@ -241,7 +241,6 @@
     at
 --    ateach
     atomic
-    await
 --    break
 --    case
 --    catch
