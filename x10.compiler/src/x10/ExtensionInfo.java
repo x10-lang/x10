@@ -278,6 +278,8 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
             // If they have the same message and are on the same line, they're equal
             if (a.getMessage() == null && b.getMessage() == null)
                 return 0;
+            else if (a.getMessage() != null && !a.getMessage().equals(b.getMessage()))
+                return a.getMessage().compareToIgnoreCase(b.getMessage());
             else if (a.getMessage() != null && a.getMessage().equals(b.getMessage()))
                 return 0;
             if (pa.column() < pb.column())
