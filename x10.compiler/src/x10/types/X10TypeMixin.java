@@ -126,6 +126,10 @@ public class X10TypeMixin {
 		if (rectField == null)
 			throw new InternalCompilerError("Could not find rect field of " + ts.Region(), pos);
 
+		FieldInstance zeroBasedField = ((X10ClassType) ts.Region()).fieldNamed(Name.make("zeroBased"));
+		if (zeroBasedField == null)
+			throw new InternalCompilerError("Could not find zeroBased field of " + ts.Region(), pos);
+
 		try {
 
 			XVar selfSize = ts.xtypeTranslator().trans(c, c.self(), sizeField);
@@ -138,8 +142,11 @@ public class X10TypeMixin {
 			c.addBinding(selfRegionRank, rankLiteral);
 
 			XVar selfRegionRect = ts.xtypeTranslator().trans(c, selfRegion, rectField);
-			XLit rectLiteral = XTerms.makeLit(true);
-			c.addBinding(selfRegionRect, rectLiteral);
+			XLit trueLiteral = XTerms.makeLit(true);
+			c.addBinding(selfRegionRect, trueLiteral);
+
+			XVar selfRegionZeroBased = ts.xtypeTranslator().trans(c, selfRegion, zeroBasedField);
+			c.addBinding(selfRegionZeroBased, trueLiteral);
 
 			//c.toString();
 			t = X10TypeMixin.xclause(t, c);
