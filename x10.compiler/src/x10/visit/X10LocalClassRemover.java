@@ -203,7 +203,7 @@ public class X10LocalClassRemover extends LocalClassRemover {
             cd = rewriteTypeParams(subst, cd);
         }
 
-        n = cd.body((ClassBody) rewriteConstructorCalls(cd.body(), def, newFields, def.typeParameters()));
+        n = cd.body((ClassBody) rewriteConstructorCalls(cd.body(), def, newFields));
 
         return icrv.addFieldsToClass(n, newFields, ts, nf, false);
     }
@@ -233,8 +233,8 @@ public class X10LocalClassRemover extends LocalClassRemover {
         return xcon.isValInScopeInClass(name);
     }
     
-    protected Node rewriteConstructorCalls(Node s, final ClassDef ct, final List<FieldDef> fields, List<? extends Type> typeArgs) {
-        Node r = s.visit(new X10ConstructorCallRewriter(fields, ct, typeArgs));
+    protected Node rewriteConstructorCalls(Node s, final ClassDef ct, final List<FieldDef> fields) {
+        Node r = s.visit(new X10ConstructorCallRewriter(fields, ct, ((X10ClassDef) ct).typeParameters()));
         return r;
     }
 }
