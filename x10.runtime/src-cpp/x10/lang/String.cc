@@ -449,7 +449,7 @@ const serialization_id_t String::_serialization_id =
 // Specialized serialization
 void String::_serialize(x10aux::ref<String> this_, x10aux::serialization_buffer &buf) {
     Object::_serialize_reference(this_, buf);
-    if (this_ != x10aux::null) {
+    if (!this_.isNull()) {
         this_->_serialize_body(buf);
     }
 }

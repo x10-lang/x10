@@ -166,7 +166,7 @@ Thread::thread_init(ref<VoidFun_0_0> task, const ref<String> name)
     //pthread_attr_setsuspendstate_np(&__xthread_attr, suspendstate);
 
     // create a new execution thread ??in suspended state??
-    if (__taskBody!=x10aux::null) {
+    if (!__taskBody.isNull()) {
         (void)pthread_create(&__xthread, &__xthread_attr,
                              thread_start_routine, (void *)this);
     } else {

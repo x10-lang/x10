@@ -227,7 +227,7 @@ namespace x10 {
         template <class T> void ValRail<T>::_serialize(x10aux::ref<ValRail<T> > this_,
                                                        x10aux::serialization_buffer &buf) {
             Object::_serialize_reference(this_, buf);
-            if (this_ != x10aux::null) {
+            if (!this_.isNull()) {
                 this_->_serialize_body(buf);
             }
         }
