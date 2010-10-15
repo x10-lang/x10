@@ -89,6 +89,7 @@
    // end workaround
 #endif
 #include <stdint.h>
+#include <stdio.h>
 
 #include <x10aux/pragmas.h>
 
@@ -260,6 +261,12 @@ namespace x10aux {
 
 //combine __FILE__ and __LINE__ without using sprintf or other junk
 #define __FILELINE__ __FILE__ ":" __TOKEN_STRING_DEREF(__LINE__) 
+
+#define UNIMPLEMENTED(m) do { \
+        fprintf(stderr, "Aborting due to unimplemented function %s at %s\n",m,__FILELINE__); \
+        abort();                                                        \
+} while (0)
+
 
 // Debug support
 #include <x10aux/debug.h>

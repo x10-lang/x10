@@ -59,7 +59,7 @@ const ref<String> x10aux::int_utils::toString(x10_int value) {
 
 x10_int x10aux::int_utils::parseInt(ref<String> s, x10_int radix) {
     (void) s;
-    assert(false); /* FIXME: STUBBED NATIVE */
+    UNIMPLEMENTED("parseInt");
     return radix; /* Bogus, but use radix to avoid warning about unused parameter */
 }
 
@@ -70,47 +70,47 @@ x10_int x10aux::int_utils::parseInt(ref<String> s) {
 }
 
 x10_int x10aux::int_utils::highestOneBit(x10_int x) {
-    assert(false); /* FIXME: STUBBED NATIVE */
+    UNIMPLEMENTED("highestOneBit");
     return x; /* Bogus, but use x to avoid warning about unused parameter */
 }
 
 x10_int x10aux::int_utils::lowestOneBit(x10_int x) {
-    assert(false); /* FIXME: STUBBED NATIVE */
+    UNIMPLEMENTED("lowestOneBit");
     return x; /* Bogus, but use x to avoid warning about unused parameter */
 }
 
 x10_int x10aux::int_utils::numberOfLeadingZeros(x10_int x) {
-    assert(false); /* FIXME: STUBBED NATIVE */
+    UNIMPLEMENTED("numberOfLeadingZeros");
     return x; /* Bogus, but use x to avoid warning about unused parameter */
 }
 
 x10_int x10aux::int_utils::numberOfTrailingZeros(x10_int x) {
-    assert(false); /* FIXME: STUBBED NATIVE */
+    UNIMPLEMENTED("numberOfTrailingZeros");
     return x; /* Bogus, but use x to avoid warning about unused parameter */
 }
 
 x10_int x10aux::int_utils::bitCount(x10_int x) {
-    assert(false); /* FIXME: STUBBED NATIVE */
+    UNIMPLEMENTED("bitCount");
     return x; /* Bogus, but use x to avoid warning about unused parameter */
 }
 
 x10_int x10aux::int_utils::rotateLeft(x10_int x) {
-    assert(false); /* FIXME: STUBBED NATIVE */
+    UNIMPLEMENTED("rotateLeft");
     return x; /* Bogus, but use x to avoid warning about unused parameter */
 }
 
 x10_int x10aux::int_utils::rotateRight(x10_int x) {
-    assert(false); /* FIXME: STUBBED NATIVE */
+    UNIMPLEMENTED("rotateRight");
     return x; /* Bogus, but use x to avoid warning about unused parameter */
 }
 
 x10_int x10aux::int_utils::reverse(x10_int x) {
-    assert(false); /* FIXME: STUBBED NATIVE */
+    UNIMPLEMENTED("reverse");
     return x; /* Bogus, but use x to avoid warning about unused parameter */
 }
 
 x10_int x10aux::int_utils::signum(x10_int x) {
-    assert(false); /* FIXME: STUBBED NATIVE */
+    UNIMPLEMENTED("signum");
     return x; /* Bogus, but use x to avoid warning about unused parameter */
 }
 

@@ -31,7 +31,8 @@ x10_boolean x10aux::char_utils::isUpperCase(x10_char x) {
 }
 
 x10_boolean x10aux::char_utils::isTitleCase(x10_char x) {
-    /* FIXME: Proper title case support */
+    (void) x;
+    UNIMPLEMENTED("isTitleCase");
     return false;
 }
 
@@ -52,19 +53,19 @@ x10_boolean x10aux::char_utils::isLetterOrDigit(x10_char x) {
 
 x10_boolean x10aux::char_utils::isUnicodeIdentifierStart(x10_char x) {
     (void) x;
-    assert(false); /* FIXME: STUBBED NATIVE */
+    UNIMPLEMENTED("isUnicodeIdentifierStart");
     return false;
 }
 
 x10_boolean x10aux::char_utils::isUnicodeIdentifierPart(x10_char x) {
     (void) x;
-    assert(false); /* FIXME: STUBBED NATIVE */
+    UNIMPLEMENTED("isUnicodeIdentifierPart");
     return false;
 }
 
 x10_boolean x10aux::char_utils::isUnicodeIdentifierIgnorable(x10_char x) {
     (void) x;
-    assert(false); /* FIXME: STUBBED NATIVE */
+    UNIMPLEMENTED("isUnicodeIdentifierIgnorable");
     return false;
 }
 

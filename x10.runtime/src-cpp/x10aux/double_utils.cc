@@ -27,7 +27,7 @@ typedef union TypePunner {
 
 const ref<String> x10aux::double_utils::toHexString(x10_double value) {
     (void) value;
-    assert(false); /* FIXME: STUBBED NATIVE */
+    UNIMPLEMENTED("toHexString");
     return null;
 }
 
