@@ -29,7 +29,7 @@ currently work and will be fixed in the subsequent releases:
     a compilation unit)
 
 There is one known limitation of the 2.1.0 release that represents
-a regression with respect to 2.1.0.
+a regression with respect to 2.0.6.
   - String concatenation via the '+' operator is asymmetric. 
     If the first argument to '+' is not a String, it will be necessary
     to explicitly add a ""+ first.  For example:
