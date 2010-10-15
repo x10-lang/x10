@@ -1727,7 +1727,7 @@ class ReturnStatementTest {
 			}
 		}
 		at (here.next())
-			return 2; // ShouldNotBeERR: Cannot return value from void method or closure.
+			return 2; // ShouldNotBeERR ERR todo: we get 2 errors: Cannot return value from void method or closure.		Cannot return a value from method public static x10.lang.Runtime.$dummyAsync(): x10.lang.Void
 		finish {
 			async { val y=1; }
 			return 3;
@@ -2003,5 +2003,28 @@ class TestCoAndContraVarianceInInterfaces {
 			val y:Comparable[Comparable[Foo]] = this;
 			val z:Comparable[Comparable[Comparable[Foo]]] = this;
 		}
+	}
+}
+
+class ConstraintsBugs {
+	class A(p:Int) {
+		def this(p:Int):A{self.p==p} {
+			property(p);
+		}
+	}
+	class B extends A{p==1} {
+		def this():B{self.p==1} {
+			super(2); // ShouldBeErr
+		}
+	}
+}
+
+class SuperQualifier { // see XTENLANG-1948
+	class Parent {
+	public val f = 2;
+	}
+	class Ego extends Parent {
+		// todo: this error blocks the entire next dataflow phase 
+	//val x = Parent.super.f;  // ShouldNotBeErr: The nested class "Ego" does not have an enclosing instance of type "Parent".
 	}
 }

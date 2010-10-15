@@ -145,7 +145,7 @@ class PropertyMethodExample(x:Int, y:Int) {
 	def this(x:Int, y:Int) { property(x,y); }
 	property eq() = (x==y);
 	property is(z:Int) = x==z && y==z;
-	def example( a : Example{eq()}, b : Example{is(3)} ) {}
+	def example( a : PropertyMethodExample{eq()}, b : PropertyMethodExample{is(3)} ) {}
 }
 class Oddvec { // ShouldBeErr?  no corresponding apply method defined.
 public def set(newval:Int, i:Int) = {}
