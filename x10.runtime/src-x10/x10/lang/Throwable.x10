@@ -17,7 +17,7 @@ import x10.compiler.NativeRep;
 import x10.io.Printer;
 import x10.io.Console;
 
-@NativeRep("java", "x10.runtime.impl.java.X10Throwable", null, "x10.runtime.impl.java.X10Throwable._RTT")
+@NativeRep("java", "x10.core.Throwable", null, "x10.core.Throwable._RTT")
 @NativeRep("c++", "x10aux::ref<x10::lang::Throwable>", "x10::lang::Throwable", null)
 public class Throwable {
     @Native("java", "#0.getCause()")
@@ -37,7 +37,7 @@ public class Throwable {
     public def this(cause: Throwable) = this("", cause);
     public def this(message: String, cause: Throwable): Throwable {
         super();
-    	this.cause = cause;
+        	this.cause = cause;
         this.message = message;
     }
     

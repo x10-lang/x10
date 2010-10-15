@@ -352,7 +352,7 @@ public final struct Byte /*TODO implements Arithmetic[Byte], Bitwise[Byte], Orde
      * @deprecated use {@link #parse(String,Int)} instead
      */
     // @Native("java", "java.lang.Byte.parseByte(#1, #2)")
-    @Native("java", "new Object() { byte eval(String s, int radix) { try { return java.lang.Byte.parseByte(s, radix); } catch (java.lang.NumberFormatException e) { throw new x10.lang.NumberFormatException(e.getMessage()); } } }.eval(#1, #2)")
+    @Native("java", "new Object() { byte eval(String s, int radix) { try { return java.lang.Byte.parseByte(s, radix); } catch (java.lang.NumberFormatException e) { throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(e); } } }.eval(#1, #2)")
     @Native("c++", "x10aux::byte_utils::parseByte(#1, #2)")
     public native static def parseByte(String, radix:Int): Byte; //throwsNumberFormatException;
 
@@ -360,7 +360,7 @@ public final struct Byte /*TODO implements Arithmetic[Byte], Bitwise[Byte], Orde
      * @deprecated use {@link #parse(String)} instead
      */
     // @Native("java", "java.lang.Byte.parseByte(#1)")
-    @Native("java", "new Object() { byte eval(String s) { try { return java.lang.Byte.parseByte(s); } catch (java.lang.NumberFormatException e) { throw new x10.lang.NumberFormatException(e.getMessage()); } } }.eval(#1)")
+    @Native("java", "new Object() { byte eval(String s) { try { return java.lang.Byte.parseByte(s); } catch (java.lang.NumberFormatException e) { throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(e); } } }.eval(#1)")
     @Native("c++", "x10aux::byte_utils::parseByte(#1)")
     public native static def parseByte(String): Byte ; //throwsNumberFormatException;
 
@@ -372,7 +372,7 @@ public final struct Byte /*TODO implements Arithmetic[Byte], Bitwise[Byte], Orde
      * @; //throwsNumberFormatException if the String does not contain a parsable Byte.
      */
     // @Native("java", "java.lang.Byte.parseByte(#1, #2)")
-    @Native("java", "new Object() { byte eval(String s, int radix) { try { return java.lang.Byte.parseByte(s, radix); } catch (java.lang.NumberFormatException e) { throw new x10.lang.NumberFormatException(e.getMessage()); } } }.eval(#1, #2)")
+    @Native("java", "new Object() { byte eval(String s, int radix) { try { return java.lang.Byte.parseByte(s, radix); } catch (java.lang.NumberFormatException e) { throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(e); } } }.eval(#1, #2)")
     @Native("c++", "x10aux::byte_utils::parseByte(#1, #2)")
     public native static def parse(s:String, radix:Int): Byte ; //throwsNumberFormatException;
 
@@ -383,7 +383,7 @@ public final struct Byte /*TODO implements Arithmetic[Byte], Bitwise[Byte], Orde
      * @throws NumberFormatException if the String does not contain a parsable Byte.
      */
     // @Native("java", "java.lang.Byte.parseByte(#1)")
-    @Native("java", "new Object() { byte eval(String s) { try { return java.lang.Byte.parseByte(s); } catch (java.lang.NumberFormatException e) { throw new x10.lang.NumberFormatException(e.getMessage()); } } }.eval(#1)")
+    @Native("java", "new Object() { byte eval(String s) { try { return java.lang.Byte.parseByte(s); } catch (java.lang.NumberFormatException e) { throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(e); } } }.eval(#1)")
     @Native("c++", "x10aux::byte_utils::parseByte(#1)")
     public native static def parse(s:String): Byte ; //throwsNumberFormatException;
 

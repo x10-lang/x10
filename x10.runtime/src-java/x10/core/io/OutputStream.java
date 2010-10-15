@@ -14,7 +14,6 @@ package x10.core.io;
 import x10.core.Ref;
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
-import x10.runtime.impl.java.X10Throwable;
 
 public class OutputStream extends Ref {
   
@@ -33,7 +32,7 @@ public class OutputStream extends Ref {
         try {
             stream.close();
         } catch (java.io.IOException e) {
-            throw X10Throwable.getCorrespondingX10Exception(e);
+            throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(e);
         }
     }
     
@@ -41,7 +40,7 @@ public class OutputStream extends Ref {
         try {
             stream.flush();
         } catch (java.io.IOException e) {
-            throw X10Throwable.getCorrespondingX10Exception(e);
+            throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(e);
         }
     }
     
@@ -49,7 +48,7 @@ public class OutputStream extends Ref {
         try {
             stream.write(b);
         } catch (java.io.IOException e) {
-            throw X10Throwable.getCorrespondingX10Exception(e);
+            throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(e);
         }
     }
     
@@ -57,7 +56,7 @@ public class OutputStream extends Ref {
         try {
             stream.write(b);
         } catch (java.io.IOException e) {
-            throw X10Throwable.getCorrespondingX10Exception(e);
+            throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(e);
         }
     }
     
@@ -65,7 +64,7 @@ public class OutputStream extends Ref {
         try {
             stream.write(b, off, len);
         } catch (java.io.IOException e) {
-            throw X10Throwable.getCorrespondingX10Exception(e);
+            throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(e);
         }
     }
     

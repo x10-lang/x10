@@ -14,7 +14,6 @@ package x10.core.io;
 import x10.core.Ref;
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
-import x10.runtime.impl.java.X10Throwable;
 
 public class InputStream extends Ref {
   
@@ -28,7 +27,7 @@ public class InputStream extends Ref {
         try {
             stream.close();
         } catch (java.io.IOException e) {
-            throw X10Throwable.getCorrespondingX10Exception(e);
+            throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(e);
         }
     }
     
@@ -36,7 +35,7 @@ public class InputStream extends Ref {
         try {
             return stream.read();
         } catch (java.io.IOException e) {
-            throw X10Throwable.getCorrespondingX10Exception(e);
+            throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(e);
         }
     }
     
@@ -44,7 +43,7 @@ public class InputStream extends Ref {
         try {
             stream.read(b, off, len);
         } catch (java.io.IOException e) {
-            throw X10Throwable.getCorrespondingX10Exception(e);
+            throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(e);
         }
     }
     
@@ -52,7 +51,7 @@ public class InputStream extends Ref {
         try {
             return stream.available();
         } catch (java.io.IOException e) {
-            throw X10Throwable.getCorrespondingX10Exception(e);
+            throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(e);
         }
     }
     
@@ -60,7 +59,7 @@ public class InputStream extends Ref {
         try {
             stream.skip(n);
         } catch (java.io.IOException e) {
-            throw X10Throwable.getCorrespondingX10Exception(e);
+            throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(e);
         }
     }
     
@@ -72,7 +71,7 @@ public class InputStream extends Ref {
         try {
             stream.reset();
         } catch (java.io.IOException e) {
-            throw X10Throwable.getCorrespondingX10Exception(e);
+            throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(e);
         }
     }
     

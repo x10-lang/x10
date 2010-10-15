@@ -107,9 +107,9 @@ public class Thread extends java.lang.Thread {
         try {
             java.lang.Thread.sleep(time, nanos);
         } catch (InterruptedException e) {
-            X10Throwable e1 = null;
+            x10.core.Throwable e1 = null;
             try {
-                e1 = (X10Throwable)Class.forName("x10.lang.InterruptedException").newInstance();
+                e1 = (x10.core.Throwable)Class.forName("x10.lang.InterruptedException").newInstance();
             } catch (Exception e2) {
                 e2.printStackTrace();
             }

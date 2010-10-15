@@ -14,7 +14,6 @@ package x10.core.io;
 import x10.core.RefI;
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
-import x10.runtime.impl.java.X10Throwable;
 
 public class NativeFile extends java.io.File implements RefI {
 
@@ -27,7 +26,7 @@ public class NativeFile extends java.io.File implements RefI {
         try {
             return super.getCanonicalPath();
         } catch (java.io.IOException e) {
-            throw X10Throwable.getCorrespondingX10Exception(e);
+            throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(e);
         }
     }
 
