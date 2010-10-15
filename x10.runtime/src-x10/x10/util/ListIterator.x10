@@ -11,7 +11,7 @@
 
 package x10.util;
 
-public interface ListIterator[+T] extends CollectionIterator[T] {
+public interface ListIterator[T] extends CollectionIterator[T] {
     public def hasNext():boolean;
     public def next():T;
     public def nextIndex(): Int;

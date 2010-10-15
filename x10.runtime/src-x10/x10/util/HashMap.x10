@@ -226,7 +226,7 @@ import x10.compiler.NonEscaping;
     return iterator;
     }
 
-    protected static class EntriesIterator[-Key,Value] implements Iterator[HashEntry[Key,Value]] {
+    protected static class EntriesIterator[Key,Value] implements Iterator[HashEntry[Key,Value]] {
         val map: HashMap[Key,Value];
         var i: Int;
 		var originalModCount:Int;
@@ -261,7 +261,7 @@ import x10.compiler.NonEscaping;
     
     public def size() = size;
     
-    protected static class KeySet[-Key,Value] extends AbstractCollection[Key] implements Set[Key] {
+    protected static class KeySet[Key,Value] extends AbstractCollection[Key] implements Set[Key] {
         val map: HashMap[Key,Value];
         
         def this(map: HashMap[Key,Value]) { this.map = map; }
@@ -280,7 +280,7 @@ import x10.compiler.NonEscaping;
         public def size(): Int = map.size();
     }
 
-    protected static class EntrySet[-Key,Value] 
+    protected static class EntrySet[Key,Value] 
            extends AbstractCollection[Map.Entry[Key,Value]] 
            implements Set[Map.Entry[Key,Value]] {
         val map: HashMap[Key,Value];
