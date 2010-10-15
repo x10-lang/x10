@@ -167,9 +167,8 @@ namespace x10aux {
         return str;
     }
 
-    // will be initialised to NULL
-    static ref<x10::lang::NullType> null;
-
+    #define X10_NULL x10aux::ref<x10::lang::NullType>(NULL)
+    
     template<class F, class T> bool operator!=(F f, T t) { return !(f == t); }
     // comparison of a primitive with a ref
     template<class T> bool operator==(x10_boolean b, const ref<T>& _ref) { return false; }

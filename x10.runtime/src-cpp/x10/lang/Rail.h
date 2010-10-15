@@ -332,7 +332,7 @@ namespace x10 {
         template <class T> template<class S> x10aux::ref<S> Rail<T>::_deserialize(x10aux::deserialization_buffer &buf) {
             Object::_reference_state rr = Object::_deserialize_reference_state(buf);
             if (0 == rr.ref) {
-                return x10aux::null;
+                return X10_NULL;
             } else {
                 R res = Rail<T>::template _deserializer<Rail<T> >(buf);
                 _S_("Deserialized a "<<ANSI_SER<<ANSI_BOLD<<"class"<<ANSI_RESET<<

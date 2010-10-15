@@ -82,7 +82,7 @@ ref<Reference> Deque::steal() {
         base = b + 1;
         return t;
     }
-    return null;
+    return X10_NULL;
 }
 
 void Deque::_serialize_body(serialization_buffer &buf) {

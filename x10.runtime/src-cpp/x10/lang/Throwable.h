@@ -56,15 +56,15 @@ namespace x10 {
                                                 x10aux::ref<Throwable> cause);
         protected:
             x10aux::ref<Throwable> _constructor() {
-                return _constructor(x10aux::null, x10aux::null);
+                return _constructor(X10_NULL, X10_NULL);
             }
 
             x10aux::ref<Throwable> _constructor(x10aux::ref<String> message) {
-                return _constructor(message, x10aux::null);
+                return _constructor(message, X10_NULL);
             }
 
             x10aux::ref<Throwable> _constructor(x10aux::ref<Throwable> cause) {
-                return _constructor(x10aux::null, cause);
+                return _constructor(X10_NULL, cause);
             }
 
             x10aux::ref<Throwable> _constructor(x10aux::ref<String> message,

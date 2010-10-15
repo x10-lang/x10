@@ -111,7 +111,7 @@ namespace x10 {
             x10aux::serialization_id_t id = buf.peek<x10aux::serialization_id_t>();
             if (id == 0) {
                 buf.read<x10aux::serialization_id_t>();
-                return x10aux::null;
+                return X10_NULL;
             }
             // extract the id and execute a callback to instantiate the right concrete class
             _S_("Deserializing an "<<ANSI_SER<<ANSI_BOLD<<"interface"<<ANSI_RESET<<
@@ -122,7 +122,7 @@ namespace x10 {
         /**
          * This is a class that exists only at the C++ implementation level,
          * not at the X10 language level.  It's only real purpose is to
-         * provide a C++ level type for x10aux::NullType and therefore permit
+         * provide a C++ level type for X10_NULL and therefore permit
          * a unique RTT object to be associated with the X10 value null.
          * 
          * This is an abstract class because no instance of it will ever be

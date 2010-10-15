@@ -54,7 +54,7 @@ File__NativeFile::getAbsolutePath() {
         return path;
     char* cwd = getcwd(NULL, _POSIX_PATH_MAX);
     if (cwd == NULL)
-        return x10aux::null;
+        return X10_NULL;
     x10aux::ref<String> absPath = String::Lit(cwd) + String::Lit("/") + path;
     free(cwd);
     return absPath;

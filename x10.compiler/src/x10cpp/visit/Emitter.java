@@ -985,7 +985,7 @@ public class Emitter {
             w.write(make_ref(klass)+" this_,"); w.newline();
             w.write(SERIALIZATION_BUFFER+"& buf) {"); w.end(); w.newline(4); w.begin(0);
             w.write(    "_serialize_reference(this_, buf);"); w.newline();
-            w.write(    "if (this_ != x10aux::null) {"); w.newline(4); w.begin(0);
+            w.write(    "if (!this_.isNull()) {"); w.newline(4); w.begin(0);
             w.write(        "this_->_serialize_body(buf);"); w.end(); w.newline();
             w.write(    "}"); w.end(); w.newline();
             w.write("}"); w.newline();
@@ -1081,7 +1081,7 @@ public class Emitter {
             sw.writeln("x10::lang::Object::_reference_state rr = x10::lang::Object::_deserialize_reference_state(buf);");
             sw.write("if (0 == rr.ref) {");                
             sw.newline(4); sw.begin(0);
-            sw.write("return x10aux::null;");
+            sw.write("return X10_NULL;");
             sw.end(); sw.newline();
             sw.write("} else {");
             sw.newline(4); sw.begin(0);

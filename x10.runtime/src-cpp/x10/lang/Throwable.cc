@@ -86,7 +86,7 @@ x10aux::ref<Throwable> Throwable::_constructor(x10aux::ref<String> message,
     this->FMGL(message) = message;
     this->FMGL(cause) = cause;
     this->FMGL(trace_size) = -1;
-    this->FMGL(cachedStackTrace) = x10aux::null;
+    this->FMGL(cachedStackTrace) = X10_NULL;
     return this;
 }
 

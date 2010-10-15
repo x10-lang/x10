@@ -197,7 +197,7 @@ namespace x10 {
         template<class T> x10aux::ref<T> String::_deserialize(x10aux::deserialization_buffer &buf) {
             Object::_reference_state rr = Object::_deserialize_reference_state(buf);
             if (0 == rr.ref) {
-                return x10aux::null;
+                return X10_NULL;
             } else {
                 x10aux::ref<String> res = String::_deserializer<String>(buf);
                 _S_("Deserialized a "<<ANSI_SER<<ANSI_BOLD<<"class"<<ANSI_RESET<<" x10::lang::String");

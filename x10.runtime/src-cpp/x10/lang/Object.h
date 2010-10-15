@@ -138,7 +138,7 @@ namespace x10 {
             x10aux::serialization_id_t id = buf.read<x10aux::serialization_id_t>();
             _reference_state rr = _deserialize_reference_state(buf);
             if (0 == rr.ref) {
-                return x10aux::null;
+                return X10_NULL;
             } else {
                 x10aux::ref<Object> res;
                 _S_("Deserializing a "<<ANSI_SER<<ANSI_BOLD<<"class"<<ANSI_RESET<<

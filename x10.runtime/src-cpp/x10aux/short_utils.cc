@@ -21,7 +21,7 @@ using namespace x10aux;
 const ref<String> x10aux::short_utils::toString(x10_short value, x10_int radix) {
     (void) value; (void) radix;
     UNIMPLEMENTED("toString");
-    return null;
+    return X10_NULL;
 }
 
 const ref<String> x10aux::short_utils::toHexString(x10_short value) {

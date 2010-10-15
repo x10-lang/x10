@@ -122,7 +122,7 @@ namespace x10aux {
 #ifdef X10_USE_BDWGC
         GC_INIT();
 #endif
-        x10aux::ref<x10::array::Array<x10aux::ref<x10::lang::String> > > args = x10aux::null;
+        x10aux::ref<x10::array::Array<x10aux::ref<x10::lang::String> > > args = X10_NULL;
 
 #ifndef NO_EXCEPTIONS
         try {
@@ -131,7 +131,7 @@ namespace x10aux {
 
             // Initialise enough state to make this 'main' thread look like a normal x10 thread
             // (e.g. make Thread::CurrentThread work properly).
-            x10::lang::Thread::_make(x10aux::null, x10aux::string_utils::lit("thread-main"));
+            x10::lang::Thread::_make(X10_NULL, x10aux::string_utils::lit("thread-main"));
             x10aux::initialize_xrx();
 
             args = x10aux::convert_args(ac, av);

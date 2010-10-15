@@ -2200,7 +2200,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	        sw.newline();
 	        sw.write(STATIC_INIT_NOTIFY_ALL + "();");
 	        sw.newline();
-	        sw.write("return x10aux::null;");
+	        sw.write("return X10_NULL;");
 	        sw.end(); sw.newline();
 	        sw.write("}");
 	        sw.newline();
@@ -3382,7 +3382,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	}
 
 	public void visit(NullLit_c n) {
-		sw.write("x10aux::null");
+		sw.write("X10_NULL");
 	}
 
 	public void visit(StringLit_c n) {
