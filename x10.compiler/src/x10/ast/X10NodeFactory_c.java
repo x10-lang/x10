@@ -548,12 +548,6 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		return (ParExpr) n.del(delFactory().delExpr());
 	}
 
-	public PlaceCast PlaceCast(Position pos, Expr place, Expr expr) {
-		PlaceCast n = new PlaceCast_c(pos, place, expr);
-		n = (PlaceCast) n.ext(extFactory().extExpr());
-		return (PlaceCast) n.del(delFactory().delExpr());
-	}
-
 	public Field Field(Position pos, Receiver target, Id name) {
 		Field n = new X10Field_c(pos, target, name);
 		n = (Field) n.ext(extFactory().extField());

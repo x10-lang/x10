@@ -137,7 +137,6 @@ public interface X10NodeFactory extends NodeFactory {
 	X10Formal X10Formal(Position pos, FlagsNode flags, TypeNode type, Id name,
 				  List<Formal> vars, boolean unnamed);
 	ParExpr ParExpr(Position pos, Expr e);
-	PlaceCast PlaceCast(Position pos, Expr place, Expr target);
     
     ConstructorDecl X10ConstructorDecl(Position pos, FlagsNode flags, Id name,
             TypeNode returnType, List<TypeParamNode> typeParams, List<Formal> formals, 
