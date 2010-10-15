@@ -121,6 +121,11 @@ public class X10TypeMixin {
 		FieldInstance rankField = ((X10ClassType) ts.Region()).fieldNamed(Name.make("rank"));
 		if (rankField == null)
 			throw new InternalCompilerError("Could not find rank field of " + ts.Region(), pos);
+
+		FieldInstance rectField = ((X10ClassType) ts.Region()).fieldNamed(Name.make("rect"));
+		if (rectField == null)
+			throw new InternalCompilerError("Could not find rect field of " + ts.Region(), pos);
+
 		try {
 
 			XVar selfSize = ts.xtypeTranslator().trans(c, c.self(), sizeField);
@@ -131,7 +136,12 @@ public class X10TypeMixin {
 			XVar selfRegionRank = ts.xtypeTranslator().trans(c, selfRegion, rankField);
 			XLit rankLiteral = XTerms.makeLit(1);
 			c.addBinding(selfRegionRank, rankLiteral);
-			c.toString();
+
+			XVar selfRegionRect = ts.xtypeTranslator().trans(c, selfRegion, rectField);
+			XLit rectLiteral = XTerms.makeLit(true);
+			c.addBinding(selfRegionRect, rectLiteral);
+
+			//c.toString();
 			t = X10TypeMixin.xclause(t, c);
 
 		} catch (XFailure z) {
