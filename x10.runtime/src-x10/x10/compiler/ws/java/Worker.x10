@@ -24,6 +24,7 @@ public final class Worker {
         lock.lock();
         while (null != (k = Frame.cast[Object,RegularFrame](deque.steal()))) {
 //            Runtime.println(k + " migrated by " + this);
+            atomic k.ff.asyncs++;
             fifo.push(k);
         }
         lock.unlock();
