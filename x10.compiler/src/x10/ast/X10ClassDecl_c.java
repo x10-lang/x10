@@ -40,6 +40,7 @@ import polyglot.frontend.Job;
 import polyglot.frontend.Source;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
+import polyglot.types.ConstructorDef;
 import polyglot.types.Context;
 import polyglot.types.FieldDef;
 import polyglot.types.FieldInstance;
@@ -629,6 +630,31 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     	ContextVisitor oldtc = (ContextVisitor) tc.copy();
     	
     	n = (X10ClassDecl_c) n.typeCheckSupers(tc, childtc);
+    	X10TypeSystem_c xts = (X10TypeSystem_c) tc.typeSystem();
+    	if (superClass != null) {
+    	    Ref<? extends Type> stref = superClass.typeRef();
+    	    try {
+                checkSuperclass(xts, stref);
+    	    } catch (SemanticException e) {
+                X10ClassType uc = xts.createFakeClass(QName.make(superClass.nameString()), e);
+                for (ConstructorDef cd : classDef().constructors()) {
+                    ConstructorDef ucd = (ConstructorDef) cd.copy();
+                    ucd.setContainer(Types.ref(uc));
+                    uc.def().addConstructor(ucd);
+                }
+                ((Ref<Type>) stref).update(uc);
+    	    }
+    	}
+    	for (TypeNode itn : interfaces()) {
+    	    Ref<? extends Type> tref = itn.typeRef();
+    	    try {
+    	        checkSuperinterface(xts, tref);
+    	    } catch (SemanticException e) {
+                X10ClassType uc = xts.createFakeClass(QName.make(itn.nameString()), e);
+                uc.def().flags(uc.def().flags().Interface());
+                ((Ref<Type>) tref).update(uc);
+    	    }
+    	}
     	n = (X10ClassDecl_c) n.typeCheckProperties(parent, tc, childtc);
     	n = (X10ClassDecl_c) n.typeCheckClassInvariant(parent, tc, childtc);
     	n = (X10ClassDecl_c) n.typeCheckBody(parent, tc, childtc);
@@ -728,35 +754,43 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     	
     }
 
-    
     @Override
     protected void checkSupertypeCycles(TypeSystem ts) throws SemanticException {
         X10TypeSystem xts = (X10TypeSystem) ts;
+
         Ref<? extends Type> stref = type.superType();
-        
-        if (stref != null) {
-            Type t = stref.get();
-            t = followDefs(t);
-            if (xts.hasUnknown(t))
-                return;
-            if (! t.isClass() || t.toClass().flags().isInterface()) {
-                throw new SemanticException("Cannot extend type " + t + "; not a class.", superClass != null ? superClass.position() : position());
-            }
-            ts.checkCycles((ReferenceType) t);
-        }
+        checkSuperclass(xts, stref);
 
         for (Ref<? extends Type> tref : type.interfaces()) {
-            Type t = tref.get();
-            t = followDefs(t);
-            if (xts.hasUnknown(t))
-                throw new SemanticException(); // already reported
-            if (! t.isClass() || ! t.toClass().flags().isInterface()) {
-                String s = type.flags().isInterface() ? "extend" : "implement";
-                throw new SemanticException("Cannot " + s + " type " + t + "; not an interface.", position());
-            }
-            
-            ts.checkCycles((ReferenceType) t);
+            checkSuperinterface(xts, tref);
         }
+    }
+
+    protected void checkSuperclass(X10TypeSystem xts, Ref<? extends Type> stref) throws SemanticException {
+        if (stref == null)
+            return;
+        Type t = stref.get();
+        t = followDefs(t);
+        if (xts.hasUnknown(t))
+            return;
+        if (! t.isClass() || t.toClass().flags().isInterface()) {
+            throw new SemanticException("Cannot extend type " + t + "; not a class.", superClass != null ? superClass.position() : position());
+        }
+        xts.checkCycles((ReferenceType) t);
+    }
+
+    protected void checkSuperinterface(X10TypeSystem xts, Ref<? extends Type> tref) throws SemanticException {
+        if (tref == null)
+            return;
+        Type t = tref.get();
+        t = followDefs(t);
+        if (xts.hasUnknown(t))
+            return;
+        if (! t.isClass() || ! t.toClass().flags().isInterface()) {
+            String s = type.flags().isInterface() ? "extend" : "implement";
+            throw new SemanticException("Cannot " + s + " type " + t + "; not an interface.", position());
+        }
+        xts.checkCycles((ReferenceType) t);
     }
 
     protected List<TypeNode> followDefs(List<TypeNode> tns) {

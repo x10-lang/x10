@@ -592,8 +592,8 @@ public class Synthesizer {
 	 * @param name
 	 * @param typeArgsN
 	 * @param args
-	 * @param xnf
-	 * @param xts
+	 * @param returnType
+	 * @param argTypes
 	 * @param xc
 	 * @return
 	 * @throws SemanticException if no method can be located with this data
