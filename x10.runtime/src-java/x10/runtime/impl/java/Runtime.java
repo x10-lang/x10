@@ -120,23 +120,12 @@ public abstract class Runtime implements Runnable {
      * Synchronously executes body at place(id)
      */
     public static void runAt(int id, x10.core.fun.VoidFun_0_0 body) {
-        try {
-            // copy body
-            java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
-            new java.io.ObjectOutputStream(baos).writeObject(body);
-            body = (x10.core.fun.VoidFun_0_0) new java.io.ObjectInputStream(new java.io.ByteArrayInputStream(baos.toByteArray())).readObject();
-        } catch (java.io.IOException e) {
-            e.printStackTrace();
-            throw new WrappedRuntimeException(e);
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-            throw new WrappedRuntimeException(e);
-        }
+        body = deepCopy(body);
         runAtLocal(id, body);
     }
 
     /**
-     * Synchronously executes body at place(id)
+     * Copy body
      */
     public static x10.core.fun.VoidFun_0_0 deepCopy(x10.core.fun.VoidFun_0_0 body) {
         try {
