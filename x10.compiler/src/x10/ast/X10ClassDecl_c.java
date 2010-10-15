@@ -691,7 +691,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
                 }
             }
             if (! added) {
-                TypeNode tn = nf.CanonicalTypeNode(position(), t);
+                TypeNode tn = nf.CanonicalTypeNode(position().markCompilerGenerated(), t);
                 newInterfaces.add(tn);
             }
         }
