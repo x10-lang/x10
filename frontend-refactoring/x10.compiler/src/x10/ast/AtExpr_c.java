@@ -29,7 +29,7 @@ import x10.types.Context;
 import x10.types.SemanticException;
 import x10.types.Type;
 import x10.types.Types;
-import x10.types.X10Context;
+import x10.types.Context;
 import x10.types.X10NamedType;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
@@ -54,7 +54,7 @@ public class AtExpr_c extends PlacedClosure_c
     	AtExpr_c n = (AtExpr_c) super.typeCheck(tc);
     	Type t = n.returnType().type();
     	Context childC = enterChildScope(body, tc.context());
-    	t = PlaceChecker.ReplaceHereByPlaceTerm(t, (X10Context) childC);
+    	t = PlaceChecker.ReplaceHereByPlaceTerm(t, (Context) childC);
     	return n.type(t);
     }
     

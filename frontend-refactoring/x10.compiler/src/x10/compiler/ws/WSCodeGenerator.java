@@ -45,7 +45,7 @@ import x10.types.MethodDef;
 import x10.types.ProcedureDef;
 import x10.types.SemanticException;
 import x10.types.TypeSystem;
-import x10.types.X10Context;
+import x10.types.Context;
 import x10.types.X10TypeSystem;
 import x10.types.checker.PlaceChecker;
 import x10.util.Synthesizer;
@@ -137,7 +137,7 @@ public class WSCodeGenerator extends ContextVisitor {
                 }
                 
                 Job job = ((ClassType) mDef.container().get()).def().job();
-                WSMethodFrameClassGen mFrame = new WSMethodFrameClassGen(job, (NodeFactory) nf, (X10Context) context, mDef, mDecl, wts);
+                WSMethodFrameClassGen mFrame = new WSMethodFrameClassGen(job, (NodeFactory) nf, (Context) context, mDef, mDecl, wts);
                 n = mFrame.transform();
                 genClassDecls.addAll(mFrame.close()); 
                 genMethodDecls.add(mFrame.getWraperMethod());

@@ -15,7 +15,7 @@ import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import x10.constraint.XFailure;
 import x10.constraint.XTerm;
-import x10.types.X10Context;
+import x10.types.Context;
 
 import x10.types.SemanticException;
 import x10.types.Type;
@@ -47,7 +47,7 @@ public class X10FloatLit_c extends FloatLit_c {
 		  Type Type =  (kind==FLOAT ? xts.Float() : xts.Double());
 		  
 			  CConstraint c = new CConstraint();
-			  XTerm term = xts.xtypeTranslator().trans(c, this.type(Type), (X10Context) tc.context());
+			  XTerm term = xts.xtypeTranslator().trans(c, this.type(Type), (Context) tc.context());
 			  try {
 				  c.addSelfBinding(term);
 			  }

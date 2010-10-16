@@ -12,7 +12,7 @@ import x10.ast.NodeFactory;
 import x10.types.Name;
 import x10.types.SemanticException;
 import x10.types.Type;
-import x10.types.X10Context;
+import x10.types.Context;
 
 /**
  * Some codes based on desugar
@@ -23,7 +23,7 @@ public class AsyncSynth extends AbstractStateSynth implements IStmtSynth {
     List<Expr> clocks;
     Expr place;
     
-    public AsyncSynth(NodeFactory xnf, X10Context xct, Position pos,
+    public AsyncSynth(NodeFactory xnf, Context xct, Position pos,
                       Stmt body, List<Expr> clocks, Expr place) {
         super(xnf, xct, pos);
         this.body = body;
@@ -31,7 +31,7 @@ public class AsyncSynth extends AbstractStateSynth implements IStmtSynth {
         this.place = place;
     }
     
-    public AsyncSynth(NodeFactory xnf, X10Context xct, Position pos,
+    public AsyncSynth(NodeFactory xnf, Context xct, Position pos,
                       Stmt body, Expr place) {
         super(xnf, xct, pos);
         this.body = body;
@@ -39,14 +39,14 @@ public class AsyncSynth extends AbstractStateSynth implements IStmtSynth {
         this.place = place;
     }
     
-    public AsyncSynth(NodeFactory xnf, X10Context xct, Position pos,
+    public AsyncSynth(NodeFactory xnf, Context xct, Position pos,
                       Stmt body, List<Expr> clocks) {
         super(xnf, xct, pos);
         this.body = body;
         this.clocks = clocks;
     }
     
-    public AsyncSynth(NodeFactory xnf, X10Context xct, Position pos,
+    public AsyncSynth(NodeFactory xnf, Context xct, Position pos,
                       Stmt body) {
         super(xnf, xct, pos);
         this.body = body;

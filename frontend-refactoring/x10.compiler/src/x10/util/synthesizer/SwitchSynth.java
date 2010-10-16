@@ -22,7 +22,7 @@ import x10.ast.Switch;
 import x10.ast.SwitchBlock;
 import x10.ast.SwitchElement;
 import x10.ast.NodeFactory;
-import x10.types.X10Context;
+import x10.types.Context;
 
 /**
  * The first try a state synthesizer for Switch statements
@@ -38,7 +38,7 @@ public class SwitchSynth extends AbstractStateSynth implements IStmtSynth{
     
     List<Stmt> defaultStmts;
     
-    public SwitchSynth(NodeFactory xnf, X10Context context, Position pos, Expr switchCond){
+    public SwitchSynth(NodeFactory xnf, Context context, Position pos, Expr switchCond){
         super(xnf, context, pos);
         this.switchCond = switchCond;
         

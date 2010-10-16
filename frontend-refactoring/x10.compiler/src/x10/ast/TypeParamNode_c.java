@@ -27,8 +27,8 @@ import x10.types.ParameterType_c;
 import x10.types.SemanticException;
 import x10.types.Type;
 import x10.types.Types;
-import x10.types.X10Context;
-import x10.types.X10Context_c;
+import x10.types.Context;
+import x10.types.Context_c;
 import x10.types.X10TypeEnv_c;
 import x10.types.X10TypeSystem;
 
@@ -117,7 +117,7 @@ public class TypeParamNode_c extends Term_c implements TypeParamNode {
 	public List<Type> upperBounds() {
 		Type type = type();
 		X10TypeSystem ts = (X10TypeSystem) type.typeSystem();
-		X10Context_c xc = (X10Context_c) ts.emptyContext();
+		Context_c xc = (Context_c) ts.emptyContext();
 		List<Type> results = new X10TypeEnv_c(xc).upperBounds(type, false);
 		return results;
 	}

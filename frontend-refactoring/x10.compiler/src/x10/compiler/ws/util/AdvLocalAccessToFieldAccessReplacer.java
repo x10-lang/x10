@@ -13,7 +13,7 @@ import x10.ast.LocalDecl;
 import x10.ast.Node;
 import x10.types.Name;
 import x10.types.SemanticException;
-import x10.types.X10Context;
+import x10.types.Context;
 import x10.util.Synthesizer;
 
 /**
@@ -36,14 +36,14 @@ import x10.util.Synthesizer;
 public class AdvLocalAccessToFieldAccessReplacer extends NodeVisitor {
     protected ILocalToFieldContainerMap refMap;
     protected Synthesizer synth;
-    protected X10Context context;
+    protected Context context;
     
     private boolean replaceError; //record weather there are some replacing errors;
     
     protected HashSet<Name> localDeclaredVar; //all locals with these names will not be replaced
      
     
-    public AdvLocalAccessToFieldAccessReplacer(ILocalToFieldContainerMap refMap, Synthesizer synth, X10Context context,
+    public AdvLocalAccessToFieldAccessReplacer(ILocalToFieldContainerMap refMap, Synthesizer synth, Context context,
                                                Set<Name> declaredNames){
         this.refMap = refMap;
         this.synth = synth;

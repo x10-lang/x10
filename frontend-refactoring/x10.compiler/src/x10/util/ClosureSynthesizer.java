@@ -50,7 +50,7 @@ import x10.types.Types;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassDef_c;
 import x10.types.X10ClassType;
-import x10.types.X10Context;
+import x10.types.Context;
 import x10.types.X10Flags;
 import x10.types.X10MethodDef;
 import x10.types.X10TypeSystem;
@@ -75,7 +75,7 @@ public class ClosureSynthesizer {
 	 */
 	public static Closure makeClosure(X10TypeSystem_c xts, NodeFactory xnf, Position pos, Type retType, 
 			List<Formal> parms, Block body,
-			 X10Context context, List<X10ClassType> annotations) {
+			 Context context, List<X10ClassType> annotations) {
 	        List<Ref<? extends Type>> fTypes = new ArrayList<Ref<? extends Type>>();
 	        List<LocalDef> fNames = new ArrayList<LocalDef>();
 	        for (Formal f : parms) {

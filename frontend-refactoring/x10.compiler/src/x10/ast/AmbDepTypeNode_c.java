@@ -35,7 +35,7 @@ import x10.types.Type;
 import x10.types.TypeSystem;
 import x10.types.Types;
 import x10.types.X10ClassType;
-import x10.types.X10Context;
+import x10.types.Context;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.X10TypeSystem_c;
@@ -59,7 +59,7 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode, AddF
     
 //    public void setResolver(Node parent, final TypeCheckPreparer v) {
 ////        if (parent instanceof ClassMember)
-//            System.out.println("ad parent=" + parent + " n=" + this + " this=" + ((X10Context) v.context()).thisVar());
+//            System.out.println("ad parent=" + parent + " n=" + this + " this=" + ((Context) v.context()).thisVar());
 //        super.setResolver(parent, v);
 //    }
 
@@ -90,7 +90,7 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode, AddF
     public Context enterChildScope(Node child, Context c) {
     	if (child == this.dep) {
     	    TypeSystem ts = c.typeSystem();
-    	    c = ((X10Context) c).pushDepType(base.typeRef());
+    	    c = ((Context) c).pushDepType(base.typeRef());
     	}
         Context cc = super.enterChildScope(child, c);
         return cc;

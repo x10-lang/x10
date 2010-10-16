@@ -52,7 +52,7 @@ import x10.types.Type;
 import x10.types.TypeSystem;
 import x10.types.Types;
 import x10.types.X10ClassDef;
-import x10.types.X10Context;
+import x10.types.Context;
 import x10.types.X10MemberDef;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
@@ -404,7 +404,7 @@ public class Closure_c extends Expr_c implements Closure {
 		n = (Closure_c) n.type(cd.asType());
 		if (hasType != null) {
 			final TypeNode h = (TypeNode) n.visitChild(n.hasType, tc);
-			Type hasType = PlaceChecker.ReplaceHereByPlaceTerm(h.type(), ( X10Context ) tc.context());
+			Type hasType = PlaceChecker.ReplaceHereByPlaceTerm(h.type(), ( Context ) tc.context());
 			n = n.hasType(h);
 			if (!xts.isSubtype(n.returnType().type(), hasType, tc.context())) {
 				Errors.issue(tc.job(), new Errors.TypeIsNotASubtypeOfTypeBound(type, hasType, position()));

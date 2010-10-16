@@ -19,7 +19,7 @@ package x10cpp.types;
  * @author pvarma
  * @author nvk
  * @author Dave Cunningham
- * @see X10Context_c
+ * @see Context_c
  */
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,11 +32,11 @@ import x10.types.Name;
 import x10.types.TypeSystem;
 import x10.types.VarInstance;
 import x10.types.X10ClassDef;
-import x10.types.X10Context;
+import x10.types.Context;
 import x10.types.X10MethodDef;
 import x10.util.ClassifiedStream;
 
-public class X10CPPContext_c extends x10.types.X10Context_c implements X10Context {
+public class X10CPPContext_c extends x10.types.Context_c implements Context {
 
     // The global object is fresh for each brand new instance of the context,
     // but is aliased for each clone of the context (cloned via copy()).
@@ -221,7 +221,7 @@ public class X10CPPContext_c extends x10.types.X10Context_c implements X10Contex
 		// closure to the outer closure.
 //		for (int i = variables.size() - 1; i >= 0; i--) {
 //			VarInstance v = (VarInstance) variables.remove(i);
-//			((X10Context_c) outer).saveEnvVariableInfo(v.name());
+//			((Context_c) outer).saveEnvVariableInfo(v.name());
 //		}
 		for (int i = 0; i < variables.size(); i++) {
 			VarInstance<?> v = variables.get(i);

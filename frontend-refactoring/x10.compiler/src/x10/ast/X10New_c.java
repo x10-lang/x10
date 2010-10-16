@@ -51,7 +51,7 @@ import x10.types.Types;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10ConstructorInstance;
-import x10.types.X10Context;
+import x10.types.Context;
 import x10.types.X10Flags;
 import x10.types.X10ParsedClassType;
 import x10.types.X10TypeMixin;
@@ -417,7 +417,7 @@ public class X10New_c extends New_c implements X10New {
 
         List<Type> argTypes = new ArrayList<Type>(this.arguments.size());
         for (Expr e : this.arguments) {
-        	//Type argType = PlaceChecker.ReplaceHereByPlaceTerm((Type) e.type(), (X10Context) tc.context());
+        	//Type argType = PlaceChecker.ReplaceHereByPlaceTerm((Type) e.type(), (Context) tc.context());
         	Type argType = e.type();
         	argTypes.add(argType);
         }
@@ -448,7 +448,7 @@ public class X10New_c extends New_c implements X10New {
 
         X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
         Type tp = ci.returnType();
-        tp = PlaceChecker.ReplaceHereByPlaceTerm(tp, (X10Context) tc.context());
+        tp = PlaceChecker.ReplaceHereByPlaceTerm(tp, (Context) tc.context());
         Type tp1 = (Type) tp.copy();
         
         if (!ts.isSubtype(tp1, t, tc.context())) {
@@ -489,7 +489,7 @@ public class X10New_c extends New_c implements X10New {
             Type targetType, List<Type> actualTypes, ClassDef anonType) {
         X10ConstructorInstance ci;
         X10TypeSystem_c xts = (X10TypeSystem_c) tc.typeSystem();
-        X10Context context = (X10Context) tc.context();
+        Context context = (Context) tc.context();
         boolean haveUnknown = xts.hasUnknown(targetType);
         for (Type t : actualTypes) {
             if (xts.hasUnknown(t)) haveUnknown = true;
@@ -530,7 +530,7 @@ public class X10New_c extends New_c implements X10New {
         return new Pair<ConstructorInstance, List<Expr>>(ci, n.arguments());
     }
 
-    private static Pair<ConstructorInstance,List<Expr>> findConstructor(ContextVisitor tc, X10Context xc,
+    private static Pair<ConstructorInstance,List<Expr>> findConstructor(ContextVisitor tc, Context xc,
             X10ProcedureCall n, Type targetType, List<Type> argTypes, ClassDef anonType) throws SemanticException {
 
         X10ConstructorInstance ci = null;
@@ -571,7 +571,7 @@ public class X10New_c extends New_c implements X10New {
     private static Collection<X10ConstructorInstance> findConstructors(ContextVisitor tc, Type targetType,
             List<Type> actualTypes) throws SemanticException {
         X10TypeSystem_c xts = (X10TypeSystem_c) tc.typeSystem();
-        X10Context context = (X10Context) tc.context();
+        Context context = (Context) tc.context();
         if (targetType == null) {
             // TODO
             return Collections.emptyList();

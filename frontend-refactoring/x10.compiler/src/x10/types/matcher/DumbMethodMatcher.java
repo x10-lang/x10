@@ -18,7 +18,7 @@ import x10.types.MethodInstance;
 import x10.types.Name;
 import x10.types.SemanticException;
 import x10.types.Type;
-import x10.types.X10Context;
+import x10.types.Context;
 import x10.types.X10MethodInstance;
 
 /** A method matcher that only checks name and arity. */
@@ -49,11 +49,11 @@ public class DumbMethodMatcher extends X10MethodMatcher {
             // if (typeArgs.isEmpty() && ! xmi.typeParameters().isEmpty()) {
             // Type[] Y = X10MethodInstance_c.inferTypeArguments(xmi, c,
             // argTypes, xmi.formalTypes(), xmi.typeParameters(),
-            // (X10Context) context);
+            // (Context) context);
             // typeArgs = Arrays.asList(Y);
             // }
             if (typeArgs.size() == xmi.typeParameters().size()) {
-                X10MethodInstance newXmi = Matcher.instantiate((X10Context) context, xmi, c, typeArgs, argTypes);
+                X10MethodInstance newXmi = Matcher.instantiate((Context) context, xmi, c, typeArgs, argTypes);
                 return newXmi;
             }
         }

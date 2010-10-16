@@ -45,7 +45,7 @@ import x10.types.Types;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10ConstructorDef;
-import x10.types.X10Context;
+import x10.types.Context;
 import x10.types.X10Flags;
 import x10.types.X10MethodDef;
 import x10.types.X10MethodInstance;
@@ -207,7 +207,7 @@ public class X10ClassBody_c extends ClassBody_c {
             return false;
 
         X10TypeSystem ts = (X10TypeSystem) p1.typeSystem();
-        X10Context xcontext = (X10Context) context;
+        Context xcontext = (Context) context;
         TypeConstraint tc = (TypeConstraint) xcontext.currentTypeConstraint().copy();
         
         for (int i = 0; i < p1.formalTypes().size(); i++) {

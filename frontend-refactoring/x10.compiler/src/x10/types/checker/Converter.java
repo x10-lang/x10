@@ -70,7 +70,7 @@ import x10.types.Type;
 import x10.types.TypeParamSubst;
 import x10.types.TypeSystem;
 import x10.types.X10ClassType;
-import x10.types.X10Context;
+import x10.types.Context;
 import x10.types.X10ParsedClassType_c;
 import x10.types.X10ProcedureDef;
 import x10.types.X10ProcedureInstance;
@@ -116,7 +116,7 @@ public class Converter {
 	public static Expr attemptCoercion(boolean dynamicCallp, ContextVisitor tc,  Expr e, Type toType) throws SemanticException {
 		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 		Type t1 = e.type();
-		t1 = PlaceChecker.ReplaceHereByPlaceTerm(t1, (X10Context) tc.context());
+		t1 = PlaceChecker.ReplaceHereByPlaceTerm(t1, (Context) tc.context());
 		if (ts.isSubtype(t1, toType, tc.context())) 
 			return e;
 		
@@ -180,7 +180,7 @@ public class Converter {
 			ContextVisitor tc, Type targetType, List<PI> methods, X10New_c.MatcherMaker<PI> maker) throws SemanticException {
 		NodeFactory nf = (NodeFactory) tc.nodeFactory();
 		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
-		X10Context xc = (X10Context) tc.context();
+		Context xc = (Context) tc.context();
 		ClassDef currentClassDef = xc.currentClassDef();
 
 		List<PI> acceptable = new ArrayList<PI>();
@@ -427,7 +427,7 @@ public class Converter {
 		Type toType = cast.castType().type();
 		Type fromType = cast.expr().type();
 		NodeFactory nf = (NodeFactory) tc.nodeFactory();
-		X10Context context = (X10Context) tc.context();
+		Context context = (Context) tc.context();
 
 		if (ts.isUnknown(toType)) {
 		    if (Configuration.CHECK_INVARIANTS)

@@ -33,7 +33,7 @@ import x10.types.Flags;
 import x10.types.Name;
 import x10.types.SemanticException;
 import x10.types.Type;
-import x10.types.X10Context;
+import x10.types.Context;
 
 /**
  * Synthesizer to construct a code block
@@ -83,7 +83,7 @@ public class CodeBlockSynth extends AbstractStateSynth implements IStmtSynth{
      * @param containerSynth
      * @param pos
      */
-    public CodeBlockSynth(NodeFactory xnf, X10Context xct, AbstractStateSynth containerSynth, Position pos) {
+    public CodeBlockSynth(NodeFactory xnf, Context xct, AbstractStateSynth containerSynth, Position pos) {
         super(xnf, xct, pos);
         this.containerSynth = containerSynth;
         stmtSythns = new ArrayList<IStmtSynth>();
@@ -96,7 +96,7 @@ public class CodeBlockSynth extends AbstractStateSynth implements IStmtSynth{
      * @param xct
      * @param pos
      */
-    public CodeBlockSynth(NodeFactory xnf, X10Context xct, Position pos) {
+    public CodeBlockSynth(NodeFactory xnf, Context xct, Position pos) {
         this(xnf, xct, null, pos);
     }
     

@@ -25,7 +25,7 @@ import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
 import x10.types.SemanticException;
 import x10.types.TypeSystem;
-import x10.types.X10Context;
+import x10.types.Context;
 
 /**
  * An immutable representation of the when statement.

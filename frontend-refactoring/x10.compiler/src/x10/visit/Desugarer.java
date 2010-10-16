@@ -108,7 +108,7 @@ import x10.types.TypeSystem;
 import x10.types.Types;
 import x10.types.X10ClassType;
 import x10.types.X10ConstructorInstance;
-import x10.types.X10Context;
+import x10.types.Context;
 import x10.types.X10MethodInstance;
 import x10.types.X10ParsedClassType;
 import x10.types.X10TypeMixin;
@@ -153,7 +153,7 @@ public class Desugarer extends ContextVisitor {
         return Name.make("__desugarer__var__" + (count++) + "__");
     }
 
-    protected X10Context xContext() { return (X10Context) context;}
+    protected Context xContext() { return (Context) context;}
     private static final Name RUN_AT = Name.make("runAt");
     private static final Name EVAL_AT = Name.make("evalAt");
     private static final Name EVAL_FUTURE = Name.make("evalFuture");
@@ -200,10 +200,10 @@ public class Desugarer extends ContextVisitor {
     		//    clock_???.drop();
     		//  }
     		// TODO: Simplify this to finish { val clock?? = Clock.make(); try { S} finally{ clock??.drop();}}
-    		X10Context xc = (X10Context) context;
+    		Context xc = (Context) context;
     		X10TypeSystem xts = (X10TypeSystem) ts;
     		Position pos = finish.position();
-    		Name name = ((X10Context) context).makeFreshName("clock");
+    		Name name = ((Context) context).makeFreshName("clock");
     		Flags flags = Flags.FINAL;
     		Type type = xts.Clock();
     		
@@ -229,7 +229,7 @@ public class Desugarer extends ContextVisitor {
 				Stmt assign = xnf.Eval(pos, assign(pos, outerLdRef, Assign.ASSIGN, ldRef));
 				block = block.prepend(assign);
 				block = block.prepend(ld);
-				Block drop = xnf.Block(pos,xnf.Eval(pos, new InstanceCallSynth(xnf, (X10Context) context, pos, outerLdRef, "drop").genExpr()));
+				Block drop = xnf.Block(pos,xnf.Eval(pos, new InstanceCallSynth(xnf, (Context) context, pos, outerLdRef, "drop").genExpr()));
 				Stmt stm1 = nf.Try(pos, block, Collections.<Catch>emptyList(), drop);
 				Node result = visitEdgeNoOverride(parent, nf.Block(pos, outerLd, xnf.Finish(pos, stm1, false)));
 				return result;
@@ -1258,7 +1258,7 @@ public class Desugarer extends ContextVisitor {
                 lhs, op, xnf.Local(pos, xnf.Id(pos, yn)).localInstance(yDef.asInstance()).type(T)).type(R));
         Expr res = assign(pos, lhs, Assign.ASSIGN, val);
         Block body = xnf.Block(pos, xnf.Return(pos, res));
-        Closure c = synth.makeClosure(pos, R, parms, body, (X10Context) context);
+        Closure c = synth.makeClosure(pos, R, parms, body, (Context) context);
         X10MethodInstance ci = c.closureDef().asType().applyMethod();
         List<Expr> args = new ArrayList<Expr>();
         args.add(0, e);
@@ -1321,7 +1321,7 @@ public class Desugarer extends ContextVisitor {
                         xnf.Local(pos, xnf.Id(pos, xn)).localInstance(xDef.asInstance()).type(mi.container()),
                         xnf.Id(pos, ami.name()), idx1).methodInstance(ami).type(T))) :
                 xnf.Block(pos, xnf.Return(pos, res));
-        Closure c = synth.makeClosure(pos, T, parms, block, (X10Context) context);
+        Closure c = synth.makeClosure(pos, T, parms, block, (Context) context);
         X10MethodInstance ci = c.closureDef().asType().applyMethod();
         args.add(0, n.array());
         args.add(n.right());
@@ -1365,14 +1365,14 @@ public class Desugarer extends ContextVisitor {
             CConstraint c = X10TypeMixin.xclause(t);
             if (c == null || c.valid())
                 return null;
-            XConstrainedTerm here = ((X10Context) context).currentPlaceTerm();
+            XConstrainedTerm here = ((Context) context).currentPlaceTerm();
             if (here != null && here.term() instanceof XVar) {
                 try {
                     c = c.substitute(PlaceChecker.here(), (XVar) here.term());
                 } catch (XFailure e) { }
             }
             DepParameterExpr res = xnf.DepParameterExpr(tn.position(), new Synthesizer(xnf, xts).makeExpr(c, tn.position()));
-            res = (DepParameterExpr) res.visit(new TypeBuilder(job, xts, xnf)).visit(new X10TypeChecker(job, xts, xnf, job.nodeMemo()).context(((X10Context) context).pushDepType(tn.typeRef())));
+            res = (DepParameterExpr) res.visit(new TypeBuilder(job, xts, xnf)).visit(new X10TypeChecker(job, xts, xnf, job.nodeMemo()).context(((Context) context).pushDepType(tn.typeRef())));
             return res;
         } else {
             assert false : "Unknown type node type: "+tn.getClass();
@@ -1420,7 +1420,7 @@ public class Desugarer extends ContextVisitor {
         Stmt throwCCE = xnf.Throw(pos, newCCE);
         Stmt check = xnf.If(pos, cond, throwCCE);
         Block body = xnf.Block(pos, check, xnf.Return(pos, xl));
-        Closure c = synth.makeClosure(pos, ot, Collections.singletonList(x), body, (X10Context) context);
+        Closure c = synth.makeClosure(pos, ot, Collections.singletonList(x), body, (Context) context);
         Expr cast = xnf.X10Cast(pos, tn, e, Converter.ConversionType.CHECKED).type(t);
         X10MethodInstance ci = c.closureDef().asType().applyMethod();
         return xnf.ClosureCall(pos, c, Collections.singletonList(cast)).closureInstance(ci).type(ot);
@@ -1447,7 +1447,7 @@ public class Desugarer extends ContextVisitor {
         Expr cond = conjunction(depClause.position(), condition, cast);
         Expr rval = xnf.Binary(pos, iof, X10Binary_c.COND_AND, cond).type(xts.Boolean());
         Block body = xnf.Block(pos, xnf.Return(pos, rval));
-        Closure c = synth.makeClosure(pos, xts.Boolean(), Collections.singletonList(x), body, (X10Context) context);
+        Closure c = synth.makeClosure(pos, xts.Boolean(), Collections.singletonList(x), body, (Context) context);
         X10MethodInstance ci = c.closureDef().asType().applyMethod();
         return xnf.ClosureCall(pos, c, Collections.singletonList(e)).closureInstance(ci).type(xts.Boolean());
     }

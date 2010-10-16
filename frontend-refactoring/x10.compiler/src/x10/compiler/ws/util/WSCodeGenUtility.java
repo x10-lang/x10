@@ -43,7 +43,7 @@ import x10.types.Name;
 import x10.types.ProcedureDef;
 import x10.types.SemanticException;
 import x10.types.Type;
-import x10.types.X10Context;
+import x10.types.Context;
 import x10.types.X10TypeSystem;
 
 /**
@@ -302,7 +302,7 @@ public class WSCodeGenUtility {
         return result;
     }
     
-    static public boolean needAsContinuationFrame(Block block, X10Context xct){
+    static public boolean needAsContinuationFrame(Block block, Context xct){
         
         for(Stmt s : block.statements()){
             if(s instanceof Async
@@ -321,7 +321,7 @@ public class WSCodeGenUtility {
      * @param s
      * @return Pair<Assign, Call> pair. If null, not such an expression
      */
-    static public Pair<Assign, Call> identifyAssignByAsyncCall(Stmt s, X10Context context){
+    static public Pair<Assign, Call> identifyAssignByAsyncCall(Stmt s, Context context){
         X10TypeSystem xts = (X10TypeSystem) context.typeSystem();
         Pair<Assign, Call> result = null;
         if(s instanceof Eval){

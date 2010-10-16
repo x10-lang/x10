@@ -63,7 +63,7 @@ import x10.types.Types;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassDef_c;
 import x10.types.X10ClassType;
-import x10.types.X10Context;
+import x10.types.Context;
 import x10.types.X10FieldInstance;
 import x10.types.X10Flags;
 import x10.types.X10LocalDef;
@@ -261,12 +261,12 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     	return c.pushBlock();
     }
     public Context enterChildScope(Node child, Context c) {
-    	X10Context xc = (X10Context) c;
+    	Context xc = (Context) c;
     	if (child != this.body ) {
     		
     		X10ClassDef_c type = (X10ClassDef_c) this.type;
     		if (child == this.classInvariant) {
-        		xc = (X10Context) xc.pushClass(type, type.asType());
+        		xc = (Context) xc.pushClass(type, type.asType());
         		// Add type parameters
         		for (ParameterType t : type.typeParameters()) {
         			xc.addNamed(t);
@@ -277,7 +277,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     			// Add this class to the context, but don't push a class scope.
     			// This allows us to detect loops in the inheritance
     			// hierarchy, but avoids an infinite loop.
-    			xc = (X10Context) xc.pushBlock();
+    			xc = (Context) xc.pushBlock();
     			xc.addNamed(type.asType());
     		}
 
@@ -308,7 +308,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
 
     	//    	   if (child == this.classInvariant) {
     	//    	       X10ClassDef_c type = (X10ClassDef_c) this.type;
-    	//    	       xc = (X10Context) xc.pushClass(type, type.asType());
+    	//    	       xc = (Context) xc.pushClass(type, type.asType());
     	//               // Add type parameters
     	//               for (ParameterType t : type.typeParameters()) {
     	//        	   xc.addNamed(t);
@@ -318,7 +318,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
 
     	if (child == this.body || child == this.properties || (this.properties != null && this.properties.contains(child))) {
     		X10ClassDef_c type = (X10ClassDef_c) this.type;
-    		xc = (X10Context) xc.pushClass(type, type.asType());
+    		xc = (Context) xc.pushClass(type, type.asType());
     		// Add type parameters
     		for (ParameterType t : type.typeParameters()) {
     			xc.addNamed(t);
@@ -337,7 +337,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     		XTerm placeVar = ((X10TypeSystem) type.typeSystem()).locVar(type.thisVar(), xc);
     		assert placeVar != null;
     		placeTerm.addBinding(placeTerm.term(), placeVar);
-    		xc = (X10Context) xc.pushPlace(placeTerm); */
+    		xc = (Context) xc.pushPlace(placeTerm); */
     		
     		return child.del().enterScope(xc); 
     	}
@@ -809,7 +809,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
 
     public Node conformanceCheck(ContextVisitor tc) {
     	X10ClassDecl_c result = (X10ClassDecl_c) super.conformanceCheck(tc);
-    	X10Context context = (X10Context) tc.context();
+    	Context context = (Context) tc.context();
     	
     	X10ClassDef cd = (X10ClassDef) classDef();
         CConstraint c = cd.classInvariant().get();

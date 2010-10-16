@@ -35,7 +35,7 @@ import x10.types.SemanticException;
 import x10.types.Type;
 import x10.types.Types;
 import x10.types.X10ClassType;
-import x10.types.X10Context;
+import x10.types.Context;
 import x10.types.X10Flags;
 import x10.types.X10ParsedClassType;
 import x10.types.X10TypeMixin;
@@ -58,7 +58,7 @@ public class X10AmbTypeNode_c extends AmbTypeNode_c implements X10AmbTypeNode, A
 
       X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
       NodeFactory nf = (NodeFactory) tc.nodeFactory();
-      X10Context c = (X10Context) tc.context();
+      Context c = (Context) tc.context();
 
       if (! c.inAnnotation())
 	  return null;

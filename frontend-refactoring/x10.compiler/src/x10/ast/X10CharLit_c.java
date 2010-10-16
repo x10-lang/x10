@@ -17,7 +17,7 @@ import x10.constraint.XFailure;
 import x10.constraint.XTerm;
 import x10.types.SemanticException;
 import x10.types.Type;
-import x10.types.X10Context;
+import x10.types.Context;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.XTypeTranslator;
@@ -44,7 +44,7 @@ public class X10CharLit_c extends CharLit_c {
 		Type charType = xts.Char();
 			 
 			  CConstraint c = new CConstraint();
-			  XTerm term = xts.xtypeTranslator().trans(c, this.type(charType), (X10Context) tc.context());
+			  XTerm term = xts.xtypeTranslator().trans(c, this.type(charType), (Context) tc.context());
 			  try {
 				  c.addSelfBinding(term);
 			  }

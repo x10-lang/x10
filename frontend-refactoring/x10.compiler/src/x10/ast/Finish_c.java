@@ -21,7 +21,7 @@ import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
 import x10.types.Context;
 import x10.types.VarDef;
-import x10.types.X10Context;
+import x10.types.Context;
 
 /** An immutable class representing the X10 finish S construct.
  *  No special type-checking rules. 
@@ -64,7 +64,7 @@ public class Finish_c extends Stmt_c implements Finish {
     @Override
 	public Context enterChildScope(Node child, Context c) {
     	c = super.enterChildScope(child,c);
-        c=((X10Context) c).pushFinishScope(clocked);
+        c=((Context) c).pushFinishScope(clocked);
     	addDecls(c);
     	return c;
 	}

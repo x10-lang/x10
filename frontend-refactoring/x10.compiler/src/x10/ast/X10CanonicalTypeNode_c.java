@@ -48,7 +48,7 @@ import x10.types.TypeSystem;
 import x10.types.Types;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
-import x10.types.X10Context;
+import x10.types.Context;
 import x10.types.X10Flags;
 import x10.types.X10ParsedClassType_c;
 import x10.types.XTypeTranslator;
@@ -81,7 +81,7 @@ AddFlags {
   
     @Override
     public Node typeCheck(ContextVisitor tc) throws SemanticException {
-	X10Context c = (X10Context) tc.context();
+	Context c = (Context) tc.context();
 	X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 
 	// Expand, and transfer flags from the type node to the type.
@@ -171,7 +171,7 @@ AddFlags {
         
         X10TypeSystem ts = (X10TypeSystem) t.typeSystem();
         
-        if (! ts.consistent(t, (X10Context) tc.context())) {
+        if (! ts.consistent(t, (Context) tc.context())) {
             Errors.issue(tc.job(), new SemanticException("Type " + t + " is inconsistent.", position()));
         }
         

@@ -19,7 +19,7 @@ import x10.types.Context;
 import x10.types.SemanticException;
 import x10.types.Type;
 import x10.types.X10ConstructorInstance;
-import x10.types.X10Context;
+import x10.types.Context;
 
 /** A constructor matcher that only checks name and arity. */
 public class DumbConstructorMatcher extends X10ConstructorMatcher {
@@ -36,7 +36,7 @@ public class DumbConstructorMatcher extends X10ConstructorMatcher {
                 return null;
 
             Type c = container != null ? container : xci.container();
-            X10ConstructorInstance newXmi = Matcher.instantiate((X10Context) context, xci, c, Collections.<Type>emptyList(), argTypes);
+            X10ConstructorInstance newXmi = Matcher.instantiate((Context) context, xci, c, Collections.<Type>emptyList(), argTypes);
             return newXmi;
         }
         return null;

@@ -29,7 +29,7 @@ import x10.types.SemanticException;
 import x10.types.Type;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
-import x10.types.X10Context;
+import x10.types.Context;
 import x10.types.X10Flags;
 import x10.util.synthesizer.CodeBlockSynth;
 import x10.util.synthesizer.ConstructorSynth;
@@ -58,12 +58,12 @@ public class WSMethodFrameClassGen extends WSRegularFrameClassGen {
     protected final boolean isMain;
     
 
-    public WSMethodFrameClassGen(Job job, NodeFactory xnf, X10Context xct,
+    public WSMethodFrameClassGen(Job job, NodeFactory xnf, Context xct,
                                   MethodDef methodDef, MethodDecl methodDecl, WSTransformState wts) {
         this(job, xnf, xct, methodDef, methodDecl, wts,
                 X10PrettyPrinterVisitor.isMainMethodInstance(methodDef.asInstance(), xct));
     }
-    public WSMethodFrameClassGen(Job job, NodeFactory xnf, X10Context xct,
+    public WSMethodFrameClassGen(Job job, NodeFactory xnf, Context xct,
                                   MethodDef methodDef, MethodDecl methodDecl, WSTransformState wts,
                                   boolean isMain) {
     
@@ -79,14 +79,14 @@ public class WSMethodFrameClassGen extends WSRegularFrameClassGen {
 
         
         //processing the return
-        returnFlagName = ((X10Context)xct).makeFreshName("returnFlag");
+        returnFlagName = ((Context)xct).makeFreshName("returnFlag");
         FieldSynth returnFlagSynth = classSynth.createField(compilerPos, returnFlagName.toString(), xts.Boolean());
         returnFlagSynth.addAnnotation(genUninitializedAnnotation());
         fieldNames.add(returnFlagName); //add it as one field for query
         
         Type returnType = methodDef.returnType().get();
         if (returnType != xts.Void()){
-            returnFieldName = ((X10Context)xct).makeFreshName("result");
+            returnFieldName = ((Context)xct).makeFreshName("result");
             FieldSynth resurnFieldSynth = classSynth.createField(compilerPos, returnFieldName.toString(), returnType);
             resurnFieldSynth.addAnnotation(genUninitializedAnnotation());
             fieldNames.add(returnFieldName); //add it as one field for query

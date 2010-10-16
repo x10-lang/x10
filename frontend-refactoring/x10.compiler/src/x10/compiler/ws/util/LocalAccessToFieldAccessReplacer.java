@@ -7,7 +7,7 @@ import x10.ast.LocalAssign;
 import x10.ast.Node;
 import x10.types.Name;
 import x10.types.SemanticException;
-import x10.types.X10Context;
+import x10.types.Context;
 import x10.util.Synthesizer;
 
 /**
@@ -30,8 +30,8 @@ import x10.util.Synthesizer;
 public class LocalAccessToFieldAccessReplacer extends NodeVisitor {
     protected Expr instanceRef;
     protected Synthesizer synth;
-    protected X10Context context;
-    public LocalAccessToFieldAccessReplacer(Expr instanceRef, Synthesizer synth, X10Context context){
+    protected Context context;
+    public LocalAccessToFieldAccessReplacer(Expr instanceRef, Synthesizer synth, Context context){
         this.instanceRef = instanceRef;
         this.synth = synth;
         this.context = context;

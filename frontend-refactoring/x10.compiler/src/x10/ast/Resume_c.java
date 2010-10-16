@@ -18,7 +18,7 @@ import polyglot.visit.CFGBuilder;
 import polyglot.visit.ContextVisitor;
 import x10.types.SemanticException;
 import x10.types.TypeSystem;
-import x10.types.X10Context;
+import x10.types.Context;
 
 public class Resume_c extends Stmt_c implements Resume {
 

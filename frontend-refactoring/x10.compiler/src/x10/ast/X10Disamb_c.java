@@ -35,7 +35,7 @@ import x10.types.Type;
 import x10.types.Types;
 import x10.types.VarInstance;
 import x10.types.X10ClassType;
-import x10.types.X10Context;
+import x10.types.Context;
 import x10.types.X10FieldInstance;
 import x10.types.X10Flags;
 import x10.types.X10MethodInstance;
@@ -53,7 +53,7 @@ public class X10Disamb_c extends Disamb_c {
 	
 	@Override
 	protected Node disambiguateNoPrefix() throws SemanticException {
-	    X10Context c = (X10Context) this.c;
+	    Context c = (Context) this.c;
 	    X10TypeSystem ts = (X10TypeSystem) this.ts;
 	    
 	    if (c.inDepType()) {
@@ -231,7 +231,7 @@ public class X10Disamb_c extends Disamb_c {
 	    
 		Type t = e.type();
 
-	        X10Context xc = (X10Context) this.c;
+	        Context xc = (Context) this.c;
 
 		// If in a class header, don't search the supertypes of this class.
 		if (xc.inSuperTypeDeclaration()) {
@@ -304,7 +304,7 @@ public class X10Disamb_c extends Disamb_c {
 	    Receiver r = null;
 	    NodeFactory nf = (NodeFactory) v.nodeFactory();
 	    X10TypeSystem ts = (X10TypeSystem) v.typeSystem();
-        X10Context c = (X10Context) v.context();
+        Context c = (Context) v.context();
         ClassType cur = c.currentClass();
 
 	    try {
@@ -348,7 +348,7 @@ public class X10Disamb_c extends Disamb_c {
 	protected Receiver makeMissingMethodTarget(MethodInstance mi) throws SemanticException {
 	    Receiver r;
 
-	    X10Context c = (X10Context) this.c;
+	    Context c = (Context) this.c;
 	    ClassType cur  =c.currentClass();
 	    if (c.inSuperTypeDeclaration())
 	        cur = c.supertypeDeclarationType().asType();
