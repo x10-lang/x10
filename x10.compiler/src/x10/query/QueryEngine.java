@@ -23,7 +23,7 @@ import x10.types.Type;
 import x10.types.X10ClassType;
 import x10.types.Context;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import x10.types.TypeSystem;
 
 /**
  * A query engine for analysis results and other properties of various program

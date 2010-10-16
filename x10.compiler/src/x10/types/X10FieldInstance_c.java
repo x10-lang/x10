@@ -77,7 +77,7 @@ public class X10FieldInstance_c extends FieldInstance_c implements X10FieldInsta
     Type rightType;
 
     public Type rightType() {
-        X10TypeSystem xts = (X10TypeSystem) ts;
+        TypeSystem xts = (TypeSystem) ts;
         
         // vj: Force a recomputation if rightType is UnknownType.
         // this.type() may have changed -- though this.type might not!!

@@ -24,7 +24,7 @@ import x10.types.Name;
 import x10.types.SemanticException;
 import x10.types.Type;
 import x10.types.Context;
-import x10.types.X10TypeSystem;
+import x10.types.TypeSystem;
 
 /**
  * A simple synthesizer to create a instance call.
@@ -88,7 +88,7 @@ public class InstanceCallSynth extends AbstractStateSynth implements IStmtSynth,
     
     public Expr genExpr() throws SemanticException {
 
-        X10TypeSystem xts = (X10TypeSystem) xct.typeSystem();
+        TypeSystem xts = (TypeSystem) xct.typeSystem();
         
         List<Type> typeArgs = new ArrayList<Type>();
         for (TypeNode t : typeNodes){

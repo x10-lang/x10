@@ -37,8 +37,8 @@ import x10.errors.Errors;
 import x10.types.ParameterType.Variance;
 import x10.types.TypeSystem_c.ConstructorMatcher;
 import x10.types.TypeSystem_c.TypeEquals;
-import x10.types.X10TypeSystem_c.Bound;
-import x10.types.X10TypeSystem_c.Kind;
+import x10.types.TypeSystem_c.Bound;
+import x10.types.TypeSystem_c.Kind;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.SubtypeConstraint;
@@ -56,14 +56,14 @@ import x10.types.matcher.Subst;
 public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     public X10TypeEnv_c(Context c) {
         super(c);
-        this.ts = (X10TypeSystem_c) super.ts;
+        this.ts = (TypeSystem_c) super.ts;
     }
 
     public X10TypeEnv_c copy() {
         return (X10TypeEnv_c) super.copy();
     }
 
-    X10TypeSystem_c ts;
+    TypeSystem_c ts;
 
     public static final Name ANONYMOUS = Name.make("<anonymous>");
 
@@ -534,7 +534,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     }
 
     /* (non-Javadoc)
-     * @see x10.types.X10TypeEnv#findAcceptableTypeDefs(polyglot.types.Type, x10.types.X10TypeSystem_c.TypeDefMatcher)
+     * @see x10.types.X10TypeEnv#findAcceptableTypeDefs(polyglot.types.Type, x10.types.TypeSystem_c.TypeDefMatcher)
      */
     public List<MacroType> findAcceptableTypeDefs(Type container, TypeDefMatcher matcher)
     throws SemanticException {
@@ -1067,7 +1067,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
                 return false;
             if (ct1.typeArguments().size() == 0 && ct2.typeArguments().size() == 0)
                 return true;
-            if (! CollectionUtil.allElementwise(ct1.typeArguments(), ct2.typeArguments(), new X10TypeSystem_c.TypeEquals(context))) {
+            if (! CollectionUtil.allElementwise(ct1.typeArguments(), ct2.typeArguments(), new TypeSystem_c.TypeEquals(context))) {
                 return false;
             }
             return true;
@@ -1375,7 +1375,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     }
 
     protected boolean typeListEquals(List<Type> l1, List<Type> l2) {
-        return CollectionUtil.<Type>allElementwise(l1, l2, new X10TypeSystem_c.TypeEquals(context));
+        return CollectionUtil.<Type>allElementwise(l1, l2, new TypeSystem_c.TypeEquals(context));
     }
 
     protected boolean listEquals(List<XVar> l1, List<XVar> l2) {
@@ -1728,7 +1728,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         assert miFormals.size() ==  mj.formalNames().size();
         
         XVar[] newSymbols = genSymbolicVars(mj.formalNames().size());
-        X10TypeSystem xts = (X10TypeSystem) mi.typeSystem();
+        TypeSystem xts = (TypeSystem) mi.typeSystem();
         XVar[] miSymbols = Matcher.getSymbolicNames(mi.formalTypes(), mi.formalNames(),xts);
         XVar[] mjSymbols = Matcher.getSymbolicNames(mj.formalTypes(), mj.formalNames(),xts);
         
@@ -1959,7 +1959,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 	public  X10MethodInstance fixThis(final X10MethodInstance mi, final XVar[] y, final XVar[] x) {
 	    X10MethodInstance mj = mi;
 	
-	    final X10TypeSystem ts = (X10TypeSystem) mi.typeSystem();
+	    final TypeSystem ts = (TypeSystem) mi.typeSystem();
 	
 	    final X10MethodInstance zmj = mj;
 	    final LazyRef<Type> tref = new LazyRef_c<Type>(null);

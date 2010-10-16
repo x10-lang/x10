@@ -39,17 +39,17 @@ import x10.types.Types;
 import x10.types.X10ClassType;
 import x10.types.X10Flags;
 import x10.types.X10MethodInstance;
-import x10.types.X10TypeSystem;
+import x10.types.TypeSystem;
 
 public class SharedBoxer extends ContextVisitor {
     private static final QName SHARED = QName.make("x10.compiler.Shared");
     
-    private final X10TypeSystem xts;
+    private final TypeSystem xts;
     private final NodeFactory xnf;
     
     public SharedBoxer(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf);
-        xts = (X10TypeSystem) ts;
+        xts = (TypeSystem) ts;
         xnf = (NodeFactory) nf;
     }
     

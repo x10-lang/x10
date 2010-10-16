@@ -51,8 +51,8 @@ import x10.types.UnknownType;
 import x10.types.X10ClassDef;
 import x10.types.X10MethodInstance;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
-import x10.types.X10TypeSystem_c;
+import x10.types.TypeSystem;
+import x10.types.TypeSystem_c;
 import x10.types.TypeSystem_c.MethodMatcher;
 import x10.types.checker.Checker;
 import x10.types.checker.Converter;
@@ -158,7 +158,7 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
    	}
    	
    	public Type childExpectedType(Expr child, AscriptionVisitor av) {
-   		X10TypeSystem ts = (X10TypeSystem) av.typeSystem();
+   		TypeSystem ts = (TypeSystem) av.typeSystem();
    		
    		if (child == array) {
    			return ts.Settable();
@@ -191,7 +191,7 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 	public Node buildTypes(TypeBuilder tb) throws SemanticException {
 	    SettableAssign_c n = (SettableAssign_c) super.buildTypes(tb);
 
-	    X10TypeSystem ts = (X10TypeSystem) tb.typeSystem();
+	    TypeSystem ts = (TypeSystem) tb.typeSystem();
 
 	    X10MethodInstance mi = ts.createMethodInstance(position(), new ErrorRef_c<MethodDef>(ts, position(), "Cannot get MethodDef before type-checking settable assign."));
 	    X10MethodInstance ami = ts.createMethodInstance(position(), new ErrorRef_c<MethodDef>(ts, position(), "Cannot get MethodDef before type-checking settable assign."));
@@ -200,7 +200,7 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 
 	static Pair<MethodInstance,List<Expr>> tryImplicitConversions(X10Call_c n, ContextVisitor tc,
 	        Type targetType, List<Type> typeArgs, List<Type> argTypes) throws SemanticException {
-	    final X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+	    final TypeSystem ts = (TypeSystem) tc.typeSystem();
 	    final Context context = tc.context();
 
 	    List<MethodInstance> methods = ts.findAcceptableMethods(targetType,
@@ -218,9 +218,9 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 
 	@Override
 	public Assign typeCheckLeft(ContextVisitor tc) throws SemanticException {
-		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+		TypeSystem ts = (TypeSystem) tc.typeSystem();
 		NodeFactory nf = (NodeFactory) tc.nodeFactory();
-		X10TypeSystem xts = ts;
+		TypeSystem xts = ts;
 
 		X10MethodInstance mi = null;
 

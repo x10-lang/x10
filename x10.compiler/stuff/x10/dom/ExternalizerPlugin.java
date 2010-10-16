@@ -26,7 +26,7 @@ import x10.ExtensionInfo;
 import x10.ExtensionInfo.X10Scheduler;
 import x10.ast.NodeFactory;
 import x10.plugin.CompilerPlugin;
-import x10.types.X10TypeSystem;
+import x10.types.TypeSystem;
 import polyglot.frontend.AbstractPass;
 import polyglot.frontend.Job;
 import polyglot.frontend.Pass;
@@ -59,7 +59,7 @@ public class ExternalizerPlugin implements CompilerPlugin {
 		
 		public boolean run() {
 			Job job = this.goal().job();
-			X10TypeSystem ts = (X10TypeSystem) info.typeSystem();
+			TypeSystem ts = (TypeSystem) info.typeSystem();
 			NodeFactory nf = (NodeFactory) info.nodeFactory();
 			
 			String xmlFile = getXMLFileName(info, job);

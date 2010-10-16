@@ -21,17 +21,17 @@ import x10.ast.NodeFactory;
 import x10.dom.X10Dom.Lens;
 import x10.dom.X10Dom.NodeLens;
 import x10.dom.X10Dom.TypeObjectLens;
-import x10.types.X10TypeSystem;
+import x10.types.TypeSystem;
 import polyglot.frontend.Source;
 import polyglot.types.TypeObject;
 
 public class DomReader {
-	X10TypeSystem ts;
+	TypeSystem ts;
 	NodeFactory nf;
 	Source source;
 	Map<String,LazyTypeObject> typeMap;
 	
-	public DomReader(X10TypeSystem ts, NodeFactory nf, Source source) {
+	public DomReader(TypeSystem ts, NodeFactory nf, Source source) {
 		super();
 		this.ts = ts;
 		this.nf = nf;

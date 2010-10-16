@@ -39,6 +39,6 @@ public class X10UnknownType_c extends UnknownType_c  {
 
 	public boolean isClass() { return true; }
 	public ClassType toClass() {
-	    return ((X10TypeSystem_c)ts).createFakeClass(QName.make("<unknown>"), new SemanticException("Unknown class"));
+	    return ((TypeSystem_c)ts).createFakeClass(QName.make("<unknown>"), new SemanticException("Unknown class"));
 	}
 }

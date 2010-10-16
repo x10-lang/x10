@@ -63,8 +63,8 @@ import x10.types.X10FieldInstance;
 import x10.types.X10Flags;
 import x10.types.X10MethodDef;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
-import x10.types.X10TypeSystem_c;
+import x10.types.TypeSystem;
+import x10.types.TypeSystem_c;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
 import x10.visit.X10TypeChecker;
@@ -78,9 +78,9 @@ import x10.visit.X10TypeChecker;
  */
 public class Synthesizer {
 
-	X10TypeSystem xts;
+	TypeSystem xts;
 	NodeFactory xnf;
-	public Synthesizer(NodeFactory nf, X10TypeSystem ts) {
+	public Synthesizer(NodeFactory nf, TypeSystem ts) {
 		xts = ts;
 		xnf = nf;
 	}
@@ -203,13 +203,13 @@ public class Synthesizer {
 	}
 
 	/*
-	public Type addRankConstraint(Type type, XVar receiver, int n, X10TypeSystem ts) {
+	public Type addRankConstraint(Type type, XVar receiver, int n, TypeSystem ts) {
 	    XTerm v = makeRegionRankTerm(receiver);
 	    XTerm rank = XTerms.makeLit(new Integer(n));
 	    return X10TypeMixin.addBinding(type, v, rank);
 	}
 
-	public Type addRankConstraintToSelf(Type type,  int n, X10TypeSystem ts) {
+	public Type addRankConstraintToSelf(Type type,  int n, TypeSystem ts) {
 	    XVar receiver = X10TypeMixin.self(type);
 	    if (receiver == null) {
 	        CConstraint c = new CConstraint();
@@ -660,11 +660,11 @@ public class Synthesizer {
 	 * @return
 	 */
 	public Closure makeClosure(Position pos, Type retType, List<Formal> parms, Block body, Context context) {
-		return ClosureSynthesizer.makeClosure((X10TypeSystem_c) xts, xnf, pos, retType, parms, body, context, null);
+		return ClosureSynthesizer.makeClosure((TypeSystem_c) xts, xnf, pos, retType, parms, body, context, null);
 	}
 	
     public Closure makeClosure(Position pos, Type retType, List<Formal> parms, Block body, Context context, List<X10ClassType> annotations) {
-        return ClosureSynthesizer.makeClosure((X10TypeSystem_c) xts, xnf, pos, retType, parms, body, context, annotations);
+        return ClosureSynthesizer.makeClosure((TypeSystem_c) xts, xnf, pos, retType, parms, body, context, annotations);
     }
     
 	/**
@@ -1305,7 +1305,7 @@ public class Synthesizer {
     // TODO: This has to be made to work with nested types.
     public X10CanonicalTypeNode makeCanonicalTypeNodeWithDepExpr(Position pos, Type type, ContextVisitor tc) {
     	NodeFactory nf = ((NodeFactory) tc.nodeFactory());
-    	X10TypeSystem ts = ((X10TypeSystem) tc.typeSystem());
+    	TypeSystem ts = ((TypeSystem) tc.typeSystem());
     	
     	type = PlaceChecker.ReplacePlaceTermByHere(type, tc.context());
 		CConstraint c = X10TypeMixin.xclause(type);

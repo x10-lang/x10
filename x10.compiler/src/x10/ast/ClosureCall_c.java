@@ -38,7 +38,7 @@ import x10.types.ProcedureInstance;
 import x10.types.SemanticException;
 import x10.types.Type;
 import x10.types.X10MethodInstance;
-import x10.types.X10TypeSystem;
+import x10.types.TypeSystem;
 import x10.types.checker.Checker;
 import x10.types.checker.Converter;
 import x10.types.matcher.DumbMethodMatcher;
@@ -62,7 +62,7 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
 	public boolean isConstant() {
 		Expr t = target;
 		if (t.isConstant()) {
-			X10TypeSystem ts = (X10TypeSystem) t.type().typeSystem();
+			TypeSystem ts = (TypeSystem) t.type().typeSystem();
 			if (ts.isValRail(t.type()) && arguments.size() == 1) {
 				Expr e = arguments.get(0);
 				return e.isConstant();
@@ -75,7 +75,7 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
 	public Object constantValue() {
 		Expr t = target;
 		if (t.isConstant()) {
-			X10TypeSystem ts = (X10TypeSystem) t.type().typeSystem();
+			TypeSystem ts = (TypeSystem) t.type().typeSystem();
 			if (ts.isValRail(t.type()) && arguments.size() == 1) {
 				Expr e = arguments.get(0);
 				Object a = t.constantValue();
@@ -208,7 +208,7 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
 	public Node buildTypes(TypeBuilder tb) throws SemanticException {
 		ClosureCall_c n= (ClosureCall_c) super.buildTypes(tb);
 
-		X10TypeSystem ts = (X10TypeSystem) tb.typeSystem();
+		TypeSystem ts = (TypeSystem) tb.typeSystem();
 
 		X10MethodInstance mi = (X10MethodInstance) ts.createMethodInstance(position(), 
 				new ErrorRef_c<MethodDef>(ts, position(), 

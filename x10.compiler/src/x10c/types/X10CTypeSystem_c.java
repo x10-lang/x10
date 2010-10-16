@@ -15,10 +15,10 @@ import polyglot.util.Position;
 import x10.types.Context;
 import x10.types.Ref;
 import x10.types.Type;
-import x10.types.X10TypeSystem;
-import x10.types.X10TypeSystem_c;
+import x10.types.TypeSystem;
+import x10.types.TypeSystem_c;
 
-public class X10CTypeSystem_c extends X10TypeSystem_c implements X10TypeSystem {
+public class X10CTypeSystem_c extends TypeSystem_c implements TypeSystem {
 
     public Context emptyContext() {
         return new X10CContext_c(this);

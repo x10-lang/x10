@@ -49,7 +49,7 @@ import x10.types.X10MethodInstance;
 import x10.types.X10ParsedClassType_c;
 
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import x10.types.TypeSystem;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.XConstrainedTerm;
 import x10.visit.X10PrettyPrinterVisitor;
@@ -169,7 +169,7 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 	 }
 	 
 	 public Node setResolverOverride(final Node parent, TypeCheckPreparer v) {
-	     final X10TypeSystem ts = (X10TypeSystem) v.typeSystem();
+	     final TypeSystem ts = (TypeSystem) v.typeSystem();
 	     final Context context = (Context) v.context();
 	     final ClassDef currClassDef = context.currentClassDef();
 	    

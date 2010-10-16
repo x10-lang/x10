@@ -21,7 +21,7 @@ import x10.types.Context;
 import x10.types.SemanticException;
 import x10.types.Type;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import x10.types.TypeSystem;
 import x10.types.XTypeTranslator;
 import x10.types.constraints.CConstraint;
 
@@ -39,7 +39,7 @@ public class X10StringLit_c extends StringLit_c {
 		super(pos, value);
 	}
 	public Node typeCheck(ContextVisitor tc) throws SemanticException {
-		X10TypeSystem xts= (X10TypeSystem) tc.typeSystem();
+		TypeSystem xts= (TypeSystem) tc.typeSystem();
 		Type Type = xts.String();
 
 		CConstraint c = new CConstraint();

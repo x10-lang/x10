@@ -41,7 +41,7 @@ import x10.types.Type;
 import x10.types.TypeSystem;
 import x10.types.Types;
 import x10.types.X10ClassType;
-import x10.types.X10TypeSystem;
+import x10.types.TypeSystem;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint;
 import x10.visit.X10TypeChecker;
@@ -69,7 +69,7 @@ public class FunctionTypeNode_c extends TypeNode_c implements FunctionTypeNode {
 	@Override
 	public Node disambiguate(ContextVisitor ar) throws SemanticException {
 		NodeFactory nf = (NodeFactory) ar.nodeFactory();
-		X10TypeSystem ts = (X10TypeSystem) ar.typeSystem();
+		TypeSystem ts = (TypeSystem) ar.typeSystem();
 		FunctionTypeNode_c n = this;
 		List<Ref<? extends Type>> typeParams = new ArrayList<Ref<? extends Type>>(n.typeParameters().size());
 		for (TypeParamNode tpn : n.typeParameters()) {

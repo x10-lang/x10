@@ -39,7 +39,7 @@ public class ConstrainedType_c extends ReferenceType_c implements ConstrainedTyp
 	private Ref<CConstraint> constraint;
 	private Ref<? extends Type> baseType;
 
-	public ConstrainedType_c(X10TypeSystem ts, Position pos, 
+	public ConstrainedType_c(TypeSystem ts, Position pos, 
 			Ref<? extends Type> baseType, Ref<CConstraint> constraint) {
 		super(ts, pos);
 		assert ts != null;
@@ -292,7 +292,7 @@ public class ConstrainedType_c extends ReferenceType_c implements ConstrainedTyp
 
 		return new TransformingList<Type, Type>(l, new Transformation<Type, Type>() {
 			public Type transform(Type o) {
-				X10TypeSystem xts = (X10TypeSystem) o.typeSystem();
+				TypeSystem xts = (TypeSystem) o.typeSystem();
 				CConstraint c2 = X10TypeMixin.xclause(o);
 				c2 = c2 != null ? c2.copy() : new CConstraint();
 				try {
@@ -330,7 +330,7 @@ public class ConstrainedType_c extends ReferenceType_c implements ConstrainedTyp
 		        CConstraint c2 = X10TypeMixin.xclause(o);
 		        c2 = c2 != null ? c2.copy() : new CConstraint();
 		        try {
-		            X10TypeSystem xts = (X10TypeSystem) o.typeSystem();
+		            TypeSystem xts = (TypeSystem) o.typeSystem();
 		            c2.addSelfBinding(t);
 		            return X10TypeMixin.xclause(o, c2);
 		        }

@@ -19,7 +19,7 @@ import polyglot.visit.TypeChecker;
 import x10.constraint.XTerm;
 import x10.types.SemanticException;
 import x10.types.Type;
-import x10.types.X10TypeSystem;
+import x10.types.TypeSystem;
 
 /**
  * @author vj
@@ -39,7 +39,7 @@ public class ConstantDistMaker_c extends X10Call_c implements ConstantDistMaker 
 	}
 	 
 //    public Node typeCheck(TypeChecker tc) throws SemanticException {
-//        X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
+//        TypeSystem xts = (TypeSystem) tc.typeSystem();
 //        ConstantDistMaker_c n = (ConstantDistMaker_c) super.typeCheck(tc);
 //        Expr left = (Expr) n.arguments.get(0);
 //        Type lType = left.type();

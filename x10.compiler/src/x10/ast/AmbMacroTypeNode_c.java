@@ -54,8 +54,8 @@ import x10.types.Context;
 import x10.types.X10Def;
 import x10.types.X10ParsedClassType;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
-import x10.types.X10TypeSystem_c;
+import x10.types.TypeSystem;
+import x10.types.TypeSystem_c;
 import x10.types.X10Use;
 import x10.visit.X10TypeChecker;
 import x10.visit.ChangePositionVisitor;
@@ -139,7 +139,7 @@ public class AmbMacroTypeNode_c extends AmbTypeNode_c implements AmbMacroTypeNod
     protected TypeNode disambiguateAnnotation(ContextVisitor tc) throws SemanticException {
         Position pos = position();
         
-        X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+        TypeSystem ts = (TypeSystem) tc.typeSystem();
         NodeFactory nf = (NodeFactory) tc.nodeFactory();
         Context c = (Context) tc.context();
         
@@ -206,7 +206,7 @@ public class AmbMacroTypeNode_c extends AmbTypeNode_c implements AmbMacroTypeNod
         try {
             MacroType mt = null;
             
-            X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+            TypeSystem ts = (TypeSystem) tc.typeSystem();
             NodeFactory nf = (NodeFactory) tc.nodeFactory();
             Context c = (Context) tc.context();
 
@@ -272,7 +272,7 @@ public class AmbMacroTypeNode_c extends AmbTypeNode_c implements AmbMacroTypeNod
     }
     
     public Node typeCheckOverride(Node parent, ContextVisitor tc) throws SemanticException {
-        X10TypeSystem_c ts = (X10TypeSystem_c) tc.typeSystem();
+        TypeSystem_c ts = (TypeSystem_c) tc.typeSystem();
         NodeFactory nf = (NodeFactory) tc.nodeFactory();
         
         AmbMacroTypeNode_c n = this;

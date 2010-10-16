@@ -79,8 +79,8 @@ import x10.types.X10LocalDef;
 import x10.types.X10MethodDef;
 import x10.types.X10MethodInstance;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
-import x10.types.X10TypeSystem_c;
+import x10.types.TypeSystem;
+import x10.types.TypeSystem_c;
 import x10.visit.StaticNestedClassRemover;
 import x10.util.ClassifiedStream;
 import x10.util.StreamWrapper;
@@ -249,13 +249,13 @@ public class Emitter {
 	 */
 	public static String translateType(Type type, boolean asRef) {
 		assert (type != null);
-		X10TypeSystem_c xts = (X10TypeSystem_c) type.typeSystem();
+		TypeSystem_c xts = (TypeSystem_c) type.typeSystem();
 		type = xts.expandMacros(type);
 		if (type.isVoid()) {
 			return "void";
 		}
 		// TODO: handle closures
-//		if (((X10TypeSystem) type.typeSystem()).isClosure(type))
+//		if (((TypeSystem) type.typeSystem()).isClosure(type))
 //			return translateType(((X10Type) type).toClosure().base(), asRef);
 		type = X10TypeMixin.baseType(type);
 		String name = null;
@@ -432,7 +432,7 @@ public class Emitter {
 		return b.toString();
 	}
 
-	static MethodInstance getOverridingMethod(X10TypeSystem xts, ClassType localClass, MethodInstance mi, Context context) {
+	static MethodInstance getOverridingMethod(TypeSystem xts, ClassType localClass, MethodInstance mi, Context context) {
 	    try {
 	        List<Type> params = ((X10MethodInstance) mi).typeParameters();
 	        List<MethodInstance> overrides = xts.findAcceptableMethods(localClass, xts.MethodMatcher(localClass, mi.name(), ((X10MethodInstance) mi).typeParameters(), mi.formalTypes(), context));
@@ -478,7 +478,7 @@ public class Emitter {
 		*/
 
 		// [DC] TODO: There has to be a better way!
-		X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
+		TypeSystem xts = (TypeSystem) tr.typeSystem();
 		Context context = tr.context();
 
 		X10ClassType classType = (X10ClassType) from.container();
@@ -602,7 +602,7 @@ public class Emitter {
 		if (!qualify) {
 		    boolean noReturnPragma = false;
 		    try {
-		        X10TypeSystem xts = (X10TypeSystem)tr.typeSystem();
+		        TypeSystem xts = (TypeSystem)tr.typeSystem();
 		        Type annotation = (Type) xts.systemResolver().find(NORETURN_ANNOTATION);
 		        if (!((X10Ext) n.ext()).annotationMatching(annotation).isEmpty()) {
 		            noReturnPragma = true;
@@ -631,7 +631,7 @@ public class Emitter {
 //		h.write("const ");
 		printType(n.type().type(), h);
 		h.write(" ");
-		X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
+		TypeSystem xts = (TypeSystem) tr.typeSystem();
 		Type param_type = n.type().type();
 		param_type = X10TypeMixin.baseType(param_type);
 		if (param_type instanceof X10ClassType) {
@@ -658,7 +658,7 @@ public class Emitter {
 	}
 
 	void printRTTDefn(X10ClassType ct, CodeWriter h) {
-	    X10TypeSystem_c xts = (X10TypeSystem_c) ct.typeSystem();
+	    TypeSystem_c xts = (TypeSystem_c) ct.typeSystem();
 	    String x10name = fullName(ct).toString().replace('$','.');
 	    int numParents = 0;
 	    if (ct.superClass() != null) {
@@ -949,7 +949,7 @@ public class Emitter {
 
     void generateClassSerializationMethods(ClassType type, StreamWrapper sw) {
         X10ClassType ct = (X10ClassType) type.toClass();
-        X10TypeSystem ts = (X10TypeSystem) type.typeSystem();
+        TypeSystem ts = (TypeSystem) type.typeSystem();
         X10CPPContext_c context = (X10CPPContext_c) tr.context();
         Type parent = type.superClass();
         ClassifiedStream w = sw.body();
@@ -1142,7 +1142,7 @@ public class Emitter {
 
     void generateStructSerializationMethods(ClassType type, StreamWrapper sw) {
         X10ClassType ct = (X10ClassType) type.toClass();
-        X10TypeSystem ts = (X10TypeSystem) type.typeSystem();
+        TypeSystem ts = (TypeSystem) type.typeSystem();
         X10CPPContext_c context = (X10CPPContext_c) tr.context();
         ClassifiedStream w = sw.body();
         ClassifiedStream sh = context.structHeader;

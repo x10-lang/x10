@@ -30,7 +30,7 @@ import x10.types.TypeSystem;
 import x10.types.Types;
 import x10.types.X10ClassType;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import x10.types.TypeSystem;
 import x10.types.checker.Converter;
 import x10.types.checker.Converter.ConversionType;
 

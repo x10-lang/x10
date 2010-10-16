@@ -55,8 +55,8 @@ import x10.types.Context;
 import x10.types.X10Flags;
 import x10.types.X10ParsedClassType;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
-import x10.types.X10TypeSystem_c;
+import x10.types.TypeSystem;
+import x10.types.TypeSystem_c;
 import x10.types.checker.Converter;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
@@ -137,7 +137,7 @@ public class X10New_c extends New_c implements X10New {
 
             assert anonType != null;
 
-            X10TypeSystem ts = (X10TypeSystem) childtc.typeSystem();
+            TypeSystem ts = (TypeSystem) childtc.typeSystem();
 
             X10Flags flags = X10Flags.toX10Flags(ct.get().toClass().flags());
             if (!flags.isInterface()) {
@@ -244,7 +244,7 @@ public class X10New_c extends New_c implements X10New {
     
     public New_c typeCheckObjectType(TypeChecker childtc) throws SemanticException {
         NodeFactory nf = (NodeFactory) childtc.nodeFactory();
-        X10TypeSystem ts = (X10TypeSystem) childtc.typeSystem();
+        TypeSystem ts = (TypeSystem) childtc.typeSystem();
         Context c = childtc.context();
 
         X10New_c n = this;
@@ -282,7 +282,7 @@ public class X10New_c extends New_c implements X10New {
 
             if (!(t instanceof X10ClassType)) {
                 QName name = QName.make(((AmbTypeNode) n.tn).name().id().toString());
-                t = ((X10TypeSystem_c) ts).createFakeClass(name, null);
+                t = ((TypeSystem_c) ts).createFakeClass(name, null);
                 tn = nf.CanonicalTypeNode(tn.position(), t);
 //                throw new SemanticException("Cannot instantiate type " + t + ".");
             }
@@ -370,7 +370,7 @@ public class X10New_c extends New_c implements X10New {
 
     public static Pair<ConstructorInstance, List<Expr>> tryImplicitConversions(X10ProcedureCall n, ContextVisitor tc,
             Type targetType, List<Type> argTypes) throws SemanticException {
-        final X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+        final TypeSystem ts = (TypeSystem) tc.typeSystem();
         final Context context = tc.context();
 
         List<ConstructorInstance> methods = ts.findAcceptableConstructors(targetType, new DumbConstructorMatcher(targetType, argTypes, context));
@@ -394,7 +394,7 @@ public class X10New_c extends New_c implements X10New {
             return typeCheck1(tc);
         } catch (SemanticException e) {
             Errors.issue(tc.job(), e, this);
-            X10TypeSystem_c ts = (X10TypeSystem_c) tc.typeSystem();
+            TypeSystem_c ts = (TypeSystem_c) tc.typeSystem();
             List<Type> argTypes = new ArrayList<Type>(this.arguments.size());
             for (Expr a : this.arguments) {
                 argTypes.add(a.type());
@@ -406,7 +406,7 @@ public class X10New_c extends New_c implements X10New {
         }
     }
     public Node typeCheck1(ContextVisitor tc) throws SemanticException {
-        final X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
+        final TypeSystem xts = (TypeSystem) tc.typeSystem();
 
         // ///////////////////////////////////////////////////////////////////
         // Inline the super call here and handle type arguments.
@@ -446,7 +446,7 @@ public class X10New_c extends New_c implements X10New {
             result = (X10New_c) result.objectType(result.objectType().typeRef(Types.ref(t)));
         }
 
-        X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+        TypeSystem ts = (TypeSystem) tc.typeSystem();
         Type tp = ci.returnType();
         tp = PlaceChecker.ReplaceHereByPlaceTerm(tp, (Context) tc.context());
         Type tp1 = (Type) tp.copy();
@@ -488,7 +488,7 @@ public class X10New_c extends New_c implements X10New {
     public static Pair<ConstructorInstance,List<Expr>> findConstructor(ContextVisitor tc, X10ProcedureCall n,
             Type targetType, List<Type> actualTypes, ClassDef anonType) {
         X10ConstructorInstance ci;
-        X10TypeSystem_c xts = (X10TypeSystem_c) tc.typeSystem();
+        TypeSystem_c xts = (TypeSystem_c) tc.typeSystem();
         Context context = (Context) tc.context();
         boolean haveUnknown = xts.hasUnknown(targetType);
         for (Type t : actualTypes) {
@@ -534,7 +534,7 @@ public class X10New_c extends New_c implements X10New {
             X10ProcedureCall n, Type targetType, List<Type> argTypes, ClassDef anonType) throws SemanticException {
 
         X10ConstructorInstance ci = null;
-        X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
+        TypeSystem xts = (TypeSystem) tc.typeSystem();
 
         X10ClassType ct = (X10ClassType) targetType;
         try {
@@ -570,7 +570,7 @@ public class X10New_c extends New_c implements X10New {
 
     private static Collection<X10ConstructorInstance> findConstructors(ContextVisitor tc, Type targetType,
             List<Type> actualTypes) throws SemanticException {
-        X10TypeSystem_c xts = (X10TypeSystem_c) tc.typeSystem();
+        TypeSystem_c xts = (TypeSystem_c) tc.typeSystem();
         Context context = (Context) tc.context();
         if (targetType == null) {
             // TODO
@@ -601,7 +601,7 @@ public class X10New_c extends New_c implements X10New {
         if (xci == null)
             return (X10ConstructorInstance) this.ci;
         Type type = xci.returnType();
-        X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+        TypeSystem ts = (TypeSystem) tc.typeSystem();
 
         // Add self.home == here to the return type.
         if (! ts.isStructType(type)) {

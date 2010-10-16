@@ -26,7 +26,7 @@ import x10.types.TypeSystem_c;
 import x10.types.Context;
 import x10.types.X10FieldInstance;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import x10.types.TypeSystem;
 import x10.types.constraints.CConstraint;
 
 public class X10FieldMatcher extends TypeSystem_c.FieldMatcher {
@@ -45,7 +45,7 @@ public class X10FieldMatcher extends TypeSystem_c.FieldMatcher {
         X10FieldInstance fi = (X10FieldInstance) super.instantiate(mi);
         if (fi == null)
             return null;
-        X10TypeSystem ts = (X10TypeSystem) fi.typeSystem();
+        TypeSystem ts = (TypeSystem) fi.typeSystem();
         Type t = fi.type();
         Type rt = fi.rightType();
         

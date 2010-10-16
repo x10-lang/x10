@@ -22,7 +22,7 @@ import x10.constraint.XVar;
 import x10.types.SemanticException;
 import x10.types.Type;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import x10.types.TypeSystem;
 
 /**
  * @author vj
@@ -42,7 +42,7 @@ public class RegionMaker_c extends X10Call_c implements RegionMaker {
 	
 	}
 	public Node typeCheck(ContextVisitor tc) {
-		X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
+		TypeSystem xts = (TypeSystem) tc.typeSystem();
 		RegionMaker_c n = (RegionMaker_c) super.typeCheck(tc);
 		Expr left = (Expr) n.arguments.get(0);
 		Type type = n.type();

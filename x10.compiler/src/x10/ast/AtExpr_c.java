@@ -32,7 +32,7 @@ import x10.types.Types;
 import x10.types.Context;
 import x10.types.X10NamedType;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import x10.types.TypeSystem;
 import x10.types.checker.PlaceChecker;
 
 

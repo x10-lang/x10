@@ -49,7 +49,7 @@ import x10.types.Types;
 import x10.types.X10ClassDef;
 import x10.types.X10ParsedClassType;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import x10.types.TypeSystem;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint;
 
@@ -187,7 +187,7 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
     
 	@Override
 	public Node buildTypesOverride(TypeBuilder tb) {
-		final X10TypeSystem ts = (X10TypeSystem) tb.typeSystem();
+		final TypeSystem ts = (TypeSystem) tb.typeSystem();
 		NodeFactory nf = (NodeFactory) tb.nodeFactory();
 		
 		X10ClassDef ct = (X10ClassDef) tb.currentClass();
@@ -204,7 +204,7 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 		if (ALLOW_TOP_LEVEL_TYPEDEFS) {
 		    // If this is a top-level typedef, add it to a dummy class for the package.
 		    // When looking up types, we'll look for the package class then walk through the members.
-		    QName dummyClass = QName.make(package_ != null ? package_.fullName() : null, X10TypeSystem.DUMMY_PACKAGE_CLASS_NAME);
+		    QName dummyClass = QName.make(package_ != null ? package_.fullName() : null, TypeSystem.DUMMY_PACKAGE_CLASS_NAME);
 
 		    if (ct == null) {
 		    	Named n = ts.systemResolver().check(dummyClass);
@@ -217,7 +217,7 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 			ct = (X10ClassDef) ts.createClassDef();
 			ct.kind(ClassDef.TOP_LEVEL);
 			ct.setPackage(package_ != null ? Types.ref(package_) : null);
-			ct.name(X10TypeSystem.DUMMY_PACKAGE_CLASS_NAME);
+			ct.name(TypeSystem.DUMMY_PACKAGE_CLASS_NAME);
 			ct.superType(Types.ref(ts.Value()));
 			ct.flags(Flags.PUBLIC.Abstract());
 			ts.systemResolver().install(dummyClass, ct.asType());
@@ -303,9 +303,9 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 		// Otherwise, we'll search through the container.
 		if (!local && ct != null && ct.asType().isGloballyAccessible() && formalTypes.size() == 0 && typeParameters.size() == 0) {
 		    if (ALLOW_TOP_LEVEL_TYPEDEFS) {
-		        if (ct.name().equals(X10TypeSystem.DUMMY_PACKAGE_CLASS_NAME) && ct.package_() != null)
+		        if (ct.name().equals(TypeSystem.DUMMY_PACKAGE_CLASS_NAME) && ct.package_() != null)
 		            ts.systemResolver().install(QName.make(ct.package_().get().fullName(), name.id()), typeDef.asType());
-		        else if (ct.name().equals(X10TypeSystem.DUMMY_PACKAGE_CLASS_NAME) && ct.package_() == null)
+		        else if (ct.name().equals(TypeSystem.DUMMY_PACKAGE_CLASS_NAME) && ct.package_() == null)
 		            ts.systemResolver().install(QName.make(null, name.id()), typeDef.asType());
 		    }
 

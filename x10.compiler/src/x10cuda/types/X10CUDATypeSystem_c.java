@@ -12,9 +12,9 @@
 package x10cuda.types;
 
 import x10.types.Context;
-import x10.types.X10TypeSystem_c;
+import x10.types.TypeSystem_c;
 
-public class X10CUDATypeSystem_c extends X10TypeSystem_c {
+public class X10CUDATypeSystem_c extends TypeSystem_c {
 	public Context emptyContext() {
 		return new X10CUDAContext_c(this);
 	}

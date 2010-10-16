@@ -16,7 +16,7 @@ import polyglot.visit.ContextVisitor;
 import x10.errors.Errors;
 import x10.types.SemanticException;
 import x10.types.X10LocalInstance;
-import x10.types.X10TypeSystem_c;
+import x10.types.TypeSystem_c;
 import x10.visit.X10TypeChecker;
 
 public class X10AmbReceiver_c extends AmbReceiver_c {
@@ -31,7 +31,7 @@ public class X10AmbReceiver_c extends AmbReceiver_c {
             return super.disambiguate(ar);
         } catch (SemanticException e) {
             Errors.issue(ar.job(), e, this);
-            X10TypeSystem_c xts = (X10TypeSystem_c) ar.typeSystem();
+            TypeSystem_c xts = (TypeSystem_c) ar.typeSystem();
             X10LocalInstance li = xts.createFakeLocal(name.id(), e);
             return ar.nodeFactory().Local(position(), name).localInstance(li).type(li.type());
         }

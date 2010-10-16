@@ -152,7 +152,7 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
 		    try {
 			    List<X10FieldDef> properties = properties();
 			    
-			    X10TypeSystem xts = (X10TypeSystem) ts;
+			    TypeSystem xts = (TypeSystem) ts;
 
 			    CConstraint result = new CConstraint();
 			    
@@ -319,7 +319,7 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
     public boolean isStruct() {
     	return X10Flags.toX10Flags(flags()).isStruct();
     }
-    // This is overridden by the synthetic Fun_** classes created in X10TypeSystem_c.
+    // This is overridden by the synthetic Fun_** classes created in TypeSystem_c.
     public boolean isFunction() {
     	return false;
     }

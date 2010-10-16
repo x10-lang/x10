@@ -59,7 +59,7 @@ import x10.types.X10Flags;
 import x10.types.X10InitializerDef;
 
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import x10.types.TypeSystem;
 import x10.types.VarDef_c.ConstantValue;
 import x10.types.checker.Checker;
 import x10.types.checker.Converter;
@@ -191,7 +191,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
         FieldDef fi = fieldDef();
         StructType ref = fi.container().get();
 
-        X10TypeSystem xts = (X10TypeSystem) ref.typeSystem();
+        TypeSystem xts = (TypeSystem) ref.typeSystem();
         Context context = (Context) tc.context();
         if (X10TypeMixin.isX10Struct(ref) && !isMutable(xts, ref)) {
             X10Flags x10flags = X10Flags.toX10Flags(fi.flags());
@@ -207,7 +207,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
         return result;
     }
     
-    protected boolean isMutable(X10TypeSystem xts, Type t) {
+    protected boolean isMutable(TypeSystem xts, Type t) {
         if (!(t instanceof X10ClassType)) return false;
         X10ClassType ct = (X10ClassType) t;
         try {
@@ -261,7 +261,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 
     @Override
     public Node buildTypesOverride(TypeBuilder tb) {
-        X10TypeSystem ts = (X10TypeSystem) tb.typeSystem();
+        TypeSystem ts = (TypeSystem) tb.typeSystem();
 
         X10FieldDecl_c n = (X10FieldDecl_c) super.buildTypesOverride(tb);
         
@@ -411,7 +411,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 	    	
 	    	type = PlaceChecker.ReplaceHereByPlaceTerm(type, xc);
 
-	    	X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+	    	TypeSystem ts = (TypeSystem) tc.typeSystem();
 	    	if (type.isVoid()) {
 	    		Errors.issue(tc.job(), new SemanticException("Field cannot have type " + typeNode.type() + ".", position()));
 	    		type = ts.unknownType(position()); 

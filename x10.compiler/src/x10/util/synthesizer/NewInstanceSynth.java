@@ -29,7 +29,7 @@ import x10.types.SemanticException;
 import x10.types.Type;
 import x10.types.Types;
 import x10.types.Context;
-import x10.types.X10TypeSystem;
+import x10.types.TypeSystem;
 import x10.types.checker.PlaceChecker;
 
 /**
@@ -74,7 +74,7 @@ public class NewInstanceSynth extends AbstractStateSynth implements IStmtSynth, 
     
     public Expr genExpr() throws SemanticException {
 
-        X10TypeSystem xts = (X10TypeSystem) xct.typeSystem();
+        TypeSystem xts = (TypeSystem) xct.typeSystem();
 
         ConstructorDef constructorDef = xts.findConstructor(classType, // receiver's
                                                                        // type

@@ -44,7 +44,7 @@ import x10.types.ProcedureDef;
 import x10.types.SemanticException;
 import x10.types.Type;
 import x10.types.Context;
-import x10.types.X10TypeSystem;
+import x10.types.TypeSystem;
 
 /**
  * @author Haichuan
@@ -322,7 +322,7 @@ public class WSCodeGenUtility {
      * @return Pair<Assign, Call> pair. If null, not such an expression
      */
     static public Pair<Assign, Call> identifyAssignByAsyncCall(Stmt s, Context context){
-        X10TypeSystem xts = (X10TypeSystem) context.typeSystem();
+        TypeSystem xts = (TypeSystem) context.typeSystem();
         Pair<Assign, Call> result = null;
         if(s instanceof Eval){
             

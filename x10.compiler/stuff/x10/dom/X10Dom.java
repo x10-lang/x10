@@ -80,7 +80,7 @@ import x10.types.X10MethodInstance;
 import x10.types.X10NamedType;
 import x10.types.X10ParsedClassType;
 import x10.types.X10Type;
-import x10.types.X10TypeSystem;
+import x10.types.TypeSystem;
 import x10.types.constr.C_BinaryTerm;
 import x10.types.constr.C_BinaryTerm_c;
 import x10.types.constr.C_EQV;
@@ -134,11 +134,11 @@ import polyglot.visit.InitImportsVisitor;
 
 public class X10Dom {
 
-	X10TypeSystem ts;
+	TypeSystem ts;
 	NodeFactory nf;
 	Map<String,Lens> tagMap;
 
-	public X10Dom(X10TypeSystem ts, NodeFactory nf) {
+	public X10Dom(TypeSystem ts, NodeFactory nf) {
 		this.ts = ts;
 		this.nf = nf;
 	}

@@ -68,8 +68,8 @@ import x10.types.Types;
 import x10.types.Context;
 import x10.types.X10MethodInstance;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
-import x10.types.X10TypeSystem_c;
+import x10.types.TypeSystem;
+import x10.types.TypeSystem_c;
 import x10.types.checker.Converter;
 import x10.types.constraints.CConstraint;
 import x10.util.Synthesizer;
@@ -97,13 +97,13 @@ public class ForLoopOptimizer extends ContextVisitor {
     private static final Name MAX      = Name.make("max");
     private static final Name SET      = Name.make("set");
 
-    private final X10TypeSystem  xts;
+    private final TypeSystem  xts;
     private final NodeFactory xnf;
     private final Synthesizer    syn;
 
     public ForLoopOptimizer(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf);
-        xts = (X10TypeSystem) ts;
+        xts = (TypeSystem) ts;
         xnf = (NodeFactory) nf; 
         syn = new Synthesizer(xnf, xts);
     }
@@ -167,7 +167,7 @@ public class ForLoopOptimizer extends ContextVisitor {
         }
 
         // if domain <: Distribution, transform to Region
-        if (((X10TypeSystem_c) xts).isDistribution(domain.type())) {
+        if (((TypeSystem_c) xts).isDistribution(domain.type())) {
             if (VERBOSE) System.out.println("  domain is Dist, transforming to Region");
             domain = createFieldRef(pos, domain, REGION);
             assert (null != domain);

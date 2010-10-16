@@ -35,7 +35,7 @@ import x10.types.X10LocalInstance;
 import x10.types.X10MethodInstance;
 import x10.types.X10ParsedClassType;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import x10.types.TypeSystem;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
 
@@ -65,7 +65,7 @@ public class Subst {
         if (t == null)
             return null;
 
-        X10TypeSystem ts = (X10TypeSystem) t.typeSystem();
+        TypeSystem ts = (TypeSystem) t.typeSystem();
 
         t = ts.expandMacros(t);
 
@@ -107,7 +107,7 @@ public class Subst {
             return null;
 
 
-        X10TypeSystem ts = (X10TypeSystem) t.typeSystem();
+        TypeSystem ts = (TypeSystem) t.typeSystem();
 
         t = ts.expandMacros(t);
 
@@ -165,7 +165,7 @@ public class Subst {
         if (t == null)
             return null;
 
-        X10TypeSystem ts = (X10TypeSystem) t.typeSystem();
+        TypeSystem ts = (TypeSystem) t.typeSystem();
 
         t = ts.expandMacros(t);
 
@@ -281,7 +281,7 @@ public class Subst {
     public static TypeConstraint subst(TypeConstraint t, Type Y, ParameterType X) throws SemanticException {
         if (t == null)
             return null;
-        TypeParamSubst subst = new TypeParamSubst((X10TypeSystem) Y.typeSystem(), Arrays.asList(Y), Arrays.asList(X));
+        TypeParamSubst subst = new TypeParamSubst((TypeSystem) Y.typeSystem(), Arrays.asList(Y), Arrays.asList(X));
         return subst.reinstantiate(t);
     }
 

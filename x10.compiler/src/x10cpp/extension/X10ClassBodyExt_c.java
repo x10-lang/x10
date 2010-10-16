@@ -37,7 +37,7 @@ import x10.types.MethodDef;
 import x10.types.ReferenceType;
 import x10.types.Type;
 import x10.types.X10Flags;
-import x10.types.X10TypeSystem;
+import x10.types.TypeSystem;
 
 
 /**
@@ -52,7 +52,7 @@ import x10.types.X10TypeSystem;
 public class X10ClassBodyExt_c extends X10Ext_c {
 
 	private BufferedWriter wrapperFile;
-	private X10TypeSystem typeSystem;
+	private TypeSystem typeSystem;
 
 	private static final String EXTERN_STUB_SUFFIX = "_x10stub.c";
 	String[] wrapperPrologue = {
@@ -364,7 +364,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 	 * a dynamic library, and ensure that the X10 program can find them
 	 */
 	/*
-	public Node rewrite(X10TypeSystem ts, NodeFactory nf, ExtensionInfo info) {
+	public Node rewrite(TypeSystem ts, NodeFactory nf, ExtensionInfo info) {
 		typeSystem = ts;
 		boolean seenNativeMethodDecl = false;
 

@@ -36,7 +36,7 @@ import x10.types.ProcedureDef;
 import x10.types.SemanticException;
 import x10.types.Type;
 import x10.types.Context;
-import x10.types.X10TypeSystem;
+import x10.types.TypeSystem;
 import x10.types.checker.PlaceChecker;
 import x10.util.synthesizer.MethodSynth;
 import x10.visit.X10PrettyPrinterVisitor;
@@ -83,7 +83,7 @@ public class WSTransformState {
 
     private final WSCallGraph callGraph;
 
-    public WSTransformState(X10TypeSystem xts, NodeFactory xnf, String theLanguage){
+    public WSTransformState(TypeSystem xts, NodeFactory xnf, String theLanguage){
         if (theLanguage.equals("c++")) {
             frameType = xts.load("x10.compiler.ws.Frame");
             finishFrameType = xts.load("x10.compiler.ws.FinishFrame");

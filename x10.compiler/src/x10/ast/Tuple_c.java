@@ -35,7 +35,7 @@ import x10.types.SemanticException;
 import x10.types.Type;
 import x10.types.X10ClassType;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import x10.types.TypeSystem;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint;
 import x10.errors.Errors;
@@ -123,7 +123,7 @@ public class Tuple_c extends Expr_c implements Tuple {
 
         Type t = av.toType();
         
-        X10TypeSystem ts = (X10TypeSystem) av.typeSystem();
+        TypeSystem ts = (TypeSystem) av.typeSystem();
         
         if (! ts.isArray(t)) {
             return child.type();
@@ -167,7 +167,7 @@ public class Tuple_c extends Expr_c implements Tuple {
 
 	/** Type check the initializer. */
 	public Node typeCheck(ContextVisitor tc) throws SemanticException {
-	    X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+	    TypeSystem ts = (TypeSystem) tc.typeSystem();
 
 	    Type type = null;
 

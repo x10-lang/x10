@@ -66,7 +66,7 @@ public class X10TypeMixin {
     
 
 	public static X10FieldInstance getProperty(Type t, Name propName) {
-	    X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
+	    TypeSystem xts = (TypeSystem) t.typeSystem();
 		    try {
 		        Context c = xts.emptyContext();
 			    X10FieldInstance fi = (X10FieldInstance) xts.findField(t, xts.FieldMatcher(t, propName, c));
@@ -86,7 +86,7 @@ public class X10TypeMixin {
 	 * @return
 	 */
 	public static Type makeArrayRailOf(Type type, int size, Position pos) {
-		X10TypeSystem ts = (X10TypeSystem) type.typeSystem();
+		TypeSystem ts = (TypeSystem) type.typeSystem();
 		Type r = ts.Array();
 		Type t = (X10ClassType) X10TypeMixin.instantiate(r, type);
 		CConstraint c = new CConstraint();
@@ -143,7 +143,7 @@ public class X10TypeMixin {
      * @return
      */
     public static Type makeArrayRailOf(Type type, Position pos) {
-        X10TypeSystem ts = (X10TypeSystem) type.typeSystem();
+        TypeSystem ts = (TypeSystem) type.typeSystem();
         Type r = ts.Array();
         Type t = (X10ClassType) X10TypeMixin.instantiate(r, type);
         CConstraint c = new CConstraint();
@@ -361,7 +361,7 @@ public class X10TypeMixin {
 	}
 	
     public static Type stripConstraints(Type t) {
-        X10TypeSystem ts = (X10TypeSystem) t.typeSystem();
+        TypeSystem ts = (TypeSystem) t.typeSystem();
         t = ts.expandMacros(t);
         t = X10TypeMixin.baseType(t);
         if (t instanceof X10ClassType) {
@@ -384,7 +384,7 @@ public class X10TypeMixin {
 		return xclause(Types.ref(t), Types.ref(c));
 	}
 	public static Type constrainedType(Type base, CConstraint c) {
-		return new ConstrainedType_c((X10TypeSystem) base.typeSystem(), base.position(), Types.ref(base),
+		return new ConstrainedType_c((TypeSystem) base.typeSystem(), base.position(), Types.ref(base),
 				Types.ref(c));
 	}
 	// vj: 08/11/09 -- have to recursively walk the 
@@ -396,7 +396,7 @@ public class X10TypeMixin {
 
 	    if (t.known() && c != null && c.known()) {
 	        Type tx = Types.get(t);
-	        X10TypeSystem ts = (X10TypeSystem) tx.typeSystem();
+	        TypeSystem ts = (TypeSystem) tx.typeSystem();
 	        tx = ts.expandMacros(tx);
 
 	        CConstraint oldc = X10TypeMixin.xclause(tx);
@@ -457,7 +457,7 @@ public class X10TypeMixin {
 
 	    Type tx = t.getCached();
 	    assert tx != null;
-	    return new ConstrainedType_c((X10TypeSystem) tx.typeSystem(), tx.position(), t.known()? t: tref, cref);
+	    return new ConstrainedType_c((TypeSystem) tx.typeSystem(), tx.position(), t.known()? t: tref, cref);
 	}
 
     public static boolean isConstrained(Type t) {
@@ -683,13 +683,13 @@ public class X10TypeMixin {
     }
 
     public static X10PrimitiveType promote(Unary.Operator op, X10PrimitiveType t) throws SemanticException {
-        X10TypeSystem ts = (X10TypeSystem) t.typeSystem();
+        TypeSystem ts = (TypeSystem) t.typeSystem();
         X10PrimitiveType pt = (X10PrimitiveType) ts.promote(t);
         return (X10PrimitiveType) xclause(X10TypeMixin.baseType(pt), 
         		promoteClause(ts, op, xclause(t)));
     }
 
-    public static CConstraint promoteClause(X10TypeSystem ts, x10.ast.Unary.Operator op, CConstraint c) {
+    public static CConstraint promoteClause(TypeSystem ts, x10.ast.Unary.Operator op, CConstraint c) {
         if (c == null)
             return null;
    
@@ -697,13 +697,13 @@ public class X10TypeMixin {
     }
 
     public static X10PrimitiveType promote(Binary.Operator op, X10PrimitiveType t1, X10PrimitiveType t2) throws SemanticException {
-        X10TypeSystem ts = (X10TypeSystem) t1.typeSystem();
+        TypeSystem ts = (TypeSystem) t1.typeSystem();
         X10PrimitiveType pt = (X10PrimitiveType) ts.promote(t1, t2);
         return (X10PrimitiveType) xclause(X10TypeMixin.baseType(pt), 
         		promoteClause(ts, op, xclause(t1), xclause(t2)));
     }
 
-    public static CConstraint promoteClause(X10TypeSystem ts, Operator op, CConstraint c1, CConstraint c2) {
+    public static CConstraint promoteClause(TypeSystem ts, Operator op, CConstraint c1, CConstraint c2) {
         if (c1 == null || c2 == null)
             return null;
         return ts.xtypeTranslator().binaryOp(op, c1, c2);
@@ -823,7 +823,7 @@ public class X10TypeMixin {
 
 	 
 	protected static boolean amIProperty(Type t, Name propName, Context context) {
-	    X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
+	    TypeSystem xts = (TypeSystem) t.typeSystem();
 	    CConstraint r = realX(t);
 	
 	    // first try self.p
@@ -894,7 +894,7 @@ public class X10TypeMixin {
 				    X10FieldInstance fi = getProperty(t, propName);
 				    if (fi != null) {
 					    
-						    X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
+						    TypeSystem xts = (TypeSystem) t.typeSystem();
 						    XTerm val = xts.xtypeTranslator().trans(c, var, fi);
 					    return val;
 				    }
@@ -915,7 +915,7 @@ public class X10TypeMixin {
 				    X10FieldInstance fi = getProperty(t, propName);
 				    if (fi != null) {
 					    
-						    X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
+						    TypeSystem xts = (TypeSystem) t.typeSystem();
 						    val = xts.xtypeTranslator().trans(c, var, fi);
 					    
 				    }
@@ -927,17 +927,17 @@ public class X10TypeMixin {
 
 	
 	public static boolean isRankOne(Type t, Context context) {
-	    X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
+	    TypeSystem xts = (TypeSystem) t.typeSystem();
 	    return xts.ONE().equals(X10TypeMixin.rank(t, context));
 	}
 
 	public static boolean isRankTwo(Type t, Context context) {
-	        X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
+	        TypeSystem xts = (TypeSystem) t.typeSystem();
 	        return xts.TWO().equals(X10TypeMixin.rank(t, context));
 	}
 
 	public static boolean isRankThree(Type t, Context context) {
-	    X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
+	    TypeSystem xts = (TypeSystem) t.typeSystem();
 	    return xts.THREE().equals(X10TypeMixin.rank(t, context));
 	}
 	
@@ -959,7 +959,7 @@ public class X10TypeMixin {
 	}
 
 	public static XTerm rank(Type t, Context context) {
-	    X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
+	    TypeSystem xts = (TypeSystem) t.typeSystem();
 	    return findOrSynthesize(t, Name.make("rank"));
 	}
 	/**
@@ -970,7 +970,7 @@ public class X10TypeMixin {
 	 * @return
 	 */
 	public static Type addRank(Type t, int x) {
-	    X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
+	    TypeSystem xts = (TypeSystem) t.typeSystem();
 	    XTerm xt = findOrSynthesize(t, Name.make("rank"));
 	    try {
 	    t = addBinding(t, xt, XTerms.makeLit(new Integer(x)));
@@ -981,7 +981,7 @@ public class X10TypeMixin {
 	 
 	}
 	public static Type addRect(Type t) {
-	    X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
+	    TypeSystem xts = (TypeSystem) t.typeSystem();
 	    XTerm xt = findOrSynthesize(t, Name.make("rect"));
 	    try {
 	    t = addBinding(t, xt, XTerms.TRUE);
@@ -992,7 +992,7 @@ public class X10TypeMixin {
 	 
 	}
 	public static Type addZeroBased(Type t) {
-	    X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
+	    TypeSystem xts = (TypeSystem) t.typeSystem();
 	    XTerm xt = findOrSynthesize(t, Name.make("zeroBased"));
 	    try {
 	    t = addBinding(t, xt, XTerms.TRUE);
@@ -1008,7 +1008,7 @@ public class X10TypeMixin {
 	    t = baseType(t);
 	    if (t instanceof X10ClassType) {
 		X10ClassType ct = (X10ClassType) t;
-		X10TypeSystem ts = (X10TypeSystem) t.typeSystem();
+		TypeSystem ts = (TypeSystem) t.typeSystem();
 		ClassType a = (ClassType) ts.Rail();
 		ClassType v = (ClassType) ts.ValRail();
 		if (ct.def() == a.def() || ct.def() == v.def())
@@ -1023,7 +1023,7 @@ public class X10TypeMixin {
 	    t = baseType(t);
 	    if (t instanceof X10ClassType) {
 		X10ClassType ct = (X10ClassType) t;
-		X10TypeSystem ts = (X10TypeSystem) t.typeSystem();
+		TypeSystem ts = (TypeSystem) t.typeSystem();
 		ClassType a = (ClassType) ts.Array();
 		ClassType da = (ClassType) ts.Array();
 		if (ct.def() == a.def() || ct.def() == da.def())
@@ -1035,7 +1035,7 @@ public class X10TypeMixin {
 	}
 
 	public static boolean isX10Array(Type t) {
-        X10TypeSystem ts = (X10TypeSystem) t.typeSystem();
+        TypeSystem ts = (TypeSystem) t.typeSystem();
         Type tt = baseType(t);
         Type at = baseType(ts.Array());
         if (tt instanceof ClassType && at instanceof ClassType) {
@@ -1047,7 +1047,7 @@ public class X10TypeMixin {
 	}
 	
 	public static boolean isX10DistArray(Type t) {
-        X10TypeSystem ts = (X10TypeSystem) t.typeSystem();
+        TypeSystem ts = (TypeSystem) t.typeSystem();
         Type tt = baseType(t);
         Type at = baseType(ts.DistArray());
         if (tt instanceof ClassType && at instanceof ClassType) {
@@ -1133,19 +1133,19 @@ public class X10TypeMixin {
         }
         return res;
     }
-    public static boolean isUninitializedField(X10FieldDef def,X10TypeSystem ts) {
+    public static boolean isUninitializedField(X10FieldDef def,TypeSystem ts) {
         return isDefAnnotated(def,ts,"x10.compiler.Uninitialized");
     }
-    public static boolean isSuppressTransientErrorField(X10FieldDef def,X10TypeSystem ts) {
+    public static boolean isSuppressTransientErrorField(X10FieldDef def,TypeSystem ts) {
         return isDefAnnotated(def,ts,"x10.compiler.SuppressTransientError");
     }
-    public static boolean isNoThisAccess(X10ProcedureDef def,X10TypeSystem ts) {
+    public static boolean isNoThisAccess(X10ProcedureDef def,TypeSystem ts) {
         return isDefAnnotated(def,ts,"x10.compiler.NoThisAccess");
     }
-    public static boolean isNonEscaping(X10ProcedureDef def,X10TypeSystem ts) {
+    public static boolean isNonEscaping(X10ProcedureDef def,TypeSystem ts) {
         return isDefAnnotated(def,ts,"x10.compiler.NonEscaping");
     }
-    public static boolean isDefAnnotated(X10Def def,X10TypeSystem ts, String name) {
+    public static boolean isDefAnnotated(X10Def def,TypeSystem ts, String name) {
         try {
             Type at = (Type) ts.systemResolver().find(QName.make(name));
             return !def.annotationsMatching(at).isEmpty();
@@ -1156,7 +1156,7 @@ public class X10TypeMixin {
     // this is an under-approximation (it is always safe to return 'null', i.e., the user will just get more errors). In the future we will improve the precision so more types might have zero.
     public static Expr getZeroVal(Type t, Position p, ContextVisitor tc) { // see X10FieldDecl_c.typeCheck
         try {
-            X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+            TypeSystem ts = (TypeSystem) tc.typeSystem();
             NodeFactory nf = (NodeFactory) tc.nodeFactory();
 	    	Context context = (Context) tc.context();
             Expr e = null;
@@ -1222,7 +1222,7 @@ then we substitute 0/false/null in all the constraints in C and if they all eval
 			return false;
 		if (X10TypeMixin.disEntailsSelf(t, XTerms.NULL))
 			return false;
-		X10TypeSystem ts = ((X10TypeSystem) t.typeSystem());
+		TypeSystem ts = ((TypeSystem) t.typeSystem());
 		if (ts.isParameterType(t)) {			
 			return false; // a parameter type might be instantiated with a struct that doesn't permit null.
 		}
@@ -1238,7 +1238,7 @@ then we substitute 0/false/null in all the constraints in C and if they all eval
 	    return xthis;
 	}
 
-	public static List<Type> expandTypes(List<Type> formals, X10TypeSystem xts) {
+	public static List<Type> expandTypes(List<Type> formals, TypeSystem xts) {
 		List<Type> result = new ArrayList<Type>();
 		for (Type f : formals) {
 		    result.add(xts.expandMacros(f));
@@ -1256,7 +1256,7 @@ then we substitute 0/false/null in all the constraints in C and if they all eval
 		return false;
 	}
 
-	public static Type meetTypes(X10TypeSystem xts, Type t1, Type t2, Context context) {
+	public static Type meetTypes(TypeSystem xts, Type t1, Type t2, Context context) {
 	    if (xts.isSubtype(t1, t2, context))
 	        return t1;
 	    if (xts.isSubtype(t2, t1, context))
@@ -1285,7 +1285,7 @@ then we substitute 0/false/null in all the constraints in C and if they all eval
 	 * @return
 	 */
 	public static boolean moreSpecificImpl(Type ct, ProcedureInstance<?> xp1, ProcedureInstance<?> xp2, Context context) {
-	    X10TypeSystem ts = (X10TypeSystem) xp1.typeSystem();
+	    TypeSystem ts = (TypeSystem) xp1.typeSystem();
 	    Type ct1 = xp2 instanceof MemberInstance<?> ? ((MemberInstance<?>) xp1).container() : null;
 	    Type ct2 = xp2 instanceof MemberInstance<?> ? ((MemberInstance<?>) xp2).container() : null;
 	
@@ -1331,7 +1331,7 @@ then we substitute 0/false/null in all the constraints in C and if they all eval
 	// call. Hence no type inference is done. 
 	private static boolean oldStyleMoreSpecificMethod(
 			ProcedureInstance<?> xp1, ProcedureInstance<?> xp2,
-			Context context, X10TypeSystem ts, Type ct1, Type t1, Type t2,
+			Context context, TypeSystem ts, Type ct1, Type t1, Type t2,
 			boolean descends) {
 	    // if the formal params of p1 can be used to call p2, p1 is more specific
 	    if (xp1.formalTypes().size() == xp2.formalTypes().size() ) {
@@ -1391,7 +1391,7 @@ then we substitute 0/false/null in all the constraints in C and if they all eval
 		assert xp1 != null;
 		assert xp2 != null;
 		assert context != null;
-		X10TypeSystem ts = (X10TypeSystem) context.typeSystem();
+		TypeSystem ts = (TypeSystem) context.typeSystem();
 	    	List<Type> typeArgs = Collections.<Type>emptyList();
 	    	try {
 	    		if (xp2 instanceof X10MethodInstance) {
@@ -1493,7 +1493,7 @@ then we substitute 0/false/null in all the constraints in C and if they all eval
 	}
 	public static Type arrayElementType(Type t) {
 		t = baseType(t);
-		X10TypeSystem xt = (X10TypeSystem) t.typeSystem();
+		TypeSystem xt = (TypeSystem) t.typeSystem();
 		if (xt.isX10Array(t) || xt.isX10DistArray(t) || xt.isRail(t)) {
 			if (t instanceof X10ParsedClassType) {
 				Type result = ((X10ParsedClassType) t).typeArguments().get(0);
@@ -1533,7 +1533,7 @@ then we substitute 0/false/null in all the constraints in C and if they all eval
 	 * @return
 	 */
 	public static Type reducerType(Type type) {
-		X10TypeSystem ts = (X10TypeSystem) type.typeSystem();
+		TypeSystem ts = (TypeSystem) type.typeSystem();
 			Type base = X10TypeMixin.baseType(type);
 
 			if (base instanceof X10ClassType) {

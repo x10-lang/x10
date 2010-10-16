@@ -21,19 +21,19 @@ import x10.ast.NodeFactory;
 import x10.types.SemanticException;
 import x10.types.Type;
 import x10.types.TypeSystem;
-import x10.types.X10TypeSystem;
+import x10.types.TypeSystem;
 import x10.visit.ExpressionFlattener;
 
 public class ExpressionFlattenerForAtExpr extends ContextVisitor {
     
-    private final X10TypeSystem xts;
+    private final TypeSystem xts;
     private final NodeFactory xnf;
 
     private Type imc;
 
     public ExpressionFlattenerForAtExpr(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf);
-        xts = (X10TypeSystem) ts;
+        xts = (TypeSystem) ts;
         xnf = (NodeFactory) nf;
     }
     

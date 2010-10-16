@@ -15,7 +15,7 @@ import java.util.List;
 
 import x10.constraint.XConstraint;
 import x10.constraint.XTerm;
-import x10.types.X10TypeSystem_c.Kind;
+import x10.types.TypeSystem_c.Kind;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
 
