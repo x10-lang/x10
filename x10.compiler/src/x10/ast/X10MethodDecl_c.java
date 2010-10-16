@@ -439,17 +439,8 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 	protected void checkFlags(ContextVisitor tc, Flags flags) {
 		X10Flags xf = X10Flags.toX10Flags(flags);
 
-		if (xf.isExtern() && body != null) {
-			Errors.issue(tc.job(),
-			        new SemanticException("An extern method cannot have a body.", position()));
-		}
-
-
 		// Set the native flag if incomplete or extern so super.checkFlags doesn't complain.
-		if (xf.isIncomplete() || xf.isExtern())
-			super.checkFlags(tc, xf.Native());
-		else
-			super.checkFlags(tc, xf);
+		super.checkFlags(tc, xf);
 
 		if (xf.isProperty() && ! xf.isAbstract() && ! xf.isFinal()) {
 			Errors.issue(tc.job(),
@@ -474,29 +465,9 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 
 		X10Flags xf = X10Flags.toX10Flags(mi.flags());
 
-		// Check these flags here rather than in checkFlags since we need the body.
-		if (xf.isIncomplete() && body != null) {
-			throw new SemanticException("An incomplete method cannot have a body.", position());
-		}
-
 		//            if (xf.isProperty() && body == null) {
 		//        	throw new SemanticException("A property method must have a body.", position());
 		//            }
-
-		if (xf.isIncomplete()) {
-			n.mi.setFlags(xf.clearIncomplete());
-			Flags oldFlags = n.flags().flags();
-			X10Flags newFlags = X10Flags.toX10Flags(oldFlags).clearIncomplete();
-			n = (X10MethodDecl_c) n.flags(n.flags().flags(newFlags));
-			Type rtx = ts.RuntimeException();
-
-			CanonicalTypeNode rtxNode = nf.CanonicalTypeNode(position(), Types.ref(rtx));
-			Expr msg = nf.StringLit(position(), "Incomplete method.");
-			New newRtx = nf.New(position(), rtxNode, Collections.singletonList(msg));
-			Block b = nf.Block(position(), nf.Throw(position(), newRtx));
-			b = (Block) b.visit(tc);
-			n = (X10MethodDecl_c) n.body(b);
-		}
 
 		if (xf.isProperty()) {
 			boolean ok = false;
@@ -579,29 +550,6 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 			if (xmi.guard() != null && ! xmi.guard().valid())
 				Errors.issue(tc.job(),
 				        new SemanticException("A property method cannot have a guard.", guard != null ? guard.position() : position()));
-		}
-
-		if (X10Flags.toX10Flags(mi.flags()).isExtern()) {
-			if (!mi.returnType().get().isPrimitive())
-				Errors.issue(tc.job(),
-				        new SemanticException("Return type " + mi.returnType() + " of extern method must be a primitive type.", position()));
-
-			for (Formal parameter : this.formals()) {
-				Type declType = parameter.declType();
-				boolean isOk = true;
-				if (!declType.isPrimitive()) {
-					isOk = false;
-				}
-				else if (declType.isArray()) {
-					isOk = false;
-				}
-				else if (declType.isClass()) {
-					isOk = xts.isRail(declType) || xts.isValRail(declType);
-				}
-				if (!isOk)
-					Errors.issue(tc.job(),
-					        new SemanticException("Parameters to extern calls must be either X10 arrays or primitives.", parameter.position()));
-			}
 		}
 
 		checkVisibility(tc, this);

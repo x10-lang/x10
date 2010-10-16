@@ -19,7 +19,6 @@ import polyglot.frontend.Goal;
 import polyglot.frontend.Job;
 import polyglot.frontend.Scheduler;
 import polyglot.types.TypeSystem;
-import x10.visit.SharedBoxer;
 import x10c.ast.X10CNodeFactory_c;
 import x10c.types.X10CTypeSystem_c;
 import x10c.visit.AsyncInitializer;
@@ -117,12 +116,6 @@ public class ExtensionInfo extends x10.ExtensionInfo {
             TypeSystem ts = extInfo.typeSystem();
             NodeFactory nf = extInfo.nodeFactory();
             return new ValidatingVisitorGoal("CastsRemoved", job, new CastRemover(job, ts, nf)).intern(this);
-        }
-        
-        private Goal SharedBoxed(Job job) {
-            TypeSystem ts = extInfo.typeSystem();
-            NodeFactory nf = extInfo.nodeFactory();
-            return new ValidatingVisitorGoal("SharedBoxed", job, new SharedBoxer(job, ts, nf)).intern(this);
         }
         
         private Goal InlineHelped(Job job) {

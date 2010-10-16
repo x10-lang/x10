@@ -697,7 +697,7 @@ public class Emitter {
 		X10TypeSystem ts = (X10TypeSystem) tr.typeSystem();
 
 		Flags flags = md.flags();
-		flags = X10Flags.toX10Flags(flags).clearExtern();
+		flags = X10Flags.toX10Flags(flags);
 		flags = flags.clearNative();
 
 		// Hack to ensure that X10Flags are not printed out .. javac will
@@ -1535,7 +1535,6 @@ public class Emitter {
 
 	    w.begin(0);
 	    w.write(flags.clearAbstract().clearProtected().Public()
-	        .clear(X10Flags.SAFE)
 	        .clear(X10Flags.NATIVE)
 	        .translate()
 	    );
@@ -1750,7 +1749,6 @@ public class Emitter {
     
     	    w.begin(0);
     	    w.write(flags.clearAbstract()
-    	        .clear(X10Flags.SAFE)
     	        .clear(X10Flags.NATIVE)
     	        .translate()
     	    );
@@ -2756,7 +2754,6 @@ public class Emitter {
 
         w.begin(0);
         w.write(flags.clearAbstract()
-            .clear(X10Flags.SAFE)
             .clear(X10Flags.NATIVE)
             .translate()
         );

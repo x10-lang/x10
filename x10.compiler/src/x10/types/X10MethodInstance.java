@@ -25,12 +25,6 @@ import x10.constraint.XTerm;
  *
  */
 public interface X10MethodInstance extends MethodInstance, X10ProcedureInstance<MethodDef>, X10Use<X10MethodDef> {
-    /**
-     * Is this a method in a safe class, or a method marked as safe?
-     * @return
-     */
-    boolean isSafe();
-
     X10MethodInstance returnType(Type returnType);
     X10MethodInstance returnTypeRef(Ref<? extends Type> returnType);
     X10MethodInstance formalTypes(List<Type> formalTypes);

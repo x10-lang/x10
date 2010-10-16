@@ -921,7 +921,7 @@
                     pos = pos == null ? fn.position() : new JPGPosition(pos, fn.position());
                     Flags f = fn.flags();
                     if (f instanceof X10Flags) {
-                        xf = xf.setX((X10Flags) f);
+                        xf = xf.set((X10Flags) f);
                     }
                     else {
                         xf = X10Flags.toX10Flags(xf.set(f));

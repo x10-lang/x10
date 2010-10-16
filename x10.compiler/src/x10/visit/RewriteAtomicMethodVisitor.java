@@ -29,7 +29,6 @@ import polyglot.visit.NodeVisitor;
 import x10.ast.Atomic;
 import x10.ast.X10MethodDecl;
 import x10.ast.X10NodeFactory;
-import x10.extension.X10ClassBodyExt_c;
 import x10.types.X10Flags;
 import x10.types.X10TypeSystem;
 

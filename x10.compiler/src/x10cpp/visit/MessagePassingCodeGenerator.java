@@ -227,7 +227,6 @@ import x10.util.ClosureSynthesizer;
 import x10.util.StreamWrapper;
 import x10.util.Synthesizer;
 import x10cpp.X10CPPCompilerOptions;
-import x10cpp.extension.X10ClassBodyExt_c;
 import x10cpp.types.X10CPPContext_c;
 
 /**
@@ -572,17 +571,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    return sawInit;
 	}
 
-	private boolean hasExternMethods(List<ClassMember> members) {
-		for (ClassMember member : members) {
-			if (member instanceof MethodDecl_c) {
-				MethodDecl_c init = (MethodDecl_c) member;
-				if (X10Flags.isExtern(init.flags().flags()))
-					return true;
-			}
-		}
-		return false;
-	}
-
 	private void extractAllClassTypes(Type t, List<ClassType> types, Set<ClassType> dupes) {
         X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
         t = xts.expandMacros(t);
@@ -734,11 +722,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
         w.write("#include \""+incfile+"\""); w.newline();
         w.forceNewline(0);
-
-		if (hasExternMethods(n.body().members())) {
-			w.write("#include <" + X10ClassBodyExt_c.wrapperFileName(def.asType().toReference()) + ">");
-			w.newline();
-		}
 
 		ArrayList<Type> allIncludes = new ArrayList<Type>();
 		if (n.superClass() != null) {

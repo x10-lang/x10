@@ -130,7 +130,7 @@ public class NativeClassVisitor extends ContextVisitor {
     }
 
     protected static X10Flags clearNative(Flags flags) {
-        return X10Flags.toX10Flags(flags).clearX(Flags.NATIVE);
+        return X10Flags.toX10Flags(flags).clear(Flags.NATIVE);
     }
 
     protected Node leaveCall(Node parent, Node old, Node n, NodeVisitor v) throws SemanticException {

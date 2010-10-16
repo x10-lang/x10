@@ -438,9 +438,6 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
         return rightType;
     }
 
-    public boolean isSafe() {
-    	return X10Flags.toX10Flags(flags()).isSafe();
-    }
     static private String toString( XVar[] ys) {
     	String s = "";
     		for (XVar x : ys) s += x.toString() + " ";

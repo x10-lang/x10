@@ -62,7 +62,7 @@ public class X10Local_c extends Local_c {
 	        li = findAppropriateLocal(tc, liName);
 	    }
 
-        if (!li.flags().isFinal() && !X10Flags.toX10Flags(li.flags()).isShared()) {
+        if (!li.flags().isFinal()) {
             // if the local is defined in an outer class, then it must be final
             // shared was removed from the language: you cannot access var in a closure
             // Note that an async is similar to a closure (we create a dummy closure)

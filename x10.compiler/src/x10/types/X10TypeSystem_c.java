@@ -960,41 +960,41 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
     /** All flags allowed for a method. */
     public Flags legalMethodFlags() {
         X10Flags x = X10Flags.toX10Flags(legalAccessFlags().Abstract().Static().Final().Native().StrictFP());
-        x = x.Clocked().Safe().NonBlocking().Sequential().Property().Pure().Extern().Atomic(); 
+        x = x.Clocked().Property().Pure().Atomic(); 
         return x;
 
     }
 
     public Flags legalAbstractMethodFlags() {
         X10Flags x = X10Flags.toX10Flags(legalAccessFlags().clear(Private()).Abstract());
-        x = x.Clocked().Safe().NonBlocking().Sequential().Property().Pure().Atomic(); 
+        x = x.Clocked().Property().Pure().Atomic(); 
         return x;
     }
 
     /** All flags allowed for a top-level class. */
     public Flags legalTopLevelClassFlags() {
-        return X10Flags.toX10Flags(super.legalTopLevelClassFlags()).Clocked().Safe().Struct();
+        return X10Flags.toX10Flags(super.legalTopLevelClassFlags()).Clocked().Struct();
     }
 
     protected final X10Flags X10_TOP_LEVEL_CLASS_FLAGS = (X10Flags) legalTopLevelClassFlags();
 
     /** All flags allowed for an interface. */
     public Flags legalInterfaceFlags() {
-        return X10Flags.toX10Flags(super.legalInterfaceFlags()).Clocked().Safe().Value();
+        return X10Flags.toX10Flags(super.legalInterfaceFlags()).Clocked();
     }
 
     protected final X10Flags X10_INTERFACE_FLAGS = (X10Flags) legalInterfaceFlags();
 
     /** All flags allowed for a member class. */
     public Flags legalMemberClassFlags() {
-        return X10Flags.toX10Flags(super.legalMemberClassFlags()).Clocked().Safe().Struct();
+        return X10Flags.toX10Flags(super.legalMemberClassFlags()).Clocked().Struct();
     }
 
     protected final Flags X10_MEMBER_CLASS_FLAGS = (X10Flags) legalMemberClassFlags();
 
     /** All flags allowed for a local class. */
     public Flags legalLocalClassFlags() {
-        return X10Flags.toX10Flags(super.legalLocalClassFlags()).Safe().Struct();
+        return X10Flags.toX10Flags(super.legalLocalClassFlags()).Struct();
     }
 
     protected final X10Flags X10_LOCAL_CLASS_FLAGS = (X10Flags) legalLocalClassFlags();
@@ -1954,20 +1954,11 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
     @Override
     protected void initFlags() {
         super.initFlags();
-  //      flagsForName.put("local", X10Flags.LOCAL);
-        flagsForName.put("nonblocking", X10Flags.NON_BLOCKING);
-        flagsForName.put("safe", X10Flags.SAFE);
-        flagsForName.put("sequential", X10Flags.SEQUENTIAL);
-        flagsForName.put("incomplete", X10Flags.INCOMPLETE);
         flagsForName.put("property", X10Flags.PROPERTY);
         flagsForName.put("pure", X10Flags.PURE);
         flagsForName.put("atomic", X10Flags.ATOMIC);
-        flagsForName.put("global", X10Flags.GLOBAL);
-        flagsForName.put("extern", X10Flags.EXTERN);
         flagsForName.put("value", X10Flags.VALUE);
         flagsForName.put("reference", X10Flags.REFERENCE);
-        flagsForName.put("mutable", X10Flags.MUTABLE);
-        flagsForName.put("shared", X10Flags.SHARED);
         flagsForName.put("struct", X10Flags.STRUCT);
      //   flagsForName.put("rooted", X10Flags.ROOTED);
     }
