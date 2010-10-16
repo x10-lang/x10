@@ -37,11 +37,11 @@ import polyglot.ast.Special;
 import polyglot.ast.Stmt;
 import polyglot.ast.TopLevelDecl;
 import polyglot.ast.TypeNode;
-import polyglot.frontend.ExtensionInfo;
 import polyglot.types.FieldInstance;
 import polyglot.types.Ref;
 import polyglot.types.Type;
 import polyglot.util.Position;
+import x10.ExtensionInfo;
 import x10.parser.X10Parser.JPGPosition;
 import x10.types.ParameterType;
 import x10.types.X10ConstructorDef;
@@ -60,7 +60,6 @@ public interface X10NodeFactory extends NodeFactory {
     /** Return the language extension this node factory is for. */
     ExtensionInfo extensionInfo();
     
-    Expr AmbHereThis(Position pos) ;
     AtStmt AtStmt(Position pos, Expr place, Stmt body);
 	AtExpr AtExpr(Position pos, Expr place, TypeNode returnType, Block body);
 
@@ -81,8 +80,8 @@ public interface X10NodeFactory extends NodeFactory {
     TypeParamNode TypeParamNode(Position pos, Id name, ParameterType.Variance variance);
     TypeNode FunctionTypeNode(Position pos, List<TypeParamNode> typeParams, List<Formal> formals, DepParameterExpr guard, 
     		TypeNode returnType,  TypeNode offersType);   
-    Expr SubtypeTest(Position pos, TypeNode sub, TypeNode sup, boolean equals);
-    Expr Contains(Position pos, Expr item, Expr collection);
+    SubtypeTest SubtypeTest(Position pos, TypeNode sub, TypeNode sup, boolean equals);
+    Contains Contains(Position pos, Expr item, Expr collection);
 	TypeDecl TypeDecl(Position pos, FlagsNode flags, Id name, List<TypeParamNode> typeParameters, List<Formal> formals, DepParameterExpr guard, TypeNode type);
 
     Call X10Call(Position pos, Receiver target, Id name, List<TypeNode> typeArgs, List<Expr> args);

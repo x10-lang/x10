@@ -51,13 +51,6 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		return new X10Disamb_c();
 	}
 	
-	 public Expr AmbHereThis(Position pos) {
-	        Expr n = new AmbHereThis_c(pos);
-	        n = (Expr)n.ext(extFactory().extAmbExpr());
-	        n = (Expr)n.del(delFactory().delAmbExpr());
-	        return n;
-	    }
-	
 	@Override
 	public Initializer Initializer(Position pos, FlagsNode flags, Block body) {
 	    Initializer n = new X10Initializer_c(pos, flags, body);
@@ -152,14 +145,14 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		return n;
 	}
 	
-	public Expr SubtypeTest(Position pos, TypeNode sub, TypeNode sup, boolean equals) {
+	public SubtypeTest SubtypeTest(Position pos, TypeNode sub, TypeNode sup, boolean equals) {
 		SubtypeTest n = new SubtypeTest_c(pos, sub, sup, equals);
 		n = (SubtypeTest) n.ext(extFactory().extExpr());
 		n = (SubtypeTest) n.del(delFactory().delExpr());
 		return n;
 	}
 	
-	public Expr Contains(Position pos, Expr item, Expr collection) {
+	public Contains Contains(Position pos, Expr item, Expr collection) {
 	    Contains n = new Contains_c(pos, item, collection);
 	    n = (Contains) n.ext(extFactory().extExpr());
 	    n = (Contains) n.del(delFactory().delExpr());
