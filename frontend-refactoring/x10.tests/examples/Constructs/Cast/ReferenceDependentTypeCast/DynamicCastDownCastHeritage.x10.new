@@ -1,0 +1,38 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;;
+
+/**
+ * Purpose: Checks bad constraint is detected while performing a
+ * downcast from mother class type to sub class type .
+ * @author vcave
+ **/
+public class DynamicCastDownCastHeritage extends x10Test {
+
+	public def this(): DynamicCastDownCastHeritage = {
+	}
+	
+	public def run(): boolean = {
+		try {
+		final val a: int = 1val b: int = 2;
+
+		var toObj: x10.lang.Object = new X10DepTypeSubClassOne(5,b);
+		var toSuperWider: X10DepTypeClassOne = (X10DepTypeClassOne{p==5})) toObj;
+
+		// invalid constraint cast
+		var toImpl3: X10DepTypeSubClassOne{p==4} = (X10DepTypeSubClassOne{p==4})) toSuperWider;
+		}catch (var e: ClassCastException) {
+			return true;			
+		}
+		return false;
+	}
+
+	public static def main(var args: Array[String](1)): void = {
+		new DynamicCastDownCastHeritage().execute();
+	}
+}
