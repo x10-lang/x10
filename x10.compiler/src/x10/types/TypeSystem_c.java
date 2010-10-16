@@ -73,7 +73,7 @@ public class TypeSystem_c implements TypeSystem
      * Initializes the type system and its internal constants (which depend on
      * the resolver).
      */
-    public void SUPERinitialize(TopLevelResolver loadedResolver, ExtensionInfo extInfo)
+    private void SUPERinitialize(TopLevelResolver loadedResolver, ExtensionInfo extInfo)
     throws SemanticException {
 
 	if (Report.should_report(Report.types, 1))
@@ -230,7 +230,7 @@ public class TypeSystem_c implements TypeSystem
 	throw new InternalCompilerError("Unrecognized primitive type " + t);
     }
 
-    public Context SUPERemptyContext() {
+    private Context SUPERemptyContext() {
 	return new Context_c(this);
     }
     
@@ -284,7 +284,7 @@ public class TypeSystem_c implements TypeSystem
 	return new ClassContextResolver(this, type);
     }
 
-    public FieldDef SUPERfieldDef(Position pos,
+    private FieldDef SUPERfieldDef(Position pos,
 	    Ref<? extends StructType> container, Flags flags,
 	    Ref<? extends Type> type, Name name) {
 	assert_(container);
@@ -292,13 +292,13 @@ public class TypeSystem_c implements TypeSystem
 	return new FieldDef_c(this, pos, container, flags, type, name);
     }
 
-    public LocalDef SUPERlocalDef(Position pos,
+    private LocalDef SUPERlocalDef(Position pos,
 	    Flags flags, Ref<? extends Type> type, Name name) {
 	assert_(type);
 	return new LocalDef_c(this, pos, flags, type, name);
     }
 
-    public ConstructorDef SUPERdefaultConstructor(Position pos,
+    private ConstructorDef SUPERdefaultConstructor(Position pos,
 	    Ref<? extends ClassType> container) {
 	assert_(container);
 
@@ -320,7 +320,7 @@ public class TypeSystem_c implements TypeSystem
 	                      );
     }
 
-    public ConstructorDef SUPERconstructorDef(Position pos,
+    private ConstructorDef SUPERconstructorDef(Position pos,
 	    Ref<? extends ClassType> container,
 	    Flags flags, List<Ref<? extends Type>> argTypes
 	    ) {
@@ -331,14 +331,14 @@ public class TypeSystem_c implements TypeSystem
 	                            argTypes);
     }
 
-    public InitializerDef SUPERinitializerDef(Position pos,
+    private InitializerDef SUPERinitializerDef(Position pos,
 	    Ref<? extends ClassType> container,
 	    Flags flags) {
 	assert_(container);
 	return new InitializerDef_c(this, pos, container, flags);
     }
 
-    public MethodDef SUPERmethodDef(Position pos,
+    private MethodDef SUPERmethodDef(Position pos,
 	    Ref<? extends StructType> container, Flags flags,
 	    Ref<? extends Type> returnType, Name name,
 	    List<Ref<? extends Type>> argTypes) {
@@ -350,7 +350,7 @@ public class TypeSystem_c implements TypeSystem
 	                       returnType, name, argTypes);
     }
     
-    public ClassDef SUPERclassDefOf(Type t) {
+    private ClassDef SUPERclassDefOf(Type t) {
 	if (t instanceof ClassType)
 	    return ((ClassType) t).def();
 	return null;
@@ -360,7 +360,7 @@ public class TypeSystem_c implements TypeSystem
      * Returns true iff child and ancestor are object types and child descends
      * from or equals ancestor.
      **/
-    public boolean SUPERdescendsFrom(ClassDef child, ClassDef ancestor) {
+    private boolean SUPERdescendsFrom(ClassDef child, ClassDef ancestor) {
 	if (child == ancestor)
 	    return true;
 
@@ -467,7 +467,7 @@ public class TypeSystem_c implements TypeSystem
      * Returns true if <code>value</code> can be implicitly cast to Primitive
      * type <code>t</code>.
      */
-    public boolean SUPERnumericConversionValid(Type t, Object value, Context context) {
+    private boolean SUPERnumericConversionValid(Type t, Object value, Context context) {
 	assert_(t);
 	return env(context).numericConversionValid(t, value);
     }
@@ -579,19 +579,19 @@ public class TypeSystem_c implements TypeSystem
 	return env(c).canCoerceToString(t);
     }
 
-    public boolean SUPERisNumeric(Type t) {
+    private boolean SUPERisNumeric(Type t) {
 	return t.isLongOrLess() || t.isFloat() || t.isDouble();
     }
 
-    public boolean SUPERisIntOrLess(Type t) {
+    private boolean SUPERisIntOrLess(Type t) {
 	return t.isByte() || t.isShort() || t.isChar() || t.isInt();
     }
 
-    public boolean SUPERisLongOrLess(Type t) {
+    private boolean SUPERisLongOrLess(Type t) {
 	return t.isByte() || t.isShort() || t.isChar() || t.isInt() || t.isLong();
     }
 
-    public boolean SUPERisVoid(Type t) {
+    private boolean SUPERisVoid(Type t) {
 	Context context = emptyContext();
 	return typeEquals(t, Void(), context);
     }
@@ -639,7 +639,7 @@ public class TypeSystem_c implements TypeSystem
     /**
      * Returns true iff an object of type <type> may be thrown.
      **/
-    public boolean SUPERisThrowable(Type type) {
+    private boolean SUPERisThrowable(Type type) {
 	assert_(type);
 	Context context = emptyContext();
 	return isSubtype(type, Throwable(), context);
@@ -649,7 +649,7 @@ public class TypeSystem_c implements TypeSystem
      * Returns a true iff the type or a supertype is in the list
      * returned by uncheckedExceptions().
      */
-    public boolean SUPERisUncheckedException(Type type) {
+    private boolean SUPERisUncheckedException(Type type) {
 	assert_(type);
 	Context context = emptyContext();
 
@@ -668,14 +668,14 @@ public class TypeSystem_c implements TypeSystem
      * Returns a list of the Throwable types that need not be declared
      * in method and constructor signatures.
      */
-    public Collection<Type> SUPERuncheckedExceptions() {
+    private Collection<Type> SUPERuncheckedExceptions() {
 	List<Type> l = new ArrayList<Type>(2);
 	l.add(Error());
 	l.add(RuntimeException());
 	return l;
     }
 
-    public boolean SUPERisSubtype(Type t1, Type t2, Context context) {
+    private boolean SUPERisSubtype(Type t1, Type t2, Context context) {
 	assert_(t1);
 	assert_(t2);
 	return env(context).isSubtype(t1, t2);
@@ -691,7 +691,7 @@ public class TypeSystem_c implements TypeSystem
      * <code>currClass</code>.  If no such field is found, a SemanticException
      * is thrown.  <code>currClass</code> may be null.
      **/
-    public FieldInstance SUPERfindField(Type container, TypeSystem_c.FieldMatcher matcher) throws SemanticException {
+    private FieldInstance SUPERfindField(Type container, TypeSystem_c.FieldMatcher matcher) throws SemanticException {
 
 	Context context = matcher.context();
 	
@@ -728,7 +728,7 @@ public class TypeSystem_c implements TypeSystem
      * in type <code>container</code> or a supertype.  The list
      * returned may be empty.
      */
-    protected Set<FieldInstance> SUPERfindFields(Type container, TypeSystem_c.FieldMatcher matcher) {
+    private Set<FieldInstance> SUPERfindFields(Type container, TypeSystem_c.FieldMatcher matcher) {
 	Name name = matcher.name();
 
 	Context context = matcher.context();
@@ -775,7 +775,7 @@ public class TypeSystem_c implements TypeSystem
     
     
 
-    public Type SUPERfindMemberType(Type container, Name name,
+    private Type SUPERfindMemberType(Type container, Name name,
 	    Context context) throws SemanticException
 	    {
 	return env(context).findMemberType(container, name);
@@ -786,7 +786,7 @@ public class TypeSystem_c implements TypeSystem
      * into container, checking if the methods are accessible from the
      * body of currClass
      */
-    public boolean SUPERhasMethodNamed(Type container, Name name) {
+    private boolean SUPERhasMethodNamed(Type container, Name name) {
 	assert_(container);
 
 	if (container == null) {
@@ -1040,11 +1040,11 @@ public class TypeSystem_c implements TypeSystem
 	}
     }
 
-    public Matcher<Named> SUPERMemberTypeMatcher(Type container, Name name, Context context) {
+    private Matcher<Named> SUPERMemberTypeMatcher(Type container, Name name, Context context) {
 	return new MemberTypeMatcher(container, name, context);
     }
 
-    public Matcher<Named> SUPERTypeMatcher(Name name) {
+    private Matcher<Named> SUPERTypeMatcher(Name name) {
 	return new TypeMatcher(name);
     }
 
@@ -1081,19 +1081,19 @@ public class TypeSystem_c implements TypeSystem
 	}
     }
 
-    public MethodMatcher SUPERMethodMatcher(Type container, Name name, List<Type> argTypes, Context context) {
+    private MethodMatcher SUPERMethodMatcher(Type container, Name name, List<Type> argTypes, Context context) {
 	return new MethodMatcher(container, name, argTypes, context);
     }
 
-    public ConstructorMatcher SUPERConstructorMatcher(Type container, List<Type> argTypes, Context context) {
+    private ConstructorMatcher SUPERConstructorMatcher(Type container, List<Type> argTypes, Context context) {
 	return new ConstructorMatcher(container, argTypes, context);
     }
 
-    public FieldMatcher SUPERFieldMatcher(Type container, Name name, Context context) {
+    private FieldMatcher SUPERFieldMatcher(Type container, Name name, Context context) {
 	return new FieldMatcher(container, name, context);
     }
 
-    public MethodInstance SUPERfindMethod(Type container, MethodMatcher matcher) 
+    private MethodInstance SUPERfindMethod(Type container, MethodMatcher matcher) 
     throws SemanticException {
 
 	assert_(container);
@@ -1139,7 +1139,7 @@ public class TypeSystem_c implements TypeSystem
 	return mi;
     }
 
-    public ConstructorInstance SUPERfindConstructor(Type container, ConstructorMatcher matcher)
+    private ConstructorInstance SUPERfindConstructor(Type container, ConstructorMatcher matcher)
     throws SemanticException {
 
 	assert_(container);
@@ -1237,7 +1237,7 @@ public class TypeSystem_c implements TypeSystem
 	return maximal;
     }
 
-    protected <S extends ProcedureDef, T extends ProcedureInstance<S>> Comparator<T> SUPERmostSpecificComparator(Type container, Matcher<T> matcher, Context context) {
+    private <S extends ProcedureDef, T extends ProcedureInstance<S>> Comparator<T> SUPERmostSpecificComparator(Type container, Matcher<T> matcher, Context context) {
 	return new MostSpecificComparator<S,T>(context);
     }
 
@@ -1297,7 +1297,7 @@ public class TypeSystem_c implements TypeSystem
      * Populates the list acceptable with those MethodInstances which are
      * Applicable and Accessible as defined by JLS 15.11.2.1
      */
-    public List<MethodInstance> SUPERfindAcceptableMethods(Type container, MethodMatcher matcher)
+    private List<MethodInstance> SUPERfindAcceptableMethods(Type container, MethodMatcher matcher)
     throws SemanticException {
 
 	assert_(container);
@@ -1474,7 +1474,7 @@ public class TypeSystem_c implements TypeSystem
      * Requires: all type arguments are canonical.
      * Returns the least common ancestor of Type1 and Type2
      **/
-    public Type SUPERleastCommonAncestor(Type type1, Type type2, Context context)
+    private Type SUPERleastCommonAncestor(Type type1, Type type2, Context context)
     throws SemanticException
     {
 	assert_(type1);
@@ -1546,17 +1546,17 @@ public class TypeSystem_c implements TypeSystem
     // Functions which yield particular types.
     ////
     public NullType Null()         { return NULL_; }
-    public Type SUPERVoid()    { return VOID_; }
-    public Type SUPERBoolean() { return BOOLEAN_; }
-    public Type SUPERChar()    { return CHAR_; }
-    public Type SUPERByte()    { return BYTE_; }
-    public Type SUPERShort()   { return SHORT_; }
-    public Type SUPERInt()     { return INT_; }
-    public Type SUPERLong()    { return LONG_; }
-    public Type SUPERFloat()   { return FLOAT_; }
-    public Type SUPERDouble()  { return DOUBLE_; }
+    private Type SUPERVoid()    { return VOID_; }
+    private Type SUPERBoolean() { return BOOLEAN_; }
+    private Type SUPERChar()    { return CHAR_; }
+    private Type SUPERByte()    { return BYTE_; }
+    private Type SUPERShort()   { return SHORT_; }
+    private Type SUPERInt()     { return INT_; }
+    private Type SUPERLong()    { return LONG_; }
+    private Type SUPERFloat()   { return FLOAT_; }
+    private Type SUPERDouble()  { return DOUBLE_; }
 
-    protected ClassType SUPERload(String name) {
+    private ClassType SUPERload(String name) {
 	try {
 	    return (ClassType) typeForName(QName.make(name));
 	}
@@ -1597,35 +1597,35 @@ public class TypeSystem_c implements TypeSystem
     protected Type STRING_;
     protected Type THROWABLE_;
 
-    public Type SUPERObject()  { if (OBJECT_ != null) return OBJECT_;
+    private Type SUPERObject()  { if (OBJECT_ != null) return OBJECT_;
     return OBJECT_ = load("java.lang.Object"); }
-    public Type SUPERClass()   { if (CLASS_ != null) return CLASS_;
+    private Type SUPERClass()   { if (CLASS_ != null) return CLASS_;
     return CLASS_ = load("java.lang.Class"); }
-    public Type SUPERString()  { if (STRING_ != null) return STRING_;
+    private Type SUPERString()  { if (STRING_ != null) return STRING_;
     return STRING_ = load("java.lang.String"); }
-    public Type SUPERThrowable() { if (THROWABLE_ != null) return THROWABLE_;
+    private Type SUPERThrowable() { if (THROWABLE_ != null) return THROWABLE_;
     return THROWABLE_ = load("java.lang.Throwable"); }
-    public Type SUPERError() { return load("java.lang.Error"); }
-    public Type SUPERException() { return load("java.lang.Exception"); }
-    public Type SUPERRuntimeException() { return load("java.lang.RuntimeException"); }
-    public Type SUPERCloneable() { return load("java.lang.Cloneable"); }
-    public Type SUPERSerializable() { return load("java.io.Serializable"); }
-    public Type SUPERNullPointerException() { return load("java.lang.NullPointerException"); }
-    public Type SUPERClassCastException()   { return load("java.lang.ClassCastException"); }
-    public Type SUPEROutOfBoundsException() { return load("java.lang.ArrayIndexOutOfBoundsException"); }
-    public Type SUPERArrayStoreException()  { return load("java.lang.ArrayStoreException"); }
-    public Type SUPERArithmeticException()  { return load("java.lang.ArithmeticException"); }
+    private Type SUPERError() { return load("java.lang.Error"); }
+    private Type SUPERException() { return load("java.lang.Exception"); }
+    private Type SUPERRuntimeException() { return load("java.lang.RuntimeException"); }
+    private Type SUPERCloneable() { return load("java.lang.Cloneable"); }
+    private Type SUPERSerializable() { return load("java.io.Serializable"); }
+    private Type SUPERNullPointerException() { return load("java.lang.NullPointerException"); }
+    private Type SUPERClassCastException()   { return load("java.lang.ClassCastException"); }
+    private Type SUPEROutOfBoundsException() { return load("java.lang.ArrayIndexOutOfBoundsException"); }
+    private Type SUPERArrayStoreException()  { return load("java.lang.ArrayStoreException"); }
+    private Type SUPERArithmeticException()  { return load("java.lang.ArithmeticException"); }
 
-    protected NullType SUPERcreateNull() {
+    private NullType SUPERcreateNull() {
 	return new NullType_c(this);
     }
 
-    protected PrimitiveType SUPERcreatePrimitive(Name name) {
+    private PrimitiveType SUPERcreatePrimitive(Name name) {
 	return new PrimitiveType_c(this, name);
     }
 
     protected final NullType NULL_         = createNull();
-    protected final PrimitiveType SUPERVOID_    = createPrimitive(Name.make("void"));
+    private final PrimitiveType SUPERVOID_    = createPrimitive(Name.make("void"));
     protected final PrimitiveType BOOLEAN_ = createPrimitive(Name.make("boolean"));
     protected final PrimitiveType CHAR_    = createPrimitive(Name.make("char"));
     protected final PrimitiveType BYTE_    = createPrimitive(Name.make("byte"));
@@ -1670,7 +1670,7 @@ public class TypeSystem_c implements TypeSystem
 	return o;
     }
 
-    public ClassDef SUPERunknownClassDef() {
+    private ClassDef SUPERunknownClassDef() {
 	if (unknownClassDef == null) {
 	    unknownClassDef = new ClassDef_c(this, null);
 	    unknownClassDef.name(Name.make("<unknown class>"));
@@ -1681,11 +1681,11 @@ public class TypeSystem_c implements TypeSystem
 
     protected ClassDef unknownClassDef = null;
 
-    protected UnknownType SUPERunknownType = new UnknownType_c(this);
+    private UnknownType SUPERunknownType = new UnknownType_c(this);
     protected UnknownPackage unknownPackage = new UnknownPackage_c(this);
     protected UnknownQualifier unknownQualifier = new UnknownQualifier_c(this);
 
-    public UnknownType SUPERunknownType(Position pos) {
+    private UnknownType SUPERunknownType(Position pos) {
 	return unknownType;
     }
 
@@ -1747,7 +1747,7 @@ public class TypeSystem_c implements TypeSystem
 	return arrayOf(null, type);
     }
 
-    public Type SUPERarrayOf(Position pos, Ref<? extends Type> type) {
+    private Type SUPERarrayOf(Position pos, Ref<? extends Type> type) {
 	return arrayType(pos, type);
     }
 
@@ -1914,27 +1914,27 @@ public class TypeSystem_c implements TypeSystem
 	return createClassDef((Source) null);
     }
 
-    public ClassDef SUPERcreateClassDef(Source fromSource) {
+    private ClassDef SUPERcreateClassDef(Source fromSource) {
 	return new ClassDef_c(this, fromSource);
     }
 
-    public ParsedClassType SUPERcreateClassType(Position pos, Ref<? extends ClassDef> def) {
+    private ParsedClassType SUPERcreateClassType(Position pos, Ref<? extends ClassDef> def) {
 	return new ParsedClassType_c(this, pos, def);
     }
 
-    public ConstructorInstance SUPERcreateConstructorInstance(Position pos, Ref<? extends ConstructorDef> def) {
+    private ConstructorInstance SUPERcreateConstructorInstance(Position pos, Ref<? extends ConstructorDef> def) {
 	return new ConstructorInstance_c(this, pos, def);
     }
 
-    public MethodInstance SUPERcreateMethodInstance(Position pos, Ref<? extends MethodDef> def) {
+    private MethodInstance SUPERcreateMethodInstance(Position pos, Ref<? extends MethodDef> def) {
 	return new MethodInstance_c(this, pos, def);
     }
 
-    public FieldInstance SUPERcreateFieldInstance(Position pos, Ref<? extends FieldDef> def) {
+    private FieldInstance SUPERcreateFieldInstance(Position pos, Ref<? extends FieldDef> def) {
 	return new FieldInstance_c(this, pos, def);
     }
 
-    public LocalInstance SUPERcreateLocalInstance(Position pos, Ref<? extends LocalDef> def) {
+    private LocalInstance SUPERcreateLocalInstance(Position pos, Ref<? extends LocalDef> def) {
 	return new LocalInstance_c(this, pos, def);
     }
 
@@ -1942,13 +1942,13 @@ public class TypeSystem_c implements TypeSystem
 	return new InitializerInstance_c(this, pos, def);
     }
 
-    public List<QName> SUPERdefaultOnDemandImports() {
+    private List<QName> SUPERdefaultOnDemandImports() {
 	List<QName> l = new ArrayList<QName>(1);
 	l.add(QName.make("java.lang"));
 	return l;
     }
 
-    public Type SUPERpromote(Type t1, Type t2) throws SemanticException {
+    private Type SUPERpromote(Type t1, Type t2) throws SemanticException {
 	if (! t1.isNumeric()) {
 	    throw new SemanticException(
 	                                "Cannot promote non-numeric type " + t1);
@@ -1974,7 +1974,7 @@ public class TypeSystem_c implements TypeSystem
 	return Int();
     }
 
-    public Type SUPERpromote(Type t) throws SemanticException {
+    private Type SUPERpromote(Type t) throws SemanticException {
 	if (! t.isNumeric()) {
 	    throw new SemanticException(
 	                                "Cannot promote non-numeric type " + t);
@@ -1995,21 +1995,21 @@ public class TypeSystem_c implements TypeSystem
     protected final Flags ACCESS_FLAGS = legalAccessFlags();
 
     /** All flags allowed for a local variable. */
-    public Flags SUPERlegalLocalFlags() {
+    private Flags SUPERlegalLocalFlags() {
 	return Final();
     }
 
     protected final Flags LOCAL_FLAGS = legalLocalFlags();
 
     /** All flags allowed for a field. */
-    public Flags SUPERlegalFieldFlags() {
+    private Flags SUPERlegalFieldFlags() {
 	return legalAccessFlags().Static().Final().Transient().Volatile();
     }
 
     protected final Flags FIELD_FLAGS = legalFieldFlags();
 
     /** All flags allowed for a constructor. */
-    public Flags SUPERlegalConstructorFlags() {
+    private Flags SUPERlegalConstructorFlags() {
 	return legalAccessFlags().Synchronized();
     }
 
@@ -2023,47 +2023,47 @@ public class TypeSystem_c implements TypeSystem
     protected final Flags INITIALIZER_FLAGS = legalInitializerFlags();
 
     /** All flags allowed for a method. */
-    public Flags SUPERlegalMethodFlags() {
+    private Flags SUPERlegalMethodFlags() {
 	return legalAccessFlags().Abstract().Static().Final().Native().Synchronized().StrictFP();
     }
 
     protected final Flags METHOD_FLAGS = legalMethodFlags();
 
-    public Flags SUPERlegalAbstractMethodFlags() {
+    private Flags SUPERlegalAbstractMethodFlags() {
 	return legalAccessFlags().clear(Private()).Abstract();
     }
 
     protected final Flags ABSTRACT_METHOD_FLAGS = legalAbstractMethodFlags();
 
     /** All flags allowed for a top-level class. */
-    public Flags SUPERlegalTopLevelClassFlags() {
+    private Flags SUPERlegalTopLevelClassFlags() {
 	return legalAccessFlags().clear(Private()).Abstract().Final().StrictFP().Interface();
     }
 
     protected final Flags TOP_LEVEL_CLASS_FLAGS = legalTopLevelClassFlags();
 
     /** All flags allowed for an interface. */
-    public Flags SUPERlegalInterfaceFlags() {
+    private Flags SUPERlegalInterfaceFlags() {
 	return legalAccessFlags().Abstract().Interface().Static();
     }
 
     protected final Flags INTERFACE_FLAGS = legalInterfaceFlags();
 
     /** All flags allowed for a member class. */
-    public Flags SUPERlegalMemberClassFlags() {
+    private Flags SUPERlegalMemberClassFlags() {
 	return legalAccessFlags().Static().Abstract().Final().StrictFP().Interface();
     }
 
     protected final Flags MEMBER_CLASS_FLAGS = legalMemberClassFlags();
 
     /** All flags allowed for a local class. */
-    public Flags SUPERlegalLocalClassFlags() {
+    private Flags SUPERlegalLocalClassFlags() {
 	return Abstract().Final().StrictFP().Interface();
     }
 
     protected final Flags LOCAL_CLASS_FLAGS = legalLocalClassFlags();
 
-    public void SUPERcheckMethodFlags(Flags f) throws SemanticException {
+    private void SUPERcheckMethodFlags(Flags f) throws SemanticException {
 	if (! f.clear(METHOD_FLAGS).equals(Flags.NONE)) {
 	    throw new SemanticException(
 	                                "Cannot declare method with flags " +
@@ -2115,7 +2115,7 @@ public class TypeSystem_c implements TypeSystem
 	}
     }
 
-    public void SUPERcheckTopLevelClassFlags(Flags f) throws SemanticException {
+    private void SUPERcheckTopLevelClassFlags(Flags f) throws SemanticException {
 	if (! f.clear(TOP_LEVEL_CLASS_FLAGS).equals(Flags.NONE)) {
 	    throw new SemanticException(
 	                                "Cannot declare a top-level class with flag(s) " +
@@ -2131,7 +2131,7 @@ public class TypeSystem_c implements TypeSystem
 	checkAccessFlags(f);
     }
 
-    public void SUPERcheckMemberClassFlags(Flags f) throws SemanticException {
+    private void SUPERcheckMemberClassFlags(Flags f) throws SemanticException {
 	if (! f.clear(MEMBER_CLASS_FLAGS).equals(Flags.NONE)) {
 	    throw new SemanticException(
 	                                "Cannot declare a member class with flag(s) " +
@@ -2141,7 +2141,7 @@ public class TypeSystem_c implements TypeSystem
 	checkAccessFlags(f);
     }
 
-    public void SUPERcheckLocalClassFlags(Flags f) throws SemanticException {
+    private void SUPERcheckLocalClassFlags(Flags f) throws SemanticException {
 	if (f.isInterface()) {
 	    throw new SemanticException("Cannot declare a local interface.");
 	}
@@ -2173,7 +2173,7 @@ public class TypeSystem_c implements TypeSystem
      * implemented by <code>ct</code>. The list returned also contains
      * <code>rt</code>.
      */
-    public List<Type> SUPERabstractSuperInterfaces(Type t) {
+    private List<Type> SUPERabstractSuperInterfaces(Type t) {
 	if (t instanceof ObjectType) {
 	    ObjectType rt = (ObjectType) t;
 
@@ -2210,7 +2210,7 @@ public class TypeSystem_c implements TypeSystem
      * it is an abstract class then any methods that it overrides are overridden 
      * correctly.
      */
-    public void SUPERcheckClassConformance(ClassType ct, Context context) throws SemanticException {
+    private void SUPERcheckClassConformance(ClassType ct, Context context) throws SemanticException {
 	env(context).checkClassConformance(ct);
     }
     
@@ -2218,7 +2218,7 @@ public class TypeSystem_c implements TypeSystem
 	return findImplementingMethod(ct, mi, false, context);
     }
 
-    public MethodInstance SUPERfindImplementingMethod(ClassType ct, MethodInstance mi, boolean includeAbstract, Context context) {
+    private MethodInstance SUPERfindImplementingMethod(ClassType ct, MethodInstance mi, boolean includeAbstract, Context context) {
 	StructType curr = ct;
 	while (curr != null) {
 	    List<MethodInstance> possible = curr.methods(mi.name(), mi.formalTypes(), context);
@@ -2260,7 +2260,7 @@ public class TypeSystem_c implements TypeSystem
 	return null;
     }
 
-    protected void SUPERinitFlags() {
+    private void SUPERinitFlags() {
 	flagsForName = new HashMap<String, Flags>();
 	flagsForName.put("public", Flags.PUBLIC);
 	flagsForName.put("private", Flags.PRIVATE);
@@ -2276,7 +2276,7 @@ public class TypeSystem_c implements TypeSystem
 	flagsForName.put("strictfp", Flags.STRICTFP);
     }
 
-    public Flags SUPERcreateNewFlag(String name, Flags after) {
+    private Flags SUPERcreateNewFlag(String name, Flags after) {
 	Flags f = Flags.createFlag(name, after);
 	flagsForName.put(name, f);
 	return f;
@@ -2296,7 +2296,7 @@ public class TypeSystem_c implements TypeSystem
     public Flags Volatile()     { return Flags.VOLATILE; }
     public Flags StrictFP()     { return Flags.STRICTFP; }
 
-    public Flags SUPERflagsForBits(int bits) {
+    private Flags SUPERflagsForBits(int bits) {
 	Flags f = Flags.NONE;
 
 	if ((bits & Modifier.PUBLIC) != 0)       f = f.Public();
