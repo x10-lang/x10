@@ -89,7 +89,7 @@ template<class T> void x10::util::IndexedMemoryChunk<T>::copyTo(x10_int srcIndex
     void* srcAddr = (void*)(&raw()[srcIndex]);
     void* dstAddr = (void*)(&dst->raw()[dstIndex]);
     size_t numBytes = numElems * sizeof(T);
-    IMC_copyToBody(srcAddr, dstAddr, numBytes, dstPlace, data == dst->data, x10aux::null);
+    IMC_copyToBody(srcAddr, dstAddr, numBytes, dstPlace, data == dst->data, X10_NULL);
 }
 
 
@@ -112,7 +112,7 @@ template<class T> void x10::util::IndexedMemoryChunk<T>::copyFrom(x10_int dstInd
     void* srcAddr = (void*)(&src->raw()[srcIndex]);
     void* dstAddr = (void*)(&raw()[dstIndex]);
     size_t numBytes = numElems * sizeof(T);
-    IMC_copyFromBody(srcAddr, dstAddr, numBytes, srcPlace, data == src->data, x10aux::null);
+    IMC_copyFromBody(srcAddr, dstAddr, numBytes, srcPlace, data == src->data, X10_NULL);
 }
 
 
