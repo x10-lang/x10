@@ -2028,3 +2028,6 @@ class SuperQualifier { // see XTENLANG-1948
 	//val x = Parent.super.f;  // ShouldNotBeErr: The nested class "Ego" does not have an enclosing instance of type "Parent".
 	}
 }
+class TestArrayLiteralInference {	
+	var z: Array[int](1){rect, zeroBased, size==4} = [ 1, 2,3,4 ]; 
+}

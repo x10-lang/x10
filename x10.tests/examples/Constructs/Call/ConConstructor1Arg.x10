@@ -21,7 +21,7 @@ public class ConConstructor1Arg extends x10Test {
 	def this(A{self.i==2}){}
 	def this(i:Int) {
 		// This call will compile only if -strictCalls is not set.
-		this(new A(i)); // DYNAMIC_CHECK
+		this(new A(i)); // DYNAMIC_CHECK   with -STATIC_CALLS we get ERR: Constructor this(id$328: ConConstructor1Arg.A{self.i==2}): ConConstructor1Arg cannot be invoked with arguments    (ConConstructor1Arg.A{self.i==i, self!=null}).
 	}
 	
 	public def run(): boolean {
