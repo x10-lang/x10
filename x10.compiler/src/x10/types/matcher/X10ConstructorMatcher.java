@@ -14,13 +14,13 @@ package x10.types.matcher;
 import java.util.Collections;
 import java.util.List;
 
-import polyglot.types.ConstructorInstance;
-import polyglot.types.Context;
-import polyglot.types.SemanticException;
-import polyglot.types.Type;
-import polyglot.types.TypeSystem_c;
 import polyglot.util.CollectionUtil;
 import x10.ast.Expr;
+import x10.types.ConstructorInstance;
+import x10.types.Context;
+import x10.types.SemanticException;
+import x10.types.Type;
+import x10.types.TypeSystem_c;
 import x10.types.X10ConstructorInstance;
 import x10.types.X10Context;
 

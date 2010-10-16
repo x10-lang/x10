@@ -7,11 +7,11 @@
 
 package x10.ast;
 
-import polyglot.types.SemanticException;
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.PrettyPrinter;
+import x10.types.SemanticException;
 
 /**
  * A <code>BooleanLit</code> represents a boolean literal expression.

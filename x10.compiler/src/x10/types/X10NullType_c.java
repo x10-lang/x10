@@ -11,10 +11,6 @@
 
 package x10.types;
 
-import polyglot.types.Flags;
-import polyglot.types.Type;
-import polyglot.types.NullType_c;
-import polyglot.types.TypeSystem;
 import polyglot.util.InternalCompilerError;
 import x10.ast.FlagsNode;
 

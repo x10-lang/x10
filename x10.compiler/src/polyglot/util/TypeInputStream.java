@@ -11,6 +11,7 @@ import polyglot.frontend.Globals;
 import polyglot.frontend.Goal;
 import polyglot.main.Report;
 import polyglot.types.*;
+import x10.types.TypeSystem;
 
 import java.util.*;
 import java.io.*;

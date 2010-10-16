@@ -13,19 +13,10 @@ package x10.types;
 import java.util.Collections;
 import java.util.List;
 
-import polyglot.types.Flags;
-import polyglot.types.LocalDef_c;
-import polyglot.types.LocalInstance;
-import polyglot.types.QName;
-import polyglot.types.Ref;
-import polyglot.types.Name;
-import polyglot.types.Type;
-import polyglot.types.TypeSystem;
-import polyglot.types.Types;
-import polyglot.types.VarDef_c.ConstantValue;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
 import x10.constraint.XTerm;
+import x10.types.VarDef_c.ConstantValue;
 import x10.types.constraints.TypeConstraint;
 
 /**

@@ -15,6 +15,19 @@ import polyglot.types.*;
 import polyglot.util.*;
 import polyglot.visit.*;
 import x10.errors.Errors;
+import x10.types.ClassDef;
+import x10.types.ConstructorDef;
+import x10.types.ConstructorInstance;
+import x10.types.Context;
+import x10.types.FieldDef;
+import x10.types.MethodDef;
+import x10.types.MethodInstance;
+import x10.types.Named;
+import x10.types.Ref;
+import x10.types.SemanticException;
+import x10.types.Type;
+import x10.types.TypeObject;
+import x10.types.TypeSystem;
 
 /**
  * A <code>ClassBody</code> represents the body of a class or interface

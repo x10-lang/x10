@@ -13,14 +13,14 @@ package x10.ast;
 
 import java.util.List;
 
-import polyglot.types.SemanticException;
-import polyglot.types.TypeSystem;
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 import polyglot.visit.CFGBuilder;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
+import x10.types.SemanticException;
+import x10.types.TypeSystem;
 
 /**
  * @author vj Feb 4, 2005

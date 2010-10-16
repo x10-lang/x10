@@ -11,18 +11,18 @@
 
 package x10.types.matcher;
 
-import polyglot.types.Context;
-import polyglot.types.FieldInstance;
-import polyglot.types.Name;
-import polyglot.types.SemanticException;
-import polyglot.types.Type;
-import polyglot.types.TypeSystem_c;
 import polyglot.util.InternalCompilerError;
 import x10.constraint.XFailure;
 import x10.constraint.XVar;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
+import x10.types.Context;
+import x10.types.FieldInstance;
+import x10.types.Name;
 import x10.types.ParameterType;
+import x10.types.SemanticException;
+import x10.types.Type;
+import x10.types.TypeSystem_c;
 import x10.types.X10Context;
 import x10.types.X10FieldInstance;
 import x10.types.X10TypeMixin;

@@ -8,7 +8,7 @@
 
 package x10.ast;
 
-import polyglot.types.CodeDef;
+import x10.types.CodeDef;
 
 /**
  * A code node.  A "code" is the supertype of methods,

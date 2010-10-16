@@ -27,9 +27,9 @@ import x10.ast.Formal;
 import x10.ast.LocalDecl;
 import x10cpp.X10CPPCompilerOptions;
 import x10cpp.types.X10CPPContext_c;
-import polyglot.types.Name;
-import polyglot.types.TypeSystem;
-import polyglot.types.VarInstance;
+import x10.types.Name;
+import x10.types.TypeSystem;
+import x10.types.VarInstance;
 import x10.util.ClassifiedStream;
 import x10.util.StreamWrapper;
 

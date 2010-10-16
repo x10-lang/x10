@@ -13,6 +13,17 @@ import java.util.*;
 import polyglot.types.*;
 import polyglot.util.*;
 import polyglot.visit.*;
+import x10.types.ClassType;
+import x10.types.Context;
+import x10.types.ErrorRef_c;
+import x10.types.MethodDef;
+import x10.types.MethodInstance;
+import x10.types.ProcedureDef;
+import x10.types.ProcedureInstance;
+import x10.types.SemanticException;
+import x10.types.Type;
+import x10.types.TypeSystem;
+import x10.types.Types;
 
 /**
  * A <code>Call</code> is an immutable representation of a Java

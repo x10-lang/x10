@@ -17,6 +17,10 @@ import polyglot.frontend.ExtensionInfo;
 import polyglot.types.*;
 import polyglot.util.*;
 import polyglot.visit.*;
+import x10.types.Context;
+import x10.types.SemanticException;
+import x10.types.Type;
+import x10.types.TypeSystem;
 
 /**
  * A <code>Node</code> represents an AST node.  All AST nodes must implement

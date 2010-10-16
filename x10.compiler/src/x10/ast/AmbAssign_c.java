@@ -9,11 +9,11 @@
 package x10.ast;
 
 import polyglot.frontend.Globals;
-import polyglot.types.SemanticException;
-import polyglot.types.Type;
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 import polyglot.visit.*;
+import x10.types.SemanticException;
+import x10.types.Type;
 
 /**
  * A <code>AmbAssign</code> represents a Java assignment expression to

@@ -3,9 +3,9 @@ package x10.compiler.ws.util;
 import java.util.ArrayList;
 import java.util.List;
 
-import polyglot.types.Type;
 import polyglot.util.Pair;
 import x10.compiler.ws.codegen.AbstractWSClassGen;
+import x10.types.Type;
 
 /**
  * @author Haichuan

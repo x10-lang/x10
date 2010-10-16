@@ -13,6 +13,9 @@ import java.util.*;
 import polyglot.types.*;
 import polyglot.util.*;
 import polyglot.visit.*;
+import x10.types.SemanticException;
+import x10.types.Type;
+import x10.types.TypeSystem;
 
 /**
  * An immutable representation of a <code>try</code> block, one or more

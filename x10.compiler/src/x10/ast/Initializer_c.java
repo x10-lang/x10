@@ -14,6 +14,16 @@ import java.util.List;
 import polyglot.types.*;
 import polyglot.util.*;
 import polyglot.visit.*;
+import x10.types.ClassDef;
+import x10.types.CodeDef;
+import x10.types.Context;
+import x10.types.Def;
+import x10.types.Flags;
+import x10.types.InitializerDef;
+import x10.types.MemberDef;
+import x10.types.SemanticException;
+import x10.types.TypeSystem;
+import x10.types.Types;
 
 /**
  * An <code>Initializer</code> is an immutable representation of an

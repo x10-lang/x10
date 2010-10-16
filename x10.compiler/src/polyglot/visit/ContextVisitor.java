@@ -9,11 +9,11 @@ package polyglot.visit;
 
 import polyglot.frontend.Job;
 import polyglot.main.Report;
-import polyglot.types.Context;
-import polyglot.types.TypeSystem;
 import polyglot.util.InternalCompilerError;
 import x10.ast.Node;
 import x10.ast.NodeFactory;
+import x10.types.Context;
+import x10.types.TypeSystem;
 
 /**
  * A visitor which maintains a context throughout the visitor's pass.  This is 
@@ -54,7 +54,7 @@ public class ContextVisitor extends ErrorHandlingVisitor
     /** Returns the context for this visitor.
      *
      *  @return Returns the context that is currently in use by this visitor.
-     *  @see polyglot.types.Context
+     *  @see x10.types.Context
      */
     public Context context() {
         return context;

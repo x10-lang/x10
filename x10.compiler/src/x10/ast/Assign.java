@@ -7,8 +7,8 @@
 
 package x10.ast;
 
-import polyglot.types.Type;
 import polyglot.util.Enum;
+import x10.types.Type;
 
 /**
  * An <code>Assign</code> represents a Java assignment expression.

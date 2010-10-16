@@ -23,8 +23,6 @@ import polyglot.frontend.Parser;
 import polyglot.frontend.ParserlessJLExtensionInfo;
 import polyglot.frontend.Source;
 import polyglot.frontend.SourceLoader;
-import polyglot.types.QName;
-import polyglot.types.TypeSystem;
 import polyglot.util.ErrorInfo;
 import polyglot.util.ErrorQueue;
 import polyglot.util.InternalCompilerError;
@@ -32,6 +30,8 @@ import polyglot.util.QuotedStringTokenizer;
 import x10.Configuration;
 import x10.ExtensionInfo;
 import x10.ast.NodeFactory;
+import x10.types.QName;
+import x10.types.TypeSystem;
 
 public class LoadPlugins extends AbstractGoal_c {
 	private static final long serialVersionUID = -7328993239190636933L;

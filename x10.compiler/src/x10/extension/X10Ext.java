@@ -16,13 +16,13 @@ import java.util.Iterator;
 import java.util.List;
 
 import polyglot.frontend.ExtensionInfo;
-import polyglot.types.ClassType;
-import polyglot.types.QName;
-import polyglot.types.Type;
 import x10.ast.AnnotationNode;
 import x10.ast.Ext;
 import x10.ast.Node;
 import x10.ast.NodeFactory;
+import x10.types.ClassType;
+import x10.types.QName;
+import x10.types.Type;
 import x10.types.X10ClassType;
 import x10.types.X10TypeSystem;
 

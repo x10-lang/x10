@@ -15,6 +15,10 @@ import polyglot.frontend.ExtensionInfo;
 import polyglot.types.*;
 import polyglot.util.CodeWriter;
 import polyglot.visit.*;
+import x10.types.Context;
+import x10.types.SemanticException;
+import x10.types.Type;
+import x10.types.TypeSystem;
 
 /**
  * <code>JL_c</code> is the super class of JL node delegates objects.

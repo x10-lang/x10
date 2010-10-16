@@ -13,6 +13,11 @@ import polyglot.frontend.*;
 import polyglot.types.*;
 import polyglot.util.*;
 import polyglot.visit.*;
+import x10.types.LazyRef;
+import x10.types.Qualifier;
+import x10.types.SemanticException;
+import x10.types.TypeSystem;
+import x10.types.Types;
 
 /**
  * An <code>AmbQualifierNode</code> is an ambiguous AST node composed of

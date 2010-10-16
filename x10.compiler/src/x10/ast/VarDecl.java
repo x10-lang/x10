@@ -7,8 +7,8 @@
 
 package x10.ast;
 
-import polyglot.types.LocalDef;
-import polyglot.types.Type;
+import x10.types.LocalDef;
+import x10.types.Type;
 
 /**
  * A <code>VarDecl</code> represents a local variable declaration, of either a formal

@@ -11,8 +11,8 @@ import java.io.*;
 import java.util.*;
 
 import polyglot.main.Report;
-import polyglot.types.TypeObject;
-import polyglot.types.TypeSystem;
+import x10.types.TypeObject;
+import x10.types.TypeSystem;
 
 /** Output stream for writing type objects. */
 public class TypeOutputStream extends ObjectOutputStream

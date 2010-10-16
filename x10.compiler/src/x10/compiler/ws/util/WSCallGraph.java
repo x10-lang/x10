@@ -5,9 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import polyglot.types.Package;
-import polyglot.types.ProcedureDef;
-import polyglot.types.Ref;
 import polyglot.visit.NodeVisitor;
 import x10.ast.ClassDecl;
 import x10.ast.Closure;
@@ -16,6 +13,9 @@ import x10.ast.MethodDecl;
 import x10.ast.Node;
 import x10.ast.PlacedClosure;
 import x10.ast.Term;
+import x10.types.Package;
+import x10.types.ProcedureDef;
+import x10.types.Ref;
 
 /**
  * A call graph to record WS transformation call graph and do DFS search

@@ -3,8 +3,8 @@ package x10.compiler.ws.util;
 import java.util.ArrayList;
 import java.util.List;
 
-import polyglot.types.MethodDef;
-import polyglot.types.ProcedureDef;
+import x10.types.MethodDef;
+import x10.types.ProcedureDef;
 
 /**
  * @author Haichuan

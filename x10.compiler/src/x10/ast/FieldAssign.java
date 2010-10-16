@@ -8,6 +8,7 @@
 package x10.ast;
 
 import polyglot.types.*;
+import x10.types.FieldInstance;
 
 /**
  * A <code>FieldAssign</code> represents a Java assignment expression to

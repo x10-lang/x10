@@ -9,10 +9,10 @@ package x10.ast;
 
 import java.util.List;
 
-import polyglot.types.SemanticException;
-import polyglot.types.Type;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.TypeChecker;
+import x10.types.SemanticException;
+import x10.types.Type;
 
 /**
  * An <code>ArrayInit</code> is an immutable representation of

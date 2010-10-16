@@ -21,7 +21,7 @@ import polyglot.frontend.Globals;
 import polyglot.frontend.Resource;
 import polyglot.frontend.Source;
 import polyglot.main.Options;
-import polyglot.types.QName;
+import x10.types.QName;
 import x10.types.X10SourceClassResolver;
 import x10.util.StreamWrapper;
 import x10cpp.X10CPPCompilerOptions;

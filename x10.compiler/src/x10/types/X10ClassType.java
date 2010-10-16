@@ -13,12 +13,6 @@ package x10.types;
 
 import java.util.List;
 
-import polyglot.types.ClassType;
-import polyglot.types.FieldInstance;
-import polyglot.types.Matcher;
-import polyglot.types.Named;
-import polyglot.types.StructType;
-import polyglot.types.Type;
 import x10.ast.Expr;
 
 /** The representative of ClassType in the X10 type hierarchy. 

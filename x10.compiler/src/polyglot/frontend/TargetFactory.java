@@ -14,11 +14,11 @@ import java.io.PrintWriter;
 import java.io.Writer;
 
 import polyglot.main.Report;
-import polyglot.types.Name;
-import polyglot.types.QName;
 import polyglot.util.CodeWriter;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.UnicodeWriter;
+import x10.types.Name;
+import x10.types.QName;
 
 /** A <code>TargetFactory</code> is responsible for opening output files. */
 public class TargetFactory

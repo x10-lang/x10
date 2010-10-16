@@ -8,9 +8,9 @@
 
 package x10.ast;
 
-import polyglot.types.Name;
 import polyglot.util.*;
 import polyglot.visit.PrettyPrinter;
+import x10.types.Name;
 
 /** A node that represents a simple identifier in the AST. */
 public class Id_c extends Node_c implements Id

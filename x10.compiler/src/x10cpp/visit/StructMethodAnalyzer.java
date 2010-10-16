@@ -13,11 +13,6 @@ package x10cpp.visit;
 
 
 import polyglot.frontend.Job;
-import polyglot.types.MethodInstance;
-import polyglot.types.SemanticException;
-import polyglot.types.StructType;
-import polyglot.types.Type;
-import polyglot.types.TypeSystem;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.ast.AssignPropertyCall;
@@ -52,6 +47,11 @@ import x10.ast.X10MethodDecl_c;
 import x10.ast.X10New_c;
 import x10.ast.NodeFactory;
 import x10.ast.X10Special_c;
+import x10.types.MethodInstance;
+import x10.types.SemanticException;
+import x10.types.StructType;
+import x10.types.Type;
+import x10.types.TypeSystem;
 import x10.types.X10ClassType;
 import x10.types.X10MethodInstance;
 import x10.types.X10TypeSystem;

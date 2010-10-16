@@ -7,8 +7,8 @@
 
 package x10.ast;
 
-import polyglot.types.Flags;
-import polyglot.types.InitializerDef;
+import x10.types.Flags;
+import x10.types.InitializerDef;
 
 /**
  * An <code>Initializer</code> is an immutable representation of an

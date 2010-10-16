@@ -13,11 +13,11 @@ package x10.ast;
 
 import java.util.List;
 
-import polyglot.types.LocalDef;
-import polyglot.types.LocalInstance;
-import polyglot.types.SemanticException;
-import polyglot.types.TypeSystem;
 import polyglot.visit.ContextVisitor;
+import x10.types.LocalDef;
+import x10.types.LocalInstance;
+import x10.types.SemanticException;
+import x10.types.TypeSystem;
 import x10.types.X10LocalDef;
 
 /**

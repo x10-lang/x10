@@ -13,6 +13,10 @@ import java.util.*;
 import polyglot.types.*;
 import polyglot.util.Position;
 import polyglot.util.StringUtil;
+import x10.types.Name;
+import x10.types.QName;
+import x10.types.Type;
+import x10.types.Types;
 
 /**
  * This is a node factory that creates no nodes.  It, rather than

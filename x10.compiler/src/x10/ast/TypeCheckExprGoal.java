@@ -11,10 +11,10 @@
 
 package x10.ast;
 
-import polyglot.types.LazyRef;
-import polyglot.types.Type;
 import polyglot.util.ErrorInfo;
 import polyglot.visit.TypeChecker;
+import x10.types.LazyRef;
+import x10.types.Type;
 import x10.types.X10ClassType;
 
 public class TypeCheckExprGoal extends X10TypeCheckFragmentGoal<Type> {

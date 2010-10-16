@@ -16,6 +16,9 @@ import x10.ast.Node;
 import x10.ast.NodeFactory;
 import x10.ast.PackageNode;
 import x10.ast.SourceFile;
+import x10.types.ImportTable;
+import x10.types.SemanticException;
+import x10.types.TypeSystem;
 
 /** Visitor which traverses the AST constructing type objects. */
 public class InitImportsVisitor extends ErrorHandlingVisitor

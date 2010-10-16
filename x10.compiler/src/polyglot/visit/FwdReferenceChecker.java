@@ -18,6 +18,11 @@ import x10.ast.FieldDecl;
 import x10.ast.Initializer;
 import x10.ast.Node;
 import x10.ast.NodeFactory;
+import x10.types.ClassType;
+import x10.types.FieldDef;
+import x10.types.SemanticException;
+import x10.types.StructType;
+import x10.types.TypeSystem;
 
 /** Visitor which ensures that field intializers and initializers do not
  * make illegal forward references to fields.

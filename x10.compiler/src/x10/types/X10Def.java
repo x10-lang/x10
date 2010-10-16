@@ -13,10 +13,6 @@ package x10.types;
 
 import java.util.List;
 
-import polyglot.types.Def;
-import polyglot.types.QName;
-import polyglot.types.Ref;
-import polyglot.types.Type;
 import x10.types.constraints.TypeConstraint;
 
 /**

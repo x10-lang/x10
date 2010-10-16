@@ -11,17 +11,6 @@
 
 package x10.ast;
 
-import polyglot.types.CodeDef;
-import polyglot.types.ConstructorDef;
-import polyglot.types.Context;
-import polyglot.types.FunctionDef;
-import polyglot.types.InitializerDef;
-import polyglot.types.LocalDef;
-import polyglot.types.MethodDef;
-import polyglot.types.Ref;
-import polyglot.types.SemanticException;
-import polyglot.types.Type;
-import polyglot.types.Types;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
@@ -31,6 +20,17 @@ import x10.constraint.XLocal;
 import x10.constraint.XTerms;
 import x10.errors.Errors;
 import x10.types.ClosureDef;
+import x10.types.CodeDef;
+import x10.types.ConstructorDef;
+import x10.types.Context;
+import x10.types.FunctionDef;
+import x10.types.InitializerDef;
+import x10.types.LocalDef;
+import x10.types.MethodDef;
+import x10.types.Ref;
+import x10.types.SemanticException;
+import x10.types.Type;
+import x10.types.Types;
 import x10.types.X10ClassType;
 import x10.types.X10Context;
 import x10.types.X10MethodDef;

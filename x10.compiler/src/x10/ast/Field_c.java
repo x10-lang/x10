@@ -14,6 +14,15 @@ import java.util.List;
 import polyglot.types.*;
 import polyglot.util.*;
 import polyglot.visit.*;
+import x10.types.Context;
+import x10.types.ErrorRef_c;
+import x10.types.FieldDef;
+import x10.types.FieldInstance;
+import x10.types.Flags;
+import x10.types.SemanticException;
+import x10.types.Type;
+import x10.types.TypeSystem;
+import x10.types.VarInstance;
 
 /**
  * A <code>Field</code> is an immutable representation of a Java field

@@ -14,11 +14,6 @@ package x10.ast;
 import java.util.Collections;
 import java.util.List;
 
-import polyglot.types.ClassDef;
-import polyglot.types.Context;
-import polyglot.types.Name;
-import polyglot.types.SemanticException;
-import polyglot.types.Type;
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 import polyglot.visit.CFGBuilder;
@@ -26,6 +21,11 @@ import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
 import polyglot.visit.Translator;
+import x10.types.ClassDef;
+import x10.types.Context;
+import x10.types.Name;
+import x10.types.SemanticException;
+import x10.types.Type;
 import x10.types.X10MethodInstance;
 import x10.types.X10TypeSystem;
 

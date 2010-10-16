@@ -11,7 +11,6 @@
 
 package x10.types;
 
-import polyglot.types.InitializerDef;
 
 public interface X10InitializerDef extends X10CodeDef, InitializerDef, X10MemberDef {
 

@@ -8,11 +8,11 @@
 
 package x10.ast;
 
-import polyglot.types.SemanticException;
-import polyglot.types.TypeSystem;
 import polyglot.util.*;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.PrettyPrinter;
+import x10.types.SemanticException;
+import x10.types.TypeSystem;
 
 /**
  * An <code>IntLit</code> represents a literal in Java of an integer

@@ -7,8 +7,8 @@
 
 package x10.ast;
 
-import polyglot.types.Flags;
-import polyglot.types.LocalDef;
+import x10.types.Flags;
+import x10.types.LocalDef;
 
 /**
  * A <code>Formal</code> represents a formal parameter to a method

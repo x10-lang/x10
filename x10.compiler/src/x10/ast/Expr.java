@@ -7,10 +7,10 @@
 
 package x10.ast;
 
-import polyglot.types.MethodInstance;
-import polyglot.types.Type;
 import polyglot.util.CodeWriter;
 import polyglot.visit.PrettyPrinter;
+import x10.types.MethodInstance;
+import x10.types.Type;
 
 /**
  * An <code>Expr</code> represents any Java expression.  All expressions

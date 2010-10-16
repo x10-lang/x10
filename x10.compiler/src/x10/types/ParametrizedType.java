@@ -13,14 +13,6 @@ package x10.types;
 
 import java.util.List;
 
-import polyglot.types.Def;
-import polyglot.types.MemberInstance;
-import polyglot.types.ObjectType;
-import polyglot.types.Ref;
-import polyglot.types.ReferenceType;
-import polyglot.types.Name;
-import polyglot.types.StructType;
-import polyglot.types.Type;
 import x10.constraint.XConstraint;
 import x10.constraint.XVar;
 import x10.types.constraints.CConstraint;

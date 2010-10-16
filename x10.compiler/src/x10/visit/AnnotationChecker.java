@@ -15,10 +15,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import polyglot.frontend.Job;
-import polyglot.types.ClassType;
-import polyglot.types.QName;
-import polyglot.types.SemanticException;
-import polyglot.types.TypeSystem;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.ast.AnnotationNode;
@@ -34,6 +30,10 @@ import x10.ast.SourceFile;
 import x10.ast.Stmt;
 import x10.ast.TypeNode;
 import x10.extension.X10Ext;
+import x10.types.ClassType;
+import x10.types.QName;
+import x10.types.SemanticException;
+import x10.types.TypeSystem;
 import x10.types.X10ClassType;
 
 public class AnnotationChecker extends ContextVisitor {

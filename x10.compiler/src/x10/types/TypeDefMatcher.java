@@ -13,12 +13,6 @@ package x10.types;
 
 import java.util.List;
 
-import polyglot.types.Context;
-import polyglot.types.Matcher;
-import polyglot.types.Name;
-import polyglot.types.Named;
-import polyglot.types.SemanticException;
-import polyglot.types.Type;
 import polyglot.util.CollectionUtil;
 
 class TypeDefMatcher implements Matcher<Named> {

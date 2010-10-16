@@ -7,8 +7,8 @@
 
 package x10.ast;
 
-import polyglot.types.QName;
 import polyglot.util.Enum;
+import x10.types.QName;
 
 /**
  * An <code>Import</code> is an immutable representation of a Java

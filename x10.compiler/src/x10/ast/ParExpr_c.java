@@ -13,7 +13,6 @@ package x10.ast;
 
 import java.util.List;
 
-import polyglot.types.SemanticException;
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 import polyglot.visit.CFGBuilder;
@@ -21,6 +20,7 @@ import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
 import polyglot.visit.FlowGraph;
+import x10.types.SemanticException;
 
 /**
  * @author vj Feb 4, 2005

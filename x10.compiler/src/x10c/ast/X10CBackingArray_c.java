@@ -13,13 +13,13 @@ package x10c.ast;
 
 import java.util.List;
 
-import polyglot.types.Type;
 import polyglot.util.Position;
 import polyglot.visit.CFGBuilder;
 import x10.ast.Expr;
 import x10.ast.Expr_c;
 import x10.ast.Id;
 import x10.ast.Term;
+import x10.types.Type;
 
 public class X10CBackingArray_c extends Expr_c implements BackingArray {
 

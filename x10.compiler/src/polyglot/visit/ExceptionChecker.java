@@ -14,6 +14,9 @@ import polyglot.types.*;
 import polyglot.util.*;
 import x10.ast.Node;
 import x10.ast.NodeFactory;
+import x10.types.SemanticException;
+import x10.types.Type;
+import x10.types.TypeSystem;
 
 /** Visitor which checks if exceptions are caught or declared properly. */
 public class ExceptionChecker extends ErrorHandlingVisitor

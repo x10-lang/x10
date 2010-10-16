@@ -25,6 +25,9 @@ import x10.ast.Node;
 import x10.ast.NodeFactory;
 import x10.ast.Term;
 import x10.ast.Unary;
+import x10.types.MemberDef;
+import x10.types.Type;
+import x10.types.TypeSystem;
 
 /**
  * Abstract dataflow Visitor, to allow simple dataflow equations to be easily

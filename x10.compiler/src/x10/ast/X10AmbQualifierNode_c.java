@@ -12,12 +12,6 @@
 package x10.ast;
 
 import polyglot.frontend.SetResolverGoal;
-import polyglot.types.LazyRef;
-import polyglot.types.Qualifier;
-import polyglot.types.SemanticException;
-import polyglot.types.TypeSystem;
-import polyglot.types.Types;
-import polyglot.types.UnknownType;
 import polyglot.util.CodeWriter;
 import polyglot.util.ErrorInfo;
 import polyglot.util.InternalCompilerError;
@@ -29,6 +23,12 @@ import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeCheckPreparer;
 import polyglot.visit.TypeChecker;
+import x10.types.LazyRef;
+import x10.types.Qualifier;
+import x10.types.SemanticException;
+import x10.types.TypeSystem;
+import x10.types.Types;
+import x10.types.UnknownType;
 import x10.visit.X10TypeChecker;
 
 /**

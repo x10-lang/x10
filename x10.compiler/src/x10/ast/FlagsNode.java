@@ -1,6 +1,6 @@
 package x10.ast;
 
-import polyglot.types.Flags;
+import x10.types.Flags;
 
 public interface FlagsNode extends Node {
 	    Flags flags();

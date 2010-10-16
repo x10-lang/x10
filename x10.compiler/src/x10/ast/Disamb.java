@@ -7,9 +7,9 @@
 
 package x10.ast;
 
-import polyglot.types.SemanticException;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
+import x10.types.SemanticException;
 
 /**
  * Utility class which is used to disambiguate ambiguous

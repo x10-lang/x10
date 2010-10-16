@@ -10,7 +10,6 @@ package polyglot.visit;
 
 import polyglot.frontend.ExtensionInfo;
 import polyglot.types.*;
-import polyglot.types.Package;
 import polyglot.util.InternalCompilerError;
 import x10.ast.Call;
 import x10.ast.CanonicalTypeNode;
@@ -29,6 +28,11 @@ import x10.ast.Node;
 import x10.ast.NodeFactory;
 import x10.ast.PackageNode;
 import x10.ast.TypeNode;
+import x10.types.Package;
+import x10.types.QName;
+import x10.types.Type;
+import x10.types.TypeSystem;
+import x10.types.Types;
 
 /**
  * This visitor overwrites all extension object refs with null,

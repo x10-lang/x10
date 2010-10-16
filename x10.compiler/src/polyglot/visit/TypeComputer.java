@@ -8,8 +8,8 @@
 package polyglot.visit;
 
 import polyglot.frontend.*;
-import polyglot.types.TypeSystem;
 import x10.ast.NodeFactory;
+import x10.types.TypeSystem;
 
 /** Visitor which performs type checking on the AST. */
 public class TypeComputer extends ContextVisitor

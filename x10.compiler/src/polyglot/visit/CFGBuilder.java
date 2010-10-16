@@ -27,6 +27,10 @@ import x10.ast.Stmt;
 import x10.ast.Switch;
 import x10.ast.Term;
 import x10.ast.Try;
+import x10.types.Context;
+import x10.types.MemberDef;
+import x10.types.Type;
+import x10.types.TypeSystem;
 
 /**
  * Class used to construct a CFG.

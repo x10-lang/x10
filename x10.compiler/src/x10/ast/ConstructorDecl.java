@@ -9,8 +9,8 @@ package x10.ast;
 
 import java.util.List;
 
-import polyglot.types.ConstructorDef;
-import polyglot.types.Flags;
+import x10.types.ConstructorDef;
+import x10.types.Flags;
 
 /**
  * A <code>ConstructorDecl</code> is an immutable representation of a

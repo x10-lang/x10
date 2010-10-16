@@ -9,8 +9,8 @@ package x10.ast;
 
 import java.util.List;
 
-import polyglot.types.Context;
 import polyglot.util.Position;
+import x10.types.Context;
 
 /**
  * A <code>SwitchBlock</code> is a list of statements within a switch.

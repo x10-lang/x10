@@ -13,7 +13,7 @@ package x10.ast;
 
 import java.util.List;
 
-import polyglot.types.MethodDef;
+import x10.types.MethodDef;
 import x10.types.X10MethodDef;
 
 public interface X10MethodDecl extends MethodDecl, Guarded {

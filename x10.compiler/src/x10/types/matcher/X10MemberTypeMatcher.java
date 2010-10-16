@@ -11,13 +11,13 @@
 
 package x10.types.matcher;
 
-import polyglot.types.Context;
-import polyglot.types.Name;
-import polyglot.types.Named;
-import polyglot.types.SemanticException;
-import polyglot.types.Type;
-import polyglot.types.TypeSystem_c.MemberTypeMatcher;
+import x10.types.Context;
 import x10.types.MacroType;
+import x10.types.Name;
+import x10.types.Named;
+import x10.types.SemanticException;
+import x10.types.Type;
+import x10.types.TypeSystem_c.MemberTypeMatcher;
 
 public class X10MemberTypeMatcher extends MemberTypeMatcher {
     public X10MemberTypeMatcher(Type container, Name name, Context context) {

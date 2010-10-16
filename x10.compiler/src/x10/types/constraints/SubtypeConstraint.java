@@ -15,12 +15,12 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import polyglot.types.SemanticException;
-import polyglot.types.Type;
 import polyglot.util.Copy;
 import polyglot.util.InternalCompilerError;
 import x10.constraint.XVar;
 import x10.constraint.XTerm;
+import x10.types.SemanticException;
+import x10.types.Type;
 import x10.types.matcher.Subst;
 
 public class SubtypeConstraint implements Copy, Serializable {

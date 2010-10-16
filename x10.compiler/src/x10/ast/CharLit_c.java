@@ -8,10 +8,10 @@
 
 package x10.ast;
 
-import polyglot.types.SemanticException;
 import polyglot.util.*;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.PrettyPrinter;
+import x10.types.SemanticException;
 
 /** 
  * An <code>CharLit</code> represents a literal in java of

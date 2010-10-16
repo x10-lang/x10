@@ -10,9 +10,9 @@ package x10.ast;
 
 import java.util.*;
 
-import polyglot.types.Context;
 import polyglot.util.*;
 import polyglot.visit.*;
+import x10.types.Context;
 
 /**
  * A local class declaration statement.  The node is just a wrapper around

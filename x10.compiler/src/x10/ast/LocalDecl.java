@@ -7,7 +7,7 @@
 
 package x10.ast;
 
-import polyglot.types.LocalDef;
+import x10.types.LocalDef;
 
 /** 
  * A local variable declaration statement: a type, a name and an optional

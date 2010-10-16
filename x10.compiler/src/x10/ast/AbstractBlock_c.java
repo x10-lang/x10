@@ -10,9 +10,9 @@ package x10.ast;
 
 import java.util.*;
 
-import polyglot.types.Context;
 import polyglot.util.*;
 import polyglot.visit.*;
+import x10.types.Context;
 
 /**
  * A <code>Block</code> represents a Java block statement -- an immutable

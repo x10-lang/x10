@@ -8,6 +8,8 @@
 package x10.ast;
 
 import polyglot.types.*;
+import x10.types.Ref;
+import x10.types.Type;
 
 /**
  * A <code>TypeNode</code> is the syntactic representation of a 

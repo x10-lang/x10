@@ -13,11 +13,11 @@ package x10.emitter;
 
 import java.util.List;
 
-import polyglot.types.Type;
 import polyglot.visit.Translator;
 import x10.types.ConstrainedType;
 import x10.types.FunctionType;
 import x10.types.ParameterType;
+import x10.types.Type;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10TypeSystem;

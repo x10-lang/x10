@@ -13,16 +13,6 @@ package x10.util.synthesizer;
 import java.util.ArrayList;
 import java.util.List;
 
-import polyglot.types.ClassDef;
-import polyglot.types.ClassType;
-import polyglot.types.FieldDef;
-import polyglot.types.Flags;
-import polyglot.types.Name;
-import polyglot.types.Ref;
-import polyglot.types.SemanticException;
-import polyglot.types.Type;
-import polyglot.types.Types;
-import polyglot.types.ClassDef.Kind;
 import polyglot.util.Position;
 import polyglot.frontend.Job;
 import x10.ast.ClassBody;
@@ -37,8 +27,18 @@ import x10.ast.TypeNode;
 import x10.ast.X10ClassDecl;
 import x10.ast.X10ConstructorDecl;
 import x10.ast.NodeFactory;
+import x10.types.ClassDef;
+import x10.types.ClassType;
+import x10.types.FieldDef;
+import x10.types.Flags;
+import x10.types.Name;
+import x10.types.Ref;
+import x10.types.SemanticException;
+import x10.types.Type;
+import x10.types.Types;
 import x10.types.X10ClassDef;
 import x10.types.X10Context;
+import x10.types.ClassDef.Kind;
 import x10.types.checker.PlaceChecker;
 
 /**

@@ -7,7 +7,7 @@
 
 package x10.ast;
 
-import polyglot.types.LocalInstance;
+import x10.types.LocalInstance;
 
 /** 
  * A local variable expression.

@@ -14,6 +14,7 @@ import polyglot.frontend.*;
 
 import polyglot.types.*;
 import polyglot.util.*;
+import x10.types.SemanticException;
 
 /**
  * ClassFile represents a Java classfile as it is found on 

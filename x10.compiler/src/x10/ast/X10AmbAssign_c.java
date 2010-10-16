@@ -11,10 +11,10 @@
 
 package x10.ast;
 
-import polyglot.types.SemanticException;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
+import x10.types.SemanticException;
 import x10.types.X10Context;
 
 public class X10AmbAssign_c extends AmbAssign_c {

@@ -3,7 +3,6 @@ package x10.compiler.ws.codegen;
 import java.util.ArrayList;
 import java.util.List;
 
-import polyglot.types.SemanticException;
 import x10.ast.Assign;
 import x10.ast.Block;
 import x10.ast.Eval;
@@ -19,6 +18,7 @@ import x10.compiler.ws.util.AddIndirectLocalDeclareVisitor;
 import x10.compiler.ws.util.ClosureDefReinstantiator;
 import x10.compiler.ws.util.Triple;
 import x10.compiler.ws.util.WSCodeGenUtility;
+import x10.types.SemanticException;
 import x10.util.synthesizer.CodeBlockSynth;
 import x10.util.synthesizer.InstanceCallSynth;
 import x10.util.synthesizer.NewLocalVarSynth;

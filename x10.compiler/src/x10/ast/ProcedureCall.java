@@ -9,8 +9,8 @@ package x10.ast;
 
 import java.util.List;
 
-import polyglot.types.ProcedureDef;
-import polyglot.types.ProcedureInstance;
+import x10.types.ProcedureDef;
+import x10.types.ProcedureInstance;
 
 /**
  * A <code>ProcedureCall</code> is an interface representing a

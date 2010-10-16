@@ -15,6 +15,17 @@ import polyglot.types.*;
 import polyglot.util.*;
 import polyglot.visit.*;
 import x10.errors.Errors;
+import x10.types.CodeDef;
+import x10.types.ConstructorDef;
+import x10.types.Context;
+import x10.types.FunctionDef;
+import x10.types.InitializerDef;
+import x10.types.MethodDef;
+import x10.types.SemanticException;
+import x10.types.Type;
+import x10.types.TypeSystem;
+import x10.types.Types;
+import x10.types.UnknownType;
 
 /**
  * A <code>Return</code> represents a <code>return</code> statement in Java.

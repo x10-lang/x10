@@ -13,16 +13,6 @@ package x10.types;
 
 import java.util.List;
 
-import polyglot.types.ClassType;
-import polyglot.types.ErrorRef_c;
-import polyglot.types.Flags;
-import polyglot.types.LocalInstance_c;
-import polyglot.types.Name;
-import polyglot.types.Ref;
-import polyglot.types.SemanticException;
-import polyglot.types.Type;
-import polyglot.types.TypeSystem;
-import polyglot.types.Types;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import x10.constraint.XFailure;

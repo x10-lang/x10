@@ -9,9 +9,9 @@
 package x10.ast;
 
 
-import polyglot.types.Flags;
 import polyglot.util.*;
 import polyglot.visit.PrettyPrinter;
+import x10.types.Flags;
 
 public class FlagsNode_c extends Node_c implements FlagsNode
 {

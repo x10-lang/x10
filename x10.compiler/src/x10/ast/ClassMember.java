@@ -7,7 +7,7 @@
 
 package x10.ast;
 
-import polyglot.types.MemberDef;
+import x10.types.MemberDef;
 
 /**
  * A <code>ClassMember</code> is a method, a constructor, a field, an

@@ -11,10 +11,10 @@
 
 package x10c.types;
 
-import polyglot.types.ArrayType_c;
-import polyglot.types.Ref;
-import polyglot.types.Type;
 import polyglot.util.Position;
+import x10.types.ArrayType_c;
+import x10.types.Ref;
+import x10.types.Type;
 import x10.types.X10TypeSystem;
 
 public class BackingArrayType extends ArrayType_c {

@@ -5,12 +5,6 @@ import java.io.Writer;
 import java.util.List;
 
 import polyglot.frontend.ExtensionInfo;
-import polyglot.types.Context;
-import polyglot.types.Qualifier;
-import polyglot.types.Ref;
-import polyglot.types.SemanticException;
-import polyglot.types.Type;
-import polyglot.types.TypeSystem;
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 import polyglot.util.SubtypeSet;
@@ -24,6 +18,12 @@ import polyglot.visit.Translator;
 import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeCheckPreparer;
 import polyglot.visit.TypeChecker;
+import x10.types.Context;
+import x10.types.Qualifier;
+import x10.types.Ref;
+import x10.types.SemanticException;
+import x10.types.Type;
+import x10.types.TypeSystem;
 
 public class HasTypeNode_c extends TypeNode_c implements TypeNode {
 

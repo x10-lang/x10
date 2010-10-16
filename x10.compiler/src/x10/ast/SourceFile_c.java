@@ -14,6 +14,11 @@ import polyglot.frontend.Source;
 import polyglot.types.*;
 import polyglot.util.*;
 import polyglot.visit.*;
+import x10.types.Context;
+import x10.types.ImportTable;
+import x10.types.Name;
+import x10.types.SemanticException;
+import x10.types.Types;
 
 /**
  * A <code>SourceFile</code> is an immutable representations of a Java

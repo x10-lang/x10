@@ -10,14 +10,14 @@ package polyglot.visit;
 import java.util.*;
 
 
-import polyglot.types.LocalDef;
-import polyglot.types.Name;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.UniqueID;
 import x10.ast.Block;
 import x10.ast.Local;
 import x10.ast.LocalDecl;
 import x10.ast.Node;
+import x10.types.LocalDef;
+import x10.types.Name;
 
 /**
  * The <code>AlphaRenamer</code> runs over the AST and alpha-renames any local

@@ -14,6 +14,20 @@ import polyglot.main.Report;
 import polyglot.types.*;
 import polyglot.types.reflect.InnerClasses.Info;
 import polyglot.util.*;
+import x10.types.ClassDef;
+import x10.types.ClassType;
+import x10.types.ConstructorDef;
+import x10.types.FieldDef;
+import x10.types.Flags;
+import x10.types.LazyRef;
+import x10.types.MethodDef;
+import x10.types.Name;
+import x10.types.QName;
+import x10.types.Ref;
+import x10.types.SemanticException;
+import x10.types.Type;
+import x10.types.TypeSystem;
+import x10.types.Types;
 
 /**
  * A lazy initializer for classes loaded from a .class file.

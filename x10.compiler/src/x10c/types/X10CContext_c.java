@@ -14,8 +14,8 @@ package x10c.types;
 import java.util.ArrayList;
 import java.util.List;
 
-import polyglot.types.ClassDef;
-import polyglot.types.TypeSystem;
+import x10.types.ClassDef;
+import x10.types.TypeSystem;
 import x10.types.X10Context;
 import x10.types.X10Context_c;
 

@@ -7,7 +7,7 @@
 
 package x10.ast;
 
-import polyglot.types.Type;
+import x10.types.Type;
 
 /**
  * <code>Typed</code> represents any node that has a type

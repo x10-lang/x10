@@ -17,15 +17,15 @@ import java.util.Iterator;
 import java.util.List;
 
 import polyglot.frontend.ExtensionInfo;
-import polyglot.types.Context;
-import polyglot.types.QName;
-import polyglot.types.Type;
 import polyglot.util.CollectionUtil;
 import polyglot.visit.NodeVisitor;
 import x10.ast.AnnotationNode;
 import x10.ast.JL_c;
 import x10.ast.Node;
 import x10.ast.NodeFactory;
+import x10.types.Context;
+import x10.types.QName;
+import x10.types.Type;
 import x10.types.X10ClassType;
 import x10.types.X10Context;
 import x10.types.X10TypeSystem;

@@ -11,11 +11,11 @@
 
 package x10.types.matcher;
 
-import polyglot.types.Name;
-import polyglot.types.Named;
-import polyglot.types.SemanticException;
-import polyglot.types.TypeSystem_c.TypeMatcher;
 import x10.types.MacroType;
+import x10.types.Name;
+import x10.types.Named;
+import x10.types.SemanticException;
+import x10.types.TypeSystem_c.TypeMatcher;
 
 public class X10TypeMatcher extends TypeMatcher {
     public X10TypeMatcher(Name name) {

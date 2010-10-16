@@ -10,8 +10,6 @@ package polyglot.visit;
 
 import polyglot.frontend.*;
 import polyglot.main.Report;
-import polyglot.types.SemanticException;
-import polyglot.types.TypeSystem;
 import polyglot.util.*;
 import x10.ast.ClassDecl;
 import x10.ast.ClassMember;
@@ -20,6 +18,8 @@ import x10.ast.Node;
 import x10.ast.NodeFactory;
 import x10.ast.SourceFile;
 import x10.ast.Stmt;
+import x10.types.SemanticException;
+import x10.types.TypeSystem;
 
 /**
  */
@@ -78,7 +78,7 @@ public class ErrorHandlingVisitor extends NodeVisitor
 
     /** Returns the <code>TypeSystem</code> that this Visitor is using.
      *
-     * @see polyglot.types.TypeSystem
+     * @see x10.types.TypeSystem
      */
     public TypeSystem typeSystem() {
         return ts;

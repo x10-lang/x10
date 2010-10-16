@@ -14,8 +14,6 @@ package x10cuda.types;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import polyglot.types.Name;
-import polyglot.types.Type;
 import polyglot.visit.Translator;
 import x10.ast.Block;
 import x10.ast.Closure;
@@ -23,6 +21,8 @@ import x10.ast.Expr;
 import x10.ast.LocalDecl;
 import x10.ast.Return;
 import x10.ast.Stmt;
+import x10.types.Name;
+import x10.types.Type;
 import x10.types.X10TypeSystem;
 import x10.util.ClassifiedStream;
 import x10.util.StreamWrapper;

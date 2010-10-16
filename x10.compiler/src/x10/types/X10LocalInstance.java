@@ -11,11 +11,6 @@
 
 package x10.types;
 
-import polyglot.types.LocalInstance;
-import polyglot.types.Name;
-import polyglot.types.SemanticException;
-import polyglot.types.Type;
-import polyglot.types.TypeObject;
 
 /**
  * @author vj

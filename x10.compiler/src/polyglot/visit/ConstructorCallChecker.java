@@ -17,6 +17,10 @@ import polyglot.util.InternalCompilerError;
 import x10.ast.ConstructorCall;
 import x10.ast.Node;
 import x10.ast.NodeFactory;
+import x10.types.ConstructorDef;
+import x10.types.Context;
+import x10.types.SemanticException;
+import x10.types.TypeSystem;
 
 /** Visitor which ensures that constructor calls are not recursive. */
 public class ConstructorCallChecker extends ContextVisitor

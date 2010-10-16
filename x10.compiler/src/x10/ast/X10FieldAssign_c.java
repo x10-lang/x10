@@ -11,13 +11,13 @@
 
 package x10.ast;
 
-import polyglot.types.FieldInstance;
-import polyglot.types.SemanticException;
-import polyglot.types.Type;
-import polyglot.types.TypeSystem;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
+import x10.types.FieldInstance;
+import x10.types.SemanticException;
+import x10.types.Type;
+import x10.types.TypeSystem;
 import x10.types.X10ClassType;
 import x10.types.X10Context;
 import x10.types.X10FieldInstance;

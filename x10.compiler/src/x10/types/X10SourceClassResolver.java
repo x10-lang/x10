@@ -25,11 +25,6 @@ import polyglot.frontend.Job;
 import polyglot.frontend.Resource;
 import polyglot.frontend.Scheduler;
 import polyglot.main.Report;
-import polyglot.types.Named;
-import polyglot.types.NoClassException;
-import polyglot.types.QName;
-import polyglot.types.SemanticException;
-import polyglot.types.TopLevelResolver;
 import polyglot.util.CollectionUtil;
 import polyglot.util.InternalCompilerError;
 

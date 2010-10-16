@@ -3,15 +3,15 @@ package x10.util.synthesizer;
 import java.util.ArrayList;
 import java.util.List;
 
-import polyglot.types.Name;
-import polyglot.types.SemanticException;
-import polyglot.types.Type;
 import polyglot.util.Position;
 import x10.ast.Closure;
 import x10.ast.Expr;
 import x10.ast.Stmt;
 import x10.ast.Tuple;
 import x10.ast.NodeFactory;
+import x10.types.Name;
+import x10.types.SemanticException;
+import x10.types.Type;
 import x10.types.X10Context;
 
 /**

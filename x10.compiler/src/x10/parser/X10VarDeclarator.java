@@ -16,8 +16,6 @@ import java.util.List;
 
 import polyglot.parse.ParsedName;
 import polyglot.parse.VarDeclarator;
-import polyglot.types.Flags;
-import polyglot.types.TypeSystem;
 import polyglot.util.Position;
 import x10.ast.AmbExpr;
 import x10.ast.CanonicalTypeNode_c;
@@ -27,6 +25,8 @@ import x10.ast.Formal_c;
 import x10.ast.Id;
 import x10.ast.NodeFactory;
 import x10.parser.X10Parser.JPGPosition;
+import x10.types.Flags;
+import x10.types.TypeSystem;
 
 /**
  * @author vj Jan 23, 2005

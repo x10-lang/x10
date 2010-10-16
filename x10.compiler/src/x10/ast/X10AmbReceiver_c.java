@@ -11,10 +11,10 @@
 
 package x10.ast;
 
-import polyglot.types.SemanticException;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import x10.errors.Errors;
+import x10.types.SemanticException;
 import x10.types.X10LocalInstance;
 import x10.types.X10TypeSystem_c;
 import x10.visit.X10TypeChecker;

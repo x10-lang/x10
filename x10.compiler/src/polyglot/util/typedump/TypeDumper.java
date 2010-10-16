@@ -10,6 +10,10 @@ package polyglot.util.typedump;
 
 import polyglot.util.*;
 import polyglot.types.*;
+import x10.types.QName;
+import x10.types.TypeObject;
+import x10.types.TypeSystem;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.Date;

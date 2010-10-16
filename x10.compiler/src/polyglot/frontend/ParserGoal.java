@@ -14,7 +14,6 @@ import java.io.Reader;
 import java.util.Collections;
 
 import polyglot.main.Report;
-import polyglot.types.Flags;
 import polyglot.util.ErrorInfo;
 import polyglot.util.ErrorQueue;
 import polyglot.util.Position;
@@ -24,6 +23,7 @@ import x10.ast.NodeFactory;
 import x10.ast.SourceFile;
 import x10.ast.TopLevelDecl;
 import x10.ast.TypeNode;
+import x10.types.Flags;
 
 /**
  * A pass which runs a parser.  After parsing it stores the AST in the Job.

@@ -9,11 +9,11 @@ package polyglot.visit;
 
 import java.util.*;
 
-import polyglot.types.Type;
 import polyglot.util.CollectionUtil;
 import polyglot.util.IdentityKey;
 import x10.ast.Node;
 import x10.ast.Term;
+import x10.types.Type;
 
 public class FlowGraph {
 

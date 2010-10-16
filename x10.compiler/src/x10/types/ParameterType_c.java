@@ -11,16 +11,6 @@
 
 package x10.types;
 
-import polyglot.types.Def;
-import polyglot.types.Flags;
-import polyglot.types.Named;
-import polyglot.types.ProcedureDef;
-import polyglot.types.QName;
-import polyglot.types.Ref;
-import polyglot.types.Resolver;
-import polyglot.types.Name;
-import polyglot.types.TypeObject;
-import polyglot.types.Type_c;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 

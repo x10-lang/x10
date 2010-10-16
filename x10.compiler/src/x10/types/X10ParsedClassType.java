@@ -13,11 +13,6 @@ package x10.types;
 
 import java.util.List;
 
-import polyglot.types.Flags;
-import polyglot.types.ParsedClassType;
-import polyglot.types.SemanticException;
-import polyglot.types.StructType;
-import polyglot.types.Type;
 import x10.constraint.XConstraint;
 import x10.types.constraints.CConstraint;
 

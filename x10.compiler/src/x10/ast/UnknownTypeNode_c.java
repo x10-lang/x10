@@ -14,11 +14,6 @@ package x10.ast;
 import polyglot.frontend.AbstractGoal_c;
 import polyglot.frontend.Globals;
 import polyglot.frontend.Goal;
-import polyglot.types.LazyRef;
-import polyglot.types.SemanticException;
-import polyglot.types.Type;
-import polyglot.types.TypeSystem;
-import polyglot.types.UnknownType;
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
@@ -26,6 +21,11 @@ import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeCheckPreparer;
 import polyglot.visit.TypeChecker;
+import x10.types.LazyRef;
+import x10.types.SemanticException;
+import x10.types.Type;
+import x10.types.TypeSystem;
+import x10.types.UnknownType;
 import x10.visit.X10TypeChecker;
 
 public class UnknownTypeNode_c extends TypeNode_c implements UnknownTypeNode {

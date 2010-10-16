@@ -14,6 +14,21 @@ import polyglot.types.*;
 import polyglot.util.*;
 import polyglot.visit.*;
 import x10.errors.Errors;
+import x10.types.ClassDef;
+import x10.types.ClassType;
+import x10.types.CodeDef;
+import x10.types.ConstructorDef;
+import x10.types.Context;
+import x10.types.Def;
+import x10.types.Flags;
+import x10.types.MemberDef;
+import x10.types.Name;
+import x10.types.ProcedureDef;
+import x10.types.Ref;
+import x10.types.SemanticException;
+import x10.types.Type;
+import x10.types.TypeSystem;
+import x10.types.Types;
 
 /**
  * A <code>ConstructorDecl</code> is an immutable representation of a

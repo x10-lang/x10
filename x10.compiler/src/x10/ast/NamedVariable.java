@@ -7,9 +7,9 @@
 
 package x10.ast;
 
-import polyglot.types.Flags;
-import polyglot.types.VarDef;
-import polyglot.types.VarInstance;
+import x10.types.Flags;
+import x10.types.VarDef;
+import x10.types.VarInstance;
 
 /** 
  * An interface representing a variable.  A Variable is any expression

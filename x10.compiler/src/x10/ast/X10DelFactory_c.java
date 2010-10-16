@@ -11,14 +11,14 @@
 
 package x10.ast;
 
-import polyglot.types.SemanticException;
-import polyglot.types.Type;
-import polyglot.types.Types;
 import polyglot.util.CodeWriter;
 import polyglot.visit.Translator;
 import polyglot.visit.TypeChecker;
 import x10.extension.X10Del_c;
 import x10.extension.X10Ext;
+import x10.types.SemanticException;
+import x10.types.Type;
+import x10.types.Types;
 import x10.types.X10NamedType;
 import x10.types.X10TypeSystem;
 import x10.visit.X10DelegatingVisitor;

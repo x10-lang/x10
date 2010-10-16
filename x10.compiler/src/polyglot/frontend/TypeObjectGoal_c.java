@@ -4,9 +4,9 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 
 import polyglot.frontend.JLScheduler.LookupGlobalTypeDefAndSetFlags;
-import polyglot.types.Ref;
-import polyglot.types.TypeObject;
 import polyglot.util.TypeInputStream;
+import x10.types.Ref;
+import x10.types.TypeObject;
 
 public class TypeObjectGoal_c<T extends TypeObject> extends AbstractGoal_c implements TypeObjectGoal<T> {
     private static final long serialVersionUID = -1495559169113722008L;

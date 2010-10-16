@@ -5,7 +5,6 @@ import polyglot.util.ErrorInfo;
 import polyglot.visit.NodeVisitor;
 import polyglot.frontend.Job;
 import polyglot.main.Report;
-import polyglot.types.SemanticException;
 import x10.ast.AnnotationNode_c;
 import x10.ast.FieldDecl;
 import x10.ast.FlagsNode_c;
@@ -13,6 +12,7 @@ import x10.ast.LocalDecl;
 import x10.ast.Node;
 import x10.ast.X10Formal_c;
 import x10.errors.X10ErrorInfo;
+import x10.types.SemanticException;
 
 public class PositionInvariantChecker extends NodeVisitor
 {

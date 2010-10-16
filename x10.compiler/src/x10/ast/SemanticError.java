@@ -11,8 +11,8 @@
 
 package x10.ast;
 
-import polyglot.types.SemanticException;
 import polyglot.util.Position;
+import x10.types.SemanticException;
 
 /**
  * SemanticErrors should result in an error message being displayed to the user. Some SemanticExceptions,

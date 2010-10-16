@@ -12,9 +12,6 @@
 package x10.visit;
 
 import polyglot.frontend.Job;
-import polyglot.types.SemanticException;
-import polyglot.types.Type;
-import polyglot.types.TypeSystem;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.ast.Assign;
@@ -29,6 +26,9 @@ import x10.ast.Node;
 import x10.ast.NodeFactory;
 import x10.ast.NullLit;
 import x10.ast.NodeFactory;
+import x10.types.SemanticException;
+import x10.types.Type;
+import x10.types.TypeSystem;
 import x10.types.X10ClassType;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;

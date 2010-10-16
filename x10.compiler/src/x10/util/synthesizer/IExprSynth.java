@@ -10,8 +10,8 @@
  */
 package x10.util.synthesizer;
 
-import polyglot.types.SemanticException;
 import x10.ast.Expr;
+import x10.types.SemanticException;
 
 /**
  * 

@@ -9,8 +9,8 @@ package x10.ast;
 
 import java.util.List;
 
-import polyglot.types.Flags;
-import polyglot.types.MethodDef;
+import x10.types.Flags;
+import x10.types.MethodDef;
 
 /**
  * A method declaration.

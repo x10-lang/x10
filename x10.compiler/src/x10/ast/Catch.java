@@ -7,7 +7,7 @@
 
 package x10.ast;
 
-import polyglot.types.Type;
+import x10.types.Type;
 
 /**
  * A <code>Catch</code> represents one half of a <code>try-catch</code>
