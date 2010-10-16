@@ -19,7 +19,7 @@ import x10.types.InitializerDef;
 import x10.types.TypeSystem;
 import x10.types.Types;
 import x10.types.X10ClassDef;
-import x10.types.X10Context;
+import x10.types.Context;
 import x10.types.X10InitializerDef;
 import x10.types.checker.PlaceChecker;
 
@@ -39,7 +39,7 @@ public class X10Initializer_c extends Initializer_c {
     @Override
     public Context enterChildScope(Node child, Context c) {
         if (child == body) {
-        	//c = PlaceChecker.pushHereTerm(initializerDef(), (X10Context) c);
+        	//c = PlaceChecker.pushHereTerm(initializerDef(), (Context) c);
         }
         return c;
     }

@@ -28,7 +28,7 @@ import x10.types.Ref;
 import x10.types.SemanticException;
 import x10.types.Type;
 import x10.types.Types;
-import x10.types.X10Context;
+import x10.types.Context;
 import x10.types.X10TypeSystem;
 import x10.types.checker.PlaceChecker;
 
@@ -46,7 +46,7 @@ public class NewInstanceSynth extends AbstractStateSynth implements IStmtSynth, 
     List<Type> argTypes; //arguments' type --> If we could reason the args' type from args, the list could be eliminated
     List<Expr> args;     //arguments
     
-    public NewInstanceSynth(NodeFactory xnf, X10Context xct, Position pos, ClassType classType){
+    public NewInstanceSynth(NodeFactory xnf, Context xct, Position pos, ClassType classType){
         super(xnf, xct, pos);
         this.classType = classType;
 

@@ -23,7 +23,7 @@ import x10.types.ParameterType;
 import x10.types.SemanticException;
 import x10.types.Type;
 import x10.types.TypeSystem_c;
-import x10.types.X10Context;
+import x10.types.Context;
 import x10.types.X10FieldInstance;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
@@ -120,7 +120,7 @@ public class X10FieldMatcher extends TypeSystem_c.FieldMatcher {
         //	rt = X10TypeMixin.setThisVar(rt, v);
         // }
 
-        if (!ts.consistent(t, (X10Context) context) || !ts.consistent(rt, (X10Context) context)) {
+        if (!ts.consistent(t, (Context) context) || !ts.consistent(rt, (Context) context)) {
         	throw new SemanticException("Type of field access is not consistent.");
         }
 

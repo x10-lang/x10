@@ -17,7 +17,7 @@ import x10.types.Context;
 import x10.types.SemanticException;
 import x10.types.Type;
 import x10.types.TypeSystem;
-import x10.types.X10Context;
+import x10.types.Context;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.checker.PlaceChecker;
@@ -97,13 +97,13 @@ public class FinishExpr_c extends Expr_c implements FinishExpr {
 	 */
 	@Override
 	public Context enterChildScope(Node child, Context c) {
-		X10Context xc = (X10Context) super.enterChildScope(child, c);
+		Context xc = (Context) super.enterChildScope(child, c);
 		if (child == body) {
 		// Push T, not Reducible[T].
 			Type type = reducer.type();
 			type = X10TypeMixin.reducerType(type);
 			if (type != null) {
-				xc = (X10Context) xc.pushCollectingFinishScope(type);
+				xc = (Context) xc.pushCollectingFinishScope(type);
 			}
 			addDecls(xc);
 		}

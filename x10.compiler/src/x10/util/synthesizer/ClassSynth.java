@@ -37,7 +37,7 @@ import x10.types.SemanticException;
 import x10.types.Type;
 import x10.types.Types;
 import x10.types.X10ClassDef;
-import x10.types.X10Context;
+import x10.types.Context;
 import x10.types.ClassDef.Kind;
 import x10.types.checker.PlaceChecker;
 
@@ -52,7 +52,7 @@ public class ClassSynth extends AbstractStateSynth implements IClassMemberSynth 
 
     List<IClassMemberSynth> membersSynth;
 
-    public ClassSynth(Job job, NodeFactory xnf, X10Context xct, ClassDecl classDecl) {
+    public ClassSynth(Job job, NodeFactory xnf, Context xct, ClassDecl classDecl) {
         super(xnf, xct, classDecl.position());
         this.classDecl = (X10ClassDecl) classDecl;
         this.classDef = (X10ClassDef) classDecl.classDef();
@@ -61,7 +61,7 @@ public class ClassSynth extends AbstractStateSynth implements IClassMemberSynth 
         classDef.setJob(job);
     }
 
-    public ClassSynth(Job job, NodeFactory xnf, X10Context xct, Position pos, Type superType, Name className,
+    public ClassSynth(Job job, NodeFactory xnf, Context xct, Position pos, Type superType, Name className,
             List<Type> interfaces, Flags flags, Kind kind) {
         super(xnf, xct, pos);
         membersSynth = new ArrayList<IClassMemberSynth>();
@@ -88,11 +88,11 @@ public class ClassSynth extends AbstractStateSynth implements IClassMemberSynth 
      * @param superType
      * @param className
      */
-    public ClassSynth(Job job, NodeFactory xnf, X10Context xct, Type superType, String className) {
+    public ClassSynth(Job job, NodeFactory xnf, Context xct, Type superType, String className) {
         this(job, xnf, xct, compilerPos, superType, className);
     }
 
-    public ClassSynth(Job job, NodeFactory xnf, X10Context xct, Position pos, Type superType, String className) {
+    public ClassSynth(Job job, NodeFactory xnf, Context xct, Position pos, Type superType, String className) {
         this(job, xnf, xct, pos, superType, Name.make(className), new ArrayList<Type>(), Flags.NONE, ClassDef.TOP_LEVEL);
     }
 

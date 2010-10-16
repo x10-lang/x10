@@ -25,7 +25,7 @@ import x10.constraint.XVar;
 import x10.types.Resolver;
 import x10.types.SemanticException;
 import x10.types.Type;
-import x10.types.X10Context;
+import x10.types.Context;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.constraints.CConstraint;
@@ -72,7 +72,7 @@ public class Here_c extends Expr_c
     /** Type check the expression. */
 	public Node typeCheck(ContextVisitor tc) throws SemanticException {
 		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
-		X10Context xc = (X10Context) tc.context();
+		Context xc = (Context) tc.context();
 
 		Type tt = ts.Place();
 		XConstrainedTerm h = xc.currentPlaceTerm();

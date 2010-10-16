@@ -34,7 +34,7 @@ import x10.types.SemanticException;
 import x10.types.Type;
 import x10.types.Types;
 import x10.types.X10ConstructorDef;
-import x10.types.X10Context;
+import x10.types.Context;
 import x10.types.X10Flags;
 import x10.types.X10TypeSystem;
 
@@ -54,7 +54,7 @@ public class ConstructorSynth extends AbstractStateSynth implements IClassMember
     X10ConstructorDecl conDecl; // only be created once;
     ClassDef classDef;
 
-    public ConstructorSynth(NodeFactory xnf, X10Context xct, Position pos, ClassDef classDef, Flags flags,
+    public ConstructorSynth(NodeFactory xnf, Context xct, Position pos, ClassDef classDef, Flags flags,
             List<Formal> formals, List<Type> throwTypes) {
         super(xnf, xct, pos);
         this.formals = formals;
@@ -80,11 +80,11 @@ public class ConstructorSynth extends AbstractStateSynth implements IClassMember
 
     }
 
-    public ConstructorSynth(NodeFactory xnf, X10Context xct, Position pos, ClassDef classDef) {
+    public ConstructorSynth(NodeFactory xnf, Context xct, Position pos, ClassDef classDef) {
         this(xnf, xct, pos, classDef, Flags.NONE, new ArrayList<Formal>(), new ArrayList<Type>());
     }
 
-    public ConstructorSynth(NodeFactory xnf, X10Context xct, ClassDef classDef) {
+    public ConstructorSynth(NodeFactory xnf, Context xct, ClassDef classDef) {
         this(xnf, xct, compilerPos, classDef);
     }
 

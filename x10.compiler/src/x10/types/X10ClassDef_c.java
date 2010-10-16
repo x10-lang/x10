@@ -244,7 +244,7 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
 					    XTerm newSelf = xts.xtypeTranslator().trans(c, c.self(), fi.asInstance());
 					    c = c.substitute(newSelf, c.self());
 					    
-					    if (! result.entails(c, ((X10Context) ts.emptyContext()).constraintProjection(result, c))) {
+					    if (! result.entails(c, ((Context) ts.emptyContext()).constraintProjection(result, c))) {
 						    this.rootClause = Types.ref(result);
 						    this.rootClauseInvalid = 
 							    new SemanticException("The real clause, " + result + ", does not satisfy constraints from " + fi + ".", position());

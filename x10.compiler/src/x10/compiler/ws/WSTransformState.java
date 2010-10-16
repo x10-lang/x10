@@ -35,7 +35,7 @@ import x10.types.MethodInstance;
 import x10.types.ProcedureDef;
 import x10.types.SemanticException;
 import x10.types.Type;
-import x10.types.X10Context;
+import x10.types.Context;
 import x10.types.X10TypeSystem;
 import x10.types.checker.PlaceChecker;
 import x10.util.synthesizer.MethodSynth;

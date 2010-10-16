@@ -38,7 +38,7 @@ import x10.types.SemanticException;
 import x10.types.Type;
 import x10.types.Types;
 import x10.types.X10ClassDef;
-import x10.types.X10Context;
+import x10.types.Context;
 import x10.types.X10Flags;
 import x10.types.X10MethodDef;
 import x10.types.X10TypeSystem;
@@ -58,7 +58,7 @@ public class MethodSynth extends AbstractStateSynth implements IClassMemberSynth
     XTerm placeTerm;
     
     
-    public MethodSynth(NodeFactory xnf, X10Context xct, Position pos, ClassDef classDef, Name methodName,
+    public MethodSynth(NodeFactory xnf, Context xct, Position pos, ClassDef classDef, Name methodName,
                        Flags flags, List<Formal> formals, List<Type> throwTypes, Type returnType){
         super(xnf, xct, pos);
 
@@ -89,12 +89,12 @@ public class MethodSynth extends AbstractStateSynth implements IClassMemberSynth
         codeBlockSynth = new CodeBlockSynth(xnf, xct, this, pos);
     }
     
-    public MethodSynth(NodeFactory xnf, X10Context xct, Position pos, ClassDef classDef, String methodName){
+    public MethodSynth(NodeFactory xnf, Context xct, Position pos, ClassDef classDef, String methodName){
         this(xnf, xct, pos, classDef, Name.make(methodName),
              Flags.NONE, new ArrayList<Formal>(), new ArrayList<Type>(), xct.typeSystem().Void());
     }
     
-    public MethodSynth(NodeFactory xnf, X10Context xct, ClassDef classDef, String methodName){
+    public MethodSynth(NodeFactory xnf, Context xct, ClassDef classDef, String methodName){
         this(xnf, xct, compilerPos, classDef, methodName);
     }
      

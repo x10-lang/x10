@@ -42,7 +42,7 @@ import x10.types.Type;
 import x10.types.Types;
 import x10.types.UnknownType;
 import x10.types.X10ClassType;
-import x10.types.X10Context;
+import x10.types.Context;
 import x10.types.X10FieldInstance;
 import x10.types.X10LocalDef;
 import x10.types.X10MethodInstance;

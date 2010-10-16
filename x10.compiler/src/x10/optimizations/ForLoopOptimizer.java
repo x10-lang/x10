@@ -65,7 +65,7 @@ import x10.types.SemanticException;
 import x10.types.Type;
 import x10.types.TypeSystem;
 import x10.types.Types;
-import x10.types.X10Context;
+import x10.types.Context;
 import x10.types.X10MethodInstance;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
@@ -181,7 +181,7 @@ public class ForLoopOptimizer extends ContextVisitor {
         }
 
         Id           label      = createLabel(pos);
-        X10Context   context    = (X10Context) context();
+        Context   context    = (Context) context();
         List<Formal> formalVars = formal.vars();
         boolean      named      = !formal.isUnnamed();
         boolean      isRect     = X10TypeMixin.isRect(domain.type(), context);

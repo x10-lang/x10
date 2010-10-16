@@ -19,7 +19,7 @@ import x10.types.SemanticException;
 import x10.types.Type;
 import x10.types.TypeSystem;
 import x10.types.X10ClassType;
-import x10.types.X10Context;
+import x10.types.Context;
 import x10.types.X10FieldInstance;
 import x10.types.X10Flags;
 
@@ -38,13 +38,13 @@ public class X10FieldAssign_c extends FieldAssign_c {
     
     @Override
     public Assign typeCheckLeft(ContextVisitor tc) {
-    	X10Context cxt = (X10Context) tc.context();
+    	Context cxt = (Context) tc.context();
     	if (cxt.inDepType()) {
     	    SemanticException e = new Errors.NoAssignmentInDepType(this, this.position());
     	    Errors.issue(tc.job(), e, this);
     	}
     	
-        tc = tc.context(((X10Context) tc.context()).pushAssignment());
+        tc = tc.context(((Context) tc.context()).pushAssignment());
         Assign res = this;
         try {
             res = super.typeCheckLeft(tc);

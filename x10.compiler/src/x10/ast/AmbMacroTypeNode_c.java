@@ -50,7 +50,7 @@ import x10.types.TypeDef_c;
 import x10.types.TypeSystem;
 import x10.types.Types;
 import x10.types.X10ClassType;
-import x10.types.X10Context;
+import x10.types.Context;
 import x10.types.X10Def;
 import x10.types.X10ParsedClassType;
 import x10.types.X10TypeMixin;
@@ -141,7 +141,7 @@ public class AmbMacroTypeNode_c extends AmbTypeNode_c implements AmbMacroTypeNod
         
         X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
         NodeFactory nf = (NodeFactory) tc.nodeFactory();
-        X10Context c = (X10Context) tc.context();
+        Context c = (Context) tc.context();
         
         if (! c.inAnnotation())
             return null;
@@ -208,7 +208,7 @@ public class AmbMacroTypeNode_c extends AmbTypeNode_c implements AmbMacroTypeNod
             
             X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
             NodeFactory nf = (NodeFactory) tc.nodeFactory();
-            X10Context c = (X10Context) tc.context();
+            Context c = (Context) tc.context();
 
             List<Type> typeArgs = new ArrayList<Type>(this.typeArgs.size());
 

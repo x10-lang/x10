@@ -24,7 +24,7 @@ import x10.types.SemanticException;
 import x10.types.Type;
 import x10.types.TypeSystem;
 import x10.types.Types;
-import x10.types.X10Context;
+import x10.types.Context;
 import x10.types.X10NamedType;
 
 import x10.types.X10TypeMixin;

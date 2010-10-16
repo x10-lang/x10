@@ -32,13 +32,12 @@ import x10.types.SemanticException;
 import x10.types.Type;
 import x10.types.Types;
 import x10.types.X10ClassType;
-import x10.types.X10Context;
+import x10.types.Context;
 import x10.types.X10MethodDef;
 import x10.types.X10ProcedureDef;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.X10TypeSystem_c;
-import x10.types.X10Context_c;
 import x10.types.checker.Converter;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
@@ -52,7 +51,7 @@ public class X10Return_c extends Return_c {
 		this.implicit = implicit;
 	}
 	
-	public Type removeLocals(X10Context ctx, Type t, CodeDef thisCode) {
+	public Type removeLocals(Context ctx, Type t, CodeDef thisCode) {
 	    Type b = X10TypeMixin.baseType(t);
 	    if (b != t)
 	        b = removeLocals(ctx, b, thisCode);
@@ -63,7 +62,7 @@ public class X10Return_c extends Return_c {
 	    return X10TypeMixin.xclause(b, c);
 	}
 	
-	public CConstraint removeLocals(X10Context ctx, CConstraint c, CodeDef thisCode) {
+	public CConstraint removeLocals(Context ctx, CConstraint c, CodeDef thisCode) {
 	    if (ctx.currentCode() != thisCode) {
 	        return c;
 	    }
@@ -83,17 +82,17 @@ public class X10Return_c extends Return_c {
 	            catch (XFailure e) {
 	            }
 	        }
-	    return removeLocals((X10Context) ctx.pop(), c, thisCode);
+	    return removeLocals((Context) ctx.pop(), c, thisCode);
 	}
 
 	@Override
 	public Node typeCheck(ContextVisitor tc) {
 		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
-		X10Context c = (X10Context) tc.context();
+		Context c = (Context) tc.context();
 	
 		CodeDef ci = c.currentCode();
 		
-		if (((X10Context_c)c).inAsyncScope()) { // can return from an at but not from an async
+		if (((Context)c).inAsyncScope()) { // can return from an at but not from an async
 		    Errors.issue(tc.job(), new SemanticException("Cannot return from an async."), this);
 		    return this;
 		}
@@ -152,7 +151,7 @@ public class X10Return_c extends Return_c {
 		            }
 		            else {
 		                // Merge the types
-		                exprType = removeLocals((X10Context) tc.context(), exprType, tc.context().currentCode());
+		                exprType = removeLocals((Context) tc.context(), exprType, tc.context().currentCode());
 		                try {
 		                    Type t = ts.leastCommonAncestor(typeRef.getCached(), exprType, c);
 		                    typeRef.update(t);

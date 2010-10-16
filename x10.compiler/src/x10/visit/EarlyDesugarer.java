@@ -27,7 +27,7 @@ import x10.ast.NodeFactory;
 import x10.types.MethodInstance;
 import x10.types.SemanticException;
 import x10.types.TypeSystem;
-import x10.types.X10Context;
+import x10.types.Context;
 /**
  * Visitor to desugar the AST before code gen.
  */
@@ -39,7 +39,7 @@ public class EarlyDesugarer extends ContextVisitor {
         xnf = (NodeFactory) nf;
     }
 
-    protected X10Context xContext() { return (X10Context) context;}
+    protected Context xContext() { return (Context) context;}
     
     public Node leaveCall(Node old, Node n, NodeVisitor v) throws SemanticException {
         if (n instanceof SettableAssign_c)

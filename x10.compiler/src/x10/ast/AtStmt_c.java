@@ -39,11 +39,10 @@ import x10.types.Ref;
 import x10.types.SemanticException;
 import x10.types.Type;
 import x10.types.TypeSystem;
-import x10.types.X10Context;
+import x10.types.Context;
 import x10.types.X10MethodDef;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
-import x10.types.X10Context_c;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.XConstrainedTerm;
@@ -130,7 +129,7 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
         if (placeTerm == null) {
             try {
                 placeTerm = PlaceChecker.computePlaceTerm((Expr) visitChild(this.place, v),
-                        (X10Context) tc.context(), ts);
+                        (Context) tc.context(), ts);
             } catch (SemanticException e) {
                 CConstraint d = new CConstraint();
                 XTerm term = PlaceChecker.makePlace();
@@ -181,7 +180,7 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
             }
         }
         c = c.pushCode(asyncInstance);
-        ((X10Context_c)c).x10Kind = isAsyncOrAt ? X10Context_c.X10Kind.Async : X10Context_c.X10Kind.At;
+        ((Context)c).x10Kind(isAsyncOrAt ? Context.X10Kind.Async : Context.X10Kind.At);
         return c;
     }
 	public Context enterScope(Context c) {
@@ -195,7 +194,7 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
 			c = c.pop();
 		} else {
 			c = super.enterChildScope(child,c);
-			X10Context xc = (X10Context) c;
+			Context xc = (Context) c;
 			if (child == body) {
 				if (placeTerm != null)
 					c = xc.pushPlace(placeTerm);

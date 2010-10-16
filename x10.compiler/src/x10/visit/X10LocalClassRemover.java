@@ -51,7 +51,7 @@ import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10CodeDef;
 import x10.types.X10ConstructorInstance;
-import x10.types.X10Context_c;
+import x10.types.Context;
 import x10.types.X10MethodDef;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
@@ -214,7 +214,7 @@ public class X10LocalClassRemover extends LocalClassRemover {
 
     @Override
     protected boolean isLocal(Context c, Name name) {
-        X10Context_c xcon = (X10Context_c)c;
+        Context xcon = (Context)c;
         CodeDef ci = xcon.definingCodeDef(name);
         if (ci == null) return false;
         while (c != null) {

@@ -38,7 +38,7 @@ import x10.types.SemanticException;
 import x10.types.Type;
 import x10.types.TypeSystem;
 import x10.types.Types;
-import x10.types.X10Context;
+import x10.types.Context;
 import x10.types.X10MethodInstance;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
@@ -93,7 +93,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
         Type lt = left.type();
         Type rt = right.type();
         X10TypeSystem xts = (X10TypeSystem) lt.typeSystem();
-		X10Context context = (X10Context) xts.emptyContext();
+		Context context = (Context) xts.emptyContext();
 		
 		// [IP] An optimization: an value and null can never be equal
 	
@@ -283,7 +283,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
      */
     public Node typeCheck(ContextVisitor tc) {
         X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
-        X10Context context = (X10Context) tc.context();
+        Context context = (Context) tc.context();
 
         Type lbase = X10TypeMixin.baseType(left.type());
         Type rbase = X10TypeMixin.baseType(right.type());
@@ -422,7 +422,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
         return this.type(xts.unknownType(position()));
     }
 
-    public static Type computeReturnTypeForRegionMult(Expr left, Expr right, X10Context context) {
+    public static Type computeReturnTypeForRegionMult(Expr left, Expr right, Context context) {
     	X10TypeSystem ts = (X10TypeSystem) context.typeSystem();
     	Type ltype = left.type();
     	Type rtype = right.type();
@@ -657,7 +657,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
         X10MethodInstance mi = result.methodInstance();
         Type lbase = X10TypeMixin.baseType(n.left().type());
         Type rbase = X10TypeMixin.baseType(n.right().type());
-        X10Context context = (X10Context) tc.context();
+        Context context = (Context) tc.context();
         if (mi.name().toString().equals("operator*") && xts.typeEquals(xts.Region(), lbase, context)
         		&& xts.typeEquals(xts.Region(), rbase, context)) {
         	Type type = computeReturnTypeForRegionMult(left, right, context);

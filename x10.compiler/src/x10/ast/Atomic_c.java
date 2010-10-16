@@ -24,7 +24,7 @@ import x10.types.Context;
 import x10.types.SemanticException;
 import x10.types.Type;
 import x10.types.TypeSystem;
-import x10.types.X10Context;
+import x10.types.Context;
 import x10.types.X10NamedType;
 import x10.types.X10TypeSystem;
 
@@ -89,7 +89,7 @@ implements Atomic {
 	}
 	
 	public Context enterScope(Context c) {
-		X10Context cc = (X10Context) super.enterScope(c);
+		Context cc = (Context) super.enterScope(c);
 		 cc = cc.pushAtomicBlock();
 		return cc;
 		    

@@ -33,14 +33,13 @@ import x10.types.SemanticException;
 import x10.types.Type;
 import x10.types.Types;
 import x10.types.VarDef;
-import x10.types.X10Context;
+import x10.types.Context;
 import x10.types.X10Flags;
 import x10.types.X10LocalInstance;
 import x10.types.X10ProcedureDef;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.X10TypeSystem_c;
-import x10.types.X10Context_c;
 import x10.types.X10LocalDef_c;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.XConstrainedTerm;
@@ -52,7 +51,7 @@ public class X10Local_c extends Local_c {
 		
 	}
 	public Node typeCheck(ContextVisitor tc) {
-	    X10Context_c context = (X10Context_c) tc.context();
+	    Context context = (Context) tc.context();
         final Name liName = name.id();
 	    LocalInstance li = localInstance();
 	    if (!((X10LocalInstance) li).isValid()) {
@@ -167,7 +166,7 @@ public class X10Local_c extends Local_c {
 	}
 
     public static X10LocalInstance findAppropriateLocal(ContextVisitor tc, Name name) {
-        X10Context context = (X10Context) tc.context();
+        Context context = (Context) tc.context();
         SemanticException error = null;
         try {
             return (X10LocalInstance) context.findLocal(name);

@@ -30,7 +30,7 @@ import x10.types.ClosureDef;
 import x10.types.Context;
 import x10.types.SemanticException;
 import x10.types.Type;
-import x10.types.X10Context;
+import x10.types.Context;
 import x10.types.X10TypeSystem;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
@@ -108,7 +108,7 @@ public class PlacedClosure_c extends Closure_c implements PlacedClosure {
     		Expr e = (Expr) visitChild(place, v);
     		XConstrainedTerm placeTerm = null;
     		try {
-    		    placeTerm = PlaceChecker.computePlaceTerm(e, (X10Context) tc.context(), ts);
+    		    placeTerm = PlaceChecker.computePlaceTerm(e, (Context) tc.context(), ts);
     		} catch (SemanticException se) {
     			placeError=true;
     		    CConstraint d = new CConstraint();
@@ -127,18 +127,18 @@ public class PlacedClosure_c extends Closure_c implements PlacedClosure {
     	return null;
     }
     
-    protected X10Context pushPlaceTerm(X10Context xc) {
+    protected Context pushPlaceTerm(Context xc) {
     	ClosureDef def = (ClosureDef) codeDef();
     	XConstrainedTerm pt = def.placeTerm();
     	if (pt != null) {
-    		xc = (X10Context) xc.pushPlace(pt);
+    		xc = (Context) xc.pushPlace(pt);
     	}
     	return xc;
     }
     @Override
     public Context enterChildScope(Node child, Context c) {
     	if (child == place) return c.pop();
-    	X10Context xc = (X10Context) super.enterChildScope(child, c);
+    	Context xc = (Context) super.enterChildScope(child, c);
     	if (child == body) {
     		xc = pushPlaceTerm(xc);
     		addDecls(xc);

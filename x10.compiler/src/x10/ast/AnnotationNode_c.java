@@ -21,7 +21,7 @@ import x10.errors.Errors;
 import x10.types.Context;
 import x10.types.SemanticException;
 import x10.types.X10ClassType;
-import x10.types.X10Context;
+import x10.types.Context;
 import x10.types.X10TypeSystem;
 
 /**
@@ -66,7 +66,7 @@ public class AnnotationNode_c extends Node_c implements AnnotationNode {
 	@Override
 	public Context enterChildScope(Node child, Context c) {
 		c = c.pushBlock();
-		((X10Context) c).setAnnotation();
+		((Context) c).setAnnotation();
 		return super.enterChildScope(child, c);
 	}
 	

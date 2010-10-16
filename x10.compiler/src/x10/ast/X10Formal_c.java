@@ -42,7 +42,7 @@ import x10.types.SemanticException;
 import x10.types.Type;
 import x10.types.TypeSystem;
 import x10.types.UnknownType;
-import x10.types.X10Context;
+import x10.types.Context;
 import x10.types.X10LocalDef;
 import x10.types.X10LocalInstance;
 import x10.types.X10MethodInstance;
@@ -170,7 +170,7 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 	 
 	 public Node setResolverOverride(final Node parent, TypeCheckPreparer v) {
 	     final X10TypeSystem ts = (X10TypeSystem) v.typeSystem();
-	     final X10Context context = (X10Context) v.context();
+	     final Context context = (Context) v.context();
 	     final ClassDef currClassDef = context.currentClassDef();
 	    
 
@@ -224,7 +224,7 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 	 public Node typeCheckOverride(Node parent, ContextVisitor tc) throws SemanticException {
 		 NodeVisitor childtc = tc.enter(parent, this);
 
-		 XConstrainedTerm  pt = ((X10Context) ((ContextVisitor) childtc).context()).currentPlaceTerm();
+		 XConstrainedTerm  pt = ((Context) ((ContextVisitor) childtc).context()).currentPlaceTerm();
 
 		 if (pt != null)
 			 ((X10LocalDef) localDef()).setPlaceTerm(pt.term());
@@ -369,11 +369,11 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 //	}
 	
 	public Context enterChildScope(Node child, Context c) {
-		X10Context cxt = (X10Context) c;
+		Context cxt = (Context) c;
 		if (child == this.type) {
 			TypeSystem ts = c.typeSystem();
 			LocalDef li = localDef();
-			cxt = (X10Context) cxt.copy();
+			cxt = (Context) cxt.copy();
 			cxt.addVariable(li.asInstance());
 			cxt.setVarWhoseTypeIsBeingElaborated(li);
 		}

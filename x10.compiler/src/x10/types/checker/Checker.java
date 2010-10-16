@@ -63,7 +63,7 @@ import x10.types.TypeSystem_c;
 import x10.types.Types;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
-import x10.types.X10Context;
+import x10.types.Context;
 import x10.types.X10Flags;
 import x10.types.X10MemberDef;
 import x10.types.X10MethodInstance;
@@ -88,7 +88,7 @@ public class Checker {
 	
 	public static void checkOfferType(Position pos, 
 			X10ProcedureInstance<? extends ProcedureDef> pi,ContextVisitor tc) throws SemanticException {
-		X10Context cxt = (X10Context) tc.context();
+		Context cxt = (Context) tc.context();
 		Type offerType = (Type) Types.get(pi.offerType());
 		Type type = cxt.collectingFinishType();
 		if (offerType != null) {
@@ -237,7 +237,7 @@ public class Checker {
 		XVar receiver = null;
 
 		X10TypeSystem ts = (X10TypeSystem) t.typeSystem();
-		XTerm r = ts.xtypeTranslator().trans(new CConstraint(), target, (X10Context) c);
+		XTerm r = ts.xtypeTranslator().trans(new CConstraint(), target, (Context) c);
 		if (r instanceof XVar) {
 			receiver = (XVar) r;
 		}
@@ -254,7 +254,7 @@ public class Checker {
 	}
 
 	public static Type expandCall(Type type, Call t,  Context c) throws SemanticException {
-		X10Context xc = (X10Context) c;
+		Context xc = (Context) c;
 		X10MethodInstance xmi = (X10MethodInstance) t.methodInstance();
 		XTypeTranslator xt = ((X10TypeSystem) type.typeSystem()).xtypeTranslator();
 		Flags f = xmi.flags();
@@ -463,7 +463,7 @@ public class Checker {
 	        Type targetType, Name name, List<Type> typeArgs, List<Type> actualTypes) {
 	    X10MethodInstance mi;
 	    X10TypeSystem_c xts = (X10TypeSystem_c) tc.typeSystem();
-	    X10Context context = (X10Context) tc.context();
+	    Context context = (Context) tc.context();
 	    boolean haveUnknown = xts.hasUnknown(targetType);
 	    for (Type t : actualTypes) {
 	        if (xts.hasUnknown(t)) haveUnknown = true;
@@ -506,7 +506,7 @@ public class Checker {
 	    return new Pair<MethodInstance, List<Expr>>(mi, n.arguments());
 	}
 
-	private static Pair<MethodInstance,List<Expr>> findMethod(ContextVisitor tc, X10Context xc,
+	private static Pair<MethodInstance,List<Expr>> findMethod(ContextVisitor tc, Context xc,
 	        X10ProcedureCall n, Type targetType, Name name, List<Type> typeArgs,
 			List<Type> argTypes, boolean requireStatic) throws SemanticException {
 	
@@ -517,7 +517,7 @@ public class Checker {
 	        return new Pair<MethodInstance, List<Expr>>(mi, n.arguments());
 	    }
 	    if (xc.currentDepType() != null)
-	        xc = (X10Context) xc.pop();
+	        xc = (Context) xc.pop();
 	    ClassType currentClass = xc.currentClass();
 	    if (currentClass != null && xts.hasMethodNamed(currentClass, name)) {
 	        // Override to change the type from C to C{self==this}.
@@ -560,9 +560,9 @@ public class Checker {
 	    }
 	
 	    while (xc.pop() != null && xc.pop().currentClass() == currentClass)
-	        xc = (X10Context) xc.pop();
+	        xc = (Context) xc.pop();
 	    if (xc.pop() != null) {
-	        return findMethod(tc, (X10Context) xc.pop(), n, targetType, name, typeArgs, argTypes, currentClass.flags().isStatic());
+	        return findMethod(tc, (Context) xc.pop(), n, targetType, name, typeArgs, argTypes, currentClass.flags().isStatic());
 	    }
 	
 	    TypeSystem_c.MethodMatcher matcher = xts.MethodMatcher(targetType, name, typeArgs, argTypes, xc);
@@ -572,7 +572,7 @@ public class Checker {
 	public static Collection<X10MethodInstance> findMethods(ContextVisitor tc, Type targetType, Name name, List<Type> typeArgs,
 	        List<Type> actualTypes) throws SemanticException {
 	    X10TypeSystem_c xts = (X10TypeSystem_c) tc.typeSystem();
-	    X10Context context = (X10Context) tc.context();
+	    Context context = (Context) tc.context();
 	    if (targetType == null) {
 	        // TODO
 	        return Collections.emptyList();

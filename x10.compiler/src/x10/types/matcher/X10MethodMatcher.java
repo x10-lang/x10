@@ -21,7 +21,7 @@ import x10.types.Name;
 import x10.types.SemanticException;
 import x10.types.Type;
 import x10.types.TypeSystem_c;
-import x10.types.X10Context;
+import x10.types.Context;
 import x10.types.X10MethodInstance;
 
 public class X10MethodMatcher extends TypeSystem_c.MethodMatcher {
@@ -56,7 +56,7 @@ public class X10MethodMatcher extends TypeSystem_c.MethodMatcher {
             X10MethodInstance xmi = (X10MethodInstance) mi;
             Type c = container != null ? container : xmi.container();
             if (typeArgs.isEmpty() || typeArgs.size() == xmi.typeParameters().size())
-                return Matcher.inferAndCheckAndInstantiate((X10Context) context, 
+                return Matcher.inferAndCheckAndInstantiate((Context) context, 
                 		xmi, c, typeArgs, argTypes, mi.position());
         }
         return null;

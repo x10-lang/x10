@@ -43,7 +43,7 @@ import x10.types.Flags;
 import x10.types.Name;
 import x10.types.SemanticException;
 import x10.types.Type;
-import x10.types.X10Context;
+import x10.types.Context;
 import x10.util.synthesizer.ClassSynth;
 import x10.util.synthesizer.CodeBlockSynth;
 import x10.util.synthesizer.ConstructorSynth;
@@ -70,7 +70,7 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
     boolean isReturnPathChanged;
 
     // method frames
-    protected WSRegularFrameClassGen(Job job, NodeFactory xnf, X10Context xct, WSTransformState wts,
+    protected WSRegularFrameClassGen(Job job, NodeFactory xnf, Context xct, WSTransformState wts,
            String className, Stmt stmt, ClassDef outer, Flags flags, ClassType superType) {
         super(job, xnf, xct, wts, className, superType, flags, outer,
                 WSCodeGenUtility.setSpeicalQualifier(stmt, outer, xnf));

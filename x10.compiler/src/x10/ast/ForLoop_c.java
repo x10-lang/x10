@@ -27,7 +27,7 @@ import x10.types.Name;
 import x10.types.SemanticException;
 import x10.types.StructType;
 import x10.types.Type;
-import x10.types.X10Context;
+import x10.types.Context;
 import x10.types.X10Flags;
 import x10.types.X10MethodInstance;
 import x10.types.X10TypeSystem;

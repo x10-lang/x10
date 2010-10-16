@@ -67,7 +67,7 @@ import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10ConstructorDef;
 import x10.types.X10ConstructorInstance;
-import x10.types.X10Context;
+import x10.types.Context;
 import x10.types.X10FieldInstance;
 import x10.types.X10Flags;
 import x10.types.X10MethodInstance;
@@ -776,7 +776,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
 //		er.generateRTTMethods(def);
 
-//		boolean isValueType = xts.isValueType(def.asType(), (X10Context) tr.context());
+//		boolean isValueType = xts.isValueType(def.asType(), (Context) tr.context());
 //		if (def.isTopLevel()) {
 //			er.generateRTType(def);
 //		}
@@ -1210,7 +1210,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
 
 	public void visit(Special_c n) {
-		X10Context c = (X10Context) tr.context();
+		Context c = (Context) tr.context();
 		/*
 		 * The InnerClassRemover will have replaced the
 		 */
@@ -1648,7 +1648,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	        }
 	    }
 	    
-	    X10Context context = (X10Context) tr.context();
+	    Context context = (Context) tr.context();
 	    
 	    if (xts.isRail(c.target().type()) || xts.isValRail(c.target().type())) {
 	        String methodName = c.methodInstance().name().toString();
@@ -2429,7 +2429,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
 		X10Formal form = (X10Formal) f.formal();
 
-		X10Context context = (X10Context) tr.context();
+		Context context = (Context) tr.context();
 
 		/* TODO: case: for (point p:D) -- discuss with vj */
 		/* handled cases: exploded syntax like: for (point p[i,j]:D) and for (point [i,j]:D) */
@@ -2530,7 +2530,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		Type t = target.type();
 
 		X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
-		X10Context context = (X10Context) tr.context();
+		Context context = (Context) tr.context();
 		X10FieldInstance fi = (X10FieldInstance) n.fieldInstance();
 
 		if (target instanceof TypeNode) {
@@ -2620,7 +2620,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		}
 
 		TypeSystem ts = tr.typeSystem();
-		X10Context context = (X10Context) tr.context();
+		Context context = (Context) tr.context();
 		Type t = n.leftType();
 
 //		boolean needsHereCheck = er.needsHereCheck(array, context);

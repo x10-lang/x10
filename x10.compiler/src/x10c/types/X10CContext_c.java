@@ -16,10 +16,10 @@ import java.util.List;
 
 import x10.types.ClassDef;
 import x10.types.TypeSystem;
-import x10.types.X10Context;
-import x10.types.X10Context_c;
+import x10.types.Context;
+import x10.types.Context_c;
 
-public class X10CContext_c extends X10Context_c implements X10Context {
+public class X10CContext_c extends Context_c implements Context {
 
     private final List<ClassDef> generatedClasses = new ArrayList<ClassDef>();
 

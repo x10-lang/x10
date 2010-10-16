@@ -57,7 +57,7 @@ import x10.types.Type;
 import x10.types.Types;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
-import x10.types.X10Context;
+import x10.types.Context;
 import x10.types.X10Def;
 import x10.types.X10FieldInstance;
 import x10.types.X10Flags;
@@ -248,7 +248,7 @@ public class Synthesizer {
 	  */
 	public For makeForLoop(Position pos, 
 			X10Formal formal, Expr low, Expr high, Stmt body, 
-			 X10Context context) {
+			 Context context) {
 		Position CG = NodeFactory_c.compilerGenerated(pos);
 		List<Stmt> inits = new ArrayList<Stmt>();
 		// FIXME: use formal here directly, instead of local
@@ -294,7 +294,7 @@ public class Synthesizer {
      * @param context
      * @return
      */
-    public Pair<LocalDecl, Local> makeLocalVarWithAnnotation(Position pos, Flags flags, Expr initializer, List<AnnotationNode> annotations, X10Context context) {
+    public Pair<LocalDecl, Local> makeLocalVarWithAnnotation(Position pos, Flags flags, Expr initializer, List<AnnotationNode> annotations, Context context) {
 
         LocalDecl localDecl = null;
         Local ldRef = null;
@@ -335,7 +335,7 @@ public class Synthesizer {
 	 */
 	
 	public Expr makeLocalVar(Position pos, Flags flags, Expr  e, List<Stmt> stmtList,
-			 X10Context xc) {
+			 Context xc) {
 		Expr result = null;
 		if (flags == null) {
 			flags = Flags.NONE;
@@ -386,7 +386,7 @@ public class Synthesizer {
 	 * @return
 	 * @throws SemanticException
 	 */
-	public Expr makeFieldAccess(Position pos, Receiver r, Name name, X10Context context) throws SemanticException {
+	public Expr makeFieldAccess(Position pos, Receiver r, Name name, Context context) throws SemanticException {
 		FieldInstance fi = xts.findField(r.type(), xts.FieldMatcher(r.type(), name, context));
 		 Expr result = xnf.Field(pos, r, xnf.Id(pos, name)).fieldInstance(fi)
 		 .type(fi.type());
@@ -404,7 +404,7 @@ public class Synthesizer {
 	 * @return
 	 * @throws SemanticException
 	 */
-	public Expr makeSuperTypeFieldAccess(Position pos, Type superType, Receiver r, Name name, X10Context context) throws SemanticException {
+	public Expr makeSuperTypeFieldAccess(Position pos, Type superType, Receiver r, Name name, Context context) throws SemanticException {
             FieldInstance fi = xts.findField(superType, xts.FieldMatcher(superType, name, context));
             Expr result = xnf.Field(pos, r, xnf.Id(pos, name)).fieldInstance(fi)
             .type(fi.type());
@@ -421,7 +421,7 @@ public class Synthesizer {
      * @return
      * @throws SemanticException
      */
-    public Expr makeFieldAssign(Position pos, Receiver leftReceiver, Name leftName, Expr rightExpr, X10Context context)
+    public Expr makeFieldAssign(Position pos, Receiver leftReceiver, Name leftName, Expr rightExpr, Context context)
             throws SemanticException {
         Field field = makeStaticField(pos, leftReceiver.type(), leftName, xts.Int(), context);
         // assign
@@ -443,7 +443,7 @@ public class Synthesizer {
 	 * @throws SemanticException 
 	 */
 	public Expr makeFieldToFieldAssign(Position pos, Receiver leftReceiver, Name leftName,
-	                                   Receiver rightReceiver, Name rightName, X10Context context) throws SemanticException{
+	                                   Receiver rightReceiver, Name rightName, Context context) throws SemanticException{
 	    
 
             Expr rightExpr = makeFieldAccess(pos, rightReceiver, rightName, context);
@@ -476,7 +476,7 @@ public class Synthesizer {
 	 * @throws SemanticException 
 	 */
 	public Expr makeLocalToFieldAssign(Position pos, Receiver leftReceiver, Name leftName,
-                                           Name localName, Type localType, Flags localFlags, X10Context context) throws SemanticException{
+                                           Name localName, Type localType, Flags localFlags, Context context) throws SemanticException{
 	    
 	    
             LocalDef ldef = xts.localDef(pos, localFlags, Types.ref(localType), localName);
@@ -505,7 +505,7 @@ public class Synthesizer {
 	 * @throws SemanticException 
 	 */
 	public Expr makeFieldToLocalAssign(Position pos, Name localName, Type localType, Flags localFlags, Receiver rightReceiver, Name rightName
-	                                   , X10Context context) throws SemanticException{
+	                                   , Context context) throws SemanticException{
 	    
 	    //FIXME: need check whether this method returns correct expr
 	    //right 
@@ -526,7 +526,7 @@ public class Synthesizer {
 			Type receiver, 
 			Name name,
 			Type returnType,
-			X10Context xc) throws SemanticException {
+			Context xc) throws SemanticException {
 		return makeStaticCall(pos, receiver, name, Collections.<TypeNode>emptyList(), 
 				Collections.<Expr>emptyList(), returnType, xc);
 	}
@@ -536,7 +536,7 @@ public class Synthesizer {
 			Name name,
 			List<Expr> args,
 			Type returnType,
-			X10Context xc) throws SemanticException {
+			Context xc) throws SemanticException {
 		return makeStaticCall(pos, receiver, name, Collections.<TypeNode>emptyList(), args, returnType, xc);
 	}
 
@@ -546,7 +546,7 @@ public class Synthesizer {
 			List<Expr> args,
 			Type returnType,
 			List<Type> argTypes,
-			X10Context xc) throws SemanticException {
+			Context xc) throws SemanticException {
 		return makeStaticCall(pos, receiver, name, Collections.<TypeNode>emptyList(), args, 
 				returnType, argTypes, xc);
 	}
@@ -554,7 +554,7 @@ public class Synthesizer {
 			List<TypeNode> typeArgsN, 
 			List<Expr> args,
 			Type returnType, 
-			X10Context xc) throws SemanticException {
+			Context xc) throws SemanticException {
 		List<Type> argT = new ArrayList<Type>();
         for (Expr t: args) argT.add(t.type());
 		return makeStaticCall(pos, receiver, name, typeArgsN, args,  returnType, argT, xc);
@@ -579,7 +579,7 @@ public class Synthesizer {
 			List<Expr> args,
 			Type returnType,
 			List<Type> argTypes,
-			X10Context xc) throws SemanticException {
+			Context xc) throws SemanticException {
 		
         List<Type> typeArgs = new ArrayList<Type>();
         for (TypeNode t : typeArgsN) typeArgs.add(t.type());
@@ -612,7 +612,7 @@ public class Synthesizer {
      * @throws SemanticException
      */
     public Call makeSuperTypeInstanceCall(Position pos, Type superType, Receiver receiver, Name name, List<TypeNode> typeArgsN,
-                                       List<Expr> args, Type returnType, List<Type> argTypes, X10Context xc)
+                                       List<Expr> args, Type returnType, List<Type> argTypes, Context xc)
             throws SemanticException {
 
         List<Type> typeArgs = new ArrayList<Type>();
@@ -634,7 +634,7 @@ public class Synthesizer {
 			List<Expr> args,
 			Type returnType,
 			List<Type> argTypes,
-			X10Context xc) throws SemanticException {
+			Context xc) throws SemanticException {
 		
         List<Type> typeArgs = new ArrayList<Type>();
         for (TypeNode t : typeArgsN) typeArgs.add(t.type());
@@ -659,11 +659,11 @@ public class Synthesizer {
 	 * @param context
 	 * @return
 	 */
-	public Closure makeClosure(Position pos, Type retType, List<Formal> parms, Block body, X10Context context) {
+	public Closure makeClosure(Position pos, Type retType, List<Formal> parms, Block body, Context context) {
 		return ClosureSynthesizer.makeClosure((X10TypeSystem_c) xts, xnf, pos, retType, parms, body, context, null);
 	}
 	
-    public Closure makeClosure(Position pos, Type retType, List<Formal> parms, Block body, X10Context context, List<X10ClassType> annotations) {
+    public Closure makeClosure(Position pos, Type retType, List<Formal> parms, Block body, Context context, List<X10ClassType> annotations) {
         return ClosureSynthesizer.makeClosure((X10TypeSystem_c) xts, xnf, pos, retType, parms, body, context, annotations);
     }
     
@@ -677,11 +677,11 @@ public class Synthesizer {
 	 * @return
 	 */
 	
-	public Closure makeClosure(Position pos, Type retType, Block body, X10Context context, List<X10ClassType> annotations) {
+	public Closure makeClosure(Position pos, Type retType, Block body, Context context, List<X10ClassType> annotations) {
 		return makeClosure(pos, retType, Collections.<Formal>emptyList(), body, context, annotations);
 	}
 	 
-    public Closure makeClosure(Position pos, Type retType, Block body, X10Context context) {
+    public Closure makeClosure(Position pos, Type retType, Block body, Context context) {
         return makeClosure(pos, retType, Collections.<Formal>emptyList(), body, context);
     }
 	 
@@ -696,7 +696,7 @@ public class Synthesizer {
 			c.addBinding(id, XTerms.makeLit(0));
 			Type type = X10TypeMixin.xclause(xts.Place(), c);
 			return makeStaticField(Position.COMPILER_GENERATED, xts.Place(),
-					Name.make("FIRST_PLACE"), type, (X10Context) xts.emptyContext());
+					Name.make("FIRST_PLACE"), type, (Context) xts.emptyContext());
 		} catch (XFailure z) {
 			// wont happen
 		} catch (SemanticException z) {
@@ -709,7 +709,7 @@ public class Synthesizer {
 			Type receiver, 
 			Name name,
 			Type returnType,
-			X10Context xc) throws SemanticException {
+			Context xc) throws SemanticException {
 
 		FieldInstance fi = xts.findField(receiver,
 				xts.FieldMatcher(receiver, name, xc));
@@ -858,7 +858,7 @@ public class Synthesizer {
 	 */	
     public X10ConstructorDecl makeClassCopyConstructor(Position p, X10ClassDecl cDecl, List<Name> fieldName,
                                                        List<Name> parmName, List<Type> parmType, List<Flags> parmFlags,
-                                                       X10Context context) throws SemanticException {
+                                                       Context context) throws SemanticException {
         X10ClassDef cDef = (X10ClassDef) cDecl.classDef();
 
         // super constructor def (noarg)
@@ -922,7 +922,7 @@ public class Synthesizer {
                                             List<Type> parmType,
                                             List<Flags> parmFlags,
                                             List<Stmt> stmts,
-                                            X10Context context) throws SemanticException {
+                                            Context context) throws SemanticException {
         X10ClassDef cDef = (X10ClassDef) cDecl.classDef();
         ClassType cType = cDef.asType();
 
@@ -985,7 +985,7 @@ public class Synthesizer {
      * @throws SemanticException
      */
     public Expr makeNewInstance(Position pos, X10ClassDef classDef, List<Type> formalTypes, List<Expr> args, List<AnnotationNode> annotations,
-                                X10Context context) throws SemanticException {
+                                Context context) throws SemanticException {
 
         //It's possible we need use formal types to look for the constructor
         //not from the input expressions
@@ -1062,7 +1062,7 @@ public class Synthesizer {
                                        List<Name> parmName,
                                        List<Type> parmType,
                                        List<Flags> parmFlags,
-                                       X10Context context) throws SemanticException{
+                                       Context context) throws SemanticException{
         X10ClassDef cDef = (X10ClassDef) cDecl.classDef();
         ClassType cType = cDef.asType();
 
@@ -1107,7 +1107,7 @@ public class Synthesizer {
             List<Name> parmName,
             List<Type> parmType,
             List<Flags> parmFlags,
-            X10Context context) throws SemanticException {
+            Context context) throws SemanticException {
        
         Stmt s = makeSuperCallStatement(p, cDecl, parmName, parmType, parmFlags, context);                   
         return addClassConstructor(p, cDecl, parmName, parmType, parmFlags, Collections.singletonList(s), context);
@@ -1212,7 +1212,7 @@ public class Synthesizer {
      * @throws SemanticException
      */
     public X10ClassDecl createClass(Position p, X10ClassDef cDef,
-                                    X10Context context) throws SemanticException {
+                                    Context context) throws SemanticException {
 
         FlagsNode fNode = xnf.FlagsNode(p, cDef.flags());
         Id id = xnf.Id(p, cDef.name());
@@ -1266,7 +1266,7 @@ public class Synthesizer {
      */ 
     public X10ClassDecl createClassWithConstructor(Position p, 
                                                    X10ClassDef cDef,
-                                                   X10Context context) throws SemanticException
+                                                   Context context) throws SemanticException
     {
         X10ClassDecl cDecl = createClass(p, cDef, context);
         
