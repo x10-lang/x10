@@ -54,7 +54,7 @@ import x10.types.X10ConstructorInstance;
 import x10.types.Context;
 import x10.types.X10MethodDef;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import x10.types.TypeSystem;
 
 public class X10LocalClassRemover extends LocalClassRemover {
 
@@ -63,7 +63,7 @@ public class X10LocalClassRemover extends LocalClassRemover {
      * implements an interface.
      */
     protected TypeNode defaultSuperType(Position pos) {
-        X10TypeSystem ts = (X10TypeSystem) this.ts;
+        TypeSystem ts = (TypeSystem) this.ts;
         return nf.CanonicalTypeNode(pos, ts.Object());
     }
 
@@ -92,7 +92,7 @@ public class X10LocalClassRemover extends LocalClassRemover {
                         ta.addAll(typeArgs);
                         assert (typeArgs.size() == params.size());
                     }
-                    TypeParamSubst subst = new TypeParamSubst((X10TypeSystem) ts, ta, params);
+                    TypeParamSubst subst = new TypeParamSubst((TypeSystem) ts, ta, params);
                     X10ConstructorInstance xci = (X10ConstructorInstance) subst.reinstantiate(ci);
                     neu = neu.constructorInstance(xci);
                     neu = neu.objectType(nf.CanonicalTypeNode(neu.objectType().position(), subst.reinstantiate(type)));
@@ -199,7 +199,7 @@ public class X10LocalClassRemover extends LocalClassRemover {
 
         if (! params.isEmpty()) {
             cd = cd.typeParameters(params);
-            TypeParamSubst subst = new TypeParamSubst((X10TypeSystem) ts, def.typeParameters(), typeParameters);
+            TypeParamSubst subst = new TypeParamSubst((TypeSystem) ts, def.typeParameters(), typeParameters);
             cd = rewriteTypeParams(subst, cd);
         }
 

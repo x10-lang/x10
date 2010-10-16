@@ -73,7 +73,7 @@ import x10.types.X10Flags;
 import x10.types.X10MethodInstance;
 import x10.types.X10ParsedClassType_c;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import x10.types.TypeSystem;
 import x10c.ast.X10CBackingArrayAccessAssign_c;
 import x10c.ast.X10CBackingArrayAccess_c;
 import x10c.ast.X10CBackingArrayNewArray_c;
@@ -259,7 +259,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	}
 
 	public void visit(Block_c n) {
-	    String s = er.getJavaImplForStmt(n, (X10TypeSystem) tr.typeSystem());
+	    String s = er.getJavaImplForStmt(n, (TypeSystem) tr.typeSystem());
 	      if (s != null) {
 	          w.write(s);
 	      } else {
@@ -419,7 +419,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
 
 	public void visit(X10MethodDecl_c n) {
-		X10TypeSystem ts = (X10TypeSystem) tr.typeSystem();
+		TypeSystem ts = (TypeSystem) tr.typeSystem();
 
 		Flags flags = n.flags().flags();
 
@@ -500,11 +500,11 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		er.generateMethodDecl(n, false);
 	}
 
-    private boolean isMainMethod(X10TypeSystem ts, Flags flags, Id name, Type returnType, Type argType) {
+    private boolean isMainMethod(TypeSystem ts, Flags flags, Id name, Type returnType, Type argType) {
         return isMainMethod(ts, flags, name.id(), returnType, argType, tr.context());
     }
 
-    public static boolean isMainMethod(X10TypeSystem ts, Flags flags, Name name, Type returnType, Type argType, Context context) {
+    public static boolean isMainMethod(TypeSystem ts, Flags flags, Name name, Type returnType, Type argType, Context context) {
         return name.toString().equals("main") &&
                 flags.isPublic() &&
                 flags.isStatic() &&
@@ -513,7 +513,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     }
 
     public static boolean isMainMethodInstance(MethodInstance mi, Context context) {
-        return mi.formalTypes().size() == 1 && isMainMethod((X10TypeSystem) mi.typeSystem(), mi.flags(), mi.name(), mi.returnType(), mi.formalTypes().get(0), context);
+        return mi.formalTypes().size() == 1 && isMainMethod((TypeSystem) mi.typeSystem(), mi.flags(), mi.name(), mi.returnType(), mi.formalTypes().get(0), context);
     }
 
 	public void visit(Id_c n) {
@@ -647,7 +647,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	        tr.translate(sf);
 	        return;
 	    }
-		X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
+		TypeSystem xts = (TypeSystem) tr.typeSystem();
 
 		X10ClassDef def = (X10ClassDef) n.classDef();
 
@@ -738,7 +738,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	/* Interfaces automatically extend Any
 	  	if (n.flags().flags().isInterface() && interfaces.isEmpty()) {
 	
-		    X10TypeSystem ts = (X10TypeSystem) tr.typeSystem();
+		    TypeSystem ts = (TypeSystem) tr.typeSystem();
 		    interfaces.add(tr.nodeFactory().CanonicalTypeNode(n.position(), ts.Any()));
 		}
 */
@@ -904,7 +904,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
                             // e.g. any as Int (any:Any), t as Int (t:T)
                             if (
-                                    (X10TypeMixin.baseType(type) instanceof ParameterType || ((X10TypeSystem) type.typeSystem()).isAny(X10TypeMixin.baseType(type)))
+                                    (X10TypeMixin.baseType(type) instanceof ParameterType || ((TypeSystem) type.typeSystem()).isAny(X10TypeMixin.baseType(type)))
                                     && (t.isBoolean() || t.isByte() || t.isShort() || t.isInt() || t.isLong() || t.isFloat() || t.isDouble() || t.isChar())
                             ) { 
                                 w.write(X10_RTT_TYPES + ".as");
@@ -976,7 +976,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                                 }
                                 
                                 w.allowBreak(2, " ");
-                                X10TypeSystem xts = ((X10TypeSystem)tr.typeSystem());
+                                TypeSystem xts = ((TypeSystem)tr.typeSystem());
                                 boolean needParen = expr instanceof Unary || expr instanceof Lit || expr instanceof Conditional_c || (expr instanceof X10Call && !(X10TypeMixin.baseType(expr.type()) instanceof ParameterType) && xts.isRail(((X10Call) expr).target().type()));
                                 if (needParen)
                                     w.write("(");
@@ -1039,7 +1039,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		Type t = tn.type();
 		
 		// Fix for XTENLANG-1099
-                X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
+                TypeSystem xts = (TypeSystem) tr.typeSystem();
                 if (xts.typeEquals(xts.Object(), t, tr.context())) {
 		    /*
 		     * Because @NativeRep of x10.lang.Object is java.lang.Object,
@@ -1375,7 +1375,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		Type t = target.type();
 		boolean base = false;
 
-		X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
+		TypeSystem xts = (TypeSystem) t.typeSystem();
 
 		X10MethodInstance mi = c.closureInstance();
 
@@ -1445,7 +1445,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		        Block body = catch1.body();
 		        NodeFactory xnf = (NodeFactory) tr.nodeFactory();
 		        Position pos = Position.COMPILER_GENERATED;
-		        X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
+		        TypeSystem xts = (TypeSystem) tr.typeSystem();
 		        Type re = xts.RuntimeException();
 		        New new1 = xnf.New(Position.COMPILER_GENERATED, xnf.CanonicalTypeNode(Position.COMPILER_GENERATED, re), Collections.<Expr>emptyList());
 		        X10ConstructorInstance ci;
@@ -1536,7 +1536,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	                Call call = (Call) expr;
 	                Receiver target = call.target();
 	                if (target instanceof X10CanonicalTypeNode) {
-	                    if (target.type().typeEquals(((X10TypeSystem) tr.typeSystem()).Runtime(), tr.context())) {
+	                    if (target.type().typeEquals(((TypeSystem) tr.typeSystem()).Runtime(), tr.context())) {
 	                        if (call.methodInstance().name().toString().equals("stopFinish")) {
 	                            return true;
 	                        }
@@ -1584,7 +1584,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
 	public void visit(X10Call_c c) {
 	    Type type = X10TypeMixin.baseType(c.type());
-	    X10TypeSystem xts = (X10TypeSystem) type.typeSystem();
+	    TypeSystem xts = (TypeSystem) type.typeSystem();
 	    
 	    boolean isParameterType = false;
 	    Type ptype = type;
@@ -1929,8 +1929,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                                             Type targetType = ((X10Call) e).target().type();
                                             if (
                                                 !(
-                                                    ((X10TypeSystem) tr.typeSystem()).isRail(targetType)
-                                                    || ((X10TypeSystem) tr.typeSystem()).isValRail(targetType)
+                                                    ((TypeSystem) tr.typeSystem()).isRail(targetType)
+                                                    || ((TypeSystem) tr.typeSystem()).isValRail(targetType)
                                                     && !(X10TypeMixin.baseType(e.type()) instanceof ParameterType)
                                                 )
                                                 && X10TypeMixin.baseType(((X10Call) e).methodInstance().def().returnType().get()) instanceof ParameterType
@@ -1998,7 +1998,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     }
     
 	private boolean isIMC(Type type) {
-	    X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
+	    TypeSystem xts = (TypeSystem) tr.typeSystem();
 	    Type tbase = X10TypeMixin.baseType(type);
 	    return tbase instanceof X10ParsedClassType_c && ((X10ParsedClassType_c) tbase).def().asType().typeEquals(imcType, tr.context());
 	}
@@ -2393,7 +2393,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         // assign default value for access vars in at or async
         else if (!n.flags().flags().isFinal()) {
             Type type = X10TypeMixin.baseType(n.type().type());
-            X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
+            TypeSystem xts = (TypeSystem) tr.typeSystem();
 
             w.write(" =");
             w.allowBreak(2, " ");
@@ -2425,7 +2425,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	}
 
 	public void visit(ForLoop_c f) {
-		X10TypeSystem ts = (X10TypeSystem) tr.typeSystem();
+		TypeSystem ts = (TypeSystem) tr.typeSystem();
 
 		X10Formal form = (X10Formal) f.formal();
 
@@ -2529,7 +2529,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		Receiver target = n.target();
 		Type t = target.type();
 
-		X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
+		TypeSystem xts = (TypeSystem) t.typeSystem();
 		Context context = (Context) tr.context();
 		X10FieldInstance fi = (X10FieldInstance) n.fieldInstance();
 
@@ -2666,7 +2666,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		else if (! effects) {
 			Binary.Operator op = n.operator().binaryOperator();
 			Name methodName = X10Binary_c.binaryMethodName(op);
-			X10TypeSystem xts = (X10TypeSystem) ts;
+			TypeSystem xts = (TypeSystem) ts;
 			if ((t.isBoolean() || t.isNumeric()) && (xts.isRail(array.type()) || xts.isValRail(array.type()) || isIMC(array.type()))) {
 			    w.write("(");
 			    w.write("(");
@@ -2714,7 +2714,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			// new Object() { T eval(R target, T right) { return (target.f = target.f.add(right)); } }.eval(x, e)
 			Binary.Operator op = n.operator().binaryOperator();
 			Name methodName = X10Binary_c.binaryMethodName(op);
-			X10TypeSystem xts = (X10TypeSystem) ts;
+			TypeSystem xts = (TypeSystem) ts;
 			if ((t.isBoolean() || t.isNumeric()) && (xts.isRail(array.type()) || xts.isValRail(array.type()) || isIMC(array.type()))) {
 			    w.write("(");
 			    w.write("(");
@@ -2818,7 +2818,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	public void visit(X10Unary_c n) {
 		Expr left = n.expr();
 		Type l =  left.type();
-		X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
+		TypeSystem xts = (TypeSystem) tr.typeSystem();
 		NodeFactory nf = tr.nodeFactory();
 		Unary.Operator op = n.operator();
 
@@ -2849,7 +2849,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 				}
 			}
 
-			X10TypeSystem ts = (X10TypeSystem) tr.typeSystem();
+			TypeSystem ts = (TypeSystem) tr.typeSystem();
 			if (mi != null) {
 				MethodInstance setter = null;
 
@@ -3025,7 +3025,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		Type l = left.type();
 		Expr right = n.right();
 		Type r =  right.type();
-		X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
+		TypeSystem xts = (TypeSystem) tr.typeSystem();
 		Binary.Operator op = n.operator();
 
 

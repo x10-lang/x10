@@ -82,7 +82,7 @@ import x10.types.Types;
 import x10.types.VarDef;
 import x10.types.VarInstance;
 import x10.types.X10Flags;
-import x10.types.X10TypeSystem;
+import x10.types.TypeSystem;
 import x10.types.constraints.CConstraint;
 import x10.visit.Desugarer;
 
@@ -188,13 +188,13 @@ public class LoopUnroller extends ContextVisitor {
      */
     private LoopLeftoverHandling fHandleLoopLeftovers;
 
-    private final X10TypeSystem xts;
+    private final TypeSystem xts;
 
     private final NodeFactory xnf;
 
     public LoopUnroller(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf);
-        xts = (X10TypeSystem) ts;
+        xts = (TypeSystem) ts;
         xnf = (NodeFactory) nf;
     }
 

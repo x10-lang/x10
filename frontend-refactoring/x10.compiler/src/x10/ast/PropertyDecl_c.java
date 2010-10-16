@@ -78,7 +78,7 @@ public class PropertyDecl_c extends X10FieldDecl_c  implements PropertyDecl {
 
     private Position getCompilerGenPos() { return NodeFactory_c.compilerGenerated(position()); }
     protected MethodDecl getter(NodeFactory nf) {
-        X10TypeSystem ts = (X10TypeSystem) nf.extensionInfo().typeSystem();
+        TypeSystem ts = (TypeSystem) nf.extensionInfo().typeSystem();
         Position pos = getCompilerGenPos();
         Flags flags = X10Flags.PROPERTY.Public().Final();
         List<Formal> formals = Collections.<Formal>emptyList();

@@ -23,7 +23,7 @@ import x10.ast.Return;
 import x10.ast.Stmt;
 import x10.types.Name;
 import x10.types.Type;
-import x10.types.X10TypeSystem;
+import x10.types.TypeSystem;
 import x10.util.ClassifiedStream;
 import x10.util.StreamWrapper;
 import x10.visit.Inliner.InliningRewriter;

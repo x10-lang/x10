@@ -30,7 +30,7 @@ import x10.types.Type;
 import x10.types.Context;
 import x10.types.X10Flags;
 import x10.types.X10MethodInstance;
-import x10.types.X10TypeSystem;
+import x10.types.TypeSystem;
 import x10.types.checker.Checker;
 import x10.types.checker.PlaceChecker;
 
@@ -74,7 +74,7 @@ public class ForLoop_c extends X10Loop_c implements ForLoop {
 	private static final Name ITERATOR = Name.make("iterator");
 	public Node typeCheck(ContextVisitor tc) throws SemanticException {
 	    X10Loop result = (X10Loop) super.typeCheck(tc);
-	    X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
+	    TypeSystem xts = (TypeSystem) tc.typeSystem();
 	    // TODO: generate a cast if STATIC_CALLS is off
 	    X10MethodInstance mi = null;
 	    Expr domain = result.domain();
@@ -93,7 +93,7 @@ public class ForLoop_c extends X10Loop_c implements ForLoop {
 	/** Type check the statement. */
 //	public Node typeCheck(TypeChecker tc) throws SemanticException {
 //		ForLoop_c n = (ForLoop_c) super.typeCheck(tc);
-//		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+//		TypeSystem ts = (TypeSystem) tc.typeSystem();
 //		Expr newDomain = n.domain;
 //		X10Type type = (X10Type) newDomain.type();
 //		// FIXME: [IP] remove desugaring

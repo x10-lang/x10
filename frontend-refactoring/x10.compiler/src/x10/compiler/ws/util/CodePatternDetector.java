@@ -35,7 +35,7 @@ import x10.types.Name;
 import x10.types.SemanticException;
 import x10.types.Type;
 import x10.types.Context;
-import x10.types.X10TypeSystem;
+import x10.types.TypeSystem;
 
 /**
  * @author Haichuan

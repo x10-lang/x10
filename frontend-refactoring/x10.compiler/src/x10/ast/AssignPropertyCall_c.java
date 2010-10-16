@@ -40,7 +40,7 @@ import x10.types.Context;
 import x10.types.X10FieldInstance;
 import x10.types.X10ParsedClassType;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import x10.types.TypeSystem;
 import x10.types.XTypeTranslator;
 import x10.types.checker.ThisChecker;
 import x10.types.constraints.CConstraint;
@@ -170,7 +170,7 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 	protected static void checkAssignments(ContextVisitor tc, Position pos,
 	        List<FieldInstance> props, List<Expr> args)
 	{
-		X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
+		TypeSystem xts = (TypeSystem) tc.typeSystem();
 		// First check that the base types are correct.
 		for (int i=0; i < args.size() && i < props.size(); ++i) {
 			if (!xts.isSubtype(X10TypeMixin.baseType(args.get(i).type()), X10TypeMixin.baseType(props.get(i).type()))) {
@@ -185,7 +185,7 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 	        X10ConstructorDef thisConstructor, List<FieldInstance> definedProperties,
 	        List<Expr> args)
 	{
-		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+		TypeSystem ts = (TypeSystem) tc.typeSystem();
 		Context ctx = (Context) tc.context();
 		if (ts.hasUnknown(Types.get(thisConstructor.returnType()))) {
 		    return;

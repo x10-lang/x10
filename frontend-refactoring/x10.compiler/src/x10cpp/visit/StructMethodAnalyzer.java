@@ -54,11 +54,11 @@ import x10.types.Type;
 import x10.types.TypeSystem;
 import x10.types.X10ClassType;
 import x10.types.X10MethodInstance;
-import x10.types.X10TypeSystem;
+import x10.types.TypeSystem;
 import x10.util.Synthesizer;
 
 public class StructMethodAnalyzer extends ContextVisitor {
-    private final X10TypeSystem xts;
+    private final TypeSystem xts;
     private final X10ClassType myContainer;
     
     // GACK:  This is ridiculous.  canGoInHeaderStream should be a simple boolean field,
@@ -69,7 +69,7 @@ public class StructMethodAnalyzer extends ContextVisitor {
     public StructMethodAnalyzer(Job job, TypeSystem ts, NodeFactory nf, X10ClassType container) {
         super(job, ts, nf);
         myContainer = container;
-        xts = (X10TypeSystem) ts;
+        xts = (TypeSystem) ts;
     }
     
     public boolean canGoInHeaderStream() { return canGoInHeaderStream[0]; }

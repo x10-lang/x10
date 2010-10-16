@@ -59,7 +59,7 @@ import x10.types.Context;
 import x10.types.X10LocalDef;
 import x10.types.X10ParsedClassType;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import x10.types.TypeSystem;
 import x10.types.checker.Converter;
 
 public class VarsBoxer extends ContextVisitor {
@@ -67,13 +67,13 @@ public class VarsBoxer extends ContextVisitor {
 
     private static final QName GLOBAL_REF = QName.make("x10.lang.GlobalRef");
     
-    private final X10TypeSystem xts;
+    private final TypeSystem xts;
     private final NodeFactory xnf;
     private X10ParsedClassType globalRefType;
     
     public VarsBoxer(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf);
-        xts = (X10TypeSystem) ts;
+        xts = (TypeSystem) ts;
         xnf = (NodeFactory) nf;
     }
     

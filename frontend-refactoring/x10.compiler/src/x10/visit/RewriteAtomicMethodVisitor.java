@@ -31,7 +31,7 @@ import x10.extension.X10ClassBodyExt_c;
 import x10.types.SemanticException;
 import x10.types.TypeSystem;
 import x10.types.X10Flags;
-import x10.types.X10TypeSystem;
+import x10.types.TypeSystem;
 
 public class RewriteAtomicMethodVisitor extends ContextVisitor {
 

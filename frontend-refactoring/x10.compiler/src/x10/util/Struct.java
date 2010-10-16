@@ -45,7 +45,7 @@ public class Struct {
     }
 
     public static X10ClassDecl_c addStructMethods(TypeBuilder tb, X10ClassDecl_c n) {
-        final X10TypeSystem_c xts = (X10TypeSystem_c) tb.typeSystem();
+        final TypeSystem_c xts = (TypeSystem_c) tb.typeSystem();
         final X10ClassDef cd = (X10ClassDef) n.classDef();
         X10ParsedClassType ct = (X10ParsedClassType) cd.asType();
 

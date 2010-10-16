@@ -42,7 +42,7 @@ import x10.types.TypeSystem;
 import x10.types.Context;
 import x10.types.X10MethodDef;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import x10.types.TypeSystem;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.XConstrainedTerm;
@@ -119,7 +119,7 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
   
     @Override
     public Node typeCheckOverride(Node parent, ContextVisitor tc) {
-    	X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+    	TypeSystem ts = (TypeSystem) tc.typeSystem();
     	NodeVisitor v = tc.enter(parent, this);
     	
     	if (v instanceof PruningVisitor) {
@@ -149,7 +149,7 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
     }
    @Override
    public Node typeCheck(ContextVisitor tc) throws SemanticException {
-		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+		TypeSystem ts = (TypeSystem) tc.typeSystem();
 	   if (placeError) { // this means we were not able to convert this.place into a term of type Place.
 		   Errors.issue(tc.job(), 
 					new Errors.AtArgMustBePlace(this.place, ts.Place(), this.position()));
@@ -166,7 +166,7 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
 	}
 
     public static Context createDummyAsync(Context c, boolean isAsyncOrAt) {        
-        X10TypeSystem ts = (X10TypeSystem) c.typeSystem();
+        TypeSystem ts = (TypeSystem) c.typeSystem();
         X10MethodDef asyncInstance = (X10MethodDef) ts.asyncCodeInstance(c.inStaticContext());
 
         if (c.currentCode() instanceof X10MethodDef) {
@@ -206,7 +206,7 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
 
 
 	public Type childExpectedType(Expr child, AscriptionVisitor av) {
-		X10TypeSystem ts = (X10TypeSystem) av.typeSystem();
+		TypeSystem ts = (TypeSystem) av.typeSystem();
 		if (child == place) {
 			return ts.Place();
 		}

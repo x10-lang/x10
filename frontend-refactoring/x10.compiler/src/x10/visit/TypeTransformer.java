@@ -44,7 +44,7 @@ import x10.types.X10FieldInstance;
 import x10.types.X10LocalDef;
 import x10.types.X10LocalInstance;
 import x10.types.X10MethodInstance;
-import x10.types.X10TypeSystem;
+import x10.types.TypeSystem;
 
 /**
  * A {@link NodeTransformer} that transforms the types stored
@@ -215,7 +215,7 @@ public class TypeTransformer extends NodeTransformer {
                 argTypes.add(p.type().typeRef());
                 formalNames.add(p.localDef());
             }
-            X10TypeSystem xts = (X10TypeSystem) visitor().typeSystem();
+            TypeSystem xts = (TypeSystem) visitor().typeSystem();
             ClosureDef icd = xts.closureDef(cd.position(), cd.typeContainer(), cd.methodContainer(),
                                             d.returnType().typeRef(),
                                             argTypes, cd.thisVar(), formalNames,
@@ -262,7 +262,7 @@ public class TypeTransformer extends NodeTransformer {
         boolean sigChanged = d.type() != old.type(); // conservative compare detects changes in substructure
         if (sigChanged) {
             X10LocalDef ld = (X10LocalDef) d.localDef();
-            X10TypeSystem xts = (X10TypeSystem) visitor().typeSystem();
+            TypeSystem xts = (TypeSystem) visitor().typeSystem();
             X10LocalDef ild = xts.localDef(ld.position(), ld.flags(), d.type().typeRef(), ld.name());
             mapLocal(ld, ild);
             return d.localDef(ild);
@@ -275,7 +275,7 @@ public class TypeTransformer extends NodeTransformer {
         boolean sigChanged = f.type() != old.type(); // conservative compare detects changes in substructure
         if (sigChanged) {
             X10LocalDef ld = f.localDef();
-            X10TypeSystem xts = (X10TypeSystem) visitor().typeSystem();
+            TypeSystem xts = (TypeSystem) visitor().typeSystem();
             X10LocalDef ild = xts.localDef(ld.position(), ld.flags(), f.type().typeRef(), ld.name());
             mapLocal(ld, ild);
             return f.localDef(ild);

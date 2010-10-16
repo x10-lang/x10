@@ -18,7 +18,7 @@ import org.w3c.dom.Element;
 
 
 import x10.ast.NodeFactory;
-import x10.types.X10TypeSystem;
+import x10.types.TypeSystem;
 import polyglot.frontend.FileSource;
 import polyglot.frontend.Parser;
 import polyglot.util.ErrorInfo;
@@ -27,12 +27,12 @@ import polyglot.util.ErrorQueue;
 public class DomParser implements Parser {
 
 	protected Reader reader;
-	protected X10TypeSystem ts;
+	protected TypeSystem ts;
 	protected NodeFactory nf;
 	protected FileSource source;
 	protected ErrorQueue eq;
 
-	public DomParser(Reader reader, X10TypeSystem ts, NodeFactory nf, FileSource source, ErrorQueue eq) {
+	public DomParser(Reader reader, TypeSystem ts, NodeFactory nf, FileSource source, ErrorQueue eq) {
 		super();
 		this.reader = reader;
 		this.ts = ts;

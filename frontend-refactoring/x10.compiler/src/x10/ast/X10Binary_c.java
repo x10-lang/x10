@@ -41,8 +41,8 @@ import x10.types.Types;
 import x10.types.Context;
 import x10.types.X10MethodInstance;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
-import x10.types.X10TypeSystem_c;
+import x10.types.TypeSystem;
+import x10.types.TypeSystem_c;
 import x10.types.checker.Checker;
 import x10.types.checker.Converter;
 import x10.types.checker.PlaceChecker;
@@ -76,7 +76,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 		// can never be equal.
 		Type lt = left.type();
 		Type rt = right.type();
-		X10TypeSystem xts = (X10TypeSystem) lt.typeSystem();
+		TypeSystem xts = (TypeSystem) lt.typeSystem();
 		if (lt == null || rt == null)
 			return false;
 		return false;
@@ -92,7 +92,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
         
         Type lt = left.type();
         Type rt = right.type();
-        X10TypeSystem xts = (X10TypeSystem) lt.typeSystem();
+        TypeSystem xts = (TypeSystem) lt.typeSystem();
 		Context context = (Context) xts.emptyContext();
 		
 		// [IP] An optimization: an value and null can never be equal
@@ -222,7 +222,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
         return Name.make("inverse_" + n.toString());
     }
     
-    private static Type promote(X10TypeSystem ts, Type t1, Type t2) {
+    private static Type promote(TypeSystem ts, Type t1, Type t2) {
         if (ts.isByte(t1)) {
             return t2;
         }
@@ -282,7 +282,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
      * call.
      */
     public Node typeCheck(ContextVisitor tc) {
-        X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
+        TypeSystem xts = (TypeSystem) tc.typeSystem();
         Context context = (Context) tc.context();
 
         Type lbase = X10TypeMixin.baseType(left.type());
@@ -423,7 +423,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
     }
 
     public static Type computeReturnTypeForRegionMult(Expr left, Expr right, Context context) {
-    	X10TypeSystem ts = (X10TypeSystem) context.typeSystem();
+    	TypeSystem ts = (TypeSystem) context.typeSystem();
     	Type ltype = left.type();
     	Type rtype = right.type();
     	XTerm lrank = X10TypeMixin.rank(ltype, context);
@@ -554,7 +554,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
             return fake;
         }
 
-        X10TypeSystem_c xts = (X10TypeSystem_c) tc.typeSystem();
+        TypeSystem_c xts = (TypeSystem_c) tc.typeSystem();
 
         List<X10Call_c> best = new ArrayList<X10Call_c>();
         X10Binary_c.Conversion bestConversion = X10Binary_c.Conversion.UNKNOWN;

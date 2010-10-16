@@ -16,7 +16,7 @@ import x10.ast.X10Field_c;
 import x10.ast.NodeFactory;
 import x10.ast.X10Special;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import x10.types.TypeSystem;
 import x10.types.constraints.CConstraint;
 import x10.util.Synthesizer;
 
@@ -48,7 +48,7 @@ public class ThisChecker extends ErrorHandlingVisitor {
         }
         if (n instanceof X10CanonicalTypeNode) {
             CConstraint rc = X10TypeMixin.xclause(((X10CanonicalTypeNode) n).type());
-            List<Expr> clauses = new Synthesizer((NodeFactory) nf, (X10TypeSystem) ts).makeExpr(rc, n.position());
+            List<Expr> clauses = new Synthesizer((NodeFactory) nf, (TypeSystem) ts).makeExpr(rc, n.position());
             for (Expr c : clauses) {
                 c.visit(this);
             }

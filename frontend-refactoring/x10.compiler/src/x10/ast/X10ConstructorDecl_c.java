@@ -62,7 +62,7 @@ import x10.types.X10MemberDef;
 import x10.types.X10ProcedureDef;
 
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import x10.types.TypeSystem;
 import x10.types.checker.PlaceChecker;
 import x10.types.checker.ThisChecker;
 import x10.types.checker.VarChecker;
@@ -172,7 +172,7 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
     }
 
     protected ConstructorDef createConstructorDef(TypeSystem ts, ClassDef ct, Flags flags) {
-    	X10ConstructorDef ci = (X10ConstructorDef) ((X10TypeSystem) ts).constructorDef(position(), Types.ref(ct.asType()), flags,
+    	X10ConstructorDef ci = (X10ConstructorDef) ((TypeSystem) ts).constructorDef(position(), Types.ref(ct.asType()), flags,
                 Collections.<Ref<? extends Type>>emptyList(), 
                 offerType == null ? null : offerType.typeRef());
         
@@ -271,7 +271,7 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
         c  = super.enterChildScope(child, c);
         Context xc = (Context) c;
         
-        X10TypeSystem xts = (X10TypeSystem) c.typeSystem();
+        TypeSystem xts = (TypeSystem) c.typeSystem();
         if (child == body || child == returnType || child == hasType ||  child == offerType || (formals != null && formals.contains(child))) {
         	c = PlaceChecker.pushHereIsThisHome(xc);
         }
@@ -322,7 +322,7 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
     	X10ConstructorDecl nn = this;
     	X10ConstructorDecl old = nn;
 
-        X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
+        TypeSystem xts = (TypeSystem) tc.typeSystem();
         
         // Step I.a.  Check the formals.
         TypeChecker childtc = (TypeChecker) tc.enter(parent, nn);
@@ -515,7 +515,7 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
 
     public Node conformanceCheck(ContextVisitor tc) {
         X10ConstructorDecl_c n = (X10ConstructorDecl_c) super.conformanceCheck(tc);
-        X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+        TypeSystem ts = (TypeSystem) tc.typeSystem();
         
         Type retTypeBase =  n.returnType().type();
         retTypeBase = X10TypeMixin.baseType(retTypeBase);

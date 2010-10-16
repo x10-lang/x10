@@ -86,7 +86,7 @@ import x10.types.Flags;
 import x10.types.Name;
 import x10.types.SemanticException;
 import x10.types.TypeSystem;
-import x10.types.X10TypeSystem;
+import x10.types.TypeSystem;
 
 /**
  * @author Bowen Alpern
@@ -96,7 +96,7 @@ public final class ExpressionFlattener extends ContextVisitor {
 
     private static final boolean DEBUG = false;
 
-    X10TypeSystem xts;
+    TypeSystem xts;
     NodeFactory xnf;
 //    Synthesizer syn;
     ForLoopOptimizer syn; // move functionality to Synthesizer
@@ -111,7 +111,7 @@ public final class ExpressionFlattener extends ContextVisitor {
      */
     public ExpressionFlattener(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf);
-        xts = (X10TypeSystem) ts;
+        xts = (TypeSystem) ts;
         xnf = (NodeFactory) nf;
 //        syn = new Synthesizer(xnf, xts);
         syn = new ForLoopOptimizer(job, ts, nf);

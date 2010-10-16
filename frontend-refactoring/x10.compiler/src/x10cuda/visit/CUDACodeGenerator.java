@@ -128,8 +128,8 @@ import x10.types.Type;
 import x10.types.VarInstance;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
-import x10.types.X10TypeSystem;
-import x10.types.X10TypeSystem_c;
+import x10.types.TypeSystem;
+import x10.types.TypeSystem_c;
 import x10cpp.X10CPPCompilerOptions;
 import x10cpp.postcompiler.CXXCommandBuilder;
 import x10cpp.types.X10CPPContext_c;
@@ -173,8 +173,8 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 		return (X10CUDAContext_c) tr.context();
 	}
 
-	private X10TypeSystem_c xts() {
-		return (X10TypeSystem_c) tr.typeSystem();
+	private TypeSystem_c xts() {
+		return (TypeSystem_c) tr.typeSystem();
 	}
 
 	// defer to CUDAContext.cudaStream()
@@ -755,7 +755,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 			Block block) {
 		if (blockIsKernel(block)) {
 
-			X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
+			TypeSystem_c xts = (TypeSystem_c) tr.typeSystem();
 			boolean in_template_closure = freeTypeParams.size() > 0;
 			if (in_template_closure)
 				emitter.printTemplateSignature(freeTypeParams, defn_s);

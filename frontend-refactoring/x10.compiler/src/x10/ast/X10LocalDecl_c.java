@@ -47,7 +47,7 @@ import x10.types.X10Flags;
 import x10.types.X10LocalDef;
 import x10.types.X10ParsedClassType_c;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import x10.types.TypeSystem;
 import x10.types.checker.Converter;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.XConstrainedTerm;

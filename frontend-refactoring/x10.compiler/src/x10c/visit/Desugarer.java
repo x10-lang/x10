@@ -33,18 +33,18 @@ import x10.types.SemanticException;
 import x10.types.Type;
 import x10.types.TypeSystem;
 import x10.types.X10MethodInstance;
-import x10.types.X10TypeSystem;
+import x10.types.TypeSystem;
 import x10.types.checker.Converter;
 
 /**
  * Visitor to desugar the AST before code gen.
  */
 public class Desugarer extends x10.visit.Desugarer {
-    private X10TypeSystem xts;
+    private TypeSystem xts;
     private NodeFactory xnf;
     public Desugarer(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf);
-        this.xts = (X10TypeSystem) ts;
+        this.xts = (TypeSystem) ts;
         this.xnf = (NodeFactory) nf;
     }
 

@@ -39,7 +39,7 @@ public class ClosureType_c extends X10ParsedClassType_c implements FunctionType 
 
 //    protected ClosureInstance ci;
 
-    public ClosureType_c(final X10TypeSystem ts, Position pos, final X10ClassDef def) {
+    public ClosureType_c(final TypeSystem ts, Position pos, final X10ClassDef def) {
 	super(ts, pos, Types.ref(def));
     }
     

@@ -65,7 +65,7 @@ import x10.types.X10ClassType;
 import x10.types.X10Flags;
 import x10.types.X10MethodInstance;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import x10.types.TypeSystem;
 import x10c.ast.BackingArray;
 import x10c.ast.BackingArrayAccess;
 import x10c.ast.BackingArrayAccessAssign;

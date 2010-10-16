@@ -38,8 +38,8 @@ import x10.types.X10Flags;
 import x10.types.X10LocalInstance;
 import x10.types.X10ProcedureDef;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
-import x10.types.X10TypeSystem_c;
+import x10.types.TypeSystem;
+import x10.types.TypeSystem_c;
 import x10.types.X10LocalDef_c;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.XConstrainedTerm;
@@ -130,7 +130,7 @@ public class X10Local_c extends Local_c {
 			    X10ProcedureDef pi = (X10ProcedureDef) ci;
 				CConstraint c = Types.get(pi.guard());
 				if (c != null) {
-					X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
+					TypeSystem xts = (TypeSystem) tc.typeSystem();
 
 					// Substitute self for x (this local) in the guard.
 //					C_Var var = new TypeTranslator(xts).trans(localInstance());
@@ -174,7 +174,7 @@ public class X10Local_c extends Local_c {
             error = e;
         }
         // If not returned yet, fake the local instance.
-        X10TypeSystem_c xts = (X10TypeSystem_c) tc.typeSystem();
+        TypeSystem_c xts = (TypeSystem_c) tc.typeSystem();
         X10LocalInstance li = xts.createFakeLocal(name, error);
         return li;
     }

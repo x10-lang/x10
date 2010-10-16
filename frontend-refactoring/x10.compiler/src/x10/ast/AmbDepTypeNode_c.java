@@ -37,8 +37,8 @@ import x10.types.Types;
 import x10.types.X10ClassType;
 import x10.types.Context;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
-import x10.types.X10TypeSystem_c;
+import x10.types.TypeSystem;
+import x10.types.TypeSystem_c;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
 import x10.visit.X10TypeChecker;
@@ -115,7 +115,7 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode, AddF
     	}
     }
     public Node typeCheckOverride(Node parent, ContextVisitor tc) throws SemanticException {
-        X10TypeSystem_c ts = (X10TypeSystem_c) tc.typeSystem();
+        TypeSystem_c ts = (TypeSystem_c) tc.typeSystem();
         NodeFactory nf = (NodeFactory) tc.nodeFactory();
 
         LazyRef<Type> sym = (LazyRef<Type>) this.type;

@@ -21,7 +21,7 @@ import x10.types.Ref;
 import x10.types.Type;
 import x10.types.TypeDef;
 import x10.types.X10ClassDef;
-import x10.types.X10TypeSystem;
+import x10.types.TypeSystem;
 
 public interface X10ClassDecl extends ClassDecl {
 	DepParameterExpr classInvariant();

@@ -7,7 +7,7 @@ import x10.types.ClassDef;
 import x10.types.ClosureDef;
 import x10.types.MethodDef;
 import x10.types.Types;
-import x10.types.X10TypeSystem;
+import x10.types.TypeSystem;
 
 /**
  * @author Haichuan
@@ -25,11 +25,11 @@ import x10.types.X10TypeSystem;
  */
 public class ClosureDefReinstantiator extends NodeVisitor {
 
-    X10TypeSystem xts;
+    TypeSystem xts;
     ClassDef containerClassDef;
     MethodDef containerMethodDef;
     
-    public ClosureDefReinstantiator(X10TypeSystem xts, ClassDef containerClassDef, MethodDef containerMethodDef){
+    public ClosureDefReinstantiator(TypeSystem xts, ClassDef containerClassDef, MethodDef containerMethodDef){
         this.xts = xts;
         this.containerClassDef = containerClassDef;
         this.containerMethodDef = containerMethodDef;

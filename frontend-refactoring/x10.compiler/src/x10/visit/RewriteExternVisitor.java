@@ -20,7 +20,7 @@ import x10.extension.X10ClassBodyExt_c;
 import x10.extension.X10Ext;
 import x10.types.SemanticException;
 import x10.types.TypeSystem;
-import x10.types.X10TypeSystem;
+import x10.types.TypeSystem;
 
 public class RewriteExternVisitor extends ContextVisitor {
 
@@ -32,7 +32,7 @@ public class RewriteExternVisitor extends ContextVisitor {
         n = super.leaveCall(old, n, v);
 
         if (n.ext() instanceof X10ClassBodyExt_c) {
-            return ((X10ClassBodyExt_c) n.ext()).rewrite((X10TypeSystem) typeSystem(), nodeFactory(), job.extensionInfo());
+            return ((X10ClassBodyExt_c) n.ext()).rewrite((TypeSystem) typeSystem(), nodeFactory(), job.extensionInfo());
         }
 
         return n;

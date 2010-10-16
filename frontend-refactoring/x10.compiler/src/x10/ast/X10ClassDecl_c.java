@@ -72,8 +72,8 @@ import x10.types.X10MethodInstance;
 import x10.types.X10ParsedClassType;
 
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
-import x10.types.X10TypeSystem_c;
+import x10.types.TypeSystem;
+import x10.types.TypeSystem_c;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
 import x10.util.Synthesizer;
@@ -177,7 +177,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     protected void setSuperClass(TypeSystem ts, ClassDef thisType) throws SemanticException {
         TypeNode superClass = this.superClass;
 
-        final X10TypeSystem xts = (X10TypeSystem) ts;
+        final TypeSystem xts = (TypeSystem) ts;
         
         // We need to lazily set the superclass, otherwise we go into an infinite loop
         // during bootstrapping: Object, refers to Int, refers to Object, ...
@@ -214,7 +214,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     
     @Override
     protected void setInterfaces(TypeSystem ts, ClassDef thisType) throws SemanticException {
-    	final X10TypeSystem xts = (X10TypeSystem) ts;
+    	final TypeSystem xts = (TypeSystem) ts;
 
     	// For every struct and interface, add the implicit Any interface.
     	X10Flags flags = X10Flags.toX10Flags(flags().flags());
@@ -334,7 +334,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     		// Now add this.home == currentHome
 /*    		XConstrainedTerm placeTerm = xc.currentPlaceTerm().copy();
     		XRoot thisVar = type.thisVar();
-    		XTerm placeVar = ((X10TypeSystem) type.typeSystem()).locVar(type.thisVar(), xc);
+    		XTerm placeVar = ((TypeSystem) type.typeSystem()).locVar(type.thisVar(), xc);
     		assert placeVar != null;
     		placeTerm.addBinding(placeTerm.term(), placeVar);
     		xc = (Context) xc.pushPlace(placeTerm); */
@@ -525,7 +525,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     		return n;
     	
     	Position CG = NodeFactory_c.compilerGenerated(body());
-    	X10TypeSystem_c xts = (X10TypeSystem_c) tc.typeSystem();
+    	TypeSystem_c xts = (TypeSystem_c) tc.typeSystem();
     	NodeFactory xnf = (NodeFactory) tc.nodeFactory();
     	X10ClassType targetType = (X10ClassType) n.classDef().asType();
     	List<X10ClassType> interfaces = xts.allImplementedInterfaces(targetType, false);
@@ -614,7 +614,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     	ContextVisitor oldtc = (ContextVisitor) tc.copy();
     	
     	n = (X10ClassDecl_c) n.typeCheckSupers(tc, childtc);
-    	X10TypeSystem_c xts = (X10TypeSystem_c) tc.typeSystem();
+    	TypeSystem_c xts = (TypeSystem_c) tc.typeSystem();
     	if (superClass != null) {
     	    Ref<? extends Type> stref = superClass.typeRef();
     	    try {
@@ -740,7 +740,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
 
     @Override
     protected void checkSupertypeCycles(TypeSystem ts) throws SemanticException {
-        X10TypeSystem xts = (X10TypeSystem) ts;
+        TypeSystem xts = (TypeSystem) ts;
 
         Ref<? extends Type> stref = type.superType();
         checkSuperclass(xts, stref);
@@ -750,7 +750,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         }
     }
 
-    protected void checkSuperclass(X10TypeSystem xts, Ref<? extends Type> stref) throws SemanticException {
+    protected void checkSuperclass(TypeSystem xts, Ref<? extends Type> stref) throws SemanticException {
         if (stref == null)
             return;
         Type t = stref.get();
@@ -763,7 +763,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         xts.checkCycles((ReferenceType) t);
     }
 
-    protected void checkSuperinterface(X10TypeSystem xts, Ref<? extends Type> tref) throws SemanticException {
+    protected void checkSuperinterface(TypeSystem xts, Ref<? extends Type> tref) throws SemanticException {
         if (tref == null)
             return;
         Type t = tref.get();
@@ -832,7 +832,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     	    }
     	}
 
-    	X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+    	TypeSystem ts = (TypeSystem) tc.typeSystem();
     	
     	Type superClass = type.asType().superClass();
 
@@ -874,7 +874,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     }
 
     protected boolean isValidType(Type type) {
-        X10TypeSystem xts = (X10TypeSystem) type.typeSystem();
+        TypeSystem xts = (TypeSystem) type.typeSystem();
         return !xts.hasUnknown(type);
     }
 

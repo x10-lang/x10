@@ -22,7 +22,7 @@ public class AnnotatedType_c extends Type_c implements AnnotatedType {
     Type baseType;
     List<Type> annotations;
 
-    public AnnotatedType_c(X10TypeSystem ts, Position pos, Type baseType, List<Type> annotations) {
+    public AnnotatedType_c(TypeSystem ts, Position pos, Type baseType, List<Type> annotations) {
 	super(ts, pos);
 	this.baseType = baseType;
 	this.annotations = TypedList.copyAndCheck(annotations, Type.class, true);

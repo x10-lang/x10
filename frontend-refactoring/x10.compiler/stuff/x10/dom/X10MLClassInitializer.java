@@ -22,7 +22,7 @@ import x10.dom.X10Dom.ListLens;
 import x10.dom.X10Dom.MethodInstanceRefLens;
 import x10.dom.X10Dom.TypeRefLens;
 import x10.types.X10ParsedClassType;
-import x10.types.X10TypeSystem;
+import x10.types.TypeSystem;
 import polyglot.types.ConstructorInstance;
 import polyglot.types.DeserializedClassInitializer;
 import polyglot.types.FieldInstance;
@@ -34,13 +34,13 @@ import polyglot.util.Position;
 
 public class X10MLClassInitializer implements LazyClassInitializer {
 	
-	X10TypeSystem ts;
+	TypeSystem ts;
 	X10ParsedClassType ct;
 	X10Dom dom;
 	DomReader v;
 	Element e;
 	
-	public X10MLClassInitializer(X10TypeSystem ts, X10Dom dom, DomReader v, Element e) {
+	public X10MLClassInitializer(TypeSystem ts, X10Dom dom, DomReader v, Element e) {
 		this.ts = ts;
 		this.dom = dom;
 		this.v = v;

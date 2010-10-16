@@ -83,7 +83,7 @@ import x10.types.X10MethodDef;
 import x10.types.X10MethodInstance;
 import x10.types.X10ParsedClassType_c;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import x10.types.TypeSystem;
 import x10.types.checker.Converter;
 import x10.visit.X10PrettyPrinterVisitor;
 import x10c.types.BackingArrayType;
@@ -283,7 +283,7 @@ public class Emitter {
 		}
 	}
 
-	public String getJavaImplForStmt(Stmt n, X10TypeSystem xts) {
+	public String getJavaImplForStmt(Stmt n, TypeSystem xts) {
 		if (n.ext() instanceof X10Ext) {
 			X10Ext ext = (X10Ext) n.ext();
 			try {
@@ -305,7 +305,7 @@ public class Emitter {
 	}
 
 	public String getJavaImplForDef(X10Def o) {
-		X10TypeSystem xts = (X10TypeSystem) o.typeSystem();
+		TypeSystem xts = (TypeSystem) o.typeSystem();
 		try {
 			Type java = (Type) xts.systemResolver().find(
 					QName.make("x10.compiler.Native"));
@@ -368,7 +368,7 @@ public class Emitter {
 
 	private String getJavaRepParam(X10ClassDef def, int i) {
 		try {
-			X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
+			TypeSystem xts = (TypeSystem) tr.typeSystem();
 			Type rep = (Type) xts.systemResolver().find(
 					QName.make("x10.compiler.NativeRep"));
 			List<Type> as = def.annotationsMatching(rep);
@@ -470,7 +470,7 @@ public class Emitter {
 		boolean inSuper = (flags & X10PrettyPrinterVisitor.NO_VARIANCE) != 0;
 		boolean ignoreQual = (flags & X10PrettyPrinterVisitor.NO_QUALIFIER) != 0;
 
-		X10TypeSystem xts = (X10TypeSystem) type.typeSystem();
+		TypeSystem xts = (TypeSystem) type.typeSystem();
 
 		type = X10TypeMixin.baseType(type);
 
@@ -631,7 +631,7 @@ public class Emitter {
 				i.remove();
 				continue;
 			}
-			X10TypeSystem ts = (X10TypeSystem) tr.typeSystem();
+			TypeSystem ts = (TypeSystem) tr.typeSystem();
 			MethodInstance mj = ts.findImplementingMethod(cd.asType(), mi, tr
 					.context());
 			if (mj != null && mj.def() != mi.def())
@@ -694,7 +694,7 @@ public class Emitter {
 	}
 
 	private void generateDispatcher(X10MethodInstance md, boolean usesClassParam) {
-		X10TypeSystem ts = (X10TypeSystem) tr.typeSystem();
+		TypeSystem ts = (TypeSystem) tr.typeSystem();
 
 		Flags flags = md.flags();
 		flags = X10Flags.toX10Flags(flags).clearExtern();
@@ -1014,7 +1014,7 @@ public class Emitter {
 	}
 
 	public void generateMethodDecl(X10MethodDecl_c n, boolean boxPrimitives) {
-		X10TypeSystem ts = (X10TypeSystem) tr.typeSystem();
+		TypeSystem ts = (TypeSystem) tr.typeSystem();
 
 		Flags flags = n.flags().flags();
 
@@ -1646,7 +1646,7 @@ public class Emitter {
 	        w.write("return ");
 	    }
 
-	    X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
+	    TypeSystem xts = (TypeSystem) tr.typeSystem();
 	    
 	    boolean isInterface2 = false;
 	    StructType st2 = impl.container();
@@ -2131,7 +2131,7 @@ public class Emitter {
 		List<Type> types = stypes.subList(1, stypes.size());
 		List<Expr> args = sargs.subList(1, sargs.size());
 
-		X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
+		TypeSystem xts = (TypeSystem) tr.typeSystem();
 		NodeFactory nf = tr.nodeFactory();
 		try {
 			MethodInstance mi = xts.findMethod(left.type(), xts.MethodMatcher(
@@ -2274,10 +2274,10 @@ public class Emitter {
     }
 	
 	public boolean hasAnnotation(Node dec, QName name) {
-	    return hasAnnotation((X10TypeSystem) tr.typeSystem(), dec, name);
+	    return hasAnnotation((TypeSystem) tr.typeSystem(), dec, name);
 	}
 
-	public static boolean hasAnnotation(X10TypeSystem ts, Node dec, QName name) {
+	public static boolean hasAnnotation(TypeSystem ts, Node dec, QName name) {
 		try {
 			if (annotationNamed(ts, dec, name) != null)
 				return true;
@@ -2339,7 +2339,7 @@ public class Emitter {
 				if (hasEffects(a))
 					return true;
 			}
-			X10TypeSystem ts = (X10TypeSystem) tr.typeSystem();
+			TypeSystem ts = (TypeSystem) tr.typeSystem();
 			if (ts.isRail(target.type()) || ts.isValRail(target.type()))
 				return false;
 		}
@@ -2352,7 +2352,7 @@ public class Emitter {
 				if (hasEffects(a))
 					return true;
 			}
-			X10TypeSystem ts = (X10TypeSystem) tr.typeSystem();
+			TypeSystem ts = (TypeSystem) tr.typeSystem();
 			if (c.name().id().equals(ClosureCall.APPLY))
 				if (ts.isRail(target.type()) || ts.isValRail(target.type()))
 					return false;

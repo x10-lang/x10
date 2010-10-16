@@ -99,8 +99,8 @@ import x10.types.SemanticException;
 import x10.types.TopLevelResolver;
 import x10.types.TypeSystem;
 import x10.types.X10SourceClassResolver;
-import x10.types.X10TypeSystem;
-import x10.types.X10TypeSystem_c;
+import x10.types.TypeSystem;
+import x10.types.TypeSystem_c;
 import x10.visit.CheckNativeAnnotationsVisitor;
 import x10.visit.Desugarer;
 import x10.visit.ExpressionFlattener;
@@ -169,7 +169,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     public Parser parser(Reader reader, FileSource source, ErrorQueue eq) {
     // ###
 //        if (source.path().endsWith(XML_FILE_DOT_EXTENSION)) {
-//        	return new DomParser(reader, (X10TypeSystem) ts, (NodeFactory) nf, source, eq);
+//        	return new DomParser(reader, (TypeSystem) ts, (NodeFactory) nf, source, eq);
 //        }
 
     	try {
@@ -354,7 +354,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     }
 
     protected TypeSystem createTypeSystem() {
-        return new X10TypeSystem_c();
+        return new TypeSystem_c();
     }
 
     public void initCompiler(Compiler compiler) {
@@ -658,7 +658,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 
        public Goal Serialized(Job job) {
            Compiler compiler = job.extensionInfo().compiler();
-           X10TypeSystem ts = (X10TypeSystem) job.extensionInfo().typeSystem();
+           TypeSystem ts = (TypeSystem) job.extensionInfo().typeSystem();
            NodeFactory nf = job.extensionInfo().nodeFactory();
            TargetFactory tf = job.extensionInfo().targetFactory();
            return new SourceGoal_c("Serialized", job) {
@@ -885,7 +885,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
        }
        
        public Goal WSCallGraphBarrier() {
-           final X10TypeSystem ts = (X10TypeSystem) extInfo.typeSystem();
+           final TypeSystem ts = (TypeSystem) extInfo.typeSystem();
            final NodeFactory nf = (NodeFactory) extInfo.nodeFactory();
            return new AllBarrierGoal("WSCallGraphBarrier", this) {
                @Override

@@ -745,8 +745,8 @@ public class Context_c implements Context
     protected XConstrainedTerm thisPlace = null;
     public XConstrainedTerm currentThisPlace() {
     	/*if (thisPlace == null) {
-    		X10TypeSystem xts = (X10TypeSystem) ts;
-    		thisPlace = ((X10TypeSystem) ts).xtypeTranslator().firstPlace();
+    		TypeSystem xts = (TypeSystem) ts;
+    		thisPlace = ((TypeSystem) ts).xtypeTranslator().firstPlace();
     		assert thisPlace != null;
     	}
     	*/
@@ -859,7 +859,7 @@ public class Context_c implements Context
     public static boolean isDummyCode(CodeDef ci) {
         return (ci != null)
 				&& (ci instanceof MethodDef)
-				&& ((MethodDef) ci).name().toString().equals(X10TypeSystem_c.DUMMY_AT_ASYNC);
+				&& ((MethodDef) ci).name().toString().equals(TypeSystem_c.DUMMY_AT_ASYNC);
     }
     public boolean inAsyncScope() {
         return x10Kind== X10Kind.Async ? true :
@@ -917,7 +917,7 @@ public class Context_c implements Context
 
 	            // Override to change the type from C to C{self==this}.
 	            Type t = currentClass;
-	            X10TypeSystem xts = (X10TypeSystem) ts;
+	            TypeSystem xts = (TypeSystem) ts;
 
 	            XVar thisVar = null;
 	            if (XTypeTranslator.THIS_VAR) {
@@ -1086,7 +1086,7 @@ public class Context_c implements Context
 
 		))
 			try {
-				XTerm thisLoc = ((X10TypeSystem) typeSystem()).homeVar(((X10ClassDef) classScope).thisVar(),
+				XTerm thisLoc = ((TypeSystem) typeSystem()).homeVar(((X10ClassDef) classScope).thisVar(),
 						this);
 				if (currentHere != null) {
 					CConstraint r = currentHere.constraint().copy();
@@ -1243,7 +1243,7 @@ public class Context_c implements Context
 	    }
 
 	    private Named findMemberTypeInThisScope(Name name, Type container) {
-		X10TypeSystem ts = (X10TypeSystem) this.ts;
+		TypeSystem ts = (TypeSystem) this.ts;
 		ClassDef currentClassDef = this.currentClassDef();
 		if (container instanceof MacroType) {
 		    MacroType mt = (MacroType) container;

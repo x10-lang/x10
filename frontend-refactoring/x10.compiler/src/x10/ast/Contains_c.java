@@ -27,7 +27,7 @@ import x10.types.Name;
 import x10.types.SemanticException;
 import x10.types.Type;
 import x10.types.X10MethodInstance;
-import x10.types.X10TypeSystem;
+import x10.types.TypeSystem;
 
 /**
  * AST node corresponding to the RHS of the production
@@ -103,7 +103,7 @@ public class Contains_c extends Expr_c implements Contains {
 
 	/** Type check the statement. */
 	public Node typeCheck(ContextVisitor tc) throws SemanticException {
-		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+		TypeSystem ts = (TypeSystem) tc.typeSystem();
 		Type itemType = item.type();
 		Type collType = collection.type();
 

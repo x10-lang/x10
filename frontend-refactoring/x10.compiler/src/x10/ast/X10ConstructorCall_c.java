@@ -39,7 +39,7 @@ import x10.types.X10ConstructorDef;
 import x10.types.X10ConstructorInstance;
 
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import x10.types.TypeSystem;
 import x10.types.checker.Converter;
 import x10.types.constraints.CConstraint;
 import x10.types.matcher.DumbConstructorMatcher;
@@ -125,7 +125,7 @@ public class X10ConstructorCall_c extends ConstructorCall_c implements X10Constr
 	    List<Expr> args;
 	    X10ConstructorCall_c n = this;
 	    
-	        X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+	        TypeSystem ts = (TypeSystem) tc.typeSystem();
 
 	        Context context = tc.context();
             ClassType ct = context.currentClass();
@@ -265,7 +265,7 @@ public class X10ConstructorCall_c extends ConstructorCall_c implements X10Constr
 	
         static Pair<ConstructorInstance,List<Expr>> tryImplicitConversions(X10ConstructorCall_c n, 
         		ContextVisitor tc, Type targetType, List<Type> argTypes) throws SemanticException {
-            final X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+            final TypeSystem ts = (TypeSystem) tc.typeSystem();
             final Context context = tc.context();
             ClassDef currentClassDef = context.currentClassDef();
 

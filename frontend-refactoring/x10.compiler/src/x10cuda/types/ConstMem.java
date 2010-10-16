@@ -19,7 +19,7 @@ import x10.ast.Expr;
 import x10.ast.LocalDecl;
 import x10.types.Name;
 import x10.types.Type;
-import x10.types.X10TypeSystem;
+import x10.types.TypeSystem;
 import x10.util.ClassifiedStream;
 import x10.util.StreamWrapper;
 

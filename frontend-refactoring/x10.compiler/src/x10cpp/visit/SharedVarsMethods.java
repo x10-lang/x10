@@ -31,8 +31,8 @@ import x10.types.VarInstance;
 import x10.types.X10ClassType;
 import x10.types.X10MethodInstance;
 import x10.types.X10ParsedClassType;
-import x10.types.X10TypeSystem;
-import x10.types.X10TypeSystem_c;
+import x10.types.TypeSystem;
+import x10.types.TypeSystem_c;
 import x10cpp.types.X10CPPContext_c;
 
 import java.util.Arrays;
@@ -142,7 +142,7 @@ public class SharedVarsMethods {
 	}
 	static void populateKnownSafeClasses(Translator tr){
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
-		X10TypeSystem ts = (X10TypeSystem) tr.typeSystem();
+		TypeSystem ts = (TypeSystem) tr.typeSystem();
 		if (knownSafeClasses.size() == 0) {
 			try {
 				ReferenceType j_l_Math = (ReferenceType) ts.forName(QName.make("java.lang.Math"));
@@ -162,7 +162,7 @@ public class SharedVarsMethods {
 	}	
 	static void populateKnownSafeMethodsAndFields(Translator tr){
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
-		X10TypeSystem_c ts = (X10TypeSystem_c) tr.typeSystem();
+		TypeSystem_c ts = (TypeSystem_c) tr.typeSystem();
 		if (knownSafeMethods.size() == 0 && knownSafeFields.size() == 0) {
 			try {
 //				Type[] II = { ts.Int(), ts.Int() };
@@ -198,7 +198,7 @@ public class SharedVarsMethods {
 
 	static void populateIninableMethodsIfEmpty(Translator tr) {
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
-		X10TypeSystem_c ts = (X10TypeSystem_c) tr.typeSystem();
+		TypeSystem_c ts = (TypeSystem_c) tr.typeSystem();
 		if (knownInlinableMethods.size() == 0) {
 			try {
 				Type x_l_Runtime = (Type) ts.forName(QName.make("x10.lang.Runtime"));

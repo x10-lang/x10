@@ -50,19 +50,19 @@ import x10.types.TypeSystem;
 import x10.types.Types;
 import x10.types.X10MethodDef;
 import x10.types.X10ParsedClassType;
-import x10.types.X10TypeSystem;
+import x10.types.TypeSystem;
 
 public class ClosuresToStaticMethods extends ContextVisitor {
     
     private static final String STATIC_METHOD_BASE_NAME = "__$closure$apply$__";
 
-    private final X10TypeSystem xts;
+    private final TypeSystem xts;
     private final NodeFactory xnf;
     private final Map<CodeDef,List<ParameterType>> closureDefToTypePrams = new HashMap<CodeDef,List<ParameterType>>();
     
     public ClosuresToStaticMethods(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf);
-        xts = (X10TypeSystem) ts;
+        xts = (TypeSystem) ts;
         xnf = (NodeFactory) nf;
     }
     

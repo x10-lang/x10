@@ -62,7 +62,7 @@ import x10.types.Type;
 import x10.types.TypeSystem;
 import x10.types.VarDef;
 import x10.types.X10LocalDef;
-import x10.types.X10TypeSystem;
+import x10.types.TypeSystem;
 import x10.types.X10Flags;
 import x10.visit.Desugarer;
 
@@ -364,7 +364,7 @@ public class InitChecker extends DataFlow
         MinMaxInitCount finish() {
             return new MinMaxInitCount(minAsync,maxAsync,minAsync,maxAsync);//[c,d,c,d]
         }
-        static MinMaxInitCount join(X10TypeSystem xts, VarDef v, Term node, boolean entry, MinMaxInitCount initCount1, MinMaxInitCount initCount2) {
+        static MinMaxInitCount join(TypeSystem xts, VarDef v, Term node, boolean entry, MinMaxInitCount initCount1, MinMaxInitCount initCount2) {
             assert !(node instanceof Finish);
             if (initCount1 == null) return initCount2;
             if (initCount2 == null) return initCount1;
@@ -765,7 +765,7 @@ public class InitChecker extends DataFlow
                     VarDef v = (VarDef)e.getKey();
                     MinMaxInitCount initCount1 = m.get(v);
                     MinMaxInitCount initCount2 = (MinMaxInitCount)e.getValue();
-                    m.put(v, MinMaxInitCount.join((X10TypeSystem)ts,v,node,entry,initCount1, initCount2));
+                    m.put(v, MinMaxInitCount.join((TypeSystem)ts,v,node,entry,initCount1, initCount2));
                 }
             }
         }

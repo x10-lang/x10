@@ -22,7 +22,7 @@ import x10.types.Context;
 import x10.types.SemanticException;
 import x10.types.Type;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import x10.types.TypeSystem;
 import x10.types.XTypeTranslator;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint;
@@ -67,7 +67,7 @@ public class X10IntLit_c extends IntLit_c {
                 throw new SemanticException("Unsigned integer literal " + value + " is out of range.", position());
             }
         }
-        X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
+        TypeSystem xts = (TypeSystem) tc.typeSystem();
         Type Type;
         if (kind == INT) {
             Type = xts.Int();

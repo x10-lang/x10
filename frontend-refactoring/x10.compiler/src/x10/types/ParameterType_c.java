@@ -20,7 +20,7 @@ public class ParameterType_c extends Type_c implements ParameterType {
     Name name;
 	Ref<? extends Def> def;
 	
-	public ParameterType_c(X10TypeSystem ts, Position pos, Name name, Ref<? extends Def> def) {
+	public ParameterType_c(TypeSystem ts, Position pos, Name name, Ref<? extends Def> def) {
 		super(ts, pos);
 		this.name = name;
 		this.def = def;

@@ -38,7 +38,7 @@ import x10.types.X10Def;
 import x10.types.X10Flags;
 import x10.types.X10MethodDef;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import x10.types.TypeSystem;
 
 /**
  * Visitor that checks @Native and @NativeRep annotations.
@@ -54,7 +54,7 @@ public class CheckNativeAnnotationsVisitor extends ContextVisitor {
     public Map<String, String> getNativeRepParam(X10ClassDef def, int i) {
         Map<String,String> map = new HashMap<String, String>();
         try {
-            X10TypeSystem xts = (X10TypeSystem) this.typeSystem();
+            TypeSystem xts = (TypeSystem) this.typeSystem();
             Type rep = (Type) xts.systemResolver().find(QName.make("x10.compiler.NativeRep"));
             List<Type> as = def.annotationsMatching(rep);
             for (Type at : as) {
@@ -109,7 +109,7 @@ public class CheckNativeAnnotationsVisitor extends ContextVisitor {
 
     Map<String,String> getNativeImplForDef(X10Def o) {
         Map<String,String> map = new HashMap<String, String>();
-        X10TypeSystem xts = (X10TypeSystem) o.typeSystem();
+        TypeSystem xts = (TypeSystem) o.typeSystem();
         try {
             Type java = (Type) xts.systemResolver().find(QName.make("x10.compiler.Native"));
             List<Type> as = o.annotationsMatching(java);

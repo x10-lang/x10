@@ -112,8 +112,8 @@ import x10.types.Context;
 import x10.types.X10MethodInstance;
 import x10.types.X10ParsedClassType;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
-import x10.types.X10TypeSystem_c;
+import x10.types.TypeSystem;
+import x10.types.TypeSystem_c;
 import x10.types.checker.Converter;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
@@ -133,12 +133,12 @@ import x10.extension.X10Ext;
  * {@link Synthesizer}.
  */
 public class Desugarer extends ContextVisitor {
-    private final X10TypeSystem xts;
+    private final TypeSystem xts;
     private final NodeFactory xnf;
     private final Synthesizer synth;
     public Desugarer(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf);
-        xts = (X10TypeSystem) ts;
+        xts = (TypeSystem) ts;
         xnf = (NodeFactory) nf;
         synth = new Synthesizer(xnf, xts);
     }
@@ -201,7 +201,7 @@ public class Desugarer extends ContextVisitor {
     		//  }
     		// TODO: Simplify this to finish { val clock?? = Clock.make(); try { S} finally{ clock??.drop();}}
     		Context xc = (Context) context;
-    		X10TypeSystem xts = (X10TypeSystem) ts;
+    		TypeSystem xts = (TypeSystem) ts;
     		Position pos = finish.position();
     		Name name = ((Context) context).makeFreshName("clock");
     		Flags flags = Flags.FINAL;
@@ -383,7 +383,7 @@ public class Desugarer extends ContextVisitor {
         ClosureDef cDef = c.closureDef().position(bPos);
         Expr closure = xnf.Closure(c, bPos)
             .closureDef(cDef)
-        	.type(ClosureSynthesizer.closureAnonymousClassDef((X10TypeSystem_c) xts, cDef).asType());
+        	.type(ClosureSynthesizer.closureAnonymousClassDef((TypeSystem_c) xts, cDef).asType());
         List<Expr> args = new ArrayList<Expr>(Arrays.asList(new Expr[] { place, closure }));
         List<Type> mArgs = new ArrayList<Type>(Arrays.asList(new Type[] {
             xts.Place(), cDef.asType()
@@ -483,7 +483,7 @@ public class Desugarer extends ContextVisitor {
     private static final QName UNCOUNTED = QName.make("x10.compiler.Uncounted");
     private static final QName REMOTE_OPERATION = QName.make("x10.compiler.RemoteOperation");
 
-    public static boolean isUncountedAsync(X10TypeSystem xts, Async a) {
+    public static boolean isUncountedAsync(TypeSystem xts, Async a) {
         return Emitter.hasAnnotation(xts, a, UNCOUNTED);
     }
 
@@ -1021,7 +1021,7 @@ public class Desugarer extends ContextVisitor {
 
         Expr domain = a.domain();
         Type dType = domain.type();
-        if (((X10TypeSystem_c) xts).isX10DistArray(dType)) {
+        if (((TypeSystem_c) xts).isX10DistArray(dType)) {
             FieldInstance fDist = dType.toClass().fieldNamed(DIST);
             dType = fDist.type();
             domain = xnf.Field(pos, domain, xnf.Id(pos, DIST)).fieldInstance(fDist).type(dType);
@@ -1032,7 +1032,7 @@ public class Desugarer extends ContextVisitor {
         X10Formal formal = (X10Formal) a.formal();
         Type fType = formal.type().type();
         assert (xts.isPoint(fType));
-        assert (((X10TypeSystem_c) xts).isDistribution(dType));
+        assert (((TypeSystem_c) xts).isDistribution(dType));
         // Have to desugar some newly-created nodes
         Type pType = xts.Place();
         MethodInstance rmi = xts.findMethod(dType,

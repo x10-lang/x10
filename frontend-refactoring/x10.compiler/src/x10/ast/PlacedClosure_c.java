@@ -31,7 +31,7 @@ import x10.types.Context;
 import x10.types.SemanticException;
 import x10.types.Type;
 import x10.types.Context;
-import x10.types.X10TypeSystem;
+import x10.types.TypeSystem;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.XConstrainedTerm;
@@ -86,7 +86,7 @@ public class PlacedClosure_c extends Closure_c implements PlacedClosure {
     
     @Override
     public Node typeCheck(ContextVisitor tc)  {
-    	X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+    	TypeSystem ts = (TypeSystem) tc.typeSystem();
     	if (placeError) { // this means we were not able to convert this.place into a term of type Place.
     		Errors.issue(tc.job(), 
     				new Errors.AtArgMustBePlace(this.place, ts.Place(), this.position()));
@@ -97,7 +97,7 @@ public class PlacedClosure_c extends Closure_c implements PlacedClosure {
   @Override
     public Node typeCheckOverride(Node parent, ContextVisitor tc) {
     	
-    	X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+    	TypeSystem ts = (TypeSystem) tc.typeSystem();
     	NodeVisitor v = tc.enter(parent, this);
     	
     	if (v instanceof PruningVisitor) {
@@ -179,7 +179,7 @@ public class PlacedClosure_c extends Closure_c implements PlacedClosure {
     }
     
     public Type childExpectedType(Expr child, AscriptionVisitor av) {
-    	X10TypeSystem ts = (X10TypeSystem) av.typeSystem();
+    	TypeSystem ts = (TypeSystem) av.typeSystem();
     	if ( child == place ) {
     		return ts.Place();
     	}

@@ -46,7 +46,7 @@ import x10.types.Type;
 import x10.types.Types;
 import x10.types.X10Flags;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import x10.types.TypeSystem;
 
 
 /**
@@ -61,7 +61,7 @@ import x10.types.X10TypeSystem;
 public class X10ClassBodyExt_c extends X10Ext_c {
 
 	private BufferedWriter wrapperFile;
-	X10TypeSystem typeSystem;
+	TypeSystem typeSystem;
 
 	private final Name KgetBackingArrayMethod = Name.make("getBackingArray");
 
@@ -127,7 +127,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 		}
 		else // theType.isClass()
 		{
-			   X10TypeSystem ts = typeSystem;
+			   TypeSystem ts = typeSystem;
 			   if (ts.isRail(theType) || ts.isValRail(theType)) {
 			       Type base = X10TypeMixin.getParameterType(theType, 0);
 			       if (! base.isPrimitive())
@@ -163,7 +163,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 			throw new InternalCompilerError("Unexpected type" + theType.toString());
 		}
 		else {
-			   X10TypeSystem ts = typeSystem;
+			   TypeSystem ts = typeSystem;
 			   if (ts.isRail(theType) || ts.isValRail(theType)) {
 			       Type base = X10TypeMixin.getParameterType(theType, 0);
 			       if (base.isPrimitive())
@@ -199,7 +199,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 				return "V";
 			throw new InternalCompilerError("Unexpected type" + theType.toString());
 		} else {
-		    X10TypeSystem ts = typeSystem;
+		    TypeSystem ts = typeSystem;
 			   if (ts.isRail(theType) || ts.isValRail(theType)) {
 			       Type base = X10TypeMixin.getParameterType(theType, 0);
 			       if (base.isPrimitive())
@@ -216,7 +216,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 		String signature = "";// "("
 
 		for (Formal parameter : method.formals()) {
-			X10TypeSystem ts = typeSystem;
+			TypeSystem ts = typeSystem;
 
 			if(parameter.declType().isPrimitive() || 	
 			   ts.isRail(parameter.declType()) || ts.isValRail(parameter.declType())) {
@@ -762,7 +762,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 				return "void";
                         throw new InternalCompilerError("Unhandled type:"+theType);
 		} else {
-		   X10TypeSystem ts = typeSystem;
+		   TypeSystem ts = typeSystem;
 		   if (ts.isRail(theType) || ts.isValRail(theType)) {
 		       Type base = X10TypeMixin.getParameterType(theType, 0);
 		       return typeToJNIString(base)+"Array";
@@ -799,7 +799,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 	 * with the actual native implementation of <code>C_foo(int)</code>, into
 	 * a dynamic library, and ensure that the X10 program can find them
 	 */
-	public Node rewrite(X10TypeSystem ts, NodeFactory nf, ExtensionInfo info) {
+	public Node rewrite(TypeSystem ts, NodeFactory nf, ExtensionInfo info) {
 		typeSystem = ts;
 		Type tt = ts.Long();
 		boolean seenNativeMethodDecl = false;

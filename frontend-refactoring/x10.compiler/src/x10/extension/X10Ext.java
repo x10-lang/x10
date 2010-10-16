@@ -24,7 +24,7 @@ import x10.types.ClassType;
 import x10.types.QName;
 import x10.types.Type;
 import x10.types.X10ClassType;
-import x10.types.X10TypeSystem;
+import x10.types.TypeSystem;
 
 public interface X10Ext extends Ext {
     /**
