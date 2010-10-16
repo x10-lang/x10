@@ -11,10 +11,10 @@
 
 package x10.ast;
 
-import polyglot.types.LazyRef;
-import polyglot.types.Type;
-import polyglot.types.UnknownType;
 import polyglot.visit.TypeChecker;
+import x10.types.LazyRef;
+import x10.types.Type;
+import x10.types.UnknownType;
 
 public class TypeCheckReturnTypeGoal extends X10TypeCheckFragmentGoal<Type> {
 	private static final long serialVersionUID = -7110597916418023302L;

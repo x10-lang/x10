@@ -14,6 +14,14 @@ import polyglot.types.*;
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 import polyglot.visit.*;
+import x10.types.LazyRef;
+import x10.types.Named;
+import x10.types.Qualifier;
+import x10.types.Ref;
+import x10.types.SemanticException;
+import x10.types.Type;
+import x10.types.TypeSystem;
+import x10.types.Types;
 
 /**
  * A <code>TypeNode</code> is the syntactic representation of a 

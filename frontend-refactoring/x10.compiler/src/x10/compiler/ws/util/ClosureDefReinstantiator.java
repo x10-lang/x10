@@ -1,12 +1,12 @@
 package x10.compiler.ws.util;
 
-import polyglot.types.ClassDef;
-import polyglot.types.MethodDef;
-import polyglot.types.Types;
 import polyglot.visit.NodeVisitor;
 import x10.ast.Closure;
 import x10.ast.Node;
+import x10.types.ClassDef;
 import x10.types.ClosureDef;
+import x10.types.MethodDef;
+import x10.types.Types;
 import x10.types.X10TypeSystem;
 
 /**

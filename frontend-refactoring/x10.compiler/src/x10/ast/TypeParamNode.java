@@ -13,9 +13,9 @@ package x10.ast;
 
 import java.util.List;
 
-import polyglot.types.Ref;
-import polyglot.types.Type;
 import x10.types.ParameterType;
+import x10.types.Ref;
+import x10.types.Type;
 
 public interface TypeParamNode extends Term {
 	Id name();

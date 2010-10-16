@@ -11,9 +11,6 @@
 
 package x10.types;
 
-import polyglot.types.ClassType;
-import polyglot.types.Flags;
-import polyglot.types.PrimitiveType;
 
 /**
  * @author vj

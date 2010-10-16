@@ -2,7 +2,7 @@ package polyglot.frontend;
 
 import java.util.List;
 
-import polyglot.types.Ref;
+import x10.types.Ref;
 
 
 public interface Goal extends Ref<Goal.Status>, Runnable {

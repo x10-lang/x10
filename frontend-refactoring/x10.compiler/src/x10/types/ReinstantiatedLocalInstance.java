@@ -3,10 +3,6 @@
  */
 package x10.types;
 
-import polyglot.types.Ref;
-import polyglot.types.StructType;
-import polyglot.types.Type;
-import polyglot.types.TypeSystem;
 import polyglot.util.Position;
 import x10.types.constraints.CConstraint;
 

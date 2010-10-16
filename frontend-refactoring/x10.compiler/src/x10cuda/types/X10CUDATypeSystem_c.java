@@ -11,7 +11,7 @@
 
 package x10cuda.types;
 
-import polyglot.types.Context;
+import x10.types.Context;
 import x10.types.X10TypeSystem_c;
 
 public class X10CUDATypeSystem_c extends X10TypeSystem_c {

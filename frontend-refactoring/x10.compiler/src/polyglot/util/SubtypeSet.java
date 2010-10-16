@@ -10,6 +10,9 @@ package polyglot.util;
 import java.util.*;
 
 import polyglot.types.*;
+import x10.types.Context;
+import x10.types.Type;
+import x10.types.TypeSystem;
 
 /**
  * Class to implement sets containing <code>polyglot.types.Type </code>.  

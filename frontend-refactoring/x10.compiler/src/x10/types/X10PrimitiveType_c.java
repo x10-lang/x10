@@ -11,13 +11,6 @@
 
 package x10.types;
 
-import polyglot.types.Flags;
-import polyglot.types.PrimitiveType;
-import polyglot.types.PrimitiveType_c;
-import polyglot.types.Name;
-import polyglot.types.SemanticException;
-import polyglot.types.Type;
-import polyglot.types.TypeSystem;
 import polyglot.util.CodeWriter;
 import polyglot.util.InternalCompilerError;
 

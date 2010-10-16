@@ -13,13 +13,6 @@ package x10.types;
 
 import java.util.List;
 
-import polyglot.types.LocalInstance;
-import polyglot.types.ProcedureDef;
-import polyglot.types.ProcedureInstance;
-import polyglot.types.Ref;
-import polyglot.types.Type;
-import polyglot.types.TypeObject;
-import polyglot.types.TypeSystem;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
 

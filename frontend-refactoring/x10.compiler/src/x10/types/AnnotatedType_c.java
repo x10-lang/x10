@@ -13,9 +13,6 @@ package x10.types;
 
 import java.util.List;
 
-import polyglot.types.Resolver;
-import polyglot.types.Type;
-import polyglot.types.Type_c;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
 

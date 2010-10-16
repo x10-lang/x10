@@ -23,10 +23,6 @@ import java.util.ListIterator;
 import java.util.Map;
 
 import polyglot.frontend.ExtensionInfo;
-import polyglot.types.ClassType;
-import polyglot.types.MethodDef;
-import polyglot.types.ReferenceType;
-import polyglot.types.Type;
 import x10.ast.ClassBody_c;
 import x10.ast.ClassMember;
 import x10.ast.Formal_c;
@@ -36,6 +32,10 @@ import x10.ast.MethodDecl_c;
 import x10.ast.Node;
 import x10.ast.NodeFactory;
 import x10.extension.X10Ext_c;
+import x10.types.ClassType;
+import x10.types.MethodDef;
+import x10.types.ReferenceType;
+import x10.types.Type;
 import x10.types.X10Flags;
 import x10.types.X10TypeSystem;
 

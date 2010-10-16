@@ -10,10 +10,10 @@ package x10.ast;
 
 import java.util.*;
 
-import polyglot.types.SemanticException;
 import polyglot.util.*;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.PrettyPrinter;
+import x10.types.SemanticException;
 
 /** 
  * A <code>StringLit</code> represents an immutable instance of a 

@@ -10,10 +10,6 @@ import java.util.List;
 import java.util.Map;
 
 import polyglot.frontend.Job;
-import polyglot.types.Flags;
-import polyglot.types.Name;
-import polyglot.types.SemanticException;
-import polyglot.types.TypeSystem;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
@@ -86,6 +82,10 @@ import x10.ast.While_c;
 import x10.ast.X10ClassDecl;
 import x10.ast.NodeFactory;
 import x10.optimizations.ForLoopOptimizer;
+import x10.types.Flags;
+import x10.types.Name;
+import x10.types.SemanticException;
+import x10.types.TypeSystem;
 import x10.types.X10TypeSystem;
 
 /**

@@ -15,7 +15,6 @@ import java.util.*;
 import polyglot.frontend.Job;
 import polyglot.frontend.TargetFactory;
 import polyglot.types.*;
-import polyglot.types.Package;
 import polyglot.util.*;
 import x10.ast.Import;
 import x10.ast.Node;
@@ -23,6 +22,10 @@ import x10.ast.NodeFactory;
 import x10.ast.SourceCollection;
 import x10.ast.SourceFile;
 import x10.ast.TopLevelDecl;
+import x10.types.Context;
+import x10.types.Package;
+import x10.types.QName;
+import x10.types.TypeSystem;
 
 /**
  * A Translator generates output code from the processed AST.

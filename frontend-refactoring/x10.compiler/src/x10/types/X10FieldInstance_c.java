@@ -13,18 +13,6 @@ package x10.types;
 
 import java.util.List;
 
-import polyglot.types.ErrorRef_c;
-import polyglot.types.FieldInstance;
-import polyglot.types.FieldInstance_c;
-import polyglot.types.Flags;
-import polyglot.types.Named;
-import polyglot.types.Ref;
-import polyglot.types.ReferenceType;
-import polyglot.types.SemanticException;
-import polyglot.types.StructType;
-import polyglot.types.Type;
-import polyglot.types.TypeSystem;
-import polyglot.types.Types;
 import polyglot.util.CollectionUtil;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;

@@ -13,6 +13,16 @@ import java.util.*;
 import polyglot.types.*;
 import polyglot.util.*;
 import polyglot.visit.*;
+import x10.types.ClassType;
+import x10.types.ConstructorDef;
+import x10.types.ConstructorInstance;
+import x10.types.Context;
+import x10.types.ErrorRef_c;
+import x10.types.ProcedureDef;
+import x10.types.ProcedureInstance;
+import x10.types.SemanticException;
+import x10.types.Type;
+import x10.types.TypeSystem;
 
 /**
  * A <code>ConstructorCall_c</code> represents a direct call to a constructor.

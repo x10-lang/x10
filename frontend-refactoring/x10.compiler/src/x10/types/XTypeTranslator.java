@@ -14,18 +14,6 @@ package x10.types;
 import java.util.ArrayList;
 import java.util.List;
 
-import polyglot.types.ClassDef;
-import polyglot.types.CodeDef;
-import polyglot.types.Context;
-import polyglot.types.FieldInstance;
-import polyglot.types.Flags;
-import polyglot.types.LocalDef;
-import polyglot.types.LocalInstance;
-import polyglot.types.MethodInstance;
-import polyglot.types.Name;
-import polyglot.types.SemanticException;
-import polyglot.types.Type;
-import polyglot.types.Types;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import x10.ast.Binary;

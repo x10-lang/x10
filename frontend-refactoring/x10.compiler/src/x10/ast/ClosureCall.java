@@ -13,7 +13,7 @@ package x10.ast;
 
 import java.util.List;
 
-import polyglot.types.Name;
+import x10.types.Name;
 import x10.types.X10MethodInstance;
 
 public interface ClosureCall extends Expr, X10ProcedureCall {

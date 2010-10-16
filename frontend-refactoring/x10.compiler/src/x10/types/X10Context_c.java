@@ -52,27 +52,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import polyglot.main.Report;
-import polyglot.types.ClassDef;
-import polyglot.types.ClassType;
-import polyglot.types.CodeDef;
-import polyglot.types.Context;
-import polyglot.types.Context_c;
-import polyglot.types.FieldInstance;
-import polyglot.types.ImportTable;
-import polyglot.types.LocalDef;
-import polyglot.types.LocalInstance;
-import polyglot.types.MethodDef;
-import polyglot.types.MethodInstance;
-import polyglot.types.Name;
-import polyglot.types.Named;
-import polyglot.types.Ref;
-import polyglot.types.SemanticException;
-import polyglot.types.Type;
-import polyglot.types.TypeSystem;
-import polyglot.types.TypeSystem_c;
-import polyglot.types.Types;
-import polyglot.types.VarDef;
-import polyglot.types.VarInstance;
 import polyglot.util.CollectionUtil;
 import x10.constraint.XFailure;
 import x10.constraint.XTerm;
@@ -847,7 +826,7 @@ public class X10Context_c extends Context_c implements X10Context {
 	/**
 	 * Pushes on a deptype. Treat this as pushing a class.
 	 */
-	public X10Context pushDepType(polyglot.types.Ref<? extends polyglot.types.Type> ref) {
+	public X10Context pushDepType(x10.types.Ref<? extends x10.types.Type> ref) {
 		X10Context_c v = (X10Context_c) push();
 		v.depType = ref;
 		v.inCode = false;

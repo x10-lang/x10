@@ -11,7 +11,7 @@
 
 package x10.ast;
 
-import polyglot.types.Type;
+import x10.types.Type;
 
 /** The AST node for the X10 construct future (P) {e}
  *

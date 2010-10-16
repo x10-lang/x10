@@ -13,7 +13,7 @@
  */
 package x10.ast;
 
-import polyglot.types.VarDef;
+import x10.types.VarDef;
 
 /**
  * <code>VarInit</code> should be implemented by any node that could declare and

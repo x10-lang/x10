@@ -15,9 +15,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import polyglot.types.Context;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
+import x10.types.Context;
 
 /**
  * @author vj

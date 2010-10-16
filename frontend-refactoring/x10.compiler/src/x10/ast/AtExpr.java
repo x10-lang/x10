@@ -13,8 +13,8 @@ package x10.ast;
 
 import java.util.List;
 
-import polyglot.types.Type;
 import x10.types.ClosureDef;
+import x10.types.Type;
 
 /** The AST node for the X10 construct at (P) {e}
  *

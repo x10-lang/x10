@@ -9,11 +9,11 @@ package polyglot.visit;
 
 import polyglot.frontend.Job;
 import polyglot.frontend.TargetFactory;
-import polyglot.types.TypeSystem;
 import polyglot.util.CodeWriter;
 import polyglot.util.InternalCompilerError;
 import x10.ast.Node;
 import x10.ast.NodeFactory;
+import x10.types.TypeSystem;
 
 /**
  * TypedTranslator extends Translator for type-directed code generation.

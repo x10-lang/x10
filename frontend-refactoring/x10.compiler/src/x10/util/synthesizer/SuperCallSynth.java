@@ -13,15 +13,15 @@ package x10.util.synthesizer;
 import java.util.ArrayList;
 import java.util.List;
 
-import polyglot.types.ClassDef;
-import polyglot.types.ConstructorDef;
-import polyglot.types.SemanticException;
-import polyglot.types.Type;
 import polyglot.util.Position;
 import x10.ast.Expr;
 import x10.ast.Stmt;
 import x10.ast.TypeNode;
 import x10.ast.NodeFactory;
+import x10.types.ClassDef;
+import x10.types.ConstructorDef;
+import x10.types.SemanticException;
+import x10.types.Type;
 import x10.types.X10Context;
 
 /**

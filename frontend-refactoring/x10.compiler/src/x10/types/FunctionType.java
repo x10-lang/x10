@@ -14,10 +14,6 @@ package x10.types;
 import java.util.ArrayList;
 import java.util.List;
 
-import polyglot.types.LocalInstance;
-import polyglot.types.MethodInstance;
-import polyglot.types.Ref;
-import polyglot.types.Type;
 import x10.constraint.XConstraint;
 
 /**

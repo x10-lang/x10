@@ -6,8 +6,6 @@ package x10.ast;
 import java.util.Collections;
 import java.util.List;
 
-import polyglot.types.SemanticException;
-import polyglot.types.Type;
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 import polyglot.visit.CFGBuilder;
@@ -15,6 +13,8 @@ import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
 import x10.errors.Errors;
+import x10.types.SemanticException;
+import x10.types.Type;
 import x10.types.X10Context;
 import x10.types.X10TypeMixin;
 import x10.visit.X10TypeChecker;

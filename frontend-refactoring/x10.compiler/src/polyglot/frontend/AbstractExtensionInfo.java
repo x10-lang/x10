@@ -13,10 +13,10 @@ import java.io.Reader;
 
 import polyglot.main.Options;
 import polyglot.main.Version;
-import polyglot.types.TypeSystem;
 import polyglot.types.reflect.ClassFile;
 import polyglot.util.ErrorQueue;
 import x10.ast.NodeFactory;
+import x10.types.TypeSystem;
 
 /**
  * This is an abstract <code>ExtensionInfo</code>.

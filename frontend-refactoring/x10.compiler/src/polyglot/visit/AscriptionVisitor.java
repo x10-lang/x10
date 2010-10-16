@@ -15,6 +15,9 @@ import x10.ast.LocalAssign;
 import x10.ast.Node;
 import x10.ast.NodeFactory;
 import x10.ast.Unary;
+import x10.types.SemanticException;
+import x10.types.Type;
+import x10.types.TypeSystem;
 
 /** Visitor which allows type information to be utilized to perform AST 
     modifications.  

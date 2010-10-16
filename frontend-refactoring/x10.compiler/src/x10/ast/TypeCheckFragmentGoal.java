@@ -7,9 +7,9 @@ import java.util.Collections;
 import java.util.List;
 
 import polyglot.frontend.*;
-import polyglot.types.LazyRef;
 import polyglot.util.CollectionUtil;
 import polyglot.visit.TypeChecker;
+import x10.types.LazyRef;
 
 public class TypeCheckFragmentGoal<T> extends AbstractGoal_c {
     private static final long serialVersionUID = -843644476867221586L;

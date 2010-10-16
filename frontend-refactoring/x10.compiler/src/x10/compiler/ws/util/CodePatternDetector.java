@@ -4,11 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import polyglot.types.MethodDef;
-import polyglot.types.MethodInstance;
-import polyglot.types.Name;
-import polyglot.types.SemanticException;
-import polyglot.types.Type;
 import polyglot.util.Pair;
 import x10.ast.Assign;
 import x10.ast.Async;
@@ -34,6 +29,11 @@ import x10.ast.When;
 import x10.ast.While;
 import x10.ast.NodeFactory;
 import x10.compiler.ws.WSTransformState;
+import x10.types.MethodDef;
+import x10.types.MethodInstance;
+import x10.types.Name;
+import x10.types.SemanticException;
+import x10.types.Type;
 import x10.types.X10Context;
 import x10.types.X10TypeSystem;
 

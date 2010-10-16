@@ -13,11 +13,6 @@ package x10.types;
 
 import java.util.List;
 
-import polyglot.types.ClassDef;
-import polyglot.types.ClassType;
-import polyglot.types.FieldDef;
-import polyglot.types.Ref;
-import polyglot.types.SemanticException;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
 

@@ -22,8 +22,13 @@ import x10.constraint.XTerms;
 import x10.constraint.XVar;
 import x10.types.ConstrainedType;
 import x10.types.MacroType;
+import x10.types.Name;
 import x10.types.ParameterType;
 import x10.types.ParameterType_c;
+import x10.types.PrimitiveType;
+import x10.types.SemanticException;
+import x10.types.Type;
+import x10.types.Types;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10Context;
@@ -32,11 +37,6 @@ import x10.types.X10ProcedureInstance;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.ParameterType.Variance;
-import polyglot.types.Name;
-import polyglot.types.PrimitiveType;
-import polyglot.types.SemanticException;
-import polyglot.types.Type;
-import polyglot.types.Types;
 
 /**
  * Todo: This needs to be fixed. The constraints in this have to be used to figure

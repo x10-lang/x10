@@ -22,6 +22,17 @@ import polyglot.util.ErrorQueue;
 import polyglot.visit.*;
 import x10.ast.Node;
 import x10.ast.NodeFactory;
+import x10.types.ClassDef;
+import x10.types.ClassType;
+import x10.types.Flags;
+import x10.types.LazyRef;
+import x10.types.Named;
+import x10.types.QName;
+import x10.types.Ref;
+import x10.types.SemanticException;
+import x10.types.Type;
+import x10.types.TypeSystem;
+import x10.types.Types;
 
 /**
  * Comment for <code>Scheduler</code>

@@ -9,8 +9,8 @@ package x10.ast;
 
 import java.util.List;
 
-import polyglot.types.ClassDef;
-import polyglot.types.ConstructorInstance;
+import x10.types.ClassDef;
+import x10.types.ConstructorInstance;
 
 /**
  * A <code>New</code> is an immutable representation of the use of the

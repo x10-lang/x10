@@ -10,7 +10,6 @@ package polyglot.visit;
 import java.util.*;
 
 
-import polyglot.types.Name;
 import x10.ast.Block;
 import x10.ast.Branch;
 import x10.ast.Labeled;
@@ -20,6 +19,7 @@ import x10.ast.Return;
 import x10.ast.Stmt;
 import x10.ast.SwitchBlock;
 import x10.ast.Throw;
+import x10.types.Name;
 
 /**
  * The <code>CodeCleaner</code> runs over the AST and performs some trivial

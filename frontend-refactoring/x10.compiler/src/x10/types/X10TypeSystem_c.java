@@ -26,47 +26,6 @@ import polyglot.frontend.ExtensionInfo;
 import polyglot.frontend.Globals;
 import polyglot.frontend.Goal;
 import polyglot.frontend.Source;
-import polyglot.types.ClassDef;
-import polyglot.types.ClassType;
-import polyglot.types.CodeDef;
-import polyglot.types.CodeInstance;
-import polyglot.types.ConstructorDef;
-import polyglot.types.ConstructorInstance;
-import polyglot.types.Context;
-import polyglot.types.DerefTransform;
-import polyglot.types.FieldDef;
-import polyglot.types.FieldInstance;
-import polyglot.types.Flags;
-import polyglot.types.InitializerDef;
-import polyglot.types.LazyRef;
-import polyglot.types.LocalDef;
-import polyglot.types.LocalInstance;
-import polyglot.types.Matcher;
-import polyglot.types.MethodDef;
-import polyglot.types.MethodInstance;
-import polyglot.types.Name;
-import polyglot.types.Named;
-import polyglot.types.NoClassException;
-import polyglot.types.NoMemberException;
-import polyglot.types.NullType;
-import polyglot.types.ObjectType;
-import polyglot.types.ParsedClassType;
-import polyglot.types.PrimitiveType;
-import polyglot.types.ProcedureDef;
-import polyglot.types.ProcedureInstance;
-import polyglot.types.QName;
-import polyglot.types.Ref;
-import polyglot.types.SemanticException;
-import polyglot.types.StructType;
-import polyglot.types.TopLevelResolver;
-import polyglot.types.Type;
-import polyglot.types.TypeObject;
-import polyglot.types.TypeSystem;
-import polyglot.types.TypeSystem_c;
-import polyglot.types.Types;
-import polyglot.types.UnknownType;
-import polyglot.types.VarDef;
-import polyglot.types.TypeSystem_c.MostSpecificComparator;
 import polyglot.util.CollectionUtil;
 import polyglot.util.ErrorInfo;
 import polyglot.util.InternalCompilerError;
@@ -92,6 +51,7 @@ import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
 import x10.parser.X10ParsedName;
+import x10.types.TypeSystem_c.MostSpecificComparator;
 import x10.types.XTypeTranslator.XTypeLit_c;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.SubtypeConstraint;
@@ -2343,11 +2303,11 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
     }
 
     @Override
-    public X10ConstructorInstance findConstructor(Type container, polyglot.types.TypeSystem_c.ConstructorMatcher matcher) throws SemanticException {
+    public X10ConstructorInstance findConstructor(Type container, x10.types.TypeSystem_c.ConstructorMatcher matcher) throws SemanticException {
         return (X10ConstructorInstance) super.findConstructor(container, matcher);
     }
 
-    public Collection<X10ConstructorInstance> findConstructors(Type container, polyglot.types.TypeSystem_c.ConstructorMatcher matcher) throws SemanticException {
+    public Collection<X10ConstructorInstance> findConstructors(Type container, x10.types.TypeSystem_c.ConstructorMatcher matcher) throws SemanticException {
         assert_(container);
         Context context = matcher.context();
         List<ConstructorInstance> acceptable = findAcceptableConstructors(container, matcher);

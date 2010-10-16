@@ -14,15 +14,6 @@ package x10.types;
 import java.util.List;
 import java.util.HashMap;
 
-import polyglot.types.ClassType;
-import polyglot.types.CodeDef;
-import polyglot.types.Context;
-import polyglot.types.LocalDef;
-import polyglot.types.Name;
-import polyglot.types.Ref;
-import polyglot.types.SemanticException;
-import polyglot.types.Type;
-import polyglot.types.VarDef;
 import x10.constraint.XFailure;
 import x10.constraint.XVar;
 import x10.constraint.XTerm;

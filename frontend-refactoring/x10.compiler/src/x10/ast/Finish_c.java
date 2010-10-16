@@ -14,13 +14,13 @@ package x10.ast;
 import java.util.List;
 import java.util.Set;
 
-import polyglot.types.Context;
-import polyglot.types.VarDef;
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 import polyglot.visit.CFGBuilder;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
+import x10.types.Context;
+import x10.types.VarDef;
 import x10.types.X10Context;
 
 /** An immutable class representing the X10 finish S construct.

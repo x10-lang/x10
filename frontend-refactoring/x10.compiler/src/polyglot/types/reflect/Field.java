@@ -9,6 +9,10 @@
 package polyglot.types.reflect;
 
 import polyglot.types.*;
+import x10.types.QName;
+import x10.types.SemanticException;
+import x10.types.Type;
+
 import java.util.*;
 import java.io.*;
 

@@ -16,8 +16,6 @@ import java.util.Collections;
 import java.util.List;
 
 import polyglot.frontend.Job;
-import polyglot.types.SemanticException;
-import polyglot.types.TypeSystem;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
@@ -30,6 +28,8 @@ import x10.ast.Stmt;
 import x10.ast.X10MethodDecl;
 import x10.ast.NodeFactory;
 import x10.extension.X10ClassBodyExt_c;
+import x10.types.SemanticException;
+import x10.types.TypeSystem;
 import x10.types.X10Flags;
 import x10.types.X10TypeSystem;
 

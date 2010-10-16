@@ -10,12 +10,13 @@ package x10.ast;
 
 import polyglot.frontend.ExtensionInfo;
 import polyglot.types.*;
-import polyglot.types.Ref;
-import polyglot.types.Package;
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 import polyglot.visit.PrettyPrinter;
 import polyglot.visit.Translator;
+import x10.types.Package;
+import x10.types.Qualifier;
+import x10.types.Ref;
 
 /**
  * A <code>PackageNode</code> is the syntactic representation of a 

@@ -13,7 +13,6 @@ package x10c.ast;
 
 import java.util.List;
 
-import polyglot.types.Type;
 import polyglot.util.Position;
 import x10.ExtensionInfo;
 import x10.ast.Expr;
@@ -21,6 +20,7 @@ import x10.ast.Id;
 import x10.ast.TypeNode;
 import x10.ast.NodeFactory_c;
 import x10.ast.Assign.Operator;
+import x10.types.Type;
 
 public class X10CNodeFactory_c extends NodeFactory_c {
 

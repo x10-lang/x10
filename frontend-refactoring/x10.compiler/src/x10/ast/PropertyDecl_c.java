@@ -14,8 +14,6 @@ package x10.ast;
 import java.util.Collections;
 import java.util.List;
 
-import polyglot.types.Flags;
-import polyglot.types.SemanticException;
 import polyglot.util.Position;
 import polyglot.visit.TypeBuilder;
 import x10.types.*;

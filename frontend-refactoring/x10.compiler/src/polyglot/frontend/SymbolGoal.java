@@ -1,7 +1,7 @@
 package polyglot.frontend;
 
-import polyglot.types.Ref;
-import polyglot.types.TypeObject;
+import x10.types.Ref;
+import x10.types.TypeObject;
 
 public interface SymbolGoal<T extends TypeObject> extends Goal {
     Ref<T> typeRef();

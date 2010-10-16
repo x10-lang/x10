@@ -18,6 +18,9 @@ import polyglot.util.Position;
 import x10.ast.Expr;
 import x10.ast.Node;
 import x10.ast.NodeFactory;
+import x10.types.SemanticException;
+import x10.types.TypeSystem;
+import x10.types.UnknownType;
 
 /** Visitor which performs type checking on the AST. */
 public class TypeChecker extends ContextVisitor

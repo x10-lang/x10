@@ -38,6 +38,8 @@ import x10.ast.Switch;
 import x10.ast.Term;
 import x10.ast.Unary;
 import x10.ast.While;
+import x10.types.LocalDef;
+import x10.types.TypeSystem;
 
 /**
  * Visitor which performs dead code elimination.  (Note that "dead code" is not

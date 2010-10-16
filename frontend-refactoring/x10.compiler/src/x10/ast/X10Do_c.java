@@ -11,10 +11,10 @@
 
 package x10.ast;
 
-import polyglot.types.SemanticException;
-import polyglot.types.TypeSystem;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
+import x10.types.SemanticException;
+import x10.types.TypeSystem;
 
 /**
  * @author igor

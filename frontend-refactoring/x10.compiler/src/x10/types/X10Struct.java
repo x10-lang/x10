@@ -11,7 +11,6 @@
 
 package x10.types;
 
-import polyglot.types.Type;
 
 
 

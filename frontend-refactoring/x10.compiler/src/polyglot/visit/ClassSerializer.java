@@ -22,6 +22,15 @@ import x10.ast.FieldDecl;
 import x10.ast.IntLit;
 import x10.ast.Node;
 import x10.ast.NodeFactory;
+import x10.types.ClassDef;
+import x10.types.ClassType;
+import x10.types.FieldDef;
+import x10.types.Flags;
+import x10.types.InitializerDef;
+import x10.types.Name;
+import x10.types.ParsedClassType_c;
+import x10.types.TypeSystem;
+import x10.types.Types;
 
 /**
  * Visitor which serializes class objects and adds a field to the class

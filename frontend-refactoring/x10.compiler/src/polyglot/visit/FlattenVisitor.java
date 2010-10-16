@@ -25,6 +25,12 @@ import x10.ast.NodeFactory;
 import x10.ast.Special;
 import x10.ast.Stmt;
 import x10.ast.Switch;
+import x10.types.Flags;
+import x10.types.LocalDef;
+import x10.types.Name;
+import x10.types.Type;
+import x10.types.TypeSystem;
+import x10.types.Types;
 
 /**
  * The FlattenVisitor flattens the AST,

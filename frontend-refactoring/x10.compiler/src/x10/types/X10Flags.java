@@ -16,7 +16,6 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import polyglot.main.Report;
-import polyglot.types.Flags;
 
 /**
  * Representation of X10 flags.

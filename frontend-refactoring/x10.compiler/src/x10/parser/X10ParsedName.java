@@ -12,13 +12,13 @@
 package x10.parser;
 
 import polyglot.parse.ParsedName;
-import polyglot.types.TypeSystem;
 import polyglot.util.Position;
 import x10.ast.Id;
 import x10.ast.NodeFactory;
 import x10.ast.QualifierNode;
 import x10.ast.TypeNode;
 import x10.ast.NodeFactory;
+import x10.types.TypeSystem;
 
 public class X10ParsedName extends ParsedName {
 	public X10ParsedName(NodeFactory nf, TypeSystem ts, Position pos, Id name) {

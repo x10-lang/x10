@@ -25,12 +25,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import polyglot.types.Name;
-import polyglot.types.TypeSystem;
-import polyglot.types.VarInstance;
 import x10.ast.ClassMember;
 import x10.ast.PropertyDecl;
 import x10.ast.Stmt;
+import x10.types.Name;
+import x10.types.TypeSystem;
+import x10.types.VarInstance;
 import x10.types.X10ClassDef;
 import x10.types.X10Context;
 import x10.types.X10MethodDef;

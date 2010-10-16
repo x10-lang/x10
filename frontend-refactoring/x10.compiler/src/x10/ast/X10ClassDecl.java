@@ -13,12 +13,12 @@ package x10.ast;
 
 import java.util.List;
 
-import polyglot.types.ClassDef;
-import polyglot.types.LocalDef;
-import polyglot.types.Name;
-import polyglot.types.Ref;
-import polyglot.types.Type;
 import polyglot.visit.TypeChecker;
+import x10.types.ClassDef;
+import x10.types.LocalDef;
+import x10.types.Name;
+import x10.types.Ref;
+import x10.types.Type;
 import x10.types.TypeDef;
 import x10.types.X10ClassDef;
 import x10.types.X10TypeSystem;

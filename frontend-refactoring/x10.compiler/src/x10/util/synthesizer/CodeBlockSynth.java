@@ -16,12 +16,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-import polyglot.types.ClassDef;
-import polyglot.types.ClassType;
-import polyglot.types.Flags;
-import polyglot.types.Name;
-import polyglot.types.SemanticException;
-import polyglot.types.Type;
 import polyglot.util.Position;
 import polyglot.visit.NodeVisitor;
 import x10.ast.AnnotationNode;
@@ -33,6 +27,12 @@ import x10.ast.Node;
 import x10.ast.Receiver;
 import x10.ast.Stmt;
 import x10.ast.NodeFactory;
+import x10.types.ClassDef;
+import x10.types.ClassType;
+import x10.types.Flags;
+import x10.types.Name;
+import x10.types.SemanticException;
+import x10.types.Type;
 import x10.types.X10Context;
 
 /**

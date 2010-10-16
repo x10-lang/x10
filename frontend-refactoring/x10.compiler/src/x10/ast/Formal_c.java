@@ -15,6 +15,13 @@ import polyglot.types.*;
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 import polyglot.visit.*;
+import x10.types.Context;
+import x10.types.Def;
+import x10.types.LocalDef;
+import x10.types.LocalInstance;
+import x10.types.SemanticException;
+import x10.types.Type;
+import x10.types.TypeSystem;
 
 /**
  * A <code>Formal</code> represents a formal parameter for a procedure

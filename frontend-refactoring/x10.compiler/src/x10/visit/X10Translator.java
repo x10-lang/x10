@@ -19,9 +19,6 @@ import java.util.List;
 
 import polyglot.frontend.Job;
 import polyglot.frontend.TargetFactory;
-import polyglot.types.Package;
-import polyglot.types.QName;
-import polyglot.types.TypeSystem;
 import polyglot.util.CodeWriter;
 import polyglot.util.ErrorInfo;
 import polyglot.visit.Translator;
@@ -35,6 +32,9 @@ import x10.ast.NodeFactory;
 import x10.ast.SourceFile;
 import x10.ast.Stmt;
 import x10.ast.TopLevelDecl;
+import x10.types.Package;
+import x10.types.QName;
+import x10.types.TypeSystem;
 
 public class X10Translator extends Translator {
     public X10Translator(Job job, TypeSystem ts, NodeFactory nf, TargetFactory tf) {

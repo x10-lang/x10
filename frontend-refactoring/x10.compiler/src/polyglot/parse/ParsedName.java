@@ -10,7 +10,6 @@ package polyglot.parse;
 
 
 import polyglot.types.*;
-import polyglot.types.Package;
 import polyglot.util.*;
 import x10.ast.Expr;
 import x10.ast.Id;
@@ -20,6 +19,10 @@ import x10.ast.Prefix;
 import x10.ast.QualifierNode;
 import x10.ast.Receiver;
 import x10.ast.TypeNode;
+import x10.types.Package;
+import x10.types.Ref;
+import x10.types.TypeSystem;
+import x10.types.Types;
 
 /**
  * Represents an ambiguous, possibly qualified, identifier encountered while parsing.

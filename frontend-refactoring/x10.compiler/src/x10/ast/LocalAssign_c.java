@@ -7,11 +7,11 @@
 
 package x10.ast;
 
-import polyglot.types.SemanticException;
-import polyglot.types.Type;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.*;
+import x10.types.SemanticException;
+import x10.types.Type;
 
 /**
  * A <code>LocalAssign_c</code> represents a Java assignment expression

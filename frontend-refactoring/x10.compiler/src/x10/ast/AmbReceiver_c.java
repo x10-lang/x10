@@ -8,10 +8,10 @@
 
 package x10.ast;
 
-import polyglot.types.SemanticException;
-import polyglot.types.Type;
 import polyglot.util.Position;
 import polyglot.visit.*;
+import x10.types.SemanticException;
+import x10.types.Type;
 
 /**
  * An <code>AmbReceiver</code> is an ambiguous AST node composed of

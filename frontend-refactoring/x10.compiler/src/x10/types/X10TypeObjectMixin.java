@@ -15,12 +15,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import polyglot.types.DerefTransform;
-import polyglot.types.Named;
-import polyglot.types.QName;
-import polyglot.types.Ref;
-import polyglot.types.Type;
-import polyglot.types.Use;
 import polyglot.util.TransformingList;
 
 public class X10TypeObjectMixin {

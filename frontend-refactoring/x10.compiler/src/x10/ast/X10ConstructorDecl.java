@@ -13,7 +13,7 @@ package x10.ast;
 
 import java.util.List;
 
-import polyglot.types.ConstructorDef;
+import x10.types.ConstructorDef;
 import x10.types.X10ConstructorDef;
 
 public interface X10ConstructorDecl extends ConstructorDecl, Guarded {

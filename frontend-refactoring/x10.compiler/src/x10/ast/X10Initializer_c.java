@@ -11,13 +11,13 @@
 
 package x10.ast;
 
-import polyglot.types.ClassDef;
-import polyglot.types.Context;
-import polyglot.types.Flags;
-import polyglot.types.InitializerDef;
-import polyglot.types.TypeSystem;
-import polyglot.types.Types;
 import polyglot.util.Position;
+import x10.types.ClassDef;
+import x10.types.Context;
+import x10.types.Flags;
+import x10.types.InitializerDef;
+import x10.types.TypeSystem;
+import x10.types.Types;
 import x10.types.X10ClassDef;
 import x10.types.X10Context;
 import x10.types.X10InitializerDef;

@@ -13,10 +13,10 @@ package x10.ast;
 
 import java.util.List;
 
-import polyglot.types.SemanticException;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.TypeBuilder;
+import x10.types.SemanticException;
 
 public class X10SourceFile_c extends SourceFile_c {
 

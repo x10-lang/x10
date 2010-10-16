@@ -13,15 +13,6 @@ package x10.types;
 
 import java.util.List;
 
-import polyglot.types.MemberInstance;
-import polyglot.types.Named;
-import polyglot.types.ProcedureInstance;
-import polyglot.types.Ref;
-import polyglot.types.SemanticException;
-import polyglot.types.Name;
-import polyglot.types.StructType;
-import polyglot.types.Type;
-import polyglot.types.Types;
 import x10.constraint.XConstraint;
 import x10.constraint.XVar;
 import x10.types.constraints.CConstraint;

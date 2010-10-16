@@ -11,13 +11,6 @@
 
 package x10.types;
 
-import polyglot.types.ClassType;
-import polyglot.types.Flags;
-import polyglot.types.QName;
-import polyglot.types.SemanticException;
-import polyglot.types.Type;
-import polyglot.types.TypeSystem;
-import polyglot.types.UnknownType_c;
 import polyglot.util.InternalCompilerError;
 
 /**

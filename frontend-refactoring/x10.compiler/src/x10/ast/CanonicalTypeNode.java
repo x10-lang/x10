@@ -7,8 +7,8 @@
 
 package x10.ast;
 
-import polyglot.types.Ref;
-import polyglot.types.Type;
+import x10.types.Ref;
+import x10.types.Type;
 
 /**
  * A <code>CanonicalTypeNode</code> is a type node for a canonical type.

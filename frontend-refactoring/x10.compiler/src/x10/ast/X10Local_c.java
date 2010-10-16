@@ -19,13 +19,6 @@ package x10.ast;
  * @author vj
  */
 
-import polyglot.types.CodeDef;
-import polyglot.types.LocalInstance;
-import polyglot.types.Name;
-import polyglot.types.SemanticException;
-import polyglot.types.Type;
-import polyglot.types.Types;
-import polyglot.types.VarDef;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 
@@ -33,6 +26,13 @@ import x10.constraint.XFailure;
 import x10.constraint.XTerm;
 import x10.constraint.XConstraint;
 import x10.errors.Errors;
+import x10.types.CodeDef;
+import x10.types.LocalInstance;
+import x10.types.Name;
+import x10.types.SemanticException;
+import x10.types.Type;
+import x10.types.Types;
+import x10.types.VarDef;
 import x10.types.X10Context;
 import x10.types.X10Flags;
 import x10.types.X10LocalInstance;

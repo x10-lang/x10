@@ -11,7 +11,6 @@
 
 package x10.types;
 
-import polyglot.types.LocalDef;
 import x10.constraint.XTerm;
 
 public interface X10LocalDef extends LocalDef, X10Def {

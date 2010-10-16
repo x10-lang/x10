@@ -14,10 +14,25 @@ import java.util.LinkedList;
 import polyglot.frontend.*;
 import polyglot.main.Report;
 import polyglot.types.*;
-import polyglot.types.Package;
 import polyglot.util.*;
 import x10.ast.Node;
 import x10.ast.NodeFactory;
+import x10.types.ClassDef;
+import x10.types.ClassType;
+import x10.types.CodeDef;
+import x10.types.Context;
+import x10.types.Def;
+import x10.types.ErrorRef_c;
+import x10.types.Flags;
+import x10.types.ImportTable;
+import x10.types.Name;
+import x10.types.Named;
+import x10.types.Package;
+import x10.types.QName;
+import x10.types.SemanticException;
+import x10.types.Type;
+import x10.types.TypeSystem;
+import x10.types.Types;
 
 /** Visitor which traverses the AST constructing type objects. */
 public class TypeBuilder extends NodeVisitor

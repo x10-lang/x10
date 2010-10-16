@@ -4,10 +4,10 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import polyglot.types.ClassType;
-import polyglot.types.Flags;
-import polyglot.types.MethodInstance;
-import polyglot.types.Type;
+import x10.types.ClassType;
+import x10.types.Flags;
+import x10.types.MethodInstance;
+import x10.types.Type;
 
 public class HierarchyUtils {
 	

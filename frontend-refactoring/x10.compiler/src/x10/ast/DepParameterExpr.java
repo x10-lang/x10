@@ -13,7 +13,7 @@ package x10.ast;
 
 import java.util.List;
 
-import polyglot.types.Ref;
+import x10.types.Ref;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
 

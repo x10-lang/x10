@@ -14,7 +14,7 @@ package x10.ast;
 import java.util.ArrayList;
 import java.util.List;
 
-import polyglot.types.MethodInstance;
+import x10.types.MethodInstance;
 import x10.types.X10MethodInstance;
 
 public interface X10Call extends Call {

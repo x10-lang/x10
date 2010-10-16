@@ -11,6 +11,8 @@ import polyglot.types.*;
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 import polyglot.visit.*;
+import x10.types.SemanticException;
+import x10.types.Type;
 
 /**
  * An <code>Expr</code> represents any Java expression.  All expressions

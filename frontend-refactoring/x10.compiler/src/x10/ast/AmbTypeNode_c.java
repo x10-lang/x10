@@ -14,6 +14,9 @@ import polyglot.types.*;
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 import polyglot.visit.*;
+import x10.types.LazyRef;
+import x10.types.SemanticException;
+import x10.types.Type;
 
 /**
  * An <code>AmbTypeNode</code> is an ambiguous AST node composed of

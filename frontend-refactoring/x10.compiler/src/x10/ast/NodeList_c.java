@@ -8,9 +8,9 @@ package x10.ast;
 
 import java.util.List;
 
-import polyglot.types.Context;
 import polyglot.util.*;
 import polyglot.visit.NodeVisitor;
+import x10.types.Context;
 
 /**
  * A <code>NodeList</code> represents a list of AST nodes.

@@ -14,18 +14,6 @@ package x10.types;
 import java.util.Collections;
 import java.util.List;
 
-import polyglot.types.CodeInstance;
-import polyglot.types.Def_c;
-import polyglot.types.Flags;
-import polyglot.types.LocalDef;
-import polyglot.types.Name;
-import polyglot.types.Package;
-import polyglot.types.QName;
-import polyglot.types.Ref;
-import polyglot.types.StructType;
-import polyglot.types.Type;
-import polyglot.types.TypeSystem;
-import polyglot.types.Types;
 import polyglot.util.CollectionUtil;
 import polyglot.util.Position;
 import polyglot.util.TypedList;

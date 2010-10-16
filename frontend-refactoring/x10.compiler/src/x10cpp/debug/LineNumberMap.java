@@ -22,13 +22,13 @@ import java.util.List;
 import java.util.StringTokenizer;
 import java.util.TreeSet;
 
-import polyglot.types.MemberDef;
-import polyglot.types.MethodDef;
-import polyglot.types.ProcedureDef;
-import polyglot.types.Ref;
-import polyglot.types.Type;
 import polyglot.util.QuotedStringTokenizer;
 import polyglot.util.StringUtil;
+import x10.types.MemberDef;
+import x10.types.MethodDef;
+import x10.types.ProcedureDef;
+import x10.types.Ref;
+import x10.types.Type;
 import x10.util.ClassifiedStream;
 import x10cpp.visit.Emitter;
 

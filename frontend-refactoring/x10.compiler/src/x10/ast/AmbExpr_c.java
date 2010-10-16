@@ -10,9 +10,9 @@ package x10.ast;
 
 import java.util.List;
 
-import polyglot.types.SemanticException;
 import polyglot.util.*;
 import polyglot.visit.*;
+import x10.types.SemanticException;
 
 /**
  * An <code>AmbExpr</code> is an ambiguous AST node composed of a single

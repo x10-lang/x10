@@ -31,6 +31,8 @@ import x10.ast.NodeFactory;
 import x10.ast.Stmt;
 import x10.ast.Term;
 import x10.ast.Unary;
+import x10.types.LocalDef;
+import x10.types.TypeSystem;
 
 /**
  * Visitor which performs copy propagation.

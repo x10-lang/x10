@@ -12,9 +12,14 @@ import java.util.List;
 
 import polyglot.frontend.ExtensionInfo;
 import polyglot.types.*;
-import polyglot.types.Package;
 import polyglot.util.Position;
+import x10.types.Flags;
+import x10.types.Name;
+import x10.types.Package;
 import x10.types.ParameterType;
+import x10.types.QName;
+import x10.types.Ref;
+import x10.types.Type;
 import x10.types.checker.Converter;
 
 /**

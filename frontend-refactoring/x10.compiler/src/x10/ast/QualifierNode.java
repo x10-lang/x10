@@ -7,8 +7,8 @@
 
 package x10.ast;
 
-import polyglot.types.Qualifier;
-import polyglot.types.Ref;
+import x10.types.Qualifier;
+import x10.types.Ref;
 
 /**
  * A <code>QualifierNode</code> represents any node that can be used as a type

@@ -9,8 +9,8 @@ package x10.ast;
 
 import java.util.List;
 
-import polyglot.types.ClassDef;
-import polyglot.types.Flags;
+import x10.types.ClassDef;
+import x10.types.Flags;
 
 /**
  * A <code>ClassDecl</code> represents a top-level, member, or local class

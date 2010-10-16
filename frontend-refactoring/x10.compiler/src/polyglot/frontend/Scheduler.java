@@ -22,6 +22,13 @@ import polyglot.util.InternalCompilerError;
 import polyglot.util.Option;
 import polyglot.visit.PostCompiled;
 import x10.ast.Node;
+import x10.types.ClassDef;
+import x10.types.Flags;
+import x10.types.LazyRef;
+import x10.types.QName;
+import x10.types.SystemResolver;
+import x10.types.Type;
+import x10.types.TypeSystem;
 
 
 /**

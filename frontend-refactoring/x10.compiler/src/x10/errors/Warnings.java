@@ -1,12 +1,12 @@
 package x10.errors;
 
 import polyglot.frontend.Job;
-import polyglot.types.Type;
 import polyglot.util.ErrorInfo;
 import polyglot.util.Position;
 import x10.Configuration;
 import x10.ExtensionInfo;
 import x10.ast.Expr;
+import x10.types.Type;
 
 public class Warnings {
 

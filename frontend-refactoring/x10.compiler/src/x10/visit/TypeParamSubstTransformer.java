@@ -11,8 +11,8 @@
 
 package x10.visit;
 
-import polyglot.types.Type;
 import x10.types.ParameterType;
+import x10.types.Type;
 import x10.types.TypeParamSubst;
 import x10.types.X10ConstructorInstance;
 import x10.types.X10FieldInstance;

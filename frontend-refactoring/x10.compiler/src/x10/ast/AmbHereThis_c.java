@@ -13,10 +13,10 @@ package x10.ast;
 
 import java.util.List;
 
-import polyglot.types.SemanticException;
 import polyglot.util.Position;
 import polyglot.visit.CFGBuilder;
 import polyglot.visit.ContextVisitor;
+import x10.types.SemanticException;
 
 public class AmbHereThis_c extends Expr_c {
 

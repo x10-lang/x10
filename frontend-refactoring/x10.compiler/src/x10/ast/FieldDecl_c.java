@@ -12,10 +12,27 @@ import java.util.*;
 
 import polyglot.frontend.*;
 import polyglot.types.*;
-import polyglot.types.VarDef_c.ConstantValue;
 import polyglot.util.*;
 import polyglot.visit.*;
 import x10.errors.Errors;
+import x10.types.ClassDef;
+import x10.types.ClassType;
+import x10.types.CodeDef;
+import x10.types.Context;
+import x10.types.Def;
+import x10.types.FieldDef;
+import x10.types.Flags;
+import x10.types.InitializerDef;
+import x10.types.LazyRef;
+import x10.types.MemberDef;
+import x10.types.Ref;
+import x10.types.SemanticException;
+import x10.types.Type;
+import x10.types.TypeSystem;
+import x10.types.Types;
+import x10.types.UnknownType;
+import x10.types.VarDef;
+import x10.types.VarDef_c.ConstantValue;
 
 /**
  * A <code>FieldDecl</code> is an immutable representation of the declaration

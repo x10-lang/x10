@@ -9,7 +9,7 @@ package x10.ast;
 
 import java.util.List;
 
-import polyglot.types.ProcedureDef;
+import x10.types.ProcedureDef;
 
 /**
  * A procedure declaration.  A procedure is the supertype of methods and

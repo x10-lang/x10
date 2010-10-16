@@ -13,11 +13,6 @@ package x10.types;
 
 import java.util.List;
 
-import polyglot.types.MethodDef;
-import polyglot.types.MethodInstance;
-import polyglot.types.Ref;
-import polyglot.types.SemanticException;
-import polyglot.types.Type;
 import x10.constraint.XTerm;
 
 /**

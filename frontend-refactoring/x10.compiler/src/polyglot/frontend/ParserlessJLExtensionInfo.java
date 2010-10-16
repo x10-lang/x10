@@ -10,17 +10,17 @@ package polyglot.frontend;
 import java.io.Reader;
 
 import polyglot.main.Version;
-import polyglot.types.LoadedClassResolver;
-import polyglot.types.MemberClassResolver;
-import polyglot.types.SemanticException;
-import polyglot.types.SourceClassResolver;
-import polyglot.types.TopLevelResolver;
-import polyglot.types.TypeSystem;
-import polyglot.types.TypeSystem_c;
 import polyglot.util.ErrorQueue;
 import polyglot.util.InternalCompilerError;
 import x10.ast.NodeFactory;
 import x10.ast.NodeFactory_c;
+import x10.types.LoadedClassResolver;
+import x10.types.MemberClassResolver;
+import x10.types.SemanticException;
+import x10.types.SourceClassResolver;
+import x10.types.TopLevelResolver;
+import x10.types.TypeSystem;
+import x10.types.TypeSystem_c;
 
 /** This class implements most of the <code>ExtensionInfo</code> for the Java language.
  * It does not include a parser, however.  EPL-licensed extensions should extend this class

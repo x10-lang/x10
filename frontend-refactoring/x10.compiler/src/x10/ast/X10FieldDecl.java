@@ -11,8 +11,8 @@
 
 package x10.ast;
 
-import polyglot.types.FieldDef;
-import polyglot.types.Type;
+import x10.types.FieldDef;
+import x10.types.Type;
 import x10.types.X10FieldDef;
 
 public interface X10FieldDecl extends FieldDecl {

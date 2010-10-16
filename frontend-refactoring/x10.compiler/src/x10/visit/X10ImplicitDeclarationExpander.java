@@ -16,8 +16,6 @@ import java.util.List;
 import java.util.Iterator;
 
 import polyglot.frontend.Job;
-import polyglot.types.SemanticException;
-import polyglot.types.TypeSystem;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import polyglot.util.Position;
@@ -32,6 +30,8 @@ import x10.ast.Stmt;
 import x10.ast.X10ClockedLoop;
 import x10.ast.X10Formal;
 import x10.ast.X10Loop;
+import x10.types.SemanticException;
+import x10.types.TypeSystem;
 
 /**
  * Visitor that expands implicit declarations in formal parameters.

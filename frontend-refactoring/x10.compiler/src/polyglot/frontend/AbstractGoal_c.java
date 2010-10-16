@@ -4,8 +4,8 @@ import java.util.*;
 
 import polyglot.frontend.Goal.Status;
 import polyglot.main.Report;
-import polyglot.types.LazyRef_c;
 import polyglot.util.StringUtil;
+import x10.types.LazyRef_c;
 
 public abstract class AbstractGoal_c extends LazyRef_c<Goal.Status> implements Goal {
 	private static final long serialVersionUID = 39827248332800427L;

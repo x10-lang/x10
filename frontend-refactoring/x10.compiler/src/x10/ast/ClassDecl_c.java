@@ -15,6 +15,23 @@ import polyglot.types.*;
 import polyglot.util.*;
 import polyglot.visit.*;
 import x10.errors.Errors;
+import x10.types.ClassDef;
+import x10.types.ClassType;
+import x10.types.ConstructorDef;
+import x10.types.Context;
+import x10.types.Def;
+import x10.types.Flags;
+import x10.types.MemberDef;
+import x10.types.Name;
+import x10.types.Named;
+import x10.types.QName;
+import x10.types.Ref;
+import x10.types.ReferenceType;
+import x10.types.SemanticException;
+import x10.types.Type;
+import x10.types.TypeSystem;
+import x10.types.Types;
+import x10.types.UnknownType;
 
 /**
  * A <code>ClassDecl</code> is the definition of a class, abstract class,

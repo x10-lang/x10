@@ -11,7 +11,7 @@
 
 package x10.ast;
 
-import polyglot.types.ClassType;
+import x10.types.ClassType;
 import x10.types.X10ClassType;
 
 /**

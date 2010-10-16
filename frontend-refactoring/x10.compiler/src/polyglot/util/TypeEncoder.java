@@ -15,6 +15,10 @@ import java.util.zip.GZIPOutputStream;
 import polyglot.frontend.SchedulerException;
 import polyglot.main.Report;
 import polyglot.types.*;
+import x10.types.Named;
+import x10.types.QName;
+import x10.types.TypeObject;
+import x10.types.TypeSystem;
 
 /**
  * The <code>TypeEncoder</code> gives the ability to encode a polyglot 

@@ -15,9 +15,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import polyglot.frontend.Job;
-import polyglot.types.MethodInstance;
-import polyglot.types.SemanticException;
-import polyglot.types.TypeSystem;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
@@ -27,6 +24,9 @@ import x10.ast.Node;
 import x10.ast.NodeFactory;
 import x10.ast.SettableAssign_c;
 import x10.ast.NodeFactory;
+import x10.types.MethodInstance;
+import x10.types.SemanticException;
+import x10.types.TypeSystem;
 import x10.types.X10Context;
 /**
  * Visitor to desugar the AST before code gen.

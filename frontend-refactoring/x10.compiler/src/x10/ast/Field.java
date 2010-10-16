@@ -7,7 +7,7 @@
 
 package x10.ast;
 
-import polyglot.types.FieldInstance;
+import x10.types.FieldInstance;
 
 /**
  * A <code>Field</code> is an immutable representation of a Java field

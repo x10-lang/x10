@@ -15,12 +15,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 
-import polyglot.types.Context;
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 import polyglot.visit.CFGBuilder;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
+import x10.types.Context;
 
 public class LocalTypeDef_c extends Stmt_c implements LocalTypeDef {
     TypeDecl typeDef;

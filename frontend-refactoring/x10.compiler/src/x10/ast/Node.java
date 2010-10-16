@@ -9,10 +9,10 @@ package x10.ast;
 
 import java.util.List;
 
-import polyglot.types.Type;
 import polyglot.util.*;
 import polyglot.visit.AscriptionVisitor;
 import polyglot.visit.NodeVisitor;
+import x10.types.Type;
 
 /**
  * A <code>Node</code> represents an AST node.  All AST nodes must implement

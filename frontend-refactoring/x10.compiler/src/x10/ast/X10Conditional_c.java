@@ -13,17 +13,17 @@ package x10.ast;
 
 import java.util.List;
 
-import polyglot.types.Context;
-import polyglot.types.Flags;
-import polyglot.types.LocalDef;
-import polyglot.types.SemanticException;
-import polyglot.types.Type;
-import polyglot.types.TypeSystem;
-import polyglot.types.Types;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import x10.constraint.XConstraint;
 import x10.errors.Errors;
+import x10.types.Context;
+import x10.types.Flags;
+import x10.types.LocalDef;
+import x10.types.SemanticException;
+import x10.types.Type;
+import x10.types.TypeSystem;
+import x10.types.Types;
 import x10.types.X10Context;
 import x10.types.X10NamedType;
 

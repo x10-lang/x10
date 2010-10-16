@@ -13,12 +13,6 @@ package x10.types;
 
 import java.util.List;
 
-import polyglot.types.ClassType;
-import polyglot.types.ConstructorDef;
-import polyglot.types.Ref;
-import polyglot.types.ReferenceType;
-import polyglot.types.SemanticException;
-import polyglot.types.Type;
 import x10.types.constraints.CConstraint;
 
 public interface X10ConstructorDef extends ConstructorDef, X10ProcedureDef {

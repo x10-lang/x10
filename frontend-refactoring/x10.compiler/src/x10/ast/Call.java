@@ -9,7 +9,7 @@ package x10.ast;
 
 import java.util.List;
 
-import polyglot.types.MethodInstance;
+import x10.types.MethodInstance;
 
 /**
  * A <code>Call</code> is an immutable representation of a Java

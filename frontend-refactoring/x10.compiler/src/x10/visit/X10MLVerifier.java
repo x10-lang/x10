@@ -12,9 +12,6 @@
 package x10.visit;
 
 import polyglot.frontend.Job;
-import polyglot.types.SemanticException;
-import polyglot.types.TypeSystem;
-import polyglot.types.UnknownType;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
@@ -33,6 +30,9 @@ import x10.ast.NodeFactory;
 import x10.ast.SourceFile;
 import x10.ast.TypeNode;
 import x10.ast.X10MLSourceFile;
+import x10.types.SemanticException;
+import x10.types.TypeSystem;
+import x10.types.UnknownType;
 
 /**
  * @author nystrom

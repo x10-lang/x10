@@ -17,10 +17,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import polyglot.types.LazyRef;
-import polyglot.types.Ref;
-import polyglot.types.Type;
-import polyglot.types.Types;
 import polyglot.util.Pair;
 import polyglot.util.Transformation;
 import polyglot.util.TransformingList;

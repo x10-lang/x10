@@ -12,6 +12,8 @@ import polyglot.util.*;
 import polyglot.util.*;
 import polyglot.types.*;
 import polyglot.frontend.ExtensionInfo;
+import x10.types.QName;
+import x10.types.TypeSystem;
 
 public class Main {
     public static void main(String args[]) {

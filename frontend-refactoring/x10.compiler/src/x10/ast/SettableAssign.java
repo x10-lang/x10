@@ -13,10 +13,10 @@ package x10.ast;
 
 import java.util.List;
 
-import polyglot.types.ClassDef;
-import polyglot.types.Name;
-import polyglot.types.Type;
 import polyglot.util.TypedList;
+import x10.types.ClassDef;
+import x10.types.Name;
+import x10.types.Type;
 import x10.types.X10MethodInstance;
 
 public interface SettableAssign extends Assign {

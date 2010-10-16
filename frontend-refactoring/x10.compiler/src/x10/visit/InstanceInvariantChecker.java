@@ -5,7 +5,6 @@ import polyglot.util.ErrorInfo;
 import polyglot.visit.NodeVisitor;
 import polyglot.frontend.Job;
 import polyglot.main.Report;
-import polyglot.types.SemanticException;
 import x10.ast.AmbAssign;
 import x10.ast.Ambiguous;
 import x10.ast.AnnotationNode_c;
@@ -26,6 +25,7 @@ import x10.ast.X10Formal_c;
 import x10.ast.Closure;
 import x10.ast.SettableAssign;
 import x10.errors.X10ErrorInfo;
+import x10.types.SemanticException;
 
 public class InstanceInvariantChecker extends NodeVisitor
 {

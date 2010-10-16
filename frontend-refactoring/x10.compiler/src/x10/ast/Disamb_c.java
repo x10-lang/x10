@@ -11,9 +11,26 @@ package x10.ast;
 import polyglot.frontend.Globals;
 import polyglot.frontend.Goal;
 import polyglot.types.*;
-import polyglot.types.Package;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
+import x10.types.ClassType;
+import x10.types.Context;
+import x10.types.FieldInstance;
+import x10.types.LazyRef;
+import x10.types.LocalInstance;
+import x10.types.MethodInstance;
+import x10.types.Named;
+import x10.types.NoClassException;
+import x10.types.NoMemberException;
+import x10.types.Package;
+import x10.types.QName;
+import x10.types.Qualifier;
+import x10.types.Resolver;
+import x10.types.SemanticException;
+import x10.types.Type;
+import x10.types.TypeSystem;
+import x10.types.Types;
+import x10.types.VarInstance;
 
 /**
  * Utility class which is used to disambiguate ambiguous

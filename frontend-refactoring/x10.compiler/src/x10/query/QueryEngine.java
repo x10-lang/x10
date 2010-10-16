@@ -11,15 +11,15 @@
 
 package x10.query;
 
-import polyglot.types.ArrayType;
-import polyglot.types.SemanticException;
-import polyglot.types.Type;
 import x10.Configuration;
 import x10.ExtensionInfo;
 import x10.ast.Call;
 import x10.ast.Field;
 import x10.ast.SettableAssign;
 import x10.ast.Unary;
+import x10.types.ArrayType;
+import x10.types.SemanticException;
+import x10.types.Type;
 import x10.types.X10ClassType;
 import x10.types.X10Context;
 import x10.types.X10TypeMixin;

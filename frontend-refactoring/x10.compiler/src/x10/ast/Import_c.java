@@ -13,6 +13,12 @@ import polyglot.types.*;
 import polyglot.util.*;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.PrettyPrinter;
+import x10.types.ClassType;
+import x10.types.Named;
+import x10.types.QName;
+import x10.types.SemanticException;
+import x10.types.Type;
+import x10.types.TypeSystem;
 
 /**
  * An <code>Import</code> is an immutable representation of a Java

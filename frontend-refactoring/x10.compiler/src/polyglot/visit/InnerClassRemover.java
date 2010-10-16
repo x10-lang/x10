@@ -38,6 +38,19 @@ import x10.ast.SourceFile;
 import x10.ast.Special;
 import x10.ast.Stmt;
 import x10.ast.TypeNode;
+import x10.types.ClassDef;
+import x10.types.ClassType;
+import x10.types.ConstructorDef;
+import x10.types.ConstructorInstance;
+import x10.types.Context;
+import x10.types.FieldDef;
+import x10.types.Flags;
+import x10.types.LocalDef;
+import x10.types.Name;
+import x10.types.Ref;
+import x10.types.Type;
+import x10.types.TypeSystem;
+import x10.types.Types;
 
 // TODO:
 //Convert closures to anon

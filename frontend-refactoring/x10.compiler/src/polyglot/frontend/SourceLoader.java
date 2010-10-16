@@ -11,8 +11,8 @@ import java.io.*;
 import java.util.*;
 
 import polyglot.main.Report;
-import polyglot.types.QName;
 import polyglot.util.FileUtil;
+import x10.types.QName;
 
 /** A <code>SourceLoader</code> is responsible for loading source files. */
 public class SourceLoader

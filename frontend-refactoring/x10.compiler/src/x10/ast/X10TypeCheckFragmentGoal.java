@@ -15,8 +15,8 @@ import polyglot.frontend.Goal;
 import polyglot.frontend.Job;
 import polyglot.frontend.SchedulerException;
 import polyglot.frontend.SourceGoal;
-import polyglot.types.LazyRef;
 import polyglot.visit.TypeChecker;
+import x10.types.LazyRef;
 
 public class X10TypeCheckFragmentGoal<T> extends x10.ast.TypeCheckFragmentGoal<T> implements SourceGoal {
     private static final long serialVersionUID = -7690455598516526228L;

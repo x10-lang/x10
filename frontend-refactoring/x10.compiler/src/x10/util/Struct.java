@@ -14,14 +14,6 @@ package x10.util;
 import java.util.*;
 
 
-import polyglot.types.Flags;
-import polyglot.types.LazyRef;
-import polyglot.types.LocalDef;
-import polyglot.types.Name;
-import polyglot.types.QName;
-import polyglot.types.Ref;
-import polyglot.types.Type;
-import polyglot.types.Types;
 import polyglot.util.Position;
 import polyglot.visit.TypeBuilder;
 import x10.ast.*;
