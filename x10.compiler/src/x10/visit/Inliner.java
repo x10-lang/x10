@@ -1551,7 +1551,7 @@ public class Inliner extends ContextVisitor {
         }
     }
 
-    private class InlineCostVisitor extends ErrorHandlingVisitor {
+    private class InlineCostVisitor extends NodeVisitor {
         InlineCostEstimator ice;
 
         /**
@@ -1560,7 +1560,6 @@ public class Inliner extends ContextVisitor {
          * @param nf
          */
         public InlineCostVisitor(Job job, TypeSystem ts, NodeFactory nf, InlineCostEstimator ce) {
-            super(job, ts, nf);
             ice = ce;
         }
 
@@ -1571,7 +1570,7 @@ public class Inliner extends ContextVisitor {
          * polyglot.ast.Node, polyglot.visit.NodeVisitor)
          */
         @Override
-        protected Node leaveCall(Node old, Node n, NodeVisitor v) throws SemanticException {
+        public Node leave(Node old, Node n, NodeVisitor v) {
             ice.visitAppropriate(n);
             return n;
         }

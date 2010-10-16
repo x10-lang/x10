@@ -11,6 +11,7 @@ import polyglot.frontend.Globals;
 import polyglot.frontend.Job;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.ErrorHandlingVisitor;
+import polyglot.visit.NodeVisitor;
 import x10.ast.X10CanonicalTypeNode;
 import x10.ast.X10Field_c;
 import x10.ast.X10NodeFactory;
@@ -26,9 +27,13 @@ import x10.util.Synthesizer;
  * @author vj
  *
  */
-public class ThisChecker extends ErrorHandlingVisitor {
+public class ThisChecker extends NodeVisitor {
+    protected boolean error;
+    protected X10TypeSystem ts;
+    protected X10NodeFactory nf;
     public ThisChecker(Job job) {
-    	   super(job, job.extensionInfo().typeSystem(), job.extensionInfo().nodeFactory());
+        ts = (X10TypeSystem) job.extensionInfo().typeSystem();
+        nf = (X10NodeFactory) job.extensionInfo().nodeFactory();
     }
     protected boolean catchErrors(Node n) { return false; }
     @Override
@@ -48,7 +53,7 @@ public class ThisChecker extends ErrorHandlingVisitor {
         }
         if (n instanceof X10CanonicalTypeNode) {
             CConstraint rc = X10TypeMixin.xclause(((X10CanonicalTypeNode) n).type());
-            List<Expr> clauses = new Synthesizer((X10NodeFactory) nf, (X10TypeSystem) ts).makeExpr(rc, n.position());
+            List<Expr> clauses = new Synthesizer(nf, ts).makeExpr(rc, n.position());
             for (Expr c : clauses) {
                 c.visit(this);
             }

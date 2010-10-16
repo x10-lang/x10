@@ -635,7 +635,7 @@ public class CheckEscapingThis extends NodeVisitor
 
                     if (isNoThisAccess) { // NoThisAccess is stronger than NonEscaping so we check it first (in case someone wrote both annotations)
                         // check "this" is not accessed at all
-                        if (procBody!=null) { // native/abstract methods
+                        if (procBody != null) { // native/abstract methods
                             ThisChecker thisChecker = new ThisChecker(job);
                             procBody.visit(thisChecker);
                             if (thisChecker.error())

@@ -1452,16 +1452,16 @@ public class Desugarer extends ContextVisitor {
         return xnf.ClosureCall(pos, c, Collections.singletonList(e)).closureInstance(ci).type(xts.Boolean());
     }
 
-    public static class Substitution<T extends Node> extends ErrorHandlingVisitor {
+    public static class Substitution<T extends Node> extends NodeVisitor {
         protected final List<T> by;
         private final Class<T> cz;
         public Substitution(Class<T> cz, List<T> by) {
-            super(null, null, null);
             this.cz = cz;
             this.by = by;
         }
         @SuppressWarnings("unchecked") // Casting to a generic type parameter
-        protected Node leaveCall(Node old, Node n, NodeVisitor v) throws SemanticException {
+        @Override
+        public Node leave(Node old, Node n, NodeVisitor v) {
             if (cz.isInstance(n))
                 return subst((T)n);
             return n;
