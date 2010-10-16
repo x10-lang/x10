@@ -60,14 +60,14 @@ namespace x10 {
                 } else {
                     memcpy(dstAddr, srcAddr, numBytes);
                 }                
-                if (notif!=x10aux::null) {
+                if (notif!=X10_NULL) {
                     (notif.operator->()->*(findITable<VoidFun_0_0>(notif->_getITables())->apply))();
                 }
             } else {
                 x10aux::place dst_place = dstPlace->FMGL(id);
                 x10aux::serialization_buffer buf;
                 buf.write((x10_long)(size_t)(dstAddr));
-                if (notif==x10aux::null) {
+                if (notif==X10_NULL) {
                     IMC_serialize_finish_state(dst_place, buf);
                     x10aux::send_put(dst_place, IMC_copy_to_serialization_id, buf, srcAddr, numBytes);
                 } else {
@@ -85,14 +85,14 @@ namespace x10 {
                 } else {
                     memcpy(dstAddr, srcAddr, numBytes);
                 }
-                if (notif!=x10aux::null) {
+                if (notif!=X10_NULL) {
                     (notif.operator->()->*(findITable<VoidFun_0_0>(notif->_getITables())->apply))();
                 }
             } else {
                 x10aux::place src_place = srcPlace->FMGL(id);
                 x10aux::serialization_buffer buf;
                 buf.write((x10_long)(size_t)(srcAddr));
-                if (notif==x10aux::null) {
+                if (notif==X10_NULL) {
                     IMC_serialize_finish_state(x10aux::here, buf);
                     x10aux::send_get(src_place, IMC_copy_from_serialization_id, buf, dstAddr, numBytes);
                 } else {
