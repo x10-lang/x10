@@ -1335,13 +1335,20 @@ then we substitute 0/false/null in all the constraints in C and if they all eval
 	    	System.out.println("(Warning) Please check definitions p1 and p2.  " +
 	    			((java && ! old) ? "p1 is now more specific than p2; it was not in 2.0.6."
 	    					: "p1 is now not more specific than p2; it was in 2.0.6.")
-	    			+ "\n\t: p1: " + xp1
+	    			+ "\n\t: p1: " + getOrigMI(xp1)
 	    			+ "\n\t: at " + xp1.position()
-	    			+ "\n\t: p2: " + xp2
+	    			+ "\n\t: p2: " + getOrigMI(xp2)
 	    			+ "\n\t: at " + xp2.position());
 	    }
 	    // Change this to return old to re-enable 2.0.6 style computation.
 	    return  java; 
+	}
+	static ProcedureInstance<?> getOrigMI(ProcedureInstance<?> xp) {
+		if (xp instanceof MethodInstance)
+			return ((MethodInstance) xp).origMI();
+		if (xp instanceof ConstructorInstance)
+			return ((ConstructorInstance) xp).origMI();
+		return xp;
 	}
 	// This is taken from the 2.0.6 implementation.
 	// This contains logic for pre-generic Java. One determines
