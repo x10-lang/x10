@@ -98,7 +98,7 @@ public class Context_c implements Context
         return ts;
     }
 
-    public Object SUPERcopy() {
+    private Object SUPERcopy() {
         try {
             return super.clone();
         }
@@ -114,7 +114,7 @@ public class Context_c implements Context
         return c;
     }
 
-    protected Context_c SUPERpush() {
+    private Context_c SUPERpush() {
         Context_c v = (Context_c) this.copy();
         v.outer = this;
         v.types = null;
@@ -153,7 +153,7 @@ public class Context_c implements Context
      * in this scope, we ask the parent scope, but don't traverse to enclosing
      * classes.
      */
-    public boolean SUPERisLocal(Name name) {
+    private boolean SUPERisLocal(Name name) {
         if (isClass()) {
             return false;
         }
@@ -178,7 +178,7 @@ public class Context_c implements Context
      * Looks up a method with name "name" and arguments compatible with
      * "argTypes".
      */
-    public MethodInstance SUPERfindMethod(TypeSystem_c.MethodMatcher matcher) throws SemanticException {
+    private MethodInstance SUPERfindMethod(TypeSystem_c.MethodMatcher matcher) throws SemanticException {
         if (Report.should_report(TOPICS, 3))
           Report.report(3, "find-method " + matcher.signature() + " in " + this);
 
@@ -206,7 +206,7 @@ public class Context_c implements Context
     /**
      * Gets a local of a particular name.
      */
-    public LocalInstance SUPERfindLocal(Name name) throws SemanticException {
+    private LocalInstance SUPERfindLocal(Name name) throws SemanticException {
 	VarInstance<?> vi = findVariableSilent(name);
 
 	if (vi instanceof LocalInstance) {
@@ -219,7 +219,7 @@ public class Context_c implements Context
     /**
      * Finds the class which added a field to the scope.
      */
-    public ClassType SUPERfindFieldScope(Name name) throws SemanticException {
+    private ClassType SUPERfindFieldScope(Name name) throws SemanticException {
         if (Report.should_report(TOPICS, 3))
           Report.report(3, "find-field-scope " + name + " in " + this);
 
@@ -240,7 +240,7 @@ public class Context_c implements Context
 
     /** Finds the class which added a method to the scope.
      */
-    public ClassType SUPERfindMethodScope(Name name) throws SemanticException {
+    private ClassType SUPERfindMethodScope(Name name) throws SemanticException {
         if (Report.should_report(TOPICS, 3))
           Report.report(3, "find-method-scope " + name + " in " + this);
 
@@ -262,7 +262,7 @@ public class Context_c implements Context
     /**
      * Gets a field of a particular name.
      */
-    public FieldInstance SUPERfindField(Name name) throws SemanticException {
+    private FieldInstance SUPERfindField(Name name) throws SemanticException {
 	VarInstance<?> vi = findVariableSilent(name);
 
 	if (vi instanceof FieldInstance) {
@@ -283,7 +283,7 @@ public class Context_c implements Context
     /**
      * Gets a local or field of a particular name.
      */
-    public VarInstance<?> SUPERfindVariable(Name name) throws SemanticException {
+    private VarInstance<?> SUPERfindVariable(Name name) throws SemanticException {
         VarInstance<?> vi = findVariableSilent(name);
 
 	if (vi != null) {
@@ -298,7 +298,7 @@ public class Context_c implements Context
     /**
      * Gets a local or field of a particular name.
      */
-    public VarInstance<?> SUPERfindVariableSilent(Name name) {
+    private VarInstance<?> SUPERfindVariableSilent(Name name) {
         if (Report.should_report(TOPICS, 3))
           Report.report(3, "find-var " + name + " in " + this);
 
@@ -321,7 +321,7 @@ public class Context_c implements Context
         return "types=" + types + " vars=" + vars;
     }
 
-    public String SUPERtoString() {
+    private String SUPERtoString() {
         return "(" + kind + " " + mapsToString() + " " + outer + ")";
     }
 
@@ -359,7 +359,7 @@ public class Context_c implements Context
     /**
      * Push a source file scope.
      */
-    public Context SUPERpushSource(ImportTable it) {
+    private Context SUPERpushSource(ImportTable it) {
         Context_c v = push();
         v.kind = SOURCE;
         v.it = it;
@@ -381,7 +381,7 @@ public class Context_c implements Context
      * @return A new context with a new scope and which maps the short name
      * of type to type.
      */
-    public Context SUPERpushClass(ClassDef classScope, ClassType type) {
+    private Context SUPERpushClass(ClassDef classScope, ClassType type) {
         if (Report.should_report(TOPICS, 4))
           Report.report(4, "push class " + classScope + " " + classScope.position());
         Context_c v = push();
@@ -401,7 +401,7 @@ public class Context_c implements Context
     /**
      * pushes an additional block-scoping level.
      */
-    public Context SUPERpushBlock() {
+    private Context SUPERpushBlock() {
         if (Report.should_report(TOPICS, 4))
           Report.report(4, "push block");
         Context_c v = push();
@@ -412,7 +412,7 @@ public class Context_c implements Context
     /**
      * pushes an additional static scoping level.
      */
-    public Context SUPERpushStatic() {
+    private Context SUPERpushStatic() {
         if (Report.should_report(TOPICS, 4))
           Report.report(4, "push static");
         Context_c v = push();
@@ -423,7 +423,7 @@ public class Context_c implements Context
     /**
      * enters a method
      */
-    public Context SUPERpushCode(CodeDef ci) {
+    private Context SUPERpushCode(CodeDef ci) {
         if (Report.should_report(TOPICS, 4))
           Report.report(4, "push code " + ci.position());
         Context_c v = push();
@@ -437,7 +437,7 @@ public class Context_c implements Context
     /**
      * Gets the current method
      */
-    public CodeDef SUPERcurrentCode() {
+    private CodeDef SUPERcurrentCode() {
         return code;
     }
 
@@ -445,7 +445,7 @@ public class Context_c implements Context
      * Return true if in a method's scope and not in a local class within the
      * innermost method.
      */
-    public boolean SUPERinCode() {
+    private boolean SUPERinCode() {
         return inCode;
     }
 
@@ -459,28 +459,28 @@ public class Context_c implements Context
      * variable initializer of a static variable, or an explicity constructor 
      * invocation statment. (Java Language Spec, 2nd Edition, 8.1.2)
      */
-    public boolean SUPERinStaticContext() {
+    private boolean SUPERinStaticContext() {
         return staticContext;
     }
 
     /**
      * Gets current class
      */
-    public ClassType SUPERcurrentClass() {
+    private ClassType SUPERcurrentClass() {
         return type;
     }
 
     /**
      * Gets current class
      */
-    public ClassDef SUPERcurrentClassDef() {
+    private ClassDef SUPERcurrentClassDef() {
         return scope;
     }
 
     /**
      * Adds a symbol to the current scoping level.
      */
-    public void SUPERaddVariable(VarInstance<?> vi) {
+    private void SUPERaddVariable(VarInstance<?> vi) {
         if (Report.should_report(TOPICS, 3))
           Report.report(3, "Adding " + vi.name() + " to context.");
         addVariableToThisScope(vi);
@@ -489,7 +489,7 @@ public class Context_c implements Context
     /**
      * Adds a named type object to the current scoping level.
      */
-    public void SUPERaddNamed(Named t) {
+    private void SUPERaddNamed(Named t) {
         if (Report.should_report(TOPICS, 3))
           Report.report(3, "Adding type " + t.name() + " to context.");
         addNamedToThisScope(t);
@@ -534,19 +534,19 @@ public class Context_c implements Context
         return t;
     }
 
-    public void SUPERaddNamedToThisScope(Named type) {
+    private void SUPERaddNamedToThisScope(Named type) {
         if (types == null) types = new HashMap<Name, Named>();
         types.put(type.name(), type);
     }
 
-    public ClassType SUPERfindMethodContainerInThisScope(Name name) {
+    private ClassType SUPERfindMethodContainerInThisScope(Name name) {
         if (isClass() && ts.hasMethodNamed(this.currentClass(), name)) {
             return this.type;
         }
         return null;
     }
 
-    public VarInstance<?> SUPERfindVariableInThisScope(Name name) {
+    private VarInstance<?> SUPERfindVariableInThisScope(Name name) {
         VarInstance<?> vi = null;
         
         if (vars != null) {
@@ -564,7 +564,7 @@ public class Context_c implements Context
         return vi;
     }
 
-    public void SUPERaddVariableToThisScope(VarInstance<?> var) {
+    private void SUPERaddVariableToThisScope(VarInstance<?> var) {
         if (vars == null) vars = new HashMap<Name,VarInstance<?>>();
         vars.put(var.name(), var);
     }

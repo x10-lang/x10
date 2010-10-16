@@ -134,25 +134,6 @@ public interface TypeSystem {
                                   Flags flags, Ref<? extends Type> returnType, Name name,
                                   List<Ref<? extends Type>> argTypes); 
 
-    /** Create a field instance.
-     * @param pos Position of the field.
-     * @param container Containing type of the field.
-     * @param flags The field's flags.
-     * @param type The field's type.
-     * @param name The field's name.
-     */
-    FieldDef SUPERfieldDef(Position pos, Ref<? extends StructType> container,
-                                Flags flags, Ref<? extends Type> type, Name name);
-
-    /** Create a local variable instance.
-     * @param pos Position of the local variable.
-     * @param flags The local variable's flags.
-     * @param type The local variable's type.
-     * @param name The local variable's name.
-     */
-    LocalDef SUPERlocalDef(Position pos, Flags flags, Ref<? extends Type> type,
-	    Name name);
-
     /** Create a default constructor instance.
      * @param pos Position of the constructor.
      * @param container Containing class of the constructor. 
@@ -170,16 +151,6 @@ public interface TypeSystem {
 
     /** Get an unknown type qualifier. */
     UnknownQualifier unknownQualifier(Position pos);
-
-    /**
-     * Returns true iff child descends from ancestor or child == ancestor.
-     * This is equivalent to:
-     * <pre>
-     *    descendsFrom(child, ancestor) || equals(child, ancestor)
-     * </pre>
-     * @param context TODO
-     */
-    boolean SUPERisSubtype(Type child, Type ancestor, Context context);
 
     /**
      * Returns true iff child is not ancestor, but child descends from ancestor.     */
@@ -325,31 +296,6 @@ public interface TypeSystem {
     Matcher<Named> TypeMatcher(Name name);
     Matcher<Named> MemberTypeMatcher(Type container, Name name, Context context);
     TypeSystem_c.FieldMatcher FieldMatcher(Type container, Name name, Context context);
-    TypeSystem_c.MethodMatcher SUPERMethodMatcher(Type container, Name name, List<Type> argTypes, Context context);
-    TypeSystem_c.ConstructorMatcher SUPERConstructorMatcher(Type container, List<Type> argTypes, Context context);
-
-    /**
-     * Find a method.  We need to pass the class from which the method
-     * is being found because the method
-     * we find depends on whether the method is accessible from that
-     * class.
-     * We also check if the field is accessible from the context 'c'.
-     * @exception SemanticException if the method cannot be found or is
-     * inaccessible.
-     */
-    MethodInstance SUPERfindMethod(Type container,
-	    MethodMatcher matcher) throws SemanticException;
-
-    /**
-     * Find a constructor.  We need to pass the class from which the constructor
-     * is being found because the constructor
-     * we find depends on whether the constructor is accessible from that
-     * class.
-     * @exception SemanticException if the constructor cannot be found or is
-     * inaccessible.
-     */
-    ConstructorInstance SUPERfindConstructor(Type container,
-	    TypeSystem_c.ConstructorMatcher matcher) throws SemanticException;
 
     /**
      * Find a member class.
@@ -458,11 +404,6 @@ public interface TypeSystem {
      * <code>double</code>
      */
     Type Double();
-
-    /**
-     * <code>java.lang.Object</code>
-     */
-    Type SUPERObject();
 
     /**
      * <code>java.lang.String</code>
@@ -577,11 +518,6 @@ public interface TypeSystem {
     Package createPackage(Ref<? extends Package> prefix, Name name);
     Package createPackage(Package prefix, Name name);
 
-    /**
-     * Create a new context object for looking up variables, types, etc.
-     */
-    Context SUPERemptyContext();
-
     /** Get a resolver for looking up a type in a package. */
     Resolver packageContextResolver(Package pkg, ClassDef accessor, Context context);
     Resolver packageContextResolver(Package pkg);
@@ -597,16 +533,6 @@ public interface TypeSystem {
      */
     ClassDef createClassDef();
 
-    /**
-     * Create a new empty class.
-     */
-    ClassDef SUPERcreateClassDef(Source fromSource);
-
-    ParsedClassType SUPERcreateClassType(Position pos, Ref<? extends ClassDef> def);
-    ConstructorInstance SUPERcreateConstructorInstance(Position pos, Ref<? extends ConstructorDef> def);
-    MethodInstance SUPERcreateMethodInstance(Position pos, Ref<? extends MethodDef> def);
-    FieldInstance SUPERcreateFieldInstance(Position pos, Ref<? extends FieldDef> def);
-    LocalInstance SUPERcreateLocalInstance(Position pos, Ref<? extends LocalDef> def);
     InitializerInstance createInitializerInstance(Position pos, Ref<? extends InitializerDef> def);
     
     /**
@@ -816,22 +742,6 @@ public interface TypeSystem {
      */
     public MethodInstance findImplementingMethod(ClassType ct, MethodInstance mi, Context context);
     
-    /**
-     * Find a potentially suitable implementation of the method <code>mi</code>
-     * in the class <code>ct</code> or a supertype thereof, or an abstract method
-     * that when overridden will implement the method.  Since we are
-     * looking for implementations, <code>ct</code> cannot be an interface.
-     * The first potentially satisfying method is returned, that is, the method
-     * that is visible from <code>ct</code>, with the correct signature, in
-     * the most precise class in the class hierarchy starting from
-     * <code>ct</code>.
-     * @param context TODO
-     * 
-     * @return a suitable implementation of the method mi in the class
-     *         <code>ct</code> or a supertype thereof, null if none exists.
-     */
-    public MethodInstance SUPERfindImplementingMethod(ClassType ct, MethodInstance mi, boolean includeAbstract, Context context);
-
     /**
      * Given the JVM encoding of a set of flags, returns the Flags object
      * for that encoding.
