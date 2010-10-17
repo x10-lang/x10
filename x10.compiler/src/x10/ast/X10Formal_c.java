@@ -52,6 +52,7 @@ import polyglot.visit.Translator;
 import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeCheckPreparer;
 import polyglot.visit.TypeChecker;
+import x10.errors.Errors;
 import x10.extension.X10Del;
 import x10.types.ConstrainedType_c;
 import x10.types.FunctionType;
@@ -152,106 +153,133 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 		}
 	}
 
-	 private String translateVars() {
-		StringBuffer sb = new StringBuffer();
-		if (! vars.isEmpty()) {
-			sb.append("[");
-			for (int i = 0; i < vars.size(); i++)
-				sb.append(i > 0 ? "," : "").append(vars.get(i).name().id());
-			sb.append("]");
-		}
-		return sb.toString();
+	private String translateVars() {
+	    StringBuffer sb = new StringBuffer();
+	    if (! vars.isEmpty()) {
+	        sb.append("[");
+	        for (int i = 0; i < vars.size(); i++)
+	            sb.append(i > 0 ? "," : "").append(vars.get(i).name().id());
+	        sb.append("]");
+	    }
+	    return sb.toString();
 	}
 
-	 @Override
-	 public Node buildTypes(TypeBuilder tb) throws SemanticException {
-	     X10Formal_c n = (X10Formal_c) super.buildTypes(tb);
+	@Override
+	public Node buildTypes(TypeBuilder tb) throws SemanticException {
+	    X10Formal_c n = (X10Formal_c) super.buildTypes(tb);
 
-	     X10LocalDef fi = (X10LocalDef) n.localDef();
+	    X10LocalDef fi = (X10LocalDef) n.localDef();
 
-	     List<AnnotationNode> as = ((X10Del) n.del()).annotations();
-	     if (as != null) {
-	         List<Ref<? extends Type>> ats = new ArrayList<Ref<? extends Type>>(as.size());
-	         for (AnnotationNode an : as) {
-	             ats.add(an.annotationType().typeRef());
-	         }
-	         fi.setDefAnnotations(ats);
-	     }
-	     
-	     return n;
-	 }
-	 
-	 public Node setResolverOverride(final Node parent, TypeCheckPreparer v) {
-	     final X10TypeSystem ts = (X10TypeSystem) v.typeSystem();
-	     final X10Context context = (X10Context) v.context();
-	     final ClassDef currClassDef = context.currentClassDef();
-	    
+	    List<AnnotationNode> as = ((X10Del) n.del()).annotations();
+	    if (as != null) {
+	        List<Ref<? extends Type>> ats = new ArrayList<Ref<? extends Type>>(as.size());
+	        for (AnnotationNode an : as) {
+	            ats.add(an.annotationType().typeRef());
+	        }
+	        fi.setDefAnnotations(ats);
+	    }
 
-	     Formal f = (Formal) this;
-	     X10LocalDef li = (X10LocalDef) f.localDef();
-	  
-	     if (f.type() instanceof UnknownTypeNode && parent instanceof Formal) {
-	    	   // We infer the types of exploded formals
-	         final UnknownTypeNode tn = (UnknownTypeNode) f.type();
-	         final LazyRef<Type> r = (LazyRef<Type>) tn.typeRef();
-	         r.setResolver(new Runnable() {
-	             public void run() {
-	                 Formal ff = (Formal) parent;
-	                 Type containerType = ff.type().type();
-	                 Type indexType = null;
-	                 
-	                 if (ts.isFunctionType(containerType)) {
-	                     List<Type> actualTypes = Collections.singletonList(ts.Int());
+	    return n;
+	}
 
-	                     try {
-	                         // Find the most-specific function type.
-	                         X10MethodInstance mi = ts.findMethod(containerType, 
-	                        		 ts.MethodMatcher(containerType, ClosureCall.APPLY, 
-	                        				 Collections.<Type>emptyList(), actualTypes, context));
-	                         indexType = mi.returnType();
-	                    
-	                     }
-	                     catch (SemanticException e) {
-	                     }
-	                 }
+	public Node setResolverOverride(final Node parent, TypeCheckPreparer v) {
+	    final X10TypeSystem ts = (X10TypeSystem) v.typeSystem();
+	    final X10Context context = (X10Context) v.context();
+	    final ClassDef currClassDef = context.currentClassDef();
 
-	                 if (indexType != null) {
-	                     r.update(indexType);
-	                     return;
-	                 }
 
-	                 r.update(ts.unknownType(tn.position()));
-	             }
-	         });
-	     } 
-	     return null;
-	 }
-	 
+	    Formal f = (Formal) this;
+	    X10LocalDef li = (X10LocalDef) f.localDef();
 
-	 @Override
-	 public Type declType() {
-		 return type.type();
-	 }
-	    
-	 @Override
-	 public Node typeCheckOverride(Node parent, ContextVisitor tc) throws SemanticException {
-		 NodeVisitor childtc = tc.enter(parent, this);
+	    if (f.type() instanceof UnknownTypeNode && parent instanceof Formal) {
+	        // We infer the types of exploded formals
+	        final UnknownTypeNode tn = (UnknownTypeNode) f.type();
+	        final LazyRef<Type> r = (LazyRef<Type>) tn.typeRef();
+	        r.setResolver(new Runnable() {
+	            public void run() {
+	                Formal ff = (Formal) parent;
+	                Type containerType = ff.type().type();
+	                Type indexType = null;
 
-		 XConstrainedTerm  pt = ((X10Context) ((ContextVisitor) childtc).context()).currentPlaceTerm();
+	                if (ts.isFunctionType(containerType)) {
+	                    List<Type> actualTypes = Collections.singletonList(ts.Int());
 
-		 if (pt != null)
-			 ((X10LocalDef) localDef()).setPlaceTerm(pt.term());
-		 return null;
-	 }
-	 @Override
-	public Node typeCheck(ContextVisitor tc) throws SemanticException {
-	     X10Formal_c n = (X10Formal_c) super.typeCheck(tc);
-	     if (n.type() instanceof UnknownTypeNode || n.type().type() instanceof UnknownType) {
-	         throw new SemanticException("Could not infer type for formal parameter " + n.name() + ".", position());
-	     }
-	     if (n.type().type().isVoid())
-	         throw new SemanticException("Formal parameter cannot have type " + this.type().type() + ".", position());
-	     return n;
+	                    try {
+	                        // Find the most-specific function type.
+	                        X10MethodInstance mi = ts.findMethod(containerType, 
+	                                ts.MethodMatcher(containerType, ClosureCall.APPLY, 
+	                                        Collections.<Type>emptyList(), actualTypes, context));
+	                        indexType = mi.returnType();
+
+	                    }
+	                    catch (SemanticException e) {
+	                    }
+	                }
+
+	                if (indexType != null) {
+	                    r.update(indexType);
+	                    return;
+	                }
+
+	                r.update(ts.unknownType(tn.position()));
+	            }
+	        });
+	    } 
+	    return null;
+	}
+
+
+	@Override
+	public Type declType() {
+	    return type.type();
+	}
+
+	@Override
+	public Node typeCheckOverride(Node parent, ContextVisitor tc) {
+	    NodeVisitor childtc = tc.enter(parent, this);
+
+	    XConstrainedTerm  pt = ((X10Context) ((ContextVisitor) childtc).context()).currentPlaceTerm();
+
+	    if (pt != null)
+	        ((X10LocalDef) localDef()).setPlaceTerm(pt.term());
+	    return null;
+	}
+
+	@Override
+	public Node typeCheck(ContextVisitor tc) {
+	    // Check if the variable is multiply defined.
+	    Context c = tc.context();
+
+	    LocalInstance outerLocal = null;
+
+	    try {
+	        outerLocal = c.findLocal(li.name());
+	    }
+	    catch (SemanticException e) {
+	        // not found, so not multiply defined
+	    }
+
+	    if (outerLocal != null && ! li.equals(outerLocal.def()) && c.isLocal(li.name())) {
+	        Errors.issue(tc.job(),
+	                new SemanticException("Local variable \"" + name + "\" multiply defined. Previous definition at " + outerLocal.position() + ".", position()));
+	    }
+
+	    TypeSystem ts = tc.typeSystem();
+
+	    try {
+	        ts.checkLocalFlags(flags().flags());
+	    }
+	    catch (SemanticException e) {
+	        Errors.issue(tc.job(), e, this);
+	    }
+	    if (this.type() instanceof UnknownTypeNode || this.type().type() instanceof UnknownType) {
+	        Errors.issue(tc.job(),
+	                new SemanticException("Could not infer type for formal parameter " + this.name() + ".", position()));
+	    }
+	    if (this.type().type().isVoid())
+	        Errors.issue(tc.job(),
+	                new SemanticException("Formal parameter cannot have type " + this.type().type() + ".", position()));
+	    return this;
 	}
 
     public String toString() {

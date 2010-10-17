@@ -459,16 +459,14 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 	    	}
 
 	    	if (n.init != null) {
-	    		try {
-	    			xc = (X10Context) n.enterChildScope(n.init, tc.context());
-	    			ContextVisitor childtc = tc.context(xc);
-	    			Expr newInit = Converter.attemptCoercion(childtc, n.init, oldType); // use the oldType. The type of n.init may have "here".
+	    		xc = (X10Context) n.enterChildScope(n.init, tc.context());
+	    		ContextVisitor childtc = tc.context(xc);
+	    		Expr newInit = Converter.attemptCoercion(childtc, n.init, oldType); // use the oldType. The type of n.init may have "here".
+	    		if (newInit != null)
 	    			return n.init(newInit);
-	    		}
-	    		catch (SemanticException e) {
-	    			Errors.issue(tc.job(),
-	    			        new Errors.FieldInitTypeWrong(n.init, type, n.init.position()), this);
-	    		}
+	    		Errors.issue(tc.job(),
+	    		             new Errors.FieldInitTypeWrong(n.init, type, n.init.position()),
+	    		             this);
 	    	}
 
 	    	return n;

@@ -209,7 +209,7 @@ public class ConstructorDecl_c extends Term_c implements ConstructorDecl
     }
 
     /** Type check the constructor. */
-    public Node typeCheck(ContextVisitor tc) throws SemanticException {
+    public Node typeCheck(ContextVisitor tc) {
         TypeSystem ts = tc.typeSystem();
 
 

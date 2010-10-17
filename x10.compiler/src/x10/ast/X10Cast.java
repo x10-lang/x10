@@ -18,5 +18,6 @@ import x10.types.checker.Converter;
 public interface X10Cast extends Cast {
     public Converter.ConversionType conversionType();
     public X10Cast conversionType(Converter.ConversionType convert);
+    public X10Cast exprAndConversionType(Expr c, Converter.ConversionType checked);
 
 }

@@ -41,7 +41,7 @@ public class X10BooleanLit_c extends BooleanLit_c {
 		
 	}
 	 /** Type check the expression. */
-	  public Node typeCheck(ContextVisitor tc) throws SemanticException {
+	  public Node typeCheck(ContextVisitor tc) {
 	      X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
 		  Type Boolean =  xts.Boolean();
 		 

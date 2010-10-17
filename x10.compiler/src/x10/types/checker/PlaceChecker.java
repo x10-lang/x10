@@ -497,7 +497,7 @@ public class PlaceChecker {
 		return false;
 	}*/
 
-    public static Receiver makeReceiverLocalIfNecessary(ContextVisitor tc, Receiver target, X10Flags flags) throws SemanticException {
+    public static Receiver makeReceiverLocalIfNecessary(ContextVisitor tc, Receiver target, X10Flags flags) {
         /*if (isTargetPlaceSafe(tc, target, flags)) return target;  // nothing to do
         if (Configuration.STATIC_CALLS) return null;              // nothing we can do
         if (((X10Context) tc.context()).currentPlaceTerm() == null)

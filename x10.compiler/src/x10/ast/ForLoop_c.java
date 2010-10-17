@@ -77,7 +77,7 @@ public class ForLoop_c extends X10Loop_c implements ForLoop {
 	}
 
 	private static final Name ITERATOR = Name.make("iterator");
-	public Node typeCheck(ContextVisitor tc) throws SemanticException {
+	public Node typeCheck(ContextVisitor tc) {
 	    X10Loop result = (X10Loop) super.typeCheck(tc);
 	    X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
 	    // TODO: generate a cast if STATIC_CALLS is off

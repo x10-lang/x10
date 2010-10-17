@@ -125,11 +125,11 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop {
 	
 
 	
-	public Node typeCheckOverride(Node parent, ContextVisitor tc) throws SemanticException {
+	public Node typeCheckOverride(Node parent, ContextVisitor tc) {
 	    TypeChecker tc1 = (TypeChecker) tc.enter(parent, this);
 	    
 	    Expr domain = (Expr) this.visitChild(this.domain, tc1);
-	    Type domainType =  domain.type();
+	    Type domainType = domain.type();
 	    
 	    Formal formal = (Formal) this.visitChild(this.formal, tc1);
 	    
@@ -145,19 +145,19 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop {
 	}
 
 	/** Type check the statement. */
-	public Node typeCheck(ContextVisitor tc) throws SemanticException {
+	public Node typeCheck(ContextVisitor tc) {
 		X10Loop_c n = (X10Loop_c) typeCheckNode(tc);
 		return n;
 	}
 	
 	
-	public Node typeCheckNode(ContextVisitor tc) throws SemanticException {
-                NodeFactory nf = tc.nodeFactory();
+	public Node typeCheckNode(ContextVisitor tc) {
+		NodeFactory nf = tc.nodeFactory();
 		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
-		Type domainType =  domainTypeRef.get();
+		Type domainType = domainTypeRef.get();
 		if (domainType == null ) {
 			// aha, in this case the type inferencer did not run, since an explicit type was givem.
-			domainType =  domain.type();
+			domainType = domain.type();
 		}
 		Type formalType = formal.declType();
 		Type Iterable = ts.Iterable(formalType);
@@ -178,14 +178,14 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop {
 		if (ts.isSubtype(formalType, ts.Point(), tc.context())) {
 		    try {
 		        Expr newDomain = Converter.attemptCoercion(tc, domain, ts.Region());
-		        if (newDomain != domain)
+		        if (newDomain != null && newDomain != domain)
 		            return this.domain(newDomain).del().typeCheck(tc);
 		    }
 		    catch (SemanticException e) {
 		    }
 		    try {
 		        Expr newDomain = Converter.attemptCoercion(tc, domain, ts.Dist());
-		        if (newDomain != domain)
+		        if (newDomain != null && newDomain != domain)
 		            return this.domain(newDomain).del().typeCheck(tc);
 		    }
 		    catch (SemanticException e) {
@@ -337,13 +337,14 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop {
 	
 	LazyRef<Type> domainTypeRef = Types.lazyRef(null);
 	public Type domainType() {
-		Type domainType =  domainTypeRef.get();
+		Type domainType = domainTypeRef.get();
 		if (domainType == null ) {
 			// aha, in this case the type inferencer did not run, since an explicit type was givem.
-			domainType =  domain.type();
+			domainType = domain.type();
 		}
 		return domainType;
 	}
+
 	@Override
 	public Node setResolverOverride(final Node parent, final TypeCheckPreparer v) {
 		final Expr domain = this.domain;

@@ -69,7 +69,7 @@ public class FinishExpr_c extends Expr_c implements FinishExpr {
 	}
 
 	@Override
-	public Node typeCheckOverride(Node parent, ContextVisitor tc) throws SemanticException {
+	public Node typeCheckOverride(Node parent, ContextVisitor tc) {
 
 	    X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 	    NodeVisitor v = tc.enter(parent, this);
@@ -81,7 +81,8 @@ public class FinishExpr_c extends Expr_c implements FinishExpr {
 	    Expr e = (Expr) visitChild(reducer, v);
 	    Type r = X10TypeMixin.reducerType(e.type());
 	    if (r == null) {
-	        throw new Errors.IsNotReducible(e, e.position());
+	        Errors.issue(tc.job(), new Errors.IsNotReducible(e, e.position()), this);
+	        r = ts.unknownType(e.position());
 	    }
         Node tmpNode = reconstruct(e,body).type(r);
 	    Context childScope = tmpNode.enterChildScope(body, tc.context());
@@ -119,7 +120,7 @@ public class FinishExpr_c extends Expr_c implements FinishExpr {
 	}
 
 	/** Type check the statement. 
-	public Node typeCheck(ContextVisitor tc) throws SemanticException {
+	public Node typeCheck(ContextVisitor tc) {
 		// This must succeed, otherwise typeCheckOverride has already
 		// thrown an exception. 
 		Type reducerBase = X10TypeMixin.reducerType(reducer.type());

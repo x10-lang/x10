@@ -41,7 +41,7 @@ public class X10CharLit_c extends CharLit_c {
 	public X10CharLit_c(Position pos, char value) {
 		super(pos, value);
 	}
-	public Node typeCheck(ContextVisitor tc) throws SemanticException {
+	public Node typeCheck(ContextVisitor tc) {
 		  X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
 		Type charType = xts.Char();
 			 

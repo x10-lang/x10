@@ -215,10 +215,9 @@ public class X10Return_c extends Return_c {
 //		                return n.superTypeCheck(tc);
 //		            }
 //		        }
-		        try {
-		            Expr e = Converter.attemptCoercion(tc, expr, returnType);
+		        Expr e = Converter.attemptCoercion(tc, expr, returnType);
+		        if (e != null)
 		            n = (X10Return_c) n.expr(e);
-		        } catch (SemanticException e) { }
 		    }
 		}
 		

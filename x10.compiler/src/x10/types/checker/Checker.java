@@ -122,13 +122,12 @@ public class Checker {
 	    Type s = right.type();
 
 	    if (op == ASSIGN) {
-	        try {
-	            Expr e = Converter.attemptCoercion(tc, right, t);
+	        Expr e = Converter.attemptCoercion(tc, right, t);
+	        if (e != null) {
 	            n = n.right(e);
-	        }
-	        catch (SemanticException e) {
-	        	// Don't try to extract the LHS expression, this is called by X10FieldAssign_c as well.
-	        	Errors.issue(tc.job(), new Errors.CannotAssign(right, t, n.position()));
+	        } else {
+	            // Don't try to extract the LHS expression, this is called by X10FieldAssign_c as well.
+	            Errors.issue(tc.job(), new Errors.CannotAssign(right, t, n.position()));
 	        }
 	    }
 

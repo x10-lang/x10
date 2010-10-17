@@ -172,7 +172,7 @@ public class Tuple_c extends Expr_c implements Tuple {
     }
 
 	/** Type check the initializer. */
-	public Node typeCheck(ContextVisitor tc) throws SemanticException {
+	public Node typeCheck(ContextVisitor tc) {
 	    X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 
 	    Type type = null;
@@ -183,7 +183,12 @@ public class Tuple_c extends Expr_c implements Tuple {
 		    type = eType;
 		}
 		else {
-		    type = ts.leastCommonAncestor(type, eType, tc.context());
+		    try {
+		        type = ts.leastCommonAncestor(type, eType, tc.context());
+		    } catch (SemanticException z) {
+		        Errors.issue(tc.job(), z, this);
+		        type = ts.Any();
+		    }
 		}
 	    }
 
@@ -193,7 +198,7 @@ public class Tuple_c extends Expr_c implements Tuple {
 
 	    Type resultType = X10TypeMixin.makeArrayRailOf(type, elements.size(), position());
 
-        if (indexType!=null) {
+        if (indexType != null) {
             Type iType = indexType.type();
 	        List<Expr> vals = arguments();
 	        for (Expr e : vals) {

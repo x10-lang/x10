@@ -20,6 +20,7 @@ import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import x10.constraint.XFailure;
 import x10.constraint.XTerm;
+import x10.errors.Errors;
 import x10.types.X10Context;
 
 import x10.types.X10TypeMixin;
@@ -59,15 +60,17 @@ public class X10IntLit_c extends IntLit_c {
     }
 
     /** Type check the expression. */
-    public Node typeCheck(ContextVisitor tc) throws SemanticException {
+    public Node typeCheck(ContextVisitor tc) {
         if (kind == INT) {
             if ((value > (long) Integer.MAX_VALUE || value < (long) Integer.MIN_VALUE) && (value & ~0xFFFFFFFFL) != 0L) {
-                throw new SemanticException("Integer literal " + value + " is out of range.", position());
+                Errors.issue(tc.job(),
+                        new SemanticException("Integer literal " + value + " is out of range.", position()));
             }
         }
         if (kind == UINT) {
             if (value < 0 && (value & ~0xFFFFFFFFL) != 0L) {
-                throw new SemanticException("Unsigned integer literal " + value + " is out of range.", position());
+                Errors.issue(tc.job(),
+                        new SemanticException("Unsigned integer literal " + value + " is out of range.", position()));
             }
         }
         X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();

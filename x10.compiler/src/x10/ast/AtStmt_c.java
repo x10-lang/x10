@@ -157,16 +157,16 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
     	
     	return null;
     }
-   @Override
-   public Node typeCheck(ContextVisitor tc) throws SemanticException {
-		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
-	   if (placeError) { // this means we were not able to convert this.place into a term of type Place.
-		   Errors.issue(tc.job(), 
-					new Errors.AtArgMustBePlace(this.place, ts.Place(), this.position()));
-	   }
-	
-		return super.typeCheck(tc);
-   }
+
+    @Override
+    public Node typeCheck(ContextVisitor tc) {
+        X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+        if (placeError) { // this means we were not able to convert this.place into a term of type Place.
+            Errors.issue(tc.job(), 
+                    new Errors.AtArgMustBePlace(this.place, ts.Place(), this.position()));
+        }
+        return this;
+    }
     
 	/** Visit the children of the statement. */
 	public Node visitChildren(NodeVisitor v) {

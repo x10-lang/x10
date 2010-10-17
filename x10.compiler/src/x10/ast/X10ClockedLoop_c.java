@@ -29,6 +29,7 @@ import polyglot.util.Position;
 import polyglot.util.TypedList;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
+import x10.errors.Errors;
 import x10.types.ParameterType;
 import x10.types.X10Context;
 import x10.types.X10MethodDef;
@@ -98,11 +99,13 @@ public abstract class X10ClockedLoop_c extends X10Loop_c implements Clocked {
 	}
 
 	
-	public Node typeCheck(ContextVisitor tc) throws SemanticException {
+	public Node typeCheck(ContextVisitor tc) {
 		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 	        for (Expr clock : (List<Expr>) clocks) {
 	            if (! ts.isImplicitCastValid(clock.type(), ts.Clock(), tc.context())) {
-	        	throw new SemanticException("Clocked loop may only be clocked on a clock.", clock.position());
+	        	Errors.issue(tc.job(),
+	        	        new SemanticException("Clocked loop may only be clocked on a clock.", clock.position()),
+	        	        this);
 	            }
 	        }
 	        

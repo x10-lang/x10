@@ -25,6 +25,7 @@ import polyglot.visit.ContextVisitor;
 import x10.constraint.XFailure;
 import x10.constraint.XVar;
 import x10.constraint.XTerm;
+import x10.errors.Errors;
 import x10.types.ConstrainedType;
 import x10.types.X10ConstructorDef;
 import x10.types.X10Context;
@@ -56,7 +57,7 @@ public class X10Special_c extends Special_c implements X10Special {
 	public boolean isSelf() { return kind == SELF; }
 
 	/** Type check the expression. */
-    public Node typeCheck(ContextVisitor tc) throws SemanticException {
+    public Node typeCheck(ContextVisitor tc) {
         X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
         X10Context c = (X10Context) tc.context();
 
@@ -64,7 +65,8 @@ public class X10Special_c extends Special_c implements X10Special {
             Type tt = c.currentDepType();
 
             if (tt == null) {
-        	throw new SemanticException("self may only be used within a dependent type", position());
+        	Errors.issue(tc.job(),
+        	        new SemanticException("self may only be used within a dependent type", position()));
             }
 
             // The type of self should not include a dep clause; otherwise
@@ -85,7 +87,9 @@ public class X10Special_c extends Special_c implements X10Special {
         	// If in the class header declaration, make this refer to the current class, not the enclosing class (or null).
         	if (c.inSuperTypeDeclaration()) {
         		if (kind == SUPER) {
-        			throw new SemanticException("Cannot refer to \"super\" from within a class or interface declaration header.");
+        			Errors.issue(tc.job(),
+        			        new SemanticException("Cannot refer to \"super\" from within a class or interface declaration header."),
+        			        this);
         		}
         		t = c.supertypeDeclarationType().asType();
         	}
@@ -106,18 +110,23 @@ public class X10Special_c extends Special_c implements X10Special {
                 CodeDef cd = c.currentCode();
            
                 if (!c.currentClass().hasEnclosingInstance(ct)) {
-                    throw new SemanticException("The nested class \"" +c.currentClass() + "\" does not have an enclosing instance of type \"" +ct + "\".", qualifier.position());
+                    Errors.issue(tc.job(),
+                            new SemanticException("The nested class \"" +c.currentClass() + "\" does not have an enclosing instance of type \"" +ct + "\".", qualifier.position()),
+                            this);
                 }
                 
             }
             else {
-                throw new SemanticException("Invalid qualifier for \"this\" or \"super\".", qualifier.position());
+                Errors.issue(tc.job(),
+                        new SemanticException("Invalid qualifier for \"this\" or \"super\".", qualifier.position()),
+                        this);
             }
         }
         
         if (t == null || (c.inStaticContext() && ts.typeEquals(t, c.currentClass(), c))) {
             // trying to access "this" or "super" from a static context.
-            throw new SemanticException("Cannot access a non-static field or method, or refer to \"this\" or \"super\" from a static context.", this.position());
+            Errors.issue(tc.job(),
+                    new SemanticException("Cannot access a non-static field or method, or refer to \"this\" or \"super\" from a static context.", position()));
         }
 
         X10Special result = this;
@@ -141,7 +150,8 @@ public class X10Special_c extends Special_c implements X10Special {
             	//PlaceChecker.AddThisHomeEqualsPlaceTerm(cc, var, c);
             }
             catch (XFailure e) {
-                throw new SemanticException("Constraint on this is inconsistent; " + e.getMessage(), position());
+                Errors.issue(tc.job(),
+                        new SemanticException("Constraint on this is inconsistent; " + e.getMessage(), position()));
             }
             tt = X10TypeMixin.xclause(X10TypeMixin.baseType(tt), cc);
             
@@ -158,7 +168,8 @@ public class X10Special_c extends Special_c implements X10Special {
             	//PlaceChecker.AddThisHomeEqualsPlaceTerm(cc, var, c);
             }
             catch (XFailure e) {
-                throw new SemanticException("Constraint on super is inconsistent; " + e.getMessage(), position());
+                Errors.issue(tc.job(),
+                        new SemanticException("Constraint on super is inconsistent; " + e.getMessage(), position()));
             }
             tt = X10TypeMixin.xclause(X10TypeMixin.baseType(tt), cc);
             result = (X10Special) type(tt);
@@ -178,7 +189,7 @@ public class X10Special_c extends Special_c implements X10Special {
         			dep.addIn(guard);
         		}
         		catch (XFailure e) {
-        			throw new SemanticException(e.getMessage(), position());
+        			Errors.issue(tc.job(), new SemanticException(e.getMessage(), position()));
         		}
         		newType = X10TypeMixin.xclause(X10TypeMixin.baseType(newType), dep);
         		return result.type(newType);

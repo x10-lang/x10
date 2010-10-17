@@ -69,12 +69,11 @@ import x10.visit.X10TypeChecker;
  * @author vj
  *
  */
-public class X10CanonicalTypeNode_c extends CanonicalTypeNode_c implements X10CanonicalTypeNode,
-AddFlags {
+public class X10CanonicalTypeNode_c extends CanonicalTypeNode_c implements X10CanonicalTypeNode, AddFlags {
 	
-	  public X10CanonicalTypeNode_c(Position pos, Type type) {
-			this(pos, Types.<Type>ref(type));
-		    }
+    public X10CanonicalTypeNode_c(Position pos, Type type) {
+	this(pos, Types.<Type>ref(type));
+    }
     public X10CanonicalTypeNode_c(Position pos, Ref<? extends Type> type) {
 	super(pos, type);
     }
@@ -85,7 +84,7 @@ AddFlags {
     }
   
     @Override
-    public Node typeCheck(ContextVisitor tc) throws SemanticException {
+    public Node typeCheck(ContextVisitor tc) {
 	X10Context c = (X10Context) tc.context();
 	X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 
@@ -99,9 +98,7 @@ AddFlags {
 		flags = null;
 	}
 	((Ref<Type>) type).update(xt);
-	
-	
-	
+
 	if (t instanceof ParameterType) {
 	    ParameterType pt = (ParameterType) t;
 	    Def def = Types.get(pt.def());
@@ -121,17 +118,20 @@ AddFlags {
 	        }
 	    }
 	    if (p.inStaticContext() && def instanceof ClassDef && ! inConstructor) {
-	        throw new SemanticException("Cannot refer to type parameter "+ pt.fullName() + " of " + def + " from a static context.", position());
+	        Errors.issue(tc.job(),
+	                new SemanticException("Cannot refer to type parameter "+ pt.fullName() + " of " + def + " from a static context.", position()));
 	    }
 	    if (flags != null && ! flags.equals(Flags.NONE)) {
-	    	throw new SemanticException("Cannot qualify type parameter "+ pt.fullName() + " of " + def + " with flags " + flags + ".", position());
+	    	Errors.issue(tc.job(),
+	    	        new SemanticException("Cannot qualify type parameter "+ pt.fullName() + " of " + def + " with flags " + flags + ".", position()));
 	    }
 	}
-	
-	
-	checkType(tc.context(), t, position());
-	
-	
+
+	try {
+	    checkType(tc.context(), t, position());
+	} catch (SemanticException e) {
+	    Errors.issue(tc.job(), e, this);
+	}
 
 	List<AnnotationNode> as = ((X10Del) this.del()).annotations();
 	if (as != null && !as.isEmpty()) {
@@ -151,7 +151,13 @@ AddFlags {
 	    tref.update(newType);
 	}
 
-	return super.typeCheck(tc);
+	Node n = this;
+	try {
+	    n = super.typeCheck(tc);
+	} catch (SemanticException e) {
+	    Errors.issue(tc.job(), e, this);
+	}
+	return n;
     }
     
     @Override

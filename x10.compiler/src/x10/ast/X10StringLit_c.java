@@ -40,7 +40,7 @@ public class X10StringLit_c extends StringLit_c {
 	public X10StringLit_c(Position pos, String value) {
 		super(pos, value);
 	}
-	public Node typeCheck(ContextVisitor tc) throws SemanticException {
+	public Node typeCheck(ContextVisitor tc) {
 		X10TypeSystem xts= (X10TypeSystem) tc.typeSystem();
 		Type Type = xts.String();
 

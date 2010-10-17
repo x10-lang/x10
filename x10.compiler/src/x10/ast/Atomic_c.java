@@ -82,14 +82,7 @@ implements Atomic {
 	}
 	
 	/** Type check the statement. */
-	public Node typeCheck(ContextVisitor tc) throws SemanticException {		
-		/*
-		 if (! ts.isSubtype(expr.type(), ts.Object()) ) {
-		 throw new SemanticException(
-		 "Cannot synchronize on an expression of type \"" +
-		 expr.type() + "\".", expr.position());
-		 }
-		 */
+	public Node typeCheck(ContextVisitor tc) {		
 		return this;
 	}
 	
