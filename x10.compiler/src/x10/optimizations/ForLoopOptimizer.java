@@ -41,7 +41,6 @@ import polyglot.ast.Unary;
 import polyglot.ast.Assign.Operator;
 import polyglot.frontend.Job;
 import polyglot.types.Context;
-import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
 import polyglot.types.LocalInstance;
@@ -66,6 +65,7 @@ import x10.ast.X10NodeFactory;
 import x10.constraint.XFailure;
 import x10.constraint.XTerm;
 import x10.types.X10Context;
+import x10.types.X10FieldInstance;
 import x10.types.X10MethodInstance;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
@@ -399,7 +399,7 @@ public class ForLoopOptimizer extends ContextVisitor {
      * TODO: move into ASTQuery
      */
     public Object getPropertyConstantValue(Expr expr, Name name) {
-        FieldInstance propertyFI = X10TypeMixin.getProperty(expr.type(), name);
+        X10FieldInstance propertyFI = X10TypeMixin.getProperty(expr.type(), name);
         if (null == propertyFI) return null;
         Expr propertyExpr = createFieldRef(expr.position(), expr, propertyFI);
         if (null == propertyExpr) return null;
@@ -932,9 +932,9 @@ public class ForLoopOptimizer extends ContextVisitor {
      */
     public Field createFieldRef(Position pos, Expr receiver, Name name) {
         final Type type = receiver.type();
-        FieldInstance fi = X10TypeMixin.getProperty(type, name);
+        X10FieldInstance fi = X10TypeMixin.getProperty(type, name);
         if (null == fi) {
-            fi = type.toClass().fieldNamed(name);
+            fi = (X10FieldInstance) type.toClass().fieldNamed(name);
         }
         if (null == fi) return null;
         return createFieldRef(pos, receiver, fi);
@@ -950,9 +950,9 @@ public class ForLoopOptimizer extends ContextVisitor {
      * @return the synthesized Field expression
      * TODO: move into Synthesizer
      */
-    public Field createFieldRef(Position pos, Expr receiver, FieldInstance fi) {
+    public Field createFieldRef(Position pos, Expr receiver, X10FieldInstance fi) {
         Field f       = xnf.Field(pos, receiver, xnf.Id(pos, fi.name())).fieldInstance(fi);
-        Type type     = fi.type();
+        Type type     = fi.rightType();
         // propagate self binding (if any)
         CConstraint c = X10TypeMixin.realX(receiver.type());
         XTerm term    = X10TypeMixin.selfVarBinding(c);  // the RHS of {self==x} in c
