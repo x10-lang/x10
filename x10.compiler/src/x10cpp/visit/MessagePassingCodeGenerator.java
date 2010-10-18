@@ -1119,7 +1119,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             if (dupes.contains(mname)) continue;
             MethodDef md = mdcl.methodDef();
             MethodInstance mi = md.asInstance();
-            if (mi.flags().isStatic()) continue;
             dupes.add(mname);
             mnames.add(mname);
         }
