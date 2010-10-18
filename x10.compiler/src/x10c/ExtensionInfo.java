@@ -66,8 +66,8 @@ public class ExtensionInfo extends x10.ExtensionInfo {
                 }
                 if (g == CodeGenerated(job)) {
                     goals.add(ClosuresToStaticMethods(job));
-                    goals.add(JavaCaster(job));
                     goals.add(CastsRemoved(job));
+                    goals.add(JavaCaster(job));
                     goals.add(RailInLoopOptimizer(job));
 //                    newGoals.add(SharedBoxed(job));
                     goals.add(AsyncInitializer(job));
