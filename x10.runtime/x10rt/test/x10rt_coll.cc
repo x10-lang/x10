@@ -393,7 +393,10 @@ static void apgas_test (void)
 
     pthread_t thread;
     thread_state state = {nu_team, 1};
-    pthread_create(&thread, NULL, thread_routine, &state);
+    if (pthread_create(&thread, NULL, thread_routine, &state)) {
+        perror("pthread_create");
+        abort();
+    }
 
     spmd_test(nu_team, 0, 2);
     std::cout << nu_team << ": Destroying team...  " << std::endl;
@@ -402,7 +405,10 @@ static void apgas_test (void)
     while (!finished) x10rt_probe();
     std::cout << nu_team << ": Destroyed team.  " << std::endl;
 
-    pthread_join(thread, NULL);
+    if (pthread_join(thread, NULL)) {
+        perror("pthread_join");
+        abort();
+    }
 }
 
 int main (int argc, char **argv)
