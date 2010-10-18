@@ -1,6 +1,19 @@
-Release 2.1.0
+Release 2.1.0.1
 
-This release includes both the C++ and Java backends and runtimes.
+This is a minor release that fixes the following issues in X10 2.1.0. 
+  + Java-backend specific bug when uninitialized variables are
+    assigned within an async and there is a finish or try/catch between
+    the var definition and the finish enclosing the async in which 
+    the variable was defined. (r17571)
+  + Java-backend specific codegen bugs that manifest when compiling
+    code that makes heavy use of generic types. (17585,17586,17587).
+
+-------------------------------------------------------------------------
+
+These were the release notes for X10 2.1.0.  
+
+They are included here for easy reference.
+
 
 Several significant language changes and a number of minor
 specification changes and clarifications have been made since the
