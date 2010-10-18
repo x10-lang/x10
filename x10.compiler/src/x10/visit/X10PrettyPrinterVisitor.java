@@ -1505,9 +1505,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		}
         else if (
                 !isSelfDispatch
-                && (!(expr instanceof Closure_c) && !mi.returnType().isVoid())
-                || (expr instanceof Closure_c && X10TypeMixin.baseType(mi.returnType()) instanceof ParameterType)) {
-                w.write(RETURN_PARAMETER_TYPE_SUFFIX);
+                && ((!(expr instanceof Closure_c) && !mi.returnType().isVoid())
+                || (expr instanceof Closure_c && X10TypeMixin.baseType(mi.returnType()) instanceof ParameterType))) {
+            w.write(RETURN_PARAMETER_TYPE_SUFFIX);
         }
 
 		w.write("(");
@@ -1526,7 +1526,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		for (int i = 0; i < l.size(); i++) {
 			Expr e = l.get(i);
 			c.print(e, w, tr);
-			if (isSelfDispatch && !newClosure) {
+			if (isSelfDispatch && (!newClosure || !needBridge((Closure_c) expr))) {
 			    w.write(",");
 			    new RuntimeTypeExpander(er, mi.formalTypes().get(i)).expand();
 			}
@@ -2146,7 +2146,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		
 		List<Formal> formals = n.formals();
 		// bridge
-		boolean bridge = containsPrimitive(n) || !n.returnType().type().isVoid() && !(X10TypeMixin.baseType(n.returnType().type()) instanceof ParameterType);
+		boolean bridge = needBridge(n);
         if (bridge) {
 		    w.write("public final ");
 		    if (isSelfDispatch && n.returnType().type().isVoid() && n.formals().size() != 0) {
@@ -2368,6 +2368,10 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
                 w.write("}");
         }
+
+    private boolean needBridge(final Closure_c n) {
+        return containsPrimitive(n) || !n.returnType().type().isVoid() && !(X10TypeMixin.baseType(n.returnType().type()) instanceof ParameterType);
+    }
 
         private boolean throwException(List<Stmt> statements) {
             for (Stmt stmt : statements) {
