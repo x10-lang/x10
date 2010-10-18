@@ -311,12 +311,13 @@ public class InlineHelper extends ContextVisitor {
             return d;
         }
         // caller side
-        if (n instanceof X10Call) {
+        if (n instanceof X10Call && x10.Configuration.INLINE_OPTIMIZATIONS) {
             X10Call call = (X10Call) n;
             Receiver target = call.target();
             MethodInstance mi = call.methodInstance();
             // C.m(a,b) --> C.xxx.yyy.C.m$P(a,b);
             // c.m(a,b) --> xxx.yyy.C.m$P(a,b,c); (m is private)
+            // FIXME
             if (mi.flags().isPrivate()) {
                 if (!X10TypeMixin.baseType(target.type()).typeEquals(context.currentClass(), context)) {
                     Id id = xnf.Id(pos, call.name().toString() + BRIDGE_TO_PRIVATE_SUFFIX);
