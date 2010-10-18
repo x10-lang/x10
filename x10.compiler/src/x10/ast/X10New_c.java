@@ -236,7 +236,7 @@ public class X10New_c extends New_c implements X10New {
         
         // Create the qualifier.
         Expr q;
-        Position cg = X10NodeFactory_c.compilerGenerated(position());
+        Position cg = Position.compilerGenerated(position());
 
         if (outer.typeEquals(c.currentClass(), ar.context())) {
             q = nf.This(cg);

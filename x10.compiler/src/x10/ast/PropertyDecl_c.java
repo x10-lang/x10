@@ -88,7 +88,7 @@ public class PropertyDecl_c extends X10FieldDecl_c  implements PropertyDecl {
         return body;
     }
 
-    private Position getCompilerGenPos() { return X10NodeFactory_c.compilerGenerated(position()); }
+    private Position getCompilerGenPos() { return Position.compilerGenerated(position()); }
     protected MethodDecl getter(X10NodeFactory nf) {
         X10TypeSystem ts = (X10TypeSystem) nf.extensionInfo().typeSystem();
         Position pos = getCompilerGenPos();

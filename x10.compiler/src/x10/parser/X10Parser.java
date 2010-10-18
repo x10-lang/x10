@@ -85,7 +85,6 @@ import x10.ast.RegionMaker;
 import x10.ast.X10Binary_c;
 import x10.ast.X10Unary_c;
 import x10.ast.X10IntLit_c;
-import x10.ast.X10NodeFactory_c;
 import x10.extension.X10Ext;
 import polyglot.frontend.FileSource;
 import polyglot.frontend.Parser;
@@ -2827,7 +2826,7 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
                 X10Formal FormalParameter = (X10Formal) getRhsSym(1);
                 //#line 1924 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> l = new TypedList<Formal>(new LinkedList<Formal>(), Formal.class, false);
-                l.add(FormalParameter.flags(nf.FlagsNode(X10NodeFactory_c.compilerGenerated(FormalParameter), Flags.FINAL)));
+                l.add(FormalParameter.flags(nf.FlagsNode(Position.compilerGenerated(FormalParameter.position()), Flags.FINAL)));
                 setResult(l);
                       break;
             }
@@ -2842,7 +2841,7 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
                 //#line 1929 "x10/parser/x10.g"
                 X10Formal FormalParameter = (X10Formal) getRhsSym(3);
                 //#line 1931 "lpg.generator/templates/java/btParserTemplateF.gi"
-                ExistentialList.add(FormalParameter.flags(nf.FlagsNode(X10NodeFactory_c.compilerGenerated(FormalParameter), Flags.FINAL)));
+                ExistentialList.add(FormalParameter.flags(nf.FlagsNode(Position.compilerGenerated(FormalParameter.position()), Flags.FINAL)));
                       break;
             }
     

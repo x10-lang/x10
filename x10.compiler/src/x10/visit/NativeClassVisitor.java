@@ -151,7 +151,7 @@ public class NativeClassVisitor extends ContextVisitor {
         ClassBody cbody = cdecl.body();
         List<ClassMember> cmembers = new ArrayList<ClassMember>();
 
-        Position p = X10NodeFactory_c.compilerGenerated(cbody);
+        Position p = Position.compilerGenerated(cbody.position());
 
         // create fake def for native class
         X10ClassDef fake = (X10ClassDef) xts.createClassDef();

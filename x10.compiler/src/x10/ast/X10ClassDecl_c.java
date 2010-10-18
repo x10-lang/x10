@@ -540,7 +540,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     	if (! n.flags().flags().isAbstract())
     		return n;
     	
-    	Position CG = X10NodeFactory_c.compilerGenerated(body());
+    	Position CG = Position.compilerGenerated(body().position());
     	X10TypeSystem_c xts = (X10TypeSystem_c) tc.typeSystem();
     	X10NodeFactory xnf = (X10NodeFactory) tc.nodeFactory();
     	X10ClassType targetType = (X10ClassType) n.classDef().asType();
@@ -915,67 +915,66 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     protected ConstructorDecl createDefaultConstructor(ClassDef _thisType,
     		TypeSystem ts, NodeFactory nf) throws SemanticException
     {
-          X10ClassDef thisType = (X10ClassDef) _thisType;
-    	  Position pos = X10NodeFactory_c.compilerGenerated(body());
-    	  X10NodeFactory xnf = (X10NodeFactory) nf;
-          Block block = null;
+        X10ClassDef thisType = (X10ClassDef) _thisType;
+        Position pos = Position.compilerGenerated(body().position());
+        X10NodeFactory xnf = (X10NodeFactory) nf;
+        Block block = null;
 
-          Ref<? extends Type> superType = thisType.superType();
-          Stmt s1 = null;
-          if (superType != null) {
-              s1 = nf.SuperCall(pos, Collections.<Expr>emptyList());
-          }
-          
-          Stmt s2 = null; 
-          List<TypeParamNode> typeFormals = Collections.<TypeParamNode>emptyList();
-          List<Formal> formals = Collections.<Formal>emptyList();
-          DepParameterExpr guard = null;
+        Ref<? extends Type> superType = thisType.superType();
+        Stmt s1 = null;
+        if (superType != null) {
+            s1 = nf.SuperCall(pos, Collections.<Expr>emptyList());
+        }
 
-          if (! properties.isEmpty()) {
-        	  // build type parameters.
-        	/*  typeFormals = new ArrayList<TypeParamNode>(typeParameters.size());
-        	  List<TypeNode> typeActuals = new ArrayList<TypeNode>(typeParameters.size());
-        	  for (TypeParamNode tp : typeParameters) {
-        		  typeFormals.add(xnf.TypeParamNode(pos, tp.name()));
-        		  typeActuals.add(xnf.CanonicalTypeNode(pos, tp.type()));
-        	  }*/
-        	  
-        	  formals = new ArrayList<Formal>(properties.size());
-        	  List<Expr> actuals = new ArrayList<Expr>(properties.size());
-              ChangePositionVisitor changePositionVisitor = new ChangePositionVisitor(pos);
-        	  for (PropertyDecl pd: properties) {
-        		  Id name = (Id) pd.name().position(pos);
-                  TypeNode typeNode = (TypeNode) pd.type().copy();
-                  Node newNode = typeNode.visit(changePositionVisitor);
-                  formals.add(xnf.Formal(pos, nf.FlagsNode(pos, Flags.FINAL),
-        				  (TypeNode) newNode, name));
-        		  actuals.add(xnf.Local(pos, name));
-        	  }
-        	 
-        	  guard = classInvariant();
-        	  s2 = xnf.AssignPropertyCall(pos, Collections.<TypeNode>emptyList(), actuals);
-        	  // TODO: add constraint on the return type
-          }
-          block = s2 == null ? (s1 == null ? nf.Block(pos) : nf.Block(pos, s1))
-        		  : (s1 == null ? nf.Block(pos, s2) : nf.Block(pos, s1, s2));
+        Stmt s2 = null; 
+        List<TypeParamNode> typeFormals = Collections.<TypeParamNode>emptyList();
+        List<Formal> formals = Collections.<Formal>emptyList();
+        DepParameterExpr guard = null;
 
-          X10ClassType resultType = (X10ClassType) thisType.asType();
-          // for Generic classes
-          final List<ParameterType> typeParams = thisType.typeParameters();
-          resultType = (X10ClassType)resultType.typeArguments((List)typeParams);
-          X10CanonicalTypeNode returnType = (X10CanonicalTypeNode) xnf.CanonicalTypeNode(pos, resultType);
+        if (! properties.isEmpty()) {
+            // build type parameters.
+            /*typeFormals = new ArrayList<TypeParamNode>(typeParameters.size());
+            List<TypeNode> typeActuals = new ArrayList<TypeNode>(typeParameters.size());
+            for (TypeParamNode tp : typeParameters) {
+                typeFormals.add(xnf.TypeParamNode(pos, tp.name()));
+                typeActuals.add(xnf.CanonicalTypeNode(pos, tp.type()));
+            }*/
 
-          ConstructorDecl cd = xnf.X10ConstructorDecl(pos,
-                  nf.FlagsNode(pos, Flags.PUBLIC),
-                  nf.Id(pos, "this"), 
-                  returnType,
-                  typeFormals,
-                  formals,
-                  guard, 
-                  null, // offerType
-                  block);
+            formals = new ArrayList<Formal>(properties.size());
+            List<Expr> actuals = new ArrayList<Expr>(properties.size());
+            ChangePositionVisitor changePositionVisitor = new ChangePositionVisitor(pos);
+            for (PropertyDecl pd: properties) {
+                Id name = (Id) pd.name().position(pos);
+                TypeNode typeNode = (TypeNode) pd.type().copy();
+                Node newNode = typeNode.visit(changePositionVisitor);
+                formals.add(xnf.Formal(pos, nf.FlagsNode(pos, Flags.FINAL),
+                        (TypeNode) newNode, name));
+                actuals.add(xnf.Local(pos, name));
+            }
+
+            guard = classInvariant();
+            s2 = xnf.AssignPropertyCall(pos, Collections.<TypeNode>emptyList(), actuals);
+            // TODO: add constraint on the return type
+        }
+        block = s2 == null ? (s1 == null ? nf.Block(pos) : nf.Block(pos, s1))
+                : (s1 == null ? nf.Block(pos, s2) : nf.Block(pos, s1, s2));
+
+        X10ClassType resultType = (X10ClassType) thisType.asType();
+        // for Generic classes
+        final List<ParameterType> typeParams = thisType.typeParameters();
+        resultType = (X10ClassType)resultType.typeArguments((List)typeParams);
+        X10CanonicalTypeNode returnType = (X10CanonicalTypeNode) xnf.CanonicalTypeNode(pos, resultType);
+
+        ConstructorDecl cd = xnf.X10ConstructorDecl(pos,
+                nf.FlagsNode(pos, Flags.PUBLIC),
+                nf.Id(pos, "this"), 
+                returnType,
+                typeFormals,
+                formals,
+                guard, 
+                null, // offerType
+                block);
         return cd;
-        
     }
 
     public String toString() {

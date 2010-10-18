@@ -79,7 +79,6 @@ import polyglot.util.TransformingList;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.TypeBuilder;
 import x10.ast.X10NodeFactory;
-import x10.ast.X10NodeFactory_c;
 import x10.constraint.XEQV;
 import x10.constraint.XFailure;
 import x10.constraint.XField;
@@ -684,7 +683,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return createFakeField(unknownClassDef().asType(), Flags.PUBLIC.Static(), name, error);
     }
     public X10FieldInstance createFakeField(ClassType container, Flags flags, Name name, SemanticException error) {
-        Position pos = X10NodeFactory_c.compilerGenerated(container);
+        Position pos = Position.compilerGenerated(container == null ? null : container.position());
         Type type = unknownType(pos);
         XVar thisVar = XTerms.makeEQV();
         List<Ref<? extends Type>> excTypes = Collections.emptyList();
@@ -700,7 +699,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return createFakeMethod(unknownClassDef().asType(), Flags.PUBLIC.Static(), name, typeArgs, argTypes, error);
     }
     public X10MethodInstance createFakeMethod(ClassType container, Flags flags, Name name, List<Type> typeArgs, List<Type> argTypes, SemanticException error) {
-        Position pos = X10NodeFactory_c.compilerGenerated(container);
+        Position pos = Position.compilerGenerated(container == null ? null : container.position());
         Type returnType = unknownType(pos);
         List<Ref<? extends Type>> args = new ArrayList<Ref<? extends Type>>();
         List<LocalDef> formalNames = new ArrayList<LocalDef>();
@@ -726,7 +725,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return createFakeConstructor(typeForNameSilent(containerName).typeArguments(typeArgs), flags, argTypes, error);
     }
     public X10ConstructorInstance createFakeConstructor(ClassType container, Flags flags, List<Type> argTypes, SemanticException error) {
-        Position pos = X10NodeFactory_c.compilerGenerated(container);
+        Position pos = Position.compilerGenerated(container == null ? null : container.position());
         List<Ref<? extends Type>> args = new ArrayList<Ref<? extends Type>>();
         List<LocalDef> formalNames = new ArrayList<LocalDef>();
         int i = 0;
@@ -1832,12 +1831,6 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return isSubtype(me, ContainsAll(), emptyContext());
     }
 
-    public VarDef createSelf(Type t) {
-        VarDef v = localDef(X10NodeFactory_c.compilerGenerated(t), Flags.PUBLIC, Types.ref(t), Name.make("self"));
-        return v;
-    }
-
- 
     protected XTypeTranslator xtt = new XTypeTranslator(this);
 
     public XTypeTranslator xtypeTranslator() {

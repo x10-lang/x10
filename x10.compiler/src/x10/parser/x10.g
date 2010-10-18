@@ -100,7 +100,6 @@
     import x10.ast.X10Binary_c;
     import x10.ast.X10Unary_c;
     import x10.ast.X10IntLit_c;
-    import x10.ast.X10NodeFactory_c;
     import x10.extension.X10Ext;
     import polyglot.frontend.FileSource;
     import polyglot.frontend.Parser;
@@ -1922,13 +1921,13 @@
        ExistentialList ::= FormalParameter
         /.$BeginJava
                     List<Formal> l = new TypedList<Formal>(new LinkedList<Formal>(), Formal.class, false);
-                    l.add(FormalParameter.flags(nf.FlagsNode(X10NodeFactory_c.compilerGenerated(FormalParameter), Flags.FINAL)));
+                    l.add(FormalParameter.flags(nf.FlagsNode(Position.compilerGenerated(FormalParameter.position()), Flags.FINAL)));
                     setResult(l);
           $EndJava
         ./
                           | ExistentialList ; FormalParameter
         /.$BeginJava
-                    ExistentialList.add(FormalParameter.flags(nf.FlagsNode(X10NodeFactory_c.compilerGenerated(FormalParameter), Flags.FINAL)));
+                    ExistentialList.add(FormalParameter.flags(nf.FlagsNode(Position.compilerGenerated(FormalParameter.position()), Flags.FINAL)));
           $EndJava
         ./
 

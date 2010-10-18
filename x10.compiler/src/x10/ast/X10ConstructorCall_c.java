@@ -143,7 +143,7 @@ public class X10ConstructorCall_c extends ConstructorCall_c implements X10Constr
 	        			|| ts.typeEquals(type, ts.Object(), tc.context())) {
 	        		// the super() call inserted by the parser needs to be thrown out
 	        		X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
-	        		return nf.Empty(X10NodeFactory_c.compilerGenerated(position()));
+	        		return nf.Empty(Position.compilerGenerated(position()));
 	        	}
 	        	throw new InternalCompilerError("Unexpected null supertype for " 
 	        			+ this, position());

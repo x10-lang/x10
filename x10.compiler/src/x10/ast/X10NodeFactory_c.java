@@ -814,15 +814,4 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		n = (TypeDecl) n.del(delFactory().delNode());
 		return n;
 	}
-
-
-    public static Position compilerGenerated(Node n) {
-        return compilerGenerated(n==null ? null : n.position());
-    }
-    public static Position compilerGenerated(TypeObject n) {
-        return compilerGenerated(n==null ? null : n.position());
-    }
-    public static Position compilerGenerated(Position pos) {
-        return pos==null ? Position.COMPILER_GENERATED : pos.startOf().markCompilerGenerated();
-    }
 }

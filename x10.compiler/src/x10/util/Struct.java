@@ -69,7 +69,7 @@ public class Struct {
         interfacesList.add(xts.lazyAny());
         cd.setInterfaces(interfacesList);
 
-       final Position pos = X10NodeFactory_c.compilerGenerated(n.body());
+       final Position pos = Position.compilerGenerated(n.body().position());
 
        String fullNameWithThis = fullName + "#this";
        //String fullNameWithThis = "this";
