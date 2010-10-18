@@ -53,6 +53,7 @@ import x10.ast.Closure_c;
 import x10.ast.X10Call;
 import x10.ast.X10Call_c;
 import x10.ast.X10CanonicalTypeNode;
+import x10.ast.X10Formal_c;
 import x10.ast.X10LocalAssign_c;
 import x10.ast.X10LocalDecl_c;
 import x10.ast.X10Local_c;
@@ -218,6 +219,11 @@ public class AsyncInitializer extends ContextVisitor {
             public Node leave(Node parent, Node old, Node n, NodeVisitor v) {
                 if (n instanceof X10LocalDecl_c) {
                     X10LocalDecl_c ld = (X10LocalDecl_c)n;
+                    if (ld.localDef().flags() == null || !ld.localDef().flags().equals(Flags.FINAL))
+                        localDeclList.add(ld.localDef());
+                }
+                if (n instanceof X10Formal_c) {
+                    X10Formal_c ld = (X10Formal_c)n;
                     if (ld.localDef().flags() == null || !ld.localDef().flags().equals(Flags.FINAL))
                         localDeclList.add(ld.localDef());
                 }
