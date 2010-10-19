@@ -1333,6 +1333,13 @@ import x10.util.Box;
         worker().probe();
     }
 
+    public static def process() {
+        event_probe();
+        if (STATIC_THREADS) {
+            worker().probe();
+        }
+    }
+
     @Pinned static class Pool implements ()=>void {
         private val latch:Latch;
         private var size:Int; // the number of workers in the pool
