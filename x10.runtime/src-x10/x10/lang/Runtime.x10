@@ -162,7 +162,7 @@ import x10.util.Box;
         public def serialize():Any {
             throw new UnsupportedOperationException("Cannot serialize "+typeName());
         }
-	private def this(Any) {
+    private def this(Any) {
             throw new UnsupportedOperationException("Cannot deserialize "+typeName());
         }
     }
@@ -176,7 +176,7 @@ import x10.util.Box;
         static def make(clocks:Array[Clock]{rail}, phases:Array[Int]{rail}):ClockPhases {
             val clockPhases = new ClockPhases();
             for(var i:Int = 0; i < clocks.size; i++) 
-            	clockPhases.put(clocks(i), phases(i));
+                clockPhases.put(clocks(i), phases(i));
             return clockPhases;
         }
 
@@ -197,13 +197,13 @@ import x10.util.Box;
             clear();
         }
 
-	// HashMap implments CustomSerialization, so we must as well
-	// Only constructor is actually required, but stub out serialize as well
-	// as a reminder that if instance fields are added to ClockPhases then
-	// work will have to be done here to serialize them.
-	public def serialize() = super.serialize(); 
-	def this() { super(); }
-	def this(a:Any) { super(a); }
+    // HashMap implments CustomSerialization, so we must as well
+    // Only constructor is actually required, but stub out serialize as well
+    // as a reminder that if instance fields are added to ClockPhases then
+    // work will have to be done here to serialize them.
+    public def serialize() = super.serialize(); 
+    def this() { super(); }
+    def this(a:Any) { super(a); }
     }
 
 
@@ -274,19 +274,19 @@ import x10.util.Box;
     }
 
     @Pinned static class StatefulReducer[T] {
-    	val reducer:Reducible[T];
+        val reducer:Reducible[T];
         var result:T;
         val MAX = 1000;
         var resultRail : Rail[T];
         var workerFlag : Rail[Boolean] = Rail.make[Boolean](MAX,(Int) => false);
         def this(r:Reducible[T]) {
-    	    this.reducer=r;
-    	    val zero = reducer.zero();
-    	    this.result=zero;
-    	    this.resultRail = Rail.make[T](MAX, (Int) => zero);
+            this.reducer=r;
+            val zero = reducer.zero();
+            this.result=zero;
+            this.resultRail = Rail.make[T](MAX, (Int) => zero);
         }
         def accept(t:T) {
-    	    this.result=reducer(result,t);
+            this.result=reducer(result,t);
         }
         def accept(t: T, id : Int ) {
             if ((id >= 0 ) && (id < MAX)) {
@@ -298,36 +298,36 @@ import x10.util.Box;
             for(var i:Int =0; i<MAX; i++) {
                 if (this.workerFlag(i)) {
                     this.result = reducer(result,resultRail(i));
-		            resultRail(i)=reducer.zero();
-	            }
+                    resultRail(i)=reducer.zero();
+                }
             }
         }
 
         def result()=result;
-	    def reset() {
-	        result = reducer.zero();
-	    }
+        def reset() {
+            result = reducer.zero();
+        }
     }
 
     // Single class translation of an X10 2.0 class
     static class RootCollectingFinish[T] extends RootFinish {
-    	private val root = GlobalRef[RootCollectingFinish[T]](this);
-    	transient val sr:StatefulReducer[T];
-    	val reducer:Reducible[T];
+        private val root = GlobalRef[RootCollectingFinish[T]](this);
+        transient val sr:StatefulReducer[T];
+        val reducer:Reducible[T];
         def this(r:Reducible[T]) {
-    	   super();
-    	   this.reducer=r;
-    	   this.sr=new StatefulReducer[T](r);
+           super();
+           this.reducer=r;
+           this.sr=new StatefulReducer[T](r);
         }
         @Global public def makeRemote() = new RemoteCollectingFinish[T](reducer);
         @Global public def equals(a:Any) =
-        	(a instanceof RootCollectingFinish[T]) && this.root.equals((a as RootCollectingFinish[T]).root);
+            (a instanceof RootCollectingFinish[T]) && this.root.equals((a as RootCollectingFinish[T]).root);
         @Global public def hashCode():Int = root.hashCode();
         @Global public def home():Place = root.home;
         @Pinned def accept(t:T) {
-    	   lock();
-    	   sr.accept(t);
-    	   unlock();
+           lock();
+           sr.accept(t);
+           unlock();
         }
         @Pinned def accept(t:T, id:Int) {
            sr.accept(t,id);
@@ -366,12 +366,12 @@ import x10.util.Box;
         @Pinned final public def waitForFinishExpr(safe:Boolean):T {
             waitForFinish(safe);
             sr.placeMerge();
-	    val result = sr.result();
+        val result = sr.result();
             sr.reset();
             return result;
         }
     }
-    	
+        
     static class RootFinish implements FinishState, Mortal {
         private val root = GlobalRef[RootFinish](this);
         transient protected val counts:Rail[Int];
@@ -379,7 +379,7 @@ import x10.util.Box;
         transient protected var exceptions:Stack[Throwable];
         transient protected val latch:Latch; 
         def this() {
-	    latch = new Latch();
+        latch = new Latch();
             val c = Rail.make[Int](Place.MAX_PLACES, (Int)=>0);
             seen = Rail.make[Boolean](Place.MAX_PLACES, (Int)=>false);
             c(here.id) = 1;
@@ -394,7 +394,7 @@ import x10.util.Box;
            in their home place.
          */
         @Global public def equals(a:Any) =
-        	(a instanceof RootFinish) && (a as RootFinish).root.equals(this.root);
+            (a instanceof RootFinish) && (a as RootFinish).root.equals(this.root);
         @Global public def home():Place = root.home;
 
         @Pinned public def lock() = root().latch.lock();
@@ -403,7 +403,7 @@ import x10.util.Box;
         @Pinned public def release() = root().latch.release();
         @Pinned public def await() = root().latch.await();
         @Pinned public def apply() = root().latch.apply();
-	    
+        
         @Pinned private def notifySubActivitySpawnLocal(place:Place):void {
             lock();
             counts(place.parent().id)++;
@@ -498,7 +498,7 @@ import x10.util.Box;
         @Global public def notifySubActivitySpawn(place:Place):void {
             if (here.equals(root.home)) {
                 val rf:RootFinish = (root as GlobalRef[RootFinish]{here==root.home})();
-	            rf.notifySubActivitySpawnLocal(place);
+                rf.notifySubActivitySpawnLocal(place);
             } else {
                 (Runtime.proxy(this) as RemoteFinish).notifySubActivitySpawn(place);
             }
@@ -511,8 +511,8 @@ import x10.util.Box;
 
         @Global public def notifyActivityTermination():void {
             if (here.equals(root.home)) {
-            	val rf:RootFinish = (root as GlobalRef[RootFinish]{here==root.home})();
-            	rf.notifyActivityTerminationLocal();
+                val rf:RootFinish = (root as GlobalRef[RootFinish]{here==root.home})();
+                rf.notifyActivityTerminationLocal();
             } else {
                 (Runtime.proxy(this) as RemoteFinish).notifyActivityTermination(this);
             }
@@ -520,8 +520,8 @@ import x10.util.Box;
 
         @Global public def pushException(t:Throwable):void {
             if (here.equals(root.home)) {
-            	val rf:RootFinish = (root as GlobalRef[RootFinish]{here==root.home})();
-            	rf.pushExceptionLocal(t);
+                val rf:RootFinish = (root as GlobalRef[RootFinish]{here==root.home})();
+                rf.pushExceptionLocal(t);
             } else {
                 (Runtime.proxy(this) as RemoteFinish).pushException(t);
             }
@@ -530,11 +530,11 @@ import x10.util.Box;
     }
 
     @Pinned static class RemoteCollectingFinish[T] extends RemoteFinish {
-    	val sr:StatefulReducer[T];
+        val sr:StatefulReducer[T];
         val stepAtomic :AtomicInteger = new AtomicInteger(0);
         def this(r:Reducible[T]) {
-    	  super();
-    	  this.sr=new StatefulReducer[T](r);
+          super();
+          this.sr=new StatefulReducer[T](r);
         }
     
     /**
@@ -563,7 +563,7 @@ import x10.util.Box;
                 } else {
                     t = new MultipleExceptions(e);
                 }
-	        val rrcf = (r as RootCollectingFinish[T]).root;
+            val rrcf = (r as RootCollectingFinish[T]).root;
                 val closure = () => { 
                     val rrcfHere = rrcf as GlobalRef[RootCollectingFinish[T]]{self.home==here};
                     rrcfHere().notify(m, t); 
@@ -583,7 +583,7 @@ import x10.util.Box;
                 lock.unlock();
                 sr.placeMerge();              
                 val x = sr.result();
-		        sr.reset();
+                sr.reset();
                 stepAtomic.set(0);
                 if(path.second != r.home().id) {
                      val closure = () => {
@@ -641,7 +641,7 @@ import x10.util.Box;
                 lock.unlock();
                 sr.placeMerge();
                 val x = sr.result();
-		        sr.reset();
+                sr.reset();
                 stepAtomic.set(0);
                 if(path.second != r.home().id) {
                      val closure = () => {
@@ -668,9 +668,9 @@ import x10.util.Box;
         }
         }
         def accept(t:T) {
-    	    lock.lock();
-    	    sr.accept(t);
-    	    lock.unlock();
+            lock.lock();
+            sr.accept(t);
+            lock.unlock();
         }
         def accept(t:T, id:Int) {
             sr.accept(t,id);
@@ -901,15 +901,15 @@ import x10.util.Box;
      * enough!
      */
     @Pinned static class LocalRootFinish extends Latch implements FinishState, Mortal, CustomSerialization {
-    	private var counts:int;
+        private var counts:int;
         private var exceptions:Stack[Throwable];
         public def this() {
-        	counts = 1;
+            counts = 1;
         }
         public home()=here;
         public def notifySubActivitySpawnLocal(place:Place):void {
-        	lock();
-        	counts++;
+            lock();
+            counts++;
             unlock();
             
         }
@@ -918,7 +918,7 @@ import x10.util.Box;
             lock();
             counts--;
             if (counts!= 0) {
-            	unlock();
+                unlock();
                 return;
             } 
             release();
@@ -951,24 +951,24 @@ import x10.util.Box;
         }
 
         public def notifySubActivitySpawn(place:Place):void {	
-        	notifySubActivitySpawnLocal(place);
+            notifySubActivitySpawnLocal(place);
         }
 
         public def notifyActivityCreation():void {}
 
         public def notifyActivityTermination():void {	 
-        	this.notifyActivityTerminationLocal();
+            this.notifyActivityTerminationLocal();
         }
 
         public def pushException(t:Throwable):void {
-        	this.pushExceptionLocal(t);
+            this.pushExceptionLocal(t);
         }
         public def makeRemote():RemoteFinishState = null;
 
         public def serialize():Any {
             throw new UnsupportedOperationException("Cannot serialize "+typeName());
         }
-	private def this(Any) {
+    private def this(Any) {
             throw new UnsupportedOperationException("Cannot deserialize "+typeName());
         }
     }
@@ -1029,9 +1029,9 @@ import x10.util.Box;
             spawnedActCounts = 0;
             lock.unlock();
             if (null != e) {
-            	val t:Throwable;
+                val t:Throwable;
                 if (e.size() == 1) {
-                	t = e.peek();
+                    t = e.peek();
                 } else {
                     t = new MultipleExceptions(e);
                 }
@@ -1061,20 +1061,20 @@ import x10.util.Box;
 
     
      static class SimpleRootFinish extends Latch implements FinishState, Mortal {
-    	 private val root = GlobalRef[SimpleRootFinish](this);
-    	 transient protected var counts:int;
+         private val root = GlobalRef[SimpleRootFinish](this);
+         transient protected var counts:int;
          transient protected var exceptions:Stack[Throwable];
-	 @SuppressTransientError transient protected val latch = new Latch();
+     @SuppressTransientError transient protected val latch = new Latch();
                                         
          public def this() {
              counts = 1;
          }
-	 private def this(Any) {
+     private def this(Any) {
              throw new UnsupportedOperationException("Cannot deserialize "+typeName());
          }
 
          @Global public def equals(a:Any) =
-        	 (a instanceof SimpleRootFinish) && this.root.equals((a as SimpleRootFinish).root);
+             (a instanceof SimpleRootFinish) && this.root.equals((a as SimpleRootFinish).root);
         @Global public def hashCode() = root.hashCode();
         @Global public def home()=root.home;
 
@@ -1086,37 +1086,37 @@ import x10.util.Box;
         @Pinned public def apply() = latch.apply();
         
         @Pinned public  def notifySubActivitySpawnLocal(place:Place):void {
-        	 lock();
-        	 counts++;
-        	 unlock();
+             lock();
+             counts++;
+             unlock();
          }
 
          @Pinned public def notifyActivityTerminationLocal():void {     
-        	 lock();
-        	 counts--;
-        	 if (counts!= 0) {
-        		 unlock();
-        		 return;
-        	 }   	 
-        	 release();
-        	 unlock();
+             lock();
+             counts--;
+             if (counts!= 0) {
+                 unlock();
+                 return;
+             }   	 
+             release();
+             unlock();
          }
          @Pinned public def pushExceptionLocal(t:Throwable):void {
-        	 lock();
-        	 if (null == exceptions) exceptions = new Stack[Throwable]();
-        	 exceptions.push(t);
-        	 unlock();
+             lock();
+             if (null == exceptions) exceptions = new Stack[Throwable]();
+             exceptions.push(t);
+             unlock();
          }
          @Pinned def notify(remoteCount:Int):void {
-        	 var b:Boolean = true; 
-        	 lock();
-        	 counts+= remoteCount;
+             var b:Boolean = true; 
+             lock();
+             counts+= remoteCount;
              if (counts == 0) release();
-        	 unlock();
+             unlock();
          }
          @Pinned def notify(remoteCount:Int,t:Throwable):void {
-    		 pushExceptionLocal(t);
-    		 notify(remoteCount);
+             pushExceptionLocal(t);
+             notify(remoteCount);
          }
          @Pinned public def waitForFinish(safe:Boolean):void {
              if (!NO_STEALS && safe) worker().join(this);
@@ -1136,39 +1136,39 @@ import x10.util.Box;
          }
 
          @Global public def notifySubActivitySpawn(place:Place):void {
-       	     if (here.equals(home())) {
+                if (here.equals(home())) {
                  val srf:SimpleRootFinish = (root as GlobalRef[SimpleRootFinish]{here==root.home})();
                  srf.notifySubActivitySpawnLocal(place);
              } else {
-            	 (Runtime.proxy(this) as SimpleRemoteFinish).notifySubActivitySpawn(place);
+                 (Runtime.proxy(this) as SimpleRemoteFinish).notifySubActivitySpawn(place);
              }
          }
          
          @Global public def notifyActivityCreation():void {
-        	 if (here.equals(root.home)){
-        		 (Runtime.proxy(this) as SimpleRemoteFinish).notifyActivityCreation();
-        	 } 
+             if (here.equals(root.home)){
+                 (Runtime.proxy(this) as SimpleRemoteFinish).notifyActivityCreation();
+             } 
          }
          
          @Global public def notifyActivityTermination():void {
-        	 if (here.equals(root.home)) {
-        	     val srf:SimpleRootFinish = (root as GlobalRef[SimpleRootFinish]{here==root.home})();
+             if (here.equals(root.home)) {
+                 val srf:SimpleRootFinish = (root as GlobalRef[SimpleRootFinish]{here==root.home})();
                      srf.notifyActivityTerminationLocal();
-        	 } else {
-        		 (Runtime.proxy(this) as SimpleRemoteFinish).notifyActivityTermination(this);
-        	 }
+             } else {
+                 (Runtime.proxy(this) as SimpleRemoteFinish).notifyActivityTermination(this);
+             }
          }
          
          @Global public def pushException(t:Throwable):void {
-        	 if (here.equals(root.home)) {
-        	     val srf:SimpleRootFinish = (root as GlobalRef[SimpleRootFinish]{here==root.home})();
+             if (here.equals(root.home)) {
+                 val srf:SimpleRootFinish = (root as GlobalRef[SimpleRootFinish]{here==root.home})();
                      srf.pushExceptionLocal(t);
-        	 } else {
+             } else {
                      (Runtime.proxy(this) as SimpleRemoteFinish).pushException(t);
-        	 }
+             }
          }
          @Global public def makeRemote():RemoteFinishState{
-        	 return new SimpleRemoteFinish();
+             return new SimpleRemoteFinish();
          }
     }
 
@@ -1212,7 +1212,7 @@ import x10.util.Box;
         public def serialize():Any {
             throw new UnsupportedOperationException("Cannot serialize "+typeName());
         }
-	private def this(Any) {
+    private def this(Any) {
             throw new UnsupportedOperationException("Cannot deserialize "+typeName());
         }
     }
@@ -1574,7 +1574,7 @@ import x10.util.Box;
      * Run async
      */
     public static def runAsync(place:Place, clocks:Array[Clock]{rail}, body:()=>void):void {
-    	// Do this before anything else
+        // Do this before anything else
         activity().ensureNotInAtomic();
         
         val state = currentState();
@@ -1589,7 +1589,7 @@ import x10.util.Box;
     }
 
     public static def runAsync(place:Place, body:()=>void):void {
-    	// Do this before anything else
+        // Do this before anything else
         activity().ensureNotInAtomic();
         
         val state = currentState();
@@ -1611,7 +1611,7 @@ import x10.util.Box;
     }
 
     public static def runAsync(clocks:Array[Clock]{rail}, body:()=>void):void {
-    	// Do this before anything else
+        // Do this before anything else
         activity().ensureNotInAtomic();
         
         val state = currentState();
@@ -1621,7 +1621,7 @@ import x10.util.Box;
     }
 
     public static def runAsync(body:()=>void):void {
-    	// Do this before anything else
+        // Do this before anything else
         activity().ensureNotInAtomic();
         
         val state = currentState();
@@ -1630,7 +1630,7 @@ import x10.util.Box;
     }
 
     public static def runUncountedAsync(place:Place, body:()=>void):void {
-    	// Do this before anything else
+        // Do this before anything else
         activity().ensureNotInAtomic();
         
         val ok = safe();
@@ -1650,7 +1650,7 @@ import x10.util.Box;
     }
 
     public static def runUncountedAsync(body:()=>void):void {
-    	// Do this before anything else
+        // Do this before anything else
         activity().ensureNotInAtomic();
         
         execute(new Activity(body, safe()));
@@ -1660,28 +1660,28 @@ import x10.util.Box;
      * Run at statement
      */
     static class RemoteControl {
-    	private val root = GlobalRef[RemoteControl](this);
+        private val root = GlobalRef[RemoteControl](this);
         transient var e:Box[Throwable] = null;
         @SuppressTransientError transient val latch = new Latch();
         @Global public def equals(a:Any) =
-        	(a instanceof RemoteControl) && this.root.equals((a as RemoteControl).root);
+            (a instanceof RemoteControl) && this.root.equals((a as RemoteControl).root);
         @Global public def hashCode()=root.hashCode();
         @Global public def home() = root.home();
     }
 
     public static def runAt(place:Place, body:()=>void):void {
-    	Runtime.ensureNotInAtomic();
+        Runtime.ensureNotInAtomic();
         val box = (new RemoteControl()).root;
         async at(place) {
             try {
                 body();
                 async at(box.home) {
-                	val me = box();
-                	me.latch.release();
+                    val me = box();
+                    me.latch.release();
                 }
             } catch (e:Throwable) {
                 async at(box.home) {
-                	val me = box();
+                    val me = box();
                     me.e = new Box[Throwable](e);
                     me.latch.release();
                 }
@@ -1708,7 +1708,7 @@ import x10.util.Box;
         @SuppressTransientError transient val latch = new Latch();
         private val root = GlobalRef[Remote](this);
         @Global public def equals(a:Any)=
-        	(a instanceof Remote[T]) && this.root.equals((a as Remote[T]).root);
+            (a instanceof Remote[T]) && this.root.equals((a as Remote[T]).root);
         @Global public def hashCode()=root.hashCode();
         @Global public def home() = root.home();
     }
@@ -1719,14 +1719,14 @@ import x10.util.Box;
             try {
                 val result = eval();
                 async at(box.home) {
-                	val me = box();
+                    val me = box();
                     me.t = result;
                     me.latch.release();
                 }
             } catch (e:Throwable) {
                 async at(box.home) {
-                	val me = box();
-                	me.e = e;
+                    val me = box();
+                    me.e = e;
                     me.latch.release();
                 }
             }
@@ -1768,18 +1768,18 @@ import x10.util.Box;
     }
     
     public static def enterAtomic() {
-    	lock();
-    	activity().pushAtomic();
+        lock();
+        activity().pushAtomic();
     }
     public static def inAtomic():boolean = activity().inAtomic();
     public static def ensureNotInAtomic() {
-    	val act = activity();
-    	if (act != null) // could be null in main thread?
-    	   act.ensureNotInAtomic();
+        val act = activity();
+        if (act != null) // could be null in main thread?
+           act.ensureNotInAtomic();
     }
     public static def exitAtomic() {
-    	activity().popAtomic();
-    	release();
+        activity().popAtomic();
+        release();
     }
 
     /**
@@ -1816,8 +1816,8 @@ import x10.util.Box;
      */
     @Native("cuda", "__syncthreads()")
     public static def next():void {
-    	ensureNotInAtomic();
-    	clockPhases().next();
+        ensureNotInAtomic();
+        clockPhases().next();
     }
     
     /**
@@ -1935,12 +1935,12 @@ import x10.util.Box;
     // All these methods should be moved to Pool.
     @Pinned public static class CollectingFinish[T] {
         //Exposed API
-    	// should become startFinish(r:Reducible[T])
+        // should become startFinish(r:Reducible[T])
         public def this(r:Reducible[T]) {
-        	val a = activity();
-        	if (null == a.finishStack)
-        		a.finishStack = new Stack[FinishState]();
-        	a.finishStack.push(new RootCollectingFinish[T](r));
+            val a = activity();
+            if (null == a.finishStack)
+                a.finishStack = new Stack[FinishState]();
+            a.finishStack.push(new RootCollectingFinish[T](r));
 
         }
 
@@ -1948,7 +1948,7 @@ import x10.util.Box;
             val thisWorker = worker();
             val id = thisWorker.workerId;
             val state = currentState();
-	    //	    Console.OUT.println("Place(" + here.id + ") Runtime.offer: received " + t);
+        //	    Console.OUT.println("Place(" + here.id + ") Runtime.offer: received " + t);
             if (here.equals(state.home())) {
                 (state as RootCollectingFinish[T]).accept(t,id);
             } else {
@@ -1956,7 +1956,7 @@ import x10.util.Box;
             }
        }
         public def stopFinishExpr():T {
-        	 val thisWorker = worker();
+             val thisWorker = worker();
              val id = thisWorker.workerId;
              val state = currentState();
              (state as RootCollectingFinish[T]).notifyActivityTermination();                       
