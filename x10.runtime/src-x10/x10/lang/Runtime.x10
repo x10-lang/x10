@@ -90,12 +90,6 @@ import x10.util.Box;
     public static def runAtLocal(id:Int, body:()=>void):void { body(); }
 
     /**
-     * Java: pretend receiver is local.
-     */
-    @Native("java", "#4")
-    public static def pretendLocal[T](x:T):T = x;
-
-    /**
      * Return true if place(id) is in the current node.
      */
     @Native("java", "x10.runtime.impl.java.Runtime.local(#1)")
@@ -1296,7 +1290,7 @@ import x10.util.Box;
                     activity = Runtime.scan(random, latch, block);
                     if (activity == null) return false;
                 }
-                debug.add(pretendLocal(activity));
+                debug.add(activity);
                 runAtLocal(activity.home().id, (activity as Activity).run.());
                 debug.removeLast();
             }
@@ -1312,7 +1306,7 @@ import x10.util.Box;
                     activity = tmp; // restore current activity
                     return;
                 }
-                debug.add(pretendLocal(activity));
+                debug.add(activity);
                 runAtLocal(activity.home().id, (activity as Activity).run.());
                 debug.removeLast();
             }
@@ -1501,8 +1495,7 @@ import x10.util.Box;
     /**
      * Return the current worker
      */
-    private static def worker():Worker =
-        pretendLocal(Thread.currentThread().worker() as Worker);
+    private static def worker():Worker = Thread.currentThread().worker() as Worker;
 
     /**
      * Return the current activity
@@ -1539,7 +1532,7 @@ import x10.util.Box;
             for (var i:Int=0; i<Place.MAX_PLACES; i++) {
                 if (isLocal(i)) {
                     // needed because the closure can be invoked in places other than the p
-                    runAtLocal(i, ()=>runtime.set(new Runtime(pretendLocal(pool))));
+                    runAtLocal(i, ()=>runtime.set(new Runtime(pool)));
                 }
             }
             registerHandlers();
