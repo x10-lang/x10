@@ -127,12 +127,12 @@ public abstract class Runtime implements Runnable {
     /**
      * Copy body
      */
-    public static x10.core.fun.VoidFun_0_0 deepCopy(x10.core.fun.VoidFun_0_0 body) {
+    public static <T> T deepCopy(T body) {
         try {
             // copy body
             java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
             new java.io.ObjectOutputStream(baos).writeObject(body);
-            body = (x10.core.fun.VoidFun_0_0) new java.io.ObjectInputStream(new java.io.ByteArrayInputStream(baos.toByteArray())).readObject();
+            body = (T) new java.io.ObjectInputStream(new java.io.ByteArrayInputStream(baos.toByteArray())).readObject();
         } catch (java.io.IOException e) {
             e.printStackTrace();
             throw new WrappedRuntimeException(e);

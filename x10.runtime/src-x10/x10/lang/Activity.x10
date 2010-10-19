@@ -131,13 +131,6 @@ public class Activity {
      * Activity-local storage
      */
     public var tag:Object;
-
-    def dump() {
-        /* FIXME: ExpressionFlattener won't work with @NativeString magic
-        Runtime.printf(@NativeString "%p ", Runtime.nativeThis(this));
-        Runtime.printf(@NativeString "%s\n", Runtime.nativeClosureName(body));
-        */
-    }
 }
 
 // vim:shiftwidth=4:tabstop=4:expandtab

@@ -32,9 +32,11 @@ import x10.util.Box;
  */
 @Pinned public final class Runtime {
 
+    // Print methods for debugging
+
     @Native("java", "java.lang.System.err.println(#1)")
-    @Native("c++", "x10aux::system_utils::println((#1)->toString()->c_str())")
-    public native static def println(o:Object) : void;
+    @Native("c++", "x10aux::system_utils::println(x10aux::to_string(#1)->c_str())")
+    public native static def println(any:Any) : void;
 
     @Native("java", "java.lang.System.err.println()")
     @Native("c++", "x10aux::system_utils::println(\"\")")
@@ -43,12 +45,6 @@ import x10.util.Box;
     @Native("java", "java.lang.System.err.printf(#4, #5)")
     @Native("c++", "x10aux::system_utils::printf(#4, #5)")
     public native static def printf[T](fmt:String, t:T) : void;
-
-    @Native("c++", "(#1)._val")
-    public static def nativeThis(x:Object) = 0L;
-
-    @Native("c++", "((x10aux::ref<x10::lang::Closure>)(#4))->toNativeString()")
-    public static def nativeClosureName[T](cl:T) = cl.toString();
 
     // Configuration options
 
@@ -74,11 +70,9 @@ import x10.util.Box;
     public static def runAtNative(id:Int, body:()=>void):void { body(); }
 
     /**
-     * Run body at place(id).
-     * May be implemented synchronously or asynchronously.
-     * Body cannot spawn activities, use clocks, or raise exceptions.
+     * Deep copy.
      */
-    @Native("java", "x10.runtime.impl.java.Runtime.deepCopy(#4)")
+    @Native("java", "x10.runtime.impl.java.Runtime.<#1>deepCopy(#4)")
     @Native("c++", "x10aux::deep_copy<#1 >(#4)")
     public static native def deepCopy[T](o:T):T;
 
@@ -1311,15 +1305,6 @@ import x10.util.Box;
                 debug.removeLast();
             }
         }
-
-        def dump(id:Int, thread:Thread) {
-            Runtime.printf(@NativeString "WORKER %d", id);
-            Runtime.printf(@NativeString " = THREAD %#lx\n", tid);
-            for (var i:Int=debug.length()-1; i>=0; i--) {
-                debug(i).dump();
-            }
-            Runtime.println();
-        }
     }
 
     public static def probe () {
@@ -1454,21 +1439,11 @@ import x10.util.Box;
                 if (++next == size) next = 0;
             }
         }
-
-        def dump() {
-            for (var i:Int=0; i<size; i++) {
-                workers(i).dump(i, threads(i));
-            }
-        }
     }
 
 
     // for debugging
     static PRINT_STATS = false;
-
-    static public def dump() {
-        runtime().pool.dump();
-    }
 
     // instance fields
 
