@@ -16,7 +16,6 @@
 #include <x10/lang/Object.h>
 #include <x10/lang/Rail.h>
 #include <x10/lang/Runtime.h>
-#include <x10/lang/Runtime__FinishStates.h>
 
 using namespace x10aux;
 
