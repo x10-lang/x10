@@ -441,12 +441,6 @@ Thread::worker(void)
     return __current_worker;
 }
 
-x10_int
-Thread::locInt(void)
-{
-    return (x10_int) x10aux::here;
-}
-
 x10::lang::Place
 Thread::home(void)
 {

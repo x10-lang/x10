@@ -71,10 +71,6 @@ public class Thread extends java.lang.Thread {
 		return home;
 	}
 
-    public int locInt() {
-        return home.id;
-    }
-
     public String name() {
         return getName();
     }

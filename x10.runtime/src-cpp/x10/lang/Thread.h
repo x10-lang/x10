@@ -175,9 +175,6 @@ namespace x10 {
             // Returns the current worker.
             x10aux::ref<x10::lang::Runtime__Worker> worker(void);
 
-            // Returns the current location.
-            x10_int locInt(void);
-
             // API matching for Java runtime.  Not actually needed for C++ runtime.
             x10::lang::Place home(void);
             

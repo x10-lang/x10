@@ -60,6 +60,8 @@ import x10.util.Box;
     @Native("c++", "x10aux::static_threads()")
     public static STATIC_THREADS = false;
 
+    // Native runtime interface
+
     /**
      * Run body at place(id).
      * May be implemented synchronously or asynchronously.
@@ -95,8 +97,14 @@ import x10.util.Box;
     @Native("c++", "x10aux::event_probe()")
     public static def event_probe():void {}
 
-    /** Accessors for native performance counters
+    /**
+     * Register x10rt handlers.
      */
+    @Native("c++", "x10aux::DeserializationDispatcher::registerHandlers()")
+    public static def registerHandlers() {}
+
+    // Accessors for native performance counters
+
     @Native("c++","x10aux::asyncs_sent")
     static def getAsyncsSent() = 0 as Long;
 
@@ -121,6 +129,8 @@ import x10.util.Box;
     @Native("c++","x10aux::deserialized_bytes = #1")
     static def setDeserializedBytes(v:Long) { }
 
+    // Methods for explicit memory management
+
     @Native("c++", "x10::lang::Object::dealloc_object((x10::lang::Object*)#1.operator->())")
     public static def deallocObject (o:Object) { }
 
@@ -129,9 +139,6 @@ import x10.util.Box;
 
     @Native("c++", "x10aux::dealloc(#1.operator->())")
     public static def dealloc (o:()=>void) { }
-
-    @Native("c++", "x10aux::DeserializationDispatcher::registerHandlers()")
-    public static def registerHandlers() {}
 
 
     @NativeClass("java", "x10.runtime.impl.java", "Deque")
@@ -150,16 +157,13 @@ import x10.util.Box;
         public def serialize():Any {
             throw new UnsupportedOperationException("Cannot serialize "+typeName());
         }
-    private def this(Any) {
+
+        private def this(Any) {
             throw new UnsupportedOperationException("Cannot deserialize "+typeName());
         }
     }
 
 
-  
-  
-
-  
     static class ClockPhases extends HashMap[Clock,Int] {
         static def make(clocks:Array[Clock]{rail}, phases:Array[Int]{rail}):ClockPhases {
             val clockPhases = new ClockPhases();
@@ -185,13 +189,13 @@ import x10.util.Box;
             clear();
         }
 
-    // HashMap implments CustomSerialization, so we must as well
-    // Only constructor is actually required, but stub out serialize as well
-    // as a reminder that if instance fields are added to ClockPhases then
-    // work will have to be done here to serialize them.
-    public def serialize() = super.serialize(); 
-    def this() { super(); }
-    def this(a:Any) { super(a); }
+        // HashMap implments CustomSerialization, so we must as well
+        // Only constructor is actually required, but stub out serialize as well
+        // as a reminder that if instance fields are added to ClockPhases then
+        // work will have to be done here to serialize them.
+        public def serialize() = super.serialize();
+        def this() { super(); }
+        def this(a:Any) { super(a); }
     }
 
 
@@ -1192,15 +1196,15 @@ import x10.util.Box;
 
         public native def name(name:String):void;
 
-        public native def locInt():Int;
-
         public static native def getTid():Long;
+
         public native def home():Place;
 
         public def serialize():Any {
             throw new UnsupportedOperationException("Cannot serialize "+typeName());
         }
-    private def this(Any) {
+
+        private def this(Any) {
             throw new UnsupportedOperationException("Cannot deserialize "+typeName());
         }
     }
@@ -1222,11 +1226,6 @@ import x10.util.Box;
         // random number generator for this worker
         private val random:Random;
 
-        // blocked activities (debugging info)
-        private val debug = new GrowableRail[Activity]();
-
-        private var tid:Long;
-
         //Worker Id for CollectingFinish
         private var workerId :Int;
         public def setWorkerId(id:Int) {
@@ -1237,8 +1236,6 @@ import x10.util.Box;
             this.latch = latch;
             random = new Random(p + (p << 8) + (p << 16) + (p << 24));
         }
-
-        // all methods are local
 
         // return size of the deque
         public def size():Int = queue.size();
@@ -1257,7 +1254,6 @@ import x10.util.Box;
 
         // run pending activities
         public def apply():void {
-            tid = Thread.getTid();
             try {
                 while (loop(latch, true));
             } catch (t:Throwable) {
@@ -1284,9 +1280,7 @@ import x10.util.Box;
                     activity = Runtime.scan(random, latch, block);
                     if (activity == null) return false;
                 }
-                debug.add(activity);
                 runAtLocal(activity.home().id, (activity as Activity).run.());
-                debug.removeLast();
             }
             return true;
         }
@@ -1300,9 +1294,7 @@ import x10.util.Box;
                     activity = tmp; // restore current activity
                     return;
                 }
-                debug.add(activity);
                 runAtLocal(activity.home().id, (activity as Activity).run.());
-                debug.removeLast();
             }
         }
     }
@@ -1338,7 +1330,8 @@ import x10.util.Box;
         // the threads in the pool
         private val threads:Rail[Thread];
 
-        def this(latch:Latch, size:Int) {
+        def this(rootFinish:RootFinish, size:Int) {
+            val latch:Latch = rootFinish != null ? rootFinish.latch : new Latch();
             this.latch = latch;
             this.size = size;
             val workers = Rail.make[Worker](MAX);
@@ -1371,8 +1364,6 @@ import x10.util.Box;
             workers(0)();
             while (size > 0) Thread.park();
         }
-
-        // all methods are local
 
         // notify the pool a worker is about to execute a blocking operation
         def increase():void {
@@ -1439,6 +1430,13 @@ import x10.util.Box;
                 if (++next == size) next = 0;
             }
         }
+
+        /**
+         * Request thread pool to quit
+         */
+        def kill() {
+            latch.release();
+        }
     }
 
 
@@ -1475,8 +1473,7 @@ import x10.util.Box;
     /**
      * Return the current activity
      */
-    public static def activity():Activity
-               = worker().activity() as Activity;
+    public static def activity():Activity = worker().activity() as Activity;
 
     /**
      * Return the current place
@@ -1488,7 +1485,7 @@ import x10.util.Box;
      * Return the id of the current place
      */
     @Native("c++", "x10aux::here")
-    public static def hereInt():int = Thread.currentThread().locInt();
+    public static def hereInt():int = here().id;
 
     /**
      * The amount of unscheduled activities currently available to this worker thread.
@@ -1499,28 +1496,49 @@ import x10.util.Box;
 
     /**
      * Run main activity in a finish
+     * @param init Static initializers
+     * @param body Main activity
      */
     public static def start(init:()=>void, body:()=>void):void {
-        val rootFinish = new RootFinish();
-        val pool = new Pool(rootFinish.latch, INIT_THREADS);
+        // in place 0 allocate root finish
+        val rootFinish:RootFinish = hereInt() == 0 ? new RootFinish() : null;
+
+        // initialize thread pool for the current process
+        val pool = new Pool(rootFinish, INIT_THREADS);
+
         try {
+            // initialize runtime
             for (var i:Int=0; i<Place.MAX_PLACES; i++) {
                 if (isLocal(i)) {
-                    // needed because the closure can be invoked in places other than the p
+                    // we need to instantiate a runtime for each place hosted by the current process
+                    // all these runtimes share the same thread pool
                     runAtLocal(i, ()=>runtime.set(new Runtime(pool)));
                 }
             }
+
+            // initialize x10rt
             registerHandlers();
+
             if (hereInt() == 0) {
+                // in place 0 schedule the execution of the static initializers fby main activity
                 execute(new Activity(()=>{finish init(); body();}, rootFinish, true));
+
+                // wait for thread pool to die
+                // (happens when main activity terminates)
                 pool();
+
+                // root finish has terminated, kill remote processes if any
                 if (!isLocal(Place.MAX_PLACES - 1)) {
                     for (var i:Int=1; i<Place.MAX_PLACES; i++) {
-                        runAtNative(i, worker().latch.release.());
+                        runAtNative(i, runtime().kill.());
                     }
                 }
+
+                // we need to call waitForFinish here to see the exceptions thrown by main if any
                 rootFinish.waitForFinish(false);
             } else {
+                // wait for thread pool to die
+                // (happens when a kill signal is received from place 0)
                 pool();
             }
         } finally {
@@ -1529,6 +1547,14 @@ import x10.util.Box;
                 println("ASYNC RECV AT PLACE " + here.id +" = " + getAsyncsReceived());
             }
         }
+    }
+
+    /**
+     * Request thread pool to quit
+     * Used by process at place 0 to request termination of other processes
+     */
+    def kill():void {
+        pool.kill();
     }
 
     static def report():void {
