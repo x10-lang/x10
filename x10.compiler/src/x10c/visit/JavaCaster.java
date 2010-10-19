@@ -26,9 +26,13 @@ import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.NullLit;
 import polyglot.ast.Receiver;
+import polyglot.ast.Return;
 import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
 import polyglot.frontend.Job;
+import polyglot.types.CodeDef;
+import polyglot.types.FunctionDef;
+import polyglot.types.FunctionInstance;
 import polyglot.types.QName;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
@@ -43,6 +47,7 @@ import x10.ast.X10NodeFactory;
 import x10.ast.X10Return_c;
 import x10.emitter.Emitter;
 import x10.types.ParameterType;
+import x10.types.ParameterType.Variance;
 import x10.types.X10ClassType;
 import x10.types.X10ParsedClassType_c;
 import x10.types.X10TypeMixin;
@@ -78,12 +83,44 @@ public class JavaCaster extends ContextVisitor {
     protected Node leaveCall(Node parent, Node old, Node n, NodeVisitor v) throws SemanticException {
         n = typeConstraintsCast(parent, old, n);
         n = railAccessCast(parent, n);
+        n = covReturnCast(parent, n);
         if (X10PrettyPrinterVisitor.isSelfDispatch) {
             n = typeParamCast(parent, n);
         }
         return n;
     }
 
+    private Node covReturnCast(Node parent, Node n) throws SemanticException {
+        if (n instanceof Return) {
+            Return return1 = (Return) n;
+            if (return1.expr() == null) {
+                return n;
+            }
+            CodeDef cd = context.currentCode();
+            if (cd instanceof FunctionDef) {
+                FunctionDef fd = (FunctionDef) cd;
+                Type expectedReturnType = ((FunctionInstance<?>) fd.asInstance()).returnType();
+                if (expectedReturnType.typeEquals(return1.expr().type(), context)) {
+                    return n;
+                }
+                Type rt = X10TypeMixin.baseType(return1.expr().type());
+                if (rt instanceof X10ClassType) {
+                    X10ClassType ct = (X10ClassType) rt;
+                    if (!ct.hasParams()) {
+                        return n;
+                    }
+                    List<Variance> variances = ct.x10Def().variances();
+                    for (Variance v : variances) {
+                        if (v != ParameterType.Variance.INVARIANT) {
+                            return return1.expr(cast(return1.expr(), expectedReturnType));  
+                        }
+                    }
+                }
+            }
+        }
+        return n;
+    }
+    
     private Node typeParamCast(Node parent, Node n) throws SemanticException {
         if (n instanceof X10Call && !(parent instanceof Eval)) {
             X10Call call = (X10Call) n;
