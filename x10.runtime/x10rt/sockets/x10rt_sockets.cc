@@ -255,8 +255,7 @@ void x10rt_net_init (int * argc, char ***argv, x10rt_msg_type *counter)
 	else
 		state.myPlaceId = atol(ID);
 
-	char* yieldEnv = getenv(X10LAUNCHER_HOSTFILE);
-	if (yieldEnv == NULL || strcmp("NONE", yieldEnv)==0)
+	if (getenv("X10RT_YIELDAFTERPROBE"))
 		state.yieldAfterProbe = true;
 	else
 		state.yieldAfterProbe = false;
