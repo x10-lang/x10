@@ -2390,12 +2390,12 @@ public class Emitter {
 
 	public void generateRTTInstance(X10ClassDef def) {
 
-	    boolean isUnsignedType = isUnsignedClassType(def.asType());
-        String unsignedClassName = null;
-
-	    if (isUnsignedType) {
-            unsignedClassName = def.asType().name().toString();
-	    }
+//	    boolean isUnsignedType = isUnsignedClassType(def.asType());
+//        String unsignedClassName = null;
+//
+//	    if (isUnsignedType) {
+//            unsignedClassName = def.asType().name().toString();
+//	    }
 	    
 //        if (isUnsignedType) {
 //            w.write("public static final x10.rtt."+unsignedClassName+"Type");
@@ -2405,11 +2405,11 @@ public class Emitter {
         w.write("<");
         printType(def.asType(), X10PrettyPrinterVisitor.BOX_PRIMITIVES | X10PrettyPrinterVisitor.NO_QUALIFIER);
         w.write(">");
-        if (isUnsignedType) {
-            w.write(" _RTT = new x10.rtt."+unsignedClassName+"Type");
-        } else {
+//        if (isUnsignedType) {
+//            w.write(" _RTT = new x10.rtt."+unsignedClassName+"Type");
+//        } else {
             w.write(" _RTT = new x10.rtt.RuntimeType");            
-        }
+//        }
         w.write("<");
         printType(def.asType(), X10PrettyPrinterVisitor.BOX_PRIMITIVES | X10PrettyPrinterVisitor.NO_QUALIFIER);
         w.write(">");
