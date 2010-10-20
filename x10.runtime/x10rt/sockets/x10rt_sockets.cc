@@ -71,7 +71,7 @@ void error(const char* message)
 
 void handleConnectionRequest()
 {
-	int newFD = TCP::accept(state.socketLinks[state.myPlaceId].fd);
+	int newFD = TCP::accept(state.socketLinks[state.myPlaceId].fd, false);
 	if (newFD > 0)
 	{
 		struct ctrl_msg m;
@@ -165,7 +165,7 @@ int initLink(uint32_t remotePlace)
 		}
 
 		int newFD;
-		if ((newFD = TCP::connect(link, port, 10)) > 0)
+		if ((newFD = TCP::connect(link, port, 10, false)) > 0)
 		{
 			struct ctrl_msg m;
 			m.type = HELLO;

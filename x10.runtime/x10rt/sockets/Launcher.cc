@@ -40,7 +40,7 @@ int Launcher::setPort(uint32_t place, char* port)
 					fprintf(stderr, "Runtime %u connecting to launcher at \"%s\"\n", place, getenv(X10LAUNCHER_PARENT));
 				#endif
 
-				_parentLauncherControlLink = TCP::connect((const char *) getenv(X10LAUNCHER_PARENT), 10);
+				_parentLauncherControlLink = TCP::connect((const char *) getenv(X10LAUNCHER_PARENT), 10, true);
 			}
 			if (_parentLauncherControlLink <= 0)
 				return -1; // connection failed for some reason
@@ -407,7 +407,7 @@ void Launcher::connectToParentLauncher(void)
 		#ifdef DEBUG
 			fprintf(stderr, "Launcher %u: connecting to parent via inherited port: %s\n", _myproc, masterport);
 		#endif
-		_parentLauncherControlLink = TCP::connect(masterport, 10);
+		_parentLauncherControlLink = TCP::connect(masterport, 10, true);
 	}
 
 	/* case 2: the SOCK_PARENT env. var is set */
@@ -416,7 +416,7 @@ void Launcher::connectToParentLauncher(void)
 		#ifdef DEBUG
 			fprintf(stderr, "Launcher %u: connecting to parent via: %s\n", _myproc, getenv(X10LAUNCHER_PARENT));
 		#endif
-		_parentLauncherControlLink = TCP::connect((const char *) getenv(X10LAUNCHER_PARENT), 10);
+		_parentLauncherControlLink = TCP::connect((const char *) getenv(X10LAUNCHER_PARENT), 10, true);
 	}
 
 	/* case 3: launcher=-1 has no parent. We don't connect */
@@ -451,7 +451,7 @@ void Launcher::handleNewChildConnection(void)
 		fprintf(stderr, "Launcher %u: new connection detected\n", _myproc);
 	#endif
 	/* accept the new connection and read off the rank */
-	int fd = TCP::accept(_listenSocket);
+	int fd = TCP::accept(_listenSocket, true);
 	if (fd < 0)
 	{
 		close(_listenSocket);

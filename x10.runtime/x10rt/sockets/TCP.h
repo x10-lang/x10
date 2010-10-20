@@ -11,9 +11,9 @@ namespace TCP
 	int read(int fd, void * p, unsigned cnt);
 	int write(int fd, void * p, unsigned cnt);
 	int listen(unsigned * port, unsigned backlog);
-	int accept(int fd);
-	int connect(const char *host, unsigned port, unsigned retr);
-	int connect(const char * hostport, unsigned retries);
+	int accept(int fd, bool noDelay);
+	int connect(const char *host, unsigned port, unsigned retr, bool noDelay);
+	int connect(const char * hostport, unsigned retries, bool noDelay);
 	int getname(int fd, char * name, unsigned namelen);
 }
 
