@@ -1413,14 +1413,6 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return load("x10.lang.RuntimeException");
     }
 
-    public Type Cloneable() {
-        return load("x10.lang.Cloneable");
-    }
-
-    public Type Serializable() {
-        return load("x10.io.Serializable");
-    }
-
     public Type NullPointerException() {
         return load("x10.lang.NullPointerException");
     }

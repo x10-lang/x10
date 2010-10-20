@@ -64,8 +64,6 @@ public class ArrayType_c extends ReferenceType_c implements ArrayType
 
         if (interfaces == null) {
             interfaces = new ArrayList<Ref<? extends Type>>(2);
-            interfaces.add(Types.<Type>ref(ts.Cloneable()));
-            interfaces.add(Types.<Type>ref(ts.Serializable()));
         }
     }
 
