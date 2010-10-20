@@ -92,6 +92,13 @@ public interface X10TypeSystem extends TypeSystem {
     ConstructorMatcher ConstructorMatcher(Type container, List<Type> argTypes, Context context);
 
     /**
+     * Returns the field named 'name' defined on 'type'.
+     * @exception SemanticException if the field cannot be found or is
+     * inaccessible.
+     */
+    X10FieldInstance findField(Type container, FieldMatcher matcher) throws SemanticException;
+
+    /**
      * Find matching fields.
      *
      * @exception SemanticException if no matching field can be found.

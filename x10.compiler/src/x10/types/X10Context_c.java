@@ -209,7 +209,7 @@ public class X10Context_c extends Context_c implements X10Context {
 
     	return currentPlaceTerm;
     }
-    public Context pushPlace(XConstrainedTerm t) {
+    public X10Context pushPlace(XConstrainedTerm t) {
     	//assert t!= null;
     	X10Context_c cxt = (X10Context_c) super.pushBlock();
 		cxt.currentPlaceTerm = t;
@@ -231,7 +231,7 @@ public class X10Context_c extends Context_c implements X10Context {
     	return false;
     }
     Type currentCollectingFinishType=null;
-    public Context pushCollectingFinishScope(Type t) {
+    public X10Context pushCollectingFinishScope(Type t) {
     	assert t!=null;
     	X10Context_c cxt = (X10Context_c) super.pushBlock();
     	cxt.currentCollectingFinishType =t;
@@ -287,16 +287,16 @@ public class X10Context_c extends Context_c implements X10Context {
     	currentConstraint = c;
     }
 
-	public CodeDef definingCodeDef(Name name) {
+	public X10CodeDef definingCodeDef(Name name) {
 	    if ((isBlock() || isCode()) &&
 	            (findVariableInThisScope(name) != null || findInThisScope(name) != null)) {
 	        return currentCode();
 	    }
+	    return pop().definingCodeDef(name);
+	}
 
-	    if (outer instanceof X10Context) {
-	        return ((X10Context) outer).definingCodeDef(name);
-	    }
-	    return null;
+	public X10Context pop() {
+	    return (X10Context) super.pop();
 	}
 
 	// Set if we are in a supertype declaration of this type.
@@ -315,7 +315,7 @@ public class X10Context_c extends Context_c implements X10Context {
 	protected boolean inAnonObjectScope;
 	protected boolean inAssignment;
 	boolean isClocked=false;
-    public Context pushClockedContext() {
+    public X10Context pushClockedContext() {
     	X10Context_c cxt = (X10Context_c) super.pushBlock();
 		cxt.isClocked = true;
 		return cxt;
@@ -323,9 +323,9 @@ public class X10Context_c extends Context_c implements X10Context {
     public boolean isClocked() {
     	if (isClocked)
     		return true;
-    	CodeDef cd = currentCode();
-    	if (cd instanceof MethodDef) {
-    		MethodDef md = (MethodDef) cd;
+    	X10CodeDef cd = currentCode();
+    	if (cd instanceof X10MethodDef) {
+    		X10MethodDef md = (X10MethodDef) cd;
     		return X10Flags.toX10Flags(md.flags()).isClocked();
     	}
     	return false;
@@ -341,7 +341,7 @@ public class X10Context_c extends Context_c implements X10Context {
 	public void setAnonObjectScope() { inAnonObjectScope = true;}
 	public void clearAnnotation() { inAnnotation = false; }
 
-	protected Context_c push() {
+	protected X10Context_c push() {
 		X10Context_c v = (X10Context_c) super.push();
 		v.depType = null;
 //		v.varWhoseTypeIsBeingElaborated = null;
@@ -422,7 +422,7 @@ public class X10Context_c extends Context_c implements X10Context {
 	     * Looks up a method with name "name" and arguments compatible with
 	     * "argTypes".
 	     */
-	    public MethodInstance superFindMethod(TypeSystem_c.MethodMatcher matcher) throws SemanticException {
+	    public X10MethodInstance superFindMethod(TypeSystem_c.MethodMatcher matcher) throws SemanticException {
 	        if (Report.should_report(TOPICS, 3))
 	          Report.report(3, "find-method " + matcher.signature() + " in " + this);
 
@@ -430,8 +430,8 @@ public class X10Context_c extends Context_c implements X10Context {
 	        // If found, stop the search since it shadows any enclosing
 	        // classes method of the same name.
 	        ClassType currentClass = this.currentClass();
-		if (currentClass != null &&
-	            ts.hasMethodNamed(currentClass, matcher.name())) {
+	        if (currentClass != null &&
+	                typeSystem().hasMethodNamed(currentClass, matcher.name())) {
 	            if (Report.should_report(TOPICS, 3))
 	              Report.report(3, "find-method " + matcher.signature() + " -> " +
 	                                currentClass);
@@ -457,11 +457,11 @@ public class X10Context_c extends Context_c implements X10Context {
 
 	            // Found a class that has a method of the right name.
 	            // Now need to check if the method is of the correct type.
-	            return ts.findMethod(t, matcher.container(t));
+	            return typeSystem().findMethod(t, matcher.container(t));
 	        }
 
-	        if (outer != null) {
-	            return outer.findMethod(matcher);
+	        if (pop() != null) {
+	            return pop().findMethod(matcher);
 	        }
 
 	        throw new SemanticException("Method " + matcher.signature() + " not found.");
@@ -471,28 +471,28 @@ public class X10Context_c extends Context_c implements X10Context {
 	 * Looks up a method with name "name" and arguments compatible with
 	 * "argTypes".
 	 */
-	public MethodInstance findMethod(TypeSystem_c.MethodMatcher matcher) throws SemanticException {
-		MethodInstance result = depType == null ? superFindMethod(matcher) : pop().findMethod(matcher);
+	public X10MethodInstance findMethod(TypeSystem_c.MethodMatcher matcher) throws SemanticException {
+		X10MethodInstance result = depType == null ? superFindMethod(matcher) : pop().findMethod(matcher);
 		return result;
 	}
 
 	/**
 	 * Gets a local variable of a particular name.
 	 */
-	public LocalInstance findLocal(Name name) throws SemanticException {
-		return depType == null ? super.findLocal(name) : pop().findLocal(name);
+	public X10LocalInstance findLocal(Name name) throws SemanticException {
+		return (X10LocalInstance) (depType == null ? super.findLocal(name) : pop().findLocal(name));
 	}
 
-	public ClassType type() { return type; }
+	public X10ClassType type() { return (X10ClassType) type; }
 
 	/**
 	 * Finds the class which added a field to the scope.
 	 */
-	public ClassType findFieldScope(Name name) throws SemanticException {
+	public X10ClassType findFieldScope(Name name) throws SemanticException {
 		VarInstance<?> vi = findVariableInThisScope(name);
 
 		if (vi instanceof FieldInstance) {
-		    ClassType result = type;
+		    X10ClassType result = type();
 		    if (result != null)
 			return result;
 		    if (inDepType())
@@ -505,8 +505,8 @@ public class X10Context_c extends Context_c implements X10Context {
 			return result;
 		}
 
-		if (vi == null && outer != null) {
-		    return outer.findFieldScope(name);
+		if (vi == null && pop() != null) {
+		    return pop().findFieldScope(name);
 		}
 
 		throw new SemanticException("Field " + name + " not found.");
@@ -518,8 +518,8 @@ public class X10Context_c extends Context_c implements X10Context {
 	 * In fact, it should be an error for this method to be called when
 	 * deptype is true.
 	 */
-	public ClassType findMethodScope(Name name) throws SemanticException {
-		ClassType result = super.findMethodScope(name);
+	public X10ClassType findMethodScope(Name name) throws SemanticException {
+		X10ClassType result = (X10ClassType) super.findMethodScope(name);
 		if (result == null) {
 			// hack. This is null when this context is in a deptype, and the deptype
 			// is not a classtype, and the field belongs to the outer type, e.g.
@@ -533,8 +533,8 @@ public class X10Context_c extends Context_c implements X10Context {
 	/**
 	 * Gets a field of a particular name.
 	 */
-	public FieldInstance findField(Name name) throws SemanticException {
-		return super.findField(name);
+	public X10FieldInstance findField(Name name) throws SemanticException {
+		return (X10FieldInstance) super.findField(name);
 	}
 
 	/**
@@ -585,7 +585,7 @@ public class X10Context_c extends Context_c implements X10Context {
 	private X10Context_c superPushClass(ClassDef classScope, ClassType type) {
 	    return (X10Context_c) super.pushClass(classScope, type);
 	}
-	public Context pushClass(ClassDef classScope, ClassType type) {
+	public X10Context pushClass(ClassDef classScope, ClassType type) {
 		//System.err.println("Pushing class " + classScope);
 		assert (depType == null);
 /*
@@ -629,9 +629,9 @@ public class X10Context_c extends Context_c implements X10Context {
 	/**
 	 * pushes an additional block-scoping level.
 	 */
-	public Context pushBlock() {
+	public X10Context pushBlock() {
 //		assert (depType == null);
-		return super.pushBlock();
+		return (X10Context) super.pushBlock();
 	}
 
 	public X10Context pushAtomicBlock() {
@@ -651,9 +651,9 @@ public class X10Context_c extends Context_c implements X10Context {
 	/**
 	 * pushes an additional static scoping level.
 	 */
-	public Context pushStatic() {
+	public X10Context pushStatic() {
 		assert (depType == null);
-		return super.pushStatic();
+		return (X10Context) super.pushStatic();
 	}
 
 	/**
@@ -668,7 +668,7 @@ public class X10Context_c extends Context_c implements X10Context {
         return res;
     }
     
-	public Context pushCode(CodeDef ci) {
+	public X10Context pushCode(CodeDef ci) {
 		//System.err.println("Pushing code " + ci);
 		assert (depType == null);
 		X10Context_c result = (X10Context_c) super.pushCode(ci);
@@ -681,8 +681,8 @@ public class X10Context_c extends Context_c implements X10Context {
 	/**
 	 * Gets the current method
 	 */
-	public CodeDef currentCode() {
-		return depType == null ? super.currentCode() : pop().currentCode();
+	public X10CodeDef currentCode() {
+		return (X10CodeDef) (depType == null ? super.currentCode() : pop().currentCode());
 	}
 
 	/**
@@ -704,15 +704,15 @@ public class X10Context_c extends Context_c implements X10Context {
 	/**
 	 * Gets current class
 	 */
-	public ClassType currentClass() {
-		return depType == null ? super.currentClass() : pop().currentClass();
+	public X10ClassType currentClass() {
+		return (X10ClassType) (depType == null ? super.currentClass() : pop().currentClass());
 	}
 
 	/**
 	 * Gets current class scope
 	 */
-	public ClassDef currentClassDef() {
-		return depType == null ? super.currentClassDef() : pop().currentClassDef();
+	public X10ClassDef currentClassDef() {
+		return (X10ClassDef) (depType == null ? super.currentClassDef() : pop().currentClassDef());
 	}
 
 	/**
@@ -762,7 +762,7 @@ public class X10Context_c extends Context_c implements X10Context {
 	    }
 
 	    private Named findMemberTypeInThisScope(Name name, Type container) {
-		X10TypeSystem ts = (X10TypeSystem) this.ts;
+		X10TypeSystem ts = typeSystem();
 		ClassDef currentClassDef = this.currentClassDef();
 		if (container instanceof MacroType) {
 		    MacroType mt = (MacroType) container;
@@ -791,9 +791,9 @@ public class X10Context_c extends Context_c implements X10Context {
 		super.addNamedToThisScope(type);
 	}
 
-	public ClassType findMethodContainerInThisScope(Name name) {
+	public X10ClassType findMethodContainerInThisScope(Name name) {
 //		assert (depType == null);
-		return super.findMethodContainerInThisScope(name);
+		return (X10ClassType) super.findMethodContainerInThisScope(name);
 
 	}
 
@@ -811,7 +811,8 @@ public class X10Context_c extends Context_c implements X10Context {
 		try {
 			if (depType instanceof X10ClassType) {
 				X10ClassType dep = (X10ClassType) this.depType;
-				FieldInstance myVi = ts.findField(dep, ts.FieldMatcher(dep, name, this));
+				X10TypeSystem ts = typeSystem();
+                X10FieldInstance myVi = ts.findField(dep, ts.FieldMatcher(dep, name, this));
 				if (myVi != null) {
 					return myVi;
 				}
@@ -840,7 +841,7 @@ public class X10Context_c extends Context_c implements X10Context {
 		return pi;
 	}
 
-	public ClassType findPropertyScope(Name name) throws SemanticException {
+	public X10ClassType findPropertyScope(Name name) throws SemanticException {
 		return findFieldScope(name);
 	}
 
@@ -911,4 +912,7 @@ public class X10Context_c extends Context_c implements X10Context {
 		}
 	}
 
+	public X10TypeSystem typeSystem() {
+	    return (X10TypeSystem) super.typeSystem();
+	}
 }

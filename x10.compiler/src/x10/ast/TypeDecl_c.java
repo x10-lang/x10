@@ -54,6 +54,7 @@ import x10.types.ParameterType;
 import x10.types.TypeDef;
 import x10.types.TypeDef_c;
 import x10.types.X10ClassDef;
+import x10.types.X10ClassType;
 import x10.types.X10ParsedClassType;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
@@ -234,7 +235,7 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 
 		// FIXME: also check if the current method is static
 		XVar thisVar = ct == null ? null : ct.thisVar();
-		Ref<ClassType> container = ct == null ? null : Types.ref(ct.asType());
+		Ref<X10ClassType> container = ct == null ? null : Types.ref(ct.asType());
 		Flags flags = local ? Flags.NONE : this.flags().flags();
 		if (topLevel)
 		    flags = flags.Static();

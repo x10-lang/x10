@@ -57,4 +57,5 @@ public interface X10ClassDef extends X10Def, ClassDef, X10MemberDef {
      * Is this the class def for an X10 function?
      */
     boolean isFunction();
+    X10ClassType asType();
 }

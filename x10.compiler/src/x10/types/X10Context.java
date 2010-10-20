@@ -14,10 +14,14 @@ package x10.types;
 import java.util.List;
 import java.util.HashMap;
 
+import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.CodeDef;
 import polyglot.types.Context;
+import polyglot.types.FieldInstance;
 import polyglot.types.LocalDef;
+import polyglot.types.LocalInstance;
+import polyglot.types.MethodInstance;
 import polyglot.types.Name;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
@@ -66,7 +70,7 @@ public interface X10Context extends Context {
 	 * such as at(p) S, or when entering the body of a method. 
 	 * @param t, t != null
 	 */
-	Context pushPlace(XConstrainedTerm t);
+	X10Context pushPlace(XConstrainedTerm t);
 	
 	/**
 	 * Get the place for this. When entering a class decl, thisPlace
@@ -83,7 +87,7 @@ public interface X10Context extends Context {
 	 * @param t -- the type of the collecting finish.
 	 * @return
 	 */
-	Context pushCollectingFinishScope(Type t);
+	X10Context pushCollectingFinishScope(Type t);
 	
 	/**
 	 * The type of the collecting finish whose scope we are in.
@@ -113,8 +117,31 @@ public interface X10Context extends Context {
      * Finds the type which added a property to the scope.
      * This is usually a subclass of <code>findProperty(name).container()</code>.
      */
-    ClassType findPropertyScope(Name name) throws SemanticException;
+    X10ClassType findPropertyScope(Name name) throws SemanticException;
 	
+    /**
+     * Looks up a method in the current scope.
+     */
+    X10MethodInstance findMethod(X10TypeSystem_c.MethodMatcher matcher) throws SemanticException;
+
+    /** Looks up a local variable in the current scope. */
+    X10LocalInstance findLocal(Name name) throws SemanticException;
+
+    /** Looks up a field in the current scope. */
+    X10FieldInstance findField(Name name) throws SemanticException;
+
+    /**
+     * Finds the type which added a field to the scope.
+     * This is usually a subclass of <code>findField(name).container()</code>.
+     */
+    X10ClassType findFieldScope(Name name) throws SemanticException;
+    
+    /**
+     * Finds the type which added a method to the scope.
+     * This is usually a subclass of <code>findMethod(name).container()</code>.
+     */
+    X10ClassType findMethodScope(Name name) throws SemanticException;
+
     // Set if we are in a supertype declaration of this type. 
     boolean inSuperTypeDeclaration();
     X10ClassDef supertypeDeclarationType();
@@ -175,7 +202,7 @@ public interface X10Context extends Context {
     boolean inAnonObjectScope();
     void restoreAnonObjectScope(boolean anonObjectScope);
 
-    CodeDef definingCodeDef(Name name);
+    X10CodeDef definingCodeDef(Name name);
 
     XVar thisVar();
 
@@ -187,5 +214,11 @@ public interface X10Context extends Context {
      */
     boolean isClocked();
     
-  
+    X10Context pop();
+    X10TypeSystem typeSystem();
+    X10Context pushClass(ClassDef classScope, ClassType type);
+    X10Context pushBlock();
+    X10Context pushStatic();
+    X10ClassDef currentClassDef();
+    X10ClassType currentClass();
 }

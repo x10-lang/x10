@@ -375,9 +375,13 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
      * In the current X10 implementation closure types are final anonymous classes.
      */
     @Override
-    public Flags flags() {
+    public X10Flags flags() {
        if (kind() == ANONYMOUS)
-            return Flags.FINAL;
-        return flags;
+            return X10Flags.toX10Flags(Flags.FINAL);
+        return X10Flags.toX10Flags(flags);
+    }
+
+    public X10ClassType asType() {
+        return (X10ClassType) super.asType();
     }
 }

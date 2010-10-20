@@ -132,7 +132,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         }
 
     @Override
-    public InitializerDef initializerDef(Position pos, Ref<? extends ClassType> container, Flags flags) {
+    public X10InitializerDef initializerDef(Position pos, Ref<? extends ClassType> container, Flags flags) {
         String fullNameWithThis = "<init>#this";
         XName thisName = new XNameWrapper<Object>(new Object(), fullNameWithThis);
         XVar thisVar = XTerms.makeLocal(thisName);
@@ -140,7 +140,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return initializerDef(pos, container, flags, thisVar);
     }
 
-    public InitializerDef initializerDef(Position pos, Ref<? extends ClassType> container, Flags flags, XVar thisVar) {
+    public X10InitializerDef initializerDef(Position pos, Ref<? extends ClassType> container, Flags flags, XVar thisVar) {
         assert_(container);
         return new X10InitializerDef_c(this, pos, container, flags, thisVar);
     }
@@ -376,7 +376,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
     @Override
     protected <S extends ProcedureDef, T extends ProcedureInstance<S>> Comparator<T> mostSpecificComparator(Type ct, Matcher<T> matcher, Context context) {
     	return new X10MostSpecificComparator<S,T>(ct, matcher, context);
-        }
+    }
     protected static class X10MostSpecificComparator<S extends ProcedureDef, T extends ProcedureInstance<S>> extends MostSpecificComparator<S, T> {
         private Matcher<T> matcher;
         Type container;
@@ -507,20 +507,20 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return new X10MemberTypeMatcher(container, name, context);
     }
 
-    public ClassDef unknownClassDef() {
+    public X10ClassDef unknownClassDef() {
         if (unknownClassDef == null) {
             unknownClassDef = createFakeClass(QName.make("<unknown class>"), new SemanticException("Unknown class")).def();
         }
-        return unknownClassDef;
+        return (X10ClassDef) unknownClassDef;
     }
 
     X10UnknownType_c unknownType;
 
     @Override
-    public ClassType load(String name) {
+    public X10ClassType load(String name) {
         QName qualName = QName.make(name);
         try {
-            return (ClassType) typeForName(qualName);
+            return (X10ClassType) typeForName(qualName);
         }
         catch (SemanticException e) {
             extensionInfo().compiler().errorQueue().enqueue(
@@ -948,66 +948,142 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 
 
 
-    public final Context createContext() {
+    public final X10Context createContext() {
         return emptyContext();
     }
 
-    public Context emptyContext() {
+    public X10Context emptyContext() {
         return new X10Context_c(this);
     }
 
+    @Override
+    public X10Flags Abstract() {
+        return X10Flags.toX10Flags(super.Abstract());
+    }
+
+    @Override
+    public X10Flags Final() {
+        return X10Flags.toX10Flags(super.Final());
+    }
+
+    @Override
+    public X10Flags Interface() {
+        return X10Flags.toX10Flags(super.Interface());
+    }
+
+    @Override
+    public X10Flags Native() {
+        return X10Flags.toX10Flags(super.Native());
+    }
+
+    @Override
+    public X10Flags NoFlags() {
+        return X10Flags.toX10Flags(super.NoFlags());
+    }
+
+    @Override
+    public X10Flags Private() {
+        return X10Flags.toX10Flags(super.Private());
+    }
+
+    @Override
+    public X10Flags Protected() {
+        return X10Flags.toX10Flags(super.Protected());
+    }
+
+    @Override
+    public X10Flags Public() {
+        return X10Flags.toX10Flags(super.Public());
+    }
+
+    @Override
+    public X10Flags Static() {
+        return X10Flags.toX10Flags(super.Static());
+    }
+
+    @Override
+    public X10Flags StrictFP() {
+        return X10Flags.toX10Flags(super.StrictFP());
+    }
+
+    @Override
+    public X10Flags Synchronized() {
+        return X10Flags.toX10Flags(super.Synchronized());
+    }
+
+    @Override
+    public X10Flags Transient() {
+        return X10Flags.toX10Flags(super.Transient());
+    }
+
+    @Override
+    public X10Flags Volatile() {
+        return X10Flags.toX10Flags(super.Volatile());
+    }
+
+    @Override
+    public X10Flags legalInitializerFlags() {
+        return Static();
+    }
+
     /** All flags allowed for a method. */
-    public Flags legalMethodFlags() {
-        X10Flags x = X10Flags.toX10Flags(legalAccessFlags().Abstract().Static().Final().Native().StrictFP());
+    @Override
+    public X10Flags legalMethodFlags() {
+        X10Flags x = legalAccessFlags().Abstract().Static().Final().Native();
         x = x.Clocked().Property().Pure().Atomic(); 
         return x;
 
     }
 
-    public Flags legalAbstractMethodFlags() {
-        X10Flags x = X10Flags.toX10Flags(legalAccessFlags().clear(Private()).Abstract());
+    @Override
+    public X10Flags legalAbstractMethodFlags() {
+        X10Flags x = legalAccessFlags().clearPrivate().Abstract();
         x = x.Clocked().Property().Pure().Atomic(); 
         return x;
     }
 
     /** All flags allowed for a top-level class. */
-    public Flags legalTopLevelClassFlags() {
-        return X10Flags.toX10Flags(super.legalTopLevelClassFlags()).Clocked().Struct();
+    @Override
+    public X10Flags legalTopLevelClassFlags() {
+        return legalAccessFlags().clearPrivate().Abstract().Final().Interface().Clocked().Struct();
     }
 
     protected final X10Flags X10_TOP_LEVEL_CLASS_FLAGS = (X10Flags) legalTopLevelClassFlags();
 
     /** All flags allowed for an interface. */
-    public Flags legalInterfaceFlags() {
-        return X10Flags.toX10Flags(super.legalInterfaceFlags()).Clocked();
+    @Override
+    public X10Flags legalInterfaceFlags() {
+        return legalAccessFlags().Abstract().Interface().Static().Clocked();
     }
 
     protected final X10Flags X10_INTERFACE_FLAGS = (X10Flags) legalInterfaceFlags();
 
     /** All flags allowed for a member class. */
-    public Flags legalMemberClassFlags() {
-        return X10Flags.toX10Flags(super.legalMemberClassFlags()).Clocked().Struct();
+    @Override
+    public X10Flags legalMemberClassFlags() {
+        return legalAccessFlags().Static().Abstract().Final().Interface().Clocked().Struct();
     }
 
-    protected final Flags X10_MEMBER_CLASS_FLAGS = (X10Flags) legalMemberClassFlags();
+    protected final X10Flags X10_MEMBER_CLASS_FLAGS = (X10Flags) legalMemberClassFlags();
 
     /** All flags allowed for a local class. */
-    public Flags legalLocalClassFlags() {
-        return X10Flags.toX10Flags(super.legalLocalClassFlags()).Struct();
+    @Override
+    public X10Flags legalLocalClassFlags() {
+        return Abstract().Final().Interface().Struct();
     }
 
     protected final X10Flags X10_LOCAL_CLASS_FLAGS = (X10Flags) legalLocalClassFlags();
 
     @Override
-    public Flags legalLocalFlags() {
-        return X10Flags.toX10Flags(super.legalLocalFlags()).Clocked();
+    public X10Flags legalLocalFlags() {
+        return Final().Clocked();
     }
 
     protected final X10Flags X10_LOCAL_VARIABLE_FLAGS = (X10Flags) legalLocalFlags();
 
     @Override
-    public Flags legalFieldFlags() {
-        return X10Flags.toX10Flags(super.legalFieldFlags()).Property().Clocked();
+    public X10Flags legalFieldFlags() {
+        return legalAccessFlags().Static().Final().Transient().Property().Clocked();
     }
 
     protected final X10Flags X10_FIELD_VARIABLE_FLAGS = (X10Flags) legalFieldFlags();
@@ -1070,10 +1146,10 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
     /**
      * [IP] TODO: this should be a special CodeInstance instead
      */
-    protected CodeDef asyncStaticCodeInstance_;
-    protected CodeDef asyncCodeInstance_;
+    protected X10CodeDef asyncStaticCodeInstance_;
+    protected X10CodeDef asyncCodeInstance_;
 
-    public CodeDef asyncCodeInstance(boolean isStatic) {
+    public X10CodeDef asyncCodeInstance(boolean isStatic) {
     	// Need to create a new one on each call. Portions of this methodDef, such as thisVar may be destructively modified later.
                 return methodDef(Position.COMPILER_GENERATED, Types.ref((StructType) Runtime()), isStatic ? Public().Static() : Public(),
                 		Types.ref(VOID_),
@@ -1106,7 +1182,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return (FunctionType) ct.typeArguments(typeArgs);
     }
 
-    protected NullType createNull() {
+    protected X10NullType createNull() {
         return new X10NullType_c(this);
     }
 
@@ -1115,7 +1191,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
     private static final String WRAPPER_PACKAGE = "x10.compilergenerated";
 
     @Override
-    public PrimitiveType createPrimitive(Name name) {
+    public X10PrimitiveType createPrimitive(Name name) {
         return new X10PrimitiveType_c(this, name);
     }
 
@@ -1158,7 +1234,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return t != null && expandMacros(t).equals((Object) Void());
     } // do not use typeEquals
 
-    protected ClassType Boolean_;
+    protected X10ClassType Boolean_;
 
     public Type Boolean() {
         if (Boolean_ == null)
@@ -1166,7 +1242,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return Boolean_;
     }
 
-    protected ClassType Byte_;
+    protected X10ClassType Byte_;
 
     public Type Byte() {
         if (Byte_ == null)
@@ -1174,7 +1250,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return Byte_;
     }
 
-    protected ClassType Short_;
+    protected X10ClassType Short_;
 
     public Type Short() {
         if (Short_ == null)
@@ -1182,7 +1258,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return Short_;
     }
 
-    protected ClassType Char_;
+    protected X10ClassType Char_;
 
     public Type Char() {
         if (Char_ == null)
@@ -1190,7 +1266,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return Char_;
     }
 
-    protected ClassType Int_;
+    protected X10ClassType Int_;
 
     public Type Int() {
         if (Int_ == null)
@@ -1198,7 +1274,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return Int_;
     }
 
-    protected ClassType Long_;
+    protected X10ClassType Long_;
 
     public Type Long() {
         if (Long_ == null)
@@ -1206,7 +1282,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return Long_;
     }
 
-    protected ClassType Float_;
+    protected X10ClassType Float_;
 
     public Type Float() {
         if (Float_ == null)
@@ -1214,7 +1290,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return Float_;
     }
 
-    protected ClassType Double_;
+    protected X10ClassType Double_;
 
     public Type Double() {
         if (Double_ == null)
@@ -1223,7 +1299,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
     }
 
     // Unsigned integers
-    protected ClassType UByte_;
+    protected X10ClassType UByte_;
 
     public Type UByte() {
         if (UByte_ == null)
@@ -1231,7 +1307,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return UByte_;
     }
 
-    protected ClassType UShort_;
+    protected X10ClassType UShort_;
 
     public Type UShort() {
         if (UShort_ == null)
@@ -1239,7 +1315,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return UShort_;
     }
 
-    protected ClassType UInt_;
+    protected X10ClassType UInt_;
 
     public Type UInt() {
         if (UInt_ == null)
@@ -1247,7 +1323,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return UInt_;
     }
 
-    protected ClassType ULong_;
+    protected X10ClassType ULong_;
 
     public Type ULong() {
         if (ULong_ == null)
@@ -1255,7 +1331,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return ULong_;
     }
 
-    protected ClassType nativeValRail_;
+    protected X10ClassType nativeValRail_;
 
     public Type ValRail() {
         if (nativeValRail_ == null)
@@ -1263,7 +1339,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return nativeValRail_;
     }
 
-    protected ClassType nativeRail_;
+    protected X10ClassType nativeRail_;
 
     public Type Rail() {
         if (nativeRail_ == null)
@@ -1365,7 +1441,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return load("x10.lang.ArithmeticException");
     }
 
-    protected ClassType comparableType_;
+    protected X10ClassType comparableType_;
 
     public Type Comparable() {
         if (comparableType_ == null)
@@ -1373,7 +1449,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return comparableType_;
     }
 
-    protected ClassType iterableType_;
+    protected X10ClassType iterableType_;
 
     public Type Iterable() {
         if (iterableType_ == null)
@@ -1381,7 +1457,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return iterableType_;
     }
   
-    protected ClassType customSerializationType_;
+    protected X10ClassType customSerializationType_;
 
     public Type CustomSerialization() {
         if (customSerializationType_ == null)
@@ -1389,7 +1465,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return customSerializationType_;
     }
  
-    protected ClassType reducibleType_;
+    protected X10ClassType reducibleType_;
 
     public Type Reducible() {
         if (reducibleType_ == null)
@@ -1397,13 +1473,13 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return reducibleType_;
     }
 
-    protected ClassType nativeRepType_;
+    protected X10ClassType nativeRepType_;
     public Type NativeRep() {
     	if (nativeRepType_ == null)
     		nativeRepType_ = load("x10.compiler.NativeRep");
     	return nativeRepType_;
     }
-    protected ClassType nativeType_;
+    protected X10ClassType nativeType_;
     public Type NativeType() {
     	if (nativeType_ == null)
     		nativeType_ = load("x10.compiler.Native");
@@ -1418,7 +1494,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
     }
    
 
-    protected ClassType iteratorType_;
+    protected X10ClassType iteratorType_;
 
     public Type Iterator() {
         if (iteratorType_ == null)
@@ -1426,7 +1502,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return iteratorType_;
     }
 
-    protected ClassType containsType_;
+    protected X10ClassType containsType_;
 
     public Type Contains() {
         if (containsType_ == null)
@@ -1434,7 +1510,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return containsType_;
     }
 
-    protected ClassType settableType_;
+    protected X10ClassType settableType_;
 
     public Type Settable() {
         if (settableType_ == null)
@@ -1442,7 +1518,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return settableType_;
     }
 
-    protected ClassType containsAllType_;
+    protected X10ClassType containsAllType_;
 
     public Type ContainsAll() {
         if (containsAllType_ == null)
@@ -1450,7 +1526,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return containsAllType_;
     }
 
-    protected ClassType placeType_;
+    protected X10ClassType placeType_;
 
     public Type Place() {
         if (placeType_ == null)
@@ -1458,7 +1534,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return placeType_;
     }
 
-    protected ClassType regionType_;
+    protected X10ClassType regionType_;
 
     public Type Region() {
         if (regionType_ == null)
@@ -1474,7 +1550,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return pointType_;
     }
 
-    protected ClassType distributionType_;
+    protected X10ClassType distributionType_;
 
     public Type Dist() {
         if (distributionType_ == null)
@@ -1482,7 +1558,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return distributionType_;
     }
 
-    protected ClassType clockType_;
+    protected X10ClassType clockType_;
 
     public Type Clock() {
         if (clockType_ == null)
@@ -1490,7 +1566,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return clockType_;
     }
 
-    protected ClassType runtimeType_;
+    protected X10ClassType runtimeType_;
 
     public Type Runtime() {
         if (runtimeType_ == null)
@@ -1498,7 +1574,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return runtimeType_;
     }
 
-    protected ClassType arrayType_ = null;
+    protected X10ClassType arrayType_ = null;
 
     public Type Array() {
         if (arrayType_ == null)
@@ -1506,7 +1582,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return arrayType_;
     }
 
-    protected ClassType remoteArrayType_ = null;
+    protected X10ClassType remoteArrayType_ = null;
 
     public Type RemoteArray() {
         if (remoteArrayType_ == null)
@@ -1514,7 +1590,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return remoteArrayType_;
     }
 
-    protected ClassType distArrayType_ = null;
+    protected X10ClassType distArrayType_ = null;
 
     public Type DistArray() {
         if (distArrayType_ == null)
@@ -1522,7 +1598,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return distArrayType_;
     }
  
-    protected ClassType mortalType_ = null;
+    protected X10ClassType mortalType_ = null;
 
     public Type Mortal() {
         if (mortalType_ == null)
@@ -1530,15 +1606,15 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return mortalType_;
     }
 
-    
+
     // RMF 11/1/2005 - Not having the "static" qualifier on interfaces causes
     // problems,
     // e.g. for New_c.disambiguate(AmbiguityRemover), which assumes that
     // instantiating
     // non-static types requires a "this" qualifier expression.
     // [IP] FIXME: why does the above matter when we supply the bits?
-    public Flags flagsForBits(int bits) {
-        Flags sf = super.flagsForBits(bits);
+    public X10Flags flagsForBits(int bits) {
+        X10Flags sf = X10Flags.toX10Flags(super.flagsForBits(bits));
         if (sf.isInterface())
             return sf.Static();
         return sf;
@@ -1938,8 +2014,8 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
     }
 
     @Override
-    public Flags createNewFlag(String name, Flags after) {
-        Flags f = X10Flags.createFlag(name, after);
+    public X10Flags createNewFlag(String name, Flags after) {
+        X10Flags f = X10Flags.createFlag(name, after);
         flagsForName.put(name, f);
         return f;
     }
@@ -1956,14 +2032,19 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
      //   flagsForName.put("rooted", X10Flags.ROOTED);
     }
 
-    /** All flags allowed for a constructor. */
+    /** All possible <i>access</i> flags. */
     @Override
-    public Flags legalConstructorFlags() {
-        return legalAccessFlags().Synchronized().Native(); // allow native (but
-                                                           // not extern)
+    public X10Flags legalAccessFlags() {
+        return X10Flags.toX10Flags(super.legalAccessFlags());
     }
 
-    protected final Flags X10_METHOD_FLAGS = legalMethodFlags();
+    /** All flags allowed for a constructor. */
+    @Override
+    public X10Flags legalConstructorFlags() {
+        return legalAccessFlags().Native(); // allow native
+    }
+
+    protected final X10Flags X10_METHOD_FLAGS = legalMethodFlags();
 
     @Override
     public void checkMethodFlags(Flags f) throws SemanticException {
@@ -2143,8 +2224,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return result;
     }
 
-    public ConstructorDef defaultConstructor(Position pos,
-    	    Ref<? extends ClassType> container) {
+    public X10ConstructorDef defaultConstructor(Position pos, Ref<? extends ClassType> container) {
     	assert_(container);
 
     	// access for the default constructor is determined by the 
@@ -2185,7 +2265,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 
     public X10ConstructorDef constructorDef(Position pos, Ref<? extends ClassType> container, Flags flags, Ref<? extends ClassType> returnType,
             List<Ref<? extends Type>> argTypes, XVar thisVar, List<LocalDef> formalNames, Ref<CConstraint> guard, Ref<TypeConstraint> typeGuard,
-             Ref<? extends Type> offerType)
+            Ref<? extends Type> offerType)
     {
         assert_(container);
         assert_(argTypes);
@@ -2314,8 +2394,8 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         if (acceptable.size() == 0) {
         	  throw new NoMemberException(NoMemberException.METHOD,
                       "No valid method call found for call in given type."
-	+ "\n\t Call: " + matcher.signature() 
-	+ "\n\t Type: " + container);
+        	          + "\n\t Call: " + matcher.signature() 
+        	          + "\n\t Type: " + container);
         }
         Collection<MethodInstance> maximal =
             findMostSpecificProcedures(acceptable, (Matcher<MethodInstance>) matcher, context);
@@ -2428,7 +2508,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
             if (fi.def()==fi2.def()) return true;
         return false;
    }
-   public FieldInstance findField(Type container, TypeSystem_c.FieldMatcher matcher)
+   public X10FieldInstance findField(Type container, TypeSystem_c.FieldMatcher matcher)
 	throws SemanticException {
 	   
 
@@ -2472,7 +2552,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		}
 
 		Iterator<FieldInstance> i = fields.iterator();
-		FieldInstance fi = i.next();
+		X10FieldInstance fi = (X10FieldInstance) i.next();
 
 		if (i.hasNext()) {
 		    FieldInstance fi2 = i.next();

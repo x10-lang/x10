@@ -17,6 +17,7 @@ import java.util.TreeSet;
 
 import polyglot.main.Report;
 import polyglot.types.Flags;
+import polyglot.util.InternalCompilerError;
 
 /**
  * Representation of X10 flags.
@@ -114,9 +115,6 @@ public class X10Flags extends Flags {
     /**
      * Return a copy of this <code>this</code> with the <code>value</code> flag
      * set.
-     * 
-     * @param flags
-     *            TODO
      */
     public X10Flags Value() {
         return set(VALUE);
@@ -125,9 +123,6 @@ public class X10Flags extends Flags {
     /**
      * Return a copy of this <code>this</code> with the <code>value</code> flag
      * clear.
-     * 
-     * @param flags
-     *            TODO
      */
     public X10Flags clearValue() {
         return clear(VALUE);
@@ -135,9 +130,6 @@ public class X10Flags extends Flags {
 
     /**
      * Return true if <code>this</code> has the <code>value</code> flag set.
-     * 
-     * @param flags
-     *            TODO
      */
     public boolean isValue() {
         return contains(VALUE);
@@ -150,9 +142,6 @@ public class X10Flags extends Flags {
     /**
      * Return a copy of this <code>this</code> with the <code>reference</code>
      * flag set.
-     * 
-     * @param flags
-     *            TODO
      */
     public X10Flags Reference() {
         return set(REFERENCE);
@@ -161,9 +150,6 @@ public class X10Flags extends Flags {
     /**
      * Return a copy of this <code>this</code> with the <code>reference</code>
      * flag clear.
-     * 
-     * @param flags
-     *            TODO
      */
     public X10Flags clearReference() {
         return clear(REFERENCE);
@@ -171,9 +157,6 @@ public class X10Flags extends Flags {
 
     /**
      * Return true if <code>this</code> has the <code>reference</code> flag set.
-     * 
-     * @param flags
-     *            TODO
      */
     public boolean isReference() {
         return contains(REFERENCE);
@@ -182,9 +165,6 @@ public class X10Flags extends Flags {
     /**
      * Return a copy of this <code>this</code> with the <code>atomic</code> flag
      * set.
-     * 
-     * @param flags
-     *            TODO
      */
     public X10Flags Atomic() {
         return set(ATOMIC);
@@ -193,9 +173,6 @@ public class X10Flags extends Flags {
     /**
      * Return a copy of this <code>this</code> with the <code>atomic</code> flag
      * clear.
-     * 
-     * @param flags
-     *            TODO
      */
     public X10Flags clearAtomic() {
         return clear(ATOMIC);
@@ -203,9 +180,6 @@ public class X10Flags extends Flags {
 
     /**
      * Return true if <code>this</code> has the <code>atomic</code> flag set.
-     * 
-     * @param flags
-     *            TODO
      */
     public boolean isAtomic() {
         return contains(ATOMIC);
@@ -214,9 +188,6 @@ public class X10Flags extends Flags {
     /**
      * Return a copy of this <code>this</code> with the <code>pure</code> flag
      * set.
-     * 
-     * @param flags
-     *            TODO
      */
     public X10Flags Pure() {
         return set(PURE);
@@ -225,9 +196,6 @@ public class X10Flags extends Flags {
     /**
      * Return a copy of this <code>this</code> with the <code>pure</code> flag
      * clear.
-     * 
-     * @param flags
-     *            TODO
      */
     public X10Flags clearPure() {
         return clear(PURE);
@@ -235,9 +203,6 @@ public class X10Flags extends Flags {
 
     /**
      * Return true if <code>this</code> has the <code>pure</code> flag set.
-     * 
-     * @param flags
-     *            TODO
      */
     public boolean isPure() {
         return contains(PURE);
@@ -269,9 +234,6 @@ public class X10Flags extends Flags {
     /**
      * Return a copy of this <code>this</code> with the <code>property</code>
      * flag set.
-     * 
-     * @param flags
-     *            TODO
      */
     public X10Flags Property() {
         return set(PROPERTY);
@@ -280,9 +242,6 @@ public class X10Flags extends Flags {
     /**
      * Return a copy of this <code>this</code> with the <code>property</code>
      * flag clear.
-     * 
-     * @param flags
-     *            TODO
      */
     public X10Flags clearProperty() {
         return clear(PROPERTY);
@@ -290,9 +249,6 @@ public class X10Flags extends Flags {
 
     /**
      * Return true if <code>this</code> has the <code>property</code> flag set.
-     * 
-     * @param flags
-     *            TODO
      */
     public boolean isProperty() {
         return contains(PROPERTY);
@@ -301,9 +257,6 @@ public class X10Flags extends Flags {
     /**
      * Return a copy of this <code>this</code> with the <code>pinned</code>
      * flag set.
-     * 
-     * @param flags
-     *            TODO
      */
     public X10Flags Clocked() {
         return set(CLOCKED);
@@ -312,9 +265,6 @@ public class X10Flags extends Flags {
     /**
      * Return a copy of this <code>this</code> with the <code>pinned</code>
      * flag clear.
-     * 
-     * @param flags
-     *            TODO
      */
     public X10Flags clearClocked() {
         return clear(CLOCKED);
@@ -323,9 +273,6 @@ public class X10Flags extends Flags {
     /**
      * Return true if <code>this</code> has the <code>pinned</code> flag
      * set.
-     * 
-     * @param flags
-     *            TODO
      */
     public boolean isClocked() {
         return contains(CLOCKED);
@@ -334,9 +281,6 @@ public class X10Flags extends Flags {
     /**
      * Return a copy of this <code>this</code> with the <code>hasType</code>
      * flag set.
-     * 
-     * @param flags
-     *            TODO
      */
     public X10Flags HasType() {
         return set(HASTYPE);
@@ -345,9 +289,6 @@ public class X10Flags extends Flags {
     /**
      * Return a copy of this <code>this</code> with the <code>hasType</code>
      * flag clear.
-     * 
-     * @param flags
-     *            TODO
      */
     public X10Flags clearHasType() {
         return clear(HASTYPE);
@@ -356,12 +297,134 @@ public class X10Flags extends Flags {
     /**
      * Return true if <code>this</code> has the <code>hasType/code> flag
      * set.
-     * 
-     * @param flags
-     *            TODO
      */
     public boolean isHasType() {
         return contains(HASTYPE);
+    }
+
+    @Override
+    public X10Flags Abstract() {
+        return X10Flags.toX10Flags(super.Abstract());
+    }
+
+    @Override
+    public X10Flags clearAbstract() {
+        return X10Flags.toX10Flags(super.clearAbstract());
+    }
+
+    @Override
+    public X10Flags Final() {
+        return X10Flags.toX10Flags(super.Final());
+    }
+
+    @Override
+    public X10Flags clearFinal() {
+        return X10Flags.toX10Flags(super.clearFinal());
+    }
+
+    @Override
+    public X10Flags Interface() {
+        return X10Flags.toX10Flags(super.Interface());
+    }
+
+    @Override
+    public X10Flags clearInterface() {
+        return X10Flags.toX10Flags(super.clearInterface());
+    }
+
+    @Override
+    public X10Flags Native() {
+        return X10Flags.toX10Flags(super.Native());
+    }
+
+    @Override
+    public X10Flags clearNative() {
+        return X10Flags.toX10Flags(super.clearNative());
+    }
+
+    @Override
+    public X10Flags Private() {
+        return X10Flags.toX10Flags(super.Private());
+    }
+
+    @Override
+    public X10Flags clearPrivate() {
+        return X10Flags.toX10Flags(super.clearPrivate());
+    }
+
+    @Override
+    public X10Flags Protected() {
+        return X10Flags.toX10Flags(super.Protected());
+    }
+
+    @Override
+    public X10Flags clearProtected() {
+        return X10Flags.toX10Flags(super.clearProtected());
+    }
+
+    @Override
+    public X10Flags Public() {
+        return X10Flags.toX10Flags(super.Public());
+    }
+
+    @Override
+    public X10Flags clearPublic() {
+        return X10Flags.toX10Flags(super.clearPublic());
+    }
+
+    @Override
+    public X10Flags Static() {
+        return X10Flags.toX10Flags(super.Static());
+    }
+
+    @Override
+    public X10Flags clearStatic() {
+        return X10Flags.toX10Flags(super.clearStatic());
+    }
+
+    @Override
+    public X10Flags StrictFP() {
+        throw new InternalCompilerError("strictfp not defined in X10");
+    }
+
+    @Override
+    public X10Flags clearStrictFP() {
+        throw new InternalCompilerError("strictfp not defined in X10");
+    }
+
+    @Override
+    public X10Flags Synchronized() {
+        throw new InternalCompilerError("synchronized not defined in X10");
+    }
+
+    @Override
+    public X10Flags clearSynchronized() {
+        throw new InternalCompilerError("synchronized not defined in X10");
+    }
+
+    @Override
+    public X10Flags Transient() {
+        return X10Flags.toX10Flags(super.Transient());
+    }
+
+    @Override
+    public X10Flags clearTransient() {
+        return X10Flags.toX10Flags(super.clearTransient());
+    }
+
+    @Override
+    public X10Flags Volatile() {
+        throw new InternalCompilerError("volatile not defined in X10");
+    }
+
+    @Override
+    public X10Flags clearVolatile() {
+        throw new InternalCompilerError("volatile not defined in X10");
+    }
+
+    @Override
+    public X10Flags Package() {
+        return X10Flags.toX10Flags(super.Package());
     }
 
     /**

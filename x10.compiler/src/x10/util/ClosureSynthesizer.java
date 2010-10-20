@@ -246,12 +246,12 @@ public class ClosureSynthesizer {
                 return true;
             }
             @Override
-            public ClassType asType() {
+            public X10ClassType asType() {
                 if (asType == null) {
                     X10ClassDef cd = this;
                     asType = new ClosureType_c(xts, pos, this);
                 }
-                return asType;
+                return (X10ClassType) asType;
             }
         };
 
