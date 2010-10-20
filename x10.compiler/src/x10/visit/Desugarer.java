@@ -847,6 +847,7 @@ public class Desugarer extends ContextVisitor {
     }
     
     private static final Name STOPFINISHEXPR = Name.make("stopFinishExpr");
+    private static final Name STARTFINISH = Name.make("startFinish");
     private static final String COLLECTING_FINISH = "x10.lang.FinishState.CollectingFinish";
 
     // x = finish (R) S; ->
@@ -884,19 +885,10 @@ public class Desugarer extends ContextVisitor {
         assert reducerTarget!=null;
         
         X10ParsedClassType coFinish = (X10ParsedClassType) xts.load(COLLECTING_FINISH);
-        X10ParsedClassType coFinishT = coFinish.typeArguments(Collections.singletonList(reducerTarget));
-        CanonicalTypeNode TTE = xnf.CanonicalTypeNode(pos, coFinishT);
-        X10ConstructorInstance ti = xts.findConstructor(coFinishT, xts.ConstructorMatcher(coFinishT, Collections.singletonList(reducerType), context().pushClass(coFinishT.def(), coFinishT)));
-        Expr newCF = xnf.New(pos, TTE, Collections.singletonList(reducer)).constructorInstance(ti).type(coFinishT);
 
-        Name tmp1 = getTmp();
-        LocalDef lDef1 = xts.localDef(pos, xts.NoFlags(), Types.ref(coFinishT), tmp1);
-        Expr local1 = xnf.Local(pos, xnf.Id(pos, tmp1)).localInstance(lDef1.asInstance()).type(coFinishT);
-        final Flags flags = Flags.FINAL;   
-        LocalDecl localDecl = xnf.LocalDecl(pos, xnf.FlagsNode(pos, flags), xnf.CanonicalTypeNode(pos, coFinishT), xnf.Id(pos, tmp1)).localDef(lDef1);
-        
-        Expr a = assign(pos, local1, Assign.ASSIGN, newCF);
-        Stmt s1 = xnf.Eval(pos, a);
+        Call myCall = synth.makeStaticCall(pos, coFinish, STARTFINISH, Collections.<TypeNode>singletonList(xnf.CanonicalTypeNode(pos, reducerTarget)), Collections.singletonList(reducer), xts.Void(), Collections.singletonList(reducerType), context());
+
+        Stmt s1 = xnf.Eval(pos, myCall);
         Block tryBlock = xnf.Block(pos,f.body());
 
         // Begin catch block
@@ -916,24 +908,24 @@ public class Desugarer extends ContextVisitor {
         Stmt returnS = null;
         if ((l==null) && (n!=null)&& (r==null)) {
         	Expr left = n.left().type(reducerTarget);
-            Call instanceCall = synth.makeInstanceCall(pos, local1, STOPFINISHEXPR, Collections.<TypeNode>emptyList(), Collections.<Expr>emptyList(), reducerTarget, Collections.<Type>emptyList(), context());
-            Expr b = assign(pos, left, Assign.ASSIGN, instanceCall);
+            Call staticCall = synth.makeStaticCall(pos, coFinish, STOPFINISHEXPR, Collections.<TypeNode>singletonList(xnf.CanonicalTypeNode(pos, reducerTarget)), Collections.<Expr>emptyList(), reducerTarget, Collections.<Type>emptyList(), context());
+            Expr b = assign(pos, left, Assign.ASSIGN, staticCall);
             returnS = xnf.Eval(pos, b);
         }
         if ((n==null) && (l!=null) && (r==null)) {
             Expr local2 = xnf.Local(pos, l.name()).localInstance(l.localDef().asInstance()).type(reducerTarget);
-        	Call instanceCall = synth.makeInstanceCall(pos, local1, STOPFINISHEXPR, Collections.<TypeNode>emptyList(), Collections.<Expr>emptyList(), reducerTarget, Collections.<Type>emptyList(), context());
-         	Expr b = assign(pos, local2, Assign.ASSIGN, instanceCall);
+            Call staticCall = synth.makeStaticCall(pos, coFinish, STOPFINISHEXPR, Collections.<TypeNode>singletonList(xnf.CanonicalTypeNode(pos, reducerTarget)), Collections.<Expr>emptyList(), reducerTarget, Collections.<Type>emptyList(), context());
+         	Expr b = assign(pos, local2, Assign.ASSIGN, staticCall);
             returnS = xnf.Eval(pos, b);
         }
         if ((n==null) && (l==null) && (r!=null)) {
-            Call instanceCall = synth.makeInstanceCall(pos, local1, STOPFINISHEXPR, Collections.<TypeNode>emptyList(), Collections.<Expr>emptyList(), reducerTarget, Collections.<Type>emptyList(), context());
-            returnS = xnf.X10Return(pos, instanceCall, true);
+            Call staticCall = synth.makeStaticCall(pos, coFinish, STOPFINISHEXPR, Collections.<TypeNode>singletonList(xnf.CanonicalTypeNode(pos, reducerTarget)), Collections.<Expr>emptyList(), reducerTarget, Collections.<Type>emptyList(), context());
+            returnS = xnf.X10Return(pos, staticCall, true);
         }
         
         Block finalBlock = xnf.Block(pos, returnS);
         if(reducerS.size()>0) reducerS.pop();
-        return xnf.Block(pos, localDecl, s1, xnf.Try(pos, tryBlock, Collections.singletonList(catchBlock), finalBlock));
+        return xnf.Block(pos, s1, xnf.Try(pos, tryBlock, Collections.singletonList(catchBlock), finalBlock));
     }
 
     private static final Name OFFER = Name.make("offer");  
