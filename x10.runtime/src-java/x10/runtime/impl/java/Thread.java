@@ -25,7 +25,7 @@ public class Thread extends java.lang.Thread {
 	}
 
 	private Place home;    // the current place
-	private Object worker;   // the current worker
+	private x10.lang.Runtime.Worker worker;   // the current worker
 
 	/**
 	 * Create main x10 thread (called by native runtime only )
@@ -46,14 +46,14 @@ public class Thread extends java.lang.Thread {
 	/**
 	 * Attach worker to thread
 	 */
-	public void worker(Object worker) {
+	public void worker(x10.lang.Runtime.Worker worker) {
 		this.worker = worker;
 	}
 
 	/**
 	 * Return current worker
 	 */
-	public Object worker() {
+	public x10.lang.Runtime.Worker worker() {
 		return worker;
 	}
 

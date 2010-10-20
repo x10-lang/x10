@@ -101,25 +101,25 @@ import x10.util.Box;
     // Accessors for native performance counters
 
     @Native("c++","x10aux::asyncs_sent")
-    static def getAsyncsSent() = 0 as Long;
+    static def getAsyncsSent() = 0L;
 
     @Native("c++","x10aux::asyncs_sent = #1")
     static def setAsyncsSent(v:Long) { }
 
     @Native("c++","x10aux::asyncs_received")
-    static def getAsyncsReceived() = 0 as Long;
+    static def getAsyncsReceived() = 0L;
 
     @Native("c++","x10aux::asyncs_received = #1")
     static def setAsyncsReceived(v:Long) { }
 
     @Native("c++","x10aux::serialized_bytes")
-    static def getSerializedBytes() = 0 as Long;
+    static def getSerializedBytes() = 0L;
 
     @Native("c++","x10aux::serialized_bytes = #1")
     static def setSerializedBytes(v:Long) { }
 
     @Native("c++","x10aux::deserialized_bytes")
-    static def getDeserializedBytes() = 0 as Long;
+    static def getDeserializedBytes() = 0L;
 
     @Native("c++","x10aux::deserialized_bytes = #1")
     static def setDeserializedBytes(v:Long) { }
@@ -164,6 +164,7 @@ import x10.util.Box;
      */
     public interface Mortal { }
 
+
     @NativeClass("java", "x10.runtime.impl.java", "Thread")
     @NativeClass("c++", "x10.lang", "Thread")
     @Pinned final static class Thread implements CustomSerialization {
@@ -187,7 +188,7 @@ import x10.util.Box;
 
         public native def unpark():void;
 
-        public native def worker():Object;
+        public native def worker():Worker;
 
         public native def worker(worker:Worker):void;
 
@@ -284,7 +285,7 @@ import x10.util.Box;
             return true;
         }
 
-        public def probe () : void {
+        public def probe():void {
             // process all queued activities
             val tmp = activity; // save current activity
             while (true) {
@@ -298,7 +299,7 @@ import x10.util.Box;
         }
     }
 
-    public static def probe () {
+    public static def probe() {
         event_probe();
         worker().probe();
     }
@@ -467,7 +468,7 @@ import x10.util.Box;
     /**
      * Return the current worker
      */
-    public static def worker():Worker = Thread.currentThread().worker() as Worker;
+    public static def worker():Worker = Thread.currentThread().worker();
 
     /**
      * Return the current activity
