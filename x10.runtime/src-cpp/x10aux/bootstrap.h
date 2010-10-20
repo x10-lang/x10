@@ -25,6 +25,7 @@
 #include <x10/lang/Throwable.h>
 
 #include <x10/lang/Thread.h>
+#include <x10/lang/Runtime__Worker.h>
 #include <x10/lang/Closure.h>
 
 #include <stdio.h>
@@ -131,7 +132,7 @@ namespace x10aux {
 
             // Initialise enough state to make this 'main' thread look like a normal x10 thread
             // (e.g. make Thread::CurrentThread work properly).
-            x10::lang::Thread::_make(X10_NULL, x10aux::string_utils::lit("thread-main"));
+            x10::lang::Runtime__Worker::_make(X10_NULL, x10aux::string_utils::lit("thread-main"));
             x10aux::initialize_xrx();
 
             args = x10aux::convert_args(ac, av);

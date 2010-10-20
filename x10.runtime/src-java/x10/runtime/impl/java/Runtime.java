@@ -13,8 +13,14 @@ package x10.runtime.impl.java;
 
 import java.lang.reflect.InvocationTargetException;
 
-public abstract class Runtime implements Runnable {
-	private String[] args;
+import x10.rtt.RuntimeType;
+import x10.rtt.Type;
+
+public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
+    public RuntimeType<?> getRTT() { return null; }
+    public Type<?> getParam(int i) { return null; }
+
+    private String[] args;
 
 	/**
 	 * Body of main java thread
@@ -34,9 +40,9 @@ public abstract class Runtime implements Runnable {
 		});
 
 		// start and join main x10 thread in place 0
-		Thread thread = new Thread(0, this, "thread-main");
-		thread.start();
-		try { thread.join(); } catch (InterruptedException e) {}
+		x10.lang.Runtime.Worker worker = new x10.lang.Runtime.Worker(this, "");
+		worker.start();
+		try { worker.join(); } catch (InterruptedException e) {}
 
 		// shutdown
 		System.exit(exitCode);
@@ -45,7 +51,7 @@ public abstract class Runtime implements Runnable {
 	/**
 	 * Body of main x10 thread
 	 */
-	public void run() {
+	public void apply() {
 		try { Class.forName("x10.lang.Place"); } catch (ClassNotFoundException e) { }
 
 		// build up Array[String] for args

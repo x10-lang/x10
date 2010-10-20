@@ -22,9 +22,6 @@ import x10.util.Stack;
         throw new UnsupportedOperationException("Cannot deserialize "+typeName());
     }
 
-
-    static type Thread = Runtime.Thread;
-
     /**
      * Parked threads
      */

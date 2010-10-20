@@ -12,6 +12,8 @@
 package x10.runtime.impl.java;
 
 import x10.lang.Place;
+import x10.rtt.RuntimeType;
+import x10.rtt.Type;
 
 /**
  * @author Christian Grothoff
@@ -20,42 +22,23 @@ import x10.lang.Place;
  * @author tardieu
  */
 public class Thread extends java.lang.Thread {
+    public RuntimeType<?> getRTT() { return null; }
+    public Type<?> getParam(int i) { return null; }
+
 	public static Thread currentThread() {
 		return (Thread) java.lang.Thread.currentThread();
 	}
 
 	private Place home;    // the current place
-	private x10.lang.Runtime.Worker worker;   // the current worker
 
-	/**
-	 * Create main x10 thread (called by native runtime only )
-	 */
-	Thread(int home, Runnable runnable, String name) {
-		super(runnable, name);
-		this.home = Place.place(home);
-	}
-
-	/**
-	 * Create additional x10 threads (called by xrx only)
-	 */
-	public Thread(final x10.core.fun.VoidFun_0_0 body, String name) {
-		super(new Runnable() { public void run() { body.apply(); } }, name);
-		home = currentThread().home;
-	}
-
-	/**
-	 * Attach worker to thread
-	 */
-	public void worker(x10.lang.Runtime.Worker worker) {
-		this.worker = worker;
-	}
-
-	/**
-	 * Return current worker
-	 */
-	public x10.lang.Runtime.Worker worker() {
-		return worker;
-	}
+    public Thread(final x10.core.fun.VoidFun_0_0 body, String name) {
+        super(new Runnable() { public void run() { body.apply(); } }, name);
+        if (!(java.lang.Thread.currentThread() instanceof Thread)) {
+            home = Place.place(0);
+        } else {
+            home = currentThread().home();
+        }
+    }
 
 	/**
 	 * Update thread place (called by native runtime only)

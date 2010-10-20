@@ -18,7 +18,7 @@ import x10.util.Stack;
 @Pinned public class Semaphore {
         private val lock = new Lock();
 
-        private val threads = new Stack[Runtime.Thread]();
+        private val threads = new Stack[Thread]();
 
         private var permits:Int;
 
@@ -50,12 +50,12 @@ import x10.util.Stack;
 
         def acquire():void {
             lock.lock();
-            val thread = Runtime.Thread.currentThread();
+            val thread = Thread.currentThread();
             while (permits <= 0) {
                 threads.push(thread);
                 while (threads.contains(thread)) {
                     lock.unlock();
-                    Runtime.Thread.park();
+                    Thread.park();
                     lock.lock();
                 }
             }

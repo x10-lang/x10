@@ -13,6 +13,7 @@ package x10.lang;
 
 import x10.compiler.Native;
 import x10.compiler.NativeClass;
+import x10.compiler.NativeRep;
 import x10.compiler.Pinned;
 import x10.compiler.Global;
 import x10.compiler.SuppressTransientError;
@@ -165,53 +166,8 @@ import x10.util.Box;
     public interface Mortal { }
 
 
-    @NativeClass("java", "x10.runtime.impl.java", "Thread")
-    @NativeClass("c++", "x10.lang", "Thread")
-    @Pinned final static class Thread implements CustomSerialization {
-
-        /**
-         * Allocates new thread in current place
-         */
-        public native def this(body:()=>void, name:String);
-
-        public static native def currentThread():Thread;
-
-        public native def start():void;
-
-        public native static def sleep(millis:Long):void; //throwsInterruptedException;
-
-        public native static def sleep(millis:Long, nanos:Int):void; //throwsInterruptedException;
-
-        public native static def park():void;
-
-        public native static def parkNanos(nanos:Long):void;
-
-        public native def unpark():void;
-
-        public native def worker():Worker;
-
-        public native def worker(worker:Worker):void;
-
-        public native def name():String;
-
-        public native def name(name:String):void;
-
-        public static native def getTid():Long;
-
-        public native def home():Place;
-
-        public def serialize():Any {
-            throw new UnsupportedOperationException("Cannot serialize "+typeName());
-        }
-
-        private def this(Any) {
-            throw new UnsupportedOperationException("Cannot deserialize "+typeName());
-        }
-    }
-
-
-    @Pinned public final static class Worker implements ()=>void {
-        val latch:Latch;
+    @Pinned final static class Worker extends Thread implements ()=>Void {
+        var latch:Latch;
         // release the latch to stop the worker
 
         // bound on loop iterations to help j9 jit
@@ -232,7 +188,13 @@ import x10.util.Box;
             workerId = id;
         }
 
+        def this(main:()=>Void, name:String) {
+            super(main, name);
+            random = new Random(0);
+        }
+
         def this(latch:Latch, p:Int) {
+            super(runtime().pool.workers(p).apply.(), "");
             this.latch = latch;
             random = new Random(p + (p << 8) + (p << 16) + (p << 24));
         }
@@ -326,40 +288,31 @@ import x10.util.Box;
 
         // the workers in the pool
         private val workers:Rail[Worker];
-
-        // the threads in the pool
-        private val threads:Rail[Thread];
-
+        
         def this(rootFinish:FinishState.RootFinish, size:Int) {
             val latch:Latch = rootFinish != null ? rootFinish.latch : new Latch();
             this.latch = latch;
             this.size = size;
             val workers = Rail.make[Worker](MAX);
-            val threads = Rail.make[Thread](size);
 
             // worker for the master thread
-            val master = new Worker(latch, 0);
-            workers(0) = master;
-            threads(0) = Thread.currentThread();
-            Thread.currentThread().worker(master);
-            workers.apply(0).setWorkerId(0);
+            workers(0) = worker();
+            workers(0).setWorkerId(0);
+            workers(0).latch = latch;
 
             // other workers
             for (var i:Int = 1; i<size; i++) {
                 val worker = new Worker(latch, i);
                 workers(i) = worker;
-                threads(i) = new Thread(worker.apply.(), "thread-" + i);
-                threads(i).worker(worker);
-                (workers.apply(i)).setWorkerId(i);
+                workers(i).setWorkerId(i);
             }
             this.workers = workers;
-            this.threads = threads;
         }
 
         public def apply():void {
             val s = size;
             for (var i:Int = 1; i<s; i++) {
-                threads(i).start();
+                workers(i).start();
             }
             workers(0)();
             while (size > 0) Thread.park();
@@ -384,9 +337,7 @@ import x10.util.Box;
                 }
                 val worker = new Worker(latch, i);
                 workers(i) = worker;
-                val thread = new Thread(worker.apply.(), "thread-" + i);
-                thread.worker(worker);
-                thread.start();
+                worker.start();
             }
         }
 
@@ -405,7 +356,7 @@ import x10.util.Box;
             semaphore.release();
             lock.lock();
             size--;
-            if (size == 0) threads(0).unpark();
+            if (size == 0) workers(0).unpark();
             lock.unlock();
         }
 
@@ -468,7 +419,7 @@ import x10.util.Box;
     /**
      * Return the current worker
      */
-    public static def worker():Worker = Thread.currentThread().worker();
+    public static def worker():Worker = Thread.currentThread() as Worker;
 
     /**
      * Return the current activity
@@ -922,6 +873,54 @@ import x10.util.Box;
             thread.unpark();
         }
     }
+}
+
+
+
+@NativeRep("java", "x10.runtime.impl.java.Thread", null, null)
+@NativeRep("c++", "x10aux::ref<x10::lang::Thread>", "x10::lang::Thread", null)
+class Thread {
+    public native def this(()=>Void, String);
+
+    @Native("java", "#0.currentThread()")
+    @Native("c++", "x10::lang::Thread::currentThread()")
+    public static native def currentThread():Thread;
+
+    @Native("java", "#0.start()")
+    @Native("c++", "(#0)->start()")
+    public native def start():void;
+
+    @Native("java", "#0.sleep(#1)")
+    @Native("c++", "x10::lang::Thread::sleep(#1)")
+    public static native def sleep(millis:Long):void;
+
+    @Native("java", "#0.sleep(#1,#2)")
+    @Native("c++", "x10::lang::Thread::sleep(#1,#2)")
+    public static native def sleep(millis:Long, nanos:Int):void;
+
+    @Native("java","java.util.concurrent.locks.LockSupport.park()")
+    @Native("c++", "x10::lang::Thread::park()")
+    public static native def park():void;
+
+    @Native("java", "java.util.concurrent.locks.LockSupport.parkNanos(#1)")
+    @Native("c++", "x10::lang::Thread::parkNanos(#1)")
+    public static native def parkNanos(nanos:Long):void;
+
+    @Native("java", "java.util.concurrent.locks.LockSupport.unpark(#0)")
+    @Native("c++", "(#0)->unpark()")
+    public native def unpark():void;
+
+    @Native("java", "#0.getName()")
+    @Native("c++", "(#0)->getName()")
+    public native def name():String;
+
+    @Native("java", "#0.setName(#1)")
+    @Native("c++", "(#0)->setName(#1)")
+    public native def name(name:String):void;
+
+    @Native("java", "#0.home()")
+    @Native("c++", "(#0)->home()")
+    public native def home():Place;
 }
 
 // vim:shiftwidth=4:tabstop=4:expandtab

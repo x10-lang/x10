@@ -91,7 +91,7 @@ public class Activity {
     public static def sleep(millis:long):Boolean {
         try {
             Runtime.increaseParallelism();
-            Runtime.Thread.sleep(millis);
+            Thread.sleep(millis);
             Runtime.decreaseParallelism(1);
             return true;
         } catch (e:InterruptedException) {
