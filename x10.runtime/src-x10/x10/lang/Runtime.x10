@@ -852,6 +852,36 @@ import x10.util.Box;
         activity().currentState().pushException(t);
     }
 
+    public static def startCollectingFinish[T](r:Reducible[T]) {
+        val a = Runtime.activity();
+        if (null == a.finishStack)
+            a.finishStack = new Stack[FinishState]();
+        a.finishStack.push(new FinishState.RootCollectingFinish[T](r));
+    }
+
+    public static def offer[T](t:T) {
+        val thisWorker = Runtime.worker();
+        val id = thisWorker.workerId;
+        val state = Runtime.activity().currentState();
+//      Console.OUT.println("Place(" + here.id + ") Runtime.offer: received " + t);
+        if (here.equals(state.home())) {
+            (state as FinishState.RootCollectingFinish[T]).accept(t,id);
+        } else {
+            (Runtime.proxy(state as FinishState.RootFinish) as FinishState.RemoteCollectingFinish[T]).accept(t,id);
+        }
+    }
+
+    public static def stopCollectingFinish[T]():T {
+        val thisWorker = Runtime.worker();
+        val id = thisWorker.workerId;
+        val state = Runtime.activity().currentState();
+        (state as FinishState.RootCollectingFinish[T]).notifyActivityTermination();
+        val result = (state as FinishState.RootCollectingFinish[T]).waitForFinishExpr(true);
+        val a = Runtime.activity();
+        a.finishStack.pop();
+        return result;
+    }
+
     static def scan(random:Random, latch:Latch, block:Boolean):Activity {
         return runtime().pool.scan(random, latch, block);
     }

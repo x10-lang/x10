@@ -991,44 +991,6 @@ interface FinishState {
          }
     }
 
-     //Collecting Finish Implementation
-    // All these methods should be moved to Pool.
-    @Pinned public static class CollectingFinish {
-        //Exposed API
-        public static def startFinish[T](r:Reducible[T]) {
-            val a = Runtime.activity();
-            if (null == a.finishStack)
-                a.finishStack = new Stack[FinishState]();
-            a.finishStack.push(new RootCollectingFinish[T](r));
-
-        }
-
-        public static def offer[T](t:T) {
-            val thisWorker = Runtime.worker();
-            val id = thisWorker.workerId;
-            val state = Runtime.activity().currentState();
-        //	    Console.OUT.println("Place(" + here.id + ") Runtime.offer: received " + t);
-            if (here.equals(state.home())) {
-                (state as RootCollectingFinish[T]).accept(t,id);
-            } else {
-                (Runtime.proxy(state as RootFinish) as RemoteCollectingFinish[T]).accept(t,id);
-            }
-       }
-        public static def stopFinishExpr[T]():T {
-             val thisWorker = Runtime.worker();
-             val id = thisWorker.workerId;
-             val state = Runtime.activity().currentState();
-             (state as RootCollectingFinish[T]).notifyActivityTermination();                       
-             //assert here.equals(home);
-             val result = (state as RootCollectingFinish[T]).waitForFinishExpr(true);
-             val a = Runtime.activity();
-             a.finishStack.pop();  
-             return result;
-            
-       }
-
-    }
-
     static interface RemoteFinishState {
         
         public def notifyActivityCreation():void;

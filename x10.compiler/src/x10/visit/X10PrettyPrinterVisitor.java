@@ -1629,8 +1629,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	}
 
     private static final Name STOP_FINISH = Name.make("stopFinish");
-    private static final Name STOPFINISHEXPR = Name.make("stopFinishExpr");
-    private static final String COLLECTING_FINISH = "x10.lang.FinishState.CollectingFinish";
+    private static final Name STOP_COLLECTING_FINISH = Name.make("stopCollectingFinish");
 
 	private boolean isFinish(Try c) {
 	    Block block = c.finallyBlock();
@@ -1655,8 +1654,10 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                         Expr right = ((LocalAssign) expr).right();
                         if (right instanceof Call) {
                             Call call = (Call) right;
-                            if (call.target().type().toString().startsWith(COLLECTING_FINISH) && call.methodInstance().name().equals(STOPFINISHEXPR)) {
-                                return true;
+                            if (call.target().type().typeEquals(((X10TypeSystem) tr.typeSystem()).Runtime(), tr.context())) {
+                                if (call.methodInstance().name().equals(STOP_COLLECTING_FINISH)) {
+                                    return true;
+                                }
                             }
                         }
                     }

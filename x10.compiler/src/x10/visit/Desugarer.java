@@ -846,16 +846,15 @@ public class Desugarer extends ContextVisitor {
         		tcfBlock);
     }
     
-    private static final Name STOPFINISHEXPR = Name.make("stopFinishExpr");
-    private static final Name STARTFINISH = Name.make("startFinish");
-    private static final String COLLECTING_FINISH = "x10.lang.FinishState.CollectingFinish";
+    private static final Name START_COLLECTING_FINISH = Name.make("startCollectingFinish");
+    private static final Name STOP_COLLECTING_FINISH = Name.make("stopCollectingFinish");
 
     // x = finish (R) S; ->
     //    {
-    //    val f = new FinishState.CollectingFinish(R);
+    //    Runtime.startCollectingFinish(R);
     //    try { S; }
     //    catch (t:Throwable) { Runtime.pushException(t); }
-    //    finally { x = f.stopFinishExpr(); }
+    //    finally { x = Runtime.stopCollectingFinish(); }
     //    }
     private Stmt visitFinishExpr(Assign n, LocalDecl l, Return r) throws SemanticException {
     	FinishExpr f = null;
@@ -884,9 +883,7 @@ public class Desugarer extends ContextVisitor {
         Type reducerTarget = X10TypeMixin.reducerType(reducerType);
         assert reducerTarget!=null;
         
-        X10ParsedClassType coFinish = (X10ParsedClassType) xts.load(COLLECTING_FINISH);
-
-        Call myCall = synth.makeStaticCall(pos, coFinish, STARTFINISH, Collections.<TypeNode>singletonList(xnf.CanonicalTypeNode(pos, reducerTarget)), Collections.singletonList(reducer), xts.Void(), Collections.singletonList(reducerType), context());
+        Call myCall = synth.makeStaticCall(pos, xts.Runtime(), START_COLLECTING_FINISH, Collections.<TypeNode>singletonList(xnf.CanonicalTypeNode(pos, reducerTarget)), Collections.singletonList(reducer), xts.Void(), Collections.singletonList(reducerType), context());
 
         Stmt s1 = xnf.Eval(pos, myCall);
         Block tryBlock = xnf.Block(pos,f.body());
@@ -906,20 +903,18 @@ public class Desugarer extends ContextVisitor {
         
         // Begin finally block
         Stmt returnS = null;
+        Call staticCall = synth.makeStaticCall(pos, xts.Runtime(), STOP_COLLECTING_FINISH, Collections.<TypeNode>singletonList(xnf.CanonicalTypeNode(pos, reducerTarget)), Collections.<Expr>emptyList(), reducerTarget, Collections.<Type>emptyList(), context());
         if ((l==null) && (n!=null)&& (r==null)) {
         	Expr left = n.left().type(reducerTarget);
-            Call staticCall = synth.makeStaticCall(pos, coFinish, STOPFINISHEXPR, Collections.<TypeNode>singletonList(xnf.CanonicalTypeNode(pos, reducerTarget)), Collections.<Expr>emptyList(), reducerTarget, Collections.<Type>emptyList(), context());
             Expr b = assign(pos, left, Assign.ASSIGN, staticCall);
             returnS = xnf.Eval(pos, b);
         }
         if ((n==null) && (l!=null) && (r==null)) {
             Expr local2 = xnf.Local(pos, l.name()).localInstance(l.localDef().asInstance()).type(reducerTarget);
-            Call staticCall = synth.makeStaticCall(pos, coFinish, STOPFINISHEXPR, Collections.<TypeNode>singletonList(xnf.CanonicalTypeNode(pos, reducerTarget)), Collections.<Expr>emptyList(), reducerTarget, Collections.<Type>emptyList(), context());
          	Expr b = assign(pos, local2, Assign.ASSIGN, staticCall);
             returnS = xnf.Eval(pos, b);
         }
         if ((n==null) && (l==null) && (r!=null)) {
-            Call staticCall = synth.makeStaticCall(pos, coFinish, STOPFINISHEXPR, Collections.<TypeNode>singletonList(xnf.CanonicalTypeNode(pos, reducerTarget)), Collections.<Expr>emptyList(), reducerTarget, Collections.<Type>emptyList(), context());
             returnS = xnf.X10Return(pos, staticCall, true);
         }
         
@@ -979,9 +974,7 @@ public class Desugarer extends ContextVisitor {
         TypeNode reducerA = (TypeNode) CCE;
         Expr newOfferTarget = xnf.X10Cast(pos, reducerA, offerTarget,Converter.ConversionType.CHECKED).type(reducerA.type());
 
-    	Type coFinish = xts.load(COLLECTING_FINISH);
-        Type coFinishT = (((X10ParsedClassType)coFinish).typeArguments(Collections.singletonList(expectType))); 	   	  	    	    	
-    	Call call = synth.makeStaticCall(pos, coFinishT, OFFER, Collections.singletonList(offerTarget), xts.Void(), Collections.singletonList(expectType),  context());
+    	Call call = synth.makeStaticCall(pos, xts.Runtime(), OFFER, Collections.singletonList(offerTarget), xts.Void(), Collections.singletonList(expectType),  context());
     	
     	Stmt offercall = xnf.Eval(pos, call);     	
     	return offercall;		 
