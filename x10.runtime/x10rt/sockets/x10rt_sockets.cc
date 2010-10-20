@@ -193,9 +193,9 @@ int initLink(uint32_t remotePlace)
 
 			if (m.type == HELLO)
 			{
+				pthread_mutex_init(&state.writeLocks[remotePlace], NULL);
 				state.socketLinks[remotePlace].fd = newFD;
 				state.socketLinks[remotePlace].events = POLLIN | POLLPRI;
-				pthread_mutex_init(&state.writeLocks[remotePlace], NULL);
 				#ifdef DEBUG
 					printf("X10rt.Sockets: Place %u established a link to place %u\n", state.myPlaceId, remotePlace);
 				#endif
@@ -461,7 +461,8 @@ void x10rt_net_probe ()
 
 void probe (bool onlyProcessAccept)
 {
-	pthread_mutex_lock(&state.readLock);
+	if (pthread_mutex_lock(&state.readLock) < 0)
+		return;
 	uint32_t whichPlaceToHandle = state.nextSocketToCheck;
 	int ret = poll(state.socketLinks, state.numPlaces, 0);
 	if (ret > 0)
@@ -651,7 +652,8 @@ void probe (bool onlyProcessAccept)
 					free(mp.msg);
 			}
 			// reenable the poll on this socket
-			pthread_mutex_lock(&state.readLock);
+			if (pthread_mutex_lock(&state.readLock) < 0)
+				return;
 			state.socketLinks[whichPlaceToHandle].events = POLLIN | POLLPRI;
 			pthread_mutex_unlock(&state.readLock);
 		}
@@ -673,15 +675,20 @@ void x10rt_net_finalize (void)
 		printf("X10rt.Sockets: shutting down place %u\n", state.myPlaceId);
 	#endif
 
-	pthread_mutex_destroy(&state.readLock);
 	for (unsigned int i=0; i<state.numPlaces; i++)
 	{
 		if (state.socketLinks[i].fd != -1)
 		{
+			pthread_mutex_lock(&state.writeLocks[i]);
 			close(state.socketLinks[i].fd);
+			pthread_mutex_unlock(&state.writeLocks[i]);
 			pthread_mutex_destroy(&state.writeLocks[i]);
 		}
 	}
+
+	if (Launcher::_parentLauncherControlLink != -1)
+		close(Launcher::_parentLauncherControlLink);
+	pthread_mutex_destroy(&state.readLock);
 	free(state.myhost);
 	free(state.socketLinks);
 	free(state.writeLocks);
