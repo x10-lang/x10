@@ -101,13 +101,15 @@ public class KMeansDist {
                 val central_cluster_counts_gr = GlobalRef(central_cluster_counts);
                 val there = here;
                 for (d in points_dist.places()) async {
-               
+                    // access PlaceLocalHandles 'here' and then data will be captured by at and transfered to 'there' for accumulation
+                    val tmp_new_clusters = local_new_clusters();
+                    val tmp_cluster_counts = local_cluster_counts();
                     at (there) atomic {
                         for (var j:Int=0 ; j<DIM*CLUSTERS ; ++j) {
-                            central_clusters_gr()(j) += local_new_clusters()(j);
+                            central_clusters_gr()(j) += tmp_new_clusters(j);
                         }
                         for (var j:Int=0 ; j<CLUSTERS ; ++j) {
-                            central_cluster_counts_gr()(j) += local_cluster_counts()(j);
+                            central_cluster_counts_gr()(j) += tmp_cluster_counts(j);
                         }
                     }
                 }
