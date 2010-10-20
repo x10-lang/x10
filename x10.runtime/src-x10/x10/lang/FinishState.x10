@@ -1007,7 +1007,7 @@ interface FinishState {
         public static def offer[T](t:T) {
             val thisWorker = Runtime.worker();
             val id = thisWorker.workerId;
-            val state = Runtime.currentState();
+            val state = Runtime.activity().currentState();
         //	    Console.OUT.println("Place(" + here.id + ") Runtime.offer: received " + t);
             if (here.equals(state.home())) {
                 (state as RootCollectingFinish[T]).accept(t,id);
@@ -1018,7 +1018,7 @@ interface FinishState {
         public def stopFinishExpr():T {
              val thisWorker = Runtime.worker();
              val id = thisWorker.workerId;
-             val state = Runtime.currentState();
+             val state = Runtime.activity().currentState();
              (state as RootCollectingFinish[T]).notifyActivityTermination();                       
              //assert here.equals(home);
              val result = (state as RootCollectingFinish[T]).waitForFinishExpr(true);

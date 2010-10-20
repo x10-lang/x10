@@ -47,7 +47,7 @@ namespace x10 {
             // dst is the place where the finish update will occur, i.e. where the notifier runs
             dst = parent(dst);
             ref<Runtime> rt = PlaceLocalHandle_methods<ref<Runtime> >::apply(Runtime::FMGL(runtime));
-            ref<Reference> fs = rt->currentState();
+            ref<Reference> fs = rt->activity()->currentState();
             (fs.operator->()->*(findITable<FinishState>(fs->_getITables())->notifySubActivitySpawn))(Place_methods::_make(dst));
             buf.write(fs);
         }

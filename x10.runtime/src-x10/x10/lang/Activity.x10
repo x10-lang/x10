@@ -13,12 +13,71 @@ package x10.lang;
 
 import x10.compiler.Native;
 import x10.compiler.NativeString;
+
+import x10.util.HashMap;
 import x10.util.Stack;
 
 /**
  * @author tardieu
  */
 public class Activity {
+
+
+    static class ClockPhases extends HashMap[Clock,Int] {
+        static def make(clocks:Array[Clock]{rail}, phases:Array[Int]{rail}):ClockPhases {
+            val clockPhases = new ClockPhases();
+            for(var i:Int = 0; i < clocks.size; i++) 
+                clockPhases.put(clocks(i), phases(i));
+            return clockPhases;
+        }
+
+        def register(clocks:Array[Clock]{rail}) {
+            return new Array[Int](clocks.size, (i:Int)=>clocks(i).register());
+        }
+
+        def next() {
+            for(clock:Clock in keySet()) clock.resumeUnsafe();
+            for(clock:Clock in keySet()) clock.nextUnsafe();
+        }
+        def resume() {
+            for(clock:Clock in keySet()) clock.resume();
+        }
+
+        def drop() {
+            for(clock:Clock in keySet()) clock.dropInternal();
+            clear();
+        }
+
+        // HashMap implments CustomSerialization, so we must as well
+        // Only constructor is actually required, but stub out serialize as well
+        // as a reminder that if instance fields are added to ClockPhases then
+        // work will have to be done here to serialize them.
+        public def serialize() = super.serialize();
+        def this() { super(); }
+        def this(a:Any) { super(a); }
+    }
+
+    /**
+     * Return the clock phases for the current activity
+     */
+    def clockPhases():ClockPhases {
+        if (null == clockPhases)
+            clockPhases = new ClockPhases();
+        return clockPhases;
+    }
+
+    def safe():Boolean {
+        return safe && (null == clockPhases);
+    }
+
+    /**
+     * Return the innermost finish state for the current activity
+     */
+    public def currentState():FinishState {
+        if (null == finishStack || finishStack.isEmpty())
+            return finishState;
+        return finishStack.peek();
+    }
 
 	// Useful for the Java runtime? 
 	private val root = GlobalRef[Activity](this);
@@ -60,7 +119,7 @@ public class Activity {
      * The mapping from registered clocks to phases for this activity.
      * Lazily created.
      */
-    var clockPhases:Runtime.ClockPhases;
+    var clockPhases:ClockPhases;
 
     /**
      * The finish states for the finish statements currently executed by this activity.
@@ -85,7 +144,7 @@ public class Activity {
      */
     def this(body:()=>Void, finishState:FinishState, clocks:Array[Clock]{rail}, phases:Array[Int]{rail}) {
         this(body, finishState, false);
-        clockPhases = Runtime.ClockPhases.make(clocks, phases);
+        clockPhases = ClockPhases.make(clocks, phases);
     }
 
     def pushAtomic() {

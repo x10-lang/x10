@@ -13,19 +13,14 @@ package x10.lang;
 
 import x10.compiler.Native;
 import x10.compiler.NativeClass;
-import x10.compiler.NativeString;
 import x10.compiler.Pinned;
 import x10.compiler.Global;
 import x10.compiler.SuppressTransientError;
 
 import x10.io.CustomSerialization;
 
-import x10.util.HashMap;
-import x10.util.GrowableRail;
-import x10.util.Pair;
 import x10.util.Random;
 import x10.util.Stack;
-import x10.util.concurrent.atomic.AtomicInteger;
 import x10.util.Box;
 /**
  * @author tardieu
@@ -164,41 +159,6 @@ import x10.util.Box;
     }
 
 
-    static class ClockPhases extends HashMap[Clock,Int] {
-        static def make(clocks:Array[Clock]{rail}, phases:Array[Int]{rail}):ClockPhases {
-            val clockPhases = new ClockPhases();
-            for(var i:Int = 0; i < clocks.size; i++) 
-                clockPhases.put(clocks(i), phases(i));
-            return clockPhases;
-        }
-
-        def register(clocks:Array[Clock]{rail}) {
-            return new Array[Int](clocks.size, (i:Int)=>clocks(i).register());
-        }
-
-        def next() {
-            for(clock:Clock in keySet()) clock.resumeUnsafe();
-            for(clock:Clock in keySet()) clock.nextUnsafe();
-        }
-        def resume() {
-            for(clock:Clock in keySet()) clock.resume();
-        }
-
-        def drop() {
-            for(clock:Clock in keySet()) clock.dropInternal();
-            clear();
-        }
-
-        // HashMap implments CustomSerialization, so we must as well
-        // Only constructor is actually required, but stub out serialize as well
-        // as a reminder that if instance fields are added to ClockPhases then
-        // work will have to be done here to serialize them.
-        public def serialize() = super.serialize();
-        def this() { super(); }
-        def this(a:Any) { super(a); }
-    }
-
-
     /**
      * A mortal object is garbage collected when there are no remaining local refs even if remote refs might still exist
      */
@@ -319,7 +279,7 @@ import x10.util.Box;
                     activity = Runtime.scan(random, latch, block);
                     if (activity == null) return false;
                 }
-                runAtLocal(activity.home().id, (activity as Activity).run.());
+                runAtLocal(activity.home().id, activity.run.());
             }
             return true;
         }
@@ -333,7 +293,7 @@ import x10.util.Box;
                     activity = tmp; // restore current activity
                     return;
                 }
-                runAtLocal(activity.home().id, (activity as Activity).run.());
+                runAtLocal(activity.home().id, activity.run.());
             }
         }
     }
@@ -512,7 +472,7 @@ import x10.util.Box;
     /**
      * Return the current activity
      */
-    public static def activity():Activity = worker().activity() as Activity;
+    public static def activity():Activity = worker().activity();
 
     /**
      * Return the current place
@@ -608,10 +568,11 @@ import x10.util.Box;
      */
     public static def runAsync(place:Place, clocks:Array[Clock]{rail}, body:()=>void):void {
         // Do this before anything else
-        activity().ensureNotInAtomic();
+        val a = activity();
+        a.ensureNotInAtomic();
         
-        val state = currentState();
-        val phases = clockPhases().register(clocks);
+        val state = a.currentState();
+        val phases = a.clockPhases().register(clocks);
         state.notifySubActivitySpawn(place);
         if (place.id == hereInt()) {
             execute(new Activity(deepCopy(body), state, clocks, phases));
@@ -623,11 +584,12 @@ import x10.util.Box;
 
     public static def runAsync(place:Place, body:()=>void):void {
         // Do this before anything else
-        activity().ensureNotInAtomic();
+        val a = activity();
+        a.ensureNotInAtomic();
         
-        val state = currentState();
+        val state = a.currentState();
         state.notifySubActivitySpawn(place);
-        val ok = safe();
+        val ok = a.safe();
         if (place.id == hereInt()) {
             execute(new Activity(deepCopy(body), state, ok));
         } else {
@@ -645,28 +607,31 @@ import x10.util.Box;
 
     public static def runAsync(clocks:Array[Clock]{rail}, body:()=>void):void {
         // Do this before anything else
-        activity().ensureNotInAtomic();
+        val a = activity();
+        a.ensureNotInAtomic();
         
-        val state = currentState();
-        val phases = clockPhases().register(clocks);
+        val state = a.currentState();
+        val phases = a.clockPhases().register(clocks);
         state.notifySubActivitySpawn(here);
         execute(new Activity(body, state, clocks, phases));
     }
 
     public static def runAsync(body:()=>void):void {
         // Do this before anything else
-        activity().ensureNotInAtomic();
+        val a = activity();
+        a.ensureNotInAtomic();
         
-        val state = currentState();
+        val state = a.currentState();
         state.notifySubActivitySpawn(here);
-        execute(new Activity(body, state, safe()));
+        execute(new Activity(body, state, a.safe()));
     }
 
     public static def runUncountedAsync(place:Place, body:()=>void):void {
         // Do this before anything else
-        activity().ensureNotInAtomic();
+        val a = activity();
+        a.ensureNotInAtomic();
         
-        val ok = safe();
+        val ok = a.safe();
         if (place.id == hereInt()) {
             execute(new Activity(deepCopy(body), ok));
         } else {
@@ -684,9 +649,10 @@ import x10.util.Box;
 
     public static def runUncountedAsync(body:()=>void):void {
         // Do this before anything else
-        activity().ensureNotInAtomic();
+        val a = activity();
+        a.ensureNotInAtomic();
         
-        execute(new Activity(body, safe()));
+        execute(new Activity(body, a.safe()));
     }
 
     /**
@@ -721,7 +687,7 @@ import x10.util.Box;
             }
         }
         val me = box();
-        if (!NO_STEALS && safe()) worker().join(me.latch);
+        if (!NO_STEALS && activity().safe()) worker().join(me.latch);
         me.latch.await();
         if (null != me.e) {
             val x = me.e.value;
@@ -765,7 +731,7 @@ import x10.util.Box;
             }
         }
         val me = box();
-        if (!NO_STEALS && safe()) worker().join(me.latch);
+        if (!NO_STEALS && activity().safe()) worker().join(me.latch);
         me.latch.await();
         if (null != me.e) {
             val x = me.e.value;
@@ -776,19 +742,6 @@ import x10.util.Box;
         }
         return me.t.value;
     }
-
-    /**
-     * Eval future expression
-  
-    public static def evalFuture[T](place:Place, eval:()=>T):Future[T] {
-        val f = at (place) {
-                   val f1 = new Future[T](eval);
-                   async f1.run();
-                   f1
-                };
-        return f;
-    }
-   */
 
     // atomic, await, when
 
@@ -835,41 +788,21 @@ import x10.util.Box;
     // clocks
 
     /**
-     * Return the clock phases for the current activity
-     */
-    static def clockPhases():ClockPhases {
-        val a = activity();
-        if (null == a.clockPhases)
-            a.clockPhases = new ClockPhases();
-        return a.clockPhases;
-    }
-
-    /**
      * Next statement = next on all clocks in parallel.
      */
     @Native("cuda", "__syncthreads()")
     public static def next():void {
         ensureNotInAtomic();
-        clockPhases().next();
+        activity().clockPhases().next();
     }
     
     /**
      * Resume statement = resume on all clocks in parallel.
      */
-    public static def resume():void = clockPhases().resume();
+    public static def resume():void = activity().clockPhases().resume();
 
 
     // finish
-
-    /**
-     * Return the innermost finish state for the current activity
-     */
-    public static def currentState():FinishState {
-        val a = activity();
-        if (null == a.finishStack || a.finishStack.isEmpty())
-            return a.finishState;
-        return a.finishStack.peek();
-    }
 
     /**
      * Start executing current activity synchronously
@@ -908,7 +841,7 @@ import x10.util.Box;
         val a = activity();
         val finishState = a.finishStack.pop();
         finishState.notifyActivityTermination();
-        finishState.waitForFinish(safe());
+        finishState.waitForFinish(a.safe());
     }
 
     /**
@@ -916,14 +849,8 @@ import x10.util.Box;
      * onto the finish state.
      */
     public static def pushException(t:Throwable):void  {
-        currentState().pushException(t);
+        activity().currentState().pushException(t);
     }
-
-    private static def safe():Boolean {
-        val a = activity();
-        return a.safe && (null == a.clockPhases);
-    }
-
 
     static def scan(random:Random, latch:Latch, block:Boolean):Activity {
         return runtime().pool.scan(random, latch, block);
