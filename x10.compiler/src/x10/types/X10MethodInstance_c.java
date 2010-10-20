@@ -414,7 +414,9 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
                             self = xts.xtypeTranslator().trans(c, receiver, this, t);
                         }
 
-                        c.addSelfBinding(self);
+                        if (self != null) {
+                            c.addSelfBinding(self);
+                        }
                         if (! flags.isStatic()) {
                         	c.setThisVar((XVar) receiver);
                         }
@@ -422,9 +424,6 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
                     }
                     catch (XFailure f) {
                         throw new InternalCompilerError("Could not add self binding: " + f.getMessage(), f);
-                    }
-                    catch (SemanticException f) {
-                        throw new InternalCompilerError(f);
                     }
                 }
             }
