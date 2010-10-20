@@ -41,6 +41,7 @@ import polyglot.ast.Receiver;
 import polyglot.ast.Return;
 import polyglot.ast.Stmt;
 import polyglot.ast.StringLit;
+import polyglot.ast.Throw;
 import polyglot.ast.Try;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
@@ -803,11 +804,15 @@ public class Desugarer extends ContextVisitor {
         default:return call(pos, START_FINISH, xts.Void());
         }
     }
+
     // finish S; ->
+    //    {
     //    Runtime.ensureNotInAtomic();
-    //    try { Runtime.startFinish(); S; }
-    //    catch (t:Throwable) { Runtime.pushException(t); }
+    //    Runtime.startFinish();
+    //    try { S; }
+    //    catch (t:Throwable) { Runtime.pushException(t); throw new RuntimeException(); }
     //    finally { Runtime.stopFinish(); }
+    //    }
     private Stmt visitFinish(Finish f) throws SemanticException {
         Position pos = f.position();
         Name tmp = getTmp();
@@ -826,11 +831,11 @@ public class Desugarer extends ContextVisitor {
         Expr call = xnf.X10Call(pos, xnf.CanonicalTypeNode(pos, xts.Runtime()),
                 xnf.Id(pos, PUSH_EXCEPTION), Collections.<TypeNode>emptyList(),
                 Collections.singletonList(local)).methodInstance(mi).type(xts.Void());
+        Throw thr = throwRuntimeException(pos);
+        Expr startCall = specializedFinish2(f);
 
-        Block tryBlock = xnf.Block(pos, 
-        		xnf.Eval(pos,specializedFinish2(f)), 
-        		f.body());
-        Catch catchBlock = xnf.Catch(pos, formal, xnf.Block(pos, xnf.Eval(pos, call)));
+        Block tryBlock = xnf.Block(pos, f.body());
+        Catch catchBlock = xnf.Catch(pos, formal, xnf.Block(pos, xnf.Eval(pos, call), thr));
         Block finallyBlock = xnf.Block(pos, xnf.Eval(pos, call(pos, STOP_FINISH, xts.Void())));
 
         Try tcfBlock = xnf.Try(pos, tryBlock, Collections.singletonList(catchBlock), finallyBlock);
@@ -841,9 +846,18 @@ public class Desugarer extends ContextVisitor {
             tcfBlock = (Try)((X10Ext_c)tcfBlock.ext()).asyncInitVal(ext.asyncInitVal);
         }
 
-        return xnf.Block(pos, 
+        return xnf.Block(pos,
         		xnf.Eval(pos, call(pos, ENSURE_NOT_IN_ATOMIC, xts.Void())),
+        		xnf.Eval(pos, startCall),
         		tcfBlock);
+    }
+
+    // Generates a throw of a new RuntimeException().
+    private Throw throwRuntimeException(Position pos) throws SemanticException {
+        Type re = xts.RuntimeException();
+        X10ConstructorInstance ci = xts.findConstructor(re, xts.ConstructorMatcher(re, Collections.<Type>emptyList(), context()));
+        Expr newRE = xnf.New(pos, xnf.CanonicalTypeNode(pos, re), Collections.<Expr>emptyList()).constructorInstance(ci).type(re);
+        return xnf.Throw(pos, newRE);
     }
     
     private static final Name START_COLLECTING_FINISH = Name.make("startCollectingFinish");
@@ -853,7 +867,7 @@ public class Desugarer extends ContextVisitor {
     //    {
     //    Runtime.startCollectingFinish(R);
     //    try { S; }
-    //    catch (t:Throwable) { Runtime.pushException(t); }
+    //    catch (t:Throwable) { Runtime.pushException(t); throw new RuntimeException(); }
     //    finally { x = Runtime.stopCollectingFinish(); }
     //    }
     private Stmt visitFinishExpr(Assign n, LocalDecl l, Return r) throws SemanticException {
@@ -899,7 +913,8 @@ public class Desugarer extends ContextVisitor {
         Expr call = xnf.X10Call(pos, xnf.CanonicalTypeNode(pos, xts.Runtime()),
                 xnf.Id(pos, PUSH_EXCEPTION), Collections.<TypeNode>emptyList(),
                 Collections.singletonList(local)).methodInstance(mi).type(xts.Void());
-        Catch catchBlock = xnf.Catch(pos, formal, xnf.Block(pos, xnf.Eval(pos, call)));
+        Throw thr = throwRuntimeException(pos);
+        Catch catchBlock = xnf.Catch(pos, formal, xnf.Block(pos, xnf.Eval(pos, call), thr));
         
         // Begin finally block
         Stmt returnS = null;
@@ -926,8 +941,8 @@ public class Desugarer extends ContextVisitor {
     private static final Name OFFER = Name.make("offer");  
 
     //  offer e ->
-    //  x10.lang.Runtime.CollectingFinish.offer(e);      
-	private Stmt visitOffer(Offer n) throws SemanticException {		
+    //  x10.lang.Runtime.offer(e);      
+    private Stmt visitOffer(Offer n) throws SemanticException {		
     	Position pos = n.position();
     	Expr offerTarget = n.expr();
         Type expectType = null;
@@ -978,7 +993,7 @@ public class Desugarer extends ContextVisitor {
     	
     	Stmt offercall = xnf.Eval(pos, call);     	
     	return offercall;		 
-	}
+    }
 
     //handle finishR in return stmt:
     private Stmt visitReturn(Return n) throws SemanticException {

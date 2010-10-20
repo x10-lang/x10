@@ -1632,6 +1632,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     private static final Name STOP_COLLECTING_FINISH = Name.make("stopCollectingFinish");
 
 	private boolean isFinish(Try c) {
+	    if (true) return false;
 	    Block block = c.finallyBlock();
 	    if (block == null) return false;
 	    List<Stmt> statements = block.statements();
