@@ -846,11 +846,12 @@ public class Desugarer extends ContextVisitor {
         		tcfBlock);
     }
     
-    private static Name STOPFINISHEXPR = Name.make("stopFinishExpr");
+    private static final Name STOPFINISHEXPR = Name.make("stopFinishExpr");
+    private static final String COLLECTING_FINISH = "x10.lang.FinishState.CollectingFinish";
 
     // x = finish (R) S; ->
     //    {
-    //    val f = new Runtime.CollectingFinish(R);
+    //    val f = new FinishState.CollectingFinish(R);
     //    try { S; }
     //    catch (t:Throwable) { Runtime.pushException(t); }
     //    finally { x = f.stopFinishExpr(); }
@@ -882,10 +883,10 @@ public class Desugarer extends ContextVisitor {
         Type reducerTarget = X10TypeMixin.reducerType(reducerType);
         assert reducerTarget!=null;
         
-        Type coFinish = xts.load("x10.lang.Runtime.CollectingFinish");
-        Type coFinishT = (((X10ParsedClassType)coFinish).typeArguments(Collections.singletonList(reducerTarget)));
+        X10ParsedClassType coFinish = (X10ParsedClassType) xts.load(COLLECTING_FINISH);
+        X10ParsedClassType coFinishT = coFinish.typeArguments(Collections.singletonList(reducerTarget));
         CanonicalTypeNode TTE = xnf.CanonicalTypeNode(pos, coFinishT);
-        X10ConstructorInstance ti = xts.findConstructor(coFinishT, xts.ConstructorMatcher(coFinishT, Collections.singletonList(reducerType), context()));
+        X10ConstructorInstance ti = xts.findConstructor(coFinishT, xts.ConstructorMatcher(coFinishT, Collections.singletonList(reducerType), context().pushClass(coFinishT.def(), coFinishT)));
         Expr newCF = xnf.New(pos, TTE, Collections.singletonList(reducer)).constructorInstance(ti).type(coFinishT);
 
         Name tmp1 = getTmp();
@@ -935,7 +936,7 @@ public class Desugarer extends ContextVisitor {
         return xnf.Block(pos, localDecl, s1, xnf.Try(pos, tryBlock, Collections.singletonList(catchBlock), finalBlock));
     }
 
-    private static Name OFFER = Name.make("offer");  
+    private static final Name OFFER = Name.make("offer");  
 
     //  offer e ->
     //  x10.lang.Runtime.CollectingFinish.offer(e);      
@@ -986,7 +987,7 @@ public class Desugarer extends ContextVisitor {
         TypeNode reducerA = (TypeNode) CCE;
         Expr newOfferTarget = xnf.X10Cast(pos, reducerA, offerTarget,Converter.ConversionType.CHECKED).type(reducerA.type());
 
-    	Type coFinish = xts.load("x10.lang.Runtime.CollectingFinish");
+    	Type coFinish = xts.load(COLLECTING_FINISH);
         Type coFinishT = (((X10ParsedClassType)coFinish).typeArguments(Collections.singletonList(expectType))); 	   	  	    	    	
     	Call call = synth.makeStaticCall(pos, coFinishT, OFFER, Collections.singletonList(offerTarget), xts.Void(), Collections.singletonList(expectType),  context());
     	
