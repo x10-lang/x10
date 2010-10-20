@@ -367,6 +367,7 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 	        }
 	    }
 
+	    w.write (")");
 	    w.write(" ");
 	    w.write(op.toString());
 	    w.write(" ");
@@ -374,8 +375,6 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 	    print(right, w, tr);
 
 	    w.end();
-
-	    w.write (")");
 	}
 
 	public String leftToString() {
