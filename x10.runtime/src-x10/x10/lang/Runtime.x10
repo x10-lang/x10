@@ -167,7 +167,7 @@ import x10.util.Box;
 
 
     @Pinned final static class Worker extends Thread implements ()=>Void {
-        var latch:Latch;
+        val latch:Latch;
         // release the latch to stop the worker
 
         // bound on loop iterations to help j9 jit
@@ -183,20 +183,20 @@ import x10.util.Box;
         private val random:Random;
 
         //Worker Id for CollectingFinish
-        public var workerId :Int;
-        public def setWorkerId(id:Int) {
-            workerId = id;
-        }
+        public val workerId:Int;
 
-        def this(main:()=>Void, name:String) {
-            super(main, name);
+        def this(main:()=>Void) {
+            super(main, "thread-main");
+            latch = new Latch();
+            workerId = 0;
             random = new Random(0);
         }
 
-        def this(latch:Latch, p:Int) {
-            super(runtime().pool.workers(p).apply.(), "");
-            this.latch = latch;
-            random = new Random(p + (p << 8) + (p << 16) + (p << 24));
+        def this(workerId:Int) {
+            super(()=>runtime().pool.workers(workerId)(), "thread-" + workerId);
+            this.latch = worker().latch;
+            this.workerId = workerId;
+            random = new Random(workerId + (workerId << 8) + (workerId << 16) + (workerId << 24));
         }
 
         // return size of the deque
@@ -259,6 +259,13 @@ import x10.util.Box;
                 runAtLocal(activity.home().id, activity.run.());
             }
         }
+
+        /**
+         * Request thread pool to quit
+         */
+        def kill() {
+            latch.release();
+        }
     }
 
     public static def probe() {
@@ -274,7 +281,6 @@ import x10.util.Box;
     }
 
     @Pinned static class Pool implements ()=>void {
-        private val latch:Latch;
         private var size:Int; // the number of workers in the pool
 
         private var spares:Int = 0; // the number of spare workers in the pool
@@ -289,22 +295,17 @@ import x10.util.Box;
         // the workers in the pool
         private val workers:Rail[Worker];
         
-        def this(rootFinish:FinishState.RootFinish, size:Int) {
-            val latch:Latch = rootFinish != null ? rootFinish.latch : new Latch();
-            this.latch = latch;
+        def this(size:Int) {
             this.size = size;
             val workers = Rail.make[Worker](MAX);
 
             // worker for the master thread
             workers(0) = worker();
-            workers(0).setWorkerId(0);
-            workers(0).latch = latch;
 
             // other workers
             for (var i:Int = 1; i<size; i++) {
-                val worker = new Worker(latch, i);
+                val worker = new Worker(i);
                 workers(i) = worker;
-                workers(i).setWorkerId(i);
             }
             this.workers = workers;
         }
@@ -335,7 +336,7 @@ import x10.util.Box;
                     println("TOO MANY THREADS... ABORTING");
                     System.exit(1);
                 }
-                val worker = new Worker(latch, i);
+                val worker = new Worker(i);
                 workers(i) = worker;
                 worker.start();
             }
@@ -380,13 +381,6 @@ import x10.util.Box;
                 }
                 if (++next == size) next = 0;
             }
-        }
-
-        /**
-         * Request thread pool to quit
-         */
-        def kill() {
-            latch.release();
         }
     }
 
@@ -451,11 +445,8 @@ import x10.util.Box;
      * @param body Main activity
      */
     public static def start(init:()=>void, body:()=>void):void {
-        // in place 0 allocate root finish
-        val rootFinish:FinishState.RootFinish = hereInt() == 0 ? new FinishState.RootFinish() : null;
-
         // initialize thread pool for the current process
-        val pool = new Pool(rootFinish, INIT_THREADS);
+        val pool = new Pool(INIT_THREADS);
 
         try {
             // initialize runtime
@@ -471,6 +462,7 @@ import x10.util.Box;
             registerHandlers();
 
             if (hereInt() == 0) {
+                val rootFinish = new FinishState.RootFinish(worker().latch);
                 // in place 0 schedule the execution of the static initializers fby main activity
                 execute(new Activity(()=>{finish init(); body();}, rootFinish, true));
 
@@ -505,7 +497,7 @@ import x10.util.Box;
      * Used by process at place 0 to request termination of other processes
      */
     def kill():void {
-        pool.kill();
+        worker().kill();
     }
 
     static def report():void {

@@ -198,7 +198,10 @@ interface FinishState {
         transient protected var exceptions:Stack[Throwable];
         transient protected val latch:Latch; 
         def this() {
-        latch = new Latch();
+            this(new Latch());
+        }
+        def this(latch:Latch) {
+            this.latch = latch;
             val c = Rail.make[Int](Place.MAX_PLACES, (Int)=>0);
             seen = Rail.make[Boolean](Place.MAX_PLACES, (Int)=>false);
             c(here.id) = 1;
