@@ -217,7 +217,7 @@ import x10.util.Box;
                     activity = Runtime.scan(random, latch, block);
                     if (activity == null) return false;
                 }
-                runAtLocal(activity.home().id, activity.run.());
+                runAtLocal(activity.home, activity.run.());
             }
             return true;
         }
@@ -231,7 +231,7 @@ import x10.util.Box;
                     activity = tmp; // restore current activity
                     return;
                 }
-                runAtLocal(activity.home().id, activity.run.());
+                runAtLocal(activity.home, activity.run.());
             }
         }
 
@@ -490,7 +490,7 @@ import x10.util.Box;
         val a = activity();
         a.ensureNotInAtomic();
         
-        val state = a.currentState();
+        val state = a.finishState();
         val phases = a.clockPhases().register(clocks);
         state.notifySubActivitySpawn(place);
         if (place.id == hereInt()) {
@@ -506,7 +506,7 @@ import x10.util.Box;
         val a = activity();
         a.ensureNotInAtomic();
         
-        val state = a.currentState();
+        val state = a.finishState();
         state.notifySubActivitySpawn(place);
         val ok = a.safe();
         if (place.id == hereInt()) {
@@ -529,7 +529,7 @@ import x10.util.Box;
         val a = activity();
         a.ensureNotInAtomic();
         
-        val state = a.currentState();
+        val state = a.finishState();
         val phases = a.clockPhases().register(clocks);
         state.notifySubActivitySpawn(here);
         execute(new Activity(body, state, clocks, phases));
@@ -540,7 +540,7 @@ import x10.util.Box;
         val a = activity();
         a.ensureNotInAtomic();
         
-        val state = a.currentState();
+        val state = a.finishState();
         state.notifySubActivitySpawn(here);
         execute(new Activity(body, state, a.safe()));
     }
@@ -728,26 +728,15 @@ import x10.util.Box;
      * (i.e. within a finish statement).
      */
     public static def startFinish():void {
-        val a = activity();
-        if (null == a.finishStack)
-            a.finishStack = new Stack[FinishState]();
-        a.finishStack.push(new FinishState.RootFinish());
+        activity().pushFinish(new FinishState.RootFinish());
     }
 
     public static def startLocalFinish():void {
-        val a = activity();
-        if (null == a.finishStack)
-            a.finishStack = new Stack[FinishState]();
-        val r = new FinishState.LocalRootFinish();
-        a.finishStack.push(r);
+        activity().pushFinish(new FinishState.LocalRootFinish());
     }
 
     public static def startSimpleFinish():void {
-        val a = activity();
-        if (null == a.finishStack)
-            a.finishStack = new Stack[FinishState]();
-        val r = new FinishState.SimpleRootFinish();
-        a.finishStack.push(r);
+        activity().pushFinish(new FinishState.SimpleRootFinish());
     }
 
     /**
@@ -758,7 +747,7 @@ import x10.util.Box;
      */
     public static def stopFinish():void {
         val a = activity();
-        val finishState = a.finishStack.pop();
+        val finishState = a.popFinish();
         finishState.notifyActivityTermination();
         finishState.waitForFinish(a.safe());
     }
@@ -768,20 +757,17 @@ import x10.util.Box;
      * onto the finish state.
      */
     public static def pushException(t:Throwable):void  {
-        activity().currentState().pushException(t);
+        activity().finishState().pushException(t);
     }
 
     public static def startCollectingFinish[T](r:Reducible[T]) {
-        val a = Runtime.activity();
-        if (null == a.finishStack)
-            a.finishStack = new Stack[FinishState]();
-        a.finishStack.push(new FinishState.RootCollectingFinish[T](r));
+        activity().pushFinish(new FinishState.RootCollectingFinish[T](r));
     }
 
     public static def offer[T](t:T) {
         val thisWorker = Runtime.worker();
         val id = thisWorker.workerId;
-        val state = Runtime.activity().currentState();
+        val state = Runtime.activity().finishState();
 //      Console.OUT.println("Place(" + here.id + ") Runtime.offer: received " + t);
         if (here.equals(state.home())) {
             (state as FinishState.RootCollectingFinish[T]).accept(t,id);
@@ -793,11 +779,10 @@ import x10.util.Box;
     public static def stopCollectingFinish[T]():T {
         val thisWorker = Runtime.worker();
         val id = thisWorker.workerId;
-        val state = Runtime.activity().currentState();
+        val state = Runtime.activity().finishState();
         (state as FinishState.RootCollectingFinish[T]).notifyActivityTermination();
         val result = (state as FinishState.RootCollectingFinish[T]).waitForFinishExpr(true);
-        val a = Runtime.activity();
-        a.finishStack.pop();
+        activity().popFinish();
         return result;
     }
 

@@ -20,6 +20,7 @@ import x10.util.Stack;
  * @author tardieu
  */
 class Activity {
+
     static class ClockPhases extends HashMap[Clock,Int] {
         static def make(clocks:Array[Clock]{rail}, phases:Array[Int]{rail}):ClockPhases {
             val clockPhases = new ClockPhases();
@@ -45,7 +46,7 @@ class Activity {
             clear();
         }
 
-        // HashMap implments CustomSerialization, so we must as well
+        // HashMap implements CustomSerialization, so we must as well
         // Only constructor is actually required, but stub out serialize as well
         // as a reminder that if instance fields are added to ClockPhases then
         // work will have to be done here to serialize them.
@@ -55,59 +56,38 @@ class Activity {
     }
 
     /**
-     * Return the clock phases for the current activity
-     */
-    def clockPhases():ClockPhases {
-        if (null == clockPhases)
-            clockPhases = new ClockPhases();
-        return clockPhases;
-    }
-
-    def safe():Boolean {
-        return safe && (null == clockPhases);
-    }
-
-    /**
-     * Return the innermost finish state for the current activity
-     */
-    def currentState():FinishState {
-        if (null == finishStack || finishStack.isEmpty())
-            return finishState;
-        return finishStack.peek();
-    }
-
-	// Useful for the Java runtime? 
-	private val root = GlobalRef[Activity](this);
-	def home():Place=root.home();
-
-    /**
      * the finish state governing the execution of this activity (may be remote)
      */
-    val finishState:FinishState;
+    private val finishState:FinishState;
 
     /**
      * safe to run pending jobs while waiting for a finish (temporary)
      */
-    val safe:Boolean;
+    private val safe:Boolean;
 
     /**
      * The user-specified code for this activity.
      */
-     private val body:()=>Void;
+    private val body:()=>Void;
 
     /**
      * The mapping from registered clocks to phases for this activity.
      * Lazily created.
      */
-    var clockPhases:ClockPhases;
+    private var clockPhases:ClockPhases;
 
     /**
      * The finish states for the finish statements currently executed by this activity.
      * Lazily created.
      */
-    var finishStack:Stack[FinishState];
-     
-    var atomicDepth:int = 0;
+    private var finishStack:Stack[FinishState];
+
+    private var atomicDepth:int = 0;
+
+    /**
+     * The place of the activity (for the java backend).
+     */
+    val home = Runtime.hereInt();
 
     /**
      * Create activity.
@@ -127,17 +107,6 @@ class Activity {
         clockPhases = ClockPhases.make(clocks, phases);
     }
 
-    def pushAtomic() {
-    	atomicDepth++;
-    }
-    def popAtomic() {
-    	atomicDepth--;
-    }
-    def inAtomic():boolean=atomicDepth > 0;
-    def ensureNotInAtomic() {
-    	if (atomicDepth > 0)
-    		throw new IllegalOperationException();
-    }
     /**
      * Create uncounted activity.
      */
@@ -145,6 +114,49 @@ class Activity {
         this.finishState = null;
         this.safe = safe;
         this.body = body;
+    }
+
+    /**
+     * Return the clock phases for the current activity
+     */
+    def clockPhases():ClockPhases {
+        if (null == clockPhases)
+            clockPhases = new ClockPhases();
+        return clockPhases;
+    }
+
+    /**
+     * Return the innermost finish state for the current activity
+     */
+    def finishState():FinishState {
+        if (null == finishStack || finishStack.isEmpty())
+            return finishState;
+        return finishStack.peek();
+    }
+
+    def pushFinish(f:FinishState) {
+        if (null == finishStack)
+            finishStack = new Stack[FinishState]();
+        finishStack.push(f);
+    }
+
+    def popFinish():FinishState = finishStack.pop();
+
+    def safe():Boolean = safe && (null == clockPhases);
+
+    def pushAtomic() {
+        atomicDepth++;
+    }
+
+    def popAtomic() {
+        atomicDepth--;
+    }
+
+    def inAtomic():boolean = atomicDepth > 0;
+
+    def ensureNotInAtomic() {
+        if (atomicDepth > 0)
+            throw new IllegalOperationException();
     }
 
     /**
