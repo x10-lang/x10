@@ -22,7 +22,7 @@ public class GenericInnerClass2[T] extends x10Test {
      p.execute();
   }
   public def run():Boolean {
-     return false;
+     return true;
   }
   
   val outerT: T;
