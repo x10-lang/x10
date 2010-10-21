@@ -12,6 +12,7 @@
 package x10.lang;
 
 import x10.compiler.NativeRep;
+
 /**
  * Native thread. Only to be used in the runtime implementation.
  * 

@@ -28,7 +28,7 @@ public class FinishTest2 extends x10Test {
 				async  {
 					atomic foo = 42;
 					x10.io.Console.OUT.print("waiting ...");
-					Activity.sleep(2000);
+					System.sleep(2000);
 					x10.io.Console.OUT.println("done.");
 					atomic flag = true;
 				}

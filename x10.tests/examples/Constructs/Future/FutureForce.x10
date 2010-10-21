@@ -23,7 +23,7 @@ public class FutureForce extends x10Test {
 
 	public def bar(): Int = {
 		x10.io.Console.OUT.print("waiting ...");
-		Activity.sleep(2000);
+		System.sleep(2000);
 		x10.io.Console.OUT.println("done.");
 		atomic flag = true;
 		return 42;

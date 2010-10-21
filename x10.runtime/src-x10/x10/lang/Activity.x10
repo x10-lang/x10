@@ -11,18 +11,15 @@
 
 package x10.lang;
 
-import x10.compiler.Native;
-import x10.compiler.NativeString;
-
 import x10.util.HashMap;
 import x10.util.Stack;
 
 /**
+ * Runtime representation of an async. Only to be used in the runtime implementation.
+ * 
  * @author tardieu
  */
-public class Activity {
-
-
+class Activity {
     static class ClockPhases extends HashMap[Clock,Int] {
         static def make(clocks:Array[Clock]{rail}, phases:Array[Int]{rail}):ClockPhases {
             val clockPhases = new ClockPhases();
@@ -73,7 +70,7 @@ public class Activity {
     /**
      * Return the innermost finish state for the current activity
      */
-    public def currentState():FinishState {
+    def currentState():FinishState {
         if (null == finishStack || finishStack.isEmpty())
             return finishState;
         return finishStack.peek();
@@ -82,23 +79,6 @@ public class Activity {
 	// Useful for the Java runtime? 
 	private val root = GlobalRef[Activity](this);
 	def home():Place=root.home();
-    /**
-     * Sleep for the specified number of milliseconds.
-     * [IP] NOTE: Unlike Java, x10 sleep() simply exits when interrupted.
-     * @param millis the number of milliseconds to sleep
-     * @return true if completed normally, false if interrupted
-     */
-    public static def sleep(millis:long):Boolean {
-        try {
-            Runtime.increaseParallelism();
-            Thread.sleep(millis);
-            Runtime.decreaseParallelism(1);
-            return true;
-        } catch (e:InterruptedException) {
-            Runtime.decreaseParallelism(1);
-            return false;
-        }
-    }
 
     /**
      * the finish state governing the execution of this activity (may be remote)
@@ -185,11 +165,6 @@ public class Activity {
         if (null != finishState) finishState.notifyActivityTermination();
         Runtime.dealloc(body);
     }
-
-    /**
-     * Activity-local storage
-     */
-    public var tag:Object;
 }
 
 // vim:shiftwidth=4:tabstop=4:expandtab

@@ -12,8 +12,6 @@
 package x10.lang;
 
 import x10.compiler.Native;
-import x10.compiler.NativeClass;
-import x10.compiler.NativeRep;
 import x10.compiler.Pinned;
 import x10.compiler.Global;
 import x10.compiler.SuppressTransientError;
@@ -135,29 +133,6 @@ import x10.util.Box;
 
     @Native("c++", "x10aux::dealloc(#1.operator->())")
     public static def dealloc (o:()=>void) { }
-
-
-    @NativeClass("java", "x10.runtime.impl.java", "Deque")
-    @NativeClass("c++", "x10.lang", "Deque")
-    @Pinned static final class Deque implements CustomSerialization {
-        public native def this();
-
-        public native def size():Int;
-
-        public native def poll():Object;
-
-        public native def push(t:Object):void;
-
-        public native def steal():Object;
-
-        public def serialize():Any {
-            throw new UnsupportedOperationException("Cannot serialize "+typeName());
-        }
-
-        private def this(Any) {
-            throw new UnsupportedOperationException("Cannot deserialize "+typeName());
-        }
-    }
 
 
     /**
