@@ -470,10 +470,7 @@ void probe (bool onlyProcessAccept)
 		if (onlyProcessAccept)
 		{
 			if ((state.socketLinks[state.myPlaceId].revents & POLLIN) || (state.socketLinks[state.myPlaceId].revents & POLLPRI))
-			{
 				whichPlaceToHandle = state.myPlaceId;
-				pthread_mutex_unlock(&state.readLock);
-			}
 			else
 			{
 				pthread_mutex_unlock(&state.readLock);
@@ -499,8 +496,8 @@ void probe (bool onlyProcessAccept)
 				state.nextSocketToCheck = whichPlaceToHandle+1;
 
 			state.socketLinks[whichPlaceToHandle].events = 0; // disable any further polls on this socket
-			pthread_mutex_unlock(&state.readLock);
 		}
+		pthread_mutex_unlock(&state.readLock);
 
 		if ((state.socketLinks[whichPlaceToHandle].revents & POLLHUP) || (state.socketLinks[whichPlaceToHandle].revents & POLLERR) || (state.socketLinks[whichPlaceToHandle].revents & POLLNVAL))
 		{
@@ -529,7 +526,7 @@ void probe (bool onlyProcessAccept)
 				if (r < (int)sizeof(enum MSGTYPE) || t > GET_COMPLETED) // closed connection
 				{
 					#ifdef DEBUG_MESSAGING
-						printf("X10rt.Sockets: Place %u detected a bad message from place %u!\n", state.myPlaceId, whichPlaceToHandle);
+						printf("X10rt.Sockets: Place %u detected a bad message from place %u (likely a closed socket)\n", state.myPlaceId, whichPlaceToHandle);
 					#endif
 					close(state.socketLinks[whichPlaceToHandle].fd);
 					state.socketLinks[whichPlaceToHandle].fd = -1;
@@ -566,6 +563,9 @@ void probe (bool onlyProcessAccept)
 				{
 					case STANDARD:
 					{
+						pthread_mutex_lock(&state.readLock);
+						state.socketLinks[whichPlaceToHandle].events = POLLIN | POLLPRI;
+						pthread_mutex_unlock(&state.readLock);
 						handlerCallback hcb = state.callBackTable[mp.type].handler;
 						hcb(&mp);
 					}
@@ -582,6 +582,9 @@ void probe (bool onlyProcessAccept)
 							error("invalid buffer provided for a PUT");
 						if (TCP::read(state.socketLinks[whichPlaceToHandle].fd, dest, dataLen) < (int)dataLen)
 							error("reading PUT data");
+						pthread_mutex_lock(&state.readLock);
+						state.socketLinks[whichPlaceToHandle].events = POLLIN | POLLPRI;
+						pthread_mutex_unlock(&state.readLock);
 						notifierCallback ncb = state.callBackTable[mp.type].notifier;
 						ncb(&mp, dataLen);
 					}
@@ -597,6 +600,11 @@ void probe (bool onlyProcessAccept)
 						if (dataLen > 0)
 							if (TCP::read(state.socketLinks[whichPlaceToHandle].fd, &remotePtr, sizeof(void*)) < (int)sizeof(void*))
 								error("reading GET pointer");
+
+						pthread_mutex_lock(&state.readLock);
+						state.socketLinks[whichPlaceToHandle].events = POLLIN | POLLPRI;
+						pthread_mutex_unlock(&state.readLock);
+
 						finderCallback fcb = state.callBackTable[mp.type].finder;
 						void* src = fcb(&mp, dataLen);
 
@@ -639,6 +647,10 @@ void probe (bool onlyProcessAccept)
 							if (TCP::read(state.socketLinks[whichPlaceToHandle].fd, buffer, dataLen) < (int)dataLen)
 								error("reading GET_COMPLETED data");
 						}
+						pthread_mutex_lock(&state.readLock);
+						state.socketLinks[whichPlaceToHandle].events = POLLIN | POLLPRI;
+						pthread_mutex_unlock(&state.readLock);
+
 						mp.dest_place = whichPlaceToHandle;
 						notifierCallback ncb = state.callBackTable[mp.type].notifier;
 						ncb(&mp, dataLen);
@@ -651,9 +663,14 @@ void probe (bool onlyProcessAccept)
 				if (heapAllocated)
 					free(mp.msg);
 			}
-			// reenable the poll on this socket
-			if (pthread_mutex_lock(&state.readLock) < 0)
-				return;
+		}
+		else
+		{
+			// when the socket gets closed, we might get into this code here.
+			#ifdef DEBUG_MESSAGING
+				printf("X10rt.Sockets: place %u got a dud message from place %u\n", state.myPlaceId, whichPlaceToHandle);
+			#endif
+			pthread_mutex_lock(&state.readLock);
 			state.socketLinks[whichPlaceToHandle].events = POLLIN | POLLPRI;
 			pthread_mutex_unlock(&state.readLock);
 		}
