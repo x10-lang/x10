@@ -64,6 +64,7 @@ import x10.extension.X10Ext_c;
 import x10.types.ParameterType;
 import x10.types.X10ClassType;
 import x10.types.X10Flags;
+import x10.types.X10LocalDef;
 import x10.types.X10MethodInstance;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
@@ -92,9 +93,7 @@ public class AsyncInitializer extends ContextVisitor {
     }
 
     private boolean isFinishBlock(Try n) {
-        X10Ext_c ext = (X10Ext_c) n.ext();
-        Set<VarDef> asyncInitVal = ext.asyncInitVal;
-        return (asyncInitVal != null);
+        return (collectAsyncVarsToBox(n) != null);
     }
     private boolean isAsyncBlock(X10Call n) {
         X10MethodInstance mi = (X10MethodInstance) n.methodInstance();
@@ -121,8 +120,7 @@ public class AsyncInitializer extends ContextVisitor {
             }
         }
         if (n instanceof Try) {
-            X10Ext_c ext = (X10Ext_c) n.ext();
-            Set<VarDef> asyncInitVal = ext.asyncInitVal;
+            Set<VarDef> asyncInitVal = collectAsyncVarsToBox(n);
             if (asyncInitVal != null) {
                 if (nestLevel == 0) {
                     // outermost finish block -- initialize internal structure
@@ -145,8 +143,7 @@ public class AsyncInitializer extends ContextVisitor {
         // collect local vars accessed within async
         Set<VarDef> asyncVar = collectLocalVarsToBox((Try)n);
 
-        X10Ext_c ext = (X10Ext_c) n.ext();
-        Set<VarDef> asyncInitVal = ext.asyncInitVal;
+        Set<VarDef> asyncInitVal = collectAsyncVarsToBox(n);
         if (asyncInitVal == null && asyncVar == null)
             return n;
 
@@ -176,6 +173,15 @@ public class AsyncInitializer extends ContextVisitor {
 
         Block bb = xnf.Block(n.position(), stmts);
         return bb;
+    }
+
+    private Set<VarDef> collectAsyncVarsToBox(Node n) {
+        Set<VarDef> asyncInitVal = new HashSet<VarDef>();
+        for (VarDef initVal : ((X10Ext_c) n.ext()).asyncInitVal) {
+            if (((X10LocalDef) initVal).isAsyncInit())
+                asyncInitVal.add(initVal);
+        }
+        return asyncInitVal ;
     }
 
     private Set<VarDef> collectLocalVarsToBox(Try tcfBlock) {
@@ -533,7 +539,6 @@ public class AsyncInitializer extends ContextVisitor {
     }
 
     private VarDef checkIfIncluded(Local lv, Set<VarDef> asyncInitVal) {
-
         Name name1 = lv.name().id();
         Flags flags1 = lv.localInstance().flags();
         Type t1 = lv.localInstance().type();
