@@ -156,16 +156,22 @@ int initLink(uint32_t remotePlace)
 
 		// check to see if the host is our host, and if so, change it to "localhost"
 		// to take advantage of any localhost OS efficiencies
+		bool noDelay;
 		if (strcmp(state.myhost, link) == 0)
 		{
 			strcpy(link, "localhost\0");
 			#ifdef DEBUG
 				printf("X10rt.Sockets: Place %u changed hostname for place %u to %s\n", state.myPlaceId, remotePlace, link);
 			#endif
+			noDelay = true;
 		}
+		else if (strcmp("localhost", link) == 0)
+			noDelay = true;
+		else
+			noDelay = false;
 
 		int newFD;
-		if ((newFD = TCP::connect(link, port, 10, false)) > 0)
+		if ((newFD = TCP::connect(link, port, 10, noDelay)) > 0)
 		{
 			struct ctrl_msg m;
 			m.type = HELLO;
