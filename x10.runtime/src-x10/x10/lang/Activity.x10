@@ -21,15 +21,15 @@ import x10.util.Stack;
  */
 class Activity {
 
-    static class ClockPhases extends HashMap[Clock,Int] {
+    // FIXME: remove implements clause when codegen has been fixed (XTENLANG-1961)
+    static class ClockPhases extends HashMap[Clock,Int] implements x10.io.CustomSerialization {
         // compute spawnee clock phases from spawner clock phases in async clocked(clocks)
         // and register spawnee on these on clocks
         static def make(clocks:Array[Clock]{rail}) {
             val clockPhases = new ClockPhases();
             for(var i:Int = 0; i < clocks.size; i++) 
                 clockPhases.put(clocks(i), clocks(i).register());
-            return clockPhases.serialize();
-            // FIXME: implicit serialization is broken in Java
+            return clockPhases;
         }
 
         // next statement
@@ -108,9 +108,9 @@ class Activity {
     /**
      * Create clocked activity.
      */
-    def this(body:()=>Void, finishState:FinishState, clockPhases:Any) {
+    def this(body:()=>Void, finishState:FinishState, clockPhases:ClockPhases) {
         this(body, finishState, false);
-        this.clockPhases = new ClockPhases(clockPhases);
+        this.clockPhases = clockPhases;
     }
 
     /**
