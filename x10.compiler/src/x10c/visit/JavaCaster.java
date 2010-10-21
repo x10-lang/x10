@@ -142,9 +142,11 @@ public class JavaCaster extends ContextVisitor {
                         }
                         if (isDispatch) {
                             return cast(call, call.type());
-                        }
-                        else if (Emitter.containsTypeParam(call.methodInstance().def().returnType().get())) {
-                            return cast(call, call.type());
+                        } else {
+                            Type rt = call.methodInstance().def().returnType().get();
+                            if (!xts.isParameterType(rt) && Emitter.containsTypeParam(rt)) {
+                                return cast(call, call.type());
+                            }
                         }
                     }
                 }
