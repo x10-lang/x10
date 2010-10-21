@@ -462,6 +462,9 @@ public class X10New_c extends New_c implements X10New {
         if (!ts.isSubtype(tp1, t, tc.context())) {
             throw new SemanticException("Constructor return type " + tp + " is not a subtype of " + t + ".", result.position());
         }
+        if (ts.hasUnknown(tp1)) {
+            throw new SemanticException("Inconsistent constructor return type", result.position());
+        }
 
         // Copy the method instance so we can modify it.
         //tp = ((X10Type) tp).setFlags(X10Flags.ROOTED);

@@ -44,19 +44,19 @@ import x10.types.constraints.XConstrainedTerm;
 
 public class X10Special_c extends Special_c implements X10Special {
 
-	public X10Special_c(Position pos, Kind kind, TypeNode qualifier) {
-		super(pos, kind, qualifier);
-	}
-	
-	
-	public static X10Special self(Position pos) {
-		X10Special_c	self = new X10Special_c(pos, SELF, null);
-		return self;
-	}
+    public X10Special_c(Position pos, Kind kind, TypeNode qualifier) {
+        super(pos, kind, qualifier);
+    }
 
-	public boolean isSelf() { return kind == SELF; }
 
-	/** Type check the expression. */
+    public static X10Special self(Position pos) {
+        X10Special_c self = new X10Special_c(pos, SELF, null);
+        return self;
+    }
+
+    public boolean isSelf() { return kind == SELF; }
+
+    /** Type check the expression. */
     public Node typeCheck(ContextVisitor tc) {
         X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
         X10Context c = (X10Context) tc.context();
@@ -65,8 +65,9 @@ public class X10Special_c extends Special_c implements X10Special {
             Type tt = c.currentDepType();
 
             if (tt == null) {
-        	Errors.issue(tc.job(),
-        	        new SemanticException("self may only be used within a dependent type", position()));
+                Errors.issue(tc.job(),
+                        new SemanticException("self may only be used within a dependent type", position()));
+                tt = ts.unknownType(position());
             }
 
             // The type of self should not include a dep clause; otherwise
@@ -76,32 +77,32 @@ public class X10Special_c extends Special_c implements X10Special {
 
             assert tt != null;
             return type(tt);
-    	}
+        }
         
         Type t = null;
 
         if (qualifier == null) {
             // an unqualified "this" 
-        	t = c.currentClass();
+            t = c.currentClass();
 
-        	// If in the class header declaration, make this refer to the current class, not the enclosing class (or null).
-        	if (c.inSuperTypeDeclaration()) {
-        		if (kind == SUPER) {
-        			Errors.issue(tc.job(),
-        			        new SemanticException("Cannot refer to \"super\" from within a class or interface declaration header."),
-        			        this);
-        		}
-        		t = c.supertypeDeclarationType().asType();
-        	}
+            // If in the class header declaration, make this refer to the current class, not the enclosing class (or null).
+            if (c.inSuperTypeDeclaration()) {
+                if (kind == SUPER) {
+                    Errors.issue(tc.job(),
+                            new SemanticException("Cannot refer to \"super\" from within a class or interface declaration header."),
+                            this);
+                }
+                t = c.supertypeDeclarationType().asType();
+            }
 
-        	// Use the constructor return type, not the base type.
-        	if (c.currentDepType() == null)
-        		if (c.currentCode() instanceof X10ConstructorDef) {
-        			X10ConstructorDef cd = (X10ConstructorDef) c.currentCode();
-        			Type returnType =  cd.returnType().get();
-        			returnType =  ts.expandMacros(returnType);
-        			t = returnType;
-        		}
+            // Use the constructor return type, not the base type.
+            if (c.currentDepType() == null)
+                if (c.currentCode() instanceof X10ConstructorDef) {
+                    X10ConstructorDef cd = (X10ConstructorDef) c.currentCode();
+                    Type returnType =  cd.returnType().get();
+                    returnType =  ts.expandMacros(returnType);
+                    t = returnType;
+                }
         }
         else {
             if (qualifier.type().isClass()) {
@@ -144,10 +145,10 @@ public class X10Special_c extends Special_c implements X10Special {
             CConstraint cc = X10TypeMixin.xclause(t);
             cc = cc == null ? new CConstraint() : cc.copy();
             try {
-            	XVar var = (XVar) xts.xtypeTranslator().trans(cc, this, c);
+                XVar var = (XVar) xts.xtypeTranslator().trans(cc, this, c);
                 cc.addSelfBinding(var);
-            	cc.setThisVar(var);
-            	//PlaceChecker.AddThisHomeEqualsPlaceTerm(cc, var, c);
+                cc.setThisVar(var);
+                //PlaceChecker.AddThisHomeEqualsPlaceTerm(cc, var, c);
             }
             catch (XFailure e) {
                 Errors.issue(tc.job(),
@@ -158,14 +159,14 @@ public class X10Special_c extends Special_c implements X10Special {
             result = (X10Special) type(tt);
         }
         else if (kind == SUPER) {
-        	Type superClass =  X10TypeMixin.superClass(t);
+            Type superClass =  X10TypeMixin.superClass(t);
             Type tt = X10TypeMixin.baseType(superClass);
             CConstraint cc = X10TypeMixin.xclause(superClass);
             cc = cc == null ? new CConstraint() : cc.copy();
             try {
-            	XVar var = (XVar) xts.xtypeTranslator().trans(cc, this, c);
+                XVar var = (XVar) xts.xtypeTranslator().trans(cc, this, c);
                 cc.addSelfBinding(var);
-            	//PlaceChecker.AddThisHomeEqualsPlaceTerm(cc, var, c);
+                //PlaceChecker.AddThisHomeEqualsPlaceTerm(cc, var, c);
             }
             catch (XFailure e) {
                 Errors.issue(tc.job(),
@@ -180,39 +181,38 @@ public class X10Special_c extends Special_c implements X10Special {
         // Fold in the method's guard, if any.
         CodeDef ci = c.currentCode();
         if (ci instanceof X10ProcedureDef) {
-        	X10ProcedureDef pi = (X10ProcedureDef) ci;
-        	CConstraint guard = Types.get(pi.guard());
-        	if (guard != null) {
-        		Type newType = result.type();
-        		CConstraint dep = X10TypeMixin.xclause(newType).copy();
-        		try {
-        			dep.addIn(guard);
-        		}
-        		catch (XFailure e) {
-        			Errors.issue(tc.job(), new SemanticException(e.getMessage(), position()));
-        		}
-        		newType = X10TypeMixin.xclause(X10TypeMixin.baseType(newType), dep);
-        		return result.type(newType);
-        	}
+            X10ProcedureDef pi = (X10ProcedureDef) ci;
+            CConstraint guard = Types.get(pi.guard());
+            if (guard != null) {
+                Type newType = result.type();
+                CConstraint dep = X10TypeMixin.xclause(newType).copy();
+                try {
+                    dep.addIn(guard);
+                }
+                catch (XFailure e) {
+                    Errors.issue(tc.job(), new SemanticException(e.getMessage(), position()));
+                }
+                newType = X10TypeMixin.xclause(X10TypeMixin.baseType(newType), dep);
+                return result.type(newType);
+            }
         }
 
         return result;
     }
 
     public String toString() {
-    	String typeString = null;
-    	if (qualifier != null)
-    		typeString = qualifier.toString();
-    	else {
-    		Type type =  type();
-    		if (type != null) {
-    			ClassType k = type.toClass();
-    			if (k != null)
-    				typeString = k.toString();
-    		}
-    	}
-    	
-    	return (typeString == null ? "" : typeString + ".") + kind;
+        String typeString = null;
+        if (qualifier != null)
+            typeString = qualifier.toString();
+        else {
+            Type type =  type();
+            if (type != null) {
+                ClassType k = type.toClass();
+                if (k != null)
+                    typeString = k.toString();
+            }
         }
 
+        return (typeString == null ? "" : typeString + ".") + kind;
+    }
 }
