@@ -12,9 +12,14 @@
 package x10.lang;
 
 import x10.compiler.Pinned;
-import x10.compiler.Global;
 import x10.util.Stack;
 
+/**
+ * Lock with wait/notify capabilities.
+ * Cooperates with runtime scheduler.
+ * 
+ * @author tardieu
+ */
 @Pinned public class Monitor extends Lock {
     public def this() { super(); }
 
@@ -28,35 +33,56 @@ import x10.util.Stack;
     private val threads = new Stack[Thread]();
 
     /**
-     * Park calling thread
-     * Increment blocked thread count
+     * Aquire the lock
+     */
+    public def lock():void {
+        if (super.tryLock()) return;
+        Runtime.increaseParallelism(); // likely to be blocked for a while
+        super.lock();
+        Runtime.decreaseParallelism(1);
+    }
+
+    /**
+     * Try acquiring the lock
+     */
+    public def tryLock():boolean {
+        return super.tryLock();
+    }
+
+    /**
+     * Release the lock
+     */
+    public def unlock():void {
+        super.unlock();
+    }
+
+    /**
+     * Await notification
      * Must be called while holding the lock
      * Must not be called while holding the lock more than once
      */
-    def await():void {
-        Runtime.increaseParallelism();
+    public def await():void {
+        Runtime.increaseParallelism(); // likely to be blocked for a while
         val thread = Thread.currentThread();
         threads.push(thread);
         while (threads.contains(thread)) {
-            unlock();
+            super.unlock();
             Runtime.park();
-            lock();
+            super.lock();
         }
     }
 
     /**
-     * Unpark every thread
-     * Decrement blocked thread count
-     * Release the lock
+     * Notify and unlock
      * Must be called while holding the lock
      */
-    def release():void {
+    public def release():void {
         val size = threads.size();
         if (size > 0) {
             Runtime.decreaseParallelism(size);
             for (var i:Int = 0; i<size; i++) Runtime.unpark(threads.pop());
         }
-        unlock();
+        super.unlock();
     }
 }
 

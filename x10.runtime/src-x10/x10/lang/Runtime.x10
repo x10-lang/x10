@@ -865,6 +865,57 @@ import x10.util.Box;
             thread.unpark();
         }
     }
+
+    @Pinned static class Semaphore {
+        private val lock = new Lock();
+
+        private val threads = new Stack[Thread]();
+
+        private var permits:Int;
+
+        def this(n:Int) {
+            permits = n;
+        }
+
+        private static def min(i:Int, j:Int):Int = i<j ? i : j;
+
+        def release(n:Int):void {
+            lock.lock();
+            permits += n;
+            val m = min(permits, min(n, threads.size()));
+            for (var i:Int = 0; i<m; i++) {
+                threads.pop().unpark();
+            }
+            lock.unlock();
+        }
+
+        def release():void {
+            release(1);
+        }
+
+        def reduce(n:Int):void {
+            lock.lock();
+            permits -= n;
+            lock.unlock();
+        }
+
+        def acquire():void {
+            lock.lock();
+            val thread = Thread.currentThread();
+            while (permits <= 0) {
+                threads.push(thread);
+                while (threads.contains(thread)) {
+                    lock.unlock();
+                    Thread.park();
+                    lock.lock();
+                }
+            }
+            --permits;
+            lock.unlock();
+        }
+
+        def available():Int = permits;
+    }
 }
 
 // vim:shiftwidth=4:tabstop=4:expandtab
