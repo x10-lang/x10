@@ -22,25 +22,28 @@ import x10.util.Stack;
 class Activity {
 
     static class ClockPhases extends HashMap[Clock,Int] {
-        static def make(clocks:Array[Clock]{rail}, phases:Array[Int]{rail}):ClockPhases {
+        // compute spawnee clock phases from spawner clock phases in async clocked(clocks)
+        // and register spawnee on these on clocks
+        static def make(clocks:Array[Clock]{rail}) {
             val clockPhases = new ClockPhases();
             for(var i:Int = 0; i < clocks.size; i++) 
-                clockPhases.put(clocks(i), phases(i));
-            return clockPhases;
+                clockPhases.put(clocks(i), clocks(i).register());
+            return clockPhases.serialize();
+            // FIXME: implicit serialization is broken in Java
         }
 
-        def register(clocks:Array[Clock]{rail}) {
-            return new Array[Int](clocks.size, (i:Int)=>clocks(i).register());
-        }
-
+        // next statement
         def next() {
             for(clock:Clock in keySet()) clock.resumeUnsafe();
             for(clock:Clock in keySet()) clock.nextUnsafe();
         }
+
+        // resume all clocks
         def resume() {
             for(clock:Clock in keySet()) clock.resume();
         }
 
+        // drop all clocks
         def drop() {
             for(clock:Clock in keySet()) clock.dropInternal();
             clear();
@@ -82,6 +85,9 @@ class Activity {
      */
     private var finishStack:Stack[FinishState];
 
+    /**
+     * Depth of enclosong atomic blocks
+     */
     private var atomicDepth:int = 0;
 
     /**
@@ -102,9 +108,9 @@ class Activity {
     /**
      * Create clocked activity.
      */
-    def this(body:()=>Void, finishState:FinishState, clocks:Array[Clock]{rail}, phases:Array[Int]{rail}) {
+    def this(body:()=>Void, finishState:FinishState, clockPhases:Any) {
         this(body, finishState, false);
-        clockPhases = ClockPhases.make(clocks, phases);
+        this.clockPhases = new ClockPhases(clockPhases);
     }
 
     /**
@@ -117,7 +123,7 @@ class Activity {
     }
 
     /**
-     * Return the clock phases for the current activity
+     * Return the clock phases
      */
     def clockPhases():ClockPhases {
         if (null == clockPhases)
@@ -126,7 +132,7 @@ class Activity {
     }
 
     /**
-     * Return the innermost finish state for the current activity
+     * Return the innermost finish state
      */
     def finishState():FinishState {
         if (null == finishStack || finishStack.isEmpty())
@@ -134,15 +140,23 @@ class Activity {
         return finishStack.peek();
     }
 
+    /**
+     * Enter finish block
+     */
     def pushFinish(f:FinishState) {
         if (null == finishStack)
             finishStack = new Stack[FinishState]();
         finishStack.push(f);
     }
 
+    /**
+     * Exit finish block
+     */
     def popFinish():FinishState = finishStack.pop();
 
     def safe():Boolean = safe && (null == clockPhases);
+
+    // about atomic blocks
 
     def pushAtomic() {
         atomicDepth++;

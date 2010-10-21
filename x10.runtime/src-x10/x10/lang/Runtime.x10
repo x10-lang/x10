@@ -491,12 +491,12 @@ import x10.util.Box;
         a.ensureNotInAtomic();
         
         val state = a.finishState();
-        val phases = a.clockPhases().register(clocks);
+        val clockPhases = a.clockPhases().make(clocks);
         state.notifySubActivitySpawn(place);
         if (place.id == hereInt()) {
-            execute(new Activity(deepCopy(body), state, clocks, phases));
+            execute(new Activity(deepCopy(body), state, clockPhases));
         } else {
-            val c = ()=>execute(new Activity(body, state, clocks, phases));
+            val c = ()=>execute(new Activity(body, state, clockPhases));
             runAtNative(place.id, c);
         }
     }
@@ -530,9 +530,9 @@ import x10.util.Box;
         a.ensureNotInAtomic();
         
         val state = a.finishState();
-        val phases = a.clockPhases().register(clocks);
+        val clockPhases = a.clockPhases().make(clocks);
         state.notifySubActivitySpawn(here);
-        execute(new Activity(body, state, clocks, phases));
+        execute(new Activity(body, state, clockPhases));
     }
 
     public static def runAsync(body:()=>void):void {
