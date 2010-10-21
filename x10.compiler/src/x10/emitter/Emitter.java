@@ -2211,7 +2211,7 @@ public class Emitter {
                         expander.expand(tr);
 
                     } else if (e instanceof X10Call && X10TypeMixin.baseType(((X10Call) e).methodInstance().def().returnType().get()) instanceof ParameterType) {
-                        expander = expander.castTo(expectedBase, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+                        expander = expander.castTo(expectedBase);
                         expander.expand(tr);
                     }
                     else {
