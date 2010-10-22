@@ -27,7 +27,7 @@ public class GenericInnerClass3[T] extends harness.x10Test {
      p.execute();
   }
   public def run():Boolean {
-    val gicString = new GenericInnerClass3[String]("hum?");
+    val gicString : GenericInnerClass3[String] = new GenericInnerClass3[String]("hum?");
     val innerString : GenericInnerClass3[String].Inner = gicString.new Inner("ow");
     innerString.test("ow");
     
