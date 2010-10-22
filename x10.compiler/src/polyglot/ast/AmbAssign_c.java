@@ -86,7 +86,7 @@ public class AmbAssign_c extends Assign_c implements AmbAssign
       // throw new SemanticException("Could not disambiguate left side of assignment!", n.position());
   }
   
-  public Assign typeCheckLeft(ContextVisitor tc) throws SemanticException {
+  public Assign typeCheckLeft(ContextVisitor tc) {
       // Didn't finish disambiguation; just return.
       return this;
   }

@@ -228,7 +228,7 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 	}
 
 	@Override
-	public Assign typeCheckLeft(ContextVisitor tc) throws SemanticException {
+	public Assign typeCheckLeft(ContextVisitor tc) {
 		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 		X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
 		X10TypeSystem xts = ts;
@@ -289,7 +289,8 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 		    if (cmi.error() != null) {
 		        Type bt = X10TypeMixin.baseType(array.type());
 		        boolean arrayP = xts.isX10Array(bt) || xts.isX10DistArray(bt);
-		        throw new Errors.CannotPerformAssignmentOperation(leftToString(), arrayP, op.toString(), right, X10TypeMixin.arrayElementType(array.type()), position(), cmi.error());
+		        Errors.issue(tc.job(),
+		                new Errors.CannotPerformAssignmentOperation(leftToString(), arrayP, op.toString(), right, X10TypeMixin.arrayElementType(array.type()), position(), cmi.error()));
 		    }
 		}
 

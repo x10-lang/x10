@@ -107,7 +107,7 @@ public class Checker {
 	    try {
 	        n = (Assign) a.typeCheckLeft(tc);
 	    } catch (SemanticException e) {
-	        Errors.issue(tc.job(), e, a);
+	        throw new InternalCompilerError("Unexpected exception while typechecking "+a.left(), a.position(), e);
 	    }
 
 	    TypeSystem ts = tc.typeSystem();
