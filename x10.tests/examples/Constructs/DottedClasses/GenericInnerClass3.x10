@@ -23,19 +23,19 @@
 
 public class GenericInnerClass3[T] extends harness.x10Test {
   public static def main(Array[String](1)){
-     val p = new GenericInnerClass3();
+     val p = new GenericInnerClass3[Int](818);
      p.execute();
   }
   public def run():Boolean {
-    val gicString = new GenericInnerClass3[String]();
+    val gicString = new GenericInnerClass3[String]("hum?");
     val innerString : GenericInnerClass3[String].Inner = gicString.new Inner("ow");
     innerString.test("ow");
     
-    val gicInt = new GenericInnerClass3[Int]();
+    val gicInt = new GenericInnerClass3[Int](181);
     val innerInt : GenericInnerClass3[Int].Inner = gicInt.new Inner(34543);
     innerInt.test(34543);
     
-    
+    return true;    
   }
   val outerVal : T;
   var outerVar : T;

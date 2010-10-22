@@ -14,6 +14,8 @@ import harness.x10Test;
 /*
 A somewhat more involved use of an inner class which refers to its
 outer class's generic type parameter.
+
+This test just has to compile. 
 */
 
 public class GenericInnerClass2[T] extends x10Test {
