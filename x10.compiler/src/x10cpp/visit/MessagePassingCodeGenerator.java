@@ -4153,14 +4153,21 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		defn_s.write("x10aux::itable_entry(&x10aux::getRTT"+chevrons(superType)+", &"+cnamet+"::_itable),");
 		defn_s.write("x10aux::itable_entry(NULL, NULL)};"); defn_s.newline(); defn_s.forceNewline();
 
-		int kind = 1;
+		int kind = 0;
+		try {
+			if (!((X10Ext)(n.body()).ext()).annotationMatching((Type) xts.systemResolver().find(QName.make("x10.compiler.AsyncClosure"))).isEmpty()) {
+				kind = 1;
+			}
+			if (!((X10Ext)(n).ext()).annotationMatching((Type) xts.systemResolver().find(QName.make("x10.compiler.AsyncClosure"))).isEmpty()) {
+				kind = 1;
+			}
+		} catch (SemanticException e) {
+		}
 		try {
 			if (!((X10Ext)(n.body()).ext()).annotationMatching((Type) xts.systemResolver().find(QName.make("x10.compiler.TempClosure"))).isEmpty()) {
-				System.out.println("BODY HAD ANNOTATION");
 				kind = 2;
 			}
 			if (!((X10Ext)(n).ext()).annotationMatching((Type) xts.systemResolver().find(QName.make("x10.compiler.TempClosure"))).isEmpty()) {
-				System.out.println("CLOSURE HAD ANNOTATION");
 				kind = 2;
 			}
 		} catch (SemanticException e) {
