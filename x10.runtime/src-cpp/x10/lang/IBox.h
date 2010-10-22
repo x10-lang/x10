@@ -62,7 +62,7 @@ namespace x10 {
         }
         
         template<class T> const x10aux::serialization_id_t x10::lang::IBox<T>::_serialization_id = 
-            x10aux::DeserializationDispatcher::addDeserializer(x10::lang::IBox<T>::template _deserializer<x10::lang::Reference>);
+            x10aux::DeserializationDispatcher::addDeserializer(x10::lang::IBox<T>::template _deserializer<x10::lang::Reference>, x10aux::CLOSURE_KIND_NOT_ASYNC);
 
         template<class T> void IBox<T>::_serialize_body(x10aux::serialization_buffer &buf) {
             buf.write(value);

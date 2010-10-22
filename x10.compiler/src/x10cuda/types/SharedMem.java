@@ -35,7 +35,7 @@ public class SharedMem {
     private abstract static class Decl {
         public final LocalDecl ast;
         public Decl (LocalDecl ast) { this.ast = ast; }
-        abstract public void generateDef(StreamWrapper out, String offset, Translator tr);
+        abstract public String generateDef(StreamWrapper out, String offset, Translator tr);
         abstract public String generateInit(StreamWrapper out, String offset, Translator tr);
         abstract public void generateSize(StreamWrapper inc, Translator tr);
     }
@@ -50,7 +50,7 @@ public class SharedMem {
             this.init = init;
             this.elementType = elementType;
         }
-        public void generateDef(StreamWrapper out, String raw, Translator tr) {
+        public String generateDef(StreamWrapper out, String raw, Translator tr) {
             String name = ast.name().id().toString();
             out.write("x10aux::cuda_array<"+elementType+"> "+name+" = { ");
             if (numElements!=null) {
@@ -60,6 +60,7 @@ public class SharedMem {
             	out.write(".size");
             }
             out.write(", ("+elementType+"*) "+raw+" };"); out.newline();
+            return "&"+ast.name().id()+".apply("+ast.name().id()+".size)";
         }
         public String generateInit(StreamWrapper out, String offset, Translator tr) {
             out.write("{"); out.newline(4); out.begin(0);
@@ -128,9 +129,10 @@ public class SharedMem {
     }
     private static class Var extends Decl {
         public Var (LocalDecl ast) { super(ast); }
-        public void generateDef(StreamWrapper out, String offset, Translator tr) {
+        public String generateDef(StreamWrapper out, String offset, Translator tr) {
             // TODO: not implemented
             assert false: "not implemented";
+    		return "";
         }
         public String generateInit(StreamWrapper out, String offset, Translator tr) {
             // TODO: not implemented
@@ -165,24 +167,29 @@ public class SharedMem {
     }
 
     public void generateCode(StreamWrapper out, Translator tr) {
-        if (decls.size()==0) return;
-
         out.write("// shm");
         out.newline();
-        
+
+        if (decls.size()==0) return;
+
         String raw = "&__shm[0]";
         for (SharedMem.Decl d : decls) {
-                // FIXME: offset is broken when more than one shm definition
-                d.generateDef(out, raw, tr);
-                out.write("if (threadIdx.x == 0) {"); out.newline(4); out.begin(0);
-                raw = d.generateInit(out, raw, tr);
-                out.end(); out.newline();
-                out.write("}"); out.newline();
+            d.generateDef(out, raw, tr);
+            out.write("if (threadIdx.x == 0) {"); out.newline(4); out.begin(0);
+            raw = d.generateInit(out, raw, tr);
+            out.end(); out.newline();
+            out.write("}"); out.newline();
         }
-        
-        out.write("__syncthreads();"); out.newline();        
+    }
 
-        out.forceNewline();                
+    public void generateCodeConstantMemory(StreamWrapper out, Translator tr) {
+    	out.write("// cmem");
+        out.newline();
+
+        String raw = "&__cmem[0]";
+        for (SharedMem.Decl d : decls) {
+            raw = d.generateDef(out, raw, tr);
+        }
     }
 
     public void generateSize(StreamWrapper inc, Translator tr) {

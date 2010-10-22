@@ -60,13 +60,14 @@ import x10.util.Box;
      * Body cannot spawn activities, use clocks, or raise exceptions.
      */
     @Native("java", "x10.runtime.impl.java.Runtime.runClosureAt(#1, #2)")
-    @Native("c++", "x10aux::run_at(#1, #2)")
+    @Native("c++", "x10aux::run_closure_at(#1, #2)")
     public static def runClosureAt(id:Int, body:()=>void):void { body(); }
 
     @Native("java", "x10.runtime.impl.java.Runtime.runClosureCopyAt(#1, #2)")
-    @Native("c++", "x10aux::run_at(#1, #2)")
+    @Native("c++", "x10aux::run_closure_at(#1, #2)")
     public static def runClosureCopyAt(id:Int, body:()=>void):void { body(); }
 
+    @Native("c++", "x10aux::run_async_at(#1, #2, #3)")
     public static def runAsyncAt(id:Int, body:()=>void, finishState:FinishState):void {
         val closure = ()=> @x10.compiler.TempClosure {execute(body, finishState);};
         runClosureCopyAt(id, closure);

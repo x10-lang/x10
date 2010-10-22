@@ -335,14 +335,21 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 			out.newline();
 			out.write("}");
 			out.newline();
-			out.write("__syncthreads();");
+			out.write("__syncthreads(); // kernel parameters");
 			out.newline();
 			out.forceNewline();
 		}
 
 		sw.pushCurrentStream(out);
+		context().cmem().generateCodeConstantMemory(sw, tr);
+		sw.popCurrentStream();
+
+		sw.pushCurrentStream(out);
 		context().shm().generateCode(sw, tr);
 		sw.popCurrentStream();
+
+		out.write("__syncthreads(); // initialised shm"); out.newline();        
+        out.forceNewline();                
 
 		// body
 		sw.pushCurrentStream(out);
@@ -581,6 +588,8 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 				complainIfNot2(!generatingKernel(),
 						"CUDA kernels may not be nested.", b);
 				// TODO: assert the block is the body of an async
+				
+//				/System.out.println(b);
 
 				// if there are no autoblocks/threads statemnets, this will be 1
 				complainIfNot(b.statements().size() >= 1,
@@ -588,56 +597,89 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 
 				// handle autoblocks/autothreads and constant memory
 				// declarations
+				SharedMem cmem = new SharedMem();
 				for (int i = 0; i < b.statements().size() - 1; ++i) {
 					Stmt ld_ = b.statements().get(i);
 					complainIfNot(
 							ld_ instanceof LocalDecl,
-							"val <something> = CUDAUtilities.autoBlocks/autoThreads()",
+							"val <something> = ...",
 							ld_);
-					LocalDecl s_ = (LocalDecl) ld_;
+					LocalDecl ld = (LocalDecl) ld_;
 
-					Expr init_expr = s_.init();
-					complainIfNot(
-							init_expr instanceof X10Call,
-							"val <something> = CUDAUtilities.autoBlocks/autoThreads",
-							init_expr);
-					X10Call_c init_call = (X10Call_c) init_expr;
-
-					Receiver init_call_target = init_call.target();
-					complainIfNot(
-							init_call_target instanceof CanonicalTypeNode,
-							"val <something> = CUDAUtilities.autoBlocks/Vars()",
-							init_call_target);
-					CanonicalTypeNode init_call_target_node = (CanonicalTypeNode) init_call_target;
-
-					String classname = init_call_target_node.nameString();
-					int targs = init_call.typeArguments().size();
-					int args = init_call.arguments().size();
-					String methodname = init_call.name().toString();
-
-					if (classname.equals("CUDAUtilities") && targs == 0
-							&& args == 0 && methodname.equals("autoBlocks")) {
-						complainIfNot2(context().autoBlocks() == null,
-								"Already have autoBlocks", init_call);
-						context().autoBlocks(s_);
-						context().established().autoBlocks(s_);
-					} else if (classname.equals("CUDAUtilities") && targs == 0
-							&& args == 0 && methodname.equals("autoThreads")) {
-						complainIfNot2(context().autoThreads() == null,
-								"Already have autoThreads", init_call);
-						context().autoThreads(s_);
-						context().established().autoThreads(s_);
-					} else if (classname.equals("Rail") && targs == 2
-							&& args == 2 && methodname.equals("make")) {
+					Expr init_expr = ld.init();
+					if (init_expr instanceof X10Call) {
+						
+						X10Call_c init_call = (X10Call_c) init_expr;
+	
+						Receiver init_call_target = init_call.target();
 						complainIfNot(
-								false,
-								"A call to CUDAUtilities.autoBlocks/autoThreads",
-								init_call);
+								init_call_target instanceof CanonicalTypeNode,
+								"val <something> = CUDAUtilities.autoBlocks/Threads()",
+								init_call_target);
+						CanonicalTypeNode init_call_target_node = (CanonicalTypeNode) init_call_target;
+	
+						String classname = init_call_target_node.nameString();
+						int targs = init_call.typeArguments().size();
+						int args = init_call.arguments().size();
+						String methodname = init_call.name().toString();
+	
+						if (classname.equals("CUDAUtilities") && targs == 0
+								&& args == 0 && methodname.equals("autoBlocks")) {
+							complainIfNot2(context().autoBlocks() == null,
+									"Already have autoBlocks", init_call);
+							context().autoBlocks(ld);
+							context().established().autoBlocks(ld);
+						} else if (classname.equals("CUDAUtilities") && targs == 0
+								&& args == 0 && methodname.equals("autoThreads")) {
+							complainIfNot2(context().autoThreads() == null,
+									"Already have autoThreads", init_call);
+							context().autoThreads(ld);
+							context().established().autoThreads(ld);
+						} else if (classname.equals("Rail") && targs == 2
+								&& args == 2 && methodname.equals("make")) {
+							complainIfNot(
+									false,
+									"A call to CUDAUtilities.autoBlocks/autoThreads",
+									init_call);
+						} else {
+							complainIfNot(
+									false,
+									"A call to CUDAUtilities.autoBlocks/autoThreads",
+									init_call);
+						}
 					} else {
 						complainIfNot(
-								false,
-								"A call to CUDAUtilities.autoBlocks/autoThreads",
-								init_call);
+								init_expr instanceof X10New_c,
+								"val <something> = new Array(...)",
+								init_expr);
+						X10New_c init_new = (X10New_c) init_expr;
+						Type instantiatedType = init_new.objectType().type();
+						complainIfNot(xts().isArray(instantiatedType),
+								"Initialisation expression to have Array[T] type.",
+								init_new);
+						TypeNode rail_type_arg_node = init_new.typeArguments().get(
+								0);
+
+						Type rail_type_arg = rail_type_arg_node.type();
+						String rail_type_arg_ = Emitter.translateType(rail_type_arg, true);
+						// TODO: support other types
+						if (init_new.arguments().size() == 2) {
+							Expr num_elements = init_new.arguments().get(0);
+							Expr rail_init_closure = init_new.arguments().get(1);
+							cmem.addArrayInitClosure(ld, num_elements,
+									rail_init_closure, rail_type_arg_);
+						} else {
+							complainIfNot(init_new.arguments().size() == 1,
+									"val <var> = new Array[T](other_array)",
+									init_new);
+							Expr src_array = init_new.arguments().get(0);
+							complainIfNot(
+									xts().isArray(src_array.type())
+											|| xts().isRemoteArray(src_array.type()),
+									"Constant memory to be initialised from array or remote array type",
+									src_array);
+							cmem.addArrayInitArray(ld, src_array, rail_type_arg_);
+						}
 					}
 				}
 
@@ -715,9 +757,9 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 
 				// b = (Block_c) async_body;
 				context().setCUDAKernelCFG(outer.max, outer.var, inner.max,
-						inner.var, shm, kernelWantsDirectParams(closure_body));
+						inner.var, shm, cmem, kernelWantsDirectParams(closure_body));
 				context().established().setCUDAKernelCFG(outer.max, outer.var,
-						inner.max, inner.var, shm,
+						inner.max, inner.var, shm, cmem,
 						kernelWantsDirectParams(closure_body));
 				generatingKernel(true);
 				try {
@@ -752,8 +794,10 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 
 	protected void generateClosureDeserializationIdDef(ClassifiedStream defn_s,
 			String cnamet, List<Type> freeTypeParams, String hostClassName,
-			Block block) {
+			Block block, int kind) {
 		if (blockIsKernel(block)) {
+			
+			assert kind==1;
 
 			X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
 			boolean in_template_closure = freeTypeParams.size() > 0;
@@ -766,7 +810,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 			defn_s.write("x10aux::DeserializationDispatcher::addDeserializer("
 					+ cnamet + "::" + template
 					+ SharedVarsMethods.DESERIALIZE_METHOD
-					+ chevrons("x10::lang::Reference") + ", true, " + cnamet
+					+ chevrons("x10::lang::Reference") + ", "+closure_kind_strs[kind]+", " + cnamet
 					+ "::" + template
 					+ SharedVarsMethods.DESERIALIZE_CUDA_METHOD + ", " + cnamet
 					+ "::" + template + SharedVarsMethods.POST_CUDA_METHOD
@@ -776,7 +820,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 			defn_s.forceNewline();
 		} else {
 			super.generateClosureDeserializationIdDef(defn_s, cnamet,
-					freeTypeParams, hostClassName, block);
+					freeTypeParams, hostClassName, block, kind);
 		}
 	}
 

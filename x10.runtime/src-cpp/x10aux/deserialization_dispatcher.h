@@ -42,6 +42,12 @@ namespace x10aux {
 
     template<> inline const char *typeName<serialization_id_t>() { return "serialization_id_t"; }
 
+    enum ClosureKind {
+        CLOSURE_KIND_NOT_ASYNC,    // is not a closure, or is a closure that is not created in place of an async by the desugarer
+        CLOSURE_KIND_SIMPLE_ASYNC, // is an async with just finish state
+        CLOSURE_KIND_GENERAL_ASYNC // is an async represented with generial XRX closure
+    };
+
     class DeserializationDispatcher {
         protected:
         static DeserializationDispatcher *it;
@@ -63,7 +69,7 @@ namespace x10aux {
             const char *cubin;
             const char *kernel;
 
-            bool has_mt;
+            ClosureKind closure_kind;
             x10aux::msg_type mt;
             x10aux::serialization_id_t sid;
         };
@@ -87,12 +93,12 @@ namespace x10aux {
         ref<x10::lang::Reference> create_(deserialization_buffer &buf);
         ref<x10::lang::Reference> create_(deserialization_buffer &buf, serialization_id_t id);
 
-        static serialization_id_t addDeserializer (Deserializer deser, bool is_async=false,
+        static serialization_id_t addDeserializer (Deserializer deser, ClosureKind kind,
                                                    CUDAPre cuda_pre = NULL,
                                                    CUDAPost cuda_post = NULL,
                                                    const char *cubin = NULL,
                                                    const char *kernel = NULL);
-        serialization_id_t addDeserializer_ (Deserializer deser, bool is_async = false,
+        serialization_id_t addDeserializer_ (Deserializer deser, ClosureKind kind,
                                              CUDAPre cuda_pre = NULL,
                                              CUDAPost cuda_post = NULL,
                                              const char *cubin = NULL, const char *kernel = NULL);
@@ -132,6 +138,9 @@ namespace x10aux {
         static x10aux::msg_type getMsgType(serialization_id_t id);
         x10aux::msg_type getMsgType_(serialization_id_t id);
 
+        static x10aux::ClosureKind getClosureKind(serialization_id_t id);
+        x10aux::ClosureKind getClosureKind_(serialization_id_t id);
+
         static serialization_id_t getSerializationId(x10aux::msg_type id);
         serialization_id_t getSerializationId_(x10aux::msg_type id);
 
@@ -170,6 +179,9 @@ namespace x10aux {
     inline Notifier DeserializationDispatcher::getCUDAGetNotifier (serialization_id_t id)
     { return it->getCUDAGetNotifier_(id); }
 
+
+    inline x10aux::ClosureKind DeserializationDispatcher::getClosureKind (serialization_id_t id)
+    { return it->getClosureKind_(id); }
 
     inline x10aux::msg_type DeserializationDispatcher::getMsgType (serialization_id_t id)
     { return it->getMsgType_(id); }

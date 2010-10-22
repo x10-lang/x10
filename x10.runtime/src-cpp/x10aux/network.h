@@ -108,7 +108,8 @@ namespace x10aux {
 
 namespace x10aux {
 
-    void run_at (place p, x10aux::ref<x10::lang::Reference> body);
+    void run_closure_at (place p, x10aux::ref<x10::lang::Reference> body);
+    void run_async_at (place p, x10aux::ref<x10::lang::Reference> body, x10aux::ref<x10::lang::Reference> fs);
 
     class serialization_buffer;
 

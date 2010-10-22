@@ -140,7 +140,7 @@ namespace x10 {
         
         template<class T> const x10aux::serialization_id_t ValRail<T>::_serialization_id =
             x10aux::DeserializationDispatcher
-                ::addDeserializer(ValRail<T>::template _deserializer<Reference>);
+                ::addDeserializer(ValRail<T>::template _deserializer<Reference>, x10aux::CLOSURE_KIND_NOT_ASYNC);
 
         template<class T> void ValRail<T>::_initRTT() {
             if (rtt.initStageOne(x10aux::getRTT<ValRail<void> >())) return;

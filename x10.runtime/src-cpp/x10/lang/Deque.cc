@@ -41,7 +41,7 @@ ref<Deque> Deque::_constructor() {
 }
 
 const serialization_id_t Deque::_serialization_id =
-    DeserializationDispatcher::addDeserializer(Deque::_deserializer<Reference>);
+    DeserializationDispatcher::addDeserializer(Deque::_deserializer<Reference>, x10aux::CLOSURE_KIND_NOT_ASYNC);
 
 void Deque::growQueue() {
     Slots *oldQ = queue;

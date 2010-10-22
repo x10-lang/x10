@@ -32,7 +32,7 @@ x10aux::ref<x10::lang::String> x10::lang::Object::typeName() {
 }
 
 const serialization_id_t Object::_serialization_id =
-    DeserializationDispatcher::addDeserializer(Object::_deserializer<Reference>);
+    DeserializationDispatcher::addDeserializer(Object::_deserializer<Reference>, x10aux::CLOSURE_KIND_NOT_ASYNC);
 
 void Object::_serialize(ref<Object> this_, serialization_buffer &buf)
 {
@@ -48,7 +48,7 @@ void Object::_serialize(ref<Object> this_, serialization_buffer &buf)
 }
 
 const serialization_id_t Object::_interface_serialization_id =
-    DeserializationDispatcher::addDeserializer(Object::_deserialize<Reference>);
+    DeserializationDispatcher::addDeserializer(Object::_deserialize<Reference>, x10aux::CLOSURE_KIND_NOT_ASYNC);
 
 void Object::_serialize_interface(serialization_buffer &buf)
 {

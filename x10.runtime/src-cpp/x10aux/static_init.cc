@@ -28,7 +28,7 @@ serialization_id_t StaticInitBroadcastDispatcher::addRoutine(Deserializer init) 
     if (NULL == it) {
         it = new (system_alloc<DeserializationDispatcher>()) DeserializationDispatcher();
     }
-    return it->addDeserializer_(init);
+    return it->addDeserializer_(init, x10aux::CLOSURE_KIND_GENERAL_ASYNC);
 }
 
 ref<Reference> StaticInitBroadcastDispatcher::dispatch(deserialization_buffer &buf) {
@@ -38,7 +38,7 @@ ref<Reference> StaticInitBroadcastDispatcher::dispatch(deserialization_buffer &b
 }
 
 serialization_id_t const StaticInitBroadcastDispatcher::STATIC_BROADCAST_ID =
-    DeserializationDispatcher::addDeserializer(StaticInitBroadcastDispatcher::dispatch, true);
+    DeserializationDispatcher::addDeserializer(StaticInitBroadcastDispatcher::dispatch, x10aux::CLOSURE_KIND_GENERAL_ASYNC);
 
 void StaticInitBroadcastDispatcher::doBroadcast(serialization_id_t id, char* the_buf, x10_uint sz) {
     assert (the_buf != NULL);

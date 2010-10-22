@@ -4153,7 +4153,19 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		defn_s.write("x10aux::itable_entry(&x10aux::getRTT"+chevrons(superType)+", &"+cnamet+"::_itable),");
 		defn_s.write("x10aux::itable_entry(NULL, NULL)};"); defn_s.newline(); defn_s.forceNewline();
 
-		generateClosureDeserializationIdDef(defn_s, cnamet, freeTypeParams, hostClassName, n.body());
+		int kind = 1;
+		try {
+			if (!((X10Ext)(n.body()).ext()).annotationMatching((Type) xts.systemResolver().find(QName.make("x10.compiler.TempClosure"))).isEmpty()) {
+				System.out.println("BODY HAD ANNOTATION");
+				kind = 2;
+			}
+			if (!((X10Ext)(n).ext()).annotationMatching((Type) xts.systemResolver().find(QName.make("x10.compiler.TempClosure"))).isEmpty()) {
+				System.out.println("CLOSURE HAD ANNOTATION");
+				kind = 2;
+			}
+		} catch (SemanticException e) {
+		}
+		generateClosureDeserializationIdDef(defn_s, cnamet, freeTypeParams, hostClassName, n.body(), kind);
 
         if (in_template_closure) {
             String guard = getHeaderGuard(cname);
@@ -4290,8 +4302,13 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         inc.write("}"); inc.newline(); inc.forceNewline();
     }
 
+    protected String closure_kind_strs[] = new String[] {
+    		"x10aux::CLOSURE_KIND_NOT_ASYNC",
+    		"x10aux::CLOSURE_KIND_SIMPLE_ASYNC",
+    		"x10aux::CLOSURE_KIND_GENERAL_ASYNC"
+    };
 
-    protected void generateClosureDeserializationIdDef(ClassifiedStream defn_s, String cnamet, List<Type> freeTypeParams, String hostClassName, Block block) {
+    protected void generateClosureDeserializationIdDef(ClassifiedStream defn_s, String cnamet, List<Type> freeTypeParams, String hostClassName, Block block, int kind) {
         X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
         boolean in_template_closure = freeTypeParams.size()>0;
         if (in_template_closure)
@@ -4301,7 +4318,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         String template = in_template_closure ? "template " : "";
         defn_s.write("x10aux::DeserializationDispatcher::addDeserializer("+
                   cnamet+"::"+template+DESERIALIZE_METHOD+
-                  chevrons("x10::lang::Reference")+");");
+                  chevrons("x10::lang::Reference")+","+closure_kind_strs[kind]+");");
         defn_s.newline(); defn_s.forceNewline();
     }
 

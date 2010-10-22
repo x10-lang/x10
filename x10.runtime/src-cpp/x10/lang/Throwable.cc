@@ -39,7 +39,7 @@ using namespace x10::lang;
 using namespace x10aux;
 
 const serialization_id_t Throwable::_serialization_id =
-    DeserializationDispatcher::addDeserializer(Throwable::_deserializer<Reference>);
+    DeserializationDispatcher::addDeserializer(Throwable::_deserializer<Reference>, x10aux::CLOSURE_KIND_NOT_ASYNC);
 
 void
 Throwable::_serialize_body(x10aux::serialization_buffer &buf) {
