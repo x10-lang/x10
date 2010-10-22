@@ -484,6 +484,7 @@ public class Desugarer extends ContextVisitor {
     private static final QName REF = QName.make("x10.compiler.Ref");
     private static final QName UNCOUNTED = QName.make("x10.compiler.Uncounted");
     private static final QName REMOTE_OPERATION = QName.make("x10.compiler.RemoteOperation");
+    private static final QName ASYNC_CLOSURE = QName.make("x10.compiler.AsyncClosure");
 
     public static boolean isUncountedAsync(X10TypeSystem xts, Async a) {
         return Emitter.hasAnnotation(xts, a, UNCOUNTED);
@@ -617,6 +618,7 @@ public class Desugarer extends ContextVisitor {
     }
 
     private Stmt makeAsyncBody(Position pos, List<Expr> exprs, List<Type> types, Stmt body, List<X10ClassType> annotations) throws SemanticException {
+        annotations.add((X10ClassType) xts.systemResolver().find(ASYNC_CLOSURE));
         Closure closure = synth.makeClosure(body.position(), xts.Void(),
                 synth.toBlock(body), context(), annotations);
         exprs.add(closure);

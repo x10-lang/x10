@@ -31,6 +31,7 @@ import polyglot.types.Type;
 import polyglot.types.Types;
 import polyglot.types.MethodInstance;
 import polyglot.util.Position;
+import x10.ast.AnnotationNode;
 import x10.ast.Closure;
 import x10.ast.ClosureCall;
 import x10.ast.X10NodeFactory;
@@ -56,6 +57,7 @@ import x10.types.X10MethodDef;
 import x10.types.X10TypeSystem;
 import x10.types.X10TypeSystem_c;
 import x10.types.constraints.CConstraint;
+import x10.extension.X10Ext;
 
 public class ClosureSynthesizer {
 
@@ -78,7 +80,7 @@ public class ClosureSynthesizer {
 			 X10Context context, List<X10ClassType> annotations) {
 	        List<Ref<? extends Type>> fTypes = new ArrayList<Ref<? extends Type>>();
 	        List<LocalDef> fNames = new ArrayList<LocalDef>();
-	        for (Formal f : parms) {
+	                        for (Formal f : parms) {
 	            fTypes.add(Types.ref(f.type().type()));
 	            fNames.add(f.localDef());
 	        }
@@ -97,7 +99,10 @@ public class ClosureSynthesizer {
 	            for (Type at : annotations) {
 	                ats.add(Types.ref(at));
 	            }
-	            cDef.setDefAnnotations(ats);
+                List<AnnotationNode> ans = new ArrayList<AnnotationNode>();
+                for (Type at : annotations) {
+                    ans.add(xnf.AnnotationNode(pos, xnf.CanonicalTypeNode(pos, at)));
+                }
 	        }
 	        Closure closure = (Closure) xnf.Closure(pos, //Collections.EMPTY_LIST,
 	                parms, 
@@ -106,6 +111,13 @@ public class ClosureSynthesizer {
 	                 body)
 	                .closureDef(cDef)
 	                .type(closureAnonymousClassDef((X10TypeSystem_c) xts, cDef).asType());
+            if (null != annotations && !annotations.isEmpty()) {
+                List<AnnotationNode> ans = new ArrayList<AnnotationNode>();
+                for (Type at : annotations) {
+                    ans.add(xnf.AnnotationNode(pos, xnf.CanonicalTypeNode(pos, at)));
+                }
+                closure = (Closure) ((X10Ext) closure.ext()).annotations(ans);
+            }
 	        return closure;
 	    }
 	/**
