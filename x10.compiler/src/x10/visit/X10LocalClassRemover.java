@@ -44,6 +44,7 @@ import polyglot.visit.NodeVisitor;
 import polyglot.visit.TypeBuilder;
 import x10.ast.TypeParamNode;
 import x10.ast.X10ClassDecl;
+import x10.ast.X10MethodDecl;
 import x10.ast.X10NodeFactory;
 import x10.types.ParameterType;
 import x10.types.TypeParamSubst;
@@ -68,10 +69,8 @@ public class X10LocalClassRemover extends LocalClassRemover {
     }
 
     protected class X10ConstructorCallRewriter extends ConstructorCallRewriter {
-        private List<? extends Type> typeArgs;
-        public X10ConstructorCallRewriter(List<FieldDef> fields, ClassDef ct, List<? extends Type> typeArgs) {
+        public X10ConstructorCallRewriter(List<FieldDef> fields, ClassDef ct) {
             super(fields, ct);
-            this.typeArgs = typeArgs;
         }
             
         public Node leave(Node old, Node n, NodeVisitor v) {
@@ -87,10 +86,13 @@ public class X10LocalClassRemover extends LocalClassRemover {
                     X10ClassType type = (X10ClassType) X10TypeMixin.baseType(neu.objectType().type());
                     List<Type> ta = new ArrayList<Type>(type.typeArguments());
                     List<ParameterType> params = type.x10Def().typeParameters();
-                    if (!params.isEmpty() && (ta.equals(params) || ta.isEmpty())) {
-                        ta.clear();
-                        ta.addAll(typeArgs);
-                        assert (typeArgs.size() == params.size());
+                    if (!params.isEmpty() && (ta.equals(params) || ta.size() != params.size())) {
+                        assert (context().currentCode() instanceof X10MethodDef);
+                        X10MethodDef md = (X10MethodDef) context().currentCode();
+                        if (ta.equals(params) && !md.typeParameters().isEmpty())
+                            ta.clear();
+                        ta.addAll(md.typeParameters());
+                        assert (ta.size() == params.size());
                     }
                     TypeParamSubst subst = new TypeParamSubst((X10TypeSystem) ts, ta, params);
                     X10ConstructorInstance xci = (X10ConstructorInstance) subst.reinstantiate(ci);
@@ -99,6 +101,7 @@ public class X10LocalClassRemover extends LocalClassRemover {
                     neu = (New) neu.type(subst.reinstantiate(neu.type()));
                     // FIX:XTENLANG-949 (for mismatch between neu.argument and neu.ci.formalTypes)
                     if (neu.arguments().size() > ci.formalTypes().size()) {
+                        assert (false) : "This should not happen";
                         List<Type> newFormalTypes = new ArrayList<Type>();
                         for (Expr arg : neu.arguments()) {
                             newFormalTypes.add(arg.type());
@@ -119,17 +122,40 @@ public class X10LocalClassRemover extends LocalClassRemover {
     }
 
     @Override
-    protected X10ConstructorInstance computeConstructorInstance(ConstructorDef cd) {
-        ClassDef container = ((X10ClassType) Types.get(cd.container())).def();
-        return (X10ConstructorInstance) cd.asInstance().container(computeConstructedType(container));
+    protected Node leaveCall(Node old, Node n, NodeVisitor v) {
+        Node res = super.leaveCall(old, n, v);
+        if (res instanceof X10MethodDecl) {
+            X10MethodDecl decl = (X10MethodDecl) res;
+            Type rt = decl.returnType().type();
+            if (!rt.isClass())
+                return decl;
+            X10ClassType type = (X10ClassType) X10TypeMixin.baseType(rt.toClass());
+            List<Type> ta = new ArrayList<Type>(type.typeArguments());
+            List<ParameterType> params = type.x10Def().typeParameters();
+            if (!params.isEmpty() && (ta.equals(params) || ta.size() != params.size())) {
+                X10MethodDef md = decl.methodDef();
+                if (ta.equals(params) && !md.typeParameters().isEmpty())
+                    ta.clear();
+                ta.addAll(md.typeParameters());
+                assert (ta.size() == params.size());
+            }
+            TypeParamSubst subst = new TypeParamSubst((X10TypeSystem) ts, ta, params);
+            res = decl.returnType(decl.returnType().typeRef(Types.ref(subst.reinstantiate(rt))));
+        }
+        return res;
     }
 
     @Override
-    protected X10ClassType computeConstructedType(ClassDef cd) {
+    protected X10ConstructorInstance computeConstructorInstance(ConstructorDef cd) {
+        ClassDef container = ((X10ClassType) Types.get(cd.container())).def();
+        return (X10ConstructorInstance) cd.asInstance().container(computeConstructedType(container, context().currentCode()));
+    }
+
+    @Override
+    protected X10ClassType computeConstructedType(ClassDef cd, CodeDef currentCode) {
         X10ClassDef def = (X10ClassDef) cd;
-        X10ClassDef outer = (X10ClassDef) Types.get(def.outer());
-        assert outer != null;
-        X10ClassType t = ((X10ClassType)def.asType()).typeArguments(new ArrayList<Type>(outer.typeParameters()));
+        X10CodeDef md = (X10CodeDef) currentCode;
+        X10ClassType t = ((X10ClassType)def.asType()).typeArguments(new ArrayList<Type>(md.typeParameters()));
         return t;
     }
 
@@ -171,12 +197,14 @@ public class X10LocalClassRemover extends LocalClassRemover {
         List<ParameterType> typeParameters = new ArrayList<ParameterType>();
         List<ParameterType.Variance> variances = new ArrayList<ParameterType.Variance>();
 
+        params.addAll(cd.typeParameters());
         typeParameters.addAll(method.typeParameters());
         for (ParameterType pt : method.typeParameters()) {
             // methods cannot have variant type parameters
             variances.add(ParameterType.Variance.INVARIANT);
         }
 
+        List<ParameterType> origTypeParams = def.typeParameters();
         for (int i = 0; i < typeParameters.size(); i++) {
             ParameterType p = typeParameters.get(i);
             ParameterType.Variance v = variances.get(i);
@@ -197,9 +225,11 @@ public class X10LocalClassRemover extends LocalClassRemover {
             params.add(pn);
         }
 
-        if (! params.isEmpty()) {
+        if (params.size() != cd.typeParameters().size()) {
             cd = cd.typeParameters(params);
+            typeParameters.addAll(0, origTypeParams);
             TypeParamSubst subst = new TypeParamSubst((X10TypeSystem) ts, def.typeParameters(), typeParameters);
+            def.superType(subst.reinstantiate(def.superType()));
             cd = rewriteTypeParams(subst, cd);
         }
 
@@ -234,7 +264,7 @@ public class X10LocalClassRemover extends LocalClassRemover {
     }
     
     protected Node rewriteConstructorCalls(Node s, final ClassDef ct, final List<FieldDef> fields) {
-        Node r = s.visit(new X10ConstructorCallRewriter(fields, ct, ((X10ClassDef) ct).typeParameters()));
+        Node r = s.visit(new X10ConstructorCallRewriter(fields, ct));
         return r;
     }
 }

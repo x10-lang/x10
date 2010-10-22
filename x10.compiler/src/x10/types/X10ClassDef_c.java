@@ -311,7 +311,9 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
     }
     
     public void addTypeParameter(ParameterType p, ParameterType.Variance v) {
+	typeParameters = new ArrayList<ParameterType>(typeParameters);
 	typeParameters.add(p);
+	variances = new ArrayList<ParameterType.Variance>(variances);
 	variances.add(v);
     }
 

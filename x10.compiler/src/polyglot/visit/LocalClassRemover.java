@@ -218,7 +218,7 @@ public class LocalClassRemover extends ContextVisitor {
 
             Position pos = li.position();
 
-            fi = ts.fieldDef(pos, Types.ref(computeConstructedType(curr)), li.flags().Private(), li.type(), li.name());
+            fi = ts.fieldDef(pos, Types.ref(computeConstructedType(curr, context().currentCode())), li.flags().Private(), li.type(), li.name());
             fi.setNotConstant();
 
             curr.addField(fi);
@@ -335,7 +335,7 @@ public class LocalClassRemover extends ContextVisitor {
 
 	    cd = rewriteLocalClass(cd, (List<FieldDef>) hashGet(newFields, cd.classDef(), Collections.<FieldDef>emptyList()));
 	    hashAdd(orphans, context.currentClassDef(), cd);
-	    neu = neu.objectType(nf.CanonicalTypeNode(pos, computeConstructedType(type))).body(null);
+	    neu = neu.objectType(nf.CanonicalTypeNode(pos, computeConstructedType(type, context().currentCode()))).body(null);
 	    neu = (New) rewriteConstructorCalls(neu, cd.classDef(), (List<FieldDef>) hashGet(newFields, cd.classDef(), Collections.<FieldDef>emptyList()));
 	    return neu;
 	}
@@ -362,7 +362,7 @@ public class LocalClassRemover extends ContextVisitor {
         return cd.asInstance();
     }
 
-    protected ClassType computeConstructedType(ClassDef type) {
+    protected ClassType computeConstructedType(ClassDef type, CodeDef codeDef) {
         return type.asType();
     }
 
