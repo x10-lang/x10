@@ -79,6 +79,7 @@ import polyglot.ast.Unary_c;
 import polyglot.frontend.Source;
 import polyglot.types.ArrayType;
 import polyglot.types.ClassDef;
+import polyglot.types.ConstructorDef;
 import polyglot.types.Context;
 import polyglot.types.FieldDef;
 import polyglot.types.Flags;
@@ -214,6 +215,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
 	public final Type imcType;
     public static final String JAVA_LANG_OBJECT = "java.lang.Object";
+    public static final String JAVA_LANG_CLASS = "java.lang.Class";
     public static final boolean isSelfDispatch = true;
     public static final boolean isGenericOverloading = true;
 	
@@ -663,6 +665,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			}
 		}
 
+		printExtraFormals(n);
+
 		w.end();
 		w.write(")");
 /*
@@ -721,7 +725,28 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		}
 	}
 
-	public void visit(TypeDecl_c n) {
+    private void printExtraFormals(X10ConstructorDecl_c n) {
+        int cid = getConstructorId(n.constructorDef());
+		if (cid != -1) {
+		    w.write(",");
+		    int narg = 0;
+		    for (int i = 0; i < cid + 1; i++) {
+		        if (i % 256 == 0) {
+		            if (i != 0) {
+		                w.write(" $dummy" + narg++);
+		                w.write(",");
+		            }
+		            w.write(JAVA_LANG_CLASS);
+		        }
+		        else {
+		            w.write("[]");
+		        }
+		    }
+		    w.write(" $dummy" + narg);
+		}
+    }
+
+    public void visit(TypeDecl_c n) {
 		// Do not write anything.
 		return;
 	}
@@ -929,6 +954,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			}
 		}
 
+		setConstructorIds(def);
+
 		n.print(n.body(), w, tr);
 
 		w.end(); w.newline();
@@ -939,6 +966,65 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 //			er.generateRTType(def);
 //		}
 	}
+
+    private void setConstructorIds(X10ClassDef def) {
+        List<ConstructorDef> cds = def.constructors();
+        int constructorId = 0;
+        for (ConstructorDef cd : cds) {
+            X10ConstructorDef xcd = (X10ConstructorDef) cd;
+            List<Type> annotations = xcd.annotations();
+            List<Ref<? extends Type>> ats = new ArrayList<Ref<? extends Type>>();
+            for (Type type : annotations) {
+                ats.add(Types.ref(type));
+            }
+            boolean containsParamOrParameterized = false;
+            List<Ref<? extends Type>> formalTypes = xcd.formalTypes();
+            for (Ref<? extends Type> ref : formalTypes) {
+                Type t = ref.get();
+                if (X10TypeMixin.baseType(t) instanceof ParameterType || (t instanceof X10ClassType && ((X10ClassType)t).hasParams())) {
+                    containsParamOrParameterized = true;
+                    break;
+                }
+            }
+            Type annotationType;
+            if (containsParamOrParameterized) {
+                annotationType = new ConstructorIdTypeForAnnotation(def).setIndex(constructorId ++);
+            }
+            else {
+                annotationType = new ConstructorIdTypeForAnnotation(def);
+            }
+            ats.add(Types.ref(annotationType));
+            xcd.setDefAnnotations(ats);
+        }
+    }
+
+    private boolean hasConstructorIdAnnotation(X10ConstructorDef condef) {
+        List<Type> annotations = condef.annotations();
+        for (Type an : annotations) {
+            if (an instanceof ConstructorIdTypeForAnnotation) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    // if it isn't set id or don't have an annotation, return -1
+    private int getConstructorId(X10ConstructorDef condef) {
+        if (!hasConstructorIdAnnotation(condef)) {
+            StructType st = condef.container().get();
+            if (st instanceof X10ClassType) {
+                X10ClassDef def = (X10ClassDef) ((X10ClassType) st).def();
+                setConstructorIds(def);
+            }
+        }
+        List<Type> annotations = condef.annotations();
+    	for (Type an : annotations) {
+            if (an instanceof ConstructorIdTypeForAnnotation) {
+                return ((ConstructorIdTypeForAnnotation) an).getIndex();
+            }
+        }
+    	return -1;
+    }
 
     private boolean alreadyPrinted(List<Type> alreadyPrintedTypes, TypeNode tn) {
         boolean alreadyPrinted = false;
@@ -1373,9 +1459,12 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			}
 		}
 
+		printExtraArgments(mi);
+
 		w.end();
 		w.write(");");	
 	}
+
 	public void visit(X10New_c c) {
 		X10New_c n = c;
 		
@@ -1416,7 +1505,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		w.write("new ");
 
 		if (n.qualifier() == null) {
-		        er.printType(n.objectType().type(), PRINT_TYPE_PARAMS | NO_VARIANCE);
+		    er.printType(n.objectType().type(), PRINT_TYPE_PARAMS | NO_VARIANCE);
 		}
 		else {
 			er.printType(n.objectType().type(), PRINT_TYPE_PARAMS | NO_VARIANCE | NO_QUALIFIER);
@@ -1428,16 +1517,16 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		X10ClassType ct = (X10ClassType) mi.container();
 		
 		List<Type> ta = ct.typeArguments();
-                if (ta.size() > 0 && !isJavaNative(n)) {
-                    for (Iterator<Type> i = ta.iterator(); i.hasNext(); ) {
-                        final Type at = i.next();
-                        new RuntimeTypeExpander(er, at).expand(tr);
-                        if (i.hasNext() || c.arguments().size() > 0) {
-                                w.write(",");
-                                w.allowBreak(0, " ");
-                        }
-                    }        
-                }     
+		if (ta.size() > 0 && !isJavaNative(n)) {
+		    for (Iterator<Type> i = ta.iterator(); i.hasNext(); ) {
+		        final Type at = i.next();
+		        new RuntimeTypeExpander(er, at).expand(tr);
+		        if (i.hasNext() || c.arguments().size() > 0) {
+		            w.write(",");
+		            w.allowBreak(0, " ");
+		        }
+		    }        
+		}     
 
 		List<Expr> l = c.arguments();
 		for (Iterator<Expr> i = l.iterator(); i.hasNext(); ) {
@@ -1448,6 +1537,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 				w.allowBreak(0, " ");
 			}
 		}
+	      
+		printExtraArgments(mi);
+        
 		w.end();
 		w.write(")");
 
@@ -1458,17 +1550,37 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		}
 	}
 
-        private boolean isJavaNative(X10New_c n) {
-                Type type = n.objectType().type();
-                if (type instanceof X10ClassType) {
-                    X10ClassDef cd = ((X10ClassType) type).x10Def();
-                    String pat = er.getJavaRep(cd);
-                    if (pat != null && pat.startsWith("java.")) {
-                        return true;
-                    }
-                }
-                return false;
+    private void printExtraArgments(X10ConstructorInstance mi) {
+        ConstructorDef md = mi.def();
+		if (md instanceof X10ConstructorDef) {
+		    int cid = getConstructorId((X10ConstructorDef) md);
+		    if (cid != -1) {
+		        w.write(",");
+		        for (int i = 0; i < cid + 1; i++) {
+		            if (i % 256 == 0) {
+		                if (i != 0) w.write(") null,");
+		                w.write("(" + JAVA_LANG_CLASS);
+		            }
+		            else {
+		                w.write("[]");
+		            }
+		        }
+		        w.write(") null");
+		    }
+		}
+    }
+
+    private boolean isJavaNative(X10New_c n) {
+        Type type = n.objectType().type();
+        if (type instanceof X10ClassType) {
+            X10ClassDef cd = ((X10ClassType) type).x10Def();
+            String pat = er.getJavaRep(cd);
+            if (pat != null && pat.startsWith("java.")) {
+                return true;
+            }
         }
+        return false;
+    }
 
 	public void visit(Import_c c) {
 		// don't generate any code at all--we should fully qualify all type names
@@ -3248,5 +3360,19 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		public int size() { return -1; }
 	}
 
+	private static class ConstructorIdTypeForAnnotation extends X10ParsedClassType_c {
+        private int i = -1;
+	    public ConstructorIdTypeForAnnotation(ClassDef def) {
+            super(def);
+        }
+	    private ConstructorIdTypeForAnnotation setIndex(int i) {
+	        assert i > -1;
+	        this.i = i;
+	        return this;
+	    }
+	    private int getIndex() {
+	        return i;
+	    }
+	}
 } // end of X10PrettyPrinterVisitor
 
