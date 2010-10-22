@@ -165,6 +165,7 @@ import x10.emitter.RuntimeTypeExpander;
 import x10.emitter.Template;
 import x10.emitter.TryCatchExpander;
 import x10.emitter.TypeExpander;
+import x10.types.ConstrainedType;
 import x10.types.FunctionType;
 import x10.types.ParameterType;
 import x10.types.ParameterType.Variance;
@@ -752,15 +753,25 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	}
 
 
-	private boolean hasCustomSerializer(X10ClassDecl_c n) {
-        boolean hasCustomSerializer = false;
-        for (TypeNode tn: n.interfaces()) {
-            if ("x10.io.CustomSerialization".equals(tn.type().toString())) {
-                hasCustomSerializer = true;
+	private static final String CUSTOM_SERIALIZATION = "x10.io.CustomSerialization";
+    private boolean hasCustomSerializer(X10ClassDef def) {
+        for (Ref<? extends Type> ref: def.interfaces()) {
+            if (CUSTOM_SERIALIZATION.equals(ref.get().toString())) {
+                return true;
             }
         }
-        return hasCustomSerializer;
-	}
+        return false;
+        /*
+        Ref<? extends Type> ref = def.superType();
+        if (ref == null) return false;
+        Type type = ref.get();
+        if (type instanceof ConstrainedType) {
+            type = ((ConstrainedType) type).baseType().get();
+        }
+        X10ClassDef superDef = (X10ClassDef) ((X10ParsedClassType_c) type).def();
+        return hasCustomSerializer(superDef);
+        */
+    }
 
 	public void visit(X10ClassDecl_c n) {
 	    String className = n.classDef().name().toString();
@@ -913,7 +924,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		// XTENLANG-1102
 		er.generateRTTInstance(def);
 		
-		if (hasCustomSerializer(n)) {
+		if (hasCustomSerializer(def)) {
             er.generateCustomSerializer(def);
         }
 
