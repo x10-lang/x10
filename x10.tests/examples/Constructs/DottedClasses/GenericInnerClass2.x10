@@ -40,7 +40,7 @@ public class GenericInnerClass2[T] extends x10Test {
   }
   
   class Inner implements SurpriseInterface[T]{
-    public def whistle() = outerT;
+    public def whistle(): T = outerT;
     public def brag(t:T) { outerVar = t;}
     val innerT : T;
     var innerVar : T;
@@ -48,7 +48,7 @@ public class GenericInnerClass2[T] extends x10Test {
   }
   
   class SubInner extends Inner {
-    public def whistle() = innerT;
+    public def whistle() = innerT; // ought to be 
     public def brag(t:T) { innerVar = t; }
     def this(t:T) { super(t); }
   }
