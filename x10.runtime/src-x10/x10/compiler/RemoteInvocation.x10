@@ -11,7 +11,12 @@
 
 package x10.compiler;
 
+import x10.lang.annotations.ExpressionAnnotation;
 import x10.lang.annotations.StatementAnnotation;
 
-public interface TempClosure extends StatementAnnotation {
+/**
+ * This annotation is used internally by the runtime to mark
+ * closures that will be used as parameters to runClosureAt methods.
+ */
+public interface RemoteInvocation extends ExpressionAnnotation,StatementAnnotation {
 }

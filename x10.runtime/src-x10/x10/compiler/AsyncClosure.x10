@@ -12,10 +12,11 @@
 package x10.compiler;
 
 import x10.lang.annotations.ExpressionAnnotation;
+import x10.lang.annotations.StatementAnnotation;
 
 /**
  * This annotation is used internally by the compiler to mark
  * closures generated as part of the desugaring of async constructs.
  */
-public interface AsyncClosure extends ExpressionAnnotation {
+public interface AsyncClosure extends ExpressionAnnotation,StatementAnnotation {
 }

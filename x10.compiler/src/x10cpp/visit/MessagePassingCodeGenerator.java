@@ -4164,10 +4164,10 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		} catch (SemanticException e) {
 		}
 		try {
-			if (!((X10Ext)(n.body()).ext()).annotationMatching((Type) xts.systemResolver().find(QName.make("x10.compiler.TempClosure"))).isEmpty()) {
+			if (!((X10Ext)(n.body()).ext()).annotationMatching((Type) xts.systemResolver().find(QName.make("x10.compiler.RemoteInvocation"))).isEmpty()) {
 				kind = 2;
 			}
-			if (!((X10Ext)(n).ext()).annotationMatching((Type) xts.systemResolver().find(QName.make("x10.compiler.TempClosure"))).isEmpty()) {
+			if (!((X10Ext)(n).ext()).annotationMatching((Type) xts.systemResolver().find(QName.make("x10.compiler.RemoteInvocation"))).isEmpty()) {
 				kind = 2;
 			}
 		} catch (SemanticException e) {
