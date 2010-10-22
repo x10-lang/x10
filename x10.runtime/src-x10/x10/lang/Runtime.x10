@@ -16,8 +16,6 @@ import x10.compiler.Pinned;
 import x10.compiler.Global;
 import x10.compiler.SuppressTransientError;
 
-import x10.io.CustomSerialization;
-
 import x10.util.Random;
 import x10.util.Stack;
 import x10.util.Box;
@@ -61,13 +59,17 @@ import x10.util.Box;
      * May be implemented synchronously or asynchronously.
      * Body cannot spawn activities, use clocks, or raise exceptions.
      */
-    @Native("java", "x10.runtime.impl.java.Runtime.runAt(#1, #2)")
+    @Native("java", "x10.runtime.impl.java.Runtime.runClosureAt(#1, #2)")
     @Native("c++", "x10aux::run_at(#1, #2)")
-    public static def runAtNative(id:Int, body:()=>void):void { body(); }
+    public static def runClosureAt(id:Int, body:()=>void):void { body(); }
+
+    @Native("java", "x10.runtime.impl.java.Runtime.runClosureCopyAt(#1, #2)")
+    @Native("c++", "x10aux::run_at(#1, #2)")
+    public static def runClosureCopyAt(id:Int, body:()=>void):void { body(); }
 
     public static def runAsyncAt(id:Int, body:()=>void, finishState:FinishState):void {
         val closure = @x10.compiler.TempClosure (()=>{execute(body, finishState);});
-        runAtNative(id, closure);
+        runClosureCopyAt(id, closure);
         dealloc(closure);
     }
 
@@ -454,7 +456,7 @@ import x10.util.Box;
                 // root finish has terminated, kill remote processes if any
                 if (!isLocal(Place.MAX_PLACES - 1)) {
                     for (var i:Int=1; i<Place.MAX_PLACES; i++) {
-                        runAtNative(i, @x10.compiler.TempClosure (()=>{runtime().kill();}));
+                        runClosureAt(i, @x10.compiler.TempClosure (()=>{runtime().kill();}));
                     }
                 }
 
@@ -503,7 +505,7 @@ import x10.util.Box;
             execute(new Activity(deepCopy(body), state, clockPhases));
         } else {
             val c = @x10.compiler.TempClosure (()=>execute(new Activity(body, state, clockPhases)));
-            runAtNative(place.id, c);
+            runClosureCopyAt(place.id, c);
         }
     }
 
@@ -524,7 +526,7 @@ import x10.util.Box;
             } else {
                 var closure:()=>void;
                 closure = @x10.compiler.TempClosure (()=>execute(new Activity(body, state, false)));
-                runAtNative(place.id, closure);
+                runClosureCopyAt(place.id, closure);
                 dealloc(closure);
             }
         }
@@ -567,7 +569,7 @@ import x10.util.Box;
             } else {
                 closure = @x10.compiler.TempClosure (()=>execute(new Activity(body, false)));
             }
-            runAtNative(place.id, closure);
+            runClosureCopyAt(place.id, closure);
             dealloc(closure);
         }
     }
@@ -580,90 +582,83 @@ import x10.util.Box;
         execute(new Activity(body, a.safe()));
     }
 
+    static class RemoteControl extends Latch {
+        public def this() { super(); }
+        private def this(Any) {
+            throw new UnsupportedOperationException("Cannot deserialize "+typeName());
+        }
+        var e:Throwable = null;
+    }
+
     /**
      * Run at statement
      */
-    static class RemoteControl {
-        private val root = GlobalRef[RemoteControl](this);
-        transient var e:Box[Throwable] = null;
-        @SuppressTransientError transient val latch = new Latch();
-        @Global public def equals(a:Any) =
-            (a instanceof RemoteControl) && this.root.equals((a as RemoteControl).root);
-        @Global public def hashCode()=root.hashCode();
-        @Global public def home() = root.home();
-    }
-
     public static def runAt(place:Place, body:()=>void):void {
         Runtime.ensureNotInAtomic();
-        val box = (new RemoteControl()).root;
+        val box = GlobalRef(new RemoteControl());
         async at(place) {
             try {
                 body();
                 async at(box.home) {
                     val me = box();
-                    me.latch.release();
+                    me.release();
                 }
             } catch (e:Throwable) {
                 async at(box.home) {
                     val me = box();
-                    me.e = new Box[Throwable](e);
-                    me.latch.release();
+                    me.e = e;
+                    me.release();
                 }
             }
         }
         val me = box();
-        if (!NO_STEALS && activity().safe()) worker().join(me.latch);
-        me.latch.await();
+        if (!NO_STEALS && activity().safe()) worker().join(me);
+        me.await();
         if (null != me.e) {
-            val x = me.e.value;
-            if (x instanceof Error)
-                throw x as Error;
-            if (x instanceof RuntimeException)
-                throw x as RuntimeException;
+            if (me.e instanceof Error)
+                throw me.e as Error;
+            if (me.e instanceof RuntimeException)
+                throw me.e as RuntimeException;
         }
+    }
+
+    static class Remote[T] extends RemoteControl {
+        public def this() { super(); }
+        private def this(Any) {
+            throw new UnsupportedOperationException("Cannot deserialize "+typeName());
+        }
+        var t:Box[T] = null;
     }
 
     /**
      * Eval at expression
      */
-    static class Remote[T] {
-        transient var t:Box[T] = null;
-        transient var e:Box[Throwable] = null;
-        @SuppressTransientError transient val latch = new Latch();
-        private val root = GlobalRef[Remote](this);
-        @Global public def equals(a:Any)=
-            (a instanceof Remote[T]) && this.root.equals((a as Remote[T]).root);
-        @Global public def hashCode()=root.hashCode();
-        @Global public def home() = root.home();
-    }
-
     public static def evalAt[T](place:Place, eval:()=>T):T {
-        val box = (new Remote[T]()).root;
+        val box = GlobalRef(new Remote[T]());
         async at(place) {
             try {
                 val result = eval();
                 async at(box.home) {
                     val me = box();
                     me.t = result;
-                    me.latch.release();
+                    me.release();
                 }
             } catch (e:Throwable) {
                 async at(box.home) {
                     val me = box();
                     me.e = e;
-                    me.latch.release();
+                    me.release();
                 }
             }
         }
         val me = box();
-        if (!NO_STEALS && activity().safe()) worker().join(me.latch);
-        me.latch.await();
+        if (!NO_STEALS && activity().safe()) worker().join(me);
+        me.await();
         if (null != me.e) {
-            val x = me.e.value;
-            if (x instanceof Error)
-                throw x as Error;
-            if (x instanceof RuntimeException)
-                throw x as RuntimeException;
+            if (me.e instanceof Error)
+                throw me.e as Error;
+            if (me.e instanceof RuntimeException)
+                throw me.e as RuntimeException;
         }
         return me.t.value;
     }

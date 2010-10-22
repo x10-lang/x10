@@ -125,7 +125,14 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
     /**
      * Synchronously executes body at place(id)
      */
-    public static void runAt(int id, x10.core.fun.VoidFun_0_0 body) {
+    public static void runClosureAt(int id, x10.core.fun.VoidFun_0_0 body) {
+        runAtLocal(id, body);
+    }
+
+    /**
+     * Synchronously executes body at place(id)
+     */
+    public static void runClosureCopyAt(int id, x10.core.fun.VoidFun_0_0 body) {
         body = deepCopy(body);
         runAtLocal(id, body);
     }

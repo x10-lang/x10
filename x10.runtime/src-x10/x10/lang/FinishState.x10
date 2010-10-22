@@ -259,7 +259,7 @@ interface FinishState {
             seen(Runtime.hereInt()) = false;
             for(var i:Int=0; i<Place.MAX_PLACES; i++) {
                 if (seen(i)) {
-                    Runtime.runAtNative(i, closure);
+                    Runtime.runClosureAt(i, closure);
                 }
             }
             Runtime.dealloc(closure);
@@ -391,7 +391,7 @@ interface FinishState {
                     rrcfHere().notify(m, t); 
                     Runtime.deallocObject(m); 
                 });
-                Runtime.runAtNative(r.home().id, closure);
+                Runtime.runClosureAt(r.home().id, closure);
                 Runtime.dealloc(closure);
                 Runtime.deallocObject(m);
             } else {
@@ -412,7 +412,7 @@ interface FinishState {
                      (Runtime.proxy(r) as RemoteCollectingFinish[T]).notify(m, x);
                      Runtime.deallocObject(m);
                      });
-                    Runtime.runAtNative( path.second, closure);
+                    Runtime.runClosureAt( path.second, closure);
                     Runtime.dealloc(closure);
                     }
                 else {
@@ -422,7 +422,7 @@ interface FinishState {
                          rrcfHere().notify(m, x);
                          Runtime.deallocObject(m);
                      });
-                     Runtime.runAtNative( path.second, closure);
+                     Runtime.runClosureAt( path.second, closure);
                      Runtime.dealloc(closure);
                     }
 
@@ -449,7 +449,7 @@ interface FinishState {
                      rrcfHere().notify2(m, t); 
                      Runtime.deallocObject(m); 
                 });
-                Runtime.runAtNative(r.home().id, closure);
+                Runtime.runClosureAt(r.home().id, closure);
                 Runtime.dealloc(closure);
                 Runtime.deallocObject(m);
             } else {
@@ -470,7 +470,7 @@ interface FinishState {
                      (Runtime.proxy(r) as RemoteCollectingFinish[T]).notify2(m, x);
                      Runtime.deallocObject(m);
                      });
-                    Runtime.runAtNative( path.second, closure);
+                    Runtime.runClosureAt( path.second, closure);
                     Runtime.dealloc(closure);
                     }
                 else {
@@ -480,7 +480,7 @@ interface FinishState {
                          rrcfHere().notify2(m, x);
                          Runtime.deallocObject(m);
                      });
-                     Runtime.runAtNative( path.second, closure);
+                     Runtime.runClosureAt( path.second, closure);
                      Runtime.dealloc(closure);
                     }
 
@@ -656,7 +656,7 @@ interface FinishState {
                         rrfHere().notify(m, t); 
                         Runtime.deallocObject(m); 
                     });
-                    Runtime.runAtNative(r.home().id, closure);
+                    Runtime.runClosureAt(r.home().id, closure);
                     Runtime.dealloc(closure);
                 } else {
                     val rrf = (r as RootFinish).root;
@@ -665,7 +665,7 @@ interface FinishState {
                         rrfHere().notify(m);
                         Runtime.deallocObject(m); 
                     });
-                    Runtime.runAtNative(r.home().id, closure);
+                    Runtime.runClosureAt(r.home().id, closure);
                     Runtime.dealloc(closure);
                 }
                 Runtime.deallocObject(m);
@@ -687,7 +687,7 @@ interface FinishState {
                         rrfHere().notify2(m, t); 
                         Runtime.deallocObject(m); 
                     });
-                    Runtime.runAtNative(r.home().id, closure);
+                    Runtime.runClosureAt(r.home().id, closure);
                     Runtime.dealloc(closure);
                 } else {
                     val rrf = (r as RootFinish).root;
@@ -696,7 +696,7 @@ interface FinishState {
                         rrfHere().notify2(m); 
                         Runtime.deallocObject(m); 
                     });
-                    Runtime.runAtNative(r.home().id, closure);
+                    Runtime.runClosureAt(r.home().id, closure);
                     Runtime.dealloc(closure);
                 }
                 Runtime.deallocObject(m);
@@ -858,11 +858,11 @@ interface FinishState {
                     t = new MultipleExceptions(e);
                 }
                 val closure = @x10.compiler.TempClosure (() => { (r as SimpleRootFinish).notify(m,t);});
-                Runtime.runAtNative(r.home().id, closure);
+                Runtime.runClosureAt(r.home().id, closure);
                 Runtime.dealloc(closure);
            } else {
                 val closure = @x10.compiler.TempClosure (() => { (r as SimpleRootFinish).notify(m);});
-                Runtime.runAtNative(r.home().id, closure);
+                Runtime.runClosureAt(r.home().id, closure);
                 Runtime.dealloc(closure);
            }
            Runtime.runtime().finishStates.remove(r);
