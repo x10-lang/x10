@@ -242,17 +242,22 @@ public class ClockedVariableRefactor extends ContextVisitor {
 	                argsType.add(c.type());
 	                argsType.add(op.type());
 	                argsType.add(init.type());
-	                argsType.add(n.type().type());	               
+			Type nType = n.type().type();
+			while (nType instanceof AnnotatedType)
+				nType = ((AnnotatedType)nType).baseType();
+	                argsType.add(nType);	               
 	                Type type2;
 	                if (this.isOpIntPlus(op))
 	                	type2 = xts.typeForName(CLOCKEDINT);
-	                else if (this.isNoOp(op))
+	                else if (this.isNoOp(op)) {
 	                	type2 = xts.typeForName(CLOCKEDOPLESSVAR);
+	                	type2 = ((X10ClassType) type2).typeArguments(typeArgs);
+			}
 	                else
 	                	type2 = ((X10ClassType) type).typeArguments(typeArgs);
 	                Expr construct = xnf.New(position,xnf.CanonicalTypeNode(position, type2), args)
 	               
-	                .constructorInstance(xts.findConstructor(type2, xts.ConstructorMatcher(n.type().type(), argsType, context)))
+	                .constructorInstance(xts.findConstructor(type2, xts.ConstructorMatcher(type2, argsType, context)))
 	                .type(type2);
 	                // clear shared flag and set final flag
 	                LocalDecl localDecl = xnf.LocalDecl(position,xnf.FlagsNode(position,X10Flags.toX10Flags(f).clearShared().Final()), xnf.CanonicalTypeNode(position, type2), n.name(), construct) 
@@ -298,8 +303,10 @@ public class ClockedVariableRefactor extends ContextVisitor {
 	                Type type2;
 	                if (this.isOpIntPlus(op))
 	                	type2 = xts.typeForName(CLOCKEDINT);
-	                else if (this.isNoOp(op))
+	                else if (this.isNoOp(op)) {
 	                	type2 = xts.typeForName(CLOCKEDOPLESSVAR);
+	                	type2 = ((X10ClassType) type2).typeArguments(typeArgs);
+			}
 	                else
 	                	type2 = ((X10ClassType) type).typeArguments(typeArgs);
 	                Expr construct = xnf.New(position,xnf.CanonicalTypeNode(position, type2), args)

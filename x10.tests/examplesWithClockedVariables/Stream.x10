@@ -16,9 +16,9 @@ public class Stream {
      finish {
         val clk = Clock.make();
         val opV = Boolean.&;
-		val opT = Double.+;
+    	val opT = Math.noOp.(Double, Double);
         shared var verified: boolean @ Clocked [Boolean] (clk, opV, true) = true;
-        val times= Rail.make[double @ Clocked [Double] (clk, opT, 0.0)](NUM_TIMES);
+        val times= Rail.make[double @ Clocked [Double] (clk, opT, 0.0)](NUM_TIMES, (int)=>0.0D);
         val N0 = args.length>0? int.parseInt(args(0)) : DEFAULT_SIZE;
         val N = (N0 as long) * NUM_PLACES;
         val localSize =  N0;
@@ -43,12 +43,12 @@ public class Stream {
                     }
 
                     val beta = alpha;
-
+		    var start:double = 0.0D;
                     for (var j:int=0; j<NUM_TIMES; j++) {
-                        if (p==0)  {times(j) = -now();}
+                        if (p==0)  {start = -now();}
                         for (var i:int=0; i<localSize; i++)
                             a(i) = b(i) + beta*c(i);
-                        if (p==0)  {times(j) = + now();}
+                        if (p==0)  {times(j) = start + now();}
                     }
 
                     // verification

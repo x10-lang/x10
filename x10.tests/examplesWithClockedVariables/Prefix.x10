@@ -3,7 +3,7 @@ import clocked.*;
 public class Prefix {
     const N = 8;
     val c = Clock.make();
-    val op = Int.+;
+    static val op = Math.noOp.(Int, Int);
     global val a = Rail.make[int @ Clocked[Int](c, op, 0)](N, (i:Int)=> i);
 
    

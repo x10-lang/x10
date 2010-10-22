@@ -37,7 +37,7 @@ public class AllReduceParallel {
   public static def main(Rail[String]) {
 
     val c = Clock.make();
-    val op = int.+;
+    val op = Math.noOp.(Int, Int);
     val myA = Rail.make [int @ Clocked[int](c, op, 0)](P, (i:Int)=> i);
     val result = allReduce(c, op, myA);
    

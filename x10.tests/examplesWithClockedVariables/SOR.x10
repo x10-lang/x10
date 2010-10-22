@@ -15,7 +15,8 @@ import clocked.*;
   
 class SORCore {
     var gTotal:Double = 0.0D;
-    static val op = Double.+ ;
+    //static val op = Double.+ ;
+    static val op = Math.noOp.(Double, Double);
     final public def SORCorerun(c: Clock, omega: Double, G: Array[Double @ Clocked[int](c, op, 0.0)](2)!, numIter: Int) @ ClockedM(c) {
     finish {
 	val M = G.region().max(0);
