@@ -504,7 +504,7 @@ class RayTracer {
 	public def render(val interval: Interval!): void = @ ClockedM(c) {
 
 		// Screen variables
-		val opI = Int.+;
+		val opI = Math.noOp.(Int, Int);
 		val row = Rail.make[int @ Clocked[int](c, opI, 0) ](interval.width * (interval.yto-interval.yfrom));
 		var pixCounter: int = 0; //iterator
 

@@ -23,7 +23,7 @@ import clocked.*;
 	var lowsum: Rail[int]!;
 	var highsum: Rail[int]!;
 
-    val c = Clock.make();
+        val c = Clock.make();
         val op = Double.+;
 	//val op = Math.noOp.(Double, Double);
 	var y: Rail[double @ Clocked[double] (c, op, 0.0D)]!;

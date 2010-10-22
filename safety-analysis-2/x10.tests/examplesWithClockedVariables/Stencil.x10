@@ -30,13 +30,14 @@ public class Stencil {
 
 
 	val opD = Math.max.(double, double);
+	val opN = Math.noOp.(double, double);
     
     val c = Clock.make();
     var delta: double @ Clocked[Double](c, opD, 0.0D)  = epsilon+1;
 
     def this(n: int, p: int) { this.N=n; this.P=p;}
 
-    def step(A:Rail[Double @ Clocked[double](c, opD, 0.0)]!, R: Region(1)) @ ClockedM(c) {
+    def step(A:Rail[Double @ Clocked[double](c, opN, 0.0)]!, R: Region(1)) @ ClockedM(c) {
        var diff: Double = 0;
        for ((q) in R) {
            val newVal = (A(q-1)+ A(q+1))/2.0 ; 
@@ -50,7 +51,7 @@ public class Stencil {
 
     public def run() : boolean = @ ClockedM(c) {
 
-       val A = Rail.make[Double @ Clocked[double](c, opD, 0.0D)](N+2, (int)=>0.0D); 
+       val A = Rail.make[Double @ Clocked[double](c, opN, 0.0D)](N+2, (int)=>0.0D); 
        A(N+1) = N+1.0D;
        next;
        val blocks = block(1..N, P);

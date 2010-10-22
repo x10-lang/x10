@@ -7,7 +7,7 @@ class Convolve {
     		finish {
  			 val c = Clock.make();       
              val n = x.length;
-             val op = Int.+;
+	     val op = Math.noOp.(Int, Int);
              val yi = Rail.make[Int @ Clocked[int] (c, op, 0)](w.length, (Int)=>0);
              val xz: int @ Clocked[int] (c, op, 0) = 0;
              async clocked (c) {
@@ -19,7 +19,8 @@ class Convolve {
                for ((i) in 0..w.length-1) async clocked (c)  {
                     for ((j) in 1..n) {
                         next; // end of one phase
-                        val v = (i==0? 0:yi(i-1)) + w(i)*xz;
+                        val v =( (i==0? 0:yi(i-1)) + w(i)*xz) as Int;
+
                         yi(i)=v;
                     }
                 } 
