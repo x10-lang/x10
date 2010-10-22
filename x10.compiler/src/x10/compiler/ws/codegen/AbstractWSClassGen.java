@@ -407,7 +407,15 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
                 childClassGen = new WSWhenFrameClassGen(this, (When)stmt);
             }
             else if(stmt instanceof Async){
-                childClassGen = new WSAsyncClassGen(this, (Async)stmt);
+                //Two situations:
+                //1) current frame is finish (? including async or not??) stmt, we need wrap async into a block
+                //2) current frame is normal stmt, just transform it directly
+                if(xts.isSubtype(getClassType(), wts.finishFrameType)){
+                    childClassGen = new WSRegularFrameClassGen(this, synth.toBlock(stmt), namePrefix);
+                }
+                else{
+                    childClassGen = new WSAsyncClassGen(this, (Async)stmt);                    
+                }
             }
             else{
                 //stmt.prettyPrint(System.out);               
