@@ -11,7 +11,7 @@ BDWGC_PROPERTIES=bdwgc_off.properties
 ifdef ENABLE_GC
   override CXXFLAGS += -DX10_USE_BDWGC
   BDWGC_INCLUDE_DIR= ./bdwgc/install/include
-  INCLUDE_DIRS += -I$(BDWGC_INCLUDE_DIR)
+  INCLUDE_DIRS += -I"$(BDWGC_INCLUDE_DIR)"
   BDWGC_PROPERTIES=bdwgc_on.properties
 endif
 
@@ -26,7 +26,7 @@ INSTDIR = $(call abspath,../../x10.dist)
 
 XRX_ARCHIVE = $(LIBPREFIX)x10$(LIBSUFFIX)
 ifeq ($(X10RT_PLATFORM),cygwin)
-  XRX_DEP_LIBS = -L$(INSTDIR)/lib -lx10rt_$(DEFAULT_X10RT_LIB)
+  XRX_DEP_LIBS = -L"$(INSTDIR)/lib" -lx10rt_$(DEFAULT_X10RT_LIB)
   ifdef ENABLE_GC
     override XRX_DEP_LIBS += -lgc
   endif
@@ -200,18 +200,18 @@ endif
 # FIXME: remove the part of the rule that copies the .inc files as soon as we get rid of them..
 install: $(XRCPP_ARCHIVE) $(XRX_ARCHIVE)
 	@echo "Installing into $(INSTDIR)"
-	@mkdir -p $(INSTDIR)/include $(INSTDIR)/lib
-	@(cd gen && find . -name \*.h | tar cf - $(INC_FLAG)) | (cd $(INSTDIR)/include && tar xf -)
-	@(cd gen && find . -name \*.struct_h | tar cf - $(INC_FLAG)) | (cd $(INSTDIR)/include && tar xf -)
-	@(cd gen && find . -name \*.inc | tar cf - $(INC_FLAG)) | (cd $(INSTDIR)/include && tar xf -)
-	@find x10 -name \*.h | tar cf - $(INC_FLAG) | (cd $(INSTDIR)/include && tar xf -)
-	@find x10 -name \*.struct_h | tar cf - $(INC_FLAG) | (cd $(INSTDIR)/include && tar xf -)
-	@find x10aux -name \*.h | tar cf - $(INC_FLAG) | (cd $(INSTDIR)/include && tar xf -)
-	@find x10aux -name \*.cuh | tar cf - $(INC_FLAG) | (cd $(INSTDIR)/include && tar xf -)
-	@cp -p x10rt.h $(INSTDIR)/include
-	@cp -p $(XRX_ARCHIVE) $(INSTDIR)/lib
-	@cp -p $(XRX_MANIFEST) $(INSTDIR)/lib
-	@cp -p $(BDWGC_PROPERTIES) $(INSTDIR)/etc/bdwgc.properties
+	@mkdir -p "$(INSTDIR)"/include "$(INSTDIR)"/lib
+	@(cd gen && find . -name \*.h | tar cf - $(INC_FLAG)) | (cd "$(INSTDIR)"/include && tar xf -)
+	@(cd gen && find . -name \*.struct_h | tar cf - $(INC_FLAG)) | (cd "$(INSTDIR)"/include && tar xf -)
+	@(cd gen && find . -name \*.inc | tar cf - $(INC_FLAG)) | (cd "$(INSTDIR)"/include && tar xf -)
+	@find x10 -name \*.h | tar cf - $(INC_FLAG) | (cd "$(INSTDIR)"/include && tar xf -)
+	@find x10 -name \*.struct_h | tar cf - $(INC_FLAG) | (cd "$(INSTDIR)"/include && tar xf -)
+	@find x10aux -name \*.h | tar cf - $(INC_FLAG) | (cd "$(INSTDIR)"/include && tar xf -)
+	@find x10aux -name \*.cuh | tar cf - $(INC_FLAG) | (cd "$(INSTDIR)"/include && tar xf -)
+	@cp -p x10rt.h "$(INSTDIR)"/include
+	@cp -p $(XRX_ARCHIVE) "$(INSTDIR)"/lib
+	@cp -p $(XRX_MANIFEST) "$(INSTDIR)"/lib
+	@cp -p $(BDWGC_PROPERTIES) "$(INSTDIR)"/etc/bdwgc.properties
 
 .PHONY: install
 
