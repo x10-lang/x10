@@ -520,11 +520,18 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 	public static Stmt checkFinish(Stmt s, boolean clocked) {
 
 		/*
-		 * finish S => { eval(x10.lang.Runtime.ensureNotInAtomic()); try {
-		 * eval(x10.lang.Runtime.startFinish()); { S } } catch (var
-		 * __desugarer__var__1__: x10.lang.Throwable) {
-		 * eval(x10.lang.Runtime.pushException(__desugarer__var__1__)); }
-		 * finally { eval(x10.lang.Runtime.stopFinish()); } }
+		 * {
+		 *     eval(x10.lang.Runtime.ensureNotInAtomic());
+		 *     eval(x10.lang.Runtime.startFinish());
+		 *     try {
+		 *         { S }
+		 *     } catch (var __desugarer__var__1__: x10.lang.Throwable) {
+		 *         eval(x10.lang.Runtime.pushException(__desugarer__var__1__));
+		 *         throw new x10.lang.RuntimeException(...);
+		 *     } finally {
+		 *         eval(x10.lang.Runtime.stopFinish());
+		 *     }
+		 * }
 		 */
 		try {
 			Block s1 = (Block) s;
@@ -533,19 +540,17 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 					return null;
 				s1 = (Block) s1.statements().get(1);
 			}
-			if (s1.statements().size() != 2)
+			if (s1.statements().size() != 3)
 				return null;
-			if (!checkStaticCall(s1.statements().get(0), "Runtime",
-					"ensureNotInAtomic", 0))
+			if (!checkStaticCall(s1.statements().get(0), "Runtime", "ensureNotInAtomic", 0))
 				return null;
-			Try try_ = (Try) s1.statements().get(1);
+			if (!checkStaticCall(s1.statements().get(1), "Runtime", "startFinish", 0))
+				return null;
+			Try try_ = (Try) s1.statements().get(2);
 			Block s2 = (Block) try_.tryBlock();
-			if (s2.statements().size() != 2)
+			if (s2.statements().size() != 1)
 				return null;
-			if (!checkStaticCall(s2.statements().get(0), "Runtime",
-					"startFinish", 0))
-				return null;
-			Block inner = (Block) s2.statements().get(1);
+			Block inner = (Block) s2.statements().get(0);
 			if (inner.statements().size() != 1)
 				return null;
 			Stmt inner_ = inner.statements().get(0);
