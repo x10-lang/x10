@@ -794,7 +794,6 @@ import x10.util.Box;
 
     public static def execute(body:()=>Void, finishState:FinishState):void {
         execute(new Activity(body, finishState));
-        dealloc(body);
     }
 
     // notify the pool a worker is about to execute a blocking operation
