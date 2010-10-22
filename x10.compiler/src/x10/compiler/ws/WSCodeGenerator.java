@@ -138,7 +138,14 @@ public class WSCodeGenerator extends ContextVisitor {
                 
                 Job job = ((ClassType) mDef.container().get()).def().job();
                 WSMethodFrameClassGen mFrame = new WSMethodFrameClassGen(job, (X10NodeFactory) nf, (X10Context) context, mDef, mDecl, wts);
+                try{
                 n = mFrame.transform();
+                }
+                catch(SemanticException e){
+                    System.err.println("==========>" + e.getMessage());
+                    e.printStackTrace();
+                    System.exit(-1);
+                }
                 genClassDecls.addAll(mFrame.close()); 
                 genMethodDecls.add(mFrame.getWraperMethod());
                 if(debugLevel > 3){
