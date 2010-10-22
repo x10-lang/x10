@@ -504,7 +504,7 @@ import x10.util.Box;
         if (place.id == hereInt()) {
             execute(new Activity(deepCopy(body), state, clockPhases));
         } else {
-            val c = ()=> @x10.compiler.TempClosure execute(new Activity(body, state, clockPhases));
+            val c = ()=> @x10.compiler.TempClosure { execute(new Activity(body, state, clockPhases)); };
             runClosureCopyAt(place.id, c);
         }
     }
@@ -525,7 +525,7 @@ import x10.util.Box;
                 runAsyncAt(place.id, body, state);
             } else {
                 var closure:()=>void;
-                closure = ()=> @x10.compiler.TempClosure execute(new Activity(body, state, false));
+                closure = ()=> @x10.compiler.TempClosure { execute(new Activity(body, state, false)); };
                 runClosureCopyAt(place.id, closure);
                 dealloc(closure);
             }
@@ -565,9 +565,9 @@ import x10.util.Box;
             var closure:()=>void;
             // Workaround for XTENLANG_614
             if (ok) {
-                closure = ()=> @x10.compiler.TempClosure execute(new Activity(body, true));
+                closure = ()=> @x10.compiler.TempClosure { execute(new Activity(body, true)); };
             } else {
-                closure = ()=> @x10.compiler.TempClosure execute(new Activity(body, false));
+                closure = ()=> @x10.compiler.TempClosure { execute(new Activity(body, false)); };
             }
             runClosureCopyAt(place.id, closure);
             dealloc(closure);

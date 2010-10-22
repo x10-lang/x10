@@ -11,7 +11,7 @@
 
 package x10.compiler;
 
-import x10.lang.annotations.ExpressionAnnotation;
+import x10.lang.annotations.StatementAnnotation;
 
-public interface TempClosure extends ExpressionAnnotation {
+public interface TempClosure extends StatementAnnotation {
 }

@@ -255,7 +255,7 @@ interface FinishState {
         @Pinned public def waitForFinish(safe:Boolean):void {
             if (!Runtime.NO_STEALS && safe) Runtime.worker().join(this.latch);
             await();
-            val closure = ()=> @x10.compiler.TempClosure Runtime.runtime().finishStates.remove(this);
+            val closure = ()=> @x10.compiler.TempClosure { Runtime.runtime().finishStates.remove(this); };
             seen(Runtime.hereInt()) = false;
             for(var i:Int=0; i<Place.MAX_PLACES; i++) {
                 if (seen(i)) {
