@@ -488,11 +488,14 @@ import x10.util.Box;
         runtime().pool.release();
     }
 
-    // async -> at statement -> at expression -> future
-    // do not introduce cycles!!!
-
+    // async at, async, at statement, and at expression implementation
+    // at is implemented using async at
+    // async at and at must make a copy of the closure parameter (local or remote)
+    // async at and at should dealloc the closure parameter
+    // async must not copy or dealloc the closure parameter
+    
     /**
-     * Run async
+     * Run async at
      */
     public static def runAsync(place:Place, clocks:Array[Clock]{rail}, body:()=>void):void {
         // Do this before anything else
@@ -509,6 +512,7 @@ import x10.util.Box;
             runClosureCopyAt(place.id, closure);
             dealloc(closure);
         }
+        dealloc(body);
     }
 
     public static def runAsync(place:Place, body:()=>void):void {
@@ -523,7 +527,7 @@ import x10.util.Box;
             execute(new Activity(deepCopy(body), state, ok));
         } else {
             if (ok) {
-                runAsyncAt(place.id, body, state);
+                runAsyncAt(place.id, body, state); // optimized case
             } else {
                 var closure:()=>void;
                 closure = ()=> @x10.compiler.RemoteInvocation { execute(new Activity(body, state, false)); };
@@ -531,8 +535,12 @@ import x10.util.Box;
                 dealloc(closure);
             }
         }
+        dealloc(body);
     }
 
+    /**
+     * Run async
+     */
     public static def runAsync(clocks:Array[Clock]{rail}, body:()=>void):void {
         // Do this before anything else
         val a = activity();
@@ -554,6 +562,9 @@ import x10.util.Box;
         execute(new Activity(body, state, a.safe()));
     }
 
+    /**
+     * Run @Uncounted async at
+     */
     public static def runUncountedAsync(place:Place, body:()=>void):void {
         // Do this before anything else
         val a = activity();
@@ -567,8 +578,12 @@ import x10.util.Box;
             runClosureCopyAt(place.id, closure);
             dealloc(closure);
         }
+        dealloc(body);
     }
 
+    /**
+     * Run @Uncounted async
+     */
     public static def runUncountedAsync(body:()=>void):void {
         // Do this before anything else
         val a = activity();
@@ -577,6 +592,9 @@ import x10.util.Box;
         execute(new Activity(body, a.safe()));
     }
 
+    /**
+     * a latch with a place for an exception
+     */
     static class RemoteControl extends Latch {
         public def this() { super(); }
         private def this(Any) {
@@ -609,6 +627,7 @@ import x10.util.Box;
         val me = box();
         if (!NO_STEALS && activity().safe()) worker().join(me);
         me.await();
+        dealloc(body);
         if (null != me.e) {
             if (me.e instanceof Error)
                 throw me.e as Error;
@@ -617,6 +636,9 @@ import x10.util.Box;
         }
     }
 
+    /**
+     * a latch with a place for an exception and return value
+     */
     static class Remote[T] extends RemoteControl {
         public def this() { super(); }
         private def this(Any) {
@@ -649,6 +671,7 @@ import x10.util.Box;
         val me = box();
         if (!NO_STEALS && activity().safe()) worker().join(me);
         me.await();
+        dealloc(eval);
         if (null != me.e) {
             if (me.e instanceof Error)
                 throw me.e as Error;
