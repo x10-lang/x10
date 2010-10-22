@@ -105,6 +105,13 @@ class Activity {
         this.body = body;
     }
 
+    def this(body:()=>Void, finishState:FinishState) {
+        this.finishState = finishState;
+        this.safe = true;
+        finishState.notifyActivityCreation();
+        this.body = body;
+    }
+
     /**
      * Create clocked activity.
      */

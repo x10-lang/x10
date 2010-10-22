@@ -65,6 +65,12 @@ import x10.util.Box;
     @Native("c++", "x10aux::run_at(#1, #2)")
     public static def runAtNative(id:Int, body:()=>void):void { body(); }
 
+    public static def runAsyncAt(id:Int, body:()=>void, finishState:FinishState):void {
+        val closure = @x10.compiler.TempClosure (()=>{execute(body, finishState);});
+        runAtNative(id, closure);
+        dealloc(closure);
+    }
+
     /**
      * Deep copy.
      */
@@ -448,7 +454,7 @@ import x10.util.Box;
                 // root finish has terminated, kill remote processes if any
                 if (!isLocal(Place.MAX_PLACES - 1)) {
                     for (var i:Int=1; i<Place.MAX_PLACES; i++) {
-                        runAtNative(i, runtime().kill.());
+                        runAtNative(i, @x10.compiler.TempClosure (()=>{runtime().kill();}));
                     }
                 }
 
@@ -496,7 +502,7 @@ import x10.util.Box;
         if (place.id == hereInt()) {
             execute(new Activity(deepCopy(body), state, clockPhases));
         } else {
-            val c = ()=>execute(new Activity(body, state, clockPhases));
+            val c = @x10.compiler.TempClosure (()=>execute(new Activity(body, state, clockPhases)));
             runAtNative(place.id, c);
         }
     }
@@ -512,15 +518,15 @@ import x10.util.Box;
         if (place.id == hereInt()) {
             execute(new Activity(deepCopy(body), state, ok));
         } else {
-            var closure:()=>void;
             // Workaround for XTENLANG_614
             if (ok) {
-                closure = ()=>execute(new Activity(body, state, true));
+                runAsyncAt(place.id, body, state);
             } else {
-                closure = ()=>execute(new Activity(body, state, false));
+                var closure:()=>void;
+                closure = @x10.compiler.TempClosure (()=>execute(new Activity(body, state, false)));
+                runAtNative(place.id, closure);
+                dealloc(closure);
             }
-            runAtNative(place.id, closure);
-            dealloc(closure);
         }
     }
 
@@ -557,9 +563,9 @@ import x10.util.Box;
             var closure:()=>void;
             // Workaround for XTENLANG_614
             if (ok) {
-                closure = ()=>execute(new Activity(body, true));
+                closure = @x10.compiler.TempClosure (()=>execute(new Activity(body, true)));
             } else {
-                closure = ()=>execute(new Activity(body, false));
+                closure = @x10.compiler.TempClosure (()=>execute(new Activity(body, false)));
             }
             runAtNative(place.id, closure);
             dealloc(closure);
@@ -794,6 +800,10 @@ import x10.util.Box;
     // submit an activity to the pool
     private static def execute(activity:Activity):void {
         worker().push(activity);
+    }
+
+    public static def execute(body:()=>Void, finishState:FinishState):void {
+        execute(new Activity(body, finishState));
     }
 
     // notify the pool a worker is about to execute a blocking operation
