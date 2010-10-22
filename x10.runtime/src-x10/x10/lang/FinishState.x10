@@ -255,7 +255,7 @@ interface FinishState {
         @Pinned public def waitForFinish(safe:Boolean):void {
             if (!Runtime.NO_STEALS && safe) Runtime.worker().join(this.latch);
             await();
-            val closure = @x10.compiler.TempClosure (()=>Runtime.runtime().finishStates.remove(this));
+            val closure = ()=> @x10.compiler.TempClosure Runtime.runtime().finishStates.remove(this);
             seen(Runtime.hereInt()) = false;
             for(var i:Int=0; i<Place.MAX_PLACES; i++) {
                 if (seen(i)) {
@@ -386,11 +386,11 @@ interface FinishState {
                     t = new MultipleExceptions(e);
                 }
             val rrcf = (r as RootCollectingFinish[T]).root;
-                val closure = @x10.compiler.TempClosure (() => { 
+                val closure = () => @x10.compiler.TempClosure { 
                     val rrcfHere = rrcf as GlobalRef[RootCollectingFinish[T]]{self.home==here};
                     rrcfHere().notify(m, t); 
                     Runtime.deallocObject(m); 
-                });
+                };
                 Runtime.runClosureAt(r.home().id, closure);
                 Runtime.dealloc(closure);
                 Runtime.deallocObject(m);
@@ -408,20 +408,20 @@ interface FinishState {
                 sr.reset();
                 stepAtomic.set(0);
                 if(path.second != r.home().id) {
-                     val closure = @x10.compiler.TempClosure (() => {
+                     val closure =() => @x10.compiler.TempClosure {
                      (Runtime.proxy(r) as RemoteCollectingFinish[T]).notify(m, x);
                      Runtime.deallocObject(m);
-                     });
+                     };
                     Runtime.runClosureAt( path.second, closure);
                     Runtime.dealloc(closure);
                     }
                 else {
                      val rrcf = (r as RootCollectingFinish[T]).root;
-                     val closure = @x10.compiler.TempClosure (() => {
+                     val closure = () => @x10.compiler.TempClosure {
                          val rrcfHere = rrcf as GlobalRef[RootCollectingFinish[T]]{self.home==here};
                          rrcfHere().notify(m, x);
                          Runtime.deallocObject(m);
-                     });
+                     };
                      Runtime.runClosureAt( path.second, closure);
                      Runtime.dealloc(closure);
                     }
@@ -444,11 +444,11 @@ interface FinishState {
                     t = new MultipleExceptions(e);
                 }
                 val rrcf = (r as RootCollectingFinish[T]).root;
-                val closure = @x10.compiler.TempClosure (() => { 
+                val closure = () => @x10.compiler.TempClosure { 
                      val rrcfHere = rrcf  as GlobalRef[RootCollectingFinish[T]]{self.home==here};
                      rrcfHere().notify2(m, t); 
                      Runtime.deallocObject(m); 
-                });
+                };
                 Runtime.runClosureAt(r.home().id, closure);
                 Runtime.dealloc(closure);
                 Runtime.deallocObject(m);
@@ -466,20 +466,20 @@ interface FinishState {
                 sr.reset();
                 stepAtomic.set(0);
                 if(path.second != r.home().id) {
-                     val closure = @x10.compiler.TempClosure (() => {
+                     val closure = () => @x10.compiler.TempClosure {
                      (Runtime.proxy(r) as RemoteCollectingFinish[T]).notify2(m, x);
                      Runtime.deallocObject(m);
-                     });
+                     };
                     Runtime.runClosureAt( path.second, closure);
                     Runtime.dealloc(closure);
                     }
                 else {
                      val rrcf = (r as RootCollectingFinish[T]).root;
-                     val closure = @x10.compiler.TempClosure (() => {
+                     val closure = () => @x10.compiler.TempClosure {
                          val rrcfHere = rrcf  as GlobalRef[RootCollectingFinish[T]]{self.home==here};
                          rrcfHere().notify2(m, x);
                          Runtime.deallocObject(m);
-                     });
+                     };
                      Runtime.runClosureAt( path.second, closure);
                      Runtime.dealloc(closure);
                     }
@@ -651,20 +651,20 @@ interface FinishState {
                         t = new MultipleExceptions(e);
                     }
                     val rrf = (r as RootFinish).root;
-                    val closure = @x10.compiler.TempClosure (() => { 
+                    val closure = () => @x10.compiler.TempClosure { 
                         val rrfHere = rrf as GlobalRef[RootFinish]{self.home==here};
                         rrfHere().notify(m, t); 
                         Runtime.deallocObject(m); 
-                    });
+                    };
                     Runtime.runClosureAt(r.home().id, closure);
                     Runtime.dealloc(closure);
                 } else {
                     val rrf = (r as RootFinish).root;
-                    val closure = @x10.compiler.TempClosure (() => {
+                    val closure = () => @x10.compiler.TempClosure {
                         val rrfHere = rrf as GlobalRef[RootFinish]{self.home==here};
                         rrfHere().notify(m);
                         Runtime.deallocObject(m); 
-                    });
+                    };
                     Runtime.runClosureAt(r.home().id, closure);
                     Runtime.dealloc(closure);
                 }
@@ -682,20 +682,20 @@ interface FinishState {
                         t = new MultipleExceptions(e);
                     }
                     val rrf = (r as RootFinish).root;
-                    val closure = @x10.compiler.TempClosure (() => { 
+                    val closure = () => @x10.compiler.TempClosure { 
                         val rrfHere = rrf as GlobalRef[RootFinish]{self.home==here};
                         rrfHere().notify2(m, t); 
                         Runtime.deallocObject(m); 
-                    });
+                    };
                     Runtime.runClosureAt(r.home().id, closure);
                     Runtime.dealloc(closure);
                 } else {
                     val rrf = (r as RootFinish).root;
-                    val closure = @x10.compiler.TempClosure (() => { 
+                    val closure = () => @x10.compiler.TempClosure { 
                         val rrfHere = rrf as GlobalRef[RootFinish]{self.home==here};
                         rrfHere().notify2(m); 
                         Runtime.deallocObject(m); 
-                    });
+                    };
                     Runtime.runClosureAt(r.home().id, closure);
                     Runtime.dealloc(closure);
                 }
@@ -857,11 +857,11 @@ interface FinishState {
                 } else {
                     t = new MultipleExceptions(e);
                 }
-                val closure = @x10.compiler.TempClosure (() => { (r as SimpleRootFinish).notify(m,t);});
+                val closure = () => @x10.compiler.TempClosure { (r as SimpleRootFinish).notify(m,t);};
                 Runtime.runClosureAt(r.home().id, closure);
                 Runtime.dealloc(closure);
            } else {
-                val closure = @x10.compiler.TempClosure (() => { (r as SimpleRootFinish).notify(m);});
+                val closure = () => @x10.compiler.TempClosure { (r as SimpleRootFinish).notify(m);};
                 Runtime.runClosureAt(r.home().id, closure);
                 Runtime.dealloc(closure);
            }
