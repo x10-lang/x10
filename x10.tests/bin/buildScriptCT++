@@ -115,6 +115,8 @@ main() {
 	    (cd $X10_DIST; ant dist);
 	elif [[ "$(uname -s)" == "SunOS" && "$(uname -p)" == "sparc" ]]; then
 	    (cd $X10_DIST; ant dist);
+	elif [[ "$(uname -s)" == CYGWIN* ]]; then
+	    (cd $X10_DIST; export DEFAULT_X10RT_LIB=sockets; ant dist);
 	else
 	    (cd $X10_DIST; ant dist);
 	fi
