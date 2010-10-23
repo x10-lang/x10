@@ -618,7 +618,9 @@ public class Desugarer extends ContextVisitor {
     }
 
     private Stmt makeAsyncBody(Position pos, List<Expr> exprs, List<Type> types, Stmt body, List<X10ClassType> annotations) throws SemanticException {
-        annotations.add((X10ClassType) xts.systemResolver().find(ASYNC_CLOSURE));
+    	if (annotations == null)
+    		annotations = new ArrayList<X10ClassType>(1);
+    	annotations.add((X10ClassType) xts.systemResolver().find(ASYNC_CLOSURE));
         Closure closure = synth.makeClosure(body.position(), xts.Void(),
                 synth.toBlock(body), context(), annotations);
         exprs.add(closure);
