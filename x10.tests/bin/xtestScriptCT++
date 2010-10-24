@@ -613,6 +613,8 @@ function main {
 	    X10CPP="$X10CPP -x10rt sockets"
 	elif [[ "$(uname -s)" == CYGWIN* && "$(uname -m)" == "i686" ]]; then
 	    X10CPP="$X10CPP -x10rt sockets"
+	elif [[ "$(uname -s)" == "Darwin" ]]; then
+	    X10CPP="$X10CPP -x10rt sockets"
 	fi
 
 	if [[ ! -f $X10_HOME/x10.dist/include/x10rt.h ]]; then
