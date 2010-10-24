@@ -46,7 +46,6 @@ public class TypeParamSubst {
 	private final List<ParameterType> typeParameters;
 	private final X10TypeSystem ts;
 
-	private final boolean missingArgs;
 	private final boolean identityInstantiation;
 	private final boolean eager;
 
@@ -55,7 +54,6 @@ public class TypeParamSubst {
 	}
 
 	public TypeParamSubst(X10TypeSystem ts, List<? extends Type> tas, List<ParameterType> tps, boolean eager) {
-		this.missingArgs = tps != null && tps.size() > 0 && tas == null;
 		this.identityInstantiation = isIdentityInstantiation(tas, tps);
 		this.eager = eager;
 		tas = tas == null ? tps : tas;
@@ -139,9 +137,6 @@ public class TypeParamSubst {
 		return false;
 	}
 
-	public boolean isMissingParameters() {
-		return missingArgs;
-	}
 	public boolean isIdentityInstantiation() {
 	    return identityInstantiation;
 	}

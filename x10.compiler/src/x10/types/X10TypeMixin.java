@@ -1512,7 +1512,7 @@ then we substitute 0/false/null in all the constraints in C and if they all eval
 		if (xt instanceof X10ParsedClassType) {
 			X10ParsedClassType xt1 = (X10ParsedClassType) xt;
 			
-			if (xt1.subst() == null || xt1.subst().isMissingParameters()){
+			if (xt1.isMissingTypeArguments()) {
 				List<ParameterType> expectedArgs = ((X10ClassDef) xt1.def()).typeParameters();
 				throw new Errors.TypeIsMissingParameters(xt, expectedArgs, pos);
 			}

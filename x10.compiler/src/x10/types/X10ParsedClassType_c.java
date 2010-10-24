@@ -117,6 +117,11 @@ implements X10ParsedClassType
         return cacheSubst;
     }
     
+    public boolean isMissingTypeArguments() {
+        List<ParameterType> tp = x10Def().typeParameters();
+        return (!tp.isEmpty() && (typeArguments == null || typeArguments.size() != tp.size()));
+    }
+    
     public X10ParsedClassType_c(ClassDef def) {
         super(def);
         cacheSubst = null;
