@@ -49,14 +49,11 @@ void StaticInitBroadcastDispatcher::doBroadcast(serialization_id_t id, char* the
 }
 
 void StaticInitBroadcastDispatcher::await() {
-    x10::lang::Runtime::lock();
-    x10::lang::Runtime::await();
-    x10::lang::Runtime::release();
+    x10::lang::Runtime::StaticInitBroadcastDispatcherAwait();
 }
 
 void StaticInitBroadcastDispatcher::notify() {
-    x10::lang::Runtime::lock();
-    x10::lang::Runtime::release();
+    x10::lang::Runtime::StaticInitBroadcastDispatcherNotify();
 }
 
 // vim:tabstop=4:shiftwidth=4:expandtab

@@ -80,7 +80,6 @@ import x10.ast.DepParameterExpr;
 import x10.ast.Finish;
 import x10.ast.FinishExpr;
 import x10.ast.FunctionTypeNode;
-import x10.ast.Future;
 import x10.ast.Here;
 import x10.ast.Next;
 import x10.ast.Offer;
@@ -155,9 +154,9 @@ public class Desugarer extends ContextVisitor {
     }
 
     public X10Context context() { return (X10Context) context; }
+    
     private static final Name RUN_AT = Name.make("runAt");
     private static final Name EVAL_AT = Name.make("evalAt");
-    private static final Name EVAL_FUTURE = Name.make("evalFuture");
     private static final Name RUN_ASYNC = Name.make("runAsync");
     private static final Name RUN_UNCOUNTED_ASYNC = Name.make("runUncountedAsync");
     private static final Name HERE = Name.make("here");
@@ -167,12 +166,9 @@ public class Desugarer extends ContextVisitor {
     private static final Name DROP = Name.make("drop");
     private static final Name MAKE = Name.make("make");
     
-    private static final Name LOCK = Name.make("lock");
-    private static final Name AWAIT = Name.make("await");
-    private static final Name RELEASE = Name.make("release");
+    private static final Name AWAIT_ATOMIC = Name.make("awaitAtomic");
     private static final Name ENTER_ATOMIC = Name.make("enterAtomic");
     private static final Name ENSURE_NOT_IN_ATOMIC = Name.make("ensureNotInAtomic");
-    private static final Name ENTER_ATOMIC_WHEN = Name.make("enterAtomicWhen");
     private static final Name EXIT_ATOMIC = Name.make("exitAtomic");
     
     private static final Name START_FINISH = Name.make("startFinish");
@@ -183,9 +179,23 @@ public class Desugarer extends ContextVisitor {
     private static final Name CONVERT = Converter.operator_as;
     private static final Name CONVERT_IMPLICITLY = Converter.implicit_operator_as;
     private static final Name DIST = Name.make("dist");
+    
+    private static final Name XOR = Name.make("xor");
+    private static final Name FENCE = Name.make("fence");
+    private static final QName IMMEDIATE = QName.make("x10.compiler.Immediate");
+    private static final QName REF = QName.make("x10.compiler.Ref");
+    private static final QName UNCOUNTED = QName.make("x10.compiler.Uncounted");
+    private static final QName REMOTE_OPERATION = QName.make("x10.compiler.RemoteOperation");
+    private static final QName ASYNC_CLOSURE = QName.make("x10.compiler.AsyncClosure");
+    
+    private static final Name START_COLLECTING_FINISH = Name.make("startCollectingFinish");
+    private static final Name STOP_COLLECTING_FINISH = Name.make("stopCollectingFinish");
+    private static final Name OFFER = Name.make("offer");  
+    
     //added for scalable finish
     private static final Name START_LOCAL_FINISH = Name.make("startLocalFinish");
     private static final Name START_SIMPLE_FINISH = Name.make("startSimpleFinish");
+    
     public Node override(Node parent, Node n) { 
     	if (n instanceof Finish) {
     		Finish finish = (Finish) n;
@@ -311,8 +321,6 @@ public class Desugarer extends ContextVisitor {
     }
 
     public Node leaveCall(Node old, Node n, NodeVisitor v) throws SemanticException {
-        if (n instanceof Future)
-            return visitFuture((Future) n);
         if (n instanceof Async)
             return visitAsync(old, (Async) n);
         if (n instanceof AtStmt)
@@ -355,10 +363,6 @@ public class Desugarer extends ContextVisitor {
         if (n instanceof Resume)
             return visitResume((Resume) n);
         return n;
-    }
-
-    private Expr visitFuture(Future f) throws SemanticException {
-        return visitRemoteClosure(f, EVAL_FUTURE, f.place());
     }
 
     private Expr visitAtExpr(AtExpr e) throws SemanticException {
@@ -477,14 +481,6 @@ public class Desugarer extends ContextVisitor {
             return true;
         return false;
     }
-
-    private static final Name XOR = Name.make("xor");
-    private static final Name FENCE = Name.make("fence");
-    private static final QName IMMEDIATE = QName.make("x10.compiler.Immediate");
-    private static final QName REF = QName.make("x10.compiler.Ref");
-    private static final QName UNCOUNTED = QName.make("x10.compiler.Uncounted");
-    private static final QName REMOTE_OPERATION = QName.make("x10.compiler.RemoteOperation");
-    private static final QName ASYNC_CLOSURE = QName.make("x10.compiler.AsyncClosure");
 
     public static boolean isUncountedAsync(X10TypeSystem xts, Async a) {
         return Emitter.hasAnnotation(xts, a, UNCOUNTED);
@@ -702,7 +698,7 @@ public class Desugarer extends ContextVisitor {
     // when(E1) S1 or(E2) S2...; ->
     //    Runtime.ensureNotInAtomic();
     //    try { Runtime.enterAtomic();
-    //          while (true) { if (E1) { S1; break; } if (E2) { S2; break; } ... Runtime.await(); }
+    //          while (true) { if (E1) { S1; break; } if (E2) { S2; break; } ... Runtime.awaitAtomic(); }
     //    finally { Runtime.exitAtomic(); }
     private Stmt visitWhen(When w) throws SemanticException {
         Position pos = w.position();
@@ -710,7 +706,7 @@ public class Desugarer extends ContextVisitor {
         for(int i=0; i<w.stmts().size(); i++) {
             body = body.append(xnf.If(pos, (Expr) w.exprs().get(i), wrap(pos, (Stmt) w.stmts().get(i))));
         }
-        body = body.append(xnf.Eval(pos, call(pos, AWAIT, xts.Void())));
+        body = body.append(xnf.Eval(pos, call(pos, AWAIT_ATOMIC, xts.Void())));
         Block tryBlock = xnf.Block(pos, 
         		xnf.Eval(pos, call(pos, ENTER_ATOMIC, xts.Void())),
         		xnf.While(pos, getLiteral(pos, xts.Boolean(), true), body));
@@ -863,9 +859,6 @@ public class Desugarer extends ContextVisitor {
         Expr newRE = xnf.New(pos, xnf.CanonicalTypeNode(pos, re), Collections.<Expr>emptyList()).constructorInstance(ci).type(re);
         return xnf.Throw(pos, newRE);
     }
-    
-    private static final Name START_COLLECTING_FINISH = Name.make("startCollectingFinish");
-    private static final Name STOP_COLLECTING_FINISH = Name.make("stopCollectingFinish");
 
     // x = finish (R) S; ->
     //    {
@@ -941,8 +934,6 @@ public class Desugarer extends ContextVisitor {
         if(reducerS.size()>0) reducerS.pop();
         return xnf.Block(pos, s1, xnf.Try(pos, tryBlock, Collections.singletonList(catchBlock), finalBlock));
     }
-
-    private static final Name OFFER = Name.make("offer");  
 
     //  offer e ->
     //  x10.lang.Runtime.offer(e);      

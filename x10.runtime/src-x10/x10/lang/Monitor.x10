@@ -27,10 +27,12 @@ import x10.util.Stack;
         throw new UnsupportedOperationException("Cannot deserialize "+typeName());
     }
 
+    static type Worker = Runtime.Worker;
+    
     /**
-     * Parked threads
+     * Parked workers
      */
-    private val threads = new Stack[Thread]();
+    private val workers = new Stack[Worker]();
 
     /**
      * Aquire the lock
@@ -63,11 +65,11 @@ import x10.util.Stack;
      */
     public def await():void {
         Runtime.increaseParallelism(); // likely to be blocked for a while
-        val thread = Thread.currentThread();
-        threads.push(thread);
-        while (threads.contains(thread)) {
+        val worker = Runtime.worker();
+        workers.push(worker);
+        while (workers.contains(worker)) {
             super.unlock();
-            Runtime.park();
+            Worker.park();
             super.lock();
         }
     }
@@ -77,10 +79,10 @@ import x10.util.Stack;
      * Must be called while holding the lock
      */
     public def release():void {
-        val size = threads.size();
+        val size = workers.size();
         if (size > 0) {
             Runtime.decreaseParallelism(size);
-            for (var i:Int = 0; i<size; i++) Runtime.unpark(threads.pop());
+            for (var i:Int = 0; i<size; i++) workers.pop().unpark();
         }
         super.unlock();
     }

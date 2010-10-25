@@ -173,8 +173,6 @@ class Activity {
         atomicDepth--;
     }
 
-    def inAtomic():boolean = atomicDepth > 0;
-
     def ensureNotInAtomic() {
         if (atomicDepth > 0)
             throw new IllegalOperationException();
