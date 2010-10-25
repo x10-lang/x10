@@ -500,7 +500,7 @@ public class Checker {
 	        targetType = context.currentClass();
 	    if (haveUnknown)
 	        error = new SemanticException(); // null message
-	    mi = xts.createFakeMethod(targetType.toClass(), Flags.PUBLIC, name, typeArgs, actualTypes, error);
+	    mi = xts.createFakeMethod(targetType.toClass(), Flags.PUBLIC.Static(), name, typeArgs, actualTypes, error);
 	    if (rt != null) mi = mi.returnType(rt);
 	    return new Pair<MethodInstance, List<Expr>>(mi, n.arguments());
 	}

@@ -570,8 +570,8 @@ public class X10Binary_c extends Binary_c implements X10Binary {
         if (defs.size() == 0) {
             if (methodName == null)
                 return null;
-            // Create a fake instance method of the left type with the appropriate name and type.   
-            X10Call_c fake = (X10Call_c) nf.X10Call(pos, left, nf.Id(pos, methodName), Collections.<TypeNode>emptyList(), Collections.singletonList(right));
+            // Create a fake static method in the left type with the appropriate name and type.   
+            X10Call_c fake = (X10Call_c) nf.Call(pos, nf.CanonicalTypeNode(pos, left.type()), nf.Id(pos, methodName), left, right);
             fake = typeCheckCall(tc, fake);
             return fake;
         }
