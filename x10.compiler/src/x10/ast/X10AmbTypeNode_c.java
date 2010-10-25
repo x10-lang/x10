@@ -88,7 +88,7 @@ public class X10AmbTypeNode_c extends AmbTypeNode_c implements X10AmbTypeNode, A
 	      if (t instanceof X10ParsedClassType) {
 		  X10ParsedClassType ct = (X10ParsedClassType) t;
 		  if (ct.flags().isInterface()) {
-		      return postprocess((CanonicalTypeNode) tn, this, tc);
+		      return postprocess((X10CanonicalTypeNode) tn, this, tc);
 		  }
 	      }
 
@@ -190,7 +190,7 @@ public class X10AmbTypeNode_c extends AmbTypeNode_c implements X10AmbTypeNode, A
               Goal resolver = tc.job().extensionInfo().scheduler().LookupGlobalType(sym);
               resolver.update(Goal.Status.SUCCESS);
               sym.setResolver(resolver);
-              return postprocess((CanonicalTypeNode) tn, this, ar);   
+              return postprocess((X10CanonicalTypeNode) tn, this, ar);   
           }
     
           ex = new SemanticException("Could not find type \"" +(prefix == null ? name.toString() : prefix.toString() + "." + name.toString()) +"\".", pos);
@@ -217,8 +217,7 @@ public class X10AmbTypeNode_c extends AmbTypeNode_c implements X10AmbTypeNode, A
   		r.setResolver(new TypeCheckTypeGoal(parent, this, tc, r));
   	}
   }
-  static TypeNode postprocess(CanonicalTypeNode result, TypeNode n, ContextVisitor childtc) 
-  throws SemanticException {
+  static TypeNode postprocess(X10CanonicalTypeNode result, TypeNode n, ContextVisitor childtc) {
 	  Flags  f = ((X10AmbTypeNode_c) n).flags;
 	  if (f != null) {
 		  LazyRef<Type> sym = (LazyRef<Type>) result.typeRef();

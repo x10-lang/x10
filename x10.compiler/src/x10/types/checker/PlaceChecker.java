@@ -590,15 +590,6 @@ public class PlaceChecker {
 	    return !isHere(e, context);
 	}
 	*/
-	/*
-	@Override
-	public NodeVisitor typeCheckEnter(TypeChecker v) throws SemanticException {
-		if (placeTerm != null) {
-			v = (TypeChecker) v.context(pushPlaceTerm((X10Context) v.context()));
-		}
-		return v;
-	}
-	*/
 	    XTerm placeTerm;
 	    /**
 	     * The type of the place term. May be Ref or Place. May contain a newly generated

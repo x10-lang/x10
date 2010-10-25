@@ -453,7 +453,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 	}
 
 	@Override
-	public Node typeCheck(ContextVisitor tc) throws SemanticException {
+	public Node typeCheck(ContextVisitor tc) {
 		X10MethodDecl_c n = this;
 		NodeFactory nf = tc.nodeFactory();
 		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
@@ -465,9 +465,10 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 
 		X10Flags xf = X10Flags.toX10Flags(mi.flags());
 
-		//            if (xf.isProperty() && body == null) {
-		//        	throw new SemanticException("A property method must have a body.", position());
-		//            }
+		//if (xf.isProperty() && body == null) {
+		//    Errors.issue(tc.job(),
+		//            new SemanticException("A property method must have a body.", position()));
+		//}
 
 		if (xf.isProperty()) {
 			boolean ok = false;
@@ -490,14 +491,27 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 				}
 			}
 			if (! ok)
-				throw new SemanticException("Property method body must be a constraint expression.", position());
+				Errors.issue(tc.job(),
+				        new SemanticException("Property method body must be a constraint expression.", position()));
 		}
 
-		n = (X10MethodDecl_c) n.superTypeCheck(tc);
+		try {
+		    n = (X10MethodDecl_c) n.superTypeCheck(tc);
+		} catch (SemanticException e) {
+		    throw new InternalCompilerError("Unexpected exception while typechecking "+n, n.position(), e);
+		}
 
-		dupFormalCheck(typeParameters, formals);
+		try {
+		    dupFormalCheck(typeParameters, formals);
+		} catch (SemanticException e) {
+		    Errors.issue(tc.job(), e, n);
+		}
 
-		X10TypeMixin.checkMissingParameters(n.returnType());
+		try {
+		    X10TypeMixin.checkMissingParameters(n.returnType());
+		} catch (SemanticException e) {
+		    Errors.issue(tc.job(), e, n.returnType());
+		}
 		return n;
 	}
 

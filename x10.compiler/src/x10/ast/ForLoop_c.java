@@ -95,18 +95,6 @@ public class ForLoop_c extends X10Loop_c implements ForLoop {
 	    return result;
 	}
 
-	/** Type check the statement. */
-//	public Node typeCheck(TypeChecker tc) throws SemanticException {
-//		ForLoop_c n = (ForLoop_c) super.typeCheck(tc);
-//		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
-//		Expr newDomain = n.domain;
-//		X10Type type = (X10Type) newDomain.type();
-//		// FIXME: [IP] remove desugaring
-//		if (ts.isDistribution(type))
-//			newDomain = (Expr) tc.nodeFactory().Field(n.position(), newDomain, tc.nodeFactory().Id(n.position(), "region")).del().typeCheck(tc);
-//		return n.domain(newDomain);
-//	}
-
 	public boolean condIsConstant() { return false; }
 	public boolean condIsConstantTrue() { return false; }
 
