@@ -1513,10 +1513,10 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		    for (int i = 0; i < arguments.size(); ++ i) {
 		        Type ft = n.constructorInstance().def().formalTypes().get(i).get();
 		        Type at = arguments.get(i).type();
-		        if ((at.isBoolean() || at.isNumeric() || at.isChar()) && X10TypeMixin.baseType(ft) instanceof ParameterType) {
+		        if (isPrimitiveRepedJava(at) && X10TypeMixin.baseType(ft) instanceof ParameterType) {
 		            args.add(new CastExpander(w, er, arguments.get(i)).castTo(at, BOX_PRIMITIVES));
 		        }
-		        else if ((at.isBoolean() || at.isNumeric() || at.isChar())) {
+		        else if (isPrimitiveRepedJava(at)) {
 		            args.add(new CastExpander(w, er, arguments.get(i)).castTo(at, 0));
 		        }
 		        else {
@@ -1845,7 +1845,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	    if (ttype instanceof X10ClassType) {
 	        if (((X10ClassType) ttype).typeArguments().size() > 0) {
 	            ptype = ((X10ClassType) ttype).typeArguments().get(0);
-	            if (ptype instanceof ParameterType) {
+	            if (xts.isParameterType(ptype)) {
 	                isParameterType = true;
 	            }
 	        }
@@ -1872,9 +1872,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	            c.print(c.arguments().get(0), w, tr);
 	            return;
 	        }
-	        // e.g. rail.apply(i) -> ((String)((Object[])rail.value)[i]) or ((int[])rail.value)[i]
+	        // e.g. rail.apply(i) -> ((String)((String[])rail.value)[i]) or ((int[])rail.value)[i]
 	        if (methodName==ClosureCall.APPLY) {
-	            if (!(ptype.isBoolean() || ptype.isNumeric() || ptype.isChar())) {
+	            if (!isPrimitiveRepedJava(ptype)) { // for type params
 	                    w.write("(");
 	                    w.write("(");
 	                    new TypeExpander(er, ptype, true, false, false).expand();
@@ -1894,7 +1894,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	            c.print(c.arguments().get(0), w, tr);
 	            w.write("]");
 
-	            if (!(ptype.isBoolean() || ptype.isNumeric() || ptype.isChar())) {
+	            if (!isPrimitiveRepedJava(ptype)) {
 	                w.write(")");
 	            }
 	            return;
@@ -2332,7 +2332,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		    for (Formal f: formals) {
 		        w.write(delim);
 		        delim = ",";
-		        if (f.type().type().isBoolean() || f.type().type().isNumeric() || f.type().type().isChar()) {
+		        if (isPrimitiveRepedJava(f.type().type())) {
 		            w.write("(");
 		            er.printType(f.type().type(), 0);
 		            w.write(")");
@@ -2566,12 +2566,12 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
 	private boolean containsPrimitive(Closure_c n) {
 	    Type t = n.returnType().type();
-	    if (t.isBoolean() || t.isNumeric() || t.isChar()) {
+	    if (isPrimitiveRepedJava(t)) {
 	        return true;
             }
 	    for (Formal f:n.formals()) {
 	        Type type = f.type().type();
-	        if (type.isBoolean() || type.isNumeric() || type.isChar()) {
+	        if (isPrimitiveRepedJava(type)) {
 	            return true;
 	        }
 	    }
@@ -2924,7 +2924,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			Binary.Operator op = n.operator().binaryOperator();
 			Name methodName = X10Binary_c.binaryMethodName(op);
 			X10TypeSystem xts = (X10TypeSystem) ts;
-			if ((t.isBoolean() || t.isNumeric()) && (xts.isRail(array.type()) || xts.isValRail(array.type()) || isIMC(array.type()))) {
+			if (isPrimitiveRepedJava(t) && (xts.isRail(array.type()) || xts.isValRail(array.type()) || isIMC(array.type()))) {
 			    w.write("(");
 			    w.write("(");
 			    new TypeExpander(er, t, 0).expand();
@@ -2972,7 +2972,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			Binary.Operator op = n.operator().binaryOperator();
 			Name methodName = X10Binary_c.binaryMethodName(op);
 			X10TypeSystem xts = (X10TypeSystem) ts;
-			if ((t.isBoolean() || t.isNumeric()) && (xts.isRail(array.type()) || xts.isValRail(array.type()) || isIMC(array.type()))) {
+			if (isPrimitiveRepedJava(t) && (xts.isRail(array.type()) || xts.isValRail(array.type()) || isIMC(array.type()))) {
 			    w.write("(");
 			    w.write("(");
 			    new TypeExpander(er, t, 0).expand();
