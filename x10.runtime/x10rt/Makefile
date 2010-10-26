@@ -19,7 +19,7 @@ GZIP            ?= gzip
 override CXXFLAGS += -Iinclude -Icommon ${JNI_INCLUDES}
 
 # these are used only for building tests
-override LDFLAGS         += -L$(X10_HOME)/x10.runtime/x10rt/lib -lpthread
+override LDFLAGS         += -L"$(X10_HOME)"/x10.runtime/x10rt/lib -lpthread
 
 BASE_TESTS      = test/x10rt_basic test/x10rt_gups test/x10rt_topology test/x10rt_coll
 
@@ -59,10 +59,10 @@ ifndef ENABLE_CROSS_COMPILE_BGP
 endif
 
 install: $(LIBS) $(PROPERTIES)
-	(test -n "$(LIBS)" && $(CP) $(LIBS) $(X10_HOME)/x10.dist/lib) || true
-	$(CP) $(PROPERTIES) $(X10_HOME)/x10.dist/etc
-	$(CP) include/*.h $(X10_HOME)/x10.dist/include
-	(test -n "$(EXECUTABLES)" && $(CP) $(EXECUTABLES) $(X10_HOME)/x10.dist/bin) || true
+	(test -n "$(LIBS)" && $(CP) $(LIBS) "$(X10_HOME)"/x10.dist/lib) || true
+	$(CP) $(PROPERTIES) "$(X10_HOME)"/x10.dist/etc
+	$(CP) include/*.h "$(X10_HOME)"/x10.dist/include
+	(test -n "$(EXECUTABLES)" && $(CP) $(EXECUTABLES) "$(X10_HOME)"/x10.dist/bin) || true
 
 tests: $(TESTS)
 
