@@ -217,6 +217,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	public final Type imcType;
     public static final String JAVA_LANG_OBJECT = "java.lang.Object";
     public static final String JAVA_LANG_CLASS = "java.lang.Class";
+    public static final String JAVA_IO_SERIALIZABLE = "java.io.Serializable";
     public static final boolean isSelfDispatch = true;
     public static final boolean isGenericOverloading = true;
 	
@@ -419,7 +420,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	            throw new InternalCompilerError("Statement expression uses non-final variable " +li+ "(at " +li.position()+ ") from the outer scope", n.position());
 	        }
 	    }
-	    w.write("(new " + JAVA_LANG_OBJECT + "() { ");
+	    w.write("(new " + JAVA_IO_SERIALIZABLE + "() { ");
 	    er.printType(n.type(), PRINT_TYPE_PARAMS);
 	    w.write(" eval() {");
 	    w.newline(4); w.begin(0);
@@ -497,7 +498,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			// new Object() { T eval(R target, T right) { return (target.f = target.f.add(right)); } }.eval(x, e)
 			Binary.Operator op = n.operator().binaryOperator();
 			Name methodName = X10Binary_c.binaryMethodName(op);
-			w.write("new " + JAVA_LANG_OBJECT + "() {");
+			w.write("new " + JAVA_IO_SERIALIZABLE + "() {");
 			w.allowBreak(0, " ");
 			w.write("final ");
 			er.printType(n.type(), PRINT_TYPE_PARAMS);
@@ -1208,7 +1209,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                             else if (xts.isParameterType(cast)) {
                                 // SYNOPSIS: (#0) #1 #0=param type #1=primitive or object #2=runtime type
                                 String regex =
-                                    "(new " + JAVA_LANG_OBJECT + "() {" +
+                                    "(new " + JAVA_IO_SERIALIZABLE + "() {" +
                                         "final #0 cast(final Object self) {" +
                                             "x10.rtt.Type rtt = #2;" +
                                             "#0 dep = (#0) x10.rtt.Types.conversion(rtt,self);" +
@@ -1222,7 +1223,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                             else {
                                 // SYNOPSIS: (#0) #1 #0=type #1=object #2=runtime type
                                 String regex =
-                                    "(new " + JAVA_LANG_OBJECT + "() {" +
+                                    "(new " + JAVA_IO_SERIALIZABLE + "() {" +
                                         "final #0 cast(final #0 self) {" +
                                             "if (self==null) return null;" +
                                             "x10.rtt.Type rtt = #2;" +
@@ -1964,8 +1965,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                                             id,
                                             ex2
 	                                };
-	                                er.dumpRegex("rail-make", components, tr2, 
-	                                        "(new " + JAVA_LANG_OBJECT + "() {" +
+	                                er.dumpRegex("rail-make", components, tr2,
+	                                        "(new " + JAVA_IO_SERIALIZABLE + "() {" +
 	                                    	    "final #0<#1> apply(int length$) {" +
 	                                    	        "#6" + 
 	                                    	        "for (int #5$ = 0; #5$ < length$; #5$++) {" +
@@ -2991,7 +2992,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			    return;
 			}
 			
-			w.write("new " + JAVA_LANG_OBJECT + "() {");
+			w.write("new " + JAVA_IO_SERIALIZABLE + "() {");
 			w.allowBreak(0, " ");
 			w.write("final ");
 			er.printType(n.type(), PRINT_TYPE_PARAMS);
@@ -3128,7 +3129,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 				// TODO: handle type args
 				// TODO: handle setter method
 
-				w.write("new " + JAVA_LANG_OBJECT + "() {");
+				w.write("new " + JAVA_IO_SERIALIZABLE + "() {");
 				w.allowBreak(0, " ");
 				w.write("final ");
 				er.printType(t, PRINT_TYPE_PARAMS);
