@@ -40,11 +40,15 @@ public class HeatTransfer_v0 {
     def run() {
         var delta:Double = 1.0;
         do {
-            for (p in D) Temp(p) = stencil_1(p);
+            for (p in D) {
+                Temp(p) = stencil_1(p);
+            }
 
             delta = A.map[Double,Double](Temp, (x:Double,y:Double)=>Math.abs(x-y)).reduce(Math.max.(Double,Double), 0.0);
 
-            for (p in D) A(p) = Temp(p);
+            for (p in D) {
+                A(p) = Temp(p);
+            }
         } while (delta > epsilon);
     }
  
