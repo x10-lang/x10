@@ -1108,15 +1108,27 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                             // e.g. any as Int (any:Any), t as Int (t:T)
                             if (
                                     (xts.isParameterType(exprType) || xts.isAny(X10TypeMixin.baseType(exprType)))
-                                    && isPrimitiveRepedJava(cast)
+                                    && xts.isStruct(cast)
                             ) { 
-                                w.write(X10_RTT_TYPES + ".as");
-                                new TypeExpander(er, cast, NO_QUALIFIER).expand(tr);
-                                w.write("(");
-                                c.printSubExpr(expr, w, tr);
-                                w.write(")");
+                                if (isPrimitiveRepedJava(cast)) {
+                                    w.write(X10_RTT_TYPES + ".as");
+                                    new TypeExpander(er, cast, NO_QUALIFIER).expand(tr);
+                                    w.write("(");
+                                    c.printSubExpr(expr, w, tr);
+                                    w.write(")");
+                                } else {
+                                    w.write("(");
+                                    w.write("(");
+                                    new TypeExpander(er, cast, 0).expand(tr);
+                                    w.write(")");     
+                                    w.write(X10_RTT_TYPES + ".asStruct(");
+                                    castRE.expand();
+                                    w.write(",");
+                                    c.printSubExpr(expr, w, tr);
+                                    w.write(")");
+                                    w.write(")");
+                                }
                             }
-                            // all unsigned types come here
                             else if (cast.isBoolean() || cast.isNumeric() || cast.isChar()) {
                                 w.begin(0);
                                 // for the case the method is a dispatch method and that returns Object.
@@ -1256,162 +1268,55 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	public void visit(X10Instanceof_c c) {
 		TypeNode tn = c.compareType();
 
-        // Note: constraint checking should be desugared when compiling without NO_CHECKS flag
+		// Note: constraint checking should be desugared when compiling without NO_CHECKS flag
 
 		Type t = tn.type();
-		
+
 		// Fix for XTENLANG-1099
-                X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
-                if (xts.typeEquals(xts.Object(), t, tr.context())) {
+		X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
+		if (xts.typeEquals(xts.Object(), t, tr.context())) {
+
 		    /*
 		     * Because @NativeRep of x10.lang.Object is java.lang.Object,
 		     * we cannot compile "instanceof x10.lang.Object" as "instanceof @NativeRep".
 		     */
-
-                    w.write("(!");
-                    w.write("(");
-
-                    w.write("(null == ");
-                    w.write("(");
-                    tr.print(c, c.expr(), w);
-                    w.write(")");
-                    w.write(")");
-                    
-                    w.write(" || ");
-                    w.write("x10.rtt.Types.isStruct(");
-                    tr.print(c, c.expr(), w);
-                    w.write(")");
-                    /*
-                    w.write(" || ");
-                    w.write("x10.rtt.Types.runtimeType(x10.core.Struct.class)"); // new RuntimeTypeExpander(er, xts.Struct()).expand(tr);
-                    w.write(".");
-                    w.write("instanceof$(");
-                    tr.print(c, c.expr(), w);
-                    w.write(")");
-
-                    w.write(" || ");
-                    new RuntimeTypeExpander(er, xts.Byte()).expand(tr);
-                    w.write(".");
-                    w.write("instanceof$(");
-                    tr.print(c, c.expr(), w);
-                    w.write(")");
-
-                    w.write(" || ");
-                    new RuntimeTypeExpander(er, xts.Short()).expand(tr);
-                    w.write(".");
-                    w.write("instanceof$(");
-                    tr.print(c, c.expr(), w);
-                    w.write(")");
-                    
-                    w.write(" || ");
-                    new RuntimeTypeExpander(er, xts.Int()).expand(tr);
-                    w.write(".");
-                    w.write("instanceof$(");
-                    tr.print(c, c.expr(), w);
-                    w.write(")");
-
-                    w.write(" || ");
-                    new RuntimeTypeExpander(er, xts.Long()).expand(tr);
-                    w.write(".");
-                    w.write("instanceof$(");
-                    tr.print(c, c.expr(), w);
-                    w.write(")");
-
-                    w.write(" || ");
-                    new RuntimeTypeExpander(er, xts.Float()).expand(tr);
-                    w.write(".");
-                    w.write("instanceof$(");
-                    tr.print(c, c.expr(), w);
-                    w.write(")");
-
-                    w.write(" || ");
-                    new RuntimeTypeExpander(er, xts.Double()).expand(tr);
-                    w.write(".");
-                    w.write("instanceof$(");
-                    tr.print(c, c.expr(), w);
-                    w.write(")");
-
-                    w.write(" || ");
-                    new RuntimeTypeExpander(er, xts.Char()).expand(tr);
-                    w.write(".");
-                    w.write("instanceof$(");
-                    tr.print(c, c.expr(), w);
-                    w.write(")");
-
-                    w.write(" || ");
-                    new RuntimeTypeExpander(er, xts.Boolean()).expand(tr);
-                    w.write(".");
-                    w.write("instanceof$(");
-                    tr.print(c, c.expr(), w);
-                    w.write(")");
-                    */
-
-                    // Java representation of unsigned types are same as signed ones.
-                    /*
-                    w.write(" || ");
-                    new RuntimeTypeExpander(er, xts.UByte()).expand(tr);
-                    w.write(".");
-                    w.write("instanceof$(");
-                    tr.print(c, c.expr(), w);
-                    w.write(")");
-
-                    w.write(" || ");
-                    new RuntimeTypeExpander(er, xts.UShort()).expand(tr);
-                    w.write(".");
-                    w.write("instanceof$(");
-                    tr.print(c, c.expr(), w);
-                    w.write(")");
-                    
-                    w.write(" || ");
-                    new RuntimeTypeExpander(er, xts.UInt()).expand(tr);
-                    w.write(".");
-                    w.write("instanceof$(");
-                    tr.print(c, c.expr(), w);
-                    w.write(")");
-
-                    w.write(" || ");
-                    new RuntimeTypeExpander(er, xts.ULong()).expand(tr);
-                    w.write(".");
-                    w.write("instanceof$(");
-                    tr.print(c, c.expr(), w);
-                    w.write(")");
-                    */
-                    
-                    w.write(")");
-                    w.write(")");
+		    w.write(X10_RTT_TYPES);
+		    w.write(".instanceofObject(");
+		    tr.print(c, c.expr(), w);
+		    w.write(")");
 		    return;
 		}
                 
-                // XTENLANG-1102
-                if (t instanceof X10ClassType) {
-                    X10ClassType ct = (X10ClassType) t;
-                    X10ClassDef cd = ct.x10Def();
-                    String pat = er.getJavaRTTRep(cd);
+		// XTENLANG-1102
+		if (t instanceof X10ClassType) {
+		    X10ClassType ct = (X10ClassType) t;
+		    X10ClassDef cd = ct.x10Def();
+		    String pat = er.getJavaRTTRep(cd);
 
-                    if (t instanceof FunctionType) {
-                        FunctionType ft = (FunctionType) t;
-                        List<Type> args = ft.argumentTypes();
-                        Type ret = ft.returnType();
-                        if (ret.isVoid()) {
-                            w.write("x10.core.fun.VoidFun");
-                        } else {
-                            w.write("x10.core.fun.Fun");
-                        }
-                        w.write("_" + ft.typeParameters().size());
-                        w.write("_" + args.size());
-                        w.write("._RTT");
-                    }
-                    else if (pat == null && er.getJavaRep(cd) == null && ct.isGloballyAccessible() && ct.typeArguments().size() != 0) {
-                        w.write(cd.fullName().toString() + "." + "_RTT");
-                    }
-                    else {
-                        new RuntimeTypeExpander(er, t).expand(tr);
-                    }
-                } else {
-                    new RuntimeTypeExpander(er, t).expand(tr);
-                }
+		    if (t instanceof FunctionType) {
+		        FunctionType ft = (FunctionType) t;
+		        List<Type> args = ft.argumentTypes();
+		        Type ret = ft.returnType();
+		        if (ret.isVoid()) {
+		            w.write("x10.core.fun.VoidFun");
+		        } else {
+		            w.write("x10.core.fun.Fun");
+		        }
+		        w.write("_" + ft.typeParameters().size());
+		        w.write("_" + args.size());
+		        w.write("._RTT");
+		    }
+		    else if (pat == null && er.getJavaRep(cd) == null && ct.isGloballyAccessible() && ct.typeArguments().size() != 0) {
+		        w.write(cd.fullName().toString() + "." + "_RTT");
+		    }
+		    else {
+		        new RuntimeTypeExpander(er, t).expand(tr);
+		    }
+		} else {
+		    new RuntimeTypeExpander(er, t).expand(tr);
+		}
 
-                w.write(".");
+		w.write(".");
 		w.write("instanceof$(");
 		tr.print(c, c.expr(), w);
 		

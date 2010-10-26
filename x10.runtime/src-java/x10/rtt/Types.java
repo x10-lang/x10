@@ -150,6 +150,10 @@ public class Types {
         return false;
     }
 
+    public static boolean instanceofObject(Object o) {
+        return o != null && !isStruct(o);
+    }
+
     public static boolean isStruct(Object o) {
         return x10.core.Struct._RTT.instanceof$(o) ||
         BYTE.instanceof$(o) || SHORT.instanceof$(o) || INT.instanceof$(o) || LONG.instanceof$(o) ||
@@ -203,39 +207,62 @@ public class Types {
         if (typeParamOrAny instanceof java.lang.Character) {return (java.lang.Character) typeParamOrAny;}
         throw new ClassCastException();
     }
-    
+
+    public static Object asStruct(Type<?> rtt, Object typeParamOrAny) {
+        if (typeParamOrAny == null) {nullIsCastedToStruct();}
+
+        if (rtt == UBYTE) {
+            if (typeParamOrAny instanceof x10.lang.UByte) { return typeParamOrAny;}
+//            if (typeParamOrAny instanceof x10.lang.UShort) { return (UByte)...;}
+//            if (typeParamOrAny instanceof x10.lang.UInt) { return (UByte)...;}
+//            if (typeParamOrAny instanceof x10.lang.ULong) { return (UByte)...;}
+        }
+        else if (rtt == USHORT) {
+            if (typeParamOrAny instanceof x10.lang.UShort) { return typeParamOrAny;}
+        }
+        else if (rtt == UINT) {
+            if (typeParamOrAny instanceof x10.lang.UInt) { return typeParamOrAny;}
+        }
+        else if (rtt == ULONG) {
+            if (typeParamOrAny instanceof x10.lang.ULong) { return typeParamOrAny;}
+        }
+        else {
+            return typeParamOrAny;
+        }
+        throw new ClassCastException();
+    }
     
     public static Object conversion(Type<?> rtt, Object primOrTypeParam) {
         if (primOrTypeParam == null && isStructType(rtt)) {nullIsCastedToStruct();}
         
         if (rtt == BYTE) {
-            if (primOrTypeParam instanceof java.lang.Number) return ((java.lang.Number) primOrTypeParam).byteValue();
             if (primOrTypeParam instanceof java.lang.Byte) return primOrTypeParam;
+            if (primOrTypeParam instanceof java.lang.Number) return ((java.lang.Number) primOrTypeParam).byteValue();
             return primOrTypeParam;
         }
         if (rtt == SHORT) {
-            if (primOrTypeParam instanceof java.lang.Number) return ((java.lang.Number) primOrTypeParam).shortValue();
             if (primOrTypeParam instanceof java.lang.Short) return primOrTypeParam;
+            if (primOrTypeParam instanceof java.lang.Number) return ((java.lang.Number) primOrTypeParam).shortValue();
             return primOrTypeParam;
         }
         if (rtt == INT) {
-            if (primOrTypeParam instanceof java.lang.Number) return ((java.lang.Number) primOrTypeParam).intValue();
             if (primOrTypeParam instanceof java.lang.Integer) return primOrTypeParam;
+            if (primOrTypeParam instanceof java.lang.Number) return ((java.lang.Number) primOrTypeParam).intValue();
             return primOrTypeParam;
         }
         if (rtt == LONG) {
-            if (primOrTypeParam instanceof java.lang.Number) return ((java.lang.Number) primOrTypeParam).longValue();
             if (primOrTypeParam instanceof java.lang.Long) return primOrTypeParam;
+            if (primOrTypeParam instanceof java.lang.Number) return ((java.lang.Number) primOrTypeParam).longValue();
             return primOrTypeParam;
         }
         if (rtt == FLOAT) {
-            if (primOrTypeParam instanceof java.lang.Number) return ((java.lang.Number) primOrTypeParam).floatValue();
             if (primOrTypeParam instanceof java.lang.Float) return primOrTypeParam;
+            if (primOrTypeParam instanceof java.lang.Number) return ((java.lang.Number) primOrTypeParam).floatValue();
             return primOrTypeParam;
         }
         if (rtt == DOUBLE) {
-            if (primOrTypeParam instanceof java.lang.Number) return ((java.lang.Number) primOrTypeParam).doubleValue();
             if (primOrTypeParam instanceof java.lang.Double) return primOrTypeParam;
+            if (primOrTypeParam instanceof java.lang.Number) return ((java.lang.Number) primOrTypeParam).doubleValue();
             return primOrTypeParam;
         }
         
