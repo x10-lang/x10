@@ -26,7 +26,7 @@ INSTDIR = $(call abspath,../../x10.dist)
 
 XRX_ARCHIVE = $(LIBPREFIX)x10$(LIBSUFFIX)
 ifeq ($(X10RT_PLATFORM),cygwin)
-  XRX_DEP_LIBS = -L"$(INSTDIR)/lib" -lx10rt_$(DEFAULT_X10RT_LIB)
+  XRX_DEP_LIBS = -L"$(INSTDIR)"/lib -lx10rt_$(DEFAULT_X10RT_LIB)
   ifdef ENABLE_GC
     override XRX_DEP_LIBS += -lgc
   endif
@@ -69,7 +69,8 @@ X10CPPFLAGS += -J-Xmx1024M -J-ea -rtdev -commandlineonly
 # this simply means there will be more symbols in the archive than there should
 # be.  This is harmless and equivalent to the old behaviour of this Makefile,
 # i.e. a make clean is needed.
-gen/all-cpp-generated: $(XRXFILES) $(INSTDIR)/lib/x10c.jar
+SPACE = $(EMPTY) $(EMPTY)
+gen/all-cpp-generated: $(XRXFILES) $(subst $(SPACE),\$(SPACE),$(INSTDIR))/lib/x10c.jar
 	@echo "Regenerating XRX cc/h/inc files"
 	mkdir -p gen
 	"$(INSTDIR)"/bin/x10c++ -c $(X10CPPFLAGS) -sourcepath ../src-x10 -d ../src-cpp/gen \
