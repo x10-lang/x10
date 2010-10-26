@@ -60,7 +60,7 @@ public class Types {
     public static RuntimeType<Comparable<?>> COMPARABLE;
     static {
         try {
-            COMPARABLE = new RuntimeType<Comparable<?>>(Class.forName("x10.lang.Comparable"));
+            COMPARABLE = new RuntimeType<Comparable<?>>(Class.forName("x10.lang.Comparable"), RuntimeType.Variance.INVARIANT);
         } catch (ClassNotFoundException e) {}
     }
 
