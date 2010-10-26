@@ -182,8 +182,7 @@ public class AsyncInitializer extends ContextVisitor {
 
         Set<VarDef> asyncInitVal = null;
         for (VarDef initVal : ext.asyncInitVal) {
-            // can be either local or field
-            if (initVal instanceof X10LocalDef && ((X10LocalDef) initVal).isAsyncInit()) {
+            if (((X10LocalDef) initVal).isAsyncInit()) {
                 if (asyncInitVal == null) asyncInitVal = new HashSet<VarDef>();
                 asyncInitVal.add(initVal);
             }
