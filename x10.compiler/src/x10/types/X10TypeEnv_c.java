@@ -445,6 +445,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
             if (expanded instanceof X10ClassType && kind == Bound.UPPER) {
             	X10ClassType ct = (X10ClassType) expanded;
 
+            	// FIXME: [IP] hasParams() does not check for parameters accessible from the outer class 
             	if (ct.hasParams()) {
             		List<Type> typeArgs = ct.typeArguments();
             		X10ClassDef def = ct.x10Def();
