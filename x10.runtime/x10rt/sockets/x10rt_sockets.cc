@@ -120,7 +120,7 @@ void handleConnectionRequest()
 
 int initLink(uint32_t remotePlace)
 {
-	if (remotePlace > state.numPlaces)
+	if (remotePlace > state.numPlaces || remotePlace == state.myPlaceId)
 		return -1;
 
 	if (state.socketLinks[remotePlace].fd <= 0)
