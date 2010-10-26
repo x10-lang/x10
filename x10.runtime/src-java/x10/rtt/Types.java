@@ -57,10 +57,10 @@ public class Types {
     public static Type<Float> FLOAT = new FloatType();
     public static Type<Double> DOUBLE = new DoubleType();
 
-    public static RuntimeType<Comparable<?>> COMPARABLE;
+    public static RuntimeType<?> COMPARABLE;
     static {
         try {
-            COMPARABLE = new RuntimeType<Comparable<?>>(Class.forName("x10.lang.Comparable"), RuntimeType.Variance.INVARIANT);
+            COMPARABLE = new RuntimeType(Class.forName("x10.lang.Comparable"), RuntimeType.Variance.INVARIANT);
         } catch (ClassNotFoundException e) {}
     }
 
