@@ -124,7 +124,7 @@ public class CXXCommandBuilder {
             if (PLATFORM.startsWith("aix_")) {
                 rtimpl = "pgas_lapi";
             } else {
-                rtimpl = "pgas_sockets";
+                rtimpl = "sockets";
             }
         }
         // allow the user to give an explicit path, otherwise look in etc
