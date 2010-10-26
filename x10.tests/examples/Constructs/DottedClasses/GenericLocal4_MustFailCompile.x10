@@ -15,20 +15,18 @@ import harness.x10Test;
  * Simple test that generic local classes can compile.
  * @author vj
  */
-public class GenericLocal extends x10Test {
+public class GenericLocal4_MustFailCompile extends x10Test {
 
-	class Hello[X] {
-		def m() {
-			class Local[A] {
-				
-			}
-			return new Local[X]();
+	public class Hello[X] {
+		def m[X]() {
+			class Local[A]{}
+			return new Local(); // this should not compile -- need a type argument.
 		}
 
 	}
 	public def run()=true;
 	
 	public static def main(Array[String]){
-		new GenericLocal().execute();
+		new GenericLocal4_MustFailCompile().execute();
 	}
 }

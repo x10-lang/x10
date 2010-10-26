@@ -29,11 +29,11 @@ public class GenericInnerClass3[T] extends harness.x10Test {
   public def run():Boolean {
     val gicString : GenericInnerClass3[String] = new GenericInnerClass3[String]("hum?");
     val innerString : GenericInnerClass3[String].Inner = gicString.new Inner("ow");
-    innerString.test("ow");
+    innerString.test("ow", "hum?");
     
     val gicInt = new GenericInnerClass3[Int](181);
     val innerInt : GenericInnerClass3[Int].Inner = gicInt.new Inner(34543);
-    innerInt.test(34543);
+    innerInt.test(34543, 181);
     
     return true;    
   }
@@ -56,14 +56,14 @@ public class GenericInnerClass3[T] extends harness.x10Test {
        this.outerVar = 10; // allowed because Inner extends 
        }
        
-    def test(x:T): Boolean = {
+    def test(x:T, y:T): Boolean = {
        chk(this.outerVar == 10, "outerVar==10");
        chk(this.outerVal.equals(888), "this.outerVal");
-       chk(this.outerVar.equals(888), "this.outerVar");
+       chk(this.outerVar.equals(10), "this.outerVar");
        chk(this.innerVal.equals(x), "this.innerVal");
        chk(this.innerVar.equals(x), "this.innerVar");
-       chk(GenericInnerClass3.this.outerVal.equals(x), "GIC.outerVal");
-       chk(GenericInnerClass3.this.outerVar.equals(x), "GIC.outerVar");
+       chk(GenericInnerClass3.this.outerVal.equals(y), "GIC.outerVal");
+       chk(GenericInnerClass3.this.outerVar.equals(y), "GIC.outerVar");
        return true;
     }
   }// Inner

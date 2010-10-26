@@ -19,7 +19,7 @@ public class GenericLocal3 extends x10Test {
 
 	public class Hello[X] {
 
-		static def m[Y]() {
+		def m[Y]() {
 			return new Hello[Y]() {
 				public def toString() = "Hello " + "y";
 			};
