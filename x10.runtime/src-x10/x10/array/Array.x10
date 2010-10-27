@@ -139,7 +139,7 @@ public final class Array[T](
      * @param reg The region over which to construct the array.
      */
     public def this(reg:Region):Array[T]{self.region==reg} {
-	property(reg, reg.size());
+        property(reg, reg.size());
 
         layout = RectLayout(reg);
         val n = layout.size();
@@ -162,7 +162,7 @@ public final class Array[T](
         layout = RectLayout(reg);
         val n = layout.size();
         val r  = IndexedMemoryChunk.allocate[T](n);
-	for (p:Point(reg.rank) in reg) {
+        for (p:Point(reg.rank) in reg) {
             r(layout.offset(p))= init(p);
         }
         raw = r;
@@ -187,17 +187,17 @@ public final class Array[T](
         if (reg.rect) {
             // Can be optimized into a simple fill of the backing IndexedMemoryChunk
             // because every element of the chunk is used by a point in the region.
-	    for (var i:int = 0; i<n; i++) {
+            for (var i:int = 0; i<n; i++) {
                 r(i) = init;
-	    }
+            }
         } else {
-	    for (p:Point(reg.rank) in reg) {
+            for (p:Point(reg.rank) in reg) {
                 r(layout.offset(p))= init;
             }
         }
         raw = r;
         rawLength = n;
-	    cachedRail = rail;
+            cachedRail = rail;
     }
 
 
@@ -211,7 +211,7 @@ public final class Array[T](
 // HACKING around typechecking bug:
 // Error message is: Cannot refer to type parameter T of x10.array.Array from a static context
 //    public def this(aRail:Rail[T]):Array[T]{self.rank==1,self.rect,self.zeroBased,self.rail} {
-//	this(Region.makeRectangular(0, aRail.length-1), ((i):Point(1)) => aRail(i));
+//      this(Region.makeRectangular(0, aRail.length-1), ((i):Point(1)) => aRail(i));
 //    }
 
 
@@ -244,7 +244,7 @@ public final class Array[T](
         layout = RectLayout(0, size-1);
         val n = layout.size();
         val r  = IndexedMemoryChunk.allocate[T](n);
-	for ([i] in 0..size-1) {
+        for ([i] in 0..size-1) {
             r(i)= init(i);
         }
         raw = r;
@@ -266,7 +266,7 @@ public final class Array[T](
         layout = RectLayout(0, size-1);
         val n = layout.size();
         val r  = IndexedMemoryChunk.allocate[T](n);
-	for ([i] in 0..size-1) {
+        for ([i] in 0..size-1) {
             r(i)= init;
         }
         raw = r;
@@ -317,8 +317,8 @@ public final class Array[T](
      * @return an Iterable[T] over this array.
      */
     public def values():Iterable[T] {
-	// NOTE: If we could actually implement two instances of the
-	//       Iterable interface, then we woudn't need this code.
+        // NOTE: If we could actually implement two instances of the
+        //       Iterable interface, then we woudn't need this code.
         return new ValueIterable[T]();
     }
 
@@ -329,7 +329,7 @@ public final class Array[T](
         private val array:Array[U](rank);
 
         def this(a:Array[U]):ValueIterator[U]{self.rank==a.rank} {
-	        property(a.rank);
+                property(a.rank);
             regIt = a.iterator() as Iterator[Point(rank)]; // TODO: cast should not be needed!
             array = a as Array[U](rank);                   // TODO: cast should not be needed!
         }
@@ -337,7 +337,7 @@ public final class Array[T](
         public def next() = array(regIt.next());
     }
     private  class ValueIterable implements Iterable[T] {
-    	public def iterator()= new ValueIterator[T](Array.this);
+        public def iterator()= new ValueIterator[T](Array.this);
     }
 
     
@@ -345,12 +345,12 @@ public final class Array[T](
     // TODO: Should be annonymous nested class in values, 
     //       but that's too fragile with the 2.1 implementation of generics.
     private class ValueSequence(size:int) implements Sequence[T] {
-    	val array = Array.this as Array[T](1);
-    	public def iterator() = new ValueIterator(Array.this);
-    	def this() {
-    		property(Array.this.size);
-    	}
-    	public def apply(i:Int)=array(i);
+        val array = Array.this as Array[T](1);
+        public def iterator() = new ValueIterator(Array.this);
+        def this() {
+                property(Array.this.size);
+        }
+        public def apply(i:Int)=array(i);
     }
 
     /**
@@ -365,9 +365,17 @@ public final class Array[T](
      */
     @Native("cuda", "(#0).apply(#1)")
     public @Header @Inline def apply(i0:int){rank==1}:T {
-	if (CompilerFlags.useUnsigned() && cachedRail) {
-            if (CompilerFlags.checkBounds() && !((i0 as UInt) < (size as UInt))) {
-                raiseBoundsError(i0);
+        if (cachedRail) {
+            if (CompilerFlags.checkBounds()) {
+                if (CompilerFlags.useUnsigned()) {
+                    if (!((i0 as UInt) < (size as UInt))) {
+                        raiseBoundsError(i0);
+                    }
+                } else {
+                    if (!region.contains(i0)) {
+                        raiseBoundsError(i0);
+                    }
+                }
             }
             return raw(i0);
         } else {
@@ -466,9 +474,17 @@ public final class Array[T](
      */
     @Native("cuda", "(#0).set(#1,#2)")
     public @Header @Inline def set(v:T, i0:int){rank==1}:T {
-	if (CompilerFlags.useUnsigned() && cachedRail) {
-            if (CompilerFlags.checkBounds() && !((i0 as UInt) < (size as UInt))) {
-                raiseBoundsError(i0);
+        if (cachedRail) {
+            if (CompilerFlags.checkBounds()) {
+                if (CompilerFlags.useUnsigned()) {
+                    if (!((i0 as UInt) < (size as UInt))) {
+                        raiseBoundsError(i0);
+                    }
+                } else {
+                    if (!region.contains(i0)) {
+                        raiseBoundsError(i0);
+                    }
+                }
             }
             raw(i0) = v;
         } else {
@@ -572,13 +588,13 @@ public final class Array[T](
      * @param v the value with which to fill the array
      */
     public def fill(v:T) {
-	if (region.rect) {
+        if (region.rect) {
             // In a rect region, every element in the backing raw IndexedMemoryChunk[T]
             // is included in the points of region, therfore we can simply fill
             // the IndexedMemoryChunk itself.
             for (var i:int =0; i<rawLength; i++) {
                 raw(i) = v;
-            }	
+            }   
         } else {
             for (p in region) {
                 raw(layout.offset(p)) = v;
@@ -586,7 +602,7 @@ public final class Array[T](
         }
     }
 
-	
+        
     /**
      * Map the function onto the elements of this array
      * constructing a new result array such that for all points <code>p</code>
@@ -618,14 +634,14 @@ public final class Array[T](
      * @see #scan((U,T)=>U,U)
      */
     public def map[U](dst:Array[U](region), op:(T)=>U):Array[U](region){self==dst} {
-	// TODO: parallelize these loops.
-	if (region.rect) {
+        // TODO: parallelize these loops.
+        if (region.rect) {
             // In a rect region, every element in the backing raw IndexedMemoryChunk[T]
             // is included in the points of region, therfore we can optimize
             // the traversal and simply map on the IndexedMemoryChunk itself.
             for (var i:int =0; i<rawLength; i++) {
                 dst.raw(i) = op(raw(i));
-            }	
+            }   
         } else {
             for (p in region) {
                 dst(p) = op(apply(p));
@@ -666,14 +682,14 @@ public final class Array[T](
      * @see #scan((U,T)=>U,U)
      */
     public def map[S,U](dst:Array[S](region), src:Array[U](region), op:(T,U)=>S):Array[S](region) {
-	// TODO: parallelize these loops.
-	if (region.rect) {
+        // TODO: parallelize these loops.
+        if (region.rect) {
             // In a rect region, every element in the backing raw IndexedMemoryChunk
             // is included in the points of region, therfore we can optimize
             // the traversal and simply map on the IndexedMemoryChunk itself.
             for (var i:int =0; i<rawLength; i++) {
                 dst.raw(i) = op(raw(i), src.raw(i));
-            }	
+            }   
         } else {
             for (p in region) {
                 dst(p) = op(apply(p), src(p));
@@ -699,7 +715,7 @@ public final class Array[T](
         // TODO: once collecting finish is available,
         //       use it to efficiently parallelize these loops.
         var accum:U = unit;
-	if (region.rect) {
+        if (region.rect) {
             // In a rect region, every element in the backing raw IndexedMemoryChunk[T]
             // is included in the points of region, therfore we can optimize
             // the traversal and simply reduce on the IndexedMemoryChunk itself.
@@ -710,7 +726,7 @@ public final class Array[T](
             for (p in region) {
                 accum = op(accum, apply(p));
             }
-	}
+        }
         return accum;
     }
 
@@ -777,7 +793,7 @@ public final class Array[T](
      *         of the two arrays.
      */
     public static def asyncCopy[T](src:Array[T], dst:RemoteArray[T]) {
-	if (src.rawLength != dst.rawLength) throw new IllegalArgumentException("source and destination do not have equal size");
+        if (src.rawLength != dst.rawLength) throw new IllegalArgumentException("source and destination do not have equal size");
         src.raw.asyncCopyTo(0, dst.home, dst.rawData, 0, src.rawLength);
     }
 
@@ -810,12 +826,12 @@ public final class Array[T](
      */
     public static def asyncCopy[T](src:Array[T], srcPoint:Point, 
                                    dst:RemoteArray[T], dstPoint:Point, 
-	                           numElems:int) {
+                                   numElems:int) {
         val gra = dst.array;
-	val dstIndex = at (gra) gra().region.indexOf(dstPoint);
-	asyncCopy(src, src.region.indexOf(srcPoint), dst, dstIndex, numElems);
+        val dstIndex = at (gra) gra().region.indexOf(dstPoint);
+        asyncCopy(src, src.region.indexOf(srcPoint), dst, dstIndex, numElems);
     }
-	
+        
 
     /**
      * Asynchronously copy the specified values from the source Array to the 
@@ -855,11 +871,11 @@ public final class Array[T](
     public static def asyncCopy[T](src:Array[T], srcIndex:int, 
                                    dst:RemoteArray[T], dstIndex:int, 
                                    numElems:int) {
-	if (srcIndex < 0 || ((srcIndex+numElems) > src.rawLength)) {
-	    throw new IllegalArgumentException("Specified range is beyond bounds of source array");
+        if (srcIndex < 0 || ((srcIndex+numElems) > src.rawLength)) {
+            throw new IllegalArgumentException("Specified range is beyond bounds of source array");
         }
-	if (dstIndex < 0 || ((dstIndex+numElems) > dst.rawLength)) {
-	    throw new IllegalArgumentException("Specified range is beyond bounds of destination array");
+        if (dstIndex < 0 || ((dstIndex+numElems) > dst.rawLength)) {
+            throw new IllegalArgumentException("Specified range is beyond bounds of destination array");
         }
         src.raw.asyncCopyTo(srcIndex, dst.home, dst.rawData, dstIndex, numElems);
     }
@@ -887,7 +903,7 @@ public final class Array[T](
      *         of the two arrays.
      */
     public static def asyncCopy[T](src:RemoteArray[T], dst:Array[T]) {
-	if (src.rawLength != dst.rawLength) throw new IllegalArgumentException("source and destination do not have equal size");
+        if (src.rawLength != dst.rawLength) throw new IllegalArgumentException("source and destination do not have equal size");
         dst.raw.asyncCopyFrom(0, src.home, src.rawData, 0, dst.rawLength);
     }
 
@@ -920,12 +936,12 @@ public final class Array[T](
      */
     public static def asyncCopy[T](src:RemoteArray[T], srcPoint:Point, 
                                    dst:Array[T], dstPoint:Point, 
-	                           numElems:int) {
+                                   numElems:int) {
         val gra = src.array;
-	val srcIndex = at (gra) gra().region.indexOf(srcPoint);
-	asyncCopy(src, srcIndex, dst, dst.region.indexOf(dstPoint), numElems);
+        val srcIndex = at (gra) gra().region.indexOf(srcPoint);
+        asyncCopy(src, srcIndex, dst, dst.region.indexOf(dstPoint), numElems);
     }
-	
+        
 
     /**
      * Asynchronously copy the specified values from the Array referenced by
@@ -965,11 +981,11 @@ public final class Array[T](
     public static def asyncCopy[T](src:RemoteArray[T], srcIndex:int, 
                                    dst:Array[T], dstIndex:int, 
                                    numElems:int) {
-	if (srcIndex < 0 || ((srcIndex+numElems) > src.rawLength)) {
-	    throw new IllegalArgumentException("Specified range is beyond bounds of source array");
+        if (srcIndex < 0 || ((srcIndex+numElems) > src.rawLength)) {
+            throw new IllegalArgumentException("Specified range is beyond bounds of source array");
         }
-	if (dstIndex < 0 || ((dstIndex+numElems) > dst.rawLength)) {
-	    throw new IllegalArgumentException("Specified range is beyond bounds of destination array");
+        if (dstIndex < 0 || ((dstIndex+numElems) > dst.rawLength)) {
+            throw new IllegalArgumentException("Specified range is beyond bounds of destination array");
         }
         dst.raw.asyncCopyFrom(dstIndex, src.home, src.rawData, srcIndex, numElems);
     }
@@ -987,7 +1003,7 @@ public final class Array[T](
      *         of the two arrays.
      */
     public static def copy[T](src:Array[T], dst:Array[T]) {
-	if (src.rawLength != dst.rawLength) throw new IllegalArgumentException("source and destination do not have equal size");
+        if (src.rawLength != dst.rawLength) throw new IllegalArgumentException("source and destination do not have equal size");
         src.raw.asyncCopyTo(0, here, dst.raw, 0, src.rawLength);
     }
 
@@ -1012,9 +1028,9 @@ public final class Array[T](
     public static def copy[T](src:Array[T], srcPoint:Point, 
                               dst:Array[T], dstPoint:Point, 
                               numElems:int) {
-	copy(src, src.region.indexOf(srcPoint), dst, dst.region.indexOf(dstPoint), numElems);
+        copy(src, src.region.indexOf(srcPoint), dst, dst.region.indexOf(dstPoint), numElems);
     }
-	
+        
 
     /**
      * Copy the specified values from the source Array to the 
@@ -1045,11 +1061,11 @@ public final class Array[T](
     public static def copy[T](src:Array[T], srcIndex:int, 
                               dst:Array[T], dstIndex:int, 
                               numElems:int) {
-	if (srcIndex < 0 || ((srcIndex+numElems) > src.rawLength)) {
-	    throw new IllegalArgumentException("Specified range is beyond bounds of source array");
+        if (srcIndex < 0 || ((srcIndex+numElems) > src.rawLength)) {
+            throw new IllegalArgumentException("Specified range is beyond bounds of source array");
         }
-	if (dstIndex < 0 || ((dstIndex+numElems) > dst.rawLength)) {
-	    throw new IllegalArgumentException("Specified range is beyond bounds of destination array");
+        if (dstIndex < 0 || ((dstIndex+numElems) > dst.rawLength)) {
+            throw new IllegalArgumentException("Specified range is beyond bounds of destination array");
         }
         src.raw.asyncCopyTo(srcIndex, here, dst.raw, dstIndex, numElems);
     }
