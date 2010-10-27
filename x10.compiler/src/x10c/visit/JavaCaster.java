@@ -49,6 +49,7 @@ import x10.emitter.Emitter;
 import x10.types.ParameterType;
 import x10.types.ParameterType.Variance;
 import x10.types.X10ClassType;
+import x10.types.X10MethodInstance;
 import x10.types.X10ParsedClassType_c;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
@@ -125,25 +126,35 @@ public class JavaCaster extends ContextVisitor {
         if (n instanceof X10Call && !(parent instanceof Eval)) {
             X10Call call = (X10Call) n;
             Receiver target = call.target();
-            if (!(target instanceof TypeNode) && !xts.isRail(call.target().type())) {
+            X10MethodInstance mi = call.methodInstance();
+            if (!(target instanceof TypeNode) && !xts.isRail(target.type())) {
                 Type bt = X10TypeMixin.baseType(target.type());
                 if (bt instanceof X10ClassType) {
                     if (((X10ClassType) bt).typeArguments().size() > 0) {
-                        boolean isDispatch = false;
-                        if (((X10ClassType) bt).flags().isInterface()) {
-                            List<Ref<? extends Type>> formalTypes = call.methodInstance().def().formalTypes();
-                            for (Ref<? extends Type> ref : formalTypes) {
-                                Type type = ref.get();
-                                if (Emitter.containsTypeParam(type)) {
-                                    isDispatch = true;
-                                    break;
-                                }
-                            }
-                        }
-                        if (isDispatch) {
+                        if (isDispatch(bt, mi)) {
                             return cast(call, call.type());
                         } else {
-                            Type rt = call.methodInstance().def().returnType().get();
+                            Type rt = mi.def().returnType().get();
+                            if (!xts.isParameterType(rt) && Emitter.containsTypeParam(rt)) {
+                                return cast(call, call.type());
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if (n instanceof ClosureCall && !(parent instanceof Eval)) {
+            ClosureCall call = (ClosureCall) n;
+            Receiver target = call.target();
+            X10MethodInstance mi = call.closureInstance();
+            if (!(target instanceof TypeNode) && !xts.isRail(target.type())) {
+                Type bt = X10TypeMixin.baseType(target.type());
+                if (bt instanceof X10ClassType) {
+                    if (((X10ClassType) bt).typeArguments().size() > 0) {
+                        if (isDispatch(bt, mi)) {
+                            return cast(call, call.type());
+                        } else {
+                            Type rt = mi.def().returnType().get();
                             if (!xts.isParameterType(rt) && Emitter.containsTypeParam(rt)) {
                                 return cast(call, call.type());
                             }
@@ -153,6 +164,21 @@ public class JavaCaster extends ContextVisitor {
             }
         }
         return n;
+    }
+
+    private boolean isDispatch(Type bt, X10MethodInstance mi) {
+        boolean isDispatch = false;
+        if (((X10ClassType) bt).flags().isInterface()) {
+            List<Ref<? extends Type>> formalTypes = mi.def().formalTypes();
+            for (Ref<? extends Type> ref : formalTypes) {
+                Type type = ref.get();
+                if (Emitter.containsTypeParam(type)) {
+                    isDispatch = true;
+                    break;
+                }
+            }
+        }
+        return isDispatch;
     }
 
     private Node railAccessCast(Node parent, Node n) throws SemanticException {

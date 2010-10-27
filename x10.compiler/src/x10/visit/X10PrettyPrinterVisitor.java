@@ -1134,14 +1134,14 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                                 // for the case the method is a dispatch method and that returns Object.
                                 // e.g. (Boolean) m(a)
                                 if (cast.typeEquals(X10TypeMixin.baseType(exprType), tr.context())) {
-                                    if (expr instanceof X10Call) {
+                                    if (expr instanceof X10Call || expr instanceof ClosureCall) {
                                         w.write("(");
                                         w.write("(");
                                         new TypeExpander(er, exprType, BOX_PRIMITIVES).expand(tr);
                                         w.write(")");                                        
                                     }
                                     c.printSubExpr(expr, w, tr);
-                                    if (expr instanceof X10Call)
+                                    if (expr instanceof X10Call || expr instanceof ClosureCall)
                                         w.write(")");
                                 }
                                 else {
@@ -1536,13 +1536,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		}
 		boolean newClosure = expr instanceof Closure_c;
 
-		if (isSelfDispatch && !newClosure && !c.type().isVoid()) {
-		    w.write("(");
-		    w.write("(");
-		    er.printType(c.type(), BOX_PRIMITIVES);
-		    w.write(")");
-		}
-
 		c.printSubExpr(target, w, tr);
 		w.write(".");
 		w.write("apply");
@@ -1583,10 +1576,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		}
 		w.end();
 		w.write(")");
-		
-		if (isSelfDispatch && !newClosure && !c.type().isVoid()) {
-		    w.write(")");
-		}
 	}
 	
 	public void visit(Try_c c) {
