@@ -30,6 +30,7 @@ extern "C" int fileno (FILE *__stream);
 #define X10LAUNCHER_PARENT "X10LAUNCHER_PARENT" // the hostname:port of the parent launcher.  This is set by the launcher.
 #define X10LAUNCHER_RUNTIME "X10LAUNCHER_RUNTIME" // this is a flag to run as a runtime or a launcher.  Set by the launcher.
 #define X10LAUNCHER_CWD "X10LAUNCHER_CWD" // the working directory of the program
+#define X10LAUNCHER_DEBUG "X10LAUNCHER_DEBUG" // This flag causes the runtime to launch under gdb in a new xterm
 
 // Enable/disable debug information
 //#define DEBUG 1
