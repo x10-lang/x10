@@ -993,7 +993,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             List<Ref<? extends Type>> formalTypes = xcd.formalTypes();
             for (Ref<? extends Type> ref : formalTypes) {
                 Type t = ref.get();
-                if (X10TypeMixin.baseType(t) instanceof ParameterType || (t instanceof X10ClassType && ((X10ClassType)t).hasParams())) {
+                if (X10TypeMixin.baseType(t) instanceof ParameterType || hasParams(t)) {
                     containsParamOrParameterized = true;
                     break;
                 }
@@ -1144,8 +1144,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                                     if (expr instanceof X10Call)
                                         w.write(")");
                                 }
-                                // e.g. any as UInt
-                                // FIXME need null check 
                                 else {
                                     w.write("("); // put "(Type) expr" in parentheses.
                                     w.write("(");
@@ -1899,12 +1897,10 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
 		String pat = er.getJavaImplForDef(mi.x10Def());
 		if (pat != null) {
-			
-			CastExpander targetArg;
-			boolean cast = xts.isParameterType(t);
-			targetArg = new CastExpander(w, er, target);
+		    boolean cast = xts.isParameterType(t) || hasParams(t);
+			CastExpander targetArg = new CastExpander(w, er, target);
 			if (cast) {
-			    targetArg = targetArg.castTo(mi.container(), BOX_PRIMITIVES);
+			    targetArg = targetArg.castTo(mi.container(), BOX_PRIMITIVES | PRINT_TYPE_PARAMS);
 			}
 			List<Type> typeArguments  = Collections.<Type>emptyList();
 			if (mi.container().isClass() && !mi.flags().isStatic()) {
@@ -2146,6 +2142,11 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		w.end();
 		w.write(")");
 	}
+
+    private static boolean hasParams(Type t) {
+        Type bt = X10TypeMixin.baseType(t);
+        return (bt instanceof X10ClassType && ((X10ClassType) bt).hasParams());
+    }
 	
     public static boolean containsTypeParam(List<Ref<? extends Type>> list) {
         for (Ref<? extends Type> ref : list) {
