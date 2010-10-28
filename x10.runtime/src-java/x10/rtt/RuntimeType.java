@@ -149,6 +149,7 @@ public class RuntimeType<T> implements Type<T> {
             }
             return instantiateCheck(params, rtt, any);
         }
+        /*
         else if (o instanceof String) {
             // @NativeRep'ed String type (the one with parents info)
             RuntimeType<?> rtt = (RuntimeType<?>) Types.getNativeRepRTT(o);
@@ -157,6 +158,12 @@ public class RuntimeType<T> implements Type<T> {
         else if (o instanceof Number) {
             // @NativeRep'ed numeric type
             return false;
+        }
+        */
+        else if (null != Types.getNativeRepRTT(o)) {
+            // @NativeRep'ed types to raw Java classes (e.g. String, Integer, etc.)
+            RuntimeType<?> rtt = (RuntimeType<?>) Types.getNativeRepRTT(o);
+            return instantiateCheck(params, rtt, o);
         }
         return false;
     }
