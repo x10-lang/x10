@@ -32,6 +32,7 @@ typedef void (*notifierCallback)(const x10rt_msg_params *, x10rt_copy_sz);
 
 enum MSGTYPE {STANDARD, PUT, GET, GET_COMPLETED};
 //#define DEBUG_MESSAGING 1
+#define X10RT_YIELDAFTERPROBE "X10RT_YIELDAFTERPROBE" // useful for systems with more places than processors.  TODO: move this up into the runtime.
 
 struct x10SocketCallback
 {
@@ -47,7 +48,7 @@ struct x10SocketState
 	x10SocketCallback* callBackTable; // I'm told message ID's run from 0 to n, so a simple array using message indexes is the best solution for this table.  Local per-place memory is used.
 	x10rt_msg_type callBackTableSize; // length of the above array
 	char* myhost; // my own hostname, so I can detect places that are on the same machine and use localhost instead.
-	bool everythingOnLocalhost; // a little flag that adds sched_yield() to empty probes, for better performance when there are several places on one host.
+	bool yieldAfterProbe; // a little flag that adds sched_yield() after probe, for better performance when there are more workers than processors on a machine (or when debugging).
 	bool initialLookup; // a flag to enable a small delay before the first place lookup.
 	struct pollfd* socketLinks; // the file descriptors for each socket to other places
 	pthread_mutex_t* writeLocks; // a lock to prevent overlapping writes on each socket
@@ -223,9 +224,6 @@ int initLink(uint32_t remotePlace)
 			pthread_mutex_unlock(&state.readLocks[state.myPlaceId]);
 			return -1;
 		}
-
-		if (state.everythingOnLocalhost && (strncmp("localhost", link, 9) != 0))
-			state.everythingOnLocalhost = false;
 	}
 	return state.socketLinks[remotePlace].fd;
 }
@@ -256,7 +254,12 @@ void x10rt_net_init (int * argc, char ***argv, x10rt_msg_type *counter)
 	else
 		state.myPlaceId = atol(ID);
 
-	state.everythingOnLocalhost = true;
+	char* yieldEnv = getenv(X10RT_YIELDAFTERPROBE);
+	if (yieldEnv == NULL || strcmp("false", yieldEnv)==0 || strcmp("FALSE", yieldEnv)==0)
+		state.yieldAfterProbe = false;
+	else
+		state.yieldAfterProbe = true;
+
 	state.socketLinks = new struct pollfd[state.numPlaces];
 	state.writeLocks = new pthread_mutex_t[state.numPlaces];
 	state.readLocks = new pthread_mutex_t[state.numPlaces];
@@ -446,10 +449,6 @@ void probe (bool onlyProcessAccept)
 	int ret = poll(state.socketLinks, state.numPlaces, 0);
 	if (ret > 0)
 	{
-		#ifdef DEBUG_MESSAGING
-			printf("X10rt.Sockets: place %u probe has %d pending messages\n", state.myPlaceId, ret);
-		#endif
-
 		/* An event on one of the fds has occurred. */
 		// POLLHUP | POLLERR | POLLIN | POLLPRI;
 	    for (unsigned int i=(onlyProcessAccept?state.myPlaceId:0); i<(onlyProcessAccept?(state.myPlaceId+1):state.numPlaces); i++)
@@ -481,17 +480,34 @@ void probe (bool onlyProcessAccept)
 	    		}
 
 	    		// lock the socket, so we don't get other worker threads reading from it
-	    		if (pthread_mutex_trylock(&state.readLocks[i]) != 0)
-	    			continue; // this socket is already getting handled by another worker.  Skip.
+	    		int lockret = pthread_mutex_trylock(&state.readLocks[i]);
+	    		if (lockret != 0)
+	    		{
+	    			if (lockret == EBUSY)
+	    			{
+						#ifdef DEBUG_MESSAGING
+	    					printf("X10rt.Sockets: place %u skipping message from place %u, as another worker thread appears to be handling it\n", state.myPlaceId, i);
+						#endif
+	    				continue; // this socket is already getting handled by another worker.  Skip.
+	    			}
+	    			else
+	    				error("Locking socket read buffer");
+	    		}
 
 	    		// we got the lock, but another worker may have already handled this one.  Check revents again.
 	    		if ((state.socketLinks[i].revents & POLLIN) || (state.socketLinks[i].revents & POLLPRI))
 	    			state.socketLinks[i].revents = 0;
 	    		else
 	    		{
+					#ifdef DEBUG_MESSAGING
+	    				printf("X10rt.Sockets: place %u skipping message from place %u, as it appears to have been handled by another worker thread\n", state.myPlaceId, i);
+					#endif
 	    			pthread_mutex_unlock(&state.readLocks[i]);
 	    			continue;
 	    		}
+				#ifdef DEBUG_MESSAGING
+					printf("X10rt.Sockets: place %u probe processing a message from place %u\n", state.myPlaceId, i);
+				#endif
 
 	    		// ok, good to go.
 	    		enum MSGTYPE t;
@@ -534,6 +550,7 @@ void probe (bool onlyProcessAccept)
 				{
 					case STANDARD:
 					{
+			    		pthread_mutex_unlock(&state.readLocks[i]);
 						handlerCallback hcb = state.callBackTable[mp.type].handler;
 						hcb(&mp);
 					}
@@ -548,6 +565,7 @@ void probe (bool onlyProcessAccept)
 						if (dest == NULL)
 							error("invalid buffer provided for a PUT");
 						TCP::read(state.socketLinks[i].fd, dest, dataLen);
+						pthread_mutex_unlock(&state.readLocks[i]);
 						notifierCallback ncb = state.callBackTable[mp.type].notifier;
 						ncb(&mp, dataLen);
 					}
@@ -560,7 +578,7 @@ void probe (bool onlyProcessAccept)
 						TCP::read(state.socketLinks[i].fd, &dataLen, sizeof(x10rt_copy_sz));
 						if (dataLen > 0)
 							TCP::read(state.socketLinks[i].fd, &remotePtr, sizeof(void*));
-
+						pthread_mutex_unlock(&state.readLocks[i]);
 						finderCallback fcb = state.callBackTable[mp.type].finder;
 						void* src = fcb(&mp, dataLen);
 
@@ -592,7 +610,7 @@ void probe (bool onlyProcessAccept)
 							TCP::read(state.socketLinks[i].fd, &buffer, sizeof(void*));
 							TCP::read(state.socketLinks[i].fd, buffer, dataLen);
 						}
-
+						pthread_mutex_unlock(&state.readLocks[i]);
 						notifierCallback ncb = state.callBackTable[mp.type].notifier;
 						ncb(&mp, dataLen);
 					}
@@ -603,11 +621,10 @@ void probe (bool onlyProcessAccept)
 				}
 				if (heapAllocated)
 					free(mp.msg);
-	    		pthread_mutex_unlock(&state.readLocks[i]);
 	    	}
 	    }
 	}
-	else if (state.everythingOnLocalhost) // nothing to do.  This would be a good time for a yield in some systems.
+	if (state.yieldAfterProbe) // This would be a good time for a yield in some systems.
 		sched_yield();
 }
 
