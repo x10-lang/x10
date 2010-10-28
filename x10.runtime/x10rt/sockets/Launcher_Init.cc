@@ -136,7 +136,7 @@ void Launcher::initialize(int argc, char ** argv)
 	const char * hostfname = (const char *) getenv(X10LAUNCHER_HOSTFILE);
 	if (hostfname && strlen(hostfname) > 0)
 	{
-		if (strcmp("NONE", hostfname) != 0)
+		if (strcasecmp("NONE", hostfname) != 0)
 		{
 			if (strlen(hostfname) > sizeof(_hostfname) - 10)
 				DIE("Launcher %u: host file name is too long", _myproc);
