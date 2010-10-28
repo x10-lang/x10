@@ -14,6 +14,7 @@
 #include <alloca.h>
 #include <arpa/inet.h>
 #include <time.h>
+#include <sched.h>
 
 #include "Launcher.h"
 #include "TCP.h"
@@ -228,7 +229,7 @@ void Launcher::startChildren()
 	}
 
 	/* process manager invokes main loop */
-	handleRequestsLoop();
+	handleRequestsLoop(false);
 }
 
 
@@ -236,7 +237,7 @@ void Launcher::startChildren()
 /* this is the infinite loop that the process manager is executing.        */
 /* *********************************************************************** */
 
-void Launcher::handleRequestsLoop()
+void Launcher::handleRequestsLoop(bool onlyCheckForNewConnections)
 {
 	#ifdef DEBUG
 		fprintf(stderr, "Launcher %u: main loop start\n", _myproc);
@@ -265,6 +266,8 @@ void Launcher::handleRequestsLoop()
 			else if (FD_ISSET(_listenSocket, &infds))
 				handleNewChildConnection();
 		}
+		if (onlyCheckForNewConnections)
+			return;
 		/* parent control socket */
 		if (_parentLauncherControlLink >= 0)
 		{
@@ -687,7 +690,7 @@ int Launcher::forwardMessage(struct ctrl_msg* message, char* data)
 	// figure out where to send it, by determining if we are on the chain between place 0 and the dest
 	uint32_t child=message->to, parent;
 
-	int destFD = -1;
+	int destID = -1;
 	if (child > _singleton->_myproc)
 	{
 		do
@@ -696,9 +699,9 @@ int Launcher::forwardMessage(struct ctrl_msg* message, char* data)
 			if (parent == _singleton->_myproc)
 			{
 				if (child == _singleton->_firstchildproc)
-					destFD = _childControlLinks[0];
+					destID = 0; //_childControlLinks[0];
 				else
-					destFD = _childControlLinks[1];
+					destID = 1; //_childControlLinks[1];
 				#ifdef DEBUG
 					fprintf(stderr, "Launcher %u: forwarding %s message to child launcher %u.\n", _myproc, CTRL_MSG_TYPE_STRINGS[message->type], child);
 				#endif
@@ -710,13 +713,27 @@ int Launcher::forwardMessage(struct ctrl_msg* message, char* data)
 		while (parent > _singleton->_myproc);
 	}
 
-	if (destFD == -1)
+	#ifdef DEBUG
+	if (destID == -1)
+		fprintf(stderr, "Launcher %u: forwarding %s message to parent launcher.\n", _myproc, CTRL_MSG_TYPE_STRINGS[message->type]);
+	#endif
+
+	int destFD = -1;
+	do
 	{
-		destFD = _parentLauncherControlLink;
-		#ifdef DEBUG
-			fprintf(stderr, "Launcher %u: forwarding %s message to parent launcher.\n", _myproc, CTRL_MSG_TYPE_STRINGS[message->type]);
-		#endif
+		if (destID == -1) destFD = _parentLauncherControlLink;
+		else if (destID == 0) destFD = _childControlLinks[0];
+		else if (destID == 1) destFD = _childControlLinks[1];
+
+		// verify that the link is valid.  It may not be, if we're just starting up
+		if (destFD == -1)
+		{
+			sched_yield();
+			handleRequestsLoop(true);
+		}
 	}
+	while (destFD == -1);
+
 
 	int ret = TCP::write(destFD, message, sizeof(struct ctrl_msg));
 	if (ret < (int)sizeof(struct ctrl_msg))

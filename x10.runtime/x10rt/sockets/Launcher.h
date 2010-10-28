@@ -65,7 +65,7 @@ class Launcher
 
 		/* SockProcManager.cc */
 		void startChildren(void);
-		void handleRequestsLoop();
+		void handleRequestsLoop(bool onlyCheckForNewConnections);
 		int makeFDSets(fd_set *, fd_set *, fd_set *);
 		void connectToParentLauncher(void); /* connect to parent */
 		void handleNewChildConnection(void); /* new child */
