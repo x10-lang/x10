@@ -15,6 +15,7 @@
 #include <arpa/inet.h>
 #include <time.h>
 #include <sched.h>
+#include <errno.h>
 
 #include "Launcher.h"
 #include "TCP.h"
@@ -199,10 +200,37 @@ void Launcher::startChildren()
 				unsetenv(X10LAUNCHER_SSH);
 				setenv(X10LAUNCHER_PARENT, masterPort, 1);
 				setenv(X10LAUNCHER_RUNTIME, "1", 1);
+				chdir(getenv(X10LAUNCHER_CWD));
+				char* which = getenv(X10LAUNCHER_DEBUG);
+				if (which != NULL && (strcmp("all", which) == 0 || _myproc == strtol(which, (char **)NULL, 10)))
+				{
+					if (!(errno && _myproc == 0)) // check to make sure that the strtol above provided a number, not an error
+					{
+						// launch this runtime in a debugger
+						#ifdef DEBUG
+							fprintf(stderr, "Runtime %u forked with GDB.  Running exec.\n", _myproc);
+						#endif
+						char** newargv = (char**)alloca(8*sizeof(char*));
+						if (newargv == NULL)
+							DIE("Allocating space for exec-ing gdb runtime %d\n", _myproc);
+						char* title = (char*)alloca(32);
+						sprintf(title, "Place %u debug", _myproc);
+						newargv[0] = (char*)"xterm";
+						newargv[1] = (char*)"-T";
+						newargv[2] = title;
+						newargv[3] = (char*)"-e";
+						newargv[4] = (char*)"gdb";
+						newargv[5] = _argv[0];
+						newargv[6] = NULL;
+						if (execvp(newargv[0], newargv))
+							// can't get here, if the exec succeeded
+							DIE("Launcher %u: runtime exec with gdb failed", _myproc);
+					}
+				}
+
 				#ifdef DEBUG
 					fprintf(stderr, "Runtime %u forked.  Running exec.\n", _myproc);
 				#endif
-				chdir(getenv(X10LAUNCHER_CWD));
 				if (execvp(_argv[0], _argv))
 					// can't get here, if the exec succeeded
 					DIE("Launcher %u: runtime exec failed", _myproc);
@@ -240,6 +268,7 @@ void Launcher::startChildren()
 void Launcher::handleRequestsLoop(bool onlyCheckForNewConnections)
 {
 	#ifdef DEBUG
+	if (!onlyCheckForNewConnections)
 		fprintf(stderr, "Launcher %u: main loop start\n", _myproc);
 	#endif
 	bool running = true;
@@ -615,6 +644,11 @@ int Launcher::handleControlMessage(int fd)
 		{
 			case PORT_REQUEST:
 			{
+				while (_runtimePort == NULL)
+				{
+					sched_yield();
+					handleRequestsLoop(true);
+				}
 				m.to = m.from;
 				m.from = _myproc;
 				m.type = PORT_RESPONSE;
@@ -784,7 +818,8 @@ void Launcher::startSSHclient(uint32_t id, char* masterPort, char* remotehost)
 	"X10RT_MPI_THREAD_MULTIPLE", "X10_DISABLE_DEALLOC", "X10_TRACE_ALLOC", "X10_TRACE_ALL",
 	"X10_TRACE_INIT", "X10_TRACE_X10RT", "X10_TRACE_NET", "X10_TRACE_SER", "X10_NTHREADS",
 	"X10RT_CUDA_DMA_SLICE", "X10RT_EMULATE_REMOTE_OP", "X10RT_EMULATE_COLLECTIVES",
-	"X10RT_MPI_THREAD_MULTIPLE", "X10_STATIC_THREADS", "X10_NO_STEALS", "X10RT_ACCELS", "X10RT_YIELDAFTERPROBE"};
+	"X10RT_MPI_THREAD_MULTIPLE", "X10_STATIC_THREADS", "X10_NO_STEALS", "X10RT_ACCELS",
+	"X10RT_YIELDAFTERPROBE", X10LAUNCHER_DEBUG};
 	for (unsigned i=0; i<(sizeof envVariables)/sizeof(char*); i++)
 	{
 		char* ev = getenv(envVariables[i]);
