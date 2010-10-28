@@ -178,6 +178,7 @@ void Launcher::readHostFile()
 		DIE("Launcher %u: hostname memory allocation failure", _myproc);
 
 	uint32_t lineNumber = 0;
+	bool skipped = false;
 	char buffer[5120];
 	while (lineNumber < _firstchildproc+childLaunchers)
 	{
@@ -187,8 +188,12 @@ void Launcher::readHostFile()
 			if (lineNumber == 0)
 				DIE("file \"%s\" can not be empty", _hostfname);
 			// hit the end of the file, so there are more places than lines
-			// I'm told we should wrap around when this happens
-			lineNumber = (_firstchildproc / lineNumber) * lineNumber;
+			// We wrap around, reusing hostnames when this happens
+			if (!skipped && _firstchildproc > lineNumber)
+			{ // don't read the same lines again and again.  Skip ahead.
+				skipped = true;
+				lineNumber = (_firstchildproc / lineNumber) * lineNumber;
+			}
 			rewind(fd);
 			continue;
 		}
