@@ -201,27 +201,58 @@ void Launcher::startChildren()
 				setenv(X10LAUNCHER_PARENT, masterPort, 1);
 				setenv(X10LAUNCHER_RUNTIME, "1", 1);
 				chdir(getenv(X10LAUNCHER_CWD));
+
+				// check to see if we want to launch this in a debugger
 				char* which = getenv(X10LAUNCHER_DEBUG);
-				if (which != NULL && (strcmp("all", which) == 0 || _myproc == strtol(which, (char **)NULL, 10)))
+				if (which != NULL)
 				{
-					if (!(errno && _myproc == 0)) // check to make sure that the strtol above provided a number, not an error
+					char placenum[64];
+					strcpy(placenum, which);
+					char * colon = strchr(placenum, ':');
+					if (colon != NULL)
+						colon[0] = '\0';
+
+					// see if the launcher argument applies to this place
+					if ((strcmp("all", placenum) == 0 || _myproc == strtol(placenum, (char **)NULL, 10)) && !(errno && _myproc == 0))
 					{
 						// launch this runtime in a debugger
-						#ifdef DEBUG
-							fprintf(stderr, "Runtime %u forked with GDB.  Running exec.\n", _myproc);
-						#endif
-						char** newargv = (char**)alloca(8*sizeof(char*));
-						if (newargv == NULL)
-							DIE("Allocating space for exec-ing gdb runtime %d\n", _myproc);
-						char* title = (char*)alloca(32);
-						sprintf(title, "Place %u debug", _myproc);
-						newargv[0] = (char*)"xterm";
-						newargv[1] = (char*)"-T";
-						newargv[2] = title;
-						newargv[3] = (char*)"-e";
-						newargv[4] = (char*)"gdb";
-						newargv[5] = _argv[0];
-						newargv[6] = NULL;
+						char** newargv;
+						if (colon == NULL)
+						{
+							#ifdef DEBUG
+								fprintf(stderr, "Runtime %u forked with gdb in an xterm.  Running exec.\n", _myproc);
+							#endif
+							newargv = (char**)alloca(8*sizeof(char*));
+							if (newargv == NULL)
+								DIE("Allocating space for exec-ing gdb runtime %d\n", _myproc);
+							char* title = (char*)alloca(32);
+							sprintf(title, "Place %u debug", _myproc);
+							newargv[0] = (char*)"xterm";
+							newargv[1] = (char*)"-T";
+							newargv[2] = title;
+							newargv[3] = (char*)"-e";
+							newargv[4] = (char*)"gdb";
+							newargv[5] = _argv[0];
+							newargv[6] = '\0';
+						}
+						else
+						{
+							colon[0] = ':';
+							#ifdef DEBUG
+								fprintf(stderr, "Runtime %u forked with a remote gdbserver at port %s.  Running exec.\n", &colon[1], _myproc);
+							#endif
+							int numArgs = 0;
+							while (_argv[numArgs] != NULL)
+								numArgs++;
+							newargv = (char**)alloca((numArgs+3)*sizeof(char*));
+							if (newargv == NULL)
+								DIE("Allocating space for exec-ing gdb runtime %d\n", _myproc);
+							newargv[0] = (char*)"gdbserver";
+							newargv[1] = colon;
+							for (int i=0; i<numArgs; i++)
+								newargv[i+2] = _argv[i];
+							newargv[numArgs+2] = '\0';
+						}
 						if (execvp(newargv[0], newargv))
 							// can't get here, if the exec succeeded
 							DIE("Launcher %u: runtime exec with gdb failed", _myproc);
