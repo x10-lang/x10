@@ -20,7 +20,8 @@ public class AtomicReferenceTest extends x10Test {
     public def run():Boolean  {
 	val obj1 = "abc";
 	val obj2 = "def";
-	val obj3 = "ghi";
+	//val obj3 = "ghi";
+	val obj3 = "ghi".toString(); // workaround for javac bug. see comment in XTENLANG-2006.
         val ref = AtomicReference.newAtomicReference[String](obj1);
 
         var success:Boolean = ref.compareAndSet(obj2, obj3);
