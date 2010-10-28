@@ -13,6 +13,7 @@ extern "C" char *realpath (const char *, char *);
 extern "C" int setenv (const char *, const char *, int);
 extern "C" int unsetenv (const char *);
 extern "C" int fileno (FILE *__stream);
+extern "C" int strcasecmp(const char *, const char *);
 #endif
 
 #ifndef __sock_launcher_h__

@@ -213,7 +213,9 @@ void Launcher::startChildren()
 						colon[0] = '\0';
 
 					// see if the launcher argument applies to this place
-					if ((strcmp("all", placenum) == 0 || _myproc == strtol(placenum, (char **)NULL, 10)) && !(errno && _myproc == 0))
+					char* p;
+					errno = 0;
+					if (strcasecmp("all", placenum) == 0 || ((_myproc == strtol(placenum, &p, 10)) && !(errno != 0 || *p != 0 || p == placenum)))
 					{
 						// launch this runtime in a debugger
 						char** newargv;
