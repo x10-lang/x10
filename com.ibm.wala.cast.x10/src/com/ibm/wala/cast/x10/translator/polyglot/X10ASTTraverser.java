@@ -5,11 +5,9 @@ import x10.ast.Async;
 import x10.ast.AtEach;
 import x10.ast.AtStmt;
 import x10.ast.Atomic;
-import x10.ast.Await;
 import x10.ast.Closure;
 import x10.ast.ClosureCall;
 import x10.ast.Finish;
-import x10.ast.ForEach;
 import x10.ast.ForLoop;
 import x10.ast.Future;
 import x10.ast.Here;
@@ -38,16 +36,12 @@ public class X10ASTTraverser extends ASTTraverser {
       return xtv.visit((Atomic) n, wc);
     else if (n instanceof AtStmt)
       return xtv.visit((AtStmt) n, wc);
-    else if (n instanceof Await)
-      return xtv.visit((Await) n, wc);
     else if (n instanceof Closure)
       return xtv.visit((Closure) n, wc);
     else if (n instanceof ClosureCall)
       return xtv.visit((ClosureCall) n, wc);
     else if (n instanceof Finish)
       return xtv.visit((Finish) n, wc);
-    else if (n instanceof ForEach)
-      return xtv.visit((ForEach) n, wc);
     else if (n instanceof ForLoop)
       return xtv.visit((ForLoop) n, wc);
     else if (n instanceof Future)

@@ -16,7 +16,6 @@ public class X10IRGoal extends SourceGoal_c /* PORT1.7 removed 'implements EndGo
 	fSourceLoader = sourceLoader;
 
 	WALAScheduler scheduler= (WALAScheduler) job.extensionInfo().scheduler();
-	addPrereq(scheduler.SharedBoxer(job));
 	addPrereq(scheduler.CAstGenerated(job));
     }
 

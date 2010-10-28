@@ -34,19 +34,16 @@ import x10.ast.Async;
 import x10.ast.AtEach;
 import x10.ast.AtStmt;
 import x10.ast.Atomic;
-import x10.ast.Await;
 import x10.ast.Clocked;
 import x10.ast.Closure;
 import x10.ast.ClosureCall;
 import x10.ast.Finish;
-import x10.ast.ForEach;
 import x10.ast.ForLoop;
 import x10.ast.Future;
 import x10.ast.Here;
 import x10.ast.LocalTypeDef;
 import x10.ast.Next;
 import x10.ast.ParExpr;
-import x10.ast.PlaceCast;
 import x10.ast.Range;
 import x10.ast.Region;
 import x10.ast.SettableAssign;
@@ -352,27 +349,6 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 		    makeNode(context, X10CastNode.FINISH_EXIT, f.body().position().endOf()));
 	}
 
-	public CAstNode visit(ForEach f, WalkContext context) {
-	    CAstEntity bodyEntity= walkAsyncEntity(f, f.body(), context);
-	    List clocks = f.clocks();
-	    
-	    CAstNode args[] = new CAstNode[ clocks.size() + 2 ];
-	    
-	    args[0] = makeNode(context, f.domain(), X10CastNode.HERE);
-	    
-	    for(int i = 0; i < clocks.size(); i++) {
-	    	args[i+1] = walkNodes((Node)clocks.get(i), context);
-	    }
-
-	    // FUNCTION_EXPR will translate to a type wrapping the single method with the given body
-	    args[ args.length-1 ] = makeNode(context, f.body(), CAstNode.FUNCTION_EXPR, fFactory.makeConstant(bodyEntity));
-	    
-	    final CAstNode bodyNode= makeNode(context, f, X10CastNode.ASYNC_INVOKE, args);
-
-	    context.addScopedEntity(bodyNode, bodyEntity);
-	    return walkRegionIterator(f, bodyNode, context);
-	}
-
 	private CAstNode walkRegionIterator(X10Loop loop, final CAstNode bodyNode, WalkContext context) {
 	    return walkRegionIterator(loop.formal(), bodyNode, walkNodes(loop.domain(), context), loop.position(), context);
 	}
@@ -579,11 +555,6 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 	    return makeNode(context, n, X10CastNode.NEXT);
 	}
 
-	public CAstNode visit(PlaceCast pc, WalkContext context) {
-	    // TODO Auto-generated method stub
-	    return null;
-	}
-
 	public CAstNode visit(When w, WalkContext wc) {
 	    When_c when= (When_c) w;
 //          List/*<When.Branch>*/ branches= when.branches();
@@ -646,10 +617,6 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 	public CAstNode visit(Clocked c, WalkContext context) {
 		Assertions.UNREACHABLE();
 	    return null;
-	}
-
-	public CAstNode visit(Await a, WalkContext context) {
-	    return fFactory.makeNode(CAstNode.EMPTY);
 	}
 
 	public CAstNode visit(Atomic a, WalkContext context) {
