@@ -1558,6 +1558,14 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return clockType_;
     }
 
+    protected X10ClassType finishStateType_;
+
+    public Type FinishState() {
+        if (finishStateType_ == null)
+            finishStateType_ = load("x10.lang.FinishState"); // java file
+        return finishStateType_;
+    }
+
     protected X10ClassType runtimeType_;
 
     public Type Runtime() {

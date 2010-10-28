@@ -722,6 +722,10 @@ public class Desugarer extends ContextVisitor {
     	return synth.makeStaticCall(pos, xts.Runtime(), name,  returnType, context());
     }
 
+    private Expr call(Position pos, Name name, Expr arg, Type returnType) throws SemanticException {
+        return synth.makeStaticCall(pos, xts.Runtime(), name, Collections.singletonList(arg), returnType, context());
+    }
+
     /**
      * Recognize the following pattern:
      * <pre>
@@ -808,10 +812,10 @@ public class Desugarer extends ContextVisitor {
     // finish S; ->
     //    {
     //    Runtime.ensureNotInAtomic();
-    //    Runtime.startFinish();
+    //    val fresh = Runtime.startFinish();
     //    try { S; }
     //    catch (t:Throwable) { Runtime.pushException(t); throw new RuntimeException(); }
-    //    finally { Runtime.stopFinish(); }
+    //    finally { Runtime.stopFinish(fresh); }
     //    }
     private Stmt visitFinish(Finish f) throws SemanticException {
         Position pos = f.position();
@@ -834,9 +838,17 @@ public class Desugarer extends ContextVisitor {
         Throw thr = throwRuntimeException(pos);
         Expr startCall = specializedFinish2(f);
 
+        X10Context xc = context();
+        final Name varName = xc.getNewVarName();
+        final Type type = xts.FinishState();
+        final LocalDef li = xts.localDef(pos, xts.Final(), Types.ref(type), varName);
+        final Id varId = xnf.Id(pos, varName);
+        final LocalDecl ld = xnf.LocalDecl(pos, xnf.FlagsNode(pos, xts.Final()), xnf.CanonicalTypeNode(pos, type), varId, startCall).localDef(li).type(xnf.CanonicalTypeNode(pos, type));
+        final Local ldRef = (Local) xnf.Local(pos, varId).localInstance(li.asInstance()).type(type);
+
         Block tryBlock = xnf.Block(pos, f.body());
         Catch catchBlock = xnf.Catch(pos, formal, xnf.Block(pos, xnf.Eval(pos, call), thr));
-        Block finallyBlock = xnf.Block(pos, xnf.Eval(pos, call(pos, STOP_FINISH, xts.Void())));
+        Block finallyBlock = xnf.Block(pos, xnf.Eval(pos, call(pos, STOP_FINISH, ldRef, xts.Void())));
 
         Try tcfBlock = xnf.Try(pos, tryBlock, Collections.singletonList(catchBlock), finallyBlock);
 
@@ -848,7 +860,7 @@ public class Desugarer extends ContextVisitor {
 
         return xnf.Block(pos,
         		xnf.Eval(pos, call(pos, ENSURE_NOT_IN_ATOMIC, xts.Void())),
-        		xnf.Eval(pos, startCall),
+        		ld,
         		tcfBlock);
     }
 
@@ -862,10 +874,10 @@ public class Desugarer extends ContextVisitor {
 
     // x = finish (R) S; ->
     //    {
-    //    Runtime.startCollectingFinish(R);
+    //    val fresh = Runtime.startCollectingFinish(R);
     //    try { S; }
     //    catch (t:Throwable) { Runtime.pushException(t); throw new RuntimeException(); }
-    //    finally { x = Runtime.stopCollectingFinish(); }
+    //    finally { x = Runtime.stopCollectingFinish(fresh); }
     //    }
     private Stmt visitFinishExpr(Assign n, LocalDecl l, Return r) throws SemanticException {
     	FinishExpr f = null;
@@ -896,7 +908,14 @@ public class Desugarer extends ContextVisitor {
         
         Call myCall = synth.makeStaticCall(pos, xts.Runtime(), START_COLLECTING_FINISH, Collections.<TypeNode>singletonList(xnf.CanonicalTypeNode(pos, reducerTarget)), Collections.singletonList(reducer), xts.Void(), Collections.singletonList(reducerType), context());
 
-        Stmt s1 = xnf.Eval(pos, myCall);
+        X10Context xc = context();
+        final Name varName = xc.getNewVarName();
+        final Type type = xts.FinishState();
+        final LocalDef li = xts.localDef(pos, xts.Final(), Types.ref(type), varName);
+        final Id varId = xnf.Id(pos, varName);
+        final LocalDecl s1 = xnf.LocalDecl(pos, xnf.FlagsNode(pos, xts.Final()), xnf.CanonicalTypeNode(pos, type), varId, myCall).localDef(li).type(xnf.CanonicalTypeNode(pos, type));
+        final Local ldRef = (Local) xnf.Local(pos, varId).localInstance(li.asInstance()).type(type);
+
         Block tryBlock = xnf.Block(pos,f.body());
 
         // Begin catch block
@@ -915,7 +934,7 @@ public class Desugarer extends ContextVisitor {
         
         // Begin finally block
         Stmt returnS = null;
-        Call staticCall = synth.makeStaticCall(pos, xts.Runtime(), STOP_COLLECTING_FINISH, Collections.<TypeNode>singletonList(xnf.CanonicalTypeNode(pos, reducerTarget)), Collections.<Expr>emptyList(), reducerTarget, Collections.<Type>emptyList(), context());
+        Call staticCall = synth.makeStaticCall(pos, xts.Runtime(), STOP_COLLECTING_FINISH, Collections.<TypeNode>singletonList(xnf.CanonicalTypeNode(pos, reducerTarget)), Collections.<Expr>singletonList(ldRef), reducerTarget, Collections.<Type>singletonList(type), context());
         if ((l==null) && (n!=null)&& (r==null)) {
         	Expr left = n.left().type(reducerTarget);
             Expr b = assign(pos, left, Assign.ASSIGN, staticCall);

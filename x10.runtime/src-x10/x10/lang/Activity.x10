@@ -12,7 +12,6 @@
 package x10.lang;
 
 import x10.util.HashMap;
-import x10.util.Stack;
 
 /**
  * Runtime representation of an async. Only to be used in the runtime implementation.
@@ -61,7 +60,7 @@ class Activity {
     /**
      * the finish state governing the execution of this activity (may be remote)
      */
-    private val finishState:FinishState;
+    private var finishState:FinishState;
 
     /**
      * safe to run pending jobs while waiting for a finish (temporary)
@@ -78,12 +77,6 @@ class Activity {
      * Lazily created.
      */
     private var clockPhases:ClockPhases;
-
-    /**
-     * The finish states for the finish statements currently executed by this activity.
-     * Lazily created.
-     */
-    private var finishStack:Stack[FinishState];
 
     /**
      * Depth of enclosong atomic blocks
@@ -141,25 +134,16 @@ class Activity {
     /**
      * Return the innermost finish state
      */
-    def finishState():FinishState {
-        if (null == finishStack || finishStack.isEmpty())
-            return finishState;
-        return finishStack.peek();
-    }
+    def finishState():FinishState = finishState;
 
     /**
      * Enter finish block
      */
-    def pushFinish(f:FinishState) {
-        if (null == finishStack)
-            finishStack = new Stack[FinishState]();
-        finishStack.push(f);
+    def swapFinish(f:FinishState) {
+        val old = finishState;
+        finishState = f;
+        return old;
     }
-
-    /**
-     * Exit finish block
-     */
-    def popFinish():FinishState = finishStack.pop();
 
     def safe():Boolean = safe && (null == clockPhases);
 

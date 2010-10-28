@@ -774,16 +774,16 @@ import x10.util.Box;
      * Start executing current activity synchronously
      * (i.e. within a finish statement).
      */
-    public static def startFinish():void {
-        activity().pushFinish(new FinishState.RootFinish());
+    public static def startFinish():FinishState {
+        return activity().swapFinish(new FinishState.RootFinish());
     }
 
-    public static def startLocalFinish():void {
-        activity().pushFinish(new FinishState.LocalRootFinish());
+    public static def startLocalFinish():FinishState {
+        return activity().swapFinish(new FinishState.LocalRootFinish());
     }
 
-    public static def startSimpleFinish():void {
-        activity().pushFinish(new FinishState.SimpleRootFinish());
+    public static def startSimpleFinish():FinishState {
+        return activity().swapFinish(new FinishState.SimpleRootFinish());
     }
 
     /**
@@ -792,9 +792,9 @@ import x10.util.Box;
      * async terminated abruptly. Otherwise continue normally.
      * Should only be called by the thread executing the current activity.
      */
-    public static def stopFinish():void {
+    public static def stopFinish(f:FinishState):void {
         val a = activity();
-        val finishState = a.popFinish();
+        val finishState = a.swapFinish(f);
         finishState.notifyActivityTermination();
         finishState.waitForFinish(a.safe());
     }
@@ -808,7 +808,7 @@ import x10.util.Box;
     }
 
     public static def startCollectingFinish[T](r:Reducible[T]) {
-        activity().pushFinish(new FinishState.RootCollectingFinish[T](r));
+        return activity().swapFinish(new FinishState.RootCollectingFinish[T](r));
     }
 
     public static def offer[T](t:T) {
@@ -823,14 +823,12 @@ import x10.util.Box;
         }
     }
 
-    public static def stopCollectingFinish[T]():T {
+    public static def stopCollectingFinish[T](f:FinishState):T {
         val thisWorker = Runtime.worker();
         val id = thisWorker.workerId;
-        val state = activity().finishState();
+        val state = activity().swapFinish(f);
         (state as FinishState.RootCollectingFinish[T]).notifyActivityTermination();
-        val result = (state as FinishState.RootCollectingFinish[T]).waitForFinishExpr(true);
-        activity().popFinish();
-        return result;
+        return (state as FinishState.RootCollectingFinish[T]).waitForFinishExpr(true);
     }
 
     // submit an activity to the pool

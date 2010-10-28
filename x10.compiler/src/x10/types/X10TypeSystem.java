@@ -172,6 +172,8 @@ public interface X10TypeSystem extends TypeSystem {
 
     Type Clock(); // needed for clocked loops
 
+    Type FinishState();
+
     Type Runtime(); // used by asyncCodeInstance
 
     //Type Value();
