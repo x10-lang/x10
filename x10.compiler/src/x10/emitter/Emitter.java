@@ -2206,11 +2206,7 @@ public class Emitter {
             // for primitive
             else if (actual.isBoolean() || actual.isNumeric() || actual.isByte()) {
                 if (actual.typeEquals(expectedBase, tr.context())) {
-                    if (!isNoArgumentType(e)) {
-                        expander = expander.castTo(expectedBase, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
-                        expander.expand(tr);
-
-                    } else if (e instanceof X10Call && X10TypeMixin.baseType(((X10Call) e).methodInstance().def().returnType().get()) instanceof ParameterType) {
+                    if (e instanceof X10Call && X10TypeMixin.baseType(((X10Call) e).methodInstance().def().returnType().get()) instanceof ParameterType) {
                         expander = expander.castTo(expectedBase);
                         expander.expand(tr);
                     }
