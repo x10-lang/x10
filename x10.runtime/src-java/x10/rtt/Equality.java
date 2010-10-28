@@ -12,8 +12,7 @@
 package x10.rtt;
 
 
-import x10.core.Ref;
-
+import x10.core.RefI;
 import x10.core.Struct;
 
 public class Equality {
@@ -84,7 +83,7 @@ public class Equality {
         // Ref equality is pointer equality.
         // This also handles "null == null" and serves as a short cut for other types.
         if (a == b) return true;
-        if (a instanceof Ref || b instanceof Ref) return false;
+        if (a instanceof RefI || b instanceof RefI) return false;
 
         // Struct equality is value equality that implys non-null.
         if (a == null || b == null) return false;
