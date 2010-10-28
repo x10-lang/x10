@@ -90,6 +90,7 @@ class Launcher
 		char _hostfname[512]; /* host file name */
 		uint32_t _nplaces; /* number of processors in job */
 		uint32_t _myproc; /* my processor ID */
+		int _returncode; // the return code from the local runtime
 
 		/* parent child structure */
 		char ** _hostlist; /* child host list */

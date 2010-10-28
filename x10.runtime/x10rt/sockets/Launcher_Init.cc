@@ -144,7 +144,7 @@ void Launcher::initialize(int argc, char ** argv)
 		}
 	}
 	else if (_myproc == 0xFFFFFFFF)
-		fprintf(stderr, "Warning: %s not defined.  Running %d places on localhost.  Setting %s=NONE will suppress this warning.\n", X10LAUNCHER_HOSTFILE, _nplaces, X10LAUNCHER_HOSTFILE);
+		fprintf(stderr, "Warning: %s not defined.  Running %d place%s on localhost.  Setting %s=NONE will suppress this warning.\n", X10LAUNCHER_HOSTFILE, _nplaces, _nplaces==1?"":"s", X10LAUNCHER_HOSTFILE);
 
 	connectToParentLauncher();
 

@@ -313,15 +313,15 @@ void Launcher::handleRequestsLoop()
 		fprintf(stderr, "Launcher %u: killing sub-processes\n", _myproc);
 	#endif
 
-	int status = 0;
 	for (uint32_t i = 0; i <= _numchildren; i++)
 	{
 		#ifdef DEBUG
 			fprintf(stderr, "Launcher %u: killing pid=%d\n", _myproc, _pidlst[i]);
 		#endif
 		kill(_pidlst[i], SIGTERM);
-		waitpid(_pidlst[i], &status, WNOHANG); // status is the status of the last child (the local runtime)
 	}
+	waitpid(_pidlst[_numchildren], NULL, 0); // wait for the local runtime
+
 	// shut down any connections if they still exist
 	handleDeadParent();
 
@@ -331,7 +331,7 @@ void Launcher::handleRequestsLoop()
 	#ifdef DEBUG
 		fprintf(stderr, "Launcher %u: cleanup complete.  Goodbye!\n", _myproc);
 	#endif
-	exit(status);
+	exit(_returncode);
 }
 
 /* *********************************************************************** */
@@ -736,27 +736,15 @@ int Launcher::forwardMessage(struct ctrl_msg* message, char* data)
 void Launcher::cb_sighandler_cld(int signo)
 {
 	int status;
-	wait(&status);
+	int pid=wait(&status);
 
-/*
-	int status, pid=wait(&status);
-
-	for (int i=0; i<_singleton->_numchildren+1; i++)
-	if (_singleton->_pidlst[i] == pid)
+	if (_singleton->_pidlst[_singleton->_numchildren] == pid)
 	{
-		_singleton->_actlst[i] = false;
 		#ifdef DEBUG
-			fprintf(stderr, "Launcher %d: SIGCHLD, killing proc=%d\n", _singleton->_myproc, _singleton->_childranks[i]));
+			fprintf(stderr, "Launcher %d: SIGCHLD from runtime (pid=%d)\n", _singleton->_myproc, pid);
 		#endif
-
-		if (i == _singleton->_numchildren)
-			for (int j=0; j<_singleton->_numchildren+1; j++)
-				_singleton->_actlst[j] = false;
+		_singleton->_returncode = WEXITSTATUS(status);
 	}
-
-	for (int j=0; j<_singleton->_numchildren+1; j++)
-		_singleton->_actlst[j] = false;
-*/
 }
 
 
