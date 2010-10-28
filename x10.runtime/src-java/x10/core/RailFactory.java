@@ -23,12 +23,6 @@ public abstract class RailFactory {
         return array;
     }
 
-    public static <T> ValRail<T> makeValRail(Type type, int length) {
-        Object o = type.makeArray(length);
-        ValRail<T> array = new ValRail<T>(type, length, o);
-        return array;
-    }
-
     public static <T> Rail<T> makeVarRail(Type type, int length, T init) {
         Object o = type.makeArray(length);
         Rail.resetLocal(o, init);
@@ -39,13 +33,6 @@ public abstract class RailFactory {
         Object o = type.makeArray(length);
         initJavaArray(o, init);
         Rail<T> array = new Rail<T>(type, length, o);
-        return array;
-    }
-
-    public static <T> ValRail<T> makeValRail(Type type, int length, Fun_0_1<Integer,T> init) {
-        Object o = type.makeArray(length);
-        initJavaArray(o, init);
-        ValRail<T> array = new ValRail<T>(type, length, o);
         return array;
     }
 
@@ -87,11 +74,6 @@ public abstract class RailFactory {
 //        return new Rail<T>(new RuntimeType(array.getClass().getComponentType()), ((Object[]) array).length, array);
 //    }
 
-//    public static <T> ValRail<T> makeValRailFromJavaArray(Object array) {
-//        Rail<T> r = makeRailFromJavaArray(array);
-//        return new ValRail<T>(r.type, r.length, r.value);
-//    }
-
     public static <T> x10.array.Array<T> makeArrayFromJavaArray(Type type, Object array) {
         int len = type.arrayLength(array);
         x10.array.Array<T> arr = new x10.array.Array<T>(type, len);
@@ -101,26 +83,6 @@ public abstract class RailFactory {
 
     public static <T> Rail<T> makeRailFromJavaArray(Type type, Object array) {
         return new Rail<T>(type, type.arrayLength(array) , array);
-    }
-    
-    public static <T> ValRail<T> makeValRailFromJavaArray(Type type, Object array) {
-        return new ValRail<T>(type, type.arrayLength(array), array);
-    }
-
-    public static <T> Rail<T> makeRailFromValRail(Type type, ValRail<T> r) {
-        Object newArray = type.makeArray(r.length);
-        System.arraycopy(r.getBackingArray(), 0, newArray, 0, r.length);
-        return new Rail<T>(type, r.length, newArray);
-    }
-
-    public static <T> ValRail<T> makeValRailFromRail(Type type, Rail<T> r) {
-        Object newArray = type.makeArray(r.length);
-        System.arraycopy(r.getBackingArray(), 0, newArray, 0, r.length);
-        return new ValRail<T>(r.type, r.length, newArray);
-    }
-
-    public static <T> ValRail<T> makeValRailViewFromRail(Type type, Rail<T> r) {
-        return new ValRail<T>(r.type, r);
     }
 
     private static <T> void initJavaArray(Object value, Fun_0_1<Integer,T> init) {

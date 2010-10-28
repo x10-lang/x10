@@ -1340,14 +1340,6 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return AtomicBoolean_;
     }
 
-    protected X10ClassType nativeValRail_;
-
-    public Type ValRail() {
-        if (nativeValRail_ == null)
-            nativeValRail_ = load("x10.lang.ValRail");
-        return nativeValRail_;
-    }
-
     protected X10ClassType nativeRail_;
 
     public Type Rail() {
@@ -1767,17 +1759,6 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return ta.get(0).typeEquals(p, createContext());
     }
 
-    public boolean isValRail(Type t) {
-        return hasSameClassDef(t, ValRail());
-    }
-  
-    public boolean isValRailOf(Type t, Type p) {
-        if (!isValRail(t)) return false;
-        List<Type> ta = ((X10ClassType)X10TypeMixin.baseType(t)).typeArguments();
-        assert (ta.size() == 1);
-        return ta.get(0).typeEquals(p, createContext());
-    }
-
     public boolean isArray(Type t) {
         return hasSameClassDef(t, Array());
     }
@@ -1816,10 +1797,6 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 
     public Type Rail(Type arg) {
         return X10TypeMixin.instantiate(Rail(), arg);
-    }
-
-    public Type ValRail(Type arg) {
-        return X10TypeMixin.instantiate(ValRail(), arg);
     }
 
     public Type Array(Type arg) {
@@ -2491,7 +2468,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 
     
     // Returns the number of bytes required to represent the type, or null if unknown (e.g. involves an address somehow)
-    // Note for rails and valrails this returns the size of 1 element, this will have to be scaled
+    // Note for rails this returns the size of 1 element, this will have to be scaled
     // by the number of elements to get the true figure.
     public Long size(Type t) {
         if (t.isFloat()) return 4l;
@@ -2501,7 +2478,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         if (t.isShort()) return 2l;
         if (t.isInt()) return 4l;
         if (t.isLong()) return 8l;
-        if (isRail(t) || isValRail(t)) {
+        if (isRail(t)) {
             X10ClassType ctyp = (X10ClassType)t;
             assert ctyp.typeArguments().size() == 1;
             return size(ctyp.typeArguments().get(0));

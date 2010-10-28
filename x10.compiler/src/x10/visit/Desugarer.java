@@ -475,7 +475,6 @@ public class Desugarer extends ContextVisitor {
     }
 
     // TODO: add more rules from SPMDcppCodeGenerator
-    // TODO: also handle ValRail.apply() and global field accesses
     private boolean isGloballyAvailable(Expr e) {
         if (e instanceof Local)
             return true;

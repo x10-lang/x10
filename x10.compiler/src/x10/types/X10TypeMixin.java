@@ -1030,8 +1030,7 @@ public class X10TypeMixin {
 		X10ClassType ct = (X10ClassType) t;
 		X10TypeSystem ts = (X10TypeSystem) t.typeSystem();
 		ClassType a = (ClassType) ts.Rail();
-		ClassType v = (ClassType) ts.ValRail();
-		if (ct.def() == a.def() || ct.def() == v.def())
+		if (ct.def() == a.def())
 		    return ct.typeArguments().get(0);
 		else
 		    arrayBaseType(ct.superClass());

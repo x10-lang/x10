@@ -133,8 +133,6 @@ public class Tuple_c extends Expr_c implements Tuple {
         
         if (! ts.isArray(t)) {
             return child.type();
-            // Don't complain when we have implicit coercions!
-//            throw new InternalCompilerError("Type of rail constructor must be a " + ts.ValRail() + ", not " + t + ".", position());
         }
         
         Type base = X10TypeMixin.getParameterType(t, 0);

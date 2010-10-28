@@ -339,8 +339,6 @@ public class LineNumberMap extends StringTable {
 			return 205;
 		if (type.startsWith("x10.lang.String"))
 			return 206;		
-		if (type.startsWith("x10.lang.ValRail"))
-			return 207;
 		if (type.startsWith("x10.array.Point"))
 			return 208;
 		if (type.startsWith("x10.array.Region"))

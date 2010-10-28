@@ -194,7 +194,7 @@ public class ForLoopOptimizer extends ContextVisitor {
         // SPECIAL CASE (XTENLANG-1340):
         // for (p(i) in e1..e2) S  =>
         //     val min=e1; val max=e2; for(var z:Int=min; z<=max; z++){ val p=Point.make(z); val i=z; S }
-        // TODO inline (min and max), scalar replace Region object and its constituent ValRails then delete this code
+        // TODO inline (min and max), scalar replace Region object and its constituent Arrays then delete this code
         //
         if (1 == rank && domain instanceof RegionMaker) {
             List<Expr> args = ((RegionMaker) loop.domain()).arguments();

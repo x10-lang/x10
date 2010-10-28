@@ -1790,7 +1790,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	    
 	    X10Context context = (X10Context) tr.context();
 	    
-	    if (xts.isRail(c.target().type()) || xts.isValRail(c.target().type())) {
+	    if (xts.isRail(c.target().type())) {
 	        String methodName = c.methodInstance().name().toString();
 	        if (methodName.equals("make")) {
 	            Type rt = X10TypeMixin.baseType(c.type());
@@ -2065,13 +2065,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			                w.write(")");
 			                if (e instanceof X10Call) {
 			                    Type targetType = ((X10Call) e).target().type();
-			                    if (
-			                            !(
-			                                    ((X10TypeSystem) tr.typeSystem()).isRail(targetType)
-			                                    || ((X10TypeSystem) tr.typeSystem()).isValRail(targetType)
-			                                    && !xts.isParameterType(e.type())
-			                            )
-			                            && xts.isParameterType(((X10Call) e).methodInstance().def().returnType().get())
+			                    if (!((X10TypeSystem) tr.typeSystem()).isRail(targetType)
+			                        && xts.isParameterType(((X10Call) e).methodInstance().def().returnType().get())
 			                    ) {
 			                        w.write("(");
 			                        er.printType(e.type(), BOX_PRIMITIVES);
@@ -2128,7 +2123,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
     private boolean isMethodInlineTarget(X10TypeSystem xts, Type ttype) {
         ttype = X10TypeMixin.baseType(ttype);
-        return !(hasParams(ttype) && xts.isParameterType(((X10ClassType) ttype).typeArguments().get(0)))  && (xts.isRail(ttype) || xts.isValRail(ttype) || isIMC(ttype));
+        return !(hasParams(ttype) && xts.isParameterType(((X10ClassType) ttype).typeArguments().get(0)))  && (xts.isRail(ttype) || isIMC(ttype));
     }
 
     private static boolean hasParams(Type t) {
@@ -2843,7 +2838,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			Binary.Operator op = n.operator().binaryOperator();
 			Name methodName = X10Binary_c.binaryMethodName(op);
 			X10TypeSystem xts = (X10TypeSystem) ts;
-			if (isPrimitiveRepedJava(t) && (xts.isRail(array.type()) || xts.isValRail(array.type()) || isIMC(array.type()))) {
+			if (isPrimitiveRepedJava(t) && (xts.isRail(array.type()) || isIMC(array.type()))) {
 			    w.write("(");
 			    w.write("(");
 			    new TypeExpander(er, t, 0).expand();
@@ -2891,7 +2886,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			Binary.Operator op = n.operator().binaryOperator();
 			Name methodName = X10Binary_c.binaryMethodName(op);
 			X10TypeSystem xts = (X10TypeSystem) ts;
-			if (isPrimitiveRepedJava(t) && (xts.isRail(array.type()) || xts.isValRail(array.type()) || isIMC(array.type()))) {
+			if (isPrimitiveRepedJava(t) && (xts.isRail(array.type()) || isIMC(array.type()))) {
 			    w.write("(");
 			    w.write("(");
 			    new TypeExpander(er, t, 0).expand();

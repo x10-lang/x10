@@ -45,10 +45,6 @@ public final class Rail<T> extends Ref implements AnyRail<T>, x10.lang.Settable<
         System.arraycopy(src.value, src_off, value, dst_off, len);
     }
 
-    public void copyFromLocal(int  dst_off, ValRail<T> src, int src_off, int len) {
-        System.arraycopy(src.value, src_off, value, dst_off, len);
-    }
-
     public x10.lang.Iterator<T> iterator() {
 		return new RailIterator();
 	}

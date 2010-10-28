@@ -47,7 +47,6 @@ namespace x10 {
         class NullType;
         class Reference;
         class String;
-        template<class T> class ValRail;
     }
 }
 
@@ -266,7 +265,6 @@ namespace x10aux {
     template<> inline const char *typeName<RuntimeType::Variance>() { return "Variance"; }
     template<> inline const char *typeName<x10::lang::Reference>() { return "interface"; }
     template<> inline const char *typeName<x10::lang::NullType>() { return "Null"; }
-    template<> inline const char *typeName<x10::lang::ValRail<x10aux::ref<x10::lang::String> > >() { return "ValRail[String]"; }
 #ifndef NO_IOSTREAM
     template<> inline const char *typeName<std::stringstream>() { return "std::stringstream"; }
 #endif

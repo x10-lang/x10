@@ -2334,7 +2334,7 @@ public class Emitter {
 					return true;
 			}
 			X10TypeSystem ts = (X10TypeSystem) tr.typeSystem();
-			if (ts.isRail(target.type()) || ts.isValRail(target.type()))
+			if (ts.isRail(target.type()))
 				return false;
 		}
 		if (e instanceof Call) {
@@ -2348,7 +2348,7 @@ public class Emitter {
 			}
 			X10TypeSystem ts = (X10TypeSystem) tr.typeSystem();
 			if (c.name().id().equals(ClosureCall.APPLY))
-				if (ts.isRail(target.type()) || ts.isValRail(target.type()))
+				if (ts.isRail(target.type()))
 					return false;
 		}
 		return true;

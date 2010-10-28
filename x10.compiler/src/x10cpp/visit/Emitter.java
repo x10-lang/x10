@@ -751,7 +751,7 @@ public class Emitter {
 
     // Helper method to recursively examine the fields of a struct and determine if they
     // are pointers.  Used to mark the RTT of the struct as pointerless, thus enabling
-    // Rails/ValRails of pointerless structs to be allocated with GC_MALLOC_ATOMIC
+    // Rails and Arrays of pointerless structs to be allocated with GC_MALLOC_ATOMIC
     private boolean isPointerless(X10ClassType ct) {
         assert ct.isX10Struct() : "Only structs should be checked to see if they are pointerless";
         

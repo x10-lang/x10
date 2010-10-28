@@ -276,28 +276,15 @@ public interface X10TypeSystem extends TypeSystem {
      */
     Type Mortal();
 
-    /**
-     * Return the ClassType object for the x10.lang.ValRail interface.
-     *
-     * @return
-     */
-    Type ValRail();
-
     boolean isRail(Type t);
 
     public boolean isRailOf(Type t, Type p);
-
-    boolean isValRail(Type t);
-
-    public boolean isValRailOf(Type t, Type p);
 
     boolean isArray(Type t);
 
     public boolean isArrayOf(Type t, Type p);
 
     Type Rail(Type arg);
-
-    Type ValRail(Type arg);
 
     Type Array(Type arg);
 
