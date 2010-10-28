@@ -377,14 +377,14 @@ void x10rt_net_send_msg (x10rt_msg_params *parameters)
 	// write out the x10SocketMessage data
 	// Format: type, p.type, p.len, p.msg
 	enum MSGTYPE m = STANDARD;
-	if (TCP::write(state.socketLinks[parameters->dest_place].fd, &m, sizeof(m)) < sizeof(m))
+	if (TCP::write(state.socketLinks[parameters->dest_place].fd, &m, sizeof(m)) < (int)sizeof(m))
 		error("sending STANDARD type");
-	if (TCP::write(state.socketLinks[parameters->dest_place].fd, &parameters->type, sizeof(parameters->type)) < sizeof(parameters->type))
+	if (TCP::write(state.socketLinks[parameters->dest_place].fd, &parameters->type, sizeof(parameters->type)) < (int)sizeof(parameters->type))
 		error("sending STANDARD x10rt_msg_params.type");
-	if (TCP::write(state.socketLinks[parameters->dest_place].fd, &parameters->len, sizeof(parameters->len)) < sizeof(parameters->len))
+	if (TCP::write(state.socketLinks[parameters->dest_place].fd, &parameters->len, sizeof(parameters->len)) < (int)sizeof(parameters->len))
 		error("sending STANDARD x10rt_msg_params.len");
 	if (parameters->len > 0)
-		if (TCP::write(state.socketLinks[parameters->dest_place].fd, parameters->msg, parameters->len) < parameters->len)
+		if (TCP::write(state.socketLinks[parameters->dest_place].fd, parameters->msg, parameters->len) < (int)parameters->len)
 			error("sending STANDARD msg");
 	pthread_mutex_unlock(&state.writeLocks[parameters->dest_place]);
 }
@@ -401,19 +401,19 @@ void x10rt_net_send_get (x10rt_msg_params *parameters, void *buffer, x10rt_copy_
 	// write out the x10SocketMessage data
 	// Format: type, p.type, p.len, p.msg, bufferlen, bufferADDRESS
 	enum MSGTYPE m = GET;
-	if (TCP::write(state.socketLinks[parameters->dest_place].fd, &m, sizeof(m)) < sizeof(m))
+	if (TCP::write(state.socketLinks[parameters->dest_place].fd, &m, sizeof(m)) < (int)sizeof(m))
 		error("sending GET MSGTYPE");
-	if (TCP::write(state.socketLinks[parameters->dest_place].fd, &parameters->type, sizeof(parameters->type)) < sizeof(parameters->type))
+	if (TCP::write(state.socketLinks[parameters->dest_place].fd, &parameters->type, sizeof(parameters->type)) < (int)sizeof(parameters->type))
 		error("sending GET x10rt_msg_params.type");
-	if (TCP::write(state.socketLinks[parameters->dest_place].fd, &parameters->len, sizeof(parameters->len)) < sizeof(parameters->len))
+	if (TCP::write(state.socketLinks[parameters->dest_place].fd, &parameters->len, sizeof(parameters->len)) < (int)sizeof(parameters->len))
 		error("sending GET x10rt_msg_params.len");
 	if (parameters->len > 0)
-		if (TCP::write(state.socketLinks[parameters->dest_place].fd, parameters->msg, parameters->len) < parameters->len)
+		if (TCP::write(state.socketLinks[parameters->dest_place].fd, parameters->msg, parameters->len) < (int)parameters->len)
 			error("sending GET x10rt_msg_params.msg");
-	if (TCP::write(state.socketLinks[parameters->dest_place].fd, &bufferLen, sizeof(x10rt_copy_sz)) < sizeof(x10rt_copy_sz))
+	if (TCP::write(state.socketLinks[parameters->dest_place].fd, &bufferLen, sizeof(x10rt_copy_sz)) < (int)sizeof(x10rt_copy_sz))
 		error("sending GET bufferLen");
 	if (bufferLen > 0)
-		if (TCP::write(state.socketLinks[parameters->dest_place].fd, &buffer, sizeof(void*)) < sizeof(void*))
+		if (TCP::write(state.socketLinks[parameters->dest_place].fd, &buffer, sizeof(void*)) < (int)sizeof(void*))
 			error("sending GET buffer pointer");
 	pthread_mutex_unlock(&state.writeLocks[parameters->dest_place]);
 }
@@ -430,19 +430,19 @@ void x10rt_net_send_put (x10rt_msg_params *parameters, void *buffer, x10rt_copy_
 	// write out the x10SocketMessage data
 	// Format: type, p.type, p.len, p.msg, bufferlen, buffer contents
 	enum MSGTYPE m = PUT;
-	if (TCP::write(state.socketLinks[parameters->dest_place].fd, &m, sizeof(m)) < sizeof(m))
+	if (TCP::write(state.socketLinks[parameters->dest_place].fd, &m, sizeof(m)) < (int)sizeof(m))
 		error("sending PUT MSGTYPE");
-	if (TCP::write(state.socketLinks[parameters->dest_place].fd, &parameters->type, sizeof(parameters->type)) < sizeof(parameters->type))
+	if (TCP::write(state.socketLinks[parameters->dest_place].fd, &parameters->type, sizeof(parameters->type)) < (int)sizeof(parameters->type))
 		error("sending PUT x10rt_msg_params.type");
-	if (TCP::write(state.socketLinks[parameters->dest_place].fd, &parameters->len, sizeof(parameters->len)) < sizeof(parameters->len))
+	if (TCP::write(state.socketLinks[parameters->dest_place].fd, &parameters->len, sizeof(parameters->len)) < (int)sizeof(parameters->len))
 		error("sending PUT x10rt_msg_params.len");
 	if (parameters->len > 0)
-		if (TCP::write(state.socketLinks[parameters->dest_place].fd, parameters->msg, parameters->len) < parameters->len)
+		if (TCP::write(state.socketLinks[parameters->dest_place].fd, parameters->msg, parameters->len) < (int)parameters->len)
 			error("sending PUT x10rt_msg_params.len");
-	if (TCP::write(state.socketLinks[parameters->dest_place].fd, &bufferLen, sizeof(x10rt_copy_sz)) < sizeof(x10rt_copy_sz))
+	if (TCP::write(state.socketLinks[parameters->dest_place].fd, &bufferLen, sizeof(x10rt_copy_sz)) < (int)sizeof(x10rt_copy_sz))
 		error("sending PUT bufferLen");
 	if (bufferLen > 0)
-		if (TCP::write(state.socketLinks[parameters->dest_place].fd, buffer, bufferLen) < bufferLen)
+		if (TCP::write(state.socketLinks[parameters->dest_place].fd, buffer, bufferLen) < (int)bufferLen)
 			error("sending PUT buffer");
 	pthread_mutex_unlock(&state.writeLocks[parameters->dest_place]);
 }
@@ -521,7 +521,7 @@ void probe (bool onlyProcessAccept)
 	    		// Format: type, p.type, p.len, p.msg
 	    		enum MSGTYPE t;
 				int r = TCP::read(state.socketLinks[i].fd, &t, sizeof(enum MSGTYPE));
-	    		if (r < sizeof(enum MSGTYPE) || t > GET_COMPLETED) // closed connection
+	    		if (r < (int)sizeof(enum MSGTYPE) || t > GET_COMPLETED) // closed connection
 	    		{
 					#ifdef DEBUG_MESSAGING
 						printf("X10rt.Sockets: Place %u detected a bad message from place %u!\n", state.myPlaceId, i);
@@ -537,9 +537,9 @@ void probe (bool onlyProcessAccept)
 
 	    		x10rt_msg_params mp;
 	    		mp.dest_place = state.myPlaceId;
-	    		if (TCP::read(state.socketLinks[i].fd, &mp.type, sizeof(x10rt_msg_type)) < sizeof(x10rt_msg_type))
+	    		if (TCP::read(state.socketLinks[i].fd, &mp.type, sizeof(x10rt_msg_type)) < (int)sizeof(x10rt_msg_type))
 	    			error("reading x10rt_msg_params.type");
-	    		if (TCP::read(state.socketLinks[i].fd, &mp.len, sizeof(uint32_t)) < sizeof(uint32_t))
+	    		if (TCP::read(state.socketLinks[i].fd, &mp.len, sizeof(uint32_t)) < (int)sizeof(uint32_t))
 	    			error("reading x10rt_msg_params.len");
 	    		bool heapAllocated = false;
 	    		if (mp.len > 0)
@@ -552,7 +552,7 @@ void probe (bool onlyProcessAccept)
 	    					error("unable to allocate memory for an incoming message");
 	    				heapAllocated = true;
 	    			}
-	    			if (TCP::read(state.socketLinks[i].fd, mp.msg, mp.len) < mp.len)
+	    			if (TCP::read(state.socketLinks[i].fd, mp.msg, mp.len) < (int)mp.len)
 	    				error("reading x10rt_msg_params.msg");
 	    		}
 	    		else
@@ -570,14 +570,14 @@ void probe (bool onlyProcessAccept)
 					case PUT:
 					{
 						x10rt_copy_sz dataLen;
-						if (TCP::read(state.socketLinks[i].fd, &dataLen, sizeof(x10rt_copy_sz)) < sizeof(x10rt_copy_sz))
+						if (TCP::read(state.socketLinks[i].fd, &dataLen, sizeof(x10rt_copy_sz)) < (int)sizeof(x10rt_copy_sz))
 							error("reading PUT datalen");
 
 						finderCallback fcb = state.callBackTable[mp.type].finder;
 						void* dest = fcb(&mp, dataLen); // get the pointer to the destination location
 						if (dest == NULL)
 							error("invalid buffer provided for a PUT");
-						if (TCP::read(state.socketLinks[i].fd, dest, dataLen) < dataLen)
+						if (TCP::read(state.socketLinks[i].fd, dest, dataLen) < (int)dataLen)
 							error("reading PUT data");
 						pthread_mutex_unlock(&state.readLocks[i]);
 						notifierCallback ncb = state.callBackTable[mp.type].notifier;
@@ -590,10 +590,10 @@ void probe (bool onlyProcessAccept)
 						// Format: type, p.type, p.len, p.msg, bufferlen, bufferADDRESS
 						x10rt_copy_sz dataLen;
 						void* remotePtr; // THIS IS A POINTER ON A REMOTE MACHINE.  NOT VALID HERE
-						if (TCP::read(state.socketLinks[i].fd, &dataLen, sizeof(x10rt_copy_sz)) < sizeof(x10rt_copy_sz))
+						if (TCP::read(state.socketLinks[i].fd, &dataLen, sizeof(x10rt_copy_sz)) < (int)sizeof(x10rt_copy_sz))
 							error("reading GET dataLen");
 						if (dataLen > 0)
-							if (TCP::read(state.socketLinks[i].fd, &remotePtr, sizeof(void*)) < sizeof(void*))
+							if (TCP::read(state.socketLinks[i].fd, &remotePtr, sizeof(void*)) < (int)sizeof(void*))
 								error("reading GET pointer");
 						pthread_mutex_unlock(&state.readLocks[i]);
 						finderCallback fcb = state.callBackTable[mp.type].finder;
@@ -603,22 +603,22 @@ void probe (bool onlyProcessAccept)
 						pthread_mutex_lock(&state.writeLocks[i]);
 						// Format: type, p.type, p.len, p.msg, bufferlen, bufferADDRESS, buffer
 						enum MSGTYPE m = GET_COMPLETED;
-						if (TCP::write(state.socketLinks[i].fd, &m, sizeof(m)) < sizeof(m))
+						if (TCP::write(state.socketLinks[i].fd, &m, sizeof(m)) < (int)sizeof(m))
 							error("sending GET_COMPLETED MSGTYPE");
-						if (TCP::write(state.socketLinks[i].fd, &mp.type, sizeof(mp.type)) < sizeof(mp.type))
+						if (TCP::write(state.socketLinks[i].fd, &mp.type, sizeof(mp.type)) < (int)sizeof(mp.type))
 							error("sending GET_COMPLETED x10rt_msg_params.type");
-						if (TCP::write(state.socketLinks[i].fd, &mp.len, sizeof(mp.len)) < sizeof(mp.len))
+						if (TCP::write(state.socketLinks[i].fd, &mp.len, sizeof(mp.len)) < (int)sizeof(mp.len))
 							error("sending GET_COMPLETED x10rt_msg_params.len");
 						if (mp.len > 0)
-							if (TCP::write(state.socketLinks[i].fd, mp.msg, mp.len) < mp.len)
+							if (TCP::write(state.socketLinks[i].fd, mp.msg, mp.len) < (int)mp.len)
 								error("sending GET_COMPLETED x10rt_msg_params.msg");
-						if (TCP::write(state.socketLinks[i].fd, &dataLen, sizeof(x10rt_copy_sz)) < sizeof(x10rt_copy_sz))
+						if (TCP::write(state.socketLinks[i].fd, &dataLen, sizeof(x10rt_copy_sz)) < (int)sizeof(x10rt_copy_sz))
 							error("sending GET_COMPLETED dataLen");
 						if (dataLen > 0)
 						{
-							if (TCP::write(state.socketLinks[i].fd, &remotePtr, sizeof(void*)) < sizeof(void*))
+							if (TCP::write(state.socketLinks[i].fd, &remotePtr, sizeof(void*)) < (int)sizeof(void*))
 								error("sending GET_COMPLETED remotePtr");
-							if (TCP::write(state.socketLinks[i].fd, src, dataLen) < dataLen)
+							if (TCP::write(state.socketLinks[i].fd, src, dataLen) < (int)dataLen)
 								error("sending GET_COMPLETED data");
 						}
 						pthread_mutex_unlock(&state.writeLocks[i]);
@@ -629,13 +629,13 @@ void probe (bool onlyProcessAccept)
 						x10rt_copy_sz dataLen;
 						void* buffer;
 
-						if (TCP::read(state.socketLinks[i].fd, &dataLen, sizeof(x10rt_copy_sz)) < sizeof(x10rt_copy_sz))
+						if (TCP::read(state.socketLinks[i].fd, &dataLen, sizeof(x10rt_copy_sz)) < (int)sizeof(x10rt_copy_sz))
 							error("reading GET_COMPLETED dataLen");
 						if (dataLen > 0)
 						{
-							if (TCP::read(state.socketLinks[i].fd, &buffer, sizeof(void*)) < sizeof(void*))
+							if (TCP::read(state.socketLinks[i].fd, &buffer, sizeof(void*)) < (int)sizeof(void*))
 								error("reading GET_COMPLETED pointer");
-							if (TCP::read(state.socketLinks[i].fd, buffer, dataLen) < dataLen)
+							if (TCP::read(state.socketLinks[i].fd, buffer, dataLen) < (int)dataLen)
 								error("reading GET_COMPLETED data");
 						}
 						pthread_mutex_unlock(&state.readLocks[i]);
