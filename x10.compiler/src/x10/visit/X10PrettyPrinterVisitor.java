@@ -200,6 +200,7 @@ import x10c.types.X10CContext_c;
 public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	public static final String X10_RUNTIME_TYPE_CLASS = "x10.rtt.Type";
 	public static final String X10_FUN_CLASS_PREFIX = "x10.core.fun.Fun";
+    public static final String X10_VOIDFUN_CLASS_PREFIX = "x10.core.fun.VoidFun";
 	public static final String X10_RUNTIME_CLASS = "x10.runtime.impl.java.Runtime";
 
 	public static final int PRINT_TYPE_PARAMS = 1;
@@ -554,7 +555,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			            "// start xrx\n" +
 			            "x10.lang.Runtime.start(\n" +
 			                "// static init activity\n" +
-			                "new x10.core.fun.VoidFun_0_0() {\n" +
+			                "new " + X10_VOIDFUN_CLASS_PREFIX + "_0_0() {\n" +
 			                    "public void apply() {\n" +
 			                        "// preload classes\n" +
 			                        "if (Boolean.getBoolean(\"x10.PRELOAD_CLASSES\")) {\n" +
@@ -569,7 +570,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			                    "}\n" +
 			                "},\n" +
 			                "// body of main activity\n" +
-			                "new x10.core.fun.VoidFun_0_0() {\n" +
+			                "new " + X10_VOIDFUN_CLASS_PREFIX + "_0_0() {\n" +
 			                    "public void apply() {\n" +
 			                        "// catch and rethrow checked exceptions\n" +
                                     "// (closures cannot throw checked exceptions)\n" +
@@ -1220,7 +1221,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                                 // SYNOPSIS: (#0) #1 #0=param type #1=primitive or object #2=runtime type
                                 String regex =
                                     "(new " + JAVA_IO_SERIALIZABLE + "() {" +
-                                        "final #0 cast(final Object self) {" +
+                                        "final #0 cast(final java.lang.Object self) {" +
                                             "x10.rtt.Type rtt = #2;" +
                                             "#0 dep = (#0) x10.rtt.Types.conversion(rtt,self);" +
                                             "if (self==null) return null;" +
@@ -1296,9 +1297,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		        List<Type> args = ft.argumentTypes();
 		        Type ret = ft.returnType();
 		        if (ret.isVoid()) {
-		            w.write("x10.core.fun.VoidFun");
+		            w.write(X10_VOIDFUN_CLASS_PREFIX);
 		        } else {
-		            w.write("x10.core.fun.Fun");
+		            w.write(X10_FUN_CLASS_PREFIX);
 		        }
 		        w.write("_" + ft.typeParameters().size());
 		        w.write("_" + args.size());
@@ -2174,10 +2175,10 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		TypeExpander ret = new TypeExpander(er, n.returnType().type(), true, true, false);
 		if (!n.returnType().type().isVoid()) {
 			typeArgs.add(ret);
-			w.write("new x10.core.fun.Fun_0_" + n.formals().size());
+            w.write("new " + X10_FUN_CLASS_PREFIX + "_0_" + n.formals().size());
 		}
-		else {		
-			w.write("new x10.core.fun.VoidFun_0_" + n.formals().size());
+		else {
+			w.write("new " + X10_VOIDFUN_CLASS_PREFIX + "_0_" + n.formals().size());
 		}
 
 		if (typeArgs.size() > 0) {
