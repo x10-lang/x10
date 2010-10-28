@@ -133,12 +133,12 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
      * Synchronously executes body at place(id)
      */
     public static void runClosureCopyAt(int id, x10.core.fun.VoidFun_0_0 body) {
-        body = deepCopy(body);
+        body = deepCopy(id, body);
         runAtLocal(id, body);
     }
 
     /**
-     * Copy body
+     * Copy body (same place)
      */
     public static <T> T deepCopy(T body) {
         try {
@@ -146,6 +146,32 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
             java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
             new java.io.ObjectOutputStream(baos).writeObject(body);
             body = (T) new java.io.ObjectInputStream(new java.io.ByteArrayInputStream(baos.toByteArray())).readObject();
+        } catch (java.io.IOException e) {
+            e.printStackTrace();
+            throw new WrappedRuntimeException(e);
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+            throw new WrappedRuntimeException(e);
+        }
+        return body;
+    }
+
+    /**
+     * Copy body from current place to place id
+     */
+    public static <T> T deepCopy(int id, T body) {
+        try {
+            // copy body
+            java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+            new java.io.ObjectOutputStream(baos).writeObject(body);
+            final Thread thread = Thread.currentThread();
+            final int ret = thread.home().id;
+            thread.home(id); // update thread place
+            try {
+                body = (T) new java.io.ObjectInputStream(new java.io.ByteArrayInputStream(baos.toByteArray())).readObject();
+            } finally {
+                thread.home(ret); // restore thread place
+            }
         } catch (java.io.IOException e) {
             e.printStackTrace();
             throw new WrappedRuntimeException(e);
