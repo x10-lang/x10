@@ -1331,6 +1331,15 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return ULong_;
     }
 
+    // Atomic
+    protected X10ClassType AtomicBoolean_;
+
+    public Type AtomicBoolean() {
+        if (AtomicBoolean_ == null)
+            AtomicBoolean_ = load("x10.util.concurrent.atomic.AtomicBoolean");
+        return AtomicBoolean_;
+    }
+
     protected X10ClassType nativeValRail_;
 
     public Type ValRail() {

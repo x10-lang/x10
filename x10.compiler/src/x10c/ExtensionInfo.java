@@ -28,6 +28,7 @@ import x10c.visit.Desugarer;
 import x10c.visit.ExpressionFlattenerForAtExpr;
 import x10c.visit.InlineHelper;
 import x10c.visit.JavaCaster;
+import x10c.visit.StaticInitializer;
 import x10c.visit.RailInLoopOptimizer;
 import x10c.visit.VarsBoxer;
 
@@ -70,6 +71,7 @@ public class ExtensionInfo extends x10.ExtensionInfo {
                     goals.add(JavaCaster(job));
                     goals.add(RailInLoopOptimizer(job));
 //                    newGoals.add(SharedBoxed(job));
+                    goals.add(StaticInitializer(job));
                     goals.add(AsyncInitializer(job));
                     if (PREPARE_FOR_INLINING) {
                         goals.add(InlineHelped(job));
@@ -129,7 +131,13 @@ public class ExtensionInfo extends x10.ExtensionInfo {
             NodeFactory nf = extInfo.nodeFactory();
             return new ValidatingVisitorGoal("AsyncInitialized", job, new AsyncInitializer(job, ts, nf)).intern(this);
         }
-        
+
+        private Goal StaticInitializer(Job job) {
+            TypeSystem ts = extInfo.typeSystem();
+            NodeFactory nf = extInfo.nodeFactory();
+            return new ValidatingVisitorGoal("StaticInitialized", job, new StaticInitializer(job, ts, nf)).intern(this);
+        }
+
         private Goal VarsBoxer(Job job) {
             TypeSystem ts = extInfo.typeSystem();
             NodeFactory nf = extInfo.nodeFactory();
