@@ -261,10 +261,11 @@ void x10rt_net_init (int * argc, char ***argv, x10rt_msg_type *counter)
 	else
 		state.myPlaceId = atol(ID);
 
-	if (getenv("X10RT_YIELDAFTERPROBE"))
-		state.yieldAfterProbe = true;
-	else
+	char* y = getenv("X10RT_NOYIELD");
+	if (y && !(strcasecmp("false", y) == 0))
 		state.yieldAfterProbe = false;
+	else
+		state.yieldAfterProbe = true;
 
 	state.nextSocketToCheck = 0;
 	pthread_mutex_init(&state.readLock, NULL);
