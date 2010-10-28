@@ -381,9 +381,9 @@ public class LineNumberMap extends StringTable {
 		{
 			int b = type.indexOf('{');
 			if (b == -1)				
-				v._x10typeIndex = stringId(type);
+				v._x10typeIndex = stringId(Emitter.mangled_non_method_name(type));
 			else
-				v._x10typeIndex = stringId(type.substring(0, b));
+				v._x10typeIndex = stringId(Emitter.mangled_non_method_name(type.substring(0, b)));
 		}
 		else 
 			v._x10typeIndex = -1;
