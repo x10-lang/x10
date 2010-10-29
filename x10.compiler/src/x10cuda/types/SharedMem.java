@@ -38,6 +38,7 @@ public class SharedMem {
         abstract public String generateDef(StreamWrapper out, String offset, Translator tr);
         abstract public String generateInit(StreamWrapper out, String offset, Translator tr);
         abstract public void generateSize(StreamWrapper inc, Translator tr);
+		abstract public void generateCMemPop(StreamWrapper out, Translator tr);
     }
     
     private static class Array extends Decl {
@@ -126,6 +127,13 @@ public class SharedMem {
             inc.write("*sizeof("+elementType+")");
 
         }
+		@Override
+		public void generateCMemPop(StreamWrapper out, Translator tr) {
+			// TODO Auto-generated method stub
+			out.write("pop.populateArr<"+elementType+", x10aux::ref<x10::array::Array<"+elementType+"> > >(");
+            tr.print(null, init, out);
+			out.write(");");
+		}
     }
     private static class Var extends Decl {
         public Var (LocalDecl ast) { super(ast); }
@@ -143,6 +151,11 @@ public class SharedMem {
             // TODO: not implemented
             assert false: "not implemented";
         }
+		@Override
+		public void generateCMemPop(StreamWrapper out, Translator tr) {
+			// TODO Auto-generated method stub
+			
+		}
     }
     
     public void addArrayInitClosure(LocalDecl ast, Expr numElements, Expr init, String type) {
@@ -166,7 +179,7 @@ public class SharedMem {
         return false;
     }
 
-    public void generateCode(StreamWrapper out, Translator tr) {
+    public void generateCodeSharedMem(StreamWrapper out, Translator tr) {
         out.write("// shm");
         out.newline();
 
@@ -191,6 +204,20 @@ public class SharedMem {
             raw = d.generateDef(out, raw, tr);
         }
     }
+
+    public void generateHostCodeConstantMemory(StreamWrapper out, Translator tr) {
+        out.write("// cmem");        
+        out.newline();
+
+        if (decls.size()==0) return;
+
+		out.write("x10aux::CMemPopulator pop(__cmemv);");
+
+        for (SharedMem.Decl d : decls) {
+            d.generateCMemPop(out, tr);
+        }
+    }
+
 
     public void generateSize(StreamWrapper inc, Translator tr) {
         // TODO Auto-generated method stub

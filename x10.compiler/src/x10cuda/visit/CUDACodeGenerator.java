@@ -111,6 +111,7 @@ import x10.ast.X10Call;
 import x10.ast.X10Call_c;
 import x10.ast.X10CanonicalTypeNode_c;
 import x10.ast.X10Cast_c;
+import x10.ast.X10ClassDecl;
 import x10.ast.X10ClassDecl_c;
 import x10.ast.X10Formal;
 import x10.ast.X10Instanceof_c;
@@ -314,8 +315,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 				} else {
 					name = Emitter.mangled_non_method_name(name);
 				}
-				out.write("__shared__ " + prependCUDAType(var.type(), name)
-						+ ";");
+				out.write("__shared__ " + prependCUDAType(var.type(), name) + ";");
 				out.newline();
 			}
 			out.write("if (threadIdx.x==0) {");
@@ -341,20 +341,29 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 		}
 
 		sw.pushCurrentStream(out);
-		context().cmem().generateCodeConstantMemory(sw, tr);
-		sw.popCurrentStream();
+		try {
+			context().cmem().generateCodeConstantMemory(sw, tr);
+		} finally {
+			sw.popCurrentStream();
+		}
 
 		sw.pushCurrentStream(out);
-		context().shm().generateCode(sw, tr);
-		sw.popCurrentStream();
+		try {
+			context().shm().generateCodeSharedMem(sw, tr);
+		} finally {
+			sw.popCurrentStream();
+		}
 
 		out.write("__syncthreads(); // initialised shm"); out.newline();        
         out.forceNewline();                
 
 		// body
 		sw.pushCurrentStream(out);
-		super.visitAppropriate(b);
-		sw.popCurrentStream();
+        try {
+        	super.visitAppropriate(b);
+        } finally {
+        	sw.popCurrentStream();
+        }
 
 		// end
 		out.end();
@@ -365,8 +374,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 		out.forceNewline();
 	}
 
-	private void generateStruct(String kernel_name, SimpleCodeWriter out,
-			ArrayList<VarInstance<?>> vars) {
+	private void generateStruct(String kernel_name, SimpleCodeWriter out, ArrayList<VarInstance<?>> vars) {
 		out.write("struct " + kernel_name + "_env {");
 		out.newline(4);
 		out.begin(0);
@@ -499,10 +507,9 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 		return r;
 	}
 
-	public static boolean checkStaticCall(Stmt s, String class_name,
-			String method_name, int args) {
+	public static boolean checkStaticCall(Expr e, String class_name, String method_name, int args) {
 		try {
-			Call call = (Call) ((Eval) s).expr();
+			Call call = (Call) e;
 			if (!call.name().toString().equals(method_name))
 				return false;
 			CanonicalTypeNode async_target_type_node = (CanonicalTypeNode) (call
@@ -511,10 +518,19 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 				return false;
 			if (call.arguments().size() != args)
 				return false;
-		} catch (ClassCastException e) {
+		} catch (ClassCastException exc) {
 			return false;
 		}
 		return true;
+	}
+
+	public static boolean checkStaticCall(Stmt s, String class_name, String method_name, int args) {
+		try {
+			Expr e = ((Eval) s).expr();
+			return checkStaticCall(e, class_name, method_name, args);
+		} catch (ClassCastException e) {
+			return false;
+		}
 	}
 
 	public static Stmt checkFinish(Stmt s, boolean clocked) {
@@ -533,6 +549,22 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 		 *     }
 		 * }
 		 */
+		
+		/* {
+		 *     eval(x10.lang.Runtime.ensureNotInAtomic());
+		 *     final x10.lang.FinishState x10$__var3 = x10.lang.Runtime.startFinish();
+		 *     try {
+		 *         {
+		 *             S
+		 *         }
+		 *     } catch (var __desugarer__var__1__: x10.lang.Throwable) {
+		 *         eval(x10.lang.Runtime.pushException(__desugarer__var__1__));
+		 *         throw new x10.lang.RuntimeException(...);
+		 *     } finally {
+		 *         eval(x10.lang.Runtime.stopFinish(x10$__var3));
+		 *     }
+		 * }
+         */
 		try {
 			Block s1 = (Block) s;
 			if (clocked) {
@@ -544,7 +576,8 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 				return null;
 			if (!checkStaticCall(s1.statements().get(0), "Runtime", "ensureNotInAtomic", 0))
 				return null;
-			if (!checkStaticCall(s1.statements().get(1), "Runtime", "startFinish", 0))
+			LocalDecl ld = (LocalDecl) s1.statements().get(1);
+			if (!checkStaticCall(ld.init(), "Runtime", "startFinish", 0))
 				return null;
 			Try try_ = (Try) s1.statements().get(2);
 			Block s2 = (Block) try_.tryBlock();
@@ -590,25 +623,20 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 			if (blockIsKernel(b)) {
 				Block_c closure_body = b;
 
-				complainIfNot2(!generatingKernel(),
-						"CUDA kernels may not be nested.", b);
+				complainIfNot2(!generatingKernel(), "CUDA kernels may not be nested.", b);
 				// TODO: assert the block is the body of an async
 				
 //				/System.out.println(b);
 
 				// if there are no autoblocks/threads statemnets, this will be 1
-				complainIfNot(b.statements().size() >= 1,
-						"A block containing at least one statement.", b);
+				complainIfNot(b.statements().size() >= 1, "A block containing at least one statement.", b);
 
 				// handle autoblocks/autothreads and constant memory
 				// declarations
 				SharedMem cmem = new SharedMem();
 				for (int i = 0; i < b.statements().size() - 1; ++i) {
 					Stmt ld_ = b.statements().get(i);
-					complainIfNot(
-							ld_ instanceof LocalDecl,
-							"val <something> = ...",
-							ld_);
+					complainIfNot( ld_ instanceof LocalDecl, "val <something> = <autoBlocks/Threads or constant cache definition", ld_);
 					LocalDecl ld = (LocalDecl) ld_;
 
 					Expr init_expr = ld.init();
@@ -617,41 +645,39 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 						X10Call_c init_call = (X10Call_c) init_expr;
 	
 						Receiver init_call_target = init_call.target();
-						complainIfNot(
-								init_call_target instanceof CanonicalTypeNode,
-								"val <something> = CUDAUtilities.autoBlocks/Threads()",
-								init_call_target);
-						CanonicalTypeNode init_call_target_node = (CanonicalTypeNode) init_call_target;
-	
-						String classname = init_call_target_node.nameString();
-						int targs = init_call.typeArguments().size();
-						int args = init_call.arguments().size();
-						String methodname = init_call.name().toString();
-	
-						if (classname.equals("CUDAUtilities") && targs == 0
-								&& args == 0 && methodname.equals("autoBlocks")) {
-							complainIfNot2(context().autoBlocks() == null,
-									"Already have autoBlocks", init_call);
-							context().autoBlocks(ld);
-							context().established().autoBlocks(ld);
-						} else if (classname.equals("CUDAUtilities") && targs == 0
-								&& args == 0 && methodname.equals("autoThreads")) {
-							complainIfNot2(context().autoThreads() == null,
-									"Already have autoThreads", init_call);
-							context().autoThreads(ld);
-							context().established().autoThreads(ld);
-						} else if (classname.equals("Rail") && targs == 2
-								&& args == 2 && methodname.equals("make")) {
-							complainIfNot(
-									false,
-									"A call to CUDAUtilities.autoBlocks/autoThreads",
-									init_call);
+						if (init_call_target instanceof CanonicalTypeNode) {
+							CanonicalTypeNode init_call_target_node = (CanonicalTypeNode) init_call_target;
+							
+							String classname = init_call_target_node.nameString();
+							int targs = init_call.typeArguments().size();
+							int args = init_call.arguments().size();
+							String methodname = init_call.name().toString();
+		
+							if (classname.equals("CUDAUtilities") && targs == 0 && args == 0 && methodname.equals("autoBlocks")) {
+								complainIfNot2(context().autoBlocks() == null, "Already have autoBlocks", init_call);
+								context().autoBlocks(ld);
+								context().established().autoBlocks(ld);
+							} else if (classname.equals("CUDAUtilities") && targs == 0 && args == 0 && methodname.equals("autoThreads")) {
+								complainIfNot2(context().autoThreads() == null, "Already have autoThreads", init_call);
+								context().autoThreads(ld);
+								context().established().autoThreads(ld);
+							} else {
+								complainIfNot(false, "A call to CUDAUtilities.autoBlocks/autoThreads", init_call);
+							}
+						} else if (init_call_target instanceof Expr) {
+							Expr arr_ = (Expr) init_call_target;
+							complainIfNot(arr_ instanceof Local, "val <something> = some_array.sequence()", arr_);
+							Local arr = (Local) arr_;
+							complainIfNot(init_call.name().id().toString().equals("sequence"), "constant cache definition to call 'sequence'", init_expr);
+							Type cargo = arrayCargo(arr.type());
+							cmem.addArrayInitArray(ld, arr,  Emitter.translateType(cargo, true));
 						} else {
 							complainIfNot(
 									false,
-									"A call to CUDAUtilities.autoBlocks/autoThreads",
-									init_call);
+									"val <something> = CUDAUtilities.autoBlocks/Threads() or constant cache definition",
+									init_call_target);
 						}
+					/* Not doing this anymore because we're using sequences instead of array (constant cache is immutable)
 					} else {
 						complainIfNot(
 								init_expr instanceof X10New_c,
@@ -685,11 +711,11 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 									src_array);
 							cmem.addArrayInitArray(ld, src_array, rail_type_arg_);
 						}
+					*/
 					}
 				}
 
 				Stmt finish = b.statements().get(b.statements().size() - 1);
-
 				Stmt for_block_ = checkFinish(finish, false);
 				complainIfNot(for_block_ != null, "A finish statement", finish);
 				complainIfNot(for_block_ instanceof Block,
@@ -784,22 +810,20 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 		context().establishClosure();
 		String last = context().wrappingClosure();
 		String lastHostClassName = context().wrappingClass();
-		X10ClassType hostClassType = (X10ClassType) n.closureDef()
-				.typeContainer().get();
-		String nextHostClassName = Emitter.translate_mangled_FQN(hostClassType
-				.fullName().toString(), "_");
-		String next = getClosureName(nextHostClassName,
-				context().closureId() + 1);
+		X10ClassType hostClassType = (X10ClassType) n.closureDef().typeContainer().get();
+		String nextHostClassName = Emitter.translate_mangled_FQN(hostClassType.fullName().toString(), "_");
+		String next = getClosureName(nextHostClassName, context().closureId() + 1);
 		context().wrappingClosure(next);
 		context().wrappingClass(nextHostClassName);
-		super.visit(n);
-		context().wrappingClosure(last);
-		context().wrappingClass(lastHostClassName);
+		try {
+			super.visit(n);
+		} finally {
+			context().wrappingClosure(last);
+			context().wrappingClass(lastHostClassName);
+		}
 	}
 
-	protected void generateClosureDeserializationIdDef(ClassifiedStream defn_s,
-			String cnamet, List<Type> freeTypeParams, String hostClassName,
-			Block block, int kind) {
+	protected void generateClosureDeserializationIdDef(ClassifiedStream defn_s, String cnamet, List<Type> freeTypeParams, String hostClassName, Block block, int kind) {
 		if (blockIsKernel(block)) {
 			
 			assert kind==1;
@@ -829,12 +853,9 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 		}
 	}
 
-	protected void generateClosureSerializationFunctions(X10CPPContext_c c,
-			String cnamet, StreamWrapper inc, Block block,
-			List<VarInstance<?>> refs) {
-		super
-				.generateClosureSerializationFunctions(c, cnamet, inc, block,
-						refs);
+	protected void generateClosureSerializationFunctions(X10CPPContext_c c, String cnamet, StreamWrapper inc, Block block, List<VarInstance<?>> refs) {
+
+		super.generateClosureSerializationFunctions(c, cnamet, inc, block,refs);
 
 		if (blockIsKernel(block)) {
 
@@ -893,17 +914,11 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 
 			inc.forceNewline();
 
-			inc
-					.write("static void "
-							+ SharedVarsMethods.DESERIALIZE_CUDA_METHOD
-							+ "("
-							+ DESERIALIZATION_BUFFER
-							+ " &__buf, x10aux::place __gpu, size_t &__blocks, size_t &__threads, size_t &__shm, size_t &argc, char *&argv, size_t &cmemc, char *&cmemv) {");
+			inc.write("static void "+SharedVarsMethods.DESERIALIZE_CUDA_METHOD+"("+DESERIALIZATION_BUFFER+" &__buf, x10aux::place __gpu, size_t &__blocks, size_t &__threads, size_t &__shm, size_t &__argc, char *&__argv, size_t &__cmemc, char *&__cmemv) {");
 			inc.newline(4);
 			inc.begin(0);
 
-			inc.write(make_ref(cnamet) + " __this = " + cnamet + "::"
-					+ DESERIALIZE_METHOD + "<" + cnamet + ">(__buf);");
+			inc.write(make_ref(cnamet) + " __this = " + cnamet + "::" + DESERIALIZE_METHOD + "<" + cnamet + ">(__buf);");
 			inc.newline();
 
 			for (VarInstance<?> var : env) {
@@ -930,14 +945,24 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 			inc.write(";");
 			inc.end();
 			inc.newline();
+			inc.write("x10aux::check_shm_size(__shm);");
+
+			inc.write("__cmemc = ");
+			inc.begin(0);
+			context().cmem().generateSize(inc, tr);
+			inc.write(";");
+			inc.end();
+			inc.newline();
+			inc.write("x10aux::check_cmem_size(__cmemc);");
+			
+			context().cmem().generateHostCodeConstantMemory(inc, tr);
 
 			// this is probably broken when only one is given.
 			if (context().autoBlocks() != null
 					&& context().autoThreads() != null) {
 				String bname = context().autoBlocks().name().id().toString();
 				String tname = context().autoThreads().name().id().toString();
-				inc
-						.write("x10aux::blocks_threads(__gpu, x10aux::DeserializationDispatcher::getMsgType(_serialization_id), __shm, "
+				inc.write("x10aux::blocks_threads(__gpu, x10aux::DeserializationDispatcher::getMsgType(_serialization_id), __shm, "
 								+ bname + ", " + tname + ");");
 				inc.newline();
 			}
@@ -978,23 +1003,18 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 
 				if (isIntArray(t) || isFloatArray(t)) {
 					if (xts().isRemoteArray(t)) {
-						inc.write("__env." + name + ".raw = (" + ts
-								+ "*)(size_t)" + rr + ";");
+						inc.write("__env." + name + ".raw = (" + ts + "*)(size_t)" + rr + ";");
 						inc.newline();
-						inc.write("__env." + name + ".size = " + name
-								+ "->FMGL(size);");
+						inc.write("__env." + name + ".size = " + name + "->FMGL(size);");
 						inc.newline();
 					} else {
 						String len = name + "->FMGL(rawLength)";
 						String sz = "sizeof(" + ts + ")*" + len;
-						inc.write("__env." + name + ".raw = (" + ts
-								+ "*)(size_t)x10aux::remote_alloc(__gpu, " + sz
-								+ ");");
+						inc.write("__env." + name + ".raw = (" + ts + "*)(size_t)x10aux::remote_alloc(__gpu, " + sz + ");");
 						inc.newline();
 						inc.write("__env." + name + ".size = " + len + ";");
 						inc.newline();
-						inc.write("x10aux::cuda_put(__gpu, (x10_ulong) __env."
-								+ name + ".raw, " + addr + ", " + sz + ");");
+						inc.write("x10aux::cuda_put(__gpu, (x10_ulong) __env." + name + ".raw, " + addr + ", " + sz + ");");
 					}
 				} else {
 					inc.write("__env." + name + " = " + name + ";");
@@ -1003,14 +1023,14 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 			}
 
 			if (env.isEmpty()) {
-				inc.write("argc = 0;");
+				inc.write("__argc = 0;");
 				inc.end();
 				inc.newline();
 			} else {
 				if (kernelWantsDirectParams(block)) {
-					inc.write("memcpy(argv, &__env, sizeof(__env));");
+					inc.write("memcpy(__argv, &__env, sizeof(__env));");
 					inc.newline();
-					inc.write("argc = sizeof(__env);");
+					inc.write("__argc = sizeof(__env);");
 					inc.end();
 					inc.newline();
 				} else {
@@ -1018,9 +1038,9 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 					inc.newline();
 					inc.write("x10aux::cuda_put(__gpu, __remote_env, &__env, sizeof(__env));");
 					inc.newline();
-					inc.write("::memcpy(argv, &__remote_env, sizeof (void*));");
+					inc.write("::memcpy(__argv, &__remote_env, sizeof (void*));");
 					inc.newline();
-					inc.write("argc = sizeof(void*);");
+					inc.write("__argc = sizeof(void*);");
 					inc.end();
 					inc.newline();
 				}
@@ -1032,8 +1052,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 	}
 
 	public void visit(New_c n) {
-		complainIfNot2(!generatingKernel(), "New not allowed in @CUDA code.",
-				n, false);
+		complainIfNot2(!generatingKernel(), "New not allowed in @CUDA code.", n, false);
 		super.visit(n);
 	}
 
@@ -1326,7 +1345,13 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 	@Override
 	public void visit(X10ClassDecl_c n) {
 		// TODO Auto-generated method stub
-		super.visit(n);
+		boolean v = context().firstKernel();
+		context().firstKernel(true);
+		try {
+			super.visit(n);
+		} finally {
+			context().firstKernel(v);
+		}
 	}
 
 	@Override
@@ -1360,10 +1385,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 					nvccCmd[3] = f;
 					if (!X10CPPTranslator.doPostCompile(options, eq,
 							compilationUnits, nvccCmd, true)) {
-						eq
-								.enqueue(
-										ErrorInfo.WARNING,
-										"Found @CUDA annotation, but not compiling for GPU because nvcc could not be run (check your $PATH).");
+						eq.enqueue(ErrorInfo.WARNING, "Found @CUDA annotation, but not compiling for GPU because nvcc could not be run (check your $PATH).");
 						return true;
 					}
 				}

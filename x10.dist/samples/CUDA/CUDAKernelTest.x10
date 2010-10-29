@@ -12,6 +12,7 @@
 
 import x10.io.Console;
 import x10.util.CUDAUtilities;
+import x10.util.Random;
 import x10.compiler.CUDA;
 import x10.compiler.CUDADirectParams;
 
@@ -90,28 +91,32 @@ public class CUDAKernelTest {
 
     static def doTest3 (p:Place) {
 
-        val recv = new Array[Float](64,(i:Int)=>0.0f);
+        val blocks = 30;
+        val threads = 64;
+        val tids = blocks * threads;
 
-        val remote = CUDAUtilities.makeRemoteArray[Float](p,64,(Int)=>0.0 as Float); // allocate 
+        val recv = new Array[Float](tids,(i:Int)=>0.0f);
 
-        val arr1 = new Array[Float](64,(i:Int)=>i as Float);
+        val remote = CUDAUtilities.makeRemoteArray[Float](p,tids,(Int)=>0.0 as Float); // allocate 
+
+        val rnd = new Random();
+        val arr1 = new Array[Float](threads,(i:Int)=>rnd.nextFloat());
 
         finish async at (p) @CUDA @CUDADirectParams {
-            val ccache = new Array[Float](arr1);
-            finish for ([block] in 0..1) async {
-                clocked finish for ([thread] in 0..63) clocked async {
-                    val x = ccache(thread);
-                    remote(thread) = x;
+            val ccache = arr1.sequence();
+            finish for ([block] in 0..blocks-1) async {
+                clocked finish for ([thread] in 0..threads-1) clocked async {
+                    remote(threads*block + thread) = ccache(thread);
                 }
             }
         }
 
-        finish Array.asyncCopy(remote, 0, recv, 0, 64); // dma back
+        finish Array.asyncCopy(remote, 0, recv, 0, recv.size); // dma back
 
         // validate
         var success:Boolean = true;
         for ([i] in recv.region) {
-            val oracle = i;
+            val oracle = arr1(i % threads);
             if (Math.abs(oracle - recv(i)) > 1E-6f) {
                 Console.ERR.println("recv("+i+"): "+recv(i)+" not "+oracle);
                 success = false;

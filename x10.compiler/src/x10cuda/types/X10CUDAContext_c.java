@@ -84,8 +84,9 @@ public class X10CUDAContext_c extends X10CPPContext_c {
     private ClassifiedStream cudaStream = null;
 
     public ClassifiedStream cudaStream (StreamWrapper sw, Job j) {
-        if (cudaStream==null) {
-            cudaStream = sw.getNewStream("cu");
+    	if (firstKernel()) {
+    		ClassifiedStream cudaStream = sw.getNewStream("cu" );
+        	firstKernel(false);
             j.compiler().outputFiles().add(wrappingClass()+".cu");
             ((X10CPPCompilerOptions)j.extensionInfo().getOptions()).compilationUnits().add(wrappingClass()+".cu");
             cudaStream.write("#include <x10aux/config.h>"); cudaStream.newline();
@@ -94,6 +95,9 @@ public class X10CUDAContext_c extends X10CPPContext_c {
             cudaStream.write("extern __shared__ char __shm[];"); cudaStream.newline();
             cudaStream.write("extern __constant__ char __cmem[64*1024];"); cudaStream.newline();
             cudaStream.forceNewline();
+    	}
+        if (cudaStream==null) {
+            cudaStream = sw.getNewStream("cu", false);
         }
         return cudaStream;
     }
@@ -103,16 +107,21 @@ public class X10CUDAContext_c extends X10CPPContext_c {
     public X10CUDAContext_c established() { return established; }
 
     LocalDecl autoBlocks;
-    public void autoBlocks(LocalDecl v) { this.autoBlocks = v; }
-    public LocalDecl autoBlocks() { return this.autoBlocks; }
+    public void autoBlocks(LocalDecl v) { autoBlocks = v; }
+    public LocalDecl autoBlocks() { return autoBlocks; }
 
     LocalDecl autoThreads;
-    public void autoThreads(LocalDecl v) { this.autoThreads = v; }
-    public LocalDecl autoThreads() { return this.autoThreads; }
+    public void autoThreads(LocalDecl v) { autoThreads = v; }
+    public LocalDecl autoThreads() { return autoThreads; }
 	
     Name shmIterationVar;
-    public void shmIterationVar(Name v) { this.shmIterationVar = v; }
-    public Name shmIterationVar() { return this.shmIterationVar; }
+    public void shmIterationVar(Name v) { shmIterationVar = v; }
+    public Name shmIterationVar() { return shmIterationVar; }
+
+    
+    boolean firstKernel[] = new boolean[]{false};
+	public void firstKernel(boolean b) { firstKernel[0] = b; }
+	public boolean firstKernel() { return firstKernel[0]; }
 	
 
 }
