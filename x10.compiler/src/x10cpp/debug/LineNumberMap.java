@@ -667,7 +667,6 @@ public class LineNumberMap extends StringTable {
 	}
 
 	private static final String _X10_DEBUG = "_X10_DEBUG";
-	private static final String _X10_DEBUG_DATA = "_X10_DEBUG_DATA";
 
 	/**
 	 * Generates code for the line number map as required by the Toronto C++
@@ -676,6 +675,12 @@ public class LineNumberMap extends StringTable {
 	 * @param m the map to export
 	 */
 	public static void exportForCPPDebugger(ClassifiedStream w, LineNumberMap m) {
+		String _X10_DEBUG_DATA;
+		if (System.getProperty("os.name").startsWith("Mac OS X"))
+			_X10_DEBUG_DATA = ".section __DWARF,_X10_DEBUG_DATA,regular,debug";
+		else
+			_X10_DEBUG_DATA = "_X10_DEBUG_DATA";
+		
 	    String debugSectionAttr = "__attribute__((section(\""+_X10_DEBUG+"\")))";
 	    String debugDataSectionAttr = "__attribute__((section(\""+_X10_DEBUG_DATA+"\")))";
 	    int size = m.size();
