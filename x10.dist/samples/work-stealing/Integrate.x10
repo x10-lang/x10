@@ -55,12 +55,15 @@ public class Integrate {
  
   public static def main(args:Array[String](1)) {
     val xMax = args.size > 0 ? Int.parse(args(0)) : 10;
+    var avgDur:Double = 0;
     for (var i:Int = 0; i < 10; ++i) {
         val startTime = System.nanoTime();
         val area = computeArea(0, xMax);
         val duration = ((System.nanoTime() - startTime) as Double)/1e9;
+        avgDur += duration;
         Console.OUT.println("The area of (x*x + 1) * x from 0 to "+xMax+" is "+area);
         Console.OUT.printf("Time: %7.3f\n", duration);
     }
+    Console.OUT.printf("------------------- Average Time: %7.3f\n", avgDur / 10);
   }
 }

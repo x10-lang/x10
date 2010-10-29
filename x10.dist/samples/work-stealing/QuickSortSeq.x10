@@ -24,7 +24,7 @@
  * with async and finish, not as a highly efficient 
  * sorting procedure..
  */
-public class QuickSort {
+public class QuickSortSeq {
 
   private static def partition(data:Array[int](1), left:int, right:int) {
       var i:int = left;
@@ -49,9 +49,9 @@ public class QuickSort {
 
   static def qsort(data:Array[int](1), left:int, right:int) {
       index:int = partition(data, left, right);
-      finish {
+      /*finish*/ {
           if (left < index - 1)
-              async qsort(data, left, index - 1);
+              /*async*/ qsort(data, left, index - 1);
 
           if (index < right)
               qsort(data, index, right);
