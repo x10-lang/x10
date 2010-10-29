@@ -61,4 +61,10 @@ public class MultipleExceptions(exceptions:Array[Throwable]{rail}) extends Runti
             t.printStackTrace(p);
         }
     }
+
+    public static def make(stack:Stack[Throwable]):Throwable {
+        if (null == stack) return null;
+        if (stack.size() == 1) return stack.peek();
+        return new MultipleExceptions(stack);
+    }
 }
