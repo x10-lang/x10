@@ -144,7 +144,13 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		n = (TypeParamNode_c) n.del(delFactory().delNode());
 		return n;
 	}
-	
+
+	public HasZeroTest HasZeroTest(Position pos, TypeNode t) {
+		HasZeroTest n = new HasZeroTest_c(pos, t);
+		n = (HasZeroTest) n.ext(extFactory().extExpr());
+		n = (HasZeroTest) n.del(delFactory().delExpr());
+		return n;
+	}
 	public SubtypeTest SubtypeTest(Position pos, TypeNode sub, TypeNode sup, boolean equals) {
 		SubtypeTest n = new SubtypeTest_c(pos, sub, sup, equals);
 		n = (SubtypeTest) n.ext(extFactory().extExpr());

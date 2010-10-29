@@ -1877,7 +1877,13 @@
                     Conjunction.add(Expression);
           $EndJava
         ./
-        
+
+    HasZeroConstraint ::= Type$t1 hasZero
+         /.$BeginJava
+                    setResult(nf.HasZeroTest(pos(), t1));
+          $EndJava
+        ./
+
     SubtypeConstraint ::= Type$t1 <: Type$t2
          /.$BeginJava
                     setResult(nf.SubtypeTest(pos(), t1, t2, false));
@@ -4714,6 +4720,7 @@
         ./
     
     RelationalExpression ::= RangeExpression
+                           | HasZeroConstraint
                            | SubtypeConstraint
                            | RelationalExpression < RangeExpression
         /.$BeginJava
@@ -5542,6 +5549,7 @@
     List<FlagsNode> ::= VarKeyword | FieldKeyword
     Expr ::= MethodSelection
     Expr ::= SubtypeConstraint
+    Expr ::= HasZeroConstraint  
     Expr ::= RangeExpression
     TypeDecl ::= TypeDefDeclaration
     Binary.Operator ::= BinOp

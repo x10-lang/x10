@@ -281,7 +281,7 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
     //
     
 
-    //#line 315 "x10/parser/x10.g"
+    //#line 314 "x10/parser/x10.g"
     private ErrorQueue eq;
     private X10TypeSystem ts;
     private X10NodeFactory nf;
@@ -1395,9 +1395,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             // Rule 16:  Modifiersopt ::= $Empty
             //
             case 16: {
-               //#line 1190 "lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 1189 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 1190 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1189 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new LinkedList<Modifier>());
                       break;
             }
@@ -1406,12 +1406,12 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             // Rule 17:  Modifiersopt ::= Modifiersopt Modifier
             //
             case 17: {
-               //#line 1195 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1193 "x10/parser/x10.g"
+               //#line 1194 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1192 "x10/parser/x10.g"
                 List<Modifier> Modifiersopt = (List<Modifier>) getRhsSym(1);
-                //#line 1193 "x10/parser/x10.g"
+                //#line 1192 "x10/parser/x10.g"
                 Modifier Modifier = (Modifier) getRhsSym(2);
-                //#line 1195 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1194 "lpg.generator/templates/java/btParserTemplateF.gi"
                 Modifiersopt.add(Modifier);
                       break;
             }
@@ -1420,9 +1420,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             // Rule 18:  Modifier ::= abstract
             //
             case 18: {
-               //#line 1201 "lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 1200 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 1201 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1200 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new FlagModifier(pos(), FlagModifier.ABSTRACT));
                       break;
             }
@@ -1431,10 +1431,10 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             // Rule 19:  Modifier ::= Annotation
             //
             case 19: {
-               //#line 1206 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1204 "x10/parser/x10.g"
+               //#line 1205 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1203 "x10/parser/x10.g"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(1);
-                //#line 1206 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1205 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new AnnotationModifier(Annotation));
                       break;
             }
@@ -1443,9 +1443,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             // Rule 20:  Modifier ::= atomic
             //
             case 20: {
-               //#line 1211 "lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 1210 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 1211 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1210 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new FlagModifier(pos(), FlagModifier.ATOMIC));
                       break;
             }
@@ -1454,9 +1454,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             // Rule 21:  Modifier ::= final
             //
             case 21: {
-               //#line 1221 "lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 1220 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 1221 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1220 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new FlagModifier(pos(), FlagModifier.FINAL));
                       break;
             }
@@ -1465,9 +1465,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             // Rule 22:  Modifier ::= native
             //
             case 22: {
-               //#line 1231 "lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 1230 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 1231 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1230 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new FlagModifier(pos(), FlagModifier.NATIVE));
                       break;
             }
@@ -1476,9 +1476,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             // Rule 23:  Modifier ::= private
             //
             case 23: {
-               //#line 1236 "lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 1235 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 1236 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1235 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new FlagModifier(pos(), FlagModifier.PRIVATE));
                       break;
             }
@@ -1487,9 +1487,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             // Rule 24:  Modifier ::= protected
             //
             case 24: {
-               //#line 1241 "lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 1240 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 1241 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1240 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new FlagModifier(pos(), FlagModifier.PROTECTED));
                       break;
             }
@@ -1498,9 +1498,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             // Rule 25:  Modifier ::= public
             //
             case 25: {
-               //#line 1246 "lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 1245 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 1246 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1245 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new FlagModifier(pos(), FlagModifier.PUBLIC));
                       break;
             }
@@ -1509,9 +1509,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             // Rule 26:  Modifier ::= static
             //
             case 26: {
-               //#line 1251 "lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 1250 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 1251 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1250 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new FlagModifier(pos(), FlagModifier.STATIC));
                       break;
             }
@@ -1520,9 +1520,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             // Rule 27:  Modifier ::= transient
             //
             case 27: {
-               //#line 1256 "lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 1255 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 1256 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1255 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new FlagModifier(pos(), FlagModifier.TRANSIENT));
                       break;
             }
@@ -1531,9 +1531,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             // Rule 28:  Modifier ::= clocked
             //
             case 28: {
-               //#line 1261 "lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 1260 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 1261 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1260 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new FlagModifier(pos(), FlagModifier.CLOCKED));
                       break;
             }
@@ -1542,12 +1542,12 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             // Rule 30:  MethodModifiersopt ::= MethodModifiersopt property$property
             //
             case 30: {
-               //#line 1268 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1266 "x10/parser/x10.g"
+               //#line 1267 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1265 "x10/parser/x10.g"
                 List<Modifier> MethodModifiersopt = (List<Modifier>) getRhsSym(1);
-                //#line 1266 "x10/parser/x10.g"
+                //#line 1265 "x10/parser/x10.g"
                 IToken property = (IToken) getRhsIToken(2);
-                //#line 1268 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1267 "lpg.generator/templates/java/btParserTemplateF.gi"
                 MethodModifiersopt.add(new FlagModifier(pos(getRhsFirstTokenIndex(2)), FlagModifier.PROPERTY));
                       break;
             }
@@ -1556,12 +1556,12 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             // Rule 31:  MethodModifiersopt ::= MethodModifiersopt Modifier
             //
             case 31: {
-               //#line 1273 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1271 "x10/parser/x10.g"
+               //#line 1272 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1270 "x10/parser/x10.g"
                 List<Modifier> MethodModifiersopt = (List<Modifier>) getRhsSym(1);
-                //#line 1271 "x10/parser/x10.g"
+                //#line 1270 "x10/parser/x10.g"
                 Modifier Modifier = (Modifier) getRhsSym(2);
-                //#line 1273 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1272 "lpg.generator/templates/java/btParserTemplateF.gi"
                 MethodModifiersopt.add(Modifier);
                       break;
             }
@@ -1570,20 +1570,20 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             // Rule 32:  TypeDefDeclaration ::= Modifiersopt type Identifier TypeParametersopt FormalParametersopt WhereClauseopt = Type ;
             //
             case 32: {
-               //#line 1279 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1277 "x10/parser/x10.g"
+               //#line 1278 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1276 "x10/parser/x10.g"
                 List<Modifier> Modifiersopt = (List<Modifier>) getRhsSym(1);
-                //#line 1277 "x10/parser/x10.g"
+                //#line 1276 "x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 1277 "x10/parser/x10.g"
+                //#line 1276 "x10/parser/x10.g"
                 List<TypeParamNode> TypeParametersopt = (List<TypeParamNode>) getRhsSym(4);
-                //#line 1277 "x10/parser/x10.g"
+                //#line 1276 "x10/parser/x10.g"
                 List<Formal> FormalParametersopt = (List<Formal>) getRhsSym(5);
-                //#line 1277 "x10/parser/x10.g"
+                //#line 1276 "x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(6);
-                //#line 1277 "x10/parser/x10.g"
+                //#line 1276 "x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(8);
-                //#line 1279 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1278 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Node> modifiers = checkTypeDefModifiers(Modifiersopt);
                 FlagsNode f = extractFlags(modifiers);
                 List<AnnotationNode> annotations = extractAnnotations(modifiers);
@@ -1606,10 +1606,10 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             // Rule 33:  Properties ::= ( PropertyList )
             //
             case 33: {
-               //#line 1299 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1297 "x10/parser/x10.g"
+               //#line 1298 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1296 "x10/parser/x10.g"
                 List<PropertyDecl> PropertyList = (List<PropertyDecl>) getRhsSym(2);
-                //#line 1299 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1298 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(PropertyList);
                  break;
             } 
@@ -1617,10 +1617,10 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             // Rule 34:  PropertyList ::= Property
             //
             case 34: {
-               //#line 1304 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1302 "x10/parser/x10.g"
+               //#line 1303 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1301 "x10/parser/x10.g"
                 PropertyDecl Property = (PropertyDecl) getRhsSym(1);
-                //#line 1304 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1303 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<PropertyDecl> l = new TypedList<PropertyDecl>(new LinkedList<PropertyDecl>(), PropertyDecl.class, false);
                 l.add(Property);
                 setResult(l);
@@ -1631,12 +1631,12 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             // Rule 35:  PropertyList ::= PropertyList , Property
             //
             case 35: {
-               //#line 1311 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1309 "x10/parser/x10.g"
+               //#line 1310 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1308 "x10/parser/x10.g"
                 List<PropertyDecl> PropertyList = (List<PropertyDecl>) getRhsSym(1);
-                //#line 1309 "x10/parser/x10.g"
+                //#line 1308 "x10/parser/x10.g"
                 PropertyDecl Property = (PropertyDecl) getRhsSym(3);
-                //#line 1311 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1310 "lpg.generator/templates/java/btParserTemplateF.gi"
                 PropertyList.add(Property);
                       break;
             }
@@ -1645,14 +1645,14 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             // Rule 36:  Property ::= Annotationsopt Identifier ResultType
             //
             case 36: {
-               //#line 1318 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1316 "x10/parser/x10.g"
+               //#line 1317 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1315 "x10/parser/x10.g"
                 List<AnnotationNode> Annotationsopt = (List<AnnotationNode>) getRhsSym(1);
-                //#line 1316 "x10/parser/x10.g"
+                //#line 1315 "x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(2);
-                //#line 1316 "x10/parser/x10.g"
+                //#line 1315 "x10/parser/x10.g"
                 TypeNode ResultType = (TypeNode) getRhsSym(3);
-                //#line 1318 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1317 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<AnnotationNode> annotations = extractAnnotations(Annotationsopt);
                 PropertyDecl cd = nf.PropertyDecl(pos(), nf.FlagsNode(pos(), Flags.PUBLIC.Final()), ResultType, Identifier);
                 cd = (PropertyDecl) ((X10Ext) cd.ext()).annotations(annotations);
@@ -1664,24 +1664,24 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             // Rule 37:  MethodDeclaration ::= MethodModifiersopt def Identifier TypeParametersopt FormalParameters WhereClauseopt HasResultTypeopt Offersopt MethodBody
             //
             case 37: {
-               //#line 1327 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1325 "x10/parser/x10.g"
+               //#line 1326 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1324 "x10/parser/x10.g"
                 List<Modifier> MethodModifiersopt = (List<Modifier>) getRhsSym(1);
-                //#line 1325 "x10/parser/x10.g"
+                //#line 1324 "x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 1325 "x10/parser/x10.g"
+                //#line 1324 "x10/parser/x10.g"
                 List<TypeParamNode> TypeParametersopt = (List<TypeParamNode>) getRhsSym(4);
-                //#line 1325 "x10/parser/x10.g"
+                //#line 1324 "x10/parser/x10.g"
                 List<Formal> FormalParameters = (List<Formal>) getRhsSym(5);
-                //#line 1325 "x10/parser/x10.g"
+                //#line 1324 "x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(6);
-                //#line 1325 "x10/parser/x10.g"
+                //#line 1324 "x10/parser/x10.g"
                 TypeNode HasResultTypeopt = (TypeNode) getRhsSym(7);
-                //#line 1325 "x10/parser/x10.g"
+                //#line 1324 "x10/parser/x10.g"
                 TypeNode Offersopt = (TypeNode) getRhsSym(8);
-                //#line 1325 "x10/parser/x10.g"
+                //#line 1324 "x10/parser/x10.g"
                 Block MethodBody = (Block) getRhsSym(9);
-                //#line 1327 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1326 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
                 ProcedureDecl pd;
                 if (Identifier.id().toString().equals("this")) {
@@ -1718,26 +1718,26 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             // Rule 38:  MethodDeclaration ::= MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) BinOp ( FormalParameter$fp2 ) WhereClauseopt HasResultTypeopt Offersopt MethodBody
             //
             case 38: {
-               //#line 1360 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1358 "x10/parser/x10.g"
+               //#line 1359 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1357 "x10/parser/x10.g"
                 List<Modifier> MethodModifiersopt = (List<Modifier>) getRhsSym(1);
-                //#line 1358 "x10/parser/x10.g"
+                //#line 1357 "x10/parser/x10.g"
                 List<TypeParamNode> TypeParametersopt = (List<TypeParamNode>) getRhsSym(3);
-                //#line 1358 "x10/parser/x10.g"
+                //#line 1357 "x10/parser/x10.g"
                 X10Formal fp1 = (X10Formal) getRhsSym(5);
-                //#line 1358 "x10/parser/x10.g"
+                //#line 1357 "x10/parser/x10.g"
                 Binary.Operator BinOp = (Binary.Operator) getRhsSym(7);
-                //#line 1358 "x10/parser/x10.g"
+                //#line 1357 "x10/parser/x10.g"
                 X10Formal fp2 = (X10Formal) getRhsSym(9);
-                //#line 1358 "x10/parser/x10.g"
+                //#line 1357 "x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(11);
-                //#line 1358 "x10/parser/x10.g"
+                //#line 1357 "x10/parser/x10.g"
                 TypeNode HasResultTypeopt = (TypeNode) getRhsSym(12);
-                //#line 1358 "x10/parser/x10.g"
+                //#line 1357 "x10/parser/x10.g"
                 TypeNode Offersopt = (TypeNode) getRhsSym(13);
-                //#line 1358 "x10/parser/x10.g"
+                //#line 1357 "x10/parser/x10.g"
                 Block MethodBody = (Block) getRhsSym(14);
-                //#line 1360 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1359 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
                 Name opName = X10Binary_c.binaryMethodName(BinOp);
                 if (opName == null) {
@@ -1768,24 +1768,24 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             // Rule 39:  MethodDeclaration ::= MethodModifiersopt operator TypeParametersopt PrefixOp ( FormalParameter$fp2 ) WhereClauseopt HasResultTypeopt Offersopt MethodBody
             //
             case 39: {
-               //#line 1387 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1385 "x10/parser/x10.g"
+               //#line 1386 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1384 "x10/parser/x10.g"
                 List<Modifier> MethodModifiersopt = (List<Modifier>) getRhsSym(1);
-                //#line 1385 "x10/parser/x10.g"
+                //#line 1384 "x10/parser/x10.g"
                 List<TypeParamNode> TypeParametersopt = (List<TypeParamNode>) getRhsSym(3);
-                //#line 1385 "x10/parser/x10.g"
+                //#line 1384 "x10/parser/x10.g"
                 Unary.Operator PrefixOp = (Unary.Operator) getRhsSym(4);
-                //#line 1385 "x10/parser/x10.g"
+                //#line 1384 "x10/parser/x10.g"
                 X10Formal fp2 = (X10Formal) getRhsSym(6);
-                //#line 1385 "x10/parser/x10.g"
+                //#line 1384 "x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(8);
-                //#line 1385 "x10/parser/x10.g"
+                //#line 1384 "x10/parser/x10.g"
                 TypeNode HasResultTypeopt = (TypeNode) getRhsSym(9);
-                //#line 1385 "x10/parser/x10.g"
+                //#line 1384 "x10/parser/x10.g"
                 TypeNode Offersopt = (TypeNode) getRhsSym(10);
-                //#line 1385 "x10/parser/x10.g"
+                //#line 1384 "x10/parser/x10.g"
                 Block MethodBody = (Block) getRhsSym(11);
-                //#line 1387 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1386 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
                 Name opName = X10Unary_c.unaryMethodName(PrefixOp);
                 if (opName == null) {
@@ -1816,24 +1816,24 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             // Rule 40:  MethodDeclaration ::= MethodModifiersopt operator TypeParametersopt this BinOp ( FormalParameter$fp2 ) WhereClauseopt HasResultTypeopt Offersopt MethodBody
             //
             case 40: {
-               //#line 1414 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1412 "x10/parser/x10.g"
+               //#line 1413 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1411 "x10/parser/x10.g"
                 List<Modifier> MethodModifiersopt = (List<Modifier>) getRhsSym(1);
-                //#line 1412 "x10/parser/x10.g"
+                //#line 1411 "x10/parser/x10.g"
                 List<TypeParamNode> TypeParametersopt = (List<TypeParamNode>) getRhsSym(3);
-                //#line 1412 "x10/parser/x10.g"
+                //#line 1411 "x10/parser/x10.g"
                 Binary.Operator BinOp = (Binary.Operator) getRhsSym(5);
-                //#line 1412 "x10/parser/x10.g"
+                //#line 1411 "x10/parser/x10.g"
                 X10Formal fp2 = (X10Formal) getRhsSym(7);
-                //#line 1412 "x10/parser/x10.g"
+                //#line 1411 "x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(9);
-                //#line 1412 "x10/parser/x10.g"
+                //#line 1411 "x10/parser/x10.g"
                 TypeNode HasResultTypeopt = (TypeNode) getRhsSym(10);
-                //#line 1412 "x10/parser/x10.g"
+                //#line 1411 "x10/parser/x10.g"
                 TypeNode Offersopt = (TypeNode) getRhsSym(11);
-                //#line 1412 "x10/parser/x10.g"
+                //#line 1411 "x10/parser/x10.g"
                 Block MethodBody = (Block) getRhsSym(12);
-                //#line 1414 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1413 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
                 Name opName = X10Binary_c.binaryMethodName(BinOp);
                 if (opName == null) {
@@ -1864,24 +1864,24 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             // Rule 41:  MethodDeclaration ::= MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) BinOp this WhereClauseopt HasResultTypeopt Offersopt MethodBody
             //
             case 41: {
-               //#line 1441 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1439 "x10/parser/x10.g"
+               //#line 1440 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1438 "x10/parser/x10.g"
                 List<Modifier> MethodModifiersopt = (List<Modifier>) getRhsSym(1);
-                //#line 1439 "x10/parser/x10.g"
+                //#line 1438 "x10/parser/x10.g"
                 List<TypeParamNode> TypeParametersopt = (List<TypeParamNode>) getRhsSym(3);
-                //#line 1439 "x10/parser/x10.g"
+                //#line 1438 "x10/parser/x10.g"
                 X10Formal fp1 = (X10Formal) getRhsSym(5);
-                //#line 1439 "x10/parser/x10.g"
+                //#line 1438 "x10/parser/x10.g"
                 Binary.Operator BinOp = (Binary.Operator) getRhsSym(7);
-                //#line 1439 "x10/parser/x10.g"
+                //#line 1438 "x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(9);
-                //#line 1439 "x10/parser/x10.g"
+                //#line 1438 "x10/parser/x10.g"
                 TypeNode HasResultTypeopt = (TypeNode) getRhsSym(10);
-                //#line 1439 "x10/parser/x10.g"
+                //#line 1438 "x10/parser/x10.g"
                 TypeNode Offersopt = (TypeNode) getRhsSym(11);
-                //#line 1439 "x10/parser/x10.g"
+                //#line 1438 "x10/parser/x10.g"
                 Block MethodBody = (Block) getRhsSym(12);
-                //#line 1441 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1440 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
                 Name opName = X10Binary_c.invBinaryMethodName(BinOp);
                 if (opName == null) {
@@ -1912,22 +1912,22 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             // Rule 42:  MethodDeclaration ::= MethodModifiersopt operator TypeParametersopt PrefixOp this WhereClauseopt HasResultTypeopt Offersopt MethodBody
             //
             case 42: {
-               //#line 1468 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1466 "x10/parser/x10.g"
+               //#line 1467 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1465 "x10/parser/x10.g"
                 List<Modifier> MethodModifiersopt = (List<Modifier>) getRhsSym(1);
-                //#line 1466 "x10/parser/x10.g"
+                //#line 1465 "x10/parser/x10.g"
                 List<TypeParamNode> TypeParametersopt = (List<TypeParamNode>) getRhsSym(3);
-                //#line 1466 "x10/parser/x10.g"
+                //#line 1465 "x10/parser/x10.g"
                 Unary.Operator PrefixOp = (Unary.Operator) getRhsSym(4);
-                //#line 1466 "x10/parser/x10.g"
+                //#line 1465 "x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(6);
-                //#line 1466 "x10/parser/x10.g"
+                //#line 1465 "x10/parser/x10.g"
                 TypeNode HasResultTypeopt = (TypeNode) getRhsSym(7);
-                //#line 1466 "x10/parser/x10.g"
+                //#line 1465 "x10/parser/x10.g"
                 TypeNode Offersopt = (TypeNode) getRhsSym(8);
-                //#line 1466 "x10/parser/x10.g"
+                //#line 1465 "x10/parser/x10.g"
                 Block MethodBody = (Block) getRhsSym(9);
-                //#line 1468 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1467 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
                 Name opName = X10Unary_c.unaryMethodName(PrefixOp);
                 if (opName == null) {
@@ -1958,22 +1958,22 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             // Rule 43:  MethodDeclaration ::= MethodModifiersopt operator this TypeParametersopt FormalParameters WhereClauseopt HasResultTypeopt Offersopt MethodBody
             //
             case 43: {
-               //#line 1495 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1493 "x10/parser/x10.g"
+               //#line 1494 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1492 "x10/parser/x10.g"
                 List<Modifier> MethodModifiersopt = (List<Modifier>) getRhsSym(1);
-                //#line 1493 "x10/parser/x10.g"
+                //#line 1492 "x10/parser/x10.g"
                 List<TypeParamNode> TypeParametersopt = (List<TypeParamNode>) getRhsSym(4);
-                //#line 1493 "x10/parser/x10.g"
+                //#line 1492 "x10/parser/x10.g"
                 List<Formal> FormalParameters = (List<Formal>) getRhsSym(5);
-                //#line 1493 "x10/parser/x10.g"
+                //#line 1492 "x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(6);
-                //#line 1493 "x10/parser/x10.g"
+                //#line 1492 "x10/parser/x10.g"
                 TypeNode HasResultTypeopt = (TypeNode) getRhsSym(7);
-                //#line 1493 "x10/parser/x10.g"
+                //#line 1492 "x10/parser/x10.g"
                 TypeNode Offersopt = (TypeNode) getRhsSym(8);
-                //#line 1493 "x10/parser/x10.g"
+                //#line 1492 "x10/parser/x10.g"
                 Block MethodBody = (Block) getRhsSym(9);
-                //#line 1495 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1494 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
                 MethodDecl md = nf.X10MethodDecl(pos(),
                                                  extractFlags(modifiers),
@@ -1999,24 +1999,24 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             // Rule 44:  MethodDeclaration ::= MethodModifiersopt operator this TypeParametersopt FormalParameters = ( FormalParameter$fp2 ) WhereClauseopt HasResultTypeopt Offersopt MethodBody
             //
             case 44: {
-               //#line 1517 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1515 "x10/parser/x10.g"
+               //#line 1516 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1514 "x10/parser/x10.g"
                 List<Modifier> MethodModifiersopt = (List<Modifier>) getRhsSym(1);
-                //#line 1515 "x10/parser/x10.g"
+                //#line 1514 "x10/parser/x10.g"
                 List<TypeParamNode> TypeParametersopt = (List<TypeParamNode>) getRhsSym(4);
-                //#line 1515 "x10/parser/x10.g"
+                //#line 1514 "x10/parser/x10.g"
                 List<Formal> FormalParameters = (List<Formal>) getRhsSym(5);
-                //#line 1515 "x10/parser/x10.g"
+                //#line 1514 "x10/parser/x10.g"
                 X10Formal fp2 = (X10Formal) getRhsSym(8);
-                //#line 1515 "x10/parser/x10.g"
+                //#line 1514 "x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(10);
-                //#line 1515 "x10/parser/x10.g"
+                //#line 1514 "x10/parser/x10.g"
                 TypeNode HasResultTypeopt = (TypeNode) getRhsSym(11);
-                //#line 1515 "x10/parser/x10.g"
+                //#line 1514 "x10/parser/x10.g"
                 TypeNode Offersopt = (TypeNode) getRhsSym(12);
-                //#line 1515 "x10/parser/x10.g"
+                //#line 1514 "x10/parser/x10.g"
                 Block MethodBody = (Block) getRhsSym(13);
-                //#line 1517 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1516 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
                 MethodDecl md = nf.X10MethodDecl(pos(),
                                                  extractFlags(modifiers),
@@ -2042,22 +2042,22 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             // Rule 45:  MethodDeclaration ::= MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) as Type WhereClauseopt Offersopt MethodBody
             //
             case 45: {
-               //#line 1539 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1537 "x10/parser/x10.g"
+               //#line 1538 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1536 "x10/parser/x10.g"
                 List<Modifier> MethodModifiersopt = (List<Modifier>) getRhsSym(1);
-                //#line 1537 "x10/parser/x10.g"
+                //#line 1536 "x10/parser/x10.g"
                 List<TypeParamNode> TypeParametersopt = (List<TypeParamNode>) getRhsSym(3);
-                //#line 1537 "x10/parser/x10.g"
+                //#line 1536 "x10/parser/x10.g"
                 X10Formal fp1 = (X10Formal) getRhsSym(5);
-                //#line 1537 "x10/parser/x10.g"
+                //#line 1536 "x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(8);
-                //#line 1537 "x10/parser/x10.g"
+                //#line 1536 "x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(9);
-                //#line 1537 "x10/parser/x10.g"
+                //#line 1536 "x10/parser/x10.g"
                 TypeNode Offersopt = (TypeNode) getRhsSym(10);
-                //#line 1537 "x10/parser/x10.g"
+                //#line 1536 "x10/parser/x10.g"
                 Block MethodBody = (Block) getRhsSym(11);
-                //#line 1539 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1538 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
                 MethodDecl md = nf.X10MethodDecl(pos(),
                                                  extractFlags(modifiers),
@@ -2083,22 +2083,22 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             // Rule 46:  MethodDeclaration ::= MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) as ? WhereClauseopt HasResultTypeopt Offersopt MethodBody
             //
             case 46: {
-               //#line 1561 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1559 "x10/parser/x10.g"
+               //#line 1560 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1558 "x10/parser/x10.g"
                 List<Modifier> MethodModifiersopt = (List<Modifier>) getRhsSym(1);
-                //#line 1559 "x10/parser/x10.g"
+                //#line 1558 "x10/parser/x10.g"
                 List<TypeParamNode> TypeParametersopt = (List<TypeParamNode>) getRhsSym(3);
-                //#line 1559 "x10/parser/x10.g"
+                //#line 1558 "x10/parser/x10.g"
                 X10Formal fp1 = (X10Formal) getRhsSym(5);
-                //#line 1559 "x10/parser/x10.g"
+                //#line 1558 "x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(9);
-                //#line 1559 "x10/parser/x10.g"
+                //#line 1558 "x10/parser/x10.g"
                 TypeNode HasResultTypeopt = (TypeNode) getRhsSym(10);
-                //#line 1559 "x10/parser/x10.g"
+                //#line 1558 "x10/parser/x10.g"
                 TypeNode Offersopt = (TypeNode) getRhsSym(11);
-                //#line 1559 "x10/parser/x10.g"
+                //#line 1558 "x10/parser/x10.g"
                 Block MethodBody = (Block) getRhsSym(12);
-                //#line 1561 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1560 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
                 MethodDecl md = nf.X10MethodDecl(pos(),
                                                  extractFlags(modifiers),
@@ -2124,22 +2124,22 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             // Rule 47:  MethodDeclaration ::= MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) WhereClauseopt HasResultTypeopt Offersopt MethodBody
             //
             case 47: {
-               //#line 1583 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1581 "x10/parser/x10.g"
+               //#line 1582 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1580 "x10/parser/x10.g"
                 List<Modifier> MethodModifiersopt = (List<Modifier>) getRhsSym(1);
-                //#line 1581 "x10/parser/x10.g"
+                //#line 1580 "x10/parser/x10.g"
                 List<TypeParamNode> TypeParametersopt = (List<TypeParamNode>) getRhsSym(3);
-                //#line 1581 "x10/parser/x10.g"
+                //#line 1580 "x10/parser/x10.g"
                 X10Formal fp1 = (X10Formal) getRhsSym(5);
-                //#line 1581 "x10/parser/x10.g"
+                //#line 1580 "x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(7);
-                //#line 1581 "x10/parser/x10.g"
+                //#line 1580 "x10/parser/x10.g"
                 TypeNode HasResultTypeopt = (TypeNode) getRhsSym(8);
-                //#line 1581 "x10/parser/x10.g"
+                //#line 1580 "x10/parser/x10.g"
                 TypeNode Offersopt = (TypeNode) getRhsSym(9);
-                //#line 1581 "x10/parser/x10.g"
+                //#line 1580 "x10/parser/x10.g"
                 Block MethodBody = (Block) getRhsSym(10);
-                //#line 1583 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1582 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
                 MethodDecl md = nf.X10MethodDecl(pos(),
                                                  extractFlags(modifiers),
@@ -2165,22 +2165,22 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             // Rule 48:  PropertyMethodDeclaration ::= MethodModifiersopt Identifier TypeParametersopt FormalParameters WhereClauseopt HasResultTypeopt MethodBody
             //
             case 48: {
-               //#line 1606 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1604 "x10/parser/x10.g"
+               //#line 1605 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1603 "x10/parser/x10.g"
                 List<Modifier> MethodModifiersopt = (List<Modifier>) getRhsSym(1);
-                //#line 1604 "x10/parser/x10.g"
+                //#line 1603 "x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(2);
-                //#line 1604 "x10/parser/x10.g"
+                //#line 1603 "x10/parser/x10.g"
                 List<TypeParamNode> TypeParametersopt = (List<TypeParamNode>) getRhsSym(3);
-                //#line 1604 "x10/parser/x10.g"
+                //#line 1603 "x10/parser/x10.g"
                 List<Formal> FormalParameters = (List<Formal>) getRhsSym(4);
-                //#line 1604 "x10/parser/x10.g"
+                //#line 1603 "x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(5);
-                //#line 1604 "x10/parser/x10.g"
+                //#line 1603 "x10/parser/x10.g"
                 TypeNode HasResultTypeopt = (TypeNode) getRhsSym(6);
-                //#line 1604 "x10/parser/x10.g"
+                //#line 1603 "x10/parser/x10.g"
                 Block MethodBody = (Block) getRhsSym(7);
-                //#line 1606 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1605 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
                 MethodDecl md = nf.X10MethodDecl(pos(),
                                                  extractFlags(modifiers, X10Flags.PROPERTY),
@@ -2201,18 +2201,18 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             // Rule 49:  PropertyMethodDeclaration ::= MethodModifiersopt Identifier WhereClauseopt HasResultTypeopt MethodBody
             //
             case 49: {
-               //#line 1623 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1621 "x10/parser/x10.g"
+               //#line 1622 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1620 "x10/parser/x10.g"
                 List<Modifier> MethodModifiersopt = (List<Modifier>) getRhsSym(1);
-                //#line 1621 "x10/parser/x10.g"
+                //#line 1620 "x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(2);
-                //#line 1621 "x10/parser/x10.g"
+                //#line 1620 "x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(3);
-                //#line 1621 "x10/parser/x10.g"
+                //#line 1620 "x10/parser/x10.g"
                 TypeNode HasResultTypeopt = (TypeNode) getRhsSym(4);
-                //#line 1621 "x10/parser/x10.g"
+                //#line 1620 "x10/parser/x10.g"
                 Block MethodBody = (Block) getRhsSym(5);
-                //#line 1623 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1622 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
                 MethodDecl md = nf.X10MethodDecl(pos(),
                                                  extractFlags(modifiers, X10Flags.PROPERTY),
@@ -2233,12 +2233,12 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             // Rule 50:  ExplicitConstructorInvocation ::= this TypeArgumentsopt ( ArgumentListopt ) ;
             //
             case 50: {
-               //#line 1641 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1639 "x10/parser/x10.g"
+               //#line 1640 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1638 "x10/parser/x10.g"
                 List<TypeNode> TypeArgumentsopt = (List<TypeNode>) getRhsSym(2);
-                //#line 1639 "x10/parser/x10.g"
+                //#line 1638 "x10/parser/x10.g"
                 List<Expr> ArgumentListopt = (List<Expr>) getRhsSym(4);
-                //#line 1641 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1640 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.X10ThisCall(pos(), TypeArgumentsopt, ArgumentListopt));
                       break;
             }
@@ -2247,12 +2247,12 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             // Rule 51:  ExplicitConstructorInvocation ::= super TypeArgumentsopt ( ArgumentListopt ) ;
             //
             case 51: {
-               //#line 1646 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1644 "x10/parser/x10.g"
+               //#line 1645 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1643 "x10/parser/x10.g"
                 List<TypeNode> TypeArgumentsopt = (List<TypeNode>) getRhsSym(2);
-                //#line 1644 "x10/parser/x10.g"
+                //#line 1643 "x10/parser/x10.g"
                 List<Expr> ArgumentListopt = (List<Expr>) getRhsSym(4);
-                //#line 1646 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1645 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.X10SuperCall(pos(), TypeArgumentsopt, ArgumentListopt));
                       break;
             }
@@ -2261,14 +2261,14 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             // Rule 52:  ExplicitConstructorInvocation ::= Primary . this TypeArgumentsopt ( ArgumentListopt ) ;
             //
             case 52: {
-               //#line 1651 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1649 "x10/parser/x10.g"
+               //#line 1650 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1648 "x10/parser/x10.g"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 1649 "x10/parser/x10.g"
+                //#line 1648 "x10/parser/x10.g"
                 List<TypeNode> TypeArgumentsopt = (List<TypeNode>) getRhsSym(4);
-                //#line 1649 "x10/parser/x10.g"
+                //#line 1648 "x10/parser/x10.g"
                 List<Expr> ArgumentListopt = (List<Expr>) getRhsSym(6);
-                //#line 1651 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1650 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.X10ThisCall(pos(), Primary, TypeArgumentsopt, ArgumentListopt));
                       break;
             }
@@ -2277,14 +2277,14 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             // Rule 53:  ExplicitConstructorInvocation ::= Primary . super TypeArgumentsopt ( ArgumentListopt ) ;
             //
             case 53: {
-               //#line 1656 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1654 "x10/parser/x10.g"
+               //#line 1655 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1653 "x10/parser/x10.g"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 1654 "x10/parser/x10.g"
+                //#line 1653 "x10/parser/x10.g"
                 List<TypeNode> TypeArgumentsopt = (List<TypeNode>) getRhsSym(4);
-                //#line 1654 "x10/parser/x10.g"
+                //#line 1653 "x10/parser/x10.g"
                 List<Expr> ArgumentListopt = (List<Expr>) getRhsSym(6);
-                //#line 1656 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1655 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.X10SuperCall(pos(), Primary, TypeArgumentsopt, ArgumentListopt));
                       break;
             }
@@ -2293,22 +2293,22 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             // Rule 54:  NormalInterfaceDeclaration ::= Modifiersopt interface Identifier TypeParamsWithVarianceopt Propertiesopt WhereClauseopt ExtendsInterfacesopt InterfaceBody
             //
             case 54: {
-               //#line 1662 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1660 "x10/parser/x10.g"
+               //#line 1661 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1659 "x10/parser/x10.g"
                 List<Modifier> Modifiersopt = (List<Modifier>) getRhsSym(1);
-                //#line 1660 "x10/parser/x10.g"
+                //#line 1659 "x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 1660 "x10/parser/x10.g"
+                //#line 1659 "x10/parser/x10.g"
                 List<TypeParamNode> TypeParamsWithVarianceopt = (List<TypeParamNode>) getRhsSym(4);
-                //#line 1660 "x10/parser/x10.g"
+                //#line 1659 "x10/parser/x10.g"
                 List<PropertyDecl> Propertiesopt = (List<PropertyDecl>) getRhsSym(5);
-                //#line 1660 "x10/parser/x10.g"
+                //#line 1659 "x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(6);
-                //#line 1660 "x10/parser/x10.g"
+                //#line 1659 "x10/parser/x10.g"
                 List<TypeNode> ExtendsInterfacesopt = (List<TypeNode>) getRhsSym(7);
-                //#line 1660 "x10/parser/x10.g"
+                //#line 1659 "x10/parser/x10.g"
                 ClassBody InterfaceBody = (ClassBody) getRhsSym(8);
-                //#line 1662 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1661 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Node> modifiers = checkInterfaceModifiers(Modifiersopt);
                 checkTypeName(Identifier);
                 List<TypeParamNode> TypeParametersopt = TypeParamsWithVarianceopt;
@@ -2333,16 +2333,16 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             // Rule 55:  ClassInstanceCreationExpression ::= new TypeName TypeArgumentsopt ( ArgumentListopt ) ClassBodyopt
             //
             case 55: {
-               //#line 1684 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1682 "x10/parser/x10.g"
+               //#line 1683 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1681 "x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(2);
-                //#line 1682 "x10/parser/x10.g"
+                //#line 1681 "x10/parser/x10.g"
                 List<TypeNode> TypeArgumentsopt = (List<TypeNode>) getRhsSym(3);
-                //#line 1682 "x10/parser/x10.g"
+                //#line 1681 "x10/parser/x10.g"
                 List<Expr> ArgumentListopt = (List<Expr>) getRhsSym(5);
-                //#line 1682 "x10/parser/x10.g"
+                //#line 1681 "x10/parser/x10.g"
                 ClassBody ClassBodyopt = (ClassBody) getRhsSym(7);
-                //#line 1684 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1683 "lpg.generator/templates/java/btParserTemplateF.gi"
                 if (ClassBodyopt == null)
                      setResult(nf.X10New(pos(), TypeName.toType(), TypeArgumentsopt, ArgumentListopt));
                 else setResult(nf.X10New(pos(), TypeName.toType(), TypeArgumentsopt, ArgumentListopt, ClassBodyopt)) ;
@@ -2353,14 +2353,14 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             // Rule 56:  ClassInstanceCreationExpression ::= new TypeName [ Type ] [ ArgumentListopt ]
             //
             case 56: {
-               //#line 1691 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1689 "x10/parser/x10.g"
+               //#line 1690 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1688 "x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(2);
-                //#line 1689 "x10/parser/x10.g"
+                //#line 1688 "x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(4);
-                //#line 1689 "x10/parser/x10.g"
+                //#line 1688 "x10/parser/x10.g"
                 List<Expr> ArgumentListopt = (List<Expr>) getRhsSym(7);
-                //#line 1691 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1690 "lpg.generator/templates/java/btParserTemplateF.gi"
                 String arrayTypeName = TypeName.name.id().toString();
                 if (! (arrayTypeName.equals("x10.array.Array") || arrayTypeName.equals("Array")))
                     syntaxError(new Errors.ArrayLiteralMustBeOfArrayType(arrayTypeName, TypeName.pos).getMessage(),TypeName.pos);
@@ -2372,18 +2372,18 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             // Rule 57:  ClassInstanceCreationExpression ::= Primary . new Identifier TypeArgumentsopt ( ArgumentListopt ) ClassBodyopt
             //
             case 57: {
-               //#line 1699 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1697 "x10/parser/x10.g"
+               //#line 1698 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1696 "x10/parser/x10.g"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 1697 "x10/parser/x10.g"
+                //#line 1696 "x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(4);
-                //#line 1697 "x10/parser/x10.g"
+                //#line 1696 "x10/parser/x10.g"
                 List<TypeNode> TypeArgumentsopt = (List<TypeNode>) getRhsSym(5);
-                //#line 1697 "x10/parser/x10.g"
+                //#line 1696 "x10/parser/x10.g"
                 List<Expr> ArgumentListopt = (List<Expr>) getRhsSym(7);
-                //#line 1697 "x10/parser/x10.g"
+                //#line 1696 "x10/parser/x10.g"
                 ClassBody ClassBodyopt = (ClassBody) getRhsSym(9);
-                //#line 1699 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1698 "lpg.generator/templates/java/btParserTemplateF.gi"
                 ParsedName b = new X10ParsedName(nf, ts, pos(), Identifier);
                 if (ClassBodyopt == null)
                      setResult(nf.X10New(pos(), Primary, b.toType(), TypeArgumentsopt, ArgumentListopt));
@@ -2395,18 +2395,18 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             // Rule 58:  ClassInstanceCreationExpression ::= AmbiguousName . new Identifier TypeArgumentsopt ( ArgumentListopt ) ClassBodyopt
             //
             case 58: {
-               //#line 1707 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1705 "x10/parser/x10.g"
+               //#line 1706 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1704 "x10/parser/x10.g"
                 ParsedName AmbiguousName = (ParsedName) getRhsSym(1);
-                //#line 1705 "x10/parser/x10.g"
+                //#line 1704 "x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(4);
-                //#line 1705 "x10/parser/x10.g"
+                //#line 1704 "x10/parser/x10.g"
                 List<TypeNode> TypeArgumentsopt = (List<TypeNode>) getRhsSym(5);
-                //#line 1705 "x10/parser/x10.g"
+                //#line 1704 "x10/parser/x10.g"
                 List<Expr> ArgumentListopt = (List<Expr>) getRhsSym(7);
-                //#line 1705 "x10/parser/x10.g"
+                //#line 1704 "x10/parser/x10.g"
                 ClassBody ClassBodyopt = (ClassBody) getRhsSym(9);
-                //#line 1707 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1706 "lpg.generator/templates/java/btParserTemplateF.gi"
                 ParsedName b = new X10ParsedName(nf, ts, pos(), Identifier);
                 if (ClassBodyopt == null)
                      setResult(nf.X10New(pos(), AmbiguousName.toExpr(), b.toType(), TypeArgumentsopt, ArgumentListopt));
@@ -2418,12 +2418,12 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             // Rule 59:  AssignPropertyCall ::= property TypeArgumentsopt ( ArgumentListopt ) ;
             //
             case 59: {
-               //#line 1716 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1714 "x10/parser/x10.g"
+               //#line 1715 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1713 "x10/parser/x10.g"
                 List<TypeNode> TypeArgumentsopt = (List<TypeNode>) getRhsSym(2);
-                //#line 1714 "x10/parser/x10.g"
+                //#line 1713 "x10/parser/x10.g"
                 List<Expr> ArgumentListopt = (List<Expr>) getRhsSym(4);
-                //#line 1716 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1715 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.AssignPropertyCall(pos(), TypeArgumentsopt, ArgumentListopt));
                       break;
             }
@@ -2432,18 +2432,18 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             // Rule 62:  FunctionType ::= TypeParametersopt ( FormalParameterListopt ) WhereClauseopt Offersopt => Type
             //
             case 62: {
-               //#line 1726 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1724 "x10/parser/x10.g"
+               //#line 1725 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1723 "x10/parser/x10.g"
                 List<TypeParamNode> TypeParametersopt = (List<TypeParamNode>) getRhsSym(1);
-                //#line 1724 "x10/parser/x10.g"
+                //#line 1723 "x10/parser/x10.g"
                 List<Formal> FormalParameterListopt = (List<Formal>) getRhsSym(3);
-                //#line 1724 "x10/parser/x10.g"
+                //#line 1723 "x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(5);
-                //#line 1724 "x10/parser/x10.g"
+                //#line 1723 "x10/parser/x10.g"
                 TypeNode Offersopt = (TypeNode) getRhsSym(6);
-                //#line 1724 "x10/parser/x10.g"
+                //#line 1723 "x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(8);
-                //#line 1726 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1725 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.FunctionTypeNode(pos(), TypeParametersopt, FormalParameterListopt, WhereClauseopt, Type,  Offersopt));
                       break;
             }
@@ -2452,12 +2452,12 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             // Rule 64:  AnnotatedType ::= Type Annotations
             //
             case 64: {
-               //#line 1739 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1737 "x10/parser/x10.g"
+               //#line 1738 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1736 "x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(1);
-                //#line 1737 "x10/parser/x10.g"
+                //#line 1736 "x10/parser/x10.g"
                 List<AnnotationNode> Annotations = (List<AnnotationNode>) getRhsSym(2);
-                //#line 1739 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1738 "lpg.generator/templates/java/btParserTemplateF.gi"
                 TypeNode tn = Type;
                 tn = (TypeNode) ((X10Ext) tn.ext()).annotations((List<AnnotationNode>) Annotations);
                 setResult(tn.position(pos()));
@@ -2468,10 +2468,10 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             // Rule 67:  ConstrainedType ::= ( Type )
             //
             case 67: {
-               //#line 1749 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1747 "x10/parser/x10.g"
+               //#line 1748 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1746 "x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(2);
-                //#line 1749 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1748 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Type);
                       break;
             }
@@ -2480,10 +2480,10 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             // Rule 69:  SimpleNamedType ::= TypeName
             //
             case 69: {
-               //#line 1763 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1761 "x10/parser/x10.g"
+               //#line 1762 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1760 "x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 1763 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1762 "lpg.generator/templates/java/btParserTemplateF.gi"
             setResult(TypeName.toType());
                       break;
             }
@@ -2492,12 +2492,12 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             // Rule 70:  SimpleNamedType ::= Primary . Identifier
             //
             case 70: {
-               //#line 1768 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1766 "x10/parser/x10.g"
+               //#line 1767 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1765 "x10/parser/x10.g"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 1766 "x10/parser/x10.g"
+                //#line 1765 "x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 1768 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1767 "lpg.generator/templates/java/btParserTemplateF.gi"
             setResult(nf.AmbTypeNode(pos(), Primary, Identifier));
                       break;
             }
@@ -2506,12 +2506,12 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             // Rule 71:  SimpleNamedType ::= DepNamedType . Identifier
             //
             case 71: {
-               //#line 1773 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1771 "x10/parser/x10.g"
+               //#line 1772 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1770 "x10/parser/x10.g"
                 TypeNode DepNamedType = (TypeNode) getRhsSym(1);
-                //#line 1771 "x10/parser/x10.g"
+                //#line 1770 "x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 1773 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1772 "lpg.generator/templates/java/btParserTemplateF.gi"
             setResult(nf.AmbTypeNode(pos(), DepNamedType, Identifier));
                       break;
             }
@@ -2520,12 +2520,12 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             // Rule 72:  DepNamedType ::= SimpleNamedType DepParameters
             //
             case 72: {
-               //#line 1779 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1777 "x10/parser/x10.g"
+               //#line 1778 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1776 "x10/parser/x10.g"
                 TypeNode SimpleNamedType = (TypeNode) getRhsSym(1);
-                //#line 1777 "x10/parser/x10.g"
+                //#line 1776 "x10/parser/x10.g"
                 DepParameterExpr DepParameters = (DepParameterExpr) getRhsSym(2);
-                //#line 1779 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1778 "lpg.generator/templates/java/btParserTemplateF.gi"
             TypeNode type = nf.AmbDepTypeNode(pos(), ((AmbTypeNode) SimpleNamedType).prefix(), ((AmbTypeNode) SimpleNamedType).name(),
                                               new TypedList<TypeNode>(new LinkedList<TypeNode>(), TypeNode.class, false),
                                               new TypedList<Expr>(new LinkedList<Expr>(), Expr.class, false),
@@ -2538,12 +2538,12 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             // Rule 73:  DepNamedType ::= SimpleNamedType Arguments
             //
             case 73: {
-               //#line 1788 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1786 "x10/parser/x10.g"
+               //#line 1787 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1785 "x10/parser/x10.g"
                 TypeNode SimpleNamedType = (TypeNode) getRhsSym(1);
-                //#line 1786 "x10/parser/x10.g"
+                //#line 1785 "x10/parser/x10.g"
                 List<Expr> Arguments = (List<Expr>) getRhsSym(2);
-                //#line 1788 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1787 "lpg.generator/templates/java/btParserTemplateF.gi"
             TypeNode type = nf.AmbDepTypeNode(pos(), ((AmbTypeNode) SimpleNamedType).prefix(), ((AmbTypeNode) SimpleNamedType).name(),
                                               new TypedList<TypeNode>(new LinkedList<TypeNode>(), TypeNode.class, false),
                                               Arguments,
@@ -2556,14 +2556,14 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             // Rule 74:  DepNamedType ::= SimpleNamedType Arguments DepParameters
             //
             case 74: {
-               //#line 1797 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1795 "x10/parser/x10.g"
+               //#line 1796 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1794 "x10/parser/x10.g"
                 TypeNode SimpleNamedType = (TypeNode) getRhsSym(1);
-                //#line 1795 "x10/parser/x10.g"
+                //#line 1794 "x10/parser/x10.g"
                 List<Expr> Arguments = (List<Expr>) getRhsSym(2);
-                //#line 1795 "x10/parser/x10.g"
+                //#line 1794 "x10/parser/x10.g"
                 DepParameterExpr DepParameters = (DepParameterExpr) getRhsSym(3);
-                //#line 1797 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1796 "lpg.generator/templates/java/btParserTemplateF.gi"
             TypeNode type = nf.AmbDepTypeNode(pos(), ((AmbTypeNode) SimpleNamedType).prefix(), ((AmbTypeNode) SimpleNamedType).name(),
                                               new TypedList<TypeNode>(new LinkedList<TypeNode>(), TypeNode.class, false),
                                               Arguments,
@@ -2576,12 +2576,12 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             // Rule 75:  DepNamedType ::= SimpleNamedType TypeArguments
             //
             case 75: {
-               //#line 1806 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1804 "x10/parser/x10.g"
+               //#line 1805 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1803 "x10/parser/x10.g"
                 TypeNode SimpleNamedType = (TypeNode) getRhsSym(1);
-                //#line 1804 "x10/parser/x10.g"
+                //#line 1803 "x10/parser/x10.g"
                 List<TypeNode> TypeArguments = (List<TypeNode>) getRhsSym(2);
-                //#line 1806 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1805 "lpg.generator/templates/java/btParserTemplateF.gi"
             TypeNode type = nf.AmbDepTypeNode(pos(), ((AmbTypeNode) SimpleNamedType).prefix(), ((AmbTypeNode) SimpleNamedType).name(),
                                               TypeArguments,
                                               new TypedList<Expr>(new LinkedList<Expr>(), Expr.class, false),
@@ -2594,14 +2594,14 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             // Rule 76:  DepNamedType ::= SimpleNamedType TypeArguments DepParameters
             //
             case 76: {
-               //#line 1815 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1813 "x10/parser/x10.g"
+               //#line 1814 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1812 "x10/parser/x10.g"
                 TypeNode SimpleNamedType = (TypeNode) getRhsSym(1);
-                //#line 1813 "x10/parser/x10.g"
+                //#line 1812 "x10/parser/x10.g"
                 List<TypeNode> TypeArguments = (List<TypeNode>) getRhsSym(2);
-                //#line 1813 "x10/parser/x10.g"
+                //#line 1812 "x10/parser/x10.g"
                 DepParameterExpr DepParameters = (DepParameterExpr) getRhsSym(3);
-                //#line 1815 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1814 "lpg.generator/templates/java/btParserTemplateF.gi"
             TypeNode type = nf.AmbDepTypeNode(pos(), ((AmbTypeNode) SimpleNamedType).prefix(), ((AmbTypeNode) SimpleNamedType).name(),
                                               TypeArguments,
                                               new TypedList<Expr>(new LinkedList<Expr>(), Expr.class, false),
@@ -2614,14 +2614,14 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             // Rule 77:  DepNamedType ::= SimpleNamedType TypeArguments Arguments
             //
             case 77: {
-               //#line 1824 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1822 "x10/parser/x10.g"
+               //#line 1823 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1821 "x10/parser/x10.g"
                 TypeNode SimpleNamedType = (TypeNode) getRhsSym(1);
-                //#line 1822 "x10/parser/x10.g"
+                //#line 1821 "x10/parser/x10.g"
                 List<TypeNode> TypeArguments = (List<TypeNode>) getRhsSym(2);
-                //#line 1822 "x10/parser/x10.g"
+                //#line 1821 "x10/parser/x10.g"
                 List<Expr> Arguments = (List<Expr>) getRhsSym(3);
-                //#line 1824 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1823 "lpg.generator/templates/java/btParserTemplateF.gi"
             TypeNode type = nf.AmbDepTypeNode(pos(), ((AmbTypeNode) SimpleNamedType).prefix(), ((AmbTypeNode) SimpleNamedType).name(),
                                               TypeArguments,
                                               Arguments,
@@ -2634,16 +2634,16 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             // Rule 78:  DepNamedType ::= SimpleNamedType TypeArguments Arguments DepParameters
             //
             case 78: {
-               //#line 1833 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1831 "x10/parser/x10.g"
+               //#line 1832 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1830 "x10/parser/x10.g"
                 TypeNode SimpleNamedType = (TypeNode) getRhsSym(1);
-                //#line 1831 "x10/parser/x10.g"
+                //#line 1830 "x10/parser/x10.g"
                 List<TypeNode> TypeArguments = (List<TypeNode>) getRhsSym(2);
-                //#line 1831 "x10/parser/x10.g"
+                //#line 1830 "x10/parser/x10.g"
                 List<Expr> Arguments = (List<Expr>) getRhsSym(3);
-                //#line 1831 "x10/parser/x10.g"
+                //#line 1830 "x10/parser/x10.g"
                 DepParameterExpr DepParameters = (DepParameterExpr) getRhsSym(4);
-                //#line 1833 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1832 "lpg.generator/templates/java/btParserTemplateF.gi"
             TypeNode type = nf.AmbDepTypeNode(pos(), ((AmbTypeNode) SimpleNamedType).prefix(), ((AmbTypeNode) SimpleNamedType).name(),
                                               TypeArguments,
                                               Arguments,
@@ -2656,12 +2656,12 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             // Rule 81:  DepParameters ::= { ExistentialListopt Conjunctionopt }
             //
             case 81: {
-               //#line 1846 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1844 "x10/parser/x10.g"
+               //#line 1845 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1843 "x10/parser/x10.g"
                 List<Formal> ExistentialListopt = (List<Formal>) getRhsSym(2);
-                //#line 1844 "x10/parser/x10.g"
+                //#line 1843 "x10/parser/x10.g"
                 List<Expr> Conjunctionopt = (List<Expr>) getRhsSym(3);
-                //#line 1846 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1845 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.DepParameterExpr(pos(), ExistentialListopt, Conjunctionopt));
                       break;
             }
@@ -2670,10 +2670,10 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             // Rule 82:  TypeParamsWithVariance ::= [ TypeParamWithVarianceList ]
             //
             case 82: {
-               //#line 1853 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1851 "x10/parser/x10.g"
+               //#line 1852 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1850 "x10/parser/x10.g"
                 List<TypeParamNode> TypeParamWithVarianceList = (List<TypeParamNode>) getRhsSym(2);
-                //#line 1853 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1852 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(TypeParamWithVarianceList);
                       break;
             }
@@ -2682,10 +2682,10 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             // Rule 83:  TypeParameters ::= [ TypeParameterList ]
             //
             case 83: {
-               //#line 1859 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1857 "x10/parser/x10.g"
+               //#line 1858 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1856 "x10/parser/x10.g"
                 List<TypeParamNode> TypeParameterList = (List<TypeParamNode>) getRhsSym(2);
-                //#line 1859 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1858 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(TypeParameterList);
                       break;
             }
@@ -2694,10 +2694,10 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             // Rule 84:  FormalParameters ::= ( FormalParameterListopt )
             //
             case 84: {
-               //#line 1865 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1863 "x10/parser/x10.g"
+               //#line 1864 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1862 "x10/parser/x10.g"
                 List<Formal> FormalParameterListopt = (List<Formal>) getRhsSym(2);
-                //#line 1865 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1864 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(FormalParameterListopt);
                       break;
             }
@@ -2706,10 +2706,10 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             // Rule 85:  Conjunction ::= Expression
             //
             case 85: {
-               //#line 1871 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1869 "x10/parser/x10.g"
+               //#line 1870 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1868 "x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(1);
-                //#line 1871 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1870 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Expr> l = new ArrayList<Expr>();
                 l.add(Expression);
                 setResult(l);
@@ -2720,32 +2720,30 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             // Rule 86:  Conjunction ::= Conjunction , Expression
             //
             case 86: {
-               //#line 1878 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1876 "x10/parser/x10.g"
+               //#line 1877 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1875 "x10/parser/x10.g"
                 List<Expr> Conjunction = (List<Expr>) getRhsSym(1);
-                //#line 1876 "x10/parser/x10.g"
+                //#line 1875 "x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 1878 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1877 "lpg.generator/templates/java/btParserTemplateF.gi"
                 Conjunction.add(Expression);
                       break;
             }
     
             //
-            // Rule 87:  SubtypeConstraint ::= Type$t1 <: Type$t2
+            // Rule 87:  HasZeroConstraint ::= Type$t1 hasZero
             //
             case 87: {
-               //#line 1884 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1882 "x10/parser/x10.g"
+               //#line 1883 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1881 "x10/parser/x10.g"
                 TypeNode t1 = (TypeNode) getRhsSym(1);
-                //#line 1882 "x10/parser/x10.g"
-                TypeNode t2 = (TypeNode) getRhsSym(3);
-                //#line 1884 "lpg.generator/templates/java/btParserTemplateF.gi"
-                setResult(nf.SubtypeTest(pos(), t1, t2, false));
+                //#line 1883 "lpg.generator/templates/java/btParserTemplateF.gi"
+                setResult(nf.HasZeroTest(pos(), t1));
                       break;
             }
     
             //
-            // Rule 88:  SubtypeConstraint ::= Type$t1 :> Type$t2
+            // Rule 88:  SubtypeConstraint ::= Type$t1 <: Type$t2
             //
             case 88: {
                //#line 1889 "lpg.generator/templates/java/btParserTemplateF.gi"
@@ -2754,77 +2752,91 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
                 //#line 1887 "x10/parser/x10.g"
                 TypeNode t2 = (TypeNode) getRhsSym(3);
                 //#line 1889 "lpg.generator/templates/java/btParserTemplateF.gi"
+                setResult(nf.SubtypeTest(pos(), t1, t2, false));
+                      break;
+            }
+    
+            //
+            // Rule 89:  SubtypeConstraint ::= Type$t1 :> Type$t2
+            //
+            case 89: {
+               //#line 1894 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1892 "x10/parser/x10.g"
+                TypeNode t1 = (TypeNode) getRhsSym(1);
+                //#line 1892 "x10/parser/x10.g"
+                TypeNode t2 = (TypeNode) getRhsSym(3);
+                //#line 1894 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.SubtypeTest(pos(), t2, t1, false));
                       break;
             }
     
             //
-            // Rule 89:  WhereClause ::= DepParameters
+            // Rule 90:  WhereClause ::= DepParameters
             //
-            case 89: {
-               //#line 1895 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1893 "x10/parser/x10.g"
+            case 90: {
+               //#line 1900 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1898 "x10/parser/x10.g"
                 DepParameterExpr DepParameters = (DepParameterExpr) getRhsSym(1);
-                //#line 1895 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1900 "lpg.generator/templates/java/btParserTemplateF.gi"
             setResult(DepParameters);
                       break;
             }
       
             //
-            // Rule 90:  Conjunctionopt ::= $Empty
+            // Rule 91:  Conjunctionopt ::= $Empty
             //
-            case 90: {
-               //#line 1901 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 91: {
+               //#line 1906 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 1901 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1906 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Expr> l = new ArrayList<Expr>();
                 setResult(l);
                       break;
             }
       
             //
-            // Rule 91:  Conjunctionopt ::= Conjunction
+            // Rule 92:  Conjunctionopt ::= Conjunction
             //
-            case 91: {
-               //#line 1907 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1905 "x10/parser/x10.g"
+            case 92: {
+               //#line 1912 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1910 "x10/parser/x10.g"
                 List<Expr> Conjunction = (List<Expr>) getRhsSym(1);
-                //#line 1907 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1912 "lpg.generator/templates/java/btParserTemplateF.gi"
             setResult(Conjunction);
                       break;
             }
     
             //
-            // Rule 92:  ExistentialListopt ::= $Empty
+            // Rule 93:  ExistentialListopt ::= $Empty
             //
-            case 92: {
-               //#line 1913 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 93: {
+               //#line 1918 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 1913 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1918 "lpg.generator/templates/java/btParserTemplateF.gi"
             setResult(new ArrayList<Formal>());
                       break;
             }
       
             //
-            // Rule 93:  ExistentialListopt ::= ExistentialList ;
+            // Rule 94:  ExistentialListopt ::= ExistentialList ;
             //
-            case 93: {
-               //#line 1918 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1916 "x10/parser/x10.g"
+            case 94: {
+               //#line 1923 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1921 "x10/parser/x10.g"
                 List<Formal> ExistentialList = (List<Formal>) getRhsSym(1);
-                //#line 1918 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1923 "lpg.generator/templates/java/btParserTemplateF.gi"
             setResult(ExistentialList);
                       break;
             }
     
             //
-            // Rule 94:  ExistentialList ::= FormalParameter
+            // Rule 95:  ExistentialList ::= FormalParameter
             //
-            case 94: {
-               //#line 1924 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1922 "x10/parser/x10.g"
+            case 95: {
+               //#line 1929 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1927 "x10/parser/x10.g"
                 X10Formal FormalParameter = (X10Formal) getRhsSym(1);
-                //#line 1924 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1929 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> l = new TypedList<Formal>(new LinkedList<Formal>(), Formal.class, false);
                 l.add(FormalParameter.flags(nf.FlagsNode(Position.compilerGenerated(FormalParameter.position()), Flags.FINAL)));
                 setResult(l);
@@ -2832,41 +2844,41 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 95:  ExistentialList ::= ExistentialList ; FormalParameter
+            // Rule 96:  ExistentialList ::= ExistentialList ; FormalParameter
             //
-            case 95: {
-               //#line 1931 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1929 "x10/parser/x10.g"
+            case 96: {
+               //#line 1936 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1934 "x10/parser/x10.g"
                 List<Formal> ExistentialList = (List<Formal>) getRhsSym(1);
-                //#line 1929 "x10/parser/x10.g"
+                //#line 1934 "x10/parser/x10.g"
                 X10Formal FormalParameter = (X10Formal) getRhsSym(3);
-                //#line 1931 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1936 "lpg.generator/templates/java/btParserTemplateF.gi"
                 ExistentialList.add(FormalParameter.flags(nf.FlagsNode(Position.compilerGenerated(FormalParameter.position()), Flags.FINAL)));
                       break;
             }
     
             //
-            // Rule 98:  NormalClassDeclaration ::= Modifiersopt class Identifier TypeParamsWithVarianceopt Propertiesopt WhereClauseopt Superopt Interfacesopt ClassBody
+            // Rule 99:  NormalClassDeclaration ::= Modifiersopt class Identifier TypeParamsWithVarianceopt Propertiesopt WhereClauseopt Superopt Interfacesopt ClassBody
             //
-            case 98: {
-               //#line 1942 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1940 "x10/parser/x10.g"
+            case 99: {
+               //#line 1947 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1945 "x10/parser/x10.g"
                 List<Modifier> Modifiersopt = (List<Modifier>) getRhsSym(1);
-                //#line 1940 "x10/parser/x10.g"
+                //#line 1945 "x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 1940 "x10/parser/x10.g"
+                //#line 1945 "x10/parser/x10.g"
                 List<TypeParamNode> TypeParamsWithVarianceopt = (List<TypeParamNode>) getRhsSym(4);
-                //#line 1940 "x10/parser/x10.g"
+                //#line 1945 "x10/parser/x10.g"
                 List<PropertyDecl> Propertiesopt = (List<PropertyDecl>) getRhsSym(5);
-                //#line 1940 "x10/parser/x10.g"
+                //#line 1945 "x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(6);
-                //#line 1940 "x10/parser/x10.g"
+                //#line 1945 "x10/parser/x10.g"
                 TypeNode Superopt = (TypeNode) getRhsSym(7);
-                //#line 1940 "x10/parser/x10.g"
+                //#line 1945 "x10/parser/x10.g"
                 List<TypeNode> Interfacesopt = (List<TypeNode>) getRhsSym(8);
-                //#line 1940 "x10/parser/x10.g"
+                //#line 1945 "x10/parser/x10.g"
                 ClassBody ClassBody = (ClassBody) getRhsSym(9);
-                //#line 1942 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1947 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Node> modifiers = checkClassModifiers(Modifiersopt);
                 checkTypeName(Identifier);
                 List<TypeParamNode> TypeParametersopt = TypeParamsWithVarianceopt;
@@ -2883,25 +2895,25 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 99:  StructDeclaration ::= Modifiersopt struct Identifier TypeParamsWithVarianceopt Propertiesopt WhereClauseopt Interfacesopt ClassBody
+            // Rule 100:  StructDeclaration ::= Modifiersopt struct Identifier TypeParamsWithVarianceopt Propertiesopt WhereClauseopt Interfacesopt ClassBody
             //
-            case 99: {
-               //#line 1960 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1958 "x10/parser/x10.g"
+            case 100: {
+               //#line 1965 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1963 "x10/parser/x10.g"
                 List<Modifier> Modifiersopt = (List<Modifier>) getRhsSym(1);
-                //#line 1958 "x10/parser/x10.g"
+                //#line 1963 "x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 1958 "x10/parser/x10.g"
+                //#line 1963 "x10/parser/x10.g"
                 List<TypeParamNode> TypeParamsWithVarianceopt = (List<TypeParamNode>) getRhsSym(4);
-                //#line 1958 "x10/parser/x10.g"
+                //#line 1963 "x10/parser/x10.g"
                 List<PropertyDecl> Propertiesopt = (List<PropertyDecl>) getRhsSym(5);
-                //#line 1958 "x10/parser/x10.g"
+                //#line 1963 "x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(6);
-                //#line 1958 "x10/parser/x10.g"
+                //#line 1963 "x10/parser/x10.g"
                 List<TypeNode> Interfacesopt = (List<TypeNode>) getRhsSym(7);
-                //#line 1958 "x10/parser/x10.g"
+                //#line 1963 "x10/parser/x10.g"
                 ClassBody ClassBody = (ClassBody) getRhsSym(8);
-                //#line 1960 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1965 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Node> modifiers = checkClassModifiers(Modifiersopt);
                 checkTypeName(Identifier);
                 List<TypeParamNode> TypeParametersopt = TypeParamsWithVarianceopt;
@@ -2916,25 +2928,25 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 100:  ConstructorDeclaration ::= Modifiersopt def this TypeParametersopt FormalParameters WhereClauseopt HasResultTypeopt Offersopt ConstructorBody
+            // Rule 101:  ConstructorDeclaration ::= Modifiersopt def this TypeParametersopt FormalParameters WhereClauseopt HasResultTypeopt Offersopt ConstructorBody
             //
-            case 100: {
-               //#line 1975 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1973 "x10/parser/x10.g"
+            case 101: {
+               //#line 1980 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1978 "x10/parser/x10.g"
                 List<Modifier> Modifiersopt = (List<Modifier>) getRhsSym(1);
-                //#line 1973 "x10/parser/x10.g"
+                //#line 1978 "x10/parser/x10.g"
                 List<TypeParamNode> TypeParametersopt = (List<TypeParamNode>) getRhsSym(4);
-                //#line 1973 "x10/parser/x10.g"
+                //#line 1978 "x10/parser/x10.g"
                 List<Formal> FormalParameters = (List<Formal>) getRhsSym(5);
-                //#line 1973 "x10/parser/x10.g"
+                //#line 1978 "x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(6);
-                //#line 1973 "x10/parser/x10.g"
+                //#line 1978 "x10/parser/x10.g"
                 TypeNode HasResultTypeopt = (TypeNode) getRhsSym(7);
-                //#line 1973 "x10/parser/x10.g"
+                //#line 1978 "x10/parser/x10.g"
                 TypeNode Offersopt = (TypeNode) getRhsSym(8);
-                //#line 1973 "x10/parser/x10.g"
+                //#line 1978 "x10/parser/x10.g"
                 Block ConstructorBody = (Block) getRhsSym(9);
-                //#line 1975 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1980 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Node> modifiers = checkConstructorModifiers(Modifiersopt);
                 ConstructorDecl cd = nf.X10ConstructorDecl(pos(),
                                                            extractFlags(modifiers),
@@ -2952,73 +2964,73 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 101:  Super ::= extends ClassType
+            // Rule 102:  Super ::= extends ClassType
             //
-            case 101: {
-               //#line 1993 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1991 "x10/parser/x10.g"
+            case 102: {
+               //#line 1998 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1996 "x10/parser/x10.g"
                 TypeNode ClassType = (TypeNode) getRhsSym(2);
-                //#line 1993 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1998 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(ClassType);
                       break;
             }
     
             //
-            // Rule 102:  FieldKeyword ::= val
-            //
-            case 102: {
-               //#line 1999 "lpg.generator/templates/java/btParserTemplateF.gi"
-                
-                //#line 1999 "lpg.generator/templates/java/btParserTemplateF.gi"
-                setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.FINAL)));
-                      break;
-            }
-    
-            //
-            // Rule 103:  FieldKeyword ::= var
+            // Rule 103:  FieldKeyword ::= val
             //
             case 103: {
                //#line 2004 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 2004 "lpg.generator/templates/java/btParserTemplateF.gi"
-                setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.NONE)));
-                      break;
-            }
-    
-            //
-            // Rule 104:  VarKeyword ::= val
-            //
-            case 104: {
-               //#line 2012 "lpg.generator/templates/java/btParserTemplateF.gi"
-                
-                //#line 2012 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.FINAL)));
                       break;
             }
     
             //
-            // Rule 105:  VarKeyword ::= var
+            // Rule 104:  FieldKeyword ::= var
             //
-            case 105: {
-               //#line 2017 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 104: {
+               //#line 2009 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2017 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2009 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.NONE)));
                       break;
             }
     
             //
-            // Rule 106:  FieldDeclaration ::= Modifiersopt FieldKeyword FieldDeclarators ;
+            // Rule 105:  VarKeyword ::= val
+            //
+            case 105: {
+               //#line 2017 "lpg.generator/templates/java/btParserTemplateF.gi"
+                
+                //#line 2017 "lpg.generator/templates/java/btParserTemplateF.gi"
+                setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.FINAL)));
+                      break;
+            }
+    
+            //
+            // Rule 106:  VarKeyword ::= var
             //
             case 106: {
-               //#line 2024 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2022 "x10/parser/x10.g"
+               //#line 2022 "lpg.generator/templates/java/btParserTemplateF.gi"
+                
+                //#line 2022 "lpg.generator/templates/java/btParserTemplateF.gi"
+                setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.NONE)));
+                      break;
+            }
+    
+            //
+            // Rule 107:  FieldDeclaration ::= Modifiersopt FieldKeyword FieldDeclarators ;
+            //
+            case 107: {
+               //#line 2029 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2027 "x10/parser/x10.g"
                 List<Modifier> Modifiersopt = (List<Modifier>) getRhsSym(1);
-                //#line 2022 "x10/parser/x10.g"
+                //#line 2027 "x10/parser/x10.g"
                 List<FlagsNode> FieldKeyword = (List<FlagsNode>) getRhsSym(2);
-                //#line 2022 "x10/parser/x10.g"
+                //#line 2027 "x10/parser/x10.g"
                 List<Object[]> FieldDeclarators = (List<Object[]>) getRhsSym(3);
-                //#line 2024 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2029 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Node> modifiers = checkFieldModifiers(Modifiersopt);
                 FlagsNode fn = extractFlags(modifiers, FieldKeyword);
     
@@ -3043,15 +3055,15 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 107:  FieldDeclaration ::= Modifiersopt FieldDeclarators ;
+            // Rule 108:  FieldDeclaration ::= Modifiersopt FieldDeclarators ;
             //
-            case 107: {
-               //#line 2049 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2047 "x10/parser/x10.g"
+            case 108: {
+               //#line 2054 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2052 "x10/parser/x10.g"
                 List<Modifier> Modifiersopt = (List<Modifier>) getRhsSym(1);
-                //#line 2047 "x10/parser/x10.g"
+                //#line 2052 "x10/parser/x10.g"
                 List<Object[]> FieldDeclarators = (List<Object[]>) getRhsSym(2);
-                //#line 2049 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2054 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Node> modifiers = checkFieldModifiers(Modifiersopt);
                 List<FlagsNode> FieldKeyword = Collections.singletonList(nf.FlagsNode(pos(), Flags.FINAL));
                 FlagsNode fn = extractFlags(modifiers, FieldKeyword);
@@ -3077,15 +3089,15 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 110:  AnnotationStatement ::= Annotationsopt NonExpressionStatement
+            // Rule 111:  AnnotationStatement ::= Annotationsopt NonExpressionStatement
             //
-            case 110: {
-               //#line 2081 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2079 "x10/parser/x10.g"
+            case 111: {
+               //#line 2086 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2084 "x10/parser/x10.g"
                 List<AnnotationNode> Annotationsopt = (List<AnnotationNode>) getRhsSym(1);
-                //#line 2079 "x10/parser/x10.g"
+                //#line 2084 "x10/parser/x10.g"
                 Stmt NonExpressionStatement = (Stmt) getRhsSym(2);
-                //#line 2081 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2086 "lpg.generator/templates/java/btParserTemplateF.gi"
                 if (NonExpressionStatement.ext() instanceof X10Ext) {
                     NonExpressionStatement = (Stmt) ((X10Ext) NonExpressionStatement.ext()).annotations(Annotationsopt);
                 }
@@ -3094,164 +3106,164 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 136:  OfferStatement ::= offer Expression ;
+            // Rule 137:  OfferStatement ::= offer Expression ;
             //
-            case 136: {
-               //#line 2118 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2116 "x10/parser/x10.g"
+            case 137: {
+               //#line 2123 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2121 "x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(2);
-                //#line 2118 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2123 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Offer(pos(), Expression));
                       break;
             }
     
             //
-            // Rule 137:  IfThenStatement ::= if ( Expression ) Statement
+            // Rule 138:  IfThenStatement ::= if ( Expression ) Statement
             //
-            case 137: {
-               //#line 2124 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2122 "x10/parser/x10.g"
+            case 138: {
+               //#line 2129 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2127 "x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 2122 "x10/parser/x10.g"
+                //#line 2127 "x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(5);
-                //#line 2124 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2129 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.If(pos(), Expression, Statement));
                       break;
             }
     
             //
-            // Rule 138:  IfThenElseStatement ::= if ( Expression ) Statement$s1 else Statement$s2
+            // Rule 139:  IfThenElseStatement ::= if ( Expression ) Statement$s1 else Statement$s2
             //
-            case 138: {
-               //#line 2130 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2128 "x10/parser/x10.g"
+            case 139: {
+               //#line 2135 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2133 "x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 2128 "x10/parser/x10.g"
+                //#line 2133 "x10/parser/x10.g"
                 Stmt s1 = (Stmt) getRhsSym(5);
-                //#line 2128 "x10/parser/x10.g"
+                //#line 2133 "x10/parser/x10.g"
                 Stmt s2 = (Stmt) getRhsSym(7);
-                //#line 2130 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2135 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.If(pos(), Expression, s1, s2));
                       break;
             }
     
             //
-            // Rule 139:  EmptyStatement ::= ;
+            // Rule 140:  EmptyStatement ::= ;
             //
-            case 139: {
-               //#line 2136 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 140: {
+               //#line 2141 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2136 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2141 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Empty(pos()));
                       break;
             }
     
             //
-            // Rule 140:  LabeledStatement ::= Identifier : LoopStatement
+            // Rule 141:  LabeledStatement ::= Identifier : LoopStatement
             //
-            case 140: {
-               //#line 2142 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2140 "x10/parser/x10.g"
+            case 141: {
+               //#line 2147 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2145 "x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 2140 "x10/parser/x10.g"
+                //#line 2145 "x10/parser/x10.g"
                 Stmt LoopStatement = (Stmt) getRhsSym(3);
-                //#line 2142 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2147 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Labeled(pos(), Identifier, LoopStatement));
                       break;
             }
     
             //
-            // Rule 145:  ExpressionStatement ::= StatementExpression ;
+            // Rule 146:  ExpressionStatement ::= StatementExpression ;
             //
-            case 145: {
-               //#line 2154 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2152 "x10/parser/x10.g"
+            case 146: {
+               //#line 2159 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2157 "x10/parser/x10.g"
                 Expr StatementExpression = (Expr) getRhsSym(1);
-                //#line 2154 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2159 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Eval(pos(), StatementExpression));
                       break;
             }
     
             //
-            // Rule 153:  AssertStatement ::= assert Expression ;
+            // Rule 154:  AssertStatement ::= assert Expression ;
             //
-            case 153: {
-               //#line 2168 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2166 "x10/parser/x10.g"
+            case 154: {
+               //#line 2173 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2171 "x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(2);
-                //#line 2168 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2173 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Assert(pos(), Expression));
                       break;
             }
     
             //
-            // Rule 154:  AssertStatement ::= assert Expression$expr1 : Expression$expr2 ;
+            // Rule 155:  AssertStatement ::= assert Expression$expr1 : Expression$expr2 ;
             //
-            case 154: {
-               //#line 2173 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2171 "x10/parser/x10.g"
+            case 155: {
+               //#line 2178 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2176 "x10/parser/x10.g"
                 Expr expr1 = (Expr) getRhsSym(2);
-                //#line 2171 "x10/parser/x10.g"
+                //#line 2176 "x10/parser/x10.g"
                 Expr expr2 = (Expr) getRhsSym(4);
-                //#line 2173 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2178 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Assert(pos(), expr1, expr2));
                       break;
             }
     
             //
-            // Rule 155:  SwitchStatement ::= switch ( Expression ) SwitchBlock
+            // Rule 156:  SwitchStatement ::= switch ( Expression ) SwitchBlock
             //
-            case 155: {
-               //#line 2179 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2177 "x10/parser/x10.g"
+            case 156: {
+               //#line 2184 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2182 "x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 2177 "x10/parser/x10.g"
+                //#line 2182 "x10/parser/x10.g"
                 List<SwitchElement> SwitchBlock = (List<SwitchElement>) getRhsSym(5);
-                //#line 2179 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2184 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Switch(pos(), Expression, SwitchBlock));
                       break;
             }
     
             //
-            // Rule 156:  SwitchBlock ::= { SwitchBlockStatementGroupsopt SwitchLabelsopt }
+            // Rule 157:  SwitchBlock ::= { SwitchBlockStatementGroupsopt SwitchLabelsopt }
             //
-            case 156: {
-               //#line 2185 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2183 "x10/parser/x10.g"
+            case 157: {
+               //#line 2190 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2188 "x10/parser/x10.g"
                 List<Stmt> SwitchBlockStatementGroupsopt = (List<Stmt>) getRhsSym(2);
-                //#line 2183 "x10/parser/x10.g"
+                //#line 2188 "x10/parser/x10.g"
                 List<Case> SwitchLabelsopt = (List<Case>) getRhsSym(3);
-                //#line 2185 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2190 "lpg.generator/templates/java/btParserTemplateF.gi"
                 SwitchBlockStatementGroupsopt.addAll(SwitchLabelsopt);
                 setResult(SwitchBlockStatementGroupsopt);
                       break;
             }
     
             //
-            // Rule 158:  SwitchBlockStatementGroups ::= SwitchBlockStatementGroups SwitchBlockStatementGroup
+            // Rule 159:  SwitchBlockStatementGroups ::= SwitchBlockStatementGroups SwitchBlockStatementGroup
             //
-            case 158: {
-               //#line 2193 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2191 "x10/parser/x10.g"
+            case 159: {
+               //#line 2198 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2196 "x10/parser/x10.g"
                 List<SwitchElement> SwitchBlockStatementGroups = (List<SwitchElement>) getRhsSym(1);
-                //#line 2191 "x10/parser/x10.g"
+                //#line 2196 "x10/parser/x10.g"
                 List<SwitchElement> SwitchBlockStatementGroup = (List<SwitchElement>) getRhsSym(2);
-                //#line 2193 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2198 "lpg.generator/templates/java/btParserTemplateF.gi"
                 SwitchBlockStatementGroups.addAll(SwitchBlockStatementGroup);
                 // setResult(SwitchBlockStatementGroups);
                       break;
             }
     
             //
-            // Rule 159:  SwitchBlockStatementGroup ::= SwitchLabels BlockStatements
+            // Rule 160:  SwitchBlockStatementGroup ::= SwitchLabels BlockStatements
             //
-            case 159: {
-               //#line 2200 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2198 "x10/parser/x10.g"
+            case 160: {
+               //#line 2205 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2203 "x10/parser/x10.g"
                 List<SwitchElement> SwitchLabels = (List<SwitchElement>) getRhsSym(1);
-                //#line 2198 "x10/parser/x10.g"
+                //#line 2203 "x10/parser/x10.g"
                 List<Stmt> BlockStatements = (List<Stmt>) getRhsSym(2);
-                //#line 2200 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2205 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<SwitchElement> l = new TypedList<SwitchElement>(new LinkedList<SwitchElement>(), SwitchElement.class, false);
                 l.addAll(SwitchLabels);
                 l.add(nf.SwitchBlock(pos(), BlockStatements));
@@ -3260,13 +3272,13 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 160:  SwitchLabels ::= SwitchLabel
+            // Rule 161:  SwitchLabels ::= SwitchLabel
             //
-            case 160: {
-               //#line 2209 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2207 "x10/parser/x10.g"
+            case 161: {
+               //#line 2214 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2212 "x10/parser/x10.g"
                 Case SwitchLabel = (Case) getRhsSym(1);
-                //#line 2209 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2214 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Case> l = new TypedList<Case>(new LinkedList<Case>(), Case.class, false);
                 l.add(SwitchLabel);
                 setResult(l);
@@ -3274,97 +3286,97 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 161:  SwitchLabels ::= SwitchLabels SwitchLabel
+            // Rule 162:  SwitchLabels ::= SwitchLabels SwitchLabel
             //
-            case 161: {
-               //#line 2216 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2214 "x10/parser/x10.g"
+            case 162: {
+               //#line 2221 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2219 "x10/parser/x10.g"
                 List<SwitchElement> SwitchLabels = (List<SwitchElement>) getRhsSym(1);
-                //#line 2214 "x10/parser/x10.g"
+                //#line 2219 "x10/parser/x10.g"
                 Case SwitchLabel = (Case) getRhsSym(2);
-                //#line 2216 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2221 "lpg.generator/templates/java/btParserTemplateF.gi"
                 SwitchLabels.add(SwitchLabel);
                 //setResult(SwitchLabels);
                       break;
             }
     
             //
-            // Rule 162:  SwitchLabel ::= case ConstantExpression :
+            // Rule 163:  SwitchLabel ::= case ConstantExpression :
             //
-            case 162: {
-               //#line 2223 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2221 "x10/parser/x10.g"
+            case 163: {
+               //#line 2228 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2226 "x10/parser/x10.g"
                 Expr ConstantExpression = (Expr) getRhsSym(2);
-                //#line 2223 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2228 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Case(pos(), ConstantExpression));
                       break;
             }
     
             //
-            // Rule 163:  SwitchLabel ::= default :
+            // Rule 164:  SwitchLabel ::= default :
             //
-            case 163: {
-               //#line 2228 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 164: {
+               //#line 2233 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2228 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2233 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Default(pos()));
                       break;
             }
     
             //
-            // Rule 164:  WhileStatement ::= while ( Expression ) Statement
+            // Rule 165:  WhileStatement ::= while ( Expression ) Statement
             //
-            case 164: {
-               //#line 2234 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2232 "x10/parser/x10.g"
+            case 165: {
+               //#line 2239 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2237 "x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 2232 "x10/parser/x10.g"
+                //#line 2237 "x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(5);
-                //#line 2234 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2239 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.While(pos(), Expression, Statement));
                       break;
             }
     
             //
-            // Rule 165:  DoStatement ::= do Statement while ( Expression ) ;
+            // Rule 166:  DoStatement ::= do Statement while ( Expression ) ;
             //
-            case 165: {
-               //#line 2240 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2238 "x10/parser/x10.g"
+            case 166: {
+               //#line 2245 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2243 "x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(2);
-                //#line 2238 "x10/parser/x10.g"
+                //#line 2243 "x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(5);
-                //#line 2240 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2245 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Do(pos(), Statement, Expression));
                       break;
             }
     
             //
-            // Rule 168:  BasicForStatement ::= for ( ForInitopt ; Expressionopt ; ForUpdateopt ) Statement
+            // Rule 169:  BasicForStatement ::= for ( ForInitopt ; Expressionopt ; ForUpdateopt ) Statement
             //
-            case 168: {
-               //#line 2249 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2247 "x10/parser/x10.g"
+            case 169: {
+               //#line 2254 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2252 "x10/parser/x10.g"
                 List<ForInit> ForInitopt = (List<ForInit>) getRhsSym(3);
-                //#line 2247 "x10/parser/x10.g"
+                //#line 2252 "x10/parser/x10.g"
                 Expr Expressionopt = (Expr) getRhsSym(5);
-                //#line 2247 "x10/parser/x10.g"
+                //#line 2252 "x10/parser/x10.g"
                 List<ForUpdate> ForUpdateopt = (List<ForUpdate>) getRhsSym(7);
-                //#line 2247 "x10/parser/x10.g"
+                //#line 2252 "x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(9);
-                //#line 2249 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2254 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.For(pos(), ForInitopt, Expressionopt, ForUpdateopt, Statement));
                       break;
             }
     
             //
-            // Rule 170:  ForInit ::= LocalVariableDeclaration
+            // Rule 171:  ForInit ::= LocalVariableDeclaration
             //
-            case 170: {
-               //#line 2256 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2254 "x10/parser/x10.g"
+            case 171: {
+               //#line 2261 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2259 "x10/parser/x10.g"
                 List<LocalDecl> LocalVariableDeclaration = (List<LocalDecl>) getRhsSym(1);
-                //#line 2256 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2261 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<ForInit> l = new TypedList<ForInit>(new LinkedList<ForInit>(), ForInit.class, false);
                 l.addAll(LocalVariableDeclaration);
                 //setResult(l);
@@ -3372,13 +3384,13 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 172:  StatementExpressionList ::= StatementExpression
+            // Rule 173:  StatementExpressionList ::= StatementExpression
             //
-            case 172: {
-               //#line 2266 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2264 "x10/parser/x10.g"
+            case 173: {
+               //#line 2271 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2269 "x10/parser/x10.g"
                 Expr StatementExpression = (Expr) getRhsSym(1);
-                //#line 2266 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2271 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Eval> l = new TypedList<Eval>(new LinkedList<Eval>(), Eval.class, false);
                 l.add(nf.Eval(pos(), StatementExpression));
                 setResult(l);
@@ -3386,105 +3398,105 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 173:  StatementExpressionList ::= StatementExpressionList , StatementExpression
+            // Rule 174:  StatementExpressionList ::= StatementExpressionList , StatementExpression
             //
-            case 173: {
-               //#line 2273 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2271 "x10/parser/x10.g"
+            case 174: {
+               //#line 2278 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2276 "x10/parser/x10.g"
                 List<Eval> StatementExpressionList = (List<Eval>) getRhsSym(1);
-                //#line 2271 "x10/parser/x10.g"
+                //#line 2276 "x10/parser/x10.g"
                 Expr StatementExpression = (Expr) getRhsSym(3);
-                //#line 2273 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2278 "lpg.generator/templates/java/btParserTemplateF.gi"
                 StatementExpressionList.add(nf.Eval(pos(), StatementExpression));
                       break;
             }
     
             //
-            // Rule 174:  BreakStatement ::= break Identifieropt ;
+            // Rule 175:  BreakStatement ::= break Identifieropt ;
             //
-            case 174: {
-               //#line 2279 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2277 "x10/parser/x10.g"
+            case 175: {
+               //#line 2284 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2282 "x10/parser/x10.g"
                 Id Identifieropt = (Id) getRhsSym(2);
-                //#line 2279 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2284 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Break(pos(), Identifieropt));
                       break;
             }
     
             //
-            // Rule 175:  ContinueStatement ::= continue Identifieropt ;
+            // Rule 176:  ContinueStatement ::= continue Identifieropt ;
             //
-            case 175: {
-               //#line 2285 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2283 "x10/parser/x10.g"
+            case 176: {
+               //#line 2290 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2288 "x10/parser/x10.g"
                 Id Identifieropt = (Id) getRhsSym(2);
-                //#line 2285 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2290 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Continue(pos(), Identifieropt));
                       break;
             }
     
             //
-            // Rule 176:  ReturnStatement ::= return Expressionopt ;
+            // Rule 177:  ReturnStatement ::= return Expressionopt ;
             //
-            case 176: {
-               //#line 2291 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2289 "x10/parser/x10.g"
+            case 177: {
+               //#line 2296 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2294 "x10/parser/x10.g"
                 Expr Expressionopt = (Expr) getRhsSym(2);
-                //#line 2291 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2296 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Return(pos(), Expressionopt));
                       break;
             }
     
             //
-            // Rule 177:  ThrowStatement ::= throw Expression ;
+            // Rule 178:  ThrowStatement ::= throw Expression ;
             //
-            case 177: {
-               //#line 2297 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2295 "x10/parser/x10.g"
+            case 178: {
+               //#line 2302 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2300 "x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(2);
-                //#line 2297 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2302 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Throw(pos(), Expression));
                       break;
             }
     
             //
-            // Rule 178:  TryStatement ::= try Block Catches
-            //
-            case 178: {
-               //#line 2303 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2301 "x10/parser/x10.g"
-                Block Block = (Block) getRhsSym(2);
-                //#line 2301 "x10/parser/x10.g"
-                List<Catch> Catches = (List<Catch>) getRhsSym(3);
-                //#line 2303 "lpg.generator/templates/java/btParserTemplateF.gi"
-                setResult(nf.Try(pos(), Block, Catches));
-                      break;
-            }
-    
-            //
-            // Rule 179:  TryStatement ::= try Block Catchesopt Finally
+            // Rule 179:  TryStatement ::= try Block Catches
             //
             case 179: {
                //#line 2308 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2306 "x10/parser/x10.g"
                 Block Block = (Block) getRhsSym(2);
                 //#line 2306 "x10/parser/x10.g"
-                List<Catch> Catchesopt = (List<Catch>) getRhsSym(3);
-                //#line 2306 "x10/parser/x10.g"
-                Block Finally = (Block) getRhsSym(4);
+                List<Catch> Catches = (List<Catch>) getRhsSym(3);
                 //#line 2308 "lpg.generator/templates/java/btParserTemplateF.gi"
+                setResult(nf.Try(pos(), Block, Catches));
+                      break;
+            }
+    
+            //
+            // Rule 180:  TryStatement ::= try Block Catchesopt Finally
+            //
+            case 180: {
+               //#line 2313 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2311 "x10/parser/x10.g"
+                Block Block = (Block) getRhsSym(2);
+                //#line 2311 "x10/parser/x10.g"
+                List<Catch> Catchesopt = (List<Catch>) getRhsSym(3);
+                //#line 2311 "x10/parser/x10.g"
+                Block Finally = (Block) getRhsSym(4);
+                //#line 2313 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Try(pos(), Block, Catchesopt, Finally));
                       break;
             }
     
             //
-            // Rule 180:  Catches ::= CatchClause
+            // Rule 181:  Catches ::= CatchClause
             //
-            case 180: {
-               //#line 2314 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2312 "x10/parser/x10.g"
+            case 181: {
+               //#line 2319 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2317 "x10/parser/x10.g"
                 Catch CatchClause = (Catch) getRhsSym(1);
-                //#line 2314 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2319 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Catch> l = new TypedList<Catch>(new LinkedList<Catch>(), Catch.class, false);
                 l.add(CatchClause);
                 setResult(l);
@@ -3492,138 +3504,138 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 181:  Catches ::= Catches CatchClause
+            // Rule 182:  Catches ::= Catches CatchClause
             //
-            case 181: {
-               //#line 2321 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2319 "x10/parser/x10.g"
+            case 182: {
+               //#line 2326 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2324 "x10/parser/x10.g"
                 List<Catch> Catches = (List<Catch>) getRhsSym(1);
-                //#line 2319 "x10/parser/x10.g"
+                //#line 2324 "x10/parser/x10.g"
                 Catch CatchClause = (Catch) getRhsSym(2);
-                //#line 2321 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2326 "lpg.generator/templates/java/btParserTemplateF.gi"
                 Catches.add(CatchClause);
                 //setResult(Catches);
                       break;
             }
     
             //
-            // Rule 182:  CatchClause ::= catch ( FormalParameter ) Block
+            // Rule 183:  CatchClause ::= catch ( FormalParameter ) Block
             //
-            case 182: {
-               //#line 2328 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2326 "x10/parser/x10.g"
+            case 183: {
+               //#line 2333 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2331 "x10/parser/x10.g"
                 X10Formal FormalParameter = (X10Formal) getRhsSym(3);
-                //#line 2326 "x10/parser/x10.g"
+                //#line 2331 "x10/parser/x10.g"
                 Block Block = (Block) getRhsSym(5);
-                //#line 2328 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2333 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Catch(pos(), FormalParameter, Block));
                       break;
             }
     
             //
-            // Rule 183:  Finally ::= finally Block
+            // Rule 184:  Finally ::= finally Block
             //
-            case 183: {
-               //#line 2334 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2332 "x10/parser/x10.g"
+            case 184: {
+               //#line 2339 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2337 "x10/parser/x10.g"
                 Block Block = (Block) getRhsSym(2);
-                //#line 2334 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2339 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Block);
                       break;
             }
     
             //
-            // Rule 184:  ClockedClause ::= clocked ( ClockList )
+            // Rule 185:  ClockedClause ::= clocked ( ClockList )
             //
-            case 184: {
-               //#line 2340 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2338 "x10/parser/x10.g"
+            case 185: {
+               //#line 2345 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2343 "x10/parser/x10.g"
                 List<Expr> ClockList = (List<Expr>) getRhsSym(3);
-                //#line 2340 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2345 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(ClockList);
                       break;
             }
     
             //
-            // Rule 185:  AsyncStatement ::= async ClockedClauseopt Statement
+            // Rule 186:  AsyncStatement ::= async ClockedClauseopt Statement
             //
-            case 185: {
-               //#line 2347 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2345 "x10/parser/x10.g"
+            case 186: {
+               //#line 2352 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2350 "x10/parser/x10.g"
                 List<Expr> ClockedClauseopt = (List<Expr>) getRhsSym(2);
-                //#line 2345 "x10/parser/x10.g"
+                //#line 2350 "x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(3);
-                //#line 2347 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2352 "lpg.generator/templates/java/btParserTemplateF.gi"
               setResult(nf.Async(pos(), ClockedClauseopt, Statement));
                       break;
             }
     
             //
-            // Rule 186:  AsyncStatement ::= clocked async Statement
+            // Rule 187:  AsyncStatement ::= clocked async Statement
             //
-            case 186: {
-               //#line 2352 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2350 "x10/parser/x10.g"
+            case 187: {
+               //#line 2357 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2355 "x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(3);
-                //#line 2352 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2357 "lpg.generator/templates/java/btParserTemplateF.gi"
               setResult(nf.Async(pos(), Statement, true));
                       break;
             }
     
             //
-            // Rule 187:  AtStatement ::= at PlaceExpressionSingleList Statement
+            // Rule 188:  AtStatement ::= at PlaceExpressionSingleList Statement
             //
-            case 187: {
-               //#line 2359 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2357 "x10/parser/x10.g"
+            case 188: {
+               //#line 2364 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2362 "x10/parser/x10.g"
                 Expr PlaceExpressionSingleList = (Expr) getRhsSym(2);
-                //#line 2357 "x10/parser/x10.g"
+                //#line 2362 "x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(3);
-                //#line 2359 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2364 "lpg.generator/templates/java/btParserTemplateF.gi"
               setResult(nf.AtStmt(pos(), PlaceExpressionSingleList, Statement));
                       break;
             }
     
             //
-            // Rule 188:  AtomicStatement ::= atomic Statement
+            // Rule 189:  AtomicStatement ::= atomic Statement
             //
-            case 188: {
-               //#line 2365 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2363 "x10/parser/x10.g"
+            case 189: {
+               //#line 2370 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2368 "x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(2);
-                //#line 2365 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2370 "lpg.generator/templates/java/btParserTemplateF.gi"
               setResult(nf.Atomic(pos(), nf.Here(pos(getLeftSpan())), Statement));
                       break;
             }
     
             //
-            // Rule 189:  WhenStatement ::= when ( Expression ) Statement
+            // Rule 190:  WhenStatement ::= when ( Expression ) Statement
             //
-            case 189: {
-               //#line 2372 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2370 "x10/parser/x10.g"
+            case 190: {
+               //#line 2377 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2375 "x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 2370 "x10/parser/x10.g"
+                //#line 2375 "x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(5);
-                //#line 2372 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2377 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.When(pos(), Expression, Statement));
                       break;
             }
     
             //
-            // Rule 190:  AtEachStatement ::= ateach ( LoopIndex in Expression ) ClockedClauseopt Statement
+            // Rule 191:  AtEachStatement ::= ateach ( LoopIndex in Expression ) ClockedClauseopt Statement
             //
-            case 190: {
-               //#line 2435 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2433 "x10/parser/x10.g"
+            case 191: {
+               //#line 2440 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2438 "x10/parser/x10.g"
                 X10Formal LoopIndex = (X10Formal) getRhsSym(3);
-                //#line 2433 "x10/parser/x10.g"
+                //#line 2438 "x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(5);
-                //#line 2433 "x10/parser/x10.g"
+                //#line 2438 "x10/parser/x10.g"
                 List<Expr> ClockedClauseopt = (List<Expr>) getRhsSym(7);
-                //#line 2433 "x10/parser/x10.g"
+                //#line 2438 "x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(8);
-                //#line 2435 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2440 "lpg.generator/templates/java/btParserTemplateF.gi"
                 FlagsNode fn = LoopIndex.flags();
                 if (! fn.flags().isFinal()) {
                     syntaxError("Enhanced ateach loop may not have var loop index" + LoopIndex, LoopIndex.position());
@@ -3639,15 +3651,15 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 191:  AtEachStatement ::= ateach ( Expression ) Statement
+            // Rule 192:  AtEachStatement ::= ateach ( Expression ) Statement
             //
-            case 191: {
-               //#line 2450 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2448 "x10/parser/x10.g"
+            case 192: {
+               //#line 2455 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2453 "x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 2448 "x10/parser/x10.g"
+                //#line 2453 "x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(5);
-                //#line 2450 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2455 "lpg.generator/templates/java/btParserTemplateF.gi"
                 Id name = nf.Id(pos(), Name.makeFresh());
                 TypeNode type = nf.UnknownTypeNode(pos());
                 setResult(nf.AtEach(pos(),
@@ -3659,17 +3671,17 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 192:  EnhancedForStatement ::= for ( LoopIndex in Expression ) Statement
+            // Rule 193:  EnhancedForStatement ::= for ( LoopIndex in Expression ) Statement
             //
-            case 192: {
-               //#line 2461 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2459 "x10/parser/x10.g"
+            case 193: {
+               //#line 2466 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2464 "x10/parser/x10.g"
                 X10Formal LoopIndex = (X10Formal) getRhsSym(3);
-                //#line 2459 "x10/parser/x10.g"
+                //#line 2464 "x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(5);
-                //#line 2459 "x10/parser/x10.g"
+                //#line 2464 "x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(7);
-                //#line 2461 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2466 "lpg.generator/templates/java/btParserTemplateF.gi"
                 FlagsNode fn = LoopIndex.flags();
                 if (! fn.flags().isFinal()) {
                     syntaxError("Enhanced for loop may not have var loop index" + LoopIndex, LoopIndex.position());
@@ -3684,15 +3696,15 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 193:  EnhancedForStatement ::= for ( Expression ) Statement
+            // Rule 194:  EnhancedForStatement ::= for ( Expression ) Statement
             //
-            case 193: {
-               //#line 2475 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2473 "x10/parser/x10.g"
+            case 194: {
+               //#line 2480 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2478 "x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 2473 "x10/parser/x10.g"
+                //#line 2478 "x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(5);
-                //#line 2475 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2480 "lpg.generator/templates/java/btParserTemplateF.gi"
                 Id name = nf.Id(pos(), Name.makeFresh());
                 TypeNode type = nf.UnknownTypeNode(pos());
                 setResult(nf.ForLoop(pos(),
@@ -3703,71 +3715,71 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 194:  FinishStatement ::= finish Statement
+            // Rule 195:  FinishStatement ::= finish Statement
             //
-            case 194: {
-               //#line 2487 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2485 "x10/parser/x10.g"
+            case 195: {
+               //#line 2492 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2490 "x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(2);
-                //#line 2487 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2492 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Finish(pos(),  Statement, false));
                       break;
             }
     
             //
-            // Rule 195:  FinishStatement ::= clocked finish Statement
+            // Rule 196:  FinishStatement ::= clocked finish Statement
             //
-            case 195: {
-               //#line 2492 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2490 "x10/parser/x10.g"
+            case 196: {
+               //#line 2497 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2495 "x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(3);
-                //#line 2492 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2497 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Finish(pos(),  Statement, true));
                       break;
             }
     
             //
-            // Rule 196:  PlaceExpressionSingleList ::= ( PlaceExpression )
+            // Rule 197:  PlaceExpressionSingleList ::= ( PlaceExpression )
             //
-            case 196: {
-               //#line 2497 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2495 "x10/parser/x10.g"
+            case 197: {
+               //#line 2502 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2500 "x10/parser/x10.g"
                 Expr PlaceExpression = (Expr) getRhsSym(2);
-                //#line 2497 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2502 "lpg.generator/templates/java/btParserTemplateF.gi"
               setResult(PlaceExpression);
                       break;
             }
     
             //
-            // Rule 198:  NextStatement ::= next ;
+            // Rule 199:  NextStatement ::= next ;
             //
-            case 198: {
-               //#line 2505 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 199: {
+               //#line 2510 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2505 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2510 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Next(pos()));
                       break;
             }
     
             //
-            // Rule 199:  ResumeStatement ::= resume ;
+            // Rule 200:  ResumeStatement ::= resume ;
             //
-            case 199: {
-               //#line 2511 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 200: {
+               //#line 2516 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2511 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2516 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Resume(pos()));
                       break;
             }
     
             //
-            // Rule 200:  ClockList ::= Clock
+            // Rule 201:  ClockList ::= Clock
             //
-            case 200: {
-               //#line 2517 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2515 "x10/parser/x10.g"
+            case 201: {
+               //#line 2522 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2520 "x10/parser/x10.g"
                 Expr Clock = (Expr) getRhsSym(1);
-                //#line 2517 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2522 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Expr> l = new TypedList<Expr>(new LinkedList<Expr>(), Expr.class, false);
                 l.add(Clock);
                 setResult(l);
@@ -3775,66 +3787,66 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 201:  ClockList ::= ClockList , Clock
+            // Rule 202:  ClockList ::= ClockList , Clock
             //
-            case 201: {
-               //#line 2524 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2522 "x10/parser/x10.g"
+            case 202: {
+               //#line 2529 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2527 "x10/parser/x10.g"
                 List<Expr> ClockList = (List<Expr>) getRhsSym(1);
-                //#line 2522 "x10/parser/x10.g"
+                //#line 2527 "x10/parser/x10.g"
                 Expr Clock = (Expr) getRhsSym(3);
-                //#line 2524 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2529 "lpg.generator/templates/java/btParserTemplateF.gi"
                 ClockList.add(Clock);
                 setResult(ClockList);
                       break;
             }
     
             //
-            // Rule 202:  Clock ::= Expression
+            // Rule 203:  Clock ::= Expression
             //
-            case 202: {
-               //#line 2532 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2530 "x10/parser/x10.g"
+            case 203: {
+               //#line 2537 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2535 "x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(1);
-                //#line 2532 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2537 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Expression);
                       break;
             }
     
             //
-            // Rule 204:  CastExpression ::= ExpressionName
+            // Rule 205:  CastExpression ::= ExpressionName
             //
-            case 204: {
-               //#line 2545 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2543 "x10/parser/x10.g"
+            case 205: {
+               //#line 2550 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2548 "x10/parser/x10.g"
                 ParsedName ExpressionName = (ParsedName) getRhsSym(1);
-                //#line 2545 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2550 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(ExpressionName.toExpr());
                       break;
             }
     
             //
-            // Rule 205:  CastExpression ::= CastExpression as Type
+            // Rule 206:  CastExpression ::= CastExpression as Type
             //
-            case 205: {
-               //#line 2550 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2548 "x10/parser/x10.g"
+            case 206: {
+               //#line 2555 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2553 "x10/parser/x10.g"
                 Expr CastExpression = (Expr) getRhsSym(1);
-                //#line 2548 "x10/parser/x10.g"
+                //#line 2553 "x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
-                //#line 2550 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2555 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.X10Cast(pos(), Type, CastExpression));
                       break;
             }
     
             //
-            // Rule 206:  TypeParamWithVarianceList ::= TypeParamWithVariance
+            // Rule 207:  TypeParamWithVarianceList ::= TypeParamWithVariance
             //
-            case 206: {
-               //#line 2557 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2555 "x10/parser/x10.g"
+            case 207: {
+               //#line 2562 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2560 "x10/parser/x10.g"
                 TypeParamNode TypeParamWithVariance = (TypeParamNode) getRhsSym(1);
-                //#line 2557 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2562 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<TypeParamNode> l = new TypedList<TypeParamNode>(new LinkedList<TypeParamNode>(), TypeParamNode.class, false);
                 l.add(TypeParamWithVariance);
                 setResult(l);
@@ -3842,28 +3854,28 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 207:  TypeParamWithVarianceList ::= TypeParamWithVarianceList , TypeParamWithVariance
+            // Rule 208:  TypeParamWithVarianceList ::= TypeParamWithVarianceList , TypeParamWithVariance
             //
-            case 207: {
-               //#line 2564 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2562 "x10/parser/x10.g"
+            case 208: {
+               //#line 2569 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2567 "x10/parser/x10.g"
                 List<TypeParamNode> TypeParamWithVarianceList = (List<TypeParamNode>) getRhsSym(1);
-                //#line 2562 "x10/parser/x10.g"
+                //#line 2567 "x10/parser/x10.g"
                 TypeParamNode TypeParamWithVariance = (TypeParamNode) getRhsSym(3);
-                //#line 2564 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2569 "lpg.generator/templates/java/btParserTemplateF.gi"
                 TypeParamWithVarianceList.add(TypeParamWithVariance);
                 setResult(TypeParamWithVarianceList);
                       break;
             }
     
             //
-            // Rule 208:  TypeParameterList ::= TypeParameter
+            // Rule 209:  TypeParameterList ::= TypeParameter
             //
-            case 208: {
-               //#line 2571 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2569 "x10/parser/x10.g"
+            case 209: {
+               //#line 2576 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2574 "x10/parser/x10.g"
                 TypeParamNode TypeParameter = (TypeParamNode) getRhsSym(1);
-                //#line 2571 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2576 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<TypeParamNode> l = new TypedList<TypeParamNode>(new LinkedList<TypeParamNode>(), TypeParamNode.class, false);
                 l.add(TypeParameter);
                 setResult(l);
@@ -3871,140 +3883,140 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 209:  TypeParameterList ::= TypeParameterList , TypeParameter
+            // Rule 210:  TypeParameterList ::= TypeParameterList , TypeParameter
             //
-            case 209: {
-               //#line 2578 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2576 "x10/parser/x10.g"
+            case 210: {
+               //#line 2583 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2581 "x10/parser/x10.g"
                 List<TypeParamNode> TypeParameterList = (List<TypeParamNode>) getRhsSym(1);
-                //#line 2576 "x10/parser/x10.g"
+                //#line 2581 "x10/parser/x10.g"
                 TypeParamNode TypeParameter = (TypeParamNode) getRhsSym(3);
-                //#line 2578 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2583 "lpg.generator/templates/java/btParserTemplateF.gi"
                 TypeParameterList.add(TypeParameter);
                 setResult(TypeParameterList);
                       break;
             }
     
             //
-            // Rule 210:  TypeParamWithVariance ::= Identifier
+            // Rule 211:  TypeParamWithVariance ::= Identifier
             //
-            case 210: {
-               //#line 2585 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2583 "x10/parser/x10.g"
+            case 211: {
+               //#line 2590 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2588 "x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 2585 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2590 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.TypeParamNode(pos(), Identifier, ParameterType.Variance.INVARIANT));
                       break;
             }
     
             //
-            // Rule 211:  TypeParamWithVariance ::= + Identifier
-            //
-            case 211: {
-               //#line 2590 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2588 "x10/parser/x10.g"
-                Id Identifier = (Id) getRhsSym(2);
-                //#line 2590 "lpg.generator/templates/java/btParserTemplateF.gi"
-                setResult(nf.TypeParamNode(pos(), Identifier, ParameterType.Variance.COVARIANT));
-                      break;
-            }
-    
-            //
-            // Rule 212:  TypeParamWithVariance ::= - Identifier
+            // Rule 212:  TypeParamWithVariance ::= + Identifier
             //
             case 212: {
                //#line 2595 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2593 "x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(2);
                 //#line 2595 "lpg.generator/templates/java/btParserTemplateF.gi"
+                setResult(nf.TypeParamNode(pos(), Identifier, ParameterType.Variance.COVARIANT));
+                      break;
+            }
+    
+            //
+            // Rule 213:  TypeParamWithVariance ::= - Identifier
+            //
+            case 213: {
+               //#line 2600 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2598 "x10/parser/x10.g"
+                Id Identifier = (Id) getRhsSym(2);
+                //#line 2600 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.TypeParamNode(pos(), Identifier, ParameterType.Variance.CONTRAVARIANT));
                       break;
             }
     
             //
-            // Rule 213:  TypeParameter ::= Identifier
+            // Rule 214:  TypeParameter ::= Identifier
             //
-            case 213: {
-               //#line 2601 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2599 "x10/parser/x10.g"
+            case 214: {
+               //#line 2606 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2604 "x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 2601 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2606 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.TypeParamNode(pos(), Identifier));
                       break;
             }
     
             //
-            // Rule 214:  AssignmentExpression ::= Expression$expr1 -> Expression$expr2
+            // Rule 215:  AssignmentExpression ::= Expression$expr1 -> Expression$expr2
             //
-            case 214: {
-               //#line 2626 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2624 "x10/parser/x10.g"
+            case 215: {
+               //#line 2631 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2629 "x10/parser/x10.g"
                 Expr expr1 = (Expr) getRhsSym(1);
-                //#line 2624 "x10/parser/x10.g"
+                //#line 2629 "x10/parser/x10.g"
                 Expr expr2 = (Expr) getRhsSym(3);
-                //#line 2626 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2631 "lpg.generator/templates/java/btParserTemplateF.gi"
                 Expr call = nf.ConstantDistMaker(pos(), expr1, expr2);
                 setResult(call);
                       break;
             }
     
             //
-            // Rule 215:  ClosureExpression ::= FormalParameters WhereClauseopt HasResultTypeopt Offersopt => ClosureBody
+            // Rule 216:  ClosureExpression ::= FormalParameters WhereClauseopt HasResultTypeopt Offersopt => ClosureBody
             //
-            case 215: {
-               //#line 2632 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2630 "x10/parser/x10.g"
+            case 216: {
+               //#line 2637 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2635 "x10/parser/x10.g"
                 List<Formal> FormalParameters = (List<Formal>) getRhsSym(1);
-                //#line 2630 "x10/parser/x10.g"
+                //#line 2635 "x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(2);
-                //#line 2630 "x10/parser/x10.g"
+                //#line 2635 "x10/parser/x10.g"
                 TypeNode HasResultTypeopt = (TypeNode) getRhsSym(3);
-                //#line 2630 "x10/parser/x10.g"
+                //#line 2635 "x10/parser/x10.g"
                 TypeNode Offersopt = (TypeNode) getRhsSym(4);
-                //#line 2630 "x10/parser/x10.g"
+                //#line 2635 "x10/parser/x10.g"
                 Block ClosureBody = (Block) getRhsSym(6);
-                //#line 2632 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2637 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Closure(pos(), FormalParameters, WhereClauseopt, 
           HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,  ClosureBody));
                       break;
             }
     
             //
-            // Rule 216:  LastExpression ::= Expression
+            // Rule 217:  LastExpression ::= Expression
             //
-            case 216: {
-               //#line 2639 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2637 "x10/parser/x10.g"
+            case 217: {
+               //#line 2644 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2642 "x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(1);
-                //#line 2639 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2644 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.X10Return(pos(), Expression, true));
                       break;
             }
     
             //
-            // Rule 217:  ClosureBody ::= ConditionalExpression
+            // Rule 218:  ClosureBody ::= ConditionalExpression
             //
-            case 217: {
-               //#line 2645 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2643 "x10/parser/x10.g"
+            case 218: {
+               //#line 2650 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2648 "x10/parser/x10.g"
                 Expr ConditionalExpression = (Expr) getRhsSym(1);
-                //#line 2645 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2650 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Block(pos(), nf.X10Return(pos(), ConditionalExpression, true)));
                       break;
             }
     
             //
-            // Rule 218:  ClosureBody ::= Annotationsopt { BlockStatementsopt LastExpression }
+            // Rule 219:  ClosureBody ::= Annotationsopt { BlockStatementsopt LastExpression }
             //
-            case 218: {
-               //#line 2650 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2648 "x10/parser/x10.g"
+            case 219: {
+               //#line 2655 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2653 "x10/parser/x10.g"
                 List<AnnotationNode> Annotationsopt = (List<AnnotationNode>) getRhsSym(1);
-                //#line 2648 "x10/parser/x10.g"
+                //#line 2653 "x10/parser/x10.g"
                 List<Stmt> BlockStatementsopt = (List<Stmt>) getRhsSym(3);
-                //#line 2648 "x10/parser/x10.g"
+                //#line 2653 "x10/parser/x10.g"
                 Stmt LastExpression = (Stmt) getRhsSym(4);
-                //#line 2650 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2655 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Stmt> l = new ArrayList<Stmt>();
                 l.addAll(BlockStatementsopt);
                 l.add(LastExpression);
@@ -4015,15 +4027,15 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 219:  ClosureBody ::= Annotationsopt Block
+            // Rule 220:  ClosureBody ::= Annotationsopt Block
             //
-            case 219: {
-               //#line 2660 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2658 "x10/parser/x10.g"
+            case 220: {
+               //#line 2665 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2663 "x10/parser/x10.g"
                 List<AnnotationNode> Annotationsopt = (List<AnnotationNode>) getRhsSym(1);
-                //#line 2658 "x10/parser/x10.g"
+                //#line 2663 "x10/parser/x10.g"
                 Block Block = (Block) getRhsSym(2);
-                //#line 2660 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2665 "lpg.generator/templates/java/btParserTemplateF.gi"
                 Block b = Block;
                 b = (Block) ((X10Ext) b.ext()).annotations(Annotationsopt);
                 setResult(b.position(pos()));
@@ -4031,93 +4043,93 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 220:  AtExpression ::= at PlaceExpressionSingleList ClosureBody
+            // Rule 221:  AtExpression ::= at PlaceExpressionSingleList ClosureBody
             //
-            case 220: {
-               //#line 2669 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2667 "x10/parser/x10.g"
+            case 221: {
+               //#line 2674 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2672 "x10/parser/x10.g"
                 Expr PlaceExpressionSingleList = (Expr) getRhsSym(2);
-                //#line 2667 "x10/parser/x10.g"
+                //#line 2672 "x10/parser/x10.g"
                 Block ClosureBody = (Block) getRhsSym(3);
-                //#line 2669 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2674 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.AtExpr(pos(), PlaceExpressionSingleList, nf.UnknownTypeNode(pos()), ClosureBody));
                       break;
             }
     
             //
-            // Rule 221:  FinishExpression ::= finish ( Expression ) Block
+            // Rule 222:  FinishExpression ::= finish ( Expression ) Block
             //
-            case 221: {
-               //#line 2675 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2673 "x10/parser/x10.g"
+            case 222: {
+               //#line 2680 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2678 "x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 2673 "x10/parser/x10.g"
+                //#line 2678 "x10/parser/x10.g"
                 Block Block = (Block) getRhsSym(5);
-                //#line 2675 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2680 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.FinishExpr(pos(), Expression, Block));
                       break;
             }
     
             //
-            // Rule 222:  WhereClauseopt ::= $Empty
+            // Rule 223:  WhereClauseopt ::= $Empty
             //
-            case 222:
+            case 223:
                 setResult(null);
                 break;
 
             //
-            // Rule 224:  PlaceExpressionSingleListopt ::= $Empty
+            // Rule 225:  PlaceExpressionSingleListopt ::= $Empty
             //
-            case 224:
+            case 225:
                 setResult(null);
                 break;
 
             //
-            // Rule 226:  ClockedClauseopt ::= $Empty
+            // Rule 227:  ClockedClauseopt ::= $Empty
             //
-            case 226: {
-               //#line 2723 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 227: {
+               //#line 2728 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2723 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2728 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList<Expr>(new LinkedList<Expr>(), Expr.class, false));
                       break;
             }
     
             //
-            // Rule 228:  identifier ::= IDENTIFIER$ident
+            // Rule 229:  identifier ::= IDENTIFIER$ident
             //
-            case 228: {
-               //#line 2734 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2732 "x10/parser/x10.g"
+            case 229: {
+               //#line 2739 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2737 "x10/parser/x10.g"
                 IToken ident = (IToken) getRhsIToken(1);
-                //#line 2734 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2739 "lpg.generator/templates/java/btParserTemplateF.gi"
                 ident.setKind(X10Parsersym.TK_IDENTIFIER);
                 setResult(id(getRhsFirstTokenIndex(1)));
                       break;
             }
     
             //
-            // Rule 229:  TypeName ::= Identifier
+            // Rule 230:  TypeName ::= Identifier
             //
-            case 229: {
-               //#line 2741 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2739 "x10/parser/x10.g"
+            case 230: {
+               //#line 2746 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2744 "x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 2741 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2746 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new X10ParsedName(nf, ts, pos(), Identifier));
                       break;
             }
     
             //
-            // Rule 230:  TypeName ::= TypeName . Identifier
+            // Rule 231:  TypeName ::= TypeName . Identifier
             //
-            case 230: {
-               //#line 2746 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2744 "x10/parser/x10.g"
+            case 231: {
+               //#line 2751 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2749 "x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 2744 "x10/parser/x10.g"
+                //#line 2749 "x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 2746 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2751 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new X10ParsedName(nf,
                                   ts,
                                   pos(getLeftSpan(), getRightSpan()),
@@ -4127,25 +4139,25 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 232:  TypeArguments ::= [ TypeArgumentList ]
+            // Rule 233:  TypeArguments ::= [ TypeArgumentList ]
             //
-            case 232: {
-               //#line 2758 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2756 "x10/parser/x10.g"
+            case 233: {
+               //#line 2763 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2761 "x10/parser/x10.g"
                 List<TypeNode> TypeArgumentList = (List<TypeNode>) getRhsSym(2);
-                //#line 2758 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2763 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(TypeArgumentList);
                       break;
             }
     
             //
-            // Rule 233:  TypeArgumentList ::= Type
+            // Rule 234:  TypeArgumentList ::= Type
             //
-            case 233: {
-               //#line 2765 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2763 "x10/parser/x10.g"
+            case 234: {
+               //#line 2770 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2768 "x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(1);
-                //#line 2765 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2770 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<TypeNode> l = new ArrayList<TypeNode>();
                 l.add(Type);
                 setResult(l);
@@ -4153,41 +4165,41 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 234:  TypeArgumentList ::= TypeArgumentList , Type
+            // Rule 235:  TypeArgumentList ::= TypeArgumentList , Type
             //
-            case 234: {
-               //#line 2772 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2770 "x10/parser/x10.g"
+            case 235: {
+               //#line 2777 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2775 "x10/parser/x10.g"
                 List<TypeNode> TypeArgumentList = (List<TypeNode>) getRhsSym(1);
-                //#line 2770 "x10/parser/x10.g"
+                //#line 2775 "x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
-                //#line 2772 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2777 "lpg.generator/templates/java/btParserTemplateF.gi"
                 TypeArgumentList.add(Type);
                       break;
             }
     
             //
-            // Rule 235:  PackageName ::= Identifier
+            // Rule 236:  PackageName ::= Identifier
             //
-            case 235: {
-               //#line 2782 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2780 "x10/parser/x10.g"
+            case 236: {
+               //#line 2787 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2785 "x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 2782 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2787 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new X10ParsedName(nf, ts, pos(), Identifier));
                       break;
             }
     
             //
-            // Rule 236:  PackageName ::= PackageName . Identifier
+            // Rule 237:  PackageName ::= PackageName . Identifier
             //
-            case 236: {
-               //#line 2787 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2785 "x10/parser/x10.g"
+            case 237: {
+               //#line 2792 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2790 "x10/parser/x10.g"
                 ParsedName PackageName = (ParsedName) getRhsSym(1);
-                //#line 2785 "x10/parser/x10.g"
+                //#line 2790 "x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 2787 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2792 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new X10ParsedName(nf,
                                   ts,
                                   pos(getLeftSpan(), getRightSpan()),
@@ -4197,27 +4209,27 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 237:  ExpressionName ::= Identifier
-            //
-            case 237: {
-               //#line 2803 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2801 "x10/parser/x10.g"
-                Id Identifier = (Id) getRhsSym(1);
-                //#line 2803 "lpg.generator/templates/java/btParserTemplateF.gi"
-                setResult(new X10ParsedName(nf, ts, pos(), Identifier));
-                      break;
-            }
-    
-            //
-            // Rule 238:  ExpressionName ::= AmbiguousName . Identifier
+            // Rule 238:  ExpressionName ::= Identifier
             //
             case 238: {
                //#line 2808 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2806 "x10/parser/x10.g"
-                ParsedName AmbiguousName = (ParsedName) getRhsSym(1);
-                //#line 2806 "x10/parser/x10.g"
-                Id Identifier = (Id) getRhsSym(3);
+                Id Identifier = (Id) getRhsSym(1);
                 //#line 2808 "lpg.generator/templates/java/btParserTemplateF.gi"
+                setResult(new X10ParsedName(nf, ts, pos(), Identifier));
+                      break;
+            }
+    
+            //
+            // Rule 239:  ExpressionName ::= AmbiguousName . Identifier
+            //
+            case 239: {
+               //#line 2813 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2811 "x10/parser/x10.g"
+                ParsedName AmbiguousName = (ParsedName) getRhsSym(1);
+                //#line 2811 "x10/parser/x10.g"
+                Id Identifier = (Id) getRhsSym(3);
+                //#line 2813 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new X10ParsedName(nf,
                                   ts,
                                   pos(getLeftSpan(), getRightSpan()),
@@ -4227,27 +4239,27 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 239:  MethodName ::= Identifier
-            //
-            case 239: {
-               //#line 2818 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2816 "x10/parser/x10.g"
-                Id Identifier = (Id) getRhsSym(1);
-                //#line 2818 "lpg.generator/templates/java/btParserTemplateF.gi"
-                setResult(new X10ParsedName(nf, ts, pos(), Identifier));
-                      break;
-            }
-    
-            //
-            // Rule 240:  MethodName ::= AmbiguousName . Identifier
+            // Rule 240:  MethodName ::= Identifier
             //
             case 240: {
                //#line 2823 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2821 "x10/parser/x10.g"
-                ParsedName AmbiguousName = (ParsedName) getRhsSym(1);
-                //#line 2821 "x10/parser/x10.g"
-                Id Identifier = (Id) getRhsSym(3);
+                Id Identifier = (Id) getRhsSym(1);
                 //#line 2823 "lpg.generator/templates/java/btParserTemplateF.gi"
+                setResult(new X10ParsedName(nf, ts, pos(), Identifier));
+                      break;
+            }
+    
+            //
+            // Rule 241:  MethodName ::= AmbiguousName . Identifier
+            //
+            case 241: {
+               //#line 2828 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2826 "x10/parser/x10.g"
+                ParsedName AmbiguousName = (ParsedName) getRhsSym(1);
+                //#line 2826 "x10/parser/x10.g"
+                Id Identifier = (Id) getRhsSym(3);
+                //#line 2828 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new X10ParsedName(nf,
                                   ts,
                                   pos(getLeftSpan(), getRightSpan()),
@@ -4257,27 +4269,27 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 241:  PackageOrTypeName ::= Identifier
+            // Rule 242:  PackageOrTypeName ::= Identifier
             //
-            case 241: {
-               //#line 2833 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2831 "x10/parser/x10.g"
+            case 242: {
+               //#line 2838 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2836 "x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 2833 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2838 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new X10ParsedName(nf, ts, pos(), Identifier));
                       break;
             }
     
             //
-            // Rule 242:  PackageOrTypeName ::= PackageOrTypeName . Identifier
+            // Rule 243:  PackageOrTypeName ::= PackageOrTypeName . Identifier
             //
-            case 242: {
-               //#line 2838 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2836 "x10/parser/x10.g"
+            case 243: {
+               //#line 2843 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2841 "x10/parser/x10.g"
                 ParsedName PackageOrTypeName = (ParsedName) getRhsSym(1);
-                //#line 2836 "x10/parser/x10.g"
+                //#line 2841 "x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 2838 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2843 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new X10ParsedName(nf,
                                   ts,
                                   pos(getLeftSpan(), getRightSpan()),
@@ -4287,27 +4299,27 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 243:  AmbiguousName ::= Identifier
+            // Rule 244:  AmbiguousName ::= Identifier
             //
-            case 243: {
-               //#line 2848 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2846 "x10/parser/x10.g"
+            case 244: {
+               //#line 2853 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2851 "x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 2848 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2853 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new X10ParsedName(nf, ts, pos(), Identifier));
                       break;
             }
     
             //
-            // Rule 244:  AmbiguousName ::= AmbiguousName . Identifier
+            // Rule 245:  AmbiguousName ::= AmbiguousName . Identifier
             //
-            case 244: {
-               //#line 2853 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2851 "x10/parser/x10.g"
+            case 245: {
+               //#line 2858 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2856 "x10/parser/x10.g"
                 ParsedName AmbiguousName = (ParsedName) getRhsSym(1);
-                //#line 2851 "x10/parser/x10.g"
+                //#line 2856 "x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 2853 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2858 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new X10ParsedName(nf,
                                   ts,
                                   pos(getLeftSpan(), getRightSpan()),
@@ -4317,15 +4329,15 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 245:  CompilationUnit ::= PackageDeclarationopt TypeDeclarationsopt
+            // Rule 246:  CompilationUnit ::= PackageDeclarationopt TypeDeclarationsopt
             //
-            case 245: {
-               //#line 2865 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2863 "x10/parser/x10.g"
+            case 246: {
+               //#line 2870 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2868 "x10/parser/x10.g"
                 PackageNode PackageDeclarationopt = (PackageNode) getRhsSym(1);
-                //#line 2863 "x10/parser/x10.g"
+                //#line 2868 "x10/parser/x10.g"
                 List<TopLevelDecl> TypeDeclarationsopt = (List<TopLevelDecl>) getRhsSym(2);
-                //#line 2865 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2870 "lpg.generator/templates/java/btParserTemplateF.gi"
                 // Add import x10.lang.* by default.
 //                    int token_pos = (ImportDeclarationsopt.size() == 0
 //                                       ? TypeDeclarationsopt.size() == 0
@@ -4344,17 +4356,17 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 246:  CompilationUnit ::= PackageDeclarationopt ImportDeclarations TypeDeclarationsopt
+            // Rule 247:  CompilationUnit ::= PackageDeclarationopt ImportDeclarations TypeDeclarationsopt
             //
-            case 246: {
-               //#line 2883 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2881 "x10/parser/x10.g"
+            case 247: {
+               //#line 2888 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2886 "x10/parser/x10.g"
                 PackageNode PackageDeclarationopt = (PackageNode) getRhsSym(1);
-                //#line 2881 "x10/parser/x10.g"
+                //#line 2886 "x10/parser/x10.g"
                 List<Import> ImportDeclarations = (List<Import>) getRhsSym(2);
-                //#line 2881 "x10/parser/x10.g"
+                //#line 2886 "x10/parser/x10.g"
                 List<TopLevelDecl> TypeDeclarationsopt = (List<TopLevelDecl>) getRhsSym(3);
-                //#line 2883 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2888 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.SourceFile(pos(getLeftSpan(), getRightSpan()),
                                         PackageDeclarationopt,
                                         ImportDeclarations,
@@ -4363,19 +4375,19 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 247:  CompilationUnit ::= ImportDeclarations PackageDeclaration$misplacedPackageDeclaration ImportDeclarationsopt$misplacedImportDeclarations TypeDeclarationsopt
+            // Rule 248:  CompilationUnit ::= ImportDeclarations PackageDeclaration$misplacedPackageDeclaration ImportDeclarationsopt$misplacedImportDeclarations TypeDeclarationsopt
             //
-            case 247: {
-               //#line 2891 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2889 "x10/parser/x10.g"
+            case 248: {
+               //#line 2896 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2894 "x10/parser/x10.g"
                 List<Import> ImportDeclarations = (List<Import>) getRhsSym(1);
-                //#line 2889 "x10/parser/x10.g"
+                //#line 2894 "x10/parser/x10.g"
                 PackageNode misplacedPackageDeclaration = (PackageNode) getRhsSym(2);
-                //#line 2889 "x10/parser/x10.g"
+                //#line 2894 "x10/parser/x10.g"
                 List<Import> misplacedImportDeclarations = (List<Import>) getRhsSym(3);
-                //#line 2889 "x10/parser/x10.g"
+                //#line 2894 "x10/parser/x10.g"
                 List<TopLevelDecl> TypeDeclarationsopt = (List<TopLevelDecl>) getRhsSym(4);
-                //#line 2891 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2896 "lpg.generator/templates/java/btParserTemplateF.gi"
                 syntaxError("Misplaced package declaration", misplacedPackageDeclaration.position());
                 ImportDeclarations.addAll(misplacedImportDeclarations); // merge the two import lists
                 setResult(nf.SourceFile(pos(getLeftSpan(), getRightSpan()),
@@ -4386,21 +4398,21 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 248:  CompilationUnit ::= PackageDeclaration ImportDeclarations PackageDeclaration$misplacedPackageDeclaration ImportDeclarationsopt$misplacedImportDeclarations TypeDeclarationsopt
+            // Rule 249:  CompilationUnit ::= PackageDeclaration ImportDeclarations PackageDeclaration$misplacedPackageDeclaration ImportDeclarationsopt$misplacedImportDeclarations TypeDeclarationsopt
             //
-            case 248: {
-               //#line 2901 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2899 "x10/parser/x10.g"
+            case 249: {
+               //#line 2906 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2904 "x10/parser/x10.g"
                 PackageNode PackageDeclaration = (PackageNode) getRhsSym(1);
-                //#line 2899 "x10/parser/x10.g"
+                //#line 2904 "x10/parser/x10.g"
                 List<Import> ImportDeclarations = (List<Import>) getRhsSym(2);
-                //#line 2899 "x10/parser/x10.g"
+                //#line 2904 "x10/parser/x10.g"
                 PackageNode misplacedPackageDeclaration = (PackageNode) getRhsSym(3);
-                //#line 2899 "x10/parser/x10.g"
+                //#line 2904 "x10/parser/x10.g"
                 List<Import> misplacedImportDeclarations = (List<Import>) getRhsSym(4);
-                //#line 2899 "x10/parser/x10.g"
+                //#line 2904 "x10/parser/x10.g"
                 List<TopLevelDecl> TypeDeclarationsopt = (List<TopLevelDecl>) getRhsSym(5);
-                //#line 2901 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2906 "lpg.generator/templates/java/btParserTemplateF.gi"
                 syntaxError("Misplaced package declaration, ignoring", misplacedPackageDeclaration.position());
                 ImportDeclarations.addAll(misplacedImportDeclarations); // merge the two import lists
                 setResult(nf.SourceFile(pos(getLeftSpan(), getRightSpan()),
@@ -4411,13 +4423,13 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 249:  ImportDeclarations ::= ImportDeclaration
+            // Rule 250:  ImportDeclarations ::= ImportDeclaration
             //
-            case 249: {
-               //#line 2912 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2910 "x10/parser/x10.g"
+            case 250: {
+               //#line 2917 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2915 "x10/parser/x10.g"
                 Import ImportDeclaration = (Import) getRhsSym(1);
-                //#line 2912 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2917 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Import> l = new TypedList<Import>(new LinkedList<Import>(), Import.class, false);
                 l.add(ImportDeclaration);
                 setResult(l);
@@ -4425,15 +4437,15 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 250:  ImportDeclarations ::= ImportDeclarations ImportDeclaration
+            // Rule 251:  ImportDeclarations ::= ImportDeclarations ImportDeclaration
             //
-            case 250: {
-               //#line 2919 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2917 "x10/parser/x10.g"
+            case 251: {
+               //#line 2924 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2922 "x10/parser/x10.g"
                 List<Import> ImportDeclarations = (List<Import>) getRhsSym(1);
-                //#line 2917 "x10/parser/x10.g"
+                //#line 2922 "x10/parser/x10.g"
                 Import ImportDeclaration = (Import) getRhsSym(2);
-                //#line 2919 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2924 "lpg.generator/templates/java/btParserTemplateF.gi"
                 if (ImportDeclaration != null)
                     ImportDeclarations.add(ImportDeclaration);
                 //setResult(l);
@@ -4441,13 +4453,13 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 251:  TypeDeclarations ::= TypeDeclaration
+            // Rule 252:  TypeDeclarations ::= TypeDeclaration
             //
-            case 251: {
-               //#line 2927 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2925 "x10/parser/x10.g"
+            case 252: {
+               //#line 2932 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2930 "x10/parser/x10.g"
                 TopLevelDecl TypeDeclaration = (TopLevelDecl) getRhsSym(1);
-                //#line 2927 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2932 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<TopLevelDecl> l = new TypedList<TopLevelDecl>(new LinkedList<TopLevelDecl>(), TopLevelDecl.class, false);
                 if (TypeDeclaration != null)
                     l.add(TypeDeclaration);
@@ -4456,15 +4468,15 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 252:  TypeDeclarations ::= TypeDeclarations TypeDeclaration
+            // Rule 253:  TypeDeclarations ::= TypeDeclarations TypeDeclaration
             //
-            case 252: {
-               //#line 2935 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2933 "x10/parser/x10.g"
+            case 253: {
+               //#line 2940 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2938 "x10/parser/x10.g"
                 List<TopLevelDecl> TypeDeclarations = (List<TopLevelDecl>) getRhsSym(1);
-                //#line 2933 "x10/parser/x10.g"
+                //#line 2938 "x10/parser/x10.g"
                 TopLevelDecl TypeDeclaration = (TopLevelDecl) getRhsSym(2);
-                //#line 2935 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2940 "lpg.generator/templates/java/btParserTemplateF.gi"
                 if (TypeDeclaration != null)
                     TypeDeclarations.add(TypeDeclaration);
                 //setResult(l);
@@ -4472,15 +4484,15 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 253:  PackageDeclaration ::= Annotationsopt package PackageName ;
+            // Rule 254:  PackageDeclaration ::= Annotationsopt package PackageName ;
             //
-            case 253: {
-               //#line 2943 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2941 "x10/parser/x10.g"
+            case 254: {
+               //#line 2948 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2946 "x10/parser/x10.g"
                 List<AnnotationNode> Annotationsopt = (List<AnnotationNode>) getRhsSym(1);
-                //#line 2941 "x10/parser/x10.g"
+                //#line 2946 "x10/parser/x10.g"
                 ParsedName PackageName = (ParsedName) getRhsSym(3);
-                //#line 2943 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2948 "lpg.generator/templates/java/btParserTemplateF.gi"
                 PackageNode pn = PackageName.toPackage();
                 pn = (PackageNode) ((X10Ext) pn.ext()).annotations(Annotationsopt);
                 setResult(pn.position(pos()));
@@ -4488,60 +4500,60 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 256:  SingleTypeImportDeclaration ::= import TypeName ;
+            // Rule 257:  SingleTypeImportDeclaration ::= import TypeName ;
             //
-            case 256: {
-               //#line 2957 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2955 "x10/parser/x10.g"
+            case 257: {
+               //#line 2962 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2960 "x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(2);
-                //#line 2957 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2962 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Import(pos(getLeftSpan(), getRightSpan()), Import.CLASS, QName.make(TypeName.toString())));
                       break;
             }
     
             //
-            // Rule 257:  TypeImportOnDemandDeclaration ::= import PackageOrTypeName . * ;
+            // Rule 258:  TypeImportOnDemandDeclaration ::= import PackageOrTypeName . * ;
             //
-            case 257: {
-               //#line 2963 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2961 "x10/parser/x10.g"
+            case 258: {
+               //#line 2968 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2966 "x10/parser/x10.g"
                 ParsedName PackageOrTypeName = (ParsedName) getRhsSym(2);
-                //#line 2963 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2968 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Import(pos(getLeftSpan(), getRightSpan()), Import.PACKAGE, QName.make(PackageOrTypeName.toString())));
                       break;
             }
     
             //
-            // Rule 261:  TypeDeclaration ::= ;
+            // Rule 262:  TypeDeclaration ::= ;
             //
-            case 261: {
-               //#line 2978 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 262: {
+               //#line 2983 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2978 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2983 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(null);
                       break;
             }
     
             //
-            // Rule 262:  Interfaces ::= implements InterfaceTypeList
+            // Rule 263:  Interfaces ::= implements InterfaceTypeList
             //
-            case 262: {
-               //#line 3095 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3093 "x10/parser/x10.g"
+            case 263: {
+               //#line 3100 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3098 "x10/parser/x10.g"
                 List<TypeNode> InterfaceTypeList = (List<TypeNode>) getRhsSym(2);
-                //#line 3095 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3100 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(InterfaceTypeList);
                       break;
             }
     
             //
-            // Rule 263:  InterfaceTypeList ::= Type
+            // Rule 264:  InterfaceTypeList ::= Type
             //
-            case 263: {
-               //#line 3101 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3099 "x10/parser/x10.g"
+            case 264: {
+               //#line 3106 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3104 "x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(1);
-                //#line 3101 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3106 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<TypeNode> l = new TypedList<TypeNode>(new LinkedList<TypeNode>(), TypeNode.class, false);
                 l.add(Type);
                 setResult(l);
@@ -4549,55 +4561,55 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 264:  InterfaceTypeList ::= InterfaceTypeList , Type
+            // Rule 265:  InterfaceTypeList ::= InterfaceTypeList , Type
             //
-            case 264: {
-               //#line 3108 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3106 "x10/parser/x10.g"
+            case 265: {
+               //#line 3113 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3111 "x10/parser/x10.g"
                 List<TypeNode> InterfaceTypeList = (List<TypeNode>) getRhsSym(1);
-                //#line 3106 "x10/parser/x10.g"
+                //#line 3111 "x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
-                //#line 3108 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3113 "lpg.generator/templates/java/btParserTemplateF.gi"
                 InterfaceTypeList.add(Type);
                 setResult(InterfaceTypeList);
                       break;
             }
     
             //
-            // Rule 265:  ClassBody ::= { ClassBodyDeclarationsopt }
+            // Rule 266:  ClassBody ::= { ClassBodyDeclarationsopt }
             //
-            case 265: {
-               //#line 3118 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3116 "x10/parser/x10.g"
+            case 266: {
+               //#line 3123 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3121 "x10/parser/x10.g"
                 List<ClassMember> ClassBodyDeclarationsopt = (List<ClassMember>) getRhsSym(2);
-                //#line 3118 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3123 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.ClassBody(pos(getLeftSpan(), getRightSpan()), ClassBodyDeclarationsopt));
                       break;
             }
     
             //
-            // Rule 267:  ClassBodyDeclarations ::= ClassBodyDeclarations ClassBodyDeclaration
+            // Rule 268:  ClassBodyDeclarations ::= ClassBodyDeclarations ClassBodyDeclaration
             //
-            case 267: {
-               //#line 3125 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3123 "x10/parser/x10.g"
+            case 268: {
+               //#line 3130 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3128 "x10/parser/x10.g"
                 List<ClassMember> ClassBodyDeclarations = (List<ClassMember>) getRhsSym(1);
-                //#line 3123 "x10/parser/x10.g"
+                //#line 3128 "x10/parser/x10.g"
                 List<ClassMember> ClassBodyDeclaration = (List<ClassMember>) getRhsSym(2);
-                //#line 3125 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3130 "lpg.generator/templates/java/btParserTemplateF.gi"
                 ClassBodyDeclarations.addAll(ClassBodyDeclaration);
                 // setResult(a);
                       break;
             }
     
             //
-            // Rule 269:  ClassBodyDeclaration ::= ConstructorDeclaration
+            // Rule 270:  ClassBodyDeclaration ::= ConstructorDeclaration
             //
-            case 269: {
-               //#line 3147 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3145 "x10/parser/x10.g"
+            case 270: {
+               //#line 3152 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3150 "x10/parser/x10.g"
                 ConstructorDecl ConstructorDeclaration = (ConstructorDecl) getRhsSym(1);
-                //#line 3147 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3152 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<ClassMember> l = new TypedList<ClassMember>(new LinkedList<ClassMember>(), ClassMember.class, false);
                 l.add(ConstructorDeclaration);
                 setResult(l);
@@ -4605,13 +4617,13 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 271:  ClassMemberDeclaration ::= MethodDeclaration
+            // Rule 272:  ClassMemberDeclaration ::= MethodDeclaration
             //
-            case 271: {
-               //#line 3156 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3154 "x10/parser/x10.g"
+            case 272: {
+               //#line 3161 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3159 "x10/parser/x10.g"
                 ClassMember MethodDeclaration = (ClassMember) getRhsSym(1);
-                //#line 3156 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3161 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<ClassMember> l = new TypedList<ClassMember>(new LinkedList<ClassMember>(), ClassMember.class, false);
                 l.add(MethodDeclaration);
                 setResult(l);
@@ -4619,13 +4631,13 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 272:  ClassMemberDeclaration ::= PropertyMethodDeclaration
+            // Rule 273:  ClassMemberDeclaration ::= PropertyMethodDeclaration
             //
-            case 272: {
-               //#line 3163 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3161 "x10/parser/x10.g"
+            case 273: {
+               //#line 3168 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3166 "x10/parser/x10.g"
                 ClassMember PropertyMethodDeclaration = (ClassMember) getRhsSym(1);
-                //#line 3163 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3168 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<ClassMember> l = new TypedList<ClassMember>(new LinkedList<ClassMember>(), ClassMember.class, false);
                 l.add(PropertyMethodDeclaration);
                 setResult(l);
@@ -4633,13 +4645,13 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 273:  ClassMemberDeclaration ::= TypeDefDeclaration
+            // Rule 274:  ClassMemberDeclaration ::= TypeDefDeclaration
             //
-            case 273: {
-               //#line 3170 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3168 "x10/parser/x10.g"
+            case 274: {
+               //#line 3175 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3173 "x10/parser/x10.g"
                 TypeDecl TypeDefDeclaration = (TypeDecl) getRhsSym(1);
-                //#line 3170 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3175 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<ClassMember> l = new TypedList<ClassMember>(new LinkedList<ClassMember>(), ClassMember.class, false);
                 l.add(TypeDefDeclaration);
                 setResult(l);
@@ -4647,13 +4659,13 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 274:  ClassMemberDeclaration ::= ClassDeclaration
+            // Rule 275:  ClassMemberDeclaration ::= ClassDeclaration
             //
-            case 274: {
-               //#line 3177 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3175 "x10/parser/x10.g"
+            case 275: {
+               //#line 3182 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3180 "x10/parser/x10.g"
                 ClassDecl ClassDeclaration = (ClassDecl) getRhsSym(1);
-                //#line 3177 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3182 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<ClassMember> l = new TypedList<ClassMember>(new LinkedList<ClassMember>(), ClassMember.class, false);
                 l.add(ClassDeclaration);
                 setResult(l);
@@ -4661,13 +4673,13 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 275:  ClassMemberDeclaration ::= InterfaceDeclaration
+            // Rule 276:  ClassMemberDeclaration ::= InterfaceDeclaration
             //
-            case 275: {
-               //#line 3184 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3182 "x10/parser/x10.g"
+            case 276: {
+               //#line 3189 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3187 "x10/parser/x10.g"
                 ClassDecl InterfaceDeclaration = (ClassDecl) getRhsSym(1);
-                //#line 3184 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3189 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<ClassMember> l = new TypedList<ClassMember>(new LinkedList<ClassMember>(), ClassMember.class, false);
                 l.add(InterfaceDeclaration);
                 setResult(l);
@@ -4675,25 +4687,25 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 276:  ClassMemberDeclaration ::= ;
+            // Rule 277:  ClassMemberDeclaration ::= ;
             //
-            case 276: {
-               //#line 3191 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 277: {
+               //#line 3196 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3191 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3196 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<ClassMember> l = new TypedList<ClassMember>(new LinkedList<ClassMember>(), ClassMember.class, false);
                 setResult(l);
                       break;
             }
     
             //
-            // Rule 277:  FormalDeclarators ::= FormalDeclarator
+            // Rule 278:  FormalDeclarators ::= FormalDeclarator
             //
-            case 277: {
-               //#line 3198 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3196 "x10/parser/x10.g"
+            case 278: {
+               //#line 3203 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3201 "x10/parser/x10.g"
                 Object[] FormalDeclarator = (Object[]) getRhsSym(1);
-                //#line 3198 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3203 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Object[]> l = new TypedList<Object[]>(new LinkedList<Object[]>(), Object[].class, false);
                 l.add(FormalDeclarator);
                 setResult(l);
@@ -4701,27 +4713,27 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 278:  FormalDeclarators ::= FormalDeclarators , FormalDeclarator
+            // Rule 279:  FormalDeclarators ::= FormalDeclarators , FormalDeclarator
             //
-            case 278: {
-               //#line 3205 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3203 "x10/parser/x10.g"
+            case 279: {
+               //#line 3210 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3208 "x10/parser/x10.g"
                 List<Object[]> FormalDeclarators = (List<Object[]>) getRhsSym(1);
-                //#line 3203 "x10/parser/x10.g"
+                //#line 3208 "x10/parser/x10.g"
                 Object[] FormalDeclarator = (Object[]) getRhsSym(3);
-                //#line 3205 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3210 "lpg.generator/templates/java/btParserTemplateF.gi"
                 FormalDeclarators.add(FormalDeclarator);
                       break;
             }
     
             //
-            // Rule 279:  FieldDeclarators ::= FieldDeclarator
+            // Rule 280:  FieldDeclarators ::= FieldDeclarator
             //
-            case 279: {
-               //#line 3212 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3210 "x10/parser/x10.g"
+            case 280: {
+               //#line 3217 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3215 "x10/parser/x10.g"
                 Object[] FieldDeclarator = (Object[]) getRhsSym(1);
-                //#line 3212 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3217 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Object[]> l = new TypedList<Object[]>(new LinkedList<Object[]>(), Object[].class, false);
                 l.add(FieldDeclarator);
                 setResult(l);
@@ -4729,28 +4741,28 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 280:  FieldDeclarators ::= FieldDeclarators , FieldDeclarator
+            // Rule 281:  FieldDeclarators ::= FieldDeclarators , FieldDeclarator
             //
-            case 280: {
-               //#line 3219 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3217 "x10/parser/x10.g"
+            case 281: {
+               //#line 3224 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3222 "x10/parser/x10.g"
                 List<Object[]> FieldDeclarators = (List<Object[]>) getRhsSym(1);
-                //#line 3217 "x10/parser/x10.g"
+                //#line 3222 "x10/parser/x10.g"
                 Object[] FieldDeclarator = (Object[]) getRhsSym(3);
-                //#line 3219 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3224 "lpg.generator/templates/java/btParserTemplateF.gi"
                 FieldDeclarators.add(FieldDeclarator);
                 // setResult(FieldDeclarators);
                       break;
             }
     
             //
-            // Rule 281:  VariableDeclaratorsWithType ::= VariableDeclaratorWithType
+            // Rule 282:  VariableDeclaratorsWithType ::= VariableDeclaratorWithType
             //
-            case 281: {
-               //#line 3227 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3225 "x10/parser/x10.g"
+            case 282: {
+               //#line 3232 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3230 "x10/parser/x10.g"
                 Object[] VariableDeclaratorWithType = (Object[]) getRhsSym(1);
-                //#line 3227 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3232 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Object[]> l = new TypedList<Object[]>(new LinkedList<Object[]>(), Object[].class, false);
                 l.add(VariableDeclaratorWithType);
                 setResult(l);
@@ -4758,28 +4770,28 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 282:  VariableDeclaratorsWithType ::= VariableDeclaratorsWithType , VariableDeclaratorWithType
+            // Rule 283:  VariableDeclaratorsWithType ::= VariableDeclaratorsWithType , VariableDeclaratorWithType
             //
-            case 282: {
-               //#line 3234 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3232 "x10/parser/x10.g"
+            case 283: {
+               //#line 3239 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3237 "x10/parser/x10.g"
                 List<Object[]> VariableDeclaratorsWithType = (List<Object[]>) getRhsSym(1);
-                //#line 3232 "x10/parser/x10.g"
+                //#line 3237 "x10/parser/x10.g"
                 Object[] VariableDeclaratorWithType = (Object[]) getRhsSym(3);
-                //#line 3234 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3239 "lpg.generator/templates/java/btParserTemplateF.gi"
                 VariableDeclaratorsWithType.add(VariableDeclaratorWithType);
                 // setResult(VariableDeclaratorsWithType);
                       break;
             }
     
             //
-            // Rule 283:  VariableDeclarators ::= VariableDeclarator
+            // Rule 284:  VariableDeclarators ::= VariableDeclarator
             //
-            case 283: {
-               //#line 3241 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3239 "x10/parser/x10.g"
+            case 284: {
+               //#line 3246 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3244 "x10/parser/x10.g"
                 Object[] VariableDeclarator = (Object[]) getRhsSym(1);
-                //#line 3241 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3246 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Object[]> l = new TypedList<Object[]>(new LinkedList<Object[]>(), Object[].class, false);
                 l.add(VariableDeclarator);
                 setResult(l);
@@ -4787,34 +4799,22 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 284:  VariableDeclarators ::= VariableDeclarators , VariableDeclarator
+            // Rule 285:  VariableDeclarators ::= VariableDeclarators , VariableDeclarator
             //
-            case 284: {
-               //#line 3248 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3246 "x10/parser/x10.g"
+            case 285: {
+               //#line 3253 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3251 "x10/parser/x10.g"
                 List<Object[]> VariableDeclarators = (List<Object[]>) getRhsSym(1);
-                //#line 3246 "x10/parser/x10.g"
+                //#line 3251 "x10/parser/x10.g"
                 Object[] VariableDeclarator = (Object[]) getRhsSym(3);
-                //#line 3248 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3253 "lpg.generator/templates/java/btParserTemplateF.gi"
                 VariableDeclarators.add(VariableDeclarator);
                 // setResult(VariableDeclarators);
                       break;
             }
     
             //
-            // Rule 286:  ResultType ::= : Type
-            //
-            case 286: {
-               //#line 3304 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3302 "x10/parser/x10.g"
-                TypeNode Type = (TypeNode) getRhsSym(2);
-                //#line 3304 "lpg.generator/templates/java/btParserTemplateF.gi"
-                setResult(Type);
-                      break;
-            }
-    
-            //
-            // Rule 287:  HasResultType ::= : Type
+            // Rule 287:  ResultType ::= : Type
             //
             case 287: {
                //#line 3309 "lpg.generator/templates/java/btParserTemplateF.gi"
@@ -4826,25 +4826,37 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 288:  HasResultType ::= <: Type
+            // Rule 288:  HasResultType ::= : Type
             //
             case 288: {
                //#line 3314 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3312 "x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(2);
                 //#line 3314 "lpg.generator/templates/java/btParserTemplateF.gi"
+                setResult(Type);
+                      break;
+            }
+    
+            //
+            // Rule 289:  HasResultType ::= <: Type
+            //
+            case 289: {
+               //#line 3319 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3317 "x10/parser/x10.g"
+                TypeNode Type = (TypeNode) getRhsSym(2);
+                //#line 3319 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.HasType(Type));
                       break;
             }
     
             //
-            // Rule 289:  FormalParameterList ::= FormalParameter
+            // Rule 290:  FormalParameterList ::= FormalParameter
             //
-            case 289: {
-               //#line 3329 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3327 "x10/parser/x10.g"
+            case 290: {
+               //#line 3334 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3332 "x10/parser/x10.g"
                 X10Formal FormalParameter = (X10Formal) getRhsSym(1);
-                //#line 3329 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3334 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> l = new TypedList<Formal>(new LinkedList<Formal>(), Formal.class, false);
                 l.add(FormalParameter);
                 setResult(l);
@@ -4852,107 +4864,107 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 290:  FormalParameterList ::= FormalParameterList , FormalParameter
+            // Rule 291:  FormalParameterList ::= FormalParameterList , FormalParameter
             //
-            case 290: {
-               //#line 3336 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3334 "x10/parser/x10.g"
+            case 291: {
+               //#line 3341 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3339 "x10/parser/x10.g"
                 List<Formal> FormalParameterList = (List<Formal>) getRhsSym(1);
-                //#line 3334 "x10/parser/x10.g"
+                //#line 3339 "x10/parser/x10.g"
                 X10Formal FormalParameter = (X10Formal) getRhsSym(3);
-                //#line 3336 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3341 "lpg.generator/templates/java/btParserTemplateF.gi"
                 FormalParameterList.add(FormalParameter);
                       break;
             }
     
             //
-            // Rule 291:  LoopIndexDeclarator ::= Identifier HasResultTypeopt
+            // Rule 292:  LoopIndexDeclarator ::= Identifier HasResultTypeopt
             //
-            case 291: {
-               //#line 3342 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3340 "x10/parser/x10.g"
+            case 292: {
+               //#line 3347 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3345 "x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 3340 "x10/parser/x10.g"
+                //#line 3345 "x10/parser/x10.g"
                 TypeNode HasResultTypeopt = (TypeNode) getRhsSym(2);
-                //#line 3342 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3347 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new Object[] { pos(), Identifier, Collections.<Id>emptyList(), null, HasResultTypeopt, null });
                       break;
             }
     
             //
-            // Rule 292:  LoopIndexDeclarator ::= [ IdentifierList ] HasResultTypeopt
+            // Rule 293:  LoopIndexDeclarator ::= [ IdentifierList ] HasResultTypeopt
             //
-            case 292: {
-               //#line 3347 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3345 "x10/parser/x10.g"
+            case 293: {
+               //#line 3352 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3350 "x10/parser/x10.g"
                 List<Id> IdentifierList = (List<Id>) getRhsSym(2);
-                //#line 3345 "x10/parser/x10.g"
+                //#line 3350 "x10/parser/x10.g"
                 TypeNode HasResultTypeopt = (TypeNode) getRhsSym(4);
-                //#line 3347 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3352 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new Object[] { pos(), null, IdentifierList, null, HasResultTypeopt, null });
                       break;
             }
     
             //
-            // Rule 293:  LoopIndexDeclarator ::= Identifier [ IdentifierList ] HasResultTypeopt
+            // Rule 294:  LoopIndexDeclarator ::= Identifier [ IdentifierList ] HasResultTypeopt
             //
-            case 293: {
-               //#line 3352 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3350 "x10/parser/x10.g"
+            case 294: {
+               //#line 3357 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3355 "x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 3350 "x10/parser/x10.g"
+                //#line 3355 "x10/parser/x10.g"
                 List<Id> IdentifierList = (List<Id>) getRhsSym(3);
-                //#line 3350 "x10/parser/x10.g"
+                //#line 3355 "x10/parser/x10.g"
                 TypeNode HasResultTypeopt = (TypeNode) getRhsSym(5);
-                //#line 3352 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3357 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new Object[] { pos(), Identifier, IdentifierList, null, HasResultTypeopt, null });
                       break;
             }
     
             //
-            // Rule 294:  LoopIndex ::= Modifiersopt LoopIndexDeclarator
-            //
-            case 294: {
-               //#line 3358 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3356 "x10/parser/x10.g"
-                List<Modifier> Modifiersopt = (List<Modifier>) getRhsSym(1);
-                //#line 3356 "x10/parser/x10.g"
-                Object[] LoopIndexDeclarator = (Object[]) getRhsSym(2);
-                //#line 3358 "lpg.generator/templates/java/btParserTemplateF.gi"
-            List<Node> modifiers = checkVariableModifiers(Modifiersopt);
-            Formal f;
-            FlagsNode fn = extractFlags(modifiers, Flags.FINAL);
-            Object[] o = LoopIndexDeclarator;
-            Position pos = (Position) o[0];
-            Id name = (Id) o[1];
-            boolean unnamed = name == null;
-            if (name == null) name = nf.Id(pos, Name.makeFresh());
-            List<Id> exploded = (List<Id>) o[2];
-            DepParameterExpr guard = (DepParameterExpr) o[3];
-            TypeNode type = (TypeNode) o[4];
-            if (type == null) type = nf.UnknownTypeNode(name != null ? name.position() : pos);
-            List<Formal> explodedFormals = new ArrayList<Formal>();
-            for (Id id : exploded) {
-                explodedFormals.add(nf.Formal(id.position(), fn, nf.UnknownTypeNode(id.position()), id));
-            }
-            f = nf.X10Formal(pos(), fn, type, name, explodedFormals, unnamed);
-            f = (Formal) ((X10Ext) f.ext()).annotations(extractAnnotations(modifiers));
-            setResult(f);
-                      break;
-            }
-    
-            //
-            // Rule 295:  LoopIndex ::= Modifiersopt VarKeyword LoopIndexDeclarator
+            // Rule 295:  LoopIndex ::= Modifiersopt LoopIndexDeclarator
             //
             case 295: {
-               //#line 3381 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3379 "x10/parser/x10.g"
+               //#line 3363 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3361 "x10/parser/x10.g"
                 List<Modifier> Modifiersopt = (List<Modifier>) getRhsSym(1);
-                //#line 3379 "x10/parser/x10.g"
+                //#line 3361 "x10/parser/x10.g"
+                Object[] LoopIndexDeclarator = (Object[]) getRhsSym(2);
+                //#line 3363 "lpg.generator/templates/java/btParserTemplateF.gi"
+            List<Node> modifiers = checkVariableModifiers(Modifiersopt);
+            Formal f;
+            FlagsNode fn = extractFlags(modifiers, Flags.FINAL);
+            Object[] o = LoopIndexDeclarator;
+            Position pos = (Position) o[0];
+            Id name = (Id) o[1];
+            boolean unnamed = name == null;
+            if (name == null) name = nf.Id(pos, Name.makeFresh());
+            List<Id> exploded = (List<Id>) o[2];
+            DepParameterExpr guard = (DepParameterExpr) o[3];
+            TypeNode type = (TypeNode) o[4];
+            if (type == null) type = nf.UnknownTypeNode(name != null ? name.position() : pos);
+            List<Formal> explodedFormals = new ArrayList<Formal>();
+            for (Id id : exploded) {
+                explodedFormals.add(nf.Formal(id.position(), fn, nf.UnknownTypeNode(id.position()), id));
+            }
+            f = nf.X10Formal(pos(), fn, type, name, explodedFormals, unnamed);
+            f = (Formal) ((X10Ext) f.ext()).annotations(extractAnnotations(modifiers));
+            setResult(f);
+                      break;
+            }
+    
+            //
+            // Rule 296:  LoopIndex ::= Modifiersopt VarKeyword LoopIndexDeclarator
+            //
+            case 296: {
+               //#line 3386 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3384 "x10/parser/x10.g"
+                List<Modifier> Modifiersopt = (List<Modifier>) getRhsSym(1);
+                //#line 3384 "x10/parser/x10.g"
                 List<FlagsNode> VarKeyword = (List<FlagsNode>) getRhsSym(2);
-                //#line 3379 "x10/parser/x10.g"
+                //#line 3384 "x10/parser/x10.g"
                 Object[] LoopIndexDeclarator = (Object[]) getRhsSym(3);
-                //#line 3381 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3386 "lpg.generator/templates/java/btParserTemplateF.gi"
             List<Node> modifiers = checkVariableModifiers(Modifiersopt);
             Formal f;
             FlagsNode fn = extractFlags(modifiers, VarKeyword);
@@ -4976,15 +4988,15 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 296:  FormalParameter ::= Modifiersopt FormalDeclarator
+            // Rule 297:  FormalParameter ::= Modifiersopt FormalDeclarator
             //
-            case 296: {
-               //#line 3405 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3403 "x10/parser/x10.g"
+            case 297: {
+               //#line 3410 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3408 "x10/parser/x10.g"
                 List<Modifier> Modifiersopt = (List<Modifier>) getRhsSym(1);
-                //#line 3403 "x10/parser/x10.g"
+                //#line 3408 "x10/parser/x10.g"
                 Object[] FormalDeclarator = (Object[]) getRhsSym(2);
-                //#line 3405 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3410 "lpg.generator/templates/java/btParserTemplateF.gi"
             List<Node> modifiers = checkVariableModifiers(Modifiersopt);
             Formal f;
             FlagsNode fn = extractFlags(modifiers, Flags.FINAL);
@@ -5009,17 +5021,17 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 297:  FormalParameter ::= Modifiersopt VarKeyword FormalDeclarator
+            // Rule 298:  FormalParameter ::= Modifiersopt VarKeyword FormalDeclarator
             //
-            case 297: {
-               //#line 3429 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3427 "x10/parser/x10.g"
+            case 298: {
+               //#line 3434 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3432 "x10/parser/x10.g"
                 List<Modifier> Modifiersopt = (List<Modifier>) getRhsSym(1);
-                //#line 3427 "x10/parser/x10.g"
+                //#line 3432 "x10/parser/x10.g"
                 List<FlagsNode> VarKeyword = (List<FlagsNode>) getRhsSym(2);
-                //#line 3427 "x10/parser/x10.g"
+                //#line 3432 "x10/parser/x10.g"
                 Object[] FormalDeclarator = (Object[]) getRhsSym(3);
-                //#line 3429 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3434 "lpg.generator/templates/java/btParserTemplateF.gi"
             List<Node> modifiers = checkVariableModifiers(Modifiersopt);
             Formal f;
             FlagsNode fn = extractFlags(modifiers, VarKeyword);
@@ -5044,13 +5056,13 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 298:  FormalParameter ::= Type
+            // Rule 299:  FormalParameter ::= Type
             //
-            case 298: {
-               //#line 3453 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3451 "x10/parser/x10.g"
+            case 299: {
+               //#line 3458 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3456 "x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(1);
-                //#line 3453 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3458 "lpg.generator/templates/java/btParserTemplateF.gi"
             Formal f;
             f = nf.X10Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), Type, nf.Id(pos(), Name.makeFresh("id$")), Collections.<Formal>emptyList(), true);
             setResult(f);
@@ -5058,25 +5070,25 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 299:  Offers ::= offers Type
+            // Rule 300:  Offers ::= offers Type
             //
-            case 299: {
-               //#line 3599 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3597 "x10/parser/x10.g"
+            case 300: {
+               //#line 3604 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3602 "x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(2);
-                //#line 3599 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3604 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Type);
                       break;
             }
     
             //
-            // Rule 300:  ExceptionTypeList ::= ExceptionType
+            // Rule 301:  ExceptionTypeList ::= ExceptionType
             //
-            case 300: {
-               //#line 3605 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3603 "x10/parser/x10.g"
+            case 301: {
+               //#line 3610 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3608 "x10/parser/x10.g"
                 TypeNode ExceptionType = (TypeNode) getRhsSym(1);
-                //#line 3605 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3610 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<TypeNode> l = new TypedList<TypeNode>(new LinkedList<TypeNode>(), TypeNode.class, false);
                 l.add(ExceptionType);
                 setResult(l);
@@ -5084,43 +5096,43 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 301:  ExceptionTypeList ::= ExceptionTypeList , ExceptionType
+            // Rule 302:  ExceptionTypeList ::= ExceptionTypeList , ExceptionType
             //
-            case 301: {
-               //#line 3612 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3610 "x10/parser/x10.g"
+            case 302: {
+               //#line 3617 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3615 "x10/parser/x10.g"
                 List<TypeNode> ExceptionTypeList = (List<TypeNode>) getRhsSym(1);
-                //#line 3610 "x10/parser/x10.g"
+                //#line 3615 "x10/parser/x10.g"
                 TypeNode ExceptionType = (TypeNode) getRhsSym(3);
-                //#line 3612 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3617 "lpg.generator/templates/java/btParserTemplateF.gi"
                 ExceptionTypeList.add(ExceptionType);
                       break;
             }
     
             //
-            // Rule 303:  MethodBody ::= = LastExpression ;
+            // Rule 304:  MethodBody ::= = LastExpression ;
             //
-            case 303: {
-               //#line 3620 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3618 "x10/parser/x10.g"
+            case 304: {
+               //#line 3625 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3623 "x10/parser/x10.g"
                 Stmt LastExpression = (Stmt) getRhsSym(2);
-                //#line 3620 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3625 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Block(pos(), LastExpression));
                       break;
             }
     
             //
-            // Rule 304:  MethodBody ::= = Annotationsopt { BlockStatementsopt LastExpression }
+            // Rule 305:  MethodBody ::= = Annotationsopt { BlockStatementsopt LastExpression }
             //
-            case 304: {
-               //#line 3625 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3623 "x10/parser/x10.g"
+            case 305: {
+               //#line 3630 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3628 "x10/parser/x10.g"
                 List<AnnotationNode> Annotationsopt = (List<AnnotationNode>) getRhsSym(2);
-                //#line 3623 "x10/parser/x10.g"
+                //#line 3628 "x10/parser/x10.g"
                 List<Stmt> BlockStatementsopt = (List<Stmt>) getRhsSym(4);
-                //#line 3623 "x10/parser/x10.g"
+                //#line 3628 "x10/parser/x10.g"
                 Stmt LastExpression = (Stmt) getRhsSym(5);
-                //#line 3625 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3630 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Stmt> l = new ArrayList<Stmt>();
                 l.addAll(BlockStatementsopt);
                 l.add(LastExpression);
@@ -5129,72 +5141,72 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 305:  MethodBody ::= = Annotationsopt Block
-            //
-            case 305: {
-               //#line 3633 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3631 "x10/parser/x10.g"
-                List<AnnotationNode> Annotationsopt = (List<AnnotationNode>) getRhsSym(2);
-                //#line 3631 "x10/parser/x10.g"
-                Block Block = (Block) getRhsSym(3);
-                //#line 3633 "lpg.generator/templates/java/btParserTemplateF.gi"
-                setResult((Block) ((X10Ext) Block.ext()).annotations(Annotationsopt).position(pos()));
-                      break;
-            }
-    
-            //
-            // Rule 306:  MethodBody ::= Annotationsopt Block
+            // Rule 306:  MethodBody ::= = Annotationsopt Block
             //
             case 306: {
                //#line 3638 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3636 "x10/parser/x10.g"
-                List<AnnotationNode> Annotationsopt = (List<AnnotationNode>) getRhsSym(1);
+                List<AnnotationNode> Annotationsopt = (List<AnnotationNode>) getRhsSym(2);
                 //#line 3636 "x10/parser/x10.g"
-                Block Block = (Block) getRhsSym(2);
+                Block Block = (Block) getRhsSym(3);
                 //#line 3638 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult((Block) ((X10Ext) Block.ext()).annotations(Annotationsopt).position(pos()));
                       break;
             }
     
             //
-            // Rule 307:  MethodBody ::= ;
+            // Rule 307:  MethodBody ::= Annotationsopt Block
             //
-            case 307:
-                setResult(null);
-                break;
-
-            //
-            // Rule 308:  ConstructorBody ::= = ConstructorBlock
-            //
-            case 308: {
-               //#line 3709 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3707 "x10/parser/x10.g"
-                Block ConstructorBlock = (Block) getRhsSym(2);
-                //#line 3709 "lpg.generator/templates/java/btParserTemplateF.gi"
-                setResult(ConstructorBlock);
+            case 307: {
+               //#line 3643 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3641 "x10/parser/x10.g"
+                List<AnnotationNode> Annotationsopt = (List<AnnotationNode>) getRhsSym(1);
+                //#line 3641 "x10/parser/x10.g"
+                Block Block = (Block) getRhsSym(2);
+                //#line 3643 "lpg.generator/templates/java/btParserTemplateF.gi"
+                setResult((Block) ((X10Ext) Block.ext()).annotations(Annotationsopt).position(pos()));
                       break;
             }
     
             //
-            // Rule 309:  ConstructorBody ::= ConstructorBlock
+            // Rule 308:  MethodBody ::= ;
+            //
+            case 308:
+                setResult(null);
+                break;
+
+            //
+            // Rule 309:  ConstructorBody ::= = ConstructorBlock
             //
             case 309: {
                //#line 3714 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3712 "x10/parser/x10.g"
-                Block ConstructorBlock = (Block) getRhsSym(1);
+                Block ConstructorBlock = (Block) getRhsSym(2);
                 //#line 3714 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(ConstructorBlock);
                       break;
             }
     
             //
-            // Rule 310:  ConstructorBody ::= = ExplicitConstructorInvocation
+            // Rule 310:  ConstructorBody ::= ConstructorBlock
             //
             case 310: {
                //#line 3719 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3717 "x10/parser/x10.g"
-                ConstructorCall ExplicitConstructorInvocation = (ConstructorCall) getRhsSym(2);
+                Block ConstructorBlock = (Block) getRhsSym(1);
                 //#line 3719 "lpg.generator/templates/java/btParserTemplateF.gi"
+                setResult(ConstructorBlock);
+                      break;
+            }
+    
+            //
+            // Rule 311:  ConstructorBody ::= = ExplicitConstructorInvocation
+            //
+            case 311: {
+               //#line 3724 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3722 "x10/parser/x10.g"
+                ConstructorCall ExplicitConstructorInvocation = (ConstructorCall) getRhsSym(2);
+                //#line 3724 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Stmt> l = new TypedList<Stmt>(new LinkedList<Stmt>(), Stmt.class, false);
                 l.add(ExplicitConstructorInvocation);
                 setResult(nf.Block(pos(), l));
@@ -5202,13 +5214,13 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 311:  ConstructorBody ::= = AssignPropertyCall
+            // Rule 312:  ConstructorBody ::= = AssignPropertyCall
             //
-            case 311: {
-               //#line 3726 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3724 "x10/parser/x10.g"
+            case 312: {
+               //#line 3731 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3729 "x10/parser/x10.g"
                 Stmt AssignPropertyCall = (Stmt) getRhsSym(2);
-                //#line 3726 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3731 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Stmt> l = new TypedList<Stmt>(new LinkedList<Stmt>(), Stmt.class, false);
                 l.add(AssignPropertyCall);
                 setResult(nf.Block(pos(), l));
@@ -5216,22 +5228,22 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 312:  ConstructorBody ::= ;
+            // Rule 313:  ConstructorBody ::= ;
             //
-            case 312:
+            case 313:
                 setResult(null);
                 break;
 
             //
-            // Rule 313:  ConstructorBlock ::= { ExplicitConstructorInvocationopt BlockStatementsopt }
+            // Rule 314:  ConstructorBlock ::= { ExplicitConstructorInvocationopt BlockStatementsopt }
             //
-            case 313: {
-               //#line 3736 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3734 "x10/parser/x10.g"
+            case 314: {
+               //#line 3741 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3739 "x10/parser/x10.g"
                 Stmt ExplicitConstructorInvocationopt = (Stmt) getRhsSym(2);
-                //#line 3734 "x10/parser/x10.g"
+                //#line 3739 "x10/parser/x10.g"
                 List<Stmt> BlockStatementsopt = (List<Stmt>) getRhsSym(3);
-                //#line 3736 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3741 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Stmt> l = new TypedList<Stmt>(new LinkedList<Stmt>(), Stmt.class, false);
                 if (ExplicitConstructorInvocationopt != null)
                 {
@@ -5243,25 +5255,25 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 314:  Arguments ::= ( ArgumentListopt )
+            // Rule 315:  Arguments ::= ( ArgumentListopt )
             //
-            case 314: {
-               //#line 3748 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3746 "x10/parser/x10.g"
+            case 315: {
+               //#line 3753 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3751 "x10/parser/x10.g"
                 List<Expr> ArgumentListopt = (List<Expr>) getRhsSym(2);
-                //#line 3748 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3753 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(ArgumentListopt);
                       break;
             }
     
             //
-            // Rule 316:  ExtendsInterfaces ::= extends Type
+            // Rule 317:  ExtendsInterfaces ::= extends Type
             //
-            case 316: {
-               //#line 3805 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3803 "x10/parser/x10.g"
+            case 317: {
+               //#line 3810 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3808 "x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(2);
-                //#line 3805 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3810 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<TypeNode> l = new TypedList<TypeNode>(new LinkedList<TypeNode>(), TypeNode.class, false);
                 l.add(Type);
                 setResult(l);
@@ -5269,54 +5281,54 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 317:  ExtendsInterfaces ::= ExtendsInterfaces , Type
+            // Rule 318:  ExtendsInterfaces ::= ExtendsInterfaces , Type
             //
-            case 317: {
-               //#line 3812 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3810 "x10/parser/x10.g"
+            case 318: {
+               //#line 3817 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3815 "x10/parser/x10.g"
                 List<TypeNode> ExtendsInterfaces = (List<TypeNode>) getRhsSym(1);
-                //#line 3810 "x10/parser/x10.g"
+                //#line 3815 "x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
-                //#line 3812 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3817 "lpg.generator/templates/java/btParserTemplateF.gi"
                 ExtendsInterfaces.add(Type);
                       break;
             }
     
             //
-            // Rule 318:  InterfaceBody ::= { InterfaceMemberDeclarationsopt }
+            // Rule 319:  InterfaceBody ::= { InterfaceMemberDeclarationsopt }
             //
-            case 318: {
-               //#line 3821 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3819 "x10/parser/x10.g"
+            case 319: {
+               //#line 3826 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3824 "x10/parser/x10.g"
                 List<ClassMember> InterfaceMemberDeclarationsopt = (List<ClassMember>) getRhsSym(2);
-                //#line 3821 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3826 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.ClassBody(pos(), InterfaceMemberDeclarationsopt));
                       break;
             }
     
             //
-            // Rule 320:  InterfaceMemberDeclarations ::= InterfaceMemberDeclarations InterfaceMemberDeclaration
+            // Rule 321:  InterfaceMemberDeclarations ::= InterfaceMemberDeclarations InterfaceMemberDeclaration
             //
-            case 320: {
-               //#line 3828 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3826 "x10/parser/x10.g"
+            case 321: {
+               //#line 3833 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3831 "x10/parser/x10.g"
                 List<ClassMember> InterfaceMemberDeclarations = (List<ClassMember>) getRhsSym(1);
-                //#line 3826 "x10/parser/x10.g"
+                //#line 3831 "x10/parser/x10.g"
                 List<ClassMember> InterfaceMemberDeclaration = (List<ClassMember>) getRhsSym(2);
-                //#line 3828 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3833 "lpg.generator/templates/java/btParserTemplateF.gi"
                 InterfaceMemberDeclarations.addAll(InterfaceMemberDeclaration);
                 // setResult(l);
                       break;
             }
     
             //
-            // Rule 321:  InterfaceMemberDeclaration ::= MethodDeclaration
+            // Rule 322:  InterfaceMemberDeclaration ::= MethodDeclaration
             //
-            case 321: {
-               //#line 3835 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3833 "x10/parser/x10.g"
+            case 322: {
+               //#line 3840 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3838 "x10/parser/x10.g"
                 ClassMember MethodDeclaration = (ClassMember) getRhsSym(1);
-                //#line 3835 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3840 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<ClassMember> l = new TypedList<ClassMember>(new LinkedList<ClassMember>(), ClassMember.class, false);
                 l.add(MethodDeclaration);
                 setResult(l);
@@ -5324,13 +5336,13 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 322:  InterfaceMemberDeclaration ::= PropertyMethodDeclaration
+            // Rule 323:  InterfaceMemberDeclaration ::= PropertyMethodDeclaration
             //
-            case 322: {
-               //#line 3842 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3840 "x10/parser/x10.g"
+            case 323: {
+               //#line 3847 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3845 "x10/parser/x10.g"
                 ClassMember PropertyMethodDeclaration = (ClassMember) getRhsSym(1);
-                //#line 3842 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3847 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<ClassMember> l = new TypedList<ClassMember>(new LinkedList<ClassMember>(), ClassMember.class, false);
                 l.add(PropertyMethodDeclaration);
                 setResult(l);
@@ -5338,13 +5350,13 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 323:  InterfaceMemberDeclaration ::= FieldDeclaration
+            // Rule 324:  InterfaceMemberDeclaration ::= FieldDeclaration
             //
-            case 323: {
-               //#line 3849 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3847 "x10/parser/x10.g"
+            case 324: {
+               //#line 3854 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3852 "x10/parser/x10.g"
                 List<ClassMember> FieldDeclaration = (List<ClassMember>) getRhsSym(1);
-                //#line 3849 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3854 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<ClassMember> l = new TypedList<ClassMember>(new LinkedList<ClassMember>(), ClassMember.class, false);
                 l.addAll(FieldDeclaration);
                 setResult(l);
@@ -5352,13 +5364,13 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 324:  InterfaceMemberDeclaration ::= ClassDeclaration
+            // Rule 325:  InterfaceMemberDeclaration ::= ClassDeclaration
             //
-            case 324: {
-               //#line 3856 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3854 "x10/parser/x10.g"
+            case 325: {
+               //#line 3861 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3859 "x10/parser/x10.g"
                 ClassDecl ClassDeclaration = (ClassDecl) getRhsSym(1);
-                //#line 3856 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3861 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<ClassMember> l = new TypedList<ClassMember>(new LinkedList<ClassMember>(), ClassMember.class, false);
                 l.add(ClassDeclaration);
                 setResult(l);
@@ -5366,13 +5378,13 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 325:  InterfaceMemberDeclaration ::= InterfaceDeclaration
+            // Rule 326:  InterfaceMemberDeclaration ::= InterfaceDeclaration
             //
-            case 325: {
-               //#line 3863 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3861 "x10/parser/x10.g"
+            case 326: {
+               //#line 3868 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3866 "x10/parser/x10.g"
                 ClassDecl InterfaceDeclaration = (ClassDecl) getRhsSym(1);
-                //#line 3863 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3868 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<ClassMember> l = new TypedList<ClassMember>(new LinkedList<ClassMember>(), ClassMember.class, false);
                 l.add(InterfaceDeclaration);
                 setResult(l);
@@ -5380,13 +5392,13 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 326:  InterfaceMemberDeclaration ::= TypeDefDeclaration
+            // Rule 327:  InterfaceMemberDeclaration ::= TypeDefDeclaration
             //
-            case 326: {
-               //#line 3870 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3868 "x10/parser/x10.g"
+            case 327: {
+               //#line 3875 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3873 "x10/parser/x10.g"
                 TypeDecl TypeDefDeclaration = (TypeDecl) getRhsSym(1);
-                //#line 3870 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3875 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<ClassMember> l = new TypedList<ClassMember>(new LinkedList<ClassMember>(), ClassMember.class, false);
                 l.add(TypeDefDeclaration);
                 setResult(l);
@@ -5394,24 +5406,24 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 327:  InterfaceMemberDeclaration ::= ;
+            // Rule 328:  InterfaceMemberDeclaration ::= ;
             //
-            case 327: {
-               //#line 3877 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 328: {
+               //#line 3882 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3877 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3882 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.<ClassMember>emptyList());
                       break;
             }
     
             //
-            // Rule 328:  Annotations ::= Annotation
+            // Rule 329:  Annotations ::= Annotation
             //
-            case 328: {
-               //#line 3883 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3881 "x10/parser/x10.g"
+            case 329: {
+               //#line 3888 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3886 "x10/parser/x10.g"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(1);
-                //#line 3883 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3888 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<AnnotationNode> l = new TypedList<AnnotationNode>(new LinkedList<AnnotationNode>(), AnnotationNode.class, false);
                 l.add(Annotation);
                 setResult(l);
@@ -5419,63 +5431,63 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 329:  Annotations ::= Annotations Annotation
+            // Rule 330:  Annotations ::= Annotations Annotation
             //
-            case 329: {
-               //#line 3890 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3888 "x10/parser/x10.g"
+            case 330: {
+               //#line 3895 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3893 "x10/parser/x10.g"
                 List<AnnotationNode> Annotations = (List<AnnotationNode>) getRhsSym(1);
-                //#line 3888 "x10/parser/x10.g"
+                //#line 3893 "x10/parser/x10.g"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(2);
-                //#line 3890 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3895 "lpg.generator/templates/java/btParserTemplateF.gi"
                 Annotations.add(Annotation);
                       break;
             }
     
             //
-            // Rule 330:  Annotation ::= @ NamedType
+            // Rule 331:  Annotation ::= @ NamedType
             //
-            case 330: {
-               //#line 3896 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3894 "x10/parser/x10.g"
+            case 331: {
+               //#line 3901 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3899 "x10/parser/x10.g"
                 TypeNode NamedType = (TypeNode) getRhsSym(2);
-                //#line 3896 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3901 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.AnnotationNode(pos(), NamedType));
                       break;
             }
     
             //
-            // Rule 331:  Identifier ::= identifier
+            // Rule 332:  Identifier ::= identifier
             //
-            case 331: {
-               //#line 3911 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3909 "x10/parser/x10.g"
+            case 332: {
+               //#line 3916 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3914 "x10/parser/x10.g"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
-                //#line 3911 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3916 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult( nf.Id(identifier.getPosition(), identifier.getIdentifier()));
                       break;
             }
     
             //
-            // Rule 332:  Block ::= { BlockStatementsopt }
+            // Rule 333:  Block ::= { BlockStatementsopt }
             //
-            case 332: {
-               //#line 3947 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3945 "x10/parser/x10.g"
+            case 333: {
+               //#line 3952 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3950 "x10/parser/x10.g"
                 List<Stmt> BlockStatementsopt = (List<Stmt>) getRhsSym(2);
-                //#line 3947 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3952 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Block(pos(), BlockStatementsopt));
                       break;
             }
     
             //
-            // Rule 333:  BlockStatements ::= BlockStatement
+            // Rule 334:  BlockStatements ::= BlockStatement
             //
-            case 333: {
-               //#line 3953 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3951 "x10/parser/x10.g"
+            case 334: {
+               //#line 3958 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3956 "x10/parser/x10.g"
                 List<Stmt> BlockStatement = (List<Stmt>) getRhsSym(1);
-                //#line 3953 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3958 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Stmt> l = new TypedList<Stmt>(new LinkedList<Stmt>(), Stmt.class, false);
                 l.addAll(BlockStatement);
                 setResult(l);
@@ -5483,28 +5495,28 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 334:  BlockStatements ::= BlockStatements BlockStatement
+            // Rule 335:  BlockStatements ::= BlockStatements BlockStatement
             //
-            case 334: {
-               //#line 3960 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3958 "x10/parser/x10.g"
+            case 335: {
+               //#line 3965 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3963 "x10/parser/x10.g"
                 List<Stmt> BlockStatements = (List<Stmt>) getRhsSym(1);
-                //#line 3958 "x10/parser/x10.g"
+                //#line 3963 "x10/parser/x10.g"
                 List<Stmt> BlockStatement = (List<Stmt>) getRhsSym(2);
-                //#line 3960 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3965 "lpg.generator/templates/java/btParserTemplateF.gi"
                 BlockStatements.addAll(BlockStatement);
                 //setResult(l);
                       break;
             }
     
             //
-            // Rule 336:  BlockStatement ::= ClassDeclaration
+            // Rule 337:  BlockStatement ::= ClassDeclaration
             //
-            case 336: {
-               //#line 3968 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3966 "x10/parser/x10.g"
+            case 337: {
+               //#line 3973 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3971 "x10/parser/x10.g"
                 ClassDecl ClassDeclaration = (ClassDecl) getRhsSym(1);
-                //#line 3968 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3973 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Stmt> l = new TypedList<Stmt>(new LinkedList<Stmt>(), Stmt.class, false);
                 l.add(nf.LocalClassDecl(pos(), ClassDeclaration));
                 setResult(l);
@@ -5512,13 +5524,13 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 337:  BlockStatement ::= TypeDefDeclaration
+            // Rule 338:  BlockStatement ::= TypeDefDeclaration
             //
-            case 337: {
-               //#line 3975 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3973 "x10/parser/x10.g"
+            case 338: {
+               //#line 3980 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3978 "x10/parser/x10.g"
                 TypeDecl TypeDefDeclaration = (TypeDecl) getRhsSym(1);
-                //#line 3975 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3980 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Stmt> l = new TypedList<Stmt>(new LinkedList<Stmt>(), Stmt.class, false);
                 l.add(nf.LocalTypeDef(pos(), TypeDefDeclaration));
                 setResult(l);
@@ -5526,13 +5538,13 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 338:  BlockStatement ::= Statement
+            // Rule 339:  BlockStatement ::= Statement
             //
-            case 338: {
-               //#line 3982 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3980 "x10/parser/x10.g"
+            case 339: {
+               //#line 3987 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3985 "x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(1);
-                //#line 3982 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3987 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Stmt> l = new TypedList<Stmt>(new LinkedList<Stmt>(), Stmt.class, false);
                 l.add(Statement);
                 setResult(l);
@@ -5540,13 +5552,13 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 339:  IdentifierList ::= Identifier
+            // Rule 340:  IdentifierList ::= Identifier
             //
-            case 339: {
-               //#line 3990 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3988 "x10/parser/x10.g"
+            case 340: {
+               //#line 3995 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3993 "x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 3990 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3995 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Id> l = new TypedList<Id>(new LinkedList<Id>(), Id.class, false);
                 l.add(Identifier);
                 setResult(l);
@@ -5554,205 +5566,205 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 340:  IdentifierList ::= IdentifierList , Identifier
+            // Rule 341:  IdentifierList ::= IdentifierList , Identifier
             //
-            case 340: {
-               //#line 3997 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3995 "x10/parser/x10.g"
+            case 341: {
+               //#line 4002 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4000 "x10/parser/x10.g"
                 List<Id> IdentifierList = (List<Id>) getRhsSym(1);
-                //#line 3995 "x10/parser/x10.g"
+                //#line 4000 "x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 3997 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4002 "lpg.generator/templates/java/btParserTemplateF.gi"
                 IdentifierList.add(Identifier);
                       break;
             }
     
             //
-            // Rule 341:  FormalDeclarator ::= Identifier ResultType
+            // Rule 342:  FormalDeclarator ::= Identifier ResultType
             //
-            case 341: {
-               //#line 4003 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4001 "x10/parser/x10.g"
+            case 342: {
+               //#line 4008 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4006 "x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 4001 "x10/parser/x10.g"
+                //#line 4006 "x10/parser/x10.g"
                 TypeNode ResultType = (TypeNode) getRhsSym(2);
-                //#line 4003 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4008 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new Object[] { pos(), Identifier, Collections.<Id>emptyList(), null, ResultType, null });
                       break;
             }
     
             //
-            // Rule 342:  FormalDeclarator ::= [ IdentifierList ] ResultType
+            // Rule 343:  FormalDeclarator ::= [ IdentifierList ] ResultType
             //
-            case 342: {
-               //#line 4008 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4006 "x10/parser/x10.g"
+            case 343: {
+               //#line 4013 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4011 "x10/parser/x10.g"
                 List<Id> IdentifierList = (List<Id>) getRhsSym(2);
-                //#line 4006 "x10/parser/x10.g"
+                //#line 4011 "x10/parser/x10.g"
                 TypeNode ResultType = (TypeNode) getRhsSym(4);
-                //#line 4008 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4013 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new Object[] { pos(), null, IdentifierList, null, ResultType, null });
                       break;
             }
     
             //
-            // Rule 343:  FormalDeclarator ::= Identifier [ IdentifierList ] ResultType
+            // Rule 344:  FormalDeclarator ::= Identifier [ IdentifierList ] ResultType
             //
-            case 343: {
-               //#line 4013 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4011 "x10/parser/x10.g"
+            case 344: {
+               //#line 4018 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4016 "x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 4011 "x10/parser/x10.g"
+                //#line 4016 "x10/parser/x10.g"
                 List<Id> IdentifierList = (List<Id>) getRhsSym(3);
-                //#line 4011 "x10/parser/x10.g"
+                //#line 4016 "x10/parser/x10.g"
                 TypeNode ResultType = (TypeNode) getRhsSym(5);
-                //#line 4013 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4018 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new Object[] { pos(), Identifier, IdentifierList, null, ResultType, null });
                       break;
             }
     
             //
-            // Rule 344:  FieldDeclarator ::= Identifier HasResultType
-            //
-            case 344: {
-               //#line 4019 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4017 "x10/parser/x10.g"
-                Id Identifier = (Id) getRhsSym(1);
-                //#line 4017 "x10/parser/x10.g"
-                TypeNode HasResultType = (TypeNode) getRhsSym(2);
-                //#line 4019 "lpg.generator/templates/java/btParserTemplateF.gi"
-                setResult(new Object[] { pos(), Identifier, Collections.<Id>emptyList(), HasResultType, null });
-                      break;
-            }
-    
-            //
-            // Rule 345:  FieldDeclarator ::= Identifier HasResultTypeopt = VariableInitializer
+            // Rule 345:  FieldDeclarator ::= Identifier HasResultType
             //
             case 345: {
                //#line 4024 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4022 "x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
                 //#line 4022 "x10/parser/x10.g"
-                TypeNode HasResultTypeopt = (TypeNode) getRhsSym(2);
-                //#line 4022 "x10/parser/x10.g"
-                Expr VariableInitializer = (Expr) getRhsSym(4);
+                TypeNode HasResultType = (TypeNode) getRhsSym(2);
                 //#line 4024 "lpg.generator/templates/java/btParserTemplateF.gi"
+                setResult(new Object[] { pos(), Identifier, Collections.<Id>emptyList(), HasResultType, null });
+                      break;
+            }
+    
+            //
+            // Rule 346:  FieldDeclarator ::= Identifier HasResultTypeopt = VariableInitializer
+            //
+            case 346: {
+               //#line 4029 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4027 "x10/parser/x10.g"
+                Id Identifier = (Id) getRhsSym(1);
+                //#line 4027 "x10/parser/x10.g"
+                TypeNode HasResultTypeopt = (TypeNode) getRhsSym(2);
+                //#line 4027 "x10/parser/x10.g"
+                Expr VariableInitializer = (Expr) getRhsSym(4);
+                //#line 4029 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new Object[] { pos(), Identifier, Collections.<Id>emptyList(), HasResultTypeopt, VariableInitializer });
                       break;
             }
     
             //
-            // Rule 346:  VariableDeclarator ::= Identifier HasResultTypeopt = VariableInitializer
+            // Rule 347:  VariableDeclarator ::= Identifier HasResultTypeopt = VariableInitializer
             //
-            case 346: {
-               //#line 4030 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4028 "x10/parser/x10.g"
+            case 347: {
+               //#line 4035 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4033 "x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 4028 "x10/parser/x10.g"
+                //#line 4033 "x10/parser/x10.g"
                 TypeNode HasResultTypeopt = (TypeNode) getRhsSym(2);
-                //#line 4028 "x10/parser/x10.g"
+                //#line 4033 "x10/parser/x10.g"
                 Expr VariableInitializer = (Expr) getRhsSym(4);
-                //#line 4030 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4035 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new Object[] { pos(), Identifier, Collections.<Id>emptyList(), null, HasResultTypeopt, VariableInitializer });
                       break;
             }
     
             //
-            // Rule 347:  VariableDeclarator ::= [ IdentifierList ] HasResultTypeopt = VariableInitializer
+            // Rule 348:  VariableDeclarator ::= [ IdentifierList ] HasResultTypeopt = VariableInitializer
             //
-            case 347: {
-               //#line 4035 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4033 "x10/parser/x10.g"
+            case 348: {
+               //#line 4040 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4038 "x10/parser/x10.g"
                 List<Id> IdentifierList = (List<Id>) getRhsSym(2);
-                //#line 4033 "x10/parser/x10.g"
+                //#line 4038 "x10/parser/x10.g"
                 TypeNode HasResultTypeopt = (TypeNode) getRhsSym(4);
-                //#line 4033 "x10/parser/x10.g"
+                //#line 4038 "x10/parser/x10.g"
                 Expr VariableInitializer = (Expr) getRhsSym(6);
-                //#line 4035 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4040 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new Object[] { pos(), null, IdentifierList, null, HasResultTypeopt, VariableInitializer });
                       break;
             }
     
             //
-            // Rule 348:  VariableDeclarator ::= Identifier [ IdentifierList ] HasResultTypeopt = VariableInitializer
+            // Rule 349:  VariableDeclarator ::= Identifier [ IdentifierList ] HasResultTypeopt = VariableInitializer
             //
-            case 348: {
-               //#line 4040 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4038 "x10/parser/x10.g"
+            case 349: {
+               //#line 4045 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4043 "x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 4038 "x10/parser/x10.g"
+                //#line 4043 "x10/parser/x10.g"
                 List<Id> IdentifierList = (List<Id>) getRhsSym(3);
-                //#line 4038 "x10/parser/x10.g"
+                //#line 4043 "x10/parser/x10.g"
                 TypeNode HasResultTypeopt = (TypeNode) getRhsSym(5);
-                //#line 4038 "x10/parser/x10.g"
+                //#line 4043 "x10/parser/x10.g"
                 Expr VariableInitializer = (Expr) getRhsSym(7);
-                //#line 4040 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4045 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new Object[] { pos(), Identifier, IdentifierList, null, HasResultTypeopt, VariableInitializer });
                       break;
             }
     
             //
-            // Rule 349:  VariableDeclaratorWithType ::= Identifier HasResultType = VariableInitializer
+            // Rule 350:  VariableDeclaratorWithType ::= Identifier HasResultType = VariableInitializer
             //
-            case 349: {
-               //#line 4046 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4044 "x10/parser/x10.g"
+            case 350: {
+               //#line 4051 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4049 "x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 4044 "x10/parser/x10.g"
+                //#line 4049 "x10/parser/x10.g"
                 TypeNode HasResultType = (TypeNode) getRhsSym(2);
-                //#line 4044 "x10/parser/x10.g"
+                //#line 4049 "x10/parser/x10.g"
                 Expr VariableInitializer = (Expr) getRhsSym(4);
-                //#line 4046 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4051 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new Object[] { pos(), Identifier, Collections.<Id>emptyList(), null, HasResultType, VariableInitializer });
                       break;
             }
     
             //
-            // Rule 350:  VariableDeclaratorWithType ::= [ IdentifierList ] HasResultType = VariableInitializer
+            // Rule 351:  VariableDeclaratorWithType ::= [ IdentifierList ] HasResultType = VariableInitializer
             //
-            case 350: {
-               //#line 4051 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4049 "x10/parser/x10.g"
+            case 351: {
+               //#line 4056 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4054 "x10/parser/x10.g"
                 List<Id> IdentifierList = (List<Id>) getRhsSym(2);
-                //#line 4049 "x10/parser/x10.g"
+                //#line 4054 "x10/parser/x10.g"
                 TypeNode HasResultType = (TypeNode) getRhsSym(4);
-                //#line 4049 "x10/parser/x10.g"
+                //#line 4054 "x10/parser/x10.g"
                 Expr VariableInitializer = (Expr) getRhsSym(6);
-                //#line 4051 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4056 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new Object[] { pos(), null, IdentifierList, null, HasResultType, VariableInitializer });
                       break;
             }
     
             //
-            // Rule 351:  VariableDeclaratorWithType ::= Identifier [ IdentifierList ] HasResultType = VariableInitializer
+            // Rule 352:  VariableDeclaratorWithType ::= Identifier [ IdentifierList ] HasResultType = VariableInitializer
             //
-            case 351: {
-               //#line 4056 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4054 "x10/parser/x10.g"
+            case 352: {
+               //#line 4061 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4059 "x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 4054 "x10/parser/x10.g"
+                //#line 4059 "x10/parser/x10.g"
                 List<Id> IdentifierList = (List<Id>) getRhsSym(3);
-                //#line 4054 "x10/parser/x10.g"
+                //#line 4059 "x10/parser/x10.g"
                 TypeNode HasResultType = (TypeNode) getRhsSym(5);
-                //#line 4054 "x10/parser/x10.g"
+                //#line 4059 "x10/parser/x10.g"
                 Expr VariableInitializer = (Expr) getRhsSym(7);
-                //#line 4056 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4061 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new Object[] { pos(), Identifier, IdentifierList, null, HasResultType, VariableInitializer });
                       break;
             }
     
             //
-            // Rule 353:  LocalVariableDeclaration ::= Modifiersopt VarKeyword VariableDeclarators
+            // Rule 354:  LocalVariableDeclaration ::= Modifiersopt VarKeyword VariableDeclarators
             //
-            case 353: {
-               //#line 4064 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4062 "x10/parser/x10.g"
+            case 354: {
+               //#line 4069 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4067 "x10/parser/x10.g"
                 List<Modifier> Modifiersopt = (List<Modifier>) getRhsSym(1);
-                //#line 4062 "x10/parser/x10.g"
+                //#line 4067 "x10/parser/x10.g"
                 List<FlagsNode> VarKeyword = (List<FlagsNode>) getRhsSym(2);
-                //#line 4062 "x10/parser/x10.g"
+                //#line 4067 "x10/parser/x10.g"
                 List<Object[]> VariableDeclarators = (List<Object[]>) getRhsSym(3);
-                //#line 4064 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4069 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Node> modifiers = checkVariableModifiers(Modifiersopt);
                 FlagsNode fn = extractFlags(modifiers, VarKeyword);
     
@@ -5783,15 +5795,15 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 354:  LocalVariableDeclaration ::= Modifiersopt VariableDeclaratorsWithType
+            // Rule 355:  LocalVariableDeclaration ::= Modifiersopt VariableDeclaratorsWithType
             //
-            case 354: {
-               //#line 4094 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4092 "x10/parser/x10.g"
+            case 355: {
+               //#line 4099 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4097 "x10/parser/x10.g"
                 List<Modifier> Modifiersopt = (List<Modifier>) getRhsSym(1);
-                //#line 4092 "x10/parser/x10.g"
+                //#line 4097 "x10/parser/x10.g"
                 List<Object[]> VariableDeclaratorsWithType = (List<Object[]>) getRhsSym(2);
-                //#line 4094 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4099 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Node> modifiers = checkVariableModifiers(Modifiersopt);
                 FlagsNode fn = extractFlags(modifiers, Flags.FINAL);
     
@@ -5823,17 +5835,17 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 355:  LocalVariableDeclaration ::= Modifiersopt VarKeyword FormalDeclarators
+            // Rule 356:  LocalVariableDeclaration ::= Modifiersopt VarKeyword FormalDeclarators
             //
-            case 355: {
-               //#line 4125 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4123 "x10/parser/x10.g"
+            case 356: {
+               //#line 4130 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4128 "x10/parser/x10.g"
                 List<Modifier> Modifiersopt = (List<Modifier>) getRhsSym(1);
-                //#line 4123 "x10/parser/x10.g"
+                //#line 4128 "x10/parser/x10.g"
                 List<FlagsNode> VarKeyword = (List<FlagsNode>) getRhsSym(2);
-                //#line 4123 "x10/parser/x10.g"
+                //#line 4128 "x10/parser/x10.g"
                 List<Object[]> FormalDeclarators = (List<Object[]>) getRhsSym(3);
-                //#line 4125 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4130 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Node> modifiers = checkVariableModifiers(Modifiersopt);
                 FlagsNode fn = extractFlags(modifiers, VarKeyword);
     
@@ -5866,83 +5878,83 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 356:  Primary ::= here
+            // Rule 357:  Primary ::= here
             //
-            case 356: {
-               //#line 4163 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 357: {
+               //#line 4168 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4163 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4168 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(((X10NodeFactory) nf).Here(pos()));
                       break;
             }
     
             //
-            // Rule 357:  Primary ::= [ ArgumentListopt ]
+            // Rule 358:  Primary ::= [ ArgumentListopt ]
             //
-            case 357: {
-               //#line 4168 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4166 "x10/parser/x10.g"
+            case 358: {
+               //#line 4173 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4171 "x10/parser/x10.g"
                 List<Expr> ArgumentListopt = (List<Expr>) getRhsSym(2);
-                //#line 4168 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4173 "lpg.generator/templates/java/btParserTemplateF.gi"
                 Tuple tuple = nf.Tuple(pos(), ArgumentListopt);
                 setResult(tuple);
                       break;
             }
     
             //
-            // Rule 359:  Primary ::= self
-            //
-            case 359: {
-               //#line 4176 "lpg.generator/templates/java/btParserTemplateF.gi"
-                
-                //#line 4176 "lpg.generator/templates/java/btParserTemplateF.gi"
-                setResult(nf.Self(pos()));
-                      break;
-            }
-    
-            //
-            // Rule 360:  Primary ::= this
+            // Rule 360:  Primary ::= self
             //
             case 360: {
                //#line 4181 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4181 "lpg.generator/templates/java/btParserTemplateF.gi"
+                setResult(nf.Self(pos()));
+                      break;
+            }
+    
+            //
+            // Rule 361:  Primary ::= this
+            //
+            case 361: {
+               //#line 4186 "lpg.generator/templates/java/btParserTemplateF.gi"
+                
+                //#line 4186 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.This(pos()));
                       break;
             }
     
             //
-            // Rule 361:  Primary ::= ClassName . this
+            // Rule 362:  Primary ::= ClassName . this
             //
-            case 361: {
-               //#line 4186 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4184 "x10/parser/x10.g"
+            case 362: {
+               //#line 4191 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4189 "x10/parser/x10.g"
                 ParsedName ClassName = (ParsedName) getRhsSym(1);
-                //#line 4186 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4191 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.This(pos(), ClassName.toType()));
                       break;
             }
     
             //
-            // Rule 362:  Primary ::= ( Expression )
+            // Rule 363:  Primary ::= ( Expression )
             //
-            case 362: {
-               //#line 4191 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4189 "x10/parser/x10.g"
+            case 363: {
+               //#line 4196 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4194 "x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(2);
-                //#line 4191 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4196 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.ParExpr(pos(), Expression));
                       break;
             }
     
             //
-            // Rule 368:  OperatorFunction ::= TypeName . +
+            // Rule 369:  OperatorFunction ::= TypeName . +
             //
-            case 368: {
-               //#line 4202 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4200 "x10/parser/x10.g"
+            case 369: {
+               //#line 4207 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4205 "x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 4202 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4207 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -5954,13 +5966,13 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 369:  OperatorFunction ::= TypeName . -
+            // Rule 370:  OperatorFunction ::= TypeName . -
             //
-            case 369: {
-               //#line 4213 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4211 "x10/parser/x10.g"
+            case 370: {
+               //#line 4218 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4216 "x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 4213 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4218 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -5972,13 +5984,13 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 370:  OperatorFunction ::= TypeName . *
+            // Rule 371:  OperatorFunction ::= TypeName . *
             //
-            case 370: {
-               //#line 4224 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4222 "x10/parser/x10.g"
+            case 371: {
+               //#line 4229 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4227 "x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 4224 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4229 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -5990,13 +6002,13 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 371:  OperatorFunction ::= TypeName . /
+            // Rule 372:  OperatorFunction ::= TypeName . /
             //
-            case 371: {
-               //#line 4235 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4233 "x10/parser/x10.g"
+            case 372: {
+               //#line 4240 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4238 "x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 4235 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4240 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -6008,13 +6020,13 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 372:  OperatorFunction ::= TypeName . %
+            // Rule 373:  OperatorFunction ::= TypeName . %
             //
-            case 372: {
-               //#line 4246 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4244 "x10/parser/x10.g"
+            case 373: {
+               //#line 4251 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4249 "x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 4246 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4251 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -6026,13 +6038,13 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 373:  OperatorFunction ::= TypeName . &
+            // Rule 374:  OperatorFunction ::= TypeName . &
             //
-            case 373: {
-               //#line 4257 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4255 "x10/parser/x10.g"
+            case 374: {
+               //#line 4262 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4260 "x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 4257 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4262 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -6044,13 +6056,13 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 374:  OperatorFunction ::= TypeName . |
+            // Rule 375:  OperatorFunction ::= TypeName . |
             //
-            case 374: {
-               //#line 4268 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4266 "x10/parser/x10.g"
+            case 375: {
+               //#line 4273 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4271 "x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 4268 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4273 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -6062,13 +6074,13 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 375:  OperatorFunction ::= TypeName . ^
+            // Rule 376:  OperatorFunction ::= TypeName . ^
             //
-            case 375: {
-               //#line 4279 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4277 "x10/parser/x10.g"
+            case 376: {
+               //#line 4284 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4282 "x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 4279 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4284 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -6080,13 +6092,13 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 376:  OperatorFunction ::= TypeName . <<
+            // Rule 377:  OperatorFunction ::= TypeName . <<
             //
-            case 376: {
-               //#line 4290 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4288 "x10/parser/x10.g"
+            case 377: {
+               //#line 4295 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4293 "x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 4290 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4295 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -6098,13 +6110,13 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 377:  OperatorFunction ::= TypeName . >>
+            // Rule 378:  OperatorFunction ::= TypeName . >>
             //
-            case 377: {
-               //#line 4301 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4299 "x10/parser/x10.g"
+            case 378: {
+               //#line 4306 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4304 "x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 4301 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4306 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -6116,13 +6128,13 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 378:  OperatorFunction ::= TypeName . >>>
+            // Rule 379:  OperatorFunction ::= TypeName . >>>
             //
-            case 378: {
-               //#line 4312 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4310 "x10/parser/x10.g"
+            case 379: {
+               //#line 4317 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4315 "x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 4312 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4317 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -6134,13 +6146,13 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 379:  OperatorFunction ::= TypeName . <
+            // Rule 380:  OperatorFunction ::= TypeName . <
             //
-            case 379: {
-               //#line 4323 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4321 "x10/parser/x10.g"
+            case 380: {
+               //#line 4328 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4326 "x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 4323 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4328 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -6152,13 +6164,13 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 380:  OperatorFunction ::= TypeName . <=
+            // Rule 381:  OperatorFunction ::= TypeName . <=
             //
-            case 380: {
-               //#line 4334 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4332 "x10/parser/x10.g"
+            case 381: {
+               //#line 4339 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4337 "x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 4334 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4339 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -6170,13 +6182,13 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 381:  OperatorFunction ::= TypeName . >=
+            // Rule 382:  OperatorFunction ::= TypeName . >=
             //
-            case 381: {
-               //#line 4345 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4343 "x10/parser/x10.g"
+            case 382: {
+               //#line 4350 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4348 "x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 4345 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4350 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -6188,13 +6200,13 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 382:  OperatorFunction ::= TypeName . >
+            // Rule 383:  OperatorFunction ::= TypeName . >
             //
-            case 382: {
-               //#line 4356 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4354 "x10/parser/x10.g"
+            case 383: {
+               //#line 4361 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4359 "x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 4356 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4361 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -6206,13 +6218,13 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 383:  OperatorFunction ::= TypeName . ==
+            // Rule 384:  OperatorFunction ::= TypeName . ==
             //
-            case 383: {
-               //#line 4367 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4365 "x10/parser/x10.g"
+            case 384: {
+               //#line 4372 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4370 "x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 4367 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4372 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -6224,13 +6236,13 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 384:  OperatorFunction ::= TypeName . !=
+            // Rule 385:  OperatorFunction ::= TypeName . !=
             //
-            case 384: {
-               //#line 4378 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4376 "x10/parser/x10.g"
+            case 385: {
+               //#line 4383 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4381 "x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 4378 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4383 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -6242,164 +6254,164 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 385:  Literal ::= IntegerLiteral$lit
+            // Rule 386:  Literal ::= IntegerLiteral$lit
             //
-            case 385: {
-               //#line 4391 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4389 "x10/parser/x10.g"
+            case 386: {
+               //#line 4396 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4394 "x10/parser/x10.g"
                 IToken lit = (IToken) getRhsIToken(1);
-                //#line 4391 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4396 "lpg.generator/templates/java/btParserTemplateF.gi"
                 polyglot.lex.LongLiteral a = int_lit(getRhsFirstTokenIndex(1));
                 setResult(nf.IntLit(pos(), IntLit.INT, a.getValue().longValue()));
                       break;
             }
     
             //
-            // Rule 386:  Literal ::= LongLiteral$lit
+            // Rule 387:  Literal ::= LongLiteral$lit
             //
-            case 386: {
-               //#line 4397 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4395 "x10/parser/x10.g"
+            case 387: {
+               //#line 4402 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4400 "x10/parser/x10.g"
                 IToken lit = (IToken) getRhsIToken(1);
-                //#line 4397 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4402 "lpg.generator/templates/java/btParserTemplateF.gi"
                 polyglot.lex.LongLiteral a = long_lit(getRhsFirstTokenIndex(1));
                 setResult(nf.IntLit(pos(), IntLit.LONG, a.getValue().longValue()));
                       break;
             }
     
             //
-            // Rule 387:  Literal ::= UnsignedIntegerLiteral$lit
+            // Rule 388:  Literal ::= UnsignedIntegerLiteral$lit
             //
-            case 387: {
-               //#line 4403 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4401 "x10/parser/x10.g"
+            case 388: {
+               //#line 4408 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4406 "x10/parser/x10.g"
                 IToken lit = (IToken) getRhsIToken(1);
-                //#line 4403 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4408 "lpg.generator/templates/java/btParserTemplateF.gi"
                 polyglot.lex.LongLiteral a = uint_lit(getRhsFirstTokenIndex(1));
                 setResult(nf.IntLit(pos(), X10IntLit_c.UINT, a.getValue().longValue()));
                       break;
             }
     
             //
-            // Rule 388:  Literal ::= UnsignedLongLiteral$lit
+            // Rule 389:  Literal ::= UnsignedLongLiteral$lit
             //
-            case 388: {
-               //#line 4409 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4407 "x10/parser/x10.g"
+            case 389: {
+               //#line 4414 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4412 "x10/parser/x10.g"
                 IToken lit = (IToken) getRhsIToken(1);
-                //#line 4409 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4414 "lpg.generator/templates/java/btParserTemplateF.gi"
                 polyglot.lex.LongLiteral a = ulong_lit(getRhsFirstTokenIndex(1));
                 setResult(nf.IntLit(pos(), X10IntLit_c.ULONG, a.getValue().longValue()));
                       break;
             }
     
             //
-            // Rule 389:  Literal ::= FloatingPointLiteral$lit
+            // Rule 390:  Literal ::= FloatingPointLiteral$lit
             //
-            case 389: {
-               //#line 4415 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4413 "x10/parser/x10.g"
+            case 390: {
+               //#line 4420 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4418 "x10/parser/x10.g"
                 IToken lit = (IToken) getRhsIToken(1);
-                //#line 4415 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4420 "lpg.generator/templates/java/btParserTemplateF.gi"
                 polyglot.lex.FloatLiteral a = float_lit(getRhsFirstTokenIndex(1));
                 setResult(nf.FloatLit(pos(), FloatLit.FLOAT, a.getValue().floatValue()));
                       break;
             }
     
             //
-            // Rule 390:  Literal ::= DoubleLiteral$lit
+            // Rule 391:  Literal ::= DoubleLiteral$lit
             //
-            case 390: {
-               //#line 4421 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4419 "x10/parser/x10.g"
+            case 391: {
+               //#line 4426 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4424 "x10/parser/x10.g"
                 IToken lit = (IToken) getRhsIToken(1);
-                //#line 4421 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4426 "lpg.generator/templates/java/btParserTemplateF.gi"
                 polyglot.lex.DoubleLiteral a = double_lit(getRhsFirstTokenIndex(1));
                 setResult(nf.FloatLit(pos(), FloatLit.DOUBLE, a.getValue().doubleValue()));
                       break;
             }
     
             //
-            // Rule 391:  Literal ::= BooleanLiteral
+            // Rule 392:  Literal ::= BooleanLiteral
             //
-            case 391: {
-               //#line 4427 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4425 "x10/parser/x10.g"
+            case 392: {
+               //#line 4432 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4430 "x10/parser/x10.g"
                 polyglot.lex.BooleanLiteral BooleanLiteral = (polyglot.lex.BooleanLiteral) getRhsSym(1);
-                //#line 4427 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4432 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.BooleanLit(pos(), BooleanLiteral.getValue().booleanValue()));
                       break;
             }
     
             //
-            // Rule 392:  Literal ::= CharacterLiteral$lit
+            // Rule 393:  Literal ::= CharacterLiteral$lit
             //
-            case 392: {
-               //#line 4432 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4430 "x10/parser/x10.g"
+            case 393: {
+               //#line 4437 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4435 "x10/parser/x10.g"
                 IToken lit = (IToken) getRhsIToken(1);
-                //#line 4432 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4437 "lpg.generator/templates/java/btParserTemplateF.gi"
                 polyglot.lex.CharacterLiteral a = char_lit(getRhsFirstTokenIndex(1));
                 setResult(nf.CharLit(pos(), a.getValue().charValue()));
                       break;
             }
     
             //
-            // Rule 393:  Literal ::= StringLiteral$str
+            // Rule 394:  Literal ::= StringLiteral$str
             //
-            case 393: {
-               //#line 4438 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4436 "x10/parser/x10.g"
+            case 394: {
+               //#line 4443 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4441 "x10/parser/x10.g"
                 IToken str = (IToken) getRhsIToken(1);
-                //#line 4438 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4443 "lpg.generator/templates/java/btParserTemplateF.gi"
                 polyglot.lex.StringLiteral a = string_lit(getRhsFirstTokenIndex(1));
                 setResult(nf.StringLit(pos(), a.getValue()));
                       break;
             }
     
             //
-            // Rule 394:  Literal ::= null
+            // Rule 395:  Literal ::= null
             //
-            case 394: {
-               //#line 4444 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 395: {
+               //#line 4449 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4444 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4449 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.NullLit(pos()));
                       break;
             }
     
             //
-            // Rule 395:  BooleanLiteral ::= true$trueLiteral
-            //
-            case 395: {
-               //#line 4450 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4448 "x10/parser/x10.g"
-                IToken trueLiteral = (IToken) getRhsIToken(1);
-                //#line 4450 "lpg.generator/templates/java/btParserTemplateF.gi"
-                setResult(boolean_lit(getRhsFirstTokenIndex(1)));
-                      break;
-            }
-    
-            //
-            // Rule 396:  BooleanLiteral ::= false$falseLiteral
+            // Rule 396:  BooleanLiteral ::= true$trueLiteral
             //
             case 396: {
                //#line 4455 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4453 "x10/parser/x10.g"
-                IToken falseLiteral = (IToken) getRhsIToken(1);
+                IToken trueLiteral = (IToken) getRhsIToken(1);
                 //#line 4455 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(boolean_lit(getRhsFirstTokenIndex(1)));
                       break;
             }
     
             //
-            // Rule 397:  ArgumentList ::= Expression
+            // Rule 397:  BooleanLiteral ::= false$falseLiteral
             //
             case 397: {
-               //#line 4464 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4462 "x10/parser/x10.g"
+               //#line 4460 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4458 "x10/parser/x10.g"
+                IToken falseLiteral = (IToken) getRhsIToken(1);
+                //#line 4460 "lpg.generator/templates/java/btParserTemplateF.gi"
+                setResult(boolean_lit(getRhsFirstTokenIndex(1)));
+                      break;
+            }
+    
+            //
+            // Rule 398:  ArgumentList ::= Expression
+            //
+            case 398: {
+               //#line 4469 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4467 "x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(1);
-                //#line 4464 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4469 "lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Expr> l = new TypedList<Expr>(new LinkedList<Expr>(), Expr.class, false);
                 l.add(Expression);
                 setResult(l);
@@ -6407,115 +6419,115 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 398:  ArgumentList ::= ArgumentList , Expression
+            // Rule 399:  ArgumentList ::= ArgumentList , Expression
             //
-            case 398: {
-               //#line 4471 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4469 "x10/parser/x10.g"
+            case 399: {
+               //#line 4476 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4474 "x10/parser/x10.g"
                 List<Expr> ArgumentList = (List<Expr>) getRhsSym(1);
-                //#line 4469 "x10/parser/x10.g"
+                //#line 4474 "x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 4471 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4476 "lpg.generator/templates/java/btParserTemplateF.gi"
                 ArgumentList.add(Expression);
                       break;
             }
     
             //
-            // Rule 399:  FieldAccess ::= Primary . Identifier
+            // Rule 400:  FieldAccess ::= Primary . Identifier
             //
-            case 399: {
-               //#line 4477 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4475 "x10/parser/x10.g"
+            case 400: {
+               //#line 4482 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4480 "x10/parser/x10.g"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 4475 "x10/parser/x10.g"
+                //#line 4480 "x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 4477 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4482 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Field(pos(), Primary, Identifier));
                       break;
             }
     
             //
-            // Rule 400:  FieldAccess ::= super . Identifier
+            // Rule 401:  FieldAccess ::= super . Identifier
             //
-            case 400: {
-               //#line 4482 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4480 "x10/parser/x10.g"
+            case 401: {
+               //#line 4487 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4485 "x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 4482 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4487 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Field(pos(), nf.Super(pos(getLeftSpan())), Identifier));
                       break;
             }
     
             //
-            // Rule 401:  FieldAccess ::= ClassName . super$sup . Identifier
+            // Rule 402:  FieldAccess ::= ClassName . super$sup . Identifier
             //
-            case 401: {
-               //#line 4487 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4485 "x10/parser/x10.g"
+            case 402: {
+               //#line 4492 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4490 "x10/parser/x10.g"
                 ParsedName ClassName = (ParsedName) getRhsSym(1);
-                //#line 4485 "x10/parser/x10.g"
+                //#line 4490 "x10/parser/x10.g"
                 IToken sup = (IToken) getRhsIToken(3);
-                //#line 4485 "x10/parser/x10.g"
+                //#line 4490 "x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(5);
-                //#line 4487 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4492 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Field(pos(), nf.Super(pos(getLeftSpan(),getRhsFirstTokenIndex(3)), ClassName.toType()), Identifier));
                       break;
             }
     
             //
-            // Rule 402:  FieldAccess ::= Primary . class$c
+            // Rule 403:  FieldAccess ::= Primary . class$c
             //
-            case 402: {
-               //#line 4492 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4490 "x10/parser/x10.g"
+            case 403: {
+               //#line 4497 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4495 "x10/parser/x10.g"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 4490 "x10/parser/x10.g"
+                //#line 4495 "x10/parser/x10.g"
                 IToken c = (IToken) getRhsIToken(3);
-                //#line 4492 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4497 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Field(pos(), Primary, nf.Id(pos(getRhsFirstTokenIndex(3)), "class")));
                       break;
             }
     
             //
-            // Rule 403:  FieldAccess ::= super . class$c
+            // Rule 404:  FieldAccess ::= super . class$c
             //
-            case 403: {
-               //#line 4497 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4495 "x10/parser/x10.g"
+            case 404: {
+               //#line 4502 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4500 "x10/parser/x10.g"
                 IToken c = (IToken) getRhsIToken(3);
-                //#line 4497 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4502 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Field(pos(), nf.Super(pos(getLeftSpan())), nf.Id(pos(getRhsFirstTokenIndex(3)), "class")));
                       break;
             }
     
             //
-            // Rule 404:  FieldAccess ::= ClassName . super$sup . class$c
+            // Rule 405:  FieldAccess ::= ClassName . super$sup . class$c
             //
-            case 404: {
-               //#line 4502 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4500 "x10/parser/x10.g"
+            case 405: {
+               //#line 4507 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4505 "x10/parser/x10.g"
                 ParsedName ClassName = (ParsedName) getRhsSym(1);
-                //#line 4500 "x10/parser/x10.g"
+                //#line 4505 "x10/parser/x10.g"
                 IToken sup = (IToken) getRhsIToken(3);
-                //#line 4500 "x10/parser/x10.g"
+                //#line 4505 "x10/parser/x10.g"
                 IToken c = (IToken) getRhsIToken(5);
-                //#line 4502 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4507 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Field(pos(), nf.Super(pos(getLeftSpan(),getRhsFirstTokenIndex(3)), ClassName.toType()), nf.Id(pos(getRhsFirstTokenIndex(5)), "class")));
                       break;
             }
     
             //
-            // Rule 405:  MethodInvocation ::= MethodName TypeArgumentsopt ( ArgumentListopt )
+            // Rule 406:  MethodInvocation ::= MethodName TypeArgumentsopt ( ArgumentListopt )
             //
-            case 405: {
-               //#line 4508 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4506 "x10/parser/x10.g"
+            case 406: {
+               //#line 4513 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4511 "x10/parser/x10.g"
                 ParsedName MethodName = (ParsedName) getRhsSym(1);
-                //#line 4506 "x10/parser/x10.g"
+                //#line 4511 "x10/parser/x10.g"
                 List<TypeNode> TypeArgumentsopt = (List<TypeNode>) getRhsSym(2);
-                //#line 4506 "x10/parser/x10.g"
+                //#line 4511 "x10/parser/x10.g"
                 List<Expr> ArgumentListopt = (List<Expr>) getRhsSym(4);
-                //#line 4508 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4513 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.X10Call(pos(), MethodName.prefix == null
                                                              ? null
                                                              : MethodName.prefix.toReceiver(), MethodName.name, TypeArgumentsopt, ArgumentListopt));
@@ -6523,28 +6535,12 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 406:  MethodInvocation ::= Primary . Identifier TypeArgumentsopt ( ArgumentListopt )
-            //
-            case 406: {
-               //#line 4515 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4513 "x10/parser/x10.g"
-                Expr Primary = (Expr) getRhsSym(1);
-                //#line 4513 "x10/parser/x10.g"
-                Id Identifier = (Id) getRhsSym(3);
-                //#line 4513 "x10/parser/x10.g"
-                List<TypeNode> TypeArgumentsopt = (List<TypeNode>) getRhsSym(4);
-                //#line 4513 "x10/parser/x10.g"
-                List<Expr> ArgumentListopt = (List<Expr>) getRhsSym(6);
-                //#line 4515 "lpg.generator/templates/java/btParserTemplateF.gi"
-                setResult(nf.X10Call(pos(), Primary, Identifier, TypeArgumentsopt, ArgumentListopt));
-                      break;
-            }
-    
-            //
-            // Rule 407:  MethodInvocation ::= super . Identifier TypeArgumentsopt ( ArgumentListopt )
+            // Rule 407:  MethodInvocation ::= Primary . Identifier TypeArgumentsopt ( ArgumentListopt )
             //
             case 407: {
                //#line 4520 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4518 "x10/parser/x10.g"
+                Expr Primary = (Expr) getRhsSym(1);
                 //#line 4518 "x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
                 //#line 4518 "x10/parser/x10.g"
@@ -6552,42 +6548,58 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
                 //#line 4518 "x10/parser/x10.g"
                 List<Expr> ArgumentListopt = (List<Expr>) getRhsSym(6);
                 //#line 4520 "lpg.generator/templates/java/btParserTemplateF.gi"
+                setResult(nf.X10Call(pos(), Primary, Identifier, TypeArgumentsopt, ArgumentListopt));
+                      break;
+            }
+    
+            //
+            // Rule 408:  MethodInvocation ::= super . Identifier TypeArgumentsopt ( ArgumentListopt )
+            //
+            case 408: {
+               //#line 4525 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4523 "x10/parser/x10.g"
+                Id Identifier = (Id) getRhsSym(3);
+                //#line 4523 "x10/parser/x10.g"
+                List<TypeNode> TypeArgumentsopt = (List<TypeNode>) getRhsSym(4);
+                //#line 4523 "x10/parser/x10.g"
+                List<Expr> ArgumentListopt = (List<Expr>) getRhsSym(6);
+                //#line 4525 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.X10Call(pos(), nf.Super(pos(getLeftSpan())), Identifier, TypeArgumentsopt, ArgumentListopt));
                       break;
             }
     
             //
-            // Rule 408:  MethodInvocation ::= ClassName . super$sup . Identifier TypeArgumentsopt ( ArgumentListopt )
+            // Rule 409:  MethodInvocation ::= ClassName . super$sup . Identifier TypeArgumentsopt ( ArgumentListopt )
             //
-            case 408: {
-               //#line 4525 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4523 "x10/parser/x10.g"
+            case 409: {
+               //#line 4530 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4528 "x10/parser/x10.g"
                 ParsedName ClassName = (ParsedName) getRhsSym(1);
-                //#line 4523 "x10/parser/x10.g"
+                //#line 4528 "x10/parser/x10.g"
                 IToken sup = (IToken) getRhsIToken(3);
-                //#line 4523 "x10/parser/x10.g"
+                //#line 4528 "x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(5);
-                //#line 4523 "x10/parser/x10.g"
+                //#line 4528 "x10/parser/x10.g"
                 List<TypeNode> TypeArgumentsopt = (List<TypeNode>) getRhsSym(6);
-                //#line 4523 "x10/parser/x10.g"
+                //#line 4528 "x10/parser/x10.g"
                 List<Expr> ArgumentListopt = (List<Expr>) getRhsSym(8);
-                //#line 4525 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4530 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.X10Call(pos(), nf.Super(pos(getRhsFirstTokenIndex(3)), ClassName.toType()), Identifier, TypeArgumentsopt, ArgumentListopt));
                       break;
             }
     
             //
-            // Rule 409:  MethodInvocation ::= Primary TypeArgumentsopt ( ArgumentListopt )
+            // Rule 410:  MethodInvocation ::= Primary TypeArgumentsopt ( ArgumentListopt )
             //
-            case 409: {
-               //#line 4530 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4528 "x10/parser/x10.g"
+            case 410: {
+               //#line 4535 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4533 "x10/parser/x10.g"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 4528 "x10/parser/x10.g"
+                //#line 4533 "x10/parser/x10.g"
                 List<TypeNode> TypeArgumentsopt = (List<TypeNode>) getRhsSym(2);
-                //#line 4528 "x10/parser/x10.g"
+                //#line 4533 "x10/parser/x10.g"
                 List<Expr> ArgumentListopt = (List<Expr>) getRhsSym(4);
-                //#line 4530 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4535 "lpg.generator/templates/java/btParserTemplateF.gi"
                 if (Primary instanceof Field) {
                     Field f = (Field) Primary;
                     setResult(nf.X10Call(pos(), f.target(), f.name(), TypeArgumentsopt, ArgumentListopt));
@@ -6607,15 +6619,15 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 410:  MethodSelection ::= MethodName . ( FormalParameterListopt )
+            // Rule 411:  MethodSelection ::= MethodName . ( FormalParameterListopt )
             //
-            case 410: {
-               //#line 4550 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4548 "x10/parser/x10.g"
+            case 411: {
+               //#line 4555 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4553 "x10/parser/x10.g"
                 ParsedName MethodName = (ParsedName) getRhsSym(1);
-                //#line 4548 "x10/parser/x10.g"
+                //#line 4553 "x10/parser/x10.g"
                 List<Formal> FormalParameterListopt = (List<Formal>) getRhsSym(4);
-                //#line 4550 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4555 "lpg.generator/templates/java/btParserTemplateF.gi"
 //                    List<TypeNode> typeArgs = toTypeArgs(TypeParametersopt);
 //                    List<TypeParamNode> typeParams = toTypeParams(TypeParametersopt);
                 List<Formal> formals = toFormals(FormalParameterListopt);
@@ -6629,17 +6641,17 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 411:  MethodSelection ::= Primary . Identifier . ( FormalParameterListopt )
+            // Rule 412:  MethodSelection ::= Primary . Identifier . ( FormalParameterListopt )
             //
-            case 411: {
-               //#line 4563 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4561 "x10/parser/x10.g"
+            case 412: {
+               //#line 4568 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4566 "x10/parser/x10.g"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 4561 "x10/parser/x10.g"
+                //#line 4566 "x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 4561 "x10/parser/x10.g"
+                //#line 4566 "x10/parser/x10.g"
                 List<Formal> FormalParameterListopt = (List<Formal>) getRhsSym(6);
-                //#line 4563 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4568 "lpg.generator/templates/java/btParserTemplateF.gi"
 //                    List<TypeNode> typeArgs = toTypeArgs(TypeParametersopt);
 //                    List<TypeParamNode> typeParams = toTypeParams(TypeParametersopt);
                 List<Formal> formals = toFormals(FormalParameterListopt);
@@ -6652,15 +6664,15 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 412:  MethodSelection ::= super . Identifier . ( FormalParameterListopt )
+            // Rule 413:  MethodSelection ::= super . Identifier . ( FormalParameterListopt )
             //
-            case 412: {
-               //#line 4575 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4573 "x10/parser/x10.g"
+            case 413: {
+               //#line 4580 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4578 "x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 4573 "x10/parser/x10.g"
+                //#line 4578 "x10/parser/x10.g"
                 List<Formal> FormalParameterListopt = (List<Formal>) getRhsSym(6);
-                //#line 4575 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4580 "lpg.generator/templates/java/btParserTemplateF.gi"
 //                    List<TypeNode> typeArgs = toTypeArgs(TypeParametersopt);
 //                    List<TypeParamNode> typeParams = toTypeParams(TypeParametersopt);
                 List<Formal> formals = toFormals(FormalParameterListopt);
@@ -6674,19 +6686,19 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 413:  MethodSelection ::= ClassName . super$sup . Identifier . ( FormalParameterListopt )
+            // Rule 414:  MethodSelection ::= ClassName . super$sup . Identifier . ( FormalParameterListopt )
             //
-            case 413: {
-               //#line 4588 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4586 "x10/parser/x10.g"
+            case 414: {
+               //#line 4593 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4591 "x10/parser/x10.g"
                 ParsedName ClassName = (ParsedName) getRhsSym(1);
-                //#line 4586 "x10/parser/x10.g"
+                //#line 4591 "x10/parser/x10.g"
                 IToken sup = (IToken) getRhsIToken(3);
-                //#line 4586 "x10/parser/x10.g"
+                //#line 4591 "x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(5);
-                //#line 4586 "x10/parser/x10.g"
+                //#line 4591 "x10/parser/x10.g"
                 List<Formal> FormalParameterListopt = (List<Formal>) getRhsSym(8);
-                //#line 4588 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4593 "lpg.generator/templates/java/btParserTemplateF.gi"
 //                    List<TypeNode> typeArgs = toTypeArgs(TypeParametersopt);
 //                    List<TypeParamNode> typeParams = toTypeParams(TypeParametersopt);
                 List<Formal> formals = toFormals(FormalParameterListopt);
@@ -6700,63 +6712,63 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 417:  PostIncrementExpression ::= PostfixExpression ++
+            // Rule 418:  PostIncrementExpression ::= PostfixExpression ++
             //
-            case 417: {
-               //#line 4606 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4604 "x10/parser/x10.g"
+            case 418: {
+               //#line 4611 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4609 "x10/parser/x10.g"
                 Expr PostfixExpression = (Expr) getRhsSym(1);
-                //#line 4606 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4611 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Unary(pos(), PostfixExpression, Unary.POST_INC));
                       break;
             }
     
             //
-            // Rule 418:  PostDecrementExpression ::= PostfixExpression --
+            // Rule 419:  PostDecrementExpression ::= PostfixExpression --
             //
-            case 418: {
-               //#line 4612 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4610 "x10/parser/x10.g"
+            case 419: {
+               //#line 4617 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4615 "x10/parser/x10.g"
                 Expr PostfixExpression = (Expr) getRhsSym(1);
-                //#line 4612 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4617 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Unary(pos(), PostfixExpression, Unary.POST_DEC));
                       break;
             }
     
             //
-            // Rule 421:  UnannotatedUnaryExpression ::= + UnaryExpressionNotPlusMinus
-            //
-            case 421: {
-               //#line 4620 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4618 "x10/parser/x10.g"
-                Expr UnaryExpressionNotPlusMinus = (Expr) getRhsSym(2);
-                //#line 4620 "lpg.generator/templates/java/btParserTemplateF.gi"
-                setResult(nf.Unary(pos(), Unary.POS, UnaryExpressionNotPlusMinus));
-                      break;
-            }
-    
-            //
-            // Rule 422:  UnannotatedUnaryExpression ::= - UnaryExpressionNotPlusMinus
+            // Rule 422:  UnannotatedUnaryExpression ::= + UnaryExpressionNotPlusMinus
             //
             case 422: {
                //#line 4625 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4623 "x10/parser/x10.g"
                 Expr UnaryExpressionNotPlusMinus = (Expr) getRhsSym(2);
                 //#line 4625 "lpg.generator/templates/java/btParserTemplateF.gi"
+                setResult(nf.Unary(pos(), Unary.POS, UnaryExpressionNotPlusMinus));
+                      break;
+            }
+    
+            //
+            // Rule 423:  UnannotatedUnaryExpression ::= - UnaryExpressionNotPlusMinus
+            //
+            case 423: {
+               //#line 4630 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4628 "x10/parser/x10.g"
+                Expr UnaryExpressionNotPlusMinus = (Expr) getRhsSym(2);
+                //#line 4630 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Unary(pos(), Unary.NEG, UnaryExpressionNotPlusMinus));
                       break;
             }
     
             //
-            // Rule 425:  UnaryExpression ::= Annotations UnannotatedUnaryExpression
+            // Rule 426:  UnaryExpression ::= Annotations UnannotatedUnaryExpression
             //
-            case 425: {
-               //#line 4633 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4631 "x10/parser/x10.g"
+            case 426: {
+               //#line 4638 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4636 "x10/parser/x10.g"
                 List<AnnotationNode> Annotations = (List<AnnotationNode>) getRhsSym(1);
-                //#line 4631 "x10/parser/x10.g"
+                //#line 4636 "x10/parser/x10.g"
                 Expr UnannotatedUnaryExpression = (Expr) getRhsSym(2);
-                //#line 4633 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4638 "lpg.generator/templates/java/btParserTemplateF.gi"
                 Expr e = UnannotatedUnaryExpression;
                 e = (Expr) ((X10Ext) e.ext()).annotations(Annotations);
                 setResult(e.position(pos()));
@@ -6764,69 +6776,55 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 426:  PreIncrementExpression ::= ++ UnaryExpressionNotPlusMinus
+            // Rule 427:  PreIncrementExpression ::= ++ UnaryExpressionNotPlusMinus
             //
-            case 426: {
-               //#line 4641 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4639 "x10/parser/x10.g"
+            case 427: {
+               //#line 4646 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4644 "x10/parser/x10.g"
                 Expr UnaryExpressionNotPlusMinus = (Expr) getRhsSym(2);
-                //#line 4641 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4646 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Unary(pos(), Unary.PRE_INC, UnaryExpressionNotPlusMinus));
                       break;
             }
     
             //
-            // Rule 427:  PreDecrementExpression ::= -- UnaryExpressionNotPlusMinus
+            // Rule 428:  PreDecrementExpression ::= -- UnaryExpressionNotPlusMinus
             //
-            case 427: {
-               //#line 4647 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4645 "x10/parser/x10.g"
+            case 428: {
+               //#line 4652 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4650 "x10/parser/x10.g"
                 Expr UnaryExpressionNotPlusMinus = (Expr) getRhsSym(2);
-                //#line 4647 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4652 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Unary(pos(), Unary.PRE_DEC, UnaryExpressionNotPlusMinus));
                       break;
             }
     
             //
-            // Rule 429:  UnaryExpressionNotPlusMinus ::= ~ UnaryExpression
-            //
-            case 429: {
-               //#line 4654 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4652 "x10/parser/x10.g"
-                Expr UnaryExpression = (Expr) getRhsSym(2);
-                //#line 4654 "lpg.generator/templates/java/btParserTemplateF.gi"
-                setResult(nf.Unary(pos(), Unary.BIT_NOT, UnaryExpression));
-                      break;
-            }
-    
-            //
-            // Rule 430:  UnaryExpressionNotPlusMinus ::= ! UnaryExpression
+            // Rule 430:  UnaryExpressionNotPlusMinus ::= ~ UnaryExpression
             //
             case 430: {
                //#line 4659 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4657 "x10/parser/x10.g"
                 Expr UnaryExpression = (Expr) getRhsSym(2);
                 //#line 4659 "lpg.generator/templates/java/btParserTemplateF.gi"
+                setResult(nf.Unary(pos(), Unary.BIT_NOT, UnaryExpression));
+                      break;
+            }
+    
+            //
+            // Rule 431:  UnaryExpressionNotPlusMinus ::= ! UnaryExpression
+            //
+            case 431: {
+               //#line 4664 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4662 "x10/parser/x10.g"
+                Expr UnaryExpression = (Expr) getRhsSym(2);
+                //#line 4664 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Unary(pos(), Unary.NOT, UnaryExpression));
                       break;
             }
     
             //
-            // Rule 432:  MultiplicativeExpression ::= MultiplicativeExpression * UnaryExpression
-            //
-            case 432: {
-               //#line 4666 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4664 "x10/parser/x10.g"
-                Expr MultiplicativeExpression = (Expr) getRhsSym(1);
-                //#line 4664 "x10/parser/x10.g"
-                Expr UnaryExpression = (Expr) getRhsSym(3);
-                //#line 4666 "lpg.generator/templates/java/btParserTemplateF.gi"
-                setResult(nf.Binary(pos(), MultiplicativeExpression, Binary.MUL, UnaryExpression));
-                      break;
-            }
-    
-            //
-            // Rule 433:  MultiplicativeExpression ::= MultiplicativeExpression / UnaryExpression
+            // Rule 433:  MultiplicativeExpression ::= MultiplicativeExpression * UnaryExpression
             //
             case 433: {
                //#line 4671 "lpg.generator/templates/java/btParserTemplateF.gi"
@@ -6835,12 +6833,12 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
                 //#line 4669 "x10/parser/x10.g"
                 Expr UnaryExpression = (Expr) getRhsSym(3);
                 //#line 4671 "lpg.generator/templates/java/btParserTemplateF.gi"
-                setResult(nf.Binary(pos(), MultiplicativeExpression, Binary.DIV, UnaryExpression));
+                setResult(nf.Binary(pos(), MultiplicativeExpression, Binary.MUL, UnaryExpression));
                       break;
             }
     
             //
-            // Rule 434:  MultiplicativeExpression ::= MultiplicativeExpression % UnaryExpression
+            // Rule 434:  MultiplicativeExpression ::= MultiplicativeExpression / UnaryExpression
             //
             case 434: {
                //#line 4676 "lpg.generator/templates/java/btParserTemplateF.gi"
@@ -6849,26 +6847,26 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
                 //#line 4674 "x10/parser/x10.g"
                 Expr UnaryExpression = (Expr) getRhsSym(3);
                 //#line 4676 "lpg.generator/templates/java/btParserTemplateF.gi"
+                setResult(nf.Binary(pos(), MultiplicativeExpression, Binary.DIV, UnaryExpression));
+                      break;
+            }
+    
+            //
+            // Rule 435:  MultiplicativeExpression ::= MultiplicativeExpression % UnaryExpression
+            //
+            case 435: {
+               //#line 4681 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4679 "x10/parser/x10.g"
+                Expr MultiplicativeExpression = (Expr) getRhsSym(1);
+                //#line 4679 "x10/parser/x10.g"
+                Expr UnaryExpression = (Expr) getRhsSym(3);
+                //#line 4681 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), MultiplicativeExpression, Binary.MOD, UnaryExpression));
                       break;
             }
     
             //
-            // Rule 436:  AdditiveExpression ::= AdditiveExpression + MultiplicativeExpression
-            //
-            case 436: {
-               //#line 4683 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4681 "x10/parser/x10.g"
-                Expr AdditiveExpression = (Expr) getRhsSym(1);
-                //#line 4681 "x10/parser/x10.g"
-                Expr MultiplicativeExpression = (Expr) getRhsSym(3);
-                //#line 4683 "lpg.generator/templates/java/btParserTemplateF.gi"
-                setResult(nf.Binary(pos(), AdditiveExpression, Binary.ADD, MultiplicativeExpression));
-                      break;
-            }
-    
-            //
-            // Rule 437:  AdditiveExpression ::= AdditiveExpression - MultiplicativeExpression
+            // Rule 437:  AdditiveExpression ::= AdditiveExpression + MultiplicativeExpression
             //
             case 437: {
                //#line 4688 "lpg.generator/templates/java/btParserTemplateF.gi"
@@ -6877,26 +6875,26 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
                 //#line 4686 "x10/parser/x10.g"
                 Expr MultiplicativeExpression = (Expr) getRhsSym(3);
                 //#line 4688 "lpg.generator/templates/java/btParserTemplateF.gi"
+                setResult(nf.Binary(pos(), AdditiveExpression, Binary.ADD, MultiplicativeExpression));
+                      break;
+            }
+    
+            //
+            // Rule 438:  AdditiveExpression ::= AdditiveExpression - MultiplicativeExpression
+            //
+            case 438: {
+               //#line 4693 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4691 "x10/parser/x10.g"
+                Expr AdditiveExpression = (Expr) getRhsSym(1);
+                //#line 4691 "x10/parser/x10.g"
+                Expr MultiplicativeExpression = (Expr) getRhsSym(3);
+                //#line 4693 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), AdditiveExpression, Binary.SUB, MultiplicativeExpression));
                       break;
             }
     
             //
-            // Rule 439:  ShiftExpression ::= ShiftExpression << AdditiveExpression
-            //
-            case 439: {
-               //#line 4695 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4693 "x10/parser/x10.g"
-                Expr ShiftExpression = (Expr) getRhsSym(1);
-                //#line 4693 "x10/parser/x10.g"
-                Expr AdditiveExpression = (Expr) getRhsSym(3);
-                //#line 4695 "lpg.generator/templates/java/btParserTemplateF.gi"
-                setResult(nf.Binary(pos(), ShiftExpression, Binary.SHL, AdditiveExpression));
-                      break;
-            }
-    
-            //
-            // Rule 440:  ShiftExpression ::= ShiftExpression >> AdditiveExpression
+            // Rule 440:  ShiftExpression ::= ShiftExpression << AdditiveExpression
             //
             case 440: {
                //#line 4700 "lpg.generator/templates/java/btParserTemplateF.gi"
@@ -6905,12 +6903,12 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
                 //#line 4698 "x10/parser/x10.g"
                 Expr AdditiveExpression = (Expr) getRhsSym(3);
                 //#line 4700 "lpg.generator/templates/java/btParserTemplateF.gi"
-                setResult(nf.Binary(pos(), ShiftExpression, Binary.SHR, AdditiveExpression));
+                setResult(nf.Binary(pos(), ShiftExpression, Binary.SHL, AdditiveExpression));
                       break;
             }
     
             //
-            // Rule 441:  ShiftExpression ::= ShiftExpression >>> AdditiveExpression
+            // Rule 441:  ShiftExpression ::= ShiftExpression >> AdditiveExpression
             //
             case 441: {
                //#line 4705 "lpg.generator/templates/java/btParserTemplateF.gi"
@@ -6919,974 +6917,988 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
                 //#line 4703 "x10/parser/x10.g"
                 Expr AdditiveExpression = (Expr) getRhsSym(3);
                 //#line 4705 "lpg.generator/templates/java/btParserTemplateF.gi"
+                setResult(nf.Binary(pos(), ShiftExpression, Binary.SHR, AdditiveExpression));
+                      break;
+            }
+    
+            //
+            // Rule 442:  ShiftExpression ::= ShiftExpression >>> AdditiveExpression
+            //
+            case 442: {
+               //#line 4710 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4708 "x10/parser/x10.g"
+                Expr ShiftExpression = (Expr) getRhsSym(1);
+                //#line 4708 "x10/parser/x10.g"
+                Expr AdditiveExpression = (Expr) getRhsSym(3);
+                //#line 4710 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), ShiftExpression, Binary.USHR, AdditiveExpression));
                       break;
             }
     
             //
-            // Rule 443:  RangeExpression ::= ShiftExpression$expr1 .. ShiftExpression$expr2
+            // Rule 444:  RangeExpression ::= ShiftExpression$expr1 .. ShiftExpression$expr2
             //
-            case 443: {
-               //#line 4712 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4710 "x10/parser/x10.g"
+            case 444: {
+               //#line 4717 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4715 "x10/parser/x10.g"
                 Expr expr1 = (Expr) getRhsSym(1);
-                //#line 4710 "x10/parser/x10.g"
+                //#line 4715 "x10/parser/x10.g"
                 Expr expr2 = (Expr) getRhsSym(3);
-                //#line 4712 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4717 "lpg.generator/templates/java/btParserTemplateF.gi"
                 Expr regionCall = nf.RegionMaker(pos(), expr1, expr2);
                 setResult(regionCall);
                       break;
             }
     
             //
-            // Rule 446:  RelationalExpression ::= RelationalExpression < RangeExpression
+            // Rule 448:  RelationalExpression ::= RelationalExpression < RangeExpression
             //
-            case 446: {
-               //#line 4721 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4719 "x10/parser/x10.g"
+            case 448: {
+               //#line 4727 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4725 "x10/parser/x10.g"
                 Expr RelationalExpression = (Expr) getRhsSym(1);
-                //#line 4719 "x10/parser/x10.g"
+                //#line 4725 "x10/parser/x10.g"
                 Expr RangeExpression = (Expr) getRhsSym(3);
-                //#line 4721 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4727 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), RelationalExpression, Binary.LT, RangeExpression));
                       break;
             }
     
             //
-            // Rule 447:  RelationalExpression ::= RelationalExpression > RangeExpression
+            // Rule 449:  RelationalExpression ::= RelationalExpression > RangeExpression
             //
-            case 447: {
-               //#line 4726 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4724 "x10/parser/x10.g"
+            case 449: {
+               //#line 4732 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4730 "x10/parser/x10.g"
                 Expr RelationalExpression = (Expr) getRhsSym(1);
-                //#line 4724 "x10/parser/x10.g"
+                //#line 4730 "x10/parser/x10.g"
                 Expr RangeExpression = (Expr) getRhsSym(3);
-                //#line 4726 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4732 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), RelationalExpression, Binary.GT, RangeExpression));
                       break;
             }
     
             //
-            // Rule 448:  RelationalExpression ::= RelationalExpression <= RangeExpression
+            // Rule 450:  RelationalExpression ::= RelationalExpression <= RangeExpression
             //
-            case 448: {
-               //#line 4731 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4729 "x10/parser/x10.g"
+            case 450: {
+               //#line 4737 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4735 "x10/parser/x10.g"
                 Expr RelationalExpression = (Expr) getRhsSym(1);
-                //#line 4729 "x10/parser/x10.g"
+                //#line 4735 "x10/parser/x10.g"
                 Expr RangeExpression = (Expr) getRhsSym(3);
-                //#line 4731 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4737 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), RelationalExpression, Binary.LE, RangeExpression));
                       break;
             }
     
             //
-            // Rule 449:  RelationalExpression ::= RelationalExpression >= RangeExpression
+            // Rule 451:  RelationalExpression ::= RelationalExpression >= RangeExpression
             //
-            case 449: {
-               //#line 4736 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4734 "x10/parser/x10.g"
+            case 451: {
+               //#line 4742 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4740 "x10/parser/x10.g"
                 Expr RelationalExpression = (Expr) getRhsSym(1);
-                //#line 4734 "x10/parser/x10.g"
+                //#line 4740 "x10/parser/x10.g"
                 Expr RangeExpression = (Expr) getRhsSym(3);
-                //#line 4736 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4742 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), RelationalExpression, Binary.GE, RangeExpression));
                       break;
             }
     
             //
-            // Rule 450:  RelationalExpression ::= RelationalExpression instanceof Type
+            // Rule 452:  RelationalExpression ::= RelationalExpression instanceof Type
             //
-            case 450: {
-               //#line 4741 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4739 "x10/parser/x10.g"
+            case 452: {
+               //#line 4747 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4745 "x10/parser/x10.g"
                 Expr RelationalExpression = (Expr) getRhsSym(1);
-                //#line 4739 "x10/parser/x10.g"
+                //#line 4745 "x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
-                //#line 4741 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4747 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Instanceof(pos(), RelationalExpression, Type));
                       break;
             }
     
             //
-            // Rule 451:  RelationalExpression ::= RelationalExpression in ShiftExpression
+            // Rule 453:  RelationalExpression ::= RelationalExpression in ShiftExpression
             //
-            case 451: {
-               //#line 4746 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4744 "x10/parser/x10.g"
+            case 453: {
+               //#line 4752 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4750 "x10/parser/x10.g"
                 Expr RelationalExpression = (Expr) getRhsSym(1);
-                //#line 4744 "x10/parser/x10.g"
+                //#line 4750 "x10/parser/x10.g"
                 Expr ShiftExpression = (Expr) getRhsSym(3);
-                //#line 4746 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4752 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Contains(pos(), RelationalExpression, ShiftExpression));
                       break;
             }
     
             //
-            // Rule 453:  EqualityExpression ::= EqualityExpression == RelationalExpression
+            // Rule 455:  EqualityExpression ::= EqualityExpression == RelationalExpression
             //
-            case 453: {
-               //#line 4753 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4751 "x10/parser/x10.g"
+            case 455: {
+               //#line 4759 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4757 "x10/parser/x10.g"
                 Expr EqualityExpression = (Expr) getRhsSym(1);
-                //#line 4751 "x10/parser/x10.g"
+                //#line 4757 "x10/parser/x10.g"
                 Expr RelationalExpression = (Expr) getRhsSym(3);
-                //#line 4753 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4759 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), EqualityExpression, Binary.EQ, RelationalExpression));
                       break;
             }
     
             //
-            // Rule 454:  EqualityExpression ::= EqualityExpression != RelationalExpression
+            // Rule 456:  EqualityExpression ::= EqualityExpression != RelationalExpression
             //
-            case 454: {
-               //#line 4758 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4756 "x10/parser/x10.g"
+            case 456: {
+               //#line 4764 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4762 "x10/parser/x10.g"
                 Expr EqualityExpression = (Expr) getRhsSym(1);
-                //#line 4756 "x10/parser/x10.g"
+                //#line 4762 "x10/parser/x10.g"
                 Expr RelationalExpression = (Expr) getRhsSym(3);
-                //#line 4758 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4764 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), EqualityExpression, Binary.NE, RelationalExpression));
                       break;
             }
     
             //
-            // Rule 455:  EqualityExpression ::= Type$t1 == Type$t2
+            // Rule 457:  EqualityExpression ::= Type$t1 == Type$t2
             //
-            case 455: {
-               //#line 4763 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4761 "x10/parser/x10.g"
+            case 457: {
+               //#line 4769 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4767 "x10/parser/x10.g"
                 TypeNode t1 = (TypeNode) getRhsSym(1);
-                //#line 4761 "x10/parser/x10.g"
+                //#line 4767 "x10/parser/x10.g"
                 TypeNode t2 = (TypeNode) getRhsSym(3);
-                //#line 4763 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4769 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.SubtypeTest(pos(), t1, t2, true));
                       break;
             }
     
             //
-            // Rule 457:  AndExpression ::= AndExpression & EqualityExpression
+            // Rule 459:  AndExpression ::= AndExpression & EqualityExpression
             //
-            case 457: {
-               //#line 4770 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4768 "x10/parser/x10.g"
+            case 459: {
+               //#line 4776 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4774 "x10/parser/x10.g"
                 Expr AndExpression = (Expr) getRhsSym(1);
-                //#line 4768 "x10/parser/x10.g"
+                //#line 4774 "x10/parser/x10.g"
                 Expr EqualityExpression = (Expr) getRhsSym(3);
-                //#line 4770 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4776 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), AndExpression, Binary.BIT_AND, EqualityExpression));
                       break;
             }
     
             //
-            // Rule 459:  ExclusiveOrExpression ::= ExclusiveOrExpression ^ AndExpression
+            // Rule 461:  ExclusiveOrExpression ::= ExclusiveOrExpression ^ AndExpression
             //
-            case 459: {
-               //#line 4777 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4775 "x10/parser/x10.g"
+            case 461: {
+               //#line 4783 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4781 "x10/parser/x10.g"
                 Expr ExclusiveOrExpression = (Expr) getRhsSym(1);
-                //#line 4775 "x10/parser/x10.g"
+                //#line 4781 "x10/parser/x10.g"
                 Expr AndExpression = (Expr) getRhsSym(3);
-                //#line 4777 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4783 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), ExclusiveOrExpression, Binary.BIT_XOR, AndExpression));
                       break;
             }
     
             //
-            // Rule 461:  InclusiveOrExpression ::= InclusiveOrExpression | ExclusiveOrExpression
+            // Rule 463:  InclusiveOrExpression ::= InclusiveOrExpression | ExclusiveOrExpression
             //
-            case 461: {
-               //#line 4784 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4782 "x10/parser/x10.g"
+            case 463: {
+               //#line 4790 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4788 "x10/parser/x10.g"
                 Expr InclusiveOrExpression = (Expr) getRhsSym(1);
-                //#line 4782 "x10/parser/x10.g"
+                //#line 4788 "x10/parser/x10.g"
                 Expr ExclusiveOrExpression = (Expr) getRhsSym(3);
-                //#line 4784 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4790 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), InclusiveOrExpression, Binary.BIT_OR, ExclusiveOrExpression));
                       break;
             }
     
             //
-            // Rule 463:  ConditionalAndExpression ::= ConditionalAndExpression && InclusiveOrExpression
+            // Rule 465:  ConditionalAndExpression ::= ConditionalAndExpression && InclusiveOrExpression
             //
-            case 463: {
-               //#line 4791 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4789 "x10/parser/x10.g"
+            case 465: {
+               //#line 4797 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4795 "x10/parser/x10.g"
                 Expr ConditionalAndExpression = (Expr) getRhsSym(1);
-                //#line 4789 "x10/parser/x10.g"
+                //#line 4795 "x10/parser/x10.g"
                 Expr InclusiveOrExpression = (Expr) getRhsSym(3);
-                //#line 4791 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4797 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), ConditionalAndExpression, Binary.COND_AND, InclusiveOrExpression));
                       break;
             }
     
             //
-            // Rule 465:  ConditionalOrExpression ::= ConditionalOrExpression || ConditionalAndExpression
+            // Rule 467:  ConditionalOrExpression ::= ConditionalOrExpression || ConditionalAndExpression
             //
-            case 465: {
-               //#line 4798 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4796 "x10/parser/x10.g"
+            case 467: {
+               //#line 4804 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4802 "x10/parser/x10.g"
                 Expr ConditionalOrExpression = (Expr) getRhsSym(1);
-                //#line 4796 "x10/parser/x10.g"
+                //#line 4802 "x10/parser/x10.g"
                 Expr ConditionalAndExpression = (Expr) getRhsSym(3);
-                //#line 4798 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4804 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), ConditionalOrExpression, Binary.COND_OR, ConditionalAndExpression));
                       break;
             }
     
             //
-            // Rule 470:  ConditionalExpression ::= ConditionalOrExpression ? Expression : ConditionalExpression
+            // Rule 472:  ConditionalExpression ::= ConditionalOrExpression ? Expression : ConditionalExpression
             //
-            case 470: {
-               //#line 4809 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4807 "x10/parser/x10.g"
+            case 472: {
+               //#line 4815 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4813 "x10/parser/x10.g"
                 Expr ConditionalOrExpression = (Expr) getRhsSym(1);
-                //#line 4807 "x10/parser/x10.g"
+                //#line 4813 "x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 4807 "x10/parser/x10.g"
+                //#line 4813 "x10/parser/x10.g"
                 Expr ConditionalExpression = (Expr) getRhsSym(5);
-                //#line 4809 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4815 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Conditional(pos(), ConditionalOrExpression, Expression, ConditionalExpression));
                       break;
             }
     
             //
-            // Rule 473:  Assignment ::= LeftHandSide AssignmentOperator AssignmentExpression
+            // Rule 475:  Assignment ::= LeftHandSide AssignmentOperator AssignmentExpression
             //
-            case 473: {
-               //#line 4818 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4816 "x10/parser/x10.g"
+            case 475: {
+               //#line 4824 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4822 "x10/parser/x10.g"
                 Expr LeftHandSide = (Expr) getRhsSym(1);
-                //#line 4816 "x10/parser/x10.g"
+                //#line 4822 "x10/parser/x10.g"
                 Assign.Operator AssignmentOperator = (Assign.Operator) getRhsSym(2);
-                //#line 4816 "x10/parser/x10.g"
+                //#line 4822 "x10/parser/x10.g"
                 Expr AssignmentExpression = (Expr) getRhsSym(3);
-                //#line 4818 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4824 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Assign(pos(), LeftHandSide, AssignmentOperator, AssignmentExpression));
                       break;
             }
     
             //
-            // Rule 474:  Assignment ::= ExpressionName$e1 ( ArgumentListopt ) AssignmentOperator AssignmentExpression
+            // Rule 476:  Assignment ::= ExpressionName$e1 ( ArgumentListopt ) AssignmentOperator AssignmentExpression
             //
-            case 474: {
-               //#line 4823 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4821 "x10/parser/x10.g"
+            case 476: {
+               //#line 4829 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4827 "x10/parser/x10.g"
                 ParsedName e1 = (ParsedName) getRhsSym(1);
-                //#line 4821 "x10/parser/x10.g"
+                //#line 4827 "x10/parser/x10.g"
                 List<Expr> ArgumentListopt = (List<Expr>) getRhsSym(3);
-                //#line 4821 "x10/parser/x10.g"
+                //#line 4827 "x10/parser/x10.g"
                 Assign.Operator AssignmentOperator = (Assign.Operator) getRhsSym(5);
-                //#line 4821 "x10/parser/x10.g"
+                //#line 4827 "x10/parser/x10.g"
                 Expr AssignmentExpression = (Expr) getRhsSym(6);
-                //#line 4823 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4829 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.SettableAssign(pos(), e1.toExpr(), ArgumentListopt, AssignmentOperator, AssignmentExpression));
                       break;
             }
     
             //
-            // Rule 475:  Assignment ::= Primary$e1 ( ArgumentListopt ) AssignmentOperator AssignmentExpression
+            // Rule 477:  Assignment ::= Primary$e1 ( ArgumentListopt ) AssignmentOperator AssignmentExpression
             //
-            case 475: {
-               //#line 4828 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4826 "x10/parser/x10.g"
+            case 477: {
+               //#line 4834 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4832 "x10/parser/x10.g"
                 Expr e1 = (Expr) getRhsSym(1);
-                //#line 4826 "x10/parser/x10.g"
+                //#line 4832 "x10/parser/x10.g"
                 List<Expr> ArgumentListopt = (List<Expr>) getRhsSym(3);
-                //#line 4826 "x10/parser/x10.g"
+                //#line 4832 "x10/parser/x10.g"
                 Assign.Operator AssignmentOperator = (Assign.Operator) getRhsSym(5);
-                //#line 4826 "x10/parser/x10.g"
+                //#line 4832 "x10/parser/x10.g"
                 Expr AssignmentExpression = (Expr) getRhsSym(6);
-                //#line 4828 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4834 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.SettableAssign(pos(), e1, ArgumentListopt, AssignmentOperator, AssignmentExpression));
                       break;
             }
     
             //
-            // Rule 476:  LeftHandSide ::= ExpressionName
+            // Rule 478:  LeftHandSide ::= ExpressionName
             //
-            case 476: {
-               //#line 4834 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4832 "x10/parser/x10.g"
+            case 478: {
+               //#line 4840 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4838 "x10/parser/x10.g"
                 ParsedName ExpressionName = (ParsedName) getRhsSym(1);
-                //#line 4834 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4840 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(ExpressionName.toExpr());
                       break;
             }
     
             //
-            // Rule 478:  AssignmentOperator ::= =
+            // Rule 480:  AssignmentOperator ::= =
             //
-            case 478: {
-               //#line 4841 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 480: {
+               //#line 4847 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4841 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4847 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Assign.ASSIGN);
                       break;
             }
     
             //
-            // Rule 479:  AssignmentOperator ::= *=
+            // Rule 481:  AssignmentOperator ::= *=
             //
-            case 479: {
-               //#line 4846 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 481: {
+               //#line 4852 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4846 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4852 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Assign.MUL_ASSIGN);
                       break;
             }
     
             //
-            // Rule 480:  AssignmentOperator ::= /=
+            // Rule 482:  AssignmentOperator ::= /=
             //
-            case 480: {
-               //#line 4851 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 482: {
+               //#line 4857 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4851 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4857 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Assign.DIV_ASSIGN);
                       break;
             }
     
             //
-            // Rule 481:  AssignmentOperator ::= %=
+            // Rule 483:  AssignmentOperator ::= %=
             //
-            case 481: {
-               //#line 4856 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 483: {
+               //#line 4862 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4856 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4862 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Assign.MOD_ASSIGN);
                       break;
             }
     
             //
-            // Rule 482:  AssignmentOperator ::= +=
+            // Rule 484:  AssignmentOperator ::= +=
             //
-            case 482: {
-               //#line 4861 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 484: {
+               //#line 4867 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4861 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4867 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Assign.ADD_ASSIGN);
                       break;
             }
     
             //
-            // Rule 483:  AssignmentOperator ::= -=
+            // Rule 485:  AssignmentOperator ::= -=
             //
-            case 483: {
-               //#line 4866 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 485: {
+               //#line 4872 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4866 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4872 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Assign.SUB_ASSIGN);
                       break;
             }
     
             //
-            // Rule 484:  AssignmentOperator ::= <<=
+            // Rule 486:  AssignmentOperator ::= <<=
             //
-            case 484: {
-               //#line 4871 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 486: {
+               //#line 4877 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4871 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4877 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Assign.SHL_ASSIGN);
                       break;
             }
     
             //
-            // Rule 485:  AssignmentOperator ::= >>=
+            // Rule 487:  AssignmentOperator ::= >>=
             //
-            case 485: {
-               //#line 4876 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 487: {
+               //#line 4882 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4876 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4882 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Assign.SHR_ASSIGN);
                       break;
             }
     
             //
-            // Rule 486:  AssignmentOperator ::= >>>=
+            // Rule 488:  AssignmentOperator ::= >>>=
             //
-            case 486: {
-               //#line 4881 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 488: {
+               //#line 4887 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4881 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4887 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Assign.USHR_ASSIGN);
                       break;
             }
     
             //
-            // Rule 487:  AssignmentOperator ::= &=
+            // Rule 489:  AssignmentOperator ::= &=
             //
-            case 487: {
-               //#line 4886 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 489: {
+               //#line 4892 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4886 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4892 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Assign.BIT_AND_ASSIGN);
                       break;
             }
     
             //
-            // Rule 488:  AssignmentOperator ::= ^=
+            // Rule 490:  AssignmentOperator ::= ^=
             //
-            case 488: {
-               //#line 4891 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 490: {
+               //#line 4897 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4891 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4897 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Assign.BIT_XOR_ASSIGN);
                       break;
             }
     
             //
-            // Rule 489:  AssignmentOperator ::= |=
+            // Rule 491:  AssignmentOperator ::= |=
             //
-            case 489: {
-               //#line 4896 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 491: {
+               //#line 4902 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4896 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4902 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Assign.BIT_OR_ASSIGN);
                       break;
             }
     
             //
-            // Rule 492:  PrefixOp ::= +
+            // Rule 494:  PrefixOp ::= +
             //
-            case 492: {
-               //#line 4907 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 494: {
+               //#line 4913 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4907 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4913 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Unary.POS);
                       break;
             }
     
             //
-            // Rule 493:  PrefixOp ::= -
+            // Rule 495:  PrefixOp ::= -
             //
-            case 493: {
-               //#line 4912 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 495: {
+               //#line 4918 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4912 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4918 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Unary.NEG);
                       break;
             }
     
             //
-            // Rule 494:  PrefixOp ::= !
+            // Rule 496:  PrefixOp ::= !
             //
-            case 494: {
-               //#line 4917 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 496: {
+               //#line 4923 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4917 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4923 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Unary.NOT);
                       break;
             }
     
             //
-            // Rule 495:  PrefixOp ::= ~
+            // Rule 497:  PrefixOp ::= ~
             //
-            case 495: {
-               //#line 4922 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 497: {
+               //#line 4928 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4922 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4928 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Unary.BIT_NOT);
                       break;
             }
     
             //
-            // Rule 496:  BinOp ::= +
+            // Rule 498:  BinOp ::= +
             //
-            case 496: {
-               //#line 4928 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 498: {
+               //#line 4934 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4928 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4934 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.ADD);
                       break;
             }
     
             //
-            // Rule 497:  BinOp ::= -
+            // Rule 499:  BinOp ::= -
             //
-            case 497: {
-               //#line 4933 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 499: {
+               //#line 4939 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4933 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4939 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.SUB);
                       break;
             }
     
             //
-            // Rule 498:  BinOp ::= *
+            // Rule 500:  BinOp ::= *
             //
-            case 498: {
-               //#line 4938 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 500: {
+               //#line 4944 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4938 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4944 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.MUL);
                       break;
             }
     
             //
-            // Rule 499:  BinOp ::= /
+            // Rule 501:  BinOp ::= /
             //
-            case 499: {
-               //#line 4943 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 501: {
+               //#line 4949 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4943 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4949 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.DIV);
                       break;
             }
     
             //
-            // Rule 500:  BinOp ::= %
+            // Rule 502:  BinOp ::= %
             //
-            case 500: {
-               //#line 4948 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 502: {
+               //#line 4954 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4948 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4954 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.MOD);
                       break;
             }
     
             //
-            // Rule 501:  BinOp ::= &
+            // Rule 503:  BinOp ::= &
             //
-            case 501: {
-               //#line 4953 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 503: {
+               //#line 4959 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4953 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4959 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.BIT_AND);
                       break;
             }
     
             //
-            // Rule 502:  BinOp ::= |
+            // Rule 504:  BinOp ::= |
             //
-            case 502: {
-               //#line 4958 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 504: {
+               //#line 4964 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4958 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4964 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.BIT_OR);
                       break;
             }
     
             //
-            // Rule 503:  BinOp ::= ^
+            // Rule 505:  BinOp ::= ^
             //
-            case 503: {
-               //#line 4963 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 505: {
+               //#line 4969 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4963 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4969 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.BIT_XOR);
                       break;
             }
     
             //
-            // Rule 504:  BinOp ::= &&
+            // Rule 506:  BinOp ::= &&
             //
-            case 504: {
-               //#line 4968 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 506: {
+               //#line 4974 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4968 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4974 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.COND_AND);
                       break;
             }
     
             //
-            // Rule 505:  BinOp ::= ||
+            // Rule 507:  BinOp ::= ||
             //
-            case 505: {
-               //#line 4973 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 507: {
+               //#line 4979 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4973 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4979 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.COND_OR);
                       break;
             }
     
             //
-            // Rule 506:  BinOp ::= <<
+            // Rule 508:  BinOp ::= <<
             //
-            case 506: {
-               //#line 4978 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 508: {
+               //#line 4984 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4978 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4984 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.SHL);
                       break;
             }
     
             //
-            // Rule 507:  BinOp ::= >>
+            // Rule 509:  BinOp ::= >>
             //
-            case 507: {
-               //#line 4983 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 509: {
+               //#line 4989 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4983 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4989 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.SHR);
                       break;
             }
     
             //
-            // Rule 508:  BinOp ::= >>>
+            // Rule 510:  BinOp ::= >>>
             //
-            case 508: {
-               //#line 4988 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 510: {
+               //#line 4994 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4988 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4994 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.USHR);
                       break;
             }
     
             //
-            // Rule 509:  BinOp ::= >=
+            // Rule 511:  BinOp ::= >=
             //
-            case 509: {
-               //#line 4993 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 511: {
+               //#line 4999 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4993 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4999 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.GE);
                       break;
             }
     
             //
-            // Rule 510:  BinOp ::= <=
+            // Rule 512:  BinOp ::= <=
             //
-            case 510: {
-               //#line 4998 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 512: {
+               //#line 5004 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4998 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 5004 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.LE);
                       break;
             }
     
             //
-            // Rule 511:  BinOp ::= >
+            // Rule 513:  BinOp ::= >
             //
-            case 511: {
-               //#line 5003 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 513: {
+               //#line 5009 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 5003 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 5009 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.GT);
                       break;
             }
     
             //
-            // Rule 512:  BinOp ::= <
+            // Rule 514:  BinOp ::= <
             //
-            case 512: {
-               //#line 5008 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 514: {
+               //#line 5014 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 5008 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 5014 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.LT);
                       break;
             }
     
             //
-            // Rule 513:  BinOp ::= ==
+            // Rule 515:  BinOp ::= ==
             //
-            case 513: {
-               //#line 5016 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 515: {
+               //#line 5022 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 5016 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 5022 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.EQ);
                       break;
             }
     
             //
-            // Rule 514:  BinOp ::= !=
+            // Rule 516:  BinOp ::= !=
             //
-            case 514: {
-               //#line 5021 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 516: {
+               //#line 5027 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 5021 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 5027 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.NE);
                       break;
             }
     
             //
-            // Rule 515:  Catchesopt ::= $Empty
+            // Rule 517:  Catchesopt ::= $Empty
             //
-            case 515: {
-               //#line 5030 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 517: {
+               //#line 5036 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 5030 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 5036 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList<Catch>(new LinkedList<Catch>(), Catch.class, false));
                       break;
             }
     
             //
-            // Rule 517:  Identifieropt ::= $Empty
+            // Rule 519:  Identifieropt ::= $Empty
             //
-            case 517:
+            case 519:
                 setResult(null);
                 break;
 
             //
-            // Rule 518:  Identifieropt ::= Identifier
+            // Rule 520:  Identifieropt ::= Identifier
             //
-            case 518: {
-               //#line 5039 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 5037 "x10/parser/x10.g"
+            case 520: {
+               //#line 5045 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 5043 "x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 5039 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 5045 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Identifier);
                       break;
             }
     
             //
-            // Rule 519:  ForUpdateopt ::= $Empty
+            // Rule 521:  ForUpdateopt ::= $Empty
             //
-            case 519: {
-               //#line 5045 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 521: {
+               //#line 5051 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 5045 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 5051 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList<ForUpdate>(new LinkedList<ForUpdate>(), ForUpdate.class, false));
                       break;
             }
     
             //
-            // Rule 521:  Expressionopt ::= $Empty
+            // Rule 523:  Expressionopt ::= $Empty
             //
-            case 521:
+            case 523:
                 setResult(null);
                 break;
 
             //
-            // Rule 523:  ForInitopt ::= $Empty
+            // Rule 525:  ForInitopt ::= $Empty
             //
-            case 523: {
-               //#line 5056 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 525: {
+               //#line 5062 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 5056 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 5062 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList<ForInit>(new LinkedList<ForInit>(), ForInit.class, false));
                       break;
             }
     
             //
-            // Rule 525:  SwitchLabelsopt ::= $Empty
+            // Rule 527:  SwitchLabelsopt ::= $Empty
             //
-            case 525: {
-               //#line 5063 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 527: {
+               //#line 5069 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 5063 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 5069 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList<Case>(new LinkedList<Case>(), Case.class, false));
                       break;
             }
     
             //
-            // Rule 527:  SwitchBlockStatementGroupsopt ::= $Empty
+            // Rule 529:  SwitchBlockStatementGroupsopt ::= $Empty
             //
-            case 527: {
-               //#line 5070 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 529: {
+               //#line 5076 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 5070 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 5076 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList<SwitchElement>(new LinkedList<SwitchElement>(), SwitchElement.class, false));
                       break;
             }
     
             //
-            // Rule 529:  InterfaceMemberDeclarationsopt ::= $Empty
+            // Rule 531:  InterfaceMemberDeclarationsopt ::= $Empty
             //
-            case 529: {
-               //#line 5094 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 531: {
+               //#line 5100 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 5094 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 5100 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList<ClassMember>(new LinkedList<ClassMember>(), ClassMember.class, false));
                       break;
             }
     
             //
-            // Rule 531:  ExtendsInterfacesopt ::= $Empty
+            // Rule 533:  ExtendsInterfacesopt ::= $Empty
             //
-            case 531: {
-               //#line 5101 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 533: {
+               //#line 5107 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 5101 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 5107 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList<TypeNode>(new LinkedList<TypeNode>(), TypeNode.class, false));
                       break;
             }
     
             //
-            // Rule 533:  ClassBodyopt ::= $Empty
+            // Rule 535:  ClassBodyopt ::= $Empty
             //
-            case 533:
+            case 535:
                 setResult(null);
                 break;
 
             //
-            // Rule 535:  ArgumentListopt ::= $Empty
+            // Rule 537:  ArgumentListopt ::= $Empty
             //
-            case 535: {
-               //#line 5132 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 537: {
+               //#line 5138 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 5132 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 5138 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList<Expr>(new LinkedList<Expr>(), Expr.class, false));
                       break;
             }
     
             //
-            // Rule 537:  BlockStatementsopt ::= $Empty
+            // Rule 539:  BlockStatementsopt ::= $Empty
             //
-            case 537: {
-               //#line 5139 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 539: {
+               //#line 5145 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 5139 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 5145 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList<Stmt>(new LinkedList<Stmt>(), Stmt.class, false));
                       break;
             }
     
             //
-            // Rule 539:  ExplicitConstructorInvocationopt ::= $Empty
+            // Rule 541:  ExplicitConstructorInvocationopt ::= $Empty
             //
-            case 539:
+            case 541:
                 setResult(null);
                 break;
 
             //
-            // Rule 541:  FormalParameterListopt ::= $Empty
+            // Rule 543:  FormalParameterListopt ::= $Empty
             //
-            case 541: {
-               //#line 5160 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 543: {
+               //#line 5166 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 5160 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 5166 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList<Formal>(new LinkedList<Formal>(), Formal.class, false));
                       break;
             }
     
             //
-            // Rule 543:  Offersopt ::= $Empty
+            // Rule 545:  Offersopt ::= $Empty
             //
-            case 543: {
-               //#line 5173 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 545: {
+               //#line 5179 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 5173 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 5179 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(null);
                       break;
             }
     
             //
-            // Rule 545:  ClassBodyDeclarationsopt ::= $Empty
+            // Rule 547:  ClassBodyDeclarationsopt ::= $Empty
             //
-            case 545: {
-               //#line 5210 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 547: {
+               //#line 5216 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 5210 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 5216 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList<ClassMember>(new LinkedList<ClassMember>(), ClassMember.class, false));
                       break;
             }
     
             //
-            // Rule 547:  Interfacesopt ::= $Empty
+            // Rule 549:  Interfacesopt ::= $Empty
             //
-            case 547: {
-               //#line 5217 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 549: {
+               //#line 5223 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 5217 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 5223 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList<TypeNode>(new LinkedList<TypeNode>(), TypeNode.class, false));
                       break;
             }
     
             //
-            // Rule 549:  Superopt ::= $Empty
+            // Rule 551:  Superopt ::= $Empty
             //
-            case 549:
+            case 551:
                 setResult(null);
                 break;
 
             //
-            // Rule 551:  TypeParametersopt ::= $Empty
+            // Rule 553:  TypeParametersopt ::= $Empty
             //
-            case 551: {
-               //#line 5228 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 553: {
+               //#line 5234 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 5228 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 5234 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList<TypeParamNode>(new LinkedList<TypeParamNode>(), TypeParamNode.class, false));
                       break;
             }
     
             //
-            // Rule 553:  FormalParametersopt ::= $Empty
+            // Rule 555:  FormalParametersopt ::= $Empty
             //
-            case 553: {
-               //#line 5235 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 555: {
+               //#line 5241 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 5235 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 5241 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList<Formal>(new LinkedList<Formal>(), Formal.class, false));
                       break;
             }
     
             //
-            // Rule 555:  Annotationsopt ::= $Empty
+            // Rule 557:  Annotationsopt ::= $Empty
             //
-            case 555: {
-               //#line 5242 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 557: {
+               //#line 5248 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 5242 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 5248 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList<AnnotationNode>(new LinkedList<AnnotationNode>(), AnnotationNode.class, false));
                       break;
             }
     
             //
-            // Rule 557:  TypeDeclarationsopt ::= $Empty
+            // Rule 559:  TypeDeclarationsopt ::= $Empty
             //
-            case 557: {
-               //#line 5249 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 559: {
+               //#line 5255 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 5249 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 5255 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList<TopLevelDecl>(new LinkedList<TopLevelDecl>(), TopLevelDecl.class, false));
                       break;
             }
     
             //
-            // Rule 559:  ImportDeclarationsopt ::= $Empty
+            // Rule 561:  ImportDeclarationsopt ::= $Empty
             //
-            case 559: {
-               //#line 5256 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 561: {
+               //#line 5262 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 5256 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 5262 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList<Import>(new LinkedList<Import>(), Import.class, false));
                       break;
             }
     
             //
-            // Rule 561:  PackageDeclarationopt ::= $Empty
-            //
-            case 561:
-                setResult(null);
-                break;
-
-            //
-            // Rule 563:  HasResultTypeopt ::= $Empty
+            // Rule 563:  PackageDeclarationopt ::= $Empty
             //
             case 563:
                 setResult(null);
                 break;
 
             //
-            // Rule 565:  TypeArgumentsopt ::= $Empty
+            // Rule 565:  HasResultTypeopt ::= $Empty
             //
-            case 565: {
-               //#line 5277 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 565:
+                setResult(null);
+                break;
+
+            //
+            // Rule 567:  TypeArgumentsopt ::= $Empty
+            //
+            case 567: {
+               //#line 5283 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 5277 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 5283 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList<TypeNode>(new LinkedList<TypeNode>(), TypeNode.class, false));
                       break;
             }
     
             //
-            // Rule 567:  TypeParamsWithVarianceopt ::= $Empty
+            // Rule 569:  TypeParamsWithVarianceopt ::= $Empty
             //
-            case 567: {
-               //#line 5284 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 569: {
+               //#line 5290 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 5284 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 5290 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList<TypeParamNode>(new LinkedList<TypeParamNode>(), TypeParamNode.class, false));
                       break;
             }
     
             //
-            // Rule 569:  Propertiesopt ::= $Empty
+            // Rule 571:  Propertiesopt ::= $Empty
             //
-            case 569: {
-               //#line 5291 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 571: {
+               //#line 5297 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 5291 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 5297 "lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList<PropertyDecl>(new LinkedList<PropertyDecl>(), PropertyDecl.class, false));
                       break;
             }
