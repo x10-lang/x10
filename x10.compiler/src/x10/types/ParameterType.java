@@ -19,7 +19,19 @@ import polyglot.types.Type;
 
 public interface ParameterType extends X10NamedType {
 	enum Variance {
-    	CONTRAVARIANT, INVARIANT, COVARIANT
+    	CONTRAVARIANT(-1), INVARIANT(0), COVARIANT(1);
+        private final int sign;
+        private Variance(int sign) {
+            this.sign = sign;
+        }
+        Variance mult(Variance v) {
+            // like multiplying two numbers:
+            // INVARIANT is 0
+            // CONTRAVARIANT is -1
+            // COVARIANT is 1
+            int res = sign*v.sign;
+            return res==0 ? INVARIANT : res<0 ? CONTRAVARIANT : COVARIANT;
+        }
     }
     /** Procedure that defines the parameter */
 	public Ref<? extends Def> def();

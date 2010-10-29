@@ -309,6 +309,11 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
     public List<ParameterType.Variance> variances() {
 	return Collections.unmodifiableList(variances);
     }
+    public ParameterType.Variance getVariance(ParameterType t) {
+        int index = typeParameters.indexOf(t);
+        assert index!=-1 : "Param "+t+" not found in "+typeParameters;
+        return variances.get(index);
+    }
     
     public void addTypeParameter(ParameterType p, ParameterType.Variance v) {
 	typeParameters = new ArrayList<ParameterType>(typeParameters);

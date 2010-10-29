@@ -27,6 +27,7 @@ import polyglot.ast.Unary;
 import polyglot.ast.Unary_c;
 import polyglot.ast.Variable;
 import polyglot.ast.FloatLit;
+import polyglot.ast.TypeNode;
 import polyglot.ast.Binary.Operator;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
@@ -49,9 +50,14 @@ import polyglot.types.TypeSystem_c.MethodMatcher;
 import polyglot.types.Types;
 import polyglot.types.UnknownType;
 import polyglot.types.QName;
+import polyglot.types.Def;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
+import polyglot.util.ErrorQueue;
+import polyglot.util.ErrorInfo;
 import polyglot.visit.ContextVisitor;
+import polyglot.frontend.Job;
+import polyglot.frontend.ExtensionInfo;
 import x10.ast.Here;
 import x10.ast.ParExpr;
 import x10.ast.SemanticError;
@@ -61,6 +67,7 @@ import x10.ast.X10IntLit_c;
 import x10.ast.X10StringLit_c;
 import x10.ast.Async;
 import x10.ast.AnnotationNode;
+import x10.ast.X10CanonicalTypeNode_c;
 import x10.constraint.XFailure;
 import x10.constraint.XLit;
 import x10.constraint.XName;
@@ -344,7 +351,48 @@ public class X10TypeMixin {
 	    }
 	    return x;
 	}
-	
+
+    public static void checkVariance(TypeNode t, ParameterType.Variance variance, Job errs) {
+        checkVariance(t.type(),variance,errs,t.position());
+    }
+    public static void checkVariance(Type t, ParameterType.Variance variance, Job errs, Position pos) {
+        Type base = null;
+        if (t instanceof X10CanonicalTypeNode_c) { // this cast is stupid, why isn't javac complaining?
+            assert false;
+        } else if (t instanceof ParameterType_c) {
+            ParameterType_c pt = (ParameterType_c) t;
+            ParameterType.Variance var = pt.getVariance();
+            if (var==variance || var==ParameterType.Variance.INVARIANT) {
+                // ok
+            } else {
+                Errors.issue(errs,new SemanticException("Illegal variance! Type parameter has variance "+var+" but it is used in a "+variance+" position.",pos)); // todo: t.position() is incorrect (see XTENLANG-1439)
+            }
+
+        } else if (t instanceof X10ParsedClassType_c) {
+            X10ParsedClassType_c pt = (X10ParsedClassType_c) t;
+            final List<Type> args = pt.typeArguments();
+            X10ClassDef_c def = (X10ClassDef_c) pt.def();
+            final List<ParameterType.Variance> variances = def.variances();
+            for (int i=0; i<Math.min(args.size(), variances.size()); i++) {
+                Type arg = args.get(i);
+                ParameterType.Variance var = variances.get(i);
+                checkVariance(arg, variance.mult(var),errs,pos);
+            }
+
+        } else if (t instanceof ConstrainedType_c) {
+	        ConstrainedType ct = (ConstrainedType) t;
+            base = Types.get(ct.baseType());
+        } else if (t instanceof AnnotatedType_c) {
+	        AnnotatedType_c at = (AnnotatedType_c) t;
+            base = at.baseType();
+        } else if (t instanceof MacroType_c) {
+	        MacroType mt = (MacroType) t;
+            base = mt.definedType();
+        }
+        if (base!=null)
+            checkVariance(base,variance,errs,pos);
+
+    }
 	public static Type baseType(Type t) {
 	    if (t instanceof AnnotatedType) {
 	        AnnotatedType at = (AnnotatedType) t;

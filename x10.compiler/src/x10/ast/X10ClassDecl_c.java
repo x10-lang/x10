@@ -746,6 +746,10 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     		n.checkStructMethods(parent, tc);
     	}
 
+        // a superclass/interface is a covariant position (+)
+        if (n.superClass!=null) X10TypeMixin.checkVariance(n.superClass, ParameterType.Variance.COVARIANT,tc.job());
+        for (TypeNode typeNode : n.interfaces)
+            X10TypeMixin.checkVariance(typeNode, ParameterType.Variance.COVARIANT,tc.job());
     	return n;
     }
     

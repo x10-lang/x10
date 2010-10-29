@@ -41,6 +41,7 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.UnknownType;
+import polyglot.types.ConstructorDef;
 import polyglot.util.CodeWriter;
 import polyglot.util.CollectionUtil;
 import polyglot.util.Position;
@@ -64,6 +65,7 @@ import x10.types.X10ParsedClassType_c;
 
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
+import x10.types.ParameterType;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.XConstrainedTerm;
 import x10.visit.X10PrettyPrinterVisitor;
@@ -78,7 +80,7 @@ import x10.visit.X10Translator;
  */
 public class X10Formal_c extends Formal_c implements X10Formal {
 	/* Invariant: vars != null */
-	protected List<Formal> vars;
+	protected List<Formal> vars;  // e.g., when exploding a point: def foo(p[i,j]:Point)
 	boolean unnamed;
 
 	public X10Formal_c(Position pos, FlagsNode flags, TypeNode type,
@@ -248,7 +250,7 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 	@Override
 	public Node typeCheck(ContextVisitor tc) {
 	    // Check if the variable is multiply defined.
-	    Context c = tc.context();
+	    X10Context c = (X10Context)tc.context();
 
 	    LocalInstance outerLocal = null;
 
@@ -259,7 +261,7 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 	        // not found, so not multiply defined
 	    }
 
-	    if (outerLocal != null && ! li.equals(outerLocal.def()) && c.isLocal(li.name())) {
+	    if (outerLocal != null && ! li.equals(outerLocal.def()) && c.isLocal(li.name())) { // todo: give me a test case that shows this error?
 	        Errors.issue(tc.job(),
 	                new SemanticException("Local variable \"" + name + "\" multiply defined. Previous definition at " + outerLocal.position() + ".", position()));
 	    }

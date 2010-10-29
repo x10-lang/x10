@@ -35,7 +35,14 @@ public class ParameterType_c extends Type_c implements ParameterType {
 		this.name = name;
 		this.def = def;
 	}
-	
+
+    public Variance getVariance() {
+        Def def = def().get();
+        // either method generic param (which are always invariant) or class param
+        if (!(def instanceof X10ClassDef_c)) return Variance.INVARIANT;
+        X10ClassDef_c classDef = (X10ClassDef_c) def;
+        return classDef.getVariance(this);
+    }
 	public boolean isGloballyAccessible() {
 	    return false;
 	}

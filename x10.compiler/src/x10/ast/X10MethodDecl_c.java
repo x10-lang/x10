@@ -512,6 +512,16 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 		} catch (SemanticException e) {
 		    Errors.issue(tc.job(), e, n.returnType());
 		}
+
+
+        if (!position.isCompilerGenerated()) { // for struct X[+T], we generate equals(T), but it is type-safe because it is readonly and struct are final.
+            // formals are always in contravariant positions, while return type in covariant position (ctors are ignored)
+            for (Formal f : n.formals) {
+                final TypeNode fType = f.type();
+                X10TypeMixin.checkVariance(fType, ParameterType.Variance.CONTRAVARIANT,tc.job());
+            }
+            X10TypeMixin.checkVariance(n.returnType, ParameterType.Variance.COVARIANT,tc.job());
+        }
 		return n;
 	}
 

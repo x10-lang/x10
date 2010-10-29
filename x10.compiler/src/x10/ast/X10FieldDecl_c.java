@@ -435,7 +435,6 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 	    	}
 
 	    	X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
-	    	X10Context context = (X10Context) tc.context();
 
 	    	X10FieldDecl_c n = (X10FieldDecl_c) this.type(nf.CanonicalTypeNode(type().position(), type));
 
@@ -469,6 +468,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 	    		             this);
 	    	}
 
+            X10TypeMixin.checkVariance(n.type(), f.isFinal() ? ParameterType.Variance.COVARIANT : ParameterType.Variance.INVARIANT,tc.job());
 	    	return n;
 	    }
 

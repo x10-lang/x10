@@ -35,6 +35,9 @@ public class RunTestSuite {
             "NonX10Constructs_MustFailCompile.x10",
             "_MustFailCompile.x10",
     };
+    private static final String[] EXCLUDE_DIRS = {
+            "WorkStealing", // Have duplicated class from the Samples directory such as ArraySumTest.x10
+    };
     private static final String[] EXCLUDE_FILES = {
             "NOT_WORKING","SSCA2","FT-alltoall","FT-global"
     };
@@ -49,6 +52,10 @@ public class RunTestSuite {
 
     static {
         Arrays.sort(EXCLUDE_FILES);
+    }
+    private static boolean shouldIgnoreDir(String name) {
+        if (Arrays.binarySearch(EXCLUDE_DIRS,name)>=0) return true;
+        return false;
     }
     private static boolean shouldIgnoreFile(String name) {
         if (Arrays.binarySearch(EXCLUDE_FILES,name)>=0) return true;
@@ -217,9 +224,11 @@ public class RunTestSuite {
         if (files.size()>=MAX_FILES_NUM) return;
         for (File f : dir.listFiles()) {
             String name = f.getName();
-            if (!f.isDirectory() && shouldIgnoreFile(name)) continue;
+            final boolean isDir = f.isDirectory();
+            if (!isDir && shouldIgnoreFile(name)) continue;
+            if (isDir && shouldIgnoreDir(name)) continue;
             if (files.size()>=MAX_FILES_NUM) return;
-            if (f.isDirectory())
+            if (isDir)
                 recurse(f, files);
             else {
                 if (name.endsWith(".x10")) {
