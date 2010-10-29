@@ -67,6 +67,7 @@ import polyglot.ast.SourceFile;
 import polyglot.ast.Special;
 import polyglot.ast.Special_c;
 import polyglot.ast.Stmt;
+import polyglot.ast.StringLit_c;
 import polyglot.ast.SwitchBlock_c;
 import polyglot.ast.Switch_c;
 import polyglot.ast.Throw_c;
@@ -101,6 +102,7 @@ import polyglot.util.CodeWriter;
 import polyglot.util.ErrorInfo;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
+import polyglot.util.StringUtil;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.InnerClassRemover;
 import polyglot.visit.NodeVisitor;
@@ -2766,6 +2768,13 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		} else
 			throw new InternalCompilerError("Unrecognized IntLit kind " + n.kind());
 		w.write(val);
+	}
+	
+	public void visit(StringLit_c n) {
+	    w.write("\"");
+	    w.write(StringUtil.escape(n.stringValue()));
+	    w.write("\"");
+        w.write(".toString()"); // workaround for XTENLANG-2006. TODO remove this when the bug get fixed.
 	}
 
 	//	private Stmt optionalBreak(Stmt s) {
