@@ -249,13 +249,22 @@ x10_int x10aux::num_threads() {
     return num;
 }
 
-x10_boolean x10aux::no_steals() { return getenv("X10_NO_STEALS") != NULL; }
+x10_boolean x10aux::no_steals()
+{
+	char* s = getenv("X10_NO_STEALS");
+	if (s && !(strcasecmp("false", s) == 0))
+		return true;
+	return false;
+}
 
 x10_boolean x10aux::static_threads() { 
 #ifdef __bg__
     return true;
 #else
-    return (getenv("X10_STATIC_THREADS") != NULL); 
+    char* s = getenv("X10_STATIC_THREADS");
+    if (s && !(strcasecmp("false", s) == 0))
+    	return true;
+    return false;
 #endif
 }
 
