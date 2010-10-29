@@ -153,6 +153,7 @@ namespace {
     };
 
     #define CUDA_PARAM_SZ 240
+    #define CUDA_CMEM_SZ (64*1024)
     struct BaseOpKernel : BaseOp<BaseOpKernel> {
         size_t blocks;
         size_t threads;
@@ -160,11 +161,12 @@ namespace {
         size_t argc;
         char param_data[CUDA_PARAM_SZ];
         char *argv;
+        char cmem_data[CUDA_CMEM_SZ]; // TODO: this may not be efficient, consider a freelist
         size_t cmemc;
         char *cmemv;
         BaseOpKernel (x10rt_msg_params &p_)
           : BaseOp<BaseOpKernel>(p_), blocks(0), threads(0), shm(0),
-            argc(CUDA_PARAM_SZ), argv(param_data), cmemc(0), cmemv(0)
+            argc(CUDA_PARAM_SZ), argv(param_data), cmemc(16384), cmemv(cmem_data)
         { }
         virtual bool is_kernel() { return true; }
     };
@@ -223,6 +225,7 @@ namespace {
                 x10rt_cuda_pre *pre;
                 CUfunction kernel;
                 CUmodule module;
+                CUdeviceptr cmem;
                 x10rt_cuda_post *post;
             } kernel_cbs;
             struct {
@@ -367,6 +370,16 @@ void x10rt_cuda_register_msg_receiver (x10rt_cuda_ctx *ctx, x10rt_msg_type msg_t
     }
     CU_SAFE(r);
 
+    CUdeviceptr cmem;
+    unsigned int cmem_sz;
+    r = cuModuleGetGlobal(&cmem, &cmem_sz, mod, "__cmem");
+    if (r==CUDA_ERROR_NOT_FOUND) {
+        fprintf(stderr, "Couldn't find __cmem in \"%s\".\n", cubin);
+        abort();
+    }
+    CU_SAFE(r);
+    assert(cmem_sz == CUDA_CMEM_SZ);
+    
     //TODO: re-use the same CUmodule
 
     CU_SAFE(cuCtxPopCurrent(NULL));
@@ -374,6 +387,7 @@ void x10rt_cuda_register_msg_receiver (x10rt_cuda_ctx *ctx, x10rt_msg_type msg_t
     x10rt_functions fs;
     fs.kernel_cbs.pre = pre;
     fs.kernel_cbs.kernel = kernel;
+    fs.kernel_cbs.cmem = cmem;
     fs.kernel_cbs.module = mod;
     fs.kernel_cbs.post = post;
     ctx->cbs.reg(msg_type,fs);
@@ -680,6 +694,8 @@ void x10rt_cuda_probe (x10rt_cuda_ctx *ctx)
                 assert(kop->is_kernel());
                 assert(!kop->begun);
                 x10rt_msg_type type = kop->p.type;
+                if (kop->cmemc > 0)
+                    CU_SAFE(cuMemcpyHtoD(ctx->cbs[type].kernel_cbs.cmem, kop->cmemv, kop->cmemc));
                 CUfunction k = ctx->cbs[type].kernel_cbs.kernel;
                 // y and z params we leave as 1, as threads can vary from 1 to 512
                 CU_SAFE(cuFuncSetBlockShape(k, kop->threads, 1, 1));
