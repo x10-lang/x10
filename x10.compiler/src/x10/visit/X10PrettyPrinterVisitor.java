@@ -304,7 +304,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	        w.write(X10_RUNTIME_UTIL_UTIL + ".eval(");
 	        n.print(expr, w, tr);
 	        w.write(")");
-	    }else {
+	    } else {
             n.print(expr, w, tr);
 	    }
 	    if (semi) {
@@ -1551,7 +1551,18 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		}
 		boolean newClosure = expr instanceof Closure_c;
 
-		c.printSubExpr(target, w, tr);
+		if (!newClosure) {
+		    w.write("(");
+		    w.write("(");
+		    er.printType(t, PRINT_TYPE_PARAMS);
+		    w.write(")");
+		    c.printSubExpr(target, w, tr);
+		    w.write(")");
+		}
+		else {
+		    c.printSubExpr(target, w, tr);
+		}
+
 		w.write(".");
 		w.write("apply");
         if (isSelfDispatch && (!newClosure && !mi.returnType().isVoid() && mi.formalTypes().size() == 0)) {
