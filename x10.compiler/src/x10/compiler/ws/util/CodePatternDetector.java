@@ -25,6 +25,7 @@ import polyglot.ast.Eval;
 import polyglot.ast.Expr;
 import polyglot.ast.For;
 import polyglot.ast.If;
+import polyglot.ast.LocalDecl;
 import polyglot.ast.Receiver;
 import polyglot.ast.Return;
 import polyglot.ast.Stmt;
@@ -82,6 +83,7 @@ public class CodePatternDetector {
                   FinishAssign, //used in collecting finish
                   Async,  
                   When,
+                  LocalDecl, //local declare with the initializer is concurrent call
                   Call, //only the first level call is target call;
                   AssignCall, //only the first level call is target call;
                   If,
@@ -109,6 +111,11 @@ public class CodePatternDetector {
         if(!WSCodeGenUtility.isComplexCodeNode(stmt, wts)){
             return Pattern.Simple;
         }
+        
+        if(stmt instanceof LocalDecl){
+            return Pattern.LocalDecl;
+        }
+        
         
         //TODO: Check home == here;
         if(stmt instanceof Async){
@@ -292,4 +299,25 @@ public class CodePatternDetector {
             return Pattern.Compound;
         }
     }
+    
+    /**
+     * Detect whether this pattern is a control flow pattern,
+     * such as block, if, forloop, for, do...while, while, switch
+     * 
+     * @param pattern
+     * @return
+     */
+    public static boolean isControlFlowPattern(Pattern pattern){
+        if(pattern == Pattern.Block
+                || pattern == Pattern.If
+                || pattern == Pattern.For
+                || pattern == Pattern.ForLoop
+                || pattern == Pattern.DoWhile
+                || pattern == Pattern.While
+                || pattern == Pattern.Switch){
+            return true;
+        }
+        return false;
+    }
+    
 }

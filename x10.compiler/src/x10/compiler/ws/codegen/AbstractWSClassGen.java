@@ -45,6 +45,7 @@ import polyglot.frontend.Job;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.FieldDef;
+import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
 import polyglot.types.MethodDef;
@@ -187,8 +188,6 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
 
         conSynth = classSynth.createConstructor(compilerPos);
         conSynth.addAnnotation(genHeaderAnnotation());
-
-        addPCField();
     }
 
     // method frames
@@ -454,10 +453,18 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
         
         ClassType newClassType = newClassGen.getClassType();
         //pc = x;
-        Expr pcAssgn = synth.makeFieldAssign(compilerPos, getThisRef(), PC,
-                              synth.intValueExpr(pc, compilerPos), xct).type(xts.Int());
-        transCodes.addFirst(xnf.Eval(compilerPos, pcAssgn));
-        transCodes.addSecond(xnf.Eval(compilerPos, pcAssgn));        
+        try{
+            //check whether the frame contains pc field. For optimized finish frame and async frame, there is no pc field
+            
+            Expr pcAssgn = synth.makeFieldAssign(compilerPos, getThisRef(), PC,
+                                                 synth.intValueExpr(pc, compilerPos), xct).type(xts.Int());
+            transCodes.addFirst(xnf.Eval(compilerPos, pcAssgn));
+            transCodes.addSecond(xnf.Eval(compilerPos, pcAssgn));              
+        }
+        catch(polyglot.types.NoMemberException e){
+            //Just ignore the pc assign statement
+        }
+      
         
         
         //if the new frame is an async frame, push() instructions should be inserted here
@@ -733,10 +740,16 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
         TransCodes transCodes = new TransCodes(prePcValue + 1); //increase the pc value;
 
         //pc = x;
-        Expr pcAssgn = synth.makeFieldAssign(compilerPos, getThisRef(), PC,
-                              synth.intValueExpr(transCodes.getPcValue(), compilerPos), xct).type(xts.Int());
-        transCodes.addFirst(xnf.Eval(compilerPos, pcAssgn));
-        transCodes.addSecond(xnf.Eval(compilerPos, pcAssgn));   
+        try{
+            //check whether the frame contains pc field. For optimized finish frame and async frame, there is no pc field
+            Expr pcAssgn = synth.makeFieldAssign(compilerPos, getThisRef(), PC,
+                                  synth.intValueExpr(transCodes.getPcValue(), compilerPos), xct).type(xts.Int());
+            transCodes.addFirst(xnf.Eval(compilerPos, pcAssgn));
+            transCodes.addSecond(xnf.Eval(compilerPos, pcAssgn));   
+        }
+        catch(polyglot.types.NoMemberException e){
+            //Just ignore the pc assign statement
+        }
         
         //replace local access with field access
         //FIXME: async frame's local decl specifica processing
@@ -821,17 +834,21 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
         // trigger trans call
         TransCodes callTransCodes = transCall(call, prePcValue, declaredLocals);
         TransCodes transCodes = new TransCodes(callTransCodes.getPcValue());
-        //add pc change statement
-        transCodes.addFirst(callTransCodes.first().get(0));
-        transCodes.addSecond(callTransCodes.second().get(0));
         
-        // and move content to the transCodes according to assign content;
-        Call fastCall = (Call) ((Eval) callTransCodes.first().get(1)).expr();
-        Call slowCall = (Call) ((Eval) callTransCodes.second().get(1)).expr();
-
+        //If the pc_field optimization is turned on, only return 1 statement (call)
+        //other wise, two stmts, 1st, the pc assign; 2nd, the call
+        int codesSize = callTransCodes.first().size(); 
+        if(codesSize == 2){
+            //add pc change statement
+            transCodes.addFirst(callTransCodes.first().get(0));
+            transCodes.addSecond(callTransCodes.second().get(0));
+        }
+        //the call is the last stmt
+        Call fastCall = (Call) ((Eval) callTransCodes.first().get(codesSize - 1)).expr();
+        Call slowCall = (Call) ((Eval) callTransCodes.second().get(codesSize - 1)).expr();
         transCodes.addFirst(xnf.Eval(compilerPos, aAssign.right(fastCall)));
         transCodes.addSecond(xnf.Eval(compilerPos, aAssign.right(slowCall)));
-
+        
         // back path
         // construct move content statements
         // _m_fib.t1 = cast[Frame,()=>Int](frame)();

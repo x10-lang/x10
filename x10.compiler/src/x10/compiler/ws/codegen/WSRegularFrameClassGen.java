@@ -86,11 +86,15 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
            String className, Stmt stmt, ClassDef outer, Flags flags, ClassType superType) {
         super(job, xnf, xct, wts, className, superType, flags, outer,
                 WSCodeGenUtility.setSpeicalQualifier(stmt, outer, xnf));
+        
+        addPCField();
     }
 
     // nested frames
     protected WSRegularFrameClassGen(AbstractWSClassGen parent, Stmt stmt, String classNamePrefix) {
         super(parent, parent, classNamePrefix, parent.wts.regularFrameType, stmt);
+        
+        addPCField();
     }
 
     @Override
