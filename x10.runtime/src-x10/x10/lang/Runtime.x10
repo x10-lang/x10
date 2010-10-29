@@ -188,7 +188,7 @@ import x10.util.Box;
                 threads.push(thread);
                 while (threads.contains(thread)) {
                     lock.unlock();
-                    Thread.park();
+                    Worker.park();
                     lock.lock();
                 }
             }
@@ -344,7 +344,7 @@ import x10.util.Box;
                 workers(i).start();
             }
             workers(0)();
-            while (size > 0) Thread.park();
+            while (size > 0) Worker.park();
         }
 
         // notify the pool a worker is about to execute a blocking operation
