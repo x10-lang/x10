@@ -60,6 +60,7 @@ import x10.ast.X10Special;
 import x10.types.ParameterType;
 import x10.types.X10ClassType;
 import x10.types.X10Flags;
+import x10.types.X10LocalDef;
 import x10.types.X10TypeMixin;
 import x10c.ast.BackingArray;
 import x10c.ast.BackingArrayAccess;
@@ -72,12 +73,25 @@ public class RailInLoopOptimizer extends ContextVisitor {
     private final X10CTypeSystem_c xts;
     private final X10CNodeFactory_c xnf;
 
+    private final Map<Name,X10LocalDef> localdefs = new HashMap<Name,X10LocalDef>();
+    
     public RailInLoopOptimizer(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf);
         xts = (X10CTypeSystem_c) ts;
         xnf = (X10CNodeFactory_c) nf;
     }
 
+    private X10LocalDef getLocalDef(Type type, Name name) {
+        if (localdefs.containsKey(name)) {
+            return localdefs.get(name);
+        }
+        else {
+           X10LocalDef ldef = xts.localDef(Position.COMPILER_GENERATED, xts.NoFlags(), Types.ref(type), name);
+           localdefs.put(name, ldef);
+           return ldef;
+        }
+    }
+    
     @Override
     protected Node leaveCall(Node parent, Node old, Node n, NodeVisitor v) throws SemanticException {
         if (n instanceof Loop) {
@@ -162,7 +176,8 @@ public class RailInLoopOptimizer extends ContextVisitor {
                                         ignores.add(ld.name().toString());
                                         X10CanonicalTypeNode tn = xnf.X10CanonicalTypeNode(n.position(), type);
                                         Id id = backingArrayToId.get(pair.fst());
-                                        LocalDef ldef = xts.localDef(n.position(), xts.Final(), Types.ref(type), id.id());
+                                        LocalDef ldef = getLocalDef(type, id.id());
+                                        ldef.setFlags(Flags.FINAL);
                                         return xnf.LocalDecl(n.position(), xnf.FlagsNode(n.position(), Flags.FINAL), tn, ld.name(), xnf.Local(n.position(), id).localInstance(ldef.asInstance()).type(type)).localDef(ldef).type(tn);
                                     }
                                 }
@@ -248,10 +263,10 @@ public class RailInLoopOptimizer extends ContextVisitor {
                                 targetAndIsFinals.add(new Pair<BackingArray, Boolean>(ba, true));
                             }
                             if (elem == null) {
-                                LocalDef ldef = xts.localDef(n.position(), xts.NoFlags(), Types.ref(target.type()), id.id());
+                                LocalDef ldef = getLocalDef(target.type(), id.id());
                                 return xnf.BackingArrayAccess(pos, xnf.Local(pos, id).localInstance(ldef.asInstance()).type(target.type()), index, type);
                             }
-                            LocalDef ldef = xts.localDef(n.position(), xts.NoFlags(), Types.ref(type), id.id());
+                            LocalDef ldef = getLocalDef(type, id.id());
                             return xnf.BackingArrayAccessAssign(pos, xnf.Local(pos, id).localInstance(ldef.asInstance()), index, Assign.ASSIGN, elem).type(type);
                         }
                     }
@@ -302,7 +317,7 @@ public class RailInLoopOptimizer extends ContextVisitor {
                             else {
                                 ba = xnf.BackingArray(n.position(), id, createArrayType(type), array);
                             }
-                            LocalDef ldef = xts.localDef(n.position(), xts.NoFlags(), Types.ref(type), id.id());
+                            LocalDef ldef = getLocalDef(type, id.id());
                             return xnf.BackingArrayAccessAssign(n.position(), xnf.Local(n.position(), id).localInstance(ldef.asInstance()), ((SettableAssign_c) n).index().get(0), ((SettableAssign_c) n).operator(), ((SettableAssign_c) n).right()).type(type);
                         }
                     }
@@ -386,11 +401,10 @@ public class RailInLoopOptimizer extends ContextVisitor {
                                 Type pt = X10TypeMixin.baseType(((X10ClassType) type).typeArguments().get(0));
                                 Expr expr;
                                 Type arrayType = createArrayType(pt);
+                                LocalDef ldef = getLocalDef(arrayType, id.id());
                                 if (la.right() instanceof NullLit) {
-                                    LocalDef ldef = xts.localDef(n.position(), xts.NoFlags(), Types.ref(arrayType), id.id());
                                     expr = xnf.LocalAssign(n.position(), (Local) xnf.Local(n.position(), id).localInstance(ldef.asInstance()).type(arrayType), Assign.ASSIGN, la.right()).type(arrayType);
                                 } else {
-                                    LocalDef ldef = xts.localDef(n.position(), xts.NoFlags(), Types.ref(arrayType), id.id());
                                     expr = xnf.LocalAssign(n.position(), (Local) xnf.Local(n.position(), id).localInstance(ldef.asInstance()).type(arrayType), Assign.ASSIGN, xnf.BackingArray(n.position(), id, arrayType, local)).type(arrayType);
                                 }
                                 stmts.add(xnf.Eval(n.position(), expr));
@@ -426,14 +440,16 @@ public class RailInLoopOptimizer extends ContextVisitor {
                     Type pt = ((X10ClassType) type).typeArguments().get(0);
                     X10CanonicalTypeNode tn = xnf.X10CanonicalTypeNode(n.position(), pair.fst().type());
                     LocalDecl ld;
+                    LocalDef localDef = getLocalDef(pair.fst().type(), backingArrayToId.get(pair.fst()).id());
                     if (pair.snd()) {
+                        localDef.setFlags(xts.Final());
                         ld = xnf.LocalDecl(n.position(), xnf.FlagsNode(n.position(), xts.Final()), tn, backingArrayToId.get(pair.fst()), pair.fst())
-                        .localDef(xts.localDef(n.position(), xts.Final(), Types.ref(pair.fst().type()), backingArrayToId.get(pair.fst()).id()))
+                        .localDef(localDef)
                         .type(tn);
                     }
                     else {
                         ld = xnf.LocalDecl(n.position(), xnf.FlagsNode(n.position(), xts.NoFlags()), tn, backingArrayToId.get(pair.fst()), pair.fst())
-                        .localDef(xts.localDef(n.position(), xts.NoFlags(), Types.ref(pair.fst().type()), backingArrayToId.get(pair.fst()).id()))
+                        .localDef(localDef)
                         .type(tn);
                     }
                     statements.add(ld);
