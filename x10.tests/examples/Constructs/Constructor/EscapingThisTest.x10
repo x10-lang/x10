@@ -1910,12 +1910,27 @@ http://jira.codehaus.org/browse/XTENLANG-1470
 http://jira.codehaus.org/browse/XTENLANG-1519
 */
 class TestCoAndContraVarianceInInterfaces {
+	
+	 class CtorTest[+T] {
+	  val t1:T;
+	  def this(t:T) { t1 = t; } // ok
+	  class Inner {
+		val t2:T;
+		def this(t:T) { t2 = t; } // ok
+	  }
+	}
+	class Bar[T] {
+		def bar[U]() {}
+		//def bar2[+U]() {} // parsing error, which is good :)
+		def foo(z:T, y:Bar[T],x:Box[Bar[Bar[T]{self!=null}]]{x!=null}) {}
+	}
+
 	interface Covariant[+T] {
 		def get():T;
-		def set(t:T):void; // ShouldBeErr
+		def set(t:T):void; // ERR
 	}
 	interface Contravariant[-T] {
-		def get():T; // ShouldBeErr
+		def get():T; // ERR
 		def set(t:T):void; 
 	}
 	interface Invariant[T] {
@@ -1925,21 +1940,20 @@ class TestCoAndContraVarianceInInterfaces {
 
 	// check extends
 	interface E1[+T] extends Covariant[T] {}
-	interface E2[-T] extends Covariant[T] {} // ShouldBeErr
-	interface E3[+T] extends Contravariant[T] {} // ShouldBeErr
+	interface E2[-T] extends Covariant[T] {} // ERR
+	interface E3[+T] extends Contravariant[T] {} // ERR
 	interface E4[-T] extends Contravariant[T] {} 
 	interface E5[+T] extends 
-		Contravariant[T], // ShouldBeErr
+		Contravariant[T], // ERR
 		Covariant[T] {} 
 	interface E6[-T] extends 
 		Contravariant[T],
-		Covariant[T] {} // ShouldBeErr
+		Covariant[T] {} // ERR
 	interface E7[T] extends Contravariant[T],Covariant[T] {}
 	interface E8[+T] extends Contravariant[Contravariant[T]] {}
-	interface E9[-T] extends Contravariant[Contravariant[
-		T // ShouldBeErr (error should be on the use of T): "Cannot use contravariant type parameter T in a covariant position"
-		]] {} 
-	interface E10[-T] extends Invariant[T] {} // ShouldBeErr: "Cannot use contravariant type parameter T in an invariant position"
+	interface E9[-T] extends 
+		Contravariant[Contravariant[T]] {}  // ERR (todo: error should be on the use of T, and not on the entire TypeNode, see XTENLANG-1439): "Cannot use contravariant type parameter T in a covariant position"
+	interface E10[-T] extends Invariant[T] {} // ERR: "Cannot use contravariant type parameter T in an invariant position"
 
 	interface GenericsAndVariance[+CO,-CR,IN] {
 		def ok1(CR,IN):CO;
@@ -1956,19 +1970,19 @@ class TestCoAndContraVarianceInInterfaces {
 		def ok12():GenericsAndVariance[IN,IN,IN];
 		def ok13( (CO)=>void, ()=>CR, ()=>IN, (IN)=>IN ): ((CR)=>CO);
 
-		def err1():CR; // ShouldBeErr
-		def err2(CO):void; // ShouldBeErr
-		def err3():Contravariant[CO]; // ShouldBeErr
-		def err4():Covariant[CR]; // ShouldBeErr
-		def err5(GenericsAndVariance[CO,IN,IN]):void; // ShouldBeErr
-		def err6(GenericsAndVariance[IN,CR,IN]):void; // ShouldBeErr
-		def err7(GenericsAndVariance[IN,IN,CO]):void; // ShouldBeErr
-		def err8(GenericsAndVariance[IN,IN,CR]):void; // ShouldBeErr
-		def err9():GenericsAndVariance[CR,IN,IN]; // ShouldBeErr
-		def err10(): ( (CO)=>void ); // ShouldBeErr
-		def err11(): ( ()=>CR ); // ShouldBeErr
-		def err12((CR)=>void):void; // ShouldBeErr
-		def err13(()=>CO):void; // ShouldBeErr
+		def err1():CR; // ERR
+		def err2(CO):void; // ERR
+		def err3():Contravariant[CO]; // ERR
+		def err4():Covariant[CR]; // ERR
+		def err5(GenericsAndVariance[CO,IN,IN]):void; // ERR
+		def err6(GenericsAndVariance[IN,CR,IN]):void; // ERR
+		def err7(GenericsAndVariance[IN,IN,CO]):void; // ERR
+		def err8(GenericsAndVariance[IN,IN,CR]):void; // ERR
+		def err9():GenericsAndVariance[CR,IN,IN]; // ERR
+		def err10(): ( (CO)=>void ); // ERR
+		def err11(): ( ()=>CR ); // ERR
+		def err12((CR)=>void):void; // ERR
+		def err13(()=>CO):void; // ERR
 	}
 
 	// todo: what about constraints? and properties fields and methods?
@@ -2006,6 +2020,7 @@ class TestCoAndContraVarianceInInterfaces {
 	}
 }
 
+
 class ConstraintsBugs {
 	class A(p:Int) {
 		def this(p:Int):A{self.p==p} {
@@ -2030,4 +2045,58 @@ class SuperQualifier { // see XTENLANG-1948
 }
 class TestArrayLiteralInference {	
 	var z: Array[int](1){rect, zeroBased, size==4} = [ 1, 2,3,4 ]; 
+}
+
+class TestInstanceOperators {
+static class IntA {
+	operator this <  (that:IntA) = true;
+}
+static class LongB {
+	public static operator (r:IntA):LongB = null;
+	operator this <  (that:LongB) = false;
+
+	static def test(a:IntA, b:LongB) {
+		val res1:Boolean{self==true} = a<a;
+		val res2:Boolean{self==false} = b<b;
+		val res3:Boolean{self==true} = b<b; // ERR: Cannot assign expression to target.	 Expression: b < b	 Expected type: x10.lang.Boolean{self==true}	 Found type: x10.lang.Boolean{self==false}
+		val res5:Boolean{self==false} = b<a; 
+		val res4:Boolean{self==false} = a<b; // ShouldNotBeERR: No valid method call found for call in given type.	 Call: operator<(IntA{self==a}, LongB{self==b})	 Type: IntA{self==a}
+	}
+}
+}
+
+
+class ExplodingPointTest {	
+    def f1([i,j]:Point,x:Int)= i+x+j;	
+    def f2(p[i,j]:Point(2),x:Int)= p(0)+i+x+j;
+
+    def f3(p[i,j]:Point(1))=1; // ShouldBeErr 
+
+	def test() {
+		val [i,j] = [1,2]; 
+		return i+j;
+	}
+	def test2() {
+		val p[i,j] = [1,2]; 
+		return p(0)+i+j;
+	}
+	def test3() {
+		for(p[i,j] in (1..2)*(3..4)) 
+			return p(0)+i+j;
+		for(p[i] in (3..4)) 
+			return p(0)+i;
+		for(p[i]:Point(2) in (3..4)*(3..4))  {} // ShouldBeErr (the type doesn't match the number of exploded ints
+		return 3;
+	}
+	def test4() {
+		for(p[i,j] in (3..4)) // ERR: Loop domain is not of expected type.  ShouldNotBeERR (duplicate IDENTICAL error message) todo: should give better error message: Loop domain is not of expected type.	 Expected type: Iterable[x10.array.Point{self.x10.array.Point#rank==2}]	 Actual type: x10.array.Region
+			return p(0)+i+j;
+		return 3;
+	}
+	def test5() {
+		var r:Region = null;
+		for (p in r) {}
+		for (p[i] in r) {} // ERR ShouldNotBeERR (duplicate)
+	}
+	// val p[i,j] = [1,2]; // doesn't parse for fields :)
 }

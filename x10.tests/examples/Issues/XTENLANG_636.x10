@@ -29,13 +29,13 @@ public class XTENLANG_636 extends x10Test {
       }
 
        class Get[+X] implements IGet[X]{
-        var x : X;
+        val x : X; // val fields are covariant
         def this(x:X) { this.x = x; }
         public def get() : X = x;
       }        
 
-       class Set[-X] implements ISet[X]{
-        var x : X;
+       class Set[X] implements ISet[X]{
+        var x : X; // var fields must be invariant
         def this(x:X) { this.x = x; }
         public def set(x:X) = {this.x = x;} 
       }
@@ -54,10 +54,10 @@ public class XTENLANG_636 extends x10Test {
       
     public def run(): boolean = {
         val test1 = Sub <: Super;
-        val test2 = Set[Sub] :> Set[Super];
-        val test3 = Set[Sub] <: Set[Int];
-        val test4 = Set[Sub] :> Set[Int];
-        val test5 = Set[Sub] == Set[Int];
+        val test2 = ISet[Sub] :> ISet[Super];
+        val test3 = ISet[Sub] <: ISet[Int];
+        val test4 = ISet[Sub] :> ISet[Int];
+        val test5 = ISet[Sub] == ISet[Int];
         return test1 && test2 && (!test3) && (!test4) && (!test5);
     }
 

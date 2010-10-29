@@ -30,15 +30,14 @@ public class GenericExample2 extends GenericTest {
         }
         
         static class Get[+X] {
-            var x: X;
+            val x: X;
             def this(x: X) { this.x = x; }
             def get(): X = x;
         }
 
-        static class Set[-X] {
-            var x: X;
-            def this(x: X) { this.x = x; }
-            def set(x: X) = { this.x = x; }
+        static interface Set[-X] {
+            // var x: X; // var fields are invariant
+            def set(x: X):void;
         }
 
     public def run() = {
