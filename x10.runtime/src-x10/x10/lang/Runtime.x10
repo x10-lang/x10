@@ -436,8 +436,6 @@ import x10.util.Box;
         this.finishStates = new FinishState.FinishStates();
     }
 
-    static def proxy(rootFinish:FinishState) = runtime().finishStates(rootFinish);
-
     /**
      * Return the current worker
      */
@@ -490,7 +488,7 @@ import x10.util.Box;
             registerHandlers();
 
             if (hereInt() == 0) {
-                val rootFinish = new FinishState.RootFinish(runtime().pool.latch);
+                val rootFinish = new FinishState.Finish(runtime().pool.latch);
                 // in place 0 schedule the execution of the static initializers fby main activity
                 execute(new Activity(()=>{finish init(); body();}, rootFinish, true));
 
@@ -604,9 +602,9 @@ import x10.util.Box;
         
         val ok = a.safe();
         if (place.id == hereInt()) {
-            execute(new Activity(deepCopy(body), ok));
+            execute(new Activity(deepCopy(body), new FinishState.UncountedFinish(), ok));
         } else {
-            val closure = ()=> @x10.compiler.RemoteInvocation { execute(new Activity(body, ok)); };
+            val closure = ()=> @x10.compiler.RemoteInvocation { execute(new Activity(body, new FinishState.UncountedFinish(), ok)); };
             runClosureCopyAt(place.id, closure);
             dealloc(closure);
         }
@@ -621,7 +619,7 @@ import x10.util.Box;
         val a = activity();
         a.ensureNotInAtomic();
         
-        execute(new Activity(body, a.safe()));
+        execute(new Activity(body, new FinishState.UncountedFinish(), a.safe()));
     }
 
     /**
@@ -775,15 +773,15 @@ import x10.util.Box;
      * (i.e. within a finish statement).
      */
     public static def startFinish():FinishState {
-        return activity().swapFinish(new FinishState.RootFinish());
+        return activity().swapFinish(new FinishState.Finish());
     }
 
     public static def startLocalFinish():FinishState {
-        return activity().swapFinish(new FinishState.LocalRootFinish());
+        return activity().swapFinish(new FinishState.LocalFinish());
     }
 
     public static def startSimpleFinish():FinishState {
-        return activity().swapFinish(new FinishState.SimpleRootFinish());
+        return activity().swapFinish(new FinishState.Finish());
     }
 
     /**
@@ -806,9 +804,8 @@ import x10.util.Box;
     public static def pushException(t:Throwable):void  {
         activity().finishState().pushException(t);
     }
-
     public static def startCollectingFinish[T](r:Reducible[T]) {
-        return activity().swapFinish(new FinishState.RootCollectingFinish[T](r));
+        return activity().swapFinish(new FinishState.CollectingFinish[T](r));
     }
 
     public static def offer[T](t:T) {
@@ -816,19 +813,15 @@ import x10.util.Box;
         val id = thisWorker.workerId;
         val state = activity().finishState();
 //      Console.OUT.println("Place(" + here.id + ") Runtime.offer: received " + t);
-        if (here.equals(state.home())) {
-            (state as FinishState.RootCollectingFinish[T]).accept(t,id);
-        } else {
-            (Runtime.proxy(state as FinishState.RootFinish) as FinishState.RemoteCollectingFinish[T]).accept(t,id);
-        }
+        (state as FinishState.CollectingFinish[T]).accept(t,id);
     }
 
     public static def stopCollectingFinish[T](f:FinishState):T {
         val thisWorker = Runtime.worker();
         val id = thisWorker.workerId;
         val state = activity().swapFinish(f);
-        (state as FinishState.RootCollectingFinish[T]).notifyActivityTermination();
-        return (state as FinishState.RootCollectingFinish[T]).waitForFinishExpr(true);
+        state.notifyActivityTermination();
+        return (state as FinishState.CollectingFinish[T]).waitForFinishExpr(true);
     }
 
     // submit an activity to the pool

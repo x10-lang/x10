@@ -114,15 +114,6 @@ class Activity {
     }
 
     /**
-     * Create uncounted activity.
-     */
-    def this(body:()=>Void, safe:Boolean) {
-        this.finishState = null;
-        this.safe = safe;
-        this.body = body;
-    }
-
-    /**
      * Return the clock phases
      */
     def clockPhases():ClockPhases {
@@ -169,15 +160,10 @@ class Activity {
         try {
             body();
         } catch (t:Throwable) {
-            if (null != finishState) {
-                finishState.pushException(t);
-            } else {
-                Runtime.println("Uncaught exception in uncounted activity");
-                t.printStackTrace();
-            }
+            finishState.pushException(t);
         }
         if (null != clockPhases) clockPhases.drop();
-        if (null != finishState) finishState.notifyActivityTermination();
+        finishState.notifyActivityTermination();
         Runtime.dealloc(body);
     }
 }
