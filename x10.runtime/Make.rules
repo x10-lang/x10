@@ -168,6 +168,9 @@ else
         override CXXFLAGS_SHARED += -qmkshrobj
         export X10RT_TEST_LDFLAGS = -Wl,--rpath -Wl,"$(X10_HOME)"/x10.runtime/x10rt/lib
       endif
+      ifdef USE_64BIT
+        override CXXFLAGS += -m64
+      endif
       ifeq ($(shell uname -m),x86_64)
         export X10RT_PLATFORM=linux_x86_64
       else
