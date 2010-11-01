@@ -19,52 +19,34 @@ import x10.io.Printer;
  * @author Christian Grothoff
  * @author tardieu
  */
-public class MultipleExceptions(exceptions:Array[Throwable]{rail}) extends RuntimeException {
+public class MultipleExceptions(exceptions:Array[Throwable]{rail}) extends Exception {
 
     public def this(stack:Stack[Throwable]) {
-        val s = new Stack[Throwable]();
-        // flatten MultipleExceptions in the stack
-        for (t in stack) {
-            if (t instanceof MultipleExceptions) {
-                for (u: Throwable in (t as MultipleExceptions).exceptions.values()) 
-		    s.push(u); 
-            } else {
-                s.push(t);
-            }
-        }
-        property(s.toArray());
+        property(stack.toArray());
     }
 
-    public def this(t: Throwable) {
-        val s = new Stack[Throwable]();
-        if (t instanceof MultipleExceptions) {
-            for (u: Throwable in (t as MultipleExceptions).exceptions.values()) 
-		s.push(u); 
-        } else {
-            s.push(t);
-        }
-        property(s.toArray());
+    public def this(t:Throwable) {
+        property(new Array[Throwable](1, t));
     }
 
     // workarounds for XTENLANG-283, 284
 
     public def printStackTrace(): void {
         //super.printStackTrace();
-        for (t: Throwable in exceptions.values()) {
-	        t.printStackTrace();
+        for (t:Throwable in exceptions.values()) {
+            t.printStackTrace();
         }
     }
 
     public def printStackTrace(p:Printer): void {
         //super.printStackTrace(p);
-        for (t: Throwable in exceptions.values()) {
+        for (t:Throwable in exceptions.values()) {
             t.printStackTrace(p);
         }
     }
 
     public static def make(stack:Stack[Throwable]):Throwable {
-        if (null == stack) return null;
-        if (stack.size() == 1) return stack.peek();
+        if (null == stack || stack.isEmpty()) return null;
         return new MultipleExceptions(stack);
     }
 }
