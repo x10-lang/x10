@@ -481,7 +481,10 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
 		TypeSystem ts = tr.typeSystem();
 		if (n.operator() == Assign.ASSIGN || t.isNumeric() || t.isBoolean() || t.isSubtype(ts.String(), tr.context())) {
-			tr.print(n, n.target(), w);
+	        if (n.target() instanceof TypeNode)
+	            er.printType(n.target().type(), 0);
+	        else
+	            tr.print(n, n.target(), w);
 			w.write(".");
 			w.write(Emitter.mangleToJava(n.name().id()));
 			w.write(" ");
@@ -493,7 +496,10 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			// target has no side effects--evaluate it more than once
 			Binary.Operator op = n.operator().binaryOperator();
 			Name methodName = X10Binary_c.binaryMethodName(op);
-			tr.print(n, n.target(), w);
+            if (n.target() instanceof TypeNode)
+                er.printType(n.target().type(), 0);
+            else
+                tr.print(n, n.target(), w);
 			w.write(".");
 			w.write(Emitter.mangleToJava(n.name().id()));
 			w.write(" ");
