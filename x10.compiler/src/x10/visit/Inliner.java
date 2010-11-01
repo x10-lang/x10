@@ -69,7 +69,6 @@ import polyglot.util.SilentErrorQueue;
 import polyglot.util.SubtypeSet;
 import polyglot.visit.AlphaRenamer;
 import polyglot.visit.ContextVisitor;
-import polyglot.visit.ErrorHandlingVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.ast.Closure;
 import x10.ast.ClosureCall;
@@ -318,6 +317,8 @@ public class Inliner extends ContextVisitor {
         if (null != decl) {
             String methodId = getMethodId(decl);
             decl = instantiate(decl, call);
+            if (null == decl) 
+                return call;
             // TODO: handle "this" parameter like formals (cache actual in temp, assign to local (transformed this)
             LocalDecl thisArg = createThisArg(call);
             LocalDecl thisForm = createThisFormal((X10MethodInstance) call.methodInstance(), thisArg);
@@ -999,11 +1000,19 @@ public class Inliner extends ContextVisitor {
     }
 
     private X10MethodDecl instantiate(final X10MethodDecl decl, X10Call c) {
-        debug("Instantiate " + decl, c);
-        InliningTypeTransformer transformer = new InliningTypeTransformer(makeTypeMap(c.methodInstance()));
-        ContextVisitor visitor = new NodeTransformingVisitor(job, ts, nf, transformer).context(context());
-        X10MethodDecl visitedDecl = (X10MethodDecl) decl.visit(visitor);
-        return visitedDecl;
+        try {
+            debug("Instantiate " + decl, c);
+            InliningTypeTransformer transformer = new InliningTypeTransformer(makeTypeMap(c.methodInstance()));
+            ContextVisitor visitor = new NodeTransformingVisitor(job, ts, nf, transformer).context(context());
+            X10MethodDecl visitedDecl = (X10MethodDecl) decl.visit(visitor);
+            return visitedDecl;
+        } catch (Exception e) {
+            
+            String message = "Exception during instantiation of " +decl+ " for " +c+ ": " +e;
+            if (true) System.err.println("WARNING: " +message);
+            Warnings.issue(job(), message, c.position());
+            return null;
+        }
     }
 
     public static class InliningTypeTransformer extends TypeParamSubstTransformer {
@@ -1115,7 +1124,7 @@ public class Inliner extends ContextVisitor {
         @Override
         protected Special transform(Special s, Special old) {
             if (s.kind().equals(Special.SUPER)) {
-                assert (false) : "Not yet implemented, can't instantiate " + s;
+                throw new UnsupportedOperationException("Not yet implemented, can't instantiate " + s);
             }
             return super.transform(s, old);
         }
@@ -1302,8 +1311,9 @@ public class Inliner extends ContextVisitor {
         private final LocalDef ths;
         private final LocalDef ret;
         private final Name label;
-        private int returnCount;
-        private int throwCount;
+    //    private int returnCount;
+    //    private int throwCount;
+        private ForLoopOptimizer syn;
 
         public InliningRewriter(Closure closure, Job j, TypeSystem ts, NodeFactory nf, Context ctx) {
             this(closure.closureDef(), null, closure.body().statements(), j, ts, nf, ctx);
@@ -1318,8 +1328,10 @@ public class Inliner extends ContextVisitor {
             this.context = ctx;
             this.def = def;
             this.ths = ths;
-            this.returnCount = 0;
-            this.throwCount = 0;
+      //    this.returnCount = 0;
+      //    this.throwCount = 0;
+            this.syn = new ForLoopOptimizer(j, ts, nf);
+            this.syn.begin();
             if (body.size() == 1 && body.get(0) instanceof Return) {
                 // Closure already has the right properties; make return rewriting a no-op
                 this.ret = null;
@@ -1343,8 +1355,8 @@ public class Inliner extends ContextVisitor {
         public Node leaveCall(Node old, Node n, NodeVisitor v)
                 throws SemanticException {
             if (v != this) {
-                this.returnCount += ((InliningRewriter) v).returnCount;
-                this.throwCount += ((InliningRewriter) v).throwCount;
+    //          this.returnCount += ((InliningRewriter) v).returnCount;
+    //          this.throwCount += ((InliningRewriter) v).throwCount;
             }
             if (n instanceof AmbExpr || n instanceof AmbAssign || n instanceof AmbTypeNode) {
                 throw new InternalCompilerError("Ambiguous node found: " + n, n.position());
@@ -1371,10 +1383,10 @@ public class Inliner extends ContextVisitor {
             if (label == null) {
                 return body;
             }
-            if (returnCount == 0 && throwCount != 0) {
-                // A body with no non-exceptional exit
-                return body;
-            }
+  //        if (returnCount == 0 && throwCount != 0) {
+  //            // A body with no non-exceptional exit
+  //            return body;
+  //        }
             X10NodeFactory xnf = (X10NodeFactory) nodeFactory();
             X10TypeSystem xts = (X10TypeSystem) typeSystem();
             List<Stmt> newBody = new ArrayList<Stmt>();
@@ -1384,7 +1396,8 @@ public class Inliner extends ContextVisitor {
                                            xnf.CanonicalTypeNode(pos, ret.type()),
                                            xnf.Id(pos, ret.name()) ).localDef(ret));
             }
-            if (0 < returnCount) {
+ //         if (0 < returnCount) {
+            if (true) {
                 newBody.add(xnf.Labeled(pos, xnf.Id(pos, label), xnf.Do(pos, body, (BooleanLit) xnf.BooleanLit(pos, false).type(xts.Boolean()))));
             } else {
                 newBody.addAll(body.statements());
@@ -1421,7 +1434,7 @@ public class Inliner extends ContextVisitor {
             if (!context.currentCode().equals(def)) return n;
             if (label == null) return n;
             assert ((ret == null) == (n.expr() == null));
-            this.returnCount++;
+   //       this.returnCount++;
             X10NodeFactory xnf = (X10NodeFactory) nf;
             Position pos = n.position();
             List<Stmt> retSeq = new ArrayList<Stmt>();
@@ -1439,8 +1452,21 @@ public class Inliner extends ContextVisitor {
             // First check that we are within the right code body
             if (!context.currentCode().equals(def)) return n;
             if (label == null) return n;
-            this.throwCount++;
-            return n;
+            // this.throwCount++;
+            return syn.createIf(n.position(), createOpaqueTrue(n.position()), n, null);
+        }
+
+        /**
+         * @param pos
+         * @return
+         * @throws SemanticException 
+         */
+        private Expr createOpaqueTrue(Position pos) throws SemanticException {
+            QName qname = QName.make("x10.compiler.CompilerFlags");
+            Type container = typeSystem().typeForName(qname);
+            Name name = Name.make("TRUE");
+            Expr expr = syn.createStaticCall(pos, container, name);
+            return expr;
         }
 
         private Expr getThis(Position pos) {
