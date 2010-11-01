@@ -45,8 +45,13 @@ public class MultipleExceptions(exceptions:Array[Throwable]{rail}) extends Excep
         }
     }
 
-    public static def make(stack:Stack[Throwable]):Throwable {
+    public static def make(stack:Stack[Throwable]):MultipleExceptions {
         if (null == stack || stack.isEmpty()) return null;
         return new MultipleExceptions(stack);
+    }
+
+    public static def make(t:Throwable):MultipleExceptions {
+        if (null == t) return null;
+        return new MultipleExceptions(t);
     }
 }
