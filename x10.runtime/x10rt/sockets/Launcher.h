@@ -27,6 +27,7 @@ extern "C" int strcasecmp(const char *, const char *);
 #define X10LAUNCHER_MYID "X10LAUNCHER_MYID" // a number for the "place" of this process.  Set by the launcher.
 #define X10LAUNCHER_NPROCS "X10LAUNCHER_NPROCS" // the number of places in this process
 #define X10LAUNCHER_HOSTFILE "X10LAUNCHER_HOSTFILE" // full path name of a file containing a list of hostnames
+#define X10LAUNCHER_HOSTLIST "X10LAUNCHER_HOSTLIST" // an alternative to HOSTFILE above.  This is a comma-separated list of hostnames
 #define X10LAUNCHER_SSH "X10LAUNCHER_SSH" // the ssh command.  This doesn't normally need to be set.
 #define X10LAUNCHER_PARENT "X10LAUNCHER_PARENT" // the hostname:port of the parent launcher.  This is set by the launcher.
 #define X10LAUNCHER_RUNTIME "X10LAUNCHER_RUNTIME" // this is a flag to run as a runtime or a launcher.  Set by the launcher.

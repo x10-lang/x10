@@ -56,7 +56,6 @@ Launcher::Launcher()
 	memset(_ssh_command, 0, sizeof(_ssh_command));
 	strcpy(_ssh_command, "/usr/bin/ssh");
 	memset(_hostfname, 0, sizeof(_hostfname));
-	strcpy(_hostfname, "hostfile"); // default host file name
 	_nplaces = 1;
 	_hostlist = NULL;
 	_runtimePort = NULL;
@@ -134,9 +133,10 @@ void Launcher::initialize(int argc, char ** argv)
 	/* read host file name from environment; read and interpret host file */
 	/* ------------------------------------------------------------------ */
 	const char * hostfname = (const char *) getenv(X10LAUNCHER_HOSTFILE);
+	const char * hostlist = (const char *) getenv(X10LAUNCHER_HOSTLIST);
 	if (hostfname && strlen(hostfname) > 0)
 	{
-		if (strcasecmp("NONE", hostfname) != 0)
+		if (strcasecmp("NONE", hostfname) != 0) // TODO - this check is obsolete.  Take it out someday when it's not used anymore.
 		{
 			if (strlen(hostfname) > sizeof(_hostfname) - 10)
 				DIE("Launcher %u: host file name is too long", _myproc);
@@ -144,8 +144,68 @@ void Launcher::initialize(int argc, char ** argv)
 			readHostFile();
 		}
 	}
+	else if (hostlist && strlen(hostlist) > 0)
+	{
+		int childLaunchers;
+		if (_myproc == 0xFFFFFFFF)
+			childLaunchers = 1;
+		else
+			childLaunchers = _numchildren;
+
+		_hostlist = (char **) malloc(sizeof(char *) * childLaunchers);
+		if (!_hostlist)
+			DIE("Launcher %u: hostname memory allocation failure", _myproc);
+
+		uint32_t currentNumber = 0;
+		const char* hostNameStart = hostlist;
+		bool skipped = false;
+		while (currentNumber < _firstchildproc+childLaunchers)
+		{
+			bool endOfLine = false;
+			const char* hostNameEnd = strchr(hostNameStart, ',');
+			if (hostNameEnd == NULL)
+			{
+				if (!skipped && _firstchildproc > currentNumber)
+				{
+					skipped = true;
+					if (currentNumber == 0)
+						currentNumber = _firstchildproc;
+					else
+						currentNumber = ((_firstchildproc / currentNumber) * currentNumber)-1;
+					hostNameStart = hostlist;
+					continue;
+				}
+				else
+				{
+					hostNameEnd = hostNameStart+strlen(hostNameStart);
+					endOfLine = true;
+				}
+			}
+			else if (currentNumber < _firstchildproc)
+			{
+				currentNumber++;
+				hostNameStart = hostNameEnd+1;
+				continue;
+			}
+
+			char * host = (char *) malloc((hostNameEnd-hostNameStart)+1);
+			if (!host)
+				DIE("Launcher %u: memory allocation failure", _myproc);
+			strncpy(host, hostNameStart, hostNameEnd-hostNameStart);
+			_hostlist[currentNumber-_firstchildproc] = host;
+
+			#ifdef DEBUG
+				fprintf(stderr, "Launcher %u: launcher for place %i is on %s\n", _myproc, currentNumber, host);
+			#endif
+			if (endOfLine)
+				hostNameStart = hostlist;
+			else
+				hostNameStart = hostNameEnd+1;
+			currentNumber++;
+		}
+	}
 	else if (_myproc == 0xFFFFFFFF)
-		fprintf(stderr, "Warning: %s not defined.  Running %d place%s on localhost.  Setting %s=NONE will suppress this warning.\n", X10LAUNCHER_HOSTFILE, _nplaces, _nplaces==1?"":"s", X10LAUNCHER_HOSTFILE);
+		fprintf(stderr, "Warning: Neither %s nor %s has been set. Proceeding as if you had specified \"%s=localhost\".\n", X10LAUNCHER_HOSTFILE, X10LAUNCHER_HOSTLIST, X10LAUNCHER_HOSTLIST);
 
 	connectToParentLauncher();
 

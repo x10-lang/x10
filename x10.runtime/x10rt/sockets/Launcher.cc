@@ -197,6 +197,7 @@ void Launcher::startChildren()
 			if (id == _numchildren && _myproc != 0xFFFFFFFF)
 			{ // start up the local x10 runtime
 				unsetenv(X10LAUNCHER_HOSTFILE);
+				unsetenv(X10LAUNCHER_HOSTLIST);
 				unsetenv(X10LAUNCHER_SSH);
 				setenv(X10LAUNCHER_PARENT, masterPort, 1);
 				setenv(X10LAUNCHER_RUNTIME, "1", 1);
@@ -867,8 +868,20 @@ void Launcher::startSSHclient(uint32_t id, char* masterPort, char* remotehost)
 	}
 
 	// add on our own environment variables
-	argv[++z] = (char*) alloca(256);
-	sprintf(argv[z], X10LAUNCHER_HOSTFILE"=%s", _hostfname);
+	if (_hostfname != '\0')
+	{
+		argv[++z] = (char*) alloca(strlen(_hostfname)+32);
+		sprintf(argv[z], X10LAUNCHER_HOSTFILE"=%s", _hostfname);
+	}
+	else
+	{
+		char* hostlist = getenv(X10LAUNCHER_HOSTLIST);
+		if (hostlist != NULL)
+		{
+			argv[++z] = (char*) alloca(strlen(hostlist)+32);
+			sprintf(argv[z], X10LAUNCHER_HOSTLIST"=%s", hostlist);
+		}
+	}
 	argv[++z] = (char*) alloca(256);
 	sprintf(argv[z], X10LAUNCHER_SSH"=%s", _ssh_command);
 	argv[++z] = (char*) alloca(1024);
