@@ -294,12 +294,6 @@ public class StaticInitializer extends ContextVisitor {
         return newRhs;
     }
 
-    private boolean isPrimitive(X10ClassType receiver) {
-        X10ClassDef cd = (X10ClassDef)receiver.def();
-        String str = cd.toString();
-        return str.startsWith("x10.");
-    }
-
     private FieldDecl makeFieldVar4Guard(Name fName, X10ClassDef classDef) {
         // make FieldDef of AtomicBoolean
         Position CG = Position.compilerGenerated(null);
@@ -461,6 +455,9 @@ public class StaticInitializer extends ContextVisitor {
 
     boolean checkFieldRefReplacementRequired(X10Field_c f) {
         if (f.target().type().isNumeric())
+            return false;
+
+        if (f.isConstant())
             return false;
 
         StaticFieldInfo fieldInfo = staticFinalFields.get(f.name().id());
