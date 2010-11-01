@@ -14,6 +14,7 @@ package x10.lang;
 import x10.compiler.Native;
 import x10.compiler.Pinned;
 import x10.compiler.Global;
+import x10.compiler.TempNoInline_1;
 
 import x10.util.Random;
 import x10.util.Stack;
@@ -85,6 +86,7 @@ import x10.util.Box;
      * C++: run body. (no need for a native implementation)
      */
     @Native("java", "x10.runtime.impl.java.Runtime.runAtLocal(#1, #2)")
+    @TempNoInline_1
     static def runAtLocal(id:Int, body:()=>void):void { body(); }
 
     /**
@@ -263,7 +265,9 @@ import x10.util.Box;
         }
 
         // inner loop to help j9 jit
+        @TempNoInline_1
         private def loop(latch:Latch, block:Boolean):Boolean {
+            @TempNoInline_1
             for (var i:Int = 0; i < BOUND; i++) {
                 if (latch()) return false;
                 activity = poll();
@@ -276,7 +280,9 @@ import x10.util.Box;
             return true;
         }
 
+        @TempNoInline_1
         def probe():void {
+            @TempNoInline_1
             // process all queued activities
             val tmp = activity; // save current activity
             while (true) {
