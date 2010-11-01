@@ -328,9 +328,9 @@ static void cuda_post (const x10rt_msg_params *p, size_t blocks, size_t threads,
     }
     {
         x10aux::deserialization_buffer buf(static_cast<char*>(p->msg));
-        x10aux::ref<x10::lang::Reference> fs = buf.read<x10aux::ref<x10::lang::Reference> >();
-        (fs.operator->()->*(x10aux::findITable<x10::lang::FinishState>(fs->_getITables())->notifyActivityCreation))();
-        (fs.operator->()->*(x10aux::findITable<x10::lang::FinishState>(fs->_getITables())->notifyActivityTermination))();
+        x10aux::ref<x10::lang::FinishState> fs = buf.read<x10aux::ref<x10::lang::FinishState> >();
+        fs->notifyActivityCreation();
+        fs->notifyActivityTermination();
     }
 }
 
