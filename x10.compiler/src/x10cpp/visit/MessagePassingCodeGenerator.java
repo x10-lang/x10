@@ -2041,7 +2041,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    sw.write(status + " = " + STATIC_FIELD_INITIALIZING + ";");
 	    sw.newline();
 	    // initialize the field
-	    sw.write("_I_(\"Doing static initialisation for field: "+container+"."+name+"\");"); sw.newline();
+	    sw.write("_SI_(\"Doing static initialisation for field: "+container+"."+name+"\");"); sw.newline();
 	    String val = getId();
 	    emitter.printType(dec.type().type(), sw);
 	    sw.allowBreak(2, 2, " ", 1);
@@ -2095,7 +2095,12 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    sw.end(); sw.newline();
 	    sw.write("}"); sw.newline();
 	    sw.write("WAIT:"); sw.newline();
-	    sw.write("while ("+status+" != " + STATIC_FIELD_INITIALIZED + ") " + STATIC_INIT_AWAIT + "();");
+	    sw.write("if ("+status+" != " + STATIC_FIELD_INITIALIZED + ") {"); sw.begin(4); sw.newline();
+	    sw.write("_SI_(\"WAITING for field: "+container+"."+name+" to be initialized\");"); sw.newline();
+	    sw.write("while ("+status+" != " + STATIC_FIELD_INITIALIZED + ") " + STATIC_INIT_AWAIT + "();"); sw.newline();
+	    sw.write("_SI_(\"CONTINUING because field: "+container+"."+name+" has been initialized\");");
+	    sw.end(); sw.newline();
+	    sw.write("}");
 	    sw.end(); sw.newline();
 	    sw.write("}");
 	    sw.newline();

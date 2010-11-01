@@ -36,6 +36,7 @@
  *   X10_TRACE_INIT        - trace x10 class initialization
  *   X10_TRACE_X10RT       - trace x10rt invocations
  *   X10_TRACE_SER         - trace serialization operations
+ *   X10_TRACE_STATIC_INIT - trace static initialization
  *   X10_TRACE_ALL         - all of the above
  */
 
@@ -142,6 +143,7 @@ namespace x10aux {
     extern bool trace_init_;
     extern bool trace_x10rt_;
     extern bool trace_ser_;
+    extern bool trace_static_init_;
 
     extern inline bool use_ansi_colors()
     { if (!init_config_bools_done) init_config_bools() ; return use_ansi_colors_; }
@@ -153,6 +155,8 @@ namespace x10aux {
     { if (!init_config_bools_done) init_config_bools() ; return trace_x10rt_; }
     extern inline bool trace_ser()
     { if (!init_config_bools_done) init_config_bools() ; return trace_ser_; }
+    extern inline bool trace_static_init()
+    { if (!init_config_bools_done) init_config_bools() ; return trace_static_init_; }
 
     extern x10_int here;
     extern bool x10rt_initialized;
@@ -233,6 +237,15 @@ namespace x10aux {
 #else
 #define _S_(x)
 #define _Sd_(x)
+#endif
+
+#if !defined(NO_IOSTREAM) && defined(TRACE_ENV_VAR)
+#include <stdio.h>
+#define _SI_(x) _MAYBE_DEBUG_MSG(ANSI_SER,"SI",x,::x10aux::trace_static_init())
+#define _SId_(x) x
+#else
+#define _SI_(x)
+#define _SId_(x)
 #endif
 
 #if !defined(NO_IOSTREAM) && defined(TRACE_ENV_VAR)
