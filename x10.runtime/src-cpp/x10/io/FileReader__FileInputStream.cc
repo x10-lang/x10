@@ -45,6 +45,6 @@ void FileReader__FileInputStream::_deserialize_body(x10aux::deserialization_buff
     // _inputStream = buf.read<x10aux::io::FILEPtrInputStream>();
 }
 
-RTT_CC_DECLS1(FileReader__FileInputStream, "x10.io.FileReader.FileReader__FileInputStream", InputStreamReader__InputStream)
+RTT_CC_DECLS1(FileReader__FileInputStream, "x10.io.FileReader.FileReader__FileInputStream", RuntimeType::class_kind, InputStreamReader__InputStream)
 
 // vim:tabstop=4:shiftwidth=4:expandtab

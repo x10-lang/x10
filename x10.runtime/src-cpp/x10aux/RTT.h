@@ -34,12 +34,12 @@
     static const x10aux::RuntimeType* getRTT() { if (!rtt.isInitialized) _initRTT(); return &rtt; } \
     static void _initRTT();
 
-#define RTT_CC_DECLS1(TYPE,NAME,P1)                             \
+#define RTT_CC_DECLS1(TYPE,NAME,KIND,P1)                        \
     x10aux::RuntimeType TYPE::rtt;                              \
     void TYPE::_initRTT() {                                     \
         if (rtt.initStageOne(&rtt)) return;                     \
         const x10aux::RuntimeType* parents[1] = {P1::getRTT()}; \
-        rtt.initStageTwo(NAME, 1, parents, 0, NULL, NULL);      \
+        rtt.initStageTwo(NAME, KIND, 1, parents, 0, NULL, NULL); \
     }
 
 namespace x10 {
@@ -76,6 +76,7 @@ namespace x10aux {
         static RuntimeType ULongType;
 
         enum Variance { covariant, contravariant, invariant };
+        enum Kind { class_kind, struct_kind, interface_kind };
         
     public:
         const RuntimeType *canonical;
@@ -83,6 +84,7 @@ namespace x10aux {
         int paramsc;
         bool containsPtrs;
         bool isInitialized;
+        Kind kind;
         const RuntimeType **parents;
         const RuntimeType **params;
         Variance *variances;
@@ -105,6 +107,7 @@ namespace x10aux {
         bool initStageOne(const RuntimeType* canonical_);
         
         void initStageTwo(const char* baseName_,
+                          Kind kind_,
                           int parsentsc_, const RuntimeType** parents_,
                           int paramsc_, const RuntimeType** params_, Variance* variances_);
 

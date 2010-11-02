@@ -174,7 +174,7 @@ template<class T> void x10::util::IndexedMemoryChunk<T>::_initRTT() {
     const x10aux::RuntimeType* params[1] = { x10aux::getRTT<T>()};
     x10aux::RuntimeType::Variance variances[1] = { x10aux::RuntimeType::invariant};
     const char *baseName = "x10.util.IndexedMemoryChunk";
-    rtt.initStageTwo(baseName, 2, parents, 1, params, variances);
+    rtt.initStageTwo(baseName, x10aux::RuntimeType::struct_kind, 2, parents, 1, params, variances);
 }
 #endif // X10_UTIL_INDEXEDMEMORYCHUNK_H_IMPLEMENTATION
 #endif // __X10_UTIL_INDEXEDMEMORYCHUNK_H_NODEPS

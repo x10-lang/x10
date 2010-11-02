@@ -498,6 +498,6 @@ x10aux::itable_entry String::_itables[3] = {
 
 
 
-RTT_CC_DECLS1(String, "x10.lang.String", Object)
+RTT_CC_DECLS1(String, "x10.lang.String", RuntimeType::class_kind, Object)
 
 // vim:tabstop=4:shiftwidth=4:expandtab

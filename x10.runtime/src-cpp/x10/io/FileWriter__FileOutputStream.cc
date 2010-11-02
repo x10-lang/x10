@@ -45,6 +45,6 @@ void FileWriter__FileOutputStream::_deserialize_body(x10aux::deserialization_buf
     // _outputStream = buf.read<x10aux::io::FILEPtrOutputStream>();
 }
 
-RTT_CC_DECLS1(FileWriter__FileOutputStream, "x10.io.FileWriter.FileOutputStream", OutputStreamWriter__OutputStream)
+RTT_CC_DECLS1(FileWriter__FileOutputStream, "x10.io.FileWriter.FileOutputStream", RuntimeType::class_kind, OutputStreamWriter__OutputStream)
 
 // vim:tabstop=4:shiftwidth=4:expandtab

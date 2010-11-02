@@ -129,7 +129,7 @@ template<class T> void x10::lang::GlobalRef<T>::_initRTT() {
     const x10aux::RuntimeType* params[1] = { x10aux::getRTT<T>()};
     x10aux::RuntimeType::Variance variances[1] = { x10aux::RuntimeType::invariant};
     const char *baseName = "x10.lang.GlobalRef";
-    rtt.initStageTwo(baseName, 2, parents, 1, params, variances);
+    rtt.initStageTwo(baseName, x10aux::RuntimeType::struct_kind, 2, parents, 1, params, variances);
 }
 #endif // X10_LANG_GLOBALREF_IMPLEMENTATION
 #endif // __X10_LANG_GLOBALREF_NODEPS

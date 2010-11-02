@@ -424,6 +424,6 @@ void Throwable::printStackTrace(x10aux::ref<x10::io::Printer> printer) {
     }
 }
 
-RTT_CC_DECLS1(Throwable, "x10.lang.Throwable", Object)
+RTT_CC_DECLS1(Throwable, "x10.lang.Throwable", RuntimeType::class_kind, Object)
 
 // vim:tabstop=4:shiftwidth=4:expandtab

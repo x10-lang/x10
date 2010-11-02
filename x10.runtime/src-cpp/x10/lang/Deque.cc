@@ -94,6 +94,6 @@ void Deque::_deserialize_body(deserialization_buffer& buf) {
 }
 
 
-RTT_CC_DECLS1(Deque, "x10.lang.Deque", Object)
+RTT_CC_DECLS1(Deque, "x10.lang.Deque", RuntimeType::class_kind, Object)
 
 // vim:tabstop=4:shiftwidth=4:expandtab

@@ -79,7 +79,7 @@ x10aux::RuntimeType x10::lang::Object::rtt;
 void x10::lang::Object::_initRTT() {
     if (rtt.initStageOne(&rtt)) return;
     const x10aux::RuntimeType* parents[1] = { x10aux::getRTT<x10::lang::Any>()};
-    rtt.initStageTwo("x10.lang.Object", 1, parents, 0, NULL, NULL);
+    rtt.initStageTwo("x10.lang.Object", RuntimeType::class_kind, 1, parents, 0, NULL, NULL);
 }
 
 itable_entry Object::_itables[1] = { itable_entry(NULL,  (void*)x10aux::getRTT<Object>()) };

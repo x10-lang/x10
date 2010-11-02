@@ -490,6 +490,6 @@ void Thread::_deserialize_body(deserialization_buffer& buf) {
     this->Object::_deserialize_body(buf);
 }
 
-RTT_CC_DECLS1(Thread, "x10.lang.Thread", Object)
+RTT_CC_DECLS1(Thread, "x10.lang.Thread", RuntimeType::class_kind, Object)
 
 // vim:tabstop=4:shiftwidth=4:expandtab

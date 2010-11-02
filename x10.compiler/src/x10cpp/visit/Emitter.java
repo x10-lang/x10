@@ -665,6 +665,14 @@ public class Emitter {
 	        numParents++;
 	    }
 	    numParents += ct.interfaces().size();
+	    String kind;
+	    if (ct.isX10Struct()) {
+	        kind = "x10aux::RuntimeType::struct_kind";
+	    } else if (ct.flags().isInterface()) {
+	        kind = "x10aux::RuntimeType::interface_kind";
+	    } else {
+	        kind = "x10aux::RuntimeType::class_kind";
+	    }
 
 	    if (ct.typeArguments().isEmpty()) {
 	        boolean first = true;
@@ -686,7 +694,7 @@ public class Emitter {
 	        } else {
 	            h.write("const x10aux::RuntimeType** parents = NULL; "); h.newline();
 	        }
-	        h.write("rtt.initStageTwo(\""+x10name+"\", "+numParents+ ", parents, 0, NULL, NULL);");
+	        h.write("rtt.initStageTwo(\""+x10name+"\","+kind+", "+numParents+ ", parents, 0, NULL, NULL);");
 	        if (ct.isX10Struct() && isPointerless(ct)) {
 	            h.newline(); h.write("rtt.containsPtrs = false;");
 	        }
@@ -743,7 +751,7 @@ public class Emitter {
 	        h.write("};"); h.newline();
 
 	        h.write("const char *baseName = \""+x10name+"\";"); h.newline();
-	        h.write("rtt.initStageTwo(baseName, "+numParents+", parents, "+numTypeParams+", params, variances);"); h.end(); h.newline();
+	        h.write("rtt.initStageTwo(baseName, "+kind+", "+numParents+", parents, "+numTypeParams+", params, variances);"); h.end(); h.newline();
 	        h.write("}"); h.newline();
 	    }
 	    h.newline();

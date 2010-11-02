@@ -47,7 +47,7 @@ x10aux::RuntimeType x10::lang::NullType::rtt;
 
 void x10::lang::NullType::_initRTT() {
     if (rtt.initStageOne(&rtt)) return;
-    rtt.initStageTwo("Null", 0, NULL, 0, NULL, NULL);
+    rtt.initStageTwo("Null", RuntimeType::class_kind, 0, NULL, 0, NULL, NULL);
 }
 
 // vim:tabstop=4:shiftwidth=4:expandtab

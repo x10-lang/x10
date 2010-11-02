@@ -51,9 +51,9 @@ bool RuntimeType::subtypeOf(const RuntimeType * const other) const {
 
     if (equals(other)) return true; // trivial case
 
-    // the NullType should be considered a subtype of any type that extends x10.lang.Object.
+    // the NullType should be considered a subtype of any class or interface 
     if (equals(getRTT<x10::lang::NullType>())) {
-        if (other->subtypeOf(getRTT<x10::lang::Object>())) return true;
+        if (other->kind == class_kind || other->kind == interface_kind) return true;
     }
     
     if (paramsc > 0 && canonical->equals(other->canonical)) {
@@ -137,6 +137,7 @@ bool RuntimeType::initStageOne(const RuntimeType *canonical_) {
 
 
 void RuntimeType::initStageTwo(const char* baseName_,
+                               Kind kind_,
                                int parentsc_, const RuntimeType** parents_,
                                int paramsc_, const RuntimeType** params_,
                                Variance* variances_) {
@@ -144,6 +145,7 @@ void RuntimeType::initStageTwo(const char* baseName_,
     //       false from the end of initStageOne
 
     baseName = baseName_;
+    kind = kind_;
     parentsc = parentsc_;
     paramsc = paramsc_;
     containsPtrs = true; // TODO: Eventually the compiler should analyze structs and where possible set containsPtrs for their RTT's to false.
@@ -178,73 +180,73 @@ void RuntimeType::initStageTwo(const char* baseName_,
 void RuntimeType::initBooleanType() {
     if (BooleanType.initStageOne(&BooleanType)) return;
     const x10aux::RuntimeType* parents[1] = { x10aux::getRTT<x10::lang::Any>()};
-    BooleanType.initStageTwo("x10.lang.Boolean", 1, parents, 0, NULL, NULL);
+    BooleanType.initStageTwo("x10.lang.Boolean", struct_kind, 1, parents, 0, NULL, NULL);
     BooleanType.containsPtrs = false;
 }
 void RuntimeType::initByteType() {
     if (ByteType.initStageOne(&ByteType)) return;
     const x10aux::RuntimeType* parents[1] = { x10aux::getRTT<x10::lang::Any>()};
-    ByteType.initStageTwo("x10.lang.Byte", 1, parents, 0, NULL, NULL);
+    ByteType.initStageTwo("x10.lang.Byte", struct_kind, 1, parents, 0, NULL, NULL);
     ByteType.containsPtrs = false;
 }
 void RuntimeType::initCharType() {
     if (CharType.initStageOne(&CharType)) return;
     const x10aux::RuntimeType* parents[1] = { x10aux::getRTT<x10::lang::Any>()};
-    CharType.initStageTwo("x10.lang.Char", 1, parents, 0, NULL, NULL);
+    CharType.initStageTwo("x10.lang.Char", struct_kind, 1, parents, 0, NULL, NULL);
     CharType.containsPtrs = false;
 }
 void RuntimeType::initShortType() {
     if (ShortType.initStageOne(&ShortType)) return;
     const x10aux::RuntimeType* parents[1] = { x10aux::getRTT<x10::lang::Any>()};
-    ShortType.initStageTwo("x10.lang.Short", 1, parents, 0, NULL, NULL);
+    ShortType.initStageTwo("x10.lang.Short", struct_kind, 1, parents, 0, NULL, NULL);
     ShortType.containsPtrs = false;
 }
 void RuntimeType::initIntType() {
     if (IntType.initStageOne(&IntType)) return;
     const x10aux::RuntimeType* parents[1] = { x10aux::getRTT<x10::lang::Any>()};
-    IntType.initStageTwo("x10.lang.Int", 1, parents, 0, NULL, NULL);
+    IntType.initStageTwo("x10.lang.Int", struct_kind, 1, parents, 0, NULL, NULL);
     IntType.containsPtrs = false;
 }
 void RuntimeType::initFloatType() {
     if (FloatType.initStageOne(&FloatType)) return;
     const x10aux::RuntimeType* parents[1] = { x10aux::getRTT<x10::lang::Any>()};
-    FloatType.initStageTwo("x10.lang.Float", 1, parents, 0, NULL, NULL);
+    FloatType.initStageTwo("x10.lang.Float", struct_kind, 1, parents, 0, NULL, NULL);
     FloatType.containsPtrs = false;
 }
 void RuntimeType::initLongType() {
     if (LongType.initStageOne(&LongType)) return;
     const x10aux::RuntimeType* parents[1] = { x10aux::getRTT<x10::lang::Any>()};
-    LongType.initStageTwo("x10.lang.Long", 1, parents, 0, NULL, NULL);
+    LongType.initStageTwo("x10.lang.Long", struct_kind, 1, parents, 0, NULL, NULL);
     LongType.containsPtrs = false;
 }
 void RuntimeType::initDoubleType() {
     if (DoubleType.initStageOne(&DoubleType)) return;
     const x10aux::RuntimeType* parents[1] = { x10aux::getRTT<x10::lang::Any>()};
-    DoubleType.initStageTwo("x10.lang.Double", 1, parents, 0, NULL, NULL);
+    DoubleType.initStageTwo("x10.lang.Double", struct_kind, 1, parents, 0, NULL, NULL);
     DoubleType.containsPtrs = false;
 }
 void RuntimeType::initUByteType() {
     if (UByteType.initStageOne(&UByteType)) return;
     const x10aux::RuntimeType* parents[1] = { x10aux::getRTT<x10::lang::Any>()};
-    UByteType.initStageTwo("x10.lang.UByte", 1, parents, 0, NULL, NULL);
+    UByteType.initStageTwo("x10.lang.UByte", struct_kind, 1, parents, 0, NULL, NULL);
     UByteType.containsPtrs = false;
 }
 void RuntimeType::initUShortType() {
     if (UShortType.initStageOne(&UShortType)) return;
     const x10aux::RuntimeType* parents[1] = { x10aux::getRTT<x10::lang::Any>()};
-    UShortType.initStageTwo("x10.lang.UShort", 1, parents, 0, NULL, NULL);
+    UShortType.initStageTwo("x10.lang.UShort", struct_kind, 1, parents, 0, NULL, NULL);
     UShortType.containsPtrs = false;
 }
 void RuntimeType::initUIntType() {
     if (UIntType.initStageOne(&UIntType)) return;
     const x10aux::RuntimeType* parents[1] = { x10aux::getRTT<x10::lang::Any>()};
-    UIntType.initStageTwo("x10.lang.UInt", 1, parents, 0, NULL, NULL);
+    UIntType.initStageTwo("x10.lang.UInt", struct_kind, 1, parents, 0, NULL, NULL);
     UIntType.containsPtrs = false;
 }
 void RuntimeType::initULongType() {
     if (ULongType.initStageOne(&ULongType)) return;
     const x10aux::RuntimeType* parents[1] = { x10aux::getRTT<x10::lang::Any>()};
-    ULongType.initStageTwo("x10.lang.ULong", 1, parents, 0, NULL, NULL);
+    ULongType.initStageTwo("x10.lang.ULong", struct_kind, 1, parents, 0, NULL, NULL);
     ULongType.containsPtrs = false;
 }
 
