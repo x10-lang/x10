@@ -400,11 +400,14 @@ public class StaticInitializer extends ContextVisitor {
         Stmt assignStmt = xnf.Eval(CG, xnf.FieldAssign(CG, receiver, xnf.Id(CG, fdInitVar.name()), Assign.ASSIGN, 
                                                        right).fieldInstance(fi).type(right.type()));
         // gen x10.lang.Runtime.hereInt() == 0
-        Expr placeCheck = genPlaceCheckGuard(CG);
+        // TODO place check
+//        Expr placeCheck = genPlaceCheckGuard(CG);
 
         // make statement block
         List<Stmt> stmts = new ArrayList<Stmt>();
-        stmts.add(xnf.If(CG, placeCheck, xnf.If(CG, cond, assignStmt)));
+        // TODO place check
+//        stmts.add(xnf.If(CG, placeCheck, xnf.If(CG, cond, assignStmt)));
+        stmts.add(xnf.If(CG, cond, assignStmt));
         stmts.add(xnf.X10Return(CG, left, false));
         Block body = xnf.Block(CG, stmts);
         return body;
