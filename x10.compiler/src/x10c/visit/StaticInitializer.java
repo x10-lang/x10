@@ -78,7 +78,7 @@ import x10.ast.X10Return_c;
 import x10.types.ParameterType;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
-import x10.types.X10Context;
+import polyglot.types.Context;
 import x10.types.X10Flags;
 import x10.types.X10MethodInstance;
 import polyglot.types.TypeSystem;

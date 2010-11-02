@@ -891,7 +891,7 @@ public class X10TypeMixin {
 		  }
 
 	 
-	protected static boolean amIProperty(Type t, Name propName, X10Context context) {
+	protected static boolean amIProperty(Type t, Name propName, Context context) {
 	    TypeSystem xts = (TypeSystem) t.typeSystem();
 	    CConstraint r = realX(t);
 	
@@ -927,7 +927,7 @@ public class X10TypeMixin {
 	    }
 	}
 
-	public static boolean isRect(Type t, X10Context context) {
+	public static boolean isRect(Type t, Context context) {
 	    return amIProperty(t, Name.make("rect"), context);
 	}
 
@@ -935,7 +935,7 @@ public class X10TypeMixin {
 	    return find(t, Name.make("onePlace"));
 	}
 
-	public static boolean isZeroBased(Type t, X10Context context) {
+	public static boolean isZeroBased(Type t, Context context) {
 	return amIProperty(t, Name.make("zeroBased"), context);
 	}
 
@@ -995,17 +995,17 @@ public class X10TypeMixin {
 	}
 
 	
-	public static boolean isRankOne(Type t, X10Context context) {
+	public static boolean isRankOne(Type t, Context context) {
 	    TypeSystem xts = (TypeSystem) t.typeSystem();
 	    return xts.ONE().equals(X10TypeMixin.rank(t, context));
 	}
 
-	public static boolean isRankTwo(Type t, X10Context context) {
+	public static boolean isRankTwo(Type t, Context context) {
 	        TypeSystem xts = (TypeSystem) t.typeSystem();
 	        return xts.TWO().equals(X10TypeMixin.rank(t, context));
 	}
 
-	public static boolean isRankThree(Type t, X10Context context) {
+	public static boolean isRankThree(Type t, Context context) {
 	    TypeSystem xts = (TypeSystem) t.typeSystem();
 	    return xts.THREE().equals(X10TypeMixin.rank(t, context));
 	}
@@ -1027,7 +1027,7 @@ public class X10TypeMixin {
 		return null;
 	}
 
-	public static XTerm rank(Type t, X10Context context) {
+	public static XTerm rank(Type t, Context context) {
 	    TypeSystem xts = (TypeSystem) t.typeSystem();
 	    return findOrSynthesize(t, Name.make("rank"));
 	}
@@ -1226,7 +1226,7 @@ public class X10TypeMixin {
         try {
             TypeSystem ts = (TypeSystem) tc.typeSystem();
             NodeFactory nf = (NodeFactory) tc.nodeFactory();
-	    	X10Context context = (X10Context) tc.context();
+	    	Context context = (Context) tc.context();
             Expr e = null;
             if (t.isBoolean()) {
                 e = nf.BooleanLit(p, false);
@@ -1376,8 +1376,8 @@ then we substitute 0/false/null in all the constraints in C and if they all eval
 	    }
 	    // For now (10/10/10) we check using both styles and mark the cases in which results are different
 	    // as a diagnostic output for the compiler. 
-	    boolean java = javaStyleMoreSpecificMethod(xp1, xp2, (X10Context) context, ct1, t1, t2,descends);
-	    boolean old = oldStyleMoreSpecificMethod(xp1, xp2, (X10Context) context, ts, ct1, t1, t2, descends);
+	    boolean java = javaStyleMoreSpecificMethod(xp1, xp2, (Context) context, ct1, t1, t2,descends);
+	    boolean old = oldStyleMoreSpecificMethod(xp1, xp2, (Context) context, ts, ct1, t1, t2, descends);
 	    if (java != old) {
 	    	
 	    	System.out.println("(Warning) Please check definitions p1 and p2.  " +
@@ -1461,7 +1461,7 @@ then we substitute 0/false/null in all the constraints in C and if they all eval
 	 */
 	private static boolean javaStyleMoreSpecificMethod(
 			ProcedureInstance<?> xp1, ProcedureInstance<?> xp2,
-			X10Context context, Type ct1, Type t1, Type t2,
+			Context context, Type ct1, Type t1, Type t2,
 			boolean descends) {
 		assert xp1 != null;
 		assert xp2 != null;

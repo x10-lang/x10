@@ -21,7 +21,7 @@ import x10.Configuration;
 import x10.ExtensionInfo;
 import x10.ast.SettableAssign;
 import x10.types.X10ClassType;
-import x10.types.X10Context;
+import polyglot.types.Context;
 import x10.types.X10TypeMixin;
 import polyglot.types.TypeSystem;
 

@@ -48,7 +48,7 @@ import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.errors.Errors;
 import x10.types.ParameterType;
-import x10.types.X10Context;
+import polyglot.types.Context;
 import x10.types.X10MethodDef;
 import polyglot.types.TypeSystem;
 import x10.types.checker.PlaceChecker;
@@ -169,7 +169,7 @@ public class Async_c extends Stmt_c implements Async {
 		TypeSystem ts = (TypeSystem) tc.typeSystem();
 		NodeFactory nf = (NodeFactory) tc.nodeFactory();
 
-		X10Context c = (X10Context) tc.context();
+		Context c = (Context) tc.context();
 		if (clocked() && ! c.inClockedFinishScope())
 			Errors.issue(tc.job(),
 			        new SemanticException("clocked async must be invoked inside a statically enclosing clocked finish.", position()));

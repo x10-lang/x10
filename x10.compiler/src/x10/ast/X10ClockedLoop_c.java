@@ -31,7 +31,7 @@ import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.errors.Errors;
 import x10.types.ParameterType;
-import x10.types.X10Context;
+import polyglot.types.Context;
 import x10.types.X10MethodDef;
 import polyglot.types.TypeSystem;
 

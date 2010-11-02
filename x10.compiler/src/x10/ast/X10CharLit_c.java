@@ -19,7 +19,7 @@ import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import x10.constraint.XFailure;
 import x10.constraint.XTerm;
-import x10.types.X10Context;
+import polyglot.types.Context;
 import x10.types.X10TypeMixin;
 import polyglot.types.TypeSystem;
 import x10.types.XTypeTranslator;
@@ -46,7 +46,7 @@ public class X10CharLit_c extends CharLit_c {
 		Type charType = xts.Char();
 			 
 			  CConstraint c = new CConstraint();
-			  XTerm term = xts.xtypeTranslator().trans(c, this.type(charType), (X10Context) tc.context());
+			  XTerm term = xts.xtypeTranslator().trans(c, this.type(charType), (Context) tc.context());
 			  try {
 				  c.addSelfBinding(term);
 			  }

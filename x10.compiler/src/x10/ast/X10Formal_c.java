@@ -57,7 +57,7 @@ import x10.errors.Errors;
 import x10.extension.X10Del;
 import x10.types.ConstrainedType_c;
 import x10.types.FunctionType;
-import x10.types.X10Context;
+import polyglot.types.Context;
 import x10.types.X10LocalDef;
 import x10.types.X10LocalInstance;
 import x10.types.X10MethodInstance;
@@ -186,7 +186,7 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 
 	public Node setResolverOverride(final Node parent, TypeCheckPreparer v) {
 	    final TypeSystem ts = (TypeSystem) v.typeSystem();
-	    final X10Context context = (X10Context) v.context();
+	    final Context context = (Context) v.context();
 	    final ClassDef currClassDef = context.currentClassDef();
 
 
@@ -240,7 +240,7 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 	public Node typeCheckOverride(Node parent, ContextVisitor tc) {
 	    NodeVisitor childtc = tc.enter(parent, this);
 
-	    XConstrainedTerm  pt = ((X10Context) ((ContextVisitor) childtc).context()).currentPlaceTerm();
+	    XConstrainedTerm  pt = ((Context) ((ContextVisitor) childtc).context()).currentPlaceTerm();
 
 	    if (pt != null)
 	        ((X10LocalDef) localDef()).setPlaceTerm(pt.term());
@@ -250,7 +250,7 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 	@Override
 	public Node typeCheck(ContextVisitor tc) {
 	    // Check if the variable is multiply defined.
-	    X10Context c = (X10Context)tc.context();
+	    Context c = (Context)tc.context();
 
 	    LocalInstance outerLocal = null;
 
@@ -412,11 +412,11 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 //	}
 	
 	public Context enterChildScope(Node child, Context c) {
-		X10Context cxt = (X10Context) c;
+		Context cxt = (Context) c;
 		if (child == this.type) {
 			TypeSystem ts = c.typeSystem();
 			LocalDef li = localDef();
-			cxt = (X10Context) cxt.copy();
+			cxt = (Context) cxt.copy();
 			cxt.addVariable(li.asInstance());
 			cxt.setVarWhoseTypeIsBeingElaborated(li);
 		}

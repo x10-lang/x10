@@ -104,7 +104,7 @@ import x10.types.ParameterType;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10ConstructorDef;
-import x10.types.X10Context;
+import polyglot.types.Context;
 import x10.types.X10Flags;
 import x10.types.X10MemberDef;
 import x10.types.X10MethodDef;
@@ -367,8 +367,8 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 		if (child == body || child == returnType || child == hasType  || child == offerType 
 				|| (formals != null && formals.contains(child))) {
 			if (placeTerm != null)
-				c = ((X10Context) c).pushPlace( XConstrainedTerm.make(placeTerm));
-			else c = PlaceChecker.pushHereTerm(methodDef(), (X10Context) c);
+				c = ((Context) c).pushPlace( XConstrainedTerm.make(placeTerm));
+			else c = PlaceChecker.pushHereTerm(methodDef(), (Context) c);
 		}
 
 		// Add the method guard into the environment.
@@ -380,7 +380,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 				c = c.pushBlock();
 				try {
 					if (vc.known())
-						c = ((X10Context) c).pushAdditionalConstraint(vc.get());
+						c = ((Context) c).pushAdditionalConstraint(vc.get());
 					// TODO: Add type constraint.
 
 				} catch (SemanticException z) {
@@ -480,7 +480,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 				if (s instanceof Return) {
 					Return r = (Return) s;
 					if (r.expr() != null) {
-						XTerm v = ts.xtypeTranslator().trans((CConstraint) null, r.expr(), (X10Context) tc.context());
+						XTerm v = ts.xtypeTranslator().trans((CConstraint) null, r.expr(), (Context) tc.context());
 						ok = true;
 						X10MethodDef mi = (X10MethodDef) this.mi;
 						if (mi.body() instanceof LazyRef<?>) {
@@ -934,16 +934,16 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 		// Add the type params and formals to the context.
 		nn.visitList(nn.typeParameters(),childtc1);
 		nn.visitList(nn.formals(),childtc1);
-		(( X10Context ) childtc1.context()).setVarWhoseTypeIsBeingElaborated(null);
+		(( Context ) childtc1.context()).setVarWhoseTypeIsBeingElaborated(null);
 		{ 
 			final TypeNode r = (TypeNode) nn.visitChild(nn.returnType(), childtc1);
 			nn = (X10MethodDecl) nn.returnType(r);
-			Type type = PlaceChecker.ReplaceHereByPlaceTerm(r.type(), ( X10Context ) childtc1.context());
+			Type type = PlaceChecker.ReplaceHereByPlaceTerm(r.type(), ( Context ) childtc1.context());
 			((Ref<Type>) nn.methodDef().returnType()).update(r.type()); 
 
 			if (hasType != null) {
 				final TypeNode h = (TypeNode) nn.visitChild(((X10MethodDecl_c) nn).hasType, childtc1);
-				Type hasType = PlaceChecker.ReplaceHereByPlaceTerm(h.type(), ( X10Context ) childtc1.context());
+				Type hasType = PlaceChecker.ReplaceHereByPlaceTerm(h.type(), ( Context ) childtc1.context());
 				nn = (X10MethodDecl) ((X10MethodDecl_c) nn).hasType(h);
 				if (! xts.isSubtype(type, hasType, tc.context())) {
 					Errors.issue(tc.job(),

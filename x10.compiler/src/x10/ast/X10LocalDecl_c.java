@@ -50,7 +50,7 @@ import x10.extension.X10Del_c;
 import x10.extension.X10Ext;
 import x10.types.ConstrainedType_c;
 import x10.types.X10ClassType;
-import x10.types.X10Context;
+import polyglot.types.Context;
 import x10.types.X10FieldDef;
 import x10.types.X10Flags;
 import x10.types.X10LocalDef;
@@ -155,7 +155,7 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
     public Node typeCheckOverride(Node parent, ContextVisitor tc) {
         NodeVisitor childtc = tc.enter(parent, this);
 
-        XConstrainedTerm  pt = ((X10Context) tc.context()).currentPlaceTerm();
+        XConstrainedTerm  pt = ((Context) tc.context()).currentPlaceTerm();
         if (pt != null && pt.term() != null)
             ((X10LocalDef) localDef()).setPlaceTerm(pt.term());
         if (type() instanceof UnknownTypeNode) {
@@ -221,7 +221,7 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
         // Replace here by PlaceTerm because this local variable may be referenced
         // later by code that has been place-shifted, and will have a different 
         // interpretation of here. 
-        type = PlaceChecker.ReplaceHereByPlaceTerm(type, (X10Context) tc.context());
+        type = PlaceChecker.ReplaceHereByPlaceTerm(type, (Context) tc.context());
         Ref<Type> r = (Ref<Type>) typeNode.typeRef();
         r.update(type);
 
@@ -285,7 +285,7 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
 
 	public Context enterChildScope(Node child, Context c) {
 		if (child == this.type || child == this.hasType) {
-			X10Context xc = (X10Context) c.pushBlock();
+			Context xc = (Context) c.pushBlock();
 			LocalDef li = localDef();
 			xc.addVariable(li.asInstance());
 			xc.setVarWhoseTypeIsBeingElaborated(li);

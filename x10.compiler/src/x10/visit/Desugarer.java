@@ -107,7 +107,7 @@ import x10.types.ClosureDef;
 import x10.types.ConstrainedType;
 import x10.types.X10ClassType;
 import x10.types.X10ConstructorInstance;
-import x10.types.X10Context;
+import polyglot.types.Context;
 import x10.types.X10MethodInstance;
 import x10.types.X10ParsedClassType;
 import x10.types.X10TypeMixin;
@@ -152,7 +152,7 @@ public class Desugarer extends ContextVisitor {
         return Name.make("__desugarer__var__" + (count++) + "__");
     }
 
-    public X10Context context() { return (X10Context) context; }
+    public Context context() { return (Context) context; }
     
     private static final Name RUN_AT = Name.make("runAt");
     private static final Name EVAL_AT = Name.make("evalAt");
@@ -212,7 +212,7 @@ public class Desugarer extends ContextVisitor {
     		//    clock_???.drop();
     		//  }
     		// TODO: Simplify this to finish { val clock?? = Clock.make(); try { S} finally{ clock??.drop();}}
-    		X10Context xc = context();
+    		Context xc = context();
     		Position pos = finish.position();
     		Name name = xc.makeFreshName("clock");
     		Flags flags = Flags.FINAL;
@@ -836,7 +836,7 @@ public class Desugarer extends ContextVisitor {
         Throw thr = throwRuntimeException(pos);
         Expr startCall = specializedFinish2(f);
 
-        X10Context xc = context();
+        Context xc = context();
         final Name varName = xc.getNewVarName();
         final Type type = xts.FinishState();
         final LocalDef li = xts.localDef(pos, xts.Final(), Types.ref(type), varName);
@@ -906,7 +906,7 @@ public class Desugarer extends ContextVisitor {
         
         Call myCall = synth.makeStaticCall(pos, xts.Runtime(), START_COLLECTING_FINISH, Collections.<TypeNode>singletonList(xnf.CanonicalTypeNode(pos, reducerTarget)), Collections.singletonList(reducer), xts.Void(), Collections.singletonList(reducerType), context());
 
-        X10Context xc = context();
+        Context xc = context();
         final Name varName = xc.getNewVarName();
         final Type type = xts.FinishState();
         final LocalDef li = xts.localDef(pos, xts.Final(), Types.ref(type), varName);

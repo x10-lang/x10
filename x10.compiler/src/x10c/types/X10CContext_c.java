@@ -16,10 +16,10 @@ import java.util.List;
 
 import polyglot.types.ClassDef;
 import polyglot.types.TypeSystem;
-import x10.types.X10Context;
+import polyglot.types.Context;
 import x10.types.X10Context_c;
 
-public class X10CContext_c extends X10Context_c implements X10Context {
+public class X10CContext_c extends X10Context_c implements Context {
 
     private final List<ClassDef> generatedClasses = new ArrayList<ClassDef>();
 

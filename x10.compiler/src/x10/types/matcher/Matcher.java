@@ -38,7 +38,7 @@ import x10.constraint.XVar;
 import x10.errors.Errors;
 import x10.errors.Errors.InvalidParameter;
 import x10.types.ParameterType;
-import x10.types.X10Context;
+import polyglot.types.Context;
 import x10.types.X10MethodInstance;
 import x10.types.X10ProcedureDef;
 import x10.types.X10ProcedureInstance;
@@ -65,7 +65,7 @@ public class Matcher {
 	// t and a method name m and actual type args, we proceed in two stages.
 	// First we determine the set S of applicable and available methods.
 	// 
-	public static <PI extends X10ProcedureInstance<?>> PI inferAndCheckAndInstantiate(X10Context context, PI me, 
+	public static <PI extends X10ProcedureInstance<?>> PI inferAndCheckAndInstantiate(Context context, PI me, 
 			Type thisType, 
 			List<Type> typeActuals, 
 			final List<Type> actuals,
@@ -85,7 +85,7 @@ public class Matcher {
 	    return newMe;
 	}
 
-	public static <PI extends X10ProcedureInstance<?>> PI instantiate(X10Context context, PI me, 
+	public static <PI extends X10ProcedureInstance<?>> PI instantiate(Context context, PI me, 
 			Type thisType, 
 			List<Type> typeActuals, 
 			final List<Type> actuals) throws SemanticException {
@@ -107,7 +107,7 @@ public class Matcher {
 	 * @return  -- An instantiated version of me, with actuals substituted for formals in actual types and return types. 
 	 * @throws SemanticException
 	 */
-	private static <PI extends X10ProcedureInstance<?>> PI instantiate2(final X10Context context, final PI me, 
+	private static <PI extends X10ProcedureInstance<?>> PI instantiate2(final Context context, final PI me, 
 	    		/*inout*/ Type[] thisTypeArray,  
 	    		List<Type> typeActuals, 
 	    		List<Type> actuals, 
@@ -315,7 +315,7 @@ public class Matcher {
 		    }
 		    */
 
-		    X10Context context2 = context.pushAdditionalConstraint(returnEnv);
+		    Context context2 = context.pushAdditionalConstraint(returnEnv);
 		    CConstraint query = newMe.guard();
 		    try {
 		        if (! returnEnv.entails(query, context2.constraintProjection(returnEnv, query))) {

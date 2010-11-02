@@ -19,7 +19,7 @@ import polyglot.ast.Node;
 import polyglot.types.Name;
 import polyglot.types.SemanticException;
 import polyglot.visit.NodeVisitor;
-import x10.types.X10Context;
+import polyglot.types.Context;
 import x10.util.Synthesizer;
 
 /**
@@ -42,8 +42,8 @@ import x10.util.Synthesizer;
 public class LocalAccessToFieldAccessReplacer extends NodeVisitor {
     protected Expr instanceRef;
     protected Synthesizer synth;
-    protected X10Context context;
-    public LocalAccessToFieldAccessReplacer(Expr instanceRef, Synthesizer synth, X10Context context){
+    protected Context context;
+    public LocalAccessToFieldAccessReplacer(Expr instanceRef, Synthesizer synth, Context context){
         this.instanceRef = instanceRef;
         this.synth = synth;
         this.context = context;

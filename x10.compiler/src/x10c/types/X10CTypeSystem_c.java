@@ -15,13 +15,13 @@ import polyglot.types.Context;
 import polyglot.types.Ref;
 import polyglot.types.Type;
 import polyglot.util.Position;
-import x10.types.X10Context;
+import polyglot.types.Context;
 import polyglot.types.TypeSystem;
 import x10.types.X10TypeSystem_c;
 
 public class X10CTypeSystem_c extends X10TypeSystem_c implements TypeSystem {
 
-    public X10Context emptyContext() {
+    public Context emptyContext() {
         return new X10CContext_c(this);
     }
 

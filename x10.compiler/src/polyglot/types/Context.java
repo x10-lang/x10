@@ -16,7 +16,7 @@ import x10.constraint.XVar;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10CodeDef;
-import x10.types.X10Context;
+import polyglot.types.Context;
 import x10.types.X10FieldInstance;
 import x10.types.X10LocalInstance;
 import x10.types.X10MethodInstance;
@@ -62,22 +62,22 @@ public interface Context extends Resolver, Copy
     Context pushSource(ImportTable it);
 
     /** Enter the scope of a class. */
-    X10Context pushClass(ClassDef classScope, ClassType type);
+    Context pushClass(ClassDef classScope, ClassType type);
 
     /** Enter the scope of a method or constructor. */
     Context pushCode(CodeDef f);
 
     /** Enter the scope of a block. */
-    X10Context pushBlock();
+    Context pushBlock();
 
     /** Enter a static scope. In general, this is only used for
      * explicit constructor calls; static methods, initializers of static
      * fields and static initializers are generally handled by pushCode().
      */
-    X10Context pushStatic();
+    Context pushStatic();
 
     /** Pop the context. */
-    X10Context pop();
+    Context pop();
 
     /** Return whether innermost non-block scope is a code scope. */
     boolean inCode();
@@ -149,7 +149,7 @@ public interface Context extends Resolver, Copy
      * such as at(p) S, or when entering the body of a method. 
      * @param t, t != null
      */
-    X10Context pushPlace(XConstrainedTerm t);
+    Context pushPlace(XConstrainedTerm t);
     
     /**
      * Get the place for this. When entering a class decl, thisPlace
@@ -166,7 +166,7 @@ public interface Context extends Resolver, Copy
      * @param t -- the type of the collecting finish.
      * @return
      */
-    X10Context pushCollectingFinishScope(Type t);
+    Context pushCollectingFinishScope(Type t);
     
     /**
      * The type of the collecting finish whose scope we are in.
@@ -224,7 +224,7 @@ public interface Context extends Resolver, Copy
     // Set if we are in a supertype declaration of this type. 
     boolean inSuperTypeDeclaration();
     X10ClassDef supertypeDeclarationType();
-    X10Context pushSuperTypeDeclaration(X10ClassDef type);
+    Context pushSuperTypeDeclaration(X10ClassDef type);
 
     /**
      * Disambiguating the LHS of an assignment?
@@ -232,9 +232,9 @@ public interface Context extends Resolver, Copy
      */
     boolean inAssignment();
     void setInAssignment();
-    X10Context pushAssignment();
+    Context pushAssignment();
     
-    X10Context pushFinishScope(boolean isClocked);
+    Context pushFinishScope(boolean isClocked);
     boolean inClockedFinishScope();
     /**
      * Push a new block, and sets its currentConstraint to old currentConstraint + env.
@@ -243,10 +243,10 @@ public interface Context extends Resolver, Copy
      * @return
      * @throw SemanticException if adding this constraint would cause inconsistency
      */
-    X10Context pushAdditionalConstraint(CConstraint env) throws SemanticException ;
+    Context pushAdditionalConstraint(CConstraint env) throws SemanticException ;
     
     /** Enter the scope of a deptype. */
-    X10Context pushDepType(Ref<? extends Type> ref);
+    Context pushDepType(Ref<? extends Type> ref);
     
     /** Return the current deptype, null if there is none. */
     X10NamedType currentDepType();
@@ -260,7 +260,7 @@ public interface Context extends Resolver, Copy
      * sequential and nonblocking.
      * @return a new context
      */
-    X10Context pushAtomicBlock(); 
+    Context pushAtomicBlock(); 
     
     Name getNewVarName();
     

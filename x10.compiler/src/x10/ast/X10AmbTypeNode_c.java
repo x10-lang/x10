@@ -45,7 +45,7 @@ import x10.extension.X10Del;
 import x10.extension.X10Del_c;
 import x10.types.MacroType;
 import x10.types.X10ClassType;
-import x10.types.X10Context;
+import polyglot.types.Context;
 import x10.types.X10Flags;
 import x10.types.X10ParsedClassType;
 import x10.types.X10TypeMixin;
@@ -68,7 +68,7 @@ public class X10AmbTypeNode_c extends AmbTypeNode_c implements X10AmbTypeNode, A
 
       TypeSystem ts = (TypeSystem) tc.typeSystem();
       NodeFactory nf = (NodeFactory) tc.nodeFactory();
-      X10Context c = (X10Context) tc.context();
+      Context c = (Context) tc.context();
 
       if (! c.inAnnotation())
 	  return null;

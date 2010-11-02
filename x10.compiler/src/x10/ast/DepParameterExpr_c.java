@@ -39,7 +39,7 @@ import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeCheckPreparer;
 import polyglot.visit.TypeChecker;
 import x10.errors.Errors;
-import x10.types.X10Context;
+import polyglot.types.Context;
 import x10.types.X10TypeMixin;
 import polyglot.types.TypeSystem;
 import x10.types.constraints.CConstraint;
@@ -81,7 +81,7 @@ public class DepParameterExpr_c extends Node_c implements DepParameterExpr {
     }
     @Override
     public Context enterChildScope(Node child, Context c) {
-    	X10Context xc = (X10Context) c;
+    	Context xc = (Context) c;
     	if (child instanceof Formal) {
     		// pop the dep type
     		c = c.pop();
@@ -95,7 +95,7 @@ public class DepParameterExpr_c extends Node_c implements DepParameterExpr {
     			for (Formal f : formals) {
     				f.addDecls(c);
     			}
-    			c = ((X10Context) c).pushDepType(t);
+    			c = ((Context) c).pushDepType(t);
     		}
     	}
 
@@ -183,7 +183,7 @@ public class DepParameterExpr_c extends Node_c implements DepParameterExpr {
     public Node disambiguate(ContextVisitor ar) throws SemanticException {
     	DepParameterExpr_c n = (DepParameterExpr_c) super.disambiguate(ar);
     	
-    	if (((X10Context) ar.context()).inAnnotation() && condition == null) {
+    	if (((Context) ar.context()).inAnnotation() && condition == null) {
     		return n.condition(Collections.<Expr>emptyList());
     	}
 
@@ -243,12 +243,12 @@ public class DepParameterExpr_c extends Node_c implements DepParameterExpr {
         }
         
         try {
-            CConstraint xvc = ts.xtypeTranslator().constraint(formals, values, (X10Context) tc.context());
+            CConstraint xvc = ts.xtypeTranslator().constraint(formals, values, (Context) tc.context());
             ((LazyRef<CConstraint>) valueConstraint).update(xvc);
         } catch (SemanticException e) { }
 
         try {
-            TypeConstraint xtc = ts.xtypeTranslator().typeConstraint(formals, types, (X10Context) tc.context());
+            TypeConstraint xtc = ts.xtypeTranslator().typeConstraint(formals, types, (Context) tc.context());
             ((LazyRef<TypeConstraint>) typeConstraint).update(xtc);
         } catch (SemanticException e) { }
         

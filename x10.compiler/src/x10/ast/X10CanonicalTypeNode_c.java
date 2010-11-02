@@ -53,7 +53,7 @@ import x10.types.ConstrainedType_c;
 import x10.types.ParameterType;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
-import x10.types.X10Context;
+import polyglot.types.Context;
 import x10.types.X10Flags;
 import x10.types.X10ParsedClassType_c;
 import x10.types.XTypeTranslator;
@@ -85,7 +85,7 @@ public class X10CanonicalTypeNode_c extends CanonicalTypeNode_c implements X10Ca
   
     @Override
     public Node typeCheck(ContextVisitor tc) {
-	X10Context c = (X10Context) tc.context();
+	Context c = (Context) tc.context();
 	TypeSystem ts = (TypeSystem) tc.typeSystem();
 
 	// Expand, and transfer flags from the type node to the type.
@@ -182,7 +182,7 @@ public class X10CanonicalTypeNode_c extends CanonicalTypeNode_c implements X10Ca
         
         TypeSystem ts = (TypeSystem) t.typeSystem();
         
-        if (! ts.consistent(t, (X10Context) tc.context())) {
+        if (! ts.consistent(t, (Context) tc.context())) {
             Errors.issue(tc.job(), new SemanticException("Type " + t + " is inconsistent.", position()));
         }
         

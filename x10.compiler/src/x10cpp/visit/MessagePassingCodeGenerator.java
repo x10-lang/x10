@@ -204,7 +204,7 @@ import x10.types.ParameterType_c;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10ConstructorInstance;
-import x10.types.X10Context;
+import polyglot.types.Context;
 import x10.types.X10Def;
 import x10.types.X10FieldDef;
 import x10.types.X10FieldInstance;
@@ -3430,7 +3430,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                 Type f_ = X10TypeMixin.stripConstraints(f);
 
                 X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
-                X10Context context = (X10Context) tr.context();
+                Context context = (Context) tr.context();
 
                 if (xts.typeEquals(f_, t_, context)) {
                     c.printSubExpr(c.expr(), true, sw, tr);

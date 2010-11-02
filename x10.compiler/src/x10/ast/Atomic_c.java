@@ -29,7 +29,7 @@ import polyglot.visit.CFGBuilder;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
-import x10.types.X10Context;
+import polyglot.types.Context;
 import x10.types.X10NamedType;
 import polyglot.types.TypeSystem;
 
@@ -87,7 +87,7 @@ implements Atomic {
 	}
 	
 	public Context enterScope(Context c) {
-		X10Context cc = (X10Context) super.enterScope(c);
+		Context cc = (Context) super.enterScope(c);
 		 cc = cc.pushAtomicBlock();
 		return cc;
 		    

@@ -33,7 +33,7 @@ import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
 import polyglot.visit.ReachChecker;
 import x10.types.ClosureDef;
-import x10.types.X10Context;
+import polyglot.types.Context;
 import x10.types.X10NamedType;
 import x10.types.X10TypeMixin;
 import polyglot.types.TypeSystem;

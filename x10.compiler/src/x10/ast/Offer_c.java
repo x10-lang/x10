@@ -22,7 +22,7 @@ import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
 import x10.errors.Errors;
-import x10.types.X10Context;
+import polyglot.types.Context;
 import x10.types.X10TypeMixin;
 import x10.visit.X10TypeChecker;
 
@@ -76,7 +76,7 @@ public class Offer_c extends Stmt_c implements Offer {
     	if ((tc instanceof X10TypeChecker) && ((X10TypeChecker) tc).isFragmentChecker()) {
     		return this;
     	}
-    	Type rType = ((X10Context) tc.context()).collectingFinishType();
+    	Type rType = ((Context) tc.context()).collectingFinishType();
     	if (rType != null) {
     		Type eType = expr().type();
     		// rType will already be T, not Reducible[T]

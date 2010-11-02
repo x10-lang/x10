@@ -21,7 +21,7 @@ import polyglot.visit.ContextVisitor;
 import x10.constraint.XFailure;
 import x10.constraint.XTerm;
 import x10.errors.Errors;
-import x10.types.X10Context;
+import polyglot.types.Context;
 
 import x10.types.X10TypeMixin;
 import polyglot.types.TypeSystem;
@@ -91,7 +91,7 @@ public class X10IntLit_c extends IntLit_c {
             throw new InternalCompilerError("bad integer literal kind", position());
         }
         CConstraint c = new CConstraint();
-        XTerm term = xts.xtypeTranslator().trans(c, this.type(Type), (X10Context) tc.context());
+        XTerm term = xts.xtypeTranslator().trans(c, this.type(Type), (Context) tc.context());
         try {
             c.addSelfBinding(term);
         }

@@ -186,9 +186,9 @@ public class X10TypeSystem_c extends TypeSystem_c {
     }
 
     public static class TypeEqualsInEnvironment implements Predicate2<Type> {
-        X10Context context;
+        Context context;
         TypeConstraint env;
-        public TypeEqualsInEnvironment(X10Context context, TypeConstraint env) {
+        public TypeEqualsInEnvironment(Context context, TypeConstraint env) {
             this.context = context;
             this.env = env;
         }
@@ -297,12 +297,12 @@ public class X10TypeSystem_c extends TypeSystem_c {
     }
 
     /** Return true if the constraint is consistent. */
-    public boolean consistent(TypeConstraint c, X10Context context) {
+    public boolean consistent(TypeConstraint c, Context context) {
         return env(context).consistent(c);
     }
 
     /** Return true if constraints in the type are all consistent. */
-    public boolean consistent(Type t, X10Context context) {
+    public boolean consistent(Type t, Context context) {
         return env(context).consistent(t);
     }
 
@@ -783,7 +783,7 @@ public class X10TypeSystem_c extends TypeSystem_c {
         return ts;
     }
 
-    public List<FunctionType> getFunctionSupertypes(Type t, X10Context context) {
+    public List<FunctionType> getFunctionSupertypes(Type t, Context context) {
         if (t == null)
             return Collections.<FunctionType>emptyList();
 
@@ -845,7 +845,7 @@ public class X10TypeSystem_c extends TypeSystem_c {
         NEITHER, EITHER, OBJECT, STRUCT, INTERFACE
     }
 
-    public Kind kind(Type t, X10Context c) {
+    public Kind kind(Type t, Context c) {
         return env(c).kind(t);
     }
 
@@ -854,12 +854,12 @@ public class X10TypeSystem_c extends TypeSystem_c {
         return t instanceof ParameterType;
     }
 
-    public boolean isObjectOrInterfaceType(Type t, X10Context c) {
+    public boolean isObjectOrInterfaceType(Type t, Context c) {
         Kind kind = kind(t, c);
         return kind == Kind.OBJECT || kind == Kind.INTERFACE;
     }
 
-    public boolean isObjectType(Type t, X10Context c) {
+    public boolean isObjectType(Type t, Context c) {
         return kind(t, c) == Kind.OBJECT;
     }
 
@@ -942,11 +942,11 @@ public class X10TypeSystem_c extends TypeSystem_c {
 
 
 
-    public final X10Context createContext() {
+    public final Context createContext() {
         return emptyContext();
     }
 
-    public X10Context emptyContext() {
+    public Context emptyContext() {
         return new X10Context_c(this);
     }
 
@@ -1690,7 +1690,7 @@ public class X10TypeSystem_c extends TypeSystem_c {
         return t;
     }
 
-    public boolean entails(CConstraint c1, CConstraint c2, X10Context context, Type selfType) {
+    public boolean entails(CConstraint c1, CConstraint c2, Context context, Type selfType) {
         if (c1 != null || c2 != null) {
             boolean result = true;
 
@@ -1897,15 +1897,15 @@ public class X10TypeSystem_c extends TypeSystem_c {
         super.initialize(loadedResolver, extInfo);
     }
 
-    public boolean equivClause(Type me, Type other, X10Context context) {
+    public boolean equivClause(Type me, Type other, Context context) {
         return entailsClause(me, other, context) && entailsClause(other, me, context);
     }
 
-    public boolean entailsClause(CConstraint c1, CConstraint c2, X10Context context, Type selfType) {
+    public boolean entailsClause(CConstraint c1, CConstraint c2, Context context, Type selfType) {
         return entails(c1, c2, context, selfType);
     }
 
-    public boolean entailsClause(Type me, Type other, X10Context context) {
+    public boolean entailsClause(Type me, Type other, Context context) {
         try {
             CConstraint c1 = X10TypeMixin.realX(me);
             CConstraint c2 = X10TypeMixin.xclause(other);

@@ -35,7 +35,7 @@ import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10ConstructorDef;
 import x10.types.X10ConstructorInstance;
-import x10.types.X10Context;
+import polyglot.types.Context;
 import x10.types.X10Def;
 import x10.types.X10FieldDef;
 import x10.types.X10FieldInstance;
@@ -1058,7 +1058,7 @@ public interface TypeSystem {
     
     boolean isStructType(Type me);
 
-    boolean isObjectType(Type me, X10Context context);
+    boolean isObjectType(Type me, Context context);
 
     boolean isUByte(Type t);
     boolean isUShort(Type t);
@@ -1081,8 +1081,8 @@ public interface TypeSystem {
 
     XTypeTranslator xtypeTranslator();
 
-    boolean entailsClause(Type me, Type other, X10Context context);
-    boolean entailsClause(CConstraint me, CConstraint other, X10Context context, Type selfType);
+    boolean entailsClause(Type me, Type other, Context context);
+    boolean entailsClause(CConstraint me, CConstraint other, Context context, Type selfType);
 
     /**
      * True if the two types are equal, ignoring their dep clauses.
@@ -1153,13 +1153,13 @@ public interface TypeSystem {
 
     /** Return true if the constraint is consistent. */
     boolean consistent(CConstraint c);
-    boolean consistent(TypeConstraint c, X10Context context);
+    boolean consistent(TypeConstraint c, Context context);
 
     /** Return true if constraints in the type are all consistent.
      * @param context TODO*/
-    boolean consistent(Type t, X10Context context);
+    boolean consistent(Type t, Context context);
 
-    boolean isObjectOrInterfaceType(Type t, X10Context context);
+    boolean isObjectOrInterfaceType(Type t, Context context);
 
     boolean isParameterType(Type toType);
 

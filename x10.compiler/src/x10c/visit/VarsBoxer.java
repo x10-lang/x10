@@ -54,7 +54,7 @@ import x10.ast.X10CanonicalTypeNode;
 import x10.ast.X10IntLit_c;
 import x10.ast.X10Unary_c;
 import x10.types.X10ConstructorInstance;
-import x10.types.X10Context;
+import polyglot.types.Context;
 import x10.types.X10LocalDef;
 import x10.types.X10ParsedClassType;
 import x10.types.X10TypeMixin;
@@ -297,7 +297,7 @@ public class VarsBoxer extends ContextVisitor {
                 // check access node to outer var 
                 if (n instanceof Local) {
                     Local local = (Local) n;
-                    X10Context xcontext = (X10Context) context;
+                    Context xcontext = (Context) context;
                     Name name = local.name().id();
                     if (parent instanceof LocalAssign) {
                         if (((LocalAssign) parent).right() instanceof Call) {

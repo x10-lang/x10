@@ -36,7 +36,7 @@ import x10.constraint.XFailure;
 import x10.constraint.XTerm;
 import x10.constraint.XConstraint;
 import x10.errors.Errors;
-import x10.types.X10Context;
+import polyglot.types.Context;
 import x10.types.X10Flags;
 import x10.types.X10LocalInstance;
 import x10.types.X10ProcedureDef;
@@ -170,7 +170,7 @@ public class X10Local_c extends Local_c {
 	}
 
     public static X10LocalInstance findAppropriateLocal(ContextVisitor tc, Name name) {
-        X10Context context = (X10Context) tc.context();
+        Context context = (Context) tc.context();
         SemanticException error = null;
         try {
             return (X10LocalInstance) context.findLocal(name);

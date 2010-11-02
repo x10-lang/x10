@@ -32,7 +32,7 @@ import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeChecker;
 import x10.ast.X10Loop.LoopKind;
 import x10.errors.Errors;
-import x10.types.X10Context;
+import polyglot.types.Context;
 import x10.types.X10Flags;
 import x10.types.X10MethodInstance;
 import polyglot.types.TypeSystem;

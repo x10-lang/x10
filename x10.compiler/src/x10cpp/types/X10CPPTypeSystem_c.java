@@ -12,11 +12,11 @@
 package x10cpp.types;
 
 import polyglot.types.Context;
-import x10.types.X10Context;
+import polyglot.types.Context;
 import x10.types.X10TypeSystem_c;
 
 public class X10CPPTypeSystem_c extends X10TypeSystem_c {
-	public X10Context emptyContext() {
+	public Context emptyContext() {
 		return new X10CPPContext_c(this);
 	}
 }

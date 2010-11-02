@@ -31,7 +31,7 @@ import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeBuilder;
 import x10.types.ParameterType;
 import x10.types.ParameterType_c;
-import x10.types.X10Context;
+import polyglot.types.Context;
 import x10.types.X10Context_c;
 import x10.types.X10TypeEnv_c;
 import polyglot.types.TypeSystem;

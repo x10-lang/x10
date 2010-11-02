@@ -52,7 +52,7 @@ import x10.constraint.XTerms;
 import x10.constraint.XVar;
 import x10.errors.Errors;
 import x10.types.X10ClassType;
-import x10.types.X10Context;
+import polyglot.types.Context;
 import x10.types.X10FieldInstance;
 import x10.types.X10LocalDef;
 import x10.types.X10MethodInstance;

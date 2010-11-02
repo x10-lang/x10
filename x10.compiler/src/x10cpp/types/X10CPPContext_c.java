@@ -32,11 +32,11 @@ import polyglot.types.TypeSystem;
 import polyglot.types.VarInstance;
 import x10.ast.PropertyDecl;
 import x10.types.X10ClassDef;
-import x10.types.X10Context;
+import polyglot.types.Context;
 import x10.types.X10MethodDef;
 import x10.util.ClassifiedStream;
 
-public class X10CPPContext_c extends x10.types.X10Context_c implements X10Context {
+public class X10CPPContext_c extends x10.types.X10Context_c implements Context {
 
     // The global object is fresh for each brand new instance of the context,
     // but is aliased for each clone of the context (cloned via copy()).

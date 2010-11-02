@@ -24,7 +24,7 @@ import x10.constraint.XFailure;
 import x10.constraint.XName;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
-import x10.types.X10Context;
+import polyglot.types.Context;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -51,7 +51,7 @@ import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
 import x10.types.X10ClassDef;
-import x10.types.X10Context;
+import polyglot.types.Context;
 import x10.types.X10FieldDef;
 import x10.types.X10LocalDef;
 import x10.types.X10TypeMixin;
@@ -360,7 +360,7 @@ public class CConstraint extends XConstraint  implements ThisVar {
 	 */
 
 	public void checkQuery(CConstraint query, XVar ythis, XVar xthis, XVar[] y, XVar[] x, 
-			X10Context context) throws SemanticException {
+			Context context) throws SemanticException {
 		// Check that the guard is entailed.
 		try {
 			if (query != null) { 

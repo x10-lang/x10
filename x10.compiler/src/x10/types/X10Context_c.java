@@ -83,7 +83,7 @@ import x10.types.constraints.TypeConstraint;
 import x10.types.constraints.XConstrainedTerm;
 import x10.ast.X10Return_c;
 
-public class X10Context_c extends Context_c implements X10Context {
+public class X10Context_c extends Context_c {
 
 
 	public X10Context_c(TypeSystem ts) {
@@ -209,7 +209,7 @@ public class X10Context_c extends Context_c implements X10Context {
 
     	return currentPlaceTerm;
     }
-    public X10Context pushPlace(XConstrainedTerm t) {
+    public Context pushPlace(XConstrainedTerm t) {
     	//assert t!= null;
     	X10Context_c cxt = (X10Context_c) SUPER_pushBlock();
 		cxt.currentPlaceTerm = t;
@@ -217,7 +217,7 @@ public class X10Context_c extends Context_c implements X10Context {
     }
 
     protected boolean inClockedFinishScope=false;
-    public X10Context pushFinishScope(boolean isClocked) {
+    public Context pushFinishScope(boolean isClocked) {
     	X10Context_c cxt = (X10Context_c) SUPER_pushBlock();
 		cxt.x10Kind = X10Kind.Finish;
 		cxt.inClockedFinishScope = isClocked;
@@ -227,11 +227,11 @@ public class X10Context_c extends Context_c implements X10Context {
     	if (inClockedFinishScope)
     		return true;
     	if (outer != null) 
-    		return ((X10Context) outer).inClockedFinishScope();
+    		return ((Context) outer).inClockedFinishScope();
     	return false;
     }
     Type currentCollectingFinishType=null;
-    public X10Context pushCollectingFinishScope(Type t) {
+    public Context pushCollectingFinishScope(Type t) {
     	assert t!=null;
     	X10Context_c cxt = (X10Context_c) SUPER_pushBlock();
     	cxt.currentCollectingFinishType =t;
@@ -295,8 +295,8 @@ public class X10Context_c extends Context_c implements X10Context {
 	    return pop().definingCodeDef(name);
 	}
 
-	public X10Context pop() {
-	    return (X10Context) SUPER_pop();
+	public Context pop() {
+	    return (Context) SUPER_pop();
 	}
 
 	// Set if we are in a supertype declaration of this type.
@@ -315,7 +315,7 @@ public class X10Context_c extends Context_c implements X10Context {
 	protected boolean inAnonObjectScope;
 	protected boolean inAssignment;
 	boolean isClocked=false;
-    public X10Context pushClockedContext() {
+    public Context pushClockedContext() {
     	X10Context_c cxt = (X10Context_c) SUPER_pushBlock();
 		cxt.isClocked = true;
 		return cxt;
@@ -412,7 +412,7 @@ public class X10Context_c extends Context_c implements X10Context {
 	        return true;
 	    }
 
-	    if (outer instanceof X10Context) {
+	    if (outer instanceof Context) {
 	        return ((X10Context_c) outer).isValInScopeInClass(name);
 	    }
 	    return false;
@@ -585,7 +585,7 @@ public class X10Context_c extends Context_c implements X10Context {
 	private X10Context_c superPushClass(ClassDef classScope, ClassType type) {
 	    return (X10Context_c) SUPER_pushClass(classScope, type);
 	}
-	public X10Context pushClass(ClassDef classScope, ClassType type) {
+	public Context pushClass(ClassDef classScope, ClassType type) {
 		//System.err.println("Pushing class " + classScope);
 		assert (depType == null);
 /*
@@ -629,21 +629,21 @@ public class X10Context_c extends Context_c implements X10Context {
 	/**
 	 * pushes an additional block-scoping level.
 	 */
-	public X10Context pushBlock() {
+	public Context pushBlock() {
 //		assert (depType == null);
-		return (X10Context) SUPER_pushBlock();
+		return (Context) SUPER_pushBlock();
 	}
 
-	public X10Context pushAtomicBlock() {
+	public Context pushAtomicBlock() {
 		assert (depType == null);
-		X10Context c = (X10Context) SUPER_pushBlock();
+		Context c = (Context) SUPER_pushBlock();
 		return c;
 	}
 
-	public X10Context pushAssignment() {
+	public Context pushAssignment() {
 		if (depType != null)
 			assert (depType == null);
-		X10Context c = (X10Context) SUPER_pushBlock();
+		Context c = (Context) SUPER_pushBlock();
 		c.setInAssignment();
 		return c;
 	}
@@ -651,9 +651,9 @@ public class X10Context_c extends Context_c implements X10Context {
 	/**
 	 * pushes an additional static scoping level.
 	 */
-	public X10Context pushStatic() {
+	public Context pushStatic() {
 		assert (depType == null);
-		return (X10Context) SUPER_pushStatic();
+		return (Context) SUPER_pushStatic();
 	}
 
 	/**
@@ -668,7 +668,7 @@ public class X10Context_c extends Context_c implements X10Context {
         return res;
     }
     
-	public X10Context pushCode(CodeDef ci) {
+	public Context pushCode(CodeDef ci) {
 		//System.err.println("Pushing code " + ci);
 		assert (depType == null);
 		X10Context_c result = (X10Context_c) super.pushCode(ci);
@@ -848,7 +848,7 @@ public class X10Context_c extends Context_c implements X10Context {
 	/**
 	 * Pushes on a deptype. Treat this as pushing a class.
 	 */
-	public X10Context pushDepType(polyglot.types.Ref<? extends polyglot.types.Type> ref) {
+	public Context pushDepType(polyglot.types.Ref<? extends polyglot.types.Type> ref) {
 		X10Context_c v = (X10Context_c) push();
 		v.depType = ref;
 		v.inCode = false;
@@ -856,9 +856,9 @@ public class X10Context_c extends Context_c implements X10Context {
 		return v;
 	}
 
-	public X10Context pushAdditionalConstraint(CConstraint env)	throws SemanticException {
+	public Context pushAdditionalConstraint(CConstraint env)	throws SemanticException {
 		// Now push the newly computed Gamma
-		X10Context xc = (X10Context) pushBlock();
+		Context xc = (Context) pushBlock();
 		CConstraint c = xc.currentConstraint();
 		if (c == null) {
 			c = env;
@@ -875,7 +875,7 @@ public class X10Context_c extends Context_c implements X10Context {
 		//            xc.setCurrentTypeConstraint(tenv);
 		return xc;
 	}
-	public X10Context pushSuperTypeDeclaration(X10ClassDef type) {
+	public Context pushSuperTypeDeclaration(X10ClassDef type) {
 
 		X10Context_c v = (X10Context_c) push();
 		v.inSuperOf = type;

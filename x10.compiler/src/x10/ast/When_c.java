@@ -31,7 +31,7 @@ import polyglot.visit.ContextVisitor;
 import polyglot.visit.FlowGraph;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
-import x10.types.X10Context;
+import polyglot.types.Context;
 
 /**
  * An immutable representation of the when statement.

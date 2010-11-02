@@ -35,7 +35,7 @@ import x10.ast.X10ClassDecl;
 import x10.ast.X10MethodDecl;
 import x10.compiler.ws.util.WSCallGraph;
 import x10.compiler.ws.util.WSCallGraphNode;
-import x10.types.X10Context;
+import polyglot.types.Context;
 import polyglot.types.TypeSystem;
 import x10.types.checker.PlaceChecker;
 import x10.util.synthesizer.MethodSynth;

@@ -66,7 +66,7 @@ import x10.ast.X10Cast;
 import x10.ast.X10Formal;
 import x10.constraint.XFailure;
 import x10.constraint.XTerm;
-import x10.types.X10Context;
+import polyglot.types.Context;
 import x10.types.X10FieldInstance;
 import x10.types.X10MethodInstance;
 import x10.types.X10TypeMixin;
@@ -183,7 +183,7 @@ public class ForLoopOptimizer extends ContextVisitor {
         }
 
         Id           label      = createLabel(pos);
-        X10Context   context    = (X10Context) context();
+        Context   context    = (Context) context();
         List<Formal> formalVars = formal.vars();
         boolean      named      = !formal.isUnnamed();
         boolean      isRect     = X10TypeMixin.isRect(domain.type(), context);

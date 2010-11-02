@@ -25,7 +25,7 @@ import x10.errors.Errors;
 import x10.extension.X10Del;
 import x10.extension.X10Ext;
 import x10.types.ClosureDef;
-import x10.types.X10Context;
+import polyglot.types.Context;
 import x10.types.X10TypeMixin;
 import polyglot.types.TypeSystem;
 import x10.types.checker.PlaceChecker;
@@ -106,13 +106,13 @@ public class FinishExpr_c extends Expr_c implements FinishExpr {
 	 */
 	@Override
 	public Context enterChildScope(Node child, Context c) {
-		X10Context xc = (X10Context) super.enterChildScope(child, c);
+		Context xc = (Context) super.enterChildScope(child, c);
 		if (child == body) {
 		// Push T, not Reducible[T].
 			Type type = reducer.type();
 			type = X10TypeMixin.reducerType(type);
 			if (type != null) {
-				xc = (X10Context) xc.pushCollectingFinishScope(type);
+				xc = (Context) xc.pushCollectingFinishScope(type);
 			}
 			addDecls(xc);
 		}

@@ -48,7 +48,7 @@ import x10.constraint.XTerm;
 import x10.errors.Errors;
 import x10.types.ClosureDef;
 import x10.types.ParameterType;
-import x10.types.X10Context;
+import polyglot.types.Context;
 import x10.types.X10MethodDef;
 import x10.types.X10TypeMixin;
 import polyglot.types.TypeSystem;
@@ -139,7 +139,7 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
         if (placeTerm == null) {
             try {
                 placeTerm = PlaceChecker.computePlaceTerm((Expr) visitChild(this.place, v),
-                        (X10Context) tc.context(), ts);
+                        (Context) tc.context(), ts);
             } catch (SemanticException e) {
                 CConstraint d = new CConstraint();
                 XTerm term = PlaceChecker.makePlace();
@@ -204,7 +204,7 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
 			c = c.pop();
 		} else {
 			c = super.enterChildScope(child,c);
-			X10Context xc = (X10Context) c;
+			Context xc = (Context) c;
 			if (child == body) {
 				if (placeTerm != null)
 					c = xc.pushPlace(placeTerm);

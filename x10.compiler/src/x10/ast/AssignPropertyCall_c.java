@@ -45,7 +45,7 @@ import x10.constraint.XTerm;
 import x10.constraint.XVar;
 import x10.errors.Errors;
 import x10.types.X10ConstructorDef;
-import x10.types.X10Context;
+import polyglot.types.Context;
 import x10.types.X10FieldInstance;
 import x10.types.X10ParsedClassType;
 import x10.types.X10TypeMixin;
@@ -195,7 +195,7 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 	        List<Expr> args)
 	{
 		TypeSystem ts = (TypeSystem) tc.typeSystem();
-		X10Context ctx = (X10Context) tc.context();
+		Context ctx = (Context) tc.context();
 		if (ts.hasUnknown(Types.get(thisConstructor.returnType()))) {
 		    return;
 		}
@@ -226,7 +226,7 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 					if (c != null)
 						known.addIn(c.substitute(prop, c.self()));
 
-					XTerm initVar = ts.xtypeTranslator().trans(known, initializer, (X10Context) ctx);
+					XTerm initVar = ts.xtypeTranslator().trans(known, initializer, (Context) ctx);
 					if (initVar != null)
 						known.addBinding(prop, initVar);
 				}

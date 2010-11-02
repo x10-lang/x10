@@ -26,7 +26,7 @@ import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.ast.SettableAssign_c;
-import x10.types.X10Context;
+import polyglot.types.Context;
 /**
  * Visitor to desugar the AST before code gen.
  */
@@ -38,7 +38,7 @@ public class EarlyDesugarer extends ContextVisitor {
         xnf = (NodeFactory) nf;
     }
 
-    protected X10Context xContext() { return (X10Context) context;}
+    protected Context xContext() { return (Context) context;}
     
     public Node leaveCall(Node old, Node n, NodeVisitor v) throws SemanticException {
         if (n instanceof SettableAssign_c)

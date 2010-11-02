@@ -12,11 +12,11 @@
 package x10cuda.types;
 
 import polyglot.types.Context;
-import x10.types.X10Context;
+import polyglot.types.Context;
 import x10.types.X10TypeSystem_c;
 
 public class X10CUDATypeSystem_c extends X10TypeSystem_c {
-	public X10Context emptyContext() {
+	public Context emptyContext() {
 		return new X10CUDAContext_c(this);
 	}
 }

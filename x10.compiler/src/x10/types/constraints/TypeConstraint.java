@@ -26,7 +26,7 @@ import x10.types.ParameterType;
 import x10.types.ParameterType_c;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
-import x10.types.X10Context;
+import polyglot.types.Context;
 import x10.types.X10ProcedureDef;
 import x10.types.X10ProcedureInstance;
 import x10.types.X10TypeMixin;
@@ -148,7 +148,7 @@ public class TypeConstraint implements Copy, Serializable {
      */
     public TypeConstraint unify(Type t1, Type t2, TypeSystem xts) {
     	TypeConstraint result = this;
-    	final X10Context emptyContext = (X10Context) t1.typeSystem().emptyContext();
+    	final Context emptyContext = (Context) t1.typeSystem().emptyContext();
     	t1 = X10TypeMixin.stripConstraints(t1);
     	t2 = X10TypeMixin.stripConstraints(t2);   	
     	if (xts.typeEquals(t1, t2, emptyContext /*dummy*/))
@@ -185,7 +185,7 @@ public class TypeConstraint implements Copy, Serializable {
     	}
     	return result;   			
     }
-    public boolean entails(TypeConstraint c, X10Context xc) {
+    public boolean entails(TypeConstraint c, Context xc) {
         TypeSystem xts = (TypeSystem) xc.typeSystem();
         for (SubtypeConstraint t : c.terms()) {
             if (t.isEqualityConstraint()) {
@@ -230,9 +230,9 @@ public class TypeConstraint implements Copy, Serializable {
         this.terms.addAll(terms);
     }
     
-    public boolean consistent(X10Context context) {
+    public boolean consistent(Context context) {
         if (consistent) {
-            X10Context xc = (X10Context) context;
+            Context xc = (Context) context;
             TypeSystem ts = (TypeSystem) context.typeSystem();
             for (SubtypeConstraint t : terms()) {
                 if (t.isEqualityConstraint()) {
@@ -277,7 +277,7 @@ public class TypeConstraint implements Copy, Serializable {
     }
 
 	public void checkTypeQuery( TypeConstraint query, XVar ythis, XVar xthis, XVar[] y, XVar[] x, 
-			 X10Context context) throws SemanticException {
+			 Context context) throws SemanticException {
 		 if (! consistent(context)) {
 	         throw new SemanticException("Call invalid; type environment is inconsistent.");
 	     }
@@ -296,7 +296,7 @@ public class TypeConstraint implements Copy, Serializable {
 	}
 
 	public static <PI extends X10ProcedureInstance<?>> Type[] inferTypeArguments(PI me, Type thisType, List<Type> actuals, List<Type> formals, 
-			List<Type> typeFormals, X10Context context) throws SemanticException {
+			List<Type> typeFormals, Context context) throws SemanticException {
 	    TypeSystem xts = (TypeSystem) thisType.typeSystem();
 	
 	    TypeConstraint tenv = new TypeConstraint();
@@ -408,7 +408,7 @@ public class TypeConstraint implements Copy, Serializable {
 	    return Y;
 	}
 
-	private static void expandTypeConstraints(TypeConstraint tenv, X10Context context) throws XFailure {
+	private static void expandTypeConstraints(TypeConstraint tenv, Context context) throws XFailure {
 	    List<SubtypeConstraint> originalTerms = new ArrayList<SubtypeConstraint>(tenv.terms());
 	    for (SubtypeConstraint term : originalTerms) {
 	        expandTypeConstraints(tenv, term, context);
@@ -440,7 +440,7 @@ public class TypeConstraint implements Copy, Serializable {
 	 * </tr></table>
 	 * FIXME: Only the equality case (1) and the same type case (3) are handled for now.
 	 */
-	private static void expandTypeConstraints(TypeConstraint tenv, SubtypeConstraint term, X10Context context) throws XFailure {
+	private static void expandTypeConstraints(TypeConstraint tenv, SubtypeConstraint term, Context context) throws XFailure {
 	    TypeSystem xts = (TypeSystem) context.typeSystem();
 	    Type b = xts.expandMacros(term.subtype());
 	    Type p = xts.expandMacros(term.supertype());
@@ -489,7 +489,7 @@ public class TypeConstraint implements Copy, Serializable {
 	    }
 	}
 
-	private static <PI extends X10ProcedureInstance<?>> void inferTypeArguments(X10Context context, PI me, TypeConstraint tenv,
+	private static <PI extends X10ProcedureInstance<?>> void inferTypeArguments(Context context, PI me, TypeConstraint tenv,
 	        ParameterType[] X, Type[] Y, Type[] Z, XVar[] x, XVar[] y, XVar ythis, XVar xthis) throws SemanticException
 	{
 	    TypeSystem xts = (TypeSystem) me.typeSystem();

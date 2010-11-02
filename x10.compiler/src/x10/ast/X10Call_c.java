@@ -53,7 +53,7 @@ import x10.errors.Warnings;
 import x10.types.ParameterType;
 import x10.types.X10ClassType;
 import x10.types.X10ConstructorInstance;
-import x10.types.X10Context;
+import polyglot.types.Context;
 import x10.types.X10FieldInstance;
 import x10.types.X10Flags;
 import x10.types.X10LocalInstance;
@@ -158,7 +158,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
     
     private static Type ambTypeNodeType(ContextVisitor tc, Type t) {
         
-        X10Context c = (X10Context) tc.context();
+        Context c = (Context) tc.context();
         TypeSystem ts = (TypeSystem) tc.typeSystem();
         
         t = ts.expandMacros(t);
@@ -270,7 +270,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
     private Receiver computeReceiver(ContextVisitor tc, X10MethodInstance mi) {
         TypeSystem xts = (TypeSystem) tc.typeSystem();
         NodeFactory nf = tc.nodeFactory();
-        X10Context c = (X10Context) tc.context();
+        Context c = (Context) tc.context();
         Position prefixPos = position().startOf().markCompilerGenerated();
         try {
             if (mi.flags().isStatic() || c.inStaticContext()) {
@@ -309,7 +309,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
     protected X10Call typeCheckNullTargetForMethod(ContextVisitor tc, List<Type> typeArgs, List<Type> argTypes, X10MethodInstance mi, List<Expr> args) throws SemanticException {
 		Receiver r = computeReceiver(tc, mi);
 		X10Call_c call = (X10Call_c) this.targetImplicit(true).target(r).arguments(args);
-		Type rt = Checker.rightType(mi.rightType(), mi.x10Def(), r, (X10Context) tc.context());
+		Type rt = Checker.rightType(mi.rightType(), mi.x10Def(), r, (Context) tc.context());
 		call = (X10Call_c)call.methodInstance(mi).type(rt);
 		return call;
 	}
@@ -349,7 +349,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 	public Node typeCheck1(ContextVisitor tc) throws SemanticException {
 		NodeFactory xnf = (NodeFactory) tc.nodeFactory();
 		TypeSystem xts = (TypeSystem) tc.typeSystem();
-		X10Context c = (X10Context) tc.context();
+		Context c = (Context) tc.context();
 
 		if (mi != null && ((X10MethodInstance)mi).isValid()) // already typechecked
 		    return this;

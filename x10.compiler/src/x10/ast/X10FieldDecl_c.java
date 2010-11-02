@@ -63,7 +63,7 @@ import x10.extension.X10Ext;
 import x10.types.ParameterType;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
-import x10.types.X10Context;
+import polyglot.types.Context;
 import x10.types.X10Def;
 import x10.types.X10FieldDef;
 import x10.types.X10Flags;
@@ -137,7 +137,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
     }
 	public Context enterChildScope(Node child, Context c) {
 		if (child == this.type || child==this.hasType) {
-			X10Context xc = (X10Context) c.pushBlock();
+			Context xc = (Context) c.pushBlock();
 			FieldDef fi = fieldDef();
 			xc.addVariable(fi.asInstance());
 			xc.setVarWhoseTypeIsBeingElaborated(fi);
@@ -145,7 +145,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 		}
 				
 	    if (child == this.type || child == this.init || child == this.hasType) {
-			c = PlaceChecker.pushHereTerm(fieldDef(), (X10Context) c);
+			c = PlaceChecker.pushHereTerm(fieldDef(), (Context) c);
 		}
 		Context cc = super.enterChildScope(child, c);
 		return cc;
@@ -202,7 +202,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
         StructType ref = fi.container().get();
 
         TypeSystem xts = (TypeSystem) ref.typeSystem();
-        X10Context context = (X10Context) tc.context();
+        Context context = (Context) tc.context();
         if (X10TypeMixin.isX10Struct(ref) && !isMutable(xts, ref)) {
             X10Flags x10flags = X10Flags.toX10Flags(fi.flags());
             if (! x10flags.isFinal()) 
@@ -229,7 +229,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
     }
     
     protected void checkVariance(ContextVisitor tc) {
-	X10Context c = (X10Context) tc.context();
+	Context c = (Context) tc.context();
 	X10ClassDef cd;
 	if (c.inSuperTypeDeclaration())
 	    cd = c.supertypeDeclarationType();
@@ -356,7 +356,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 	                            t = ct.superClass();
 	                    }
 	                }
-	                X10Context xc = (X10Context) enterChildScope(type(), tc.context());
+	                Context xc = (Context) enterChildScope(type(), tc.context());
 	                t = PlaceChecker.ReplaceHereByPlaceTerm(t, xc);
 	                LazyRef<Type> r = (LazyRef<Type>) type().typeRef();
 	                r.update(t);
@@ -406,7 +406,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 	    	final TypeNode typeNode = this.type();
 	    	Type type =  typeNode.type();
 	    	Type oldType = (Type)type.copy();
-	    	X10Context xc = (X10Context) enterChildScope(type(), tc.context());
+	    	Context xc = (Context) enterChildScope(type(), tc.context());
 	    	X10Flags f = X10Flags.toX10Flags(flags.flags());
 	    	
 	    	try {
@@ -459,7 +459,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 	    	}
 
 	    	if (n.init != null) {
-	    		xc = (X10Context) n.enterChildScope(n.init, tc.context());
+	    		xc = (Context) n.enterChildScope(n.init, tc.context());
 	    		ContextVisitor childtc = tc.context(xc);
 	    		Expr newInit = Converter.attemptCoercion(childtc, n.init, oldType); // use the oldType. The type of n.init may have "here".
 	    		if (newInit != null)

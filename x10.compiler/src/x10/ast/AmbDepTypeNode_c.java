@@ -41,7 +41,7 @@ import polyglot.visit.TypeChecker;
 import x10.extension.X10Del;
 import x10.extension.X10Del_c;
 import x10.types.X10ClassType;
-import x10.types.X10Context;
+import polyglot.types.Context;
 import x10.types.X10TypeMixin;
 import polyglot.types.TypeSystem;
 import x10.types.X10TypeSystem_c;
@@ -96,7 +96,7 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode, AddF
     public Context enterChildScope(Node child, Context c) {
     	if (child == this.dep) {
     	    TypeSystem ts = c.typeSystem();
-    	    c = ((X10Context) c).pushDepType(base.typeRef());
+    	    c = ((Context) c).pushDepType(base.typeRef());
     	}
         Context cc = super.enterChildScope(child, c);
         return cc;

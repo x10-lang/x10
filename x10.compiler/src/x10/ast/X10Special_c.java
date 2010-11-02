@@ -28,7 +28,7 @@ import x10.constraint.XTerm;
 import x10.errors.Errors;
 import x10.types.ConstrainedType;
 import x10.types.X10ConstructorDef;
-import x10.types.X10Context;
+import polyglot.types.Context;
 import x10.types.X10Flags;
 import x10.types.X10MethodDef;
 import x10.types.X10ParsedClassType;
@@ -59,7 +59,7 @@ public class X10Special_c extends Special_c implements X10Special {
     /** Type check the expression. */
     public Node typeCheck(ContextVisitor tc) {
         TypeSystem ts = (TypeSystem) tc.typeSystem();
-        X10Context c = (X10Context) tc.context();
+        Context c = (Context) tc.context();
 
         if (isSelf()) {
             Type tt = c.currentDepType();

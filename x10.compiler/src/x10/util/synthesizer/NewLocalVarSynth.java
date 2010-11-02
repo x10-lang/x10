@@ -29,7 +29,7 @@ import polyglot.types.Types;
 import polyglot.util.Position;
 import x10.ast.AnnotationNode;
 import x10.extension.X10Del;
-import x10.types.X10Context;
+import polyglot.types.Context;
 
 /**
  * A synthesizer to create a local variable
@@ -45,7 +45,7 @@ public class NewLocalVarSynth extends AbstractStateSynth implements IStmtSynth{
     Expr initializer;
     List<AnnotationNode> annotations;
     
-    public NewLocalVarSynth(NodeFactory xnf, X10Context xct, Position pos,
+    public NewLocalVarSynth(NodeFactory xnf, Context xct, Position pos,
                             Name name, Flags flags, Expr initializer, Type type, List<AnnotationNode> annotations) {
         super(xnf, xct, pos);
         this.name = name;
@@ -60,13 +60,13 @@ public class NewLocalVarSynth extends AbstractStateSynth implements IStmtSynth{
         }
     }
 
-    public NewLocalVarSynth(NodeFactory xnf, X10Context xct, Position pos,
+    public NewLocalVarSynth(NodeFactory xnf, Context xct, Position pos,
                             Type type) {
         this(xnf, xct, pos, xct.getNewVarName(), 
              Flags.NONE, null, type, new ArrayList<AnnotationNode>());
     }
     
-    public NewLocalVarSynth(NodeFactory xnf, X10Context xct, Position pos,
+    public NewLocalVarSynth(NodeFactory xnf, Context xct, Position pos,
                             Flags flags, Expr initializer) {
         this(xnf, xct, pos, xct.getNewVarName(), 
              flags, initializer, initializer.type(), new ArrayList<AnnotationNode>());

@@ -33,7 +33,7 @@ import polyglot.types.Type;
 import polyglot.util.Position;
 import polyglot.visit.NodeVisitor;
 import x10.ast.AnnotationNode;
-import x10.types.X10Context;
+import polyglot.types.Context;
 
 /**
  * Synthesizer to construct a code block
@@ -83,7 +83,7 @@ public class CodeBlockSynth extends AbstractStateSynth implements IStmtSynth{
      * @param containerSynth
      * @param pos
      */
-    public CodeBlockSynth(NodeFactory xnf, X10Context xct, AbstractStateSynth containerSynth, Position pos) {
+    public CodeBlockSynth(NodeFactory xnf, Context xct, AbstractStateSynth containerSynth, Position pos) {
         super(xnf, xct, pos);
         this.containerSynth = containerSynth;
         stmtSythns = new ArrayList<IStmtSynth>();
@@ -96,7 +96,7 @@ public class CodeBlockSynth extends AbstractStateSynth implements IStmtSynth{
      * @param xct
      * @param pos
      */
-    public CodeBlockSynth(NodeFactory xnf, X10Context xct, Position pos) {
+    public CodeBlockSynth(NodeFactory xnf, Context xct, Position pos) {
         this(xnf, xct, null, pos);
     }
     

@@ -78,7 +78,7 @@ import x10.compiler.ws.util.TransCodes;
 import x10.compiler.ws.util.WSCodeGenUtility;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
-import x10.types.X10Context;
+import polyglot.types.Context;
 import x10.types.X10LocalDef;
 import x10.types.X10MethodDef;
 import polyglot.types.TypeSystem;
@@ -127,7 +127,7 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
     final protected Job job;
     final protected NodeFactory xnf;
     final protected TypeSystem xts;
-    final protected X10Context xct;
+    final protected Context xct;
     final protected WSTransformState wts;
     final protected Synthesizer synth; //stateless synthesizer
 
@@ -148,7 +148,7 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
     private List<AbstractWSClassGen> children; //lazy initialization
 
 
-    private AbstractWSClassGen(Job job, X10Context xct, WSTransformState wts, AbstractWSClassGen up,
+    private AbstractWSClassGen(Job job, Context xct, WSTransformState wts, AbstractWSClassGen up,
             String className, ClassType frameType, int frameDepth, Flags flags, ClassDef outer, Stmt stmt) {
         this.job = job;
         xnf = (NodeFactory) job.extensionInfo().nodeFactory();
@@ -191,7 +191,7 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
     }
 
     // method frames
-    protected AbstractWSClassGen(Job job, NodeFactory xnf, X10Context xct, WSTransformState wts,
+    protected AbstractWSClassGen(Job job, NodeFactory xnf, Context xct, WSTransformState wts,
             String className, ClassType frameType, Flags flags, ClassDef outer, Stmt stmt) {
         this(job, xct, wts, null, className, frameType, 0, flags, outer, stmt);
     }
@@ -316,7 +316,7 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
         return xnf;
     }
 
-    public X10Context getX10Context() {
+    public Context getX10Context() {
         return xct;
     }
 

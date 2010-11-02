@@ -47,7 +47,7 @@ import x10.types.ConstrainedType;
 import x10.types.ParameterType;
 import x10.types.ParametrizedType_c;
 import x10.types.X10ClassType;
-import x10.types.X10Context;
+import polyglot.types.Context;
 import x10.types.X10FieldInstance;
 import x10.types.X10Flags;
 import x10.types.X10MethodInstance;
@@ -98,7 +98,7 @@ public class X10Field_c extends Field_c {
     public static X10FieldInstance findAppropriateField(ContextVisitor tc,
             Type targetType, Name name, boolean isStatic, boolean receiverInContext) {
         TypeSystem ts = (TypeSystem) tc.typeSystem();
-        X10Context c = (X10Context) tc.context();
+        Context c = (Context) tc.context();
         X10FieldInstance fi = null;
         try {
             // vj: Hack to work around the design decision to represent "here" as this.home for
@@ -198,7 +198,7 @@ public class X10Field_c extends Field_c {
     public Node typeCheck1(ContextVisitor tc) throws SemanticException {
 		final TypeSystem ts = (TypeSystem) tc.typeSystem();
 		final NodeFactory nf = (NodeFactory) tc.nodeFactory();
-		final X10Context c = (X10Context) tc.context(); 
+		final Context c = (Context) tc.context(); 
 		Type tType = target != null ? target.type() : c.currentClass();
 
 		if (target instanceof TypeNode) {
@@ -306,9 +306,9 @@ public class X10Field_c extends Field_c {
 	protected void checkClockedFieldAccessesAreInClockedMethods(X10Field_c result, ContextVisitor tc) 
 	throws SemanticException {
 		//		 Check that field accesses in dep clauses refer to final fields.
-		X10Context xtc = (X10Context) tc.context();
+		Context xtc = (Context) tc.context();
 		if (X10Flags.toX10Flags(result.flags()).isClocked() 
-				&& ! ((X10Context) tc.context()).isClocked()) {
+				&& ! ((Context) tc.context()).isClocked()) {
 			throw new Errors.IllegalClockedAccess(this, position());
 		}
 	}
@@ -318,7 +318,7 @@ public class X10Field_c extends Field_c {
 	protected void checkFieldAccessesInDepClausesAreFinal(X10Field_c result, ContextVisitor tc) 
 	throws SemanticException {
 		//		 Check that field accesses in dep clauses refer to final fields.
-		X10Context xtc = (X10Context) tc.context();
+		Context xtc = (Context) tc.context();
 		if (xtc.inDepType()) {
 			FieldInstance fi = result.fieldInstance();
 			if (! fi.flags().contains(Flags.FINAL))

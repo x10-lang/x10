@@ -31,7 +31,7 @@ import x10.ast.X10Loop.LoopKind;
 import x10.constraint.XFailure;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
-import x10.types.X10Context;
+import polyglot.types.Context;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint;
@@ -75,7 +75,7 @@ public class AtEach_c extends X10ClockedLoop_c implements AtEach, Clocked {
 	XConstrainedTerm placeTerm;
 	@Override
 	public Context enterChildScope(Node child, Context c) {
-		X10Context xc = (X10Context) super.enterChildScope(child, c);
+		Context xc = (Context) super.enterChildScope(child, c);
 	
 		
 		try {
@@ -88,7 +88,7 @@ public class AtEach_c extends X10ClockedLoop_c implements AtEach, Clocked {
 			}
 
             if (child == body)
-                xc = (X10Context) xc.pushPlace(placeTerm);
+                xc = (Context) xc.pushPlace(placeTerm);
 		} 
 		catch (XFailure z) {
 			throw new InternalCompilerError("Cannot construct placeTerm from  term  and constraint.");

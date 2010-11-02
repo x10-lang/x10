@@ -55,7 +55,7 @@ import x10.ast.PlacedClosure;
 import x10.ast.StmtSeq;
 import x10.ast.When;
 import x10.compiler.ws.WSTransformState;
-import x10.types.X10Context;
+import polyglot.types.Context;
 import polyglot.types.TypeSystem;
 
 /**
@@ -314,7 +314,7 @@ public class WSCodeGenUtility {
         return result;
     }
     
-    static public boolean needAsContinuationFrame(Block block, X10Context xct){
+    static public boolean needAsContinuationFrame(Block block, Context xct){
         
         for(Stmt s : block.statements()){
             if(s instanceof Async
@@ -333,7 +333,7 @@ public class WSCodeGenUtility {
      * @param s
      * @return Pair<Assign, Call> pair. If null, not such an expression
      */
-    static public Pair<Assign, Call> identifyAssignByAsyncCall(Stmt s, X10Context context){
+    static public Pair<Assign, Call> identifyAssignByAsyncCall(Stmt s, Context context){
         TypeSystem xts = (TypeSystem) context.typeSystem();
         Pair<Assign, Call> result = null;
         if(s instanceof Eval){

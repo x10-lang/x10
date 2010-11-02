@@ -22,7 +22,7 @@ import polyglot.types.Type;
 import polyglot.types.TypeSystem_c;
 import polyglot.util.CollectionUtil;
 import x10.types.X10ConstructorInstance;
-import x10.types.X10Context;
+import polyglot.types.Context;
 
 public class X10ConstructorMatcher extends TypeSystem_c.ConstructorMatcher {
     protected List<Expr> args;
@@ -54,7 +54,7 @@ public class X10ConstructorMatcher extends TypeSystem_c.ConstructorMatcher {
         if (ci instanceof X10ConstructorInstance) {
             X10ConstructorInstance xmi = (X10ConstructorInstance) ci;
             Type c = container != null ? container : xmi.container();
-            return Matcher.inferAndCheckAndInstantiate((X10Context) context(), 
+            return Matcher.inferAndCheckAndInstantiate((Context) context(), 
                     xmi, c, Collections.<Type>emptyList(), argTypes, ci.position());
 // [IP] TODO
 //            return Matcher.inferAndCheckAndInstantiate((X10Context) context(), 

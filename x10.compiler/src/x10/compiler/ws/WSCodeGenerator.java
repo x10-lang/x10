@@ -44,7 +44,7 @@ import x10.compiler.ws.codegen.WSMethodFrameClassGen;
 import x10.compiler.ws.util.WSCallGraph;
 import x10.compiler.ws.util.WSCallGraphNode;
 import x10.types.ClosureDef;
-import x10.types.X10Context;
+import polyglot.types.Context;
 import polyglot.types.TypeSystem;
 import x10.types.checker.PlaceChecker;
 import x10.util.Synthesizer;
@@ -136,7 +136,7 @@ public class WSCodeGenerator extends ContextVisitor {
                 }
                 
                 Job job = ((ClassType) mDef.container().get()).def().job();
-                WSMethodFrameClassGen mFrame = new WSMethodFrameClassGen(job, (NodeFactory) nf, (X10Context) context, mDef, mDecl, wts);
+                WSMethodFrameClassGen mFrame = new WSMethodFrameClassGen(job, (NodeFactory) nf, (Context) context, mDef, mDecl, wts);
                 try{
                 n = mFrame.transform();
                 }

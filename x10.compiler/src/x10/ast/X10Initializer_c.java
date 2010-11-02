@@ -23,7 +23,7 @@ import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.util.Position;
 import x10.types.X10ClassDef;
-import x10.types.X10Context;
+import polyglot.types.Context;
 import x10.types.X10InitializerDef;
 import x10.types.checker.PlaceChecker;
 
