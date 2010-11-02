@@ -464,7 +464,7 @@ void x10rt_net_send_put (x10rt_msg_params *parameters, void *buffer, x10rt_copy_
 void x10rt_net_probe ()
 {
 	if (state.numPlaces == 1)
-		sched_yield(); // why is the runtime calling probe() with only one place?  It looses it's CPU as punishment. ;-)
+		sched_yield(); // why is the runtime calling probe() with only one place?  It looses its CPU as punishment. ;-)
 	else
 		probe(false);
 }
