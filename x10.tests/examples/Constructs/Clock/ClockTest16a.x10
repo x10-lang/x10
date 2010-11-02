@@ -121,8 +121,8 @@ public class ClockTest16a extends x10Test {
 				}
 			}
 		}
-		} catch (e: ClockUseException) {
-			return true;
+		} catch (e: MultipleExceptions) {
+            return (e.exceptions.size() == 1 && e.exceptions(0) instanceof ClockUseException);
 		}
 		return false;
 	}

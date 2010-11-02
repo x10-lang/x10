@@ -44,11 +44,8 @@ public class ClockTest11 extends x10Test {
 		    }
 		    return false;
 		} catch (var e: MultipleExceptions) {
-		    // Expecting only one exception
-		    return false;
-		} catch (var e: ClockUseException) {
+            return (e.exceptions.size() == 1 && e.exceptions(0) instanceof ClockUseException);
 		}
-		return true;
 	}
 
 	public static def main(var args: Array[String](1)): void = {

@@ -37,8 +37,8 @@ public def run(): boolean = {
 			if (val != 2*N) {
 				throw new Error();
 			}
-			return true;
 		}
+		return true;
 }
 
 public static def main(Array[String](1)) {
