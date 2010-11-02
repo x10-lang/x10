@@ -23,30 +23,32 @@ import polyglot.ast.FloatLit;
 import polyglot.ast.If;
 import polyglot.ast.IntLit;
 import polyglot.ast.Lit;
+import polyglot.ast.Local;
 import polyglot.ast.LocalDecl;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
+import polyglot.ast.Return;
 import polyglot.ast.Stmt;
+import polyglot.ast.Throw;
 import polyglot.frontend.Job;
-import polyglot.types.LocalDef;
+import polyglot.types.Name;
+import polyglot.types.QName;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
+import polyglot.visit.ErrorHandlingVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.ast.X10NodeFactory;
-import x10.constraint.XFailure;
 import x10.constraint.XLit;
-import x10.constraint.XLocal;
-import x10.constraint.XVar;
 import x10.constraint.XTerm;
-import x10.constraint.XTerms;
+import x10.constraint.XVar;
+import x10.optimizations.ForLoopOptimizer;
 import x10.types.X10TypeMixin;
 import x10.types.checker.Converter;
 import x10.types.constraints.CConstraint;
-import x10.types.constraints.Constraints;
 
 /**
  * Very simple constant propagation pass. 
@@ -63,12 +65,22 @@ import x10.types.constraints.Constraints;
  * @author nystrom
  */
 public class ConstantPropagator extends ContextVisitor {
+    
+    private static ForLoopOptimizer syn;
+    private final Job         job;
+    private final TypeSystem  xts;
+    private final NodeFactory xnf;
+    
     public ConstantPropagator(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf);
+        syn = new ForLoopOptimizer(job, ts, nf);
+        this.job = job;
+        this.xts = ts;
+        this.xnf = nf;
     }
     
     @Override
-    protected Node leaveCall(Node parent, Node old, Node n, NodeVisitor v) {
+    protected Node leaveCall(Node parent, Node old, Node n, NodeVisitor v) throws SemanticException {
         Position pos = n.position();
 
         if (n instanceof Expr || n instanceof Stmt) {
@@ -95,9 +107,9 @@ public class ConstantPropagator extends ContextVisitor {
             if (isConstant(cond)) {
                 boolean b = (boolean) (Boolean) constantValue(cond);
                 if (b)
-                    return c.consequent();
+                    return insulate(c.consequent());
                 else
-                    return c.alternative();
+                    return insulate(c.alternative());
             }
         }
 
@@ -109,9 +121,9 @@ public class ConstantPropagator extends ContextVisitor {
                 if (o instanceof Boolean) {
                     boolean b = (boolean) (Boolean) o;
                     if (b)
-                        return c.consequent();
+                        return insulate(c.consequent());
                     else
-                        return c.alternative() != null ? c.alternative() : nf.Empty(pos);
+                        return c.alternative() != null ? insulate(c.alternative()) : nf.Empty(pos);
                 }
             }
         }
@@ -125,7 +137,18 @@ public class ConstantPropagator extends ContextVisitor {
                     return result;
             }
         }
-        
+
+        if (n instanceof Local) {
+            Local l = (Local) n;
+            if (l.localInstance().def().isConstant()) {
+                Object o = l.localInstance().def().constantValue();
+                Expr result = toExpr(o, n.position());
+                if (result != null)
+                    return result;
+                
+            }
+        }
+
         if (n instanceof Block) {
             Block b = (Block) n;
             List<Stmt> ss = new ArrayList<Stmt>();
@@ -259,4 +282,66 @@ public class ConstantPropagator extends ContextVisitor {
         return e;
     }
 
+    /**
+     * Prevent the Java compiler from complaining about unreachable code.
+     * s;  ->  if (true) s;
+     * 
+     * @param stmt a statement that might not have normal code flow
+     * @return a statement, semantically the same as stmt, that will look to a Java compiler as if it might have normal code flow
+     * 
+     * TODO: implement dead code elimination and throw this code away
+     */
+    static Node protect(Stmt stmt, TypeSystem ts){
+        Expr cond;
+        try { // if possible, create a true that wouldn't be recognized by (another pass of) the ConstantPropagator
+            QName qname = QName.make("x10.compiler.CompilerFlags");
+            Type container = ts.typeForName(qname);
+            Name name = Name.make("TRUE"); 
+            cond = syn.createStaticCall(stmt.position(), container, name);
+        } catch (Exception e) {
+            cond = syn.createTrue(stmt.position());
+        }
+        return syn.createIf(stmt.position(), cond, stmt, null);
+    }
+
+    /**
+     * @param alternative
+     * @return
+     */
+    private Node insulate(Node node) {
+        return node.visit(new HideControlFlow(job(), typeSystem(), nodeFactory()));
+    }
+
+    /**
+     * Rewrite an AST so it will look to a Java compiler as if it might have normal control flow.
+     * 
+     * @author Bowen Alpern
+     * 
+     * TODO: implement dead code elimination and throw this code away
+     */
+    class HideControlFlow extends ErrorHandlingVisitor {
+
+        /**
+         * @param job
+         * @param ts
+         * @param nf
+         */
+        public HideControlFlow(Job job, TypeSystem ts, NodeFactory nf) {
+            super(job, ts, nf);
+        }
+        /* (non-Javadoc)
+         * @see polyglot.visit.ErrorHandlingVisitor#leaveCall(polyglot.ast.Node)
+         */
+        @Override
+        /**
+         * Rewrite and AST so it will look to a Java compiler as if it might have normal control flow.
+         */
+        protected Node leaveCall(Node n) throws SemanticException {
+            if (n instanceof Return)
+                return protect((Return) n, typeSystem());
+            if (n instanceof Throw)
+                return protect((Throw) n, typeSystem());
+            return super.leaveCall(n);
+        }
+    }
 }
