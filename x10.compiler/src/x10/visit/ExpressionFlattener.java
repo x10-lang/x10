@@ -52,6 +52,7 @@ import polyglot.ast.Throw;
 import polyglot.ast.Try;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
+import polyglot.ast.Variable;
 import polyglot.ast.While;
 import polyglot.ast.While_c;
 import polyglot.frontend.Job;
@@ -96,10 +97,14 @@ public final class ExpressionFlattener extends ContextVisitor {
 
     private static final boolean DEBUG = false;
 
-    X10TypeSystem xts;
-    X10NodeFactory xnf;
+    private static final boolean XTENLANG_2000 = true;
+    private static long dummyCount = 0;
+
+    private final X10TypeSystem xts;
+    private final X10NodeFactory xnf;
 //    Synthesizer syn;
-    ForLoopOptimizer syn; // move functionality to Synthesizer
+    private final ForLoopOptimizer syn; // move functionality to Synthesizer
+    private final SideEffectDetector sed;
     
     List<Labeled> labels = new ArrayList<Labeled>();
     Map<Node, List<Labeled>> labelMap = new HashMap<Node, List<Labeled>>();
@@ -115,6 +120,13 @@ public final class ExpressionFlattener extends ContextVisitor {
         xnf = (X10NodeFactory) nf;
 //        syn = new Synthesizer(xnf, xts);
         syn = new ForLoopOptimizer(job, ts, nf);
+        sed = new SideEffectDetector(job, ts, nf);
+    }
+
+    @Override
+    public NodeVisitor begin() {
+        sed.begin();
+        return super.begin();
     }
 
     /* (non-Javadoc)
@@ -292,16 +304,20 @@ public final class ExpressionFlattener extends ContextVisitor {
      * Flatten a parenthesized expression.
      * (This should never happen, but it does.)
      * <pre>
-     * (({s1; e1}))  ->  ({s1; val t1=e1; (t1)})
+     * (({s1; e1}))  ->  ({s1; val t1=e1; t1})
+     * (e)           ->  e
      * </pre>
      * 
      * @param expr the parenthesized expression to be flattened
-     * @return a flat expression equivalent to expr
+     * @return a flat expression equivalent to expr (without the parens)
      */
     private Expr flattenParExpr(ParExpr expr) {
         List<Stmt> stmts = new ArrayList<Stmt>();
-        Expr primary = getPrimaryAndStatements(expr.expr(), stmts);
-        return toFlatExpr(expr.position(), stmts, expr.expr(primary));
+        Expr primary = expr;
+        while (primary instanceof ParExpr) {
+            primary = getPrimaryAndStatements(((ParExpr) primary).expr(), stmts);
+        }
+        return toFlatExpr(expr.position(), stmts, primary);
     }
 
     /**
@@ -369,7 +385,9 @@ public final class ExpressionFlattener extends ContextVisitor {
      * </pre>,
      * otherwise
      * <pre>
-     * op ({s1; e1})  ->  ({s1; val t1 = e1; op t1})
+     * ! ({s1; true})   ->  ({s1; false})
+     * ! ({s1; false})  ->  ({s1; true})
+     * op ({s1; e1})    ->  ({s1; val t1 = e1; op t1})
      * </pre>
      * 
      * @param expr the unary expression to flatten
@@ -383,6 +401,15 @@ public final class ExpressionFlattener extends ContextVisitor {
             result = getResult(expr.expr());
         } else {
             result = getPrimaryAndStatements(expr.expr(), stmts);
+            if (result instanceof BooleanLit) {
+                assert (Unary.NOT == expr.operator());
+                if (((BooleanLit) result).value()) {
+                    result = syn.createFalse(expr.position());
+                } else {
+                    result = syn.createTrue(expr.position());
+                }
+                return toFlatExpr(expr.position(), stmts, result);
+            }
         }
         return toFlatExpr(expr.position(), stmts, expr.expr(result));
     }
@@ -547,9 +574,14 @@ public final class ExpressionFlattener extends ContextVisitor {
      * Flatten a binary expression.
      * (Short-circuit AND (&&) and OR (||) are special.)
      * <pre>
-     * ({s1; e1}) && ({s2; e2}))  ->  ({s1; var t  = e1; if ( t){s2; t = e2;}; t})
-     * ({s1; e1}) || ({s2; e2}))  ->  ({s1; var t  = e1; if (!t){s2; t =be2;}; t})
-     * ({s1; e1}) op ({s2; e2}))  ->  ({s1; val t1 = e1; s2; val t2 = e2; t1 op t2}) 
+     * 
+     * ({s1; false} && {s2; e2})  ->  ({s1; false})
+     * ({s1; true}  && {s2; e2})  ->  ({s1; s2; e2})
+     * ({s1; e1}    && {s2; e2})  ->  ({s1; var t  = e1; if ( t){s2; t = e2;}; t})
+     * ({s1; false} || {s2; e2})  ->  ({s1; s2; e2})
+     * ({s1; true}  || {s2; e2})  ->  ({s1; true})
+     * ({s1; e1}    || {s2; e2})  ->  ({s1; var t  = e1; if (!t){s2; t =be2;}; t})
+     * ({s1; e1}    op {s2; e2})  ->  ({s1; val t1 = e1; s2; val t2 = e2; t1 op t2}) 
      * </pre>
      * 
      * @param expr the binary expression to flatten
@@ -561,6 +593,12 @@ public final class ExpressionFlattener extends ContextVisitor {
         if (expr.operator().equals(Binary.COND_AND)) {
             stmts.addAll(getStatements(expr.left()));
             Expr left = getResult(expr.left());
+            if (left instanceof BooleanLit) {
+                if (false == ((BooleanLit) left).value()) 
+                    return toFlatExpr(pos, stmts, left);
+                stmts.addAll(getStatements(expr.right()));
+                return toFlatExpr(pos, stmts, getResult(expr.right()));
+            }
             LocalDecl tmpLDecl = syn.createLocalDecl( pos, 
                                                       Flags.NONE, 
                                                       syn.createTemporaryName(), 
@@ -582,6 +620,12 @@ public final class ExpressionFlattener extends ContextVisitor {
         } else if (expr.operator().equals(Binary.COND_OR)) {
             stmts.addAll(getStatements(expr.left()));
             Expr left = getResult(expr.left());
+            if (left instanceof BooleanLit) {
+                if (true == ((BooleanLit) left).value()) 
+                    return toFlatExpr(pos, stmts, left);
+                stmts.addAll(getStatements(expr.right()));
+                return toFlatExpr(pos, stmts, getResult(expr.right()));
+            }
             LocalDecl tmpLDecl = syn.createLocalDecl( pos, 
                                                       Flags.NONE, 
                                                       syn.createTemporaryName(), 
@@ -946,8 +990,9 @@ public final class ExpressionFlattener extends ContextVisitor {
     /**
      * Flatten the evaluation of an expression.
      * <pre>
-     * ({s1; e1});    ->  s1;               if "e1" is "null" or cannot have side-effects
-     * ({s1; e1});    ->  s1; Eval(e1);     otherwise
+     * ({s1; e1});    ->  s1;               if "e1" cannot have side-effects
+     * ({s1; e1});    ->  s1; Eval(e1);     if "e1" might have side-effects and it's type is Void
+     * ({s1; e1));    ->  s1; val v = e1;   if "e1" might have side-effects and it's type isn't Void
      * </pre>
      * 
      * @param stmt the evaluation to be flattened.
@@ -957,17 +1002,14 @@ public final class ExpressionFlattener extends ContextVisitor {
         List<Stmt> stmts = new ArrayList<Stmt>();
         stmts.addAll(getStatements(stmt.expr()));
         Expr result = getResult(stmt.expr());
-        while (result instanceof ParExpr) result = ((ParExpr) result).expr();
-        if (null != result && (
-                result instanceof Call || 
-                result instanceof Assign || 
-              ( result instanceof Unary && (
-                    ((Unary) result).operator().equals(Unary.POST_DEC) ||
-                    ((Unary) result).operator().equals(Unary.POST_INC) ||
-                    ((Unary) result).operator().equals(Unary.PRE_DEC) ||
-                    ((Unary) result).operator().equals(Unary.PRE_INC) )) )
-            ) {
-            stmts.add(syn.createEval(result));
+        while (result instanceof ParExpr) 
+            result = ((ParExpr) result).expr();
+        if (sed.hasSideEffects(result)) {
+            if (result.type().typeEquals(xts.Void(), context)) {
+                stmts.add(syn.createEval(result));
+            } else if (XTENLANG_2000 && !(result instanceof Lit) && !(result instanceof Variable)) { // prevent Java backend from emitting an illegal expression statement (see XTENLANG-2000)
+                stmts.add(syn.createLocalDecl(result.position(), Flags.FINAL, Name.make("dummy" + (++dummyCount)), result));
+            }
         }
         return syn.toStmtSeq(syn.toStmtSeq(stmt.position(), stmts));
     }
