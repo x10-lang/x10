@@ -51,7 +51,6 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		return new X10Disamb_c();
 	}
 	
-	@Override
 	public Initializer Initializer(Position pos, FlagsNode flags, Block body) {
 	    Initializer n = new X10Initializer_c(pos, flags, body);
 	    n = (Initializer)n.ext(extFactory().extInitializer());
@@ -65,7 +64,6 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 	    n = (LocalAssign)n.del(delFactory().delLocalAssign());
 	    return n;
 	}
-	@Override
 	public FieldAssign FieldAssign(Position pos, Receiver target, Id field, Assign.Operator op, Expr right) {
 	    FieldAssign n = new X10FieldAssign_c(this, pos, target, field, op, right);
 	    n = (FieldAssign)n.ext(extFactory().extFieldAssign());
@@ -80,7 +78,6 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 	    return n;
 	}
 
-	@Override
 	public AmbExpr AmbExpr(Position pos, Id name) {
 	    AmbExpr n = new X10AmbExpr_c(pos, name);
 	    n = (AmbExpr)n.ext(extFactory().extAmbExpr());
@@ -129,7 +126,6 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		return n;
 	}
 
-	@Override
 	public Return Return(Position pos, Expr expr) {
 	    return X10Return(pos, expr, false);
 	}
@@ -172,7 +168,6 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 	    return n;
 	}
 	
-	@Override
 	public SourceFile SourceFile(Position position, PackageNode packageName, List<Import> imports, List<TopLevelDecl> decls) {
 		 SourceFile n = new X10SourceFile_c(position, packageName, CollectionUtil.nonNullList(imports), CollectionUtil.nonNullList(decls));
 		 n = (SourceFile)n.ext(extFactory().extSourceFile());
@@ -317,7 +312,6 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		return n;
 	}
 	
-	@Override
 	public X10ClassDecl ClassDecl(Position pos, FlagsNode flags, Id name, TypeNode superClass, List<TypeNode> interfaces, ClassBody body) {
 		return X10ClassDecl(pos, flags, name, Collections.<TypeParamNode>emptyList(), Collections.<PropertyDecl>emptyList(), null, superClass, interfaces, body);
 	}
@@ -462,10 +456,9 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		Call c = (Call) left;
 		return SettableAssign(pos, (Expr) c.target(), c.arguments(), op, right);
 	    }
-	    return super.Assign(pos, left, op, right);
+	    return SUPER_Assign(pos, left, op, right);
 	}
 	
-	@Override
 	public polyglot.ast.AmbAssign AmbAssign(Position pos, Expr left, Operator op, Expr right) {
 	    AmbAssign n = new X10AmbAssign_c(this, pos, left, op, right);
 	    n = (AmbAssign)n.ext(extFactory().extAmbAssign());
@@ -514,7 +507,6 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 	    return tn;
 	}
 
-	@Override
 	public X10CanonicalTypeNode CanonicalTypeNode(Position pos, Ref<? extends Type> type) {
 	    X10CanonicalTypeNode n = new X10CanonicalTypeNode_c(pos, type);
 	    n = (X10CanonicalTypeNode)n.ext(extFactory().extCanonicalTypeNode());
@@ -569,7 +561,6 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 	    return n;
 	}
 
-	@Override
 	public X10Cast Cast(Position pos, TypeNode castType, Expr expr) {
 	    return X10Cast(pos, castType, expr, Converter.ConversionType.UNKNOWN_CONVERSION);
 	}
@@ -599,7 +590,6 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		return n;
 	}
 	
-	@Override
 	public X10ConstructorDecl ConstructorDecl(Position pos, FlagsNode flags, Id name, List<Formal> formals, Block body) {
 		return X10ConstructorDecl(pos, flags, name, null, Collections.<TypeParamNode>emptyList(), formals, null,  null, body);
 	}
