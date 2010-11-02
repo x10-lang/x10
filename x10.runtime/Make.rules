@@ -192,7 +192,7 @@ else
       LIBPREFIX :=
       LIBSUFFIX := .dll
       ifndef DEFAULT_X10RT_LIB
-        DEFAULT_X10RT_LIB = pgas_sockets
+        DEFAULT_X10RT_LIB = sockets
       endif
     else
     ifeq ($(shell uname -s),Darwin)
