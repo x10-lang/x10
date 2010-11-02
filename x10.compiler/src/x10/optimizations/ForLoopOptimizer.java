@@ -20,6 +20,7 @@ import polyglot.ast.Binary;
 import polyglot.ast.Block;
 import polyglot.ast.BooleanLit;
 import polyglot.ast.Branch;
+import polyglot.ast.Call;
 import polyglot.ast.Expr;
 import polyglot.ast.Field;
 import polyglot.ast.For;
@@ -33,6 +34,7 @@ import polyglot.ast.LocalDecl;
 import polyglot.ast.Loop;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
+import polyglot.ast.Receiver;
 import polyglot.ast.Stmt;
 import polyglot.ast.Switch;
 import polyglot.ast.Term;
@@ -53,6 +55,7 @@ import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
+import x10.ast.ClosureCall;
 import x10.ast.ForLoop;
 import x10.ast.ForLoop_c;
 import x10.ast.RegionMaker;
@@ -258,6 +261,7 @@ public class ForLoopOptimizer extends ContextVisitor {
                 stmts.add(indexLDecl);
             }
             
+            LocalDecl varLDecls[] = new LocalDecl[rank];
             // create the loop nest (from the inside out)
             for (int r=rank-1; 0<=r; r--) {
                 
@@ -275,6 +279,8 @@ public class ForLoopOptimizer extends ContextVisitor {
                 LocalDecl minLDecl = createLocalDecl(pos, Flags.FINAL, minName, minVal);
                 LocalDecl maxLDecl = createLocalDecl(pos, Flags.FINAL, maxName, maxVal);
                 LocalDecl varLDecl = createLocalDecl(pos, Flags.NONE, varName, createLocal(pos, minLDecl));
+                
+                varLDecls[r] = varLDecl;
                 
                 // add the declarations for the r-th min and max to the list of statements to be executed before the loop nest
                 stmts.add(minLDecl);
@@ -315,6 +321,7 @@ public class ForLoopOptimizer extends ContextVisitor {
             if (1 < rank) {
                 body = xnf.Labeled(body.position(), label, body);
             }
+            body = explodePoint(formal, indexLDecl, varLDecls, body);
             stmts.add(body);
             Block result = createBlock(pos, stmts);
             if (VERBOSE) result.dump(System.out);
@@ -349,6 +356,51 @@ public class ForLoopOptimizer extends ContextVisitor {
         Stmt result           = createStandardFor(pos, iterLDecl, hasExpr, createBlock(pos, bodyStmts));
         if (VERBOSE) result.dump(System.out);
         return result;
+    }
+
+    /**
+     * Replace calls to the apply method on point with corresponding calls to the corresponding method on rail throughout the body
+     * 
+     * @param point a Point formal variable
+     * @param rail the underlying Rail defining point
+     * @param body the AST containing the usses of point to be replaced 
+     * @return a copy of body with every call to point.apply() replaced by a call to rail.apply()
+     */
+    private Stmt explodePoint(final X10Formal point, final LocalDecl rail, final LocalDecl[] indices, final Stmt body) {
+        ContextVisitor pointExploder = new ContextVisitor(job, xts, xnf) {
+            /* (non-Javadoc)
+             * @see polyglot.visit.ErrorHandlingVisitor#leaveCall(polyglot.ast.Node)
+             */
+            @Override
+            protected Node leaveCall(Node n) throws SemanticException {
+                if (n instanceof Call) {
+                    X10Formal p = point;
+                    LocalDecl r = rail;
+                    LocalDecl[] is = indices;
+                    Call call = (Call) n;
+                    Receiver target = call.target();
+                    if (target instanceof Local && call.methodInstance().name().equals(ClosureCall.APPLY)) {
+                        if (((Local) target).localInstance().def() == point.localDef()) {
+                            List<Expr> args = call.arguments();
+                            assert (1 == args.size());
+                            Expr arg = args.get(0);
+                            if (arg.isConstant()) {
+                                int i =(Integer) arg.constantValue();
+                                return syn.createLocal(n.position(), indices[i]);
+                            }
+                            call = call.target(createLocal(target.position(), rail));
+                            call = call.methodInstance(createMethodInstance( rail.type().type(), 
+                                                                             ClosureCall.APPLY, 
+                                                                             Collections.<Type>emptyList(),
+                                                                             call.methodInstance().formalTypes()));
+                            return call;
+                        }
+                    }
+                }
+                return n;
+            }
+        };
+        return (Stmt) body.visit(pointExploder.begin());
     }
 
     /**
