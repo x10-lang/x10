@@ -58,6 +58,7 @@ import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.types.VarDef;
+import polyglot.util.Pair;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
@@ -93,8 +94,9 @@ public class StaticInitializer extends ContextVisitor {
 
     static final private String initMethodPrefix = "getInitialized$";
 
-    // mapping static field var name and corresponding initializer method
-    private Map<Name, StaticFieldInfo> staticFinalFields = new HashMap<Name, StaticFieldInfo>();
+    // mapping static field and corresponding initializer method
+    private Map<Pair<Type,Name>, StaticFieldInfo> staticFinalFields = 
+            new HashMap<Pair<Type,Name>, StaticFieldInfo>();
 
     public StaticInitializer(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf);
@@ -120,8 +122,8 @@ public class StaticInitializer extends ContextVisitor {
         List<ClassMember> members = new ArrayList<ClassMember>();
         members.addAll(classBody.members());
 
-        for (Map.Entry<Name, StaticFieldInfo> entry : staticFinalFields.entrySet()) {
-            Name fName = entry.getKey();
+        for (Map.Entry<Pair<Type,Name>, StaticFieldInfo> entry : staticFinalFields.entrySet()) {
+            Name fName = entry.getKey().snd();
             StaticFieldInfo fieldInfo = entry.getValue();
             if (fieldInfo.right == null)
                 continue;
@@ -229,7 +231,8 @@ public class StaticInitializer extends ContextVisitor {
                         if (checkFieldRefReplacementRequired(f)) {
                             found.set(true);
                             // replace with a static method call
-                            X10ClassType receiver = ct.classDef().asType();
+                            // X10ClassType receiver = ct.classDef().asType();
+                            X10ClassType receiver = (X10ClassType)f.target().type();
                             return makeStaticCall(n.position(), receiver, f.name(), f.type(), flags);
                         }
                     }
@@ -239,11 +242,11 @@ public class StaticInitializer extends ContextVisitor {
         });
 
         // register original rhs
-        StaticFieldInfo fieldInfo = getFieldEntry(leftName.id());
+        X10ClassType receiver = ct.classDef().asType();
+        StaticFieldInfo fieldInfo = getFieldEntry(receiver, leftName.id());
         fieldInfo.right = (fieldInfo.methodDef != null || found.get()) ? newRhs : null;
 
         if (fieldInfo.right != null) {
-            X10ClassType receiver = ct.classDef().asType();
             return makeStaticCall(rhs.position(), receiver, leftName, leftType, flags);
         }
         // no change
@@ -253,7 +256,7 @@ public class StaticInitializer extends ContextVisitor {
     Call makeStaticCall(Position pos, X10ClassType receiver, Id id, Type returnType, Flags flags) {
         // create MethodDef
         Name name = Name.make(initMethodPrefix+id);
-        StaticFieldInfo fieldInfo = getFieldEntry(id.id());
+        StaticFieldInfo fieldInfo = getFieldEntry(receiver, id.id());
         MethodDef md = fieldInfo.methodDef; 
         if (md == null) {
             Position CG = Position.compilerGenerated(null);
@@ -447,23 +450,26 @@ public class StaticInitializer extends ContextVisitor {
         return cond;
     }
 
-    StaticFieldInfo getFieldEntry(Name name) {
-        StaticFieldInfo fieldInfo = staticFinalFields.get(name);
+    StaticFieldInfo getFieldEntry(Type target, Name name) {
+        Pair<Type,Name> key = new Pair<Type,Name>(target, name);
+        StaticFieldInfo fieldInfo = staticFinalFields.get(key);
         if (fieldInfo == null) {
             fieldInfo = new StaticFieldInfo();
-            staticFinalFields.put(name, fieldInfo);
+            staticFinalFields.put(key, fieldInfo);
         }
         return fieldInfo;
     }
 
     boolean checkFieldRefReplacementRequired(X10Field_c f) {
         if (f.target().type().isNumeric())
+            // @NativeRep class should be excluded
             return false;
 
         if (f.isConstant())
             return false;
 
-        StaticFieldInfo fieldInfo = staticFinalFields.get(f.name().id());
+        Pair<Type,Name> key = new Pair<Type,Name>(f.target().type(), f.name().id());
+        StaticFieldInfo fieldInfo = staticFinalFields.get(key);
         // not yet registered, or registered as replacement required
         return fieldInfo == null || fieldInfo.right != null || fieldInfo.methodDef != null;
     }
