@@ -463,7 +463,10 @@ void x10rt_net_send_put (x10rt_msg_params *parameters, void *buffer, x10rt_copy_
 
 void x10rt_net_probe ()
 {
-	probe(false);
+	if (state.numPlaces == 1)
+		sched_yield(); // why is the runtime calling probe() with only one place?  It looses it's CPU as punishment. ;-)
+	else
+		probe(false);
 }
 
 void probe (bool onlyProcessAccept)
@@ -471,11 +474,7 @@ void probe (bool onlyProcessAccept)
 	if (pthread_mutex_lock(&state.readLock) < 0)
 		return;
 	uint32_t whichPlaceToHandle = state.nextSocketToCheck;
-	int ret = 0;
-	if (state.numPlaces > 1)
-	{
-		ret = poll(state.socketLinks, state.numPlaces, 0);
-	}
+	int ret = poll(state.socketLinks, state.numPlaces, 0);
 	if (ret > 0)
 	{ // There is at least one socket with something interesting to look at
 		if (onlyProcessAccept)
