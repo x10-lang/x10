@@ -15,6 +15,7 @@ import polyglot.main.Report;
 import polyglot.types.reflect.ClassFile;
 import polyglot.types.reflect.ClassFileLazyClassInitializer;
 import polyglot.util.*;
+import x10.types.X10TypeSystem;
 
 /**
  * TypeSystem_c
@@ -22,7 +23,7 @@ import polyglot.util.*;
  * Overview:
  *    A TypeSystem_c is a universe of types, including all Java types.
  **/
-public abstract class TypeSystem_c implements TypeSystem
+public abstract class TypeSystem_c implements X10TypeSystem
 {
     private static volatile int counter = 0;
 
@@ -255,20 +256,6 @@ public abstract class TypeSystem_c implements TypeSystem
 	return new ClassContextResolver(this, type);
     }
 
-    public FieldDef fieldDef(Position pos,
-	    Ref<? extends StructType> container, Flags flags,
-	    Ref<? extends Type> type, Name name) {
-	assert_(container);
-	assert_(type);
-	return new FieldDef_c(this, pos, container, flags, type, name);
-    }
-
-    public LocalDef localDef(Position pos,
-	    Flags flags, Ref<? extends Type> type, Name name) {
-	assert_(type);
-	return new LocalDef_c(this, pos, flags, type, name);
-    }
-
     public ConstructorDef defaultConstructor(Position pos,
 	    Ref<? extends ClassType> container) {
 	assert_(container);
@@ -375,8 +362,6 @@ public abstract class TypeSystem_c implements TypeSystem
 	assert_(toType);
 	return env(context).isCastValid(fromType, toType);
     }
-
-    public abstract TypeEnv env(Context context);
 
     /**
      * Requires: all type arguments are canonical.
@@ -659,49 +644,11 @@ public abstract class TypeSystem_c implements TypeSystem
     ////
 
     /**
-     * Returns the FieldInstance for the field <code>name</code> defined
-     * in type <code>container</code> or a supertype, and visible from
-     * <code>currClass</code>.  If no such field is found, a SemanticException
-     * is thrown.  <code>currClass</code> may be null.
-     **/
-    public FieldInstance findField(Type container, TypeSystem_c.FieldMatcher matcher) throws SemanticException {
-
-	Context context = matcher.context();
-	
-	Collection<FieldInstance> fields = findFields(container, matcher);
-
-	if (fields.size() == 0) {
-	    throw new NoMemberException(NoMemberException.FIELD,
-	                                "Field " + matcher.signature() +
-	                                " not found in type \"" +
-	                                container + "\".");
-	}
-
-	Iterator<FieldInstance> i = fields.iterator();
-	FieldInstance fi = i.next();
-
-	if (i.hasNext()) {
-	    FieldInstance fi2 = i.next();
-
-	    throw new SemanticException("Field " + matcher.signature() +
-	                                " is ambiguous; it is defined in both " +
-	                                fi.container() + " and " +
-	                                fi2.container() + "."); 
-	}
-
-	if (context != null && ! isAccessible(fi, context)) {
-	    throw new SemanticException("Cannot access " + fi + ".");
-	}
-
-	return fi;
-    }
-
-    /**
      * Returns a set of fields named <code>name</code> defined
      * in type <code>container</code> or a supertype.  The list
      * returned may be empty.
      */
-    protected Set<FieldInstance> findFields(Type container, TypeSystem_c.FieldMatcher matcher) {
+    public Set<FieldInstance> findFields(Type container, TypeSystem_c.FieldMatcher matcher) {
 	Name name = matcher.name();
 
 	Context context = matcher.context();
@@ -1066,7 +1013,7 @@ public abstract class TypeSystem_c implements TypeSystem
 	return new FieldMatcher(container, name, context);
     }
 
-    public MethodInstance findMethod(Type container, MethodMatcher matcher) 
+    public MethodInstance SUPER_findMethod(Type container, MethodMatcher matcher) 
     throws SemanticException {
 
 	assert_(container);
@@ -1112,7 +1059,7 @@ public abstract class TypeSystem_c implements TypeSystem
 	return mi;
     }
 
-    public ConstructorInstance findConstructor(Type container, ConstructorMatcher matcher)
+    public ConstructorInstance SUPER_findConstructor(Type container, ConstructorMatcher matcher)
     throws SemanticException {
 
 	assert_(container);
@@ -1529,7 +1476,7 @@ public abstract class TypeSystem_c implements TypeSystem
     public Type Float()   { return FLOAT_; }
     public Type Double()  { return DOUBLE_; }
 
-    protected ClassType load(String name) {
+    public ClassType load(String name) {
 	try {
 	    return (ClassType) typeForName(QName.make(name));
 	}
@@ -1887,30 +1834,6 @@ public abstract class TypeSystem_c implements TypeSystem
 	return createClassDef((Source) null);
     }
 
-    public ClassDef createClassDef(Source fromSource) {
-	return new ClassDef_c(this, fromSource);
-    }
-
-    public ParsedClassType createClassType(Position pos, Ref<? extends ClassDef> def) {
-	return new ParsedClassType_c(this, pos, def);
-    }
-
-    public ConstructorInstance createConstructorInstance(Position pos, Ref<? extends ConstructorDef> def) {
-	return new ConstructorInstance_c(this, pos, def);
-    }
-
-    public MethodInstance createMethodInstance(Position pos, Ref<? extends MethodDef> def) {
-	return new MethodInstance_c(this, pos, def);
-    }
-
-    public FieldInstance createFieldInstance(Position pos, Ref<? extends FieldDef> def) {
-	return new FieldInstance_c(this, pos, def);
-    }
-
-    public LocalInstance createLocalInstance(Position pos, Ref<? extends LocalDef> def) {
-	return new LocalInstance_c(this, pos, def);
-    }
-
     public InitializerInstance createInitializerInstance(Position pos, Ref<? extends InitializerDef> def) {
 	return new InitializerInstance_c(this, pos, def);
     }
@@ -2189,48 +2112,6 @@ public abstract class TypeSystem_c implements TypeSystem
     
     public MethodInstance findImplementingMethod(ClassType ct, MethodInstance mi, Context context) {
 	return findImplementingMethod(ct, mi, false, context);
-    }
-
-    public MethodInstance findImplementingMethod(ClassType ct, MethodInstance mi, boolean includeAbstract, Context context) {
-	StructType curr = ct;
-	while (curr != null) {
-	    List<MethodInstance> possible = curr.methods(mi.name(), mi.formalTypes(), context);
-	    for (Iterator<MethodInstance> k = possible.iterator(); k.hasNext(); ) {
-		MethodInstance mj = k.next();
-		if ((includeAbstract || !mj.flags().isAbstract()) && 
-			((isAccessible(mi, context) && isAccessible(mj, context)) || 
-				isAccessible(mi, context))) {
-		    // The method mj may be a suitable implementation of mi.
-		    // mj is not abstract, and either mj's container 
-		    // can access mi (thus mj can really override mi), or
-		    // mi and mj are both accessible from ct (e.g.,
-		    // mi is declared in an interface that ct implements,
-		    // and mj is defined in a superclass of ct).
-		    return mj;                    
-		}
-	    }
-	    if (curr.typeEquals(mi.container(), context)) {
-		// we've reached the definition of the abstract 
-		// method. We don't want to look higher in the 
-		// hierarchy; this is not an optimization, but is 
-		// required for correctness. 
-		break;
-	    }
-
-	    if (curr instanceof ObjectType) {
-		ObjectType ot = (ObjectType) curr;
-		if (ot.superClass() instanceof StructType) {
-		    curr = (StructType) ot.superClass();
-		}
-		else {
-		    curr = null;
-		}
-	    }
-	    else {
-		curr = null;
-	    }
-	}
-	return null;
     }
 
     protected void initFlags() {

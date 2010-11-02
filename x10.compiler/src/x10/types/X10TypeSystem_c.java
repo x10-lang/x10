@@ -109,7 +109,7 @@ import x10.util.ClosureSynthesizer;
  * @author Christoph von Praun
  * @author vj
  */
-public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
+public class X10TypeSystem_c extends TypeSystem_c {
 	public static final String DUMMY_AT_ASYNC = "$dummyAsync"; // for async/at/ateach
 	public static final int EXPAND_MACROS_DEPTH=25;
 
@@ -875,32 +875,26 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return X10TypeMixin.instantiate(r, type);
     }
 
-    @Override
     public X10ClassDef createClassDef(Source fromSource) {
         return new X10ClassDef_c(this, fromSource);
     }
 
-    @Override
     public X10ParsedClassType createClassType(Position pos, Ref<? extends ClassDef> def) {
         return new X10ParsedClassType_c(this, pos, def);
     }
 
-    @Override
     public X10ConstructorInstance createConstructorInstance(Position pos, Ref<? extends ConstructorDef> def) {
         return new X10ConstructorInstance_c(this, pos, (Ref<? extends X10ConstructorDef>) def);
     }
 
-    @Override
     public X10MethodInstance createMethodInstance(Position pos, Ref<? extends MethodDef> def) {
         return new X10MethodInstance_c(this, pos, (Ref<? extends X10MethodDef>) def);
     }
 
-    @Override
     public X10FieldInstance createFieldInstance(Position pos, Ref<? extends FieldDef> def) {
         return new X10FieldInstance_c(this, pos, (Ref<? extends X10FieldDef>) def);
     }
 
-    @Override
     public X10LocalInstance createLocalInstance(Position pos, Ref<? extends LocalDef> def) {
         return new X10LocalInstance_c(this, pos, (Ref<? extends X10LocalDef>) def);
     }
@@ -1621,7 +1615,6 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return sf;
     }
 
-    @Override
     public X10FieldDef fieldDef(Position pos, Ref<? extends StructType> container, Flags flags, Ref<? extends Type> type, Name name) {
         assert_(container);
         assert_(type);
@@ -2188,7 +2181,6 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return typeEquals(X10TypeMixin.stripConstraints(type1), X10TypeMixin.stripConstraints(type2), context);
     }
 
-    @Override
     public X10LocalDef localDef(Position pos, Flags flags, Ref<? extends Type> type, Name name) {
         assert_(type);
         return new X10LocalDef_c(this, pos, flags, type, name);
@@ -2347,7 +2339,6 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return super.descendsFrom(child, ancestor);
     }
 
-    @Override
     public X10TypeEnv env(Context context) {
         return new X10TypeEnv_c(context == null ? emptyContext() : context);
     }
@@ -2368,9 +2359,8 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return candidates;
     }
 
-    @Override
     public X10MethodInstance findMethod(Type container, MethodMatcher matcher) throws SemanticException {
-        return (X10MethodInstance) super.findMethod(container, matcher);
+        return (X10MethodInstance) SUPER_findMethod(container, matcher);
     }
 
     public Collection<X10MethodInstance> findMethods(Type container, MethodMatcher matcher) throws SemanticException {
@@ -2392,9 +2382,8 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return result;
     }
 
-    @Override
     public X10ConstructorInstance findConstructor(Type container, polyglot.types.TypeSystem_c.ConstructorMatcher matcher) throws SemanticException {
-        return (X10ConstructorInstance) super.findConstructor(container, matcher);
+        return (X10ConstructorInstance) SUPER_findConstructor(container, matcher);
     }
 
     public Collection<X10ConstructorInstance> findConstructors(Type container, polyglot.types.TypeSystem_c.ConstructorMatcher matcher) throws SemanticException {

@@ -21,7 +21,7 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.util.CollectionUtil;
 
-class TypeDefMatcher implements Matcher<Named> {
+public class TypeDefMatcher implements Matcher<Named> {
     Type container;
     Name name;
     List<Type> typeArgs;

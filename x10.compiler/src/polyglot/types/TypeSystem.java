@@ -9,13 +9,45 @@ package polyglot.types;
 
 import java.util.*;
 
+import polyglot.ast.Binary;
+import polyglot.ast.Id;
+import polyglot.ast.Unary;
 import polyglot.frontend.ExtensionInfo;
 import polyglot.frontend.Source;
 import polyglot.types.TypeSystem_c.ConstructorMatcher;
+import polyglot.types.TypeSystem_c.FieldMatcher;
 import polyglot.types.TypeSystem_c.MethodMatcher;
 import polyglot.types.reflect.ClassFile;
 import polyglot.types.reflect.ClassFileLazyClassInitializer;
 import polyglot.util.Position;
+import polyglot.visit.ContextVisitor;
+import x10.constraint.XLit;
+import x10.constraint.XTerm;
+import x10.constraint.XVar;
+import x10.types.AnnotatedType;
+import x10.types.ClosureDef;
+import x10.types.ClosureInstance;
+import x10.types.FunctionType;
+import x10.types.MacroType;
+import x10.types.ParameterType;
+import x10.types.TypeDefMatcher;
+import x10.types.X10ClassDef;
+import x10.types.X10ClassType;
+import x10.types.X10ConstructorDef;
+import x10.types.X10ConstructorInstance;
+import x10.types.X10Context;
+import x10.types.X10Def;
+import x10.types.X10FieldDef;
+import x10.types.X10FieldInstance;
+import x10.types.X10LocalDef;
+import x10.types.X10LocalInstance;
+import x10.types.X10MethodDef;
+import x10.types.X10MethodInstance;
+import x10.types.X10ParsedClassType;
+import x10.types.X10TypeEnv;
+import x10.types.XTypeTranslator;
+import x10.types.constraints.CConstraint;
+import x10.types.constraints.TypeConstraint;
 
 /**
  * The <code>TypeSystem</code> defines the types of the language and
@@ -124,25 +156,6 @@ public interface TypeSystem {
                                   Flags flags, Ref<? extends Type> returnType, Name name,
                                   List<Ref<? extends Type>> argTypes); 
 
-    /** Create a field instance.
-     * @param pos Position of the field.
-     * @param container Containing type of the field.
-     * @param flags The field's flags.
-     * @param type The field's type.
-     * @param name The field's name.
-     */
-    FieldDef fieldDef(Position pos, Ref<? extends StructType> container,
-                                Flags flags, Ref<? extends Type> type, Name name);
-
-    /** Create a local variable instance.
-     * @param pos Position of the local variable.
-     * @param flags The local variable's flags.
-     * @param type The local variable's type.
-     * @param name The local variable's name.
-     */
-    LocalDef localDef(Position pos, Flags flags, Ref<? extends Type> type,
-	    Name name);
-
     /** Create a default constructor instance.
      * @param pos Position of the constructor.
      * @param container Containing class of the constructor. 
@@ -160,16 +173,6 @@ public interface TypeSystem {
 
     /** Get an unknown type qualifier. */
     UnknownQualifier unknownQualifier(Position pos);
-
-    /**
-     * Returns true iff child descends from ancestor or child == ancestor.
-     * This is equivalent to:
-     * <pre>
-     *    descendsFrom(child, ancestor) || equals(child, ancestor)
-     * </pre>
-     * @param context TODO
-     */
-    boolean isSubtype(Type child, Type ancestor, Context context);
 
     /**
      * Returns true iff child is not ancestor, but child descends from ancestor.     */
@@ -304,42 +307,9 @@ public interface TypeSystem {
     // Functions for type membership.
     ////
 
-    /**
-     * Returns the field named 'name' defined on 'type'.
-     * @exception SemanticException if the field cannot be found or is
-     * inaccessible.
-     */
-    FieldInstance findField(Type container, TypeSystem_c.FieldMatcher matcher)
-	throws SemanticException;
-    
     Matcher<Named> TypeMatcher(Name name);
     Matcher<Named> MemberTypeMatcher(Type container, Name name, Context context);
     TypeSystem_c.FieldMatcher FieldMatcher(Type container, Name name, Context context);
-    TypeSystem_c.MethodMatcher MethodMatcher(Type container, Name name, List<Type> argTypes, Context context);
-    TypeSystem_c.ConstructorMatcher ConstructorMatcher(Type container, List<Type> argTypes, Context context);
-
-    /**
-     * Find a method.  We need to pass the class from which the method
-     * is being found because the method
-     * we find depends on whether the method is accessible from that
-     * class.
-     * We also check if the field is accessible from the context 'c'.
-     * @exception SemanticException if the method cannot be found or is
-     * inaccessible.
-     */
-    MethodInstance findMethod(Type container,
-	    MethodMatcher matcher) throws SemanticException;
-
-    /**
-     * Find a constructor.  We need to pass the class from which the constructor
-     * is being found because the constructor
-     * we find depends on whether the constructor is accessible from that
-     * class.
-     * @exception SemanticException if the constructor cannot be found or is
-     * inaccessible.
-     */
-    ConstructorInstance findConstructor(Type container,
-	    TypeSystem_c.ConstructorMatcher matcher) throws SemanticException;
 
     /**
      * Find a member class.
@@ -448,11 +418,6 @@ public interface TypeSystem {
      * <code>double</code>
      */
     Type Double();
-
-    /**
-     * <code>java.lang.Object</code>
-     */
-    Type Object();
 
     /**
      * <code>java.lang.String</code>
@@ -567,11 +532,6 @@ public interface TypeSystem {
     Package createPackage(Ref<? extends Package> prefix, Name name);
     Package createPackage(Package prefix, Name name);
 
-    /**
-     * Create a new context object for looking up variables, types, etc.
-     */
-    Context emptyContext();
-
     /** Get a resolver for looking up a type in a package. */
     Resolver packageContextResolver(Package pkg, ClassDef accessor, Context context);
     Resolver packageContextResolver(Package pkg);
@@ -587,16 +547,6 @@ public interface TypeSystem {
      */
     ClassDef createClassDef();
 
-    /**
-     * Create a new empty class.
-     */
-    ClassDef createClassDef(Source fromSource);
-
-    ParsedClassType createClassType(Position pos, Ref<? extends ClassDef> def);
-    ConstructorInstance createConstructorInstance(Position pos, Ref<? extends ConstructorDef> def);
-    MethodInstance createMethodInstance(Position pos, Ref<? extends MethodDef> def);
-    FieldInstance createFieldInstance(Position pos, Ref<? extends FieldDef> def);
-    LocalInstance createLocalInstance(Position pos, Ref<? extends LocalDef> def);
     InitializerInstance createInitializerInstance(Position pos, Ref<? extends InitializerDef> def);
     
     /**
@@ -807,22 +757,6 @@ public interface TypeSystem {
     public MethodInstance findImplementingMethod(ClassType ct, MethodInstance mi, Context context);
     
     /**
-     * Find a potentially suitable implementation of the method <code>mi</code>
-     * in the class <code>ct</code> or a supertype thereof, or an abstract method
-     * that when overridden will implement the method.  Since we are
-     * looking for implementations, <code>ct</code> cannot be an interface.
-     * The first potentially satisfying method is returned, that is, the method
-     * that is visible from <code>ct</code>, with the correct signature, in
-     * the most precise class in the class hierarchy starting from
-     * <code>ct</code>.
-     * @param context TODO
-     * 
-     * @return a suitable implementation of the method mi in the class
-     *         <code>ct</code> or a supertype thereof, null if none exists.
-     */
-    public MethodInstance findImplementingMethod(ClassType ct, MethodInstance mi, boolean includeAbstract, Context context);
-
-    /**
      * Given the JVM encoding of a set of flags, returns the Flags object
      * for that encoding.
      */
@@ -877,4 +811,406 @@ public interface TypeSystem {
     public List<ConstructorInstance> findAcceptableConstructors(Type container, ConstructorMatcher matcher) throws SemanticException;
 
     List<Type> abstractSuperInterfaces(Type t);
+
+    public Name DUMMY_PACKAGE_CLASS_NAME = Name.make("_");
+
+    boolean isSubtype(Type t1, Type t2, Context context);
+
+    // empty context
+    boolean isSubtype(Type t1, Type t2);
+    /**
+     * Add an annotation to a type object, optionally replacing existing
+     * annotations that are subtypes of annoType.
+     */
+    void addAnnotation(X10Def o, Type annoType, boolean replace);
+
+    AnnotatedType AnnotatedType(Position pos, Type baseType, List<Type> annotations);
+
+    X10MethodInstance findImplementingMethod(ClassType ct, MethodInstance jmi, boolean includeAbstract, Context context);
+
+    Type boxOf(Position p, Ref<? extends Type> t);
+
+    Type futureOf(Position p, Ref<? extends Type> t);
+
+    FieldMatcher FieldMatcher(Type container, boolean contextKnowsReceiver, Name name, Context context);
+    MethodMatcher MethodMatcher(Type container, Name name, List<Type> argTypes, Context context);
+    MethodMatcher MethodMatcher(Type container, Name name, List<Type> typeArgs,  List<Type> argTypes, Context context);
+
+    ConstructorMatcher ConstructorMatcher(Type container, List<Type> argTypes, Context context);
+
+    /**
+     * Returns the field named 'name' defined on 'type'.
+     * @exception SemanticException if the field cannot be found or is
+     * inaccessible.
+     */
+    X10FieldInstance findField(Type container, FieldMatcher matcher) throws SemanticException;
+
+    /**
+     * Find matching fields.
+     *
+     * @exception SemanticException if no matching field can be found.
+     */
+    Set<FieldInstance> findFields(Type container, FieldMatcher matcher) throws SemanticException;
+
+    /**
+     * Find a method. We need to pass the class from which the method is being
+     * found because the method we find depends on whether the method is
+     * accessible from that class. We also check if the field is accessible from
+     * the context 'c'.
+     *
+     * @exception SemanticException
+     *                    if the method cannot be found or is inaccessible.
+     */
+    X10MethodInstance findMethod(Type container, MethodMatcher matcher) throws SemanticException;
+
+    /**
+     * Find matching methods.
+     *
+     * @exception SemanticException if no matching method can be found.
+     */
+    Collection<X10MethodInstance> findMethods(Type container, MethodMatcher matcher) throws SemanticException;
+
+    /**
+     * Find a constructor. We need to pass the class from which the constructor
+     * is being found because the constructor we find depends on whether the
+     * constructor is accessible from that class.
+     *
+     * @exception SemanticException
+     *                    if the constructor cannot be found or is inaccessible.
+     */
+    X10ConstructorInstance findConstructor(Type container, TypeSystem_c.ConstructorMatcher matcher) throws SemanticException;
+
+    /**
+     * Find matching constructors.
+     *
+     * @exception SemanticException if no matching constructor can be found.
+     */
+    Collection<X10ConstructorInstance> findConstructors(Type container, ConstructorMatcher matcher) throws SemanticException;
+
+    X10ClassDef createClassDef(Source fromSource);
+
+    X10ParsedClassType createClassType(Position pos, Ref<? extends ClassDef> def);
+    X10ConstructorInstance createConstructorInstance(Position pos, Ref<? extends ConstructorDef> def);
+    X10MethodInstance createMethodInstance(Position pos, Ref<? extends MethodDef> def);
+    X10FieldInstance createFieldInstance(Position pos, Ref<? extends FieldDef> def);
+    X10LocalInstance createLocalInstance(Position pos, Ref<? extends LocalDef> def);
+
+    /**
+     * Create a <code>ClosureType</code> with the given signature.
+     */
+    ClosureInstance createClosureInstance(Position pos, Ref<? extends ClosureDef> def);
+
+    /**
+     * Returns an immutable list of all the interfaces
+     * which the type implements excluding itself and x10.lang.Object.
+     * This is different from {@link #Interface()} in that this method
+     * traverses the class hierarchy to collect all implemented interfaces
+     * instead of shallowly returning just the interfaces directly implemented
+     * by the type.
+     */
+    List<X10ClassType> allImplementedInterfaces(X10ClassType type);
+
+    Type Place(); // needed for here, async (p) S, future (p) e, etc
+    // Type Region();
+
+    Type Point(); // needed for destructuring assignment
+
+    Type Dist();
+
+    Type Clock(); // needed for clocked loops
+
+    Type FinishState();
+
+    Type Runtime(); // used by asyncCodeInstance
+
+    //Type Value();
+
+    Type Object();
+    Type GlobalRef();
+    Type Any();
+
+    Type NativeType();
+    Type NativeRep();
+
+    XLit FALSE();
+
+    XLit TRUE();
+
+    XLit NEG_ONE();
+
+    XLit ZERO();
+
+    XLit ONE();
+
+    XLit TWO();
+
+    XLit THREE();
+
+    XLit NULL();
+
+    CodeDef asyncCodeInstance(boolean isStatic);
+
+    /**
+     * Create a closure instance.
+     * @param returnType
+     *                The closure's return type.
+     * @param argTypes
+     *                The closure's formal parameter types.
+     * @param thisVar TODO
+     * @param typeGuard TODO
+     * @param pos
+     *                Position of the closure.
+     * @param container
+     *                Containing type of the closure.
+     * @param excTypes
+     *                The closure's exception throw types.
+     */
+    ClosureDef closureDef(Position p, Ref<? extends ClassType> typeContainer, 
+            Ref<? extends CodeInstance<?>> methodContainer, 
+                    Ref<? extends Type> returnType,
+                    List<Ref<? extends Type>> argTypes, 
+                    XVar thisVar, 
+                    List<LocalDef> formalNames,
+                    Ref<CConstraint> guard,
+                
+                    Ref<? extends Type> offerType);
+
+  
+    X10ConstructorDef constructorDef(Position pos, Ref<? extends ClassType> container,
+            Flags flags, List<Ref<? extends Type>> argTypes,
+            Ref<? extends Type> offerType);
+    
+    X10ConstructorDef constructorDef(Position pos, Ref<? extends ClassType> container, Flags flags, Ref<? extends ClassType> returnType,
+            List<Ref<? extends Type>> argTypes, XVar thisVar, List<LocalDef> formalNames, Ref<CConstraint> guard,
+            Ref<TypeConstraint> typeGuard, Ref<? extends Type> offerType);
+
+    X10MethodDef methodDef(Position pos, Ref<? extends StructType> container,
+            Flags flags, Ref<? extends Type> returnType, Name name,
+            List<Ref<? extends Type>> argTypes,  Ref<? extends Type> offerType);
+    
+    X10MethodDef methodDef(Position pos, Ref<? extends StructType> container, Flags flags, Ref<? extends Type> returnType, Name name,
+            List<ParameterType> typeParams, List<Ref<? extends Type>> argTypes, XVar thisVar, List<LocalDef> formalNames,
+            Ref<CConstraint> guard, Ref<TypeConstraint> typeGuard, Ref<? extends Type> offerType, Ref<XTerm> body);
+
+    X10FieldDef fieldDef(Position pos, Ref<? extends StructType> container, Flags flags, Ref<? extends Type> type, Name name);
+
+    X10FieldDef fieldDef(Position pos, Ref<? extends StructType> container, Flags flags, Ref<? extends Type> type, Name name,
+            XVar thisVar);
+
+    X10LocalDef localDef(Position pos, Flags flags, Ref<? extends Type> type, Name name);
+
+    /**
+     * Return the ClassType object for the x10.array.Array class.
+     */
+    Type Array();
+
+    
+    /**
+     * Return the ClassType object for the x10.array.DistArray class.
+     */
+    Type DistArray();
+
+    /**
+     * Return the ClassType object for the x10.lang.Rail interface.
+     *
+     * @return
+     */
+    Type Rail();
+
+    
+    /**
+     * Return the ClassType object for the x10.lang.Runtime.Mortal interface.
+     */
+    Type Mortal();
+
+    boolean isRail(Type t);
+
+    public boolean isRailOf(Type t, Type p);
+
+    boolean isArray(Type t);
+
+    public boolean isArrayOf(Type t, Type p);
+
+    Type Rail(Type arg);
+
+    Type Array(Type arg);
+
+    Type Settable();
+
+    Type Settable(Type domain, Type range);
+
+    Type Iterable();
+    Type Iterable(Type index);
+    
+    Type CustomSerialization();
+
+    boolean isSettable(Type me);
+
+    boolean isAny(Type me);
+
+    boolean isStruct(Type me);
+    
+    boolean isClock(Type me);
+
+    boolean isPoint(Type me);
+
+    boolean isPlace(Type me);
+    
+    boolean isStructType(Type me);
+
+    boolean isObjectType(Type me, X10Context context);
+
+    boolean isUByte(Type t);
+    boolean isUShort(Type t);
+    boolean isUInt(Type t);
+    boolean isULong(Type t);
+
+    boolean hasSameClassDef(Type t1, Type t2);
+    
+    X10TypeEnv env(Context c);
+
+    /**
+     * Is a type constrained (i.e. its depClause is != null) If me is a
+     * nullable, then the basetype is checked.
+     *
+     * @param me
+     *                Type to check
+     * @return true if type has a depClause.
+     */
+    public boolean isTypeConstrained(Type me);
+
+    XTypeTranslator xtypeTranslator();
+
+    boolean entailsClause(Type me, Type other, X10Context context);
+    boolean entailsClause(CConstraint me, CConstraint other, X10Context context, Type selfType);
+
+    /**
+     * True if the two types are equal, ignoring their dep clauses.
+     * @param other
+     * @param context TODO
+     *
+     * @return
+     */
+
+    boolean typeBaseEquals(Type me, Type other, Context context);
+    /**
+     * True if the two types are equal, ignoring their dep clauses and the dep clauses of their type arguments recursively.
+     *
+     * @param other
+     * @return
+     */
+    boolean typeDeepBaseEquals(Type me, Type other, Context context);
+
+    boolean equalTypeParameters(List<Type> a, List<Type> b, Context context);
+
+    Type performBinaryOperation(Type t, Type l, Type r, Binary.Operator op);
+
+    Type performUnaryOperation(Type t, Type l, Unary.Operator op);
+
+    TypeDefMatcher TypeDefMatcher(Type container, Name name, List<Type> typeArgs, List<Type> argTypes, Context context);
+
+    MacroType findTypeDef(Type t, TypeDefMatcher matcher, Context context) throws SemanticException;
+
+    List<MacroType> findTypeDefs(Type container, Name name, ClassDef currClass) throws SemanticException;
+
+    Type UByte();
+
+    Type UShort();
+
+    Type UInt();
+
+    Type ULong();
+
+    /** x10.lang.Box *
+    Type Box();
+
+    Type boxOf(Ref<? extends Type> base);
+
+    boolean isBox(Type type);
+*/
+    boolean isFunctionType(Type type);
+
+ 
+
+  //  List<ClosureType> getFunctionSupertypes(Type type, X10Context context);
+
+    boolean isInterfaceType(Type toType);
+
+    FunctionType closureType(Position position, Ref<? extends Type> typeRef, 
+        //  List<Ref<? extends Type>> typeParams, 
+            List<Ref<? extends Type>> formalTypes,
+            List<LocalDef> formalNames, Ref<CConstraint> guard
+           // Ref<TypeConstraint> typeGuard, 
+            );
+
+
+    Type expandMacros(Type arg);
+
+//    /** Run fromType thorugh a coercion function to toType, if possible, returning the return type of the coercion function, or return null. */
+//    Type coerceType(Type fromType, Type toType);
+
+    boolean clausesConsistent(CConstraint c1, CConstraint c2, Context context);
+
+    /** Return true if the constraint is consistent. */
+    boolean consistent(CConstraint c);
+    boolean consistent(TypeConstraint c, X10Context context);
+
+    /** Return true if constraints in the type are all consistent.
+     * @param context TODO*/
+    boolean consistent(Type t, X10Context context);
+
+    boolean isObjectOrInterfaceType(Type t, X10Context context);
+
+    boolean isParameterType(Type toType);
+
+    Type Region();
+
+    Type Iterator(Type formalType);
+
+    boolean isUnsigned(Type r);
+
+    boolean isSigned(Type l);
+
+    boolean numericConversionValid(Type toType, Type fromType, Object constantValue, Context context);
+    
+    public Long size(Type t);
+
+    /**
+     * Does there exist a struct with the given name, accessible at this point? 
+     * Throw an exception if it is not.
+     * @param name
+     * @param tc
+     * @throws SemanticException
+     */
+    void existsStructWithName(Id name, ContextVisitor tc) throws SemanticException;
+   
+    boolean isX10Array(Type me);
+
+    boolean isX10DistArray(Type me);
+
+    Context emptyContext();
+    boolean isExactlyFunctionType(Type t);
+    
+    Name homeName();
+    
+    LazyRef<Type> lazyAny();
+    
+    ClassType load(String name);
+
+    public boolean isRegion(Type me);
+
+    public boolean isDistribution(Type me);
+
+    public boolean isDistributedArray(Type me);
+
+    public boolean isComparable(Type me);
+
+    public boolean isIterable(Type me);
+
+    public boolean isIterator(Type me);
+    public boolean isReducible(Type me);
+    public Type Reducible();
+
+    public boolean isUnknown(Type t);
+    public boolean hasUnknown(Type t);
 }
