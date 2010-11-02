@@ -10,10 +10,57 @@ package polyglot.ast;
 
 import java.util.List;
 
-import polyglot.frontend.ExtensionInfo;
+import x10.ExtensionInfo;
 import polyglot.types.*;
 import polyglot.types.Package;
 import polyglot.util.Position;
+import x10.ast.AmbMacroTypeNode;
+import x10.ast.AnnotationNode;
+import x10.ast.AssignPropertyCall;
+import x10.ast.Async;
+import x10.ast.AtExpr;
+import x10.ast.AtStmt;
+import x10.ast.Atomic;
+import x10.ast.Closure;
+import x10.ast.ClosureCall;
+import x10.ast.ConstantDistMaker;
+import x10.ast.Contains;
+import x10.ast.DepParameterExpr;
+import x10.ast.Finish;
+import x10.ast.FinishExpr;
+import x10.ast.Future;
+import x10.ast.HasZeroTest;
+import x10.ast.Here;
+import x10.ast.LocalTypeDef;
+import x10.ast.Next;
+import x10.ast.Offer;
+import x10.ast.ParExpr;
+import x10.ast.PropertyDecl;
+import x10.ast.RegionMaker;
+import x10.ast.Resume;
+import x10.ast.SettableAssign;
+import x10.ast.StmtExpr;
+import x10.ast.StmtSeq;
+import x10.ast.SubtypeTest;
+import x10.ast.Tuple;
+import x10.ast.TypeDecl;
+import x10.ast.TypeParamNode;
+import x10.ast.UnknownTypeNode;
+import x10.ast.When;
+import x10.ast.X10Call;
+import x10.ast.X10CanonicalTypeNode;
+import x10.ast.X10Cast;
+import x10.ast.X10ClassDecl;
+import x10.ast.X10ConstructorDecl;
+import x10.ast.X10Formal;
+import x10.ast.X10Instanceof;
+import x10.ast.X10Loop;
+import x10.ast.X10MLSourceFile;
+import x10.ast.X10MethodDecl;
+import x10.ast.X10New;
+import x10.ast.X10Special;
+import x10.types.ParameterType;
+import x10.types.checker.Converter;
 
 /**
  * A <code>NodeFactory</code> constructs AST nodes.  All node construction
@@ -163,16 +210,12 @@ public interface NodeFactory
 
     For For(Position pos, List<ForInit> inits, Expr cond, List<ForUpdate> iters, Stmt body);
 
-    Formal Formal(Position pos, FlagsNode flags, TypeNode type, Id name);
-
     If If(Position pos, Expr cond, Stmt consequent);
     If If(Position pos, Expr cond, Stmt consequent, Stmt alternative);
 
     Import Import(Position pos, Import.Kind kind, QName name);
 
     Initializer Initializer(Position pos, FlagsNode flags, Block body);
-
-    Instanceof Instanceof(Position pos, Expr expr, TypeNode type);
 
     IntLit IntLit(Position pos, IntLit.Kind kind, long value);
 
@@ -184,9 +227,6 @@ public interface NodeFactory
 
     LocalDecl LocalDecl(Position pos, FlagsNode flags, TypeNode type, Id name);
     LocalDecl LocalDecl(Position pos, FlagsNode flags, TypeNode type, Id name, Expr init);
-
-    MethodDecl MethodDecl(Position pos, FlagsNode flags, TypeNode returnType, Id name,
-            List<Formal> formals,  Block body);
 
     New New(Position pos, TypeNode type, List<Expr> args);
     New New(Position pos, TypeNode type, List<Expr> args, ClassBody body);
@@ -239,6 +279,124 @@ public interface NodeFactory
 
     While While(Position pos, Expr cond, Stmt body);
 
-    CanonicalTypeNode CanonicalTypeNode(Position position,
-            Ref<? extends Type> type);
+    AtStmt AtStmt(Position pos, Expr place, Stmt body);
+    AtExpr AtExpr(Position pos, Expr place, TypeNode returnType, Block body);
+
+    ConstructorCall X10ConstructorCall(Position pos, ConstructorCall.Kind kind, Expr outer, List<TypeNode> typeArgs, List<Expr> args);
+    ConstructorCall X10ThisCall(Position pos, Expr outer, List<TypeNode> typeArgs, List<Expr> args);
+    ConstructorCall X10ThisCall(Position pos, List<TypeNode> typeArgs, List<Expr> args);
+    ConstructorCall X10SuperCall(Position pos, Expr outer, List<TypeNode> typeArgs, List<Expr> args);
+    ConstructorCall X10SuperCall(Position pos, List<TypeNode> typeArgs, List<Expr> args);
+
+    X10CanonicalTypeNode X10CanonicalTypeNode(Position pos, Type t);
+    X10CanonicalTypeNode CanonicalTypeNode(Position position, Ref<? extends Type> type);
+
+    X10Cast X10Cast(Position pos, TypeNode castType, Expr expr);
+    X10Cast X10Cast(Position pos, TypeNode castType, Expr expr, Converter.ConversionType conversionType);
+    Return X10Return(Position pos, Expr expr, boolean implicit);
+
+    UnknownTypeNode UnknownTypeNode(Position pos);
+    TypeParamNode TypeParamNode(Position pos, Id name);
+    TypeParamNode TypeParamNode(Position pos, Id name, ParameterType.Variance variance);
+    TypeNode FunctionTypeNode(Position pos, List<TypeParamNode> typeParams, List<Formal> formals, DepParameterExpr guard, 
+            TypeNode returnType,  TypeNode offersType);
+    HasZeroTest HasZeroTest(Position pos, TypeNode sub);
+    SubtypeTest SubtypeTest(Position pos, TypeNode sub, TypeNode sup, boolean equals);
+    Contains Contains(Position pos, Expr item, Expr collection);
+    TypeDecl TypeDecl(Position pos, FlagsNode flags, Id name, List<TypeParamNode> typeParameters, List<Formal> formals, DepParameterExpr guard, TypeNode type);
+
+    X10Call X10Call(Position pos, Receiver target, Id name, List<TypeNode> typeArgs, List<Expr> args);
+    
+    X10Instanceof Instanceof(Position pos, Expr expr, TypeNode type);
+    Async Async(Position pos, List<Expr> clocks, Stmt body);
+    Async Async(Position pos, Stmt body, boolean clocked);
+    Atomic Atomic(Position pos, Expr place, Stmt body);
+    Future Future(Position pos, Expr place, TypeNode returnType, Block body);
+    Here Here(Position pos);
+
+    /**
+     * Return an immutable representation of a 1-armed When.
+     * (Additional arms are added by invoking the add method on the
+     * returned When.)
+     * @param pos
+     * @param expr
+     * @param statement
+     * @return
+     */
+    When When(Position pos, Expr expr, Stmt statement);
+
+    Next Next(Position pos);
+    Resume Resume(Position pos);
+
+    X10ClassDecl X10ClassDecl(Position pos, FlagsNode flags, Id name,
+        List<TypeParamNode> typeParameters,
+            List<PropertyDecl> properties,
+              DepParameterExpr ci, TypeNode superClass,
+              List<TypeNode> interfaces, ClassBody body);
+
+    X10Loop ForLoop(Position pos, Formal formal, Expr domain, Stmt body);
+    X10Loop AtEach(Position pos, Formal formal, Expr domain, List<Expr> clocks,
+                   Stmt body);
+    X10Loop AtEach(Position pos, Formal formal, Expr domain, Stmt body);
+    Finish Finish(Position pos, Stmt body, boolean clocked);
+
+    DepParameterExpr DepParameterExpr(Position pos, List<Expr> cond);
+    DepParameterExpr DepParameterExpr(Position pos, List<Formal> formals, List<Expr> cond);
+
+    X10MethodDecl MethodDecl(Position pos, FlagsNode flags, TypeNode returnType,
+            Id name,
+            List<Formal> formals,  Block body);
+    X10MethodDecl X10MethodDecl(Position pos, FlagsNode flags,
+            TypeNode returnType, Id name, List<TypeParamNode> typeParams,
+            List<Formal> formals, DepParameterExpr guard,  TypeNode offerType, Block body);
+    SettableAssign SettableAssign(Position pos, Expr a, List<Expr> indices, Assign.Operator op, Expr rhs);
+
+    Tuple Tuple(Position pos, List<Expr> args);
+    Tuple Tuple(Position pos, TypeNode indexType, List<Expr> args);
+    X10Formal Formal(Position pos, FlagsNode flags, TypeNode type, Id name);
+    X10Formal X10Formal(Position pos, FlagsNode flags, TypeNode type, Id name,
+                  List<Formal> vars, boolean unnamed);
+    ParExpr ParExpr(Position pos, Expr e);
+    
+    X10ConstructorDecl X10ConstructorDecl(Position pos, FlagsNode flags, Id name,
+            TypeNode returnType, List<TypeParamNode> typeParams, List<Formal> formals, 
+            DepParameterExpr guard,  TypeNode offerType, Block body);
+    PropertyDecl PropertyDecl(Position pos, FlagsNode flags, TypeNode type, Id name);
+    PropertyDecl PropertyDecl(Position pos, FlagsNode flags, TypeNode type, Id name, Expr init);
+    X10Special Self(Position pos);
+    
+    StmtExpr StmtExpr(Position pos, List<Stmt> statements, Expr result);
+    StmtSeq StmtSeq(Position pos, List<Stmt> statements);
+    ConstantDistMaker ConstantDistMaker(Position pos, Expr left, Expr right);
+    RegionMaker RegionMaker(Position pos, Expr left, Expr right);
+    AssignPropertyCall AssignPropertyCall(Position pos, List<TypeNode> typeArgs, List<Expr> argList);
+
+    Closure Closure(Position pos,  List<Formal> formals, DepParameterExpr guard, TypeNode returnType, 
+             Block body);
+    Closure Closure(Position pos,  List<Formal> formals, DepParameterExpr guard, TypeNode returnType, 
+             TypeNode offerType, Block body);
+
+    ClosureCall ClosureCall(Position position, Expr closure,  List<Expr> args);
+    ClosureCall ClosureCall(Position position, Expr closure,  List<TypeNode> typeargs, List<Expr> args);
+
+    AnnotationNode AnnotationNode(Position pos, TypeNode tn);
+    
+    AmbMacroTypeNode AmbMacroTypeNode(Position pos, Prefix prefix, Id name, List<TypeNode> typeArgs, List<Expr> args);
+    TypeNode AmbDepTypeNode(Position pos, Prefix prefix, Id name, List<TypeNode> typeArgs, List<Expr> args, DepParameterExpr dep);
+    TypeNode AmbDepTypeNode(Position pos, Prefix prefix, Id name, DepParameterExpr dep);
+
+    X10MLSourceFile X10MLSourceFile(Position position, PackageNode packageName, List<Import> imports, List<TopLevelDecl> decls);
+
+    X10New X10New(Position pos, boolean newOmitted, Expr qualifier, TypeNode objectType, List<TypeNode> typeArguments, List<Expr> arguments, ClassBody body);
+    X10New X10New(Position pos, Expr qualifier, TypeNode objectType, List<TypeNode> typeArguments, List<Expr> arguments, ClassBody body);
+    X10New X10New(Position pos, Expr qualifier, TypeNode objectType, List<TypeNode> typeArguments, List<Expr> arguments);
+    X10New X10New(Position pos, TypeNode objectType, List<TypeNode> typeArguments, List<Expr> arguments, ClassBody body);
+    X10New X10New(Position pos, TypeNode objectType, List<TypeNode> typeArguments, List<Expr> arguments);
+
+    LocalTypeDef LocalTypeDef(Position pos, TypeDecl typeDefDeclaration);
+    
+    Closure Closure(Closure c, Position pos);
+    TypeNode HasType(TypeNode tn);
+    Offer Offer(Position pos, Expr e);
+    FinishExpr FinishExpr(Position p, Expr e, Stmt s);
 }
