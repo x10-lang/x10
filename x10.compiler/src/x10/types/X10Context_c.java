@@ -211,14 +211,14 @@ public class X10Context_c extends Context_c implements X10Context {
     }
     public X10Context pushPlace(XConstrainedTerm t) {
     	//assert t!= null;
-    	X10Context_c cxt = (X10Context_c) super.pushBlock();
+    	X10Context_c cxt = (X10Context_c) SUPER_pushBlock();
 		cxt.currentPlaceTerm = t;
 		return cxt;
     }
 
     protected boolean inClockedFinishScope=false;
     public X10Context pushFinishScope(boolean isClocked) {
-    	X10Context_c cxt = (X10Context_c) super.pushBlock();
+    	X10Context_c cxt = (X10Context_c) SUPER_pushBlock();
 		cxt.x10Kind = X10Kind.Finish;
 		cxt.inClockedFinishScope = isClocked;
 		return cxt;
@@ -233,7 +233,7 @@ public class X10Context_c extends Context_c implements X10Context {
     Type currentCollectingFinishType=null;
     public X10Context pushCollectingFinishScope(Type t) {
     	assert t!=null;
-    	X10Context_c cxt = (X10Context_c) super.pushBlock();
+    	X10Context_c cxt = (X10Context_c) SUPER_pushBlock();
     	cxt.currentCollectingFinishType =t;
     	return cxt;
     }
@@ -296,7 +296,7 @@ public class X10Context_c extends Context_c implements X10Context {
 	}
 
 	public X10Context pop() {
-	    return (X10Context) super.pop();
+	    return (X10Context) SUPER_pop();
 	}
 
 	// Set if we are in a supertype declaration of this type.
@@ -316,7 +316,7 @@ public class X10Context_c extends Context_c implements X10Context {
 	protected boolean inAssignment;
 	boolean isClocked=false;
     public X10Context pushClockedContext() {
-    	X10Context_c cxt = (X10Context_c) super.pushBlock();
+    	X10Context_c cxt = (X10Context_c) SUPER_pushBlock();
 		cxt.isClocked = true;
 		return cxt;
     }
@@ -480,7 +480,7 @@ public class X10Context_c extends Context_c implements X10Context {
 	 * Gets a local variable of a particular name.
 	 */
 	public X10LocalInstance findLocal(Name name) throws SemanticException {
-		return (X10LocalInstance) (depType == null ? super.findLocal(name) : pop().findLocal(name));
+		return (X10LocalInstance) (depType == null ? SUPER_findLocal(name) : pop().findLocal(name));
 	}
 
 	public X10ClassType type() { return (X10ClassType) type; }
@@ -519,7 +519,7 @@ public class X10Context_c extends Context_c implements X10Context {
 	 * deptype is true.
 	 */
 	public X10ClassType findMethodScope(Name name) throws SemanticException {
-		X10ClassType result = (X10ClassType) super.findMethodScope(name);
+		X10ClassType result = (X10ClassType) SUPER_findMethodScope(name);
 		if (result == null) {
 			// hack. This is null when this context is in a deptype, and the deptype
 			// is not a classtype, and the field belongs to the outer type, e.g.
@@ -534,7 +534,7 @@ public class X10Context_c extends Context_c implements X10Context {
 	 * Gets a field of a particular name.
 	 */
 	public X10FieldInstance findField(Name name) throws SemanticException {
-		return (X10FieldInstance) super.findField(name);
+		return (X10FieldInstance) SUPER_findField(name);
 	}
 
 	/**
@@ -583,7 +583,7 @@ public class X10Context_c extends Context_c implements X10Context {
 	}
 */
 	private X10Context_c superPushClass(ClassDef classScope, ClassType type) {
-	    return (X10Context_c) super.pushClass(classScope, type);
+	    return (X10Context_c) SUPER_pushClass(classScope, type);
 	}
 	public X10Context pushClass(ClassDef classScope, ClassType type) {
 		//System.err.println("Pushing class " + classScope);
@@ -631,19 +631,19 @@ public class X10Context_c extends Context_c implements X10Context {
 	 */
 	public X10Context pushBlock() {
 //		assert (depType == null);
-		return (X10Context) super.pushBlock();
+		return (X10Context) SUPER_pushBlock();
 	}
 
 	public X10Context pushAtomicBlock() {
 		assert (depType == null);
-		X10Context c = (X10Context) super.pushBlock();
+		X10Context c = (X10Context) SUPER_pushBlock();
 		return c;
 	}
 
 	public X10Context pushAssignment() {
 		if (depType != null)
 			assert (depType == null);
-		X10Context c = (X10Context) super.pushBlock();
+		X10Context c = (X10Context) SUPER_pushBlock();
 		c.setInAssignment();
 		return c;
 	}
@@ -653,7 +653,7 @@ public class X10Context_c extends Context_c implements X10Context {
 	 */
 	public X10Context pushStatic() {
 		assert (depType == null);
-		return (X10Context) super.pushStatic();
+		return (X10Context) SUPER_pushStatic();
 	}
 
 	/**
@@ -705,14 +705,14 @@ public class X10Context_c extends Context_c implements X10Context {
 	 * Gets current class
 	 */
 	public X10ClassType currentClass() {
-		return (X10ClassType) (depType == null ? super.currentClass() : pop().currentClass());
+		return (X10ClassType) (depType == null ? SUPER_currentClass() : pop().currentClass());
 	}
 
 	/**
 	 * Gets current class scope
 	 */
 	public X10ClassDef currentClassDef() {
-		return (X10ClassDef) (depType == null ? super.currentClassDef() : pop().currentClassDef());
+		return (X10ClassDef) (depType == null ? SUPER_currentClassDef() : pop().currentClassDef());
 	}
 
 	/**

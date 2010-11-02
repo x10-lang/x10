@@ -23,7 +23,7 @@ import polyglot.util.Enum;
  * Each context object contains maps from names to variable, type, and
  * method objects declared in that scope.
  */
-public class Context_c implements Context
+public abstract class Context_c implements Context
 {
     protected Context outer;
     protected TypeSystem ts;
@@ -137,7 +137,7 @@ public class Context_c implements Context
      * Looks up a method with name "name" and arguments compatible with
      * "argTypes".
      */
-    public MethodInstance findMethod(TypeSystem_c.MethodMatcher matcher) throws SemanticException {
+    public MethodInstance SUPER_findMethod(TypeSystem_c.MethodMatcher matcher) throws SemanticException {
         if (Report.should_report(TOPICS, 3))
           Report.report(3, "find-method " + matcher.signature() + " in " + this);
 
@@ -165,7 +165,7 @@ public class Context_c implements Context
     /**
      * Gets a local of a particular name.
      */
-    public LocalInstance findLocal(Name name) throws SemanticException {
+    public LocalInstance SUPER_findLocal(Name name) throws SemanticException {
 	VarInstance<?> vi = findVariableSilent(name);
 
 	if (vi instanceof LocalInstance) {
@@ -178,7 +178,7 @@ public class Context_c implements Context
     /**
      * Finds the class which added a field to the scope.
      */
-    public ClassType findFieldScope(Name name) throws SemanticException {
+    public ClassType SUPER_findFieldScope(Name name) throws SemanticException {
         if (Report.should_report(TOPICS, 3))
           Report.report(3, "find-field-scope " + name + " in " + this);
 
@@ -199,7 +199,7 @@ public class Context_c implements Context
 
     /** Finds the class which added a method to the scope.
      */
-    public ClassType findMethodScope(Name name) throws SemanticException {
+    public ClassType SUPER_findMethodScope(Name name) throws SemanticException {
         if (Report.should_report(TOPICS, 3))
           Report.report(3, "find-method-scope " + name + " in " + this);
 
@@ -221,7 +221,7 @@ public class Context_c implements Context
     /**
      * Gets a field of a particular name.
      */
-    public FieldInstance findField(Name name) throws SemanticException {
+    public FieldInstance SUPER_findField(Name name) throws SemanticException {
 	VarInstance<?> vi = findVariableSilent(name);
 
 	if (vi instanceof FieldInstance) {
@@ -284,7 +284,7 @@ public class Context_c implements Context
         return "(" + kind + " " + mapsToString() + " " + outer + ")";
     }
 
-    public Context pop() {
+    public Context SUPER_pop() {
         return outer;
     }
 
@@ -340,7 +340,7 @@ public class Context_c implements Context
      * @return A new context with a new scope and which maps the short name
      * of type to type.
      */
-    public Context pushClass(ClassDef classScope, ClassType type) {
+    public Context SUPER_pushClass(ClassDef classScope, ClassType type) {
         if (Report.should_report(TOPICS, 4))
           Report.report(4, "push class " + classScope + " " + classScope.position());
         Context_c v = push();
@@ -360,7 +360,7 @@ public class Context_c implements Context
     /**
      * pushes an additional block-scoping level.
      */
-    public Context pushBlock() {
+    public Context SUPER_pushBlock() {
         if (Report.should_report(TOPICS, 4))
           Report.report(4, "push block");
         Context_c v = push();
@@ -371,7 +371,7 @@ public class Context_c implements Context
     /**
      * pushes an additional static scoping level.
      */
-    public Context pushStatic() {
+    public Context SUPER_pushStatic() {
         if (Report.should_report(TOPICS, 4))
           Report.report(4, "push static");
         Context_c v = push();
@@ -425,14 +425,14 @@ public class Context_c implements Context
     /**
      * Gets current class
      */
-    public ClassType currentClass() {
+    public ClassType SUPER_currentClass() {
         return type;
     }
 
     /**
      * Gets current class
      */
-    public ClassDef currentClassDef() {
+    public ClassDef SUPER_currentClassDef() {
         return scope;
     }
 

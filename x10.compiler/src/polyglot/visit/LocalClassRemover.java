@@ -305,7 +305,7 @@ public class LocalClassRemover extends ContextVisitor {
 	    ClassDef type = neu.anonType();
 	    type.kind(ClassDef.MEMBER);
 	    type.name(cd.name().id());
-	    type.outer(Types.ref(context.currentClassDef()));
+	    type.outer(Types.ref((ClassDef) context.currentClassDef()));
 	    type.setPackage(Types.ref(context.package_()));
 	    type.flags(flags);
 

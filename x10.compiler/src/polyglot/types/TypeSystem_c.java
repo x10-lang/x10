@@ -200,10 +200,6 @@ public abstract class TypeSystem_c implements TypeSystem
 
 	throw new InternalCompilerError("Unrecognized primitive type " + t);
     }
-
-    public Context emptyContext() {
-	return new Context_c(this);
-    }
     
     /** @deprecated */
     public Resolver packageContextResolver(Resolver cr, Package p) {
