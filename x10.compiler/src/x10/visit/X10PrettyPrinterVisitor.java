@@ -1227,7 +1227,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                                 }
                                 
                                 w.allowBreak(2, " ");
-                                boolean needParen = expr instanceof Unary || expr instanceof Lit || expr instanceof Conditional_c || (expr instanceof X10Call && !(X10TypeMixin.baseType(expr.type()) instanceof ParameterType) && xts.isRail(((X10Call) expr).target().type()));
+                                boolean needParen = expr instanceof Unary || expr instanceof Lit || expr instanceof Conditional_c || (expr instanceof X10Call && !xts.isParameterType(expr.type()) && xts.isRail(((X10Call) expr).target().type()));
                                 if (needParen)
                                     w.write("(");
                                 c.printSubExpr(expr, w, tr);
@@ -1280,7 +1280,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             }
     }
 
-    private static boolean isPrimitiveRepedJava(Type t) {
+    public static boolean isPrimitiveRepedJava(Type t) {
         return t.isBoolean() || t.isByte() || t.isShort() || t.isInt() || t.isLong() || t.isFloat() || t.isDouble() || t.isChar();
     }
 
@@ -2145,7 +2145,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         return !(hasParams(ttype) && xts.isParameterType(((X10ClassType) ttype).typeArguments().get(0)))  && (xts.isRail(ttype) || isIMC(ttype));
     }
 
-    private static boolean hasParams(Type t) {
+    public static boolean hasParams(Type t) {
         Type bt = X10TypeMixin.baseType(t);
         return (bt instanceof X10ClassType && ((X10ClassType) bt).hasParams());
     }

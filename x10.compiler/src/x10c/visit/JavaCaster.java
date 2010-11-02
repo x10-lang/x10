@@ -42,6 +42,7 @@ import polyglot.util.InternalCompilerError;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.ast.ClosureCall;
+import x10.ast.SettableAssign;
 import x10.ast.X10Call;
 import x10.ast.X10NodeFactory;
 import x10.ast.X10Return_c;
@@ -184,14 +185,12 @@ public class JavaCaster extends ContextVisitor {
     private Node railAccessCast(Node parent, Node n) throws SemanticException {
         if (n instanceof X10Call) {
             X10Call call = (X10Call) n;
-            if (!(X10TypeMixin.baseType(call.type()) instanceof ParameterType)) {
-                Type tbase = X10TypeMixin.baseType(call.target().type());
-                if (call.target() != null && (xts.isRail(call.target().type()) || tbase instanceof X10ParsedClassType_c && ((X10ParsedClassType_c) tbase).def().asType().typeEquals(imc, context))) {
+            if (!xts.isParameterType(call.type())) {
+                if (call.target() != null && (xts.isRail(call.target().type()) || isIMC(call.target().type()))) {
                     // e.g) val str = rail(0) = "str";
                     //   -> val str = (String)(rail(0) = "str");
                     if (!(parent instanceof Eval)) {
-                        if (call.methodInstance().name().toString().equals("set") && !(call.type().isBoolean() || call.type().isNumeric() || call.type().isChar())
-                        ) {
+                        if (call.methodInstance().name() == SettableAssign.SET && !X10PrettyPrinterVisitor.isPrimitiveRepedJava(call.type())) {
                             return cast(call, call.type());
                         }
                     }
@@ -199,6 +198,11 @@ public class JavaCaster extends ContextVisitor {
             }
         }
         return n;
+    }
+
+    private boolean isIMC(Type type) {
+        Type tbase = X10TypeMixin.baseType(type);
+        return tbase instanceof X10ParsedClassType_c && ((X10ParsedClassType_c) tbase).def().asType().typeEquals(imc, context);
     }
 
     // add casts for type constraints to type parameters
@@ -229,7 +233,7 @@ public class JavaCaster extends ContextVisitor {
             e = (Expr) old;
         }
         
-        if (!(X10TypeMixin.baseType(e.type()) instanceof ParameterType)) {
+        if (!xts.isParameterType(e.type())) {
             return n;
         }
 

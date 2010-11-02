@@ -40,6 +40,7 @@ import polyglot.frontend.Job;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
 import polyglot.types.Name;
+import polyglot.types.QName;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
@@ -61,7 +62,10 @@ import x10.types.ParameterType;
 import x10.types.X10ClassType;
 import x10.types.X10Flags;
 import x10.types.X10LocalDef;
+import x10.types.X10ParsedClassType_c;
 import x10.types.X10TypeMixin;
+import x10.types.X10TypeSystem;
+import x10.visit.X10PrettyPrinterVisitor;
 import x10c.ast.BackingArray;
 import x10c.ast.BackingArrayAccess;
 import x10c.ast.X10CBackingArrayAccess_c;
@@ -74,7 +78,9 @@ public class RailInLoopOptimizer extends ContextVisitor {
     private final X10CNodeFactory_c xnf;
 
     private final Map<Name,X10LocalDef> localdefs = new HashMap<Name,X10LocalDef>();
-    
+
+    private Type imc;
+
     public RailInLoopOptimizer(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf);
         xts = (X10CTypeSystem_c) ts;
@@ -90,6 +96,16 @@ public class RailInLoopOptimizer extends ContextVisitor {
            localdefs.put(name, ldef);
            return ldef;
         }
+    }
+    
+    @Override
+    public NodeVisitor begin() {
+        try {
+            imc = xts.typeForName(QName.make("x10.util.IndexedMemoryChunk"));
+        } catch (SemanticException e1) {
+            throw new InternalCompilerError("Something is terribly wrong");
+        }
+        return super.begin();
     }
     
     @Override
@@ -214,8 +230,11 @@ public class RailInLoopOptimizer extends ContextVisitor {
                         X10Call call = (X10Call) n;
                         Position pos = call.position();
                         Receiver target = call.target();
-                        Type type = X10TypeMixin.baseType(call.type());
-                        if (!(type instanceof ParameterType) && target != null && xts.isRail(target.type()) && (call.methodInstance().name()==ClosureCall.APPLY || call.methodInstance().name()==SettableAssign.SET)) {
+                        if (
+                                target != null
+                                && isOptimizationTarget(target.type())
+                                && (call.methodInstance().name()==ClosureCall.APPLY || call.methodInstance().name()==SettableAssign.SET)
+                        ) {
                             if (ignores.contains(target.toString())) {
                                 return n;
                             }
@@ -229,8 +248,10 @@ public class RailInLoopOptimizer extends ContextVisitor {
                                 elem = call.arguments().get(0);
                                 index = call.arguments().get(1);
                             }
-
-                            if (target instanceof Field) {
+                            
+                            if (target instanceof Local) {
+                            }
+                            else if (target instanceof Field) {
                                 Field field = (Field) target;
                                 if (!field.flags().isFinal()) {
                                     return n;
@@ -256,6 +277,7 @@ public class RailInLoopOptimizer extends ContextVisitor {
                                 }
                             }
 
+                            Type type = X10TypeMixin.baseType(((X10ClassType) X10TypeMixin.baseType(target.type())).typeArguments().get(0));
                             if (!contains) {
                                 id = xnf.Id(pos, Name.makeFresh(target.toString().replace(".", "$").replaceAll("[\\[\\]]", "_").replaceAll(", ","_") + "$value"));
                                 BackingArray ba = xnf.BackingArray(pos, id, createArrayType(type), (Expr) target);
@@ -273,7 +295,7 @@ public class RailInLoopOptimizer extends ContextVisitor {
                     if (n instanceof SettableAssign_c) {
                         Type type = X10TypeMixin.baseType(((SettableAssign_c) n).type());
                         Expr array = ((SettableAssign_c) n).array();
-                        if (!(type instanceof ParameterType) && xts.isRail(array.type())) {
+                        if (isOptimizationTarget(array.type())) {
                             if (((SettableAssign_c) n).index().size() > 1) {
                                 return n;
                             }
@@ -282,7 +304,9 @@ public class RailInLoopOptimizer extends ContextVisitor {
                                 return n;
                             }
 
-                            if (array instanceof Field) {
+                            if (array instanceof Local) {
+                            }
+                            else if (array instanceof Field) {
                                 Field field = (Field) array;
                                 if (!field.flags().isFinal()) {
                                     return n;
@@ -356,7 +380,7 @@ public class RailInLoopOptimizer extends ContextVisitor {
                         }
                     }
                     return n;
-                };
+                }
             });
 
             Stmt visited3 = (Stmt) visited2.visit(new NodeVisitor() {
@@ -371,7 +395,7 @@ public class RailInLoopOptimizer extends ContextVisitor {
                             LocalAssign la = (LocalAssign) ((Eval) n).expr();
                             Type type = X10TypeMixin.baseType(la.type());
                             Local local = la.local();
-                            if (xts.isRail(type)) {
+                            if (xts.isRail(type) || isIMC(type)) {
                                 boolean contains = false;
                                 Id id = null;
                                 for (int i = 0; i < targetAndIsFinals.size(); i++) {
@@ -464,5 +488,15 @@ public class RailInLoopOptimizer extends ContextVisitor {
 
     Type createArrayType(Type t) {
         return xts.createBackingArray(t.position(), Types.ref(t));
+    }
+
+    private boolean isIMC(Type type) {
+        Type tbase = X10TypeMixin.baseType(type);
+        return tbase instanceof X10ParsedClassType_c && ((X10ParsedClassType_c) tbase).def().asType().typeEquals(imc, context);
+    };
+
+    private boolean isOptimizationTarget(Type ttype) {
+        ttype = X10TypeMixin.baseType(ttype);
+        return !(X10PrettyPrinterVisitor.hasParams(ttype) && xts.isParameterType(((X10ClassType) ttype).typeArguments().get(0))) && (xts.isRail(ttype) || isIMC(ttype));
     }
 }
