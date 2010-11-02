@@ -26,6 +26,7 @@ import polyglot.types.Name;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
+import polyglot.types.TypeSystem;
 import polyglot.types.VarDef;
 import x10.constraint.XFailure;
 import x10.constraint.XVar;
@@ -215,7 +216,7 @@ public interface X10Context extends Context {
     boolean isClocked();
     
     X10Context pop();
-    X10TypeSystem typeSystem();
+    TypeSystem typeSystem();
     X10Context pushClass(ClassDef classScope, ClassType type);
     X10Context pushBlock();
     X10Context pushStatic();

@@ -41,7 +41,7 @@ import x10.types.X10ClassDef;
 import x10.types.X10Context;
 import x10.types.X10Flags;
 import x10.types.X10MethodDef;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 import x10.types.checker.PlaceChecker;
 
 /**
@@ -154,7 +154,7 @@ public class MethodSynth extends AbstractStateSynth implements IClassMemberSynth
      * @return
      */
     public Expr addFormal(Position pos, Flags flags, Type type, Name name){
-        X10TypeSystem xts = (X10TypeSystem) xct.typeSystem();
+        TypeSystem xts = (TypeSystem) xct.typeSystem();
         LocalDef lDef = xts.localDef(pos, flags, Types.ref(type), name);
         Formal f = xnf.Formal(pos,
                               xnf.FlagsNode(pos, flags), 

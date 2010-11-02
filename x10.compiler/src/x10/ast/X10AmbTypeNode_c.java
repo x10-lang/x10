@@ -49,7 +49,7 @@ import x10.types.X10Context;
 import x10.types.X10Flags;
 import x10.types.X10ParsedClassType;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 import x10.types.X10TypeSystem_c;
 import x10.visit.X10TypeChecker;
 
@@ -66,7 +66,7 @@ public class X10AmbTypeNode_c extends AmbTypeNode_c implements X10AmbTypeNode, A
   protected TypeNode disambiguateAnnotation(ContextVisitor tc) throws SemanticException {
       Position pos = position();
 
-      X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+      TypeSystem ts = (TypeSystem) tc.typeSystem();
       NodeFactory nf = (NodeFactory) tc.nodeFactory();
       X10Context c = (X10Context) tc.context();
 

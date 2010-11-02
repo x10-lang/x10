@@ -33,7 +33,7 @@ import x10.errors.Errors;
 import x10.types.ParameterType;
 import x10.types.X10Context;
 import x10.types.X10MethodDef;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 
 /**
  * Captures the commonality of foreach and ateach loops in X10.
@@ -100,7 +100,7 @@ public abstract class X10ClockedLoop_c extends X10Loop_c implements Clocked {
 
 	
 	public Node typeCheck(ContextVisitor tc) {
-		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+		TypeSystem ts = (TypeSystem) tc.typeSystem();
 	        for (Expr clock : (List<Expr>) clocks) {
 	            if (! ts.isImplicitCastValid(clock.type(), ts.Clock(), tc.context())) {
 	        	Errors.issue(tc.job(),

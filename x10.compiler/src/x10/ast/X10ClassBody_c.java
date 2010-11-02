@@ -58,7 +58,7 @@ import x10.types.X10MethodDef;
 import x10.types.X10MethodInstance;
 import x10.types.X10ProcedureDef;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 import x10.types.X10TypeSystem_c;
 import x10.types.constraints.TypeConstraint;
 import x10.types.constraints.XConstrainedTerm;
@@ -91,7 +91,7 @@ public class X10ClassBody_c extends ClassBody_c {
     }
    
     private void checkMethodCompatibility(ContextVisitor tc) {
-        X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+        TypeSystem ts = (TypeSystem) tc.typeSystem();
 
         ClassDef cd = tc.context().currentClassDef();
         
@@ -190,7 +190,7 @@ public class X10ClassBody_c extends ClassBody_c {
     }    
 
     public static boolean isParameterized(X10ProcedureDef p1) {
-        X10TypeSystem ts = (X10TypeSystem) p1.typeSystem();
+        TypeSystem ts = (TypeSystem) p1.typeSystem();
         
         for (int i = 0; i < p1.formalTypes().size(); i++) {
             Type t1 = Types.get(p1.formalTypes().get(i));
@@ -213,7 +213,7 @@ public class X10ClassBody_c extends ClassBody_c {
         if (p1.formalTypes().size() != p2.formalTypes().size())
             return false;
 
-        X10TypeSystem ts = (X10TypeSystem) p1.typeSystem();
+        TypeSystem ts = (TypeSystem) p1.typeSystem();
         X10Context xcontext = (X10Context) context;
         TypeConstraint tc = (TypeConstraint) xcontext.currentTypeConstraint().copy();
         

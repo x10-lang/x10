@@ -47,7 +47,7 @@ import x10.ast.Future;
 import x10.ast.When;
 import x10.compiler.ws.WSTransformState;
 import x10.types.X10Context;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 
 /**
  * @author Haichuan

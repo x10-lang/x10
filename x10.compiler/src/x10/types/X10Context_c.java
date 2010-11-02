@@ -438,7 +438,7 @@ public class X10Context_c extends Context_c implements X10Context {
 
 	            // Override to change the type from C to C{self==this}.
 	            Type t = currentClass;
-	            X10TypeSystem xts = (X10TypeSystem) ts;
+	            TypeSystem xts = (TypeSystem) ts;
 
 	            XVar thisVar = null;
 	            if (XTypeTranslator.THIS_VAR) {
@@ -762,7 +762,7 @@ public class X10Context_c extends Context_c implements X10Context {
 	    }
 
 	    private Named findMemberTypeInThisScope(Name name, Type container) {
-		X10TypeSystem ts = typeSystem();
+		TypeSystem ts = typeSystem();
 		ClassDef currentClassDef = this.currentClassDef();
 		if (container instanceof MacroType) {
 		    MacroType mt = (MacroType) container;
@@ -811,7 +811,7 @@ public class X10Context_c extends Context_c implements X10Context {
 		try {
 			if (depType instanceof X10ClassType) {
 				X10ClassType dep = (X10ClassType) this.depType;
-				X10TypeSystem ts = typeSystem();
+				TypeSystem ts = typeSystem();
                 X10FieldInstance myVi = ts.findField(dep, ts.FieldMatcher(dep, name, this));
 				if (myVi != null) {
 					return myVi;
@@ -912,7 +912,7 @@ public class X10Context_c extends Context_c implements X10Context {
 		}
 	}
 
-	public X10TypeSystem typeSystem() {
-	    return (X10TypeSystem) super.typeSystem();
+	public TypeSystem typeSystem() {
+	    return (TypeSystem) super.typeSystem();
 	}
 }

@@ -30,7 +30,7 @@ import polyglot.visit.NodeVisitor;
 import x10.ast.ClosureCall;
 import x10.types.X10ClassType;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 import x10.types.checker.Converter;
 
 /**
@@ -40,11 +40,11 @@ import x10.types.checker.Converter;
  * types with covariant parameters.
  */
 public class X10Caster extends ContextVisitor {
-    X10TypeSystem xts;
+    TypeSystem xts;
 
     public X10Caster(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf);
-        xts = (X10TypeSystem) ts;
+        xts = (TypeSystem) ts;
     }
 
     @Override
@@ -129,7 +129,7 @@ public class X10Caster extends ContextVisitor {
         
         if (toType != null) {
             NodeFactory nf = (NodeFactory) this.nodeFactory();
-            X10TypeSystem ts = (X10TypeSystem) this.typeSystem();
+            TypeSystem ts = (TypeSystem) this.typeSystem();
             Expr e1 = (Expr) n;
             Type fromType = e1.type();
             Type fromBase = X10TypeMixin.baseType(fromType);

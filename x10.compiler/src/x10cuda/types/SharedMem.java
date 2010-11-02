@@ -23,7 +23,7 @@ import polyglot.types.Name;
 import polyglot.types.Type;
 import polyglot.visit.Translator;
 import x10.ast.Closure;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 import x10.util.ClassifiedStream;
 import x10.util.StreamWrapper;
 import x10.visit.Inliner.InliningRewriter;

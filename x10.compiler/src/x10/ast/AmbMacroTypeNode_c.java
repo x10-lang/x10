@@ -67,7 +67,7 @@ import x10.types.X10Context;
 import x10.types.X10Def;
 import x10.types.X10ParsedClassType;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 import x10.types.X10TypeSystem_c;
 import x10.types.X10Use;
 import x10.visit.X10TypeChecker;
@@ -152,7 +152,7 @@ public class AmbMacroTypeNode_c extends AmbTypeNode_c implements AmbMacroTypeNod
     protected TypeNode disambiguateAnnotation(ContextVisitor tc) throws SemanticException {
         Position pos = position();
         
-        X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+        TypeSystem ts = (TypeSystem) tc.typeSystem();
         NodeFactory nf = (NodeFactory) tc.nodeFactory();
         X10Context c = (X10Context) tc.context();
         
@@ -219,7 +219,7 @@ public class AmbMacroTypeNode_c extends AmbTypeNode_c implements AmbMacroTypeNod
         try {
             MacroType mt = null;
             
-            X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+            TypeSystem ts = (TypeSystem) tc.typeSystem();
             NodeFactory nf = (NodeFactory) tc.nodeFactory();
             X10Context c = (X10Context) tc.context();
 

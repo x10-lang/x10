@@ -30,6 +30,7 @@ import polyglot.types.NoClassException;
 import polyglot.types.QName;
 import polyglot.types.SemanticException;
 import polyglot.types.TopLevelResolver;
+import polyglot.types.TypeSystem;
 import polyglot.util.CollectionUtil;
 import polyglot.util.InternalCompilerError;
 
@@ -38,7 +39,7 @@ import polyglot.util.InternalCompilerError;
  * within class files. It does not load from source files.
  */
 public class X10SourceClassResolver implements TopLevelResolver {
-    protected X10TypeSystem ts;
+    protected TypeSystem ts;
     protected String classpath;
     protected Set<QName> nocache;
 
@@ -65,7 +66,7 @@ public class X10SourceClassResolver implements TopLevelResolver {
      */
     public X10SourceClassResolver(Compiler compiler, ExtensionInfo ext, String classpath, boolean compileCommandLineOnly, boolean ignoreModTimes) {
 
-        this.ts = (X10TypeSystem) ext.typeSystem();
+        this.ts = (TypeSystem) ext.typeSystem();
         this.classpath = classpath;
         this.nocache = new HashSet<QName>();
 
@@ -139,7 +140,7 @@ public class X10SourceClassResolver implements TopLevelResolver {
     }
 
     public Named find(QName name) throws SemanticException {
-        X10TypeSystem ts = (X10TypeSystem) this.ts;
+        TypeSystem ts = (TypeSystem) this.ts;
 
         if (name.equals(QName.make("x10.lang.Void")))
             return (Named) ts.Void();

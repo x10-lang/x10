@@ -43,7 +43,7 @@ import x10.types.X10MethodInstance;
 import x10.types.X10ProcedureDef;
 import x10.types.X10ProcedureInstance;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint;
@@ -115,7 +115,7 @@ public class Matcher {
 	{
 		final XVar[] ys = new XVar[actuals.size()+1];
 		final  boolean[] hasSymbol = new boolean[actuals.size()+1];
-		final X10TypeSystem xts = (X10TypeSystem) me.typeSystem();
+		final TypeSystem xts = (TypeSystem) me.typeSystem();
 
 		List<Type> formals = new ArrayList<Type>();
 		for (Type formal : me.formalTypes()) {
@@ -365,7 +365,7 @@ public class Matcher {
 
 	
 	public static CConstraint computeNewSigma(Type thisType, List<Type> actuals, 
-			XVar ythis, XVar[] y, boolean[] hasSymbol, boolean isStatic, X10TypeSystem xts) 
+			XVar ythis, XVar[] y, boolean[] hasSymbol, boolean isStatic, TypeSystem xts) 
 	throws SemanticException {
 	
 		CConstraint env = null; 
@@ -394,7 +394,7 @@ public class Matcher {
 	}
 	
 	public static CConstraint computeNewSigma2(Type thisType, List<Type> actuals, 
-			XVar ythis, XVar[] y, boolean[] hasSymbol, boolean isStatic, X10TypeSystem xts) 
+			XVar ythis, XVar[] y, boolean[] hasSymbol, boolean isStatic, TypeSystem xts) 
 	throws SemanticException {
 	
 		CConstraint env = null; 
@@ -446,7 +446,7 @@ public class Matcher {
           }
           return ySymbols;
     }
-    public static XVar[] getSymbolicNames(List<Type> formals, List<LocalInstance> formalNames, X10TypeSystem xts) 
+    public static XVar[] getSymbolicNames(List<Type> formals, List<LocalInstance> formalNames, TypeSystem xts) 
     throws SemanticException {
     	 XVar[] x = new XVar[formals.size()];
          for (int i = 0; i < formals.size(); i++) {

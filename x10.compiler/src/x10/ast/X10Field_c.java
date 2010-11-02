@@ -54,7 +54,7 @@ import x10.types.X10MethodInstance;
 import x10.types.X10TypeSystem_c;
 
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 import x10.types.checker.Checker;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
@@ -97,7 +97,7 @@ public class X10Field_c extends Field_c {
 
     public static X10FieldInstance findAppropriateField(ContextVisitor tc,
             Type targetType, Name name, boolean isStatic, boolean receiverInContext) {
-        X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+        TypeSystem ts = (TypeSystem) tc.typeSystem();
         X10Context c = (X10Context) tc.context();
         X10FieldInstance fi = null;
         try {
@@ -196,7 +196,7 @@ public class X10Field_c extends Field_c {
     }
 	
     public Node typeCheck1(ContextVisitor tc) throws SemanticException {
-		final X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+		final TypeSystem ts = (TypeSystem) tc.typeSystem();
 		final NodeFactory nf = (NodeFactory) tc.nodeFactory();
 		final X10Context c = (X10Context) tc.context(); 
 		Type tType = target != null ? target.type() : c.currentClass();

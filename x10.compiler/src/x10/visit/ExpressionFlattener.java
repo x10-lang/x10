@@ -86,7 +86,7 @@ import x10.ast.Tuple;
 import x10.ast.When;
 import x10.ast.X10ClassDecl;
 import x10.optimizations.ForLoopOptimizer;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 
 /**
  * @author Bowen Alpern
@@ -99,7 +99,7 @@ public final class ExpressionFlattener extends ContextVisitor {
     private static final boolean XTENLANG_2000 = true;
     private static long dummyCount = 0;
 
-    private final X10TypeSystem xts;
+    private final TypeSystem xts;
     private final NodeFactory xnf;
 //    Synthesizer syn;
     private final ForLoopOptimizer syn; // move functionality to Synthesizer
@@ -115,7 +115,7 @@ public final class ExpressionFlattener extends ContextVisitor {
      */
     public ExpressionFlattener(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf);
-        xts = (X10TypeSystem) ts;
+        xts = (TypeSystem) ts;
         xnf = (NodeFactory) nf;
 //        syn = new Synthesizer(xnf, xts);
         syn = new ForLoopOptimizer(job, ts, nf);

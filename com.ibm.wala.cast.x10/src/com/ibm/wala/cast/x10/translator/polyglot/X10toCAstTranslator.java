@@ -55,7 +55,7 @@ import x10.ast.X10Formal;
 import x10.ast.X10Loop;
 import x10.types.FunctionType;
 import x10.types.ParametrizedType;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 
 import com.ibm.wala.cast.java.translator.polyglot.PolyglotIdentityMapper;
 import com.ibm.wala.cast.java.translator.polyglot.PolyglotJava2CAstTranslator;
@@ -478,7 +478,7 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
         }
 
         private boolean isIndexedByPoint(Expr index) {
-            return index.type().isSubtype(((X10TypeSystem) fTypeSystem).Point(), fTypeSystem.emptyContext());
+            return index.type().isSubtype(((TypeSystem) fTypeSystem).Point(), fTypeSystem.emptyContext());
         }
 
         private CAstNode visitArrayAssign(Expr assign, Expr array, List<Expr> indices, WalkContext wc) {

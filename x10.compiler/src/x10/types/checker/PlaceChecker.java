@@ -43,7 +43,7 @@ import x10.types.X10FieldInstance;
 import x10.types.X10Flags;
 import x10.types.X10MethodInstance;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 import x10.types.XTypeTranslator;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint;
@@ -89,9 +89,9 @@ public class PlaceChecker {
 	}*/
 	
 	static XTerm thisHomeVar(Context xc) {
-		return homeVar(((X10Context) xc).thisVar(), (X10TypeSystem) xc.typeSystem());
+		return homeVar(((X10Context) xc).thisVar(), (TypeSystem) xc.typeSystem());
 	}
-	static FieldInstance GlobalRefHome(X10TypeSystem xts) {
+	static FieldInstance GlobalRefHome(TypeSystem xts) {
 		return ((StructType) xts.GlobalRef()).fieldNamed(xts.homeName());
 	}
 	/**
@@ -119,15 +119,15 @@ public class PlaceChecker {
 	 * @param xts
 	 * @return
 	 */
-	static XTerm homeVar(XTerm target, X10TypeSystem xts)  {
+	static XTerm homeVar(XTerm target, TypeSystem xts)  {
 		return xts.xtypeTranslator().transFakeField(new CConstraint(), target, "$$here");
 	}
-	static XTerm globalRefHomeVar(XTerm target, X10TypeSystem xts)  {
+	static XTerm globalRefHomeVar(XTerm target, TypeSystem xts)  {
 		return xts.xtypeTranslator().trans(new CConstraint(), target, GlobalRefHome(xts));
 	}
 	
 	public static XTerm placeTerm(Type t) {
-    	X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
+    	TypeSystem xts = (TypeSystem) t.typeSystem();
     	CConstraint cc = X10TypeMixin.xclause(t);
     	return cc==null ? null : cc.bindingForSelfField(GlobalRefHome(xts));
     }
@@ -146,7 +146,7 @@ public class PlaceChecker {
 		return c;
 	}*/
 	
-	public static CConstraint ThisHomeEqualsHere(XTerm thisVar, X10TypeSystem ts) {
+	public static CConstraint ThisHomeEqualsHere(XTerm thisVar, TypeSystem ts) {
 		
 		XTerm h =  PlaceChecker.homeVar(thisVar, ts);
 		CConstraint c = new CConstraint();
@@ -177,7 +177,7 @@ public class PlaceChecker {
 		        throw new InternalCompilerError("Cannot set self var for type "+type, e);
 		    }
 		}
-		XTerm locVar = homeVar(selfVar, (X10TypeSystem) cxt.typeSystem());
+		XTerm locVar = homeVar(selfVar, (TypeSystem) cxt.typeSystem());
 		try {
 			
 			XConstrainedTerm pt = (((X10Context) cxt).currentPlaceTerm());
@@ -272,7 +272,7 @@ public class PlaceChecker {
 	}
 	
 	static XConstrainedTerm firstPlace = XConstrainedTerm.make(XTerms.makeUQV("FIRST_PLACE"));
-	public static XConstrainedTerm firstPlace(X10TypeSystem xts) {
+	public static XConstrainedTerm firstPlace(TypeSystem xts) {
 		return firstPlace;
 	}
 	/*
@@ -325,7 +325,7 @@ public class PlaceChecker {
 		
 		// A static initializer executes at place 0.
 		if (flags.isStatic()) 
-			return cxt.pushPlace(firstPlace((X10TypeSystem) id.typeSystem()));
+			return cxt.pushPlace(firstPlace((TypeSystem) id.typeSystem()));
 		
 		// A struct instance initializer, executes at the current place, 
 		// but we have no way of referring to it, hence we assume it is some new unknown place.
@@ -338,10 +338,10 @@ public class PlaceChecker {
 	public static Context pushHereTerm(FieldDef fd, X10Context c) {
 		X10Flags flags = X10Flags.toX10Flags(fd.flags());
 		if (flags.isStatic()) 
-			return c.pushPlace(firstPlace((X10TypeSystem) fd.typeSystem()));
+			return c.pushPlace(firstPlace((TypeSystem) fd.typeSystem()));
 		if (X10TypeMixin.isX10Struct(fd.container().get())) 
 			return 	c.pushPlace(XConstrainedTerm.make(makePlace()));
-		X10TypeSystem xts = (X10TypeSystem) c.typeSystem();
+		TypeSystem xts = (TypeSystem) c.typeSystem();
 		X10Context xc = (X10Context) c;
 		ClassDef cd = c.currentClassDef();
 		
@@ -361,7 +361,7 @@ public class PlaceChecker {
 		boolean isGlobal = xflags.isStatic() || X10TypeMixin.isX10Struct(ct.asType());
 		return (isGlobal) ? 
 				makePlace() :
-					homeVar(((X10ClassDef) ct).thisVar(), (X10TypeSystem) ct.typeSystem());
+					homeVar(((X10ClassDef) ct).thisVar(), (TypeSystem) ct.typeSystem());
 	}
 
 	/**
@@ -598,7 +598,7 @@ public class PlaceChecker {
 	     */
 	    Type placeType;
 	    
-	    public static XConstrainedTerm computePlaceTerm(Expr place, X10Context xc, X10TypeSystem ts) throws SemanticException {
+	    public static XConstrainedTerm computePlaceTerm(Expr place, X10Context xc, TypeSystem ts) throws SemanticException {
 	    	// if place is g.home (g a GlobalRef), set it to g.
 	    	if (place instanceof Field) {
 				Field fp = (Field) place;

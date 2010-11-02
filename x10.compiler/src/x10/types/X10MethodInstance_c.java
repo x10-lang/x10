@@ -375,7 +375,7 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
     Type rightType;
 
     public Type rightType() {
-        X10TypeSystem xts = (X10TypeSystem) ts;
+        TypeSystem xts = (TypeSystem) ts;
 
         if (rightType == null) {
             Type t = returnType();

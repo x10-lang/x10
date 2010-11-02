@@ -74,7 +74,7 @@ import x10.types.X10ParsedClassType_c;
 import x10.types.X10ProcedureDef;
 import x10.types.X10ProcedureInstance;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 import x10.types.X10TypeSystem_c;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
@@ -113,7 +113,7 @@ public class Converter {
 		return attemptCoercion(false, tc, e, toType);
 	}
 	public static Expr attemptCoercion(boolean dynamicCallp, ContextVisitor tc,  Expr e, Type toType) {
-		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+		TypeSystem ts = (TypeSystem) tc.typeSystem();
 		Type t1 = e.type();
 		t1 = PlaceChecker.ReplaceHereByPlaceTerm(t1, (X10Context) tc.context());
 		if (ts.isSubtype(t1, toType, tc.context())) 
@@ -199,7 +199,7 @@ public class Converter {
 	tryImplicitConversions(X10ProcedureCall n,
 			ContextVisitor tc, Type targetType, List<PI> methods, X10New_c.MatcherMaker<PI> maker) throws SemanticException {
 		NodeFactory nf = (NodeFactory) tc.nodeFactory();
-		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+		TypeSystem ts = (TypeSystem) tc.typeSystem();
 		X10Context xc = (X10Context) tc.context();
 		ClassDef currentClassDef = xc.currentClassDef();
 
@@ -335,7 +335,7 @@ public class Converter {
 		catch (SemanticException e) {
 		}
 
-		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+		TypeSystem ts = (TypeSystem) tc.typeSystem();
 		final NodeFactory nf = (NodeFactory) tc.nodeFactory();
 		final Context context = tc.context();
 

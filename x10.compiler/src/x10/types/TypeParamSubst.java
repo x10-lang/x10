@@ -21,6 +21,7 @@ import polyglot.types.LazyRef;
 import polyglot.types.Ref;
 import polyglot.types.Type;
 import polyglot.types.Types;
+import polyglot.types.TypeSystem;
 import polyglot.util.Pair;
 import polyglot.util.Transformation;
 import polyglot.util.TransformingList;
@@ -44,16 +45,16 @@ import x10.types.constraints.TypeConstraint;
 public class TypeParamSubst {
 	private final List<? extends Type> typeArguments;
 	private final List<ParameterType> typeParameters;
-	private final X10TypeSystem ts;
+	private final TypeSystem ts;
 
 	private final boolean identityInstantiation;
 	private final boolean eager;
 
-	public TypeParamSubst(X10TypeSystem ts, List<? extends Type> tas, List<ParameterType> tps) {
+	public TypeParamSubst(TypeSystem ts, List<? extends Type> tas, List<ParameterType> tps) {
 	    this(ts, tas, tps, false);
 	}
 
-	public TypeParamSubst(X10TypeSystem ts, List<? extends Type> tas, List<ParameterType> tps, boolean eager) {
+	public TypeParamSubst(TypeSystem ts, List<? extends Type> tas, List<ParameterType> tps, boolean eager) {
 		this.identityInstantiation = isIdentityInstantiation(tas, tps);
 		this.eager = eager;
 		tas = tas == null ? tps : tas;

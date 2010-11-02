@@ -36,7 +36,7 @@ import x10.extension.X10Del;
 import x10.types.X10ConstructorDef;
 import x10.types.X10Context;
 import x10.types.X10Flags;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 
 /**
  * Synthesizer to construct a method
@@ -138,7 +138,7 @@ public class ConstructorSynth extends AbstractStateSynth implements IClassMember
      * @return
      */
     public Expr addFormal(Position pos, Flags flags, Type type, Name name) {
-        X10TypeSystem xts = (X10TypeSystem) xct.typeSystem();
+        TypeSystem xts = (TypeSystem) xct.typeSystem();
         LocalDef lDef = xts.localDef(pos, flags, Types.ref(type), name);
         Formal f = xnf.Formal(pos, xnf.FlagsNode(pos, flags), xnf.CanonicalTypeNode(pos, type), xnf.Id(pos, name))
                 .localDef(lDef);

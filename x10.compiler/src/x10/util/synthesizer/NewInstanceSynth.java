@@ -29,7 +29,7 @@ import polyglot.util.Position;
 import x10.ast.AnnotationNode;
 import x10.extension.X10Del;
 import x10.types.X10Context;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 import x10.types.checker.PlaceChecker;
 
 /**
@@ -74,7 +74,7 @@ public class NewInstanceSynth extends AbstractStateSynth implements IStmtSynth, 
     
     public Expr genExpr() throws SemanticException {
 
-        X10TypeSystem xts = (X10TypeSystem) xct.typeSystem();
+        TypeSystem xts = (TypeSystem) xct.typeSystem();
 
         ConstructorDef constructorDef = xts.findConstructor(classType, // receiver's
                                                                        // type

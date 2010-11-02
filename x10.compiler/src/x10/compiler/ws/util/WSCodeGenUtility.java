@@ -56,7 +56,7 @@ import x10.ast.StmtSeq;
 import x10.ast.When;
 import x10.compiler.ws.WSTransformState;
 import x10.types.X10Context;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 
 /**
  * @author Haichuan
@@ -334,7 +334,7 @@ public class WSCodeGenUtility {
      * @return Pair<Assign, Call> pair. If null, not such an expression
      */
     static public Pair<Assign, Call> identifyAssignByAsyncCall(Stmt s, X10Context context){
-        X10TypeSystem xts = (X10TypeSystem) context.typeSystem();
+        TypeSystem xts = (TypeSystem) context.typeSystem();
         Pair<Assign, Call> result = null;
         if(s instanceof Eval){
             

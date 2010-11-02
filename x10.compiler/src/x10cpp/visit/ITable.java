@@ -31,7 +31,7 @@ import x10.types.X10ClassType;
 import x10.types.X10MethodDef;
 import x10.types.X10MethodInstance;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 import x10.types.X10TypeSystem_c;
 import x10cpp.types.X10CPPContext_c;
 
@@ -72,11 +72,11 @@ public final class ITable {
 	}
 
 	private static MethodInstance[] collectMethods(X10ClassType interfaceType) {
-	    X10TypeSystem xts = (X10TypeSystem)interfaceType.typeSystem();
+	    TypeSystem xts = (TypeSystem)interfaceType.typeSystem();
 		ArrayList<MethodInstance> uniqueMethods = new ArrayList<MethodInstance>();
 		uniqueMethods.addAll(interfaceType.methods());
 
-		for (X10ClassType superInterface : ((X10TypeSystem)interfaceType.typeSystem()).allImplementedInterfaces(interfaceType)) {
+		for (X10ClassType superInterface : ((TypeSystem)interfaceType.typeSystem()).allImplementedInterfaces(interfaceType)) {
 			for (MethodInstance newMethod : superInterface.methods()) {
 				boolean duplicate = false;
 				for (MethodInstance oldMethod : uniqueMethods) {

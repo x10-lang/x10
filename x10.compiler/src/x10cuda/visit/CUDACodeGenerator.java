@@ -124,7 +124,7 @@ import x10.extension.X10Ext;
 import x10.types.ConstrainedType;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 import x10.types.X10TypeSystem_c;
 import x10cpp.X10CPPCompilerOptions;
 import x10cpp.postcompiler.CXXCommandBuilder;

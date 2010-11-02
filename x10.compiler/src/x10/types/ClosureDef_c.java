@@ -87,7 +87,7 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
     
     public FunctionType asType() {
 	if (asType == null) {
-	    X10TypeSystem ts = (X10TypeSystem) this.ts;
+	    TypeSystem ts = (TypeSystem) this.ts;
 	    asType = ts.closureType(position(), returnType, 
 	    		// Collections.EMPTY_LIST, 
 	    		formalTypes, formalNames, guard);
@@ -127,7 +127,7 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
 
     public ClosureInstance asInstance() {
         if (asInstance == null) {
-            asInstance = ((X10TypeSystem) ts).createClosureInstance(position(), Types.ref(this));
+            asInstance = ((TypeSystem) ts).createClosureInstance(position(), Types.ref(this));
         }
         return (ClosureInstance) asInstance;
     }

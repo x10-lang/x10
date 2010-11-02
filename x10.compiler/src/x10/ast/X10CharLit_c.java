@@ -21,7 +21,7 @@ import x10.constraint.XFailure;
 import x10.constraint.XTerm;
 import x10.types.X10Context;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 import x10.types.XTypeTranslator;
 import x10.types.constraints.CConstraint;
 
@@ -42,7 +42,7 @@ public class X10CharLit_c extends CharLit_c {
 		super(pos, value);
 	}
 	public Node typeCheck(ContextVisitor tc) {
-		  X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
+		  TypeSystem xts = (TypeSystem) tc.typeSystem();
 		Type charType = xts.Char();
 			 
 			  CConstraint c = new CConstraint();

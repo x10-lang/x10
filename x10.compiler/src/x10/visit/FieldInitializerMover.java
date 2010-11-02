@@ -54,7 +54,7 @@ import polyglot.visit.NodeVisitor;
 import x10.types.X10ClassType;
 import x10.types.X10Def;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 import x10.ast.X10MethodDecl_c;
 import x10.ast.AssignPropertyCall;
 
@@ -80,11 +80,11 @@ class Test {
 }
  */
 public class FieldInitializerMover extends ContextVisitor {
-    X10TypeSystem xts;
+    TypeSystem xts;
 
     public FieldInitializerMover(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf);
-        xts = (X10TypeSystem) ts;
+        xts = (TypeSystem) ts;
     }
     
     protected ConstructorCall superCall(Type superType) throws SemanticException {

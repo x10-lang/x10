@@ -39,6 +39,7 @@ import polyglot.types.Name;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.Types;
+import polyglot.types.TypeSystem;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import x10.ast.Contains;
@@ -77,9 +78,9 @@ import x10.util.Synthesizer;
 public class XTypeTranslator {
 	public static final boolean THIS_VAR = true;
 	
-    private final X10TypeSystem ts;
+    private final TypeSystem ts;
 
-	public XTypeTranslator(X10TypeSystem xts) {
+	public XTypeTranslator(TypeSystem xts) {
 		super();
 		ts = xts;
 	}
@@ -668,7 +669,7 @@ public class XTypeTranslator {
         return c;
 	}
 	
-	public static XTerm translate(CConstraint c, Receiver r, X10TypeSystem xts, X10Context xc) throws SemanticException {
+	public static XTerm translate(CConstraint c, Receiver r, TypeSystem xts, X10Context xc) throws SemanticException {
 		return xts.xtypeTranslator().trans(c, r, xc);
 	}
 

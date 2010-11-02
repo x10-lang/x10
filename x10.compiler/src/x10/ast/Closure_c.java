@@ -64,7 +64,7 @@ import x10.types.X10ClassDef;
 import x10.types.X10Context;
 import x10.types.X10MemberDef;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 import x10.types.X10TypeSystem_c;
 import x10.types.checker.PlaceChecker;
 import x10.types.checker.VarChecker;
@@ -238,7 +238,7 @@ public class Closure_c extends Expr_c implements Closure {
 	}
 
 	public Node buildTypesOverride(TypeBuilder tb) {
-		X10TypeSystem ts = (X10TypeSystem) tb.typeSystem();
+		TypeSystem ts = (TypeSystem) tb.typeSystem();
 
 		X10ClassDef ct = (X10ClassDef) tb.currentClass();
 		assert ct != null;
@@ -396,7 +396,7 @@ public class Closure_c extends Expr_c implements Closure {
 
 		if (n.returnType() instanceof UnknownTypeNode) {
 			NodeFactory nf = tc.nodeFactory();
-			X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+			TypeSystem ts = (TypeSystem) tc.typeSystem();
 			Ref<Type> tr = ((Ref<Type>) n.returnType().typeRef());
 			Type t = tr.getCached();
 			if (!tr.known() && ts.isUnknown(t)) {

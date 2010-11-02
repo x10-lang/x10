@@ -27,7 +27,7 @@ import x10.extension.X10Ext;
 import x10.types.ClosureDef;
 import x10.types.X10Context;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.XConstrainedTerm;
 import x10.visit.X10TypeChecker;
@@ -71,7 +71,7 @@ public class FinishExpr_c extends Expr_c implements FinishExpr {
 	@Override
 	public Node typeCheckOverride(Node parent, ContextVisitor tc) {
 
-	    X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+	    TypeSystem ts = (TypeSystem) tc.typeSystem();
 	    NodeVisitor v = tc.enter(parent, this);
 
 	    if (v instanceof PruningVisitor) {

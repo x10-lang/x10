@@ -167,7 +167,7 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
 		    try {
 			    List<X10FieldDef> properties = properties();
 			    
-			    X10TypeSystem xts = (X10TypeSystem) ts;
+			    TypeSystem xts = (TypeSystem) ts;
 
 			    CConstraint result = new CConstraint();
 			    

@@ -81,7 +81,7 @@ import x10.types.X10ClassType;
 import x10.types.X10Context;
 import x10.types.X10Flags;
 import x10.types.X10MethodInstance;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 import x10.types.X10TypeSystem_c;
 import x10c.ast.X10CNodeFactory_c;
 import x10c.types.X10CTypeSystem_c;

@@ -52,21 +52,21 @@ import x10.types.X10ClassType;
 import x10.types.X10MethodInstance;
 import x10.types.X10ParsedClassType_c;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 import x10.types.constraints.SubtypeConstraint;
 import x10.visit.X10PrettyPrinterVisitor;
 
 // add cast node for java code generator
 public class JavaCaster extends ContextVisitor {
     
-    private final X10TypeSystem xts;
+    private final TypeSystem xts;
     private final NodeFactory xnf;
 
     private Type imc;
 
     public JavaCaster(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf);
-        xts = (X10TypeSystem) ts;
+        xts = (TypeSystem) ts;
         xnf = (NodeFactory) nf;
     }
     

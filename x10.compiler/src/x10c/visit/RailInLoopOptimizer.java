@@ -64,7 +64,7 @@ import x10.types.X10Flags;
 import x10.types.X10LocalDef;
 import x10.types.X10ParsedClassType_c;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 import x10.visit.X10PrettyPrinterVisitor;
 import x10c.ast.BackingArray;
 import x10c.ast.BackingArrayAccess;

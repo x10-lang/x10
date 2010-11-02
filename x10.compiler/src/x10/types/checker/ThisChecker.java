@@ -17,7 +17,7 @@ import x10.ast.X10CanonicalTypeNode;
 import x10.ast.X10Field_c;
 import x10.ast.X10Special;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 import x10.types.constraints.CConstraint;
 import x10.util.Synthesizer;
 
@@ -29,10 +29,10 @@ import x10.util.Synthesizer;
  */
 public class ThisChecker extends NodeVisitor {
     protected boolean error;
-    protected X10TypeSystem ts;
+    protected TypeSystem ts;
     protected NodeFactory nf;
     public ThisChecker(Job job) {
-        ts = (X10TypeSystem) job.extensionInfo().typeSystem();
+        ts = (TypeSystem) job.extensionInfo().typeSystem();
         nf = (NodeFactory) job.extensionInfo().nodeFactory();
     }
     protected boolean catchErrors(Node n) { return false; }

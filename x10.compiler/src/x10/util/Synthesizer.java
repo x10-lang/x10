@@ -90,7 +90,7 @@ import x10.types.X10FieldInstance;
 import x10.types.X10Flags;
 import x10.types.X10MethodDef;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 import x10.types.X10TypeSystem_c;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
@@ -105,9 +105,9 @@ import x10.visit.X10TypeChecker;
  */
 public class Synthesizer {
 
-	X10TypeSystem xts;
+	TypeSystem xts;
 	NodeFactory xnf;
-	public Synthesizer(NodeFactory nf, X10TypeSystem ts) {
+	public Synthesizer(NodeFactory nf, TypeSystem ts) {
 		xts = ts;
 		xnf = nf;
 	}
@@ -1334,7 +1334,7 @@ public class Synthesizer {
     // TODO: This has to be made to work with nested types.
     public X10CanonicalTypeNode makeCanonicalTypeNodeWithDepExpr(Position pos, Type type, ContextVisitor tc) {
     	NodeFactory nf = ((NodeFactory) tc.nodeFactory());
-    	X10TypeSystem ts = ((X10TypeSystem) tc.typeSystem());
+    	TypeSystem ts = ((TypeSystem) tc.typeSystem());
     	
     	type = PlaceChecker.ReplacePlaceTermByHere(type, tc.context());
 		CConstraint c = X10TypeMixin.xclause(type);

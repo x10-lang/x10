@@ -60,7 +60,7 @@ import x10.types.X10LocalInstance;
 import x10.types.X10MethodInstance;
 import x10.types.X10ParsedClassType;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 import x10.types.X10TypeSystem_c;
 import x10.types.checker.Checker;
 import x10.types.checker.PlaceChecker;
@@ -131,7 +131,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 
 	private Type resolveType(ContextVisitor tc, Position pos, Receiver r, Name name) {
         NodeFactory nf = (NodeFactory) tc.nodeFactory();
-        X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+        TypeSystem ts = (TypeSystem) tc.typeSystem();
 
         TypeNode otn;
         List<TypeNode> typeArgs = typeArguments();
@@ -159,7 +159,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
     private static Type ambTypeNodeType(ContextVisitor tc, Type t) {
         
         X10Context c = (X10Context) tc.context();
-        X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+        TypeSystem ts = (TypeSystem) tc.typeSystem();
         
         t = ts.expandMacros(t);
         
@@ -201,7 +201,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
     }
     
     private static Type ambMacroTypeNodeType(ContextVisitor tc, Type t, List<TypeNode> typeArgs) {
-        X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
+        TypeSystem xts = (TypeSystem) tc.typeSystem();
         
         if (xts.isUnknown(t)) {
             return null;
@@ -268,7 +268,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
     }
 
     private Receiver computeReceiver(ContextVisitor tc, X10MethodInstance mi) {
-        X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
+        TypeSystem xts = (TypeSystem) tc.typeSystem();
         NodeFactory nf = tc.nodeFactory();
         X10Context c = (X10Context) tc.context();
         Position prefixPos = position().startOf().markCompilerGenerated();
@@ -348,7 +348,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 	}
 	public Node typeCheck1(ContextVisitor tc) throws SemanticException {
 		NodeFactory xnf = (NodeFactory) tc.nodeFactory();
-		X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
+		TypeSystem xts = (TypeSystem) tc.typeSystem();
 		X10Context c = (X10Context) tc.context();
 
 		if (mi != null && ((X10MethodInstance)mi).isValid()) // already typechecked
@@ -362,7 +362,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 			// Check if target.name is a field or local of function type;
 			// if so, convert to a closure call.
 			NodeFactory nf = (NodeFactory) tc.nodeFactory();
-			X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+			TypeSystem ts = (TypeSystem) tc.typeSystem();
 
 			Expr e = null;
 

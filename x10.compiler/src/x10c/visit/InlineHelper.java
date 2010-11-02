@@ -57,14 +57,14 @@ import x10.types.X10MethodDef;
 import x10.types.X10MethodInstance;
 import x10.types.X10ParsedClassType;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 
 public class InlineHelper extends ContextVisitor {
 
     private static final String BRIDGE_TO_PRIVATE_SUFFIX = "$P";
     private static final String BRIDGE_TO_SUPER_SUFFIX = "$S";
 
-    private final X10TypeSystem xts;
+    private final TypeSystem xts;
     private final NodeFactory xnf;
 
     private Type InlineType;
@@ -72,7 +72,7 @@ public class InlineHelper extends ContextVisitor {
 
     public InlineHelper(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf);
-        xts = (X10TypeSystem) ts;
+        xts = (TypeSystem) ts;
         xnf = (NodeFactory) nf;
     }
 

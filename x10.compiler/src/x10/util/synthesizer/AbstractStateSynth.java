@@ -13,7 +13,7 @@ package x10.util.synthesizer;
 import polyglot.ast.NodeFactory;
 import polyglot.util.Position;
 import x10.types.X10Context;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 import x10.util.Synthesizer;
 
 /**
@@ -27,7 +27,7 @@ public abstract class AbstractStateSynth {
     Position pos; //the position of this block
     NodeFactory xnf;
     X10Context xct;
-    X10TypeSystem xts;
+    TypeSystem xts;
     Synthesizer synth;
 
     boolean closed; //indicator of the state
@@ -45,7 +45,7 @@ public abstract class AbstractStateSynth {
         this.xct = xct;
         if(xct != null){
             //Some synthesizer doesn't use xct and xts
-            xts = (X10TypeSystem) xct.typeSystem();
+            xts = (TypeSystem) xct.typeSystem();
             synth = new Synthesizer(xnf, xts);
         }
     }

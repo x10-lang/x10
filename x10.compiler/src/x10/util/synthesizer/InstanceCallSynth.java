@@ -24,7 +24,7 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.util.Position;
 import x10.types.X10Context;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 
 /**
  * A simple synthesizer to create a instance call.
@@ -88,7 +88,7 @@ public class InstanceCallSynth extends AbstractStateSynth implements IStmtSynth,
     
     public Expr genExpr() throws SemanticException {
 
-        X10TypeSystem xts = (X10TypeSystem) xct.typeSystem();
+        TypeSystem xts = (TypeSystem) xct.typeSystem();
         
         List<Type> typeArgs = new ArrayList<Type>();
         for (TypeNode t : typeNodes){

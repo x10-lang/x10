@@ -41,7 +41,7 @@ import polyglot.visit.TypeChecker;
 import x10.errors.Errors;
 import x10.types.X10Context;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
 import x10.visit.X10TypeChecker;
@@ -194,7 +194,7 @@ public class DepParameterExpr_c extends Node_c implements DepParameterExpr {
      */
     @Override
     public Node typeCheck(ContextVisitor tc) {
-        X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+        TypeSystem ts = (TypeSystem) tc.typeSystem();
         //Report.report(1, "DepParameterExpr: Typechecking " + this + this.getClass() + " " + condition);
         
         if (condition == null) {

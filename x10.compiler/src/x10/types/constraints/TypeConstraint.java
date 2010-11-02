@@ -30,7 +30,7 @@ import x10.types.X10Context;
 import x10.types.X10ProcedureDef;
 import x10.types.X10ProcedureInstance;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 import x10.types.ParameterType.Variance;
 import polyglot.types.Name;
 import polyglot.types.PrimitiveType;
@@ -80,7 +80,7 @@ public class TypeConstraint implements Copy, Serializable {
                     Type xt = xct.typeArguments().get(i);
                     Type yt = yct.typeArguments().get(i);
                     ParameterType.Variance v = xcd.variances().get(i);
-                    X10TypeSystem xts = (X10TypeSystem) xcd.typeSystem();
+                    TypeSystem xts = (TypeSystem) xcd.typeSystem();
                     switch (v) {
                     case INVARIANT: {
                         addTerm(new SubtypeConstraint(xt, yt, true));
@@ -114,7 +114,7 @@ public class TypeConstraint implements Copy, Serializable {
      */
     public void addTypeParameterBindings(Type xtype, Type ytype) throws XFailure {
     	if (xtype instanceof ParameterType) {
-    		X10TypeSystem xts = (X10TypeSystem) xtype.typeSystem();
+    		TypeSystem xts = (TypeSystem) xtype.typeSystem();
     		//	    XVar Xi = xts.xtypeTranslator().transTypeParam((ParameterType) xtype);
     		//	    XTerm Yi = xts.xtypeTranslator().trans(ytype);
     		//	    env.addBinding(Xi, Yi);
@@ -146,7 +146,7 @@ public class TypeConstraint implements Copy, Serializable {
      * @param t2
      * @return
      */
-    public TypeConstraint unify(Type t1, Type t2, X10TypeSystem xts) {
+    public TypeConstraint unify(Type t1, Type t2, TypeSystem xts) {
     	TypeConstraint result = this;
     	final X10Context emptyContext = (X10Context) t1.typeSystem().emptyContext();
     	t1 = X10TypeMixin.stripConstraints(t1);
@@ -186,7 +186,7 @@ public class TypeConstraint implements Copy, Serializable {
     	return result;   			
     }
     public boolean entails(TypeConstraint c, X10Context xc) {
-        X10TypeSystem xts = (X10TypeSystem) xc.typeSystem();
+        TypeSystem xts = (TypeSystem) xc.typeSystem();
         for (SubtypeConstraint t : c.terms()) {
             if (t.isEqualityConstraint()) {
                 if (!xts.typeEquals(t.subtype(), t.supertype(), xc)) {
@@ -233,7 +233,7 @@ public class TypeConstraint implements Copy, Serializable {
     public boolean consistent(X10Context context) {
         if (consistent) {
             X10Context xc = (X10Context) context;
-            X10TypeSystem ts = (X10TypeSystem) context.typeSystem();
+            TypeSystem ts = (TypeSystem) context.typeSystem();
             for (SubtypeConstraint t : terms()) {
                 if (t.isEqualityConstraint()) {
                     if (! ts.typeEquals(t.subtype(), t.supertype(), xc)) {
@@ -282,7 +282,7 @@ public class TypeConstraint implements Copy, Serializable {
 	         throw new SemanticException("Call invalid; type environment is inconsistent.");
 	     }
 	    if (query != null) {
-	    	 if ( ! ((X10TypeSystem) context.typeSystem()).consistent(query, context)) {
+	    	 if ( ! ((TypeSystem) context.typeSystem()).consistent(query, context)) {
 	             throw new SemanticException("Type guard " + query + " cannot be established; inconsistent in calling context.");
 	         }
 	        TypeConstraint query2 = xthis==null ? query : query.subst(ythis, xthis);
@@ -297,7 +297,7 @@ public class TypeConstraint implements Copy, Serializable {
 
 	public static <PI extends X10ProcedureInstance<?>> Type[] inferTypeArguments(PI me, Type thisType, List<Type> actuals, List<Type> formals, 
 			List<Type> typeFormals, X10Context context) throws SemanticException {
-	    X10TypeSystem xts = (X10TypeSystem) thisType.typeSystem();
+	    TypeSystem xts = (TypeSystem) thisType.typeSystem();
 	
 	    TypeConstraint tenv = new TypeConstraint();
 	    CConstraint env = new CConstraint();
@@ -441,7 +441,7 @@ public class TypeConstraint implements Copy, Serializable {
 	 * FIXME: Only the equality case (1) and the same type case (3) are handled for now.
 	 */
 	private static void expandTypeConstraints(TypeConstraint tenv, SubtypeConstraint term, X10Context context) throws XFailure {
-	    X10TypeSystem xts = (X10TypeSystem) context.typeSystem();
+	    TypeSystem xts = (TypeSystem) context.typeSystem();
 	    Type b = xts.expandMacros(term.subtype());
 	    Type p = xts.expandMacros(term.supertype());
 	    if (!b.isClass() || !p.isClass()) return;
@@ -492,7 +492,7 @@ public class TypeConstraint implements Copy, Serializable {
 	private static <PI extends X10ProcedureInstance<?>> void inferTypeArguments(X10Context context, PI me, TypeConstraint tenv,
 	        ParameterType[] X, Type[] Y, Type[] Z, XVar[] x, XVar[] y, XVar ythis, XVar xthis) throws SemanticException
 	{
-	    X10TypeSystem xts = (X10TypeSystem) me.typeSystem();
+	    TypeSystem xts = (TypeSystem) me.typeSystem();
 
 	    for (int i = 0; i < Y.length; i++) {
 	        Type Yi = Y[i];

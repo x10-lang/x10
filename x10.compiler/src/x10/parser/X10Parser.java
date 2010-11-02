@@ -77,7 +77,7 @@ import x10.ast.ConstantDistMaker;
 import x10.ast.TypeDecl;
 import x10.ast.TypeParamNode;
 import x10.types.ParameterType;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 import x10.types.X10TypeSystem_c;
 import x10.ast.PropertyDecl;
 import x10.ast.RegionMaker;
@@ -282,14 +282,14 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
 
     //#line 314 "x10/parser/x10.g"
     private ErrorQueue eq;
-    private X10TypeSystem ts;
+    private TypeSystem ts;
     private NodeFactory nf;
     private FileSource source;
     private boolean unrecoverableSyntaxError = false;
 
     public void initialize(TypeSystem t, NodeFactory n, FileSource source, ErrorQueue q)
     {
-        this.ts = (X10TypeSystem) t;
+        this.ts = (TypeSystem) t;
         this.nf = (NodeFactory) n;
         this.source = source;
         this.eq = q;
@@ -298,7 +298,7 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
     public X10Parser(ILexStream lexStream, TypeSystem t, NodeFactory n, FileSource source, ErrorQueue q)
     {
         this(lexStream);
-        initialize((X10TypeSystem) t,
+        initialize((TypeSystem) t,
                    (NodeFactory) n,
                    source,
                    q);

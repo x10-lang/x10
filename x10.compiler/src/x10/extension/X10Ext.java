@@ -24,7 +24,7 @@ import polyglot.types.QName;
 import polyglot.types.Type;
 import x10.ast.AnnotationNode;
 import x10.types.X10ClassType;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 
 public interface X10Ext extends Ext {
     /**

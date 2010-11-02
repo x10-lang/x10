@@ -19,7 +19,7 @@ import polyglot.types.Types;
 import polyglot.visit.NodeVisitor;
 import x10.ast.Closure;
 import x10.types.ClosureDef;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 
 /**
  * @author Haichuan
@@ -37,11 +37,11 @@ import x10.types.X10TypeSystem;
  */
 public class ClosureDefReinstantiator extends NodeVisitor {
 
-    X10TypeSystem xts;
+    TypeSystem xts;
     ClassDef containerClassDef;
     MethodDef containerMethodDef;
     
-    public ClosureDefReinstantiator(X10TypeSystem xts, ClassDef containerClassDef, MethodDef containerMethodDef){
+    public ClosureDefReinstantiator(TypeSystem xts, ClassDef containerClassDef, MethodDef containerMethodDef){
         this.xts = xts;
         this.containerClassDef = containerClassDef;
         this.containerMethodDef = containerMethodDef;

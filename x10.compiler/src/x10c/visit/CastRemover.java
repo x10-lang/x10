@@ -24,16 +24,16 @@ import polyglot.visit.NodeVisitor;
 import x10.ast.X10Cast;
 import x10.types.ConstrainedType;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 
 public class CastRemover extends ContextVisitor {
     
-    private final X10TypeSystem xts;
+    private final TypeSystem xts;
     private final NodeFactory xnf;
     
     public CastRemover(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf);
-        xts = (X10TypeSystem) ts;
+        xts = (TypeSystem) ts;
         xnf = (NodeFactory) nf;
     }
     

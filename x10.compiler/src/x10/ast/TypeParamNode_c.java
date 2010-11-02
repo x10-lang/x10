@@ -34,7 +34,7 @@ import x10.types.ParameterType_c;
 import x10.types.X10Context;
 import x10.types.X10Context_c;
 import x10.types.X10TypeEnv_c;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 
 public class TypeParamNode_c extends Term_c implements TypeParamNode {
 	protected Id name;
@@ -79,7 +79,7 @@ public class TypeParamNode_c extends Term_c implements TypeParamNode {
 	}
 
 	public Node buildTypes(TypeBuilder tb) throws SemanticException {
-		X10TypeSystem xts = (X10TypeSystem) tb.typeSystem();
+		TypeSystem xts = (TypeSystem) tb.typeSystem();
 		
 	        Def def = tb.def();
 	        
@@ -120,7 +120,7 @@ public class TypeParamNode_c extends Term_c implements TypeParamNode {
 	}
 	public List<Type> upperBounds() {
 		Type type = type();
-		X10TypeSystem ts = (X10TypeSystem) type.typeSystem();
+		TypeSystem ts = (TypeSystem) type.typeSystem();
 		X10Context_c xc = (X10Context_c) ts.emptyContext();
 		List<Type> results = new X10TypeEnv_c(xc).upperBounds(type, false);
 		return results;

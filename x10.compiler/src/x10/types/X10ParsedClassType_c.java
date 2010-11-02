@@ -118,7 +118,7 @@ implements X10ParsedClassType
                 if (!c.isMember() || c.flags().isStatic())
                     break;
             }
-            cacheSubst = new TypeParamSubst((X10TypeSystem) ts, typeArguments, typeParameters);
+            cacheSubst = new TypeParamSubst((TypeSystem) ts, typeArguments, typeParameters);
         }
         return cacheSubst;
     }

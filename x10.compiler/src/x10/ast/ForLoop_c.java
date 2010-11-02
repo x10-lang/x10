@@ -35,7 +35,7 @@ import x10.errors.Errors;
 import x10.types.X10Context;
 import x10.types.X10Flags;
 import x10.types.X10MethodInstance;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 import x10.types.checker.Checker;
 import x10.types.checker.PlaceChecker;
 
@@ -79,7 +79,7 @@ public class ForLoop_c extends X10Loop_c implements ForLoop {
 	private static final Name ITERATOR = Name.make("iterator");
 	public Node typeCheck(ContextVisitor tc) {
 	    X10Loop result = (X10Loop) super.typeCheck(tc);
-	    X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
+	    TypeSystem xts = (TypeSystem) tc.typeSystem();
 	    // TODO: generate a cast if STATIC_CALLS is off
 	    X10MethodInstance mi = null;
 	    Expr domain = result.domain();

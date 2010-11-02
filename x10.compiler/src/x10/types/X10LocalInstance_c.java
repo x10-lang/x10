@@ -78,7 +78,7 @@ public class X10LocalInstance_c extends LocalInstance_c implements X10LocalInsta
         assert rightType != null : "The type() for " + this + " at " + position() + " is null.";
         	rightType = PlaceChecker.ReplaceHereByPlaceTerm(rightType, x10Def().placeTerm());
         Flags flags = flags();
-        X10TypeSystem xts = (X10TypeSystem) ts;
+        TypeSystem xts = (TypeSystem) ts;
         if ((! flags.isFinal())|| xts.isUnknown(rightType)) {
         	return rightType;
         }

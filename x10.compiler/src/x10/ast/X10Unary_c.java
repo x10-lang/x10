@@ -44,7 +44,7 @@ import polyglot.visit.ContextVisitor;
 import x10.errors.Errors;
 import x10.types.X10MethodInstance;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 import x10.types.X10TypeSystem_c;
 import x10.types.checker.Checker;
 import x10.types.checker.Converter;
@@ -89,7 +89,7 @@ public class X10Unary_c extends Unary_c {
      * call.
      */
     public Node typeCheck(ContextVisitor tc) {
-        X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+        TypeSystem ts = (TypeSystem) tc.typeSystem();
         NodeFactory nf = (NodeFactory) tc.nodeFactory();
         Unary.Operator op = this.operator();
 

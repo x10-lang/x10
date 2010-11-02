@@ -70,7 +70,7 @@ import x10.types.X10MemberDef;
 import x10.types.X10MethodInstance;
 import x10.types.X10ProcedureInstance;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 import x10.types.X10TypeSystem_c;
 import x10.types.XTypeTranslator;
 import x10.types.constraints.CConstraint;
@@ -235,7 +235,7 @@ public class Checker {
 			return t;
 		XVar receiver = null;
 
-		X10TypeSystem ts = (X10TypeSystem) t.typeSystem();
+		TypeSystem ts = (TypeSystem) t.typeSystem();
 		XTerm r = ts.xtypeTranslator().trans(new CConstraint(), target, (X10Context) c);
 		if (r instanceof XVar) {
 			receiver = (XVar) r;
@@ -255,7 +255,7 @@ public class Checker {
 	public static Type expandCall(Type type, Call t,  Context c) throws SemanticException {
 		X10Context xc = (X10Context) c;
 		X10MethodInstance xmi = (X10MethodInstance) t.methodInstance();
-		XTypeTranslator xt = ((X10TypeSystem) type.typeSystem()).xtypeTranslator();
+		XTypeTranslator xt = ((TypeSystem) type.typeSystem()).xtypeTranslator();
 		Flags f = xmi.flags();
 		XTerm body = null;
 		if (X10Flags.toX10Flags(f).isProperty()) {
@@ -439,7 +439,7 @@ public class Checker {
 	 */
 	public static Pair<MethodInstance,List<Expr>> tryImplicitConversions(X10ProcedureCall n, ContextVisitor tc,
 	        Type targetType, final Name name, List<Type> typeArgs, List<Type> argTypes) throws SemanticException {
-	    final X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+	    final TypeSystem ts = (TypeSystem) tc.typeSystem();
 	    final Context context = tc.context();
 	
 	    List<MethodInstance> methods = ts.findAcceptableMethods(targetType,
@@ -510,7 +510,7 @@ public class Checker {
 			List<Type> argTypes, boolean requireStatic) throws SemanticException {
 	
 	    X10MethodInstance mi = null;
-	    X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
+	    TypeSystem xts = (TypeSystem) tc.typeSystem();
 	    if (targetType != null) {
 	        mi = xts.findMethod(targetType, xts.MethodMatcher(targetType, name, typeArgs, argTypes, xc));
 	        return new Pair<MethodInstance, List<Expr>>(mi, n.arguments());

@@ -60,7 +60,7 @@ import x10.types.X10MethodInstance;
 import x10.types.X10TypeEnv;
 import x10.types.X10TypeEnv_c;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 import x10.types.checker.Converter;
 import x10.types.constraints.CConstraint;
 import x10.types.matcher.Subst;
@@ -134,7 +134,7 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop {
 	    Formal formal = (Formal) this.visitChild(this.formal, tc1);
 	    
 	    NodeFactory nf = (NodeFactory) tc.nodeFactory();
-	    X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+	    TypeSystem ts = (TypeSystem) tc.typeSystem();
 	    
 //	    if (ts.isPoint(formal.type().type())) {
 //	        X10Type point = (X10Type) formal.type().type();
@@ -153,7 +153,7 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop {
 	
 	public Node typeCheckNode(ContextVisitor tc) {
 		NodeFactory nf = tc.nodeFactory();
-		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+		TypeSystem ts = (TypeSystem) tc.typeSystem();
 		Type domainType = domainTypeRef.get();
 		if (domainType == null ) {
 			// aha, in this case the type inferencer did not run, since an explicit type was givem.
@@ -370,7 +370,7 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop {
 				domainTypeRef.setResolver(new TypeCheckExprGoal(loop, domain, tc, domainTypeRef));
 
 				final NodeFactory nf = (NodeFactory) v.nodeFactory();
-				final X10TypeSystem ts = (X10TypeSystem) v.typeSystem();
+				final TypeSystem ts = (TypeSystem) v.typeSystem();
 				final ClassDef curr = v.context().currentClassDef();
 
 				// Now, infer index Type.

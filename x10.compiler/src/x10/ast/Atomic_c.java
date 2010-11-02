@@ -31,7 +31,7 @@ import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
 import x10.types.X10Context;
 import x10.types.X10NamedType;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 
 /**
  * @author Philippe Charles

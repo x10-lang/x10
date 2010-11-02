@@ -45,6 +45,7 @@ import polyglot.types.Type;
 import polyglot.types.TypeEnv_c;
 import polyglot.types.TypeSystem_c;
 import polyglot.types.Types;
+import polyglot.types.TypeSystem;
 import polyglot.types.TypeSystem_c.ConstructorMatcher;
 import polyglot.types.TypeSystem_c.TypeEquals;
 import polyglot.util.CodedErrorInfo;
@@ -1752,7 +1753,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         assert miFormals.size() ==  mj.formalNames().size();
         
         XVar[] newSymbols = genSymbolicVars(mj.formalNames().size());
-        X10TypeSystem xts = (X10TypeSystem) mi.typeSystem();
+        TypeSystem xts = (TypeSystem) mi.typeSystem();
         XVar[] miSymbols = Matcher.getSymbolicNames(mi.formalTypes(), mi.formalNames(),xts);
         XVar[] mjSymbols = Matcher.getSymbolicNames(mj.formalTypes(), mj.formalNames(),xts);
         
@@ -1983,7 +1984,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 	public  X10MethodInstance fixThis(final X10MethodInstance mi, final XVar[] y, final XVar[] x) {
 	    X10MethodInstance mj = mi;
 	
-	    final X10TypeSystem ts = (X10TypeSystem) mi.typeSystem();
+	    final TypeSystem ts = (TypeSystem) mi.typeSystem();
 	
 	    final X10MethodInstance zmj = mj;
 	    final LazyRef<Type> tref = new LazyRef_c<Type>(null);

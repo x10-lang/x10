@@ -54,7 +54,7 @@ import x10.types.X10ConstructorInstance;
 import x10.types.X10Context_c;
 import x10.types.X10MethodDef;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 
 public class X10LocalClassRemover extends LocalClassRemover {
 
@@ -63,7 +63,7 @@ public class X10LocalClassRemover extends LocalClassRemover {
      * implements an interface.
      */
     protected TypeNode defaultSuperType(Position pos) {
-        X10TypeSystem ts = (X10TypeSystem) this.ts;
+        TypeSystem ts = (TypeSystem) this.ts;
         return nf.CanonicalTypeNode(pos, ts.Object());
     }
 
@@ -93,7 +93,7 @@ public class X10LocalClassRemover extends LocalClassRemover {
                         ta.addAll(md.typeParameters());
                         assert (ta.size() == params.size());
                     }
-                    TypeParamSubst subst = new TypeParamSubst((X10TypeSystem) ts, ta, params);
+                    TypeParamSubst subst = new TypeParamSubst((TypeSystem) ts, ta, params);
                     X10ConstructorInstance xci = (X10ConstructorInstance) subst.reinstantiate(ci);
                     neu = neu.constructorInstance(xci);
                     neu = neu.objectType(nf.CanonicalTypeNode(neu.objectType().position(), subst.reinstantiate(type)));
@@ -138,7 +138,7 @@ public class X10LocalClassRemover extends LocalClassRemover {
                 ta.addAll(md.typeParameters());
                 assert (ta.size() == params.size());
             }
-            TypeParamSubst subst = new TypeParamSubst((X10TypeSystem) ts, ta, params);
+            TypeParamSubst subst = new TypeParamSubst((TypeSystem) ts, ta, params);
             res = decl.returnType(decl.returnType().typeRef(Types.ref(subst.reinstantiate(rt))));
         }
         return res;
@@ -227,7 +227,7 @@ public class X10LocalClassRemover extends LocalClassRemover {
         if (params.size() != cd.typeParameters().size()) {
             cd = cd.typeParameters(params);
             typeParameters.addAll(0, origTypeParams);
-            TypeParamSubst subst = new TypeParamSubst((X10TypeSystem) ts, def.typeParameters(), typeParameters);
+            TypeParamSubst subst = new TypeParamSubst((TypeSystem) ts, def.typeParameters(), typeParameters);
             def.superType(subst.reinstantiate(def.superType()));
             cd = rewriteTypeParams(subst, cd);
         }

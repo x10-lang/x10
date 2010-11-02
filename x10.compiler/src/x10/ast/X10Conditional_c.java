@@ -42,7 +42,7 @@ import x10.types.X10Context;
 import x10.types.X10NamedType;
 
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 import x10.types.checker.Converter;
 
 /**
@@ -62,7 +62,7 @@ public class X10Conditional_c extends Conditional_c implements X10Conditional {
     }
 
     public Node typeCheck(ContextVisitor tc) {
-        X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+        TypeSystem ts = (TypeSystem) tc.typeSystem();
         Context context = tc.context();
 
         if (! cond.type().isBoolean()) {

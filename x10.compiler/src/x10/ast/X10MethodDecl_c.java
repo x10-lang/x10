@@ -114,7 +114,7 @@ import x10.types.X10ProcedureDef;
 import x10.types.X10TypeEnv_c;
 
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 import x10.types.XTypeTranslator;
 import x10.types.checker.Checker;
 import x10.types.checker.PlaceChecker;
@@ -175,7 +175,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 	}
 
 	protected MethodDef createMethodDef(TypeSystem ts, ClassDef ct, Flags flags) {
-		X10MethodDef mi = (X10MethodDef) ((X10TypeSystem) ts).methodDef(position(), Types.ref(ct.asType()), flags, returnType.typeRef(), name.id(),
+		X10MethodDef mi = (X10MethodDef) ((TypeSystem) ts).methodDef(position(), Types.ref(ct.asType()), flags, returnType.typeRef(), name.id(),
 				Collections.<Ref<? extends Type>>emptyList(), 
 				offerType == null ? null : offerType.typeRef());
 
@@ -456,8 +456,8 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 	public Node typeCheck(ContextVisitor tc) {
 		X10MethodDecl_c n = this;
 		NodeFactory nf = tc.nodeFactory();
-		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
-		if (((X10TypeSystem) tc.typeSystem()).isStructType(mi.container().get())) {
+		TypeSystem ts = (TypeSystem) tc.typeSystem();
+		if (((TypeSystem) tc.typeSystem()).isStructType(mi.container().get())) {
 			Flags xf = X10Flags.toX10Flags(mi.flags()).Final();
 			mi.setFlags(xf);
 			n = (X10MethodDecl_c) n.flags(n.flags().flags(xf));
@@ -567,7 +567,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 		checkVariance(tc);
 
 		MethodDef mi = this.methodDef();
-		X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
+		TypeSystem xts = (TypeSystem) tc.typeSystem();
 
 		if (X10Flags.toX10Flags(mi.flags()).isProperty()) {
 			X10MethodInstance xmi = (X10MethodInstance) mi.asInstance();
@@ -807,7 +807,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 		X10MethodDecl nn = this;
 		X10MethodDecl old = nn;
 
-		X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
+		TypeSystem xts = (TypeSystem) tc.typeSystem();
 
 		// Step I.a.  Check the formals.
 		TypeChecker childtc = (TypeChecker) tc.enter(parent, nn);
@@ -975,7 +975,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 
 		if (nn.returnType() instanceof UnknownTypeNode) {
 			NodeFactory nf = tc.nodeFactory();
-			X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+			TypeSystem ts = (TypeSystem) tc.typeSystem();
 			// Body had no return statement.  Set to void.
 			Type t;
 			if (!ts.isUnknown(nn.returnType().typeRef().getCached())) {

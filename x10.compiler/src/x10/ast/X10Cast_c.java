@@ -36,7 +36,7 @@ import x10.errors.Errors;
 import x10.types.ParameterType;
 import x10.types.X10ClassType;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 import x10.types.checker.Converter;
 import x10.types.checker.Converter.ConversionType;
 

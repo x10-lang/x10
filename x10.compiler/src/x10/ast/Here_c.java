@@ -31,7 +31,7 @@ import x10.constraint.XVar;
 import x10.errors.Errors;
 import x10.types.X10Context;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.XConstrainedTerm;
@@ -75,7 +75,7 @@ public class Here_c extends Expr_c
     
     /** Type check the expression. */
 	public Node typeCheck(ContextVisitor tc) {
-		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+		TypeSystem ts = (TypeSystem) tc.typeSystem();
 		X10Context xc = (X10Context) tc.context();
 
 		Type tt = ts.Place();

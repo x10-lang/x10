@@ -28,7 +28,7 @@ import polyglot.types.VarDef;
 import polyglot.ast.Ext_c;
 import x10.ast.AnnotationNode;
 import x10.types.X10ClassType;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 
 public class X10Ext_c extends Ext_c implements X10Ext {
     /*

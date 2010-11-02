@@ -27,6 +27,7 @@ import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
 import polyglot.types.Flags;
 import polyglot.types.SemanticException;
+import polyglot.types.TypeSystem;
 import polyglot.util.Position;
 import polyglot.visit.TypeBuilder;
 import x10.types.*;
@@ -91,7 +92,7 @@ public class PropertyDecl_c extends X10FieldDecl_c  implements PropertyDecl {
 
     private Position getCompilerGenPos() { return Position.compilerGenerated(position()); }
     protected MethodDecl getter(NodeFactory nf) {
-        X10TypeSystem ts = (X10TypeSystem) nf.extensionInfo().typeSystem();
+        TypeSystem ts = (TypeSystem) nf.extensionInfo().typeSystem();
         Position pos = getCompilerGenPos();
         Flags flags = X10Flags.PROPERTY.Public().Final();
         List<Formal> formals = Collections.<Formal>emptyList();

@@ -29,7 +29,7 @@ import polyglot.visit.NodeVisitor;
 import x10.ast.Atomic;
 import x10.ast.X10MethodDecl;
 import x10.types.X10Flags;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 
 public class RewriteAtomicMethodVisitor extends ContextVisitor {
 

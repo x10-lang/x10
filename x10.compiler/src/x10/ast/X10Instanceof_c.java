@@ -22,7 +22,7 @@ import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import x10.errors.Errors;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 
 /**
  * Represent java instanceof operation.
@@ -47,7 +47,7 @@ public class X10Instanceof_c extends Instanceof_c implements X10Instanceof, X10C
         Type toType = toTypeNode.type();
         Type fromType = n.expr().type();
 
-        X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
+        TypeSystem xts = (TypeSystem) tc.typeSystem();
 
         if (! xts.isCastValid(fromType, toType, tc.context())) {
             Errors.issue(tc.job(), new Errors.InstanceofError(fromType, toType, position()));

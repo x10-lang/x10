@@ -20,7 +20,7 @@ import x10.types.FunctionType;
 import x10.types.ParameterType;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 import x10.visit.X10PrettyPrinterVisitor;
 
 final public class RuntimeTypeExpander extends Expander {
@@ -160,7 +160,7 @@ final public class RuntimeTypeExpander extends Expander {
         if (t.isChar())
             return "x10.rtt.Types.CHAR";
         if (t.isNumeric()) {
-            X10TypeSystem ts = (X10TypeSystem) er.tr.typeSystem();
+            TypeSystem ts = (TypeSystem) er.tr.typeSystem();
             if (ts.isUnsigned(t)) {
                 if (ts.isUByte(t))
                     return "x10.rtt.Types.UBYTE";

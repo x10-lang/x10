@@ -53,7 +53,7 @@ import x10.types.X10Flags;
 import x10.types.X10MethodInstance;
 import x10.types.X10NamedType;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 import x10.types.checker.Checker;
 
 public class X10Disamb_c extends Disamb_c {
@@ -66,7 +66,7 @@ public class X10Disamb_c extends Disamb_c {
 	@Override
 	protected Node disambiguateNoPrefix() throws SemanticException {
 	    X10Context c = (X10Context) this.c;
-	    X10TypeSystem ts = (X10TypeSystem) this.ts;
+	    TypeSystem ts = (TypeSystem) this.ts;
 	    
 	    if (c.inDepType()) {
 	    	X10NamedType t = c.currentDepType();
@@ -161,7 +161,7 @@ public class X10Disamb_c extends Disamb_c {
 
 	        if (vi instanceof FieldInstance) {
 	            FieldInstance fi = (FieldInstance) vi;
-	            X10TypeSystem xts = (X10TypeSystem) v.typeSystem();
+	            TypeSystem xts = (TypeSystem) v.typeSystem();
 	            Context p = c;
 	            // FIXME: [IP] should we pop back to the right context before proceeding?
 	            //while (p.pop() != null && ((p.currentClass() != null && !xts.typeEquals(p.currentClass(), fi.container(), p)) || p.currentCode() instanceof ClosureDef))
@@ -315,7 +315,7 @@ public class X10Disamb_c extends Disamb_c {
 	public static Receiver makeMissingFieldTarget(FieldInstance fi, Position pos, ContextVisitor v) {
 	    Receiver r = null;
 	    NodeFactory nf = (NodeFactory) v.nodeFactory();
-	    X10TypeSystem ts = (X10TypeSystem) v.typeSystem();
+	    TypeSystem ts = (TypeSystem) v.typeSystem();
         X10Context c = (X10Context) v.context();
         ClassType cur = c.currentClass();
 

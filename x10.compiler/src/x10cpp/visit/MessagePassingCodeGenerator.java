@@ -214,7 +214,7 @@ import x10.types.X10MethodDef;
 import x10.types.X10MethodInstance;
 import x10.types.X10ParsedClassType_c;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 import x10.types.X10TypeSystem_c;
 import x10.types.X10TypeSystem_c.BaseTypeEquals;
 import x10.types.checker.Converter;
@@ -571,7 +571,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	}
 
 	private void extractAllClassTypes(Type t, List<ClassType> types, Set<ClassType> dupes) {
-        X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
+        TypeSystem xts = (TypeSystem) t.typeSystem();
         t = xts.expandMacros(t);
 		if (!t.isClass())
 			return;
@@ -1128,7 +1128,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         X10CPPContext_c context = (X10CPPContext_c) tr.context();
         X10ClassType currentClass = (X10ClassType) context.currentClass();
         X10ClassType superClass = (X10ClassType) X10TypeMixin.baseType(currentClass.superClass());
-        X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
+        TypeSystem xts = (TypeSystem) tr.typeSystem();
 
         if (currentClass.flags().isInterface()) {
             visitInterfaceBody(n, context, currentClass, superClass, xts);
@@ -1141,7 +1141,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
     private void visitInterfaceBody(ClassBody_c n, X10CPPContext_c context,
                                 X10ClassType currentClass, X10ClassType superClass,
-                                X10TypeSystem xts) {
+                                TypeSystem xts) {
         ClassifiedStream h = sw.header();
         List<ClassMember> members = n.members();
         ITable itable = ITable.getITable(currentClass);
@@ -1226,7 +1226,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
     private void visitClassBody(ClassBody_c n, X10CPPContext_c context,
                                 X10ClassType currentClass, X10ClassType superClass,
-                                X10TypeSystem xts) {
+                                TypeSystem xts) {
         ClassifiedStream h = sw.header();
 
         h.write("public:");
@@ -1284,7 +1284,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
     private void visitStructBody(ClassBody_c n, X10CPPContext_c context,
                                  X10ClassType currentClass, X10ClassType superClass,
-                                 X10TypeSystem xts) {
+                                 TypeSystem xts) {
         assert superClass==null : "Struct cannot have a superclass! superClass="+superClass;
         ClassifiedStream sh = context.structHeader;
         ClassifiedStream h = sw.header();
@@ -1412,7 +1412,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
     }
 
 	private void generateITablesForClass(X10ClassType currentClass,
-			X10TypeSystem xts, String maybeVirtual, ClassifiedStream h) {
+			TypeSystem xts, String maybeVirtual, ClassifiedStream h) {
 		List<X10ClassType> allInterfaces = xts.allImplementedInterfaces(currentClass);
 		int numInterfaces = allInterfaces.size();
 		if (numInterfaces > 0 && !currentClass.flags().isAbstract()) {
@@ -1449,7 +1449,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	}
 
 	private void generateITablesForStruct(X10ClassType currentClass,
-	                                      X10TypeSystem xts, ClassifiedStream sh,
+	                                      TypeSystem xts, ClassifiedStream sh,
 	                                      ClassifiedStream h) {
 	    List<X10ClassType> allInterfaces = xts.allImplementedInterfaces(currentClass);
         int numInterfaces = allInterfaces.size();
@@ -1512,7 +1512,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 	private void generateProxiesForOverriddenMethods(X10CPPContext_c context,
 			X10ClassType currentClass, X10ClassType superClass,
-			X10TypeSystem xts, String maybeVirtual, ClassifiedStream h,
+			TypeSystem xts, String maybeVirtual, ClassifiedStream h,
 			List<ClassMember> members) {
 		// first gather a set of all the method names in the current class
 		ArrayList<Name> mnames = getMethodNames(members);
@@ -1792,7 +1792,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 	    X10ClassType container = (X10ClassType) dec.constructorDef().container().get();
 	    String typeName = Emitter.translateType(container.def().asType());
-	    X10TypeSystem xts = (X10TypeSystem)context.typeSystem();
+	    TypeSystem xts = (TypeSystem)context.typeSystem();
 
 	    boolean inlineInClassDecl = false;
 	    try {
@@ -2220,7 +2220,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
     public void visit(AssignPropertyCall_c n) {
         // TODO: initialize properties in the C++ constructor (at least for classes)
-        X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
+        TypeSystem xts = (TypeSystem) tr.typeSystem();
         Context ctx = tr.context();
         List<X10FieldInstance> definedProperties = n.properties();
         List<Expr> arguments = n.arguments();
@@ -2463,7 +2463,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 	public void visit(LocalDecl_c dec) {
 	    X10CPPContext_c context = (X10CPPContext_c) tr.context();
-	    X10TypeSystem xts = (X10TypeSystem)context.typeSystem();
+	    TypeSystem xts = (TypeSystem)context.typeSystem();
 	    
         boolean stackAllocate = false;
         try {
@@ -2798,7 +2798,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	}
 
 	private Expr cast(Expr a, Type fType) {
-		X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
+		TypeSystem xts = (TypeSystem) tr.typeSystem();
 		NodeFactory nf = (NodeFactory) tr.nodeFactory();
 		Context context = tr.context();
 		if (!xts.typeDeepBaseEquals(fType, a.type(), context)) {
@@ -3177,7 +3177,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		Receiver target = n.target();
 		Type t = target.type();
 
-		X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
+		TypeSystem xts = (TypeSystem) t.typeSystem();
 		X10FieldInstance fi = (X10FieldInstance) n.fieldInstance();
 
 		X10FieldDef fd = fi.x10Def();
@@ -3264,7 +3264,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 	public void visit(New_c n) {
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
-		X10TypeSystem xts = (X10TypeSystem)context.typeSystem();
+		TypeSystem xts = (TypeSystem)context.typeSystem();
 		ConstructorInstance constructor = n.constructorInstance();
 		boolean stackAllocate = false;
 
@@ -4354,7 +4354,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	            this.label = null;
 	        } else {
 	            this.closure = closure.closureDef();
-	            X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
+	            TypeSystem xts = (TypeSystem) tr.typeSystem();
 	            final ClosureDef cd = closure.closureDef();
 	            Name rn = Name.make(getId());
 	            Type rt = cd.asInstance().returnType();
@@ -4376,7 +4376,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	        if (n.closureDef() != closure)
 	            return n;
 	        NodeFactory xnf = (NodeFactory) nf;
-	        X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
+	        TypeSystem xts = (TypeSystem) tr.typeSystem();
 	        Position pos = n.position().markCompilerGenerated();
 	        List<Stmt> newBody = new ArrayList<Stmt>();
 	        if (ret != null) {
@@ -4522,7 +4522,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		Expr target = c.target();
 
 		X10MethodInstance mi = c.closureInstance();
-		X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
+		TypeSystem xts = (TypeSystem) tr.typeSystem();
 		NodeFactory nf = (NodeFactory) tr.nodeFactory();
 		List<Expr> args = new ArrayList<Expr>();
 		int counter = 0;
@@ -4604,7 +4604,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 	    Expr left = n.expr();
 	    Type l = left.type();
-	    X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
+	    TypeSystem xts = (TypeSystem) tr.typeSystem();
 	    NodeFactory nf = tr.nodeFactory();
 	    Unary.Operator op = n.operator();
 
@@ -4665,7 +4665,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    Type l = left.type();
 	    Expr right = n.right();
 	    Type r = right.type();
-	    X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
+	    TypeSystem xts = (TypeSystem) tr.typeSystem();
 	    NodeFactory nf = tr.nodeFactory();
 	    Binary.Operator op = n.operator();
 
@@ -4756,7 +4756,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
     protected String[] getCurrentNativeStrings() { return new String[] {CPP_NATIVE_STRING}; }
 
 	String getCppImplForDef(X10Def o) {
-	    X10TypeSystem xts = (X10TypeSystem) o.typeSystem();
+	    TypeSystem xts = (TypeSystem) o.typeSystem();
 	    try {
 	        Type annotation = (Type) xts.systemResolver().find(QName.make("x10.compiler.Native"));
             String[] our_langs = getCurrentNativeStrings();
@@ -4777,7 +4777,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	}
 
     private String getCppImplForStmt(Stmt n) {
-        X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
+        TypeSystem xts = (TypeSystem) tr.typeSystem();
         if (n.ext() instanceof X10Ext) {
             X10Ext ext = (X10Ext) n.ext();
             try {

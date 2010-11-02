@@ -106,7 +106,7 @@ import x10.types.X10MethodDef;
 import x10.types.X10MethodInstance;
 import x10.types.X10ParsedClassType;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 import x10.types.checker.Converter;
 import x10.types.matcher.Subst;
 
@@ -198,7 +198,7 @@ public class Inliner extends ContextVisitor {
     /**
      * 
      */
-    private X10TypeSystem xts;
+    private TypeSystem xts;
     private NodeFactory xnf;
     // private Synthesizer syn;
     private ForLoopOptimizer syn; // move functionality to Synthesizer
@@ -207,7 +207,7 @@ public class Inliner extends ContextVisitor {
 
     public Inliner(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf);
-        xts = (X10TypeSystem) ts;
+        xts = (TypeSystem) ts;
         xnf = (NodeFactory) nf;
         // syn = new Synthesizer(xnf, xts);
         syn = new ForLoopOptimizer(job, ts, nf);
@@ -1196,7 +1196,7 @@ public class Inliner extends ContextVisitor {
             X10MethodDef md = d.methodDef();
             DepParameterExpr g = d.guard();
             TypeNode ot = d.offerType();
-            return ((X10TypeSystem) visitor().typeSystem()).methodDef( md.position(), 
+            return ((TypeSystem) visitor().typeSystem()).methodDef( md.position(), 
                                                                        md.container(), 
                                                                        md.flags(), 
                                                                        d.returnType().typeRef(), 
@@ -1336,7 +1336,7 @@ public class Inliner extends ContextVisitor {
                 this.ret = null;
                 this.label = null;
             } else {
-                X10TypeSystem xts = (X10TypeSystem) typeSystem();
+                TypeSystem xts = (TypeSystem) typeSystem();
                 Name rn = Name.makeFresh("ret");
                 Type rt = def.returnType().get();
                 this.ret = rt.isVoid() ? null : xts.localDef(def.position(), xts.NoFlags(), Types.ref(rt), rn);
@@ -1387,7 +1387,7 @@ public class Inliner extends ContextVisitor {
   //            return body;
   //        }
             NodeFactory xnf = (NodeFactory) nodeFactory();
-            X10TypeSystem xts = (X10TypeSystem) typeSystem();
+            TypeSystem xts = (TypeSystem) typeSystem();
             List<Stmt> newBody = new ArrayList<Stmt>();
             if (ret != null) {
                 newBody.add(xnf.LocalDecl( pos,
@@ -1536,10 +1536,10 @@ public class Inliner extends ContextVisitor {
     private class InlineCostEstimator extends X10DelegatingVisitor {
         private static final int NATIVE_CODE_COST = 989898;
         int cost;
-        X10TypeSystem xts;
+        TypeSystem xts;
         NodeFactory xnf;
 
-        InlineCostEstimator(X10TypeSystem ts, NodeFactory nf) {
+        InlineCostEstimator(TypeSystem ts, NodeFactory nf) {
             xts = ts;
             xnf = nf;
         }

@@ -59,7 +59,7 @@ import x10.types.X10ParsedClassType_c;
 import x10.types.XTypeTranslator;
 
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 import x10.types.constraints.CConstraint;
 import x10.visit.X10TypeChecker;
 
@@ -86,7 +86,7 @@ public class X10CanonicalTypeNode_c extends CanonicalTypeNode_c implements X10Ca
     @Override
     public Node typeCheck(ContextVisitor tc) {
 	X10Context c = (X10Context) tc.context();
-	X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+	TypeSystem ts = (TypeSystem) tc.typeSystem();
 
 	// Expand, and transfer flags from the type node to the type.
 	Type t = Types.get(type);
@@ -180,7 +180,7 @@ public class X10CanonicalTypeNode_c extends CanonicalTypeNode_c implements X10Ca
                     new SemanticException("Invalid type; the real clause of " + t + " is inconsistent.", position()));
         }
         
-        X10TypeSystem ts = (X10TypeSystem) t.typeSystem();
+        TypeSystem ts = (TypeSystem) t.typeSystem();
         
         if (! ts.consistent(t, (X10Context) tc.context())) {
             Errors.issue(tc.job(), new SemanticException("Type " + t + " is inconsistent.", position()));

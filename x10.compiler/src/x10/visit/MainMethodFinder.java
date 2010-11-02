@@ -59,19 +59,19 @@ import x10.types.X10ClassType;
 import x10.types.X10Flags;
 import x10.types.X10MethodDef;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 
 /**
  * Visitor that expands @NativeClass and @NativeDef annotations.
  */
 public class MainMethodFinder extends ContextVisitor {
-    final X10TypeSystem ts;
+    final TypeSystem ts;
     final NodeFactory nf;
     final Method hasMain;
 
     public MainMethodFinder(Job job, TypeSystem ts, NodeFactory nf, Method hasMain) {
         super(job, ts, nf);
-        this.ts = (X10TypeSystem) ts;
+        this.ts = (TypeSystem) ts;
         this.nf = (NodeFactory) nf;
         this.hasMain = hasMain;
     }

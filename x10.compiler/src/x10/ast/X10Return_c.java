@@ -40,7 +40,7 @@ import x10.types.X10Context;
 import x10.types.X10MethodDef;
 import x10.types.X10ProcedureDef;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 import x10.types.X10TypeSystem_c;
 import x10.types.X10Context_c;
 import x10.types.checker.Converter;
@@ -71,7 +71,7 @@ public class X10Return_c extends Return_c {
 	    if (ctx.currentCode() != thisCode) {
 	        return c;
 	    }
-	    X10TypeSystem ts = (X10TypeSystem) ctx.typeSystem();
+	    TypeSystem ts = (TypeSystem) ctx.typeSystem();
 	    LI:
 	        for (LocalDef li : ctx.locals()) {
 	            try {
@@ -92,7 +92,7 @@ public class X10Return_c extends Return_c {
 
 	@Override
 	public Node typeCheck(ContextVisitor tc) {
-		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+		TypeSystem ts = (TypeSystem) tc.typeSystem();
 		X10Context c = (X10Context) tc.context();
 	
 		CodeDef ci = c.currentCode();
@@ -230,7 +230,7 @@ public class X10Return_c extends Return_c {
 	}
 
 	private Node superTypeCheck(ContextVisitor tc) throws SemanticException {
-	    X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+	    TypeSystem ts = (TypeSystem) tc.typeSystem();
         Context c = tc.context();
         
         CodeDef ci = c.currentCode();

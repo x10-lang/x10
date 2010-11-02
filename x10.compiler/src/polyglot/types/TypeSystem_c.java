@@ -15,7 +15,6 @@ import polyglot.main.Report;
 import polyglot.types.reflect.ClassFile;
 import polyglot.types.reflect.ClassFileLazyClassInitializer;
 import polyglot.util.*;
-import x10.types.X10TypeSystem;
 
 /**
  * TypeSystem_c
@@ -23,7 +22,7 @@ import x10.types.X10TypeSystem;
  * Overview:
  *    A TypeSystem_c is a universe of types, including all Java types.
  **/
-public abstract class TypeSystem_c implements X10TypeSystem
+public abstract class TypeSystem_c implements TypeSystem
 {
     private static volatile int counter = 0;
 

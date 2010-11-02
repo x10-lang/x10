@@ -98,7 +98,7 @@ import x10.plugin.LoadJobPlugins;
 import x10.plugin.LoadPlugins;
 import x10.plugin.RegisterPlugins;
 import x10.types.X10SourceClassResolver;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 import x10.types.X10TypeSystem_c;
 import x10.visit.CheckNativeAnnotationsVisitor;
 import x10.visit.Desugarer;
@@ -659,7 +659,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 
        public Goal Serialized(Job job) {
            Compiler compiler = job.extensionInfo().compiler();
-           X10TypeSystem ts = (X10TypeSystem) job.extensionInfo().typeSystem();
+           TypeSystem ts = (TypeSystem) job.extensionInfo().typeSystem();
            NodeFactory nf = job.extensionInfo().nodeFactory();
            TargetFactory tf = job.extensionInfo().targetFactory();
            return new SourceGoal_c("Serialized", job) {
@@ -880,7 +880,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
        }
        
        public Goal WSCallGraphBarrier() {
-           final X10TypeSystem ts = (X10TypeSystem) extInfo.typeSystem();
+           final TypeSystem ts = (TypeSystem) extInfo.typeSystem();
            final NodeFactory nf = (NodeFactory) extInfo.nodeFactory();
            return new AllBarrierGoal("WSCallGraphBarrier", this) {
                @Override

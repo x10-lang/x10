@@ -32,7 +32,7 @@ import polyglot.visit.PrettyPrinter;
 import polyglot.visit.Translator;
 import x10.errors.Errors;
 import x10.types.X10MethodInstance;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 import x10.types.checker.Checker;
 
 /**
@@ -111,7 +111,7 @@ public class Contains_c extends Expr_c implements Contains {
 
 	/** Type check the statement. */
 	public Node typeCheck(ContextVisitor tc) {
-		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+		TypeSystem ts = (TypeSystem) tc.typeSystem();
 		Type itemType = item.type();
 		Type collType = collection.type();
 

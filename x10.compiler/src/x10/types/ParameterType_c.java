@@ -21,6 +21,7 @@ import polyglot.types.Resolver;
 import polyglot.types.Name;
 import polyglot.types.TypeObject;
 import polyglot.types.Type_c;
+import polyglot.types.TypeSystem;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 
@@ -30,7 +31,7 @@ public class ParameterType_c extends Type_c implements ParameterType {
     Name name;
 	Ref<? extends Def> def;
 	
-	public ParameterType_c(X10TypeSystem ts, Position pos, Name name, Ref<? extends Def> def) {
+	public ParameterType_c(TypeSystem ts, Position pos, Name name, Ref<? extends Def> def) {
 		super(ts, pos);
 		this.name = name;
 		this.def = def;

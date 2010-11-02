@@ -23,7 +23,7 @@ import x10.ast.SettableAssign;
 import x10.types.X10ClassType;
 import x10.types.X10Context;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 
 /**
  * A query engine for analysis results and other properties of various program

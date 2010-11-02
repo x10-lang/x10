@@ -25,7 +25,7 @@ import x10.types.X10FieldDef;
 import x10.types.X10MethodDef;
 import x10.types.X10ParsedClassType;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 import x10.util.HierarchyUtils;
 
 import com.sun.javadoc.ClassDoc;
@@ -210,7 +210,7 @@ public class X10RootDoc extends X10Doc implements RootDoc {
 			// System.out.println("Primitive X10Type returned.");
 			return getPrimitiveType(t);
 		}
-		X10TypeSystem ts = (X10TypeSystem) t.typeSystem();
+		TypeSystem ts = (TypeSystem) t.typeSystem();
 		if (ts.isParameterType(t)) {
 			// TODO: get the constraints
 			ParameterType p = (ParameterType) X10TypeMixin.baseType(t);

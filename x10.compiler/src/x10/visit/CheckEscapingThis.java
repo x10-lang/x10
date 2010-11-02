@@ -25,7 +25,7 @@ import polyglot.types.ProcedureDef_c;
 import x10.ast.*;
 import x10.types.X10TypeMixin;
 import x10.types.X10Flags;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 import x10.types.X10FieldDef;
 import x10.types.X10ParsedClassType_c;
 import x10.types.X10ProcedureDef;
@@ -118,7 +118,7 @@ public class CheckEscapingThis extends NodeVisitor
             assert items.size()>=2;
 
             boolean isAsync = !entry && node instanceof Async;
-            boolean isUncounted = isAsync ? Desugarer.isUncountedAsync((X10TypeSystem)ts,(Async) node) : false;
+            boolean isUncounted = isAsync ? Desugarer.isUncountedAsync((TypeSystem)ts,(Async) node) : false;
             DataFlowItem res = new DataFlowItem();
             res.initStatus.putAll(((DataFlowItem) items.get(0)).initStatus);
 
@@ -290,7 +290,7 @@ public class CheckEscapingThis extends NodeVisitor
                     for (FieldDef f : fields)
                         // a VAR marked with @Uninitialized is not tracked
                         if (!f.flags().isFinal() // final fields are reported already in InitChecker 
-                            && !newInfo.seqWrite.contains(f) && !X10TypeMixin.isUninitializedField((X10FieldDef)f,(X10TypeSystem)ts)) {
+                            && !newInfo.seqWrite.contains(f) && !X10TypeMixin.isUninitializedField((X10FieldDef)f,(TypeSystem)ts)) {
                             final Position pos = currDecl.position();
                             if (pos.isCompilerGenerated()) // auto-generated ctor
                                 reportError("Field '"+f.name()+"' was not definitely assigned.", f.position());
@@ -301,7 +301,7 @@ public class CheckEscapingThis extends NodeVisitor
             } else {
                 MethodInfo oldInfo = allMethods.get(procDef);
                 assert oldInfo!=null : currDecl;
-                assert !X10TypeMixin.isNoThisAccess((X10ProcedureDef)procDef,(X10TypeSystem)ts);
+                assert !X10TypeMixin.isNoThisAccess((X10ProcedureDef)procDef,(TypeSystem)ts);
 
                 // proof that the fix-point terminates: write set decreases while the read set increases
                 assert oldInfo.write.containsAll(newInfo.write);
@@ -359,7 +359,7 @@ public class CheckEscapingThis extends NodeVisitor
                 final X10ClassDecl_c classDecl_c = (X10ClassDecl_c) n;
                 if (!classDecl_c.flags().flags().isInterface()) // I have nothing to analyze in an interface 
                     new CheckEscapingThis(classDecl_c,job,
-                        (X10TypeSystem)job.extensionInfo().typeSystem());
+                        (TypeSystem)job.extensionInfo().typeSystem());
             }
             return this;
         }
@@ -476,7 +476,7 @@ public class CheckEscapingThis extends NodeVisitor
     }
     private final Job job;
     private final NodeFactory nf;
-    private final X10TypeSystem ts;
+    private final TypeSystem ts;
     private final X10ClassDecl_c xlass;
     private final boolean hasProperties; // this this class defined properties (excluding properties of the sueprclass). if so, there must be exactly one "property(...)"
     private final boolean isXlassFinal;
@@ -504,7 +504,7 @@ public class CheckEscapingThis extends NodeVisitor
                 reportError("Cannot use '"+def.name()+"' because a GlobalRef[...](this) cannot be used in a field initializer, constructor, or methods called from a constructor.",n.position());
         }          
     }
-    public CheckEscapingThis(X10ClassDecl_c xlass, Job job, X10TypeSystem ts) {
+    public CheckEscapingThis(X10ClassDecl_c xlass, Job job, TypeSystem ts) {
         this.job = job;
         this.ts = ts;
         nf = (NodeFactory)ts.extensionInfo().nodeFactory();

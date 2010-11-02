@@ -111,7 +111,7 @@ import x10.types.X10Context;
 import x10.types.X10MethodInstance;
 import x10.types.X10ParsedClassType;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 import x10.types.X10TypeSystem_c;
 import x10.types.checker.Converter;
 import x10.types.checker.PlaceChecker;
@@ -132,12 +132,12 @@ import x10.extension.X10Ext;
  * {@link Synthesizer}.
  */
 public class Desugarer extends ContextVisitor {
-    private final X10TypeSystem xts;
+    private final TypeSystem xts;
     private final NodeFactory xnf;
     private final Synthesizer synth;
     public Desugarer(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf);
-        xts = (X10TypeSystem) ts;
+        xts = (TypeSystem) ts;
         xnf = (NodeFactory) nf;
         synth = new Synthesizer(xnf, xts);
     }
@@ -480,7 +480,7 @@ public class Desugarer extends ContextVisitor {
         return false;
     }
 
-    public static boolean isUncountedAsync(X10TypeSystem xts, Async a) {
+    public static boolean isUncountedAsync(TypeSystem xts, Async a) {
         return Emitter.hasAnnotation(xts, a, UNCOUNTED);
     }
 

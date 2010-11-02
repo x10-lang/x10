@@ -35,7 +35,7 @@ import x10.types.X10ParsedClassType;
 import x10.types.X10ProcedureDef;
 
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 import x10.types.XTypeTranslator;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
@@ -58,7 +58,7 @@ public class X10Special_c extends Special_c implements X10Special {
 
     /** Type check the expression. */
     public Node typeCheck(ContextVisitor tc) {
-        X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+        TypeSystem ts = (TypeSystem) tc.typeSystem();
         X10Context c = (X10Context) tc.context();
 
         if (isSelf()) {
@@ -131,7 +131,7 @@ public class X10Special_c extends Special_c implements X10Special {
         }
 
         X10Special result = this;
-        X10TypeSystem xts = (X10TypeSystem) ts;
+        TypeSystem xts = (TypeSystem) ts;
         assert (t.isClass());
         // Instantiate with the class's type arguments
         CConstraint constraint = t instanceof ConstrainedType ? ((ConstrainedType) t).getRealXClause() : null;

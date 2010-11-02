@@ -363,7 +363,7 @@ public class X10TypeSystem_c extends TypeSystem_c {
     public List<QName> defaultOnDemandImports() {
         List<QName> l = new ArrayList<QName>(1);
         l.add(QName.make("x10.lang"));
-        l.add(QName.make("x10.lang", X10TypeSystem.DUMMY_PACKAGE_CLASS_NAME.toString()));
+        l.add(QName.make("x10.lang", TypeSystem.DUMMY_PACKAGE_CLASS_NAME.toString()));
         l.add(QName.make("x10.array"));
         return l;
     }
@@ -1202,7 +1202,7 @@ public class X10TypeSystem_c extends TypeSystem_c {
     static class Void extends X10PrimitiveType_c {
         private static final long serialVersionUID = -1026975473924276266L;
 
-        public Void(X10TypeSystem ts) {
+        public Void(TypeSystem ts) {
             super(ts, Name.make("Void"));
         }
 
@@ -2286,14 +2286,14 @@ public class X10TypeSystem_c extends TypeSystem_c {
     public Type performBinaryOperation(Type t, Type l, Type r, Binary.Operator op) {
         CConstraint cl = X10TypeMixin.realX(l);
         CConstraint cr = X10TypeMixin.realX(r);
-        X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
+        TypeSystem xts = (TypeSystem) t.typeSystem();
         CConstraint c = xts.xtypeTranslator().binaryOp(op, cl, cr);
         return X10TypeMixin.xclause(X10TypeMixin.baseType(t), c);
     }
 
     public Type performUnaryOperation(Type t, Type a, polyglot.ast.Unary.Operator op) {
         CConstraint ca = X10TypeMixin.realX(a);
-        X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
+        TypeSystem xts = (TypeSystem) t.typeSystem();
         CConstraint c = xts.xtypeTranslator().unaryOp(op, ca);
         if (c == null)
             return t;
@@ -2547,7 +2547,7 @@ public class X10TypeSystem_c extends TypeSystem_c {
    }
    public void existsStructWithName(Id name, ContextVisitor tc) throws SemanticException {
  	  NodeFactory nf = (NodeFactory) tc.nodeFactory();
-			X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+			TypeSystem ts = (TypeSystem) tc.typeSystem();
 			Context c = tc.context();
  	  TypeBuilder tb = new TypeBuilder(tc.job(),  ts, nf);
 			// First, try to determine if there in fact a struct in scope with the given name.

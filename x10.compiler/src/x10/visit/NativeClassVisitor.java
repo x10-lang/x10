@@ -58,7 +58,7 @@ import x10.types.X10ClassType;
 import x10.types.X10Flags;
 import x10.types.X10MethodDef;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 
 /**
  * Visitor that expands @NativeClass and @NativeDef annotations.
@@ -67,12 +67,12 @@ public class NativeClassVisitor extends ContextVisitor {
     public static final Name NATIVE_FIELD_NAME = Name.make("__NATIVE_FIELD__");
 
     final String theLanguage;
-    final X10TypeSystem xts;
+    final TypeSystem xts;
     final NodeFactory xnf;
 
     public NativeClassVisitor(Job job, TypeSystem ts, NodeFactory nf, String theLanguage) {
         super(job, ts, nf);
-        xts = (X10TypeSystem) ts;
+        xts = (TypeSystem) ts;
         xnf = (NodeFactory) nf;
         this.theLanguage = theLanguage;
     }

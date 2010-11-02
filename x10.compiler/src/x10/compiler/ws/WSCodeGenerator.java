@@ -45,7 +45,7 @@ import x10.compiler.ws.util.WSCallGraph;
 import x10.compiler.ws.util.WSCallGraphNode;
 import x10.types.ClosureDef;
 import x10.types.X10Context;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 import x10.types.checker.PlaceChecker;
 import x10.util.Synthesizer;
 import x10.util.synthesizer.MethodSynth;
@@ -87,7 +87,7 @@ public class WSCodeGenerator extends ContextVisitor {
         genClassDecls = new HashSet<X10ClassDecl>();
     }
 
-    public static void buildCallGraph(X10TypeSystem xts, NodeFactory xnf, String theLanguage) {
+    public static void buildCallGraph(TypeSystem xts, NodeFactory xnf, String theLanguage) {
         wts = new WSTransformState(xts, xnf, theLanguage);
     }
 

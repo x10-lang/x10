@@ -55,7 +55,7 @@ import x10.types.X10Context;
 import x10.types.X10FieldDef;
 import x10.types.X10LocalDef;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 import x10.types.checker.PlaceChecker;
 
 /**
@@ -364,7 +364,7 @@ public class CConstraint extends XConstraint  implements ThisVar {
 		// Check that the guard is entailed.
 		try {
 			if (query != null) { 
-				if (! ((X10TypeSystem) context.typeSystem()).consistent(query)) {
+				if (! ((TypeSystem) context.typeSystem()).consistent(query)) {
 					throw new SemanticException("Guard " + query + " cannot be established; inconsistent in calling context.");
 				}
 				CConstraint query2 = xthis==null ? query : query.substitute(ythis, xthis);
