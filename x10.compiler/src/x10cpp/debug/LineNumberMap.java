@@ -666,8 +666,6 @@ public class LineNumberMap extends StringTable {
 	    }
 	}
 
-	private static final String _X10_DEBUG = "_X10_DEBUG";
-
 	/**
 	 * Generates code for the line number map as required by the Toronto C++
 	 * Debugger backend into the specified stream.
@@ -675,14 +673,8 @@ public class LineNumberMap extends StringTable {
 	 * @param m the map to export
 	 */
 	public static void exportForCPPDebugger(ClassifiedStream w, LineNumberMap m) {
-		String _X10_DEBUG_DATA;
-		if (System.getProperty("os.name").startsWith("Mac OS X"))
-			_X10_DEBUG_DATA = ".section __DWARF,_X10_DEBUG_DATA,regular,debug";
-		else
-			_X10_DEBUG_DATA = "_X10_DEBUG_DATA";
-		
-	    String debugSectionAttr = "__attribute__((section(\""+_X10_DEBUG+"\")))";
-	    String debugDataSectionAttr = "__attribute__((section(\""+_X10_DEBUG_DATA+"\")))";
+	    String debugSectionAttr = "__attribute__((_X10_DEBUG_SECTION))";
+	    String debugDataSectionAttr = "__attribute__((_X10_DEBUG_DATA_SECTION))";
 	    int size = m.size();
 	    int offset = 0;
 	    int[] offsets = new int[size];
@@ -879,7 +871,7 @@ public class LineNumberMap extends StringTable {
 			    w.writeln("};");
 			    w.forceNewline();
         	}
-        	w.writeln("static const struct _X10ClassMap _X10ClassMapList[] __attribute__((used)) /*"+debugDataSectionAttr+"*/ = {");
+        	w.writeln("static const struct _X10ClassMap _X10ClassMapList[] __attribute__((used)) = {");
         	for (String classname : memberVariables.keySet())
 	        	w.writeln("    { 101, "+offsets[memberVariables.get(classname).get(0)._cppClass]+", sizeof("+classname.replace(".", "::")+"), "+memberVariables.get(classname).size()+", _X10"+classname.substring(classname.lastIndexOf('.')+1)+"Members },");	        
         	w.writeln("};");
