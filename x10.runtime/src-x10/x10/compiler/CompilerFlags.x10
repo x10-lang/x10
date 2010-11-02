@@ -41,5 +41,18 @@ public class CompilerFlags {
     @Native("c++", "true")
     public static native def useUnsigned():boolean;
 
-
+    /**
+     * A false that is not understood by the constant propagator
+     */
+    @Native("java", "false")
+    @Native("c++", "false")
+    public static native def FALSE():boolean;
+    
+    /**
+     * A "true" that is not understood by the constant propagator
+     */
+    @Native("java", "true")
+    @Native("c++",  "true")
+    public static native def TRUE():boolean;
+    
 }
