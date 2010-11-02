@@ -320,26 +320,25 @@ abstract class FinishState {
     static class StatefulReducer[T] {
         val reducer:Reducible[T];
         var result:T;
-        val MAX = 1000;
         var resultRail:Rail[T];
-        var workerFlag:Rail[Boolean] = Rail.make[Boolean](MAX, false);
+        var workerFlag:Rail[Boolean] = Rail.make[Boolean](Runtime.MAX_WORKERS, false);
         def this(r:Reducible[T]) {
             reducer = r;
             val zero = reducer.zero();
             result = zero;
-            resultRail = Rail.make[T](MAX, zero);
+            resultRail = Rail.make[T](Runtime.MAX_WORKERS, zero);
         }
         def accept(t:T) {
             result = reducer(result, t);
         }
         def accept(t:T, id:Int) {
-            if ((id >= 0) && (id < MAX)) {
+            if ((id >= 0) && (id < Runtime.MAX_WORKERS)) {
                 resultRail(id) = reducer(resultRail(id), t);
                 workerFlag(id) = true;
             }
         }
         def placeMerge() {
-            for(var i:Int=0; i<MAX; i++) {
+            for(var i:Int=0; i<Runtime.MAX_WORKERS; i++) {
                 if (workerFlag(i)) {
                     result = reducer(result, resultRail(i));
                     resultRail(i) = reducer.zero();

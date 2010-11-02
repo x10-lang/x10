@@ -201,9 +201,9 @@ import x10.util.Box;
         def available():Int = permits;
     }
 
-    @Pinned final static class Worker extends Thread implements ()=>Void {
+    @Pinned final static class Worker extends Thread {
         // bound on loop iterations to help j9 jit
-        static BOUND = 100;
+        private static BOUND = 100;
 
         // activity (about to be) executed by this worker
         private var activity:Activity = null;
@@ -245,7 +245,7 @@ import x10.util.Box;
         def push(activity:Activity):void = queue.push(activity);
 
         // run pending activities
-        public def apply():void {
+        def apply():void {
             val latch = runtime().pool.latch;
             try {
                 while (loop(latch, true));
@@ -312,19 +312,18 @@ import x10.util.Box;
         }
     }
 
-    @Pinned static class Pool implements ()=>void {
+    @Pinned static class Pool {
         val latch:Latch;
 
         private var size:Int; // the number of workers in the pool
 
         private var spares:Int = 0; // the number of spare workers in the pool
 
+        private var dead:Int = 0;
+
         private val lock = new Lock();
 
         private val semaphore = new Semaphore(0);
-
-        // an upper bound on the number of workers
-        private static MAX = 1000;
 
         // the workers in the pool
         private val workers:Array[Worker]{rail};
@@ -332,7 +331,7 @@ import x10.util.Box;
         def this(size:Int) {
             this.size = size;
             this.latch = new Latch();
-            val workers = new Array[Worker](MAX);
+            val workers = new Array[Worker](MAX_WORKERS);
 
             // main worker
             workers(0) = worker();
@@ -344,13 +343,13 @@ import x10.util.Box;
             this.workers = workers;
         }
 
-        public def apply():void {
+        def apply():void {
             val s = size;
             for (var i:Int = 1; i<s; i++) {
                 workers(i).start();
             }
             workers(0)();
-            while (size > 0) Worker.park();
+            while (size > dead) Worker.park();
         }
 
         // notify the pool a worker is about to execute a blocking operation
@@ -365,8 +364,8 @@ import x10.util.Box;
                 // allocate and start a new worker
                 val i = size++;
                 lock.unlock();
-                assert (i < MAX);
-                if (i >= MAX) {
+                assert (i < MAX_WORKERS);
+                if (i >= MAX_WORKERS) {
                     println("TOO MANY THREADS... ABORTING");
                     System.exit(1);
                 }
@@ -390,8 +389,8 @@ import x10.util.Box;
         def release() {
             semaphore.release();
             lock.lock();
-            size--;
-            if (size == 0) workers(0).unpark();
+            dead++;
+            if (size == dead) workers(0).unpark();
             lock.unlock();
         }
 
@@ -416,6 +415,8 @@ import x10.util.Box;
                 if (++next == size) next = 0;
             }
         }
+
+        def size() = size;
     }
 
     // static fields
@@ -445,12 +446,28 @@ import x10.util.Box;
     /**
      * Return the current worker
      */
-    public static def worker():Worker = Thread.currentThread() as Worker;
+    static def worker():Worker = Thread.currentThread() as Worker;
+
+    /**
+     * Return the current worker id
+     */
+    public static def workerId():Int = worker().workerId;
+
+    /**
+     * An upper bound on the number of workers
+     */
+    public static MAX_WORKERS = 1000;
+
+    /**
+     * Return the number of workers currently in the pool
+     * (can increase, cannot decrease)
+     */
+    public static def poolSize():Int = runtime().pool.size();
 
     /**
      * Return the current activity
      */
-    public static def activity():Activity = worker().activity();
+    static def activity():Activity = worker().activity();
 
     /**
      * Return the current place
@@ -815,16 +832,12 @@ import x10.util.Box;
     }
 
     public static def offer[T](t:T) {
-        val thisWorker = Runtime.worker();
-        val id = thisWorker.workerId;
         val state = activity().finishState();
 //      Console.OUT.println("Place(" + here.id + ") Runtime.offer: received " + t);
-        (state as FinishState.CollectingFinish[T]).accept(t,id);
+        (state as FinishState.CollectingFinish[T]).accept(t,workerId());
     }
 
     public static def stopCollectingFinish[T](f:FinishState):T {
-        val thisWorker = Runtime.worker();
-        val id = thisWorker.workerId;
         val state = activity().swapFinish(f);
         state.notifyActivityTermination();
         return (state as FinishState.CollectingFinish[T]).waitForFinishExpr(true);
