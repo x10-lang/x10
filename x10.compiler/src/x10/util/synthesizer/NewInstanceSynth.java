@@ -15,6 +15,7 @@ import java.util.List;
 
 import polyglot.ast.Expr;
 import polyglot.ast.New;
+import polyglot.ast.NodeFactory;
 import polyglot.ast.Stmt;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
@@ -26,7 +27,6 @@ import polyglot.types.Type;
 import polyglot.types.Types;
 import polyglot.util.Position;
 import x10.ast.AnnotationNode;
-import x10.ast.X10NodeFactory;
 import x10.extension.X10Del;
 import x10.types.X10Context;
 import x10.types.X10TypeSystem;
@@ -46,7 +46,7 @@ public class NewInstanceSynth extends AbstractStateSynth implements IStmtSynth, 
     List<Type> argTypes; //arguments' type --> If we could reason the args' type from args, the list could be eliminated
     List<Expr> args;     //arguments
     
-    public NewInstanceSynth(X10NodeFactory xnf, X10Context xct, Position pos, ClassType classType){
+    public NewInstanceSynth(NodeFactory xnf, X10Context xct, Position pos, ClassType classType){
         super(xnf, xct, pos);
         this.classType = classType;
 

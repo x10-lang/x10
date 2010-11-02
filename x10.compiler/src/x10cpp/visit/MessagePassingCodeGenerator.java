@@ -194,7 +194,6 @@ import x10.ast.X10Instanceof_c;
 import x10.ast.X10IntLit_c;
 import x10.ast.X10Local_c;
 import x10.ast.X10MethodDecl;
-import x10.ast.X10NodeFactory;
 import x10.ast.X10Special_c;
 import x10.ast.X10Unary_c;
 import x10.extension.X10Ext;
@@ -2800,7 +2799,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 	private Expr cast(Expr a, Type fType) {
 		X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
-		X10NodeFactory nf = (X10NodeFactory) tr.nodeFactory();
+		NodeFactory nf = (NodeFactory) tr.nodeFactory();
 		Context context = tr.context();
 		if (!xts.typeDeepBaseEquals(fType, a.type(), context)) {
 			Position pos = a.position();
@@ -2862,7 +2861,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		    }
 		}
 
-		X10NodeFactory nf = (X10NodeFactory) tr.nodeFactory();
+		NodeFactory nf = (NodeFactory) tr.nodeFactory();
 		List<Expr> args = new ArrayList<Expr>();
 		int counter = 0;
 		for (Expr a : n.arguments()) {
@@ -3058,7 +3057,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    assert (clsType.flags().isInterface()); // have to dispatch to an interface type.
 	    if (!Configuration.CLOSURE_INLINING && !replicate) {
 	        // If not inlining closures, want to get rid of statement expressions here too.
-	        X10NodeFactory xnf = (X10NodeFactory) tr.nodeFactory();
+	        NodeFactory xnf = (NodeFactory) tr.nodeFactory();
 	        List<Expr> newArgs = new ArrayList<Expr>();
 	        newArgs.add(target);
 	        newArgs.addAll(args);
@@ -3679,7 +3678,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		        (xts.isX10Array(dType) || xts.isX10DistArray(dType) || xts.isDistribution(dType) || xts.isRegion(dType)))
 		{
 		    // TODO: move this to the Desugarer
-		    X10NodeFactory xnf = (X10NodeFactory) tr.nodeFactory();
+		    NodeFactory xnf = (NodeFactory) tr.nodeFactory();
 		    if (xts.isX10DistArray(dType)) {
 		        Position pos = domain.position();
 		        FieldInstance fDist = null;
@@ -4376,7 +4375,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	        // First check that we are within the right closure
 	        if (n.closureDef() != closure)
 	            return n;
-	        X10NodeFactory xnf = (X10NodeFactory) nf;
+	        NodeFactory xnf = (NodeFactory) nf;
 	        X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
 	        Position pos = n.position().markCompilerGenerated();
 	        List<Stmt> newBody = new ArrayList<Stmt>();
@@ -4402,7 +4401,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	        if (!context.currentCode().equals(closure))
 	            return n;
 	        assert ((ret == null) == (n.expr() == null));
-	        X10NodeFactory xnf = (X10NodeFactory) nf;
+	        NodeFactory xnf = (NodeFactory) nf;
 	        Position pos = n.position().markCompilerGenerated();
 	        List<Stmt> retSeq = new ArrayList<Stmt>();
 	        if (ret != null) {
@@ -4524,7 +4523,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 		X10MethodInstance mi = c.closureInstance();
 		X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
-		X10NodeFactory nf = (X10NodeFactory) tr.nodeFactory();
+		NodeFactory nf = (NodeFactory) tr.nodeFactory();
 		List<Expr> args = new ArrayList<Expr>();
 		int counter = 0;
 		for (Expr a : c.arguments()) {

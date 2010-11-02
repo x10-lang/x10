@@ -28,7 +28,6 @@ import polyglot.types.TypeSystem;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.ast.ClosureCall;
-import x10.ast.X10NodeFactory;
 import x10.types.X10ClassType;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
@@ -129,7 +128,7 @@ public class X10Caster extends ContextVisitor {
         }
         
         if (toType != null) {
-            X10NodeFactory nf = (X10NodeFactory) this.nodeFactory();
+            NodeFactory nf = (NodeFactory) this.nodeFactory();
             X10TypeSystem ts = (X10TypeSystem) this.typeSystem();
             Expr e1 = (Expr) n;
             Type fromType = e1.type();

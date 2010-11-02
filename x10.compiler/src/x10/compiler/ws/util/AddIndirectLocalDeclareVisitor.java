@@ -21,9 +21,9 @@ import polyglot.ast.Block;
 import polyglot.ast.Expr;
 import polyglot.ast.Local;
 import polyglot.ast.Node;
+import polyglot.ast.NodeFactory;
 import polyglot.ast.Stmt;
 import polyglot.visit.NodeVisitor;
-import x10.ast.X10NodeFactory;
 
 /**
  * @author Haichuan
@@ -37,11 +37,11 @@ import x10.ast.X10NodeFactory;
  *
  */
 public class AddIndirectLocalDeclareVisitor extends NodeVisitor{
-    X10NodeFactory xnf;
+    NodeFactory xnf;
     Block targetBlock;
     Map<Expr, Stmt>refToDeclMap;
     
-    public AddIndirectLocalDeclareVisitor(X10NodeFactory xnf, Map<Expr, Stmt>refToDeclMap){
+    public AddIndirectLocalDeclareVisitor(NodeFactory xnf, Map<Expr, Stmt>refToDeclMap){
         this.xnf = xnf;
         this.refToDeclMap = refToDeclMap;
     }

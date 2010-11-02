@@ -34,6 +34,7 @@ import polyglot.ast.LocalAssign;
 import polyglot.ast.LocalDecl;
 import polyglot.ast.Loop;
 import polyglot.ast.Node;
+import polyglot.ast.NodeFactory;
 import polyglot.ast.Receiver;
 import polyglot.ast.Return;
 import polyglot.ast.Stmt;
@@ -66,7 +67,6 @@ import x10.ast.Finish;
 import x10.ast.When;
 import x10.ast.X10Call;
 import x10.ast.X10ClassDecl;
-import x10.ast.X10NodeFactory;
 import x10.extension.X10Ext_c;
 import x10.compiler.ws.WSCodeGenerator;
 import x10.compiler.ws.WSTransformState;
@@ -125,7 +125,7 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
     static final protected Name REDO = Name.make("redo");
 
     final protected Job job;
-    final protected X10NodeFactory xnf;
+    final protected NodeFactory xnf;
     final protected X10TypeSystem xts;
     final protected X10Context xct;
     final protected WSTransformState wts;
@@ -151,7 +151,7 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
     private AbstractWSClassGen(Job job, X10Context xct, WSTransformState wts, AbstractWSClassGen up,
             String className, ClassType frameType, int frameDepth, Flags flags, ClassDef outer, Stmt stmt) {
         this.job = job;
-        xnf = (X10NodeFactory) job.extensionInfo().nodeFactory();
+        xnf = (NodeFactory) job.extensionInfo().nodeFactory();
         xts = (X10TypeSystem) job.extensionInfo().typeSystem();
         synth = new Synthesizer(xnf, xts);
         this.xct = xct;
@@ -191,7 +191,7 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
     }
 
     // method frames
-    protected AbstractWSClassGen(Job job, X10NodeFactory xnf, X10Context xct, WSTransformState wts,
+    protected AbstractWSClassGen(Job job, NodeFactory xnf, X10Context xct, WSTransformState wts,
             String className, ClassType frameType, Flags flags, ClassDef outer, Stmt stmt) {
         this(job, xct, wts, null, className, frameType, 0, flags, outer, stmt);
     }
@@ -312,7 +312,7 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
         return className;
     }
     
-    public X10NodeFactory getX10NodeFactory() {
+    public NodeFactory getX10NodeFactory() {
         return xnf;
     }
 

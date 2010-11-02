@@ -21,6 +21,7 @@ import polyglot.ast.Cast;
 import polyglot.ast.Expr;
 import polyglot.ast.Field;
 import polyglot.ast.Lit;
+import polyglot.ast.NodeFactory;
 import polyglot.ast.Receiver;
 import polyglot.ast.Special;
 import polyglot.ast.Unary;
@@ -62,7 +63,6 @@ import x10.ast.Here;
 import x10.ast.ParExpr;
 import x10.ast.SemanticError;
 import x10.ast.SubtypeTest;
-import x10.ast.X10NodeFactory;
 import x10.ast.X10IntLit_c;
 import x10.ast.X10StringLit_c;
 import x10.ast.Async;
@@ -1224,7 +1224,7 @@ public class X10TypeMixin {
     public static Expr getZeroVal(Type t, Position p, ContextVisitor tc) { // see X10FieldDecl_c.typeCheck
         try {
             X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
-            X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
+            NodeFactory nf = (NodeFactory) tc.nodeFactory();
 	    	X10Context context = (X10Context) tc.context();
             Expr e = null;
             if (t.isBoolean()) {

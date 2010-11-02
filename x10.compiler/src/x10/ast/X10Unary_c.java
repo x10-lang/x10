@@ -24,6 +24,7 @@ import polyglot.ast.Field;
 import polyglot.ast.IntLit;
 import polyglot.ast.Local;
 import polyglot.ast.Node;
+import polyglot.ast.NodeFactory;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
 import polyglot.ast.Unary_c;
@@ -89,7 +90,7 @@ public class X10Unary_c extends Unary_c {
      */
     public Node typeCheck(ContextVisitor tc) {
         X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
-        X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
+        NodeFactory nf = (NodeFactory) tc.nodeFactory();
         Unary.Operator op = this.operator();
 
         if (op == NEG && expr instanceof IntLit) {
@@ -238,7 +239,7 @@ public class X10Unary_c extends Unary_c {
 
         Type l = left.type();
 
-        X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
+        NodeFactory nf = (NodeFactory) tc.nodeFactory();
         Name methodName = unaryMethodName(op);
 
         if (methodName == null) return null;

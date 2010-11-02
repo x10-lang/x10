@@ -385,7 +385,7 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 	    TypeSystem ts = tc.typeSystem();
 	    NodeFactory nf = tc.nodeFactory();
 		if (vars == null || vars.isEmpty()) return null;
-		X10NodeFactory x10nf = (X10NodeFactory) nf;
+		NodeFactory x10nf = (NodeFactory) nf;
 		List<Stmt> stmts = new TypedList<Stmt>(new ArrayList<Stmt>(vars.size()), Stmt.class, false);
 		Local arrayBase =nf.Local(pos, name);
 		if (bli != null)

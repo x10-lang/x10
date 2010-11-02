@@ -20,6 +20,7 @@ import polyglot.ast.Expr;
 import polyglot.ast.Field;
 import polyglot.ast.Id;
 import polyglot.ast.Node;
+import polyglot.ast.NodeFactory;
 import polyglot.ast.PackageNode;
 import polyglot.ast.Receiver;
 import polyglot.ast.Special;
@@ -75,7 +76,7 @@ public class X10Disamb_c extends Disamb_c {
 	    		VarInstance<?> vi = c.pop().findVariableSilent(name.id());
 
 	    		if (vi != null && vi.def() == c.varWhoseTypeIsBeingElaborated()) {
-	    		    Expr e = ((X10NodeFactory) nf).Self(pos); 
+	    		    Expr e = ((NodeFactory) nf).Self(pos); 
 	    		    e = e.type(t);
 	    		    return e;
 	    		}
@@ -313,7 +314,7 @@ public class X10Disamb_c extends Disamb_c {
 
 	public static Receiver makeMissingFieldTarget(FieldInstance fi, Position pos, ContextVisitor v) {
 	    Receiver r = null;
-	    X10NodeFactory nf = (X10NodeFactory) v.nodeFactory();
+	    NodeFactory nf = (NodeFactory) v.nodeFactory();
 	    X10TypeSystem ts = (X10TypeSystem) v.typeSystem();
         X10Context c = (X10Context) v.context();
         ClassType cur = c.currentClass();
@@ -396,7 +397,7 @@ public class X10Disamb_c extends Disamb_c {
 	    else {
 		// The field is non-static, so we must prepend with self.
 		
-		Expr e = ((X10NodeFactory) nf).Self(pos); 
+		Expr e = ((NodeFactory) nf).Self(pos); 
 		e = e.type(currentDepType);
 		r = e;
 	    }

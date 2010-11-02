@@ -7,6 +7,7 @@ import java.util.List;
 
 import polyglot.ast.Expr;
 import polyglot.ast.Node;
+import polyglot.ast.NodeFactory;
 import polyglot.frontend.Globals;
 import polyglot.frontend.Job;
 import polyglot.visit.ContextVisitor;
@@ -14,7 +15,6 @@ import polyglot.visit.ErrorHandlingVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.ast.X10CanonicalTypeNode;
 import x10.ast.X10Field_c;
-import x10.ast.X10NodeFactory;
 import x10.ast.X10Special;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
@@ -30,10 +30,10 @@ import x10.util.Synthesizer;
 public class ThisChecker extends NodeVisitor {
     protected boolean error;
     protected X10TypeSystem ts;
-    protected X10NodeFactory nf;
+    protected NodeFactory nf;
     public ThisChecker(Job job) {
         ts = (X10TypeSystem) job.extensionInfo().typeSystem();
-        nf = (X10NodeFactory) job.extensionInfo().nodeFactory();
+        nf = (NodeFactory) job.extensionInfo().nodeFactory();
     }
     protected boolean catchErrors(Node n) { return false; }
     @Override

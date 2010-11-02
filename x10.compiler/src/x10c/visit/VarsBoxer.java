@@ -52,7 +52,6 @@ import x10.ast.AtStmt;
 import x10.ast.X10Binary_c;
 import x10.ast.X10CanonicalTypeNode;
 import x10.ast.X10IntLit_c;
-import x10.ast.X10NodeFactory;
 import x10.ast.X10Unary_c;
 import x10.types.X10ConstructorInstance;
 import x10.types.X10Context;
@@ -68,13 +67,13 @@ public class VarsBoxer extends ContextVisitor {
     private static final QName GLOBAL_REF = QName.make("x10.lang.GlobalRef");
     
     private final X10TypeSystem xts;
-    private final X10NodeFactory xnf;
+    private final NodeFactory xnf;
     private X10ParsedClassType globalRefType;
     
     public VarsBoxer(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf);
         xts = (X10TypeSystem) ts;
-        xnf = (X10NodeFactory) nf;
+        xnf = (NodeFactory) nf;
     }
     
     @Override

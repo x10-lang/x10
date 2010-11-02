@@ -58,7 +58,6 @@ import x10.ast.X10CanonicalTypeNode_c;
 import x10.ast.X10Cast;
 import x10.ast.X10Cast_c;
 import x10.ast.X10New_c;
-import x10.ast.X10NodeFactory;
 import x10.ast.X10ProcedureCall;
 import x10.ast.X10New_c.MatcherMaker;
 import x10.constraint.XConstraint;
@@ -124,7 +123,7 @@ public class Converter {
 		? ConversionType.UNKNOWN_CONVERSION
 		: ConversionType.CALL_CONVERSION; // ConversionType.UNKNOWN_IMPLICIT_CONVERSION;
 		
-		X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
+		NodeFactory nf = (NodeFactory) tc.nodeFactory();
 
 		X10CanonicalTypeNode tn = (X10CanonicalTypeNode) nf.CanonicalTypeNode(e.position(), toType);
 		Expr result = typeCheckCast(nf.X10Cast(e.position(), tn, e, ct), tc);
@@ -199,7 +198,7 @@ public class Converter {
 	public static <PD extends ProcedureDef, PI extends ProcedureInstance<PD>> Pair<PI, List<Expr>> 
 	tryImplicitConversions(X10ProcedureCall n,
 			ContextVisitor tc, Type targetType, List<PI> methods, X10New_c.MatcherMaker<PI> maker) throws SemanticException {
-		X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
+		NodeFactory nf = (NodeFactory) tc.nodeFactory();
 		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 		X10Context xc = (X10Context) tc.context();
 		ClassDef currentClassDef = xc.currentClassDef();
@@ -337,7 +336,7 @@ public class Converter {
 		}
 
 		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
-		final X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
+		final NodeFactory nf = (NodeFactory) tc.nodeFactory();
 		final Context context = tc.context();
 
 		class Helper {
@@ -443,7 +442,7 @@ public class Converter {
 		X10TypeSystem_c ts = (X10TypeSystem_c) tc.typeSystem();
 		Type toType = cast.castType().type();
 		Type fromType = cast.expr().type();
-		X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
+		NodeFactory nf = (NodeFactory) tc.nodeFactory();
 		X10Context context = (X10Context) tc.context();
 
 		if (ts.isUnknown(toType)) {

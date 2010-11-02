@@ -19,6 +19,7 @@ import java.util.List;
 import polyglot.ast.Expr;
 import polyglot.ast.Expr_c;
 import polyglot.ast.Node;
+import polyglot.ast.NodeFactory;
 import polyglot.ast.Precedence;
 import polyglot.ast.Term;
 import polyglot.ast.TypeNode;
@@ -230,7 +231,7 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
 			//	    ClosureType ct = ts.Function(mi.typeParameters(), mi.formalTypes(), mi.returnType());
 			//	    if (! targetType.isSubtype(ct))
 			//		throw new SemanticException("Invalid closure call; target does not implement " + ct + ".", position());
-			X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
+			NodeFactory nf = (NodeFactory) tc.nodeFactory();
 			X10Call_c n = (X10Call_c) nf.X10Call(position(), target(), 
 					nf.Id(Position.compilerGenerated(position()), mi.name().toString()), Collections.<TypeNode>emptyList(), args);
 			n = (X10Call_c) n.methodInstance(mi).type(mi.returnType());

@@ -44,7 +44,6 @@ import polyglot.visit.NodeVisitor;
 import x10.ast.ClosureCall;
 import x10.ast.SettableAssign;
 import x10.ast.X10Call;
-import x10.ast.X10NodeFactory;
 import x10.ast.X10Return_c;
 import x10.emitter.Emitter;
 import x10.types.ParameterType;
@@ -61,14 +60,14 @@ import x10.visit.X10PrettyPrinterVisitor;
 public class JavaCaster extends ContextVisitor {
     
     private final X10TypeSystem xts;
-    private final X10NodeFactory xnf;
+    private final NodeFactory xnf;
 
     private Type imc;
 
     public JavaCaster(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf);
         xts = (X10TypeSystem) ts;
-        xnf = (X10NodeFactory) nf;
+        xnf = (NodeFactory) nf;
     }
     
     @Override

@@ -20,6 +20,7 @@ import polyglot.ast.Expr;
 import polyglot.ast.FlagsNode;
 import polyglot.ast.Formal;
 import polyglot.ast.Local;
+import polyglot.ast.NodeFactory;
 import polyglot.ast.TypeNode;
 import polyglot.types.ClassDef;
 import polyglot.types.Flags;
@@ -34,7 +35,6 @@ import x10.ast.AnnotationNode;
 import x10.ast.X10ClassDecl;
 import x10.ast.X10MethodDecl;
 import x10.ast.X10MethodDecl_c;
-import x10.ast.X10NodeFactory;
 import x10.constraint.XTerm;
 import x10.extension.X10Del;
 import x10.types.X10ClassDef;
@@ -58,7 +58,7 @@ public class MethodSynth extends AbstractStateSynth implements IClassMemberSynth
     XTerm placeTerm;
     
     
-    public MethodSynth(X10NodeFactory xnf, X10Context xct, Position pos, ClassDef classDef, Name methodName,
+    public MethodSynth(NodeFactory xnf, X10Context xct, Position pos, ClassDef classDef, Name methodName,
                        Flags flags, List<Formal> formals, List<Type> throwTypes, Type returnType){
         super(xnf, xct, pos);
 
@@ -89,12 +89,12 @@ public class MethodSynth extends AbstractStateSynth implements IClassMemberSynth
         codeBlockSynth = new CodeBlockSynth(xnf, xct, this, pos);
     }
     
-    public MethodSynth(X10NodeFactory xnf, X10Context xct, Position pos, ClassDef classDef, String methodName){
+    public MethodSynth(NodeFactory xnf, X10Context xct, Position pos, ClassDef classDef, String methodName){
         this(xnf, xct, pos, classDef, Name.make(methodName),
              Flags.NONE, new ArrayList<Formal>(), new ArrayList<Type>(), xct.typeSystem().Void());
     }
     
-    public MethodSynth(X10NodeFactory xnf, X10Context xct, ClassDef classDef, String methodName){
+    public MethodSynth(NodeFactory xnf, X10Context xct, ClassDef classDef, String methodName){
         this(xnf, xct, compilerPos, classDef, methodName);
     }
      

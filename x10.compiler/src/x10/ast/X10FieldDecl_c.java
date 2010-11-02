@@ -24,6 +24,7 @@ import polyglot.ast.FloatLit;
 import polyglot.ast.Id;
 import polyglot.ast.IntLit;
 import polyglot.ast.Node;
+import polyglot.ast.NodeFactory;
 import polyglot.ast.StringLit;
 import polyglot.ast.TypeNode;
 import polyglot.frontend.AbstractGoal_c;
@@ -82,7 +83,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 	public Type hasType() {
 		return hasType==null ? null : hasType.type();
 	}
-    public X10FieldDecl_c(X10NodeFactory nf, Position pos, FlagsNode flags, TypeNode type,
+    public X10FieldDecl_c(NodeFactory nf, Position pos, FlagsNode flags, TypeNode type,
             Id name, Expr init)
     {
         super(pos, flags, 
@@ -434,7 +435,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 	    		Errors.issue(tc.job(), new SemanticException("A struct may not have var fields.", position()));
 	    	}
 
-	    	X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
+	    	NodeFactory nf = (NodeFactory) tc.nodeFactory();
 
 	    	X10FieldDecl_c n = (X10FieldDecl_c) this.type(nf.CanonicalTypeNode(type().position(), type));
 

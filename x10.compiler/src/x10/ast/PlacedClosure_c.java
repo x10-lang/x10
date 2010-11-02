@@ -18,6 +18,7 @@ import polyglot.ast.Block;
 import polyglot.ast.Expr;
 import polyglot.ast.Formal;
 import polyglot.ast.Node;
+import polyglot.ast.NodeFactory;
 import polyglot.ast.Term;
 import polyglot.ast.TypeNode;
 import polyglot.types.Context;
@@ -54,7 +55,7 @@ public class PlacedClosure_c extends Closure_c implements PlacedClosure {
 
 	protected Expr place;
 
-	public PlacedClosure_c(X10NodeFactory nf, Position p, Expr place, TypeNode returnType, TypeNode offerType, Block body) {
+	public PlacedClosure_c(NodeFactory nf, Position p, Expr place, TypeNode returnType, TypeNode offerType, Block body) {
 		super(nf, p, Collections.<Formal>emptyList(), returnType, null, 
 				offerType, body);
 		this.place = place;

@@ -542,7 +542,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     	
     	Position CG = Position.compilerGenerated(body().position());
     	X10TypeSystem_c xts = (X10TypeSystem_c) tc.typeSystem();
-    	X10NodeFactory xnf = (X10NodeFactory) tc.nodeFactory();
+    	NodeFactory xnf = (NodeFactory) tc.nodeFactory();
     	X10ClassType targetType = (X10ClassType) n.classDef().asType();
     	List<X10ClassType> interfaces = xts.allImplementedInterfaces(targetType, false);
     	LinkedList<X10MethodInstance> candidates = new LinkedList<X10MethodInstance>();
@@ -921,7 +921,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     {
         X10ClassDef thisType = (X10ClassDef) _thisType;
         Position pos = Position.compilerGenerated(body().position());
-        X10NodeFactory xnf = (X10NodeFactory) nf;
+        NodeFactory xnf = (NodeFactory) nf;
         Block block = null;
 
         Ref<? extends Type> superType = thisType.superType();

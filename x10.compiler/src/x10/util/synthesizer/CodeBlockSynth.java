@@ -21,6 +21,7 @@ import polyglot.ast.Expr;
 import polyglot.ast.Local;
 import polyglot.ast.LocalDecl;
 import polyglot.ast.Node;
+import polyglot.ast.NodeFactory;
 import polyglot.ast.Receiver;
 import polyglot.ast.Stmt;
 import polyglot.types.ClassDef;
@@ -32,7 +33,6 @@ import polyglot.types.Type;
 import polyglot.util.Position;
 import polyglot.visit.NodeVisitor;
 import x10.ast.AnnotationNode;
-import x10.ast.X10NodeFactory;
 import x10.types.X10Context;
 
 /**
@@ -83,7 +83,7 @@ public class CodeBlockSynth extends AbstractStateSynth implements IStmtSynth{
      * @param containerSynth
      * @param pos
      */
-    public CodeBlockSynth(X10NodeFactory xnf, X10Context xct, AbstractStateSynth containerSynth, Position pos) {
+    public CodeBlockSynth(NodeFactory xnf, X10Context xct, AbstractStateSynth containerSynth, Position pos) {
         super(xnf, xct, pos);
         this.containerSynth = containerSynth;
         stmtSythns = new ArrayList<IStmtSynth>();
@@ -96,7 +96,7 @@ public class CodeBlockSynth extends AbstractStateSynth implements IStmtSynth{
      * @param xct
      * @param pos
      */
-    public CodeBlockSynth(X10NodeFactory xnf, X10Context xct, Position pos) {
+    public CodeBlockSynth(NodeFactory xnf, X10Context xct, Position pos) {
         this(xnf, xct, null, pos);
     }
     

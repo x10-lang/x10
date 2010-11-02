@@ -24,6 +24,7 @@ import java.util.Set;
 
 import polyglot.ast.Binary;
 import polyglot.ast.Id;
+import polyglot.ast.NodeFactory;
 import polyglot.ast.TypeNode;
 import polyglot.frontend.ExtensionInfo;
 import polyglot.frontend.Globals;
@@ -78,7 +79,6 @@ import polyglot.util.Predicate2;
 import polyglot.util.TransformingList;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.TypeBuilder;
-import x10.ast.X10NodeFactory;
 import x10.constraint.XEQV;
 import x10.constraint.XFailure;
 import x10.constraint.XField;
@@ -2557,7 +2557,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	   
    }
    public void existsStructWithName(Id name, ContextVisitor tc) throws SemanticException {
- 	  X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
+ 	  NodeFactory nf = (NodeFactory) tc.nodeFactory();
 			X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 			Context c = tc.context();
  	  TypeBuilder tb = new TypeBuilder(tc.job(),  ts, nf);

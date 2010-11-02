@@ -28,6 +28,7 @@ import polyglot.ast.If;
 import polyglot.ast.LocalDecl;
 import polyglot.ast.Loop;
 import polyglot.ast.Node;
+import polyglot.ast.NodeFactory;
 import polyglot.ast.Stmt;
 import polyglot.ast.Switch;
 import polyglot.ast.Try;
@@ -45,7 +46,6 @@ import x10.ast.ForLoop;
 import x10.ast.When;
 import x10.ast.X10Formal;
 import x10.ast.X10Loop;
-import x10.ast.X10NodeFactory;
 import x10.compiler.ws.WSCodeGenerator;
 import x10.compiler.ws.WSTransformState;
 import x10.compiler.ws.util.AddIndirectLocalDeclareVisitor;
@@ -82,7 +82,7 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
     boolean isReturnPathChanged;
 
     // method frames
-    protected WSRegularFrameClassGen(Job job, X10NodeFactory xnf, X10Context xct, WSTransformState wts,
+    protected WSRegularFrameClassGen(Job job, NodeFactory xnf, X10Context xct, WSTransformState wts,
            String className, Stmt stmt, ClassDef outer, Flags flags, ClassType superType) {
         super(job, xnf, xct, wts, className, superType, flags, outer,
                 WSCodeGenUtility.setSpeicalQualifier(stmt, outer, xnf));

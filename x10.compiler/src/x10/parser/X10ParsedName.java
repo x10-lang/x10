@@ -18,7 +18,6 @@ import polyglot.ast.TypeNode;
 import polyglot.parse.ParsedName;
 import polyglot.types.TypeSystem;
 import polyglot.util.Position;
-import x10.ast.X10NodeFactory;
 
 public class X10ParsedName extends ParsedName {
 	public X10ParsedName(NodeFactory nf, TypeSystem ts, Position pos, Id name) {
@@ -31,7 +30,7 @@ public class X10ParsedName extends ParsedName {
 
 	@Override
 	public QualifierNode toQualifier() {
-		X10NodeFactory nf = (X10NodeFactory) this.nf;
+		NodeFactory nf = (NodeFactory) this.nf;
 		if (prefix == null) {
 			return nf.AmbQualifierNode(pos, name);
 		}
@@ -42,7 +41,7 @@ public class X10ParsedName extends ParsedName {
 
 	@Override
 	public TypeNode toType() {
-		X10NodeFactory nf = (X10NodeFactory) this.nf;
+		NodeFactory nf = (NodeFactory) this.nf;
 		if (prefix == null) {
 		    return nf.AmbTypeNode(pos, name);
 		}

@@ -10,8 +10,8 @@
  */
 package x10.util.synthesizer;
 
+import polyglot.ast.NodeFactory;
 import polyglot.util.Position;
-import x10.ast.X10NodeFactory;
 import x10.types.X10Context;
 import x10.types.X10TypeSystem;
 import x10.util.Synthesizer;
@@ -25,14 +25,14 @@ public abstract class AbstractStateSynth {
     static protected Position compilerPos = Position.COMPILER_GENERATED; 
 
     Position pos; //the position of this block
-    X10NodeFactory xnf;
+    NodeFactory xnf;
     X10Context xct;
     X10TypeSystem xts;
     Synthesizer synth;
 
     boolean closed; //indicator of the state
     
-    public AbstractStateSynth(X10NodeFactory xnf, X10Context xct, Position pos) {
+    public AbstractStateSynth(NodeFactory xnf, X10Context xct, Position pos) {
         this.xnf = xnf;
         this.pos = pos;
         

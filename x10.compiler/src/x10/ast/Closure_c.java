@@ -99,7 +99,7 @@ public class Closure_c extends Expr_c implements Closure {
 
 	TypeNode hasType;
 	TypeNode offerType;
-	public Closure_c(X10NodeFactory nf, Position pos,  List<Formal> formals, 
+	public Closure_c(NodeFactory nf, Position pos,  List<Formal> formals, 
 			TypeNode returnType, DepParameterExpr guard,  TypeNode offerType, Block body) {
 		super(pos);
 		//	this.typeParameters = TypedList.copyAndCheck(typeParams, TypeParamNode.class, true);

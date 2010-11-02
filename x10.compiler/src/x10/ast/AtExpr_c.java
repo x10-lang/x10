@@ -18,6 +18,7 @@ import polyglot.ast.Block;
 import polyglot.ast.Expr;
 import polyglot.ast.Expr_c;
 import polyglot.ast.Node;
+import polyglot.ast.NodeFactory;
 import polyglot.ast.Term;
 import polyglot.ast.TypeNode;
 import polyglot.types.Context;
@@ -52,7 +53,7 @@ import x10.types.checker.PlaceChecker;
 public class AtExpr_c extends PlacedClosure_c
     implements AtExpr {
     
-    public AtExpr_c(X10NodeFactory nf, Position p, Expr place, TypeNode returnType, TypeNode offerType, Block body) {
+    public AtExpr_c(NodeFactory nf, Position p, Expr place, TypeNode returnType, TypeNode offerType, Block body) {
 	    super(nf, p, place, returnType, offerType, body);
     }
 

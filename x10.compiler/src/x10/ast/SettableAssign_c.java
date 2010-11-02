@@ -90,7 +90,7 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 	 * @param op
 	 * @param right
 	 */
-    public SettableAssign_c(X10NodeFactory nf, Position pos, Expr array, List<Expr> index, Operator op, Expr right) {
+    public SettableAssign_c(NodeFactory nf, Position pos, Expr array, List<Expr> index, Operator op, Expr right) {
 		super(nf, pos, op, right);
 		if (index.size() < 1)
 		assert index.size() >= 1;
@@ -230,7 +230,7 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 	@Override
 	public Assign typeCheckLeft(ContextVisitor tc) {
 		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
-		X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
+		NodeFactory nf = (NodeFactory) tc.nodeFactory();
 		X10TypeSystem xts = ts;
 
 		X10MethodInstance mi = null;

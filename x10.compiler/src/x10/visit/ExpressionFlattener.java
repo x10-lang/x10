@@ -85,7 +85,6 @@ import x10.ast.SubtypeTest;
 import x10.ast.Tuple;
 import x10.ast.When;
 import x10.ast.X10ClassDecl;
-import x10.ast.X10NodeFactory;
 import x10.optimizations.ForLoopOptimizer;
 import x10.types.X10TypeSystem;
 
@@ -101,7 +100,7 @@ public final class ExpressionFlattener extends ContextVisitor {
     private static long dummyCount = 0;
 
     private final X10TypeSystem xts;
-    private final X10NodeFactory xnf;
+    private final NodeFactory xnf;
 //    Synthesizer syn;
     private final ForLoopOptimizer syn; // move functionality to Synthesizer
     private final SideEffectDetector sed;
@@ -117,7 +116,7 @@ public final class ExpressionFlattener extends ContextVisitor {
     public ExpressionFlattener(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf);
         xts = (X10TypeSystem) ts;
-        xnf = (X10NodeFactory) nf;
+        xnf = (NodeFactory) nf;
 //        syn = new Synthesizer(xnf, xts);
         syn = new ForLoopOptimizer(job, ts, nf);
         sed = new SideEffectDetector(job, ts, nf);

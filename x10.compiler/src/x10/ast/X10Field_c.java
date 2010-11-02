@@ -22,6 +22,7 @@ import polyglot.ast.Field;
 import polyglot.ast.Field_c;
 import polyglot.ast.Id;
 import polyglot.ast.Node;
+import polyglot.ast.NodeFactory;
 import polyglot.ast.Receiver;
 import polyglot.ast.Special;
 import polyglot.ast.TypeNode;
@@ -196,7 +197,7 @@ public class X10Field_c extends Field_c {
 	
     public Node typeCheck1(ContextVisitor tc) throws SemanticException {
 		final X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
-		final X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
+		final NodeFactory nf = (NodeFactory) tc.nodeFactory();
 		final X10Context c = (X10Context) tc.context(); 
 		Type tType = target != null ? target.type() : c.currentClass();
 

@@ -64,7 +64,6 @@ import x10.ast.StmtSeq;
 import x10.ast.X10Call;
 import x10.ast.X10Cast;
 import x10.ast.X10Formal;
-import x10.ast.X10NodeFactory;
 import x10.constraint.XFailure;
 import x10.constraint.XTerm;
 import x10.types.X10Context;
@@ -101,13 +100,13 @@ public class ForLoopOptimizer extends ContextVisitor {
     private static final Name SET      = Name.make("set");
 
     private final X10TypeSystem  xts;
-    private final X10NodeFactory xnf;
+    private final NodeFactory xnf;
     private final Synthesizer    syn;
 
     public ForLoopOptimizer(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf);
         xts = (X10TypeSystem) ts;
-        xnf = (X10NodeFactory) nf; 
+        xnf = (NodeFactory) nf; 
         syn = new Synthesizer(xnf, xts);
     }
 

@@ -26,17 +26,16 @@ import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.ast.SettableAssign_c;
-import x10.ast.X10NodeFactory;
 import x10.types.X10Context;
 /**
  * Visitor to desugar the AST before code gen.
  */
 public class EarlyDesugarer extends ContextVisitor {
-    private final X10NodeFactory xnf;
+    private final NodeFactory xnf;
     
     public EarlyDesugarer(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf);
-        xnf = (X10NodeFactory) nf;
+        xnf = (NodeFactory) nf;
     }
 
     protected X10Context xContext() { return (X10Context) context;}

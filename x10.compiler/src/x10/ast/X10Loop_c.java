@@ -133,7 +133,7 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop {
 	    
 	    Formal formal = (Formal) this.visitChild(this.formal, tc1);
 	    
-	    X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
+	    NodeFactory nf = (NodeFactory) tc.nodeFactory();
 	    X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 	    
 //	    if (ts.isPoint(formal.type().type())) {
@@ -369,7 +369,7 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop {
 				final LazyRef<Type> domainTypeRef = this.domainTypeRef;
 				domainTypeRef.setResolver(new TypeCheckExprGoal(loop, domain, tc, domainTypeRef));
 
-				final X10NodeFactory nf = (X10NodeFactory) v.nodeFactory();
+				final NodeFactory nf = (NodeFactory) v.nodeFactory();
 				final X10TypeSystem ts = (X10TypeSystem) v.typeSystem();
 				final ClassDef curr = v.context().currentClassDef();
 

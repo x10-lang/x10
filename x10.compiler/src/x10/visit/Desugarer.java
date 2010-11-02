@@ -96,7 +96,6 @@ import x10.ast.X10Formal;
 import x10.ast.X10Instanceof;
 import x10.ast.X10IntLit_c;
 import x10.ast.X10New;
-import x10.ast.X10NodeFactory;
 import x10.ast.X10Special;
 import x10.ast.X10Unary_c;
 import x10.constraint.XFailure;
@@ -134,12 +133,12 @@ import x10.extension.X10Ext;
  */
 public class Desugarer extends ContextVisitor {
     private final X10TypeSystem xts;
-    private final X10NodeFactory xnf;
+    private final NodeFactory xnf;
     private final Synthesizer synth;
     public Desugarer(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf);
         xts = (X10TypeSystem) ts;
-        xnf = (X10NodeFactory) nf;
+        xnf = (NodeFactory) nf;
         synth = new Synthesizer(xnf, xts);
     }
 

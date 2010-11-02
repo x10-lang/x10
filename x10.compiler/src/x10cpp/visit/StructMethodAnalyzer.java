@@ -50,7 +50,6 @@ import x10.ast.X10LocalDecl_c;
 import x10.ast.X10Local_c;
 import x10.ast.X10MethodDecl_c;
 import x10.ast.X10New_c;
-import x10.ast.X10NodeFactory;
 import x10.ast.X10Special_c;
 import x10.types.X10ClassType;
 import x10.types.X10MethodInstance;

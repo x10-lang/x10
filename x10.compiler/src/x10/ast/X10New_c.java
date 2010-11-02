@@ -251,7 +251,7 @@ public class X10New_c extends New_c implements X10New {
     }
     
     public New_c typeCheckObjectType(TypeChecker childtc) throws SemanticException {
-        X10NodeFactory nf = (X10NodeFactory) childtc.nodeFactory();
+        NodeFactory nf = (NodeFactory) childtc.nodeFactory();
         X10TypeSystem ts = (X10TypeSystem) childtc.typeSystem();
         Context c = childtc.context();
 

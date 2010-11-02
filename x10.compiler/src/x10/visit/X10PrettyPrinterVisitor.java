@@ -153,7 +153,6 @@ import x10.ast.X10IntLit_c;
 import x10.ast.X10LocalDecl_c;
 import x10.ast.X10MethodDecl_c;
 import x10.ast.X10New_c;
-import x10.ast.X10NodeFactory;
 import x10.ast.X10Return_c;
 import x10.ast.X10Special;
 import x10.ast.X10Unary_c;
@@ -1621,7 +1620,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		    List<Catch> ncatches = new ArrayList<Catch>(c.catchBlocks().size());
 		    for (Catch catch1 : c.catchBlocks()) {
 		        Block body = catch1.body();
-		        X10NodeFactory xnf = (X10NodeFactory) tr.nodeFactory();
+		        NodeFactory xnf = (NodeFactory) tr.nodeFactory();
 		        Position pos = Position.COMPILER_GENERATED;
 		        X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
 		        Type re = xts.RuntimeException();

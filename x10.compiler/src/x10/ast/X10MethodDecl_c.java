@@ -141,7 +141,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 
 	TypeNode offerType;
 	TypeNode hasType;
-	public X10MethodDecl_c(X10NodeFactory nf, Position pos, FlagsNode flags, 
+	public X10MethodDecl_c(NodeFactory nf, Position pos, FlagsNode flags, 
 			TypeNode returnType, Id name,
 			List<TypeParamNode> typeParams, List<Formal> formals, DepParameterExpr guard,  TypeNode offerType, Block body) {
 		super(pos, flags, returnType instanceof HasTypeNode_c ? nf.UnknownTypeNode(returnType.position()) : returnType, 

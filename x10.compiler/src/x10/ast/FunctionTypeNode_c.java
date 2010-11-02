@@ -73,7 +73,7 @@ public class FunctionTypeNode_c extends TypeNode_c implements FunctionTypeNode {
 
 	@Override
 	public Node disambiguate(ContextVisitor ar) throws SemanticException {
-		X10NodeFactory nf = (X10NodeFactory) ar.nodeFactory();
+		NodeFactory nf = (NodeFactory) ar.nodeFactory();
 		X10TypeSystem ts = (X10TypeSystem) ar.typeSystem();
 		FunctionTypeNode_c n = this;
 		List<Ref<? extends Type>> typeParams = new ArrayList<Ref<? extends Type>>(n.typeParameters().size());

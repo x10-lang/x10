@@ -68,12 +68,12 @@ public class NativeClassVisitor extends ContextVisitor {
 
     final String theLanguage;
     final X10TypeSystem xts;
-    final X10NodeFactory xnf;
+    final NodeFactory xnf;
 
     public NativeClassVisitor(Job job, TypeSystem ts, NodeFactory nf, String theLanguage) {
         super(job, ts, nf);
         xts = (X10TypeSystem) ts;
-        xnf = (X10NodeFactory) nf;
+        xnf = (NodeFactory) nf;
         this.theLanguage = theLanguage;
     }
 

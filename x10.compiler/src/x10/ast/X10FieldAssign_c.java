@@ -18,6 +18,7 @@ import polyglot.ast.Field;
 import polyglot.ast.FieldAssign_c;
 import polyglot.ast.Id;
 import polyglot.ast.Node;
+import polyglot.ast.NodeFactory;
 import polyglot.ast.Receiver;
 import polyglot.ast.Assign.Operator;
 import polyglot.types.FieldInstance;
@@ -40,7 +41,7 @@ import x10.errors.Errors;
 
 public class X10FieldAssign_c extends FieldAssign_c {
     
-    public X10FieldAssign_c(X10NodeFactory nf, Position pos, Receiver target, Id name, Operator op, Expr right) {
+    public X10FieldAssign_c(NodeFactory nf, Position pos, Receiver target, Id name, Operator op, Expr right) {
         super(nf, pos, target, name, op, right);
     }
     

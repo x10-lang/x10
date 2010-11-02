@@ -19,6 +19,7 @@ import polyglot.ast.Disamb;
 import polyglot.ast.Expr;
 import polyglot.ast.Id;
 import polyglot.ast.Node;
+import polyglot.ast.NodeFactory;
 import polyglot.ast.PackageNode;
 import polyglot.ast.Prefix;
 import polyglot.ast.TypeNode;
@@ -66,7 +67,7 @@ public class X10AmbTypeNode_c extends AmbTypeNode_c implements X10AmbTypeNode, A
       Position pos = position();
 
       X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
-      X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
+      NodeFactory nf = (NodeFactory) tc.nodeFactory();
       X10Context c = (X10Context) tc.context();
 
       if (! c.inAnnotation())
@@ -111,7 +112,7 @@ public class X10AmbTypeNode_c extends AmbTypeNode_c implements X10AmbTypeNode, A
       ContextVisitor tc = ar;
     
       X10TypeSystem_c ts = (X10TypeSystem_c) tc.typeSystem();
-      X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
+      NodeFactory nf = (NodeFactory) tc.nodeFactory();
     
       try {
 	  TypeNode tn = disambiguateAnnotation(tc);

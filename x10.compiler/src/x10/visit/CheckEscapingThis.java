@@ -475,7 +475,7 @@ public class CheckEscapingThis extends NodeVisitor
         private final Set<FieldDef> seqWrite = new HashSet<FieldDef>();
     }
     private final Job job;
-    private final X10NodeFactory nf;
+    private final NodeFactory nf;
     private final X10TypeSystem ts;
     private final X10ClassDecl_c xlass;
     private final boolean hasProperties; // this this class defined properties (excluding properties of the sueprclass). if so, there must be exactly one "property(...)"
@@ -507,7 +507,7 @@ public class CheckEscapingThis extends NodeVisitor
     public CheckEscapingThis(X10ClassDecl_c xlass, Job job, X10TypeSystem ts) {
         this.job = job;
         this.ts = ts;
-        nf = (X10NodeFactory)ts.extensionInfo().nodeFactory();
+        nf = (NodeFactory)ts.extensionInfo().nodeFactory();
         this.xlass = xlass;
         hasProperties = xlass.properties()!=null && xlass.properties().size()>0;
         isXlassFinal = xlass.flags().flags().isFinal();

@@ -51,7 +51,6 @@ import polyglot.visit.NodeVisitor;
 import x10.ast.TypeParamNode;
 import x10.ast.X10Call;
 import x10.ast.X10MethodDecl;
-import x10.ast.X10NodeFactory;
 import x10.types.ParameterType;
 import x10.types.X10ClassType;
 import x10.types.X10MethodDef;
@@ -66,7 +65,7 @@ public class InlineHelper extends ContextVisitor {
     private static final String BRIDGE_TO_SUPER_SUFFIX = "$S";
 
     private final X10TypeSystem xts;
-    private final X10NodeFactory xnf;
+    private final NodeFactory xnf;
 
     private Type InlineType;
     public static final QName INLINE_ANNOTATION = QName.make("x10.compiler.Inline");
@@ -74,7 +73,7 @@ public class InlineHelper extends ContextVisitor {
     public InlineHelper(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf);
         xts = (X10TypeSystem) ts;
-        xnf = (X10NodeFactory) nf;
+        xnf = (NodeFactory) nf;
     }
 
     @Override

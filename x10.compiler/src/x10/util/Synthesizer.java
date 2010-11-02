@@ -37,6 +37,7 @@ import polyglot.ast.Local;
 import polyglot.ast.LocalDecl;
 import polyglot.ast.MethodDecl;
 import polyglot.ast.New;
+import polyglot.ast.NodeFactory;
 import polyglot.ast.Receiver;
 import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
@@ -105,8 +106,8 @@ import x10.visit.X10TypeChecker;
 public class Synthesizer {
 
 	X10TypeSystem xts;
-	X10NodeFactory xnf;
-	public Synthesizer(X10NodeFactory nf, X10TypeSystem ts) {
+	NodeFactory xnf;
+	public Synthesizer(NodeFactory nf, X10TypeSystem ts) {
 		xts = ts;
 		xnf = nf;
 	}
@@ -1332,7 +1333,7 @@ public class Synthesizer {
      */
     // TODO: This has to be made to work with nested types.
     public X10CanonicalTypeNode makeCanonicalTypeNodeWithDepExpr(Position pos, Type type, ContextVisitor tc) {
-    	X10NodeFactory nf = ((X10NodeFactory) tc.nodeFactory());
+    	NodeFactory nf = ((NodeFactory) tc.nodeFactory());
     	X10TypeSystem ts = ((X10TypeSystem) tc.typeSystem());
     	
     	type = PlaceChecker.ReplacePlaceTermByHere(type, tc.context());

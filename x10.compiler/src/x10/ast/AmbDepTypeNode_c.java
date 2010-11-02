@@ -18,6 +18,7 @@ import java.util.List;
 import polyglot.ast.CanonicalTypeNode;
 import polyglot.ast.Expr;
 import polyglot.ast.Node;
+import polyglot.ast.NodeFactory;
 import polyglot.ast.TypeNode;
 import polyglot.ast.TypeNode_c;
 import polyglot.types.Context;
@@ -121,7 +122,7 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode, AddF
     }
     public Node typeCheckOverride(Node parent, ContextVisitor tc) {
         X10TypeSystem_c ts = (X10TypeSystem_c) tc.typeSystem();
-        X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
+        NodeFactory nf = (NodeFactory) tc.nodeFactory();
 
         LazyRef<Type> sym = (LazyRef<Type>) this.type;
         assert sym != null;

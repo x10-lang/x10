@@ -66,13 +66,13 @@ import x10.types.X10TypeSystem;
  */
 public class MainMethodFinder extends ContextVisitor {
     final X10TypeSystem ts;
-    final X10NodeFactory nf;
+    final NodeFactory nf;
     final Method hasMain;
 
     public MainMethodFinder(Job job, TypeSystem ts, NodeFactory nf, Method hasMain) {
         super(job, ts, nf);
         this.ts = (X10TypeSystem) ts;
-        this.nf = (X10NodeFactory) nf;
+        this.nf = (NodeFactory) nf;
         this.hasMain = hasMain;
     }
 

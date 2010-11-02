@@ -76,7 +76,6 @@ import x10.ast.X10Call;
 import x10.ast.ConstantDistMaker;
 import x10.ast.TypeDecl;
 import x10.ast.TypeParamNode;
-import x10.ast.X10NodeFactory;
 import x10.types.ParameterType;
 import x10.types.X10TypeSystem;
 import x10.types.X10TypeSystem_c;
@@ -284,14 +283,14 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
     //#line 314 "x10/parser/x10.g"
     private ErrorQueue eq;
     private X10TypeSystem ts;
-    private X10NodeFactory nf;
+    private NodeFactory nf;
     private FileSource source;
     private boolean unrecoverableSyntaxError = false;
 
     public void initialize(TypeSystem t, NodeFactory n, FileSource source, ErrorQueue q)
     {
         this.ts = (X10TypeSystem) t;
-        this.nf = (X10NodeFactory) n;
+        this.nf = (NodeFactory) n;
         this.source = source;
         this.eq = q;
     }
@@ -300,7 +299,7 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
     {
         this(lexStream);
         initialize((X10TypeSystem) t,
-                   (X10NodeFactory) n,
+                   (NodeFactory) n,
                    source,
                    q);
         prsStream.setMessageHandler(new MessageHandler(q));
@@ -5884,7 +5883,7 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
                //#line 4168 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4168 "lpg.generator/templates/java/btParserTemplateF.gi"
-                setResult(((X10NodeFactory) nf).Here(pos()));
+                setResult(((NodeFactory) nf).Here(pos()));
                       break;
             }
     

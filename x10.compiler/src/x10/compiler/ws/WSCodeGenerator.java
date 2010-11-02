@@ -39,7 +39,6 @@ import x10.ast.PlacedClosure;
 import x10.ast.RemoteActivityInvocation;
 import x10.ast.X10ClassDecl;
 import x10.ast.X10MethodDecl;
-import x10.ast.X10NodeFactory;
 import x10.compiler.ws.codegen.AbstractWSClassGen;
 import x10.compiler.ws.codegen.WSMethodFrameClassGen;
 import x10.compiler.ws.util.WSCallGraph;
@@ -88,7 +87,7 @@ public class WSCodeGenerator extends ContextVisitor {
         genClassDecls = new HashSet<X10ClassDecl>();
     }
 
-    public static void buildCallGraph(X10TypeSystem xts, X10NodeFactory xnf, String theLanguage) {
+    public static void buildCallGraph(X10TypeSystem xts, NodeFactory xnf, String theLanguage) {
         wts = new WSTransformState(xts, xnf, theLanguage);
     }
 
@@ -137,7 +136,7 @@ public class WSCodeGenerator extends ContextVisitor {
                 }
                 
                 Job job = ((ClassType) mDef.container().get()).def().job();
-                WSMethodFrameClassGen mFrame = new WSMethodFrameClassGen(job, (X10NodeFactory) nf, (X10Context) context, mDef, mDecl, wts);
+                WSMethodFrameClassGen mFrame = new WSMethodFrameClassGen(job, (NodeFactory) nf, (X10Context) context, mDef, mDecl, wts);
                 try{
                 n = mFrame.transform();
                 }

@@ -52,7 +52,6 @@ import x10.ast.X10ConstructorDecl;
 import x10.ast.X10FieldDecl;
 import x10.ast.X10MethodDecl;
 import x10.ast.X10New;
-import x10.ast.X10NodeFactory;
 import x10.types.ConstrainedType;
 import x10.types.ParameterType;
 import x10.types.X10ClassDef;
@@ -370,7 +369,7 @@ public class X10InnerClassRemover extends InnerClassRemover {
             for (int p = 0; p < typeParameters.size(); p++) {
                 ParameterType tp = typeParameters.get(p);
                 // FIXME: [IP] this is a hack.  We should really rename type parameters.
-                X10NodeFactory xnf = (X10NodeFactory) nf;
+                NodeFactory xnf = (NodeFactory) nf;
                 typeParamNodes.add(xnf.TypeParamNode(tp.position(), xnf.Id(tp.position(), tp.name()), variances.get(p)).type(tp));
             }
             if (!typeParameters.isEmpty()) {

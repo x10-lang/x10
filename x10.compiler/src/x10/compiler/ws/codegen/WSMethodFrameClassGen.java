@@ -21,6 +21,7 @@ import polyglot.ast.Expr;
 import polyglot.ast.Formal;
 import polyglot.ast.MethodDecl;
 import polyglot.ast.New;
+import polyglot.ast.NodeFactory;
 import polyglot.ast.Return;
 import polyglot.ast.Special;
 import polyglot.ast.Stmt;
@@ -34,7 +35,6 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.util.Pair;
 import x10.ast.X10MethodDecl;
-import x10.ast.X10NodeFactory;
 import x10.compiler.ws.WSCodeGenerator;
 import x10.compiler.ws.WSTransformState;
 import x10.compiler.ws.util.TransCodes;
@@ -70,12 +70,12 @@ public class WSMethodFrameClassGen extends WSRegularFrameClassGen {
     protected final boolean isMain;
     
 
-    public WSMethodFrameClassGen(Job job, X10NodeFactory xnf, X10Context xct,
+    public WSMethodFrameClassGen(Job job, NodeFactory xnf, X10Context xct,
                                   MethodDef methodDef, MethodDecl methodDecl, WSTransformState wts) {
         this(job, xnf, xct, methodDef, methodDecl, wts,
                 X10PrettyPrinterVisitor.isMainMethodInstance(methodDef.asInstance(), xct));
     }
-    public WSMethodFrameClassGen(Job job, X10NodeFactory xnf, X10Context xct,
+    public WSMethodFrameClassGen(Job job, NodeFactory xnf, X10Context xct,
                                   MethodDef methodDef, MethodDecl methodDecl, WSTransformState wts,
                                   boolean isMain) {
     

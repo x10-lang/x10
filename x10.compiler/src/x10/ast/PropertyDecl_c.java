@@ -22,6 +22,7 @@ import polyglot.ast.Formal;
 import polyglot.ast.Id;
 import polyglot.ast.MethodDecl;
 import polyglot.ast.Node;
+import polyglot.ast.NodeFactory;
 import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
 import polyglot.types.Flags;
@@ -32,12 +33,12 @@ import x10.types.*;
 
 public class PropertyDecl_c extends X10FieldDecl_c  implements PropertyDecl {
     public PropertyDecl_c(Position pos, FlagsNode flags, TypeNode type,
-            Id name, X10NodeFactory nf) {
+            Id name, NodeFactory nf) {
         this(pos, flags, type, name, null, nf);
     }
     
     public PropertyDecl_c(Position pos, FlagsNode flags, TypeNode type,
-            Id name, Expr init, X10NodeFactory nf) {
+            Id name, Expr init, NodeFactory nf) {
         super(nf, pos, flags, type, name, init);
     }
 
@@ -62,7 +63,7 @@ public class PropertyDecl_c extends X10FieldDecl_c  implements PropertyDecl {
     * @return body, with properties and getters added.
     */
     public static ClassBody addPropertyGetters(List<PropertyDecl> properties, ClassBody body,
-    		X10NodeFactory nf) {
+    		NodeFactory nf) {
 	if (properties != null) {
 	    for (PropertyDecl p : properties) {
 		body = body.addMember(((PropertyDecl_c) p).getter(nf));
@@ -79,7 +80,7 @@ public class PropertyDecl_c extends X10FieldDecl_c  implements PropertyDecl {
      * @param body   -- the body of the class or interface
      * @return body, with properties and getters added.
      */
-    public static ClassBody addAbstractGetters(List<PropertyDecl> properties, ClassBody body, X10NodeFactory nf) {
+    public static ClassBody addAbstractGetters(List<PropertyDecl> properties, ClassBody body, NodeFactory nf) {
         if (properties != null) {
             for (PropertyDecl p : properties) {
 		body = body.addMember(((PropertyDecl_c) p).abstractGetter(nf));
@@ -89,7 +90,7 @@ public class PropertyDecl_c extends X10FieldDecl_c  implements PropertyDecl {
     }
 
     private Position getCompilerGenPos() { return Position.compilerGenerated(position()); }
-    protected MethodDecl getter(X10NodeFactory nf) {
+    protected MethodDecl getter(NodeFactory nf) {
         X10TypeSystem ts = (X10TypeSystem) nf.extensionInfo().typeSystem();
         Position pos = getCompilerGenPos();
         Flags flags = X10Flags.PROPERTY.Public().Final();
@@ -111,7 +112,7 @@ public class PropertyDecl_c extends X10FieldDecl_c  implements PropertyDecl {
      * Any class implementing the interface has to have the same property 
      * <RAJ> 
      */
-    protected MethodDecl abstractGetter(X10NodeFactory nf) {
+    protected MethodDecl abstractGetter(NodeFactory nf) {
       MethodDecl abstractGetter = nf.MethodDecl(getCompilerGenPos(), nf.FlagsNode(getCompilerGenPos(), X10Flags.PROPERTY.Public().Abstract()), type, name, 
                               Collections.<Formal>emptyList(), null);
       return abstractGetter;

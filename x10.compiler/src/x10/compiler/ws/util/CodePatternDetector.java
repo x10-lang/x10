@@ -45,7 +45,6 @@ import x10.ast.FinishExpr;
 import x10.ast.ForLoop;
 import x10.ast.Future;
 import x10.ast.When;
-import x10.ast.X10NodeFactory;
 import x10.compiler.ws.WSTransformState;
 import x10.types.X10Context;
 import x10.types.X10TypeSystem;

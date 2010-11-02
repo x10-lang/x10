@@ -18,6 +18,7 @@ import polyglot.ast.Expr;
 import polyglot.ast.Field;
 import polyglot.ast.Local;
 import polyglot.ast.Node;
+import polyglot.ast.NodeFactory;
 import polyglot.types.SemanticException;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
@@ -26,7 +27,7 @@ import x10.types.X10Context;
 
 public class X10AmbAssign_c extends AmbAssign_c {
 
-    public X10AmbAssign_c(X10NodeFactory nf, Position pos, Expr left, Operator op, Expr right) {
+    public X10AmbAssign_c(NodeFactory nf, Position pos, Expr left, Operator op, Expr right) {
 	super(nf, pos, left, op, right);
     }
     
@@ -50,7 +51,7 @@ public class X10AmbAssign_c extends AmbAssign_c {
 	if (left instanceof Call) {
 	    Call c = (Call) left;
 	    if (c.target() instanceof Expr) {
-		X10NodeFactory nf = (X10NodeFactory) ar.nodeFactory();
+		NodeFactory nf = (NodeFactory) ar.nodeFactory();
 		return nf.SettableAssign(position(), (Expr) c.target(), c.arguments(), operator(), right());
 	    }
 	}

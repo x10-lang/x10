@@ -57,7 +57,6 @@ import x10.ast.X10Formal_c;
 import x10.ast.X10LocalAssign_c;
 import x10.ast.X10LocalDecl_c;
 import x10.ast.X10Local_c;
-import x10.ast.X10NodeFactory;
 import x10.ast.X10Special;
 import x10.extension.X10Ext;
 import x10.extension.X10Ext_c;

@@ -45,7 +45,6 @@ import polyglot.visit.TypeBuilder;
 import x10.ast.TypeParamNode;
 import x10.ast.X10ClassDecl;
 import x10.ast.X10MethodDecl;
-import x10.ast.X10NodeFactory;
 import x10.types.ParameterType;
 import x10.types.TypeParamSubst;
 import x10.types.X10ClassDef;
@@ -209,7 +208,7 @@ public class X10LocalClassRemover extends LocalClassRemover {
             ParameterType p = typeParameters.get(i);
             ParameterType.Variance v = variances.get(i);
 
-            X10NodeFactory xnf = (X10NodeFactory) nf;
+            NodeFactory xnf = (NodeFactory) nf;
             TypeParamNode pn = xnf.TypeParamNode(n.position(), xnf.Id(n.position(), Name.makeFresh(p.name())), v);
             TypeBuilder tb = new TypeBuilder(job, ts, nf);
             try {

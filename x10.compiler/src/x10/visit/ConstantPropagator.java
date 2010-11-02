@@ -41,7 +41,6 @@ import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.ErrorHandlingVisitor;
 import polyglot.visit.NodeVisitor;
-import x10.ast.X10NodeFactory;
 import x10.constraint.XLit;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
@@ -236,7 +235,7 @@ public class ConstantPropagator extends ContextVisitor {
     }
 
     public Expr toExpr(Object o, Position pos) {
-        X10NodeFactory nf = (X10NodeFactory) this.nf;
+        NodeFactory nf = (NodeFactory) this.nf;
 
         Expr e = null;
         if (o == null) {

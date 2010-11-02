@@ -84,7 +84,6 @@ import polyglot.visit.NodeVisitor;
 import polyglot.visit.PruningVisitor;
 import polyglot.visit.ReachChecker;
 import polyglot.visit.Translator;
-import x10.ast.X10NodeFactory;
 import x10.ast.X10NodeFactory_c;
 import x10.compiler.ws.WSCodeGenerator;
 import x10.errors.Warnings;
@@ -882,7 +881,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
        
        public Goal WSCallGraphBarrier() {
            final X10TypeSystem ts = (X10TypeSystem) extInfo.typeSystem();
-           final X10NodeFactory nf = (X10NodeFactory) extInfo.nodeFactory();
+           final NodeFactory nf = (NodeFactory) extInfo.nodeFactory();
            return new AllBarrierGoal("WSCallGraphBarrier", this) {
                @Override
                public Goal prereqForJob(Job job) {

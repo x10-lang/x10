@@ -21,6 +21,7 @@ import polyglot.ast.FlagsNode;
 import polyglot.ast.Id;
 import polyglot.ast.LocalDecl_c;
 import polyglot.ast.Node;
+import polyglot.ast.NodeFactory;
 import polyglot.ast.TypeCheckFragmentGoal;
 import polyglot.ast.TypeNode;
 import polyglot.frontend.Globals;
@@ -64,7 +65,7 @@ import x10.visit.X10TypeChecker;
 
 public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
 	TypeNode hasType;
-	public X10LocalDecl_c(X10NodeFactory nf, Position pos, FlagsNode flags, TypeNode type,
+	public X10LocalDecl_c(NodeFactory nf, Position pos, FlagsNode flags, TypeNode type,
 			Id name, Expr init) {
 		super(pos, flags, 
 				type instanceof HasTypeNode_c ? nf.UnknownTypeNode(type.position()) : type, name, init);
