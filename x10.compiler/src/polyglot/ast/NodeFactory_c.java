@@ -10,17 +10,18 @@ package polyglot.ast;
 
 import java.util.List;
 
-import polyglot.frontend.ExtensionInfo;
+import x10.ExtensionInfo;
 import polyglot.types.*;
 import polyglot.types.Package;
 import polyglot.util.*;
+import x10.ast.X10NodeFactory;
 
 /**
  * A <code>NodeFactory</code> constructs AST nodes.  All node construction
  * should go through this factory or by done with the <code>copy()</code>
  * method of <code>Node</code>.
  */
-public abstract class NodeFactory_c extends AbstractNodeFactory_c
+public abstract class NodeFactory_c extends AbstractNodeFactory_c implements X10NodeFactory
 {
     private final ExtFactory extFactory;
     private final DelFactory delFactory;

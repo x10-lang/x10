@@ -35,7 +35,7 @@ import x10.types.checker.Converter.ConversionType;
  * @author vj
  * @author Christian Grothoff
  */
-public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
+public class X10NodeFactory_c extends NodeFactory_c {
 
 	public X10NodeFactory_c(ExtensionInfo extInfo) {
 		this(extInfo, new X10ExtFactory_c(), new X10DelFactory_c());
