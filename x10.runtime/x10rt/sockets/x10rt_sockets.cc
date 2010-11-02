@@ -471,7 +471,11 @@ void probe (bool onlyProcessAccept)
 	if (pthread_mutex_lock(&state.readLock) < 0)
 		return;
 	uint32_t whichPlaceToHandle = state.nextSocketToCheck;
-	int ret = poll(state.socketLinks, state.numPlaces, 0);
+	int ret = 0;
+	if (state.numPlaces > 1)
+	{
+		ret = poll(state.socketLinks, state.numPlaces, 0);
+	}
 	if (ret > 0)
 	{ // There is at least one socket with something interesting to look at
 		if (onlyProcessAccept)
