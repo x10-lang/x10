@@ -304,7 +304,13 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	        w.write(X10_RUNTIME_UTIL_UTIL + ".eval(");
 	        n.print(expr, w, tr);
 	        w.write(")");
-	    } else {
+	    }
+	    else if (expr instanceof X10Call && !expr.type().isVoid() && er.getJavaImplForDef(((X10Call) expr).methodInstance().x10Def()) != null) {
+	           w.write(X10_RUNTIME_UTIL_UTIL + ".eval(");
+	            n.print(expr, w, tr);
+	            w.write(")");
+	    }
+	    else {
             n.print(expr, w, tr);
 	    }
 	    if (semi) {
