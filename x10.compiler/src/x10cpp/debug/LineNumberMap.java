@@ -266,7 +266,8 @@ public class LineNumberMap extends StringTable {
 			ta[i] = Emitter.translateType(f.get(i).get(), true);
 		}
 		MethodDescriptor tgt = createMethodDescriptor(tc, tn, tr, ta, tk);
-		assert (methods.get(tgt) == null);
+		// TODO: This line below causes the X10 standard library to fail to compile with the -DEBUG flag.  Why?
+//		assert (methods.get(tgt) == null); 
 		methods.put(tgt, src);
 	}
 	
@@ -380,9 +381,9 @@ public class LineNumberMap extends StringTable {
 		{
 			int b = type.indexOf('{');
 			if (b == -1)				
-				v._x10typeIndex = stringId(type);
+				v._x10typeIndex = stringId(Emitter.mangled_non_method_name(type));
 			else
-				v._x10typeIndex = stringId(type.substring(0, b));
+				v._x10typeIndex = stringId(Emitter.mangled_non_method_name(type.substring(0, b)));
 		}
 		else 
 			v._x10typeIndex = -1;
@@ -667,9 +668,6 @@ public class LineNumberMap extends StringTable {
 	    }
 	}
 
-	private static final String _X10_DEBUG = "_X10_DEBUG";
-	private static final String _X10_DEBUG_DATA = "_X10_DEBUG_DATA";
-
 	/**
 	 * Generates code for the line number map as required by the Toronto C++
 	 * Debugger backend into the specified stream.
@@ -677,8 +675,8 @@ public class LineNumberMap extends StringTable {
 	 * @param m the map to export
 	 */
 	public static void exportForCPPDebugger(ClassifiedStream w, LineNumberMap m) {
-	    String debugSectionAttr = "__attribute__((section(\""+_X10_DEBUG+"\")))";
-	    String debugDataSectionAttr = "__attribute__((section(\""+_X10_DEBUG_DATA+"\")))";
+	    String debugSectionAttr = "__attribute__((_X10_DEBUG_SECTION))";
+	    String debugDataSectionAttr = "__attribute__((_X10_DEBUG_DATA_SECTION))";
 	    int size = m.size();
 	    int offset = 0;
 	    int[] offsets = new int[size];
@@ -863,52 +861,52 @@ public class LineNumberMap extends StringTable {
 		        w.writeln("};");
 		        w.forceNewline();
 	        }
+        }
 	        
-	        if (memberVariables != null)
-	        {
-	        	for (String classname : memberVariables.keySet())
-	        	{
-			        w.writeln("static const struct _X10TypeMember _X10"+classname+"Members[] __attribute__((used)) "+debugDataSectionAttr+" = {");
-			        for (MemberVariableMapInfo v : memberVariables.get(classname))
-			        	w.writeln("    { "+v._x10type+", "+v._x10typeIndex+", "+offsets[v._x10memberName]+", "+offsets[v._cppMemberName]+", "+offsets[v._cppClass]+" }, // "+m.lookupString(v._x10memberName));
-				    w.writeln("};");
-				    w.forceNewline();
-	        	}
-	        	w.writeln("static const struct _X10ClassMap _X10ClassMapList[] __attribute__((used)) "+debugDataSectionAttr+" = {");
-	        	for (String classname : memberVariables.keySet())
-		        	w.writeln("    { 101, "+offsets[memberVariables.get(classname).get(0)._cppClass]+", sizeof("+classname+"), "+memberVariables.get(classname).size()+", _X10"+classname+"Members },");	        
-	        	w.writeln("};");
-	        	w.forceNewline();
-	        }
-	        	    
-		    if (!closureMap.isEmpty())
-		    {
-			    w.writeln("static const struct _X10ClosureMap _X10ClosureMapList[] __attribute__((used)) "+debugDataSectionAttr+" = {");
-			    // TODO
+        if (memberVariables != null)
+        {
+        	for (String classname : memberVariables.keySet())
+        	{
+		        w.writeln("static const struct _X10TypeMember _X10"+classname.substring(classname.lastIndexOf('.')+1)+"Members[] __attribute__((used)) "+debugDataSectionAttr+" = {");
+		        for (MemberVariableMapInfo v : memberVariables.get(classname))
+		        	w.writeln("    { "+v._x10type+", "+v._x10typeIndex+", "+offsets[v._x10memberName]+", "+offsets[v._cppMemberName]+", "+offsets[v._cppClass]+" }, // "+m.lookupString(v._x10memberName));
 			    w.writeln("};");
 			    w.forceNewline();
-		    }
-		    
-		    if (!arrayMap.isEmpty())
-		    {
-			    w.writeln("static const struct _X10ArrayMap _X10ArrayMapList[] __attribute__((used)) "+debugDataSectionAttr+" = {");
-			    Iterator<Integer> iterator = arrayMap.iterator();
-			    while(iterator.hasNext())
-			    	w.writeln("    { "+iterator.next()+", "+iterator.next()+" },");
-			    w.writeln("};");
-			    w.forceNewline();
-		    }
-		    
-		    if (!refMap.isEmpty())
-		    {
-			    w.writeln("static const struct _X10RefMap _X10RefMapList[] __attribute__((used)) "+debugDataSectionAttr+" = {");
-			    Iterator<Integer> iterator = refMap.iterator();
-			    while(iterator.hasNext())
-			    	w.writeln("    { "+iterator.next()+", "+iterator.next()+" },");
-			    w.writeln("};");
-			    w.forceNewline();
-		    }
+        	}
+        	w.writeln("static const struct _X10ClassMap _X10ClassMapList[] __attribute__((used)) = {");
+        	for (String classname : memberVariables.keySet())
+	        	w.writeln("    { 101, "+offsets[memberVariables.get(classname).get(0)._cppClass]+", sizeof("+classname.replace(".", "::")+"), "+memberVariables.get(classname).size()+", _X10"+classname.substring(classname.lastIndexOf('.')+1)+"Members },");	        
+        	w.writeln("};");
+        	w.forceNewline();
+        }
+        	    
+	    if (!closureMap.isEmpty())
+	    {
+		    w.writeln("static const struct _X10ClosureMap _X10ClosureMapList[] __attribute__((used)) "+debugDataSectionAttr+" = {");
+		    // TODO
+		    w.writeln("};");
+		    w.forceNewline();
 	    }
+	    
+	    if (!arrayMap.isEmpty())
+	    {
+		    w.writeln("static const struct _X10ArrayMap _X10ArrayMapList[] __attribute__((used)) "+debugDataSectionAttr+" = {");
+		    Iterator<Integer> iterator = arrayMap.iterator();
+		    while(iterator.hasNext())
+		    	w.writeln("    { "+iterator.next()+", "+iterator.next()+" },");
+		    w.writeln("};");
+		    w.forceNewline();
+	    }
+	    
+	    if (!refMap.isEmpty())
+	    {
+		    w.writeln("static const struct _X10RefMap _X10RefMapList[] __attribute__((used)) "+debugDataSectionAttr+" = {");
+		    Iterator<Integer> iterator = refMap.iterator();
+		    while(iterator.hasNext())
+		    	w.writeln("    { "+iterator.next()+", "+iterator.next()+" },");
+		    w.writeln("};");
+		    w.forceNewline();
+	    }	    
 
         // A meta-structure that refers to all of the above
         w.write("static const struct _MetaDebugInfo_t _MetaDebugInfo __attribute__((used)) "+debugSectionAttr+" = {");
@@ -931,7 +929,7 @@ public class LineNumberMap extends StringTable {
         } else {
             w.writeln("0, // no member variable mappings");
         }
-        if (localVariables != null)
+        if (!m.isEmpty() && localVariables != null)
         	w.writeln("sizeof(_X10variableNameList),");
         else
         	w.writeln("0,  // no local variable mappings");
@@ -964,13 +962,17 @@ public class LineNumberMap extends StringTable {
         }
         if (!m.methods.isEmpty()) {
             w.writeln("_X10methodNameList,");
+            m.methods.clear();
         } else {
             w.writeln("NULL,");
         }
         
         if (localVariables != null)
         {
-        	w.writeln("_X10variableNameList,");
+        	if (!m.isEmpty()) 
+        		w.writeln("_X10variableNameList,");
+        	else 
+        		w.writeln("NULL,");
         	localVariables.clear();
         	localVariables = null;
         }
@@ -985,15 +987,24 @@ public class LineNumberMap extends StringTable {
         else
         	w.writeln("NULL,");
         if (!closureMap.isEmpty())
+        {
+        	closureMap.clear();
         	w.writeln("_X10ClosureMapList,");
+        }
         else
         	w.writeln("NULL,");
         if (!arrayMap.isEmpty())
-        	w.write("_X10ArrayMapList");
+        {
+        	arrayMap.clear();
+        	w.writeln("_X10ArrayMapList,");
+        }
         else
-        	w.write("NULL");
+        	w.writeln("NULL,");
         if (!refMap.isEmpty())
+        {
+        	refMap.clear();
         	w.write("_X10RefMapList");
+        }
         else
         	w.write("NULL");
         

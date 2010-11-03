@@ -169,7 +169,7 @@ public class X10CPPTranslator extends Translator {
 			w.newline();
 		}
 		
-		if (x10.Configuration.DEBUG && n instanceof Stmt && !(n instanceof Assert) && !(n instanceof Block) && !(n instanceof Catch))
+		if (x10.Configuration.DEBUG && n instanceof Stmt && !(n instanceof Assert) && !(n instanceof Block) && !(n instanceof Catch) && !(parent instanceof If))
 		{
 			w.write("_X10_STATEMENT_HOOK()");
 			if (!(parent instanceof For))
@@ -220,7 +220,7 @@ public class X10CPPTranslator extends Translator {
 		                    }
 		                });
 		            }
-		            if (n instanceof FieldDecl)
+		            if (n instanceof FieldDecl && !c.inTemplate()) // the c.inTemplate() skips mappings for templates, which don't have a fixed size.
 		            	lineNumberMap.addClassMemberVariable(((FieldDecl)n).name().toString(), ((FieldDecl)n).type().toString(), Emitter.mangled_non_method_name(context.currentClass().toString()));
 		            else if (n instanceof LocalDecl && !((LocalDecl)n).position().isCompilerGenerated())
 		            	lineNumberMap.addLocalVariableMapping(((LocalDecl)n).name().toString(), ((LocalDecl)n).type().toString(), line, parent.position().endLine(), file);
