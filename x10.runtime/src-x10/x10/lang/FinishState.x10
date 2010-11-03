@@ -58,6 +58,88 @@ abstract class FinishState {
         }
     }
 
+    // a finish guarding a unique async
+    static class FinishAsync extends FinishSkeleton implements x10.io.CustomSerialization {
+        def this() {
+            super(new RootFinishAsync());
+        }
+        protected def this(ref:GlobalRef[FinishState]) {
+            super(ref);
+        }
+        private def this(any:Any) { // deserialization constructor
+            super(any as GlobalRef[FinishState]);
+            if (ref.home.id == Runtime.hereInt()) {
+                me = (ref as GlobalRef[FinishState]{home==here})();
+            } else {
+                me = new RemoteFinishAsync(ref);
+            }
+        }
+    }
+
+    static class RootFinishAsync extends RootFinishSkeleton {
+        protected val latch = new Latch();
+        protected var exception:Throwable = null;
+        public def notifySubActivitySpawn(place:Place):void {}
+        public def notifyActivityTermination():void {
+            latch.release();
+        }
+        public def pushException(t:Throwable):void {
+            exception = t;
+        }
+        public def notify(t:Throwable):void {
+            exception = t;
+            latch.release();
+        }
+        public def waitForFinish(safe:Boolean):void {
+            if (!Runtime.NO_STEALS && safe) Runtime.worker().join(latch);
+            latch.await();
+            val t = MultipleExceptions.make(exception);
+            if (null != t) throw t;
+        }
+    }
+
+    static class RemoteFinishAsync extends RemoteFinishSkeleton {
+        protected var exception:Throwable;
+        def this(ref:GlobalRef[FinishState]) {
+            super(ref);
+        }
+        public def notifyActivityCreation():void {}
+        public def notifySubActivitySpawn(place:Place):void {}
+        public def pushException(t:Throwable):void {
+            exception = t;
+        }
+        public def notifyActivityTermination():void {
+            val t = MultipleExceptions.make(exception);
+            val ref = this.ref();
+            val closure:()=>void;
+            if (null != t) {
+                closure = ()=>@RemoteInvocation { deref[RootFinishAsync](ref).notify(t); };
+            } else {
+                closure = ()=>@RemoteInvocation { deref[RootFinishAsync](ref).notifyActivityTermination(); };
+            }
+            Runtime.runClosureAt(ref.home.id, closure);
+            Runtime.dealloc(closure);
+        }
+    }
+
+    // finish async there async back
+    static class FinishReturn extends FinishSkeleton implements x10.io.CustomSerialization {
+        def this() {
+            super(new RootFinishAsync());
+        }
+        protected def this(ref:GlobalRef[FinishState]) {
+            super(ref);
+        }
+        private def this(any:Any) { // deserialization constructor
+            super(any as GlobalRef[FinishState]);
+            if (ref.home.id == Runtime.hereInt()) {
+                me = (ref as GlobalRef[FinishState]{home==here})();
+            } else {
+                me = new UncountedFinish();
+            }
+        }
+    }
+
     // a pseudo finish used to implement @Uncounted async
     static class UncountedFinish extends FinishState {
         public def notifySubActivitySpawn(place:Place) {}
