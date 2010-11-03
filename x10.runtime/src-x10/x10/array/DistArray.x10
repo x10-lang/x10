@@ -283,7 +283,7 @@ public class DistArray[T] (
         return new DistArray[T](this, d) as DistArray[T](rank);
     }
 
-    def this(a: DistArray[T], d: Dist):DistArray{self.dist==d} {
+    def this(a: DistArray[T], d: Dist):DistArray[T]{self.dist==d} {
     	property(d);
     	localHandle = PlaceLocalHandle.make[LocalState[T]](d,
     			() => a.localHandle());

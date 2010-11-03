@@ -319,7 +319,7 @@ public final class Array[T](
     public def values():Iterable[T] {
         // NOTE: If we could actually implement two instances of the
         //       Iterable interface, then we woudn't need this code.
-        return new ValueIterable[T]();
+        return new ValueIterable();
     }
 
     // TODO: Should be annonymous nested class in values, 

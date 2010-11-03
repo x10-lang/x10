@@ -35,7 +35,7 @@ public struct GlobalRef[+T](
     * Create a value encapsulating the given object of type T.
     */
    @Native("c++", "x10::lang::GlobalRef(#0)")
-   public native def this(t:T):GlobalRef{self.home==here}; 
+   public native def this(t:T):GlobalRef[T]{self.home==here}; 
 
    /** 
     * Can only be invoked at the place at which the value was
