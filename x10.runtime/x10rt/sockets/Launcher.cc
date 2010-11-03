@@ -242,7 +242,7 @@ void Launcher::startChildren()
 						{
 							colon[0] = ':';
 							#ifdef DEBUG
-								fprintf(stderr, "Runtime %u forked with a remote gdbserver at port %s.  Running exec.\n", &colon[1], _myproc);
+								fprintf(stderr, "Runtime %u forked with a remote gdbserver at port %s.  Running exec.\n", _myproc, &colon[1]);
 							#endif
 							int numArgs = 0;
 							while (_argv[numArgs] != NULL)
@@ -340,7 +340,7 @@ void Launcher::handleRequestsLoop(bool onlyCheckForNewConnections)
 				if (handleControlMessage(_parentLauncherControlLink) < 0)
 					running = handleDeadParent();
 		}
-		/* runtime and children output, stdout and stderr */
+		/* runtime and children control, stdout and stderr */
 		for (uint32_t i = 0; i <= _numchildren; i++)
 		{
 			if (_childControlLinks[i] >= 0)
@@ -381,12 +381,16 @@ void Launcher::handleRequestsLoop(bool onlyCheckForNewConnections)
 
 	for (uint32_t i = 0; i <= _numchildren; i++)
 	{
-		#ifdef DEBUG
-			fprintf(stderr, "Launcher %u: killing pid=%d\n", _myproc, _pidlst[i]);
-		#endif
-		kill(_pidlst[i], SIGTERM);
+		if (_pidlst[i] != -1)
+		{
+			#ifdef DEBUG
+				fprintf(stderr, "Launcher %u: killing pid=%d\n", _myproc, _pidlst[i]);
+			#endif
+			kill(_pidlst[i], SIGTERM);
+		}
 	}
-	waitpid(_pidlst[_numchildren], NULL, 0); // wait for the local runtime
+	if (_pidlst[_numchildren] != -1)
+		waitpid(_pidlst[_numchildren], NULL, 0); // wait for the local runtime
 
 	// shut down any connections if they still exist
 	handleDeadParent();
@@ -713,7 +717,26 @@ int Launcher::handleControlMessage(int fd)
 		}
 	}
 	else
+	{
 		ret = forwardMessage(&m, data);
+		if (ret < 0 && m.type == PORT_REQUEST)
+		{
+			// if we're here, then we were unable to forward the PORT_REQUEST message.  Send an error message back as the response.
+			#ifdef DEBUG
+				fprintf(stderr, "Launcher %u failed to forward a %s message to place %u.  Sending an error response.\n", _myproc, CTRL_MSG_TYPE_STRINGS[PORT_RESPONSE], m.to);
+			#endif
+
+			char* dead = (char*)alloca(64);
+			sprintf(dead, "LAUNCHER_%u_IS_NOT_RUNNING", m.to);
+			m.to = m.from;
+			m.from = _myproc;
+			m.type = PORT_RESPONSE;
+			m.datalen = strlen(dead);
+
+			TCP::write(fd, &m, sizeof(struct ctrl_msg));
+			TCP::write(fd, dead, m.datalen);
+		}
+	}
 	return ret;
 }
 
@@ -796,6 +819,9 @@ int Launcher::forwardMessage(struct ctrl_msg* message, char* data)
 		// verify that the link is valid.  It may not be, if we're just starting up
 		if (destFD == -1)
 		{
+			if (destID >= 0 && _pidlst[destID] == -1)
+				return -1; // this request is for a launcher that has DIED
+
 			sched_yield();
 			handleRequestsLoop(true);
 		}
@@ -823,12 +849,34 @@ void Launcher::cb_sighandler_cld(int signo)
 	int status;
 	int pid=wait(&status);
 
-	if (_singleton->_pidlst[_singleton->_numchildren] == pid)
+	for (uint32_t i=0; i<=_singleton->_numchildren; i++)
 	{
-		#ifdef DEBUG
-			fprintf(stderr, "Launcher %d: SIGCHLD from runtime (pid=%d)\n", _singleton->_myproc, pid);
-		#endif
-		_singleton->_returncode = WEXITSTATUS(status);
+		if (_singleton->_pidlst[i] == pid)
+		{
+			_singleton->_pidlst[i] = -1;
+			if (i == _singleton->_numchildren)
+			{
+				#ifdef DEBUG
+					fprintf(stderr, "Launcher %d: SIGCHLD from runtime (pid=%d), status=%d\n", _singleton->_myproc, pid, WEXITSTATUS(status));
+				#endif
+				_singleton->_returncode = WEXITSTATUS(status);
+				if (_singleton->_runtimePort)
+				{
+					free(_singleton->_runtimePort);
+					_singleton->_runtimePort = (char*)malloc(64);
+					sprintf(_singleton->_runtimePort, "PLACE_%u_IS_DEAD", _singleton->_myproc);
+				}
+			}
+			else
+			{
+				if (!_singleton->_returncode) // don't overwrite the runtime exitcode, if already set
+					_singleton->_returncode = WEXITSTATUS(status);
+				#ifdef DEBUG
+					fprintf(stderr, "Launcher %d: SIGCHLD from child launcher for place %d (pid=%d), status=%d\n", _singleton->_myproc, i+_singleton->_firstchildproc, pid, WEXITSTATUS(status));
+				#endif
+			}
+			return;
+		}
 	}
 }
 

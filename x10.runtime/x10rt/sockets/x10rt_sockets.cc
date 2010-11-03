@@ -64,7 +64,10 @@ void probe (bool onlyProcessAccept);
 
 void error(const char* message)
 {
-	fprintf(stderr, "Fatal Error: %s: %s\n", message, strerror(errno));
+	if (errno)
+		fprintf(stderr, "Fatal Error: %s: %s\n", message, strerror(errno));
+	else
+		fprintf(stderr, "Fatal Error: %s\n", message);
 	fflush(stderr);
 	abort();
 }
@@ -150,7 +153,11 @@ int initLink(uint32_t remotePlace)
 		// break apart the link into host and port
 		char * c = strchr(link, ':');
 		if (c == NULL)
-			error("Malformed host:port");
+		{
+			char* suicideNote = (char*)alloca(512);
+			sprintf(suicideNote, "Unable to establish a connection to place %u because %s!", remotePlace, link);
+			error(suicideNote);
+		}
 		c[0] = '\0';
 		int port = atoi(c + 1);
 
