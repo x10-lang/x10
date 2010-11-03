@@ -188,10 +188,12 @@ void Launcher::initialize(int argc, char ** argv)
 				continue;
 			}
 
-			char * host = (char *) malloc((hostNameEnd-hostNameStart)+1);
+			int hlen = hostNameEnd-hostNameStart;
+			char * host = (char *) malloc(hlen+1);
 			if (!host)
 				DIE("Launcher %u: memory allocation failure", _myproc);
-			strncpy(host, hostNameStart, hostNameEnd-hostNameStart);
+			strncpy(host, hostNameStart, hlen);
+			host[hlen] = '\0';
 			_hostlist[currentNumber-_firstchildproc] = host;
 
 			#ifdef DEBUG
