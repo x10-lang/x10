@@ -32,9 +32,11 @@ import polyglot.types.TypeSystem;
 import polyglot.types.VarInstance;
 import x10.ast.PropertyDecl;
 import x10.types.X10ClassDef;
+import x10.types.X10ClassType;
 import polyglot.types.Context;
 import x10.types.X10MethodDef;
 import x10.util.ClassifiedStream;
+import x10cpp.visit.ITable;
 
 public class X10CPPContext_c extends x10.types.X10Context_c implements Context {
 
@@ -156,6 +158,19 @@ public class X10CPPContext_c extends x10.types.X10Context_c implements Context {
         return r;
     }
 
+    
+    private final HashMap<X10ClassType, ITable> cachedITables = new HashMap<X10ClassType, ITable>();
+    /**
+     * Find or construct the ITable instance for the argument X10 interface type.
+     */
+    public ITable getITable(X10ClassType interfaceType) {
+        ITable ans = cachedITables.get(interfaceType);
+        if (ans == null) {
+            ans = new ITable(interfaceType);
+            cachedITables.put(interfaceType, ans);
+        }
+        return ans;
+    }
     
     public X10CPPContext_c(TypeSystem ts) {
         super(ts);

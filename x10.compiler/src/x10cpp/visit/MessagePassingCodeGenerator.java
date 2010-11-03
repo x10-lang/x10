@@ -1144,7 +1144,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                                 TypeSystem xts) {
         ClassifiedStream h = sw.header();
         List<ClassMember> members = n.members();
-        ITable itable = ITable.getITable(currentClass);
+        ITable itable = context.getITable(currentClass);
 
         h.write("public:"); h.newline();
         h.write("RTT_H_DECLS_INTERFACE");
@@ -1240,7 +1240,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
         List<ClassMember> members = n.members();
 
-        generateITablesForClass(currentClass, xts, "virtual ", h);
+        generateITablesForClass(currentClass, context, xts, "virtual ", h);
         
         if (currentClass.isSubtype(xts.Mortal(), context)) {
             h.write("virtual x10_boolean _isMortal() { return true; }");
@@ -1308,7 +1308,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
         List<ClassMember> members = n.members();
 
-        generateITablesForStruct(currentClass, xts, sh, h);
+        generateITablesForStruct(currentClass, context, xts, sh, h);
 
         if (!members.isEmpty()) {
             String className = Emitter.translateType(currentClass);
@@ -1411,8 +1411,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         sw.writeln("}"); sw.forceNewline(); */
     }
 
-	private void generateITablesForClass(X10ClassType currentClass,
-			TypeSystem xts, String maybeVirtual, ClassifiedStream h) {
+	private void generateITablesForClass(X10ClassType currentClass, X10CPPContext_c context,
+	                                     TypeSystem xts, String maybeVirtual, ClassifiedStream h) {
 		List<X10ClassType> allInterfaces = xts.allImplementedInterfaces(currentClass);
 		int numInterfaces = allInterfaces.size();
 		if (numInterfaces > 0 && !currentClass.flags().isAbstract()) {
@@ -1421,7 +1421,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			h.write(maybeVirtual+"x10aux::itable_entry* _getITables() { return _itables; }"); h.newline(); h.forceNewline();
 			int itableNum = 0;
 			for (Type interfaceType : allInterfaces) {
-				ITable itable = ITable.getITable((X10ClassType) X10TypeMixin.baseType(interfaceType));
+				ITable itable = context.getITable((X10ClassType) X10TypeMixin.baseType(interfaceType));
 				itable.emitITableDecl(currentClass, itableNum, emitter, h);
 				itableNum += 1;
 				h.forceNewline();
@@ -1430,7 +1430,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			/* ITables initialization */
 			itableNum = 0;
 			for (Type interfaceType : allInterfaces) {
-				ITable itable = ITable.getITable((X10ClassType) X10TypeMixin.baseType(interfaceType));
+				ITable itable = context.getITable((X10ClassType) X10TypeMixin.baseType(interfaceType));
 				itable.emitITableInitialization(currentClass, itableNum, this, h, sw);
 				itableNum += 1;
 			}
@@ -1448,7 +1448,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		}
 	}
 
-	private void generateITablesForStruct(X10ClassType currentClass,
+	private void generateITablesForStruct(X10ClassType currentClass, X10CPPContext_c context,
 	                                      TypeSystem xts, ClassifiedStream sh,
 	                                      ClassifiedStream h) {
 	    List<X10ClassType> allInterfaces = xts.allImplementedInterfaces(currentClass);
@@ -1476,7 +1476,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	        /* ITables initialization */
 	        int itableNum = 0;
 	        for (Type interfaceType : allInterfaces) {
-	            ITable itable = ITable.getITable((X10ClassType) X10TypeMixin.baseType(interfaceType));
+	            ITable itable = context.getITable((X10ClassType) X10TypeMixin.baseType(interfaceType));
 	            itable.emitITableInitialization(currentClass, itableNum, this, h, sw);
 	            itableNum += 1;
 	        }
@@ -3088,7 +3088,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	        n.print(wrap, sw, tr);
 	        return;
 	    }
-	    ITable itable= ITable.getITable(clsType);
+	    ITable itable= context.getITable(clsType);
 	    String targetMethodName = itable.mangledName(mi);
 	    if (!replicate) {
 	        if (GCC_41_HACK && isRef(rt)) sw.write(Emitter.translateType(rt, true)); // FIXME: HACK for gcc 4.1

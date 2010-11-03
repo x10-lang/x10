@@ -42,8 +42,6 @@ import x10cpp.types.X10CPPContext_c;
  * are implemented.
  */
 public final class ITable {
-	private static final HashMap<X10ClassType, ITable> cachedITables = new HashMap<X10ClassType, ITable>();
-
 	private final X10ClassType interfaceType;
 	private final MethodInstance[] methods;
 	private final boolean hasOverloadedMethods;
@@ -53,7 +51,7 @@ public final class ITable {
 	 * Construct the ITable instance for the given X10 interface type
 	 * @param interfaceType The interface for which to build the ITable
 	 */
-	private ITable(X10ClassType interfaceType) {
+	public ITable(X10ClassType interfaceType) {
 		assert interfaceType.flags().isInterface() : "Cannot create an ITable for a non-interface type";
 		this.interfaceType = interfaceType;
 		methods = collectMethods(interfaceType);
@@ -92,18 +90,6 @@ public final class ITable {
 		}
 
 		return uniqueMethods.toArray(new MethodInstance[uniqueMethods.size()]);
-	}
-
-	/**
-	 * Find or construct the ITable instance for the argument X10 interface type.
-	 */
-	public static ITable getITable(X10ClassType interfaceType) {
-		ITable ans = cachedITables.get(interfaceType);
-		if (ans == null) {
-			ans = new ITable(interfaceType);
-			cachedITables.put(interfaceType, ans);
-		}
-		return ans;
 	}
 
 	/**
