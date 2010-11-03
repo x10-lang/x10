@@ -25,11 +25,15 @@ import x10.ast.ParExpr;
 import x10.ast.X10ClassDecl;
 import x10.ast.Async_c;
 import x10.ast.Finish_c;
+import x10.ast.X10CanonicalTypeNode;
 import x10.extension.X10Ext_c;
 import x10.types.X10LocalDef;
 import polyglot.types.TypeSystem;
 import x10.types.X10Flags;
+import x10.types.X10TypeMixin;
+import x10.types.constraints.CConstraint;
 import x10.visit.Desugarer;
+import x10.util.Synthesizer;
 
 /**
  * Visitor which checks that all local variables must be defined before use,
@@ -1088,7 +1092,7 @@ public class InitChecker extends DataFlow
      * dataflows over Initializers, by copying back the appropriate
      * MinMaxInitCounts to the map currClassFinalFieldInitCounts.
      */
-    public void check(FlowGraph graph, Term n, boolean entry, Item inItem,
+    public void check(final FlowGraph graph, Term n, boolean entry, Item inItem,
             Map<EdgeKey, Item> outItems) {
         DataFlowItem dfIn = (DataFlowItem)inItem;
         if (dfIn == null) {
@@ -1112,10 +1116,19 @@ public class InitChecker extends DataFlow
             dfOut = (DataFlowItem)outItems.values().iterator().next();
 
             if (n instanceof Local) {
-                checkLocal(graph, (Local)n, dfIn, dfOut);
+                final Local l = (Local) n;
+                checkLocal(l.localInstance().def(), dfIn, l.reachable(), n.position());
+            }
+            else if (n instanceof X10CanonicalTypeNode) {
+                X10CanonicalTypeNode canonicalTypeNode = (X10CanonicalTypeNode) n;
+                // convert constraint to Expr
+                final Set<VarDef> exprs = Synthesizer.getLocals(canonicalTypeNode);
+                for (VarDef e : exprs)
+                    if (e instanceof LocalDef)
+                        checkLocal((LocalDef)e, dfIn, true, n.position());
             }
             else if (n instanceof Field) {
-        	    // checkField(graph, (Field)n, dfIn, dfOut); - field access is checked by CheckEscapingThis
+        	    // field access is checked by CheckEscapingThis
             }
             else if (n instanceof LocalAssign) {
                 checkLocalAssign(graph, (LocalAssign)n, dfIn, dfOut);
@@ -1244,63 +1257,14 @@ public class InitChecker extends DataFlow
         reportVarNotInit(f.name().id(),f.position());
     }
 
-    /**
-     * Check that the field access <code>f</code> is used correctly.
-     */
-    protected void checkField(FlowGraph graph,
-	    Field f,
-	    DataFlowItem dfIn,
-	    DataFlowItem dfOut) {
-        boolean isFinal = f.flags().isFinal();
-        boolean isCtor = currCBI.currCodeDecl instanceof ConstructorDecl;
-        boolean isFieldInit = currCBI.currCodeDecl instanceof FieldDecl;
-        /*
-        This is a legal pattern (so we should only check VAR in field-initializers, not in ctors.
-        class Bar {
-          var i:Int{self!=0};
-          def this() {
-            foo();
-            i++;
-          }
-          def foo() { i=2; }
-       }
-         */
-	    if (isFieldsTargetAppropriate(f) &&
-             isFinal && // I want to check that field initialization does not have illegal
-                        // forward references for VAL only (VAR is checked by CheckEscapingThis).
-            (isCtor || isFieldInit)) {
-        final FieldDef fieldDef = f.fieldInstance().def();
-        MinMaxInitCount initCount =
-                dfIn.initStatus.get(fieldDef);
-	    if (initCount != null && initCount.getMin().isZero()) {
-		// the field may not have been initialized.
-		// However, we only want to complain if the field is reachable
-		if (currCBI.currCodeDecl instanceof ConstructorDecl) {
-		    ConstructorDecl cd = (ConstructorDecl) currCBI.currCodeDecl;
-		    if (cd.body() == null)
-			return;
-		    if (cd.body().statements().size() > 0 && cd.body().statements().get(0) instanceof ConstructorCall) {
-			ConstructorCall cc = (ConstructorCall) cd.body().statements().get(0);
-			if (cc.kind() == ConstructorCall.THIS)
-			    return;
-		    }
-		}
-		if (f.reachable()) {
-		    reportVarNotInit(f);
-		}
-	    }
-	}
-    }
-
 
     /**
      * Check that the local variable <code>l</code> is used correctly.
      */
-    protected void checkLocal(FlowGraph graph,
-                              Local l,
+    protected void checkLocal(LocalDef l,
                               DataFlowItem dfIn,
-                              DataFlowItem dfOut) {
-        if (!currCBI.localDeclarations.contains(l.localInstance().def())) {
+                              boolean isReachable, Position p) {
+        if (!currCBI.localDeclarations.contains(l)) {
             // it's a local variable that has not been declared within
             // this scope. The only way this can arise is from an
             // inner class that is not a member of a class (typically
@@ -1309,15 +1273,15 @@ public class InitChecker extends DataFlow
             // We need to check that it is a final local, and also
             // keep track of it, to ensure that it has been definitely
             // assigned at this point.
-            currCBI.outerLocalsUsed.add(l.localInstance().def());
+            currCBI.outerLocalsUsed.add(l);
         }
         else {
-            MinMaxInitCount initCount = dfIn.initStatus.get(l.localInstance().def());
+            MinMaxInitCount initCount = dfIn.initStatus.get(l);
             if (initCount != null && initCount.getMin().isZero()) {
                 // the local variable may not have been initialized.
                 // However, we only want to complain if the local is reachable
-                if (l.reachable()) {
-                    reportVarNotInit(l);
+                if (isReachable) {
+                    reportVarNotInit(l.name(),p);
             	}
             }
         }

@@ -26,11 +26,14 @@ import x10.ast.*;
 import x10.types.X10TypeMixin;
 import x10.types.X10Flags;
 import polyglot.types.TypeSystem;
+import polyglot.types.VarDef;
+import polyglot.types.LocalDef;
 import x10.types.X10FieldDef;
 import x10.types.X10ParsedClassType_c;
 import x10.types.X10ProcedureDef;
 import x10.types.X10MethodDef;
 import x10.types.checker.ThisChecker;
+import x10.util.Synthesizer;
 
 import java.util.HashMap;
 import java.util.Set;
@@ -147,6 +150,16 @@ public class CheckEscapingThis extends NodeVisitor
                 Term n, boolean entry, Set<EdgeKey> edgeKeys) {
             return this.flowToBooleanFlow(inItems, inItemKeys, graph, n, entry, edgeKeys);
         }
+        private DataFlowItem fieldReadWrite(boolean isAssign, FieldDef field, DataFlowItem inItem) {
+            DataFlowItem res = new DataFlowItem();
+            res.initStatus.putAll(inItem.initStatus);
+            final Integer valueBefore = inItem.initStatus.get(field);
+            if (valueBefore!=null) { // can happen for fake fields, e.g., class Bar { val q= this.f; }
+                int valueAfter = isAssign ? afterAssign(valueBefore) : afterRead(valueBefore);
+                res.initStatus.put(field,valueAfter);
+            }
+            return res;
+        }
         public Map<EdgeKey, Item> flow(Item trueItem, Item falseItem, Item otherItem,
                     FlowGraph graph, Term n, boolean entry, Set<EdgeKey> succEdgeKeys) {
             final DataFlowItem inItem = (DataFlowItem) safeConfluence(trueItem, FlowGraph.EDGE_KEY_TRUE,
@@ -165,12 +178,20 @@ public class CheckEscapingThis extends NodeVisitor
                 final FieldInstance fi = isAssign ? ((FieldAssign) n).fieldInstance() : ((Field) n).fieldInstance();
                 FieldDef field = fi.def();
                 if (field!=null && (isAssign ? isTargetThis((FieldAssign) n) : isTargetThis((Field) n))) {
-                    res = new DataFlowItem();
-                    res.initStatus.putAll(inItem.initStatus);
-                    final int valueBefore = inItem.initStatus.get(field);
-                    int valueAfter = isAssign ? afterAssign(valueBefore) : afterRead(valueBefore);
-                    res.initStatus.put(field,valueAfter);
+                    res = fieldReadWrite(isAssign, field, inItem);
                 }
+
+            } else if (n instanceof X10CanonicalTypeNode) {
+                X10CanonicalTypeNode canonicalTypeNode = (X10CanonicalTypeNode) n;
+                // convert constraint to Expr
+                final Set<VarDef> exprs = Synthesizer.getLocals(canonicalTypeNode);
+                for (VarDef e : exprs)
+                    if (e instanceof FieldDef) {
+                        FieldDef field = (FieldDef) e;
+                        if (isTargetThis(field)) {
+                            res = fieldReadWrite(isAssign, field, inItem);
+                        }
+                    }
 
             } else if (n instanceof Closure) {
                 // the closure can write to whatever it wants and it won't affect the write-set (because it wasn't invoked yet)
@@ -823,7 +844,10 @@ public class CheckEscapingThis extends NodeVisitor
     }
     private boolean isTargetThis(Field f) {
         FieldDef def = f.fieldInstance().def();
-        return !isProperty(def) && !def.flags().isStatic() && isThis(f.target());
+        return isTargetThis(def) && isThis(f.target());
+    }
+    private boolean isTargetThis(FieldDef def) {
+        return !isProperty(def) && !def.flags().isStatic();
     }
     private boolean isThis(Node n) {
         if (n==null || !(n instanceof Special)) return false;

@@ -17,6 +17,7 @@ import polyglot.main.Report;
 import polyglot.types.*;
 import polyglot.util.*;
 import polyglot.visit.FlowGraph.*;
+import x10.errors.Errors;
 
 /**
  * Abstract dataflow Visitor, to allow simple dataflow equations to be easily
@@ -419,7 +420,7 @@ public abstract class DataFlow extends ErrorHandlingVisitor
     }
 
     public void reportError(String msg, Position p) {
-        errorQueue().enqueue(ErrorInfo.SEMANTIC_ERROR,msg,p);
+        Errors.issue(job, new SemanticException(msg,p));
     }
     public void dataflow(CodeNode cd) {
         // only bother to do the flow analysis if the body is not null...

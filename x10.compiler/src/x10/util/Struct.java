@@ -11,6 +11,9 @@
 
 package x10.util;
 
+import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.*;
 
 import polyglot.ast.*;

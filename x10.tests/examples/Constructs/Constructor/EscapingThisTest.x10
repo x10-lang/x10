@@ -421,6 +421,20 @@ final class ClosureTest57 {
         }
     }
 }
+final class ClosureTest58 {
+  def f() = x*3;
+  val bar: ()=>Int = this.f.(); // ERR: The method call reads from field 'x' before it is definitely assigned.
+  val z = bar();
+  val x=2;
+
+  var w:Int{self!=0}; // ERR: Field 'w' was not definitely assigned.
+  def setW() = w=2;
+  val q = this.setW.();
+  
+  var w2:Int{self!=0}; 
+  def setW2() = w2=2;
+  val q2 = this.setW2(); // ok
+}
 
 class MultipleCtorsAndFieldInits {
 	
@@ -2099,4 +2113,152 @@ class ExplodingPointTest {
 		for (p[i] in r) {} // ERR ShouldNotBeERR (duplicate)
 	}
 	// val p[i,j] = [1,2]; // doesn't parse for fields :)
+}
+
+
+class TestOverloadingAndInterface {
+interface XXX {
+	def m(Object):Int;
+}
+interface YYY {
+	def m(String):String;
+}
+class C3 implements XXX,YYY {
+	public def m(Object):Int = 1;
+	public def m(String):String="";
+	def test(c:C3) {
+		val f1:XXX = c;
+		val f2:YYY = c;
+	}
+}
+class C implements (Any)=>Int {
+	public def apply(Any):Int = 1;
+	public def apply(String):String="";
+
+	def test(c:C) {
+		val x:Int = c(1);
+		val y:String = c("");
+		val f:(String)=>Int = c;
+		val i:Int = f("str");
+	}	
+}
+class D[T] implements (T)=>Int {
+	public def apply(T):Int = 1;
+	public def apply(String):String="";
+
+	def test(c:D[Any]) {
+		val x:Int = c(1);
+		val y:String = c("");
+		val f:(String)=>Int = c;
+		val i:Int = f("str");
+	}	
+}
+class C2 implements (Any)=>Int, (String)=>String {
+	public def apply(Any):Int = 1;
+	public def apply(String):String="";
+
+	def test(c:C2) {
+		val x:Int = c(1);
+		val y:String = c("");
+		val f1:(String)=>Int = c;
+		val f2:(String)=>String = c; 
+	}	
+}
+}
+
+class TestPropertyAssignment(x:Int, y:Int{self==3}) {
+    def this(a:Int, b:Int) {
+		property(a,b); // ShouldBeErr
+    }
+}
+
+final class ConstraintsInClosures {
+  def f(x:Int) {x!=0} = 1/x;
+  val bar: (Int)=>Int = this.f.(Int);  // ERR: should we dynamically generate a new closure that checks the guard?
+  def f2(x:Int{self!=0}) = 1/x;
+  val bar2: (Int)=>Int = this.f2.(Int{self!=0}); // ERR
+}
+class TestCasting[T] {
+	def testCasting(arr:Array[T], func: (Point)=>T) {
+	  val arr3 = arr as Array[T]{rank==3}; // ok, constant time check of arr.rank
+	  val func3 = func as (Point{rank==3})=>T; // ShouldBeErr: because we can't check it in constant time (we have to create a closure that checks this for every invocation)
+	}
+}
+class FieldNotFound { 
+	val q= this.f;  // ERR: Field f not found in type "FieldNotFound{self==FieldNotFound#this}".
+}
+final class TestCasts { // TestInitInCasts
+	val b:Int{b==3} = 3 as Int{b==3}; // ERR: Cannot read from field 'b' before it is definitely assigned.
+	val c:Int{c==3} = 3 as Int{self==3};
+
+	def test() {
+		val a3:Int = a3*3; // ShouldBeErr
+		val a:Int{a!=5} = 
+			3 as Int{a!=5}; // ShouldBeErr
+		val a2:Int{a2!=5} = 
+			3 as Int{self!=5};
+	}
+	
+	def use(x:Int) {}
+	val x:Int;
+	val w:TestCasts;
+	def this(a:TestCasts) {
+		use(3 as Int{a.x==self});
+		use(3 as Int{a.w.w.x==self});
+		use(3 as Int{x==self}); // ERR: Cannot read from field 'x' before it is definitely assigned.
+		val y:Int;
+		use(3 as Int{y==self}); // ERR: "y" may not have been initialized
+		val b:TestCasts;
+		use(3 as Int{b.x==self}); // ERR: "b" may not have been initialized
+		use(3 as Int{b.w.w.x==self}); // ERR: "b" may not have been initialized
+		use(3 as Int{b.w.x==b.x}); // ERR: "b" may not have been initialized
+
+		val z:Int;
+		async use(3 as Int{z==self}); // ERR: "z" may not have been initialized
+		z=2;
+		async use(3 as Int{z==self});
+
+		beforeX(); // ERR: Cannot read from field 'x' before it is definitely assigned.
+		async use(3 as Int{x==self}); // ERR: Cannot read from field 'x' before it is definitely assigned.
+		x=2;
+		async use(3 as Int{x==self});
+		afterX();
+
+		use(3 as Int{w.x==self}); // ERR: Cannot read from field 'w' before it is definitely assigned.
+		w=null;
+		use(3 as Int{w.x==self});
+	}
+	def beforeX() {
+		use(3 as Int{x==self});
+	}
+	def afterX() {
+		use(3 as Int{x==self});
+	}
+	def foo(a:TestCasts) {
+		use(3 as Int{a.x==self});
+		use(3 as Int{a.w.w.x==self});
+		use(3 as Int{x==self});
+		val y:Int;
+		use(3 as Int{y==self}); // ERR: "y" may not have been initialized
+		val b:TestCasts;
+		use(3 as Int{b.x==self}); // ERR: "b" may not have been initialized
+		use(3 as Int{b.w.w.x==self}); // ERR: "b" may not have been initialized
+		use(3 as Int{b.w.x==b.x}); // ERR: "b" may not have been initialized
+	}
+
+	class Inner {
+		val l:Inner;
+		def this(i:TestCasts) {
+			use(3 as Int{x==self});			
+			use(3 as Int{w.x==self});
+			use(3 as Int{i.x==self});			
+			use(3 as Int{i.w.x==self});
+			use(3 as Int{l==null});	// ERR: Cannot read from field 'l' before it is definitely assigned.
+			l=null;
+			use(3 as Int{l==null});
+		}
+		def foo() {
+			use(3 as Int{l==null});
+		}
+	}
 }

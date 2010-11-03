@@ -60,6 +60,7 @@ import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.Types;
+import polyglot.types.VarDef;
 import polyglot.util.Pair;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
@@ -79,6 +80,7 @@ import x10.constraint.XNot;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
+import x10.constraint.XNameWrapper;
 import x10.extension.X10Del;
 import x10.types.FunctionType;
 import x10.types.ParameterType;
@@ -92,6 +94,8 @@ import x10.types.X10MethodDef;
 import x10.types.X10TypeMixin;
 import polyglot.types.TypeSystem;
 import x10.types.X10TypeSystem_c;
+import x10.types.X10LocalDef;
+import x10.types.X10FieldDef;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
 import x10.visit.X10TypeChecker;
@@ -1374,6 +1378,53 @@ public class Synthesizer {
 		return (X10CanonicalTypeNode) tn;
     }
 
+    // For the purpose of InitChecker and CheckEscapingThis:
+    // we need to extract from a constraint all the locals and fields of "this" and check they are definitely assigned.
+    public static java.util.Set<VarDef> getLocals(X10CanonicalTypeNode n) {
+        java.util.Set<VarDef> res = new java.util.HashSet<VarDef>();
+        CConstraint c = X10TypeMixin.xclause(n.type());
+        if (c == null || c.valid()) {
+            // nothing to check
+            return res;
+        } 
+        List<XTerm> terms  = c.extConstraints();
+        for (XTerm t : terms)
+            res.addAll(getLocals(t));
+        return res;
+    }        
+    private static java.util.Set<VarDef> getLocals(XTerm t) {
+        java.util.Set<VarDef> res = new java.util.HashSet<VarDef>();
+        // FieldDef
+        if (t instanceof XField) {
+            final XField field = (XField) t;
+            final XVar receiver = field.receiver();
+            res.addAll(getLocals(receiver));
+
+            if (receiver instanceof XLocal && ((XLocal)receiver).name.toString().endsWith("#this")) { // only if the receiver is "this"
+                final XName xName = field.field;
+                if (xName instanceof XNameWrapper) {
+                    XNameWrapper wrapper = (XNameWrapper) xName;
+                    final Object v = wrapper.val();
+                    if (v instanceof X10FieldDef)
+                        res.add((X10FieldDef)v);
+                }
+            }
+        } else if (t instanceof XLocal) {
+            XLocal local = (XLocal) t;
+            final XName xName = local.name;
+            if (xName instanceof XNameWrapper) {
+                XNameWrapper wrapper = (XNameWrapper)xName;
+                final Object v = wrapper.val();
+                if (v instanceof X10LocalDef)
+                    res.add((X10LocalDef)v);
+            }
+        } else if (t instanceof XFormula) {
+            final XFormula xFormula = (XFormula) t;
+            for (XTerm tt: xFormula.arguments())
+                res.addAll(getLocals(tt));
+        }
+        return res;
+    }
     /**
      * Return a synthesized AST for a constraint. Used when generating code from implicit casts.
      * @param c the constraint
