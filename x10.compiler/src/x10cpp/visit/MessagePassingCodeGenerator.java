@@ -4539,7 +4539,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		    return;
 		}
 
-		// Can be a non-interface dispatch for classes like Future, so we have to check.
+		// ClosureCall_c really means "call apply on me, and if I happen to be a closure literal understand that means invoking my body"
+		// So we have to handle 3 different cases: 
+		//    (a) closure literal that for some odd reason wasn't inlined (should not really happen...)
+		//    (b) a function type
+		//    (c) an class (anonymous or not) that has an apply operator
 		Type t = target.type();
 		X10Flags xf = X10Flags.toX10Flags(mi.flags());
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
@@ -4550,26 +4554,37 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		    c.printSubExpr(target, sw, tr);
 		    context.setStackAllocateClosure(false);
 		    sw.write(".apply(");
-		} else if (t.isClass() && (t.toClass().flags().isInterface() || t.toClass().isAnonymous())) {
-		    X10MethodInstance ami = null;
-		    try {
-		        List<Type> actualTypes = new ArrayList<Type>();
-		        for (Expr a : c.arguments()) {
-		            actualTypes.add(a.type());
-		        }
-		        ami = xts.findMethod(t,
-		                xts.MethodMatcher(c.type(), ClosureCall.APPLY, actualTypes, context));  // todo: double check this code
-		    } catch (SemanticException e) {
-		        e.printStackTrace();
-		        assert (false);
-		    }
-		    invokeInterface(c, target, args, make_ref(REFERENCE_TYPE), t.toClass(), ami, needsNullCheck);
-		    return;
 		} else {
-            if (needsNullCheck) sw.write("x10aux::nullCheck(");
-			c.printSubExpr(target, sw, tr);
-            if (needsNullCheck) sw.write(")");
-			sw.write("->apply(");
+		    if (t.isClass() && t.toClass().isAnonymous()) {
+		        ClassType tc = t.toClass();
+		        if (tc.interfaces().size() > 0) {
+		            t = tc.interfaces().get(0);
+		        } else {
+		            t = tc.superClass();
+		        }
+		    }
+		    
+		    if (t.isClass() && t.toClass().flags().isInterface()) {
+		        X10MethodInstance ami = null;
+		        try {
+		            List<Type> actualTypes = new ArrayList<Type>();
+		            for (Expr a : c.arguments()) {
+		                actualTypes.add(a.type());
+		            }
+		            ami = xts.findMethod(t,
+		                                 xts.MethodMatcher(c.type(), ClosureCall.APPLY, actualTypes, context));  // todo: double check this code
+		        } catch (SemanticException e) {
+		            e.printStackTrace();
+		            assert (false);
+		        }
+		        invokeInterface(c, target, args, make_ref(REFERENCE_TYPE), t.toClass(), ami, needsNullCheck);
+		        return;
+		    } else {
+		        if (needsNullCheck) sw.write("x10aux::nullCheck(");
+		        c.printSubExpr(target, sw, tr);
+		        if (needsNullCheck) sw.write(")");
+		        sw.write("->apply(");
+		    }
 		}
 
 		sw.begin(0);
