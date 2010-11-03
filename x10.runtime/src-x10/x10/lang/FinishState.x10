@@ -29,12 +29,13 @@ abstract class FinishState {
 
     // a finish with local asyncs only
     static class LocalFinish extends FinishState {
-        private val count = new AtomicInteger(1);
-        private val latch = new Latch();
+        private val count = new AtomicInteger(0);
+        private var latch:Latch = null;
         private var exceptions:Stack[Throwable]; // lazily initialized
         private val lock = new Lock();
         public def notifySubActivitySpawn(place:Place) {
             assert place.id == Runtime.hereInt();
+            if (null == latch) latch = new Latch();
             count.getAndIncrement();
         }
         public def notifyActivityCreation() {}
@@ -48,8 +49,10 @@ abstract class FinishState {
             lock.unlock();
         }
         public def waitForFinish(safe:Boolean) {
-            if (!Runtime.NO_STEALS && safe) Runtime.worker().join(latch);
-            latch.await();
+            if (null != latch) {
+                if (!Runtime.NO_STEALS && safe) Runtime.worker().join(latch);
+                latch.await();
+            }
             val t = MultipleExceptions.make(exceptions);
             if (null != t) throw t;
         }
@@ -139,7 +142,7 @@ abstract class FinishState {
             this(new RootFinish(latch));
         }
         def this() {
-            this(new Latch());
+            this(new RootFinish());
         }
         protected def this(ref:GlobalRef[FinishState]) {
             super(ref);
@@ -155,20 +158,20 @@ abstract class FinishState {
     }
 
     static class RootFinish extends RootFinishSkeleton {
-        protected val latch:Latch;
+        protected var latch:Latch;
         protected var exceptions:Stack[Throwable]; // lazily initialized
         protected val counts:Rail[Int] = Rail.make[Int](Place.MAX_PLACES, 0);
         protected val seen:Rail[Boolean] = Rail.make[Boolean](Place.MAX_PLACES, false);
         protected val lock:Lock = new Lock();
         def this(latch:Latch) {
             this.latch = latch;
-            counts(Runtime.hereInt()) = 1;
         }
         def this() {
-            this(new Latch());
+            this.latch = null;
         }
         public def notifySubActivitySpawn(place:Place):void {
             lock.lock();
+            if (null == latch) latch = new Latch();
             counts(place.parent().id)++;
             lock.unlock();
         }
@@ -194,8 +197,10 @@ abstract class FinishState {
             lock.unlock();
         }
         public def waitForFinish(safe:Boolean):void {
-            if (!Runtime.NO_STEALS && safe) Runtime.worker().join(latch);
-            latch.await();
+            if (null != latch) {
+                if (!Runtime.NO_STEALS && safe) Runtime.worker().join(latch);
+                latch.await();
+            }
             val root = ref();
             val closure = ()=>@RemoteInvocation { Runtime.runtime().finishStates.remove(root); };
             seen(Runtime.hereInt()) = false;

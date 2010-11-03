@@ -512,6 +512,7 @@ import x10.util.Box;
 
             if (hereInt() == 0) {
                 val rootFinish = new FinishState.Finish(runtime().pool.latch);
+                rootFinish.notifySubActivitySpawn(here());
                 // in place 0 schedule the execution of the static initializers fby main activity
                 execute(new Activity(()=>{finish init(); body();}, rootFinish, true));
 
@@ -816,7 +817,6 @@ import x10.util.Box;
     public static def stopFinish(f:FinishState):void {
         val a = activity();
         val finishState = a.swapFinish(f);
-        finishState.notifyActivityTermination();
         finishState.waitForFinish(a.safe());
     }
 
@@ -839,7 +839,6 @@ import x10.util.Box;
 
     public static def stopCollectingFinish[T](f:FinishState):T {
         val state = activity().swapFinish(f);
-        state.notifyActivityTermination();
         return (state as FinishState.CollectingFinish[T]).waitForFinishExpr(true);
     }
 
