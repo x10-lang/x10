@@ -4550,7 +4550,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		    c.printSubExpr(target, sw, tr);
 		    context.setStackAllocateClosure(false);
 		    sw.write(".apply(");
-		} else if (t.isClass() && t.toClass().flags().isInterface()) {
+		} else if (t.isClass() && (t.toClass().flags().isInterface() || t.toClass().isAnonymous())) {
 		    X10MethodInstance ami = null;
 		    try {
 		        List<Type> actualTypes = new ArrayList<Type>();
