@@ -45,15 +45,13 @@ public final class Configuration extends x10.config.Configuration {
     public static boolean DEBUG = false;
     private static final String DEBUG_desc = "Generate debug information";
 
-//  public static boolean NO_CHECKS = false;
-    public static boolean NO_CHECKS = true;
+    public static boolean NO_CHECKS = false;
     private static final String NO_CHECKS_desc = "Disable generation of all null, bounds, and place checks";
 
     public static boolean LOOP_OPTIMIZATIONS = true;
     private static final String LOOP_OPTIMIZATIONS_desc = "Optimize rectangular region iteration";
 
-//  public static boolean INLINE_OPTIMIZATIONS = false;
-    public static boolean INLINE_OPTIMIZATIONS = true;
+    public static boolean INLINE_OPTIMIZATIONS = false;
     private static final String INLINE_OPTIMIZATIONS_desc = "Perform inlining optimizations";
 
     public static boolean CLOSURE_INLINING = true;
@@ -62,8 +60,7 @@ public final class Configuration extends x10.config.Configuration {
     public static boolean FLATTEN_EXPRESSIONS = false;
     private static final String FLATTEN_EXPRESSIONS_desc = "Flatten all expressions";
 
-//  public static boolean INLINE_SMALL_METHODS = false;
-    public static boolean INLINE_SMALL_METHODS = true;
+    public static boolean INLINE_SMALL_METHODS = false;
     private static final String INLINE_SMALL_METHODS_desc = "Inline methods that don't make many calls";
 
     public static String PLUGINS = "";
