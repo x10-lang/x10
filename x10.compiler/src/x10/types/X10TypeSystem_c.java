@@ -574,11 +574,13 @@ public class X10TypeSystem_c extends TypeSystem_c {
         }
         if (t instanceof X10ClassType) {
             X10ClassType ct = (X10ClassType) t;
+            if (ct.typeArguments() != null) {
             for (Type a : ct.typeArguments()) {
                 if (hasUnknownType(a)) {
                     unknownTypeMap.put(t, true);
                     return true;
                 }
+            }
             }
             if (ct.x10Def().isFunction()) {
                 // Look at the superclass and interfaces (if any)

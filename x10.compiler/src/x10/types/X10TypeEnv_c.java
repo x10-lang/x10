@@ -255,6 +255,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         }
         if (t instanceof X10ClassType) {
             X10ClassType ct = (X10ClassType) t;
+            if (ct.typeArguments() != null) {
             for (Type ti : ct.typeArguments()) {
                 if (!consistent(ti))
                     return false;
@@ -272,6 +273,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
                 xc.setCurrentTypeConstraint(Types.ref(equals));
                 if (!new X10TypeEnv_c(xc).consistent(c))
                     return false;
+            }
             }
         }
         //if (!consistent(X10TypeMixin.realX(t)))
@@ -451,7 +453,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
             		List<Type> typeArgs = ct.typeArguments();
             		X10ClassDef def = ct.x10Def();
             		List<Variance> variances = def.variances();
-
+            		if (typeArgs != null && typeArgs.size() == def.typeParameters().size()) {
             		for (int i=0; i < typeArgs.size(); i++) {
             			ParameterType.Variance v = variances.get(i);
             			switch (v) {
@@ -477,7 +479,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
             			case INVARIANT:
             				break;
             			}
-
+            		}
             		}
             	}
             }
@@ -887,21 +889,25 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     	}
     	// At this point the constraint has been checked and baseType2 == t2.
     	
-    	// Handle parametrized types and interfaces
+    	// Handle parameterized types and interfaces
     	if (baseType1 instanceof X10ClassType && baseType2 instanceof X10ClassType) {
     		X10ClassType ct1 = (X10ClassType) baseType1;
     		X10ClassType ct2 = (X10ClassType) baseType2;
     		if (ct1.def() == ct2.def()) { // so the base types are identical
     			X10ClassDef def = ct1.x10Def();
-    			int numArgs = def.typeParameters().size();
-    			if (numArgs > 0) {
-    				if (ct1.typeArguments().size()!= numArgs)
+    			int numParams = def.typeParameters().size();
+    			if (numParams > 0) {
+    				if (ct1.typeArguments() == null && ct2.typeArguments() == null)
+    				    return true;
+    				if (ct1.typeArguments() == null || ct2.typeArguments() == null)
+    				    return false;
+    				if (ct1.typeArguments().size() != numParams)
     					return false;
-    				if (ct2.typeArguments().size() != numArgs)
+    				if (ct2.typeArguments().size() != numParams)
     					return false;
-    				if (def.variances().size() != numArgs)
-    					return false;
-    				for (int i = 0; i < numArgs; i++) {
+    				if (def.variances().size() != numParams)
+    					return false; // FIXME: throw an InternalCompilerError
+    				for (int i = 0; i < numParams; i++) {
     					Type a1 = ct1.typeArguments().get(i);
     					Type a2 = ct2.typeArguments().get(i);
     					if (a1 == null || a2 == null)
@@ -1090,9 +1096,13 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
             X10ClassDef def2 = ct2.x10Def();
             if (def1 != def2)
                 return false;
-            if (ct1.typeArguments().size() == 0 && ct2.typeArguments().size() == 0)
+            List<Type> ta1 = ct1.typeArguments();
+            if (ta1 == null) ta1 = Collections.<Type>emptyList();
+            List<Type> ta2 = ct2.typeArguments();
+            if (ta2 == null) ta2 = Collections.<Type>emptyList();
+            if (ta1.size() == 0 && ta2.size() == 0)
                 return true;
-            if (! CollectionUtil.allElementwise(ct1.typeArguments(), ct2.typeArguments(), new X10TypeSystem_c.TypeEquals(context))) {
+            if (! CollectionUtil.allElementwise(ta1, ta2, new X10TypeSystem_c.TypeEquals(context))) {
                 return false;
             }
             return true;
@@ -1495,6 +1505,8 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     		if (hasSameClassDef(type1, type2)) {
     			X10ClassType ct1 = (X10ClassType) type1;
     			X10ClassType ct2 = (X10ClassType) type2;
+    			if (ct1.typeArguments() == null || ct2.typeArguments() == null)
+    			    return ct1.typeArguments(null);
     			int n = ct1.typeArguments().size();
     			List<Type> newArgs = new ArrayList<Type>(n);
     			for (int i = 0; i < n; i++) {

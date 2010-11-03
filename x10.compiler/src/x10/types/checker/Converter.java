@@ -409,7 +409,7 @@ public class Converter {
 
 		if (baseFrom instanceof X10ClassType) {
 			X10ClassType ct = (X10ClassType) baseFrom;
-			if (ct.typeArguments().size() > 0) {
+			if (ct.typeArguments() != null && ct.typeArguments().size() > 0) {
 				List<Type>[] alternatives = new List[ct.typeArguments().size()];
 				List<Type> newArgs = new ArrayList<Type>(ct.typeArguments().size());
 				for (int i = 0; i < ct.typeArguments().size(); i++) {

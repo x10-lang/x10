@@ -111,11 +111,14 @@ implements X10ParsedClassType
             List<ParameterType> typeParameters = new ArrayList<ParameterType>();
             for (X10ParsedClassType_c c = this; c != null; c = (X10ParsedClassType_c) c.container()) {
                 List<ParameterType> tp = c.x10Def().typeParameters();
-                if (!tp.isEmpty() && c.typeArguments != null) {
-                    typeArguments.addAll(c.typeArguments);
+                List<Type> ta = c.typeArguments;
+                if (ta == null)
+                    ta = new ArrayList<Type>();
+                if (!tp.isEmpty() && !ta.isEmpty()) {
+                    typeArguments.addAll(ta);
                     typeParameters.addAll(tp);
                 }
-                if (!c.isMember() || c.flags().isStatic())
+                if (!c.isMember() || (c.flags().isStatic() && ta.size() == tp.size()))
                     break;
             }
             cacheSubst = new TypeParamSubst((TypeSystem) ts, typeArguments, typeParameters);
@@ -320,9 +323,6 @@ implements X10ParsedClassType
 	List<Type> typeArguments;
 	
 	public List<Type> typeArguments() {
-	    if (typeArguments == null) {
-		return TypedList.<Type>copyAndCheck(x10Def().typeParameters(), Type.class, true);
-	    }
 	    return typeArguments;
 	}
 	
@@ -446,14 +446,26 @@ implements X10ParsedClassType
 	public X10ParsedClassType instantiateTypeParametersExplicitly() {
 	    X10ParsedClassType pct = this;
 	    List<ParameterType> typeParameters = pct.x10Def().typeParameters();
-	    if (pct.isMember()) {
+	    List<Type> typeArguments = pct.typeArguments();
+	    if (typeArguments == null)
+	        typeArguments = new ArrayList<Type>();
+	    if (pct.isMember() && (!pct.flags().isStatic() || typeArguments.size() != typeParameters.size())) {
 	        X10ParsedClassType container = ((X10ParsedClassType) pct.container()).instantiateTypeParametersExplicitly();
 	        if (container != pct.container()) {
 	            pct = pct.container(container);
 	        }
+	        if (typeArguments.size() < typeParameters.size()) {
+	            typeArguments = new ArrayList<Type>(typeArguments);
+	            for (int i = typeArguments.size(); i < typeParameters.size(); i++) {
+	                typeArguments.add(typeParameters.get(i));
+	            }
+	        }
+	        if (typeArguments != pct.typeArguments()) {
+	            pct = pct.typeArguments(typeArguments);
+	        }
 	        pct = container.subst().reinstantiate(pct);
 	    }
-	    if (!typeParameters.isEmpty() && pct.typeArguments().equals(typeParameters)) {
+	    if (!typeParameters.isEmpty() && typeArguments.isEmpty()) {
 	        pct = pct.typeArguments(new ArrayList<Type>(typeParameters));
 	    }
 	    return pct;

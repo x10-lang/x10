@@ -82,6 +82,8 @@ public class Subst {
         if (t instanceof X10ParsedClassType) {
             X10ParsedClassType ct = (X10ParsedClassType) t;
             List<Type> newArgs = new ArrayList<Type>();
+            if (ct.typeArguments() == null)
+                return ct;
             for (Type at : ct.typeArguments()) {
                 Type at2 = addIn(at, in);
                 newArgs.add(at2);
@@ -124,6 +126,8 @@ public class Subst {
         if (t instanceof X10ParsedClassType) {
             X10ParsedClassType ct = (X10ParsedClassType) t;
             List<Type> newArgs = new ArrayList<Type>();
+            if (ct.typeArguments() == null)
+                return ct;
             for (Type at : ct.typeArguments()) {
                 Type at2 = project(at, v);
                 newArgs.add(at2);
@@ -175,6 +179,8 @@ public class Subst {
 
         if (t instanceof X10ParsedClassType) {
             X10ParsedClassType ct = (X10ParsedClassType) t;
+            if (ct.typeArguments() == null)
+                return ct;
             List<Type> newArgs = new ArrayList<Type>();
             for (Type at : ct.typeArguments()) {
                 Type at2 = subst(at, y, x);
@@ -236,6 +242,8 @@ public class Subst {
                 return ct;
             }
             else {
+                if (ct.typeArguments() == null)
+                    return ct;
                 List<Type> args = new ArrayList<Type>();
                 boolean changed = false;
                 for (Type ti : ct.typeArguments()) {

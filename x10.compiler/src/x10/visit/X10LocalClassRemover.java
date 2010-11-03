@@ -85,7 +85,7 @@ public class X10LocalClassRemover extends LocalClassRemover {
                     X10ClassType type = (X10ClassType) X10TypeMixin.baseType(neu.objectType().type());
                     List<Type> ta = new ArrayList<Type>(type.typeArguments());
                     List<ParameterType> params = type.x10Def().typeParameters();
-                    if (!params.isEmpty() && (ta.equals(params) || ta.size() != params.size())) {
+                    if (!params.isEmpty() && (ta == null || ta.size() != params.size())) {
                         assert (context().currentCode() instanceof X10MethodDef);
                         X10MethodDef md = (X10MethodDef) context().currentCode();
                         if (ta.equals(params) && !md.typeParameters().isEmpty())
@@ -129,12 +129,12 @@ public class X10LocalClassRemover extends LocalClassRemover {
             if (!rt.isClass())
                 return decl;
             X10ClassType type = (X10ClassType) X10TypeMixin.baseType(rt.toClass());
-            List<Type> ta = new ArrayList<Type>(type.typeArguments());
+            List<Type> ta = type.typeArguments();
             List<ParameterType> params = type.x10Def().typeParameters();
-            if (!params.isEmpty() && (ta.equals(params) || ta.size() != params.size())) {
+            if (!params.isEmpty() && (ta == null || ta.size() != params.size())) {
                 X10MethodDef md = decl.methodDef();
-                if (ta.equals(params) && !md.typeParameters().isEmpty())
-                    ta.clear();
+                if ((ta == null || ta.equals(params)) && !md.typeParameters().isEmpty())
+                    ta = new ArrayList<Type>();
                 ta.addAll(md.typeParameters());
                 assert (ta.size() == params.size());
             }

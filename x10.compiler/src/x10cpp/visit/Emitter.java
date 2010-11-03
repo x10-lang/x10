@@ -34,14 +34,12 @@ import java.util.Iterator;
 import java.util.List;
 
 import polyglot.ast.Call_c;
-import polyglot.ast.ClassDecl_c;
 import polyglot.ast.ConstructorDecl_c;
 import polyglot.ast.Expr;
 import polyglot.ast.FieldDecl_c;
 import polyglot.ast.Formal;
 import polyglot.ast.Formal_c;
 import polyglot.ast.LocalDecl_c;
-import polyglot.ast.MethodDecl_c;
 import polyglot.ast.New_c;
 import polyglot.ast.Node;
 import polyglot.ast.Receiver;
@@ -65,6 +63,8 @@ import polyglot.util.ErrorInfo;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.Translator;
+import x10.ast.X10ClassDecl_c;
+import x10.ast.X10MethodDecl_c;
 import x10.ast.X10Special;
 import x10.ast.X10Special_c;
 import x10.errors.Warnings;
@@ -283,6 +283,9 @@ public class Emitter {
 				asRef = false;
 			}
 
+		    List<Type> typeArguments = ct.typeArguments();
+		    X10ClassDef cd = ct.x10Def();
+		    if (typeArguments == null) typeArguments = new ArrayList<Type>(cd.typeParameters());
 		    if (ct.isAnonymous()) {
 		        if (ct.interfaces().size() == 1 && ct.interfaces().get(0) instanceof FunctionType) {
 		            return translateType(ct.interfaces().get(0), asRef);
@@ -292,14 +295,12 @@ public class Emitter {
 		       	    return translateType(ct.superClass(), asRef);
 		       	}
 		    } else {
-				X10ClassDef cd = ((X10ClassType) type).x10Def();
 				String pat = null;
 				if (!asRef)
 					pat = getCppBoxRep(cd);
 				else
 					pat = getCppRep(cd);
 				if (pat != null) {
-					List<Type> typeArguments = ct.typeArguments();
 					Object[] o = new Object[typeArguments.size()+1];
 					int i = 0;
 					o[i++] = type;
@@ -313,10 +314,10 @@ public class Emitter {
 					name = fullName(ct).toString();
 				}
 			}
-			if (ct.typeArguments().size() != 0) {
+			if (typeArguments.size() != 0) {
 				String args = "";
-				int s = ct.typeArguments().size();
-				for (Type t: ct.typeArguments()) {
+				int s = typeArguments.size();
+				for (Type t: typeArguments) {
 					args += translateType(t, true); // type arguments are always translated as refs
 					if (--s > 0)
 						args +=", ";
@@ -337,15 +338,17 @@ public class Emitter {
 		return make_ref(name);
 	}
 	
-	public static String structMethodClass(ClassType ct, boolean fqn, boolean chevrons) {
-	    X10ClassType classType = (X10ClassType)ct;
-	    QName full = fullName(classType);
+	public static String structMethodClass(X10ClassType ct, boolean fqn, boolean chevrons) {
+	    X10ClassDef cd = ct.x10Def();
+	    QName full = fullName(cd.asType());
 	    String name = fqn ? full.toString() : full.name().toString();
 	    name += "_methods";
-	    if (chevrons && classType.typeArguments().size() != 0) {
+	    List<Type> typeArguments = ct.typeArguments();
+	    if (typeArguments == null) typeArguments = new ArrayList<Type>(cd.typeParameters());
+	    if (chevrons && typeArguments.size() != 0) {
 	        String args = "";
-	        int s = classType.typeArguments().size();
-	        for (Type t: classType.typeArguments()) {
+	        int s = typeArguments.size();
+	        for (Type t: typeArguments) {
 	            args += translateType(t, true); // type arguments are always translated as refs
 	            if (--s > 0)
 	                args +=", ";
@@ -388,7 +391,7 @@ public class Emitter {
 
 
 	public void printTemplateSignature(List<? extends Type> list, CodeWriter h) {
-		int size = list.size();
+		int size = list == null ? 0 : list.size();
 		if (size != 0) {
 			h.write("template<class ");
 			for (Type t: list) {
@@ -518,10 +521,10 @@ public class Emitter {
 
 	private static final QName NORETURN_ANNOTATION = QName.make("x10.compiler.NoReturn");
 
-	void printHeader(MethodDecl_c n, CodeWriter h, Translator tr, boolean qualify, boolean inlineDirective) {
+	void printHeader(X10MethodDecl_c n, CodeWriter h, Translator tr, boolean qualify, boolean inlineDirective) {
 		printHeader(n, h, tr, n.name().id().toString(), n.returnType().type(), qualify, inlineDirective);
 	}
-	void printHeader(MethodDecl_c n, CodeWriter h, Translator tr, String name, Type ret, 
+	void printHeader(X10MethodDecl_c n, CodeWriter h, Translator tr, String name, Type ret, 
 	                 boolean qualify, boolean inlineDirective) {
 		X10Flags flags = X10Flags.toX10Flags(n.flags().flags());
 		X10MethodDef def = (X10MethodDef) n.methodDef();
@@ -532,7 +535,7 @@ public class Emitter {
 		h.begin(0);
 
 		if (qualify) {
-			printTemplateSignature(((X10ClassType)n.methodDef().container().get()).typeArguments(), h);
+			printTemplateSignature(((X10ClassType)Types.get(n.methodDef().container())).x10Def().typeParameters(), h);
 		}
 		
 		if (inlineDirective) {
@@ -649,16 +652,17 @@ public class Emitter {
 		h.end();
 	}
 
-	private void printAllTemplateSignatures(ClassDef cd, CodeWriter h) {
+	private void printAllTemplateSignatures(X10ClassDef cd, CodeWriter h) {
 		if (cd.isNested()) {
 			assert (false) : ("Nested class alert!");
-			printAllTemplateSignatures(cd.outer().get(), h);
+			printAllTemplateSignatures((X10ClassDef) Types.get(cd.outer()), h);
 		}
-		printTemplateSignature(((X10ClassType)cd.asType()).typeArguments(), h);
+		printTemplateSignature(cd.typeParameters(), h);
 	}
 
 	void printRTTDefn(X10ClassType ct, CodeWriter h) {
 	    X10TypeSystem_c xts = (X10TypeSystem_c) ct.typeSystem();
+	    X10ClassDef cd = ct.x10Def();
 	    String x10name = fullName(ct).toString().replace('$','.');
 	    int numParents = 0;
 	    if (ct.superClass() != null) {
@@ -674,7 +678,7 @@ public class Emitter {
 	        kind = "x10aux::RuntimeType::class_kind";
 	    }
 
-	    if (ct.typeArguments().isEmpty()) {
+	    if (cd.typeParameters().isEmpty()) {
 	        boolean first = true;
 	        h.write("x10aux::RuntimeType "+translateType(ct)+"::rtt;"); h.newline();
 	        h.write("void "+translateType(ct)+"::_initRTT() {"); h.newline(4); h.begin(0);
@@ -702,13 +706,13 @@ public class Emitter {
 	        h.write("}"); h.newline();
 	    } else {
 	        boolean first = true;
-	        int numTypeParams = ct.typeArguments().size();
-	        printTemplateSignature(ct.typeArguments(), h);
+	        int numTypeParams = cd.typeParameters().size();
+	        printTemplateSignature(cd.typeParameters(), h);
 	        h.write("x10aux::RuntimeType "+translateType(ct)+"::rtt;"); h.newline();
 
-	        printTemplateSignature(ct.typeArguments(), h);
+	        printTemplateSignature(cd.typeParameters(), h);
 	        h.write("void "+translateType(ct)+"::_initRTT() {"); h.newline(4); h.begin(0);
-                h.write("const x10aux::RuntimeType *canonical = x10aux::getRTT"+chevrons(translateType(MessagePassingCodeGenerator.getStaticMemberContainer(ct),false))+"();");
+                h.write("const x10aux::RuntimeType *canonical = x10aux::getRTT"+chevrons(translateType(MessagePassingCodeGenerator.getStaticMemberContainer(cd), false))+"();");
                 h.newline();
                 h.write("if (rtt.initStageOne(canonical)) return;"); h.newline();
 	        
@@ -729,7 +733,7 @@ public class Emitter {
 	        }
 	        h.write("const x10aux::RuntimeType* params["+numTypeParams+"] = { ");
 	        first = true;
-	        for (Type param : ct.typeArguments()) {
+	        for (Type param : cd.typeParameters()) {
 	            if (!first) h.write(", ");
 	            h.write("x10aux::getRTT"+chevrons(translateType(param))+"()");
 	            first = false;
@@ -781,7 +785,7 @@ public class Emitter {
                                                     
                                                     
     
-    void printHeader(ClassDecl_c n, CodeWriter h, Translator tr) {
+    void printHeader(X10ClassDecl_c n, CodeWriter h, Translator tr) {
 		h.begin(0);
 		
 		// Handle generics
@@ -805,7 +809,7 @@ public class Emitter {
 		h.end();
 	}
     
-    void printHeaderForStructMethods(ClassDecl_c n, CodeWriter h, Translator tr) {
+    void printHeaderForStructMethods(X10ClassDecl_c n, CodeWriter h, Translator tr) {
         h.begin(0);
         
         // Handle generics
@@ -823,9 +827,9 @@ public class Emitter {
                      boolean define, boolean isMakeMethod, String rType) {
         Flags flags = n.flags().flags();
 
-		X10ClassType container = (X10ClassType) n.constructorDef().container().get();
+		X10ClassType container = (X10ClassType) Types.get(n.constructorDef().container());
 		if (define){
-			printTemplateSignature((container).typeArguments(), h);
+			printTemplateSignature(container.x10Def().typeParameters(), h);
 		}
 
 		// [IP] Constructors don't have type parameters, they inherit them from the container. 
@@ -973,7 +977,7 @@ public class Emitter {
             // _serialization_id
             h.write("public: static const x10aux::serialization_id_t "+SERIALIZATION_ID_FIELD+";"); h.newline();
             h.forceNewline();
-            printTemplateSignature(ct.typeArguments(), w);
+            printTemplateSignature(ct.x10Def().typeParameters(), w);
             w.write("const x10aux::serialization_id_t "+klass+"::"+SERIALIZATION_ID_FIELD+" = ");
             w.newline(4);
             w.write("x10aux::DeserializationDispatcher::addDeserializer(");
@@ -988,7 +992,7 @@ public class Emitter {
             h.write(make_ref(klass)+" this_,"); h.newline();
             h.write(SERIALIZATION_BUFFER+"& buf);"); h.end();
             h.newline(); h.forceNewline();
-            printTemplateSignature(ct.typeArguments(), w);
+            printTemplateSignature(ct.x10Def().typeParameters(), w);
             w.write("void "+klass+"::"+SERIALIZE_METHOD+"("); w.begin(0);
             w.write(make_ref(klass)+" this_,"); w.newline();
             w.write(SERIALIZATION_BUFFER+"& buf) {"); w.end(); w.newline(4); w.begin(0);
@@ -1019,7 +1023,7 @@ public class Emitter {
         h.write("void "+SERIALIZE_BODY_METHOD+"("+SERIALIZATION_BUFFER+"& buf);");
         h.newline(0); h.forceNewline();
 
-        printTemplateSignature(ct.typeArguments(), w);
+        printTemplateSignature(ct.x10Def().typeParameters(), w);
         w.write("void "+klass+"::"+SERIALIZE_BODY_METHOD+
                     "("+SERIALIZATION_BUFFER+"& buf) {");
         w.newline(4); w.begin(0);
@@ -1062,7 +1066,7 @@ public class Emitter {
             h.write(make_ref("__T")+" "+DESERIALIZER_METHOD+"("+DESERIALIZATION_BUFFER+"& buf);");
             h.newline(); h.forceNewline();
             sw.pushCurrentStream(context.templateFunctions);
-            printTemplateSignature(ct.typeArguments(), sw);
+            printTemplateSignature(ct.x10Def().typeParameters(), sw);
             sw.write("template<class __T> ");
             sw.write(make_ref("__T")+" "+klass+"::"+DESERIALIZER_METHOD+"("+DESERIALIZATION_BUFFER+"& buf) {");
             sw.newline(4); sw.begin(0);
@@ -1082,7 +1086,7 @@ public class Emitter {
             h.write(make_ref("__T")+" "+DESERIALIZE_METHOD+"("+DESERIALIZATION_BUFFER+"& buf);");
             h.newline(); h.forceNewline();
             sw.pushCurrentStream(context.templateFunctions);
-            printTemplateSignature(ct.typeArguments(), sw);
+            printTemplateSignature(ct.x10Def().typeParameters(), sw);
             sw.write("template<class __T> ");
             sw.write(make_ref("__T")+" "+klass+"::"+DESERIALIZE_METHOD+"("+DESERIALIZATION_BUFFER+"& buf) {");
             sw.newline(4); sw.begin(0);
@@ -1107,7 +1111,7 @@ public class Emitter {
         // _deserialize_body()
         h.write("public: ");
         h.write("void "+DESERIALIZE_BODY_METHOD+"("+DESERIALIZATION_BUFFER+"& buf);"); h.newline(0);
-        printTemplateSignature(ct.typeArguments(), w);
+        printTemplateSignature(ct.x10Def().typeParameters(), w);
         w.write("void "+klass+"::"+DESERIALIZE_BODY_METHOD+"("+DESERIALIZATION_BUFFER+"& buf) {");
         w.newline(4); w.begin(0);
         if (type.isSubtype(ts.CustomSerialization(), context)) {
@@ -1132,7 +1136,8 @@ public class Emitter {
             }
             // Special case x10.lang.Array to deserialize the contents of rawChunk too
             if (ts.isX10Array(type)) {
-                String elemType = translateType(ct.typeArguments().get(0),true);
+                List<ParameterType> typeParameters = ct.x10Def().typeParameters();
+                String elemType = translateType(typeParameters.get(0),true);
                 w.newline();
                 w.writeln("FMGL(raw) = x10::util::IndexedMemoryChunk<void>::allocate"+chevrons(elemType)+"(FMGL(rawLength),8,false,false);");
                 w.write("for (x10_int i = 0; i<this->FMGL(rawLength); i++) {");
@@ -1162,7 +1167,7 @@ public class Emitter {
         sh.write("static void "+SERIALIZE_METHOD+"("+klass+" this_, "+SERIALIZATION_BUFFER+"& buf);");
         sh.newline(0); sh.forceNewline();
 
-        printTemplateSignature(ct.typeArguments(), w);
+        printTemplateSignature(ct.x10Def().typeParameters(), w);
         w.write("void "+klass+"::"+SERIALIZE_METHOD+"("+klass+" this_, "+SERIALIZATION_BUFFER+"& buf) {");
         w.newline(4); w.begin(0);
         Type parent = type.superClass();
@@ -1196,7 +1201,7 @@ public class Emitter {
 
         // _deserialize_body()
         sh.write("void "+DESERIALIZE_BODY_METHOD+"("+DESERIALIZATION_BUFFER+"& buf);"); sh.newline(0);
-        printTemplateSignature(ct.typeArguments(), w);
+        printTemplateSignature(ct.x10Def().typeParameters(), w);
         w.write("void "+klass+"::"+DESERIALIZE_BODY_METHOD+"("+DESERIALIZATION_BUFFER+"& buf) {");
         w.newline(4); w.begin(0);
         if (parent != null) {

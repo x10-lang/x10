@@ -449,7 +449,7 @@ public class X10New_c extends New_c implements X10New {
         }
 
         X10ParsedClassType container = (X10ParsedClassType) ci.container();
-        if (!ct.typeArguments().isEmpty() && ct.typeArguments().equals(container.x10Def().typeParameters())) {
+        if (!ct.x10Def().typeParameters().isEmpty() && (ct.typeArguments() == null || ct.typeArguments().isEmpty())) {
             t = new TypeParamSubst(xts, container.typeArguments(), container.x10Def().typeParameters()).reinstantiate(t);
             result = (X10New_c) result.objectType(result.objectType().typeRef(Types.ref(t)));
         }
@@ -457,9 +457,10 @@ public class X10New_c extends New_c implements X10New {
         TypeSystem ts = (TypeSystem) tc.typeSystem();
         Type tp = ci.returnType();
         tp = PlaceChecker.ReplaceHereByPlaceTerm(tp, (Context) tc.context());
-        Type tp1 = (Type) tp.copy();
+        Type tp1 = X10TypeMixin.instantiateTypeParametersExplicitly(tp);
+        Type t1 = X10TypeMixin.instantiateTypeParametersExplicitly(t);
         
-        if (!ts.isSubtype(tp1, t, tc.context())) {
+        if (!ts.isSubtype(tp1, t1, tc.context())) {
             throw new SemanticException("Constructor return type " + tp + " is not a subtype of " + t + ".", result.position());
         }
         if (ts.hasUnknown(tp1)) {

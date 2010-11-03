@@ -52,6 +52,7 @@ import x10.ast.TypeParamNode;
 import x10.ast.X10Call;
 import x10.ast.X10MethodDecl;
 import x10.types.ParameterType;
+import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10MethodDef;
 import x10.types.X10MethodInstance;
@@ -192,7 +193,8 @@ public class InlineHelper extends ContextVisitor {
                             continue;
                         }
                         List<Formal> formals = new ArrayList<Formal>(mdcl.formals());
-                        ClassType ct = cd.asType();
+                        X10ParsedClassType ct = (X10ParsedClassType) cd.asType();
+                        ct = ct.instantiateTypeParametersExplicitly();
                         LocalDef ldef = xts.localDef(pos, Flags.FINAL, Types.ref(ct), cd.name());
                         if (!mdcl.flags().flags().isStatic()) {
                             formals.add(xnf.Formal(pos, xnf.FlagsNode(pos, Flags.FINAL), xnf.X10CanonicalTypeNode(pos, ct), xnf.Id(pos, cd.name())).localDef(ldef));
@@ -219,7 +221,7 @@ public class InlineHelper extends ContextVisitor {
                             call = xnf.Call(pos, xnf.CanonicalTypeNode(pos, cd.asType()), 
                             		mdcl.name(), args).methodInstance(mdcl.methodDef().asInstance()).type(mdcl.returnType().type());
                         } else {
-                            call = xnf.Call(pos, xnf.Local(pos, xnf.Id(pos, cd.name())).localInstance(ldef.asInstance()).type(cd.asType()), mdcl.name(), args).methodInstance(mdcl.methodDef().asInstance()).type(mdcl.returnType().type());
+                            call = xnf.Call(pos, xnf.Local(pos, xnf.Id(pos, cd.name())).localInstance(ldef.asInstance()).type(ct), mdcl.name(), args).methodInstance(mdcl.methodDef().asInstance()).type(mdcl.returnType().type());
                         }
                         
                         Block body;
@@ -239,17 +241,10 @@ public class InlineHelper extends ContextVisitor {
                             rts.addAll(((X10MethodDef) md).typeParameters());
                         }
                         if (!mdcl.flags().flags().isStatic()) {
-                            if (ct instanceof X10ClassType) {
-                                X10ClassType t2 = (X10ClassType) ct;
-                                if (t2.typeArguments().size() > 0) {
-                                    for (Type t3 : t2.typeArguments()) {
-                                        if (t3 instanceof ParameterType) {
-                                            ParameterType pt = (ParameterType) t3;
-                                            ts.add(xnf.TypeParamNode(pos, xnf.Id(pos, pt.name())).type(pt));
-                                            rts.add(pt);
-                                        }
-                                    }
-                                }
+                            X10ClassDef d2 = (X10ClassDef) cd;
+                            for (ParameterType pt : d2.typeParameters()) {
+                                ts.add(xnf.TypeParamNode(pos, xnf.Id(pos, pt.name())).type(pt));
+                                rts.add(pt);
                             }
                         }
                         nmdcl = nmdcl.typeParameters(ts);
@@ -289,7 +284,7 @@ public class InlineHelper extends ContextVisitor {
                     }
                     MethodDecl mdcl1 = xnf.MethodDecl(pos, xnf.FlagsNode(pos, Flags.FINAL.Public()), 
                     		xnf.X10CanonicalTypeNode(pos, mi.returnType()), 
-                    		xnf.Id(pos, Name.make(d.classDef().asType().fullName().toString().replace(".", "$") + "$" + call.name().toString() + BRIDGE_TO_SUPER_SUFFIX)), 
+                    		xnf.Id(pos, Name.make(cd.asType().fullName().toString().replace(".", "$") + "$" + call.name().toString() + BRIDGE_TO_SUPER_SUFFIX)), 
                     		formals,  body);
                     
                     List<Ref<? extends Type>> argTypes = new ArrayList<Ref<? extends Type>>(mdcl1.formals().size() + 1);
@@ -343,7 +338,7 @@ public class InlineHelper extends ContextVisitor {
                 if (!mi.flags().isStatic()) {
                     if (container instanceof X10ClassType) {
                         X10ClassType t2 = (X10ClassType) container;
-                        if (t2.typeArguments().size() > 0) {
+                        if (t2.typeArguments() != null && t2.typeArguments().size() > 0) {
                             for (Type t3 : t2.typeArguments()) {
                                 if (t3 instanceof ParameterType) {
                                     ParameterType pt = (ParameterType) t3;
@@ -362,7 +357,7 @@ public class InlineHelper extends ContextVisitor {
                     tas.addAll(((X10MethodInstance) mi).typeParameters());
                 }
                 if (!mi.flags().isStatic() && tt instanceof X10ParsedClassType) {
-                    tas.addAll(((X10ParsedClassType) tt).typeArguments());
+                    tas.addAll(((X10ParsedClassType) tt).x10Def().typeParameters());
                 }
                 nmi = (X10MethodInstance) nmi.typeParameters(tas);
 

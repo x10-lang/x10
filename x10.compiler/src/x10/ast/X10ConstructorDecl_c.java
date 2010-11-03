@@ -67,6 +67,7 @@ import x10.types.X10ConstructorDef;
 import polyglot.types.Context;
 import x10.types.X10Flags;
 import x10.types.X10MemberDef;
+import x10.types.X10ParsedClassType;
 import x10.types.X10ProcedureDef;
 
 import x10.types.X10TypeMixin;
@@ -216,8 +217,11 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
         TypeNode htn = (TypeNode) n.visitChild(n.hasType, tb);
         n = (X10ConstructorDecl_c) n.hasType(htn);
         
-        if (returnType == null)
-        	n = (X10ConstructorDecl_c) n.returnType(nf.CanonicalTypeNode(n.position(), currentClass.asType()));
+        if (returnType == null) {
+            X10ParsedClassType rType = (X10ParsedClassType) currentClass.asType();
+            rType = rType.instantiateTypeParametersExplicitly();
+            n = (X10ConstructorDecl_c) n.returnType(nf.CanonicalTypeNode(n.position(), rType));
+        }
         
         ci.setReturnType((Ref<? extends X10ClassType>) n.returnType().typeRef());
         
@@ -528,10 +532,12 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
         
         Type retTypeBase =  n.returnType().type();
         retTypeBase = X10TypeMixin.baseType(retTypeBase);
+        retTypeBase = X10TypeMixin.instantiateTypeParametersExplicitly(retTypeBase);
         
         X10ConstructorDef nnci = (X10ConstructorDef) n.constructorDef();
         // Type clazz = ((X10Type) nnci.asInstance().container()).setFlags(X10Flags.ROOTED);
         Type clazz = nnci.asInstance().container();
+        clazz = X10TypeMixin.instantiateTypeParametersExplicitly(clazz);
         if (! ts.typeEquals(retTypeBase, clazz, tc.context())) {
             Errors.issue(tc.job(),
                     new SemanticException("The return type of the constructor (" + retTypeBase + ") must be derived from the type of the class (" + clazz + ") on which the constructor is defined.",    n.position()));

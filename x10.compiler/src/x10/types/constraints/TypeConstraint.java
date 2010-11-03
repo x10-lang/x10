@@ -76,6 +76,7 @@ public class TypeConstraint implements Copy, Serializable {
             X10ClassType yct = (X10ClassType) ytype;
             X10ClassDef ycd = yct.x10Def();
             if (ycd == xcd) {
+                if (xct.typeArguments() != null && yct.typeArguments() != null) {
                 for (int i = 0; i < yct.typeArguments().size(); i++) {
                     Type xt = xct.typeArguments().get(i);
                     Type yt = yct.typeArguments().get(i);
@@ -95,6 +96,7 @@ public class TypeConstraint implements Copy, Serializable {
                         break;
                     }
                     }
+                }
                 }
             }
             else {
@@ -169,6 +171,13 @@ public class TypeConstraint implements Copy, Serializable {
     		}
     		List<Type> args1 = xt1.typeArguments();
     		List<Type> args2 = xt2.typeArguments();
+    		if (args1 == null && args2 == null) {
+    		    return result;
+    		}
+    		if (args1 == null || args2 == null) {
+    		    result.setInconsistent();
+    		    return result;
+    		}
     		if (args1.size() != args2.size()) {
     			result.setInconsistent();
     			return result;
@@ -452,6 +461,7 @@ public class TypeConstraint implements Copy, Serializable {
 	    if (term.isEqualityConstraint()) {
 	        X10ClassDef def = sub.x10Def();
 	        if (def != sup.x10Def()) return; // skip case 2
+	        if (subTypeArgs == null || supTypeArgs == null) return;
 	        if (subTypeArgs.isEmpty() || subTypeArgs.size() != supTypeArgs.size()) return;
 	        for (int i = 0; i < subTypeArgs.size(); i++) {
 	            Type ba = subTypeArgs.get(i);
@@ -465,6 +475,7 @@ public class TypeConstraint implements Copy, Serializable {
 	    else {
 	        X10ClassDef def = sub.x10Def();
 	        if (def != sup.x10Def()) return; // FIXME: skip cases 4 and 5
+	        if (subTypeArgs == null || supTypeArgs == null) return;
 	        if (subTypeArgs.isEmpty() || subTypeArgs.size() != supTypeArgs.size()) return;
 	        List<Variance> variances = def.variances();
 	        for (int i = 0; i < subTypeArgs.size(); i++) {

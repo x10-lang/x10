@@ -111,7 +111,10 @@ public class TypeParamSubst {
 				return ct;
 			List<Type> typeArgs = ct.typeArguments();
 			List<ParameterType> tParams = ct.x10Def().typeParameters();
-			if (typeArgs.size() < tParams.size()) {
+			if (typeArgs == null && !tParams.isEmpty()) {
+			    typeArgs = new ArrayList<Type>(tParams);
+			}
+			if (typeArgs != null && typeArgs.size() < tParams.size()) {
 			    typeArgs = new ArrayList<Type>(typeArgs);
 			    // The def changed since the type was created; params were added
 			    for (int i = typeArgs.size(); i < tParams.size(); i++) {
@@ -128,7 +131,7 @@ public class TypeParamSubst {
 	}
 
 	private static boolean canReferToParams(X10ClassType t) {
-		if (t.typeArguments().size() != 0) {
+		if (t.typeArguments() == null || t.typeArguments().size() != 0) {
 			return true;
 		}
 		if (t.isMember())
@@ -394,6 +397,8 @@ public class TypeParamSubst {
 		        return list;
 		    return res;
 		}
+		if (list == null)
+		    return null;
 		return new TransformingList<T, T>(list, new Transformation<T, T>() {
 			public T transform(T o) {
 				return reinstantiate(o);

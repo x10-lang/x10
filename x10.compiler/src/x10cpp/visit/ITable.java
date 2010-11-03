@@ -162,30 +162,31 @@ public final class ITable {
 
 	public void emitITableDecl(X10ClassType cls, int itableNum, Emitter emitter, CodeWriter h) {
 		String interfaceCType = Emitter.translateType(interfaceType, false);
-		boolean doubleTemplate = cls.typeArguments().size() > 0 && interfaceType.typeArguments().size() > 0;
+		X10ClassDef cd = cls.x10Def();
+		boolean doubleTemplate = cd.typeParameters().size() > 0 && interfaceType.x10Def().typeParameters().size() > 0;
 		h.write("static "+(doubleTemplate ? "typename ":"")+interfaceCType+
 				(doubleTemplate ? "::template itable<":"::itable<")+Emitter.translateType(cls, false)+" > _itable_"+itableNum+";");
 		h.newline();
 	}
 
 	public void emitITableInitialization(X10ClassType cls, int itableNum, MessagePassingCodeGenerator cg, CodeWriter h, CodeWriter sw) {
+	    X10ClassDef cd = cls.x10Def();
 	    if (cls.isX10Struct()) {
             String interfaceCType = Emitter.translateType(interfaceType, false);
             String clsCType = Emitter.translateType(cls, false);
-            X10ClassDef cd = ((X10ClassType) cls).x10Def();
             String thunkBaseType = Emitter.mangled_non_method_name(cd.name().toString());
             String thunkParams = "";
-            if (cls.typeArguments().size() != 0) {
+            if (cd.typeParameters().size() != 0) {
                 String args = "";
-                int s = cls.typeArguments().size();
-                for (Type t: cls.typeArguments()) {
+                int s = cd.typeParameters().size();
+                for (Type t: cd.typeParameters()) {
                     args += Emitter.translateType(t, true); // type arguments are always translated as refs
                     if (--s > 0)
                         args +=", ";
                 }
                 thunkParams = chevrons(args);
             }
-            boolean doubleTemplate = cls.typeArguments().size() > 0 && interfaceType.typeArguments().size() > 0;
+            boolean doubleTemplate = cd.typeParameters().size() > 0 && interfaceType.x10Def().typeParameters().size() > 0;
             
             if (cd.package_() != null) {
                 Emitter.openNamespaces(sw, cd.package_().get().fullName()); sw.newline();
@@ -196,9 +197,7 @@ public final class ITable {
                 String parentCType = ibox ? "x10::lang::IBox"+chevrons(clsCType) : clsCType;
                 String recvArg = ibox ? "this->value" : "*this";
 
-                if (!cls.typeArguments().isEmpty()) {
-                    cg.emitter.printTemplateSignature(cls.typeArguments(), sw);
-                }
+                cg.emitter.printTemplateSignature(cd.typeParameters(), sw);
                 sw.write("class "+thunkType+" : public "+parentCType+" {"); sw.newline();
                 sw.write("public:"); sw.newline(4); sw.begin(0);
                 sw.write("static "+(doubleTemplate ? "typename ":"")+interfaceCType+
@@ -227,7 +226,9 @@ public final class ITable {
                     String pat = cg.getCppImplForDef(((X10MethodInstance)implMeth).x10Def());
                     if (pat != null) {
                         X10ClassType ct = (X10ClassType) implMeth.container().toClass();
-                        List<Type> typeArguments  = ct.typeArguments();
+                        List<Type> typeArguments = ct.typeArguments();
+                        if (typeArguments == null)
+                            typeArguments = new ArrayList<Type>(ct.x10Def().typeParameters());
                         ArrayList<String> args = new ArrayList<String>();
                         int numArgs = implMeth.formalTypes().size();
                         argNum = 0;
@@ -249,9 +250,7 @@ public final class ITable {
                 sw.end(); sw.newline();
                 sw.write("};"); sw.newline();
 
-                if (!cls.typeArguments().isEmpty()) {
-                    cg.emitter.printTemplateSignature(cls.typeArguments(), sw);
-                }           
+                cg.emitter.printTemplateSignature(cd.typeParameters(), sw);
                 sw.write((doubleTemplate ? "typename " : "")+interfaceCType+(doubleTemplate ? "::template itable<" : "::itable<")+
                          thunkType+thunkParams+" > "+" "+thunkType+thunkParams+"::itable");
                 if (!isEmpty()) {
@@ -272,11 +271,9 @@ public final class ITable {
 	    } else {
 	        String interfaceCType = Emitter.translateType(interfaceType, false);
 	        String clsCType = Emitter.translateType(cls, false);
-	        boolean doubleTemplate = cls.typeArguments().size() > 0 && interfaceType.typeArguments().size() > 0;
+	        boolean doubleTemplate = cd.typeParameters().size() > 0 && interfaceType.x10Def().typeParameters().size() > 0;
 
-	        if (!cls.typeArguments().isEmpty()) {
-	            cg.emitter.printTemplateSignature(cls.typeArguments(), sw);
-	        }
+	        cg.emitter.printTemplateSignature(cd.typeParameters(), sw);
 	        sw.write((doubleTemplate ? "typename " : "")+interfaceCType+(doubleTemplate ? "::template itable<" : "::itable<")+
 	                 Emitter.translateType(cls, false)+" > "+" "+clsCType+"::_itable_"+itableNum+"");
 	        if (!isEmpty()) {

@@ -1090,7 +1090,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         }
         else if (type instanceof X10ClassType) {
             X10ClassType ct = (X10ClassType) type;
-            if (ct.typeArguments().size() > 0) {
+            if (ct.typeArguments() != null && ct.typeArguments().size() > 0) {
                 for (Type apt : alreadyPrintedTypes) {
                     if (apt instanceof X10ClassType && !(apt instanceof FunctionType)) {
                         if (((X10ClassType) apt).name().toString().equals(((X10ClassType) type).name().toString())) {
@@ -1330,7 +1330,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		        w.write("_" + args.size());
 		        w.write("._RTT");
 		    }
-		    else if (pat == null && er.getJavaRep(cd) == null && ct.isGloballyAccessible() && ct.typeArguments().size() != 0) {
+		    else if (pat == null && er.getJavaRep(cd) == null && ct.isGloballyAccessible() && cd.typeParameters().size() != 0) {
 		        w.write(cd.fullName().toString() + "." + "_RTT");
 		    }
 		    else {
@@ -1349,7 +1349,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		    X10ClassDef cd = ct.x10Def();
 		    String pat = er.getJavaRTTRep(cd);
 
-		    if (pat == null && er.getJavaRep(cd) == null) {
+		    if (pat == null && er.getJavaRep(cd) == null && ct.typeArguments() != null) {
 		        for (int i = 0; i < ct.typeArguments().size(); i++) {
 		            w.write(", ");
 		            new RuntimeTypeExpander(er, ct.typeArguments().get(i)).expand(tr);
@@ -1401,6 +1401,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		X10ConstructorInstance mi = (X10ConstructorInstance) n.constructorInstance();
 		X10ClassType ct = (X10ClassType) mi.container();
 
+		if (ct.typeArguments() != null) {
 		for (Iterator<Type> i = ct.typeArguments().iterator(); i.hasNext(); ) {
 			final Type at = i.next();
 			new RuntimeTypeExpander(er, at).expand(tr);
@@ -1408,6 +1409,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 				w.write(",");
 				w.allowBreak(0, " ");
 			}
+		}
 		}
 
 		List<Expr> l = c.arguments();
@@ -1437,6 +1439,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		    if (mi.container().isClass() && !mi.flags().isStatic()) {
 		        X10ClassType ct = (X10ClassType) mi.container().toClass();
 		        typeArguments = ct.typeArguments();
+		        if (typeArguments == null) typeArguments = Collections.<Type>emptyList();
 		    }
 		    List<CastExpander> args = new ArrayList<CastExpander>();
 		    List<Expr> arguments = n.arguments();
@@ -1478,7 +1481,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		X10ClassType ct = (X10ClassType) mi.container();
 		
 		List<Type> ta = ct.typeArguments();
-		if (ta.size() > 0 && !isJavaNative(n)) {
+		if (ta != null && ta.size() > 0 && !isJavaNative(n)) {
 		    for (Iterator<Type> i = ta.iterator(); i.hasNext(); ) {
 		        final Type at = i.next();
 		        new RuntimeTypeExpander(er, at).expand(tr);
@@ -1913,6 +1916,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			if (mi.container().isClass() && !mi.flags().isStatic()) {
 			    X10ClassType ct = (X10ClassType) mi.container().toClass();
 			    typeArguments = ct.typeArguments();
+			    if (typeArguments == null) typeArguments = Collections.<Type>emptyList();
 			}
 			
 			List<CastExpander> args = new ArrayList<CastExpander>();
@@ -1971,7 +1975,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 				if (xts.isParameterType(t)) {
 					miContainer = new CastExpander(w, er, new TypeExpander(er,  mi.container(), false, false, false), miContainer);
 				} else if (isSelfDispatch && (mi.typeParameters().size() > 0 || hasParams(mi.container()))) {
-                    miContainer = new CastExpander(w, er, new TypeExpander(er,  mi.container(), true, false, false), miContainer);
+					miContainer = new CastExpander(w, er, new TypeExpander(er,  mi.container(), true, false, false), miContainer);
 				}
 				miContainer = new CastExpander(w, er, miContainer);
 			}
@@ -2147,7 +2151,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
     private boolean isMethodInlineTarget(TypeSystem xts, Type ttype) {
         ttype = X10TypeMixin.baseType(ttype);
-        return !(hasParams(ttype) && xts.isParameterType(((X10ClassType) ttype).typeArguments().get(0)))  && (xts.isRail(ttype) || isIMC(ttype));
+        return (xts.isRail(ttype) || isIMC(ttype)) && !(hasParams(ttype) && xts.isParameterType(((X10ClassType) ttype).typeArguments().get(0)));
     }
 
     public static boolean hasParams(Type t) {
@@ -2406,7 +2410,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                                                         worklist.add(it2);
                                                 }
                                                 
-                                                types.addAll(ct2.typeArguments());
+                                                if (ct2.typeArguments() != null)
+                                                    types.addAll(ct2.typeArguments());
                                         }
                                 }
                                 // To extend Any, the type requires getRTT even if it has no type params (e.g. VoidFun_0_0).  

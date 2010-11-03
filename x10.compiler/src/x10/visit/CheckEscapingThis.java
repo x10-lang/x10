@@ -22,7 +22,9 @@ import polyglot.types.SemanticException;
 import polyglot.types.Name;
 import polyglot.types.Context;
 import polyglot.types.ProcedureDef_c;
+import polyglot.types.Types;
 import x10.ast.*;
+import x10.types.X10ParsedClassType;
 import x10.types.X10TypeMixin;
 import x10.types.X10Flags;
 import polyglot.types.TypeSystem;
@@ -531,7 +533,7 @@ public class CheckEscapingThis extends NodeVisitor
         this.xlass = xlass;
         hasProperties = xlass.properties()!=null && xlass.properties().size()>0;
         isXlassFinal = xlass.flags().flags().isFinal();
-        this.xlassType = X10TypeMixin.baseType(xlass.classDef().asType());
+        this.xlassType = X10TypeMixin.baseType(((X10ParsedClassType) xlass.classDef().asType()).instantiateTypeParametersExplicitly());
         // calculate the set of all fields (including inherited fields)
         calcFields();
         int notInited = build(false, false,false);
@@ -612,7 +614,9 @@ public class CheckEscapingThis extends NodeVisitor
             final Expr init = field.init();
             final X10FieldDef def = (X10FieldDef) field.fieldDef();
             if (init==null) continue;
-            final Special This = (Special) nf.Special(pos, Special_c.THIS).type(def.container().get().toType());
+            X10ParsedClassType container = (X10ParsedClassType) Types.get(def.container());
+            container = container.instantiateTypeParametersExplicitly();
+            final Special This = (Special) nf.Special(pos, Special_c.THIS).type(container);
             final FieldAssign fieldAssign = (FieldAssign) nf.FieldAssign(pos, This, field.name(), Assign_c.ASSIGN, init).
                     fieldInstance(def.asInstance()).
                     type(init.type());

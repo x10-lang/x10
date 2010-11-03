@@ -966,7 +966,10 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         X10ClassType resultType = (X10ClassType) thisType.asType();
         // for Generic classes
         final List<ParameterType> typeParams = thisType.typeParameters();
-        resultType = (X10ClassType)resultType.typeArguments((List)typeParams);
+        if (!typeParams.isEmpty()) {
+            List<Type> typeArgs = new ArrayList<Type>(typeParams);
+            resultType = (X10ClassType) resultType.typeArguments(typeArgs);
+        }
         X10CanonicalTypeNode returnType = (X10CanonicalTypeNode) xnf.CanonicalTypeNode(pos, resultType);
 
         ConstructorDecl cd = xnf.X10ConstructorDecl(pos,

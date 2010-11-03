@@ -496,10 +496,10 @@ public class X10InnerClassRemover extends InnerClassRemover {
         X10ParsedClassType qt = (X10ParsedClassType) q.type().toClass();
         List<TypeNode> typeArguments = new ArrayList<TypeNode>(xneu.typeArguments());
         List<Type> tArgs = qt.typeArguments();
-        for (Type ta : tArgs) {
-            typeArguments.add(nf.CanonicalTypeNode(q.position(), ta));
-        }
-        if (!tArgs.isEmpty()) {
+        if (tArgs != null && !tArgs.isEmpty()) {
+            for (Type ta : tArgs) {
+                typeArguments.add(nf.CanonicalTypeNode(q.position(), ta));
+            }
             xneu = xneu.typeArguments(typeArguments);
             // Object type has already been transformed by the visitor.
         }
@@ -509,11 +509,13 @@ public class X10InnerClassRemover extends InnerClassRemover {
     private X10ParsedClassType propagateTypeArgumentsToInnermostType(X10ParsedClassType t) {
         if (t.isMember()) {
             t = t.container(propagateTypeArgumentsToInnermostType((X10ParsedClassType) t.container()));
-            if (!t.flags().isStatic() || t.typeArguments().size() != t.x10Def().typeParameters().size()) {
+            if (!t.flags().isStatic() || t.typeArguments() == null || t.typeArguments().size() != t.x10Def().typeParameters().size()) {
                 List<Type> containerArgs = t.container().typeArguments();
-                List<Type> newTypeArgs = new ArrayList<Type>(t.typeArguments());
-                newTypeArgs.addAll(containerArgs);
-                if (!containerArgs.isEmpty()) {
+                if (containerArgs != null && !containerArgs.isEmpty()) {
+                    List<Type> newTypeArgs = new ArrayList<Type>();
+                    if (t.typeArguments() != null)
+                        newTypeArgs.addAll(t.typeArguments());
+                    newTypeArgs.addAll(containerArgs);
                     t = t.typeArguments(newTypeArgs);
                 }
             }

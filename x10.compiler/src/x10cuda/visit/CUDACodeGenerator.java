@@ -248,16 +248,16 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 		if (xts().isArray(typ)) {
 			typ = typ.toClass();
 			X10ClassType ctyp = (X10ClassType) typ;
-			assert ctyp.typeArguments().size() == 1; // Array[T]
+			assert ctyp.typeArguments() != null && ctyp.typeArguments().size() == 1; // Array[T]
 			return ctyp.typeArguments().get(0);
 		}
 		if (xts().isRemoteArray(typ)) {
 			typ = typ.toClass();
 			X10ClassType ctyp = (X10ClassType) typ;
-			assert ctyp.typeArguments().size() == 1; // RemoteRef[Array[T]]
+			assert ctyp.typeArguments() != null && ctyp.typeArguments().size() == 1; // RemoteRef[Array[T]]
 			Type type2 = ctyp.typeArguments().get(0);
 			X10ClassType ctyp2 = (X10ClassType) typ;
-			assert ctyp2.typeArguments().size() == 1; // Array[T]
+			assert ctyp2.typeArguments() != null && ctyp2.typeArguments().size() == 1; // Array[T]
 			return ctyp2.typeArguments().get(0);
 		}
 		return null;

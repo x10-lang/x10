@@ -277,7 +277,11 @@ public class RailInLoopOptimizer extends ContextVisitor {
                                 }
                             }
 
-                            Type type = X10TypeMixin.baseType(((X10ClassType) X10TypeMixin.baseType(target.type())).typeArguments().get(0));
+                            X10ClassType ct = (X10ClassType) X10TypeMixin.baseType(target.type());
+                            List<Type> typeArguments = ct.typeArguments();
+                            if (typeArguments == null)
+                                typeArguments = new ArrayList<Type>(ct.x10Def().typeParameters());
+                            Type type = X10TypeMixin.baseType(typeArguments.get(0));
                             if (!contains) {
                                 id = xnf.Id(pos, Name.makeFresh(target.toString().replace(".", "$").replaceAll("[\\[\\]]", "_").replaceAll(", ","_") + "$value"));
                                 BackingArray ba = xnf.BackingArray(pos, id, createArrayType(type), (Expr) target);
@@ -497,6 +501,6 @@ public class RailInLoopOptimizer extends ContextVisitor {
 
     private boolean isOptimizationTarget(Type ttype) {
         ttype = X10TypeMixin.baseType(ttype);
-        return !(X10PrettyPrinterVisitor.hasParams(ttype) && xts.isParameterType(((X10ClassType) ttype).typeArguments().get(0))) && (xts.isRail(ttype) || isIMC(ttype));
+        return (xts.isRail(ttype) || isIMC(ttype)) && !(X10PrettyPrinterVisitor.hasParams(ttype) && xts.isParameterType(((X10ClassType) ttype).typeArguments().get(0)));
     }
 }

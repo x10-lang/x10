@@ -55,7 +55,7 @@ import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import polyglot.types.Context;
 import x10.types.X10Flags;
-import x10.types.X10ParsedClassType_c;
+import x10.types.X10ParsedClassType;
 import x10.types.XTypeTranslator;
 
 import x10.types.X10TypeMixin;
@@ -207,7 +207,7 @@ public class X10CanonicalTypeNode_c extends CanonicalTypeNode_c implements X10Ca
 	    X10ClassType ct = (X10ClassType) t;
         X10ClassDef def = ct.x10Def();
         final List<Type> typeArgs = ct.typeArguments();
-        final int typeArgNum = typeArgs.size();
+        final int typeArgNum = typeArgs == null ? 0 : typeArgs.size();
         final List<ParameterType> typeParam = def.typeParameters();
         final int typeParamNum = typeParam.size();
 
@@ -216,10 +216,7 @@ public class X10CanonicalTypeNode_c extends CanonicalTypeNode_c implements X10Ca
         // But that is not true for a static method, e.g., Array.make(...)
         // so instead we do this check in all other places (e.g., field access, method definitions, new calls, etc)
         // But I can check it if there are typeArguments.
-
-        // typeArgNum>0 is wrong, cause by default we get typeArgs from our def, so that condition is always true
-        // Instead I use: typeParamNum!=typeArgNum
-        if (typeParamNum!=typeArgNum) X10TypeMixin.checkMissingParameters(t,pos);
+        if (typeArgNum > 0) X10TypeMixin.checkMissingParameters(t,pos);
         
 	    for (int j = 0; j < typeArgNum; j++) {
 	        Type actualType = typeArgs.get(j);
@@ -292,9 +289,9 @@ public class X10CanonicalTypeNode_c extends CanonicalTypeNode_c implements X10Ca
             w.write("<unknown-type>");
         } else {
             type.get().print(w);
-            if (extras && X10TypeMixin.baseType(type.get()) instanceof X10ParsedClassType_c
+            if (extras && X10TypeMixin.baseType(type.get()) instanceof X10ParsedClassType
                     && !(X10TypeMixin.baseType(type.get()) instanceof ClosureType_c)) {
-                List<Type> typeArguments = ((X10ParsedClassType_c) X10TypeMixin.baseType(type.get())).typeArguments();
+                List<Type> typeArguments = ((X10ParsedClassType) X10TypeMixin.baseType(type.get())).typeArguments();
                 if (typeArguments.size() > 0) {
                     w.write("[");
                     w.allowBreak(2, 2, "", 0); // miser mode

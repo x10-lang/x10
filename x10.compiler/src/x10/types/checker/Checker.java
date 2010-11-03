@@ -193,6 +193,8 @@ public class Checker {
 	    if (t instanceof X10ClassType) {
 	        X10ClassType ct = (X10ClassType) t;
 	        X10ClassDef def = ct.x10Def();
+	        if (ct.typeArguments() == null)
+	            return;
 	        for (int i = 0; i < ct.typeArguments().size(); i++) {
 	            Type at = ct.typeArguments().get(i);
 	            ParameterType pt = def.typeParameters().get(i);

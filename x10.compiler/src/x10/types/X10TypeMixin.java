@@ -207,11 +207,11 @@ public class X10TypeMixin {
         return t;
     }
     public static Type typeArg(Type t, int i) {
-    	if (t instanceof X10ParsedClassType) {
-    		 X10ParsedClassType ct = (X10ParsedClassType) t;
-    		return ct.typeArguments().get(i);
-    	} 
-    	return typeArg(X10TypeMixin.baseType(t), i);
+        if (t instanceof X10ParsedClassType) {
+            X10ParsedClassType ct = (X10ParsedClassType) t;
+            return ct.typeArguments().get(i);
+        } 
+        return typeArg(X10TypeMixin.baseType(t), i);
     }
     public static Type instantiate(Type t, Type... typeArg) {
 	if (t instanceof X10ParsedClassType) {
@@ -358,28 +358,27 @@ public class X10TypeMixin {
     }
     public static void checkVariance(Type t, ParameterType.Variance variance, Job errs, Position pos) {
         Type base = null;
-        if (t instanceof X10CanonicalTypeNode_c) { // this cast is stupid, why isn't javac complaining?
-            assert false;
-        } else if (t instanceof ParameterType_c) {
-            ParameterType_c pt = (ParameterType_c) t;
+        if (t instanceof ParameterType) {
+            ParameterType pt = (ParameterType) t;
             ParameterType.Variance var = pt.getVariance();
             if (var==variance || var==ParameterType.Variance.INVARIANT) {
                 // ok
             } else {
-                Errors.issue(errs,new SemanticException("Illegal variance! Type parameter has variance "+var+" but it is used in a "+variance+" position.",pos)); // todo: t.position() is incorrect (see XTENLANG-1439)
+                Errors.issue(errs, new SemanticException("Illegal variance! Type parameter has variance "+var+" but it is used in a "+variance+" position.",pos)); // todo: t.position() is incorrect (see XTENLANG-1439)
             }
 
         } else if (t instanceof X10ParsedClassType_c) {
             X10ParsedClassType_c pt = (X10ParsedClassType_c) t;
-            final List<Type> args = pt.typeArguments();
-            X10ClassDef_c def = (X10ClassDef_c) pt.def();
+            List<Type> args = pt.typeArguments();
+            if (args == null)
+                args = Collections.<Type>emptyList();
+            X10ClassDef def = (X10ClassDef) pt.def();
             final List<ParameterType.Variance> variances = def.variances();
             for (int i=0; i<Math.min(args.size(), variances.size()); i++) {
                 Type arg = args.get(i);
                 ParameterType.Variance var = variances.get(i);
-                checkVariance(arg, variance.mult(var),errs,pos);
+                checkVariance(arg, variance.mult(var), errs, pos);
             }
-
         } else if (t instanceof ConstrainedType_c) {
 	        ConstrainedType ct = (ConstrainedType) t;
             base = Types.get(ct.baseType());
@@ -435,6 +434,8 @@ public class X10TypeMixin {
         t = X10TypeMixin.baseType(t);
         if (t instanceof X10ClassType) {
             X10ClassType ct = (X10ClassType) t;
+            if (ct.typeArguments() == null)
+                return ct;
             List<Type> types = new ArrayList<Type>(ct.typeArguments().size());
             for (Type ti : ct.typeArguments()) {
                 Type ti2 = stripConstraints(ti);
@@ -782,7 +783,7 @@ public class X10TypeMixin {
 	    Type b = baseType(theType);
 	    if (b instanceof X10ClassType) {
 		X10ClassType ct = (X10ClassType) b;
-		if (i < ct.typeArguments().size()) {
+		if (ct.typeArguments() != null && i < ct.typeArguments().size()) {
 		    return ct.typeArguments().get(i);
 		}
 	    }
@@ -1638,6 +1639,23 @@ then we substitute 0/false/null in all the constraints in C and if they all eval
 			return true;
 		} catch (XFailure z) {
 			return false;
+		}
+	}
+
+	public static Type instantiateTypeParametersExplicitly(Type t) {
+		if (t instanceof AnnotatedType) {
+			AnnotatedType at = (AnnotatedType) t;
+			return at.baseType(instantiateTypeParametersExplicitly(at.baseType()));
+		} else
+		if (t instanceof ConstrainedType) {
+			ConstrainedType ct = (ConstrainedType) t;
+			return ct.baseType(Types.ref(instantiateTypeParametersExplicitly(Types.get(ct.baseType()))));
+		} else
+		if (t instanceof X10ParsedClassType) {
+			X10ParsedClassType pct = (X10ParsedClassType) t;
+			return pct.instantiateTypeParametersExplicitly();
+		} else {
+			return t;
 		}
 	}
 }

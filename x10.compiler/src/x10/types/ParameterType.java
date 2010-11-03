@@ -34,6 +34,7 @@ public interface ParameterType extends X10NamedType {
         }
     }
     /** Procedure that defines the parameter */
-	public Ref<? extends Def> def();
-	public ParameterType def(Ref<? extends Def> def);
+    public Ref<? extends Def> def();
+    public ParameterType def(Ref<? extends Def> def);
+    public Variance getVariance();
 }

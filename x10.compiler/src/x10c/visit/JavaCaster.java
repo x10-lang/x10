@@ -130,7 +130,8 @@ public class JavaCaster extends ContextVisitor {
             if (!(target instanceof TypeNode) && !xts.isRail(target.type())) {
                 Type bt = X10TypeMixin.baseType(target.type());
                 if (bt instanceof X10ClassType) {
-                    if (((X10ClassType) bt).typeArguments().size() > 0) {
+                    X10ClassType ct = (X10ClassType) bt;
+                    if (ct.typeArguments() != null && ct.typeArguments().size() > 0) {
                         if (isDispatch(bt, mi)) {
                             return cast(call, call.type());
                         } else {
@@ -150,7 +151,8 @@ public class JavaCaster extends ContextVisitor {
             if (!(target instanceof TypeNode) && !xts.isRail(target.type())) {
                 Type bt = X10TypeMixin.baseType(target.type());
                 if (bt instanceof X10ClassType) {
-                    if (((X10ClassType) bt).typeArguments().size() > 0) {
+                    X10ClassType ct = (X10ClassType) bt;
+                    if (ct.typeArguments() != null && ct.typeArguments().size() > 0) {
                         if (isDispatch(bt, mi)) {
                             return cast(call, call.type());
                         } else {

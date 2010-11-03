@@ -421,8 +421,8 @@ public class Emitter {
 			X10ClassDef cd = ((X10ClassType) type).x10Def();
 			String pat = getJavaRep(cd, boxPrimitives);
 			if (pat != null) {
-				List<Type> typeArguments = ((X10ClassType) type)
-						.typeArguments();
+				List<Type> typeArguments = ((X10ClassType) type).typeArguments();
+				if (typeArguments == null) typeArguments = Collections.<Type>emptyList();
 				Object[] o = new Object[typeArguments.size() + 1];
 				int i = 0;
 				NodeFactory nf = tr.nodeFactory();
@@ -566,12 +566,14 @@ public class Emitter {
 		if (printTypeParams) {
 			if (type instanceof X10ClassType) {
 				X10ClassType ct = (X10ClassType) type;
+				List<Type> typeArgs = ct.typeArguments();
+				if (typeArgs == null) typeArgs = new ArrayList<Type>(ct.x10Def().typeParameters());
 				String sep = "<";
-				for (int i = 0; i < ct.typeArguments().size(); i++) {
+				for (int i = 0; i < typeArgs.size(); i++) {
 					w.write(sep);
 					sep = ", ";
 
-					Type a = ct.typeArguments().get(i);
+					Type a = typeArgs.get(i);
 
 					final boolean variance = false;
 					if (!inSuper && variance) {
@@ -594,7 +596,7 @@ public class Emitter {
 									: 0)
 									| X10PrettyPrinterVisitor.BOX_PRIMITIVES);
 				}
-				if (ct.typeArguments().size() > 0)
+				if (typeArgs.size() > 0)
 					w.write(">");
 			}
 		}
@@ -1244,7 +1246,7 @@ public class Emitter {
         Type t = X10TypeMixin.baseType(type);
         if (t instanceof X10ClassType && (printIncludingGeneric || (!printIncludingGeneric && !containsTypeParam(t)))) {
             X10ClassType x10t = (X10ClassType) t;
-            if (x10t.typeArguments().size() > 0) {
+            if (x10t.typeArguments() != null && x10t.typeArguments().size() > 0) {
                 sb.append("_");
                 sb.append(i);
                 sb.append("_");
@@ -1273,7 +1275,7 @@ public class Emitter {
         if (t instanceof X10ClassType) {
             X10ClassType x10t = (X10ClassType) t;
             sb.append(x10t.fullName().toString().replace(".", "$"));
-            if (x10t.typeArguments().size() > 0) {
+            if (x10t.typeArguments() != null && x10t.typeArguments().size() > 0) {
                 List<Type> ts = x10t.typeArguments();
                 for (Type t1 : ts) {
                     appendParameterizedType(ct, sb, X10TypeMixin.baseType(t1));
@@ -1884,9 +1886,10 @@ public class Emitter {
 			rttShortName = new Join(this, "", rttShortName(def), "");
 		} else {
 			X10ClassType ct = (X10ClassType) def.asType();
-			rttShortName = new Join(this, ", ", ct.typeArguments());
 			List<TypeExpander> args = new ArrayList<TypeExpander>();
-			for (Type a : ct.typeArguments()) {
+			List<Type> typeArgs = ct.typeArguments();
+			if (typeArgs == null) typeArgs = Collections.<Type>emptyList();
+			for (Type a : typeArgs) {
 				args.add(new TypeExpander(this, a,
 						X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS
 								| X10PrettyPrinterVisitor.BOX_PRIMITIVES));
@@ -2182,8 +2185,11 @@ public class Emitter {
 		}
 		
 		if (exprTgtType != null) {
-			if (exprTgtType instanceof X10ParsedClassType_c && !((X10ParsedClassType_c) exprTgtType).typeArguments().isEmpty()) {
-				return false;
+			if (exprTgtType instanceof X10ParsedClassType_c) {
+				List<Type> typeArguments = ((X10ParsedClassType_c) exprTgtType).typeArguments();
+				if (typeArguments != null && !typeArguments.isEmpty()) {
+					return false;
+				}
 			}
 		}
 		return true;
@@ -2524,7 +2530,7 @@ public class Emitter {
         }
         if (type instanceof X10ClassType) {
             X10ClassType x10Type = (X10ClassType) type;
-            if (x10Type.typeArguments().size() > 0) {
+            if (x10Type.typeArguments() != null && x10Type.typeArguments().size() > 0) {
                 for (int i = 0; i < x10Type.typeArguments().size(); i++) {
                     if (i == 0) { 
                         w.write("new x10.rtt.ParameterizedType(");

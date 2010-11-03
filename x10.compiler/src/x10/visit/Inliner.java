@@ -1221,9 +1221,12 @@ public class Inliner extends ContextVisitor {
         List<Type> typeArgs = new ArrayList<Type>();
         List<ParameterType> typeParms = new ArrayList<ParameterType>();
         typeArgs.addAll(method.typeParameters());
-        typeArgs.addAll(((X10ClassType) method.container()).typeArguments());
         typeParms.addAll(method.x10Def().typeParameters());
-        typeParms.addAll(((X10ClassType) method.container()).x10Def().typeParameters());
+        List<Type> cTypeArgs = ((X10ClassType) method.container()).typeArguments();
+        if (cTypeArgs != null) {
+            typeArgs.addAll(cTypeArgs);
+            typeParms.addAll(((X10ClassType) method.container()).x10Def().typeParameters());
+        }
         return new TypeParamSubst(xts, typeArgs, typeParms);
     }
 
