@@ -121,7 +121,7 @@ public class CheckEscapingThis extends NodeVisitor
             assert items.size()>=2;
 
             boolean isAsync = !entry && node instanceof Async;
-            boolean isUncounted = isAsync ? Desugarer.isUncountedAsync((TypeSystem)ts,(Async) node) : false;
+            boolean isUncounted = isAsync ? Lowerer.isUncountedAsync(ts, (Async) node) : false;
             DataFlowItem res = new DataFlowItem();
             res.initStatus.putAll(((DataFlowItem) items.get(0)).initStatus);
 
@@ -311,7 +311,7 @@ public class CheckEscapingThis extends NodeVisitor
                     for (FieldDef f : fields)
                         // a VAR marked with @Uninitialized is not tracked
                         if (!f.flags().isFinal() // final fields are reported already in InitChecker 
-                            && !newInfo.seqWrite.contains(f) && !X10TypeMixin.isUninitializedField((X10FieldDef)f,(TypeSystem)ts)) {
+                            && !newInfo.seqWrite.contains(f) && !X10TypeMixin.isUninitializedField((X10FieldDef)f, ts)) {
                             final Position pos = currDecl.position();
                             if (pos.isCompilerGenerated()) // auto-generated ctor
                                 reportError("Field '"+f.name()+"' was not definitely assigned.", f.position());
@@ -322,7 +322,7 @@ public class CheckEscapingThis extends NodeVisitor
             } else {
                 MethodInfo oldInfo = allMethods.get(procDef);
                 assert oldInfo!=null : currDecl;
-                assert !X10TypeMixin.isNoThisAccess((X10ProcedureDef)procDef,(TypeSystem)ts);
+                assert !X10TypeMixin.isNoThisAccess((X10ProcedureDef)procDef, ts);
 
                 // proof that the fix-point terminates: write set decreases while the read set increases
                 assert oldInfo.write.containsAll(newInfo.write);
@@ -379,8 +379,7 @@ public class CheckEscapingThis extends NodeVisitor
             if (n instanceof X10ClassDecl_c) {
                 final X10ClassDecl_c classDecl_c = (X10ClassDecl_c) n;
                 if (!classDecl_c.flags().flags().isInterface()) // I have nothing to analyze in an interface 
-                    new CheckEscapingThis(classDecl_c,job,
-                        (TypeSystem)job.extensionInfo().typeSystem());
+                    new CheckEscapingThis(classDecl_c, job, job.extensionInfo().typeSystem());
             }
             return this;
         }
@@ -528,7 +527,7 @@ public class CheckEscapingThis extends NodeVisitor
     public CheckEscapingThis(X10ClassDecl_c xlass, Job job, TypeSystem ts) {
         this.job = job;
         this.ts = ts;
-        nf = (NodeFactory)ts.extensionInfo().nodeFactory();
+        nf = ts.extensionInfo().nodeFactory();
         this.xlass = xlass;
         hasProperties = xlass.properties()!=null && xlass.properties().size()>0;
         isXlassFinal = xlass.flags().flags().isFinal();

@@ -25,6 +25,7 @@ import x10c.visit.AsyncInitializer;
 import x10c.visit.CastRemover;
 import x10c.visit.ClosuresToStaticMethods;
 import x10c.visit.Desugarer;
+import x10c.visit.Lowerer;
 import x10c.visit.ExpressionFlattenerForAtExpr;
 import x10c.visit.InlineHelper;
 import x10c.visit.JavaCaster;
@@ -94,6 +95,13 @@ public class ExtensionInfo extends x10.ExtensionInfo {
             TypeSystem ts = extInfo.typeSystem();
             NodeFactory nf = extInfo.nodeFactory();
             return new ValidatingVisitorGoal("Desugarer", job, new Desugarer(job, ts, nf)).intern(this);
+        }
+
+        @Override
+        public Goal Lowerer(Job job) {
+            TypeSystem ts = extInfo.typeSystem();
+            NodeFactory nf = extInfo.nodeFactory();
+            return new ValidatingVisitorGoal("Lowerer", job, new Lowerer(job, ts, nf)).intern(this);
         }
 
         public Goal ClosuresToStaticMethods(Job job) {

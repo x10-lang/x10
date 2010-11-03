@@ -32,7 +32,7 @@ import polyglot.types.TypeSystem;
 import x10.types.X10Flags;
 import x10.types.X10TypeMixin;
 import x10.types.constraints.CConstraint;
-import x10.visit.Desugarer;
+import x10.visit.Lowerer;
 import x10.util.Synthesizer;
 
 /**
@@ -361,7 +361,7 @@ public class InitChecker extends DataFlow
                         small.maxAsync.count<=big.maxAsync.count;
 
 
-                boolean isUncounted = Desugarer.isUncountedAsync(xts,async);
+                boolean isUncounted = Lowerer.isUncountedAsync(xts,async);
                 //@Uncounted async S
                 //is treated like this:
                 //async if (flag) S

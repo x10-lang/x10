@@ -101,6 +101,7 @@ import x10.types.X10SourceClassResolver;
 import polyglot.types.TypeSystem;
 import x10.types.X10TypeSystem_c;
 import x10.visit.CheckNativeAnnotationsVisitor;
+import x10.visit.Lowerer;
 import x10.visit.Desugarer;
 import x10.visit.ExpressionFlattener;
 import x10.visit.FieldInitializerMover;
@@ -133,6 +134,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 
 	public static final String XML_FILE_EXTENSION = "x10ml";
 	public static final String XML_FILE_DOT_EXTENSION = "." + XML_FILE_EXTENSION;
+
 //	private static HashMap<CallTableKey, LinkedList<CallTableVal>> calltable = new HashMap<CallTableKey, LinkedList<CallTableVal>>();
     public static String clock = "clock";
 
@@ -450,6 +452,9 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                    e.printStackTrace();
                }
            }
+           
+           goals.add(Desugarer(job));
+           
            goals.add(X10Casted(job));
            goals.add(MoveFieldInitializers(job));
            goals.add(X10Expanded(job));
@@ -475,17 +480,18 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            if (x10.Configuration.FLATTEN_EXPRESSIONS) {
                goals.add(ExpressionFlattener(job));
            }
-           goals.add(Desugarer(job));
-           goals.add(InnerClassRemover(job));
+           goals.add(Lowerer(job));
+           goals.add(InnerClassRemover(job)); // TODO: move earlier
            goals.add(CodeGenerated(job));
            
            InnerClassRemover(job).addPrereq(Serialized(job));
            InnerClassRemover(job).addPrereq(TypeCheckBarrier());
 
            // the barrier will handle prereqs on its own
-           CodeGenerated(job).addPrereq(CodeGenBarrier());
            Desugarer(job).addPrereq(TypeCheckBarrier());
-           CodeGenerated(job).addPrereq(Desugarer(job));
+           CodeGenerated(job).addPrereq(CodeGenBarrier());
+           Lowerer(job).addPrereq(TypeCheckBarrier());
+           CodeGenerated(job).addPrereq(Lowerer(job));
            List<Goal> optimizations = Optimizer.goals(this, job, ExpressionFlattener(job));
            for (Goal goal : optimizations) {
                goal.addPrereq(TypeCheckBarrier());
@@ -659,7 +665,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 
        public Goal Serialized(Job job) {
            Compiler compiler = job.extensionInfo().compiler();
-           TypeSystem ts = (TypeSystem) job.extensionInfo().typeSystem();
+           TypeSystem ts = job.extensionInfo().typeSystem();
            NodeFactory nf = job.extensionInfo().nodeFactory();
            TargetFactory tf = job.extensionInfo().targetFactory();
            return new SourceGoal_c("Serialized", job) {
@@ -880,8 +886,8 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
        }
        
        public Goal WSCallGraphBarrier() {
-           final TypeSystem ts = (TypeSystem) extInfo.typeSystem();
-           final NodeFactory nf = (NodeFactory) extInfo.nodeFactory();
+           final TypeSystem ts  = extInfo.typeSystem();
+           final NodeFactory nf = extInfo.nodeFactory();
            return new AllBarrierGoal("WSCallGraphBarrier", this) {
                @Override
                public Goal prereqForJob(Job job) {
@@ -902,9 +908,15 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
        }
        
        public Goal Desugarer(Job job) {
-    	   TypeSystem ts = extInfo.typeSystem();
-    	   NodeFactory nf = extInfo.nodeFactory();
-    	   return new ValidatingVisitorGoal("Desugarer", job, new Desugarer(job, ts, nf)).intern(this);
+           TypeSystem ts = extInfo.typeSystem();
+           NodeFactory nf = extInfo.nodeFactory();
+           return new ValidatingVisitorGoal("Desugarer", job, new Desugarer(job, ts, nf)).intern(this);
+       }
+       
+       public Goal Lowerer(Job job) {
+           TypeSystem ts = extInfo.typeSystem();
+           NodeFactory nf = extInfo.nodeFactory();
+           return new ValidatingVisitorGoal("Lowerer", job, new Lowerer(job, ts, nf)).intern(this);
        }
 
        public Goal WSExpressionFlattener(Job job) {
@@ -924,7 +936,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            VisitorGoal ef = new ValidatingVisitorGoal("ExpressionFlattener", job, new ExpressionFlattener(job, ts, nf));
            Goal ef2 = ef.intern(this);
            if (ef == ef2) {
-              // ef.addPrereq(Desugarer(job));
+              // ef.addPrereq(Lowerer(job));
            }
            return ef2;
        }
