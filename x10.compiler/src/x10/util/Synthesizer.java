@@ -1380,7 +1380,7 @@ public class Synthesizer {
 
     // For the purpose of InitChecker and CheckEscapingThis:
     // we need to extract from a constraint all the locals and fields of "this" and check they are definitely assigned.
-    public static java.util.Set<VarDef> getLocals(X10CanonicalTypeNode n) {
+    public static java.util.Set<VarDef> getLocals(TypeNode n) {
         java.util.Set<VarDef> res = new java.util.HashSet<VarDef>();
         CConstraint c = X10TypeMixin.xclause(n.type());
         if (c == null || c.valid()) {

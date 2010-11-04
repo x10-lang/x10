@@ -5,6 +5,37 @@ import x10.util.*;
 
 // test object initialization (and more)
 
+class TestFinalField {
+	static val y:Int; // ERR
+	static val s:Int = 3;
+	static def test() {
+		s = 4;  // ERR
+	}
+
+	val f:Int;
+	var i:Int;
+	native def this(); // a native ctor is assumed to initialize all fields
+	def foo(x:TestFinalField) {
+		s = 4;  // ERR
+		f=2; // ERR
+		x.f = 2; // ERR
+		i=2;
+		x.i = 2;
+	}
+	def this(x:TestFinalField) {
+		s = 4;  // ERR
+		finish async f=2; 
+		x.f = 2; // ERR
+		i=2;
+		x.i = 2;
+	}
+
+	def this(Int) {
+		at (here) f=2; // ERR: Cannot assign a value to final field f
+		f=2;
+	}
+}
+
 class InfiniteInit234 {
 	var i:Int{self!=0};
 	def this() {
@@ -187,7 +218,7 @@ class TestSuperThisAndPropertyCalls(p:Int) extends SomeSuper87 {
 		super(i);
 		property(i);
 	}
-	def this(b:Boolean) { // ERR: Final field "p" might have already been initialized
+	def this(b:Boolean) {
 		this(i); // ERR: Can use 'this' only after 'property(...)'
 		property(1); // ERR: You cannot call 'property(...)' after 'this(...)'
 	}
@@ -257,7 +288,7 @@ static class SubWithProperties(y:Int) extends WithProperties {
 	def this(i:Boolean) {
 		this();
 	}
-	def this(i:Int) { // ERR: Final field "y" might have already been initialized
+	def this(i:Int) { 
 		this();
 		property(1); // ERR: You cannot call 'property(...)' after 'this(...)'
 	}
@@ -303,7 +334,7 @@ static class SubWithoutProperties extends WithProperties {
 
 class TestPropertyCalls(p:Int, p2:Int) {
 	def this() {} // ERR: property(...) might not have been called
-	def this(x:Float) {
+	def this(Char) {
 		property(1); // ERR: The property initializer must have the same number of arguments as properties for the class.
 	}
 	def this(i:Int) {
@@ -314,10 +345,13 @@ class TestPropertyCalls(p:Int, p2:Int) {
 			x=3;
 		property(x,2);
 	}
-	def this(i:String) { // ERR: property(...) might not have been called
-		async property(1,2); // ERR: A property statement may only occur in the body of a constructor.   (todo: err could be improved)
+	def this(String) { 
+		finish async property(1,2);
 	}
-	def this(b:Boolean) { 
+	def this(Float) { // ERR: property(...) might not have been called
+		async property(1,2); 
+	}
+	def this(Boolean) { 
 		property(1,2);
 		property(1,2); // ERR: You can call 'property(...)' at most once
 	}
@@ -2192,9 +2226,9 @@ final class TestCasts { // TestInitInCasts
 	val c:Int{c==3} = 3 as Int{self==3};
 
 	def test() {
-		val a3:Int = a3*3; // ShouldBeErr
+		val a3:Int = a3*3; // ERR: "a3" may not have been initialized
 		val a:Int{a!=5} = 
-			3 as Int{a!=5}; // ShouldBeErr
+			3 as Int{a!=5}; // ERR: "a" may not have been initialized
 		val a2:Int{a2!=5} = 
 			3 as Int{self!=5};
 	}

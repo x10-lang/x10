@@ -435,13 +435,19 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 	    		Errors.issue(tc.job(), new SemanticException("A struct may not have var fields.", position()));
 	    	}
 
+            final boolean noInit = init() == null;
+            if (f.isStatic() && noInit) {
+                Errors.issue(tc.job(), new SemanticException("Static field "+name+" must have an initializer.", position()));
+            } 
+
+
 	    	NodeFactory nf = (NodeFactory) tc.nodeFactory();
 
 	    	X10FieldDecl_c n = (X10FieldDecl_c) this.type(nf.CanonicalTypeNode(type().position(), type));
 
 	    	// Add an initializer to uninitialized var field unless field is annotated @Uninitialized.
             final X10FieldDef fieldDef = (X10FieldDef) n.fieldDef();
-            final boolean needsInit = !f.isFinal() && n.init() == null && !X10TypeMixin.isUninitializedField(fieldDef, ts);
+            final boolean needsInit = !f.isFinal() && noInit && !X10TypeMixin.isUninitializedField(fieldDef, ts);
             final boolean isTransient = f.isTransient() && !X10TypeMixin.isSuppressTransientErrorField(fieldDef,ts);
             if (needsInit || isTransient) {
                 // creating an init.

@@ -1353,6 +1353,7 @@ then we substitute 0/false/null in all the constraints in C and if they all eval
 	 * @param context
 	 * @return
 	 */
+    public static String MORE_SEPCIFIC_WARNING = "Please check definitions p1 and p2.  ";
 	public static boolean moreSpecificImpl(Type ct, ProcedureInstance<?> xp1, ProcedureInstance<?> xp2, Context context) {
 	    TypeSystem ts = (TypeSystem) xp1.typeSystem();
 	    Type ct1 = xp2 instanceof MemberInstance<?> ? ((MemberInstance<?>) xp1).container() : null;
@@ -1380,14 +1381,14 @@ then we substitute 0/false/null in all the constraints in C and if they all eval
 	    boolean java = javaStyleMoreSpecificMethod(xp1, xp2, (Context) context, ct1, t1, t2,descends);
 	    boolean old = oldStyleMoreSpecificMethod(xp1, xp2, (Context) context, ts, ct1, t1, t2, descends);
 	    if (java != old) {
-	    	
-	    	System.out.println("(Warning) Please check definitions p1 and p2.  " +
+            String msg = MORE_SEPCIFIC_WARNING +
 	    			((java && ! old) ? "p1 is now more specific than p2; it was not in 2.0.6."
 	    					: "p1 is now not more specific than p2; it was in 2.0.6.")
 	    			+ "\n\t: p1: " + getOrigMI(xp1)
 	    			+ "\n\t: at " + xp1.position()
 	    			+ "\n\t: p2: " + getOrigMI(xp2)
-	    			+ "\n\t: at " + xp2.position());
+	    			+ "\n\t: at " + xp2.position();
+            ts.extensionInfo().compiler().errorQueue().enqueue(ErrorInfo.WARNING,msg);
 	    }
 	    // Change this to return old to re-enable 2.0.6 style computation.
 	    return  java; 

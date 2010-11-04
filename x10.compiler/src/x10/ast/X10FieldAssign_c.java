@@ -20,6 +20,8 @@ import polyglot.ast.Id;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.Receiver;
+import polyglot.ast.Special;
+import polyglot.ast.ConstructorDecl;
 import polyglot.ast.Assign.Operator;
 import polyglot.types.FieldInstance;
 import polyglot.types.SemanticException;
@@ -30,10 +32,13 @@ import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import x10.types.X10ClassType;
 import polyglot.types.Context;
+import polyglot.types.Flags;
+import polyglot.types.ConstructorDef;
 import x10.types.X10FieldInstance;
 import x10.types.X10Flags;
 
 import x10.types.X10TypeMixin;
+import x10.types.X10Context_c;
 import x10.types.checker.Checker;
 import x10.types.checker.PlaceChecker;
 import x10.visit.X10TypeChecker;
@@ -75,6 +80,18 @@ public class X10FieldAssign_c extends FieldAssign_c {
         if (fd.isProperty()) {
             SemanticException e = new Errors.CannotAssignToProperty(fd, n.position());
             Errors.issue(tc.job(), e, n);
+        }
+
+        // check that a static field is never assigned
+        final Flags flags = fd.flags();
+        if (flags.isStatic()) {
+            Errors.issue(tc.job(), new SemanticException("Cannot assign to static field "+fd.name()), n);
+        }
+        // final instance fields can only be assigned via this in a ctor
+        if (!flags.isStatic() && flags.isFinal()) {
+            boolean isThis = target() instanceof Special && ((Special)target()).kind()==Special.THIS;
+            if (!isThis || (((X10Context_c)tc.context()).getCtorIgnoringAsync()==null))
+                Errors.issue(tc.job(), new SemanticException("Cannot assign a value to final field " + fd.name()), n);
         }
 
         if (t == null)

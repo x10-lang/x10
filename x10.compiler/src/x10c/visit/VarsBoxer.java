@@ -418,7 +418,7 @@ public class VarsBoxer extends ContextVisitor {
         typeArgs.add(lilocal.type());
         X10ParsedClassType grt = globalRefType.typeArguments(typeArgs);
         
-        MethodDef md = xts.methodDef(pos, Types.ref(grt), Flags.FINAL, Types.ref(globalRefType.typeArguments().get(0)), mname, argTypes);
+        MethodDef md = xts.methodDef(pos, Types.ref(grt), Flags.FINAL, Types.ref(grt.typeArguments().get(0)), mname, argTypes);
         MethodInstance mi = md.asInstance();
         
         Local local = (Local) xnf.Local(pos, xnf.Id(pos, lilocal.name().toString() + POSTFIX_BOXED_VAR)).localInstance(libox).type(libox.type());
