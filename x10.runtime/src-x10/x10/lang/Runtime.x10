@@ -809,7 +809,7 @@ import x10.util.Box;
         case Pragma.FINISH_ASYNC_AND_BACK:
             f = new FinishState.FinishReturn(); break;
         case Pragma.FINISH_ATEACH_UNIQUE:
-            f = new FinishState.Finish(); break;
+            f = new FinishState.FinishAtEach(); break;
         case Pragma.FINISH_LOCAL:
             f = new FinishState.LocalFinish(); break;
         default: 

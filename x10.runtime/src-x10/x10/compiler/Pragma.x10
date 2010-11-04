@@ -21,7 +21,8 @@ public interface Pragma(pragma:Int) extends StatementAnnotation {
     // may contain other asyncs that will be implicitly uncounted
     public static FINISH_ASYNC_AND_BACK = 2;
 
-    // a finish with one async in each place
+    // a finish with 2 * Place.MAX_PLACES asyncs
+    // e.g. finish ateach (p in Dist.makeUnique())
     public static FINISH_ATEACH_UNIQUE = 3;
 
     // a finish without remote asyncs
