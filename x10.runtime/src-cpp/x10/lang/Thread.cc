@@ -167,8 +167,12 @@ Thread::thread_init(ref<VoidFun_0_0> task, const ref<String> name)
 
     // create a new execution thread ??in suspended state??
     if (!__taskBody.isNull()) {
-        (void)pthread_create(&__xthread, &__xthread_attr,
+        int err = pthread_create(&__xthread, &__xthread_attr,
                              thread_start_routine, (void *)this);
+        if (err) {
+            ::fprintf(stderr,"Could not create worker thread: %s\n", ::strerror(err));
+            ::abort();
+        }
     } else {
         pthread_setspecific(__thread_mapper, this);
         __thread_running = true;
