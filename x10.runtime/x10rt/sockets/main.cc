@@ -21,7 +21,7 @@ int main (int argc, char ** argv)
 	}
 
 	int commandPosition = 1;
-	for (int i = 1; i < argc; i++)
+	for (int i = 1; i < argc; i+=2)
 	{
 		if (strcmp(argv[i], "-np") == 0)
 			setenv(X10LAUNCHER_NPROCS, argv[i+1], 1);
@@ -30,7 +30,10 @@ int main (int argc, char ** argv)
 		else if (strcmp(argv[i], "-hostfile") == 0)
 			setenv(X10LAUNCHER_HOSTFILE, argv[i+1], 1);
 		else
+		{
 			commandPosition = i;
+			break;
+		}
 	}
 
 	// run the launcher code.  This will cause more launchers to be spawned.
