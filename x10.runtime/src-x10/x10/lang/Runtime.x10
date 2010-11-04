@@ -812,6 +812,8 @@ import x10.util.Box;
             f = new FinishState.FinishAtEach(); break;
         case Pragma.FINISH_LOCAL:
             f = new FinishState.LocalFinish(); break;
+        case Pragma.FINISH_FLAT:
+            f = new FinishState.FinishFlat(); break;
         default: 
             f = new FinishState.Finish();
         }

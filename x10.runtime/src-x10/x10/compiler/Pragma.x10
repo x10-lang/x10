@@ -27,4 +27,7 @@ public interface Pragma(pragma:Int) extends StatementAnnotation {
 
     // a finish without remote asyncs
     public static FINISH_LOCAL = 4;
+
+    // a finish without nested asyncs in remote asyncs
+    public static FINISH_FLAT = 5;
 }

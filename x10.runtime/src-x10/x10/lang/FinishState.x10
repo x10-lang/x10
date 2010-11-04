@@ -107,6 +107,53 @@ abstract class FinishState {
         }
     }
 
+    // a finish without nested asyncs in remote asyncs
+    static class FinishFlat extends FinishSkeleton implements x10.io.CustomSerialization {
+        def this() {
+            super(new RootFinishFlat());
+        }
+        protected def this(ref:GlobalRef[FinishState]) {
+            super(ref);
+        }
+        private def this(any:Any) { // deserialization constructor
+            super(any as GlobalRef[FinishState]);
+            if (ref.home.id == Runtime.hereInt()) {
+                me = (ref as GlobalRef[FinishState]{home==here})();
+            } else {
+                me = new RemoteFinishAsync(ref);
+            }
+        }
+    }
+
+    static class RootFinishFlat extends RootFinishSkeleton implements NotifyThrowable {
+        protected val latch = new Latch();
+        private val count = new AtomicInteger(0);
+        private var exceptions:Stack[Throwable]; // lazily initialized
+        private val lock = new Lock();
+        public def notifySubActivitySpawn(place:Place) {
+            count.incrementAndGet();
+        }
+        public def notifyActivityTermination() {
+            if (count.decrementAndGet() == 0) latch.release();
+        }
+        public def pushException(t:Throwable) {
+            lock.lock();
+            if (null == exceptions) exceptions = new Stack[Throwable]();
+            exceptions.push(t);
+            lock.unlock();
+        }
+        public def waitForFinish(safe:Boolean) {
+            if (!Runtime.NO_STEALS && safe) Runtime.worker().join(latch);
+            latch.await();
+            val t = MultipleExceptions.make(exceptions);
+            if (null != t) throw t;
+        }
+        public def notify(t:Throwable):void {
+            pushException(t);
+            notifyActivityTermination();
+        }
+    }
+
     // a finish guarding a unique async
     static class FinishAsync extends FinishSkeleton implements x10.io.CustomSerialization {
         def this() {
