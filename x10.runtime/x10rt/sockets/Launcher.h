@@ -2,6 +2,7 @@
 /* ************************************************************************ */
 #include <stdlib.h>
 #include <stdarg.h>
+#include <limits.h>
 #include <sys/select.h>
 #include <stdint.h>
 
@@ -89,7 +90,7 @@ class Launcher
 		/* startup parameters */
 		char ** _argv; /* argv copied from init */
 		int _argc; /* argc copied from init */
-		char _realpath[512]; /* real path of executable */
+		char _realpath[PATH_MAX]; /* real path of executable */
 		char _ssh_command[64]; /* the SSH command. */
 		char _hostfname[512]; /* host file name */
 		uint32_t _nplaces; /* number of processors in job */
