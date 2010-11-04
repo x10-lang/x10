@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <sys/select.h>
+#include <stdint.h>
 
 /* ************************************************************************ */
 /*            some explicit declarations for strict ANSI mode               */
