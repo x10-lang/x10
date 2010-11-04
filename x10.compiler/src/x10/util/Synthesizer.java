@@ -1352,7 +1352,9 @@ public class Synthesizer {
 		if (base instanceof X10ClassType) {
 			X10ClassType xc = (X10ClassType) base;
 			types = xc.typeArguments();
-			if (types != null && ! types.isEmpty()) {
+			if (types == null)
+			    types = Collections.<Type>emptyList();
+			if (! types.isEmpty()) {
 				typeName = xc.def().toString();
 				typeArgs = new ArrayList<TypeNode>(types.size());
 			}
