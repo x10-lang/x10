@@ -852,14 +852,14 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		//	    	public static Object cast$(Object o, String constraint) { /*check constraint*/; return (List)o; }
 		//	    	T x;
 
-		X10Flags flags = X10Flags.toX10Flags( n.flags().flags());
+		Flags flags = n.flags().flags();
 
 		w.begin(0);
 		if (flags.isInterface()) {
-			w.write(X10Flags.toX10Flags(flags.clearInterface().clearAbstract()).translate());
+			w.write(flags.clearInterface().clearAbstract().translateJava());
 		}
 		else {
-			w.write(X10Flags.toX10Flags(flags).translate());
+			w.write(flags.translateJava());
 		}
 
 		if (flags.isInterface()) {
@@ -1940,7 +1940,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
 
 		// Check for properties accessed using method syntax.  They may have @Native annotations too.
-		if (X10Flags.toX10Flags(mi.flags()).isProperty() && mi.formalTypes().size() == 0 && mi.typeParameters().size() == 0) {
+		if (mi.flags().isProperty() && mi.formalTypes().size() == 0 && mi.typeParameters().size() == 0) {
 			X10FieldInstance fi = (X10FieldInstance) mi.container().fieldNamed(mi.name());
 			if (fi != null) {
 				String pat2 = er.getJavaImplForDef(fi.x10Def());
@@ -2501,15 +2501,14 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		if (er.hasAnnotation(n, QName.make("x10.lang.shared"))) {
 			w.write ("volatile ");
 		}
-		
-		// Hack to ensure that X10Flags are not printed out .. javac will
-		// not know what to do with them.
+
 		Flags flags;
 		if (!n.flags().flags().isStatic()) {
-		    flags = X10Flags.toX10Flags(n.flags().flags().clearFinal());
+		    flags = n.flags().flags().clearFinal();
 		} else {
-            flags = X10Flags.toX10Flags(n.flags().flags());
+            flags = n.flags().flags();
 		}
+        flags = flags.retainJava(); // ensure that X10Flags are not printed out .. javac will not know what to do with them.
 
 		FieldDecl_c javaNode = (FieldDecl_c) n.flags(n.flags().flags(flags));
 
@@ -2526,7 +2525,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             f = f.clearFinal();
         }
 
-        w.write(f.translate());
+        w.write(f.translateJava());
         tr.print(javaNode, javaNode.type(), w);
         w.allowBreak(2, 2, " ", 1);
         tr.print(javaNode, javaNode.name(), w);

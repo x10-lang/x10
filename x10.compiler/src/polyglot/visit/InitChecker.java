@@ -598,7 +598,7 @@ public class InitChecker extends DataFlow
         boolean propertyChecked = false;
         for (FieldDef fi : currCBI.currClassFinalFieldInitCounts.keySet()) {
 
-            final X10Flags flags = X10Flags.toX10Flags(fi.flags());
+            final Flags flags = fi.flags();
             final boolean isProperty = flags.isProperty(); // property(...) is checked in CheckEscapingThis, but here we check it is called on every execution path exactly once
             if (isProperty) {
                 // using one property field as a representative for the property(...) call

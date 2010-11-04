@@ -2,7 +2,7 @@
  * This file is part of the Polyglot extensible compiler framework.
  *
  * Copyright (c) 2000-2006 Polyglot project group, Cornell University
- * 
+ *
  */
 
 package polyglot.types;
@@ -69,7 +69,7 @@ public interface TypeSystem {
 
     /** Return the language extension this type system is for. */
     ExtensionInfo extensionInfo();
-    
+
     /**
      * Returns the system resolver.  This resolver can load top-level classes
      * with fully qualified names from the class path and the source path.
@@ -89,7 +89,7 @@ public interface TypeSystem {
 
     /** Create an import table for the source file.
      * @param sourceName Name of the source file to import into.  This is used
-     * mainly for error messages and for debugging. 
+     * mainly for error messages and for debugging.
      * @param pkg The package of the source file in which to import.
      */
     ImportTable importTable(String sourceName, Ref<? extends Package> pkg);
@@ -112,16 +112,16 @@ public interface TypeSystem {
 
     /** Return class def of a type, or null. */
     ClassDef classDefOf(Type t);
-    
+
     /** Get the named type object with the following name.
      * @param name The name of the type object to look for.
-     * @exception SemanticException when object is not found.    
+     * @exception SemanticException when object is not found.
      */
     Named forName(QName name) throws SemanticException;
-    
+
     /** Get the  type with the following name.
      * @param name The name to create the type for.
-     * @exception SemanticException when type is not found.    
+     * @exception SemanticException when type is not found.
      */
     Type typeForName(QName name) throws SemanticException;
 
@@ -154,11 +154,11 @@ public interface TypeSystem {
      */
     MethodDef methodDef(Position pos, Ref<? extends StructType> container,
                                   Flags flags, Ref<? extends Type> returnType, Name name,
-                                  List<Ref<? extends Type>> argTypes); 
+                                  List<Ref<? extends Type>> argTypes);
 
     /** Create a default constructor instance.
      * @param pos Position of the constructor.
-     * @param container Containing class of the constructor. 
+     * @param container Containing class of the constructor.
      */
     ConstructorDef defaultConstructor(Position pos, Ref<? extends ClassType> container);
 
@@ -177,7 +177,7 @@ public interface TypeSystem {
     /**
      * Returns true iff child is not ancestor, but child descends from ancestor.     */
     boolean descendsFrom(ClassDef child, ClassDef ancestor);
-    
+
     /**
      * Returns true iff a cast from fromType to toType is valid; in other
      * words, some non-null members of fromType are also members of toType.
@@ -245,7 +245,7 @@ public interface TypeSystem {
      * Checks whether a class can be accessed from Context context.
      */
     boolean classAccessible(ClassDef ct, Context context);
-   
+
     /**
      * Checks whether a top-level or member class can be accessed from the
      * package pkg.  Returns false for local and anonymous classes.
@@ -259,23 +259,23 @@ public interface TypeSystem {
 
     /**
      * Returns whether an object of the inner class <code>inner</code> has an
-     * enclosing instance of class <code>encl</code>. 
+     * enclosing instance of class <code>encl</code>.
      */
     boolean hasEnclosingInstance(ClassDef inner, ClassDef encl);
-    
+
     ////
     // Various one-type predicates.
     ////
 
     /**
-     * Returns true iff the type t can be coerced to a String in the given 
-     * Context. If a type can be coerced to a String then it can be 
+     * Returns true iff the type t can be coerced to a String in the given
+     * Context. If a type can be coerced to a String then it can be
      * concatenated with Strings, e.g. if o is of type T, then the code snippet
      *         "" + o
      * would be allowed.
      */
     boolean canCoerceToString(Type t, Context c);
-    
+
     /**
      * Returns true iff an object of type <code>type</code> may be thrown.
      */
@@ -294,12 +294,12 @@ public interface TypeSystem {
     Collection<Type> uncheckedExceptions();
 
     /** Unary promotion for numeric types.
-     * @exception SemanticException if the type cannot be promoted. 
+     * @exception SemanticException if the type cannot be promoted.
      */
     Type promote(Type t) throws SemanticException;
 
     /** Binary promotion for numeric types.
-     * @exception SemanticException if the types cannot be promoted. 
+     * @exception SemanticException if the types cannot be promoted.
      */
     Type promote(Type t1, Type t2) throws SemanticException;
 
@@ -335,7 +335,7 @@ public interface TypeSystem {
     // Functions for method testing.
     ////
 
-  
+
     /**
      * Returns true iff <code>t</code> has the method <code>mi</code>.
      */
@@ -536,7 +536,7 @@ public interface TypeSystem {
     Resolver packageContextResolver(Package pkg, ClassDef accessor, Context context);
     Resolver packageContextResolver(Package pkg);
     AccessControlResolver createPackageContextResolver(Package pkg);
-    
+
     /** Get a resolver for looking up a type in a class context. */
     Resolver classContextResolver(Type ct, Context context);
     Resolver classContextResolver(Type ct);
@@ -548,7 +548,7 @@ public interface TypeSystem {
     ClassDef createClassDef();
 
     InitializerInstance createInitializerInstance(Position pos, Ref<? extends InitializerDef> def);
-    
+
     /**
      * Return the set of objects that should be serialized into the
      * type information for the given TypeObject.
@@ -609,7 +609,7 @@ public interface TypeSystem {
     String wrapperTypeString(Type t);
 
     /**
-     * Return true if <code>pi</code> can be called with 
+     * Return true if <code>pi</code> can be called with
      * actual parameters of types <code>actualTypes</code>.
      * @param thisType TODO
      * @param context TODO
@@ -631,7 +631,7 @@ public interface TypeSystem {
     boolean canOverride(MethodInstance mi, MethodInstance mj, Context context);
 
     /**
-     * Throw a SemanticException if <code>mi</code> cannot override 
+     * Throw a SemanticException if <code>mi</code> cannot override
      * <code>mj</code>.
      * @param context TODO
      */
@@ -643,7 +643,7 @@ public interface TypeSystem {
      * @param context TODO
      */
     List<MethodInstance> implemented(MethodInstance mi, Context context);
-    
+
     /**
      * Return the primitive with the given name.
      */
@@ -681,7 +681,7 @@ public interface TypeSystem {
 
     /** All flags allowed for a local class. */
     public abstract Flags legalLocalClassFlags();
-    
+
     /**
      * Assert if the flags <code>f</code> are legal method flags.
      */
@@ -734,7 +734,7 @@ public interface TypeSystem {
     void checkCycles(Type t) throws SemanticException;
 
     /**
-     * Assert that <code>ct</code> implements all abstract methods that it 
+     * Assert that <code>ct</code> implements all abstract methods that it
      * has to; that is, if it is a concrete class, then it must implement all
      * interfaces and abstract methods that it or its superclasses declare.
      * @param context TODO
@@ -750,24 +750,17 @@ public interface TypeSystem {
      * the most precise class in the class hierarchy starting from
      * <code>ct</code>.
      * @param context TODO
-     * 
+     *
      * @return a suitable implementation of the method mi in the class
      *         <code>ct</code> or a supertype thereof, null if none exists.
      */
     public MethodInstance findImplementingMethod(ClassType ct, MethodInstance mi, Context context);
-    
+
     /**
      * Given the JVM encoding of a set of flags, returns the Flags object
      * for that encoding.
      */
-    public Flags flagsForBits(int bits); 
-
-    /**
-     * Create a new unique Flags object.
-     * @param name the name of the flag
-     * @param print_after print the new flag after these flags
-     */
-    public Flags createNewFlag(String name, Flags print_after);
+    public Flags flagsForBits(int bits);
 
     public Flags NoFlags();
     public Flags Public();
@@ -775,13 +768,10 @@ public interface TypeSystem {
     public Flags Private();
     public Flags Static();
     public Flags Final();
-    public Flags Synchronized();
     public Flags Transient();
     public Flags Native();
     public Flags Interface();
     public Flags Abstract();
-    public Flags Volatile();
-    public Flags StrictFP();
 
     boolean isNumeric(Type t);
     boolean isIntOrLess(Type t);
@@ -965,21 +955,21 @@ public interface TypeSystem {
      * @param excTypes
      *                The closure's exception throw types.
      */
-    ClosureDef closureDef(Position p, Ref<? extends ClassType> typeContainer, 
-            Ref<? extends CodeInstance<?>> methodContainer, 
+    ClosureDef closureDef(Position p, Ref<? extends ClassType> typeContainer,
+            Ref<? extends CodeInstance<?>> methodContainer,
                     Ref<? extends Type> returnType,
-                    List<Ref<? extends Type>> argTypes, 
-                    XVar thisVar, 
+                    List<Ref<? extends Type>> argTypes,
+                    XVar thisVar,
                     List<LocalDef> formalNames,
                     Ref<CConstraint> guard,
-                
+
                     Ref<? extends Type> offerType);
 
-  
+
     X10ConstructorDef constructorDef(Position pos, Ref<? extends ClassType> container,
             Flags flags, List<Ref<? extends Type>> argTypes,
             Ref<? extends Type> offerType);
-    
+
     X10ConstructorDef constructorDef(Position pos, Ref<? extends ClassType> container, Flags flags, Ref<? extends ClassType> returnType,
             List<Ref<? extends Type>> argTypes, XVar thisVar, List<LocalDef> formalNames, Ref<CConstraint> guard,
             Ref<TypeConstraint> typeGuard, Ref<? extends Type> offerType);
@@ -987,7 +977,7 @@ public interface TypeSystem {
     X10MethodDef methodDef(Position pos, Ref<? extends StructType> container,
             Flags flags, Ref<? extends Type> returnType, Name name,
             List<Ref<? extends Type>> argTypes,  Ref<? extends Type> offerType);
-    
+
     X10MethodDef methodDef(Position pos, Ref<? extends StructType> container, Flags flags, Ref<? extends Type> returnType, Name name,
             List<ParameterType> typeParams, List<Ref<? extends Type>> argTypes, XVar thisVar, List<LocalDef> formalNames,
             Ref<CConstraint> guard, Ref<TypeConstraint> typeGuard, Ref<? extends Type> offerType, Ref<XTerm> body);
@@ -1004,7 +994,7 @@ public interface TypeSystem {
      */
     Type Array();
 
-    
+
     /**
      * Return the ClassType object for the x10.array.DistArray class.
      */
@@ -1017,7 +1007,7 @@ public interface TypeSystem {
      */
     Type Rail();
 
-    
+
     /**
      * Return the ClassType object for the x10.lang.Runtime.Mortal interface.
      */
@@ -1041,7 +1031,7 @@ public interface TypeSystem {
 
     Type Iterable();
     Type Iterable(Type index);
-    
+
     Type CustomSerialization();
 
     boolean isSettable(Type me);
@@ -1049,13 +1039,13 @@ public interface TypeSystem {
     boolean isAny(Type me);
 
     boolean isStruct(Type me);
-    
+
     boolean isClock(Type me);
 
     boolean isPoint(Type me);
 
     boolean isPlace(Type me);
-    
+
     boolean isStructType(Type me);
 
     boolean isObjectType(Type me, Context context);
@@ -1066,7 +1056,7 @@ public interface TypeSystem {
     boolean isULong(Type t);
 
     boolean hasSameClassDef(Type t1, Type t2);
-    
+
     X10TypeEnv env(Context c);
 
     /**
@@ -1130,17 +1120,17 @@ public interface TypeSystem {
 */
     boolean isFunctionType(Type type);
 
- 
+
 
   //  List<ClosureType> getFunctionSupertypes(Type type, X10Context context);
 
     boolean isInterfaceType(Type toType);
 
-    FunctionType closureType(Position position, Ref<? extends Type> typeRef, 
-        //  List<Ref<? extends Type>> typeParams, 
+    FunctionType closureType(Position position, Ref<? extends Type> typeRef,
+        //  List<Ref<? extends Type>> typeParams,
             List<Ref<? extends Type>> formalTypes,
             List<LocalDef> formalNames, Ref<CConstraint> guard
-           // Ref<TypeConstraint> typeGuard, 
+           // Ref<TypeConstraint> typeGuard,
             );
 
 
@@ -1172,29 +1162,29 @@ public interface TypeSystem {
     boolean isSigned(Type l);
 
     boolean numericConversionValid(Type toType, Type fromType, Object constantValue, Context context);
-    
+
     public Long size(Type t);
 
     /**
-     * Does there exist a struct with the given name, accessible at this point? 
+     * Does there exist a struct with the given name, accessible at this point?
      * Throw an exception if it is not.
      * @param name
      * @param tc
      * @throws SemanticException
      */
     void existsStructWithName(Id name, ContextVisitor tc) throws SemanticException;
-   
+
     boolean isX10Array(Type me);
 
     boolean isX10DistArray(Type me);
 
     Context emptyContext();
     boolean isExactlyFunctionType(Type t);
-    
+
     Name homeName();
-    
+
     LazyRef<Type> lazyAny();
-    
+
     ClassType load(String name);
 
     public boolean isRegion(Type me);

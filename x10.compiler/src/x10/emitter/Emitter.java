@@ -699,15 +699,10 @@ public class Emitter {
 		TypeSystem ts = (TypeSystem) tr.typeSystem();
 
 		Flags flags = md.flags();
-		flags = X10Flags.toX10Flags(flags);
 		flags = flags.clearNative();
 
-		// Hack to ensure that X10Flags are not printed out .. javac will
-		// not know what to do with them.
-		flags = X10Flags.toX10Flags(flags);
-
 		w.begin(0);
-		w.write(flags.translate());
+		w.write(flags.translateJava()); // ensure that X10Flags are not printed out .. javac will not know what to do with them.
 
 		String sep = "<";
 		for (int i = 0; i < md.typeParameters().size(); i++) {
@@ -761,7 +756,7 @@ public class Emitter {
 			}
 			first = false;
 
-			w.write(Flags.FINAL.translate());
+			w.write(Flags.FINAL.translateJava());
 			printType(f, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS
 					| X10PrettyPrinterVisitor.BOX_PRIMITIVES);
 			w.write(" ");
@@ -1027,12 +1022,8 @@ public class Emitter {
 			flags = flags.clearAbstract();
 		}
 
-		// Hack to ensure that X10Flags are not printed out .. javac will
-		// not know what to do with them.
-		flags = X10Flags.toX10Flags(flags);
-
 		w.begin(0);
-		w.write(flags.translate());
+		w.write(flags.translateJava()); // ensure that X10Flags are not printed out .. javac will not know what to do with them.
 
 		List<TypeParamNode> typeParameters = n.typeParameters();
         if (typeParameters.size() > 0)
@@ -1533,12 +1524,12 @@ public class Emitter {
 	    w.write("// bridge for " + def);
 	    w.newline();
 
-	    Flags flags = X10Flags.toX10Flags(impl.flags());
+	    Flags flags = impl.flags();
 
 	    w.begin(0);
 	    w.write(flags.clearAbstract().clearProtected().Public()
 	        .clear(X10Flags.NATIVE)
-	        .translate()
+	        .translateJava()
 	    );
         
 	    StructType st = def.container().get();
@@ -1747,12 +1738,12 @@ public class Emitter {
     	    w.write("// bridge for " + def);
     	    w.newline();
     
-    	    Flags flags = X10Flags.toX10Flags(mi.flags());
+    	    Flags flags = mi.flags();
     
     	    w.begin(0);
     	    w.write(flags.clearAbstract()
     	        .clear(X10Flags.NATIVE)
-    	        .translate()
+    	        .translateJava()
     	    );
     
     	    printType(mi.returnType(), X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS);
@@ -2752,12 +2743,12 @@ public class Emitter {
         w.write("// dispatcher for " + def);
         w.newline();
 
-        Flags flags = X10Flags.toX10Flags(dispatch.flags());
+        Flags flags = dispatch.flags();
 
         w.begin(0);
         w.write(flags.clearAbstract()
             .clear(X10Flags.NATIVE)
-            .translate()
+            .translateJava()
         );
         
         // e.g int m() overrides or implements T m()

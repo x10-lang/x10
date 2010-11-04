@@ -1667,7 +1667,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		// types, check if C++ does the right thing.
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
 		X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
-		X10Flags flags = X10Flags.toX10Flags(dec.flags().flags());
+		Flags flags = dec.flags().flags();
 		if (flags.isNative())
 			return;
 
@@ -2846,7 +2846,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		    }
 		}
 
-		X10Flags flags = X10Flags.toX10Flags(mi.flags());
+		Flags flags = mi.flags();
 		// Check for properties accessed using method syntax.  They may have @Native annotations too.
 		if (flags.isProperty() && mi.formalTypes().size() == 0 && mi.typeParameters().size() == 0) {
 		    X10FieldInstance fi = (X10FieldInstance) md.container().get().fieldNamed(mi.name());
@@ -2940,7 +2940,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		    boolean already_static = false;
 		    String targetMethodName = mangled_method_name(n.name().id().toString());
 		    boolean isInterfaceInvoke = false;
-		    X10Flags xf = X10Flags.toX10Flags(mi.flags());
 		    boolean needsNullCheck = needsNullCheck(target);
 		    if (!n.isTargetImplicit()) {
 		        // explicit target.
@@ -3230,7 +3229,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				sw.end();
 				return;
 			} else {
-			    X10Flags xf = X10Flags.toX10Flags(fi.flags());
 			    boolean needsNullCheck = !X10TypeMixin.isX10Struct(t) && needsNullCheck(target);
 				boolean assoc = !(target instanceof New_c || target instanceof Binary_c);
 				if (needsNullCheck) sw.write("x10aux::nullCheck(");
@@ -3816,7 +3814,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		X10ClassType currClass = (X10ClassType)context.currentClass();
 		boolean doubleTemplate = currClass.typeArguments() != null && currClass.typeArguments().size() > 0;
 
-		X10Flags xf = X10Flags.toX10Flags(mi.flags());
 		boolean needsNullCheck = needsNullCheck(domain);
 		if (mi.container().toClass().flags().isInterface()) {
 		    sw.write(make_ref(REFERENCE_TYPE) + " " + name + " = "+iteratorTypeRef+"(");
@@ -4548,7 +4545,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		//    (b) a function type
 		//    (c) an class (anonymous or not) that has an apply operator
 		Type t = target.type();
-		X10Flags xf = X10Flags.toX10Flags(mi.flags());
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
 		boolean needsNullCheck = needsNullCheck(target);
 		if (lit != null) {
