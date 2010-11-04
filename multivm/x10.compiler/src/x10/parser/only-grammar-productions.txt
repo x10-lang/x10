@@ -1,0 +1,532 @@
+Modifiersopt ::= $Empty
+               | Modifiersopt Modifier
+Modifier ::= abstract
+           | Annotation
+           | atomic
+           | final
+           | native
+           | private
+           | protected
+           | public
+           | static
+           | transient
+           | clocked
+MethodModifiersopt ::= Modifiersopt
+                     | MethodModifiersopt property $property
+                     | MethodModifiersopt Modifier
+TypeDefDeclaration ::= Modifiersopt type Identifier TypeParametersopt FormalParametersopt WhereClauseopt = Type ;
+Properties ::= ( PropertyList )
+PropertyList ::= Property
+               | PropertyList , Property
+Property ::= Annotationsopt Identifier ResultType
+MethodDeclaration ::= MethodModifiersopt def Identifier TypeParametersopt FormalParameters WhereClauseopt HasResultTypeopt Offersopt MethodBody
+                    | MethodModifiersopt operator TypeParametersopt ( FormalParameter $fp1 ) BinOp ( FormalParameter $fp2 ) WhereClauseopt HasResultTypeopt Offersopt MethodBody
+                    | MethodModifiersopt operator TypeParametersopt PrefixOp ( FormalParameter $fp2 ) WhereClauseopt HasResultTypeopt Offersopt MethodBody
+                    | MethodModifiersopt operator TypeParametersopt this BinOp ( FormalParameter $fp2 ) WhereClauseopt HasResultTypeopt Offersopt MethodBody
+                    | MethodModifiersopt operator TypeParametersopt ( FormalParameter $fp1 ) BinOp this WhereClauseopt HasResultTypeopt Offersopt MethodBody
+                    | MethodModifiersopt operator TypeParametersopt PrefixOp this WhereClauseopt HasResultTypeopt Offersopt MethodBody
+                    | MethodModifiersopt operator this TypeParametersopt FormalParameters WhereClauseopt HasResultTypeopt Offersopt MethodBody
+                    | MethodModifiersopt operator this TypeParametersopt FormalParameters = ( FormalParameter $fp2 ) WhereClauseopt HasResultTypeopt Offersopt MethodBody
+                    | MethodModifiersopt operator TypeParametersopt ( FormalParameter $fp1 ) as Type WhereClauseopt Offersopt MethodBody
+                    | MethodModifiersopt operator TypeParametersopt ( FormalParameter $fp1 ) as ? WhereClauseopt HasResultTypeopt Offersopt MethodBody
+                    | MethodModifiersopt operator TypeParametersopt ( FormalParameter $fp1 ) WhereClauseopt HasResultTypeopt Offersopt MethodBody
+PropertyMethodDeclaration ::= MethodModifiersopt Identifier TypeParametersopt FormalParameters WhereClauseopt HasResultTypeopt MethodBody
+                            | MethodModifiersopt Identifier WhereClauseopt HasResultTypeopt MethodBody
+ExplicitConstructorInvocation ::= this TypeArgumentsopt ( ArgumentListopt ) ;
+                                | super TypeArgumentsopt ( ArgumentListopt ) ;
+                                | Primary . this TypeArgumentsopt ( ArgumentListopt ) ;
+                                | Primary . super TypeArgumentsopt ( ArgumentListopt ) ;
+NormalInterfaceDeclaration ::= Modifiersopt interface Identifier TypeParamsWithVarianceopt Propertiesopt WhereClauseopt ExtendsInterfacesopt InterfaceBody
+ClassInstanceCreationExpression ::= new TypeName TypeArgumentsopt ( ArgumentListopt ) ClassBodyopt
+                                  | new TypeName [ Type ] [ ArgumentListopt ]
+                                  | Primary . new Identifier TypeArgumentsopt ( ArgumentListopt ) ClassBodyopt
+                                  | AmbiguousName . new Identifier TypeArgumentsopt ( ArgumentListopt ) ClassBodyopt
+AssignPropertyCall ::= property TypeArgumentsopt ( ArgumentListopt ) ;
+Type ::= FunctionType
+       | ConstrainedType
+FunctionType ::= TypeParametersopt ( FormalParameterListopt ) WhereClauseopt Offersopt => Type
+ClassType ::= NamedType
+AnnotatedType ::= Type Annotations
+ConstrainedType ::= NamedType
+                  | AnnotatedType
+                  | ( Type )
+SimpleNamedType ::= TypeName
+                  | Primary . Identifier
+                  | DepNamedType . Identifier
+DepNamedType ::= SimpleNamedType DepParameters
+               | SimpleNamedType Arguments
+               | SimpleNamedType Arguments DepParameters
+               | SimpleNamedType TypeArguments
+               | SimpleNamedType TypeArguments DepParameters
+               | SimpleNamedType TypeArguments Arguments
+               | SimpleNamedType TypeArguments Arguments DepParameters
+NamedType ::= SimpleNamedType
+            | DepNamedType
+DepParameters ::= { ExistentialListopt Conjunctionopt }
+TypeParamsWithVariance ::= [ TypeParamWithVarianceList ]
+TypeParameters ::= [ TypeParameterList ]
+FormalParameters ::= ( FormalParameterListopt )
+Conjunction ::= Expression
+              | Conjunction , Expression
+SubtypeConstraint ::= Type $t1 <: Type $t2
+                    | Type $t1 :> Type $t2
+WhereClause ::= DepParameters
+Conjunctionopt ::= $Empty
+                 | Conjunction
+ExistentialListopt ::= $Empty
+                     | ExistentialList ;
+ExistentialList ::= FormalParameter
+                  | ExistentialList ; FormalParameter
+ClassDeclaration ::= StructDeclaration
+                   | NormalClassDeclaration
+NormalClassDeclaration ::= Modifiersopt class Identifier TypeParamsWithVarianceopt Propertiesopt WhereClauseopt Superopt Interfacesopt ClassBody
+StructDeclaration ::= Modifiersopt struct Identifier TypeParamsWithVarianceopt Propertiesopt WhereClauseopt Interfacesopt ClassBody
+ConstructorDeclaration ::= Modifiersopt def this TypeParametersopt FormalParameters WhereClauseopt HasResultTypeopt Offersopt ConstructorBody
+Super ::= extends ClassType
+FieldKeyword ::= val
+               | var
+VarKeyword ::= val
+             | var
+FieldDeclaration ::= Modifiersopt FieldKeyword FieldDeclarators ;
+                   | Modifiersopt FieldDeclarators ;
+Statement ::= AnnotationStatement
+            | ExpressionStatement
+AnnotationStatement ::= Annotationsopt NonExpressionStatement
+NonExpressionStatement ::= Block
+                         | EmptyStatement
+                         | AssertStatement
+                         | SwitchStatement
+                         | DoStatement
+                         | BreakStatement
+                         | ContinueStatement
+                         | ReturnStatement
+                         | ThrowStatement
+                         | TryStatement
+                         | LabeledStatement
+                         | IfThenStatement
+                         | IfThenElseStatement
+                         | WhileStatement
+                         | ForStatement
+                         | AsyncStatement
+                         | AtStatement
+                         | AtomicStatement
+                         | WhenStatement
+                         | AtEachStatement
+                         | FinishStatement
+                         | NextStatement
+                         | ResumeStatement
+                         | AssignPropertyCall
+                         | OfferStatement
+OfferStatement ::= offer Expression ;
+IfThenStatement ::= if ( Expression ) Statement
+IfThenElseStatement ::= if ( Expression ) Statement $s1 else Statement $s2
+EmptyStatement ::= ;
+LabeledStatement ::= Identifier : LoopStatement
+LoopStatement ::= ForStatement
+                | WhileStatement
+                | DoStatement
+                | AtEachStatement
+ExpressionStatement ::= StatementExpression ;
+StatementExpression ::= Assignment
+                      | PreIncrementExpression
+                      | PreDecrementExpression
+                      | PostIncrementExpression
+                      | PostDecrementExpression
+                      | MethodInvocation
+                      | ClassInstanceCreationExpression
+AssertStatement ::= assert Expression ;
+                  | assert Expression $expr1 : Expression $expr2 ;
+SwitchStatement ::= switch ( Expression ) SwitchBlock
+SwitchBlock ::= { SwitchBlockStatementGroupsopt SwitchLabelsopt }
+SwitchBlockStatementGroups ::= SwitchBlockStatementGroup
+                             | SwitchBlockStatementGroups SwitchBlockStatementGroup
+SwitchBlockStatementGroup ::= SwitchLabels BlockStatements
+SwitchLabels ::= SwitchLabel
+               | SwitchLabels SwitchLabel
+SwitchLabel ::= case ConstantExpression :
+              | default :
+WhileStatement ::= while ( Expression ) Statement
+DoStatement ::= do Statement while ( Expression ) ;
+ForStatement ::= BasicForStatement
+               | EnhancedForStatement
+BasicForStatement ::= for ( ForInitopt ; Expressionopt ; ForUpdateopt ) Statement
+ForInit ::= StatementExpressionList
+          | LocalVariableDeclaration
+ForUpdate ::= StatementExpressionList
+StatementExpressionList ::= StatementExpression
+                          | StatementExpressionList , StatementExpression
+BreakStatement ::= break Identifieropt ;
+ContinueStatement ::= continue Identifieropt ;
+ReturnStatement ::= return Expressionopt ;
+ThrowStatement ::= throw Expression ;
+TryStatement ::= try Block Catches
+               | try Block Catchesopt Finally
+Catches ::= CatchClause
+          | Catches CatchClause
+CatchClause ::= catch ( FormalParameter ) Block
+Finally ::= finally Block
+ClockedClause ::= clocked ( ClockList )
+AsyncStatement ::= async ClockedClauseopt Statement
+                 | clocked async Statement
+AtStatement ::= at PlaceExpressionSingleList Statement
+AtomicStatement ::= atomic Statement
+WhenStatement ::= when ( Expression ) Statement
+AtEachStatement ::= ateach ( LoopIndex in Expression ) ClockedClauseopt Statement
+                  | ateach ( Expression ) Statement
+EnhancedForStatement ::= for ( LoopIndex in Expression ) Statement
+                       | for ( Expression ) Statement
+FinishStatement ::= finish Statement
+                  | clocked finish Statement
+PlaceExpressionSingleList ::= ( PlaceExpression )
+PlaceExpression ::= Expression
+NextStatement ::= next ;
+ResumeStatement ::= resume ;
+ClockList ::= Clock
+            | ClockList , Clock
+Clock ::= Expression
+CastExpression ::= Primary
+                 | ExpressionName
+                 | CastExpression as Type
+TypeParamWithVarianceList ::= TypeParamWithVariance
+                            | TypeParamWithVarianceList , TypeParamWithVariance
+TypeParameterList ::= TypeParameter
+                    | TypeParameterList , TypeParameter
+TypeParamWithVariance ::= Identifier
+                        | + Identifier
+                        | - Identifier
+TypeParameter ::= Identifier
+ClosureExpression ::= FormalParameters WhereClauseopt HasResultTypeopt Offersopt => ClosureBody
+LastExpression ::= Expression
+ClosureBody ::= ConditionalExpression
+              | Annotationsopt { BlockStatementsopt LastExpression }
+              | Annotationsopt Block
+AtExpression ::= at PlaceExpressionSingleList ClosureBody
+FinishExpression ::= finish ( Expression ) Block
+WhereClauseopt ::= $Empty
+                 | WhereClause
+ClockedClauseopt ::= $Empty
+                   | ClockedClause
+identifier ::= IDENTIFIER $ident
+TypeName ::= Identifier
+           | TypeName . Identifier
+ClassName ::= TypeName
+TypeArguments ::= [ TypeArgumentList ]
+TypeArgumentList ::= Type
+                   | TypeArgumentList , Type
+ExpressionName ::= Identifier
+                 | AmbiguousName . Identifier
+MethodName ::= Identifier
+             | AmbiguousName . Identifier
+PackageOrTypeName ::= Identifier
+                    | PackageOrTypeName . Identifier
+AmbiguousName ::= Identifier
+                | AmbiguousName . Identifier
+Root ::= TypeDeclaration
+TypeDeclaration ::= ClassDeclaration
+                  | InterfaceDeclaration
+                  | TypeDefDeclaration
+                  | ;
+Interfaces ::= implements InterfaceTypeList
+InterfaceTypeList ::= Type
+                    | InterfaceTypeList , Type
+ClassBody ::= { ClassBodyDeclarationsopt }
+ClassBodyDeclarations ::= ClassBodyDeclaration
+                        | ClassBodyDeclarations ClassBodyDeclaration
+ClassBodyDeclaration ::= ClassMemberDeclaration
+                       | ConstructorDeclaration
+ClassMemberDeclaration ::= FieldDeclaration
+                         | MethodDeclaration
+                         | PropertyMethodDeclaration
+                         | TypeDefDeclaration
+                         | ClassDeclaration
+                         | InterfaceDeclaration
+                         | ;
+FormalDeclarators ::= FormalDeclarator
+                    | FormalDeclarators , FormalDeclarator
+FieldDeclarators ::= FieldDeclarator
+                   | FieldDeclarators , FieldDeclarator
+VariableDeclaratorsWithType ::= VariableDeclaratorWithType
+                              | VariableDeclaratorsWithType , VariableDeclaratorWithType
+VariableDeclarators ::= VariableDeclarator
+                      | VariableDeclarators , VariableDeclarator
+VariableInitializer ::= Expression
+ResultType ::= : Type
+HasResultType ::= : Type
+                | <: Type
+FormalParameterList ::= FormalParameter
+                      | FormalParameterList , FormalParameter
+LoopIndexDeclarator ::= Identifier HasResultTypeopt
+                      | [ IdentifierList ] HasResultTypeopt
+                      | Identifier [ IdentifierList ] HasResultTypeopt
+LoopIndex ::= Modifiersopt LoopIndexDeclarator
+            | Modifiersopt VarKeyword LoopIndexDeclarator
+FormalParameter ::= Modifiersopt FormalDeclarator
+                  | Modifiersopt VarKeyword FormalDeclarator
+                  | Type
+Offers ::= offers Type
+ExceptionTypeList ::= ExceptionType
+                    | ExceptionTypeList , ExceptionType
+ExceptionType ::= ClassType
+MethodBody ::= = LastExpression ;
+             | = Annotationsopt { BlockStatementsopt LastExpression }
+             | = Annotationsopt Block
+             | Annotationsopt Block
+             | ;
+ConstructorBody ::= = ConstructorBlock
+                  | ConstructorBlock
+                  | = ExplicitConstructorInvocation
+                  | = AssignPropertyCall
+                  | ;
+ConstructorBlock ::= { ExplicitConstructorInvocationopt BlockStatementsopt }
+Arguments ::= ( ArgumentListopt )
+InterfaceDeclaration ::= NormalInterfaceDeclaration
+ExtendsInterfaces ::= extends Type
+                    | ExtendsInterfaces , Type
+InterfaceBody ::= { InterfaceMemberDeclarationsopt }
+InterfaceMemberDeclarations ::= InterfaceMemberDeclaration
+                              | InterfaceMemberDeclarations InterfaceMemberDeclaration
+InterfaceMemberDeclaration ::= MethodDeclaration
+                             | PropertyMethodDeclaration
+                             | FieldDeclaration
+                             | ClassDeclaration
+                             | InterfaceDeclaration
+                             | TypeDefDeclaration
+                             | ;
+Annotations ::= Annotation
+              | Annotations Annotation
+Annotation ::= @ NamedType
+Identifier ::= identifier
+Block ::= { BlockStatementsopt }
+BlockStatements ::= BlockStatement
+                  | BlockStatements BlockStatement
+BlockStatement ::= LocalVariableDeclarationStatement
+                 | ClassDeclaration
+                 | TypeDefDeclaration
+                 | Statement
+IdentifierList ::= Identifier
+                 | IdentifierList , Identifier
+FormalDeclarator ::= Identifier ResultType
+                   | [ IdentifierList ] ResultType
+                   | Identifier [ IdentifierList ] ResultType
+FieldDeclarator ::= Identifier HasResultType
+                  | Identifier HasResultTypeopt = VariableInitializer
+VariableDeclarator ::= Identifier HasResultTypeopt = VariableInitializer
+                     | [ IdentifierList ] HasResultTypeopt = VariableInitializer
+                     | Identifier [ IdentifierList ] HasResultTypeopt = VariableInitializer
+VariableDeclaratorWithType ::= Identifier HasResultType = VariableInitializer
+                             | [ IdentifierList ] HasResultType = VariableInitializer
+                             | Identifier [ IdentifierList ] HasResultType = VariableInitializer
+LocalVariableDeclarationStatement ::= LocalVariableDeclaration ;
+LocalVariableDeclaration ::= Modifiersopt VarKeyword VariableDeclarators
+                           | Modifiersopt VariableDeclaratorsWithType
+                           | Modifiersopt VarKeyword FormalDeclarators
+Primary ::= here
+          | [ ArgumentListopt ]
+          | Literal
+          | self
+          | this
+          | ClassName . this
+          | ( Expression )
+          | ClassInstanceCreationExpression
+          | FieldAccess
+          | MethodInvocation
+          | MethodSelection
+          | OperatorFunction
+OperatorFunction ::= TypeName . +
+                   | TypeName . -
+                   | TypeName . *
+                   | TypeName . /
+                   | TypeName . '%'
+                   | TypeName . &
+                   | TypeName . '|'
+                   | TypeName . ^
+                   | TypeName . <<
+                   | TypeName . >>
+                   | TypeName . >>>
+                   | TypeName . <
+                   | TypeName . <=
+                   | TypeName . >=
+                   | TypeName . >
+                   | TypeName . ==
+                   | TypeName . !=
+Literal ::= IntegerLiteral $lit
+          | LongLiteral $lit
+          | UnsignedIntegerLiteral $lit
+          | UnsignedLongLiteral $lit
+          | FloatingPointLiteral $lit
+          | DoubleLiteral $lit
+          | BooleanLiteral
+          | CharacterLiteral $lit
+          | StringLiteral $str
+          | null
+BooleanLiteral ::= true $trueLiteral
+                 | false $falseLiteral
+ArgumentList ::= Expression
+               | ArgumentList , Expression
+FieldAccess ::= Primary . Identifier
+              | super . Identifier
+              | ClassName . super $sup . Identifier
+              | Primary . class $c
+              | super . class $c
+              | ClassName . super $sup . class $c
+MethodInvocation ::= MethodName TypeArgumentsopt ( ArgumentListopt )
+                   | Primary . Identifier TypeArgumentsopt ( ArgumentListopt )
+                   | super . Identifier TypeArgumentsopt ( ArgumentListopt )
+                   | ClassName . super $sup . Identifier TypeArgumentsopt ( ArgumentListopt )
+                   | Primary TypeArgumentsopt ( ArgumentListopt )
+MethodSelection ::= MethodName . ( FormalParameterListopt )
+                  | Primary . Identifier . ( FormalParameterListopt )
+                  | super . Identifier . ( FormalParameterListopt )
+                  | ClassName . super $sup . Identifier . ( FormalParameterListopt )
+PostfixExpression ::= CastExpression
+                    | PostIncrementExpression
+                    | PostDecrementExpression
+PostIncrementExpression ::= PostfixExpression ++
+PostDecrementExpression ::= PostfixExpression '--'
+UnannotatedUnaryExpression ::= PreIncrementExpression
+                             | PreDecrementExpression
+                             | + UnaryExpressionNotPlusMinus
+                             | - UnaryExpressionNotPlusMinus
+                             | UnaryExpressionNotPlusMinus
+UnaryExpression ::= UnannotatedUnaryExpression
+                  | Annotations UnannotatedUnaryExpression
+PreIncrementExpression ::= ++ UnaryExpressionNotPlusMinus
+PreDecrementExpression ::= '--' UnaryExpressionNotPlusMinus
+UnaryExpressionNotPlusMinus ::= PostfixExpression
+                              | ~ UnaryExpression
+                              | ! UnaryExpression
+MultiplicativeExpression ::= UnaryExpression
+                           | MultiplicativeExpression * UnaryExpression
+                           | MultiplicativeExpression / UnaryExpression
+                           | MultiplicativeExpression '%' UnaryExpression
+AdditiveExpression ::= MultiplicativeExpression
+                     | AdditiveExpression + MultiplicativeExpression
+                     | AdditiveExpression - MultiplicativeExpression
+ShiftExpression ::= AdditiveExpression
+                  | ShiftExpression << AdditiveExpression
+                  | ShiftExpression >> AdditiveExpression
+                  | ShiftExpression >>> AdditiveExpression
+RangeExpression ::= ShiftExpression
+                  | ShiftExpression $expr1 .. ShiftExpression $expr2
+RelationalExpression ::= RangeExpression
+                       | SubtypeConstraint
+                       | RelationalExpression < RangeExpression
+                       | RelationalExpression > RangeExpression
+                       | RelationalExpression <= RangeExpression
+                       | RelationalExpression >= RangeExpression
+                       | RelationalExpression instanceof Type
+                       | RelationalExpression in ShiftExpression
+EqualityExpression ::= RelationalExpression
+                     | EqualityExpression == RelationalExpression
+                     | EqualityExpression != RelationalExpression
+                     | Type $t1 == Type $t2
+AndExpression ::= EqualityExpression
+                | AndExpression & EqualityExpression
+ExclusiveOrExpression ::= AndExpression
+                        | ExclusiveOrExpression ^ AndExpression
+InclusiveOrExpression ::= ExclusiveOrExpression
+                        | InclusiveOrExpression '|' ExclusiveOrExpression
+ConditionalAndExpression ::= InclusiveOrExpression
+                           | ConditionalAndExpression && InclusiveOrExpression
+ConditionalOrExpression ::= ConditionalAndExpression
+                          | ConditionalOrExpression || ConditionalAndExpression
+ConditionalExpression ::= ConditionalOrExpression
+                        | ClosureExpression
+                        | AtExpression
+                        | FinishExpression
+                        | ConditionalOrExpression ? Expression : ConditionalExpression
+AssignmentExpression ::= Assignment
+                       | ConditionalExpression
+Assignment ::= LeftHandSide AssignmentOperator AssignmentExpression
+             | ExpressionName $e1 ( ArgumentListopt ) AssignmentOperator AssignmentExpression
+             | Primary $e1 ( ArgumentListopt ) AssignmentOperator AssignmentExpression
+LeftHandSide ::= ExpressionName
+               | FieldAccess
+AssignmentOperator ::= =
+                     | *=
+                     | /=
+                     | '%='
+                     | +=
+                     | -=
+                     | <<=
+                     | >>=
+                     | >>>=
+                     | &=
+                     | ^=
+                     | |=
+Expression ::= AssignmentExpression
+ConstantExpression ::= Expression
+PrefixOp ::= +
+           | -
+           | !
+           | ~
+BinOp ::= +
+        | -
+        | *
+        | /
+        | '%'
+        | &
+        | '|'
+        | ^
+        | &&
+        | ||
+        | <<
+        | >>
+        | >>>
+        | >=
+        | <=
+        | >
+        | <
+        | ==
+        | !=
+Catchesopt ::= $Empty
+             | Catches
+Identifieropt ::= $Empty
+                | Identifier
+ForUpdateopt ::= $Empty
+               | ForUpdate
+Expressionopt ::= $Empty
+                | Expression
+ForInitopt ::= $Empty
+             | ForInit
+SwitchLabelsopt ::= $Empty
+                  | SwitchLabels
+SwitchBlockStatementGroupsopt ::= $Empty
+                                | SwitchBlockStatementGroups
+InterfaceMemberDeclarationsopt ::= $Empty
+                                 | InterfaceMemberDeclarations
+ExtendsInterfacesopt ::= $Empty
+                       | ExtendsInterfaces
+ClassBodyopt ::= $Empty
+               | ClassBody
+ArgumentListopt ::= $Empty
+                  | ArgumentList
+BlockStatementsopt ::= $Empty
+                     | BlockStatements
+ExplicitConstructorInvocationopt ::= $Empty
+                                   | ExplicitConstructorInvocation
+FormalParameterListopt ::= $Empty
+                         | FormalParameterList
+Offersopt ::= $Empty
+            | Offers
+ClassBodyDeclarationsopt ::= $Empty
+                           | ClassBodyDeclarations
+Interfacesopt ::= $Empty
+                | Interfaces
+Superopt ::= $Empty
+           | Super
+TypeParametersopt ::= $Empty
+                    | TypeParameters
+FormalParametersopt ::= $Empty
+                      | FormalParameters
+Annotationsopt ::= $Empty
+                 | Annotations
+HasResultTypeopt ::= $Empty
+                   | HasResultType
+TypeArgumentsopt ::= $Empty
+                   | TypeArguments
+TypeParamsWithVarianceopt ::= $Empty
+                            | TypeParamsWithVariance
+Propertiesopt ::= $Empty
+                | Properties
+
