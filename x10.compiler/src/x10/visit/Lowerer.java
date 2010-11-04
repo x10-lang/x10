@@ -174,6 +174,7 @@ public class Lowerer extends ContextVisitor {
     private static final Name XOR = Name.make("xor");
     private static final Name FENCE = Name.make("fence");
     private static final QName IMMEDIATE = QName.make("x10.compiler.Immediate");
+    private static final QName PRAGMA = QName.make("x10.compiler.Pragma");
     private static final QName REF = QName.make("x10.compiler.Ref");
     private static final QName UNCOUNTED = QName.make("x10.compiler.Uncounted");
     private static final QName REMOTE_OPERATION = QName.make("x10.compiler.RemoteOperation");
@@ -791,11 +792,17 @@ public class Lowerer extends ContextVisitor {
         		Report.report(0,"annotation is not correct "+ allannots.size());
         	}
         }
+        Type atype = (Type) xts.systemResolver().find(PRAGMA);
+        List<X10ClassType> atypes  = ((X10Ext) f.ext()).annotationMatching(atype);
+        if (!atypes.isEmpty()) {
+            return call(pos, START_FINISH, atypes.get(0).propertyInitializer(0), xts.FinishState());
+        }
+        
         switch(p){
-        case 1:return call(pos, START_LOCAL_FINISH, xts.Void());
-        case 2:return call(pos, START_SIMPLE_FINISH, xts.Void());
+        case 1:return call(pos, START_LOCAL_FINISH, xts.FinishState());
+        case 2:return call(pos, START_SIMPLE_FINISH, xts.FinishState());
         //TODO:more patterns can be filled here
-        default:return call(pos, START_FINISH, xts.Void());
+        default:return call(pos, START_FINISH, xts.FinishState());
         }
     }
 

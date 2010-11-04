@@ -14,6 +14,7 @@ package x10.lang;
 import x10.compiler.Native;
 import x10.compiler.Pinned;
 import x10.compiler.Global;
+import x10.compiler.Pragma;
 import x10.compiler.TempNoInline_1;
 
 import x10.util.Random;
@@ -798,6 +799,23 @@ import x10.util.Box;
      */
     public static def startFinish():FinishState {
         return activity().swapFinish(new FinishState.Finish());
+    }
+
+    public static def startFinish(pragma:Int):FinishState {
+        val f:FinishState;
+        switch (pragma) {
+        case Pragma.FINISH_ASYNC:
+            f = new FinishState.FinishAsync(); break;
+        case Pragma.FINISH_ASYNC_AND_BACK:
+            f = new FinishState.FinishReturn(); break;
+        case Pragma.FINISH_ATEACH_UNIQUE:
+            f = new FinishState.Finish(); break;
+        case Pragma.FINISH_LOCAL:
+            f = new FinishState.LocalFinish(); break;
+        default: 
+            f = new FinishState.Finish();
+        }
+        return activity().swapFinish(f);
     }
 
     public static def startLocalFinish():FinishState {
