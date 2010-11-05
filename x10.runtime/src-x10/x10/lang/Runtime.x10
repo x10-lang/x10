@@ -513,7 +513,6 @@ import x10.util.Box;
 
             if (hereInt() == 0) {
                 val rootFinish = new FinishState.Finish(runtime().pool.latch);
-                rootFinish.notifySubActivitySpawn(here());
                 // in place 0 schedule the execution of the static initializers fby main activity
                 execute(new Activity(()=>{finish init(); body();}, rootFinish, true));
 
