@@ -2004,7 +2004,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	private static final String STATIC_FIELD_UNINITIALIZED = "x10aux::UNINITIALIZED";
 	private static final String STATIC_FIELD_INITIALIZING = "x10aux::INITIALIZING";
 	private static final String STATIC_FIELD_INITIALIZED = "x10aux::INITIALIZED";
-	private static final String STATIC_INIT_AWAIT = "x10aux::StaticInitBroadcastDispatcher::await";
+    private static final String STATIC_INIT_LOCK = "x10aux::StaticInitBroadcastDispatcher::lock";
+    private static final String STATIC_INIT_AWAIT = "x10aux::StaticInitBroadcastDispatcher::await";
+	private static final String STATIC_INIT_UNLOCK = "x10aux::StaticInitBroadcastDispatcher::unlock";
 	private static final String STATIC_INIT_NOTIFY_ALL = "x10aux::StaticInitBroadcastDispatcher::notify";
 
 	private static final String UNUSED = "X10_PRAGMA_UNUSED";
@@ -2092,16 +2094,20 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    sw.newline();
 	    sw.write("// Notify all waiting threads");
 	    sw.newline();
+        sw.write(STATIC_INIT_LOCK + "();");
+        sw.newline();
 	    sw.write(STATIC_INIT_NOTIFY_ALL + "();");
 	    sw.end(); sw.newline();
 	    sw.write("}"); sw.newline();
 	    sw.write("WAIT:"); sw.newline();
+        sw.write(STATIC_INIT_LOCK + "();"); sw.newline();
 	    sw.write("if ("+status+" != " + STATIC_FIELD_INITIALIZED + ") {"); sw.begin(4); sw.newline();
 	    sw.write("_SI_(\"WAITING for field: "+container+"."+name+" to be initialized\");"); sw.newline();
 	    sw.write("while ("+status+" != " + STATIC_FIELD_INITIALIZED + ") " + STATIC_INIT_AWAIT + "();"); sw.newline();
 	    sw.write("_SI_(\"CONTINUING because field: "+container+"."+name+" has been initialized\");");
 	    sw.end(); sw.newline();
 	    sw.write("}");
+        sw.write(STATIC_INIT_UNLOCK + "();"); sw.newline();
 	    sw.end(); sw.newline();
 	    sw.write("}");
 	    sw.newline();
@@ -2185,6 +2191,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	        sw.write(container+"::"+status+" = " + STATIC_FIELD_INITIALIZED + ";");
 	        sw.newline();
 	        sw.write("// Notify all waiting threads");
+            sw.newline();
+            sw.write(STATIC_INIT_LOCK + "();");
 	        sw.newline();
 	        sw.write(STATIC_INIT_NOTIFY_ALL + "();");
 	        sw.newline();

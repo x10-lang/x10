@@ -48,8 +48,16 @@ void StaticInitBroadcastDispatcher::doBroadcast(serialization_id_t id, char* the
     }
 }
 
+void StaticInitBroadcastDispatcher::lock() {
+    x10::lang::Runtime::StaticInitBroadcastDispatcherLock();
+}
+
 void StaticInitBroadcastDispatcher::await() {
     x10::lang::Runtime::StaticInitBroadcastDispatcherAwait();
+}
+
+void StaticInitBroadcastDispatcher::unlock() {
+    x10::lang::Runtime::StaticInitBroadcastDispatcherUnlock();
 }
 
 void StaticInitBroadcastDispatcher::notify() {

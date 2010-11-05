@@ -737,14 +737,19 @@ import x10.util.Box;
 
     // initialization of static fields in c++ backend
 
-    public static def StaticInitBroadcastDispatcherAwait() {
+    public static def StaticInitBroadcastDispatcherLock() {
         runtime().monitor.lock();
+    }
+
+    public static def StaticInitBroadcastDispatcherAwait() {
         runtime().monitor.await();
+    }
+
+    public static def StaticInitBroadcastDispatcherUnlock() {
         runtime().monitor.unlock();
     }
 
     public static def StaticInitBroadcastDispatcherNotify() {
-        runtime().monitor.lock();
         runtime().monitor.release();
     }
 
