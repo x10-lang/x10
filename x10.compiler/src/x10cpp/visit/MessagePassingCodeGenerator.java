@@ -2100,14 +2100,14 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    sw.end(); sw.newline();
 	    sw.write("}"); sw.newline();
 	    sw.write("WAIT:"); sw.newline();
-        sw.write(STATIC_INIT_LOCK + "();"); sw.newline();
 	    sw.write("if ("+status+" != " + STATIC_FIELD_INITIALIZED + ") {"); sw.begin(4); sw.newline();
+        sw.write(STATIC_INIT_LOCK + "();"); sw.newline();
 	    sw.write("_SI_(\"WAITING for field: "+container+"."+name+" to be initialized\");"); sw.newline();
 	    sw.write("while ("+status+" != " + STATIC_FIELD_INITIALIZED + ") " + STATIC_INIT_AWAIT + "();"); sw.newline();
 	    sw.write("_SI_(\"CONTINUING because field: "+container+"."+name+" has been initialized\");");
-	    sw.end(); sw.newline();
+	    sw.newline();
+        sw.write(STATIC_INIT_UNLOCK + "();"); sw.end(); sw.newline();
 	    sw.write("}");
-        sw.write(STATIC_INIT_UNLOCK + "();"); sw.newline();
 	    sw.end(); sw.newline();
 	    sw.write("}");
 	    sw.newline();
