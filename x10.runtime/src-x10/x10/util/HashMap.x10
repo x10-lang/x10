@@ -12,8 +12,9 @@
 package x10.util;
 
 import x10.compiler.TempNoInline_1;
-import x10.io.CustomSerialization;
 import x10.compiler.NonEscaping;
+import x10.io.CustomSerialization;
+import x10.io.SerialData;
 
   public class HashMap[K,V] implements Map[K,V], CustomSerialization {
     static class HashEntry[Key,Value] implements Map.Entry[Key,Value] {
@@ -323,9 +324,9 @@ import x10.compiler.NonEscaping;
     /*
      * Custom deserialization
      */
-    public def this(x:Any) {
+    public def this(x:SerialData) {
         this();
-        val state = x as State[K,V];
+        val state = x.data as State[K,V];
 	for ([i] in 0..state.size-1) {
             putInternal(state.keys(i), state.vals(i));
         }
@@ -334,5 +335,5 @@ import x10.compiler.NonEscaping;
     /*
      * Custom serialization
      */
-    public def serialize():Any = new State(this);
+    public def serialize():SerialData = new SerialData(new State(this), null);
 }

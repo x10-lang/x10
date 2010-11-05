@@ -961,7 +961,7 @@ public class Emitter {
 
     void generateClassSerializationMethods(ClassType type, StreamWrapper sw) {
         X10ClassType ct = (X10ClassType) type.toClass();
-        TypeSystem ts = (TypeSystem) type.typeSystem();
+        X10TypeSystem_c ts = (X10TypeSystem_c) type.typeSystem();
         X10CPPContext_c context = (X10CPPContext_c) tr.context();
         Type parent = type.superClass();
         ClassifiedStream w = sw.body();
@@ -1116,7 +1116,7 @@ public class Emitter {
         w.newline(4); w.begin(0);
         if (type.isSubtype(ts.CustomSerialization(), context)) {
             w.writeln("/* NOTE: Implements x10.io.CustomSerialization */");
-            w.writeln(translateType(ts.Any(), true)+ "val_ = buf.read"+chevrons(translateType(ts.Any(), true))+"();");
+            w.writeln(translateType(ts.SerialData(), true)+ "val_ = buf.read"+chevrons(translateType(ts.SerialData(), true))+"();");
             w.writeln(CONSTRUCTOR+"(val_);");
         } else {
             if (parent != null && parent.isClass()) {

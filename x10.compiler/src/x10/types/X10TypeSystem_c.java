@@ -1441,6 +1441,14 @@ public class X10TypeSystem_c extends TypeSystem_c {
         return customSerializationType_;
     }
 
+    protected X10ClassType serialDataType_;
+
+    public Type SerialData() {
+        if (serialDataType_ == null)
+            serialDataType_ = load("x10.io.SerialData"); // java file
+        return serialDataType_;
+    }
+
     protected X10ClassType reducibleType_;
 
     public Type Reducible() {

@@ -2495,7 +2495,7 @@ public class Emitter {
         for (ParameterType type : def.typeParameters()) {
             w.write(type.name().toString() + ", ");
         }
-        w.write(fieldName + "); }");
+        w.write("(x10.io.SerialData)"+fieldName + "); }");
         w.newline();
         w.write("private void writeObject(java.io.ObjectOutputStream oos) throws java.io.IOException {");
         w.newline();
