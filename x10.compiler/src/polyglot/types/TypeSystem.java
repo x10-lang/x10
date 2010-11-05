@@ -10,7 +10,6 @@ package polyglot.types;
 import java.util.*;
 
 import polyglot.ast.Binary;
-import polyglot.ast.Id;
 import polyglot.ast.Unary;
 import polyglot.frontend.ExtensionInfo;
 import polyglot.frontend.Source;
@@ -1164,15 +1163,6 @@ public interface TypeSystem {
     boolean numericConversionValid(Type toType, Type fromType, Object constantValue, Context context);
 
     public Long size(Type t);
-
-    /**
-     * Does there exist a struct with the given name, accessible at this point?
-     * Throw an exception if it is not.
-     * @param name
-     * @param tc
-     * @throws SemanticException
-     */
-    void existsStructWithName(Id name, ContextVisitor tc) throws SemanticException;
 
     boolean isX10Array(Type me);
 
