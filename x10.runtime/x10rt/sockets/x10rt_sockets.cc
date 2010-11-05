@@ -196,6 +196,9 @@ int initLink(uint32_t remotePlace)
 			// redundant or not.  Otherwise, we set the FD and continue on, assuming that the connection is good.
 			if (m.to > state.myPlaceId)
 			{
+				#ifdef DEBUG
+					printf("X10rt.Sockets: Place %u waiting for response from place %u\n", state.myPlaceId, remotePlace);
+				#endif
 				r = TCP::read(newFD, &m, sizeof(m));
 				if (r != sizeof(m))
 				{
@@ -534,7 +537,12 @@ void probe (bool onlyProcessAccept)
 			#endif
 
 			if (whichPlaceToHandle == state.myPlaceId) // special case.  This is an incoming connection request.
+			{
 				handleConnectionRequest();
+				pthread_mutex_lock(&state.readLock);
+				state.socketLinks[whichPlaceToHandle].events = POLLIN | POLLPRI;
+				pthread_mutex_unlock(&state.readLock);
+			}
 			else
 			{
 				// Format: type, p.type, p.len, p.msg
