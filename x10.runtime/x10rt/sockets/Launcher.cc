@@ -867,14 +867,11 @@ void Launcher::cb_sighandler_cld(int signo)
 					sprintf(_singleton->_runtimePort, "PLACE_%u_IS_DEAD", _singleton->_myproc);
 				}
 			}
+			#ifdef DEBUG
 			else
-			{
-				if (!_singleton->_returncode) // don't overwrite the runtime exitcode, if already set
-					_singleton->_returncode = WEXITSTATUS(status);
-				#ifdef DEBUG
-					fprintf(stderr, "Launcher %d: SIGCHLD from child launcher for place %d (pid=%d), status=%d\n", _singleton->_myproc, i+_singleton->_firstchildproc, pid, WEXITSTATUS(status));
-				#endif
-			}
+				fprintf(stderr, "Launcher %d: SIGCHLD from child launcher for place %d (pid=%d), status=%d\n", _singleton->_myproc, i+_singleton->_firstchildproc, pid, WEXITSTATUS(status));
+			#endif
+
 			return;
 		}
 	}
