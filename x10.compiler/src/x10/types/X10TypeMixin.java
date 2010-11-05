@@ -1654,7 +1654,20 @@ then we substitute 0/false/null in all the constraints in C and if they all eval
 		} else
 		if (t instanceof X10ParsedClassType) {
 			X10ParsedClassType pct = (X10ParsedClassType) t;
-			return pct.instantiateTypeParametersExplicitly();
+			pct = pct.instantiateTypeParametersExplicitly();
+			List<Type> typeArguments = pct.typeArguments();
+			List<Type> newTypeArguments = typeArguments;
+			if (typeArguments != null) {
+			    List<Type> res = new ArrayList<Type>();
+			    for (Type a : typeArguments) {
+			        Type ia = instantiateTypeParametersExplicitly(a);
+			        if (ia != a)
+			            newTypeArguments = res;
+			        res.add(ia);
+			    }
+			}
+			pct = pct.typeArguments(newTypeArguments);
+			return pct;
 		} else {
 			return t;
 		}
