@@ -82,7 +82,9 @@ void Launcher::initialize(int argc, char ** argv)
 
 	_argc = argc;
 	_argv = argv;
-	realpath(argv[0], _realpath);
+	if (NULL==realpath(argv[0], _realpath)) {
+        perror("Resolving absolute path of executable");
+    }
 	if (!getenv(X10LAUNCHER_NPROCS))
 	{
 		_nplaces = 1;
