@@ -153,7 +153,7 @@ public class X10ConstructorDoc extends X10Doc implements ConstructorDoc {
 	}
 
 	public boolean isSynchronized() {
-		return constrDef.flags().isSynchronized();
+		return false;
 	}
 
 	public boolean isVarArgs() {
