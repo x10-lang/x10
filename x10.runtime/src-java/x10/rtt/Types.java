@@ -48,23 +48,24 @@ public class Types {
         return new RuntimeType<Class<?>>(c);
     }
 
-    public static Type<Boolean> BOOLEAN = new BooleanType();
-    public static Type<Byte> BYTE = new ByteType();
-    public static Type<Short> SHORT = new ShortType();
-    public static Type<Character> CHAR = new CharType();
-    public static Type<Integer> INT = new IntType();
-    public static Type<Long> LONG = new LongType();
-    public static Type<Float> FLOAT = new FloatType();
-    public static Type<Double> DOUBLE = new DoubleType();
+    // create rtt of comparable before all types that implement comparable (e.g. int)
+    public static RuntimeType<?> COMPARABLE = new RuntimeType(Comparable.class, RuntimeType.Variance.INVARIANT) {
+        @Override
+        public String typeName() {
+            return "x10.lang.Comparable";
+        }
+    };
 
-    public static RuntimeType<?> COMPARABLE;
-    static {
-        try {
-            COMPARABLE = new RuntimeType(Class.forName("x10.lang.Comparable"), RuntimeType.Variance.INVARIANT);
-        } catch (ClassNotFoundException e) {}
-    }
+    public static RuntimeType<Boolean> BOOLEAN = new BooleanType();
+    public static RuntimeType<Byte> BYTE = new ByteType();
+    public static RuntimeType<Short> SHORT = new ShortType();
+    public static RuntimeType<Character> CHAR = new CharType();
+    public static RuntimeType<Integer> INT = new IntType();
+    public static RuntimeType<Long> LONG = new LongType();
+    public static RuntimeType<Float> FLOAT = new FloatType();
+    public static RuntimeType<Double> DOUBLE = new DoubleType();
 
-    public static Type<String> STRING = new RuntimeType<String>(
+    public static RuntimeType<String> STRING = new RuntimeType<String>(
         String.class,
         new Type[] {
             new ParameterizedType(Fun_0_1._RTT, Types.INT, Types.CHAR),
@@ -76,7 +77,7 @@ public class Types {
             return "x10.lang.String";
         }
     };
-    public static Type<Object> OBJECT = new RuntimeType<Object>(Object.class) {
+    public static RuntimeType<Object> OBJECT = new RuntimeType<Object>(Object.class) {
         @Override
         public String typeName() {
             return "x10.lang.Object";
@@ -87,7 +88,7 @@ public class Types {
             return o == OBJECT || o == ANY;
         };
     };
-    public static Type<Object> ANY = new RuntimeType<Object>(Object.class) {
+    public static RuntimeType<Object> ANY = new RuntimeType<Object>(Object.class) {
         @Override
         public String typeName() {
             return "x10.lang.Any";
@@ -99,10 +100,10 @@ public class Types {
         };
     };
 
-    public static Type<?> UBYTE;
-    public static Type<?> USHORT;
-    public static Type<?> UINT;
-    public static Type<?> ULONG;
+    public static RuntimeType<?> UBYTE;
+    public static RuntimeType<?> USHORT;
+    public static RuntimeType<?> UINT;
+    public static RuntimeType<?> ULONG;
     static {
         try {
             Class<?> c;

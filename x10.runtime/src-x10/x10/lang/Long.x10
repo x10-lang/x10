@@ -25,7 +25,7 @@ import x10.util.Ordered;
  */
 @NativeRep("java", "long", null, "x10.rtt.Types.LONG")
 @NativeRep("c++", "x10_long", "x10_long", null)
-public final struct Long /*TODO implements Arithmetic[Long], Bitwise[Long], Ordered[Long]*/ {
+public struct Long implements Comparable[Long] /*TODO implements Arithmetic[Long], Bitwise[Long], Ordered[Long]*/ {
     /**
      * A less-than operator.
      * Compares the given Long with another Long and returns true if the given Long is
@@ -530,4 +530,14 @@ public final struct Long /*TODO implements Arithmetic[Long], Bitwise[Long], Orde
     @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
     public native def equals(x:Long):Boolean;
+
+    /**
+    * Returns a negative Int, zero, or a positive Int if this Long is less than, equal
+    * to, or greater than the given Long.
+    * @param x the given Long
+    * @return a negative Int, zero, or a positive Int if this Long is less than, equal
+    * to, or greater than the given Long.
+    */
+   @Native("java", "x10.rtt.Equality.compareTo(#0, #1)")
+   public def compareTo(x:Long): Int = 0;
 }

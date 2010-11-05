@@ -27,7 +27,7 @@ import x10.util.Ordered;
  */
 @NativeRep("java", "float", null, "x10.rtt.Types.FLOAT")
 @NativeRep("c++", "x10_float", "x10_float", null)
-public final struct Float /*TODO implements Arithmetic[Float], Ordered[Float]*/ {
+public struct Float implements Comparable[Float] /*TODO implements Arithmetic[Float], Ordered[Float]*/ {
     /**
      * A less-than operator.
      * Compares the given Float with another Float and returns true if the given Float is
@@ -413,4 +413,14 @@ public final struct Float /*TODO implements Arithmetic[Float], Ordered[Float]*/ 
     @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
     public native def equals(x:Float):Boolean;
+
+    /**
+    * Returns a negative Int, zero, or a positive Int if this Float is less than, equal
+    * to, or greater than the given Float.
+    * @param x the given Float
+    * @return a negative Int, zero, or a positive Int if this Float is less than, equal
+    * to, or greater than the given Float.
+    */
+   @Native("java", "x10.rtt.Equality.compareTo(#0, #1)")
+   public def compareTo(x:Float): Int = 0;
 }

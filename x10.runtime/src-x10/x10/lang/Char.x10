@@ -24,7 +24,7 @@ import x10.util.Ordered;
  */
 @NativeRep("java", "char", null, "x10.rtt.Types.CHAR")
 @NativeRep("c++", "x10_char", "x10_char", null)
-public final struct Char /*TODO implements Ordered[Char]*/ {
+public struct Char implements Comparable[Char] /*TODO implements Ordered[Char]*/ {
     /**
      * Convert a given Byte to a Char with that ordinal value.
      * @param x the given Byte
@@ -317,4 +317,14 @@ public final struct Char /*TODO implements Ordered[Char]*/ {
     @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
     public native def equals(x:Char):Boolean;
+
+    /**
+    * Returns a negative Int, zero, or a positive Int if this Char is less than, equal
+    * to, or greater than the given Char.
+    * @param x the given Char
+    * @return a negative Int, zero, or a positive Int if this Char is less than, equal
+    * to, or greater than the given Char.
+    */
+   @Native("java", "x10.rtt.Equality.compareTo(#0, #1)")
+   public def compareTo(x:Char): Int = 0;
 }
