@@ -32,10 +32,11 @@ delete:
 duplications at the beginning
  */
 public class AutoGenSentences {
-    private static int MAX_DEPTH = 14;
+    private static int MAX_DEPTH = 10;
+    private static String ROOT = "TypeDeclaration";
     public static void main(String[] args) throws IOException {
         if (args.length!=2) {
-            System.err.println("You need to run AutoGenSentences with two arguments: GRAMMAR_FILE OUTPUT_FILE");
+            System.err.println("You need to run AutoGenSentences with two arguments: GRAMMAR_FILE OUTPUT_FILE\nFor example: java AutoGenSentences x10.g Output.x10\n");
             System.exit(-1);
         }
         //only-grammar-productions.txt auto-gen-sentences.txt
@@ -46,35 +47,72 @@ public class AutoGenSentences {
         File output = new File(args[1]);
         String currProd = null;
         int lineNum = 0;
-        for (String line : grammarFile) {
-            lineNum++;
-            StringTokenizer tokenizer = new StringTokenizer(line);
-            final String first = tokenizer.nextToken();
-            if (!first.equals("|")) {
-                currProd = first;
-                String next = tokenizer.nextToken();
-                assert next.equals("::=") : next;
-                assert !grammar.containsKey(currProd) : currProd;
-                grammar.put(currProd, new ArrayList<ArrayList<String>>());
-            }
-            assert currProd!=null;
-            //ImportDeclarations PackageDeclaration $misplacedPackageDeclaration ImportDeclarationsopt $misplacedImportDeclarations TypeDeclarationsopt
-            ArrayList<String> terms = new ArrayList<String>();
-            while (tokenizer.hasMoreTokens()) {
-                String token = tokenizer.nextToken();
-                if (token.charAt(0)=='\'') {
-                    // we escaped some tokens, like '|'  '%'  '-->'
-                    assert token.charAt(token.length()-1)=='\'' : token;
-                    token = token.substring(1,token.length()-1);
+        try {
+            boolean foundRules = false;
+            boolean inJavaCode = false;
+            for (String line : grammarFile) {
+                if (line.equals("%Rules")) {
+                    foundRules = true;
+                    continue;
                 }
-                if (token.charAt(0)=='$') continue; // also includes $Empty
-                terms.add(token);
+                if (!foundRules) continue;
+                if (line.equals("%End")) break;
+
+                if (line.startsWith("--")) continue; // ignore comments
+                // Ignore: /.$NullAction./
+                if (line.startsWith("/.")) {
+                    inJavaCode = true;
+                }
+                if (line.endsWith("./")) {
+                    assert inJavaCode;
+                    inJavaCode = false;
+                    continue;
+                }
+                if (inJavaCode) continue;
+
+
+                lineNum++;
+                StringTokenizer tokenizer = new StringTokenizer(line);
+                final String first = tokenizer.nextToken();
+                if (!first.equals("|")) {
+                    currProd = first;
+                    String next = tokenizer.nextToken();
+                    assert next.equals("::=") || next.equals("::=?") : next;
+                    // AssignmentExpression is stated in 2 different rules
+                    if (!grammar.containsKey(currProd))
+                        grammar.put(currProd, new ArrayList<ArrayList<String>>());
+                }
+                assert currProd!=null;
+                //ImportDeclarations PackageDeclaration $misplacedPackageDeclaration ImportDeclarationsopt $misplacedImportDeclarations TypeDeclarationsopt
+                ArrayList<String> terms = new ArrayList<String>();
+                while (tokenizer.hasMoreTokens()) {
+                    String token = tokenizer.nextToken();
+                    if (token.equals("--")) break; // comments
+                    
+                    if (token.charAt(0)=='\'') {
+                        // we escaped some tokens, like '|'  '%'  '-->'
+                        assert token.charAt(token.length()-1)=='\'' : token;
+                        token = token.substring(1,token.length()-1);
+                    }
+                    assert token.charAt(0)!='$';
+                    int indexDollar = token.indexOf('$');
+                    if (indexDollar!=-1) token = token.substring(0,indexDollar); // ImportDeclarationsopt$misplacedImportDeclarations
+                    if (token.equals("%Empty")) continue;
+                    terms.add(token);
+                }
+                // can be empty: assert terms.size()>=1 : currProd;
+                grammar.get(currProd).add(terms);
             }
-            // can be empty: assert terms.size()>=1 : currProd;
-            grammar.get(currProd).add(terms);
+        } catch (Throwable e) {
+            System.err.println("Error on line "+lineNum);
+            e.printStackTrace();
         }
-        //root is CompilationUnit
-        final HashSet<String> res = gen(findRoot(), MAX_DEPTH);
+        //x10.g root is CompilationUnit, but we want to generate many TypeDeclaration
+        System.out.println("Roots are: "+findRoots());
+        System.out.println("Literals are: "+getLiterals());
+        printGrammar(ROOT,new HashSet<String>());
+
+        final HashSet<String> res = gen(ROOT, MAX_DEPTH);
         assert EMPTY_STR.size()==1 : EMPTY_STR;
         writeFile(output,res);
     }
@@ -82,6 +120,30 @@ public class AutoGenSentences {
     HashMap<String, ArrayList<ArrayList<String>>> grammar = new HashMap<String, ArrayList<ArrayList<String>>>();
 
     HashSet<String> EMPTY_STR = new HashSet<String>(Collections.singleton(""));
+
+    String join(ArrayList<String> arr, String sep) {
+        String res = "";
+        for (String s : arr)
+            res = res + (res.equals("") ? "" : sep) + s;
+        return res;
+    }
+    void printGrammar(String symbol, HashSet<String> alreadyPrinted) {
+        if (alreadyPrinted.contains(symbol)) return;
+        alreadyPrinted.add(symbol);
+        ArrayList<ArrayList<String>> prods = grammar.get(symbol);
+        if (prods==null) {
+            // literal
+            genLiteral(symbol); // for testing
+            return;
+        }
+        System.out.println(symbol+" ::= " + (prods.size()==0 ? "" : join(prods.get(0)," ")));
+        for (int i=1; i<prods.size(); i++)
+            System.out.println("\t| "+join(prods.get(i)," "));
+
+        for (ArrayList<String> prod : prods)
+            for (String s : prod)
+                printGrammar(s,alreadyPrinted);
+    }
 
     HashSet<String> genProd(ArrayList<String> prod, int depth) {
         final int prodNum = prod.size();
@@ -165,16 +227,15 @@ public class AutoGenSentences {
         return s;            
     }
 
-    String findRoot() {
+    HashSet<String> findRoots() {
         HashSet<String> res = new HashSet<String>(grammar.keySet());
         for (ArrayList<ArrayList<String>> products : grammar.values())
             for (ArrayList<String> prod : products)
                 for (String s : prod)
                     res.remove(s);
-        assert res.size()==1 : res;
-        return res.iterator().next();
+        return res;
     }
-    HashSet<String> getLiterals() {
+    ArrayList<String> getLiterals() {
         HashSet<String> res = new HashSet<String>();
         for (ArrayList<ArrayList<String>> products : grammar.values())
             for (ArrayList<String> prod : products)
@@ -183,7 +244,10 @@ public class AutoGenSentences {
                         genLiteral(s); // to test it
                         res.add(s);
                     }
-        return res;                    
+
+        ArrayList<String> sorted = new ArrayList<String>(res);
+        Collections.sort(sorted);
+        return sorted;                    
     }
 
     ArrayList<String> readFile(File f) throws IOException {
