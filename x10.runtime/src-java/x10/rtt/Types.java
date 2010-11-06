@@ -44,7 +44,7 @@ public class Types {
         return s;
     }
 
-    public static Type runtimeType(Class<?> c) {
+    public static RuntimeType runtimeType(Class<?> c) {
         return new RuntimeType<Class<?>>(c);
     }
 
@@ -123,7 +123,7 @@ public class Types {
         } catch (Exception e) {}
     }
 
-    public static Type<?> getNativeRepRTT(Object o) {
+    public static RuntimeType<?> getNativeRepRTT(Object o) {
         if (o instanceof Boolean) return BOOLEAN;
         if (o instanceof Byte) return BYTE;
         if (o instanceof Character) return CHAR;
