@@ -11,7 +11,7 @@ import polyglot.types.LazyRef;
 import polyglot.util.CollectionUtil;
 import polyglot.visit.TypeChecker;
 
-public class TypeCheckFragmentGoal<T> extends AbstractGoal_c {
+public class TypeCheckFragmentGoal<T> extends AbstractGoal_c implements SourceGoal{
     private static final long serialVersionUID = -843644476867221586L;
 
     protected Node parent;
@@ -38,27 +38,42 @@ public class TypeCheckFragmentGoal<T> extends AbstractGoal_c {
 	    return CollectionUtil.<Goal> append(l, l2);
     }
 
+
+    protected LazyRef<T> r() {
+        return r;
+    }
+
+    protected Node process(Node parent, Node n, TypeChecker v) {
+        return parent.visitChild(n, v);
+    }
+
+    protected T defaultRecursiveValue() {
+        return r().getCached();
+    }
+
+    public Job job() {
+        return v.job();
+    }
+
+
     public boolean runTask() {
-	Goal g = v.job().extensionInfo().scheduler().PreTypeCheck(v.job());
-	assert g.hasBeenReached();
+        Goal g = v.job().extensionInfo().scheduler().PreTypeCheck(v.job());
+        assert g.hasBeenReached();
 
-	if (state() == Goal.Status.RUNNING_RECURSIVE) {
-	    r.update(r.getCached()); // marks r known
-	    // if (! mightFail)
-	    // v.job().compiler().errorQueue().enqueue(ErrorInfo.SEMANTIC_ERROR,
-	    // "Recursive resolution for " + n + ".", n.position());
-	    return mightFail;
-	}
+        if (state() == Goal.Status.RUNNING_RECURSIVE) {
+            r().update(defaultRecursiveValue()); // marks r known
+            return mightFail;
+        }
 
-	try {
-	    Node m = parent.visitChild(n, v);
-	    v.job().nodeMemo().put(n, m);
-	    v.job().nodeMemo().put(m, m);
-	    return mightFail || r.known();
-	}
-	catch (SchedulerException e) {
-	    return false;
-	}
+        try {
+            Node m = process(parent, n, v);
+            v.job().nodeMemo().put(n, m);
+            v.job().nodeMemo().put(m, m);
+            return mightFail || r.known();
+        }
+        catch (SchedulerException e) {
+            return false;
+        }
     }
     
     public String toString() {

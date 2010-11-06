@@ -12,12 +12,13 @@
 package x10.ast;
 
 import polyglot.ast.Node;
+import polyglot.ast.TypeCheckFragmentGoal;
 import polyglot.types.LazyRef;
 import polyglot.types.Type;
 import polyglot.types.UnknownType;
 import polyglot.visit.TypeChecker;
 
-public class TypeCheckReturnTypeGoal extends X10TypeCheckFragmentGoal<Type> {
+public class TypeCheckReturnTypeGoal extends TypeCheckFragmentGoal<Type> {
 	private static final long serialVersionUID = -7110597916418023302L;
 		
 	public TypeCheckReturnTypeGoal(Node parent, Node n, TypeChecker v, LazyRef<Type> r) {
@@ -27,6 +28,7 @@ public class TypeCheckReturnTypeGoal extends X10TypeCheckFragmentGoal<Type> {
 	@Override
 	protected Type defaultRecursiveValue() {
 		// To preserve current behavior.
+        // todo Yoav: we should report an error
 		return v.typeSystem().Void();
 	}
 
