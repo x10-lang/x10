@@ -26,12 +26,17 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import polyglot.ast.Binary;
+import polyglot.ast.Block;
+import polyglot.ast.Block_c;
 import polyglot.ast.Call;
 import polyglot.ast.Cast;
+import polyglot.ast.ClassMember;
+import polyglot.ast.ConstructorCall;
 import polyglot.ast.Expr;
 import polyglot.ast.Field;
 import polyglot.ast.Field_c;
 import polyglot.ast.Formal;
+import polyglot.ast.Id;
 import polyglot.ast.Instanceof;
 import polyglot.ast.Lit;
 import polyglot.ast.Local;
@@ -44,6 +49,7 @@ import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
+import polyglot.types.ConstructorDef;
 import polyglot.types.Context;
 import polyglot.types.Def;
 import polyglot.types.Flags;
@@ -66,10 +72,17 @@ import polyglot.util.Position;
 import polyglot.util.StringUtil;
 import polyglot.visit.Translator;
 import x10.ast.ClosureCall;
+import x10.ast.DepParameterExpr;
 import x10.ast.ParExpr_c;
+import x10.ast.PropertyDecl;
 import x10.ast.TypeParamNode;
 import x10.ast.X10Call;
+import x10.ast.X10CanonicalTypeNode;
+import x10.ast.X10ClassDecl;
+import x10.ast.X10ClassDecl_c;
+import x10.ast.X10ConstructorDecl;
 import x10.ast.X10MethodDecl_c;
+import x10.ast.X10NodeFactory_c;
 import x10.extension.X10Ext;
 import x10.types.ConstrainedType_c;
 import x10.types.FunctionType;
@@ -83,8 +96,8 @@ import x10.types.X10MethodDef;
 import x10.types.X10MethodInstance;
 import x10.types.X10ParsedClassType_c;
 import x10.types.X10TypeMixin;
-import polyglot.types.TypeSystem;
 import x10.types.checker.Converter;
+import x10.visit.ChangePositionVisitor;
 import x10.visit.X10PrettyPrinterVisitor;
 import x10c.types.BackingArrayType;
 
@@ -92,7 +105,6 @@ public class Emitter {
 
 	CodeWriter w;
 	Translator tr;
-	X10PrettyPrinterVisitor ppv;
         
         private static final Set<String> JAVA_KEYWORDS = new HashSet<String>(
             Arrays.asList(new String[]{
@@ -425,7 +437,6 @@ public class Emitter {
 				if (typeArguments == null) typeArguments = Collections.<Type>emptyList();
 				Object[] o = new Object[typeArguments.size() + 1];
 				int i = 0;
-				NodeFactory nf = tr.nodeFactory();
 				o[i++] = new TypeExpander(this, type, printGenerics,
 						boxPrimitives, inSuper);
 				for (Type a : typeArguments) {
@@ -2481,11 +2492,110 @@ public class Emitter {
         }
 	}
 
-	public void generateCustomSerializer(X10ClassDef def) {
-	    String fieldName = "__serialized__";
+    public static boolean hasCustomSerializer(X10ClassDef def) {
+        for (MethodDef md: def.methods()) {
+            if ("serialize".equals(md.name().toString())) {
+                if (md.formalTypes().size() == 0) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    
+	public static boolean hasDeserializationConstructor(X10ClassDef def) {
+        for (ConstructorDef cd: def.constructors()) {
+            if (cd.formalTypes().size() > 0) {
+                Type type = cd.formalTypes().get(cd.formalTypes().size() - 1).get();
+                if ("x10.io.SerialData".equals(type.toString())) {
+                    return true;
+                }
+            }
+        }
+        return false;
+	}
+	
+    public static X10ConstructorDecl hasDefaultConstructor(X10ClassDecl n) {
+        for (ClassMember member : n.body().members()) {
+            if (member instanceof X10ConstructorDecl) {
+                X10ConstructorDecl ctor = (X10ConstructorDecl) member;
+                if (ctor.formals().size() == 0) {
+                    return ctor;
+                }
+            }
+        }
+        return null;
+    }
+    
+    // copy of X10ClassDecl_c.createDefaultConstructor
+    public static X10ConstructorDecl
+    createDefaultConstructor(X10ClassDef thisType, X10NodeFactory_c xnf, X10ClassDecl n) {
+        Position pos = Position.compilerGenerated(n.body().position());
+
+        Ref<? extends Type> superType = thisType.superType();
+        Stmt s1 = null;
+        if (superType != null) {
+            s1 = xnf.SuperCall(pos, Collections.<Expr>emptyList());
+        }
+
+        Stmt s2 = null; 
+        List<TypeParamNode> typeFormals = Collections.<TypeParamNode>emptyList();
+        List<Formal> formals = Collections.<Formal>emptyList();
+        DepParameterExpr guard = null;
+
+        List<PropertyDecl> properties = n.properties();
+        
+        if (! properties.isEmpty()) {
+            // build type parameters.
+            /*typeFormals = new ArrayList<TypeParamNode>(typeParameters.size());
+            List<TypeNode> typeActuals = new ArrayList<TypeNode>(typeParameters.size());
+            for (TypeParamNode tp : typeParameters) {
+                typeFormals.add(xnf.TypeParamNode(pos, tp.name()));
+                typeActuals.add(xnf.CanonicalTypeNode(pos, tp.type()));
+            }*/
+
+            formals = new ArrayList<Formal>(properties.size());
+            List<Expr> actuals = new ArrayList<Expr>(properties.size());
+            ChangePositionVisitor changePositionVisitor = new ChangePositionVisitor(pos);
+            for (PropertyDecl pd: properties) {
+                Id name = (Id) pd.name().position(pos);
+                TypeNode typeNode = (TypeNode) pd.type().copy();
+                Node newNode = typeNode.visit(changePositionVisitor);
+                formals.add(xnf.Formal(pos, xnf.FlagsNode(pos, Flags.FINAL), (TypeNode) newNode, name));
+                actuals.add(xnf.Local(pos, name));
+            }
+
+            guard = n.classInvariant();
+            s2 = xnf.AssignPropertyCall(pos, Collections.<TypeNode>emptyList(), actuals);
+            // TODO: add constraint on the return type
+        }
+        
+        Block block = s2 == null ? (s1 == null ? xnf.Block(pos) : xnf.Block(pos, s1))
+                : (s1 == null ? xnf.Block(pos, s2) : xnf.Block(pos, s1, s2));
+
+        X10ClassType resultType = (X10ClassType) thisType.asType();
+        // for Generic classes
+        final List<ParameterType> typeParams = thisType.typeParameters();
+        resultType = (X10ClassType) resultType.typeArguments((List) typeParams);
+        X10CanonicalTypeNode returnType = (X10CanonicalTypeNode) xnf.CanonicalTypeNode(pos, resultType);
+
+        X10ConstructorDecl cd = xnf.X10ConstructorDecl(pos,
+                                                       xnf.FlagsNode(pos, Flags.PUBLIC),
+                                                       xnf.Id(pos, "this"), 
+                                                       returnType,
+                                                       typeFormals,
+                                                       formals,
+                                                       guard, 
+                                                       null, // offerType
+                                                       block);
+        return cd;
+    }
+
+	public void generateCustomSerializer(X10ClassDef def, X10ClassDecl_c n) {
+	    String fieldName = "__serialdata";
 	    w.write("// custom serializer");
 	    w.newline();
-	    w.write("private transient Object " + fieldName + ";");
+        w.write("private transient x10.io.SerialData " + fieldName + ";");
         w.newline();
         w.write("private Object writeReplace() { " + fieldName + " = serialize(); return this; }");
         w.newline();
@@ -2495,7 +2605,7 @@ public class Emitter {
         for (ParameterType type : def.typeParameters()) {
             w.write(type.name().toString() + ", ");
         }
-        w.write("(x10.io.SerialData)"+fieldName + "); }");
+        w.write(fieldName + "); }");
         w.newline();
         w.write("private void writeObject(java.io.ObjectOutputStream oos) throws java.io.IOException {");
         w.newline();
@@ -2511,8 +2621,95 @@ public class Emitter {
             w.write(type.name().toString() + " = (" + X10PrettyPrinterVisitor.X10_RUNTIME_TYPE_CLASS + ") ois.readObject();");
             w.newline();
         }
-        w.write(fieldName + " = ois.readObject(); }");
+        w.write(fieldName + " = (x10.io.SerialData) ois.readObject(); }");
         w.newline();
+  
+        // TODO
+        if (false) {
+        // generate default custom serializer and default deserialization constructor
+
+        // TODO generate simple custom serializer and deserialization constructor
+        boolean optimize = !hasCustomSerializer(def) && !hasDeserializationConstructor(def);
+        
+        if (!hasCustomSerializer(def)) {
+            w.write("// default custom serializer");
+            w.newline();
+            if (!optimize) {
+                w.write("public x10.io.SerialData serialize() { return new x10.io.SerialData(null, super.serialize()); }");
+            } else {
+                w.write("public x10.io.SerialData serialize() { return super.serialize(); }");
+            }
+            w.newline();
+        }
+        
+        if (!hasDeserializationConstructor(def)) {
+            w.write("// default deserialization constructor");
+            w.newline();
+            w.write("public " + def.name().toString() + "(");
+            for (ParameterType type : def.typeParameters()) {
+                w.write("final x10.rtt.Type " + type.name().toString() + ", ");
+            }
+            w.write("final x10.io.SerialData a) { ");
+
+            // call super deserialization constructor
+            w.write("super(");
+            X10ClassType superType = (X10ClassType) def.superType().get();
+            // TODO next guard is needed only for @Pinned types. is this bug?
+            if (superType.typeArguments() != null)
+            for (Type type : superType.typeArguments()) {
+                // pass rtt of the type
+                new RuntimeTypeExpander(this, type).expand(tr);
+                w.write(", ");
+            }
+            if (!optimize) {
+                w.write("a.superclassData); ");
+            } else {
+                w.write("a); ");
+            }
+            
+            // initialize rtt
+            for (ParameterType type : def.typeParameters()) {
+                w.write("this." + type.name().toString() + " = " + type.name().toString() + "; ");
+            }
+            
+            if (false) {
+            // initialize properties and fields as in default constructor
+
+            // get default constructor
+            X10ConstructorDecl ctor = hasDefaultConstructor(n);
+            if (ctor == null) {
+                ctor = createDefaultConstructor(def, (X10NodeFactory_c) tr.nodeFactory(), n);
+                // TODO apply FieldInitializerMover
+            }
+            assert ctor != null;
+            
+            // assign properties
+            // TODO what should we do?
+
+            // call field initializer
+            Block_c body = (Block_c) ctor.body();
+            if (body.statements().size() > 0) {
+                if (body.statements().get(0) instanceof ConstructorCall) {
+                    body = (Block_c) body.statements(body.statements().subList(1, body.statements().size()));
+                }
+                    
+                // X10PrettyPrinterVisitor.visit(Block_c body)
+                String s = getJavaImplForStmt(body, tr.typeSystem());
+                if (s != null) {
+                    w.write(s);
+                } else {
+                    body.translate(w, tr);
+                }
+            }
+
+            }
+
+            w.write("}");
+            w.newline();
+        }
+
+        }
+        
 	}
 
     private void printParents(X10ClassDef def, Type type) {
@@ -2540,6 +2737,7 @@ public class Emitter {
                         }
                         else {
                             X10ClassDef cd = x10Type.x10Def();
+                            // TODO implement Comparable by unsigned types
                             if (getJavaRep(cd) != null && getJavaRTTRep(cd) == null) {
                                 w.write("new x10.rtt.RuntimeType(");
                                 printType(x10Type, 0);
