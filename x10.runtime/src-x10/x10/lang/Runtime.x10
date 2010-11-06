@@ -810,14 +810,12 @@ import x10.util.Box;
         switch (pragma) {
         case Pragma.FINISH_ASYNC:
             f = new FinishState.FinishAsync(); break;
-        case Pragma.FINISH_ASYNC_AND_BACK:
-            f = new FinishState.FinishReturn(); break;
-        case Pragma.FINISH_ATEACH_UNIQUE:
-            f = new FinishState.FinishAtEach(); break;
+        case Pragma.FINISH_HERE:
+            f = new FinishState.FinishHere(); break;
+        case Pragma.FINISH_SPMD:
+            f = new FinishState.FinishSPMD(); break;
         case Pragma.FINISH_LOCAL:
             f = new FinishState.LocalFinish(); break;
-        case Pragma.FINISH_FLAT:
-            f = new FinishState.FinishFlat(); break;
         default: 
             f = new FinishState.Finish();
         }

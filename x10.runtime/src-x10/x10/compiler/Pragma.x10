@@ -17,17 +17,15 @@ public interface Pragma(pragma:Int) extends StatementAnnotation {
     // a finish with a unique async possibly remote
     public static FINISH_ASYNC = 1;
 
-    // a finish waiting for a unique async to terminate here
-    // may contain other asyncs that will be implicitly uncounted
-    public static FINISH_ASYNC_AND_BACK = 2;
+    // a finish counting local events but ignoring remote events
+    public static FINISH_HERE = 2;
 
-    // a finish with 2 * Place.MAX_PLACES asyncs
-    // e.g. finish ateach (p in Dist.makeUnique())
-    public static FINISH_ATEACH_UNIQUE = 3;
+    // a finish without nested remote asyncs in remote asyncs
+    public static FINISH_SPMD = 3;
 
     // a finish without remote asyncs
     public static FINISH_LOCAL = 4;
 
-    // a finish without nested asyncs in remote asyncs
-    public static FINISH_FLAT = 5;
+    public static FINISH_ASYNC_AND_BACK = FINISH_HERE;
+    public static FINISH_ATEACH_UNIQUE = FINISH_SPMD;
 }
