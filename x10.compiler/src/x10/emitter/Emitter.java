@@ -2654,12 +2654,12 @@ public class Emitter {
             // call super deserialization constructor
             w.write("super(");
             X10ClassType superType = (X10ClassType) def.superType().get();
-            // TODO next guard is needed only for @Pinned types. is this bug?
-            if (superType.typeArguments() != null)
-            for (Type type : superType.typeArguments()) {
-                // pass rtt of the type
-                new RuntimeTypeExpander(this, type).expand(tr);
-                w.write(", ");
+            if (superType.typeArguments() != null) {
+                for (Type type : superType.typeArguments()) {
+                    // pass rtt of the type
+                    new RuntimeTypeExpander(this, type).expand(tr);
+                    w.write(", ");
+                }
             }
             if (!optimize) {
                 w.write("a.superclassData); ");
