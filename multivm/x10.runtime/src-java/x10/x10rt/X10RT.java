@@ -11,6 +11,8 @@
 
 package x10.x10rt;
 
+import x10.x10rt.Place;
+
 public class X10RT {
     private enum State { UNINITIALIZED, BOOTED, TEARING_DOWN, TORN_DOWN };
 
@@ -34,7 +36,9 @@ public class X10RT {
       assert state.compareTo(State.TEARING_DOWN) < 0 : "X10RT is shutting down";
       assert state != State.BOOTED : "X10RT is already booted!";
 
-      String libName = System.getProperty("X10RT_IMPL", "x10rt_pgas_sockets");
+      // for MultiVM
+      // String libName = System.getProperty("X10RT_IMPL", "x10rt_pgas_sockets");
+      String libName = System.getProperty("X10RT_IMPL", "x10rt_sockets");
       System.loadLibrary(libName);
 
       // TODO: For now we are not trying to plumb the command line arguments from
@@ -42,15 +46,18 @@ public class X10RT {
       //       unless we change this code to be run via an explicit static method in
       //       X10RT instead of doing it in the class initializer.  
       //       Consider whether or not we should make this change....
-      x10rt_init(0, null);
+
+      //x10rt_init(0, null);
 
       ActiveMessage.initializeMessageHandlers();
 
+      /*
       places = new Place[x10rt_nplaces()];
       for (int i=0; i<places.length; i++) {
         places[i] = new Place(i);
       }
       here = places[x10rt_here()];
+      */
 
       // Add a shutdown hook to automatically teardown X10RT as part of JVM teardown
       Runtime.getRuntime().addShutdownHook(new Thread(new Runnable(){
@@ -86,6 +93,18 @@ public class X10RT {
       state = State.BOOTED;
     }
 
+    /** added for MULTIVM, but it might not be needed ... */
+    public static void init(){
+    	// x10rt_init(0,null);
+        /*
+        places = new Place[x10rt_nplaces()];
+        for (int i=0; i<places.length; i++) {
+          places[i] = new Place(i);
+        }
+        here = places[x10rt_here()];
+        */
+    }
+    
     /**
      * This is a blocking call.
      * All places must participate, and nobody returns from the call

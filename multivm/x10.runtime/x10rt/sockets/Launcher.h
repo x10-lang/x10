@@ -37,7 +37,8 @@ extern "C" int strcasecmp(const char *, const char *);
 #define X10LAUNCHER_DEBUG "X10LAUNCHER_DEBUG" // This flag causes the runtime to launch under gdb in a new xterm
 
 // Enable/disable debug information
-//#define DEBUG 1
+// Enabled for MULTIVM
+#define DEBUG 1
 
 enum CTRL_MSG_TYPE {HELLO, GOODBYE, PORT_REQUEST, PORT_RESPONSE};
 struct ctrl_msg
