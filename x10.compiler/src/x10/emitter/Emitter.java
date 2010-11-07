@@ -2449,11 +2449,11 @@ public class Emitter {
             for (int i = 0 ; i < def.interfaces().size(); i ++) {
                 if (i != 0) w.write(", ");
                 Type type = def.interfaces().get(i).get();
-                printParents(def, type);
+                printParent(def, type);
             }
             if (def.superType() != null) {
                 if (def.interfaces().size() != 0) w.write(", ");
-                printParents(def, def.superType().get());
+                printParent(def, def.superType().get());
             }
             w.write("}");
         }
@@ -2712,44 +2712,42 @@ public class Emitter {
         
 	}
 
-    private void printParents(X10ClassDef def, Type type) {
+    private void printParent(X10ClassDef def, Type type) {
         if (type instanceof ConstrainedType_c) {
             type = ((ConstrainedType_c) type).baseType().get();
         }
         if (type instanceof X10ClassType) {
             X10ClassType x10Type = (X10ClassType) type;
             if (x10Type.typeArguments() != null && x10Type.typeArguments().size() > 0) {
-                for (int i = 0; i < x10Type.typeArguments().size(); i++) {
-                    if (i == 0) { 
-                        w.write("new x10.rtt.ParameterizedType(");
-                        if (x10Type instanceof FunctionType) {
-                            FunctionType ft = (FunctionType) x10Type;
-                            List<Type> args = ft.argumentTypes();
-                            Type ret = ft.returnType();
-                            if (ret.isVoid()) {
-                                w.write("x10.core.fun.VoidFun");
-                            } else {
-                                w.write("x10.core.fun.Fun");
-                            }
-                            w.write("_" + ft.typeParameters().size());
-                            w.write("_" + args.size());
-                            w.write("._RTT");
-                        }
-                        else {
-                            X10ClassDef cd = x10Type.x10Def();
-                            // TODO implement Comparable by unsigned types
-                            if (getJavaRep(cd) != null && getJavaRTTRep(cd) == null) {
-                                w.write("new x10.rtt.RuntimeType(");
-                                printType(x10Type, 0);
-                                w.write(".class");
-                                w.write(")");
-                            }
-                            else {
-                                printType(x10Type, 0);
-                                w.write("._RTT");
-                            }
-                        }
+                w.write("new x10.rtt.ParameterizedType(");
+                if (x10Type instanceof FunctionType) {
+                    FunctionType ft = (FunctionType) x10Type;
+                    List<Type> args = ft.argumentTypes();
+                    Type ret = ft.returnType();
+                    if (ret.isVoid()) {
+                        w.write("x10.core.fun.VoidFun");
+                    } else {
+                        w.write("x10.core.fun.Fun");
                     }
+                    w.write("_" + ft.typeParameters().size());
+                    w.write("_" + args.size());
+                    w.write("._RTT");
+                }
+                else {
+                    X10ClassDef cd = x10Type.x10Def();
+                    // TODO implement Comparable by unsigned types
+                    if (getJavaRep(cd) != null && getJavaRTTRep(cd) == null) {
+                        w.write("new x10.rtt.RuntimeType(");
+                        printType(x10Type, 0);
+                        w.write(".class");
+                        w.write(")");
+                    }
+                    else {
+                        printType(x10Type, 0);
+                        w.write("._RTT");
+                    }
+                }
+                for (int i = 0; i < x10Type.typeArguments().size(); i++) {
                     w.write(", ");
                     Type ta = x10Type.typeArguments().get(i);
                     if (ta.typeEquals(def.asType(), tr.context())) {
@@ -2762,7 +2760,7 @@ public class Emitter {
                         w.write("" + getIndex(def.typeParameters(), (ParameterType) ta));
                         w.write(")");
                     } else {
-                        printParents(def, ta);
+                        printParent(def, ta);
                     }
                     if (i == x10Type.typeArguments().size() - 1) w.write(")");
                 }
