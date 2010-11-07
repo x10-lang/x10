@@ -20,6 +20,8 @@
 #include "Launcher.h"
 #include "TCP.h"
 
+// FOR MULTIVM
+#define DEBUG 1
 /* *********************************************************************** */
 /*     utility methods, called outside of the launcher					   */
 /* *********************************************************************** */

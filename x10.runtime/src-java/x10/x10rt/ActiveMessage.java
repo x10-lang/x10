@@ -1593,8 +1593,31 @@ public class ActiveMessage {
             }
         }
     }
+    
+    // @MultiVM /* invoked from native code */
+    private static void receiveJavaGeneral(int messageId, byte[] args) {
+    	try{
+    		System.out.println("@MultiVM : receiveJavaGeneral is called");
+    		System.out.println("Message ID: "+ messageId);
+    		java.io.ByteArrayInputStream byteStream 
+    			= new java.io.ByteArrayInputStream(args);
+    		System.out.println("receiveJavaGeneral: ByteArrayInputStream");
+    		java.io.ObjectInputStream objStream = new java.io.ObjectInputStream(byteStream);
+    		System.out.println("receiveJavaGeneral: ObjectInputStream");
+    		x10.core.fun.VoidFun_0_0 actObj = (x10.core.fun.VoidFun_0_0) objStream.readObject();
+    		System.out.println("receiveJavaGeneral: after cast");
+    		actObj.apply();
+    		System.out.println("receiveJavaGeneral: after apply");
+    		objStream.close();
+    		System.out.println("receiveJavaGeneral is done !");
+    	} catch(Exception ex){
+    		System.out.println("receiveGeneral error !!!");
+    		ex.printStackTrace();
+    	}
+    }
 
-    static native void initializeMessageHandlers();
+    // modified for @MULTIVM
+    public static native void initializeMessageHandlers();
 
     private static synchronized native void registerMethodImpl(Method method, Class<?> targetClass, int messageId);
 
@@ -1652,4 +1675,8 @@ public class ActiveMessage {
     private static native void sendArrayRemote(int place, int messageId, int start, int end, int[] array);
 
     private static native void sendGeneralRemote(int place, int messageId, int arraylen, byte[] rawBytes);
+    
+    // @MultiVM
+    public static native void sendJavaRemote(int place, int messageId, int arraylen, byte[] rawBytes);
+
 }

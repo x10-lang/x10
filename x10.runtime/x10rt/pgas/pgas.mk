@@ -167,7 +167,7 @@ $(EXECUTABLES): $(EXECUTABLES:%=$(CUSTOM_PGAS)/%)
 	-$(CP) $^ bin/
 else
 $(SOCKETS_TGZ).phony:
-	-$(WGET) -q -N  "http://dist.codehaus.org/x10/binaryReleases/$(X10_VERSION)/$(SOCKETS_TGZ)"
+#	-$(WGET) -q -N  "http://dist.codehaus.org/x10/binaryReleases/$(X10_VERSION)/$(SOCKETS_TGZ)"
 
 $(SOCKETS_TGZ): $(SOCKETS_TGZ).phony
 

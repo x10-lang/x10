@@ -56,6 +56,8 @@ static x10rt_msg_type DArray_Handler;
 
 static x10rt_msg_type General_Handler;
 
+// @Multi-VM
+static x10rt_msg_type Java_Handler;
 
 /*
  * Data structure used to cache the information needed to do a
@@ -70,7 +72,12 @@ typedef struct methodDesciption {
 static methodDescription* registeredMethods;
 static methodDescription generalReceive;
 
+// @Multi-VM
+static methodDescription javaGeneralReceive;
+
 static JavaVM* theJVM;
+
+#define DEBUG 1
 
 /*************************************************************************
  *
@@ -803,6 +810,23 @@ void jni_messageReceiver_general(const x10rt_msg_params *msg) {
     env->CallStaticVoidMethod(generalReceive.targetClass, generalReceive.targetMethod, messageId, arg);
 }
 
+// @Multi-VM
+void jni_messageReceiver_javadispatcher(const x10rt_msg_params *msg) {
+    JNIEnv *env = getEnv();
+    MessageReader reader(msg);
+
+    int messageId = reader.readJInt();
+    jint numElems = reader.readJInt();
+    jbyteArray arg = env->NewByteArray(numElems);
+    if (NULL == arg) {
+        fprintf(stderr, "OOM from NewArray (num elements = %d)\n", (int)numElems);
+        abort();
+    }
+
+    env->SetByteArrayRegion(arg, 0, numElems, (jbyte*)reader.cursor);
+
+    env->CallStaticVoidMethod(javaGeneralReceive.targetClass, javaGeneralReceive.targetMethod, messageId, arg);
+}
 
 /*************************************************************************
  *
@@ -1425,6 +1449,45 @@ JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_sendGeneralRemote(JNIEnv *en
     free(msg.msg);
 }    
 
+
+/*
+ * Class:     x10_x10rt_ActiveMessage
+ * Method:    sendGeneralRemote
+ * Signature: (III[B)V
+ */
+JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_sendJavaRemote(JNIEnv *env, jclass klazz, jint place, jint messageId,
+                                                                      jint arrayLen, jbyteArray array) {
+
+
+    fprintf(stdout, "ActiveMessage.sendJavaRemote is invoked from jni_message.cc\n");
+    //FILE *fp;
+    //fp = fopen("/tmp/jnilog.txt","a");
+    fprintf(stdout, "jni_message:cc: sendJavaRemote is called\n");
+    fprintf(stdout, "jni_message:cc: messagewriter: placeId=%d, messageId=%d, arraylen=%d\n", place, messageId, arrayLen);
+
+    unsigned long numBytes = sizeof(jint) + sizeof(jint) + arrayLen * sizeof(jbyte);
+    MessageWriter writer(numBytes);
+    writer.writeJInt(messageId);
+    writer.writeJInt(arrayLen);
+    env->GetByteArrayRegion(array, 0, arrayLen, (jbyte*)writer.cursor);
+    // Byte array, so no need to endian swap
+
+
+
+    x10rt_msg_params msg = {place, Java_Handler, writer.buffer, numBytes};
+    x10rt_send_msg(&msg);
+
+
+
+
+
+    //fclose(fp);
+
+    free(msg.msg);
+
+}
+
+
 /*************************************************************************
  *
  * Support for method registration
@@ -1443,6 +1506,10 @@ JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_sendGeneralRemote(JNIEnv *en
  */
 JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_initializeMessageHandlers(JNIEnv *env, jclass klazz) {
 
+#ifdef DEBUG
+	printf("jni_message.cc: ActiveMessage_initializeMessageHandlers\n");
+#endif
+
     /* Initialize native data structures used for mapping active messages to JNI info */
     registeredMethods = (methodDescription*)malloc(x10_x10rt_ActiveMessage_MAX_MESSAGE_ID*sizeof(methodDescription));
     if (NULL == registeredMethods) {
@@ -1457,6 +1524,13 @@ JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_initializeMessageHandlers(JN
         fprintf(stderr, "Unable to resolve methodID for ActiveMessage.receiveGeneral");
         abort();
     }        
+    // @ Multi-VM
+    jmethodID receiveId2 = env->GetStaticMethodID(klazz, "receiveJavaGeneral", "(I[B)V");
+    if (NULL == receiveId2) {
+        fprintf(stderr, "Unable to resolve methodID for ActiveMessage.receiveJavaGeneral");
+        abort();
+    }
+
     jclass globalClass = (jclass)env->NewGlobalRef(klazz);
     if (NULL == globalClass) {
         fprintf(stderr, "OOM while attempting to allocate global reference for ActiveMessage class\n");
@@ -1464,6 +1538,9 @@ JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_initializeMessageHandlers(JN
     }        
     generalReceive.targetClass = globalClass;
     generalReceive.targetMethod = receiveId;
+
+    javaGeneralReceive.targetClass  = globalClass;
+    javaGeneralReceive.targetMethod = receiveId2;
 
 
     /* Stash away JavaVM* so we can use it in receive functions to attach to the JVM.
@@ -1519,6 +1596,9 @@ JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_initializeMessageHandlers(JN
     DArray_Handler = x10rt_register_msg_receiver(&jni_messageReceiver_DArray, NULL, NULL, NULL, NULL);
     
     General_Handler = x10rt_register_msg_receiver(&jni_messageReceiver_general, NULL, NULL, NULL, NULL);
+    // @Multi-VM
+    Java_Handler    = x10rt_register_msg_receiver(&jni_messageReceiver_javadispatcher, NULL, NULL, NULL, NULL);
+
 }
 
 

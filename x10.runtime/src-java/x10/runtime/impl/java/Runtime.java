@@ -11,10 +11,15 @@
 
 package x10.runtime.impl.java;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
+import x10.runtime.impl.java.Thread;
+import x10.x10rt.ActiveMessage;
+import x10.x10rt.X10RT;
 
 public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
     public RuntimeType<?> getRTT() { return null; }
@@ -27,6 +32,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
 	 */
 	protected void start(final String[] args) {
 		this.args = args;
+		
 
 		// load libraries
 		String property = System.getProperty("x10.LOAD");
@@ -35,6 +41,12 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
 			for (int i = libs.length-1; i>=0; i--) System.loadLibrary(libs[i]);
 		}
 
+		// @MultiVM, the following is right ?? 
+		X10RT.init();
+		System.out.println("@MultiVM: ActiveMessage.initializeMessageHandlers");
+		ActiveMessage.initializeMessageHandlers();
+
+		
 		java.lang.Runtime.getRuntime().addShutdownHook(new java.lang.Thread() {
 		    public void run() { System.out.flush(); }
 		});
@@ -126,7 +138,8 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
      * Synchronously executes body at place(id)
      */
     public static void runClosureAt(int id, x10.core.fun.VoidFun_0_0 body) {
-        runAtLocal(id, body);
+        // runAtLocal(id, body);
+    	runAt(id, body);
     }
 
     /**
@@ -134,7 +147,8 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
      */
     public static void runClosureCopyAt(int id, x10.core.fun.VoidFun_0_0 body) {
         body = deepCopy(id, body);
-        runAtLocal(id, body);
+        // runAtLocal(id, body);
+        runAt(id, body);
     }
 
     /**
@@ -182,11 +196,46 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
         return body;
     }
 
+    // @MultiVM, add this method 
+    public static void runAt(int id, x10.core.fun.VoidFun_0_0 body) {
+		final Thread thread = Thread.currentThread();
+		final int ret = thread.home().id;
+		thread.home(id); // update thread place
+		
+		try {
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			(new java.io.ObjectOutputStream(baos)).writeObject(body);
+			byte[] msg = baos.toByteArray();
+			int msgLen = baos.size();
+			int msgId = 9999;
+			System.out.println("@MultiVM: sendJavaRemote");
+			x10.x10rt.ActiveMessage.sendJavaRemote(id, msgId, msgLen, msg);
+		} catch (java.io.IOException e){
+			e.printStackTrace();
+			throw new WrappedRuntimeException(e);
+		} finally {
+			System.out.println("@MULTIVM: finally section");
+			thread.home(ret);
+		}
+	}
+
 	/**
-	 * Return true if place(id) is local to this node
+	 * @MultiVM: Return true if place(id) is local to this node
 	 */
 	public static boolean local(int id) {
 		return true; // single process implementation
+		/*x10.x10rt.Place place = X10RT.here();
+		int hereId = place.getId();
+		return (hereId == id);
+		*/
+	}
+	
+	
+	/**
+	 *  @MultiVM: mapped to Runtime.x10 -> event_probe(): void
+	 */
+	public static void eventProbe(){
+		X10RT.probe();
 	}
 
 	/**

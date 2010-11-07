@@ -100,6 +100,7 @@ import x10.util.Box;
      * Process one incoming message if any (non-blocking).
      */
     @Native("c++", "x10aux::event_probe()")
+    @Native("java","x10.runtime.impl.java.Runtime.eventProbe()")
     static def event_probe():void {}
 
     /**
