@@ -323,25 +323,40 @@ abstract class FinishState {
 
     static class RootFinish extends RootFinishSkeleton {
         protected val latch:Latch;
+        protected var count:Int = 1;
         protected var exceptions:Stack[Throwable]; // lazily initialized
-        protected val counts:Rail[Int] = Rail.make[Int](Place.MAX_PLACES, 0);
-        protected val seen:Rail[Boolean] = Rail.make[Boolean](Place.MAX_PLACES, false);
+        protected var counts:Rail[Int];
+        protected var seen:Rail[Boolean];
         def this(latch:Latch) {
             this.latch = latch;
-            counts(Runtime.hereInt())++;
         }
         public def notifySubActivitySpawn(place:Place):void {
+            val p = place.parent(); // CUDA
             latch.lockWorker();
-            counts(place.parent().id)++;
+            if (p == ref().home) {
+                count++;
+                latch.unlock();
+                return;
+            }
+            if (null == counts) {
+                counts = Rail.make[Int](Place.MAX_PLACES, 0);
+                seen = Rail.make[Boolean](Place.MAX_PLACES, false);
+            }
+            counts(p.id)++;
             latch.unlock();
         }
         public def notifyActivityTermination():void {
             latch.lockWorker();
-            counts(Runtime.hereInt())--;
-            for(var i:Int=0; i<Place.MAX_PLACES; i++) {
-                if (counts(i) != 0) {
-                    latch.unlock();
-                    return;
+            if (--count != 0) {
+                latch.unlock();
+                return;
+            }
+            if (null != counts) {
+                for(var i:Int=0; i<Place.MAX_PLACES; i++) {
+                    if (counts(i) != 0) {
+                        latch.unlock();
+                        return;
+                    }
                 }
             }
             latch.unlock();
@@ -360,19 +375,23 @@ abstract class FinishState {
             notifyActivityTermination();
             if (!Runtime.NO_STEALS && safe) Runtime.worker().join(latch);
             latch.await();
-            val root = ref();
-            val closure = ()=>@RemoteInvocation { Runtime.runtime().finishStates.remove(root); };
-            seen(Runtime.hereInt()) = false;
-            for(var i:Int=0; i<Place.MAX_PLACES; i++) {
-                if (seen(i)) Runtime.runClosureAt(i, closure);
+            if (null != counts) {
+                val root = ref();
+                val closure = ()=>@RemoteInvocation { Runtime.runtime().finishStates.remove(root); };
+                seen(Runtime.hereInt()) = false;
+                for(var i:Int=0; i<Place.MAX_PLACES; i++) {
+                    if (seen(i)) Runtime.runClosureAt(i, closure);
+                }
+                Runtime.dealloc(closure);
             }
-            Runtime.dealloc(closure);
             val t = MultipleExceptions.make(exceptions);
             if (null != t) throw t;
         }
 
         protected def process(rail:Rail[Int]) {
-            var b:Boolean = true;
+            counts(ref().home.id) = -rail(ref().home.id);
+            count += rail(ref().home.id);
+            var b:Boolean = count == 0;
             for(var i:Int=0; i<Place.MAX_PLACES; i++) {
                 counts(i) += rail(i);
                 seen(i) |= counts(i) != 0;
@@ -392,10 +411,11 @@ abstract class FinishState {
                 counts(rail(i).first) += rail(i).second;
                 seen(rail(i).first) = true;
             }
+            count += counts(ref().home.id);
+            counts(ref().home.id) = 0;
+            if (count != 0) return;
             for(var i:Int=0; i<Place.MAX_PLACES; i++) {
-                if (counts(i) != 0) {
-                    return;
-                }
+                if (counts(i) != 0) return;
             }
             latch.release();
         }
@@ -424,19 +444,31 @@ abstract class FinishState {
     static class RemoteFinish extends RemoteFinishSkeleton {
         protected var exceptions:Stack[Throwable];
         protected val lock = new Lock();
-        protected val counts = Rail.make[Int](Place.MAX_PLACES, 0);
-        protected val places = Rail.make[Int](Place.MAX_PLACES, Runtime.hereInt());
+        protected var count:Int = 0;
+        protected var counts:Rail[Int];
+        protected var places:Rail[Int];
         protected var length:Int = 1;
-        protected var count:AtomicInteger = new AtomicInteger(0);
+        protected var local:AtomicInteger = new AtomicInteger(0);
         def this(ref:GlobalRef[FinishState]) {
             super(ref);
         }
         public def notifyActivityCreation():void {
-            count.getAndIncrement();
+            local.getAndIncrement();
         }
         public def notifySubActivitySpawn(place:Place):void {
+            val id = Runtime.hereInt();
             lock.lock();
-            if (counts(place.id)++ == 0 && Runtime.hereInt() != place.id) {
+            if (place.id == id) {
+                count++;
+                lock.unlock();
+                return;
+            }
+            if (null == counts) {
+                counts = Rail.make[Int](Place.MAX_PLACES, 0);
+                places = Rail.make[Int](Place.MAX_PLACES, 0);
+                places(0) = id;
+            }
+            if (counts(place.id)++ == 0 && id != place.id) {
                 places(length++) = place.id;
             }
             lock.unlock();
@@ -449,31 +481,42 @@ abstract class FinishState {
         }
         public def notifyActivityTermination():void {
             lock.lock();
-            counts(Runtime.hereInt())--;
-            if (count.decrementAndGet() > 0) {
+            count--;
+            if (local.decrementAndGet() > 0) {
                 lock.unlock();
                 return;
             }
             val t = MultipleExceptions.make(exceptions);
             val ref = this.ref();
             val closure:()=>void;
-            if (2*length > Place.MAX_PLACES) {
-                val message = Rail.make[Int](counts.length, 0, counts);
-                if (null != t) {
-                    closure = ()=>@RemoteInvocation { deref[RootFinish](ref).notify(message, t); };
+            if (null != counts) {
+                counts(Runtime.hereInt()) = count;
+                if (2*length > Place.MAX_PLACES) {
+                    val message = Rail.make[Int](counts.length, 0, counts);
+                    if (null != t) {
+                        closure = ()=>@RemoteInvocation { deref[RootFinish](ref).notify(message, t); };
+                    } else {
+                        closure = ()=>@RemoteInvocation { deref[RootFinish](ref).notify(message); };
+                    }
                 } else {
-                    closure = ()=>@RemoteInvocation { deref[RootFinish](ref).notify(message); };
+                    val message = Rail.make[Pair[Int,Int]](length, (i:Int)=>Pair[Int,Int](places(i), counts(places(i))));
+                    if (null != t) {
+                        closure = ()=>@RemoteInvocation { deref[RootFinish](ref).notify(message, t); };
+                    } else {
+                        closure = ()=>@RemoteInvocation { deref[RootFinish](ref).notify(message); };
+                    }
                 }
+                counts.reset(0);
+                length = 1;
             } else {
-                val message = Rail.make[Pair[Int,Int]](length, (i:Int)=>Pair[Int,Int](places(i), counts(places(i))));
+                val message = Rail.make[Pair[Int,Int]](1, Pair[Int,Int](Runtime.hereInt(), count));
                 if (null != t) {
                     closure = ()=>@RemoteInvocation { deref[RootFinish](ref).notify(message, t); };
                 } else {
                     closure = ()=>@RemoteInvocation { deref[RootFinish](ref).notify(message); };
                 }
             }
-            counts.reset(0);
-            length = 1;
+            count = 0;
             exceptions = null;
             lock.unlock();
             Runtime.runClosureAt(ref.home.id, closure);
@@ -580,8 +623,8 @@ abstract class FinishState {
         }
         public def notifyActivityTermination():void {
             lock.lock();
-            counts(Runtime.hereInt())--;
-            if (count.decrementAndGet() > 0) {
+            count--;
+            if (local.decrementAndGet() > 0) {
                 lock.unlock();
                 return;
             }
@@ -591,23 +634,34 @@ abstract class FinishState {
             sr.placeMerge();
             val result = sr.result();
             sr.reset();
-            if (2*length > Place.MAX_PLACES) {
-                val message = Rail.make[Int](counts.length, 0, counts);
-                if (null != t) {
-                    closure = ()=>@RemoteInvocation { deref[RootCollectingFinish[T]](ref).notify(message, t); };
+            if (null != counts) {
+                counts(Runtime.hereInt()) = count;
+                if (2*length > Place.MAX_PLACES) {
+                    val message = Rail.make[Int](counts.length, 0, counts);
+                    if (null != t) {
+                        closure = ()=>@RemoteInvocation { deref[RootCollectingFinish[T]](ref).notify(message, t); };
+                    } else {
+                        closure = ()=>@RemoteInvocation { deref[RootCollectingFinish[T]](ref).notifyValue(message, result); };
+                    }
                 } else {
-                    closure = ()=>@RemoteInvocation { deref[RootCollectingFinish[T]](ref).notifyValue(message, result); };
+                    val message = Rail.make[Pair[Int,Int]](length, (i:Int)=>Pair[Int,Int](places(i), counts(places(i))));
+                    if (null != t) {
+                        closure = ()=>@RemoteInvocation { deref[RootCollectingFinish[T]](ref).notify(message, t); };
+                    } else {
+                        closure = ()=>@RemoteInvocation { deref[RootCollectingFinish[T]](ref).notifyValue(message, result); };
+                    }
                 }
+                counts.reset(0);
+                length = 1;
             } else {
-                val message = Rail.make[Pair[Int,Int]](length, (i:Int)=>Pair[Int,Int](places(i), counts(places(i))));
+                val message = Rail.make[Pair[Int,Int]](1, Pair[Int,Int](Runtime.hereInt(), count));
                 if (null != t) {
                     closure = ()=>@RemoteInvocation { deref[RootCollectingFinish[T]](ref).notify(message, t); };
                 } else {
                     closure = ()=>@RemoteInvocation { deref[RootCollectingFinish[T]](ref).notifyValue(message, result); };
                 }
             }
-            counts.reset(0);
-            length = 1;
+            count = 0;
             exceptions = null;
             lock.unlock();
             Runtime.runClosureAt(ref.home.id, closure);
