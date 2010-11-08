@@ -286,6 +286,7 @@ import x10.util.Box;
             @TempNoInline_1
             // process all queued activities
             val tmp = activity; // save current activity
+            event_probe();
             while (true) {
                 activity = poll();
                 if (activity == null) {
@@ -301,7 +302,7 @@ import x10.util.Box;
             if (!STATIC_THREADS) {
                 Thread.park();
             } else {
-                event_probe();
+                probe();
             }
         }
 
@@ -875,7 +876,6 @@ import x10.util.Box;
     }
 
     public static def probe() {
-        event_probe();
         worker().probe();
     }
 
@@ -894,10 +894,7 @@ import x10.util.Box;
     }
 
     public static def spin() {
-        event_probe();
-        if (STATIC_THREADS) {
-            worker().probe();
-        }
+        probe();
     }
 }
 
