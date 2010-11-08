@@ -61,7 +61,7 @@ public class SharedMem {
             	out.write(".size");
             }
             out.write(", ("+elementType+"*) "+raw+" };"); out.newline();
-            return "&"+ast.name().id()+".apply("+ast.name().id()+".size)";
+            return "&"+ast.name().id()+".raw["+ast.name().id()+".size]";
         }
         public String generateInit(StreamWrapper out, String offset, Translator tr) {
             out.write("{"); out.newline(4); out.begin(0);
@@ -79,7 +79,7 @@ public class SharedMem {
             if (numElements == null) {
             	out.write("const "+elementType+" &__v = ");
                 tr.print(null, init, out);
-            	out.write(".apply(__i);");
+            	out.write(".raw[__i];");
             } else {
             	if (init instanceof Closure) {
             		Closure lit = (Closure) init;
@@ -107,14 +107,14 @@ public class SharedMem {
             	}
             }
     		out.newline();
-            out.write(ast.name().id()+".set(__v, __i);");
+            out.write(ast.name().id()+".raw[__i] = __v;");
             out.newline();
             
             out.end(); out.newline();
             out.write("}");
             out.end(); out.newline();
             out.write("}");
-            return "&"+ast.name().id()+".apply("+ast.name().id()+".size)";
+            return "&"+ast.name().id()+".raw["+ast.name().id()+".size]";
         }
         public void generateSize(StreamWrapper inc, Translator tr) {
             if (numElements!=null) {
