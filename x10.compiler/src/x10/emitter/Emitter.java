@@ -2713,12 +2713,24 @@ public class Emitter {
 	}
 
     private void printParent(X10ClassDef def, Type type) {
-        if (type instanceof ConstrainedType_c) {
-            type = ((ConstrainedType_c) type).baseType().get();
-        }
+        type = X10TypeMixin.baseType(type);
         if (type instanceof X10ClassType) {
             X10ClassType x10Type = (X10ClassType) type;
-            if (x10Type.typeArguments() != null && x10Type.typeArguments().size() > 0) {
+            X10ClassDef cd = x10Type.x10Def();
+            String pat = getJavaRTTRep(cd);
+            if (pat != null) {
+                List<Type> typeArgs = x10Type.typeArguments();
+                if (typeArgs == null) typeArgs = Collections.<Type>emptyList();
+                Object[] components = new Object[1 + typeArgs.size() * 2];
+                int i = 0;
+                components[i++] = new TypeExpander(this, x10Type, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+                for (Type at : typeArgs) {
+                    components[i++] = new TypeExpander(this, at, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+                    components[i++] = "new x10.rtt.UnresolvedType(" + ((i / 2) - 1) + ")";
+                }
+                dumpRegex("Native", components, tr, pat);
+            }
+            else if (x10Type.typeArguments() != null && x10Type.typeArguments().size() > 0) {
                 w.write("new x10.rtt.ParameterizedType(");
                 if (x10Type instanceof FunctionType) {
                     FunctionType ft = (FunctionType) x10Type;
@@ -2734,9 +2746,7 @@ public class Emitter {
                     w.write("._RTT");
                 }
                 else {
-                    X10ClassDef cd = x10Type.x10Def();
-                    // TODO implement Comparable by unsigned types
-                    if (getJavaRep(cd) != null && getJavaRTTRep(cd) == null) {
+                    if (getJavaRep(cd) != null) {
                         w.write("new x10.rtt.RuntimeType(");
                         printType(x10Type, 0);
                         w.write(".class");
