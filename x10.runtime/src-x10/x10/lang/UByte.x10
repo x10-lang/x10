@@ -25,7 +25,7 @@ import x10.util.Ordered;
  */
 // @NativeRep("java", "byte", null, "x10.rtt.Types.UBYTE")
 @NativeRep("c++", "x10_ubyte", "x10_ubyte", null)
-public final struct UByte /*TODO implements Arithmetic[UByte], Bitwise[UByte], Ordered[UByte]*/ {
+public struct UByte implements Comparable[UByte] /*TODO implements Arithmetic[UByte], Bitwise[UByte], Ordered[UByte]*/ {
 
     /** The actual number with Byte representation */
     public val byteVal:Byte;
@@ -614,4 +614,15 @@ public final struct UByte /*TODO implements Arithmetic[UByte], Bitwise[UByte], O
     // @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
     public def equals(x:UByte):Boolean = this.byteVal == x.byteVal;
+
+    /**
+    * Returns a negative Int, zero, or a positive Int if this UByte is less than, equal
+    * to, or greater than the given UByte.
+    * @param x the given UByte
+    * @return a negative Int, zero, or a positive Int if this UByte is less than, equal
+    * to, or greater than the given UByte.
+    */
+    // @Native("java", "x10.rtt.Equality.compareTo(#0.byteVal + java.lang.Byte.MIN_VALUE, #1.byteVal + java.lang.Byte.MIN_VALUE)")
+    @Native("c++", "0")
+    public def compareTo(x:UByte): Int = (this.byteVal + Byte.MIN_VALUE).compareTo(x.byteVal + Byte.MIN_VALUE);
 }

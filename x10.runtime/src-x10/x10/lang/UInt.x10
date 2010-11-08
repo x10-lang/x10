@@ -27,7 +27,7 @@ import x10.util.Ordered;
 //                 v-- when used
 @NativeRep("c++", "x10_uint", "x10_uint", null)
 //                             ^ when constructed
-public final struct UInt /*TODO implements Arithmetic[UInt], Bitwise[UInt], Ordered[UInt]*/ {
+public struct UInt implements Comparable[UInt] /*TODO implements Arithmetic[UInt], Bitwise[UInt], Ordered[UInt]*/ {
 
     /** The actual number with Int representation */
     public val intVal:Int;
@@ -711,4 +711,15 @@ public final struct UInt /*TODO implements Arithmetic[UInt], Bitwise[UInt], Orde
     // @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
     public def equals(x:UInt):Boolean = this.intVal == x.intVal;
+
+    /**
+    * Returns a negative Int, zero, or a positive Int if this UInt is less than, equal
+    * to, or greater than the given UInt.
+    * @param x the given UInt
+    * @return a negative Int, zero, or a positive Int if this UInt is less than, equal
+    * to, or greater than the given UInt.
+    */
+    // @Native("java", "x10.rtt.Equality.compareTo(#0.intVal + java.lang.Integer.MIN_VALUE, #1.intVal + java.lang.Integer.MIN_VALUE)")
+    @Native("c++", "0")
+    public def compareTo(x:UInt): Int = (this.intVal + Int.MIN_VALUE).compareTo(x.intVal + Int.MIN_VALUE);
 }

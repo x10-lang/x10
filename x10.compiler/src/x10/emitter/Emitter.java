@@ -2783,8 +2783,8 @@ public class Emitter {
                     } else {
                         printParent(def, ta);
                     }
-                    if (i == x10Type.typeArguments().size() - 1) w.write(")");
                 }
+                w.write(")");
             } else {
                 new RuntimeTypeExpander(this, x10Type).expand(tr);
             }
