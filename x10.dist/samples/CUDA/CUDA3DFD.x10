@@ -189,11 +189,9 @@ public class CUDA3DFD {
             val BLOCK_DIMY = BLOCK_DIMX;
             val THREADS = BLOCK_DIMX*BLOCK_DIMY, BLOCKS_X=dimx/BLOCK_DIMX, BLOCKS_Y=dimy/BLOCK_DIMY;
             val S_DATA_STRIDE = BLOCK_DIMX+2*RADIUS;
-            val c_coeff = new Array[Float](h_coeff_symmetric);
             finish async at (gpu) @CUDA @CUDADirectParams {
-                //val c_coeff = h_coeff_symmetric.sequence();
+                val c_coeff = h_coeff_symmetric.sequence();
                 finish for ([block] in 0..BLOCKS_X*BLOCKS_Y-1) async {
-                    val c_coeff = new Array[Float](h_coeff_symmetric);
                     val s_data = new Array[Float]((BLOCK_DIMY+2*RADIUS)*S_DATA_STRIDE, 0);
                     clocked finish for ([thread] in 0..THREADS-1) clocked async {
                         val blockidx = block%BLOCKS_X;
@@ -202,91 +200,90 @@ public class CUDA3DFD {
                         val threadidy = thread/BLOCK_DIMX;
                         val ix = blockidx * BLOCK_DIMX + threadidx;
                         val iy = blockidy * BLOCK_DIMY + threadidy;
-                        var in_idx:Int=iy*dimx + ix; {
-                            var out_idx:Int = 0;
-                            val stride  = dimx*dimy;
+                        var in_idx:Int=iy*dimx + ix;
+                        var out_idx:Int = 0;
+                        val stride  = dimx*dimy;
 
-                            var infront1:Float, infront2:Float, infront3:Float, infront4:Float;
-                            var behind1:Float, behind2:Float, behind3:Float, behind4:Float;
-                            var current:Float;
+                        var infront1:Float, infront2:Float, infront3:Float, infront4:Float;
+                        var behind1:Float, behind2:Float, behind3:Float, behind4:Float;
+                        var current:Float;
 
-                            val tx = threadidx + RADIUS;
-                            val ty = threadidy + RADIUS;
+                        val tx = threadidx + RADIUS;
+                        val ty = threadidy + RADIUS;
 
-                            // fill the "in-front" and "behind" data
-                            behind3  = d_input(in_idx);    in_idx += stride;
-                            behind2  = d_input(in_idx);    in_idx += stride;
-                            behind1  = d_input(in_idx);    in_idx += stride;
+                        // fill the "in-front" and "behind" data
+                        behind3  = d_input(in_idx);    in_idx += stride;
+                        behind2  = d_input(in_idx);    in_idx += stride;
+                        behind1  = d_input(in_idx);    in_idx += stride;
 
-                            current  = d_input(in_idx);    out_idx = in_idx; in_idx += stride;
+                        current  = d_input(in_idx);    out_idx = in_idx; in_idx += stride;
 
-                            infront1 = d_input(in_idx);    in_idx += stride;
-                            infront2 = d_input(in_idx);    in_idx += stride;
-                            infront3 = d_input(in_idx);    in_idx += stride;
-                            infront4 = d_input(in_idx);      in_idx += stride;
+                        infront1 = d_input(in_idx);    in_idx += stride;
+                        infront2 = d_input(in_idx);    in_idx += stride;
+                        infront3 = d_input(in_idx);    in_idx += stride;
+                        infront4 = d_input(in_idx);    in_idx += stride;
 
-                            for(var i:Int=RADIUS; i<dimz-RADIUS; i++)
+                        for(var i:Int=RADIUS; i<dimz-RADIUS; i++)
+                        {
+                            //////////////////////////////////////////
+                            // advance the slice (move the thread-front)
+                            behind4  = behind3;
+                            behind3  = behind2;
+                            behind2  = behind1;
+                            behind1  = current;
+                            current  = infront1;
+                            infront1 = infront2;
+                            infront2 = infront3;
+                            infront3 = infront4;
+                            infront4 = d_input(in_idx);
+
+                            in_idx  += stride;
+                            out_idx += stride;
+                            next;
+
+                            /////////////////////////////////////////
+                            // update the data slice in smem
+
+                            if(threadidy<RADIUS)    // halo above/below
                             {
-                                //////////////////////////////////////////
-                                // advance the slice (move the thread-front)
-                                behind4  = behind3;
-                                behind3  = behind2;
-                                behind2  = behind1;
-                                behind1  = current;
-                                current  = infront1;
-                                infront1 = infront2;
-                                infront2 = infront3;
-                                infront3 = infront4;
-                                infront4 = d_input(in_idx);
-
-                                in_idx  += stride;
-                                out_idx += stride;
-                                next;
-
-                                /////////////////////////////////////////
-                                // update the data slice in smem
-
-                                if(threadidy<RADIUS)    // halo above/below
-                                {
-                                    s_data(threadidy*S_DATA_STRIDE + tx)                     = d_input(out_idx-RADIUS*dimx);
-                                    s_data((threadidy+BLOCK_DIMY+RADIUS)*S_DATA_STRIDE + tx) = d_input(out_idx+BLOCK_DIMY*dimx);
-                                }
-
-                                if(threadidx<RADIUS)    // halo left/right
-                                {
-                                    s_data(ty*S_DATA_STRIDE + threadidx)                   = d_input(out_idx-RADIUS);
-                                    s_data(ty*S_DATA_STRIDE + threadidx+BLOCK_DIMX+RADIUS) = d_input(out_idx+BLOCK_DIMX);
-                                }
-
-                                // update the slice in smem
-                                s_data((ty)*S_DATA_STRIDE + tx) = current;
-                                next;
-
-                                /////////////////////////////////////////
-                                // compute the output value
-                                var valu:Float  = c_coeff(0) * current;
-                                val sd1a = s_data((ty-1)*S_DATA_STRIDE + tx);
-                                val sd1b = s_data((ty+1)*S_DATA_STRIDE + tx);
-                                val sd1c = s_data(ty*S_DATA_STRIDE + tx-1);
-                                val sd1d = s_data(ty*S_DATA_STRIDE + tx+1);
-                                val sd2a = s_data((ty-2)*S_DATA_STRIDE + tx);
-                                val sd2b = s_data((ty+2)*S_DATA_STRIDE + tx);
-                                val sd2c = s_data(ty*S_DATA_STRIDE + tx-2);
-                                val sd2d = s_data(ty*S_DATA_STRIDE + tx+2);
-                                val sd3a = s_data((ty-3)*S_DATA_STRIDE + tx);
-                                val sd3b = s_data((ty+3)*S_DATA_STRIDE + tx);
-                                val sd3c = s_data(ty*S_DATA_STRIDE + tx-3);
-                                val sd3d = s_data(ty*S_DATA_STRIDE + tx+3);
-                                val sd4a = s_data((ty-4)*S_DATA_STRIDE + tx);
-                                val sd4b = s_data((ty+4)*S_DATA_STRIDE + tx);
-                                val sd4c = s_data(ty*S_DATA_STRIDE + tx-4);
-                                val sd4d = s_data(ty*S_DATA_STRIDE + tx+4);
-                                valu += c_coeff(1)*( infront1 + behind1 + sd1a + sd1b + sd1c + sd1d );
-                                valu += c_coeff(2)*( infront2 + behind2 + sd2a + sd2b + sd2c + sd2d );
-                                valu += c_coeff(3)*( infront3 + behind3 + sd3a + sd3b + sd3c + sd3d );
-                                valu += c_coeff(4)*( infront4 + behind4 + sd4a + sd4b + sd4c + sd4d );
-                                d_output(out_idx) = valu;
+                                s_data(threadidy*S_DATA_STRIDE + tx)                     = d_input(out_idx-RADIUS*dimx);
+                                s_data((threadidy+BLOCK_DIMY+RADIUS)*S_DATA_STRIDE + tx) = d_input(out_idx+BLOCK_DIMY*dimx);
                             }
+
+                            if(threadidx<RADIUS)    // halo left/right
+                            {
+                                s_data(ty*S_DATA_STRIDE + threadidx)                   = d_input(out_idx-RADIUS);
+                                s_data(ty*S_DATA_STRIDE + threadidx+BLOCK_DIMX+RADIUS) = d_input(out_idx+BLOCK_DIMX);
+                            }
+
+                            // update the slice in smem
+                            s_data((ty)*S_DATA_STRIDE + tx) = current;
+                            next;
+
+                            /////////////////////////////////////////
+                            // compute the output value
+                            var valu:Float  = c_coeff(0) * current;
+                            val sd1a = s_data((ty-1)*S_DATA_STRIDE + tx);
+                            val sd1b = s_data((ty+1)*S_DATA_STRIDE + tx);
+                            val sd1c = s_data(ty*S_DATA_STRIDE + tx-1);
+                            val sd1d = s_data(ty*S_DATA_STRIDE + tx+1);
+                            val sd2a = s_data((ty-2)*S_DATA_STRIDE + tx);
+                            val sd2b = s_data((ty+2)*S_DATA_STRIDE + tx);
+                            val sd2c = s_data(ty*S_DATA_STRIDE + tx-2);
+                            val sd2d = s_data(ty*S_DATA_STRIDE + tx+2);
+                            val sd3a = s_data((ty-3)*S_DATA_STRIDE + tx);
+                            val sd3b = s_data((ty+3)*S_DATA_STRIDE + tx);
+                            val sd3c = s_data(ty*S_DATA_STRIDE + tx-3);
+                            val sd3d = s_data(ty*S_DATA_STRIDE + tx+3);
+                            val sd4a = s_data((ty-4)*S_DATA_STRIDE + tx);
+                            val sd4b = s_data((ty+4)*S_DATA_STRIDE + tx);
+                            val sd4c = s_data(ty*S_DATA_STRIDE + tx-4);
+                            val sd4d = s_data(ty*S_DATA_STRIDE + tx+4);
+                            valu += c_coeff(1)*( infront1 + behind1 + sd1a + sd1b + sd1c + sd1d );
+                            valu += c_coeff(2)*( infront2 + behind2 + sd2a + sd2b + sd2c + sd2d );
+                            valu += c_coeff(3)*( infront3 + behind3 + sd3a + sd3b + sd3c + sd3d );
+                            valu += c_coeff(4)*( infront4 + behind4 + sd4a + sd4b + sd4c + sd4d );
+                            d_output(out_idx) = valu;
                         }
                     }
                 }
