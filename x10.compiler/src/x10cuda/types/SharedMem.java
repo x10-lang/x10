@@ -185,7 +185,7 @@ public class SharedMem {
 
         if (decls.size()==0) return;
 
-        String raw = "&__shm[0]";
+        String raw = "__shm";
         for (SharedMem.Decl d : decls) {
             d.generateDef(out, raw, tr);
             out.write("if (threadIdx.x == 0) {"); out.newline(4); out.begin(0);

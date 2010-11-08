@@ -92,8 +92,9 @@ public class X10CUDAContext_c extends X10CPPContext_c {
             cudaStream.write("#include <x10aux/config.h>"); cudaStream.newline();
             cudaStream.write("#include <x10aux/cuda_kernel.cuh>"); cudaStream.newline();
             cudaStream.forceNewline();
-            cudaStream.write("extern __shared__ int __shm[];"); cudaStream.newline();
-            cudaStream.write("extern __constant__ char __cmem[64*1024];"); cudaStream.newline();
+            // shm type must not be char[], this causes a bug in nvcc
+            cudaStream.write("extern __shared__ x10_int __shm[];"); cudaStream.newline();
+            cudaStream.write("__constant__ x10_int __cmem[64*1024/4];"); cudaStream.newline();
             cudaStream.forceNewline();
     	}
         if (cudaStream==null) {

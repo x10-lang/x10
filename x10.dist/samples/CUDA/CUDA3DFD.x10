@@ -177,11 +177,6 @@ public class CUDA3DFD {
 
         // setup coefficients
         val h_coeff_symmetric = new Array[Float](RADIUS+1, 1);
-        h_coeff_symmetric(0) = 1;
-        h_coeff_symmetric(1) = 1;
-        h_coeff_symmetric(2) = 1;
-        h_coeff_symmetric(3) = 1;
-        h_coeff_symmetric(4) = 1;
 
         // kernel launch configuration
 
