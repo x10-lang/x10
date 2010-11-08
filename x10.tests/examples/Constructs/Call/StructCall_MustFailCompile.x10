@@ -14,7 +14,7 @@ import harness.x10Test;
 /**
  * Checking that constructor calls check for number of args.
  */
-public class StructCall extends x10Test  {
+public class StructCall_MustFailCompile extends x10Test  {
     static struct S1 {
       val x:int;
       val y:int;
@@ -25,10 +25,10 @@ public class StructCall extends x10Test  {
     }
 
 	public def run():boolean {
-		  val a:S1 = S1(1);
+		  val a:S1 = S1(1); // ERR: Method or static constructor not found for given call.	 Call: S1(x10.lang.Int{self==1})
           return true;
 	}
 	public static def main(var args: Array[String](1)): void = {
-		new StructCall().execute();
+		new StructCall_MustFailCompile().execute();
 	}
 }
