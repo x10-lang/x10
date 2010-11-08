@@ -21,8 +21,7 @@ import x10.util.HashMap;
  */
 class Activity {
 
-    // FIXME: remove implements clause when codegen has been fixed (XTENLANG-1961)
-    static class ClockPhases extends HashMap[Clock,Int] implements x10.io.CustomSerialization {
+    static class ClockPhases extends HashMap[Clock,Int] {
         // compute spawnee clock phases from spawner clock phases in async clocked(clocks)
         // and register spawnee on these on clocks
         static def make(clocks:Array[Clock]{rail}) {
