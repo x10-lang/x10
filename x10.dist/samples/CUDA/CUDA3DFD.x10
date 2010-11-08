@@ -27,7 +27,7 @@ public class CUDA3DFD {
                 for(var ix:Int=0; ix<dimx; ix++)
                 {
                     //data(off++) = (lower_bound + (rnd.nextInt() % (upper_bound - lower_bound))) as Float;
-                    data(off++) = iy as Float;
+                    data(off++) = iz as Float; //(iy*dimx + ix) as Float;
                 }
     }
 
@@ -129,9 +129,9 @@ public class CUDA3DFD {
                                     //   naive and not optimized, so many steps will take a 
                                     //   long time on CPU
         var pad:Int  = 0;
-        var dimx_:Int = 16+pad;
-        var dimy_:Int = 16;
-        var dimz_:Int = 10;
+        var dimx_:Int = 480+pad;
+        var dimy_:Int = 480;
+        var dimz_:Int = 400;
         
         //if( 2.2*nbytes > properties.totalGlobalMem )    // adjust the volume size if it exceeds available
         //{                                               // global memory (allowing for some memory use
@@ -140,16 +140,16 @@ public class CUDA3DFD {
         //    nbytes= dimx*dimy*dimz*sizeof(float);
         //}
 
-        if( args.size >= 4 )
+        if( args.size >= 3 )
         {
-            dimx_   = Int.parse(args(1));
-            dimy_   = Int.parse(args(2));
-            dimz_   = Int.parse(args(3));
+            dimx_   = Int.parse(args(0));
+            dimy_   = Int.parse(args(1));
+            dimz_   = Int.parse(args(2));
         }
+        if( args.size >= 4)
+            nreps = Int.parse(args(3));
         if( args.size >= 5)
-            nreps = Int.parse(args(4));
-        if( args.size >= 6)
-            check_correctness = Boolean.parse(args(5));
+            check_correctness = Boolean.parse(args(4));
         val dimx=dimx_, dimy=dimy_, dimz=dimz_;
         val nelements = dimx*dimy*dimz;
 
@@ -166,7 +166,7 @@ public class CUDA3DFD {
         random_data(h_data, dimx,dimy,dimz, 1, 5 );
 
         // allocate CPU and GPU memory
-        val gpu = here; //.child(0);
+        val gpu = here.children().size==0 ? here : here.child(0);
         
         val d_input = CUDAUtilities.makeRemoteArray[Float](gpu,nelements,h_data); // allocate 
         val d_output = CUDAUtilities.makeRemoteArray[Float](gpu,nelements,(Int)=>0.0 as Float); // allocate 
@@ -178,15 +178,12 @@ public class CUDA3DFD {
         // setup coefficients
         val h_coeff_symmetric = new Array[Float](RADIUS+1, 1);
         h_coeff_symmetric(0) = 1;
-        h_coeff_symmetric(1) = 0;
-        h_coeff_symmetric(2) = 0;
-        h_coeff_symmetric(3) = 0;
-        h_coeff_symmetric(4) = 0;
+        h_coeff_symmetric(1) = 1;
+        h_coeff_symmetric(2) = 1;
+        h_coeff_symmetric(3) = 1;
+        h_coeff_symmetric(4) = 1;
 
         // kernel launch configuration
-        //dim3 block(BLOCK_DIMX,BLOCK_DIMY);
-        //dim3 grid( dimx/block.x, dimy/block.y );
-        //printf("(%d,%d)x(%d,%d) grid\n", grid.x,grid.y, block.x,block.y);
 
         /////////////////////////////////////////////
         // kernel execution
@@ -194,18 +191,23 @@ public class CUDA3DFD {
         var start_time : Long = System.currentTimeMillis();
         for(var i:Int=0; i<nreps; i++) {
             val BLOCK_DIMX = 16;
-            val BLOCK_DIMY = 16;
-            val THREADS = BLOCK_DIMX*BLOCK_DIMY, TOTAL_BLOCKS=dimx*dimy/THREADS, BLOCKS=1;
+            val BLOCK_DIMY = BLOCK_DIMX;
+            val THREADS = BLOCK_DIMX*BLOCK_DIMY, BLOCKS_X=dimx/BLOCK_DIMX, BLOCKS_Y=dimy/BLOCK_DIMY;
             val S_DATA_STRIDE = BLOCK_DIMX+2*RADIUS;
             val c_coeff = new Array[Float](h_coeff_symmetric);
             finish async at (gpu) @CUDA @CUDADirectParams {
                 //val c_coeff = h_coeff_symmetric.sequence();
-                finish for ([block] in 0..BLOCKS-1) async {
-                    //val c_coeff = new Array[Float](h_coeff_symmetric);
+                finish for ([block] in 0..BLOCKS_X*BLOCKS_Y-1) async {
+                    val c_coeff = new Array[Float](h_coeff_symmetric);
                     val s_data = new Array[Float]((BLOCK_DIMY+2*RADIUS)*S_DATA_STRIDE, 0);
                     clocked finish for ([thread] in 0..THREADS-1) clocked async {
-                        for (var bi:Int=block ; bi<TOTAL_BLOCKS ; bi+=BLOCKS) {
-                            var in_idx:Int = bi * THREADS + thread;
+                        val blockidx = block%BLOCKS_X;
+                        val blockidy = block/BLOCKS_X;
+                        val threadidx = thread%BLOCK_DIMX;
+                        val threadidy = thread/BLOCK_DIMX;
+                        val ix = blockidx * BLOCK_DIMX + threadidx;
+                        val iy = blockidy * BLOCK_DIMY + threadidy;
+                        var in_idx:Int=iy*dimx + ix; {
                             var out_idx:Int = 0;
                             val stride  = dimx*dimy;
 
@@ -213,8 +215,6 @@ public class CUDA3DFD {
                             var behind1:Float, behind2:Float, behind3:Float, behind4:Float;
                             var current:Float;
 
-                            val threadidx = thread%BLOCK_DIMX;
-                            val threadidy = thread/BLOCK_DIMX;
                             val tx = threadidx + RADIUS;
                             val ty = threadidy + RADIUS;
 
@@ -228,7 +228,7 @@ public class CUDA3DFD {
                             infront1 = d_input(in_idx);    in_idx += stride;
                             infront2 = d_input(in_idx);    in_idx += stride;
                             infront3 = d_input(in_idx);    in_idx += stride;
-                            infront4 = d_input(in_idx);    in_idx += stride;
+                            infront4 = d_input(in_idx);      in_idx += stride;
 
                             for(var i:Int=RADIUS; i<dimz-RADIUS; i++)
                             {
@@ -246,9 +246,7 @@ public class CUDA3DFD {
 
                                 in_idx  += stride;
                                 out_idx += stride;
-                                Console.OUT.println("INTO NEXT");
                                 next;
-                                Console.OUT.println("OUT OF NEXT");
 
                                 /////////////////////////////////////////
                                 // update the data slice in smem
@@ -272,10 +270,6 @@ public class CUDA3DFD {
                                 /////////////////////////////////////////
                                 // compute the output value
                                 var valu:Float  = c_coeff(0) * current;
-                                val co1 = c_coeff(1);
-                                val co2 = c_coeff(2);
-                                val co3 = c_coeff(3);
-                                val co4 = c_coeff(4);
                                 val sd1a = s_data((ty-1)*S_DATA_STRIDE + tx);
                                 val sd1b = s_data((ty+1)*S_DATA_STRIDE + tx);
                                 val sd1c = s_data(ty*S_DATA_STRIDE + tx-1);
@@ -292,11 +286,11 @@ public class CUDA3DFD {
                                 val sd4b = s_data((ty+4)*S_DATA_STRIDE + tx);
                                 val sd4c = s_data(ty*S_DATA_STRIDE + tx-4);
                                 val sd4d = s_data(ty*S_DATA_STRIDE + tx+4);
-                                valu += co1*( infront1 + behind1 + sd1a + sd1b + sd1c + sd1d );
-                                valu += co2*( infront2 + behind2 + sd2a + sd2b + sd2c + sd2d );
-                                valu += co3*( infront3 + behind3 + sd3a + sd3b + sd3c + sd3d );
-                                valu += co4*( infront4 + behind4 + sd4a + sd4b + sd4c + sd4d );
-                                d_output(out_idx) = 4;
+                                valu += c_coeff(1)*( infront1 + behind1 + sd1a + sd1b + sd1c + sd1d );
+                                valu += c_coeff(2)*( infront2 + behind2 + sd2a + sd2b + sd2c + sd2d );
+                                valu += c_coeff(3)*( infront3 + behind3 + sd3a + sd3b + sd3c + sd3d );
+                                valu += c_coeff(4)*( infront4 + behind4 + sd4a + sd4b + sd4c + sd4d );
+                                d_output(out_idx) = valu;
                             }
                         }
                     }
