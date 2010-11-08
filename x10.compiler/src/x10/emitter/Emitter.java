@@ -2712,7 +2712,7 @@ public class Emitter {
         
 	}
 
-    private void printParent(X10ClassDef def, Type type) {
+    private void printParent(final X10ClassDef def, Type type) {
         type = X10TypeMixin.baseType(type);
         if (type instanceof X10ClassType) {
             X10ClassType x10Type = (X10ClassType) type;
@@ -2724,9 +2724,20 @@ public class Emitter {
                 Object[] components = new Object[1 + typeArgs.size() * 2];
                 int i = 0;
                 components[i++] = new TypeExpander(this, x10Type, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
-                for (Type at : typeArgs) {
+                for (final Type at : typeArgs) {
                     components[i++] = new TypeExpander(this, at, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
-                    components[i++] = "new x10.rtt.UnresolvedType(" + ((i / 2) - 1) + ")";
+                    if (at.typeEquals(def.asType(), tr.context())) {
+                        components[i++] = "new x10.rtt.UnresolvedType(-1)";
+                    }
+                    else if (at instanceof ParameterType) {
+                        components[i++] = "new x10.rtt.UnresolvedType(" + getIndex(def.typeParameters(), (ParameterType) at) + ")";
+                    } else {
+                        components[i++] = new Expander(this) {
+                            public void expand(Translator tr) {
+                                printParent(def, at);
+                            }
+                        };
+                    }
                 }
                 dumpRegex("Native", components, tr, pat);
             }
