@@ -8,6 +8,9 @@
  *
  *  (C) Copyright IBM Corporation 2006-2010.
  */
+/*****************************************************
+ * WARNING!  THIS IS A GENERATED FILE.  DO NOT EDIT! *
+ *****************************************************/
 
 package x10.parser;
 

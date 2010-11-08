@@ -23,6 +23,9 @@
      *
      *  (C) Copyright IBM Corporation 2006-2010.
      */
+    /*****************************************************
+     * WARNING!  THIS IS A GENERATED FILE.  DO NOT EDIT! *
+     *****************************************************/
     ./
 %End
 
@@ -91,10 +94,8 @@
     import x10.ast.ConstantDistMaker;
     import x10.ast.TypeDecl;
     import x10.ast.TypeParamNode;
-
     import x10.types.ParameterType;
     import polyglot.types.TypeSystem;
-
     import x10.ast.PropertyDecl;
     import x10.ast.RegionMaker;
     import x10.ast.X10Binary_c;
