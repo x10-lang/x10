@@ -363,7 +363,7 @@ public final class Array[T](
      * @see #apply(Point)
      * @see #set(T, Int)
      */
-    @Native("cuda", "(#0).apply(#1)")
+    @Native("cuda", "(#0).raw[#1]")
     public @Header @Inline def apply(i0:int){rank==1}:T {
         if (cachedRail) {
             if (CompilerFlags.checkBounds()) {
@@ -472,7 +472,7 @@ public final class Array[T](
      * @see #apply(Int)
      * @see #set(T, Point)
      */
-    @Native("cuda", "(#0).set(#1,#2)")
+    @Native("cuda", "(#0).raw[#2] = (#1)")
     public @Header @Inline def set(v:T, i0:int){rank==1}:T {
         if (cachedRail) {
             if (CompilerFlags.checkBounds()) {
