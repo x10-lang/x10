@@ -92,7 +92,7 @@ public class X10CUDAContext_c extends X10CPPContext_c {
             cudaStream.write("#include <x10aux/config.h>"); cudaStream.newline();
             cudaStream.write("#include <x10aux/cuda_kernel.cuh>"); cudaStream.newline();
             cudaStream.forceNewline();
-            cudaStream.write("extern __shared__ char __shm[];"); cudaStream.newline();
+            cudaStream.write("extern __shared__ int __shm[];"); cudaStream.newline();
             cudaStream.write("extern __constant__ char __cmem[64*1024];"); cudaStream.newline();
             cudaStream.forceNewline();
     	}
