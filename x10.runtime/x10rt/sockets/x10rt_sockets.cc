@@ -74,7 +74,7 @@ void error(const char* message)
 
 void handleConnectionRequest()
 {
-	int newFD = TCP::accept(state.socketLinks[state.myPlaceId].fd, false);
+	int newFD = TCP::accept(state.socketLinks[state.myPlaceId].fd, true);
 	if (newFD > 0)
 	{
 		struct ctrl_msg m;
