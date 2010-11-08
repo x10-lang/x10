@@ -30,7 +30,7 @@ public class X10KWLexerprs implements lpg.runtime.ParseTable, X10KWLexersym {
     public final static int NUM_STATES = 198;
     public final int getNumStates() { return NUM_STATES; }
 
-    public final static int NT_OFFSET = 28;
+    public final static int NT_OFFSET = 53;
     public final int getNtOffset() { return NT_OFFSET; }
 
     public final static int LA_STATE_OFFSET = 324;
@@ -45,7 +45,7 @@ public class X10KWLexerprs implements lpg.runtime.ParseTable, X10KWLexersym {
     public final static int NUM_NONTERMINALS = 2;
     public final int getNumNonterminals() { return NUM_NONTERMINALS; }
 
-    public final static int NUM_SYMBOLS = 30;
+    public final static int NUM_SYMBOLS = 55;
     public final int getNumSymbols() { return NUM_SYMBOLS; }
 
     public final static int SEGMENT_SIZE = 8192;
@@ -60,7 +60,7 @@ public class X10KWLexerprs implements lpg.runtime.ParseTable, X10KWLexersym {
     public final static int EOFT_SYMBOL = 25;
     public final int getEoftSymbol() { return EOFT_SYMBOL; }
 
-    public final static int EOLT_SYMBOL = 29;
+    public final static int EOLT_SYMBOL = 54;
     public final int getEoltSymbol() { return EOLT_SYMBOL; }
 
     public final static int ACCEPT_ACTION = 262;
@@ -80,7 +80,10 @@ public class X10KWLexerprs implements lpg.runtime.ParseTable, X10KWLexersym {
         public final static byte isNullable[] = {0,
             0,0,0,0,0,0,0,0,0,0,
             0,0,0,0,0,0,0,0,0,0,
-            0,0,0,0,0,0,0,0,0,0
+            0,0,0,0,0,0,0,0,0,0,
+            0,0,0,0,0,0,0,0,0,0,
+            0,0,0,0,0,0,0,0,0,0,
+            0,0,0,0,0
         };
     };
     public final static byte isNullable[] = IsNullable.isNullable;
@@ -98,7 +101,10 @@ public class X10KWLexerprs implements lpg.runtime.ParseTable, X10KWLexersym {
         public final static byte isKeyword[] = {0,
             0,0,0,0,0,0,0,0,0,0,
             0,0,0,0,0,0,0,0,0,0,
-            0,0,0,0,0,0,0,0
+            0,0,0,0,0,0,0,0,0,0,
+            0,0,0,0,0,0,0,0,0,0,
+            0,0,0,0,0,0,0,0,0,0,
+            0,0,0
         };
     };
     public final static byte isKeyword[] = IsKeyword.isKeyword;
@@ -206,7 +212,9 @@ public class X10KWLexerprs implements lpg.runtime.ParseTable, X10KWLexersym {
             2,7,0,0,0,0,0,5,0,0,
             0,12,0,0,0,0,0,0,0,0,
             0,0,0,0,0,0,0,0,0,0,
-            0
+            0,0,0,0,0,0,0,0,0,0,
+            0,0,0,0,0,0,0,0,0,0,
+            0,0,0,0,0,0
         };
     };
     public final static byte termCheck[] = TermCheck.termCheck;
