@@ -923,7 +923,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 				        w.allowBreak(0);
 				    }
 				    alreadyPrintedTypes.add(tn.type());
-				    er.printType(tn.type(), (isSelfDispatch ? 0 : PRINT_TYPE_PARAMS) | BOX_PRIMITIVES | NO_VARIANCE);
+	                boolean isJavaNative = isJavaNative((X10ClassType) tn.type());
+				    er.printType(tn.type(), (isSelfDispatch && !isJavaNative ? 0 : PRINT_TYPE_PARAMS) | BOX_PRIMITIVES | NO_VARIANCE);
 				}
 			}
 			w.end();
@@ -1476,7 +1477,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		X10ClassType ct = (X10ClassType) mi.container();
 		
 		List<Type> ta = ct.typeArguments();
-		if (ta != null && ta.size() > 0 && !isJavaNative(n)) {
+		if (ta != null && ta.size() > 0 && !isJavaNative((X10ClassType) n.objectType().type())) {
 		    for (Iterator<Type> i = ta.iterator(); i.hasNext(); ) {
 		        final Type at = i.next();
 		        new RuntimeTypeExpander(er, at).expand(tr);
@@ -1529,14 +1530,11 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		}
     }
 
-    private boolean isJavaNative(X10New_c n) {
-        Type type = n.objectType().type();
-        if (type instanceof X10ClassType) {
-            X10ClassDef cd = ((X10ClassType) type).x10Def();
-            String pat = er.getJavaRep(cd);
-            if (pat != null && pat.startsWith("java.")) {
-                return true;
-            }
+    private boolean isJavaNative(X10ClassType type) {
+        X10ClassDef cd = type.x10Def();
+        String pat = er.getJavaRep(cd);
+        if (pat != null && pat.startsWith("java.")) {
+            return true;
         }
         return false;
     }
