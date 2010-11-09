@@ -573,51 +573,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			    "}\n" +
 			    "\n" +
 			    "// called by native runtime inside main x10 thread\n" +
-			    "public void main(final x10.array.Array<java.lang.String> args) {\n" +
-			        "try {\n" +
-			            "// start xrx\n" +
-			            "x10.lang.Runtime.start(\n" +
-			                "// static init activity\n" +
-			                "new " + X10_VOIDFUN_CLASS_PREFIX + "_0_0() {\n" +
-			                    "public void apply() {\n" +
-			                        "// preload classes\n" +
-			                        "if (Boolean.getBoolean(\"x10.PRELOAD_CLASSES\")) {\n" +
-			                            "x10.runtime.impl.java.PreLoader.preLoad(this.getClass().getEnclosingClass(), Boolean.getBoolean(\"x10.PRELOAD_STRINGS\"));\n" +
-			                        "}\n" +
-			                    "}\n" +
-			                    "public x10.rtt.RuntimeType<?> getRTT() {\n" +
-			                        "return _RTT;\n" +
-			                    "}\n" +
-			                    "public x10.rtt.Type<?> getParam(int i) {\n" +
-			                        "return null;\n" +
-			                    "}\n" +
-			                "},\n" +
-			                "// body of main activity\n" +
-			                "new " + X10_VOIDFUN_CLASS_PREFIX + "_0_0() {\n" +
-			                    "public void apply() {\n" +
-			                        "// catch and rethrow checked exceptions\n" +
-                                    "// (closures cannot throw checked exceptions)\n" +
-			                        "try {\n" +
-			                            "// call the original app-main method\n" +
-			                            "#2.main(args);\n" +
-			                        "} catch (java.lang.RuntimeException e) {\n" +
-			                            "throw e;\n" +
-			                        "} catch (java.lang.Error e) {\n" +
-			                            "throw e;\n" +
-			                        "} catch (java.lang.Throwable t) {\n" +
-			                            "throw new x10.runtime.impl.java.X10WrappedThrowable(t);\n" +
-			                        "}\n" +
-			                    "}\n" +
-                                "public x10.rtt.RuntimeType<?> getRTT() {\n" +
-                                    "return _RTT;\n" +
-                                "}\n" +
-                                "public x10.rtt.Type<?> getParam(int i) {\n" +
-                                    "return null;\n" +
-                                "}\n" +
-			                "});\n" +
-			        "} catch (java.lang.Throwable t) {\n" +
-			            "t.printStackTrace();\n" +
-			        "}\n" +
+			    "public void runtimeCallback(final x10.array.Array<java.lang.String> args) {\n" +
+			        "// call the original app-main method\n" +
+			        "#2.main(args);\n" +
 			    "}\n" +
 			"}\n" +
             "\n" +
