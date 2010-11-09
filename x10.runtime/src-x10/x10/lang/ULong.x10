@@ -494,14 +494,14 @@ public struct ULong implements Comparable[ULong] /*TODO implements Arithmetic[UL
      * A constant holding the minimum value a ULong can have, 0.
      */
     // @Native("java", "0L")
-    @Native("c++", "((x10_ulong)0UL)")
+    @Native("c++", "((x10_ulong)0LLU)")
     public static MIN_VALUE = 0L as ULong;
 
     /**
      * A constant holding the maximum value a ULong can have, 2<sup>64</sup>-1.
      */
     // @Native("java", "0xffffffffffffffffL")
-    @Native("c++", "0xffffffffffffffffLU")
+    @Native("c++", "0xffffffffffffffffLLU")
     public static MAX_VALUE = 0xffffffffffffffffL as ULong;
 
 
@@ -723,7 +723,7 @@ public struct ULong implements Comparable[ULong] /*TODO implements Arithmetic[UL
      * @return the signum function of this ULong.
      */
     // @Native("java", "(((#0)==0L) ? 0 : 1)")
-    @Native("c++",  "(((#0)==0UL) ? 0 : 1)")
+    @Native("c++",  "(((#0)==0LLU) ? 0 : 1)")
     public def signum(): Int = (this.longVal == 0L) ? 0 : 1;
 
     /**
