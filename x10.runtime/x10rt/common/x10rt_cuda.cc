@@ -114,18 +114,22 @@ namespace {
                 errstr = "CUDA_ERROR_POINTER_IS_64BIT"; break;
             case CUDA_ERROR_SIZE_IS_64BIT:
                 errstr = "CUDA_ERROR_SIZE_IS_64BIT"; break;
-            #else
+            #endif
+            #endif
+
+            #if CUDA_VERSION >= 3010
             case CUDA_ERROR_UNSUPPORTED_LIMIT:
                 errstr = "CUDA_ERROR_UNSUPPORTED_LIMIT"; break;
             case CUDA_ERROR_SHARED_OBJECT_SYMBOL_NOT_FOUND:
                 errstr = "CUDA_ERROR_SHARED_OBJECT_SYMBOL_NOT_FOUND"; break;
             case CUDA_ERROR_SHARED_OBJECT_INIT_FAILED:
                 errstr = "CUDA_ERROR_SHARED_OBJECT_INIT_FAILED"; break;
+            #endif
+        
+            #if CUDA_VERSION >= 3020
             case CUDA_ERROR_OPERATING_SYSTEM:
                 errstr = "CUDA_ERROR_OPERATING_SYSTEM"; break;
             #endif
-            #endif
-        
         }
         fprintf(stderr,"%s (At %s:%d)\n",errstr,file,line);
         abort();
