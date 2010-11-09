@@ -223,12 +223,16 @@ public class X10CPPTranslator extends Translator {
 		            if (n instanceof FieldDecl && !c.inTemplate()) // the c.inTemplate() skips mappings for templates, which don't have a fixed size.
 		            	lineNumberMap.addClassMemberVariable(((FieldDecl)n).name().toString(), ((FieldDecl)n).type().toString(), Emitter.mangled_non_method_name(context.currentClass().toString()));
 		            else if (n instanceof LocalDecl && !((LocalDecl)n).position().isCompilerGenerated())
-		            	lineNumberMap.addLocalVariableMapping(((LocalDecl)n).name().toString(), ((LocalDecl)n).type().toString(), line, parent.position().endLine(), file);
+		            	lineNumberMap.addLocalVariableMapping(((LocalDecl)n).name().toString(), ((LocalDecl)n).type().toString(), line, parent.position().endLine(), file, false);
 		            else if (def != null)
 		            {
+		            	// include method arguments in the local variable tables
 		            	List<Formal> args = ((ProcedureDecl)parent).formals();
 		            	for (int i=0; i<args.size(); i++)
-		            		lineNumberMap.addLocalVariableMapping(args.get(i).name().toString(), args.get(i).type().toString(), line, parent.position().endLine(), file);
+		            		lineNumberMap.addLocalVariableMapping(args.get(i).name().toString(), args.get(i).type().toString(), line, parent.position().endLine(), file, false);
+		            	// include "this" for non-static methods		            	
+		            	if (!def.flags().isStatic() && ((ProcedureDecl)parent).reachable())
+		            		lineNumberMap.addLocalVariableMapping("this", Emitter.mangled_non_method_name(context.currentClass().toString()), line, parent.position().endLine(), file, true);
 		            }
 		        }
 		    }

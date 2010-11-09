@@ -25,7 +25,7 @@ import x10.util.Ordered;
  */
 @NativeRep("java", "short", null, "x10.rtt.Types.SHORT")
 @NativeRep("c++", "x10_short", "x10_short", null)
-public final struct Short /*TODO implements Arithmetic[Short], Bitwise[Short], Ordered[Short]*/ {
+public struct Short implements Comparable[Short] /*TODO implements Arithmetic[Short], Bitwise[Short], Ordered[Short]*/ {
     /**
      * A less-than operator.
      * Compares the given Short with another Short and returns true if the given Short is
@@ -436,4 +436,14 @@ public final struct Short /*TODO implements Arithmetic[Short], Bitwise[Short], O
     @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
     public native def equals(x:Short):Boolean;
+
+    /**
+    * Returns a negative Int, zero, or a positive Int if this Short is less than, equal
+    * to, or greater than the given Short.
+    * @param x the given Short
+    * @return a negative Int, zero, or a positive Int if this Short is less than, equal
+    * to, or greater than the given Short.
+    */
+   @Native("java", "x10.rtt.Equality.compareTo(#0, #1)")
+   public def compareTo(x:Short): Int = 0;
 }

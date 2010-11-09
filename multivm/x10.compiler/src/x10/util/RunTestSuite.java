@@ -18,6 +18,8 @@ import java.util.List;
 import java.util.HashSet;
 import java.util.Iterator;
 
+import x10.types.X10TypeMixin;
+
 public class RunTestSuite {
     // I have 3 kind of markers:
     // "// ... ERR"  - marks an error
@@ -69,12 +71,12 @@ public class RunTestSuite {
             for (String mid : INCLUDE_ONLY_FILES_WITH)
                 if (name.contains(mid))
                     return false;
-            return true; 
+            return true;
         }
         return false;
     }
     public static boolean ONE_FILE_AT_A_TIME = false;
-    private static final int MAX_FILES_NUM = Integer.MAX_VALUE; // Change it if you want to process only a small number of files    
+    private static final int MAX_FILES_NUM = Integer.MAX_VALUE; // Change it if you want to process only a small number of files
 
     /**
      * Finds all *.x10 files in all sub-directories, and compiles them.
@@ -185,7 +187,7 @@ public class RunTestSuite {
                     for (Iterator<ErrorInfo> it=errors.iterator(); it.hasNext(); ) {
                         ErrorInfo err = it.next();
                         final Position position = err.getPosition();
-                        if (new File(position.file()).equals(file) && position.line()==lineNum) {
+                        if (position!=null && new File(position.file()).equals(file) && position.line()==lineNum) {
                             // found it!
                             errorsFound.add(err);
                             if (Report.should_report("TestSuite", 2))
@@ -209,7 +211,8 @@ public class RunTestSuite {
         int warningCount = 0;
         for (ErrorInfo err : errors)
             if (err.getErrorKind()==ErrorInfo.WARNING) {
-                System.err.println("Got a warning in position: "+err.getPosition()+"\nMessage: "+err+"\n");
+                if (!err.getMessage().startsWith(X10TypeMixin.MORE_SEPCIFIC_WARNING)) // ignore those warning messages
+                    System.err.println("Got a warning in position: "+err.getPosition()+"\nMessage: "+err+"\n");
                 warningCount++;
             }
         if (errors.size()>warningCount) {
@@ -218,7 +221,7 @@ public class RunTestSuite {
                 if (err.getErrorKind()!=ErrorInfo.WARNING)
                     System.err.println("Position:\n"+err.getPosition()+"\nMessage: "+err+"\n");
         }
-        // todo: check that for each file (without errors) we generated a *.class file, and load them and run their main method (except for the ones with _MustFailTimeout) 
+        // todo: check that for each file (without errors) we generated a *.class file, and load them and run their main method (except for the ones with _MustFailTimeout)
     }
     private static void recurse(File dir, ArrayList<File> files) {
         if (files.size()>=MAX_FILES_NUM) return;

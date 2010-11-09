@@ -17,6 +17,8 @@ import x10.util.HashMap;
 import x10.util.Pair;
 import x10.util.Stack;
 import x10.util.concurrent.atomic.AtomicInteger;
+import x10.io.CustomSerialization;
+import x10.io.SerialData;
 
 abstract class FinishState {
     abstract def notifySubActivitySpawn(place:Place):void;
@@ -29,13 +31,11 @@ abstract class FinishState {
 
     // a finish with local asyncs only
     static class LocalFinish extends FinishState {
-        private val count = new AtomicInteger(0);
-        private var latch:Latch = null;
+        private val count = new AtomicInteger(1);
+        private val latch = new SimpleLatch();
         private var exceptions:Stack[Throwable]; // lazily initialized
-        private val lock = new Lock();
         public def notifySubActivitySpawn(place:Place) {
             assert place.id == Runtime.hereInt();
-            if (null == latch) latch = new Latch();
             count.getAndIncrement();
         }
         public def notifyActivityCreation() {}
@@ -43,93 +43,42 @@ abstract class FinishState {
             if (count.decrementAndGet() == 0) latch.release();
         }
         public def pushException(t:Throwable) {
-            lock.lock();
+            latch.lock();
             if (null == exceptions) exceptions = new Stack[Throwable]();
             exceptions.push(t);
-            lock.unlock();
+            latch.unlock();
         }
         public def waitForFinish(safe:Boolean) {
-            if (null != latch) {
-                if (!Runtime.NO_STEALS && safe) Runtime.worker().join(latch);
-                latch.await();
-            }
-            val t = MultipleExceptions.make(exceptions);
-            if (null != t) throw t;
-        }
-    }
-
-    // a finish with one async in each place
-    static class FinishAtEach extends FinishSkeleton implements x10.io.CustomSerialization {
-        def this() {
-            super(new RootFinishAtEach());
-        }
-        protected def this(ref:GlobalRef[FinishState]) {
-            super(ref);
-        }
-        private def this(any:Any) { // deserialization constructor
-            super(any as GlobalRef[FinishState]);
-            if (ref.home.id == Runtime.hereInt()) {
-                me = (ref as GlobalRef[FinishState]{home==here})();
-            } else {
-                me = new RemoteFinishAsync(ref);
-            }
-        }
-    }
-
-    static interface NotifyThrowable {
-        def notify(t:Throwable):void;
-    }
-
-    static class RootFinishAtEach extends RootFinishSkeleton implements NotifyThrowable {
-        protected val latch = new Latch();
-        private val count = new AtomicInteger(2*Place.MAX_PLACES);
-        private var exceptions:Stack[Throwable]; // lazily initialized
-        private val lock = new Lock();
-        public def notifySubActivitySpawn(place:Place) {}
-        public def notifyActivityTermination() {
-            if (count.decrementAndGet() == 0) latch.release();
-        }
-        public def pushException(t:Throwable) {
-            lock.lock();
-            if (null == exceptions) exceptions = new Stack[Throwable]();
-            exceptions.push(t);
-            lock.unlock();
-        }
-        public def waitForFinish(safe:Boolean) {
+            notifyActivityTermination();
             if (!Runtime.NO_STEALS && safe) Runtime.worker().join(latch);
             latch.await();
             val t = MultipleExceptions.make(exceptions);
             if (null != t) throw t;
         }
-        public def notify(t:Throwable):void {
-            pushException(t);
-            notifyActivityTermination();
-        }
     }
 
-    // a finish without nested asyncs in remote asyncs
-    static class FinishFlat extends FinishSkeleton implements x10.io.CustomSerialization {
+    // a finish without nested remote asyncs in remote asyncs
+    static class FinishSPMD extends FinishSkeleton implements CustomSerialization {
         def this() {
-            super(new RootFinishFlat());
+            super(new RootFinishSPMD());
         }
         protected def this(ref:GlobalRef[FinishState]) {
             super(ref);
         }
-        private def this(any:Any) { // deserialization constructor
-            super(any as GlobalRef[FinishState]);
+        private def this(data:SerialData) {
+            super(data.data as GlobalRef[FinishState]);
             if (ref.home.id == Runtime.hereInt()) {
                 me = (ref as GlobalRef[FinishState]{home==here})();
             } else {
-                me = new RemoteFinishAsync(ref);
+                me = new RemoteFinishSPMD(ref);
             }
         }
     }
 
-    static class RootFinishFlat extends RootFinishSkeleton implements NotifyThrowable {
-        protected val latch = new Latch();
-        private val count = new AtomicInteger(0);
+    static class RootFinishSPMD extends RootFinishSkeleton {
+        protected val latch = new SimpleLatch();
+        private val count = new AtomicInteger(1);
         private var exceptions:Stack[Throwable]; // lazily initialized
-        private val lock = new Lock();
         public def notifySubActivitySpawn(place:Place) {
             count.incrementAndGet();
         }
@@ -137,33 +86,69 @@ abstract class FinishState {
             if (count.decrementAndGet() == 0) latch.release();
         }
         public def pushException(t:Throwable) {
-            lock.lock();
+            latch.lock();
             if (null == exceptions) exceptions = new Stack[Throwable]();
             exceptions.push(t);
-            lock.unlock();
+            latch.unlock();
         }
         public def waitForFinish(safe:Boolean) {
+            notifyActivityTermination();
             if (!Runtime.NO_STEALS && safe) Runtime.worker().join(latch);
             latch.await();
             val t = MultipleExceptions.make(exceptions);
             if (null != t) throw t;
         }
-        public def notify(t:Throwable):void {
-            pushException(t);
-            notifyActivityTermination();
+    }
+
+    static class RemoteFinishSPMD extends RemoteFinishSkeleton {
+        private val count = new AtomicInteger(1);
+        private var exceptions:Stack[Throwable]; // lazily initialized
+        private val lock = new Lock();
+        def this(ref:GlobalRef[FinishState]) {
+            super(ref);
+        }
+        public def notifySubActivitySpawn(place:Place) {
+            assert place.id == Runtime.hereInt();
+            count.getAndIncrement();
+        }
+        public def notifyActivityCreation() {}
+        public def notifyActivityTermination() {
+            if (count.decrementAndGet() == 0) {
+                val t = MultipleExceptions.make(exceptions);
+                val ref = this.ref();
+                val closure:()=>void;
+                if (null != t) {
+                    closure = ()=>@RemoteInvocation {
+                        deref[FinishState](ref).pushException(t);
+                        deref[FinishState](ref).notifyActivityTermination();
+                    };
+                } else {
+                    closure = ()=>@RemoteInvocation {
+                        deref[FinishState](ref).notifyActivityTermination();
+                    };
+                }
+                Runtime.runClosureAt(ref.home.id, closure);
+                Runtime.dealloc(closure);
+            }
+        }
+        public def pushException(t:Throwable) {
+            lock.lock();
+            if (null == exceptions) exceptions = new Stack[Throwable]();
+            exceptions.push(t);
+            lock.unlock();
         }
     }
 
     // a finish guarding a unique async
-    static class FinishAsync extends FinishSkeleton implements x10.io.CustomSerialization {
+    static class FinishAsync extends FinishSkeleton implements CustomSerialization {
         def this() {
             super(new RootFinishAsync());
         }
         protected def this(ref:GlobalRef[FinishState]) {
             super(ref);
         }
-        private def this(any:Any) { // deserialization constructor
-            super(any as GlobalRef[FinishState]);
+        private def this(data:SerialData) {
+            super(data.data as GlobalRef[FinishState]);
             if (ref.home.id == Runtime.hereInt()) {
                 me = (ref as GlobalRef[FinishState]{home==here})();
             } else {
@@ -172,8 +157,8 @@ abstract class FinishState {
         }
     }
 
-    static class RootFinishAsync extends RootFinishSkeleton implements NotifyThrowable {
-        protected val latch = new Latch();
+    static class RootFinishAsync extends RootFinishSkeleton{
+        protected val latch = new SimpleLatch();
         protected var exception:Throwable = null;
         public def notifySubActivitySpawn(place:Place):void {}
         public def notifyActivityTermination():void {
@@ -181,10 +166,6 @@ abstract class FinishState {
         }
         public def pushException(t:Throwable):void {
             exception = t;
-        }
-        public def notify(t:Throwable):void {
-            exception = t;
-            latch.release();
         }
         public def waitForFinish(safe:Boolean):void {
             if (!Runtime.NO_STEALS && safe) Runtime.worker().join(latch);
@@ -209,25 +190,30 @@ abstract class FinishState {
             val ref = this.ref();
             val closure:()=>void;
             if (null != t) {
-                closure = ()=>@RemoteInvocation { deref[NotifyThrowable](ref).notify(t); };
+                closure = ()=>@RemoteInvocation {
+                    deref[FinishState](ref).pushException(t);
+                    deref[FinishState](ref).notifyActivityTermination();
+                };
             } else {
-                closure = ()=>@RemoteInvocation { deref[FinishState](ref).notifyActivityTermination(); };
+                closure = ()=>@RemoteInvocation {
+                    deref[FinishState](ref).notifyActivityTermination();
+                };
             }
             Runtime.runClosureAt(ref.home.id, closure);
             Runtime.dealloc(closure);
         }
     }
 
-    // finish async there async back
-    static class FinishReturn extends FinishSkeleton implements x10.io.CustomSerialization {
+    // a finish ignoring remote events
+    static class FinishHere extends FinishSkeleton implements CustomSerialization {
         def this() {
-            super(new RootFinishAsync());
+            super(new RootFinishSPMD());
         }
         protected def this(ref:GlobalRef[FinishState]) {
             super(ref);
         }
-        private def this(any:Any) { // deserialization constructor
-            super(any as GlobalRef[FinishState]);
+        private def this(data:SerialData) { 
+            super(data.data as GlobalRef[FinishState]);
             if (ref.home.id == Runtime.hereInt()) {
                 me = (ref as GlobalRef[FinishState]{home==here})();
             } else {
@@ -303,7 +289,7 @@ abstract class FinishState {
             property(ref);
             me = null;
         }
-        public def serialize():Any = ref;
+        public def serialize():SerialData = new SerialData(ref, null);
         public def notifySubActivitySpawn(place:Place) { me.notifySubActivitySpawn(place); }
         public def notifyActivityCreation() { me.notifyActivityCreation(); }
         public def notifyActivityTermination() { me.notifyActivityTermination(); }
@@ -312,21 +298,21 @@ abstract class FinishState {
     }
 
     // the default finish implementation
-    static class Finish extends FinishSkeleton implements x10.io.CustomSerialization {
+    static class Finish extends FinishSkeleton implements CustomSerialization {
         protected def this(root:RootFinish) {
             super(root);
         }
-        def this(latch:Latch) {
+        def this(latch:SimpleLatch) {
             this(new RootFinish(latch));
         }
         def this() {
-            this(new RootFinish());
+            this(new SimpleLatch());
         }
         protected def this(ref:GlobalRef[FinishState]) {
             super(ref);
         }
-        private def this(any:Any) { // deserialization constructor
-            super(any as GlobalRef[FinishState]);
+        private def this(data:SerialData) { 
+            super(data.data as GlobalRef[FinishState]);
             if (ref.home.id == Runtime.hereInt()) {
                 me = (ref as GlobalRef[FinishState]{home==here})();
             } else {
@@ -336,62 +322,76 @@ abstract class FinishState {
     }
 
     static class RootFinish extends RootFinishSkeleton {
-        protected var latch:Latch;
+        protected val latch:SimpleLatch;
+        protected var count:Int = 1;
         protected var exceptions:Stack[Throwable]; // lazily initialized
-        protected val counts:Rail[Int] = Rail.make[Int](Place.MAX_PLACES, 0);
-        protected val seen:Rail[Boolean] = Rail.make[Boolean](Place.MAX_PLACES, false);
-        protected val lock:Lock = new Lock();
-        def this(latch:Latch) {
+        protected var counts:Rail[Int];
+        protected var seen:Rail[Boolean];
+        def this(latch:SimpleLatch) {
             this.latch = latch;
         }
-        def this() {
-            this.latch = null;
-        }
         public def notifySubActivitySpawn(place:Place):void {
-            lock.lock();
-            if (null == latch) latch = new Latch();
-            counts(place.parent().id)++;
-            lock.unlock();
+            val p = place.parent(); // CUDA
+            latch.lock();
+            if (p == ref().home) {
+                count++;
+                latch.unlock();
+                return;
+            }
+            if (null == counts) {
+                counts = Rail.make[Int](Place.MAX_PLACES, 0);
+                seen = Rail.make[Boolean](Place.MAX_PLACES, false);
+            }
+            counts(p.id)++;
+            latch.unlock();
         }
         public def notifyActivityTermination():void {
-            lock.lock();
-            counts(Runtime.hereInt())--;
-            for(var i:Int=0; i<Place.MAX_PLACES; i++) {
-                if (counts(i) != 0) {
-                    lock.unlock();
-                    return;
+            latch.lock();
+            if (--count != 0) {
+                latch.unlock();
+                return;
+            }
+            if (null != counts) {
+                for(var i:Int=0; i<Place.MAX_PLACES; i++) {
+                    if (counts(i) != 0) {
+                        latch.unlock();
+                        return;
+                    }
                 }
             }
+            latch.unlock();
             latch.release();
-            lock.unlock();
         }
         public def process(t:Throwable):void {
             if (null == exceptions) exceptions = new Stack[Throwable]();
             exceptions.push(t);
         }
         public def pushException(t:Throwable):void {
-            lock.lock();
+            latch.lock();
             process(t);
-            lock.unlock();
+            latch.unlock();
         }
         public def waitForFinish(safe:Boolean):void {
-            if (null != latch) {
-                if (!Runtime.NO_STEALS && safe) Runtime.worker().join(latch);
-                latch.await();
+            notifyActivityTermination();
+            if (!Runtime.NO_STEALS && safe) Runtime.worker().join(latch);
+            latch.await();
+            if (null != counts) {
+                val root = ref();
+                val closure = ()=>@RemoteInvocation { Runtime.runtime().finishStates.remove(root); };
+                seen(Runtime.hereInt()) = false;
+                for(var i:Int=0; i<Place.MAX_PLACES; i++) {
+                    if (seen(i)) Runtime.runClosureAt(i, closure);
+                }
+                Runtime.dealloc(closure);
             }
-            val root = ref();
-            val closure = ()=>@RemoteInvocation { Runtime.runtime().finishStates.remove(root); };
-            seen(Runtime.hereInt()) = false;
-            for(var i:Int=0; i<Place.MAX_PLACES; i++) {
-                if (seen(i)) Runtime.runClosureAt(i, closure);
-            }
-            Runtime.dealloc(closure);
             val t = MultipleExceptions.make(exceptions);
             if (null != t) throw t;
         }
 
         protected def process(rail:Rail[Int]) {
-            var b:Boolean = true;
+            counts(ref().home.id) = -rail(ref().home.id);
+            count += rail(ref().home.id);
+            var b:Boolean = count == 0;
             for(var i:Int=0; i<Place.MAX_PLACES; i++) {
                 counts(i) += rail(i);
                 seen(i) |= counts(i) != 0;
@@ -401,9 +401,9 @@ abstract class FinishState {
         }
 
         def notify(rail:Rail[Int]):void {
-            lock.lock();
+            latch.lock();
             process(rail);
-            lock.unlock();
+            latch.unlock();
         }
 
         protected def process(rail:Rail[Pair[Int,Int]]):void {
@@ -411,51 +411,64 @@ abstract class FinishState {
                 counts(rail(i).first) += rail(i).second;
                 seen(rail(i).first) = true;
             }
+            count += counts(ref().home.id);
+            counts(ref().home.id) = 0;
+            if (count != 0) return;
             for(var i:Int=0; i<Place.MAX_PLACES; i++) {
-                if (counts(i) != 0) {
-                    return;
-                }
+                if (counts(i) != 0) return;
             }
             latch.release();
         }
 
         def notify(rail:Rail[Pair[Int,Int]]):void {
-            lock.lock();
+            latch.lock();
             process(rail);
-            lock.unlock();
+            latch.unlock();
         }
 
         def notify(rail:Rail[Int], t:Throwable):void {
-            lock.lock();
+            latch.lock();
             process(t);
             process(rail);
-            lock.unlock();
+            latch.unlock();
         }
 
         def notify(rail:Rail[Pair[Int,Int]], t:Throwable):void {
-            lock.lock();
+            latch.lock();
             process(t);
             process(rail);
-            lock.unlock();
+            latch.unlock();
         }
     }
 
     static class RemoteFinish extends RemoteFinishSkeleton {
         protected var exceptions:Stack[Throwable];
         protected val lock = new Lock();
-        protected val counts = Rail.make[Int](Place.MAX_PLACES, 0);
-        protected val places = Rail.make[Int](Place.MAX_PLACES, Runtime.hereInt());
+        protected var count:Int = 0;
+        protected var counts:Rail[Int];
+        protected var places:Rail[Int];
         protected var length:Int = 1;
-        protected var count:AtomicInteger = new AtomicInteger(0);
+        protected var local:AtomicInteger = new AtomicInteger(0);
         def this(ref:GlobalRef[FinishState]) {
             super(ref);
         }
         public def notifyActivityCreation():void {
-            count.getAndIncrement();
+            local.getAndIncrement();
         }
         public def notifySubActivitySpawn(place:Place):void {
+            val id = Runtime.hereInt();
             lock.lock();
-            if (counts(place.id)++ == 0 && Runtime.hereInt() != place.id) {
+            if (place.id == id) {
+                count++;
+                lock.unlock();
+                return;
+            }
+            if (null == counts) {
+                counts = Rail.make[Int](Place.MAX_PLACES, 0);
+                places = Rail.make[Int](Place.MAX_PLACES, 0);
+                places(0) = id;
+            }
+            if (counts(place.id)++ == 0 && id != place.id) {
                 places(length++) = place.id;
             }
             lock.unlock();
@@ -468,31 +481,42 @@ abstract class FinishState {
         }
         public def notifyActivityTermination():void {
             lock.lock();
-            counts(Runtime.hereInt())--;
-            if (count.decrementAndGet() > 0) {
+            count--;
+            if (local.decrementAndGet() > 0) {
                 lock.unlock();
                 return;
             }
             val t = MultipleExceptions.make(exceptions);
             val ref = this.ref();
             val closure:()=>void;
-            if (2*length > Place.MAX_PLACES) {
-                val message = Rail.make[Int](counts.length, 0, counts);
-                if (null != t) {
-                    closure = ()=>@RemoteInvocation { deref[RootFinish](ref).notify(message, t); };
+            if (null != counts) {
+                counts(Runtime.hereInt()) = count;
+                if (2*length > Place.MAX_PLACES) {
+                    val message = Rail.make[Int](counts.length, 0, counts);
+                    if (null != t) {
+                        closure = ()=>@RemoteInvocation { deref[RootFinish](ref).notify(message, t); };
+                    } else {
+                        closure = ()=>@RemoteInvocation { deref[RootFinish](ref).notify(message); };
+                    }
                 } else {
-                    closure = ()=>@RemoteInvocation { deref[RootFinish](ref).notify(message); };
+                    val message = Rail.make[Pair[Int,Int]](length, (i:Int)=>Pair[Int,Int](places(i), counts(places(i))));
+                    if (null != t) {
+                        closure = ()=>@RemoteInvocation { deref[RootFinish](ref).notify(message, t); };
+                    } else {
+                        closure = ()=>@RemoteInvocation { deref[RootFinish](ref).notify(message); };
+                    }
                 }
+                counts.reset(0);
+                length = 1;
             } else {
-                val message = Rail.make[Pair[Int,Int]](length, (i:Int)=>Pair[Int,Int](places(i), counts(places(i))));
+                val message = Rail.make[Pair[Int,Int]](1, Pair[Int,Int](Runtime.hereInt(), count));
                 if (null != t) {
                     closure = ()=>@RemoteInvocation { deref[RootFinish](ref).notify(message, t); };
                 } else {
                     closure = ()=>@RemoteInvocation { deref[RootFinish](ref).notify(message); };
                 }
             }
-            counts.reset(0);
-            length = 1;
+            count = 0;
             exceptions = null;
             lock.unlock();
             Runtime.runClosureAt(ref.home.id, closure);
@@ -538,22 +562,22 @@ abstract class FinishState {
         def accept(t:T, id:Int):void;
     }
 
-    static class CollectingFinish[T] extends Finish implements CollectingFinishState[T],x10.io.CustomSerialization {
+    static class CollectingFinish[T] extends Finish implements CollectingFinishState[T],CustomSerialization {
         val reducer:Reducible[T];
         def this(reducer:Reducible[T]) {
             super(new RootCollectingFinish(reducer));
             this.reducer = reducer;
         }
-        private def this(any:Any) { // deserialization constructor
-            super((any as Pair[GlobalRef[FinishState],Reducible[T]]).first);
-            reducer = (any as Pair[GlobalRef[FinishState],Reducible[T]]).second;
+        private def this(data:SerialData) { 
+            super(data.superclassData.data as GlobalRef[FinishState]);
+            reducer = data.data as Reducible[T];
             if (ref.home.id == Runtime.hereInt()) {
                 me = (ref as GlobalRef[FinishState]{home==here})();
             } else {
                 me = Runtime.runtime().finishStates.apply(ref, ()=>new RemoteCollectingFinish[T](ref, reducer));
             }
         }
-        public def serialize():Any = Pair[GlobalRef[FinishState],Reducible[T]](ref, reducer);
+        public def serialize():SerialData = new SerialData(reducer, super.serialize());
         public def accept(t:T, id:Int) { (me as CollectingFinishState[T]).accept(t, id); }
         public def waitForFinishExpr(safe:Boolean) = (me as RootCollectingFinish[T]).waitForFinishExpr(safe);
     }
@@ -561,23 +585,23 @@ abstract class FinishState {
     static class RootCollectingFinish[T] extends RootFinish implements CollectingFinishState[T] {
         val sr:StatefulReducer[T];
         def this(reducer:Reducible[T]) {
-           super();
+           super(new SimpleLatch());
            sr = new StatefulReducer[T](reducer);
         }
         public def accept(t:T, id:Int) {
            sr.accept(t, id);
         }
         def notifyValue(rail:Rail[Int], v:T):void {
-            lock.lock();
+            latch.lock();
             sr.accept(v);
             process(rail);
-            lock.unlock();
+            latch.unlock();
         }
         def notifyValue(rail:Rail[Pair[Int,Int]], v:T):void {
-            lock.lock();
+            latch.lock();
             sr.accept(v);
             process(rail);
-            lock.unlock();
+            latch.unlock();
         }
         final public def waitForFinishExpr(safe:Boolean):T {
             waitForFinish(safe);
@@ -599,8 +623,8 @@ abstract class FinishState {
         }
         public def notifyActivityTermination():void {
             lock.lock();
-            counts(Runtime.hereInt())--;
-            if (count.decrementAndGet() > 0) {
+            count--;
+            if (local.decrementAndGet() > 0) {
                 lock.unlock();
                 return;
             }
@@ -610,23 +634,34 @@ abstract class FinishState {
             sr.placeMerge();
             val result = sr.result();
             sr.reset();
-            if (2*length > Place.MAX_PLACES) {
-                val message = Rail.make[Int](counts.length, 0, counts);
-                if (null != t) {
-                    closure = ()=>@RemoteInvocation { deref[RootCollectingFinish[T]](ref).notify(message, t); };
+            if (null != counts) {
+                counts(Runtime.hereInt()) = count;
+                if (2*length > Place.MAX_PLACES) {
+                    val message = Rail.make[Int](counts.length, 0, counts);
+                    if (null != t) {
+                        closure = ()=>@RemoteInvocation { deref[RootCollectingFinish[T]](ref).notify(message, t); };
+                    } else {
+                        closure = ()=>@RemoteInvocation { deref[RootCollectingFinish[T]](ref).notifyValue(message, result); };
+                    }
                 } else {
-                    closure = ()=>@RemoteInvocation { deref[RootCollectingFinish[T]](ref).notifyValue(message, result); };
+                    val message = Rail.make[Pair[Int,Int]](length, (i:Int)=>Pair[Int,Int](places(i), counts(places(i))));
+                    if (null != t) {
+                        closure = ()=>@RemoteInvocation { deref[RootCollectingFinish[T]](ref).notify(message, t); };
+                    } else {
+                        closure = ()=>@RemoteInvocation { deref[RootCollectingFinish[T]](ref).notifyValue(message, result); };
+                    }
                 }
+                counts.reset(0);
+                length = 1;
             } else {
-                val message = Rail.make[Pair[Int,Int]](length, (i:Int)=>Pair[Int,Int](places(i), counts(places(i))));
+                val message = Rail.make[Pair[Int,Int]](1, Pair[Int,Int](Runtime.hereInt(), count));
                 if (null != t) {
                     closure = ()=>@RemoteInvocation { deref[RootCollectingFinish[T]](ref).notify(message, t); };
                 } else {
                     closure = ()=>@RemoteInvocation { deref[RootCollectingFinish[T]](ref).notifyValue(message, result); };
                 }
             }
-            counts.reset(0);
-            length = 1;
+            count = 0;
             exceptions = null;
             lock.unlock();
             Runtime.runClosureAt(ref.home.id, closure);

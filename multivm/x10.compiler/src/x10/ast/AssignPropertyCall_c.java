@@ -51,6 +51,7 @@ import x10.types.X10ParsedClassType;
 import x10.types.X10TypeMixin;
 import polyglot.types.TypeSystem;
 import x10.types.XTypeTranslator;
+import x10.types.X10Context_c;
 import x10.types.checker.ThisChecker;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint;
@@ -134,13 +135,12 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 		NodeFactory nf = (NodeFactory) tc.nodeFactory();
 		Position pos = position();
 		Job job = tc.job();
-		X10ConstructorDef thisConstructor = null;
+		X10ConstructorDef thisConstructor = ((X10Context_c)ctx).getCtorIgnoringAsync();
 		X10ParsedClassType container = (X10ParsedClassType) ctx.currentClass();
-		if (!(ctx.inCode()) || !(ctx.currentCode() instanceof X10ConstructorDef)) {
+		if (thisConstructor==null) {
 			Errors.issue(job,
 			        new SemanticException("A property statement may only occur in the body of a constructor.", position()));
 		} else {
-		    thisConstructor = (X10ConstructorDef) ctx.currentCode();
 		    container = (X10ParsedClassType) thisConstructor.asInstance().container();
 		}
 		// Now check that the types of each actual argument are subtypes of the corresponding
@@ -189,7 +189,7 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 		}
 		// Now we check that the constraints are correct.
 	}
-	
+
 	protected void checkReturnType(ContextVisitor tc, Position pos,
 	        X10ConstructorDef thisConstructor, List<FieldInstance> definedProperties,
 	        List<Expr> args)
@@ -238,7 +238,7 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 				// bind this==self; sup clause may constrain this.
 				if (thisVar != null) {
 					known = known.instantiateSelf(thisVar);
-					
+
 					// known.addSelfBinding(thisVar);
 					// known.setThisVar(thisVar);
 				}

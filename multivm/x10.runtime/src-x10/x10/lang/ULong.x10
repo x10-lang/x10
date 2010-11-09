@@ -25,7 +25,7 @@ import x10.util.Ordered;
  */
 // @NativeRep("java", "long", null, "x10.rtt.Types.ULONG")
 @NativeRep("c++", "x10_ulong", "x10_ulong", null)
-public final struct ULong /*TODO implements Arithmetic[ULong], Bitwise[ULong], Ordered[ULong]*/ {
+public struct ULong implements Comparable[ULong] /*TODO implements Arithmetic[ULong], Bitwise[ULong], Ordered[ULong]*/ {
 
     /** The actual number with Long representation */
     public val longVal:Long;
@@ -754,4 +754,15 @@ public final struct ULong /*TODO implements Arithmetic[ULong], Bitwise[ULong], O
     // @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
     public def equals(x:ULong):Boolean = this.longVal == x.longVal;
+
+    /**
+    * Returns a negative Int, zero, or a positive Int if this ULong is less than, equal
+    * to, or greater than the given ULong.
+    * @param x the given ULong
+    * @return a negative Int, zero, or a positive Int if this ULong is less than, equal
+    * to, or greater than the given ULong.
+    */
+    // @Native("java", "x10.rtt.Equality.compareTo(#0.longVal + java.lang.Long.MIN_VALUE, #1.longVal + java.lang.Long.MIN_VALUE)")
+    @Native("c++", "0")
+    public def compareTo(x:ULong): Int = (this.longVal + Long.MIN_VALUE).compareTo(x.longVal + Long.MIN_VALUE);
 }

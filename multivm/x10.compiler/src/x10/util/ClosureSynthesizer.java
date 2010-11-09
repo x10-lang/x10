@@ -280,7 +280,7 @@ public class ClosureSynthesizer {
         cd.superType(null); // interfaces have no superclass
         // Functions implement the Any interface.
         cd.setInterfaces(Collections.<Ref<? extends Type>> singletonList(Types.ref(xts.Any())));
-        cd.flags(X10Flags.toX10Flags(Flags.PUBLIC.Abstract().Interface()));
+        cd.flags(Flags.PUBLIC.Abstract().Interface());
 
         final List<ParameterType> typeParams = new ArrayList<ParameterType>();
         final List<Ref<? extends Type>> argTypes = new ArrayList<Ref<? extends Type>>();

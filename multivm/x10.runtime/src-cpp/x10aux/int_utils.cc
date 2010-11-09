@@ -70,48 +70,60 @@ x10_int x10aux::int_utils::parseInt(ref<String> s) {
 }
 
 x10_int x10aux::int_utils::highestOneBit(x10_int x) {
-    UNIMPLEMENTED("highestOneBit");
-    return x; /* Bogus, but use x to avoid warning about unused parameter */
+    x |= (x >> 1);
+    x |= (x >> 2);
+    x |= (x >> 4);
+    x |= (x >> 8);
+    x |= (x >> 16);
+    return x & ~(((x10_uint)x) >> 1);
 }
 
 x10_int x10aux::int_utils::lowestOneBit(x10_int x) {
-    UNIMPLEMENTED("lowestOneBit");
-    return x; /* Bogus, but use x to avoid warning about unused parameter */
+    return x & (-x);
 }
 
 x10_int x10aux::int_utils::numberOfLeadingZeros(x10_int x) {
-    UNIMPLEMENTED("numberOfLeadingZeros");
-    return x; /* Bogus, but use x to avoid warning about unused parameter */
+    x |= (x >> 1);
+    x |= (x >> 2);
+    x |= (x >> 4);
+    x |= (x >> 8);
+    x |= (x >> 16);
+    return bitCount(~x);
 }
 
 x10_int x10aux::int_utils::numberOfTrailingZeros(x10_int x) {
-    UNIMPLEMENTED("numberOfTrailingZeros");
-    return x; /* Bogus, but use x to avoid warning about unused parameter */
+    return bitCount(~x & (x-1));
 }
 
 x10_int x10aux::int_utils::bitCount(x10_int x) {
-    UNIMPLEMENTED("bitCount");
-    return x; /* Bogus, but use x to avoid warning about unused parameter */
+    x10_uint ux = (x10_uint)x;
+    ux = ux - ((ux >> 1) & 0x55555555);
+    ux = (ux & 0x33333333) + ((ux >> 2) & 0x33333333);
+    ux = (ux + (ux >> 4)) & 0x0F0F0F0F;
+    ux = ux + (ux >> 8);
+    ux = ux + (ux >> 16);
+    return (x10_int)(ux & 0x3F);
 }
 
-x10_int x10aux::int_utils::rotateLeft(x10_int x) {
-    UNIMPLEMENTED("rotateLeft");
-    return x; /* Bogus, but use x to avoid warning about unused parameter */
+x10_int x10aux::int_utils::rotateLeft(x10_int x, x10_int distance) {
+    return (x << distance) | (((x10_uint)x) >> (32 - distance));
 }
 
-x10_int x10aux::int_utils::rotateRight(x10_int x) {
-    UNIMPLEMENTED("rotateRight");
-    return x; /* Bogus, but use x to avoid warning about unused parameter */
+x10_int x10aux::int_utils::rotateRight(x10_int x, x10_int distance) {
+    return (((x10_uint)x) >> distance) | (x << (32 - distance));
 }
 
 x10_int x10aux::int_utils::reverse(x10_int x) {
-    UNIMPLEMENTED("reverse");
-    return x; /* Bogus, but use x to avoid warning about unused parameter */
+    x10_uint ux = (x10_uint)x;
+    ux = ((ux & 0x55555555) << 1) | ((ux >> 1) & 0x55555555);
+    ux = ((ux & 0x33333333) << 2) | ((ux >> 2) & 0x33333333);
+    ux = ((ux & 0x0F0F0F0F) << 4) | ((ux >> 4) & 0x0F0F0F0F);
+    ux = (ux << 24) | ((ux & 0xFF00) << 8) | ((ux >> 8) & 0xFF00) | (ux >> 24);
+    return (x10_int)ux;
 }
 
 x10_int x10aux::int_utils::signum(x10_int x) {
-    UNIMPLEMENTED("signum");
-    return x; /* Bogus, but use x to avoid warning about unused parameter */
+    return (x >> 31) | (((x10_uint)(-x)) >> 31);
 }
 
 x10_int x10aux::int_utils::reverseBytes(x10_int x) {

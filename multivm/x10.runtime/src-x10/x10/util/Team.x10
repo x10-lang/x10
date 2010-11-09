@@ -2,6 +2,7 @@ package x10.util;
 
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
+import x10.compiler.StackAllocate;
 
 /** Interface to low level collective operations.  A team is a collection of
  * activities that work together by simultaneously doing 'collective
@@ -13,6 +14,22 @@ import x10.compiler.NativeRep;
  * @author Dave Cunningham
  */
 public struct Team {
+
+    @NativeRep("c++", "void*", "void*", null)
+    static class VoidStar {}
+
+    @NativeRep("c++", "x10rt_team", "x10rt_team", null)
+    static class Id {}
+
+    public static def release(v:VoidStar) {
+        @Native("c++",
+                "(*(x10aux::ref<x10::lang::SimpleLatch>*)v)->release();") { }
+    }
+
+    public static def set(t:Id, v:VoidStar) {
+        @Native("c++",
+                "(*(x10aux::ref<x10::lang::SimpleIntLatch>*)v)->set(t);") { }
+    }
 
     /** A team that has one member at each place.
      */
@@ -28,27 +45,19 @@ public struct Team {
      * @param places The place of each member
      */
     public def this (places:Rail[Place]) {
-        var id:Int = 0;
+        @StackAllocate val latch = @StackAllocate new SimpleIntLatch();
         @Native("c++",
-                "x10rt_team nu_team = 0;" +
-                "x10rt_team_new(places->length(), (x10rt_place*)places->raw(), x10rt_team_setter, &nu_team);" +
-                "x10::lang::Runtime::increaseParallelism();" +
-                "while (nu_team==0) x10::lang::Runtime::spin();" +
-                "x10::lang::Runtime::decreaseParallelism(1);" +
-                "id = nu_team;") { }
-        this.id = id;
+                "x10rt_team_new(places->length(), (x10rt_place*)places->raw(), Team_methods::set, &latch);") { latch.set(1); }
+        latch.await();
+        this.id = latch();
     }
 
     public def this (places:Array[Place]) {
-        var id:Int = 0;
+        @StackAllocate val latch = @StackAllocate new SimpleIntLatch();
         @Native("c++",
-                "x10rt_team nu_team = 0;" +
-                "x10rt_team_new(places->FMGL(rawLength), (x10rt_place*)places->raw()->raw(), x10rt_team_setter, &nu_team);" +
-                "x10::lang::Runtime::increaseParallelism();" +
-                "while (nu_team==0) x10::lang::Runtime::spin();" +
-                "x10::lang::Runtime::decreaseParallelism(1);" +
-                "id = nu_team;") { }
-        this.id = id;
+                "x10rt_team_new(places->FMGL(rawLength), (x10rt_place*)places->raw()->raw(), Team_methods::set, &latch);") { latch.set(1); }
+        latch.await();
+        this.id = latch();
     }
 
     /** Returns the number of elements in the team.
@@ -64,12 +73,10 @@ public struct Team {
      * @param role Our role in this collective operation
      */
     public def barrier (role:Int) : void {
+        @StackAllocate val latch = @StackAllocate new SimpleLatch();
         @Native("c++",
-                "int finished = 0;" +
-                "x10rt_barrier(this_.FMGL(id), role, x10rt_one_setter, &finished);" +
-                "x10::lang::Runtime::increaseParallelism();" +
-                "while (!finished) x10::lang::Runtime::spin();" +
-                "x10::lang::Runtime::decreaseParallelism(1);") {}
+                "x10rt_barrier(this_.FMGL(id), role, Team_methods::release, &latch);") { latch.release(); }
+        latch.await();
     }
 
     /** Blocks until all members have received their part of root's array.
@@ -94,20 +101,17 @@ public struct Team {
      * @param count The number of elements being transferred
      */
     public def scatter[T] (role:Int, root:Int, src:Rail[T], src_off:Int, dst:Rail[T], dst_off:Int, count:Int) : void {
+        @StackAllocate val latch = @StackAllocate new SimpleLatch();
         @Native("c++",
-                "int finished = 0;" +
-                "x10rt_scatter(this_.FMGL(id), role, root, &src->raw()[src_off], &dst->raw()[dst_off], sizeof(FMGL(T)), count, x10rt_one_setter, &finished);" +
-                "x10::lang::Runtime::increaseParallelism();" +
-                "while (!finished) x10::lang::Runtime::spin();" +
-                "x10::lang::Runtime::decreaseParallelism(1);") {}
+                "x10rt_scatter(this_.FMGL(id), role, root, &src->raw()[src_off], &dst->raw()[dst_off], sizeof(FMGL(T)), count, Team_methods::release, &latch);") { latch.release(); }
+        latch.await();
     }
+
     public def scatter[T] (role:Int, root:Int, src:Array[T], src_off:Int, dst:Array[T], dst_off:Int, count:Int) : void {
+        @StackAllocate val latch = @StackAllocate new SimpleLatch();
         @Native("c++",
-                "int finished = 0;" +
-                "x10rt_scatter(this_.FMGL(id), role, root, &src->raw()->raw()[src_off], &dst->raw()->raw()[dst_off], sizeof(FMGL(T)), count, x10rt_one_setter, &finished);" +
-                "x10::lang::Runtime::increaseParallelism();" +
-                "while (!finished) x10::lang::Runtime::spin();" +
-                "x10::lang::Runtime::decreaseParallelism(1);") {}
+                "x10rt_scatter(this_.FMGL(id), role, root, &src->raw()->raw()[src_off], &dst->raw()->raw()[dst_off], sizeof(FMGL(T)), count, Team_methods::release, &latch);") { latch.release(); }
+        latch.await();
     }
     
     /** Blocks until all members have received root's array.
@@ -127,20 +131,16 @@ public struct Team {
      * @param count The number of elements being transferred
      */
     public def bcast[T] (role:Int, root:Int, src:Rail[T], src_off:Int, dst:Rail[T], dst_off:Int, count:Int) : void {
+        @StackAllocate val latch = @StackAllocate new SimpleLatch();
         @Native("c++",
-                "int finished = 0;" +
-                "x10rt_bcast(this_.FMGL(id), role, root, &src->raw()[src_off], &dst->raw()[dst_off], sizeof(FMGL(T)), count, x10rt_one_setter, &finished);" +
-                "x10::lang::Runtime::increaseParallelism();" +
-                "while (!finished) x10::lang::Runtime::spin();" +
-                "x10::lang::Runtime::decreaseParallelism(1);") {}
+                "x10rt_bcast(this_.FMGL(id), role, root, &src->raw()[src_off], &dst->raw()[dst_off], sizeof(FMGL(T)), count, Team_methods::release, &latch);") { latch.release(); }
+        latch.await();
     }
     public def bcast[T] (role:Int, root:Int, src:Array[T], src_off:Int, dst:Array[T], dst_off:Int, count:Int) : void {
+        @StackAllocate val latch = @StackAllocate new SimpleLatch();
         @Native("c++",
-                "int finished = 0;" +
-                "x10rt_bcast(this_.FMGL(id), role, root, &src->raw()->raw()[src_off], &dst->raw()->raw()[dst_off], sizeof(FMGL(T)), count, x10rt_one_setter, &finished);" +
-                "x10::lang::Runtime::increaseParallelism();" +
-                "while (!finished) x10::lang::Runtime::spin();" +
-                "x10::lang::Runtime::decreaseParallelism(1);") {}
+                "x10rt_bcast(this_.FMGL(id), role, root, &src->raw()->raw()[src_off], &dst->raw()->raw()[dst_off], sizeof(FMGL(T)), count, Team_methods::release, &latch);") { latch.release(); }
+        latch.await();
     }
     
     /** Blocks until all members have received their part of each other member's array.
@@ -163,20 +163,16 @@ public struct Team {
      * @param count The number of elements being transferred
      */
     public def alltoall[T] (role:Int, src:Rail[T], src_off:Int, dst:Rail[T], dst_off:Int, count:Int) : void {
+        @StackAllocate val latch = @StackAllocate new SimpleLatch();
         @Native("c++",
-                "int finished = 0;" +
-                "x10rt_alltoall(this_.FMGL(id), role, &src->raw()[src_off], &dst->raw()[dst_off], sizeof(FMGL(T)), count, x10rt_one_setter, &finished);" +
-                "x10::lang::Runtime::increaseParallelism();" +
-                "while (!finished) x10::lang::Runtime::spin();" +
-                "x10::lang::Runtime::decreaseParallelism(1);") {}
+                "x10rt_alltoall(this_.FMGL(id), role, &src->raw()[src_off], &dst->raw()[dst_off], sizeof(FMGL(T)), count, Team_methods::release, &latch);") { latch.release(); }
+        latch.await();
     }
     public def alltoall[T] (role:Int, src:Array[T], src_off:Int, dst:Array[T], dst_off:Int, count:Int) : void {
+        @StackAllocate val latch = @StackAllocate new SimpleLatch();
         @Native("c++",
-                "int finished = 0;" +
-                "x10rt_alltoall(this_.FMGL(id), role, &src->raw()->raw()[src_off], &dst->raw()->raw()[dst_off], sizeof(FMGL(T)), count, x10rt_one_setter, &finished);" +
-                "x10::lang::Runtime::increaseParallelism();" +
-                "while (!finished) x10::lang::Runtime::spin();" +
-                "x10::lang::Runtime::decreaseParallelism(1);") {}
+                "x10rt_alltoall(this_.FMGL(id), role, &src->raw()->raw()[src_off], &dst->raw()->raw()[dst_off], sizeof(FMGL(T)), count, Team_methods::release, &latch);") { latch.release(); }
+        latch.await();
     }
 
     /** Indicates the operation to perform when reducing. */
@@ -197,22 +193,18 @@ public struct Team {
     public static val MIN = 7;
 
     private def allreduce_[T] (role:Int, src:Rail[T], src_off:Int, dst:Rail[T], dst_off:Int, count:Int, op:Int) : void {
+        @StackAllocate val latch = @StackAllocate new SimpleLatch();
         @Native("c++",
-                "int finished = 0;" +
                 "x10rt_red_type type = x10rt_get_red_type<FMGL(T)>();" +
-                "x10rt_allreduce(this_.FMGL(id), role, &src->raw()[src_off], &dst->raw()[dst_off], (x10rt_red_op_type)op, type, count, x10rt_one_setter, &finished);" +
-                "x10::lang::Runtime::increaseParallelism();" +
-                "while (!finished) x10::lang::Runtime::spin();" +
-                "x10::lang::Runtime::decreaseParallelism(1);") {}
+                "x10rt_allreduce(this_.FMGL(id), role, &src->raw()[src_off], &dst->raw()[dst_off], (x10rt_red_op_type)op, type, count, Team_methods::release, &latch);") { latch.release(); }
+        latch.await();
     }
     private def allreduce_[T] (role:Int, src:Array[T], src_off:Int, dst:Array[T], dst_off:Int, count:Int, op:Int) : void {
+        @StackAllocate val latch = @StackAllocate new SimpleLatch();
         @Native("c++",
-                "int finished = 0;" +
                 "x10rt_red_type type = x10rt_get_red_type<FMGL(T)>();" +
-                "x10rt_allreduce(this_.FMGL(id), role, &src->raw()->raw()[src_off], &dst->raw()->raw()[dst_off], (x10rt_red_op_type)op, type, count, x10rt_one_setter, &finished);" +
-                "x10::lang::Runtime::increaseParallelism();" +
-                "while (!finished) x10::lang::Runtime::spin();" +
-                "x10::lang::Runtime::decreaseParallelism(1);") {}
+                "x10rt_allreduce(this_.FMGL(id), role, &src->raw()->raw()[src_off], &dst->raw()->raw()[dst_off], (x10rt_red_op_type)op, type, count, Team_methods::release, &latch);") { latch.release(); }
+        latch.await();
     }
 
     /* using overloading is the correct thing to do here since the set of supported
@@ -289,13 +281,11 @@ public struct Team {
 
     private def allreduce_[T] (role:Int, src:T, op:Int) : T {
         var dst:T;
+        @StackAllocate val latch = @StackAllocate new SimpleLatch();
         @Native("c++",
-                "int finished = 0;" +
                 "x10rt_red_type type = x10rt_get_red_type<FMGL(T)>();" +
-                "x10rt_allreduce(this_.FMGL(id), role, &src, &dst, (x10rt_red_op_type)op, type, 1, x10rt_one_setter, &finished);" +
-                "x10::lang::Runtime::increaseParallelism();" +
-                "while (!finished) x10::lang::Runtime::spin();" +
-                "x10::lang::Runtime::decreaseParallelism(1);") { dst = src; }
+                "x10rt_allreduce(this_.FMGL(id), role, &src, &dst, (x10rt_red_op_type)op, type, 1, Team_methods::release, &latch);") { dst = src; latch.release(); }
+        latch.await();
         return dst;
     }
 
@@ -323,14 +313,13 @@ public struct Team {
     /** Returns the index of the biggest double value across the team */
     public def indexOfMax (role:Int, v:Double, idx:Int) : Int {
         var r:Int;
+        @StackAllocate val latch = @StackAllocate new SimpleLatch();
         @Native("c++",
-                "int finished = 0;" +
                 "x10rt_dbl_s32 src = {v, idx};" +
                 "x10rt_dbl_s32 dst;" +
-                "x10rt_allreduce(this_.FMGL(id), role, &src, &dst, X10RT_RED_OP_MAX, X10RT_RED_TYPE_DBL_S32, 1, x10rt_one_setter, &finished);" +
-                "x10::lang::Runtime::increaseParallelism();" +
-                "while (!finished) x10::lang::Runtime::spin();" +
-                "x10::lang::Runtime::decreaseParallelism(1);" +
+                "x10rt_allreduce(this_.FMGL(id), role, &src, &dst, X10RT_RED_OP_MAX, X10RT_RED_TYPE_DBL_S32, 1, Team_methods::release, &latch);") { latch.release(); }
+        latch.await();
+        @Native("c++",
                 "r = dst.idx;") { r = 0; }
         return r;
     }
@@ -338,14 +327,13 @@ public struct Team {
     /** Returns the index of the smallest double value across the team */
     public def indexOfMin (role:Int, v:Double, idx:Int) : Int {
         var r:Int;
+        @StackAllocate val latch = @StackAllocate new SimpleLatch();
         @Native("c++",
-                "int finished = 0;" +
                 "x10rt_dbl_s32 src = {v, idx};" +
                 "x10rt_dbl_s32 dst;" +
-                "x10rt_allreduce(this_.FMGL(id), role, &src, &dst, X10RT_RED_OP_MIN, X10RT_RED_TYPE_DBL_S32, 1, x10rt_one_setter, &finished);" +
-                "x10::lang::Runtime::increaseParallelism();" +
-                "while (!finished) x10::lang::Runtime::spin();" +
-                "x10::lang::Runtime::decreaseParallelism(1);" +
+                "x10rt_allreduce(this_.FMGL(id), role, &src, &dst, X10RT_RED_OP_MIN, X10RT_RED_TYPE_DBL_S32, 1, Team_methods::release, &latch);") { latch.release(); }
+        latch.await();
+        @Native("c++",
                 "r = dst.idx;") { r = 0; }
         return r;
     }
@@ -365,15 +353,11 @@ public struct Team {
      * @param new_role The caller's role within the new team
      */
     public def split (role:Int, color:Int, new_role:Int) : Team {
-        var id:Int = 0;
+        @StackAllocate val latch = @StackAllocate new SimpleIntLatch();
         @Native("c++",
-                "x10rt_team nu_team = 0;" +
-                "x10rt_team_split(this_.FMGL(id), role, color, new_role, x10rt_team_setter, &nu_team);" +
-                "x10::lang::Runtime::increaseParallelism();" +
-                "while (nu_team==0) x10::lang::Runtime::spin();" +
-                "x10::lang::Runtime::decreaseParallelism(1);" +
-                "id = nu_team;") { }
-        return Team(id);
+                "x10rt_team_split(this_.FMGL(id), role, color, new_role, Team_methods::set, &latch);") { latch.set(1); }
+        latch.await();
+        return Team(latch());
     }
     
     /** Destroy a team that is no-longer needed.  Called simultaneously by each member of
@@ -382,12 +366,10 @@ public struct Team {
      * @param role Our role in this team
      */
     public def del (role:Int) : void {
+        @StackAllocate val latch = @StackAllocate new SimpleLatch();
         @Native("c++",
-                "int finished = 0;" +
-                "x10rt_team_del(this_.FMGL(id), role, x10rt_one_setter, &finished);" +
-                "x10::lang::Runtime::increaseParallelism();" +
-                "while (!finished) x10::lang::Runtime::spin();" +
-                "x10::lang::Runtime::decreaseParallelism(1);") { }
+                "x10rt_team_del(this_.FMGL(id), role, Team_methods::release, &latch);") { latch.release(); }
+        latch.await();
     }
     
 }

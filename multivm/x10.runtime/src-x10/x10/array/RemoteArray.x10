@@ -60,12 +60,12 @@ public class RemoteArray[T](home:Place, region:Region, size:Int) {} {
         return oRA.array.equals(array);
     }
 
-    @Native("cuda", "(#0).set(#1,#2)")
+    @Native("cuda", "(#0).raw[#2] = (#1)")
     public def set(v:T, i:Int) {here==home, rank==1} = array().set(v,i);
 
     public def set(v:T, p:Point{self.rank==this.rank}) {here==home} = array().set(v,p);
 
-    @Native("cuda", "(#0).apply(#1)")
+    @Native("cuda", "(#0).raw[#1]")
     public def apply(i:Int) {here==home, rank==1} = array()(i);
 
     public def apply(p:Point{self.rank==this.rank}) {here==home} = array()(p);

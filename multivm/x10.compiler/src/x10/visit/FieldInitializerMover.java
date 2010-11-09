@@ -26,6 +26,7 @@ import polyglot.ast.Eval;
 import polyglot.ast.Expr;
 import polyglot.ast.FieldAssign;
 import polyglot.ast.FieldDecl;
+import polyglot.ast.Formal;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.Special;
@@ -161,13 +162,13 @@ public class FieldInitializerMover extends ContextVisitor {
             final Id nameId = nf.Id(p, name);
             final Flags flags = Flags.PRIVATE.Final();
             MethodDecl method = nf.MethodDecl(p,nf.FlagsNode(p, flags),returnType, nameId,
-                    Collections.EMPTY_LIST, nf.Block(p,assignments));
-            MethodDef md = ts.methodDef(p,Types.ref(cdecl.classDef().asType()), flags,refRet,name,Collections.EMPTY_LIST);
+                    Collections.<Formal>emptyList(), nf.Block(p,assignments));
+            MethodDef md = ts.methodDef(p,Types.ref(cdecl.classDef().asType()), flags,refRet,name,Collections.<Ref<? extends Type>>emptyList());
             method = method.methodDef(md);
             members.add(method);
 
             // create the call to __fieldInitializers
-            Call call = nf.Call(p,this_,nameId,Collections.EMPTY_LIST).methodInstance(md.asInstance());
+            Call call = nf.Call(p,this_,nameId,Collections.<Expr>emptyList()).methodInstance(md.asInstance());
             call = (Call) call.type(ts.Void());
             evalCall = nf.Eval(p, call);
         }

@@ -152,7 +152,9 @@ void x10aux::network_init (int ac, char **av) {
     x10aux::num_hosts = x10rt_nhosts();
 }
 
-void x10aux::run_async_at(x10aux::place p, x10aux::ref<Reference> real_body, x10aux::ref<x10::lang::Reference> fs) {
+void x10aux::run_async_at(x10aux::place p, x10aux::ref<Reference> real_body, x10aux::ref<x10::lang::Reference> fs_) {
+
+    x10aux::ref<x10::lang::FinishState> fs = fs_; // avoid including FinishState in the header
 
     serialization_id_t real_sid = real_body->_get_serialization_id();
     if (!is_cuda(p)) {
@@ -291,7 +293,7 @@ static void receive_async (const x10rt_msg_params *p) {
             x10aux::dealloc(body.operator->());
         } break;
         case x10aux::CLOSURE_KIND_SIMPLE_ASYNC: {
-            x10aux::ref<x10::lang::Reference> fs = buf.read<x10aux::ref<x10::lang::Reference> >();
+            x10aux::ref<x10::lang::FinishState> fs = buf.read<x10aux::ref<x10::lang::FinishState> >();
             ref<Reference> body(x10aux::DeserializationDispatcher::create<VoidFun_0_0>(buf, sid));
             assert(buf.consumed() <= p->len);
             _X_("The deserialised simple async was: "<<x10aux::safe_to_string(body));
@@ -308,7 +310,7 @@ static void cuda_pre (const x10rt_msg_params *p, size_t *blocks, size_t *threads
 {
     _X_(ANSI_X10RT<<"Receiving a kernel pre callback, deserialising..."<<ANSI_RESET);
     x10aux::deserialization_buffer buf(static_cast<char*>(p->msg));
-    buf.read<x10aux::ref<x10::lang::Reference> >();
+    buf.read<x10aux::ref<x10::lang::FinishState> >();
     // note: high bytes thrown away in implicit conversion
     serialization_id_t sid = x10aux::DeserializationDispatcher::getSerializationId(p->type);
     x10aux::CUDAPre pre = x10aux::DeserializationDispatcher::getCUDAPre(sid);

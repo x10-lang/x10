@@ -53,7 +53,10 @@ x10_short x10aux::short_utils::parseShort(const ref<String>& s) {
 }
 
 x10_short x10aux::short_utils::reverseBytes(x10_short x) {
-    UNIMPLEMENTED("reverseBytes");
-    return x; /* Bogus, but use x to avoid warning about unused parameter */
+    x10_ushort ux = (x10_ushort)x;
+    x10_ushort b0 = ux & 0x0F;
+    x10_ushort b1 = (ux & 0xF0) >> 8;
+    ux = (b0 << 8) | b1;
+    return (x10_short)ux;
 }
 // vim:tabstop=4:shiftwidth=4:expandtab

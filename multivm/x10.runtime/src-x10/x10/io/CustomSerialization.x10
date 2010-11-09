@@ -22,9 +22,9 @@ package x10.io;
  * <li>A <code>serialize</code> method that will be invoked by the runtime
  *     system when a value that implements CustomSerialization needs to
  *     be copied.  This serialize method will construct and return a
- *     value of type Any.  The runtime system will then transfer the
+ *     value of type SerialData.  The runtime system will then transfer the
  *     value returned by serialize to the destination place.</li>
- * <li>A constructor that takes a single argument of type <code>Any</code>.
+ * <li>A constructor that takes a single argument of type <code>SerialData</code>.
  *     The runtime system will invoke this constructor at the destination
  *     place giving it the copy of the object that was constructed by 
  *     <code>serialize</code> at the source place.
@@ -37,5 +37,5 @@ public interface CustomSerialization {
     /**
      * @return the value that should be serialized
      */
-    def serialize(): Any;
+    def serialize():SerialData;
 }

@@ -23,6 +23,9 @@
      *
      *  (C) Copyright IBM Corporation 2006-2010.
      */
+    /*****************************************************
+     * WARNING!  THIS IS A GENERATED FILE.  DO NOT EDIT! *
+     *****************************************************/
     ./
 %End
 
@@ -91,10 +94,8 @@
     import x10.ast.ConstantDistMaker;
     import x10.ast.TypeDecl;
     import x10.ast.TypeParamNode;
-    import x10.ast.X10NodeFactory;
     import x10.types.ParameterType;
-    import x10.types.X10TypeSystem;
-    import x10.types.X10TypeSystem_c;
+    import polyglot.types.TypeSystem;
     import x10.ast.PropertyDecl;
     import x10.ast.RegionMaker;
     import x10.ast.X10Binary_c;
@@ -312,15 +313,15 @@
     /.
         //#line $next_line "$input_file$"
         private ErrorQueue eq;
-        private X10TypeSystem ts;
-        private X10NodeFactory nf;
+        private TypeSystem ts;
+        private NodeFactory nf;
         private FileSource source;
         private boolean unrecoverableSyntaxError = false;
 
         public void initialize(TypeSystem t, NodeFactory n, FileSource source, ErrorQueue q)
         {
-            this.ts = (X10TypeSystem) t;
-            this.nf = (X10NodeFactory) n;
+            this.ts = (TypeSystem) t;
+            this.nf = (NodeFactory) n;
             this.source = source;
             this.eq = q;
         }
@@ -328,8 +329,8 @@
         public $action_type(ILexStream lexStream, TypeSystem t, NodeFactory n, FileSource source, ErrorQueue q)
         {
             this(lexStream);
-            initialize((X10TypeSystem) t,
-                       (X10NodeFactory) n,
+            initialize((TypeSystem) t,
+                       (NodeFactory) n,
                        source,
                        q);
             prsStream.setMessageHandler(new MessageHandler(q));
@@ -4165,7 +4166,7 @@
     
     Primary ::= here
         /.$BeginJava
-                    setResult(((X10NodeFactory) nf).Here(pos()));
+                    setResult(((NodeFactory) nf).Here(pos()));
           $EndJava
         ./
               | '[' ArgumentListopt ']'

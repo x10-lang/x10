@@ -199,7 +199,7 @@ public class Struct {
         */
 
         {
-            X10Flags nativeFlags = X10Flags.toX10Flags(Flags.PUBLIC.Native().Final());
+            X10Flags nativeFlags = Flags.PUBLIC.Native().Final();
             ArrayList<AnnotationNode> natives;
             Formal formal;
             // In the Java backend, some structs (like Int) are mapped to primitives (like int)

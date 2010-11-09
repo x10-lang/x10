@@ -29,6 +29,6 @@ import x10.compiler.Native;
  * @author vj 10/10
  */
 public interface Sequence[+T](size:int) extends (Int)=> T, Iterable[T] {
-    @Native("cuda", "(#0).apply(#1)")
+    @Native("cuda", "(#0).raw[#1]")
     public def apply (Int) : T;
 }

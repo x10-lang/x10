@@ -2,7 +2,7 @@
  * This file is part of the Polyglot extensible compiler framework.
  *
  * Copyright (c) 2000-2006 Polyglot project group, Cornell University
- * 
+ *
  */
 
 package polyglot.types;
@@ -28,7 +28,6 @@ public abstract class TypeSystem_c implements TypeSystem
 
     protected SystemResolver systemResolver;
     protected TopLevelResolver loadedResolver;
-    protected Map<String, Flags> flagsForName;
     protected ExtensionInfo extInfo;
 
     private Throwable creator;
@@ -64,7 +63,6 @@ public abstract class TypeSystem_c implements TypeSystem
 	this.systemResolver = new SystemResolver(loadedResolver, extInfo);
 
 	initEnums();
-	initFlags();
 	initTypes();
     }
 
@@ -200,7 +198,7 @@ public abstract class TypeSystem_c implements TypeSystem
 
 	throw new InternalCompilerError("Unrecognized primitive type " + t);
     }
-    
+
     /** @deprecated */
     public Resolver packageContextResolver(Resolver cr, Package p) {
 	return packageContextResolver(p);
@@ -255,7 +253,7 @@ public abstract class TypeSystem_c implements TypeSystem
 	    Ref<? extends ClassType> container) {
 	assert_(container);
 
-	// access for the default constructor is determined by the 
+	// access for the default constructor is determined by the
 	// access of the containing class. See the JLS, 2nd Ed., 8.8.7.
 	Flags access = Flags.NONE;
 	Flags flags = container.get().flags();
@@ -263,10 +261,10 @@ public abstract class TypeSystem_c implements TypeSystem
 	    access = access.Private();
 	}
 	if (flags.isProtected()) {
-	    access = access.Protected();            
+	    access = access.Protected();
 	}
 	if (flags.isPublic()) {
-	    access = access.Public();            
+	    access = access.Public();
 	}
 	return constructorDef(pos, container,
 	                      access, Collections.<Ref<? extends Type>>emptyList()
@@ -302,7 +300,7 @@ public abstract class TypeSystem_c implements TypeSystem
 	return new MethodDef_c(this, pos, container, flags,
 	                       returnType, name, argTypes);
     }
-    
+
     public ClassDef classDefOf(Type t) {
 	if (t instanceof ClassType)
 	    return ((ClassType) t).def();
@@ -509,7 +507,7 @@ public abstract class TypeSystem_c implements TypeSystem
 		}
 
 		checkCycles(si, goal);
-	    }    
+	    }
 	}
 
 	if (curr.isClass()) {
@@ -687,15 +685,15 @@ public abstract class TypeSystem_c implements TypeSystem
 
 	return fields;
     }
-    
-    
+
+
 
     public Type findMemberType(Type container, Name name,
 	    Context context) throws SemanticException
 	    {
 	return env(context).findMemberType(container, name);
 	    }
-    
+
     /**
      * Returns the list of methods with the given name defined or inherited
      * into container, checking if the methods are accessible from the
@@ -746,7 +744,7 @@ public abstract class TypeSystem_c implements TypeSystem
 	    this.argTypes = argTypes;
 	    this.context = context;
 	}
-	
+
 	public Context context() {
 	    return context;
 	}
@@ -862,14 +860,14 @@ public abstract class TypeSystem_c implements TypeSystem
 	protected Type container;
 	protected Name name;
 	protected Context context;
-	
+
 	protected FieldMatcher(Type container, Name name, Context context) {
 	    super();
 	    this.container = container;
 	    this.name = name;
 	    this.context = context;
 	}
-	
+
 	public Context context() {
 	    return context;
 	}
@@ -979,7 +977,7 @@ public abstract class TypeSystem_c implements TypeSystem
 	    return name;
 	}
 
-	
+
 	public Named instantiate(Named t) throws SemanticException {
 	    if (! t.name().equals(name)) {
 		return null;
@@ -1008,11 +1006,11 @@ public abstract class TypeSystem_c implements TypeSystem
 	return new FieldMatcher(container, name, context);
     }
 
-    public MethodInstance SUPER_findMethod(Type container, MethodMatcher matcher) 
+    public MethodInstance SUPER_findMethod(Type container, MethodMatcher matcher)
     throws SemanticException {
 
 	assert_(container);
-	
+
 	Context context = matcher.context();
 
 	List<MethodInstance> acceptable = findAcceptableMethods(container, matcher);
@@ -1020,9 +1018,9 @@ public abstract class TypeSystem_c implements TypeSystem
 	if (acceptable.size() == 0) {
 	    throw new NoMemberException(NoMemberException.METHOD,
 	                                "No valid method call found for call in given type."
-	    		+ "\n\t Call: " + matcher.signature() 
+	    		+ "\n\t Call: " + matcher.signature()
 	    		+ "\n\t Type: " + container);
-	                             
+
 	}
 
 	Collection<MethodInstance> maximal =
@@ -1087,7 +1085,7 @@ public abstract class TypeSystem_c implements TypeSystem
     public <S extends ProcedureDef, T extends ProcedureInstance<S>> Collection<T>
     findMostSpecificProcedures(Type container, List<T> acceptable, Matcher<T> matcher, Context context)
     throws SemanticException {
-	
+
 	// now, use JLS 15.11.2.2
 	// First sort from most- to least-specific.
 	Comparator<T> msc = mostSpecificComparator(container, matcher, context);
@@ -1197,7 +1195,7 @@ public abstract class TypeSystem_c implements TypeSystem
 
 	public MostSpecificComparator(Context context) {
 	    this.context = context;
-	    
+
 	}
 	public int compare(T p1, T p2) {
 	    if (p1.moreSpecific(null, p2, context))
@@ -1216,9 +1214,9 @@ public abstract class TypeSystem_c implements TypeSystem
     throws SemanticException {
 
 	assert_(container);
-	
+
 	Context context = matcher.context();
-	
+
 	SemanticException error = null;
 
 	// The list of acceptable methods. These methods are accessible from
@@ -1288,7 +1286,7 @@ public abstract class TypeSystem_c implements TypeSystem
 				    error = new NoMemberException(NoMemberException.METHOD,
 				                                  "Method " + mi.signature() +
 				                                  " in " + container +
-				    " is inaccessible."); 
+				    " is inaccessible.");
 				}
 			    }
 
@@ -1301,7 +1299,7 @@ public abstract class TypeSystem_c implements TypeSystem
 				                              "Method " + mi.signature() +
 				                              " in " + container +
 				                              " cannot be called with arguments " +
-				                              matcher.argumentString() + "; " + e.getMessage()); 
+				                              matcher.argumentString() + "; " + e.getMessage());
 			}
 
 			if (error == null) {
@@ -1309,7 +1307,7 @@ public abstract class TypeSystem_c implements TypeSystem
 			                                  "Method " + mi.signature() +
 			                                  " in " + container +
 			                                  " cannot be called with arguments " +
-			                                  matcher.argumentString() + "."); 
+			                                  matcher.argumentString() + ".");
 			}
 		    }
 		}
@@ -1324,7 +1322,7 @@ public abstract class TypeSystem_c implements TypeSystem
 		    typeQueue.addAll(ot.interfaces());
 		}
 	    }
-	
+
 	if (acceptable.size() > 0) {
 		// remove any method in acceptable that are overridden by an
 		// unacceptable
@@ -1334,12 +1332,12 @@ public abstract class TypeSystem_c implements TypeSystem
 		    acceptable.removeAll(mi.overrides(context));
 		}
 	}
-	
+
 	if (acceptable.size() == 0) {
 	    if (error == null) {
 	    	  throw new NoMemberException(NoMemberException.METHOD,
                       "No valid method call found for call in given type."
-	+ "\n\t Call: " + matcher.signature() 
+	+ "\n\t Call: " + matcher.signature()
 	+ "\n\t Type: " + container);
 	    }
 	    throw error;
@@ -1347,7 +1345,7 @@ public abstract class TypeSystem_c implements TypeSystem
 
 	return acceptable;
     }
-    
+
     /**
      * Populates the list acceptable with those MethodInstances which are
      * Applicable and Accessible as defined by JLS 15.11.2.1
@@ -1355,7 +1353,7 @@ public abstract class TypeSystem_c implements TypeSystem
     public List<ConstructorInstance> findAcceptableConstructors(Type container, ConstructorMatcher matcher) throws SemanticException {
 	return env(matcher.context()).findAcceptableConstructors(container, matcher);
     }
-    
+
     /**
      * Returns whether method 1 is <i>more specific</i> than method 2,
      * where <i>more specific</i> is defined as JLS 15.11.2.2
@@ -1400,7 +1398,7 @@ public abstract class TypeSystem_c implements TypeSystem
     ////
     // Functions for method testing.
     ////
-    
+
     /** Return true if t overrides mi */
     public boolean hasMethod(Type t, MethodInstance mi, Context context) {
 	assert_(t);
@@ -1408,7 +1406,7 @@ public abstract class TypeSystem_c implements TypeSystem
 	return env(context).hasMethod(t, mi);
     }
 
-    
+
 
     /** Return true if t overrides mi */
     public boolean hasFormals(ProcedureInstance<? extends ProcedureDef> pi, List<Type> formalTypes, Context context) {
@@ -1760,7 +1758,7 @@ public abstract class TypeSystem_c implements TypeSystem
      * are replaced with dollar signs ('$'). If any of the containing
      * classes is not a member class or a top level class, then null is
      * returned.
-     * 
+     *
      * Return null if the class is not globally accessible.
      */
     public QName getTransformedClassName(ClassDef ct) {
@@ -1894,14 +1892,14 @@ public abstract class TypeSystem_c implements TypeSystem
 
     /** All flags allowed for a field. */
     public Flags legalFieldFlags() {
-	return legalAccessFlags().Static().Final().Transient().Volatile();
+	return legalAccessFlags().Static().Final().Transient();
     }
 
     protected final Flags FIELD_FLAGS = legalFieldFlags();
 
     /** All flags allowed for a constructor. */
     public Flags legalConstructorFlags() {
-	return legalAccessFlags().Synchronized();
+	return legalAccessFlags();
     }
 
     protected final Flags CONSTRUCTOR_FLAGS = legalConstructorFlags();
@@ -1915,7 +1913,7 @@ public abstract class TypeSystem_c implements TypeSystem
 
     /** All flags allowed for a method. */
     public Flags legalMethodFlags() {
-	return legalAccessFlags().Abstract().Static().Final().Native().Synchronized().StrictFP();
+	return legalAccessFlags().Abstract().Static().Final().Native();
     }
 
     protected final Flags METHOD_FLAGS = legalMethodFlags();
@@ -1928,7 +1926,7 @@ public abstract class TypeSystem_c implements TypeSystem
 
     /** All flags allowed for a top-level class. */
     public Flags legalTopLevelClassFlags() {
-	return legalAccessFlags().clear(Private()).Abstract().Final().StrictFP().Interface();
+	return legalAccessFlags().clear(Private()).Abstract().Final().Interface();
     }
 
     protected final Flags TOP_LEVEL_CLASS_FLAGS = legalTopLevelClassFlags();
@@ -1942,14 +1940,14 @@ public abstract class TypeSystem_c implements TypeSystem
 
     /** All flags allowed for a member class. */
     public Flags legalMemberClassFlags() {
-	return legalAccessFlags().Static().Abstract().Final().StrictFP().Interface();
+	return legalAccessFlags().Static().Abstract().Final().Interface();
     }
 
     protected final Flags MEMBER_CLASS_FLAGS = legalMemberClassFlags();
 
     /** All flags allowed for a local class. */
     public Flags legalLocalClassFlags() {
-	return Abstract().Final().StrictFP().Interface();
+	return Abstract().Final().Interface();
     }
 
     protected final Flags LOCAL_CLASS_FLAGS = legalLocalClassFlags();
@@ -2088,7 +2086,7 @@ public abstract class TypeSystem_c implements TypeSystem
 		    // any superclasses it may have.
 		}
 	    }
-	    
+
 	    return superInterfaces;
 	}
 	return Collections.<Type>emptyList();
@@ -2097,39 +2095,18 @@ public abstract class TypeSystem_c implements TypeSystem
     /**
      * Assert that <code>ct</code> implements all abstract methods required;
      * that is, if it is a concrete class, then it must implement all
-     * interfaces and abstract methods that it or it's superclasses declare, and if 
-     * it is an abstract class then any methods that it overrides are overridden 
+     * interfaces and abstract methods that it or it's superclasses declare, and if
+     * it is an abstract class then any methods that it overrides are overridden
      * correctly.
      */
     public void checkClassConformance(ClassType ct, Context context) throws SemanticException {
 	env(context).checkClassConformance(ct);
     }
-    
+
     public MethodInstance findImplementingMethod(ClassType ct, MethodInstance mi, Context context) {
 	return findImplementingMethod(ct, mi, false, context);
     }
 
-    protected void initFlags() {
-	flagsForName = new HashMap<String, Flags>();
-	flagsForName.put("public", Flags.PUBLIC);
-	flagsForName.put("private", Flags.PRIVATE);
-	flagsForName.put("protected", Flags.PROTECTED);
-	flagsForName.put("static", Flags.STATIC);
-	flagsForName.put("final", Flags.FINAL);
-	flagsForName.put("synchronized", Flags.SYNCHRONIZED);
-	flagsForName.put("transient", Flags.TRANSIENT);
-	flagsForName.put("native", Flags.NATIVE);
-	flagsForName.put("interface", Flags.INTERFACE);
-	flagsForName.put("abstract", Flags.ABSTRACT);
-	flagsForName.put("volatile", Flags.VOLATILE);
-	flagsForName.put("strictfp", Flags.STRICTFP);
-    }
-
-    public Flags createNewFlag(String name, Flags after) {
-	Flags f = Flags.createFlag(name, after);
-	flagsForName.put(name, f);
-	return f;
-    }
 
     public Flags NoFlags()      { return Flags.NONE; }
     public Flags Public()       { return Flags.PUBLIC; }
@@ -2137,13 +2114,10 @@ public abstract class TypeSystem_c implements TypeSystem
     public Flags Protected()    { return Flags.PROTECTED; }
     public Flags Static()       { return Flags.STATIC; }
     public Flags Final()        { return Flags.FINAL; }
-    public Flags Synchronized() { return Flags.SYNCHRONIZED; }
     public Flags Transient()    { return Flags.TRANSIENT; }
     public Flags Native()       { return Flags.NATIVE; }
     public Flags Interface()    { return Flags.INTERFACE; }
     public Flags Abstract()     { return Flags.ABSTRACT; }
-    public Flags Volatile()     { return Flags.VOLATILE; }
-    public Flags StrictFP()     { return Flags.STRICTFP; }
 
     public Flags flagsForBits(int bits) {
 	Flags f = Flags.NONE;
@@ -2153,13 +2127,10 @@ public abstract class TypeSystem_c implements TypeSystem
 	if ((bits & Modifier.PROTECTED) != 0)    f = f.Protected();
 	if ((bits & Modifier.STATIC) != 0)       f = f.Static();
 	if ((bits & Modifier.FINAL) != 0)        f = f.Final();
-	if ((bits & Modifier.SYNCHRONIZED) != 0) f = f.Synchronized();
 	if ((bits & Modifier.TRANSIENT) != 0)    f = f.Transient();
 	if ((bits & Modifier.NATIVE) != 0)       f = f.Native();
 	if ((bits & Modifier.INTERFACE) != 0)    f = f.Interface();
 	if ((bits & Modifier.ABSTRACT) != 0)     f = f.Abstract();
-	if ((bits & Modifier.VOLATILE) != 0)     f = f.Volatile();
-	if ((bits & Modifier.STRICT) != 0)       f = f.StrictFP();
 
 	return f;
     }

@@ -5,6 +5,37 @@ import x10.util.*;
 
 // test object initialization (and more)
 
+class TestFinalField {
+	static val y:Int; // ERR
+	static val s:Int = 3;
+	static def test() {
+		s = 4;  // ERR
+	}
+
+	val f:Int;
+	var i:Int;
+	native def this(); // a native ctor is assumed to initialize all fields
+	def foo(x:TestFinalField) {
+		s = 4;  // ERR
+		f=2; // ERR
+		x.f = 2; // ERR
+		i=2;
+		x.i = 2;
+	}
+	def this(x:TestFinalField) {
+		s = 4;  // ERR
+		finish async f=2; 
+		x.f = 2; // ERR
+		i=2;
+		x.i = 2;
+	}
+
+	def this(Int) {
+		at (here) f=2; // ERR: Cannot assign a value to final field f
+		f=2;
+	}
+}
+
 class InfiniteInit234 {
 	var i:Int{self!=0};
 	def this() {
@@ -187,7 +218,7 @@ class TestSuperThisAndPropertyCalls(p:Int) extends SomeSuper87 {
 		super(i);
 		property(i);
 	}
-	def this(b:Boolean) { // ERR: Final field "p" might have already been initialized
+	def this(b:Boolean) {
 		this(i); // ERR: Can use 'this' only after 'property(...)'
 		property(1); // ERR: You cannot call 'property(...)' after 'this(...)'
 	}
@@ -257,7 +288,7 @@ static class SubWithProperties(y:Int) extends WithProperties {
 	def this(i:Boolean) {
 		this();
 	}
-	def this(i:Int) { // ERR: Final field "y" might have already been initialized
+	def this(i:Int) { 
 		this();
 		property(1); // ERR: You cannot call 'property(...)' after 'this(...)'
 	}
@@ -303,7 +334,7 @@ static class SubWithoutProperties extends WithProperties {
 
 class TestPropertyCalls(p:Int, p2:Int) {
 	def this() {} // ERR: property(...) might not have been called
-	def this(x:Float) {
+	def this(Char) {
 		property(1); // ERR: The property initializer must have the same number of arguments as properties for the class.
 	}
 	def this(i:Int) {
@@ -314,10 +345,13 @@ class TestPropertyCalls(p:Int, p2:Int) {
 			x=3;
 		property(x,2);
 	}
-	def this(i:String) { // ERR: property(...) might not have been called
-		async property(1,2); // ERR: A property statement may only occur in the body of a constructor.   (todo: err could be improved)
+	def this(String) { 
+		finish async property(1,2);
 	}
-	def this(b:Boolean) { 
+	def this(Float) { // ERR: property(...) might not have been called
+		async property(1,2); 
+	}
+	def this(Boolean) { 
 		property(1,2);
 		property(1,2); // ERR: You can call 'property(...)' at most once
 	}
@@ -2192,9 +2226,9 @@ final class TestCasts { // TestInitInCasts
 	val c:Int{c==3} = 3 as Int{self==3};
 
 	def test() {
-		val a3:Int = a3*3; // ShouldBeErr
+		val a3:Int = a3*3; // ERR: "a3" may not have been initialized
 		val a:Int{a!=5} = 
-			3 as Int{a!=5}; // ShouldBeErr
+			3 as Int{a!=5}; // ERR: "a" may not have been initialized
 		val a2:Int{a2!=5} = 
 			3 as Int{self!=5};
 	}
@@ -2260,5 +2294,162 @@ final class TestCasts { // TestInitInCasts
 		def foo() {
 			use(3 as Int{l==null});
 		}
+	}
+}
+
+
+class CyclicInference {
+	def f1() {
+		if (true) return 2;
+		val x = f2(); // err: (only if f1 is before f2): Local variable cannot have type x10.lang.Void.
+		return 3;
+	}
+	def f2() {
+		val y = f1(); // ShouldBeErr
+		return 4;
+	}
+}
+
+class ScopingRules {
+	def test1() {
+		var i:Int = 1;
+		while (true) {
+			var i:Int = 1; // ERR: Local variable "i" multiply defined. Previous definition at ...
+		}
+	}
+	def test2() {
+		val i:Int = 1;
+		at (here) {
+			val i:Int = 1; // ShouldBeErr
+		}
+	}
+	def test3() {
+		val i:Int = 1;
+		val c = () => {
+			val i:Int = 1; // ok
+		};
+	}
+}
+
+	/*
+	You can copy&paste this code in Java:
+	
+	void useInt(int x) {}
+	void useLong(long x) {}
+	void useFloat(float x) {}
+	void useDouble(double x) {}
+	void test() {
+		...
+	}
+	*/
+class TestOverflows { // see XTENLANG-1774
+	def useByte(x:Byte) {}
+	def useShort(x:Short) {}
+	def useInt(x:Int) {}
+	def useLong(x:Long) {}
+	def useFloat(x:Float) {}
+	def useDouble(x:Double) {}
+	
+	def useUByte(x:UByte) {}
+	def useUShort(x:UShort) {}
+	def useUInt(x:UInt) {}
+	def useULong(x:ULong) {}
+	def test() {
+		// todo: more octal tests
+
+		// todo: we need short&byte literals 
+		// in HEX
+		//useByte(0x80y); // ShouldNotBeErr
+		//useByte(0x7fy); // ShouldNotBeErr
+		//useShort(0x8000s); // ShouldNotBeErr
+		//useShort(0x7fffs); // ShouldNotBeErr
+		// in decimal
+		//useByte(-128y); // ShouldNotBeErr
+		//useByte(127y); // ShouldNotBeErr
+		//useShort(-32768s); // ShouldNotBeErr
+		//useShort(32767s); // ShouldNotBeErr
+		
+		// in HEX
+		//useUByte(0x80yU); // ShouldNotBeErr
+		//useUByte(0x7fUy); // ShouldNotBeErr
+		//useUShort(0x8000Us); // ShouldNotBeErr
+		//useUShort(0x7fffsU); // ShouldNotBeErr
+		// in decimal
+		//useUByte(0yu); // ShouldNotBeErr
+		//useUByte(125uy); // ShouldNotBeErr
+		//useUShort(0su); // ShouldNotBeErr
+		//useUShort(65535us); // ShouldNotBeErr
+		
+		// Int & Long
+		// in HEX
+		useInt(0x80000000);
+		useInt(0x7fffffff);
+		useLong(0x8000000000000000L);
+		useLong(0x7fffffffffffffffL);
+		useInt(0x800000000); // ERR: Integer literal 34359738368 is out of range. (todo: better err message)
+		useLong(0x80000000000000000L); // ShouldBeErr (currently in generates 0L !)
+		// in decimal
+		useInt(-2147483648);
+		useInt(2147483647);
+		useLong(-9223372036854775808l);
+		useLong(9223372036854775807l);		
+		useInt(-2147483649); // ERR: Integer literal -2147483649 is out of range. (todo: better err message)
+		useInt(2147483648); // ShouldBeErr
+		useLong(-9223372036854775809l); // ShouldBeErr
+		useLong(9223372036854775808l); // ShouldBeErr
+
+		// in octal
+		useInt(020000000000);
+		useInt(017777777777);
+		useLong(01000000000000000000000L);
+		useLong(0777777777777777777777L);
+		useInt(0200000000000); // ERR: Integer literal 17179869184 is out of range. (todo: better err message)
+		useLong(010000000000000000000000L); // ShouldBeErr
+		
+
+		// Double&Float	
+		// in decimal 		
+		useDouble(-1.7976931348623157E308);
+		useDouble(-4.9E-324);
+		useDouble(4.9E-324);
+		useDouble(1.7976931348623157E308);
+		
+		useDouble(4.9E-325); // ShouldBeErr: floating point number too small
+		useDouble(2E-324); // ShouldBeErr: floating point number too small
+		useDouble(1.7976931348623157E309); // ShouldBeErr: floating point number too large
+		useDouble(1.8E308); // ShouldBeErr: floating point number too large
+
+		// in HEX (doesn't parse in X10, but it does parse in Java)
+//		useDouble(-0x1.fffffffffffffP+1023);
+//		useDouble(-0x0.0000000000001P-1022);
+//		useDouble(0x0.0000000000001P-1022);
+//		useDouble(0x1.fffffffffffffP+1023);
+//
+//		useDouble(-0x0.00000000000001P-1022); // ShouldBeErr: floating point number too small
+//		useDouble(0x0.00000000000001P-1022); // ShouldBeErr: floating point number too small
+//		useDouble(0x0.0000000000001P-1023); // ShouldBeErr: floating point number too small
+//		useDouble(-0x0.0000000000001P-1023); // ShouldBeErr: floating point number too small
+//		useDouble(-0x2.fffffffffffffP+1023); // ShouldBeErr: floating point number too large
+//		useDouble(0x2.fffffffffffffP+1023); // ShouldBeErr: floating point number too large
+//		useDouble(0x1.fffffffffffffP+1024); // ShouldBeErr: floating point number too large
+//		useDouble(-0x1.fffffffffffffP+1024); // ShouldBeErr: floating point number too large
+
+
+		// todo: test constant propogation (+1, *1, *2)
+
+		// todo: unary minus (it's a special case)
+
+
+		// unsigned test cases		
+		// in HEX
+		useUInt(0x0u);
+		useUInt(0xffffffffu);
+		useULong(0x00ul);
+		useULong(0xffffffffffffffffLu);
+		// in decimal
+		useUInt(0U);
+		useUInt(4294967295U);		
+		useULong(0ul);
+		useULong(18446744073709551616uL);
 	}
 }

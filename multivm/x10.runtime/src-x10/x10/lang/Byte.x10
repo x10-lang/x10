@@ -25,7 +25,7 @@ import x10.util.Ordered;
  */
 @NativeRep("java", "byte", null, "x10.rtt.Types.BYTE")
 @NativeRep("c++", "x10_byte", "x10_byte", null)
-public final struct Byte /*TODO implements Arithmetic[Byte], Bitwise[Byte], Ordered[Byte]*/ {
+public struct Byte implements Comparable[Byte] /*TODO implements Arithmetic[Byte], Bitwise[Byte], Ordered[Byte]*/ {
     /**
      * A less-than operator.
      * Compares the given Byte with another Byte and returns true if the given Byte is
@@ -426,4 +426,14 @@ public final struct Byte /*TODO implements Arithmetic[Byte], Bitwise[Byte], Orde
     @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
     public native def equals(x:Byte):Boolean;
+
+    /**
+    * Returns a negative Int, zero, or a positive Int if this Byte is less than, equal
+    * to, or greater than the given Byte.
+    * @param x the given Byte
+    * @return a negative Int, zero, or a positive Int if this Byte is less than, equal
+    * to, or greater than the given Byte.
+    */
+   @Native("java", "x10.rtt.Equality.compareTo(#0, #1)")
+   public def compareTo(x:Byte): Int = 0;
 }

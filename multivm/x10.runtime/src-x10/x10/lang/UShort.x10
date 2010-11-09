@@ -25,7 +25,7 @@ import x10.util.Ordered;
  */
 // @NativeRep("java", "short", null, "x10.rtt.Types.USHORT")
 @NativeRep("c++", "x10_ushort", "x10_ushort", null)
-public final struct UShort /*TODO implements Arithmetic[UShort], Bitwise[UShort], Ordered[UShort]*/ {
+public struct UShort implements Comparable[UShort] /*TODO implements Arithmetic[UShort], Bitwise[UShort], Ordered[UShort]*/ {
 
     /** The actual number with Short representation */
     public val shortVal:Short;
@@ -620,4 +620,15 @@ public final struct UShort /*TODO implements Arithmetic[UShort], Bitwise[UShort]
     // @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
     public def equals(x:UShort):Boolean = this.shortVal == x.shortVal;
+
+    /**
+    * Returns a negative Int, zero, or a positive Int if this UShort is less than, equal
+    * to, or greater than the given UShort.
+    * @param x the given UShort
+    * @return a negative Int, zero, or a positive Int if this UShort is less than, equal
+    * to, or greater than the given UShort.
+    */
+    // @Native("java", "x10.rtt.Equality.compareTo(#0.shortVal + java.lang.Short.MIN_VALUE, #1.shortVal + java.lang.Short.MIN_VALUE)")
+    @Native("c++", "0")
+    public def compareTo(x:UShort): Int = (this.shortVal + Short.MIN_VALUE).compareTo(x.shortVal + Short.MIN_VALUE);
 }

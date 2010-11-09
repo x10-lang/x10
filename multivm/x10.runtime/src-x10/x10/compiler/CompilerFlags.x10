@@ -24,6 +24,7 @@ public class CompilerFlags {
      */
     @Native("java", "(!`NO_CHECKS`)")
     @Native("c++", "BOUNDS_CHECK_BOOL")
+    @CompileTimeConstant("!NO_CHECKS")
     public static native def checkBounds():boolean;
 
     /**
@@ -32,6 +33,7 @@ public class CompilerFlags {
      */
     @Native("java", "(!`NO_CHECKS`)")
     @Native("c++", "PLACE_CHECK_BOOL")
+    @CompileTimeConstant("!NO_CHECKS")
     public static native def checkPlace():boolean;
 
     /**

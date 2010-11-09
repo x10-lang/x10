@@ -12,6 +12,7 @@
 package x10.ast;
 
 import polyglot.ast.Node;
+import polyglot.ast.TypeCheckFragmentGoal;
 import polyglot.frontend.Job;
 import polyglot.frontend.SourceGoal;
 import polyglot.types.LazyRef;
@@ -20,7 +21,7 @@ import polyglot.types.UnknownType;
 import polyglot.util.ErrorInfo;
 import polyglot.visit.TypeChecker;
 
-public class X10TypeCheckTypeGoal extends X10TypeCheckFragmentGoal<Type> {
+public class X10TypeCheckTypeGoal extends TypeCheckFragmentGoal<Type> {
     private static final long serialVersionUID = 7359324021851338683L;
 
     public X10TypeCheckTypeGoal(Node parent, Node n, TypeChecker v, LazyRef<Type> r) {

@@ -22,7 +22,7 @@ import x10.compiler.NativeRep;
  */
 @NativeRep("java", "boolean", null, "x10.rtt.Types.BOOLEAN")
 @NativeRep("c++", "x10_boolean", "x10_boolean", null)
-public final struct Boolean {
+public struct Boolean implements Comparable[Boolean] {
 
     /**
      * A logical complement operator.
@@ -131,6 +131,16 @@ public final struct Boolean {
     @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
     public native def equals(x:Boolean):Boolean;
+
+    /**
+    * Returns a negative Int, zero, or a positive Int if this Boolean is less than, equal
+    * to, or greater than the given Boolean.
+    * @param x the given Boolean
+    * @return a negative Int, zero, or a positive Int if this Boolean is less than, equal
+    * to, or greater than the given Boolean.
+    */
+    @Native("java", "x10.rtt.Equality.compareTo(#0, #1)")
+    public def compareTo(x:Boolean): Int = 0;
 
     // These operations are built-in.  Declaring them will prevent the
     // short-circuiting behavior.

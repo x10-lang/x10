@@ -27,7 +27,7 @@ import x10.util.Ordered;
  */
 @NativeRep("java", "double", null, "x10.rtt.Types.DOUBLE")
 @NativeRep("c++", "x10_double", "x10_double", null)
-public final struct Double /*TODO implements Arithmetic[Double], Ordered[Double]*/ {
+public struct Double implements Comparable[Double] /*TODO implements Arithmetic[Double], Ordered[Double]*/ {
     /**
      * A less-than operator.
      * Compares the given Double with another Double and returns true if the given Double is
@@ -410,4 +410,14 @@ public final struct Double /*TODO implements Arithmetic[Double], Ordered[Double]
     @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
     public native def equals(x:Double):Boolean;
+
+    /**
+    * Returns a negative Int, zero, or a positive Int if this Double is less than, equal
+    * to, or greater than the given Double.
+    * @param x the given Double
+    * @return a negative Int, zero, or a positive Int if this Double is less than, equal
+    * to, or greater than the given Double.
+    */
+   @Native("java", "x10.rtt.Equality.compareTo(#0, #1)")
+   public def compareTo(x:Double): Int = 0;
 }

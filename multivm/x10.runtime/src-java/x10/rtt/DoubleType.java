@@ -14,7 +14,10 @@ package x10.rtt;
 
 public class DoubleType extends RuntimeType<Double> {
     public DoubleType() {
-        super(double.class);
+        super(double.class,
+              new Type[] {
+                  new ParameterizedType(Types.COMPARABLE, new UnresolvedType(-1))
+              });
     }
     
     @Override

@@ -134,11 +134,7 @@ public class X10Special_c extends Special_c implements X10Special {
         TypeSystem xts = (TypeSystem) ts;
         assert (t.isClass());
         // Instantiate with the class's type arguments
-        CConstraint constraint = t instanceof ConstrainedType ? ((ConstrainedType) t).getRealXClause() : null;
-        t = ((X10ParsedClassType) t.toClass()).instantiateTypeParametersExplicitly();
-        if (constraint != null) {
-            t = X10TypeMixin.xclause(t, constraint);
-        }
+        t = X10TypeMixin.instantiateTypeParametersExplicitly(t);
 
         if (kind == THIS) {
             Type tt = X10TypeMixin.baseType(t);

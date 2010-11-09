@@ -82,7 +82,7 @@ public class X10FieldDoc extends X10Doc implements FieldDoc {
 	}
 
 	public boolean isVolatile() {
-		return fieldDef.flags().isVolatile();
+		return false;
 	}
 
 	public SerialFieldTag[] serialFieldTags() {

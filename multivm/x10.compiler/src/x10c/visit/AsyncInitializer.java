@@ -119,7 +119,7 @@ public class AsyncInitializer extends ContextVisitor {
             }
         }
         if (n instanceof Try) {
-            Set<VarDef> asyncInitVal = collectAsyncVarsToBox((Try)n);
+            Set<LocalDef> asyncInitVal = collectAsyncVarsToBox((Try)n);
             if (asyncInitVal != null) {
                 if (nestLevel == 1) {
                     // outermost finish block -- initialize internal structure
@@ -140,9 +140,9 @@ public class AsyncInitializer extends ContextVisitor {
             return n;
 
         // collect local vars accessed within async
-        Set<VarDef> asyncVar = collectLocalVarsToBox((Try)n);
+        Set<LocalDef> asyncVar = collectLocalVarsToBox((Try)n);
 
-        Set<VarDef> asyncInitVal = collectAsyncVarsToBox((Try)n);
+        Set<LocalDef> asyncInitVal = collectAsyncVarsToBox((Try)n);
         if (asyncInitVal == null && asyncVar == null)
             return n;
 
@@ -174,25 +174,24 @@ public class AsyncInitializer extends ContextVisitor {
         return bb;
     }
 
-    private Set<VarDef> collectAsyncVarsToBox(Try n) {
+    private Set<LocalDef> collectAsyncVarsToBox(Try n) {
         X10Ext_c ext = (X10Ext_c) n.ext();
         if (ext.asyncInitVal == null)
             return null;
 
-        Set<VarDef> asyncInitVal = null;
-        for (VarDef initVal : ext.asyncInitVal) {
-            // can be either local or field
-            if (initVal instanceof X10LocalDef && ((X10LocalDef) initVal).isAsyncInit()) {
-                if (asyncInitVal == null) asyncInitVal = new HashSet<VarDef>();
+        Set<LocalDef> asyncInitVal = null;
+        for (LocalDef initVal : ext.asyncInitVal) {
+            if (((X10LocalDef) initVal).isAsyncInit()) {
+                if (asyncInitVal == null) asyncInitVal = new HashSet<LocalDef>();
                 asyncInitVal.add(initVal);
             }
         }
         return asyncInitVal ;
     }
 
-    private Set<VarDef> collectLocalVarsToBox(Try tcfBlock) {
+    private Set<LocalDef> collectLocalVarsToBox(Try tcfBlock) {
         // one pass scan of async blocks within finish and collect accesses of vars declared outside
-        final Set<VarDef> asyncVar = new HashSet<VarDef>();
+        final Set<LocalDef> asyncVar = new HashSet<LocalDef>();
         final List<LocalDef> localDeclList = new ArrayList<LocalDef>();
         tcfBlock.visit(new NodeVisitor() {
             @Override
@@ -210,7 +209,7 @@ public class AsyncInitializer extends ContextVisitor {
         return asyncVar.isEmpty() ? null : asyncVar;
     }
 
-    private void scanAsyncBlock(final X10Call call, final Set<VarDef> asyncVar, final List<LocalDef> localDeclList) {
+    private void scanAsyncBlock(final X10Call call, final Set<LocalDef> asyncVar, final List<LocalDef> localDeclList) {
         call.visit(new NodeVisitor() {
             @Override
             public Node override(Node parent, Node n) {
@@ -259,7 +258,7 @@ public class AsyncInitializer extends ContextVisitor {
         });
     }
 
-    private Try replaceVariables(Try tcfBlock, final Set<VarDef> asyncInitVal) {
+    private Try replaceVariables(Try tcfBlock, final Set<LocalDef> asyncInitVal) {
         // box async init vals
         tcfBlock = (Try)tcfBlock.visit(new NodeVisitor() {
             @Override
@@ -281,7 +280,7 @@ public class AsyncInitializer extends ContextVisitor {
                     Id id = getBoxId(initVal);
                     LocalDef ldef = xts.localDef(n.position(), xts.Final(), Types.ref(type), id.id());
                     IntLit idx0 = xnf.IntLit(n.position(), IntLit.INT, 0);
-                    return xnf.BackingArrayAccessAssign(n.position(), xnf.Local(n.position(), id).localInstance(ldef.asInstance()), 
+                    return xnf.BackingArrayAccessAssign(n.position(), xnf.Local(n.position(), id).localInstance(ldef.asInstance()),
                                  idx0, la.operator(), la.right()).type(type);
                 }
                 if (n instanceof X10Local_c) {
@@ -307,7 +306,7 @@ public class AsyncInitializer extends ContextVisitor {
         return tcfBlock;
     }
 
-    private Try privatizeVariables(Try tcfBlock, final Set<VarDef> asyncInitVal) {
+    private Try privatizeVariables(Try tcfBlock, final Set<LocalDef> asyncInitVal) {
         // setup internal structures
         final List<PVarInfo> privatizedVarList = new ArrayList<PVarInfo>();
         pcnt = 0;
@@ -397,7 +396,7 @@ public class AsyncInitializer extends ContextVisitor {
             // local val
             return pvarInfo.refCount > 0;
 
-        // local var: reference only case 
+        // local var: reference only case
         // (currently cannot find location to write back updated private var)
         return !pvarInfo.isAssign && pvarInfo.refCount > 0;
     }
@@ -512,9 +511,9 @@ public class AsyncInitializer extends ContextVisitor {
         return newCall;
     }
 
-    private void registerInternalMap(Set<VarDef> asyncInitVal) {
-        List<VarDef> removeList = new ArrayList<VarDef>();
-        for (VarDef initVal : asyncInitVal) {
+    private void registerInternalMap(Set<LocalDef> asyncInitVal) {
+        List<LocalDef> removeList = new ArrayList<LocalDef>();
+        for (LocalDef initVal : asyncInitVal) {
             if (initVal instanceof X10LocalDef && !((X10LocalDef)initVal).isAsyncInit())
                 continue;
 
@@ -528,7 +527,7 @@ public class AsyncInitializer extends ContextVisitor {
                 removeList.add(initVal);
             }
         }
-        for (VarDef initVal : removeList) {
+        for (LocalDef initVal : removeList) {
             asyncInitVal.remove(initVal);
         }
     }
@@ -566,7 +565,7 @@ public class AsyncInitializer extends ContextVisitor {
         return null;
     }
 
-    private VarDef checkIfIncluded(Local lv, Set<VarDef> asyncInitVal) {
+    private VarDef checkIfIncluded(Local lv, Set<LocalDef> asyncInitVal) {
         Name name1 = lv.name().id();
         Flags flags1 = lv.localInstance().flags();
         Type t1 = lv.localInstance().type();
@@ -612,7 +611,7 @@ public class AsyncInitializer extends ContextVisitor {
         Local right = (Local) xnf.Local(n.position(), xnf.Id(n.position(), name)).localInstance(ldef.asInstance()).type(type);
 
         IntLit idx0 = xnf.IntLit(n.position(), IntLit.INT, 0);
-        Expr baa = xnf.BackingArrayAccessAssign(n.position(), xnf.Local(n.position(), id).localInstance(ldef.asInstance()), 
+        Expr baa = xnf.BackingArrayAccessAssign(n.position(), xnf.Local(n.position(), id).localInstance(ldef.asInstance()),
                                                 idx0, Assign.ASSIGN, right).type(type);
         // returning a pair of statements
         List<Stmt> stmts = new ArrayList<Stmt>();
@@ -629,7 +628,7 @@ public class AsyncInitializer extends ContextVisitor {
         Id id = getBoxId(initVal);
         LocalDef rdef = xts.localDef(n.position(), xts.Final(), Types.ref(type), id.id());
         IntLit idx0 = xnf.IntLit(n.position(), IntLit.INT, 0);
-        BackingArrayAccess right = xnf.BackingArrayAccess(n.position(), xnf.Local(n.position(), id).localInstance(rdef.asInstance()), 
+        BackingArrayAccess right = xnf.BackingArrayAccess(n.position(), xnf.Local(n.position(), id).localInstance(rdef.asInstance()),
                                                           idx0, type);
         // left-hand side (original final var)
         LocalDef ldef = xts.localDef(n.position(), xts.Final(), Types.ref(type), name);
@@ -655,14 +654,14 @@ public class AsyncInitializer extends ContextVisitor {
         LocalDecl ld;
         if (isAssign && initVal.flags().equals(Flags.FINAL)) {
             // no initial value
-            ld = xnf.LocalDecl(n.position(), xnf.FlagsNode(n.position(), Flags.FINAL), 
+            ld = xnf.LocalDecl(n.position(), xnf.FlagsNode(n.position(), Flags.FINAL),
                                xnf.X10CanonicalTypeNode(n.position(), type), xnf.Id(n.position(), id.id()))
                                .localDef(ldef);
         } else {
             // local var or reference only val: set initial value from boxed var
             BackingArrayAccess right = getBoxReference(initVal, type, n);
             // privatized var for local var (not val) should be non-final
-            ld = xnf.LocalDecl(n.position(), xnf.FlagsNode(n.position(), Flags.NONE), 
+            ld = xnf.LocalDecl(n.position(), xnf.FlagsNode(n.position(), Flags.NONE),
                                xnf.X10CanonicalTypeNode(n.position(), type), xnf.Id(n.position(), id.id()), right)
                                .localDef(ldef);
         }
@@ -694,7 +693,7 @@ public class AsyncInitializer extends ContextVisitor {
         Id id = getBoxId(initVal);
         LocalDef rdef = xts.localDef(n.position(), xts.NoFlags(), Types.ref(type), id.id());
         IntLit idx0 = xnf.IntLit(n.position(), IntLit.INT, 0);
-        BackingArrayAccess baa = xnf.BackingArrayAccess(n.position(), xnf.Local(n.position(), id).localInstance(rdef.asInstance()), 
+        BackingArrayAccess baa = xnf.BackingArrayAccess(n.position(), xnf.Local(n.position(), id).localInstance(rdef.asInstance()),
                                                         idx0, type);
         return baa;
     }

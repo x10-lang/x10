@@ -403,12 +403,9 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 			flags = flags.clearAbstract();
 		}
 
-		// Hack to ensure that X10Flags are not printed out .. javac will
-		// not know what to do with them.
-
 		FlagsNode oldFlags = this.flags;
 		try {
-			this.flags = this.flags.flags(X10Flags.toX10Flags(flags));
+			this.flags = this.flags.flags(flags.retainJava()); // ensure that X10Flags are not printed out .. javac will not know what to do with them.
 			super.translate(w, tr);
 		}
 		finally {

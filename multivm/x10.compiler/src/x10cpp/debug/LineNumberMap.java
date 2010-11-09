@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.StringTokenizer;
 import java.util.TreeSet;
 
+import polyglot.types.Context;
 import polyglot.types.MemberDef;
 import polyglot.types.MethodDef;
 import polyglot.types.ProcedureDef;
@@ -363,8 +364,11 @@ public class LineNumberMap extends StringTable {
 			return -1;
 	}
 	
-	public void addLocalVariableMapping(String name, String type, int startline, int endline, String file)
+	public void addLocalVariableMapping(String name, String type, int startline, int endline, String file, boolean noMangle)
 	{
+		if (name == null || name.startsWith(Context.MAGIC_VAR_PREFIX))
+			return; // skip variables with compiler-generated names.
+		
 		if (localVariables == null)
 			localVariables = new ArrayList<LineNumberMap.LocalVariableMapInfo>();
 		
@@ -385,7 +389,10 @@ public class LineNumberMap extends StringTable {
 		}
 		else 
 			v._x10typeIndex = -1;
-		v._cppName = stringId(Emitter.mangled_non_method_name(name)); 
+		if (noMangle)
+			v._cppName = v._x10name; 
+		else
+			v._cppName = stringId(Emitter.mangled_non_method_name(name));
 		v._x10index = file;
 		v._x10startLine = startline;
 		v._x10endLine = endline;

@@ -36,8 +36,8 @@ namespace x10aux {
         static x10_int numberOfLeadingZeros(x10_int value);
         static x10_int numberOfTrailingZeros(x10_int value);
         static x10_int bitCount(x10_int value);
-        static x10_int rotateLeft(x10_int value);
-        static x10_int rotateRight(x10_int value);
+        static x10_int rotateLeft(x10_int value, x10_int distance);
+        static x10_int rotateRight(x10_int value, x10_int distance);
         static x10_int reverse(x10_int value);
         static x10_int signum(x10_int value);
         static x10_int reverseBytes(x10_int value);

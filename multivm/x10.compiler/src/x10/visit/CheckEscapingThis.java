@@ -22,14 +22,13 @@ import polyglot.types.SemanticException;
 import polyglot.types.Name;
 import polyglot.types.Context;
 import polyglot.types.ProcedureDef_c;
-import polyglot.types.Types;
 import x10.ast.*;
-import x10.types.X10ParsedClassType;
 import x10.types.X10TypeMixin;
 import x10.types.X10Flags;
 import polyglot.types.TypeSystem;
 import polyglot.types.VarDef;
 import polyglot.types.LocalDef;
+import polyglot.types.ClassType;
 import x10.types.X10FieldDef;
 import x10.types.X10ParsedClassType_c;
 import x10.types.X10ProcedureDef;
@@ -45,6 +44,18 @@ import java.util.Map;
 import java.util.LinkedHashMap;
 import java.util.ArrayList;
 import java.util.Collections;
+
+/**
+ * Checks correct object initialization, i.e.,
+ * - this cannot escape during construction
+ * - correct usages of @NonEscaping and @NoThisAccess
+ * - fields are not read before they're assigned.
+ * - property(...) is called exactly once
+ *
+ * We do not track:
+ * - static fields (see FwdReferenceChecker, and other checks are done in X10FieldAssign_c and X10FieldDecl_c)
+ * - locals (see InitChecker)
+ */
 
 public class CheckEscapingThis extends NodeVisitor
 {
@@ -123,7 +134,7 @@ public class CheckEscapingThis extends NodeVisitor
             assert items.size()>=2;
 
             boolean isAsync = !entry && node instanceof Async;
-            boolean isUncounted = isAsync ? Lowerer.isUncountedAsync(ts, (Async) node) : false;
+            boolean isUncounted = isAsync ? Lowerer.isUncountedAsync((TypeSystem)ts,(Async) node) : false;
             DataFlowItem res = new DataFlowItem();
             res.initStatus.putAll(((DataFlowItem) items.get(0)).initStatus);
 
@@ -183,15 +194,18 @@ public class CheckEscapingThis extends NodeVisitor
                     res = fieldReadWrite(isAssign, field, inItem);
                 }
 
-            } else if (n instanceof X10CanonicalTypeNode) {
-                X10CanonicalTypeNode canonicalTypeNode = (X10CanonicalTypeNode) n;
+            } else if (n instanceof AssignPropertyCall) {
+                res = fieldReadWrite(true, propertyRepresentative,inItem);
+
+            } else if (n instanceof X10Cast) {
+                X10Cast cast = (X10Cast)n;
                 // convert constraint to Expr
-                final Set<VarDef> exprs = Synthesizer.getLocals(canonicalTypeNode);
+                final Set<VarDef> exprs = Synthesizer.getLocals(cast.castType());
                 for (VarDef e : exprs)
                     if (e instanceof FieldDef) {
                         FieldDef field = (FieldDef) e;
                         if (isTargetThis(field)) {
-                            res = fieldReadWrite(isAssign, field, inItem);
+                            res = fieldReadWrite(false, field, inItem);
                         }
                     }
 
@@ -256,7 +270,7 @@ public class CheckEscapingThis extends NodeVisitor
                 }
             }
             if (res!=inItem) {
-                MethodInfo info = allMethods.get(currDecl.procedureInstance());                  
+                MethodInfo info = allMethods.get(currDecl.procedureInstance());
                 final boolean ctor = isCtor();
                 if (!ctor) assert info!=null : currDecl;
                 // can't read from an un-init var in the ctors (I want to catch it here, so I can give the exact position info)
@@ -312,19 +326,17 @@ public class CheckEscapingThis extends NodeVisitor
                     // report the field that wasn't written to
                     for (FieldDef f : fields)
                         // a VAR marked with @Uninitialized is not tracked
-                        if (!f.flags().isFinal() // final fields are reported already in InitChecker 
-                            && !newInfo.seqWrite.contains(f) && !X10TypeMixin.isUninitializedField((X10FieldDef)f, ts)) {
+                        if (!newInfo.seqWrite.contains(f) && !X10TypeMixin.isUninitializedField((X10FieldDef)f,(TypeSystem)ts)) {
                             final Position pos = currDecl.position();
-                            if (pos.isCompilerGenerated()) // auto-generated ctor
-                                reportError("Field '"+f.name()+"' was not definitely assigned.", f.position());
-                            else
-                                reportError("Field '"+f.name()+"' was not definitely assigned in this constructor.", pos);
+                            // could be an auto-generated ctor
+                            reportError(X10Flags.toX10Flags(f.flags()).isProperty() ? "property(...) might not have been called" :
+                                    "Field '"+f.name()+"' was not definitely assigned.", pos.isCompilerGenerated() ? f.position() : pos);
                         }
                 }
             } else {
                 MethodInfo oldInfo = allMethods.get(procDef);
                 assert oldInfo!=null : currDecl;
-                assert !X10TypeMixin.isNoThisAccess((X10ProcedureDef)procDef, ts);
+                assert !X10TypeMixin.isNoThisAccess((X10ProcedureDef)procDef,(TypeSystem)ts);
 
                 // proof that the fix-point terminates: write set decreases while the read set increases
                 assert oldInfo.write.containsAll(newInfo.write);
@@ -370,7 +382,7 @@ public class CheckEscapingThis extends NodeVisitor
         final X10Flags flags = X10Flags.toX10Flags(((ProcedureDef_c)def).flags());
         return flags.isPrivate() || flags.isFinal();
     }
-    
+
     // Main visits all the classes, and type-checks them (verify that "this" doesn't escape, etc)
     public static class Main extends NodeVisitor {
         private final Job job;
@@ -380,8 +392,9 @@ public class CheckEscapingThis extends NodeVisitor
         @Override public NodeVisitor enter(Node n) {
             if (n instanceof X10ClassDecl_c) {
                 final X10ClassDecl_c classDecl_c = (X10ClassDecl_c) n;
-                if (!classDecl_c.flags().flags().isInterface()) // I have nothing to analyze in an interface 
-                    new CheckEscapingThis(classDecl_c, job, job.extensionInfo().typeSystem());
+                if (!classDecl_c.flags().flags().isInterface()) // I have nothing to analyze in an interface
+                    new CheckEscapingThis(classDecl_c,job,
+                        (TypeSystem)job.extensionInfo().typeSystem());
             }
             return this;
         }
@@ -406,7 +419,7 @@ public class CheckEscapingThis extends NodeVisitor
                 case Start:
                     assert false : "There must be a super call (either explicit or implicit)";
                 case SawCtor:
-                    // InitChecker checks it: property(...) might not have been called 
+                    // We already report if: property(...) might not have been called
                     //if (hasProperties && wasSuperCall)
                     //    reportError("You must call 'property(...)' at least once",ctor.position());
                     break;
@@ -501,14 +514,14 @@ public class CheckEscapingThis extends NodeVisitor
     private final TypeSystem ts;
     private final X10ClassDecl_c xlass;
     private final boolean hasProperties; // this this class defined properties (excluding properties of the sueprclass). if so, there must be exactly one "property(...)"
+    private final FieldDef propertyRepresentative; // tracking a single property field is enough (all of them are assigned together)
     private final boolean isXlassFinal;
     private final Type xlassType;
     // the keys are either X10ConstructorDecl_c or X10MethodDecl_c
     private final HashMap<ProcedureDef,MethodInfo> allMethods = new LinkedHashMap<ProcedureDef, MethodInfo>(); // all ctors and methods recursively called from allMethods on receiver "this"
     private final ArrayList<ProcedureDecl> dfsMethods = new ArrayList<ProcedureDecl>(); // to accelerate the fix-point alg
-    // the set of all VAR and VAL fields (without properties), including those in the superclass because of super() call (we need to check that VAL are read properly, and that VAR are written and read properly.)
-    // InitChecker already checks that VAL are assigned in every ctor exactly once (and never assigned in other methods)
-    // Therefore we can now treat both VAL and VAR identically.
+    // the set of all VAR and VAL fields (including one property representative), including those in the superclass because of super() call
+    // (we need to check that VAL are read properly, and that VAR are written and read properly.)
     private final HashSet<FieldDef> fields = new HashSet<FieldDef>();
     private final HashSet<FieldDef> superFields = new HashSet<FieldDef>(); // after the "super()" call, these fields are initialized
     private final DataFlowItem INIT = new DataFlowItem();
@@ -524,16 +537,19 @@ public class CheckEscapingThis extends NodeVisitor
             FieldDef def = f.fieldInstance().def();
             if (isTargetThis(f) && globalRef.contains(def))
                 reportError("Cannot use '"+def.name()+"' because a GlobalRef[...](this) cannot be used in a field initializer, constructor, or methods called from a constructor.",n.position());
-        }          
+        }
     }
     public CheckEscapingThis(X10ClassDecl_c xlass, Job job, TypeSystem ts) {
         this.job = job;
         this.ts = ts;
-        nf = ts.extensionInfo().nodeFactory();
+        nf = (NodeFactory)ts.extensionInfo().nodeFactory();
         this.xlass = xlass;
-        hasProperties = xlass.properties()!=null && xlass.properties().size()>0;
+        final List<PropertyDecl> props = xlass.properties();
+        hasProperties = props!=null && props.size()>0;
+        propertyRepresentative = hasProperties ? props.get(0).fieldDef() : null;
+        if (hasProperties) fields.add(propertyRepresentative); // adding one property representative (for our data flow, to make sure it property(...) is always called
         isXlassFinal = xlass.flags().flags().isFinal();
-        this.xlassType = X10TypeMixin.baseType(((X10ParsedClassType) xlass.classDef().asType()).instantiateTypeParametersExplicitly());
+        this.xlassType = X10TypeMixin.baseType(xlass.classDef().asType());
         // calculate the set of all fields (including inherited fields)
         calcFields();
         int notInited = build(false, false,false);
@@ -614,9 +630,7 @@ public class CheckEscapingThis extends NodeVisitor
             final Expr init = field.init();
             final X10FieldDef def = (X10FieldDef) field.fieldDef();
             if (init==null) continue;
-            X10ParsedClassType container = (X10ParsedClassType) Types.get(def.container());
-            container = container.instantiateTypeParametersExplicitly();
-            final Special This = (Special) nf.Special(pos, Special_c.THIS).type(container);
+            final Special This = (Special) nf.Special(pos, Special_c.THIS).type(def.container().get().toType());
             final FieldAssign fieldAssign = (FieldAssign) nf.FieldAssign(pos, This, field.name(), Assign_c.ASSIGN, init).
                     fieldInstance(def.asInstance()).
                     type(init.type());
@@ -704,7 +718,7 @@ public class CheckEscapingThis extends NodeVisitor
                 fieldChecker.checkResult();
             }
         }
-        // handle ctors and field initializers        
+        // handle ctors and field initializers
         // make a new special ctor for field-init, and the ctors will use its data-flow for their INIT
         if (allCtors.size()>0) { // there should be at least one auto-generated ctor
             fieldChecker.init = CTOR_INIT;
@@ -794,7 +808,7 @@ public class CheckEscapingThis extends NodeVisitor
                     X10MethodDecl_c method = findMethod(call);
                     if (method==null) {
                         // in the future: we could infer nonescaping from the superclass. The problem is that it is hard to understand the error messages that result from such inference
-                        // Igor: I think we should disallow the call to foo() when we infer that foo() escapes this.  The error message may mention @NonEscaping -- once the user annotates foo() with @NonEscaping, the compiler will tell him/her where the potential points of escape are. 
+                        // Igor: I think we should disallow the call to foo() when we infer that foo() escapes this.  The error message may mention @NonEscaping -- once the user annotates foo() with @NonEscaping, the compiler will tell him/her where the potential points of escape are.
                         if (!isNonEscaping)
                             reportError("The call "+call+" is illegal because you can only call a superclass method during construction only if it is annotated with @NonEscaping.", callPos);
                     } else {
@@ -806,7 +820,7 @@ public class CheckEscapingThis extends NodeVisitor
                             // we already analyzed this method (or it is an error method)
                         } else {
                             if (!isNonEscaping && !isXlassFinal && !isPrivate(procDef))
-                                job.compiler().errorQueue().enqueue(ErrorInfo.WARNING,"Method '"+procDef.signature()+"' is called during construction and therefore should be marked as @NonEscaping.", method.position());                            
+                                job.compiler().errorQueue().enqueue(ErrorInfo.WARNING,"Method '"+procDef.signature()+"' is called during construction and therefore should be marked as @NonEscaping.", method.position());
                             final Block body = method.body();
                             if (body!=null) {
                                 allMethods.put(pd,new MethodInfo()); // prevent infinite recursion
@@ -821,7 +835,7 @@ public class CheckEscapingThis extends NodeVisitor
                 for (Expr e : call.arguments())
                     e.visit(this);
                 return n;
-            }                        
+            }
         }
 
         // You cannot use "this" for anything else!
@@ -855,14 +869,18 @@ public class CheckEscapingThis extends NodeVisitor
     private boolean isThis(Node n) {
         if (n==null || !(n instanceof Special)) return false;
         final Special special = (Special) n;
-        final Type type = X10TypeMixin.baseType(special.type());
+        final Type tt = X10TypeMixin.baseType(special.type());
+        if (!tt.isClass()) return false;
+        ClassType type = tt.toClass();
+
         // both this and super cannot escape
         // for "super.", it resolves to the superclass, so I need to go up the superclasses
         Type thisClass = xlassType;
         while (thisClass!=null) {
-            if (ts.typeEquals(type, thisClass,null)) return true;
             if (!thisClass.isClass()) return false;
-            final Type superClass = thisClass.toClass().superClass();
+            final ClassType classType = thisClass.toClass();
+            if (type.def()==classType.def()) return true;
+            final Type superClass = classType.superClass();
             if (superClass==null) return false;
             thisClass = X10TypeMixin.baseType(superClass);
         }

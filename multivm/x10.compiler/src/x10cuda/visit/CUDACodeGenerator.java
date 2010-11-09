@@ -120,12 +120,22 @@ import x10.ast.X10Loop_c;
 import x10.ast.X10New_c;
 import x10.ast.X10Special_c;
 import x10.ast.X10Unary_c;
+import x10.constraint.XEQV;
+import x10.constraint.XEquals;
+import x10.constraint.XFailure;
+import x10.constraint.XFormula;
+import x10.constraint.XLit;
+import x10.constraint.XLocal;
+import x10.constraint.XTerm;
+import x10.constraint.XVar;
 import x10.extension.X10Ext;
 import x10.types.ConstrainedType;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
+import x10.types.X10TypeMixin;
 import polyglot.types.TypeSystem;
 import x10.types.X10TypeSystem_c;
+import x10.types.constraints.CConstraint;
 import x10cpp.X10CPPCompilerOptions;
 import x10cpp.postcompiler.CXXCommandBuilder;
 import x10cpp.types.X10CPPContext_c;
@@ -224,7 +234,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 	}
 
 	private void complainIfNot(boolean cond, String exp, Node n, boolean except) {
-		complainIfNot2(cond, "Expected: " + exp, n, except);
+		complainIfNot2(cond, "@CUDA Expected: " + exp, n, except);
 	}
 
 	private void complainIfNot2(boolean cond, String exp, Node n, boolean except) {
@@ -623,7 +633,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 			if (blockIsKernel(b)) {
 				Block_c closure_body = b;
 
-				complainIfNot2(!generatingKernel(), "CUDA kernels may not be nested.", b);
+				complainIfNot2(!generatingKernel(), "@CUDA kernels may not be nested.", b);
 				// TODO: assert the block is the body of an async
 				
 //				/System.out.println(b);
@@ -654,11 +664,11 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 							String methodname = init_call.name().toString();
 		
 							if (classname.equals("CUDAUtilities") && targs == 0 && args == 0 && methodname.equals("autoBlocks")) {
-								complainIfNot2(context().autoBlocks() == null, "Already have autoBlocks", init_call);
+								complainIfNot2(context().autoBlocks() == null, "@CUDA: Already have autoBlocks", init_call);
 								context().autoBlocks(ld);
 								context().established().autoBlocks(ld);
 							} else if (classname.equals("CUDAUtilities") && targs == 0 && args == 0 && methodname.equals("autoThreads")) {
-								complainIfNot2(context().autoThreads() == null, "Already have autoThreads", init_call);
+								complainIfNot2(context().autoThreads() == null, "@CUDA: Already have autoThreads", init_call);
 								context().autoThreads(ld);
 								context().established().autoThreads(ld);
 							} else {
@@ -1219,13 +1229,25 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 			} else if (context().isKernelParam(ln)) {
 				// it seems the post-compiler is not good at hoisting these
 				// accesses so we do it ourselves
-				if (context().directParams()) {
-					out.write(env + "." + ln);
+				String literal = constrainedToLiteral(n);
+				if (literal!=null) {
+					System.out.println("Optimised kernel param: "+n+" --> "+literal);
+					out.write(literal);
 				} else {
-					out.write(ln.toString());
+					if (context().directParams()) {
+						out.write(env + "." + ln);
+					} else {
+						out.write(ln.toString());
+					}
 				}
 			} else {
-				super.visit(n);
+				String literal = constrainedToLiteral(n);
+				if (literal!=null) {
+					System.out.println("Optimised local: "+n+" --> "+literal);
+					out.write(literal);
+				} else {
+					super.visit(n);
+				}
 			}
 		} else {
 			// we end up here in the _deserialize_cuda function because
@@ -1241,6 +1263,26 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 				super.visit(n);
 			}
 		}
+	}
+
+	private String constrainedToLiteral(Local_c n) {
+		if (!(n.type() instanceof ConstrainedType)) return null;
+		ConstrainedType ct = (ConstrainedType) n.type();
+		CConstraint cc = ct.getRealXClause();
+		XVar local_self = X10TypeMixin.selfVarBinding(cc);
+		if (local_self==null) return null;
+		if (local_self instanceof XLit) return local_self.toString();
+		// resolve to another variable, keep going
+		CConstraint projected;
+		try {
+			projected = context().constraintProjection(cc);
+		} catch (XFailure e) {
+			return null;
+		}
+		XVar closed_self = projected.bindingForVar(local_self);
+		if (closed_self==null) return null;
+		if (closed_self instanceof XLit) return closed_self.toString();
+		return null;
 	}
 
 	@Override
@@ -1378,13 +1420,12 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 		// TODO Auto-generated method stub
 		if (options.post_compiler != null && !options.output_stdout) {
 			Collection<String> compilationUnits = options.compilationUnits();
-			String[] nvccCmd = { "nvcc", "--cubin",
+			String[] nvccCmd = { "nvcc", "--cubin", "-Xptxas", "-v",
 					"-I" + CXXCommandBuilder.X10_DIST + "/include", null };
 			for (String f : compilationUnits) {
 				if (f.endsWith(".cu")) {
-					nvccCmd[3] = f;
-					if (!X10CPPTranslator.doPostCompile(options, eq,
-							compilationUnits, nvccCmd, true)) {
+					nvccCmd[5] = f;
+					if (!X10CPPTranslator.doPostCompile(options, eq, compilationUnits, nvccCmd, true)) {
 						eq.enqueue(ErrorInfo.WARNING, "Found @CUDA annotation, but not compiling for GPU because nvcc could not be run (check your $PATH).");
 						return true;
 					}

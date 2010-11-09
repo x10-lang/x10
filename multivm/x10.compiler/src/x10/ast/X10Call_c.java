@@ -607,7 +607,17 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
     /** Write the expression to an output file. */
    @Override
 	  public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
-	    w.begin(0);
+       if (name.toString().startsWith("operator") && arguments.size() >= 2) {
+           w.begin(0);
+           print(arguments.get(0), w, tr);
+           w.write(name.toString().substring(8));
+           print(arguments.get(1), w, tr);
+           w.allowBreak(0, " ");
+           w.end();
+           return;
+       }
+
+       w.begin(0);
 	    if (!targetImplicit) {
 	        if (target instanceof Expr) {
 	          printSubExpr((Expr) target, w, tr);
