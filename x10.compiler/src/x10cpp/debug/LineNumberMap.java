@@ -365,7 +365,7 @@ public class LineNumberMap extends StringTable {
 			return -1;
 	}
 	
-	public void addLocalVariableMapping(String name, String type, int startline, int endline, String file)
+	public void addLocalVariableMapping(String name, String type, int startline, int endline, String file, boolean noMangle)
 	{
 		if (localVariables == null)
 			localVariables = new ArrayList<LineNumberMap.LocalVariableMapInfo>();
@@ -387,7 +387,10 @@ public class LineNumberMap extends StringTable {
 		}
 		else 
 			v._x10typeIndex = -1;
-		v._cppName = stringId(Emitter.mangled_non_method_name(name)); 
+		if (noMangle)
+			v._cppName = v._x10name; 
+		else
+			stringId(Emitter.mangled_non_method_name(name));
 		v._x10index = file;
 		v._x10startLine = startline;
 		v._x10endLine = endline;
