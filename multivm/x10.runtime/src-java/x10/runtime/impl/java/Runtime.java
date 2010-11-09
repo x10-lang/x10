@@ -108,7 +108,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
 	/**
 	 * The number of places in the system
 	 */
-	public static final int MAX_PLACES = Integer.getInteger("x10.NUMBER_OF_LOCAL_PLACES", 4);
+	public static int MAX_PLACES = X10RT.numPlaces();
 
 	/**
 	 * The number of threads to allocate in the thread pool
