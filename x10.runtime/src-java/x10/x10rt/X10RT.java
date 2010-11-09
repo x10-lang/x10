@@ -47,7 +47,7 @@ public class X10RT {
       //       X10RT instead of doing it in the class initializer.  
       //       Consider whether or not we should make this change....
 
-      //x10rt_init(0, null);
+      x10rt_init(0, null);
 
       ActiveMessage.initializeMessageHandlers();
 
