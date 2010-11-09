@@ -20,51 +20,9 @@ public static class Main extends x10.runtime.impl.java.Runtime {
         }
         
         // called by native runtime inside main x10 thread
-        public void main(final x10.array.Array<java.lang.String> args) {
-        try {
-        // start xrx
-        x10.lang.Runtime.start(
-        // static init activity
-        new x10.core.fun.VoidFun_0_0() {
-        public void apply() {
-        // preload classes
-        if (Boolean.getBoolean("x10.PRELOAD_CLASSES")) {
-        x10.runtime.impl.java.PreLoader.preLoad(this.getClass().getEnclosingClass(), Boolean.getBoolean("x10.PRELOAD_STRINGS"));
-        }
-        }
-        public x10.rtt.RuntimeType<?> getRTT() {
-        return _RTT;
-        }
-        public x10.rtt.Type<?> getParam(int i) {
-        return null;
-        }
-        },
-        // body of main activity
-        new x10.core.fun.VoidFun_0_0() {
-        public void apply() {
-        // catch and rethrow checked exceptions
-        // (closures cannot throw checked exceptions)
-        try {
+        public void runtimeCallback(final x10.array.Array<java.lang.String> args) {
         // call the original app-main method
         HelloWholeWorld.main(args);
-        } catch (java.lang.RuntimeException e) {
-        throw e;
-        } catch (java.lang.Error e) {
-        throw e;
-        } catch (java.lang.Throwable t) {
-        throw new x10.runtime.impl.java.X10WrappedThrowable(t);
-        }
-        }
-        public x10.rtt.RuntimeType<?> getRTT() {
-        return _RTT;
-        }
-        public x10.rtt.Type<?> getParam(int i) {
-        return null;
-        }
-        });
-        } catch (java.lang.Throwable t) {
-        t.printStackTrace();
-        }
         }
         }
         
