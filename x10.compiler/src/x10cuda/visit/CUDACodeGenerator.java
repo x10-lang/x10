@@ -117,6 +117,7 @@ import x10.ast.X10Formal;
 import x10.ast.X10Instanceof_c;
 import x10.ast.X10Loop;
 import x10.ast.X10Loop_c;
+import x10.ast.X10MethodDecl_c;
 import x10.ast.X10New_c;
 import x10.ast.X10Special_c;
 import x10.ast.X10Unary_c;
@@ -155,9 +156,11 @@ import polyglot.types.VarInstance;
 import polyglot.util.ErrorInfo;
 import polyglot.util.ErrorQueue;
 import polyglot.util.SimpleCodeWriter;
+import polyglot.visit.PrettyPrinter;
 import polyglot.visit.Translator;
 import x10.util.ClassifiedStream;
 import x10.util.StreamWrapper;
+import x10.visit.ConstantPropagator;
 
 /**
  * Visitor that prettyprints an X10 AST to the CUDA subset of c++.
@@ -1266,12 +1269,14 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 	}
 
 	private String constrainedToLiteral(Local_c n) {
+		//if (true) return null;
+		if (!n.localInstance().def().flags().isFinal()) return null;
 		if (!(n.type() instanceof ConstrainedType)) return null;
 		ConstrainedType ct = (ConstrainedType) n.type();
 		CConstraint cc = ct.getRealXClause();
 		XVar local_self = X10TypeMixin.selfVarBinding(cc);
 		if (local_self==null) return null;
-		if (local_self instanceof XLit) return local_self.toString();
+		if (local_self instanceof XLit) return "/*"+n+":"+n.type()+"*/"+local_self.toString();
 		// resolve to another variable, keep going
 		CConstraint projected;
 		try {
@@ -1281,7 +1286,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 		}
 		XVar closed_self = projected.bindingForVar(local_self);
 		if (closed_self==null) return null;
-		if (closed_self instanceof XLit) return closed_self.toString();
+		if (closed_self instanceof XLit) return "/*"+n+":"+n.type()+"*/"+closed_self.toString();
 		return null;
 	}
 
@@ -1406,6 +1411,15 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 	@Override
 	public void visit(X10Special_c n) {
 		// TODO Auto-generated method stub
+		super.visit(n);
+	}
+
+	@Override
+	public void visit(X10MethodDecl_c n) {
+		// TODO Auto-generated method stub
+		//n.prettyPrint(System.out);
+		//X10MethodDecl_c n2 = (X10MethodDecl_c) n.visit(new ConstantPropagator(tr.job(), tr.typeSystem(), tr.nodeFactory()).context(context()));
+		//n2.prettyPrint(System.out);
 		super.visit(n);
 	}
 
