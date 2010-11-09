@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.StringTokenizer;
 import java.util.TreeSet;
 
+import polyglot.types.Context;
 import polyglot.types.MemberDef;
 import polyglot.types.MethodDef;
 import polyglot.types.ProcedureDef;
@@ -365,6 +366,9 @@ public class LineNumberMap extends StringTable {
 	
 	public void addLocalVariableMapping(String name, String type, int startline, int endline, String file, boolean noMangle)
 	{
+		if (name == null || name.startsWith(Context.MAGIC_VAR_PREFIX))
+			return; // skip variables with compiler-generated names.
+		
 		if (localVariables == null)
 			localVariables = new ArrayList<LineNumberMap.LocalVariableMapInfo>();
 		
