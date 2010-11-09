@@ -168,18 +168,10 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
 	 */
 	public static final boolean STATIC_THREADS = Boolean.getBoolean("x10.STATIC_THREADS");
 
-	/**
-	 * Synchronously executes body at place(id) without copy
-	 */
-	public static void runAtLocal(int id, x10.core.fun.VoidFun_0_0 body) {
-			body.apply();
-	}
-
     /**
      * Synchronously executes body at place(id)
      */
     public static void runClosureAt(int id, x10.core.fun.VoidFun_0_0 body) {
-        // runAtLocal(id, body);
     	runAt(id, body);
     }
 
@@ -187,8 +179,6 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
      * Synchronously executes body at place(id)
      */
     public static void runClosureCopyAt(int id, x10.core.fun.VoidFun_0_0 body) {
-        // body = deepCopy(id, body);
-        // runAtLocal(id, body);
         runAt(id, body);
     }
 
@@ -211,31 +201,8 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
         return body;
     }
 
-    /**
-     * Copy body from current place to place id
-     */
-    public static <T> T deepCopy(int id, T body) {
-        try {
-            // copy body
-            java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
-            new java.io.ObjectOutputStream(baos).writeObject(body);
-
-            body = (T) new java.io.ObjectInputStream(new java.io.ByteArrayInputStream(baos.toByteArray())).readObject();
-                
-        } catch (java.io.IOException e) {
-            e.printStackTrace();
-            throw new WrappedRuntimeException(e);
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-            throw new WrappedRuntimeException(e);
-        }
-        return body;
-    }
-
     // @MultiVM, add this method 
     public static void runAt(int id, x10.core.fun.VoidFun_0_0 body) {
-		final Thread thread = Thread.currentThread();
-		
 		try {
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			(new java.io.ObjectOutputStream(baos)).writeObject(body);
@@ -256,11 +223,9 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
 	 * @MultiVM: Return true if place(id) is local to this node
 	 */
 	public static boolean local(int id) {
-		return true; // single process implementation
-		/*x10.x10rt.Place place = X10RT.here();
+		x10.x10rt.Place place = X10RT.here();
 		int hereId = place.getId();
 		return (hereId == id);
-		*/
 	}
 	
 	
