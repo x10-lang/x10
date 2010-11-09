@@ -2624,6 +2624,15 @@ public class Emitter {
         w.write(fieldName + " = (x10.io.SerialData) ois.readObject(); }");
         w.newline();
 
+        /*
+        if (!hasCustomSerializer(def)) {
+            w.write("// default custom serializer");
+            w.newline();
+//            w.write("public x10.io.SerialData serialize() { return new x10.io.SerialData(null, super.serialize()); }");
+            w.write("public x10.io.SerialData serialize() { return super.serialize(); }");
+            w.newline();
+        }
+        */
 
         if (!hasDeserializationConstructor(def)) {
             w.write("// default deserialization constructor");
@@ -2652,14 +2661,16 @@ public class Emitter {
                 w.write("this." + type.name().toString() + " = " + type.name().toString() + "; ");
             }
             
-            // TODO is this needed?
-            if (true) {
             // copy the rest of default (standard) constructor to initialize properties and fields
-
-            // get default constructor
             X10ConstructorDecl ctor = hasDefaultConstructor(n);
-//            assert ctor != null;
-            
+            // we must have default constructor to initialize properties
+//          assert ctor != null;
+            /*
+            if (ctor == null) {
+                ctor = createDefaultConstructor(def, (X10NodeFactory_c) tr.nodeFactory(), n);
+                // TODO apply FieldInitializerMover
+            }
+            */
             if (ctor != null) {
                 // initialize properties and call field initializer
                 Block_c body = (Block_c) ctor.body();
@@ -2667,7 +2678,6 @@ public class Emitter {
                     if (body.statements().get(0) instanceof ConstructorCall) {
                         body = (Block_c) body.statements(body.statements().subList(1, body.statements().size()));
                     }
-                    
                     // X10PrettyPrinterVisitor.visit(Block_c body)
                     String s = getJavaImplForStmt(body, tr.typeSystem());
                     if (s != null) {
@@ -2677,101 +2687,11 @@ public class Emitter {
                     }
                 }
             }
-            
-            }
 
             w.write("}");
             w.newline();
         }
 
-
-        // TODO
-        if (false) {
-        // generate default custom serializer and default deserialization constructor
-
-        // TODO generate simple custom serializer and deserialization constructor
-//        boolean optimize = !hasCustomSerializer(def) && !hasDeserializationConstructor(def);
-        boolean optimize = true;
-        
-//        if (!hasCustomSerializer(def)) {
-//            w.write("// default custom serializer");
-//            w.newline();
-//            if (!optimize) {
-//                w.write("public x10.io.SerialData serialize() { return new x10.io.SerialData(null, super.serialize()); }");
-//            } else {
-//                w.write("public x10.io.SerialData serialize() { return super.serialize(); }");
-//            }
-//            w.newline();
-//        }
-        
-        if (!hasDeserializationConstructor(def)) {
-            w.write("// default deserialization constructor");
-            w.newline();
-            w.write("public " + def.name().toString() + "(");
-            for (ParameterType type : def.typeParameters()) {
-                w.write("final x10.rtt.Type " + type.name().toString() + ", ");
-            }
-            w.write("final x10.io.SerialData a) { ");
-
-            // call super deserialization constructor
-            w.write("super(");
-            X10ClassType superType = (X10ClassType) def.superType().get();
-            if (superType.typeArguments() != null) {
-                for (Type type : superType.typeArguments()) {
-                    // pass rtt of the type
-                    new RuntimeTypeExpander(this, type).expand(tr);
-                    w.write(", ");
-                }
-            }
-            if (!optimize) {
-                w.write("a.superclassData); ");
-            } else {
-                w.write("a); ");
-            }
-            
-            // initialize rtt
-            for (ParameterType type : def.typeParameters()) {
-                w.write("this." + type.name().toString() + " = " + type.name().toString() + "; ");
-            }
-            
-            if (false) {
-            // initialize properties and fields as in default constructor
-
-            // get default constructor
-            X10ConstructorDecl ctor = hasDefaultConstructor(n);
-            if (ctor == null) {
-                ctor = createDefaultConstructor(def, (X10NodeFactory_c) tr.nodeFactory(), n);
-                // TODO apply FieldInitializerMover
-            }
-            assert ctor != null;
-            
-            // assign properties
-            // TODO what should we do?
-
-            // call field initializer
-            Block_c body = (Block_c) ctor.body();
-            if (body.statements().size() > 0) {
-                if (body.statements().get(0) instanceof ConstructorCall) {
-                    body = (Block_c) body.statements(body.statements().subList(1, body.statements().size()));
-                }
-                    
-                // X10PrettyPrinterVisitor.visit(Block_c body)
-                String s = getJavaImplForStmt(body, tr.typeSystem());
-                if (s != null) {
-                    w.write(s);
-                } else {
-                    body.translate(w, tr);
-                }
-            }
-
-            }
-
-            w.write("}");
-            w.newline();
-        }
-
-        }
-        
 	}
 
     private void printParent(final X10ClassDef def, Type type) {
