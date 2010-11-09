@@ -6,7 +6,8 @@ This is a minor release that fixes the following issues in X10 2.1.0.
     the var definition and the finish enclosing the async in which 
     the variable was defined. (r17571)
   + Java-backend specific codegen bugs that manifest when compiling
-    code that makes heavy use of generic types. (17585,17586,17587).
+    code that makes heavy use of generic types. (17585,17586,17587,17345).
+  + Fixes and improvements for the x10rt sockets backend.
 
 -------------------------------------------------------------------------
 
