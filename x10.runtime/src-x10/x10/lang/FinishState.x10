@@ -32,7 +32,7 @@ abstract class FinishState {
     // a finish with local asyncs only
     static class LocalFinish extends FinishState {
         private val count = new AtomicInteger(1);
-        private val latch = new Latch();
+        private val latch = new SimpleLatch();
         private var exceptions:Stack[Throwable]; // lazily initialized
         public def notifySubActivitySpawn(place:Place) {
             assert place.id == Runtime.hereInt();
@@ -43,7 +43,7 @@ abstract class FinishState {
             if (count.decrementAndGet() == 0) latch.release();
         }
         public def pushException(t:Throwable) {
-            latch.lockWorker();
+            latch.lock();
             if (null == exceptions) exceptions = new Stack[Throwable]();
             exceptions.push(t);
             latch.unlock();
@@ -76,7 +76,7 @@ abstract class FinishState {
     }
 
     static class RootFinishSPMD extends RootFinishSkeleton {
-        protected val latch = new Latch();
+        protected val latch = new SimpleLatch();
         private val count = new AtomicInteger(1);
         private var exceptions:Stack[Throwable]; // lazily initialized
         public def notifySubActivitySpawn(place:Place) {
@@ -86,7 +86,7 @@ abstract class FinishState {
             if (count.decrementAndGet() == 0) latch.release();
         }
         public def pushException(t:Throwable) {
-            latch.lockWorker();
+            latch.lock();
             if (null == exceptions) exceptions = new Stack[Throwable]();
             exceptions.push(t);
             latch.unlock();
@@ -158,7 +158,7 @@ abstract class FinishState {
     }
 
     static class RootFinishAsync extends RootFinishSkeleton{
-        protected val latch = new Latch();
+        protected val latch = new SimpleLatch();
         protected var exception:Throwable = null;
         public def notifySubActivitySpawn(place:Place):void {}
         public def notifyActivityTermination():void {
@@ -302,11 +302,11 @@ abstract class FinishState {
         protected def this(root:RootFinish) {
             super(root);
         }
-        def this(latch:Latch) {
+        def this(latch:SimpleLatch) {
             this(new RootFinish(latch));
         }
         def this() {
-            this(new Latch());
+            this(new SimpleLatch());
         }
         protected def this(ref:GlobalRef[FinishState]) {
             super(ref);
@@ -322,17 +322,17 @@ abstract class FinishState {
     }
 
     static class RootFinish extends RootFinishSkeleton {
-        protected val latch:Latch;
+        protected val latch:SimpleLatch;
         protected var count:Int = 1;
         protected var exceptions:Stack[Throwable]; // lazily initialized
         protected var counts:Rail[Int];
         protected var seen:Rail[Boolean];
-        def this(latch:Latch) {
+        def this(latch:SimpleLatch) {
             this.latch = latch;
         }
         public def notifySubActivitySpawn(place:Place):void {
             val p = place.parent(); // CUDA
-            latch.lockWorker();
+            latch.lock();
             if (p == ref().home) {
                 count++;
                 latch.unlock();
@@ -346,7 +346,7 @@ abstract class FinishState {
             latch.unlock();
         }
         public def notifyActivityTermination():void {
-            latch.lockWorker();
+            latch.lock();
             if (--count != 0) {
                 latch.unlock();
                 return;
@@ -367,7 +367,7 @@ abstract class FinishState {
             exceptions.push(t);
         }
         public def pushException(t:Throwable):void {
-            latch.lockWorker();
+            latch.lock();
             process(t);
             latch.unlock();
         }
@@ -401,7 +401,7 @@ abstract class FinishState {
         }
 
         def notify(rail:Rail[Int]):void {
-            latch.lockWorker();
+            latch.lock();
             process(rail);
             latch.unlock();
         }
@@ -421,20 +421,20 @@ abstract class FinishState {
         }
 
         def notify(rail:Rail[Pair[Int,Int]]):void {
-            latch.lockWorker();
+            latch.lock();
             process(rail);
             latch.unlock();
         }
 
         def notify(rail:Rail[Int], t:Throwable):void {
-            latch.lockWorker();
+            latch.lock();
             process(t);
             process(rail);
             latch.unlock();
         }
 
         def notify(rail:Rail[Pair[Int,Int]], t:Throwable):void {
-            latch.lockWorker();
+            latch.lock();
             process(t);
             process(rail);
             latch.unlock();
@@ -585,20 +585,20 @@ abstract class FinishState {
     static class RootCollectingFinish[T] extends RootFinish implements CollectingFinishState[T] {
         val sr:StatefulReducer[T];
         def this(reducer:Reducible[T]) {
-           super(new Latch());
+           super(new SimpleLatch());
            sr = new StatefulReducer[T](reducer);
         }
         public def accept(t:T, id:Int) {
            sr.accept(t, id);
         }
         def notifyValue(rail:Rail[Int], v:T):void {
-            latch.lockWorker();
+            latch.lock();
             sr.accept(v);
             process(rail);
             latch.unlock();
         }
         def notifyValue(rail:Rail[Pair[Int,Int]], v:T):void {
-            latch.lockWorker();
+            latch.lock();
             sr.accept(v);
             process(rail);
             latch.unlock();

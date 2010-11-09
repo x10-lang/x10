@@ -259,7 +259,7 @@ import x10.util.Box;
         }
 
         // run activities while waiting on finish
-        def join(latch:Latch):void {
+        def join(latch:SimpleLatch):void {
             val tmp = activity; // save current activity
             while (loop(latch, false));
             activity = tmp; // restore current activity
@@ -267,7 +267,7 @@ import x10.util.Box;
 
         // inner loop to help j9 jit
         @TempNoInline_1
-        private def loop(latch:Latch, block:Boolean):Boolean {
+        private def loop(latch:SimpleLatch, block:Boolean):Boolean {
             @TempNoInline_1
             for (var i:Int = 0; i < BOUND; i++) {
                 if (latch()) return false;
@@ -315,7 +315,7 @@ import x10.util.Box;
     }
 
     @Pinned static class Pool {
-        val latch:Latch;
+        val latch:SimpleLatch;
 
         private var size:Int; // the number of workers in the pool
 
@@ -332,7 +332,7 @@ import x10.util.Box;
 
         def this(size:Int) {
             this.size = size;
-            this.latch = new Latch();
+            this.latch = new SimpleLatch();
             val workers = new Array[Worker](MAX_WORKERS);
 
             // main worker
@@ -397,7 +397,7 @@ import x10.util.Box;
         }
 
         // scan workers for activity to steal
-        def scan(random:Random, latch:Latch, block:Boolean):Activity {
+        def scan(random:Random, latch:SimpleLatch, block:Boolean):Activity {
             var activity:Activity = null;
             var next:Int = random.nextInt(size);
             for (;;) {
@@ -650,7 +650,7 @@ import x10.util.Box;
     /**
      * a latch with a place for an exception
      */
-    static class RemoteControl extends Latch {
+    static class RemoteControl extends SimpleLatch {
         public def this() { super(); }
         private def this(Any) {
             throw new UnsupportedOperationException("Cannot deserialize "+typeName());
