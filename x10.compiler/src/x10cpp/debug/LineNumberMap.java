@@ -392,7 +392,7 @@ public class LineNumberMap extends StringTable {
 		if (noMangle)
 			v._cppName = v._x10name; 
 		else
-			stringId(Emitter.mangled_non_method_name(name));
+			v._cppName = stringId(Emitter.mangled_non_method_name(name));
 		v._x10index = file;
 		v._x10startLine = startline;
 		v._x10endLine = endline;
