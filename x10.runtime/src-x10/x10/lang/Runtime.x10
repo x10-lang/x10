@@ -15,6 +15,7 @@ import x10.compiler.Native;
 import x10.compiler.Pinned;
 import x10.compiler.Global;
 import x10.compiler.Pragma;
+import x10.compiler.StackAllocate;
 import x10.compiler.TempNoInline_1;
 
 import x10.util.Random;
@@ -650,7 +651,7 @@ import x10.util.Box;
     /**
      * a latch with a place for an exception
      */
-    static class RemoteControl extends SimpleLatch {
+    static class RemoteControl extends SimpleLatch implements Mortal {
         public def this() { super(); }
         private def this(Any) {
             throw new UnsupportedOperationException("Cannot deserialize "+typeName());
@@ -663,23 +664,23 @@ import x10.util.Box;
      */
     public static def runAt(place:Place, body:()=>void):void {
         Runtime.ensureNotInAtomic();
-        val box = GlobalRef(new RemoteControl());
+        @StackAllocate val me = @StackAllocate new RemoteControl();
+        val box = GlobalRef(me);
         async at(place) {
             try {
                 body();
                 async at(box.home) {
-                    val me = box();
-                    me.release();
+                    val me2 = box();
+                    me2.release();
                 }
             } catch (e:Throwable) {
                 async at(box.home) {
-                    val me = box();
-                    me.e = e;
-                    me.release();
+                    val me2 = box();
+                    me2.e = e;
+                    me2.release();
                 }
             }
         }
-        val me = box();
         if (!NO_STEALS && activity().safe()) worker().join(me);
         me.await();
         dealloc(body);
@@ -706,24 +707,24 @@ import x10.util.Box;
      * Eval at expression
      */
     public static def evalAt[T](place:Place, eval:()=>T):T {
-        val box = GlobalRef(new Remote[T]());
+        @StackAllocate val me = @StackAllocate new Remote[T]();
+        val box = GlobalRef(me);
         async at(place) {
             try {
                 val result = eval();
                 async at(box.home) {
-                    val me = box();
-                    me.t = result;
-                    me.release();
+                    val me2 = box();
+                    me2.t = result;
+                    me2.release();
                 }
             } catch (e:Throwable) {
                 async at(box.home) {
-                    val me = box();
-                    me.e = e;
-                    me.release();
+                    val me2 = box();
+                    me2.e = e;
+                    me2.release();
                 }
             }
         }
-        val me = box();
         if (!NO_STEALS && activity().safe()) worker().join(me);
         me.await();
         dealloc(eval);
