@@ -893,10 +893,6 @@ import x10.util.Box;
             runtime().pool.decrease(n);
         }
     }
-
-    public static def spin() {
-        probe();
-    }
 }
 
 // vim:shiftwidth=4:tabstop=4:expandtab
