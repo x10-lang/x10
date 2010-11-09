@@ -51,13 +51,11 @@ public class X10RT {
 
       ActiveMessage.initializeMessageHandlers();
 
-      /*
       places = new Place[x10rt_nplaces()];
       for (int i=0; i<places.length; i++) {
         places[i] = new Place(i);
       }
       here = places[x10rt_here()];
-      */
 
       // Add a shutdown hook to automatically teardown X10RT as part of JVM teardown
       Runtime.getRuntime().addShutdownHook(new Thread(new Runnable(){

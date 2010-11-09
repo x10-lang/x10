@@ -93,7 +93,6 @@ import x10.util.Box;
     /**
      * Return true if place(id) is in the current node.
      */
-    @Native("java", "x10.runtime.impl.java.Runtime.local(#1)")
     static def isLocal(id:Int):Boolean = id == here.id;
 
     /**

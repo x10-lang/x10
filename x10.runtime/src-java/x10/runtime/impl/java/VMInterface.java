@@ -22,9 +22,7 @@ import java.util.concurrent.atomic.*;
  * @author Vivek Sarkar (based on ideas suggested by Allan Kielstra, Igor Peshansky, Chris Donawa, Raj Barik)
  */
 public final class VMInterface {
-
-    public static final int NUMBER_OF_LOCAL_PLACES = Configuration.NUMBER_OF_LOCAL_PLACES;
-    
+	
     public static final boolean ABSTRACT_EXECUTION_STATS = Configuration.ABSTRACT_EXECUTION_STATS;
     
     public static final boolean ABSTRACT_EXECUTION_TIMES = Configuration.ABSTRACT_EXECUTION_TIMES;
@@ -85,9 +83,9 @@ public final class VMInterface {
     // ensure that the Worker thread runs on "the right" CPU
     static final Runnable mapPoolThreadToCPU(final Runnable workerRunnable, final int placeNumber, final int workerWithinPool, String threadName) {
         if (BIND_THREADS && (numCPUs != 0)) {
-			final int CPUsPerPlace = numCPUs / Configuration.NUMBER_OF_LOCAL_PLACES;
+			final int CPUsPerPlace = numCPUs;
 			final int firstCPUInThisPlace = CPUsPerPlace * placeNumber;
-			final int numCPUsInThisPlace = (placeNumber == Configuration.NUMBER_OF_LOCAL_PLACES - 1) ? (numCPUs - firstCPUInThisPlace) : CPUsPerPlace;
+			final int numCPUsInThisPlace =  CPUsPerPlace;
 			final int myCPU = (firstCPUInThisPlace + workerWithinPool % numCPUsInThisPlace) % numCPUs ;
 			if ( BIND_THREADS_DIAGNOSTICS ) System.err.println("BIND_THREADS: Mapping thread " + threadName + " to CPU " + myCPU);
 			return new Runnable() {
