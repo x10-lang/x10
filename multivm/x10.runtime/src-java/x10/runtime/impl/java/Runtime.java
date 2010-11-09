@@ -124,14 +124,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
 	 * Synchronously executes body at place(id) without copy
 	 */
 	public static void runAtLocal(int id, x10.core.fun.VoidFun_0_0 body) {
-		final Thread thread = Thread.currentThread();
-		final int ret = thread.home().id;
-		thread.home(id); // update thread place
-		try {
 			body.apply();
-		} finally {
-			thread.home(ret); // restore thread place
-		}
 	}
 
     /**
@@ -146,7 +139,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
      * Synchronously executes body at place(id)
      */
     public static void runClosureCopyAt(int id, x10.core.fun.VoidFun_0_0 body) {
-        body = deepCopy(id, body);
+        // body = deepCopy(id, body);
         // runAtLocal(id, body);
         runAt(id, body);
     }
@@ -178,14 +171,9 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
             // copy body
             java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
             new java.io.ObjectOutputStream(baos).writeObject(body);
-            final Thread thread = Thread.currentThread();
-            final int ret = thread.home().id;
-            thread.home(id); // update thread place
-            try {
-                body = (T) new java.io.ObjectInputStream(new java.io.ByteArrayInputStream(baos.toByteArray())).readObject();
-            } finally {
-                thread.home(ret); // restore thread place
-            }
+
+            body = (T) new java.io.ObjectInputStream(new java.io.ByteArrayInputStream(baos.toByteArray())).readObject();
+                
         } catch (java.io.IOException e) {
             e.printStackTrace();
             throw new WrappedRuntimeException(e);
@@ -199,8 +187,6 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
     // @MultiVM, add this method 
     public static void runAt(int id, x10.core.fun.VoidFun_0_0 body) {
 		final Thread thread = Thread.currentThread();
-		final int ret = thread.home().id;
-		thread.home(id); // update thread place
 		
 		try {
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -215,7 +201,6 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
 			throw new WrappedRuntimeException(e);
 		} finally {
 			System.out.println("@MULTIVM: finally section");
-			thread.home(ret);
 		}
 	}
 

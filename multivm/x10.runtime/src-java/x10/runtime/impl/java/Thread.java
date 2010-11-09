@@ -30,7 +30,7 @@ public class Thread extends java.lang.Thread {
 		return (Thread) java.lang.Thread.currentThread();
 	}
 
-	private Place home;    // the current place
+	private final Place home;    // the current place
 
     public Thread(final x10.core.fun.VoidFun_0_0 body, String name) {
         super(new Runnable() { public void run() { body.apply(); } }, name);
@@ -40,13 +40,6 @@ public class Thread extends java.lang.Thread {
             home = currentThread().home();
         }
     }
-
-	/**
-	 * Update thread place (called by native runtime only)
-	 */
-	void home(int home) {
-		this.home = Place.place(home);
-	}
 
 	/**
 	 * Return current place
