@@ -9,6 +9,10 @@ public final class UnresolvedType implements Type {
     public UnresolvedType(int index) {
         this.index = index;
     }
+
+    public String toString() {
+        return "UnresolvedType(" + index + ")";
+    }
     
     public final int arrayLength(Object array) {
         throw new UnsupportedOperationException();

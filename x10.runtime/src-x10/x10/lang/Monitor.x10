@@ -45,6 +45,13 @@ import x10.util.Stack;
     }
 
     /**
+     * Aquire the lock without increasing parallelism
+     */
+   public def lockWorker():void {
+       super.lock();
+   }
+
+    /**
      * Try acquiring the lock
      */
     public def tryLock():boolean {

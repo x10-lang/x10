@@ -15,6 +15,7 @@ import x10.compiler.Native;
 import x10.compiler.Pinned;
 import x10.compiler.Global;
 import x10.compiler.Pragma;
+import x10.compiler.StackAllocate;
 import x10.compiler.TempNoInline_1;
 
 import x10.util.Random;
@@ -259,7 +260,7 @@ import x10.util.Box;
         }
 
         // run activities while waiting on finish
-        def join(latch:Latch):void {
+        def join(latch:SimpleLatch):void {
             val tmp = activity; // save current activity
             while (loop(latch, false));
             activity = tmp; // restore current activity
@@ -267,7 +268,7 @@ import x10.util.Box;
 
         // inner loop to help j9 jit
         @TempNoInline_1
-        private def loop(latch:Latch, block:Boolean):Boolean {
+        private def loop(latch:SimpleLatch, block:Boolean):Boolean {
             @TempNoInline_1
             for (var i:Int = 0; i < BOUND; i++) {
                 if (latch()) return false;
@@ -286,6 +287,7 @@ import x10.util.Box;
             @TempNoInline_1
             // process all queued activities
             val tmp = activity; // save current activity
+            event_probe();
             while (true) {
                 activity = poll();
                 if (activity == null) {
@@ -301,7 +303,7 @@ import x10.util.Box;
             if (!STATIC_THREADS) {
                 Thread.park();
             } else {
-                event_probe();
+                probe();
             }
         }
 
@@ -314,7 +316,7 @@ import x10.util.Box;
     }
 
     @Pinned static class Pool {
-        val latch:Latch;
+        val latch:SimpleLatch;
 
         private var size:Int; // the number of workers in the pool
 
@@ -331,7 +333,7 @@ import x10.util.Box;
 
         def this(size:Int) {
             this.size = size;
-            this.latch = new Latch();
+            this.latch = new SimpleLatch();
             val workers = new Array[Worker](MAX_WORKERS);
 
             // main worker
@@ -396,7 +398,7 @@ import x10.util.Box;
         }
 
         // scan workers for activity to steal
-        def scan(random:Random, latch:Latch, block:Boolean):Activity {
+        def scan(random:Random, latch:SimpleLatch, block:Boolean):Activity {
             var activity:Activity = null;
             var next:Int = random.nextInt(size);
             for (;;) {
@@ -513,7 +515,6 @@ import x10.util.Box;
 
             if (hereInt() == 0) {
                 val rootFinish = new FinishState.Finish(runtime().pool.latch);
-                rootFinish.notifySubActivitySpawn(here());
                 // in place 0 schedule the execution of the static initializers fby main activity
                 execute(new Activity(()=>{finish init(); body();}, rootFinish, true));
 
@@ -650,7 +651,7 @@ import x10.util.Box;
     /**
      * a latch with a place for an exception
      */
-    static class RemoteControl extends Latch {
+    static class RemoteControl extends SimpleLatch implements Mortal {
         public def this() { super(); }
         private def this(Any) {
             throw new UnsupportedOperationException("Cannot deserialize "+typeName());
@@ -663,23 +664,23 @@ import x10.util.Box;
      */
     public static def runAt(place:Place, body:()=>void):void {
         Runtime.ensureNotInAtomic();
-        val box = GlobalRef(new RemoteControl());
+        @StackAllocate val me = @StackAllocate new RemoteControl();
+        val box = GlobalRef(me);
         async at(place) {
             try {
                 body();
                 async at(box.home) {
-                    val me = box();
-                    me.release();
+                    val me2 = box();
+                    me2.release();
                 }
             } catch (e:Throwable) {
                 async at(box.home) {
-                    val me = box();
-                    me.e = e;
-                    me.release();
+                    val me2 = box();
+                    me2.e = e;
+                    me2.release();
                 }
             }
         }
-        val me = box();
         if (!NO_STEALS && activity().safe()) worker().join(me);
         me.await();
         dealloc(body);
@@ -706,24 +707,24 @@ import x10.util.Box;
      * Eval at expression
      */
     public static def evalAt[T](place:Place, eval:()=>T):T {
-        val box = GlobalRef(new Remote[T]());
+        @StackAllocate val me = @StackAllocate new Remote[T]();
+        val box = GlobalRef(me);
         async at(place) {
             try {
                 val result = eval();
                 async at(box.home) {
-                    val me = box();
-                    me.t = result;
-                    me.release();
+                    val me2 = box();
+                    me2.t = result;
+                    me2.release();
                 }
             } catch (e:Throwable) {
                 async at(box.home) {
-                    val me = box();
-                    me.e = e;
-                    me.release();
+                    val me2 = box();
+                    me2.e = e;
+                    me2.release();
                 }
             }
         }
-        val me = box();
         if (!NO_STEALS && activity().safe()) worker().join(me);
         me.await();
         dealloc(eval);
@@ -738,14 +739,19 @@ import x10.util.Box;
 
     // initialization of static fields in c++ backend
 
-    public static def StaticInitBroadcastDispatcherAwait() {
+    public static def StaticInitBroadcastDispatcherLock() {
         runtime().monitor.lock();
+    }
+
+    public static def StaticInitBroadcastDispatcherAwait() {
         runtime().monitor.await();
+    }
+
+    public static def StaticInitBroadcastDispatcherUnlock() {
         runtime().monitor.unlock();
     }
 
     public static def StaticInitBroadcastDispatcherNotify() {
-        runtime().monitor.lock();
         runtime().monitor.release();
     }
 
@@ -806,14 +812,12 @@ import x10.util.Box;
         switch (pragma) {
         case Pragma.FINISH_ASYNC:
             f = new FinishState.FinishAsync(); break;
-        case Pragma.FINISH_ASYNC_AND_BACK:
-            f = new FinishState.FinishReturn(); break;
-        case Pragma.FINISH_ATEACH_UNIQUE:
-            f = new FinishState.FinishAtEach(); break;
+        case Pragma.FINISH_HERE:
+            f = new FinishState.FinishHere(); break;
+        case Pragma.FINISH_SPMD:
+            f = new FinishState.FinishSPMD(); break;
         case Pragma.FINISH_LOCAL:
             f = new FinishState.LocalFinish(); break;
-        case Pragma.FINISH_FLAT:
-            f = new FinishState.FinishFlat(); break;
         default: 
             f = new FinishState.Finish();
         }
@@ -873,7 +877,6 @@ import x10.util.Box;
     }
 
     public static def probe() {
-        event_probe();
         worker().probe();
     }
 
@@ -892,10 +895,7 @@ import x10.util.Box;
     }
 
     public static def spin() {
-        event_probe();
-        if (STATIC_THREADS) {
-            worker().probe();
-        }
+        probe();
     }
 }
 

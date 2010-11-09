@@ -8,6 +8,9 @@
  *
  *  (C) Copyright IBM Corporation 2006-2010.
  */
+/*****************************************************
+ * WARNING!  THIS IS A GENERATED FILE.  DO NOT EDIT! *
+ *****************************************************/
 
 package x10.parser;
 
@@ -77,6 +80,32 @@ public class X10KWLexer extends X10KWLexerprs
         tokenKind['x'] = Char_x;
         tokenKind['y'] = Char_y;
         tokenKind['z'] = Char_z;
+        tokenKind['A'] = Char_A;
+        tokenKind['B'] = Char_B;
+        tokenKind['C'] = Char_C;
+        tokenKind['D'] = Char_D;
+        tokenKind['E'] = Char_E;
+        tokenKind['F'] = Char_F;
+        tokenKind['G'] = Char_G;
+        tokenKind['H'] = Char_H;
+        tokenKind['I'] = Char_I;
+        tokenKind['J'] = Char_J;
+        tokenKind['K'] = Char_K;
+        tokenKind['L'] = Char_L;
+        tokenKind['M'] = Char_M;
+        tokenKind['N'] = Char_N;
+        tokenKind['O'] = Char_O;
+        tokenKind['P'] = Char_P;
+        tokenKind['Q'] = Char_Q;
+        tokenKind['R'] = Char_R;
+        tokenKind['S'] = Char_S;
+        tokenKind['T'] = Char_T;
+        tokenKind['U'] = Char_U;
+        tokenKind['V'] = Char_V;
+        tokenKind['W'] = Char_W;
+        tokenKind['X'] = Char_X;
+        tokenKind['Y'] = Char_Y;
+        tokenKind['Z'] = Char_Z;
     };
 
     final int getKind(char c)

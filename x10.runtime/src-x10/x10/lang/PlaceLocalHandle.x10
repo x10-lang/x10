@@ -76,7 +76,7 @@ public final struct PlaceLocalHandle[T]{T <: Object} {
     * will be initialized and available via the returned PlaceLocalHandle instance
     * at every place in the distribution.
     * 
-    * Require a single-exit initialization closure (no escaping async).
+    * Require an initialization closure that does not change place asynchronously.
     * 
     * @param dist A distribution specifiying the places where local objects should be created.
     * @param init the initialization closure used to create the local object.
@@ -84,7 +84,7 @@ public final struct PlaceLocalHandle[T]{T <: Object} {
     */
    public static def makeFlat[T](dist:Dist, init:()=>T){T <: Object}:PlaceLocalHandle[T] {
        val handle = at(Place.FIRST_PLACE) PlaceLocalHandle[T]();
-       @Pragma(Pragma.FINISH_FLAT) finish for (p in dist.places()) {
+       @Pragma(Pragma.FINISH_SPMD) finish for (p in dist.places()) {
            async at (p) handle.set(init());
        }
        return handle;

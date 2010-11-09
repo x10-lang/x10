@@ -52,6 +52,7 @@ import x10.ast.X10ConstructorDecl;
 import x10.ast.X10FieldDecl;
 import x10.ast.X10MethodDecl;
 import x10.ast.X10New;
+import x10.types.AnnotatedType;
 import x10.types.ConstrainedType;
 import x10.types.ParameterType;
 import x10.types.X10ClassDef;
@@ -464,13 +465,10 @@ public class X10InnerClassRemover extends InnerClassRemover {
             def.flags(def.flags().Static());
         }
         X10ParsedClassType st = qt;
-        qt = qt.instantiateTypeParametersExplicitly();
-        qt = propagateTypeArgumentsToInnermostType(qt);
-        if (qt != st) {
-            t = qt;
-            if (constraint != null) {
-                t = X10TypeMixin.xclause(t, fixConstraint(constraint));
-            }
+        t = X10TypeMixin.instantiateTypeParametersExplicitly(t);
+        t = propagateTypeArgumentsToInnermostType(t);
+        if (constraint != null) {
+            t = X10TypeMixin.xclause(t, fixConstraint(constraint));
         }
         return t;
     }
@@ -506,25 +504,47 @@ public class X10InnerClassRemover extends InnerClassRemover {
         return xneu;
     }
 
-    private X10ParsedClassType propagateTypeArgumentsToInnermostType(X10ParsedClassType t) {
-        if (t.isMember()) {
-            t = t.container(propagateTypeArgumentsToInnermostType((X10ParsedClassType) t.container()));
-            if (!t.flags().isStatic() || t.typeArguments() == null || t.typeArguments().size() != t.x10Def().typeParameters().size()) {
-                List<Type> containerArgs = t.container().typeArguments();
-                if (containerArgs != null && !containerArgs.isEmpty()) {
-                    List<Type> newTypeArgs = new ArrayList<Type>();
-                    if (t.typeArguments() != null)
-                        newTypeArgs.addAll(t.typeArguments());
-                    newTypeArgs.addAll(containerArgs);
-                    t = t.typeArguments(newTypeArgs);
+    private static Type propagateTypeArgumentsToInnermostType(Type t) {
+        if (t instanceof X10ParsedClassType) {
+            X10ParsedClassType ct = (X10ParsedClassType) t;
+            if (ct.isMember()) {
+                ct = ct.container((X10ClassType) propagateTypeArgumentsToInnermostType((X10ParsedClassType) ct.container()));
+                if (!ct.flags().isStatic() || ct.typeArguments() == null || ct.typeArguments().size() != ct.x10Def().typeParameters().size()) {
+                    List<Type> containerArgs = ct.container().typeArguments();
+                    if (containerArgs != null && !containerArgs.isEmpty()) {
+                        List<Type> newTypeArgs = new ArrayList<Type>();
+                        if (ct.typeArguments() != null)
+                            newTypeArgs.addAll(ct.typeArguments());
+                        newTypeArgs.addAll(containerArgs);
+                        ct = ct.typeArguments(newTypeArgs);
+                    }
+                }
+                ct = ct.container(resetTypeArguments((X10ParsedClassType) ct.container()));
+            }
+            List<Type> typeArguments = ct.typeArguments();
+            List<Type> newTypeArguments = typeArguments;
+            if (typeArguments != null) {
+                List<Type> res = new ArrayList<Type>();
+                for (Type a : typeArguments) {
+                    Type ia = propagateTypeArgumentsToInnermostType(a);
+                    if (ia != a)
+                        newTypeArguments = res;
+                    res.add(ia);
                 }
             }
-            t = t.container(resetTypeArguments((X10ParsedClassType) t.container()));
+            ct = ct.typeArguments(newTypeArguments);
+            return ct;
+        } else if (t instanceof ConstrainedType) {
+            ConstrainedType ct = (ConstrainedType) t;
+            t = ct.baseType(Types.ref(propagateTypeArgumentsToInnermostType(Types.get(ct.baseType()))));
+        } else if (t instanceof AnnotatedType) {
+            AnnotatedType at = (AnnotatedType) t;
+            t = at.baseType(propagateTypeArgumentsToInnermostType(at.baseType()));
         }
         return t;
     }
 
-    private X10ParsedClassType resetTypeArguments(X10ParsedClassType t) {
+    private static X10ParsedClassType resetTypeArguments(X10ParsedClassType t) {
         if (t.isMember()) {
             t = t.container(resetTypeArguments((X10ParsedClassType) t.container()));
         }

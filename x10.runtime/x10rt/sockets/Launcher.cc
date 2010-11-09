@@ -218,7 +218,7 @@ void Launcher::startChildren()
 					// see if the launcher argument applies to this place
 					char* p;
 					errno = 0;
-					if (strcasecmp("all", placenum) == 0 || ((_myproc == strtol(placenum, &p, 10)) && !(errno != 0 || *p != 0 || p == placenum)))
+					if (strcasecmp("all", placenum) == 0 || ((_myproc == (uint32_t)strtoul(placenum, &p, 10)) && !(errno != 0 || *p != 0 || p == placenum)))
 					{
 						// launch this runtime in a debugger
 						char** newargv;
@@ -869,14 +869,11 @@ void Launcher::cb_sighandler_cld(int signo)
 					sprintf(_singleton->_runtimePort, "PLACE_%u_IS_DEAD", _singleton->_myproc);
 				}
 			}
+			#ifdef DEBUG
 			else
-			{
-				if (!_singleton->_returncode) // don't overwrite the runtime exitcode, if already set
-					_singleton->_returncode = WEXITSTATUS(status);
-				#ifdef DEBUG
-					fprintf(stderr, "Launcher %d: SIGCHLD from child launcher for place %d (pid=%d), status=%d\n", _singleton->_myproc, i+_singleton->_firstchildproc, pid, WEXITSTATUS(status));
-				#endif
-			}
+				fprintf(stderr, "Launcher %d: SIGCHLD from child launcher for place %d (pid=%d), status=%d\n", _singleton->_myproc, i+_singleton->_firstchildproc, pid, WEXITSTATUS(status));
+			#endif
+
 			return;
 		}
 	}

@@ -139,6 +139,11 @@ public class X10CPPContext_c extends x10.types.X10Context_c implements Context {
     public String getStackAllocName() { return stackAllocName; }
     public void setStackAllocName(String s) { stackAllocName = s; }
     
+    // used internally, shallow
+    protected String embeddedFieldName = null;
+    public String getEmbeddedFieldName() { return embeddedFieldName; }
+    public void setEmbeddedFieldName(String s) { embeddedFieldName = s; }
+
     public boolean hasInits = false;
     
     public ClassifiedStream templateFunctions = null;

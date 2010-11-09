@@ -27,7 +27,7 @@ import x10.util.Ordered;
 //                 v-- when used
 @NativeRep("c++", "x10_int", "x10_int", null)
 //                            ^ when constructed
-public struct Int /*TODO implements Arithmetic[Int], Bitwise[Int], Ordered[Int]*/ {
+public struct Int implements Comparable[Int] /*TODO implements Arithmetic[Int], Bitwise[Int], Ordered[Int]*/ {
     /**
      * A less-than operator.
      * Compares the given Int with another Int and returns true if the given Int is
@@ -532,4 +532,14 @@ public struct Int /*TODO implements Arithmetic[Int], Bitwise[Int], Ordered[Int]*
     @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
     public native def equals(x:Int):Boolean;
+
+    /**
+     * Returns a negative Int, zero, or a positive Int if this Int is less than, equal
+     * to, or greater than the given Int.
+     * @param x the given Int
+     * @return a negative Int, zero, or a positive Int if this Int is less than, equal
+     * to, or greater than the given Int.
+     */
+    @Native("java", "x10.rtt.Equality.compareTo(#0, #1)")
+    public def compareTo(x:Int): Int = 0;
 }

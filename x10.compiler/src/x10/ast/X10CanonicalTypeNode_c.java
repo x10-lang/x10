@@ -292,7 +292,7 @@ public class X10CanonicalTypeNode_c extends CanonicalTypeNode_c implements X10Ca
             if (extras && X10TypeMixin.baseType(type.get()) instanceof X10ParsedClassType
                     && !(X10TypeMixin.baseType(type.get()) instanceof ClosureType_c)) {
                 List<Type> typeArguments = ((X10ParsedClassType) X10TypeMixin.baseType(type.get())).typeArguments();
-                if (typeArguments.size() > 0) {
+                if (typeArguments != null && typeArguments.size() > 0) {
                     w.write("[");
                     w.allowBreak(2, 2, "", 0); // miser mode
                     w.begin(0);

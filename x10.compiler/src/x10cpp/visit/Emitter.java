@@ -455,7 +455,7 @@ public class Emitter {
 	Type findRootMethodReturnType(X10MethodDef n, Position pos, MethodInstance from) {
 		assert from != null;
 		// [IP] Optimizations
-		X10Flags flags = X10Flags.toX10Flags(from.flags());
+		Flags flags = from.flags();
 		if (flags.isStatic() || flags.isPrivate() || flags.isProperty() || from.returnType().isVoid())
 			return from.returnType();
 
@@ -526,7 +526,7 @@ public class Emitter {
 	}
 	void printHeader(X10MethodDecl_c n, CodeWriter h, Translator tr, String name, Type ret, 
 	                 boolean qualify, boolean inlineDirective) {
-		X10Flags flags = X10Flags.toX10Flags(n.flags().flags());
+		Flags flags = n.flags().flags();
 		X10MethodDef def = (X10MethodDef) n.methodDef();
 		X10MethodInstance mi = (X10MethodInstance) def.asInstance();
 		X10ClassType container = (X10ClassType) mi.container();
@@ -546,7 +546,7 @@ public class Emitter {
 
 		if (!qualify) {
 			if (flags.isStatic())
-				h.write(flags.retain(Flags.STATIC).translate());
+				h.write(flags.retain(Flags.STATIC).translateJava());
 			else if (def.typeParameters().size() != 0) {
 			    X10ClassDef cd = (X10ClassDef) Types.get(def.container()).toClass().def();
 			    if (!flags.isFinal() && !cd.flags().isFinal() && !cd.isStruct()) {
@@ -870,7 +870,7 @@ public class Emitter {
 		h.begin(0);
 		if (!qualify) {
 			if (flags.isStatic())
-				h.write(flags.retain(Flags.STATIC).translate());
+				h.write(flags.retain(Flags.STATIC).translateJava());
 		}
 
 		if (query.hasAnnotation(n, "x10.lang.shared") || query.hasAnnotation(n, "x10.compiler.Volatile")) {
@@ -961,7 +961,7 @@ public class Emitter {
 
     void generateClassSerializationMethods(ClassType type, StreamWrapper sw) {
         X10ClassType ct = (X10ClassType) type.toClass();
-        TypeSystem ts = (TypeSystem) type.typeSystem();
+        X10TypeSystem_c ts = (X10TypeSystem_c) type.typeSystem();
         X10CPPContext_c context = (X10CPPContext_c) tr.context();
         Type parent = type.superClass();
         ClassifiedStream w = sw.body();
@@ -1116,7 +1116,7 @@ public class Emitter {
         w.newline(4); w.begin(0);
         if (type.isSubtype(ts.CustomSerialization(), context)) {
             w.writeln("/* NOTE: Implements x10.io.CustomSerialization */");
-            w.writeln(translateType(ts.Any(), true)+ "val_ = buf.read"+chevrons(translateType(ts.Any(), true))+"();");
+            w.writeln(translateType(ts.SerialData(), true)+ "val_ = buf.read"+chevrons(translateType(ts.SerialData(), true))+"();");
             w.writeln(CONSTRUCTOR+"(val_);");
         } else {
             if (parent != null && parent.isClass()) {

@@ -2,16 +2,18 @@
  * This file is part of the Polyglot extensible compiler framework.
  *
  * Copyright (c) 2000-2006 Polyglot project group, Cornell University
- * 
+ *
  */
 
 package polyglot.types;
+
+import x10.types.X10Flags;
 
 import java.io.Serializable;
 import java.util.*;
 
 /**
- * <code>Flags</code> is an immutable set of class, method, or field modifiers.
+ * <code>X10Flags</code> is an immutable set of class, method, or field modifiers.
  * We represent package scope as the absence of private, public and protected
  * scope modifiers.
  */
@@ -21,85 +23,44 @@ public class Flags implements Serializable
 
     protected Set<String> flags;
 
-    protected static class FlagComparator implements Comparator<String> {
-        protected static List<String> order = new ArrayList<String>(
-            Arrays.asList(new String[] {
-                "public", "private", "protected", "static", "final",
-                "synchronized", "transient", "native", "interface",
-                "abstract", "volatile", "strictfp"
-            }));
 
-        public int compare(String o1, String o2) {
-            if (o1.equals(o2)) return 0;
+    public static final X10Flags NONE         = new X10Flags();
+    public static final X10Flags PUBLIC       = createFlag("public", null);
+    public static final X10Flags PRIVATE      = createFlag("private", null);
+    public static final X10Flags PROTECTED    = createFlag("protected", null);
+    public static final X10Flags STATIC       = createFlag("static", null);
+    public static final X10Flags FINAL        = createFlag("final", null);
+    public static final X10Flags TRANSIENT    = createFlag("transient", null);
+    public static final X10Flags NATIVE       = createFlag("native", null);
+    public static final X10Flags INTERFACE    = createFlag("interface", null);
+    public static final X10Flags ABSTRACT     = createFlag("abstract", null);
+    public static final X10Flags JAVA_FLAGS     = PUBLIC.Private().Protected().Static().Final().Transient().Native().Interface().Abstract();
 
-            for (int i = 0; i < order.size(); i++) {
-                if (o1.equals(order.get(i))) return -1;
-                if (o2.equals(order.get(i))) return 1;
-            }
-
-            return o1.compareTo(o2);
-        }
-    }
-
-    public static final Flags NONE         = new Flags();
-    public static final Flags PUBLIC       = createFlag("public", null);
-    public static final Flags PRIVATE      = createFlag("private", null);
-    public static final Flags PROTECTED    = createFlag("protected", null);
-    public static final Flags STATIC       = createFlag("static", null);
-    public static final Flags FINAL        = createFlag("final", null);
-    public static final Flags SYNCHRONIZED = createFlag("synchronized", null);
-    public static final Flags TRANSIENT    = createFlag("transient", null);
-    public static final Flags NATIVE       = createFlag("native", null);
-    public static final Flags INTERFACE    = createFlag("interface", null);
-    public static final Flags ABSTRACT     = createFlag("abstract", null);
-    public static final Flags VOLATILE     = createFlag("volatile", null);
-    public static final Flags STRICTFP     = createFlag("strictfp", null);
+    public static final X10Flags VALUE = createFlag("value", null);
+    public static final X10Flags REFERENCE = createFlag("reference", null);
+    public static final X10Flags ATOMIC = createFlag("atomic", null);
+    public static final X10Flags PURE = createFlag("pure", null);
+    public static final X10Flags MUTABLE = createFlag("mutable", null);
+    public static final X10Flags PROPERTY = createFlag("property", null);
+    public static final X10Flags STRUCT = createFlag("struct", null);
+    public static final X10Flags CLOCKED = createFlag("clocked", null);
 
     /** All access flags. */
-    protected static final Flags ACCESS_FLAGS = PUBLIC.set(PRIVATE).set(PROTECTED);
+    protected static final X10Flags ACCESS_FLAGS = PUBLIC.set(PRIVATE).set(PROTECTED);
 
     /**
-     * Return a new Flags object with a new name.  Should be called only once
+     * Return a new X10Flags object with a new name.  Should be called only once
      * per name.
      *
      * @param name the name of the new flag
      * @param after the flags after which this flag should be printed;
-     *        Flags.NONE to print before all other flags, null
+     *        X10Flags.NONE to print before all other flags, null
      *        if we should print at the end.
      */
-    public static Flags createFlag(String name, Flags after) {
-        addToOrder(name, after);
-
-        return new Flags(name);
+    private static X10Flags createFlag(String name, X10Flags after) {
+        return new X10Flags(name);
     }
 
-    public static void addToOrder(String name, Flags after) {
-        List<String> order = FlagComparator.order;
-        boolean added = false;
-
-        if (after == null) {
-            order.add(name);
-        }
-        else if (after.flags.isEmpty()) {
-            order.add(0, name);
-        }
-        else {
-            for (ListIterator<String> i = order.listIterator(); i.hasNext(); ) {
-                String s = (String) i.next();
-                after = after.clear(new Flags(s));
-                if (after.flags.isEmpty()) {
-                    i.add(name);
-                    added = true;
-                    break;
-                }
-            }
-
-            if (! added) {
-                // shouldn't happen
-                order.add(name);
-            }
-        }
-    }
 
     /**
      * Effects: returns a new accessflags object with no accessflags set.
@@ -107,7 +68,6 @@ public class Flags implements Serializable
     protected Flags() {
         this.flags = new TreeSet<String>();
     }
-
     protected Flags(String name) {
         this();
         flags.add(name);
@@ -120,8 +80,8 @@ public class Flags implements Serializable
     /**
      * Create new flags with the flags in <code>other</code> also set.
      */
-    public Flags set(Flags other) {
-        Flags f = new Flags();
+    public X10Flags set(Flags other) {
+        X10Flags f = new X10Flags();
         f.flags.addAll(this.flags);
         f.flags.addAll(other.flags);
         return f;
@@ -130,8 +90,8 @@ public class Flags implements Serializable
     /**
      * Create new flags with the flags in <code>other</code> cleared.
      */
-    public Flags clear(Flags other) {
-        Flags f = new Flags();
+    public X10Flags clear(Flags other) {
+        X10Flags f = new X10Flags();
         f.flags.addAll(this.flags);
         f.flags.removeAll(other.flags);
         return f;
@@ -140,11 +100,15 @@ public class Flags implements Serializable
     /**
      * Create new flags with only flags in <code>other</code> set.
      */
-    public Flags retain(Flags other) {
-        Flags f = new Flags();
+    public X10Flags retain(Flags other) {
+        X10Flags f = new X10Flags();
         f.flags.addAll(this.flags);
         f.flags.retainAll(other.flags);
         return f;
+    }
+
+    public X10Flags retainJava() {
+        return retain(JAVA_FLAGS);
     }
 
     /**
@@ -170,7 +134,7 @@ public class Flags implements Serializable
      * Return a copy of this <code>this</code> with the <code>public</code>
      * flag set.
      */
-    public Flags Public() {
+    public X10Flags Public() {
 	return set(PUBLIC);
     }
 
@@ -178,7 +142,7 @@ public class Flags implements Serializable
      * Return a copy of this <code>this</code> with the <code>public</code>
      * flag clear.
      */
-    public Flags clearPublic() {
+    public X10Flags clearPublic() {
 	return clear(PUBLIC);
     }
 
@@ -193,7 +157,7 @@ public class Flags implements Serializable
      * Return a copy of this <code>this</code> with the <code>private</code>
      * flag set.
      */
-    public Flags Private() {
+    public X10Flags Private() {
 	return set(PRIVATE);
     }
 
@@ -201,7 +165,7 @@ public class Flags implements Serializable
      * Return a copy of this <code>this</code> with the <code>private</code>
      * flag clear.
      */
-    public Flags clearPrivate() {
+    public X10Flags clearPrivate() {
 	return clear(PRIVATE);
     }
 
@@ -216,7 +180,7 @@ public class Flags implements Serializable
      * Return a copy of this <code>this</code> with the <code>protected</code>
      * flag set.
      */
-    public Flags Protected() {
+    public X10Flags Protected() {
 	return set(PROTECTED);
     }
 
@@ -224,7 +188,7 @@ public class Flags implements Serializable
      * Return a copy of this <code>this</code> with the <code>protected</code>
      * flag clear.
      */
-    public Flags clearProtected() {
+    public X10Flags clearProtected() {
 	return clear(PROTECTED);
     }
 
@@ -239,7 +203,7 @@ public class Flags implements Serializable
      * Return a copy of this <code>this</code> with no access flags
      * (<code>public</code>, <code>private</code>, <code>protected</code>) set.
      */
-    public Flags Package() {
+    public X10Flags Package() {
         return clear(ACCESS_FLAGS);
     }
 
@@ -255,7 +219,7 @@ public class Flags implements Serializable
      * Return a copy of this <code>this</code> with the <code>static</code>
      * flag set.
      */
-    public Flags Static() {
+    public X10Flags Static() {
 	return set(STATIC);
     }
 
@@ -263,7 +227,7 @@ public class Flags implements Serializable
      * Return a copy of this <code>this</code> with the <code>static</code>
      * flag clear.
      */
-    public Flags clearStatic() {
+    public X10Flags clearStatic() {
 	return clear(STATIC);
     }
 
@@ -278,7 +242,7 @@ public class Flags implements Serializable
      * Return a copy of this <code>this</code> with the <code>final</code>
      * flag set.
      */
-    public Flags Final() {
+    public X10Flags Final() {
 	return set(FINAL);
     }
 
@@ -286,7 +250,7 @@ public class Flags implements Serializable
      * Return a copy of this <code>this</code> with the <code>final</code>
      * flag clear.
      */
-    public Flags clearFinal() {
+    public X10Flags clearFinal() {
 	return clear(FINAL);
     }
 
@@ -298,34 +262,10 @@ public class Flags implements Serializable
     }
 
     /**
-     * Return a copy of this <code>this</code> with the
-     * <code>synchronized</code> flag set.
-     */
-    public Flags Synchronized() {
-	return set(SYNCHRONIZED);
-    }
-
-    /**
-     * Return a copy of this <code>this</code> with the
-     * <code>synchronized</code> flag clear.
-     */
-    public Flags clearSynchronized() {
-	return clear(SYNCHRONIZED);
-    }
-
-    /**
-     * Return true if <code>this</code> has the <code>synchronized</code> flag
-     * set.
-     */
-    public boolean isSynchronized() {
-	return contains(SYNCHRONIZED);
-    }
-
-    /**
      * Return a copy of this <code>this</code> with the <code>transient</code>
      * flag set.
      */
-    public Flags Transient() {
+    public X10Flags Transient() {
 	return set(TRANSIENT);
     }
 
@@ -333,7 +273,7 @@ public class Flags implements Serializable
      * Return a copy of this <code>this</code> with the <code>transient</code>
      * flag clear.
      */
-    public Flags clearTransient() {
+    public X10Flags clearTransient() {
 	return clear(TRANSIENT);
     }
 
@@ -348,7 +288,7 @@ public class Flags implements Serializable
      * Return a copy of this <code>this</code> with the <code>native</code>
      * flag set.
      */
-    public Flags Native() {
+    public X10Flags Native() {
 	return set(NATIVE);
     }
 
@@ -356,7 +296,7 @@ public class Flags implements Serializable
      * Return a copy of this <code>this</code> with the <code>native</code>
      * flag clear.
      */
-    public Flags clearNative() {
+    public X10Flags clearNative() {
 	return clear(NATIVE);
     }
 
@@ -371,7 +311,7 @@ public class Flags implements Serializable
      * Return a copy of this <code>this</code> with the <code>interface</code>
      * flag set.
      */
-    public Flags Interface() {
+    public X10Flags Interface() {
 	return set(INTERFACE);
     }
 
@@ -379,7 +319,7 @@ public class Flags implements Serializable
      * Return a copy of this <code>this</code> with the <code>interface</code>
      * flag clear.
      */
-    public Flags clearInterface() {
+    public X10Flags clearInterface() {
 	return clear(INTERFACE);
     }
 
@@ -394,7 +334,7 @@ public class Flags implements Serializable
      * Return a copy of this <code>this</code> with the <code>abstract</code>
      * flag set.
      */
-    public Flags Abstract() {
+    public X10Flags Abstract() {
 	return set(ABSTRACT);
     }
 
@@ -402,7 +342,7 @@ public class Flags implements Serializable
      * Return a copy of this <code>this</code> with the <code>abstract</code>
      * flag clear.
      */
-    public Flags clearAbstract() {
+    public X10Flags clearAbstract() {
 	return clear(ABSTRACT);
     }
 
@@ -413,51 +353,153 @@ public class Flags implements Serializable
 	return contains(ABSTRACT);
     }
 
+
+
+
     /**
-     * Return a copy of this <code>this</code> with the <code>volatile</code>
+     * Return a copy of this <code>this</code> with the <code>value</code> flag
+     * set.
+     */
+    public X10Flags Value() {
+        return set(VALUE);
+    }
+
+    /**
+     * Return a copy of this <code>this</code> with the <code>value</code> flag
+     * clear.
+     */
+    public X10Flags clearValue() {
+        return clear(VALUE);
+    }
+
+    /**
+     * Return true if <code>this</code> has the <code>value</code> flag set.
+     */
+    public boolean isValue() {
+        return contains(VALUE);
+    }
+
+    public static boolean isValue(Flags flags) {
+        return flags.contains(VALUE);
+    }
+
+
+    /**
+     * Return a copy of this <code>this</code> with the <code>atomic</code> flag
+     * set.
+     */
+    public X10Flags Atomic() {
+        return set(ATOMIC);
+    }
+
+    /**
+     * Return a copy of this <code>this</code> with the <code>atomic</code> flag
+     * clear.
+     */
+    public X10Flags clearAtomic() {
+        return clear(ATOMIC);
+    }
+
+    /**
+     * Return true if <code>this</code> has the <code>atomic</code> flag set.
+     */
+    public boolean isAtomic() {
+        return contains(ATOMIC);
+    }
+
+    /**
+     * Return a copy of this <code>this</code> with the <code>pure</code> flag
+     * set.
+     */
+    public X10Flags Pure() {
+        return set(PURE);
+    }
+
+    /**
+     * Return a copy of this <code>this</code> with the <code>pure</code> flag
+     * clear.
+     */
+    public X10Flags clearPure() {
+        return clear(PURE);
+    }
+
+    /**
+     * Return true if <code>this</code> has the <code>pure</code> flag set.
+     */
+    public boolean isPure() {
+        return contains(PURE);
+    }
+
+    /**
+     * Return a copy of this <code>this</code> with the <code>struct</code> flag
+     * set.
+     */
+    public X10Flags Struct() {
+        return set(STRUCT);
+    }
+
+    /**
+     * Return a copy of this <code>this</code> with the <code>struct</code> flag
+     * clear.
+     */
+    public X10Flags clearStruct() {
+        return clear(STRUCT);
+    }
+
+    /**
+     * Return true if <code>this</code> has the <code>struct</code> flag set.
+     */
+    public boolean isStruct() {
+        return contains(STRUCT);
+    }
+
+    /**
+     * Return a copy of this <code>this</code> with the <code>property</code>
      * flag set.
      */
-    public Flags Volatile() {
-	return set(VOLATILE);
+    public X10Flags Property() {
+        return set(PROPERTY);
     }
 
     /**
-     * Return a copy of this <code>this</code> with the <code>volatile</code>
+     * Return a copy of this <code>this</code> with the <code>property</code>
      * flag clear.
      */
-    public Flags clearVolatile() {
-	return clear(VOLATILE);
+    public X10Flags clearProperty() {
+        return clear(PROPERTY);
     }
 
     /**
-     * Return true if <code>this</code> has the <code>volatile</code> flag set.
+     * Return true if <code>this</code> has the <code>property</code> flag set.
      */
-    public boolean isVolatile() {
-	return contains(VOLATILE);
+    public boolean isProperty() {
+        return contains(PROPERTY);
     }
 
     /**
-     * Return a copy of this <code>this</code> with the <code>strictfp</code>
+     * Return a copy of this <code>this</code> with the <code>pinned</code>
      * flag set.
      */
-    public Flags StrictFP() {
-	return set(STRICTFP);
+    public X10Flags Clocked() {
+        return set(CLOCKED);
     }
 
     /**
-     * Return a copy of this <code>this</code> with the <code>strictfp</code>
+     * Return a copy of this <code>this</code> with the <code>pinned</code>
      * flag clear.
      */
-    public Flags clearStrictFP() {
-	return clear(STRICTFP);
+    public X10Flags clearClocked() {
+        return clear(CLOCKED);
     }
 
     /**
-     * Return true if <code>this</code> has the <code>strictfp</code> flag set.
+     * Return true if <code>this</code> has the <code>pinned</code> flag
+     * set.
      */
-    public boolean isStrictFP() {
-	return contains(STRICTFP);
+    public boolean isClocked() {
+        return contains(CLOCKED);
     }
+
 
     /**
      * Return true if <code>this</code> has more restrictive access flags than
@@ -480,12 +522,26 @@ public class Flags implements Serializable
     }
 
     public String toString() {
-        return translate().trim();
+        StringBuffer sb = new StringBuffer();
+
+        for (Iterator<String> i = this.flags.iterator(); i.hasNext();) {
+            String s = i.next();
+
+            sb.append(s);
+            if (i.hasNext())
+                sb.append(" ");
+        }
+
+        return sb.toString();
+
     }
 
     /**
      * Return "" if no flags set, or toString() + " " if some flags are set.
      */
+    public String translateJava() {
+        return retainJava().translate();
+    }
     public String translate() {
         StringBuffer sb = new StringBuffer();
 
@@ -502,6 +558,20 @@ public class Flags implements Serializable
     }
 
     public boolean equals(Object o) {
-	return o instanceof Flags && flags.equals(((Flags) o).flags);
+	return o instanceof X10Flags && flags.equals(((Flags) o).flags);
+    }
+
+
+
+    public String prettyPrint() {
+        return translate();
+    }
+
+    public boolean hasAllAnnotationsOf(Flags f) {
+        boolean result = true;
+        // Report.report(1, "X10Flags: " + this + ".hasAllAnnotationsOf(" + f +
+        // ")? " + result);
+        return result;
+
     }
 }

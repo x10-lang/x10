@@ -11,6 +11,7 @@
 
 package x10.lang;
 
+import x10.io.SerialData;
 import x10.util.HashMap;
 
 /**
@@ -20,8 +21,7 @@ import x10.util.HashMap;
  */
 class Activity {
 
-    // FIXME: remove implements clause when codegen has been fixed (XTENLANG-1961)
-    static class ClockPhases extends HashMap[Clock,Int] implements x10.io.CustomSerialization {
+    static class ClockPhases extends HashMap[Clock,Int] {
         // compute spawnee clock phases from spawner clock phases in async clocked(clocks)
         // and register spawnee on these on clocks
         static def make(clocks:Array[Clock]{rail}) {
@@ -49,12 +49,16 @@ class Activity {
         }
 
         // HashMap implements CustomSerialization, so we must as well
-        // Only constructor is actually required, but stub out serialize as well
-        // as a reminder that if instance fields are added to ClockPhases then
-        // work will have to be done here to serialize them.
-        public def serialize() = super.serialize();
+        public def serialize():SerialData {
+	    // minor optimization instead of doing:
+            //    new SerialData(null, super.serialize())
+            // just return super.serialize() directly
+            return super.serialize();
+        }
         def this() { super(); }
-        def this(a:Any) { super(a); }
+        def this(a:SerialData) { 
+            super(a);  // see optimization in serialize();
+        }
     }
 
     /**

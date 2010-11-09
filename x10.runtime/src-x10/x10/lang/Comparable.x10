@@ -11,6 +11,9 @@
 
 package x10.lang;
 
+import x10.compiler.Native;
+import x10.compiler.NativeRep;
+
 // FIXME: fold into Ordered[T]
 /**
  * This interface imposes a total ordering on the entities of each type that implements it.
@@ -21,6 +24,7 @@ package x10.lang;
  *
  * @param T the type of entities that this entity may be compared to
  */
+@NativeRep("java", "java.lang.Comparable<#1>", null, "new x10.rtt.ParameterizedType(x10.rtt.Types.COMPARABLE, #2)")
 public interface Comparable[T] {
     /**
      * Compare this entity with the given entity in the total order defined by the type.
@@ -36,6 +40,7 @@ public interface Comparable[T] {
      * @return a negative integer, zero, or a positive integer if this entity is less than, equal
      * to, or greater than the given entity.
      */
+	@Native("java", "#0.compareTo(#1)")
     def compareTo(that:T):Int;
 }
 

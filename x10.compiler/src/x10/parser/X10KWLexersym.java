@@ -8,6 +8,9 @@
  *
  *  (C) Copyright IBM Corporation 2006-2010.
  */
+/*****************************************************
+ * WARNING!  THIS IS A GENERATED FILE.  DO NOT EDIT! *
+ *****************************************************/
 
 package x10.parser;
 
@@ -39,6 +42,31 @@ public interface X10KWLexersym {
       Char_x = 23,
       Char_y = 15,
       Char_z = 28,
+      Char_A = 29,
+      Char_B = 30,
+      Char_C = 31,
+      Char_D = 32,
+      Char_E = 33,
+      Char_F = 34,
+      Char_G = 35,
+      Char_H = 36,
+      Char_I = 37,
+      Char_J = 38,
+      Char_K = 39,
+      Char_L = 40,
+      Char_M = 41,
+      Char_N = 42,
+      Char_O = 43,
+      Char_P = 44,
+      Char_Q = 45,
+      Char_R = 46,
+      Char_S = 47,
+      Char_T = 48,
+      Char_U = 49,
+      Char_V = 50,
+      Char_W = 51,
+      Char_X = 52,
+      Char_Y = 53,
       Char_Z = 24,
       Char_EOF = 25;
 
@@ -71,7 +99,32 @@ public interface X10KWLexersym {
                  "EOF",
                  "j",
                  "q",
-                 "z"
+                 "z",
+                 "A",
+                 "B",
+                 "C",
+                 "D",
+                 "E",
+                 "F",
+                 "G",
+                 "H",
+                 "I",
+                 "J",
+                 "K",
+                 "L",
+                 "M",
+                 "N",
+                 "O",
+                 "P",
+                 "Q",
+                 "R",
+                 "S",
+                 "T",
+                 "U",
+                 "V",
+                 "W",
+                 "X",
+                 "Y"
              };
 
     public final static int numTokenKinds = orderedTerminalSymbols.length;

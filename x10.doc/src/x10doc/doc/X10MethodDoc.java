@@ -236,7 +236,7 @@ public class X10MethodDoc extends X10Doc implements MethodDoc {
 
 	public boolean isSynchronized() {
 		System.out.println(name() + ".isSynchronized() called.");
-		return methodDef.flags().isSynchronized();
+		return false;
 	}
 
 	public boolean isVarArgs() {

@@ -83,6 +83,7 @@ import polyglot.ast.Do_c;
 import polyglot.ast.Empty_c;
 import polyglot.ast.Eval_c;
 import polyglot.ast.Expr;
+import polyglot.ast.FieldAssign;
 import polyglot.ast.FieldDecl_c;
 import polyglot.ast.Field_c;
 import polyglot.ast.FloatLit_c;
@@ -792,6 +793,21 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		            Type fct = fi.type();
 		            if (!dupes.contains(fct)) {
 		                dupes.add(fct);
+		                if (!((X10FieldInstance) fi).annotationsMatching(xts.load("x10.compiler.Embed")).isEmpty()) {
+		                    ArrayList<ClassType> types = new ArrayList<ClassType>();
+                            extractAllClassTypes(fct, types, dupes2);
+                            for (ClassType t : types) {
+                                X10ClassDef cd = ((X10ClassType)t).x10Def();
+                                if (cd != def && getCppRep(cd) == null) {
+                                    String header = getHeader(t);
+                                    String guard = getHeaderGuard(header);
+                                    h.writeln("#define "+guard+"_NODEPS");
+                                    h.writeln("#include <" + header + ">");
+                                    h.writeln("#undef "+guard+"_NODEPS");
+                                    allIncludes.add(t);
+                                }
+                            }
+		                }
 		                if (xts.isStructType(fct)) {
 		                    String header = getStructHeader(fct.toClass());
 		                    String guard = getHeaderGuard(header);
@@ -1667,7 +1683,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		// types, check if C++ does the right thing.
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
 		X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
-		X10Flags flags = X10Flags.toX10Flags(dec.flags().flags());
+		Flags flags = dec.flags().flags();
 		if (flags.isNative())
 			return;
 
@@ -1952,7 +1968,10 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    sw.newline(); sw.forceNewline();
 	}
 
-
+	private String embeddedName(Name name) {
+	    return "_Embed_"+mangled_non_method_name(name.toString());
+	}
+	
 	public void visit(FieldDecl_c dec) {
 	    // FIXME: HACK: skip synthetic serialization fields
 	    if (query.isSyntheticField(dec.name().id().toString()))
@@ -1966,10 +1985,30 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	        return;
 	    }
 
-	    ClassifiedStream h = !isStatic && declaringClass.isX10Struct() ? context.structHeader : sw.header();
-	    sw.pushCurrentStream(h);
-	    emitter.printHeader(dec, sw, tr, false);
-	    sw.popCurrentStream();
+        ClassifiedStream h = !isStatic && declaringClass.isX10Struct() ? context.structHeader : sw.header();
+        sw.pushCurrentStream(h);
+
+        TypeSystem xts = context.typeSystem();
+        
+        boolean embed = false;
+        try {
+            Type annotation = (Type) xts.systemResolver().find(QName.make("x10.compiler.Embed"));
+            if (!((X10Ext) dec.ext()).annotationMatching(annotation).isEmpty()) {
+                embed = true;
+//                System.err.println("@StackAllocate " + dec);
+            }
+        } catch (SemanticException e) { 
+            /* Ignore exception when looking for annotation */  
+        }
+        
+        if (embed) {
+            String tmpName = embeddedName(dec.name().id());
+            sw.writeln(Emitter.translateType(dec.type().type(), false)+" "+tmpName+";");
+        }
+
+        emitter.printHeader(dec, sw, tr, false);
+        sw.popCurrentStream();
+
 	    // Ignore the initializer -- this will have been done in extractInits/extractStaticInits
 	    // FIXME: the above breaks switch constants!
 	    h.write(";");
@@ -2004,7 +2043,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	private static final String STATIC_FIELD_UNINITIALIZED = "x10aux::UNINITIALIZED";
 	private static final String STATIC_FIELD_INITIALIZING = "x10aux::INITIALIZING";
 	private static final String STATIC_FIELD_INITIALIZED = "x10aux::INITIALIZED";
-	private static final String STATIC_INIT_AWAIT = "x10aux::StaticInitBroadcastDispatcher::await";
+    private static final String STATIC_INIT_LOCK = "x10aux::StaticInitBroadcastDispatcher::lock";
+    private static final String STATIC_INIT_AWAIT = "x10aux::StaticInitBroadcastDispatcher::await";
+	private static final String STATIC_INIT_UNLOCK = "x10aux::StaticInitBroadcastDispatcher::unlock";
 	private static final String STATIC_INIT_NOTIFY_ALL = "x10aux::StaticInitBroadcastDispatcher::notify";
 
 	private static final String UNUSED = "X10_PRAGMA_UNUSED";
@@ -2092,15 +2133,19 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    sw.newline();
 	    sw.write("// Notify all waiting threads");
 	    sw.newline();
+        sw.write(STATIC_INIT_LOCK + "();");
+        sw.newline();
 	    sw.write(STATIC_INIT_NOTIFY_ALL + "();");
 	    sw.end(); sw.newline();
 	    sw.write("}"); sw.newline();
 	    sw.write("WAIT:"); sw.newline();
 	    sw.write("if ("+status+" != " + STATIC_FIELD_INITIALIZED + ") {"); sw.begin(4); sw.newline();
+        sw.write(STATIC_INIT_LOCK + "();"); sw.newline();
 	    sw.write("_SI_(\"WAITING for field: "+container+"."+name+" to be initialized\");"); sw.newline();
 	    sw.write("while ("+status+" != " + STATIC_FIELD_INITIALIZED + ") " + STATIC_INIT_AWAIT + "();"); sw.newline();
 	    sw.write("_SI_(\"CONTINUING because field: "+container+"."+name+" has been initialized\");");
-	    sw.end(); sw.newline();
+	    sw.newline();
+        sw.write(STATIC_INIT_UNLOCK + "();"); sw.end(); sw.newline();
 	    sw.write("}");
 	    sw.end(); sw.newline();
 	    sw.write("}");
@@ -2185,6 +2230,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	        sw.write(container+"::"+status+" = " + STATIC_FIELD_INITIALIZED + ";");
 	        sw.newline();
 	        sw.write("// Notify all waiting threads");
+            sw.newline();
+            sw.write(STATIC_INIT_LOCK + "();");
 	        sw.newline();
 	        sw.write(STATIC_INIT_NOTIFY_ALL + "();");
 	        sw.newline();
@@ -2378,11 +2425,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 
 	public void visit(Assign_c asgn) {
+        X10CPPContext_c context = (X10CPPContext_c) tr.context();
 	    boolean unsigned_op = false;
 	    String opString = asgn.operator().toString();
 	    NodeFactory nf = tr.nodeFactory();
 	    X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
-	    Context context = tr.context();
 
 	    // TODO
 //	    // Boolean short-circuiting operators are ok
@@ -2423,7 +2470,21 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    }
 	    if (unsigned_op)
 	        sw.write("(("+emitter.makeUnsignedType(rhs.type())+")");
+	    Boolean embed = false;
+        if (asgn instanceof FieldAssign) {
+            FieldInstance fi = ((FieldAssign) asgn).fieldInstance();
+            if (!((X10FieldInstance) fi).annotationsMatching(tr.typeSystem().load("x10.compiler.Embed")).isEmpty()) {
+                embed = true;
+            }
+        }
+        if (embed) {
+            FieldInstance fi = ((FieldAssign) asgn).fieldInstance();
+            context.setEmbeddedFieldName(embeddedName(fi.name()));
+        }
 	    asgn.printSubExpr(rhs, true, sw, tr);
+        if (embed) {
+            context.setEmbeddedFieldName(null);
+        }
 	    if (unsigned_op)
 	        sw.write("))");
 	    if (rhsNeedsCast) {
@@ -2846,7 +2907,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		    }
 		}
 
-		X10Flags flags = X10Flags.toX10Flags(mi.flags());
+		Flags flags = mi.flags();
 		// Check for properties accessed using method syntax.  They may have @Native annotations too.
 		if (flags.isProperty() && mi.formalTypes().size() == 0 && mi.typeParameters().size() == 0) {
 		    X10FieldInstance fi = (X10FieldInstance) md.container().get().fieldNamed(mi.name());
@@ -2940,7 +3001,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		    boolean already_static = false;
 		    String targetMethodName = mangled_method_name(n.name().id().toString());
 		    boolean isInterfaceInvoke = false;
-		    X10Flags xf = X10Flags.toX10Flags(mi.flags());
 		    boolean needsNullCheck = needsNullCheck(target);
 		    if (!n.isTargetImplicit()) {
 		        // explicit target.
@@ -3230,7 +3290,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				sw.end();
 				return;
 			} else {
-			    X10Flags xf = X10Flags.toX10Flags(fi.flags());
 			    boolean needsNullCheck = !X10TypeMixin.isX10Struct(t) && needsNullCheck(target);
 				boolean assoc = !(target instanceof New_c || target instanceof Binary_c);
 				if (needsNullCheck) sw.write("x10aux::nullCheck(");
@@ -3269,6 +3328,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		TypeSystem xts = (TypeSystem)context.typeSystem();
 		ConstructorInstance constructor = n.constructorInstance();
 		boolean stackAllocate = false;
+        boolean embed = false;
 
         // Danger Will Robinson! Give programmer plenty of rope to hang themselves!!
         // If there's a @StackAllocate annotation on a new expression, then do what
@@ -3281,6 +3341,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		        stackAllocate = true;
 //		        System.err.println("@StackAllocate " + n);
 		    }
+            Type annotation2 = (Type) xts.systemResolver().find(QName.make("x10.compiler.Embed"));
+            if (!((X10Ext) n.ext()).annotationMatching(annotation2).isEmpty()) {
+                embed = true;
+//              System.err.println("@StackAllocate " + n);
+            }
 		} catch (SemanticException e) {}
 		
 		if (n.qualifier() != null)
@@ -3304,6 +3369,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		} else {
 		    if (stackAllocate) {
 		        sw.write(context.getStackAllocName()+"._constructor(");
+		    } else if (embed) {
+                sw.write("&"+context.getEmbeddedFieldName()+";");
+                sw.newline();
+                sw.write(context.getEmbeddedFieldName()+"._constructor(");
+		        
 		    } else {
 		        sw.write(Emitter.translateType(n.objectType().type())+"::"+MAKE+"(");
 		    }
@@ -3816,7 +3886,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		X10ClassType currClass = (X10ClassType)context.currentClass();
 		boolean doubleTemplate = currClass.typeArguments() != null && currClass.typeArguments().size() > 0;
 
-		X10Flags xf = X10Flags.toX10Flags(mi.flags());
 		boolean needsNullCheck = needsNullCheck(domain);
 		if (mi.container().toClass().flags().isInterface()) {
 		    sw.write(make_ref(REFERENCE_TYPE) + " " + name + " = "+iteratorTypeRef+"(");
@@ -4548,7 +4617,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		//    (b) a function type
 		//    (c) an class (anonymous or not) that has an apply operator
 		Type t = target.type();
-		X10Flags xf = X10Flags.toX10Flags(mi.flags());
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
 		boolean needsNullCheck = needsNullCheck(target);
 		if (lit != null) {

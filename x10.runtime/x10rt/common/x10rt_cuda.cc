@@ -109,12 +109,27 @@ namespace {
                 errstr = "CUDA_ERROR_NOT_MAPPED_AS_POINTER"; break;
             case CUDA_ERROR_ECC_UNCORRECTABLE:
                 errstr = "CUDA_ERROR_ECC_UNCORRECTABLE"; break;
+            #if CUDA_VERSION < 3020
             case CUDA_ERROR_POINTER_IS_64BIT:
                 errstr = "CUDA_ERROR_POINTER_IS_64BIT"; break;
             case CUDA_ERROR_SIZE_IS_64BIT:
                 errstr = "CUDA_ERROR_SIZE_IS_64BIT"; break;
             #endif
+            #endif
+
+            #if CUDA_VERSION >= 3010
+            case CUDA_ERROR_UNSUPPORTED_LIMIT:
+                errstr = "CUDA_ERROR_UNSUPPORTED_LIMIT"; break;
+            case CUDA_ERROR_SHARED_OBJECT_SYMBOL_NOT_FOUND:
+                errstr = "CUDA_ERROR_SHARED_OBJECT_SYMBOL_NOT_FOUND"; break;
+            case CUDA_ERROR_SHARED_OBJECT_INIT_FAILED:
+                errstr = "CUDA_ERROR_SHARED_OBJECT_INIT_FAILED"; break;
+            #endif
         
+            #if CUDA_VERSION >= 3020
+            case CUDA_ERROR_OPERATING_SYSTEM:
+                errstr = "CUDA_ERROR_OPERATING_SYSTEM"; break;
+            #endif
         }
         fprintf(stderr,"%s (At %s:%d)\n",errstr,file,line);
         abort();
@@ -152,7 +167,7 @@ namespace {
         virtual bool is_copy() { return false; }
     };
 
-    #define CUDA_PARAM_SZ 240
+    #define CUDA_PARAM_SZ 256
     #define CUDA_CMEM_SZ (64*1024)
     struct BaseOpKernel : BaseOp<BaseOpKernel> {
         size_t blocks;
@@ -294,6 +309,11 @@ struct x10rt_cuda_ctx {
     void swapBuffers (void) { void *tmp = front; front = back; back = tmp; }
 };
 
+#if CUDA_VERSION >= 3020
+typedef size_t cuda_size_t;
+#else
+typedef unsigned int cuda_size_t;
+#endif
 
 #endif
 
@@ -370,15 +390,16 @@ void x10rt_cuda_register_msg_receiver (x10rt_cuda_ctx *ctx, x10rt_msg_type msg_t
     }
     CU_SAFE(r);
 
-    CUdeviceptr cmem;
-    unsigned int cmem_sz;
+    CUdeviceptr cmem = NULL;
+    cuda_size_t cmem_sz;
     r = cuModuleGetGlobal(&cmem, &cmem_sz, mod, "__cmem");
     if (r==CUDA_ERROR_NOT_FOUND) {
         fprintf(stderr, "Couldn't find __cmem in \"%s\".\n", cubin);
-        abort();
+        //abort();
+    } else {
+        CU_SAFE(r);
+        assert(cmem_sz == CUDA_CMEM_SZ);
     }
-    CU_SAFE(r);
-    assert(cmem_sz == CUDA_CMEM_SZ);
     
     //TODO: re-use the same CUmodule
 
@@ -442,8 +463,9 @@ void *x10rt_cuda_device_alloc (x10rt_cuda_ctx *ctx,
     CU_SAFE(cuCtxPushCurrent(ctx->ctx));
     CUdeviceptr ptr;
     ctx->commit += len;
-    DEBUG(2,"CUDA committed memory: %llu bytes\n", (unsigned long long)ctx->commit);
     CU_SAFE(cuMemAlloc(&ptr, len));
+    DEBUG(1,"CUDA allocated memory: %llu bytes (%p)\n", (unsigned long long)len, ptr);
+    DEBUG(2,"CUDA committed memory: %llu bytes\n", (unsigned long long)ctx->commit);
     CU_SAFE(cuCtxPopCurrent(NULL));
     pthread_mutex_unlock(&big_lock_of_doom);
     return (void*)ptr;
@@ -461,6 +483,7 @@ void x10rt_cuda_device_free (x10rt_cuda_ctx *ctx,
 #ifdef ENABLE_CUDA
     pthread_mutex_lock(&big_lock_of_doom);
     CU_SAFE(cuCtxPushCurrent(ctx->ctx));
+    DEBUG(1,"CUDA free'd memory: %p\n", ptr);
     CU_SAFE(cuMemFree((CUdeviceptr)(size_t)ptr));
     CU_SAFE(cuCtxPopCurrent(NULL));
     pthread_mutex_unlock(&big_lock_of_doom);
@@ -694,12 +717,14 @@ void x10rt_cuda_probe (x10rt_cuda_ctx *ctx)
                 assert(kop->is_kernel());
                 assert(!kop->begun);
                 x10rt_msg_type type = kop->p.type;
-                if (kop->cmemc > 0)
-                    CU_SAFE(cuMemcpyHtoD(ctx->cbs[type].kernel_cbs.cmem, kop->cmemv, kop->cmemc));
                 CUfunction k = ctx->cbs[type].kernel_cbs.kernel;
+                DEBUG(1,"%p<<<%d,%d,%d>>> argc: %d  argv: %p  cmemc: %d  cmemv: %p\n",
+                      (void*)k, kop->blocks, kop->threads, kop->shm, kop->argc, (void*)kop->argv, kop->cmemc, kop->cmemv);
+                CUdeviceptr cmem = ctx->cbs[type].kernel_cbs.cmem;
+                if (kop->cmemc > 0 && cmem!=0)
+                    CU_SAFE(cuMemcpyHtoD(cmem, kop->cmemv, kop->cmemc));
                 // y and z params we leave as 1, as threads can vary from 1 to 512
                 CU_SAFE(cuFuncSetBlockShape(k, kop->threads, 1, 1));
-                DEBUG(1,"%p<<<%d,%d,%d>>> argc: %d  argv: %p\n", (void*)k, kop->blocks, kop->threads, kop->shm, kop->argc, (void*)kop->argv);
                 CU_SAFE(cuParamSetv(k, 0, &kop->argv[0], kop->argc));
                 CU_SAFE(cuParamSetSize(k, kop->argc));
                 CU_SAFE(cuFuncSetSharedSize(k, kop->shm));

@@ -218,8 +218,8 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
         n = (X10ConstructorDecl_c) n.hasType(htn);
         
         if (returnType == null) {
-            X10ParsedClassType rType = (X10ParsedClassType) currentClass.asType();
-            rType = rType.instantiateTypeParametersExplicitly();
+            Type rType = currentClass.asType();
+            rType = X10TypeMixin.instantiateTypeParametersExplicitly(rType);
             n = (X10ConstructorDecl_c) n.returnType(nf.CanonicalTypeNode(n.position(), rType));
         }
         

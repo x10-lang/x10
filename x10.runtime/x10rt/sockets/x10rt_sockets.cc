@@ -74,7 +74,7 @@ void error(const char* message)
 
 void handleConnectionRequest()
 {
-	int newFD = TCP::accept(state.socketLinks[state.myPlaceId].fd, false);
+	int newFD = TCP::accept(state.socketLinks[state.myPlaceId].fd, true);
 	if (newFD > 0)
 	{
 		struct ctrl_msg m;
@@ -113,6 +113,12 @@ void handleConnectionRequest()
 			pthread_mutex_init(&state.writeLocks[from], NULL);
 	    	state.socketLinks[from].fd = newFD;
 			state.socketLinks[from].events = POLLIN | POLLPRI;
+			// set SO_LINGER
+			struct linger linger;
+			linger.l_onoff = 1;
+			linger.l_linger = 1;
+			if (setsockopt(newFD, SOL_SOCKET, SO_LINGER, &linger, sizeof(linger)) < 0)
+				error("Error setting SO_LINGER on incoming socket");
 			return;
 		}
 	}
@@ -196,6 +202,9 @@ int initLink(uint32_t remotePlace)
 			// redundant or not.  Otherwise, we set the FD and continue on, assuming that the connection is good.
 			if (m.to > state.myPlaceId)
 			{
+				#ifdef DEBUG
+					printf("X10rt.Sockets: Place %u waiting for response from place %u\n", state.myPlaceId, remotePlace);
+				#endif
 				r = TCP::read(newFD, &m, sizeof(m));
 				if (r != sizeof(m))
 				{
@@ -209,6 +218,13 @@ int initLink(uint32_t remotePlace)
 				pthread_mutex_init(&state.writeLocks[remotePlace], NULL);
 				state.socketLinks[remotePlace].fd = newFD;
 				state.socketLinks[remotePlace].events = POLLIN | POLLPRI;
+
+				// set SO_LINGER
+				struct linger linger;
+				linger.l_onoff = 1;
+				linger.l_linger = 1;
+				if (setsockopt(newFD, SOL_SOCKET, SO_LINGER, &linger, sizeof(linger)) < 0)
+					error("Error setting SO_LINGER on outgoing socket");
 				#ifdef DEBUG
 					printf("X10rt.Sockets: Place %u established a link to place %u\n", state.myPlaceId, remotePlace);
 				#endif
@@ -516,25 +532,19 @@ void probe (bool onlyProcessAccept)
 		}
 		pthread_mutex_unlock(&state.readLock);
 
-		if ((state.socketLinks[whichPlaceToHandle].revents & POLLHUP) || (state.socketLinks[whichPlaceToHandle].revents & POLLERR) || (state.socketLinks[whichPlaceToHandle].revents & POLLNVAL))
-		{
-			#ifdef DEBUG
-				printf("X10rt.Sockets: place %u detected a broken link to place %u!\n", state.myPlaceId, whichPlaceToHandle);
-			#endif
-
-			// link is broken.  Close it down.
-			close(state.socketLinks[whichPlaceToHandle].fd);
-			state.socketLinks[whichPlaceToHandle].fd = -1;
-			// TODO - notify the runtime of this?
-		}
-		else if ((state.socketLinks[whichPlaceToHandle].revents & POLLIN) || (state.socketLinks[whichPlaceToHandle].revents & POLLPRI))
+		if ((state.socketLinks[whichPlaceToHandle].revents & POLLIN) || (state.socketLinks[whichPlaceToHandle].revents & POLLPRI))
 		{
 			#ifdef DEBUG_MESSAGING
 				printf("X10rt.Sockets: place %u probe processing a message from place %u\n", state.myPlaceId, whichPlaceToHandle);
 			#endif
 
 			if (whichPlaceToHandle == state.myPlaceId) // special case.  This is an incoming connection request.
+			{
 				handleConnectionRequest();
+				pthread_mutex_lock(&state.readLock);
+				state.socketLinks[whichPlaceToHandle].events = POLLIN | POLLPRI;
+				pthread_mutex_unlock(&state.readLock);
+			}
 			else
 			{
 				// Format: type, p.type, p.len, p.msg
@@ -681,6 +691,20 @@ void probe (bool onlyProcessAccept)
 					free(mp.msg);
 			}
 		}
+		else if ((state.socketLinks[whichPlaceToHandle].revents & POLLHUP) || (state.socketLinks[whichPlaceToHandle].revents & POLLERR) || (state.socketLinks[whichPlaceToHandle].revents & POLLNVAL))
+		{
+			#ifdef DEBUG
+				printf("X10rt.Sockets: place %u detected a broken link to place %u!\n", state.myPlaceId, whichPlaceToHandle);
+			#endif
+
+			// link is broken.  Close it down.
+			int r = close(state.socketLinks[whichPlaceToHandle].fd);
+			#ifdef DEBUG
+				if (r < 0) fprintf(stderr, "X10rt.Sockets: place %u failed closing link to %u: %i\n", state.myPlaceId, whichPlaceToHandle, r);
+			#endif
+			state.socketLinks[whichPlaceToHandle].fd = -1;
+			// TODO - notify the runtime of this?
+		}
 		else
 		{
 			// when the socket gets closed, we might get into this code here.
@@ -714,14 +738,22 @@ void x10rt_net_finalize (void)
 		if (state.socketLinks[i].fd != -1)
 		{
 			pthread_mutex_lock(&state.writeLocks[i]);
-			close(state.socketLinks[i].fd);
+			int r = close(state.socketLinks[i].fd);
+			#ifdef DEBUG
+				if (r < 0) fprintf(stderr, "X10rt.Sockets: runtime %u failed closing link to %u: %i\n", state.myPlaceId, i, r);
+			#endif
 			pthread_mutex_unlock(&state.writeLocks[i]);
 			pthread_mutex_destroy(&state.writeLocks[i]);
 		}
 	}
 
 	if (Launcher::_parentLauncherControlLink != -1)
-		close(Launcher::_parentLauncherControlLink);
+	{
+		int r = close(Launcher::_parentLauncherControlLink);
+		#ifdef DEBUG
+			if (r < 0) fprintf(stderr, "X10rt.Sockets: runtime %u failed closing link to parent launcher: %i\n", state.myPlaceId, r);
+		#endif
+	}
 	pthread_mutex_destroy(&state.readLock);
 	free(state.myhost);
 	free(state.socketLinks);

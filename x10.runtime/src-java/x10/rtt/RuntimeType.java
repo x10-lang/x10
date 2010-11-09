@@ -162,7 +162,7 @@ public class RuntimeType<T> implements Type<T> {
         */
         else if (null != Types.getNativeRepRTT(o)) {
             // @NativeRep'ed types to raw Java classes (e.g. String, Integer, etc.)
-            RuntimeType<?> rtt = (RuntimeType<?>) Types.getNativeRepRTT(o);
+            RuntimeType<?> rtt = Types.getNativeRepRTT(o);
             return instantiateCheck(params, rtt, o);
         }
         return false;

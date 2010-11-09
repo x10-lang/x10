@@ -14,7 +14,10 @@ package x10.rtt;
 
 public class FloatType extends RuntimeType<Float> {
     public FloatType() {
-        super(float.class);
+        super(float.class,
+              new Type[] {
+                  new ParameterizedType(Types.COMPARABLE, new UnresolvedType(-1))
+              });
     }
     
     @Override

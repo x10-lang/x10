@@ -685,6 +685,14 @@ public class X10Context_c extends Context_c {
 		return (X10CodeDef) (depType == null ? super.currentCode() : pop().currentCode());
 	}
 
+    // to check if we can call property(...) or assign to final fields
+    public X10ConstructorDef getCtorIgnoringAsync() {
+        return inCode() && currentCode() instanceof X10ConstructorDef? (X10ConstructorDef) currentCode() :
+                x10Kind==X10Kind.Async ? ((X10Context_c)outer).getCtorIgnoringAsync() :
+                        null;
+    }
+
+
 	/**
 	 * Return true if in a method's scope and not in a local class within the
 	 * innermost method.

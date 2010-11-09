@@ -166,6 +166,7 @@ import x10.emitter.RuntimeTypeExpander;
 import x10.emitter.Template;
 import x10.emitter.TryCatchExpander;
 import x10.emitter.TypeExpander;
+import x10.types.ConstrainedType;
 import x10.types.FunctionType;
 import x10.types.ParameterType;
 import x10.types.ParameterType.Variance;
@@ -173,13 +174,10 @@ import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10ConstructorDef;
 import x10.types.X10ConstructorInstance;
-import polyglot.types.Context;
 import x10.types.X10FieldInstance;
-import x10.types.X10Flags;
 import x10.types.X10MethodInstance;
 import x10.types.X10ParsedClassType_c;
 import x10.types.X10TypeMixin;
-import polyglot.types.TypeSystem;
 import x10c.ast.X10CBackingArrayAccessAssign_c;
 import x10c.ast.X10CBackingArrayAccess_c;
 import x10c.ast.X10CBackingArrayNewArray_c;
@@ -575,51 +573,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			    "}\n" +
 			    "\n" +
 			    "// called by native runtime inside main x10 thread\n" +
-			    "public void main(final x10.array.Array<java.lang.String> args) {\n" +
-			        "try {\n" +
-			            "// start xrx\n" +
-			            "x10.lang.Runtime.start(\n" +
-			                "// static init activity\n" +
-			                "new " + X10_VOIDFUN_CLASS_PREFIX + "_0_0() {\n" +
-			                    "public void apply() {\n" +
-			                        "// preload classes\n" +
-			                        "if (Boolean.getBoolean(\"x10.PRELOAD_CLASSES\")) {\n" +
-			                            "x10.runtime.impl.java.PreLoader.preLoad(this.getClass().getEnclosingClass(), Boolean.getBoolean(\"x10.PRELOAD_STRINGS\"));\n" +
-			                        "}\n" +
-			                    "}\n" +
-			                    "public x10.rtt.RuntimeType<?> getRTT() {\n" +
-			                        "return _RTT;\n" +
-			                    "}\n" +
-			                    "public x10.rtt.Type<?> getParam(int i) {\n" +
-			                        "return null;\n" +
-			                    "}\n" +
-			                "},\n" +
-			                "// body of main activity\n" +
-			                "new " + X10_VOIDFUN_CLASS_PREFIX + "_0_0() {\n" +
-			                    "public void apply() {\n" +
-			                        "// catch and rethrow checked exceptions\n" +
-                                    "// (closures cannot throw checked exceptions)\n" +
-			                        "try {\n" +
-			                            "// call the original app-main method\n" +
-			                            "#2.main(args);\n" +
-			                        "} catch (java.lang.RuntimeException e) {\n" +
-			                            "throw e;\n" +
-			                        "} catch (java.lang.Error e) {\n" +
-			                            "throw e;\n" +
-			                        "} catch (java.lang.Throwable t) {\n" +
-			                            "throw new x10.runtime.impl.java.X10WrappedThrowable(t);\n" +
-			                        "}\n" +
-			                    "}\n" +
-                                "public x10.rtt.RuntimeType<?> getRTT() {\n" +
-                                    "return _RTT;\n" +
-                                "}\n" +
-                                "public x10.rtt.Type<?> getParam(int i) {\n" +
-                                    "return null;\n" +
-                                "}\n" +
-			                "});\n" +
-			        "} catch (java.lang.Throwable t) {\n" +
-			            "t.printStackTrace();\n" +
-			        "}\n" +
+			    "public void runtimeCallback(final x10.array.Array<java.lang.String> args) {\n" +
+			        "// call the original app-main method\n" +
+			        "#2.main(args);\n" +
 			    "}\n" +
 			"}\n" +
             "\n" +
@@ -781,14 +737,12 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
 
 	private static final String CUSTOM_SERIALIZATION = "x10.io.CustomSerialization";
-    private boolean hasCustomSerializer(X10ClassDef def) {
+    private static boolean subtypeOfCustomSerializer(X10ClassDef def) {
         for (Ref<? extends Type> ref: def.interfaces()) {
             if (CUSTOM_SERIALIZATION.equals(ref.get().toString())) {
                 return true;
             }
         }
-        return false;
-        /*
         Ref<? extends Type> ref = def.superType();
         if (ref == null) return false;
         Type type = ref.get();
@@ -796,8 +750,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             type = ((ConstrainedType) type).baseType().get();
         }
         X10ClassDef superDef = (X10ClassDef) ((X10ParsedClassType_c) type).def();
-        return hasCustomSerializer(superDef);
-        */
+        return subtypeOfCustomSerializer(superDef);
     }
 
 	public void visit(X10ClassDecl_c n) {
@@ -852,14 +805,14 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		//	    	public static Object cast$(Object o, String constraint) { /*check constraint*/; return (List)o; }
 		//	    	T x;
 
-		X10Flags flags = X10Flags.toX10Flags( n.flags().flags());
+		Flags flags = n.flags().flags();
 
 		w.begin(0);
 		if (flags.isInterface()) {
-			w.write(X10Flags.toX10Flags(flags.clearInterface().clearAbstract()).translate());
+			w.write(flags.clearInterface().clearAbstract().translateJava());
 		}
 		else {
-			w.write(X10Flags.toX10Flags(flags).translate());
+			w.write(flags.translateJava());
 		}
 
 		if (flags.isInterface()) {
@@ -928,7 +881,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 				        w.allowBreak(0);
 				    }
 				    alreadyPrintedTypes.add(tn.type());
-				    er.printType(tn.type(), (isSelfDispatch ? 0 : PRINT_TYPE_PARAMS) | BOX_PRIMITIVES | NO_VARIANCE);
+	                boolean isJavaNative = isJavaNative((X10ClassType) tn.type());
+				    er.printType(tn.type(), (isSelfDispatch && !isJavaNative ? 0 : PRINT_TYPE_PARAMS) | BOX_PRIMITIVES | NO_VARIANCE);
 				}
 			}
 			w.end();
@@ -951,8 +905,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		// XTENLANG-1102
 		er.generateRTTInstance(def);
 		
-		if (hasCustomSerializer(def)) {
-            er.generateCustomSerializer(def);
+		if (subtypeOfCustomSerializer(def)) {
+            er.generateCustomSerializer(def, n);
         }
 
 		// Generate dispatcher methods.
@@ -1481,7 +1435,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		X10ClassType ct = (X10ClassType) mi.container();
 		
 		List<Type> ta = ct.typeArguments();
-		if (ta != null && ta.size() > 0 && !isJavaNative(n)) {
+		if (ta != null && ta.size() > 0 && !isJavaNative((X10ClassType) n.objectType().type())) {
 		    for (Iterator<Type> i = ta.iterator(); i.hasNext(); ) {
 		        final Type at = i.next();
 		        new RuntimeTypeExpander(er, at).expand(tr);
@@ -1534,14 +1488,11 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		}
     }
 
-    private boolean isJavaNative(X10New_c n) {
-        Type type = n.objectType().type();
-        if (type instanceof X10ClassType) {
-            X10ClassDef cd = ((X10ClassType) type).x10Def();
-            String pat = er.getJavaRep(cd);
-            if (pat != null && pat.startsWith("java.")) {
-                return true;
-            }
+    private boolean isJavaNative(X10ClassType type) {
+        X10ClassDef cd = type.x10Def();
+        String pat = er.getJavaRep(cd);
+        if (pat != null && pat.startsWith("java.")) {
+            return true;
         }
         return false;
     }
@@ -1940,7 +1891,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
 
 		// Check for properties accessed using method syntax.  They may have @Native annotations too.
-		if (X10Flags.toX10Flags(mi.flags()).isProperty() && mi.formalTypes().size() == 0 && mi.typeParameters().size() == 0) {
+		if (mi.flags().isProperty() && mi.formalTypes().size() == 0 && mi.typeParameters().size() == 0) {
 			X10FieldInstance fi = (X10FieldInstance) mi.container().fieldNamed(mi.name());
 			if (fi != null) {
 				String pat2 = er.getJavaImplForDef(fi.x10Def());
@@ -2501,15 +2452,14 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		if (er.hasAnnotation(n, QName.make("x10.lang.shared"))) {
 			w.write ("volatile ");
 		}
-		
-		// Hack to ensure that X10Flags are not printed out .. javac will
-		// not know what to do with them.
+
 		Flags flags;
 		if (!n.flags().flags().isStatic()) {
-		    flags = X10Flags.toX10Flags(n.flags().flags().clearFinal());
+		    flags = n.flags().flags().clearFinal();
 		} else {
-            flags = X10Flags.toX10Flags(n.flags().flags());
+            flags = n.flags().flags();
 		}
+        flags = flags.retainJava(); // ensure that X10Flags are not printed out .. javac will not know what to do with them.
 
 		FieldDecl_c javaNode = (FieldDecl_c) n.flags(n.flags().flags(flags));
 
@@ -2526,7 +2476,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             f = f.clearFinal();
         }
 
-        w.write(f.translate());
+        w.write(f.translateJava());
         tr.print(javaNode, javaNode.type(), w);
         w.allowBreak(2, 2, " ", 1);
         tr.print(javaNode, javaNode.name(), w);

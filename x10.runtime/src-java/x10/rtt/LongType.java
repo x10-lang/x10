@@ -14,7 +14,10 @@ package x10.rtt;
 
 public class LongType extends RuntimeType<Long> {
     public LongType() {
-        super(long.class);
+        super(long.class,
+              new Type[] {
+                  new ParameterizedType(Types.COMPARABLE, new UnresolvedType(-1))
+              });
     }
     
     @Override

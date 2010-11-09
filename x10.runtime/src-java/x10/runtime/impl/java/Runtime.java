@@ -67,13 +67,61 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
 		try { Class.forName("x10.lang.Place"); } catch (ClassNotFoundException e) { }
 
 		// build up Array[String] for args
-		x10.array.Array<String> aargs = new x10.array.Array<String>(x10.rtt.Types.STRING, args.length);
+		final x10.array.Array<String> aargs = new x10.array.Array<String>(x10.rtt.Types.STRING, args.length);
 		for (int i=0; i<args.length; i++) {
 		    aargs.set_0_$$x10$array$Array_T$G(args[i], i);
 		}
-		
+
 		// execute root x10 activity
-		main(aargs);
+		final Class<?> userMain = this.getClass().getEnclosingClass();
+        try {
+            // start xrx
+            x10.lang.Runtime.start(
+            // static init activity
+            new x10.core.fun.VoidFun_0_0() {
+                public void apply() {
+                    // preload classes
+                    if (Boolean.getBoolean("x10.PRELOAD_CLASSES")) {
+                        x10.runtime.impl.java.PreLoader.preLoad(userMain,
+                                                                Boolean.getBoolean("x10.PRELOAD_STRINGS"));
+                    }
+                }
+
+                public x10.rtt.RuntimeType<?> getRTT() {
+                    return _RTT;
+                }
+
+                public x10.rtt.Type<?> getParam(int i) {
+                    return null;
+                }
+            },
+            // body of main activity
+            new x10.core.fun.VoidFun_0_0() {
+                public void apply() {
+                    // catch and rethrow checked exceptions (closures cannot throw checked exceptions)
+                    try {
+                        // execute root x10 activity
+                        runtimeCallback(aargs);
+                    } catch (java.lang.RuntimeException e) {
+                        throw e;
+                    } catch (java.lang.Error e) {
+                        throw e;
+                    } catch (java.lang.Throwable t) {
+                        throw new x10.runtime.impl.java.X10WrappedThrowable(t);
+                    }
+                }
+
+                public x10.rtt.RuntimeType<?> getRTT() {
+                    return _RTT;
+                }
+
+                public x10.rtt.Type<?> getParam(int i) {
+                    return null;
+                }
+            });
+        } catch (java.lang.Throwable t) {
+            t.printStackTrace();
+        }
 	}
 
 	/**
@@ -81,7 +129,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
 	 * - start xrx runtime
 	 * - run main activity
 	 */
-	public abstract void main(x10.array.Array<java.lang.String> args);
+	public abstract void runtimeCallback(x10.array.Array<java.lang.String> args);
 
 	/**
 	 * Application exit code
