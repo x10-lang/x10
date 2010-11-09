@@ -217,7 +217,7 @@ abstract class FinishState {
             if (ref.home.id == Runtime.hereInt()) {
                 me = (ref as GlobalRef[FinishState]{home==here})();
             } else {
-                me = new UncountedFinish();
+                me = UNCOUNTED_FINISH;
             }
         }
     }
@@ -233,6 +233,8 @@ abstract class FinishState {
         }
         public final def waitForFinish(safe:Boolean) { assert false; }
     }
+    
+    static UNCOUNTED_FINISH = new UncountedFinish();
 
     // a mapping from finish refs to local finish objects
     static class FinishStates {

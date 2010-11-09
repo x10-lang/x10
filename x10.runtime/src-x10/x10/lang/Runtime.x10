@@ -631,9 +631,9 @@ import x10.util.Box;
         
         val ok = a.safe();
         if (place.id == hereInt()) {
-            execute(new Activity(deepCopy(body), new FinishState.UncountedFinish(), ok));
+            execute(new Activity(deepCopy(body), FinishState.UNCOUNTED_FINISH, ok));
         } else {
-            val closure = ()=> @x10.compiler.RemoteInvocation { execute(new Activity(body, new FinishState.UncountedFinish(), ok)); };
+            val closure = ()=> @x10.compiler.RemoteInvocation { execute(new Activity(body, FinishState.UNCOUNTED_FINISH, ok)); };
             runClosureCopyAt(place.id, closure);
             dealloc(closure);
         }
