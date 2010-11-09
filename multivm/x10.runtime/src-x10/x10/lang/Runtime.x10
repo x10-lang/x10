@@ -84,10 +84,9 @@ import x10.util.Box;
     static native def deepCopy[T](o:T):T;
 
     /**
-     * Java: run body synchronously at place(id) in the same node as the current place.
+     * Java: run body. (no need for a native implementation)
      * C++: run body. (no need for a native implementation)
      */
-    @Native("java", "x10.runtime.impl.java.Runtime.runAtLocal(#1, #2)")
     @TempNoInline_1
     static def runAtLocal(id:Int, body:()=>void):void { body(); }
 
