@@ -109,10 +109,21 @@ namespace {
                 errstr = "CUDA_ERROR_NOT_MAPPED_AS_POINTER"; break;
             case CUDA_ERROR_ECC_UNCORRECTABLE:
                 errstr = "CUDA_ERROR_ECC_UNCORRECTABLE"; break;
+            #if CUDA_VERSION < 3020
             case CUDA_ERROR_POINTER_IS_64BIT:
                 errstr = "CUDA_ERROR_POINTER_IS_64BIT"; break;
             case CUDA_ERROR_SIZE_IS_64BIT:
                 errstr = "CUDA_ERROR_SIZE_IS_64BIT"; break;
+            #else
+            case CUDA_ERROR_UNSUPPORTED_LIMIT:
+                errstr = "CUDA_ERROR_UNSUPPORTED_LIMIT"; break;
+            case CUDA_ERROR_SHARED_OBJECT_SYMBOL_NOT_FOUND:
+                errstr = "CUDA_ERROR_SHARED_OBJECT_SYMBOL_NOT_FOUND"; break;
+            case CUDA_ERROR_SHARED_OBJECT_INIT_FAILED:
+                errstr = "CUDA_ERROR_SHARED_OBJECT_INIT_FAILED"; break;
+            case CUDA_ERROR_OPERATING_SYSTEM:
+                errstr = "CUDA_ERROR_OPERATING_SYSTEM"; break;
+            #endif
             #endif
         
         }
@@ -294,6 +305,11 @@ struct x10rt_cuda_ctx {
     void swapBuffers (void) { void *tmp = front; front = back; back = tmp; }
 };
 
+#if CUDA_VERSION >= 3020
+typedef size_t cuda_size_t;
+#else
+typedef unsigned int cuda_size_t;
+#endif
 
 #endif
 
@@ -371,7 +387,7 @@ void x10rt_cuda_register_msg_receiver (x10rt_cuda_ctx *ctx, x10rt_msg_type msg_t
     CU_SAFE(r);
 
     CUdeviceptr cmem = NULL;
-    unsigned int cmem_sz;
+    cuda_size_t cmem_sz;
     r = cuModuleGetGlobal(&cmem, &cmem_sz, mod, "__cmem");
     if (r==CUDA_ERROR_NOT_FOUND) {
         fprintf(stderr, "Couldn't find __cmem in \"%s\".\n", cubin);
