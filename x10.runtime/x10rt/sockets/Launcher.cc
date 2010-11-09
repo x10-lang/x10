@@ -216,7 +216,7 @@ void Launcher::startChildren()
 					// see if the launcher argument applies to this place
 					char* p;
 					errno = 0;
-					if (strcasecmp("all", placenum) == 0 || ((_myproc == strtol(placenum, &p, 10)) && !(errno != 0 || *p != 0 || p == placenum)))
+					if (strcasecmp("all", placenum) == 0 || ((_myproc == (uint32_t)strtoul(placenum, &p, 10)) && !(errno != 0 || *p != 0 || p == placenum)))
 					{
 						// launch this runtime in a debugger
 						char** newargv;
