@@ -81,8 +81,6 @@ import x10.util.Synthesizer;
  */
 public class Desugarer extends ContextVisitor {
 
-//  public static final boolean BUG = false; // Early Desugaring and Inlining causes ...
-    public static final boolean BUG = true;  // ... an assertion failure in the C++ backend
 
     private final TypeSystem xts;
     private final NodeFactory xnf;
@@ -288,10 +286,7 @@ public class Desugarer extends ContextVisitor {
         if (n instanceof LocalAssign)
             return visitLocalAssign((LocalAssign) n);
         if (n instanceof FieldAssign)
-            // C++ backend assertion failure with early desugaring and inlining
-            if (!BUG || !x10.Configuration.INLINE_OPTIMIZATIONS) {
-                return visitFieldAssign((FieldAssign) n);
-            }
+            return visitFieldAssign((FieldAssign) n);
         return n;
     }
 
