@@ -42,7 +42,7 @@ public final class PlaceLocalHandle<T> implements java.io.Serializable {
         }
     }
 
-  public PlaceLocalHandle(Object t) {
+  public PlaceLocalHandle(x10.rtt.Type<T> T) {
     objects = new Object[Runtime.MAX_PLACES];
   }
 
@@ -55,7 +55,7 @@ public final class PlaceLocalHandle<T> implements java.io.Serializable {
 
   public void set_0_$$x10$lang$PlaceLocalHandle_T(T data) {
     int here = Thread.currentThread().home().id;
-    assert objects[here] == null : "At "+here+" set called on already initialized local object";
+    assert objects[here] == null : "At "+here+": set called on already initialized local object";
     objects[here] = data;
   }
 }
