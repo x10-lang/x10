@@ -143,8 +143,9 @@ public interface X10Parsersym {
       TK_DocComment = 128,
       TK_UnsignedIntegerLiteral = 30,
       TK_UnsignedLongLiteral = 31,
+      TK_PseudoDoubleLiteral = 129,
       TK_ErrorId = 58,
-      TK_ERROR_TOKEN = 129;
+      TK_ERROR_TOKEN = 130;
 
     public final static String orderedTerminalSymbols[] = {
                  "",
@@ -276,6 +277,7 @@ public interface X10Parsersym {
                  "SlComment",
                  "MlComment",
                  "DocComment",
+                 "PseudoDoubleLiteral",
                  "ERROR_TOKEN"
              };
 
