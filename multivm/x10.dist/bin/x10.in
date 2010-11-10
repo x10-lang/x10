@@ -87,6 +87,11 @@ command="\"$JAVA\" $java_args $config $args"
 
 [ -n "$verbose" ] && echo "$command"
 
-eval "$time$command"
+if [ -z "$X10_SINGLE_JVM" ]; then 
+    launcher="${TOP}${FILE_SEP}bin${FILE_SEP}X10Launcher"
+    eval "$time$launcher $command"
+else 
+    eval "$time$command"
+fi
 exit $?
 
