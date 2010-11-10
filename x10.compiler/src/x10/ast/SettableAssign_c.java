@@ -92,8 +92,6 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 	 */
     public SettableAssign_c(NodeFactory nf, Position pos, Expr array, List<Expr> index, Operator op, Expr right) {
 		super(nf, pos, op, right);
-		if (index.size() < 1)
-		assert index.size() >= 1;
 		this.array = array;
 		this.index = index;
 	}
