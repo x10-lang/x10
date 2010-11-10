@@ -3368,11 +3368,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		    sw.write(Emitter.structMethodClass((X10ClassType) n.objectType().type().toClass(), true, true)+"::"+MAKE+"(");
 		} else {
 		    if (stackAllocate) {
-		        sw.write(context.getStackAllocName()+"._constructor(");
+		        sw.write(context.getStackAllocName()+"."+CONSTRUCTOR+"(");
 		    } else if (embed) {
-                sw.write("&"+context.getEmbeddedFieldName()+";");
-                sw.newline();
-                sw.write(context.getEmbeddedFieldName()+"._constructor(");
+		        sw.write("&"+context.getEmbeddedFieldName()+";");
+		        sw.newline();
+		        sw.write(context.getEmbeddedFieldName()+"."+CONSTRUCTOR+"(");
 		        
 		    } else {
 		        sw.write(Emitter.translateType(n.objectType().type())+"::"+MAKE+"(");
