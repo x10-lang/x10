@@ -17,6 +17,8 @@ LIBS += $(SOCKETS_DYNLIB)
 PROPERTIES += etc/x10rt_sockets.properties
 LAUNCHER_OBJS = sockets/Launcher_Init.o sockets/Launcher.o sockets/tcp.o
 
+EXECUTABLES += sockets/X10Launcher
+
 ifeq ($(X10RT_PLATFORM), sunos)
   SOLARIS_LDLIBS += -lresolv -lnsl -lsocket -lrt
 endif
@@ -35,6 +37,9 @@ else
 	$(CXX) $(CXXFLAGS) $(CXXFLAGS_SHARED) $(LDFLAGS_SHARED) -o $@ $^
 endif
 endif
+
+sockets/X10Launcher: $(LAUNCHER_OBJS) sockets/main.cc
+	$(CXX) $(CXXFLAGS) sockets/main.cc $(LAUNCHER_OBJS) -o sockets/X10Launcher
 
 etc/x10rt_sockets.properties:
 	@echo "CXX=$(CXX)" > $@
