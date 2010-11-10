@@ -322,7 +322,7 @@ abstract class FinishState {
     }
 
     static class RootFinish extends RootFinishSkeleton {
-        protected val latch:SimpleLatch;
+        protected transient val latch:SimpleLatch;
         protected var count:Int = 1;
         protected var exceptions:Stack[Throwable]; // lazily initialized
         protected var counts:Rail[Int];
@@ -443,7 +443,7 @@ abstract class FinishState {
 
     static class RemoteFinish extends RemoteFinishSkeleton {
         protected var exceptions:Stack[Throwable];
-        protected val lock = new Lock();
+        protected transient var lock:Lock = new Lock();
         protected var count:Int = 0;
         protected var counts:Rail[Int];
         protected var places:Rail[Int];
