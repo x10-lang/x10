@@ -12,35 +12,42 @@
 /*
  * A simple Generic concurrent method
  */
-public class GenericMethod1 {
+public class Generics2 {
 	
 	var flag: boolean = false;
 	
-    def m[T](t:T) {
-    	val v:T;
-    	finish{
-    		async v = t;
-    	}
-    	return v;
+    class A[T,U] {
+    	var value1:T;
+        var value2:U;
+    
+        def this(v1:T, v2:U){
+        	value1 = v1;
+        	value2 = v2;
+        }
+    
+        def conSet(v1:T, v2:U){
+        	finish{
+        		async value1 = v1;
+        		value2 = v2;
+        	}
+        }
     }
 
 	public def run() {
 		var passed:boolean = true;
 		
-		val aInt = m[int](1);
-		passed &= (aInt == 1);
-		
-		val aStr = m[String]("a");
-		passed &= (aStr.equals("a"));
-
-		Console.OUT.print("aInt = " + aInt);
-		Console.OUT.println("; aStr = " + aStr);
+		val aIntString = new A[int, String](0, null);
+		aIntString.conSet(1,"a");
+		passed &= (aIntString.value1 == 1);
+		passed &= (aIntString.value2.equals("a"));
+		Console.OUT.print("aIntString.value1 = " + aIntString.value1);
+		Console.OUT.println("; aIntString.value2 = " + aIntString.value2);
 		
 		return passed;
 	}
 
 	public static def main(Array[String](1)) {
-        val r = new GenericMethod1().run();
+        val r = new Generics2().run();
         if(r){
              x10.io.Console.OUT.println("++++++Test succeeded.");
         }
