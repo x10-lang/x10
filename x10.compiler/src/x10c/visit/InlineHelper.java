@@ -33,6 +33,7 @@ import polyglot.ast.Special;
 import polyglot.frontend.Job;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
+import polyglot.types.Context;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
 import polyglot.types.MethodDef;
@@ -308,7 +309,7 @@ public class InlineHelper extends ContextVisitor {
             X10Call call = (X10Call) n;
             Receiver target = call.target();
             X10MethodInstance mi = call.methodInstance();
-            if (mi.flags().isPrivate() && !mi.container().typeEquals(context.currentClass(), context) && !isOuter(mi.container(), context.currentClass())) {
+            if (mi.flags().isPrivate() && !isSameDef(mi.container(), context.currentClass(),context) && !isOuter(mi.container(), context.currentClass())) {
                 Id id = xnf.Id(pos, call.name().toString() + BRIDGE_TO_PRIVATE_SUFFIX);
                 List<Type> typeArgs;
                 if (mi instanceof X10MethodInstance) {
@@ -374,6 +375,16 @@ public class InlineHelper extends ContextVisitor {
         return n;
     }
 
+    private static boolean isSameDef(Type t1, Type t2, Context context) {
+        if (t1.typeEquals(t2, context)) {
+            return true;
+        }
+        else if (t1 instanceof ClassType && t2 instanceof ClassType && ((ClassType)t1).def().equals(((ClassType)t2).def())) {
+            return true;
+        }
+        return false;
+    }
+    
     private boolean isOuter(Type outer, Type inner) {
         outer = X10TypeMixin.baseType(outer);
         inner = X10TypeMixin.baseType(inner);
@@ -382,7 +393,7 @@ public class InlineHelper extends ContextVisitor {
             if (ot == null) {
                 return false;
             }
-            else if (ot.typeEquals(outer, context)) {
+            else if (isSameDef(ot,outer, context)) {
                 return true;
             }
             else {
