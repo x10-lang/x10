@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import polyglot.ast.Block;
 import polyglot.ast.Expr;
 import polyglot.ast.Formal;
 import polyglot.ast.MethodDecl;
@@ -26,25 +25,23 @@ import polyglot.ast.Return;
 import polyglot.ast.Special;
 import polyglot.ast.Stmt;
 import polyglot.frontend.Job;
-import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
+import polyglot.types.Context;
 import polyglot.types.Flags;
 import polyglot.types.MethodDef;
 import polyglot.types.Name;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
-import polyglot.util.Pair;
+import x10.ast.TypeParamNode;
 import x10.ast.X10MethodDecl;
-import x10.compiler.ws.WSCodeGenerator;
 import x10.compiler.ws.WSTransformState;
-import x10.compiler.ws.util.TransCodes;
 import x10.compiler.ws.util.WSCodeGenUtility;
+import x10.types.ParameterType;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
-import polyglot.types.Context;
 import x10.types.X10Flags;
+import x10.types.X10MethodDef;
 import x10.util.synthesizer.CodeBlockSynth;
-import x10.util.synthesizer.ConstructorSynth;
 import x10.util.synthesizer.FieldSynth;
 import x10.util.synthesizer.InstanceCallSynth;
 import x10.util.synthesizer.MethodSynth;
@@ -89,6 +86,12 @@ public class WSMethodFrameClassGen extends WSRegularFrameClassGen {
         this.methodDecl = methodDecl;
         
 
+        //processing the type parameters
+        List<ParameterType> paramTypes = ((X10MethodDef)methodDef).typeParameters();
+        List<TypeParamNode> paramNodes = ((X10MethodDecl)methodDecl).typeParameters();
+        for(int i = 0; i < paramTypes.size(); i++){
+        	classSynth.addTypeParameter(paramTypes.get(i), paramNodes.get(i).variance());
+        }
         
         //processing the return
         returnFlagName = ((Context)xct).makeFreshName("returnFlag");
@@ -240,6 +243,15 @@ public class WSMethodFrameClassGen extends WSRegularFrameClassGen {
             orgFormalTypes.add(f.type().type());
             orgFormalRefs.add(methodSynth.addFormal(f)); //all formals are added in
         }
+        //add all type parameters (template)
+        X10MethodDecl mDecl = (X10MethodDecl)methodDecl;
+        X10MethodDef mDef = mDecl.methodDef();
+        int paramSize = mDef.typeParameters().size();
+        for(int i = 0; i < paramSize; i++){
+            methodSynth.addTypeParameter(mDef.typeParameters().get(i),
+            							mDecl.typeParameters().get(i).variance());        	
+        }
+
         //now create the body
         CodeBlockSynth mBodySynth = methodSynth.getMethodBodySynth(compilerPos);        
         NewInstanceSynth niSynth = new NewInstanceSynth(xnf, xct, compilerPos, classSynth.getClassDef().asType());
