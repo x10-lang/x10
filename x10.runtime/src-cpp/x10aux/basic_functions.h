@@ -15,6 +15,8 @@
 #include <x10aux/config.h>
 #include <x10aux/ref.h>
 #include <x10aux/hash.h>
+#include <x10aux/double_utils.h>
+#include <x10aux/float_utils.h>
 #include <x10aux/string_utils.h>
 
 #include <x10/lang/IBox.struct_h>
@@ -304,27 +306,28 @@ namespace x10aux {
         return x->hashCode();
     }
 
-    inline x10_int hash_code(const x10_double x) {
-        return hash(reinterpret_cast<const unsigned char*>(&x), sizeof(x));
-    }
-    inline x10_int hash_code(const x10_float x) {
-        return hash(reinterpret_cast<const unsigned char*>(&x), sizeof(x));
+    inline x10_int hash_code(const x10_boolean x) { return x; }
+    inline x10_int hash_code(const x10_byte x) { return x; }
+    inline x10_int hash_code(const x10_ubyte x) { return x; }
+    inline x10_int hash_code(const x10_short x) { return x; }
+    inline x10_int hash_code(const x10_ushort x) { return x; }
+    inline x10_int hash_code(const x10_char x) { return x.v; }
+    inline x10_int hash_code(const x10_int x) { return x; }
+    inline x10_int hash_code(const x10_uint x) { return x; }
+    inline x10_int hash_code(const x10_ulong x) {
+        return (x10_int)(x ^ (x >> 32));
     }
     inline x10_int hash_code(const x10_long x) {
-        return hash(reinterpret_cast<const unsigned char*>(&x), sizeof(x));
+        return hash_code((x10_ulong)x);
     }
-    inline x10_int hash_code(const x10_int x) { return x; }
-    inline x10_int hash_code(const x10_short x) { return x; }
-    inline x10_int hash_code(const x10_byte x) { return x; }
-    inline x10_int hash_code(const x10_ulong x) {
-        return hash(reinterpret_cast<const unsigned char*>(&x), sizeof(x));
+    inline x10_int hash_code(const x10_double x) {
+        return hash_code(double_utils::toLongBits(x));
     }
-    inline x10_int hash_code(const x10_uint x) { return x; }
-    inline x10_int hash_code(const x10_ushort x) { return x; }
-    inline x10_int hash_code(const x10_ubyte x) { return x; }
-    inline x10_int hash_code(const x10_char x) { return x.v; }
-    inline x10_int hash_code(const x10_boolean x) { return x; }
+    inline x10_int hash_code(const x10_float x) {
+        return hash_code(float_utils::toIntBits(x));
+    }
 
+    
     /******* to_string ********/
 
     template<class T> ref<x10::lang::String> to_string(ref<T> x) {
