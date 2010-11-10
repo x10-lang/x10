@@ -27,6 +27,15 @@ public final class PlaceLocalHandle<T> implements java.io.Serializable {
 	transient private Object myData = null;
 	private final int id;
     
+	// TODO: The X10 code currently ensures that PlaceLocalHandle's are only
+	//       created at Place 0 by doing an at.  We've contemplated moving to
+	//       more of a SVD style implementation where each place would be able to
+	//       create place local handles by either encoding the place in the id like we
+	//       did here or by having the places get ids in "chunks" from the master id server
+	//       at place 0. 
+	//       Since we are thinking about making this change, I went ahead and did a poor-man's
+	//       version of it here instead of asserting nextId is only called at place 0 
+	//       (which would have been true currently).
 	private static synchronized int nextId() {
 	    int here = Thread.currentThread().home().id;
 	    int newId  = nextLocalId++;
