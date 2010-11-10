@@ -21,7 +21,6 @@ import polyglot.ast.ClassBody;
 import polyglot.ast.ClassDecl;
 import polyglot.ast.ClassMember;
 import polyglot.ast.ConstructorCall;
-import polyglot.ast.ConstructorDecl;
 import polyglot.ast.Eval;
 import polyglot.ast.Expr;
 import polyglot.ast.FieldAssign;
@@ -38,6 +37,7 @@ import polyglot.ast.Call;
 import polyglot.ast.Id;
 import polyglot.frontend.Job;
 import polyglot.types.ConstructorInstance;
+import polyglot.types.Context;
 import polyglot.types.FieldDef;
 import polyglot.types.QName;
 import polyglot.types.SemanticException;
@@ -53,9 +53,11 @@ import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.types.X10ClassType;
+import x10.types.X10ConstructorDef;
 import x10.types.X10Def;
 import x10.types.X10TypeMixin;
 import polyglot.types.TypeSystem;
+import x10.ast.X10ConstructorDecl;
 import x10.ast.X10MethodDecl_c;
 import x10.ast.AssignPropertyCall;
 
@@ -81,14 +83,12 @@ class Test {
 }
  */
 public class FieldInitializerMover extends ContextVisitor {
-    TypeSystem xts;
 
     public FieldInitializerMover(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf);
-        xts = (TypeSystem) ts;
     }
     
-    protected ConstructorCall superCall(Type superType) throws SemanticException {
+    protected ConstructorCall superCall(Type superType, Context context) throws SemanticException {
         Position CG = Position.COMPILER_GENERATED;
         assert (superType.isClass());
         Expr qualifier = null;
@@ -99,9 +99,10 @@ public class FieldInitializerMover extends ContextVisitor {
         return cc.constructorInstance(ci);
     }
     
-    protected boolean mustCallSuper(ConstructorDecl cdecl) throws SemanticException {
-        Type t = (Type) xts.systemResolver().find(QName.make("x10.compiler.NoSuperCall"));
-        return ((X10Def) cdecl.constructorDef()).annotationsMatching(t).isEmpty();
+    protected static boolean mustCallSuper(X10ConstructorDecl cdecl) throws SemanticException {
+        X10ConstructorDef def = cdecl.constructorDef();
+        Type t = (Type) def.typeSystem().systemResolver().find(QName.make("x10.compiler.NoSuperCall"));
+        return def.annotationsMatching(t).isEmpty();
     }
     class FindProperty extends NodeVisitor {
         private final Stmt evalCall;
@@ -121,6 +122,9 @@ public class FieldInitializerMover extends ContextVisitor {
     private ClassDecl changeClass(ClassDecl cdecl) throws SemanticException {
         final ClassBody cb = cdecl.body();
         final List<ClassMember> members = new ArrayList<ClassMember>();
+        final NodeFactory nf = this.nodeFactory();
+        final TypeSystem ts = this.typeSystem();
+        final Context context = cdecl.enterChildScope(cb, this.context());
 
         final Position p = cdecl.position().markCompilerGenerated();
         final Special this_ = (Special) nf.This(p).type(cdecl.classDef().asType());
@@ -176,8 +180,8 @@ public class FieldInitializerMover extends ContextVisitor {
         final List<ClassMember> members2 = new ArrayList<ClassMember>();
 
         for (ClassMember cm : members) {
-            if (cm instanceof ConstructorDecl) {
-                ConstructorDecl cd = (ConstructorDecl) cm;
+            if (cm instanceof X10ConstructorDecl) {
+                X10ConstructorDecl cd = (X10ConstructorDecl) cm;
 
                 Block body = cd.body();
                 if (body == null) {
@@ -190,25 +194,13 @@ public class FieldInitializerMover extends ContextVisitor {
                 boolean didFindProperty = findProperty.didFindProperty;
 
                 List<Stmt> stmts = body.statements();
-                if (stmts.size() > 0) {
-                    Stmt s = stmts.get(0);
-                    if (s instanceof ConstructorCall) {
-                        ConstructorCall cc = (ConstructorCall) s;
-                        if (cc.kind() == ConstructorCall.SUPER) {
-                            List<Stmt> ss = new ArrayList<Stmt>();
-                            ss.add(s);
-                            if (!didFindProperty) ss.add(evalCall);
-                            ss.addAll(stmts.subList(1, stmts.size()));
-                            body = body.statements(ss);
-                        }
-                    }
-                    else {
-                        // implicit super call
+                if (stmts.size() > 0 && stmts.get(0) instanceof ConstructorCall) {
+                    ConstructorCall cc = (ConstructorCall) stmts.get(0);
+                    if (cc.kind() == ConstructorCall.SUPER) {
                         List<Stmt> ss = new ArrayList<Stmt>();
-                        if (cdecl.superClass() != null && mustCallSuper(cd))
-                            ss.add(superCall(cdecl.superClass().type()));
+                        ss.add(cc);
                         if (!didFindProperty) ss.add(evalCall);
-                        ss.addAll(stmts);
+                        ss.addAll(stmts.subList(1, stmts.size()));
                         body = body.statements(ss);
                     }
                 }
@@ -216,14 +208,14 @@ public class FieldInitializerMover extends ContextVisitor {
                     // implicit super call
                     List<Stmt> ss = new ArrayList<Stmt>();
                     if (cdecl.superClass() != null && mustCallSuper(cd))
-                        ss.add(superCall(cdecl.superClass().type()));
+                        ss.add(superCall(cdecl.superClass().type(), cb.enterChildScope(cd, context)));
                     if (!didFindProperty) ss.add(evalCall);
                     ss.addAll(stmts);
                     body = body.statements(ss);
                 }
 
                 if (body != cd.body()) {
-                    cd = (ConstructorDecl) cd.body(body);
+                    cd = (X10ConstructorDecl) cd.body(body);
                 }
 
                 members2.add(cd);
@@ -238,10 +230,11 @@ public class FieldInitializerMover extends ContextVisitor {
     }
     @Override
     public Node leaveCall(Node old, Node n, NodeVisitor v) throws SemanticException {
+        FieldInitializerMover fim = (FieldInitializerMover) v;
         if (n instanceof ClassDecl) {
             final ClassDecl cdecl = (ClassDecl) n;
             if (!cdecl.flags().flags().isInterface())
-                return changeClass(cdecl);            
+                return fim.changeClass(cdecl);            
         }
         
         return super.leaveCall(old, n, v);
