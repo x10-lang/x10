@@ -1884,7 +1884,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	                    if (call.arguments().size() > 0) sw.write(", ");
 	                } else {
 	                    String superClass = Emitter.translateType(container.superClass());
-	                    sw.write("this->"+superClass+"::"+CONSTRUCTOR+"(");
+	                    sw.write("this->::"+superClass+"::"+CONSTRUCTOR+"(");
 	                }
 	            } else if (call.kind() == ConstructorCall.THIS) {
 	                if (container.isX10Struct()) {
