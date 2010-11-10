@@ -11,51 +11,53 @@
 
 package x10.runtime.impl.java;
 
+import java.util.HashMap;
+
 
 /**
  * Implementation of PlaceLocalHandle service for Java-based runtime.
  */
 public final class PlaceLocalHandle<T> implements java.io.Serializable {
-//  private final Object[] objects;
-    transient private final Object[] objects;
+    private static final HashMap<Integer,Object> data = new HashMap<Integer,Object>();
     
-    // single process implementation
-    private static final java.util.ArrayList<PlaceLocalHandle<?>> handles = new java.util.ArrayList<PlaceLocalHandle<?>>(); // all place local handles in this process
-    private int id; // unique id of this place local handle
-    private Object writeReplace() {
-        if (this.id == 0) { 
-            synchronized (handles) {
-                if (this.id == 0) { // guard for multi thread
-                    handles.add(this);
-                    this.id = handles.size();
-                }
-            }
-        }
-        return this;
-    }
+	private static final int placeShift = 20;
+	private static int nextLocalId = 1;
+
+	transient private boolean initialized = false;
+	transient private Object myData = null;
+	private final int id;
+    
+	private static synchronized int nextId() {
+	    int here = Thread.currentThread().home().id;
+	    int newId  = nextLocalId++;
+	    assert newId < (1<< placeShift);
+	    newId |= (here << placeShift);
+	    return newId;
+	}
+	
     private Object readResolve() {
-        synchronized (handles) {
-            assert this.id != 0;
-            PlaceLocalHandle<?> orig = handles.get(this.id - 1);
-            assert orig != null && orig.id == this.id;
-            return orig;
-        }
+    	initialized = false;
+    	return this;
     }
 
   public PlaceLocalHandle(Object t) {
-    objects = new Object[Runtime.MAX_PLACES];
+	  id = nextId();
   }
 
   public T apply$G() {
-    int here = Thread.currentThread().home().id;
-    Object data = objects[here];
-    assert data != null : "At "+here+": get called on uninitialized local object";
-    return (T)data;
+	  if (!initialized) {
+		  synchronized(data) {
+			  myData = data.get(id);
+			  initialized = true;
+		  }
+	  }
+	  return (T) myData;
   }
 
-  public void set_0_$$x10$lang$PlaceLocalHandle_T(T data) {
-    int here = Thread.currentThread().home().id;
-    assert objects[here] == null : "At "+here+" set called on already initialized local object";
-    objects[here] = data;
+  public void set_0_$$x10$lang$PlaceLocalHandle_T(T value) {
+	  synchronized(data) {
+		  Object old = data.put(id, value);
+		  assert old == null : "Set called on already initialized local object";
+	  }
   }
 }
