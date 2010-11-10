@@ -2108,7 +2108,7 @@ static class LongB {
 		val res2:Boolean{self==false} = b<b;
 		val res3:Boolean{self==true} = b<b; // ERR: Cannot assign expression to target.	 Expression: b < b	 Expected type: x10.lang.Boolean{self==true}	 Found type: x10.lang.Boolean{self==false}
 		val res5:Boolean{self==false} = b<a; 
-		val res4:Boolean{self==false} = a<b; // ShouldNotBeERR: No valid method call found for call in given type.	 Call: operator<(IntA{self==a}, LongB{self==b})	 Type: IntA{self==a}
+		val res4:Boolean{self==false} = a<b; // ok (converts "a" to type LongB)
 	}
 }
 }
