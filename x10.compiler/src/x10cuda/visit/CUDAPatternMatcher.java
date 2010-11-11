@@ -47,7 +47,6 @@ import x10.types.X10TypeSystem_c;
 import x10cpp.visit.Emitter;
 import x10cuda.types.CUDAData;
 import x10cuda.types.SharedMem;
-import x10cuda.visit.CUDACodeGenerator.MultipleValues;
 
 public class CUDAPatternMatcher extends NodeVisitor {
 	
