@@ -103,7 +103,9 @@ public class CUDAUtilities {
             ) { }
         }
     }
+
+    @Native("cuda","__mul24(#1,#2)")
+    public static def mul24 (a:Int, b:Int) : Int = a * b;
 }
 
 // vim: shiftwidth=4:tabstop=4:expandtab
-
