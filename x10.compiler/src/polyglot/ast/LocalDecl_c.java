@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import polyglot.ast.LocalDecl.RemovalCallback;
 import polyglot.types.*;
 import polyglot.util.CodeWriter;
 import polyglot.util.InternalCompilerError;
