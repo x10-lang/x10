@@ -41,12 +41,12 @@ public class Optimizer {
         List<Goal> goals = new ArrayList<Goal>();
         goals.add(LoopUnrolling(job));
         goals.add(ForLoopOptimizations(job));
-        if (x10.Configuration.INLINE_OPTIMIZATIONS) {
-            goals.add(Inliner(job));
-            goals.add(flattener);
+        goals.add(Inliner(job));
+        if (!x10.Configuration.FLATTEN_EXPRESSIONS) goals.add(flattener); // don't add it twice
+        if (x10.Configuration.EXPERIMENTAL) {
   //        goals.add(DeadAssignmentEliminator(job));
+  //        DeadAssignmentEliminator(job).addPrereq(flattener);
         }
-        
         // TODO: add an empty goal that prereqs the above
         return goals;
     }
