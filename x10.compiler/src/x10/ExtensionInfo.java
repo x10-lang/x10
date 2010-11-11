@@ -477,10 +477,10 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            // goals.add( new ForgivingVisitorGoal("TypeChecked", job, new X10TypeChecker(job, ts, nf, job.nodeMemo())));
           
            goals.addAll(Optimizer.goals(this, job, ExpressionFlattener(job)));
+           goals.add(Lowerer(job));
            if (x10.Configuration.FLATTEN_EXPRESSIONS) {
                goals.add(ExpressionFlattener(job));
            }
-           goals.add(Lowerer(job));
            goals.add(InnerClassRemover(job)); // TODO: move earlier
            goals.add(CodeGenerated(job));
            
