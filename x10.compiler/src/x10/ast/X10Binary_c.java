@@ -18,27 +18,20 @@ import java.util.List;
 import java.util.Map;
 
 import polyglot.ast.AmbExpr;
-import polyglot.ast.Assign;
 import polyglot.ast.Binary;
 import polyglot.ast.Binary_c;
 import polyglot.ast.Call;
 import polyglot.ast.Expr;
 import polyglot.ast.Field;
-import polyglot.ast.Id;
-import polyglot.ast.Local;
-import polyglot.ast.LocalDecl;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.Prefix;
 import polyglot.ast.Receiver;
-import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
-import polyglot.ast.Unary;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.Context;
 import polyglot.types.Flags;
-import polyglot.types.LocalDef;
 import polyglot.types.MethodDef;
 import polyglot.types.MethodInstance;
 import polyglot.types.Name;
@@ -56,10 +49,8 @@ import x10.constraint.XLit;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.errors.Errors;
-import polyglot.types.Context;
 import x10.types.X10MethodInstance;
 import x10.types.X10TypeMixin;
-import polyglot.types.TypeSystem;
 import x10.types.X10TypeSystem_c;
 import x10.types.checker.Checker;
 import x10.types.checker.Converter;
@@ -379,20 +370,12 @@ public class X10Binary_c extends Binary_c implements X10Binary {
         }
 
         Call c = desugarBinaryOp(this, tc);
-        // Add support for patching up the return type of Region's operator*. 
-        // The rank of the result is a+b, if the rank of the left arg is a and of the right arg is b, 
-        // and a and b are literals. Further the result is rect if both args are rect.
-       
+
         if (c != null) {
             X10MethodInstance mi = (X10MethodInstance) c.methodInstance();
             if (mi.error() != null) {
                 Errors.issue(tc.job(), mi.error(), this);
             }
-            /*if (mi.name().toString().equals("operator*") && xts.typeEquals(xts.Region(), lbase, context)
-            		&& xts.typeEquals(xts.Region(), rbase, context)) {
-            	Type type = computeReturnTypeForRegionMult(left, right, context);
-            	return this.left((Expr) c.target()).right(c.arguments().get(0)).type(type);
-            }*/
             
             // rebuild the binary using the call's arguments.  We'll actually use the call node after desugaring.
             if (mi.flags().isStatic()) {
@@ -495,7 +478,30 @@ public class X10Binary_c extends Binary_c implements X10Binary {
         call = (X10Call_c) call.arguments(args);
         return call;
     }
-    
+
+    public static X10Call_c searchInstance1(Name methodName, Position pos, ContextVisitor tc, Expr first, Expr second) {
+        NodeFactory nf = tc.nodeFactory();
+        // Check if there is a method with the appropriate name and type with the left operand as receiver.
+        X10Call_c n2 = (X10Call_c) nf.X10Call(pos, first, nf.Id(pos, methodName), Collections.<TypeNode>emptyList(), Collections.singletonList(second));
+        n2 = typeCheckCall(tc, n2);
+        X10MethodInstance mi2 = (X10MethodInstance) n2.methodInstance();
+        if (mi2.error() == null && !mi2.def().flags().isStatic())
+            return n2;
+        return null;
+    }
+    public static X10Call_c searchInstance(Name methodName, Position pos, ContextVisitor tc, Expr first, Expr second) {
+        if (methodName != null) {
+            X10Call_c res = searchInstance1(methodName,pos,tc,first,second);
+            if (res!=null) return res;
+
+            // maybe the left operand can be cast to the write operand (e.g., Byte+Int should use Int.operator+(Int) and not Byte.operator+(Byte))
+            Expr newFirst = Converter.attemptCoercion(tc, first, second.type());
+            if (newFirst!=first && newFirst!=null) {
+                return searchInstance1(methodName,pos,tc,newFirst,second);
+            }
+        }
+        return null;
+    }
     public static X10Call_c desugarBinaryOp(Binary n, ContextVisitor tc) {
         Expr left = n.left();
         Expr right = n.right();
@@ -513,26 +519,20 @@ public class X10Binary_c extends Binary_c implements X10Binary {
         if ((op == COND_OR || op == COND_AND) && l.isBoolean() && r.isBoolean())
             return null;
 
-        NodeFactory nf = (NodeFactory) tc.nodeFactory();
+        NodeFactory nf = tc.nodeFactory();
         Name methodName = X10Binary_c.binaryMethodName(op);
         Name invMethodName = X10Binary_c.invBinaryMethodName(op);
 
         // TODO: byte+byte should convert both bytes to int and search int
         // For now, we have to define byte+byte in byte.x10.
 
-        X10Call_c virtual_left = null;
-        X10Call_c virtual_right = null;
+        X10Call_c virtual_left;
+        X10Call_c virtual_right;
         X10Call_c static_left = null;
         X10Call_c static_right = null;
 
-        if (methodName != null) {
-            // Check if there is a method with the appropriate name and type with the left operand as receiver.   
-            X10Call_c n2 = (X10Call_c) nf.X10Call(pos, left, nf.Id(pos, methodName), Collections.<TypeNode>emptyList(), Collections.singletonList(right));
-            n2 = typeCheckCall(tc, n2);
-            X10MethodInstance mi2 = (X10MethodInstance) n2.methodInstance();
-            if (mi2.error() == null && !mi2.def().flags().isStatic())
-                virtual_left = n2;
-        }
+        virtual_right = searchInstance(invMethodName,pos,tc,right,left);
+        virtual_left = searchInstance(methodName,pos,tc,left,right);
 
         if (methodName != null) {
             // Check if there is a static method of the left type with the appropriate name and type.   
@@ -552,14 +552,6 @@ public class X10Binary_c extends Binary_c implements X10Binary {
                 static_right = n3;
         }
 
-        if (invMethodName != null) {
-            // Check if there is a method with the appropriate name and type with the left operand as receiver.   
-            X10Call_c n5 = (X10Call_c) nf.X10Call(pos, right, nf.Id(pos, invMethodName), Collections.<TypeNode>emptyList(), Collections.singletonList(left));
-            n5 = typeCheckCall(tc, n5);
-            X10MethodInstance mi5 = (X10MethodInstance) n5.methodInstance();
-            if (mi5.error() == null && !mi5.def().flags().isStatic())
-                virtual_right = n5;
-        }
 
         List<X10Call_c> defs = new ArrayList<X10Call_c>();
         if (virtual_left != null) defs.add(virtual_left);
@@ -680,6 +672,10 @@ public class X10Binary_c extends Binary_c implements X10Binary {
         Type lbase = X10TypeMixin.baseType(n.left().type());
         Type rbase = X10TypeMixin.baseType(n.right().type());
         Context context = (Context) tc.context();
+
+        // Add support for patching up the return type of Region's operator*.
+        // The rank of the result is a+b, if the rank of the left arg is a and of the right arg is b,
+        // and a and b are literals. Further the result is rect if both args are rect.
         if (mi.name().toString().equals("operator*") && xts.typeEquals(xts.Region(), lbase, context)
         		&& xts.typeEquals(xts.Region(), rbase, context)) {
         	Type type = computeReturnTypeForRegionMult(left, right, context);
@@ -738,7 +734,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
         TypeSystem ts = tc.typeSystem();
 
         if (!e.type().isSubtype(ts.String(), tc.context())) {
-            NodeFactory nf = (NodeFactory) tc.nodeFactory();
+            NodeFactory nf = tc.nodeFactory();
             e = nf.X10Call(e.position(), nf.CanonicalTypeNode(e.position(), ts.String()),
                            nf.Id(e.position(), Name.make("valueOf")),
                            Collections.<TypeNode>emptyList(), Collections.singletonList(e));
