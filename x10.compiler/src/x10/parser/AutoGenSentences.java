@@ -34,7 +34,7 @@ duplications at the beginning
 public class AutoGenSentences {
     private static int MAX_DEPTH = 10;
     private static String ROOT = "TypeDeclaration";
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         if (args.length!=2) {
             System.err.println("You need to run AutoGenSentences with two arguments: GRAMMAR_FILE OUTPUT_FILE\nFor example: java AutoGenSentences x10.g Output.x10\n");
             System.exit(-1);
@@ -42,7 +42,7 @@ public class AutoGenSentences {
         //only-grammar-productions.txt auto-gen-sentences.txt
         new AutoGenSentences(args);
     }
-    AutoGenSentences(String[] args) throws IOException {
+    AutoGenSentences(String[] args) {
         ArrayList<String> grammarFile = readFile(new File(args[0]));
         File output = new File(args[1]);
         String currProd = null;
@@ -51,6 +51,9 @@ public class AutoGenSentences {
             boolean foundRules = false;
             boolean inJavaCode = false;
             for (String line : grammarFile) {
+                line = line.trim();
+                if (line.equals("")) continue;
+                
                 if (line.equals("%Rules")) {
                     foundRules = true;
                     continue;
@@ -250,24 +253,31 @@ public class AutoGenSentences {
         return sorted;                    
     }
 
-    ArrayList<String> readFile(File f) throws IOException {
-        final BufferedReader in = new BufferedReader(new FileReader(f));
-        ArrayList<String> res = new ArrayList<String>();
-        String line;
-        while ((line=in.readLine())!=null) {
-            line = line.trim();
-            if (!line.equals(""))
+    public static ArrayList<String> readFile(File f) {
+        try {
+            final BufferedReader in = new BufferedReader(new FileReader(f));
+            ArrayList<String> res = new ArrayList<String>();
+            String line;
+            while ((line=in.readLine())!=null) {
                 res.add(line);
+            }
+            in.close();
+            return res;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
-        in.close();
-        return res;
     }
-    void writeFile(File f, Collection<String> lines) throws IOException {
-        final BufferedWriter out = new BufferedWriter(new FileWriter(f));
-        for (String s : lines) {
-            out.write(s);
-            out.write('\n');
+    public static final String NL = System.getProperty("line.separator");
+    public static void writeFile(File f, Collection<String> lines)  {
+        try {
+            final BufferedWriter out = new BufferedWriter(new FileWriter(f));
+            for (String s : lines) {
+                out.write(s);
+                out.write(NL);
+            }
+            out.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
-        out.close();
     }
 }
