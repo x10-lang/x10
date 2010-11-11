@@ -28,190 +28,174 @@ import x10.util.Ordered;
 public struct Long implements Comparable[Long] /*TODO implements Arithmetic[Long], Bitwise[Long], Ordered[Long]*/ {
     /**
      * A less-than operator.
-     * Compares the given Long with another Long and returns true if the given Long is
+     * Compares this Long with another Long and returns true if this Long is
      * strictly less than the other Long.
-     * @param x the given Long
-     * @param y the other Long
-     * @return true if the given Long is strictly less than the other Long.
+     * @param x the other Long
+     * @return true if this Long is strictly less than the other Long.
      */
-    @Native("java", "((#1) < (#2))")
-    @Native("c++",  "((#1) < (#2))")
-    public native static operator (x:Long) < (y:Long): Boolean;
+    @Native("java", "((#0) < (#1))")
+    @Native("c++",  "((#0) < (#1))")
+    public native operator this < (x:Long): Boolean;
 
     /**
      * A greater-than operator.
-     * Compares the given Long with another Long and returns true if the given Long is
+     * Compares this Long with another Long and returns true if this Long is
      * strictly greater than the other Long.
-     * @param x the given Long
-     * @param y the other Long
-     * @return true if the given Long is strictly greater than the other Long.
+     * @param x the other Long
+     * @return true if this Long is strictly greater than the other Long.
      */
-    @Native("java", "((#1) > (#2))")
-    @Native("c++",  "((#1) > (#2))")
-    public native static operator (x:Long) > (y:Long): Boolean;
+    @Native("java", "((#0) > (#1))")
+    @Native("c++",  "((#0) > (#1))")
+    public native operator this > (x:Long): Boolean;
 
     /**
      * A less-than-or-equal-to operator.
-     * Compares the given Long with another Long and returns true if the given Long is
+     * Compares this Long with another Long and returns true if this Long is
      * less than or equal to the other Long.
-     * @param x the given Long
-     * @param y the other Long
-     * @return true if the given Long is less than or equal to the other Long.
+     * @param x the other Long
+     * @return true if this Long is less than or equal to the other Long.
      */
-    @Native("java", "((#1) <= (#2))")
-    @Native("c++",  "((#1) <= (#2))")
-    public native static operator (x:Long) <= (y:Long): Boolean;
+    @Native("java", "((#0) <= (#1))")
+    @Native("c++",  "((#0) <= (#1))")
+    public native operator this <= (x:Long): Boolean;
 
     /**
      * A greater-than-or-equal-to operator.
-     * Compares the given Long with another Long and returns true if the given Long is
+     * Compares this Long with another Long and returns true if this Long is
      * greater than or equal to the other Long.
-     * @param x the given Long
-     * @param y the other Long
-     * @return true if the given Long is greater than or equal to the other Long.
+     * @param x the other Long
+     * @return true if this Long is greater than or equal to the other Long.
      */
-    @Native("java", "((#1) >= (#2))")
-    @Native("c++",  "((#1) >= (#2))")
-    public native static operator (x:Long) >= (y:Long): Boolean;
+    @Native("java", "((#0) >= (#1))")
+    @Native("c++",  "((#0) >= (#1))")
+    public native operator this >= (x:Long): Boolean;
 
 
     /**
      * A binary plus operator.
      * Computes the result of the addition of the two operands.
      * Overflows result in truncating the high bits.
-     * @param x the given Long
-     * @param y the other Long
-     * @return the sum of the given Long and the other Long.
+     * @param x the other Long
+     * @return the sum of this Long and the other Long.
      */
-    @Native("java", "((#1) + (#2))")
-    @Native("c++",  "((x10_long) ((#1) + (#2)))")
-    public native static operator (x:Long) + (y:Long): Long;
+    @Native("java", "((#0) + (#1))")
+    @Native("c++",  "((x10_long) ((#0) + (#1)))")
+    public native operator this + (x:Long): Long;
 
     /**
      * A binary minus operator.
      * Computes the result of the subtraction of the two operands.
      * Overflows result in truncating the high bits.
-     * @param x the given Long
-     * @param y the other Long
-     * @return the difference of the given Long and the other Long.
+     * @param x the other Long
+     * @return the difference of this Long and the other Long.
      */
-    @Native("java", "((#1) - (#2))")
-    @Native("c++",  "((x10_long) ((#1) - (#2)))")
-    public native static operator (x:Long) - (y:Long): Long;
+    @Native("java", "((#0) - (#1))")
+    @Native("c++",  "((x10_long) ((#0) - (#1)))")
+    public native operator this - (x:Long): Long;
 
     /**
      * A binary multiply operator.
      * Computes the result of the multiplication of the two operands.
      * Overflows result in truncating the high bits.
-     * @param x the given Long
-     * @param y the other Long
-     * @return the product of the given Long and the other Long.
+     * @param x the other Long
+     * @return the product of this Long and the other Long.
      */
-    @Native("java", "((#1) * (#2))")
-    @Native("c++",  "((x10_long) ((#1) * (#2)))")
-    public native static operator (x:Long) * (y:Long): Long;
+    @Native("java", "((#0) * (#1))")
+    @Native("c++",  "((x10_long) ((#0) * (#1)))")
+    public native operator this * (x:Long): Long;
 
     /**
      * A binary divide operator.
      * Computes the result of the division of the two operands.
-     * @param x the given Long
-     * @param y the other Long
-     * @return the quotient of the given Long and the other Long.
+     * @param x the other Long
+     * @return the quotient of this Long and the other Long.
      */
-    @Native("java", "((#1) / (#2))")
-    @Native("c++",  "((x10_long) ((#1) / (#2)))")
-    public native static operator (x:Long) / (y:Long): Long;
+    @Native("java", "((#0) / (#1))")
+    @Native("c++",  "((x10_long) ((#0) / (#1)))")
+    public native operator this / (x:Long): Long;
 
     /**
      * A binary remainder operator.
      * Computes a remainder from the division of the two operands.
-     * @param x the given Long
-     * @param y the other Long
-     * @return the remainder from dividing the given Long by the other Long.
+     * @param x the other Long
+     * @return the remainder from dividing this Long by the other Long.
      */
-    @Native("java", "((#1) % (#2))")
-    @Native("c++",  "((x10_long) ((#1) % (#2)))")
-    public native static operator (x:Long) % (y:Long): Long;
+    @Native("java", "((#0) % (#1))")
+    @Native("c++",  "((x10_long) ((#0) % (#1)))")
+    public native operator this % (x:Long): Long;
 
     /**
      * A unary plus operator.
      * A no-op.
-     * @param x the given Long
-     * @return the value of the given Long.
+     * @return the value of this Long.
      */
     @Native("java", "(+(#1))")
     @Native("c++",  "((x10_long) +(#1))")
-    public native static operator + (x:Long): Long;
+    public native operator + this: Long;
 
     /**
      * A unary minus operator.
      * Negates the operand.
      * Overflows result in truncating the high bits.
-     * @param x the given Long
-     * @return the negated value of the given Long.
+     * @return the negated value of this Long.
      */
-    @Native("java", "(-(#1))")
-    @Native("c++",  "((x10_long) -(#1))")
-    public native static operator - (x:Long): Long;
+    @Native("java", "(-(#0))")
+    @Native("c++",  "((x10_long) -(#0))")
+    public native operator - this: Long;
 
 
     /**
      * A bitwise and operator.
      * Computes a bitwise AND of the two operands.
-     * @param x the given Long
-     * @param y the other Long
-     * @return the bitwise AND of the given Long and the other Long.
+     * @param x the other Long
+     * @return the bitwise AND of this Long and the other Long.
      */
-    @Native("java", "((#1) & (#2))")
-    @Native("c++",  "((x10_long) ((#1) & (#2)))")
-    public native static operator (x:Long) & (y:Long): Long;
+    @Native("java", "((#0) & (#1))")
+    @Native("c++",  "((x10_long) ((#0) & (#1)))")
+    public native operator this & (x:Long): Long;
 
     /**
      * A bitwise or operator.
      * Computes a bitwise OR of the two operands.
-     * @param x the given Long
-     * @param y the other Long
-     * @return the bitwise OR of the given Long and the other Long.
+     * @param x the other Long
+     * @return the bitwise OR of this Long and the other Long.
      */
-    @Native("java", "((#1) | (#2))")
-    @Native("c++",  "((x10_long) ((#1) | (#2)))")
-    public native static operator (x:Long) | (y:Long): Long;
+    @Native("java", "((#0) | (#1))")
+    @Native("c++",  "((x10_long) ((#0) | (#1)))")
+    public native operator this | (x:Long): Long;
 
     /**
      * A bitwise xor operator.
      * Computes a bitwise XOR of the two operands.
-     * @param x the given Long
-     * @param y the other Long
-     * @return the bitwise XOR of the given Long and the other Long.
+     * @param x the other Long
+     * @return the bitwise XOR of this Long and the other Long.
      */
-    @Native("java", "((#1) ^ (#2))")
-    @Native("c++",  "((x10_long) ((#1) ^ (#2)))")
-    public native static operator (x:Long) ^ (y:Long): Long;
+    @Native("java", "((#0) ^ (#1))")
+    @Native("c++",  "((x10_long) ((#0) ^ (#1)))")
+    public native operator this ^ (x:Long): Long;
 
     /**
      * A bitwise left shift operator.
      * Computes the value of the left-hand operand shifted left by the value of the right-hand operand.
      * If the right-hand operand is negative, the results are undefined.
-     * @param x the given Long
      * @param count the shift count
-     * @return the given Long shifted left by count.
+     * @return this Long shifted left by count.
      */
-    @Native("java", "((#1) << (#2))")
-    @Native("c++",  "((x10_long) ((#1) << (#2)))")
-    public native static operator (x:Long) << (count:Int): Long;
+    @Native("java", "((#0) << (#1))")
+    @Native("c++",  "((x10_long) ((#0) << (#1)))")
+    public native operator this << (count:Int): Long;
 
     /**
      * A bitwise right shift operator.
      * Computes the value of the left-hand operand shifted right by the value of the right-hand operand,
      * replicating the sign bit into the high bits.
      * If the right-hand operand is negative, the results are undefined.
-     * @param x the given Long
      * @param count the shift count
-     * @return the given Long shifted right by count.
+     * @return this Long shifted right by count.
      */
-    @Native("java", "((#1) >> (#2))")
-    @Native("c++",  "((x10_long) ((#1) >> (#2)))")
-    public native static operator (x:Long) >> (count:Int): Long;
+    @Native("java", "((#0) >> (#1))")
+    @Native("c++",  "((x10_long) ((#0) >> (#1)))")
+    public native operator this >> (count:Int): Long;
 
     /**
      * A bitwise logical right shift operator (zero-fill).
@@ -219,23 +203,21 @@ public struct Long implements Comparable[Long] /*TODO implements Arithmetic[Long
      * filling the high bits with zeros.
      * If the right-hand operand is negative, the results are undefined.
      * @deprecated use the right-shift operator and unsigned conversions instead.
-     * @param x the given Long
      * @param count the shift count
-     * @return the given Long shifted right by count with high bits zero-filled.
+     * @return this Long shifted right by count with high bits zero-filled.
      */
-    @Native("java", "((#1) >>> (#2))")
-    @Native("c++",  "((x10_long) ((x10_ulong) (#1) >> (#2)))")
-    public native static operator (x:Long) >>> (count:Int): Long;
+    @Native("java", "((#0) >>> (#1))")
+    @Native("c++",  "((x10_long) ((x10_ulong) (#0) >> (#1)))")
+    public native operator this >>> (count:Int): Long;
 
     /**
      * A bitwise complement operator.
      * Computes a bitwise complement (NOT) of the operand.
-     * @param x the given Long
-     * @return the bitwise complement of the given Long.
+     * @return the bitwise complement of this Long.
      */
-    @Native("java", "((long) ~(#1))")
-    @Native("c++",  "((x10_long) ~(#1))")
-    public native static operator ~ (x:Long): Long;
+    @Native("java", "((long) ~(#0))")
+    @Native("c++",  "((x10_long) ~(#0))")
+    public native operator ~ this: Long;
 
 
     /**

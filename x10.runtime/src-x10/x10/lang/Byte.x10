@@ -28,190 +28,174 @@ import x10.util.Ordered;
 public struct Byte implements Comparable[Byte] /*TODO implements Arithmetic[Byte], Bitwise[Byte], Ordered[Byte]*/ {
     /**
      * A less-than operator.
-     * Compares the given Byte with another Byte and returns true if the given Byte is
+     * Compares this Byte with another Byte and returns true if this Byte is
      * strictly less than the other Byte.
-     * @param x the given Byte
-     * @param y the other Byte
-     * @return true if the given Byte is strictly less than the other Byte.
+     * @param x the other Byte
+     * @return true if this Byte is strictly less than the other Byte.
      */
-    @Native("java", "((#1) < (#2))")
-    @Native("c++",  "((#1) < (#2))")
-    public native static operator (x:Byte) < (y:Byte): Boolean;
+    @Native("java", "((#0) < (#1))")
+    @Native("c++",  "((#0) < (#1))")
+    public native operator this < (x:Byte): Boolean;
 
     /**
      * A greater-than operator.
-     * Compares the given Byte with another Byte and returns true if the given Byte is
+     * Compares this Byte with another Byte and returns true if this Byte is
      * strictly greater than the other Byte.
-     * @param x the given Byte
-     * @param y the other Byte
-     * @return true if the given Byte is strictly greater than the other Byte.
+     * @param x the other Byte
+     * @return true if this Byte is strictly greater than the other Byte.
      */
-    @Native("java", "((#1) > (#2))")
-    @Native("c++",  "((#1) > (#2))")
-    public native static operator (x:Byte) > (y:Byte): Boolean;
+    @Native("java", "((#0) > (#1))")
+    @Native("c++",  "((#0) > (#1))")
+    public native operator this > (x:Byte): Boolean;
 
     /**
      * A less-than-or-equal-to operator.
-     * Compares the given Byte with another Byte and returns true if the given Byte is
+     * Compares this Byte with another Byte and returns true if this Byte is
      * less than or equal to the other Byte.
-     * @param x the given Byte
-     * @param y the other Byte
-     * @return true if the given Byte is less than or equal to the other Byte.
+     * @param x the other Byte
+     * @return true if this Byte is less than or equal to the other Byte.
      */
-    @Native("java", "((#1) <= (#2))")
-    @Native("c++",  "((#1) <= (#2))")
-    public native static operator (x:Byte) <= (y:Byte): Boolean;
+    @Native("java", "((#0) <= (#1))")
+    @Native("c++",  "((#0) <= (#1))")
+    public native operator this <= (x:Byte): Boolean;
 
     /**
      * A greater-than-or-equal-to operator.
-     * Compares the given Byte with another Byte and returns true if the given Byte is
+     * Compares this Byte with another Byte and returns true if this Byte is
      * greater than or equal to the other Byte.
-     * @param x the given Byte
-     * @param y the other Byte
-     * @return true if the given Byte is greater than or equal to the other Byte.
+     * @param x the other Byte
+     * @return true if this Byte is greater than or equal to the other Byte.
      */
-    @Native("java", "((#1) >= (#2))")
-    @Native("c++",  "((#1) >= (#2))")
-    public native static operator (x:Byte) >= (y:Byte): Boolean;
+    @Native("java", "((#0) >= (#1))")
+    @Native("c++",  "((#0) >= (#1))")
+    public native operator this >= (x:Byte): Boolean;
 
 
     /**
      * A binary plus operator.
      * Computes the result of the addition of the two operands.
      * Overflows result in truncating the high bits.
-     * @param x the given Byte
-     * @param y the other Byte
-     * @return the sum of the given Byte and the other Byte.
+     * @param x the other Byte
+     * @return the sum of this Byte and the other Byte.
      */
-    @Native("java", "((byte) ((#1) + (#2)))")
-    @Native("c++",  "((x10_byte) ((#1) + (#2)))")
-    public native static operator (x:Byte) + (y:Byte): Byte;
+    @Native("java", "((byte) ((#0) + (#1)))")
+    @Native("c++",  "((x10_byte) ((#0) + (#1)))")
+    public native operator this + (x:Byte): Byte;
 
     /**
      * A binary minus operator.
      * Computes the result of the subtraction of the two operands.
      * Overflows result in truncating the high bits.
-     * @param x the given Byte
-     * @param y the other Byte
-     * @return the difference of the given Byte and the other Byte.
+     * @param x the other Byte
+     * @return the difference of this Byte and the other Byte.
      */
-    @Native("java", "((byte) ((#1) - (#2)))")
-    @Native("c++",  "((x10_byte) ((#1) - (#2)))")
-    public native static operator (x:Byte) - (y:Byte): Byte;
+    @Native("java", "((byte) ((#0) - (#1)))")
+    @Native("c++",  "((x10_byte) ((#0) - (#1)))")
+    public native operator this - (x:Byte): Byte;
 
     /**
      * A binary multiply operator.
      * Computes the result of the multiplication of the two operands.
      * Overflows result in truncating the high bits.
-     * @param x the given Byte
-     * @param y the other Byte
-     * @return the product of the given Byte and the other Byte.
+     * @param x the other Byte
+     * @return the product of this Byte and the other Byte.
      */
-    @Native("java", "((byte) ((#1) * (#2)))")
-    @Native("c++",  "((x10_byte) ((#1) * (#2)))")
-    public native static operator (x:Byte) * (y:Byte): Byte;
+    @Native("java", "((byte) ((#0) * (#1)))")
+    @Native("c++",  "((x10_byte) ((#0) * (#1)))")
+    public native operator this * (x:Byte): Byte;
 
     /**
      * A binary divide operator.
      * Computes the result of the division of the two operands.
-     * @param x the given Byte
-     * @param y the other Byte
-     * @return the quotient of the given Byte and the other Byte.
+     * @param x the other Byte
+     * @return the quotient of this Byte and the other Byte.
      */
-    @Native("java", "((byte) ((#1) / (#2)))")
-    @Native("c++",  "((x10_byte) ((#1) / (#2)))")
-    public native static operator (x:Byte) / (y:Byte): Byte;
+    @Native("java", "((byte) ((#0) / (#1)))")
+    @Native("c++",  "((x10_byte) ((#0) / (#1)))")
+    public native operator this / (x:Byte): Byte;
 
     /**
      * A binary remainder operator.
      * Computes a remainder from the division of the two operands.
-     * @param x the given Byte
-     * @param y the other Byte
-     * @return the remainder from dividing the given Byte by the other Byte.
+     * @param x the other Byte
+     * @return the remainder from dividing this Byte by the other Byte.
      */
-    @Native("java", "((byte) ((#1) % (#2)))")
-    @Native("c++",  "((x10_byte) ((#1) % (#2)))")
-    public native static operator (x:Byte) % (y:Byte): Byte;
+    @Native("java", "((byte) ((#0) % (#1)))")
+    @Native("c++",  "((x10_byte) ((#0) % (#1)))")
+    public native operator this % (x:Byte): Byte;
 
     /**
      * A unary plus operator.
      * A no-op.
-     * @param x the given Byte
-     * @return the value of the given Byte.
+     * @return the value of this Byte.
      */
-    @Native("java", "((byte) +(#1))")
-    @Native("c++",  "((x10_byte) +(#1))")
-    public native static operator + (x:Byte): Byte;
+    @Native("java", "((byte) +(#0))")
+    @Native("c++",  "((x10_byte) +(#0))")
+    public native operator + this: Byte;
 
     /**
      * A unary minus operator.
      * Negates the operand.
      * Overflows result in truncating the high bits.
-     * @param x the given Byte
-     * @return the negated value of the given Byte.
+     * @return the negated value of this Byte.
      */
-    @Native("java", "((byte) -(#1))")
-    @Native("c++",  "((x10_byte) -(#1))")
-    public native static operator - (x:Byte): Byte;
+    @Native("java", "((byte) -(#0))")
+    @Native("c++",  "((x10_byte) -(#0))")
+    public native operator - this: Byte;
 
 
     /**
      * A bitwise and operator.
      * Computes a bitwise AND of the two operands.
-     * @param x the given Byte
-     * @param y the other Byte
-     * @return the bitwise AND of the given Byte and the other Byte.
+     * @param x the other Byte
+     * @return the bitwise AND of this Byte and the other Byte.
      */
-    @Native("java", "((byte) ((#1) & (#2)))")
-    @Native("c++",  "((x10_byte) ((#1) & (#2)))")
-    public native static operator (x:Byte) & (y:Byte): Byte;
+    @Native("java", "((byte) ((#0) & (#1)))")
+    @Native("c++",  "((x10_byte) ((#0) & (#1)))")
+    public native operator this & (x:Byte): Byte;
 
     /**
      * A bitwise or operator.
      * Computes a bitwise OR of the two operands.
-     * @param x the given Byte
-     * @param y the other Byte
-     * @return the bitwise OR of the given Byte and the other Byte.
+     * @param x the other Byte
+     * @return the bitwise OR of this Byte and the other Byte.
      */
-    @Native("java", "((byte) ((#1) | (#2)))")
-    @Native("c++",  "((x10_byte) ((#1) | (#2)))")
-    public native static operator (x:Byte) | (y:Byte): Byte;
+    @Native("java", "((byte) ((#0) | (#1)))")
+    @Native("c++",  "((x10_byte) ((#0) | (#1)))")
+    public native operator this | (x:Byte): Byte;
 
     /**
      * A bitwise xor operator.
      * Computes a bitwise XOR of the two operands.
-     * @param x the given Byte
-     * @param y the other Byte
-     * @return the bitwise XOR of the given Byte and the other Byte.
+     * @param x the other Byte
+     * @return the bitwise XOR of this Byte and the other Byte.
      */
-    @Native("java", "((byte) ((#1) ^ (#2)))")
-    @Native("c++",  "((x10_byte) ((#1) ^ (#2)))")
-    public native static operator (x:Byte) ^ (y:Byte): Byte;
+    @Native("java", "((byte) ((#0) ^ (#1)))")
+    @Native("c++",  "((x10_byte) ((#0) ^ (#1)))")
+    public native operator this ^ (x:Byte): Byte;
 
     /**
      * A bitwise left shift operator.
      * Computes the value of the left-hand operand shifted left by the value of the right-hand operand.
      * If the right-hand operand is negative, the results are undefined.
-     * @param x the given Byte
      * @param count the shift count
-     * @return the given Byte shifted left by count.
+     * @return this Byte shifted left by count.
      */
-    @Native("java", "((byte) ((#1) << (#2)))")
-    @Native("c++",  "((x10_byte) ((#1) << (#2)))")
-    public native static operator (x:Byte) << (count:Int): Byte;
+    @Native("java", "((byte) ((#0) << (#1)))")
+    @Native("c++",  "((x10_byte) ((#0) << (#1)))")
+    public native operator this << (count:Int): Byte;
 
     /**
      * A bitwise right shift operator.
      * Computes the value of the left-hand operand shifted right by the value of the right-hand operand,
      * replicating the sign bit into the high bits.
      * If the right-hand operand is negative, the results are undefined.
-     * @param x the given Byte
      * @param count the shift count
-     * @return the given Byte shifted right by count.
+     * @return this Byte shifted right by count.
      */
-    @Native("java", "((byte) ((#1) >> (#2)))")
-    @Native("c++",  "((x10_byte) ((#1) >> (#2)))")
-    public native static operator (x:Byte) >> (count:Int): Byte;
+    @Native("java", "((byte) ((#0) >> (#1)))")
+    @Native("c++",  "((x10_byte) ((#0) >> (#1)))")
+    public native operator this >> (count:Int): Byte;
 
     /**
      * A bitwise logical right shift operator (zero-fill).
@@ -219,23 +203,21 @@ public struct Byte implements Comparable[Byte] /*TODO implements Arithmetic[Byte
      * filling the high bits with zeros.
      * If the right-hand operand is negative, the results are undefined.
      * @deprecated use the right-shift operator and unsigned conversions instead.
-     * @param x the given Byte
      * @param count the shift count
-     * @return the given Byte shifted right by count with high bits zero-filled.
+     * @return this Byte shifted right by count with high bits zero-filled.
      */
-    @Native("java", "((byte) ((#1) >>> (#2)))")
-    @Native("c++",  "((x10_byte) ((x10_uint) (#1) >> (#2)))")
-    public native static operator (x:Byte) >>> (count:Int): Byte;
+    @Native("java", "((byte) ((#0) >>> (#1)))")
+    @Native("c++",  "((x10_byte) ((x10_uint) (#0) >> (#1)))")
+    public native operator this >>> (count:Int): Byte;
 
     /**
      * A bitwise complement operator.
      * Computes a bitwise complement (NOT) of the operand.
-     * @param x the given Byte
-     * @return the bitwise complement of the given Byte.
+     * @return the bitwise complement of this Byte.
      */
-    @Native("java", "((byte) ~(#1))")
-    @Native("c++",  "((x10_byte) ~(#1))")
-    public native static operator ~ (x:Byte): Byte;
+    @Native("java", "((byte) ~(#0))")
+    @Native("c++",  "((x10_byte) ~(#0))")
+    public native operator ~ this: Byte;
 
 
     /**

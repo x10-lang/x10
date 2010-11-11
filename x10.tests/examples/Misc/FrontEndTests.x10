@@ -2506,3 +2506,7 @@ class XTENLANG_2052 {
 				"1"]; // ERR: Semantic Error: The literal is not of the given type	 expr:"1"	 type: x10.lang.String{self=="1"}	 desired type: x10.lang.Double
 	val x = ULong.MAX_VALUE; //XTENLANG-2054
 }
+class XTENLANG_2070 {
+	var i:Int=0;
+	var j1:Int = ++(i); // ShouldNotBeERR
+}

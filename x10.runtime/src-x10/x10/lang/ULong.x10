@@ -35,58 +35,54 @@ public struct ULong implements Comparable[ULong] /*TODO implements Arithmetic[UL
 
     /**
      * A less-than operator.
-     * Compares the given ULong with another ULong and returns true if the given ULong is
+     * Compares this ULong with another ULong and returns true if this ULong is
      * strictly less than the other ULong.
-     * @param x the given ULong
-     * @param y the other ULong
-     * @return true if the given ULong is strictly less than the other ULong.
+     * @param x the other ULong
+     * @return true if this ULong is strictly less than the other ULong.
      */
-    // @Native("java", "x10.core.Unsigned.lt(#1, #2)")
-    @Native("c++",  "((#1) < (#2))")
-    public static operator (x:ULong) < (y:ULong): Boolean {
-        return (x.longVal + Long.MIN_VALUE) < (y.longVal + Long.MIN_VALUE);
+    // @Native("java", "x10.core.Unsigned.lt(#0, #1)")
+    @Native("c++",  "((#0) < (#1))")
+    public operator this < (x:ULong): Boolean {
+        return (longVal + Long.MIN_VALUE) < (x.longVal + Long.MIN_VALUE);
     }
 
     /**
      * A greater-than operator.
-     * Compares the given ULong with another ULong and returns true if the given ULong is
+     * Compares this ULong with another ULong and returns true if this ULong is
      * strictly greater than the other ULong.
-     * @param x the given ULong
-     * @param y the other ULong
-     * @return true if the given ULong is strictly greater than the other ULong.
+     * @param x the other ULong
+     * @return true if this ULong is strictly greater than the other ULong.
      */
-    // @Native("java", "x10.core.Unsigned.gt(#1, #2)")
-    @Native("c++",  "((#1) > (#2))")
-    public static operator (x:ULong) > (y:ULong): Boolean {
-        return (x.longVal + Long.MIN_VALUE) > (y.longVal + Long.MIN_VALUE);
+    // @Native("java", "x10.core.Unsigned.gt(#0, #1)")
+    @Native("c++",  "((#0) > (#1))")
+    public operator this > (x:ULong): Boolean {
+        return (longVal + Long.MIN_VALUE) > (x.longVal + Long.MIN_VALUE);
     }
 
     /**
      * A less-than-or-equal-to operator.
-     * Compares the given ULong with another ULong and returns true if the given ULong is
+     * Compares this ULong with another ULong and returns true if this ULong is
      * less than or equal to the other ULong.
-     * @param x the given ULong
-     * @param y the other ULong
-     * @return true if the given ULong is less than or equal to the other ULong.
+     * @param x the other ULong
+     * @return true if this ULong is less than or equal to the other ULong.
      */
-    // @Native("java", "x10.core.Unsigned.le(#1, #2)")
-    @Native("c++",  "((#1) <= (#2))")
-    public static operator (x:ULong) <= (y:ULong): Boolean {
-        return (x.longVal + Long.MIN_VALUE) <= (y.longVal + Long.MIN_VALUE);
+    // @Native("java", "x10.core.Unsigned.le(#0, #1)")
+    @Native("c++",  "((#0) <= (#1))")
+    public operator this <= (x:ULong): Boolean {
+        return (longVal + Long.MIN_VALUE) <= (x.longVal + Long.MIN_VALUE);
     }
 
     /**
      * A greater-than-or-equal-to operator.
-     * Compares the given ULong with another ULong and returns true if the given ULong is
+     * Compares this ULong with another ULong and returns true if this ULong is
      * greater than or equal to the other ULong.
-     * @param x the given ULong
-     * @param y the other ULong
-     * @return true if the given ULong is greater than or equal to the other ULong.
+     * @param x the other ULong
+     * @return true if this ULong is greater than or equal to the other ULong.
      */
-    // @Native("java", "x10.core.Unsigned.ge(#1, #2)")
-    @Native("c++",  "((#1) >= (#2))")
-    public static operator (x:ULong) >= (y:ULong): Boolean {
-        return (x.longVal + Long.MIN_VALUE) >= (y.longVal + Long.MIN_VALUE);
+    // @Native("java", "x10.core.Unsigned.ge(#0, #1)")
+    @Native("c++",  "((#0) >= (#1))")
+    public operator this >= (x:ULong): Boolean {
+        return (longVal + Long.MIN_VALUE) >= (x.longVal + Long.MIN_VALUE);
     }
 
 
@@ -94,93 +90,89 @@ public struct ULong implements Comparable[ULong] /*TODO implements Arithmetic[UL
      * A binary plus operator.
      * Computes the result of the addition of the two operands.
      * Overflows result in truncating the high bits.
-     * @param x the given ULong
-     * @param y the other ULong
-     * @return the sum of the given ULong and the other ULong.
+     * @param x the other ULong
+     * @return the sum of this ULong and the other ULong.
      */
-    // @Native("java", "((#1) + (#2))")
-    @Native("c++",  "((x10_ulong) ((#1) + (#2)))")
-    public static operator (x:ULong) + (y:ULong): ULong = ULong(x.longVal + y.longVal);
+    // @Native("java", "((#0) + (#1))")
+    @Native("c++",  "((x10_ulong) ((#0) + (#1)))")
+    public operator this + (x:ULong): ULong = ULong(longVal + x.longVal);
     /**
      * A binary plus operator (unsigned disambiguation).
      * @see #operator(ULong)+(ULong)
      */
-    // @Native("java", "((#1) + (#2))")
-    @Native("c++",  "((x10_ulong) ((#1) + (#2)))")
-    public static operator (x:Long) + (y:ULong): ULong = ULong(x + y.longVal);
+    // @Native("java", "((#0) + (#1))")
+    @Native("c++",  "((x10_ulong) ((#0) + (#1)))")
+    public operator (x:Long) + this: ULong = ULong(x + longVal);
     /**
      * A binary plus operator (unsigned disambiguation).
      * @see #operator(ULong)+(ULong)
      */
-    // @Native("java", "((#1) + (#2))")
-    @Native("c++",  "((x10_ulong) ((#1) + (#2)))")
-    public static operator (x:ULong) + (y:Long): ULong = ULong(x.longVal + y);
+    // @Native("java", "((#0) + (#1))")
+    @Native("c++",  "((x10_ulong) ((#0) + (#1)))")
+    public operator this + (x:Long): ULong = ULong(longVal + x);
 
     /**
      * A binary minus operator.
      * Computes the result of the subtraction of the two operands.
      * Overflows result in truncating the high bits.
-     * @param x the given ULong
-     * @param y the other ULong
-     * @return the difference of the given ULong and the other ULong.
+     * @param x the other ULong
+     * @return the difference of this ULong and the other ULong.
      */
-    // @Native("java", "((#1) - (#2))")
-    @Native("c++",  "((x10_ulong) ((#1) - (#2)))")
-    public static operator (x:ULong) - (y:ULong): ULong  = ULong(x.longVal - y.longVal);
+    // @Native("java", "((#0) - (#1))")
+    @Native("c++",  "((x10_ulong) ((#0) - (#1)))")
+    public operator this - (x:ULong): ULong  = ULong(longVal - x.longVal);
     /**
      * A binary minus operator (unsigned disambiguation).
      * @see #operator(ULong)-(ULong)
      */
-    // @Native("java", "((#1) - (#2))")
-    @Native("c++",  "((x10_ulong) ((#1) - (#2)))")
-    public static operator (x:Long) - (y:ULong): ULong = ULong(x - y.longVal);
+    // @Native("java", "((#0) - (#2))")
+    @Native("c++",  "((x10_ulong) ((#0) - (#1)))")
+    public operator (x:Long) - this: ULong = ULong(x - longVal);
     /**
      * A binary minus operator (unsigned disambiguation).
      * @see #operator(ULong)-(ULong)
      */
-    // @Native("java", "((#1) - (#2))")
-    @Native("c++",  "((x10_ulong) ((#1) - (#2)))")
-    public static operator (x:ULong) - (y:Long): ULong = ULong(x.longVal - y);
+    // @Native("java", "((#0) - (#1))")
+    @Native("c++",  "((x10_ulong) ((#0) - (#1)))")
+    public operator this - (x:Long): ULong = ULong(longVal - x);
 
     /**
      * A binary multiply operator.
      * Computes the result of the multiplication of the two operands.
      * Overflows result in truncating the high bits.
-     * @param x the given ULong
-     * @param y the other ULong
-     * @return the product of the given ULong and the other ULong.
+     * @param x the other ULong
+     * @return the product of this ULong and the other ULong.
      */
-    // @Native("java", "((#1) * (#2))")
-    @Native("c++",  "((x10_ulong) ((#1) * (#2)))")
-    public static operator (x:ULong) * (y:ULong): ULong = ULong(x.longVal * y.longVal);
+    // @Native("java", "((#0) * (#1))")
+    @Native("c++",  "((x10_ulong) ((#0) * (#1)))")
+    public operator this * (x:ULong): ULong = ULong(longVal * x.longVal);
     /**
      * A binary multiply operator (unsigned disambiguation).
      * @see #operator(ULong)*(ULong)
      */
-    // @Native("java", "((#1) * (#2))")
-    @Native("c++",  "((x10_ulong) ((#1) * (#2)))")
-    public static operator (x:Long) * (y:ULong): ULong = ULong(x * y.longVal);
+    // @Native("java", "((#0) * (#1))")
+    @Native("c++",  "((x10_ulong) ((#0) * (#1)))")
+    public operator (x:Long) * this: ULong = ULong(x * longVal);
     /**
      * A binary multiply operator (unsigned disambiguation).
      * @see #operator(ULong)*(ULong)
      */
-    // @Native("java", "((#1) * (#2))")
-    @Native("c++",  "((x10_ulong) ((#1) * (#2)))")
-    public static operator (x:ULong) * (y:Long): ULong = ULong(x.longVal * y);
+    // @Native("java", "((#0) * (#1))")
+    @Native("c++",  "((x10_ulong) ((#0) * (#1)))")
+    public operator this * (x:Long): ULong = ULong(longVal * x);
 
     /**
      * A binary divide operator.
      * Computes the result of the division of the two operands.
-     * @param x the given ULong
-     * @param y the other ULong
-     * @return the quotient of the given ULong and the other ULong.
+     * @param x the other ULong
+     * @return the quotient of this ULong and the other ULong.
      */
-    // @Native("java", "x10.core.Unsigned.div(#1, #2)")
-    @Native("c++",  "((x10_ulong) ((#1) / (#2)))")
-    public static operator (x:ULong) / (y:ULong): ULong {
-        if (x.longVal > 0 && y.longVal > 0)
-            return ULong(x.longVal / y.longVal);
-        else if (x.longVal < y.longVal)
+    // @Native("java", "x10.core.Unsigned.div(#0, #1)")
+    @Native("c++",  "((x10_ulong) ((#0) / (#1)))")
+    public operator this / (x:ULong): ULong {
+        if (longVal > 0 && x.longVal > 0)
+            return ULong(longVal / x.longVal);
+        else if (longVal < x.longVal)
             return 0L as ULong;
         else
             return 1L as ULong;
@@ -189,12 +181,12 @@ public struct ULong implements Comparable[ULong] /*TODO implements Arithmetic[UL
      * A binary divide operator (unsigned disambiguation).
      * @see #operator(ULong)/(ULong)
      */
-    // @Native("java", "x10.core.Unsigned.div(#1, #2)")
-    @Native("c++",  "((x10_ulong) ((#1) / (#2)))")
-    public static operator (x:Long) / (y:ULong): ULong {
-        if (x > 0 && y.longVal > 0)
-            return ULong(x / y.longVal);
-        else if (x < y.longVal)
+    // @Native("java", "x10.core.Unsigned.div(#0, #1)")
+    @Native("c++",  "((x10_ulong) ((#0) / (#1)))")
+    public operator (x:Long) / this: ULong {
+        if (x > 0 && longVal > 0)
+            return ULong(x / longVal);
+        else if (x < longVal)
             return 0L as ULong;
         else
             return 1L as ULong;
@@ -203,12 +195,12 @@ public struct ULong implements Comparable[ULong] /*TODO implements Arithmetic[UL
      * A binary divide operator (unsigned disambiguation).
      * @see #operator(ULong)/(ULong)
      */
-    // @Native("java", "x10.core.Unsigned.div(#1, #2)")
-    @Native("c++",  "((x10_ulong) ((#1) / (#2)))")
-    public static operator (x:ULong) / (y:Long): ULong {
-        if (x.longVal > 0 && y > 0)
-            return ULong(x.longVal / y);
-        else if (x.longVal < y)
+    // @Native("java", "x10.core.Unsigned.div(#0, #1)")
+    @Native("c++",  "((x10_ulong) ((#0) / (#1)))")
+    public operator this / (x:Long): ULong {
+        if (longVal > 0 && x > 0)
+            return ULong(longVal / x);
+        else if (longVal < x)
             return 0L as ULong;
         else
             return 1L as ULong;
@@ -217,170 +209,162 @@ public struct ULong implements Comparable[ULong] /*TODO implements Arithmetic[UL
     /**
      * A binary remainder operator.
      * Computes a remainder from the division of the two operands.
-     * @param x the given ULong
-     * @param y the other ULong
-     * @return the remainder from dividing the given ULong by the other ULong.
+     * @param x the other ULong
+     * @return the remainder from dividing this ULong by the other ULong.
      */
-    // @Native("java", "x10.core.Unsigned.rem(#1, #2)")
-    @Native("c++",  "((x10_ulong) ((#1) % (#2)))")
-    public static operator (x:ULong) % (y:ULong): ULong {
-        if (x.longVal > 0 && y.longVal > 0)
-            return ULong(x.longVal % y.longVal);
-        else if (x.longVal < y.longVal)
-            return x;
+    // @Native("java", "x10.core.Unsigned.rem(#0, #1)")
+    @Native("c++",  "((x10_ulong) ((#0) % (#1)))")
+    public operator this % (x:ULong): ULong {
+        if (longVal > 0 && x.longVal > 0)
+            return ULong(longVal % x.longVal);
+        else if (longVal < x.longVal)
+            return this;
         else
-            return ULong(x.longVal - y.longVal);
+            return ULong(longVal - x.longVal);
     }
     /**
      * A binary remainder operator (unsigned disambiguation).
      * @see #operator(ULong)%(ULong)
      */
-    // @Native("java", "x10.core.Unsigned.rem(#1, #2)")
-    @Native("c++",  "((x10_ulong) ((#1) % (#2)))")
-    public static operator (x:Long) % (y:ULong): ULong {
-        if (x > 0 && y.longVal > 0)
-            return ULong(x % y.longVal);
-        else if (x < y.longVal)
+    // @Native("java", "x10.core.Unsigned.rem(#0, #1)")
+    @Native("c++",  "((x10_ulong) ((#0) % (#1)))")
+    public operator (x:Long) % this: ULong {
+        if (x > 0 && longVal > 0)
+            return ULong(x % longVal);
+        else if (x < longVal)
             return ULong(x);
         else
-            return ULong(x - y.longVal);
+            return ULong(x - longVal);
     }
     /**
      * A binary remainder operator (unsigned disambiguation).
      * @see #operator(ULong)%(ULong)
      */
-    // @Native("java", "x10.core.Unsigned.rem(#1, #2)")
-    @Native("c++",  "((x10_ulong) ((#1) % (#2)))")
-    public static operator (x:ULong) % (y:Long): ULong {
-        if (x.longVal > 0 && y > 0)
-            return ULong(x.longVal % y);
-        else if (x.longVal < y)
-            return x;
+    // @Native("java", "x10.core.Unsigned.rem(#0, #2)")
+    @Native("c++",  "((x10_ulong) ((#0) % (#1)))")
+    public operator this % (x:Long): ULong {
+        if (longVal > 0 && x > 0)
+            return ULong(longVal % x);
+        else if (longVal < x)
+            return this;
         else
-            return ULong(x.longVal - y);
+            return ULong(longVal - x);
     }
 
     /**
      * A unary plus operator.
      * A no-op.
-     * @param x the given ULong
-     * @return the value of the given ULong.
+     * @return the value of this ULong.
      */
-    // @Native("java", "((long) +(#1))")
-    @Native("c++",  "((x10_ulong) +(#1))")
-    public static operator + (x:ULong): ULong = x;
+    // @Native("java", "((long) +(#0))")
+    @Native("c++",  "((x10_ulong) +(#0))")
+    public operator + this: ULong = this;
 
     /**
      * A unary minus operator.
      * Computes the two's complement of the operand.
      * Overflows result in truncating the high bits.
-     * @param x the given ULong
-     * @return the two's complement of the given ULong.
+     * @return the two's complement of this ULong.
      */
-    // @Native("java", "((long) -(#1))")
-    @Native("c++",  "((x10_ulong) -(#1))")
-    public static operator - (x:ULong): ULong = ULong(-(x.longVal));
+    // @Native("java", "((long) -(#0))")
+    @Native("c++",  "((x10_ulong) -(#0))")
+    public operator - this: ULong = ULong(-(longVal));
 
 
     /**
      * A bitwise and operator.
      * Computes a bitwise AND of the two operands.
-     * @param x the given ULong
-     * @param y the other ULong
-     * @return the bitwise AND of the given ULong and the other ULong.
+     * @param x the other ULong
+     * @return the bitwise AND of this ULong and the other ULong.
      */
-    // @Native("java", "((#1) & (#2))")
-    @Native("c++",  "((x10_ulong) ((#1) & (#2)))")
-    public static operator (x:ULong) & (y:ULong): ULong = ULong(x.longVal & y.longVal);
+    // @Native("java", "((#0) & (#1))")
+    @Native("c++",  "((x10_ulong) ((#0) & (#1)))")
+    public operator this & (x:ULong): ULong = ULong(longVal & x.longVal);
     /**
      * A bitwise and operator (unsigned disambiguation).
      * @see #operator(ULong)&(ULong)
      */
-    // @Native("java", "((#1) & (#2))")
-    @Native("c++",  "((x10_ulong) ((#1) & (#2)))")
-    public static operator (x:Long) & (y:ULong): ULong = ULong(x & y.longVal);
+    // @Native("java", "((#0) & (#1))")
+    @Native("c++",  "((x10_ulong) ((#0) & (#1)))")
+    public operator (x:Long) & this: ULong = ULong(x & longVal);
     /**
      * A bitwise and operator (unsigned disambiguation).
      * @see #operator(ULong)&(ULong)
      */
-    // @Native("java", "((#1) & (#2))")
-    @Native("c++",  "((x10_ulong) ((#1) & (#2)))")
-    public static operator (x:ULong) & (y:Long): ULong = ULong(x.longVal & y);
+    // @Native("java", "((#0) & (#1))")
+    @Native("c++",  "((x10_ulong) ((#0) & (#1)))")
+    public operator this & (x:Long): ULong = ULong(longVal & x);
 
     /**
      * A bitwise or operator.
      * Computes a bitwise OR of the two operands.
-     * @param x the given ULong
-     * @param y the other ULong
-     * @return the bitwise OR of the given ULong and the other ULong.
+     * @param x the other ULong
+     * @return the bitwise OR of this ULong and the other ULong.
      */
-    // @Native("java", "((#1) | (#2))")
-    @Native("c++",  "((x10_ulong) ((#1) | (#2)))")
-    public static operator (x:ULong) | (y:ULong): ULong = ULong(x.longVal | y.longVal);
+    // @Native("java", "((#0) | (#1))")
+    @Native("c++",  "((x10_ulong) ((#0) | (#1)))")
+    public operator this | (x:ULong): ULong = ULong(longVal | x.longVal);
     /**
      * A bitwise or operator (unsigned disambiguation).
      * @see #operator(ULong)|(ULong)
      */
-    // @Native("java", "((#1) | (#2))")
-    @Native("c++",  "((x10_ulong) ((#1) | (#2)))")
-    public static operator (x:Long) | (y:ULong): ULong = ULong(x | y.longVal);
+    // @Native("java", "((#0) | (#1))")
+    @Native("c++",  "((x10_ulong) ((#0) | (#1)))")
+    public operator (x:Long) | this: ULong = ULong(x | longVal);
     /**
      * A bitwise or operator (unsigned disambiguation).
      * @see #operator(ULong)|(ULong)
      */
-    // @Native("java", "((#1) | (#2))")
-    @Native("c++",  "((x10_ulong) ((#1) | (#2)))")
-    public static operator (x:ULong) | (y:Long): ULong = ULong(x.longVal | y);
+    // @Native("java", "((#0) | (#1))")
+    @Native("c++",  "((x10_ulong) ((#0) | (#1)))")
+    public operator this | (x:Long): ULong = ULong(longVal | x);
 
     /**
      * A bitwise xor operator.
      * Computes a bitwise XOR of the two operands.
-     * @param x the given ULong
-     * @param y the other ULong
-     * @return the bitwise XOR of the given ULong and the other ULong.
+     * @param x the other ULong
+     * @return the bitwise XOR of this ULong and the other ULong.
      */
-    // @Native("java", "((#1) ^ (#2))")
-    @Native("c++",  "((x10_ulong) ((#1) ^ (#2)))")
-    public static operator (x:ULong) ^ (y:ULong): ULong = ULong(x.longVal ^ y.longVal);
+    // @Native("java", "((#0) ^ (#1))")
+    @Native("c++",  "((x10_ulong) ((#0) ^ (#1)))")
+    public operator this ^ (x:ULong): ULong = ULong(longVal ^ x.longVal);
     /**
      * A bitwise xor operator (unsigned disambiguation).
      * @see #operator(ULong)^(ULong)
      */
-    // @Native("java", "((#1) ^ (#2))")
-    @Native("c++",  "((x10_ulong) ((#1) ^ (#2)))")
-    public static operator (x:Long) ^ (y:ULong): ULong = ULong(x ^ y.longVal);
+    // @Native("java", "((#0) ^ (#1))")
+    @Native("c++",  "((x10_ulong) ((#0) ^ (#1)))")
+    public operator (x:Long) ^ this: ULong = ULong(x ^ longVal);
     /**
      * A bitwise xor operator (unsigned disambiguation).
      * @see #operator(ULong)^(ULong)
      */
-    // @Native("java", "((#1) ^ (#2))")
-    @Native("c++",  "((x10_ulong) ((#1) ^ (#2)))")
-    public static operator (x:ULong) ^ (y:Long): ULong = ULong(x.longVal ^ y);
+    // @Native("java", "((#0) ^ (#1))")
+    @Native("c++",  "((x10_ulong) ((#0) ^ (#1)))")
+    public operator this ^ (x:Long): ULong = ULong(longVal ^ x);
 
     /**
      * A bitwise left shift operator.
      * Computes the value of the left-hand operand shifted left by the value of the right-hand operand.
      * If the right-hand operand is negative, the results are undefined.
-     * @param x the given ULong
      * @param count the shift count
-     * @return the given ULong shifted left by count.
+     * @return this ULong shifted left by count.
      */
-    // @Native("java", "((#1) << (#2))")
-    @Native("c++",  "((x10_ulong) ((#1) << (#2)))")
-    public static operator (x:ULong) << (count:Int): ULong = ULong(x.longVal << count);
+    // @Native("java", "((#0) << (#1))")
+    @Native("c++",  "((x10_ulong) ((#0) << (#1)))")
+    public operator this << (count:Int): ULong = ULong(longVal << count);
 
     /**
      * A bitwise right shift operator.
      * Computes the value of the left-hand operand shifted right by the value of the right-hand operand,
      * filling the high bits with zeros.
      * If the right-hand operand is negative, the results are undefined.
-     * @param x the given ULong
      * @param count the shift count
-     * @return the given ULong shifted right by count.
+     * @return this ULong shifted right by count.
      */
-    // @Native("java", "((#1) >>> (#2))")
-    @Native("c++",  "((x10_ulong) ((#1) >> (#2)))")
-    public static operator (x:ULong) >> (count:Int): ULong = ULong(x.longVal >>> count);
+    // @Native("java", "((#0) >>> (#1))")
+    @Native("c++",  "((x10_ulong) ((#0) >> (#1)))")
+    public operator this >> (count:Int): ULong = ULong(longVal >>> count);
 
     /**
      * A bitwise logical right shift operator (zero-fill).
@@ -388,23 +372,21 @@ public struct ULong implements Comparable[ULong] /*TODO implements Arithmetic[UL
      * filling the high bits with zeros.
      * If the right-hand operand is negative, the results are undefined.
      * @deprecated use the right-shift operator.
-     * @param x the given ULong
      * @param count the shift count
-     * @return the given ULong shifted right by count with high bits zero-filled.
+     * @return this ULong shifted right by count with high bits zero-filled.
      */
-    // @Native("java", "((#1) >>> (#2))")
-    @Native("c++",  "((x10_ulong) ((#1) >> (#2)))")
-    public static operator (x:ULong) >>> (count:Int): ULong = ULong(x.longVal >>> count);
+    // @Native("java", "((#0) >>> (#1))")
+    @Native("c++",  "((x10_ulong) ((#0) >> (#1)))")
+    public operator this >>> (count:Int): ULong = ULong(longVal >>> count);
 
     /**
      * A bitwise complement operator.
      * Computes a bitwise complement (NOT) of the operand.
-     * @param x the given ULong
-     * @return the bitwise complement of the given ULong.
+     * @return the bitwise complement of this ULong.
      */
-    // @Native("java", "((long) ~(#1))")
-    @Native("c++",  "((x10_ulong) ~(#1))")
-    public static operator ~ (x:ULong): ULong = ULong(~(x.longVal));
+    // @Native("java", "((long) ~(#0))")
+    @Native("c++",  "((x10_ulong) ~(#0))")
+    public operator ~ this: ULong = ULong(~(longVal));
 
 
     /**
