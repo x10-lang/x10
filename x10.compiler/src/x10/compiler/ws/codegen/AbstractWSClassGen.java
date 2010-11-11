@@ -203,6 +203,10 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
                 parent.frameDepth + 1, parent.classSynth.getClassDef().flags(),
                 parent.classSynth.getOuter(), stmt);
         parent.addChild(this);
+        //here we process the type parameters. For a target method that contains type parameters,
+        //all the generated inner classes should contain the type parameters;
+        X10ClassDef parentDef = parent.classSynth.getClassDef();
+        classSynth.addTypeParameters(parentDef.typeParameters(), parentDef.variances());
     }
 
 
@@ -1201,14 +1205,22 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
     public X10Call replaceMethodCallWithWSMethodCall(X10Call aCall, X10MethodDef methodDef, 
                                                   List<Expr> newArgs){
         
-        //for arguments
+        //for arguments & new method instance's formal types
         ArrayList<Expr> args = new ArrayList<Expr>(newArgs);
         args.addAll(aCall.arguments());
+        ArrayList<Type> argTypes = new ArrayList<Type>();
+        for(Expr e : newArgs){
+        	argTypes.add(e.type());
+        }
+        argTypes.addAll(aCall.methodInstance().formalTypes());
+        
         //for the name
         Name name = methodDef.name(); //new name
         
         //new method instance
         MethodInstance mi = methodDef.asInstance();
+        mi = mi.formalTypes(argTypes);
+        
         //build new call
         aCall = (X10Call) aCall.methodInstance(mi);
         aCall = (X10Call) aCall.name(xnf.Id(aCall.name().position(), name));

@@ -1,3 +1,4 @@
+//LIMITATION: Not support Inheritance call graph building in WS right now
 /*
  *  This file is part of the X10 project (http://x10-lang.org).
  *
@@ -10,37 +11,41 @@
  */
 
 /*
- * A simple Generic concurrent method
+ * A simple Generic cast
  */
-public class GenericMethod1 {
+public class GenericInheritance1 {
+	
+    interface I[T] {
+        def m(T):int;
+    }
+    
+    class A implements I[int] {
+        public def m(v:int) {
+        	var tmp:int = 0;
+        	finish {
+        		async tmp = v;
+        	}
+            return tmp;
+        }
+
+    }
 	
 	var flag: boolean = false;
-	
-    def m[T](t:T) {
-    	val v:T;
-    	finish{
-    		async v = t;
-    	}
-    	return v;
-    }
 
 	public def run() {
 		var passed:boolean = true;
-		
-		val aInt = m[int](1);
-		passed &= (aInt == 1);
-		
-		val aStr = m[String]("a");
-		passed &= (aStr.equals("a"));
-
-		Console.OUT.print("aInt = " + aInt);
-		Console.OUT.println("; aStr = " + aStr);
+	
+        val a = new A();
+        val value = a.m(2);
+        
+		passed &= (value == 2);
+		Console.OUT.println("a.m(2) = " + value);
 		
 		return passed;
 	}
 
 	public static def main(Array[String](1)) {
-        val r = new GenericMethod1().run();
+        val r = new GenericInheritance1().run();
         if(r){
              x10.io.Console.OUT.println("++++++Test succeeded.");
         }

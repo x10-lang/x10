@@ -20,4 +20,6 @@ public final class SerialData(data:Any, superclassData:SerialData) {
   public def this(data:Any, superclassData:SerialData) {
     property(data, superclassData);
   }
+  
+  public def toString():String = "SerialData(" + data + "," + superclassData + ")";
 }

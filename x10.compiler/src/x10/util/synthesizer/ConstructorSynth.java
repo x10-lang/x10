@@ -30,9 +30,11 @@ import polyglot.types.Type;
 import polyglot.types.Types;
 import polyglot.util.Position;
 import x10.ast.AnnotationNode;
+import x10.ast.TypeParamNode;
 import x10.ast.X10ConstructorDecl;
 import x10.ast.X10MethodDecl;
 import x10.extension.X10Del;
+import x10.types.ParameterType;
 import x10.types.X10ConstructorDef;
 import polyglot.types.Context;
 import x10.types.X10Flags;
@@ -49,6 +51,7 @@ public class ConstructorSynth extends AbstractStateSynth implements IClassMember
 
     List<Formal> formals;
     List<AnnotationNode> annotations;  // annotations of the new instance
+    List<ParameterType.Variance> variances; //type parameters' variances
     CodeBlockSynth codeBlockSynth;
     X10ConstructorDef conDef; // only be created once;
     X10ConstructorDecl conDecl; // only be created once;
@@ -64,6 +67,7 @@ public class ConstructorSynth extends AbstractStateSynth implements IClassMember
 
         // reference to formal
         annotations = new ArrayList<AnnotationNode>();
+        variances = new ArrayList<ParameterType.Variance>(); //type parameters' variances
         List<Ref<? extends Type>> formalTypeRefs = new ArrayList<Ref<? extends Type>>();
         List<Ref<? extends Type>> throwTypeRefs = new ArrayList<Ref<? extends Type>>();
         for (Formal f : formals) {
@@ -169,6 +173,19 @@ public class ConstructorSynth extends AbstractStateSynth implements IClassMember
         }
         return null;
     }
+    
+    public void setTypeParameters(List<ParameterType> paramTypes, List<ParameterType.Variance> variances){
+        try {
+            checkClose();
+            //conDef.setTypeParameters(paramTypes);
+            //cannot set it. Please check the X10ConstructorDef_c.java
+            this.variances = variances;
+            
+        } catch (StateSynthClosedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
 
     public CodeBlockSynth createConstructorBody(Position pos) {
         if(codeBlockSynth == null){
@@ -184,10 +201,6 @@ public class ConstructorSynth extends AbstractStateSynth implements IClassMember
     public X10ConstructorDecl close() throws SemanticException {
 
         if (conDecl != null) return conDecl;
-
-        if (conDef == null) {
-            getDef();
-        }
 
         closed = true;
         
@@ -206,8 +219,21 @@ public class ConstructorSynth extends AbstractStateSynth implements IClassMember
         conDecl = (X10ConstructorDecl) xnf.ConstructorDecl(pos, flagNode, xnf.Id(pos, classDef.name()), formals, // formal
                                                                                                                  // types
                                                            block);
-        // FIXME: need set the constructor's type parameters
-        // conDecl.typeParameters(cDecl.typeParameters());
+
+        //process the type parameters
+        int typeParamsSize = variances.size();
+        if(typeParamsSize> 0 ){
+        	//construct type param node
+        	List<ParameterType> params = conDef.typeParameters();
+        	List<TypeParamNode> tpNodes = new ArrayList<TypeParamNode>();
+        	for(int i = 0; i < typeParamsSize; i++){
+        		TypeParamNode tNode = xnf.TypeParamNode(compilerPos, xnf.Id(compilerPos, params.get(i).name()), variances.get(i));
+        		tpNodes.add(tNode.type(params.get(i)));
+        	}
+        	conDecl = conDecl.typeParameters(tpNodes);
+        }
+        
+        
         conDecl = conDecl.returnType(xnf.CanonicalTypeNode(pos, conDef.returnType()));
         if(annotations.size() > 0){
             conDecl = (X10ConstructorDecl) ((X10Del)conDecl.del()).annotations(annotations);           

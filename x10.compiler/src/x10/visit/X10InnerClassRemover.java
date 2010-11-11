@@ -449,7 +449,6 @@ public class X10InnerClassRemover extends InnerClassRemover {
             return null;
         if (!t.isClass())
             return t;
-        CConstraint constraint = t instanceof ConstrainedType ? ((ConstrainedType) t).getRealXClause() : null;
         X10ParsedClassType qt = (X10ParsedClassType) t.toClass();
         X10ClassDef def = qt.x10Def();
         if (def.isMember() && !def.flags().isStatic()) {
@@ -464,8 +463,8 @@ public class X10InnerClassRemover extends InnerClassRemover {
             }
             def.flags(def.flags().Static());
         }
-        X10ParsedClassType st = qt;
         t = X10TypeMixin.instantiateTypeParametersExplicitly(t);
+        CConstraint constraint = t instanceof ConstrainedType ? ((ConstrainedType) t).getRealXClause() : null;
         t = propagateTypeArgumentsToInnermostType(t);
         if (constraint != null) {
             t = X10TypeMixin.xclause(t, fixConstraint(constraint));

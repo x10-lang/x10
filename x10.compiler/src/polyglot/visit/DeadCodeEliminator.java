@@ -91,7 +91,7 @@ public class DeadCodeEliminator extends DataFlow {
 	}
 
 	public int hashCode() {
-	    int result = 0;
+	    int result = 1;
 	    for (LocalDef ld : liveVars) {
 		result = 31*result + ld.hashCode();
 	    }

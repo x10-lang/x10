@@ -96,9 +96,6 @@ public final class ExpressionFlattener extends ContextVisitor {
 
     private static final boolean DEBUG = false;
 
-    private static final boolean XTENLANG_2000 = true;
-    private static long dummyCount = 0;
-
     private final TypeSystem xts;
     private final NodeFactory xnf;
 //    Synthesizer syn;
@@ -1004,11 +1001,7 @@ public final class ExpressionFlattener extends ContextVisitor {
         while (result instanceof ParExpr) 
             result = ((ParExpr) result).expr();
         if (sed.hasSideEffects(result)) {
-            if (result.type().typeEquals(xts.Void(), context)) {
-                stmts.add(syn.createEval(result));
-            } else if (XTENLANG_2000 && !(result instanceof Lit) && !(result instanceof Variable)) { // prevent Java backend from emitting an illegal expression statement (see XTENLANG-2000)
-                stmts.add(syn.createLocalDecl(result.position(), Flags.FINAL, Name.make("dummy" + (++dummyCount)), result));
-            }
+            stmts.add(syn.createEval(result));
         }
         return syn.toStmtSeq(syn.toStmtSeq(stmt.position(), stmts));
     }

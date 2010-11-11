@@ -2108,7 +2108,7 @@ static class LongB {
 		val res2:Boolean{self==false} = b<b;
 		val res3:Boolean{self==true} = b<b; // ERR: Cannot assign expression to target.	 Expression: b < b	 Expected type: x10.lang.Boolean{self==true}	 Found type: x10.lang.Boolean{self==false}
 		val res5:Boolean{self==false} = b<a; 
-		val res4:Boolean{self==false} = a<b; // ShouldNotBeERR: No valid method call found for call in given type.	 Call: operator<(IntA{self==a}, LongB{self==b})	 Type: IntA{self==a}
+		val res4:Boolean{self==false} = a<b; // ok (converts "a" to type LongB)
 	}
 }
 }
@@ -2310,7 +2310,7 @@ class CyclicInference {
 	}
 }
 
-class ScopingRules {
+class ScopingRules { // see XTENLANG-2056
 	def test1() {
 		var i:Int = 1;
 		while (true) {
@@ -2320,7 +2320,7 @@ class ScopingRules {
 	def test2() {
 		val i:Int = 1;
 		at (here) {
-			val i:Int = 1; // ShouldBeErr
+			val i:Int = 1; // ShouldBeErr, XTENLANG-2056
 		}
 	}
 	def test3() {
@@ -2330,6 +2330,7 @@ class ScopingRules {
 		};
 	}
 }
+
 
 	/*
 	You can copy&paste this code in Java:
@@ -2452,4 +2453,56 @@ class TestOverflows { // see XTENLANG-1774
 		useULong(0ul);
 		useULong(18446744073709551616uL);
 	}
+}
+
+class PrivateWithinInnerClass {	
+	class Parent78 {
+		private def priv() {}
+	}
+	class Child78 extends Parent78 {
+		private def priv() { // IS overriding 
+			super.priv(); 
+		}
+	}
+}
+class Parent78 {
+	private def priv() {}
+	public def pub1() {}
+	public def pub2() {}
+	public def pub3() {}
+	public def pub4() {}
+	protected def prot1() {}
+	protected def prot2() {}
+	protected def prot3() {}
+	protected def prot4() {}
+	def pack1() {}
+	def pack2() {}
+	def pack3() {}
+	def pack4() {}
+}
+class Child78 extends Parent78 {
+	private def priv() { // not overriding 
+		super.priv(); // ERR
+	}
+	public def pub1() {}
+	private def pub2() {} // ERR
+	protected def pub3() {}// ERR
+	def pub4() {}// ERR
+
+	public def prot1() {}
+	private def prot2() {}// ERR
+	protected def prot3() {}
+	def prot4() {}// ERR
+
+	public def pack1() {}
+	private def pack2() {}// ERR
+	protected def pack3() {}
+	def pack4() {}
+}
+
+class XTENLANG_2052 {
+	val s1 = new Array[Double][3.14,1];
+	val s2 = new Array[Double][3.14,
+				"1"]; // ERR: Semantic Error: The literal is not of the given type	 expr:"1"	 type: x10.lang.String{self=="1"}	 desired type: x10.lang.Double
+	val x = ULong.MAX_VALUE; //XTENLANG-2054
 }

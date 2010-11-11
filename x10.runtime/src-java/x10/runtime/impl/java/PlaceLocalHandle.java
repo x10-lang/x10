@@ -49,7 +49,7 @@ public final class PlaceLocalHandle<T> implements java.io.Serializable {
     	return this;
     }
 
-  public PlaceLocalHandle(Object t) {
+  public PlaceLocalHandle(x10.rtt.Type<T> T) {
 	  id = nextId();
   }
 

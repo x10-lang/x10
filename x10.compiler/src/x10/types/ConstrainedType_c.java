@@ -442,9 +442,6 @@ public class ConstrainedType_c extends ReferenceType_c implements ConstrainedTyp
     public void printConstraint(CodeWriter w) {
         Type base = baseType.getCached();
         CConstraint c = constraint.getCached();
-        if (c != null && !c.valid() && !X10TypeMixin.isX10Struct(baseType.get())) {
-            w.write("!"); // HACK
-        }
     }
 	
 	public boolean equalsNoFlag(Type t2) {

@@ -238,19 +238,19 @@ public class Struct {
         }
         if (!seenHashCode) {
             // final public global safe def hashCode():Int {
-            //  var result:Int = 0;
-            //  result = 31*result + FIELD1.hashCode();
+            //  var result:Int = 1;
+            //  result = 8191*result + FIELD1.hashCode();
             //  ...
             //  return result;
             // }
             bodyStmts = new ArrayList<Stmt>();
-            bodyStmts.add(nf.LocalDecl(pos, nf.FlagsNode(pos,Flags.NONE), intTypeNode,nf.Id(pos,"result"),nf.IntLit(pos, IntLit.INT,0)));
+            bodyStmts.add(nf.LocalDecl(pos, nf.FlagsNode(pos,Flags.NONE), intTypeNode,nf.Id(pos,"result"),nf.IntLit(pos, IntLit.INT,1)));
             final Local target = nf.Local(pos, nf.Id(pos, "result"));
             for (FieldDecl fi : fields) {
                 String name = fi.name().toString();
                 bodyStmts.add(nf.Eval(pos,nf.Assign(pos, target, Assign.ASSIGN,
                     nf.Binary(pos,
-                        nf.Binary(pos,nf.IntLit(pos,IntLit.INT,31),Binary.MUL,target),
+                        nf.Binary(pos,nf.IntLit(pos,IntLit.INT,8191),Binary.MUL,target),
                         Binary.ADD,
                         nf.Call(pos,nf.Field(pos,nf.This(pos),nf.Id(pos,name)),nf.Id(pos,"hashCode"))))));
             }

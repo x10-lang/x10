@@ -12,6 +12,7 @@
 package x10.lang;
 
 import x10.compiler.Pinned;
+import x10.io.SerialData;
 import x10.util.Stack;
 
 /**
@@ -23,7 +24,11 @@ import x10.util.Stack;
 @Pinned public class Monitor extends Lock {
     public def this() { super(); }
 
-    private def this(Any) {
+    public def serialize():SerialData {
+        throw new UnsupportedOperationException("Cannot serialize "+typeName());
+    }
+
+    private def this(SerialData) {
         throw new UnsupportedOperationException("Cannot deserialize "+typeName());
     }
 

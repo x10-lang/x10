@@ -2,7 +2,6 @@ package x10.compiler.ws.java;
 
 import x10.util.Random;
 import x10.lang.Lock;
-import x10.compiler.SuppressTransientError;
 
 public final class Worker {
     private val workers:Rail[Worker];
