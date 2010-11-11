@@ -128,11 +128,17 @@ import x10.types.matcher.Subst;
 @SuppressWarnings("unchecked")
 public class Inliner extends ContextVisitor {
 
+    private static final boolean INLINE_CONSTANTS  = x10.Configuration.INLINE_COMPILE_TIME_CONSTANTS;
+    private static final boolean INLINE_METHODS    = x10.Configuration.INLINE_OPTIMIZATIONS;
+    private static final boolean INLINE_CLOSURES   = x10.Configuration.CLOSURE_INLINING;
+    private static final boolean IMPLICIT_INLINING = x10.Configuration.INLINE_SMALL_METHODS;
+//  private static final boolean IMPLICIT_INLINING = x10.Configuration.INLINE_SMALL_METHODS || x10.Configuration.EXPERIMENTAL;
+    
     private static final boolean DEBUG = false;
 //  private static final boolean DEBUG = true;
 
     private static final boolean VERBOSE = false;
-//  private static final boolean VERBOSE = x10.Configuration.INLINE_OPTIMIZATIONS;
+//  private static final boolean VERBOSE = INLINE_METHODS;
 //  private static final boolean VERY_VERBOSE = VERBOSE && false;
     private static final boolean VERY_VERBOSE = VERBOSE && true;
 
@@ -290,14 +296,14 @@ public class Inliner extends ContextVisitor {
         reasons.clear();
         Node result = null;
         if (n instanceof X10Call) {
-            if (true) {
+            if (INLINE_CONSTANTS) {
                 result = getCompileTimeConstant((X10Call) n);
                 if (null != result) 
                     return result;
             }
-            if (x10.Configuration.INLINE_OPTIMIZATIONS) 
+            if (INLINE_METHODS) 
                 result = wrappedInlineMethodCall((X10Call) n);
-        } else if (n instanceof ClosureCall && x10.Configuration.CLOSURE_INLINING) {
+        } else if (n instanceof ClosureCall && INLINE_CLOSURES) {
             result = inlineClosureCall((ClosureCall) n);
         } else if (n instanceof X10MethodDecl) {
             if (!((X10MethodDecl) n).methodDef().annotationsMatching(InlineOnlyType).isEmpty())
@@ -700,7 +706,7 @@ public class Inliner extends ContextVisitor {
             return null;
         }
         if (!inliningRequired) { // decide whether to inline candidate
-            if (x10.Configuration.INLINE_SMALL_METHODS) {
+            if (IMPLICIT_INLINING) {
                 int cost = getCost(decl, candidateJob);
                 if (SMALL_METHOD_MAX_SIZE < cost) {
                     report("of excessive cost, " + cost, call);
@@ -790,7 +796,7 @@ public class Inliner extends ContextVisitor {
      * @return
      */
     private boolean annotationsRequireInlining(X10Call call, X10MethodDef candidate) {
-        if (!x10.Configuration.INLINE_OPTIMIZATIONS) return false;
+        if (!INLINE_METHODS) return false;
         if (!((X10Ext) call.ext()).annotationMatching(InlineType).isEmpty())
             return true;
         if (!candidate.annotationsMatching(InlineType).isEmpty())
