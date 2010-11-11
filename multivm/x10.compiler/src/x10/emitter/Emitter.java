@@ -2492,7 +2492,7 @@ public class Emitter {
         }
 	}
 
-    public static boolean hasCustomSerializer(X10ClassDef def) {
+    private static boolean hasCustomSerializer(X10ClassDef def) {
         for (MethodDef md: def.methods()) {
             if ("serialize".equals(md.name().toString())) {
                 if (md.formalTypes().size() == 0) {
@@ -2503,7 +2503,7 @@ public class Emitter {
         return false;
     }
     
-	public static boolean hasDeserializationConstructor(X10ClassDef def) {
+	private static boolean hasDeserializationConstructor(X10ClassDef def) {
         for (ConstructorDef cd: def.constructors()) {
             if (cd.formalTypes().size() > 0) {
                 Type type = cd.formalTypes().get(cd.formalTypes().size() - 1).get();
@@ -2515,7 +2515,7 @@ public class Emitter {
         return false;
 	}
 	
-    public static X10ConstructorDecl hasDefaultConstructor(X10ClassDecl n) {
+    private static X10ConstructorDecl hasDefaultConstructor(X10ClassDecl n) {
         for (ClassMember member : n.body().members()) {
             if (member instanceof X10ConstructorDecl) {
                 X10ConstructorDecl ctor = (X10ConstructorDecl) member;
@@ -2528,7 +2528,7 @@ public class Emitter {
     }
     
     // copy of X10ClassDecl_c.createDefaultConstructor
-    public static X10ConstructorDecl
+    private static X10ConstructorDecl
     createDefaultConstructor(X10ClassDef thisType, X10NodeFactory_c xnf, X10ClassDecl n) {
         Position pos = Position.compilerGenerated(n.body().position());
 
@@ -2591,13 +2591,23 @@ public class Emitter {
         return cd;
     }
 
+    public static final boolean VERBOSE_SERIALIZATION = false;
+//    public static final boolean VERBOSE_SERIALIZATION = true;
 	public void generateCustomSerializer(X10ClassDef def, X10ClassDecl_c n) {
 	    String fieldName = "__serialdata";
 	    w.write("// custom serializer");
 	    w.newline();
         w.write("private transient x10.io.SerialData " + fieldName + ";");
         w.newline();
-        w.write("private Object writeReplace() { " + fieldName + " = serialize(); return this; }");
+        w.write("private Object writeReplace() { ");
+        if (VERBOSE_SERIALIZATION) {
+            w.write("java.lang.System.out.println(\"@Serial serialize() of \" + this + \" calling\"); ");
+        }
+        w.write(fieldName + " = serialize(); ");
+        if (VERBOSE_SERIALIZATION) {
+            w.write("java.lang.System.out.println(\"@Serial serialize() of \" + this + \" returned \" + " + fieldName + "); ");
+        }
+        w.write("return this; }");
         w.newline();
 	    w.write("private Object readResolve() { return new ");
         printType(def.asType(), X10PrettyPrinterVisitor.BOX_PRIMITIVES | X10PrettyPrinterVisitor.NO_QUALIFIER);

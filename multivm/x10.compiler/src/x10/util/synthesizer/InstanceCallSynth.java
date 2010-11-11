@@ -97,7 +97,7 @@ public class InstanceCallSynth extends AbstractStateSynth implements IStmtSynth,
 
         MethodInstance mi = xts.findMethod(methodLocationType, xts.MethodMatcher(methodLocationType, methodName, typeArgs,
                                                                               argTypes, xct));
-        
+
         //handle return type
         if(returnType == null){ //not set
             returnType = mi.returnType();

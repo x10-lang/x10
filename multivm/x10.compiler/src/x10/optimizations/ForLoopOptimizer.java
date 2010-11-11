@@ -210,7 +210,7 @@ public class ForLoopOptimizer extends ContextVisitor {
             LocalDecl minLDecl = createLocalDecl(pos, Flags.FINAL, minName, low);
             LocalDecl maxLDecl = createLocalDecl(pos, Flags.FINAL, maxName, high);
             
-            LocalDecl varLDecl = createLocalDecl(pos, Flags.NONE, varName, createLocal(pos, minLDecl));
+            LocalDecl varLDecl = createLocalDecl(pos, Flags.NONE, varName, xts.Int(), createLocal(pos, minLDecl));
             Expr cond = createBinary(domain.position(), createLocal(pos, varLDecl), Binary.LE, createLocal(pos, maxLDecl));
             Expr update = createAssign(domain.position(), createLocal(pos, varLDecl), Assign.ADD_ASSIGN, createIntLit(1));
             
@@ -277,7 +277,7 @@ public class ForLoopOptimizer extends ContextVisitor {
                 // create an AST node for the declaration of the temporary locations for the r-th var, min, and max
                 LocalDecl minLDecl = createLocalDecl(pos, Flags.FINAL, minName, minVal);
                 LocalDecl maxLDecl = createLocalDecl(pos, Flags.FINAL, maxName, maxVal);
-                LocalDecl varLDecl = createLocalDecl(pos, Flags.NONE, varName, createLocal(pos, minLDecl));
+                LocalDecl varLDecl = createLocalDecl(pos, Flags.NONE, varName, xts.Int(), createLocal(pos, minLDecl));
                 
                 varLDecls[r] = varLDecl;
                 

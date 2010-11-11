@@ -11,7 +11,7 @@
 
 package x10.lang;
 
-import x10.compiler.RemoteInvocation;
+import x10.compiler.*;
 
 import x10.util.HashMap;
 import x10.util.Pair;
@@ -31,8 +31,8 @@ abstract class FinishState {
 
     // a finish with local asyncs only
     static class LocalFinish extends FinishState {
-        private val count = new AtomicInteger(1);
-        private val latch = new SimpleLatch();
+        @Embed private val count = @Embed new AtomicInteger(1);
+        @Embed private val latch = @Embed new SimpleLatch();
         private var exceptions:Stack[Throwable]; // lazily initialized
         public def notifySubActivitySpawn(place:Place) {
             assert place.id == Runtime.hereInt();
@@ -76,8 +76,8 @@ abstract class FinishState {
     }
 
     static class RootFinishSPMD extends RootFinishSkeleton {
-        protected val latch = new SimpleLatch();
-        private val count = new AtomicInteger(1);
+        @Embed protected val latch = @Embed new SimpleLatch();
+        @Embed private val count = @Embed new AtomicInteger(1);
         private var exceptions:Stack[Throwable]; // lazily initialized
         public def notifySubActivitySpawn(place:Place) {
             count.incrementAndGet();
@@ -101,9 +101,9 @@ abstract class FinishState {
     }
 
     static class RemoteFinishSPMD extends RemoteFinishSkeleton {
-        private val count = new AtomicInteger(1);
+        @Embed private val count = @Embed new AtomicInteger(1);
         private var exceptions:Stack[Throwable]; // lazily initialized
-        private val lock = new Lock();
+        @Embed private val lock = @Embed new Lock();
         def this(ref:GlobalRef[FinishState]) {
             super(ref);
         }
@@ -158,7 +158,7 @@ abstract class FinishState {
     }
 
     static class RootFinishAsync extends RootFinishSkeleton{
-        protected val latch = new SimpleLatch();
+        @Embed protected val latch = @Embed new SimpleLatch();
         protected var exception:Throwable = null;
         public def notifySubActivitySpawn(place:Place):void {}
         public def notifyActivityTermination():void {
@@ -217,7 +217,7 @@ abstract class FinishState {
             if (ref.home.id == Runtime.hereInt()) {
                 me = (ref as GlobalRef[FinishState]{home==here})();
             } else {
-                me = new UncountedFinish();
+                me = UNCOUNTED_FINISH;
             }
         }
     }
@@ -233,11 +233,13 @@ abstract class FinishState {
         }
         public final def waitForFinish(safe:Boolean) { assert false; }
     }
+    
+    static UNCOUNTED_FINISH = new UncountedFinish();
 
     // a mapping from finish refs to local finish objects
     static class FinishStates {
         private val map = new HashMap[GlobalRef[FinishState],FinishState]();
-        private val lock = new Lock();
+        @Embed private val lock = @Embed new Lock();
 
         // find or make the local finish for the finish ref
         public def apply(root:GlobalRef[FinishState], factory:()=>FinishState):FinishState{
@@ -262,7 +264,7 @@ abstract class FinishState {
     }
 
     // the top of the root finish hierarchy
-    abstract static class RootFinishSkeleton extends FinishState {
+    abstract static class RootFinishSkeleton extends FinishState implements Runtime.Mortal {
         private val xxxx = GlobalRef[FinishState](this);
         def ref() = xxxx;
         public def notifyActivityCreation():void {}
@@ -306,7 +308,7 @@ abstract class FinishState {
             this(new RootFinish(latch));
         }
         def this() {
-            this(new SimpleLatch());
+            this(new RootFinish());
         }
         protected def this(ref:GlobalRef[FinishState]) {
             super(ref);
@@ -322,11 +324,14 @@ abstract class FinishState {
     }
 
     static class RootFinish extends RootFinishSkeleton {
-        protected transient val latch:SimpleLatch;
+        @Embed protected transient var latch:SimpleLatch;
         protected var count:Int = 1;
         protected var exceptions:Stack[Throwable]; // lazily initialized
         protected var counts:Rail[Int];
         protected var seen:Rail[Boolean];
+        def this() {
+            latch = @Embed new SimpleLatch();
+        }
         def this(latch:SimpleLatch) {
             this.latch = latch;
         }
@@ -443,12 +448,12 @@ abstract class FinishState {
 
     static class RemoteFinish extends RemoteFinishSkeleton {
         protected var exceptions:Stack[Throwable];
-        protected transient var lock:Lock = new Lock();
+        @Embed protected transient var lock:Lock = @Embed new Lock();
         protected var count:Int = 0;
         protected var counts:Rail[Int];
         protected var places:Rail[Int];
         protected var length:Int = 1;
-        protected var local:AtomicInteger = new AtomicInteger(0);
+        @Embed protected val local = @Embed new AtomicInteger(0);
         def this(ref:GlobalRef[FinishState]) {
             super(ref);
         }
@@ -585,7 +590,7 @@ abstract class FinishState {
     static class RootCollectingFinish[T] extends RootFinish implements CollectingFinishState[T] {
         val sr:StatefulReducer[T];
         def this(reducer:Reducible[T]) {
-           super(new SimpleLatch());
+           super();
            sr = new StatefulReducer[T](reducer);
         }
         public def accept(t:T, id:Int) {

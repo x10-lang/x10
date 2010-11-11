@@ -28,9 +28,18 @@ import x10.util.ClassifiedStream;
 import x10.util.StreamWrapper;
 import x10.visit.Inliner.InliningRewriter;
 
+/**
+ * This class holds information about Shared memory definitions in a CUDA kernel (also used for constant memory).
+ *
+ * @author Dave Cunningham
+ */
 public class SharedMem {
     
     ArrayList<Decl> decls = new ArrayList<Decl>();
+    
+    public String toString() {
+    	return decls.toString();
+    }
     
     private abstract static class Decl {
         public final LocalDecl ast;
@@ -39,12 +48,16 @@ public class SharedMem {
         abstract public String generateInit(StreamWrapper out, String offset, Translator tr);
         abstract public void generateSize(StreamWrapper inc, Translator tr);
 		abstract public void generateCMemPop(StreamWrapper out, Translator tr);
+		abstract public String toString();
     }
     
     private static class Array extends Decl {
         public final Expr numElements;
         public final Expr init;
         public final String elementType;
+        public String toString() {
+        	return "["+numElements+" of "+elementType+" init to "+init+"]";
+        }
         public Array (LocalDecl ast, Expr numElements, Expr init, String elementType) {
             super(ast);
             this.numElements = numElements;
@@ -136,6 +149,9 @@ public class SharedMem {
 		}
     }
     private static class Var extends Decl {
+        public String toString() {
+        	return "[???]";
+        }
         public Var (LocalDecl ast) { super(ast); }
         public String generateDef(StreamWrapper out, String offset, Translator tr) {
             // TODO: not implemented

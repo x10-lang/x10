@@ -154,7 +154,8 @@ import x10.util.Box;
     @Pinned static class Semaphore {
         private val lock = new Lock();
 
-        private val threads = new Stack[Thread]();
+        private val threads = new Array[Worker](MAX_WORKERS);
+        private var size:Int = 0;
 
         private var permits:Int;
 
@@ -167,9 +168,10 @@ import x10.util.Box;
         def release(n:Int):void {
             lock.lock();
             permits += n;
-            val m = min(permits, min(n, threads.size()));
+            val m = min(permits, min(n, size));
             for (var i:Int = 0; i<m; i++) {
-                threads.pop().unpark();
+                threads(--size).unpark();
+                threads(size) = null;
             }
             lock.unlock();
         }
@@ -186,10 +188,11 @@ import x10.util.Box;
 
         def acquire():void {
             lock.lock();
-            val thread = Thread.currentThread();
+            val thread = worker();
             while (permits <= 0) {
-                threads.push(thread);
-                while (threads.contains(thread)) {
+                val s = size;
+                threads(size++) = thread;
+                while (threads(s) == thread) {
                     lock.unlock();
                     Worker.park();
                     lock.lock();
@@ -627,9 +630,9 @@ import x10.util.Box;
         
         val ok = a.safe();
         if (place.id == hereInt()) {
-            execute(new Activity(deepCopy(body), new FinishState.UncountedFinish(), ok));
+            execute(new Activity(deepCopy(body), FinishState.UNCOUNTED_FINISH, ok));
         } else {
-            val closure = ()=> @x10.compiler.RemoteInvocation { execute(new Activity(body, new FinishState.UncountedFinish(), ok)); };
+            val closure = ()=> @x10.compiler.RemoteInvocation { execute(new Activity(body, FinishState.UNCOUNTED_FINISH, ok)); };
             runClosureCopyAt(place.id, closure);
             dealloc(closure);
         }
@@ -891,10 +894,6 @@ import x10.util.Box;
         if (!STATIC_THREADS) {
             runtime().pool.decrease(n);
         }
-    }
-
-    public static def spin() {
-        probe();
     }
 }
 

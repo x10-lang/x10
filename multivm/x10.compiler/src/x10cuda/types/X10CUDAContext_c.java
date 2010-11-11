@@ -13,7 +13,7 @@ package x10cuda.types;
 
 /**
  * This class extends the X10 notion of Context to keep track of
- * the translation state for the C++ backend.
+ * the translation state for the CUDA backend.
  *
  * @author Dave Cunningham
  */
@@ -51,27 +51,13 @@ public class X10CUDAContext_c extends X10CPPContext_c {
     public boolean generatingKernel() { return generatingKernel; }
     public void generatingKernel(boolean v) { generatingKernel = v; }
     
-    private Expr blocks; public Expr blocks() { return blocks; }
-    private Expr threads; public Expr threads() { return threads; }
-    private Name blocksVar; public Name blocksVar() { return blocksVar; }
-    private Name threadsVar; public Name threadsVar() { return threadsVar; }
-    private SharedMem shm; public SharedMem shm() { return shm; }
-    private SharedMem cmem; public SharedMem cmem() { return cmem; }
-    private boolean directParams; public boolean directParams() { return directParams; }
     private ArrayList<VarInstance<?>> kernelParams; public ArrayList<VarInstance<?>> kernelParams() { return kernelParams; }
-    public void setCUDAKernelCFG(Expr blocks, Name blocksVar, Expr threads, Name threadsVar, SharedMem shm, SharedMem cmem, boolean directParams) {
-        this.blocks = blocks;
-        this.blocksVar = blocksVar;
-        this.threads = threads;
-        this.threadsVar = threadsVar;
-        this.shm = shm;
-        this.cmem = cmem;
+    public void initKernelParams() {
         this.kernelParams = variables();
-        this.directParams = directParams;
-        if (autoBlocks!=null)
-            this.kernelParams.add(autoBlocks.localDef().asInstance());
-        if (autoThreads!=null)
-            this.kernelParams.add(autoThreads.localDef().asInstance());
+        if (cudaData.autoBlocks!=null)
+            this.kernelParams.add(cudaData.autoBlocks.localDef().asInstance());
+        if (cudaData.autoThreads!=null)
+            this.kernelParams.add(cudaData.autoThreads.localDef().asInstance());
     }
     public boolean isKernelParam(Name n) {
         for (VarInstance<?> i : kernelParams) {
@@ -79,6 +65,7 @@ public class X10CUDAContext_c extends X10CPPContext_c {
         }
         return false;
     }
+	
 
 
     private ClassifiedStream cudaStream = null;
@@ -103,28 +90,27 @@ public class X10CUDAContext_c extends X10CPPContext_c {
         return cudaStream;
     }
     
+    // The idea here is that when visiting the inner statement, we modify the context so that the closure visit (earlier in the stack) can receive the CUDAData object
+    // and the kernelParams stuff
+    // This is for generateClosureSerializationFunctions, where this info is needed to generate code in the inc / cc files
     X10CUDAContext_c established;
     public void establishClosure() { established = this; }
     public X10CUDAContext_c established() { return established; }
 
-    LocalDecl autoBlocks;
-    public void autoBlocks(LocalDecl v) { autoBlocks = v; }
-    public LocalDecl autoBlocks() { return autoBlocks; }
-
-    LocalDecl autoThreads;
-    public void autoThreads(LocalDecl v) { autoThreads = v; }
-    public LocalDecl autoThreads() { return autoThreads; }
-	
+    // This var is used to iterate over indexes in shm arrays in the shm initialisation codegen
     Name shmIterationVar;
     public void shmIterationVar(Name v) { shmIterationVar = v; }
     public Name shmIterationVar() { return shmIterationVar; }
 
-    
+    // The first kernel emitted in a class will have some #include codegen output before it
     boolean firstKernel[] = new boolean[]{false};
 	public void firstKernel(boolean b) { firstKernel[0] = b; }
 	public boolean firstKernel() { return firstKernel[0]; }
 	
-
+	private CUDAData cudaData;
+	public CUDAData cudaData() { return cudaData; } 
+	public void cudaData(CUDAData cudaData) { this.cudaData = cudaData; }
+	
 }
 
 //vim:tabstop=4:shiftwidth=4:expandtab

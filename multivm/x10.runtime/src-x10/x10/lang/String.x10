@@ -512,15 +512,14 @@ public final class String implements (Int) => Char/*TODO, (Range) => String*//*T
 
     /**
      * A string concatenation operator.
-     * Appends the given entity to the given String by calling the entity's
+     * Appends the given entity to this String by calling the entity's
      * {@link x10.lang.Any#toString()} method.
-     * @param x the given String
-     * @param y the given entity
+     * @param x the given entity
      * @return the resulting String
      */
-    @Native("java", "((#4) + (#5))")
-    @Native("c++",  "((#4) + (#5))")
-    public native static operator[T] (x:String) + (y:T): String;
+    @Native("java", "((#0) + (#4))")
+    @Native("c++",  "((#0) + (#4))")
+    public native final operator[T] this + (x:T): String;
 
     /**
      * A string concatenation operator.
@@ -529,9 +528,8 @@ public final class String implements (Int) => Char/*TODO, (Range) => String*//*T
      * @param x the given entity
      * @param y the given String
      * @return the resulting String
-    
+     */
     @Native("java", "((#4) + (#5))")
     @Native("c++",  "((#4) + (#5))")
     public native static operator[T] (x:T) + (y:String): String;
-     */
 }

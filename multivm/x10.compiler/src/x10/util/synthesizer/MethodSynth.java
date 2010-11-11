@@ -32,6 +32,7 @@ import polyglot.types.Type;
 import polyglot.types.Types;
 import polyglot.util.Position;
 import x10.ast.AnnotationNode;
+import x10.ast.TypeParamNode;
 import x10.ast.X10ClassDecl;
 import x10.ast.X10MethodDecl;
 import x10.ast.X10MethodDecl_c;
@@ -39,6 +40,7 @@ import x10.constraint.XTerm;
 import x10.extension.X10Del;
 import x10.types.X10ClassDef;
 import polyglot.types.Context;
+import x10.types.ParameterType;
 import x10.types.X10Flags;
 import x10.types.X10MethodDef;
 import polyglot.types.TypeSystem;
@@ -51,6 +53,7 @@ import x10.types.checker.PlaceChecker;
 public class MethodSynth extends AbstractStateSynth implements IClassMemberSynth{
 
     List<AnnotationNode> annotations;  // annotations of the new method
+    List<ParameterType.Variance> variances; //type parameters' variances
     CodeBlockSynth codeBlockSynth;
     List<Formal> formals;
     X10MethodDef methodDef; //only be created once;
@@ -64,6 +67,8 @@ public class MethodSynth extends AbstractStateSynth implements IClassMemberSynth
 
         this.formals = formals;
         annotations = new ArrayList<AnnotationNode>();
+        variances = new ArrayList<ParameterType.Variance>(); //type parameters' variances
+        
         List<Ref<? extends Type>> formalTypeRefs = new ArrayList<Ref<? extends Type>>();
         List<LocalDef> formalNames = new ArrayList<LocalDef>();
         List<Ref<? extends Type>> throwTypeRefs = new ArrayList<Ref<? extends Type>>();
@@ -119,6 +124,18 @@ public class MethodSynth extends AbstractStateSynth implements IClassMemberSynth
     
     public void addAnnotation(AnnotationNode annotation){
         annotations.add(annotation);
+    }
+    
+    public void addTypeParameter(ParameterType p, ParameterType.Variance v){
+        try {
+            checkClose();
+            List<ParameterType> params = new ArrayList<ParameterType>(methodDef.typeParameters());
+            params.add(p);
+            methodDef.setTypeParameters(params);
+        	variances.add(v);
+        } catch (StateSynthClosedException e) {
+            e.printStackTrace();
+        }
     }
     
     
@@ -219,6 +236,8 @@ public class MethodSynth extends AbstractStateSynth implements IClassMemberSynth
         }
         closed = true;
         
+        //processing 
+        
         // Method Decl
      
         FlagsNode flagNode = xnf.FlagsNode(pos, methodDef.flags());
@@ -235,6 +254,18 @@ public class MethodSynth extends AbstractStateSynth implements IClassMemberSynth
                 ats.add(an.annotationType().typeRef());
             }
             methodDef.setDefAnnotations(ats);
+        }
+        
+        int typeParamsSize = variances.size();
+        if(typeParamsSize> 0 ){
+        	//construct type param node
+        	List<ParameterType> params = methodDef.typeParameters();
+        	List<TypeParamNode> tpNodes = new ArrayList<TypeParamNode>();
+        	for(int i = 0; i < typeParamsSize; i++){
+        		TypeParamNode tNode = xnf.TypeParamNode(compilerPos, xnf.Id(compilerPos, params.get(i).name()), variances.get(i));
+        		tpNodes.add(tNode.type(params.get(i)));
+        	}
+        	methodDecl = methodDecl.typeParameters(tpNodes);
         }
 
         ((X10MethodDecl_c) methodDecl).placeTerm = placeTerm;

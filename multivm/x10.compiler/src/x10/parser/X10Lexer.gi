@@ -51,11 +51,35 @@
             {
                 int index = lexStream.getIPrsStream().getSize() - 1;
                 IToken token = lexStream.getIPrsStream().getIToken(index);
-                if (token.getKind() == X10Parsersym.TK_DoubleLiteral && lexStream.getInputChars()[token.getEndOffset()] == '.')
+                if (token.getKind() == X10Parsersym.TK_DoubleLiteral ||
+                    token.getKind() == X10Parsersym.TK_FloatingPointLiteral ||
+                    token.getKind() == X10Parsersym.TK_PseudoDoubleLiteral)
                 {
-                    token.setEndOffset(token.getEndOffset() - 1);
-                    token.setKind(X10Parsersym.TK_IntegerLiteral);
-                lexStream.getIPrsStream().makeToken(token.getEndOffset()+1, token.getEndOffset()+1, X10Parsersym.TK_DOT);
+                    char[] input = lexStream.getInputChars();
+                    int end = token.getEndOffset();
+                    int dot = end;
+                    boolean valid = true;
+                    for (; dot > token.getStartOffset() && input[dot] != '.'; dot--)
+                        if (!Character.isJavaIdentifierPart(input[dot]))
+                            valid = false;
+                    if (valid && dot > token.getStartOffset())
+                    {
+                        token.setEndOffset(dot - 1);
+                        token.setKind(X10Parsersym.TK_IntegerLiteral);
+                        lexStream.getIPrsStream().makeToken(dot, dot, X10Parsersym.TK_DOT);
+                        if (dot < end)
+                        {
+                            if (startLoc == end + 1)
+                            {
+                                // No spaces -- merge in with the following identifier
+                                startLoc = dot + 1;
+                            }
+                            else
+                            {
+                                lexStream.getIPrsStream().makeToken(dot + 1, end, X10Parsersym.TK_IDENTIFIER);
+                            }
+                        }
+                    }
                 }
             }
             lexStream.makeToken(startLoc, endLoc, kind);
@@ -123,6 +147,7 @@
     UnsignedLongLiteral
     FloatingPointLiteral
     DoubleLiteral
+    PseudoDoubleLiteral
     CharacterLiteral
     StringLiteral
     PLUS_PLUS
@@ -275,6 +300,11 @@
     Token ::= DoubleLiteral
         /.$BeginAction
                     makeToken($_DoubleLiteral);
+          $EndAction
+        ./
+    Token ::= PseudoDoubleLiteral
+        /.$BeginAction
+                    makeToken($_PseudoDoubleLiteral);
           $EndAction
         ./
 
@@ -592,6 +622,8 @@
                    | Decimal Exponent LetterDd
                    | Integer Exponent LetterDd
                    | Integer LetterDd
+
+    PseudoDoubleLiteral -> Decimal LetterEe
 
     MultiLineComment ::= '/' '*' Inside Stars '/'
         /.$BeginAction

@@ -13,6 +13,7 @@ package x10.ast;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.ArrayList;
 
 import polyglot.ast.Expr;
 import polyglot.ast.Expr_c;
@@ -20,6 +21,7 @@ import polyglot.ast.Node;
 import polyglot.ast.Precedence;
 import polyglot.ast.Term;
 import polyglot.ast.TypeNode;
+import polyglot.ast.NodeFactory;
 import polyglot.types.FieldInstance;
 import polyglot.types.Name;
 import polyglot.types.SemanticException;
@@ -41,6 +43,7 @@ import x10.constraint.XTerms;
 import x10.constraint.XVar;
 import x10.types.X10ClassType;
 import x10.types.X10TypeMixin;
+import x10.types.checker.Converter;
 import polyglot.types.TypeSystem;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint;
@@ -173,41 +176,46 @@ public class Tuple_c extends Expr_c implements Tuple {
 	public Node typeCheck(ContextVisitor tc) {
 	    TypeSystem ts = (TypeSystem) tc.typeSystem();
 
-	    Type type = null;
+        Type type;
+        Expr me = this;
+        if (indexType == null) {
+            type = null;
 
-	    for (Expr e : elements) {
-	    	Type eType = X10TypeMixin.baseType(e.type());
-		if (type == null) {
-		    type = eType;
-		}
-		else {
-		    try {
-		        type = ts.leastCommonAncestor(type, eType, tc.context());
-		    } catch (SemanticException z) {
-		        Errors.issue(tc.job(), z, this);
-		        type = ts.Any();
-		    }
-		}
-	    }
+            for (Expr e : elements) {
+                Type eType = X10TypeMixin.baseType(e.type());
+                if (type == null) {
+                    type = eType;
+                }
+                else {
+                    try {
+                        type = ts.leastCommonAncestor(type, eType, tc.context());
+                    } catch (SemanticException z) {
+                        Errors.issue(tc.job(), z, this);
+                        type = ts.Any();
+                    }
+                }
+            }
 
-	    if (type == null) {
-	        type = ts.Any(); // should be bottom type, not top
-	    }
-
-	    Type resultType = X10TypeMixin.makeArrayRailOf(type, elements.size(), position());
-
-        if (indexType != null) {
-            Type iType = indexType.type();
+            if (type == null) {
+                type = ts.Any(); // should be bottom type, not top
+            }
+        } else {
+            type = indexType.type();
 	        List<Expr> vals = arguments();
+            ArrayList<Expr> newChildren = new ArrayList<Expr>();
 	        for (Expr e : vals) {
-	    	  Type t = e.type();
-	    	  if (! ts.isSubtype(t, iType, tc.context()))
-	    		  Errors.issue(tc.job(),
-	    			      new Errors.ArrayLiteralTypeMismatch(e, iType));
+                Expr newE = Converter.attemptCoercion(tc, e, type);
+                if (newE==null) {
+                    newE = e;
+                    Errors.issue(tc.job(),
+                        new Errors.ArrayLiteralTypeMismatch(e, type));
+                }
+                newChildren.add(newE);
 	        }
-		    resultType = X10TypeMixin.makeArrayRailOf(iType, arguments().size(), position());
+            me = this.reconstruct(indexType,newChildren);
         }
-	    return type(resultType);
+	    Type resultType = X10TypeMixin.makeArrayRailOf(type, elements.size(), position());
+	    return me.type(resultType);
 	}
 
 	@Override
