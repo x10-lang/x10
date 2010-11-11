@@ -25,7 +25,7 @@ import x10.util.Ordered;
  */
 // @NativeRep("java", "short", null, "x10.rtt.Types.USHORT")
 @NativeRep("c++", "x10_ushort", "x10_ushort", null)
-public struct UShort implements Comparable[UShort] /*TODO implements Arithmetic[UShort], Bitwise[UShort], Ordered[UShort]*/ {
+public struct UShort implements Comparable[UShort], Arithmetic[UShort], Bitwise[UShort], Ordered[UShort] {
 
     /** The actual number with Short representation */
     public val shortVal:Short;

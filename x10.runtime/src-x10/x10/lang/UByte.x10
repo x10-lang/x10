@@ -25,7 +25,7 @@ import x10.util.Ordered;
  */
 // @NativeRep("java", "byte", null, "x10.rtt.Types.UBYTE")
 @NativeRep("c++", "x10_ubyte", "x10_ubyte", null)
-public struct UByte implements Comparable[UByte] /*TODO implements Arithmetic[UByte], Bitwise[UByte], Ordered[UByte]*/ {
+public struct UByte implements Comparable[UByte], Arithmetic[UByte], Bitwise[UByte], Ordered[UByte] {
 
     /** The actual number with Byte representation */
     public val byteVal:Byte;
