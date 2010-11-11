@@ -18,6 +18,7 @@ import polyglot.ast.NodeFactory;
 import polyglot.frontend.Goal;
 import polyglot.frontend.Job;
 import polyglot.frontend.Scheduler;
+import polyglot.frontend.SourceGoal_c;
 import polyglot.types.TypeSystem;
 import x10c.ast.X10CNodeFactory_c;
 import x10c.types.X10CTypeSystem_c;
@@ -67,6 +68,7 @@ public class ExtensionInfo extends x10.ExtensionInfo {
                     goals.add(VarsBoxer(job));
                 }
                 if (g == CodeGenerated(job)) {
+                    goals.add(JavaCodeGenStart(job));
                     goals.add(ClosuresToStaticMethods(job));
                     goals.add(CastsRemoved(job));
                     goals.add(JavaCaster(job));
@@ -104,12 +106,29 @@ public class ExtensionInfo extends x10.ExtensionInfo {
             return new ValidatingVisitorGoal("Lowerer", job, new Lowerer(job, ts, nf)).intern(this);
         }
 
+        public Goal JavaCodeGenStart(Job job) {
+            TypeSystem ts = extInfo.typeSystem();
+            NodeFactory nf = extInfo.nodeFactory();
+            Goal cg = new SourceGoal_c("JavaCodeGenStart", job) {
+                private static final long serialVersionUID = 1L;
+                public boolean runTask() { return true; }
+            };
+            Goal cg2 = cg.intern(this);
+            // FIXME: guarded to make local optimizations effective in java backend
+            if (cg == cg2) {
+                if (x10.Configuration.INLINE_OPTIMIZATIONS || x10.Configuration.CLOSURE_INLINING) {
+                    cg2.addPrereq(ExpressionFlattener(job));
+                }
+            }
+            return cg2;
+        }
+
         public Goal ClosuresToStaticMethods(Job job) {
             TypeSystem ts = extInfo.typeSystem();
             NodeFactory nf = extInfo.nodeFactory();
             return new ValidatingVisitorGoal("ClosuresToStaticMethods", job, new ClosuresToStaticMethods(job, ts, nf)).intern(this);
         }
-
+        
         private Goal RailInLoopOptimizer(Job job) {
             TypeSystem ts = extInfo.typeSystem();
             NodeFactory nf = extInfo.nodeFactory();

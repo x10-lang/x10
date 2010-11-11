@@ -42,7 +42,7 @@ public class Optimizer {
         goals.add(LoopUnrolling(job));
         goals.add(ForLoopOptimizations(job));
         goals.add(Inliner(job));
-        if (!x10.Configuration.FLATTEN_EXPRESSIONS) goals.add(flattener); // don't add it twice
+//        if (!x10.Configuration.FLATTEN_EXPRESSIONS) goals.add(flattener); // don't add it twice
         if (x10.Configuration.EXPERIMENTAL) {
   //        goals.add(DeadAssignmentEliminator(job));
   //        DeadAssignmentEliminator(job).addPrereq(flattener);

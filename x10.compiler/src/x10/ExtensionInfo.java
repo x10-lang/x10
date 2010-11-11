@@ -738,12 +738,6 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     	   NodeFactory nf = extInfo.nodeFactory();
     	   Goal cg = new ValidatingOutputGoal(job, new X10Translator(job, ts, nf, extInfo.targetFactory()));
            Goal cg2 = cg.intern(this);
-           // FIXME: guarded to make local optimizations effective in java backend
-           if (x10.Configuration.FLATTEN_EXPRESSIONS || x10.Configuration.INLINE_OPTIMIZATIONS) {
-           if (cg == cg2) {
-               cg2.addPrereq(ExpressionFlattener(job));
-           }
-           }
            return cg2;
        }
 
@@ -936,7 +930,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            VisitorGoal ef = new ValidatingVisitorGoal("ExpressionFlattener", job, new ExpressionFlattener(job, ts, nf));
            Goal ef2 = ef.intern(this);
            if (ef == ef2) {
-              // ef.addPrereq(Lowerer(job));
+               ef.addPrereq(Lowerer(job));
            }
            return ef2;
        }
