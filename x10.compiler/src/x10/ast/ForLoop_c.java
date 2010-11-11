@@ -105,6 +105,15 @@ public class ForLoop_c extends X10Loop_c implements ForLoop {
 	public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
 		w.write("for(");
 		printBlock(formal, w, tr);
+		if (formal instanceof X10Formal) {
+			X10Formal f = (X10Formal) formal;
+			w.write("[");
+			for (int i=0 ; i<f.vars().size() ; ++i) {
+				if (i>0) w.write(",");
+				printBlock(f.vars().get(i), w, tr);
+			}
+			w.write("]");
+		}
 		w.write(" : ");
 		printBlock(domain, w, tr);
 		w.write(") ");
