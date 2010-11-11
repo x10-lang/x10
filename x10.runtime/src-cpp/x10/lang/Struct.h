@@ -24,9 +24,6 @@ namespace x10 {
         public:
             static void _instance_init(x10::lang::Struct& this_) {}
             static void _constructor(x10::lang::Struct& this_) {}
-            template<class T> static x10::lang::Place home(T v);
-            template<class T> static x10_boolean at(T v, x10aux::ref<x10::lang::Object> p);
-            template<class T> static x10_boolean at(T v, x10::lang::Place p);
         };
     }
 }
@@ -46,19 +43,6 @@ namespace x10 {
 
 namespace x10 {
     namespace lang {
-
-        template<class T> inline Place Struct_methods::home(T v) {
-            return Place_methods::place((x10_int) x10aux::here);
-        }
-
-        template<class T> inline x10_boolean Struct_methods::at(T v, x10aux::ref<Object> p) {
-            return true;
-        }
-
-        template<class T> inline x10_boolean Struct_methods::at(T v, Place p) {
-            return true;
-        }
-
     }
 }
 
