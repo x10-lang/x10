@@ -61,6 +61,7 @@ import x10.ast.X10New;
 import x10.ast.X10Special;
 import x10.types.ParameterType;
 import x10.types.checker.Converter;
+import x10cuda.ast.CUDAKernel;
 
 /**
  * A <code>NodeFactory</code> constructs AST nodes.  All node construction
@@ -399,4 +400,6 @@ public interface NodeFactory
     TypeNode HasType(TypeNode tn);
     Offer Offer(Position pos, Expr e);
     FinishExpr FinishExpr(Position p, Expr e, Stmt s);
+
+	CUDAKernel CUDAKernel(Position position, List<Stmt> statements);
 }

@@ -144,6 +144,7 @@ import x10cpp.visit.Emitter;
 import x10cpp.visit.MessagePassingCodeGenerator;
 import x10cpp.visit.SharedVarsMethods;
 import x10cpp.visit.X10CPPTranslator;
+import x10cuda.ast.CUDAKernel;
 import x10cuda.types.CUDAData;
 import x10cuda.types.SharedMem;
 import x10cuda.types.X10CUDAContext_c;
@@ -206,33 +207,12 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 		context().generatingKernel(v);
 	}
 
-	private Type getType(String name) throws SemanticException {
-		return (Type) xts().systemResolver().find(QName.make(name));
-	}
-
 	// does the block have the annotation that denotes that it should be
 	// split-compiled to cuda?
 	private boolean blockIsKernel(Node n) {
-		return nodeHasAnnotation(n, ANN_KERNEL);
+		return n instanceof CUDAKernel;
 	}
-
-	// does the block have the annotation that denotes that it should be
-	// compiled to use conventional cuda kernel params
-	private boolean kernelWantsDirectParams(Node n) {
-		return nodeHasAnnotation(n, ANN_DIRECT_PARAMS);
-	}
-
-	// does the block have the given annotation
-	private boolean nodeHasAnnotation(Node n, String ann) {
-		X10Ext ext = (X10Ext) n.ext();
-		try {
-			return !ext.annotationMatching(getType(ann)).isEmpty();
-		} catch (SemanticException e) {
-			assert false : e;
-			return false; // in case asserts are off
-		}
-	}
-
+	
 	private String env = "__env";
 
 	@SuppressWarnings("serial")
@@ -306,7 +286,9 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 
 	void handleKernel(Stmt b) {
 		
-		CUDAData cuda_data = context().cudaData();
+		CUDAKernel cuda_kernel = context().cudaKernel();
+		//System.out.println("Here is the kernel: "+cuda_kernel);
+		
 		
 		String kernel_name = context().wrappingClosure();
 		sw.write("/* block split-compiled to cuda as " + kernel_name + " */ ");
@@ -318,7 +300,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 
 		out.forceNewline();
 
-		boolean ptr = !cuda_data.directParams;
+		boolean ptr = !cuda_kernel.directParams;
 		// kernel (extern "C" to disable name-mangling which seems to be
 		// inconsistent across cuda versions)
 		out.write("extern \"C\" __global__ void " + kernel_name + "("
@@ -361,14 +343,14 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 
 		sw.pushCurrentStream(out);
 		try {
-			cuda_data.cmem.generateCodeConstantMemory(sw, tr);
+			cuda_kernel.cmem.generateCodeConstantMemory(sw, tr);
 		} finally {
 			sw.popCurrentStream();
 		}
 
 		sw.pushCurrentStream(out);
 		try {
-			cuda_data.shm.generateCodeSharedMem(sw, tr);
+			cuda_kernel.shm.generateCodeSharedMem(sw, tr);
 		} finally {
 			sw.popCurrentStream();
 		}
@@ -420,19 +402,17 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 		super.visit(b);
 		try {
 			if (blockIsKernel(b)) {
-				Block_c closure_body = b;
+				final CUDAKernel cuda_kernel = (CUDAKernel)b;
 
-				final CUDAData cuda_data = closure_body.cudaData();
-				
 				complainIfNot2(!generatingKernel(), "@CUDA kernels may not be nested.", b);
 				
 				final Block_c[] cell = new Block_c[1];
-				closure_body.visit(new NodeVisitor() {
+				cuda_kernel.visit(new NodeVisitor() {
 					boolean found = false;
 					public Node override(Node parent, Node child) {
 						if (child instanceof Block_c) {
 							Block_c child_block = (Block_c) child;
-							if (child_block.cudaTag() == cuda_data.innerStatementTag) {
+							if (child_block.cudaTag() == cuda_kernel.innerStatementTag) {
 								cell[0] = child_block;
 								found = true;
 							}
@@ -444,9 +424,9 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 					}
 				});
 
-				context().cudaData(cuda_data);
+				context().cudaKernel(cuda_kernel);
 				context().initKernelParams();
-				context().established().cudaData(cuda_data);
+				context().established().cudaKernel(cuda_kernel);
 				context().established().initKernelParams();
 				
 				generatingKernel(true);
@@ -518,7 +498,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 
 		if (blockIsKernel(block)) {
 
-			CUDAData cuda_data = ((Block_c)block).cudaData();			
+			CUDAKernel cuda_kernel = ((CUDAKernel)block);			
 
 			ArrayList<VarInstance<?>> env = context().kernelParams();
 
@@ -538,7 +518,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 			inc.write("__cuda_env __env;");
 			inc.newline();
 
-			if (!kernelWantsDirectParams(block)) {
+			if (!cuda_kernel.directParams) {
 				inc.write("x10_ulong __remote_env;");
 				inc.newline();
 				inc.write("::memcpy(&__remote_env, argv, sizeof (void*));");
@@ -586,11 +566,11 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 				Type t = var.type();
 				String name = var.name().toString();
 				inc.write(Emitter.translateType(t, true) + " " + name);
-				if (cuda_data.autoBlocks != null
-						&& var == cuda_data.autoBlocks.localDef().asInstance()) {
+				if (cuda_kernel.autoBlocks != null
+						&& var == cuda_kernel.autoBlocks.localDef().asInstance()) {
 					inc.write(";");
-				} else if (cuda_data.autoThreads != null
-						&& var == cuda_data.autoThreads.localDef().asInstance()) {
+				} else if (cuda_kernel.autoThreads != null
+						&& var == cuda_kernel.autoThreads.localDef().asInstance()) {
 					inc.write(";");
 				} else {
 					inc.write(" = __this->" + name + ";");
@@ -600,7 +580,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 
 			inc.write("__shm = ");
 			inc.begin(0);
-			cuda_data.shm.generateSize(inc, tr);
+			cuda_kernel.shm.generateSize(inc, tr);
 			inc.write(";");
 			inc.end();
 			inc.newline();
@@ -608,33 +588,33 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 
 			inc.write("__cmemc = ");
 			inc.begin(0);
-			cuda_data.cmem.generateSize(inc, tr);
+			cuda_kernel.cmem.generateSize(inc, tr);
 			inc.write(";");
 			inc.end();
 			inc.newline();
 			inc.write("x10aux::check_cmem_size(__cmemc);");
 			
-			cuda_data.cmem.generateHostCodeConstantMemory(inc, tr);
+			cuda_kernel.cmem.generateHostCodeConstantMemory(inc, tr);
 
 			// this is probably broken when only one is given.
-			if (cuda_data.autoBlocks != null
-					&& cuda_data.autoThreads != null) {
-				String bname = cuda_data.autoBlocks.name().id().toString();
-				String tname = cuda_data.autoThreads.name().id().toString();
+			if (cuda_kernel.autoBlocks != null
+					&& cuda_kernel.autoThreads != null) {
+				String bname = cuda_kernel.autoBlocks.name().id().toString();
+				String tname = cuda_kernel.autoThreads.name().id().toString();
 				inc.write("x10aux::blocks_threads(__gpu, x10aux::DeserializationDispatcher::getMsgType(_serialization_id), __shm, "
 								+ bname + ", " + tname + ");");
 				inc.newline();
 			}
 			inc.write("__blocks = (");
 			inc.begin(0);
-			tr.print(null, cuda_data.blocks, inc);
+			tr.print(null, cuda_kernel.blocks, inc);
 			inc.write(")+1;");
 			inc.end();
 			inc.newline();
 
 			inc.write("__threads = (");
 			inc.begin(0);
-			tr.print(null, cuda_data.threads, inc);
+			tr.print(null, cuda_kernel.threads, inc);
 			inc.write(")+1;");
 			inc.end();
 			inc.newline();
@@ -686,7 +666,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 				inc.end();
 				inc.newline();
 			} else {
-				if (kernelWantsDirectParams(block)) {
+				if (cuda_kernel.directParams) {
 					inc.write("memcpy(__argv, &__env, sizeof(__env));");
 					inc.newline();
 					inc.write("__argc = sizeof(__env);");
@@ -864,17 +844,17 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 
 	@Override
 	public void visit(Local_c n) {
-		CUDAData cuda_data = context().cudaData();
+		CUDAKernel cuda_kernel = context().cudaKernel();
 		if (generatingKernel()) {
 			ClassifiedStream out = cudaStream();
 			Name ln = n.name().id();
-			if (ln == cuda_data.blocksVar) {
+			if (ln == cuda_kernel.blocksVar.name().id()) {
 				out.write("blockIdx.x");
-			} else if (ln == cuda_data.threadsVar) {
+			} else if (ln == cuda_kernel.threadsVar.name().id()) {
 				out.write("threadIdx.x");
-			} else if (ln == context().shmIterationVar()) {
+			} else if (context().shmIterationVar()!=null && ln == context().shmIterationVar().name().id()) {
 				out.write("__i");
-			} else if (cuda_data.shm.has(ln)) {
+			} else if (cuda_kernel.shm.has(ln)) {
 				out.write(ln.toString());
 			} else if (context().isKernelParam(ln)) {
 				// it seems the post-compiler is not good at hoisting these
@@ -884,7 +864,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 					System.out.println("Optimised kernel param: "+n+" --> "+literal);
 					out.write(literal);
 				} else {
-					if (cuda_data.directParams) {
+					if (cuda_kernel.directParams) {
 						out.write(env + "." + ln);
 					} else {
 						out.write(ln.toString());
@@ -903,12 +883,13 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 			// we end up here in the _deserialize_cuda function because
 			// generatingKernel() is false
 			Name ln = n.name().id();
-			if (cuda_data == null) {
+			if (cuda_kernel == null) {
+				// not even in _deserialize_cuda, just arbitrary host code
 				super.visit(n);
-			} else if (cuda_data.autoBlocks != null && ln == cuda_data.autoBlocks.name().id()) {
-				sw.write(cuda_data.autoBlocks.name().id().toString());
-			} else if (cuda_data.autoThreads != null && ln == cuda_data.autoThreads.name().id()) {
-				sw.write(cuda_data.autoThreads.name().id().toString());
+			} else if (cuda_kernel.autoBlocks != null && ln == cuda_kernel.autoBlocks.name().id()) {
+				sw.write(cuda_kernel.autoBlocks.name().id().toString());
+			} else if (cuda_kernel.autoThreads != null && ln == cuda_kernel.autoThreads.name().id()) {
+				sw.write(cuda_kernel.autoThreads.name().id().toString());
 			} else {
 				super.visit(n);
 			}
@@ -1065,9 +1046,11 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 	public void visit(X10MethodDecl_c n) {
 		// TODO Auto-generated method stub
 		//n.prettyPrint(System.out);
-		//X10MethodDecl_c n2 = (X10MethodDecl_c) n.visit(new ConstantPropagator(tr.job(), tr.typeSystem(), tr.nodeFactory()).context(context()));
+		//System.out.println();
+		X10MethodDecl_c n2 = (X10MethodDecl_c) n.visit(new ConstantPropagator(tr.job(), tr.typeSystem(), tr.nodeFactory()).context(context()));
 		//n2.prettyPrint(System.out);
-		super.visit(n);
+		//System.out.println();
+		super.visit(n2);
 	}
 
 	@Override

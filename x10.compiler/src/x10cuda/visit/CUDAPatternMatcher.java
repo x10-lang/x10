@@ -45,6 +45,7 @@ import x10.extension.X10Ext;
 import x10.types.X10ClassType;
 import x10.types.X10TypeSystem_c;
 import x10cpp.visit.Emitter;
+import x10cuda.ast.CUDAKernel;
 import x10cuda.types.CUDAData;
 import x10cuda.types.SharedMem;
 
@@ -151,7 +152,7 @@ public class CUDAPatternMatcher extends NodeVisitor {
 	class MultipleValues {
 		public Expr max;
 
-		public Name var;
+		public Formal var;
 
 		public Block body;
 	}
@@ -171,7 +172,7 @@ public class CUDAPatternMatcher extends NodeVisitor {
 				"Exploded point syntax", loop_formal);
 		complainIfNot(loop_x10_formal.vars().size() == 1,
 				"A 1 dimensional iteration", loop_formal);
-		r.var = loop_x10_formal.vars().get(0).name().id();
+		r.var = loop_x10_formal.vars().get(0);
 		Expr domain = loop.domain();
 		complainIfNot(domain instanceof RegionMaker,
 				"An iteration over a region literal of the form 0..", domain);
@@ -416,22 +417,22 @@ public class CUDAPatternMatcher extends NodeVisitor {
 					Stmt async = inner_b.statements().get(0);
 					Block_c async_body = checkAsync(async, true);
 	
-					int tag = CUDAData.fresh();
+					int tag = CUDAKernel.fresh();
 					async_body.cudaTag(tag);
 
-					kernel_block = (Block_c) kernel_block.copy();
-					kernel_block.cudaData(new CUDAData());
-					kernel_block.cudaData().autoBlocks = autoBlocks;
-					kernel_block.cudaData().autoThreads = autoThreads;
-					kernel_block.cudaData().blocks = outer.max;
-					kernel_block.cudaData().blocksVar = outer.var;
-					kernel_block.cudaData().threads = inner.max;
-					kernel_block.cudaData().threadsVar = inner.var;
-					kernel_block.cudaData().shm = shm;
-					kernel_block.cudaData().cmem = cmem;
-					kernel_block.cudaData().directParams = direct;
-					kernel_block.cudaData().innerStatementTag = tag;
-					return kernel_block;
+					CUDAKernel ck = nf.CUDAKernel(kernel_block.position(), kernel_block.statements()); 
+					ck.autoBlocks = autoBlocks;
+					ck.autoThreads = autoThreads;
+					ck.blocks = outer.max;
+					ck.blocksVar = outer.var;
+					ck.threads = inner.max;
+					ck.threadsVar = inner.var;
+					ck.shm = shm;
+					ck.cmem = cmem;
+					ck.directParams = direct;
+					ck.innerStatementTag = tag;
+					return ck;
+					
 				} catch (Complaint e) {
 					e.printStackTrace();
 				}

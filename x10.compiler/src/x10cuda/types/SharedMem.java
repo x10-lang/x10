@@ -16,11 +16,14 @@ import java.util.Iterator;
 
 import polyglot.ast.Block;
 import polyglot.ast.Expr;
+import polyglot.ast.Local;
 import polyglot.ast.LocalDecl;
+import polyglot.ast.Node;
 import polyglot.ast.Return;
 import polyglot.ast.Stmt;
 import polyglot.types.Name;
 import polyglot.types.Type;
+import polyglot.visit.NodeVisitor;
 import polyglot.visit.Translator;
 import x10.ast.Closure;
 import polyglot.types.TypeSystem;
@@ -33,7 +36,7 @@ import x10.visit.Inliner.InliningRewriter;
  *
  * @author Dave Cunningham
  */
-public class SharedMem {
+public class SharedMem implements Cloneable {
     
     ArrayList<Decl> decls = new ArrayList<Decl>();
     
@@ -44,7 +47,8 @@ public class SharedMem {
     private abstract static class Decl {
         public final LocalDecl ast;
         public Decl (LocalDecl ast) { this.ast = ast; }
-        abstract public String generateDef(StreamWrapper out, String offset, Translator tr);
+        abstract public void visitChildren(Node parent, NodeVisitor v);
+		abstract public String generateDef(StreamWrapper out, String offset, Translator tr);
         abstract public String generateInit(StreamWrapper out, String offset, Translator tr);
         abstract public void generateSize(StreamWrapper inc, Translator tr);
 		abstract public void generateCMemPop(StreamWrapper out, Translator tr);
@@ -52,8 +56,8 @@ public class SharedMem {
     }
     
     private static class Array extends Decl {
-        public final Expr numElements;
-        public final Expr init;
+        public Expr numElements;
+        public Expr init;
         public final String elementType;
         public String toString() {
         	return "["+numElements+" of "+elementType+" init to "+init+"]";
@@ -99,7 +103,7 @@ public class SharedMem {
             		// Use the InlininingRewriter to get rid of the early returns.
             		// Then strip off the final return and assign __v instead.
             		try {
-	            		((X10CUDAContext_c) tr.context()).shmIterationVar(lit.formals().get(0).name().id());
+	            		((X10CUDAContext_c) tr.context()).shmIterationVar(lit.formals().get(0));
 	            		Closure init_c_norm = (Closure) lit.visit(new InliningRewriter(lit, tr.job(), tr.typeSystem(), tr.nodeFactory(), tr.context()));
 	            		Block b = init_c_norm.body();
 	            		for (int i=0; i<b.statements().size()-1 ; ++i ) {
@@ -147,6 +151,11 @@ public class SharedMem {
             tr.print(null, init, out);
 			out.write(");");
 		}
+		@Override
+		public void visitChildren(Node parent, NodeVisitor v) {
+        	numElements = (Expr) parent.visitChild(numElements, v);
+	        if (init!=null) init = (Expr) init.visitChildren(v);
+		}
     }
     private static class Var extends Decl {
         public String toString() {
@@ -169,6 +178,11 @@ public class SharedMem {
         }
 		@Override
 		public void generateCMemPop(StreamWrapper out, Translator tr) {
+			// TODO Auto-generated method stub
+			
+		}
+		@Override
+		public void visitChildren(Node parent, NodeVisitor v) {
 			// TODO Auto-generated method stub
 			
 		}
@@ -245,4 +259,24 @@ public class SharedMem {
         }
         if (prefix.equals("")) inc.write("0");
     }
+
+	public void visitChildren(Node parent, NodeVisitor v) {
+        for (SharedMem.Decl d : decls) {
+        	d.visitChildren(parent, v);
+        }
+	}
+
+	public SharedMem clone () {
+		try {
+			SharedMem this_ = (SharedMem) super.clone();
+			ArrayList<Decl> decls = new ArrayList<Decl>();
+			for (Decl d : this.decls) {
+				decls.add(d);
+			}
+			this_.decls = decls;
+			return this_;
+		} catch (CloneNotSupportedException e) {
+			return null;
+		}
+	}
 }
