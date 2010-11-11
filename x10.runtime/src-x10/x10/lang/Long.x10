@@ -539,5 +539,6 @@ public struct Long implements Comparable[Long] /*TODO implements Arithmetic[Long
     * to, or greater than the given Long.
     */
    @Native("java", "x10.rtt.Equality.compareTo(#0, #1)")
-   public def compareTo(x:Long): Int = 0;
+   @Native("c++", "x10aux::long_utils::compareTo(#0, #1)")
+   public native def compareTo(x:Long):Int;
 }

@@ -40,6 +40,9 @@ namespace x10aux {
         static x10_char toUpperCase(x10_char value);
         static x10_char toTitleCase(x10_char value);
         static x10_char reverseBytes(x10_char value);
+        static x10_int compareTo(x10_char v1, x10_char v2) {
+            return v1 == v2 ? 0 : v1 < v2 ? -1 : 1;
+        }
     };
 }
 

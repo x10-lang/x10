@@ -763,6 +763,6 @@ public struct ULong implements Comparable[ULong] /*TODO implements Arithmetic[UL
     * to, or greater than the given ULong.
     */
     // @Native("java", "x10.rtt.Equality.compareTo(#0.longVal + java.lang.Long.MIN_VALUE, #1.longVal + java.lang.Long.MIN_VALUE)")
-    @Native("c++", "0")
+    @Native("c++", "x10aux::long_utils::compareTo(#0, #1)")
     public def compareTo(x:ULong): Int = (this.longVal + Long.MIN_VALUE).compareTo(x.longVal + Long.MIN_VALUE);
 }

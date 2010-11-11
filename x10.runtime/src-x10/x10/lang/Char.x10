@@ -326,5 +326,6 @@ public struct Char implements Comparable[Char] /*TODO implements Ordered[Char]*/
     * to, or greater than the given Char.
     */
    @Native("java", "x10.rtt.Equality.compareTo(#0, #1)")
-   public def compareTo(x:Char): Int = 0;
+   @Native("c++", "x10aux::char_utils::compareTo(#0, #1)")
+   public native def compareTo(x:Char):Int;
 }

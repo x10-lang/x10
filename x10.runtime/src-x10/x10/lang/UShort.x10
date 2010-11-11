@@ -629,6 +629,6 @@ public struct UShort implements Comparable[UShort] /*TODO implements Arithmetic[
     * to, or greater than the given UShort.
     */
     // @Native("java", "x10.rtt.Equality.compareTo(#0.shortVal + java.lang.Short.MIN_VALUE, #1.shortVal + java.lang.Short.MIN_VALUE)")
-    @Native("c++", "0")
+    @Native("c++", "x10aux::short_utils::compareTo(#0, #1)")
     public def compareTo(x:UShort): Int = (this.shortVal + Short.MIN_VALUE).compareTo(x.shortVal + Short.MIN_VALUE);
 }

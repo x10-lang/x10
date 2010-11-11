@@ -541,5 +541,6 @@ public struct Int implements Comparable[Int] /*TODO implements Arithmetic[Int], 
      * to, or greater than the given Int.
      */
     @Native("java", "x10.rtt.Equality.compareTo(#0, #1)")
-    public def compareTo(x:Int): Int = 0;
+    @Native("c++", "x10aux::int_utils::compareTo(#0, #1)")
+    public native def compareTo(x:Int):Int;
 }

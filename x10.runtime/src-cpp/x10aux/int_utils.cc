@@ -122,10 +122,6 @@ x10_int x10aux::int_utils::reverse(x10_int x) {
     return (x10_int)ux;
 }
 
-x10_int x10aux::int_utils::signum(x10_int x) {
-    return (x >> 31) | (((x10_uint)(-x)) >> 31);
-}
-
 x10_int x10aux::int_utils::reverseBytes(x10_int x) {
     x10_long value = 0;
     if (x<0) {
@@ -141,4 +137,5 @@ x10_int x10aux::int_utils::reverseBytes(x10_int x) {
     b0 <<= 24; b1 <<= 8; b2 >>= 8; b3 >>= 24;
     return b0 | b1 | b2 | b3;
 }
+
 // vim:tabstop=4:shiftwidth=4:expandtab

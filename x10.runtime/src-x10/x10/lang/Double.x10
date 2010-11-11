@@ -419,5 +419,6 @@ public struct Double implements Comparable[Double] /*TODO implements Arithmetic[
     * to, or greater than the given Double.
     */
    @Native("java", "x10.rtt.Equality.compareTo(#0, #1)")
-   public def compareTo(x:Double): Int = 0;
+   @Native("c++", "x10aux::double_utils::compareTo(#0, #1)")
+   public native def compareTo(x:Double):Int;
 }

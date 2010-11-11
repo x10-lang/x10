@@ -422,5 +422,6 @@ public struct Float implements Comparable[Float] /*TODO implements Arithmetic[Fl
     * to, or greater than the given Float.
     */
    @Native("java", "x10.rtt.Equality.compareTo(#0, #1)")
-   public def compareTo(x:Float): Int = 0;
+   @Native("c++", "x10aux::float_utils::compareTo(#0, #1)")
+   public native def compareTo(x:Float):Int;
 }

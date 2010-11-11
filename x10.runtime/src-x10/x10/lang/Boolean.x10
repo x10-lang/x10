@@ -140,7 +140,8 @@ public struct Boolean implements Comparable[Boolean] {
     * to, or greater than the given Boolean.
     */
     @Native("java", "x10.rtt.Equality.compareTo(#0, #1)")
-    public def compareTo(x:Boolean): Int = 0;
+    @Native("c++", "x10aux::boolean_utils::compareTo(#0, #1)")
+    public native def compareTo(x:Boolean):Int;
 
     // These operations are built-in.  Declaring them will prevent the
     // short-circuiting behavior.

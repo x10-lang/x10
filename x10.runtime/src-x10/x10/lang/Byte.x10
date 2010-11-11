@@ -435,5 +435,6 @@ public struct Byte implements Comparable[Byte] /*TODO implements Arithmetic[Byte
     * to, or greater than the given Byte.
     */
    @Native("java", "x10.rtt.Equality.compareTo(#0, #1)")
-   public def compareTo(x:Byte): Int = 0;
+   @Native("c++", "x10aux::byte_utils::compareTo(#0, #1)")
+   public native def compareTo(x:Byte):Int;
 }

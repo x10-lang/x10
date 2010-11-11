@@ -720,6 +720,6 @@ public struct UInt implements Comparable[UInt] /*TODO implements Arithmetic[UInt
     * to, or greater than the given UInt.
     */
     // @Native("java", "x10.rtt.Equality.compareTo(#0.intVal + java.lang.Integer.MIN_VALUE, #1.intVal + java.lang.Integer.MIN_VALUE)")
-    @Native("c++", "0")
+    @Native("c++", "x10aux::int_utils::compareTo(#0, #1)")
     public def compareTo(x:UInt): Int = (this.intVal + Int.MIN_VALUE).compareTo(x.intVal + Int.MIN_VALUE);
 }

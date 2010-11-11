@@ -445,5 +445,6 @@ public struct Short implements Comparable[Short] /*TODO implements Arithmetic[Sh
     * to, or greater than the given Short.
     */
    @Native("java", "x10.rtt.Equality.compareTo(#0, #1)")
-   public def compareTo(x:Short): Int = 0;
+   @Native("c++", "x10aux::_utils::compareTo(#0, #1)")
+   public native def compareTo(x:Short):Int;
 }

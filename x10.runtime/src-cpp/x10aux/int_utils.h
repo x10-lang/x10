@@ -39,8 +39,17 @@ namespace x10aux {
         static x10_int rotateLeft(x10_int value, x10_int distance);
         static x10_int rotateRight(x10_int value, x10_int distance);
         static x10_int reverse(x10_int value);
-        static x10_int signum(x10_int value);
+        static x10_int signum(x10_int value) {
+            return (value >> 31) | (((x10_uint)(-value)) >> 31);
+        }
         static x10_int reverseBytes(x10_int value);
+        static x10_boolean compareTo(x10_int v1, x10_int v2) {
+            return v1 == v2 ? 0 : (v1 < v2 ? -1 : 1);
+        }
+        static x10_boolean compareTo(x10_uint v1, x10_uint v2) {
+            return v1 == v2 ? 0 : (v1 < v2 ? -1 : 1);
+        }
+            
     };
 }
 
