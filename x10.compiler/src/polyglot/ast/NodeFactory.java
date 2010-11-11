@@ -204,7 +204,6 @@ public interface NodeFactory
 
     Eval Eval(Position pos, Expr expr);
 
-    Field Field(Position pos, Id name);
     Field Field(Position pos, Receiver target, Id name);
 
     FloatLit FloatLit(Position pos, FloatLit.Kind kind, double value);
