@@ -26,7 +26,7 @@ extern "C" int strcasecmp(const char *, const char *);
 /* ************************************************************************ */
 
 // Environment variable names
-#define X10LAUNCHER_MYID "X10LAUNCHER_MYID" // a number for the "place" of this process.  Set by the launcher.
+#define X10LAUNCHER_MYID "MP_CHILD" // a number for the "place" of this process.  Set by the launcher.
 #define X10LAUNCHER_NPROCS "X10LAUNCHER_NPROCS" // the number of places in this process
 #define X10LAUNCHER_HOSTFILE "X10LAUNCHER_HOSTFILE" // full path name of a file containing a list of hostnames
 #define X10LAUNCHER_HOSTLIST "X10LAUNCHER_HOSTLIST" // an alternative to HOSTFILE above.  This is a comma-separated list of hostnames

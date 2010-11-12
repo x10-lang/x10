@@ -280,7 +280,7 @@ void x10rt_net_init (int * argc, char ***argv, x10rt_msg_type *counter)
 	// determine my place ID
 	char* ID = getenv(X10LAUNCHER_MYID);
 	if (ID == NULL)
-		error("X10LAUNCHER_MYID not set!");
+		error(X10LAUNCHER_MYID" not set!");
 	else
 		state.myPlaceId = atol(ID);
 
@@ -698,10 +698,12 @@ void probe (bool onlyProcessAccept)
 			#endif
 
 			// link is broken.  Close it down.
-			int r = close(state.socketLinks[whichPlaceToHandle].fd);
-            (void) r; // avoid warning
 			#ifdef DEBUG
-				if (r < 0) fprintf(stderr, "X10rt.Sockets: place %u failed closing link to %u: %i\n", state.myPlaceId, whichPlaceToHandle, r);
+            	int r = close(state.socketLinks[whichPlaceToHandle].fd);
+				if (r < 0)
+					fprintf(stderr, "X10rt.Sockets: place %u failed closing link to %u: %i\n", state.myPlaceId, whichPlaceToHandle, r);
+			#else
+				close(state.socketLinks[whichPlaceToHandle].fd);
 			#endif
 			state.socketLinks[whichPlaceToHandle].fd = -1;
 			// TODO - notify the runtime of this?
@@ -739,10 +741,12 @@ void x10rt_net_finalize (void)
 		if (state.socketLinks[i].fd != -1)
 		{
 			pthread_mutex_lock(&state.writeLocks[i]);
-			int r = close(state.socketLinks[i].fd);
-            (void) r; // avoid warning
 			#ifdef DEBUG
-				if (r < 0) fprintf(stderr, "X10rt.Sockets: runtime %u failed closing link to %u: %i\n", state.myPlaceId, i, r);
+				int r = close(state.socketLinks[i].fd);
+				if (r < 0)
+					fprintf(stderr, "X10rt.Sockets: runtime %u failed closing link to %u: %i\n", state.myPlaceId, i, r);
+			#else
+				close(state.socketLinks[i].fd);
 			#endif
 			pthread_mutex_unlock(&state.writeLocks[i]);
 			pthread_mutex_destroy(&state.writeLocks[i]);
@@ -751,10 +755,12 @@ void x10rt_net_finalize (void)
 
 	if (Launcher::_parentLauncherControlLink != -1)
 	{
-		int r = close(Launcher::_parentLauncherControlLink);
-        (void) r; // avoid warning
 		#ifdef DEBUG
-			if (r < 0) fprintf(stderr, "X10rt.Sockets: runtime %u failed closing link to parent launcher: %i\n", state.myPlaceId, r);
+			int r = close(Launcher::_parentLauncherControlLink);
+			if (r < 0)
+				fprintf(stderr, "X10rt.Sockets: runtime %u failed closing link to parent launcher: %i\n", state.myPlaceId, r);
+		#else
+			close(Launcher::_parentLauncherControlLink);
 		#endif
 	}
 	pthread_mutex_destroy(&state.readLock);
