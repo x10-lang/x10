@@ -227,11 +227,16 @@ public class X10Binary_c extends Binary_c implements X10Binary {
         return Name.make(methodName);
     }
 
+    public static final String INVERSE_OPERATOR_PREFIX = "inverse_";
     public static Name invBinaryMethodName(Binary.Operator op) {
         Name n = binaryMethodName(op);
         if (n == null)
             return null;
-        return Name.make("inverse_" + n.toString());
+        return Name.make(INVERSE_OPERATOR_PREFIX + n.toString());
+    }
+
+    public static boolean isInv(Name name) {
+        return name.toString().startsWith(INVERSE_OPERATOR_PREFIX);
     }
     
     private static Type promote(TypeSystem ts, Type t1, Type t2) {
@@ -582,7 +587,11 @@ public class X10Binary_c extends Binary_c implements X10Binary {
                 n1.arguments().size() != 2 ? (Expr) n1.target() : n1.arguments().get(0),
                 n1.arguments().size() != 2 ? n1.arguments().get(0) : n1.arguments().get(1),
             };
-            Expr[] original = new Expr[] { left, right };
+            boolean inverse = isInv(n1.name().id());
+            Expr[] original = new Expr[] {
+                inverse ? right : left,
+                inverse ? left : right,
+            };
             X10Binary_c.Conversion conversion = X10Binary_c.conversionNeeded(actuals, original);
 
             if (bestConversion.harder(conversion)) {
