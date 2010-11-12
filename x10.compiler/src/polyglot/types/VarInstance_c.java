@@ -86,6 +86,13 @@ public class VarInstance_c<T extends VarDef> extends Use_c<T> implements VarInst
         return type;
     }
 
+    public Type safeType() {
+        if (type == null) {
+            return Types.getCached(def().type());
+        }
+        return type;
+    }
+
     public VarInstance<T> type(Type type) {
         VarInstance_c<T> v = this.<VarInstance_c<T>>copyGeneric();
         v.type = type;
