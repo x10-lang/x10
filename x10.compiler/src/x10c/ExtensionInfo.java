@@ -50,8 +50,8 @@ public class ExtensionInfo extends x10.ExtensionInfo {
         return new X10CTypeSystem_c();
     }
 
-//    public static final boolean PREPARE_FOR_INLINING = x10.Configuration.INLINE_OPTIMIZATIONS;
-    public static final boolean PREPARE_FOR_INLINING = true;
+    public static final boolean PREPARE_FOR_INLINING = x10.optimizations.Optimizer.INLINING;
+//  public static final boolean PREPARE_FOR_INLINING = true;
 
     static class X10CScheduler extends X10Scheduler {
         public X10CScheduler(ExtensionInfo extInfo) {
@@ -116,7 +116,7 @@ public class ExtensionInfo extends x10.ExtensionInfo {
             Goal cg2 = cg.intern(this);
             // FIXME: guarded to make local optimizations effective in java backend
             if (cg == cg2) {
-                if (x10.Configuration.INLINE_OPTIMIZATIONS || x10.Configuration.CLOSURE_INLINING) {
+                if (x10.optimizations.Optimizer.INLINING) {
                     cg2.addPrereq(ExpressionFlattener(job));
                 }
             }

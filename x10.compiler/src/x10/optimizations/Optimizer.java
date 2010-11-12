@@ -27,6 +27,13 @@ import x10.visit.Inliner;
 
 public class Optimizer {
 
+    public static boolean INLINING =  x10.Configuration.EXPERIMENTAL && 
+                                      (
+                                        x10.Configuration.INLINE_CONSTANTS ||
+                                        x10.Configuration.INLINE_METHODS || 
+                                        (x10.Configuration.CLOSURE_INLINING && x10.Configuration.INLINE_CLOSURES)
+                                      );
+    
     private final Scheduler scheduler;
 
     public Optimizer(Scheduler scheduler) {
@@ -39,13 +46,18 @@ public class Optimizer {
 
     public List<Goal> goals(Job job, Goal flattener) {
         List<Goal> goals = new ArrayList<Goal>();
-        goals.add(LoopUnrolling(job));
-        goals.add(ForLoopOptimizations(job));
-        goals.add(Inliner(job));
-//        if (!x10.Configuration.FLATTEN_EXPRESSIONS) goals.add(flattener); // don't add it twice
+        if (x10.Configuration.LOOP_OPTIMIZATIONS) {
+            goals.add(LoopUnrolling(job));
+            goals.add(ForLoopOptimizations(job));
+        }
         if (x10.Configuration.EXPERIMENTAL) {
-  //        goals.add(DeadAssignmentEliminator(job));
-  //        DeadAssignmentEliminator(job).addPrereq(flattener);
+            if (INLINING) {
+                goals.add(Inliner(job));
+            }
+  //        if (x10.Configuration.ELIMINATE_DEAD_VARIABLES) {
+  //            goals.add(DeadVariableEliminator(job));
+  //            DeadVariableEliminator(job).addPrereq(flattener);
+  //        }
         }
         // TODO: add an empty goal that prereqs the above
         return goals;
@@ -65,12 +77,12 @@ public class Optimizer {
         return new ValidatingVisitorGoal("Loop Unrolling", job, new LoopUnroller(job, ts, nf)).intern(scheduler);
     }
 /*
-    public Goal DeadAssignmentEliminator(Job job) {
+    public Goal DeadVariableEliminator(Job job) {
         ExtensionInfo extInfo = job.extensionInfo();
         TypeSystem ts = extInfo.typeSystem();
         NodeFactory nf = extInfo.nodeFactory();
         NodeVisitor visitor = new DeadVariableEliminator(job, ts, nf);
-        return new ValidatingVisitorGoal("Dead Assignment Elimination", job, visitor).intern(scheduler);
+        return new ValidatingVisitorGoal("Dead Variable Elimination", job, visitor).intern(scheduler);
     }
 */
     public Goal Inliner(Job job) {

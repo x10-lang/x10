@@ -128,11 +128,10 @@ import x10.types.matcher.Subst;
 @SuppressWarnings("unchecked")
 public class Inliner extends ContextVisitor {
 
-    private static final boolean INLINE_CONSTANTS  = x10.Configuration.INLINE_COMPILE_TIME_CONSTANTS;
-    private static final boolean INLINE_METHODS    = x10.Configuration.INLINE_OPTIMIZATIONS;
-    private static final boolean INLINE_CLOSURES   = x10.Configuration.CLOSURE_INLINING;
-    private static final boolean IMPLICIT_INLINING = x10.Configuration.INLINE_SMALL_METHODS;
-//  private static final boolean IMPLICIT_INLINING = x10.Configuration.INLINE_SMALL_METHODS || x10.Configuration.EXPERIMENTAL;
+    private static final boolean INLINE_CONSTANTS = x10.Configuration.INLINE_CONSTANTS;
+    private static final boolean INLINE_METHODS   = x10.Configuration.INLINE_METHODS;
+    private static final boolean INLINE_CLOSURES  = x10.Configuration.INLINE_CLOSURES && x10.Configuration.CLOSURE_INLINING;
+    private static final boolean INLINE_IMPLICIT  = x10.Configuration.INLINE_METHODS_IMPLICIT;
     
     private static final boolean DEBUG = false;
 //  private static final boolean DEBUG = true;
@@ -706,7 +705,7 @@ public class Inliner extends ContextVisitor {
             return null;
         }
         if (!inliningRequired) { // decide whether to inline candidate
-            if (IMPLICIT_INLINING) {
+            if (INLINE_IMPLICIT) {
                 int cost = getCost(decl, candidateJob);
                 if (SMALL_METHOD_MAX_SIZE < cost) {
                     report("of excessive cost, " + cost, call);

@@ -55,20 +55,29 @@ public final class Configuration extends x10.config.Configuration {
 //  public static final boolean EXPERIMENTAL = true;
     private static final String EXPERIMENTAL_desc = "Enable experimental optimizations";
 
-//  public static final boolean INLINE_COMPILE_TIME_CONSTANTS = false;
-    public static final boolean INLINE_COMPILE_TIME_CONSTANTS = true;
-    private static final String INLINE_COMPILE_TIME_CONSTANTS_desc = "Enable inlining of command-line flags";
+    public static final boolean ELIMINATE_DEAD_VARIABLES = false;
+//  public static final boolean ELIMINATE_DEAD_VARIABLES = true;
+    private static final String ELIMINATE_DEAD_VARIABLES_desc = "Get rid of LocalDecl's without uses";
 
-    public static boolean INLINE_OPTIMIZATIONS = false;
-//  public static boolean INLINE_OPTIMIZATIONS = true;
-    private static final String INLINE_OPTIMIZATIONS_desc = "Perform inlining optimizations";
+//  public static final boolean INLINE_CONSTANTS = false;
+    public static final boolean INLINE_CONSTANTS = true;
+    private static final String INLINE_CONSTANTS_desc = "Enable inlining of command-line flags";
 
-    public static boolean INLINE_SMALL_METHODS = false;
+//  public static boolean INLINE_METHODS = false;
+    public static boolean INLINE_METHODS = true;
+    private static final String INLINE_METHODS_desc = "Perform inlining optimizations";
+    
+//  public static boolean INLINE_CLOSURES = false;
+    public static boolean INLINE_CLOSURES = true;
+    private static final String INLINE_CLOSURES_desc = "Enable inlining of closure calls by the Inliner";
+//  Note: this has more limited affect than CLOSURE_INLINING which also must be true for the Inliner to inline closure calls
+
+    public static boolean INLINE_METHODS_IMPLICIT = false;
 //  public static boolean INLINE_SMALL_METHODS = true;
     private static final String INLINE_SMALL_METHODS_desc = "Inline methods that don't make many calls";
 
-    public static boolean CLOSURE_INLINING = false;
-//  public static boolean CLOSURE_INLINING = true;
+//  public static boolean CLOSURE_INLINING = false;
+    public static boolean CLOSURE_INLINING = true;
     private static final String CLOSURE_INLINING_desc = "Perform closure literal inlining";
 
     public static boolean FLATTEN_EXPRESSIONS = false;
