@@ -699,6 +699,7 @@ void probe (bool onlyProcessAccept)
 
 			// link is broken.  Close it down.
 			int r = close(state.socketLinks[whichPlaceToHandle].fd);
+            (void) r; // avoid warning
 			#ifdef DEBUG
 				if (r < 0) fprintf(stderr, "X10rt.Sockets: place %u failed closing link to %u: %i\n", state.myPlaceId, whichPlaceToHandle, r);
 			#endif
@@ -739,6 +740,7 @@ void x10rt_net_finalize (void)
 		{
 			pthread_mutex_lock(&state.writeLocks[i]);
 			int r = close(state.socketLinks[i].fd);
+            (void) r; // avoid warning
 			#ifdef DEBUG
 				if (r < 0) fprintf(stderr, "X10rt.Sockets: runtime %u failed closing link to %u: %i\n", state.myPlaceId, i, r);
 			#endif
@@ -750,6 +752,7 @@ void x10rt_net_finalize (void)
 	if (Launcher::_parentLauncherControlLink != -1)
 	{
 		int r = close(Launcher::_parentLauncherControlLink);
+        (void) r; // avoid warning
 		#ifdef DEBUG
 			if (r < 0) fprintf(stderr, "X10rt.Sockets: runtime %u failed closing link to parent launcher: %i\n", state.myPlaceId, r);
 		#endif
