@@ -43,6 +43,8 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
+import polyglot.types.VarDef;
+import polyglot.types.VarInstance;
 import polyglot.util.CodeWriter;
 import polyglot.util.CollectionUtil;
 import polyglot.util.Position;
@@ -409,6 +411,16 @@ public class Closure_c extends Expr_c implements Closure {
 
 		// Create an anonymous subclass of the closure type.
 		ClosureDef def = n.closureDef;
+		if (!def.capturedEnvironment().isEmpty()) {
+		    //System.out.println(this.position() + ": " + this + " captures "+def.capturedEnvironment());
+		    // Propagate the captured variables to the parent closure (if any)
+		    for (VarInstance<? extends VarDef> vi : def.capturedEnvironment()) {
+		        Context o = c;
+		        while (o.currentCode() == def)
+		            o = o.pop().popToCode();
+		        o.recordCapturedVariable(vi);
+		    }
+		}
 		ClassDef cd = ClosureSynthesizer.closureAnonymousClassDef(xts, def);
 		n = (Closure_c) n.type(cd.asType());
 		if (hasType != null) {

@@ -16,7 +16,6 @@ import x10.constraint.XVar;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10CodeDef;
-import polyglot.types.Context;
 import x10.types.X10FieldInstance;
 import x10.types.X10LocalInstance;
 import x10.types.X10MethodInstance;
@@ -292,4 +291,14 @@ public interface Context extends Resolver, Copy
      * @return
      */
     boolean isClocked();
+
+    /**
+     * Record the variable represented by vi in the enclosing closure (if any).
+     */
+    void recordCapturedVariable(VarInstance<? extends VarDef> vi);
+
+    /**
+     * Return the enclosing code context (or this if the current context is a code context).
+     */
+    Context popToCode();
 }

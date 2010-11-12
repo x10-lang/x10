@@ -834,6 +834,35 @@ public class X10Context_c extends Context_c {
 		super.addVariableToThisScope(var);
 	}
 
+	public void recordCapturedVariable(VarInstance<? extends VarDef> vi) {
+	    Context c = findEnclosingClosure();
+	    if (c == null)
+	        return;
+	    VarInstance<?> o = c.pop().findVariableSilent(vi.name());
+	    if (vi == o)
+	        ((ClosureDef) c.currentCode()).addCapturedVariable(vi);
+	}
+
+	private Context findEnclosingClosure() {
+	    Context c = popToCode();
+	    while (c != null && !(c.currentCode() instanceof ClosureDef)) {
+	        c = c.pop().popToCode();
+	    }
+	    assert (c == null || ((X10Context_c) c).isCode());
+	    if (c != null && c.currentCode() instanceof ClosureDef)
+	        return c;
+	    return null;
+	}
+
+	public Context popToCode() {
+	    Context c = this;
+	    while (c != null && !((X10Context_c) c).isCode()) {
+	        c = c.pop();
+	    }
+	    return c;
+	}
+
+
 	public void setVarWhoseTypeIsBeingElaborated(VarDef var) {
 		varWhoseTypeIsBeingElaborated = var;
 	}

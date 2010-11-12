@@ -11,6 +11,7 @@
 
 package x10.types;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -23,6 +24,8 @@ import polyglot.types.Ref;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
+import polyglot.types.VarDef;
+import polyglot.types.VarInstance;
 import polyglot.util.CollectionUtil;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
@@ -48,7 +51,7 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
     protected XConstrainedTerm placeTerm;
     protected Ref<? extends Type> offerType;
     
-  
+    protected List<VarInstance<? extends VarDef>> capturedEnvironment;
 
     public ClosureDef_c(TypeSystem ts, Position pos, 
             Ref<? extends ClassType> typeContainer,
@@ -72,6 +75,7 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
         this.guard = guard;
         //this.typeGuard = typeGuard;
         this.offerType = offerType;
+        this.capturedEnvironment = new ArrayList<VarInstance<? extends VarDef>>();
     }
     
     public Ref<? extends Type> offerType() {
@@ -219,6 +223,16 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
      */
      public void setFormalTypes(List<Ref<? extends Type>> formalTypes) {
          this.formalTypes = TypedList.copyAndCheck(formalTypes, Ref.class, true);
+     }
+
+     public List<VarInstance<? extends VarDef>> capturedEnvironment() {
+         return Collections.unmodifiableList(capturedEnvironment);
+     }
+
+     public void addCapturedVariable(VarInstance<? extends VarDef> vi) {
+         if (!this.capturedEnvironment.contains(vi)) {
+             this.capturedEnvironment.add(vi);
+         }
      }
 
      
