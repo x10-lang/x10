@@ -52,36 +52,28 @@ public final class Configuration extends x10.config.Configuration {
     private static final String LOOP_OPTIMIZATIONS_desc = "Optimize rectangular region iteration";
 
     public static final boolean EXPERIMENTAL = false;
-//  public static final boolean EXPERIMENTAL = true;
     private static final String EXPERIMENTAL_desc = "Enable experimental optimizations";
 
     public static final boolean ELIMINATE_DEAD_VARIABLES = false;
-//  public static final boolean ELIMINATE_DEAD_VARIABLES = true;
-    private static final String ELIMINATE_DEAD_VARIABLES_desc = "Get rid of LocalDecl's without uses";
+    private static final String ELIMINATE_DEAD_VARIABLES_desc = "Get rid of unused local variables";
 
-//  public static final boolean INLINE_CONSTANTS = false;
     public static final boolean INLINE_CONSTANTS = true;
-    private static final String INLINE_CONSTANTS_desc = "Enable inlining of command-line flags";
+    private static final String INLINE_CONSTANTS_desc = "Enable inlining of command-line flag values";
 
-//  public static boolean INLINE_METHODS = false;
-    public static boolean INLINE_METHODS = true;
-    private static final String INLINE_METHODS_desc = "Perform inlining optimizations";
+    public static boolean INLINE_METHODS = false;
+    private static final String INLINE_METHODS_desc = "Perform method inlining optimizations";
     
-//  public static boolean INLINE_CLOSURES = false;
+    // Note: this has more limited affect than CLOSURE_INLINING which also must be true for the Inliner to inline closure calls
     public static boolean INLINE_CLOSURES = true;
-    private static final String INLINE_CLOSURES_desc = "Enable inlining of closure calls by the Inliner";
-//  Note: this has more limited affect than CLOSURE_INLINING which also must be true for the Inliner to inline closure calls
+    private static final String INLINE_CLOSURES_desc = "Enable inlining of closure literal calls";
 
     public static boolean INLINE_METHODS_IMPLICIT = false;
-//  public static boolean INLINE_SMALL_METHODS = true;
-    private static final String INLINE_SMALL_METHODS_desc = "Inline methods that don't make many calls";
+    private static final String INLINE_METHODS_IMPLICIT_desc = "Inline methods that don't make many calls";
 
-//  public static boolean CLOSURE_INLINING = false;
     public static boolean CLOSURE_INLINING = true;
-    private static final String CLOSURE_INLINING_desc = "Perform closure literal inlining";
+    private static final String CLOSURE_INLINING_desc = "Perform closure literal inlining during code generation";
 
     public static boolean FLATTEN_EXPRESSIONS = false;
-//  public static boolean FLATTEN_EXPRESSIONS = true;
     private static final String FLATTEN_EXPRESSIONS_desc = "Flatten all expressions";
 
     public static String PLUGINS = "";

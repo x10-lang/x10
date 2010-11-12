@@ -27,12 +27,14 @@ import x10.visit.Inliner;
 
 public class Optimizer {
 
-    public static boolean INLINING =  x10.Configuration.EXPERIMENTAL && 
-                                      (
-                                        x10.Configuration.INLINE_CONSTANTS ||
-                                        x10.Configuration.INLINE_METHODS || 
-                                        (x10.Configuration.CLOSURE_INLINING && x10.Configuration.INLINE_CLOSURES)
-                                      );
+    public static boolean INLINING() {
+        return x10.Configuration.EXPERIMENTAL && 
+               (
+                 x10.Configuration.INLINE_CONSTANTS ||
+                 x10.Configuration.INLINE_METHODS || 
+                 (x10.Configuration.CLOSURE_INLINING && x10.Configuration.INLINE_CLOSURES)
+               );
+    }
     
     private final Scheduler scheduler;
 
@@ -51,7 +53,7 @@ public class Optimizer {
             goals.add(ForLoopOptimizations(job));
         }
         if (x10.Configuration.EXPERIMENTAL) {
-            if (INLINING) {
+            if (INLINING()) {
                 goals.add(Inliner(job));
             }
   //        if (x10.Configuration.ELIMINATE_DEAD_VARIABLES) {
