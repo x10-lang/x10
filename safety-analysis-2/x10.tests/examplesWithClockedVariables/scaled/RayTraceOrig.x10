@@ -425,7 +425,7 @@ class RayTracer {
 	var width: int;
 
 	//int datasizes[] = { 150, 500 };
-	val datasizes: ValRail[int] = [1, 64]; //reducing data size
+	val datasizes: ValRail[int] = [64, 128]; //reducing data size
 
 	protected var checksum: long = 0;
 
@@ -691,7 +691,7 @@ public class RayTraceOrig extends RayTracer {
 		// set image size
 		//width = height = datasizes(size);
 		width = datasizes(size);
-		height = datasizes(size + 1);
+		height = datasizes(size);
 
 		// create the objects to be rendered
 		scene = createScene();
@@ -719,7 +719,7 @@ public class RayTraceOrig extends RayTracer {
 
 	public def JGFvalidate(): void = {
 		//long refval[] = { 2676692, 29827635 };
-		val refval: ValRail[int] = [ 51398, 29827635 ]; // reduced data size
+		val refval: ValRail[int] = [486811, 29827635 ]; // reduced data size
 		var dev: long = checksum - refval(size); //FIXME
 		if (Math.abs(dev) > 50) {
 			Console.OUT.println("Validation failed");
