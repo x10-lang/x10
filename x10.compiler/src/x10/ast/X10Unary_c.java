@@ -14,6 +14,7 @@ package x10.ast;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -302,14 +303,17 @@ public class X10Unary_c extends Unary_c {
                 Type td = Types.get(md.container());
                 ClassDef cd = X10Binary_c.def(td);
 
-                for (X10Call_c c : best) {
+                boolean isBetter = false;
+                for (Iterator<X10Call_c> ci = best.iterator(); ci.hasNext();) {
+                    X10Call_c c = ci.next();
                     MethodDef bestmd = c.methodInstance().def();
                     assert (bestmd != md) : pos.toString();
-                    if (bestmd == md) continue;  // same method by a different path (shouldn't happen for unary)
+                    if (bestmd == md) break;  // same method by a different path (shouldn't happen for unary)
 
                     Type besttd = Types.get(bestmd.container());
                     if (xts.isUnknown(besttd) || xts.isUnknown(td)) {
-                        best.add(n1);
+                        // going to create a fake one anyway; might as well get more data
+                        isBetter = true;
                         continue;
                     }
 
@@ -317,17 +321,23 @@ public class X10Unary_c extends Unary_c {
                     assert (bestcd != null && cd != null);
 
                     if (xts.descendsFrom(cd, bestcd)) {
-                        best.clear();
-                        best.add(n1);
+                        // we found the method of a subclass; remove the superclass one
+                        ci.remove();
+                        isBetter = true;
+                        assert (bestConversion == conversion);
                         bestConversion = conversion;
                     }
                     else if (xts.descendsFrom(bestcd, cd)) {
                         // best is still the best
+                        isBetter = false;
+                        break;
                     }
                     else {
-                        best.add(n1);
+                        isBetter = true;
                     }
                 }
+                if (isBetter)
+                    best.add(n1);
             }
         }
         assert (best.size() != 0);
