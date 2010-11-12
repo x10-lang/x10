@@ -67,7 +67,8 @@ public final class Configuration extends x10.config.Configuration {
 //  public static boolean INLINE_SMALL_METHODS = true;
     private static final String INLINE_SMALL_METHODS_desc = "Inline methods that don't make many calls";
 
-    public static boolean CLOSURE_INLINING = true;
+    public static boolean CLOSURE_INLINING = false;
+//  public static boolean CLOSURE_INLINING = true;
     private static final String CLOSURE_INLINING_desc = "Perform closure literal inlining";
 
     public static boolean FLATTEN_EXPRESSIONS = false;
