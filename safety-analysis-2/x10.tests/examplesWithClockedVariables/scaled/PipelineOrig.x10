@@ -7,11 +7,11 @@ public class PipelineOrig {
    public def pipeline() {
   		val c = Clock.make(); 
    		val op = Int.+;
-     	val a = Rail.make[int] (1, (Int) => 0);
+     		val a = Rail.make[int] (1, (Int) => 0);
    		val b = Rail.make[int] (N, (Int)=> 0);
- 	    async clocked(c)  {
+ 	    	async clocked(c)  {
                         var i: int;
-                        for (i = 0; i < N; i++)  {
+                        for (i = 0; i < 2*N; i++)  {
                                 b(0) = i;
                                 next;  /*write phase over */
                                 next; /*read phase over */
@@ -22,19 +22,20 @@ public class PipelineOrig {
 		val jj = j; 
                 async clocked (c) {
                         var i: int;
-                        for (i = 0; i < N; i++)  {
+                        for (i = 0; i < 2*N; i++)  {
                                 next; /*write phase over */                   
-                                b(jj) = b(jj - 1) + 1;
+                                val tmp  = b(jj - 1) + 1;
                                 next;
+				b(jj) = tmp;
                         }
                 }
 		}
                 var i: int;
               
-                for (i = 0; i < N; i++)  {
+                for (i = 0; i < 2*N; i++)  {
+                        next; /*write phase over */
                         val o = b(N-1) + 1;
                         Console.OUT.println(o);
-                        next; /*write phase over */
                         next; /*read phase over */
                  }
         }
