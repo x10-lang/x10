@@ -142,9 +142,11 @@ public class X10Special_c extends Special_c implements X10Special {
             cc = cc == null ? new CConstraint() : cc.copy();
             try {
                 XVar var = (XVar) xts.xtypeTranslator().trans(cc, this, c);
-                cc.addSelfBinding(var);
-                cc.setThisVar(var);
-                //PlaceChecker.AddThisHomeEqualsPlaceTerm(cc, var, c);
+                if (var != null) {
+                    cc.addSelfBinding(var);
+                    cc.setThisVar(var);
+                    //PlaceChecker.AddThisHomeEqualsPlaceTerm(cc, var, c);
+                }
             }
             catch (XFailure e) {
                 Errors.issue(tc.job(),

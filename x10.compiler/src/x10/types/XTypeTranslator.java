@@ -215,17 +215,12 @@ public class XTypeTranslator {
 		        }
 		    }
 		    // why is this code not in X10Context_c.thisVar()?
-		    XVar thisVar = xc == null ? null : xc.thisVar();
-		    for (Context outer = (Context) xc.pop();
-		    outer != null && thisVar == null;
-		    outer = (Context) outer.pop())
-		    {
+		    XVar thisVar = null;
+		    for (Context outer = xc; outer != null && thisVar == null; outer = outer.pop()) {
 		        thisVar = outer.thisVar();
 		    }
 		    if (thisVar == null) {
 		        SemanticException e = new SemanticException("Cannot refer to |this| from the context " + xc);
-		        if (true)
-		        throw new InternalCompilerError(e.getMessage());
 		        return null;
 		    }
 		    // vj: Need to set the thisVar for the constraint.
