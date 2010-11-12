@@ -1,4 +1,4 @@
-class TestInstanceOperators {
+class RegionPointStringCharNumeric {
 	var w0:Double=0;
 	var w1:Long=0;
 	var w2:String=null;

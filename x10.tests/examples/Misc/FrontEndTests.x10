@@ -2528,3 +2528,241 @@ class TestLoopLocalIsVal {
 		ateach (var p in Dist.makeUnique()) {} // ERR: Syntax Error: Enhanced ateach loop may not have var loop indexvar p: (#161514210)_	
 	}
 }
+
+
+class LegalCoercionsBetweenJavaNumerics {
+	// Checked and it is consistent with java
+//  float w0=0;
+//	double w1=0;
+//
+//	byte w2=0;
+//	int w3=0;
+//	long w4=0;
+//	short w5=0;
+	var w0:Float=0;
+	var w1:Double=0;
+
+	var w2:Byte=0;
+	var w3:Int=0;
+	var w4:Long=0;
+	var w5:Short=0;
+
+	def test() {
+		w0 = w1; // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenJavaNumerics.this.w1		 Expected type: x10.lang.Float		 Found type: x10.lang.Double)
+		w0 = w2;
+		w0 = w3;
+		w0 = w4;
+		w0 = w5;
+		w1 = w0;
+		w1 = w2;
+		w1 = w3;
+		w1 = w4;
+		w1 = w5;
+		w2 = w0; // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenJavaNumerics.this.w0		 Expected type: x10.lang.Byte		 Found type: x10.lang.Float)
+		w2 = w1; // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenJavaNumerics.this.w1		 Expected type: x10.lang.Byte		 Found type: x10.lang.Double)
+		w2 = w3; // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenJavaNumerics.this.w3		 Expected type: x10.lang.Byte		 Found type: x10.lang.Int)
+		w2 = w4; // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenJavaNumerics.this.w4		 Expected type: x10.lang.Byte		 Found type: x10.lang.Long)
+		w2 = w5; // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenJavaNumerics.this.w5		 Expected type: x10.lang.Byte		 Found type: x10.lang.Short)
+		w3 = w0; // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenJavaNumerics.this.w0		 Expected type: x10.lang.Int		 Found type: x10.lang.Float)
+		w3 = w1; // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenJavaNumerics.this.w1		 Expected type: x10.lang.Int		 Found type: x10.lang.Double)
+		w3 = w2;
+		w3 = w4; // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenJavaNumerics.this.w4		 Expected type: x10.lang.Int		 Found type: x10.lang.Long)
+		w3 = w5;
+		w4 = w0; // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenJavaNumerics.this.w0		 Expected type: x10.lang.Long		 Found type: x10.lang.Float)
+		w4 = w1; // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenJavaNumerics.this.w1		 Expected type: x10.lang.Long		 Found type: x10.lang.Double)
+		w4 = w2;
+		w4 = w3;
+		w4 = w5;
+		w5 = w0; // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenJavaNumerics.this.w0		 Expected type: x10.lang.Short		 Found type: x10.lang.Float)
+		w5 = w1; // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenJavaNumerics.this.w1		 Expected type: x10.lang.Short		 Found type: x10.lang.Double)
+		w5 = w2;
+		w5 = w3; // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenJavaNumerics.this.w3		 Expected type: x10.lang.Short		 Found type: x10.lang.Int)
+		w5 = w4; // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenJavaNumerics.this.w4		 Expected type: x10.lang.Short		 Found type: x10.lang.Long)
+	}
+}
+class LegalCoercionsBetweenAllNumerics {	
+	var w0:Float=0;
+	var w1:Double=0;
+
+	var w2:Byte=0;
+	var w3:Int=0;
+	var w4:Long=0;
+	var w5:Short=0;
+
+	var w6:UByte=0;
+	var w7:UInt=0;
+	var w8:ULong=0;
+	var w9:UShort=0;
+
+	def test() {
+		w0 = w1;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w1		 Expected type: x10.lang.Float		 Found type: x10.lang.Double)
+		w0 = w2;
+		w0 = w3;
+		w0 = w4;
+		w0 = w5;
+		w0 = w6;
+		w0 = w7;
+		w0 = w8;
+		w0 = w9;
+		w1 = w0;
+		w1 = w2;
+		w1 = w3;
+		w1 = w4;
+		w1 = w5;
+		w1 = w6;
+		w1 = w7;
+		w1 = w8;
+		w1 = w9;
+		w2 = w0;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w0		 Expected type: x10.lang.Byte		 Found type: x10.lang.Float)
+		w2 = w1;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w1		 Expected type: x10.lang.Byte		 Found type: x10.lang.Double)
+		w2 = w3;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w3		 Expected type: x10.lang.Byte		 Found type: x10.lang.Int)
+		w2 = w4;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w4		 Expected type: x10.lang.Byte		 Found type: x10.lang.Long)
+		w2 = w5;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w5		 Expected type: x10.lang.Byte		 Found type: x10.lang.Short)
+		w2 = w6;
+		w2 = w7;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w7		 Expected type: x10.lang.Byte		 Found type: x10.lang.UInt)
+		w2 = w8;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w8		 Expected type: x10.lang.Byte		 Found type: x10.lang.ULong)
+		w2 = w9;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w9		 Expected type: x10.lang.Byte		 Found type: x10.lang.UShort)
+		w3 = w0;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w0		 Expected type: x10.lang.Int		 Found type: x10.lang.Float)
+		w3 = w1;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w1		 Expected type: x10.lang.Int		 Found type: x10.lang.Double)
+		w3 = w2;
+		w3 = w4;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w4		 Expected type: x10.lang.Int		 Found type: x10.lang.Long)
+		w3 = w5;
+		w3 = w6;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w6		 Expected type: x10.lang.Int		 Found type: x10.lang.UByte)
+		w3 = w7;
+		w3 = w8;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w8		 Expected type: x10.lang.Int		 Found type: x10.lang.ULong)
+		w3 = w9;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w9		 Expected type: x10.lang.Int		 Found type: x10.lang.UShort)
+		w4 = w0;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w0		 Expected type: x10.lang.Long		 Found type: x10.lang.Float)
+		w4 = w1;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w1		 Expected type: x10.lang.Long		 Found type: x10.lang.Double)
+		w4 = w2;
+		w4 = w3;
+		w4 = w5;
+		w4 = w6;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w6		 Expected type: x10.lang.Long		 Found type: x10.lang.UByte)
+		w4 = w7;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w7		 Expected type: x10.lang.Long		 Found type: x10.lang.UInt)
+		w4 = w8;
+		w4 = w9;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w9		 Expected type: x10.lang.Long		 Found type: x10.lang.UShort)
+		w5 = w0;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w0		 Expected type: x10.lang.Short		 Found type: x10.lang.Float)
+		w5 = w1;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w1		 Expected type: x10.lang.Short		 Found type: x10.lang.Double)
+		w5 = w2;
+		w5 = w3;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w3		 Expected type: x10.lang.Short		 Found type: x10.lang.Int)
+		w5 = w4;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w4		 Expected type: x10.lang.Short		 Found type: x10.lang.Long)
+		w5 = w6;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w6		 Expected type: x10.lang.Short		 Found type: x10.lang.UByte)
+		w5 = w7;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w7		 Expected type: x10.lang.Short		 Found type: x10.lang.UInt)
+		w5 = w8;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w8		 Expected type: x10.lang.Short		 Found type: x10.lang.ULong)
+		w5 = w9;
+		w6 = w0;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w0		 Expected type: x10.lang.UByte		 Found type: x10.lang.Float)
+		w6 = w1;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w1		 Expected type: x10.lang.UByte		 Found type: x10.lang.Double)
+		w6 = w2;
+		w6 = w3;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w3		 Expected type: x10.lang.UByte		 Found type: x10.lang.Int)
+		w6 = w4;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w4		 Expected type: x10.lang.UByte		 Found type: x10.lang.Long)
+		w6 = w5;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w5		 Expected type: x10.lang.UByte		 Found type: x10.lang.Short)
+		w6 = w7;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w7		 Expected type: x10.lang.UByte		 Found type: x10.lang.UInt)
+		w6 = w8;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w8		 Expected type: x10.lang.UByte		 Found type: x10.lang.ULong)
+		w6 = w9;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w9		 Expected type: x10.lang.UByte		 Found type: x10.lang.UShort)
+		w7 = w0;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w0		 Expected type: x10.lang.UInt		 Found type: x10.lang.Float)
+		w7 = w1;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w1		 Expected type: x10.lang.UInt		 Found type: x10.lang.Double)
+		w7 = w2;
+		w7 = w3;
+		w7 = w4;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w4		 Expected type: x10.lang.UInt		 Found type: x10.lang.Long)
+		w7 = w5;
+		w7 = w6;
+		w7 = w8;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w8		 Expected type: x10.lang.UInt		 Found type: x10.lang.ULong)
+		w7 = w9;
+		w8 = w0;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w0		 Expected type: x10.lang.ULong		 Found type: x10.lang.Float)
+		w8 = w1;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w1		 Expected type: x10.lang.ULong		 Found type: x10.lang.Double)
+		w8 = w2;
+		w8 = w3;
+		w8 = w4;
+		w8 = w5;
+		w8 = w6;
+		w8 = w7;
+		w8 = w9;
+		w9 = w0;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w0		 Expected type: x10.lang.UShort		 Found type: x10.lang.Float)
+		w9 = w1;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w1		 Expected type: x10.lang.UShort		 Found type: x10.lang.Double)
+		w9 = w2;
+		w9 = w3;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w3		 Expected type: x10.lang.UShort		 Found type: x10.lang.Int)
+		w9 = w4;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w4		 Expected type: x10.lang.UShort		 Found type: x10.lang.Long)
+		w9 = w5;
+		w9 = w6;
+		w9 = w7;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w7		 Expected type: x10.lang.UShort		 Found type: x10.lang.UInt)
+		w9 = w8;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w8		 Expected type: x10.lang.UShort		 Found type: x10.lang.ULong)
+	}
+}
+class OperatorTestCases { // XTENLANG-2084
+	static class InstanceBinary1 {
+		operator this*(that:Int):Any = 1;
+		operator this*(that:Int):Any = 1; //  ERR (Semantic Error: Duplicate method "method OperatorTestCases.InstanceBinary1.operator*(that:x10.lang.Int): x10.lang.Any"; previous declaration at C:\cygwin\home\Yoav\test\Hello.x10:114,9-41.)  // ERR (Semantic Error: Duplicate method "method OperatorTestCases.InstanceBinary1.operator*(that:x10.lang.Int): x10.lang.Any"; previous declaration at C:\cygwin\home\Yoav\test\Hello.x10:8,9-41.)
+
+		operator this-(that:Int):Any = 1;
+		operator (that:Int)-this:Any = 1;
+
+		operator this+(that:InstanceBinary1):Any = 1; 
+		operator (that:InstanceBinary1)+this:Any = 1; // ShouldBeErr 
+	}
+	static class InstanceAndStatic {
+		operator this*(that:Int):Any = 1;
+		static operator (x:InstanceAndStatic)*(that:Int):Any = 1; // ShouldBeErr
+
+		operator (that:Int)+this:Any = 1;
+		static operator (x:Int)+(that:InstanceAndStatic):Any = 1; // ShouldBeErr
+	}
+
+	// test inheritance
+	static class Parent {
+		operator this*(that:Int):Any = 1;
+		operator this+(that:Int):Any = 1;
+		static operator (x:Parent)+(that:Int):Any = 1;
+	}
+	static class Child extends Parent {		
+		operator this*(that:Int):Any = 1; // overriding
+		operator (that:Int)+this:Any = 1; // ShouldBeErr
+		static operator (x:Parent)+(that:Int):Any = 1; // hiding
+	}
+
+	// test inheritance, static, instance
+	static class BinaryAndUnary {
+		operator this+(that:Int):Any = 1; // ShouldNotBeERR (Semantic Error: operator+(that: x10.lang.Int): x10.lang.Any in OperatorTestCases.BinaryAndUnary cannot override operator+(that: x10.lang.Int): x10.lang.Any in OperatorTestCases.BinaryAndUnary; overridden method is static)
+		static operator +(that:Int):Any = 1; // ShouldNotBeERR (Semantic Error: operator+(that: x10.lang.Int): x10.lang.Any in OperatorTestCases.BinaryAndUnary cannot override operator+(that: x10.lang.Int): x10.lang.Any in OperatorTestCases.BinaryAndUnary; overridden method is notstatic) // ERR (Semantic Error: Duplicate method "method static OperatorTestCases.BinaryAndUnary.operator+(that:x10.lang.Int): x10.lang.Any"; previous declaration at C:\cygwin\home\Yoav\test\Hello.x10:39,9-41.)
+	}
+
+}
+
+class TestOperatorResolutionWithoutCoercions { // XTENLANG-1692
+	// An example of operator resolution (without coercions)
+	// If we remove the inheritance, and instead define a coercion from C to B and from B to A, then we'll get the same operator resolutions.
+	static class R {}
+	static class A {
+		// class A will define op+(A,A) and op+(B,A) and op+(A,C)
+		operator this+(a:A)=1; 
+		operator (b:B)+this=2; 
+		static operator (a:A)+(c:C)=3;
+	}
+	static class B extends A {
+		operator (b:B)+this { Console.OUT.println("B"); return 2; }
+	}
+	static class C extends B {
+		operator this+(a:A) { Console.OUT.println("C"); return 1; }
+	}
+
+	static class Example {	
+		static operator (b:B)+(c:C)=4;
+
+		def example(a:A,b:B,c:C) { Console.OUT.println("Example:");
+			val x1:Int{self==1} = a+a; // resolves to A::op+(A,A) and dynamically dispatches on the first argument (so it might execute C::op+(C,A) at runtime)
+			val x2:Int{self==1} = a+b; // resolves to A::op+(A,A) and dynamically dispatches on the first argument (so it might execute C::op+(C,A) at runtime)
+			val x3:Int{self==3} = a+c; // resolves to A::op+(A,C) so it does a static call
+			val x4:Int{self==2} = b+a; // resolves to A::op+(B,A) and dynamically dispatches on the second argument (so it might execute B::op+(B,B) at runtime)
+			val x5:Int{self==2} = b+b; // resolves to B::op+(B,B) and dynamically dispatches on the second argument
+			val x6:Int{self==2} = b+c; // ShouldBeErr:  should resolve to Example::op+(B,C) so it does a static call (so the return type should be 4!)
+			val x7:Int{self==1} = c+a; // resolves to C::op+(C,A) and dynamically dispatches on the first argument
+			val x8:Int{self==1} = c+b; // ShouldBeErr: Ambiguity! C::op+(C,A) or B::op+(B,B) ?
+			val x9:Int{self==1} = c+c;  // ShouldBeErr: Ambiguity! C::op+(C,A) or Example::op+(B,C) ?
+		}
+	}
+	static  class Main {
+	  public static def main(args: Array[String]) {
+		  new Example().example( new A(), new B(), new C() );
+		  Console.OUT.println("Now let's test dynamic dispatching!"); 
+		  new Example().example( new C(), new C(), new C() );
+	  }
+	}
+}

@@ -3,8 +3,19 @@ package x10.parser;
 import java.util.ArrayList;
 import java.io.File;
 
-public class GenOpTestCases {
-    public static void main(String[] args) {
+public class GenOpTestCases {        
+    public static void testCoercions() {
+        for (int i=0; i<6; i++)
+            for (int j=0; j<6; j++)
+                if (i!=j)
+                    System.err.println("w"+i+" = w"+j+";");
+    }
+
+    public static void main(String[] args) {           
+        if (false) {
+            testCoercions();
+            return;
+        }
         // Part 1: Output an X10 class
         // Part 2: runs AddErrMarkers on it
         if (args.length==0) {

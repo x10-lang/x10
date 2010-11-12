@@ -8,6 +8,8 @@ import polyglot.main.Main;
 import java.util.ArrayList;
 import java.io.File;
 
+import x10.util.RunTestSuite;
+
 /**
  * Runs the compiler on a single source file (args[0])
  * and add "// ERR" markers on the lines with errors.
@@ -21,17 +23,11 @@ public class AddErrMarkers {
         }
         File source = new File(args[0]);
         assert source.exists();
-
-        SilentErrorQueue errQueue = new SilentErrorQueue(10000,"TestSuiteErrQueue");
-        try {
-            new polyglot.main.Main().start(args,errQueue);
-        } catch (Main.TerminationException e) {
-            if (e.exitCode==0) {
-                System.err.println("No errors found.");
-                return; // no errors
-            }
+        ArrayList<ErrorInfo> errors = RunTestSuite.runCompiler(args);
+        if (errors.size()==0) {
+            System.err.println("No errors found.");
+            return; // no errors
         }
-        ArrayList<ErrorInfo> errors = (ArrayList<ErrorInfo>)errQueue.getErrors();
         System.err.println("Adding "+errors.size()+" ERR markers to file "+source);
 
         ArrayList<String> lines = AutoGenSentences.readFile(source);
@@ -48,7 +44,7 @@ public class AddErrMarkers {
                 System.err.println("Found an error without a position or in a different file:\n"+position+"\nError: "+err);
             } else {
                 int lineNo = position.line()-1; // line no starts with 1
-                lines.set(lineNo,lines.get(lineNo)+" // ERR ("+err.toString().replace('\n','\t')+")");
+                lines.set(lineNo,lines.get(lineNo)+"// ERR ("+err.toString().replace('\n','\t')+")");
             }
         }
         AutoGenSentences.writeFile(source,lines);
