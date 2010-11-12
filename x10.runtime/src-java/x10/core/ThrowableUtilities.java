@@ -85,6 +85,8 @@ public class ThrowableUtilities {
         String newExcName = "x10.lang.Error";
         if (e instanceof java.lang.OutOfMemoryError) {
             newExcName = "x10.lang.OutOfMemoryError";
+        } else if (e instanceof java.lang.AssertionError) {
+            newExcName = "x10.lang.AssertionError";
         } else {
             // no corresponding x10 errors defined
         }
