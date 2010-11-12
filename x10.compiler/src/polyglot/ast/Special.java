@@ -16,8 +16,7 @@ import polyglot.util.Enum;
  * <code>Foo.this</code>.
  */
 public interface Special extends Expr 
-{    
-    /** Special expression kind: either "super" or "this". */
+{
     public static enum Kind {
         SUPER("super"),THIS("this"), SELF("self");
         

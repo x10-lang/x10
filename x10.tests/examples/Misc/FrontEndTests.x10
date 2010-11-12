@@ -2510,3 +2510,21 @@ class XTENLANG_2070 {
 	var i:Int=0;
 	var j1:Int = ++(i); // ShouldNotBeERR
 }
+class TestLoopLocalIsVal {
+	def testLoopLocalIsVal(r:Region) {
+		for (p in r) {
+			async { 
+				val q = p; // p is final so it can be used in an async
+			}
+		}
+		for (val p in r) {
+			async { 
+				val q = p; // p is final so it can be used in an async
+			}
+		}
+		for (var p:Point in r) { // ERR: Enhanced for loop may not have var loop index. var p: Point{amb}
+		}
+		ateach (val p in Dist.makeUnique()) {}
+		ateach (var p in Dist.makeUnique()) {} // ERR: Syntax Error: Enhanced ateach loop may not have var loop indexvar p: (#161514210)_	
+	}
+}

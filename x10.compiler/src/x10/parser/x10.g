@@ -2389,7 +2389,7 @@
 --        /.$BeginJava
 --                    FlagsNode fn = LoopIndex.flags();
 --                    if (! fn.flags().isFinal()) {
---                        syntaxError("Enhanced foreach loop may not have var loop index" + LoopIndex, LoopIndex.position());
+--                        syntaxError("Enhanced foreach loop may not have var loop index. " + LoopIndex, LoopIndex.position());
 --                        fn = fn.flags(fn.flags().Final());
 --                        LoopIndex = LoopIndex.flags(fn);
 --                    }
@@ -2404,7 +2404,7 @@
 --        /.$BeginJava
 --                    FlagsNode fn = LoopIndex.flags();
 --                    if (! fn.flags().isFinal()) {
---                        syntaxError("Enhanced foreach loop cannot have var loop index" + LoopIndex, LoopIndex.position());
+--                        syntaxError("Enhanced foreach loop may not have var loop index" + LoopIndex, LoopIndex.position());
 --                        fn = fn.flags(fn.flags().Final());
 --                        LoopIndex = LoopIndex.flags(fn);
 --                    }
@@ -2440,7 +2440,7 @@
         /.$BeginJava
                     FlagsNode fn = LoopIndex.flags();
                     if (! fn.flags().isFinal()) {
-                        syntaxError("Enhanced ateach loop may not have var loop index" + LoopIndex, LoopIndex.position());
+                        syntaxError("Enhanced ateach loop may not have var loop index. " + LoopIndex, LoopIndex.position());
                         fn = fn.flags(fn.flags().Final());
                         LoopIndex = LoopIndex.flags(fn);
                     }
@@ -2466,7 +2466,7 @@
         /.$BeginJava
                     FlagsNode fn = LoopIndex.flags();
                     if (! fn.flags().isFinal()) {
-                        syntaxError("Enhanced for loop may not have var loop index" + LoopIndex, LoopIndex.position());
+                        syntaxError("Enhanced for loop may not have var loop index. " + LoopIndex, LoopIndex.position());
                         fn = fn.flags(fn.flags().Final());
                         LoopIndex = LoopIndex.flags(fn);
                     }
