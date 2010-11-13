@@ -60,7 +60,7 @@ public final class Configuration extends x10.config.Configuration {
     public static final boolean INLINE_CONSTANTS = true;
     private static final String INLINE_CONSTANTS_desc = "Enable inlining of command-line flag values";
 
-    public static boolean INLINE_METHODS = false;
+    public static boolean INLINE_METHODS = true;
     private static final String INLINE_METHODS_desc = "Perform method inlining optimizations";
     
     // Note: this has more limited affect than CLOSURE_INLINING which also must be true for the Inliner to inline closure calls
