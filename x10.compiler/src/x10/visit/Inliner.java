@@ -128,10 +128,10 @@ import x10.types.matcher.Subst;
 @SuppressWarnings("unchecked")
 public class Inliner extends ContextVisitor {
 
-    private static final boolean INLINE_CONSTANTS = x10.Configuration.INLINE_CONSTANTS;
-    private static final boolean INLINE_METHODS   = x10.Configuration.INLINE_METHODS;
-    private static final boolean INLINE_CLOSURES  = x10.Configuration.INLINE_CLOSURES && x10.Configuration.CLOSURE_INLINING;
-    private static final boolean INLINE_IMPLICIT  = x10.Configuration.INLINE_METHODS_IMPLICIT;
+    private final boolean INLINE_CONSTANTS = x10.Configuration.INLINE_CONSTANTS;
+    private final boolean INLINE_METHODS   = x10.Configuration.INLINE_METHODS;
+    private final boolean INLINE_CLOSURES  = x10.Configuration.INLINE_CLOSURES && x10.Configuration.CLOSURE_INLINING;
+    private final boolean INLINE_IMPLICIT  = x10.Configuration.INLINE_METHODS_IMPLICIT;
     
     private static final boolean DEBUG = false;
 //  private static final boolean DEBUG = true;
@@ -236,6 +236,9 @@ public class Inliner extends ContextVisitor {
 
     @Override
     public NodeVisitor begin() {
+        if (!x10.optimizations.Optimizer.INLINING()) {
+            throw new InternalCompilerError("INLINING should not be being performed!");
+        }
         recursionDepth[0] = INITIAL_RECURSION_DEPTH;
         try {
             ConstantType = (Type) ts.systemResolver().find(CONSTANT_ANNOTATION);
