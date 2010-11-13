@@ -68,6 +68,7 @@ import x10.types.X10Def;
 import x10.types.X10FieldDef;
 import x10.types.X10Flags;
 import x10.types.X10InitializerDef;
+import x10.types.X10TypeSystem_c;
 
 import x10.types.X10TypeMixin;
 import polyglot.types.TypeSystem;
@@ -533,6 +534,15 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 
 	        w.write(";");
 	    }
-	
+
+	    public Node checkConstants(ContextVisitor tc) throws SemanticException {
+	    	Type native_annotation_type = (Type)((X10TypeSystem_c)tc.typeSystem()).systemResolver().find(QName.make("x10.compiler.Native"));
+			if (!((X10Ext)ext).annotationMatching(native_annotation_type).isEmpty()) {
+				fi.setNotConstant();
+				return this;
+			} else {
+				return super.checkConstants(tc);
+			}
+	    }
 }
 
