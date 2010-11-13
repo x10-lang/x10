@@ -113,6 +113,10 @@ public class AutoGenSentences {
         //x10.g root is CompilationUnit, but we want to generate many TypeDeclaration
         System.out.println("Roots are: "+findRoots());
         System.out.println("Literals are: "+getLiterals());
+        if (true) {
+            printGrammar("CompilationUnit",new HashSet<String>());
+            return;            
+        }
         printGrammar(ROOT,new HashSet<String>());
 
         final HashSet<String> res = gen(ROOT, MAX_DEPTH);
@@ -125,9 +129,12 @@ public class AutoGenSentences {
     HashSet<String> EMPTY_STR = new HashSet<String>(Collections.singleton(""));
 
     String join(ArrayList<String> arr, String sep) {
+        if (arr.size()==0) return "%Empty";
         String res = "";
-        for (String s : arr)
-            res = res + (res.equals("") ? "" : sep) + s;
+        for (String s : arr) {
+            final char c = s.charAt(0);
+            res = res + (res.equals("") ? "" : sep) + (Character.isLetterOrDigit(c) ? s : "'"+s+"'");
+        }
         return res;
     }
     void printGrammar(String symbol, HashSet<String> alreadyPrinted) {

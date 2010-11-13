@@ -1879,7 +1879,7 @@
           $EndJava
         ./
 
-    HasZeroConstraint ::= Type$t1 hasZero
+    HasZeroConstraint ::= Type$t1 haszero
          /.$BeginJava
                     setResult(nf.HasZeroTest(pos(), t1));
           $EndJava

@@ -165,7 +165,7 @@
     var
     when
     while
-    hasZero
+    haszero
 %End
 
 %Rules
@@ -470,9 +470,9 @@
                 $setResult($_while);
           $EndAction
         ./
-              | h a s Z e r o
+              | h a s z e r o
         /.$BeginAction
-                $setResult($_hasZero);
+                $setResult($_haszero);
           $EndAction
         ./
 %End
