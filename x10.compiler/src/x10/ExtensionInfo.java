@@ -471,16 +471,11 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                wsCodeGenGoal.addPrereq(WSCallGraphBarrier());
            }
            
-           // try retypechecking before inlining
-           // TypeSystem ts = job.extensionInfo().typeSystem();
-           // NodeFactory nf = job.extensionInfo().nodeFactory();
-           // goals.add( new ForgivingVisitorGoal("TypeChecked", job, new X10TypeChecker(job, ts, nf, job.nodeMemo())));
-          
-           goals.addAll(Optimizer.goals(this, job, ExpressionFlattener(job)));
+           goals.add(Preoptimization(job));
+           goals.addAll(Optimizer.goals(this, job));
+           goals.add(Postoptimization(job));
+           
            goals.add(Lowerer(job));
-           if (x10.Configuration.FLATTEN_EXPRESSIONS) {
-               goals.add(ExpressionFlattener(job));
-           }
            goals.add(InnerClassRemover(job)); // TODO: move earlier
            goals.add(CodeGenerated(job));
            
@@ -492,7 +487,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            CodeGenerated(job).addPrereq(CodeGenBarrier());
            Lowerer(job).addPrereq(TypeCheckBarrier());
            CodeGenerated(job).addPrereq(Lowerer(job));
-           List<Goal> optimizations = Optimizer.goals(this, job, ExpressionFlattener(job));
+           List<Goal> optimizations = Optimizer.goals(this, job);
            for (Goal goal : optimizations) {
                goal.addPrereq(TypeCheckBarrier());
                CodeGenerated(job).addPrereq(goal);
@@ -520,7 +515,21 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 
            return goals;
        }
-       
+
+       public Goal Preoptimization(Job job) { 
+           return new SourceGoal_c("Preoptimization", job) {
+               private static final long serialVersionUID = 1L;
+               public boolean runTask() { return true; }
+           }.intern(this);
+       }
+
+       public Goal Postoptimization(Job job) { 
+           return new SourceGoal_c("Postoptimization", job) {
+               private static final long serialVersionUID = 1L;
+               public boolean runTask() { return true; }
+           }.intern(this);
+       }
+
        Goal PrintWeakCallsCount;
        @Override
        protected Goal EndAll() {
@@ -924,16 +933,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            return ef2;
        }
        
-       public Goal ExpressionFlattener(Job job) {
-           TypeSystem ts = extInfo.typeSystem();
-           NodeFactory nf = extInfo.nodeFactory();
-           VisitorGoal ef = new ValidatingVisitorGoal("ExpressionFlattener", job, new ExpressionFlattener(job, ts, nf));
-           Goal ef2 = ef.intern(this);
-           if (ef == ef2) {
-               ef.addPrereq(Lowerer(job));
-           }
-           return ef2;
-       }
+       
        
        public Goal InnerClassRemover(Job job) {
            TypeSystem ts = extInfo.typeSystem();

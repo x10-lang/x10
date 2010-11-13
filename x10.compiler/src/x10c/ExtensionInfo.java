@@ -107,20 +107,11 @@ public class ExtensionInfo extends x10.ExtensionInfo {
         }
 
         public Goal JavaCodeGenStart(Job job) {
-            TypeSystem ts = extInfo.typeSystem();
-            NodeFactory nf = extInfo.nodeFactory();
-            Goal cg = new SourceGoal_c("JavaCodeGenStart", job) {
+            Goal cg = new SourceGoal_c("JavaCodeGenStart", job) { // Is this still necessary?
                 private static final long serialVersionUID = 1L;
                 public boolean runTask() { return true; }
             };
-            Goal cg2 = cg.intern(this);
-            // FIXME: guarded to make local optimizations effective in java backend
-            if (cg == cg2) {
-                if (x10.optimizations.Optimizer.INLINING()) {
-                    cg2.addPrereq(ExpressionFlattener(job));
-                }
-            }
-            return cg2;
+            return cg.intern(this);
         }
 
         public Goal ClosuresToStaticMethods(Job job) {
