@@ -1050,7 +1050,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 		X10MethodDecl_c n2 = (X10MethodDecl_c) n.visit(new ConstantPropagator(tr.job(), tr.typeSystem(), tr.nodeFactory()).context(context()));
 		//n2.prettyPrint(System.out);
 		//System.out.println();
-		super.visit(n);
+		super.visit(n2);
 	}
 
 	@Override
