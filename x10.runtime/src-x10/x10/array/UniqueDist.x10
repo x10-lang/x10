@@ -11,6 +11,8 @@
 
 package x10.array;
 
+import x10.compiler.CompilerFlags;
+
 /**
  * This class is an highly optimized implementation for a
  * the "unique" distribution that maps the region [0..Place.MAX_PLACES-1]
@@ -38,7 +40,7 @@ class UniqueDist extends Dist(1){rect} {
     }
 
     public def get(p:Place):Region(rank) {
-        if (p == here) {
+        if ((!CompilerFlags.singleNode() || Place.MAX_PLACES == 1) && p == here) {
             if (regionForHere == null) {
                 regionForHere = (here.id..here.id) as Region(rank);
             }

@@ -146,7 +146,7 @@ public final class BlockBlockWorldDist extends Dist {
     }
 
     public def get(p:Place):Region(rank) {
-        if (p == here) {
+        if ((!CompilerFlags.singleNode() || Place.MAX_PLACES == 1) && p == here) {
             if (regionForHere == null) {
                 regionForHere = blockBlockRegionForPlace(here);
             }
