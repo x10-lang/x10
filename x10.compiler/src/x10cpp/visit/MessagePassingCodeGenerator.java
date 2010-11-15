@@ -3116,22 +3116,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		}
 	}
 
-	private static boolean isRef(Type rt) {
-	    if (rt.isVoid())
-	        return false;
-	    X10TypeSystem_c xts = (X10TypeSystem_c) rt.typeSystem();
-	    if (xts.isStructType(rt))
-	        return false;
-	    if (xts.isParameterType(rt)) {
-	        if (xts.isSubtype(rt, xts.Object(), xts.emptyContext()))
-	            return true;
-	        return false;
-	    }
-	    return true;
-	}
-
-	private static final boolean GCC_41_HACK = false;
-
 	private void invokeInterface(Node_c n, Expr target, List<Expr> args, String dispType, Type contType,
 	                             X10MethodInstance mi, boolean needsNullCheck)
 	{
