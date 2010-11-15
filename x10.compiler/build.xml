@@ -112,6 +112,19 @@
             "${grammar.file}"
         </echo>
         -->
+        <delete>
+            <fileset dir="${src}/x10/parser">
+                <include name="X10KWLexer.java"/>
+                <include name="X10KWLexerprs.java"/>
+                <include name="X10KWLexersym.java"/>
+                <include name="X10Lexer.java"/>
+                <include name="X10Lexerprs.java"/>
+                <include name="X10Lexersym.java"/>
+                <include name="X10Parser.java"/>
+                <include name="X10Parserprs.java"/>
+                <include name="X10Parsersym.java"/>
+            </fileset>
+        </delete>
         <exec dir="${src}/x10/parser" executable="${lpg.executable}" failonerror="true">
             <arg value="-include-directory=${templates.dir};${include.dir};"/>
             <arg value="-directory-prefix=${src}/"/>
