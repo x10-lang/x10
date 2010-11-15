@@ -103,7 +103,7 @@ public class RunTestSuite {
         if (dirName.endsWith(".x10")) {
             final File dir = new File(dirName);
             assert dir.isFile() : "File doesn't not exists: "+dirName;
-            files.add(dir);
+            files.add(getCanonicalFile(dir));
         } else {
             for (String dirStr : dirName.split(",")) {
                 File dir = new File(dirStr);
@@ -246,9 +246,16 @@ public class RunTestSuite {
                 recurse(f, files);
             else {
                 if (name.endsWith(".x10")) {
-                    files.add(f);
+                    files.add(getCanonicalFile(f));
                 }
             }
+        }
+    }
+    private static File getCanonicalFile(File f) {
+        try {
+            return f.getCanonicalFile();
+        } catch (java.io.IOException e) {
+            return f;
         }
     }
 }
