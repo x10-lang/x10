@@ -40,6 +40,7 @@ class UniqueDist extends Dist(1){rect} {
     }
 
     public def get(p:Place):Region(rank) {
+    	// workaround for XTENLANG-2090
         if ((!CompilerFlags.singleNode() || Place.MAX_PLACES == 1) && p == here) {
             if (regionForHere == null) {
                 regionForHere = (here.id..here.id) as Region(rank);
