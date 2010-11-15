@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.util.HashMap;
-import java.util.List;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 import java.util.HashSet;
@@ -33,7 +32,9 @@ duplications at the beginning
  */
 public class AutoGenSentences {
     private static int MAX_DEPTH = 10;
-    private static String ROOT = "TypeDeclaration";
+    private static String CompilationUnit = "CompilationUnit";
+    private static String TypeDeclaration = "TypeDeclaration";
+
     public static void main(String[] args) {
         if (args.length!=2) {
             System.err.println("You need to run AutoGenSentences with two arguments: GRAMMAR_FILE OUTPUT_FILE\nFor example: java AutoGenSentences x10.g Output.x10\n");
@@ -110,16 +111,28 @@ public class AutoGenSentences {
             System.err.println("Error on line "+lineNum);
             e.printStackTrace();
         }
-        //x10.g root is CompilationUnit, but we want to generate many TypeDeclaration
+
+        // removing unused symbols
+        findUsedSymbols(CompilationUnit);
+        HashSet<String> unusedSymbols = new HashSet<String>(grammar.keySet());
+        unusedSymbols.removeAll(usedSymbols);
+        if (unusedSymbols.size()>0) {
+            System.out.println("Unused symbols are: "+unusedSymbols); 
+            for (String s : unusedSymbols)
+                grammar.remove(s);
+        }
+
         System.out.println("Roots are: "+findRoots());
         System.out.println("Literals are: "+getLiterals());
         if (true) {
-            printGrammar("CompilationUnit",new HashSet<String>());
+            printSingletons();
+            //printGrammar(CompilationUnit,new HashSet<String>());
             return;            
         }
-        printGrammar(ROOT,new HashSet<String>());
+        //x10.g root is CompilationUnit, but we want to generate many TypeDeclaration
+        printGrammar(TypeDeclaration,new HashSet<String>());
 
-        final HashSet<String> res = gen(ROOT, MAX_DEPTH);
+        final HashSet<String> res = gen(TypeDeclaration, MAX_DEPTH);
         assert EMPTY_STR.size()==1 : EMPTY_STR;
         writeFile(output,res);
     }
@@ -136,6 +149,52 @@ public class AutoGenSentences {
             res = res + (res.equals("") ? "" : sep) + (Character.isLetterOrDigit(c) ? s : "'"+s+"'");
         }
         return res;
+    }
+
+
+    HashMap<String,HashSet<String>> graph = new HashMap<String, HashSet<String>>();
+    HashMap<String,Integer> visited = new HashMap<String,Integer>();
+    int currID = 0;
+    void printSingletons() {
+        // I want to make sure the singletons don't have cycles
+        for (String symbol : grammar.keySet()) {
+            final HashSet<String> set = new HashSet<String>();
+            for (ArrayList<String> prods : grammar.get(symbol)) {
+                if (prods.size()==1) {
+                    final String other = prods.get(0);
+                    set.add(other);
+                }
+            }
+            if (set.size()>0)
+                graph.put(symbol, set);
+        }
+        // do a DFS and assert we do not have a cycle
+        for (String symbol : graph.keySet())
+            dfs(symbol);
+
+        for (String symbol : graph.keySet()) {
+            int id = visited.get(symbol);
+            for (String child : graph.get(symbol)) {
+                int id2 = visited.get(child);
+                assert id2<id;
+                System.out.println(symbol+"("+id+") -> "+ child+"("+id2+")");
+            }
+        }
+    }
+    void dfs(String v) {
+        final Integer i = visited.get(v);
+        assert i==null || i.intValue()!=-1;
+        if (i!=null) return; // already visited
+        visited.put(v,-1);
+        final HashSet<String> children = graph.get(v);
+        if (children==null) {
+            //assert isLiteral(v); , e.g., DepNamedType
+        } else {
+            for (String child : children) {
+                dfs(child);
+            }
+        }
+        visited.put(v,currID++);
     }
     void printGrammar(String symbol, HashSet<String> alreadyPrinted) {
         if (alreadyPrinted.contains(symbol)) return;
@@ -235,6 +294,18 @@ public class AutoGenSentences {
             }
         }
         return s;            
+    }
+
+
+    HashSet<String> usedSymbols = new HashSet<String>();
+    void findUsedSymbols(String v) {
+        if (usedSymbols.contains(v)) return;
+        usedSymbols.add(v);
+        final ArrayList<ArrayList<String>> prods = grammar.get(v);
+        if (prods==null) return;
+        for (ArrayList<String> prod : prods)
+            for (String s : prod)
+                findUsedSymbols(s);
     }
 
     HashSet<String> findRoots() {

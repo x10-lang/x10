@@ -2690,7 +2690,7 @@ class LegalCoercionsBetweenAllNumerics {
 class OperatorTestCases { // XTENLANG-2084
 	static class InstanceBinary1 {
 		operator this*(that:Int):Any = 1;
-		operator this*(that:Int):Any = 1; //  ERR (Semantic Error: Duplicate method "method OperatorTestCases.InstanceBinary1.operator*(that:x10.lang.Int): x10.lang.Any"; previous declaration at C:\cygwin\home\Yoav\test\Hello.x10:114,9-41.)  // ERR (Semantic Error: Duplicate method "method OperatorTestCases.InstanceBinary1.operator*(that:x10.lang.Int): x10.lang.Any"; previous declaration at C:\cygwin\home\Yoav\test\Hello.x10:8,9-41.)
+		operator this*(that:Int):Any = 1; //  ERR (Semantic Error: Duplicate method "method OperatorTestCases.InstanceBinary1.operator*(that:x10.lang.Int): x10.lang.Any"; previous declaration at C:\cygwin\home\Yoav\test\Hello.x10:114,9-41.) 
 
 		operator this-(that:Int):Any = 1;
 		operator (that:Int)-this:Any = 1;

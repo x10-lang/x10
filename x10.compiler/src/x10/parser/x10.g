@@ -1750,13 +1750,6 @@
           $EndJava
         ./
 
-    PlaceType ::=  PlaceExpression
---        /.$BeginJava
---                    setResult(nf.Binary(pos(),
---                                        nf.Field(pos(), nf.This(pos()), nf.Id(pos(), "home")), Binary.EQ,
---                                        PlaceExpression));
---          $EndJava
---        ./
 
     SimpleNamedType ::= TypeName
         /.$BeginJava
@@ -2705,9 +2698,6 @@
         /.$NullAction./
                      | WhereClause
 
-    PlaceExpressionSingleListopt ::= %Empty
-        /.$NullAction./
-                                   | PlaceExpressionSingleList
 
 --
 -- This is a useless nonterminal that is not used anywhere else in the grammar.
@@ -2735,12 +2725,6 @@
     ------------------------------------------------------------
     --- All the Java-derived rules
 
-    identifier ::= IDENTIFIER$ident
-        /.$BeginJava
-                    ident.setKind($sym_type.TK_IDENTIFIER);
-                    setResult(id(getRhsFirstTokenIndex($ident)));
-          $EndJava
-        ./
 
     TypeName ::= Identifier
         /.$BeginJava
@@ -3595,32 +3579,13 @@
 --        ./
 
     
---    Throws ::= throws ExceptionTypeList
---        /.$BeginJava
---                    setResult(ExceptionTypeList);
---          $EndJava
---       ./
      Offers ::= offers Type
         /.$BeginJava
                     setResult(Type);
           $EndJava
         ./
     
-    ExceptionTypeList ::= ExceptionType
-        /.$BeginJava
-                    List<TypeNode> l = new TypedList<TypeNode>(new LinkedList<TypeNode>(), TypeNode.class, false);
-                    l.add(ExceptionType);
-                    setResult(l);
-          $EndJava
-        ./
-                        | ExceptionTypeList , ExceptionType
-        /.$BeginJava
-                    ExceptionTypeList.add(ExceptionType);
-          $EndJava
-        ./
-    
-    ExceptionType ::= ClassType
-        
+
     MethodBody ::= = LastExpression ;
         /.$BeginJava
                     setResult(nf.Block(pos(), LastExpression));
@@ -3912,9 +3877,10 @@
 --          $EndJava
 --        ./
         
-    Identifier ::= identifier
+    Identifier ::= IDENTIFIER$ident
         /.$BeginJava
-                    setResult( nf.Id(identifier.getPosition(), identifier.getIdentifier()));
+                    ident.setKind($sym_type.TK_IDENTIFIER);
+                    setResult( nf.Id(pos(), id(getRhsFirstTokenIndex($ident)).getIdentifier()));
           $EndJava
         ./
 
@@ -5302,7 +5268,6 @@
 %End
 
 %Types
-    Expr ::= PlaceType
     SourceFile ::= CompilationUnit
     polyglot.ast.Lit ::= Literal
     TypeNode ::= Type
@@ -5422,7 +5387,6 @@
     List<ForInit> ::= ForInitopt | ForInit
     List<ForUpdate> ::= ForUpdateopt | ForUpdate
     List<Eval> ::= StatementExpressionList
-    polyglot.lex.Identifier ::= identifier
     Id ::= Identifieropt
     Branch ::= BreakStatement | ContinueStatement
     Return ::= ReturnStatement
@@ -5463,8 +5427,6 @@
 --    Initializer ::= InstanceInitializer
     TypeNode ::= ResultType
     TypeNode ::= HasResultType
-    List<TypeNode> ::= ExceptionTypeList
-    TypeNode ::= ExceptionType
 --
 -- This is a useless nonterminal that is not used anywhere else in the grammar.
 --
@@ -5510,8 +5472,7 @@
 --
 --    Expr ::= RegionExpression
 --    List<Expr> ::= RegionExpressionList
-    Expr ::= PlaceExpressionSingleListopt
-           | PlaceExpressionSingleList
+    Expr ::= PlaceExpressionSingleList
     Stmt ::= AssignPropertyCall
     DepParameterExpr ::= DepParameters
 --
