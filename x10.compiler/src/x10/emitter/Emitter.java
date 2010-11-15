@@ -1320,8 +1320,6 @@ public class Emitter {
 	    X10ClassType ct = (X10ClassType) cd.asType();
 	    List<MethodInstance> methods;
 	    for (MethodDef md : cd.methods()) {
-	        if (mangleToJava(md.name()).startsWith("$")) continue;
-	        
 	        methods = getInstantiatedMethods(ct, md.asInstance());
 	        for (MethodInstance mi : methods) {
 	            printBridgeMethod(ct, md.asInstance(), mi.def());
