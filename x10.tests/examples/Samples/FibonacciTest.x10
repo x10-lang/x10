@@ -11,7 +11,7 @@
 
 import harness.x10Test;
 
-public class FibTest extends x10Test {
+public class FibonacciTest extends x10Test {
     public def run():boolean {
 	val res = Fibonacci.fib(12);
 	chk(res == 144);
@@ -19,6 +19,6 @@ public class FibTest extends x10Test {
     }
 
     public static def main(args:Array[String](1)) {
-	new FibTest().execute();
+	new FibonacciTest().execute();
     }
 }
