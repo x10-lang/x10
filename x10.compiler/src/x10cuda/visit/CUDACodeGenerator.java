@@ -1047,10 +1047,10 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 		// TODO Auto-generated method stub
 		//n.prettyPrint(System.out);
 		//System.out.println();
-		// X10MethodDecl_c n2 = (X10MethodDecl_c) n.visit(new ConstantPropagator(tr.job(), tr.typeSystem(), tr.nodeFactory()).context(context()));
+		X10MethodDecl_c n2 = (X10MethodDecl_c) n.visit(new ConstantPropagator(tr.job(), tr.typeSystem(), tr.nodeFactory()).context(context()));
 		//n2.prettyPrint(System.out);
 		//System.out.println();
-		super.visit(n);
+		super.visit(n2);
 	}
 
 	@Override
