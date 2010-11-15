@@ -42,11 +42,11 @@ public class ClockTest8 extends x10Test {
 		try {
 		finish async {
 			var bc: BoxedClock = new BoxedClock(Clock.make());
-			val ca = [Clock.make(), bc.val ];
+			val ca = [Clock.make(), bc.value ];
 			val c1: Clock = ca(1);
 			val c2: Clock = c1; //aliased clocks c2 and c1
 			val c3: Clock = ca(0);
-			bc.val.drop();
+			bc.value.drop();
 			//TODO: the following line (arrays of clocks) does not parse
 
 			//async clocked(ca[U.zero()])
@@ -70,9 +70,9 @@ public class ClockTest8 extends x10Test {
 	}
 
 	static class BoxedClock {
-		public var val: Clock;
+		public var value: Clock;
 		public def this(val x: Clock): BoxedClock = {
-			val = x;
+			value = x;
 		}
 	}
 

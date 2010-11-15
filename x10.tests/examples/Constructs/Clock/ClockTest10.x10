@@ -64,10 +64,10 @@ public class ClockTest10 extends x10Test {
     def taskB(val a: Clock, val b: Clock): void = {
 	for ([k]:Point(1) in 1..N) {
 	    val tmp = new boxedInt();
-	    finish tmp.val = varA(ph(k-1))+varA(ph(k-1));
-	    x10.io.Console.OUT.println(" " + k + " B consuming oldA producing " + tmp.val);
+	    finish tmp.value = varA(ph(k-1))+varA(ph(k-1));
+	    x10.io.Console.OUT.println(" " + k + " B consuming oldA producing " + tmp.value);
 	    a.resume();
-	    varB(ph(k)) = tmp.val;
+	    varB(ph(k)) = tmp.value;
 	    x10.io.Console.OUT.println(" " + "B before next");
 	    next;
 	}
@@ -75,10 +75,10 @@ public class ClockTest10 extends x10Test {
     def taskC(val a: Clock, val c: Clock): void = {
 	for ([k]:Point(1) in 1 ..N) {
 	    val tmp  = new boxedInt();
-	    finish tmp.val = varA(ph(k-1))*varA(ph(k-1));
-	    x10.io.Console.OUT.println(" " + k + " C consuming oldA "+ tmp.val);
+	    finish tmp.value = varA(ph(k-1))*varA(ph(k-1));
+	    x10.io.Console.OUT.println(" " + k + " C consuming oldA "+ tmp.value);
 	    a.resume();
-	    varC(ph(k)) = tmp.val;
+	    varC(ph(k)) = tmp.value;
 	    x10.io.Console.OUT.println(" " + "C before next");
 	    next;
 	}
@@ -86,11 +86,11 @@ public class ClockTest10 extends x10Test {
     def taskD(val b: Clock, val c: Clock): void = {
 	for ([k]:Point(1) in 1 ..N) {
 	    val tmp  = new boxedInt();
-	    finish tmp.val = varB(ph(k-1))+varC(ph(k-1))+10;
-	    x10.io.Console.OUT.println(" " + k + " D consuming oldB+oldC producing " + tmp.val);
+	    finish tmp.value = varB(ph(k-1))+varC(ph(k-1))+10;
+	    x10.io.Console.OUT.println(" " + k + " D consuming oldB+oldC producing " + tmp.value);
 	    c.resume();
 	    b.resume();
-	    varD(ph(k)) = tmp.val;
+	    varD(ph(k)) = tmp.value;
 	    x10.io.Console.OUT.println(" " + k + " D before next");
 	    var n: int = k-pipeDepth;
 	    chk(!(k>pipeDepth) || varD(ph(k)) == n+n+n*n+10);
@@ -100,10 +100,10 @@ public class ClockTest10 extends x10Test {
     def taskE(val c: Clock): void = {
 	for ([k]:Point(1) in 1 ..N) {
 	    val tmp  = new boxedInt();
-	    finish tmp.val = varC(ph(k-1))*7;
-	    x10.io.Console.OUT.println(" " + k + " E consuming oldC producing " + tmp.val);
+	    finish tmp.value = varC(ph(k-1))*7;
+	    x10.io.Console.OUT.println(" " + k + " E consuming oldC producing " + tmp.value);
 	    c.resume();
-	    varE(ph(k)) = tmp.val;
+	    varE(ph(k)) = tmp.value;
 	    x10.io.Console.OUT.println(" " + k + " E before next");
 	    var n: int = k-pipeDepth;
 	    chk(!(k>pipeDepth) || varE(ph(k)) == n*n*7);
@@ -116,6 +116,6 @@ public class ClockTest10 extends x10Test {
     }
 
     static class boxedInt {
-	var val: int;
+	var value: int;
     }
 }
