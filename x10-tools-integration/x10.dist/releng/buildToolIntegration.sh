@@ -56,25 +56,32 @@ if [ ! -z "$CLEAN" ]; then
 
         echo
         echo Getting X10 source distribution...
-        for i in \
-	    x10.common \
-	    x10.compiler \
-	    x10.constraints \
-	    x10.dist \
-	    x10.runtime \
-	    x10.tests
-        do
-            svn export --force http://x10.svn.sourceforge.net/svnroot/x10/branches/x10-tools-integration/$i
-            if [ $? != 0 ]; then
-                svnErrors="true"
-            fi
-        done
-        if [ -n "$svnErrors" ]; then
-            exit 1
-        fi
+	projectsToDo="x10.common x10.compiler x10.constraints x10.dist x10.runtime x10.tests"
+	count=1
+	while [ -n "$projectsToDo" ]; do
+	    failedProjects=""
+            for proj in $projectsToDo
+            do
+		# N.B.: SVN 1.4 export doesn't report errors for non-existent projects/tags
+		svn export --force http://x10.svn.sourceforge.net/svnroot/x10/branches/x10-tools-integration/$proj
+		if [ $? != 0 ]; then
+                    failedProjects="$failedProjects $proj"
+		fi
+            done
+	    let count++
+	    projectsToDo="$failedProjects"
+	    if [ -n "$projectsToDo" ]; then
+		if [ $count -le 5 ]; then
+		    echo "Errors retrieving $projectsToDo; initiating retry $count of 5..."
+		else
+		    echo "Reached retry limit; aborting source retrieval."
+		    break
+		fi
+	    fi
+	done
     )
 
-    if [ $? != 0 ]; then
+    if [ -n "$projectsToDo" ]; then
         echo "Errors retrieving X10 source; aborting."
         exit 1
     else
