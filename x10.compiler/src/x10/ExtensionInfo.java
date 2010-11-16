@@ -92,7 +92,7 @@ import x10.extension.X10Ext;
 //import x10.finish.table.CallTableVal;
 import x10.optimizations.Optimizer;
 import x10.parser.X10Lexer;
-import x10.parser.X10Parser;
+import x10.parser.X10SemanticRules;
 import x10.plugin.CompilerPlugin;
 import x10.plugin.LoadJobPlugins;
 import x10.plugin.LoadPlugins;
@@ -199,7 +199,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                 source.resource().getClass() == FileResource.class ?
                                 new X10Lexer(source.path()) :
                                 new X10Lexer(reader, source.toString());
-            X10Parser x10_parser = new X10Parser(x10_lexer.getILexStream(), ts, nf, source, eq); // Create the parser
+            X10SemanticRules x10_parser = new X10SemanticRules(x10_lexer.getILexStream(), ts, nf, source, eq); // Create the parser
             x10_lexer.lexer(x10_parser.getIPrsStream());
             return x10_parser; // Parse the token stream to produce an AST
         } catch (IOException e) {

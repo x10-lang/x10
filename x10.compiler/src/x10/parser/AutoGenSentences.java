@@ -35,6 +35,17 @@ public class AutoGenSentences {
     private static String CompilationUnit = "CompilationUnit";
     private static String TypeDeclaration = "TypeDeclaration";
 
+    static class Rule extends ArrayList<String> {
+        private final String symbol;
+        private final int line;
+        private final ArrayList<String> names = new ArrayList<String>();
+        private final ArrayList<String> code = new ArrayList<String>();
+
+        Rule(String symbol, int line) {
+            this.symbol = symbol;
+            this.line = line;
+        }
+    }
     public static void main(String[] args) {
         if (args.length!=2) {
             System.err.println("You need to run AutoGenSentences with two arguments: GRAMMAR_FILE OUTPUT_FILE\nFor example: java AutoGenSentences x10.g Output.x10\n");
@@ -45,74 +56,128 @@ public class AutoGenSentences {
     }
     AutoGenSentences(String[] args) {
         ArrayList<String> grammarFile = readFile(new File(args[0]));
-        File output = new File(args[1]);
+        ArrayList<String> newFile = new ArrayList<String>();
         String currProd = null;
-        int lineNum = 0;
+        int lineNum = -1;
         try {
-            boolean foundRules = false;
+            boolean isTypes = false;
+            HashMap<String, ArrayList<Rule>> rules = null;
             boolean inJavaCode = false;
             for (String line : grammarFile) {
+                lineNum++;
+                if (!isTypes) newFile.add(line);
                 line = line.trim();
                 if (line.equals("")) continue;
                 
                 if (line.equals("%Rules")) {
-                    foundRules = true;
+                    rules = grammar;
                     continue;
                 }
-                if (!foundRules) continue;
-                if (line.equals("%End")) break;
+                if (line.equals("%Types")) {
+                    isTypes = true;
+                    rules = new HashMap<String, ArrayList<Rule>>();
+                    continue;
+                }
+                if (line.equals("%End")) {
+                    if (isTypes) {
+                        isTypes = false;
+                        // assert all productions are of size 1
+                        for (String type : rules.keySet())
+                            for (ArrayList<String> prod : rules.get(type)) {
+                                assert prod.size()==1;
+                                String nonTerminal = prod.get(0);
+                                assert !isLiteral(nonTerminal);
+                                assert !types.containsKey(nonTerminal);
+                                types.put(nonTerminal,type);
+                            }
+                    }
+                    rules = null;
+                }
+                if (rules==null) continue;
 
                 if (line.startsWith("--")) continue; // ignore comments
                 // Ignore: /.$NullAction./
+                if (line.equals("/.$NullAction./")) continue;
                 if (line.startsWith("/.")) {
+                    assert line.equals("/.$BeginJava") : line;
                     inJavaCode = true;
+                    ArrayList<Rule> prods = rules.get(currProd);
+                    final int prodNum = prods.size() - 1;
+                    final Rule rule = prods.get(prodNum);
+                    ArrayList<String> ruleArgs = new ArrayList<String>();
+                    int k=0;
+                    for (String name : rule.names) {
+                        String id = rule.get(k++);
+                        if (hasArg(id,name))
+                            ruleArgs.add(name);
+                    }
+                    newFile.add("\t\t\tr.rule_"+rule.symbol+prodNum+"("+simpleJoin(ruleArgs,",")+");");
+                    continue;
                 }
                 if (line.endsWith("./")) {
                     assert inJavaCode;
+                    assert line.equals("./") || line.startsWith("$EndJava") : line;
                     inJavaCode = false;
                     continue;
                 }
-                if (inJavaCode) continue;
+                if (inJavaCode) {
+                    ArrayList<Rule> prods = rules.get(currProd);
+                    final Rule rule = prods.get(prods.size() - 1);
+                    int k=1;
+                    for (String name : rule.names)
+                        line = line.replace("$"+name,""+(k++));
+                    line = line.replace("$sym_type","X10Parsersym");
+                    if (!line.equals("$EndJava")) rule.code.add(line);
+                    newFile.remove(newFile.size()-1);
+                    continue;
+                }
 
-
-                lineNum++;
                 StringTokenizer tokenizer = new StringTokenizer(line);
                 final String first = tokenizer.nextToken();
                 if (!first.equals("|")) {
                     currProd = first;
+                    currProd = unescape(currProd);
                     String next = tokenizer.nextToken();
                     assert next.equals("::=") || next.equals("::=?") : next;
-                    // AssignmentExpression is stated in 2 different rules
-                    if (!grammar.containsKey(currProd))
-                        grammar.put(currProd, new ArrayList<ArrayList<String>>());
                 }
                 assert currProd!=null;
-                //ImportDeclarations PackageDeclaration $misplacedPackageDeclaration ImportDeclarationsopt $misplacedImportDeclarations TypeDeclarationsopt
-                ArrayList<String> terms = new ArrayList<String>();
+                ArrayList<Rule> prods = rules.get(currProd); // AssignmentExpression is stated in 2 different rules
+                if (prods==null) {
+                    prods = new ArrayList<Rule>();
+                    rules.put(currProd, prods);
+                }
+                //ImportDeclarations PackageDeclaration$misplacedPackageDeclaration ImportDeclarationsopt$misplacedImportDeclarations TypeDeclarationsopt
+                Rule terms = new Rule(currProd, lineNum);
                 while (tokenizer.hasMoreTokens()) {
                     String token = tokenizer.nextToken();
                     if (token.equals("--")) break; // comments
-                    
-                    if (token.charAt(0)=='\'') {
-                        // we escaped some tokens, like '|'  '%'  '-->'
-                        assert token.charAt(token.length()-1)=='\'' : token;
-                        token = token.substring(1,token.length()-1);
+
+                    if (token.equals("|")) {
+                        prods.add(terms);
+                        terms = new Rule(currProd, lineNum);
+                        continue;
                     }
+                    token = unescape(token);
                     assert token.charAt(0)!='$';
                     int indexDollar = token.indexOf('$');
-                    if (indexDollar!=-1) token = token.substring(0,indexDollar); // ImportDeclarationsopt$misplacedImportDeclarations
+                    String name = token;
+                    if (indexDollar!=-1) {
+                        name = token.substring(indexDollar+1);
+                        token = token.substring(0,indexDollar); // ImportDeclarationsopt$misplacedImportDeclarations
+                    }
                     if (token.equals("%Empty")) continue;
                     terms.add(token);
+                    terms.names.add(name);
                 }
                 // can be empty: assert terms.size()>=1 : currProd;
-                grammar.get(currProd).add(terms);
+                prods.add(terms);
             }
         } catch (Throwable e) {
             System.err.println("Error on line "+lineNum);
             e.printStackTrace();
         }
 
-        // removing unused symbols
+        // removing unused symbols and types
         findUsedSymbols(CompilationUnit);
         HashSet<String> unusedSymbols = new HashSet<String>(grammar.keySet());
         unusedSymbols.removeAll(usedSymbols);
@@ -121,12 +186,62 @@ public class AutoGenSentences {
             for (String s : unusedSymbols)
                 grammar.remove(s);
         }
+        HashSet<String> unusedTypes = new HashSet<String>(types.keySet());
+        unusedTypes.removeAll(usedSymbols);
+        if (unusedTypes.size()>0) {
+            System.out.println("Unused types are: "+unusedTypes);
+            for (String s : unusedTypes)
+                types.remove(s);            
+        }
 
+        final ArrayList<String> nonTerminals = getNonTerminals();
         System.out.println("Roots are: "+findRoots());
         System.out.println("Literals are: "+getLiterals());
+        System.out.println("Non-terminals are: "+ nonTerminals);
+
+        // consistency checks
+        HashSet<String> nonTerminalsWithoutType = new HashSet<String>(nonTerminals);
+        nonTerminalsWithoutType.removeAll(types.keySet());
+        assert nonTerminalsWithoutType.size()==0 : nonTerminalsWithoutType;
+        assert grammar.keySet().containsAll(types.keySet());
+
+        // printing output
+        newFile.add("%Types");
+        newFile.add("\tObject ::= "+simpleJoin(types.keySet()," | "));
+        newFile.add("%End");
+
+        File output = new File(args[1]);
         if (true) {
-            printSingletons();
-            //printGrammar(CompilationUnit,new HashSet<String>());
+            if (false) printSingletons();
+            if (false) printGrammar(CompilationUnit,new HashSet<String>());
+            writeFile(output,newFile);
+
+            for (ArrayList<Rule> prods : grammar.values()) {
+                int prodNum = -1;
+                for (Rule rule : prods) { prodNum++;
+                    if (rule.code.size()>0) {
+                        int k = 0;
+                        ArrayList<String> ruleArgs = new ArrayList<String>();
+                        ArrayList<String> castArgs = new ArrayList<String>();
+                        for (String name : rule.names) {
+                            String id = rule.get(k++);
+                            if (hasArg(id,name)) {
+                                ruleArgs.add("Object _"+name);
+                                String type = types.get(id);
+                                if (type==null) type = "IToken";
+                                castArgs.add(type+" "+name+" = ("+type+") _"+name+";");
+                            }
+                        }
+                        System.out.println("\t// Production: "+rule.symbol+" ::= "+ join(rule," "));
+                        System.out.println("\tvoid rule_"+rule.symbol+prodNum+"("+simpleJoin(ruleArgs,", ")+") {");
+                        for (String s : castArgs)
+                            System.out.println("\t\t"+s);
+                        for (String c : rule.code)
+                            System.out.println("\t\t"+c);
+                        System.out.println("\t}");
+                    }
+                }
+            }
             return;            
         }
         //x10.g root is CompilationUnit, but we want to generate many TypeDeclaration
@@ -134,19 +249,38 @@ public class AutoGenSentences {
 
         final HashSet<String> res = gen(TypeDeclaration, MAX_DEPTH);
         assert EMPTY_STR.size()==1 : EMPTY_STR;
+
         writeFile(output,res);
     }
+    private static String unescape(String token) {
+        if (token.charAt(0)=='\'') {
+            // we escaped some tokens, like '|'  '%'  '-->'
+            assert token.charAt(token.length()-1)=='\'' : token;
+            token = token.substring(1,token.length()-1);
+        }
+        return token;
+    }
 
-    HashMap<String, ArrayList<ArrayList<String>>> grammar = new HashMap<String, ArrayList<ArrayList<String>>>();
+    final HashMap<String, ArrayList<Rule>> grammar = new HashMap<String, ArrayList<Rule>>();
+    final HashMap<String, String> types = new HashMap<String, String>();
+
 
     HashSet<String> EMPTY_STR = new HashSet<String>(Collections.singleton(""));
 
-    String join(ArrayList<String> arr, String sep) {
+    String join(Collection<String> arr, String sep) {
         if (arr.size()==0) return "%Empty";
         String res = "";
         for (String s : arr) {
             final char c = s.charAt(0);
             res = res + (res.equals("") ? "" : sep) + (Character.isLetterOrDigit(c) ? s : "'"+s+"'");
+        }
+        return res;
+    }
+    String simpleJoin(Collection<String> arr, String sep) {
+        if (arr.size()==0) return "";
+        String res = "";
+        for (String s : arr) {
+            res = res + (res.equals("") ? "" : sep) + s;
         }
         return res;
     }
@@ -199,7 +333,7 @@ public class AutoGenSentences {
     void printGrammar(String symbol, HashSet<String> alreadyPrinted) {
         if (alreadyPrinted.contains(symbol)) return;
         alreadyPrinted.add(symbol);
-        ArrayList<ArrayList<String>> prods = grammar.get(symbol);
+        ArrayList<Rule> prods = grammar.get(symbol);
         if (prods==null) {
             // literal
             genLiteral(symbol); // for testing
@@ -246,7 +380,7 @@ public class AutoGenSentences {
     }
     HashSet<String> gen(String rule, int depth) {
         HashSet<String> res = new HashSet<String>();
-        ArrayList<ArrayList<String>> prods = grammar.get(rule);
+        ArrayList<Rule> prods = grammar.get(rule);
         if (prods==null) {
             // literal
             res.add(genLiteral(rule)+" ");
@@ -265,8 +399,15 @@ public class AutoGenSentences {
     }
 
     boolean isLiteral(String s) { return !grammar.containsKey(s); }
-    boolean random() { return Math.random()<0.5; }
-    String genLiteral(String s) {
+
+    static boolean random() { return Math.random()<0.5; }
+    static boolean hasArg(String id, String name) {
+        return !isLiteral2(id);
+    }
+    static boolean isLiteral2(String s) { // because we need to know if something is a literal before we parse the entire file
+        return genLiteral2(s)!=null;
+    }
+    static String genLiteral2(String s) {
         char first = s.charAt(0);
         if (first>='A' && first<='Z') {
             // special literal
@@ -289,11 +430,19 @@ public class AutoGenSentences {
                 return random() ? "' '" : "'a'";
             } else if (s.equals("IDENTIFIER")) {
                 return random() ? "x" : "y";
+            } else if (s.equals("ErrorId")) {
+                return "ERR";
             } else {
-                assert false : "Missing special literal="+s;
+                return null;
             }
         }
-        return s;            
+        return s;
+
+    }
+    static String genLiteral(String s) {
+        String res = genLiteral2(s);
+        assert res!=null;
+        return res;
     }
 
 
@@ -301,7 +450,7 @@ public class AutoGenSentences {
     void findUsedSymbols(String v) {
         if (usedSymbols.contains(v)) return;
         usedSymbols.add(v);
-        final ArrayList<ArrayList<String>> prods = grammar.get(v);
+        final ArrayList<Rule> prods = grammar.get(v);
         if (prods==null) return;
         for (ArrayList<String> prod : prods)
             for (String s : prod)
@@ -310,15 +459,21 @@ public class AutoGenSentences {
 
     HashSet<String> findRoots() {
         HashSet<String> res = new HashSet<String>(grammar.keySet());
-        for (ArrayList<ArrayList<String>> products : grammar.values())
+        for (ArrayList<Rule> products : grammar.values())
             for (ArrayList<String> prod : products)
                 for (String s : prod)
                     res.remove(s);
         return res;
     }
+    ArrayList<String> getNonTerminals() {
+        ArrayList<String> res = new ArrayList<String>(grammar.keySet());
+        res.removeAll(getLiterals());
+        Collections.sort(res);
+        return res;
+    }
     ArrayList<String> getLiterals() {
         HashSet<String> res = new HashSet<String>();
-        for (ArrayList<ArrayList<String>> products : grammar.values())
+        for (ArrayList<Rule> products : grammar.values())
             for (ArrayList<String> prod : products)
                 for (String s : prod)
                     if (isLiteral(s)) {
