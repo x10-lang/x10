@@ -62,49 +62,46 @@ namespace x10 {
         };
 
 
-/*
-
-
-
-
-        template<> class Comparable<x10_int>   {
-        public:
-          RTT_H_DECLS_INTERFACE
-    
-          static x10_int compareTo(x10_int recv, x10_int arg0) {
-              return x10aux::int_utils::compareTo(recv, arg0);
-          }
-          static x10_boolean equals(x10_int recv, x10_int arg0) {
-              return x10aux::equals(recv, arg0);
-          }
-          static x10_int hashCode(x10_int recv) {
-              return x10aux::hash_code(recv);
-          }
-          static x10aux::ref<x10::lang::String> toString(x10_int recv) {
-              return x10aux::to_string(recv);
-          }
-          static x10aux::ref<x10::lang::String> typeName(x10_int recv) {
-              return x10aux::type_name(recv);
-          }
+#define COMPARABLE_PRIM_DECL(PRIM,UTILS)              \
+        template<> class Comparable<PRIM>   {    \
+        public:                                     \
+        RTT_H_DECLS_INTERFACE                       \
+            template <class I> struct itable {                       \
+                itable(x10_int (I::*compareTo) (PRIM),               \
+                       x10_boolean (I::*equals) (x10aux::ref<x10::lang::Any>), \
+                       x10_int (I::*hashCode) (),                       \
+                       x10aux::ref<x10::lang::String> (I::*toString) (), \
+                       x10aux::ref<x10::lang::String> (I::*typeName) ()) : compareTo(compareTo), equals(equals), hashCode(hashCode), toString(toString), typeName(typeName) {} \
+                x10_int (I::*compareTo) (PRIM);                      \
+                x10_boolean (I::*equals) (x10aux::ref<x10::lang::Any>); \
+                x10_int (I::*hashCode) ();                              \
+                x10aux::ref<x10::lang::String> (I::*toString) ();       \
+                x10aux::ref<x10::lang::String> (I::*typeName) ();       \
+            };                                                          \
+            static x10_int compareTo(PRIM recv, PRIM arg0) {      \
+                return x10aux::UTILS::compareTo(recv, arg0);        \
+            }                                                           \
+            static x10_int compareTo(x10aux::ref<x10::lang::Reference> recv, PRIM arg0) { \
+                return (recv.operator->()->*(x10aux::findITable<x10::lang::Comparable<PRIM> >(recv->_getITables())->compareTo))(arg0); \
+            }                                                           \
+            static x10_boolean equals(PRIM recv, PRIM arg0) { return x10aux::equals(recv, arg0); } \
+            static x10_int hashCode(PRIM recv) { return x10aux::hash_code(recv); } \
+            static x10aux::ref<x10::lang::String> toString(PRIM recv) { return x10aux::to_string(recv); } \
+            static x10aux::ref<x10::lang::String> typeName(PRIM recv) { return x10aux::type_name(recv); } \
         };
-
-*/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        
+COMPARABLE_PRIM_DECL(x10_boolean, boolean_utils)
+COMPARABLE_PRIM_DECL(x10_byte, byte_utils)
+COMPARABLE_PRIM_DECL(x10_ubyte, byte_utils)
+COMPARABLE_PRIM_DECL(x10_short, short_utils)
+COMPARABLE_PRIM_DECL(x10_ushort, short_utils)
+COMPARABLE_PRIM_DECL(x10_char, char_utils)
+COMPARABLE_PRIM_DECL(x10_int, int_utils)
+COMPARABLE_PRIM_DECL(x10_uint, int_utils)
+COMPARABLE_PRIM_DECL(x10_float, float_utils)
+COMPARABLE_PRIM_DECL(x10_long, long_utils)
+COMPARABLE_PRIM_DECL(x10_ulong, long_utils)
+COMPARABLE_PRIM_DECL(x10_double, double_utils)
 
     }
 } 
