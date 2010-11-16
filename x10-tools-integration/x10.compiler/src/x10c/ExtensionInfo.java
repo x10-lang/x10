@@ -51,7 +51,7 @@ public class ExtensionInfo extends x10.ExtensionInfo {
 //    public static final boolean PREPARE_FOR_INLINING = x10.Configuration.INLINE_OPTIMIZATIONS;
     public static final boolean PREPARE_FOR_INLINING = true;
 
-    static class X10CScheduler extends X10Scheduler {
+    public static class X10CScheduler extends X10Scheduler {
         public X10CScheduler(ExtensionInfo extInfo) {
             super(extInfo);
         }
