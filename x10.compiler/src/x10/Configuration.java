@@ -51,13 +51,13 @@ public final class Configuration extends x10.config.Configuration {
     public static boolean LOOP_OPTIMIZATIONS = true;
     private static final String LOOP_OPTIMIZATIONS_desc = "Optimize rectangular region iteration";
 
-    public static final boolean EXPERIMENTAL = false;
+    public static boolean EXPERIMENTAL = false;
     private static final String EXPERIMENTAL_desc = "Enable experimental optimizations";
 
-    public static final boolean ELIMINATE_DEAD_VARIABLES = false;
+    public static boolean ELIMINATE_DEAD_VARIABLES = false;
     private static final String ELIMINATE_DEAD_VARIABLES_desc = "Get rid of unused local variables";
 
-    public static final boolean INLINE_CONSTANTS = true;
+    public static boolean INLINE_CONSTANTS = true;
     private static final String INLINE_CONSTANTS_desc = "Enable inlining of command-line flag values";
 
     public static boolean INLINE_METHODS = true;
