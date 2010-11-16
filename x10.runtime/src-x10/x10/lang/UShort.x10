@@ -126,7 +126,7 @@ public struct UShort implements Comparable[UShort] /*TODO implements Arithmetic[
      * @see #operator(UShort)-(UShort)
      */
     // @Native("java", "((short) ((#0) - (#1)))")
-    @Native("c++",  "((x10_ushort) ((#0) - (#1)))")
+    @Native("c++",  "((x10_ushort) ((#1) - (#0)))")
     public operator (x:Short) - this: UShort = UShort(x - shortVal);
     /**
      * A binary minus operator (unsigned disambiguation).

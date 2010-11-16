@@ -128,7 +128,7 @@ public struct UByte implements Comparable[UByte] /*TODO implements Arithmetic[UB
      * @see #operator(UByte)-(UByte)
      */
     // @Native("java", "((byte) ((#0) - (#1)))")
-    @Native("c++",  "((x10_ubyte) ((#0) - (#1)))")
+    @Native("c++",  "((x10_ubyte) ((#1) - (#0)))")
     public operator (x:Byte) - this: UByte = UByte(x - byteVal);
     /**
      * A binary minus operator (unsigned disambiguation).

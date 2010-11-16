@@ -126,7 +126,7 @@ public struct ULong implements Comparable[ULong] /*TODO implements Arithmetic[UL
      * @see #operator(ULong)-(ULong)
      */
     // @Native("java", "((#0) - (#2))")
-    @Native("c++",  "((x10_ulong) ((#0) - (#1)))")
+    @Native("c++",  "((x10_ulong) ((#1) - (#0)))")
     public operator (x:Long) - this: ULong = ULong(x - longVal);
     /**
      * A binary minus operator (unsigned disambiguation).

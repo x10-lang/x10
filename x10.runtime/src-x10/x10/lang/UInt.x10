@@ -128,7 +128,7 @@ public struct UInt implements Comparable[UInt] /*TODO implements Arithmetic[UInt
      * @see #operator(UInt)-(UInt)
      */
     // @Native("java", "((#0) - (#1))")
-    @Native("c++",  "((x10_uint) ((#0) - (#1)))")
+    @Native("c++",  "((x10_uint) ((#1) - (#0)))")
     public operator (x:Int) - this: UInt = UInt(x - intVal);
     /**
      * A binary minus operator (unsigned disambiguation).
