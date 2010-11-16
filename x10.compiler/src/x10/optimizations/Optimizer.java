@@ -19,11 +19,10 @@ import polyglot.frontend.ExtensionInfo;
 import polyglot.frontend.Goal;
 import polyglot.frontend.Job;
 import polyglot.frontend.Scheduler;
-import polyglot.frontend.VisitorGoal;
 import polyglot.types.TypeSystem;
 import polyglot.visit.NodeVisitor;
 import x10.ExtensionInfo.X10Scheduler.ValidatingVisitorGoal;
-//  import x10.visit.DeadVariableEliminator;
+import x10.visit.DeadVariableEliminator;
 import x10.visit.ExpressionFlattener;
 import x10.visit.Inliner;
 
@@ -77,7 +76,7 @@ public class Optimizer {
             goals.add(ExpressionFlattener());
         }
         if (x10.Configuration.EXPERIMENTAL && x10.Configuration.ELIMINATE_DEAD_VARIABLES) {
-//          goals.add(DeadVariableEliminator());
+            goals.add(DeadVariableEliminator());
         }
         // TODO: add an empty goal that prereqs the above
         return goals;
@@ -106,11 +105,11 @@ public class Optimizer {
         Goal goal = new ValidatingVisitorGoal("ExpressionFlattener", job, visitor);
         return goal.intern(scheduler);
     }
-/*
+
     public Goal DeadVariableEliminator() {
         NodeVisitor visitor = new DeadVariableEliminator(job, ts, nf);
         Goal goal = new ValidatingVisitorGoal("Dead Variable Elimination", job, visitor);
         return goal.intern(scheduler);
     }
-*/
+
 }
