@@ -83,7 +83,7 @@ import x10.ast.X10Formal;
 import x10.ast.X10MethodDecl;
 import x10.ast.X10ProcedureCall;
 import x10.ast.X10Special;
-import x10.config.Configuration;
+import x10.Configuration;
 import x10.config.ConfigurationError;
 import x10.config.OptionError;
 import x10.constraint.XFailure;
@@ -128,10 +128,10 @@ import x10.types.matcher.Subst;
 @SuppressWarnings("unchecked")
 public class Inliner extends ContextVisitor {
 
-    private final boolean INLINE_CONSTANTS = x10.Configuration.INLINE_CONSTANTS;
-    private final boolean INLINE_METHODS   = x10.Configuration.INLINE_METHODS;
-    private final boolean INLINE_CLOSURES  = x10.Configuration.INLINE_CLOSURES && x10.Configuration.CLOSURE_INLINING;
-    private final boolean INLINE_IMPLICIT  = x10.Configuration.INLINE_METHODS_IMPLICIT;
+    private final boolean INLINE_CONSTANTS = Configuration.INLINE_CONSTANTS;
+    private final boolean INLINE_METHODS   = Configuration.INLINE_METHODS;
+    private final boolean INLINE_CLOSURES  = Configuration.INLINE_CLOSURES && x10.Configuration.CLOSURE_INLINING;
+    private final boolean INLINE_IMPLICIT  = Configuration.INLINE_METHODS_IMPLICIT;
     
     private static final boolean DEBUG = false;
 //  private static final boolean DEBUG = true;
@@ -357,7 +357,7 @@ public class Inliner extends ContextVisitor {
             String name = (String) arg.constantValue();
             Boolean negate = name.startsWith("!"); // hack to allow @CompileTimeConstant("!NO_CHECKS")
             if (negate) name = name.substring(1);
-            Object value = Configuration.get(Class.forName("x10.Configuration"), name);
+            Object value = Configuration.get(Configuration.class, name);
             if (negate) 
                 value = (Boolean) value ? false : true;
             Expr literal = new ConstantPropagator(job, xts, xnf).toExpr(value, call.position());
@@ -365,8 +365,6 @@ public class Inliner extends ContextVisitor {
         } catch (ConfigurationError e) {
             return null;
         } catch (OptionError e) {
-            return null;
-        } catch (ClassNotFoundException e) {
             return null;
         }
     }

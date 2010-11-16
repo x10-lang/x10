@@ -83,6 +83,9 @@ import x10.ast.X10ClassDecl_c;
 import x10.ast.X10ConstructorDecl;
 import x10.ast.X10MethodDecl_c;
 import x10.ast.X10NodeFactory_c;
+import x10.Configuration;
+import x10.config.ConfigurationError;
+import x10.config.OptionError;
 import x10.extension.X10Ext;
 import x10.types.ConstrainedType_c;
 import x10.types.FunctionType;
@@ -259,17 +262,17 @@ public class Emitter {
 			    int endpos = pos;
 			    while (regex.charAt(++endpos) != '`') { }
 			    String optionName = regex.substring(pos + 1, endpos);
-                Object optionValue = null;
+			    Object optionValue = null;
 			    try {
-			        Class<?> configClass = Class.forName("x10.Configuration");
-			        java.lang.reflect.Field optionField = configClass.getField(optionName);
-			        optionValue = optionField.get(null);
-                } catch (Exception e) {
-                    throw new InternalCompilerError("Template '" + id + "' uses `" + optionName + "`");
-                }
-                w.write(optionValue.toString());
-                pos = endpos;
-                start = pos + 1;
+			        optionValue = Configuration.get(Configuration.class, optionName);
+			    } catch (ConfigurationError e) {
+			        throw new InternalCompilerError("Unable to read `" + optionName + "` in template '" + id + "'", e);
+			    } catch (OptionError e) {
+			        throw new InternalCompilerError("Template '" + id + "' uses `" + optionName + "`", e);
+			    }
+			    w.write(optionValue.toString());
+			    pos = endpos;
+			    start = pos + 1;
 			}
 			pos++;
 		}
