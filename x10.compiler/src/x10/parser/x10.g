@@ -238,14 +238,14 @@
 --    as
 --    assert
 --    async
-    at
+--    at
 --    ateach
     atomic
 --    break
 --    case
 --    catch
 --    class
-      clocked
+--    clocked
 --    const
 --    continue
 --    def
@@ -287,7 +287,7 @@
 --    protected
 --    proto
 --    public
-      resume
+    resume
 --    return
 --    safe
 --    self
@@ -302,8 +302,8 @@
 --    throws
 --    true
 --    try
-    type
-    val -- used in Boxed... classes!
+--    type
+--    val
 --    var
 --    when
 --    while

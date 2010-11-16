@@ -12,37 +12,37 @@
 import harness.x10Test;
 
 /**
- * Testing that a local variable named val is accepted.
+ * Testing that a local variable named val is rejected.
  */
-public class FieldNamedValTest extends x10Test {
+public class VariableNamedValTest_MustFailCompile extends x10Test {
 	/**
 	 * Testing a comment before instance field.
 	 */
-	public var val: int;
+	public var v: int;
 
 	/**
 	 * Testing a comment before nullary constructor.
 	 */
-	public def this(): FieldNamedValTest = {
-		val = 10;
+	public def this(): VariableNamedValTest_MustFailCompile = {
+		v = 10;
 	}
 
 	/**
 	 * Testing a comment before unary constructor.
 	 */
-	public def this(var v: int): FieldNamedValTest = {
-		val = v;
+	public def this(var val: int): VariableNamedValTest_MustFailCompile = {
+		v = val;
 	}
 
 	/**
-	 * Testing comments for runp
+	 * Testing comments for run
 	 */
-	public def run(): boolean = (val == 10);
+	public def run(): boolean = (v == 10);
 
 	/**
 	 * Testing comments for main
 	 */
 	public static def main(var args: Array[String](1)): void = {
-		new FieldNamedValTest().execute();
+		new VariableNamedValTest_MustFailCompile().execute();
 	}
 }
