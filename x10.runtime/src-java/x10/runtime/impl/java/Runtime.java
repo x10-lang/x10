@@ -13,6 +13,7 @@ package x10.runtime.impl.java;
 
 import java.lang.reflect.InvocationTargetException;
 
+import x10.core.ThrowableUtilities;
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
 
@@ -195,8 +196,9 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
             new java.io.ObjectOutputStream(baos).writeObject(body);
             body = (T) new java.io.ObjectInputStream(new java.io.ByteArrayInputStream(baos.toByteArray())).readObject();
         } catch (java.io.IOException e) {
-            e.printStackTrace();
-            throw new WrappedRuntimeException(e);
+            x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
+            xe.printStackTrace();
+            throw xe;
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
             throw new WrappedRuntimeException(e);
@@ -221,8 +223,9 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
                 thread.home(ret); // restore thread place
             }
         } catch (java.io.IOException e) {
-            e.printStackTrace();
-            throw new WrappedRuntimeException(e);
+            x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
+            xe.printStackTrace();
+            throw xe;
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
             throw new WrappedRuntimeException(e);

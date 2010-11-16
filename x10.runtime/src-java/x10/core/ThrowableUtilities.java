@@ -60,6 +60,8 @@ public class ThrowableUtilities {
             newExcName = "x10.io.FileNotFoundException";
         } else if (e instanceof java.io.EOFException) {
             newExcName = "x10.io.EOFException";
+        } else if (e instanceof java.io.NotSerializableException) {
+            newExcName = "x10.io.NotSerializableException";
         } else if (e instanceof java.io.IOException) {
             newExcName = "x10.io.IOException";
         } else if (e instanceof java.lang.InterruptedException) {
