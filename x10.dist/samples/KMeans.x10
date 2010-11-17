@@ -42,7 +42,7 @@ public class KMeans(myDim:Int) {
         var count:Int;
         def this(dim:Int, init:(int)=>Float): SumVector(dim) {
            property(dim);
-           vec = new Array[Float](this.dim, init); // DYNAMIC_CHECK  ; with -STATIC_CALLS we get an ERR
+           vec = new Array[Float](this.dim, init);
            count = 0;
         }
         public def apply(i:Int) = vec(i);
@@ -97,9 +97,9 @@ public class KMeans(myDim:Int) {
 
     def computeMeans(myK:Int, points: Array[ValVector(myDim)](1)): KMeansData(myK, myDim) {
         var redCluster : KMeansData(myK, myDim) =
-            new Array[SumVector(myDim)](myK, (i:int)=> new V(myDim, (j:int)=>points(i)(j)));  // DYNAMIC_CHECK  ; with -STATIC_CALLS we get an ERR
+            new Array[SumVector(myDim)](myK, (i:int)=> new V(myDim, (j:int)=>points(i)(j)));
         var blackCluster: KMeansData(myK, myDim) =
-            new Array[SumVector(myDim)](myK, (i:int)=> new V(myDim, (j:int)=>0.0F));   // DYNAMIC_CHECK  ; with -STATIC_CALLS we get an ERR
+            new Array[SumVector(myDim)](myK, (i:int)=> new V(myDim, (j:int)=>0.0F));
         for ([i] in 1..ITERATIONS) {
             val tmp = redCluster;
             redCluster = blackCluster;
