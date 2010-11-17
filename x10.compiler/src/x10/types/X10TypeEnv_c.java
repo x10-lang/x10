@@ -335,7 +335,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
                         lower.add(l);
                     }
                 }
-                else {
+                else if (term.isSubtypeConstraint()) {
                     if (ts.equalsStruct(l, pt))
                         upper.add(r);
                     if (ts.equalsStruct(r, pt))
@@ -785,7 +785,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     				return true;
     			}
     		}
-    		else {
+    		else if (term.isSubtypeConstraint()) {
     			SubtypeConstraint s = term;
     			Type l = s.subtype();
     			Type r = s.supertype();

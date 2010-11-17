@@ -88,6 +88,7 @@ import x10.ast.SubtypeTest;
 import x10.ast.Tuple;
 import x10.ast.When;
 import x10.ast.X10ClassDecl;
+import x10.ast.HasZeroTest;
 import x10.errors.Warnings;
 import x10.optimizations.ForLoopOptimizer;
 
@@ -270,6 +271,7 @@ public final class ExpressionFlattener extends ContextVisitor {
         else if (expr instanceof AtExpr)         return flattenAtExpr((AtExpr) expr);
         else if (expr instanceof Future)         return flattenFuture((Future) expr);
         else if (expr instanceof SubtypeTest)    return flattenSubtypeTest((SubtypeTest) expr);
+        else if (expr instanceof HasZeroTest)    return expr;
         else if (expr instanceof ClosureCall)    return flattenClosureCall((ClosureCall) expr);
         else if (expr instanceof Conditional)    return flattenConditional((Conditional) expr);
         else if (expr instanceof StmtExpr)       return flattenStmtExpr((StmtExpr) expr);

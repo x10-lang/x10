@@ -313,7 +313,7 @@ public class TypeParamSubst {
 			Type sup1 = reinstantiate(sup);
 			if (sub != sub1 || sup != sup1) {
 				changed = true;
-				s = new SubtypeConstraint(sub1, sup1, s.isEqualityConstraint());
+				s = new SubtypeConstraint(sub1, sup1, s.kind());
 			}
 			terms.add(s);
 		}

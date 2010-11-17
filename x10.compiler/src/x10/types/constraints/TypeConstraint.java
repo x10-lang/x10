@@ -156,7 +156,7 @@ public class TypeConstraint implements Copy, Serializable {
     	if (xts.typeEquals(t1, t2, emptyContext /*dummy*/))
     			return this;
     	if ((t1 instanceof ParameterType) || (t2 instanceof ParameterType)) {
-    		result.addTerm(new SubtypeConstraint(t1, t2, SubtypeConstraint.EQUAL_KIND));
+    		result.addTerm(new SubtypeConstraint(t1, t2, SubtypeConstraint.Kind.EQUAL));
     		if (! (result.consistent(emptyContext)))
     			return result;
     	}
@@ -206,6 +206,9 @@ public class TypeConstraint implements Copy, Serializable {
                 if (!xts.isSubtype(t.subtype(), t.supertype(), xc)) {
                     return false;
                 }
+            } else if (t.isHaszero()) {
+                if (!X10TypeMixin.isHaszero(t.subtype(),xc))
+                    return false;
             }
             
         }

@@ -402,15 +402,19 @@ class CheckCtorContextIsNotStatic[T](p:T) {
 
 //public class EscapingThisTest {
 
-class TransientTest { // The transient field '...' must have a type with a default value.
+class TransientTest(p:Int) { // The transient field '...' must have a type with a default value.
 	transient val x1 = 2; // ERR (because the type is infered to be Int{self==2}
 	transient val x2:Int = 2;
 	transient var y:Int;
 	transient var y2:Int{self==3} = 3; // ERR
 	transient var y3:Int{self!=0}; // ERR
 	transient var y4:Int{self==0}; 
-	def this() {
+	transient var y5:Int{self!=3}; 
+	transient var y6:Int{self==p}; // ERR
+	def this(k:Int) {
+		property(k);
 		y3 = 4;
+		y6 = p;
 	}
 }
 		

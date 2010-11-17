@@ -452,7 +452,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
             final boolean isTransient = f.isTransient() && !X10TypeMixin.isSuppressTransientErrorField(fieldDef,ts);
             if (needsInit || isTransient) {
                 // creating an init.
-	    		Expr e = X10TypeMixin.getZeroVal(type,position().markCompilerGenerated(),tc);
+	    		Expr e = X10TypeMixin.getZeroVal(typeNode,position().markCompilerGenerated(),tc);
                 if (needsInit) {
                     if (e != null) {
                         n = (X10FieldDecl_c) n.init(e);
