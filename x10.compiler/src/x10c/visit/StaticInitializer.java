@@ -354,7 +354,7 @@ public class StaticInitializer extends ContextVisitor {
         else if (type.isDouble())
             return xnf.FloatLit(pos, FloatLit.DOUBLE, 0.0).type(type);
         else if (type == xts.String())
-            return xnf.StringLit(pos, null).type(type);
+            return xnf.NullLit(pos).type(type);
         else if (xts.isSubtype(type, xts.UByte()) || xts.isSubtype(type, xts.UShort()) ||
                  xts.isSubtype(type, xts.UInt()) || xts.isSubtype(type, xts.ULong())) {
             ConstructorDef cd = xts.defaultConstructor(pos, Types.ref((ClassType)type)); 
