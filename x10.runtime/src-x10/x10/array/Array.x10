@@ -220,7 +220,7 @@ public final class Array[T](
      * in future releases of X10, this method will only be callable if sizeof(T) bytes 
      * of zeros is a valid value of type T. 
      */    
-    public def this(size:int):Array[T]{self.region.rank==1,self.region.rect,self.region.zeroBased} {
+    public def this(size:int):Array[T]{self.region.rank==1,self.region.rect,self.region.zeroBased,self.size==size} {
         property(0..size-1, size);
 
         layout = RectLayout(0, size-1);
@@ -238,7 +238,7 @@ public final class Array[T](
      * @param reg The region over which to construct the array.
      * @param init The function to use to initialize the array.
      */    
-    public def this(size:int, init:(int)=>T):Array[T]{rank==1,rect,zeroBased} {
+    public def this(size:int, init:(int)=>T):Array[T]{rank==1,rect,zeroBased,self.size==size} {
         property(0..size-1, size);
 
         layout = RectLayout(0, size-1);
@@ -260,7 +260,7 @@ public final class Array[T](
      * @param reg The region over which to construct the array.
      * @param init The function to use to initialize the array.
      */    
-    public def this(size:int, init:T):Array[T]{rank==1,rect,zeroBased,self.rail} {
+    public def this(size:int, init:T):Array[T]{rank==1,rect,zeroBased,self.rail,self.size==size} {
         property(0..size-1, size);
 
         layout = RectLayout(0, size-1);
