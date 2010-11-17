@@ -85,6 +85,7 @@ public class SubtypeConstraint implements Copy, Serializable {
      * @see x10.types.SubtypeConstraint#supertype()
      */
     public Type supertype() {
+        assert !isHaszero(); // it returns null if it is haszero constraint, so you don't want to call supertype()
         return supertype;
     }
 
@@ -114,12 +115,10 @@ public class SubtypeConstraint implements Copy, Serializable {
      * x10.constraint.XVar, boolean)
      */
     public SubtypeConstraint subst(XTerm y, XVar x) {
-        Type left = subtype();
-        Type l = subst(left, y, x);
-        Type right = supertype();
-        Type r = subst(right, y, x);
+        Type l = subst(subtype, y, x);
+        Type r = subst(supertype, y, x);
 
-        if (l == left && r == right)
+        if (l == subtype && r == supertype)
             return this;
 
         SubtypeConstraint n = copy();

@@ -261,16 +261,14 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
                     return false;
             }
             TypeConstraint c = Types.get(ct.x10Def().typeBounds());
-            if (c != null) {
+            if (c != null) { // We need to prove the context entails "c" (the class invariant)
                 TypeConstraint equals = new TypeConstraint();
                 for (int i = 0; i < ct.typeArguments().size(); i++) {
                     Type Y = ct.typeArguments().get(i);
                     ParameterType X = ct.x10Def().typeParameters().get(i);
                     equals.addTerm(new SubtypeConstraint(X, Y, true));
                 }
-                Context xc = (Context) context.pushBlock();
-                equals.addIn(xc.currentTypeConstraint());
-                xc.setCurrentTypeConstraint(Types.ref(equals));
+                Context xc = ((X10Context_c)context).pushTypeConstraintWithContextTerms(equals);
                 if (!new X10TypeEnv_c(xc).consistent(c))
                     return false;
             }
@@ -762,13 +760,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     		//                    newEnv = env;
     		//                    newEnv = Collections.EMPTY_LIST;
 
-    		Context xc2 = (Context) xcontext.pushBlock();
-    		TypeConstraint ec = new TypeConstraint();
-    		for (SubtypeConstraint tt : newEnv) {
-    			ec.addTerm(tt);
-    		}
-    		xc2.setCurrentTypeConstraint(Types.ref(ec));
-
+    		Context xc2 = ((X10Context_c) xcontext).pushTypeConstraint(newEnv);
     		X10TypeEnv_c tenv = copy();
     		tenv.context = xc2;
 
@@ -987,7 +979,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
      * @see x10.types.X10TypeEnv#typeEquals(polyglot.types.Type, polyglot.types.Type, java.util.List)
      */
     @Override
-    public boolean typeEquals(Type t1, Type t2) {
+    public boolean typeEquals(Type t1, Type t2) { // yoav tood: why can't we define this in terms of t1<:t2 && t2<:t1 ? (I guess it's less efficient)
     	
         t1 = ts.expandMacros(t1);
         t2 = ts.expandMacros(t2);
@@ -1000,10 +992,10 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
         if (t1.isVoid() || t2.isVoid())
             return false;
-       
-        if (X10TypeMixin.isX10Struct(t1) != X10TypeMixin.isX10Struct(t2))
-        	return false;
-     
+
+        // A type parameter T might still be equal to Int if there is a type constraint in the context saying T==Int
+        //if (X10TypeMixin.isX10Struct(t1) != X10TypeMixin.isX10Struct(t2)) return false;
+
         Context xc = (Context) context;
         List<SubtypeConstraint> env = xc.currentTypeConstraint().terms();
 
@@ -1017,12 +1009,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
             //                    newEnv = env;
             newEnv = Collections.<SubtypeConstraint>emptyList();
 
-            Context xc2 = (Context) xc.pushBlock();
-            TypeConstraint ec = new TypeConstraint();
-            for (SubtypeConstraint tt : newEnv) {
-                ec.addTerm(tt);
-            }
-            xc2.setCurrentTypeConstraint(Types.ref(ec));
+            Context xc2 = ((X10Context_c) xc).pushTypeConstraint(newEnv);
 
             if (term.isEqualityConstraint()) {
                 SubtypeConstraint eq = term;

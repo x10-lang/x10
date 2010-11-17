@@ -1225,7 +1225,7 @@ public class X10TypeMixin {
             return false;
         }
     }
-    // this is an under-approximation (it is always safe to return 'null', i.e., the user will just get more errors). In the future we will improve the precision so more types might have zero.
+    // this is an under-approximation (it is always safe to return false, i.e., the user will just get more errors). In the future we will improve the precision so more types will have zero.
     public static boolean isHaszero(Type t, Context xc) {
         TypeSystem ts = xc.typeSystem();
         XLit zeroLit = null;  // see Lit_c.constantValue() in its decendants
@@ -1251,14 +1251,27 @@ public class X10TypeMixin {
             if (permitsNull(t)) return true;
             //zeroLit = XTerms.NULL;
         } else if (ts.isParameterType(t)) {
-            if (isConstrained(t)) return false;
+            // we have some type "T" which is a type parameter. Does it have a zero value?
+            // So, type bounds (e.g., T<:Int) do not help, because  Int{self!=0}<:Int
+            // Similarly, Int<:T doesn't help, because  Int<:Any{self!=null}
+            // However, T==Int does help
+            if (isConstrained(t)) return false; // if we have constraints on the type parameter, e.g., T{self!=null}, then we give up and return false.
             TypeConstraint typeConst = xc.currentTypeConstraint();
-            if (typeConst== null) return false;
             List<SubtypeConstraint> env =  typeConst.terms();
             for (SubtypeConstraint sc : env) {
-                if (!sc.isHaszero()) continue;
-                if (ts.typeEquals(t,sc.subtype(),xc)) {
-                    return true;
+                if (sc.isEqualityConstraint()) {
+                    Type other = null;
+                    if (ts.typeEquals(t,sc.subtype(),xc)) other = sc.supertype();
+                    if (ts.typeEquals(t,sc.supertype(),xc)) other = sc.subtype();
+                    if (other!=null && isHaszero(other,xc))
+                        return true; // T is equal to another type that has zero
+                } else if (sc.isSubtypeConstraint()) {
+                    // doesn't help
+                } else {
+                    assert sc.isHaszero();
+                    if (ts.typeEquals(t,sc.subtype(),xc)) {
+                        return true;
+                    }
                 }
             }
         }
@@ -1613,11 +1626,15 @@ then we substitute 0/false/null in all the constraints in C and if they all eval
 		
 		if (xt instanceof X10ParsedClassType) {
 			X10ParsedClassType xt1 = (X10ParsedClassType) xt;
+            final X10ClassDef classDef = (X10ClassDef) xt1.def();
 			
 			if (xt1.isMissingTypeArguments()) {
-				List<ParameterType> expectedArgs = ((X10ClassDef) xt1.def()).typeParameters();
+                List<ParameterType> expectedArgs = classDef.typeParameters();
 				throw new Errors.TypeIsMissingParameters(xt, expectedArgs, pos);
-			}
+			} else {
+                // todo check the TypeConstraint of the class invariant is satisfied
+                
+            }
 		}
 	}
 	public static Type arrayElementType(Type t) {

@@ -81,6 +81,7 @@ import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
 import x10.types.constraints.XConstrainedTerm;
+import x10.types.constraints.SubtypeConstraint;
 import x10.ast.X10Return_c;
 
 public class X10Context_c extends Context_c {
@@ -633,6 +634,23 @@ public class X10Context_c extends Context_c {
 //		assert (depType == null);
 		return (Context) SUPER_pushBlock();
 	}
+
+    public X10Context_c pushTypeConstraintWithContextTerms(TypeConstraint c) {
+        final X10Context_c xc = pushTypeConstraint(c);
+        xc.currentTypeConstraint().addIn(this.currentTypeConstraint());
+        return xc;
+    }
+    public X10Context_c pushTypeConstraint(TypeConstraint c) {
+        return pushTypeConstraint(c.terms());
+    }
+    public X10Context_c pushTypeConstraint(Collection<SubtypeConstraint> c) {
+        X10Context_c xc = (X10Context_c) pushBlock();
+        TypeConstraint equals = new TypeConstraint();
+        //if (currentTypeConstraint!=null) equals.addIn(currentTypeConstraint.get());
+        equals.addTerms(c);   
+        xc.setCurrentTypeConstraint(Types.ref(equals));
+        return xc;
+    }
 
 	public Context pushAtomicBlock() {
 		assert (depType == null);
