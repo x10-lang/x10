@@ -67,8 +67,10 @@ public class CUDAMatMul {
                         val id = inx + iny*16;
 
                         var A_idx:Int = ibx + id;
-                        var B_idx:Int = inx + CUDAUtilities.mul24( iby + iny, ldb );
-                        var C_idx:Int = ibx + id  + CUDAUtilities.mul24( iby, ldc );
+                        //var B_idx:Int = inx + CUDAUtilities.mul24( iby + iny, ldb );
+                        //var C_idx:Int = ibx + id  + CUDAUtilities.mul24( iby, ldc );
+                        var B_idx:Int = inx + ( iby + iny) * ( ldb );
+                        var C_idx:Int = ibx + id  + ( iby * ldc );
 
                         val Blast_idx = B_idx + k;
 
@@ -458,7 +460,7 @@ public class CUDAMatMul {
             val nb = 64;
             Console.OUT.println("   n   CUBLAS,Gflop/s   we,Gflop/s   \"error\"");
             //for(var idim:Int = 1; idim <= N/nb; idim = ((idim+1)*1.1) as Int )
-            val idim = 1024/nb;
+            val idim = 4096/nb;
             {
                 val dim = idim*nb;
 
@@ -483,7 +485,7 @@ public class CUDAMatMul {
                 //  bench our routine
                 //
                 var start_time : Long = System.currentTimeMillis();
-                val iters = 100;
+                val iters = 10;
                 finish for ([iter] in 0..iters-1) {
                     ourSgemm(gpu, transa, transb, m, n, k, alpha, dA, lda, dB, ldb, beta, dC, ldc );
                 }
