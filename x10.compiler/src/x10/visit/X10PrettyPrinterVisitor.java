@@ -152,6 +152,7 @@ import x10.ast.X10Instanceof_c;
 import x10.ast.X10IntLit_c;
 import x10.ast.X10LocalDecl_c;
 import x10.ast.X10MethodDecl_c;
+import x10.ast.X10New;
 import x10.ast.X10New_c;
 import x10.ast.X10Return_c;
 import x10.ast.X10Special;
@@ -297,18 +298,33 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	public void visit(Eval_c n) {
 	    boolean semi = tr.appendSemicolon(true);
 	    Expr expr = n.expr();
-	    if (expr instanceof X10Call && isMethodInlineTarget((TypeSystem) tr.typeSystem(), ((X10Call) expr).target().type()) && ((X10Call) expr).methodInstance().name()==ClosureCall.APPLY) {
-	        w.write(X10_RUNTIME_UTIL_UTIL + ".eval(");
-	        n.print(expr, w, tr);
-	        w.write(")");
-	    }
-	    else if (expr instanceof X10Call && !expr.type().isVoid() && er.getJavaImplForDef(((X10Call) expr).methodInstance().x10Def()) != null) {
-	           w.write(X10_RUNTIME_UTIL_UTIL + ".eval(");
+	    // XTENLANG-2000
+	    if (expr instanceof X10Call) {
+	        // support for back-end method inlining
+	        if (isMethodInlineTarget((TypeSystem) tr.typeSystem(), ((X10Call) expr).target().type()) && ((X10Call) expr).methodInstance().name()==ClosureCall.APPLY) {
+	            w.write(X10_RUNTIME_UTIL_UTIL + ".eval(");
 	            n.print(expr, w, tr);
 	            w.write(")");
+	        }
+	        // support for @Native
+	        else if (expr instanceof X10Call && !expr.type().isVoid() && er.getJavaImplForDef(((X10Call) expr).methodInstance().x10Def()) != null) {
+	            w.write(X10_RUNTIME_UTIL_UTIL + ".eval(");
+	            n.print(expr, w, tr);
+	            w.write(")");
+	        }
+	        else {
+	            n.print(expr, w, tr);
+	        }
 	    }
+	    // when expr is StatementExpression(Assignment || [Pre/Post][De/In]crementExpression || MethodInvocation || ClassInstanceCreationExpression)
+	    else if (expr instanceof ClosureCall || expr instanceof Assign || expr instanceof Unary || expr instanceof X10New) {
+	        n.print(expr, w, tr);
+	    }
+	    // not a legal java statement
 	    else {
-            n.print(expr, w, tr);
+            w.write(X10_RUNTIME_UTIL_UTIL + ".eval(");
+	        n.print(expr, w, tr);
+	        w.write(")");
 	    }
 	    if (semi) {
 	        w.write(";");
