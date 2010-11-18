@@ -152,6 +152,25 @@ public class Inliner extends ContextVisitor {
 //  private static final int SMALL_METHOD_MAX_SIZE = 3;
 
     /**
+     * 
+     */
+    private TypeSystem xts;
+    private NodeFactory xnf;
+    // private Synthesizer syn;
+    private ForLoopOptimizer syn; // move functionality to Synthesizer
+    private InlineCostEstimator ice;
+    private SoftReference<InlinerCache> inlinerCacheRef[] = (SoftReference<InlinerCache>[]) new SoftReference<?>[1];
+
+    public Inliner(Job job, TypeSystem ts, NodeFactory nf) {
+        super(job, ts, nf);
+        xts = ts;
+        xnf = nf;
+        // syn = new Synthesizer(xnf, xts);
+        syn = new ForLoopOptimizer(job, ts, nf);
+        ice = new InlineCostEstimator(xts, xnf);
+    }
+
+    /**
      * Explicit inlining (via annotations) and inlining of small methods (if
      * enabled) is done to an arbitrary depth for non-recursive calls. There is
      * a somewhat hoaky mechanism for limiting the number of recursive calls
@@ -174,7 +193,7 @@ public class Inliner extends ContextVisitor {
     private String report(String msg, Node n) {
         String reason = msg;
         reasons.add(reason);
-        debug(reason, n);
+        debug("not inlining because " + reason, n);
         return reason;
     }
 
@@ -214,25 +233,6 @@ public class Inliner extends ContextVisitor {
     private static final QName NATIVE_ANNOTATION       = QName.make("x10.compiler.Native");
     private static final QName NATIVE_REP_ANNOTATION   = QName.make("x10.compiler.NativeRep");
     private static final QName NATIVE_CLASS_ANNOTATION = QName.make("x10.compiler.NativeClass");
-
-    /**
-     * 
-     */
-    private TypeSystem xts;
-    private NodeFactory xnf;
-    // private Synthesizer syn;
-    private ForLoopOptimizer syn; // move functionality to Synthesizer
-    private InlineCostEstimator ice;
-    private SoftReference<InlinerCache> inlinerCacheRef[] = (SoftReference<InlinerCache>[]) new SoftReference<?>[1];
-
-    public Inliner(Job job, TypeSystem ts, NodeFactory nf) {
-        super(job, ts, nf);
-        xts = ts;
-        xnf = nf;
-        // syn = new Synthesizer(xnf, xts);
-        syn = new ForLoopOptimizer(job, ts, nf);
-        ice = new InlineCostEstimator(xts, xnf);
-    }
 
     @Override
     public NodeVisitor begin() {
@@ -275,19 +275,19 @@ public class Inliner extends ContextVisitor {
         if (node instanceof Call) {
             return null; // will handle @NoInline annotation seperately
         }
-        if (node instanceof ClassDecl) {
+        if (node instanceof ClassDecl) { // Don't try to inline native classes
             if (!((X10Ext) node.ext()).annotationMatching(NativeClassType) .isEmpty() || 
                 !((X10Ext) node.ext()).annotationMatching(NativeRepType).isEmpty() ) {
                 return node;
             }
         }
-        if (ExpressionFlattener.cannotFlatten(node)) {
+        if (ExpressionFlattener.cannotFlatten(node)) { // TODO: check that flattening is actually required
             debug("Cannot flatten: short-circuiting inlining for children of " + node, node);
             return node; // don't inline inside Nodes that cannot be Flattened
         }
         if (node.ext() instanceof X10Ext) { // TODO: DEBUG only (remove this)
             if (!((X10Ext) node.ext()).annotationMatching(NoInlineType).isEmpty()) { // short-circuit inlining decisions
-                debug("Explicit annotation: short-circuiting inlining for children of " + node, node);
+                debug("Explicit @NoInline annotation: short-circuiting inlining for children of " + node, node);
                 return node;
             }
         }
@@ -320,7 +320,7 @@ public class Inliner extends ContextVisitor {
                 if (!reasons.isEmpty()) {
                     msg += " (because ";
                     for (int i=0; i<reasons.size(); i++) {
-                        msg += reasons.get(i);
+                        msg += "\n\t" +reasons.get(i);
                         if (i+1 != reasons.size())
                             msg += ", and ";
                     }
@@ -332,10 +332,11 @@ public class Inliner extends ContextVisitor {
         }
         if (n != result) { // inlining this call
             if (VERBOSE) {
-                Warnings.issue(job, "___ Inlining: " + n, n.position());
+                Warnings.issue(job, "INLINING: " + n, n.position());
                 if (DEBUG && VERY_VERBOSE && false) {
                     System.err.println("\n\nat\t" + n.position() + "\ninlining:\t" + n);
                     result.dump(System.err);
+                    System.err.println();
                 }
             }
         }
@@ -636,17 +637,17 @@ public class Inliner extends ContextVisitor {
      */
     private X10MethodDecl getInlineDecl(X10Call call) {
         // System.out.println("                considering inlining "+ call);
-        debug("Inline " + call + " ?", call);
-        // get inline candidate
-        X10MethodDef candidate = call.methodInstance().x10Def();
+        debug("Should " + call + " be inlined?", call);
         if (annotationsPreventInlining(call)) {
             report("of annotation at call site", call);
             return null;
         }
+        // get inline candidate
+        X10MethodDef candidate = call.methodInstance().x10Def();
         // require inlining if either the call of the candidate are so annotated
         inliningRequired = annotationsRequireInlining(call, candidate);
         // unless required, skip candidates previously found to be uninlinable
-        if (!inliningRequired && !getInlinerCache().inlinable(candidate)) {
+        if (!inliningRequired && getInlinerCache().uninlineable(candidate)) {
             report("of previous decision for candidate: " +candidate, call);
             return null;
         }
@@ -852,7 +853,7 @@ public class Inliner extends ContextVisitor {
         Job job = container.job();
         try {
             /*
-             * TODO: reconstruct job form position 
+             * TODO: reconstruct job from position 
              * if (null == job) { 
              * String file = pos.file(); 
              * String path = pos.path(); 
@@ -887,11 +888,13 @@ public class Inliner extends ContextVisitor {
                 // job.ast(ast); // ASK: why doesn't this work?
             }
         } catch (Exception x) {
-            getInlinerCache().badJob(job);
             String msg = "AST for job, " + job + " (for candidate " + candidate + ") does not typecheck (" + x + ")";
+ //         System.err.println("SPECULATIVE COMPILATION FAILURE: " + msg);
+ //         if (true) x.printStackTrace();
             debug(msg, null);
             SemanticException e = new SemanticException(msg, candidate.position());
             Errors.issue(job, e);
+            getInlinerCache().badJob(job);
             return null;
         }
         return job;
@@ -905,8 +908,7 @@ public class Inliner extends ContextVisitor {
      * @return the declaration for the indicated method, or 
      *         null if no declaration can be found or it has an empty body.
      */
-    private X10MethodDecl getDeclaration(final X10MethodDef candidate,
-            final Node ast) {
+    private X10MethodDecl getDeclaration(final X10MethodDef candidate, final Node ast) {
         final Position pos = candidate.position();
         final X10MethodDecl[] decl = new X10MethodDecl[1];
         ast.visit(new NodeVisitor() { // find the declaration of md
@@ -1534,12 +1536,8 @@ public class Inliner extends ContextVisitor {
         }
 
         private Expr getThis(Position pos) {
-            NodeFactory xnf = nf;
-            if (null == ths) {
-                // System.err.println("Missing ths at " +pos);
-            }
-            LocalInstance tli = ths.asInstance();
-            return xnf.Local(pos, xnf.Id(pos, tli.name())).localInstance(tli).type(tli.type());
+            LocalInstance li = ths.asInstance();
+            return nf.Local(pos, nf.Id(pos, li.name())).localInstance(li).type(li.type());
         }
 
         // f -> ths.f
@@ -1583,28 +1581,38 @@ public class Inliner extends ContextVisitor {
         private Expr visitSpecial(Special n) {
             // First check that we are within the right code body
             if (!context.currentCode().equals(def)) return n;
-            if (n.kind() == Special.SUPER) {
+            // Ignore X10Special.SELF
+            if (n.kind() == X10Special.SELF) return n;
+            // Make sure ths is defined
+            if (null == ths) {
+                String msg = "special in a static context (this should never happen)";
+                debug(msg, n);
+                Warnings.issue(job, msg, n.position());
+                failed[0] = true;
 //              throw new InternalCompilerError(msg, n.position());
+                return null;
+            }
+            // Method bodies with references to "super" cannot be inlined (the class super refers to would be lost)
+            if (n.kind() == Special.SUPER) {
                 String msg = "super not supported when inlining";
                 debug(msg, n);
                 Warnings.issue(job, msg, n.position());
                 failed[0] = true;
+//              throw new InternalCompilerError(msg, n.position());
                 return null;
             }
-            if (n.kind() == X10Special.SELF) {
-                return n;
-            }
             assert (n.kind() == Special.THIS);
+            // Don't try to handle qualified this (inner class remover will soon obviate this case)
             if (null != n.qualifier()) {
-//              throw new InternalCompilerError(msg, n.position());
                 String msg = "qualified this not supported when inlining";
                 debug(msg, n);
                 Warnings.issue(job, msg, n.position());
                 failed[0] = true;
+//              throw new InternalCompilerError(msg, n.position());
                 return null;
             }
-            Position pos = n.position();
-            return getThis(pos);
+            // return a local for the inlined this
+            return getThis(n.position());
         }
     }
 
@@ -1682,8 +1690,8 @@ public class Inliner extends ContextVisitor {
         private final Set<Job> badJobs = new HashSet<Job>();
         private final Map<String, Node> astMap = new HashMap<String, Node>();
 
-        boolean inlinable(X10MethodDef candidate) {
-            return !dontInline.contains(candidate);
+        boolean uninlineable(X10MethodDef candidate) {
+            return dontInline.contains(candidate);
         }
 
         void notInlinable(X10MethodDef candidate) {
