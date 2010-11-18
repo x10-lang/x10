@@ -458,7 +458,6 @@ public class CUDAMatMul {
             Console.OUT.println("\ntesting sgemm( '"+transa+"', '"+transb+"', n, n, n, ... )\n");
 
             val nb = 64;
-            Console.OUT.println("   n   CUBLAS,Gflop/s   we,Gflop/s   \"error\"");
             //for(var idim:Int = 1; idim <= N/nb; idim = ((idim+1)*1.1) as Int )
             val idim = 4096/nb;
             {
@@ -497,7 +496,7 @@ public class CUDAMatMul {
                 //
                 //  report the results
                 //
-                Console.OUT.println(n+" "+our_gflops);
+                Console.OUT.println(n+" "+our_gflops+" GF/s in "+elapsed_time+" seconds");
             }
         }
 
