@@ -518,7 +518,10 @@ public class StaticInitializer extends ContextVisitor {
         // actual arguments
         List<Expr> args = new ArrayList<Expr>();
         // args.add(xnf.ClassLit(pos, xnf.CanonicalTypeNode(pos, classDef.asType())).type(xts.Class()));
-        args.add(xnf.StringLit(pos, classDef.toString()).type(xts.String()));
+        String className = classDef.toString();
+        if (classDef.isNested()) 
+            className = className.replace('.', '$');
+        args.add(xnf.StringLit(pos, className).type(xts.String()));
         args.add(xnf.StringLit(pos, initializerName).type(xts.String()));
 
         List<TypeNode> typeParamNodes = new ArrayList<TypeNode>();
