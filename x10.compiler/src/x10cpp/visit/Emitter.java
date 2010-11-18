@@ -59,6 +59,7 @@ import polyglot.types.Types;
 import polyglot.types.VarDef;
 import polyglot.types.VarInstance;
 import polyglot.util.CodeWriter;
+import polyglot.util.CollectionUtil;
 import polyglot.util.ErrorInfo;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
@@ -81,6 +82,7 @@ import x10.types.X10MethodInstance;
 import x10.types.X10TypeMixin;
 import polyglot.types.TypeSystem;
 import x10.types.X10TypeSystem_c;
+import x10.types.X10TypeSystem_c.BaseTypeEquals;
 import x10.visit.StaticNestedClassRemover;
 import x10.util.ClassifiedStream;
 import x10.util.StreamWrapper;
@@ -440,11 +442,13 @@ public class Emitter {
 	        List<Type> params = ((X10MethodInstance) mi).typeParameters();
 	        List<MethodInstance> overrides = xts.findAcceptableMethods(localClass, xts.MethodMatcher(localClass, mi.name(), ((X10MethodInstance) mi).typeParameters(), mi.formalTypes(), context));
 	        for (MethodInstance smi : overrides) {
-	            List<Type> sparams = ((X10MethodInstance) smi).typeParameters();
-	            if (params == null && sparams == null)
-	                return smi;
-	            if (params != null && params.equals(sparams))
-	                return smi;
+	            if (CollectionUtil.allElementwise(mi.formalTypes(), smi.formalTypes(), new BaseTypeEquals(context))) {
+	                List<Type> sparams = ((X10MethodInstance) smi).typeParameters();
+	                if (params == null && sparams == null)
+	                    return smi;
+	                if (params != null && params.equals(sparams))
+	                    return smi;
+	            }
 	        }
 	        return null;
 	    } catch (SemanticException e) {
