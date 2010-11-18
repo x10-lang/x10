@@ -275,9 +275,6 @@ public class X10New_c extends New_c implements X10New {
                     tn = nf.AmbDepTypeNode(atn.position(), atn.prefix(), atn.name(), typeArguments, Collections.<Expr>emptyList(), null);
                     tn = tn.typeRef(atn.typeRef());
                 }
-                else {
-                    throw new InternalCompilerError("Unexpected type node " + tn + " + with type arguments " + typeArguments, n.position());
-                }
             }
 
             tn = (TypeNode) n.visitChild(tn, childtc);
