@@ -70,7 +70,7 @@ public class _ {
     public static type int32 = int;
     public static type int64 = long;
     
-    public static type GlobalRef[T](p:Place) = GlobalRef[T]{self.home==p};
+    public static type GlobalRef[T](p:Place) {T<:Object} = GlobalRef[T]{self.home==p};
     public static type Point(r: Int) = Point{self.rank==r};
     public static type Place(id:Int) = Place{self.id==id};
     public static type Place(p:Place) = Place{self==p};

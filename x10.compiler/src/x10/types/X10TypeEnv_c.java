@@ -253,23 +253,18 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
                     return false;
             }
         }
-        if (t instanceof X10ClassType) {
-            X10ClassType ct = (X10ClassType) t;
+        if (t instanceof X10ParsedClassType) {
+            X10ParsedClassType ct = (X10ParsedClassType) t;
             if (ct.typeArguments() != null) {
             for (Type ti : ct.typeArguments()) {
                 if (!consistent(ti))
                     return false;
             }
-            TypeConstraint c = Types.get(ct.x10Def().typeBounds());
-            if (c != null) { // We need to prove the context entails "c" (the class invariant)
-                TypeConstraint equals = new TypeConstraint();
-                for (int i = 0; i < ct.typeArguments().size(); i++) {
-                    Type Y = ct.typeArguments().get(i);
-                    ParameterType X = ct.x10Def().typeParameters().get(i);
-                    equals.addTerm(new SubtypeConstraint(X, Y, true));
-                }
-                Context xc = ((X10Context_c)context).pushTypeConstraintWithContextTerms(equals);
-                if (!new X10TypeEnv_c(xc).consistent(c))
+            final X10ClassDef def = ct.x10Def();
+            TypeConstraint c = Types.get(def.typeBounds());
+            if (c != null) { // We need to prove the context entails "c" (the class invariant) after we substituted the type arguments
+                TypeConstraint equals = ct.subst().reinstantiate(c);
+                if (!new X10TypeEnv_c(context).consistent(equals))
                     return false;
             }
             }
@@ -320,6 +315,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         List<Type> lower = new ArrayList<Type>();
 
         for (SubtypeConstraint term : c.terms()) {
+            if (term.isHaszero()) continue;
             Type l = term.subtype();
             Type r = term.supertype();
             if (l != null && r != null) {

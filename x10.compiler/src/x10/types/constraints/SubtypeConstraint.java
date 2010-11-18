@@ -22,6 +22,7 @@ import polyglot.util.InternalCompilerError;
 import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.types.matcher.Subst;
+import x10.types.TypeParamSubst;
 
 public class SubtypeConstraint implements Copy, Serializable {
 	private static final long serialVersionUID = 4026637095619421750L;

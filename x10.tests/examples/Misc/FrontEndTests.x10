@@ -865,16 +865,30 @@ class TestGlobalRefInheritanceSub extends TestGlobalRefInheritance {
 	}
 }
 
+
+struct TestStructCtor[T] { T <: Object } {
+	def this() {}
+	def test1(
+		TestStructCtor[TestStructCtor[String]]) {// ERR (Semantic Error: Type TestStructCtor[TestStructCtor[x10.lang.String]] is inconsistent.)
+	}
+	def use(Any) {}
+	def test2() {
+		use( TestStructCtor[TestStructCtor[String]]() ); // ERR (Semantic Error: Inconsistent constructor return type)// ERR (Semantic Error: Method or static constructor not found for given call.		 Call: TestStructCtor[TestStructCtor[x10.lang.String]]())
+	}
+}
+class MyBOX[T] {
+	def this(t:T) {}
+}
 class TestGlobalRefRestriction {
     private var k:GlobalRef[TestGlobalRefRestriction] = GlobalRef[TestGlobalRefRestriction](this);
     private val z = GlobalRef[TestGlobalRefRestriction](this); 
 	val z2 = GlobalRef[TestGlobalRefRestriction](this); // ERR (must be private)
 	var f:GlobalRef[TestGlobalRefRestriction];
 	val q1 = k; // ERR (can't use GlobalRef(this) )
-	val w1 = GlobalRef[GlobalRef[TestGlobalRefRestriction]](this.k); // ERR (can't use "k" cause it is a GlobalRef(this) )
+	val w1 = new MyBOX[GlobalRef[TestGlobalRefRestriction]](this.k); // ERR (can't use "k" cause it is a GlobalRef(this) )
 	var other:TestGlobalRefRestriction = null;
 	val q2 = other.k;
-	val w2 = GlobalRef[GlobalRef[TestGlobalRefRestriction]](other.k);
+	val w2 = new MyBOX[GlobalRef[TestGlobalRefRestriction]](other.k);
 
 	def this() {
 		foo1();
@@ -2769,4 +2783,106 @@ class TestOperatorResolutionWithoutCoercions { // XTENLANG-1692
 		  new Example().example( new C(), new C(), new C() );
 	  }
 	}
+}
+
+
+class TestStructEqualsClass {
+	def this(Int) {}
+	def this(Any) {}
+}
+
+class SubtypeConstraints {
+class A[T] { T <: Object } {
+	var a1:A[T];
+	var a2:A[Int]; // ERR: Semantic Error: Type A[x10.lang.Int] is inconsistent.
+	var a4:A[Int{self==3}]; // ERR
+}
+class Test[T]  {
+	def m1(GlobalRef[T]{self.home==here}) {} // ERR
+	def m2(GlobalRef[T]{self.home==here}) {T<:Object} {}
+}
+static class TestStatic[T]{T<:Object} {
+	public static def m1[T]():TestStatic[T]  = null; // ERR
+	public static def m2[T]() {T<:Object} :TestStatic[T] = null;
+    public static type TestStatic[T](p:Int) {T<:Object} = TestStatic[T]{1==p};
+}
+
+}
+class TransitivityOfEquality {
+// check for transitivity of equality
+class Tran[X,Y,W,U,Z] {X==Z, Z==Y,Int==Y, W==Z} {
+	var a0:Tran[X,Y,W,U,Z];
+	var a9:Tran[Int,Int,Int,Int,Int];
+	var a1:Tran[Y,W,W,U,Z];
+	var a2:Tran[Y,W,Int,U,Int];
+	var a3:Tran[Y,Int,W,U,Z];
+	var a4:Tran[Z,W,Z,U,Int];
+	
+	var e1:Tran[U,Y,W,U,Z]; // ERR: Type Tran[U, Y, W, U, Z] is inconsistent.
+}
+}
+
+class HaszeroConstraints {
+class M[T] {
+	def q() { T haszero } {}
+}
+class A[T] { T haszero } {}
+class B[U] {
+	def f1() { U == Int } {
+		var x:A[U] = null;
+	}
+	def f2() { U == Any } {
+		var x:A[U] = null;
+	}
+	def f3() { U == Any{self!=null} } {
+		var x:A[U] = null; // ERR
+	}
+}
+
+class C[V] { V == Int } {
+	def f1() { 
+		var x:A[V] = null;
+	}
+}
+class D[V] { V == Int{self!=0} } {
+	def f1() { 
+		var x:A[V] = null; // ERR
+	}
+}
+
+class Test2[W] { W haszero } {	
+	var a1:A[W];
+	class Inner {	
+		var i1:A[W];
+	} 
+    def test1() {
+        var x:A[W];
+    }
+    def test2() { W haszero } {
+        var x:A[W];
+    }
+}
+class Test[W](p:Int) {
+	def test() {
+		m1.q(); // ERR
+		m2.q();
+	}
+	var m1:M[Int{self!=0}];
+	var m2:M[Int];
+
+	var a0:A[W]; // ERR
+    def test2() {
+        var x:A[W]; // ERR
+    }
+    def test3() { W haszero } {
+        var x:A[W];
+    }
+	var a1:A[Int];
+	var a2:A[Int{self!=3}];
+	var a3:A[Int{self==0}];
+	var a4:A[Int{self==3}]; // ERR
+	var a5:A[Int{self!=0}]; // ERR
+	var a6:A[Int{self!=p}]; // ERR
+	var a7:A[Int{self==p}]; // ERR
+}
 }

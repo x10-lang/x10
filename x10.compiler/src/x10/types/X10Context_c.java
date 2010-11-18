@@ -635,7 +635,7 @@ public class X10Context_c extends Context_c {
 		return (Context) SUPER_pushBlock();
 	}
 
-    public X10Context_c pushTypeConstraintWithContextTerms(TypeConstraint c) {
+    public X10Context_c pushTypeConstraintWithContextTerms(TypeConstraint c) {  // see also pushAdditionalConstraint (Constraint and TypeConstraint are similar)
         final X10Context_c xc = pushTypeConstraint(c);
         xc.currentTypeConstraint().addIn(this.currentTypeConstraint());
         return xc;

@@ -1261,9 +1261,16 @@ public class X10TypeMixin {
             for (SubtypeConstraint sc : env) {
                 if (sc.isEqualityConstraint()) {
                     Type other = null;
-                    if (ts.typeEquals(t,sc.subtype(),xc)) other = sc.supertype();
-                    if (ts.typeEquals(t,sc.supertype(),xc)) other = sc.subtype();
-                    if (other!=null && isHaszero(other,xc))
+                    final Type sub = sc.subtype();
+                    final Type sup = sc.supertype();
+                    if (ts.typeEquals(t, sub,xc)) {
+                        if (!ts.isParameterType(sub)) other = sub;
+                        if (!ts.isParameterType(sup)) other = sup;
+                    }
+                    if (other!=null &&                                 
+                            isHaszero(other,xc)) // careful of infinite recursion when calling isHaszero
+                                        // We cannot have infinite recursion because other is not a ParameterType
+                                        // (we can have that T==U, U==Int. but then typeEquals(T,Int,xc) should return true)
                         return true; // T is equal to another type that has zero
                 } else if (sc.isSubtypeConstraint()) {
                     // doesn't help

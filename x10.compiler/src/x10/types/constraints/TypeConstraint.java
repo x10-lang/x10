@@ -32,6 +32,7 @@ import x10.types.X10ProcedureDef;
 import x10.types.X10ProcedureInstance;
 import x10.types.X10TypeMixin;
 import x10.types.X10Context_c;
+import x10.types.TypeParamSubst;
 import polyglot.types.TypeSystem;
 import x10.types.ParameterType.Variance;
 import polyglot.types.Name;
@@ -222,20 +223,19 @@ public class TypeConstraint implements Copy, Serializable {
     }
 
     public boolean consistent(Context context) {
-        Context xc = (Context) context;
-        TypeSystem ts = (TypeSystem) context.typeSystem();
+        TypeSystem ts = context.typeSystem();
         for (SubtypeConstraint t : terms()) {
             if (t.isEqualityConstraint()) {
-                if (! ts.typeEquals(t.subtype(), t.supertype(), xc)) {
+                if (! ts.typeEquals(t.subtype(), t.supertype(), context)) {
                     return false;
                 }
             }
             else if (t.isSubtypeConstraint()) {
-                if (! ts.isSubtype(t.subtype(), t.supertype(), xc)) {
+                if (! ts.isSubtype(t.subtype(), t.supertype(), context)) {
                     return false;
                 }
             } else if (t.isHaszero()) {
-                if (!X10TypeMixin.isHaszero(t.subtype(),xc))
+                if (!X10TypeMixin.isHaszero(t.subtype(),context))
                     return false;
             }
         }
@@ -424,9 +424,11 @@ public class TypeConstraint implements Copy, Serializable {
 	 *                                       A[T] <: B[S] && T??S   </td><td> X??Y (instantiate constraint on T and S) </td></tr><tr><td>
 	 * 5. exists Q s.t. A <: Q[X] <: B[Y] </td><td colspan="2"> ??? </td>
 	 * </tr></table>
-	 * FIXME: Only the equality case (1) and the same type case (3) are handled for now.
+	 * FIXME: Only the equality case (1) and the same type case (3) are handled for now.  Also "haszero" is not expanded.
 	 */
 	private static void expandTypeConstraints(TypeConstraint tenv, SubtypeConstraint term, Context context) throws XFailure {
+        if (term.isHaszero()) return;
+
 	    TypeSystem xts = (TypeSystem) context.typeSystem();
 	    Type b = xts.expandMacros(term.subtype());
 	    Type p = xts.expandMacros(term.supertype());
@@ -450,6 +452,7 @@ public class TypeConstraint implements Copy, Serializable {
 	        }
 	    }
 	    else {
+            assert term.isSubtypeConstraint();
 	        X10ClassDef def = sub.x10Def();
 	        if (def != sup.x10Def()) return; // FIXME: skip cases 4 and 5
 	        if (subTypeArgs == null || supTypeArgs == null) return;
@@ -495,6 +498,7 @@ public class TypeConstraint implements Copy, Serializable {
 	            Type m = worklist.get(j);
 	            for (SubtypeConstraint term : tenv.terms()) {
 	                SubtypeConstraint eq = term;
+                    if (term.isHaszero()) continue;
 	                Type sub = eq.subtype();
 	                Type sup = eq.supertype();
 	                if (term.isEqualityConstraint()) {
@@ -516,6 +520,7 @@ public class TypeConstraint implements Copy, Serializable {
 	                    }
 	                }
 	                else {
+                        assert term.isSubtypeConstraint();
 	                    if (m.typeEquals(sub, context)) {
 	                        if (!upper.contains(sup))
 	                            upper.add(sup);

@@ -25,12 +25,12 @@ public final class AtomicReference[T]{T<:Object} {
 	// Hack around XTENLANG-127.  Delete as soon as it is fixed.
 	@Native("java", "new x10.core.atomic.AtomicReference<#1>(#3)")
 	@Native("c++", "x10::util::concurrent::atomic::AtomicReference<#1 >::_make()")
-	public static native def newAtomicReference[T]():AtomicReference[T];
+	public static native def newAtomicReference[T]() {T<:Object} :AtomicReference[T];
 
 	// Hack around XTENLANG-127.  Delete as soon as it is fixed.
 	@Native("java", "new x10.core.atomic.AtomicReference<#1>(#3,#4)")
 	@Native("c++", "x10::util::concurrent::atomic::AtomicReference<#1 >::_make(#4)")
-	public static  native def newAtomicReference[T](v:T):AtomicReference[T];
+	public static  native def newAtomicReference[T](v:T) {T<:Object} :AtomicReference[T];
 
 	@Native("java", "#0.get()")
 	@Native("c++", "(#0)->get()")

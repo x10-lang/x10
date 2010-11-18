@@ -116,6 +116,7 @@ import x10.types.X10TypeEnv_c;
 import x10.types.X10TypeMixin;
 import polyglot.types.TypeSystem;
 import x10.types.XTypeTranslator;
+import x10.types.X10Context_c;
 import x10.types.checker.Checker;
 import x10.types.checker.PlaceChecker;
 import x10.types.checker.VarChecker;
@@ -374,14 +375,15 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 		// Add the method guard into the environment.
 		if (guard != null) {
 			Ref<CConstraint> vc = guard.valueConstraint();
-			Ref<TypeConstraint> tc = guard.typeConstraint(); // todo: tc is ignored
+			Ref<TypeConstraint> tc = guard.typeConstraint();
 
 			if (vc != null || tc != null) {
 				c = c.pushBlock();
 				try {
 					if (vc.known())
 						c = ((Context) c).pushAdditionalConstraint(vc.get());
-					// TODO: Add type constraint.
+					if (tc.known())
+						c = ((X10Context_c) c).pushTypeConstraintWithContextTerms(tc.get());
 
 				} catch (SemanticException z) {
 					throw new InternalCompilerError("Unexpected inconsistent guard" + z);
