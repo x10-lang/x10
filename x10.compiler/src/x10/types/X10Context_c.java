@@ -208,7 +208,7 @@ public class X10Context_c extends Context_c {
     	XConstrainedTerm result = cxt.currentPlaceTerm;
     	// skip dummy async places
     	for ( ;
-    	     cxt != null && result != null && result.term().toString().contains("$dummyAsync#");
+    	     cxt != null && result != null && result.term().toString().contains(X10TypeSystem_c.DUMMY_AT_ASYNC+"#");
     	     cxt = (X10Context_c) cxt.pop())
     	{
     		result = cxt.currentPlaceTerm;
@@ -254,7 +254,7 @@ public class X10Context_c extends Context_c {
     	if (cc != null) {
     		if (cc instanceof X10MethodDef) {
     			X10MethodDef md = (X10MethodDef) cc;
-    			while (md.name().toString().contains("$dummyAsync")) {
+    			while (md.name().toString().contains(X10TypeSystem_c.DUMMY_AT_ASYNC)) {
     				cxt = cxt.pop();
     				if (cxt == null)
     					break;
