@@ -21,6 +21,7 @@
 
 #include <x10/lang/String.h>
 #include <x10/lang/Rail.h>
+#include <x10/lang/StringIndexOutOfBoundsException.h>
 
 #include <x10/array/Array.h>
 
@@ -30,6 +31,21 @@
 using namespace std;
 using namespace x10::lang;
 using namespace x10aux;
+
+static void throwStringIndexOutOfBoundsException(x10_int index, x10_int length) {
+#ifndef NO_EXCEPTIONS
+    char *msg = alloc_printf("index = %ld; length = %ld", (long)index, ((long)length));
+    throwException(x10::lang::StringIndexOutOfBoundsException::_make(String::Lit(msg)));
+#endif
+}
+
+static inline void checkStringBounds(x10_int index, x10_int length) {
+#ifndef NO_BOUNDS_CHECKS
+    if (((x10_uint)index) >= ((x10_uint)length)) {
+        throwStringIndexOutOfBoundsException(index, length);
+    }
+#endif
+}
 
 x10aux::ref<String>
 String::_make(const char *content, bool steal) {
@@ -211,9 +227,9 @@ x10_int String::lastIndexOf(x10_char c, x10_int i) {
 
 ref<String> String::substring(x10_int start, x10_int end) {
 #ifndef NO_BOUNDS_CHECKS
-    if (start < 0) x10aux::throwArrayIndexOutOfBoundsException(start, FMGL(content_length));
-    if (start > end) x10aux::throwArrayIndexOutOfBoundsException(start, end);
-    if (((size_t)end) > FMGL(content_length)) x10aux::throwArrayIndexOutOfBoundsException(end, FMGL(content_length));
+    if (start < 0) throwStringIndexOutOfBoundsException(start, FMGL(content_length));
+    if (start > end) throwStringIndexOutOfBoundsException(start, end);
+    if (((size_t)end) > FMGL(content_length)) throwStringIndexOutOfBoundsException(end, FMGL(content_length));
 #endif
     size_t sz = end - start;
     char *str = x10aux::alloc<char>(sz+1);
@@ -256,7 +272,7 @@ ref<Rail<ref<String> > > String::split(ref<String> pat) {
 }
 
 x10_char String::charAt(x10_int i) {
-    x10aux::checkRailBounds(i, FMGL(content_length));
+    checkStringBounds(i, FMGL(content_length));
     return (x10_char) FMGL(content)[i];
 }
 
