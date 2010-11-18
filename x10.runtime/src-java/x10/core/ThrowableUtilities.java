@@ -25,6 +25,8 @@ public class ThrowableUtilities {
             newExcName = "x10.lang.ArithmeticException";
         } else if (e instanceof java.lang.ArrayIndexOutOfBoundsException) {
             newExcName = "x10.lang.ArrayIndexOutOfBoundsException";
+        } else if (e instanceof java.lang.StringIndexOutOfBoundsException) {
+            newExcName = "x10.lang.StringIndexOutOfBoundsException";
         } else if (e instanceof java.lang.ClassCastException) {
             newExcName = "x10.lang.ClassCastException";
         } else if (e instanceof java.lang.NumberFormatException) {
