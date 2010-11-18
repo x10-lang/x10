@@ -196,6 +196,12 @@ public class X10Context_c extends Context_c {
     	return currentPlaceConstraint;
     }
    */
+
+    protected XConstrainedTerm currentFinishPlaceTerm = null;
+    public XConstrainedTerm currentFinishPlaceTerm() {
+        return currentFinishPlaceTerm;
+    }
+
     protected XConstrainedTerm currentPlaceTerm = null;
     public XConstrainedTerm currentPlaceTerm() {
     	/*X10Context_c cxt = this;
@@ -222,6 +228,7 @@ public class X10Context_c extends Context_c {
     	X10Context_c cxt = (X10Context_c) SUPER_pushBlock();
 		cxt.x10Kind = X10Kind.Finish;
 		cxt.inClockedFinishScope = isClocked;
+		cxt.currentFinishPlaceTerm = cxt.currentPlaceTerm;
 		return cxt;
     }
     public boolean inClockedFinishScope() {

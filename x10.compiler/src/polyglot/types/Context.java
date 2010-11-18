@@ -143,6 +143,14 @@ public interface Context extends Resolver, Copy
     XConstrainedTerm currentPlaceTerm();
 
     /**
+     * Return any known constraint on the place of the lexically enclosing finish (as an XConstrainedTerm).
+     * If none is known, return null.
+     * 
+     * @return
+     */
+    XConstrainedTerm currentFinishPlaceTerm();
+
+    /**
      * Push a new context, and set currentPlaceTerm to t.
      * Intended to be set when entering the scope of a place changing control construct
      * such as at(p) S, or when entering the body of a method. 

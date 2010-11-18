@@ -127,6 +127,21 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
     XConstrainedTerm placeTerm;
     boolean placeError = false;
   
+    XConstrainedTerm finishPlaceTerm;
+    public boolean isFinishPlace() {
+        boolean isFinishPlace = false;
+        if (null != finishPlaceTerm) {
+            XConstraint constraint = new XConstraint();
+            try {
+                constraint.addBinding(finishPlaceTerm.term(),placeTerm.term());
+                if (placeTerm.constraint().entails(constraint)) {
+                    isFinishPlace = true;
+                }
+            } catch (XFailure xFailure) {}
+        }
+        return isFinishPlace;
+    }
+
     @Override
     public Node typeCheckOverride(Node parent, ContextVisitor tc) {
     	TypeSystem ts = (TypeSystem) tc.typeSystem();
@@ -140,6 +155,7 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
             try {
                 placeTerm = PlaceChecker.computePlaceTerm((Expr) visitChild(this.place, v),
                         (Context) tc.context(), ts);
+                finishPlaceTerm = tc.context().currentFinishPlaceTerm();
             } catch (SemanticException e) {
                 CConstraint d = new CConstraint();
                 XTerm term = PlaceChecker.makePlace();
