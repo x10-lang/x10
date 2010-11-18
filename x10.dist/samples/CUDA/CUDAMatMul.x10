@@ -501,9 +501,9 @@ public class CUDAMatMul {
             }
         }
 
-        //CUDAUtilities.deleteRemoteArray( dA );
-        //CUDAUtilities.deleteRemoteArray( dB );
-        //CUDAUtilities.deleteRemoteArray( dC );
+        CUDAUtilities.deleteRemoteArray( dA );
+        CUDAUtilities.deleteRemoteArray( dB );
+        CUDAUtilities.deleteRemoteArray( dC );
     }
 }
 

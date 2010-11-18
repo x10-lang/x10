@@ -46,6 +46,8 @@ public class CUDAKernelTest {
             }
         }
         Console.OUT.println((success?"SUCCESS":"FAIL")+" at "+p);
+
+        CUDAUtilities.deleteRemoteArray(remote);
     }
 
     static def doTest2 (p:Place) {
@@ -87,6 +89,8 @@ public class CUDAKernelTest {
             }
         }
         Console.OUT.println((success?"SUCCESS":"FAIL")+" at "+p);
+
+        CUDAUtilities.deleteRemoteArray(remote);
     }
 
     static def doTest3 (p:Place) {
@@ -123,6 +127,8 @@ public class CUDAKernelTest {
             }
         }
         Console.OUT.println((success?"SUCCESS":"FAIL")+" at "+p);
+
+        CUDAUtilities.deleteRemoteArray(remote);
     }
 
     public static def main (args:Array[String](1)) {
