@@ -335,7 +335,7 @@ public struct Short implements Comparable[Short] /*TODO implements Arithmetic[Sh
      * @deprecated use {@link #parse(String,Int)} instead
      */
     // @Native("java", "java.lang.Short.parseShort(#1, #2)")
-    @Native("java", "new Object() { short eval(String s, int radix) { try { return java.lang.Short.parseShort(s, radix); } catch (java.lang.NumberFormatException e) { throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(e); } } }.eval(#1, #2)")
+    @Native("java", "new java.io.Serializable() { short eval(String s, int radix) { try { return java.lang.Short.parseShort(s, radix); } catch (java.lang.NumberFormatException e) { throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(e); } } }.eval(#1, #2)")
     @Native("c++", "x10aux::short_utils::parseShort(#1, #2)")
     public native static def parseShort(String, radix:Int): Short; //throwsNumberFormatException;
 
@@ -343,7 +343,7 @@ public struct Short implements Comparable[Short] /*TODO implements Arithmetic[Sh
      * @deprecated use {@link #parse(String)} instead
      */
     // @Native("java", "java.lang.Short.parseShort(#1)")
-    @Native("java", "new Object() { short eval(String s) { try { return java.lang.Short.parseShort(s); } catch (java.lang.NumberFormatException e) { throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(e); } } }.eval(#1)")
+    @Native("java", "new java.io.Serializable() { short eval(String s) { try { return java.lang.Short.parseShort(s); } catch (java.lang.NumberFormatException e) { throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(e); } } }.eval(#1)")
     @Native("c++", "x10aux::short_utils::parseShort(#1)")
     public native static def parseShort(String): Short; //throwsNumberFormatException;
 
@@ -355,7 +355,7 @@ public struct Short implements Comparable[Short] /*TODO implements Arithmetic[Sh
      * @throws NumberFormatException if the String does not contain a parsable Short.
      */
     // @Native("java", "java.lang.Short.parseShort(#1, #2)")
-    @Native("java", "new Object() { short eval(String s, int radix) { try { return java.lang.Short.parseShort(s, radix); } catch (java.lang.NumberFormatException e) { throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(e); } } }.eval(#1, #2)")
+    @Native("java", "new java.io.Serializable() { short eval(String s, int radix) { try { return java.lang.Short.parseShort(s, radix); } catch (java.lang.NumberFormatException e) { throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(e); } } }.eval(#1, #2)")
     @Native("c++", "x10aux::short_utils::parseShort(#1, #2)")
     public native static def parse(s:String, radix:Int): Short; //throwsNumberFormatException;
 
@@ -366,7 +366,7 @@ public struct Short implements Comparable[Short] /*TODO implements Arithmetic[Sh
      * @throws NumberFormatException if the String does not contain a parsable Short.
      */
     // @Native("java", "java.lang.Short.parseShort(#1)")
-    @Native("java", "new Object() { short eval(String s) { try { return java.lang.Short.parseShort(s); } catch (java.lang.NumberFormatException e) { throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(e); } } }.eval(#1)")
+    @Native("java", "new java.io.Serializable() { short eval(String s) { try { return java.lang.Short.parseShort(s); } catch (java.lang.NumberFormatException e) { throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(e); } } }.eval(#1)")
     @Native("c++", "x10aux::short_utils::parseShort(#1)")
     public native static def parse(s:String): Short; //throwsNumberFormatException;
 

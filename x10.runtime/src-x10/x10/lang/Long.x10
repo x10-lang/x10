@@ -335,7 +335,7 @@ public struct Long implements Comparable[Long] /*TODO implements Arithmetic[Long
      * @deprecated use {@link #parse(String,Int)} instead
      */
     // @Native("java", "java.lang.Long.parseLong(#1, #2)")
-    @Native("java", "new Object() { long eval(String s, int radix) { try { return java.lang.Long.parseLong(s, radix); } catch (java.lang.NumberFormatException e) { throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(e); } } }.eval(#1, #2)")
+    @Native("java", "new java.io.Serializable() { long eval(String s, int radix) { try { return java.lang.Long.parseLong(s, radix); } catch (java.lang.NumberFormatException e) { throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(e); } } }.eval(#1, #2)")
     @Native("c++", "x10aux::long_utils::parseLong(#1, #2)")
     public native static def parseLong(String, radix:Int): Long; //throwsNumberFormatException;
 
@@ -343,7 +343,7 @@ public struct Long implements Comparable[Long] /*TODO implements Arithmetic[Long
      * @deprecated use {@link #parse(String)} instead
      */
     // @Native("java", "java.lang.Long.parseLong(#1)")
-    @Native("java", "new Object() { long eval(String s) { try { return java.lang.Long.parseLong(s); } catch (java.lang.NumberFormatException e) { throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(e); } } }.eval(#1)")
+    @Native("java", "new java.io.Serializable() { long eval(String s) { try { return java.lang.Long.parseLong(s); } catch (java.lang.NumberFormatException e) { throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(e); } } }.eval(#1)")
     @Native("c++", "x10aux::long_utils::parseLong(#1)")
     public native static def parseLong(String): Long; //throwsNumberFormatException;
 
@@ -355,7 +355,7 @@ public struct Long implements Comparable[Long] /*TODO implements Arithmetic[Long
      * @throws NumberFormatException if the String does not contain a parsable Long.
      */
     // @Native("java", "java.lang.Long.parseLong(#1, #2)")
-    @Native("java", "new Object() { long eval(String s, int radix) { try { return java.lang.Long.parseLong(s, radix); } catch (java.lang.NumberFormatException e) { throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(e); } } }.eval(#1, #2)")
+    @Native("java", "new java.io.Serializable() { long eval(String s, int radix) { try { return java.lang.Long.parseLong(s, radix); } catch (java.lang.NumberFormatException e) { throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(e); } } }.eval(#1, #2)")
     @Native("c++", "x10aux::long_utils::parseLong(#1, #2)")
     public native static def parse(s:String, radix:Int): Long; //throwsNumberFormatException;
 
@@ -366,7 +366,7 @@ public struct Long implements Comparable[Long] /*TODO implements Arithmetic[Long
      * @throws NumberFormatException if the String does not contain a parsable Long.
      */
     // @Native("java", "java.lang.Long.parseLong(#1)")
-    @Native("java", "new Object() { long eval(String s) { try { return java.lang.Long.parseLong(s); } catch (java.lang.NumberFormatException e) { throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(e); } } }.eval(#1)")
+    @Native("java", "new java.io.Serializable() { long eval(String s) { try { return java.lang.Long.parseLong(s); } catch (java.lang.NumberFormatException e) { throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(e); } } }.eval(#1)")
     @Native("c++", "x10aux::long_utils::parseLong(#1)")
     public native static def parse(s:String): Long; //throwsNumberFormatException;
 
