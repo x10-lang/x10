@@ -55,6 +55,7 @@ import polyglot.types.ConstructorInstance;
 import polyglot.types.FieldDef;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
+import polyglot.types.InitializerDef;
 import polyglot.types.LocalDef;
 import polyglot.types.MethodDef;
 import polyglot.types.MethodInstance;
@@ -116,17 +117,23 @@ public class StaticInitializer extends ContextVisitor {
 
     @Override
     protected Node leaveCall(Node parent, Node old, Node n, NodeVisitor v) throws SemanticException {
-        if (!(n instanceof X10ClassDecl_c))
+        if (!(parent instanceof X10ClassDecl_c))
             return n;
 
-        X10ClassDecl_c ct = (X10ClassDecl_c)n;
+        X10ClassDecl_c ct = (X10ClassDecl_c)parent;
+        ClassBody classBody = ct.body();
+        if (n != classBody)
+            return n;
+
         X10ClassDef classDef = ct.classDef();
         assert(classDef != null);
+
+        Context context = ct.enterChildScope(classBody, context());
 
         // collect static fields to deal with
         staticFinalFields.clear();
         // ct.body().dump(System.err);
-        ClassBody classBody = checkStaticFields(ct);
+        classBody = checkStaticFields(classBody, context);
 
         // add initializer method of each static field to the class member list
         List<ClassMember> members = new ArrayList<ClassMember>();
@@ -160,17 +167,21 @@ public class StaticInitializer extends ContextVisitor {
             // gen initializer block
             Block initBlockBody = xnf.Block(CG, initStmts);
             Initializer initBlock = xnf.Initializer(CG, xnf.FlagsNode(CG, X10Flags.STATIC), initBlockBody);
+            // create InitializerDef
+            InitializerDef id = xts.initializerDef(CG, Types.ref(classDef.asType()), X10Flags.STATIC);
+            initBlock = initBlock.initializerDef(id);
             members.add(initBlock);
         }
 
         classBody = classBody.members(members);
         // classBody.dump(System.err);
-        return (X10ClassDecl_c) ct.body(classBody);
+        return classBody;
     }
 
-    private ClassBody checkStaticFields(final X10ClassDecl_c ct) {
+    private ClassBody checkStaticFields(ClassBody body, Context context) {
+        final X10ClassDef cd = context.currentClassDef();
         // one pass scan of class body and collect vars for static initialization
-        ClassBody c = (ClassBody)ct.body().visit(new NodeVisitor() {
+        ClassBody c = (ClassBody)body.visit(new NodeVisitor() {
             @Override
             public Node override(Node parent, Node n) {
                 if (n instanceof X10ClassDecl_c) {
@@ -187,7 +198,7 @@ public class StaticInitializer extends ContextVisitor {
                     Flags flags = fd.fieldDef().flags();
                     if (flags.isFinal() && flags.isStatic()) {
                         // static final field
-                        Expr right = checkFieldDeclRHS((Expr)fd.init(), fd, ct);
+                        Expr right = checkFieldDeclRHS((Expr)fd.init(), fd, cd);
                         if (right == null) {
                             // drop final and suppress java-level static initialization
                             // System.out.println("RHS of FieldDecl replaced: "+ct.classDef()+"."+fd.fieldDef().name());
@@ -225,7 +236,7 @@ public class StaticInitializer extends ContextVisitor {
         return c;
     }
 
-    private Expr checkFieldDeclRHS(Expr rhs, X10FieldDecl_c fd, final X10ClassDecl_c ct) {
+    private Expr checkFieldDeclRHS(Expr rhs, X10FieldDecl_c fd, X10ClassDef cd) {
         // traverse nodes in RHS
         Id leftName = fd.name();
 
@@ -270,7 +281,7 @@ public class StaticInitializer extends ContextVisitor {
         });
 
         // register original rhs
-        X10ClassType receiver = ct.classDef().asType();
+        X10ClassType receiver = cd.asType();
         StaticFieldInfo fieldInfo = getFieldEntry(receiver, leftName.id());
         fieldInfo.right = (fieldInfo.methodDef != null || found.get()) ? newRhs : null;
 
