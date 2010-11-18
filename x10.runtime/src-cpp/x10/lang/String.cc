@@ -446,14 +446,6 @@ x10_boolean String::endsWith(ref<String> s) {
 const serialization_id_t String::_serialization_id =
     DeserializationDispatcher::addDeserializer(String::_deserializer<Reference>, x10aux::CLOSURE_KIND_NOT_ASYNC);
 
-// Specialized serialization
-void String::_serialize(x10aux::ref<String> this_, x10aux::serialization_buffer &buf) {
-    Object::_serialize_reference(this_, buf);
-    if (!this_.isNull()) {
-        this_->_serialize_body(buf);
-    }
-}
-
 void String::_serialize_body(x10aux::serialization_buffer& buf) {
     this->Object::_serialize_body(buf);
     // only support strings that are shorter than 4billion chars

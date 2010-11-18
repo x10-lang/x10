@@ -42,15 +42,7 @@ namespace x10 {
           static x10aux::ref<x10::lang::String> typeName(x10aux::ref<x10::lang::Reference> recv) {
               return (recv.operator->()->*(x10aux::findITable<x10::lang::Comparable<FMGL(T)> >(recv->_getITables())->typeName))();
           }
-          static void _serialize(x10aux::ref<x10::lang::Comparable<FMGL(T)> > this_,
-                                 x10aux::serialization_buffer& buf) {
-              x10::lang::Reference::_serialize(this_, buf);
-          }
-    
-          template<class __T> static x10aux::ref<__T> _deserialize(x10aux::deserialization_buffer& buf) {
-              return x10::lang::Reference::_deserialize<__T>(buf);
-          }
-          
+
           void _instance_init();
         };
 

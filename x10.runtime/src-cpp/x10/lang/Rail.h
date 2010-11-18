@@ -106,16 +106,11 @@ namespace x10 {
 
             virtual x10aux::serialization_id_t _get_serialization_id() { return _serialization_id; };
 
-            static void _serialize(R this_,
-                                   x10aux::serialization_buffer &buf);
-
             void _serialize_body(x10aux::serialization_buffer &buf);
 
             void _deserialize_body(x10aux::deserialization_buffer &buf);
 
             template<class S> static x10aux::ref<S> _deserializer(x10aux::deserialization_buffer &buf);
-
-            template<class S> static x10aux::ref<S> _deserialize(x10aux::deserialization_buffer &buf);
 
             virtual x10aux::ref<String> toString();
         };
@@ -291,15 +286,6 @@ namespace x10 {
             x10aux::DeserializationDispatcher
                 ::addDeserializer(Rail<T>::template _deserializer<Reference>, x10aux::CLOSURE_KIND_NOT_ASYNC);
 
-        // Specialized serialization
-        template <class T> void Rail<T>::_serialize(x10aux::ref<Rail<T> > this_,
-                                                    x10aux::serialization_buffer &buf) {
-            Object::_serialize_reference(this_, buf);
-            if (!this_.isNull()) {
-                this_->_serialize_body(buf);
-            }
-        }
-
         template <class T> void Rail<T>::_serialize_body(x10aux::serialization_buffer &buf) {
             x10_int length = this->FMGL(length);
             buf.write(length);
@@ -326,19 +312,6 @@ namespace x10 {
             buf.record_reference(this_); 
             this_->_deserialize_body(buf);
             return this_;
-        }
-
-        // Specialized deserialization
-        template <class T> template<class S> x10aux::ref<S> Rail<T>::_deserialize(x10aux::deserialization_buffer &buf) {
-            Object::_reference_state rr = Object::_deserialize_reference_state(buf);
-            if (0 == rr.ref) {
-                return X10_NULL;
-            } else {
-                R res = Rail<T>::template _deserializer<Rail<T> >(buf);
-                _S_("Deserialized a "<<ANSI_SER<<ANSI_BOLD<<"class"<<ANSI_RESET<<
-                    " "<<res->_type()->name());
-                return res;
-            }
         }
     }
 }

@@ -124,9 +124,6 @@ namespace x10 {
 
             x10aux::ref<Rail<x10_byte> > bytes();
 
-            static void _serialize(x10aux::ref<String> this_,
-                                   x10aux::serialization_buffer &buf);
-
             static const x10aux::serialization_id_t _serialization_id;
 
             virtual x10aux::serialization_id_t _get_serialization_id() { return _serialization_id; };
@@ -136,8 +133,6 @@ namespace x10 {
             template<class T> static x10aux::ref<T> _deserializer(x10aux::deserialization_buffer &buf);
 
             void _deserialize_body(x10aux::deserialization_buffer &buf);
-
-            template<class T> static x10aux::ref<T> _deserialize(x10aux::deserialization_buffer &buf);
 
             virtual void _destructor();
 
@@ -191,18 +186,6 @@ namespace x10 {
             buf.record_reference(this_);
             this_->_deserialize_body(buf);
             return this_;
-        }
-
-        // Specialized deserialization
-        template<class T> x10aux::ref<T> String::_deserialize(x10aux::deserialization_buffer &buf) {
-            Object::_reference_state rr = Object::_deserialize_reference_state(buf);
-            if (0 == rr.ref) {
-                return X10_NULL;
-            } else {
-                x10aux::ref<String> res = String::_deserializer<String>(buf);
-                _S_("Deserialized a "<<ANSI_SER<<ANSI_BOLD<<"class"<<ANSI_RESET<<" x10::lang::String");
-                return res;
-            }
         }
 
     } // namespace x10::lang

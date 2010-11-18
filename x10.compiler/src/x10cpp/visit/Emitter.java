@@ -985,25 +985,6 @@ public class Emitter {
             w.newline(); w.forceNewline();
         }
 
-        if (type.flags().isFinal()) {
-            // _serialize()
-            h.write("public: ");
-            h.write("static void "+SERIALIZE_METHOD+"("); h.begin(0);
-            h.write(make_ref(klass)+" this_,"); h.newline();
-            h.write(SERIALIZATION_BUFFER+"& buf);"); h.end();
-            h.newline(); h.forceNewline();
-            printTemplateSignature(ct.x10Def().typeParameters(), w);
-            w.write("void "+klass+"::"+SERIALIZE_METHOD+"("); w.begin(0);
-            w.write(make_ref(klass)+" this_,"); w.newline();
-            w.write(SERIALIZATION_BUFFER+"& buf) {"); w.end(); w.newline(4); w.begin(0);
-            w.write(    "_serialize_reference(this_, buf);"); w.newline();
-            w.write(    "if (!this_.isNull()) {"); w.newline(4); w.begin(0);
-            w.write(        "this_->_serialize_body(buf);"); w.end(); w.newline();
-            w.write(    "}"); w.end(); w.newline();
-            w.write("}"); w.newline();
-            w.forceNewline();
-        }
-
         // _serialize_id()
         if (!type.flags().isAbstract()) {
             h.write("public: ");
@@ -1018,8 +999,7 @@ public class Emitter {
 
         // _serialize_body()
         h.write("public: ");
-        if (!type.flags().isFinal())
-            h.write("virtual ");
+        h.write("virtual ");
         h.write("void "+SERIALIZE_BODY_METHOD+"("+SERIALIZATION_BUFFER+"& buf);");
         h.newline(0); h.forceNewline();
 
@@ -1075,34 +1055,6 @@ public class Emitter {
             sw.writeln("buf.record_reference(this_);");
             sw.writeln("this_->"+DESERIALIZE_BODY_METHOD+"(buf);");
             sw.write("return this_;");
-            sw.end(); sw.newline();
-            sw.writeln("}"); sw.forceNewline();
-            sw.popCurrentStream();
-        }
-
-        if (type.flags().isFinal()) {
-            // _deserialize()
-            h.write("public: template<class __T> static ");
-            h.write(make_ref("__T")+" "+DESERIALIZE_METHOD+"("+DESERIALIZATION_BUFFER+"& buf);");
-            h.newline(); h.forceNewline();
-            sw.pushCurrentStream(context.templateFunctions);
-            printTemplateSignature(ct.x10Def().typeParameters(), sw);
-            sw.write("template<class __T> ");
-            sw.write(make_ref("__T")+" "+klass+"::"+DESERIALIZE_METHOD+"("+DESERIALIZATION_BUFFER+"& buf) {");
-            sw.newline(4); sw.begin(0);
-            sw.writeln("x10::lang::Object::_reference_state rr = x10::lang::Object::_deserialize_reference_state(buf);");
-            sw.write("if (0 == rr.ref) {");                
-            sw.newline(4); sw.begin(0);
-            sw.write("return X10_NULL;");
-            sw.end(); sw.newline();
-            sw.write("} else {");
-            sw.newline(4); sw.begin(0);
-            sw.writeln(make_ref(klass)+" res;");
-            sw.writeln("res = "+klass+"::"+template+DESERIALIZER_METHOD+chevrons(klass)+"(buf);");
-            sw.writeln("_S_(\"Deserialized a \"<<ANSI_SER<<ANSI_BOLD<<\"class\"<<ANSI_RESET<<\""+klass+"\");");
-            sw.write("return res;");
-            sw.end(); sw.newline();
-            sw.writeln("}");
             sw.end(); sw.newline();
             sw.writeln("}"); sw.forceNewline();
             sw.popCurrentStream();

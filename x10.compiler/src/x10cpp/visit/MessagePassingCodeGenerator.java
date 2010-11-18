@@ -1233,18 +1233,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             h.writeln("}");
         }
 
-        /* Serialization redirection methods */
-        h.write("static void "+SERIALIZE_METHOD+"("); h.begin(0);
-        h.write(Emitter.translateType(currentClass, true)+" this_,"); h.newline();
-        h.write(SERIALIZATION_BUFFER+"& buf) {"); h.end(); h.newline(4); h.begin(0);
-        h.write(REFERENCE_TYPE+"::"+SERIALIZE_METHOD+"(this_, buf);"); h.end(); h.newline();
-        h.write("}"); h.newline(); h.forceNewline();
-
-        h.write("public: template<class __T> static ");
-        h.write(make_ref("__T")+" "+DESERIALIZE_METHOD+"("+DESERIALIZATION_BUFFER+"& buf) {"); h.newline(4) ; h.begin(0);
-        h.write("return "+REFERENCE_TYPE+"::"+DESERIALIZE_METHOD+"<__T>(buf);"); h.end(); h.newline();
-        h.write("}"); h.newline(); h.forceNewline();
-
         if (!members.isEmpty()) {
             String className = Emitter.translateType(currentClass);
 

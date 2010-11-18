@@ -284,7 +284,7 @@ static void receive_async (const x10rt_msg_params *p) {
     x10aux::ClosureKind ck = DeserializationDispatcher::getClosureKind(sid);
     switch (ck) {
         case x10aux::CLOSURE_KIND_GENERAL_ASYNC: {
-            ref<Reference> body(x10aux::DeserializationDispatcher::create<VoidFun_0_0>(buf, sid));
+            ref<Reference> body(x10aux::DeserializationDispatcher::create(buf, sid));
             assert(buf.consumed() <= p->len);
             _X_("The deserialised general async was: "<<x10aux::safe_to_string(body));
             deserialized_bytes += buf.consumed()  ; asyncs_received++;
@@ -294,7 +294,7 @@ static void receive_async (const x10rt_msg_params *p) {
         } break;
         case x10aux::CLOSURE_KIND_SIMPLE_ASYNC: {
             x10aux::ref<x10::lang::FinishState> fs = buf.read<x10aux::ref<x10::lang::FinishState> >();
-            ref<Reference> body(x10aux::DeserializationDispatcher::create<VoidFun_0_0>(buf, sid));
+            ref<Reference> body(x10aux::DeserializationDispatcher::create(buf, sid));
             assert(buf.consumed() <= p->len);
             _X_("The deserialised simple async was: "<<x10aux::safe_to_string(body));
             deserialized_bytes += buf.consumed()  ; asyncs_received++;

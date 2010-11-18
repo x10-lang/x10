@@ -21,16 +21,6 @@
 using namespace x10::lang;
 using namespace x10aux;
 
-void Closure::_serialize(x10aux::ref<Closure> this_,
-                         x10aux::serialization_buffer &buf) 
-{
-    x10aux::serialization_id_t id = this_->_get_serialization_id();
-    _S_("Serializing a "<<ANSI_SER<<ANSI_BOLD<<"value id "<<id<<ANSI_RESET<<" to buf: "<<&buf);
-    buf.write(id);
-    _S_("Serializing the "<<ANSI_SER<<"value body"<<ANSI_RESET<<" to buf: "<<&buf);
-    this_->_serialize_body(buf);
-}           
-
 x10_int Closure::hashCode() {
     return x10aux::hash_code(_get_serialization_id());
 }
