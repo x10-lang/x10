@@ -55,6 +55,14 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
 	public void apply() {
 		try { Class.forName("x10.lang.Place"); } catch (ClassNotFoundException e) { }
 
+		// preload classes by default
+		if (!Boolean.getBoolean("x10.NO_PRELOAD_CLASSES")) {
+		    // System.out.println("start preloading of classes");
+		    Class<?> userMain = this.getClass().getEnclosingClass();
+		    x10.runtime.impl.java.PreLoader.preLoad(userMain,
+                                                  Boolean.getBoolean("x10.PRELOAD_STRINGS"));
+		}
+
 		// build up Array[String] for args
 		final x10.array.Array<String> aargs = new x10.array.Array<String>(x10.rtt.Types.STRING, args.length);
 		for (int i=0; i<args.length; i++) {
@@ -62,18 +70,14 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
 		}
 
 		// execute root x10 activity
-		final Class<?> userMain = this.getClass().getEnclosingClass();
         try {
             // start xrx
             x10.lang.Runtime.start(
             // static init activity
             new x10.core.fun.VoidFun_0_0() {
                 public void apply() {
-                    // preload classes
-                    if (Boolean.getBoolean("x10.PRELOAD_CLASSES")) {
-                        x10.runtime.impl.java.PreLoader.preLoad(userMain,
-                                                                Boolean.getBoolean("x10.PRELOAD_STRINGS"));
-                    }
+                    // execute X10-level static initialization
+                    x10.runtime.impl.java.InitDispatcher.runInitializer();
                 }
 
                 public x10.rtt.RuntimeType<?> getRTT() {

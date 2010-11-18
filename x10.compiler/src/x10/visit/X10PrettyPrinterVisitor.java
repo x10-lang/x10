@@ -148,6 +148,7 @@ import x10.ast.X10ConstructorCall_c;
 import x10.ast.X10ConstructorDecl_c;
 import x10.ast.X10Field_c;
 import x10.ast.X10Formal;
+import x10.ast.X10Initializer_c;
 import x10.ast.X10Instanceof_c;
 import x10.ast.X10IntLit_c;
 import x10.ast.X10LocalDecl_c;
@@ -255,6 +256,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	    
 	    if (n instanceof FlagsNode_c) {visit((FlagsNode_c)n); return;}
 	    if (n instanceof TypeParamNode_c) {visit((TypeParamNode_c)n); return;}
+        if (n instanceof X10Initializer_c) {visit((X10Initializer_c)n); return;}
 	    
 	    // already known unhandled node type
 	    if (
@@ -3298,6 +3300,10 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             for (int i = 0; i < n.additionalDims(); i++) w.write("[]");
         }
 
+        public void visit(X10Initializer_c n) {
+            w.write("static ");
+            n.printBlock(n.body(), w, tr);
+        }
 	/**
 	 * A list of one object that has an infinite circular iterator.
 	 */
