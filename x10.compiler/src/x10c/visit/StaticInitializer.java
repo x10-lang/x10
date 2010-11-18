@@ -44,6 +44,7 @@ import polyglot.ast.NodeFactory;
 import polyglot.ast.Receiver;
 import polyglot.ast.Return;
 import polyglot.ast.Stmt;
+import polyglot.ast.StringLit;
 import polyglot.ast.Try;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
@@ -84,6 +85,7 @@ import x10.ast.X10LocalDecl_c;
 import x10.ast.X10MethodDecl_c;
 import x10.ast.X10NodeFactory_c;
 import x10.ast.X10Return_c;
+import x10.types.ConstrainedType;
 import x10.types.ParameterType;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
@@ -539,8 +541,11 @@ public class StaticInitializer extends ContextVisitor {
     }
 
     private boolean isGlobalInit(Expr e) {
-        return (isConstantExpression(e) && (e.type().isNumeric() || 
-                e.type().isBoolean() || e.type().isChar() || e.type().isNull()));
+        if (e.type().isNumeric() || e.type().isBoolean() || e.type().isChar() || e.type().isNull())
+            return isConstantExpression(e);
+        if (e.type() == xts.String())
+            return isStringConstant(e);
+        return false;
     }
 
     /**
@@ -589,7 +594,28 @@ public class StaticInitializer extends ContextVisitor {
         return false;
     }
 
-    boolean checkFieldRefReplacementRequired(X10Field_c f) {
+    private boolean isStringConstant(Expr e) {
+        if (!e.isConstant())
+            return false;
+        if (e instanceof StringLit)
+            return true;
+        if (e instanceof X10Call) {
+            // check if this is string manipulation (e.g. concatenation)
+            X10Call call = (X10Call)e;
+            List<Expr> args = call.arguments();
+            for (Expr arg : args) {
+                if (!isStringConstant(arg))
+                    return false;
+            }
+            Type targetType = call.target().type();
+            if (targetType instanceof ConstrainedType)
+                targetType = ((ConstrainedType)targetType).baseType().get();
+            return targetType == xts.String();
+        }
+        return false;
+    }
+
+    private boolean checkFieldRefReplacementRequired(X10Field_c f) {
         if (f.target().type().isNumeric())
             // @NativeRep class should be excluded
             return false;
