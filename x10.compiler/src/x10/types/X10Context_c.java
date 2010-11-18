@@ -696,11 +696,7 @@ public class X10Context_c extends Context_c {
 	public Context pushCode(CodeDef ci) {
 		//System.err.println("Pushing code " + ci);
 		assert (depType == null);
-		X10Context_c result = (X10Context_c) super.pushCode(ci);
-		// For closures, propagate the static context of the outer scope
-		if (ci instanceof ClosureDef)
-		    result.staticContext = staticContext;
-		return result;
+		return super.pushCode(ci);
 	}
 
 	/**

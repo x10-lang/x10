@@ -60,6 +60,9 @@ public interface ClosureDef extends FunctionDef, X10Def, X10ProcedureDef {
     List<VarInstance<? extends VarDef>> capturedEnvironment();
     void addCapturedVariable(VarInstance<? extends VarDef> vi);
     
+    boolean staticContext();
+    void setStaticContext(boolean v);
+    
     
     /**
      * Set the term (symbolic name) standing for the place at which the body of this closure is intended to execute.

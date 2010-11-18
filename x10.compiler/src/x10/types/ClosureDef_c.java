@@ -235,6 +235,16 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
          }
      }
 
+     private boolean isStatic;
+
+     public boolean staticContext() {
+         return isStatic;
+     }
+     
+     public void setStaticContext(boolean v) {
+         isStatic = v;
+     }
+     
      
      public String signature() {
          return "(" + CollectionUtil.listToString(formalTypes) + ")" + Types.get(guard());
