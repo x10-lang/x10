@@ -233,6 +233,7 @@ public class X10LocalClassRemover extends LocalClassRemover {
             typeParameters.addAll(0, origTypeParams);
             TypeParamSubst subst = new TypeParamSubst((TypeSystem) ts, def.typeParameters(), typeParameters);
             def.superType(subst.reinstantiate(def.superType()));
+            def.setInterfaces(subst.reinstantiate(def.interfaces()));
             cd = rewriteTypeParams(subst, cd);
         }
 
