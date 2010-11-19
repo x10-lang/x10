@@ -26,7 +26,7 @@ import com.ibm.wala.types.TypeReference;
 import com.ibm.wala.util.CancelException;
 import com.ibm.wala.util.strings.Atom;
 
-public class X10ZeroXCFABuilder extends X10CFABuilder {
+public class AstX10ZeroXCFABuilder extends AstX10CFABuilder {
 
     /**
      * @param cha
@@ -34,7 +34,7 @@ public class X10ZeroXCFABuilder extends X10CFABuilder {
      * @param bypass
      * @param contextProvider
      */
-    public X10ZeroXCFABuilder(IClassHierarchy cha, 
+    public AstX10ZeroXCFABuilder(IClassHierarchy cha, 
   			   AnalysisOptions options,
 			   AnalysisCache cache,
   			   ContextSelector appContextSelector,

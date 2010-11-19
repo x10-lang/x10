@@ -5,12 +5,12 @@ import com.ibm.wala.ipa.callgraph.AnalysisCache;
 import com.ibm.wala.ipa.callgraph.AnalysisOptions;
 import com.ibm.wala.ipa.cha.IClassHierarchy;
 
-public class X10CFABuilder extends AstX10SSAPropagationCallGraphBuilder {
+public class AstX10CFABuilder extends AstX10SSAPropagationCallGraphBuilder {
 
     /**
      * @param cha
      */
-    public X10CFABuilder(IClassHierarchy cha, AnalysisOptions options, AnalysisCache cache) {
+    public AstX10CFABuilder(IClassHierarchy cha, AnalysisOptions options, AnalysisCache cache) {
       super(cha, options, cache, new AstCFAPointerKeys());
     }
 }

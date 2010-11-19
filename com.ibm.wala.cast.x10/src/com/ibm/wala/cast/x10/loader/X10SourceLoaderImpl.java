@@ -15,7 +15,6 @@ import com.ibm.wala.cast.tree.CAstType;
 import com.ibm.wala.cast.tree.CAstSourcePositionMap.Position;
 import com.ibm.wala.cast.x10.classLoader.X10LanguageImpl;
 import com.ibm.wala.cast.x10.classLoader.X10PrimordialClassLoaderImpl;
-import com.ibm.wala.cast.x10.translator.X10AsyncObject;
 import com.ibm.wala.cast.x10.tree.X10CAstEntity;
 import com.ibm.wala.cfg.AbstractCFG;
 import com.ibm.wala.classLoader.IClass;

@@ -1,8 +1,8 @@
-package com.ibm.wala.cast.x10.client;
+package com.ibm.wala.cast.x10.client.impl;
 
 import java.io.InputStream;
 
-import com.ibm.wala.cast.x10.ipa.callgraph.X10ZeroXCFABuilder;
+import com.ibm.wala.cast.x10.ipa.callgraph.AstX10ZeroXCFABuilder;
 import com.ibm.wala.cast.x10.ipa.summaries.X10SyntheticLoaderImpl;
 import com.ibm.wala.ipa.callgraph.AnalysisCache;
 import com.ibm.wala.ipa.callgraph.AnalysisOptions;
@@ -17,7 +17,7 @@ import com.ibm.wala.ipa.summaries.BypassClassTargetSelector;
 import com.ibm.wala.ipa.summaries.BypassMethodTargetSelector;
 import com.ibm.wala.ipa.summaries.XMLMethodSummaryReader;
 
-public class X10ZeroXCFACallGraphBuilderFactory {
+public class X10ZeroXCFABuilderFactory {
 	public static String RUNTIME_XML = "x10-runtime-model.xml";
 	
 	// TODO Add policy argument to ctor so client can control precision of pointer analysis
@@ -25,7 +25,7 @@ public class X10ZeroXCFACallGraphBuilderFactory {
         Util.addDefaultSelectors(options, cha);
 //      Util.addDefaultBypassLogic(options, scope, Util.class.getClassLoader(), cha);
         addRuntimeModels(options, cha, scope);
-        return new X10ZeroXCFABuilder(cha, options, cache, null, null, ZeroXInstanceKeys.ALLOCATIONS);
+        return new AstX10ZeroXCFABuilder(cha, options, cache, null, null, ZeroXInstanceKeys.ALLOCATIONS);
     }
 
     private void addRuntimeModels(AnalysisOptions options, IClassHierarchy cha, AnalysisScope scope) {

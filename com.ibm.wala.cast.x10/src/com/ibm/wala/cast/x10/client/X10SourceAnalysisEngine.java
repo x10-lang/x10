@@ -4,9 +4,9 @@ import java.io.IOException;
 import java.util.Set;
 
 import com.ibm.wala.cast.java.client.JavaSourceAnalysisEngine;
-import com.ibm.wala.cast.x10.classLoader.PolyglotClassLoaderFactoryImpl;
 import com.ibm.wala.cast.x10.classLoader.X10ClassLoaderFactoryImpl;
 import com.ibm.wala.cast.x10.classLoader.X10PrimordialClassLoaderImpl;
+import com.ibm.wala.cast.x10.client.impl.X10ZeroXCFABuilderFactory;
 import com.ibm.wala.cast.x10.ipa.callgraph.X10SourceAnalysisScope;
 import com.ibm.wala.cast.x10.ipa.cha.X10ClassHierarchy;
 import com.ibm.wala.cast.x10.ipa.summaries.X10SyntheticLoaderImpl;
@@ -59,7 +59,7 @@ public class X10SourceAnalysisEngine extends JavaSourceAnalysisEngine {
 
     @Override
     protected CallGraphBuilder getCallGraphBuilder(IClassHierarchy cha, AnalysisOptions options, AnalysisCache cache) {
-        return new X10ZeroXCFACallGraphBuilderFactory().make(options, cache, cha, scope, false);
+        return new X10ZeroXCFABuilderFactory().make(options, cache, cha, scope, false);
     }
 
     /**

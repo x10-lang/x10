@@ -1,7 +1,7 @@
 package com.ibm.wala.cast.x10.ipa.callgraph;
 
+import com.ibm.wala.cast.x10.loader.X10AsyncObject;
 import com.ibm.wala.cast.x10.loader.X10ClosureObject;
-import com.ibm.wala.cast.x10.translator.X10AsyncObject;
 import com.ibm.wala.cast.java.ipa.callgraph.JavaScopeMappingInstanceKeys;
 import com.ibm.wala.classLoader.IClass;
 import com.ibm.wala.ipa.callgraph.propagation.InstanceKeyFactory;
