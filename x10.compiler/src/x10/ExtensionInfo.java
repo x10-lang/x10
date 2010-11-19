@@ -599,7 +599,16 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                    return goal;
                }
                public boolean runTask() {
+                   if (Configuration.FINISH_ASYNCS) {
 //                   calltable = X10Scheduler.<HashMap<CallTableKey, LinkedList<CallTableVal>>>invokeGeneric(method);
+                   } else {
+                       try {
+                           method.invoke(null);
+                       } catch (IllegalArgumentException e) {
+                       } catch (IllegalAccessException e) {
+                       } catch (InvocationTargetException e) {
+                       }
+                   }
                    return true;
                }
            }.intern(this);
