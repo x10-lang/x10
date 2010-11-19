@@ -121,7 +121,7 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
         }
     }
 
-    public X10toCAstTranslator(ClassLoaderReference clr, NodeFactory nf, TypeSystem ts, PolyglotIdentityMapper fMapper, Boolean replicateForDoLoops) {
+    public X10toCAstTranslator(ClassLoaderReference clr, NodeFactory nf, TypeSystem ts, X10IdentityMapper fMapper, Boolean replicateForDoLoops) {
 	super(clr, nf, ts, fMapper, replicateForDoLoops);
     }
 

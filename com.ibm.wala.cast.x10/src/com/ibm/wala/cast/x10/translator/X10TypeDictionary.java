@@ -42,7 +42,7 @@ public class X10TypeDictionary extends PolyglotTypeDictionary {
         }
         if (astType instanceof PrimitiveType) {
             PrimitiveType primitiveType = (PrimitiveType) astType;
-            String javaPrimitiveName = X10PolyglotIdentityMapper.getJavaPrimitiveTypeFor(primitiveType.fullName().toString());
+            String javaPrimitiveName = X10IdentityMapper.getJavaPrimitiveTypeFor(primitiveType.fullName().toString());
             final CAstType castType = JavaPrimitiveTypeMap.lookupType(javaPrimitiveName);
             super.map(astType, castType);
             return castType;

@@ -39,7 +39,7 @@ public class X102IRGoal extends SourceGoal_c {
 	}
     private static final ClassLoaderReference X10LOADER = X10SourceLoaderImpl.X10SourceLoader;
 
-    private static PolyglotIdentityMapper mapper = new X10PolyglotIdentityMapper(X10LOADER);
+    private static X10IdentityMapper mapper = new X10IdentityMapper(X10LOADER);
     
     private static X10SourceAnalysisEngine engine = new X10SourceAnalysisEngine() {
         {

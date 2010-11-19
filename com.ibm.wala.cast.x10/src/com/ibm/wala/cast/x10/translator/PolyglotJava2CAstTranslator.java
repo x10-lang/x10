@@ -177,7 +177,7 @@ public abstract class PolyglotJava2CAstTranslator implements TranslatorToCAst {
 
   private X10TranslatorVisitor fTranslator;
 
-  protected PolyglotIdentityMapper fIdentityMapper;
+  protected X10IdentityMapper fIdentityMapper;
 
   protected boolean replicateForDoLoops = false;
   
@@ -2352,7 +2352,7 @@ public abstract class PolyglotJava2CAstTranslator implements TranslatorToCAst {
     }
   }
 
-  public PolyglotJava2CAstTranslator(ClassLoaderReference clr, NodeFactory nf, TypeSystem ts, PolyglotIdentityMapper identityMapper, boolean replicateForDoLoops) {
+  public PolyglotJava2CAstTranslator(ClassLoaderReference clr, NodeFactory nf, TypeSystem ts, X10IdentityMapper identityMapper, boolean replicateForDoLoops) {
     fClassLoaderRef = clr;
     fTypeSystem = ts;
     fNodeFactory = nf;
@@ -2524,22 +2524,6 @@ public abstract class PolyglotJava2CAstTranslator implements TranslatorToCAst {
 
   public CAstEntity translate(Object ast, String fileName) {
     return walkEntity((Node) ast, new RootContext(getTypeDict()));
-  }
-
-  /**
-   * Maps front-end-specific representations into WALA references of the appropriate kind.
-   * @author rfuhrer
-   *
-   * @param <T> The front-end-specific representation of a type (e.g., for Polyglot, a Type)
-   * @param <M> The front-end-specific representation of a procedure/method (e.g., for Polyglot, a CodeInstance)
-   * @param <F> The front-end-specific representation of a field (e.g., for Polyglot, a FieldInstance)
-   */
-  public interface IdentityMapper<TypeRep, MethodRep, FieldRep> {
-    MemberReference getMethodRef(MethodRep method);
-
-    TypeReference getTypeRef(TypeRep type);
-
-    FieldReference getFieldRef(FieldRep field);
   }
 
   protected static Collection<CAstQualifier> mapFlagsToQualifiers(Flags flags) {
