@@ -198,8 +198,8 @@ public abstract class PolyglotJava2CAstTranslator implements TranslatorToCAst {
     return fTypeDict;
   }
 
-  protected PolyglotTypeDictionary createTypeDict() {
-    return new PolyglotTypeDictionary(fTypeSystem, this);
+  protected X10TypeDictionary createTypeDict() {
+    return new X10TypeDictionary(fTypeSystem, this);
   }
 
   protected static CAstOperator mapUnaryOpcode(Unary.Operator operator) {

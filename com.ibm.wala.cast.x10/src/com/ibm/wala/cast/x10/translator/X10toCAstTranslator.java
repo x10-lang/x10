@@ -129,7 +129,7 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
         return new X10TranslatingVisitorImpl();
     }
 
-    protected PolyglotTypeDictionary createTypeDict() {
+    protected X10TypeDictionary createTypeDict() {
 	return new X10TypeDictionary(fTypeSystem, this);
     }
 
