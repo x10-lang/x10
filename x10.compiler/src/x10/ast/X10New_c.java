@@ -108,12 +108,13 @@ public class X10New_c extends New_c implements X10New {
     }
 
     @Override
+    public X10ClassDef anonType() {
+        return (X10ClassDef) super.anonType();
+    }
+
+    @Override
     public Node buildTypesOverride(TypeBuilder tb) throws SemanticException {
         X10New_c n = (X10New_c) super.buildTypesOverride(tb);
-        if (n.body() != null) {
-            // FIXME: should instead override TypeBuilder.pushAnonClass()
-            ((X10ClassDef)n.anonType()).setTypeBounds(Types.ref(new TypeConstraint()));
-        }
         List<TypeNode> typeArgs = n.visitList(n.typeArguments(), tb);
         n = (X10New_c) n.typeArguments(typeArgs);
         n = (X10New_c) X10Del_c.visitAnnotations(n, tb);

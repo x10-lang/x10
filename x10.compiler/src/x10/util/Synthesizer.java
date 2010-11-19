@@ -98,6 +98,7 @@ import x10.types.X10LocalDef;
 import x10.types.X10FieldDef;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
+import x10.visit.X10TypeBuilder;
 import x10.visit.X10TypeChecker;
 
 /**
@@ -1371,7 +1372,7 @@ public class Synthesizer {
 		QName qual = qName.qualifier();
 		TypeNode tn =  nf.AmbDepTypeNode(pos, qual==null ? null : nf.PrefixFromQualifiedName(pos, qual), 
 				nf.Id(pos, qName.name()), typeArgs, Collections.<Expr>emptyList(), dep);
-		TypeBuilder tb = new TypeBuilder(tc.job(),  tc.typeSystem(), nf);
+		TypeBuilder tb = new X10TypeBuilder(tc.job(), tc.typeSystem(), nf);
 		tn = (TypeNode) tn.visit(tb);
 		TypeChecker typeChecker = (TypeChecker) new X10TypeChecker(tc.job(), ts, nf,tc.job().nodeMemo()).context(tc.context());
 		tn = (TypeNode) tn.visit(typeChecker);

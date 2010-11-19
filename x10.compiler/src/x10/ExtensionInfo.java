@@ -115,6 +115,7 @@ import x10.visit.X10ImplicitDeclarationExpander;
 import x10.visit.X10InnerClassRemover;
 import x10.visit.X10MLVerifier;
 import x10.visit.X10Translator;
+import x10.visit.X10TypeBuilder;
 import x10.visit.X10TypeChecker;
 import x10.visit.PositionInvariantChecker;
 import x10.visit.InstanceInvariantChecker;
@@ -778,6 +779,13 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            return new X10ParserGoal(extInfo.compiler(), job).intern(this);
        }
 
+       @Override
+       public Goal constructTypesInitialized(Job job) {
+           TypeSystem ts = job.extensionInfo().typeSystem();
+           NodeFactory nf = job.extensionInfo().nodeFactory();
+           return new ForgivingVisitorGoal("TypesInitialized", job, new X10TypeBuilder(job, ts, nf)).intern(this);
+       }
+
        public Goal X10MLTypeChecked(Job job) {
            TypeSystem ts = extInfo.typeSystem();
            NodeFactory nf = extInfo.nodeFactory();
@@ -786,8 +794,8 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 
        @Override
        public Goal TypeChecked(Job job) {
-       	TypeSystem ts = job.extensionInfo().typeSystem();
-       	NodeFactory nf = job.extensionInfo().nodeFactory();
+           TypeSystem ts = job.extensionInfo().typeSystem();
+           NodeFactory nf = job.extensionInfo().nodeFactory();
            return new ForgivingVisitorGoal("TypeChecked", job, new X10TypeChecker(job, ts, nf, job.nodeMemo())).intern(this);
        }
 

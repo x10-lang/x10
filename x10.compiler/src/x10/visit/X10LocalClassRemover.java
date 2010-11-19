@@ -214,7 +214,7 @@ public class X10LocalClassRemover extends LocalClassRemover {
 
             NodeFactory xnf = (NodeFactory) nf;
             TypeParamNode pn = xnf.TypeParamNode(n.position(), xnf.Id(n.position(), Name.makeFresh(p.name())), v);
-            TypeBuilder tb = new TypeBuilder(job, ts, nf);
+            TypeBuilder tb = new X10TypeBuilder(job, ts, nf);
             try {
                 tb = tb.pushClass(outer);
                 tb = tb.pushCode(method);

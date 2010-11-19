@@ -101,6 +101,7 @@ import x10.types.matcher.X10MemberTypeMatcher;
 import x10.types.matcher.X10MethodMatcher;
 import x10.types.matcher.X10TypeMatcher;
 import x10.util.ClosureSynthesizer;
+import x10.visit.X10TypeBuilder;
 
 /**
  * A TypeSystem implementation for X10.
@@ -2527,7 +2528,7 @@ public class X10TypeSystem_c extends TypeSystem_c {
  	  NodeFactory nf = (NodeFactory) tc.nodeFactory();
 			TypeSystem ts = (TypeSystem) tc.typeSystem();
 			Context c = tc.context();
- 	  TypeBuilder tb = new TypeBuilder(tc.job(),  ts, nf);
+			TypeBuilder tb = new X10TypeBuilder(tc.job(),  ts, nf);
 			// First, try to determine if there in fact a struct in scope with the given name.
 			TypeNode otn = new X10ParsedName(nf, ts, Position.COMPILER_GENERATED, name).toType();//
 			//	nf.AmbDepTypeNode(position(), null, name(), typeArguments, Collections.EMPTY_LIST, null);
