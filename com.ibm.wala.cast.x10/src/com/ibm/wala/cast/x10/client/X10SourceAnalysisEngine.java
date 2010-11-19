@@ -11,8 +11,6 @@ import com.ibm.wala.cast.x10.ipa.callgraph.X10SourceAnalysisScope;
 import com.ibm.wala.cast.x10.ipa.cha.X10ClassHierarchy;
 import com.ibm.wala.cast.x10.ipa.summaries.X10SyntheticLoaderImpl;
 import com.ibm.wala.cast.x10.loader.X10SourceLoaderImpl;
-import com.ibm.wala.cast.x10.translator.IRTranslatorExtension;
-import com.ibm.wala.cast.x10.translator.JavaIRTranslatorExtension;
 import com.ibm.wala.classLoader.ClassLoaderFactory;
 import com.ibm.wala.classLoader.Module;
 import com.ibm.wala.ipa.callgraph.AnalysisCache;
@@ -29,10 +27,6 @@ import com.ibm.wala.util.CancelException;
 import com.ibm.wala.util.collections.HashSetFactory;
 
 public class X10SourceAnalysisEngine extends JavaSourceAnalysisEngine {
-    public IRTranslatorExtension getTranslatorExtension() {
-        return new JavaIRTranslatorExtension();
-      }
-
       /**
      * Modules which contain X10 system or library code
      */
@@ -49,7 +43,7 @@ public class X10SourceAnalysisEngine extends JavaSourceAnalysisEngine {
 
     @Override
     protected ClassLoaderFactory getClassLoaderFactory(SetOfClasses exclusions) {
-	return new X10ClassLoaderFactoryImpl(exclusions, getTranslatorExtension());
+	return new X10ClassLoaderFactoryImpl(exclusions);
     }
 
     @Override

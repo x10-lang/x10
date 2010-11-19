@@ -8,7 +8,6 @@ import com.ibm.wala.cast.java.ipa.callgraph.JavaSourceAnalysisScope;
 import com.ibm.wala.cast.x10.ipa.summaries.X10SyntheticLoaderImpl;
 import com.ibm.wala.cast.x10.loader.PolyglotSourceLoaderImpl;
 import com.ibm.wala.cast.x10.loader.X10SourceLoaderImpl;
-import com.ibm.wala.cast.x10.translator.IRTranslatorExtension;
 import com.ibm.wala.classLoader.ClassLoaderFactoryImpl;
 import com.ibm.wala.classLoader.ClassLoaderImpl;
 import com.ibm.wala.classLoader.IClassLoader;
@@ -19,20 +18,8 @@ import com.ibm.wala.types.ClassLoaderReference;
 
 public class X10ClassLoaderFactoryImpl extends ClassLoaderFactoryImpl {
 
-    /**
-     * A map from ClassLoaderReference to IRTranslatorExtension, so that source files in different languages are processed by the
-     * right kind of IRTranslatorExtension.
-     */
-    final protected Map<ClassLoaderReference, IRTranslatorExtension> fExtensionMap = new HashMap<ClassLoaderReference, IRTranslatorExtension>();
-
-    protected IRTranslatorExtension getExtensionFor(ClassLoaderReference clr) {
-      return fExtensionMap.get(clr);
-    }
-
-    public X10ClassLoaderFactoryImpl(SetOfClasses exclusions, IRTranslatorExtension javaExtInfo) {
+     public X10ClassLoaderFactoryImpl(SetOfClasses exclusions) {
 	super(exclusions);
-    fExtensionMap.put(JavaSourceAnalysisScope.SOURCE, javaExtInfo);
-	fExtensionMap.put(X10SourceLoaderImpl.X10SourceLoader, javaExtInfo);
     }
 
     protected IClassLoader makeNewClassLoader(ClassLoaderReference classLoaderReference, IClassHierarchy cha, IClassLoader parent, AnalysisScope scope) throws IOException {
