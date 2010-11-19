@@ -31,6 +31,7 @@ import com.ibm.wala.ipa.cha.IClassHierarchy;
 import com.ibm.wala.shrikeBT.IInstruction;
 import com.ibm.wala.shrikeBT.ConstantInstruction.ClassToken;
 import com.ibm.wala.shrikeCT.InvalidClassFileException;
+import com.ibm.wala.types.ClassLoaderReference;
 import com.ibm.wala.types.MethodReference;
 import com.ibm.wala.types.TypeName;
 import com.ibm.wala.types.TypeReference;
@@ -42,6 +43,15 @@ public class X10LanguageImpl extends LanguageImpl implements BytecodeLanguage {
   public static X10LanguageImpl X10Lang = new X10LanguageImpl();
 
   public static TypeReference X10LangObject = TypeReference.findOrCreate(X10SourceLoaderImpl.X10SourceLoader, "Lx10/lang/Object");
+
+  public final static TypeReference x10LangPoint =
+    TypeReference.findOrCreate(X10SourceLoaderImpl.X10SourceLoader, "Lx10/lang/point");
+
+  public final static TypeReference x10LangPlace =
+    TypeReference.findOrCreate(X10SourceLoaderImpl.X10SourceLoader, "Lx10/lang/place");
+
+  public final static TypeReference x10LangRail =
+    TypeReference.findOrCreate(X10SourceLoaderImpl.X10SourceLoader, "Lx10/lang/Rail");
 
   private X10LanguageImpl() {
     super(Language.JAVA);

@@ -17,13 +17,7 @@ public class X10SourceAnalysisScope extends JavaSourceAnalysisScope {
 
     public X10SourceAnalysisScope() {
         super(languages);
-
         loadersByName.put(X10SourceLoaderImpl.X10SourceLoaderName, X10SourceLoaderImpl.X10SourceLoader);
-        setLoaderImpl(X10SourceLoaderImpl.X10SourceLoader, "com.ibm.wala.cast.x10.translator.polyglot.X10SourceLoaderImpl");
-    }
-
-    @Override
-    public ClassLoaderReference getSourceLoader() {
-        return X10SourceLoaderImpl.X10SourceLoader;
+        setLoaderImpl(X10SourceLoaderImpl.X10SourceLoader, "com.ibm.wala.cast.x10.loader.X10SourceLoaderImpl");
     }
 }

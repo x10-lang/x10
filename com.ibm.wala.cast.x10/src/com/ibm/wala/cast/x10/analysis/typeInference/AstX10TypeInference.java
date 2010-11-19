@@ -3,6 +3,7 @@ package com.ibm.wala.cast.x10.analysis.typeInference;
 import com.ibm.wala.analysis.typeInference.ConeType;
 import com.ibm.wala.analysis.typeInference.PointType;
 import com.ibm.wala.cast.java.analysis.typeInference.AstJavaTypeInference;
+import com.ibm.wala.cast.x10.classLoader.X10LanguageImpl;
 import com.ibm.wala.cast.x10.ssa.AstX10InstructionVisitor;
 import com.ibm.wala.cast.x10.ssa.TupleInstruction;
 import com.ibm.wala.cast.x10.ssa.AtStmtInstruction;
@@ -19,7 +20,6 @@ import com.ibm.wala.cast.x10.ssa.ArrayLoadByIndexInstruction;
 import com.ibm.wala.cast.x10.ssa.ArrayLoadByPointInstruction;
 import com.ibm.wala.cast.x10.ssa.ArrayStoreByIndexInstruction;
 import com.ibm.wala.cast.x10.ssa.ArrayStoreByPointInstruction;
-import com.ibm.wala.cast.x10.types.X10TypeReference;
 import com.ibm.wala.classLoader.IClass;
 import com.ibm.wala.ipa.cha.IClassHierarchy;
 import com.ibm.wala.ssa.IR;
@@ -79,7 +79,7 @@ public class AstX10TypeInference extends AstJavaTypeInference {
 
 	public void visitRegionIterNext(RegionIterNextInstruction instruction) {
 	    // This instruction always produces a value of type "x10.lang.point".
-	    TypeReference type= X10TypeReference.x10LangPoint;
+	    TypeReference type= X10LanguageImpl.x10LangPoint;
 	    IClass klass= cha.lookupClass(type);
 
 	    result= new DeclaredTypeOperator(new PointType(klass));
@@ -87,7 +87,7 @@ public class AstX10TypeInference extends AstJavaTypeInference {
 
 	public void visitHere(HereInstruction instruction) {
 	    // This instruction always produces a value of type "x10.lang.point".
-	    TypeReference type= X10TypeReference.x10LangPlace;
+	    TypeReference type= X10LanguageImpl.x10LangPlace;
 	    IClass klass= cha.lookupClass(type);
 
 	    result= new DeclaredTypeOperator(new ConeType(klass));
@@ -116,14 +116,14 @@ public class AstX10TypeInference extends AstJavaTypeInference {
 	}
 	
  	public void visitPlaceOfPoint(PlaceOfPointInstruction instruction) {
-        TypeReference placeType= X10TypeReference.x10LangPlace;
+        TypeReference placeType= X10LanguageImpl.x10LangPlace;
         IClass placeClass = cha.lookupClass(placeType);
         result = new DeclaredTypeOperator(new ConeType(placeClass));
  	}
 
  	public void visitTuple(TupleInstruction tupleInstruction) {
  	    // This instruction always produces a value of type "x10.lang.Rail".
- 	    TypeReference type= X10TypeReference.x10LangRail;
+ 	    TypeReference type= X10LanguageImpl.x10LangRail;
  	    IClass klass= cha.lookupClass(type);
  	    result = new DeclaredTypeOperator(new ConeType(klass));
  	}
