@@ -113,7 +113,7 @@ public struct Int implements Comparable[Int] /*TODO implements Arithmetic[Int], 
      * @return the quotient of this Int and the other Int.
      */
     @Native("java", "((#0) / (#1))")
-    @Native("c++",  "((x10_int) ((#0) / (#1)))")
+    @Native("c++",  "((x10_int) ((#0) / x10aux::zeroCheck(#1)))")
     public native operator this / (x:Int): Int;
 
     /**
@@ -123,7 +123,7 @@ public struct Int implements Comparable[Int] /*TODO implements Arithmetic[Int], 
      * @return the remainder from dividing this Int by the other Int.
      */
     @Native("java", "((#0) % (#1))")
-    @Native("c++",  "((x10_int) ((#0) % (#1)))")
+    @Native("c++",  "((x10_int) ((#0) % x10aux::zeroCheck(#1)))")
     public native operator this % (x:Int): Int;
 
     /**

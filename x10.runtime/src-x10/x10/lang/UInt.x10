@@ -170,7 +170,7 @@ public struct UInt implements Comparable[UInt] /*TODO implements Arithmetic[UInt
      * @return the quotient of this UInt and the other UInt.
      */
     // @Native("java", "x10.core.Unsigned.div(#0, #1)")
-    @Native("c++",  "((x10_uint) ((#0) / (#1)))")
+    @Native("c++",  "((x10_uint) ((#0) / x10aux::zeroCheck(#1)))")
     public operator this / (x:UInt): UInt {
         return UInt(((intVal as Long) / (x.intVal as Long)) as Int);
     }
@@ -179,7 +179,7 @@ public struct UInt implements Comparable[UInt] /*TODO implements Arithmetic[UInt
      * @see #operator(UInt)/(UInt)
      */
     // @Native("java", "x10.core.Unsigned.div(#0, #1)")
-    @Native("c++",  "((x10_uint) ((#0) / (#1)))")
+    @Native("c++",  "((x10_uint) ((#0) / x10aux::zeroCheck(#1)))")
     public operator (x:Int) / this: UInt {
         return UInt(((x as Long) / (intVal as Long)) as Int);
     }
@@ -188,7 +188,7 @@ public struct UInt implements Comparable[UInt] /*TODO implements Arithmetic[UInt
      * @see #operator(UInt)/(UInt)
      */
     // @Native("java", "x10.core.Unsigned.div(#0, #1)")
-    @Native("c++",  "((x10_uint) ((#0) / (#1)))")
+    @Native("c++",  "((x10_uint) ((#0) / x10aux::zeroCheck(#1)))")
     public operator this / (x:Int): UInt {
         return UInt(((intVal as Long) / (x as Long)) as Int);
     }
@@ -200,7 +200,7 @@ public struct UInt implements Comparable[UInt] /*TODO implements Arithmetic[UInt
      * @return the remainder from dividing this UInt by the other UInt.
      */
     // @Native("java", "x10.core.Unsigned.rem(#0, #1)")
-    @Native("c++",  "((x10_uint) ((#0) % (#1)))")
+    @Native("c++",  "((x10_uint) ((#0) % x10aux::zeroCheck(#1)))")
     public operator this % (x:UInt): UInt {
         return UInt(((intVal as Long) % (x.intVal as Long)) as Int);
     }
@@ -209,7 +209,7 @@ public struct UInt implements Comparable[UInt] /*TODO implements Arithmetic[UInt
      * @see #operator(UInt)%(UInt)
      */
     // @Native("java", "x10.core.Unsigned.rem(#0, #1)")
-    @Native("c++",  "((x10_uint) ((#0) % (#1)))")
+    @Native("c++",  "((x10_uint) ((#0) % x10aux::zeroCheck(#1)))")
     public operator (x:Int) % this: UInt {
         return UInt(((x as Long) % (intVal as Long)) as Int);
     }
@@ -218,7 +218,7 @@ public struct UInt implements Comparable[UInt] /*TODO implements Arithmetic[UInt
      * @see #operator(UInt)%(UInt)
      */
     // @Native("java", "x10.core.Unsigned.rem(#0, #1)")
-    @Native("c++",  "((x10_uint) ((#0) % (#1)))")
+    @Native("c++",  "((x10_uint) ((#0) % x10aux::zeroCheck(#1)))")
     public operator this % (x:Int): UInt {
         return UInt(((intVal as Long) % (x as Long)) as Int);
     }

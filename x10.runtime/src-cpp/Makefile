@@ -128,6 +128,7 @@ ALL_XRCPP_OBJECTS = \
 	x10aux/short_utils.o \
 	x10aux/string_utils.o \
 	x10aux/system_utils.o \
+	x10aux/throw.o \
 	x10aux/debug.o \
 	x10/io/FileReader__FileInputStream.o \
 	x10/io/FileWriter__FileOutputStream.o \

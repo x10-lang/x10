@@ -168,7 +168,7 @@ public struct ULong implements Comparable[ULong] /*TODO implements Arithmetic[UL
      * @return the quotient of this ULong and the other ULong.
      */
     // @Native("java", "x10.core.Unsigned.div(#0, #1)")
-    @Native("c++",  "((x10_ulong) ((#0) / (#1)))")
+    @Native("c++",  "((x10_ulong) ((#0) / x10aux::zeroCheck(#1)))")
     public operator this / (x:ULong): ULong {
         if (longVal > 0 && x.longVal > 0)
             return ULong(longVal / x.longVal);
@@ -182,7 +182,7 @@ public struct ULong implements Comparable[ULong] /*TODO implements Arithmetic[UL
      * @see #operator(ULong)/(ULong)
      */
     // @Native("java", "x10.core.Unsigned.div(#0, #1)")
-    @Native("c++",  "((x10_ulong) ((#0) / (#1)))")
+    @Native("c++",  "((x10_ulong) ((#0) / x10aux::zeroCheck(#1)))")
     public operator (x:Long) / this: ULong {
         if (x > 0 && longVal > 0)
             return ULong(x / longVal);
@@ -196,7 +196,7 @@ public struct ULong implements Comparable[ULong] /*TODO implements Arithmetic[UL
      * @see #operator(ULong)/(ULong)
      */
     // @Native("java", "x10.core.Unsigned.div(#0, #1)")
-    @Native("c++",  "((x10_ulong) ((#0) / (#1)))")
+    @Native("c++",  "((x10_ulong) ((#0) / x10aux::zeroCheck(#1)))")
     public operator this / (x:Long): ULong {
         if (longVal > 0 && x > 0)
             return ULong(longVal / x);
@@ -213,7 +213,7 @@ public struct ULong implements Comparable[ULong] /*TODO implements Arithmetic[UL
      * @return the remainder from dividing this ULong by the other ULong.
      */
     // @Native("java", "x10.core.Unsigned.rem(#0, #1)")
-    @Native("c++",  "((x10_ulong) ((#0) % (#1)))")
+    @Native("c++",  "((x10_ulong) ((#0) % x10aux::zeroCheck(#1)))")
     public operator this % (x:ULong): ULong {
         if (longVal > 0 && x.longVal > 0)
             return ULong(longVal % x.longVal);
@@ -227,7 +227,7 @@ public struct ULong implements Comparable[ULong] /*TODO implements Arithmetic[UL
      * @see #operator(ULong)%(ULong)
      */
     // @Native("java", "x10.core.Unsigned.rem(#0, #1)")
-    @Native("c++",  "((x10_ulong) ((#0) % (#1)))")
+    @Native("c++",  "((x10_ulong) ((#0) % x10aux::zeroCheck(#1)))")
     public operator (x:Long) % this: ULong {
         if (x > 0 && longVal > 0)
             return ULong(x % longVal);
@@ -241,7 +241,7 @@ public struct ULong implements Comparable[ULong] /*TODO implements Arithmetic[UL
      * @see #operator(ULong)%(ULong)
      */
     // @Native("java", "x10.core.Unsigned.rem(#0, #2)")
-    @Native("c++",  "((x10_ulong) ((#0) % (#1)))")
+    @Native("c++",  "((x10_ulong) ((#0) % x10aux::zeroCheck(#1)))")
     public operator this % (x:Long): ULong {
         if (longVal > 0 && x > 0)
             return ULong(longVal % x);

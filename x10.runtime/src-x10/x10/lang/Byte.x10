@@ -111,7 +111,7 @@ public struct Byte implements Comparable[Byte] /*TODO implements Arithmetic[Byte
      * @return the quotient of this Byte and the other Byte.
      */
     @Native("java", "((byte) ((#0) / (#1)))")
-    @Native("c++",  "((x10_byte) ((#0) / (#1)))")
+    @Native("c++",  "((x10_byte) ((#0) / x10aux::zeroCheck(#1)))")
     public native operator this / (x:Byte): Byte;
 
     /**
@@ -121,7 +121,7 @@ public struct Byte implements Comparable[Byte] /*TODO implements Arithmetic[Byte
      * @return the remainder from dividing this Byte by the other Byte.
      */
     @Native("java", "((byte) ((#0) % (#1)))")
-    @Native("c++",  "((x10_byte) ((#0) % (#1)))")
+    @Native("c++",  "((x10_byte) ((#0) % x10aux::zeroCheck(#1)))")
     public native operator this % (x:Byte): Byte;
 
     /**

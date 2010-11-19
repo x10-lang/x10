@@ -111,7 +111,7 @@ public struct Long implements Comparable[Long] /*TODO implements Arithmetic[Long
      * @return the quotient of this Long and the other Long.
      */
     @Native("java", "((#0) / (#1))")
-    @Native("c++",  "((x10_long) ((#0) / (#1)))")
+    @Native("c++",  "((x10_long) ((#0) / x10aux::zeroCheck(#1)))")
     public native operator this / (x:Long): Long;
 
     /**
@@ -121,7 +121,7 @@ public struct Long implements Comparable[Long] /*TODO implements Arithmetic[Long
      * @return the remainder from dividing this Long by the other Long.
      */
     @Native("java", "((#0) % (#1))")
-    @Native("c++",  "((x10_long) ((#0) % (#1)))")
+    @Native("c++",  "((x10_long) ((#0) % x10aux::zeroCheck(#1)))")
     public native operator this % (x:Long): Long;
 
     /**

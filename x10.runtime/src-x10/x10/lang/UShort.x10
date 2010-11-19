@@ -168,7 +168,7 @@ public struct UShort implements Comparable[UShort] /*TODO implements Arithmetic[
      * @return the quotient of this UShort and the other UShort.
      */
     // @Native("java", "((short) x10.core.Unsigned.div(#0, #1))")
-    @Native("c++",  "((x10_ushort) ((#0) / (#1)))")
+    @Native("c++",  "((x10_ushort) ((#0) / x10aux::zeroCheck(#1)))")
     public operator this / (x:UShort): UShort {
         return UShort(((shortVal as Long) / (x.shortVal as Long)) as Short);
     }
@@ -177,7 +177,7 @@ public struct UShort implements Comparable[UShort] /*TODO implements Arithmetic[
      * @see #operator(UShort)/(UShort)
      */
     // @Native("java", "((short) x10.core.Unsigned.div(#0, #1))")
-    @Native("c++",  "((x10_ushort) ((#0) / (#1)))")
+    @Native("c++",  "((x10_ushort) ((#0) / x10aux::zeroCheck(#1)))")
     public operator (x:Short) / this: UShort {
         return UShort(((x as Long) / (shortVal as Long)) as Short);
     }
@@ -186,7 +186,7 @@ public struct UShort implements Comparable[UShort] /*TODO implements Arithmetic[
      * @see #operator(UShort)/(UShort)
      */
     // @Native("java", "((short) x10.core.Unsigned.div(#0, #1))")
-    @Native("c++",  "((x10_ushort) ((#0) / (#1)))")
+    @Native("c++",  "((x10_ushort) ((#0) / x10aux::zeroCheck(#1)))")
     public operator this / (x:Short): UShort {
         return UShort(((shortVal as Long) / (x as Long)) as Short);
     }
@@ -198,7 +198,7 @@ public struct UShort implements Comparable[UShort] /*TODO implements Arithmetic[
      * @return the remainder from dividing this UShort by the other UShort.
      */
     // @Native("java", "((short) x10.core.Unsigned.rem(#0, #1))")
-    @Native("c++",  "((x10_ushort) ((#0) % (#1)))")
+    @Native("c++",  "((x10_ushort) ((#0) % x10aux::zeroCheck(#1)))")
     public operator this % (x:UShort): UShort {
         return UShort(((shortVal as Long) % (x.shortVal as Long)) as Short);
     }
@@ -207,7 +207,7 @@ public struct UShort implements Comparable[UShort] /*TODO implements Arithmetic[
      * @see #operator(UShort)%(UShort)
      */
     // @Native("java", "((short) x10.core.Unsigned.rem(#0, #1))")
-    @Native("c++",  "((x10_ushort) ((#0) % (#1)))")
+    @Native("c++",  "((x10_ushort) ((#0) % x10aux::zeroCheck(#1)))")
     public operator (x:Short) % this: UShort {
         return UShort(((x as Long) % (shortVal as Long)) as Short);
     }
@@ -216,7 +216,7 @@ public struct UShort implements Comparable[UShort] /*TODO implements Arithmetic[
      * @see #operator(UShort)%(UShort)
      */
     // @Native("java", "((short) x10.core.Unsigned.rem(#0, #1))")
-    @Native("c++",  "((x10_ushort) ((#0) % (#1)))")
+    @Native("c++",  "((x10_ushort) ((#0) % x10aux::zeroCheck(#1)))")
     public operator this % (x:Short): UShort {
         return UShort(((shortVal as Long) % (x as Long)) as Short);
     }

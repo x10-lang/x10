@@ -111,7 +111,7 @@ public struct Short implements Comparable[Short] /*TODO implements Arithmetic[Sh
      * @return the quotient of this Short and the other Short.
      */
     @Native("java", "((short) ((#0) / (#1)))")
-    @Native("c++",  "((x10_short) ((#0) / (#1)))")
+    @Native("c++",  "((x10_short) ((#0) / x10aux::zeroCheck(#1)))")
     public native operator this / (x:Short): Short;
 
     /**
@@ -121,7 +121,7 @@ public struct Short implements Comparable[Short] /*TODO implements Arithmetic[Sh
      * @return the remainder from dividing this Short by the other Short.
      */
     @Native("java", "((short) ((#0) % (#1)))")
-    @Native("c++",  "((x10_short) ((#0) % (#1)))")
+    @Native("c++",  "((x10_short) ((#0) % x10aux::zeroCheck(#1)))")
     public native operator this % (x:Short): Short;
 
     /**
