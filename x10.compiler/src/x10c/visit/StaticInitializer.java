@@ -123,7 +123,7 @@ public class StaticInitializer extends ContextVisitor {
             return n;
 
         X10ClassDecl_c ct = (X10ClassDecl_c)parent;
-        if (old != ct.body())
+        if (old != ct.body() || ct.flags().flags().isInterface())
             return n;
 
         ClassBody classBody = (ClassBody) n;
@@ -146,23 +146,31 @@ public class StaticInitializer extends ContextVisitor {
         for (Map.Entry<Pair<Type,Name>, StaticFieldInfo> entry : staticFinalFields.entrySet()) {
             Name fName = entry.getKey().snd();
             StaticFieldInfo fieldInfo = entry.getValue();
-            if (fieldInfo.right == null)
+
+            if (fieldInfo.right == null && fieldInfo.fieldDef == null)
                 continue;
 
-            // gen new field var
-            FieldDecl fdCond = makeFieldVar4Guard(CG, fName, classDef);
-            classDef.addField(fdCond.fieldDef());
-            // add in the top
-            members.add(0, fdCond);
+            MethodDecl md = null; 
+            if (fieldInfo.right != null) {
+                // gen new field var
+                FieldDecl fdCond = makeFieldVar4Guard(CG, fName, classDef);
+                classDef.addField(fdCond.fieldDef());
+                // add in the top
+                members.add(0, fdCond);
 
-            // gen new initialize method
-            MethodDecl md = makeInitMethod(CG, fName, fieldInfo, fdCond.fieldDef(), classDef);
+                // gen new initialize method
+                md = makeInitMethod(CG, fName, fieldInfo, fdCond.fieldDef(), classDef);
+
+                // register in the table for x10-level static initialization later
+                initStmts.add(makeAddInitializer(CG, md.name().toString(), classDef));
+
+            } else {
+                // gen a fake initialization method
+                md = makeFakeInitMethod(CG, fName, fieldInfo, classDef);
+            }
             classDef.addMethod(md.methodDef());
             // add in the bottom
             members.add(md);
-
-            // register in the table for x10-level static initialization later
-            initStmts.add(makeAddInitializer(CG, md.name().toString(), classDef));
         }
 
         if (!initStmts.isEmpty()) {
@@ -286,9 +294,9 @@ public class StaticInitializer extends ContextVisitor {
         X10ClassType receiver = cd.asType();
         StaticFieldInfo fieldInfo = getFieldEntry(receiver, leftName.id());
         fieldInfo.right = (fieldInfo.methodDef != null || found.get()) ? newRhs : null;
+        fieldInfo.fieldDef = fd.fieldDef();
 
         if (fieldInfo.right != null) {
-            fieldInfo.fieldDef = fd.fieldDef();
             return null;
         }
         // no change
@@ -506,6 +514,32 @@ public class StaticInitializer extends ContextVisitor {
         Expr call = xnf.X10Call(pos, ab, gs, typeParamNodes, args).methodInstance(mi).type(xts.Boolean());
         Expr cond = xnf.Unary(pos, Unary.NOT, call);
         return cond;
+    }
+
+    private MethodDecl makeFakeInitMethod(Position pos, Name fName, StaticFieldInfo fieldInfo, X10ClassDef classDef) {
+        // get MethodDef
+        Name name = Name.make(initMethodPrefix+fName);
+        FieldInstance fi = fieldInfo.fieldDef.asInstance();
+        MethodDef md = makeMethodDef(pos, classDef.asType(), name, fi.type());
+
+        // create a method declaration node
+        List<TypeParamNode> typeParamNodes = Collections.<TypeParamNode>emptyList();
+        List<Formal> formals = Collections.<Formal>emptyList();
+
+        // make statement block
+        List<Stmt> stmts = new ArrayList<Stmt>();
+        TypeNode receiver = xnf.X10CanonicalTypeNode(pos, classDef.asType());
+        Expr left = xnf.Field(pos, receiver, xnf.Id(pos, fieldInfo.fieldDef.name())).fieldInstance(fi).type(fi.type());
+        stmts.add(xnf.X10Return(pos, left, false));
+        Block body = xnf.Block(pos, stmts);
+
+        //
+        TypeNode returnType = xnf.X10CanonicalTypeNode(pos, fi.type());
+        MethodDecl result = xnf.X10MethodDecl(pos, xnf.FlagsNode(pos, Flags.STATIC), returnType, xnf.Id(pos, name), 
+                                              typeParamNodes, formals, null, null, body);
+        // associate methodDef with methodDecl
+        result = result.methodDef(md);
+        return result;
     }
 
     private ClassType InitDispatcher_;
