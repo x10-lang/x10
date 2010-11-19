@@ -12,7 +12,6 @@ import polyglot.frontend.VisitorGoal;
 import polyglot.types.TypeSystem;
 import x10.ExtensionInfo.X10Scheduler;
 
-import com.ibm.wala.cast.java.translator.polyglot.AscriptionGoal;
 import com.ibm.wala.cast.x10.analysis.AsyncAnalysisGoal;
 import com.ibm.wala.types.ClassLoaderReference;
 
@@ -23,11 +22,6 @@ public class X10WALAScheduler extends X10Scheduler implements WALAScheduler {
 
     public Goal AsyncsAnalyzed(Job job) {
         Goal g= intern(new AsyncAnalysisGoal(job));
-        return g;
-    }
-
-    public Goal Ascription(Job job) {
-        Goal g= intern(new AscriptionGoal(job));
         return g;
     }
 

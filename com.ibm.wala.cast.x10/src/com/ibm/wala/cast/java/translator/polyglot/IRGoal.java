@@ -37,8 +37,6 @@ public class IRGoal extends SourceGoal_c /* PORT1.7 removed 'implements EndGoal'
     // PORT1.7 - TypeChecked will suffice for what used to require ConstantsChecked.
     // Need ConstantsChecked in order to make sure that case statements have non-zero labels.
 //  addPrereq(scheduler.ConstantsChecked(job));
-    // Need to add an AscriptionGoal as a prereq to make sure that empty array initializers get a type ascribed.
-    addPrereq(new AscriptionGoal(job));
   }
 
   @Override
