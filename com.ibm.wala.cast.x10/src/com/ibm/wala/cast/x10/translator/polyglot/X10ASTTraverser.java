@@ -1,6 +1,7 @@
 package com.ibm.wala.cast.x10.translator.polyglot;
 
 import polyglot.ast.Node;
+import x10.ast.AssignPropertyCall;
 import x10.ast.Async;
 import x10.ast.AtEach;
 import x10.ast.AtStmt;
@@ -30,6 +31,8 @@ public class X10ASTTraverser extends ASTTraverser {
   public static CAstNode visit(Node n, X10TranslatorVisitor xtv, WalkContext wc) {
     if (n instanceof Async)
       return xtv.visit((Async) n, wc);
+    if (n instanceof AssignPropertyCall)
+        return xtv.visit((AssignPropertyCall) n, wc);
     else if (n instanceof AtEach)
       return xtv.visit((AtEach) n, wc);
     else if (n instanceof Atomic)

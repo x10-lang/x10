@@ -3,6 +3,7 @@
  */
 package com.ibm.wala.cast.x10.translator.polyglot;
 
+import x10.ast.AssignPropertyCall;
 import x10.ast.Async;
 import x10.ast.AtEach;
 import x10.ast.AtStmt;
@@ -30,6 +31,7 @@ import com.ibm.wala.cast.tree.CAstNode;
 
 public interface X10TranslatorVisitor extends TranslatingVisitor {
     CAstNode visit(Async a, WalkContext context);
+    CAstNode visit(AssignPropertyCall a, WalkContext context);
     CAstNode visit(AtEach a, WalkContext context);
     CAstNode visit(Atomic a, WalkContext context);
     CAstNode visit(AtStmt atStmt, WalkContext context);

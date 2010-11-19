@@ -167,26 +167,22 @@ public class X10CAst2IRTranslator extends X10CAstVisitor implements ArrayOpHandl
     protected void leaveAsyncInvoke(CAstNode n, Context c, CAstVisitor visitor) {
         WalkContext context = (WalkContext)c;
         CAstEntity bodyEntity = (CAstEntity) n.getChild(n.getChildCount()-1).getChild(0).getValue();
-        CAstNode placeExpr = n.getChild(0);
         
         // Figure out whether this is a future or an async
         int exceptValue = context.currentScope().allocateTempValue();
         AsyncCallSiteReference acsr = new AsyncCallSiteReference(asyncEntityToMethodReference(bodyEntity), context.cfg().getCurrentInstruction());
         int rcvrValue = translator.getValue(n.getChild(n.getChildCount()-1));
-        int placeValue = translator.getValue(placeExpr);
-        boolean isHere = placeExpr.getKind()==X10CastNode.HERE?true:false;
-        //System.out.println(placeValue);
-        int clockValues[] = new int[ n.getChildCount() - 2];
+        int clockValues[] = new int[ n.getChildCount() - 1];
         for(int i = 0; i < clockValues.length; i++) {
-            clockValues[i] = translator.getValue(n.getChild(i+1));
+            clockValues[i] = translator.getValue(n.getChild(i));
         }
 
         if (((CAstType.Function) bodyEntity.getType()).getReturnType() == JavaPrimitiveTypeMap.VoidType)
-            context.cfg().addInstruction(insts.AsyncInvoke(new int[] { rcvrValue }, exceptValue, acsr, placeValue, clockValues,isHere));
+            context.cfg().addInstruction(insts.AsyncInvoke(new int[] { rcvrValue }, exceptValue, acsr, clockValues));
         else {
             int retValue = context.currentScope().allocateTempValue();
 
-            context.cfg().addInstruction(insts.AsyncInvoke(retValue, new int[] { rcvrValue }, exceptValue, acsr, placeValue, clockValues,isHere));
+            context.cfg().addInstruction(insts.AsyncInvoke(retValue, new int[] { rcvrValue }, exceptValue, acsr, clockValues));
             translator.setValue(n, retValue);
         }
     }

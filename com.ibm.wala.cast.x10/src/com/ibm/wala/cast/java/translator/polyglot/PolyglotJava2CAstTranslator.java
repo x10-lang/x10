@@ -1809,7 +1809,7 @@ public class PolyglotJava2CAstTranslator implements TranslatorToCAst {
         }
 
         public Collection/* <CAstType> */getExceptionTypes() {
-          return null;
+          return Collections.EMPTY_LIST;
 /* there are no checked exceptions in X10
           if (fExceptionTypes == null) {
             fExceptionTypes = new LinkedHashSet<CAstType>();
@@ -2564,15 +2564,8 @@ public class PolyglotJava2CAstTranslator implements TranslatorToCAst {
       quals.add(CAstQualifier.PUBLIC);
     if (flags.isStatic())
       quals.add(CAstQualifier.STATIC);
-    if (flags.isStrictFP())
-      quals.add(CAstQualifier.STRICTFP);
-    if (flags.isSynchronized())
-      quals.add(CAstQualifier.SYNCHRONIZED);
     if (flags.isTransient())
       quals.add(CAstQualifier.TRANSIENT);
-    if (flags.isVolatile())
-      quals.add(CAstQualifier.VOLATILE);
-
     return quals;
   }
 

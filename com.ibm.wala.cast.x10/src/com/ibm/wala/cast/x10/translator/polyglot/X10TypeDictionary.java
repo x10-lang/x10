@@ -34,7 +34,7 @@ public class X10TypeDictionary extends PolyglotTypeDictionary {
         if (astType instanceof MacroType) {
             return getCAstTypeFor(((MacroType) astType).definedType());
         }
-        if (astType instanceof X10ClassType && ((X10ClassType) astType).typeArguments().size() > 0) {
+        if (astType instanceof X10ClassType && ((X10ClassType) astType).typeArguments() != null && ((X10ClassType) astType).typeArguments().size() > 0) {
             X10ClassType classType = (X10ClassType) astType;
             Type baseType = classType.def().asType();
             List<Type> typeArgs = classType.typeArguments();

@@ -56,7 +56,7 @@ class X10PolyglotIdentityMapper extends PolyglotIdentityMapper {
             ConstrainedType constrainedType = (ConstrainedType) type;
             return typeToTypeID(constrainedType.baseType().get());
         }
-        if (type instanceof X10ClassType && ((X10ClassType) type).typeArguments().size() > 0) {
+        if (type instanceof X10ClassType  && ((X10ClassType) type).typeArguments() != null && ((X10ClassType) type).typeArguments().size() > 0) {
           final X10ClassType classType = (X10ClassType) type;
           if (classType.isLocal() || classType.isAnonymous()) {
             final ClassDef classDef = classType.def().outer().get();

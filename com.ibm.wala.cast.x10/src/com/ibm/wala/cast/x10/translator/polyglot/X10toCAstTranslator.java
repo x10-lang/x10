@@ -30,6 +30,7 @@ import polyglot.types.QName;
 import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
+import x10.ast.AssignPropertyCall;
 import x10.ast.Async;
 import x10.ast.AtEach;
 import x10.ast.AtStmt;
@@ -274,7 +275,7 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 	}
 
 	public String[] getArgumentNames() {
-	    return new String[] { "<place>" };
+	    return new String[0];
 	}
 
 	public CAstNode[] getArgumentDefaults() {
@@ -282,7 +283,7 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 	}
 
 	public int getArgumentCount() {
-	    return 1;
+	    return 0;
 	}
 
 	public CAstNode getAST() {
@@ -326,17 +327,16 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 	    CAstEntity bodyEntity= walkAsyncEntity(a, a.body(), context);
 	    List clocks = a.clocks();
 
-	    CAstNode args[] = new CAstNode[ clocks.size()+2 ];
+	    CAstNode args[] = new CAstNode[ clocks.size()+1 ];
 //	    args[0] = walkNodes(a.place(), context);
 	    for(int i = 0; i < clocks.size(); i++) {
-	    	args[i+1] = walkNodes((Node)clocks.get(i), context);
+	    	args[i] = walkNodes((Node)clocks.get(i), context);
 	    }
 
 	    // FUNCTION_EXPR will translate to a type wrapping the single method with the given body
 	    args[args.length-1] = makeNode(context, a.body(), CAstNode.FUNCTION_EXPR, fFactory.makeConstant(bodyEntity));
 
 	    CAstNode asyncNode= makeNode(context, a, X10CastNode.ASYNC_INVOKE, args);
-
 	    context.addScopedEntity(asyncNode, bodyEntity);
 	    return asyncNode;
 	}
@@ -484,7 +484,11 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
         private CAstNode visitArrayAssign(Expr assign, Expr array, List<Expr> indices, WalkContext wc) {
             throw new UnsupportedOperationException();
         }
-
+        public CAstNode visit(AssignPropertyCall a, WalkContext wc) {
+            // TODO process the assignments
+            return makeNode(wc, fFactory, null, CAstNode.EMPTY);
+        }
+        
         public CAstNode visit(Call c, WalkContext wc) {
 	    MethodInstance methodInstance= c.methodInstance();
 	    StructType methodOwner= methodInstance.container();
@@ -933,7 +937,7 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 	}
 
 	public Collection getExceptionTypes() {
-	    return null;
+	    return Collections.EMPTY_LIST;
 /* there are not checked exceptions in X10
 	    if (excTypes == null) {
 		excTypes= mapTypes(closureType.throwTypes());
