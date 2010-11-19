@@ -434,19 +434,22 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                    ClassLoader cl = Thread.currentThread().getContextClassLoader();
                    Class<?> c = cl.loadClass("com.ibm.wala.cast.x10.translator.polyglot.X102IRGoal");
                    Constructor<?> con = c.getConstructor(Job.class);
-                   Method buildCallTableMethod = c.getMethod("analyze");
                    Method hasMain = c.getMethod("hasMain", String.class);
                    Goal ir = ((Goal) con.newInstance(job)).intern(this);
                    goals.add(ir);
                    Goal finder = MainMethodFinder(job, hasMain);
                    finder.addPrereq(TypeCheckBarrier());
                    ir.addPrereq(finder);
-                   Goal barrier = IRBarrier(ir, buildCallTableMethod,x10.Configuration.FINISH_ASYNCS);
-                   goals.add(barrier);
+                   Goal barrier;
                    if(x10.Configuration.FINISH_ASYNCS){
-                	   goals.add(FinishAsyncBarrier(barrier,job,this));
+                       Method buildCallTableMethod = c.getMethod("analyze");
+                       barrier = IRBarrier(ir, buildCallTableMethod);
+                   } else {
+                       Method printCallGraph = c.getMethod("printCallGraph");
+                       barrier = IRBarrier(ir, printCallGraph);
                    }
-                   
+                   goals.add(barrier);
+                   goals.add(FinishAsyncBarrier(barrier,job,this));
                } catch (Throwable e) {
                    System.err.println("WALA not found.");
                    e.printStackTrace();
@@ -583,7 +586,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            }
            return null;
        }
-       public Goal IRBarrier(final Goal goal, final Method method, final boolean finishAsync) {
+       public Goal IRBarrier(final Goal goal, final Method method) {
            return new AllBarrierGoal("IRBarrier", this) {
                private static final long serialVersionUID = -3692329571101709400L;
                @Override
