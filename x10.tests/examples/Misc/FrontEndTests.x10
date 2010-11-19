@@ -170,7 +170,6 @@ class TestUncountedAsync1 {
 	def mainExample() {
 		val box = new Box[Boolean](false);
 		@Uncounted async {
-			Console.OUT.println("HELLO");
 			@Uncounted async {
 				atomic box.t = true;
 			}
@@ -3166,7 +3165,7 @@ class hasZeroTests {
 }
 class RuntimeTestsOfHaszero {
 	public static def main(Array[String]) {
-		new Hello().m();
+		new RuntimeTestsOfHaszero().m();
 	}
 
 	var i:Int;
@@ -3178,12 +3177,12 @@ class RuntimeTestsOfHaszero {
 	val a3 = new A[Long]();
 
 	def m() {
-		Console.OUT.println(++i);
-		Console.OUT.println(k);
-		Console.OUT.println(l++);
-		Console.OUT.println(a1.t);
-		Console.OUT.println(++a2.t);
-		Console.OUT.println(++a3.t);
+		assert(1==++i);
+		assert(0==k);
+		assert(0==l++);
+		assert(null==a1.t);
+		assert(1==++a2.t);
+		assert(1==++a3.t);
 	}
 
 	static class A[T] {T haszero} {
