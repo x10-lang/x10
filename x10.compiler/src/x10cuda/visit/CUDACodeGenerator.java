@@ -644,14 +644,14 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 					if (xts().isRemoteArray(t)) {
 						inc.write("__env." + name + ".raw = (" + ts + "*)(size_t)" + rr + ";");
 						inc.newline();
-						inc.write("__env." + name + ".size = " + name + "->FMGL(size);");
+						inc.write("__env." + name + ".FMGL(size) = " + name + "->FMGL(size);");
 						inc.newline();
 					} else {
 						String len = name + "->FMGL(rawLength)";
 						String sz = "sizeof(" + ts + ")*" + len;
 						inc.write("__env." + name + ".raw = (" + ts + "*)(size_t)x10aux::remote_alloc(__gpu, " + sz + ");");
 						inc.newline();
-						inc.write("__env." + name + ".size = " + len + ";");
+						inc.write("__env." + name + ".FMGL(size) = " + len + ";");
 						inc.newline();
 						inc.write("x10aux::cuda_put(__gpu, (x10_ulong) __env." + name + ".raw, " + addr + ", " + sz + ");");
 					}
