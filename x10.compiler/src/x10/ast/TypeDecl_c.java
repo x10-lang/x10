@@ -174,22 +174,25 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 	}
 	
 	public Context enterScope(Context c) {
-	    return c.pushCode(typeDef);
+	    c = c.pushCode(typeDef);
+	    if (!c.inStaticContext() && typeDef.thisDef() != null)
+	        c.addVariable(typeDef.thisDef().asInstance());
+	    return c;
 	}
 
 	public Context enterChildScope(Node child, Context c) {
-	        if (child != type) {
-	            // Push formals so they're in scope in the types of the other formals.
-	            c = c.pushBlock();
-	            for (TypeParamNode f : typeParams) {
-	                f.addDecls(c);
-	            }
-	            for (Formal f : formals) {
-	                f.addDecls(c);
-	            }
+	    if (child != type) {
+	        // Push formals so they're in scope in the types of the other formals.
+	        c = c.pushBlock();
+	        for (TypeParamNode f : typeParams) {
+	            f.addDecls(c);
 	        }
+	        for (Formal f : formals) {
+	            f.addDecls(c);
+	        }
+	    }
 
-	        return super.enterChildScope(child, c);
+	    return super.enterChildScope(child, c);
 	}
 
 	private static final boolean ALLOW_TOP_LEVEL_TYPEDEFS = false;

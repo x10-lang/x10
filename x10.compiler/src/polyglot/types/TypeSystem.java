@@ -29,6 +29,8 @@ import x10.types.ClosureInstance;
 import x10.types.FunctionType;
 import x10.types.MacroType;
 import x10.types.ParameterType;
+import x10.types.ThisDef;
+import x10.types.ThisInstance;
 import x10.types.TypeDefMatcher;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
@@ -889,6 +891,8 @@ public interface TypeSystem {
      */
     ClosureInstance createClosureInstance(Position pos, Ref<? extends ClosureDef> def);
 
+    ThisInstance createThisInstance(Position pos, Ref<? extends ThisDef> def);
+    
     /**
      * Returns an immutable list of all the interfaces
      * which the type implements excluding itself and x10.lang.Object.
@@ -939,13 +943,15 @@ public interface TypeSystem {
 
     CodeDef asyncCodeInstance(boolean isStatic);
 
+    ThisDef thisDef(Position pos, Ref<? extends ClassType> type);
+
     /**
      * Create a closure instance.
      * @param returnType
      *                The closure's return type.
      * @param argTypes
      *                The closure's formal parameter types.
-     * @param thisVar TODO
+     * @param thisDef TODO
      * @param typeGuard TODO
      * @param pos
      *                Position of the closure.
@@ -958,7 +964,7 @@ public interface TypeSystem {
             Ref<? extends CodeInstance<?>> methodContainer,
                     Ref<? extends Type> returnType,
                     List<Ref<? extends Type>> argTypes,
-                    XVar thisVar,
+                    ThisDef thisDef,
                     List<LocalDef> formalNames,
                     Ref<CConstraint> guard,
 
@@ -970,7 +976,7 @@ public interface TypeSystem {
             Ref<? extends Type> offerType);
 
     X10ConstructorDef constructorDef(Position pos, Ref<? extends ClassType> container, Flags flags, Ref<? extends ClassType> returnType,
-            List<Ref<? extends Type>> argTypes, XVar thisVar, List<LocalDef> formalNames, Ref<CConstraint> guard,
+            List<Ref<? extends Type>> argTypes, ThisDef thisDef, List<LocalDef> formalNames, Ref<CConstraint> guard,
             Ref<TypeConstraint> typeGuard, Ref<? extends Type> offerType);
 
     X10MethodDef methodDef(Position pos, Ref<? extends StructType> container,
@@ -978,13 +984,13 @@ public interface TypeSystem {
             List<Ref<? extends Type>> argTypes,  Ref<? extends Type> offerType);
 
     X10MethodDef methodDef(Position pos, Ref<? extends StructType> container, Flags flags, Ref<? extends Type> returnType, Name name,
-            List<ParameterType> typeParams, List<Ref<? extends Type>> argTypes, XVar thisVar, List<LocalDef> formalNames,
+            List<ParameterType> typeParams, List<Ref<? extends Type>> argTypes, ThisDef thisDef, List<LocalDef> formalNames,
             Ref<CConstraint> guard, Ref<TypeConstraint> typeGuard, Ref<? extends Type> offerType, Ref<XTerm> body);
 
     X10FieldDef fieldDef(Position pos, Ref<? extends StructType> container, Flags flags, Ref<? extends Type> type, Name name);
 
     X10FieldDef fieldDef(Position pos, Ref<? extends StructType> container, Flags flags, Ref<? extends Type> type, Name name,
-            XVar thisVar);
+            ThisDef thisDef);
 
     X10LocalDef localDef(Position pos, Flags flags, Ref<? extends Type> type, Name name);
 

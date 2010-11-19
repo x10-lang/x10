@@ -98,9 +98,9 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
     
     @Override
     public Context enterScope(Context c) {
-        if (ii != null) {
-            return c.pushCode(ii);
-        }
+        c = super.enterScope(c);
+        if (!c.inStaticContext() && fieldDef().thisDef() != null)
+            c.addVariable(fieldDef().thisDef().asInstance());
         return c;
     }
 
@@ -259,7 +259,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
     	X10Flags xFlags = X10Flags.toX10Flags(flags);
     	
     	X10FieldDef fi = (X10FieldDef) ts.fieldDef(position(), Types.ref(ct.asType()), flags, type.typeRef(), name.id());
-    	fi.setThisVar(((X10ClassDef) ct).thisVar());
+    	fi.setThisDef(((X10ClassDef) ct).thisDef());
 
     	return fi;
     }
@@ -267,7 +267,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
     protected InitializerDef createInitializerDef(TypeSystem ts, ClassDef ct, Flags iflags) {
         X10InitializerDef ii;
         ii = (X10InitializerDef) super.createInitializerDef(ts, ct , iflags);
-        ii.setThisVar(((X10ClassDef) ct).thisVar());
+        ii.setThisDef(((X10ClassDef) ct).thisDef());
         return ii;
     }
 

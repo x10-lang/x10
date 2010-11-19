@@ -30,6 +30,7 @@ import polyglot.util.CollectionUtil;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
+import x10.constraint.XTerms;
 import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.types.constraints.CConstraint;
@@ -58,7 +59,7 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
             Ref<? extends CodeInstance<?>> methodContainer,
             Ref<? extends Type> returnType,
             List<Ref<? extends Type>> formalTypes,
-            XVar thisVar,
+            ThisDef thisDef,
             List<LocalDef> formalNames, 
             Ref<CConstraint> guard,
             //Ref<TypeConstraint> typeGuard,
@@ -69,11 +70,11 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
         this.typeContainer = typeContainer;
         this.methodContainer = methodContainer;
         this.returnType = returnType;
-        this.thisVar = thisVar;
         this.formalTypes = TypedList.copyAndCheck(formalTypes, Ref.class, true);
         this.formalNames = TypedList.copyAndCheck(formalNames, LocalDef.class, true);
         this.guard = guard;
         //this.typeGuard = typeGuard;
+        this.thisDef = thisDef;
         this.offerType = offerType;
         this.capturedEnvironment = new ArrayList<VarInstance<? extends VarDef>>();
     }
@@ -148,15 +149,22 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
         throw new InternalCompilerError("Attempt to set type parameters on a closure def: "+this, position());
     }
     
-    XVar thisVar;
     public XVar thisVar() {
-        return this.thisVar;
-    }
-    
-    public void setThisVar(XVar thisVar) {
-        this.thisVar = thisVar;
+        if (this.thisDef != null)
+            return this.thisDef.thisVar();
+        return XTerms.makeEQV("#this");
     }
 
+    ThisDef thisDef;
+
+    public ThisDef thisDef() {
+        return this.thisDef;
+    }
+
+    public void setThisDef(ThisDef thisDef) {
+        this.thisDef = thisDef;
+    }
+    
     public void setPlaceTerm(XConstrainedTerm p) {
     	this.placeTerm = p;
     }
@@ -229,9 +237,22 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
          return Collections.unmodifiableList(capturedEnvironment);
      }
 
+     private static boolean containsDef(List<VarInstance<? extends VarDef>> l, VarInstance<? extends VarDef> v) {
+         for (VarInstance<? extends VarDef> e : l) {
+             if (e == v)
+                 return true;
+             if (e.def() == v.def())
+                 return true;
+         }
+         return false;
+     }
+
      public void addCapturedVariable(VarInstance<? extends VarDef> vi) {
-         if (!this.capturedEnvironment.contains(vi)) {
-             this.capturedEnvironment.add(vi);
+         List<VarInstance<? extends VarDef>> capturedEnvironment = this.capturedEnvironment;
+         if (!containsDef(capturedEnvironment, vi)) {
+             capturedEnvironment.add(vi);
+             //if (vi instanceof ThisInstance)
+             //    System.err.println("Closure at "+position()+" captures this");
          }
      }
 

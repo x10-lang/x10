@@ -22,6 +22,7 @@ public class X10TypeBuilder extends TypeBuilder {
 
         TypeSystem ts = typeSystem();
 
+        def.setThisDef(typeSystem().thisDef(pos, Types.ref(def.asType())));
         def.setTypeBounds(Types.ref(new TypeConstraint()));
 
         return def;

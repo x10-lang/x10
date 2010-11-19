@@ -186,7 +186,7 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
                 Collections.<Ref<? extends Type>>emptyList(), 
                 offerType == null ? null : offerType.typeRef());
         
-        ci.setThisVar(((X10ClassDef) ct).thisVar());
+        ci.setThisDef(((X10ClassDef) ct).thisDef());
         return ci;
     }
 
@@ -245,9 +245,15 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
         return n;
     }
 
+    @Override
     public Context enterScope(Context c) {
-        return c.pushCode(ci);
+        c = super.enterScope(c);
+        if (!c.inStaticContext() && constructorDef().thisDef() != null)
+            c.addVariable(constructorDef().thisDef().asInstance());
+        return c;
     }
+
+    @Override
     public Context enterChildScope(Node child, Context c) {
         // We should have entered the constructor scope already.
         assert c.currentCode() == this.constructorDef();
@@ -415,7 +421,7 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
             			Type t =  tc.context().currentClass();
             			CConstraint dep = X10TypeMixin.xclause(t);
             			if (c != null && dep != null) {
-            				XVar thisVar = ((X10MemberDef) constructorDef()).thisVar();
+            				XVar thisVar = constructorDef().thisVar();
             				if (thisVar != null)
             				    dep = dep.substitute(thisVar, c.self());
 //            				dep = dep.copy();

@@ -860,7 +860,7 @@ public class X10Context_c extends Context_c {
 	    if (c == null)
 	        return;
 	    VarInstance<?> o = c.pop().findVariableSilent(vi.name());
-	    if (vi == o)
+	    if (vi == o || (o != null && vi.def() == o.def()))
 	        ((ClosureDef) c.currentCode()).addCapturedVariable(vi);
 	}
 

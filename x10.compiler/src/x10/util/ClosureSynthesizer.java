@@ -38,7 +38,6 @@ import x10.ast.ClosureCall;
 import x10.ast.X10Local_c;
 import x10.constraint.XName;
 import x10.constraint.XNameWrapper;
-import x10.constraint.XVar;
 import x10.constraint.XTerms;
 import x10.constraint.XLocal;
 import x10.constraint.XFailure;
@@ -48,6 +47,7 @@ import x10.types.ClosureType_c;
 import x10.types.FunctionType;
 import x10.types.ParameterType;
 import x10.types.ParameterType_c;
+import x10.types.ThisDef;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassDef_c;
 import x10.types.X10ClassType;
@@ -89,7 +89,7 @@ public class ClosureSynthesizer {
 	                Types.ref(retType), 
 	                //Collections.EMPTY_LIST,
 	                fTypes, 
-	                (XVar) null, 
+	                null, 
 	                fNames, 
 	                null, 
 	               // Collections.<Ref<? extends Type>>emptyList(), 
@@ -296,6 +296,8 @@ public class ClosureSynthesizer {
             cd.addTypeParameter(t, ParameterType.Variance.CONTRAVARIANT);
         }
 
+        cd.setThisDef(xts.thisDef(pos, Types.ref(cd.asType())));
+
         Type rt = null;
 
         if (!isVoid) {
@@ -312,10 +314,7 @@ public class ClosureSynthesizer {
         FunctionType ct = (FunctionType) cd.asType();
         xts.systemResolver().install(fullName, ct);
 
-        String fullNameWithThis = fullName + "#this";
-        //String fullNameWithThis = "this";
-        XName thisName = new XNameWrapper<Object>(new Object(), fullNameWithThis);
-        XVar thisVar = XTerms.makeLocal(thisName);
+        ThisDef thisDef = cd.thisDef();
 
         List<LocalDef> formalNames = xts.dummyLocalDefs(argTypes);
         X10MethodDef mi = xts.methodDef(pos, Types.ref(ct),
@@ -323,7 +322,7 @@ public class ClosureSynthesizer {
         		ClosureCall.APPLY, 
         		typeParams, 
         		argTypes, 
-        		thisVar,
+        		thisDef,
         		formalNames, 
         		null,//todo: it was guard1
         		null, 

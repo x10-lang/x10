@@ -29,7 +29,9 @@ import x10.errors.Errors;
 import x10.types.ConstrainedType;
 import x10.types.X10ConstructorDef;
 import polyglot.types.Context;
+import x10.types.ThisDef;
 import x10.types.X10Flags;
+import x10.types.X10MemberDef;
 import x10.types.X10MethodDef;
 import x10.types.X10ParsedClassType;
 import x10.types.X10ProcedureDef;
@@ -81,6 +83,13 @@ public class X10Special_c extends Special_c implements X10Special {
         
         Type t = null;
 
+        CodeDef code = c.currentCode();
+        if (code instanceof X10MemberDef) {
+            ThisDef thisDef = ((X10MemberDef) code).thisDef();
+            assert (thisDef != null);
+            c.recordCapturedVariable(thisDef.asInstance());
+        }
+
         if (qualifier == null) {
             // an unqualified "this" 
             t = c.currentClass();
@@ -97,8 +106,8 @@ public class X10Special_c extends Special_c implements X10Special {
 
             // Use the constructor return type, not the base type.
             if (c.currentDepType() == null)
-                if (c.currentCode() instanceof X10ConstructorDef) {
-                    X10ConstructorDef cd = (X10ConstructorDef) c.currentCode();
+                if (code instanceof X10ConstructorDef) {
+                    X10ConstructorDef cd = (X10ConstructorDef) code;
                     Type returnType =  cd.returnType().get();
                     returnType =  ts.expandMacros(returnType);
                     t = returnType;
@@ -108,8 +117,6 @@ public class X10Special_c extends Special_c implements X10Special {
             if (qualifier.type().isClass()) {
                 ClassType ct =  qualifier.type().toClass();
                 t=ct;
-                CodeDef cd = c.currentCode();
-           
                 if (!c.currentClass().hasEnclosingInstance(ct)) {
                     Errors.issue(tc.job(),
                             new SemanticException("The nested class \"" +c.currentClass() + "\" does not have an enclosing instance of type \"" +ct + "\".", qualifier.position()),
@@ -176,10 +183,8 @@ public class X10Special_c extends Special_c implements X10Special {
        
         assert result.type() != null;
 
-        // Fold in the method's guard, if any.
-        CodeDef ci = c.currentCode();
-        if (ci instanceof X10ProcedureDef) {
-            X10ProcedureDef pi = (X10ProcedureDef) ci;
+        if (code instanceof X10ProcedureDef) {
+            X10ProcedureDef pi = (X10ProcedureDef) code;
             CConstraint guard = Types.get(pi.guard());
             if (guard != null) {
                 Type newType = result.type();

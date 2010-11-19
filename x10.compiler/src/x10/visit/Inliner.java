@@ -1261,7 +1261,7 @@ public class Inliner extends ContextVisitor {
                                                                        md.name(), 
                                                                        md.typeParameters(), 
                                                                        argTypes, 
-                                                                       md.thisVar(), 
+                                                                       md.thisDef(), 
                                                                        formalNames, 
                                                                        g == null ? null : g.valueConstraint(),
                                                                        g == null ? null : g.typeConstraint(),

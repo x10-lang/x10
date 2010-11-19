@@ -62,6 +62,7 @@ import x10.constraint.XVar;
 import x10.constraint.XTerms;
 import x10.errors.Errors;
 import x10.types.ClosureDef;
+import x10.types.ThisDef;
 import x10.types.X10ClassDef;
 import polyglot.types.Context;
 import x10.types.X10MemberDef;
@@ -262,13 +263,13 @@ public class Closure_c extends Expr_c implements Closure {
 		CodeDef code = (CodeDef) def;
 
 		// Get the enclosing this variable.
-		XVar thisVar; // = XTerms.makeLocal(XTerms.makeFreshName("this"));
+		ThisDef thisDef;
 
 		if (code instanceof X10MemberDef) {
-			thisVar = ((X10MemberDef) code).thisVar();
+			thisDef = ((X10MemberDef) code).thisDef();
 		}
 		else {
-			thisVar = ct.thisVar();
+			thisDef = ct.thisDef();
 		}
 
 		ClosureDef mi = ts.closureDef(position(), 
@@ -276,7 +277,7 @@ public class Closure_c extends Expr_c implements Closure {
 				Types.ref(code.asInstance()), 
 				returnType.typeRef(),
 				Collections.<Ref<? extends Type>>emptyList(),
-				thisVar,
+				thisDef,
 				Collections.<LocalDef>emptyList(), 
 				null, 
 				//null, 
@@ -320,8 +321,9 @@ public class Closure_c extends Expr_c implements Closure {
 		// mi.setTypeParameters(Collections.EMPTY_LIST);
 		mi.setFormalTypes(formalTypes);
 
-		if (code instanceof X10MemberDef)
-			assert mi.thisVar() == ((X10MemberDef) code).thisVar();
+		if (code instanceof X10MemberDef) {
+			assert mi.thisDef() == ((X10MemberDef) code).thisDef();
+		}
 
 		if (returnType instanceof UnknownTypeNode && body == null) {
 			Errors.issue(tb.job(),

@@ -688,10 +688,10 @@ public class X10TypeSystem_c extends TypeSystem_c {
     public X10FieldInstance createFakeField(ClassType container, Flags flags, Name name, SemanticException error) {
         Position pos = Position.compilerGenerated(container == null ? null : container.position());
         Type type = unknownType(pos);
-        XVar thisVar = XTerms.makeEQV();
+        ThisDef thisDef = thisDef(pos, Types.ref(container));
         List<Ref<? extends Type>> excTypes = Collections.emptyList();
         X10FieldDef fd = (X10FieldDef) fieldDef(pos, Types.ref(container), flags,
-                                                Types.ref(type), name, thisVar);
+                                                Types.ref(type), name, thisDef);
         return ((X10FieldInstance) fd.asInstance()).error(error);
     }
 
@@ -711,10 +711,10 @@ public class X10TypeSystem_c extends TypeSystem_c {
             args.add(Types.ref(t));
             formalNames.add(localDef(pos, Flags.FINAL, Types.ref(t), Name.make("p"+(++i))));
         }
-        XVar thisVar = XTerms.makeEQV();
+        ThisDef thisDef = thisDef(pos, Types.ref(container));
         X10MethodDef md = (X10MethodDef) methodDef(pos, Types.ref(container), flags,
                                                    Types.ref(returnType), name, Collections.<ParameterType>emptyList(),
-                                                   args, thisVar, formalNames, null, null,  null, null);
+                                                   args, thisDef, formalNames, null, null,  null, null);
         List<ParameterType> typeParams = new ArrayList<ParameterType>();
         i = 0;
         for (Type r : typeArgs) {
@@ -736,10 +736,10 @@ public class X10TypeSystem_c extends TypeSystem_c {
             args.add(Types.ref(t));
             formalNames.add(localDef(pos, Flags.FINAL, Types.ref(t), Name.make("p"+(++i))));
         }
-        XVar thisVar = XTerms.makeEQV();
+        ThisDef thisDef = thisDef(pos, Types.ref(container));
         X10ConstructorDef cd = (X10ConstructorDef) constructorDef(pos, Types.ref(container), flags,
                 Types.ref(container), args,
-                thisVar, formalNames, null, null,  null);
+                thisDef, formalNames, null, null,  null);
 //        List<Ref<? extends Type>> typeParams = new ArrayList<Ref<? extends Type>>();
 //        i = 0;
 //        for (Type r : typeArgs) {
@@ -904,6 +904,15 @@ public class X10TypeSystem_c extends TypeSystem_c {
 
     public ClosureInstance createClosureInstance(Position pos, Ref<? extends ClosureDef> def) {
         return new ClosureInstance_c(this, pos, def);
+    }
+
+    public ThisInstance createThisInstance(Position pos, Ref<? extends ThisDef> def) {
+        return new ThisInstance_c(this, pos, def);
+    }
+
+    public ThisDef thisDef(Position pos, Ref<? extends ClassType> type) {
+        assert_(type);
+        return new ThisDef_c(this, pos, type);
     }
 
     public List<X10ClassType> allImplementedInterfaces(X10ClassType c) {
@@ -1083,20 +1092,18 @@ public class X10TypeSystem_c extends TypeSystem_c {
             Flags flags, Ref<? extends Type> returnType, Name name,
             List<Ref<? extends Type>> argTypes,  Ref<? extends Type> offerType)
     {
-    	String fullNameWithThis = name + "#this";
-    	XName thisName = new XNameWrapper<Object>(new Object(), fullNameWithThis);
-    	XVar thisVar = XTerms.makeLocal(thisName);
+        ThisDef thisDef = ((X10ClassType) Types.get(container)).x10Def().thisDef();
 
-    	// set up null thisVar for method def's, so the outer contexts are searched for thisVar.
-    	return methodDef(pos, container, flags, returnType, name, Collections.<ParameterType>emptyList(), argTypes,
-    	        name.toString().contains(DUMMY_AT_ASYNC) ? null : thisVar, dummyLocalDefs(argTypes), null, null,  offerType,
-    	                null);
+        // set up null thisVar for method def's, so the outer contexts are searched for thisVar.
+        return methodDef(pos, container, flags, returnType, name, Collections.<ParameterType>emptyList(), argTypes,
+                name.toString().contains(DUMMY_AT_ASYNC) ? null : thisDef, dummyLocalDefs(argTypes), null, null,  offerType,
+                        null);
     }
 
     public X10MethodDef methodDef(Position pos, Ref<? extends StructType> container,
     		Flags flags, Ref<? extends Type> returnType, Name name,
             List<ParameterType> typeParams, List<Ref<? extends Type>> argTypes,
-            XVar thisVar, List<LocalDef> formalNames,
+            ThisDef thisDef, List<LocalDef> formalNames,
             Ref<CConstraint> guard,
             Ref<TypeConstraint> typeGuard,
             Ref<? extends Type> offerType,
@@ -1106,7 +1113,7 @@ public class X10TypeSystem_c extends TypeSystem_c {
         assert_(returnType);
         assert_(typeParams);
         assert_(argTypes);
-        return new X10MethodDef_c(this, pos, container, flags, returnType, name, typeParams, argTypes, thisVar, formalNames, guard, typeGuard, offerType, body);
+        return new X10MethodDef_c(this, pos, container, flags, returnType, name, typeParams, argTypes, thisDef, formalNames, guard, typeGuard, offerType, body);
     }
 
     /**
@@ -1141,11 +1148,11 @@ public class X10TypeSystem_c extends TypeSystem_c {
     }
 
     public ClosureDef closureDef(Position p, Ref<? extends ClassType> typeContainer, Ref<? extends CodeInstance<?>> methodContainer,
-            Ref<? extends Type> returnType, List<Ref<? extends Type>> argTypes, XVar thisVar,
+            Ref<? extends Type> returnType, List<Ref<? extends Type>> argTypes, ThisDef thisDef,
             List<LocalDef> formalNames, Ref<CConstraint> guard,
             Ref<? extends Type> offerType) {
         return new ClosureDef_c(this, p, typeContainer, methodContainer, returnType,
-        		argTypes, thisVar, formalNames, guard,  offerType);
+        		argTypes, thisDef, formalNames, guard,  offerType);
     }
 
     public FunctionType closureType(Position p, Ref<? extends Type> returnType,
@@ -1617,17 +1624,15 @@ public class X10TypeSystem_c extends TypeSystem_c {
         assert_(container);
         assert_(type);
 
-        String fullNameWithThis = name + "#this";
-        XName thisName = new XNameWrapper<Object>(new Object(), fullNameWithThis);
-        XVar thisVar = XTerms.makeLocal(thisName);
+        ThisDef thisDef = ((X10ClassType) Types.get(container)).x10Def().thisDef();
 
-        return fieldDef(pos, container, flags, type, name, thisVar);
+        return fieldDef(pos, container, flags, type, name, thisDef);
     }
 
-    public X10FieldDef fieldDef(Position pos, Ref<? extends StructType> container, Flags flags, Ref<? extends Type> type, Name name, XVar thisVar) {
+    public X10FieldDef fieldDef(Position pos, Ref<? extends StructType> container, Flags flags, Ref<? extends Type> type, Name name, ThisDef thisDef) {
         assert_(container);
         assert_(type);
-        return new X10FieldDef_c(this, pos, container, flags, type, name, thisVar);
+        return new X10FieldDef_c(this, pos, container, flags, type, name, thisDef);
     }
 
     public boolean isUByte(Type t) {
@@ -2212,16 +2217,14 @@ public class X10TypeSystem_c extends TypeSystem_c {
         assert_(container);
         assert_(argTypes);
 
-        String fullNameWithThis = "this#this";
-        XName thisName = new XNameWrapper<Object>(new Object(), fullNameWithThis);
-        XVar thisVar = XTerms.makeLocal(thisName);
+        ThisDef thisDef = ((X10ClassType) Types.get(container)).x10Def().thisDef();
 
-        return constructorDef(pos, container, flags, Types.ref(Types.get(container)), argTypes, thisVar, dummyLocalDefs(argTypes),
+        return constructorDef(pos, container, flags, Types.ref(Types.get(container)), argTypes, thisDef, dummyLocalDefs(argTypes),
         		null, null,  offerType);
     }
 
     public X10ConstructorDef constructorDef(Position pos, Ref<? extends ClassType> container, Flags flags, Ref<? extends ClassType> returnType,
-            List<Ref<? extends Type>> argTypes, XVar thisVar, List<LocalDef> formalNames, Ref<CConstraint> guard, Ref<TypeConstraint> typeGuard,
+            List<Ref<? extends Type>> argTypes, ThisDef thisDef, List<LocalDef> formalNames, Ref<CConstraint> guard, Ref<TypeConstraint> typeGuard,
             Ref<? extends Type> offerType)
     {
         assert_(container);
@@ -2234,7 +2237,7 @@ public class X10TypeSystem_c extends TypeSystem_c {
 		//t = (X10ClassType) t.setFlags(X10Flags.ROOTED);
 		((Ref<X10ClassType>)returnType).update(t);
 		//returnType = new Ref_c<X10ClassType>(t);
-        return new X10ConstructorDef_c(this, pos, container, flags, returnType, argTypes, thisVar, formalNames, guard, typeGuard,  offerType);
+        return new X10ConstructorDef_c(this, pos, container, flags, returnType, argTypes, thisDef, formalNames, guard, typeGuard,  offerType);
     }
 
     public void addAnnotation(X10Def o, Type annoType, boolean replace) {

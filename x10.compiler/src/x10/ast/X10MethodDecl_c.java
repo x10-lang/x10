@@ -180,7 +180,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 				Collections.<Ref<? extends Type>>emptyList(), 
 				offerType == null ? null : offerType.typeRef());
 
-		mi.setThisVar(((X10ClassDef) ct).thisVar());
+		mi.setThisDef(((X10ClassDef) ct).thisDef());
 		this.placeTerm = PlaceChecker.methodPT(flags, ct);
 		return mi;
 	}
@@ -339,6 +339,14 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 	@Override
 	public X10MethodDef methodDef() {
 	    return (X10MethodDef) super.methodDef();
+	}
+
+	@Override
+	public Context enterScope(Context c) {
+	    c = super.enterScope(c);
+	    if (!c.inStaticContext() && methodDef().thisDef() != null)
+	        c.addVariable(methodDef().thisDef().asInstance());
+	    return c;
 	}
 
 	@Override
@@ -895,7 +903,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 					Type t =  tc.context().currentClass();
 					CConstraint dep = X10TypeMixin.xclause(t);
 					if (c != null && dep != null) {
-						XVar thisVar = ((X10MemberDef) methodDef()).thisVar();
+						XVar thisVar = methodDef().thisVar();
 						if (thisVar != null)
 							dep = dep.substitute(thisVar, c.self());
 						//                                  dep = dep.copy();

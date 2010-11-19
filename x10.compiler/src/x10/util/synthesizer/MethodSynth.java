@@ -86,7 +86,7 @@ public class MethodSynth extends AbstractStateSynth implements IClassMemberSynth
                 methodName, 
                 formalTypeRefs 
                 );//this constructor will not set formal names
-        methodDef.setThisVar(((X10ClassDef) classDef).thisVar());
+        methodDef.setThisDef(((X10ClassDef) classDef).thisDef());
         placeTerm = PlaceChecker.methodPT(flags, classDef);
         methodDef.setFormalNames(formalNames);
         classDef.addMethod(methodDef);

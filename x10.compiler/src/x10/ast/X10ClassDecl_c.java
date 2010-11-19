@@ -276,6 +276,8 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     public Context enterScope(Context c) {
     	return c.pushBlock();
     }
+
+    @Override
     public Context enterChildScope(Node child, Context c) {
     	Context xc = (Context) c;
     	if (child != this.body ) {
@@ -376,6 +378,8 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         X10ClassDecl_c n = (X10ClassDecl_c) super.preBuildTypes(tb);
         
         final X10ClassDef def = (X10ClassDef) n.type;
+        
+        def.setThisDef(tb.typeSystem().thisDef(n.position(), Types.ref(def.asType())));
         
         TypeBuilder childTb = tb.pushClass(def);
         

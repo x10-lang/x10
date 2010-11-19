@@ -53,27 +53,29 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
     private static final long serialVersionUID = -4644427081636650171L;
 
     protected List<ParameterType.Variance> variances;
-    XVar thisVar;
     
     public X10ClassDef_c(TypeSystem ts, Source fromSource) {
         super(ts, fromSource);
         this.variances = new ArrayList<ParameterType.Variance>();
         this.typeParameters = new ArrayList<ParameterType>();
         this.typeMembers = new ArrayList<TypeDef>();
-        this.thisVar = null;
+        this.thisDef = null;
     }
     
     public XVar thisVar() {
-        if (thisVar == null) {
-            String fullNameWithThis = fullName() + "#this";
-            XName thisName = new XNameWrapper<Object>(new Object(), fullNameWithThis);
-            thisVar = XTerms.makeLocal(thisName);
-        }
-        return this.thisVar;
+        if (this.thisDef != null)
+            return this.thisDef.thisVar();
+        return XTerms.makeEQV("#this");
     }
 
-    public void setThisVar(XVar thisVar) {
-        this.thisVar = thisVar;
+    ThisDef thisDef;
+
+    public ThisDef thisDef() {
+        return this.thisDef;
+    }
+
+    public void setThisDef(ThisDef thisDef) {
+        this.thisDef = thisDef;
     }
 
     // BEGIN ANNOTATION MIXIN

@@ -30,6 +30,7 @@ import polyglot.types.Types;
 import polyglot.util.CollectionUtil;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
+import x10.constraint.XTerms;
 import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.types.constraints.CConstraint;
@@ -54,7 +55,6 @@ public class TypeDef_c extends MemberDef_c implements TypeDef {
 		super(ts, pos, container, flags);
 		this.name = name;
 		this.typeParameters = TypedList.copyAndCheck(typeParams, ParameterType.class, true);
-		this.thisVar = thisVar;
 		this.formalNames = TypedList.copyAndCheck(formalNames, LocalDef.class, true);
 		this.formalTypes = TypedList.copyAndCheck(formalTypes, Ref.class, true);
 		this.guard = guard;
@@ -162,13 +162,20 @@ public class TypeDef_c extends MemberDef_c implements TypeDef {
 		this.type = type;
 	}
 
-	XVar thisVar;
 	public XVar thisVar() {
-	    return this.thisVar;
+		if (this.thisDef != null)
+			return this.thisDef.thisVar();
+		return XTerms.makeEQV("#this");
 	}
 
-	public void setThisVar(XVar thisVar) {
-	    this.thisVar = thisVar;
+	ThisDef thisDef;
+
+	public ThisDef thisDef() {
+		return this.thisDef;
+	}
+
+	public void setThisDef(ThisDef thisDef) {
+		this.thisDef = thisDef;
 	}
 
 	public List<LocalDef> formalNames() {

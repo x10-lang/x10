@@ -270,6 +270,8 @@ public class X10Field_c extends Field_c {
             throw fi.error();
         }
 
+        c.recordCapturedVariable(fi);
+
 //		// Fix XTENLANG-945 (alternative common fix)
 //		if (isInterfaceProperty(tType, fi)) {
 //			throw new NoMemberException(NoMemberException.FIELD, "interface property access will be translated to property method call");

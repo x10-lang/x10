@@ -37,7 +37,7 @@ public class X10Initializer_c extends Initializer_c {
         X10InitializerDef ii;
         ii = (X10InitializerDef) super.createInitializerDef(ts, ct , flags);
         if (! ii.flags().isStatic())
-        	ii.setThisVar(((X10ClassDef) ct).thisVar());
+        	ii.setThisDef(((X10ClassDef) ct).thisDef());
         return ii;
     }
     @Override

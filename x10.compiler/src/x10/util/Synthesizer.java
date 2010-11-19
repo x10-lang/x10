@@ -192,7 +192,7 @@ public class Synthesizer {
 	        xnf.X10MethodDecl(CG, newFlags, rt, xnf.Id(CG,name), typeParamNodes, formals, null, null, block);
 
 	    MethodDef rmi = xts.methodDef(CG, Types.ref(ct.classDef().asType()), 
-	            newFlags.flags(), rt.typeRef(), name, typeParameters, argTypes, ct.classDef().thisVar(), formalNames, null, null, null, null);
+	            newFlags.flags(), rt.typeRef(), name, typeParameters, argTypes, ct.classDef().thisDef(), formalNames, null, null, null, null);
 
 	    result = result.methodDef(rmi);
 	    return result;
