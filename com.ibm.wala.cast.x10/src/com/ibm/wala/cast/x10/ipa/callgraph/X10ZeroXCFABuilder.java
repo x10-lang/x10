@@ -52,7 +52,7 @@ public class X10ZeroXCFABuilder extends X10CFABuilder {
 	  appContextSelector == null? 
 			             def: 
 			            new DelegatingContextSelector(appContextSelector, def);
-			   
+/*
 	  contextSelector = new MiscellaneousHacksContextSelector(
 			       		  new nCFAContextSelector(1, contextSelector),
 			       		  contextSelector,
@@ -85,7 +85,7 @@ public class X10ZeroXCFABuilder extends X10CFABuilder {
 			   					  	   "()V"}
 			   
 			       		  });
-			         
+*/
       setContextSelector(contextSelector);
 
       setInstanceKeys(
