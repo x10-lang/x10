@@ -44,6 +44,7 @@ import polyglot.ast.TypeNode;
 import polyglot.frontend.ExtensionInfo;
 import polyglot.frontend.Goal;
 import polyglot.frontend.Job;
+import polyglot.frontend.Source;
 import polyglot.types.Context;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
@@ -69,6 +70,7 @@ import polyglot.util.SubtypeSet;
 import polyglot.visit.AlphaRenamer;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
+import x10.Configuration;
 import x10.ast.Closure;
 import x10.ast.ClosureCall;
 import x10.ast.DepParameterExpr;
@@ -83,7 +85,6 @@ import x10.ast.X10Formal;
 import x10.ast.X10MethodDecl;
 import x10.ast.X10ProcedureCall;
 import x10.ast.X10Special;
-import x10.Configuration;
 import x10.config.ConfigurationError;
 import x10.config.OptionError;
 import x10.constraint.XFailure;
@@ -678,7 +679,6 @@ public class Inliner extends ContextVisitor {
         if (null == candidateJob) {
             report("unable to find job for candidate: " +candidate, call);
             getInlinerCache().notInlinable(candidate);
-            getInlinerCache().badJob(candidateJob);
             return null;
         }
         if (annotationsPreventInlining(container)) {
@@ -866,9 +866,10 @@ public class Inliner extends ContextVisitor {
                 return null;
             } else if (job != this.job()) {
                 debug("Looking for job: " + job, null);
-                String key = container.fullName().toString().intern();
-                // String key = job.toString();
-                Node ast = getInlinerCache().getAST(key);
+            //  String source = container.fullName().toString().intern();
+            //  String source = job.toString();
+                String source = job.source().toString().intern();
+                Node ast = getInlinerCache().getAST(source);
                 if (null == ast) {
                     if (null == job.ast()) {
                         getInlinerCache().badJob(job);
@@ -883,7 +884,7 @@ public class Inliner extends ContextVisitor {
                     }
                     debug("Reconstructed AST for " + job, null);
                     job.ast(ast); // ASK: why does this work?
-                    getInlinerCache().putAST(key, ast);
+                    getInlinerCache().putAST(source, ast);
                 }
                 // job.ast(ast); // ASK: why doesn't this work?
             }
@@ -1685,10 +1686,11 @@ public class Inliner extends ContextVisitor {
     }
 
     private class InlinerCache {
-        private final Set<X10MethodDef> dontInline = new HashSet<X10MethodDef>();
+        private final Set<X10MethodDef> dontInline              = new HashSet<X10MethodDef>();
         private final Map<X10MethodDef, X10MethodDecl> def2decl = new HashMap<X10MethodDef, X10MethodDecl>();
-        private final Set<Job> badJobs = new HashSet<Job>();
-        private final Map<String, Node> astMap = new HashMap<String, Node>();
+        private final Set<Job> badJobs                          = new HashSet<Job>();
+        private final Set<String> badSources                    = new HashSet<String>();
+        private final Map<String, Node> astMap                  = new HashMap<String, Node>();
 
         boolean uninlineable(X10MethodDef candidate) {
             return dontInline.contains(candidate);
@@ -1699,11 +1701,19 @@ public class Inliner extends ContextVisitor {
         }
 
         boolean okayJob(Job job) {
-            return !badJobs.contains(job);
+            boolean result = !badSources.contains(job.source().toString().intern());
+            if (result != !badJobs.contains(job)) {
+   //           System.err.print("DEBUG: Inliner.okayJob: " +result+ " != " +!badJobs.contains(job)+ " for job " +job);
+   //           System.err.println();
+            }
+            return result;
         }
 
         void badJob(Job job) {
+            if (null == job) 
+                return;
             badJobs.add(job);
+            badSources.add(job.source().toString().intern());
         }
 
         X10MethodDecl getDecl(X10MethodDef candidate) {
@@ -1714,12 +1724,12 @@ public class Inliner extends ContextVisitor {
             def2decl.put(candidate, decl);
         }
 
-        Node getAST(String name) {
-            return astMap.get(name);
+        Node getAST(String source) {
+            return astMap.get(source);
         }
 
-        void putAST(String name, Node ast) {
-            astMap.put(name, ast);
+        void putAST(String source, Node ast) {
+            astMap.put(source, ast);
         }
 
     }
