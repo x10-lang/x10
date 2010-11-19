@@ -1415,6 +1415,7 @@ public class Emitter {
     private List<MethodInstance> getInstantiatedMethods(X10ClassType ct, MethodInstance mi) {
         	    List<MethodInstance> methods = new ArrayList<MethodInstance>();
         	    for (MethodInstance impled : mi.implemented(tr.context())) {
+        	        if (mi.flags().isPrivate()) continue;
         	        if (mi.container().typeEquals(impled.container(), tr.context())) continue;
 
         	        if (X10PrettyPrinterVisitor.isGenericOverloading) {
@@ -1728,7 +1729,7 @@ public class Emitter {
             Type sup = ct.superClass();
             if (sup instanceof X10ClassType) {
                 for (MethodInstance mi : ((X10ClassType)(sup)).methods()) {
-                    if (!mi.flags().isStatic()) {
+                    if (!mi.flags().isStatic() && !mi.flags().isPrivate()) {
                         boolean contains = false;
                         for (MethodInstance mi2 : overrides) {
                             if (mi2.isSameMethod(mi, tr.context())) {
