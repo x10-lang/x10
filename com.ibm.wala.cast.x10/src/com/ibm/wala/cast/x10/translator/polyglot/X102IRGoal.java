@@ -98,8 +98,8 @@ public class X102IRGoal extends SourceGoal_c {
 
     // test method to be called once the IR has been generated for all jo
     public static void printCallGraph() {
-    	//System.err.println(buildCallGraph());
-    	GraphUtil.printNumberedGraph(buildCallGraph(), (String)mainClasses.get(mainClasses.size()-1));
+    	System.err.println(buildCallGraph());
+    	//GraphUtil.printNumberedGraph(buildCallGraph(), (String)mainClasses.get(mainClasses.size()-1));
     }
     
 	private static CallGraph buildCallGraph(){
@@ -111,7 +111,7 @@ public class X102IRGoal extends SourceGoal_c {
                 final TypeReference typeRef = TypeReference.findOrCreate(X10LOADER, "L" + mainClass);
                 final MethodReference mainRef = MethodReference.findOrCreate(
                         typeRef, Atom.findOrCreateAsciiAtom("main"),
-                        Descriptor.findOrCreateUTF8("(Lx10/lang/Rail;)V"));
+                        Descriptor.findOrCreateUTF8("(Lx10/array/Array;)V"));
                 entrypoints.add(new DefaultEntrypoint(mainRef, engine.getClassHierarchy()));
             }
             if(Report.should_report("verbose", 1))
