@@ -3,8 +3,6 @@ package com.ibm.wala.cast.x10.translator.polyglot;
 import java.io.IOException;
 
 import com.ibm.wala.cast.java.ipa.callgraph.JavaSourceAnalysisScope;
-import com.ibm.wala.cast.java.translator.polyglot.IRTranslatorExtension;
-import com.ibm.wala.cast.java.translator.polyglot.PolyglotClassLoaderFactory;
 import com.ibm.wala.cast.x10.loader.X10PrimordialClassLoader;
 import com.ibm.wala.cast.x10.loader.X10SyntheticLoaderImpl;
 import com.ibm.wala.classLoader.ClassLoaderImpl;

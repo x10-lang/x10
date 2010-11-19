@@ -11,7 +11,7 @@
 /*
  * Created on Sep 1, 2005
  */
-package com.ibm.wala.cast.java.translator.polyglot;
+package com.ibm.wala.cast.x10.translator.polyglot;
 
 import polyglot.ast.ArrayAccess;
 import polyglot.ast.ArrayAccessAssign;
@@ -69,9 +69,9 @@ import polyglot.ast.Try;
 import polyglot.ast.Unary;
 import polyglot.ast.While;
 
-import com.ibm.wala.cast.java.translator.polyglot.PolyglotJava2CAstTranslator.MethodContext;
-import com.ibm.wala.cast.java.translator.polyglot.PolyglotJava2CAstTranslator.WalkContext;
 import com.ibm.wala.cast.tree.CAstNode;
+import com.ibm.wala.cast.x10.translator.polyglot.PolyglotJava2CAstTranslator.MethodContext;
+import com.ibm.wala.cast.x10.translator.polyglot.PolyglotJava2CAstTranslator.WalkContext;
 
 /**
  * An alternative visitor API for Polyglot, whose API is somewhat brain-damaged...

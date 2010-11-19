@@ -16,7 +16,6 @@ import x10.finish.table.CallTableKey;
 import x10.finish.table.CallTableUtil;
 import x10.finish.table.CallTableVal;
 */
-import com.ibm.wala.cast.java.translator.polyglot.PolyglotIdentityMapper;
 import com.ibm.wala.cast.tree.CAstEntity;
 import com.ibm.wala.cast.x10.analysis.util.GraphUtil;
 import com.ibm.wala.cast.x10.client.X10SourceAnalysisEngine;

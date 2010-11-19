@@ -1,4 +1,4 @@
-package com.ibm.wala.cast.java.translator.polyglot;
+package com.ibm.wala.cast.x10.translator.polyglot;
 
 import com.ibm.wala.cast.java.client.JavaSourceAnalysisEngine;
 import com.ibm.wala.classLoader.ClassLoaderFactory;

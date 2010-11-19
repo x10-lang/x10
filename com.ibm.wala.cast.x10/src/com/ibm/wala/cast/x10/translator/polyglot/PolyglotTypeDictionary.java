@@ -11,7 +11,7 @@
 /*
  * Created on Sep 28, 2005
  */
-package com.ibm.wala.cast.java.translator.polyglot;
+package com.ibm.wala.cast.x10.translator.polyglot;
 
 import java.util.ArrayList;
 import java.util.Collection;

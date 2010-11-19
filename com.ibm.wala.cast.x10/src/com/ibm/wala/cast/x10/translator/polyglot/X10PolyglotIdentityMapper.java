@@ -15,7 +15,6 @@ import x10.types.MacroType;
 import x10.types.ParameterType;
 import x10.types.X10ClassType;
 
-import com.ibm.wala.cast.java.translator.polyglot.PolyglotIdentityMapper;
 import com.ibm.wala.cast.java.types.JavaPrimitiveTypeMap;
 import com.ibm.wala.types.ClassLoaderReference;
 

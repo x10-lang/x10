@@ -58,10 +58,6 @@ import x10.types.FunctionType;
 import x10.types.ParametrizedType;
 import polyglot.types.TypeSystem;
 
-import com.ibm.wala.cast.java.translator.polyglot.PolyglotIdentityMapper;
-import com.ibm.wala.cast.java.translator.polyglot.PolyglotJava2CAstTranslator;
-import com.ibm.wala.cast.java.translator.polyglot.PolyglotTypeDictionary;
-import com.ibm.wala.cast.java.translator.polyglot.TranslatingVisitor;
 import com.ibm.wala.cast.tree.CAstControlFlowMap;
 import com.ibm.wala.cast.tree.CAstEntity;
 import com.ibm.wala.cast.tree.CAstNode;

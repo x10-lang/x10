@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.ibm.wala.cast.java.translator.polyglot;
+package com.ibm.wala.cast.x10.translator.polyglot;
 
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -21,8 +21,8 @@ import polyglot.types.ProcedureInstance;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 
-import com.ibm.wala.cast.java.translator.polyglot.PolyglotJava2CAstTranslator.IdentityMapper;
 import com.ibm.wala.cast.java.types.JavaPrimitiveTypeMap;
+import com.ibm.wala.cast.x10.translator.polyglot.PolyglotJava2CAstTranslator.IdentityMapper;
 import com.ibm.wala.types.ClassLoaderReference;
 import com.ibm.wala.types.Descriptor;
 import com.ibm.wala.types.FieldReference;

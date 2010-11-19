@@ -8,8 +8,6 @@ import java.util.List;
 import com.ibm.wala.cast.ir.translator.AstTranslator.AstLexicalInformation;
 import com.ibm.wala.cast.java.loader.JavaSourceLoaderImpl;
 import com.ibm.wala.cast.java.translator.SourceModuleTranslator;
-import com.ibm.wala.cast.java.translator.polyglot.IRTranslatorExtension;
-import com.ibm.wala.cast.java.translator.polyglot.PolyglotSourceLoaderImpl;
 import com.ibm.wala.cast.loader.AstMethod.DebuggingInformation;
 import com.ibm.wala.cast.tree.CAstEntity;
 import com.ibm.wala.cast.tree.CAstSourcePositionMap;

@@ -25,9 +25,8 @@ import x10.ast.Tuple;
 import x10.ast.When;
 import x10.ast.X10Formal;
 
-import com.ibm.wala.cast.java.translator.polyglot.TranslatingVisitor;
-import com.ibm.wala.cast.java.translator.polyglot.PolyglotJava2CAstTranslator.WalkContext;
 import com.ibm.wala.cast.tree.CAstNode;
+import com.ibm.wala.cast.x10.translator.polyglot.PolyglotJava2CAstTranslator.WalkContext;
 
 public interface X10TranslatorVisitor extends TranslatingVisitor {
     CAstNode visit(Async a, WalkContext context);
