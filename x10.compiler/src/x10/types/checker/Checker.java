@@ -35,7 +35,9 @@ import polyglot.types.Matcher;
 import polyglot.types.MethodDef;
 import polyglot.types.MethodInstance;
 import polyglot.types.Name;
+import polyglot.types.Named;
 import polyglot.types.ProcedureDef;
+import polyglot.types.QName;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
@@ -421,6 +423,10 @@ public class Checker {
 	    }
 	    if (haveUnknown)
 	        error = new SemanticException(); // null message
+	    if (!targetType.isClass()) {
+	        Name tName = targetType instanceof Named ? ((Named) targetType).name() : Name.make(targetType.toString()); 
+	        targetType = xts.createFakeClass(QName.make(null, tName), new SemanticException("Target type is not a class: "+targetType));
+	    }
 	    mi = xts.createFakeMethod(targetType.toClass(), Flags.PUBLIC, name, typeArgs, actualTypes, error);
 	    if (rt == null) rt = mi.returnType();
 	    rt = PlaceChecker.AddIsHereClause(rt, context);
@@ -502,6 +508,10 @@ public class Checker {
 	        targetType = context.currentClass();
 	    if (haveUnknown)
 	        error = new SemanticException(); // null message
+	    if (!targetType.isClass()) {
+	        Name tName = targetType instanceof Named ? ((Named) targetType).name() : Name.make(targetType.toString()); 
+	        targetType = xts.createFakeClass(QName.make(null, tName), new SemanticException("Target type is not a class: "+targetType));
+	    }
 	    mi = xts.createFakeMethod(targetType.toClass(), Flags.PUBLIC.Static(), name, typeArgs, actualTypes, error);
 	    if (rt != null) mi = mi.returnType(rt);
 	    return new Pair<MethodInstance, List<Expr>>(mi, n.arguments());
