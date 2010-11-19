@@ -121,14 +121,14 @@ public class StaticInitializer extends ContextVisitor {
             return n;
 
         X10ClassDecl_c ct = (X10ClassDecl_c)parent;
-        ClassBody classBody = ct.body();
-        if (n != classBody)
+        if (old != ct.body())
             return n;
 
+        ClassBody classBody = (ClassBody) n;
         X10ClassDef classDef = ct.classDef();
         assert(classDef != null);
 
-        Context context = ct.enterChildScope(classBody, context());
+        Context context = ct.enterChildScope(classBody, ((ContextVisitor) v).context());
 
         // collect static fields to deal with
         staticFinalFields.clear();
