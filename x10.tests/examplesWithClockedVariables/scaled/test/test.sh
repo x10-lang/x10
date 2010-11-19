@@ -2,7 +2,7 @@ if [ $# == 1 ]
 then
  example=($1)
 else
- example=( AllReduceParallel Pipeline Convolve NQueensPar MontyPiParallel KMeansScalar Histogram MergeSort Stream Prefix UTS IDEA SOR Stencil Series RayTrace LUFact SparseMatMul)
+ example=( AllReduceParallel Pipeline NQueensPar MontyPiParallel KMeansScalar Histogram MergeSort Stream Prefix UTS IDEA SOR Stencil Series RayTrace LUFact SparseMatMul)
 fi
 rm out.txt
 COUNT=2
