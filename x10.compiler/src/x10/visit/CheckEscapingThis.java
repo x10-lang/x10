@@ -6,6 +6,7 @@ import polyglot.util.Position;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.DataFlow;
 import polyglot.visit.FlowGraph;
+import polyglot.visit.ContextVisitor;
 import polyglot.visit.DataFlow.Item;
 import polyglot.visit.FlowGraph.EdgeKey;
 import polyglot.frontend.Job;
@@ -29,10 +30,13 @@ import polyglot.types.TypeSystem;
 import polyglot.types.VarDef;
 import polyglot.types.LocalDef;
 import polyglot.types.ClassType;
+import polyglot.types.StructType;
 import x10.types.X10FieldDef;
 import x10.types.X10ParsedClassType_c;
 import x10.types.X10ProcedureDef;
 import x10.types.X10MethodDef;
+import x10.types.X10ConstructorDef;
+import x10.types.X10FieldDef_c;
 import x10.types.checker.ThisChecker;
 import x10.util.Synthesizer;
 
@@ -197,6 +201,10 @@ public class CheckEscapingThis extends NodeVisitor
             } else if (n instanceof AssignPropertyCall) {
                 res = fieldReadWrite(true, propertyRepresentative,inItem);
 
+            // I don't need to recurse into the constraint of a X10CanonicalTypeNode because:
+            // - in STATIC_CALLS it doesn't generate any code for them, therefore there is nothing to check.
+            // e.g. the following is legal: class A { val f1:A{this.f2==f1} = null; val f2:A = null; }
+            // - in DYNAMIC_CALLS it generates a cast, and we recurse into that cast next:
             } else if (n instanceof X10Cast) {
                 X10Cast cast = (X10Cast)n;
                 // convert constraint to Expr
@@ -365,17 +373,14 @@ public class CheckEscapingThis extends NodeVisitor
         }
         return null;
     }
-    private boolean isProperty(FieldDef def) {
-        final X10Flags flags = X10Flags.toX10Flags(def.flags());
-        return flags.isProperty();
+    private static boolean isProperty(FieldDef def) {
+        return def.flags().isProperty();
     }
-    private boolean isProperty(ProcedureDef def) {
-        final X10Flags flags = X10Flags.toX10Flags(((ProcedureDef_c)def).flags());
-        return flags.isProperty();
+    private static boolean isProperty(ProcedureDef def) {
+        return ((ProcedureDef_c)def).flags().isProperty();
     }
-    private boolean isPrivate(ProcedureDef def) {
-        final X10Flags flags = X10Flags.toX10Flags(((ProcedureDef_c)def).flags());
-        return flags.isPrivate();
+    private static boolean isPrivate(ProcedureDef def) {
+        return ((ProcedureDef_c)def).flags().isPrivate();
     }
     private boolean isPrivateOrFinal(ProcedureDef def) {
         if (isXlassFinal) return true;
@@ -394,7 +399,7 @@ public class CheckEscapingThis extends NodeVisitor
                 final X10ClassDecl_c classDecl_c = (X10ClassDecl_c) n;
                 if (!classDecl_c.flags().flags().isInterface()) // I have nothing to analyze in an interface
                     new CheckEscapingThis(classDecl_c,job,
-                        (TypeSystem)job.extensionInfo().typeSystem());
+                        job.extensionInfo().typeSystem());
             }
             return this;
         }
@@ -404,10 +409,8 @@ public class CheckEscapingThis extends NodeVisitor
     public class CheckCtor extends NodeVisitor {
         private CtorState state = CtorState.Start;
         private boolean wasSuperCall = false;
-        private final X10ConstructorDecl_c ctor;
 
         private CheckCtor(X10ConstructorDecl_c ctor) {
-            this.ctor = ctor;
             if (getConstructorCall(ctor)==null) {
                 // There is no 'this(...)' or 'super(...)' calls, so we implicitly start after a 'super()' call
                 state = CtorState.SawCtor;
@@ -555,26 +558,33 @@ public class CheckEscapingThis extends NodeVisitor
         int notInited = build(false, false,false);
         int inited = build(false, true,true);
         for (FieldDef f : fields) {
-            INIT.initStatus.put(f,notInited);
-            CTOR_INIT.initStatus.put(f,notInited);
+            boolean hasZero = ((X10FieldDef_c)f).hasZero;
+            int initialVal = hasZero ? inited : notInited;
+            INIT.initStatus.put(f,initialVal);
+            CTOR_INIT.initStatus.put(f,initialVal);
         }
         for (FieldDef field : superFields) {
             CTOR_INIT.initStatus.put(field, inited);
         }
         typeCheck();
     }
+    private static ArrayList<FieldDef> getInstanceFields(ClassDef currClass) {
+        List<FieldDef> list = currClass.fields();
+        ArrayList<FieldDef> init = new ArrayList<FieldDef>(list.size());
+        for (FieldDef f : list) {
+            if (!isProperty(f) && // not tracking property fields (checking property() call was done elsewhere)
+                !f.flags().isStatic()) { // static fields are checked in FwdReferenceChecker
+                init.add(f);
+            }
+        }
+        return init;
+    }
+
     private void calcFields() {
         final ClassDef myClassDef = xlass.classDef();
         ClassDef currClass = myClassDef;
         while (currClass!=null) {
-            List<FieldDef> list = currClass.fields();
-            List<FieldDef> init = new ArrayList<FieldDef>(list.size());
-            for (FieldDef f : list) {
-                if (!isProperty(f) && // not tracking property fields (checking property() call was done elsewhere)
-                    !f.flags().isStatic()) { // static fields are checked in FwdReferenceChecker
-                    init.add(f);
-                }
-            }
+            final ArrayList<FieldDef> init = getInstanceFields(currClass);
             fields.addAll(init);
             if (myClassDef!=currClass) superFields.addAll(init);
             final Ref<? extends Type> superType = currClass.superType();
@@ -658,7 +668,7 @@ public class CheckEscapingThis extends NodeVisitor
                     if (!isNoThisAccess) {
                         final MethodInstance instance = x10def.asInstance();
                         final Context emptyContext = ts.emptyContext();
-                        final List<MethodInstance> overriddenMethods = ts.overrides(instance, emptyContext);
+                        final List<MethodInstance> overriddenMethods = instance.overrides(emptyContext); // Yoav and Igor thought hard and couldn't find an example where using an empty context vs. the correct context gives a different result.
                         for (MethodInstance overriddenMI : overriddenMethods) {
                             MethodDef overriddenDef = overriddenMI.def();
                             if (overriddenDef==def) continue; // me

@@ -71,6 +71,7 @@ import x10.types.X10ParsedClassType;
 import x10.types.X10ProcedureDef;
 
 import x10.types.X10TypeMixin;
+import x10.types.X10Context_c;
 import polyglot.types.TypeSystem;
 import x10.types.checker.PlaceChecker;
 import x10.types.checker.ThisChecker;
@@ -297,8 +298,10 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
             if (vc != null || tc != null) {
                 c = c.pushBlock();
                 try {
-                	if (vc.known())
-                		c= ((Context) c).pushAdditionalConstraint(vc.get());
+					if (vc.known())
+						c = ((Context) c).pushAdditionalConstraint(vc.get());
+					if (tc.known())
+						c = ((X10Context_c) c).pushTypeConstraintWithContextTerms(tc.get());
                 } catch (SemanticException z) {
                 	throw 
                 	new InternalCompilerError("Unexpected inconsistent guard" + z);

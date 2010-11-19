@@ -41,6 +41,7 @@ public class X10FieldDef_c extends FieldDef_c implements X10FieldDef {
     private static final long serialVersionUID = 6359052056959695361L;
 
     boolean isProperty;
+    public boolean hasZero;
     XVar thisVar;
     
     public X10FieldDef_c(TypeSystem ts, Position pos,

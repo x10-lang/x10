@@ -71,6 +71,7 @@ import x10.types.X10InitializerDef;
 import x10.types.X10TypeSystem_c;
 
 import x10.types.X10TypeMixin;
+import x10.types.X10FieldDef_c;
 import polyglot.types.TypeSystem;
 import x10.types.checker.Checker;
 import x10.types.checker.Converter;
@@ -451,16 +452,18 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
             final boolean needsInit = !f.isFinal() && noInit && !X10TypeMixin.isUninitializedField(fieldDef, ts);
             final boolean isTransient = f.isTransient() && !X10TypeMixin.isSuppressTransientErrorField(fieldDef,ts);
             if (needsInit || isTransient) {
+                final boolean hasZero = X10TypeMixin.isHaszero(type, xc);
+                ((X10FieldDef_c)fieldDef).hasZero = hasZero;
                 // creating an init.
-	    		Expr e = X10TypeMixin.getZeroVal(typeNode,position().markCompilerGenerated(),tc);
-                if (needsInit) {
-                    if (e != null) {
-                        n = (X10FieldDecl_c) n.init(e);
-                    }
-                }
+//	    		Expr e = X10TypeMixin.getZeroVal(typeNode,position().markCompilerGenerated(),tc);
+//                if (needsInit) {
+//                    if (e != null) {
+//                        n = (X10FieldDecl_c) n.init(e);
+//                    }
+//                }
                 if (isTransient) {
                     // transient fields (not annotated with @SuppressTransientError) must have a default value
-                    if (e==null)
+                    if (!hasZero)
                         Errors.issue(tc.job(), new SemanticException("The transient field '"+n.name()+"' must have a type with a default value.",position()));
                 }
 	    	}

@@ -454,11 +454,12 @@ public class X10New_c extends New_c implements X10New {
 
         TypeSystem ts = (TypeSystem) tc.typeSystem();
         Type tp = ci.returnType();
-        tp = PlaceChecker.ReplaceHereByPlaceTerm(tp, (Context) tc.context());
+        final Context context = tc.context();
+        tp = PlaceChecker.ReplaceHereByPlaceTerm(tp, context);
         Type tp1 = X10TypeMixin.instantiateTypeParametersExplicitly(tp);
         Type t1 = X10TypeMixin.instantiateTypeParametersExplicitly(t);
         
-        if (!ts.isSubtype(tp1, t1, tc.context())) {
+        if (!ts.isSubtype(tp1, t1, context)) {
             throw new SemanticException("Constructor return type " + tp + " is not a subtype of " + t + ".", result.position());
         }
         if (ts.hasUnknown(tp1)) {
@@ -472,7 +473,7 @@ public class X10New_c extends New_c implements X10New {
         result = (X10New_c) result.constructorInstance(ci);
         result = (X10New_c) result.arguments(args);
 
-        result.checkWhereClause();
+        result.checkWhereClause(context);
 
         Type type = ci.returnType();
         if (result.body() != null) {
@@ -589,11 +590,12 @@ public class X10New_c extends New_c implements X10New {
         return xts.findConstructors(targetType, xts.ConstructorMatcher(targetType, actualTypes, context));
     }
 
-    private void checkWhereClause() throws SemanticException {
+    private void checkWhereClause(Context context) throws SemanticException {
         X10ConstructorInstance ci = (X10ConstructorInstance) constructorInstance();
         if (ci != null) {
             CConstraint guard = ci.guard();
-            if (guard != null && !guard.consistent()) {
+            TypeConstraint tguard = ci.typeGuard();
+            if ((guard != null && !guard.consistent()) || (tguard != null && !tguard.consistent(context))) {
                 throw new SemanticException("Constructor guard not satisfied by caller.", position());
             }
         }

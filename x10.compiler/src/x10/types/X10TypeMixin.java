@@ -29,6 +29,7 @@ import polyglot.ast.Unary_c;
 import polyglot.ast.Variable;
 import polyglot.ast.FloatLit;
 import polyglot.ast.TypeNode;
+import polyglot.ast.IntLit;
 import polyglot.ast.Binary.Operator;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
@@ -1331,7 +1332,9 @@ public class X10TypeMixin {
                 e = nf.NullLit(p);
             } else if (ts.isParameterType(t)) {
                 // todo: haszero constraint
-                e = nf.Cast(p,typeNode,nf.IntLit(p, X10IntLit_c.INT, 0L));
+                IntLit lit = nf.IntLit(p, X10IntLit_c.INT, 0L);
+                lit = (IntLit) lit.del().typeCheck(tc).checkConstants(tc);
+                e = nf.Cast(p,typeNode, lit);
             }
             // todo: we should handle user-defined structs
 //          } else if (isX10Struct(t)) {

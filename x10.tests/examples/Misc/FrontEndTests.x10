@@ -1782,6 +1782,18 @@ class B564 extends A564[String,String] {
 
 class ReturnStatementTest {
 	
+	class A {
+	  def m() {
+		at (here.next()) return here;// ShouldNotBeERR (Semantic Error: Cannot return value from void method or closure.)// ShouldNotBeERR (Semantic Error: Cannot return a value from method public x10.lang.Runtime.$dummyAsync(): x10.lang.Void.)
+	  }
+	  def test() {
+			val x1 = m();// ShouldNotBeERR (Semantic Error: Local variable cannot have type x10.lang.Void.)
+			val x2 = m();// ShouldNotBeERR (Semantic Error: Local variable cannot have type x10.lang.Void.)
+			testSameType(x1,x2,[x1,x2]);// ShouldNotBeERR (Semantic Error: Method testSameType[T](x: T, y: T, arr: x10.array.Array[T]) in A{self==A#this} cannot be called with arguments (x10.lang.Void{self==x1}, x10.lang.Void{self==x2}, x10.array.Array[x10.lang.Void]{self.size==2, self.region.rank==1, self.region.rect==true, self.region.zeroBased==true});    Invalid Parameter.		 Expected type: x10.lang.Void		 Found type: x10.lang.Void{self==x1})
+	  }
+	  def testSameType[T](x:T,y:T,arr:Array[T]) {}
+	}
+	
 	static def ok(b:Boolean):Int {
 		if (b) 
 			return 1;
@@ -2885,4 +2897,296 @@ class Test[W](p:Int) {
 	var a6:A[Int{self!=p}]; // ERR
 	var a7:A[Int{self==p}]; // ERR
 }
+} // end HaszeroConstraints
+
+
+
+class XTENLANG_967  {
+    def test() {        
+        class C[T] {
+			val f1 = (){T<:Object} => "hi"; // method guard on closures still doesn't work
+			def f2(){T<:Object} = "hi";
+		}
+        val res1 =  new C[Int]().f1(); // ShouldBeErr
+        val res2 =  new C[Int]().f2(); // ERR: Type guard {} cannot be established; inconsistent in calling context.
+    }	
+}
+class XTENLANG_1574(v:Int) {v==1} {
+	static def m(a:XTENLANG_1574) {
+		val b:XTENLANG_1574{self.v==1} = a; // ShouldNotBeERR, see XTENLANG-1574
+	}
+}
+class TestMethodGuards[T](a:Int, p:Place) {
+	def f() {a==1} {}
+	def q() {a==1} { f(); }
+	def m() {
+		f(); // ERR
+	}
+	
+	def f2() {p==Place.FIRST_PLACE} {}
+	def q2() {p==Place.FIRST_PLACE} { f2(); }
+	def m2() {
+		f2(); // ERR
+	}
+
+	def f1() {T haszero} {}
+	def q1() {T haszero} { f1(); }
+	def m1() {
+		f1(); // ERR
+	}
+}
+class ProblemsWithFieldsInConstraints {	// these errors are both with STATIC_CALLS and with DYNAMIC_CALLS
+	val f1:Int;
+	val f2:Int{self==f1};
+	def this() {
+		f2 = 2; // ERR
+		f1 = 2;
+	}
+	def test() {
+		val local1:Int;
+		val local2:Int{self==local1};
+		local2 = 1; // ERR
+		local1 = 1;
+	}
+}
+class InconsistentPropertyVsField(p:Int) {
+	val f:Int = 2;
+	def test() {
+		val a0:InconsistentPropertyVsField{self.p==1} = null;
+		val a1:InconsistentPropertyVsField{self.f==1} = null; // ERR: Only properties may be prefixed with self in a constraint.
+		val a2:InconsistentPropertyVsField{a2.p==1} = null;
+		val a3:InconsistentPropertyVsField{a3.f==1} = null; // ERR: Only properties may be prefixed with self in a constraint.
+		val a4:InconsistentPropertyVsField{a0.p==1} = null;
+		val a5:InconsistentPropertyVsField{a0.f==1} = null; // ShouldBeErr? why don't I have an error here?
+		val a6:InconsistentPropertyVsField{this.p==1} = null;
+		val a7:InconsistentPropertyVsField{this.f==1} = null;
+	}
+}
+
+class FieldInInvariant1 {a==1} { // ShouldBeErr
+	val a:Int;
+	def this() { a=2; }
+}
+class FieldInInvariant2 {this.a==1} {  // ShouldBeErr
+	val a:Int = 2;
+}
+class FieldInInvariant3 {self.a==1} { // ERR: Semantic Error: self may only be used within a dependent type
+	val a:Int = 1;
+}
+class XTENLANG_688(a:Int) {
+	val f1:Int{self==a} = a;
+	val f2:Int{self==f1} = a;
+}
+class XTENLANG_688_2(a:Int) { // fine even with DYNAMIC_CALLS (cause we do not generate a cast)
+	val f2:Int{self==f1} = a;
+	val f1:Int{self==a} = a;
+}
+
+class LegalForwardRef { 
+    val f1:LegalForwardRef{this.f2==this.f1} = null; 
+    val f2:LegalForwardRef = null; 
+
+    val f3:LegalForwardRef{this.f4==this.f3} = f4; // ERR: Cannot read from field 'f4' before it is definitely assigned.
+    val f4:LegalForwardRef = null; 
+}
+class LegalForwardRef2 { 
+	val x:Int{self==y} = 1; // legal forward reference to y (we don't really use it's value)
+	val y:Int{self==1} = 1;
+}
+class IllegalForwardRef2 { 
+	val x:Int{self==y} = 1; // ERR with STATIC_CALLS (The type of the field initializer is not a subtype of the field type.) with DYNAMIC_CALLS (Cannot read from field 'y' before it is definitely assigned.)
+	val y:Int{self==2} = 2;
+}
+class XTENLANG_686_2(a:Int) {
+	def this() : XTENLANG_686_2{1==this.a}{property(1);} // ok to use this on the return type
+	def this(a:Int{self==this.a}) {property(a);} // ERR: Semantic Error: This or super cannot be used (implicitly or explicitly) in a constructor formal type.	 Formals: [val a: x10.lang.Int{self==FordesemiFoo#this.a}]
+}
+class XTENLANG_686(a:Int) {
+	val f1:Int{self==a} = a;
+	val f2:Int{self==f1} = a;
+
+	val f3:XTENLANG_686{self.a==this.f4} = null; // ok
+	val f4:Int = 2;
+
+	val f5:Int{self==3};
+
+
+	def this(b:XTENLANG_686{self.a==1}) {
+		val q1: XTENLANG_686{self.a==this.a} = null; // ok
+		val q2: XTENLANG_686{self.a==this.f1} = null; // ok
+		property(1);
+		// we put field initializers here
+		val q3: XTENLANG_686{self.a==this.a} = null; // ok
+		val q4: XTENLANG_686{self.a==this.f1} = null; // ok
+		val q5: XTENLANG_686{self.a==this.f5} = null; // ok
+		
+		val i1:Int{self==f5} = 3; // ok
+		val i2:Int{self==f5} = 4; // ERR in both STATIC_CALLS (Cannot assign expression to target.) and DYNAMIC_CALLS (Cannot read from field 'f5' before it is definitely assigned.)
+
+		val i3:Int{3==f5} = 3; // ok
+		f5 = 3;
+		val i4:Int{3==f5} = 4; // ok
+	}
+}
+
+class CastToTypeParam[T] { 
+	val f1:T = 0 as T;
+	val f2:T = 1 as T;
+	def test(a:CastToTypeParam[String]) {
+		val f:String = a.f1;
+		val s = 0 as String; // ERR: Cannot cast expression to type
+	}
+	public static def main(Array[String]) {
+		Console.OUT.println(new CastToTypeParam[String]().f1); // throws x10.lang.ClassCastException
+	}
+}
+
+class XTENLANG_685(a : Int, b : Int{this.a == 1}) {
+	def this() {
+		property(1,1);
+	}  
+	def this(Boolean) {
+		property(1,2);
+	}  
+	def this(String):XTENLANG_685{self.a == 1} {// ShouldNotBeERR (Semantic Error: Invalid type; the real clause of XTENLANG_685{self.a==2, self.b==1} is inconsistent.)
+		property(2,1); // ERR (Semantic Error: Cannot bind literal 2 to 1) todo: better error message
+	}  
+	def this(Float):XTENLANG_685{this.a == 1} {// ShouldNotBeERR (Semantic Error: Invalid type; the real clause of XTENLANG_685{self.a==2, self.b==1} is inconsistent.)
+		property(2,1); // ShouldBeErr
+	}  
+	def this(Double) {// ShouldNotBeERR (Semantic Error: Invalid type; the real clause of XTENLANG_685{self.a==2, self.b==1} is inconsistent.)
+		property(2,1); // ShouldBeErr
+	}  
+}
+
+//class Tree(left:Tree, right:Tree{this.left==self.left}) {} // ShouldNotBeErr, see XTENLANG-2117
+class NonStaticTypedef(p:Int) { 
+	type T = NonStaticTypedef{self.p==1}; // ERR: Illegal type def NonStaticTypedef.T: type-defs must be static.
+}
+
+
+class hasZeroTests {
+	class Q00[T] {
+		var t:T; // ERR
+	}
+	class Q0[T] {T haszero} {
+	  var t:T;
+	}
+	class Q1[T] {T haszero} {
+	  val t:T; // ERR
+	}
+	class Q2[T] {
+	  val t:T;
+	  def this() {T haszero} { // ERR
+	  }
+	  def this(t:T) {
+		this.t = t;
+	  }
+	}
+	class Q3[T] {
+	  var t:T;
+	  def this() {T haszero} { // ERR
+	  }
+	  def this(t:T) {
+		this.t = t;
+	  }
+	}
+
+	static class Zero {
+	  public static native def get[T]() {T haszero} :T;
+	}
+	class Q4[T] {
+	  val t:T;
+	  def this() {T haszero} { 
+		 this( Zero.get[T]() );
+	  }
+	  def this(Boolean) {
+		 this( Zero.get[T]() ); // ERR
+	  }
+	  def this(t:T) {
+		this.t = t;
+	  }
+	}
+	class haszeroExamples0[T] {T haszero} {
+		var t:T;
+
+	  def m0() {
+		  m1(); // ok
+	  }
+	  def m1() {T haszero} {}
+	}
+	class haszeroExamples2[T] {
+		val t:T;	
+	  def this() {T haszero} { 
+		 this( Zero.get[T]() );
+	  }
+	  def this(t:T) {
+		this.t = t;
+	  }
+
+	  def m0() {}
+	  def m1() {T haszero} {}
+	  def m2() {T haszero} {
+		  m0();
+		  m1();
+	  }
+	  def m3() {
+		  m0();
+		  m1(); // ERR 
+	  }
+	}
+
+	class haszeroExamples[T] {
+	  var t:T;
+	  def this() {T haszero} {
+		this(Zero.get[T]());
+	  }
+	  def this(t:T) {
+		setT(t);
+	  }
+	  private def setT(t:T) { this.t = t; }
+	}
+
+	class haszeroUsages {
+		var x1:haszeroExamples2[Int{self!=0}]; // ok
+		var x2:haszeroExamples0[Int{self!=0}]; // ERR 
+		val x3 = 
+			new haszeroExamples2[Int{self!=0}](5); // ok
+		val x4 = 
+			new haszeroExamples2[Int{self!=0}]();  // ERR
+		val x5 =  new haszeroExamples2[Int]();
+		def test() {
+			x3.m0();
+			x3.m1(); // ERR 
+			x5.m0();
+			x5.m1(); 
+		}
+	}
+
+}
+class RuntimeTestsOfHaszero {
+	public static def main(Array[String]) {
+		new Hello().m();
+	}
+
+	var i:Int;
+	var k:Int{self!=3};
+	var l:Long;
+	var s:String;
+	val a1 = new A[String]();
+	val a2 = new A[Int]();
+	val a3 = new A[Long]();
+
+	def m() {
+		Console.OUT.println(++i);
+		Console.OUT.println(k);
+		Console.OUT.println(l++);
+		Console.OUT.println(a1.t);
+		Console.OUT.println(++a2.t);
+		Console.OUT.println(++a3.t);
+	}
+
+	static class A[T] {T haszero} {
+		var t:T;
+	}
 }
