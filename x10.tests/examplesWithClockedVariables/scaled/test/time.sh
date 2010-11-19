@@ -6,6 +6,7 @@ else
 fi
 rm out.txt
 COUNT=2
+WORKERS=4
 for ((i = 0; i < ${#example[@]}; i++))
 do
 	../../../../x10.dist/bin/x10c -SAFE_PARALLELIZATION_CHECK=true ../${example[$i]}.x10 >> out.txt 
@@ -13,7 +14,7 @@ do
 int(1000*gettimeofday()).qq(\n);'` 
 	for ((j = 0; j < $COUNT; j++))
 	do
-		../../../../x10.dist/bin/x10  ${example[$i]}.x10 >> out.txt
+		../../../../x10.dist/bin/x10 -INIT_THREADS=$WORKERS  ${example[$i]}.x10 >> out.txt
 	done
 	END=`perl -MTime::HiRes=gettimeofday -e 'print
 int(1000*gettimeofday()).qq(\n);'` 
@@ -25,7 +26,7 @@ int(1000*gettimeofday()).qq(\n);'`
 int(1000*gettimeofday()).qq(\n);'` 
 	for ((j = 0; j < $COUNT; j++))
 	do
-		../../../../x10.dist/bin/x10  ${example[$i]}Orig.x10 >> out.txt 
+		../../../../x10.dist/bin/x10 -INIT_THREADS=$WORKERS ${example[$i]}Orig.x10 >> out.txt 
 	done
 	END=`perl -MTime::HiRes=gettimeofday -e 'print
 int(1000*gettimeofday()).qq(\n);'` 
