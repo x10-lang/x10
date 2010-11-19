@@ -3,7 +3,6 @@ package com.ibm.wala.cast.x10.analysis.typeInference;
 import com.ibm.wala.analysis.typeInference.ConeType;
 import com.ibm.wala.analysis.typeInference.PointType;
 import com.ibm.wala.cast.java.analysis.typeInference.AstJavaTypeInference;
-import com.ibm.wala.cast.x10.classLoader.X10PrimordialClassLoaderImpl;
 import com.ibm.wala.cast.x10.ssa.AstX10InstructionVisitor;
 import com.ibm.wala.cast.x10.ssa.TupleInstruction;
 import com.ibm.wala.cast.x10.ssa.AtStmtInstruction;
@@ -117,9 +116,9 @@ public class AstX10TypeInference extends AstJavaTypeInference {
 	}
 	
  	public void visitPlaceOfPoint(PlaceOfPointInstruction instruction) {
- 		 		TypeReference placeType = TypeReference.findOrCreate(X10PrimordialClassLoaderImpl.X10Primordial, "Lx10/lang/place");
- 		 		IClass placeClass = cha.lookupClass(placeType);
- 		 		result = new DeclaredTypeOperator(new ConeType(placeClass));
+        TypeReference placeType= X10TypeReference.x10LangPlace;
+        IClass placeClass = cha.lookupClass(placeType);
+        result = new DeclaredTypeOperator(new ConeType(placeClass));
  	}
 
  	public void visitTuple(TupleInstruction tupleInstruction) {
