@@ -10,7 +10,6 @@ import com.ibm.wala.cast.x10.loader.X10AnalysisScope;
 import com.ibm.wala.cast.x10.loader.X10PrimordialClassLoader;
 import com.ibm.wala.cast.x10.loader.X10SyntheticLoaderImpl;
 import com.ibm.wala.cast.x10.translator.polyglot.X10ClassLoaderFactory;
-import com.ibm.wala.cast.x10.translator.polyglot.X10IRTranslatorExtension;
 import com.ibm.wala.cast.x10.translator.polyglot.X10SourceLoaderImpl;
 import com.ibm.wala.classLoader.ClassLoaderFactory;
 import com.ibm.wala.classLoader.Module;
@@ -43,13 +42,8 @@ public class X10SourceAnalysisEngine extends PolyglotJavaSourceAnalysisEngine {
     }
 
     @Override
-    public IRTranslatorExtension getTranslatorExtension() {
-        return new X10IRTranslatorExtension();
-    }
-
-    @Override
     protected ClassLoaderFactory getClassLoaderFactory(SetOfClasses exclusions) {
-	return new X10ClassLoaderFactory(exclusions, getTranslatorExtension(), super.getTranslatorExtension());
+	return new X10ClassLoaderFactory(exclusions, super.getTranslatorExtension());
     }
 
     @Override

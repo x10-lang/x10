@@ -71,8 +71,4 @@ public class JavaIRTranslatorExtension /* extends JLExtensionInfo */ implements 
   public CAstRewriterFactory getCAstRewriterFactory() {
     return rewriterFactory;
   }
-
-  public boolean getReplicateForDoLoops() {
-    return false;
-  }
 }

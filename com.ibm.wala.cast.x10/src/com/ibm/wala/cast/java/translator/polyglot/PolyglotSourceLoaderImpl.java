@@ -14,6 +14,7 @@
 package com.ibm.wala.cast.java.translator.polyglot;
 
 import java.io.IOException;
+import java.util.Set;
 
 import com.ibm.wala.cast.java.ipa.callgraph.JavaSourceAnalysisScope;
 import com.ibm.wala.cast.java.loader.JavaSourceLoaderImpl;
@@ -24,19 +25,16 @@ import com.ibm.wala.ipa.cha.IClassHierarchy;
 import com.ibm.wala.types.ClassLoaderReference;
 
 public class PolyglotSourceLoaderImpl extends JavaSourceLoaderImpl {
-  protected final IRTranslatorExtension fExtInfo;
 
   public PolyglotSourceLoaderImpl(ClassLoaderReference loaderRef, IClassLoader parent, SetOfClasses exclusions,
-      IClassHierarchy cha, IRTranslatorExtension extInfo) throws IOException {
+      IClassHierarchy cha) throws IOException {
     super(loaderRef, parent, exclusions, cha);
-    this.fExtInfo = extInfo;
   }
 
-  public IRTranslatorExtension getTranslatorExtension() {
-    return fExtInfo;
-  }
-
+  @Override
   protected SourceModuleTranslator getTranslator() {
-    return new PolyglotSourceModuleTranslator(cha.getScope(), fExtInfo, this, JavaSourceAnalysisScope.SOURCE);
+    return new SourceModuleTranslator() {
+      public void loadAllSources(Set s) {}
+    };
   }
 }

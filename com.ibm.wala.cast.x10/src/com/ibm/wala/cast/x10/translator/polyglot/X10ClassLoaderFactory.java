@@ -7,7 +7,6 @@ import com.ibm.wala.cast.java.translator.polyglot.IRTranslatorExtension;
 import com.ibm.wala.cast.java.translator.polyglot.PolyglotClassLoaderFactory;
 import com.ibm.wala.cast.x10.loader.X10PrimordialClassLoader;
 import com.ibm.wala.cast.x10.loader.X10SyntheticLoaderImpl;
-import com.ibm.wala.cast.x10.translator.JavaFilteredSourceLoaderImpl;
 import com.ibm.wala.classLoader.ClassLoaderImpl;
 import com.ibm.wala.classLoader.IClassLoader;
 import com.ibm.wala.ipa.callgraph.AnalysisScope;
@@ -17,14 +16,14 @@ import com.ibm.wala.types.ClassLoaderReference;
 
 public class X10ClassLoaderFactory extends PolyglotClassLoaderFactory {
 
-    public X10ClassLoaderFactory(SetOfClasses exclusions, IRTranslatorExtension x10ExtInfo, IRTranslatorExtension javaExtInfo) {
+    public X10ClassLoaderFactory(SetOfClasses exclusions, IRTranslatorExtension javaExtInfo) {
 	super(exclusions, javaExtInfo);
-	fExtensionMap.put(X10SourceLoaderImpl.X10SourceLoader, x10ExtInfo);
+	fExtensionMap.put(X10SourceLoaderImpl.X10SourceLoader, javaExtInfo);
     }
 
     protected IClassLoader makeNewClassLoader(ClassLoaderReference classLoaderReference, IClassHierarchy cha, IClassLoader parent, AnalysisScope scope) throws IOException {
  	if (classLoaderReference.equals(X10SourceLoaderImpl.X10SourceLoader)) {
-	    ClassLoaderImpl cl = new X10SourceLoaderImpl(classLoaderReference, parent, getExclusions(), cha, getExtensionFor(classLoaderReference));
+	    ClassLoaderImpl cl = new X10SourceLoaderImpl(classLoaderReference, parent, getExclusions(), cha);
 //	    cl.init( scope.getModules( classLoaderReference ));
 	    return cl;
  	} else if (classLoaderReference.equals(X10PrimordialClassLoader.X10Primordial)) {
@@ -35,13 +34,6 @@ public class X10ClassLoaderFactory extends PolyglotClassLoaderFactory {
  	    IClassLoader cl = new X10SyntheticLoaderImpl(classLoaderReference, parent, getExclusions(), cha);
 
 // 	    cl.init(scope.getModules(classLoaderReference));
- 	    return cl;
- 	} else if (classLoaderReference.equals(JavaSourceAnalysisScope.SOURCE)) {
- 	    // Don't let the JavaSourceLoaderImpl handle Java source that's generated from
- 	    // X10 source; that would create pseudo-duplicate classes. The following variant
- 	    // just skips over such source files.
- 	    ClassLoaderImpl cl = new JavaFilteredSourceLoaderImpl(classLoaderReference, parent, getExclusions(), cha, getExtensionFor(classLoaderReference));
-// 	    cl.init( scope.getModules( classLoaderReference ));
  	    return cl;
  	} else {
  	    return super.makeNewClassLoader(classLoaderReference, cha, parent, scope);

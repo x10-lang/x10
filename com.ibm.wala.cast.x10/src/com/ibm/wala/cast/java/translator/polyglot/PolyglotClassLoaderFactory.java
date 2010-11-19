@@ -46,8 +46,7 @@ public class PolyglotClassLoaderFactory extends ClassLoaderFactoryImpl {
   protected IClassLoader makeNewClassLoader(ClassLoaderReference classLoaderReference, IClassHierarchy cha, IClassLoader parent,
       AnalysisScope scope) throws IOException {
     if (classLoaderReference.equals(JavaSourceAnalysisScope.SOURCE)) {
-      ClassLoaderImpl cl = new PolyglotSourceLoaderImpl(classLoaderReference, parent, getExclusions(), cha,
-          getExtensionFor(classLoaderReference));
+      ClassLoaderImpl cl = new PolyglotSourceLoaderImpl(classLoaderReference, parent, getExclusions(), cha);
       cl.init(scope.getModules(classLoaderReference));
       return cl;
     } else {
