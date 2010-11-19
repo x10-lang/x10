@@ -75,10 +75,10 @@ public class SharedMem implements Cloneable {
 	            tr.print(null, numElements, out);
             } else {
             	tr.print(null, init, out);
-            	out.write(".size");
+            	out.write(".FMGL(size)");
             }
             out.write(", ("+elementType+"*) "+raw+" };"); out.newline();
-            return "&"+ast.name().id()+".raw["+ast.name().id()+".size]";
+            return "&"+ast.name().id()+".raw["+ast.name().id()+".FMGL(size)]";
         }
         public String generateInit(StreamWrapper out, String offset, Translator tr) {
             out.write("{"); out.newline(4); out.begin(0);
@@ -87,7 +87,7 @@ public class SharedMem implements Cloneable {
 	            tr.print(null, numElements, out);
             } else {
             	tr.print(null, init, out);
-            	out.write(".size");
+            	out.write(".FMGL(size)");
             }
             out.write(";"); out.newline();
             
@@ -131,7 +131,7 @@ public class SharedMem implements Cloneable {
             out.write("}");
             out.end(); out.newline();
             out.write("}");
-            return "&"+ast.name().id()+".raw["+ast.name().id()+".size]";
+            return "&"+ast.name().id()+".raw["+ast.name().id()+".FMGL(size)]";
         }
         public void generateSize(StreamWrapper inc, Translator tr) {
             if (numElements!=null) {
