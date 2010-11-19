@@ -122,7 +122,7 @@ public class AstX10SSAPropagationCallGraphBuilder extends AstJavaSSAPropagationC
 		// not interesting for now	
 	}
 
-	public void visitNewTuple(TupleInstruction instruction) {
+	public void visitTuple(TupleInstruction instruction) {
             Assertions.productionAssertion(instruction.getUse(0) == vn, "newTuple instruction has bogus use/def info?");
 	    bingo= true;
 	}
@@ -212,7 +212,7 @@ public class AstX10SSAPropagationCallGraphBuilder extends AstJavaSSAPropagationC
 		// not interesting for now	
 	}
 
-	public void visitNewTuple(TupleInstruction newTupleInstruction) {
+	public void visitTuple(TupleInstruction tupleInstruction) {
             // TODO model data flow for newTuple
 	}
 	

@@ -122,7 +122,7 @@ public class AstX10TypeInference extends AstJavaTypeInference {
  		 		result = new DeclaredTypeOperator(new ConeType(placeClass));
  	}
 
- 	public void visitNewTuple(TupleInstruction newTupleInstruction) {
+ 	public void visitTuple(TupleInstruction tupleInstruction) {
  	    // This instruction always produces a value of type "x10.lang.Rail".
  	    TypeReference type= X10TypeReference.x10LangRail;
  	    IClass klass= cha.lookupClass(type);

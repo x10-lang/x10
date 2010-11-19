@@ -217,7 +217,7 @@ public class X10LanguageImpl extends LanguageImpl implements BytecodeLanguage {
       return new RegionIterNextInstruction(nextValue, regionIter);
     }
 
-    public TupleInstruction NewTuple(int retValue, int[] slotValues) {
+    public TupleInstruction Tuple(int retValue, int[] slotValues) {
       return new TupleInstruction(retValue, slotValues);
     }
     

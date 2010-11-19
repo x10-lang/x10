@@ -25,7 +25,7 @@ public class TupleInstruction extends SSAInstruction {
 
     @Override
     public SSAInstruction copyForSSA(SSAInstructionFactory insts, int[] defs, int[] uses) {
-        TupleInstruction copy = ((AstX10InstructionFactory) insts).NewTuple((defs != null) ? defs[0] : retValue,
+        TupleInstruction copy = ((AstX10InstructionFactory) insts).Tuple((defs != null) ? defs[0] : retValue,
                 childValues);
 
         if (childValues != null) {
@@ -62,7 +62,7 @@ public class TupleInstruction extends SSAInstruction {
     }
 
     public void visit(IVisitor v) {
-        ((AstX10InstructionVisitor) v).visitNewTuple(this);
+        ((AstX10InstructionVisitor) v).visitTuple(this);
     }
 
     @Override

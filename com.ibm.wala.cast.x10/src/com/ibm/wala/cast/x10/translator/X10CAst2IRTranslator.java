@@ -296,7 +296,7 @@ public class X10CAst2IRTranslator extends X10DelegatingCAstVisitor implements Ar
         for(int i = 0; i < slotValues.length; i++) {
             slotValues[i] = translator.getValue(n.getChild(i+1));
         }
-        context.cfg().addInstruction(insts.NewTuple(retValue, slotValues));
+        context.cfg().addInstruction(insts.Tuple(retValue, slotValues));
         translator.setValue(n, retValue);
     }
     

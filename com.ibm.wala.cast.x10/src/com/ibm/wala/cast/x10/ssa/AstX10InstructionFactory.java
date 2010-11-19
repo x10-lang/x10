@@ -23,6 +23,6 @@ public interface AstX10InstructionFactory extends AstJavaInstructionFactory {
 	ArrayLoadByPointInstruction ArrayLoadByPoint(int result, int arrayRef, int pointIndex, TypeReference declaredType);
 	ArrayStoreByIndexInstruction ArrayStoreByIndex(int arrayRef, int[] indices, int value, TypeReference declaredType);
 	ArrayStoreByPointInstruction ArrayStoreByPoint(int arrayRef, int pointIndex, int value, TypeReference declaredType);
-	TupleInstruction NewTuple(int retValue, int[] slotValues);
+	TupleInstruction Tuple(int retValue, int[] slotValues);
 	AtStmtInstruction AtStmt(boolean isEnter);
 }
