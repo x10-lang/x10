@@ -9,7 +9,6 @@ Require-Bundle: org.eclipse.core.runtime,
  x10.compiler
 Eclipse-AutoStart: true
 Export-Package: com.ibm.wala.cast.java.translator.polyglot,
- com.ibm.wala.cast.x10.analysis,
  com.ibm.wala.cast.x10.analysis.typeInference,
  com.ibm.wala.cast.x10.client,
  com.ibm.wala.cast.x10.ipa.callgraph,
