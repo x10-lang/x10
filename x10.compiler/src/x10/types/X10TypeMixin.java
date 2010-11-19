@@ -1331,10 +1331,14 @@ public class X10TypeMixin {
             } else if (ts.isObjectOrInterfaceType(t, context)) {
                 e = nf.NullLit(p);
             } else if (ts.isParameterType(t)) {
-                // todo: haszero constraint
-                IntLit lit = nf.IntLit(p, X10IntLit_c.INT, 0L);
-                lit = (IntLit) lit.del().typeCheck(tc).checkConstants(tc);
-                e = nf.Cast(p,typeNode, lit);
+                // call Zero.get[T]()  (e.g., "0 as T" doesn't work if T is String)
+                TypeNode receiver = (TypeNode) nf.CanonicalTypeNode(p, (Type) ts.systemResolver().find(QName.make("x10.lang.Zero")));
+                //receiver = (TypeNode) receiver.del().typeCheck(tc).checkConstants(tc);
+                e = nf.X10Call(p,receiver, nf.Id(p,"get"),Collections.singletonList(typeNode), Collections.<Expr>emptyList());
+
+//                IntLit lit = nf.IntLit(p, X10IntLit_c.INT, 0L);
+//                lit = (IntLit) lit.del().typeCheck(tc).checkConstants(tc);
+//                e = nf.Cast(p,typeNode, lit);
             }
             // todo: we should handle user-defined structs
 //          } else if (isX10Struct(t)) {
@@ -1356,7 +1360,7 @@ then we substitute 0/false/null in all the constraints in C and if they all eval
                 }
             }
             return null;
-        } catch (SemanticException e1) {
+        } catch (Throwable e1) {
             throw new InternalCompilerError(e1);
         }
     }

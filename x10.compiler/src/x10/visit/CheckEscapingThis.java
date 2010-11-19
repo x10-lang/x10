@@ -555,13 +555,11 @@ public class CheckEscapingThis extends NodeVisitor
         this.xlassType = X10TypeMixin.baseType(xlass.classDef().asType());
         // calculate the set of all fields (including inherited fields)
         calcFields();
-        int notInited = build(false, false,false);
-        int inited = build(false, true,true);
+        Integer notInited = build(false, false,false);
+        Integer inited = build(false, true,true);
         for (FieldDef f : fields) {
-            boolean hasZero = ((X10FieldDef_c)f).hasZero;
-            int initialVal = hasZero ? inited : notInited;
-            INIT.initStatus.put(f,initialVal);
-            CTOR_INIT.initStatus.put(f,initialVal);
+            INIT.initStatus.put(f,notInited);
+            CTOR_INIT.initStatus.put(f,notInited);
         }
         for (FieldDef field : superFields) {
             CTOR_INIT.initStatus.put(field, inited);
