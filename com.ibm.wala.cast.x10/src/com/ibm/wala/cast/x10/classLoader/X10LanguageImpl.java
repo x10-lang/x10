@@ -85,7 +85,7 @@ public class X10LanguageImpl extends LanguageImpl implements BytecodeLanguage {
 
   public Object getMetadataToken(Object value) {
     if (value instanceof ClassToken) {
-      return ShrikeUtil.makeTypeReference(X10PrimordialClassLoaderImpl.X10Primordial, ((ClassToken) value).getTypeName());
+      return ShrikeUtil.makeTypeReference(X10SourceLoaderImpl.X10SourceLoader, ((ClassToken) value).getTypeName());
     } else {
       assert value instanceof TypeReference;
       return value;

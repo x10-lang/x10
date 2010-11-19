@@ -5,11 +5,9 @@ import java.util.Set;
 
 import com.ibm.wala.cast.java.client.JavaSourceAnalysisEngine;
 import com.ibm.wala.cast.x10.classLoader.X10ClassLoaderFactoryImpl;
-import com.ibm.wala.cast.x10.classLoader.X10PrimordialClassLoaderImpl;
 import com.ibm.wala.cast.x10.client.impl.X10ZeroXCFABuilderFactory;
 import com.ibm.wala.cast.x10.ipa.callgraph.X10SourceAnalysisScope;
 import com.ibm.wala.cast.x10.ipa.cha.X10ClassHierarchy;
-import com.ibm.wala.cast.x10.ipa.summaries.X10SyntheticLoaderImpl;
 import com.ibm.wala.cast.x10.loader.X10SourceLoaderImpl;
 import com.ibm.wala.classLoader.ClassLoaderFactory;
 import com.ibm.wala.classLoader.Module;
@@ -27,20 +25,6 @@ import com.ibm.wala.util.CancelException;
 import com.ibm.wala.util.collections.HashSetFactory;
 
 public class X10SourceAnalysisEngine extends JavaSourceAnalysisEngine {
-      /**
-     * Modules which contain X10 system or library code
-     */
-    private final Set<Module> x10SystemEntries = HashSetFactory.make();
-
-    /**
-     * Modules which contain X10 source code
-     */
-    private final Set<Module> x10SourceEntries = HashSetFactory.make();
-
-    public X10SourceAnalysisEngine() {
-//    setCallGraphBuilderFactory(new X10ZeroXCFACallGraphBuilderFactory());
-    }
-
     @Override
     protected ClassLoaderFactory getClassLoaderFactory(SetOfClasses exclusions) {
 	return new X10ClassLoaderFactoryImpl(exclusions);
@@ -56,39 +40,12 @@ public class X10SourceAnalysisEngine extends JavaSourceAnalysisEngine {
         return new X10ZeroXCFABuilderFactory().make(options, cache, cha, scope, false);
     }
 
-    /**
-     * Adds the given module to the X10 primordial loader's module list. Clients
-     * should/may call this method if they don't supply an IJavaProject to the
-     * constructor.
-     */
-    public void addX10SystemModule(Module M) {
-      x10SystemEntries.add(M);
-    }
-
-    /**
-     * Adds the given module to the X10 primordial loader's module list. Clients
-     * should/may call this method if they don't supply an IJavaProject to the
-     * constructor.
-     */
-    public void addX10SourceModule(Module M) {
-      x10SourceEntries.add(M);
-    }
-
     @Override
     public void buildAnalysisScope() throws IOException {
         super.buildAnalysisScope();
 
         X10SourceAnalysisScope x10Scope= (X10SourceAnalysisScope) scope;
-        ClassLoaderReference x10PrimordialLoader = x10Scope.getX10PrimordialLoader();
-        ClassLoaderReference x10SourceLoader = x10Scope.getX10SourceLoader();
-
-        for( Module M : this.x10SystemEntries) {
-            scope.addToScope(x10PrimordialLoader, M);
-        }
-
-        for( Module M : this.x10SourceEntries) {
-            scope.addToScope(x10SourceLoader, M);
-        }
+        ClassLoaderReference x10SourceLoader = x10Scope.getSourceLoader();
     }
 
     public CallGraph buildCallGraph(Iterable<Entrypoint> eps) throws IllegalArgumentException, CancelException, IOException {
@@ -127,9 +84,7 @@ public class X10SourceAnalysisEngine extends JavaSourceAnalysisEngine {
     public IClassHierarchy buildClassHierarchy() {
         X10ClassHierarchy cha = initClassHierarchy();
         try {
-            cha.getLoader(X10PrimordialClassLoaderImpl.X10Primordial).init(cha.getScope().getModules(X10PrimordialClassLoaderImpl.X10Primordial));
             cha.getLoader(X10SourceLoaderImpl.X10SourceLoader).init(cha.getScope().getModules(X10SourceLoaderImpl.X10SourceLoader));
-            cha.getLoader(X10SyntheticLoaderImpl.X10SyntheticLoader).init(cha.getScope().getModules(X10SyntheticLoaderImpl.X10SyntheticLoader));
             ((X10ClassHierarchy) cha).consolidate();
         } catch (ClassHierarchyException e) {
             System.err.println("Class Hierarchy construction failed");

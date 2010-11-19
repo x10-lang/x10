@@ -1,8 +1,7 @@
 package com.ibm.wala.cast.x10.ipa.callgraph;
 
 import com.ibm.wala.cast.ipa.callgraph.AstCallGraph;
-import com.ibm.wala.cast.ipa.callgraph.MiscellaneousHacksContextSelector;
-import com.ibm.wala.cast.x10.ipa.summaries.X10SyntheticLoaderImpl;
+import com.ibm.wala.cast.x10.loader.X10SourceLoaderImpl;
 import com.ibm.wala.classLoader.IClass;
 import com.ibm.wala.classLoader.IClassLoader;
 import com.ibm.wala.ipa.callgraph.AnalysisCache;
@@ -52,40 +51,6 @@ public class AstX10ZeroXCFABuilder extends AstX10CFABuilder {
 	  appContextSelector == null? 
 			             def: 
 			            new DelegatingContextSelector(appContextSelector, def);
-/*
-	  contextSelector = new MiscellaneousHacksContextSelector(
-			       		  new nCFAContextSelector(1, contextSelector),
-			       		  contextSelector,
-			       		  cha,
-			       		  new String[][]{
-			       			  new String[]{"X10Primordial", 
-			       					  	   "X10", 
-			       					  	   "Lx10/lang/clock$factory",
-			       					  	   "clock", 
-			       					  	   "()Lx10/lang/clock;"},
-			       			 new String[]{"X10Primordial", 
-			   					  	   "X10", 
-			   					  	   "Lx10/lang/clock",
-			   					  	   "registered", 
-			   					  	   "()Z"},
-			   				new String[]{"X10Primordial", 
-			   					  	   "X10", 
-			   					  	   "Lx10/lang/clock",
-			   					  	   "drop", 
-			   					  	   "()V"},
-			   				new String[]{"X10Primordial", 
-			   					  	   "X10", 
-			   					  	   "Lx10/lang/clock",
-			   					  	   "doNext", 
-			   					  	   "()V"},
-			   				new String[]{"X10Primordial", 
-			   					  	   "X10", 
-			   					  	   "Lx10/lang/clock",
-			   					  	   "resume", 
-			   					  	   "()V"}
-			   
-			       		  });
-*/
       setContextSelector(contextSelector);
 
       setInstanceKeys(
@@ -98,7 +63,7 @@ public class AstX10ZeroXCFABuilder extends AstX10CFABuilder {
         return new AstCallGraph(cha, options, getAnalysisCache()) {
             @Override
             protected CGNode makeFakeRootNode() throws CancelException {
-                final TypeReference fakeTypeRef = TypeReference.findOrCreate(X10SyntheticLoaderImpl.X10SyntheticLoader, FakeRootClass.FAKE_ROOT_CLASS.getName());
+                final TypeReference fakeTypeRef = TypeReference.findOrCreate(X10SourceLoaderImpl.X10SourceLoader, FakeRootClass.FAKE_ROOT_CLASS.getName());
                 Atom fakeMethodName = FakeRootMethod.name;
                 Descriptor fakeMethodDesc = FakeRootMethod.descr;
                 MethodReference fakeMethodRef = MethodReference.findOrCreate(fakeTypeRef, fakeMethodName, fakeMethodDesc);
@@ -116,7 +81,7 @@ public class AstX10ZeroXCFABuilder extends AstX10CFABuilder {
             }
             @Override
             protected CGNode makeFakeWorldClinitNode() throws CancelException {
-              final TypeReference fakeTypeRef = TypeReference.findOrCreate(X10SyntheticLoaderImpl.X10SyntheticLoader, FakeRootClass.FAKE_ROOT_CLASS.getName());
+              final TypeReference fakeTypeRef = TypeReference.findOrCreate(X10SourceLoaderImpl.X10SourceLoader, FakeRootClass.FAKE_ROOT_CLASS.getName());
               final Atom fakeMethodName = Atom.findOrCreateAsciiAtom("fakeWorldClinit");
               final Descriptor fakeMethodDesc = Descriptor.findOrCreate(new TypeName[0], TypeReference.VoidName);
               final MethodReference fakeMethodRef = MethodReference.findOrCreate(fakeTypeRef, fakeMethodName, fakeMethodDesc);

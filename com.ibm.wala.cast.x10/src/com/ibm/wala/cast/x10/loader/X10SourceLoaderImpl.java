@@ -4,8 +4,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import com.ibm.wala.cast.ir.translator.AstTranslator.AstLexicalInformation;
+import com.ibm.wala.cast.java.ipa.callgraph.JavaSourceAnalysisScope;
 import com.ibm.wala.cast.java.loader.JavaSourceLoaderImpl;
 import com.ibm.wala.cast.java.translator.SourceModuleTranslator;
 import com.ibm.wala.cast.loader.AstMethod.DebuggingInformation;
@@ -14,7 +16,6 @@ import com.ibm.wala.cast.tree.CAstSourcePositionMap;
 import com.ibm.wala.cast.tree.CAstType;
 import com.ibm.wala.cast.tree.CAstSourcePositionMap.Position;
 import com.ibm.wala.cast.x10.classLoader.X10LanguageImpl;
-import com.ibm.wala.cast.x10.classLoader.X10PrimordialClassLoaderImpl;
 import com.ibm.wala.cast.x10.tree.X10CAstEntity;
 import com.ibm.wala.cfg.AbstractCFG;
 import com.ibm.wala.classLoader.IClass;
@@ -29,13 +30,12 @@ import com.ibm.wala.types.TypeName;
 import com.ibm.wala.types.TypeReference;
 import com.ibm.wala.util.strings.Atom;
 
-public class X10SourceLoaderImpl extends PolyglotSourceLoaderImpl {
-    public static Atom X10SourceLoaderName = Atom.findOrCreateAsciiAtom("X10Source");
+public class X10SourceLoaderImpl extends JavaSourceLoaderImpl {
+    public final static Atom X10SourceLoaderName = Atom.findOrCreateAsciiAtom("X10Source");
 
     public final static Atom X10 = Atom.findOrCreateUnicodeAtom("X10");
 
-    public static ClassLoaderReference X10SourceLoader = new ClassLoaderReference(X10SourceLoaderName, X10,
-                                                                                  X10PrimordialClassLoaderImpl.X10Primordial);
+    public static ClassLoaderReference X10SourceLoader = new ClassLoaderReference(X10SourceLoaderName, X10, null);
 
     public X10SourceLoaderImpl(ClassLoaderReference loaderRef, IClassLoader parent, SetOfClasses exclusions,
                                IClassHierarchy cha) throws IOException {
@@ -141,4 +141,10 @@ public class X10SourceLoaderImpl extends PolyglotSourceLoaderImpl {
             
     }
     
+    @Override
+    protected SourceModuleTranslator getTranslator() {
+      return new SourceModuleTranslator() {
+        public void loadAllSources(Set s) {}
+      };
+    }
 }
