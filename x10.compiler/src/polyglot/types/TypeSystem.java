@@ -1032,6 +1032,7 @@ public interface TypeSystem {
     Type Iterable(Type index);
 
     Type CustomSerialization();
+    Type SerialData();
 
     boolean isSettable(Type me);
 

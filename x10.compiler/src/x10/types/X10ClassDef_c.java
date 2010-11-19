@@ -19,6 +19,8 @@ import java.util.List;
 import polyglot.frontend.Source;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassDef_c;
+import polyglot.types.ConstructorDef;
+import polyglot.types.Context;
 import polyglot.types.FieldDef;
 import polyglot.types.Flags;
 import polyglot.types.LazyRef_c;
@@ -391,4 +393,17 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
     public X10ClassType asType() {
         return (X10ClassType) super.asType();
     }
+    
+    public boolean hasDeserializationConstructor(Context context) {
+        for (ConstructorDef cd: constructors()) {
+            if (cd.formalTypes().size() == 1) {
+                Type type = cd.formalTypes().get(0).get();
+                if (type.isSubtype(type.typeSystem().SerialData(), context)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    
 }

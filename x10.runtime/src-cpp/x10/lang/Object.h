@@ -24,6 +24,7 @@
 #undef X10_LANG_ANY_H_NODEPS
 
 namespace x10 {
+    namespace io { class SerialData; }
     namespace lang {
 
         class String;
@@ -39,9 +40,9 @@ namespace x10 {
             
             static x10aux::ref<Object> _make();
 
-            x10aux::ref<Object> _constructor() {
-                return this;
-            }
+            void _constructor() { }
+
+            void _constructor(x10aux::ref<x10::io::SerialData>) { }
             
             static const x10aux::serialization_id_t _serialization_id;
 

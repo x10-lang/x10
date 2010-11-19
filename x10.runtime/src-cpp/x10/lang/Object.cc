@@ -19,7 +19,9 @@ using namespace x10::lang;
 using namespace x10aux;
 
 x10aux::ref<Object> Object::_make() {
-    return (new (x10aux::alloc<Object>()) Object())->_constructor();
+    x10aux::ref<Object> res = (new (x10aux::alloc<Object>()) Object());
+    res->_constructor();
+    return res;
 }
 
 x10aux::ref<x10::lang::String> x10::lang::Object::toString() {

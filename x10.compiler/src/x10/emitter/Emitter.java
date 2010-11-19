@@ -2505,18 +2505,6 @@ public class Emitter {
         return false;
     }
     
-	private static boolean hasDeserializationConstructor(X10ClassDef def) {
-        for (ConstructorDef cd: def.constructors()) {
-            if (cd.formalTypes().size() > 0) {
-                Type type = cd.formalTypes().get(cd.formalTypes().size() - 1).get();
-                if ("x10.io.SerialData".equals(type.toString())) {
-                    return true;
-                }
-            }
-        }
-        return false;
-	}
-	
     private static X10ConstructorDecl hasDefaultConstructor(X10ClassDecl n) {
         for (ClassMember member : n.body().members()) {
             if (member instanceof X10ConstructorDecl) {
@@ -2646,7 +2634,7 @@ public class Emitter {
         }
         */
 
-        if (!hasDeserializationConstructor(def)) {
+        if (!def.hasDeserializationConstructor(tr.context())) {
             w.write("// default deserialization constructor");
             w.newline();
             w.write("public " + def.name().toString() + "(");
