@@ -24,7 +24,7 @@ import x10.types.X10ClassType;
 import com.ibm.wala.cast.java.types.JavaPrimitiveTypeMap;
 import com.ibm.wala.cast.tree.CAstType;
 import com.ibm.wala.cast.tree.impl.CAstTypeDictionaryImpl;
-import com.ibm.wala.cast.x10.translator.PolyglotJava2CAstTranslator.PolyglotJavaType;
+import com.ibm.wala.cast.x10.translator.X10toCAstTranslator.PolyglotJavaType;
 import com.ibm.wala.cast.x10.translator.X10toCAstTranslator.PolyglotJavaParametricType;
 import com.ibm.wala.util.debug.Assertions;
 
@@ -73,9 +73,9 @@ public class X10TypeDictionary extends CAstTypeDictionaryImpl {
 
       protected final TypeSystem fTypeSystem;
 
-      protected final PolyglotJava2CAstTranslator fTranslator;
+      protected final X10toCAstTranslator fTranslator;
 
-      public X10TypeDictionary(TypeSystem typeSystem, PolyglotJava2CAstTranslator translator) {
+      public X10TypeDictionary(TypeSystem typeSystem, X10toCAstTranslator translator) {
         fTypeSystem = typeSystem;
         fTranslator = translator;
       }

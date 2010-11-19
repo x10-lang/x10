@@ -76,8 +76,8 @@ import x10.ast.When;
 import x10.ast.X10Formal;
 
 import com.ibm.wala.cast.tree.CAstNode;
-import com.ibm.wala.cast.x10.translator.PolyglotJava2CAstTranslator.MethodContext;
-import com.ibm.wala.cast.x10.translator.PolyglotJava2CAstTranslator.WalkContext;
+import com.ibm.wala.cast.x10.translator.X10toCAstTranslator.MethodContext;
+import com.ibm.wala.cast.x10.translator.X10toCAstTranslator.WalkContext;
 import com.ibm.wala.util.debug.Assertions;
 
 public class X10ASTTraverser {

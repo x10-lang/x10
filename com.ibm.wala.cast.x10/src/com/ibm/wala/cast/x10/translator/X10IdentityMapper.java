@@ -219,7 +219,7 @@ class X10IdentityMapper {
       CodeInstance procInstance= (CodeInstance) fLocalTypeMap.get(ctype);
 
       String outerTypeID= typeToTypeID(ctype.outer());
-      String shortName= (ctype.isAnonymous()) ? PolyglotJava2CAstTranslator.anonTypeName(ctype) : ctype.fullName().name().toString();
+      String shortName= (ctype.isAnonymous()) ? X10toCAstTranslator.anonTypeName(ctype) : ctype.fullName().name().toString();
 
       return outerTypeID + '/' + getMethodRef(procInstance).getSelector() + '/' + shortName;
     }

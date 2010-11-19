@@ -78,7 +78,7 @@ public class X102IRGoal extends SourceGoal_c {
         ExtensionInfo extInfo = job.extensionInfo();
         if(Report.should_report("verbose", 2))
 			Report.report(2,"translating " + job.source().name() + " x10 ast to wala ast ...");
-        X10toCAstTranslator fTranslator = new X10toCAstTranslator(X10LOADER, extInfo.nodeFactory(), extInfo.typeSystem(), mapper, false);
+        X10toCAstTranslator fTranslator = new X10toCAstTranslator(X10LOADER, extInfo.nodeFactory(), extInfo.typeSystem(), mapper);
         CAstEntity entity = fTranslator.translate(job.ast(), job.source().name());
         
         if(Report.should_report("verbose", 2))
