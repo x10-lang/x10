@@ -3,13 +3,16 @@ package com.ibm.wala.cast.x10.client;
 import java.io.IOException;
 import java.util.Set;
 
-import com.ibm.wala.cast.x10.classLoader.X10PrimordialClassLoader;
-import com.ibm.wala.cast.x10.ipa.callgraph.X10AnalysisScope;
+import com.ibm.wala.cast.java.client.JavaSourceAnalysisEngine;
+import com.ibm.wala.cast.x10.classLoader.PolyglotClassLoaderFactoryImpl;
+import com.ibm.wala.cast.x10.classLoader.X10ClassLoaderFactoryImpl;
+import com.ibm.wala.cast.x10.classLoader.X10PrimordialClassLoaderImpl;
+import com.ibm.wala.cast.x10.ipa.callgraph.X10SourceAnalysisScope;
 import com.ibm.wala.cast.x10.ipa.cha.X10ClassHierarchy;
 import com.ibm.wala.cast.x10.ipa.summaries.X10SyntheticLoaderImpl;
-import com.ibm.wala.cast.x10.translator.polyglot.IRTranslatorExtension;
-import com.ibm.wala.cast.x10.translator.polyglot.X10ClassLoaderFactory;
-import com.ibm.wala.cast.x10.translator.polyglot.X10SourceLoaderImpl;
+import com.ibm.wala.cast.x10.loader.X10SourceLoaderImpl;
+import com.ibm.wala.cast.x10.translator.IRTranslatorExtension;
+import com.ibm.wala.cast.x10.translator.JavaIRTranslatorExtension;
 import com.ibm.wala.classLoader.ClassLoaderFactory;
 import com.ibm.wala.classLoader.Module;
 import com.ibm.wala.ipa.callgraph.AnalysisCache;
@@ -25,8 +28,12 @@ import com.ibm.wala.types.ClassLoaderReference;
 import com.ibm.wala.util.CancelException;
 import com.ibm.wala.util.collections.HashSetFactory;
 
-public class X10SourceAnalysisEngine extends PolyglotJavaSourceAnalysisEngine {
-    /**
+public class X10SourceAnalysisEngine extends JavaSourceAnalysisEngine {
+    public IRTranslatorExtension getTranslatorExtension() {
+        return new JavaIRTranslatorExtension();
+      }
+
+      /**
      * Modules which contain X10 system or library code
      */
     private final Set<Module> x10SystemEntries = HashSetFactory.make();
@@ -42,12 +49,12 @@ public class X10SourceAnalysisEngine extends PolyglotJavaSourceAnalysisEngine {
 
     @Override
     protected ClassLoaderFactory getClassLoaderFactory(SetOfClasses exclusions) {
-	return new X10ClassLoaderFactory(exclusions, super.getTranslatorExtension());
+	return new X10ClassLoaderFactoryImpl(exclusions, getTranslatorExtension());
     }
 
     @Override
     protected AnalysisScope makeSourceAnalysisScope() {
-        return new X10AnalysisScope();
+        return new X10SourceAnalysisScope();
     }
 
     @Override
@@ -77,7 +84,7 @@ public class X10SourceAnalysisEngine extends PolyglotJavaSourceAnalysisEngine {
     public void buildAnalysisScope() throws IOException {
         super.buildAnalysisScope();
 
-        X10AnalysisScope x10Scope= (X10AnalysisScope) scope;
+        X10SourceAnalysisScope x10Scope= (X10SourceAnalysisScope) scope;
         ClassLoaderReference x10PrimordialLoader = x10Scope.getX10PrimordialLoader();
         ClassLoaderReference x10SourceLoader = x10Scope.getX10SourceLoader();
 
@@ -126,7 +133,7 @@ public class X10SourceAnalysisEngine extends PolyglotJavaSourceAnalysisEngine {
     public IClassHierarchy buildClassHierarchy() {
         X10ClassHierarchy cha = initClassHierarchy();
         try {
-            cha.getLoader(X10PrimordialClassLoader.X10Primordial).init(cha.getScope().getModules(X10PrimordialClassLoader.X10Primordial));
+            cha.getLoader(X10PrimordialClassLoaderImpl.X10Primordial).init(cha.getScope().getModules(X10PrimordialClassLoaderImpl.X10Primordial));
             cha.getLoader(X10SourceLoaderImpl.X10SourceLoader).init(cha.getScope().getModules(X10SourceLoaderImpl.X10SourceLoader));
             cha.getLoader(X10SyntheticLoaderImpl.X10SyntheticLoader).init(cha.getScope().getModules(X10SyntheticLoaderImpl.X10SyntheticLoader));
             ((X10ClassHierarchy) cha).consolidate();

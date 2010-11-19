@@ -5,7 +5,7 @@ import com.ibm.wala.ipa.callgraph.AnalysisCache;
 import com.ibm.wala.ipa.callgraph.AnalysisOptions;
 import com.ibm.wala.ipa.cha.IClassHierarchy;
 
-public class X10CFABuilder extends X10SSAPropagationCallGraphBuilder {
+public class X10CFABuilder extends AstX10SSAPropagationCallGraphBuilder {
 
     /**
      * @param cha

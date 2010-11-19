@@ -3,23 +3,23 @@ package com.ibm.wala.cast.x10.analysis.typeInference;
 import com.ibm.wala.analysis.typeInference.ConeType;
 import com.ibm.wala.analysis.typeInference.PointType;
 import com.ibm.wala.cast.java.analysis.typeInference.AstJavaTypeInference;
-import com.ibm.wala.cast.x10.classLoader.X10PrimordialClassLoader;
+import com.ibm.wala.cast.x10.classLoader.X10PrimordialClassLoaderImpl;
 import com.ibm.wala.cast.x10.ssa.AstX10InstructionVisitor;
-import com.ibm.wala.cast.x10.ssa.NewTupleInstruction;
-import com.ibm.wala.cast.x10.ssa.SSAAtStmtInstruction;
-import com.ibm.wala.cast.x10.ssa.SSAAtomicInstruction;
-import com.ibm.wala.cast.x10.ssa.SSAFinishInstruction;
-import com.ibm.wala.cast.x10.ssa.SSAForceInstruction;
-import com.ibm.wala.cast.x10.ssa.SSAHereInstruction;
-import com.ibm.wala.cast.x10.ssa.SSANextInstruction;
-import com.ibm.wala.cast.x10.ssa.SSAPlaceOfPointInstruction;
-import com.ibm.wala.cast.x10.ssa.SSARegionIterHasNextInstruction;
-import com.ibm.wala.cast.x10.ssa.SSARegionIterInitInstruction;
-import com.ibm.wala.cast.x10.ssa.SSARegionIterNextInstruction;
-import com.ibm.wala.cast.x10.ssa.X10ArrayLoadByIndexInstruction;
-import com.ibm.wala.cast.x10.ssa.X10ArrayLoadByPointInstruction;
-import com.ibm.wala.cast.x10.ssa.X10ArrayStoreByIndexInstruction;
-import com.ibm.wala.cast.x10.ssa.X10ArrayStoreByPointInstruction;
+import com.ibm.wala.cast.x10.ssa.TupleInstruction;
+import com.ibm.wala.cast.x10.ssa.AtStmtInstruction;
+import com.ibm.wala.cast.x10.ssa.AtomicInstruction;
+import com.ibm.wala.cast.x10.ssa.FinishInstruction;
+import com.ibm.wala.cast.x10.ssa.ForceInstruction;
+import com.ibm.wala.cast.x10.ssa.HereInstruction;
+import com.ibm.wala.cast.x10.ssa.NextInstruction;
+import com.ibm.wala.cast.x10.ssa.PlaceOfPointInstruction;
+import com.ibm.wala.cast.x10.ssa.RegionIterHasNextInstruction;
+import com.ibm.wala.cast.x10.ssa.RegionIterInitInstruction;
+import com.ibm.wala.cast.x10.ssa.RegionIterNextInstruction;
+import com.ibm.wala.cast.x10.ssa.ArrayLoadByIndexInstruction;
+import com.ibm.wala.cast.x10.ssa.ArrayLoadByPointInstruction;
+import com.ibm.wala.cast.x10.ssa.ArrayStoreByIndexInstruction;
+import com.ibm.wala.cast.x10.ssa.ArrayStoreByPointInstruction;
 import com.ibm.wala.cast.x10.types.X10TypeReference;
 import com.ibm.wala.classLoader.IClass;
 import com.ibm.wala.ipa.cha.IClassHierarchy;
@@ -35,19 +35,19 @@ public class AstX10TypeInference extends AstJavaTypeInference {
 
     protected class AstX10TypeOperatorFactory extends AstJavaTypeOperatorFactory implements AstX10InstructionVisitor {
 
-	public void visitAtomic(SSAAtomicInstruction instruction) {
+	public void visitAtomic(AtomicInstruction instruction) {
 	    Assertions.UNREACHABLE("Type operator requested for X10 atomic instruction");
 	}
 
-	public void visitFinish(SSAFinishInstruction instruction) {
+	public void visitFinish(FinishInstruction instruction) {
 	    Assertions.UNREACHABLE("Type operator requested for X10 finish instruction");
 	}
 	
-	public void visitNext(SSANextInstruction instruction) {
+	public void visitNext(NextInstruction instruction) {
 	    Assertions.UNREACHABLE("Type operator requested for X10 finish instruction");
 	}
 
-	public void visitForce(SSAForceInstruction instruction) {
+	public void visitForce(ForceInstruction instruction) {
 	    TypeReference type= instruction.getValueType();
 
 	    if (type.isReferenceType()) {
@@ -64,7 +64,7 @@ public class AstX10TypeInference extends AstJavaTypeInference {
 	    }
 	}
 
-	public void visitRegionIterInit(SSARegionIterInitInstruction instruction) {
+	public void visitRegionIterInit(RegionIterInitInstruction instruction) {
 	    // Pretend that this instruction produces a value of type "java.lang.Object".
 	    // It produces a region iterator, for which we have no type a priori.
 	    TypeReference type= TypeReference.JavaLangObject;
@@ -73,12 +73,12 @@ public class AstX10TypeInference extends AstJavaTypeInference {
 	    result= new DeclaredTypeOperator(new ConeType(klass));
 	}
 
-	public void visitRegionIterHasNext(SSARegionIterHasNextInstruction instruction) {
+	public void visitRegionIterHasNext(RegionIterHasNextInstruction instruction) {
 	    // NOOP
 	    result= null;
 	}
 
-	public void visitRegionIterNext(SSARegionIterNextInstruction instruction) {
+	public void visitRegionIterNext(RegionIterNextInstruction instruction) {
 	    // This instruction always produces a value of type "x10.lang.point".
 	    TypeReference type= X10TypeReference.x10LangPoint;
 	    IClass klass= cha.lookupClass(type);
@@ -86,7 +86,7 @@ public class AstX10TypeInference extends AstJavaTypeInference {
 	    result= new DeclaredTypeOperator(new PointType(klass));
 	}
 
-	public void visitHere(SSAHereInstruction instruction) {
+	public void visitHere(HereInstruction instruction) {
 	    // This instruction always produces a value of type "x10.lang.point".
 	    TypeReference type= X10TypeReference.x10LangPlace;
 	    IClass klass= cha.lookupClass(type);
@@ -94,42 +94,42 @@ public class AstX10TypeInference extends AstJavaTypeInference {
 	    result= new DeclaredTypeOperator(new ConeType(klass));
 	}
 
-	public void visitArrayLoadByIndex(X10ArrayLoadByIndexInstruction instruction) {
+	public void visitArrayLoadByIndex(ArrayLoadByIndexInstruction instruction) {
 	    TypeReference type = instruction.getDeclaredType();
 	    IClass klass= cha.lookupClass(type);
 
 	    result = new DeclaredTypeOperator(new ConeType(klass));
 	}
 
-	public void visitArrayLoadByPoint(X10ArrayLoadByPointInstruction instruction) {
+	public void visitArrayLoadByPoint(ArrayLoadByPointInstruction instruction) {
 	    TypeReference type = instruction.getDeclaredType();
 	    IClass klass= cha.lookupClass(type);
 
 	    result = new DeclaredTypeOperator(new ConeType(klass));
 	}
 
-	public void visitArrayStoreByIndex(X10ArrayStoreByIndexInstruction instruction) {
+	public void visitArrayStoreByIndex(ArrayStoreByIndexInstruction instruction) {
 	    result = null; // ??? is this correct ???
 	}
 
-	public void visitArrayStoreByPoint(X10ArrayStoreByPointInstruction instruction) {
+	public void visitArrayStoreByPoint(ArrayStoreByPointInstruction instruction) {
 	    result = null; // ??? is this correct ???
 	}
 	
- 	public void visitPlaceOfPoint(SSAPlaceOfPointInstruction instruction) {
- 		 		TypeReference placeType = TypeReference.findOrCreate(X10PrimordialClassLoader.X10Primordial, "Lx10/lang/place");
+ 	public void visitPlaceOfPoint(PlaceOfPointInstruction instruction) {
+ 		 		TypeReference placeType = TypeReference.findOrCreate(X10PrimordialClassLoaderImpl.X10Primordial, "Lx10/lang/place");
  		 		IClass placeClass = cha.lookupClass(placeType);
  		 		result = new DeclaredTypeOperator(new ConeType(placeClass));
  	}
 
- 	public void visitNewTuple(NewTupleInstruction newTupleInstruction) {
+ 	public void visitNewTuple(TupleInstruction newTupleInstruction) {
  	    // This instruction always produces a value of type "x10.lang.Rail".
  	    TypeReference type= X10TypeReference.x10LangRail;
  	    IClass klass= cha.lookupClass(type);
  	    result = new DeclaredTypeOperator(new ConeType(klass));
  	}
  	
- 	public void visitAtStmt(final SSAAtStmtInstruction atStmtInstruction) {
+ 	public void visitAtStmt(final AtStmtInstruction atStmtInstruction) {
       Assertions.UNREACHABLE("Type operator requested for X10 atStmt instruction");
     }
     }

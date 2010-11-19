@@ -76,7 +76,7 @@ public class AsyncInvokeInstruction extends AstJavaInvokeInstruction {
 
     @Override
   protected SSAInstruction copyInstruction(SSAInstructionFactory insts, int results[], int[] params, int exception, Access[] lexicalReads, Access[] lexicalWrites) {
-      return ((X10InstructionFactory)insts).AsyncInvoke(results, params, exception, lexicalReads, lexicalWrites, getCallSite());
+      return ((AstX10InstructionFactory)insts).AsyncInvoke(results, params, exception, lexicalReads, lexicalWrites, getCallSite());
     }
 
     @Override

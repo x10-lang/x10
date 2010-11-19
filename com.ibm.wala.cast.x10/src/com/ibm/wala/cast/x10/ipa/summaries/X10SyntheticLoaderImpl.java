@@ -1,7 +1,7 @@
 package com.ibm.wala.cast.x10.ipa.summaries;
 
-import com.ibm.wala.cast.x10.classLoader.X10Language;
-import com.ibm.wala.cast.x10.translator.polyglot.X10SourceLoaderImpl;
+import com.ibm.wala.cast.x10.classLoader.X10LanguageImpl;
+import com.ibm.wala.cast.x10.loader.X10SourceLoaderImpl;
 import com.ibm.wala.classLoader.IClassLoader;
 import com.ibm.wala.classLoader.Language;
 import com.ibm.wala.ipa.callgraph.AnalysisScope;
@@ -24,6 +24,6 @@ public class X10SyntheticLoaderImpl extends BypassSyntheticClassLoader {
 
     @Override
     public Language getLanguage() {
-        return X10Language.X10Lang;
+        return X10LanguageImpl.X10Lang;
     }
 }

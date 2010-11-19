@@ -6,33 +6,19 @@ package com.ibm.wala.cast.x10.ssa;
 import com.ibm.wala.cast.java.ssa.AstJavaInstructionVisitor;
 
 public interface AstX10InstructionVisitor extends AstJavaInstructionVisitor {
-    void visitAtomic(SSAAtomicInstruction instruction);
-
-    void visitFinish(SSAFinishInstruction instruction);
-    
-    void visitNext(SSANextInstruction instruction);
-
-    void visitForce(SSAForceInstruction instruction);
-
-    void visitRegionIterInit(SSARegionIterInitInstruction instruction);
-
-    void visitRegionIterHasNext(SSARegionIterHasNextInstruction instruction);
-
-    void visitRegionIterNext(SSARegionIterNextInstruction instruction);
-
-    void visitHere(SSAHereInstruction instruction);
-
-    void visitPlaceOfPoint(SSAPlaceOfPointInstruction instruction);
-
-    void visitArrayLoadByPoint(X10ArrayLoadByPointInstruction instruction);
-
-    void visitArrayStoreByPoint(X10ArrayStoreByPointInstruction instruction);
-
-    void visitArrayStoreByIndex(X10ArrayStoreByIndexInstruction instruction);
-
-    void visitArrayLoadByIndex(X10ArrayLoadByIndexInstruction instruction);
-
-    void visitNewTuple(NewTupleInstruction newTupleInstruction);
-    
-    void visitAtStmt(SSAAtStmtInstruction atStmtInstruction);
+    void visitAtomic(AtomicInstruction instruction);
+    void visitFinish(FinishInstruction instruction);
+    void visitNext(NextInstruction instruction);
+    void visitForce(ForceInstruction instruction);
+    void visitRegionIterInit(RegionIterInitInstruction instruction);
+    void visitRegionIterHasNext(RegionIterHasNextInstruction instruction);
+    void visitRegionIterNext(RegionIterNextInstruction instruction);
+    void visitHere(HereInstruction instruction);
+    void visitPlaceOfPoint(PlaceOfPointInstruction instruction);
+    void visitArrayLoadByPoint(ArrayLoadByPointInstruction instruction);
+    void visitArrayStoreByPoint(ArrayStoreByPointInstruction instruction);
+    void visitArrayStoreByIndex(ArrayStoreByIndexInstruction instruction);
+    void visitArrayLoadByIndex(ArrayLoadByIndexInstruction instruction);
+    void visitNewTuple(TupleInstruction newTupleInstruction);
+    void visitAtStmt(AtStmtInstruction atStmtInstruction);
 }
