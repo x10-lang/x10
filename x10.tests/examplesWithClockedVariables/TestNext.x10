@@ -19,7 +19,7 @@ public class TestNext{
     	 val N = Int.parseInt(args(0));
 
          val c: Clock = Clock.make();
-         //val i = int @ Clocked[Int](c,op,0);
+         shared var x: int @ Clocked[Int](c,op,0) = 0;
          
       
      	 var i: int = 0;
@@ -27,12 +27,16 @@ public class TestNext{
      	 for (i = 0; i < N; i++)
      		async clocked(c) {
 			var j:int = 0;
-			for (j = 0; j < M; j++)
-				next;
+			for (j = 0; j < M; j++) {
+					x = 1;
+					next;
+			}
 		 }
 	var j:int = 0;
-	for (j = 0; j < M; j++)
+	for (j = 0; j < M; j++) {
+		x = 1;
 		next;
+	}
     
     }
    } 
