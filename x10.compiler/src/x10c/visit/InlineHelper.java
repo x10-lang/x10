@@ -310,7 +310,7 @@ public class InlineHelper extends ContextVisitor {
             X10Call call = (X10Call) n;
             Receiver target = call.target();
             X10MethodInstance mi = call.methodInstance();
-            if (mi.flags().isPrivate() && !isSameDef(mi.container(), context.currentClass(),context) && !isOuter(mi.container(), context.currentClass())) {
+            if (mi.flags().isPrivate() && !isSameDef(mi.container(), context.currentClass(),context) && !isSameTopLevel(mi.container(), context.currentClass(), context)) {
                 Id id = xnf.Id(pos, makePrivateBridgeName(call.name()));
                 List<Type> typeArgs;
                 if (mi instanceof X10MethodInstance) {
@@ -394,22 +394,21 @@ public class InlineHelper extends ContextVisitor {
         return false;
     }
     
-    private boolean isOuter(Type outer, Type inner) {
-        outer = X10TypeMixin.baseType(outer);
-        inner = X10TypeMixin.baseType(inner);
-        if (inner instanceof X10ClassType) {
-            ClassType ot = ((X10ClassType) inner).outer();
-            if (ot == null) {
-                return false;
-            }
-            else if (isSameDef(ot,outer, context)) {
-                return true;
-            }
-            else {
-                return isOuter(outer, ot);
-            }
+    private static boolean isSameTopLevel(Type t1, Type t2, Context context) {
+        if (t1 instanceof X10ClassType && t2 instanceof X10ClassType) {
+            t1 = X10TypeMixin.baseType(t1);
+            t2 = X10TypeMixin.baseType(t2);
+            return isSameDef(getTopLevel((X10ClassType) t1), getTopLevel((X10ClassType) t2), context);
         }
         return false;
+    }
+    
+    private static Type getTopLevel(X10ClassType t) {
+        X10ClassType outer = (X10ClassType) t.outer();
+        if (outer == null) {
+            return t;
+        }
+        return getTopLevel(outer);
     }
 
     private static List<Ref<? extends Type>> getRefList(List<Type> types) {
