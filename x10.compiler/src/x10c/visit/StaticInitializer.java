@@ -52,6 +52,7 @@ import polyglot.frontend.Job;
 import polyglot.types.ClassType;
 import polyglot.types.ConstructorDef;
 import polyglot.types.ConstructorInstance;
+import polyglot.types.Context;
 import polyglot.types.FieldDef;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
@@ -86,14 +87,15 @@ import x10.ast.X10LocalDecl_c;
 import x10.ast.X10MethodDecl_c;
 import x10.ast.X10NodeFactory_c;
 import x10.ast.X10Return_c;
+import x10.constraint.XTerm;
+import x10.constraint.XTermKind;
+import x10.types.constraints.CConstraint;
 import x10.types.ConstrainedType;
 import x10.types.ParameterType;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
-import polyglot.types.Context;
 import x10.types.X10Flags;
 import x10.types.X10MethodInstance;
-import polyglot.types.TypeSystem;
 import x10.types.X10TypeSystem_c;
 import x10c.ast.X10CNodeFactory_c;
 import x10c.types.X10CTypeSystem_c;
@@ -132,7 +134,7 @@ public class StaticInitializer extends ContextVisitor {
 
         // collect static fields to deal with
         staticFinalFields.clear();
-        // ct.body().dump(System.err);
+        // classBody.dump(System.err);
         classBody = checkStaticFields(classBody, context);
 
         // add initializer method of each static field to the class member list
@@ -636,6 +638,17 @@ public class StaticInitializer extends ContextVisitor {
 
         if (f.isConstant())
             return false;
+
+        if (f.type() instanceof ConstrainedType) {
+            // check if self is bound to a constant
+            ConstrainedType ct = (ConstrainedType)(f.type());
+            if (ct.constraint().known()) {
+                CConstraint cc = ct.constraint().get();
+                XTerm selfVar = cc.selfVarBinding();
+                if (selfVar.kind() == XTermKind.LITERAL)
+                    return false;
+            }
+        }
 
         Pair<Type,Name> key = new Pair<Type,Name>(f.target().type(), f.name().id());
         StaticFieldInfo fieldInfo = staticFinalFields.get(key);
