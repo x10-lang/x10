@@ -1,5 +1,6 @@
-package com.ibm.wala.cast.x10.loader;
+package com.ibm.wala.cast.x10.ipa.summaries;
 
+import com.ibm.wala.cast.x10.classLoader.X10Language;
 import com.ibm.wala.cast.x10.translator.polyglot.X10SourceLoaderImpl;
 import com.ibm.wala.classLoader.IClassLoader;
 import com.ibm.wala.classLoader.Language;

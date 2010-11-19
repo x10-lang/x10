@@ -156,7 +156,7 @@ import com.ibm.wala.util.collections.Pair;
 import com.ibm.wala.util.debug.Assertions;
 
 @SuppressWarnings("unchecked")
-public class PolyglotJava2CAstTranslator implements TranslatorToCAst {
+public abstract class PolyglotJava2CAstTranslator implements TranslatorToCAst {
   protected final CAst fFactory = new CAstImpl();
 
   protected final NodeFactory fNodeFactory;
@@ -175,7 +175,7 @@ public class PolyglotJava2CAstTranslator implements TranslatorToCAst {
 
   private CAstTypeDictionary fTypeDict;
 
-  private TranslatingVisitor fTranslator;
+  private X10TranslatorVisitor fTranslator;
 
   protected PolyglotIdentityMapper fIdentityMapper;
 
@@ -183,16 +183,14 @@ public class PolyglotJava2CAstTranslator implements TranslatorToCAst {
   
   protected final boolean DEBUG = true;
 
-  final protected TranslatingVisitor getTranslator() {
+  final protected X10TranslatorVisitor getTranslator() {
     if (fTranslator == null)
       fTranslator = createTranslator();
     return fTranslator;
   }
 
-  protected TranslatingVisitor createTranslator() {
-    return new JavaTranslatingVisitorImpl();
-  }
-
+  protected abstract X10TranslatorVisitor createTranslator();
+  
   protected CAstTypeDictionary getTypeDict() {
     if (fTypeDict == null) {
       fTypeDict = createTypeDict();
@@ -280,7 +278,7 @@ public class PolyglotJava2CAstTranslator implements TranslatorToCAst {
     return fFactory.makeConstant(constant);
   }
 
-  protected class JavaTranslatingVisitorImpl implements TranslatingVisitor {
+  protected class JavaTranslatingVisitorImpl {
     public CAstNode visit(MethodDecl m, MethodContext mc) {
       if (m.body() == null || m.body().statements().size() == 0)
         return makeNode(mc, fFactory, m, CAstNode.RETURN);
@@ -2781,6 +2779,6 @@ public class PolyglotJava2CAstTranslator implements TranslatorToCAst {
   protected CAstNode walkNodes(Node n, final WalkContext context) {
     if (n == null)
       return makeNode(context, fFactory, null, CAstNode.EMPTY);
-    return ASTTraverser.visit(n, getTranslator(), context);
+    return X10ASTTraverser.visit(n, getTranslator(), context);
   }
 }

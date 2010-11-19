@@ -1,13 +1,15 @@
 /*
  * Created on Oct 21, 2005
  */
-package com.ibm.wala.cast.x10.translator;
+package com.ibm.wala.cast.x10.util;
 
 import java.io.Writer;
 
 import com.ibm.wala.cast.tree.CAstEntity;
 import com.ibm.wala.cast.tree.CAstNode;
 import com.ibm.wala.cast.util.CAstPrinter;
+import com.ibm.wala.cast.x10.tree.X10CAstEntity;
+import com.ibm.wala.cast.x10.tree.X10CastNode;
 
 public class X10CAstPrinter extends CAstPrinter {
     static {

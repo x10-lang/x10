@@ -2,7 +2,7 @@ package com.ibm.wala.cast.x10.ipa.callgraph;
 
 import com.ibm.wala.cast.ipa.callgraph.AstCallGraph;
 import com.ibm.wala.cast.ipa.callgraph.MiscellaneousHacksContextSelector;
-import com.ibm.wala.cast.x10.loader.X10SyntheticLoaderImpl;
+import com.ibm.wala.cast.x10.ipa.summaries.X10SyntheticLoaderImpl;
 import com.ibm.wala.classLoader.IClass;
 import com.ibm.wala.classLoader.IClassLoader;
 import com.ibm.wala.ipa.callgraph.AnalysisCache;

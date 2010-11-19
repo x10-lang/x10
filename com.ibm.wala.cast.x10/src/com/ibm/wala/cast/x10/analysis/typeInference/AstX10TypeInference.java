@@ -3,7 +3,7 @@ package com.ibm.wala.cast.x10.analysis.typeInference;
 import com.ibm.wala.analysis.typeInference.ConeType;
 import com.ibm.wala.analysis.typeInference.PointType;
 import com.ibm.wala.cast.java.analysis.typeInference.AstJavaTypeInference;
-import com.ibm.wala.cast.x10.loader.X10PrimordialClassLoader;
+import com.ibm.wala.cast.x10.classLoader.X10PrimordialClassLoader;
 import com.ibm.wala.cast.x10.ssa.AstX10InstructionVisitor;
 import com.ibm.wala.cast.x10.ssa.NewTupleInstruction;
 import com.ibm.wala.cast.x10.ssa.SSAAtStmtInstruction;

@@ -1,4 +1,4 @@
-package com.ibm.wala.cast.x10.loader;
+package com.ibm.wala.cast.x10.classLoader;
 
 import java.util.Collection;
 

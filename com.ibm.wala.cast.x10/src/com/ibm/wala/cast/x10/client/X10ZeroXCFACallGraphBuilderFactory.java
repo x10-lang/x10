@@ -3,7 +3,7 @@ package com.ibm.wala.cast.x10.client;
 import java.io.InputStream;
 
 import com.ibm.wala.cast.x10.ipa.callgraph.X10ZeroXCFABuilder;
-import com.ibm.wala.cast.x10.loader.X10SyntheticLoaderImpl;
+import com.ibm.wala.cast.x10.ipa.summaries.X10SyntheticLoaderImpl;
 import com.ibm.wala.ipa.callgraph.AnalysisCache;
 import com.ibm.wala.ipa.callgraph.AnalysisOptions;
 import com.ibm.wala.ipa.callgraph.AnalysisScope;

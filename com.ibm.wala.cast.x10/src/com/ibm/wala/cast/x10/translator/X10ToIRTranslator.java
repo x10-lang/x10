@@ -7,6 +7,7 @@ import java.io.PrintWriter;
 
 import com.ibm.wala.cast.x10.translator.polyglot.X10CAst2IRTranslator;
 import com.ibm.wala.cast.x10.translator.polyglot.X10SourceLoaderImpl;
+import com.ibm.wala.cast.x10.util.X10CAstPrinter;
 import com.ibm.wala.cast.java.translator.Java2IRTranslator;
 import com.ibm.wala.cast.java.translator.TranslatorToCAst;
 import com.ibm.wala.cast.tree.CAstEntity;

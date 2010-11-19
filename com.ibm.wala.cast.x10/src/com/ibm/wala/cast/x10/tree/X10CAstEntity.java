@@ -1,7 +1,7 @@
 /*
  * Created on Oct 19, 2005
  */
-package com.ibm.wala.cast.x10.translator;
+package com.ibm.wala.cast.x10.tree;
 
 import com.ibm.wala.cast.tree.CAstEntity;
 

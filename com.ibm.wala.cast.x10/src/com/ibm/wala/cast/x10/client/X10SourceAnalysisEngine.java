@@ -3,12 +3,11 @@ package com.ibm.wala.cast.x10.client;
 import java.io.IOException;
 import java.util.Set;
 
+import com.ibm.wala.cast.x10.classLoader.X10PrimordialClassLoader;
+import com.ibm.wala.cast.x10.ipa.callgraph.X10AnalysisScope;
 import com.ibm.wala.cast.x10.ipa.cha.X10ClassHierarchy;
-import com.ibm.wala.cast.x10.loader.X10AnalysisScope;
-import com.ibm.wala.cast.x10.loader.X10PrimordialClassLoader;
-import com.ibm.wala.cast.x10.loader.X10SyntheticLoaderImpl;
+import com.ibm.wala.cast.x10.ipa.summaries.X10SyntheticLoaderImpl;
 import com.ibm.wala.cast.x10.translator.polyglot.IRTranslatorExtension;
-import com.ibm.wala.cast.x10.translator.polyglot.PolyglotJavaSourceAnalysisEngine;
 import com.ibm.wala.cast.x10.translator.polyglot.X10ClassLoaderFactory;
 import com.ibm.wala.cast.x10.translator.polyglot.X10SourceLoaderImpl;
 import com.ibm.wala.classLoader.ClassLoaderFactory;

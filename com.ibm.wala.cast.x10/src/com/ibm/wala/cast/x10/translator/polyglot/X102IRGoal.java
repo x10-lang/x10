@@ -17,9 +17,9 @@ import x10.finish.table.CallTableUtil;
 import x10.finish.table.CallTableVal;
 */
 import com.ibm.wala.cast.tree.CAstEntity;
-import com.ibm.wala.cast.x10.analysis.util.GraphUtil;
 import com.ibm.wala.cast.x10.client.X10SourceAnalysisEngine;
 import com.ibm.wala.cast.x10.ipa.cha.X10ClassHierarchy;
+import com.ibm.wala.cast.x10.util.GraphUtil;
 import com.ibm.wala.ipa.callgraph.CallGraph;
 import com.ibm.wala.ipa.callgraph.Entrypoint;
 import com.ibm.wala.ipa.callgraph.impl.DefaultEntrypoint;

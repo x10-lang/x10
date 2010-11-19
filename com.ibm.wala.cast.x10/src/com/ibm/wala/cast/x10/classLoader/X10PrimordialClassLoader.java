@@ -1,4 +1,4 @@
-package com.ibm.wala.cast.x10.loader;
+package com.ibm.wala.cast.x10.classLoader;
 
 import com.ibm.wala.cast.java.ipa.callgraph.JavaSourceAnalysisScope;
 import com.ibm.wala.cast.x10.translator.polyglot.X10SourceLoaderImpl;

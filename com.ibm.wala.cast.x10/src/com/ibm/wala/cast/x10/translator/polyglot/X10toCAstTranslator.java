@@ -67,8 +67,8 @@ import com.ibm.wala.cast.tree.CAstSourcePositionMap.Position;
 import com.ibm.wala.cast.tree.CAstType;
 import com.ibm.wala.cast.tree.CAstTypeDictionary;
 import com.ibm.wala.cast.tree.impl.CAstSymbolImpl;
-import com.ibm.wala.cast.x10.translator.X10CAstEntity;
-import com.ibm.wala.cast.x10.translator.X10CastNode;
+import com.ibm.wala.cast.x10.tree.X10CAstEntity;
+import com.ibm.wala.cast.x10.tree.X10CastNode;
 import com.ibm.wala.classLoader.CallSiteReference;
 import com.ibm.wala.shrikeBT.IInvokeInstruction;
 import com.ibm.wala.types.ClassLoaderReference;
@@ -125,7 +125,7 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 	super(clr, nf, ts, fMapper, replicateForDoLoops);
     }
 
-    protected TranslatingVisitor createTranslator() {
+    protected X10TranslatorVisitor createTranslator() {
         return new X10TranslatingVisitorImpl();
     }
 

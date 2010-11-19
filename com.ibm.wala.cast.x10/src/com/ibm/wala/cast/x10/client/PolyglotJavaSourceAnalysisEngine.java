@@ -1,6 +1,9 @@
-package com.ibm.wala.cast.x10.translator.polyglot;
+package com.ibm.wala.cast.x10.client;
 
 import com.ibm.wala.cast.java.client.JavaSourceAnalysisEngine;
+import com.ibm.wala.cast.x10.translator.polyglot.IRTranslatorExtension;
+import com.ibm.wala.cast.x10.translator.polyglot.JavaIRTranslatorExtension;
+import com.ibm.wala.cast.x10.translator.polyglot.PolyglotClassLoaderFactory;
 import com.ibm.wala.classLoader.ClassLoaderFactory;
 import com.ibm.wala.ipa.callgraph.impl.SetOfClasses;
 

@@ -1,4 +1,4 @@
-package com.ibm.wala.cast.x10.analysis.util;
+package com.ibm.wala.cast.x10.util;
 import java.util.HashSet;
 import java.util.Iterator;
 
