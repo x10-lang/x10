@@ -88,8 +88,8 @@ class SOROrigCore {
 public class SOROrig extends SOROrigCore {
 
    private var size: Int;
-   private val datasizes =   new Array[int](0..2, ((i):Point)=> i == 0? 10: (i==1? 1500 :2500));
-   private const JACOBI_NUM_ITER = 1000;
+   private val datasizes =   new Array[int](0..2, ((i):Point)=> i == 0? 64: (i==1? 1500 :2500));
+   private const JACOBI_NUM_ITER = 50;
    private const RANDOM_SEED  = 10101010L;
 
    val R  = new Random(RANDOM_SEED);
@@ -108,9 +108,9 @@ public class SOROrig extends SOROrigCore {
 
    public def JGFvalidate() {
 	//val refval = [ 0.0012191583622038237D, 1.123010681492097D, 1.9967774998523777D ];
-	val refval = [5.4617236894063186E-5, 1.123010681492097D, 1.9967774998523777D ];
+	val refval = [0.0020221537289802217, 0.0019480487017237507,  5.4617236894063186E-5, 1.123010681492097D, 1.9967774998523777D ];
 	val dev = Math.abs(gTotal - refval(size));
-	if (dev > 1.0e-12) {
+	if (dev > 1.0e-4) {
 	    Console.OUT.println("Validation failed");
 	    Console.OUT.println("gTotal = " + gTotal + "  " + dev + "  " + size);
 	    throw new Error("Validation failed");

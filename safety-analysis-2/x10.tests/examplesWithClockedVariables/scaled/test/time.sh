@@ -2,10 +2,10 @@ if [ $# == 1 ]
 then
  example=($1)
 else
- example=( AllReduceParallel Pipeline Convolve NQueensPar MontyPiParallel KMeansScalar Histogram MergeSort Stream Prefix UTS IDEA SOR Stencil Series RayTrace LUFact SparseMatMul)
+ example=( AllReduceParallel Pipeline NQueensPar MontyPiParallel KMeansScalar Histogram MergeSort Stream Prefix UTS IDEA SOR Stencil Series RayTrace LUFact SparseMatMul)
 fi
 rm out.txt
-COUNT=5
+COUNT=2
 for ((i = 0; i < ${#example[@]}; i++))
 do
 	../../../../x10.dist/bin/x10c -SAFE_PARALLELIZATION_CHECK=true ../${example[$i]}.x10 >> out.txt 
