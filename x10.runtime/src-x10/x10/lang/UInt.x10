@@ -536,8 +536,11 @@ public struct UInt implements Comparable[UInt] /*TODO implements Arithmetic[UInt
     @Native("c++", "((x10_uint) x10aux::int_utils::parseInt(#1, #2))")
     public static def parse(s:String, radix:Int): UInt //throwsNumberFormatException 
     {
-    	// TODO
-        return UInt(Int.parse(s, radix));
+    	val l = Long.parse(s, radix);
+    	if (l < 0 || l > 0xffffffffL) {
+    		throw new NumberFormatException("Value out of range. Value:\"" + s + "\" Radix:" + radix);
+    	}
+    	return l as UInt;
     }
 
     /**

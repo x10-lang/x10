@@ -539,9 +539,12 @@ public struct UShort implements Comparable[UShort] /*TODO implements Arithmetic[
     @Native("c++", "((x10_ushort) x10aux::int_utils::parseInt(#1, #2))")
     public static def parse(s:String, radix:Int): UShort //throwsNumberFormatException 
     {
-    	// TODO
-         return UShort(Short.parse(s, radix));
-     }
+    	val i = Int.parse(s, radix);
+    	if (i < 0 || i > 0xffff) {
+    		throw new NumberFormatException("Value out of range. Value:\"" + s + "\" Radix:" + radix);
+    	}
+    	return i as UShort;
+    }
 
     /**
      * Parses the String argument as a decimal UShort.

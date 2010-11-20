@@ -541,8 +541,11 @@ public struct UByte implements Comparable[UByte] /*TODO implements Arithmetic[UB
     @Native("c++", "((x10_ubyte) x10aux::int_utils::parseInt(#1, #2))")
     public static def parse(s:String, radix:Int): UByte //throws NumberFormatException 
     {
-    	// TODO
-        return UByte(Byte.parse(s, radix));
+    	val i = Int.parse(s, radix);
+    	if (i < 0 || i > 0xff) {
+    		throw new NumberFormatException("Value out of range. Value:\"" + s + "\" Radix:" + radix);
+    	}
+    	return i as UByte;
     }
 
     /**
