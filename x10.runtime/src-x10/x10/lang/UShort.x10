@@ -515,7 +515,7 @@ public struct UShort implements Comparable[UShort] /*TODO implements Arithmetic[
     @Native("c++", "((x10_ushort) x10aux::int_utils::parseInt(#1, #2))")
     public static def parseUShort(s:String, radix:Int): UShort //throwsNumberFormatException 
     {
-        return UShort(Short.parse(s, radix));
+        return parse(s, radix);
     }
 
     /**
@@ -525,7 +525,7 @@ public struct UShort implements Comparable[UShort] /*TODO implements Arithmetic[
     @Native("c++", "x10aux::int_utils::parseInt(#1)")
     public static def parseUShort(s:String): UShort //throwsNumberFormatException 
     {
-        return UShort(Short.parse(s));
+        return parse(s);
     }
 
     /**
@@ -539,6 +539,7 @@ public struct UShort implements Comparable[UShort] /*TODO implements Arithmetic[
     @Native("c++", "((x10_ushort) x10aux::int_utils::parseInt(#1, #2))")
     public static def parse(s:String, radix:Int): UShort //throwsNumberFormatException 
     {
+    	// TODO
          return UShort(Short.parse(s, radix));
      }
 
@@ -552,7 +553,7 @@ public struct UShort implements Comparable[UShort] /*TODO implements Arithmetic[
     @Native("c++", "((x10_ushort) x10aux::int_utils::parseInt(#1))")
     public static def parse(s:String): UShort //throwsNumberFormatException 
     {
-        return UShort(Short.parse(s));
+        return parse(s, 10);
     }
 
 

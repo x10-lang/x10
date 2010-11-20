@@ -512,7 +512,7 @@ public struct UInt implements Comparable[UInt] /*TODO implements Arithmetic[UInt
     @Native("c++", "((x10_uint) x10aux::int_utils::parseInt(#1, #2))")
     public static def parseUInt(s:String, radix:Int): UInt //throwsNumberFormatException 
     {
-        return UInt(Int.parse(s, radix));
+        return parse(s, radix);
     }
 
     /**
@@ -522,7 +522,7 @@ public struct UInt implements Comparable[UInt] /*TODO implements Arithmetic[UInt
     @Native("c++", "((x10_uint) x10aux::int_utils::parseInt(#1))")
     public static def parseUInt(s:String): UInt //throwsNumberFormatException 
     {
-        return UInt(Int.parse(s));
+        return parse(s);
     }
 
     /**
@@ -536,6 +536,7 @@ public struct UInt implements Comparable[UInt] /*TODO implements Arithmetic[UInt
     @Native("c++", "((x10_uint) x10aux::int_utils::parseInt(#1, #2))")
     public static def parse(s:String, radix:Int): UInt //throwsNumberFormatException 
     {
+    	// TODO
         return UInt(Int.parse(s, radix));
     }
 
@@ -549,7 +550,7 @@ public struct UInt implements Comparable[UInt] /*TODO implements Arithmetic[UInt
     @Native("c++", "((x10_uint) x10aux::int_utils::parseInt(#1))")
     public static def parse(s:String): UInt //throwsNumberFormatException 
     {
-        return UInt(Int.parse(s));
+        return parse(s, 10);
     }
 
 

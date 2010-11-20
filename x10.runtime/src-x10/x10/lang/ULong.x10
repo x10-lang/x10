@@ -555,7 +555,7 @@ public struct ULong implements Comparable[ULong] /*TODO implements Arithmetic[UL
     @Native("c++", "((x10_ulong) x10aux::long_utils::parseLong(#1, #2))")
     public static def parseULong(s:String, radix:Int): ULong //throwsNumberFormatException 
     {
-        return ULong(Long.parse(s, radix));
+        return parse(s, radix);
     }
 
     /**
@@ -565,7 +565,7 @@ public struct ULong implements Comparable[ULong] /*TODO implements Arithmetic[UL
     @Native("c++", "((x10_ulong) x10aux::long_utils::parseLong(#1))")
     public static def parseULong(s:String): ULong //throwsNumberFormatException 
     {
-        return ULong(Long.parse(s));
+        return parse(s);
     }
 
     /**
@@ -579,6 +579,7 @@ public struct ULong implements Comparable[ULong] /*TODO implements Arithmetic[UL
     @Native("c++", "((x10_ulong) x10aux::long_utils::parseLong(#1, #2))")
     public static def parse(s:String, radix:Int): ULong //throwsNumberFormatException 
     {
+    	// TODO
         return ULong(Long.parse(s, radix));
     }
 
@@ -592,7 +593,7 @@ public struct ULong implements Comparable[ULong] /*TODO implements Arithmetic[UL
     @Native("c++", "((x10_ulong) x10aux::long_utils::parseLong(#1))")
     public static def parse(s:String): ULong //throwsNumberFormatException 
     {
-        return ULong(Long.parse(s));
+        return parse(s, 10);
     }
 
 

@@ -517,7 +517,7 @@ public struct UByte implements Comparable[UByte] /*TODO implements Arithmetic[UB
     @Native("c++", "((x10_ubyte) x10aux::int_utils::parseInt(#1, #2))")
     public static def parseUByte(s:String, radix:Int): UByte //throws NumberFormatException 
     {
-        return UByte(Byte.parse(s, radix));
+        return parse(s, radix);
     }
 
     /**
@@ -527,7 +527,7 @@ public struct UByte implements Comparable[UByte] /*TODO implements Arithmetic[UB
     @Native("c++", "x10aux::int_utils::parseInt(#1)")
     public static def parseUByte(s:String): UByte //throws NumberFormatException 
     {
-        return UByte(Byte.parse(s));
+        return parse(s);
     }
 
     /**
@@ -541,6 +541,7 @@ public struct UByte implements Comparable[UByte] /*TODO implements Arithmetic[UB
     @Native("c++", "((x10_ubyte) x10aux::int_utils::parseInt(#1, #2))")
     public static def parse(s:String, radix:Int): UByte //throws NumberFormatException 
     {
+    	// TODO
         return UByte(Byte.parse(s, radix));
     }
 
@@ -554,7 +555,7 @@ public struct UByte implements Comparable[UByte] /*TODO implements Arithmetic[UB
     @Native("c++", "x10aux::int_utils::parseInt(#1)")
     public static def parse(s:String): UByte //throws NumberFormatException 
     {
-        return UByte(Byte.parse(s));
+        return parse(s, 10);
     }
 
 
