@@ -3183,9 +3183,23 @@ class RuntimeTestsOfHaszero {
 		assert(null==a1.t);
 		assert(1==++a2.t);
 		assert(1==++a3.t);
+		assert(4==foo(Zero.get[Double]()));
 	}
+
+	def foo(Int)=3;
+	def foo(Double)=4;
 
 	static class A[T] {T haszero} {
 		var t:T;
 	}
+}
+
+
+class StaticOverriding { // see XTENLANG-2121
+  static class C {
+    static def m() = 0;
+  }
+  static class D extends C {
+    static def m() = 1; // ShouldNotBeERR: Semantic Error: m(): x10.lang.Int{self==1} in StaticOverriding.D cannot override m(): x10.lang.Int{self==0} in StaticOverriding.C; attempting to use incompatible return type.
+  }
 }
