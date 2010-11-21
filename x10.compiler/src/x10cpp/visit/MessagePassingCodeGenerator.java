@@ -2909,10 +2909,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		        target instanceof TypeNode ?
 		                (TypeNode) target :
 		                tr.nodeFactory().CanonicalTypeNode(target.position(), t);
-		    if (t instanceof ParameterType) {
+		    if (xts.isParameterType(t)) {
 		        // Rewrite to the class declaring the field.
 		        target = tn.typeRef(md.container());
 		        n = (X10Call_c) n.target(target);
+		        t = target.type();
 		    }
 		    if (t.isClass()) {
 		        X10ClassType ct = (X10ClassType)t.toClass();
