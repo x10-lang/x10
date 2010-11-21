@@ -1676,7 +1676,10 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         X10TypeSystem_c xts = (X10TypeSystem_c) container.typeSystem();
         if (container.isClass())
             container = getStaticMemberContainer(container.x10Def());
-        Emitter.dumpString(createMainStub(Emitter.translateType(container)), sw);
+        String typeString = xts.isStructType(container) ?
+                Emitter.structMethodClass(container, true, true) :
+                    Emitter.translateType(container);
+        Emitter.dumpString(createMainStub(typeString), sw);
         sw.forceNewline(0);
     }
 
