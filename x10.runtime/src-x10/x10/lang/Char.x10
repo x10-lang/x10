@@ -31,7 +31,7 @@ public struct Char implements Comparable[Char] /*TODO implements Ordered[Char]*/
      * @return the Char with the same ordinal value as the given Byte.
      */
     @Native("java", "((char) (#1))")
-    @Native("c++",  "((x10_char) (char) (#1))")
+    @Native("c++",  "(x10_char((x10_int)(#1)))")
     public native static operator (x:Byte) as Char;
 
     /**
@@ -40,7 +40,7 @@ public struct Char implements Comparable[Char] /*TODO implements Ordered[Char]*/
      * @return the Char with the same ordinal value as the given Short.
      */
     @Native("java", "((char) (#1))")
-    @Native("c++",  "((x10_char) (int) (#1))")
+    @Native("c++",  "(x10_char((x10_int)(#1)))")
     public native static operator (x:Short) as Char;
 
     /**
@@ -49,7 +49,7 @@ public struct Char implements Comparable[Char] /*TODO implements Ordered[Char]*/
      * @return the Char with the same ordinal value as the given Int.
      */
     @Native("java", "((char) (#1))")
-    @Native("c++",  "((x10_char) (int) (#1))")
+    @Native("c++",  "(x10_char(#1))")
     public native static operator (x:Int) as Char;
 
     /**
@@ -58,7 +58,7 @@ public struct Char implements Comparable[Char] /*TODO implements Ordered[Char]*/
      * @return the Char with the same ordinal value as the given Long.
      */
     @Native("java", "((char) (#1))")
-    @Native("c++",  "((x10_char) (int) (#1))")
+    @Native("c++",  "(x10_char((x10_int)(#1)))")
     public native static operator (x:Long) as Char;
 
 
@@ -69,7 +69,7 @@ public struct Char implements Comparable[Char] /*TODO implements Ordered[Char]*/
      * @return the Char whose ordinal value is the sum of the given Char's ordinal value and the given distance.
      */
     @Native("java", "((char) ((#1) + (#2)))")
-    @Native("c++",  "((x10_char) (int) ((#1) + (#2)))")
+    @Native("c++",  "(x10_char(((#1).v) + (#2)))")
     public native static operator (x:Char) + (y:Int): Char;
 
     /**
@@ -79,7 +79,7 @@ public struct Char implements Comparable[Char] /*TODO implements Ordered[Char]*/
      * @return the Char whose ordinal value is the sum of the given Char's ordinal value and the given distance.
      */
     @Native("java", "((char) ((#1) + (#2)))")
-    @Native("c++",  "((x10_char) (int) ((#1) + (#2)))")
+    @Native("c++",  "(x10_char((#1) + ((#2).v)))")
     public native static operator (x:Int) + (y:Char): Char;
 
     /**
@@ -89,7 +89,7 @@ public struct Char implements Comparable[Char] /*TODO implements Ordered[Char]*/
      * @return the Char whose ordinal value is the difference of the given Char's ordinal value and the given distance.
      */
     @Native("java", "((char) ((#1) - (#2)))")
-    @Native("c++",  "((x10_char) (int) ((#1) - (#2)))")
+    @Native("c++",  "(x10_char((int)((#1).v - (#2))))")
     public native static operator (x:Char) - (y:Int): Char;
 
     /**
@@ -99,7 +99,7 @@ public struct Char implements Comparable[Char] /*TODO implements Ordered[Char]*/
      * @return the distance between the source Char and the target Char.
      */
     @Native("java", "((#1) - (#2))")
-    @Native("c++",  "((#1) - (#2))")
+    @Native("c++",  "x10_char((#1).v - (#2).v)")
     public native static operator (x:Char) - (y:Char): Int;
 
 
@@ -295,7 +295,7 @@ public struct Char implements Comparable[Char] /*TODO implements Ordered[Char]*/
      * @return the Char with the same ordinal value as the given Int.
      */
     @Native("java", "((char) (#1))")
-    @Native("c++", "((x10_char) (int) (#1))")
+    @Native("c++", "(x10_char(#1))")
     public native static def chr(x:Int): Char;
 
 
