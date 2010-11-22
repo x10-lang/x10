@@ -32,6 +32,7 @@ import polyglot.ast.CodeBlock;
 import polyglot.ast.Expr;
 import polyglot.ast.Field;
 import polyglot.ast.Formal;
+import polyglot.ast.Lit;
 import polyglot.ast.LocalDecl;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
@@ -84,6 +85,7 @@ import x10.ast.X10FieldDecl;
 import x10.ast.X10Formal;
 import x10.ast.X10MethodDecl;
 import x10.ast.X10ProcedureCall;
+import x10.ast.X10SourceFile_c;
 import x10.ast.X10Special;
 import x10.config.ConfigurationError;
 import x10.config.OptionError;
@@ -297,6 +299,7 @@ public class Inliner extends ContextVisitor {
 
     public Node leaveCall(Node parent, Node old, Node n, NodeVisitor v) throws SemanticException {
         reasons.clear();
+        inliningRequired = false;
         Node result = null;
         if (n instanceof X10Call) {
             if (INLINE_CONSTANTS) {
@@ -374,7 +377,7 @@ public class Inliner extends ContextVisitor {
     private Expr inlineClosureCall(ClosureCall c) {
         Closure lit = getInlineClosure(c);
         if (null == lit) {
-            report("of failure to find closure for call", c);
+            report("of non literal closure call target " +c.target(), c);
             return null;
         }
         lit = (Closure) instantiate(lit, c);
@@ -876,7 +879,10 @@ public class Inliner extends ContextVisitor {
                         return null;
                     }
                     // TODO reconstruct the AST for the job will all preliminary compiler passes
-                    ast = job.ast().visit(new X10TypeChecker(job, ts, nf, job.nodeMemo()).begin());
+                    ast = job.ast();
+     //             assert (ast instanceof X10SourceFile_c);
+     //             if (!((X10SourceFile_c) ast).hasBeenTypeChecked())
+                        ast = ast.visit(new X10TypeChecker(job, ts, nf, job.nodeMemo()).begin());
                     if (null == ast) {
                         debug("Unable to reconstruct AST for " + job, null);
                         getInlinerCache().badJob(job);
@@ -1582,17 +1588,10 @@ public class Inliner extends ContextVisitor {
         private Expr visitSpecial(Special n) {
             // First check that we are within the right code body
             if (!context.currentCode().equals(def)) return n;
+            // Make sure ths is defined
+            if (null == ths) return n; // nothing to be done (e.g. "this" in a closure)
             // Ignore X10Special.SELF
             if (n.kind() == X10Special.SELF) return n;
-            // Make sure ths is defined
-            if (null == ths) {
-                String msg = "special in a static context (this should never happen)";
-                debug(msg, n);
-                Warnings.issue(job, msg, n.position());
-                failed[0] = true;
-//              throw new InternalCompilerError(msg, n.position());
-                return null;
-            }
             // Method bodies with references to "super" cannot be inlined (the class super refers to would be lost)
             if (n.kind() == Special.SUPER) {
                 String msg = "super not supported when inlining";
