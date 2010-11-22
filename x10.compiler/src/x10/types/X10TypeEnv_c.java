@@ -794,7 +794,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     		c1 = c1.instantiateSelf(x);
     	}
     	
-    	CConstraint c2 = X10TypeMixin.xclause(t2);  // NOTE: xclause, not realX
+    	CConstraint c2 = X10TypeMixin.xclause(t2);  // NOTE: xclause, not realX (you want "c2" to have as few constraints as possible).
     
     	if (c2 != null && c2.valid()) { 
     		c2 = null; 
@@ -1025,13 +1025,16 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         Type baseType1 = X10TypeMixin.baseType(t1);
         Type baseType2 = X10TypeMixin.baseType(t2);
 
-        // Don't need the real clause here, since will only be true if the base types are equal.
-        CConstraint c1 = X10TypeMixin.xclause(t1); 
-        CConstraint c2 = X10TypeMixin.xclause(t2);
+        // We must take the realX because if I have a definition:
+        // class A(i:Int) {i==1} {}
+        // then the types A and A{self.i==1} are equal!
+        CConstraint c1 = X10TypeMixin.realX(t1);
+        CConstraint c2 = X10TypeMixin.realX(t2);
 
         if (c1 != null && c1.valid()) { c1 = null; t1 = baseType1; }
         if (c2 != null && c2.valid()) { c2 = null; t2 = baseType2; }
         XVar temp = XTerms.makeUQV();
+        // instantiateSelf ensures that Int{self123==3} and A{self456==3} are equal.
         if (c1 != null) {
         	c1 = c1.instantiateSelf(temp);
         }
