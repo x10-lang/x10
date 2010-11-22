@@ -688,10 +688,7 @@ import x10.util.Box;
         me.await();
         dealloc(body);
         if (null != me.e) {
-            if (me.e instanceof Error)
-                throw me.e as Error;
-            if (me.e instanceof RuntimeException)
-                throw me.e as RuntimeException;
+            throw me.e;
         }
     }
 
@@ -732,10 +729,7 @@ import x10.util.Box;
         me.await();
         dealloc(eval);
         if (null != me.e) {
-            if (me.e instanceof Error)
-                throw me.e as Error;
-            if (me.e instanceof RuntimeException)
-                throw me.e as RuntimeException;
+            throw me.e;
         }
         return me.t.value;
     }
