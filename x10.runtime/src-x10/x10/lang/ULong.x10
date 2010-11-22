@@ -495,9 +495,11 @@ public struct ULong implements Comparable[ULong] /*TODO implements Arithmetic[UL
     // @Native("java", "java.lang.Long.toString(#0 & 0xffffffffffffffffL, #1)")
     @Native("c++", "x10aux::long_utils::toString(#0, #1)")
     public def toString(radix:Int): String {
-    	if (radix == 10) return this.toString();    	
+    	if (this.longVal >= 0) return this.longVal.toString(radix);
+    	val realRadix = (radix < 2 || 36 < radix) ? 10 : radix; 
+    	if (realRadix == 10) return this.toString();
         // TODO
-    	return (this.longVal & 0xFFFFFFFFFFFFFFFFL).toString(radix);
+    	return (this.longVal & 0xFFFFFFFFFFFFFFFFL).toString(realRadix);
     }
 
     /**
