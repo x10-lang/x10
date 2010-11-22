@@ -498,6 +498,56 @@ public struct ULong implements Comparable[ULong] /*TODO implements Arithmetic[UL
     	if (this.longVal >= 0) return this.longVal.toString(radix);
     	val realRadix = (radix < 2 || 36 < radix) ? 10 : radix; 
     	if (realRadix == 10) return this.toString();
+        if (realRadix == 2 || realRadix == 4 || realRadix == 8 || realRadix == 16 || realRadix == 32) {
+        	// fast path for radix is powerof(2)
+            var tempLongVal:Long = this.longVal;
+            var mask:Long;
+            var shift:Int;
+            var count:Int;
+            var lastmask:Long;
+            if (realRadix == 2) {
+            	// 1 * 63 + 1
+        		mask = 0x1; shift = 1;
+        		count = 63;
+        		lastmask = 0x1;
+            } else if (realRadix == 4) {
+        		// 2 * 31 + 2
+        		mask = 0x3; shift = 2;
+        		count = 31;
+        		lastmask = 0x3;
+            } else if (realRadix == 8) {
+        		// 3 * 21 + 1
+        		mask = 0x7; shift = 3;
+        		count = 21;
+        		lastmask = 0x1;
+            } else if (realRadix == 16) {
+        		// 4 * 15 + 4
+        		mask = 0xf; shift = 4;
+        		count = 15;
+        		lastmask = 0xf;
+            } else /*if (realRadix == 32)*/ {
+        		// 5 * 12 + 4
+        		mask = 0x1f;
+        		shift = 5;
+        		count = 12;
+        		lastmask = 0xf;
+            }
+            val sb = new x10.util.StringBuilder();
+            while (count > 0) {
+            	val digit = (tempLongVal & mask) as Int;
+            	val ch = digit <= 9 ? Char.chr('0'.ord() + digit) : Char.chr('a'.ord() + digit - 10);   
+        		sb.add(ch);
+        		tempLongVal >>= shift;
+        		--count;
+            }
+        	val digit = (tempLongVal & lastmask) as Int;
+        	val ch = digit <= 9 ? Char.chr('0'.ord() + digit) : Char.chr('a'.ord() + digit - 10);   
+    		sb.add(ch);
+            val reverseString = sb.toString();
+            val length = reverseString.length();
+            val chars = Rail.make[Char](length, (i:Int)=>reverseString.charAt(length-i-1));
+            return new String(chars, 0, length);
+        }
         // TODO
     	return (this.longVal & 0xFFFFFFFFFFFFFFFFL).toString(realRadix);
     }
