@@ -494,7 +494,11 @@ public struct ULong implements Comparable[ULong] /*TODO implements Arithmetic[UL
      */
     // @Native("java", "java.lang.Long.toString(#0 & 0xffffffffffffffffL, #1)")
     @Native("c++", "x10aux::long_utils::toString(#0, #1)")
-    public def toString(radix:Int): String = (this.longVal & 0xFFFFFFFFFFFFFFFFL).toString(radix);
+    public def toString(radix:Int): String {
+    	if (radix == 10) return this.toString();    	
+        // TODO
+    	return (this.longVal & 0xFFFFFFFFFFFFFFFFL).toString(radix);
+    }
 
     /**
      * Returns a String representation of this ULong as a hexadecimal number.
@@ -528,12 +532,12 @@ public struct ULong implements Comparable[ULong] /*TODO implements Arithmetic[UL
     @Native("c++", "x10aux::to_string(#0)")
     public def toString(): String {
         if (this.longVal >= 0)
-            return (this.longVal & 0xFFFFFFFFFFFFFFFFL).toString();
+            return this.longVal.toString();
 
         // array representation of long.MAX_VALUE + 1
         val offs <: Array[Int] = [0,9,2,2,3,3,7,2,0,3,6,8,5,4,7,7,5,8,0,8];
         // result buffer
-        val buf <: Rail[Char] = Rail.make[Char](20, (i:Int)=>'0');
+        val buf <: Rail[Char] = Rail.make[Char](20, '0');
         // drop sign bit
         var a : Long = this.longVal & 0x7FFFFFFFFFFFFFFFL;
         var pos : Int = offs.size();
