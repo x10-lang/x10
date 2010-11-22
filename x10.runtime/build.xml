@@ -22,6 +22,7 @@
     <property name="MULTI_NODE" value="false" />	<!--managed x10 only-->
     <property name="USE_BFD" value="false" />
     <property name="X10RT_MPI" value="false" />
+	<property name="X10RT_PAMI" value="false" />
     <property name="X10RT_PGAS" value="true" />
     <property name="X10RT_CUDA" value="false" />
     <property name="CROSS_COMPILE_BGP" value="false" />
@@ -112,6 +113,9 @@
     <condition property="cppmake.x10rt_mpi" value="ENABLE_X10RT_MPI=1" else="DISABLE_X10RT_MPI=1">
         <istrue value="${X10RT_MPI}" />
     </condition>
+	<condition property="cppmake.x10rt_pami" value="ENABLE_X10RT_PAMI=1" else="DISABLE_X10RT_PAMI=1">
+	    <istrue value="${X10RT_PAMI}" />
+	</condition>
     <condition property="cppmake.x10rt_pgas" value="ENABLE_X10RT_PGAS=1" else="DISABLE_X10RT_PGAS=1">
         <istrue value="${X10RT_PGAS}" />
     </condition>
@@ -170,6 +174,7 @@
             <arg value="-j1" />
             <arg value="clean"/>
             <arg value="${cppmake.x10rt_mpi}" />
+        	<arg value="${cppmake.x10rt_pami}" />
             <arg value="${cppmake.x10rt_pgas}" />
             <arg value="${cppmake.x10rt_cuda}" />
             <arg value="${cppmake.cross_compile_bgp}" />
@@ -182,6 +187,7 @@
             <arg value="install" />
             <arg value="${cppmake.optimize}" />
             <arg value="${cppmake.x10rt_mpi}" />
+        	<arg value="${cppmake.x10rt_pami}" />
             <arg value="${cppmake.x10rt_pgas}" />
             <arg value="${cppmake.x10rt_cuda}" />
             <arg value="${cppmake.cross_compile_bgp}" />
@@ -286,6 +292,7 @@
             <arg value="-j1" />
             <arg value="${cppmake.optimize}" />
             <arg value="${cppmake.x10rt_mpi}" />
+        	<arg value="${cppmake.x10rt_pami}" />
             <arg value="${cppmake.x10rt_pgas}" />
             <arg value="${cppmake.x10rt_cuda}" />
             <arg value="${cppmake.cross_compile_bgp}" />
