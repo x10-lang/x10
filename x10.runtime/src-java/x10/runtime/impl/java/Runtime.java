@@ -205,7 +205,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
             throw xe;
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
-            throw new WrappedRuntimeException(e);
+            throw new java.lang.Error(e);
         }
         return body;
     }
@@ -232,7 +232,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
             throw xe;
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
-            throw new WrappedRuntimeException(e);
+            throw new java.lang.Error(e);
         }
         return body;
     }
