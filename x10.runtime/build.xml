@@ -210,7 +210,25 @@
             <arg value="${cppmake.cross_compile_bgp}" />
         </exec>
     </target>
+    <target name="dist-cpp-no-x10rt" depends="build-cpp,available-procs">
+        <exec executable="${make.exe}" failonerror="true" dir="${basedir}/src-cpp">
+            <arg value="-j${available.procs}" />
+            <arg value="install" />
+            <arg value="${cppmake.gcarg}" />
+            <arg value="${cppmake.optimize}" />
+            <arg value="${cppmake.no_checks}" />
+            <arg value="${cppmake.use_bfd}" />
+            <arg value="${cppmake.cross_compile_bgp}" />
+        </exec>
+    </target>
     <target name="dist" depends="dist-java,dist-cpp" description="generate part of the distribution">
+    </target>
+    <target name="dist-par" depends="init,available-procs">
+        <parallel>
+            <antcall target="dist-java"/>
+            <antcall target="dist-x10rt"/>
+            <antcall target="dist-cpp-no-x10rt"/>
+        </parallel>
     </target>
     <target name="jar" depends="build-xrx">
         <jar jarfile="${gen}/${jar}">
@@ -226,6 +244,18 @@
     <target name="build-java" depends="init,gen-xrx">
         <ejc destdir="${build}" source="1.5" target="1.5" debug="on" nowarn="on">
             <src path="${src}"/>
+            <size value="50" when="more"/>
+            <classpath>
+              <path refid="project.classpath"/>
+              <path>
+                  <pathelement location="${build}"/>
+              </path>
+            </classpath>
+        </ejc>
+    </target>
+    <target name="build-x10-x10rt" depends="init">
+        <ejc destdir="${build}" source="1.5" target="1.5" debug="on" nowarn="on">
+            <src path="${src}/x10/x10rt"/>
             <size value="50" when="more"/>
             <classpath>
               <path refid="project.classpath"/>
@@ -274,7 +304,7 @@
         -->
     </target>
 
-    <target name="jni-headers" depends="init,build-java">
+    <target name="jni-headers" depends="init,build-x10-x10rt">
         <javah destdir="x10rt/include">
             <classpath>
               <path refid="project.classpath"/>
