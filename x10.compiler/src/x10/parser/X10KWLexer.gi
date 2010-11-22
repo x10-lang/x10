@@ -129,6 +129,7 @@
     finish
     for
     goto
+    haszero
     here
     if
     implements
@@ -165,7 +166,6 @@
     var
     when
     while
-    haszero
 %End
 
 %Rules
