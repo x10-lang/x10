@@ -35,6 +35,7 @@ extern "C" int strcasecmp(const char *, const char *);
 #define X10LAUNCHER_RUNTIME "X10LAUNCHER_RUNTIME" // this is a flag to run as a runtime or a launcher.  Set by the launcher.
 #define X10LAUNCHER_CWD "X10LAUNCHER_CWD" // the working directory of the program
 #define X10LAUNCHER_DEBUG "X10LAUNCHER_DEBUG" // This flag causes the runtime to launch under gdb in a new xterm
+#define X10RT_NOYIELD "X10RT_NOYIELD"
 
 // Enable/disable debug information
 //#define DEBUG 1

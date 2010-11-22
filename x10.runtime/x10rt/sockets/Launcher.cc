@@ -898,7 +898,7 @@ void Launcher::startSSHclient(uint32_t id, char* masterPort, char* remotehost)
 	"X10_TRACE_INIT", "X10_TRACE_X10RT", "X10_TRACE_NET", "X10_TRACE_SER", "X10_NTHREADS",
 	"X10RT_CUDA_DMA_SLICE", "X10RT_EMULATE_REMOTE_OP", "X10RT_EMULATE_COLLECTIVES",
 	"X10RT_MPI_THREAD_MULTIPLE", "X10_STATIC_THREADS", "X10_NO_STEALS", "X10RT_ACCELS",
-	"X10RT_NOYIELD", X10LAUNCHER_DEBUG};
+	X10RT_NOYIELD, X10LAUNCHER_DEBUG};
 	for (unsigned i=0; i<(sizeof envVariables)/sizeof(char*); i++)
 	{
 		char* ev = getenv(envVariables[i]);

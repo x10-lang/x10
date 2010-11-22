@@ -31,6 +31,7 @@ typedef void *(*finderCallback)(const x10rt_msg_params *, x10rt_copy_sz);
 typedef void (*notifierCallback)(const x10rt_msg_params *, x10rt_copy_sz);
 
 enum MSGTYPE {STANDARD, PUT, GET, GET_COMPLETED};
+#define X10LAUNCHER_FORCEPORTS "X10LAUNCHER_FORCEPORTS"
 //#define DEBUG_MESSAGING 1
 
 struct x10SocketCallback
@@ -70,6 +71,35 @@ void error(const char* message)
 		fprintf(stderr, "Fatal Error: %s\n", message);
 	fflush(stderr);
 	abort();
+}
+
+int getPortEnv(unsigned int whichPlace)
+{
+	char* p = getenv(X10LAUNCHER_FORCEPORTS);
+	if (p != NULL)
+	{
+		// find our port number in the list
+		char * start = p;
+		char * end = strchr(start, ',');
+		for (unsigned int i=1; i<=whichPlace; i++)
+		{
+			if (end == NULL)
+				error("Not enough ports defined in "X10LAUNCHER_FORCEPORTS);
+
+			start = end+1;
+			end = strchr(start, ',');
+		}
+		if (end == NULL)
+			return atoi(start);
+		else
+		{
+			char port[16];
+			strncpy(port, start, end-start);
+			port[end-start]='\0';
+			return atoi(port);
+		}
+	}
+	return 0;
 }
 
 void handleConnectionRequest()
@@ -142,30 +172,65 @@ int initLink(uint32_t remotePlace)
 		#endif
 		char link[1024];
 		pthread_mutex_lock(&state.writeLocks[state.myPlaceId]); // because the lookup isn't currently thread-safe
-		int r = Launcher::lookupPlace(state.myPlaceId, remotePlace, link, sizeof(link));
-		if (r <= 0)
-		{
-			pthread_mutex_unlock(&state.writeLocks[state.myPlaceId]);
-			return -1;
-		}
 
-		// check that the other end didn't connect to us while we were waiting for our lookup to complete.
-		if (state.socketLinks[remotePlace].fd > 0)
+		int port = getPortEnv(remotePlace);
+		if (port == 0)
 		{
-			pthread_mutex_unlock(&state.writeLocks[state.myPlaceId]);
-			return state.socketLinks[remotePlace].fd;
-		}
+			int r = Launcher::lookupPlace(state.myPlaceId, remotePlace, link, sizeof(link));
+			if (r <= 0)
+			{
+				pthread_mutex_unlock(&state.writeLocks[state.myPlaceId]);
+				return -1;
+			}
 
-		// break apart the link into host and port
-		char * c = strchr(link, ':');
-		if (c == NULL)
-		{
-			char* suicideNote = (char*)alloca(512);
-			sprintf(suicideNote, "Unable to establish a connection to place %u because %s!", remotePlace, link);
-			error(suicideNote);
+			// check that the other end didn't connect to us while we were waiting for our lookup to complete.
+			if (state.socketLinks[remotePlace].fd > 0)
+			{
+				pthread_mutex_unlock(&state.writeLocks[state.myPlaceId]);
+				return state.socketLinks[remotePlace].fd;
+			}
+
+			// break apart the link into host and port
+			char * c = strchr(link, ':');
+			if (c == NULL)
+			{
+				char* suicideNote = (char*)alloca(512);
+				sprintf(suicideNote, "Unable to establish a connection to place %u because %s!", remotePlace, link);
+				error(suicideNote);
+			}
+			c[0] = '\0';
+			port = atoi(c + 1);
 		}
-		c[0] = '\0';
-		int port = atoi(c + 1);
+		else
+		{
+			char* p = getenv(X10LAUNCHER_HOSTLIST);
+			if (p != NULL)
+			{
+				// find our port number in the list
+				char * start = p;
+				char * end = strchr(start, ',');
+				for (unsigned int i=1; i<=remotePlace; i++)
+				{
+					if (end == NULL)
+						error("Not enough hosts defined in "X10LAUNCHER_HOSTLIST);
+
+					start = end+1;
+					end = strchr(start, ',');
+				}
+				if (end == NULL)
+					strcpy(link, start);
+				else
+				{
+					strncpy(link, start, end-start);
+					link[end-start] = '\0';
+				}
+			}
+			else
+			{
+				strcpy(link, "localhost\0");
+				if (getenv(X10LAUNCHER_HOSTFILE)) fprintf(stderr, "WARNING: "X10LAUNCHER_HOSTFILE" is ignored when using "X10LAUNCHER_FORCEPORTS);
+			}
+		}
 
 		// check to see if the host is our host, and if so, change it to "localhost"
 		// to take advantage of any localhost OS efficiencies
@@ -268,7 +333,7 @@ void x10rt_net_init (int * argc, char ***argv, x10rt_msg_type *counter)
 	{
 		state.numPlaces = atol(NPROCS);
 		if (state.numPlaces <= 0) // atol failed
-			error("X10LAUNCHER_NPROCS is not set to a valid number of places!");
+			error(X10LAUNCHER_NPROCS" is not set to a valid number of places!");
 	}
 
 	if (state.numPlaces == 1)
@@ -284,7 +349,7 @@ void x10rt_net_init (int * argc, char ***argv, x10rt_msg_type *counter)
 	else
 		state.myPlaceId = atol(ID);
 
-	char* y = getenv("X10RT_NOYIELD");
+	char* y = getenv(X10RT_NOYIELD);
 	if (y && !(strcasecmp("false", y) == 0))
 		state.yieldAfterProbe = false;
 	else
@@ -301,20 +366,23 @@ void x10rt_net_init (int * argc, char ***argv, x10rt_msg_type *counter)
 	}
 
 	// open local listen port.
-	unsigned listenPort = 0;
+	unsigned listenPort = getPortEnv(state.myPlaceId);
+	bool useLauncher = (listenPort == 0);
 	state.socketLinks[state.myPlaceId].fd = TCP::listen(&listenPort, 10);
 	if (state.socketLinks[state.myPlaceId].fd < 0)
 		error("cannot create listener port");
 	pthread_mutex_init(&state.writeLocks[state.myPlaceId], NULL);
 	state.socketLinks[state.myPlaceId].events = POLLIN | POLLPRI;
 
-	// Tell our launcher our communication port number
 	char portname[1024];
 	TCP::getname(state.socketLinks[state.myPlaceId].fd, portname, sizeof(portname));
-	pthread_mutex_lock(&state.writeLocks[state.myPlaceId]);
-	if (Launcher::setPort(state.myPlaceId, portname) < 0)
-		error("failed to connect to the local runtime");
-	pthread_mutex_unlock(&state.writeLocks[state.myPlaceId]);
+	if (useLauncher)
+	{   // Tell our launcher our communication port number
+		pthread_mutex_lock(&state.writeLocks[state.myPlaceId]);
+		if (Launcher::setPort(state.myPlaceId, portname) < 0)
+			error("failed to connect to the local runtime");
+		pthread_mutex_unlock(&state.writeLocks[state.myPlaceId]);
+	}
 
 	// save our hostname for later
 	char * c = strchr(portname, ':');
