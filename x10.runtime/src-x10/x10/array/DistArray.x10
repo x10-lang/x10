@@ -107,7 +107,7 @@ public class DistArray[T] (
      * @see #make[T](Region)
      * @see #make[T](Dist, (Point)=>T)
      */
-    public static def make[T](dist: Dist)= new DistArray[T](dist);
+    public static def make[T](dist: Dist) {T haszero} = new DistArray[T](dist);
 
     /**
      * Create a mutable array over the given distribution.
@@ -260,7 +260,7 @@ public class DistArray[T] (
 
         localHandle = PlaceLocalHandle.make[LocalState[T]](dist, plsInit);
     }
-    def this(dist: Dist): DistArray[T]{self.dist==dist} {
+    def this(dist: Dist) {T haszero} : DistArray[T]{self.dist==dist} {
         property(dist);
 
         val plsInit:()=>LocalState[T] = () => {

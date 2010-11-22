@@ -220,7 +220,7 @@ public final class Array[T](
      * in future releases of X10, this method will only be callable if sizeof(T) bytes 
      * of zeros is a valid value of type T. 
      */    
-    public def this(size:int):Array[T]{self.region.rank==1,self.region.rect,self.region.zeroBased,self.size==size} {
+    public def this(size:int) {T haszero} :Array[T]{self.region.rank==1,self.region.rect,self.region.zeroBased,self.size==size} {
         property(0..size-1, size);
 
         layout = RectLayout(0, size-1);

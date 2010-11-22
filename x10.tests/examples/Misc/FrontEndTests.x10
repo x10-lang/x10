@@ -3,6 +3,9 @@ package x10.yoav.tests;
 import x10.compiler.*; // @Uncounted @NonEscaping @NoThisAccess
 import x10.util.*;
 
+import x10.io.CustomSerialization;
+import x10.io.SerialData;
+
 // test object initialization (and more)
 
 class TestFinalField {
@@ -824,6 +827,9 @@ class TestAnonymousClass {
 		}
 	};
 	val inner = new Inner(); // ERR: 'this' and 'super' cannot escape from a constructor or from methods called from a constructor
+	
+	val qqqq = at (here.next()) this; // ERR: Semantic Error: 'this' and 'super' cannot escape from a constructor or from methods called from a constructor
+
 	val w:Int{self!=0} = anonymous.bla();
 	val k:Int{self!=0};
 	def this() {
@@ -3202,4 +3208,72 @@ class StaticOverriding { // see XTENLANG-2121
   static class D extends C {
     static def m() = 1; // ShouldNotBeERR: Semantic Error: m(): x10.lang.Int{self==1} in StaticOverriding.D cannot override m(): x10.lang.Int{self==0} in StaticOverriding.C; attempting to use incompatible return type.
   }
+}
+
+class TreeUsingFieldNotProperty { this.left==null } { // ShouldBeErr
+  val left:TreeUsingFieldNotProperty = null;
+}
+class XTENLANG_1149 {
+    def m(b:Boolean, x:Object{self!=null}, y:Object{self!=null}):Object{self!=null} {
+        val z:Object{self!=null} = b ? x : y; // ShouldNotBeERR
+        return z;
+    }
+}
+class XTENLANG_1149_2 {
+	class B {}
+	var f:Boolean;
+	def test() {
+		val b1 = new B();
+		val b2 = new B();
+		val c1:B{self!=null} = f ? b1 : b2; // ShouldNotBeERR
+		val c2:B = f ? b1 : b2;
+		val c3:B{self!=null} = f ? (b1 as B{self!=null}) : b2;  // ShouldNotBeERR
+		val c4:B{self!=null} = f ? (b1 as B{self!=null}) : (b2 as B{self!=null});  // ShouldNotBeERR
+		val c5:B{self!=null} = f ? b1 : b1; 
+
+		val arr1 = new Array[B{self!=null}][b1,b2];
+		val arr2:Array[B{self!=null}] = [b1,b2]; // ERR. we do not infer constraints, because then [1] will be Array[Int{self==1}]
+		val arr3:Array[B] = [b1,b2]; 
+		val arr4 = new Array[B{self==b2}][b1,b2]; // ERR
+	}
+}
+
+class TestClassInvariant78 {
+class AA(v:Int) {v==1} {} // ShouldBeErr
+class BB(v:Int) {v==1} {
+	def this(q:Int) { property(q); } // ShouldBeErr
+}
+static class A(v:Int) {v==1} {
+	static def m(a:A) {
+		val b:A{self.v==1} = a; // ShouldNotBeERR
+	}
+	def m2(a:A) {
+		val b1:A{self.v==1} = this;
+		val b2:A{this.v==1} = this;
+		val b3:A{self.v==1} = a; // ShouldNotBeERR
+		val b4:A{this.v==1} = a;
+	}
+}
+}
+
+class TestDuplicateClass { // XTENLANG-2132
+	class A(v:Int) {} 
+	// static class A(v:Int) {}  // ShouldBeErr (causes a crash: AssertionError: TestDuplicateClass.A->TestDuplicateClass.A x10.types.X10ParsedClassType_c is already in the cache; cannot replace with TestDuplicateClass.A x10.types.X10ParsedClassType_c)
+}
+
+class CustomSerializeIsNotTypeSafe {
+    val x = 2;    
+	val BigD = Dist.makeBlock((0..10)*(0..10), 0);
+    val A = DistArray.make[Double](BigD,(p:Point)=>1.0*this.x); // "this" is serialized before it is completely initialized
+    val k:Int{self!=0} = 3;
+
+    public def serialize():SerialData {
+		Console.OUT.println(k);
+		assert k==3; // will fail when used on multiple places
+		return new SerialData(1,null);
+	}
+
+    public static def main(Array[String]) {
+        new CustomSerializeIsNotTypeSafe();
+    }
 }

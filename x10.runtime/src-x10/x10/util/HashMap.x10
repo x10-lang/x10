@@ -303,14 +303,14 @@ import x10.io.SerialData;
 
     protected static class State[Key,Value] {
         val size:int;
-        val keys:Array[Key](1);
-        val vals:Array[Value](1);
+        val keys:IndexedMemoryChunk[Key];
+        val vals:IndexedMemoryChunk[Value];
 
         def this(map:HashMap[Key,Value]) {
             size = map.size();
-            keys = new Array[Key](size);
-            vals = new Array[Value](size);
-	    var cur:int = 0;
+            keys = IndexedMemoryChunk.allocate[Key](size);
+            vals = IndexedMemoryChunk.allocate[Value](size);
+	        var cur:int = 0;
             val it = map.entriesIterator();
             while (it.hasNext()) {
                val entry = it.next();
@@ -327,7 +327,7 @@ import x10.io.SerialData;
     public def this(x:SerialData) {
         this();
         val state = x.data as State[K,V];
-	for ([i] in 0..state.size-1) {
+	    for ([i] in 0..state.size-1) {
             putInternal(state.keys(i), state.vals(i));
         }
     }
