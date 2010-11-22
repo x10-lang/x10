@@ -20,6 +20,7 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
+import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import x10.constraint.XFailure;
@@ -86,6 +87,9 @@ public class X10Special_c extends Special_c implements X10Special {
         CodeDef code = c.currentCode();
         if (code instanceof X10MemberDef) {
             ThisDef thisDef = ((X10MemberDef) code).thisDef();
+            if (null == thisDef) {
+                throw new InternalCompilerError(position(), "X10Special_c.typeCheck: thisDef is null for containing code " +code);
+            }
             assert (thisDef != null);
             c.recordCapturedVariable(thisDef.asInstance());
         }
