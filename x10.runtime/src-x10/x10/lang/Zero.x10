@@ -15,6 +15,6 @@ import x10.compiler.Native;
 
 public class Zero {
     @Native("java", "(#3==x10.rtt.Types.INT ? ((Integer)0) : #3==x10.rtt.Types.LONG ? ((Long)0l) : null)")
-    @Native("c++",  "(0)")
-	public static native def get[T]() {T haszero} :T;
+    @Native("c++",  "x10aux::zeroValue<#1 >()")
+    public static native def get[T]() {T haszero} :T;
 }

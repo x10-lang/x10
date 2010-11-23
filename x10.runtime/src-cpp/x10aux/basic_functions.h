@@ -358,6 +358,36 @@ namespace x10aux {
     ref<x10::lang::String> to_string(x10_double v);
 
     ref<x10::lang::String> to_string(x10_char v);
+
+
+    /******* zeroValue ********/
+    template<class T> struct Zero {
+        static T _() {
+            T ans;
+            memset(&ans, 0, sizeof(T));
+            return ans;
+        }
+    };
+    template<class T> struct Zero<ref<T> > {
+        static ref<T> _() { return X10_NULL; }
+    };
+    #define X10_PRIM_ZERO(T) template<> struct Zero<T> { static T _() { return static_cast<T>(0); } };
+    X10_PRIM_ZERO(x10_byte)
+    X10_PRIM_ZERO(x10_ubyte)
+    X10_PRIM_ZERO(x10_short)
+    X10_PRIM_ZERO(x10_ushort)
+    X10_PRIM_ZERO(x10_int)
+    X10_PRIM_ZERO(x10_uint)
+    X10_PRIM_ZERO(x10_long)
+    X10_PRIM_ZERO(x10_ulong)
+    X10_PRIM_ZERO(x10_float)
+    X10_PRIM_ZERO(x10_double)
+    #undef X10_PRIM_ZERO
+    template<> struct Zero<x10_boolean> { static x10_boolean _() { return false; } };
+    template<> struct Zero<x10_char> { static x10_char _() { return x10_char(0); } };
+
+    template <class T> T zeroValue() { return Zero<T>::_(); }
+    
 }
 
 #endif
