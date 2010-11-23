@@ -13,6 +13,7 @@ public class StreamOrig {
     const NUM_PLACES = 64; //Place.MAX_PLACES;
 
     public static def main(args:Rail[String]!){here == Place.FIRST_PLACE} {
+    	val start_time = System.currentTimeMillis(); 
          
         val opV = Boolean.&;
 		val opT = Double.+;
@@ -65,6 +66,8 @@ public class StreamOrig {
                 min = times(j);
         
         printStats(N, min, verified(0));
+    	val compute_time = (System.currentTimeMillis() - start_time);
+    	Console.ERR.print( compute_time + " ");
     }
 
     static def now():double = Timer.nanoTime() * 1e-9;

@@ -6,6 +6,7 @@ import clocked.Clocked;
 public class MontyPiParallel {
 
   public static  def main(s: Rail[String]) {
+    val start_time = System.currentTimeMillis(); 
 
     val P = 64;
     val N = 10000; 
@@ -31,5 +32,7 @@ public class MontyPiParallel {
     next;
     val pi = 4*result/(N*P);
     Console.OUT.println("The value of pi is " + pi);
+    val compute_time = (System.currentTimeMillis() - start_time);
+    Console.ERR.print( compute_time + " ");
   }
 }

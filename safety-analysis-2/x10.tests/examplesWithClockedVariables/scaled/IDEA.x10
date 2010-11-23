@@ -536,6 +536,7 @@ class IdeaTest {
 			
 	
 	public static def main(args:Rail[String]!)= {
+    		val start_time = System.currentTimeMillis(); 
 		//JGFInstrumentor.addTimer("Section2:Crypt:Kernel", "Kbyte", size);
 
 		new IDEA (). run();
@@ -543,6 +544,8 @@ class IdeaTest {
 
 		//JGFInstrumentor.addOpsToTimer("Section2:Crypt:Kernel", (2*array_rows)/1000.);
 		//JGFInstrumentor.printTimer("Section2:Crypt:Kernel");
+    		val compute_time = (System.currentTimeMillis() - start_time);
+    		Console.ERR.print( compute_time + " ");
 	}
 }
 

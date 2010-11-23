@@ -164,12 +164,15 @@ class UTS {
     }
      
     public static def main(args: Rail[String]) {
+    val start_time = System.currentTimeMillis(); 
 	/*if (args.length < 1){
 	    Console.OUT.println("Usage : <exec><P : int>");
 	    return;
 	}*/
 	val P = 64; //Int.parseInt(args(0));
         new UTS(P).run();
+    	val compute_time = (System.currentTimeMillis() - start_time);
+    	Console.ERR.print( compute_time + " ");
     }
    
  

@@ -604,7 +604,10 @@ public class LUFact extends Linpack {
 	
 	 public static def main(args:Rail[String]!)= {
 		
+    		val start_time = System.currentTimeMillis(); 
 		new LUFact (). JGFrun(0);
+    		val compute_time = (System.currentTimeMillis() - start_time);
+    		Console.ERR.print( compute_time + " ");
 		
 	}
 }

@@ -35,12 +35,14 @@ public class AllReduceParallel {
 }
 
   public static def main(Rail[String]) {
-
+    val start_time = System.currentTimeMillis(); 
     val c = Clock.make();
     val op = Math.noOp.(Int, Int);
     val myA = Rail.make [int @ Clocked[int](c, op, 0)](P, (i:Int)=> i);
     val result = allReduce(c, op, myA);
    
     Console.OUT.println("allReduce = " + result);
+    val compute_time = (System.currentTimeMillis() - start_time);
+    Console.ERR.print( compute_time + " ");
   }
 }

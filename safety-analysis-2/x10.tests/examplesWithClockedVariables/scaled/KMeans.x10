@@ -92,6 +92,7 @@ public class KMeans {
   
     public static def main (args : Rail[String]) {
       
+    	val start_time = System.currentTimeMillis(); 
       	val k = new KMeans();
         k.computeMeans();
        
