@@ -783,9 +783,9 @@ done
 			fi
 fi
 if [[ "$(uname -s)" == CYGWIN* ]]; then
-			run_cmd="X10LAUNCHER_NPROCS=${my_nplaces} X10LAUNCHER_HOSTFILE=NONE /usr/bin/time -p ./${tctarget}.exe"
+			run_cmd="X10_NPLACES=${my_nplaces} X10_HOSTLIST=localhost /usr/bin/time -p ./${tctarget}.exe"
 else
-			run_cmd="X10LAUNCHER_NPROCS=${my_nplaces} X10LAUNCHER_HOSTFILE=NONE /usr/bin/time -p ./${tctarget}"
+			run_cmd="X10_NPLACES=${my_nplaces} X10_HOSTLIST=localhost /usr/bin/time -p ./${tctarget}"
 fi
 			printf "\n${run_cmd}\n" >> $tcoutdat
 		fi
