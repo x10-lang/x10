@@ -121,10 +121,11 @@
 
     <target name="dist-java" depends="init,build,common-jar,constraints-jar,compiler-jar,runtime-java"/>
     <target name="dist-cpp" depends="dist-java,runtime-cpp"/>
-    <target name="dist" depends="dist-java,dist-cpp"/>
-    <target name="dist-par" depends="init,build,common-jar,constraints-jar,compiler-jar">
+    <target name="dist" depends="dist-java,dist-cpp,dist-bridge"/>
+    <target name="dist-java-cpp" depends="init,build,common-jar,constraints-jar,compiler-jar">
         <ant antfile="${x10.runtime.location}/build.xml" target="dist-par" inheritAll="false" dir="${x10.runtime.location}"/>
     </target>
+    <target name="dist-par" depends="init,build,common-jar,constraints-jar,compiler-jar,dist-java-cpp,dist-bridge"/>
     <target name="dist-bridge" depends="dist-java,bridge-jar"/>
 
     <target name="check-jar-cache" depends="init">
