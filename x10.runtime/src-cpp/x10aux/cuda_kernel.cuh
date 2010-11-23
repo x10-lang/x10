@@ -30,6 +30,7 @@
 
 namespace x10aux {
     template<class T> __device__ T *nullCheck (T *v) { return v; }
+    template<class T> __device__ T zeroCheck (T v) { return v; }
 
     template<class T> struct cuda_array {
         x10_int FMGL(size);
