@@ -438,14 +438,16 @@ import x10.util.Box;
     transient val pool:Pool;
 
     // per place members
-    private transient val monitor:Monitor;
+    private transient val atomicMonitor:Monitor;
+    private transient val staticMonitor:Monitor;
     public transient val finishStates:FinishState.FinishStates;
 
     // constructor
 
     private def this(pool:Pool):Runtime {
         this.pool = pool;
-        this.monitor = new Monitor();
+        this.atomicMonitor = new Monitor();
+        this.staticMonitor = new Monitor();
         this.finishStates = new FinishState.FinishStates();
     }
 
@@ -737,25 +739,25 @@ import x10.util.Box;
     // initialization of static fields in c++ backend
 
     public static def StaticInitBroadcastDispatcherLock() {
-        runtime().monitor.lock();
+        runtime().staticMonitor.lock();
     }
 
     public static def StaticInitBroadcastDispatcherAwait() {
-        runtime().monitor.await();
+        runtime().staticMonitor.await();
     }
 
     public static def StaticInitBroadcastDispatcherUnlock() {
-        runtime().monitor.unlock();
+        runtime().staticMonitor.unlock();
     }
 
     public static def StaticInitBroadcastDispatcherNotify() {
-        runtime().monitor.release();
+        runtime().staticMonitor.release();
     }
 
     // atomic and when
 
     public static def enterAtomic() {
-        runtime().monitor.lock();
+        runtime().atomicMonitor.lock();
         val a = activity();
         if (a != null)
            a.pushAtomic();
@@ -771,11 +773,11 @@ import x10.util.Box;
         val a = activity();
         if (a != null)
            a.popAtomic();
-        runtime().monitor.release();
+        runtime().atomicMonitor.release();
     }
 
     public static def awaitAtomic():void {
-        runtime().monitor.await();
+        runtime().atomicMonitor.await();
     }
 
     // clocks
