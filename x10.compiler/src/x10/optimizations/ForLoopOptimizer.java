@@ -29,6 +29,7 @@ import polyglot.ast.ForUpdate;
 import polyglot.ast.Formal;
 import polyglot.ast.Id;
 import polyglot.ast.IntLit;
+import polyglot.ast.Labeled;
 import polyglot.ast.Local;
 import polyglot.ast.LocalDecl;
 import polyglot.ast.Loop;
@@ -57,7 +58,6 @@ import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.ast.ClosureCall;
 import x10.ast.ForLoop;
-import x10.ast.ForLoop_c;
 import x10.ast.RegionMaker;
 import x10.ast.StmtExpr;
 import x10.ast.StmtSeq;
@@ -110,9 +110,37 @@ public class ForLoopOptimizer extends ContextVisitor {
         syn = new Synthesizer(xnf, xts);
     }
 
+    private Name label = null;
+    protected Name label() { return label; }
+    protected ForLoopOptimizer label(Name label) {
+        ForLoopOptimizer flo = (ForLoopOptimizer) copy();
+        flo.label = label;
+        return flo;
+    }
+
+    @Override
+    protected NodeVisitor enterCall(Node n) throws SemanticException {
+        // Set the label when seeing a Labeled; clear it for anything but a ForLoop
+        if (n instanceof Labeled) {
+            return label(((Labeled) n).labelNode().id());
+        } else if (n instanceof ForLoop) {
+            return this;
+        }
+        return label(null);
+    }
+
+    @Override
     public Node leaveCall(Node old, Node n, NodeVisitor v) throws SemanticException {
         if (n instanceof ForLoop)
-            return visitForLoop((ForLoop_c) n);
+            return visitForLoop((ForLoop) n);
+        if (n instanceof Labeled) {
+            Labeled l = (Labeled) n;
+            ForLoopOptimizer flo = (ForLoopOptimizer) v;
+            assert (l.labelNode().id().equals(flo.label()));
+            if (old instanceof Labeled && ((Labeled) old).statement() instanceof ForLoop && !(l.statement() instanceof ForLoop)) {
+                return l.statement(); // The label will have been propagated onto the loop
+            }
+        }
         return n;
     }
 
@@ -148,7 +176,7 @@ public class ForLoopOptimizer extends ContextVisitor {
      * @param loop the ForLoop to be transformed
      * @return the transformed loop
      */
-    public Node visitForLoop(ForLoop_c loop) {
+    public Node visitForLoop(ForLoop loop) {
         
         Position     pos        = loop.position();
         X10Formal    formal     = (X10Formal) loop.formal();
@@ -227,7 +255,11 @@ public class ForLoopOptimizer extends ContextVisitor {
             bodyStmts.add(body);
             body = createBlock(loop.body().position(), bodyStmts);
             For forLoop = createStandardFor(pos, varLDecl, cond, update, body);
-            return createBlock(pos, minLDecl, maxLDecl, forLoop);
+            Stmt newLoop = forLoop;
+            if (label() != null) {
+                newLoop = createLabeledStmt(pos, label(), forLoop);
+            }
+            return createBlock(pos, minLDecl, maxLDecl, newLoop);
         }
 
         // transform rectangular regions of known rank 
@@ -321,6 +353,9 @@ public class ForLoopOptimizer extends ContextVisitor {
                 body = xnf.Labeled(body.position(), label, body);
             }
             body = explodePoint(formal, indexLDecl, varLDecls, body);
+            if (label() != null) {
+                body = createLabeledStmt(pos, label(), body);
+            }
             stmts.add(body);
             Block result = createBlock(pos, stmts);
             if (VERBOSE) result.dump(System.out);
@@ -353,6 +388,9 @@ public class ForLoopOptimizer extends ContextVisitor {
             bodyStmts.add(body);
         }
         Stmt result           = createStandardFor(pos, iterLDecl, hasExpr, createBlock(pos, bodyStmts));
+        if (label() != null) {
+            result = createLabeledStmt(pos, label(), result);
+        }
         if (VERBOSE) result.dump(System.out);
         return result;
     }
@@ -571,10 +609,25 @@ public class ForLoopOptimizer extends ContextVisitor {
     }
 
     /** 
+     * Create a labeled statement.
+     * 
+     * @param pos the Position of the statement in the source program
+     * @param label the label for the statement
+     * @param stmt the statement to label
+     * @return the synthesized labeled statement
+     * TODO: move into Synthesizer
+     */
+    public Labeled createLabeledStmt(Position pos, Name label, Stmt stmt) {
+        return xnf.Labeled( pos, 
+                            xnf.Id(pos, label), 
+                            stmt );
+    }
+
+    /** 
      * Create a traditional C-style 'for' loop.
      * This form assumes that the update part of the for header is empty.
      * 
-     * @param pos the Position of the loop is the source program
+     * @param pos the Position of the loop in the source program
      * @param init the declaration that initializes the iterate
      * @param cond the condition governing whether the body should continue to be executed
      * @param body the body of the loop to be executed repeatedly
@@ -592,7 +645,7 @@ public class ForLoopOptimizer extends ContextVisitor {
     /** 
      * Create a traditional C-style 'for' loop.
      * 
-     * @param pos the Position of the loop is the source program
+     * @param pos the Position of the loop in the source program
      * @param init the declaration that initializes the iterate
      * @param cond the condition governing whether the body should continue to be executed
      * @param update the statement to increment the iterate after each execution of the body
