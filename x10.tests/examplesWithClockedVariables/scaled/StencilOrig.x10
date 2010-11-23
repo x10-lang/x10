@@ -64,6 +64,7 @@ public class StencilOrig {
     }
 
     public static def main(args: Rail[String]!) {
+    	val start_time = System.currentTimeMillis(); 
        var n: int = args.length > 0 ? Int.parse(args(0)) : 10;
        var p: int = args.length > 1 ? Int.parse(args(1)) : 64;
        // x10.io.Console.OUT.println("Starting: N=" + n + " P=" + p);
@@ -71,5 +72,7 @@ public class StencilOrig {
        val s = new StencilOrig(n, p); s.run();
         time += System.nanoTime();
        x10.io.Console.OUT.println("N=" + n + " P=" + p + " Iters=" + s.iters + " time=" + time/(1000*1000) + " ms");
+    	val compute_time = (System.currentTimeMillis() - start_time);
+    	Console.ERR.print( compute_time + " ");
     }
 }

@@ -85,6 +85,7 @@ public class NQueensParOrig {
     }
 
     public static def main(args: Rail[String]!)  {
+    	val start_time = System.currentTimeMillis(); 
         val n = args.length > 0 ? Int.parseInt(args(0)) : 8;
         println("N=" + n);
         //warmup
@@ -105,6 +106,8 @@ public class NQueensParOrig {
                     ") has " + nq.nSolutions + " solutions" +
                     (result? " (ok)." : " (wrong).") + "time=" + start + "ms");
         }
+    	val compute_time = (System.currentTimeMillis() - start_time);
+    	Console.ERR.print( compute_time + " ");
     }
 
     static def println(s:String) = Console.OUT.println(s);

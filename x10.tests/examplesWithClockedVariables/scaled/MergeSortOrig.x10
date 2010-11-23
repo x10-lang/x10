@@ -14,6 +14,7 @@ public class MergeSortOrig{
 
     static val N: int = 128;
     public static def main(args:Rail[String]!){
+    	val start_time = System.currentTimeMillis(); 
 
          Console.OUT.println("Merge Sort ");
         
@@ -31,6 +32,8 @@ public class MergeSortOrig{
      	 Console.OUT.println("\nSorted Rail");
      	 for ( i = 0; i < N; i++)
      		Console.OUT.print(red(i) + " ");
+    	val compute_time = (System.currentTimeMillis() - start_time);
+    	Console.ERR.print( compute_time + " ");
          
       
     }

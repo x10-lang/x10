@@ -779,7 +779,10 @@ public class RayTrace extends RayTracer {
 	}
 	
 	  public static def main(args:Rail[String]!)= {
+    			val start_time = System.currentTimeMillis(); 
 			new RayTrace().JGFrun(0);
+    			val compute_time = (System.currentTimeMillis() - start_time);
+    			Console.ERR.print( compute_time + " ");
 		
 	}
 }

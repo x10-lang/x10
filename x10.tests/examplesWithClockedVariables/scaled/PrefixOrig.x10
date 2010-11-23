@@ -27,9 +27,11 @@ public class PrefixOrig {
     }
 
     public static def main(Rail[String]) {
-        assert Math.powerOf2(Place.MAX_PLACES) : " Must run on power of 2 places.";
+    	val start_time = System.currentTimeMillis(); 
         val s = new PrefixOrig();
         s.run();
         s.print();
+    	val compute_time = (System.currentTimeMillis() - start_time);
+    	Console.ERR.print( compute_time + " ");
     }
 }

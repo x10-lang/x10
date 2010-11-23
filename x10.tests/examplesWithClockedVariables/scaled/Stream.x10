@@ -13,6 +13,7 @@ public class Stream {
     const NUM_PLACES = 64; //Place.MAX_PLACES;
 
     public static def main(args:Rail[String]!){here == Place.FIRST_PLACE} {
+    	val start_time = System.currentTimeMillis(); 
      finish {
         val clk = Clock.make();
         val opV = Boolean.&;
@@ -70,6 +71,8 @@ public class Stream {
         printStats(N, min);
         Console.OUT.println("Result is " + (verified ? "verified." : "NOT verified."));
       }
+    val compute_time = (System.currentTimeMillis() - start_time);
+    Console.ERR.print( compute_time + " ");
     }
 
     static def now():double = Timer.nanoTime() * 1e-9;

@@ -35,8 +35,11 @@ public class Prefix {
 
     public static def main(Rail[String]) {
  
+    	val start_time = System.currentTimeMillis(); 
         val s = new Prefix();
         s.run(0, N-1);
         s.print();
+    	val compute_time = (System.currentTimeMillis() - start_time);
+    	Console.ERR.print( compute_time + " ");
     }
 }

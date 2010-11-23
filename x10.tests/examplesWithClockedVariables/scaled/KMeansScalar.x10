@@ -76,9 +76,11 @@ public class KMeansScalar {
     }
   
     public static def main (args : Rail[String]) {
-      
+     	val start_time = System.currentTimeMillis(); 
       	val k = new KMeansScalar();
         k.computeMeans();
+    	val compute_time = (System.currentTimeMillis() - start_time);
+    	Console.ERR.print( compute_time + " ");
        
        
     }

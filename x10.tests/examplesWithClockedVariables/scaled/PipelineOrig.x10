@@ -43,8 +43,11 @@ public class PipelineOrig {
    
 
     public static def main(args:Rail[String]!) {
+    	val start_time = System.currentTimeMillis(); 
          val h = new PipelineOrig();  // final variable
          h.pipeline();
+    	val compute_time = (System.currentTimeMillis() - start_time);
+    	Console.ERR.print( compute_time + " ");
     }
 
 }
