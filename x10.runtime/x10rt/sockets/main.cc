@@ -1,5 +1,16 @@
 /*
- * This file is here to allow for a stand-alone build of the launcher, which can be used to launch anything.
+ *  This file is part of the X10 project (http://x10-lang.org).
+ *
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ *  (C) Copyright IBM Corporation 2006-2010.
+ *
+ *  This file was written by Ben Herta for IBM: bherta@us.ibm.com
+ *
+ *  This file is here to allow for a stand-alone build of the launcher, which can be used to launch anything.
  */
 
 #include <unistd.h>
@@ -24,11 +35,11 @@ int main (int argc, char ** argv)
 	for (int i = 1; i < argc; i+=2)
 	{
 		if (strcmp(argv[i], "-np") == 0)
-			setenv(X10LAUNCHER_NPROCS, argv[i+1], 1);
+			setenv(X10_NPLACES, argv[i+1], 1);
 		else if (strcmp(argv[i], "-hostlist") == 0)
-			setenv(X10LAUNCHER_HOSTLIST, argv[i+1], 1);
+			setenv(X10_HOSTLIST, argv[i+1], 1);
 		else if (strcmp(argv[i], "-hostfile") == 0)
-			setenv(X10LAUNCHER_HOSTFILE, argv[i+1], 1);
+			setenv(X10_HOSTFILE, argv[i+1], 1);
 		else
 		{
 			commandPosition = i;

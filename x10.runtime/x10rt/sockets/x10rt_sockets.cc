@@ -1,6 +1,15 @@
-/********************************************************************************************
- * (c) Copyright IBM Corporation 2010
- * Written by Ben Herta for IBM, bherta@us.ibm.com, Septemer 2010
+/*
+ *  This file is part of the X10 project (http://x10-lang.org).
+ *
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ *  (C) Copyright IBM Corporation 2006-2010.
+ *
+ *  This file was written by Ben Herta for IBM: bherta@us.ibm.com
+ *
  * This code supports multi-place x10 programs running on one or more machines.
  * It uses SSH to spawn processes on remote machines.  A user should set up any hosts to have
  * an SSH daemon, and public/private keys configured so that there isn't any password prompt.
@@ -203,7 +212,7 @@ int initLink(uint32_t remotePlace)
 		}
 		else
 		{
-			char* p = getenv(X10LAUNCHER_HOSTLIST);
+			char* p = getenv(X10_HOSTLIST);
 			if (p != NULL)
 			{
 				// find our port number in the list
@@ -212,7 +221,7 @@ int initLink(uint32_t remotePlace)
 				for (unsigned int i=1; i<=remotePlace; i++)
 				{
 					if (end == NULL)
-						error("Not enough hosts defined in "X10LAUNCHER_HOSTLIST);
+						error("Not enough hosts defined in "X10_HOSTLIST);
 
 					start = end+1;
 					end = strchr(start, ',');
@@ -228,7 +237,7 @@ int initLink(uint32_t remotePlace)
 			else
 			{
 				strcpy(link, "localhost\0");
-				if (getenv(X10LAUNCHER_HOSTFILE)) fprintf(stderr, "WARNING: "X10LAUNCHER_HOSTFILE" is ignored when using "X10LAUNCHER_FORCEPORTS);
+				if (getenv(X10_HOSTFILE)) fprintf(stderr, "WARNING: "X10_HOSTFILE" is ignored when using "X10LAUNCHER_FORCEPORTS);
 			}
 		}
 
@@ -323,17 +332,17 @@ void x10rt_net_init (int * argc, char ***argv, x10rt_msg_type *counter)
 	Launcher::Setup(*argc, *argv);
 
 	// determine the number of places
-	char* NPROCS = getenv(X10LAUNCHER_NPROCS);
+	char* NPROCS = getenv(X10_NPLACES);
 	if (NPROCS == NULL)
 	{
-		fprintf(stderr, "%s not set.  Assuming 1 place, running locally\n", X10LAUNCHER_NPROCS);
+		fprintf(stderr, "%s not set.  Assuming 1 place, running locally\n", X10_NPLACES);
 		state.numPlaces = 1;
 	}
 	else
 	{
 		state.numPlaces = atol(NPROCS);
 		if (state.numPlaces <= 0) // atol failed
-			error(X10LAUNCHER_NPROCS" is not set to a valid number of places!");
+			error(X10_NPLACES" is not set to a valid number of places!");
 	}
 
 	if (state.numPlaces == 1)
@@ -343,9 +352,9 @@ void x10rt_net_init (int * argc, char ***argv, x10rt_msg_type *counter)
 	}
 
 	// determine my place ID
-	char* ID = getenv(X10LAUNCHER_MYID);
+	char* ID = getenv(X10_PLACE);
 	if (ID == NULL)
-		error(X10LAUNCHER_MYID" not set!");
+		error(X10_PLACE" not set!");
 	else
 		state.myPlaceId = atol(ID);
 
