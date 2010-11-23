@@ -433,7 +433,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            if (x10.Configuration.WALA || x10.Configuration.FINISH_ASYNCS) {
                try{
                    ClassLoader cl = Thread.currentThread().getContextClassLoader();
-                   Class<?> c = cl.loadClass("com.ibm.wala.cast.x10.translator.polyglot.X102IRGoal");
+                   Class<?> c = cl.loadClass("com.ibm.wala.cast.x10.translator.X102IRGoal");
                    Constructor<?> con = c.getConstructor(Job.class);
                    Method hasMain = c.getMethod("hasMain", String.class);
                    Goal ir = ((Goal) con.newInstance(job)).intern(this);
