@@ -314,7 +314,7 @@ int barrier_wait(pthread_barrier_t *barrier)
 }
 #endif // end platform-specific overrides of standard pthread stuff
 
-#define X10RT_STANDALONE_NUMPLACES "X10RT_STANDALONE_NUMPLACES" // environment variable
+#define X10_NPLACES "X10_NPLACES" // environment variable
 #define X10RT_DATABUFFERSIZE 524300 // the size, in bytes, of the shared memory segment used for communications, per place
 
 
@@ -506,10 +506,10 @@ void insertNewMessage(MSGTYPE mt, x10rt_msg_params *p, void *dataPtr, x10rt_copy
 void x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter)
 {
 	// determine the number of places (processes) to create, using an environment variable
-	char* NPROCS = getenv(X10RT_STANDALONE_NUMPLACES);
+	char* NPROCS = getenv(X10_NPLACES);
 	if (NPROCS == NULL) 
 	{
-		fprintf(stderr, "X10RT_STANDALONE_NUMPLACES not set.  Assuming 1 place\n");
+		fprintf(stderr, "Warning: "X10_NPLACES" not set.  Assuming 1 place\n");
 		state.numPlaces = 1;
 	}
 	else
