@@ -21,7 +21,7 @@ import x10.ast.X10FieldDecl_c;
 import x10.ast.X10MethodDecl_c;
 import x10.ast.X10SourceFile_c;
 import x10.extension.X10Ext;
-import x10.parser.X10Parser;
+import x10.parser.X10SemanticRules;
 import x10.types.TypeDef;
 import x10.types.X10ClassDef;
 import x10.types.X10ConstructorDef;
@@ -35,7 +35,7 @@ import x10doc.doc.X10RootDoc;
 public class X10DocGenerator extends X10DelegatingVisitor {
 
 	private final Job job;
-	private X10Parser parser;
+	private X10SemanticRules parser;
 	private X10RootDoc rootDoc;
 	private Stack<X10ClassDoc> stack; 
 	private X10SourceFile_c source;
@@ -59,7 +59,7 @@ public class X10DocGenerator extends X10DelegatingVisitor {
 		FileSource source = (FileSource) job.source();
 		this.source = (X10SourceFile_c)n;
 		try {
-			this.parser = (X10Parser) job.extensionInfo().parser(source.open(), source, new SilentErrorQueue(0, "Ignored"));
+			this.parser = (X10SemanticRules) job.extensionInfo().parser(source.open(), source, new SilentErrorQueue(0, "Ignored"));
 		} catch (IOException e) {
 			assert false : "Cannot reparse file " + source;
 		}
