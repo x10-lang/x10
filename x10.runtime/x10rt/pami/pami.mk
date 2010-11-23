@@ -17,7 +17,7 @@ LIBS += $(PAMI_DYNLIB)
 PROPERTIES += etc/x10rt_pami.properties
 
 %.pami: %.cc $(PAMI_DYNLIB)
-	$(CXX) $(CXXFLAGS) $< -o $@ $(LDFLAGS) -lx10rt_pami $(X10RT_TEST_LDFLAGS)
+	$(CXX) $(CXXFLAGS) $< -o $@ $(LDFLAGS) -lx10rt_pami -lpami $(X10RT_TEST_LDFLAGS)
 
 pami/x10rt_pami.o: pami/x10rt_pami.cc
 	$(CXX) $(CXXFLAGS) $(CXXFLAGS_SHARED) -c $< -o $@

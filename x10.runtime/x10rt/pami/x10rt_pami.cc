@@ -12,20 +12,45 @@
  */
 
 #include <stdio.h>
-#include <x10rt_net.h>
+#include <stdarg.h>
 #include <string.h>
 #include <errno.h> // for the strerror function
+#include <x10rt_net.h>
 #include <pami.h>
 
+//mechanisms for the callback functions used in the register and probe methods
+typedef void (*handlerCallback)(const x10rt_msg_params *);
+typedef void *(*finderCallback)(const x10rt_msg_params *, x10rt_copy_sz);
+typedef void (*notifierCallback)(const x10rt_msg_params *, x10rt_copy_sz);
 
-void error(const char* message)
+struct x10rtCallback
 {
-	if (errno)
-		fprintf(stderr, "Fatal Error: %s: %s\n", message, strerror(errno));
-	else
-		fprintf(stderr, "Fatal Error: %s\n", message);
-	fflush(stderr);
-	abort();
+	handlerCallback handler;
+	finderCallback finder;
+	notifierCallback notifier;
+};
+
+struct x10PAMIState
+{
+	x10rt_place numPlaces;
+	x10rt_place myPlaceId;
+	x10rtCallback* callBackTable;
+	x10rt_msg_type callBackTableSize;
+	pami_client_t client; // the PAMI client instance used for this place
+} state;
+
+
+void error(const char* msg, ...)
+{
+	char buffer[1200];
+	va_list ap;
+	va_start(ap, msg);
+	vsnprintf(buffer, sizeof(buffer), msg, ap);
+	va_end(ap);
+	fprintf(stderr, "%s\n", buffer);
+	if (errno != 0)
+		fprintf(stderr, "%s\n", strerror(errno));
+	exit(1);
 }
 
 
@@ -39,53 +64,99 @@ void error(const char* message)
  *
  * \param counter As in x10rt_lgl_init.
  */
-void x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter){}
-
-/** Register handlers for a plain message.
- *
- * \see #x10rt_lgl_register_msg_receiver
- *
- * \param msg_type s in x10rt_lgl_register_msg_receiver
- *
- * \param cb As in x10rt_lgl_register_msg_receiver
- */
-void x10rt_net_register_msg_receiver (x10rt_msg_type msg_type, x10rt_handler *cb){}
-
-
-/** Register handlers for a get message.
- *
- * \see #x10rt_lgl_register_get_receiver
- *
- * \param msg_type As in x10rt_lgl_register_get_receiver
- *
- * \param cb1 As in x10rt_lgl_register_get_receiver
- * \param cb2 As in x10rt_lgl_register_get_receiver
- */
-void x10rt_net_register_get_receiver (x10rt_msg_type msg_type,
-                                              x10rt_finder *cb1, x10rt_notifier *cb2){}
-
-
-/** Register handlers for a put message.
- *
- * \see #x10rt_lgl_register_put_receiver
- *
- * \param msg_type As in x10rt_lgl_register_put_receiver
- *
- * \param cb1 As in x10rt_lgl_register_put_receiver
- * \param cb2 As in x10rt_lgl_register_put_receiver
- */
-void x10rt_net_register_put_receiver (x10rt_msg_type msg_type, x10rt_finder *cb1, x10rt_notifier *cb2){}
-
-/** \see #x10rt_lgl_nhosts */
-x10rt_place x10rt_net_nhosts ()
+void x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter)
 {
-	return 1;
+	pami_context_t  context;
+	pami_result_t   status = PAMI_ERROR;
+	const char    *name = "X10";
+	if ((status = PAMI_Client_create(name, &state.client, NULL, 0)) != PAMI_SUCCESS)
+		error("Unable to initialize the PAMI client: %i\n", status);
+
+	if ((status = PAMI_Context_createv(state.client, NULL, 0, &context, 1)) != PAMI_SUCCESS)
+		error("Unable to initialize the PAMI context: %i\n", status);
+
+	pami_configuration_t configuration;
+	configuration.name = PAMI_CLIENT_TASK_ID;
+	if ((status = PAMI_Client_query(state.client, &configuration, 1)) != PAMI_SUCCESS)
+		error("Unable to query the PAMI_CLIENT_TASK_ID: %i\n", status);
+	state.myPlaceId = configuration.value.intval;
+
+	configuration.name = PAMI_CLIENT_NUM_TASKS;
+	if ((status = PAMI_Client_query(state.client, &configuration, 1)) != PAMI_SUCCESS)
+		error("Unable to query PAMI_CLIENT_NUM_TASKS: %i\n", status);
+	state.numPlaces = configuration.value.intval;
+
+
+	printf("Hello from process %u of %u\n", state.myPlaceId, state.numPlaces); // TODO - deleteme
+
+
+	if ((status = PAMI_Context_destroyv(&context, 1)) != PAMI_SUCCESS)
+		error("Unable to destroy the initial PAMI context: %i\n", status);
 }
 
-/** \see #x10rt_lgl_here */
-x10rt_place x10rt_net_here ()
+
+void x10rt_net_register_msg_receiver (x10rt_msg_type msg_type, x10rt_handler *callback)
 {
-	return 0;
+	// register a pointer to methods that will handle specific message types.
+	// add an entry to our type/handler table
+
+	// there are more efficient ways to do this, but this is not in our critical path of execution, so we do it the easy way
+	if (msg_type >= state.callBackTableSize)
+	{
+		state.callBackTable = (x10rtCallback*)realloc(state.callBackTable, sizeof(struct x10rtCallback)*(msg_type+1));
+		if (state.callBackTable == NULL) error("Unable to allocate space for the callback table");
+		state.callBackTableSize = msg_type+1;
+	}
+
+	state.callBackTable[msg_type].handler = callback;
+	state.callBackTable[msg_type].finder = NULL;
+	state.callBackTable[msg_type].notifier = NULL;
+}
+
+void x10rt_net_register_put_receiver (x10rt_msg_type msg_type, x10rt_finder *finderCallback, x10rt_notifier *notifierCallback)
+{
+	// register a pointer to methods that will handle specific message types.
+	// add an entry to our type/handler table
+
+	// there are more efficient ways to do this, but this is not in our critical path of execution, so we do it the easy way
+	if (msg_type >= state.callBackTableSize)
+	{
+		state.callBackTable = (x10rtCallback*)realloc(state.callBackTable, sizeof(struct x10rtCallback)*(msg_type+1));
+		if (state.callBackTable == NULL) error("Unable to allocate space for the callback table");
+	}
+
+	state.callBackTable[msg_type].handler = NULL;
+	state.callBackTable[msg_type].finder = finderCallback;
+	state.callBackTable[msg_type].notifier = notifierCallback;
+}
+
+void x10rt_net_register_get_receiver (x10rt_msg_type msg_type, x10rt_finder *finderCallback, x10rt_notifier *notifierCallback)
+{
+	// register a pointer to methods that will handle specific message types.
+	// add an entry to our type/handler table
+
+	// there are more efficient ways to do this, but this is not in our critical path of execution, so we do it the easy way
+	if (msg_type >= state.callBackTableSize)
+	{
+		state.callBackTable = (x10rtCallback*)realloc(state.callBackTable, sizeof(struct x10rtCallback)*(msg_type+1));
+		if (state.callBackTable == NULL) error("Unable to allocate space for the callback table");
+	}
+
+	state.callBackTable[msg_type].handler = NULL;
+	state.callBackTable[msg_type].finder = finderCallback;
+	state.callBackTable[msg_type].notifier = notifierCallback;
+}
+
+x10rt_place x10rt_net_nhosts (void)
+{
+	// return the number of places that exist.
+	return state.numPlaces;
+}
+
+x10rt_place x10rt_net_here (void)
+{
+	// return which place this is
+	return state.myPlaceId;
 }
 
 /** \see #x10rt_lgl_send_msg
@@ -113,16 +184,20 @@ void x10rt_net_probe(){}
 
 /** Shut down the network layer.  \see #x10rt_lgl_finalize
  */
-void x10rt_net_finalize(){}
+void x10rt_net_finalize()
+{
+	pami_result_t status = PAMI_ERROR;
+	if ((status = PAMI_Client_destroy(&state.client)) != PAMI_SUCCESS)
+		fprintf(stderr, "Error closing PAMI client: %i\n", status);
+}
 
 int x10rt_net_supports (x10rt_opt o)
 {
     return 0;
 }
 
-/** A single-threaded SPMD host barrier. \deprecated
- */
-void x10rt_net_internal_barrier (){}
+
+void x10rt_net_internal_barrier (){} // DEPRECATED
 
 void x10rt_net_remote_op (x10rt_place place, x10rt_remote_ptr victim, x10rt_op_type type, unsigned long long value)
 {
