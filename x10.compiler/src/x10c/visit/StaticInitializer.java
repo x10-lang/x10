@@ -61,6 +61,7 @@ import polyglot.types.LocalDef;
 import polyglot.types.MethodDef;
 import polyglot.types.MethodInstance;
 import polyglot.types.Name;
+import polyglot.types.ParsedClassType;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
@@ -237,6 +238,25 @@ public class StaticInitializer extends ContextVisitor {
                                 return xnf.MethodDecl(n.position(), md.flags(), md.returnType(), md.name(),
                                                       md.formals(), newBody).methodDef(md.methodDef());
                             }
+                        }
+                    }
+                }
+                if (n instanceof X10Field_c) {
+                    X10Field_c f = (X10Field_c)n;
+                    if (f.flags().isFinal() && f.flags().isStatic()) {
+                        // found reference to static field
+                        if (checkFieldRefReplacementRequired(f)) {
+                            // replace with a static method call
+                            Type targetType = f.target().type();
+                            if (targetType instanceof ParsedClassType) {
+                                if (((ParsedClassType)targetType).def().flags().isInterface())
+                                    return n;
+                            }
+                            if (targetType instanceof ConstrainedType)
+                                targetType = ((ConstrainedType)targetType).baseType().get();
+
+                            X10ClassType receiver = (X10ClassType)targetType;
+                            return makeStaticCall(n.position(), receiver, f.name(), f.type());
                         }
                     }
                 }
