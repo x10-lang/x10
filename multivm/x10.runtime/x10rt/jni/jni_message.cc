@@ -33,7 +33,7 @@ static methodDescription runClosureAt;
 
 static JavaVM* theJVM;
 
-#define DEBUG 1
+#define DEBUG 0
 
 /*************************************************************************
  *
@@ -252,12 +252,14 @@ JNIEXPORT void JNICALL Java_x10_x10rt_MessageHandlers_runClosureAtSendImpl(JNIEn
                                                                            jint arrayLen, jbyteArray array) {
 
 
+#if DEBUG
     fprintf(stdout, "MessageHandlers.runClosureAtSendImpl is invoked from jni_message.cc\n");
     //FILE *fp;
     //fp = fopen("/tmp/jnilog.txt","a");
     fprintf(stdout, "jni_message:cc: runClosureAtSendImpl is called\n");
     fprintf(stdout, "jni_message:cc: messagewriter: placeId=%d, arraylen=%d\n", place, arrayLen);
-
+#endif
+    
     unsigned long numBytes = sizeof(jint) + arrayLen * sizeof(jbyte);
     MessageWriter writer(numBytes);
     writer.writeJInt(arrayLen);
@@ -292,7 +294,7 @@ JNIEXPORT void JNICALL Java_x10_x10rt_MessageHandlers_runClosureAtSendImpl(JNIEn
  */
 JNIEXPORT void JNICALL Java_x10_x10rt_MessageHandlers_initializeMessageHandlers(JNIEnv *env, jclass klazz) {
 
-#ifdef DEBUG
+#if DEBUG
 	printf("jni_message.cc: MessageHandlers_initializeMessageHandlers\n");
 #endif
 
