@@ -86,6 +86,13 @@ main() {
 		return $status
 	fi
 
+	X10_WALA=$X10_HOME/com.ibm.wala.cast.x10
+	svnUpdate $X10_WALA $X10_SVNROOT
+	status=$?
+	if (( $status != 0 )); then
+		return $status
+	fi
+
 	X10_DIST=$X10_HOME/x10.dist
 	svnUpdate $X10_DIST $X10_SVNROOT
 	status=$?
