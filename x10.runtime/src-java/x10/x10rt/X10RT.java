@@ -19,6 +19,8 @@ public class X10RT {
     private static int numPlaces;
 
     static final boolean REPORT_UNCAUGHT_USER_EXCEPTIONS = true;
+    
+    public static final boolean VERBOSE = false;
 
     static {
     	init();
@@ -45,7 +47,7 @@ public class X10RT {
 
       x10rt_init(0, null);
 
-      initializeMessageHandlers();
+      MessageHandlers.initializeMessageHandlers();
 
       here = x10rt_here();
       numPlaces = x10rt_nplaces();
@@ -94,8 +96,8 @@ public class X10RT {
     }
 
     /**
-     * Get the Place object that represents the Place where this process is executing.
-     * @return the Place object that represents the Place where this process is executing.
+     * Return the numeric id of the current Place.
+     * @return the numeric id of the current Place.
      */
     public static int here() {
       assert state.compareTo(State.BOOTED) >= 0;
@@ -123,9 +125,7 @@ public class X10RT {
     private static native int x10rt_init(int numArgs, String[] args);
     
     private static native int x10rt_finalize();
-    
-    public static native void initializeMessageHandlers();
-    
+
     /*
      * Native method exported from x10rt_front.h that are related to Places
      */
@@ -152,7 +152,7 @@ public class X10RT {
     /*
      * Subset of x10rt_front.h API related to messages that actually needs
      * to be exposed at the Java level (as opposed to being used
-     * in the native code backing the native messages of ActiveMessage.
+     * in the native code backing the native methods of MessageHandlers.
      */
     private static native void x10rt_probe();
     
@@ -160,28 +160,4 @@ public class X10RT {
     
     private static native void x10rt_barrier();
     
-    public static native void sendJavaRemote(int place, int messageId, int arraylen, byte[] rawBytes);
-    
-    // Invoked from native code.
-    private static void receiveJavaGeneral(int messageId, byte[] args) {
-    	try{
-    		System.out.println("@MultiVM : receiveJavaGeneral is called");
-    		System.out.println("Message ID: "+ messageId);
-    		java.io.ByteArrayInputStream byteStream 
-    			= new java.io.ByteArrayInputStream(args);
-    		System.out.println("receiveJavaGeneral: ByteArrayInputStream");
-    		java.io.ObjectInputStream objStream = new java.io.ObjectInputStream(byteStream);
-    		System.out.println("receiveJavaGeneral: ObjectInputStream");
-    		x10.core.fun.VoidFun_0_0 actObj = (x10.core.fun.VoidFun_0_0) objStream.readObject();
-    		System.out.println("receiveJavaGeneral: after cast");
-    		actObj.apply();
-    		System.out.println("receiveJavaGeneral: after apply");
-    		objStream.close();
-    		System.out.println("receiveJavaGeneral is done !");
-    	} catch(Exception ex){
-    		System.out.println("receiveGeneral error !!!");
-    		ex.printStackTrace();
-    	}
-    }
-
 }
