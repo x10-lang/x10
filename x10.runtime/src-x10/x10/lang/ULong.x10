@@ -172,6 +172,7 @@ public struct ULong implements Comparable[ULong] /*TODO implements Arithmetic[UL
     public operator this / (x:ULong): ULong {
         if (longVal > 0 && x.longVal > 0)
             return ULong(longVal / x.longVal);
+        // TODO
         else if (longVal < x.longVal)
             return 0L as ULong;
         else
@@ -186,6 +187,7 @@ public struct ULong implements Comparable[ULong] /*TODO implements Arithmetic[UL
     public operator (x:Long) / this: ULong {
         if (x > 0 && longVal > 0)
             return ULong(x / longVal);
+        // TODO need check
         else if (x < longVal)
             return 0L as ULong;
         else
@@ -200,6 +202,7 @@ public struct ULong implements Comparable[ULong] /*TODO implements Arithmetic[UL
     public operator this / (x:Long): ULong {
         if (longVal > 0 && x > 0)
             return ULong(longVal / x);
+        // TODO need check
         else if (longVal < x)
             return 0L as ULong;
         else
@@ -217,6 +220,7 @@ public struct ULong implements Comparable[ULong] /*TODO implements Arithmetic[UL
     public operator this % (x:ULong): ULong {
         if (longVal > 0 && x.longVal > 0)
             return ULong(longVal % x.longVal);
+        // TODO need check
         else if (longVal < x.longVal)
             return this;
         else
@@ -231,6 +235,7 @@ public struct ULong implements Comparable[ULong] /*TODO implements Arithmetic[UL
     public operator (x:Long) % this: ULong {
         if (x > 0 && longVal > 0)
             return ULong(x % longVal);
+        // TODO need check
         else if (x < longVal)
             return ULong(x);
         else
@@ -245,6 +250,7 @@ public struct ULong implements Comparable[ULong] /*TODO implements Arithmetic[UL
     public operator this % (x:Long): ULong {
         if (longVal > 0 && x > 0)
             return ULong(longVal % x);
+        // TODO need check
         else if (longVal < x)
             return this;
         else
@@ -504,48 +510,47 @@ public struct ULong implements Comparable[ULong] /*TODO implements Arithmetic[UL
             var mask:Long;
             var shift:Int;
             var count:Int;
-            var lastmask:Long;
             if (realRadix == 2) {
-            	// 1 * 63 + 1
-        		mask = 0x1; shift = 1;
-        		count = 63;
-        		lastmask = 0x1;
+            	// 1 * 64
+            	shift = 1;
             } else if (realRadix == 4) {
-        		// 2 * 31 + 2
-        		mask = 0x3; shift = 2;
-        		count = 31;
-        		lastmask = 0x3;
+        		// 2 * 32
+        		shift = 2;
             } else if (realRadix == 8) {
         		// 3 * 21 + 1
-        		mask = 0x7; shift = 3;
-        		count = 21;
-        		lastmask = 0x1;
+        		shift = 3;
             } else if (realRadix == 16) {
-        		// 4 * 15 + 4
-        		mask = 0xf; shift = 4;
-        		count = 15;
-        		lastmask = 0xf;
+        		// 4 * 16
+        		shift = 4;
             } else /*if (realRadix == 32)*/ {
         		// 5 * 12 + 4
-        		mask = 0x1f;
         		shift = 5;
-        		count = 12;
-        		lastmask = 0xf;
             }
+    		mask = (1 << shift) - 1;
+    		count = 64 / shift;
             val sb = new x10.util.StringBuilder();
+            val ord_0 = '0'.ord();
+            val ord_a = 'a'.ord();
             while (count > 0) {
             	val digit = (tempLongVal & mask) as Int;
-            	val ch = digit <= 9 ? Char.chr('0'.ord() + digit) : Char.chr('a'.ord() + digit - 10);   
-        		sb.add(ch);
-        		tempLongVal >>= shift;
+            	val ord = digit <= 9 ? ord_0 + digit : ord_a + digit - 10;
+        		sb.add(Char.chr(ord));
+        		tempLongVal >>>= shift;
         		--count;
             }
-        	val digit = (tempLongVal & lastmask) as Int;
-        	val ch = digit <= 9 ? Char.chr('0'.ord() + digit) : Char.chr('a'.ord() + digit - 10);   
-    		sb.add(ch);
-            val reverseString = sb.toString();
-            val length = reverseString.length();
-            val chars = Rail.make[Char](length, (i:Int)=>reverseString.charAt(length-i-1));
+            if (tempLongVal != 0L) {
+            	val digit = tempLongVal as Int;
+        		val ord = digit <= 9 ? ord_0 + digit : ord_a + digit - 10;
+    			sb.add(Char.chr(ord));
+    		}
+            val chars = sb.toString().chars();
+            val length = chars.length();
+            // do StringBuffer.reverse() manually
+            for (var i:Int = 0; i < length / 2; ++i) {
+            	val temp_ch = chars(i);
+            	chars(i) = chars(length - 1 - i);
+            	chars(length - 1 - i) = temp_ch;
+            }
             return new String(chars, 0, length);
         }
         // TODO
