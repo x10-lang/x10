@@ -1,3 +1,14 @@
+/*
+ *  This file is part of the X10 project (http://x10-lang.org).
+ *
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ *  (C) Copyright IBM Corporation 2006-2010.
+ */
+
 package x10.util;
 
 import x10.compiler.Native;
@@ -12,24 +23,11 @@ import x10.compiler.StackAllocate;
  * which is indicated by the user when the Team is created.
  *
  * @author Dave Cunningham
+ * @author tardieu
  */
 public struct Team {
 
-    @NativeRep("c++", "void*", "void*", null)
-    static class VoidStar {}
-
-    @NativeRep("c++", "x10rt_team", "x10rt_team", null)
-    static class Id {}
-
-    public static def release(v:VoidStar) {
-        @Native("c++",
-                "(*(x10aux::ref<x10::lang::SimpleLatch>*)v)->release();") { }
-    }
-
-    public static def set(t:Id, v:VoidStar) {
-        @Native("c++",
-                "(*(x10aux::ref<x10::lang::SimpleIntLatch>*)v)->set(t);") { }
-    }
+    private static struct DoubleIdx(value:Double, idx:Int) {}
 
     /** A team that has one member at each place.
      */
@@ -39,44 +37,46 @@ public struct Team {
      */
     private id: Int;
 
+    public def id() = id;
+
     private def this (id:Int) { this.id = id; }
 
     /** Create a team by defining the place where each member lives.  This would usually be called before creating an async for each member of the team.
      * @param places The place of each member
      */
-    public def this (places:Rail[Place]) {
-        @StackAllocate val latch = @StackAllocate new SimpleIntLatch();
-        @Native("c++",
-                "x10rt_team_new(places->length(), (x10rt_place*)places->raw(), Team_methods::set, &latch);") { latch.set(1); }
-        latch.await();
-        this.id = latch();
-    }
+//    public def this (places:Rail[Place]) {
 
     public def this (places:Array[Place]) {
-        @StackAllocate val latch = @StackAllocate new SimpleIntLatch();
-        @Native("c++",
-                "x10rt_team_new(places->FMGL(raw)->length(), (x10rt_place*)places->raw()->raw(), Team_methods::set, &latch);") { latch.set(1); }
-        latch.await();
-        this.id = latch();
+        this(places.raw(), places.size);
+    }
+
+    private def this (places:IndexedMemoryChunk[Place], count:Int) {
+        val result = IndexedMemoryChunk.allocate[Int](1);
+        finish nativeMake(places, count, result);
+        id = result(0);
+    }
+
+    private static def nativeMake (places:IndexedMemoryChunk[Place], count:Int, result:IndexedMemoryChunk[Int]) : void {
+        @Native("c++", "x10rt_team_new(count, (x10rt_place*)places->raw(), x10aux::coll_handler2, x10aux::coll_enter2(result->raw()));") {}
     }
 
     /** Returns the number of elements in the team.
      */
-    public def size () : Int {
-        var r:Int;
-        @Native("c++",
-                "r = x10rt_team_sz(this_.FMGL(id));") { r = 0; }
-        return r;
+    public def size () : Int = nativeSize(id);
+
+    private static def nativeSize (id:Int) : Int {
+        @Native("c++", "return (x10_int)x10rt_team_sz(id);") { return -1; }
     }
-    
+
     /** Blocks until all team members have reached the barrier.
      * @param role Our role in this collective operation
      */
     public def barrier (role:Int) : void {
-        @StackAllocate val latch = @StackAllocate new SimpleLatch();
-        @Native("c++",
-                "x10rt_barrier(this_.FMGL(id), role, Team_methods::release, &latch);") { latch.release(); }
-        latch.await();
+        finish nativeBarrier(id, role);
+    }
+
+    private static def nativeBarrier (id:int, role:Int) : void {
+        @Native("c++", "x10rt_barrier(id, role, x10aux::coll_handler, x10aux::coll_enter());") {}
     }
 
     /** Blocks until all members have received their part of root's array.
@@ -100,20 +100,16 @@ public struct Team {
      *
      * @param count The number of elements being transferred
      */
-    public def scatter[T] (role:Int, root:Int, src:Rail[T], src_off:Int, dst:Rail[T], dst_off:Int, count:Int) : void {
-        @StackAllocate val latch = @StackAllocate new SimpleLatch();
-        @Native("c++",
-                "x10rt_scatter(this_.FMGL(id), role, root, &src->raw()[src_off], &dst->raw()[dst_off], sizeof(FMGL(T)), count, Team_methods::release, &latch);") { latch.release(); }
-        latch.await();
-    }
+//    public def scatter[T] (role:Int, root:Int, src:Rail[T], src_off:Int, dst:Rail[T], dst_off:Int, count:Int) : void {
 
     public def scatter[T] (role:Int, root:Int, src:Array[T], src_off:Int, dst:Array[T], dst_off:Int, count:Int) : void {
-        @StackAllocate val latch = @StackAllocate new SimpleLatch();
-        @Native("c++",
-                "x10rt_scatter(this_.FMGL(id), role, root, &src->raw()->raw()[src_off], &dst->raw()->raw()[dst_off], sizeof(FMGL(T)), count, Team_methods::release, &latch);") { latch.release(); }
-        latch.await();
+        finish nativeScatter(id, role, root, src.raw(), src_off, dst.raw(), dst_off, count);
     }
-    
+
+    private static def nativeScatter[T] (id:Int, role:Int, root:Int, src:IndexedMemoryChunk[T], src_off:Int, dst:IndexedMemoryChunk[T], dst_off:Int, count:Int) : void {
+        @Native("c++", "x10rt_scatter(id, role, root, &src->raw()[src_off], &dst->raw()[dst_off], sizeof(FMGL(T)), count, x10aux::coll_handler, x10aux::coll_enter());") {}
+    }
+
     /** Blocks until all members have received root's array.
      *
      * @param role Our role in the team
@@ -130,19 +126,16 @@ public struct Team {
      *
      * @param count The number of elements being transferred
      */
-    public def bcast[T] (role:Int, root:Int, src:Rail[T], src_off:Int, dst:Rail[T], dst_off:Int, count:Int) : void {
-        @StackAllocate val latch = @StackAllocate new SimpleLatch();
-        @Native("c++",
-                "x10rt_bcast(this_.FMGL(id), role, root, &src->raw()[src_off], &dst->raw()[dst_off], sizeof(FMGL(T)), count, Team_methods::release, &latch);") { latch.release(); }
-        latch.await();
-    }
+//    public def bcast[T] (role:Int, root:Int, src:Rail[T], src_off:Int, dst:Rail[T], dst_off:Int, count:Int) : void {
+
     public def bcast[T] (role:Int, root:Int, src:Array[T], src_off:Int, dst:Array[T], dst_off:Int, count:Int) : void {
-        @StackAllocate val latch = @StackAllocate new SimpleLatch();
-        @Native("c++",
-                "x10rt_bcast(this_.FMGL(id), role, root, &src->raw()->raw()[src_off], &dst->raw()->raw()[dst_off], sizeof(FMGL(T)), count, Team_methods::release, &latch);") { latch.release(); }
-        latch.await();
+        finish nativeBcast(id, role, root, src.raw(), src_off, dst.raw(), dst_off, count);
     }
-    
+
+    private static def nativeBcast[T] (id:Int, role:Int, root:Int, src:IndexedMemoryChunk[T], src_off:Int, dst:IndexedMemoryChunk[T], dst_off:Int, count:Int) : void {
+        @Native("c++", "x10rt_bcast(id, role, root, &src->raw()[src_off], &dst->raw()[dst_off], sizeof(FMGL(T)), count, x10aux::coll_handler, x10aux::coll_enter());") {}
+    }
+
     /** Blocks until all members have received their part of each other member's array.
      * Each member receives a contiguous and distinct portion of the src array.
      * src should be structured so that the portions are sorted in ascending
@@ -162,17 +155,14 @@ public struct Team {
      *
      * @param count The number of elements being transferred
      */
-    public def alltoall[T] (role:Int, src:Rail[T], src_off:Int, dst:Rail[T], dst_off:Int, count:Int) : void {
-        @StackAllocate val latch = @StackAllocate new SimpleLatch();
-        @Native("c++",
-                "x10rt_alltoall(this_.FMGL(id), role, &src->raw()[src_off], &dst->raw()[dst_off], sizeof(FMGL(T)), count, Team_methods::release, &latch);") { latch.release(); }
-        latch.await();
-    }
+//    public def alltoall[T] (role:Int, src:Rail[T], src_off:Int, dst:Rail[T], dst_off:Int, count:Int) : void {
+
     public def alltoall[T] (role:Int, src:Array[T], src_off:Int, dst:Array[T], dst_off:Int, count:Int) : void {
-        @StackAllocate val latch = @StackAllocate new SimpleLatch();
-        @Native("c++",
-                "x10rt_alltoall(this_.FMGL(id), role, &src->raw()->raw()[src_off], &dst->raw()->raw()[dst_off], sizeof(FMGL(T)), count, Team_methods::release, &latch);") { latch.release(); }
-        latch.await();
+        finish nativeAlltoall(id, role, src.raw(), src_off, dst.raw(), dst_off, count);
+    }
+
+    private static def nativeAlltoall[T](id:Int, role:Int, src:IndexedMemoryChunk[T], src_off:Int, dst:IndexedMemoryChunk[T], dst_off:Int, count:Int) : void {
+        @Native("c++", "x10rt_alltoall(id, role, &src->raw()[src_off], &dst->raw()[dst_off], sizeof(FMGL(T)), count, x10aux::coll_handler, x10aux::coll_enter());") {}
     }
 
     /** Indicates the operation to perform when reducing. */
@@ -192,66 +182,10 @@ public struct Team {
     /** Indicates the operation to perform when reducing. */
     public static val MIN = 7;
 
-    private def allreduce_[T] (role:Int, src:Rail[T], src_off:Int, dst:Rail[T], dst_off:Int, count:Int, op:Int) : void {
-        @StackAllocate val latch = @StackAllocate new SimpleLatch();
-        @Native("c++",
-                "x10rt_red_type type = x10rt_get_red_type<FMGL(T)>();" +
-                "x10rt_allreduce(this_.FMGL(id), role, &src->raw()[src_off], &dst->raw()[dst_off], (x10rt_red_op_type)op, type, count, Team_methods::release, &latch);") { latch.release(); }
-        latch.await();
-    }
-    private def allreduce_[T] (role:Int, src:Array[T], src_off:Int, dst:Array[T], dst_off:Int, count:Int, op:Int) : void {
-        @StackAllocate val latch = @StackAllocate new SimpleLatch();
-        @Native("c++",
-                "x10rt_red_type type = x10rt_get_red_type<FMGL(T)>();" +
-                "x10rt_allreduce(this_.FMGL(id), role, &src->raw()->raw()[src_off], &dst->raw()->raw()[dst_off], (x10rt_red_op_type)op, type, count, Team_methods::release, &latch);") { latch.release(); }
-        latch.await();
-    }
-
     /* using overloading is the correct thing to do here since the set of supported
      * types are finite, however the java backend will not be able to distinguish
      * these methods' prototypes so we use the unsafe generic approach for now.
      */
-    /*
-    public def allreduce (role:Int, src:Rail[Byte], src_off:Int, dst:Rail[Byte], dst_off:Int, count:Int, op:Int) : void {
-        allreduce_(role, src, src_off, dst, dst_off, count, op);
-    }
-    
-    public def allreduce (role:Int, src:Rail[UByte], src_off:Int, dst:Rail[UByte], dst_off:Int, count:Int, op:Int) : void {
-        allreduce_(role, src, src_off, dst, dst_off, count, op);
-    }
-    
-    public def allreduce (role:Int, src:Rail[Short], src_off:Int, dst:Rail[Short], dst_off:Int, count:Int, op:Int) : void {
-        allreduce_(role, src, src_off, dst, dst_off, count, op);
-    }
-    
-    public def allreduce (role:Int, src:Rail[UShort], src_off:Int, dst:Rail[UShort], dst_off:Int, count:Int, op:Int) : void {
-        allreduce_(role, src, src_off, dst, dst_off, count, op);
-    }
-    
-    public def allreduce (role:Int, src:Rail[Int], src_off:Int, dst:Rail[Int], dst_off:Int, count:Int, op:Int) : void {
-        allreduce_(role, src, src_off, dst, dst_off, count, op);
-    }
-    
-    public def allreduce (role:Int, src:Rail[Int], src_off:Int, dst:Rail[Int], dst_off:Int, count:Int, op:Int) : void {
-        allreduce_(role, src, src_off, dst, dst_off, count, op);
-    }
-    
-    public def allreduce (role:Int, src:Rail[Long], src_off:Int, dst:Rail[Long], dst_off:Int, count:Int, op:Int) : void {
-        allreduce_(role, src, src_off, dst, dst_off, count, op);
-    }
-    
-    public def allreduce (role:Int, src:Rail[ULong], src_off:Int, dst:Rail[ULong], dst_off:Int, count:Int, op:Int) : void {
-        allreduce_(role, src, src_off, dst, dst_off, count, op);
-    }
-    
-    public def allreduce (role:Int, src:Rail[Float], src_off:Int, dst:Rail[Float], dst_off:Int, count:Int, op:Int) : void {
-        allreduce_(role, src, src_off, dst, dst_off, count, op);
-    }
-    
-    public def allreduce (role:Int, src:Rail[Double], src_off:Int, dst:Rail[Double], dst_off:Int, count:Int, op:Int) : void {
-        allreduce_(role, src, src_off, dst, dst_off, count, op);
-    }
-    */
 
     /** Blocks until all members have received the computed result.  Note that not all values of T are valid.
      * The dst array is populated for all members with the result of the operation applied pointwise to all given src arrays.
@@ -271,73 +205,75 @@ public struct Team {
      *
      * @param op The operation to perform
      */
-    public def allreduce[T] (role:Int, src:Rail[T], src_off:Int, dst:Rail[T], dst_off:Int, count:Int, op:Int) : void {
-        allreduce_(role, src, src_off, dst, dst_off, count, op);
-    }
+//    public def allreduce[T] (role:Int, src:Rail[T], src_off:Int, dst:Rail[T], dst_off:Int, count:Int, op:Int) : void {
 
     public def allreduce[T] (role:Int, src:Array[T], src_off:Int, dst:Array[T], dst_off:Int, count:Int, op:Int) : void {
-        allreduce_(role, src, src_off, dst, dst_off, count, op);
+        finish nativeAllreduce(id, role, src.raw(), src_off, dst.raw(), dst_off, count, op);
     }
 
-    private def allreduce_[T] (role:Int, src:T, op:Int) : T {
-        var dst:T;
-        @StackAllocate val latch = @StackAllocate new SimpleLatch();
-        @Native("c++",
-                "x10rt_red_type type = x10rt_get_red_type<FMGL(T)>();" +
-                "x10rt_allreduce(this_.FMGL(id), role, &src, &dst, (x10rt_red_op_type)op, type, 1, Team_methods::release, &latch);") { dst = src; latch.release(); }
-        latch.await();
-        return dst;
+    private static def nativeAllreduce[T](id:Int, role:Int, src:IndexedMemoryChunk[T], src_off:Int, dst:IndexedMemoryChunk[T], dst_off:Int, count:Int, op:Int) : void {
+        @Native("c++", "x10rt_allreduce(id, role, &src->raw()[src_off], &dst->raw()[dst_off], (x10rt_red_op_type)op, x10rt_get_red_type<FMGL(T)>(), count, x10aux::coll_handler, x10aux::coll_enter());") {}
     }
 
     /** Performs a reduction on a single value, returning the result */
-    public def allreduce (role:Int, src:Byte, op:Int) = allreduce_(role, src, op);
+    public def allreduce (role:Int, src:Byte, op:Int) = genericAllreduce(role, src, op);
     /** Performs a reduction on a single value, returning the result */
-    public def allreduce (role:Int, src:UByte, op:Int) = allreduce_(role, src, op);
+    public def allreduce (role:Int, src:UByte, op:Int) = genericAllreduce(role, src, op);
     /** Performs a reduction on a single value, returning the result */
-    public def allreduce (role:Int, src:Short, op:Int) = allreduce_(role, src, op);
+    public def allreduce (role:Int, src:Short, op:Int) = genericAllreduce(role, src, op);
     /** Performs a reduction on a single value, returning the result */
-    public def allreduce (role:Int, src:UShort, op:Int) = allreduce_(role, src, op);
+    public def allreduce (role:Int, src:UShort, op:Int) = genericAllreduce(role, src, op);
     /** Performs a reduction on a single value, returning the result */
-    public def allreduce (role:Int, src:UInt, op:Int) = allreduce_(role, src, op);
+    public def allreduce (role:Int, src:UInt, op:Int) = genericAllreduce(role, src, op);
     /** Performs a reduction on a single value, returning the result */
-    public def allreduce (role:Int, src:Int, op:Int) = allreduce_(role, src, op);
+    public def allreduce (role:Int, src:Int, op:Int) = genericAllreduce(role, src, op);
     /** Performs a reduction on a single value, returning the result */
-    public def allreduce (role:Int, src:Long, op:Int) = allreduce_(role, src, op);
+    public def allreduce (role:Int, src:Long, op:Int) = genericAllreduce(role, src, op);
     /** Performs a reduction on a single value, returning the result */
-    public def allreduce (role:Int, src:ULong, op:Int) = allreduce_(role, src, op);
+    public def allreduce (role:Int, src:ULong, op:Int) = genericAllreduce(role, src, op);
     /** Performs a reduction on a single value, returning the result */
-    public def allreduce (role:Int, src:Float, op:Int) = allreduce_(role, src, op);
+    public def allreduce (role:Int, src:Float, op:Int) = genericAllreduce(role, src, op);
     /** Performs a reduction on a single value, returning the result */
-    public def allreduce (role:Int, src:Double, op:Int) = allreduce_(role, src, op);
-    
+    public def allreduce (role:Int, src:Double, op:Int) = genericAllreduce(role, src, op);
+
+    private def genericAllreduce[T] (role:Int, src:T, op:Int) : T {
+        val chk = IndexedMemoryChunk.allocate[T](1);
+        val dst = IndexedMemoryChunk.allocate[T](1);
+        chk(0) = src;
+        finish nativeAllreduce[T](id, role, chk, dst, op);
+        return dst(0);
+    }
+
+    private static def nativeAllreduce[T](id:Int, role:Int, src:IndexedMemoryChunk[T], dst:IndexedMemoryChunk[T], op:Int) : void {
+        @Native("c++", "x10rt_allreduce(id, role, src->raw(), dst->raw(), (x10rt_red_op_type)op, x10rt_get_red_type<FMGL(T)>(), 1, x10aux::coll_handler, x10aux::coll_enter());") {}
+    }
+
     /** Returns the index of the biggest double value across the team */
     public def indexOfMax (role:Int, v:Double, idx:Int) : Int {
-        var r:Int;
-        @StackAllocate val latch = @StackAllocate new SimpleLatch();
-        @Native("c++",
-                "x10rt_dbl_s32 src = {v, idx};" +
-                "x10rt_dbl_s32 dst;" +
-                "x10rt_allreduce(this_.FMGL(id), role, &src, &dst, X10RT_RED_OP_MAX, X10RT_RED_TYPE_DBL_S32, 1, Team_methods::release, &latch);") { latch.release(); }
-        latch.await();
-        @Native("c++",
-                "r = dst.idx;") { r = 0; }
-        return r;
+        val src = IndexedMemoryChunk.allocate[DoubleIdx](1);
+        val dst = IndexedMemoryChunk.allocate[DoubleIdx](1);
+        src(0) = DoubleIdx(v, idx);
+        finish nativeIndexOfMax(id, role, src, dst);
+        return dst(0).idx;
     }
-    
+
+    private static def nativeIndexOfMax(id:Int, role:Int, src:IndexedMemoryChunk[DoubleIdx], dst:IndexedMemoryChunk[DoubleIdx]) : void {
+        @Native("c++", "x10rt_allreduce(id, role, src->raw(), dst->raw(), X10RT_RED_OP_MAX, X10RT_RED_TYPE_DBL_S32, 1, x10aux::coll_handler, x10aux::coll_enter());") {}
+    }
+
     /** Returns the index of the smallest double value across the team */
     public def indexOfMin (role:Int, v:Double, idx:Int) : Int {
-        var r:Int;
-        @StackAllocate val latch = @StackAllocate new SimpleLatch();
-        @Native("c++",
-                "x10rt_dbl_s32 src = {v, idx};" +
-                "x10rt_dbl_s32 dst;" +
-                "x10rt_allreduce(this_.FMGL(id), role, &src, &dst, X10RT_RED_OP_MIN, X10RT_RED_TYPE_DBL_S32, 1, Team_methods::release, &latch);") { latch.release(); }
-        latch.await();
-        @Native("c++",
-                "r = dst.idx;") { r = 0; }
-        return r;
+        val src = IndexedMemoryChunk.allocate[DoubleIdx](1);
+        val dst = IndexedMemoryChunk.allocate[DoubleIdx](1);
+        src(0) = DoubleIdx(v, idx);
+        finish nativeIndexOfMin(id, role, src, dst);
+        return dst(0).idx;
     }
-    
+
+    private static def nativeIndexOfMin(id:Int, role:Int, src:IndexedMemoryChunk[DoubleIdx], dst:IndexedMemoryChunk[DoubleIdx]) : void {
+        @Native("c++", "x10rt_allreduce(id, role, src->raw(), dst->raw(), X10RT_RED_OP_MIN, X10RT_RED_TYPE_DBL_S32, 1, x10aux::coll_handler, x10aux::coll_enter());") {}
+    }
+
     /** Create new teams by subdividing an existing team.  This is called by each member
      * of an existing team, indicating which of the new teams it will be a member of, and its role
      * within that team.  The old team is still available after this call.  All the members
@@ -353,25 +289,27 @@ public struct Team {
      * @param new_role The caller's role within the new team
      */
     public def split (role:Int, color:Int, new_role:Int) : Team {
-        @StackAllocate val latch = @StackAllocate new SimpleIntLatch();
-        @Native("c++",
-                "x10rt_team_split(this_.FMGL(id), role, color, new_role, Team_methods::set, &latch);") { latch.set(1); }
-        latch.await();
-        return Team(latch());
+        val result = IndexedMemoryChunk.allocate[Int](1);
+        finish nativeSplit(id, role, color, new_role, result);
+        return Team(result(0));
     }
-    
+
+    private static def nativeSplit(id:Int, role:Int, color:Int, new_role:Int, result:IndexedMemoryChunk[Int]) : void {
+        @Native("c++", "x10rt_team_split(id, role, color, new_role, x10aux::coll_handler2, x10aux::coll_enter2(result->raw()));") {}
+    }
+
     /** Destroy a team that is no-longer needed.  Called simultaneously by each member of
      * the team.  There should be no operations on the team after this.
      *
      * @param role Our role in this team
      */
     public def del (role:Int) : void {
-        @StackAllocate val latch = @StackAllocate new SimpleLatch();
-        @Native("c++",
-                "x10rt_team_del(this_.FMGL(id), role, Team_methods::release, &latch);") { latch.release(); }
-        latch.await();
+        finish nativeDel(id, role);
     }
-    
+
+    private static def nativeDel(id:Int, role:Int) : void {
+        @Native("c++", "x10rt_team_del(id, role, x10aux::coll_handler, x10aux::coll_enter());") {}
+    }
 }
 
 // vim: shiftwidth=4:tabstop=4:expandtab
