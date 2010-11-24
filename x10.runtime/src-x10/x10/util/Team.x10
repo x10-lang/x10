@@ -55,7 +55,7 @@ public struct Team {
     public def this (places:Array[Place]) {
         @StackAllocate val latch = @StackAllocate new SimpleIntLatch();
         @Native("c++",
-                "x10rt_team_new(places->FMGL(rawLength), (x10rt_place*)places->raw()->raw(), Team_methods::set, &latch);") { latch.set(1); }
+                "x10rt_team_new(places->FMGL(raw)->length(), (x10rt_place*)places->raw()->raw(), Team_methods::set, &latch);") { latch.set(1); }
         latch.await();
         this.id = latch();
     }

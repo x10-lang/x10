@@ -1046,7 +1046,7 @@ public class Emitter {
             }
             // Special case x10.lang.Array to serialize the contents of rawChunk too
             if (ts.isX10Array(type)) {
-                w.write("for (x10_int i = 0; i<this->FMGL(rawLength); i++) {");
+                w.write("for (x10_int i = 0; i<this->FMGL(raw).length(); i++) {");
                 w.newline(4); w.begin(0);
                 w.write("buf.write(this->FMGL(raw)->apply(i));");
                 w.end(); w.newline();
@@ -1108,8 +1108,8 @@ public class Emitter {
                 List<ParameterType> typeParameters = ct.x10Def().typeParameters();
                 String elemType = translateType(typeParameters.get(0),true);
                 w.newline();
-                w.writeln("FMGL(raw) = x10::util::IndexedMemoryChunk<void>::allocate"+chevrons(elemType)+"(FMGL(rawLength),8,false,false);");
-                w.write("for (x10_int i = 0; i<this->FMGL(rawLength); i++) {");
+                w.writeln("FMGL(raw) = x10::util::IndexedMemoryChunk<void>::allocate"+chevrons(elemType)+"(FMGL(raw).length(),8,false,false);");
+                w.write("for (x10_int i = 0; i<this->FMGL(raw).length(); i++) {");
                 w.newline(4); w.begin(0);
                 w.write("this->FMGL(raw)->set(buf.read"+chevrons(elemType)+"(), i);");
                 w.end(); w.newline();

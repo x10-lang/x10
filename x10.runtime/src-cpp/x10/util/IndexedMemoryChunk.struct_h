@@ -29,13 +29,15 @@ namespace x10 {
             x10aux::itable_entry* _getIBoxITables() { return _iboxitables; }
     
             x10_ulong data; /* TODO: We would like this to be const */
+            x10_int len; /* TODO: we would like this to be const */ /* TODO, this should be an x10_long */
+            x10_int length() { return len; } 
             T *raw (void) const { return (T*)(size_t)data; }
             T &operator[] (int index) { return raw()[index]; }
             const T &operator[] (int index) const { return raw()[index]; }
 
-            IndexedMemoryChunk(): data(0) {}
-            IndexedMemoryChunk(T* _data): data((size_t)_data) {}
-            IndexedMemoryChunk(x10_ulong _data): data(_data) {}
+            IndexedMemoryChunk(): data(0), len(0) {}
+            IndexedMemoryChunk(T* _data, x10_int _len): data((size_t)_data), len(_len) {}
+            IndexedMemoryChunk(x10_ulong _data, x10_int _len): data(_data), len(_len) {}
 
             inline T apply(x10_int index) { return raw()[index]; }
             inline T apply(x10_long index) { return raw()[index]; }
@@ -83,14 +85,6 @@ namespace x10 {
             x10aux::ref<x10::lang::String> toString();
     
             x10_int hashCode() { return (x10_int)data; }
-
-	    x10_boolean at(x10aux::ref<x10::lang::Object> obj) { return true; }
-            x10_boolean at(x10::lang::Place place) { return true; }
-
-            x10::lang::Place home() {
-	        /* NOTE: Should probably call Place_methods::make, but don't want to include Place.h */
-	        x10::lang::Place tmp; tmp->FMGL(id)=x10aux::here; return tmp;
-	    }
 
             x10aux::ref<x10::lang::String> typeName();
         };
@@ -143,7 +137,7 @@ namespace x10 {
             size_t alignDelta = alignment-1;
             size_t alignMask = ~alignDelta;
             size_t alignedMem = ((size_t)allocMem + alignDelta) & alignMask;
-            return IndexedMemoryChunk<T>((T*)alignedMem);
+            return IndexedMemoryChunk<T>((T*)alignedMem, (x10_int)numElements);
         }
     }
 } 

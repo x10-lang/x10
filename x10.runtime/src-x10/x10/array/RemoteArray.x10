@@ -29,7 +29,6 @@ import x10.util.IndexedMemoryChunk;
 public class RemoteArray[T](home:Place, region:Region, size:Int) {} {
     val array:GlobalRef[Array[T]{self.region==this.region, self.size==this.size}]{self.home==this.home};
     val rawData:IndexedMemoryChunk[T];
-    val rawLength:int;
 
     public property rank:Int = region.rank;
 
@@ -41,14 +40,12 @@ public class RemoteArray[T](home:Place, region:Region, size:Int) {} {
         // cast needed as type of 'this' does not include {here==this.home} even though this is established by property statement
         array = GlobalRef[Array[T]{self.region==this.region, self.size==this.size}](arr) as GlobalRef[Array[T]{self.region==this.region, self.size==this.size}]{self.home==this.home};
         rawData = a.raw();
-        rawLength = a.rawLength;  
     }
 
     public def this (gpu:Place, reg:Region, raw:IndexedMemoryChunk[T], raw_len:Int)
       : RemoteArray[T]{self.home==gpu, self.region==reg, self.size==reg.size()} {
         property(gpu, reg, reg.size());
         rawData = raw;
-        rawLength = raw_len;
         @Native("c++", "") {
             array = (at (gpu) GlobalRef[Array[T]{self.region==this.region, self.size==this.size}](null)) as GlobalRef[Array[T]{self.region==this.region, self.size==this.size}]{self.home==this.home};
         }
@@ -81,14 +78,12 @@ Expr: new x10.lang.GlobalRef[x10.array.Array[T]{self.region==x10.array.RemoteArr
 
 public class RemoteArray[T](region:Region, size:Int, array:GlobalRef[Array[T]{self.region==this.region, self.size==this.size}]) {
     val rawData:IndexedMemoryChunk[T];
-    val rawLength:int;
 
     public property rank:Int = region.rank;
 
     public def this(a:Array[T]) : RemoteArray[T]{self.region==a.region, self.size==this.size, self.array.home == here} {
         property(a.region, a.size, GlobalRef[Array[T]{self.region==this.region, self.size==this.size}](a as Array[T]{self.region==this.region, self.size == this.size}));
         rawData = a.raw();
-        rawLength = a.rawLength;  
     }
 
     public def equals(other:Any) {

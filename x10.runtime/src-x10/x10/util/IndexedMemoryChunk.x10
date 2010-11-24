@@ -110,6 +110,16 @@ public struct IndexedMemoryChunk[T] {
 
 
     /**
+     * Return the size of the IndexedMemoryChunk (in elements)
+     *
+     * @return the size of the IndexedMemoryChunk (in elements)
+     */
+    @Native("java", "((#0).length)")
+    @Native("c++", "(#0)->length()")
+    public native def length():int; /* TODO: We need to convert this to returning a long */
+
+
+    /**
      * Copies a contiguous portion of this IndexedMemoryChunk 
      * to a destination IndexedMemoryChunk at the specified place.
      * If the destination place is the current place, then the copy happens synchronously.
