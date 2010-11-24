@@ -102,4 +102,32 @@ public class Unsigned {
         }
         return sb.reverse().toString();
     }
+    
+    private static String forInputString(String s) {
+        return "For input string: \"" + s + "\"";
+    }
+    private static x10.core.Throwable newNumberFormatException(String s) {
+        try {
+            return Class.forName("x10.lang.NumberFormatException").asSubclass(x10.core.Throwable.class).getConstructor(new Class[] { String.class }).newInstance(new Object[] { s });
+        } catch (java.lang.ClassNotFoundException e1) {
+        } catch (java.lang.InstantiationException e2) {
+        } catch (java.lang.IllegalAccessException e3) {
+        } catch (java.lang.NoSuchMethodException e4) {
+        } catch (java.lang.reflect.InvocationTargetException e5) {
+        }
+        return null;
+    }
+    
+    private static final java.math.BigInteger ULONG_MAX = new java.math.BigInteger("ffffffffffffffff", 16);
+    public static long parseULong(String s, int radix) {
+        java.math.BigInteger bigint = new java.math.BigInteger(s, radix);
+        if (bigint.signum() < 0) {
+            throw newNumberFormatException(forInputString(s));
+        }
+        if (bigint.compareTo(ULONG_MAX) > 0) {
+            throw newNumberFormatException(forInputString(s));
+        }
+        return bigint.longValue();
+    }
+    
 }
