@@ -324,8 +324,8 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 			    UnknownTypeNode tn = (UnknownTypeNode) type();
 
 			    NodeVisitor childv = v.enter(parent, this);
-	    	            childv = childv.enter(this, init);
-	    		    			    
+			    childv = childv.enter(this, init);
+
 			    if (childv instanceof TypeCheckPreparer) {
 				    TypeCheckPreparer tcp = (TypeCheckPreparer) childv;
 				    final LazyRef<Type> r = (LazyRef<Type>) tn.typeRef();

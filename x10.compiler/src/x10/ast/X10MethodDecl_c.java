@@ -373,7 +373,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 		// entering the body of the method, the return type and the throw type.
 
 
-		if (child == body || child == returnType || child == hasType  || child == offerType 
+		if (child == body || child == returnType || child == hasType || child == offerType || child == guard
 				|| (formals != null && formals.contains(child))) {
 			if (placeTerm != null)
 				c = ((Context) c).pushPlace( XConstrainedTerm.make(placeTerm));
@@ -436,7 +436,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 				final LazyRef<Type> r = (LazyRef<Type>) tn.typeRef();
 				TypeChecker tc = new X10TypeChecker(v.job(), v.typeSystem(), v.nodeFactory(), v.getMemo(), true);
 				tc = (TypeChecker) tc.context(tcp.context().freeze());
-				r.setResolver(new TypeCheckReturnTypeGoal(this, body(), tc, r));
+				r.setResolver(new TypeCheckReturnTypeGoal(this, new Node[] { guard() }, body(), tc, r));
 			}
 		}
 		return super.setResolverOverride(parent, v);
