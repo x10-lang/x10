@@ -273,7 +273,6 @@
               </path>
             </classpath>
             <class name="x10.x10rt.X10RT"/>
-            <class name="x10.x10rt.ActiveMessage"/>
         </javah>
     </target>
 

@@ -11,33 +11,29 @@
 
 package x10.x10rt;
 
-import x10.x10rt.Place;
-
 public class X10RT {
     private enum State { UNINITIALIZED, BOOTED, TEARING_DOWN, TORN_DOWN };
 
     private static State state = State.UNINITIALIZED;
-    private static Place[] places;
-    private static Place here;
-    private static int numProgressThreads;
+    private static int here;
+    private static int numPlaces;
 
     static final boolean REPORT_UNCAUGHT_USER_EXCEPTIONS = true;
 
+    static {
+    	init();
+    }
+    
     /**
      * Initialize the X10RT runtime.  This method must be called before any other
      * methods on this class or on any other X10RT related class can be successfully
      * invoked.
-     *
-     * @param numProgressThreads The number of progress threads to create to process
-     *                           incoming messages.
+     * 
      * @throws IllegalArgumentException if numProgressThreads is not positive
      */
-    static {
-      assert state.compareTo(State.TEARING_DOWN) < 0 : "X10RT is shutting down";
-      assert state != State.BOOTED : "X10RT is already booted!";
+    public static synchronized void init() {
+      if (state != State.UNINITIALIZED) return;
 
-      // for MultiVM
-      // String libName = System.getProperty("X10RT_IMPL", "x10rt_pgas_sockets");
       String libName = System.getProperty("X10RT_IMPL", "x10rt_sockets");
       System.loadLibrary(libName);
 
@@ -49,13 +45,10 @@ public class X10RT {
 
       x10rt_init(0, null);
 
-      ActiveMessage.initializeMessageHandlers();
+      initializeMessageHandlers();
 
-      places = new Place[x10rt_nplaces()];
-      for (int i=0; i<places.length; i++) {
-        places[i] = new Place(i);
-      }
-      here = places[x10rt_here()];
+      here = x10rt_here();
+      numPlaces = x10rt_nplaces();
 
       // Add a shutdown hook to automatically teardown X10RT as part of JVM teardown
       Runtime.getRuntime().addShutdownHook(new Thread(new Runnable(){
@@ -69,38 +62,7 @@ public class X10RT {
           }
         }}));
 
-      // Create thread dedicated to poll/drain the message queue.
-      for (int i = 0; i<numProgressThreads; i++) {
-          Thread progressThread = new Thread(new Runnable(){
-              public void run() {
-                  while (true) {
-                      try {
-                          X10RT.probe();
-                      } catch (Throwable e) {
-                          if (REPORT_UNCAUGHT_USER_EXCEPTIONS) {
-                              e.printStackTrace();
-                          }
-                      }
-                      Thread.yield();
-                  }
-              }}, "X10RT Progress Thread #"+i);
-          progressThread.setDaemon(true);
-          progressThread.start();
-      }
-
       state = State.BOOTED;
-    }
-
-    /** added for MULTIVM, but it might not be needed ... */
-    public static void init(){
-    	// x10rt_init(0,null);
-        /*
-        places = new Place[x10rt_nplaces()];
-        for (int i=0; i<places.length; i++) {
-          places[i] = new Place(i);
-        }
-        here = places[x10rt_here()];
-        */
     }
     
     /**
@@ -135,7 +97,7 @@ public class X10RT {
      * Get the Place object that represents the Place where this process is executing.
      * @return the Place object that represents the Place where this process is executing.
      */
-    public static Place here() {
+    public static int here() {
       assert state.compareTo(State.BOOTED) >= 0;
       return here;
     }
@@ -146,23 +108,7 @@ public class X10RT {
      */
     public static int numPlaces() {
       assert state.compareTo(State.BOOTED) >= 0;
-      return places.length;
-    }
-
-    /**
-     * Get the Place object that represents Place placeId
-     * @param placeId the numeric id for the desired place.
-     * @return the Place object that represents placeId
-     * @throws IllegalArgumentException if placeId is not valid.
-     */
-    public static Place getPlace(int placeId) throws IllegalArgumentException {
-      assert state.compareTo(State.BOOTED) >= 0;
-
-      try {
-        return places[placeId];
-      } catch (ArrayIndexOutOfBoundsException e) {
-        throw new IllegalArgumentException("Invalid place id "+placeId);
-      }
+      return numPlaces;
     }
 
     static boolean isBooted() {
@@ -177,6 +123,8 @@ public class X10RT {
     private static native int x10rt_init(int numArgs, String[] args);
     
     private static native int x10rt_finalize();
+    
+    public static native void initializeMessageHandlers();
     
     /*
      * Native method exported from x10rt_front.h that are related to Places
@@ -211,4 +159,29 @@ public class X10RT {
     private static native void x10rt_remote_op_fence();
     
     private static native void x10rt_barrier();
+    
+    public static native void sendJavaRemote(int place, int messageId, int arraylen, byte[] rawBytes);
+    
+    // Invoked from native code.
+    private static void receiveJavaGeneral(int messageId, byte[] args) {
+    	try{
+    		System.out.println("@MultiVM : receiveJavaGeneral is called");
+    		System.out.println("Message ID: "+ messageId);
+    		java.io.ByteArrayInputStream byteStream 
+    			= new java.io.ByteArrayInputStream(args);
+    		System.out.println("receiveJavaGeneral: ByteArrayInputStream");
+    		java.io.ObjectInputStream objStream = new java.io.ObjectInputStream(byteStream);
+    		System.out.println("receiveJavaGeneral: ObjectInputStream");
+    		x10.core.fun.VoidFun_0_0 actObj = (x10.core.fun.VoidFun_0_0) objStream.readObject();
+    		System.out.println("receiveJavaGeneral: after cast");
+    		actObj.apply();
+    		System.out.println("receiveJavaGeneral: after apply");
+    		objStream.close();
+    		System.out.println("receiveJavaGeneral is done !");
+    	} catch(Exception ex){
+    		System.out.println("receiveGeneral error !!!");
+    		ex.printStackTrace();
+    	}
+    }
+
 }

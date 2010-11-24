@@ -105,7 +105,7 @@ common/x10rt_front.o: include/x10rt_logical.h
 common/x10rt_logical.o: include/x10rt_logical.h include/x10rt_types.h
 common/x10rt_logical.o: include/x10rt_net.h include/x10rt_cuda.h
 common/x10rt_logical.o: common/x10rt_internal.h include/x10rt_ser.h
-jni/jni_message.o: include/x10_x10rt_ActiveMessage.h include/x10rt_front.h
+jni/jni_message.o: include/x10rt_front.h
 jni/jni_message.o: include/x10rt_types.h
 jni/jni_x10rt.o: include/x10_x10rt_X10RT.h include/x10rt_front.h
 jni/jni_x10rt.o: include/x10rt_types.h
