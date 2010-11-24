@@ -170,15 +170,15 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
     /**
      * Synchronously executes body at place(id)
      */
-    public static void runClosureAt(int id, x10.core.fun.VoidFun_0_0 body) {
-    	runAt(id, body);
+    public static void runClosureAt(int place, x10.core.fun.VoidFun_0_0 body) {
+    	runAt(place, body);
     }
 
     /**
      * Synchronously executes body at place(id)
      */
-    public static void runClosureCopyAt(int id, x10.core.fun.VoidFun_0_0 body) {
-        runAt(id, body);
+    public static void runClosureCopyAt(int place, x10.core.fun.VoidFun_0_0 body) {
+        runAt(place, body);
     }
 
     /**
@@ -201,20 +201,19 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
     }
 
     // @MultiVM, add this method 
-    public static void runAt(int id, x10.core.fun.VoidFun_0_0 body) {
+    public static void runAt(int place, x10.core.fun.VoidFun_0_0 body) {
 		try {
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			(new java.io.ObjectOutputStream(baos)).writeObject(body);
 			byte[] msg = baos.toByteArray();
 			int msgLen = baos.size();
-			int msgId = 9999;
-			System.out.println("@MultiVM: sendJavaRemote");
-			x10.x10rt.X10RT.sendJavaRemote(id, msgId, msgLen, msg);
+			if (X10RT.VERBOSE) System.out.println("@MultiVM: sendJavaRemote");
+			x10.x10rt.MessageHandlers.runClosureAtSend(place, msgLen, msg);
 		} catch (java.io.IOException e){
 			e.printStackTrace();
 			throw new WrappedRuntimeException(e);
 		} finally {
-			System.out.println("@MULTIVM: finally section");
+			if (X10RT.VERBOSE) System.out.println("@MULTIVM: finally section");
 		}
 	}
 
