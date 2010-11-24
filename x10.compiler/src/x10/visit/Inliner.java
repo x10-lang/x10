@@ -880,8 +880,8 @@ public class Inliner extends ContextVisitor {
                     }
                     // TODO reconstruct the AST for the job will all preliminary compiler passes
                     ast = job.ast();
-     //             assert (ast instanceof X10SourceFile_c);
-     //             if (!((X10SourceFile_c) ast).hasBeenTypeChecked())
+                    assert (ast instanceof X10SourceFile_c);
+                    if (!((X10SourceFile_c) ast).hasBeenTypeChecked())
                         ast = ast.visit(new X10TypeChecker(job, ts, nf, job.nodeMemo()).begin());
                     if (null == ast) {
                         debug("Unable to reconstruct AST for " + job, null);
