@@ -22,6 +22,9 @@ public class X10RT {
     
     public static final boolean VERBOSE = false;
 
+    // TODO: We would like to avoid doing this via a clinit method.
+    //       But right now, the clinit method of x10.runtime.impl.java.Runtime
+    //       references X10RT, so we have to do it this way...
     static {
     	init();
     }
