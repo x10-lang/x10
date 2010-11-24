@@ -35,7 +35,7 @@ public class Thread extends java.lang.Thread {
     public Thread(final x10.core.fun.VoidFun_0_0 body, String name) {
         super(new Runnable() { public void run() { body.apply(); } }, name);
         if (!(java.lang.Thread.currentThread() instanceof Thread)) {
-            home = Place.place(X10RT.here().getId());
+            home = Place.place(X10RT.here());
         } else {
             home = currentThread().home();
         }

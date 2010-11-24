@@ -18,7 +18,6 @@ import java.lang.reflect.InvocationTargetException;
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
 import x10.runtime.impl.java.Thread;
-import x10.x10rt.ActiveMessage;
 import x10.x10rt.X10RT;
 
 public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
@@ -42,10 +41,10 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
 		}
 
 		// @MultiVM, the following is right ?? 
+		// FIXME:  By here it is already too late because statics in Runtime 
+		//         refer to X10RT. Need to restructure this so that we can call
+		//         X10RT.init explicitly from here.
 		X10RT.init();
-		System.out.println("@MultiVM: ActiveMessage.initializeMessageHandlers");
-		ActiveMessage.initializeMessageHandlers();
-
 		
 		java.lang.Runtime.getRuntime().addShutdownHook(new java.lang.Thread() {
 		    public void run() { System.out.flush(); }
@@ -210,7 +209,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
 			int msgLen = baos.size();
 			int msgId = 9999;
 			System.out.println("@MultiVM: sendJavaRemote");
-			x10.x10rt.ActiveMessage.sendJavaRemote(id, msgId, msgLen, msg);
+			x10.x10rt.X10RT.sendJavaRemote(id, msgId, msgLen, msg);
 		} catch (java.io.IOException e){
 			e.printStackTrace();
 			throw new WrappedRuntimeException(e);
@@ -223,8 +222,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
 	 * @MultiVM: Return true if place(id) is local to this node
 	 */
 	public static boolean local(int id) {
-		x10.x10rt.Place place = X10RT.here();
-		int hereId = place.getId();
+		int hereId = X10RT.here();
 		return (hereId == id);
 	}
 	
