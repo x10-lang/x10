@@ -321,6 +321,8 @@ public class CUDA3DFD {
             }
         }
 
+        CUDAUtilities.deleteRemoteArray(d_input);
+        CUDAUtilities.deleteRemoteArray(d_output);
     }
 
 }

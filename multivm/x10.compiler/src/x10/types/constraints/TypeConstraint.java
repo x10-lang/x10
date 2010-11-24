@@ -14,6 +14,7 @@ package x10.types.constraints;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Collection;
 
 import polyglot.util.Copy;
 import x10.constraint.XFailure;
@@ -30,6 +31,8 @@ import polyglot.types.Context;
 import x10.types.X10ProcedureDef;
 import x10.types.X10ProcedureInstance;
 import x10.types.X10TypeMixin;
+import x10.types.X10Context_c;
+import x10.types.TypeParamSubst;
 import polyglot.types.TypeSystem;
 import x10.types.ParameterType.Variance;
 import polyglot.types.Name;
@@ -51,11 +54,9 @@ public class TypeConstraint implements Copy, Serializable {
     private static final long serialVersionUID = -6305620393028945867L;
 
     List<SubtypeConstraint> terms;
-    boolean consistent;
 
     public TypeConstraint() {
         terms = new ArrayList<SubtypeConstraint>();
-        consistent = true;
     }
 
     private void addTypeParameterBindings(X10ClassDef xcd, X10ClassType xct, Type ytype) throws XFailure {
@@ -141,24 +142,22 @@ public class TypeConstraint implements Copy, Serializable {
     }
 
     /**
-     * Returns the type constraint obtained by unifying the two types.
-     * The returned constraint will be inconsistent if the two types
-     * are not unifiable.
+     * Modifies "this" to match the unification of the two types.
+     * Returns true if the two types are unifiable.
      * @param t1
      * @param t2
      * @return
      */
-    public TypeConstraint unify(Type t1, Type t2, TypeSystem xts) {
-    	TypeConstraint result = this;
+    public boolean unify(Type t1, Type t2, TypeSystem xts) {
     	final Context emptyContext = (Context) t1.typeSystem().emptyContext();
     	t1 = X10TypeMixin.stripConstraints(t1);
     	t2 = X10TypeMixin.stripConstraints(t2);   	
     	if (xts.typeEquals(t1, t2, emptyContext /*dummy*/))
-    			return this;
+            return true;
     	if ((t1 instanceof ParameterType) || (t2 instanceof ParameterType)) {
-    		result.addTerm(new SubtypeConstraint(t1, t2, SubtypeConstraint.EQUAL_KIND));
-    		if (! (result.consistent(emptyContext)))
-    			return result;
+    		addTerm(new SubtypeConstraint(t1, t2, SubtypeConstraint.Kind.EQUAL));
+    		if (! (consistent(emptyContext)))
+    			return false;
     	}
     	if ((t1 instanceof X10ClassType) && (t2 instanceof X10ClassType)) {
     		X10ClassType xt1 = (X10ClassType) t1;
@@ -166,52 +165,31 @@ public class TypeConstraint implements Copy, Serializable {
     		Type bt1 = xt1.x10Def().asType();
     		Type bt2 = xt2.x10Def().asType();
     		if (!xts.typeEquals(bt1,bt2, emptyContext)) {
-    			result.setInconsistent();
-    			return result;
+    			return false;
     		}
     		List<Type> args1 = xt1.typeArguments();
     		List<Type> args2 = xt2.typeArguments();
     		if (args1 == null && args2 == null) {
-    		    return result;
+    		    return true;
     		}
     		if (args1 == null || args2 == null) {
-    		    result.setInconsistent();
-    		    return result;
+    		    return false;
     		}
     		if (args1.size() != args2.size()) {
-    			result.setInconsistent();
-    			return result;
+    			return false;
     		}
     
     		for (int i=0; i < args1.size(); ++i) {
     			Type p1 = args1.get(i);
     			Type p2 = args2.get(i);
-    			result = unify(p1,p2,xts);
-    			if (! result.consistent(emptyContext)) {
-    				return result;
+    			boolean res = unify(p1,p2,xts);
+    			if (!res) {
+    				return false;
     			}
     		}
     	}
-    	return result;   			
+    	return true;
     }
-    public boolean entails(TypeConstraint c, Context xc) {
-        TypeSystem xts = (TypeSystem) xc.typeSystem();
-        for (SubtypeConstraint t : c.terms()) {
-            if (t.isEqualityConstraint()) {
-                if (!xts.typeEquals(t.subtype(), t.supertype(), xc)) {
-                    return false;
-                }
-            }
-            else if (t.isSubtypeConstraint()) {
-                if (!xts.isSubtype(t.subtype(), t.supertype(), xc)) {
-                    return false;
-                }
-            }
-            
-        }
-        return true;
-    }
-
     public List<SubtypeConstraint> terms() {
         return terms;
     }
@@ -235,34 +213,33 @@ public class TypeConstraint implements Copy, Serializable {
         terms.add(c);
     }
 
-    public void addTerms(List<SubtypeConstraint> terms) {
+    public void addTerms(Collection<SubtypeConstraint> terms) {
         this.terms.addAll(terms);
     }
-    
-    public boolean consistent(Context context) {
-        if (consistent) {
-            Context xc = (Context) context;
-            TypeSystem ts = (TypeSystem) context.typeSystem();
-            for (SubtypeConstraint t : terms()) {
-                if (t.isEqualityConstraint()) {
-                    if (! ts.typeEquals(t.subtype(), t.supertype(), xc)) {
-                        consistent = false;
-                        return false;
-                    }
-                }
-                else if (t.isSubtypeConstraint()) {
-                    if (! ts.isSubtype(t.subtype(), t.supertype(), xc)) {
-                        consistent = false;
-                        return false;
-                    }
-                }
-            }
-        }
-        return consistent;
+
+    public boolean entails(TypeConstraint c, Context context) {
+        Context xc = ((X10Context_c)context).pushTypeConstraintWithContextTerms(this);  
+        return c.consistent(xc);
     }
 
-    public void setInconsistent() {
-        this.consistent = false;
+    public boolean consistent(Context context) {
+        TypeSystem ts = context.typeSystem();
+        for (SubtypeConstraint t : terms()) {
+            if (t.isEqualityConstraint()) {
+                if (! ts.typeEquals(t.subtype(), t.supertype(), context)) {
+                    return false;
+                }
+            }
+            else if (t.isSubtypeConstraint()) {
+                if (! ts.isSubtype(t.subtype(), t.supertype(), context)) {
+                    return false;
+                }
+            } else if (t.isHaszero()) {
+                if (!X10TypeMixin.isHaszero(t.subtype(),context))
+                    return false;
+            }
+        }
+        return true;
     }
 
     /*
@@ -447,9 +424,11 @@ public class TypeConstraint implements Copy, Serializable {
 	 *                                       A[T] <: B[S] && T??S   </td><td> X??Y (instantiate constraint on T and S) </td></tr><tr><td>
 	 * 5. exists Q s.t. A <: Q[X] <: B[Y] </td><td colspan="2"> ??? </td>
 	 * </tr></table>
-	 * FIXME: Only the equality case (1) and the same type case (3) are handled for now.
+	 * FIXME: Only the equality case (1) and the same type case (3) are handled for now.  Also "haszero" is not expanded.
 	 */
 	private static void expandTypeConstraints(TypeConstraint tenv, SubtypeConstraint term, Context context) throws XFailure {
+        if (term.isHaszero()) return;
+
 	    TypeSystem xts = (TypeSystem) context.typeSystem();
 	    Type b = xts.expandMacros(term.subtype());
 	    Type p = xts.expandMacros(term.supertype());
@@ -473,6 +452,7 @@ public class TypeConstraint implements Copy, Serializable {
 	        }
 	    }
 	    else {
+            assert term.isSubtypeConstraint();
 	        X10ClassDef def = sub.x10Def();
 	        if (def != sup.x10Def()) return; // FIXME: skip cases 4 and 5
 	        if (subTypeArgs == null || supTypeArgs == null) return;
@@ -518,6 +498,7 @@ public class TypeConstraint implements Copy, Serializable {
 	            Type m = worklist.get(j);
 	            for (SubtypeConstraint term : tenv.terms()) {
 	                SubtypeConstraint eq = term;
+                    if (term.isHaszero()) continue;
 	                Type sub = eq.subtype();
 	                Type sup = eq.supertype();
 	                if (term.isEqualityConstraint()) {
@@ -539,6 +520,7 @@ public class TypeConstraint implements Copy, Serializable {
 	                    }
 	                }
 	                else {
+                        assert term.isSubtypeConstraint();
 	                    if (m.typeEquals(sub, context)) {
 	                        if (!upper.contains(sup))
 	                            upper.add(sup);

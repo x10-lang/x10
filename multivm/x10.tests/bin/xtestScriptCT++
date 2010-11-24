@@ -314,7 +314,7 @@ function execTimeOut {
 	"$MYDIR"/xnewpgrp "$@" >> $outfile 2>&1 &
 	typeset cmd_pid=$!
 	printf "\n===> sleep $timeout && kill -9 -$cmd_pid >/dev/null 2>&1 &\n\n" 1>&2
-	"$MYDIR"/xnewpgrp "sleep $timeout && kill -9 -$cmd_pid" >/dev/null 2>&1 &
+	"$MYDIR"/xnewpgrp "sleep $timeout && kill -9 -$cmd_pid && echo 'Timeout' >> $outfile" >/dev/null 2>&1 &
 	typeset sleep_pid=$!
 	printf "\n===> wait $cmd_pid 2>/dev/null\n\n" 1>&2
 	wait $cmd_pid >/dev/null 2>&1
@@ -783,9 +783,9 @@ done
 			fi
 fi
 if [[ "$(uname -s)" == CYGWIN* ]]; then
-			run_cmd="X10LAUNCHER_NPROCS=${my_nplaces} X10LAUNCHER_HOSTFILE=NONE /usr/bin/time -p ./${tctarget}.exe"
+			run_cmd="X10_NPLACES=${my_nplaces} X10_HOSTLIST=localhost /usr/bin/time -p ./${tctarget}.exe"
 else
-			run_cmd="X10LAUNCHER_NPROCS=${my_nplaces} X10LAUNCHER_HOSTFILE=NONE /usr/bin/time -p ./${tctarget}"
+			run_cmd="X10_NPLACES=${my_nplaces} X10_HOSTLIST=localhost /usr/bin/time -p ./${tctarget}"
 fi
 			printf "\n${run_cmd}\n" >> $tcoutdat
 		fi

@@ -61,7 +61,7 @@ namespace x10 {
                     memcpy(dstAddr, srcAddr, numBytes);
                 }                
                 if (!notif.isNull()) {
-                    (notif.operator->()->*(findITable<VoidFun_0_0>(notif->_getITables())->apply))();
+                    VoidFun_0_0::apply(notif);
                 }
             } else {
                 x10aux::place dst_place = dstPlace->FMGL(id);
@@ -86,7 +86,7 @@ namespace x10 {
                     memcpy(dstAddr, srcAddr, numBytes);
                 }
                 if (!notif.isNull()) {
-                    (notif.operator->()->*(findITable<VoidFun_0_0>(notif->_getITables())->apply))();
+                    VoidFun_0_0::apply(notif);
                 }
             } else {
                 x10aux::place src_place = srcPlace->FMGL(id);
@@ -115,7 +115,7 @@ namespace x10 {
         void IMC_uncounted_notifier(deserialization_buffer &buf, x10_int) {
             buf.read<x10_long>();  // Read and discard data used by IMC_copy_to_buffer_finder
             ref<Reference> notif = buf.read<x10aux::ref<x10::lang::Reference> >();
-            (notif.operator->()->*(findITable<VoidFun_0_0>(notif->_getITables())->apply))();
+            VoidFun_0_0::apply(notif);
         }
     }
 }

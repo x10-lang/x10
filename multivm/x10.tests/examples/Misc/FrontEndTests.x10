@@ -3,6 +3,9 @@ package x10.yoav.tests;
 import x10.compiler.*; // @Uncounted @NonEscaping @NoThisAccess
 import x10.util.*;
 
+import x10.io.CustomSerialization;
+import x10.io.SerialData;
+
 // test object initialization (and more)
 
 class TestFinalField {
@@ -170,7 +173,6 @@ class TestUncountedAsync1 {
 	def mainExample() {
 		val box = new Box[Boolean](false);
 		@Uncounted async {
-			Console.OUT.println("HELLO");
 			@Uncounted async {
 				atomic box.t = true;
 			}
@@ -402,15 +404,19 @@ class CheckCtorContextIsNotStatic[T](p:T) {
 
 //public class EscapingThisTest {
 
-class TransientTest { // The transient field '...' must have a type with a default value.
+class TransientTest(p:Int) { // The transient field '...' must have a type with a default value.
 	transient val x1 = 2; // ERR (because the type is infered to be Int{self==2}
 	transient val x2:Int = 2;
 	transient var y:Int;
 	transient var y2:Int{self==3} = 3; // ERR
 	transient var y3:Int{self!=0}; // ERR
 	transient var y4:Int{self==0}; 
-	def this() {
+	transient var y5:Int{self!=3}; 
+	transient var y6:Int{self==p}; // ERR
+	def this(k:Int) {
+		property(k);
 		y3 = 4;
+		y6 = p;
 	}
 }
 		
@@ -821,6 +827,9 @@ class TestAnonymousClass {
 		}
 	};
 	val inner = new Inner(); // ERR: 'this' and 'super' cannot escape from a constructor or from methods called from a constructor
+	
+	val qqqq = at (here.next()) this; // ERR: Semantic Error: 'this' and 'super' cannot escape from a constructor or from methods called from a constructor
+
 	val w:Int{self!=0} = anonymous.bla();
 	val k:Int{self!=0};
 	def this() {
@@ -861,16 +870,30 @@ class TestGlobalRefInheritanceSub extends TestGlobalRefInheritance {
 	}
 }
 
+
+struct TestStructCtor[T] { T <: Object } {
+	def this() {}
+	def test1(
+		TestStructCtor[TestStructCtor[String]]) {// ERR (Semantic Error: Type TestStructCtor[TestStructCtor[x10.lang.String]] is inconsistent.)
+	}
+	def use(Any) {}
+	def test2() {
+		use( TestStructCtor[TestStructCtor[String]]() ); // ERR (Semantic Error: Inconsistent constructor return type)// ERR (Semantic Error: Method or static constructor not found for given call.		 Call: TestStructCtor[TestStructCtor[x10.lang.String]]())
+	}
+}
+class MyBOX[T] {
+	def this(t:T) {}
+}
 class TestGlobalRefRestriction {
     private var k:GlobalRef[TestGlobalRefRestriction] = GlobalRef[TestGlobalRefRestriction](this);
     private val z = GlobalRef[TestGlobalRefRestriction](this); 
 	val z2 = GlobalRef[TestGlobalRefRestriction](this); // ERR (must be private)
 	var f:GlobalRef[TestGlobalRefRestriction];
 	val q1 = k; // ERR (can't use GlobalRef(this) )
-	val w1 = GlobalRef[GlobalRef[TestGlobalRefRestriction]](this.k); // ERR (can't use "k" cause it is a GlobalRef(this) )
+	val w1 = new MyBOX[GlobalRef[TestGlobalRefRestriction]](this.k); // ERR (can't use "k" cause it is a GlobalRef(this) )
 	var other:TestGlobalRefRestriction = null;
 	val q2 = other.k;
-	val w2 = GlobalRef[GlobalRef[TestGlobalRefRestriction]](other.k);
+	val w2 = new MyBOX[GlobalRef[TestGlobalRefRestriction]](other.k);
 
 	def this() {
 		foo1();
@@ -1764,6 +1787,18 @@ class B564 extends A564[String,String] {
 
 class ReturnStatementTest {
 	
+	class A {
+	  def m() {
+		at (here.next()) return here;// ShouldNotBeERR (Semantic Error: Cannot return value from void method or closure.)// ShouldNotBeERR (Semantic Error: Cannot return a value from method public x10.lang.Runtime.$dummyAsync(): x10.lang.Void.)
+	  }
+	  def test() {
+			val x1 = m();// ShouldNotBeERR (Semantic Error: Local variable cannot have type x10.lang.Void.)
+			val x2 = m();// ShouldNotBeERR (Semantic Error: Local variable cannot have type x10.lang.Void.)
+			testSameType(x1,x2,[x1,x2]);// ShouldNotBeERR (Semantic Error: Method testSameType[T](x: T, y: T, arr: x10.array.Array[T]) in A{self==A#this} cannot be called with arguments (x10.lang.Void{self==x1}, x10.lang.Void{self==x2}, x10.array.Array[x10.lang.Void]{self.size==2, self.region.rank==1, self.region.rect==true, self.region.zeroBased==true});    Invalid Parameter.		 Expected type: x10.lang.Void		 Found type: x10.lang.Void{self==x1})
+	  }
+	  def testSameType[T](x:T,y:T,arr:Array[T]) {}
+	}
+	
 	static def ok(b:Boolean):Int {
 		if (b) 
 			return 1;
@@ -2505,4 +2540,740 @@ class XTENLANG_2052 {
 	val s2 = new Array[Double][3.14,
 				"1"]; // ERR: Semantic Error: The literal is not of the given type	 expr:"1"	 type: x10.lang.String{self=="1"}	 desired type: x10.lang.Double
 	val x = ULong.MAX_VALUE; //XTENLANG-2054
+}
+class XTENLANG_2070 {
+	var i:Int=0;
+	var j1:Int = ++(i); // ShouldNotBeERR
+}
+class TestLoopLocalIsVal {
+	def testLoopLocalIsVal(r:Region) {
+		for (p in r) {
+			async { 
+				val q = p; // p is final so it can be used in an async
+			}
+		}
+		for (val p in r) {
+			async { 
+				val q = p; // p is final so it can be used in an async
+			}
+		}
+		for (var p:Point in r) { // ERR: Enhanced for loop may not have var loop index. var p: Point{amb}
+		}
+		ateach (val p in Dist.makeUnique()) {}
+		ateach (var p in Dist.makeUnique()) {} // ERR: Syntax Error: Enhanced ateach loop may not have var loop indexvar p: (#161514210)_	
+	}
+}
+
+
+class LegalCoercionsBetweenJavaNumerics {
+	// Checked and it is consistent with java
+//  float w0=0;
+//	double w1=0;
+//
+//	byte w2=0;
+//	int w3=0;
+//	long w4=0;
+//	short w5=0;
+	var w0:Float=0;
+	var w1:Double=0;
+
+	var w2:Byte=0;
+	var w3:Int=0;
+	var w4:Long=0;
+	var w5:Short=0;
+
+	def test() {
+		w0 = w1; // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenJavaNumerics.this.w1		 Expected type: x10.lang.Float		 Found type: x10.lang.Double)
+		w0 = w2;
+		w0 = w3;
+		w0 = w4;
+		w0 = w5;
+		w1 = w0;
+		w1 = w2;
+		w1 = w3;
+		w1 = w4;
+		w1 = w5;
+		w2 = w0; // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenJavaNumerics.this.w0		 Expected type: x10.lang.Byte		 Found type: x10.lang.Float)
+		w2 = w1; // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenJavaNumerics.this.w1		 Expected type: x10.lang.Byte		 Found type: x10.lang.Double)
+		w2 = w3; // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenJavaNumerics.this.w3		 Expected type: x10.lang.Byte		 Found type: x10.lang.Int)
+		w2 = w4; // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenJavaNumerics.this.w4		 Expected type: x10.lang.Byte		 Found type: x10.lang.Long)
+		w2 = w5; // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenJavaNumerics.this.w5		 Expected type: x10.lang.Byte		 Found type: x10.lang.Short)
+		w3 = w0; // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenJavaNumerics.this.w0		 Expected type: x10.lang.Int		 Found type: x10.lang.Float)
+		w3 = w1; // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenJavaNumerics.this.w1		 Expected type: x10.lang.Int		 Found type: x10.lang.Double)
+		w3 = w2;
+		w3 = w4; // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenJavaNumerics.this.w4		 Expected type: x10.lang.Int		 Found type: x10.lang.Long)
+		w3 = w5;
+		w4 = w0; // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenJavaNumerics.this.w0		 Expected type: x10.lang.Long		 Found type: x10.lang.Float)
+		w4 = w1; // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenJavaNumerics.this.w1		 Expected type: x10.lang.Long		 Found type: x10.lang.Double)
+		w4 = w2;
+		w4 = w3;
+		w4 = w5;
+		w5 = w0; // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenJavaNumerics.this.w0		 Expected type: x10.lang.Short		 Found type: x10.lang.Float)
+		w5 = w1; // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenJavaNumerics.this.w1		 Expected type: x10.lang.Short		 Found type: x10.lang.Double)
+		w5 = w2;
+		w5 = w3; // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenJavaNumerics.this.w3		 Expected type: x10.lang.Short		 Found type: x10.lang.Int)
+		w5 = w4; // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenJavaNumerics.this.w4		 Expected type: x10.lang.Short		 Found type: x10.lang.Long)
+	}
+}
+class LegalCoercionsBetweenAllNumerics {	
+	var w0:Float=0;
+	var w1:Double=0;
+
+	var w2:Byte=0;
+	var w3:Int=0;
+	var w4:Long=0;
+	var w5:Short=0;
+
+	var w6:UByte=0;
+	var w7:UInt=0;
+	var w8:ULong=0;
+	var w9:UShort=0;
+
+	def test() {
+		w0 = w1;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w1		 Expected type: x10.lang.Float		 Found type: x10.lang.Double)
+		w0 = w2;
+		w0 = w3;
+		w0 = w4;
+		w0 = w5;
+		w0 = w6;
+		w0 = w7;
+		w0 = w8;
+		w0 = w9;
+		w1 = w0;
+		w1 = w2;
+		w1 = w3;
+		w1 = w4;
+		w1 = w5;
+		w1 = w6;
+		w1 = w7;
+		w1 = w8;
+		w1 = w9;
+		w2 = w0;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w0		 Expected type: x10.lang.Byte		 Found type: x10.lang.Float)
+		w2 = w1;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w1		 Expected type: x10.lang.Byte		 Found type: x10.lang.Double)
+		w2 = w3;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w3		 Expected type: x10.lang.Byte		 Found type: x10.lang.Int)
+		w2 = w4;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w4		 Expected type: x10.lang.Byte		 Found type: x10.lang.Long)
+		w2 = w5;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w5		 Expected type: x10.lang.Byte		 Found type: x10.lang.Short)
+		w2 = w6;
+		w2 = w7;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w7		 Expected type: x10.lang.Byte		 Found type: x10.lang.UInt)
+		w2 = w8;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w8		 Expected type: x10.lang.Byte		 Found type: x10.lang.ULong)
+		w2 = w9;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w9		 Expected type: x10.lang.Byte		 Found type: x10.lang.UShort)
+		w3 = w0;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w0		 Expected type: x10.lang.Int		 Found type: x10.lang.Float)
+		w3 = w1;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w1		 Expected type: x10.lang.Int		 Found type: x10.lang.Double)
+		w3 = w2;
+		w3 = w4;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w4		 Expected type: x10.lang.Int		 Found type: x10.lang.Long)
+		w3 = w5;
+		w3 = w6;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w6		 Expected type: x10.lang.Int		 Found type: x10.lang.UByte)
+		w3 = w7;
+		w3 = w8;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w8		 Expected type: x10.lang.Int		 Found type: x10.lang.ULong)
+		w3 = w9;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w9		 Expected type: x10.lang.Int		 Found type: x10.lang.UShort)
+		w4 = w0;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w0		 Expected type: x10.lang.Long		 Found type: x10.lang.Float)
+		w4 = w1;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w1		 Expected type: x10.lang.Long		 Found type: x10.lang.Double)
+		w4 = w2;
+		w4 = w3;
+		w4 = w5;
+		w4 = w6;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w6		 Expected type: x10.lang.Long		 Found type: x10.lang.UByte)
+		w4 = w7;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w7		 Expected type: x10.lang.Long		 Found type: x10.lang.UInt)
+		w4 = w8;
+		w4 = w9;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w9		 Expected type: x10.lang.Long		 Found type: x10.lang.UShort)
+		w5 = w0;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w0		 Expected type: x10.lang.Short		 Found type: x10.lang.Float)
+		w5 = w1;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w1		 Expected type: x10.lang.Short		 Found type: x10.lang.Double)
+		w5 = w2;
+		w5 = w3;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w3		 Expected type: x10.lang.Short		 Found type: x10.lang.Int)
+		w5 = w4;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w4		 Expected type: x10.lang.Short		 Found type: x10.lang.Long)
+		w5 = w6;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w6		 Expected type: x10.lang.Short		 Found type: x10.lang.UByte)
+		w5 = w7;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w7		 Expected type: x10.lang.Short		 Found type: x10.lang.UInt)
+		w5 = w8;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w8		 Expected type: x10.lang.Short		 Found type: x10.lang.ULong)
+		w5 = w9;
+		w6 = w0;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w0		 Expected type: x10.lang.UByte		 Found type: x10.lang.Float)
+		w6 = w1;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w1		 Expected type: x10.lang.UByte		 Found type: x10.lang.Double)
+		w6 = w2;
+		w6 = w3;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w3		 Expected type: x10.lang.UByte		 Found type: x10.lang.Int)
+		w6 = w4;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w4		 Expected type: x10.lang.UByte		 Found type: x10.lang.Long)
+		w6 = w5;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w5		 Expected type: x10.lang.UByte		 Found type: x10.lang.Short)
+		w6 = w7;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w7		 Expected type: x10.lang.UByte		 Found type: x10.lang.UInt)
+		w6 = w8;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w8		 Expected type: x10.lang.UByte		 Found type: x10.lang.ULong)
+		w6 = w9;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w9		 Expected type: x10.lang.UByte		 Found type: x10.lang.UShort)
+		w7 = w0;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w0		 Expected type: x10.lang.UInt		 Found type: x10.lang.Float)
+		w7 = w1;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w1		 Expected type: x10.lang.UInt		 Found type: x10.lang.Double)
+		w7 = w2;
+		w7 = w3;
+		w7 = w4;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w4		 Expected type: x10.lang.UInt		 Found type: x10.lang.Long)
+		w7 = w5;
+		w7 = w6;
+		w7 = w8;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w8		 Expected type: x10.lang.UInt		 Found type: x10.lang.ULong)
+		w7 = w9;
+		w8 = w0;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w0		 Expected type: x10.lang.ULong		 Found type: x10.lang.Float)
+		w8 = w1;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w1		 Expected type: x10.lang.ULong		 Found type: x10.lang.Double)
+		w8 = w2;
+		w8 = w3;
+		w8 = w4;
+		w8 = w5;
+		w8 = w6;
+		w8 = w7;
+		w8 = w9;
+		w9 = w0;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w0		 Expected type: x10.lang.UShort		 Found type: x10.lang.Float)
+		w9 = w1;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w1		 Expected type: x10.lang.UShort		 Found type: x10.lang.Double)
+		w9 = w2;
+		w9 = w3;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w3		 Expected type: x10.lang.UShort		 Found type: x10.lang.Int)
+		w9 = w4;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w4		 Expected type: x10.lang.UShort		 Found type: x10.lang.Long)
+		w9 = w5;
+		w9 = w6;
+		w9 = w7;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w7		 Expected type: x10.lang.UShort		 Found type: x10.lang.UInt)
+		w9 = w8;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w8		 Expected type: x10.lang.UShort		 Found type: x10.lang.ULong)
+	}
+}
+class OperatorTestCases { // XTENLANG-2084
+	static class InstanceBinary1 {
+		operator this*(that:Int):Any = 1;
+		operator this*(that:Int):Any = 1; //  ERR (Semantic Error: Duplicate method "method OperatorTestCases.InstanceBinary1.operator*(that:x10.lang.Int): x10.lang.Any"; previous declaration at C:\cygwin\home\Yoav\test\Hello.x10:114,9-41.) 
+
+		operator this-(that:Int):Any = 1;
+		operator (that:Int)-this:Any = 1;
+
+		operator this+(that:InstanceBinary1):Any = 1; 
+		operator (that:InstanceBinary1)+this:Any = 1; // ShouldBeErr 
+	}
+	static class InstanceAndStatic {
+		operator this*(that:Int):Any = 1;
+		static operator (x:InstanceAndStatic)*(that:Int):Any = 1; // ShouldBeErr
+
+		operator (that:Int)+this:Any = 1;
+		static operator (x:Int)+(that:InstanceAndStatic):Any = 1; // ShouldBeErr
+	}
+
+	// test inheritance
+	static class Parent {
+		operator this*(that:Int):Any = 1;
+		operator this+(that:Int):Any = 1;
+		static operator (x:Parent)+(that:Int):Any = 1;
+	}
+	static class Child extends Parent {		
+		operator this*(that:Int):Any = 1; // overriding
+		operator (that:Int)+this:Any = 1; // ShouldBeErr
+		static operator (x:Parent)+(that:Int):Any = 1; // hiding
+	}
+
+	// test inheritance, static, instance
+	static class BinaryAndUnary {
+		operator this+(that:Int):Any = 1; // ShouldNotBeERR (Semantic Error: operator+(that: x10.lang.Int): x10.lang.Any in OperatorTestCases.BinaryAndUnary cannot override operator+(that: x10.lang.Int): x10.lang.Any in OperatorTestCases.BinaryAndUnary; overridden method is static)
+		static operator +(that:Int):Any = 1; // ShouldNotBeERR (Semantic Error: operator+(that: x10.lang.Int): x10.lang.Any in OperatorTestCases.BinaryAndUnary cannot override operator+(that: x10.lang.Int): x10.lang.Any in OperatorTestCases.BinaryAndUnary; overridden method is notstatic) // ERR (Semantic Error: Duplicate method "method static OperatorTestCases.BinaryAndUnary.operator+(that:x10.lang.Int): x10.lang.Any"; previous declaration at C:\cygwin\home\Yoav\test\Hello.x10:39,9-41.)
+	}
+
+}
+
+class TestOperatorResolutionWithoutCoercions { // XTENLANG-1692
+	// An example of operator resolution (without coercions)
+	// If we remove the inheritance, and instead define a coercion from C to B and from B to A, then we'll get the same operator resolutions.
+	static class R {}
+	static class A {
+		// class A will define op+(A,A) and op+(B,A) and op+(A,C)
+		operator this+(a:A)=1; 
+		operator (b:B)+this=2; 
+		static operator (a:A)+(c:C)=3;
+	}
+	static class B extends A {
+		operator (b:B)+this { Console.OUT.println("B"); return 2; }
+	}
+	static class C extends B {
+		operator this+(a:A) { Console.OUT.println("C"); return 1; }
+	}
+
+	static class Example {	
+		static operator (b:B)+(c:C)=4;
+
+		def example(a:A,b:B,c:C) { Console.OUT.println("Example:");
+			val x1:Int{self==1} = a+a; // resolves to A::op+(A,A) and dynamically dispatches on the first argument (so it might execute C::op+(C,A) at runtime)
+			val x2:Int{self==1} = a+b; // resolves to A::op+(A,A) and dynamically dispatches on the first argument (so it might execute C::op+(C,A) at runtime)
+			val x3:Int{self==3} = a+c; // resolves to A::op+(A,C) so it does a static call
+			val x4:Int{self==2} = b+a; // resolves to A::op+(B,A) and dynamically dispatches on the second argument (so it might execute B::op+(B,B) at runtime)
+			val x5:Int{self==2} = b+b; // resolves to B::op+(B,B) and dynamically dispatches on the second argument
+			val x6:Int{self==2} = b+c; // ShouldBeErr:  should resolve to Example::op+(B,C) so it does a static call (so the return type should be 4!)
+			val x7:Int{self==1} = c+a; // resolves to C::op+(C,A) and dynamically dispatches on the first argument
+			val x8:Int{self==1} = c+b; // ShouldBeErr: Ambiguity! C::op+(C,A) or B::op+(B,B) ?
+			val x9:Int{self==1} = c+c;  // ShouldBeErr: Ambiguity! C::op+(C,A) or Example::op+(B,C) ?
+		}
+	}
+	static  class Main {
+	  public static def main(args: Array[String]) {
+		  new Example().example( new A(), new B(), new C() );
+		  Console.OUT.println("Now let's test dynamic dispatching!"); 
+		  new Example().example( new C(), new C(), new C() );
+	  }
+	}
+}
+
+
+class TestStructEqualsClass {
+	def this(Int) {}
+	def this(Any) {}
+}
+
+class SubtypeConstraints {
+class A[T] { T <: Object } {
+	var a1:A[T];
+	var a2:A[Int]; // ERR: Semantic Error: Type A[x10.lang.Int] is inconsistent.
+	var a4:A[Int{self==3}]; // ERR
+}
+class Test[T]  {
+	def m1(GlobalRef[T]{self.home==here}) {} // ERR
+	def m2(GlobalRef[T]{self.home==here}) {T<:Object} {}
+}
+static class TestStatic[T]{T<:Object} {
+	public static def m1[T]():TestStatic[T]  = null; // ERR
+	public static def m2[T]() {T<:Object} :TestStatic[T] = null;
+    public static type TestStatic[T](p:Int) {T<:Object} = TestStatic[T]{1==p};
+}
+
+}
+class TransitivityOfEquality {
+// check for transitivity of equality
+class Tran[X,Y,W,U,Z] {X==Z, Z==Y,Int==Y, W==Z} {
+	var a0:Tran[X,Y,W,U,Z];
+	var a9:Tran[Int,Int,Int,Int,Int];
+	var a1:Tran[Y,W,W,U,Z];
+	var a2:Tran[Y,W,Int,U,Int];
+	var a3:Tran[Y,Int,W,U,Z];
+	var a4:Tran[Z,W,Z,U,Int];
+	
+	var e1:Tran[U,Y,W,U,Z]; // ERR: Type Tran[U, Y, W, U, Z] is inconsistent.
+}
+}
+
+class HaszeroConstraints {
+class M[T] {
+	def q() { T haszero } {}
+}
+class A[T] { T haszero } {}
+class B[U] {
+	def f1() { U == Int } {
+		var x:A[U] = null;
+	}
+	def f2() { U == Any } {
+		var x:A[U] = null;
+	}
+	def f3() { U == Any{self!=null} } {
+		var x:A[U] = null; // ERR
+	}
+}
+
+class C[V] { V == Int } {
+	def f1() { 
+		var x:A[V] = null;
+	}
+}
+class D[V] { V == Int{self!=0} } {
+	def f1() { 
+		var x:A[V] = null; // ERR
+	}
+}
+
+class Test2[W] { W haszero } {	
+	var a1:A[W];
+	class Inner {	
+		var i1:A[W];
+	} 
+    def test1() {
+        var x:A[W];
+    }
+    def test2() { W haszero } {
+        var x:A[W];
+    }
+}
+class Test[W](p:Int) {
+	def test() {
+		m1.q(); // ERR
+		m2.q();
+	}
+	var m1:M[Int{self!=0}];
+	var m2:M[Int];
+
+	var a0:A[W]; // ERR
+    def test2() {
+        var x:A[W]; // ERR
+    }
+    def test3() { W haszero } {
+        var x:A[W];
+    }
+	var a1:A[Int];
+	var a2:A[Int{self!=3}];
+	var a3:A[Int{self==0}];
+	var a4:A[Int{self==3}]; // ERR
+	var a5:A[Int{self!=0}]; // ERR
+	var a6:A[Int{self!=p}]; // ERR
+	var a7:A[Int{self==p}]; // ERR
+}
+} // end HaszeroConstraints
+
+
+
+class XTENLANG_967  {
+    def test() {        
+        class C[T] {
+			val f1 = (){T<:Object} => "hi"; // method guard on closures still doesn't work
+			def f2(){T<:Object} = "hi";
+		}
+        val res1 =  new C[Int]().f1(); // ShouldBeErr
+        val res2 =  new C[Int]().f2(); // ERR: Type guard {} cannot be established; inconsistent in calling context.
+    }	
+}
+class XTENLANG_1574(v:Int) {v==1} {
+	static def m(a:XTENLANG_1574) {
+		val b:XTENLANG_1574{self.v==1} = a; // ShouldNotBeERR, see XTENLANG-1574
+	}
+}
+class TestMethodGuards[T](a:Int, p:Place) {
+	def f() {a==1} {}
+	def q() {a==1} { f(); }
+	def m() {
+		f(); // ERR
+	}
+	
+	def f2() {p==Place.FIRST_PLACE} {}
+	def q2() {p==Place.FIRST_PLACE} { f2(); }
+	def m2() {
+		f2(); // ERR
+	}
+
+	def f1() {T haszero} {}
+	def q1() {T haszero} { f1(); }
+	def m1() {
+		f1(); // ERR
+	}
+}
+class ProblemsWithFieldsInConstraints {	// these errors are both with STATIC_CALLS and with DYNAMIC_CALLS
+	val f1:Int;
+	val f2:Int{self==f1};
+	def this() {
+		f2 = 2; // ERR
+		f1 = 2;
+	}
+	def test() {
+		val local1:Int;
+		val local2:Int{self==local1};
+		local2 = 1; // ERR
+		local1 = 1;
+	}
+}
+class InconsistentPropertyVsField(p:Int) {
+	val f:Int = 2;
+	def test() {
+		val a0:InconsistentPropertyVsField{self.p==1} = null;
+		val a1:InconsistentPropertyVsField{self.f==1} = null; // ERR: Only properties may be prefixed with self in a constraint.
+		val a2:InconsistentPropertyVsField{a2.p==1} = null;
+		val a3:InconsistentPropertyVsField{a3.f==1} = null; // ERR: Only properties may be prefixed with self in a constraint.
+		val a4:InconsistentPropertyVsField{a0.p==1} = null;
+		val a5:InconsistentPropertyVsField{a0.f==1} = null; // ShouldBeErr? why don't I have an error here?
+		val a6:InconsistentPropertyVsField{this.p==1} = null;
+		val a7:InconsistentPropertyVsField{this.f==1} = null;
+	}
+}
+
+class FieldInInvariant1 {a==1} { // ShouldBeErr
+	val a:Int;
+	def this() { a=2; }
+}
+class FieldInInvariant2 {this.a==1} {  // ShouldBeErr
+	val a:Int = 2;
+}
+class FieldInInvariant3 {self.a==1} { // ERR: Semantic Error: self may only be used within a dependent type
+	val a:Int = 1;
+}
+class XTENLANG_688(a:Int) {
+	val f1:Int{self==a} = a;
+	val f2:Int{self==f1} = a;
+}
+class XTENLANG_688_2(a:Int) { // fine even with DYNAMIC_CALLS (cause we do not generate a cast)
+	val f2:Int{self==f1} = a;
+	val f1:Int{self==a} = a;
+}
+
+class LegalForwardRef { 
+    val f1:LegalForwardRef{this.f2==this.f1} = null; 
+    val f2:LegalForwardRef = null; 
+
+    val f3:LegalForwardRef{this.f4==this.f3} = f4; // ERR: Cannot read from field 'f4' before it is definitely assigned.
+    val f4:LegalForwardRef = null; 
+}
+class LegalForwardRef2 { 
+	val x:Int{self==y} = 1; // legal forward reference to y (we don't really use it's value)
+	val y:Int{self==1} = 1;
+}
+class IllegalForwardRef2 { 
+	val x:Int{self==y} = 1; // ERR with STATIC_CALLS (The type of the field initializer is not a subtype of the field type.) with DYNAMIC_CALLS (Cannot read from field 'y' before it is definitely assigned.)
+	val y:Int{self==2} = 2;
+}
+class XTENLANG_686_2(a:Int) {
+	def this() : XTENLANG_686_2{1==this.a}{property(1);} // ok to use this on the return type
+	def this(a:Int{self==this.a}) {property(a);} // ERR: Semantic Error: This or super cannot be used (implicitly or explicitly) in a constructor formal type.	 Formals: [val a: x10.lang.Int{self==FordesemiFoo#this.a}]
+}
+class XTENLANG_686(a:Int) {
+	val f1:Int{self==a} = a;
+	val f2:Int{self==f1} = a;
+
+	val f3:XTENLANG_686{self.a==this.f4} = null; // ok
+	val f4:Int = 2;
+
+	val f5:Int{self==3};
+
+
+	def this(b:XTENLANG_686{self.a==1}) {
+		val q1: XTENLANG_686{self.a==this.a} = null; // ok
+		val q2: XTENLANG_686{self.a==this.f1} = null; // ok
+		property(1);
+		// we put field initializers here
+		val q3: XTENLANG_686{self.a==this.a} = null; // ok
+		val q4: XTENLANG_686{self.a==this.f1} = null; // ok
+		val q5: XTENLANG_686{self.a==this.f5} = null; // ok
+		
+		val i1:Int{self==f5} = 3; // ok
+		val i2:Int{self==f5} = 4; // ERR in both STATIC_CALLS (Cannot assign expression to target.) and DYNAMIC_CALLS (Cannot read from field 'f5' before it is definitely assigned.)
+
+		val i3:Int{3==f5} = 3; // ok
+		f5 = 3;
+		val i4:Int{3==f5} = 4; // ok
+	}
+}
+
+class CastToTypeParam[T] { 
+	val f1:T = 0 as T;
+	val f2:T = 1 as T;
+	def test(a:CastToTypeParam[String]) {
+		val f:String = a.f1;
+		val s = 0 as String; // ERR: Cannot cast expression to type
+	}
+	public static def main(Array[String]) {
+		Console.OUT.println(new CastToTypeParam[String]().f1); // throws x10.lang.ClassCastException
+	}
+}
+
+class XTENLANG_685(a : Int, b : Int{this.a == 1}) {
+	def this() {
+		property(1,1);
+	}  
+	def this(Boolean) {
+		property(1,2);
+	}  
+	def this(String):XTENLANG_685{self.a == 1} {// ShouldNotBeERR (Semantic Error: Invalid type; the real clause of XTENLANG_685{self.a==2, self.b==1} is inconsistent.)
+		property(2,1); // ERR (Semantic Error: Cannot bind literal 2 to 1) todo: better error message
+	}  
+	def this(Float):XTENLANG_685{this.a == 1} {// ShouldNotBeERR (Semantic Error: Invalid type; the real clause of XTENLANG_685{self.a==2, self.b==1} is inconsistent.)
+		property(2,1); // ShouldBeErr
+	}  
+	def this(Double) {// ShouldNotBeERR (Semantic Error: Invalid type; the real clause of XTENLANG_685{self.a==2, self.b==1} is inconsistent.)
+		property(2,1); // ShouldBeErr
+	}  
+}
+
+//class Tree(left:Tree, right:Tree{this.left==self.left}) {} // ShouldNotBeErr, see XTENLANG-2117
+class NonStaticTypedef(p:Int) { 
+	type T = NonStaticTypedef{self.p==1}; // ERR: Illegal type def NonStaticTypedef.T: type-defs must be static.
+}
+
+
+class hasZeroTests {
+	class Q00[T] {
+		var t:T; // ERR
+	}
+	class Q0[T] {T haszero} {
+	  var t:T;
+	}
+	class Q1[T] {T haszero} {
+	  val t:T; // ERR
+	}
+	class Q2[T] {
+	  val t:T;
+	  def this() {T haszero} { // ERR
+	  }
+	  def this(t:T) {
+		this.t = t;
+	  }
+	}
+	class Q3[T] {
+	  var t:T;
+	  def this() {T haszero} { // ERR
+	  }
+	  def this(t:T) {
+		this.t = t;
+	  }
+	}
+
+	static class Zero {
+	  public static native def get[T]() {T haszero} :T;
+	}
+	class Q4[T] {
+	  val t:T;
+	  def this() {T haszero} { 
+		 this( Zero.get[T]() );
+	  }
+	  def this(Boolean) {
+		 this( Zero.get[T]() ); // ERR
+	  }
+	  def this(t:T) {
+		this.t = t;
+	  }
+	}
+	class haszeroExamples0[T] {T haszero} {
+		var t:T;
+
+	  def m0() {
+		  m1(); // ok
+	  }
+	  def m1() {T haszero} {}
+	}
+	class haszeroExamples2[T] {
+		val t:T;	
+	  def this() {T haszero} { 
+		 this( Zero.get[T]() );
+	  }
+	  def this(t:T) {
+		this.t = t;
+	  }
+
+	  def m0() {}
+	  def m1() {T haszero} {}
+	  def m2() {T haszero} {
+		  m0();
+		  m1();
+	  }
+	  def m3() {
+		  m0();
+		  m1(); // ERR 
+	  }
+	}
+
+	class haszeroExamples[T] {
+	  var t:T;
+	  def this() {T haszero} {
+		this(Zero.get[T]());
+	  }
+	  def this(t:T) {
+		setT(t);
+	  }
+	  private def setT(t:T) { this.t = t; }
+	}
+
+	class haszeroUsages {
+		var x1:haszeroExamples2[Int{self!=0}]; // ok
+		var x2:haszeroExamples0[Int{self!=0}]; // ERR 
+		val x3 = 
+			new haszeroExamples2[Int{self!=0}](5); // ok
+		val x4 = 
+			new haszeroExamples2[Int{self!=0}]();  // ERR
+		val x5 =  new haszeroExamples2[Int]();
+		def test() {
+			x3.m0();
+			x3.m1(); // ERR 
+			x5.m0();
+			x5.m1(); 
+		}
+	}
+
+}
+class RuntimeTestsOfHaszero {
+	public static def main(Array[String]) {
+		new RuntimeTestsOfHaszero().m();
+	}
+
+	var i:Int;
+	var k:Int{self!=3};
+	var l:Long;
+	var s:String;
+	val a1 = new A[String]();
+	val a2 = new A[Int]();
+	val a3 = new A[Long]();
+
+	def m() {
+		assert(1==++i);
+		assert(0==k);
+		assert(0==l++);
+		assert(null==a1.t);
+		assert(1==++a2.t);
+		assert(1==++a3.t);
+		assert(4==foo(Zero.get[Double]()));
+	}
+
+	def foo(Int)=3;
+	def foo(Double)=4;
+
+	static class A[T] {T haszero} {
+		var t:T;
+	}
+}
+
+
+class StaticOverriding { // see XTENLANG-2121
+  static class C {
+    static def m() = 0;
+  }
+  static class D extends C {
+    static def m() = 1; // ShouldNotBeERR: Semantic Error: m(): x10.lang.Int{self==1} in StaticOverriding.D cannot override m(): x10.lang.Int{self==0} in StaticOverriding.C; attempting to use incompatible return type.
+  }
+}
+
+class TreeUsingFieldNotProperty { this.left==null } { // ShouldBeErr
+  val left:TreeUsingFieldNotProperty = null;
+}
+class XTENLANG_1149 {
+    def m(b:Boolean, x:Object{self!=null}, y:Object{self!=null}):Object{self!=null} {
+        val z:Object{self!=null} = b ? x : y; // ShouldNotBeERR
+        return z;
+    }
+}
+class XTENLANG_1149_2 {
+	class B {}
+	var f:Boolean;
+	def test() {
+		val b1 = new B();
+		val b2 = new B();
+		val c1:B{self!=null} = f ? b1 : b2; // ShouldNotBeERR
+		val c2:B = f ? b1 : b2;
+		val c3:B{self!=null} = f ? (b1 as B{self!=null}) : b2;  // ShouldNotBeERR
+		val c4:B{self!=null} = f ? (b1 as B{self!=null}) : (b2 as B{self!=null});  // ShouldNotBeERR
+		val c5:B{self!=null} = f ? b1 : b1; 
+
+		val arr1 = new Array[B{self!=null}][b1,b2];
+		val arr2:Array[B{self!=null}] = [b1,b2]; // ERR. we do not infer constraints, because then [1] will be Array[Int{self==1}]
+		val arr3:Array[B] = [b1,b2]; 
+		val arr4 = new Array[B{self==b2}][b1,b2]; // ERR
+	}
+}
+
+class TestClassInvariant78 {
+class AA(v:Int) {v==1} {} // ShouldBeErr
+class BB(v:Int) {v==1} {
+	def this(q:Int) { property(q); } // ShouldBeErr
+}
+static class A(v:Int) {v==1} {
+	static def m(a:A) {
+		val b:A{self.v==1} = a; // ShouldNotBeERR
+	}
+	def m2(a:A) {
+		val b1:A{self.v==1} = this;
+		val b2:A{this.v==1} = this;
+		val b3:A{self.v==1} = a; // ShouldNotBeERR
+		val b4:A{this.v==1} = a;
+	}
+}
+}
+
+class TestDuplicateClass { // XTENLANG-2132
+	class A(v:Int) {} 
+	// static class A(v:Int) {}  // ShouldBeErr (causes a crash: AssertionError: TestDuplicateClass.A->TestDuplicateClass.A x10.types.X10ParsedClassType_c is already in the cache; cannot replace with TestDuplicateClass.A x10.types.X10ParsedClassType_c)
+}
+
+class CustomSerializeIsNotTypeSafe {
+    val x = 2;    
+	val BigD = Dist.makeBlock((0..10)*(0..10), 0);
+    val A = DistArray.make[Double](BigD,(p:Point)=>1.0*this.x); // "this" is serialized before it is completely initialized
+    val k:Int{self!=0} = 3;
+
+    public def serialize():SerialData {
+		Console.OUT.println(k);
+		assert k==3; // will fail when used on multiple places
+		return new SerialData(1,null);
+	}
+
+    public static def main(Array[String]) {
+        new CustomSerializeIsNotTypeSafe();
+    }
 }

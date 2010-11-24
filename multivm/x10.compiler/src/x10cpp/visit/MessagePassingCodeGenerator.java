@@ -1207,18 +1207,31 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         h.end(); h.newline();
         h.write("};"); h.newline();
         h.forceNewline();
-
-        /* Serialization redirection methods */
-        h.write("static void "+SERIALIZE_METHOD+"("); h.begin(0);
-        h.write(Emitter.translateType(currentClass, true)+" this_,"); h.newline();
-        h.write(SERIALIZATION_BUFFER+"& buf) {"); h.end(); h.newline(4); h.begin(0);
-        h.write(REFERENCE_TYPE+"::"+SERIALIZE_METHOD+"(this_, buf);"); h.end(); h.newline();
-        h.write("}"); h.newline(); h.forceNewline();
-
-        h.write("public: template<class __T> static ");
-        h.write(make_ref("__T")+" "+DESERIALIZE_METHOD+"("+DESERIALIZATION_BUFFER+"& buf) {"); h.newline(4) ; h.begin(0);
-        h.write("return "+REFERENCE_TYPE+"::"+DESERIALIZE_METHOD+"<__T>(buf);"); h.end(); h.newline();
-        h.write("}"); h.newline(); h.forceNewline();
+        
+        // Static methods that encapsulate itable lookup and invocation
+        for (MethodInstance meth : itable.getMethods()) {
+            String mname = itable.mangledName(meth);
+            h.write("static "+Emitter.translateType(meth.returnType(), true));
+            h.write(" "+mname+"(x10aux::ref<x10::lang::Reference> recv");
+            int argNum=0;
+            for (Type f : meth.formalTypes()) {
+                h.write(", ");
+                h.write(Emitter.translateType(f, true)+" arg"+(argNum++));
+            }
+            h.write(") {"); h.newline(4); h.begin(0);
+            if (!meth.returnType().isVoid()) h.write("return ");
+            h.write("(recv.operator->()->*(x10aux::findITable"+chevrons(Emitter.translateType(currentClass, false))+"(recv->_getITables())->"+mname+"))(");
+            boolean first = true;
+            argNum = 0;
+            for (Type f : meth.formalTypes()) {
+                if (!first) h.write(", ");
+                h.write("arg"+(argNum++));
+                first = false;
+            }
+            h.write(");");
+            h.end(); h.newline();
+            h.writeln("}");
+        }
 
         if (!members.isEmpty()) {
             String className = Emitter.translateType(currentClass);
@@ -1663,7 +1676,10 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         X10TypeSystem_c xts = (X10TypeSystem_c) container.typeSystem();
         if (container.isClass())
             container = getStaticMemberContainer(container.x10Def());
-        Emitter.dumpString(createMainStub(Emitter.translateType(container)), sw);
+        String typeString = xts.isStructType(container) ?
+                Emitter.structMethodClass(container, true, true) :
+                    Emitter.translateType(container);
+        Emitter.dumpString(createMainStub(typeString), sw);
         sw.forceNewline(0);
     }
 
@@ -2896,10 +2912,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		        target instanceof TypeNode ?
 		                (TypeNode) target :
 		                tr.nodeFactory().CanonicalTypeNode(target.position(), t);
-		    if (t instanceof ParameterType) {
+		    if (xts.isParameterType(t)) {
 		        // Rewrite to the class declaring the field.
 		        target = tn.typeRef(md.container());
 		        n = (X10Call_c) n.target(target);
+		        t = target.type();
 		    }
 		    if (t.isClass()) {
 		        X10ClassType ct = (X10ClassType)t.toClass();
@@ -3091,26 +3108,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		}
 	}
 
-	private static boolean isRef(Type rt) {
-	    if (rt.isVoid())
-	        return false;
-	    X10TypeSystem_c xts = (X10TypeSystem_c) rt.typeSystem();
-	    if (xts.isStructType(rt))
-	        return false;
-	    if (xts.isParameterType(rt)) {
-	        if (xts.isSubtype(rt, xts.Object(), xts.emptyContext()))
-	            return true;
-	        return false;
-	    }
-	    return true;
-	}
-
-	private static final boolean GCC_41_HACK = false;
-
 	private void invokeInterface(Node_c n, Expr target, List<Expr> args, String dispType, Type contType,
 	                             X10MethodInstance mi, boolean needsNullCheck)
 	{
-	    boolean replicate = query.isIdempotent(target);
 	    X10CPPContext_c context = (X10CPPContext_c) tr.context();
 	    X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
 	    Type rt = mi.returnType();
@@ -3118,89 +3118,16 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    assert (contType instanceof X10ClassType); // have to dispatch to an interface type.
 	    X10ClassType clsType = (X10ClassType) contType;
 	    assert (clsType.flags().isInterface()); // have to dispatch to an interface type.
-	    if (!Configuration.CLOSURE_INLINING && !replicate) {
-	        // If not inlining closures, want to get rid of statement expressions here too.
-	        NodeFactory xnf = (NodeFactory) tr.nodeFactory();
-	        List<Expr> newArgs = new ArrayList<Expr>();
-	        newArgs.add(target);
-	        newArgs.addAll(args);
-	        Position pos = n.position();
-	        List<Type> argTypes = new ArrayList<Type>();
-	        List<Formal> formals = new ArrayList<Formal>();
-	        int p = 0;
-	        for (Expr a : newArgs) {
-	            Type t = a.type();
-	            argTypes.add(t);
-	            Name fn = Name.make("p"+(p++));
-	            LocalDef fd = xts.localDef(pos, xts.Final(), Types.ref(t), fn);
-	            formals.add(xnf.Formal(pos, xnf.FlagsNode(pos, xts.Final()),
-	                    xnf.CanonicalTypeNode(pos, t), xnf.Id(pos, fn)).localDef(fd));
-	        }
-	        List<Expr> innerArgs = new ArrayList<Expr>();
-	        for (Formal f : formals) {
-	            LocalDef fd = f.localDef();
-	            innerArgs.add(xnf.Local(pos, xnf.Id(pos, fd.name())).localInstance(fd.asInstance()).type(fd.type().get()));
-	        }
-	        Expr innerTarget = innerArgs.remove(0);
-	        Expr call = xnf.Call(pos, innerTarget, xnf.Id(pos, mi.name()), innerArgs).methodInstance(mi).type(rt);
-	        Block body = xnf.Block(pos, xnf.Return(pos, call));
-	        Synthesizer synth = new Synthesizer(xnf, xts);
-	        Closure c = synth.makeClosure(pos, rt, formals, body, context);
-	        X10MethodInstance ci = c.closureDef().asType().applyMethod();
-	        Expr wrap = xnf.ClosureCall(pos, c, newArgs).closureInstance(ci).type(rt);
-	        n.print(wrap, sw, tr);
-	        return;
-	    }
+
 	    ITable itable= context.getITable(clsType);
 	    String targetMethodName = itable.mangledName(mi);
-	    if (!replicate) {
-	        if (GCC_41_HACK && isRef(rt)) sw.write(Emitter.translateType(rt, true)); // FIXME: HACK for gcc 4.1
-	        sw.write("(__extension__ ({ "+dispType+" _ = ");
-	        if (needsNullCheck) sw.write("x10aux::nullCheck(");
-	        n.print(target, sw, tr);
-	        if (needsNullCheck) sw.write(")");
-	        sw.write(";");
-	        sw.allowBreak(0, " ");
-	    }
-	    boolean needsCast = true;
-	    sw.write("((("+REFERENCE_TYPE+"*)(");
-	    if (!replicate) {
-	        sw.write("_");
-	    } else {
-	        if (needsCast) sw.write("((" + dispType + ")");
-	        if (needsNullCheck) sw.write("x10aux::nullCheck(");
-	        boolean assoc = !(target instanceof New_c || target instanceof Binary_c);
-	        if (!needsCast && (! assoc && Precedence.LITERAL.equals(target.precedence()) ||
-	                Precedence.LITERAL.isTighter(target.precedence())))
-	        {
-	            sw.write("(");
-	            n.printBlock(target, sw, tr);
-	            sw.write(")");
-	        } else {
-	            n.print(target, sw, tr);
-	        }
-	        if (needsNullCheck) sw.write(")");
-	        if (needsCast) sw.write(")");
-	    }
-	    sw.write(".operator->()))->*(x10aux::findITable"+chevrons(Emitter.translateType(clsType, false))+"(");
-	    if (!replicate) {
-	        sw.write("_");
-	    } else {
-	        if (needsCast) sw.write("((" + dispType + ")");
-	        n.print(target, sw, tr);
-	        if (needsCast) sw.write(")");
-	    }
-	    sw.write("->_getITables())->"+targetMethodName+"))");
-	    if (context.inTemplate() && mi.typeParameters().size() != 0) {
-	        sw.write("template ");
-	    }
-	    sw.write("(");
+	    sw.write(Emitter.translateType(clsType, false)+"::"+targetMethodName+"(");
+	    if (needsNullCheck) sw.write("x10aux::nullCheck(");
+	    n.print(target, sw, tr);
+	    if (needsNullCheck) sw.write(")");
+	    if (mi.formalTypes().size()>0) sw.write(", ");
 	    printCallActuals(n, context, xts, mi, args);
 	    sw.write(")");
-	    if (!replicate) {
-	        if (GCC_41_HACK && isRef(rt)) sw.write(".operator->()"); // FIXME: HACK for gcc 4.1
-	        sw.write("; }))");
-	    }
 	}
 
 	private void printCallActuals(Node_c n, X10CPPContext_c context, X10TypeSystem_c xts, X10MethodInstance mi,

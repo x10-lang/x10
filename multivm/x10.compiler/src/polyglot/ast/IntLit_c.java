@@ -123,7 +123,7 @@ public class IntLit_c extends NumLit_c implements IntLit
 	if (kind() == LONG) {
             return Long.valueOf(value);
 	}
-	else {
+	else { // todo: what about UInt, ULong, etc...
             return Integer.valueOf((int) value);
 	}
     }

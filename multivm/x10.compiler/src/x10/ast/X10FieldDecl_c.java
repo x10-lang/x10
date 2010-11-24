@@ -68,8 +68,10 @@ import x10.types.X10Def;
 import x10.types.X10FieldDef;
 import x10.types.X10Flags;
 import x10.types.X10InitializerDef;
+import x10.types.X10TypeSystem_c;
 
 import x10.types.X10TypeMixin;
+import x10.types.X10FieldDef_c;
 import polyglot.types.TypeSystem;
 import x10.types.checker.Checker;
 import x10.types.checker.Converter;
@@ -96,9 +98,9 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
     
     @Override
     public Context enterScope(Context c) {
-        if (ii != null) {
-            return c.pushCode(ii);
-        }
+        c = super.enterScope(c);
+        if (!c.inStaticContext() && fieldDef().thisDef() != null)
+            c.addVariable(fieldDef().thisDef().asInstance());
         return c;
     }
 
@@ -257,7 +259,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
     	X10Flags xFlags = X10Flags.toX10Flags(flags);
     	
     	X10FieldDef fi = (X10FieldDef) ts.fieldDef(position(), Types.ref(ct.asType()), flags, type.typeRef(), name.id());
-    	fi.setThisVar(((X10ClassDef) ct).thisVar());
+    	fi.setThisDef(((X10ClassDef) ct).thisDef());
 
     	return fi;
     }
@@ -265,7 +267,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
     protected InitializerDef createInitializerDef(TypeSystem ts, ClassDef ct, Flags iflags) {
         X10InitializerDef ii;
         ii = (X10InitializerDef) super.createInitializerDef(ts, ct , iflags);
-        ii.setThisVar(((X10ClassDef) ct).thisVar());
+        ii.setThisDef(((X10ClassDef) ct).thisDef());
         return ii;
     }
 
@@ -322,8 +324,8 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 			    UnknownTypeNode tn = (UnknownTypeNode) type();
 
 			    NodeVisitor childv = v.enter(parent, this);
-	    	            childv = childv.enter(this, init);
-	    		    			    
+			    childv = childv.enter(this, init);
+
 			    if (childv instanceof TypeCheckPreparer) {
 				    TypeCheckPreparer tcp = (TypeCheckPreparer) childv;
 				    final LazyRef<Type> r = (LazyRef<Type>) tn.typeRef();
@@ -450,8 +452,9 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
             final boolean needsInit = !f.isFinal() && noInit && !X10TypeMixin.isUninitializedField(fieldDef, ts);
             final boolean isTransient = f.isTransient() && !X10TypeMixin.isSuppressTransientErrorField(fieldDef,ts);
             if (needsInit || isTransient) {
+                final boolean hasZero = X10TypeMixin.isHaszero(type, xc);
                 // creating an init.
-	    		Expr e = X10TypeMixin.getZeroVal(type,position().markCompilerGenerated(),tc);
+	    		Expr e = X10TypeMixin.getZeroVal(typeNode,position().markCompilerGenerated(),tc);
                 if (needsInit) {
                     if (e != null) {
                         n = (X10FieldDecl_c) n.init(e);
@@ -459,7 +462,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
                 }
                 if (isTransient) {
                     // transient fields (not annotated with @SuppressTransientError) must have a default value
-                    if (e==null)
+                    if (!hasZero)
                         Errors.issue(tc.job(), new SemanticException("The transient field '"+n.name()+"' must have a type with a default value.",position()));
                 }
 	    	}
@@ -533,6 +536,15 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 
 	        w.write(";");
 	    }
-	
+
+	    public Node checkConstants(ContextVisitor tc) throws SemanticException {
+	    	Type native_annotation_type = (Type)((X10TypeSystem_c)tc.typeSystem()).systemResolver().find(QName.make("x10.compiler.Native"));
+			if (!((X10Ext)ext).annotationMatching(native_annotation_type).isEmpty()) {
+				fi.setNotConstant();
+				return this;
+			} else {
+				return super.checkConstants(tc);
+			}
+	    }
 }
 

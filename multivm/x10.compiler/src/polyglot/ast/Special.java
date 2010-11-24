@@ -16,15 +16,21 @@ import polyglot.util.Enum;
  * <code>Foo.this</code>.
  */
 public interface Special extends Expr 
-{    
-    /** Special expression kind: either "super" or "this". */
-    public static class Kind extends Enum {
-        private static final long serialVersionUID = 4498760711946203096L;
-        public Kind(String name) { super(name); }
+{
+    public static enum Kind {
+        SUPER("super"),THIS("this"), SELF("self");
+        
+        private final String name;
+        Kind(String name) {
+            this.name = name;
+        }
+        @Override public String toString() {
+            return name;
+        }
     }
 
-    public static final Kind SUPER = new Kind("super");
-    public static final Kind THIS  = new Kind("this");
+    public static final Kind SUPER = Kind.SUPER;
+    public static final Kind THIS  = Kind.THIS;
 
     /** Get the kind of expression: SUPER or THIS. */
     Kind kind();

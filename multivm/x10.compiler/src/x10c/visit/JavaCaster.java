@@ -242,6 +242,7 @@ public class JavaCaster extends ContextVisitor {
         if (context.currentClass() instanceof X10ClassType) {
             List<SubtypeConstraint> terms = ((X10ClassType) context.currentClass()).x10Def().typeBounds().get().terms();
             for (SubtypeConstraint sc : terms) {
+                if (sc.isHaszero()) continue;
                 if (sc.subtype().typeEquals(X10TypeMixin.baseType(e.type()), context) && sc.subtype() instanceof ParameterType) {
                     superType = sc.supertype();
                 }

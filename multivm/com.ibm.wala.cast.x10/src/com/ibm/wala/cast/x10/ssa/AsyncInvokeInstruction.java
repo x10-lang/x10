@@ -8,32 +8,21 @@ import com.ibm.wala.ssa.SSAInstructionFactory;
 import com.ibm.wala.ssa.SymbolTable;
 
 public class AsyncInvokeInstruction extends AstJavaInvokeInstruction {
-    private int placeExpr;
     private int clocks[];
     //FIXME: a hack to get whether placeExpr is HERE
-    public boolean isHere;
     
-    public AsyncInvokeInstruction(int result, int[] params, int exception, CallSiteReference site, int placeExpr, int[] clocks,boolean isHere) {
+    public AsyncInvokeInstruction(int result, int[] params, int exception, CallSiteReference site, int[] clocks) {
 	super(result, params, exception, site);
-	  this.placeExpr= placeExpr;
 	  this.clocks = clocks;
-	  this.isHere = isHere;
     }
 
-    public AsyncInvokeInstruction(int[] params, int exception, CallSiteReference site, int placeExpr, int[] clocks, boolean isHere) {
+    public AsyncInvokeInstruction(int[] params, int exception, CallSiteReference site, int[] clocks) {
 	super(params, exception, site);
-	  this.placeExpr= placeExpr;
 	  this.clocks = clocks;
-	  this.isHere = isHere;
     }
 
-    public AsyncInvokeInstruction(int[] results, int[] params, int exception, Access[] lexicalReads, Access[] lexicalWrites, CallSiteReference csr, boolean isHere) {
+    public AsyncInvokeInstruction(int[] results, int[] params, int exception, Access[] lexicalReads, Access[] lexicalWrites, CallSiteReference csr) {
 	super(results, params, exception, csr, lexicalReads, lexicalWrites);
-	this.isHere = isHere;
-    }
-
-    public int getPlaceExpr() {
-        return placeExpr;
     }
 
     public int[] getClocks() {
@@ -49,11 +38,6 @@ public class AsyncInvokeInstruction extends AstJavaInvokeInstruction {
 	// at the end for our place expr, and the rest are the clock expressions,
     // if any    		
 	AsyncInvokeInstruction copy = (AsyncInvokeInstruction) super.copyForSSA(insts, defs, uses);
-	if (uses != null) {
-	    copy.placeExpr = uses[super.getNumberOfUses()];
-	} else {
-	    copy.placeExpr = placeExpr;
-	}
 
 	if (clocks != null) {
 		copy.clocks = new int[ clocks.length ];
@@ -81,27 +65,23 @@ public class AsyncInvokeInstruction extends AstJavaInvokeInstruction {
     public int getUse(int j) {
 	if (j < super.getNumberOfUses())
 	    return super.getUse(j);
-	else if (j == super.getNumberOfUses())
-		return placeExpr;
 	else
-		return clocks[ j-super.getNumberOfUses()-1 ];
+		return clocks[ j-super.getNumberOfUses() ];
     }
 
     @Override
     public int getNumberOfUses() {
-        return super.getNumberOfUses() + 1 + ((clocks==null)? 0 : clocks.length);
+        return super.getNumberOfUses() + ((clocks==null)? 0 : clocks.length);
     }
 
     @Override
   protected SSAInstruction copyInstruction(SSAInstructionFactory insts, int results[], int[] params, int exception, Access[] lexicalReads, Access[] lexicalWrites) {
-      return ((X10InstructionFactory)insts).AsyncInvoke(results, params, exception, lexicalReads, lexicalWrites, getCallSite(),isHere);
+      return ((AstX10InstructionFactory)insts).AsyncInvoke(results, params, exception, lexicalReads, lexicalWrites, getCallSite());
     }
 
     @Override
     public String toString(SymbolTable symbolTable) {
 	  StringBuffer sts = new StringBuffer(super.toString(symbolTable));
-
-	  sts.append(" (place " + getValueString(symbolTable, placeExpr) + ")");
 	
 	  if (clocks != null) {
 		  sts.append(" (clocks");

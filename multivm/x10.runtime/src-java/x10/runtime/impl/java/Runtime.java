@@ -15,6 +15,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 
+import x10.core.ThrowableUtilities;
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
 import x10.runtime.impl.java.Thread;
@@ -65,6 +66,14 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
 	public void apply() {
 		try { Class.forName("x10.lang.Place"); } catch (ClassNotFoundException e) { }
 
+		// preload classes by default
+		if (!Boolean.getBoolean("x10.NO_PRELOAD_CLASSES")) {
+		    // System.out.println("start preloading of classes");
+		    Class<?> userMain = this.getClass().getEnclosingClass();
+		    x10.runtime.impl.java.PreLoader.preLoad(userMain,
+                                                  Boolean.getBoolean("x10.PRELOAD_STRINGS"));
+		}
+
 		// build up Array[String] for args
 		final x10.array.Array<String> aargs = new x10.array.Array<String>(x10.rtt.Types.STRING, args.length);
 		for (int i=0; i<args.length; i++) {
@@ -72,18 +81,14 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
 		}
 
 		// execute root x10 activity
-		final Class<?> userMain = this.getClass().getEnclosingClass();
         try {
             // start xrx
             x10.lang.Runtime.start(
             // static init activity
             new x10.core.fun.VoidFun_0_0() {
                 public void apply() {
-                    // preload classes
-                    if (Boolean.getBoolean("x10.PRELOAD_CLASSES")) {
-                        x10.runtime.impl.java.PreLoader.preLoad(userMain,
-                                                                Boolean.getBoolean("x10.PRELOAD_STRINGS"));
-                    }
+                    // execute X10-level static initialization
+                    x10.runtime.impl.java.InitDispatcher.runInitializer();
                 }
 
                 public x10.rtt.RuntimeType<?> getRTT() {
@@ -191,11 +196,12 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
             new java.io.ObjectOutputStream(baos).writeObject(body);
             body = (T) new java.io.ObjectInputStream(new java.io.ByteArrayInputStream(baos.toByteArray())).readObject();
         } catch (java.io.IOException e) {
-            e.printStackTrace();
-            throw new WrappedRuntimeException(e);
+            x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
+            xe.printStackTrace();
+            throw xe;
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
-            throw new WrappedRuntimeException(e);
+            throw new java.lang.Error(e);
         }
         return body;
     }
@@ -211,7 +217,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
 			x10.x10rt.MessageHandlers.runClosureAtSend(place, msgLen, msg);
 		} catch (java.io.IOException e){
 			e.printStackTrace();
-			throw new WrappedRuntimeException(e);
+            throw new x10.runtime.impl.java.X10WrappedThrowable(e);
 		} finally {
 			if (X10RT.VERBOSE) System.out.println("@MULTIVM: finally section");
 		}

@@ -39,6 +39,7 @@ public class RunTestSuite {
     };
     private static final String[] EXCLUDE_DIRS = {
             "WorkStealing", // Have duplicated class from the Samples directory such as ArraySumTest.x10
+            "AutoGen"
     };
     private static final String[] EXCLUDE_FILES = {
             "NOT_WORKING","SSCA2","FT-alltoall","FT-global"
@@ -51,9 +52,11 @@ public class RunTestSuite {
     private static final String[] INCLUDE_ONLY_FILES_WITH = {
             //"_MustFailCompile.x10",
     };
+    public static final int MAX_ERR_QUEUE = 10000;
 
     static {
         Arrays.sort(EXCLUDE_FILES);
+        Arrays.sort(EXCLUDE_DIRS);
     }
     private static boolean shouldIgnoreDir(String name) {
         if (Arrays.binarySearch(EXCLUDE_DIRS,name)>=0) return true;
@@ -100,7 +103,7 @@ public class RunTestSuite {
         if (dirName.endsWith(".x10")) {
             final File dir = new File(dirName);
             assert dir.isFile() : "File doesn't not exists: "+dirName;
-            files.add(dir);
+            files.add(getCanonicalFile(dir));
         } else {
             for (String dirStr : dirName.split(",")) {
                 File dir = new File(dirStr);
@@ -121,6 +124,20 @@ public class RunTestSuite {
     private static int count(String s, String sub) {
         int index=-1, res=0;
         while ((index=s.indexOf(sub,index+sub.length()))>=0) res++;
+        return res;
+    }
+    public static ArrayList<ErrorInfo> runCompiler(String[] newArgs) {
+        SilentErrorQueue errQueue = new SilentErrorQueue(MAX_ERR_QUEUE,"TestSuiteErrQueue");
+        boolean hadErrors = false;
+        try {
+            new polyglot.main.Main().start(newArgs,errQueue);
+        } catch (Main.TerminationException e) {
+            hadErrors = e.exitCode!=0;
+            // If we had errors (and we should because we compile _MustFailCompile) then we will get a non-zero exitCode
+        }
+        final ArrayList<ErrorInfo> res = (ArrayList<ErrorInfo>) errQueue.getErrors();
+        assert res.size()<MAX_ERR_QUEUE : "We passed the maximum number of errors!";
+        assert (res.size()!=0)==hadErrors : "The exitcode and number of errors do not match!";
         return res;
     }
     private static void compileFiles(List<File> files, List<String> args) throws IOException {
@@ -158,13 +175,7 @@ public class RunTestSuite {
         allArgs.addAll(args);
         String[] newArgs = allArgs.toArray(new String[allArgs.size()]);
         System.out.println("Running: "+ Arrays.toString(newArgs));
-        SilentErrorQueue errQueue = new SilentErrorQueue(10000,"TestSuiteErrQueue");
-        try {
-            new polyglot.main.Main().start(newArgs,errQueue);
-        } catch (Main.TerminationException e) {
-            // If we had errors (and we should because we compile _MustFailCompile) then we will get a non-zero exitCode
-        }
-        ArrayList<ErrorInfo> errors = (ArrayList<ErrorInfo>)errQueue.getErrors();
+        ArrayList<ErrorInfo> errors = runCompiler(newArgs);
 
         // Now checking the errors reported are correct and match ERR markers
         // 1. find all ERR markers that don't have a corresponding error
@@ -235,9 +246,16 @@ public class RunTestSuite {
                 recurse(f, files);
             else {
                 if (name.endsWith(".x10")) {
-                    files.add(f);
+                    files.add(getCanonicalFile(f));
                 }
             }
+        }
+    }
+    private static File getCanonicalFile(File f) {
+        try {
+            return f.getCanonicalFile();
+        } catch (java.io.IOException e) {
+            return f;
         }
     }
 }

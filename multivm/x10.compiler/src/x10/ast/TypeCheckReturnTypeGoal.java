@@ -16,20 +16,26 @@ import polyglot.ast.TypeCheckFragmentGoal;
 import polyglot.types.LazyRef;
 import polyglot.types.Type;
 import polyglot.types.UnknownType;
+import polyglot.util.ErrorInfo;
 import polyglot.visit.TypeChecker;
 
 public class TypeCheckReturnTypeGoal extends TypeCheckFragmentGoal<Type> {
 	private static final long serialVersionUID = -7110597916418023302L;
-		
+
 	public TypeCheckReturnTypeGoal(Node parent, Node n, TypeChecker v, LazyRef<Type> r) {
-		super(parent, n, v, r, true);
+	    super(parent, n, v, r, true);
+	}
+
+	public TypeCheckReturnTypeGoal(Node parent, Node[] prereqs, Node n, TypeChecker v, LazyRef<Type> r) {
+	    super(parent, prereqs, n, v, r, true);
 	}
 
 	@Override
 	protected Type defaultRecursiveValue() {
-		// To preserve current behavior.
-        // todo Yoav: we should report an error
-		return v.typeSystem().Void();
+	    // To preserve current behavior.
+	    // TODO Yoav: we should report an error
+	    //v().errorQueue().enqueue(ErrorInfo.SEMANTIC_ERROR, "Could not infer type; possible recursive function invocation.", n().position());
+	    return v().typeSystem().Void();
 	}
 
 	@Override

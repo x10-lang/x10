@@ -235,7 +235,7 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
             XVar cdThisVar = cd.thisVar();
             if (cdThisVar != null && cdThisVar != thisVar && ! xs.contains(cdThisVar) ) {
                 ys.add(thisVar);
-                xs.add(cd.thisVar());
+                xs.add(cdThisVar);
             }
 
             Type superClass = ((X10ClassType) container).superClass();

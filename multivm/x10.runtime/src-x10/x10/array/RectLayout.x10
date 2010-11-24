@@ -154,7 +154,7 @@ struct RectLayout(rank:int) {
     public def toString() {
         var s:String = "RectLayout[";
         s += "size=" + size;
-        for (var i:int=0; i<min.size; i++) {
+        for (var i:int=0; i<rank; i++) {
             val m:int;
             val d:int;
             switch (i) {

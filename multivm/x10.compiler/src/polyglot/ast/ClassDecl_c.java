@@ -388,9 +388,11 @@ public class ClassDecl_c extends Term_c implements ClassDecl
         superClass = (TypeNode) n.visitChild(n.superClass, childtc);
         interfaces = n.visitList(n.interfaces, childtc);
         
-        if (n.superClass() != null)
+        if (n.superClass() != null) {
+            if (type.superType() != n.superClass().typeRef())
+                throw new InternalCompilerError(n.position(), "ClassDecl_c.typeCheckSupers: unexpected super type " +n.superClass().typeRef()+ " doesn't equal " +type.superType());
             assert type.superType() == n.superClass().typeRef();
-        
+        }
         n = n.reconstruct(flags, name, superClass, interfaces, body);
         try {
             n.checkSupertypeCycles(tc.typeSystem());

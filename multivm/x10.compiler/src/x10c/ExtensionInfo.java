@@ -18,6 +18,7 @@ import polyglot.ast.NodeFactory;
 import polyglot.frontend.Goal;
 import polyglot.frontend.Job;
 import polyglot.frontend.Scheduler;
+import polyglot.frontend.SourceGoal_c;
 import polyglot.types.TypeSystem;
 import x10c.ast.X10CNodeFactory_c;
 import x10c.types.X10CTypeSystem_c;
@@ -49,10 +50,10 @@ public class ExtensionInfo extends x10.ExtensionInfo {
         return new X10CTypeSystem_c();
     }
 
-//    public static final boolean PREPARE_FOR_INLINING = x10.Configuration.INLINE_OPTIMIZATIONS;
+//    public static boolean PREPARE_FOR_INLINING() { return x10.optimizations.Optimizer.INLINING(); }
     public static final boolean PREPARE_FOR_INLINING = true;
 
-    static class X10CScheduler extends X10Scheduler {
+    public static class X10CScheduler extends X10Scheduler {
         public X10CScheduler(ExtensionInfo extInfo) {
             super(extInfo);
         }
@@ -67,6 +68,7 @@ public class ExtensionInfo extends x10.ExtensionInfo {
                     goals.add(VarsBoxer(job));
                 }
                 if (g == CodeGenerated(job)) {
+                    goals.add(JavaCodeGenStart(job));
                     goals.add(ClosuresToStaticMethods(job));
                     goals.add(CastsRemoved(job));
                     goals.add(JavaCaster(job));
@@ -104,12 +106,20 @@ public class ExtensionInfo extends x10.ExtensionInfo {
             return new ValidatingVisitorGoal("Lowerer", job, new Lowerer(job, ts, nf)).intern(this);
         }
 
+        public Goal JavaCodeGenStart(Job job) {
+            Goal cg = new SourceGoal_c("JavaCodeGenStart", job) { // Is this still necessary?
+                private static final long serialVersionUID = 1L;
+                public boolean runTask() { return true; }
+            };
+            return cg.intern(this);
+        }
+
         public Goal ClosuresToStaticMethods(Job job) {
             TypeSystem ts = extInfo.typeSystem();
             NodeFactory nf = extInfo.nodeFactory();
             return new ValidatingVisitorGoal("ClosuresToStaticMethods", job, new ClosuresToStaticMethods(job, ts, nf)).intern(this);
         }
-
+        
         private Goal RailInLoopOptimizer(Job job) {
             TypeSystem ts = extInfo.typeSystem();
             NodeFactory nf = extInfo.nodeFactory();

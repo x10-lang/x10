@@ -13,6 +13,7 @@ package x10.ast;
 
 import polyglot.ast.Node;
 import polyglot.ast.TypeCheckFragmentGoal;
+import polyglot.ast.TypeCheckTypeGoal;
 import polyglot.frontend.Job;
 import polyglot.frontend.SourceGoal;
 import polyglot.types.LazyRef;
@@ -21,22 +22,10 @@ import polyglot.types.UnknownType;
 import polyglot.util.ErrorInfo;
 import polyglot.visit.TypeChecker;
 
-public class X10TypeCheckTypeGoal extends TypeCheckFragmentGoal<Type> {
+public class X10TypeCheckTypeGoal extends TypeCheckTypeGoal {
     private static final long serialVersionUID = 7359324021851338683L;
 
     public X10TypeCheckTypeGoal(Node parent, Node n, TypeChecker v, LazyRef<Type> r) {
         super(parent, n, v, r, false);
-    }
-
-    @Override
-    public boolean runTask() {
-        boolean result = super.runTask();
-        if (result) {
-            if (r().getCached() instanceof UnknownType) {
-                v.errorQueue().enqueue(ErrorInfo.SEMANTIC_ERROR, "Could not compute type.", n.position());
-                return false;
-            }
-        }
-        return result;
     }
 }

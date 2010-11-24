@@ -25,7 +25,12 @@ import java.util.List;
 
  */
 public class XTerms {
-   
+
+	public static final XLit ZERO_FLOAT = new XLit(new Float(0.0f));
+	public static final XLit ZERO_DOUBLE = new XLit(new Double(0.0));
+	public static final XLit ZERO_INT = new XLit(0);
+	public static final XLit ZERO_LONG = new XLit(new Long(0));
+	public static final XLit ZERO_CHAR = new XLit(Character.valueOf('\0'));
 	public static final XLit NULL = new XLit(null);
 	public static final XLit TRUE = new XLit(true);
 	public static final XLit FALSE = new XLit(false);

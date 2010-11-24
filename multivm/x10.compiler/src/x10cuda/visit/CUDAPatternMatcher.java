@@ -18,6 +18,7 @@ import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.Receiver;
 import polyglot.ast.Stmt;
+import polyglot.ast.Term;
 import polyglot.ast.Try;
 import polyglot.ast.TypeNode;
 import polyglot.frontend.Job;
@@ -34,7 +35,6 @@ import x10.ast.AtStmt;
 import x10.ast.Closure;
 import x10.ast.Finish;
 import x10.ast.RegionMaker;
-import x10.ast.X10Binary_c;
 import x10.ast.X10Call;
 import x10.ast.X10Call_c;
 import x10.ast.X10Formal;
@@ -45,6 +45,7 @@ import x10.extension.X10Ext;
 import x10.types.X10ClassType;
 import x10.types.X10TypeSystem_c;
 import x10cpp.visit.Emitter;
+import x10cuda.ast.CUDAKernel;
 import x10cuda.types.CUDAData;
 import x10cuda.types.SharedMem;
 
@@ -151,7 +152,7 @@ public class CUDAPatternMatcher extends NodeVisitor {
 	class MultipleValues {
 		public Expr max;
 
-		public Name var;
+		public Formal var;
 
 		public Block body;
 	}
@@ -171,7 +172,7 @@ public class CUDAPatternMatcher extends NodeVisitor {
 				"Exploded point syntax", loop_formal);
 		complainIfNot(loop_x10_formal.vars().size() == 1,
 				"A 1 dimensional iteration", loop_formal);
-		r.var = loop_x10_formal.vars().get(0).name().id();
+		r.var = loop_x10_formal.vars().get(0);
 		Expr domain = loop.domain();
 		complainIfNot(domain instanceof RegionMaker,
 				"An iteration over a region literal of the form 0..", domain);
@@ -298,7 +299,7 @@ public class CUDAPatternMatcher extends NodeVisitor {
 								Local arr = (Local) arr_;
 								complainIfNot(init_call.name().id().toString().equals("sequence"), "constant cache definition to call 'sequence'", init_expr);
 								Type cargo = arrayCargo(arr.type());
-								cmem.addArrayInitArray(ld, arr,  Emitter.translateType(cargo, true));
+								cmem.addArrayInitArray((LocalDecl)setReachable(ld), arr,  Emitter.translateType(cargo, true));
 							} else {
 								complainIfNot(
 										false,
@@ -386,8 +387,8 @@ public class CUDAPatternMatcher extends NodeVisitor {
 						if (init_new.arguments().size() == 2) {
 							Expr num_elements = init_new.arguments().get(0);
 							Expr rail_init_closure = init_new.arguments().get(1);
-							shm.addArrayInitClosure(ld, num_elements,
-									rail_init_closure, rail_type_arg_);
+							shm.addArrayInitClosure((LocalDecl)setReachable(ld), (Expr)setReachable(num_elements),
+									(Expr)setReachable(rail_init_closure), rail_type_arg_);
 						} else {
 							complainIfNot(init_new.arguments().size() == 1,
 									"val <var> = new Array[T](other_array)",
@@ -398,7 +399,7 @@ public class CUDAPatternMatcher extends NodeVisitor {
 											|| xts().isRemoteArray(src_array.type()),
 									"SHM to be initialised from array or remote array type",
 									src_array);
-							shm.addArrayInitArray(ld, src_array, rail_type_arg_);
+							shm.addArrayInitArray((LocalDecl)setReachable(ld), (Expr)setReachable(src_array), rail_type_arg_);
 						}
 					}
 	
@@ -416,22 +417,22 @@ public class CUDAPatternMatcher extends NodeVisitor {
 					Stmt async = inner_b.statements().get(0);
 					Block_c async_body = checkAsync(async, true);
 	
-					int tag = CUDAData.fresh();
+					int tag = CUDAKernel.fresh();
 					async_body.cudaTag(tag);
 
-					kernel_block = (Block_c) kernel_block.copy();
-					kernel_block.cudaData(new CUDAData());
-					kernel_block.cudaData().autoBlocks = autoBlocks;
-					kernel_block.cudaData().autoThreads = autoThreads;
-					kernel_block.cudaData().blocks = outer.max;
-					kernel_block.cudaData().blocksVar = outer.var;
-					kernel_block.cudaData().threads = inner.max;
-					kernel_block.cudaData().threadsVar = inner.var;
-					kernel_block.cudaData().shm = shm;
-					kernel_block.cudaData().cmem = cmem;
-					kernel_block.cudaData().directParams = direct;
-					kernel_block.cudaData().innerStatementTag = tag;
-					return kernel_block;
+					CUDAKernel ck = nf.CUDAKernel(kernel_block.position(), kernel_block.statements()); 
+					ck.autoBlocks = (LocalDecl)setReachable(autoBlocks);
+					ck.autoThreads = (LocalDecl)setReachable(autoThreads);
+					ck.blocks = (Expr)setReachable(outer.max);
+					ck.blocksVar = (Formal)setReachable(outer.var);
+					ck.threads = (Expr)setReachable(inner.max);
+					ck.threadsVar = (Formal)setReachable(inner.var);
+					ck.shm = shm;
+					ck.cmem = cmem;
+					ck.directParams = direct;
+					ck.innerStatementTag = tag;
+					return ck;
+					
 				} catch (Complaint e) {
 					e.printStackTrace();
 				}
@@ -440,4 +441,18 @@ public class CUDAPatternMatcher extends NodeVisitor {
 		
 		return child;
 	}	
+	
+	private static Node setReachable (Term x) {
+		if (x==null) return null;
+		return x.visit(new NodeVisitor() {
+			public Node leave(Node parent, Node old, Node child, NodeVisitor v) {
+				if (child instanceof Term) {
+					Term child_term = (Term) child;
+					return child_term.reachable(true);
+				}
+				return child;
+			}
+		});
+		
+	}
 }

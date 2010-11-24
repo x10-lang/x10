@@ -3,6 +3,7 @@
  */
 package polyglot.ast;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -14,39 +15,59 @@ import polyglot.visit.TypeChecker;
 public class TypeCheckFragmentGoal<T> extends AbstractGoal_c implements SourceGoal{
     private static final long serialVersionUID = -843644476867221586L;
 
-    protected Node parent;
-    protected Node n;
-    protected TypeChecker v;
-    protected LazyRef<T> r;
-    protected boolean mightFail;
+    private Node parent;
+    private Node[] prereqs;
+    private Node n;
+    private TypeChecker v;
+    private LazyRef<T> r;
+    private boolean mightFail;
 
     public TypeCheckFragmentGoal(Node parent, Node n, TypeChecker v, LazyRef<T> r, boolean mightFail) {
-	this.parent = parent;
-	this.n = n;
-	this.v = v;
-	this.r = r;
-	this.mightFail = mightFail;
-	this.scheduler = v.job().extensionInfo().scheduler();
-    }
-    
-    public List<Goal> prereqs() {
-	List<Goal> l = super.prereqs();
-	List<Goal> l2 = Collections.singletonList(v.job().extensionInfo().scheduler().PreTypeCheck(v.job()));
-	if (l.isEmpty())
-	    return l2;
-	else
-	    return CollectionUtil.<Goal> append(l, l2);
+        this(parent, new Node[0], n, v, r, mightFail);
     }
 
+    public TypeCheckFragmentGoal(Node parent, Node[] prereqs, Node n, TypeChecker v, LazyRef<T> r, boolean mightFail) {
+        this.parent = parent;
+        this.prereqs = prereqs;
+        this.n = n;
+        this.v = v;
+        this.r = r;
+        this.mightFail = mightFail;
+        this.scheduler = v.job().extensionInfo().scheduler();
+    }
+
+    protected Node n() {
+        return n;
+    }
+
+    public List<Goal> prereqs() {
+        List<Goal> l = super.prereqs();
+        List<Goal> l2 = Collections.singletonList(v.job().extensionInfo().scheduler().PreTypeCheck(v.job()));
+        if (l.isEmpty())
+            return l2;
+        else
+            return CollectionUtil.<Goal> append(l, l2);
+    }
 
     protected LazyRef<T> r() {
         return r;
     }
 
-    protected Node process(Node parent, Node n, TypeChecker v) {
+    protected TypeChecker v() {
+        return v;
+    }
+    
+    protected Node processPrereq(Node parent, Node n, TypeChecker v) {
+        if (n != null) {
+            v = (TypeChecker) v.enter(parent, n);
+        }
         return parent.visitChild(n, v);
     }
 
+    protected Node process(Node parent, Node n, TypeChecker v) {
+        return processPrereq(parent, n, v);
+    }
+    
     protected T defaultRecursiveValue() {
         return r().getCached();
     }
@@ -66,6 +87,15 @@ public class TypeCheckFragmentGoal<T> extends AbstractGoal_c implements SourceGo
         }
 
         try {
+            if (prereqs != null) {
+                for (int i = 0; i < prereqs.length; i++) {
+                    Node n = prereqs[i];
+                    Node m = processPrereq(parent, n, v);
+                    v.job().nodeMemo().put(n, m);
+                    v.job().nodeMemo().put(m, m);
+                }
+            }
+            Node n = n();
             Node m = process(parent, n, v);
             v.job().nodeMemo().put(n, m);
             v.job().nodeMemo().put(m, m);
@@ -75,8 +105,8 @@ public class TypeCheckFragmentGoal<T> extends AbstractGoal_c implements SourceGo
             return false;
         }
     }
-    
+
     public String toString() {
-	return v.job() + ":" + v.job().extensionInfo() + ":" + name() + " (" + stateString() + ") " + parent + "->" + n;
+        return v.job() + ":" + v.job().extensionInfo() + ":" + name() + " (" + stateString() + ") " + parent + "->" + n + " via " + Arrays.toString(prereqs);
     }
 }

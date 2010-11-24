@@ -1,6 +1,15 @@
-/* *********************************************************************** */
-/* *********************************************************************** */
-
+/*
+ *  This file is part of the X10 project (http://x10-lang.org).
+ *
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ *  (C) Copyright IBM Corporation 2006-2010.
+ *
+ *  This file was written by Ben Herta for IBM: bherta@us.ibm.com
+ */
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -198,8 +207,8 @@ void Launcher::startChildren()
 
 			if (id == _numchildren && _myproc != 0xFFFFFFFF)
 			{ // start up the local x10 runtime
-				unsetenv(X10LAUNCHER_HOSTFILE);
-				unsetenv(X10LAUNCHER_HOSTLIST);
+				unsetenv(X10_HOSTFILE);
+				unsetenv(X10_HOSTLIST);
 				unsetenv(X10LAUNCHER_SSH);
 				setenv(X10LAUNCHER_PARENT, masterPort, 1);
 				setenv(X10LAUNCHER_RUNTIME, "1", 1);
@@ -281,7 +290,7 @@ void Launcher::startChildren()
 					setenv(X10LAUNCHER_PARENT, masterPort, 1);
 					char idString[24];
 					sprintf(idString, "%d", _firstchildproc+id);
-					setenv(X10LAUNCHER_MYID, idString, 1);
+					setenv(X10_PLACE, idString, 1);
 					#ifdef DEBUG
 						fprintf(stderr, "Launcher %u forked launcher %s on localhost.  Running exec.\n", _myproc, idString);
 					#endif
@@ -900,7 +909,7 @@ void Launcher::startSSHclient(uint32_t id, char* masterPort, char* remotehost)
 	"X10_TRACE_INIT", "X10_TRACE_X10RT", "X10_TRACE_NET", "X10_TRACE_SER", "X10_NTHREADS",
 	"X10RT_CUDA_DMA_SLICE", "X10RT_EMULATE_REMOTE_OP", "X10RT_EMULATE_COLLECTIVES",
 	"X10RT_MPI_THREAD_MULTIPLE", "X10_STATIC_THREADS", "X10_NO_STEALS", "X10RT_ACCELS",
-	"X10RT_NOYIELD", X10LAUNCHER_DEBUG};
+	X10RT_NOYIELD, X10LAUNCHER_DEBUG};
 	for (unsigned i=0; i<(sizeof envVariables)/sizeof(char*); i++)
 	{
 		char* ev = getenv(envVariables[i]);
@@ -918,15 +927,15 @@ void Launcher::startSSHclient(uint32_t id, char* masterPort, char* remotehost)
 	if (_hostfname != '\0')
 	{
 		argv[++z] = (char*) alloca(strlen(_hostfname)+32);
-		sprintf(argv[z], X10LAUNCHER_HOSTFILE"=%s", _hostfname);
+		sprintf(argv[z], X10_HOSTFILE"=%s", _hostfname);
 	}
 	else
 	{
-		char* hostlist = getenv(X10LAUNCHER_HOSTLIST);
+		char* hostlist = getenv(X10_HOSTLIST);
 		if (hostlist != NULL)
 		{
 			argv[++z] = (char*) alloca(strlen(hostlist)+32);
-			sprintf(argv[z], X10LAUNCHER_HOSTLIST"=%s", hostlist);
+			sprintf(argv[z], X10_HOSTLIST"=%s", hostlist);
 		}
 	}
 	argv[++z] = (char*) alloca(256);
@@ -934,9 +943,9 @@ void Launcher::startSSHclient(uint32_t id, char* masterPort, char* remotehost)
 	argv[++z] = (char*) alloca(1024);
 	sprintf(argv[z], X10LAUNCHER_PARENT"=%s", masterPort);
 	argv[++z] = (char*) alloca(100);
-	sprintf(argv[z], X10LAUNCHER_MYID"=%d", id);
+	sprintf(argv[z], X10_PLACE"=%d", id);
 	argv[++z] = (char*) alloca(100);
-	sprintf(argv[z], X10LAUNCHER_NPROCS"=%d", _nplaces);
+	sprintf(argv[z], X10_NPLACES"=%d", _nplaces);
 	argv[++z] = (char*) alloca(1024);
 	sprintf(argv[z], X10LAUNCHER_CWD"=%s", getenv(X10LAUNCHER_CWD));
 	argv[++z] = cmd;

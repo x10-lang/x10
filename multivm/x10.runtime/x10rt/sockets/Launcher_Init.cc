@@ -1,6 +1,15 @@
-/* *********************************************************************** */
-/* *********************************************************************** */
-
+/*
+ *  This file is part of the X10 project (http://x10-lang.org).
+ *
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ *  (C) Copyright IBM Corporation 2006-2010.
+ *
+ *  This file was written by Ben Herta for IBM: bherta@us.ibm.com
+ */
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -32,8 +41,8 @@ void Launcher::Setup(int argc, char ** argv)
 
 	// check to see if we need to launch stuff, or if we need to execute the runtime.
 	// we just skip the launcher and run the program if the user hasn't set X10LAUNCHER_NPROCS
-	if (getenv(X10LAUNCHER_RUNTIME) || !getenv(X10LAUNCHER_NPROCS) ||
-			(strcmp(getenv(X10LAUNCHER_NPROCS), "1")==0 && !getenv(X10LAUNCHER_HOSTFILE)))
+	if (getenv(X10LAUNCHER_RUNTIME) || !getenv(X10_NPLACES) ||
+			(strcmp(getenv(X10_NPLACES), "1")==0 && !getenv(X10_HOSTFILE)))
 		return;
 
 	_singleton = (Launcher *) malloc(sizeof(Launcher));
@@ -85,17 +94,17 @@ void Launcher::initialize(int argc, char ** argv)
 	if (NULL==realpath(argv[0], _realpath)) {
         perror("Resolving absolute path of executable");
     }
-	if (!getenv(X10LAUNCHER_NPROCS))
+	if (!getenv(X10_NPLACES))
 	{
 		_nplaces = 1;
-		setenv(X10LAUNCHER_NPROCS, "1", 0);
+		setenv(X10_NPLACES, "1", 0);
 	}
 	else
-		_nplaces = atoi(getenv(X10LAUNCHER_NPROCS));
-	if (!getenv(X10LAUNCHER_MYID)) // TODO - need to set?
+		_nplaces = atoi(getenv(X10_NPLACES));
+	if (!getenv(X10_PLACE)) // TODO - need to set?
 		_myproc = 0xFFFFFFFF;
 	else
-		_myproc = atoi(getenv(X10LAUNCHER_MYID));
+		_myproc = atoi(getenv(X10_PLACE));
 
 	/* -------------------------------------------- */
 	/*  decide who my children are                  */
@@ -135,8 +144,8 @@ void Launcher::initialize(int argc, char ** argv)
 	/* ------------------------------------------------------------------ */
 	/* read host file name from environment; read and interpret host file */
 	/* ------------------------------------------------------------------ */
-	const char * hostfname = (const char *) getenv(X10LAUNCHER_HOSTFILE);
-	const char * hostlist = (const char *) getenv(X10LAUNCHER_HOSTLIST);
+	const char * hostfname = (const char *) getenv(X10_HOSTFILE);
+	const char * hostlist = (const char *) getenv(X10_HOSTLIST);
 	if (hostfname && strlen(hostfname) > 0)
 	{
 		if (strcasecmp("NONE", hostfname) != 0) // TODO - this check is obsolete.  Take it out someday when it's not used anymore.
@@ -210,7 +219,7 @@ void Launcher::initialize(int argc, char ** argv)
 		}
 	}
 	else if (_myproc == 0xFFFFFFFF)
-		fprintf(stderr, "Warning: Neither %s nor %s has been set. Proceeding as if you had specified \"%s=localhost\".\n", X10LAUNCHER_HOSTFILE, X10LAUNCHER_HOSTLIST, X10LAUNCHER_HOSTLIST);
+		fprintf(stderr, "Warning: Neither %s nor %s has been set. Proceeding as if you had specified \"%s=localhost\".\n", X10_HOSTFILE, X10_HOSTLIST, X10_HOSTLIST);
 
 	connectToParentLauncher();
 

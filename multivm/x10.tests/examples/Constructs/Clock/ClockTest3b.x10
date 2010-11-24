@@ -19,21 +19,21 @@ import harness.x10Test;
  */
 public class ClockTest3b extends x10Test {
 
-	var val: int = 0;
+	var value: int = 0;
 	static val N: int = 32;
 
 	public def run(): boolean = {
 		clocked finish  {
 			for (val [i]: Point in 0..(N-1)) clocked async {
-				clocked async  finish async  { atomic val++; }
+				clocked async  finish async  { atomic value++; }
 				next;
-				chk(val == N);
+				chk(value == N);
 				next;
-				clocked async  finish async  { atomic val++; }
+				clocked async  finish async  { atomic value++; }
 				next;
 			}
 		}
-		chk(val == 2*N);
+		chk(value == 2*N);
 		return true;
 	}
 

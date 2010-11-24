@@ -51,6 +51,22 @@ namespace x10 {
                 x10aux::ref<x10::lang::String> (I::*toString)();
                 x10aux::ref<x10::lang::String> (I::*typeName)();
             };
+
+            static R apply(x10aux::ref<x10::lang::Reference> recv, P1 arg1, P2 arg2, P3 arg3, P4 arg4, P5 arg5, P6 arg6, P7 arg7, P8 arg8, P9 arg9) {
+                return (recv.operator->()->*(x10aux::findITable<Fun_0_9<P1,P2,P3,P4,P5,P6,P7,P8,P9,R> >(recv->_getITables())->apply))(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
+            }
+            static x10_boolean equals(x10aux::ref<x10::lang::Reference> recv, x10aux::ref<x10::lang::Any> arg1) {
+                return (recv.operator->()->*(x10aux::findITable<Fun_0_9<P1,P2,P3,P4,P5,P6,P7,P8,P9,R> >(recv->_getITables())->equals))(arg1);
+            }
+            static x10_int hashCode(x10aux::ref<x10::lang::Reference> recv) {
+                return (recv.operator->()->*(x10aux::findITable<Fun_0_9<P1,P2,P3,P4,P5,P6,P7,P8,P9,R> >(recv->_getITables())->hashCode))();
+            }
+            static x10aux::ref<x10::lang::String> toString(x10aux::ref<x10::lang::Reference> recv) {
+                return (recv.operator->()->*(x10aux::findITable<Fun_0_9<P1,P2,P3,P4,P5,P6,P7,P8,P9,R> >(recv->_getITables())->toString))();
+            }
+            static x10aux::ref<x10::lang::String> typeName(x10aux::ref<x10::lang::Reference> recv) {
+                return (recv.operator->()->*(x10aux::findITable<Fun_0_9<P1,P2,P3,P4,P5,P6,P7,P8,P9,R> >(recv->_getITables())->typeName))();
+            }
         };
 
         template<class P1, class P2, class P3, class P4, class P5, class P6, class P7, class P8, class P9, class R>

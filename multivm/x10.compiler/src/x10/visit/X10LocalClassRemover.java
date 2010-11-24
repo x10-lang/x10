@@ -54,6 +54,7 @@ import x10.types.X10ConstructorInstance;
 import x10.types.X10Context_c;
 import x10.types.X10MethodDef;
 import x10.types.X10TypeMixin;
+import x10.types.X10TypeSystem_c;
 import polyglot.types.TypeSystem;
 
 public class X10LocalClassRemover extends LocalClassRemover {
@@ -213,7 +214,7 @@ public class X10LocalClassRemover extends LocalClassRemover {
 
             NodeFactory xnf = (NodeFactory) nf;
             TypeParamNode pn = xnf.TypeParamNode(n.position(), xnf.Id(n.position(), Name.makeFresh(p.name())), v);
-            TypeBuilder tb = new TypeBuilder(job, ts, nf);
+            TypeBuilder tb = new X10TypeBuilder(job, ts, nf);
             try {
                 tb = tb.pushClass(outer);
                 tb = tb.pushCode(method);
@@ -232,6 +233,7 @@ public class X10LocalClassRemover extends LocalClassRemover {
             typeParameters.addAll(0, origTypeParams);
             TypeParamSubst subst = new TypeParamSubst((TypeSystem) ts, def.typeParameters(), typeParameters);
             def.superType(subst.reinstantiate(def.superType()));
+            def.setInterfaces(subst.reinstantiate(def.interfaces()));
             cd = rewriteTypeParams(subst, cd);
         }
 
@@ -253,7 +255,7 @@ public class X10LocalClassRemover extends LocalClassRemover {
             CodeDef curr = c.currentCode();
             if (curr == ci) return true;
             // Allow closures, asyncs
-            if (curr instanceof MethodDef && ((MethodDef) curr).name().equals(Name.make("$dummyAsync$")))
+            if (curr instanceof MethodDef && ((MethodDef) curr).name().equals(Name.make(X10TypeSystem_c.DUMMY_AT_ASYNC+"$")))
                 ;
             else {
                 // FIX:XTENLANG-1159

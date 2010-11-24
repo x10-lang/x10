@@ -71,6 +71,7 @@ import x10.types.X10ParsedClassType;
 import x10.types.X10ProcedureDef;
 
 import x10.types.X10TypeMixin;
+import x10.types.X10Context_c;
 import polyglot.types.TypeSystem;
 import x10.types.checker.PlaceChecker;
 import x10.types.checker.ThisChecker;
@@ -185,7 +186,7 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
                 Collections.<Ref<? extends Type>>emptyList(), 
                 offerType == null ? null : offerType.typeRef());
         
-        ci.setThisVar(((X10ClassDef) ct).thisVar());
+        ci.setThisDef(((X10ClassDef) ct).thisDef());
         return ci;
     }
 
@@ -244,9 +245,15 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
         return n;
     }
 
+    @Override
     public Context enterScope(Context c) {
-        return c.pushCode(ci);
+        c = super.enterScope(c);
+        if (!c.inStaticContext() && constructorDef().thisDef() != null)
+            c.addVariable(constructorDef().thisDef().asInstance());
+        return c;
     }
+
+    @Override
     public Context enterChildScope(Node child, Context c) {
         // We should have entered the constructor scope already.
         assert c.currentCode() == this.constructorDef();
@@ -297,8 +304,10 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
             if (vc != null || tc != null) {
                 c = c.pushBlock();
                 try {
-                	if (vc.known())
-                		c= ((Context) c).pushAdditionalConstraint(vc.get());
+					if (vc.known())
+						c = ((Context) c).pushAdditionalConstraint(vc.get());
+					if (tc.known())
+						c = ((X10Context_c) c).pushTypeConstraintWithContextTerms(tc.get());
                 } catch (SemanticException z) {
                 	throw 
                 	new InternalCompilerError("Unexpected inconsistent guard" + z);
@@ -412,7 +421,7 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
             			Type t =  tc.context().currentClass();
             			CConstraint dep = X10TypeMixin.xclause(t);
             			if (c != null && dep != null) {
-            				XVar thisVar = ((X10MemberDef) constructorDef()).thisVar();
+            				XVar thisVar = constructorDef().thisVar();
             				if (thisVar != null)
             				    dep = dep.substitute(thisVar, c.self());
 //            				dep = dep.copy();

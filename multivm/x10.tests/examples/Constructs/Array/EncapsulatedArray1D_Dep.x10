@@ -40,9 +40,10 @@ public class EncapsulatedArray1D_Dep extends x10Test {
         val D  = Dist.makeUnique(); 
         val numOfPlaces = Place.MAX_PLACES;
         
-        val A  = DistArray.make[Wrapper](D);
-        finish ateach (val [i]: Point in D) 
-        A(i)=Wrapper(DistArray.make[double](R->here, (Point)=>0.0D));
+        val A  = DistArray.make[Wrapper](D,
+            ([i]:Point) =>
+                Wrapper(DistArray.make[double](R->here, (Point)=>0.0D))
+        );
         
         //for (int i=0;i<numOfPlaces;i++){    
         finish ateach (val [i]: Point in D) { 

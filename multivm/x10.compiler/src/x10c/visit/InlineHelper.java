@@ -52,6 +52,7 @@ import polyglot.visit.NodeVisitor;
 import x10.ast.TypeParamNode;
 import x10.ast.X10Call;
 import x10.ast.X10MethodDecl;
+import x10.emitter.Emitter;
 import x10.types.ParameterType;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
@@ -232,7 +233,7 @@ public class InlineHelper extends ContextVisitor {
                         else {
                             body = xnf.Block(pos, xnf.Return(pos, call));
                         }
-                        X10MethodDecl nmdcl = xnf.MethodDecl(pos, xnf.FlagsNode(pos, mdcl.flags().flags().clearPrivate().clearProtected().clearNative().Public().Static()), mdcl.returnType(), xnf.Id(pos, Name.make(mdcl.name().toString() + BRIDGE_TO_PRIVATE_SUFFIX )), formals,  body);
+                        X10MethodDecl nmdcl = xnf.MethodDecl(pos, xnf.FlagsNode(pos, mdcl.flags().flags().clearPrivate().clearProtected().clearNative().Public().Static()), mdcl.returnType(), xnf.Id(pos, makePrivateBridgeName(mdcl.name())), formals,  body);
                         X10MethodDef nmd = (X10MethodDef) xts.methodDef(pos, Types.ref(cd.asType()), nmdcl.flags().flags(), Types.ref(nmdcl.returnType().type()), nmdcl.name().id(), argTypes);
 
                         // check
@@ -285,7 +286,7 @@ public class InlineHelper extends ContextVisitor {
                     }
                     MethodDecl mdcl1 = xnf.MethodDecl(pos, xnf.FlagsNode(pos, Flags.FINAL.Public()), 
                     		xnf.X10CanonicalTypeNode(pos, mi.returnType()), 
-                    		xnf.Id(pos, Name.make(cd.asType().fullName().toString().replace(".", "$") + "$" + call.name().toString() + BRIDGE_TO_SUPER_SUFFIX)), 
+                    		xnf.Id(pos, makeSuperBridgeName(cd, call.name())), 
                     		formals,  body);
                     
                     List<Ref<? extends Type>> argTypes = new ArrayList<Ref<? extends Type>>(mdcl1.formals().size() + 1);
@@ -305,12 +306,12 @@ public class InlineHelper extends ContextVisitor {
             return d;
         }
         // caller side
-        if (n instanceof X10Call && x10.Configuration.INLINE_OPTIMIZATIONS) {
+        if (n instanceof X10Call && x10.Configuration.INLINE_METHODS) {
             X10Call call = (X10Call) n;
             Receiver target = call.target();
             X10MethodInstance mi = call.methodInstance();
-            if (mi.flags().isPrivate() && !isSameDef(mi.container(), context.currentClass(),context) && !isOuter(mi.container(), context.currentClass())) {
-                Id id = xnf.Id(pos, call.name().toString() + BRIDGE_TO_PRIVATE_SUFFIX);
+            if (mi.flags().isPrivate() && !isSameDef(mi.container(), context.currentClass(),context) && !isSameTopLevel(mi.container(), context.currentClass(), context)) {
+                Id id = xnf.Id(pos, makePrivateBridgeName(call.name()));
                 List<Type> typeArgs;
                 if (mi instanceof X10MethodInstance) {
                     typeArgs = ((X10MethodInstance) mi).typeParameters();
@@ -375,6 +376,14 @@ public class InlineHelper extends ContextVisitor {
         return n;
     }
 
+    private Name makeSuperBridgeName(final ClassDef cd, Id name) {
+        return Name.make(cd.asType().fullName().toString().replace(".", "$") + "$" + Emitter.mangleToJava(name.id()) + BRIDGE_TO_SUPER_SUFFIX);
+    }
+
+    private Name makePrivateBridgeName(Id name) {
+        return Name.make(Emitter.mangleToJava(name.id()) + BRIDGE_TO_PRIVATE_SUFFIX);
+    }
+
     private static boolean isSameDef(Type t1, Type t2, Context context) {
         if (t1.typeEquals(t2, context)) {
             return true;
@@ -385,22 +394,21 @@ public class InlineHelper extends ContextVisitor {
         return false;
     }
     
-    private boolean isOuter(Type outer, Type inner) {
-        outer = X10TypeMixin.baseType(outer);
-        inner = X10TypeMixin.baseType(inner);
-        if (inner instanceof X10ClassType) {
-            ClassType ot = ((X10ClassType) inner).outer();
-            if (ot == null) {
-                return false;
-            }
-            else if (isSameDef(ot,outer, context)) {
-                return true;
-            }
-            else {
-                return isOuter(outer, ot);
-            }
+    private static boolean isSameTopLevel(Type t1, Type t2, Context context) {
+        if (t1 instanceof X10ClassType && t2 instanceof X10ClassType) {
+            t1 = X10TypeMixin.baseType(t1);
+            t2 = X10TypeMixin.baseType(t2);
+            return isSameDef(getTopLevel((X10ClassType) t1), getTopLevel((X10ClassType) t2), context);
         }
         return false;
+    }
+    
+    private static Type getTopLevel(X10ClassType t) {
+        X10ClassType outer = (X10ClassType) t.outer();
+        if (outer == null) {
+            return t;
+        }
+        return getTopLevel(outer);
     }
 
     private static List<Ref<? extends Type>> getRefList(List<Type> types) {

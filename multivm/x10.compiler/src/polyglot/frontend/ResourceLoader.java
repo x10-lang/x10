@@ -133,7 +133,7 @@ public class ResourceLoader
             // ignore the exception.
         }
         catch (IOException e) {
-            throw new InternalCompilerError(e);
+            throw new InternalCompilerError("Error while processing "+dir, e);
         }
 
         return null;

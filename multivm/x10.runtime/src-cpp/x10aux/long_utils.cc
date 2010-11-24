@@ -111,10 +111,6 @@ x10_long x10aux::long_utils::reverse(x10_long x) {
     return reverseBytes((x10_long)ux);
 }
 
-x10_int x10aux::long_utils::signum(x10_long x) {
-    return (x >> 63) | (((x10_ulong)(-x)) >> 63);
-}
-
 x10_long x10aux::long_utils::reverseBytes(x10_long x) {
     x10_ulong ux = x;
     x10_ulong ans = ux << 56; 

@@ -61,7 +61,7 @@ public class ClosureDefReinstantiator extends NodeVisitor {
                                             Types.ref(containerMethodDef.asInstance()), 
                                             cd.returnType(), 
                                             cd.formalTypes(), 
-                                            cd.thisVar(), 
+                                            cd.thisDef(), 
                                             cd.formalNames(),
                                             cd.guard(), 
                                             //cd.throwTypes(),

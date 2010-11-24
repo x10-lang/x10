@@ -43,6 +43,8 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
+import polyglot.types.VarDef;
+import polyglot.types.VarInstance;
 import polyglot.util.CodeWriter;
 import polyglot.util.CollectionUtil;
 import polyglot.util.Position;
@@ -60,6 +62,7 @@ import x10.constraint.XVar;
 import x10.constraint.XTerms;
 import x10.errors.Errors;
 import x10.types.ClosureDef;
+import x10.types.ThisDef;
 import x10.types.X10ClassDef;
 import polyglot.types.Context;
 import x10.types.X10MemberDef;
@@ -260,13 +263,13 @@ public class Closure_c extends Expr_c implements Closure {
 		CodeDef code = (CodeDef) def;
 
 		// Get the enclosing this variable.
-		XVar thisVar; // = XTerms.makeLocal(XTerms.makeFreshName("this"));
+		ThisDef thisDef;
 
 		if (code instanceof X10MemberDef) {
-			thisVar = ((X10MemberDef) code).thisVar();
+			thisDef = ((X10MemberDef) code).thisDef();
 		}
 		else {
-			thisVar = ct.thisVar();
+			thisDef = ct.thisDef();
 		}
 
 		ClosureDef mi = ts.closureDef(position(), 
@@ -274,12 +277,14 @@ public class Closure_c extends Expr_c implements Closure {
 				Types.ref(code.asInstance()), 
 				returnType.typeRef(),
 				Collections.<Ref<? extends Type>>emptyList(),
-				thisVar,
+				thisDef,
 				Collections.<LocalDef>emptyList(), 
 				null, 
 				//null, 
 				
 				offerType == null ? null : offerType.typeRef());
+		mi.setStaticContext(code.staticContext());
+		
 		if (returnType() instanceof UnknownTypeNode) {
 			mi.inferReturnType(true);
 		}
@@ -316,8 +321,9 @@ public class Closure_c extends Expr_c implements Closure {
 		// mi.setTypeParameters(Collections.EMPTY_LIST);
 		mi.setFormalTypes(formalTypes);
 
-		if (code instanceof X10MemberDef)
-			assert mi.thisVar() == ((X10MemberDef) code).thisVar();
+		if (code instanceof X10MemberDef) {
+			assert mi.thisDef() == ((X10MemberDef) code).thisDef();
+		}
 
 		if (returnType instanceof UnknownTypeNode && body == null) {
 			Errors.issue(tb.job(),
@@ -332,8 +338,6 @@ public class Closure_c extends Expr_c implements Closure {
 			Report.report(5, "enter scope of closure at " + position());
 		// TODO maybe we want a new type of "code context thingy" that is not a type system object, but can live on the Context stack.
 		c = c.pushCode(closureDef);
-		if (c.pop().inStaticContext())
-			c = c.pushStatic();
 		return c;
 	}
 
@@ -372,7 +376,7 @@ public class Closure_c extends Expr_c implements Closure {
 				final LazyRef<Type> r = (LazyRef<Type>) tn.typeRef();
 				TypeChecker tc = new X10TypeChecker(v.job(), v.typeSystem(), v.nodeFactory(), v.getMemo());
 				tc = (TypeChecker) tc.context(tcp.context().freeze());
-				r.setResolver(new TypeCheckReturnTypeGoal(this, body(), tc, r));
+				r.setResolver(new TypeCheckReturnTypeGoal(this, new Node[] { guard() }, body(), tc, r));
 			}
 		}
 		return super.setResolverOverride(parent, v);
@@ -409,6 +413,16 @@ public class Closure_c extends Expr_c implements Closure {
 
 		// Create an anonymous subclass of the closure type.
 		ClosureDef def = n.closureDef;
+		if (!def.capturedEnvironment().isEmpty()) {
+		    //System.out.println(this.position() + ": " + this + " captures "+def.capturedEnvironment());
+		    // Propagate the captured variables to the parent closure (if any)
+		    for (VarInstance<? extends VarDef> vi : def.capturedEnvironment()) {
+		        Context o = c;
+		        while (o.currentCode() == def)
+		            o = o.pop().popToCode();
+		        o.recordCapturedVariable(vi);
+		    }
+		}
 		ClassDef cd = ClosureSynthesizer.closureAnonymousClassDef(xts, def);
 		n = (Closure_c) n.type(cd.asType());
 		if (hasType != null) {

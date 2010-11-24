@@ -218,7 +218,7 @@ public class TypeTransformer extends NodeTransformer {
             TypeSystem xts = (TypeSystem) visitor().typeSystem();
             ClosureDef icd = xts.closureDef(cd.position(), cd.typeContainer(), cd.methodContainer(),
                                             d.returnType().typeRef(),
-                                            argTypes, cd.thisVar(), formalNames,
+                                            argTypes, cd.thisDef(), formalNames,
                                             g == null ? null : g.valueConstraint(),
                                             null);
             return d.closureDef(icd);

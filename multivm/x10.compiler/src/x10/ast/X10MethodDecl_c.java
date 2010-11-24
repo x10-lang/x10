@@ -116,6 +116,7 @@ import x10.types.X10TypeEnv_c;
 import x10.types.X10TypeMixin;
 import polyglot.types.TypeSystem;
 import x10.types.XTypeTranslator;
+import x10.types.X10Context_c;
 import x10.types.checker.Checker;
 import x10.types.checker.PlaceChecker;
 import x10.types.checker.VarChecker;
@@ -179,7 +180,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 				Collections.<Ref<? extends Type>>emptyList(), 
 				offerType == null ? null : offerType.typeRef());
 
-		mi.setThisVar(((X10ClassDef) ct).thisVar());
+		mi.setThisDef(((X10ClassDef) ct).thisDef());
 		this.placeTerm = PlaceChecker.methodPT(flags, ct);
 		return mi;
 	}
@@ -341,6 +342,14 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 	}
 
 	@Override
+	public Context enterScope(Context c) {
+	    c = super.enterScope(c);
+	    if (!c.inStaticContext() && methodDef().thisDef() != null)
+	        c.addVariable(methodDef().thisDef().asInstance());
+	    return c;
+	}
+
+	@Override
 	public Context enterChildScope(Node child, Context c) {
 		// We should have entered the method scope already.
 		assert c.currentCode() == this.methodDef();
@@ -364,7 +373,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 		// entering the body of the method, the return type and the throw type.
 
 
-		if (child == body || child == returnType || child == hasType  || child == offerType 
+		if (child == body || child == returnType || child == hasType || child == offerType || child == guard
 				|| (formals != null && formals.contains(child))) {
 			if (placeTerm != null)
 				c = ((Context) c).pushPlace( XConstrainedTerm.make(placeTerm));
@@ -374,14 +383,15 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 		// Add the method guard into the environment.
 		if (guard != null) {
 			Ref<CConstraint> vc = guard.valueConstraint();
-			Ref<TypeConstraint> tc = guard.typeConstraint(); // todo: tc is ignored
+			Ref<TypeConstraint> tc = guard.typeConstraint();
 
 			if (vc != null || tc != null) {
 				c = c.pushBlock();
 				try {
 					if (vc.known())
 						c = ((Context) c).pushAdditionalConstraint(vc.get());
-					// TODO: Add type constraint.
+					if (tc.known())
+						c = ((X10Context_c) c).pushTypeConstraintWithContextTerms(tc.get());
 
 				} catch (SemanticException z) {
 					throw new InternalCompilerError("Unexpected inconsistent guard" + z);
@@ -426,7 +436,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 				final LazyRef<Type> r = (LazyRef<Type>) tn.typeRef();
 				TypeChecker tc = new X10TypeChecker(v.job(), v.typeSystem(), v.nodeFactory(), v.getMemo(), true);
 				tc = (TypeChecker) tc.context(tcp.context().freeze());
-				r.setResolver(new TypeCheckReturnTypeGoal(this, body(), tc, r));
+				r.setResolver(new TypeCheckReturnTypeGoal(this, new Node[] { guard() }, body(), tc, r));
 			}
 		}
 		return super.setResolverOverride(parent, v);
@@ -893,7 +903,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 					Type t =  tc.context().currentClass();
 					CConstraint dep = X10TypeMixin.xclause(t);
 					if (c != null && dep != null) {
-						XVar thisVar = ((X10MemberDef) methodDef()).thisVar();
+						XVar thisVar = methodDef().thisVar();
 						if (thisVar != null)
 							dep = dep.substitute(thisVar, c.self());
 						//                                  dep = dep.copy();

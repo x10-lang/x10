@@ -48,11 +48,6 @@ namespace x10 {
             Closure() {
             }
 
-            static void _serialize(x10aux::ref<Closure> this_,
-                                   x10aux::serialization_buffer &buf);
-    
-            template<class T> static x10aux::ref<T> _deserialize(x10aux::deserialization_buffer &buf);
-
             virtual x10_int hashCode();
             
             virtual x10aux::ref<String> toString();
@@ -61,13 +56,6 @@ namespace x10 {
 
             virtual x10aux::ref<x10::lang::String> typeName();
         };
-
-        template<class T> x10aux::ref<T> Closure::_deserialize(x10aux::deserialization_buffer &buf){
-            // extract the id and execute a callback to instantiate the right concrete class
-            _S_("Deserializing a "<<ANSI_SER<<ANSI_BOLD<<"value"<<ANSI_RESET<<
-                " (expecting id) from buf: "<<&buf);
-            return x10aux::DeserializationDispatcher::create<T>(buf);
-        }
     }
 }
 

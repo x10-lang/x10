@@ -148,10 +148,12 @@ import x10.ast.X10ConstructorCall_c;
 import x10.ast.X10ConstructorDecl_c;
 import x10.ast.X10Field_c;
 import x10.ast.X10Formal;
+import x10.ast.X10Initializer_c;
 import x10.ast.X10Instanceof_c;
 import x10.ast.X10IntLit_c;
 import x10.ast.X10LocalDecl_c;
 import x10.ast.X10MethodDecl_c;
+import x10.ast.X10New;
 import x10.ast.X10New_c;
 import x10.ast.X10Return_c;
 import x10.ast.X10Special;
@@ -254,6 +256,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	    
 	    if (n instanceof FlagsNode_c) {visit((FlagsNode_c)n); return;}
 	    if (n instanceof TypeParamNode_c) {visit((TypeParamNode_c)n); return;}
+        if (n instanceof X10Initializer_c) {visit((X10Initializer_c)n); return;}
 	    
 	    // already known unhandled node type
 	    if (
@@ -297,18 +300,33 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	public void visit(Eval_c n) {
 	    boolean semi = tr.appendSemicolon(true);
 	    Expr expr = n.expr();
-	    if (expr instanceof X10Call && isMethodInlineTarget((TypeSystem) tr.typeSystem(), ((X10Call) expr).target().type()) && ((X10Call) expr).methodInstance().name()==ClosureCall.APPLY) {
-	        w.write(X10_RUNTIME_UTIL_UTIL + ".eval(");
-	        n.print(expr, w, tr);
-	        w.write(")");
-	    }
-	    else if (expr instanceof X10Call && !expr.type().isVoid() && er.getJavaImplForDef(((X10Call) expr).methodInstance().x10Def()) != null) {
-	           w.write(X10_RUNTIME_UTIL_UTIL + ".eval(");
+	    // XTENLANG-2000
+	    if (expr instanceof X10Call) {
+	        // support for back-end method inlining
+	        if (isMethodInlineTarget((TypeSystem) tr.typeSystem(), ((X10Call) expr).target().type()) && ((X10Call) expr).methodInstance().name()==ClosureCall.APPLY) {
+	            w.write(X10_RUNTIME_UTIL_UTIL + ".eval(");
 	            n.print(expr, w, tr);
 	            w.write(")");
+	        }
+	        // support for @Native
+	        else if (expr instanceof X10Call && !expr.type().isVoid() && er.getJavaImplForDef(((X10Call) expr).methodInstance().x10Def()) != null) {
+	            w.write(X10_RUNTIME_UTIL_UTIL + ".eval(");
+	            n.print(expr, w, tr);
+	            w.write(")");
+	        }
+	        else {
+	            n.print(expr, w, tr);
+	        }
 	    }
+	    // when expr is StatementExpression(Assignment || [Pre/Post][De/In]crementExpression || MethodInvocation || ClassInstanceCreationExpression)
+	    else if (expr instanceof ClosureCall || expr instanceof Assign || expr instanceof Unary || expr instanceof X10New) {
+	        n.print(expr, w, tr);
+	    }
+	    // not a legal java statement
 	    else {
-            n.print(expr, w, tr);
+            w.write(X10_RUNTIME_UTIL_UTIL + ".eval(");
+	        n.print(expr, w, tr);
+	        w.write(")");
 	    }
 	    if (semi) {
 	        w.write(";");
@@ -3282,6 +3300,10 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             for (int i = 0; i < n.additionalDims(); i++) w.write("[]");
         }
 
+        public void visit(X10Initializer_c n) {
+            w.write("static ");
+            n.printBlock(n.body(), w, tr);
+        }
 	/**
 	 * A list of one object that has an infinite circular iterator.
 	 */

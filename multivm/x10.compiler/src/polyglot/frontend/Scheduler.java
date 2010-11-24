@@ -540,6 +540,7 @@ public abstract class Scheduler {
     public abstract Goal Parsed(Job job);
     public abstract Goal ImportTableInitialized(Job job);
     public abstract Goal TypesInitialized(Job job);
+    protected abstract Goal constructTypesInitialized(Job job);
     public abstract Goal TypesInitializedForCommandLineBarrier();
     public abstract Goal PreTypeCheck(Job job);
     public abstract Goal TypeChecked(Job job);

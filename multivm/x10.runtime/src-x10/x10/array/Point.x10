@@ -23,7 +23,9 @@ import x10.compiler.TempNoInline_3;
  * <code>(Int)=>int</code>. The coordinates may also be accessed as a
  * Rail[int]. Point arithmetic is supported.
  */
-public final class Point(rank:Int) implements (Int) => Int, Ordered[Point(rank)] {
+public final class Point(rank:Int) implements (Int) => Int, 
+                                              Ordered[Point(rank)], 
+                                              Comparable[Point(rank)] {
     private val c0:int;
     private val c1:int;
     private val c2:int;
@@ -219,6 +221,13 @@ public final class Point(rank:Int) implements (Int) => Int, Ordered[Point(rank)]
      */
     public operator (c: int) / this: Point(rank) 
        = Point.make(rank, (i:Int) => c / this(i));
+
+    /**
+     * {@link Comparable#compareTo}
+     */
+    public def compareTo(that:Point(rank)) {
+        return this == that ? 0 : this < that ? -1 : 1;
+    }
 
     /**
      * Compute the hashCode of a point by combining the

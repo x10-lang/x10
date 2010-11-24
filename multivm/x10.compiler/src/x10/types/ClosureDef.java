@@ -19,6 +19,8 @@ import polyglot.types.FunctionDef;
 import polyglot.types.MethodInstance;
 import polyglot.types.Ref;
 import polyglot.types.Type;
+import polyglot.types.VarDef;
+import polyglot.types.VarInstance;
 import polyglot.util.Position;
 
 import x10.types.constraints.XConstrainedTerm;
@@ -54,6 +56,12 @@ public interface ClosureDef extends FunctionDef, X10Def, X10ProcedureDef {
     
     //List<ParameterType> typeParameters();
     void setTypeParameters(List<ParameterType> typeParameters);
+    
+    List<VarInstance<? extends VarDef>> capturedEnvironment();
+    void addCapturedVariable(VarInstance<? extends VarDef> vi);
+    
+    boolean staticContext();
+    void setStaticContext(boolean v);
     
     
     /**

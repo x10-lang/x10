@@ -49,6 +49,10 @@ ifdef ENABLE_X10RT_MPI
   include mpi/mpi.mk
 endif
 
+ifdef ENABLE_X10RT_PAMI
+  include pami/pami.mk
+endif
+
 ifndef DISABLE_X10RT_PGAS
   include pgas/pgas.mk
 endif
@@ -74,6 +78,8 @@ debug::
 	@echo DISABLE_X10RT_CUDA = $(DISABLE_X10RT_CUDA)
 	@echo ENABLE_X10RT_MPI = $(ENABLE_X10RT_MPI)
 	@echo DISABLE_X10RT_MPI = $(DISABLE_X10RT_MPI)
+	@echo ENABLE_X10RT_PAMI = $(ENABLE_X10RT_PAMI)
+	@echo DISABLE_X10RT_PAMI = $(DISABLE_X10RT_PAMI)
 	@echo ENABLE_X10RT_PGAS = $(ENABLE_X10RT_PGAS)
 	@echo DISABLE_X10RT_PGAS = $(DISABLE_X10RT_PGAS)
 	@echo LIBS = $(LIBS)
@@ -110,6 +116,7 @@ jni/jni_message.o: include/x10rt_types.h
 jni/jni_x10rt.o: include/x10_x10rt_X10RT.h include/x10rt_front.h
 jni/jni_x10rt.o: include/x10rt_types.h
 mpi/x10rt_mpi.o: include/x10rt_net.h include/x10rt_types.h
+pami/x10rt_pami.o: include/x10rt_net.h include/x10rt_types.h
 sockets/Launcher.o: sockets/Launcher.h sockets/TCP.h
 sockets/Launcher_Init.o: sockets/TCP.h sockets/Launcher.h
 sockets/tcp.o: sockets/TCP.h

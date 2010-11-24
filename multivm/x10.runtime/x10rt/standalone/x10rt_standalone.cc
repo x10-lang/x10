@@ -1,20 +1,19 @@
-/********************************************************************************************
- * (c) Copyright IBM Corporation 2010
- * Written be Ben Herta for IBM, bherta@us.ibm.com, April 2010
+/*
+ *  This file is part of the X10 project (http://x10-lang.org).
+ *
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ *  (C) Copyright IBM Corporation 2006-2010.
+ *
+ *  This file was written by Ben Herta for IBM: bherta@us.ibm.com
+ *
  * This code supports multi-place x10 programs running on a single machine.
  * This involves spawning a child process for each place, and merging them at the end.
  * Data transmission is done through shared memory.
- *
- * No threads are actually necessary in this implementation, since there is
- * no need to process actual incoming message streams into buffers.  Instead
- * the buffers are filled by the sending end, and then picked up directly by
- * the receiving end.
- *
- * OPEN QUESTIONS AND TODOS:
- * Can the callbacks throw exceptions that I should be catching?
- * The shared memory queues should become dynamic, not static, and grow as needed
- * thoroughly test for and fix any memory leaks, and file handle leaks
- **********************************************************************************************/
+ */
 #include <cstdlib>
 #include <cstdio>
 
@@ -315,7 +314,7 @@ int barrier_wait(pthread_barrier_t *barrier)
 }
 #endif // end platform-specific overrides of standard pthread stuff
 
-#define X10RT_STANDALONE_NUMPLACES "X10RT_STANDALONE_NUMPLACES" // environment variable
+#define X10_NPLACES "X10_NPLACES" // environment variable
 #define X10RT_DATABUFFERSIZE 524300 // the size, in bytes, of the shared memory segment used for communications, per place
 
 
@@ -507,10 +506,10 @@ void insertNewMessage(MSGTYPE mt, x10rt_msg_params *p, void *dataPtr, x10rt_copy
 void x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter)
 {
 	// determine the number of places (processes) to create, using an environment variable
-	char* NPROCS = getenv(X10RT_STANDALONE_NUMPLACES);
+	char* NPROCS = getenv(X10_NPLACES);
 	if (NPROCS == NULL) 
 	{
-		fprintf(stderr, "X10RT_STANDALONE_NUMPLACES not set.  Assuming 1 place\n");
+		fprintf(stderr, "Warning: "X10_NPLACES" not set.  Assuming 1 place\n");
 		state.numPlaces = 1;
 	}
 	else

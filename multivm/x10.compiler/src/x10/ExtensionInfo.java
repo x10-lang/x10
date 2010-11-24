@@ -92,7 +92,7 @@ import x10.extension.X10Ext;
 //import x10.finish.table.CallTableVal;
 import x10.optimizations.Optimizer;
 import x10.parser.X10Lexer;
-import x10.parser.X10Parser;
+import x10.parser.X10SemanticRules;
 import x10.plugin.CompilerPlugin;
 import x10.plugin.LoadJobPlugins;
 import x10.plugin.LoadPlugins;
@@ -115,6 +115,7 @@ import x10.visit.X10ImplicitDeclarationExpander;
 import x10.visit.X10InnerClassRemover;
 import x10.visit.X10MLVerifier;
 import x10.visit.X10Translator;
+import x10.visit.X10TypeBuilder;
 import x10.visit.X10TypeChecker;
 import x10.visit.PositionInvariantChecker;
 import x10.visit.InstanceInvariantChecker;
@@ -199,7 +200,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                 source.resource().getClass() == FileResource.class ?
                                 new X10Lexer(source.path()) :
                                 new X10Lexer(reader, source.toString());
-            X10Parser x10_parser = new X10Parser(x10_lexer.getILexStream(), ts, nf, source, eq); // Create the parser
+            X10SemanticRules x10_parser = new X10SemanticRules(x10_lexer.getILexStream(), ts, nf, source, eq); // Create the parser
             x10_lexer.lexer(x10_parser.getIPrsStream());
             return x10_parser; // Parse the token stream to produce an AST
         } catch (IOException e) {
@@ -432,21 +433,24 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            if (x10.Configuration.WALA || x10.Configuration.FINISH_ASYNCS) {
                try{
                    ClassLoader cl = Thread.currentThread().getContextClassLoader();
-                   Class<?> c = cl.loadClass("com.ibm.wala.cast.x10.translator.polyglot.X102IRGoal");
+                   Class<?> c = cl.loadClass("com.ibm.wala.cast.x10.translator.X102IRGoal");
                    Constructor<?> con = c.getConstructor(Job.class);
-                   Method buildCallTableMethod = c.getMethod("analyze");
                    Method hasMain = c.getMethod("hasMain", String.class);
                    Goal ir = ((Goal) con.newInstance(job)).intern(this);
                    goals.add(ir);
                    Goal finder = MainMethodFinder(job, hasMain);
                    finder.addPrereq(TypeCheckBarrier());
                    ir.addPrereq(finder);
-                   Goal barrier = IRBarrier(ir, buildCallTableMethod,x10.Configuration.FINISH_ASYNCS);
-                   goals.add(barrier);
+                   Goal barrier;
                    if(x10.Configuration.FINISH_ASYNCS){
-                	   goals.add(FinishAsyncBarrier(barrier,job,this));
+                       Method buildCallTableMethod = c.getMethod("analyze");
+                       barrier = IRBarrier(ir, buildCallTableMethod);
+                   } else {
+                       Method printCallGraph = c.getMethod("printCallGraph");
+                       barrier = IRBarrier(ir, printCallGraph);
                    }
-                   
+                   goals.add(barrier);
+                   goals.add(FinishAsyncBarrier(barrier,job,this));
                } catch (Throwable e) {
                    System.err.println("WALA not found.");
                    e.printStackTrace();
@@ -471,15 +475,10 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                wsCodeGenGoal.addPrereq(WSCallGraphBarrier());
            }
            
-           // try retypechecking before inlining
-           // TypeSystem ts = job.extensionInfo().typeSystem();
-           // NodeFactory nf = job.extensionInfo().nodeFactory();
-           // goals.add( new ForgivingVisitorGoal("TypeChecked", job, new X10TypeChecker(job, ts, nf, job.nodeMemo())));
-          
-           goals.addAll(Optimizer.goals(this, job, ExpressionFlattener(job)));
-           if (x10.Configuration.FLATTEN_EXPRESSIONS) {
-               goals.add(ExpressionFlattener(job));
-           }
+           goals.add(Preoptimization(job));
+           goals.addAll(Optimizer.goals(this, job));
+           goals.add(Postoptimization(job));
+           
            goals.add(Lowerer(job));
            goals.add(InnerClassRemover(job)); // TODO: move earlier
            goals.add(CodeGenerated(job));
@@ -492,7 +491,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            CodeGenerated(job).addPrereq(CodeGenBarrier());
            Lowerer(job).addPrereq(TypeCheckBarrier());
            CodeGenerated(job).addPrereq(Lowerer(job));
-           List<Goal> optimizations = Optimizer.goals(this, job, ExpressionFlattener(job));
+           List<Goal> optimizations = Optimizer.goals(this, job);
            for (Goal goal : optimizations) {
                goal.addPrereq(TypeCheckBarrier());
                CodeGenerated(job).addPrereq(goal);
@@ -520,7 +519,21 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 
            return goals;
        }
-       
+
+       public Goal Preoptimization(Job job) { 
+           return new SourceGoal_c("Preoptimization", job) {
+               private static final long serialVersionUID = 1L;
+               public boolean runTask() { return true; }
+           }.intern(this);
+       }
+
+       public Goal Postoptimization(Job job) { 
+           return new SourceGoal_c("Postoptimization", job) {
+               private static final long serialVersionUID = 1L;
+               public boolean runTask() { return true; }
+           }.intern(this);
+       }
+
        Goal PrintWeakCallsCount;
        @Override
        protected Goal EndAll() {
@@ -574,7 +587,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            }
            return null;
        }
-       public Goal IRBarrier(final Goal goal, final Method method, final boolean finishAsync) {
+       public Goal IRBarrier(final Goal goal, final Method method) {
            return new AllBarrierGoal("IRBarrier", this) {
                private static final long serialVersionUID = -3692329571101709400L;
                @Override
@@ -586,7 +599,16 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                    return goal;
                }
                public boolean runTask() {
+                   if (Configuration.FINISH_ASYNCS) {
 //                   calltable = X10Scheduler.<HashMap<CallTableKey, LinkedList<CallTableVal>>>invokeGeneric(method);
+                   } else {
+                       try {
+                           method.invoke(null);
+                       } catch (IllegalArgumentException e) {
+                       } catch (IllegalAccessException e) {
+                       } catch (InvocationTargetException e) {
+                       }
+                   }
                    return true;
                }
            }.intern(this);
@@ -738,12 +760,6 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     	   NodeFactory nf = extInfo.nodeFactory();
     	   Goal cg = new ValidatingOutputGoal(job, new X10Translator(job, ts, nf, extInfo.targetFactory()));
            Goal cg2 = cg.intern(this);
-           // FIXME: guarded to make local optimizations effective in java backend
-           if (x10.Configuration.FLATTEN_EXPRESSIONS || x10.Configuration.INLINE_OPTIMIZATIONS) {
-           if (cg == cg2) {
-               cg2.addPrereq(ExpressionFlattener(job));
-           }
-           }
            return cg2;
        }
 
@@ -772,6 +788,13 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            return new X10ParserGoal(extInfo.compiler(), job).intern(this);
        }
 
+       @Override
+       public Goal constructTypesInitialized(Job job) {
+           TypeSystem ts = job.extensionInfo().typeSystem();
+           NodeFactory nf = job.extensionInfo().nodeFactory();
+           return new ForgivingVisitorGoal("TypesInitialized", job, new X10TypeBuilder(job, ts, nf)).intern(this);
+       }
+
        public Goal X10MLTypeChecked(Job job) {
            TypeSystem ts = extInfo.typeSystem();
            NodeFactory nf = extInfo.nodeFactory();
@@ -780,8 +803,8 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 
        @Override
        public Goal TypeChecked(Job job) {
-       	TypeSystem ts = job.extensionInfo().typeSystem();
-       	NodeFactory nf = job.extensionInfo().nodeFactory();
+           TypeSystem ts = job.extensionInfo().typeSystem();
+           NodeFactory nf = job.extensionInfo().nodeFactory();
            return new ForgivingVisitorGoal("TypeChecked", job, new X10TypeChecker(job, ts, nf, job.nodeMemo())).intern(this);
        }
 
@@ -930,16 +953,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            return ef2;
        }
        
-       public Goal ExpressionFlattener(Job job) {
-           TypeSystem ts = extInfo.typeSystem();
-           NodeFactory nf = extInfo.nodeFactory();
-           VisitorGoal ef = new ValidatingVisitorGoal("ExpressionFlattener", job, new ExpressionFlattener(job, ts, nf));
-           Goal ef2 = ef.intern(this);
-           if (ef == ef2) {
-              // ef.addPrereq(Lowerer(job));
-           }
-           return ef2;
-       }
+       
        
        public Goal InnerClassRemover(Job job) {
            TypeSystem ts = extInfo.typeSystem();

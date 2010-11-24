@@ -75,7 +75,7 @@ public class X10LocalDef_c extends LocalDef_c implements X10LocalDef {
 
     private XTerm placeTerm;
     public XTerm placeTerm() { return placeTerm;}
-    // todo Yoav: keep only the first is a bad strategy because these place terms are used in other types, and other constructs (like AtStmt_c)
+    // FIXME Yoav: keep only the first is a bad strategy because these place terms are used in other types, and other constructs (like AtStmt_c)
     public void setPlaceTerm(XTerm pt) {
     	if (placeTerm == null)
     		placeTerm = pt;
