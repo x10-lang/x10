@@ -15,6 +15,7 @@ import java.util.List;
 
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
+import polyglot.types.Context;
 import polyglot.types.FieldDef;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
@@ -58,4 +59,9 @@ public interface X10ClassDef extends X10Def, ClassDef, X10MemberDef {
      */
     boolean isFunction();
     X10ClassType asType();
+    /**
+     * Does this class def have a custom deserialization constructor defined?
+     */
+    boolean hasDeserializationConstructor(Context context);
+
 }

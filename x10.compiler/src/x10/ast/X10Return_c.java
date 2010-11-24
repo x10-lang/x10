@@ -56,7 +56,7 @@ public class X10Return_c extends Return_c {
 		this.implicit = implicit;
 	}
 	
-	public Type removeLocals(Context ctx, Type t, CodeDef thisCode) {
+	public static Type removeLocals(Context ctx, Type t, CodeDef thisCode) {
 	    Type b = X10TypeMixin.baseType(t);
 	    if (b != t)
 	        b = removeLocals(ctx, b, thisCode);
@@ -67,7 +67,7 @@ public class X10Return_c extends Return_c {
 	    return X10TypeMixin.xclause(b, c);
 	}
 	
-	public CConstraint removeLocals(Context ctx, CConstraint c, CodeDef thisCode) {
+	public static CConstraint removeLocals(Context ctx, CConstraint c, CodeDef thisCode) {
 	    if (ctx.currentCode() != thisCode) {
 	        return c;
 	    }
@@ -94,14 +94,17 @@ public class X10Return_c extends Return_c {
 	public Node typeCheck(ContextVisitor tc) {
 		TypeSystem ts = (TypeSystem) tc.typeSystem();
 		Context c = (Context) tc.context();
-	
+		
 		CodeDef ci = c.currentCode();
 		
 		if (((X10Context_c)c).inAsyncScope()) { // can return from an at but not from an async
 		    Errors.issue(tc.job(), new SemanticException("Cannot return from an async."), this);
 		    return this;
 		}
-		Type exprType = expr != null ? expr.type() : null;
+
+		X10Return_c n = this;
+        
+		Type exprType = n.expr() != null ? n.expr().type() : null;
 
 
 		// In the exprType, we may have replaced here by PlaceTerm from the context
@@ -113,7 +116,7 @@ public class X10Return_c extends Return_c {
 		if (exprType != null) {
 			exprType = PlaceChecker.ReplacePlaceTermByHere(exprType, tc.context());
 
-			expr = expr.type(exprType);
+			n = (X10Return_c) n.expr(n.expr().type(exprType));
 		}
 		    
 		// If the return type is not yet known, set it to the type of the value being returned.
@@ -145,7 +148,7 @@ public class X10Return_c extends Return_c {
 		    Ref<Type> typeRef = (Ref<Type>) fi.returnType();
 		    
 		    if (merge) {
-		        if (expr == null) {
+		        if (n.expr() == null) {
 		            if (! typeRef.known()) {
 		                typeRef.update(ts.Void());
 		            }
@@ -161,7 +164,7 @@ public class X10Return_c extends Return_c {
 		                    Type t = ts.leastCommonAncestor(typeRef.getCached(), exprType, c);
 		                    typeRef.update(t);
 		                } catch (SemanticException e) {
-		                    Errors.issue(tc.job(), e, this);
+		                    Errors.issue(tc.job(), e, n);
 		                }
 		            }
 		        }
@@ -181,24 +184,22 @@ public class X10Return_c extends Return_c {
 		    // the e is translated into a return e;
 		    // Now we must make sure that if e is of type void, then
 		    // the return e; is replaced by {eval(e); return;}
-		    if (expr != null && implicit && expr.type().isVoid()) {
+		    if (n.expr() != null && n.implicit && n.expr().type().isVoid()) {
 		    	NodeFactory nf = tc.nodeFactory();
-		    	return nf.Block(position(), nf.Eval(expr.position(), expr), nf.Return(position()));
+		    	return nf.Block(n.position(), nf.Eval(n.expr().position(), n.expr()), nf.Return(n.position()));
 		    }
 
-		    if (expr == null && ! typeRef.getCached().isVoid()) {
+		    if (n.expr() == null && ! typeRef.getCached().isVoid()) {
 		        Errors.issue(tc.job(),
-		                new SemanticException("Must return value from non-void method.", position()));
+		                new SemanticException("Must return value from non-void method.", n.position()));
 		    }
-		    if (expr != null && typeRef.getCached().isVoid()) {
+		    if (n.expr() != null && typeRef.getCached().isVoid()) {
 		        Errors.issue(tc.job(),
-		                new SemanticException("Cannot return value from void method or closure.", position()));
+		                new SemanticException("Cannot return value from void method or closure.", n.position()));
 		    }
 		}
 		
-		X10Return_c n = this;
-		
-		if (expr != null) {
+		if (n.expr() != null) {
 		    if (ci instanceof FunctionDef) {
 		        FunctionDef fi = (FunctionDef) ci;
 		        Type returnType = Types.get(fi.returnType());
@@ -215,7 +216,7 @@ public class X10Return_c extends Return_c {
 //		                return n.superTypeCheck(tc);
 //		            }
 //		        }
-		        Expr e = Converter.attemptCoercion(tc, expr, returnType);
+		        Expr e = Converter.attemptCoercion(tc, n.expr(), returnType);
 		        if (e != null)
 		            n = (X10Return_c) n.expr(e);
 		    }

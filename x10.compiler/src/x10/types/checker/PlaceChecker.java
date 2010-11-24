@@ -43,6 +43,7 @@ import x10.types.X10FieldInstance;
 import x10.types.X10Flags;
 import x10.types.X10MethodInstance;
 import x10.types.X10TypeMixin;
+import x10.types.X10TypeSystem_c;
 import polyglot.types.TypeSystem;
 import x10.types.XTypeTranslator;
 import x10.types.constraints.CConstraint;
@@ -445,10 +446,10 @@ public class PlaceChecker {
  			   
 			Type rType = r.type();
 			XTerm target = X10TypeMixin.selfVarBinding(rType); 
-			if (target != null && target.toString().contains("$dummyAsync#this")) {
+			if (target != null && target.toString().contains(X10TypeSystem_c.DUMMY_AT_ASYNC+"#this")) {
 				XVar thisVar = xc.thisVar();
 				for (X10Context outer = (X10Context) xc.pop();
-				     outer != null && target != null && target.toString().contains("$dummyAsync#this");
+				     outer != null && target != null && target.toString().contains(X10TypeSystem_c.DUMMY_AT_ASYNC+"#this");
 				     outer = (X10Context) outer.pop())
 				{
 					target = outer.thisVar();

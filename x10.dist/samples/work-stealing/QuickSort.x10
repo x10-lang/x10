@@ -60,7 +60,7 @@ public class QuickSort {
 
   public static def main(args:Array[String](1)) {
       val N = args.size>0 ? Int.parse(args(0)) : 1000;
-      val r = new x10.util.Random();
+      val r = new x10.util.Random(0);
       var avgDur:Double = 0;
       for (var i:Int = 0; i < 10; ++i) {
           val data = new Array[int](N, (int)=>r.nextInt(9999));

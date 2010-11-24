@@ -26,6 +26,13 @@
 #endif
 
 /*
+ * use this to indicate that a function is pure so that
+ * the postcompiler can feel free to apply CSE or loop opts
+ * on it just as it would to a basic operator.
+ */
+#define X10_PRAGMA_PURE __attribute((pure))
+
+/*
  * Use this to prevent the function from being inlined.
  * Intended use case: infrequently executed code that
  * appears in header files due to our use of templates.

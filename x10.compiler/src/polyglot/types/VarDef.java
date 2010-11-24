@@ -66,4 +66,9 @@ public interface VarDef extends TypeObject, Def
      */
     void setFlags(Flags flags);
 
+    /**
+     * Return the Use for the current Def.
+     */
+    VarInstance<? extends VarDef> asInstance();
+
 }

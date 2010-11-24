@@ -33,6 +33,9 @@ namespace x10aux {
         static x10_int toIntBits(x10_float value);
         static x10_int toRawIntBits(x10_float value);
         static x10_float fromIntBits(x10_int value);
+        static x10_boolean compareTo(x10_float v1, x10_float v2) {
+            return v1 == v2 ? 0 : (v1 < v2 ? -1 : 1);
+        }
     };
 
     inline x10_float mod(x10_float a, x10_float b) {

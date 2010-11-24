@@ -35,7 +35,7 @@ public class CUDABlackScholes {
             opt_N:Int,
             R:Float,
             V:Float) {
-        val blocks = 480;
+        val blocks = p.isCUDA() ? 480 : 1;
         val threads = 128;
         finish async at (p) @CUDA @CUDADirectParams {
             //val blocks = CUDAUtilities.autoBlocks(),
@@ -136,17 +136,17 @@ public class CUDABlackScholes {
         Console.OUT.println("Effective memory bandwidth: " + (5 * OPT_N * 4) * 1.0e-9f / (gpuTime * 1.0E-9f) + " GB/s");
         Console.OUT.println("Gigaoptions per second    : " + ((2 * OPT_N) * 1.0e-9f) / (gpuTime * 1.0e-9f));
 
-        CUDAUtilities.deleteRemoteArray(d_CallResult);
-        CUDAUtilities.deleteRemoteArray(d_PutResult);
-        CUDAUtilities.deleteRemoteArray(d_StockPrice);
-        CUDAUtilities.deleteRemoteArray(d_OptionStrike);
-        CUDAUtilities.deleteRemoteArray(d_OptionYears);
-
         // Read back GPU results
         finish {
             Array.asyncCopy(d_CallResult, 0, h_CallResultGPU, 0, OPT_N);
             Array.asyncCopy(d_PutResult, 0, h_PutResultGPU, 0, OPT_N);
         }
+
+        CUDAUtilities.deleteRemoteArray(d_CallResult);
+        CUDAUtilities.deleteRemoteArray(d_PutResult);
+        CUDAUtilities.deleteRemoteArray(d_StockPrice);
+        CUDAUtilities.deleteRemoteArray(d_OptionStrike);
+        CUDAUtilities.deleteRemoteArray(d_OptionYears);
 
         Console.OUT.println("Generating a second set of results at place " + cpu);
         doBlackScholes(cpu, 

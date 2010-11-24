@@ -27,6 +27,7 @@ import polyglot.frontend.Job;
 import x10.ast.Closure_c;
 import x10cpp.X10CPPCompilerOptions;
 import x10cpp.types.X10CPPContext_c;
+import x10cuda.ast.CUDAKernel;
 import polyglot.types.Name;
 import polyglot.types.TypeSystem;
 import polyglot.types.VarInstance;
@@ -54,10 +55,10 @@ public class X10CUDAContext_c extends X10CPPContext_c {
     private ArrayList<VarInstance<?>> kernelParams; public ArrayList<VarInstance<?>> kernelParams() { return kernelParams; }
     public void initKernelParams() {
         this.kernelParams = variables();
-        if (cudaData.autoBlocks!=null)
-            this.kernelParams.add(cudaData.autoBlocks.localDef().asInstance());
-        if (cudaData.autoThreads!=null)
-            this.kernelParams.add(cudaData.autoThreads.localDef().asInstance());
+        if (cudaKernel.autoBlocks!=null)
+            this.kernelParams.add(cudaKernel.autoBlocks.localDef().asInstance());
+        if (cudaKernel.autoThreads!=null)
+            this.kernelParams.add(cudaKernel.autoThreads.localDef().asInstance());
     }
     public boolean isKernelParam(Name n) {
         for (VarInstance<?> i : kernelParams) {
@@ -98,18 +99,18 @@ public class X10CUDAContext_c extends X10CPPContext_c {
     public X10CUDAContext_c established() { return established; }
 
     // This var is used to iterate over indexes in shm arrays in the shm initialisation codegen
-    Name shmIterationVar;
-    public void shmIterationVar(Name v) { shmIterationVar = v; }
-    public Name shmIterationVar() { return shmIterationVar; }
+    Formal shmIterationVar;
+    public void shmIterationVar(Formal v) { shmIterationVar = v; }
+    public Formal shmIterationVar() { return shmIterationVar; }
 
     // The first kernel emitted in a class will have some #include codegen output before it
     boolean firstKernel[] = new boolean[]{false};
 	public void firstKernel(boolean b) { firstKernel[0] = b; }
 	public boolean firstKernel() { return firstKernel[0]; }
 	
-	private CUDAData cudaData;
-	public CUDAData cudaData() { return cudaData; } 
-	public void cudaData(CUDAData cudaData) { this.cudaData = cudaData; }
+	private CUDAKernel cudaKernel;
+	public CUDAKernel cudaKernel() { return cudaKernel; } 
+	public void cudaKernel(CUDAKernel cudaKernel) { this.cudaKernel = cudaKernel; }
 	
 }
 

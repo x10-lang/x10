@@ -44,7 +44,9 @@ import polyglot.ast.LocalDecl;
 import polyglot.ast.New;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
+import polyglot.ast.ProcedureCall;
 import polyglot.ast.Return;
+import polyglot.ast.SourceFile;
 import polyglot.ast.Special;
 import polyglot.ast.Stmt;
 import polyglot.ast.Switch;
@@ -52,14 +54,15 @@ import polyglot.ast.Throw;
 import polyglot.ast.Try;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
-import polyglot.ast.Variable;
 import polyglot.ast.While;
 import polyglot.ast.While_c;
 import polyglot.frontend.Job;
+import polyglot.frontend.Source;
 import polyglot.types.Flags;
 import polyglot.types.Name;
 import polyglot.types.SemanticException;
 import polyglot.types.TypeSystem;
+import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
@@ -85,8 +88,9 @@ import x10.ast.SubtypeTest;
 import x10.ast.Tuple;
 import x10.ast.When;
 import x10.ast.X10ClassDecl;
+import x10.ast.HasZeroTest;
+import x10.errors.Warnings;
 import x10.optimizations.ForLoopOptimizer;
-import polyglot.types.TypeSystem;
 
 /**
  * @author Bowen Alpern
@@ -95,6 +99,9 @@ import polyglot.types.TypeSystem;
 public final class ExpressionFlattener extends ContextVisitor {
 
     private static final boolean DEBUG = false;
+
+//  private static final boolean XTENLANG_2055 = false; // bug work around
+    private static final boolean XTENLANG_2055 = true; // bug work around
 
     private final TypeSystem xts;
     private final NodeFactory xnf;
@@ -157,6 +164,12 @@ public final class ExpressionFlattener extends ContextVisitor {
      * @return true if the node cannot be flattened, false otherwise
      */
     public static boolean cannotFlatten(Node n) {
+        if (n instanceof SourceFile){
+            Source s = ((SourceFile) n).source();
+            if (XTENLANG_2055 && s.name().equals("Marshal.x10")) { // DEBUG: can't flatten Marshal
+                return true; 
+            }
+        }
         if (n instanceof ConstructorDecl) { // can't flatten constructors until local assignments can precede super() and this()
             return true;
         }
@@ -258,6 +271,7 @@ public final class ExpressionFlattener extends ContextVisitor {
         else if (expr instanceof AtExpr)         return flattenAtExpr((AtExpr) expr);
         else if (expr instanceof Future)         return flattenFuture((Future) expr);
         else if (expr instanceof SubtypeTest)    return flattenSubtypeTest((SubtypeTest) expr);
+        else if (expr instanceof HasZeroTest)    return expr;
         else if (expr instanceof ClosureCall)    return flattenClosureCall((ClosureCall) expr);
         else if (expr instanceof Conditional)    return flattenConditional((Conditional) expr);
         else if (expr instanceof StmtExpr)       return flattenStmtExpr((StmtExpr) expr);
@@ -1001,7 +1015,14 @@ public final class ExpressionFlattener extends ContextVisitor {
         while (result instanceof ParExpr) 
             result = ((ParExpr) result).expr();
         if (sed.hasSideEffects(result)) {
-            stmts.add(syn.createEval(result));
+            if (result instanceof ProcedureCall || result instanceof Assign || result instanceof Unary) {
+                stmts.add(syn.createEval(result));
+            } else if (!result.type().typeEquals(xts.Void(), context())){
+                stmts.add(syn.createLocalDecl(result.position(), Flags.FINAL, Name.makeFresh("dummy"), result));
+            } else {
+                Warnings.issue(job, "DEBUG: eval : " +result, result.position());
+                throw new InternalCompilerError("Cannot flatten " +result+ " at " +result.position()+ " (was " +stmt+ ")");
+            }
         }
         return syn.toStmtSeq(syn.toStmtSeq(stmt.position(), stmts));
     }

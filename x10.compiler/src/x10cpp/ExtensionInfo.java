@@ -164,7 +164,7 @@ public class ExtensionInfo extends x10.ExtensionInfo {
 		public List<Goal> goals(Job job) {
 		    List<Goal> goals = super.goals(job);
 		    StaticNestedClassRemover(job).addPrereq(InnerClassRemover(job));
-		    for (Goal g: Optimizer.goals(this, job, ExpressionFlattener(job))) {
+		    for (Goal g: Optimizer.goals(this, job)) {
 		        StaticNestedClassRemover(job).addPrereq(g);
 		    }
 		    return goals;

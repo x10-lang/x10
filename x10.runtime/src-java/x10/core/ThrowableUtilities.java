@@ -25,6 +25,8 @@ public class ThrowableUtilities {
             newExcName = "x10.lang.ArithmeticException";
         } else if (e instanceof java.lang.ArrayIndexOutOfBoundsException) {
             newExcName = "x10.lang.ArrayIndexOutOfBoundsException";
+        } else if (e instanceof java.lang.StringIndexOutOfBoundsException) {
+            newExcName = "x10.lang.StringIndexOutOfBoundsException";
         } else if (e instanceof java.lang.ClassCastException) {
             newExcName = "x10.lang.ClassCastException";
         } else if (e instanceof java.lang.NumberFormatException) {
@@ -60,6 +62,8 @@ public class ThrowableUtilities {
             newExcName = "x10.io.FileNotFoundException";
         } else if (e instanceof java.io.EOFException) {
             newExcName = "x10.io.EOFException";
+        } else if (e instanceof java.io.NotSerializableException) {
+            newExcName = "x10.io.NotSerializableException";
         } else if (e instanceof java.io.IOException) {
             newExcName = "x10.io.IOException";
         } else if (e instanceof java.lang.InterruptedException) {
@@ -85,6 +89,8 @@ public class ThrowableUtilities {
         String newExcName = "x10.lang.Error";
         if (e instanceof java.lang.OutOfMemoryError) {
             newExcName = "x10.lang.OutOfMemoryError";
+        } else if (e instanceof java.lang.AssertionError) {
+            newExcName = "x10.lang.AssertionError";
         } else {
             // no corresponding x10 errors defined
         }

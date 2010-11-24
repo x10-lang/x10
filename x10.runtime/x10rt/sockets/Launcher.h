@@ -1,5 +1,15 @@
-/* ************************************************************************ */
-/* ************************************************************************ */
+/*
+ *  This file is part of the X10 project (http://x10-lang.org).
+ *
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ *  (C) Copyright IBM Corporation 2006-2010.
+ *
+ *  This file was written by Ben Herta for IBM: bherta@us.ibm.com
+ */
 #include <stdlib.h>
 #include <stdarg.h>
 #include <limits.h>
@@ -26,15 +36,16 @@ extern "C" int strcasecmp(const char *, const char *);
 /* ************************************************************************ */
 
 // Environment variable names
-#define X10LAUNCHER_MYID "X10LAUNCHER_MYID" // a number for the "place" of this process.  Set by the launcher.
-#define X10LAUNCHER_NPROCS "X10LAUNCHER_NPROCS" // the number of places in this process
-#define X10LAUNCHER_HOSTFILE "X10LAUNCHER_HOSTFILE" // full path name of a file containing a list of hostnames
-#define X10LAUNCHER_HOSTLIST "X10LAUNCHER_HOSTLIST" // an alternative to HOSTFILE above.  This is a comma-separated list of hostnames
+#define X10_PLACE "X10_PLACE" // a number for the "place" of this process.  Set by the launcher.
+#define X10_NPLACES "X10_NPLACES" // the number of places in this process
+#define X10_HOSTFILE "X10_HOSTFILE" // full path name of a file containing a list of hostnames
+#define X10_HOSTLIST "X10_HOSTLIST" // an alternative to HOSTFILE above.  This is a comma-separated list of hostnames
 #define X10LAUNCHER_SSH "X10LAUNCHER_SSH" // the ssh command.  This doesn't normally need to be set.
 #define X10LAUNCHER_PARENT "X10LAUNCHER_PARENT" // the hostname:port of the parent launcher.  This is set by the launcher.
 #define X10LAUNCHER_RUNTIME "X10LAUNCHER_RUNTIME" // this is a flag to run as a runtime or a launcher.  Set by the launcher.
 #define X10LAUNCHER_CWD "X10LAUNCHER_CWD" // the working directory of the program
 #define X10LAUNCHER_DEBUG "X10LAUNCHER_DEBUG" // This flag causes the runtime to launch under gdb in a new xterm
+#define X10RT_NOYIELD "X10RT_NOYIELD"
 
 // Enable/disable debug information
 // Enabled for MULTIVM

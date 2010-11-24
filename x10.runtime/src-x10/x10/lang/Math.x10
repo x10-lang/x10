@@ -327,15 +327,14 @@ public final class Math {
    @Native("c++", "x10aux::math_utils::log1p(#1)")
    public static native def log1p(a:Double):Double;
 
-    /* FIXME: since NativeRep of Int and UInt are the same, can't overload these methods with unsigned. */
     public static def max(a:Int, b:Int)= a<b?b:a;
     public static def min(a:Int, b:Int)= a<b?a:b;
-// public static def max(a:UInt, b:UInt)= a<b?b:a;
-// public static def min(a:UInt, b:UInt)= a<b?a:b;
+    public static def max(a:UInt, b:UInt)= a<b?b:a;
+ 	public static def min(a:UInt, b:UInt)= a<b?a:b;
     public static def max(a:Long, b:Long)= a<b?b:a;
     public static def min(a:Long, b:Long)= a<b?a:b;
-//  public static def max(a:ULong, b:ULong)= a<b?b:a;
-//  public static def min(a:ULong, b:ULong)= a<b?a:b;
+    public static def max(a:ULong, b:ULong)= a<b?b:a;
+  	public static def min(a:ULong, b:ULong)= a<b?a:b;
     public static def max(a:Float, b:Float)= a<b?b:a;
     public static def min(a:Float, b:Float)= a<b?a:b;
     public static def max(a:Double, b:Double)= a<b?b:a;

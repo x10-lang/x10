@@ -229,8 +229,7 @@ public class X10ClassBody_c extends ClassBody_c {
             //if (t1 instanceof ParameterType || t2 instanceof ParameterType)
             //    continue;
             
-            tc = tc.unify(t1,t2,ts);
-            if (! tc.consistent(xcontext))
+            if (!tc.unify(t1,t2,ts) || !tc.consistent(xcontext))
         	return false;
            /*
             // Uninstantiate the parameterized types.

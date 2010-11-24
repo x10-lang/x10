@@ -1204,7 +1204,7 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
      */
     public X10Call replaceMethodCallWithWSMethodCall(X10Call aCall, X10MethodDef methodDef, 
                                                   List<Expr> newArgs){
-        
+    	
         //for arguments & new method instance's formal types
         ArrayList<Expr> args = new ArrayList<Expr>(newArgs);
         args.addAll(aCall.arguments());
@@ -1217,9 +1217,11 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
         //for the name
         Name name = methodDef.name(); //new name
         
-        //new method instance
+        //new method instance with original properties
         MethodInstance mi = methodDef.asInstance();
         mi = mi.formalTypes(argTypes);
+        mi = mi.returnType(aCall.methodInstance().returnType());
+        mi = (MethodInstance) mi.container(aCall.methodInstance().container());
         
         //build new call
         aCall = (X10Call) aCall.methodInstance(mi);

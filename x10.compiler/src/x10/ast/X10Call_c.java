@@ -261,7 +261,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
                 neu = (X10New_c) neu.typeCheck1(tc);
                 return neu;
             } catch (SemanticException cause) {
-                throw new InternalCompilerError("Unexpected exception when typechecking "+neu, neu.position(), cause);
+                Errors.issue(tc.job(),cause);
             }
         }
         return null;

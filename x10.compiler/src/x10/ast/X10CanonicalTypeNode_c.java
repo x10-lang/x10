@@ -182,7 +182,7 @@ public class X10CanonicalTypeNode_c extends CanonicalTypeNode_c implements X10Ca
         
         TypeSystem ts = (TypeSystem) t.typeSystem();
         
-        if (! ts.consistent(t, (Context) tc.context())) {
+        if (! ts.consistent(t, tc.context())) {
             Errors.issue(tc.job(), new SemanticException("Type " + t + " is inconsistent.", position()));
         }
         

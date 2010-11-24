@@ -83,6 +83,9 @@ import x10.ast.X10ClassDecl_c;
 import x10.ast.X10ConstructorDecl;
 import x10.ast.X10MethodDecl_c;
 import x10.ast.X10NodeFactory_c;
+import x10.Configuration;
+import x10.config.ConfigurationError;
+import x10.config.OptionError;
 import x10.extension.X10Ext;
 import x10.types.ConstrainedType_c;
 import x10.types.FunctionType;
@@ -259,17 +262,17 @@ public class Emitter {
 			    int endpos = pos;
 			    while (regex.charAt(++endpos) != '`') { }
 			    String optionName = regex.substring(pos + 1, endpos);
-                Object optionValue = null;
+			    Object optionValue = null;
 			    try {
-			        Class<?> configClass = Class.forName("x10.Configuration");
-			        java.lang.reflect.Field optionField = configClass.getField(optionName);
-			        optionValue = optionField.get(null);
-                } catch (Exception e) {
-                    throw new InternalCompilerError("Template '" + id + "' uses `" + optionName + "`");
-                }
-                w.write(optionValue.toString());
-                pos = endpos;
-                start = pos + 1;
+			        optionValue = Configuration.get(Configuration.class, optionName);
+			    } catch (ConfigurationError e) {
+			        throw new InternalCompilerError("Unable to read `" + optionName + "` in template '" + id + "'", e);
+			    } catch (OptionError e) {
+			        throw new InternalCompilerError("Template '" + id + "' uses `" + optionName + "`", e);
+			    }
+			    w.write(optionValue.toString());
+			    pos = endpos;
+			    start = pos + 1;
 			}
 			pos++;
 		}
@@ -1320,8 +1323,6 @@ public class Emitter {
 	    X10ClassType ct = (X10ClassType) cd.asType();
 	    List<MethodInstance> methods;
 	    for (MethodDef md : cd.methods()) {
-	        if (mangleToJava(md.name()).startsWith("$")) continue;
-	        
 	        methods = getInstantiatedMethods(ct, md.asInstance());
 	        for (MethodInstance mi : methods) {
 	            printBridgeMethod(ct, md.asInstance(), mi.def());
@@ -1414,6 +1415,7 @@ public class Emitter {
     private List<MethodInstance> getInstantiatedMethods(X10ClassType ct, MethodInstance mi) {
         	    List<MethodInstance> methods = new ArrayList<MethodInstance>();
         	    for (MethodInstance impled : mi.implemented(tr.context())) {
+        	        if (mi.flags().isPrivate()) continue;
         	        if (mi.container().typeEquals(impled.container(), tr.context())) continue;
 
         	        if (X10PrettyPrinterVisitor.isGenericOverloading) {
@@ -1727,7 +1729,7 @@ public class Emitter {
             Type sup = ct.superClass();
             if (sup instanceof X10ClassType) {
                 for (MethodInstance mi : ((X10ClassType)(sup)).methods()) {
-                    if (!mi.flags().isStatic()) {
+                    if (!mi.flags().isStatic() && !mi.flags().isPrivate()) {
                         boolean contains = false;
                         for (MethodInstance mi2 : overrides) {
                             if (mi2.isSameMethod(mi, tr.context())) {
@@ -2503,18 +2505,6 @@ public class Emitter {
         return false;
     }
     
-	private static boolean hasDeserializationConstructor(X10ClassDef def) {
-        for (ConstructorDef cd: def.constructors()) {
-            if (cd.formalTypes().size() > 0) {
-                Type type = cd.formalTypes().get(cd.formalTypes().size() - 1).get();
-                if ("x10.io.SerialData".equals(type.toString())) {
-                    return true;
-                }
-            }
-        }
-        return false;
-	}
-	
     private static X10ConstructorDecl hasDefaultConstructor(X10ClassDecl n) {
         for (ClassMember member : n.body().members()) {
             if (member instanceof X10ConstructorDecl) {
@@ -2644,7 +2634,7 @@ public class Emitter {
         }
         */
 
-        if (!hasDeserializationConstructor(def)) {
+        if (!def.hasDeserializationConstructor(tr.context())) {
             w.write("// default deserialization constructor");
             w.newline();
             w.write("public " + def.name().toString() + "(");

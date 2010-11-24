@@ -50,6 +50,7 @@ import x10.ast.Tuple;
 import x10.ast.X10Cast;
 import x10.ast.X10Field_c;
 import x10.ast.X10Special;
+import x10.ast.HasZeroTest;
 import x10.constraint.XEQV;
 import x10.constraint.XEquals;
 import x10.constraint.XFailure;
@@ -215,17 +216,12 @@ public class XTypeTranslator {
 		        }
 		    }
 		    // why is this code not in X10Context_c.thisVar()?
-		    XVar thisVar = xc == null ? null : xc.thisVar();
-		    for (Context outer = (Context) xc.pop();
-		    outer != null && thisVar == null;
-		    outer = (Context) outer.pop())
-		    {
+		    XVar thisVar = null;
+		    for (Context outer = xc; outer != null && thisVar == null; outer = outer.pop()) {
 		        thisVar = outer.thisVar();
 		    }
 		    if (thisVar == null) {
 		        SemanticException e = new SemanticException("Cannot refer to |this| from the context " + xc);
-		        if (true)
-		        throw new InternalCompilerError(e.getMessage());
 		        return null;
 		    }
 		    // vj: Need to set the thisVar for the constraint.
@@ -395,6 +391,8 @@ public class XTypeTranslator {
 	    }
 	    else if (t instanceof SubtypeTest) {
 	        transType(c, (SubtypeTest) t, xc);
+        } else if (t instanceof HasZeroTest) {
+            transType(c, (HasZeroTest) t, xc);
 	    }
 	    else {
 	        throw new SemanticException("Cannot translate " + t + " into a type constraint.", t.position());
@@ -402,6 +400,10 @@ public class XTypeTranslator {
 	}
 	
 
+	private void transType(TypeConstraint c, HasZeroTest t, Context xc) throws SemanticException {
+	    TypeNode left = t.parameter();
+	    c.addTerm(new SubtypeConstraint(left.type(), null, SubtypeConstraint.Kind.HASZERO));
+	}
 	private void transType(TypeConstraint c, SubtypeTest t, Context xc) throws SemanticException {
 	    TypeNode left = t.subtype();
 	    TypeNode right = t.supertype();

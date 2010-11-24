@@ -81,6 +81,7 @@ import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
 import x10.types.constraints.XConstrainedTerm;
+import x10.types.constraints.SubtypeConstraint;
 import x10.ast.X10Return_c;
 
 public class X10Context_c extends Context_c {
@@ -195,13 +196,19 @@ public class X10Context_c extends Context_c {
     	return currentPlaceConstraint;
     }
    */
+
+    protected XConstrainedTerm currentFinishPlaceTerm = null;
+    public XConstrainedTerm currentFinishPlaceTerm() {
+        return currentFinishPlaceTerm;
+    }
+
     protected XConstrainedTerm currentPlaceTerm = null;
     public XConstrainedTerm currentPlaceTerm() {
     	/*X10Context_c cxt = this;
     	XConstrainedTerm result = cxt.currentPlaceTerm;
     	// skip dummy async places
     	for ( ;
-    	     cxt != null && result != null && result.term().toString().contains("$dummyAsync#");
+    	     cxt != null && result != null && result.term().toString().contains(X10TypeSystem_c.DUMMY_AT_ASYNC+"#");
     	     cxt = (X10Context_c) cxt.pop())
     	{
     		result = cxt.currentPlaceTerm;
@@ -221,6 +228,7 @@ public class X10Context_c extends Context_c {
     	X10Context_c cxt = (X10Context_c) SUPER_pushBlock();
 		cxt.x10Kind = X10Kind.Finish;
 		cxt.inClockedFinishScope = isClocked;
+		cxt.currentFinishPlaceTerm = cxt.currentPlaceTerm;
 		return cxt;
     }
     public boolean inClockedFinishScope() {
@@ -246,7 +254,7 @@ public class X10Context_c extends Context_c {
     	if (cc != null) {
     		if (cc instanceof X10MethodDef) {
     			X10MethodDef md = (X10MethodDef) cc;
-    			while (md.name().toString().contains("$dummyAsync")) {
+    			while (md.name().toString().contains(X10TypeSystem_c.DUMMY_AT_ASYNC)) {
     				cxt = cxt.pop();
     				if (cxt == null)
     					break;
@@ -634,6 +642,23 @@ public class X10Context_c extends Context_c {
 		return (Context) SUPER_pushBlock();
 	}
 
+    public X10Context_c pushTypeConstraintWithContextTerms(TypeConstraint c) {  // see also pushAdditionalConstraint (Constraint and TypeConstraint are similar)
+        final X10Context_c xc = pushTypeConstraint(c);
+        xc.currentTypeConstraint().addIn(this.currentTypeConstraint());
+        return xc;
+    }
+    public X10Context_c pushTypeConstraint(TypeConstraint c) {
+        return pushTypeConstraint(c.terms());
+    }
+    public X10Context_c pushTypeConstraint(Collection<SubtypeConstraint> c) {
+        X10Context_c xc = (X10Context_c) pushBlock();
+        TypeConstraint equals = new TypeConstraint();
+        //if (currentTypeConstraint!=null) equals.addIn(currentTypeConstraint.get());
+        equals.addTerms(c);   
+        xc.setCurrentTypeConstraint(Types.ref(equals));
+        return xc;
+    }
+
 	public Context pushAtomicBlock() {
 		assert (depType == null);
 		Context c = (Context) SUPER_pushBlock();
@@ -671,11 +696,7 @@ public class X10Context_c extends Context_c {
 	public Context pushCode(CodeDef ci) {
 		//System.err.println("Pushing code " + ci);
 		assert (depType == null);
-		X10Context_c result = (X10Context_c) super.pushCode(ci);
-		// For closures, propagate the static context of the outer scope
-		if (ci instanceof ClosureDef)
-		    result.staticContext = staticContext;
-		return result;
+		return super.pushCode(ci);
 	}
 
 	/**
@@ -833,6 +854,35 @@ public class X10Context_c extends Context_c {
 //		assert (depType == null);
 		super.addVariableToThisScope(var);
 	}
+
+	public void recordCapturedVariable(VarInstance<? extends VarDef> vi) {
+	    Context c = findEnclosingClosure();
+	    if (c == null)
+	        return;
+	    VarInstance<?> o = c.pop().findVariableSilent(vi.name());
+	    if (vi == o || (o != null && vi.def() == o.def()))
+	        ((ClosureDef) c.currentCode()).addCapturedVariable(vi);
+	}
+
+	private Context findEnclosingClosure() {
+	    Context c = popToCode();
+	    while (c != null && !(c.currentCode() instanceof ClosureDef)) {
+	        c = c.pop().popToCode();
+	    }
+	    assert (c == null || ((X10Context_c) c).isCode());
+	    if (c != null && c.currentCode() instanceof ClosureDef)
+	        return c;
+	    return null;
+	}
+
+	public Context popToCode() {
+	    Context c = this;
+	    while (c != null && !((X10Context_c) c).isCode()) {
+	        c = c.pop();
+	    }
+	    return c;
+	}
+
 
 	public void setVarWhoseTypeIsBeingElaborated(VarDef var) {
 		varWhoseTypeIsBeingElaborated = var;

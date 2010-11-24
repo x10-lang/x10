@@ -29,6 +29,7 @@ import polyglot.ast.Unary_c;
 import polyglot.ast.Variable;
 import polyglot.ast.FloatLit;
 import polyglot.ast.TypeNode;
+import polyglot.ast.IntLit;
 import polyglot.ast.Binary.Operator;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
@@ -69,6 +70,7 @@ import x10.ast.X10StringLit_c;
 import x10.ast.Async;
 import x10.ast.AnnotationNode;
 import x10.ast.X10CanonicalTypeNode_c;
+import x10.ast.HasZeroTest;
 import x10.constraint.XFailure;
 import x10.constraint.XLit;
 import x10.constraint.XName;
@@ -82,9 +84,11 @@ import x10.types.constraints.CConstraint;
 import x10.types.constraints.DepthBoundReached;
 import x10.types.constraints.TypeConstraint;
 import x10.types.constraints.XConstrainedTerm;
+import x10.types.constraints.SubtypeConstraint;
 import x10.types.matcher.Matcher;
 import x10.types.matcher.X10NamelessMethodMatcher;
 import x10.extension.X10Del;
+import x10.visit.X10TypeChecker;
 
 /** 
  * Utilities for dealing with X10 dependent types.
@@ -1222,25 +1226,93 @@ public class X10TypeMixin {
             return false;
         }
     }
-    // this is an under-approximation (it is always safe to return 'null', i.e., the user will just get more errors). In the future we will improve the precision so more types might have zero.
-    public static Expr getZeroVal(Type t, Position p, ContextVisitor tc) { // see X10FieldDecl_c.typeCheck
+    // this is an under-approximation (it is always safe to return false, i.e., the user will just get more errors). In the future we will improve the precision so more types will have zero.
+    public static boolean isHaszero(Type t, Context xc) {
+        TypeSystem ts = xc.typeSystem();
+        XLit zeroLit = null;  // see Lit_c.constantValue() in its decendants
+        if (t.isBoolean()) {
+            zeroLit = XTerms.FALSE;
+            // todo: add literals for short, byte, and their unsigned versions
+        } else if (ts.isShort(t)) {
+        } else if (ts.isUShort(t)) {
+        } else if (ts.isByte(t)) {
+        } else if (ts.isUByte(t)) {
+
+        } else if (ts.isChar(t)) {
+            zeroLit = XTerms.ZERO_CHAR;
+        } else if (ts.isInt(t) || ts.isUInt(t) || ts.isULong(t)) {
+            zeroLit = XTerms.ZERO_INT;
+        } else if (ts.isLong(t)) {
+            zeroLit = XTerms.ZERO_LONG;
+        } else if (ts.isFloat(t)) {
+            zeroLit = XTerms.ZERO_FLOAT;
+        } else if (ts.isDouble(t)) {
+            zeroLit = XTerms.ZERO_DOUBLE;
+        } else if (ts.isObjectOrInterfaceType(t, xc)) {
+            if (permitsNull(t)) return true;
+            //zeroLit = XTerms.NULL;
+        } else if (ts.isParameterType(t)) {
+            // we have some type "T" which is a type parameter. Does it have a zero value?
+            // So, type bounds (e.g., T<:Int) do not help, because  Int{self!=0}<:Int
+            // Similarly, Int<:T doesn't help, because  Int<:Any{self!=null}
+            // However, T==Int does help
+            if (isConstrained(t)) return false; // if we have constraints on the type parameter, e.g., T{self!=null}, then we give up and return false.
+            TypeConstraint typeConst = xc.currentTypeConstraint();
+            List<SubtypeConstraint> env =  typeConst.terms();
+            for (SubtypeConstraint sc : env) {
+                if (sc.isEqualityConstraint()) {
+                    Type other = null;
+                    final Type sub = sc.subtype();
+                    final Type sup = sc.supertype();
+                    if (ts.typeEquals(t, sub,xc)) {
+                        if (!ts.isParameterType(sub)) other = sub;
+                        if (!ts.isParameterType(sup)) other = sup;
+                    }
+                    if (other!=null &&                                 
+                            isHaszero(other,xc)) // careful of infinite recursion when calling isHaszero
+                                        // We cannot have infinite recursion because other is not a ParameterType
+                                        // (we can have that T==U, U==Int. but then typeEquals(T,Int,xc) should return true)
+                        return true; // T is equal to another type that has zero
+                } else if (sc.isSubtypeConstraint()) {
+                    // doesn't help
+                } else {
+                    assert sc.isHaszero();
+                    if (ts.typeEquals(t,sc.subtype(),xc)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        if (zeroLit==null) return false;
+        if (!isConstrained(t)) return true;
+        final CConstraint constraint = xclause(t);
+        final CConstraint zeroCons = new CConstraint(constraint.self());
+        // make sure the zeroLit is not in the constraint
         try {
-            TypeSystem ts = (TypeSystem) tc.typeSystem();
-            NodeFactory nf = (NodeFactory) tc.nodeFactory();
-	    	Context context = (Context) tc.context();
+            zeroCons.addSelfBinding(zeroLit);
+            return zeroCons.entails(constraint);
+        } catch (XFailure xFailure) {
+            return false;
+        }
+
+    }
+    public static Expr getZeroVal(TypeNode typeNode, Position p, ContextVisitor tc) { // see X10FieldDecl_c.typeCheck
+        try {
+            Type t = typeNode.type();
+            TypeSystem ts = tc.typeSystem();
+            NodeFactory nf = tc.nodeFactory();
+	    	Context context = tc.context();
+            if (!isHaszero(t,context)) return null;
+
             Expr e = null;
             if (t.isBoolean()) {
                 e = nf.BooleanLit(p, false);
 
             // todo: add literals for short, byte, and their unsigned versions
             } else if (ts.isShort(t)) {
-                e = nf.IntLit(p, X10IntLit_c.INT, 0L);
             } else if (ts.isUShort(t)) {
-                e = nf.IntLit(p, X10IntLit_c.UINT, 0L);
             } else if (ts.isByte(t)) {
-                e = nf.IntLit(p, X10IntLit_c.INT, 0L);
             } else if (ts.isUByte(t)) {
-                e = nf.IntLit(p, X10IntLit_c.UINT, 0L);
                 
             } else if (ts.isChar(t)) {
                 e = nf.CharLit(p, '\0');
@@ -1258,9 +1330,18 @@ public class X10TypeMixin {
                 e = nf.FloatLit(p, FloatLit.DOUBLE, 0.0);
             } else if (ts.isObjectOrInterfaceType(t, context)) {
                 e = nf.NullLit(p);
+            } else if (ts.isParameterType(t)) {
+                // call Zero.get[T]()  (e.g., "0 as T" doesn't work if T is String)
+                TypeNode receiver = (TypeNode) nf.CanonicalTypeNode(p, (Type) ts.systemResolver().find(QName.make("x10.lang.Zero")));
+                //receiver = (TypeNode) receiver.del().typeCheck(tc).checkConstants(tc);
+                e = nf.X10Call(p,receiver, nf.Id(p,"get"),Collections.singletonList(typeNode), Collections.<Expr>emptyList());
+
+//                IntLit lit = nf.IntLit(p, X10IntLit_c.INT, 0L);
+//                lit = (IntLit) lit.del().typeCheck(tc).checkConstants(tc);
+//                e = nf.Cast(p,typeNode, lit);
             }
-            // todo: we should handle user-defined structs, as well as generic type parameters with hasDefault. see hasZero
-//            if (isX10Struct(t)) {
+            // todo: we should handle user-defined structs
+//          } else if (isX10Struct(t)) {
             /*
             My plan for user-defined structs is as follows:
 1) recursively verify that all generic parameters have zero/default (this might be stricter then necessary because a parameter might not be used in any field, but is easier to implement)
@@ -1271,8 +1352,6 @@ We gather the constraints from:
 then we substitute 0/false/null in all the constraints in C and if they all evaluate to true, then we have a default value.
              */
 
-//            // a parameter type might be instantiated with a type that doesn't have a default/zero. todo: In the future we'll add the "hasDefault" constraint
-//            if (ts.isParameterType(t)) {
 
             if (e != null) {
                 e = (Expr) e.del().typeCheck(tc).checkConstants(tc);
@@ -1281,7 +1360,7 @@ then we substitute 0/false/null in all the constraints in C and if they all eval
                 }
             }
             return null;
-        } catch (SemanticException e1) {
+        } catch (Throwable e1) {
             throw new InternalCompilerError(e1);
         }
     }
@@ -1561,11 +1640,15 @@ then we substitute 0/false/null in all the constraints in C and if they all eval
 		
 		if (xt instanceof X10ParsedClassType) {
 			X10ParsedClassType xt1 = (X10ParsedClassType) xt;
+            final X10ClassDef classDef = (X10ClassDef) xt1.def();
 			
 			if (xt1.isMissingTypeArguments()) {
-				List<ParameterType> expectedArgs = ((X10ClassDef) xt1.def()).typeParameters();
+                List<ParameterType> expectedArgs = classDef.typeParameters();
 				throw new Errors.TypeIsMissingParameters(xt, expectedArgs, pos);
-			}
+			} else {
+                // todo check the TypeConstraint of the class invariant is satisfied
+                
+            }
 		}
 	}
 	public static Type arrayElementType(Type t) {
@@ -1586,6 +1669,8 @@ then we substitute 0/false/null in all the constraints in C and if they all eval
 	    else if (e instanceof Unary_c)
 	        return isTypeConstraintExpression(((Unary) e).expr());
 	    else if (e instanceof SubtypeTest)
+	        return true;
+	    else if (e instanceof HasZeroTest)
 	        return true;
 	    return false;
 	}

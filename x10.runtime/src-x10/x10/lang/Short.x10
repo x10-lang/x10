@@ -28,190 +28,174 @@ import x10.util.Ordered;
 public struct Short implements Comparable[Short] /*TODO implements Arithmetic[Short], Bitwise[Short], Ordered[Short]*/ {
     /**
      * A less-than operator.
-     * Compares the given Short with another Short and returns true if the given Short is
+     * Compares this Short with another Short and returns true if this Short is
      * strictly less than the other Short.
-     * @param x the given Short
-     * @param y the other Short
-     * @return true if the given Short is strictly less than the other Short.
+     * @param x the other Short
+     * @return true if this Short is strictly less than the other Short.
      */
-    @Native("java", "((#1) < (#2))")
-    @Native("c++",  "((#1) < (#2))")
-    public native static operator (x:Short) < (y:Short): Boolean;
+    @Native("java", "((#0) < (#1))")
+    @Native("c++",  "((#0) < (#1))")
+    public native operator this < (x:Short): Boolean;
 
     /**
      * A greater-than operator.
-     * Compares the given Short with another Short and returns true if the given Short is
+     * Compares this Short with another Short and returns true if this Short is
      * strictly greater than the other Short.
-     * @param x the given Short
-     * @param y the other Short
-     * @return true if the given Short is strictly greater than the other Short.
+     * @param x the other Short
+     * @return true if this Short is strictly greater than the other Short.
      */
-    @Native("java", "((#1) > (#2))")
-    @Native("c++",  "((#1) > (#2))")
-    public native static operator (x:Short) > (y:Short): Boolean;
+    @Native("java", "((#0) > (#1))")
+    @Native("c++",  "((#0) > (#1))")
+    public native operator this > (x:Short): Boolean;
 
     /**
      * A less-than-or-equal-to operator.
-     * Compares the given Short with another Short and returns true if the given Short is
+     * Compares this Short with another Short and returns true if this Short is
      * less than or equal to the other Short.
-     * @param x the given Short
-     * @param y the other Short
-     * @return true if the given Short is less than or equal to the other Short.
+     * @param x the other Short
+     * @return true if this Short is less than or equal to the other Short.
      */
-    @Native("java", "((#1) <= (#2))")
-    @Native("c++",  "((#1) <= (#2))")
-    public native static operator (x:Short) <= (y:Short): Boolean;
+    @Native("java", "((#0) <= (#1))")
+    @Native("c++",  "((#0) <= (#1))")
+    public native operator this <= (x:Short): Boolean;
 
     /**
      * A greater-than-or-equal-to operator.
-     * Compares the given Short with another Short and returns true if the given Short is
+     * Compares this Short with another Short and returns true if this Short is
      * greater than or equal to the other Short.
-     * @param x the given Short
-     * @param y the other Short
-     * @return true if the given Short is greater than or equal to the other Short.
+     * @param x the other Short
+     * @return true if this Short is greater than or equal to the other Short.
      */
-    @Native("java", "((#1) >= (#2))")
-    @Native("c++",  "((#1) >= (#2))")
-    public native static operator (x:Short) >= (y:Short): Boolean;
+    @Native("java", "((#0) >= (#1))")
+    @Native("c++",  "((#0) >= (#1))")
+    public native operator this >= (x:Short): Boolean;
 
 
     /**
      * A binary plus operator.
      * Computes the result of the addition of the two operands.
      * Overflows result in truncating the high bits.
-     * @param x the given Short
-     * @param y the other Short
-     * @return the sum of the given Short and the other Short.
+     * @param x the other Short
+     * @return the sum of this Short and the other Short.
      */
-    @Native("java", "((short) ((#1) + (#2)))")
-    @Native("c++",  "((x10_short) ((#1) + (#2)))")
-    public native static operator (x:Short) + (y:Short): Short;
+    @Native("java", "((short) ((#0) + (#1)))")
+    @Native("c++",  "((x10_short) ((#0) + (#1)))")
+    public native operator this + (x:Short): Short;
 
     /**
      * A binary minus operator.
      * Computes the result of the subtraction of the two operands.
      * Overflows result in truncating the high bits.
-     * @param x the given Short
-     * @param y the other Short
-     * @return the difference of the given Short and the other Short.
+     * @param x the other Short
+     * @return the difference of this Short and the other Short.
      */
-    @Native("java", "((short) ((#1) - (#2)))")
-    @Native("c++",  "((x10_short) ((#1) - (#2)))")
-    public native static operator (x:Short) - (y:Short): Short;
+    @Native("java", "((short) ((#0) - (#1)))")
+    @Native("c++",  "((x10_short) ((#0) - (#1)))")
+    public native operator this - (x:Short): Short;
 
     /**
      * A binary multiply operator.
      * Computes the result of the multiplication of the two operands.
      * Overflows result in truncating the high bits.
-     * @param x the given Short
-     * @param y the other Short
-     * @return the product of the given Short and the other Short.
+     * @param x the other Short
+     * @return the product of this Short and the other Short.
      */
-    @Native("java", "((short) ((#1) * (#2)))")
-    @Native("c++",  "((x10_short) ((#1) * (#2)))")
-    public native static operator (x:Short) * (y:Short): Short;
+    @Native("java", "((short) ((#0) * (#1)))")
+    @Native("c++",  "((x10_short) ((#0) * (#1)))")
+    public native operator this * (x:Short): Short;
 
     /**
      * A binary divide operator.
      * Computes the result of the division of the two operands.
-     * @param x the given Short
-     * @param y the other Short
-     * @return the quotient of the given Short and the other Short.
+     * @param x the other Short
+     * @return the quotient of this Short and the other Short.
      */
-    @Native("java", "((short) ((#1) / (#2)))")
-    @Native("c++",  "((x10_short) ((#1) / (#2)))")
-    public native static operator (x:Short) / (y:Short): Short;
+    @Native("java", "((short) ((#0) / (#1)))")
+    @Native("c++",  "((x10_short) ((#0) / x10aux::zeroCheck(#1)))")
+    public native operator this / (x:Short): Short;
 
     /**
      * A binary remainder operator.
      * Computes a remainder from the division of the two operands.
-     * @param x the given Short
-     * @param y the other Short
-     * @return the remainder from dividing the given Short by the other Short.
+     * @param x the other Short
+     * @return the remainder from dividing this Short by the other Short.
      */
-    @Native("java", "((short) ((#1) % (#2)))")
-    @Native("c++",  "((x10_short) ((#1) % (#2)))")
-    public native static operator (x:Short) % (y:Short): Short;
+    @Native("java", "((short) ((#0) % (#1)))")
+    @Native("c++",  "((x10_short) ((#0) % x10aux::zeroCheck(#1)))")
+    public native operator this % (x:Short): Short;
 
     /**
      * A unary plus operator.
      * A no-op.
-     * @param x the given Short
-     * @return the value of the given Short.
+     * @return the value of this Short.
      */
-    @Native("java", "((short) +(#1))")
-    @Native("c++",  "((x10_short) +(#1))")
-    public native static operator + (x:Short): Short;
+    @Native("java", "((short) +(#0))")
+    @Native("c++",  "((x10_short) +(#0))")
+    public native operator + this: Short;
 
     /**
      * A unary minus operator.
      * Negates the operand.
      * Overflows result in truncating the high bits.
-     * @param x the given Short
-     * @return the negated value of the given Short.
+     * @return the negated value of this Short.
      */
-    @Native("java", "((short) -(#1))")
-    @Native("c++",  "((x10_short) -(#1))")
-    public native static operator - (x:Short): Short;
+    @Native("java", "((short) -(#0))")
+    @Native("c++",  "((x10_short) -(#0))")
+    public native operator - this: Short;
 
 
     /**
      * A bitwise and operator.
      * Computes a bitwise AND of the two operands.
-     * @param x the given Short
-     * @param y the other Short
-     * @return the bitwise AND of the given Short and the other Short.
+     * @param x the other Short
+     * @return the bitwise AND of this Short and the other Short.
      */
-    @Native("java", "((short) ((#1) & (#2)))")
-    @Native("c++",  "((x10_short) ((#1) & (#2)))")
-    public native static operator (x:Short) & (y:Short): Short;
+    @Native("java", "((short) ((#0) & (#1)))")
+    @Native("c++",  "((x10_short) ((#0) & (#1)))")
+    public native operator this & (x:Short): Short;
 
     /**
      * A bitwise or operator.
      * Computes a bitwise OR of the two operands.
-     * @param x the given Short
-     * @param y the other Short
-     * @return the bitwise OR of the given Short and the other Short.
+     * @param x the other Short
+     * @return the bitwise OR of this Short and the other Short.
      */
-    @Native("java", "((short) ((#1) | (#2)))")
-    @Native("c++",  "((x10_short) ((#1) | (#2)))")
-    public native static operator (x:Short) | (y:Short): Short;
+    @Native("java", "((short) ((#0) | (#1)))")
+    @Native("c++",  "((x10_short) ((#0) | (#1)))")
+    public native operator this | (x:Short): Short;
 
     /**
      * A bitwise xor operator.
      * Computes a bitwise XOR of the two operands.
-     * @param x the given Short
-     * @param y the other Short
-     * @return the bitwise XOR of the given Short and the other Short.
+     * @param x the other Short
+     * @return the bitwise XOR of this Short and the other Short.
      */
-    @Native("java", "((short) ((#1) ^ (#2)))")
-    @Native("c++",  "((x10_short) ((#1) ^ (#2)))")
-    public native static operator (x:Short) ^ (y:Short): Short;
+    @Native("java", "((short) ((#0) ^ (#1)))")
+    @Native("c++",  "((x10_short) ((#0) ^ (#1)))")
+    public native operator this ^ (x:Short): Short;
 
     /**
      * A bitwise left shift operator.
      * Computes the value of the left-hand operand shifted left by the value of the right-hand operand.
      * If the right-hand operand is negative, the results are undefined.
-     * @param x the given Short
      * @param count the shift count
-     * @return the given Short shifted left by count.
+     * @return this Short shifted left by count.
      */
-    @Native("java", "((short) ((#1) << (#2)))")
-    @Native("c++",  "((x10_short) ((#1) << (#2)))")
-    public native static operator (x:Short) << (count:Int): Short;
+    @Native("java", "((short) ((#0) << (#1)))")
+    @Native("c++",  "((x10_short) ((#0) << (#1)))")
+    public native operator this << (count:Int): Short;
 
     /**
      * A bitwise right shift operator.
      * Computes the value of the left-hand operand shifted right by the value of the right-hand operand,
      * replicating the sign bit into the high bits.
      * If the right-hand operand is negative, the results are undefined.
-     * @param x the given Short
      * @param count the shift count
-     * @return the given Short shifted right by count.
+     * @return this Short shifted right by count.
      */
-    @Native("java", "((short) ((#1) >> (#2)))")
-    @Native("c++",  "((x10_short) ((#1) >> (#2)))")
-    public native static operator (x:Short) >> (count:Int): Short;
+    @Native("java", "((short) ((#0) >> (#1)))")
+    @Native("c++",  "((x10_short) ((#0) >> (#1)))")
+    public native operator this >> (count:Int): Short;
 
     /**
      * A bitwise logical right shift operator (zero-fill).
@@ -219,23 +203,21 @@ public struct Short implements Comparable[Short] /*TODO implements Arithmetic[Sh
      * filling the high bits with zeros.
      * If the right-hand operand is negative, the results are undefined.
      * @deprecated use the right-shift operator and unsigned conversions instead.
-     * @param x the given Short
      * @param count the shift count
-     * @return the given Short shifted right by count with high bits zero-filled.
+     * @return this Short shifted right by count with high bits zero-filled.
      */
-    @Native("java", "((short) ((#1) >>> (#2)))")
-    @Native("c++",  "((x10_short) ((x10_uint) (#1) >> (#2)))")
-    public native static operator (x:Short) >>> (count:Int): Short;
+    @Native("java", "((short) ((#0) >>> (#1)))")
+    @Native("c++",  "((x10_short) ((x10_uint) (#0) >> (#1)))")
+    public native operator this >>> (count:Int): Short;
 
     /**
      * A bitwise complement operator.
      * Computes a bitwise complement (NOT) of the operand.
-     * @param x the given Short
-     * @return the bitwise complement of the given Short.
+     * @return the bitwise complement of this Short.
      */
-    @Native("java", "((short) ~(#1))")
-    @Native("c++",  "((x10_short) ~(#1))")
-    public native static operator ~ (x:Short): Short;
+    @Native("java", "((short) ~(#0))")
+    @Native("c++",  "((x10_short) ~(#0))")
+    public native operator ~ this: Short;
 
 
     /**
@@ -353,7 +335,7 @@ public struct Short implements Comparable[Short] /*TODO implements Arithmetic[Sh
      * @deprecated use {@link #parse(String,Int)} instead
      */
     // @Native("java", "java.lang.Short.parseShort(#1, #2)")
-    @Native("java", "new Object() { short eval(String s, int radix) { try { return java.lang.Short.parseShort(s, radix); } catch (java.lang.NumberFormatException e) { throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(e); } } }.eval(#1, #2)")
+    @Native("java", "new java.io.Serializable() { short eval(String s, int radix) { try { return java.lang.Short.parseShort(s, radix); } catch (java.lang.NumberFormatException e) { throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(e); } } }.eval(#1, #2)")
     @Native("c++", "x10aux::short_utils::parseShort(#1, #2)")
     public native static def parseShort(String, radix:Int): Short; //throwsNumberFormatException;
 
@@ -361,7 +343,7 @@ public struct Short implements Comparable[Short] /*TODO implements Arithmetic[Sh
      * @deprecated use {@link #parse(String)} instead
      */
     // @Native("java", "java.lang.Short.parseShort(#1)")
-    @Native("java", "new Object() { short eval(String s) { try { return java.lang.Short.parseShort(s); } catch (java.lang.NumberFormatException e) { throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(e); } } }.eval(#1)")
+    @Native("java", "new java.io.Serializable() { short eval(String s) { try { return java.lang.Short.parseShort(s); } catch (java.lang.NumberFormatException e) { throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(e); } } }.eval(#1)")
     @Native("c++", "x10aux::short_utils::parseShort(#1)")
     public native static def parseShort(String): Short; //throwsNumberFormatException;
 
@@ -373,7 +355,7 @@ public struct Short implements Comparable[Short] /*TODO implements Arithmetic[Sh
      * @throws NumberFormatException if the String does not contain a parsable Short.
      */
     // @Native("java", "java.lang.Short.parseShort(#1, #2)")
-    @Native("java", "new Object() { short eval(String s, int radix) { try { return java.lang.Short.parseShort(s, radix); } catch (java.lang.NumberFormatException e) { throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(e); } } }.eval(#1, #2)")
+    @Native("java", "new java.io.Serializable() { short eval(String s, int radix) { try { return java.lang.Short.parseShort(s, radix); } catch (java.lang.NumberFormatException e) { throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(e); } } }.eval(#1, #2)")
     @Native("c++", "x10aux::short_utils::parseShort(#1, #2)")
     public native static def parse(s:String, radix:Int): Short; //throwsNumberFormatException;
 
@@ -384,7 +366,7 @@ public struct Short implements Comparable[Short] /*TODO implements Arithmetic[Sh
      * @throws NumberFormatException if the String does not contain a parsable Short.
      */
     // @Native("java", "java.lang.Short.parseShort(#1)")
-    @Native("java", "new Object() { short eval(String s) { try { return java.lang.Short.parseShort(s); } catch (java.lang.NumberFormatException e) { throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(e); } } }.eval(#1)")
+    @Native("java", "new java.io.Serializable() { short eval(String s) { try { return java.lang.Short.parseShort(s); } catch (java.lang.NumberFormatException e) { throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(e); } } }.eval(#1)")
     @Native("c++", "x10aux::short_utils::parseShort(#1)")
     public native static def parse(s:String): Short; //throwsNumberFormatException;
 
@@ -445,5 +427,6 @@ public struct Short implements Comparable[Short] /*TODO implements Arithmetic[Sh
     * to, or greater than the given Short.
     */
    @Native("java", "x10.rtt.Equality.compareTo(#0, #1)")
-   public def compareTo(x:Short): Int = 0;
+   @Native("c++", "x10aux::_utils::compareTo(#0, #1)")
+   public native def compareTo(x:Short):Int;
 }

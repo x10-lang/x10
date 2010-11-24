@@ -389,7 +389,7 @@ public abstract class Context_c implements Context
         v.kind = CODE;
         v.code = ci;
         v.inCode = true;
-        v.staticContext = ci instanceof MemberDef && ((MemberDef) ci).flags().isStatic();
+        v.staticContext = ci.staticContext();
         return v;
     }
 

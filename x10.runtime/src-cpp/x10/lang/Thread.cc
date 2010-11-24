@@ -71,7 +71,7 @@ x10::lang::Thread::thread_start_routine(void *arg)
     tp->__thread_running = true;
 
     ref<Reference> taskBody = nullCheck(tp->__taskBody);
-    (taskBody.operator->()->*(x10aux::findITable<VoidFun_0_0>(taskBody->_getITables())->apply))();
+    VoidFun_0_0::apply(taskBody);
 
     // finished running
     tp->__thread_running = false;

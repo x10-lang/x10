@@ -396,10 +396,10 @@ class XPromise_c implements XPromise, Serializable {
         			XPromise p = m.getValue();
         			XTerm t = p.term();
         			XVar path2 = null;
-        			if (v != null && !(t instanceof XField) && !((XField) t).receiver().equals(v)) {
-        			    assert false;
-//        			    path2 = XTerms.makeField(v, name);
-        			}
+//        			if (v != null && !(t instanceof XField && ((XField) t).receiver().equals(v))) {
+//        			    assert false;
+////        			    path2 = XTerms.makeField(v, name);
+//        			}
 //        			path2 = v == null ? null : (XVar) t;
         			boolean hidden = t instanceof XField ? ((XField) t).isHidden() : false;
         			path2 = v == null ? null :

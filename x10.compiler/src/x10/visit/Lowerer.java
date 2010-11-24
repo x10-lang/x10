@@ -1388,7 +1388,7 @@ public class Lowerer extends ContextVisitor {
                 } catch (XFailure e) { }
             }
             DepParameterExpr res = xnf.DepParameterExpr(tn.position(), new Synthesizer(xnf, xts).makeExpr(c, tn.position()));
-            res = (DepParameterExpr) res.visit(new TypeBuilder(job, xts, xnf)).visit(new X10TypeChecker(job, xts, xnf, job.nodeMemo()).context(context().pushDepType(tn.typeRef())));
+            res = (DepParameterExpr) res.visit(new X10TypeBuilder(job, xts, xnf)).visit(new X10TypeChecker(job, xts, xnf, job.nodeMemo()).context(context().pushDepType(tn.typeRef())));
             return res;
         } else {
             assert false : "Unknown type node type: "+tn.getClass();

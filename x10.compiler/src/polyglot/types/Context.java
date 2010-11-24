@@ -16,7 +16,6 @@ import x10.constraint.XVar;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10CodeDef;
-import polyglot.types.Context;
 import x10.types.X10FieldInstance;
 import x10.types.X10LocalInstance;
 import x10.types.X10MethodInstance;
@@ -142,6 +141,14 @@ public interface Context extends Resolver, Copy
      * @return
      */
     XConstrainedTerm currentPlaceTerm();
+
+    /**
+     * Return any known constraint on the place of the lexically enclosing finish (as an XConstrainedTerm).
+     * If none is known, return null.
+     * 
+     * @return
+     */
+    XConstrainedTerm currentFinishPlaceTerm();
 
     /**
      * Push a new context, and set currentPlaceTerm to t.
@@ -292,4 +299,14 @@ public interface Context extends Resolver, Copy
      * @return
      */
     boolean isClocked();
+
+    /**
+     * Record the variable represented by vi in the enclosing closure (if any).
+     */
+    void recordCapturedVariable(VarInstance<? extends VarDef> vi);
+
+    /**
+     * Return the enclosing code context (or this if the current context is a code context).
+     */
+    Context popToCode();
 }

@@ -194,7 +194,40 @@ namespace x10aux {
 
     PRIMITIVE_CAST2(x10_uint,x10_ulong);
 
+    #define PRIMITIVE_TO_CHAR_CAST(F)        \
+        template<> struct ClassCastPrimitive<x10_char,F> {  \
+        static GPUSAFE x10_char _ (F obj, bool checked) { \
+            _CAST_(TYPENAME(F) <<" converted to x10_char"); \
+            return x10_char((x10_int)obj);                       \
+        } \
+    }
 
+    PRIMITIVE_TO_CHAR_CAST(x10_byte);
+    PRIMITIVE_TO_CHAR_CAST(x10_ubyte);
+    PRIMITIVE_TO_CHAR_CAST(x10_short);
+    PRIMITIVE_TO_CHAR_CAST(x10_ushort);
+    PRIMITIVE_TO_CHAR_CAST(x10_int);
+    PRIMITIVE_TO_CHAR_CAST(x10_uint);
+    PRIMITIVE_TO_CHAR_CAST(x10_long);
+    PRIMITIVE_TO_CHAR_CAST(x10_ulong);
+
+    #define PRIMITIVE_FROM_CHAR_CAST(T)              \
+        template<> struct ClassCastPrimitive<T,x10_char> {        \
+        static GPUSAFE T _ (x10_char obj, bool checked) { \
+            _CAST_("x10_char converted to "<<TYPENAME(T)); \
+            return static_cast<T>(obj.v); \
+        } \
+    }
+    
+    PRIMITIVE_FROM_CHAR_CAST(x10_byte);
+    PRIMITIVE_FROM_CHAR_CAST(x10_ubyte);
+    PRIMITIVE_FROM_CHAR_CAST(x10_short);
+    PRIMITIVE_FROM_CHAR_CAST(x10_ushort);
+    PRIMITIVE_FROM_CHAR_CAST(x10_int);
+    PRIMITIVE_FROM_CHAR_CAST(x10_uint);
+    PRIMITIVE_FROM_CHAR_CAST(x10_long);
+    PRIMITIVE_FROM_CHAR_CAST(x10_ulong);
+    
     // first level of template specialisation that recognises <T,T>
     // (needed because generic classes can be instantiated in ways that make casts redundant)
     template<class T, class F> struct ClassCast { static GPUSAFE T _ (F obj, bool checked) {

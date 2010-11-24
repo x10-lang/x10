@@ -540,10 +540,10 @@ public class X10KWLexer extends X10KWLexerprs
       
     
         //
-        // Rule 61:  KeyWord ::= h a s Z e r o
+        // Rule 61:  KeyWord ::= h a s z e r o
         //
         
-            keywordKind[61] = (X10Parsersym.TK_hasZero);
+            keywordKind[61] = (X10Parsersym.TK_haszero);
       
     
         for (int i = 0; i < keywordKind.length; i++)

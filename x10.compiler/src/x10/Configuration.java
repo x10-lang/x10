@@ -51,17 +51,30 @@ public final class Configuration extends x10.config.Configuration {
     public static boolean LOOP_OPTIMIZATIONS = true;
     private static final String LOOP_OPTIMIZATIONS_desc = "Optimize rectangular region iteration";
 
-    public static boolean INLINE_OPTIMIZATIONS = false;
-    private static final String INLINE_OPTIMIZATIONS_desc = "Perform inlining optimizations";
+    public static boolean EXPERIMENTAL = false;
+    private static final String EXPERIMENTAL_desc = "Enable experimental optimizations";
+
+    public static boolean ELIMINATE_DEAD_VARIABLES = false;
+    private static final String ELIMINATE_DEAD_VARIABLES_desc = "Get rid of unused local variables";
+
+    public static boolean INLINE_CONSTANTS = true;
+    private static final String INLINE_CONSTANTS_desc = "Enable inlining of command-line flag values";
+
+    public static boolean INLINE_METHODS = true;
+    private static final String INLINE_METHODS_desc = "Perform method inlining optimizations";
+    
+    // Note: this has more limited affect than CLOSURE_INLINING which also must be true for the Inliner to inline closure calls
+    public static boolean INLINE_CLOSURES = true;
+    private static final String INLINE_CLOSURES_desc = "Enable inlining of closure literal calls";
+
+    public static boolean INLINE_METHODS_IMPLICIT = false;
+    private static final String INLINE_METHODS_IMPLICIT_desc = "Inline methods that don't make many calls";
 
     public static boolean CLOSURE_INLINING = true;
-    private static final String CLOSURE_INLINING_desc = "Perform closure literal inlining";
+    private static final String CLOSURE_INLINING_desc = "Perform closure literal inlining during code generation";
 
     public static boolean FLATTEN_EXPRESSIONS = false;
     private static final String FLATTEN_EXPRESSIONS_desc = "Flatten all expressions";
-
-    public static boolean INLINE_SMALL_METHODS = false;
-    private static final String INLINE_SMALL_METHODS_desc = "Inline methods that don't make many calls";
 
     public static String PLUGINS = "";
     private static final String PLUGINS_desc = "Comma-separated list of compiler plugins to run.";
@@ -83,8 +96,13 @@ public final class Configuration extends x10.config.Configuration {
 
     public static boolean STATIC_CALLS = false;
     private static final String STATIC_CALLS_desc = "Treat dynamically-checked calls as errors.";
+
     public static boolean FINISH_ASYNCS = false;
     private static final String FINISH_ASYNCS_desc = "finish-async analysis.";
+
+    public static boolean MULTI_NODE = false;
+    private static final String MULTI_NODE_desc = "(Managed X10) each place is hosted by different Java VM";
+
     /**
      * Parses one argument from the command line.  This allows the user
      * to specify options also on the command line (in addition to the

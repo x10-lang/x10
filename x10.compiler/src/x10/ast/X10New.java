@@ -15,6 +15,7 @@ import java.util.List;
 
 import polyglot.ast.New;
 import polyglot.ast.TypeNode;
+import x10.types.X10ClassDef;
 
 public interface X10New extends New, X10ProcedureCall {
 	List<TypeNode> typeArguments();
@@ -24,4 +25,6 @@ public interface X10New extends New, X10ProcedureCall {
 	boolean newOmitted();
 
 	X10New newOmitted(boolean val);
+
+	X10ClassDef anonType();
 }

@@ -95,7 +95,7 @@ public class X10Disamb_c extends Disamb_c {
 	    		catch (SemanticException ex) {
 	    		}
 
-	    		if (fi != null && vi instanceof FieldInstance && !c.inStaticContext()) {
+	    		if (fi != null && vi instanceof FieldInstance && !c.inStaticContext() && !fi.flags().isStatic() && !vi.flags().isStatic()) {
 	    		    Receiver e = makeMissingFieldTarget((FieldInstance) vi);
 	    		    throw new SemanticException("Ambiguous reference to field " + this.name + "; both self." + name + " and " + e + "." + name + " match.", pos);
 	    		}

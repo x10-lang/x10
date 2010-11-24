@@ -19,7 +19,7 @@ import harness.x10Test;
  */
 public class ClockTest4 extends x10Test {
 
-	var val: int = 0;
+	var value: int = 0;
 	public static N: int = 32;
 
 	public def run(): boolean = {
@@ -30,19 +30,19 @@ public class ClockTest4 extends x10Test {
 		}
 		foreachBody(0, c);
 		var temp2: int;
-		atomic { temp2 = val; }
+		atomic { temp2 = value; }
 		chk(temp2 == 0);
 		return true;
 	}
 
 	def foreachBody(i: int, c: Clock): void = {
-		async clocked(c) finish async { async { atomic val += i; } }
+		async clocked(c) finish async { async { atomic value += i; } }
 		next;
 		var temp: int;
-		atomic { temp = val; }
+		atomic { temp = value; }
 		chk(temp == N*(N-1)/2);
 		next;
-		async clocked(c) finish async { async { atomic val -= i; } }
+		async clocked(c) finish async { async { atomic value -= i; } }
 		next;
 	}
 

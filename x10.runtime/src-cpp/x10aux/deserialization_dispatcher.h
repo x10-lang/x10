@@ -86,10 +86,12 @@ namespace x10aux {
         }
 
         
-        template<class T> static ref<T> create(deserialization_buffer &buf);
-        template<class T> static ref<T> create(deserialization_buffer &buf,
-                                               serialization_id_t id);
-
+        static ref<x10::lang::Reference> create(deserialization_buffer &buf) {
+            return it->create_(buf);
+        }
+        static ref<x10::lang::Reference> create(deserialization_buffer &buf, serialization_id_t id) {
+            return it->create_(buf, id);
+        }
         ref<x10::lang::Reference> create_(deserialization_buffer &buf);
         ref<x10::lang::Reference> create_(deserialization_buffer &buf, serialization_id_t id);
 
@@ -189,14 +191,6 @@ namespace x10aux {
     inline serialization_id_t DeserializationDispatcher::getSerializationId (x10aux::msg_type id)
     { return it->getSerializationId_(id); }
 
-
-    template<class T> ref<T> DeserializationDispatcher::create(deserialization_buffer &buf,
-                                                               serialization_id_t id)
-    { return static_cast<ref<T> >(it->create_(buf,id)); }
-
-    template<class T> ref<T> DeserializationDispatcher::create(deserialization_buffer &buf)
-    { return static_cast<ref<T> >(it->create_(buf)); }
-    
     template<> inline const char *typeName<DeserializationDispatcher>()
     { return "DeserializationDispatcher"; }
 }

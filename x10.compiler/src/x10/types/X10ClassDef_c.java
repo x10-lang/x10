@@ -19,6 +19,8 @@ import java.util.List;
 import polyglot.frontend.Source;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassDef_c;
+import polyglot.types.ConstructorDef;
+import polyglot.types.Context;
 import polyglot.types.FieldDef;
 import polyglot.types.Flags;
 import polyglot.types.LazyRef_c;
@@ -51,27 +53,29 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
     private static final long serialVersionUID = -4644427081636650171L;
 
     protected List<ParameterType.Variance> variances;
-    XVar thisVar;
     
     public X10ClassDef_c(TypeSystem ts, Source fromSource) {
         super(ts, fromSource);
         this.variances = new ArrayList<ParameterType.Variance>();
         this.typeParameters = new ArrayList<ParameterType>();
         this.typeMembers = new ArrayList<TypeDef>();
-        this.thisVar = null;
+        this.thisDef = null;
     }
     
     public XVar thisVar() {
-        if (thisVar == null) {
-            String fullNameWithThis = fullName() + "#this";
-            XName thisName = new XNameWrapper<Object>(new Object(), fullNameWithThis);
-            thisVar = XTerms.makeLocal(thisName);
-        }
-        return this.thisVar;
+        if (this.thisDef != null)
+            return this.thisDef.thisVar();
+        return XTerms.makeEQV("#this");
     }
 
-    public void setThisVar(XVar thisVar) {
-        this.thisVar = thisVar;
+    ThisDef thisDef;
+
+    public ThisDef thisDef() {
+        return this.thisDef;
+    }
+
+    public void setThisDef(ThisDef thisDef) {
+        this.thisDef = thisDef;
     }
 
     // BEGIN ANNOTATION MIXIN
@@ -391,4 +395,17 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
     public X10ClassType asType() {
         return (X10ClassType) super.asType();
     }
+    
+    public boolean hasDeserializationConstructor(Context context) {
+        for (ConstructorDef cd: constructors()) {
+            if (cd.formalTypes().size() == 1) {
+                Type type = cd.formalTypes().get(0).get();
+                if (type.isSubtype(type.typeSystem().SerialData(), context)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    
 }

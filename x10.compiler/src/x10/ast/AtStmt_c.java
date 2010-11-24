@@ -48,6 +48,7 @@ import x10.constraint.XTerm;
 import x10.errors.Errors;
 import x10.types.ClosureDef;
 import x10.types.ParameterType;
+import x10.types.X10ProcedureDef;
 import polyglot.types.Context;
 import x10.types.X10MethodDef;
 import x10.types.X10TypeMixin;
@@ -127,6 +128,21 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
     XConstrainedTerm placeTerm;
     boolean placeError = false;
   
+    XConstrainedTerm finishPlaceTerm;
+    public boolean isFinishPlace() {
+        boolean isFinishPlace = false;
+        if (null != finishPlaceTerm) {
+            XConstraint constraint = new XConstraint();
+            try {
+                constraint.addBinding(finishPlaceTerm.term(),placeTerm.term());
+                if (placeTerm.constraint().entails(constraint)) {
+                    isFinishPlace = true;
+                }
+            } catch (XFailure xFailure) {}
+        }
+        return isFinishPlace;
+    }
+
     @Override
     public Node typeCheckOverride(Node parent, ContextVisitor tc) {
     	TypeSystem ts = (TypeSystem) tc.typeSystem();
@@ -140,6 +156,7 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
             try {
                 placeTerm = PlaceChecker.computePlaceTerm((Expr) visitChild(this.place, v),
                         (Context) tc.context(), ts);
+                finishPlaceTerm = tc.context().currentFinishPlaceTerm();
             } catch (SemanticException e) {
                 CConstraint d = new CConstraint();
                 XTerm term = PlaceChecker.makePlace();
@@ -179,10 +196,9 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
         TypeSystem ts = (TypeSystem) c.typeSystem();
         X10MethodDef asyncInstance = (X10MethodDef) ts.asyncCodeInstance(c.inStaticContext());
 
-        if (c.currentCode() instanceof X10MethodDef) {
-            X10MethodDef outer = (X10MethodDef) c.currentCode();
-            XVar thisVar = outer.thisVar();
-            asyncInstance.setThisVar(thisVar);
+        if (c.currentCode() instanceof X10ProcedureDef) {
+            X10ProcedureDef outer = (X10ProcedureDef) c.currentCode();
+            asyncInstance.setThisDef(outer.thisDef());
             List<ParameterType> capturedTypes = outer.typeParameters();
             if (!capturedTypes.isEmpty()) {
                 asyncInstance = ((X10MethodDef) asyncInstance.copy());

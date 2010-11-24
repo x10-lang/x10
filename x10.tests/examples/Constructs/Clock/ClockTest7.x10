@@ -45,28 +45,28 @@ import harness.x10Test;
  */
 public class ClockTest7 extends x10Test {
 
-	var val: int = 0;
-	static N: int = 16;
+	var value: int = 0;
+	static val N: int = 16;
 
 	public def run(): boolean = {
 		try {
 		val c: Clock = Clock.make();
 
 		finish for ([i] in 0..(N-1)) async {
-			atomic val++;
+			atomic value++;
 			x10.io.Console.OUT.println("Activity "+i+" phase 0");
 			next;
-			atomic chk(val == N);
+			atomic chk(value == N);
 			x10.io.Console.OUT.println("Activity "+i+" phase 1");
 			next;
-			atomic val++;
+			atomic value++;
 			x10.io.Console.OUT.println("Activity "+i+" phase 2");
 			c.next();
 		}
 
 		next; next; next;
 
-		atomic chk(val == 2*N);
+		atomic chk(value == 2*N);
 
 		} catch (e: MultipleExceptions) {
 			x10.io.Console.OUT.println("MultipleExceptions");

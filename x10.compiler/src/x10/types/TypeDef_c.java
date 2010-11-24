@@ -14,10 +14,11 @@ package x10.types;
 import java.util.Collections;
 import java.util.List;
 
+import polyglot.types.ClassType;
 import polyglot.types.CodeInstance;
-import polyglot.types.Def_c;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
+import polyglot.types.MemberDef_c;
 import polyglot.types.Name;
 import polyglot.types.Package;
 import polyglot.types.QName;
@@ -29,16 +30,15 @@ import polyglot.types.Types;
 import polyglot.util.CollectionUtil;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
+import x10.constraint.XTerms;
 import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
 
-public class TypeDef_c extends Def_c implements TypeDef {
+public class TypeDef_c extends MemberDef_c implements TypeDef {
 	private static final long serialVersionUID = -5353460234705168368L;
 
-	protected Ref<? extends StructType> container;
-	protected Flags flags;
 	protected Name name;
 	protected Ref<? extends Package> package_;
 	protected List<ParameterType> typeParameters;
@@ -49,15 +49,12 @@ public class TypeDef_c extends Def_c implements TypeDef {
 	protected Ref<? extends Type> type;
 	protected MacroType asType;
 	
-	public TypeDef_c(TypeSystem ts, Position pos, Flags flags, Name name, Ref<? extends StructType> container, List<ParameterType> typeParams,
+	public TypeDef_c(TypeSystem ts, Position pos, Flags flags, Name name, Ref<? extends ClassType> container, List<ParameterType> typeParams,
 	        XVar thisVar, List<LocalDef> formalNames, List<Ref<? extends Type>> formalTypes, Ref<CConstraint> guard, Ref<TypeConstraint> typeGuard, Ref<? extends Type> type) {
 
-		super(ts, pos);
-		this.container = container;
+		super(ts, pos, container, flags);
 		this.name = name;
-		this.flags = flags;
 		this.typeParameters = TypedList.copyAndCheck(typeParams, ParameterType.class, true);
-		this.thisVar = thisVar;
 		this.formalNames = TypedList.copyAndCheck(formalNames, LocalDef.class, true);
 		this.formalTypes = TypedList.copyAndCheck(formalTypes, Ref.class, true);
 		this.guard = guard;
@@ -114,13 +111,6 @@ public class TypeDef_c extends Def_c implements TypeDef {
 	}
 
 	/* (non-Javadoc)
-	 * @see x10.types.TypeDef#container()
-	 */
-	public Ref<? extends StructType> container() {
-		return container;
-	}
-
-	/* (non-Javadoc)
 	 * @see x10.types.TypeDef#typeParameters()
 	 */
 	public List<ParameterType> typeParameters() {
@@ -150,13 +140,6 @@ public class TypeDef_c extends Def_c implements TypeDef {
 	    this.typeGuard = typeGuard;
 	}
 	
-	/* (non-Javadoc)
-	 * @see x10.types.TypeDef#setContainer(polyglot.types.Ref)
-	 */
-	public void setContainer(Ref<? extends StructType> container) {
-		this.container = container;
-	}
-
 	
 	/* (non-Javadoc)
 	 * @see x10.types.TypeDef#type()
@@ -179,13 +162,20 @@ public class TypeDef_c extends Def_c implements TypeDef {
 		this.type = type;
 	}
 
-	XVar thisVar;
 	public XVar thisVar() {
-	    return this.thisVar;
+		if (this.thisDef != null)
+			return this.thisDef.thisVar();
+		return XTerms.makeEQV("#this");
 	}
 
-	public void setThisVar(XVar thisVar) {
-	    this.thisVar = thisVar;
+	ThisDef thisDef;
+
+	public ThisDef thisDef() {
+		return this.thisDef;
+	}
+
+	public void setThisDef(ThisDef thisDef) {
+		this.thisDef = thisDef;
 	}
 
 	public List<LocalDef> formalNames() {
@@ -223,14 +213,6 @@ public class TypeDef_c extends Def_c implements TypeDef {
 		this.name = name;
 	}
 	
-	public Flags flags() {
-		return flags;
-	}
-
-	public void setFlags(Flags flags) {
-		this.flags = flags;
-	}
-
 	public String designator() {
 	    return "type";
 	}
