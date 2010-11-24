@@ -483,14 +483,14 @@ public struct ULong implements Comparable[ULong] /*TODO implements Arithmetic[UL
      */
     // @Native("java", "0L")
     @Native("c++", "((x10_ulong)0LLU)")
-    public static MIN_VALUE = 0L as ULong;
+    public static MIN_VALUE = 0UL;
 
     /**
      * A constant holding the maximum value a ULong can have, 2<sup>64</sup>-1.
      */
     // @Native("java", "0xffffffffffffffffL")
     @Native("c++", "0xffffffffffffffffLLU")
-    public static MAX_VALUE = 0xffffffffffffffffL as ULong;
+    public static MAX_VALUE = 0xffffffffffffffffUL;
 
 
     /**
@@ -498,7 +498,6 @@ public struct ULong implements Comparable[ULong] /*TODO implements Arithmetic[UL
      * @param radix the radix to use in the String representation
      * @return a String representation of this ULong in the specified radix.
      */
-    // @Native("java", "java.lang.Long.toString(#0 & 0xffffffffffffffffL, #1)")
     @Native("c++", "x10aux::long_utils::toString(#0, #1)")
     public def toString(radix:Int): String {
     	if (this.longVal >= 0) return this.longVal.toString(radix);
@@ -553,8 +552,9 @@ public struct ULong implements Comparable[ULong] /*TODO implements Arithmetic[UL
             }
             return new String(chars, 0, length);
         }
-        // TODO
-    	return (this.longVal & 0xFFFFFFFFFFFFFFFFL).toString(realRadix);
+        // TODO implement in X10
+        @Native("java", "return x10.core.Unsigned.toString(this.longVal, realRadix);")
+        { return null; }
     }
 
     /**
@@ -585,7 +585,6 @@ public struct ULong implements Comparable[ULong] /*TODO implements Arithmetic[UL
      * Returns a String representation of this ULong as a decimal number.
      * @return a String representation of this ULong as a decimal number.
      */
-    // @Native("java", "java.lang.Long.toString(#0 & 0xffffffffffffffffL)")
     @Native("c++", "x10aux::to_string(#0)")
     public def toString(): String {
         if (this.longVal >= 0)

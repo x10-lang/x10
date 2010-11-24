@@ -82,26 +82,15 @@ public class Unsigned {
             return a - b;
     }
 
-    public static String toString(byte a) {
-        return Integer.toString( a & 0xff );
-    }
-    public static String toString(short a) {
-        return Integer.toString( a & 0xffff );
-    }
-    public static String toString(int a) {
-        return Long.toString( toLong(a) );
-    }
-    public static String toString(long a) {
-        StringBuilder sb = new StringBuilder();
-        if (a >= 0)
-            return Long.toString(a);
-        while (a != 0) {
-            char ch = (char) ('0' + a % 10);
-            sb.append(ch);
-            a /= 10;
-        }
-        return sb.reverse().toString();
-    }
+//    public static String toString(byte a) {
+//        return Integer.toString( a & 0xff );
+//    }
+//    public static String toString(short a) {
+//        return Integer.toString( a & 0xffff );
+//    }
+//    public static String toString(int a) {
+//        return Long.toString( toLong(a) );
+//    }
     
     private static String forInputString(String s) {
         return "For input string: \"" + s + "\"";
@@ -129,5 +118,17 @@ public class Unsigned {
         }
         return bigint.longValue();
     }
+    
+    public static String toString(long a, int radix) {
+        byte[] bytes = new byte[9]; // set zero to bytes[0] to make the value positive
+        for (int i = 0; i < 8; ++i) {
+            bytes[9 - 1 - i] = (byte)(a & 0xff);
+            a >>= 8;
+        }
+        return new java.math.BigInteger(bytes).toString(radix);
+    }
+//    public static String toString(long a) {
+//        return toString(a, 10);
+//    }
     
 }
