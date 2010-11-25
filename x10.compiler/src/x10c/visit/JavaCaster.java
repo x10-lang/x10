@@ -129,16 +129,19 @@ public class JavaCaster extends ContextVisitor {
             X10MethodInstance mi = call.methodInstance();
             if (!(target instanceof TypeNode) && !xts.isRail(target.type())) {
                 Type bt = X10TypeMixin.baseType(target.type());
+                X10ClassType ct = null;
                 if (bt instanceof X10ClassType) {
-                    X10ClassType ct = (X10ClassType) bt;
-                    if (ct.typeArguments() != null && ct.typeArguments().size() > 0) {
-                        if (isDispatch(bt, mi)) {
+                    ct = (X10ClassType) bt;
+                } else if (xts.isParameterType(bt)) {
+                    ct = (X10ClassType) X10TypeMixin.baseType(mi.container());
+                }
+                if (ct != null && (ct.typeArguments() != null && ct.typeArguments().size() > 0)) {
+                    if (isDispatch(ct, mi)) {
+                        return cast(call, call.type());
+                    } else {
+                        Type rt = mi.def().returnType().get();
+                        if (!xts.isParameterType(rt) && Emitter.containsTypeParam(rt)) {
                             return cast(call, call.type());
-                        } else {
-                            Type rt = mi.def().returnType().get();
-                            if (!xts.isParameterType(rt) && Emitter.containsTypeParam(rt)) {
-                                return cast(call, call.type());
-                            }
                         }
                     }
                 }
@@ -153,7 +156,7 @@ public class JavaCaster extends ContextVisitor {
                 if (bt instanceof X10ClassType) {
                     X10ClassType ct = (X10ClassType) bt;
                     if (ct.typeArguments() != null && ct.typeArguments().size() > 0) {
-                        if (isDispatch(bt, mi)) {
+                        if (isDispatch(ct, mi)) {
                             return cast(call, call.type());
                         } else {
                             Type rt = mi.def().returnType().get();

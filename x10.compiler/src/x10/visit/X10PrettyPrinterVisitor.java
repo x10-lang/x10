@@ -2109,13 +2109,16 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			}
 			
 			// if I is an interface and val i:I , t = type of the type of the formal of method instance
-			// i.m(a) => i.m(a,t)
+	         // i.m(a) => i.m(a,t)
+			X10ClassType ct = null;
 			if (isSelfDispatch && X10TypeMixin.baseType(t) instanceof X10ClassType ) {
-			    X10ClassType ct = (X10ClassType) X10TypeMixin.baseType(t);
-			    if ((ct.flags().isInterface() || (xts.isFunctionType(ct) && ct.isAnonymous())) && Emitter.containsTypeParam(defType)){
-			        w.write(",");
-			        new RuntimeTypeExpander(er, c.methodInstance().formalTypes().get(i)).expand();
-			    }
+                ct = (X10ClassType) X10TypeMixin.baseType(t);
+			} else if (isSelfDispatch && xts.isParameterType(t)) {
+			    ct = (X10ClassType) X10TypeMixin.baseType(mi.container());
+			}
+			if (ct != null && ((ct.flags().isInterface() || (xts.isFunctionType(ct) && ct.isAnonymous())) && Emitter.containsTypeParam(defType))){
+			    w.write(",");
+			    new RuntimeTypeExpander(er, c.methodInstance().formalTypes().get(i)).expand();
 			}
 			if (i != exprs.size() - 1) {
 				w.write(",");
