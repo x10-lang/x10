@@ -258,10 +258,10 @@ x10_int x10aux::num_threads() {
 
 x10_boolean x10aux::no_steals()
 {
-	char* s = getenv("X10_NO_STEALS");
-	if (s && !(strcasecmp("false", s) == 0))
-		return true;
-	return false;
+    char* s = getenv("X10_NO_STEALS");
+    if (s && !(strcasecmp("false", s) == 0))
+        return true;
+    return false;
 }
 
 x10_boolean x10aux::static_threads() { 
@@ -270,7 +270,7 @@ x10_boolean x10aux::static_threads() {
 #else
     char* s = getenv("X10_STATIC_THREADS");
     if (s && !(strcasecmp("false", s) == 0))
-    	return true;
+        return true;
     return false;
 #endif
 }
@@ -476,16 +476,19 @@ struct pointer_pair {
     void *fst;
     void *snd;
 };
+namespace x10aux {
+    template<> inline const char *typeName<pointer_pair>() { return "pointer_pair"; }
+}
 
 void *x10aux::coll_enter2(void *arg) {
-	struct pointer_pair *p = x10aux::alloc<struct pointer_pair>();
+    struct pointer_pair *p = x10aux::alloc<struct pointer_pair>();
     p->fst = x10aux::coll_enter();
     p->snd = arg;
     return p;
 }
 
 void x10aux::coll_handler2(x10rt_team id, void *arg) {
-	struct pointer_pair *p = (struct pointer_pair*)arg;
+    struct pointer_pair *p = (struct pointer_pair*)arg;
     x10::lang::FinishState *fs = (x10::lang::FinishState*)p->fst;
     x10rt_team *t = (x10rt_team*)p->snd;
     *t = id;
