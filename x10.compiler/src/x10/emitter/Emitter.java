@@ -3312,7 +3312,7 @@ public class Emitter {
             if (methodName==SettableAssign.SET) {
                 w.write("(");
                 w.write("(");
-                new TypeExpander(this, ptype, 0).expand();
+                printType(ptype, 0);
                 w.write("[]");
                 w.write(")");
                 c.print(c.target(), w, tr);
@@ -3332,7 +3332,7 @@ public class Emitter {
                 
                 w.write("(");
                 w.write("(");
-                new TypeExpander(this, ptype, 0).expand();
+                printType(ptype, 0);
                 w.write("[]");
                 w.write(")");
                 c.print(c.target(), w, tr);
@@ -3352,7 +3352,7 @@ public class Emitter {
             if (methodName.equals("make")) {
                 Type rt = X10TypeMixin.baseType(c.type());
                 if (rt instanceof X10ClassType) {
-                    Type pt = ((X10ClassType) rt).typeArguments().get(0);
+                    final Type pt = ((X10ClassType) rt).typeArguments().get(0);
                     if (!(X10TypeMixin.baseType(pt) instanceof ParameterType)) {
                         // for makeVaxRail(type,length,init);
                         if (c.arguments().size() == 2 && c.arguments().get(0).type().isNumeric()) {
@@ -3363,8 +3363,6 @@ public class Emitter {
                                 Translator tr2 = ((X10Translator) tr).inInnerClass(true);
                                 tr2 = tr2.context(expr.enterScope(tr2.context()));
 
-                                final Expander ex;
-                                ex = new TypeExpander(this, pt, false, false, false);
                                 final Node n = c;
                                 final Id id = closure.formals().get(0).name();
                                 Expander ex1 = new Expander(this) {
@@ -3389,10 +3387,10 @@ public class Emitter {
                                 Expander ex2 = new Expander(this) {
                                     @Override
                                     public void expand(Translator tr2) {
-                                        ex.expand();
+                                        printType(pt, 0);
                                         w.write("[] ");
                                         w.write("array$ = new ");
-                                        ex.expand();
+                                        printType(pt, 0);
                                         w.write("[length$];");
                                     }
                                 };
@@ -3431,6 +3429,49 @@ public class Emitter {
     public boolean isMethodInlineTarget(TypeSystem xts, Type ttype) {
         ttype = X10TypeMixin.baseType(ttype);
         return (xts.isRail(ttype) /*|| isIMC(ttype)*/) && !(X10PrettyPrinterVisitor.hasParams(ttype) && xts.isParameterType(((X10ClassType) ttype).typeArguments().get(0)));
+    }
+
+    public boolean printNativeMethodCall(X10Call c) {
+        TypeSystem xts = (TypeSystem) tr.typeSystem();
+        Context context = (Context) tr.context();
+    
+        Receiver target = c.target();
+        Type t = target.type();
+    
+        X10MethodInstance mi = (X10MethodInstance) c.methodInstance();
+        String pat = getJavaImplForDef(mi.x10Def());
+    	if (pat != null) {
+    	    boolean cast = xts.isParameterType(t) || X10PrettyPrinterVisitor.hasParams(t);
+    		CastExpander targetArg = new CastExpander(w, this, target);
+    		if (cast) {
+    		    targetArg = targetArg.castTo(mi.container(), X10PrettyPrinterVisitor.BOX_PRIMITIVES | X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS);
+    		}
+    		List<Type> typeArguments  = Collections.<Type>emptyList();
+    		if (mi.container().isClass() && !mi.flags().isStatic()) {
+    		    X10ClassType ct = (X10ClassType) mi.container().toClass();
+    		    typeArguments = ct.typeArguments();
+    		    if (typeArguments == null) typeArguments = Collections.<Type>emptyList();
+    		}
+    		
+    		List<CastExpander> args = new ArrayList<CastExpander>();
+    		List<Expr> arguments = c.arguments();
+    		for (int i = 0; i < arguments.size(); ++ i) {
+    		    Type ft = c.methodInstance().def().formalTypes().get(i).get();
+    		    Type at = arguments.get(i).type();
+    		    if (X10PrettyPrinterVisitor.isPrimitiveRepedJava(at) && xts.isParameterType(ft)) {
+    		        args.add(new CastExpander(w, this, arguments.get(i)).castTo(at, X10PrettyPrinterVisitor.BOX_PRIMITIVES));
+    		    }
+    		    else if (X10PrettyPrinterVisitor.isPrimitiveRepedJava(at)) {
+    		        args.add(new CastExpander(w, this, arguments.get(i)).castTo(at, 0));
+    		    }
+    		    else {
+    		        args.add(new CastExpander(w, this, arguments.get(i)));                                    
+    		    }
+    		}
+    		emitNativeAnnotation(pat, targetArg, mi.typeParameters(), args, typeArguments);
+    		return true;
+    	}
+    	return false;
     }
 
 }
