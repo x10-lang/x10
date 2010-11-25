@@ -16,7 +16,7 @@ import harness.x10Test;
  */
 public class ExpressionParentheses extends x10Test {
 
-	var x: UInt = 0x80000000;
+	var x: Int = 0x80000000;
 	var n: Int = 16;
 	var z: Int;
 

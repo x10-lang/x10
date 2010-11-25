@@ -98,21 +98,6 @@ public struct UByte implements Comparable[UByte] /*TODO implements Arithmetic[UB
     public operator this + (x:UByte): UByte = UByte(byteVal + x.byteVal);
 
     /**
-     * A binary plus operator (unsigned disambiguation).
-     * @see #operator(UByte)+(UByte)
-     */
-    // @Native("java", "((byte) ((#0) + (#1)))")
-    @Native("c++",  "((x10_ubyte) ((#0) + (#1)))")
-    public operator (x:Byte) + this: UByte = UByte(x + byteVal);
-    /**
-     * A binary plus operator (unsigned disambiguation).
-     * @see #operator(UByte)+(UByte)
-     */
-    // @Native("java", "((byte) ((#0) + (#1)))")
-    @Native("c++",  "((x10_ubyte) ((#0) + (#1)))")
-    public operator this + (x:Byte): UByte = UByte(byteVal + x);
-
-    /**
      * A binary minus operator.
      * Computes the result of the subtraction of the two operands.
      * Overflows result in truncating the high bits.
@@ -122,21 +107,6 @@ public struct UByte implements Comparable[UByte] /*TODO implements Arithmetic[UB
     // @Native("java", "((byte) ((#0) - (#1)))")
     @Native("c++",  "((x10_ubyte) ((#0) - (#1)))")
     public operator this - (x:UByte): UByte = UByte(byteVal - x.byteVal);
-
-    /**
-     * A binary minus operator (unsigned disambiguation).
-     * @see #operator(UByte)-(UByte)
-     */
-    // @Native("java", "((byte) ((#0) - (#1)))")
-    @Native("c++",  "((x10_ubyte) ((#1) - (#0)))")
-    public operator (x:Byte) - this: UByte = UByte(x - byteVal);
-    /**
-     * A binary minus operator (unsigned disambiguation).
-     * @see #operator(UByte)-(UByte)
-     */
-    // @Native("java", "((byte) ((#0) - (#1)))")
-    @Native("c++",  "((x10_ubyte) ((#0) - (#1)))")
-    public operator this - (x:Byte): UByte = UByte(byteVal - x);
 
     /**
      * A binary multiply operator.
@@ -150,21 +120,6 @@ public struct UByte implements Comparable[UByte] /*TODO implements Arithmetic[UB
     public operator this * (x:UByte): UByte = UByte(byteVal * x.byteVal);
 
     /**
-     * A binary multiply operator (unsigned disambiguation).
-     * @see #operator(UByte)*(UByte)
-     */
-    // @Native("java", "((byte) ((#0) * (#1)))")
-    @Native("c++",  "((x10_ubyte) ((#0) * (#1)))")
-    public operator (x:Byte) * this: UByte = UByte(x * byteVal);
-    /**
-     * A binary multiply operator (unsigned disambiguation).
-     * @see #operator(UByte)*(UByte)
-     */
-    // @Native("java", "((byte) ((#0) * (#1)))")
-    @Native("c++",  "((x10_ubyte) ((#0) * (#1)))")
-    public operator this * (x:Byte): UByte = UByte(byteVal * x);
-
-    /**
      * A binary divide operator.
      * Computes the result of the division of the two operands.
      * @param x the other UByte
@@ -174,24 +129,6 @@ public struct UByte implements Comparable[UByte] /*TODO implements Arithmetic[UB
     @Native("c++",  "((x10_ubyte) ((#0) / x10aux::zeroCheck(#1)))")
     public operator this / (x:UByte): UByte {
         return UByte(((byteVal as Long) / (x.byteVal as Long)) as Byte);
-    }
-    /**
-     * A binary divide operator (unsigned disambiguation).
-     * @see #operator(UByte)/(UByte)
-     */
-    // @Native("java", "((byte) x10.core.Unsigned.div(#0, #1))")
-    @Native("c++",  "((x10_ubyte) ((#0) / x10aux::zeroCheck(#1)))")
-    public operator (x:Byte) / this: UByte {
-        return UByte(((x as Long) / (byteVal as Long)) as Byte);
-    }
-    /**
-     * A binary divide operator (unsigned disambiguation).
-     * @see #operator(UByte)/(UByte)
-     */
-    // @Native("java", "((byte) x10.core.Unsigned.div(#0, #1))")
-    @Native("c++",  "((x10_ubyte) ((#0) / x10aux::zeroCheck(#1)))")
-    public operator this / (x:Byte): UByte {
-        return UByte(((byteVal as Long) / (x as Long)) as Byte);
     }
 
     /**
@@ -204,24 +141,6 @@ public struct UByte implements Comparable[UByte] /*TODO implements Arithmetic[UB
     @Native("c++",  "((x10_ubyte) ((#0) % x10aux::zeroCheck(#1)))")
     public operator this % (x:UByte): UByte {
         return UByte(((byteVal as Long) % (x.byteVal as Long)) as Byte);
-    }
-    /**
-     * A binary remainder operator (unsigned disambiguation).
-     * @see #operator(UByte)%(UByte)
-     */
-    // @Native("java", "((byte) x10.core.Unsigned.rem(#0, #1))")
-    @Native("c++",  "((x10_ubyte) ((#0) % x10aux::zeroCheck(#1)))")
-    public operator (x:Byte) % this: UByte {
-        return UByte(((x as Long) % (byteVal as Long)) as Byte);
-    }
-    /**
-     * A binary remainder operator (unsigned disambiguation).
-     * @see #operator(UByte)%(UByte)
-     */
-    // @Native("java", "((byte) x10.core.Unsigned.rem(#0, #1))")
-    @Native("c++",  "((x10_ubyte) ((#0) % x10aux::zeroCheck(#1)))")
-    public operator this % (x:Byte): UByte {
-        return UByte(((byteVal as Long) % (x as Long)) as Byte);
     }
 
     /**
@@ -451,7 +370,7 @@ public struct UByte implements Comparable[UByte] /*TODO implements Arithmetic[UB
      */
     // @Native("java", "((byte)(#1))")
     @Native("c++",  "((x10_ubyte) (#1))")
-    public static operator (x:Byte): UByte = UByte(x);
+    public static operator (x:Byte) as UByte = UByte(x);
 
 
     /**

@@ -274,7 +274,7 @@ public struct Int implements Comparable[Int] /*TODO implements Arithmetic[Int], 
      */
     @Native("java", "((int) (#1.intVal))")
     @Native("c++",  "((x10_int) (#1))")
-    public native static operator (x:UInt): Int;
+    public native static operator (x:UInt) as Int;
 
 
     /**

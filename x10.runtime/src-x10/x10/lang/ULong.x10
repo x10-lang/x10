@@ -96,20 +96,6 @@ public struct ULong implements Comparable[ULong] /*TODO implements Arithmetic[UL
     // @Native("java", "((#0) + (#1))")
     @Native("c++",  "((x10_ulong) ((#0) + (#1)))")
     public operator this + (x:ULong): ULong = ULong(longVal + x.longVal);
-    /**
-     * A binary plus operator (unsigned disambiguation).
-     * @see #operator(ULong)+(ULong)
-     */
-    // @Native("java", "((#0) + (#1))")
-    @Native("c++",  "((x10_ulong) ((#0) + (#1)))")
-    public operator (x:Long) + this: ULong = ULong(x + longVal);
-    /**
-     * A binary plus operator (unsigned disambiguation).
-     * @see #operator(ULong)+(ULong)
-     */
-    // @Native("java", "((#0) + (#1))")
-    @Native("c++",  "((x10_ulong) ((#0) + (#1)))")
-    public operator this + (x:Long): ULong = ULong(longVal + x);
 
     /**
      * A binary minus operator.
@@ -121,20 +107,6 @@ public struct ULong implements Comparable[ULong] /*TODO implements Arithmetic[UL
     // @Native("java", "((#0) - (#1))")
     @Native("c++",  "((x10_ulong) ((#0) - (#1)))")
     public operator this - (x:ULong): ULong  = ULong(longVal - x.longVal);
-    /**
-     * A binary minus operator (unsigned disambiguation).
-     * @see #operator(ULong)-(ULong)
-     */
-    // @Native("java", "((#0) - (#2))")
-    @Native("c++",  "((x10_ulong) ((#1) - (#0)))")
-    public operator (x:Long) - this: ULong = ULong(x - longVal);
-    /**
-     * A binary minus operator (unsigned disambiguation).
-     * @see #operator(ULong)-(ULong)
-     */
-    // @Native("java", "((#0) - (#1))")
-    @Native("c++",  "((x10_ulong) ((#0) - (#1)))")
-    public operator this - (x:Long): ULong = ULong(longVal - x);
 
     /**
      * A binary multiply operator.
@@ -146,20 +118,6 @@ public struct ULong implements Comparable[ULong] /*TODO implements Arithmetic[UL
     // @Native("java", "((#0) * (#1))")
     @Native("c++",  "((x10_ulong) ((#0) * (#1)))")
     public operator this * (x:ULong): ULong = ULong(longVal * x.longVal);
-    /**
-     * A binary multiply operator (unsigned disambiguation).
-     * @see #operator(ULong)*(ULong)
-     */
-    // @Native("java", "((#0) * (#1))")
-    @Native("c++",  "((x10_ulong) ((#0) * (#1)))")
-    public operator (x:Long) * this: ULong = ULong(x * longVal);
-    /**
-     * A binary multiply operator (unsigned disambiguation).
-     * @see #operator(ULong)*(ULong)
-     */
-    // @Native("java", "((#0) * (#1))")
-    @Native("c++",  "((x10_ulong) ((#0) * (#1)))")
-    public operator this * (x:Long): ULong = ULong(longVal * x);
 
     /**
      * A binary divide operator.
@@ -178,46 +136,6 @@ public struct ULong implements Comparable[ULong] /*TODO implements Arithmetic[UL
             return ULong(longVal / x.longVal);
         // TODO
         else if (longVal < x.longVal)
-            return 0L as ULong;
-        else
-            return 1L as ULong;
-    	*/
-    }
-    /**
-     * A binary divide operator (unsigned disambiguation).
-     * @see #operator(ULong)/(ULong)
-     */
-    // @Native("java", "x10.core.Unsigned.div(#0, #1)")
-    @Native("java", "new x10.lang.ULong(x10.core.Unsigned.div_S_U(#1, #0.longVal))")
-    @Native("c++",  "((x10_ulong) ((#0) / x10aux::zeroCheck(#1)))")
-    public operator (x:Long) / this: ULong {
-    	// TODO implement in X10
-    	return 0UL;
-    	/*
-        if (x > 0 && longVal > 0)
-            return ULong(x / longVal);
-        // TODO need check
-        else if (x < longVal)
-            return 0L as ULong;
-        else
-            return 1L as ULong;
-    	*/
-    }
-    /**
-     * A binary divide operator (unsigned disambiguation).
-     * @see #operator(ULong)/(ULong)
-     */
-    // @Native("java", "x10.core.Unsigned.div(#0, #1)")
-    @Native("java", "new x10.lang.ULong(x10.core.Unsigned.div_U_S(#0.longVal, #1))")
-    @Native("c++",  "((x10_ulong) ((#0) / x10aux::zeroCheck(#1)))")
-    public operator this / (x:Long): ULong {
-    	// TODO implement in X10
-    	return 0UL;
-    	/*
-        if (longVal > 0 && x > 0)
-            return ULong(longVal / x);
-        // TODO need check
-        else if (longVal < x)
             return 0L as ULong;
         else
             return 1L as ULong;
@@ -244,46 +162,6 @@ public struct ULong implements Comparable[ULong] /*TODO implements Arithmetic[UL
             return this;
         else
             return ULong(longVal - x.longVal);
-    	*/
-    }
-    /**
-     * A binary remainder operator (unsigned disambiguation).
-     * @see #operator(ULong)%(ULong)
-     */
-    // @Native("java", "x10.core.Unsigned.rem(#0, #1)")
-    @Native("java", "new x10.lang.ULong(x10.core.Unsigned.rem_S_U(#1, #0.longVal))")
-    @Native("c++",  "((x10_ulong) ((#0) % x10aux::zeroCheck(#1)))")
-    public operator (x:Long) % this: ULong {
-    	// TODO implement in X10
-    	return 0UL;
-    	/*
-        if (x > 0 && longVal > 0)
-            return ULong(x % longVal);
-        // TODO need check
-        else if (x < longVal)
-            return ULong(x);
-        else
-            return ULong(x - longVal);
-    	*/
-    }
-    /**
-     * A binary remainder operator (unsigned disambiguation).
-     * @see #operator(ULong)%(ULong)
-     */
-    // @Native("java", "x10.core.Unsigned.rem(#0, #2)")
-    @Native("java", "new x10.lang.ULong(x10.core.Unsigned.rem_U_S(#0.longVal, #1))")
-    @Native("c++",  "((x10_ulong) ((#0) % x10aux::zeroCheck(#1)))")
-    public operator this % (x:Long): ULong {
-    	// TODO implement in X10
-    	return 0UL;
-    	/*
-        if (longVal > 0 && x > 0)
-            return ULong(longVal % x);
-        // TODO need check
-        else if (longVal < x)
-            return this;
-        else
-            return ULong(longVal - x);
     	*/
     }
 
@@ -505,7 +383,7 @@ public struct ULong implements Comparable[ULong] /*TODO implements Arithmetic[UL
      */
     // @Native("java", "((long)(long)(#1))")
     @Native("c++",  "((x10_ulong) (#1))")
-    public static operator (x:Long): ULong = ULong(x);
+    public static operator (x:Long) as ULong = ULong(x);
 
 
     /**

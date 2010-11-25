@@ -98,20 +98,6 @@ public struct UInt implements Comparable[UInt] /*TODO implements Arithmetic[UInt
     // @Native("java", "((#0) + (#1))")
     @Native("c++",  "((x10_uint) ((#0) + (#1)))")
     public operator this + (x:UInt): UInt = UInt(intVal + x.intVal);
-    /**
-     * A binary plus operator (unsigned disambiguation).
-     * @see #operator(UInt)+(UInt)
-     */
-    // @Native("java", "((#0) + (#1))")
-    @Native("c++",  "((x10_uint) ((#0) + (#1)))")
-    public operator (x:Int) + this: UInt = UInt(x + intVal);
-    /**
-     * A binary plus operator (unsigned disambiguation).
-     * @see #operator(UInt)+(UInt)
-     */
-    // @Native("java", "((#0) + (#1))")
-    @Native("c++",  "((x10_uint) ((#0) + (#1)))")
-    public operator this + (x:Int): UInt = UInt(intVal + x);
 
     /**
      * A binary minus operator.
@@ -123,20 +109,6 @@ public struct UInt implements Comparable[UInt] /*TODO implements Arithmetic[UInt
     // @Native("java", "((#0) - (#1))")
     @Native("c++",  "((x10_uint) ((#0) - (#1)))")
     public operator this - (x:UInt): UInt = UInt(intVal - x.intVal);
-    /**
-     * A binary minus operator (unsigned disambiguation).
-     * @see #operator(UInt)-(UInt)
-     */
-    // @Native("java", "((#0) - (#1))")
-    @Native("c++",  "((x10_uint) ((#1) - (#0)))")
-    public operator (x:Int) - this: UInt = UInt(x - intVal);
-    /**
-     * A binary minus operator (unsigned disambiguation).
-     * @see #operator(UInt)-(UInt)
-     */
-    // @Native("java", "((#0) - (#1))")
-    @Native("c++",  "((x10_uint) ((#0) - (#1)))")
-    public operator this - (x:Int): UInt = UInt(intVal - x);
 
     /**
      * A binary multiply operator.
@@ -148,20 +120,6 @@ public struct UInt implements Comparable[UInt] /*TODO implements Arithmetic[UInt
     // @Native("java", "((#0) * (#1))")
     @Native("c++",  "((x10_uint) ((#0) * (#1)))")
     public operator this * (x:UInt): UInt = UInt(intVal * x.intVal);
-    /**
-     * A binary multiply operator (unsigned disambiguation).
-     * @see #operator(UInt)*(UInt)
-     */
-    // @Native("java", "((#0) * (#1))")
-    @Native("c++",  "((x10_uint) ((#0) * (#1)))")
-    public operator (x:Int) * this: UInt = UInt(x * intVal);
-    /**
-     * A binary multiply operator (unsigned disambiguation).
-     * @see #operator(UInt)*(UInt)
-     */
-    // @Native("java", "((#0) * (#1))")
-    @Native("c++",  "((x10_uint) ((#0) * (#1)))")
-    public operator this * (x:Int): UInt = UInt(intVal * x);
 
     /**
      * A binary divide operator.
@@ -174,24 +132,6 @@ public struct UInt implements Comparable[UInt] /*TODO implements Arithmetic[UInt
     public operator this / (x:UInt): UInt {
         return UInt(((intVal as Long) / (x.intVal as Long)) as Int);
     }
-    /**
-     * A binary divide operator (unsigned disambiguation).
-     * @see #operator(UInt)/(UInt)
-     */
-    // @Native("java", "x10.core.Unsigned.div(#0, #1)")
-    @Native("c++",  "((x10_uint) ((#0) / x10aux::zeroCheck(#1)))")
-    public operator (x:Int) / this: UInt {
-        return UInt(((x as Long) / (intVal as Long)) as Int);
-    }
-    /**
-     * A binary divide operator (unsigned disambiguation).
-     * @see #operator(UInt)/(UInt)
-     */
-    // @Native("java", "x10.core.Unsigned.div(#0, #1)")
-    @Native("c++",  "((x10_uint) ((#0) / x10aux::zeroCheck(#1)))")
-    public operator this / (x:Int): UInt {
-        return UInt(((intVal as Long) / (x as Long)) as Int);
-    }
 
     /**
      * A binary remainder operator.
@@ -203,24 +143,6 @@ public struct UInt implements Comparable[UInt] /*TODO implements Arithmetic[UInt
     @Native("c++",  "((x10_uint) ((#0) % x10aux::zeroCheck(#1)))")
     public operator this % (x:UInt): UInt {
         return UInt(((intVal as Long) % (x.intVal as Long)) as Int);
-    }
-    /**
-     * A binary remainder operator (unsigned disambiguation).
-     * @see #operator(UInt)%(UInt)
-     */
-    // @Native("java", "x10.core.Unsigned.rem(#0, #1)")
-    @Native("c++",  "((x10_uint) ((#0) % x10aux::zeroCheck(#1)))")
-    public operator (x:Int) % this: UInt {
-        return UInt(((x as Long) % (intVal as Long)) as Int);
-    }
-    /**
-     * A binary remainder operator (unsigned disambiguation).
-     * @see #operator(UInt)%(UInt)
-     */
-    // @Native("java", "x10.core.Unsigned.rem(#0, #1)")
-    @Native("c++",  "((x10_uint) ((#0) % x10aux::zeroCheck(#1)))")
-    public operator this % (x:Int): UInt {
-        return UInt(((intVal as Long) % (x as Long)) as Int);
     }
 
     /**
@@ -446,7 +368,7 @@ public struct UInt implements Comparable[UInt] /*TODO implements Arithmetic[UInt
      */
     // @Native("java", "((int)(int)(#1))")
     @Native("c++",  "((x10_uint) (#1))")
-    public static operator (x:Int): UInt = UInt(x);
+    public static operator (x:Int) as UInt = UInt(x);
 
 
     /**
