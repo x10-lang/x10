@@ -198,7 +198,165 @@ public class Emitter {
 		Name o = map.get(n);
 		if (o != null)
 			return o;
+
+		String s = n.toString();
+		boolean replace = false;
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < s.length(); i++) {
+		    char c = s.charAt(i);
+		    if (!Character.isJavaIdentifierPart(c)) {
+		        replace = true;
+		        sb.append(translateChar(c));
+		    } else {
+		        sb.append(c);
+		    }
+		}
+		if (replace)
+		    return Name.make(sb.toString());
 		return n;
+	}
+
+	private static final String[] NON_PRINTABLE = {
+	    /* 000 */ "$NUL$",
+	    /* 001 */ "$SOH$",
+	    /* 002 */ "$STX$",
+	    /* 003 */ "$ETX$",
+	    /* 004 */ "$EOT$",
+	    /* 005 */ "$ENQ$",
+	    /* 006 */ "$ACK$",
+	    /* 007 */ "$BEL$",
+	    /* 008 */ "$BS$",
+	    /* 009 */ "$HT$",
+	    /* 010 */ "$LF$",
+	    /* 011 */ "$VT$",
+	    /* 012 */ "$FF$",
+	    /* 013 */ "$CR$",
+	    /* 014 */ "$SO$",
+	    /* 015 */ "$SI$",
+	    /* 016 */ "$DLE$",
+	    /* 017 */ "$DC1$",
+	    /* 018 */ "$DC2$",
+	    /* 019 */ "$DC3$",
+	    /* 020 */ "$DC4$",
+	    /* 021 */ "$NAK$",
+	    /* 022 */ "$SYN$",
+	    /* 023 */ "$ETB$",
+	    /* 024 */ "$CAN$",
+	    /* 025 */ "$EM$",
+	    /* 026 */ "$SUB$",
+	    /* 027 */ "$ESC$",
+	    /* 028 */ "$FS$",
+	    /* 029 */ "$GS$",
+	    /* 030 */ "$RS$",
+	    /* 031 */ "$US$",
+	    /* 032 */ "$SPACE$",
+	    /* 033 */ "$EXCLAMATION$",
+	    /* 034 */ "$QUOTE$",
+	    /* 035 */ "$HASH$",
+	    /* 036 */ null,
+	    /* 037 */ "$PERCENT$",
+	    /* 038 */ "$AMPERSAND$",
+	    /* 039 */ "$APOSTROPHE$",
+	    /* 040 */ "$LPAREN$",
+	    /* 041 */ "$RPAREN$",
+	    /* 042 */ "$STAR$",
+	    /* 043 */ "$PLUS$",
+	    /* 044 */ "$COMMA$",
+	    /* 045 */ "$MINUS$",
+	    /* 046 */ "$DOT$",
+	    /* 047 */ "$SLASH$",
+	    /* 048 */ null,
+	    /* 049 */ null,
+	    /* 050 */ null,
+	    /* 051 */ null,
+	    /* 052 */ null,
+	    /* 053 */ null,
+	    /* 054 */ null,
+	    /* 055 */ null,
+	    /* 056 */ null,
+	    /* 057 */ null,
+	    /* 058 */ "$COLON$",
+	    /* 059 */ "$SEMICOLON$",
+	    /* 060 */ "$LT$",
+	    /* 061 */ "$EQ$",
+	    /* 062 */ "$GT$",
+	    /* 063 */ "$QUESTION$",
+	    /* 064 */ "$AT$",
+	    /* 065 */ null,
+	    /* 066 */ null,
+	    /* 067 */ null,
+	    /* 068 */ null,
+	    /* 069 */ null,
+	    /* 070 */ null,
+	    /* 071 */ null,
+	    /* 072 */ null,
+	    /* 073 */ null,
+	    /* 074 */ null,
+	    /* 075 */ null,
+	    /* 076 */ null,
+	    /* 077 */ null,
+	    /* 078 */ null,
+	    /* 079 */ null,
+	    /* 080 */ null,
+	    /* 081 */ null,
+	    /* 082 */ null,
+	    /* 083 */ null,
+	    /* 084 */ null,
+	    /* 085 */ null,
+	    /* 086 */ null,
+	    /* 087 */ null,
+	    /* 088 */ null,
+	    /* 089 */ null,
+	    /* 090 */ null,
+	    /* 091 */ "$LBRACKET$",
+	    /* 092 */ "$BACKSLASH$",
+	    /* 093 */ "$RBRACKET$",
+	    /* 094 */ "$CARET$",
+	    /* 095 */ null,
+	    /* 096 */ "$BACKQUOTE$",
+	    /* 097 */ null,
+	    /* 098 */ null,
+	    /* 099 */ null,
+	    /* 100 */ null,
+	    /* 101 */ null,
+	    /* 102 */ null,
+	    /* 103 */ null,
+	    /* 104 */ null,
+	    /* 105 */ null,
+	    /* 106 */ null,
+	    /* 107 */ null,
+	    /* 108 */ null,
+	    /* 109 */ null,
+	    /* 110 */ null,
+	    /* 111 */ null,
+	    /* 112 */ null,
+	    /* 113 */ null,
+	    /* 114 */ null,
+	    /* 115 */ null,
+	    /* 116 */ null,
+	    /* 117 */ null,
+	    /* 118 */ null,
+	    /* 119 */ null,
+	    /* 120 */ null,
+	    /* 121 */ null,
+	    /* 122 */ null,
+	    /* 123 */ "$LBRACE$",
+	    /* 124 */ "$BAR$",
+	    /* 125 */ "$RBRACE$",
+	    /* 126 */ "$TILDE$",
+	    /* 127 */ "$DEL$",
+	};
+	private static String translateChar(char c) {
+	    if (c > 127) {
+	        StringBuilder sb = new StringBuilder("\\u");
+	        sb.append(Integer.toHexString(c));
+	        return sb.toString();
+	    }
+	    String s = NON_PRINTABLE[c];
+	    if (s != null) {
+	        return s;
+	    }
+	    return ""+c;
 	}
 
 	public static String mangleToJava(Name name) {

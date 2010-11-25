@@ -8,15 +8,11 @@
  *
  *  (C) Copyright IBM Corporation 2006-2010.
  */
-/*****************************************************
- * WARNING!  THIS IS A GENERATED FILE.  DO NOT EDIT! *
- *****************************************************/
 
 package x10.parser;
 
 import lpg.runtime.*;
 
-//#line 35 "x10/parser/x10.g"
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -1003,6 +999,10 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
                         break;
                     case '\'':
                         x[k++] = '\'';
+                        j += 2;
+                        break;
+                    case '`':
+                        x[k++] = '`';
                         j += 2;
                         break;
                     case '\\':
@@ -2935,6 +2935,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
     }
     // Production: Identifier ::= IDENTIFIER
     void rule_Identifier0() {
+        // TODO: [IP] Transform escape sequences in quoted identifiers
         setResult( nf.Id(pos(), prsStream.getName(getRhsFirstTokenIndex(1))));
     }
     // Production: AssignmentOperator ::= '='

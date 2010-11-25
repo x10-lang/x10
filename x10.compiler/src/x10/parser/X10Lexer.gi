@@ -94,6 +94,14 @@
             if (printTokens) printValue(startOffset, endOffset);
         }
 
+        final void makeQuotedIdentifier()
+        {
+            int startOffset = getLeftSpan()+1,
+                endOffset = getRightSpan()-1;
+            makeX10Token(startOffset, endOffset, $_IDENTIFIER);
+            if (printTokens) printValue(startOffset, endOffset);
+        }
+
         public $action_type(java.io.Reader reader, String filename) throws java.io.IOException
         {
             this(reader, filename, ECLIPSE_TAB_VALUE);
@@ -260,6 +268,11 @@
     Token ::= Identifier
         /.$BeginAction
                     checkForX10KeyWord();
+          $EndAction
+        ./
+    Token ::= '`' QuotedIdentifierBody '`'
+        /.$BeginAction
+                    makeQuotedIdentifier();
           $EndAction
         ./
     Token ::= '"' SLBody '"'
@@ -650,6 +663,9 @@
     SLC ::= '/' '/'
           | SLC NotEol
 
+    QuotedIdentifierBody -> %empty
+                          | QuotedIdentifierBody NotBQ
+
     SLBody -> %empty
             | SLBody NotDQ
 
@@ -732,11 +748,15 @@
                        '%' | '&' | '^' | ':' | ';' | "'" | '\' | '|' | '{' | '}' |
                        '[' | ']' | '?' | ',' | '.' | '<' | '>' | '=' | '#'
 
-    SpecialNotDQ -> '+' | '-' | '/' | '(' | ')' | '*' | '!' | '@' | '`' | '~' |
-                    '%' | '&' | '^' | ':' | ';' | "'" | '|' | '{' | '}' |
+    SpecialNotDQ -> '+' | '-' | '*' | '(' | ')' | "'" | '!' | '@' | '`' | '~' |
+                    '%' | '&' | '^' | ':' | ';' | '/' | '|' | '{' | '}' |
                     '[' | ']' | '?' | ',' | '.' | '<' | '>' | '=' | '#'
 
     SpecialNotSQ -> '+' | '-' | '*' | '(' | ')' | '"' | '!' | '@' | '`' | '~' |
+                    '%' | '&' | '^' | ':' | ';' | '/' | '|' | '{' | '}' |
+                    '[' | ']' | '?' | ',' | '.' | '<' | '>' | '=' | '#'
+
+    SpecialNotBQ -> '+' | '-' | '*' | '(' | ')' | '"' | '!' | '@' | "'" | '~' |
                     '%' | '&' | '^' | ':' | ';' | '/' | '|' | '{' | '}' |
                     '[' | ']' | '?' | ',' | '.' | '<' | '>' | '=' | '#'
 
@@ -777,6 +797,16 @@
            | '\' u HexDigit HexDigit HexDigit HexDigit
            | '\' OctalDigits3
 
+    NotBQ -> Letter
+           | Digit
+           | SpecialNotBQ
+           | Space
+           | HT
+           | FF
+           | EscapeSequence
+           | '\' u HexDigit HexDigit HexDigit HexDigit
+           | '\' OctalDigits3
+
     EscapeSequence -> '\' b
                     | '\' t
                     | '\' n
@@ -784,6 +814,7 @@
                     | '\' r
                     | '\' '"'
                     | '\' "'"
+                    | '\' '`'
                     | '\' '\'
 
      --- X10 Tokens
