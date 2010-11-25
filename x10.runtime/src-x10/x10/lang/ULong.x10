@@ -188,7 +188,7 @@ public struct ULong implements Comparable[ULong] /*TODO implements Arithmetic[UL
      * @see #operator(ULong)/(ULong)
      */
     // @Native("java", "x10.core.Unsigned.div(#0, #1)")
-    @Native("java", "new x10.lang.ULong(x10.core.Unsigned.div_S_U(#0, #1.longVal))")
+    @Native("java", "new x10.lang.ULong(x10.core.Unsigned.div_S_U(#1, #0.longVal))")
     @Native("c++",  "((x10_ulong) ((#0) / x10aux::zeroCheck(#1)))")
     public operator (x:Long) / this: ULong {
     	// TODO implement in X10
@@ -251,7 +251,7 @@ public struct ULong implements Comparable[ULong] /*TODO implements Arithmetic[UL
      * @see #operator(ULong)%(ULong)
      */
     // @Native("java", "x10.core.Unsigned.rem(#0, #1)")
-    @Native("java", "new x10.lang.ULong(x10.core.Unsigned.rem_S_U(#0, #1.longVal))")
+    @Native("java", "new x10.lang.ULong(x10.core.Unsigned.rem_S_U(#1, #0.longVal))")
     @Native("c++",  "((x10_ulong) ((#0) % x10aux::zeroCheck(#1)))")
     public operator (x:Long) % this: ULong {
     	// TODO implement in X10
@@ -551,26 +551,25 @@ public struct ULong implements Comparable[ULong] /*TODO implements Arithmetic[UL
             } else if (realRadix == 16) {
         		// 4 * 16
         		shift = 4;
-            } else /*if (realRadix == 32)*/ {
+            } else {
+            	// realRadix == 32
         		// 5 * 12 + 4
         		shift = 5;
             }
     		mask = (1 << shift) - 1;
     		count = 64 / shift;
             val sb = new x10.util.StringBuilder();
-            val ord_0 = '0'.ord();
-            val ord_a = 'a'.ord();
             while (count > 0) {
             	val digit = (tempLongVal & mask) as Int;
-            	val ord = digit <= 9 ? ord_0 + digit : ord_a + digit - 10;
-        		sb.add(Char.chr(ord));
+            	val ch = digit <= 9 ? '0' + digit : 'a' + digit - 10;
+        		sb.add(ch);
         		tempLongVal >>>= shift;
         		--count;
             }
             if (tempLongVal != 0L) {
             	val digit = tempLongVal as Int;
-        		val ord = digit <= 9 ? ord_0 + digit : ord_a + digit - 10;
-    			sb.add(Char.chr(ord));
+            	val ch = digit <= 9 ? '0' + digit : 'a' + digit - 10;
+        		sb.add(ch);
     		}
             val chars = sb.toString().chars();
             val length = chars.length();

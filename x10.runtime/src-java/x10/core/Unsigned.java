@@ -78,11 +78,11 @@ public class Unsigned {
     }
     public static int div_U_S(int a, int b) {
 //        return (int) div_U_S(toULong(a), toSLong(b));
-        return (int) (toULong(a) / toSLong(b));
+        return (int) (toULong(a) / toSLong(b));     // need check
     }
     public static int div_S_U(int a, int b) {
 //        return (int) div_S_U(toSLong(a), toULong(b));
-        return (int) (toSLong(a) / toULong(b));
+        return (int) (toSLong(a) / toULong(b));     // need check
     }
     public static int rem(int a, int b) {
 //        return (int) rem(toULong(a), toULong(b));
@@ -90,11 +90,11 @@ public class Unsigned {
     }
     public static int rem_U_S(int a, int b) {
 //        return (int) rem_U_S(toULong(a), toSLong(b));
-        return (int) (toULong(a) % toSLong(b));
+        return (int) (toULong(a) % toSLong(b));     // need check
     }
     public static int rem_S_U(int a, int b) {
 //        return (int) rem_S_U(toSLong(a), toULong(b));
-        return (int) (toSLong(a) % toULong(b));
+        return (int) (toSLong(a) % toULong(b));     // need check
     }
 
     public static long div(long a, long b) {
@@ -102,7 +102,7 @@ public class Unsigned {
             if (a >= 0 && b >= 0)
                 return a / b;
             else
-                return toUBigInteger(a).divide(toUBigInteger(b)).longValue();
+                return toULONG(a).divide(toULONG(b)).longValue();
         } catch (ArithmeticException e) {
             throw ThrowableUtilities.getCorrespondingX10Exception(e);
         }
@@ -112,7 +112,7 @@ public class Unsigned {
             if (a >= 0 && b >= 0)
                 return a / b;
             else
-                return toUBigInteger(a).divide(toSBigInteger(b)).longValue();
+                return toULONG(a).divide(toSLONG(b)).longValue();
         } catch (ArithmeticException e) {
             throw ThrowableUtilities.getCorrespondingX10Exception(e);
         }
@@ -122,7 +122,7 @@ public class Unsigned {
             if (a >= 0 && b >= 0)
                 return a / b;
             else
-                return toSBigInteger(a).divide(toUBigInteger(b)).longValue();
+                return toSLONG(a).divide(toULONG(b)).longValue();
         } catch (ArithmeticException e) {
             throw ThrowableUtilities.getCorrespondingX10Exception(e);
         }
@@ -132,7 +132,7 @@ public class Unsigned {
             if (a >= 0 && b >= 0)
                 return a % b;
             else
-                return toUBigInteger(a).remainder(toUBigInteger(b)).longValue();
+                return toULONG(a).remainder(toULONG(b)).longValue();
         } catch (ArithmeticException e) {
             throw ThrowableUtilities.getCorrespondingX10Exception(e);
         }
@@ -142,7 +142,7 @@ public class Unsigned {
             if (a >= 0 && b >= 0)
                 return a % b;
             else
-                return toUBigInteger(a).remainder(toSBigInteger(b)).longValue();
+                return toULONG(a).remainder(toSLONG(b)).longValue();
         } catch (ArithmeticException e) {
             throw ThrowableUtilities.getCorrespondingX10Exception(e);
         }
@@ -152,7 +152,7 @@ public class Unsigned {
             if (a >= 0 && b >= 0)
                 return a % b;
             else
-                return toSBigInteger(a).remainder(toUBigInteger(b)).longValue();
+                return toSLONG(a).remainder(toULONG(b)).longValue();
         } catch (ArithmeticException e) {
             throw ThrowableUtilities.getCorrespondingX10Exception(e);
         }
@@ -173,7 +173,7 @@ public class Unsigned {
         return null;
     }
     
-    private static java.math.BigInteger toSBigInteger(long a) {
+    private static java.math.BigInteger toSLONG(long a) {
         byte[] bytes = new byte[8];
         for (int i = 0; i < 8; ++i) {
             bytes[8 - 1 - i] = (byte)(a & 0xff);
@@ -181,7 +181,7 @@ public class Unsigned {
         }
         return new java.math.BigInteger(bytes);        
     }
-    private static java.math.BigInteger toUBigInteger(long a) {
+    private static java.math.BigInteger toULONG(long a) {
         byte[] bytes = new byte[9]; // set zero to bytes[0] to make the value positive
         for (int i = 0; i < 8; ++i) {
             bytes[9 - 1 - i] = (byte)(a & 0xff);
@@ -191,16 +191,16 @@ public class Unsigned {
     }
 
     
-    private static final java.math.BigInteger ULONG_MAX = new java.math.BigInteger("ffffffffffffffff", 16);
+    private static final java.math.BigInteger ULONG_MAX = toULONG(0xFFFFFFFFFFFFFFFFL);
     public static long parseULong(String s, int radix) {
-        java.math.BigInteger bigint = new java.math.BigInteger(s, radix);
-        if (bigint.signum() < 0) {
+        java.math.BigInteger ulong = new java.math.BigInteger(s, radix);
+        if (ulong.signum() < 0) {
             throw newNumberFormatException(forInputString(s));
         }
-        if (bigint.compareTo(ULONG_MAX) > 0) {
+        if (ulong.compareTo(ULONG_MAX) > 0) {
             throw newNumberFormatException(forInputString(s));
         }
-        return bigint.longValue();
+        return ulong.longValue();
     }
     /*
     // followings are correct but not used
@@ -231,7 +231,7 @@ public class Unsigned {
     }
     */
     public static String toString(long a, int radix) {
-        return toUBigInteger(a).toString(radix);
+        return toULONG(a).toString(radix);
     }
     /*
     // followings are correct but not used
