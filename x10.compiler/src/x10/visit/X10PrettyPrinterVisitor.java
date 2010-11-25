@@ -208,7 +208,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	public static final int BOX_PRIMITIVES = 2;
 	public static final int NO_VARIANCE = 4;
 	public static final int NO_QUALIFIER = 8;
-	public static final boolean reduce_generic_cast = true;
 
 	public static final String RETURN_PARAMETER_TYPE_SUFFIX = "$G";
 
@@ -277,7 +276,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
 	    // Don't call through del; that would be recursive.
 	    n.translate(w, tr);
-    	}
+	}
 
 	public void visit(FlagsNode_c n) {
 	    n.translate(w, tr);
@@ -2506,7 +2505,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         }
 
         w.write(f.translateJava());
-        tr.print(javaNode, javaNode.type(), w);
+        er.printType(javaNode.type().type(), PRINT_TYPE_PARAMS);
+        //tr.print(javaNode, javaNode.type(), w); 
         w.allowBreak(2, 2, " ", 1);
         tr.print(javaNode, javaNode.name(), w);
 
@@ -2522,10 +2522,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	}
 
 	public void visit(X10LocalDecl_c n) {
-		if (!X10PrettyPrinterVisitor.reduce_generic_cast) {
-			n.prettyPrint(w, tr);
-			return;
-		}
 		
 		//same with FieldDecl_c#prettyPrint(CodeWriter w, PrettyPrinter tr)
         boolean printSemi = tr.appendSemicolon(true);

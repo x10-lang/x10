@@ -2222,8 +2222,7 @@ public class Emitter {
 	}
 
 	private void javacast(Node parent, Type t, int flags, Expr e) {
-		if (X10PrettyPrinterVisitor.reduce_generic_cast && 
-				(flags & X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS) != 0) {
+		if ((flags & X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS) != 0) {
 			flags -= X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS;
 		}
 		w.write("((");
@@ -2240,8 +2239,7 @@ public class Emitter {
 	}
 
 	private void javacast(Type t, int flags, Expander e) {
-		if (X10PrettyPrinterVisitor.reduce_generic_cast &&
-				(flags & X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS) != 0) {
+		if ((flags & X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS) != 0) {
 			flags -= X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS;
 		}
 		w.write("((");
@@ -2257,8 +2255,7 @@ public class Emitter {
 	}
 
 	private void javacast(Type t, int flags, String e) {
-		if (X10PrettyPrinterVisitor.reduce_generic_cast &&
-				(flags & X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS) != 0) {
+		if ((flags & X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS) != 0) {
 			flags -= X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS;
 		}
 		w.write("((");
