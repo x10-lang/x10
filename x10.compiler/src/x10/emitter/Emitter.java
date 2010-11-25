@@ -72,17 +72,21 @@ import polyglot.util.Position;
 import polyglot.util.StringUtil;
 import polyglot.visit.Translator;
 import x10.ast.ClosureCall;
+import x10.ast.Closure_c;
 import x10.ast.DepParameterExpr;
 import x10.ast.ParExpr_c;
 import x10.ast.PropertyDecl;
+import x10.ast.SettableAssign;
 import x10.ast.TypeParamNode;
 import x10.ast.X10Call;
+import x10.ast.X10Call_c;
 import x10.ast.X10CanonicalTypeNode;
 import x10.ast.X10ClassDecl;
 import x10.ast.X10ClassDecl_c;
 import x10.ast.X10ConstructorDecl;
 import x10.ast.X10MethodDecl_c;
 import x10.ast.X10NodeFactory_c;
+import x10.ast.X10Return_c;
 import x10.Configuration;
 import x10.config.ConfigurationError;
 import x10.config.OptionError;
@@ -102,36 +106,42 @@ import x10.types.X10TypeMixin;
 import x10.types.checker.Converter;
 import x10.visit.ChangePositionVisitor;
 import x10.visit.X10PrettyPrinterVisitor;
+import x10.visit.X10Translator;
 import x10c.types.BackingArrayType;
 
 public class Emitter {
 
 	CodeWriter w;
 	Translator tr;
+	private final Type imcType;
         
-        private static final Set<String> JAVA_KEYWORDS = new HashSet<String>(
-            Arrays.asList(new String[]{
-                "abstract", "default",  "if",         "private",    "this",
-                "boolean",  "do",       "implements", "protected",  "throw",
-                "break",    "double",   "import",     "public",     "throws",
-                "byte",     "else",     "instanceof", "return",     "transient",
-                "case",     "extends",  "int",        "short",      "try",
-                "catch",    "final",    "interface",  "static",     "void",
-                "char",     "finally",  "long",       "strictfp",   "volatile",
-                "class",    "float",    "native",     "super",      "while",
-                "const",    "for",      "new",        "switch",
-                "continue", "goto",     "package",    "synchronized",
-                "null",     "true",     "false",
-                
-                // X10 implementation names        
-                "getRTT", "_RTT", "getParam"
-                }
-            )
-        );
+	private static final Set<String> JAVA_KEYWORDS = new HashSet<String>(
+	        Arrays.asList(new String[]{
+	                "abstract", "default",  "if",         "private",    "this",
+	                "boolean",  "do",       "implements", "protected",  "throw",
+	                "break",    "double",   "import",     "public",     "throws",
+	                "byte",     "else",     "instanceof", "return",     "transient",
+	                "case",     "extends",  "int",        "short",      "try",
+	                "catch",    "final",    "interface",  "static",     "void",
+	                "char",     "finally",  "long",       "strictfp",   "volatile",
+	                "class",    "float",    "native",     "super",      "while",
+	                "const",    "for",      "new",        "switch",
+	                "continue", "goto",     "package",    "synchronized",
+	                "null",     "true",     "false",
+	                // X10 implementation names        
+	                "getRTT", "_RTT", "getParam"
+	        }
+	        )
+	);
         
 	public Emitter(CodeWriter w, Translator tr) {
 		this.w=w;
 		this.tr=tr;
+		try {
+		    imcType = tr.typeSystem().typeForName(QName.make("x10.util.IndexedMemoryChunk"));
+		} catch (SemanticException e1) {
+		    throw new InternalCompilerError("Something is terribly wrong");
+		}
 	}
 
 	public String mangle(QName name) {
@@ -773,6 +783,12 @@ public class Emitter {
 			}
 		}
 	}
+
+	public boolean isIMC(Type type) {
+        TypeSystem xts = (TypeSystem) tr.typeSystem();
+        Type tbase = X10TypeMixin.baseType(type);
+        return tbase instanceof X10ParsedClassType_c && ((X10ParsedClassType_c) tbase).def().asType().typeEquals(imcType, tr.context());
+    }
 
 	@Deprecated
 	public void generateDispatchers(X10ClassDef cd) {
@@ -3284,4 +3300,137 @@ public class Emitter {
         w.write("}");
         w.newline();
     }
+
+    public boolean printInlinedCode(X10Call_c c) {
+        TypeSystem xts = tr.typeSystem();
+        Type ttype = X10TypeMixin.baseType(c.target().type());
+        
+        if (isMethodInlineTarget(xts, ttype)) {
+            Type ptype = ((X10ClassType) ttype).typeArguments().get(0);
+            Name methodName = c.methodInstance().name();
+            // e.g. rail.set(a,i) -> ((Object[]) rail.value)[i] = a or ((int[]/* primitive array */)rail.value)[i] = a
+            if (methodName==SettableAssign.SET) {
+                w.write("(");
+                w.write("(");
+                new TypeExpander(this, ptype, 0).expand();
+                w.write("[]");
+                w.write(")");
+                c.print(c.target(), w, tr);
+                w.write(".value");
+                w.write(")");
+
+                w.write("[");
+                c.print(c.arguments().get(1), w, tr);
+                w.write("]");
+
+                w.write(" = ");
+                c.print(c.arguments().get(0), w, tr);
+                return true;
+            }
+            // e.g. rail.apply(i) -> ((String)((String[])rail.value)[i]) or ((int[])rail.value)[i]
+            if (methodName==ClosureCall.APPLY) {
+                
+                w.write("(");
+                w.write("(");
+                new TypeExpander(this, ptype, 0).expand();
+                w.write("[]");
+                w.write(")");
+                c.print(c.target(), w, tr);
+                w.write(".value");
+                w.write(")");
+
+                w.write("[");
+                c.print(c.arguments().get(0), w, tr);
+                w.write("]");
+
+                return true;
+            }
+        }
+
+        if (xts.isRail(c.target().type())) {
+            String methodName = c.methodInstance().name().toString();
+            if (methodName.equals("make")) {
+                Type rt = X10TypeMixin.baseType(c.type());
+                if (rt instanceof X10ClassType) {
+                    Type pt = ((X10ClassType) rt).typeArguments().get(0);
+                    if (!(X10TypeMixin.baseType(pt) instanceof ParameterType)) {
+                        // for makeVaxRail(type,length,init);
+                        if (c.arguments().size() == 2 && c.arguments().get(0).type().isNumeric()) {
+                            Expr expr = c.arguments().get(1);
+                            if (expr instanceof Closure_c) {
+                                Closure_c closure = (Closure_c) expr;
+                                final List<Stmt> statements = closure.body().statements();
+                                Translator tr2 = ((X10Translator) tr).inInnerClass(true);
+                                tr2 = tr2.context(expr.enterScope(tr2.context()));
+
+                                final Expander ex;
+                                ex = new TypeExpander(this, pt, false, false, false);
+                                final Node n = c;
+                                final Id id = closure.formals().get(0).name();
+                                Expander ex1 = new Expander(this) {
+                                    @Override
+                                    public void expand(Translator tr2) {
+                                        for (Stmt stmt : statements) {
+                                            if (stmt instanceof X10Return_c) {
+                                                w.write("array$");
+                                                w.write("[");
+                                                w.write(id.toString());
+                                                w.write("] = ");
+                                                er.prettyPrint(((X10Return_c) stmt).expr(), tr2);
+                                                w.write(";");
+                                            }
+                                            else {
+                                                er.prettyPrint(stmt, tr2);
+                                            }
+                                        }
+                                    }
+                                };
+
+                                Expander ex2 = new Expander(this) {
+                                    @Override
+                                    public void expand(Translator tr2) {
+                                        ex.expand();
+                                        w.write("[] ");
+                                        w.write("array$ = new ");
+                                        ex.expand();
+                                        w.write("[length$];");
+                                    }
+                                };
+
+                                Object[] components = {
+                                        new TypeExpander(this, c.target().type(), false, true, false),
+                                        new TypeExpander(this, pt, true, true, false),
+                                        new RuntimeTypeExpander(this, pt),
+                                        c.arguments().get(0),
+                                        ex1,
+                                        id,
+                                        ex2
+                                };
+                                dumpRegex("rail-make", components, tr2,
+                                          "(new " + X10PrettyPrinterVisitor.JAVA_IO_SERIALIZABLE + "() {" +
+                                          "final #0<#1> apply(int length$) {" +
+                                          "#6" + 
+                                          "for (int #5$ = 0; #5$ < length$; #5$++) {" +
+                                          "final int #5 = #5$;" +
+                                          "#4" +
+                                          "}" +
+                                          "return new #0<#1>(#2, length$, array$);" +
+                                          "}" +
+                                "}.apply(#3))");
+
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    public boolean isMethodInlineTarget(TypeSystem xts, Type ttype) {
+        ttype = X10TypeMixin.baseType(ttype);
+        return (xts.isRail(ttype) /*|| isIMC(ttype)*/) && !(X10PrettyPrinterVisitor.hasParams(ttype) && xts.isParameterType(((X10ClassType) ttype).typeArguments().get(0)));
+    }
+
 }

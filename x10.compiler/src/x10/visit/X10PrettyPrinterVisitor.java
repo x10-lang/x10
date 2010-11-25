@@ -215,7 +215,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	final public Translator tr;
 	final public Emitter er;
 
-	public final Type imcType;
     public static final String JAVA_LANG_OBJECT = "java.lang.Object";
     public static final String JAVA_LANG_CLASS = "java.lang.Class";
     public static final String JAVA_IO_SERIALIZABLE = "java.io.Serializable";
@@ -238,11 +237,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		this.w = w;
 		this.tr = tr;
 		this.er = new Emitter(w,tr);
-		try {
-		    imcType = tr.typeSystem().typeForName(QName.make("x10.util.IndexedMemoryChunk"));
-		} catch (SemanticException e1) {
-		    throw new InternalCompilerError("Something is terribly wrong");
-		}
 	}
 
 	public void visit(Node n) {
@@ -302,7 +296,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	    // XTENLANG-2000
 	    if (expr instanceof X10Call) {
 	        // support for back-end method inlining
-	        if (isMethodInlineTarget((TypeSystem) tr.typeSystem(), ((X10Call) expr).target().type()) && ((X10Call) expr).methodInstance().name()==ClosureCall.APPLY) {
+	        if (er.isMethodInlineTarget((TypeSystem) tr.typeSystem(), ((X10Call) expr).target().type()) && ((X10Call) expr).methodInstance().name()==ClosureCall.APPLY) {
 	            w.write(X10_RUNTIME_UTIL_UTIL + ".eval(");
 	            n.print(expr, w, tr);
 	            w.write(")");
@@ -1745,135 +1739,12 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	}
 
 	public void visit(X10Call_c c) {
+	    if (er.printInlinedCode(c)) {
+	        return;
+	    }
+	    
 	    TypeSystem xts = (TypeSystem) tr.typeSystem();
-
-	    Type ttype = X10TypeMixin.baseType(c.target().type());
-	    
-	    if (isMethodInlineTarget(xts, ttype)) {
-	        Type ptype = ((X10ClassType) ttype).typeArguments().get(0);
-	        Name methodName = c.methodInstance().name();
-	        // e.g. rail.set(a,i) -> ((Object[]) rail.value)[i] = a or ((int[]/* primitive array */)rail.value)[i] = a
-	        if (methodName==SettableAssign.SET) {
-	            w.write("(");
-	            w.write("(");
-	            new TypeExpander(er, ptype, 0).expand();
-	            w.write("[]");
-	            w.write(")");
-	            c.print(c.target(), w, tr);
-	            w.write(".value");
-	            w.write(")");
-
-	            w.write("[");
-	            c.print(c.arguments().get(1), w, tr);
-	            w.write("]");
-
-	            w.write(" = ");
-	            c.print(c.arguments().get(0), w, tr);
-	            return;
-	        }
-	        // e.g. rail.apply(i) -> ((String)((String[])rail.value)[i]) or ((int[])rail.value)[i]
-	        if (methodName==ClosureCall.APPLY) {
-	            
-	            w.write("(");
-	            w.write("(");
-	            new TypeExpander(er, ptype, 0).expand();
-	            w.write("[]");
-	            w.write(")");
-	            c.print(c.target(), w, tr);
-	            w.write(".value");
-	            w.write(")");
-
-	            w.write("[");
-	            c.print(c.arguments().get(0), w, tr);
-	            w.write("]");
-
-	            return;
-	        }
-	    }
-	    
 	    Context context = (Context) tr.context();
-	    
-	    if (xts.isRail(c.target().type())) {
-	        String methodName = c.methodInstance().name().toString();
-	        if (methodName.equals("make")) {
-	            Type rt = X10TypeMixin.baseType(c.type());
-	            if (rt instanceof X10ClassType) {
-	                Type pt = ((X10ClassType) rt).typeArguments().get(0);
-	                if (!(X10TypeMixin.baseType(pt) instanceof ParameterType)) {
-	                    // for makeVaxRail(type,length,init);
-	                    if (c.arguments().size() == 2 && c.arguments().get(0).type().isNumeric()) {
-	                        Expr expr = c.arguments().get(1);
-	                        if (expr instanceof Closure_c) {
-	                            Closure_c closure = (Closure_c) expr;
-	                            final List<Stmt> statements = closure.body().statements();
-	                            if (!throwException(statements)) {
-	                                
-	                                Translator tr2 = ((X10Translator) tr).inInnerClass(true);
-	                                tr2 = tr2.context(expr.enterScope(tr2.context()));
-	                                
-	                                final Expander ex;
-	                                ex = new TypeExpander(er, pt, false, false, false);
-	                                final Node n = c;
-	                                final Id id = closure.formals().get(0).name();
-	                                Expander ex1 = new Expander(er) {
-                                            @Override
-                                            public void expand(Translator tr2) {
-                                                for (Stmt stmt : statements) {
-                                                    if (stmt instanceof X10Return_c) {
-                                                        w.write("array$");
-                                                        w.write("[");
-                                                        w.write(id.toString());
-                                                        w.write("] = ");
-                                                        er.prettyPrint(((X10Return_c) stmt).expr(), tr2);
-                                                        w.write(";");
-                                                    }
-                                                    else {
-                                                        er.prettyPrint(stmt, tr2);
-                                                    }
-                                                }
-                                            }
-                                        };
-
-                                        Expander ex2 = new Expander(er) {
-                                            @Override
-                                            public void expand(Translator tr2) {
-                                                ex.expand();
-                                                w.write("[] ");
-                                                w.write("array$ = new ");
-                                                ex.expand();
-                                                w.write("[length$];");
-                                            }
-                                        };
-                                        
-	                                Object[] components = {
-                                            new TypeExpander(er, c.target().type(), false, true, false),
-                                            new TypeExpander(er, pt, true, true, false),
-                                            new RuntimeTypeExpander(er, pt),
-                                            c.arguments().get(0),
-                                            ex1,
-                                            id,
-                                            ex2
-	                                };
-	                                er.dumpRegex("rail-make", components, tr2,
-	                                        "(new " + JAVA_IO_SERIALIZABLE + "() {" +
-	                                    	    "final #0<#1> apply(int length$) {" +
-	                                    	        "#6" + 
-	                                    	        "for (int #5$ = 0; #5$ < length$; #5$++) {" +
-	                                    		    "final int #5 = #5$;" +
-	                                    		    "#4" +
-	                                    		"}" +
-	                                    		"return new #0<#1>(#2, length$, array$);" +
-	                                             "}" +
-	                                         "}.apply(#3))");
-	                                
-	                                return;
-	                            }
-	                        }
-	                    }
-	                }
-	            }
-	        }
-	    }
 
 		Receiver target = c.target();
 		Type t = target.type();
@@ -1913,7 +1784,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			er.emitNativeAnnotation(pat, targetArg, mi.typeParameters(), args, typeArguments);
 			return;
 		}
-
 
 		// Check for properties accessed using method syntax.  They may have @Native annotations too.
 		if (mi.flags().isProperty() && mi.formalTypes().size() == 0 && mi.typeParameters().size() == 0) {
@@ -2017,19 +1887,19 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		        
 		        if (tt instanceof X10ClassType && ((X10ClassType) tt).flags().isInterface()) {
 		            if (!containsTypeParam(mi.def().formalTypes())) {
-		                w.write(X10PrettyPrinterVisitor.RETURN_PARAMETER_TYPE_SUFFIX);
+		                w.write(RETURN_PARAMETER_TYPE_SUFFIX);
 		            }
 		        }
 		        else if (target instanceof ParExpr && ((ParExpr) target).expr() instanceof Closure_c) {
 		            if (mi.formalTypes().size() == 0) {
-		                w.write(X10PrettyPrinterVisitor.RETURN_PARAMETER_TYPE_SUFFIX);
+		                w.write(RETURN_PARAMETER_TYPE_SUFFIX);
 		            }
 		        }
 		        else {
-		            w.write(X10PrettyPrinterVisitor.RETURN_PARAMETER_TYPE_SUFFIX);
+		            w.write(RETURN_PARAMETER_TYPE_SUFFIX);
 		        }
 		    } else {
-                w.write(X10PrettyPrinterVisitor.RETURN_PARAMETER_TYPE_SUFFIX);
+                w.write(RETURN_PARAMETER_TYPE_SUFFIX);
 		    }
 		}
 		w.write("(");
@@ -2128,11 +1998,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		w.write(")");
 	}
 
-    private boolean isMethodInlineTarget(TypeSystem xts, Type ttype) {
-        ttype = X10TypeMixin.baseType(ttype);
-        return (xts.isRail(ttype) || isIMC(ttype)) && !(hasParams(ttype) && xts.isParameterType(((X10ClassType) ttype).typeArguments().get(0)));
-    }
-
     public static boolean hasParams(Type t) {
         Type bt = X10TypeMixin.baseType(t);
         return (bt instanceof X10ClassType && ((X10ClassType) bt).hasParams());
@@ -2146,12 +2011,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         }
         return false;
     }
-    
-	private boolean isIMC(Type type) {
-	    TypeSystem xts = (TypeSystem) tr.typeSystem();
-	    Type tbase = X10TypeMixin.baseType(type);
-	    return tbase instanceof X10ParsedClassType_c && ((X10ParsedClassType_c) tbase).def().asType().typeEquals(imcType, tr.context());
-	}
 
 	public void visit(final Closure_c n) {
 		Translator tr2 = ((X10Translator) tr).inInnerClass(true);
@@ -2270,23 +2129,23 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		w.write(") { ");
 		
                 List<Stmt> statements = n.body().statements();
-                boolean throwException = false;
-                boolean throwThrowable = false;
-                for (Stmt stmt : statements) {
-                    final List<Type> throwables = getThrowables(stmt);
-                    if (throwables == null) {
-                        continue;
-                    }
-                    for (Type type : throwables) {
-                        if (type != null) {
-                            if (type.isSubtype(tr.typeSystem().Exception(), tr.context()) && !type.isSubtype(tr.typeSystem().RuntimeException(), tr.context())) {
-                                throwException = true;
-                            } else if (!type.isSubtype(tr.typeSystem().Exception(), tr.context()) && !type.isSubtype(tr.typeSystem().Error(), tr.context())) {
-                                throwThrowable = true;
-                            }
-                        }
-                    }
-                }
+//                boolean throwException = false;
+//                boolean throwThrowable = false;
+//                for (Stmt stmt : statements) {
+//                    final List<Type> throwables = getThrowables(stmt);
+//                    if (throwables == null) {
+//                        continue;
+//                    }
+//                    for (Type type : throwables) {
+//                        if (type != null) {
+//                            if (type.isSubtype(tr.typeSystem().Exception(), tr.context()) && !type.isSubtype(tr.typeSystem().RuntimeException(), tr.context())) {
+//                                throwException = true;
+//                            } else if (!type.isSubtype(tr.typeSystem().Exception(), tr.context()) && !type.isSubtype(tr.typeSystem().Error(), tr.context())) {
+//                                throwThrowable = true;
+//                            }
+//                        }
+//                    }
+//                }
                 
                 TryCatchExpander tryCatchExpander = new TryCatchExpander(w, er, n.body(), null);
                 if (runAsync) {
@@ -2296,54 +2155,57 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                         }
                     });
                 }
-                if (throwThrowable) {
-                    tryCatchExpander.addCatchBlock("java.lang.RuntimeException", "ex", new Expander(er) {
-                        public void expand(Translator tr) {
-                            w.write("throw ex;");
-                        }
-                    });
-                    tryCatchExpander.addCatchBlock("java.lang.Error", "er", new Expander(er) {
-                        public void expand(Translator tr) {
-                            w.write("throw er;");
-                        }
-                    });                    
-                    if (runAsync) {
-                        tryCatchExpander.addCatchBlock("java.lang.Throwable", "t", new Expander(er) {
-                            public void expand(Translator tr) {
-                                w.write("x10.lang.Runtime.pushException(new x10.runtime.impl.java.X10WrappedThrowable(t));");
-                            }
-                        });
-                    } else {
-                        tryCatchExpander.addCatchBlock("java.lang.Throwable", "t", new Expander(er) {
-                            public void expand(Translator tr) {
-                                w.write("throw new x10.runtime.impl.java.X10WrappedThrowable(t);");
-                            }
-                        });
-                    }
-                    tryCatchExpander.expand(tr2); 
-                }
-                else if (throwException) {
-                    tryCatchExpander.addCatchBlock("java.lang.RuntimeException", "ex", new Expander(er) {
-                        public void expand(Translator tr) {
-                            w.write("throw ex;");
-                        }
-                    });
-                    
-                    if (runAsync) {
-                        tryCatchExpander.addCatchBlock("java.lang.Exception", "ex", new Expander(er) {
-                            public void expand(Translator tr) {
-                                w.write("x10.lang.Runtime.pushException(new x10.runtime.impl.java.X10WrappedThrowable(ex));");
-                            }
-                        });
-                    } else {
-                        tryCatchExpander.addCatchBlock("java.lang.Exception", "ex", new Expander(er) {
-                            public void expand(Translator tr) {
-                                w.write("throw new x10.runtime.impl.java.X10WrappedThrowable(ex);");
-                            }
-                        });
-                    }
-                    tryCatchExpander.expand(tr2);
-                } else if (runAsync) {
+//                if (throwThrowable) {
+//                    tryCatchExpander.addCatchBlock("java.lang.RuntimeException", "ex", new Expander(er) {
+//                        public void expand(Translator tr) {
+//                            w.write("throw ex;");
+//                        }
+//                    });
+//                    tryCatchExpander.addCatchBlock("java.lang.Error", "er", new Expander(er) {
+//                        public void expand(Translator tr) {
+//                            w.write("throw er;");
+//                        }
+//                    });                    
+//                    if (runAsync) {
+//                        tryCatchExpander.addCatchBlock("java.lang.Throwable", "t", new Expander(er) {
+//                            public void expand(Translator tr) {
+//                                w.write("x10.lang.Runtime.pushException(new x10.runtime.impl.java.X10WrappedThrowable(t));");
+//                            }
+//                        });
+//                    } else {
+//                        tryCatchExpander.addCatchBlock("java.lang.Throwable", "t", new Expander(er) {
+//                            public void expand(Translator tr) {
+//                                w.write("throw new x10.runtime.impl.java.X10WrappedThrowable(t);");
+//                            }
+//                        });
+//                    }
+//                    tryCatchExpander.expand(tr2); 
+//                }
+//                else 
+//                    if (throwException) {
+//                    tryCatchExpander.addCatchBlock("java.lang.RuntimeException", "ex", new Expander(er) {
+//                        public void expand(Translator tr) {
+//                            w.write("throw ex;");
+//                        }
+//                    });
+//                    
+//                    if (runAsync) {
+//                        tryCatchExpander.addCatchBlock("java.lang.Exception", "ex", new Expander(er) {
+//                            public void expand(Translator tr) {
+//                                w.write("x10.lang.Runtime.pushException(new x10.runtime.impl.java.X10WrappedThrowable(ex));");
+//                            }
+//                        });
+//                    } else {
+//                        tryCatchExpander.addCatchBlock("java.lang.Exception", "ex", new Expander(er) {
+//                            public void expand(Translator tr) {
+//                                w.write("throw new x10.runtime.impl.java.X10WrappedThrowable(ex);");
+//                            }
+//                        });
+//                    }
+//                    tryCatchExpander.expand(tr2);
+//                } else 
+//                    
+                if (runAsync) {
                     tryCatchExpander.expand(tr2);
                 } else {
                     er.prettyPrint(n.body(), tr2);
@@ -2419,48 +2281,47 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         return containsPrimitive(n) || !n.returnType().type().isVoid() && !(X10TypeMixin.baseType(n.returnType().type()) instanceof ParameterType);
     }
 
-        private boolean throwException(List<Stmt> statements) {
-            for (Stmt stmt : statements) {
-                final List<Type> exceptions = getThrowables(stmt);
-                if (exceptions == null) {
-                    continue;
-                }
-                for (Type type : exceptions) {
-                    if (type != null) {
-                        if (type.isSubtype(tr.typeSystem().Exception(), tr.context()) && !type.isSubtype(tr.typeSystem().RuntimeException(), tr.context())) {
-                            return true;
-                        } else if (!type.isSubtype(tr.typeSystem().Exception(), tr.context()) && !type.isSubtype(tr.typeSystem().Error(), tr.context())) {
-                            return true;
-                        }
-                    }
-                }
-            }
-            return false;
-        }
-
-        private static List<Type> getThrowables(Stmt stmt) {
-            final List<Type> throwables = new ArrayList<Type>();
-            stmt.visit(
-                new NodeVisitor() {
-                    @Override
-                    public Node leave(Node old, Node n, NodeVisitor v) {
-                     /*   if (n instanceof X10Call_c) {
-                            List<Type> throwTypes = ((X10Call_c) n).methodInstance().throwTypes();
-                            if (throwTypes != null) throwables.addAll(throwTypes);
-                        }
-                        if (n instanceof Throw) {
-                            throwables.add(((Throw) n).expr().type());
-                        }
-                        if (n instanceof X10New_c) {
-                            List<Type> throwTypes = ((X10New_c) n).procedureInstance().throwTypes();
-                            if (throwTypes != null) throwables.addAll(throwTypes);
-                        }
-                        */
-                        return n;
-                    }
-            });
-            return throwables;
-        }
+//    private boolean throwException(List<Stmt> statements) {
+//        for (Stmt stmt : statements) {
+//            final List<Type> exceptions = getThrowables(stmt);
+//            if (exceptions == null) {
+//                continue;
+//            }
+//            for (Type type : exceptions) {
+//                if (type != null) {
+//                    if (type.isSubtype(tr.typeSystem().Exception(), tr.context()) && !type.isSubtype(tr.typeSystem().RuntimeException(), tr.context())) {
+//                        return true;
+//                    } else if (!type.isSubtype(tr.typeSystem().Exception(), tr.context()) && !type.isSubtype(tr.typeSystem().Error(), tr.context())) {
+//                        return true;
+//                    }
+//                }
+//            }
+//        }
+//        return false;
+//    }
+//        private static List<Type> getThrowables(Stmt stmt) {
+//            final List<Type> throwables = new ArrayList<Type>();
+//            stmt.visit(
+//                new NodeVisitor() {
+//                    @Override
+//                    public Node leave(Node old, Node n, NodeVisitor v) {
+//                     /*   if (n instanceof X10Call_c) {
+//                            List<Type> throwTypes = ((X10Call_c) n).methodInstance().throwTypes();
+//                            if (throwTypes != null) throwables.addAll(throwTypes);
+//                        }
+//                        if (n instanceof Throw) {
+//                            throwables.add(((Throw) n).expr().type());
+//                        }
+//                        if (n instanceof X10New_c) {
+//                            List<Type> throwTypes = ((X10New_c) n).procedureInstance().throwTypes();
+//                            if (throwTypes != null) throwables.addAll(throwTypes);
+//                        }
+//                        */
+//                        return n;
+//                    }
+//            });
+//            return throwables;
+//        }
 
 	private boolean containsPrimitive(Closure_c n) {
 	    Type t = n.returnType().type();
@@ -2849,7 +2710,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			Binary.Operator op = n.operator().binaryOperator();
 			Name methodName = X10Binary_c.binaryMethodName(op);
 			TypeSystem xts = (TypeSystem) ts;
-			if (isPrimitiveRepedJava(t) && (xts.isRail(array.type()) || isIMC(array.type()))) {
+			if (isPrimitiveRepedJava(t) && (xts.isRail(array.type()) || er.isIMC(array.type()))) {
 			    w.write("(");
 			    w.write("(");
 			    new TypeExpander(er, t, 0).expand();
@@ -2897,7 +2758,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			Binary.Operator op = n.operator().binaryOperator();
 			Name methodName = X10Binary_c.binaryMethodName(op);
 			TypeSystem xts = (TypeSystem) ts;
-			if (isPrimitiveRepedJava(t) && (xts.isRail(array.type()) || isIMC(array.type()))) {
+			if (isPrimitiveRepedJava(t) && (xts.isRail(array.type()) || er.isIMC(array.type()))) {
 			    w.write("(");
 			    w.write("(");
 			    new TypeExpander(er, t, 0).expand();
