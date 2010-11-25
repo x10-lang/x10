@@ -49,23 +49,31 @@ public class Types {
     }
 
     // create rtt of comparable before all types that implement comparable (e.g. int)
-    public static RuntimeType<?> COMPARABLE = new RuntimeType(Comparable.class, RuntimeType.Variance.INVARIANT) {
+    public static final RuntimeType<?> COMPARABLE = new RuntimeType(Comparable.class, RuntimeType.Variance.INVARIANT) {
         @Override
         public String typeName() {
             return "x10.lang.Comparable";
         }
     };
 
-    public static RuntimeType<Boolean> BOOLEAN = new BooleanType();
-    public static RuntimeType<Byte> BYTE = new ByteType();
-    public static RuntimeType<Short> SHORT = new ShortType();
-    public static RuntimeType<Character> CHAR = new CharType();
-    public static RuntimeType<Integer> INT = new IntType();
-    public static RuntimeType<Long> LONG = new LongType();
-    public static RuntimeType<Float> FLOAT = new FloatType();
-    public static RuntimeType<Double> DOUBLE = new DoubleType();
+    public static final RuntimeType<Boolean> BOOLEAN = new BooleanType();
+    public static final RuntimeType<Byte> BYTE = new ByteType();
+    public static final RuntimeType<Short> SHORT = new ShortType();
+    public static final RuntimeType<Character> CHAR = new CharType();
+    public static final RuntimeType<Integer> INT = new IntType();
+    public static final RuntimeType<Long> LONG = new LongType();
+    public static final RuntimeType<Float> FLOAT = new FloatType();
+    public static final RuntimeType<Double> DOUBLE = new DoubleType();
+    public static final Object BOOLEAN_ZERO = Boolean.valueOf(false);
+    public static final Object BYTE_ZERO = Byte.valueOf((byte) 0);
+    public static final Object SHORT_ZERO = Short.valueOf((short) 0);
+    public static final Object CHAR_ZERO = Character.valueOf((char) 0);
+    public static final Object INT_ZERO = Integer.valueOf(0);
+    public static final Object LONG_ZERO = Long.valueOf(0L);
+    public static final Object FLOAT_ZERO = Float.valueOf(0.0F);
+    public static final Object DOUBLE_ZERO = Double.valueOf(0.0);
 
-    public static RuntimeType<String> STRING = new RuntimeType<String>(
+    public static final RuntimeType<String> STRING = new RuntimeType<String>(
         String.class,
         new Type[] {
             new ParameterizedType(Fun_0_1._RTT, Types.INT, Types.CHAR),
@@ -77,7 +85,7 @@ public class Types {
             return "x10.lang.String";
         }
     };
-    public static RuntimeType<Object> OBJECT = new RuntimeType<Object>(Object.class) {
+    public static final RuntimeType<Object> OBJECT = new RuntimeType<Object>(Object.class) {
         @Override
         public String typeName() {
             return "x10.lang.Object";
@@ -88,7 +96,8 @@ public class Types {
             return o == OBJECT || o == ANY;
         };
     };
-    public static RuntimeType<Object> ANY = new RuntimeType<Object>(Object.class) {
+    public static final Object OBJECT_ZERO = null;
+    public static final RuntimeType<Object> ANY = new RuntimeType<Object>(Object.class) {
         @Override
         public String typeName() {
             return "x10.lang.Any";
@@ -104,6 +113,10 @@ public class Types {
     public static RuntimeType<?> USHORT;
     public static RuntimeType<?> UINT;
     public static RuntimeType<?> ULONG;
+    public static Object UBYTE_ZERO;
+    public static Object USHORT_ZERO;
+    public static Object UINT_ZERO;
+    public static Object ULONG_ZERO;
     static {
         try {
             Class<?> c;
@@ -111,15 +124,19 @@ public class Types {
             c = Class.forName("x10.lang.UByte");
             f = c.getDeclaredField("_RTT");
             UBYTE = (RuntimeType<?>) f.get(null);
+            UBYTE_ZERO = c.getConstructor(new Class[]{byte.class}).newInstance(new Object[]{(byte)0});
             c = Class.forName("x10.lang.UShort");
             f = c.getDeclaredField("_RTT");
             USHORT = (RuntimeType<?>) f.get(null);
+            USHORT_ZERO = c.getConstructor(new Class[]{short.class}).newInstance(new Object[]{(short)0});
             c = Class.forName("x10.lang.UInt");
             f = c.getDeclaredField("_RTT");
             UINT = (RuntimeType<?>) f.get(null);
+            UINT_ZERO = c.getConstructor(new Class[]{int.class}).newInstance(new Object[]{0});
             c = Class.forName("x10.lang.ULong");
             f = c.getDeclaredField("_RTT");
             ULONG = (RuntimeType<?>) f.get(null);
+            ULONG_ZERO = c.getConstructor(new Class[]{long.class}).newInstance(new Object[]{0L});
         } catch (Exception e) {}
     }
 
@@ -271,4 +288,21 @@ public class Types {
     }
 
     public static void nullIsCastedToStruct(){throw new java.lang.ClassCastException();}
+
+    public static Object zeroValue(Type<?> rtt) {
+        if (rtt.isSubtype(OBJECT)) return OBJECT_ZERO;
+        if (rtt == BYTE) return BYTE_ZERO;
+        if (rtt == SHORT) return SHORT_ZERO;
+        if (rtt == INT) return INT_ZERO;
+        if (rtt == LONG) return LONG_ZERO;
+        if (rtt == UBYTE) return UBYTE_ZERO;
+        if (rtt == USHORT) return USHORT_ZERO;
+        if (rtt == UINT) return UINT_ZERO;
+        if (rtt == ULONG) return ULONG_ZERO;
+        if (rtt == FLOAT) return FLOAT_ZERO;
+        if (rtt == DOUBLE) return DOUBLE_ZERO;
+        if (rtt == CHAR) return CHAR_ZERO;
+        if (rtt == BOOLEAN) return BOOLEAN_ZERO;
+        return null;
+    }
 }
