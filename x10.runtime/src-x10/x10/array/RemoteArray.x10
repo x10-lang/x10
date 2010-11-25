@@ -14,6 +14,7 @@ package x10.array;
 import x10.compiler.Global;
 import x10.compiler.Native;
 import x10.util.IndexedMemoryChunk;
+import x10.util.RemoteIndexedMemoryChunk;
 
 /**
  * A class that encapsulates sufficient information about a remote
@@ -28,7 +29,7 @@ import x10.util.IndexedMemoryChunk;
  */
 public class RemoteArray[T](home:Place, region:Region, size:Int) {} {
     val array:GlobalRef[Array[T]{self.region==this.region, self.size==this.size}]{self.home==this.home};
-    val rawData:IndexedMemoryChunk[T];
+    val rawData:RemoteIndexedMemoryChunk[T];
 
     public property rank:Int = region.rank;
 
@@ -39,13 +40,13 @@ public class RemoteArray[T](home:Place, region:Region, size:Int) {} {
         val arr = a as Array[T]{self.region==this.region, self.size == this.size};
         // cast needed as type of 'this' does not include {here==this.home} even though this is established by property statement
         array = GlobalRef[Array[T]{self.region==this.region, self.size==this.size}](arr) as GlobalRef[Array[T]{self.region==this.region, self.size==this.size}]{self.home==this.home};
-        rawData = a.raw();
+        rawData = RemoteIndexedMemoryChunk.wrap(a.raw());
     }
 
     public def this (gpu:Place, reg:Region, raw:IndexedMemoryChunk[T], raw_len:Int)
       : RemoteArray[T]{self.home==gpu, self.region==reg, self.size==reg.size()} {
         property(gpu, reg, reg.size());
-        rawData = raw;
+        rawData = RemoteIndexedMemoryChunk.wrap(raw);
         @Native("c++", "") {
             array = (at (gpu) GlobalRef[Array[T]{self.region==this.region, self.size==this.size}](null)) as GlobalRef[Array[T]{self.region==this.region, self.size==this.size}]{self.home==this.home};
         }

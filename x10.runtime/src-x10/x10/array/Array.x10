@@ -278,7 +278,7 @@ public final class Array[T](
         layout = RectLayout(region);
         val n = layout.size();
         val r  = IndexedMemoryChunk.allocate[T](n);
-        init.raw.asyncCopyTo(0, here, r, 0, n);
+	IndexedMemoryChunk.copy(init.raw, 0, r, 0, n);
         raw = r;
         cachedRail = rail;
     }
@@ -786,7 +786,7 @@ public final class Array[T](
      */
     public static def asyncCopy[T](src:Array[T], dst:RemoteArray[T]) {
         if (src.raw.length() != dst.rawData.length()) throw new IllegalArgumentException("source and destination do not have equal size");
-        src.raw.asyncCopyTo(0, dst.home, dst.rawData, 0, src.raw.length());
+        IndexedMemoryChunk.asyncCopy(src.raw, 0, dst.rawData, 0, src.raw.length());
     }
 
 
@@ -869,7 +869,7 @@ public final class Array[T](
         if (dstIndex < 0 || ((dstIndex+numElems) > dst.rawData.length())) {
             throw new IllegalArgumentException("Specified range is beyond bounds of destination array");
         }
-        src.raw.asyncCopyTo(srcIndex, dst.home, dst.rawData, dstIndex, numElems);
+        IndexedMemoryChunk.asyncCopy(src.raw, srcIndex, dst.rawData, dstIndex, numElems);
     }
 
 
@@ -896,7 +896,7 @@ public final class Array[T](
      */
     public static def asyncCopy[T](src:RemoteArray[T], dst:Array[T]) {
         if (src.rawData.length() != dst.raw.length()) throw new IllegalArgumentException("source and destination do not have equal size");
-        dst.raw.asyncCopyFrom(0, src.home, src.rawData, 0, dst.raw.length());
+        IndexedMemoryChunk.asyncCopy(src.rawData, 0, dst.raw, 0, dst.raw.length());
     }
 
 
@@ -979,7 +979,7 @@ public final class Array[T](
         if (dstIndex < 0 || ((dstIndex+numElems) > dst.raw.length())) {
             throw new IllegalArgumentException("Specified range is beyond bounds of destination array");
         }
-        dst.raw.asyncCopyFrom(dstIndex, src.home, src.rawData, srcIndex, numElems);
+        IndexedMemoryChunk.asyncCopy(src.rawData, srcIndex, dst.raw, dstIndex, numElems);
     }
 
 
@@ -996,7 +996,7 @@ public final class Array[T](
      */
     public static def copy[T](src:Array[T], dst:Array[T]) {
         if (src.raw.length() != dst.raw.length()) throw new IllegalArgumentException("source and destination do not have equal size");
-        src.raw.asyncCopyTo(0, here, dst.raw, 0, src.raw.length());
+        IndexedMemoryChunk.copy(src.raw, 0, dst.raw, 0, src.raw.length());
     }
 
 
@@ -1059,7 +1059,7 @@ public final class Array[T](
         if (dstIndex < 0 || ((dstIndex+numElems) > dst.raw.length())) {
             throw new IllegalArgumentException("Specified range is beyond bounds of destination array");
         }
-        src.raw.asyncCopyTo(srcIndex, here, dst.raw, dstIndex, numElems);
+        IndexedMemoryChunk.copy(src.raw, srcIndex, dst.raw, dstIndex, numElems);
     }
 
 

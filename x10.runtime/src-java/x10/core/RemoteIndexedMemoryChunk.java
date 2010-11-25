@@ -11,87 +11,47 @@
 
 package x10.core;
 
-import x10.core.fun.VoidFun_0_0;
+import x10.lang.Place;
 import x10.rtt.RuntimeType;
 import x10.rtt.RuntimeType.Variance;
 import x10.rtt.Type;
 
-public final class IndexedMemoryChunk<T> extends x10.core.Struct {
+public final class RemoteIndexedMemoryChunk<T> extends x10.core.Struct {
     public final int length;
     public final Object value;
     public final Type<T> type;
+    public final Place home;
 
-    public IndexedMemoryChunk(Type<T> type, int length, Object value) {
+    private RemoteIndexedMemoryChunk(Type<T> type, int length, Object value) {
         this.length = length;
         this.type = type;
         this.value = value;
+        this.home = x10.lang.Runtime.here();
     }
 
-    private IndexedMemoryChunk(Type<T> type, int length) {
-        this(type, length, type.makeArray(length));
-    }
-
-    public static <T> IndexedMemoryChunk<T> allocate(Type<T> type, int length) {
-        return new IndexedMemoryChunk<T>(type, length);
-    }
-
-    public T apply$G(int i) {
-        return type.getArray(value, i);
-    }
-
-    public void set(T v, int i) {
-        type.setArray(value, i, v);
-    }
-
-    public static <T> void asyncCopy(IndexedMemoryChunk<T> src, int srcIndex, 
-                                     RemoteIndexedMemoryChunk<T> dst, int dstIndex,
-                                     int numElems) {
-        System.arraycopy(src.value, srcIndex, dst.value, dstIndex, numElems);
-    }
-
-    public static <T> void asyncCopy(IndexedMemoryChunk<T> src, int srcIndex, 
-                                     RemoteIndexedMemoryChunk<T> dst, int dstIndex,
-                                     int numElems, VoidFun_0_0 notifier) {
-        System.arraycopy(src.value, srcIndex, dst.value, dstIndex, numElems);
-        notifier.apply();
-    }
-
-    public static <T> void asyncCopy(RemoteIndexedMemoryChunk<T> src, int srcIndex, 
-                                     IndexedMemoryChunk<T> dst, int dstIndex,
-                                     int numElems) {
-        System.arraycopy(src.value, srcIndex, dst.value, dstIndex, numElems);
-    }
-
-    public static <T> void asyncCopy(RemoteIndexedMemoryChunk<T> src, int srcIndex, 
-                                     IndexedMemoryChunk<T> dst, int dstIndex,
-                                     int numElems, VoidFun_0_0 notifier) {
-        System.arraycopy(src.value, srcIndex, dst.value, dstIndex, numElems);
-        notifier.apply();
-    }
-
-    public static <T> void copy(IndexedMemoryChunk<T> src, int srcIndex, 
-                                IndexedMemoryChunk<T> dst, int dstIndex,
-                                int numElems) {
-        System.arraycopy(src.value, srcIndex, dst.value, dstIndex, numElems);
+    public static <T> RemoteIndexedMemoryChunk<T> wrap(IndexedMemoryChunk<T> chunk) {
+        return new RemoteIndexedMemoryChunk<T>(chunk.type, chunk.length, chunk.value);
     }
 
     @Override
     public boolean _struct_equals(Object o) {
-        return o != null && this.value == ((IndexedMemoryChunk<?>) o).value;
+        if (!(o instanceof RemoteIndexedMemoryChunk<?>)) return false;
+        RemoteIndexedMemoryChunk<?> that = (RemoteIndexedMemoryChunk<?>)o;
+        return this.value == that.value && this.home == that.home;
     }
 
-    public static final RuntimeType<IndexedMemoryChunk<?>> _RTT = new RuntimeType<IndexedMemoryChunk<?>>(
-        IndexedMemoryChunk.class,
+    public static final RuntimeType<RemoteIndexedMemoryChunk<?>> _RTT = new RuntimeType<RemoteIndexedMemoryChunk<?>>(
+        RemoteIndexedMemoryChunk.class,
         Variance.INVARIANT
     ) {
         @Override
         public String typeName() {
-            return "x10.util.IndexedMemoryChunk";
+            return "x10.util.RemoteIndexedMemoryChunk";
         }
     };
     
     @Override
-    public RuntimeType<IndexedMemoryChunk<?>> getRTT() {
+    public RuntimeType<RemoteIndexedMemoryChunk<?>> getRTT() {
         return _RTT;
     }
 
@@ -102,6 +62,8 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct {
 
 
     // Methods to get the backing array.   May be called by generated code.
+    // Only useful in singleVM runtime.  
+    // Will be removed in multi-VM.
     public Object getBackingArray() { return value; }
 
     public boolean[] getBooleanArray() { return (boolean[]) value; }

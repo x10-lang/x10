@@ -43,6 +43,7 @@ namespace x10 {
                                    x10::lang::Place dstPlace, bool overlap, x10aux::ref<x10::lang::Reference> notif);
         extern void IMC_copyFromBody(void *srcAddr, void *dstAddr, x10_int numBytes,
                                      x10::lang::Place srcPlace, bool overlap, x10aux::ref<x10::lang::Reference> notif);
+        extern void IMC_copyBody(void *srcAddr, void *dstAddr, x10_int numBytes, bool overlap);
         
         template<class T> class IndexedMemoryChunk_ithunk0 : public x10::util::IndexedMemoryChunk<T> {
         public:
@@ -81,62 +82,79 @@ namespace x10 {
 } 
 
 
-template<class T> void x10::util::IndexedMemoryChunk<T>::copyTo(x10_int srcIndex,
-                                                                x10::lang::Place dstPlace,
-                                                                x10::util::IndexedMemoryChunk<T> dst,
-                                                                x10_int dstIndex,
-                                                                x10_int numElems) {
-    void* srcAddr = (void*)(&raw()[srcIndex]);
+template<class T> void x10::util::IndexedMemoryChunk<void>::asyncCopy(x10::util::IndexedMemoryChunk<T> src, x10_int srcIndex,
+                                                                      x10::util::RemoteIndexedMemoryChunk<T> dst, x10_int dstIndex,
+                                                                      x10_int numElems) {
+    void* srcAddr = (void*)(&src->raw()[srcIndex]);
     void* dstAddr = (void*)(&dst->raw()[dstIndex]);
     size_t numBytes = numElems * sizeof(T);
-    IMC_copyToBody(srcAddr, dstAddr, numBytes, dstPlace, data == dst->data, X10_NULL);
+    IMC_copyToBody(srcAddr, dstAddr, numBytes, dst.home, src->data == dst->data, X10_NULL);
 }
 
 
-template<class T> void x10::util::IndexedMemoryChunk<T>::copyTo(x10_int srcIndex,
-                                                                x10::lang::Place dstPlace,
-                                                                x10::util::IndexedMemoryChunk<T> dst,
-                                                                x10_int dstIndex,
-                                                                x10_int numElems,
-                                                                x10aux::ref<x10::lang::Reference> notif) {
-    void* srcAddr = (void*)(&raw()[srcIndex]);
+template<class T> void x10::util::IndexedMemoryChunk<void>::asyncCopy(x10::util::IndexedMemoryChunk<T> src, x10_int srcIndex,
+                                                                      x10::util::RemoteIndexedMemoryChunk<T> dst, x10_int dstIndex,
+                                                                      x10_int numElems,
+                                                                      x10aux::ref<x10::lang::Reference> notif) {
+    void* srcAddr = (void*)(&src->raw()[srcIndex]);
     void* dstAddr = (void*)(&dst->raw()[dstIndex]);
     size_t numBytes = numElems * sizeof(T);
-    IMC_copyToBody(srcAddr, dstAddr, numBytes, dstPlace, data == dst->data, notif);
+    IMC_copyToBody(srcAddr, dstAddr, numBytes, dst.home, src->data == dst->data, notif);
 }
 
 
-template<class T> void x10::util::IndexedMemoryChunk<T>::copyFrom(x10_int dstIndex, x10::lang::Place srcPlace,
-                                                                  x10::util::IndexedMemoryChunk<T> src,
-                                                                  x10_int srcIndex, x10_int numElems) {
+template<class T> void x10::util::IndexedMemoryChunk<void>::asyncCopy(x10::util::RemoteIndexedMemoryChunk<T> src, x10_int srcIndex,
+                                                                      x10::util::IndexedMemoryChunk<T> dst, x10_int dstIndex,
+                                                                      x10_int numElems) {
     void* srcAddr = (void*)(&src->raw()[srcIndex]);
-    void* dstAddr = (void*)(&raw()[dstIndex]);
+    void* dstAddr = (void*)(&dst->raw()[dstIndex]);
     size_t numBytes = numElems * sizeof(T);
-    IMC_copyFromBody(srcAddr, dstAddr, numBytes, srcPlace, data == src->data, X10_NULL);
+    IMC_copyFromBody(srcAddr, dstAddr, numBytes, src.home, src->data == dst->data, X10_NULL);
 }
 
-
-template<class T> void x10::util::IndexedMemoryChunk<T>::copyFrom(x10_int dstIndex, x10::lang::Place srcPlace,
-                                                                  x10::util::IndexedMemoryChunk<T> src,
-                                                                  x10_int srcIndex, x10_int numElems,
-                                                                  x10aux::ref<x10::lang::Reference> notif) {
+template<class T> void x10::util::IndexedMemoryChunk<void>::asyncCopy(x10::util::RemoteIndexedMemoryChunk<T> src, x10_int srcIndex,
+                                                                      x10::util::IndexedMemoryChunk<T> dst, x10_int dstIndex,
+                                                                      x10_int numElems,
+                                                                      x10aux::ref<x10::lang::Reference> notif) {
     void* srcAddr = (void*)(&src->raw()[srcIndex]);
-    void* dstAddr = (void*)(&raw()[dstIndex]);
+    void* dstAddr = (void*)(&dst->raw()[dstIndex]);
     size_t numBytes = numElems * sizeof(T);
-    IMC_copyFromBody(srcAddr, dstAddr, numBytes, srcPlace, data == src->data, notif);
+    IMC_copyFromBody(srcAddr, dstAddr, numBytes, src.home, src->data == dst->data, notif);
 }
 
-
+template<class T> void x10::util::IndexedMemoryChunk<void>::copy(x10::util::IndexedMemoryChunk<T> src, x10_int srcIndex,
+                                                                 x10::util::IndexedMemoryChunk<T> dst, x10_int dstIndex,
+                                                                 x10_int numElems) {
+    void* srcAddr = (void*)(&src->raw()[srcIndex]);
+    void* dstAddr = (void*)(&dst->raw()[dstIndex]);
+    size_t numBytes = numElems * sizeof(T);
+    IMC_copyBody(srcAddr, dstAddr, numBytes, src->data == dst->data);
+}
+    
 
 template<class T> void x10::util::IndexedMemoryChunk<T>::_serialize(x10::util::IndexedMemoryChunk<T> this_,
                                                                     x10aux::serialization_buffer& buf) {
     buf.write((this_->len));
-    buf.write((this_->data));
+    for (int i=0; i<this_->len; i++) {
+        buf.write(this_->apply(i));
+    }
 }
 
 template<class T> void x10::util::IndexedMemoryChunk<T>::_deserialize_body(x10aux::deserialization_buffer& buf) {
     len = buf.read<x10_int>();
-    data = buf.read<x10_ulong>();
+
+    bool containsPtrs = x10aux::getRTT<T>()->containsPtrs;
+    size_t size = len*sizeof(T);
+    size_t alignment = X10_MIN_INDEXEDMEMORYCHUNK_ALIGNMENT;
+    T* allocMem = alignment + x10aux::alloc<T>(size, containsPtrs);
+    size_t alignDelta = alignment-1;
+    size_t alignMask = ~alignDelta;
+    size_t alignedMem = ((size_t)allocMem + alignDelta) & alignMask;
+    data = (x10_ulong)alignedMem;
+
+    for (int i=0; i<len; i++) {
+        set(buf.read<T>(), i);
+    }
 }
 
 
