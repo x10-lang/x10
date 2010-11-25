@@ -1213,12 +1213,12 @@ public class Emitter {
                 sups.add(0, supClassType);
             }
             
-            // FIXME
+            // FIXME need to check storategy for bounds of type parameter
             if (sups.size() > 0) {
                 w.write(" extends ");
                 for (int i = 0; i < sups.size(); ++i) {
                     if (i != 0) w.write(" & ");
-                    printType(sups.get(i), X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS | X10PrettyPrinterVisitor.NO_VARIANCE | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+                    printType(sups.get(i), X10PrettyPrinterVisitor.NO_VARIANCE | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
                 }
             }
             sep = ", ";
