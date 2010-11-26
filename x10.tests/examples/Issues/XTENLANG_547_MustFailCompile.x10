@@ -32,6 +32,11 @@ class OutputStreamWriter extends Writer {
     public def write(buf: GlobalRef[Rail[Byte]]): Void {
     }
 
+    // This should cause the compiler to issue an error.
+    // OutputStreamWriter inherits def write(buf:GlobalRef[Rail[Byte]]{self.home==here}, Int, Int)
+    // and its constraint erasure is identical with the method below. But a class cant have two
+    // different method definitions whose constraint erasures are identical. And a method
+   // can only be overridden by a method which has the same constrained type signature.
     public def write(buf:GlobalRef[Rail[Byte]], off: Int, len: Int): Void {
     }
 }
