@@ -2328,6 +2328,22 @@
         /.$BeginJava
 			r.rule_Literal1();
         $EndJava./
+              | ByteLiteral
+        /.$BeginJava
+			r.rule_LiteralByte();
+        $EndJava./
+              | UnsignedByteLiteral
+        /.$BeginJava
+			r.rule_LiteralUByte();
+        $EndJava./
+              | ShortLiteral
+        /.$BeginJava
+			r.rule_LiteralShort();
+        $EndJava./
+              | UnsignedShortLiteral
+        /.$BeginJava
+			r.rule_LiteralUShort();
+        $EndJava./
               | UnsignedIntegerLiteral$lit
         /.$BeginJava
 			r.rule_Literal2();

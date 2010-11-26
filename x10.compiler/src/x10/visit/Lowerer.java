@@ -63,7 +63,6 @@ import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
-import polyglot.visit.TypeBuilder;
 import x10.Configuration;
 import x10.ast.AnnotationNode;
 import x10.ast.Async;
@@ -88,7 +87,6 @@ import x10.ast.X10CanonicalTypeNode;
 import x10.ast.X10Cast;
 import x10.ast.X10Formal;
 import x10.ast.X10Instanceof;
-import x10.ast.X10IntLit_c;
 import x10.ast.X10New;
 import x10.ast.X10Special;
 import x10.ast.X10Unary_c;
@@ -1129,9 +1127,9 @@ public class Lowerer extends ContextVisitor {
         } else if (xts.isLong(type)) {
             lit = xnf.IntLit(pos, IntLit.LONG, val);
         } else if (xts.isUInt(type)) {
-            lit = xnf.IntLit(pos, X10IntLit_c.UINT, val);
+            lit = xnf.IntLit(pos, IntLit_c.UINT, val);
         } else if (xts.isULong(type)) {
-            lit = xnf.IntLit(pos, X10IntLit_c.ULONG, val);
+            lit = xnf.IntLit(pos, IntLit_c.ULONG, val);
         } else if (xts.isFloat(type)) {
             lit = xnf.FloatLit(pos, FloatLit.FLOAT, val);
         } else if (xts.isDouble(type)) {

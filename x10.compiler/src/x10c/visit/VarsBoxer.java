@@ -17,7 +17,6 @@ import java.util.List;
 import polyglot.ast.Assign;
 import polyglot.ast.Block;
 import polyglot.ast.Call;
-import polyglot.ast.ConstructorCall;
 import polyglot.ast.Eval;
 import polyglot.ast.Expr;
 import polyglot.ast.FloatLit;
@@ -51,14 +50,11 @@ import x10.ast.AtExpr;
 import x10.ast.AtStmt;
 import x10.ast.X10Binary_c;
 import x10.ast.X10CanonicalTypeNode;
-import x10.ast.X10IntLit_c;
 import x10.ast.X10Unary_c;
 import x10.types.X10ConstructorInstance;
-import polyglot.types.Context;
 import x10.types.X10LocalDef;
 import x10.types.X10ParsedClassType;
 import x10.types.X10TypeMixin;
-import polyglot.types.TypeSystem;
 import x10.types.checker.Converter;
 
 public class VarsBoxer extends ContextVisitor {
@@ -225,9 +221,9 @@ public class VarsBoxer extends ContextVisitor {
         } else if (xts.isLong(type)) {
             lit = xnf.IntLit(pos, IntLit.LONG, val);
         } else if (xts.isUInt(type)) {
-            lit = xnf.IntLit(pos, X10IntLit_c.UINT, val);
+            lit = xnf.IntLit(pos, IntLit.UINT, val);
         } else if (xts.isULong(type)) {
-            lit = xnf.IntLit(pos, X10IntLit_c.ULONG, val);
+            lit = xnf.IntLit(pos, IntLit.ULONG, val);
         } else if (xts.isFloat(type)) {
             lit = xnf.FloatLit(pos, FloatLit.FLOAT, val);
         } else if (xts.isDouble(type)) {

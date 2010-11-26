@@ -1,4 +1,4 @@
-/*
+/* 
  *  This file is part of the X10 project (http://x10-lang.org).
  *
  *  This file is licensed to You under the Eclipse Public License (EPL);
@@ -544,441 +544,473 @@ public class X10Lexer implements RuleAction
             }
     
             //
-            // Rule 7:  Token ::= UnsignedIntegerLiteral
+            // Rule 7:  Token ::= ByteLiteral
             //
             case 7: { 
+                makeToken(X10Parsersym.TK_ByteLiteral);
+                  break;
+            }
+    
+            //
+            // Rule 8:  Token ::= ShortLiteral
+            //
+            case 8: { 
+                makeToken(X10Parsersym.TK_ShortLiteral);
+                  break;
+            }
+    
+            //
+            // Rule 9:  Token ::= UnsignedIntegerLiteral
+            //
+            case 9: { 
                 makeToken(X10Parsersym.TK_UnsignedIntegerLiteral);
                   break;
             }
     
             //
-            // Rule 8:  Token ::= UnsignedLongLiteral
+            // Rule 10:  Token ::= UnsignedLongLiteral
             //
-            case 8: { 
+            case 10: { 
                 makeToken(X10Parsersym.TK_UnsignedLongLiteral);
                   break;
             }
     
             //
-            // Rule 9:  Token ::= FloatingPointLiteral
+            // Rule 11:  Token ::= UnsignedByteLiteral
             //
-            case 9: { 
+            case 11: { 
+                makeToken(X10Parsersym.TK_UnsignedByteLiteral);
+                  break;
+            }
+    
+            //
+            // Rule 12:  Token ::= UnsignedShortLiteral
+            //
+            case 12: { 
+                makeToken(X10Parsersym.TK_UnsignedShortLiteral);
+                  break;
+            }
+    
+            //
+            // Rule 13:  Token ::= FloatingPointLiteral
+            //
+            case 13: { 
                 makeToken(X10Parsersym.TK_FloatingPointLiteral);
                   break;
             }
     
             //
-            // Rule 10:  Token ::= DoubleLiteral
+            // Rule 14:  Token ::= DoubleLiteral
             //
-            case 10: { 
+            case 14: { 
                 makeToken(X10Parsersym.TK_DoubleLiteral);
                   break;
             }
     
             //
-            // Rule 11:  Token ::= PseudoDoubleLiteral
+            // Rule 15:  Token ::= PseudoDoubleLiteral
             //
-            case 11: { 
+            case 15: { 
                 makeToken(X10Parsersym.TK_PseudoDoubleLiteral);
                   break;
             }
     
             //
-            // Rule 14:  Token ::= WS
+            // Rule 18:  Token ::= WS
             //
-            case 14: { 
+            case 18: { 
                 skipToken();
                   break;
             }
     
             //
-            // Rule 15:  Token ::= +
+            // Rule 19:  Token ::= +
             //
-            case 15: { 
+            case 19: { 
                 makeToken(X10Parsersym.TK_PLUS);
                   break;
             }
     
             //
-            // Rule 16:  Token ::= -
+            // Rule 20:  Token ::= -
             //
-            case 16: { 
+            case 20: { 
                 makeToken(X10Parsersym.TK_MINUS);
                   break;
             }
     
             //
-            // Rule 17:  Token ::= *
+            // Rule 21:  Token ::= *
             //
-            case 17: { 
+            case 21: { 
                 makeToken(X10Parsersym.TK_MULTIPLY);
                   break;
             }
     
             //
-            // Rule 18:  Token ::= /
+            // Rule 22:  Token ::= /
             //
-            case 18: { 
+            case 22: { 
                 makeToken(X10Parsersym.TK_DIVIDE);
                   break;
             }
     
             //
-            // Rule 19:  Token ::= (
+            // Rule 23:  Token ::= (
             //
-            case 19: { 
+            case 23: { 
                 makeToken(X10Parsersym.TK_LPAREN);
                   break;
             }
     
             //
-            // Rule 20:  Token ::= )
+            // Rule 24:  Token ::= )
             //
-            case 20: { 
+            case 24: { 
                 makeToken(X10Parsersym.TK_RPAREN);
                   break;
             }
     
             //
-            // Rule 21:  Token ::= =
+            // Rule 25:  Token ::= =
             //
-            case 21: { 
+            case 25: { 
                 makeToken(X10Parsersym.TK_EQUAL);
                   break;
             }
     
             //
-            // Rule 22:  Token ::= ,
+            // Rule 26:  Token ::= ,
             //
-            case 22: { 
+            case 26: { 
                 makeToken(X10Parsersym.TK_COMMA);
                   break;
             }
     
             //
-            // Rule 23:  Token ::= :
+            // Rule 27:  Token ::= :
             //
-            case 23: { 
+            case 27: { 
                 makeToken(X10Parsersym.TK_COLON);
                   break;
             }
     
             //
-            // Rule 24:  Token ::= ;
+            // Rule 28:  Token ::= ;
             //
-            case 24: { 
+            case 28: { 
                 makeToken(X10Parsersym.TK_SEMICOLON);
                   break;
             }
     
             //
-            // Rule 25:  Token ::= ^
+            // Rule 29:  Token ::= ^
             //
-            case 25: { 
+            case 29: { 
                 makeToken(X10Parsersym.TK_XOR);
                   break;
             }
     
             //
-            // Rule 26:  Token ::= %
+            // Rule 30:  Token ::= %
             //
-            case 26: { 
+            case 30: { 
                 makeToken(X10Parsersym.TK_REMAINDER);
                   break;
             }
     
             //
-            // Rule 27:  Token ::= ~
+            // Rule 31:  Token ::= ~
             //
-            case 27: { 
+            case 31: { 
                 makeToken(X10Parsersym.TK_TWIDDLE);
                   break;
             }
     
             //
-            // Rule 28:  Token ::= |
+            // Rule 32:  Token ::= |
             //
-            case 28: { 
+            case 32: { 
                 makeToken(X10Parsersym.TK_OR);
                   break;
             }
     
             //
-            // Rule 29:  Token ::= &
+            // Rule 33:  Token ::= &
             //
-            case 29: { 
+            case 33: { 
                 makeToken(X10Parsersym.TK_AND);
                   break;
             }
     
             //
-            // Rule 30:  Token ::= <
+            // Rule 34:  Token ::= <
             //
-            case 30: { 
+            case 34: { 
                 makeToken(X10Parsersym.TK_LESS);
                   break;
             }
     
             //
-            // Rule 31:  Token ::= >
+            // Rule 35:  Token ::= >
             //
-            case 31: { 
+            case 35: { 
                 makeToken(X10Parsersym.TK_GREATER);
                   break;
             }
     
             //
-            // Rule 32:  Token ::= .
+            // Rule 36:  Token ::= .
             //
-            case 32: { 
+            case 36: { 
                 makeToken(X10Parsersym.TK_DOT);
                   break;
             }
     
             //
-            // Rule 33:  Token ::= !
+            // Rule 37:  Token ::= !
             //
-            case 33: { 
+            case 37: { 
                 makeToken(X10Parsersym.TK_NOT);
                   break;
             }
     
             //
-            // Rule 34:  Token ::= [
+            // Rule 38:  Token ::= [
             //
-            case 34: { 
+            case 38: { 
                 makeToken(X10Parsersym.TK_LBRACKET);
                   break;
             }
     
             //
-            // Rule 35:  Token ::= ]
+            // Rule 39:  Token ::= ]
             //
-            case 35: { 
+            case 39: { 
                 makeToken(X10Parsersym.TK_RBRACKET);
                   break;
             }
     
             //
-            // Rule 36:  Token ::= {
+            // Rule 40:  Token ::= {
             //
-            case 36: { 
+            case 40: { 
                 makeToken(X10Parsersym.TK_LBRACE);
                   break;
             }
     
             //
-            // Rule 37:  Token ::= }
+            // Rule 41:  Token ::= }
             //
-            case 37: { 
+            case 41: { 
                 makeToken(X10Parsersym.TK_RBRACE);
                   break;
             }
     
             //
-            // Rule 38:  Token ::= ?
+            // Rule 42:  Token ::= ?
             //
-            case 38: { 
+            case 42: { 
                 makeToken(X10Parsersym.TK_QUESTION);
                   break;
             }
     
             //
-            // Rule 39:  Token ::= @
+            // Rule 43:  Token ::= @
             //
-            case 39: { 
+            case 43: { 
                 makeToken(X10Parsersym.TK_AT);
                   break;
             }
     
             //
-            // Rule 40:  Token ::= + +
+            // Rule 44:  Token ::= + +
             //
-            case 40: { 
+            case 44: { 
                 makeToken(X10Parsersym.TK_PLUS_PLUS);
                   break;
             }
     
             //
-            // Rule 41:  Token ::= - -
+            // Rule 45:  Token ::= - -
             //
-            case 41: { 
+            case 45: { 
                 makeToken(X10Parsersym.TK_MINUS_MINUS);
                   break;
             }
     
             //
-            // Rule 42:  Token ::= = =
+            // Rule 46:  Token ::= = =
             //
-            case 42: { 
+            case 46: { 
                 makeToken(X10Parsersym.TK_EQUAL_EQUAL);
                   break;
             }
     
             //
-            // Rule 43:  Token ::= < =
+            // Rule 47:  Token ::= < =
             //
-            case 43: { 
+            case 47: { 
                 makeToken(X10Parsersym.TK_LESS_EQUAL);
                   break;
             }
     
             //
-            // Rule 44:  Token ::= > =
+            // Rule 48:  Token ::= > =
             //
-            case 44: { 
+            case 48: { 
                 makeToken(X10Parsersym.TK_GREATER_EQUAL);
                   break;
             }
     
             //
-            // Rule 45:  Token ::= ! =
+            // Rule 49:  Token ::= ! =
             //
-            case 45: { 
+            case 49: { 
                 makeToken(X10Parsersym.TK_NOT_EQUAL);
                   break;
             }
     
             //
-            // Rule 46:  Token ::= < <
+            // Rule 50:  Token ::= < <
             //
-            case 46: { 
+            case 50: { 
                 makeToken(X10Parsersym.TK_LEFT_SHIFT);
                   break;
             }
     
             //
-            // Rule 47:  Token ::= > >
+            // Rule 51:  Token ::= > >
             //
-            case 47: { 
+            case 51: { 
                 makeToken(X10Parsersym.TK_RIGHT_SHIFT);
                   break;
             }
     
             //
-            // Rule 48:  Token ::= > > >
+            // Rule 52:  Token ::= > > >
             //
-            case 48: { 
+            case 52: { 
                 makeToken(X10Parsersym.TK_UNSIGNED_RIGHT_SHIFT);
                   break;
             }
     
             //
-            // Rule 49:  Token ::= + =
+            // Rule 53:  Token ::= + =
             //
-            case 49: { 
+            case 53: { 
                 makeToken(X10Parsersym.TK_PLUS_EQUAL);
                   break;
             }
     
             //
-            // Rule 50:  Token ::= - =
+            // Rule 54:  Token ::= - =
             //
-            case 50: { 
+            case 54: { 
                 makeToken(X10Parsersym.TK_MINUS_EQUAL);
                   break;
             }
     
             //
-            // Rule 51:  Token ::= * =
+            // Rule 55:  Token ::= * =
             //
-            case 51: { 
+            case 55: { 
                 makeToken(X10Parsersym.TK_MULTIPLY_EQUAL);
                   break;
             }
     
             //
-            // Rule 52:  Token ::= / =
+            // Rule 56:  Token ::= / =
             //
-            case 52: { 
+            case 56: { 
                 makeToken(X10Parsersym.TK_DIVIDE_EQUAL);
                   break;
             }
     
             //
-            // Rule 53:  Token ::= & =
+            // Rule 57:  Token ::= & =
             //
-            case 53: { 
+            case 57: { 
                 makeToken(X10Parsersym.TK_AND_EQUAL);
                   break;
             }
     
             //
-            // Rule 54:  Token ::= | =
+            // Rule 58:  Token ::= | =
             //
-            case 54: { 
+            case 58: { 
                 makeToken(X10Parsersym.TK_OR_EQUAL);
                   break;
             }
     
             //
-            // Rule 55:  Token ::= ^ =
+            // Rule 59:  Token ::= ^ =
             //
-            case 55: { 
+            case 59: { 
                 makeToken(X10Parsersym.TK_XOR_EQUAL);
                   break;
             }
     
             //
-            // Rule 56:  Token ::= % =
+            // Rule 60:  Token ::= % =
             //
-            case 56: { 
+            case 60: { 
                 makeToken(X10Parsersym.TK_REMAINDER_EQUAL);
                   break;
             }
     
             //
-            // Rule 57:  Token ::= < < =
+            // Rule 61:  Token ::= < < =
             //
-            case 57: { 
+            case 61: { 
                 makeToken(X10Parsersym.TK_LEFT_SHIFT_EQUAL);
                   break;
             }
     
             //
-            // Rule 58:  Token ::= > > =
+            // Rule 62:  Token ::= > > =
             //
-            case 58: { 
+            case 62: { 
                 makeToken(X10Parsersym.TK_RIGHT_SHIFT_EQUAL);
                   break;
             }
     
             //
-            // Rule 59:  Token ::= > > > =
+            // Rule 63:  Token ::= > > > =
             //
-            case 59: { 
+            case 63: { 
                 makeToken(X10Parsersym.TK_UNSIGNED_RIGHT_SHIFT_EQUAL);
                   break;
             }
     
             //
-            // Rule 60:  Token ::= | |
+            // Rule 64:  Token ::= | |
             //
-            case 60: { 
+            case 64: { 
                 makeToken(X10Parsersym.TK_OR_OR);
                   break;
             }
     
             //
-            // Rule 61:  Token ::= & &
+            // Rule 65:  Token ::= & &
             //
-            case 61: { 
+            case 65: { 
                 makeToken(X10Parsersym.TK_AND_AND);
                   break;
             }
     
             //
-            // Rule 62:  Token ::= . . .
+            // Rule 66:  Token ::= . . .
             //
-            case 62: { 
+            case 66: { 
                 makeToken(X10Parsersym.TK_ELLIPSIS);
                   break;
             }
     
             //
-            // Rule 81:  MultiLineComment ::= / * Inside Stars /
+            // Rule 91:  MultiLineComment ::= / * Inside Stars /
             //
-            case 81: { 
+            case 91: { 
                 if (lexStream.getKind(getRhsFirstTokenIndex(3)) == X10Lexersym.Char_Star && lexStream.getKind(lexStream.getNext(getRhsFirstTokenIndex(3))) != X10Lexersym.Char_Star)
                      makeComment(X10Parsersym.TK_DocComment);
                 else makeComment(X10Parsersym.TK_MlComment);
@@ -986,57 +1018,57 @@ public class X10Lexer implements RuleAction
             }
     
             //
-            // Rule 88:  SingleLineComment ::= SLC
+            // Rule 98:  SingleLineComment ::= SLC
             //
-            case 88: { 
+            case 98: { 
                 makeComment(X10Parsersym.TK_SlComment);
                   break;
             }
     
             //
-            // Rule 411:  Token ::= . .
+            // Rule 425:  Token ::= . .
             //
-            case 411: { 
+            case 425: { 
                   makeToken(X10Parsersym.TK_RANGE);
                     break;
             }
       
             //
-            // Rule 412:  Token ::= - >
+            // Rule 426:  Token ::= - >
             //
-            case 412: { 
+            case 426: { 
                 makeToken(X10Parsersym.TK_ARROW);
                   break;
             }
     
             //
-            // Rule 413:  Token ::= = >
+            // Rule 427:  Token ::= = >
             //
-            case 413: { 
+            case 427: { 
                 makeToken(X10Parsersym.TK_DARROW);
                   break;
             }
     
             //
-            // Rule 414:  Token ::= < :
+            // Rule 428:  Token ::= < :
             //
-            case 414: { 
+            case 428: { 
                 makeToken(X10Parsersym.TK_SUBTYPE);
                   break;
             }
     
             //
-            // Rule 415:  Token ::= : >
+            // Rule 429:  Token ::= : >
             //
-            case 415: { 
+            case 429: { 
                 makeToken(X10Parsersym.TK_SUPERTYPE);
                   break;
             }
     
             //
-            // Rule 416:  IntLiteralAndRange ::= Integer . .
+            // Rule 430:  IntLiteralAndRange ::= Integer . .
             //
-            case 416: { 
+            case 430: { 
                  makeToken(getRhsFirstTokenIndex(1), getRhsLastTokenIndex(1), X10Parsersym.TK_IntegerLiteral);
                  makeToken(getToken(2), getToken(3), X10Parsersym.TK_RANGE);
                    break;

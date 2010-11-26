@@ -23,10 +23,7 @@ import polyglot.util.Position;
 import polyglot.util.TypedList;
 import x10.ExtensionInfo;
 import x10.types.ParameterType;
-import x10.types.X10ConstructorDef;
-import x10.types.X10Flags;
 import x10.types.checker.Converter;
-import x10.types.checker.Converter.ConversionType;
 import x10cuda.ast.CUDAKernel;
 
 /**
@@ -686,7 +683,7 @@ public class X10NodeFactory_c extends NodeFactory_c {
 		return n;
 	}
 	public IntLit IntLit(Position pos, IntLit.Kind kind, long value) {
-		IntLit n = new X10IntLit_c(pos, kind, value);
+		IntLit n = new IntLit_c(pos, kind, value);
 		n = (IntLit)n.ext(extFactory().extIntLit());
 		n = (IntLit)n.del(delFactory().delIntLit());
 		return n;

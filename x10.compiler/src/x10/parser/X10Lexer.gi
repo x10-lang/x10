@@ -151,8 +151,12 @@
     DocComment
     IntegerLiteral
     LongLiteral
+    ByteLiteral
+    ShortLiteral
     UnsignedIntegerLiteral
     UnsignedLongLiteral
+    UnsignedByteLiteral
+    UnsignedShortLiteral
     FloatingPointLiteral
     DoubleLiteral
     PseudoDoubleLiteral
@@ -295,6 +299,16 @@
                     makeToken($_LongLiteral);
           $EndAction
         ./
+    Token ::= ByteLiteral
+        /.$BeginAction
+                    makeToken($_ByteLiteral);
+          $EndAction
+        ./
+    Token ::= ShortLiteral
+        /.$BeginAction
+                    makeToken($_ShortLiteral);
+          $EndAction
+        ./
     Token ::= UnsignedIntegerLiteral
         /.$BeginAction
                     makeToken($_UnsignedIntegerLiteral);
@@ -303,6 +317,16 @@
     Token ::= UnsignedLongLiteral
         /.$BeginAction
                     makeToken($_UnsignedLongLiteral);
+          $EndAction
+        ./
+    Token ::= UnsignedByteLiteral
+        /.$BeginAction
+                    makeToken($_UnsignedByteLiteral);
+          $EndAction
+        ./
+    Token ::= UnsignedShortLiteral
+        /.$BeginAction
+                    makeToken($_UnsignedShortLiteral);
           $EndAction
         ./
     Token ::= FloatingPointLiteral
@@ -617,11 +641,21 @@
                     | '0' LetterXx HexDigits
 
     LongLiteral ::= IntegerLiteral LetterLl
+
+    ByteLiteral ::= IntegerLiteral LetterYy
+
+    ShortLiteral ::= IntegerLiteral LetterSs
     
     UnsignedIntegerLiteral ::= IntegerLiteral LetterUu
 
     UnsignedLongLiteral -> IntegerLiteral LetterUu LetterLl
                          | IntegerLiteral LetterLl LetterUu
+
+    UnsignedByteLiteral -> IntegerLiteral LetterUu LetterYy
+                         | IntegerLiteral LetterYy LetterUu
+
+    UnsignedShortLiteral -> IntegerLiteral LetterUu LetterSs
+                         | IntegerLiteral LetterSs LetterUu
 
     FloatingPointLiteral -> Decimal LetterFf
                           | Decimal Exponent LetterFf
@@ -722,7 +756,13 @@
 
     LetterLl -> 'L'
               | 'l'
-              
+
+    LetterYy -> 'Y'
+              | 'y'
+
+    LetterSs -> 'S'
+              | 's'
+
     LetterUu -> 'U'
               | 'u'
 

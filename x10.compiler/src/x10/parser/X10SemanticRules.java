@@ -1,4 +1,4 @@
-/*
+/* 
  *  This file is part of the X10 project (http://x10-lang.org).
  *
  *  This file is licensed to You under the Eclipse Public License (EPL);
@@ -59,29 +59,20 @@ import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
 import polyglot.ast.FlagsNode;
 import polyglot.parse.ParsedName;
-import x10.ast.AddFlags;
 import x10.ast.AnnotationNode;
-import x10.ast.Closure;
 import x10.ast.ClosureCall;
 import x10.ast.SettableAssign;
 import x10.ast.Here;
 import x10.ast.DepParameterExpr;
 import x10.ast.Tuple;
-import x10.ast.When;
 import x10.ast.X10Formal;
-import x10.ast.X10Formal_c;
-import x10.ast.X10Loop;
-import x10.ast.X10Call;
-import x10.ast.ConstantDistMaker;
 import x10.ast.TypeDecl;
 import x10.ast.TypeParamNode;
 import x10.types.ParameterType;
 import polyglot.types.TypeSystem;
 import x10.ast.PropertyDecl;
-import x10.ast.RegionMaker;
 import x10.ast.X10Binary_c;
 import x10.ast.X10Unary_c;
-import x10.ast.X10IntLit_c;
 import x10.extension.X10Ext;
 import polyglot.frontend.FileSource;
 import polyglot.frontend.Parser;
@@ -99,27 +90,15 @@ import polyglot.types.Flags;
 import x10.types.X10Flags;
 import x10.types.checker.Converter;
 import x10.errors.Errors;
-import polyglot.types.TypeSystem;
 import polyglot.util.CollectionUtil;
 import polyglot.util.ErrorInfo;
 import polyglot.util.ErrorQueue;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
-import polyglot.util.CollectionUtil;
 
 import lpg.runtime.BacktrackingParser;
-import lpg.runtime.BadParseException;
-import lpg.runtime.BadParseSymFileException;
-import lpg.runtime.DiagnoseParser;
 import lpg.runtime.IToken;
-import lpg.runtime.NotBacktrackParseTableException;
-import lpg.runtime.NullExportedSymbolsException;
-import lpg.runtime.NullTerminalSymbolsException;
 import lpg.runtime.ParseTable;
-import lpg.runtime.PrsStream;
-import lpg.runtime.RuleAction;
-import lpg.runtime.UndefinedEofSymbolException;
-import lpg.runtime.UnimplementedTerminalsException;
 
 public class X10SemanticRules implements Parser, ParseErrorCodes
 {
@@ -815,13 +794,21 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
 
         end_index = s.length();
 
+        boolean isUnsigned = false;
+        long min = Integer.MIN_VALUE;
         while (end_index > 0) {
             char lastCh = s.charAt(end_index - 1);
-            if (lastCh != 'l' && lastCh != 'L' && lastCh != 'u' && lastCh != 'U') {
+            if (lastCh == 'u' || lastCh == 'U') isUnsigned = true;
+            // todo: long need special treatment cause we have overflows
+            if (lastCh == 'l' || lastCh == 'L') isUnsigned = true; // for signed values that start with 0, we need to make them negative if they are above max value
+            if (lastCh == 'y' || lastCh == 'Y') min = Byte.MIN_VALUE;
+            if (lastCh == 's' || lastCh == 'S') min = Short.MIN_VALUE;
+            if (lastCh != 'y' && lastCh != 'Y' && lastCh != 's' && lastCh != 'S' && lastCh != 'l' && lastCh != 'L' && lastCh != 'u' && lastCh != 'U') {
                 break;
             }
             end_index--;
         }
+        long max = -min;
 
         if (s.charAt(0) == '0')
         {
@@ -842,29 +829,18 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
             start_index = 0;
         }
 
-        return parseLong(s.substring(start_index, end_index), radix);
+        final long res = parseLong(s.substring(start_index, end_index), radix);
+        if (!isUnsigned && radix!=10 && res>=max) {
+            // need to make this value negative
+            // e.g., 0xffUY == 255, 0xffY== 255-256 = -1  , 0xfeYU==254, 0xfeY== 254-256 = -2
+            return res+min*2;
+        }
+        return res;
     }
 
-    private polyglot.lex.LongLiteral int_lit(int i)
+    private void setIntLit(IntLit.Kind k)
     {
-        long x = parseLong(prsStream.getName(i));
-        return new LongLiteral(pos(i),  x, X10Parsersym.TK_IntegerLiteral);
-    }
-
-    private polyglot.lex.LongLiteral long_lit(int i)
-    {
-        long x = parseLong(prsStream.getName(i));
-        return new LongLiteral(pos(i), x, X10Parsersym.TK_LongLiteral);
-    }
-    private polyglot.lex.LongLiteral ulong_lit(int i)
-    {
-        long x = parseLong(prsStream.getName(i));
-        return new LongLiteral(pos(i), x, X10Parsersym.TK_UnsignedLongLiteral);
-    }
-    private polyglot.lex.LongLiteral uint_lit(int i)
-    {
-        long x = parseLong(prsStream.getName(i));
-        return new LongLiteral(pos(i), x, X10Parsersym.TK_UnsignedIntegerLiteral);
+        setResult(nf.IntLit(pos(), k, parseLong(prsStream.getName(getRhsFirstTokenIndex(1)))));
     }
 
     private polyglot.lex.FloatLiteral float_lit(int i)
@@ -2383,25 +2359,37 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         List<Expr> ArgumentListopt = (List<Expr>) _ArgumentListopt;
         setResult(ArgumentListopt);
     }
+    // Production: Literal ::= ByteLiteral
+    void rule_LiteralByte() {
+        setIntLit(IntLit.BYTE);
+    }
+    // Production: Literal ::= UByteLiteral
+    void rule_LiteralUByte() {
+        setIntLit(IntLit.UBYTE);
+    }
+    // Production: Literal ::= ShortLiteral
+    void rule_LiteralShort() {
+        setIntLit(IntLit.SHORT);
+    }
+    // Production: Literal ::= UShortLiteral
+    void rule_LiteralUShort() {
+        setIntLit(IntLit.USHORT);
+    }
     // Production: Literal ::= IntegerLiteral
     void rule_Literal0() {
-        polyglot.lex.LongLiteral a = int_lit(getRhsFirstTokenIndex(1));
-        setResult(nf.IntLit(pos(), IntLit.INT, a.getValue().longValue()));
+        setIntLit(IntLit.INT);
     }
     // Production: Literal ::= LongLiteral
     void rule_Literal1() {
-        polyglot.lex.LongLiteral a = long_lit(getRhsFirstTokenIndex(1));
-        setResult(nf.IntLit(pos(), IntLit.LONG, a.getValue().longValue()));
+        setIntLit(IntLit.LONG);
     }
     // Production: Literal ::= UnsignedIntegerLiteral
     void rule_Literal2() {
-        polyglot.lex.LongLiteral a = uint_lit(getRhsFirstTokenIndex(1));
-        setResult(nf.IntLit(pos(), X10IntLit_c.UINT, a.getValue().longValue()));
+        setIntLit(IntLit.UINT);
     }
     // Production: Literal ::= UnsignedLongLiteral
     void rule_Literal3() {
-        polyglot.lex.LongLiteral a = ulong_lit(getRhsFirstTokenIndex(1));
-        setResult(nf.IntLit(pos(), X10IntLit_c.ULONG, a.getValue().longValue()));
+        setIntLit(IntLit.ULONG);
     }
     // Production: Literal ::= FloatingPointLiteral
     void rule_Literal4() {

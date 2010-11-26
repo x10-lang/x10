@@ -150,7 +150,6 @@ import x10.ast.X10Field_c;
 import x10.ast.X10Formal;
 import x10.ast.X10Initializer_c;
 import x10.ast.X10Instanceof_c;
-import x10.ast.X10IntLit_c;
 import x10.ast.X10LocalDecl_c;
 import x10.ast.X10MethodDecl_c;
 import x10.ast.X10New;
@@ -2572,27 +2571,26 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
 	public void visit(IntLit_c n) {
 		String val;
-		if (n.kind() == X10IntLit_c.ULONG) {
+		if (n.kind() == IntLit_c.ULONG) {
 			val = Long.toString(n.value()) + "L";
 		    val = "new x10.lang.ULong("+val+")";
 		}
 		else if (n.kind() == IntLit_c.LONG) {
 			val = Long.toString(n.value()) + "L";
 		}
-		else if (n.kind() == X10IntLit_c.UINT) {
+		else if (n.kind() == IntLit_c.UINT) {
 			if (n.value() >= 0x80000000L)
 				val = "0x" + Long.toHexString(n.value() & 0xffffffffL);
 			else
 				val = Long.toString(n.value() & 0xffffffffL);
 		    val = "new x10.lang.UInt("+val+")";
 		}
-		else if (n.kind() == IntLit_c.INT) {
+		else { // Int, Short, Byte, UByte, UShort
 			if (n.value() >= 0x80000000L)
 				val = "0x" + Long.toHexString(n.value());
 			else
 				val = Long.toString((int) n.value());
-		} else
-			throw new InternalCompilerError("Unrecognized IntLit kind " + n.kind());
+		} 
 		w.write(val);
 	}
 	
