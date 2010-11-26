@@ -518,7 +518,7 @@ public struct UShort implements Comparable[UShort] /*TODO implements Arithmetic[
      */
     // @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
-    public def equals(x:Any):Boolean = this.shortVal.equals(x);
+    public def equals(x:Any):Boolean = x instanceof UShort && (x as UShort).shortVal == this.shortVal;
 
     /**
      * Returns true if this UShort is equal to the given UShort.

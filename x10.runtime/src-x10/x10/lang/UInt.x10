@@ -609,7 +609,7 @@ public struct UInt implements Comparable[UInt] /*TODO implements Arithmetic[UInt
      */
     // @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
-    public def equals(x:Any):Boolean = this.intVal.equals(x);
+    public def equals(x:Any):Boolean = x instanceof UInt && (x as UInt).intVal == this.intVal;
 
     /**
      * Returns true if this UInt is equal to the given UInt.

@@ -508,7 +508,7 @@ public struct UByte implements Comparable[UByte] /*TODO implements Arithmetic[UB
      */
     // @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
-    public def equals(x:Any):Boolean = this.byteVal.equals(x);
+    public def equals(x:Any):Boolean = x instanceof UByte && (x as UByte).byteVal == this.byteVal;
 
     /**
      * Returns true if this UByte is equal to the given UByte.

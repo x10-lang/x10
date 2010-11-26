@@ -622,7 +622,7 @@ public struct ULong implements Comparable[ULong] /*TODO implements Arithmetic[UL
      */
     // @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
-    public def equals(x:Any):Boolean = this.longVal.equals(x);
+    public def equals(x:Any):Boolean = x instanceof ULong && (x as ULong).longVal == this.longVal;
 
     /**
      * Returns true if this ULong is equal to the given ULong.
