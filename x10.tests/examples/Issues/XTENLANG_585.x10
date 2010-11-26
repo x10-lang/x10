@@ -12,10 +12,7 @@
 import harness.x10Test;
 
 /**
- * The classic hello world program, shows how to define a
- * method on an object, using the def syntax.
- * @author ??
- * @author vj 
+ *Test that ž is permiited in an X10 identifier. 
  */
 
 public class XTENLANG_585  extends x10Test {
