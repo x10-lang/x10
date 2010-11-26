@@ -38,27 +38,27 @@ public struct IndexedMemoryChunk[T] {
     @Native("c++", "null")
     private native def this(); // unused; prevent instantiaton outside of native code
 
-    @Native("java", "x10.core.IndexedMemoryChunk.<#2>allocate(#3, #4)")
+    @Native("java", "x10.core.IndexedMemoryChunk.<#2>allocate(#3, #4, false)")
     @Native("c++", "x10::util::IndexedMemoryChunk<void>::allocate<#1 >(#4, 8, false, false)")
     public static native def allocate[T](numElements:int):IndexedMemoryChunk[T];
 
-    @Native("java", "x10.core.IndexedMemoryChunk.<#2>allocate(#3, #4)")
+    @Native("java", "x10.core.IndexedMemoryChunk.<#2>allocate(#3, #4, #5)")
     @Native("c++", "x10::util::IndexedMemoryChunk<void>::allocate<#1 >(#4, 8, false, #5)")
     public static native def allocate[T](numElements:int, zeroed:boolean):IndexedMemoryChunk[T];
 
-    @Native("java", "x10.core.IndexedMemoryChunk.<#2>allocate(#3, #4)")
+    @Native("java", "x10.core.IndexedMemoryChunk.<#2>allocate(#3, #4, #7)")
     @Native("c++", "x10::util::IndexedMemoryChunk<void>::allocate<#1 >(#4, #5, #6, #7)")
     public static native def allocate[T](numElements:int, alignment:int, pinned:boolean, zeroed:boolean):IndexedMemoryChunk[T];
 
-    @Native("java", "x10.core.IndexedMemoryChunk.<#2>allocate(#3, #4)")
+    @Native("java", "x10.core.IndexedMemoryChunk.<#2>allocate(#3, #4, false)")
     @Native("c++", "x10::util::IndexedMemoryChunk<void>::allocate<#1 >(#4, 8, false, false)")
     public static native def allocate[T](numElements:long):IndexedMemoryChunk[T];
 
-    @Native("java", "x10.core.IndexedMemoryChunk.<#2>allocate(#3, #4)")
+    @Native("java", "x10.core.IndexedMemoryChunk.<#2>allocate(#3, #4, #5)")
     @Native("c++", "x10::util::IndexedMemoryChunk<void>::allocate<#1 >(#4, 8, false, #5)")
     public static native def allocate[T](numElements:long, zeroed:boolean):IndexedMemoryChunk[T];
 
-    @Native("java", "x10.core.IndexedMemoryChunk.<#2>allocate(#3, #4)")
+    @Native("java", "x10.core.IndexedMemoryChunk.<#2>allocate(#3, #4, #7)")
     @Native("c++", "x10::util::IndexedMemoryChunk<void>::allocate<#1 >(#4, #5, #6, #7)")
     public static native def allocate[T](numElements:long, alignment:int, pinned:boolean, zeroed:boolean):IndexedMemoryChunk[T];
 

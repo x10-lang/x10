@@ -27,12 +27,17 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct {
         this.value = value;
     }
 
-    private IndexedMemoryChunk(Type<T> type, int length) {
+    private IndexedMemoryChunk(Type<T> type, int length, boolean zeroed) {
         this(type, length, type.makeArray(length));
+        if (zeroed) {
+            if (type == x10.rtt.Types.UBYTE || type == x10.rtt.Types.USHORT || type == x10.rtt.Types.UINT || type == x10.rtt.Types.ULONG) {
+                java.util.Arrays.fill((Object[]) value, x10.rtt.Types.zeroValue(type));
+            }
+        }
     }
 
-    public static <T> IndexedMemoryChunk<T> allocate(Type<T> type, int length) {
-        return new IndexedMemoryChunk<T>(type, length);
+    public static <T> IndexedMemoryChunk<T> allocate(Type<T> type, int length, boolean zeroed) {
+        return new IndexedMemoryChunk<T>(type, length, zeroed);
     }
 
     public T apply$G(int i) {
