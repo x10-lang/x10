@@ -1128,8 +1128,7 @@ class TestFieldInitForwardRef {
     // We allow default values for:
     //    * a type that can be null  (e.g., Any, closures, but not a struct or Any{self!=null} )
     //    * primitive/basic structs  (user defined structs do not have a default).
-    // includes: Int, Long, ULong, UInt, Float, Double, Boolean, Char
-    // excludes: Short,UShort,Byte,UByte  (because we do not have a literal of that type, there is a jira opened for Charles)
+    // includes: Short,UShort,Byte,UByte, Int, Long, ULong, UInt, Float, Double, Boolean, Char
 class SimpleUserDefinedStructTest {
 	static struct S {
 	  val x:int = 4;
@@ -1145,13 +1144,33 @@ class TestFieldsWithoutDefaults[T] {
 	// generic parameter test
 	var f2:T; // ERR
 
-	// includes: Int, Long, ULong, UInt, Float, Double, Boolean, Char
-	// excludes: Short,UShort,Byte,UByte
-	// primitive private struct tests (when we'll add literals for Short,UShort,Byte,UByte, I should add more tests)
+	// includes: Short,UShort,Byte,UByte, Int, Long, ULong, UInt, Float, Double, Boolean, Char
+	// primitive private struct tests
 	var i1:Int;
 	var i2:Int{self==0};
 	var i3:Int{self!=1};
 	var i4:Int{self!=0}; // ERR
+
+	var y1:Byte;
+	var y2:Byte{self==0y};
+	var y3:Byte{self!=1y};
+	var y4:Byte{self!=0Y}; // ERR
+
+	var s1:Short;
+	var s2:Short{self==0s};
+	var s3:Short{self!=1S};
+	var s4:Short{self!=0s}; // ERR
+
+	var ub1:UByte;
+	var ub2:UByte{self==0yu};
+	var ub3:UByte{self!=1uY};
+	var ub4:UByte{self!=0yu}; // ERR
+
+	var us1:UShort;
+	var us2:UShort{self==0su};
+	var us3:UShort{self!=1us};
+	var us4:UShort{self!=0Su}; // ERR
+
 	var l1:Long;
 	var l2:Long{self==0l};
 	var l3:Long{self!=0l}; // ERR
@@ -1177,7 +1196,6 @@ class TestFieldsWithoutDefaults[T] {
 	var ch1:Char;
 	var ch2:Char{self=='\0'};
 	var ch3:Char{self!='\0'}; // ERR
-	// todo: do tests for Byte, UByte, Short, UShort
 
 	// references (with or without null)
 	var r0:Array[Int{self!=0}];
@@ -1193,7 +1211,7 @@ class TestFieldsWithoutDefaults[T] {
 
 
 	// user-defined private struct examples
-	var s1:UserDefinedStruct; // ERR
+	var definedS1:UserDefinedStruct; // ERR
 
 }
 
@@ -2393,35 +2411,59 @@ class TestOverflows { // see XTENLANG-1774
 	def test() {
 		// todo: more octal tests
 
-		// todo: we need short&byte literals 
+		// equivalence of 0x , 0 and decimal representations
+		val lit1:Byte{self==0xffY} = -1y;
+		val lit2:Byte{self==0377Y} = -1y;
+		val lit3:Byte{self==0xfeY} = -2y;
+		val lit4:Byte{self==0376Y} = -2y;
+		val lit5:UByte{self==0xffUY} = 255uy;
+		val lit6:UByte{self==0xfeYU} = 254yu;
+		val lit7:UByte{self==0377YU} = 255uy;
+		val lit8:UByte{self==0376UY} = 254yu;
+
+		val err1:Byte{self==0xfeY} = -3y; // ERR
+		val err2:UByte{self==0xfeYU} = 253yu; // ERR
+
 		// in HEX
-		//useByte(0x80y); // ShouldNotBeErr
-		//useByte(0x7fy); // ShouldNotBeErr
-		//useShort(0x8000s); // ShouldNotBeErr
-		//useShort(0x7fffs); // ShouldNotBeErr
+		useByte(0x80y); 
+		useByte(0x7fy); 
+		useShort(0x8000s); 
+		useShort(0x7fffs); 
 		// in decimal
-		//useByte(-128y); // ShouldNotBeErr
-		//useByte(127y); // ShouldNotBeErr
-		//useShort(-32768s); // ShouldNotBeErr
-		//useShort(32767s); // ShouldNotBeErr
+		useByte(-129y);  // ERR ERR
+		useByte(-128y); 
+		useByte(127y); 
+		useByte(128y);  // ShouldBeErr
+		useByte(129y);  // ERR
+		useShort(-32769s);  // ERR ERR
+		useShort(-32768s); 
+		useShort(32767s); 
+		useShort(32768s);  // ShouldBeErr
+		useShort(32769s);  // ERR
 		
 		// in HEX
-		//useUByte(0x80yU); // ShouldNotBeErr
-		//useUByte(0x7fUy); // ShouldNotBeErr
-		//useUShort(0x8000Us); // ShouldNotBeErr
-		//useUShort(0x7fffsU); // ShouldNotBeErr
+		useUByte(0x00yU); 
+		useUByte(0xffUy); 
+		useUByte(0x111yU); // ERR
+		useUShort(0x0000Us); 
+		useUShort(0xffffsU); 
+		useUShort(0x11111SU); // ERR
 		// in decimal
-		//useUByte(0yu); // ShouldNotBeErr
-		//useUByte(125uy); // ShouldNotBeErr
-		//useUShort(0su); // ShouldNotBeErr
-		//useUShort(65535us); // ShouldNotBeErr
+		useUByte(0yu); 
+		useUByte(255uy); 
+		useUByte(256uy); // ERR 
+		useUShort(0su); 
+		useUShort(65535us); 
+		useUShort(65536us); // ERR 
 		
 		// Int & Long
 		// in HEX
 		useInt(0x80000000);
 		useInt(0x7fffffff);
+		useInt(0xffffffff); // is negative
 		useLong(0x8000000000000000L);
 		useLong(0x7fffffffffffffffL);
+		useLong(0xffffffffffffffffL);// is negative
 		useInt(0x800000000); // ERR: Integer literal 34359738368 is out of range. (todo: better err message)
 		useLong(0x80000000000000000L); // ShouldBeErr (currently in generates 0L !)
 		// in decimal
@@ -2429,7 +2471,7 @@ class TestOverflows { // see XTENLANG-1774
 		useInt(2147483647);
 		useLong(-9223372036854775808l);
 		useLong(9223372036854775807l);		
-		useInt(-2147483649); // ERR: Integer literal -2147483649 is out of range. (todo: better err message)
+		useInt(-2147483649); // ERR ERR: Integer literal -2147483649 is out of range. (todo: better err message)
 		useInt(2147483648); // ShouldBeErr
 		useLong(-9223372036854775809l); // ShouldBeErr
 		useLong(9223372036854775808l); // ShouldBeErr
@@ -3261,10 +3303,30 @@ class TestDuplicateClass { // XTENLANG-2132
 	// static class A(v:Int) {}  // ShouldBeErr (causes a crash: AssertionError: TestDuplicateClass.A->TestDuplicateClass.A x10.types.X10ParsedClassType_c is already in the cache; cannot replace with TestDuplicateClass.A x10.types.X10ParsedClassType_c)
 }
 
-class CustomSerializeIsNotTypeSafe {
+class TestSerialization {
+class TestAt {
+	var i:Int{self!=0};
+	def this() { // ERR: Semantic Error: Field 'i' was not definitely assigned.
+		at (here.next()) i=2;
+	}
+}
+class TestSerialize {
+	var i:Int{self!=0};
+	def this() {
+		at (here.next()) this.set(3);
+	    this.set(2);
+	}
+	private def set(x:Int{self!=0}) { i=x; }
+	public def serialize():SerialData {
+		assert i!=0; // will fail, because we haven't written anything to "i" yet!
+		return new SerialData(i,null); // here we read here the value of "i" though it wasn't set yet
+	}
+}
+
+class ClosureAndSerialize {
     val x = 2;    
 	val BigD = Dist.makeBlock((0..10)*(0..10), 0);
-    val A = DistArray.make[Double](BigD,(p:Point)=>1.0*this.x); // "this" is serialized before it is completely initialized
+    val A = DistArray.make[Double](BigD,(p:Point)=>1.0*this.x);
     val k:Int{self!=0} = 3;
 
     public def serialize():SerialData {
@@ -3272,8 +3334,9 @@ class CustomSerializeIsNotTypeSafe {
 		assert k==3; // will fail when used on multiple places
 		return new SerialData(1,null);
 	}
+}
+}
 
-    public static def main(Array[String]) {
-        new CustomSerializeIsNotTypeSafe();
-    }
+class XTENLANG_2142 implements CustomSerialization { // ShouldBeErr: missing ctor "def this(SerialData)"
+	public def serialize():SerialData= null;
 }
