@@ -21,7 +21,7 @@ import x10.compiler.NativeRep;
 @NativeRep("java", "x10.runtime.impl.java.Thread", null, null)
 @NativeRep("c++", "x10aux::ref<x10::lang::Thread>", "x10::lang::Thread", null)
 class Thread {
-    public native def this(()=>Void, String);
+    public native def this(()=>void, String);
 
     public static native def currentThread():Thread;
 

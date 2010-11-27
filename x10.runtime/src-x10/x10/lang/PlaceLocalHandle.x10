@@ -44,7 +44,7 @@ public final struct PlaceLocalHandle[T]{T <: Object} {
     public native def apply():T;
 
     // Only to be used by make method and Runtime class
-    native def set(newVal:T):Void;
+    native def set(newVal:T):void;
 
     public native def hashCode():Int;
 

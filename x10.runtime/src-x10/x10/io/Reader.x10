@@ -27,15 +27,15 @@ package x10.io;
  * catch (IOException) { }
  */    
 public abstract class Reader {
-    public abstract def close(): Void; //throws IOException
+    public abstract def close(): void; //throws IOException
 
     public abstract def read(): Byte; //throws IOException
     public abstract def available(): Int; //throws IOException
 
-    public abstract def skip(Int): Void; //throws IOException
+    public abstract def skip(Int): void; //throws IOException
 
-    public abstract def mark(Int): Void; //throws IOException
-    public abstract def reset(): Void; //throws IOException
+    public abstract def mark(Int): void; //throws IOException
+    public abstract def reset(): void; //throws IOException
     public abstract def markSupported(): Boolean;
     
     public def readBoolean(): Boolean //throws IOException 
@@ -60,9 +60,9 @@ public abstract class Reader {
     public final def read[T](m: Marshal[T]): T //throws IOException 
     = m.read(this);
 
-    public final def read[T](m: Marshal[T], a: Rail[T]): Void  //throws IOException 
+    public final def read[T](m: Marshal[T], a: Rail[T]): void  //throws IOException 
 	= read[T](m, a, 0, a.length);
-    public final def read[T](m: Marshal[T], a: Rail[T], off: Int, len: Int): Void //throws IOException 
+    public final def read[T](m: Marshal[T], a: Rail[T], off: Int, len: Int): void //throws IOException 
     {
         for (var i: Int = off; i < off+len; i++) {
             a(i) = read[T](m);
@@ -70,17 +70,17 @@ public abstract class Reader {
     }
     
     /*
-    public final def read[T](m: Marshal[T], a: Rail[T], region: Region{rank==1 /*,self in (0..a.length-1)* /}): Void throws IOException {
+    public final def read[T](m: Marshal[T], a: Rail[T], region: Region{rank==1 /*,self in (0..a.length-1)* /}): void throws IOException {
         for ((i) in region) {
             a(i) = read[T](m);
         }
     }
     
-    public final def read[T](m: Marshal[T], a: Array[T]): Void throws IOException {
+    public final def read[T](m: Marshal[T], a: Array[T]): void throws IOException {
         read[T](m, a, a.region);
     }
 
-    public final def read[T](m: Marshal[T], a: Array[T], region: Region{rank==a.rank}/*{self in a.region}* /): Void throws IOException {
+    public final def read[T](m: Marshal[T], a: Array[T], region: Region{rank==a.rank}/*{self in a.region}* /): void throws IOException {
         try {
             finish for (p: Point{rank==a.rank} in region) {
                 async (a.dist(p)) {

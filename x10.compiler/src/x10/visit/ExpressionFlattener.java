@@ -1001,8 +1001,8 @@ public final class ExpressionFlattener extends ContextVisitor {
      * Flatten the evaluation of an expression.
      * <pre>
      * ({s1; e1});    ->  s1;               if "e1" cannot have side-effects
-     * ({s1; e1});    ->  s1; Eval(e1);     if "e1" might have side-effects and it's type is Void
-     * ({s1; e1));    ->  s1; val v = e1;   if "e1" might have side-effects and it's type isn't Void
+     * ({s1; e1});    ->  s1; Eval(e1);     if "e1" might have side-effects and it's type is void
+     * ({s1; e1));    ->  s1; val v = e1;   if "e1" might have side-effects and it's type isn't void
      * </pre>
      * 
      * @param stmt the evaluation to be flattened.

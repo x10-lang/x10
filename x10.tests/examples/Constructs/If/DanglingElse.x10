@@ -27,7 +27,7 @@ public class DanglingElse extends x10Test  {
       return p.run();
   }
   class F extends x10Test.BardTest {
-  public def test() : Void {
+  public def test() : void {
 	  assert (!test2());
   }
   public def test2() : Boolean {

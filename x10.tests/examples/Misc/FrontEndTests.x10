@@ -539,9 +539,9 @@ class DynamicDispatchingInCtorTest {
 			size = calcSize(x);
 		}
 		@NoThisAccess abstract def calcSize(x:Int):Int;
-		@NonEscaping def useError(i:Int):Void {} // ERR: A @NonEscaping method must be private or final.	
-		@NonEscaping final def use(i:Int):Void {} 
-		@NonEscaping private def useOk2(i:Int):Void {} 
+		@NonEscaping def useError(i:Int):void {} // ERR: A @NonEscaping method must be private or final.	
+		@NonEscaping final def use(i:Int):void {} 
+		@NonEscaping private def useOk2(i:Int):void {} 
 	}
 	class Sub1 extends Super {
 		@NoThisAccess def calcSize(x:Int):Int { return x*2; }

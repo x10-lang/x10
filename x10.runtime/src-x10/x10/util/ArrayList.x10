@@ -51,7 +51,7 @@ public class ArrayList[T] extends AbstractCollection[T] implements List[T] {
         return false;
     }
     
-    public def addBefore(i: int, v: T): Void {
+    public def addBefore(i: int, v: T): void {
         a.add(v);
         for (var j: int = i+1; j < a.length(); j++) {
             a(j) = a(j-1);
@@ -183,15 +183,15 @@ public class ArrayList[T] extends AbstractCollection[T] implements List[T] {
             return al.a(--i);
         }
         
-        public def remove(): Void {
+        public def remove(): void {
             al.removeAt(i);
         }
         
-        public def set(v: S): Void {
+        public def set(v: S): void {
             al.set(v, i);
         }
         
-        public def add(v: S): Void {
+        public def add(v: S): void {
             al.addBefore(i, v);
         }
     }
@@ -204,7 +204,7 @@ public class ArrayList[T] extends AbstractCollection[T] implements List[T] {
         return new It[T](this, i);
     }
     
-    public def reverse(): Void {
+    public def reverse(): void {
         val length = a.length();
         for (var i: Int = 0; i < length/2; i++) {
             exch(a, i, length-1-i);

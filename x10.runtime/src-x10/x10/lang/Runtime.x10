@@ -222,7 +222,7 @@ import x10.util.Box;
         //Worker Id for CollectingFinish
         val workerId:Int;
 
-        def this(main:()=>Void) {
+        def this(main:()=>void) {
             super(main, "thread-main");
             workerId = 0;
             random = new Random(0);
@@ -871,7 +871,7 @@ import x10.util.Box;
     }
 
     // submit 
-    public static def execute(body:()=>Void, finishState:FinishState):void {
+    public static def execute(body:()=>void, finishState:FinishState):void {
         execute(new Activity(body, finishState));
     }
 

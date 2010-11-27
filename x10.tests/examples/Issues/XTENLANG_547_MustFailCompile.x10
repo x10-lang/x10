@@ -12,9 +12,9 @@
 import harness.x10Test;
 
 abstract class Writer {
-    public abstract def write(x: Byte): Void;
+    public abstract def write(x: Byte): void;
 
-    public def write(buf: GlobalRef[Rail[Byte]]): Void {
+    public def write(buf: GlobalRef[Rail[Byte]]): void {
         val mybuf = buf as GlobalRef[Rail[Byte]]{self.home==here};
         write(mybuf, 0, mybuf().length);
     }
@@ -27,9 +27,9 @@ abstract class Writer {
 }
 
 class OutputStreamWriter extends Writer {
-    public def write(x: Byte): Void { }
+    public def write(x: Byte): void { }
 
-    public def write(buf: GlobalRef[Rail[Byte]]): Void {
+    public def write(buf: GlobalRef[Rail[Byte]]): void {
     }
 
     // This should cause the compiler to issue an error.
@@ -37,7 +37,7 @@ class OutputStreamWriter extends Writer {
     // and its constraint erasure is identical with the method below. But a class cant have two
     // different method definitions whose constraint erasures are identical. And a method
    // can only be overridden by a method which has the same constrained type signature.
-    public def write(buf:GlobalRef[Rail[Byte]], off: Int, len: Int): Void {
+    public def write(buf:GlobalRef[Rail[Byte]], off: Int, len: Int): void {
     }
 }
 

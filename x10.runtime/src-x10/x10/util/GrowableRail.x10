@@ -27,12 +27,12 @@ public final class GrowableRail[T] implements Indexable[Int,T], Settable[Int,T] 
     /** Add an element to the rail, incrementing length. */
     @Native("java", "(#0).add(#1)")
     @Native("c++", "(#0)->add(#1)")
-    public native def add(T): Void;
+    public native def add(T): void;
 
     /** Insert an rail to the rail at specified location, incrementing length. */
     @Native("java", "(#0).insert(#1, #2)")
     @Native("c++", "(#0)->insert(#1, #2)")
-    public native def insert(p:Int, items:Rail[T]): Void;
+    public native def insert(p:Int, items:Rail[T]): void;
 
     /** Get the Int element of the rail, failing unless 0 &lt;= Int &lt; length. */
     @Native("java", "(#0).apply$G(#1)")
@@ -52,12 +52,12 @@ public final class GrowableRail[T] implements Indexable[Int,T], Settable[Int,T] 
     /** Set the length of the rail */
     @Native("java", "(#0).setLength(#1)")
     @Native("c++", "(#0)->setLength(#1)")
-    public native def setLength(Int): Void;
+    public native def setLength(Int): void;
 
     /** Remove the last element of the rail, decrementing the length. */
     @Native("java", "(#0).removeLast()")
     @Native("c++", "(#0)->removeLast()")
-    public native def removeLast(): Void;
+    public native def removeLast(): void;
 
     /**
      * Transfer elements between i and j (inclusive) into a new Rail,

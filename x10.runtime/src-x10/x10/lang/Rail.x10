@@ -150,7 +150,7 @@ public final class Rail[T](length: Int)
      */
     @Native("java", "(#0).reset(#1)")
     @Native("c++", "(#0)->reset(#1)")
-    public native def reset(init: (Int) => T): Void;
+    public native def reset(init: (Int) => T): void;
 
     /**
      * Re-initializes a Rail to a constant value.
@@ -159,7 +159,7 @@ public final class Rail[T](length: Int)
      */
     @Native("java", "(#0).reset(#1)")
     @Native("c++", "(#0)->reset(#1)")
-    public native def reset(init: T): Void;
+    public native def reset(init: T): void;
 
     /**
      * Operator that allows access of Rail elements by index.

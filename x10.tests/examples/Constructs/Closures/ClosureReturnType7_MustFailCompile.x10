@@ -13,7 +13,7 @@ import harness.x10Test;
 
 
 /**
- * if the method does not return a value, the inferred type is Void
+ * if the method does not return a value, the inferred type is void
  *
  * @author bdlucas 8/2008
  */

@@ -18,11 +18,11 @@ public class FilterWriter extends Writer {
 
     public def this(w: Writer) { this.w = w; }
 
-    public def close(): Void //throws IOException 
+    public def close(): void //throws IOException 
     = w.close();
-    public def flush(): Void //throws IOException 
+    public def flush(): void //throws IOException 
     = w.flush();
 
-    public def write(b: Byte): Void //throws IOException 
+    public def write(b: Byte): void //throws IOException 
     = w.write(b);
 }

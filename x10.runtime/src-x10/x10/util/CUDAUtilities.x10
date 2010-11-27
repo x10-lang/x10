@@ -42,7 +42,7 @@ public class CUDAUtilities {
 
     private static def initCUDAArray[T] (local:IndexedMemoryChunk[T],
                                          remote:RemoteIndexedMemoryChunk[T],
-                                         numElements:Int) : Void {
+                                         numElements:Int) : void {
           finish IndexedMemoryChunk.asyncCopy(local, 0, remote, 0, numElements);
     }
 
@@ -92,7 +92,7 @@ public class CUDAUtilities {
         }
     }
 
-    public static def deleteRemoteArray[T] (arr: RemoteArray[T]{self.rank==1}) : Void
+    public static def deleteRemoteArray[T] (arr: RemoteArray[T]{self.rank==1}) : void
     {
         val place = arr.home;
         if (place.isCUDA()) {

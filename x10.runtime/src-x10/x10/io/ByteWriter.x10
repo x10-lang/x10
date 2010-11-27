@@ -22,7 +22,7 @@ public class ByteWriter[T] /*extends Writer*/ {
 
     public def this(b: Builder[Byte,T]) { this.b = b; }
 
-    @Global public def write(x: Byte): Void { 
+    @Global public def write(x: Byte): void { 
     	if (here == root.home) {
    	   val me = (root as GlobalRef[ByteWriter[T]]{self.home==here})();
      	   me.b.add(x); 
@@ -53,7 +53,7 @@ public class ByteWriter[T] /*extends Writer*/ {
     	   me.b.result()
     	};
     }
-    @Global public def flush(): Void { }
-    @Global public def close(): Void { }
+    @Global public def flush(): void { }
+    @Global public def close(): void { }
 }
 

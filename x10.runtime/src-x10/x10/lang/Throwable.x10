@@ -59,11 +59,11 @@ public class Throwable {
 
     @Native("java", "#0.printStackTrace()")
     @Native("c++", "(#0)->printStackTrace()")
-    public native def printStackTrace() : Void;
+    public native def printStackTrace() : void;
     
     @Native("java", "x10.core.ThrowableUtilities.printStackTrace(#0, #1)")
     @Native("c++",  "(#0)->printStackTrace(#1)")
-    public native def printStackTrace(p: Printer) : Void;
+    public native def printStackTrace(p: Printer) : void;
 
     @Native("java", "#0.fillInStackTrace()")
     @Native("c++", "(#0)->fillInStackTrace()")
