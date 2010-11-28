@@ -133,7 +133,7 @@ public class Inliner extends ContextVisitor {
 
     private final boolean INLINE_CONSTANTS = Configuration.INLINE_CONSTANTS;
     private final boolean INLINE_METHODS   = Configuration.INLINE_METHODS;
-    private final boolean INLINE_CLOSURES  = Configuration.INLINE_CLOSURES && x10.Configuration.CLOSURE_INLINING;
+    private final boolean INLINE_CLOSURES  = Configuration.INLINE_CLOSURES && x10.Configuration.ALLOW_STATEMENT_EXPRESSIONS;
     private final boolean INLINE_IMPLICIT  = Configuration.INLINE_METHODS_IMPLICIT;
     
     private static final boolean DEBUG = false;

@@ -2623,6 +2623,10 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	}
 
 	public void visit(StmtExpr_c n) {
+	    if (!Configuration.ALLOW_STATEMENT_EXPRESSIONS) {
+	        tr.job().compiler().errorQueue().enqueue(ErrorInfo.SEMANTIC_ERROR,
+	                "Statement expression node encountered, but statement expressions are disabled: ", n.position());
+	    }
 	    sw.write("(__extension__ ({");
 	    sw.newline(4); sw.begin(0);
 	    List<Stmt> stmts = n.statements();
@@ -4404,7 +4408,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	}
 
 	private boolean inlineClosureCall(ClosureCall_c c, Closure_c closure, List<Expr> args) {
-	    if (!Configuration.CLOSURE_INLINING)
+	    if (!Configuration.ALLOW_STATEMENT_EXPRESSIONS)
 	        return false;   // Closure inlining disabled
 
 	    // Ensure that the last statement of the body is the only return in the closure
@@ -4867,7 +4871,12 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		        sw.write(")");
 		    sw.writeln(", "+(count++)+");");
 		}
-		sw.write(tmp+";");
+		sw.write(tmp);
+		if (!Configuration.ALLOW_STATEMENT_EXPRESSIONS) {
+		    // FIXME: HACK around a compiler bug in GCC 4.1
+		    sw.write(".operator->()");
+		}
+		sw.write(";");
 		sw.end(); sw.newline();
 		sw.write("}))");
 	}
