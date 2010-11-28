@@ -91,6 +91,7 @@ import x10.ast.X10ClassDecl;
 import x10.ast.HasZeroTest;
 import x10.errors.Warnings;
 import x10.optimizations.ForLoopOptimizer;
+import x10.types.X10FieldInstance;
 
 /**
  * @author Bowen Alpern
@@ -675,6 +676,10 @@ public final class ExpressionFlattener extends ContextVisitor {
         if (expr.target() instanceof Expr) {
             Expr target = getPrimaryAndStatements((Expr) expr.target(), stmts);
             expr = expr.target(target);
+        }
+        X10FieldInstance fi = (X10FieldInstance) expr.fieldInstance();
+        if (!fi.annotationsMatching(typeSystem().load("x10.compiler.Embed")).isEmpty()) {
+            return expr;
         }
         Expr right = getPrimaryAndStatements(expr.right(), stmts);
         return toFlatExpr(expr.position(), stmts, expr.right(right));
