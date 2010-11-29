@@ -236,10 +236,6 @@ public class X10New_c extends New_c implements X10New {
         if (t == anonType) {
             t = (ClassType) t.container();
         }
-        if (anonType!=null) {
-            outer = t;
-            t = null;
-        }
         
         // Search all enclosing classes for the type.
         while (t != null) {
