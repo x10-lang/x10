@@ -24,8 +24,6 @@ import polyglot.frontend.Job;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.ConstructorDef;
-import polyglot.types.MethodDef;
-import polyglot.types.ProcedureDef;
 import polyglot.types.SemanticException;
 import polyglot.types.TypeSystem;
 import polyglot.visit.ContextVisitor;
@@ -44,6 +42,7 @@ import x10.compiler.ws.codegen.WSMethodFrameClassGen;
 import x10.compiler.ws.util.WSCallGraph;
 import x10.compiler.ws.util.WSCallGraphNode;
 import x10.types.ClosureDef;
+import x10.types.X10MethodDef;
 import polyglot.types.Context;
 import polyglot.types.TypeSystem;
 import x10.types.checker.PlaceChecker;
@@ -127,9 +126,9 @@ public class WSCodeGenerator extends ContextVisitor {
         }
 
         // transform methods
-        if(n instanceof MethodDecl) {
-            MethodDecl mDecl = (MethodDecl)n;
-            MethodDef mDef = mDecl.methodDef();
+        if(n instanceof X10MethodDecl) {
+            X10MethodDecl mDecl = (X10MethodDecl)n;
+            X10MethodDef mDef = mDecl.methodDef();
             if(wts.isTargetProcedure(mDef)){
                 if(debugLevel > 3){
                     System.out.println("[WS_INFO] Start transforming target method: " + mDef.name());

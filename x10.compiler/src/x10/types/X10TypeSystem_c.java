@@ -1331,6 +1331,14 @@ public class X10TypeSystem_c extends TypeSystem_c {
         return AtomicBoolean_;
     }
 
+    protected X10ClassType AtomicInteger_;
+
+    public Type AtomicInteger() {
+        if (AtomicInteger_ == null)
+            AtomicInteger_ = load("x10.util.concurrent.atomic.AtomicInteger");
+        return AtomicInteger_;
+    }
+
     protected X10ClassType nativeRail_;
 
     public Type Rail() {

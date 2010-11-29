@@ -18,7 +18,7 @@ import harness.x10Test;
 
 public class XTENLANG_636 extends x10Test {
 
-      interface ISet[-X] { def set(x:X):Void; }
+      interface ISet[-X] { def set(x:X):void; }
       interface IGet[+X] { def get():X; }
 
        class Cell[X] implements ISet[X], IGet[X] {

@@ -477,7 +477,10 @@ public class X10Binary_c extends Binary_c implements X10Binary {
                 p = Checker.tryImplicitConversions(call, tc, targetType, call.name().id(), typeArgs, argTypes);
                 mi = (X10MethodInstance) p.fst();
                 args = p.snd();
-            } catch (SemanticException e) { }
+            } catch (SemanticException e) {
+                // FIXME: [IP] The exception may indicate that there's an ambiguity, which is better than reporting that a method is not found.
+                int i = 3;
+            }
         }
         Type rt = Checker.rightType(mi.rightType(), mi.x10Def(), call.target(), tc.context());
         call = (X10Call_c) call.methodInstance(mi).type(rt);
@@ -500,7 +503,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
             X10Call_c res = searchInstance1(methodName,pos,tc,first,second);
             if (res!=null) return res;
 
-            // maybe the left operand can be cast to the write operand (e.g., Byte+Int should use Int.operator+(Int) and not Byte.operator+(Byte))
+            // maybe the left operand can be cast to the right operand (e.g., Byte+Int should use Int.operator+(Int) and not Byte.operator+(Byte))
             Expr newFirst = Converter.attemptCoercion(
                     false, // I do not want to report any warnings if coercion failed
                     tc, first,

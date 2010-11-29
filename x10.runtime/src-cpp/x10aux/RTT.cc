@@ -291,7 +291,7 @@ const char *RuntimeVoidFunType::name() const {
             if (i>0) ss << ",";
             ss << params[i]->name();
         }
-        ss << ")=>Void";
+        ss << ")=>void";
         const_cast<RuntimeVoidFunType*>(this)->fullTypeName = ::strdup(ss.str().c_str());
     }
     

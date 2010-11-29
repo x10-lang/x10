@@ -9,21 +9,24 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-package x10.rtt;
+import harness.x10Test;
+
+public class XTENLANG_643 extends x10Test {
 
 
-public class UIntType<T> extends RuntimeType<T> {
 
-    public UIntType(Class<?> c) {
-        super(c);
+
+    public static def test() {
+        type Ome(x:Int) = String;
+        var result:Boolean = "some string " instanceof Ome(5);
+        return result;
+    }
+    public def run() = test();
+
+
+    public static def main(Array[String](1)) {
+        new XTENLANG_643().execute();
     }
 
-    public UIntType(Class<?>c, Type<?>[] parents) {
-        super(c, parents);
-    }
-
-    @Override
-    public String typeName() {
-        return "x10.lang.UInt";
-    }
 }
+

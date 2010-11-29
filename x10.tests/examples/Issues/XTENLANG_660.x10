@@ -11,32 +11,25 @@
 
 import harness.x10Test;
 
-/**
- * @author bdlucas 10/2008
- */
+public class XTENLANG_660 extends x10Test {
 
-class XTENLANG_47 extends x10Test {
-
-    class C(rank:int) {
-        def this(r:int) = property(r);
-    }
-    
-    class CL(rank2:int) {
-    
-        private class It implements Iterator[C{self.rank==rank2}] {
-            incomplete public def hasNext(): boolean;
-            incomplete public def next(): C{self.rank==rank2};
-            incomplete public def remove(): void;
+    public def test() {
+        { val e = (2.023e-23 as Float);
+            val pos =  e.toString().indexOf("Float");
         }
-    
-        def this(r:int) = property(r);
+      
+        { val e = true;
+            val pos = e.toString().indexOf("Boolean");
+        }
     }
-
     public def run(): boolean {
+        test();
         return true;
     }
 
     public static def main(Array[String](1)) {
-        new XTENLANG_47().execute();
+        new XTENLANG_660().execute();
     }
+
 }
+

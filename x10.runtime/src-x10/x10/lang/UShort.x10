@@ -96,20 +96,6 @@ public struct UShort implements Comparable[UShort] /*TODO implements Arithmetic[
     // @Native("java", "((short) ((#0) + (#1)))")
     @Native("c++",  "((x10_ushort) ((#0) + (#1)))")
     public operator this + (x:UShort): UShort = UShort(shortVal + x.shortVal);
-    /**
-     * A binary plus operator (unsigned disambiguation).
-     * @see #operator(UShort)+(UShort)
-     */
-    // @Native("java", "((short) ((#0) + (#1)))")
-    @Native("c++",  "((x10_ushort) ((#0) + (#1)))")
-    public operator this + (x:Short): UShort = UShort(shortVal + x);
-    /**
-     * A binary plus operator (unsigned disambiguation).
-     * @see #operator(UShort)+(UShort)
-     */
-    // @Native("java", "((short) ((#0) + (#1)))")
-    @Native("c++",  "((x10_ushort) ((#0) + (#1)))")
-    public operator (x:Short) + this: UShort = UShort(x + shortVal);
 
     /**
      * A binary minus operator.
@@ -121,20 +107,6 @@ public struct UShort implements Comparable[UShort] /*TODO implements Arithmetic[
     // @Native("java", "((short) ((#0) - (#1)))")
     @Native("c++",  "((x10_ushort) ((#0) - (#1)))")
     public operator this - (x:UShort): UShort = UShort(shortVal - x.shortVal);
-    /**
-     * A binary minus operator (unsigned disambiguation).
-     * @see #operator(UShort)-(UShort)
-     */
-    // @Native("java", "((short) ((#0) - (#1)))")
-    @Native("c++",  "((x10_ushort) ((#1) - (#0)))")
-    public operator (x:Short) - this: UShort = UShort(x - shortVal);
-    /**
-     * A binary minus operator (unsigned disambiguation).
-     * @see #operator(UShort)-(UShort)
-     */
-    // @Native("java", "((short) ((#0) - (#1)))")
-    @Native("c++",  "((x10_ushort) ((#0) - (#1)))")
-    public operator this - (x:Short): UShort = UShort(shortVal - x);
 
     /**
      * A binary multiply operator.
@@ -146,20 +118,6 @@ public struct UShort implements Comparable[UShort] /*TODO implements Arithmetic[
     // @Native("java", "((short) ((#0) * (#1)))")
     @Native("c++",  "((x10_ushort) ((#0) * (#1)))")
     public operator this * (x:UShort): UShort = UShort(shortVal * x.shortVal);
-    /**
-     * A binary multiply operator (unsigned disambiguation).
-     * @see #operator(UShort)*(UShort)
-     */
-    // @Native("java", "((short) ((#0) * (#1)))")
-    @Native("c++",  "((x10_ushort) ((#0) * (#1)))")
-    public operator (x:Short) * this: UShort = UShort(x * shortVal);
-    /**
-     * A binary multiply operator (unsigned disambiguation).
-     * @see #operator(UShort)*(UShort)
-     */
-    // @Native("java", "((short) ((#0) * (#1)))")
-    @Native("c++",  "((x10_ushort) ((#0) * (#1)))")
-    public operator this * (x:Short): UShort = UShort(shortVal * x);
 
     /**
      * A binary divide operator.
@@ -172,24 +130,6 @@ public struct UShort implements Comparable[UShort] /*TODO implements Arithmetic[
     public operator this / (x:UShort): UShort {
         return UShort(((shortVal as Long) / (x.shortVal as Long)) as Short);
     }
-    /**
-     * A binary divide operator (unsigned disambiguation).
-     * @see #operator(UShort)/(UShort)
-     */
-    // @Native("java", "((short) x10.core.Unsigned.div(#0, #1))")
-    @Native("c++",  "((x10_ushort) ((#0) / x10aux::zeroCheck(#1)))")
-    public operator (x:Short) / this: UShort {
-        return UShort(((x as Long) / (shortVal as Long)) as Short);
-    }
-    /**
-     * A binary divide operator (unsigned disambiguation).
-     * @see #operator(UShort)/(UShort)
-     */
-    // @Native("java", "((short) x10.core.Unsigned.div(#0, #1))")
-    @Native("c++",  "((x10_ushort) ((#0) / x10aux::zeroCheck(#1)))")
-    public operator this / (x:Short): UShort {
-        return UShort(((shortVal as Long) / (x as Long)) as Short);
-    }
 
     /**
      * A binary remainder operator.
@@ -201,24 +141,6 @@ public struct UShort implements Comparable[UShort] /*TODO implements Arithmetic[
     @Native("c++",  "((x10_ushort) ((#0) % x10aux::zeroCheck(#1)))")
     public operator this % (x:UShort): UShort {
         return UShort(((shortVal as Long) % (x.shortVal as Long)) as Short);
-    }
-    /**
-     * A binary remainder operator (unsigned disambiguation).
-     * @see #operator(UShort)%(UShort)
-     */
-    // @Native("java", "((short) x10.core.Unsigned.rem(#0, #1))")
-    @Native("c++",  "((x10_ushort) ((#0) % x10aux::zeroCheck(#1)))")
-    public operator (x:Short) % this: UShort {
-        return UShort(((x as Long) % (shortVal as Long)) as Short);
-    }
-    /**
-     * A binary remainder operator (unsigned disambiguation).
-     * @see #operator(UShort)%(UShort)
-     */
-    // @Native("java", "((short) x10.core.Unsigned.rem(#0, #1))")
-    @Native("c++",  "((x10_ushort) ((#0) % x10aux::zeroCheck(#1)))")
-    public operator this % (x:Short): UShort {
-        return UShort(((shortVal as Long) % (x as Long)) as Short);
     }
 
     /**
@@ -449,7 +371,7 @@ public struct UShort implements Comparable[UShort] /*TODO implements Arithmetic[
      */
     // @Native("java", "((short)(short)(#1))")
     @Native("c++",  "((x10_ushort) (#1))")
-    public static operator (x:Short): UShort = UShort(x);
+    public static operator (x:Short) as UShort = UShort(x);
 
 
     /**
@@ -596,7 +518,7 @@ public struct UShort implements Comparable[UShort] /*TODO implements Arithmetic[
      */
     // @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
-    public def equals(x:Any):Boolean = this.shortVal.equals(x);
+    public def equals(x:Any):Boolean = x instanceof UShort && (x as UShort).shortVal == this.shortVal;
 
     /**
      * Returns true if this UShort is equal to the given UShort.

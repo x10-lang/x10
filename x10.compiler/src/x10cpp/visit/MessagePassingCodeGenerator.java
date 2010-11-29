@@ -30,10 +30,8 @@ import static x10cpp.visit.SharedVarsMethods.CPP_NATIVE_STRING;
 import static x10cpp.visit.SharedVarsMethods.SAVED_THIS;
 import static x10cpp.visit.SharedVarsMethods.SERIALIZATION_BUFFER;
 import static x10cpp.visit.SharedVarsMethods.SERIALIZATION_ID_FIELD;
-import static x10cpp.visit.SharedVarsMethods.SERIALIZATION_MARKER;
 import static x10cpp.visit.SharedVarsMethods.SERIALIZE_BODY_METHOD;
 import static x10cpp.visit.SharedVarsMethods.SERIALIZE_ID_METHOD;
-import static x10cpp.visit.SharedVarsMethods.SERIALIZE_METHOD;
 import static x10cpp.visit.SharedVarsMethods.STRUCT_EQUALS;
 import static x10cpp.visit.SharedVarsMethods.STRUCT_EQUALS_METHOD;
 import static x10cpp.visit.SharedVarsMethods.THIS;
@@ -74,7 +72,6 @@ import polyglot.ast.Catch;
 import polyglot.ast.Catch_c;
 import polyglot.ast.CharLit_c;
 import polyglot.ast.ClassBody_c;
-import polyglot.ast.ClassDecl_c;
 import polyglot.ast.ClassMember;
 import polyglot.ast.Conditional_c;
 import polyglot.ast.ConstructorCall;
@@ -108,7 +105,6 @@ import polyglot.ast.NodeFactory;
 import polyglot.ast.Node_c;
 import polyglot.ast.NullLit_c;
 import polyglot.ast.PackageNode_c;
-import polyglot.ast.Precedence;
 import polyglot.ast.Receiver;
 import polyglot.ast.Return_c;
 import polyglot.ast.Stmt;
@@ -126,7 +122,6 @@ import polyglot.types.ClassType;
 import polyglot.types.CodeInstance;
 import polyglot.types.ConstructorInstance;
 import polyglot.types.Context;
-import polyglot.types.Def_c;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.FunctionDef;
@@ -191,7 +186,6 @@ import x10.ast.X10ClassDecl_c;
 import x10.ast.X10Field_c;
 import x10.ast.X10Formal;
 import x10.ast.X10Instanceof_c;
-import x10.ast.X10IntLit_c;
 import x10.ast.X10Local_c;
 import x10.ast.X10MethodDecl;
 import x10.ast.X10MethodDecl_c;
@@ -205,17 +199,14 @@ import x10.types.ParameterType_c;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10ConstructorInstance;
-import polyglot.types.Context;
 import x10.types.X10Def;
 import x10.types.X10FieldDef;
 import x10.types.X10FieldInstance;
-import x10.types.X10Flags;
 import x10.types.X10LocalDef;
 import x10.types.X10MethodDef;
 import x10.types.X10MethodInstance;
 import x10.types.X10ParsedClassType_c;
 import x10.types.X10TypeMixin;
-import polyglot.types.TypeSystem;
 import x10.types.X10TypeSystem_c;
 import x10.types.X10TypeSystem_c.BaseTypeEquals;
 import x10.types.checker.Converter;
@@ -225,8 +216,8 @@ import x10.visit.X10DelegatingVisitor;
 import x10.util.ClassifiedStream;
 import x10.util.ClosureSynthesizer;
 import x10.util.StreamWrapper;
-import x10.util.Synthesizer;
 import x10cpp.X10CPPCompilerOptions;
+import x10cpp.X10CPPJobExt;
 import x10cpp.types.X10CPPContext_c;
 
 /**
@@ -455,8 +446,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
     	            if (templateMethod)
     	                sw.pushCurrentStream(save_w);
     	            ((X10CPPTranslator)tr).setContext(md.enterScope(context)); // FIXME
-    	            if (query.isMainMethod(md))
-    	                processMain((X10ClassType) cd.asType());
     	            emitter.printTemplateSignature(def.typeParameters(), sw);
     	            emitter.printType(md.returnType().type(), sw);
     	            sw.allowBreak(2, " ");
@@ -609,7 +598,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         }
     }
 
-    private String getHeader(ClassType ct) {
+    public static String getHeader(ClassType ct) {
         String pkg = null;
         if (ct.package_() != null)
             pkg = ct.package_().fullName().toString();
@@ -618,11 +607,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         return header;
     }
 
-    private String getHeaderGuard(String header) {
+    private static String getHeaderGuard(String header) {
         return header.replace('/','_').replace('.','_').replace('$','_').toUpperCase();
     }
 
-    private String getStructHeader(ClassType ct) {
+    private static String getStructHeader(ClassType ct) {
         String classHeader = getHeader(ct);
         classHeader = classHeader.substring(0, classHeader.length()-StreamWrapper.Header.length());
         return classHeader+StreamWrapper.Struct;
@@ -1672,15 +1661,16 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
     }
 
 
-    protected void processMain(X10ClassType container) {
+    public static void processMain(X10ClassType container, CodeWriter sw) {
         X10TypeSystem_c xts = (X10TypeSystem_c) container.typeSystem();
         if (container.isClass())
             container = getStaticMemberContainer(container.x10Def());
         String typeString = xts.isStructType(container) ?
                 Emitter.structMethodClass(container, true, true) :
                     Emitter.translateType(container);
+        sw.write("#include <"+MessagePassingCodeGenerator.getHeader(container)+">"); sw.newline();
         Emitter.dumpString(createMainStub(typeString), sw);
-        sw.forceNewline(0);
+        sw.newline(0);
     }
 
 	public static String createMainStub(String container) {
@@ -1703,16 +1693,17 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		if (flags.isNative())
 			return;
 
-		X10MethodDef def = (X10MethodDef) dec.methodDef();
-		X10MethodInstance mi = (X10MethodInstance) def.asInstance();
+		X10MethodDef def = dec.methodDef();
+		if (query.isMainMethod(def)) {
+		    ((X10CPPJobExt) tr.job().ext()).addMainMethod(def);
+		}
+		X10MethodInstance mi = def.asInstance();
 		X10ClassType container = (X10ClassType) mi.container();
 		ClassifiedStream h = sw.header();
 		if ((container.x10Def().typeParameters().size() != 0) && flags.isStatic()) {
 			context.pendingStaticDecls().add(dec);
 			return;
 		}
-		if (query.isMainMethod(dec))
-		    processMain(container);
 		int mid = getUniqueId_().intValue();
 		if (def.typeParameters().size() != 0) {
 		    sw.pushCurrentStream(context.templateFunctions);
@@ -2633,6 +2624,10 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	}
 
 	public void visit(StmtExpr_c n) {
+	    if (!Configuration.ALLOW_STATEMENT_EXPRESSIONS) {
+	        tr.job().compiler().errorQueue().enqueue(ErrorInfo.SEMANTIC_ERROR,
+	                "Statement expression node encountered, but statement expressions are disabled: ", n.position());
+	    }
 	    sw.write("(__extension__ ({");
 	    sw.newline(4); sw.begin(0);
 	    List<Stmt> stmts = n.statements();
@@ -3332,14 +3327,14 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 	public void visit(IntLit_c n) {
 	    String val;
-	    if (n.kind() == X10IntLit_c.ULONG) {
+	    if (n.kind() == IntLit_c.ULONG) {
 	        if (n.boundary())
 	            val = "0x" + Long.toHexString(n.value()).toUpperCase() + "llu";
 	        else if (n.value() < 0)
 	            val = "0x" + Long.toHexString(n.value()).toUpperCase() + "llu";
 	        else
 	            val = Long.toString(n.value()) + "ull";
-	    } else if (n.kind() == X10IntLit_c.UINT) {
+	    } else if (n.kind() == IntLit_c.UINT) {
 	        if (n.value() >= 0x80000000L)
 	            val = "0x" + Long.toHexString(n.value()).toUpperCase() + "u";
 	        else if (n.boundary())
@@ -4414,7 +4409,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	}
 
 	private boolean inlineClosureCall(ClosureCall_c c, Closure_c closure, List<Expr> args) {
-	    if (!Configuration.CLOSURE_INLINING)
+	    if (!Configuration.ALLOW_STATEMENT_EXPRESSIONS)
 	        return false;   // Closure inlining disabled
 
 	    // Ensure that the last statement of the body is the only return in the closure
@@ -4657,7 +4652,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		Expr expr = n.expr();
 		if (operator == Unary_c.NEG && expr instanceof IntLit) {
 		    IntLit_c lit = (IntLit_c) expr;
-		    IntLit.Kind kind = (lit.kind() == X10IntLit_c.UINT) ? IntLit.INT : ((lit.kind() == X10IntLit_c.ULONG) ? IntLit.LONG : lit.kind());
+		    IntLit.Kind kind = (lit.kind() == IntLit_c.UINT) ? IntLit.INT : ((lit.kind() == IntLit_c.ULONG) ? IntLit.LONG : lit.kind());
 		    n.printSubExpr(lit.value(-lit.longValue()).kind(kind), true, sw, tr);
 		}
 		else if (operator.isPrefix()) {
@@ -4877,7 +4872,12 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		        sw.write(")");
 		    sw.writeln(", "+(count++)+");");
 		}
-		sw.write(tmp+";");
+		sw.write(tmp);
+		if (!Configuration.ALLOW_STATEMENT_EXPRESSIONS) {
+		    // FIXME: HACK around a compiler bug in GCC 4.1
+		    sw.write(".operator->()");
+		}
+		sw.write(";");
 		sw.end(); sw.newline();
 		sw.write("}))");
 	}

@@ -384,18 +384,18 @@ public class StaticInitializer extends ContextVisitor {
     }
 
     private FieldDecl makeFieldVar4Guard(Position pos, Name fName, X10ClassDef classDef) {
-        // make FieldDef of AtomicBoolean
-        ClassType type = (ClassType)xts.AtomicBoolean();
+        // make FieldDef of AtomicInteger
+        ClassType type = (ClassType)xts.AtomicInteger();
         Flags flags = X10Flags.PRIVATE.Static().Final();
 
         Name name = Name.make("initStatus$"+fName);
         FieldDef fd = xts.fieldDef(pos, Types.ref(classDef.asType()), flags, Types.ref(type), name); 
         FieldInstance fi = xts.createFieldInstance(pos, Types.ref(fd));
 
-        // create right hand side: new AtomicBoolean(false)
+        // create right hand side: new AtomicInteger(UNINITIALIZED)
         TypeNode tn = xnf.X10CanonicalTypeNode(pos, type);
         List<Expr> args = new ArrayList<Expr>();
-        args.add(xnf.BooleanLit(pos, false).type(xts.Boolean()));
+        args.add(getInitDispatcherConstant(pos, "UNINITIALIZED").type(xts.Int()));
 
         ConstructorDef cd = xts.defaultConstructor(pos, Types.ref(type)); 
         ConstructorInstance ci = xts.createConstructorInstance(pos, Types.ref(cd));
@@ -479,24 +479,36 @@ public class StaticInitializer extends ContextVisitor {
     private Block makeMethodBody(Position pos, StaticFieldInfo initInfo, FieldDef fdCond, X10ClassDef classDef) {
         TypeNode receiver = xnf.X10CanonicalTypeNode(pos, classDef.asType());
 
-        // gen AtomicBoolean.getAndSet(true)
-        Expr cond = genAtomicGuard(pos, receiver, fdCond);
+        // gen AtomicInteger.compareAndSet(UNINITIALIZED, INITIALIZING)
+        Expr ifCond = genAtomicGuard(pos, receiver, fdCond);
 
         FieldInstance fi = initInfo.fieldDef.asInstance();
         Expr right = initInfo.right;
         Name name = initInfo.fieldDef.name();
         Expr left = xnf.Field(pos, receiver, xnf.Id(pos, name)).fieldInstance(fi).type(right.type());
-        Stmt assignStmt = xnf.Eval(pos, xnf.FieldAssign(pos, receiver, xnf.Id(pos, name), Assign.ASSIGN, 
-                                                       right).fieldInstance(fi).type(right.type()));
+
+        // make statement block
+        List<Stmt> stmts = new ArrayList<Stmt>();
+        stmts.add(xnf.Eval(pos, xnf.FieldAssign(pos, receiver, xnf.Id(pos, name), Assign.ASSIGN, 
+                                                right).fieldInstance(fi).type(right.type())));
+        stmts.add(xnf.Eval(pos, genStatusSet(pos, receiver, fdCond)));
+        stmts.add(xnf.Eval(pos, genBroadCastField(pos, left)));
+        Block ifBody = xnf.Block(pos, stmts);
+
         // gen x10.lang.Runtime.hereInt() == 0
         // TODO place check
         // Expr placeCheck = genPlaceCheckGuard(pos);
 
+        // gen while(AtomicInteger.get() != INITIALIZED) { await(); }
+        Expr whileCond = genCheckInitialized(pos, receiver, fdCond);
+        Block whileBody = xnf.Block(pos, xnf.Eval(pos, genAwait(pos)));
+
         // make statement block
-        List<Stmt> stmts = new ArrayList<Stmt>();
+        stmts =  new ArrayList<Stmt>();
         // TODO place check
         // stmts.add(xnf.If(pos, placeCheck, xnf.If(pos, cond, assignStmt)));
-        stmts.add(xnf.If(pos, cond, assignStmt));
+        stmts.add(xnf.If(pos, ifCond, ifBody));
+        stmts.add(xnf.While(pos, whileCond, whileBody));
         stmts.add(xnf.X10Return(pos, left, false));
         Block body = xnf.Block(pos, stmts);
         return body;
@@ -518,22 +530,105 @@ public class StaticInitializer extends ContextVisitor {
     }
 
     private Expr genAtomicGuard(Position pos, TypeNode receiver, FieldDef fdCond) {
-        Expr ab = xnf.Field(pos, receiver, xnf.Id(pos, fdCond.name())).fieldInstance(fdCond.asInstance());
-        Id gs = xnf.Id(pos, Name.make("getAndSet"));
+        Expr ai = xnf.Field(pos, receiver, xnf.Id(pos, fdCond.name())).fieldInstance(fdCond.asInstance());
+        Id cs = xnf.Id(pos, Name.make("compareAndSet"));
 
         List<Ref<? extends Type>> argTypes = new ArrayList<Ref<? extends Type>>();
-        argTypes.add(Types.ref(xts.Boolean()));
-        MethodDef md = xts.methodDef(pos, Types.ref((ClassType)xts.AtomicBoolean()), 
-                                     Flags.NONE, Types.ref(xts.Boolean()), gs.id(), argTypes);
+        argTypes.add(Types.ref(xts.Int()));
+        argTypes.add(Types.ref(xts.Int()));
+        MethodDef md = xts.methodDef(pos, Types.ref((ClassType)xts.AtomicInteger()), 
+                                     Flags.NONE, Types.ref(xts.Boolean()), cs.id(), argTypes);
         MethodInstance mi = xts.createMethodInstance(pos, Types.ref(md));
 
         List<Expr> args = new ArrayList<Expr>();
-        args.add(xnf.BooleanLit(pos, true).type(xts.Boolean()));
+        args.add(getInitDispatcherConstant(pos, "UNINITIALIZED").type(xts.Int()));
+        args.add(getInitDispatcherConstant(pos, "INITIALIZING").type(xts.Int()));
         List<TypeNode> typeParamNodes = new ArrayList<TypeNode>();
-        typeParamNodes.add(xnf.CanonicalTypeNode(pos, xts.Boolean()));
-        Expr call = xnf.X10Call(pos, ab, gs, typeParamNodes, args).methodInstance(mi).type(xts.Boolean());
-        Expr cond = xnf.Unary(pos, Unary.NOT, call);
-        return cond;
+        typeParamNodes.add(xnf.CanonicalTypeNode(pos, xts.Int()));
+        typeParamNodes.add(xnf.CanonicalTypeNode(pos, xts.Int()));
+        Expr call = xnf.X10Call(pos, ai, cs, typeParamNodes, args).methodInstance(mi).type(xts.Boolean());
+        return call;
+    }
+
+    private Expr genStatusSet(Position pos, TypeNode receiver, FieldDef fdCond) {
+        Expr ai = xnf.Field(pos, receiver, xnf.Id(pos, fdCond.name())).fieldInstance(fdCond.asInstance());
+        Id name = xnf.Id(pos, Name.make("set"));
+
+        List<Ref<? extends Type>> argTypes = new ArrayList<Ref<? extends Type>>();
+        argTypes.add(Types.ref(xts.Int()));
+        MethodDef md = xts.methodDef(pos, Types.ref((ClassType)xts.AtomicInteger()), 
+                                     Flags.NONE, Types.ref(xts.Void()), name.id(), argTypes);
+        MethodInstance mi = xts.createMethodInstance(pos, Types.ref(md));
+
+        List<Expr> args = new ArrayList<Expr>();
+        args.add(getInitDispatcherConstant(pos, "INITIALIZED").type(xts.Int()));
+        List<TypeNode> typeParamNodes = new ArrayList<TypeNode>();
+        typeParamNodes.add(xnf.CanonicalTypeNode(pos, xts.Int()));
+        Expr call = xnf.X10Call(pos, ai, name, typeParamNodes, args).methodInstance(mi).type(xts.Void());
+        return call;
+    }
+
+    private Expr genBroadCastField(Position pos, Expr fieldVar) {
+        Id id = xnf.Id(pos, Name.make("broadcastStaticField"));
+
+        // create MethodDef
+        List<Ref<? extends Type>> argTypes = new ArrayList<Ref<? extends Type>>();
+        argTypes.add(Types.ref(xts.Object()));
+        MethodDef md = xts.methodDef(pos, Types.ref(InitDispatcher()), 
+                                     Flags.NONE, Types.ref(xts.Void()), id.id(), argTypes);
+        MethodInstance mi = xts.createMethodInstance(pos, Types.ref(md));
+
+        // actual arguments
+        List<Expr> args = new ArrayList<Expr>();
+        args.add(fieldVar.type(xts.Object()));
+
+        List<TypeNode> typeParamNodes = new ArrayList<TypeNode>();
+        typeParamNodes.add(xnf.CanonicalTypeNode(pos, xts.Object()));
+        Receiver receiver = xnf.CanonicalTypeNode(pos, InitDispatcher());
+        Expr call = xnf.X10Call(pos, receiver, id, typeParamNodes, args).methodInstance(mi).type(xts.Void());
+        return call;
+    }
+
+    private Expr genCheckInitialized(Position pos, TypeNode receiver, FieldDef fdCond) {
+        Expr ai = xnf.Field(pos, receiver, xnf.Id(pos, fdCond.name())).fieldInstance(fdCond.asInstance());
+        Id name = xnf.Id(pos, Name.make("get"));
+
+        List<Ref<? extends Type>> argTypes = Collections.<Ref<? extends Type>>emptyList();
+        MethodDef md = xts.methodDef(pos, Types.ref((ClassType)xts.AtomicInteger()), 
+                                     Flags.NONE, Types.ref(xts.Int()), name.id(), argTypes);
+        MethodInstance mi = xts.createMethodInstance(pos, Types.ref(md));
+
+        List<Expr> args = Collections.<Expr>emptyList();
+        List<TypeNode> typeParamNodes = Collections.<TypeNode>emptyList();
+        Expr call = xnf.X10Call(pos, ai, name, typeParamNodes, args).methodInstance(mi).type(xts.Int());
+
+        return xnf.Binary(pos, call, Binary.NE, getInitDispatcherConstant(pos, "INITIALIZED").type(xts.Int()));
+    }
+
+    private Expr genAwait(Position pos) {
+        Id id = xnf.Id(pos, Name.make("awaitInitialized"));
+
+        // create MethodDef
+        List<Ref<? extends Type>> argTypes = Collections.<Ref<? extends Type>>emptyList();
+        MethodDef md = xts.methodDef(pos, Types.ref(InitDispatcher()), 
+                                     Flags.NONE, Types.ref(xts.Void()), id.id(), argTypes);
+        MethodInstance mi = xts.createMethodInstance(pos, Types.ref(md));
+
+        // actual arguments
+        List<Expr> args = Collections.<Expr>emptyList();
+        List<TypeNode> typeParamNodes = Collections.<TypeNode>emptyList();
+        Receiver receiver = xnf.CanonicalTypeNode(pos, InitDispatcher());
+        Expr call = xnf.X10Call(pos, receiver, id, typeParamNodes, args).methodInstance(mi).type(xts.Void());
+        return call;
+    }
+
+    private Expr getInitDispatcherConstant(Position pos, String name) {
+        Id id = xnf.Id(pos, Name.make(name));
+        FieldDef fd = xts.fieldDef(pos, Types.ref(InitDispatcher()), 
+                                     Flags.STATIC, Types.ref(xts.Int()), id.id());
+        FieldInstance fi = xts.createFieldInstance(pos, Types.ref(fd));
+        Receiver receiver = xnf.CanonicalTypeNode(pos, InitDispatcher());
+        return xnf.Field(pos, receiver, id).fieldInstance(fi);
     }
 
     private MethodDecl makeFakeInitMethod(Position pos, Name fName, StaticFieldInfo fieldInfo, X10ClassDef classDef) {

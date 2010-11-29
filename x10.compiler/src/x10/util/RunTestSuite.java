@@ -28,6 +28,7 @@ public class RunTestSuite {
 
     // todo: some _MustFailCompile in the test suite cause compiler crashes
     // todo: add support for various options, like testing with STATIC_CALLS/DYNAMIC_CALLS
+    // todo: add an option to compile only files without ERR markers, so we will proceed to codegen and check it correctness.
 
     //_MustFailCompile means the compilation should fail.
     // Inside those files we should have "//.*ERR" markers that we use to test the position of the errors is correct.

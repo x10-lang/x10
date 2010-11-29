@@ -72,17 +72,21 @@ import polyglot.util.Position;
 import polyglot.util.StringUtil;
 import polyglot.visit.Translator;
 import x10.ast.ClosureCall;
+import x10.ast.Closure_c;
 import x10.ast.DepParameterExpr;
 import x10.ast.ParExpr_c;
 import x10.ast.PropertyDecl;
+import x10.ast.SettableAssign;
 import x10.ast.TypeParamNode;
 import x10.ast.X10Call;
+import x10.ast.X10Call_c;
 import x10.ast.X10CanonicalTypeNode;
 import x10.ast.X10ClassDecl;
 import x10.ast.X10ClassDecl_c;
 import x10.ast.X10ConstructorDecl;
 import x10.ast.X10MethodDecl_c;
 import x10.ast.X10NodeFactory_c;
+import x10.ast.X10Return_c;
 import x10.Configuration;
 import x10.config.ConfigurationError;
 import x10.config.OptionError;
@@ -102,36 +106,42 @@ import x10.types.X10TypeMixin;
 import x10.types.checker.Converter;
 import x10.visit.ChangePositionVisitor;
 import x10.visit.X10PrettyPrinterVisitor;
+import x10.visit.X10Translator;
 import x10c.types.BackingArrayType;
 
 public class Emitter {
 
 	CodeWriter w;
 	Translator tr;
+	private final Type imcType;
         
-        private static final Set<String> JAVA_KEYWORDS = new HashSet<String>(
-            Arrays.asList(new String[]{
-                "abstract", "default",  "if",         "private",    "this",
-                "boolean",  "do",       "implements", "protected",  "throw",
-                "break",    "double",   "import",     "public",     "throws",
-                "byte",     "else",     "instanceof", "return",     "transient",
-                "case",     "extends",  "int",        "short",      "try",
-                "catch",    "final",    "interface",  "static",     "void",
-                "char",     "finally",  "long",       "strictfp",   "volatile",
-                "class",    "float",    "native",     "super",      "while",
-                "const",    "for",      "new",        "switch",
-                "continue", "goto",     "package",    "synchronized",
-                "null",     "true",     "false",
-                
-                // X10 implementation names        
-                "getRTT", "_RTT", "getParam"
-                }
-            )
-        );
+	private static final Set<String> JAVA_KEYWORDS = new HashSet<String>(
+	        Arrays.asList(new String[]{
+	                "abstract", "default",  "if",         "private",    "this",
+	                "boolean",  "do",       "implements", "protected",  "throw",
+	                "break",    "double",   "import",     "public",     "throws",
+	                "byte",     "else",     "instanceof", "return",     "transient",
+	                "case",     "extends",  "int",        "short",      "try",
+	                "catch",    "final",    "interface",  "static",     "void",
+	                "char",     "finally",  "long",       "strictfp",   "volatile",
+	                "class",    "float",    "native",     "super",      "while",
+	                "const",    "for",      "new",        "switch",
+	                "continue", "goto",     "package",    "synchronized",
+	                "null",     "true",     "false",
+	                // X10 implementation names        
+	                "getRTT", "_RTT", "getParam"
+	        }
+	        )
+	);
         
 	public Emitter(CodeWriter w, Translator tr) {
 		this.w=w;
 		this.tr=tr;
+		try {
+		    imcType = tr.typeSystem().typeForName(QName.make("x10.util.IndexedMemoryChunk"));
+		} catch (SemanticException e1) {
+		    throw new InternalCompilerError("Something is terribly wrong");
+		}
 	}
 
 	public String mangle(QName name) {
@@ -198,7 +208,165 @@ public class Emitter {
 		Name o = map.get(n);
 		if (o != null)
 			return o;
+
+		String s = n.toString();
+		boolean replace = false;
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < s.length(); i++) {
+		    char c = s.charAt(i);
+		    if (!Character.isJavaIdentifierPart(c)) {
+		        replace = true;
+		        sb.append(translateChar(c));
+		    } else {
+		        sb.append(c);
+		    }
+		}
+		if (replace)
+		    return Name.make(sb.toString());
 		return n;
+	}
+
+	private static final String[] NON_PRINTABLE = {
+	    /* 000 */ "$NUL$",
+	    /* 001 */ "$SOH$",
+	    /* 002 */ "$STX$",
+	    /* 003 */ "$ETX$",
+	    /* 004 */ "$EOT$",
+	    /* 005 */ "$ENQ$",
+	    /* 006 */ "$ACK$",
+	    /* 007 */ "$BEL$",
+	    /* 008 */ "$BS$",
+	    /* 009 */ "$HT$",
+	    /* 010 */ "$LF$",
+	    /* 011 */ "$VT$",
+	    /* 012 */ "$FF$",
+	    /* 013 */ "$CR$",
+	    /* 014 */ "$SO$",
+	    /* 015 */ "$SI$",
+	    /* 016 */ "$DLE$",
+	    /* 017 */ "$DC1$",
+	    /* 018 */ "$DC2$",
+	    /* 019 */ "$DC3$",
+	    /* 020 */ "$DC4$",
+	    /* 021 */ "$NAK$",
+	    /* 022 */ "$SYN$",
+	    /* 023 */ "$ETB$",
+	    /* 024 */ "$CAN$",
+	    /* 025 */ "$EM$",
+	    /* 026 */ "$SUB$",
+	    /* 027 */ "$ESC$",
+	    /* 028 */ "$FS$",
+	    /* 029 */ "$GS$",
+	    /* 030 */ "$RS$",
+	    /* 031 */ "$US$",
+	    /* 032 */ "$SPACE$",
+	    /* 033 */ "$EXCLAMATION$",
+	    /* 034 */ "$QUOTE$",
+	    /* 035 */ "$HASH$",
+	    /* 036 */ null,
+	    /* 037 */ "$PERCENT$",
+	    /* 038 */ "$AMPERSAND$",
+	    /* 039 */ "$APOSTROPHE$",
+	    /* 040 */ "$LPAREN$",
+	    /* 041 */ "$RPAREN$",
+	    /* 042 */ "$STAR$",
+	    /* 043 */ "$PLUS$",
+	    /* 044 */ "$COMMA$",
+	    /* 045 */ "$MINUS$",
+	    /* 046 */ "$DOT$",
+	    /* 047 */ "$SLASH$",
+	    /* 048 */ null,
+	    /* 049 */ null,
+	    /* 050 */ null,
+	    /* 051 */ null,
+	    /* 052 */ null,
+	    /* 053 */ null,
+	    /* 054 */ null,
+	    /* 055 */ null,
+	    /* 056 */ null,
+	    /* 057 */ null,
+	    /* 058 */ "$COLON$",
+	    /* 059 */ "$SEMICOLON$",
+	    /* 060 */ "$LT$",
+	    /* 061 */ "$EQ$",
+	    /* 062 */ "$GT$",
+	    /* 063 */ "$QUESTION$",
+	    /* 064 */ "$AT$",
+	    /* 065 */ null,
+	    /* 066 */ null,
+	    /* 067 */ null,
+	    /* 068 */ null,
+	    /* 069 */ null,
+	    /* 070 */ null,
+	    /* 071 */ null,
+	    /* 072 */ null,
+	    /* 073 */ null,
+	    /* 074 */ null,
+	    /* 075 */ null,
+	    /* 076 */ null,
+	    /* 077 */ null,
+	    /* 078 */ null,
+	    /* 079 */ null,
+	    /* 080 */ null,
+	    /* 081 */ null,
+	    /* 082 */ null,
+	    /* 083 */ null,
+	    /* 084 */ null,
+	    /* 085 */ null,
+	    /* 086 */ null,
+	    /* 087 */ null,
+	    /* 088 */ null,
+	    /* 089 */ null,
+	    /* 090 */ null,
+	    /* 091 */ "$LBRACKET$",
+	    /* 092 */ "$BACKSLASH$",
+	    /* 093 */ "$RBRACKET$",
+	    /* 094 */ "$CARET$",
+	    /* 095 */ null,
+	    /* 096 */ "$BACKQUOTE$",
+	    /* 097 */ null,
+	    /* 098 */ null,
+	    /* 099 */ null,
+	    /* 100 */ null,
+	    /* 101 */ null,
+	    /* 102 */ null,
+	    /* 103 */ null,
+	    /* 104 */ null,
+	    /* 105 */ null,
+	    /* 106 */ null,
+	    /* 107 */ null,
+	    /* 108 */ null,
+	    /* 109 */ null,
+	    /* 110 */ null,
+	    /* 111 */ null,
+	    /* 112 */ null,
+	    /* 113 */ null,
+	    /* 114 */ null,
+	    /* 115 */ null,
+	    /* 116 */ null,
+	    /* 117 */ null,
+	    /* 118 */ null,
+	    /* 119 */ null,
+	    /* 120 */ null,
+	    /* 121 */ null,
+	    /* 122 */ null,
+	    /* 123 */ "$LBRACE$",
+	    /* 124 */ "$BAR$",
+	    /* 125 */ "$RBRACE$",
+	    /* 126 */ "$TILDE$",
+	    /* 127 */ "$DEL$",
+	};
+	private static String translateChar(char c) {
+	    if (c > 127) {
+	        StringBuilder sb = new StringBuilder("\\u");
+	        sb.append(Integer.toHexString(c));
+	        return sb.toString();
+	    }
+	    String s = NON_PRINTABLE[c];
+	    if (s != null) {
+	        return s;
+	    }
+	    return ""+c;
 	}
 
 	public static String mangleToJava(Name name) {
@@ -615,6 +783,12 @@ public class Emitter {
 			}
 		}
 	}
+
+	public boolean isIMC(Type type) {
+        TypeSystem xts = (TypeSystem) tr.typeSystem();
+        Type tbase = X10TypeMixin.baseType(type);
+        return tbase instanceof X10ParsedClassType_c && ((X10ParsedClassType_c) tbase).def().asType().typeEquals(imcType, tr.context());
+    }
 
 	@Deprecated
 	public void generateDispatchers(X10ClassDef cd) {
@@ -1213,12 +1387,12 @@ public class Emitter {
                 sups.add(0, supClassType);
             }
             
-            // FIXME
+            // FIXME need to check storategy for bounds of type parameter
             if (sups.size() > 0) {
                 w.write(" extends ");
                 for (int i = 0; i < sups.size(); ++i) {
                     if (i != 0) w.write(" & ");
-                    printType(sups.get(i), X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS | X10PrettyPrinterVisitor.NO_VARIANCE | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+                    printType(sups.get(i), X10PrettyPrinterVisitor.NO_VARIANCE | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
                 }
             }
             sep = ", ";
@@ -2064,8 +2238,7 @@ public class Emitter {
 	}
 
 	private void javacast(Node parent, Type t, int flags, Expr e) {
-		if (X10PrettyPrinterVisitor.reduce_generic_cast && 
-				(flags & X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS) != 0) {
+		if ((flags & X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS) != 0) {
 			flags -= X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS;
 		}
 		w.write("((");
@@ -2082,8 +2255,7 @@ public class Emitter {
 	}
 
 	private void javacast(Type t, int flags, Expander e) {
-		if (X10PrettyPrinterVisitor.reduce_generic_cast &&
-				(flags & X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS) != 0) {
+		if ((flags & X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS) != 0) {
 			flags -= X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS;
 		}
 		w.write("((");
@@ -2099,8 +2271,7 @@ public class Emitter {
 	}
 
 	private void javacast(Type t, int flags, String e) {
-		if (X10PrettyPrinterVisitor.reduce_generic_cast &&
-				(flags & X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS) != 0) {
+		if ((flags & X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS) != 0) {
 			flags -= X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS;
 		}
 		w.write("((");
@@ -3129,4 +3300,178 @@ public class Emitter {
         w.write("}");
         w.newline();
     }
+
+    public boolean printInlinedCode(X10Call_c c) {
+        TypeSystem xts = tr.typeSystem();
+        Type ttype = X10TypeMixin.baseType(c.target().type());
+        
+        if (isMethodInlineTarget(xts, ttype)) {
+            Type ptype = ((X10ClassType) ttype).typeArguments().get(0);
+            Name methodName = c.methodInstance().name();
+            // e.g. rail.set(a,i) -> ((Object[]) rail.value)[i] = a or ((int[]/* primitive array */)rail.value)[i] = a
+            if (methodName==SettableAssign.SET) {
+                w.write("(");
+                w.write("(");
+                printType(ptype, 0);
+                w.write("[]");
+                w.write(")");
+                c.print(c.target(), w, tr);
+                w.write(".value");
+                w.write(")");
+
+                w.write("[");
+                c.print(c.arguments().get(1), w, tr);
+                w.write("]");
+
+                w.write(" = ");
+                c.print(c.arguments().get(0), w, tr);
+                return true;
+            }
+            // e.g. rail.apply(i) -> ((String)((String[])rail.value)[i]) or ((int[])rail.value)[i]
+            if (methodName==ClosureCall.APPLY) {
+                
+                w.write("(");
+                w.write("(");
+                printType(ptype, 0);
+                w.write("[]");
+                w.write(")");
+                c.print(c.target(), w, tr);
+                w.write(".value");
+                w.write(")");
+
+                w.write("[");
+                c.print(c.arguments().get(0), w, tr);
+                w.write("]");
+
+                return true;
+            }
+        }
+
+        if (xts.isRail(c.target().type())) {
+            String methodName = c.methodInstance().name().toString();
+            if (methodName.equals("make")) {
+                Type rt = X10TypeMixin.baseType(c.type());
+                if (rt instanceof X10ClassType) {
+                    final Type pt = ((X10ClassType) rt).typeArguments().get(0);
+                    if (!(X10TypeMixin.baseType(pt) instanceof ParameterType)) {
+                        // for makeVaxRail(type,length,init);
+                        if (c.arguments().size() == 2 && c.arguments().get(0).type().isNumeric()) {
+                            Expr expr = c.arguments().get(1);
+                            if (expr instanceof Closure_c) {
+                                Closure_c closure = (Closure_c) expr;
+                                final List<Stmt> statements = closure.body().statements();
+                                Translator tr2 = ((X10Translator) tr).inInnerClass(true);
+                                tr2 = tr2.context(expr.enterScope(tr2.context()));
+
+                                final Node n = c;
+                                final Id id = closure.formals().get(0).name();
+                                Expander ex1 = new Expander(this) {
+                                    @Override
+                                    public void expand(Translator tr2) {
+                                        for (Stmt stmt : statements) {
+                                            if (stmt instanceof X10Return_c) {
+                                                w.write("array$");
+                                                w.write("[");
+                                                w.write(id.toString());
+                                                w.write("] = ");
+                                                er.prettyPrint(((X10Return_c) stmt).expr(), tr2);
+                                                w.write(";");
+                                            }
+                                            else {
+                                                er.prettyPrint(stmt, tr2);
+                                            }
+                                        }
+                                    }
+                                };
+
+                                Expander ex2 = new Expander(this) {
+                                    @Override
+                                    public void expand(Translator tr2) {
+                                        printType(pt, 0);
+                                        w.write("[] ");
+                                        w.write("array$ = new ");
+                                        printType(pt, 0);
+                                        w.write("[length$];");
+                                    }
+                                };
+
+                                Object[] components = {
+                                        new TypeExpander(this, c.target().type(), false, true, false),
+                                        new TypeExpander(this, pt, true, true, false),
+                                        new RuntimeTypeExpander(this, pt),
+                                        c.arguments().get(0),
+                                        ex1,
+                                        id,
+                                        ex2
+                                };
+                                dumpRegex("rail-make", components, tr2,
+                                          "(new " + X10PrettyPrinterVisitor.JAVA_IO_SERIALIZABLE + "() {" +
+                                          "final #0<#1> apply(int length$) {" +
+                                          "#6" + 
+                                          "for (int #5$ = 0; #5$ < length$; #5$++) {" +
+                                          "final int #5 = #5$;" +
+                                          "#4" +
+                                          "}" +
+                                          "return new #0<#1>(#2, length$, array$);" +
+                                          "}" +
+                                "}.apply(#3))");
+
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    public boolean isMethodInlineTarget(TypeSystem xts, Type ttype) {
+        ttype = X10TypeMixin.baseType(ttype);
+        return (xts.isRail(ttype) /*|| isIMC(ttype)*/) && !(X10PrettyPrinterVisitor.hasParams(ttype) && xts.isParameterType(((X10ClassType) ttype).typeArguments().get(0)));
+    }
+
+    public boolean printNativeMethodCall(X10Call c) {
+        TypeSystem xts = (TypeSystem) tr.typeSystem();
+        Context context = (Context) tr.context();
+    
+        Receiver target = c.target();
+        Type t = target.type();
+    
+        X10MethodInstance mi = (X10MethodInstance) c.methodInstance();
+        String pat = getJavaImplForDef(mi.x10Def());
+    	if (pat != null) {
+    	    boolean cast = xts.isParameterType(t) || X10PrettyPrinterVisitor.hasParams(t);
+    		CastExpander targetArg = new CastExpander(w, this, target);
+    		if (cast) {
+    		    targetArg = targetArg.castTo(mi.container(), X10PrettyPrinterVisitor.BOX_PRIMITIVES | X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS);
+    		}
+    		List<Type> typeArguments  = Collections.<Type>emptyList();
+    		if (mi.container().isClass() && !mi.flags().isStatic()) {
+    		    X10ClassType ct = (X10ClassType) mi.container().toClass();
+    		    typeArguments = ct.typeArguments();
+    		    if (typeArguments == null) typeArguments = Collections.<Type>emptyList();
+    		}
+    		
+    		List<CastExpander> args = new ArrayList<CastExpander>();
+    		List<Expr> arguments = c.arguments();
+    		for (int i = 0; i < arguments.size(); ++ i) {
+    		    Type ft = c.methodInstance().def().formalTypes().get(i).get();
+    		    Type at = arguments.get(i).type();
+    		    if (X10PrettyPrinterVisitor.isPrimitiveRepedJava(at) && xts.isParameterType(ft)) {
+    		        args.add(new CastExpander(w, this, arguments.get(i)).castTo(at, X10PrettyPrinterVisitor.BOX_PRIMITIVES));
+    		    }
+    		    else if (X10PrettyPrinterVisitor.isPrimitiveRepedJava(at)) {
+    		        args.add(new CastExpander(w, this, arguments.get(i)).castTo(at, 0));
+    		    }
+    		    else {
+    		        args.add(new CastExpander(w, this, arguments.get(i)));                                    
+    		    }
+    		}
+    		emitNativeAnnotation(pat, targetArg, mi.typeParameters(), args, typeArguments);
+    		return true;
+    	}
+    	return false;
+    }
+
 }

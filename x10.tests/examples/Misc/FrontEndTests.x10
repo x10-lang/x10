@@ -539,9 +539,9 @@ class DynamicDispatchingInCtorTest {
 			size = calcSize(x);
 		}
 		@NoThisAccess abstract def calcSize(x:Int):Int;
-		@NonEscaping def useError(i:Int):Void {} // ERR: A @NonEscaping method must be private or final.	
-		@NonEscaping final def use(i:Int):Void {} 
-		@NonEscaping private def useOk2(i:Int):Void {} 
+		@NonEscaping def useError(i:Int):void {} // ERR: A @NonEscaping method must be private or final.	
+		@NonEscaping final def use(i:Int):void {} 
+		@NonEscaping private def useOk2(i:Int):void {} 
 	}
 	class Sub1 extends Super {
 		@NoThisAccess def calcSize(x:Int):Int { return x*2; }
@@ -1128,8 +1128,7 @@ class TestFieldInitForwardRef {
     // We allow default values for:
     //    * a type that can be null  (e.g., Any, closures, but not a struct or Any{self!=null} )
     //    * primitive/basic structs  (user defined structs do not have a default).
-    // includes: Int, Long, ULong, UInt, Float, Double, Boolean, Char
-    // excludes: Short,UShort,Byte,UByte  (because we do not have a literal of that type, there is a jira opened for Charles)
+    // includes: Short,UShort,Byte,UByte, Int, Long, ULong, UInt, Float, Double, Boolean, Char
 class SimpleUserDefinedStructTest {
 	static struct S {
 	  val x:int = 4;
@@ -1145,13 +1144,33 @@ class TestFieldsWithoutDefaults[T] {
 	// generic parameter test
 	var f2:T; // ERR
 
-	// includes: Int, Long, ULong, UInt, Float, Double, Boolean, Char
-	// excludes: Short,UShort,Byte,UByte
-	// primitive private struct tests (when we'll add literals for Short,UShort,Byte,UByte, I should add more tests)
+	// includes: Short,UShort,Byte,UByte, Int, Long, ULong, UInt, Float, Double, Boolean, Char
+	// primitive private struct tests
 	var i1:Int;
 	var i2:Int{self==0};
 	var i3:Int{self!=1};
 	var i4:Int{self!=0}; // ERR
+
+	var y1:Byte;
+	var y2:Byte{self==0y};
+	var y3:Byte{self!=1y};
+	var y4:Byte{self!=0Y}; // ERR
+
+	var s1:Short;
+	var s2:Short{self==0s};
+	var s3:Short{self!=1S};
+	var s4:Short{self!=0s}; // ERR
+
+	var ub1:UByte;
+	var ub2:UByte{self==0yu};
+	var ub3:UByte{self!=1uY};
+	var ub4:UByte{self!=0yu}; // ERR
+
+	var us1:UShort;
+	var us2:UShort{self==0su};
+	var us3:UShort{self!=1us};
+	var us4:UShort{self!=0Su}; // ERR
+
 	var l1:Long;
 	var l2:Long{self==0l};
 	var l3:Long{self!=0l}; // ERR
@@ -1177,7 +1196,6 @@ class TestFieldsWithoutDefaults[T] {
 	var ch1:Char;
 	var ch2:Char{self=='\0'};
 	var ch3:Char{self!='\0'}; // ERR
-	// todo: do tests for Byte, UByte, Short, UShort
 
 	// references (with or without null)
 	var r0:Array[Int{self!=0}];
@@ -1193,7 +1211,7 @@ class TestFieldsWithoutDefaults[T] {
 
 
 	// user-defined private struct examples
-	var s1:UserDefinedStruct; // ERR
+	var definedS1:UserDefinedStruct; // ERR
 
 }
 
@@ -2393,35 +2411,59 @@ class TestOverflows { // see XTENLANG-1774
 	def test() {
 		// todo: more octal tests
 
-		// todo: we need short&byte literals 
+		// equivalence of 0x , 0 and decimal representations
+		val lit1:Byte{self==0xffY} = -1y;
+		val lit2:Byte{self==0377Y} = -1y;
+		val lit3:Byte{self==0xfeY} = -2y;
+		val lit4:Byte{self==0376Y} = -2y;
+		val lit5:UByte{self==0xffUY} = 255uy;
+		val lit6:UByte{self==0xfeYU} = 254yu;
+		val lit7:UByte{self==0377YU} = 255uy;
+		val lit8:UByte{self==0376UY} = 254yu;
+
+		val err1:Byte{self==0xfeY} = -3y; // ERR
+		val err2:UByte{self==0xfeYU} = 253yu; // ERR
+
 		// in HEX
-		//useByte(0x80y); // ShouldNotBeErr
-		//useByte(0x7fy); // ShouldNotBeErr
-		//useShort(0x8000s); // ShouldNotBeErr
-		//useShort(0x7fffs); // ShouldNotBeErr
+		useByte(0x80y); 
+		useByte(0x7fy); 
+		useShort(0x8000s); 
+		useShort(0x7fffs); 
 		// in decimal
-		//useByte(-128y); // ShouldNotBeErr
-		//useByte(127y); // ShouldNotBeErr
-		//useShort(-32768s); // ShouldNotBeErr
-		//useShort(32767s); // ShouldNotBeErr
+		useByte(-129y);  // ERR ERR
+		useByte(-128y); 
+		useByte(127y); 
+		useByte(128y);  // ShouldBeErr
+		useByte(129y);  // ERR
+		useShort(-32769s);  // ERR ERR
+		useShort(-32768s); 
+		useShort(32767s); 
+		useShort(32768s);  // ShouldBeErr
+		useShort(32769s);  // ERR
 		
 		// in HEX
-		//useUByte(0x80yU); // ShouldNotBeErr
-		//useUByte(0x7fUy); // ShouldNotBeErr
-		//useUShort(0x8000Us); // ShouldNotBeErr
-		//useUShort(0x7fffsU); // ShouldNotBeErr
+		useUByte(0x00yU); 
+		useUByte(0xffUy); 
+		useUByte(0x111yU); // ERR
+		useUShort(0x0000Us); 
+		useUShort(0xffffsU); 
+		useUShort(0x11111SU); // ERR
 		// in decimal
-		//useUByte(0yu); // ShouldNotBeErr
-		//useUByte(125uy); // ShouldNotBeErr
-		//useUShort(0su); // ShouldNotBeErr
-		//useUShort(65535us); // ShouldNotBeErr
+		useUByte(0yu); 
+		useUByte(255uy); 
+		useUByte(256uy); // ERR 
+		useUShort(0su); 
+		useUShort(65535us); 
+		useUShort(65536us); // ERR 
 		
 		// Int & Long
 		// in HEX
 		useInt(0x80000000);
 		useInt(0x7fffffff);
+		useInt(0xffffffff); // is negative
 		useLong(0x8000000000000000L);
 		useLong(0x7fffffffffffffffL);
+		useLong(0xffffffffffffffffL);// is negative
 		useInt(0x800000000); // ERR: Integer literal 34359738368 is out of range. (todo: better err message)
 		useLong(0x80000000000000000L); // ShouldBeErr (currently in generates 0L !)
 		// in decimal
@@ -2429,7 +2471,7 @@ class TestOverflows { // see XTENLANG-1774
 		useInt(2147483647);
 		useLong(-9223372036854775808l);
 		useLong(9223372036854775807l);		
-		useInt(-2147483649); // ERR: Integer literal -2147483649 is out of range. (todo: better err message)
+		useInt(-2147483649); // ERR ERR: Integer literal -2147483649 is out of range. (todo: better err message)
 		useInt(2147483648); // ShouldBeErr
 		useLong(-9223372036854775809l); // ShouldBeErr
 		useLong(9223372036854775808l); // ShouldBeErr
@@ -2567,159 +2609,159 @@ class TestLoopLocalIsVal {
 
 class LegalCoercionsBetweenJavaNumerics {
 	// Checked and it is consistent with java
-//  float w0=0;
-//	double w1=0;
+//	float f=0;
+//	double d=0;
 //
-//	byte w2=0;
-//	int w3=0;
-//	long w4=0;
-//	short w5=0;
-	var w0:Float=0;
-	var w1:Double=0;
+//	byte b=0;
+//	int i=0;
+//	long l=0;
+//	short s=0;
+	var f:Float=0;
+	var d:Double=0;
 
-	var w2:Byte=0;
-	var w3:Int=0;
-	var w4:Long=0;
-	var w5:Short=0;
+	var b:Byte=0;
+	var i:Int=0;
+	var l:Long=0;
+	var s:Short=0;
 
 	def test() {
-		w0 = w1; // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenJavaNumerics.this.w1		 Expected type: x10.lang.Float		 Found type: x10.lang.Double)
-		w0 = w2;
-		w0 = w3;
-		w0 = w4;
-		w0 = w5;
-		w1 = w0;
-		w1 = w2;
-		w1 = w3;
-		w1 = w4;
-		w1 = w5;
-		w2 = w0; // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenJavaNumerics.this.w0		 Expected type: x10.lang.Byte		 Found type: x10.lang.Float)
-		w2 = w1; // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenJavaNumerics.this.w1		 Expected type: x10.lang.Byte		 Found type: x10.lang.Double)
-		w2 = w3; // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenJavaNumerics.this.w3		 Expected type: x10.lang.Byte		 Found type: x10.lang.Int)
-		w2 = w4; // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenJavaNumerics.this.w4		 Expected type: x10.lang.Byte		 Found type: x10.lang.Long)
-		w2 = w5; // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenJavaNumerics.this.w5		 Expected type: x10.lang.Byte		 Found type: x10.lang.Short)
-		w3 = w0; // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenJavaNumerics.this.w0		 Expected type: x10.lang.Int		 Found type: x10.lang.Float)
-		w3 = w1; // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenJavaNumerics.this.w1		 Expected type: x10.lang.Int		 Found type: x10.lang.Double)
-		w3 = w2;
-		w3 = w4; // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenJavaNumerics.this.w4		 Expected type: x10.lang.Int		 Found type: x10.lang.Long)
-		w3 = w5;
-		w4 = w0; // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenJavaNumerics.this.w0		 Expected type: x10.lang.Long		 Found type: x10.lang.Float)
-		w4 = w1; // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenJavaNumerics.this.w1		 Expected type: x10.lang.Long		 Found type: x10.lang.Double)
-		w4 = w2;
-		w4 = w3;
-		w4 = w5;
-		w5 = w0; // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenJavaNumerics.this.w0		 Expected type: x10.lang.Short		 Found type: x10.lang.Float)
-		w5 = w1; // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenJavaNumerics.this.w1		 Expected type: x10.lang.Short		 Found type: x10.lang.Double)
-		w5 = w2;
-		w5 = w3; // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenJavaNumerics.this.w3		 Expected type: x10.lang.Short		 Found type: x10.lang.Int)
-		w5 = w4; // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenJavaNumerics.this.w4		 Expected type: x10.lang.Short		 Found type: x10.lang.Long)
+		f = d; // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenJavaNumerics.this.d		 Expected type: x10.lang.Float		 Found type: x10.lang.Double)
+		f = b;
+		f = i;
+		f = l;
+		f = s;
+		d = f;
+		d = b;
+		d = i;
+		d = l;
+		d = s;
+		b = f; // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenJavaNumerics.this.f		 Expected type: x10.lang.Byte		 Found type: x10.lang.Float)
+		b = d; // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenJavaNumerics.this.d		 Expected type: x10.lang.Byte		 Found type: x10.lang.Double)
+		b = i; // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenJavaNumerics.this.i		 Expected type: x10.lang.Byte		 Found type: x10.lang.Int)
+		b = l; // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenJavaNumerics.this.l		 Expected type: x10.lang.Byte		 Found type: x10.lang.Long)
+		b = s; // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenJavaNumerics.this.s		 Expected type: x10.lang.Byte		 Found type: x10.lang.Short)
+		i = f; // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenJavaNumerics.this.f		 Expected type: x10.lang.Int		 Found type: x10.lang.Float)
+		i = d; // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenJavaNumerics.this.d		 Expected type: x10.lang.Int		 Found type: x10.lang.Double)
+		i = b;
+		i = l; // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenJavaNumerics.this.l		 Expected type: x10.lang.Int		 Found type: x10.lang.Long)
+		i = s;
+		l = f; // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenJavaNumerics.this.f		 Expected type: x10.lang.Long		 Found type: x10.lang.Float)
+		l = d; // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenJavaNumerics.this.d		 Expected type: x10.lang.Long		 Found type: x10.lang.Double)
+		l = b;
+		l = i;
+		l = s;
+		s = f; // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenJavaNumerics.this.f		 Expected type: x10.lang.Short		 Found type: x10.lang.Float)
+		s = d; // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenJavaNumerics.this.d		 Expected type: x10.lang.Short		 Found type: x10.lang.Double)
+		s = b;
+		s = i; // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenJavaNumerics.this.i		 Expected type: x10.lang.Short		 Found type: x10.lang.Int)
+		s = l; // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenJavaNumerics.this.l		 Expected type: x10.lang.Short		 Found type: x10.lang.Long)
 	}
 }
 class LegalCoercionsBetweenAllNumerics {	
-	var w0:Float=0;
-	var w1:Double=0;
+	var f:Float=0;
+	var d:Double=0;
 
-	var w2:Byte=0;
-	var w3:Int=0;
-	var w4:Long=0;
-	var w5:Short=0;
+	var b:Byte=0;
+	var i:Int=0;
+	var l:Long=0;
+	var s:Short=0;
 
-	var w6:UByte=0;
-	var w7:UInt=0;
-	var w8:ULong=0;
-	var w9:UShort=0;
+	var ub:UByte=0;
+	var ui:UInt=0;
+	var ul:ULong=0;
+	var us:UShort=0;
 
 	def test() {
-		w0 = w1;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w1		 Expected type: x10.lang.Float		 Found type: x10.lang.Double)
-		w0 = w2;
-		w0 = w3;
-		w0 = w4;
-		w0 = w5;
-		w0 = w6;
-		w0 = w7;
-		w0 = w8;
-		w0 = w9;
-		w1 = w0;
-		w1 = w2;
-		w1 = w3;
-		w1 = w4;
-		w1 = w5;
-		w1 = w6;
-		w1 = w7;
-		w1 = w8;
-		w1 = w9;
-		w2 = w0;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w0		 Expected type: x10.lang.Byte		 Found type: x10.lang.Float)
-		w2 = w1;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w1		 Expected type: x10.lang.Byte		 Found type: x10.lang.Double)
-		w2 = w3;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w3		 Expected type: x10.lang.Byte		 Found type: x10.lang.Int)
-		w2 = w4;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w4		 Expected type: x10.lang.Byte		 Found type: x10.lang.Long)
-		w2 = w5;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w5		 Expected type: x10.lang.Byte		 Found type: x10.lang.Short)
-		w2 = w6;
-		w2 = w7;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w7		 Expected type: x10.lang.Byte		 Found type: x10.lang.UInt)
-		w2 = w8;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w8		 Expected type: x10.lang.Byte		 Found type: x10.lang.ULong)
-		w2 = w9;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w9		 Expected type: x10.lang.Byte		 Found type: x10.lang.UShort)
-		w3 = w0;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w0		 Expected type: x10.lang.Int		 Found type: x10.lang.Float)
-		w3 = w1;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w1		 Expected type: x10.lang.Int		 Found type: x10.lang.Double)
-		w3 = w2;
-		w3 = w4;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w4		 Expected type: x10.lang.Int		 Found type: x10.lang.Long)
-		w3 = w5;
-		w3 = w6;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w6		 Expected type: x10.lang.Int		 Found type: x10.lang.UByte)
-		w3 = w7;
-		w3 = w8;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w8		 Expected type: x10.lang.Int		 Found type: x10.lang.ULong)
-		w3 = w9;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w9		 Expected type: x10.lang.Int		 Found type: x10.lang.UShort)
-		w4 = w0;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w0		 Expected type: x10.lang.Long		 Found type: x10.lang.Float)
-		w4 = w1;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w1		 Expected type: x10.lang.Long		 Found type: x10.lang.Double)
-		w4 = w2;
-		w4 = w3;
-		w4 = w5;
-		w4 = w6;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w6		 Expected type: x10.lang.Long		 Found type: x10.lang.UByte)
-		w4 = w7;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w7		 Expected type: x10.lang.Long		 Found type: x10.lang.UInt)
-		w4 = w8;
-		w4 = w9;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w9		 Expected type: x10.lang.Long		 Found type: x10.lang.UShort)
-		w5 = w0;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w0		 Expected type: x10.lang.Short		 Found type: x10.lang.Float)
-		w5 = w1;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w1		 Expected type: x10.lang.Short		 Found type: x10.lang.Double)
-		w5 = w2;
-		w5 = w3;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w3		 Expected type: x10.lang.Short		 Found type: x10.lang.Int)
-		w5 = w4;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w4		 Expected type: x10.lang.Short		 Found type: x10.lang.Long)
-		w5 = w6;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w6		 Expected type: x10.lang.Short		 Found type: x10.lang.UByte)
-		w5 = w7;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w7		 Expected type: x10.lang.Short		 Found type: x10.lang.UInt)
-		w5 = w8;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w8		 Expected type: x10.lang.Short		 Found type: x10.lang.ULong)
-		w5 = w9;
-		w6 = w0;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w0		 Expected type: x10.lang.UByte		 Found type: x10.lang.Float)
-		w6 = w1;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w1		 Expected type: x10.lang.UByte		 Found type: x10.lang.Double)
-		w6 = w2;
-		w6 = w3;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w3		 Expected type: x10.lang.UByte		 Found type: x10.lang.Int)
-		w6 = w4;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w4		 Expected type: x10.lang.UByte		 Found type: x10.lang.Long)
-		w6 = w5;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w5		 Expected type: x10.lang.UByte		 Found type: x10.lang.Short)
-		w6 = w7;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w7		 Expected type: x10.lang.UByte		 Found type: x10.lang.UInt)
-		w6 = w8;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w8		 Expected type: x10.lang.UByte		 Found type: x10.lang.ULong)
-		w6 = w9;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w9		 Expected type: x10.lang.UByte		 Found type: x10.lang.UShort)
-		w7 = w0;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w0		 Expected type: x10.lang.UInt		 Found type: x10.lang.Float)
-		w7 = w1;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w1		 Expected type: x10.lang.UInt		 Found type: x10.lang.Double)
-		w7 = w2;
-		w7 = w3;
-		w7 = w4;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w4		 Expected type: x10.lang.UInt		 Found type: x10.lang.Long)
-		w7 = w5;
-		w7 = w6;
-		w7 = w8;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w8		 Expected type: x10.lang.UInt		 Found type: x10.lang.ULong)
-		w7 = w9;
-		w8 = w0;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w0		 Expected type: x10.lang.ULong		 Found type: x10.lang.Float)
-		w8 = w1;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w1		 Expected type: x10.lang.ULong		 Found type: x10.lang.Double)
-		w8 = w2;
-		w8 = w3;
-		w8 = w4;
-		w8 = w5;
-		w8 = w6;
-		w8 = w7;
-		w8 = w9;
-		w9 = w0;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w0		 Expected type: x10.lang.UShort		 Found type: x10.lang.Float)
-		w9 = w1;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w1		 Expected type: x10.lang.UShort		 Found type: x10.lang.Double)
-		w9 = w2;
-		w9 = w3;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w3		 Expected type: x10.lang.UShort		 Found type: x10.lang.Int)
-		w9 = w4;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w4		 Expected type: x10.lang.UShort		 Found type: x10.lang.Long)
-		w9 = w5;
-		w9 = w6;
-		w9 = w7;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w7		 Expected type: x10.lang.UShort		 Found type: x10.lang.UInt)
-		w9 = w8;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.w8		 Expected type: x10.lang.UShort		 Found type: x10.lang.ULong)
+		f = d;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.d		 Expected type: x10.lang.Float		 Found type: x10.lang.Double)
+		f = b;
+		f = i;
+		f = l;
+		f = s;
+		f = ub;
+		f = ui;
+		f = ul;
+		f = us;
+		d = f;
+		d = b;
+		d = i;
+		d = l;
+		d = s;
+		d = ub;
+		d = ui;
+		d = ul;
+		d = us;
+		b = f;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.f		 Expected type: x10.lang.Byte		 Found type: x10.lang.Float)
+		b = d;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.d		 Expected type: x10.lang.Byte		 Found type: x10.lang.Double)
+		b = i;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.i		 Expected type: x10.lang.Byte		 Found type: x10.lang.Int)
+		b = l;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.l		 Expected type: x10.lang.Byte		 Found type: x10.lang.Long)
+		b = s;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.s		 Expected type: x10.lang.Byte		 Found type: x10.lang.Short)
+		b = ub;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.ui		 Expected type: x10.lang.Byte		 Found type: x10.lang.UByte)
+		b = ui;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.ui		 Expected type: x10.lang.Byte		 Found type: x10.lang.UInt)
+		b = ul;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.ul		 Expected type: x10.lang.Byte		 Found type: x10.lang.ULong)
+		b = us;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.us		 Expected type: x10.lang.Byte		 Found type: x10.lang.UShort)
+		i = f;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.f		 Expected type: x10.lang.Int		 Found type: x10.lang.Float)
+		i = d;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.d		 Expected type: x10.lang.Int		 Found type: x10.lang.Double)
+		i = b;
+		i = l;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.l		 Expected type: x10.lang.Int		 Found type: x10.lang.Long)
+		i = s;
+		i = ub;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.ub		 Expected type: x10.lang.Int		 Found type: x10.lang.UByte)
+		i = ui;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.ul		 Expected type: x10.lang.Int		 Found type: x10.lang.UInt)
+		i = ul;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.ul		 Expected type: x10.lang.Int		 Found type: x10.lang.ULong)
+		i = us;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.us		 Expected type: x10.lang.Int		 Found type: x10.lang.UShort)
+		l = f;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.f		 Expected type: x10.lang.Long		 Found type: x10.lang.Float)
+		l = d;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.d		 Expected type: x10.lang.Long		 Found type: x10.lang.Double)
+		l = b;
+		l = i;
+		l = s;
+		l = ub;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.ub		 Expected type: x10.lang.Long		 Found type: x10.lang.UByte)
+		l = ui;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.ui		 Expected type: x10.lang.Long		 Found type: x10.lang.UInt)
+		l = ul;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.us		 Expected type: x10.lang.Long		 Found type: x10.lang.ULong)
+		l = us;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.us		 Expected type: x10.lang.Long		 Found type: x10.lang.UShort)
+		s = f;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.f		 Expected type: x10.lang.Short		 Found type: x10.lang.Float)
+		s = d;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.d		 Expected type: x10.lang.Short		 Found type: x10.lang.Double)
+		s = b;
+		s = i;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.i		 Expected type: x10.lang.Short		 Found type: x10.lang.Int)
+		s = l;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.l		 Expected type: x10.lang.Short		 Found type: x10.lang.Long)
+		s = ub;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.ub		 Expected type: x10.lang.Short		 Found type: x10.lang.UByte)
+		s = ui;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.ui		 Expected type: x10.lang.Short		 Found type: x10.lang.UInt)
+		s = ul;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.ul		 Expected type: x10.lang.Short		 Found type: x10.lang.ULong)
+		s = us;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.ul		 Expected type: x10.lang.Short		 Found type: x10.lang.UShort)
+		ub = f;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.f		 Expected type: x10.lang.UByte		 Found type: x10.lang.Float)
+		ub = d;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.d		 Expected type: x10.lang.UByte		 Found type: x10.lang.Double)
+		ub = b;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.i		 Expected type: x10.lang.UByte		 Found type: x10.lang.Byte)
+		ub = i;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.i		 Expected type: x10.lang.UByte		 Found type: x10.lang.Int)
+		ub = l;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.l		 Expected type: x10.lang.UByte		 Found type: x10.lang.Long)
+		ub = s;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.s		 Expected type: x10.lang.UByte		 Found type: x10.lang.Short)
+		ub = ui;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.ui		 Expected type: x10.lang.UByte		 Found type: x10.lang.UInt)
+		ub = ul;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.ul		 Expected type: x10.lang.UByte		 Found type: x10.lang.ULong)
+		ub = us;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.us		 Expected type: x10.lang.UByte		 Found type: x10.lang.UShort)
+		ui = f;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.f		 Expected type: x10.lang.UInt		 Found type: x10.lang.Float)
+		ui = d;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.d		 Expected type: x10.lang.UInt		 Found type: x10.lang.Double)
+		ui = b;
+		ui = i;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.l		 Expected type: x10.lang.UInt		 Found type: x10.lang.Int)
+		ui = l;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.l		 Expected type: x10.lang.UInt		 Found type: x10.lang.Long)
+		ui = s;
+		ui = ub;
+		ui = ul;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.ul		 Expected type: x10.lang.UInt		 Found type: x10.lang.ULong)
+		ui = us;
+		ul = f;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.f		 Expected type: x10.lang.ULong		 Found type: x10.lang.Float)
+		ul = d;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.d		 Expected type: x10.lang.ULong		 Found type: x10.lang.Double)
+		ul = b;
+		ul = i;
+		ul = l;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.d		 Expected type: x10.lang.ULong		 Found type: x10.lang.Long)
+		ul = s;
+		ul = ub;
+		ul = ui;
+		ul = us;
+		us = f;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.f		 Expected type: x10.lang.UShort		 Found type: x10.lang.Float)
+		us = d;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.d		 Expected type: x10.lang.UShort		 Found type: x10.lang.Double)
+		us = b;
+		us = i;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.i		 Expected type: x10.lang.UShort		 Found type: x10.lang.Int)
+		us = l;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.l		 Expected type: x10.lang.UShort		 Found type: x10.lang.Long)
+		us = s;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.l		 Expected type: x10.lang.UShort		 Found type: x10.lang.Short)
+		us = ub;
+		us = ui;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.ui		 Expected type: x10.lang.UShort		 Found type: x10.lang.UInt)
+		us = ul;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.ul		 Expected type: x10.lang.UShort		 Found type: x10.lang.ULong)
 	}
 }
 class OperatorTestCases { // XTENLANG-2084
@@ -3261,10 +3303,30 @@ class TestDuplicateClass { // XTENLANG-2132
 	// static class A(v:Int) {}  // ShouldBeErr (causes a crash: AssertionError: TestDuplicateClass.A->TestDuplicateClass.A x10.types.X10ParsedClassType_c is already in the cache; cannot replace with TestDuplicateClass.A x10.types.X10ParsedClassType_c)
 }
 
-class CustomSerializeIsNotTypeSafe {
+class TestSerialization {
+class TestAt {
+	var i:Int{self!=0};
+	def this() { // ERR: Semantic Error: Field 'i' was not definitely assigned.
+		at (here.next()) i=2;
+	}
+}
+class TestSerialize {
+	var i:Int{self!=0};
+	def this() {
+		at (here.next()) this.set(3);
+	    this.set(2);
+	}
+	private def set(x:Int{self!=0}) { i=x; }
+	public def serialize():SerialData {
+		assert i!=0; // will fail, because we haven't written anything to "i" yet!
+		return new SerialData(i,null); // here we read here the value of "i" though it wasn't set yet
+	}
+}
+
+class ClosureAndSerialize {
     val x = 2;    
 	val BigD = Dist.makeBlock((0..10)*(0..10), 0);
-    val A = DistArray.make[Double](BigD,(p:Point)=>1.0*this.x); // "this" is serialized before it is completely initialized
+    val A = DistArray.make[Double](BigD,(p:Point)=>1.0*this.x);
     val k:Int{self!=0} = 3;
 
     public def serialize():SerialData {
@@ -3272,8 +3334,9 @@ class CustomSerializeIsNotTypeSafe {
 		assert k==3; // will fail when used on multiple places
 		return new SerialData(1,null);
 	}
+}
+}
 
-    public static def main(Array[String]) {
-        new CustomSerializeIsNotTypeSafe();
-    }
+class XTENLANG_2142 implements CustomSerialization { // ShouldBeErr: missing ctor "def this(SerialData)"
+	public def serialize():SerialData= null;
 }

@@ -102,6 +102,15 @@ namespace x10 {
             }
         }
 
+        void IMC_copyBody(void *srcAddr, void *dstAddr, x10_int numBytes, bool overlap) {
+            if (overlap) {
+                // potentially overlapping, use memmove
+                memmove(dstAddr, srcAddr, numBytes);
+            } else {
+                memcpy(dstAddr, srcAddr, numBytes);
+            }
+        }
+        
         void* IMC_buffer_finder(deserialization_buffer& buf, x10_int ) {
             void *dstAddr = (void*)(size_t)buf.read<x10_long>();
             return dstAddr;

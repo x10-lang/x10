@@ -575,11 +575,12 @@ abstract class FinishState {
         }
         private def this(data:SerialData) { 
             super(data.superclassData.data as GlobalRef[FinishState]);
-            reducer = data.data as Reducible[T];
+            val tmpReducer = data.data as Reducible[T];
+            reducer = tmpReducer;
             if (ref.home.id == Runtime.hereInt()) {
                 me = (ref as GlobalRef[FinishState]{home==here})();
             } else {
-                me = Runtime.runtime().finishStates.apply(ref, ()=>new RemoteCollectingFinish[T](ref, reducer));
+                me = Runtime.runtime().finishStates.apply(ref, ()=>new RemoteCollectingFinish[T](ref, tmpReducer));
             }
         }
         public def serialize():SerialData = new SerialData(reducer, super.serialize());

@@ -74,7 +74,7 @@ class Activity {
     /**
      * The user-specified code for this activity.
      */
-    private val body:()=>Void;
+    private val body:()=>void;
 
     /**
      * The mapping from registered clocks to phases for this activity.
@@ -95,14 +95,14 @@ class Activity {
     /**
      * Create activity.
      */
-    def this(body:()=>Void, finishState:FinishState, safe:Boolean) {
+    def this(body:()=>void, finishState:FinishState, safe:Boolean) {
         this.finishState = finishState;
         this.safe = safe;
         finishState.notifyActivityCreation();
         this.body = body;
     }
 
-    def this(body:()=>Void, finishState:FinishState) {
+    def this(body:()=>void, finishState:FinishState) {
         this.finishState = finishState;
         this.safe = true;
         finishState.notifyActivityCreation();
@@ -112,7 +112,7 @@ class Activity {
     /**
      * Create clocked activity.
      */
-    def this(body:()=>Void, finishState:FinishState, clockPhases:ClockPhases) {
+    def this(body:()=>void, finishState:FinishState, clockPhases:ClockPhases) {
         this(body, finishState, false);
         this.clockPhases = clockPhases;
     }
@@ -160,7 +160,7 @@ class Activity {
     /**
      * Run activity.
      */
-    def run():Void {
+    def run():void {
         try {
             body();
         } catch (t:Throwable) {

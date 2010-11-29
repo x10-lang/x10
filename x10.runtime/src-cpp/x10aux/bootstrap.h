@@ -142,7 +142,7 @@ namespace x10aux {
                 x10aux::ref<StaticInitClosure>(new (x10aux::alloc<x10::lang::VoidFun_0_0>(sizeof(x10aux::StaticInitClosure)))
                                                x10aux::StaticInitClosure());
 
-            // Construct closure to invoke the user's "public static def main(Array[String]) : Void"
+            // Construct closure to invoke the user's "public static def main(Array[String]) : void"
             // if at place 0 otherwise wait for asyncs.
             x10aux::ref<x10::lang::VoidFun_0_0> main_closure =
                 x10aux::ref<BootStrapClosure>(new (x10aux::alloc<x10::lang::VoidFun_0_0>(sizeof(x10aux::BootStrapClosure)))

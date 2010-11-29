@@ -76,7 +76,7 @@ public class GenOpTestCases {
 
         for (String res : types)
             for (String expr : exprs)
-                lines.add("\tdef m"+(c++)+"():Void { var l:"+res+" = "+expr+"; }");        
+                lines.add("\tdef m"+(c++)+"():void { var l:"+res+" = "+expr+"; }");        
 
         lines.add("}");
         AutoGenSentences.writeFile(output,lines);

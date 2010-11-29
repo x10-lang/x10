@@ -341,7 +341,7 @@ public class RuntimeType<T> implements Type<T> {
                 str += ((Any) o).getParam(i).typeName();
             }
         }
-        str += ")=>Void";
+        str += ")=>void";
         return str;
     }
     protected final String typeNameForOthers(Object o) {

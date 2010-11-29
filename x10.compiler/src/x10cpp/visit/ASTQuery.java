@@ -41,7 +41,6 @@ import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
 import polyglot.types.ClassType;
-import polyglot.types.Context;
 import polyglot.types.Name;
 import polyglot.types.NoClassException;
 import polyglot.types.QName;
@@ -60,10 +59,12 @@ import x10.ast.X10CanonicalTypeNode_c;
 import x10.extension.X10Ext;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
+import x10.types.X10MethodDef;
 import x10.types.X10MethodInstance;
 import x10.types.X10TypeMixin;
 import polyglot.types.TypeSystem;
 import x10.types.X10TypeSystem_c;
+import x10.util.HierarchyUtils;
 import x10cpp.Configuration;
 import x10cpp.types.X10CPPContext_c;
 
@@ -95,35 +96,8 @@ public class ASTQuery {
         return false;
     }
 
-    private static boolean seenMain = false; // FIXME: non-reentrant
-    private static boolean warnedAboutMain = false; // FIXME: non-reentrant
-    boolean isMainMethod(MethodDecl dec) {
-        final TypeSystem ts = (TypeSystem) dec.returnType().type().typeSystem();
-        X10ClassType container = (X10ClassType) dec.methodDef().asInstance().container();
-        Context context = tr.context();
-        assert (container.isClass());
-        boolean result =
-            (Configuration.MAIN_CLASS == null ||
-                    container.fullName().toString().equals(Configuration.MAIN_CLASS)) &&
-            dec.name().toString().equals("main") &&
-            dec.flags().flags().isPublic() &&
-            dec.flags().flags().isStatic() &&
-            dec.returnType().type().isVoid() &&
-            (dec.formals().size() == 1) &&
-            ts.isSubtype(((Formal)dec.formals().get(0)).type().type(),
-                         ts.Array(ts.String()),
-                         context);
-        if (result) {
-            boolean dash_c = tr.job().extensionInfo().getOptions().post_compiler == null;
-            if (seenMain && !warnedAboutMain && !dash_c && Configuration.MAIN_CLASS == null) {
-                tr.job().compiler().errorQueue().enqueue(ErrorInfo.SEMANTIC_ERROR,
-                                                         "Multiple main() methods encountered.  " +
-                                                         "Please specify MAIN_CLASS.");
-                warnedAboutMain = true;
-            }
-            seenMain = true;
-        }
-        return result;
+    public boolean isMainMethod(X10MethodDef md) {
+        return HierarchyUtils.isMainMethod(md, tr.context());
     }
 
     boolean hasAnnotation(Node dec, String name) {

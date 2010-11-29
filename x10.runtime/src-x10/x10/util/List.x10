@@ -14,7 +14,7 @@ package x10.util;
 public interface List[T] extends Collection[T], Indexed[T], Settable[Int,T] {
   public def indices(): List[Int];
   
-  public def addBefore(i: Int, T): Void;
+  public def addBefore(i: Int, T): void;
   public def removeAt(i: Int): T;
   public def indexOf(T): Int;
   public def lastIndexOf(T): Int;
@@ -29,9 +29,9 @@ public interface List[T] extends Collection[T], Indexed[T], Settable[Int,T] {
   public def getFirst(): T;
   public def getLast(): T;
 
-  public def reverse(): Void;
+  public def reverse(): void;
   
-  public def sort() {T <: Comparable[T]} : Void;
-  public def sort(cmp: (T,T)=>Int): Void;
-  // public def sort(lessThan: (T,T)=>Boolean): Void;
+  public def sort() {T <: Comparable[T]} : void;
+  public def sort(cmp: (T,T)=>Int): void;
+  // public def sort(lessThan: (T,T)=>Boolean): void;
 }

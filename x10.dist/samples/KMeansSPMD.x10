@@ -96,9 +96,9 @@ public class KMeansSPMD {
 
                         val start_time = System.currentTimeMillis();
 
-                        var compute_time:ULong = 0;
-                        var comm_time:ULong = 0;
-                        var barrier_time:ULong = 0;
+                        var compute_time:Long = 0;
+                        var comm_time:Long = 0;
+                        var barrier_time:Long = 0;
 
                         team.barrier(role);
 

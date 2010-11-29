@@ -137,7 +137,6 @@ import x10.ast.X10FloatLit_c;
 import x10.ast.X10Formal_c;
 import x10.ast.X10If_c;
 import x10.ast.X10Instanceof_c;
-import x10.ast.X10IntLit_c;
 import x10.ast.X10LocalDecl_c;
 import x10.ast.X10Local_c;
 import x10.ast.X10Loop_c;
@@ -237,7 +236,7 @@ public class X10DelegatingVisitor {
 		if (n instanceof Local_c) { visit((Local_c)n); return; }
 		if (n instanceof X10StringLit_c) { visit((X10StringLit_c)n); return; }
 		if (n instanceof StringLit_c) { visit((StringLit_c)n); return; }
-		if (n instanceof X10IntLit_c) { visit((X10IntLit_c)n); return; }
+		if (n instanceof IntLit_c) { visit((IntLit_c)n); return; }
 		if (n instanceof IntLit_c) { visit((IntLit_c)n); return; }
 		if (n instanceof X10CharLit_c) { visit((X10CharLit_c)n); return; }
 		if (n instanceof CharLit_c) { visit((CharLit_c)n); return; }
@@ -358,7 +357,6 @@ public class X10DelegatingVisitor {
 						public void visit(CharLit_c n) { visit((NumLit_c)n); }
 							public void visit(X10CharLit_c n) { visit((CharLit_c)n); }
 						public void visit(IntLit_c n) { visit((NumLit_c)n); }
-							public void visit(X10IntLit_c n) { visit((IntLit_c)n); }
 					public void visit(StringLit_c n) { visit((Lit_c)n); }
 						public void visit(X10StringLit_c n) { visit((StringLit_c)n); }
 				public void visit(Local_c n) { visit((Expr_c)n); }

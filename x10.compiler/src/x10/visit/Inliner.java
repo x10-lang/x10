@@ -133,7 +133,7 @@ public class Inliner extends ContextVisitor {
 
     private final boolean INLINE_CONSTANTS = Configuration.INLINE_CONSTANTS;
     private final boolean INLINE_METHODS   = Configuration.INLINE_METHODS;
-    private final boolean INLINE_CLOSURES  = Configuration.INLINE_CLOSURES && x10.Configuration.CLOSURE_INLINING;
+    private final boolean INLINE_CLOSURES  = Configuration.INLINE_CLOSURES && x10.Configuration.ALLOW_STATEMENT_EXPRESSIONS;
     private final boolean INLINE_IMPLICIT  = Configuration.INLINE_METHODS_IMPLICIT;
     
     private static final boolean DEBUG = false;
@@ -880,8 +880,8 @@ public class Inliner extends ContextVisitor {
                     }
                     // TODO reconstruct the AST for the job will all preliminary compiler passes
                     ast = job.ast();
-     //             assert (ast instanceof X10SourceFile_c);
-     //             if (!((X10SourceFile_c) ast).hasBeenTypeChecked())
+                    assert (ast instanceof X10SourceFile_c);
+                    if (!((X10SourceFile_c) ast).hasBeenTypeChecked())
                         ast = ast.visit(new X10TypeChecker(job, ts, nf, job.nodeMemo()).begin());
                     if (null == ast) {
                         debug("Unable to reconstruct AST for " + job, null);

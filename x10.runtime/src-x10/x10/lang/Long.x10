@@ -272,7 +272,7 @@ public struct Long implements Comparable[Long] /*TODO implements Arithmetic[Long
      */
     @Native("java", "((long)(#1.longVal))")
     @Native("c++",  "((x10_long) (#1))")
-    public native static operator (x:ULong): Long;
+    public native static operator (x:ULong) as Long;
 
 
     /**

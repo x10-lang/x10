@@ -9,7 +9,29 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-/*
- * Empty header file for NativeRep class that doesn't require a
- * C++ implementation
+import harness.x10Test;
+
+/**
+
  */
+
+class XTENLANG_732 extends x10Test {
+
+	class A {
+		def this(x:Int){this.x=x;}
+		var x:Int=0;
+		operator this()=x;
+		operator this()=(v:Int) { this.x=v;}
+	}
+
+	public def run(): boolean {
+		val v = new A(1);
+		v() = 2;
+		return v()==2;
+	
+	}
+
+    public static def main(Array[String](1)) {
+        new XTENLANG_732().execute();
+    }
+}

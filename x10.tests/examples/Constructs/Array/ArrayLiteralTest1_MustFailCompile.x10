@@ -61,7 +61,7 @@ public class ArrayLiteralTest1_MustFailCompile extends x10Test {
 	static class A {}
 
 
-    public static def main(Array[String](1)): Void = {
+    public static def main(Array[String](1)): void = {
         new ArrayLiteralTest1_MustFailCompile().execute();
     }
 }

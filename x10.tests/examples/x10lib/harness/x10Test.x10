@@ -119,7 +119,7 @@ abstract public class x10Test {
            return noErr;
         }
 
-        public abstract def test() : Void;
+        public abstract def test() : void;
 
         public val errors : List[String] = new ArrayList[String]();
 

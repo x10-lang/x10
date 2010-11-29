@@ -22,7 +22,7 @@ public class StringWriter extends Writer {
     	this.b = new StringBuilder(); 
     }
 
-    @Global public def write(x:Byte): Void { 
+    @Global public def write(x:Byte): void { 
         b.add((x as Byte) as Char);
     }
 
@@ -42,7 +42,7 @@ public class StringWriter extends Writer {
     		(root as GlobalRef[StringWriter]{self.home==here})().b.result();
     }
     
-    @Global public def flush(): Void { }
-    @Global public def close(): Void { }
+    @Global public def flush(): void { }
+    @Global public def close(): void { }
 }
 

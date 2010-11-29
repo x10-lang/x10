@@ -94,6 +94,14 @@
             if (printTokens) printValue(startOffset, endOffset);
         }
 
+        final void makeQuotedIdentifier()
+        {
+            int startOffset = getLeftSpan()+1,
+                endOffset = getRightSpan()-1;
+            makeX10Token(startOffset, endOffset, $_IDENTIFIER);
+            if (printTokens) printValue(startOffset, endOffset);
+        }
+
         public $action_type(java.io.Reader reader, String filename) throws java.io.IOException
         {
             this(reader, filename, ECLIPSE_TAB_VALUE);
@@ -143,8 +151,12 @@
     DocComment
     IntegerLiteral
     LongLiteral
+    ByteLiteral
+    ShortLiteral
     UnsignedIntegerLiteral
     UnsignedLongLiteral
+    UnsignedByteLiteral
+    UnsignedShortLiteral
     FloatingPointLiteral
     DoubleLiteral
     PseudoDoubleLiteral
@@ -262,6 +274,11 @@
                     checkForX10KeyWord();
           $EndAction
         ./
+    Token ::= '`' QuotedIdentifierBody '`'
+        /.$BeginAction
+                    makeQuotedIdentifier();
+          $EndAction
+        ./
     Token ::= '"' SLBody '"'
         /.$BeginAction
                     makeToken($_StringLiteral);
@@ -282,6 +299,16 @@
                     makeToken($_LongLiteral);
           $EndAction
         ./
+    Token ::= ByteLiteral
+        /.$BeginAction
+                    makeToken($_ByteLiteral);
+          $EndAction
+        ./
+    Token ::= ShortLiteral
+        /.$BeginAction
+                    makeToken($_ShortLiteral);
+          $EndAction
+        ./
     Token ::= UnsignedIntegerLiteral
         /.$BeginAction
                     makeToken($_UnsignedIntegerLiteral);
@@ -290,6 +317,16 @@
     Token ::= UnsignedLongLiteral
         /.$BeginAction
                     makeToken($_UnsignedLongLiteral);
+          $EndAction
+        ./
+    Token ::= UnsignedByteLiteral
+        /.$BeginAction
+                    makeToken($_UnsignedByteLiteral);
+          $EndAction
+        ./
+    Token ::= UnsignedShortLiteral
+        /.$BeginAction
+                    makeToken($_UnsignedShortLiteral);
           $EndAction
         ./
     Token ::= FloatingPointLiteral
@@ -604,11 +641,21 @@
                     | '0' LetterXx HexDigits
 
     LongLiteral ::= IntegerLiteral LetterLl
+
+    ByteLiteral ::= IntegerLiteral LetterYy
+
+    ShortLiteral ::= IntegerLiteral LetterSs
     
     UnsignedIntegerLiteral ::= IntegerLiteral LetterUu
 
     UnsignedLongLiteral -> IntegerLiteral LetterUu LetterLl
                          | IntegerLiteral LetterLl LetterUu
+
+    UnsignedByteLiteral -> IntegerLiteral LetterUu LetterYy
+                         | IntegerLiteral LetterYy LetterUu
+
+    UnsignedShortLiteral -> IntegerLiteral LetterUu LetterSs
+                         | IntegerLiteral LetterSs LetterUu
 
     FloatingPointLiteral -> Decimal LetterFf
                           | Decimal Exponent LetterFf
@@ -649,6 +696,9 @@
 
     SLC ::= '/' '/'
           | SLC NotEol
+
+    QuotedIdentifierBody -> %empty
+                          | QuotedIdentifierBody NotBQ
 
     SLBody -> %empty
             | SLBody NotDQ
@@ -706,7 +756,13 @@
 
     LetterLl -> 'L'
               | 'l'
-              
+
+    LetterYy -> 'Y'
+              | 'y'
+
+    LetterSs -> 'S'
+              | 's'
+
     LetterUu -> 'U'
               | 'u'
 
@@ -732,11 +788,15 @@
                        '%' | '&' | '^' | ':' | ';' | "'" | '\' | '|' | '{' | '}' |
                        '[' | ']' | '?' | ',' | '.' | '<' | '>' | '=' | '#'
 
-    SpecialNotDQ -> '+' | '-' | '/' | '(' | ')' | '*' | '!' | '@' | '`' | '~' |
-                    '%' | '&' | '^' | ':' | ';' | "'" | '|' | '{' | '}' |
+    SpecialNotDQ -> '+' | '-' | '*' | '(' | ')' | "'" | '!' | '@' | '`' | '~' |
+                    '%' | '&' | '^' | ':' | ';' | '/' | '|' | '{' | '}' |
                     '[' | ']' | '?' | ',' | '.' | '<' | '>' | '=' | '#'
 
     SpecialNotSQ -> '+' | '-' | '*' | '(' | ')' | '"' | '!' | '@' | '`' | '~' |
+                    '%' | '&' | '^' | ':' | ';' | '/' | '|' | '{' | '}' |
+                    '[' | ']' | '?' | ',' | '.' | '<' | '>' | '=' | '#'
+
+    SpecialNotBQ -> '+' | '-' | '*' | '(' | ')' | '"' | '!' | '@' | "'" | '~' |
                     '%' | '&' | '^' | ':' | ';' | '/' | '|' | '{' | '}' |
                     '[' | ']' | '?' | ',' | '.' | '<' | '>' | '=' | '#'
 
@@ -777,6 +837,16 @@
            | '\' u HexDigit HexDigit HexDigit HexDigit
            | '\' OctalDigits3
 
+    NotBQ -> Letter
+           | Digit
+           | SpecialNotBQ
+           | Space
+           | HT
+           | FF
+           | EscapeSequence
+           | '\' u HexDigit HexDigit HexDigit HexDigit
+           | '\' OctalDigits3
+
     EscapeSequence -> '\' b
                     | '\' t
                     | '\' n
@@ -784,6 +854,7 @@
                     | '\' r
                     | '\' '"'
                     | '\' "'"
+                    | '\' '`'
                     | '\' '\'
 
      --- X10 Tokens

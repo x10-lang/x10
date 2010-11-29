@@ -21,9 +21,7 @@ import java.util.Map;
 import polyglot.ast.Binary;
 import polyglot.ast.Call;
 import polyglot.ast.Expr;
-import polyglot.ast.Field;
 import polyglot.ast.IntLit;
-import polyglot.ast.Local;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.TypeNode;
@@ -50,7 +48,6 @@ import x10.types.X10TypeSystem_c;
 import x10.types.checker.Checker;
 import x10.types.checker.Converter;
 import x10.types.checker.PlaceChecker;
-import x10.visit.X10TypeChecker;
 
 /**
  * An immutable representation of a unary operation op Expr.
@@ -95,13 +92,10 @@ public class X10Unary_c extends Unary_c {
         Unary.Operator op = this.operator();
 
         if (op == NEG && expr instanceof IntLit) {
-            IntLit.Kind kind = 
-                ((IntLit) expr).kind();
-            if (kind == IntLit.INT || kind == X10IntLit_c.UINT)
-                kind = IntLit.INT;
-            else
-                kind = IntLit.LONG;
-            IntLit lit = nf.IntLit(position(), kind, -((IntLit) expr).longValue());
+            final IntLit intLit = (IntLit) expr;
+            IntLit.Kind kind =
+                intLit.kind();
+            IntLit lit = nf.IntLit(position(), kind, -intLit.longValue());
             try {
                 return Converter.check(lit, tc);
             } catch (SemanticException e) {

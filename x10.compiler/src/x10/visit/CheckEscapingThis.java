@@ -226,6 +226,9 @@ public class CheckEscapingThis extends NodeVisitor
                         @Override public NodeVisitor enter(Node n) {
                             if (n instanceof Field) {
                                 final Field f = (Field) n;
+                                // todo: remove this. Also check that "this" or it's fields are not captured by an AtStmt or AtExpr ClosureDef.capturedEnvironment();
+//                                if (isTargetThis(f)) {reportError("Cannot access fields of 'this' in a closure during construction", n.position());
+//                                    if (true) return this; }
                                 if (isTargetThis(f) && !isWrite(inItem.initStatus.get(f.fieldInstance().def()))) {
                                     reportError("Cannot read from field '"+ f.name()+"' before it is definitely assigned.",n.position());
                                     wasError = true;
@@ -234,6 +237,8 @@ public class CheckEscapingThis extends NodeVisitor
                             if (n instanceof X10Call) {
                                 MethodInfo info = getInfo((X10Call) n);
                                 if (info!=null) {
+//                                    reportError("Cannot call methods of 'this' in a closure during construction", n.position());
+//                                    if (true) return this;
                                     for (FieldDef def : info.read) {
                                         if (!isWrite( inItem.initStatus.get(def))) {
                                             reportError("The method call reads from field '"+ def.name()+"' before it is definitely assigned.",n.position());

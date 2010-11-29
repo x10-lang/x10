@@ -39,56 +39,38 @@ import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.LazyRef_c;
 import polyglot.types.MemberInstance;
-import polyglot.types.MethodDef;
 import polyglot.types.MethodInstance;
 import polyglot.types.Name;
-import polyglot.types.ProcedureDef;
 import polyglot.types.ProcedureInstance;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
-import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
-import polyglot.types.TypeSystem_c.MethodMatcher;
 import polyglot.types.Types;
 import polyglot.types.UnknownType;
 import polyglot.types.QName;
-import polyglot.types.Def;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
-import polyglot.util.ErrorQueue;
 import polyglot.util.ErrorInfo;
 import polyglot.visit.ContextVisitor;
 import polyglot.frontend.Job;
-import polyglot.frontend.ExtensionInfo;
 import x10.ast.Here;
 import x10.ast.ParExpr;
 import x10.ast.SemanticError;
 import x10.ast.SubtypeTest;
-import x10.ast.X10IntLit_c;
-import x10.ast.X10StringLit_c;
-import x10.ast.Async;
-import x10.ast.AnnotationNode;
-import x10.ast.X10CanonicalTypeNode_c;
 import x10.ast.HasZeroTest;
 import x10.constraint.XFailure;
 import x10.constraint.XLit;
-import x10.constraint.XName;
 import x10.constraint.XNameWrapper;
 import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.errors.Errors;
-import x10.errors.Warnings;
 import x10.types.constraints.CConstraint;
-import x10.types.constraints.DepthBoundReached;
 import x10.types.constraints.TypeConstraint;
 import x10.types.constraints.XConstrainedTerm;
 import x10.types.constraints.SubtypeConstraint;
 import x10.types.matcher.Matcher;
-import x10.types.matcher.X10NamelessMethodMatcher;
-import x10.extension.X10Del;
-import x10.visit.X10TypeChecker;
 
 /** 
  * Utilities for dealing with X10 dependent types.
@@ -1232,17 +1214,11 @@ public class X10TypeMixin {
         XLit zeroLit = null;  // see Lit_c.constantValue() in its decendants
         if (t.isBoolean()) {
             zeroLit = XTerms.FALSE;
-            // todo: add literals for short, byte, and their unsigned versions
-        } else if (ts.isShort(t)) {
-        } else if (ts.isUShort(t)) {
-        } else if (ts.isByte(t)) {
-        } else if (ts.isUByte(t)) {
-
         } else if (ts.isChar(t)) {
             zeroLit = XTerms.ZERO_CHAR;
-        } else if (ts.isInt(t) || ts.isUInt(t) || ts.isULong(t)) {
+        } else if (ts.isInt(t) || ts.isByte(t) || ts.isUByte(t) || ts.isShort(t) || ts.isUShort(t)) {
             zeroLit = XTerms.ZERO_INT;
-        } else if (ts.isLong(t)) {
+        } else if (ts.isUInt(t) || ts.isULong(t) || ts.isLong(t)) {
             zeroLit = XTerms.ZERO_LONG;
         } else if (ts.isFloat(t)) {
             zeroLit = XTerms.ZERO_FLOAT;
@@ -1308,22 +1284,25 @@ public class X10TypeMixin {
             if (t.isBoolean()) {
                 e = nf.BooleanLit(p, false);
 
-            // todo: add literals for short, byte, and their unsigned versions
             } else if (ts.isShort(t)) {
+                e = nf.IntLit(p, IntLit.SHORT, 0L);
             } else if (ts.isUShort(t)) {
+                e = nf.IntLit(p, IntLit.USHORT, 0L);
             } else if (ts.isByte(t)) {
+                e = nf.IntLit(p, IntLit.BYTE, 0L);
             } else if (ts.isUByte(t)) {
+                e = nf.IntLit(p, IntLit.UBYTE, 0L);
                 
             } else if (ts.isChar(t)) {
                 e = nf.CharLit(p, '\0');
             } else if (ts.isInt(t)) {
-                e = nf.IntLit(p, X10IntLit_c.INT, 0L);
+                e = nf.IntLit(p, IntLit.INT, 0L);
             } else if (ts.isUInt(t)) {
-                e = nf.IntLit(p, X10IntLit_c.UINT, 0L);
+                e = nf.IntLit(p, IntLit.UINT, 0L);
             } else if (ts.isLong(t)) {
-                e = nf.IntLit(p, X10IntLit_c.LONG, 0L);
+                e = nf.IntLit(p, IntLit.LONG, 0L);
             } else if (ts.isULong(t)) {
-                e = nf.IntLit(p, X10IntLit_c.ULONG, 0L);
+                e = nf.IntLit(p, IntLit.ULONG, 0L);
             } else if (ts.isFloat(t)) {
                 e = nf.FloatLit(p, FloatLit.FLOAT, 0.0);
             } else if (ts.isDouble(t)) {
@@ -1336,7 +1315,7 @@ public class X10TypeMixin {
                 //receiver = (TypeNode) receiver.del().typeCheck(tc).checkConstants(tc);
                 e = nf.X10Call(p,receiver, nf.Id(p,"get"),Collections.singletonList(typeNode), Collections.<Expr>emptyList());
 
-//                IntLit lit = nf.IntLit(p, X10IntLit_c.INT, 0L);
+//                IntLit lit = nf.IntLit(p, IntLit_c.INT, 0L);
 //                lit = (IntLit) lit.del().typeCheck(tc).checkConstants(tc);
 //                e = nf.Cast(p,typeNode, lit);
             }

@@ -20,6 +20,6 @@ public interface ListIterator[T] extends CollectionIterator[T] {
     public def previous():T;
     public def previousIndex(): Int;
 
-    public def set(T): Void;
-    public def add(T): Void;
+    public def set(T): void;
+    public def add(T): void;
 }

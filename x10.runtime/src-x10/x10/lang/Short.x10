@@ -272,7 +272,7 @@ public struct Short implements Comparable[Short] /*TODO implements Arithmetic[Sh
      */
     @Native("java", "((short)(#1.shortVal))")
     @Native("c++",  "((x10_short) (#1))")
-    public native static operator (x:UShort): Short;
+    public native static operator (x:UShort) as Short;
 
 
     /**

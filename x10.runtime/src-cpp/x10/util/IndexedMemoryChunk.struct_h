@@ -15,6 +15,10 @@
 #define X10_MIN_INDEXEDMEMORYCHUNK_ALIGNMENT ((x10_int)sizeof(x10_double))
 #endif
 
+#define X10_UTIL_REMOTEINDEXEDMEMORYCHUNK_NODEPS
+#include <x10/util/RemoteIndexedMemoryChunk.struct_h>
+#undef X10_UTIL_REMOTEINDEXEDMEMORYCHUNK_NODEPS
+
 namespace x10 {
     namespace util { 
 
@@ -29,13 +33,15 @@ namespace x10 {
             x10aux::itable_entry* _getIBoxITables() { return _iboxitables; }
     
             x10_ulong data; /* TODO: We would like this to be const */
+            x10_int len; /* TODO: we would like this to be const */ /* TODO, this should be an x10_long */
+            x10_int length() { return len; } 
             T *raw (void) const { return (T*)(size_t)data; }
             T &operator[] (int index) { return raw()[index]; }
             const T &operator[] (int index) const { return raw()[index]; }
 
-            IndexedMemoryChunk(): data(0) {}
-            IndexedMemoryChunk(T* _data): data((size_t)_data) {}
-            IndexedMemoryChunk(x10_ulong _data): data(_data) {}
+            IndexedMemoryChunk(): data(0), len(0) {}
+            IndexedMemoryChunk(T* _data, x10_int _len): data((size_t)_data), len(_len) {}
+            IndexedMemoryChunk(x10_ulong _data, x10_int _len): data(_data), len(_len) {}
 
             inline T apply(x10_int index) { return raw()[index]; }
             inline T apply(x10_long index) { return raw()[index]; }
@@ -43,23 +49,6 @@ namespace x10 {
             inline void set(T val, x10_int index) { raw()[index] = val; }
             inline void set(T val, x10_long index) { raw()[index] = val; }
     
-
-    	    void copyTo(x10_int srcIndex, x10::lang::Place dstPlace,
-                        x10::util::IndexedMemoryChunk<T> dst,
-                        x10_int dstIndex, x10_int numElems);
-
-    	    void copyFrom(x10_int dstIndex, x10::lang::Place srcPlace,
-                          x10::util::IndexedMemoryChunk<T> src,
-                          x10_int srcIndex, x10_int numElems);
-
-    	    void copyTo(x10_int srcIndex, x10::lang::Place dstPlace,
-                        x10::util::IndexedMemoryChunk<T> dst,
-                        x10_int dstIndex, x10_int numElems, x10aux::ref<x10::lang::Reference> notif);
-
-    	    void copyFrom(x10_int dstIndex, x10::lang::Place srcPlace,
-                          x10::util::IndexedMemoryChunk<T> src,
-                          x10_int srcIndex, x10_int numElems, x10aux::ref<x10::lang::Reference> notif);
-
             x10::util::IndexedMemoryChunk<T>* operator->() { return this; }
         
             static void _serialize(x10::util::IndexedMemoryChunk<T> this_, x10aux::serialization_buffer& buf);
@@ -84,17 +73,8 @@ namespace x10 {
     
             x10_int hashCode() { return (x10_int)data; }
 
-	    x10_boolean at(x10aux::ref<x10::lang::Object> obj) { return true; }
-            x10_boolean at(x10::lang::Place place) { return true; }
-
-            x10::lang::Place home() {
-	        /* NOTE: Should probably call Place_methods::make, but don't want to include Place.h */
-	        x10::lang::Place tmp; tmp->FMGL(id)=x10aux::here; return tmp;
-	    }
-
             x10aux::ref<x10::lang::String> typeName();
         };
-
 
         template <> class IndexedMemoryChunk<void> {
           private:
@@ -122,6 +102,29 @@ namespace x10 {
                 assert(((x10_long)((size_t)numElements)) == numElements); // check for alloc requests >31 bits on 32 bit system
                 return allocInternal<T>((size_t)numElements, alignment, pinned, zeroed);
             }
+
+            template<class T> static void asyncCopy(x10::util::IndexedMemoryChunk<T> src, x10_int srcIndex,
+                                                    x10::util::RemoteIndexedMemoryChunk<T> dst, x10_int dstIndex,
+                                                    x10_int numElems);
+
+            template<class T> static void asyncCopy(x10::util::IndexedMemoryChunk<T> src, x10_int srcIndex,
+                                                    x10::util::RemoteIndexedMemoryChunk<T> dst, x10_int dstIndex,
+                                                    x10_int numElems,
+                                                    x10aux::ref<x10::lang::Reference> notif);
+
+
+            template<class T> static void asyncCopy(x10::util::RemoteIndexedMemoryChunk<T> src, x10_int srcIndex,
+                                                    x10::util::IndexedMemoryChunk<T> dst, x10_int dstIndex,
+                                                    x10_int numElems);
+
+            template<class T> static void asyncCopy(x10::util::RemoteIndexedMemoryChunk<T> src, x10_int srcIndex,
+                                                    x10::util::IndexedMemoryChunk<T> dst, x10_int dstIndex,
+                                                    x10_int numElems,
+                                                    x10aux::ref<x10::lang::Reference> notif);
+
+            template<class T> static void copy(x10::util::IndexedMemoryChunk<T> src, x10_int srcIndex,
+                                               x10::util::IndexedMemoryChunk<T> dst, x10_int dstIndex,
+                                               x10_int numElems);
         };
 
 
@@ -143,7 +146,7 @@ namespace x10 {
             size_t alignDelta = alignment-1;
             size_t alignMask = ~alignDelta;
             size_t alignedMem = ((size_t)allocMem + alignDelta) & alignMask;
-            return IndexedMemoryChunk<T>((T*)alignedMem);
+            return IndexedMemoryChunk<T>((T*)alignedMem, (x10_int)numElements);
         }
     }
 } 
