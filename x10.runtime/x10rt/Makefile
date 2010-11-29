@@ -32,7 +32,7 @@ COMMON_OBJS     = common/x10rt_front.o common/x10rt_logical.o common/x10rt_cuda.
 # Include JNI bindings in x10rt if we can find a JDK unless cross-compiling for BGP
 ifndef ENABLE_CROSS_COMPILE_BGP
 ifdef JNI_INCLUDES
-  COMMON_OBJS += jni/jni_x10rt.o jni/jni_message.o
+  COMMON_OBJS += jni/jni_x10rt.o jni/jni_message.o jni/jni_team.o jni/jni_helpers.o
 endif
 endif
 
@@ -113,6 +113,8 @@ common/x10rt_logical.o: include/x10rt_net.h include/x10rt_cuda.h
 common/x10rt_logical.o: common/x10rt_internal.h include/x10rt_ser.h
 jni/jni_message.o: include/x10rt_front.h
 jni/jni_message.o: include/x10rt_types.h
+jni/jni_team.o: include/x10_x10rt_TeamSupport.h include/x10rt_front.h
+jni/jni_team.o: include/x10rt_types.h
 jni/jni_x10rt.o: include/x10_x10rt_X10RT.h include/x10rt_front.h
 jni/jni_x10rt.o: include/x10rt_types.h
 mpi/x10rt_mpi.o: include/x10rt_net.h include/x10rt_types.h

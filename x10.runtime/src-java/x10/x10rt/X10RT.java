@@ -44,13 +44,13 @@ public class X10RT {
 
       // TODO: For now we are not trying to plumb the command line arguments from
       //       the program's main method into X10RT.  We really can't easily do this
-      //       unless we change this code to be run via an explicit static method in
+      //       until we change this code to be run via an explicit static method in
       //       X10RT instead of doing it in the class initializer.  
-      //       Consider whether or not we should make this change....
 
       x10rt_init(0, null);
 
       MessageHandlers.initializeMessageHandlers();
+      TeamSupport.initializeTeamSupport();
 
       here = x10rt_here();
       numPlaces = x10rt_nplaces();
@@ -69,32 +69,13 @@ public class X10RT {
 
       state = State.BOOTED;
     }
-    
-    /**
-     * This is a blocking call.
-     * All places must participate, and nobody returns from the call
-     * until every place has entered.
-     */
-    public static void barrier() {
-      assert state.compareTo(State.BOOTED) >= 0;
-      x10rt_barrier();
-    }
-
-    /**
-     * This is a blocking call.
-     * Returns when all outstanding communication operations on this Place locally complete.
-     */
-    public static void fence() {
-      assert state.compareTo(State.BOOTED) >= 0;
-      x10rt_remote_op_fence();
-    }
 
     /**
      * This is a non-blocking call.
      * Checks network for incoming messages and returns.
      */
     public static void probe() {
-        assert state.compareTo(State.BOOTED) >= 0;
+        assert isBooted();
         x10rt_probe();
     }
 
@@ -103,7 +84,7 @@ public class X10RT {
      * @return the numeric id of the current Place.
      */
     public static int here() {
-      assert state.compareTo(State.BOOTED) >= 0;
+      assert isBooted();
       return here;
     }
 
@@ -112,7 +93,7 @@ public class X10RT {
      * @return the number of places in the computation.
      */
     public static int numPlaces() {
-      assert state.compareTo(State.BOOTED) >= 0;
+      assert isBooted();
       return numPlaces;
     }
 
@@ -133,24 +114,8 @@ public class X10RT {
      * Native method exported from x10rt_front.h that are related to Places
      */
     private static native int x10rt_nplaces();
-    
-    private static native int x10rt_nhosts();
-    
+        
     private static native int x10rt_here();
-    
-    private static native boolean x10rt_is_host(int place);
-    
-    private static native boolean x10rt_is_cuda(int place);
-    
-    private static native boolean x10rt_is_spe(int place);
-    
-    private static native int x10rt_parent(int place);
-    
-    private static native int x10rt_nchildren(int place);
-    
-    private static native int x10rt_child(int host, int index);
-    
-    private static native int x10rt_child_index(int child);
     
     /*
      * Subset of x10rt_front.h API related to messages that actually needs
@@ -158,9 +123,5 @@ public class X10RT {
      * in the native code backing the native methods of MessageHandlers.
      */
     private static native void x10rt_probe();
-    
-    private static native void x10rt_remote_op_fence();
-    
-    private static native void x10rt_barrier();
     
 }

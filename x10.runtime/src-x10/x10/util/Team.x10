@@ -57,7 +57,8 @@ public struct Team {
     }
 
     private static def nativeMake (places:IndexedMemoryChunk[Place], count:Int, result:IndexedMemoryChunk[Int]) : void {
-        @Native("c++", "x10rt_team_new(count, (x10rt_place*)places->raw(), x10aux::coll_handler2, x10aux::coll_enter2(result->raw()));") {}
+        @Native("c++", "x10rt_team_new(count, (x10rt_place*)places->raw(), x10aux::coll_handler2, x10aux::coll_enter2(result->raw()));") 
+        @Native("java", "x10.x10rt.TeamSupport.nativeMake(places, count, result);"){}
     }
 
     /** Returns the number of elements in the team.
