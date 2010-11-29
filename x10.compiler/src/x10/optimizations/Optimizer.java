@@ -66,8 +66,13 @@ public class Optimizer {
     private List<Goal> goals() {
         List<Goal> goals = new ArrayList<Goal>();
         if (x10.Configuration.LOOP_OPTIMIZATIONS) {
-            goals.add(LoopUnrolling());
-            goals.add(ForLoopOptimizations());
+            if (x10.Configuration.EXPERIMENTAL) {
+                goals.add(ForLoopOptimizations());
+                goals.add(LoopUnrolling());
+            } else {
+                goals.add(LoopUnrolling());
+                goals.add(ForLoopOptimizations());
+            }
         }
         if (INLINING()) {
             goals.add(Inliner());
