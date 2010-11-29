@@ -1088,6 +1088,15 @@ class SuperCallTest extends SuperTest22 {
 	}
 }
 
+class TestOverLoadingWithLiterals {
+	static def f(Byte)=1;
+	static def f(Int)=2;
+	public static def main(Array[String]) {
+		val i1:Int{self==1} = f(1y);
+		val i2:Int{self==2} = f(1);
+		if (i1!=1 || i2!=2) throw new Exception("Failed");
+	}
+}
 class TestFieldInitForwardRef {
 	val Y:Int = this.X;
 	static val X:Int = 2;
