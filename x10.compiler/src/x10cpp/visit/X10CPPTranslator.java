@@ -93,6 +93,7 @@ import x10.types.X10TypeSystem_c;
 import x10.util.ClassifiedStream;
 import x10.util.StreamWrapper;
 import x10.util.WriterStreams;
+import x10.visit.StaticNestedClassRemover;
 import x10cpp.Configuration;
 import x10cpp.X10CPPCompilerOptions;
 import x10cpp.X10CPPJobExt;
@@ -525,9 +526,15 @@ public class X10CPPTranslator extends Translator {
 	private static List<MethodDef> getMainMethods(Job job) {
 	    X10CPPJobExt jobext = (X10CPPJobExt) job.ext();
 	    if (Configuration.MAIN_CLASS != null) {
+	        QName mainClass = QName.make(Configuration.MAIN_CLASS);
+	        try {
+	            ClassType mct = (ClassType) job.extensionInfo().typeSystem().forName(mainClass);
+	            QName pkgName = mct.package_() == null ? null : mct.package_().fullName();
+	            mainClass = QName.make(pkgName, StaticNestedClassRemover.mangleName(mct.def()));
+	        } catch (SemanticException e) { }
 	        for (MethodDef md : jobext.mainMethods()) {
 	            QName containerName = ((X10ClassType) Types.get(md.container())).fullName();
-	            if (containerName.toString().equals(Configuration.MAIN_CLASS)) {
+	            if (containerName.equals(mainClass)) {
 	                return Collections.singletonList(md);
 	            }
 	        }
