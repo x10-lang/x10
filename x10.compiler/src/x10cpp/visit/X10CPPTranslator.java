@@ -70,7 +70,6 @@ import polyglot.types.ClassType;
 import polyglot.types.Context;
 import polyglot.types.MemberDef;
 import polyglot.types.MethodDef;
-import polyglot.types.Name;
 import polyglot.types.Package;
 import polyglot.types.QName;
 import polyglot.types.SemanticException;
@@ -527,7 +526,7 @@ public class X10CPPTranslator extends Translator {
 	    X10CPPJobExt jobext = (X10CPPJobExt) job.ext();
 	    if (Configuration.MAIN_CLASS != null) {
 	        for (MethodDef md : jobext.mainMethods()) {
-	            Name containerName = ((X10ClassType) Types.get(md.container())).name();
+	            QName containerName = ((X10ClassType) Types.get(md.container())).fullName();
 	            if (containerName.toString().equals(Configuration.MAIN_CLASS)) {
 	                return Collections.singletonList(md);
 	            }
