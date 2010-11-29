@@ -59,11 +59,13 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
+import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
 import polyglot.visit.CFGBuilder;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
+import polyglot.visit.PrettyPrinter;
 import polyglot.visit.PruningVisitor;
 import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeChecker;
@@ -1022,5 +1024,88 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         sb.append(" ");
         sb.append(body);
         return sb.toString();
+    }
+
+    @Override
+    public void prettyPrintHeader(CodeWriter w, PrettyPrinter tr) {
+        w.begin(0);
+        Flags flags = type.flags();
+        
+        if (flags.isInterface()) {
+            w.write(flags.clearInterface().clearAbstract().translate());
+        }
+        else {
+            w.write(flags.translate());
+        }
+        
+        if (flags.isInterface()) {
+            w.write("interface ");
+        }
+        else {
+            w.write("class ");
+        }
+        
+        tr.print(this, name, w);
+        
+        if (!typeParameters.isEmpty()) {
+            w.write("[");
+            w.begin(0);
+            for (Iterator<TypeParamNode> pi = typeParameters.iterator(); pi.hasNext(); ) {
+                TypeParamNode pn = pi.next();
+                print(pn, w, tr);
+                if (pi.hasNext()) {
+                    w.write(",");
+                    w.allowBreak(0, " ");
+                }
+            }
+            w.end();
+            w.write("]");
+        }
+        
+        if (!properties.isEmpty()) {
+            w.write("(");
+            w.begin(0);
+            for (Iterator<PropertyDecl> pi = properties.iterator(); pi.hasNext(); ) {
+                PropertyDecl pd = pi.next();
+                print(pd, w, tr);
+                if (pi.hasNext()) {
+                    w.write(",");
+                    w.allowBreak(0, " ");
+                }
+            }
+            w.end();
+            w.write(")");
+        }
+        
+        if (superClass() != null) {
+            w.allowBreak(0);
+            w.write("extends ");
+            print(superClass(), w, tr);
+        }
+        
+        if (! interfaces.isEmpty()) {
+            w.allowBreak(2);
+            if (flags.isInterface()) {
+                w.write("extends ");
+            }
+            else {
+                w.write("implements ");
+            }
+        
+            w.begin(0);
+            for (Iterator<TypeNode> i = interfaces().iterator(); i.hasNext(); ) {
+                TypeNode tn = (TypeNode) i.next();
+                print(tn, w, tr);
+        
+                if (i.hasNext()) {
+                    w.write(",");
+                    w.allowBreak(0);
+                }
+            }
+            w.end();
+        }
+        w.unifiedBreak(0);
+        w.end();
+        w.write("{");
     }
 } 
