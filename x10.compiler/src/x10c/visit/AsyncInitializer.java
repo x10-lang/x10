@@ -10,27 +10,15 @@ import java.util.Set;
 import polyglot.ast.ArrayAccess_c;
 import polyglot.ast.Assign;
 import polyglot.ast.Block;
-import polyglot.ast.Block_c;
 import polyglot.ast.Eval;
-import polyglot.ast.Eval_c;
 import polyglot.ast.Expr;
-import polyglot.ast.Expr_c;
-import polyglot.ast.Field;
 import polyglot.ast.Id;
 import polyglot.ast.IntLit;
-import polyglot.ast.LocalAssign;
-import polyglot.ast.IntLit.Kind;
 import polyglot.ast.Local;
 import polyglot.ast.LocalDecl;
-import polyglot.ast.Local_c;
-import polyglot.ast.Loop;
-import polyglot.ast.MethodDecl;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
-import polyglot.ast.Receiver;
 import polyglot.ast.Stmt;
-import polyglot.ast.Stmt_c;
-import polyglot.ast.Term;
 import polyglot.ast.Try;
 import polyglot.frontend.Job;
 import polyglot.types.Flags;
@@ -38,17 +26,14 @@ import polyglot.types.LocalDef;
 import polyglot.types.LocalDef_c;
 import polyglot.types.LocalInstance;
 import polyglot.types.Name;
-import polyglot.types.QName;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.types.VarDef;
-import polyglot.types.VarDef_c;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
-import x10.ast.Closure;
 import x10.ast.Closure_c;
 import x10.ast.X10Call;
 import x10.ast.X10Call_c;
@@ -57,21 +42,14 @@ import x10.ast.X10Formal_c;
 import x10.ast.X10LocalAssign_c;
 import x10.ast.X10LocalDecl_c;
 import x10.ast.X10Local_c;
-import x10.ast.X10Special;
-import x10.extension.X10Ext;
 import x10.extension.X10Ext_c;
-import x10.types.ParameterType;
 import x10.types.X10ClassType;
-import x10.types.X10Flags;
 import x10.types.X10LocalDef;
 import x10.types.X10MethodInstance;
 import x10.types.X10TypeMixin;
-import polyglot.types.TypeSystem;
-import x10c.ast.BackingArray;
 import x10c.ast.BackingArrayAccess;
 import x10c.ast.BackingArrayAccessAssign;
 import x10c.ast.BackingArrayNewArray;
-import x10c.ast.X10CBackingArrayAccess_c;
 import x10c.ast.X10CNodeFactory_c;
 import x10c.types.X10CTypeSystem_c;
 
@@ -128,7 +106,7 @@ public class AsyncInitializer extends ContextVisitor {
                 }
 
                 // register into the map (curr nest level, box var)
-                registerInternalMap(((X10Ext_c)n.ext()).asyncInitVal);
+                registerInternalMap(((X10Ext_c)n.ext()).initVals);
             }
         }
         return super.enterCall(parent, n);
@@ -176,11 +154,11 @@ public class AsyncInitializer extends ContextVisitor {
 
     private Set<LocalDef> collectAsyncVarsToBox(Try n) {
         X10Ext_c ext = (X10Ext_c) n.ext();
-        if (ext.asyncInitVal == null)
+        if (ext.initVals == null)
             return null;
 
         Set<LocalDef> asyncInitVal = null;
-        for (LocalDef initVal : ext.asyncInitVal) {
+        for (LocalDef initVal : ext.initVals) {
             if (((X10LocalDef) initVal).isAsyncInit()) {
                 if (asyncInitVal == null) asyncInitVal = new HashSet<LocalDef>();
                 asyncInitVal.add(initVal);

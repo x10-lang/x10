@@ -11,28 +11,20 @@ package polyglot.visit;
 import java.util.*;
 
 import polyglot.ast.*;
-import polyglot.frontend.Globals;
 import polyglot.frontend.Job;
 import polyglot.types.*;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
-import polyglot.util.IdentityKey;
-import polyglot.visit.DataFlow.Item;
 import polyglot.visit.FlowGraph.EdgeKey;
-import x10.ast.AssignPropertyCall;
 import x10.ast.Finish;
 import x10.ast.ParExpr;
 import x10.ast.X10ClassDecl;
 import x10.ast.Async_c;
 import x10.ast.Finish_c;
-import x10.ast.X10CanonicalTypeNode;
 import x10.ast.X10Cast;
 import x10.extension.X10Ext_c;
 import x10.types.X10LocalDef;
 import polyglot.types.TypeSystem;
-import x10.types.X10Flags;
-import x10.types.X10TypeMixin;
-import x10.types.constraints.CConstraint;
 import x10.visit.Lowerer;
 import x10.util.Synthesizer;
 
@@ -582,8 +574,8 @@ public class InitChecker extends DataFlow
                 if (after==null) continue;
                 final Flags flags = v.flags();
                 if (!before.equals(after) && after.isOne() && flags !=null && flags.isFinal()) {
-                    if (ext.asyncInitVal ==null) ext.asyncInitVal = new HashSet<LocalDef>();
-                    ext.asyncInitVal.add(v);
+                    if (ext.initVals ==null) ext.initVals = new HashSet<LocalDef>();
+                    ext.initVals.add(v);
                     break; // optimization, cause we already added "v"
                 }
             }
