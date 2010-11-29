@@ -44,6 +44,7 @@ import polyglot.visit.NodeVisitor;
 import x10.constraint.XLit;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
+import x10.extension.X10Ext;
 import x10.optimizations.ForLoopOptimizer;
 import x10.types.X10TypeMixin;
 import x10.types.checker.Converter;
@@ -82,11 +83,8 @@ public class ConstantPropagator extends ContextVisitor {
     protected Node leaveCall(Node parent, Node old, Node n, NodeVisitor v) throws SemanticException {
         Position pos = n.position();
 
-        if (n instanceof Expr || n instanceof Stmt) {
-        }
-        else {
-            return n;
-        }
+        if (!(n instanceof Expr || n instanceof Stmt)) return n;
+        if (n instanceof Lit) return n;
         
         if (n instanceof LocalDecl) {
             LocalDecl d = (LocalDecl) n;
@@ -96,8 +94,25 @@ public class ConstantPropagator extends ContextVisitor {
             }
         }
 
-        if (n instanceof Lit) {
-            return n;
+        if (n instanceof Local) {
+            Local l = (Local) n;
+            if (l.localInstance().def().isConstant()) {
+                Object o = l.localInstance().def().constantValue();
+                Expr result = toExpr(o, n.position());
+                if (result != null)
+                    return result;
+                
+            }
+        }
+        
+        if (n instanceof Expr) {
+            Expr e = (Expr) n;
+            if (isConstant(e)) {
+                Object o = constantValue(e);
+                Expr result = toExpr(o, e.position());
+                if (result != null)
+                    return result;
+            }
         }
 
         if (n instanceof Conditional) {
@@ -124,27 +139,6 @@ public class ConstantPropagator extends ContextVisitor {
                     else
                         return c.alternative() != null ? insulate(c.alternative()) : nf.Empty(pos);
                 }
-            }
-        }
-
-        if (n instanceof Expr) {
-            Expr e = (Expr) n;
-            if (isConstant(e)) {
-                Object o = constantValue(e);
-                Expr result = toExpr(o, e.position());
-                if (result != null)
-                    return result;
-            }
-        }
-
-        if (n instanceof Local) {
-            Local l = (Local) n;
-            if (l.localInstance().def().isConstant()) {
-                Object o = l.localInstance().def().constantValue();
-                Expr result = toExpr(o, n.position());
-                if (result != null)
-                    return result;
-                
             }
         }
 
@@ -201,16 +195,26 @@ public class ConstantPropagator extends ContextVisitor {
     }
 
     public static boolean isConstant(Expr e) {
+        
+        if (isNative(e))
+            return false;
+        
         if (e.isConstant())
             return true;
 
-        if (e.type().isNull())
+        Type type = e.type();
+        if (null == type) // TODO: this should never happen, determine if and why it does
+            return false;
+        
+        if (type.isNull())
             return true;
         
         if (e instanceof Field) {
             Field f = (Field) e;
             if (f.target() instanceof Expr) {
                 Expr target = (Expr) f.target();
+                if (isNative(target))
+                    return false;
                 Type t = target.type();
                 CConstraint c = X10TypeMixin.xclause(t);
                 if (c != null) {
@@ -222,8 +226,7 @@ public class ConstantPropagator extends ContextVisitor {
             }
         }
 
-        Type t = e.type();
-        CConstraint c = X10TypeMixin.xclause(t);
+        CConstraint c = X10TypeMixin.xclause(type);
         if (c != null) {
             XVar r = c.self();
             if (r instanceof XLit) {
@@ -343,4 +346,19 @@ public class ConstantPropagator extends ContextVisitor {
             return super.leaveCall(n);
         }
     }
+    
+
+    private static final QName NATIVE_ANNOTATION = QName.make("x10.compiler.Native");
+    /**
+     * Determine if a node is annotated "@Native".
+     * 
+     * @param node a node which may appear constant but be native instead
+     * @return true, if node has an "@Native" annotation; false, otherwise
+     */
+    private static boolean isNative(Node node) {
+        return    null != node.ext() 
+               && node.ext() instanceof X10Ext 
+               && !((X10Ext) node.ext()).annotationNamed(NATIVE_ANNOTATION).isEmpty();
+    }
+
 }
