@@ -24,6 +24,13 @@ public interface IntLit extends NumLit
             this.name = name;
         }
         public String toString() { return name; }
+        public Kind toSigned() {
+            if (this==ULONG) return LONG;
+            if (this==UINT) return INT;
+            if (this==USHORT) return SHORT;
+            if (this==UBYTE) return BYTE;
+            return this;
+        }
     }
 
     public static final Kind INT   = Kind.INT;

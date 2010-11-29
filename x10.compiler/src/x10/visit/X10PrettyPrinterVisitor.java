@@ -2565,21 +2565,22 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
 	public void visit(IntLit_c n) {
 		String val;
-		if (n.kind() == IntLit_c.ULONG) {
+        switch (n.kind()) {
+        case ULONG:
 			val = Long.toString(n.value()) + "L";
 		    val = "new x10.lang.ULong("+val+")";
-		}
-		else if (n.kind() == IntLit_c.LONG) {
+            break;
+        case LONG:
 			val = Long.toString(n.value()) + "L";
-		}
-		else if (n.kind() == IntLit_c.UINT) {
+            break;
+		case UINT:
 			if (n.value() >= 0x80000000L)
 				val = "0x" + Long.toHexString(n.value() & 0xffffffffL);
 			else
 				val = Long.toString(n.value() & 0xffffffffL);
 		    val = "new x10.lang.UInt("+val+")";
-		}
-		else { // Int, Short, Byte, UByte, UShort
+            break;
+        default: // Int, Short, Byte, UByte, UShort
 			if (n.value() >= 0x80000000L)
 				val = "0x" + Long.toHexString(n.value());
 			else
