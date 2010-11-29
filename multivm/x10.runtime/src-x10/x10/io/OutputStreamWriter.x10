@@ -20,23 +20,23 @@ public class OutputStreamWriter extends Writer {
     protected abstract static class OutputStream {
         @Native("java", "#0.close()")
         @Native("c++", "(#0)->close()")
-        public native def close(): Void; //throws IOException;
+        public native def close(): void; //throws IOException;
 
         @Native("java", "#0.flush()")
         @Native("c++", "(#0)->flush()")
-        public native def flush(): Void; //throws IOException;
+        public native def flush(): void; //throws IOException;
         
         @Native("java", "#0.write(#1)")
         @Native("c++", "(#0)->write(#1)")
-        public native def write(Int): Void; //throws IOException
+        public native def write(Int): void; //throws IOException
         
         @Native("java", "#0.write((#1).getByteArray())")
         @Native("c++", "(#0)->write(#1)")
-        public native def write(Rail[Byte]): Void; //throws IOException
+        public native def write(Rail[Byte]): void; //throws IOException
         
         @Native("java", "#0.write((#1).getByteArray(), #2, #3)")
         @Native("c++", "(#0)->write(#1)")
-        public native def write(Rail[Byte], Int, Int): Void; //throws IOException
+        public native def write(Rail[Byte], Int, Int): void; //throws IOException
     }
 
     val out: OutputStream;
@@ -47,21 +47,21 @@ public class OutputStreamWriter extends Writer {
         this.out = out;
     }
     
-    public def flush(): Void //throws IOException 
+    public def flush(): void //throws IOException 
     = out.flush();
 
-    public def close(): Void //throws IOException 
+    public def close(): void //throws IOException 
     = out.close();
     
-    public def write(x: Byte): Void //throws IOException 
+    public def write(x: Byte): void //throws IOException 
     = out.write(x);
     
-    public def write(buf: Rail[Byte]): Void //throws IOException 
+    public def write(buf: Rail[Byte]): void //throws IOException 
     {
         out.write(buf);
     }
 
-    public def write(buf:Rail[Byte], off: Int, len: Int): Void //throws IOException 
+    public def write(buf:Rail[Byte], off: Int, len: Int): void //throws IOException 
     {
         out.write(buf, off, len);
     }

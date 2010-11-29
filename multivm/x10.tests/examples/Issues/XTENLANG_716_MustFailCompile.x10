@@ -9,21 +9,32 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-package x10.rtt;
+import harness.x10Test;
+
+/**
+
+ */
+
+class XTENLANG_716_MustFailCompile extends x10Test {
+
+	class A (x:Int) {
+		def this(x:Int){property(x);}
+	}
+
+		class B extends A{self.x==2} {
+			def this(x:Int){super(x);}
+		}
+	
 
 
-public class UByteType<T> extends RuntimeType<T> {
 
-    public UByteType(Class<?> c) {
-        super(c);
-    }
+	public def run(): boolean {
+		new B(1);
+		
+		return true;
+	}
 
-    public UByteType(Class<?>c, Type<?>[] parents) {
-        super(c, parents);
-    }
-
-    @Override
-    public String typeName() {
-        return "x10.lang.UByte";
+    public static def main(Array[String](1)) {
+        new XTENLANG_716_MustFailCompile().execute();
     }
 }

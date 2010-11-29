@@ -9,21 +9,19 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-package x10.rtt;
+import harness.x10Test;
 
+/**
 
-public class UShortType<T> extends RuntimeType<T> {
+ */
+public class XTENLANG_614 extends x10Test {
 
-    public UShortType(Class<?> c) {
-        super(c);
+    public def run(): boolean {
+        val foo = true ? ()=>{} : ()=>{};
+        return true;
     }
-
-    public UShortType(Class<?>c, Type<?>[] parents) {
-        super(c, parents);
-    }
-
-    @Override
-    public String typeName() {
-        return "x10.lang.UShort";
+    
+    public static def main(Array[String](1)) {
+        new XTENLANG_614().execute();
     }
 }

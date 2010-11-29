@@ -32,14 +32,14 @@ public class Optimizer {
         if (!x10.Configuration.EXPERIMENTAL)    return false;
         if (x10.Configuration.INLINE_CONSTANTS) return true;
         if (x10.Configuration.INLINE_METHODS)   return true;
-        if (x10.Configuration.CLOSURE_INLINING && x10.Configuration.INLINE_CLOSURES) return true;
+        if (x10.Configuration.ALLOW_STATEMENT_EXPRESSIONS && x10.Configuration.INLINE_CLOSURES) return true;
         return false;
     }
     
     public static boolean FLATTENING(boolean javaBackEnd) {
         if (x10.Configuration.FLATTEN_EXPRESSIONS) return true;
         if (javaBackEnd && INLINING())             return true;
-        if (!x10.Configuration.CLOSURE_INLINING)   return true; // don't let StmtExpr's reach the back end
+        if (!x10.Configuration.ALLOW_STATEMENT_EXPRESSIONS)   return true; // don't let StmtExpr's reach the back end
         return false;
     }
 

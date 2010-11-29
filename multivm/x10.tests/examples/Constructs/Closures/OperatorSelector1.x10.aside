@@ -19,6 +19,7 @@ import harness.x10Test;
 public class OperatorSelector1 extends ClosureTest {
 // WAS:     static add = Double.$plus.(Double,Double);
     static add = Double.+.(Double,Double);
+    static b_not = Boolean.!;
     def m(x:(double,double)=>double):void={}
     public def run(): boolean = {
        m(add);

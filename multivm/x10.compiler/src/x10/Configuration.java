@@ -70,8 +70,8 @@ public final class Configuration extends x10.config.Configuration {
     public static boolean INLINE_METHODS_IMPLICIT = false;
     private static final String INLINE_METHODS_IMPLICIT_desc = "Inline methods that don't make many calls";
 
-    public static boolean CLOSURE_INLINING = true;
-    private static final String CLOSURE_INLINING_desc = "Perform closure literal inlining during code generation";
+    public static boolean ALLOW_STATEMENT_EXPRESSIONS = true;
+    private static final String ALLOW_STATEMENT_EXPRESSIONS_desc = "Allow statement expressions in generated code";
 
     public static boolean FLATTEN_EXPRESSIONS = false;
     private static final String FLATTEN_EXPRESSIONS_desc = "Flatten all expressions";

@@ -272,7 +272,7 @@ public struct Byte implements Comparable[Byte] /*TODO implements Arithmetic[Byte
      */
     @Native("java", "((byte)(#1.byteVal))")
     @Native("c++",  "((x10_byte) (#1))")
-    public native static operator (x:UByte): Byte;
+    public native static operator (x:UByte) as Byte;
 
 
     /**

@@ -51,8 +51,9 @@ struct RectLayout(rank:int) {
         } else {
             var sz:int = 1;
             if (rank>4) {
-                min = new Array[int](rank, (i:int) => reg.min(i));
-                delta = new Array[int](rank, (i:int) => reg.max(i) - min(i) +1);
+                val tmpMin = new Array[int](rank, (i:int) => reg.min(i));
+                min = tmpMin;
+                delta = new Array[int](rank, (i:int) => reg.max(i) - tmpMin(i) +1);
                 for ([r] in 4..rank-1) {
                     sz *= delta(r);
                 }

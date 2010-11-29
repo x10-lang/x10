@@ -11,7 +11,7 @@ abstract public class MainFrame extends RegularFrame {
         super(-1, o);
     }
 
-    public abstract def fast(worker:Worker):Void;
+    public abstract def fast(worker:Worker):void;
 
     public def run() {
         Worker.main(this);

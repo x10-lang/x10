@@ -28,6 +28,16 @@ public class X10SourceFile_c extends SourceFile_c {
 
 	public X10SourceFile_c(Position pos, PackageNode package_, List<Import> imports, List<TopLevelDecl> decls) {
 		super(pos, package_, imports, decls);
+		hasBeenTypeChecked = false;
+	}
+
+	private boolean hasBeenTypeChecked = false;
+	public boolean hasBeenTypeChecked() { return hasBeenTypeChecked; }
+	public X10SourceFile_c hasBeenTypeChecked(boolean flag) {
+	    if (flag == hasBeenTypeChecked) return this;
+	    X10SourceFile_c n = (X10SourceFile_c) copy();
+	    n.hasBeenTypeChecked = flag;
+	    return n;
 	}
 
 	/** Type check the source file. */
@@ -48,6 +58,6 @@ public class X10SourceFile_c extends SourceFile_c {
 			}
 		}
 
-		return this;
+		return this.hasBeenTypeChecked(true);
 	}
 }

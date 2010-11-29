@@ -208,11 +208,11 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
     }
 
     @Override
-    public MethodInstance asInstance() {
+    public X10MethodInstance asInstance() {
         if (asInstance == null) {
             asInstance = new X10MethodInstance_c(ts, position(), Types.<X10MethodDef>ref(this));
         }
-        return asInstance;
+        return (X10MethodInstance) asInstance;
     }
     
     public static boolean hasVar(Type type, XVar var) {

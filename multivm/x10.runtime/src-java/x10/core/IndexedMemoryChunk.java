@@ -11,6 +11,7 @@
 
 package x10.core;
 
+import x10.core.fun.VoidFun_0_0;
 import x10.rtt.RuntimeType;
 import x10.rtt.RuntimeType.Variance;
 import x10.rtt.Type;
@@ -26,12 +27,18 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct {
         this.value = value;
     }
 
-    private IndexedMemoryChunk(Type<T> type, int length) {
+    private IndexedMemoryChunk(Type<T> type, int length, boolean zeroed) {
         this(type, length, type.makeArray(length));
+        if (zeroed) {
+            Object zeroValue = x10.rtt.Types.zeroValue(type);
+            if (zeroValue != null && !x10.rtt.Types.isJavaPrimitive(type)) {
+                java.util.Arrays.fill((Object[]) value, zeroValue);
+            }
+        }
     }
 
-    public static <T> IndexedMemoryChunk<T> allocate(Type<T> type, int length) {
-        return new IndexedMemoryChunk<T>(type, length);
+    public static <T> IndexedMemoryChunk<T> allocate(Type<T> type, int length, boolean zeroed) {
+        return new IndexedMemoryChunk<T>(type, length, zeroed);
     }
 
     public T apply$G(int i) {
@@ -42,12 +49,36 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct {
         type.setArray(value, i, v);
     }
 
-    public void _copyToLocal(int srcIndex, IndexedMemoryChunk<T> dst, int dstIndex, int numElems) {
-        System.arraycopy(value, srcIndex, dst.value, dstIndex, numElems);
+    public static <T> void asyncCopy(IndexedMemoryChunk<T> src, int srcIndex, 
+                                     RemoteIndexedMemoryChunk<T> dst, int dstIndex,
+                                     int numElems) {
+        System.arraycopy(src.value, srcIndex, dst.value, dstIndex, numElems);
     }
 
-    public void _copyFromLocal(int dstIndex, IndexedMemoryChunk<T> src, int srcIndex, int numElems) {
-        System.arraycopy(src.value, srcIndex, value, dstIndex, numElems);
+    public static <T> void asyncCopy(IndexedMemoryChunk<T> src, int srcIndex, 
+                                     RemoteIndexedMemoryChunk<T> dst, int dstIndex,
+                                     int numElems, VoidFun_0_0 notifier) {
+        System.arraycopy(src.value, srcIndex, dst.value, dstIndex, numElems);
+        notifier.apply();
+    }
+
+    public static <T> void asyncCopy(RemoteIndexedMemoryChunk<T> src, int srcIndex, 
+                                     IndexedMemoryChunk<T> dst, int dstIndex,
+                                     int numElems) {
+        System.arraycopy(src.value, srcIndex, dst.value, dstIndex, numElems);
+    }
+
+    public static <T> void asyncCopy(RemoteIndexedMemoryChunk<T> src, int srcIndex, 
+                                     IndexedMemoryChunk<T> dst, int dstIndex,
+                                     int numElems, VoidFun_0_0 notifier) {
+        System.arraycopy(src.value, srcIndex, dst.value, dstIndex, numElems);
+        notifier.apply();
+    }
+
+    public static <T> void copy(IndexedMemoryChunk<T> src, int srcIndex, 
+                                IndexedMemoryChunk<T> dst, int dstIndex,
+                                int numElems) {
+        System.arraycopy(src.value, srcIndex, dst.value, dstIndex, numElems);
     }
 
     @Override

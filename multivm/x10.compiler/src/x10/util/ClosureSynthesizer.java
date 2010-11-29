@@ -217,7 +217,7 @@ public class ClosureSynthesizer {
      * 
      *    public abstract def apply[X1,..,Xm,-Z1,..,-Zn,+U](formalNames){guard}:U;
      *    or: 
-     *    public abstract def apply[X1,..,Xm,-Z1,..,-Zn](formalNames){guard}:Void;
+     *    public abstract def apply[X1,..,Xm,-Z1,..,-Zn](formalNames){guard}:void;
      * }
      * 
      * 

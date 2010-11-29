@@ -25,6 +25,7 @@ import polyglot.frontend.Compiler;
 import polyglot.frontend.Globals;
 import polyglot.frontend.Goal;
 import polyglot.frontend.Job;
+import polyglot.frontend.JobExt;
 import polyglot.frontend.OutputGoal;
 import polyglot.frontend.Scheduler;
 import polyglot.frontend.VisitorGoal;
@@ -121,6 +122,11 @@ public class ExtensionInfo extends x10.ExtensionInfo {
             throw new InternalCompilerError(
                 "Unable to initialize type system: " + e.getMessage(), e);
         }
+    }
+
+    @Override
+    public JobExt jobExt() {
+        return new X10CPPJobExt();
     }
 
     // =================================

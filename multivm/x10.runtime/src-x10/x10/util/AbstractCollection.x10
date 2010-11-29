@@ -38,7 +38,7 @@ public abstract class AbstractCollection[T] extends AbstractContainer[T] impleme
      return result;
   }
   
-  public def clear(): Void { removeAllWhere((T)=>true); }
+  public def clear(): void { removeAllWhere((T)=>true); }
   
   public abstract def clone(): Collection[T];
 }

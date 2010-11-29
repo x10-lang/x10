@@ -32,13 +32,13 @@ public class CUDAMatMul {
         static val c = new MyRail[Float]();
 
         @Native("c++", "#1 #4[#5] = {0}")
-        native static def declare[U](MyRail[U], size:Int):Void;
+        native static def declare[U](MyRail[U], size:Int):void;
 
         @Native("c++", "#4[#5]")
         native static def get[U](MyRail[U], index:Int):U;
 
         @Native("c++", "#4[#5] += #6")
-        native static def incr[U](MyRail[U], index:Int, value:U):Void;
+        native static def incr[U](MyRail[U], index:Int, value:U):void;
     }
 
     static def ourSgemm (gpu:Place, transa:Char, transb:Char, m:Int, n:Int, k:Int, alpha:Float,

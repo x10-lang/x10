@@ -266,6 +266,7 @@ public class Emitter {
 //		    ClosureType ct = (ClosureType) type;
 //		    assert (ct.typeArguments().size() != 0);
 //		    name = "x10aux::Fun";
+//		    name = translate_mangled_FQN(name);
 //		    String args = "";
 //		    if (ct.returnType().isVoid())
 //		        args += translateType(ct.returnType(), true) + ", ";
@@ -316,6 +317,7 @@ public class Emitter {
 					name = fullName(ct).toString();
 				}
 			}
+		    name = translate_mangled_FQN(name);
 			if (typeArguments.size() != 0) {
 				String args = "";
 				int s = typeArguments.size();
@@ -331,10 +333,10 @@ public class Emitter {
 			return mangled_parameter_type_name(name); // parameter types shouldn't be refs
 		} else if (type.isNull()) {
 			return "x10aux::ref<x10::lang::NullType>"; // typedef to something sensible
-		} else
+		} else {
 			assert false : type; // unhandled type.
+		}
 		assert (name != null);
-		name = translate_mangled_FQN(name);
 		if (!asRef)
 			return name;
 		return make_ref(name);
@@ -345,6 +347,7 @@ public class Emitter {
 	    QName full = fullName(cd.asType());
 	    String name = fqn ? full.toString() : full.name().toString();
 	    name += "_methods";
+	    name = translate_mangled_FQN(name);
 	    List<Type> typeArguments = ct.typeArguments();
 	    if (typeArguments == null) typeArguments = new ArrayList<Type>(cd.typeParameters());
 	    if (chevrons && typeArguments.size() != 0) {
@@ -357,7 +360,6 @@ public class Emitter {
 	        }
 	        name += chevrons(args);
 	    }
-	    name = translate_mangled_FQN(name);
 	    return name;
 	}
 
@@ -1042,14 +1044,6 @@ public class Emitter {
                 String fieldName = mangled_field_name(f.name().toString());
                 w.write("buf.write(this->"+fieldName+");"); w.newline();
             }
-            // Special case x10.lang.Array to serialize the contents of rawChunk too
-            if (ts.isX10Array(type)) {
-                w.write("for (x10_int i = 0; i<this->FMGL(rawLength); i++) {");
-                w.newline(4); w.begin(0);
-                w.write("buf.write(this->FMGL(raw)->apply(i));");
-                w.end(); w.newline();
-                w.write("}");
-            }
         }
         w.end(); w.newline();
         w.write("}");
@@ -1100,18 +1094,6 @@ public class Emitter {
                     continue;
                 String fieldName = mangled_field_name(f.name().toString());
                 w.write(fieldName+" = buf.read"+chevrons(translateType(f.type(),true))+"();");
-            }
-            // Special case x10.lang.Array to deserialize the contents of rawChunk too
-            if (ts.isX10Array(type)) {
-                List<ParameterType> typeParameters = ct.x10Def().typeParameters();
-                String elemType = translateType(typeParameters.get(0),true);
-                w.newline();
-                w.writeln("FMGL(raw) = x10::util::IndexedMemoryChunk<void>::allocate"+chevrons(elemType)+"(FMGL(rawLength),8,false,false);");
-                w.write("for (x10_int i = 0; i<this->FMGL(rawLength); i++) {");
-                w.newline(4); w.begin(0);
-                w.write("this->FMGL(raw)->set(buf.read"+chevrons(elemType)+"(), i);");
-                w.end(); w.newline();
-                w.write("}");
             }
         }
         w.end(); w.newline();

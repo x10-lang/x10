@@ -20,6 +20,6 @@ public interface Collection[T] extends Container[T] {
   public def removeAll(Container[T]): Boolean;
   public def addAllWhere(Container[T], (T) => Boolean): Boolean;
   public def removeAllWhere((T) => Boolean): Boolean;
-  public def clear(): Void;
+  public def clear(): void;
   public def clone(): Collection[T];
 }

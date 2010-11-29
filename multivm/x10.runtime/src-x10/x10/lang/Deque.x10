@@ -15,7 +15,7 @@ public final class Deque {
 
     public native def poll():Object;
 
-    public native def push(t:Object):Void;
+    public native def push(t:Object):void;
 
     public native def steal():Object;
 }

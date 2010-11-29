@@ -21,7 +21,7 @@ public class CF5_MustFailCompile extends x10Test {
      	public  def zero()=0;
      	public  def apply(a:Int,b:Int)=a+b;
     }
-    def m(a:Any):Void offers Int(6) {
+    def m(a:Any):void offers Int(6) {
     	offer a;
     }
 	public def run() {

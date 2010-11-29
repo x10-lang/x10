@@ -91,6 +91,7 @@ import x10.ast.X10ClassDecl;
 import x10.ast.HasZeroTest;
 import x10.errors.Warnings;
 import x10.optimizations.ForLoopOptimizer;
+import x10.types.X10FieldInstance;
 
 /**
  * @author Bowen Alpern
@@ -676,6 +677,10 @@ public final class ExpressionFlattener extends ContextVisitor {
             Expr target = getPrimaryAndStatements((Expr) expr.target(), stmts);
             expr = expr.target(target);
         }
+        X10FieldInstance fi = (X10FieldInstance) expr.fieldInstance();
+        if (!fi.annotationsMatching(typeSystem().load("x10.compiler.Embed")).isEmpty()) {
+            return expr;
+        }
         Expr right = getPrimaryAndStatements(expr.right(), stmts);
         return toFlatExpr(expr.position(), stmts, expr.right(right));
     }
@@ -1001,8 +1006,8 @@ public final class ExpressionFlattener extends ContextVisitor {
      * Flatten the evaluation of an expression.
      * <pre>
      * ({s1; e1});    ->  s1;               if "e1" cannot have side-effects
-     * ({s1; e1});    ->  s1; Eval(e1);     if "e1" might have side-effects and it's type is Void
-     * ({s1; e1));    ->  s1; val v = e1;   if "e1" might have side-effects and it's type isn't Void
+     * ({s1; e1});    ->  s1; Eval(e1);     if "e1" might have side-effects and it's type is void
+     * ({s1; e1));    ->  s1; val v = e1;   if "e1" might have side-effects and it's type isn't void
      * </pre>
      * 
      * @param stmt the evaluation to be flattened.

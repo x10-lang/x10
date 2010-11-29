@@ -244,7 +244,7 @@ public class AsyncInitializer extends ContextVisitor {
                     if (flags == null || !flags.equals(Flags.FINAL)) {
                         // check if this is not locally declared var
                         for (LocalDef localDefVar : localDeclList) {
-                            if (localDefVar.asInstance().equals(l.localInstance()))
+                            if (isLocalInstanceEquals(localDefVar.asInstance(), l.localInstance()))
                                 return n;
                         }
                         VarDef var = checkIfIncluded(l, asyncVar);
@@ -256,6 +256,11 @@ public class AsyncInitializer extends ContextVisitor {
                 return n;
             }
         });
+    }
+
+    private boolean isLocalInstanceEquals(LocalInstance li1, LocalInstance li2) {
+        return li1.name().equals(li2.name()) && li1.flags().equals(li2.flags()) && 
+               li1.type().typeEquals(li2.type(), context);
     }
 
     private Try replaceVariables(Try tcfBlock, final Set<LocalDef> asyncInitVal) {

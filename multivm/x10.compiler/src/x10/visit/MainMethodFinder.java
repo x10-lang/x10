@@ -59,6 +59,7 @@ import x10.types.X10ClassType;
 import x10.types.X10Flags;
 import x10.types.X10MethodDef;
 import x10.types.X10TypeMixin;
+import x10.util.HierarchyUtils;
 import polyglot.types.TypeSystem;
 
 /**
@@ -77,13 +78,12 @@ public class MainMethodFinder extends ContextVisitor {
     }
 
     protected Node leaveCall(Node parent, Node old, Node n, NodeVisitor v) throws SemanticException {
-        if (!(n instanceof X10MethodDecl_c))
+        if (!(n instanceof X10MethodDecl))
             return n;
 
-        X10MethodDecl_c m = (X10MethodDecl_c) n;
+        X10MethodDecl m = (X10MethodDecl) n;
 
-        if (m.formals().size() == 1 &&
-                X10PrettyPrinterVisitor.isMainMethod(ts, m.flags().flags(), m.name().id(), m.returnType().type(), m.formals().get(0).declType(), context)) {
+        if (HierarchyUtils.isMainMethod(m.methodDef(), context)) {
             try {
                 hasMain.invoke(null, context.currentClass().name().toString());
             } catch (Throwable t) { t.printStackTrace(); }

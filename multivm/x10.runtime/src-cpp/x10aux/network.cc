@@ -258,10 +258,10 @@ x10_int x10aux::num_threads() {
 
 x10_boolean x10aux::no_steals()
 {
-	char* s = getenv("X10_NO_STEALS");
-	if (s && !(strcasecmp("false", s) == 0))
-		return true;
-	return false;
+    char* s = getenv("X10_NO_STEALS");
+    if (s && !(strcasecmp("false", s) == 0))
+        return true;
+    return false;
 }
 
 x10_boolean x10aux::static_threads() { 
@@ -270,7 +270,7 @@ x10_boolean x10aux::static_threads() {
 #else
     char* s = getenv("X10_STATIC_THREADS");
     if (s && !(strcasecmp("false", s) == 0))
-    	return true;
+        return true;
     return false;
 #endif
 }
@@ -455,6 +455,45 @@ void x10aux::cuda_put (place gpu, x10_ulong addr, void *var, size_t sz)
     x10rt_msg_params p = {gpu, kernel_put, buf.borrow(), len};
     x10rt_send_put(&p, var, sz);
     while (!finished) x10rt_probe();
+}
+
+// teams
+
+void *x10aux::coll_enter() {
+    x10aux::ref<x10::lang::Runtime> rt = x10::lang::PlaceLocalHandle_methods<x10aux::ref<x10::lang::Runtime> >::apply(x10::lang::Runtime::FMGL(runtime));
+    x10aux::ref<x10::lang::FinishState> fs = rt->activity()->finishState();
+    fs->notifySubActivitySpawn(x10::lang::Place_methods::_make(x10aux::here));
+    fs->notifyActivityCreation();
+    return fs._val;
+}
+
+void x10aux::coll_handler(void *arg) {
+    x10::lang::FinishState* fs = (x10::lang::FinishState*)arg;
+    fs->notifyActivityTermination();
+}
+
+struct pointer_pair {
+    void *fst;
+    void *snd;
+};
+namespace x10aux {
+    template<> inline const char *typeName<pointer_pair>() { return "pointer_pair"; }
+}
+
+void *x10aux::coll_enter2(void *arg) {
+    struct pointer_pair *p = x10aux::alloc<struct pointer_pair>();
+    p->fst = x10aux::coll_enter();
+    p->snd = arg;
+    return p;
+}
+
+void x10aux::coll_handler2(x10rt_team id, void *arg) {
+    struct pointer_pair *p = (struct pointer_pair*)arg;
+    x10::lang::FinishState *fs = (x10::lang::FinishState*)p->fst;
+    x10rt_team *t = (x10rt_team*)p->snd;
+    *t = id;
+    x10aux::dealloc(p);
+    fs->notifyActivityTermination();
 }
 
 

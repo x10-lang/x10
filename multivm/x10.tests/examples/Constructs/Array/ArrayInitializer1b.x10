@@ -28,7 +28,7 @@ public class ArrayInitializer1b extends x10Test {
         return true;
     }
 
-    public static def main(Array[String](1)): Void = {
+    public static def main(Array[String](1)): void = {
         new ArrayInitializer1b().execute();
     }
 }

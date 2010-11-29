@@ -32,16 +32,16 @@ public class Printer extends FilterWriter {
 
     private static NEWLINE:Char = '\n'; // System.getProperty("line.separator");
 
-    public def println(): Void = print(NEWLINE);
+    public def println(): void = print(NEWLINE);
     
-    public final def println(o:Any): Void {
+    public final def println(o:Any): void {
         print(o==null? "null\n" : o.toString()+"\n");
     }
-    public final def print(o:Any): Void {
+    public final def print(o:Any): void {
     	print(o==null? "null" : o.toString());
     }
 
-    public def print(s:String): Void {
+    public def print(s:String): void {
         try {
             val b = s.bytes();
             write(b, 0, b.length);
@@ -51,35 +51,35 @@ public class Printer extends FilterWriter {
         }
     }
 
-    public def printf(fmt: String): Void { printfArray(fmt, new Array[Any][]); }
-    public def printf(fmt: String, o1: Any): Void { printfArray(fmt, new Array[Any][o1]); }
-    public def printf(fmt: String, o1: Any, o2: Any): Void { printfArray(fmt, new Array[Any][o1,o2]); }
-    public def printf(fmt: String, o1: Any, o2: Any, o3: Any): Void { printfArray(fmt, new Array[Any][o1,o2,o3]); }
-    public def printf(fmt: String, o1: Any, o2: Any, o3: Any, o4: Any): Void { 
+    public def printf(fmt: String): void { printfArray(fmt, new Array[Any][]); }
+    public def printf(fmt: String, o1: Any): void { printfArray(fmt, new Array[Any][o1]); }
+    public def printf(fmt: String, o1: Any, o2: Any): void { printfArray(fmt, new Array[Any][o1,o2]); }
+    public def printf(fmt: String, o1: Any, o2: Any, o3: Any): void { printfArray(fmt, new Array[Any][o1,o2,o3]); }
+    public def printf(fmt: String, o1: Any, o2: Any, o3: Any, o4: Any): void { 
         printfArray(fmt, [o1,o2,o3,o4]); 
     }
-    public def printf(fmt: String, o1: Any, o2: Any, o3: Any, o4: Any, o5: Any): Void { 
+    public def printf(fmt: String, o1: Any, o2: Any, o3: Any, o4: Any, o5: Any): void { 
        printfArray(fmt, [o1,o2,o3,o4,o5]); 
     }
-    public def printf(fmt: String, o1: Any, o2: Any, o3: Any, o4: Any, o5: Any, o6: Any): Void { 
+    public def printf(fmt: String, o1: Any, o2: Any, o3: Any, o4: Any, o5: Any, o6: Any): void { 
        printfArray(fmt, [o1,o2,o3,o4,o5,o6]); 
     }
 
-    public def printf(fmt: String, args: Rail[Any]): Void { 
+    public def printf(fmt: String, args: Rail[Any]): void { 
         print(String.format(fmt, new Array[Any](args.length, (i:int)=>args(i))));
     }
-    public def printfArray(fmt: String, args: Array[Any](1)): Void { 
+    public def printfArray(fmt: String, args: Array[Any](1)): void { 
         print(String.format(fmt, args));
     }
         
-    public def flush(): Void {
+    public def flush(): void {
         try {
             super.flush();
         }
         catch (IOException) { }
     }
     
-    public def close(): Void {
+    public def close(): void {
         try {
             super.close();
         }
