@@ -336,8 +336,8 @@ public class New_c extends Expr_c implements New
                 if (mt instanceof ClassType) {
                     ClassType cmt = (ClassType) mt;
                     if (cmt.def() == ct.def()) {
-                	outer = t;
-                	break;
+                        outer = t;
+                        break;
                     }
                 }
             }
