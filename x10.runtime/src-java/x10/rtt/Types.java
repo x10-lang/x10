@@ -289,6 +289,13 @@ public class Types {
 
     public static void nullIsCastedToStruct(){throw new java.lang.ClassCastException();}
 
+    public static boolean isJavaPrimitive(Type<?> rtt) {
+        if (rtt == BYTE || rtt == SHORT || rtt == INT || rtt == LONG ||
+            /*rtt == UBYTE || rtt == USHORT || rtt == UINT || rtt == ULONG ||*/
+            rtt == FLOAT || rtt == DOUBLE || rtt == CHAR || rtt == BOOLEAN) return true;
+        return false;
+    }
+
     public static Object zeroValue(Type<?> rtt) {
         if (rtt.isSubtype(OBJECT)) return OBJECT_ZERO;
         if (rtt == BYTE) return BYTE_ZERO;
@@ -303,6 +310,7 @@ public class Types {
         if (rtt == DOUBLE) return DOUBLE_ZERO;
         if (rtt == CHAR) return CHAR_ZERO;
         if (rtt == BOOLEAN) return BOOLEAN_ZERO;
+        /*throw new java.lang.Error(rtt.toString() + " must have zero value");*/
         return null;
     }
 }

@@ -30,8 +30,9 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct {
     private IndexedMemoryChunk(Type<T> type, int length, boolean zeroed) {
         this(type, length, type.makeArray(length));
         if (zeroed) {
-            if (type == x10.rtt.Types.UBYTE || type == x10.rtt.Types.USHORT || type == x10.rtt.Types.UINT || type == x10.rtt.Types.ULONG) {
-                java.util.Arrays.fill((Object[]) value, x10.rtt.Types.zeroValue(type));
+            Object zeroValue = x10.rtt.Types.zeroValue(type);
+            if (zeroValue != null && !x10.rtt.Types.isJavaPrimitive(type)) {
+                java.util.Arrays.fill((Object[]) value, zeroValue);
             }
         }
     }

@@ -137,7 +137,7 @@ public final class Array[T](
      *
      * @param reg The region over which to construct the array.
      */
-    public def this(reg:Region):Array[T]{self.region==reg} {
+    public def this(reg:Region):Array[T]{self.region==reg,T haszero} {
         property(reg, reg.size());
 
         layout = RectLayout(reg);
@@ -215,8 +215,8 @@ public final class Array[T](
      * Construct Array over the region 0..size-1 whose elements are zero-initialized; 
      * in future releases of X10, this method will only be callable if sizeof(T) bytes 
      * of zeros is a valid value of type T. 
-     */    
-    public def this(size:int):Array[T]{self.region.rank==1,self.region.rect,self.region.zeroBased,self.size==size} {
+     */
+    public def this(size:int):Array[T]{self.region.rank==1,self.region.rect,self.region.zeroBased,self.size==size,T haszero} {
         property(0..size-1, size);
 
         layout = RectLayout(0, size-1);

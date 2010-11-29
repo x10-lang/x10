@@ -105,7 +105,7 @@ public final class Rail[T](length: Int)
      */
     @Native("java", "x10.core.RailFactory.<#2>makeVarRail(#3, #4)")
     @Native("c++", "x10::lang::Rail<void>::make<#1 >(#4)")
-    public native static def make[S](length: Int): Rail[S]{self.length==length};
+    public native static def make[S](length: Int): Rail[S]{self.length==length,S haszero};
 
     /**
      * Creates an appropriately aligned Rail whose contents are zero-initialized;
@@ -118,7 +118,7 @@ public final class Rail[T](length: Int)
      */
     @Native("java", "x10.core.RailFactory.<#2>makeVarRail(#3, #4)")
     @Native("c++", "x10::lang::Rail<void>::makeAligned<#1 >(#4, #5)")
-    public native static def makeAligned[S](length: Int, alignment:Int): Rail[S]{self.length==length};
+    public native static def makeAligned[S](length: Int, alignment:Int): Rail[S]{self.length==length,S haszero};
 
     /**
      * Creates an Rail whose contents are initialized to init.
