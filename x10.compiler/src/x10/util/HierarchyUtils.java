@@ -16,9 +16,14 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import polyglot.types.ClassType;
+import polyglot.types.Context;
 import polyglot.types.Flags;
 import polyglot.types.MethodInstance;
 import polyglot.types.Type;
+import polyglot.types.TypeSystem;
+import x10.types.X10ClassType;
+import x10.types.X10MethodDef;
+import x10.types.X10MethodInstance;
 
 public class HierarchyUtils {
 
@@ -97,4 +102,23 @@ public class HierarchyUtils {
 
 		return methods;
 	}
+
+	public static boolean isMainMethod(X10MethodDef md, Context context) {
+	    return isMainMethod(md.asInstance(), context);
+	}
+
+	public static boolean isMainMethod(X10MethodInstance mi, Context context) {
+	    final TypeSystem ts = mi.typeSystem();
+	    X10ClassType container = (X10ClassType) mi.container();
+	    boolean result =
+	        mi.flags().isPublic() &&
+	        mi.flags().isStatic() &&
+	        mi.name().toString().equals("main") &&
+	        mi.returnType().isVoid() &&
+	        mi.typeParameters().size() == 0 &&
+	        mi.formalTypes().size() == 1 &&
+	        ts.isSubtype(mi.formalTypes().get(0), ts.Array(ts.String()), context);
+	    return result;
+	}
+
 }

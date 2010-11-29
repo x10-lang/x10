@@ -41,6 +41,7 @@ import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10Flags;
 import x10.types.X10MethodDef;
+import x10.util.HierarchyUtils;
 import x10.util.synthesizer.CodeBlockSynth;
 import x10.util.synthesizer.FieldSynth;
 import x10.util.synthesizer.InstanceCallSynth;
@@ -68,12 +69,12 @@ public class WSMethodFrameClassGen extends WSRegularFrameClassGen {
     
 
     public WSMethodFrameClassGen(Job job, NodeFactory xnf, Context xct,
-                                  MethodDef methodDef, MethodDecl methodDecl, WSTransformState wts) {
+                                  X10MethodDef methodDef, MethodDecl methodDecl, WSTransformState wts) {
         this(job, xnf, xct, methodDef, methodDecl, wts,
-                X10PrettyPrinterVisitor.isMainMethodInstance(methodDef.asInstance(), xct));
+                HierarchyUtils.isMainMethod(methodDef, xct));
     }
     public WSMethodFrameClassGen(Job job, NodeFactory xnf, Context xct,
-                                  MethodDef methodDef, MethodDecl methodDecl, WSTransformState wts,
+                                  X10MethodDef methodDef, MethodDecl methodDecl, WSTransformState wts,
                                   boolean isMain) {
     
         super(job, xnf, xct, wts, WSCodeGenUtility.getMethodBodyClassName(methodDef),

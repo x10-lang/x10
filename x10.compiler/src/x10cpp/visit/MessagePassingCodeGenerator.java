@@ -217,6 +217,7 @@ import x10.util.ClassifiedStream;
 import x10.util.ClosureSynthesizer;
 import x10.util.StreamWrapper;
 import x10cpp.X10CPPCompilerOptions;
+import x10cpp.X10CPPJobExt;
 import x10cpp.types.X10CPPContext_c;
 
 /**
@@ -445,8 +446,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
     	            if (templateMethod)
     	                sw.pushCurrentStream(save_w);
     	            ((X10CPPTranslator)tr).setContext(md.enterScope(context)); // FIXME
-    	            if (query.isMainMethod(md))
-    	                processMain((X10ClassType) cd.asType());
     	            emitter.printTemplateSignature(def.typeParameters(), sw);
     	            emitter.printType(md.returnType().type(), sw);
     	            sw.allowBreak(2, " ");
@@ -599,7 +598,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         }
     }
 
-    private String getHeader(ClassType ct) {
+    public static String getHeader(ClassType ct) {
         String pkg = null;
         if (ct.package_() != null)
             pkg = ct.package_().fullName().toString();
@@ -608,11 +607,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         return header;
     }
 
-    private String getHeaderGuard(String header) {
+    private static String getHeaderGuard(String header) {
         return header.replace('/','_').replace('.','_').replace('$','_').toUpperCase();
     }
 
-    private String getStructHeader(ClassType ct) {
+    private static String getStructHeader(ClassType ct) {
         String classHeader = getHeader(ct);
         classHeader = classHeader.substring(0, classHeader.length()-StreamWrapper.Header.length());
         return classHeader+StreamWrapper.Struct;
@@ -1662,15 +1661,16 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
     }
 
 
-    protected void processMain(X10ClassType container) {
+    public static void processMain(X10ClassType container, CodeWriter sw) {
         X10TypeSystem_c xts = (X10TypeSystem_c) container.typeSystem();
         if (container.isClass())
             container = getStaticMemberContainer(container.x10Def());
         String typeString = xts.isStructType(container) ?
                 Emitter.structMethodClass(container, true, true) :
                     Emitter.translateType(container);
+        sw.write("#include <"+MessagePassingCodeGenerator.getHeader(container)+">"); sw.newline();
         Emitter.dumpString(createMainStub(typeString), sw);
-        sw.forceNewline(0);
+        sw.newline(0);
     }
 
 	public static String createMainStub(String container) {
@@ -1693,16 +1693,17 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		if (flags.isNative())
 			return;
 
-		X10MethodDef def = (X10MethodDef) dec.methodDef();
-		X10MethodInstance mi = (X10MethodInstance) def.asInstance();
+		X10MethodDef def = dec.methodDef();
+		if (query.isMainMethod(def)) {
+		    ((X10CPPJobExt) tr.job().ext()).addMainMethod(def);
+		}
+		X10MethodInstance mi = def.asInstance();
 		X10ClassType container = (X10ClassType) mi.container();
 		ClassifiedStream h = sw.header();
 		if ((container.x10Def().typeParameters().size() != 0) && flags.isStatic()) {
 			context.pendingStaticDecls().add(dec);
 			return;
 		}
-		if (query.isMainMethod(dec))
-		    processMain(container);
 		int mid = getUniqueId_().intValue();
 		if (def.typeParameters().size() != 0) {
 		    sw.pushCurrentStream(context.templateFunctions);

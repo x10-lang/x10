@@ -176,9 +176,11 @@ import x10.types.X10ClassType;
 import x10.types.X10ConstructorDef;
 import x10.types.X10ConstructorInstance;
 import x10.types.X10FieldInstance;
+import x10.types.X10MethodDef;
 import x10.types.X10MethodInstance;
 import x10.types.X10ParsedClassType_c;
 import x10.types.X10TypeMixin;
+import x10.util.HierarchyUtils;
 import x10c.ast.X10CBackingArrayAccessAssign_c;
 import x10c.ast.X10CBackingArrayAccess_c;
 import x10c.ast.X10CBackingArrayNewArray_c;
@@ -565,7 +567,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
 		Flags flags = n.flags().flags();
 
-		if (n.formals().size() == 1 && isMainMethod(ts, flags, n.name(), n.returnType().type(), n.formals().get(0).declType())){
+		if (isMainMethod(n.methodDef())) {
 			/*Expander throwsClause = new Inline(er, "");
 			if (n.throwTypes().size() > 0) {
 				List<Expander> l = new ArrayList<Expander>();
@@ -600,24 +602,16 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		er.generateMethodDecl(n, false);
 	}
 
-    private boolean isMainMethod(TypeSystem ts, Flags flags, Id name, Type returnType, Type argType) {
-        return isMainMethod(ts, flags, name.id(), returnType, argType, tr.context());
+    private boolean isMainMethod(X10MethodDef md) {
+        return HierarchyUtils.isMainMethod(md, tr.context());
     }
 
-    public static boolean isMainMethod(TypeSystem ts, Flags flags, Name name, Type returnType, Type argType, Context context) {
-        return name.toString().equals("main") &&
-                flags.isPublic() &&
-                flags.isStatic() &&
-                returnType.isVoid() &&
-                argType.isSubtype(ts.Array(ts.String()), context);
+    private boolean isMainMethod(X10MethodInstance mi) {
+        return HierarchyUtils.isMainMethod(mi, tr.context());
     }
-
-    public static boolean isMainMethodInstance(MethodInstance mi, Context context) {
-        return mi.formalTypes().size() == 1 && isMainMethod((TypeSystem) mi.typeSystem(), mi.flags(), mi.name(), mi.returnType(), mi.formalTypes().get(0), context);
-    }
-
+    
 	public void visit(Id_c n) {
-                w.write(Emitter.mangleToJava(n.id()));
+	    w.write(Emitter.mangleToJava(n.id()));
 	}
 
 
@@ -1741,7 +1735,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	        return;
 	    }
 	    
-	    X10MethodInstance mi = (X10MethodInstance) c.methodInstance();
+	    X10MethodInstance mi = c.methodInstance();
 		Receiver target = c.target();
 
 		// Check for properties accessed using method syntax.  They may have @Native annotations too.
@@ -1810,7 +1804,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		    }
 		}
 		
-		if (isGenericOverloading && mi.formalTypes().size() == 1 && isMainMethod(xts, mi.flags(), c.name(), mi.returnType(), mi.formalTypes().get(0)))
+		if (isGenericOverloading && isMainMethod(mi))
 		{
 		    w.write(Emitter.mangleToJava(c.name().id()));
 		}
