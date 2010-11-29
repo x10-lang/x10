@@ -18,8 +18,7 @@ import x10.io.SerialData;
 
 /**
  * X10 wrapper class for native reentrant lock.
- * Can be used in arbitrary code but should not.
- * See Monitor class for a lock that plays nice with the runtime scheduler.
+ * Acquiring the lock halts the thread running the current activity until the lock is acquired.
  * 
  * @author tardieu
  */
