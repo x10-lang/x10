@@ -38,7 +38,7 @@ svnUpdate2() {
 	fi
 }
 
-X10_MAX_RETRIES=5
+X10_MAX_RETRIES=10
 svnUpdate() {
     num_retries=1
     if [[ -d $1 ]]; then
