@@ -144,7 +144,7 @@ template<class T> void x10::util::IndexedMemoryChunk<T>::_deserialize_body(x10au
     len = buf.read<x10_int>();
 
     bool containsPtrs = x10aux::getRTT<T>()->containsPtrs;
-    size_t alignment = X10_MIN_INDEXEDMEMORYCHUNK_ALIGNMENT
+    size_t alignment = X10_MIN_INDEXEDMEMORYCHUNK_ALIGNMENT;
     size_t size = alignment + len*sizeof(T);
     T* allocMem = x10aux::alloc<T>(size, containsPtrs);
     size_t alignDelta = alignment-1;
