@@ -647,7 +647,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 						inc.write("__env." + name + ".FMGL(size) = " + name + "->FMGL(size);");
 						inc.newline();
 					} else {
-						String len = name + "->FMGL(rawLength)";
+						String len = name + "->FMGL(size)";
 						String sz = "sizeof(" + ts + ")*" + len;
 						inc.write("__env." + name + ".raw = (" + ts + "*)(size_t)x10aux::remote_alloc(__gpu, " + sz + ");");
 						inc.newline();
