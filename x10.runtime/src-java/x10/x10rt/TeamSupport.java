@@ -114,12 +114,6 @@ public class TeamSupport {
         nativeAllReduceImpl(id, role, srcRaw, src_off, dstRaw, dst_off, count, op, typeCode, fs);
     }
 
-    public static void nativeAllReduce(int id, int role, IndexedMemoryChunk<?> src,
-                                       IndexedMemoryChunk<?> dst, int op) {
-        System.err.println("About to die in nativeAllReduce");
-        throw new UnsupportedOperationException("nativeAllReduce");
-    }
-
     public static void nativeIndexOfMax(int id, int role, IndexedMemoryChunk<?> src,
                                         IndexedMemoryChunk<?> dst) {
         System.err.println("About to die in nativeIndexOfMax");
