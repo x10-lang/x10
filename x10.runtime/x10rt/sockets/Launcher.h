@@ -48,8 +48,7 @@ extern "C" int strcasecmp(const char *, const char *);
 #define X10RT_NOYIELD "X10RT_NOYIELD"
 
 // Enable/disable debug information
-// Enabled for MULTIVM
-#define DEBUG 1
+//#define DEBUG 1
 
 enum CTRL_MSG_TYPE {HELLO, GOODBYE, PORT_REQUEST, PORT_RESPONSE};
 struct ctrl_msg
