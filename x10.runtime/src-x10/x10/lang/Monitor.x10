@@ -33,42 +33,11 @@ import x10.util.Stack;
     }
 
     static type Worker = Runtime.Worker;
-    
+
     /**
      * Parked workers
      */
     private val workers = new Stack[Worker]();
-
-    /**
-     * Aquire the lock
-     */
-    public def lock():void {
-        if (super.tryLock()) return;
-        Runtime.increaseParallelism(); // likely to be blocked for a while
-        super.lock();
-        Runtime.decreaseParallelism(1);
-    }
-
-    /**
-     * Aquire the lock without increasing parallelism
-     */
-   public def lockWorker():void {
-       super.lock();
-   }
-
-    /**
-     * Try acquiring the lock
-     */
-    public def tryLock():boolean {
-        return super.tryLock();
-    }
-
-    /**
-     * Release the lock
-     */
-    public def unlock():void {
-        super.unlock();
-    }
 
     /**
      * Await notification

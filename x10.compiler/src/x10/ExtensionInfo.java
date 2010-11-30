@@ -464,9 +464,11 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            goals.add(X10Expanded(job));
            goals.add(X10RewriteAtomicMethods(job));
            
-           
-           
            goals.add(NativeClassVisitor(job));
+           
+           goals.add(InnerClassRemover(job)); // TODO: move even earlier
+           InnerClassRemover(job).addPrereq(NativeClassVisitor(job));
+           InnerClassRemover(job).addPrereq(TypeCheckBarrier());
 
            goals.add(Serialized(job));
            if (x10.Configuration.WORK_STEALING) {
@@ -480,12 +482,8 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            goals.add(Postoptimization(job));
            
            goals.add(Lowerer(job));
-           goals.add(InnerClassRemover(job)); // TODO: move earlier
            goals.add(CodeGenerated(job));
            
-           InnerClassRemover(job).addPrereq(Serialized(job));
-           InnerClassRemover(job).addPrereq(TypeCheckBarrier());
-
            // the barrier will handle prereqs on its own
            Desugarer(job).addPrereq(TypeCheckBarrier());
            CodeGenerated(job).addPrereq(CodeGenBarrier());
@@ -642,7 +640,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
        }
      
        protected Goal codegenPrereq(Job job) {
-           return InnerClassRemover(job);
+           return Lowerer(job);
        }
        
        public Goal CodeGenBarrier() {

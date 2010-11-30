@@ -19,16 +19,11 @@ import java.util.List;
 import java.util.Set;
 
 import polyglot.ast.Node;
-import polyglot.ast.NodeFactory;
-import polyglot.frontend.ExtensionInfo;
-import polyglot.types.ClassType;
 import polyglot.types.QName;
 import polyglot.types.Type;
-import polyglot.types.VarDef;
 import polyglot.ast.Ext_c;
 import x10.ast.AnnotationNode;
 import x10.types.X10ClassType;
-import polyglot.types.TypeSystem;
 import polyglot.types.LocalDef;
 
 public class X10Ext_c extends Ext_c implements X10Ext {
@@ -38,12 +33,12 @@ public class X10Ext_c extends Ext_c implements X10Ext {
     val x:Int;
     finish async { finish async { x = 42; } }
      */
-    public Set<LocalDef> asyncInitVal = null;
+    public Set<LocalDef> initVals = null;
 
     String comment;
     List<AnnotationNode> annotations;
     boolean subtreeValid = true;
-    
+
     public String comment() {
         return this.comment;
     }
@@ -130,7 +125,7 @@ public class X10Ext_c extends Ext_c implements X10Ext {
 
     public Node asyncInitVal(Set<LocalDef> initVars) {
         X10Ext_c c = (X10Ext_c) copy();
-        c.asyncInitVal = (initVars == null) ? null : new HashSet<LocalDef>(initVars);
+        c.initVals = (initVars == null) ? null : new HashSet<LocalDef>(initVars);
         return this.node().ext(c);
     }
 }

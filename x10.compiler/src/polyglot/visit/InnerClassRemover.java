@@ -444,7 +444,7 @@ public class InnerClassRemover extends ContextVisitor {
 
                 newMembers.add(td);
 
-                adjustConstrutorFormals(td.constructorDef(), newFormals);
+                adjustConstructorFormals(td.constructorDef(), newFormals);
             }
             else {
                 newMembers.add(m);
@@ -455,7 +455,7 @@ public class InnerClassRemover extends ContextVisitor {
         return cd.body(b);
     }
 
-    protected void adjustConstrutorFormals(ConstructorDef ci, List<Formal> newFormals) {
+    protected void adjustConstructorFormals(ConstructorDef ci, List<Formal> newFormals) {
         List<Ref<? extends Type>> newFormalTypes = new ArrayList<Ref<? extends Type>>();
         for (Formal f : newFormals) {
             newFormalTypes.add(f.type().typeRef());

@@ -96,7 +96,6 @@ public class Types {
             return o == OBJECT || o == ANY;
         };
     };
-    public static final Object OBJECT_ZERO = null;
     public static final RuntimeType<Object> ANY = new RuntimeType<Object>(Object.class) {
         @Override
         public String typeName() {
@@ -109,6 +108,10 @@ public class Types {
         };
     };
 
+    public static Class<?> UBYTE_CLASS;
+    public static Class<?> USHORT_CLASS;
+    public static Class<?> UINT_CLASS;
+    public static Class<?> ULONG_CLASS;
     public static RuntimeType<?> UBYTE;
     public static RuntimeType<?> USHORT;
     public static RuntimeType<?> UINT;
@@ -121,19 +124,19 @@ public class Types {
         try {
             Class<?> c;
             java.lang.reflect.Field f;
-            c = Class.forName("x10.lang.UByte");
+            UBYTE_CLASS = c = Class.forName("x10.lang.UByte");
             f = c.getDeclaredField("_RTT");
             UBYTE = (RuntimeType<?>) f.get(null);
             UBYTE_ZERO = c.getConstructor(new Class[]{byte.class}).newInstance(new Object[]{(byte)0});
-            c = Class.forName("x10.lang.UShort");
+            USHORT_CLASS = c = Class.forName("x10.lang.UShort");
             f = c.getDeclaredField("_RTT");
             USHORT = (RuntimeType<?>) f.get(null);
             USHORT_ZERO = c.getConstructor(new Class[]{short.class}).newInstance(new Object[]{(short)0});
-            c = Class.forName("x10.lang.UInt");
+            UINT_CLASS = c = Class.forName("x10.lang.UInt");
             f = c.getDeclaredField("_RTT");
             UINT = (RuntimeType<?>) f.get(null);
             UINT_ZERO = c.getConstructor(new Class[]{int.class}).newInstance(new Object[]{0});
-            c = Class.forName("x10.lang.ULong");
+            ULONG_CLASS = c = Class.forName("x10.lang.ULong");
             f = c.getDeclaredField("_RTT");
             ULONG = (RuntimeType<?>) f.get(null);
             ULONG_ZERO = c.getConstructor(new Class[]{long.class}).newInstance(new Object[]{0L});
@@ -141,25 +144,22 @@ public class Types {
     }
 
     public static RuntimeType<?> getNativeRepRTT(Object o) {
-        if (o instanceof Boolean) return BOOLEAN;
         if (o instanceof Byte) return BYTE;
-        if (o instanceof Character) return CHAR;
         if (o instanceof Short) return SHORT;
         if (o instanceof Integer) return INT;
         if (o instanceof Long) return LONG;
         if (o instanceof Float) return FLOAT;
         if (o instanceof Double) return DOUBLE;
+        if (o instanceof Character) return CHAR;
+        if (o instanceof Boolean) return BOOLEAN;
         if (o instanceof String) return STRING;
         return null;
     }
 
     static boolean isStructType(Type<?> rtt) {
-        if (
-            rtt == BOOLEAN
-            || rtt == BYTE  || rtt == SHORT  || rtt == CHAR || rtt == INT   || rtt == LONG
-            || rtt == UBYTE  || rtt == USHORT  || rtt == UINT   || rtt == ULONG
-            || rtt == FLOAT || rtt == DOUBLE
-            ) {
+        if (rtt == BYTE  || rtt == SHORT  || rtt == INT   || rtt == LONG ||
+            /*rtt == UBYTE  || rtt == USHORT  || rtt == UINT || rtt == ULONG ||*/
+            rtt == FLOAT || rtt == DOUBLE || rtt == CHAR || rtt == BOOLEAN) {
             return true;
         }
         else if (rtt.isSubtype(x10.core.Struct._RTT)) {
@@ -230,19 +230,19 @@ public class Types {
         if (typeParamOrAny == null) {nullIsCastedToStruct();}
 
         if (rtt == UBYTE) {
-            if (typeParamOrAny instanceof x10.lang.UByte) { return typeParamOrAny;}
-//            if (typeParamOrAny instanceof x10.lang.UShort) { return (UByte)...;}
-//            if (typeParamOrAny instanceof x10.lang.UInt) { return (UByte)...;}
-//            if (typeParamOrAny instanceof x10.lang.ULong) { return (UByte)...;}
+            if (UBYTE_CLASS.isInstance(typeParamOrAny)) { return typeParamOrAny;}
+//            if (USHORT_CLASS.isInstance(typeParamOrAny)) { return (UByte)...;}
+//            if (UINT_CLASS.isInstance(typeParamOrAny)) { return (UByte)...;}
+//            if (ULONG_CLASS.isInstance(typeParamOrAny)) { return (UByte)...;}
         }
         else if (rtt == USHORT) {
-            if (typeParamOrAny instanceof x10.lang.UShort) { return typeParamOrAny;}
+            if (USHORT_CLASS.isInstance(typeParamOrAny)) { return typeParamOrAny;}
         }
         else if (rtt == UINT) {
-            if (typeParamOrAny instanceof x10.lang.UInt) { return typeParamOrAny;}
+            if (UINT_CLASS.isInstance(typeParamOrAny)) { return typeParamOrAny;}
         }
         else if (rtt == ULONG) {
-            if (typeParamOrAny instanceof x10.lang.ULong) { return typeParamOrAny;}
+            if (ULONG_CLASS.isInstance(typeParamOrAny)) { return typeParamOrAny;}
         }
         else {
             return typeParamOrAny;
@@ -289,28 +289,59 @@ public class Types {
 
     public static void nullIsCastedToStruct(){throw new java.lang.ClassCastException();}
 
-    public static boolean isJavaPrimitive(Type<?> rtt) {
-        if (rtt == BYTE || rtt == SHORT || rtt == INT || rtt == LONG ||
+    public static boolean hasNaturalZero(Type<?> rtt) {
+        if (rtt.isSubtype(OBJECT) ||
+            rtt == BYTE || rtt == SHORT || rtt == INT || rtt == LONG ||
             /*rtt == UBYTE || rtt == USHORT || rtt == UINT || rtt == ULONG ||*/
             rtt == FLOAT || rtt == DOUBLE || rtt == CHAR || rtt == BOOLEAN) return true;
         return false;
     }
 
-    public static Object zeroValue(Type<?> rtt) {
-        if (rtt.isSubtype(OBJECT)) return OBJECT_ZERO;
-        if (rtt == BYTE) return BYTE_ZERO;
-        if (rtt == SHORT) return SHORT_ZERO;
-        if (rtt == INT) return INT_ZERO;
-        if (rtt == LONG) return LONG_ZERO;
-        if (rtt == UBYTE) return UBYTE_ZERO;
-        if (rtt == USHORT) return USHORT_ZERO;
-        if (rtt == UINT) return UINT_ZERO;
-        if (rtt == ULONG) return ULONG_ZERO;
-        if (rtt == FLOAT) return FLOAT_ZERO;
-        if (rtt == DOUBLE) return DOUBLE_ZERO;
-        if (rtt == CHAR) return CHAR_ZERO;
-        if (rtt == BOOLEAN) return BOOLEAN_ZERO;
-        /*throw new java.lang.Error(rtt.toString() + " must have zero value");*/
+    private static Object zeroValue(Class<?> c) {
+        if (c.equals(BYTE.getJavaClass()) || c.equals(Byte.class)) return BYTE_ZERO;
+        if (c.equals(SHORT.getJavaClass()) || c.equals(Short.class)) return SHORT_ZERO;
+        if (c.equals(INT.getJavaClass()) || c.equals(Integer.class)) return INT_ZERO;
+        if (c.equals(LONG.getJavaClass()) || c.equals(Long.class)) return LONG_ZERO;
+        if (c.equals(UBYTE.getJavaClass())) return UBYTE_ZERO;
+        if (c.equals(USHORT.getJavaClass())) return USHORT_ZERO;
+        if (c.equals(UINT.getJavaClass())) return UINT_ZERO;
+        if (c.equals(ULONG.getJavaClass())) return ULONG_ZERO;
+        if (c.equals(FLOAT.getJavaClass()) || c.equals(Float.class)) return FLOAT_ZERO;
+        if (c.equals(DOUBLE.getJavaClass()) || c.equals(Double.class)) return DOUBLE_ZERO;
+        if (c.equals(CHAR.getJavaClass()) || c.equals(Character.class)) return CHAR_ZERO;
+        if (c.equals(BOOLEAN.getJavaClass()) || c.equals(Boolean.class)) return BOOLEAN_ZERO;
+        if (x10.core.Struct.class.isAssignableFrom(c)) {
+            try {
+                Object zero = null;
+                // Generate "default" constructor for all non-primitive structs, or 
+                //zero = c.getConstructor(null).newInstance(null);
+                // Instantiate with an arbitrary constructor then initialize all fields with zero value recursively
+                java.lang.reflect.Constructor<?> ctor = c.getConstructors()[0];
+                Class<?>[] paramTypes = ctor.getParameterTypes();
+                Object[] params = new Object[paramTypes.length];
+                for (int i = 0; i < paramTypes.length; ++i) {
+                    // these value is not necessarily same as zero value
+                    params[i] = zeroValue(paramTypes[i]);
+                }
+                zero = ctor.newInstance(params);
+                for (java.lang.reflect.Field field : c.getDeclaredFields()) {
+                    if (java.lang.reflect.Modifier.isStatic(field.getModifiers())) continue;
+                    field.setAccessible(true);
+                    field.set(zero, zeroValue(field.getType()));
+                }
+                return zero;
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new java.lang.Error(e);
+            }
+        }
+        // zero-length array, or null (fall through)
+        //if (c.isArray()) return java.lang.reflect.Array.newInstance(c.getComponentType(), 0);
         return null;
+    }
+
+    public static Object zeroValue(Type<?> rtt) {
+        //assert isStructType(rtt) : "haszero is valid only for structs";
+        return zeroValue(rtt.getJavaClass());
     }
 }

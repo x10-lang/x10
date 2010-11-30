@@ -19,7 +19,7 @@ class XTENLANG_686 extends x10Test {
 
 	static class A(a:Int) {
 		  def this() : A{1==this.a}{property(1);} // ok
-		  //def this(a:Int{self==this.a}) {property(a);} // ERR: Semantic Error: This or super cannot be used (implicitly or explicitly) in a constructor formal type.	 Formals: [val a: x10.lang.Int{self==FordesemiFoo#this.a}]
+		  //def this(a:Int{self==this.a}) {property(a);} // Semantic Error: This or super cannot be used (implicitly or explicitly) in a constructor formal type.	 Formals: [val a: x10.lang.Int{self==FordesemiFoo#this.a}]
 		}
 	
 

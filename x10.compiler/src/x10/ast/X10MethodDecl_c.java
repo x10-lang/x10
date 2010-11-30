@@ -1010,7 +1010,22 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
             w.allowBreak(0, " ");
         }
         print(flags, w, tr);
-        w.write("def " + name + "(");
+        w.write("def " + name);
+        if (!typeParameters.isEmpty()) {
+            w.write("[");
+            w.begin(0);
+            for (Iterator<TypeParamNode> pi = typeParameters.iterator(); pi.hasNext(); ) {
+                TypeParamNode pn = pi.next();
+                print(pn, w, tr);
+                if (pi.hasNext()) {
+                    w.write(",");
+                    w.allowBreak(0, " ");
+                }
+            }
+            w.end();
+            w.write("]");
+        }
+        w.write("(");
     
         w.allowBreak(2, 2, "", 0);
         w.begin(0);

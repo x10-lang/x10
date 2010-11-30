@@ -113,6 +113,36 @@ public class X10New_c extends New_c implements X10New {
     }
 
     @Override
+    public X10ConstructorInstance constructorInstance() {
+        return (X10ConstructorInstance) super.constructorInstance();
+    }
+
+    @Override
+    public X10New anonType(ClassDef anonType) {
+        return (X10New) super.anonType(anonType);
+    }
+    @Override
+    public X10New arguments(List<Expr> arguments) {
+        return (X10New) super.arguments(arguments);
+    }
+    @Override
+    public X10New body(ClassBody body) {
+        return (X10New) super.body(body);
+    }
+    @Override
+    public X10New constructorInstance(ConstructorInstance ci) {
+        return (X10New) super.constructorInstance(ci);
+    }
+    @Override
+    public X10New objectType(TypeNode tn) {
+        return (X10New) super.objectType(tn);
+    }
+    @Override
+    public X10New qualifier(Expr qualifier) {
+        return (X10New) super.qualifier(qualifier);
+    }
+
+    @Override
     public Node buildTypesOverride(TypeBuilder tb) throws SemanticException {
         X10New_c n = (X10New_c) super.buildTypesOverride(tb);
         List<TypeNode> typeArgs = n.visitList(n.typeArguments(), tb);
@@ -206,10 +236,6 @@ public class X10New_c extends New_c implements X10New {
         if (t == anonType) {
             t = (ClassType) t.container();
         }
-        if (anonType!=null) {
-            outer = t;
-            t = null;
-        }
         
         // Search all enclosing classes for the type.
         while (t != null) {
@@ -219,8 +245,8 @@ public class X10New_c extends New_c implements X10New {
                 if (mt instanceof ClassType) {
                     ClassType cmt = (ClassType) mt;
                     if (cmt.def() == ct.def()) {
-                    outer = t;
-                    break;
+                        outer = t;
+                        break;
                     }
                 }
             }
@@ -231,8 +257,7 @@ public class X10New_c extends New_c implements X10New {
         }
         
         if (outer == null) {
-            throw new SemanticException("Could not find non-static member class \"" +
-                                        name + "\".", position());
+            throw new SemanticException("Could not find non-static member class \"" + name + "\".", position());
         }
         
         // Create the qualifier.

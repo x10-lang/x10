@@ -45,6 +45,7 @@ import polyglot.visit.TypeBuilder;
 import x10.ast.TypeParamNode;
 import x10.ast.X10ClassDecl;
 import x10.ast.X10MethodDecl;
+import x10.ast.X10New;
 import x10.types.ParameterType;
 import x10.types.TypeParamSubst;
 import x10.types.X10ClassDef;
@@ -76,8 +77,8 @@ public class X10LocalClassRemover extends LocalClassRemover {
         public Node leave(Node old, Node n, NodeVisitor v) {
             Node n_ = super.leave(old, n, v);
             
-            if (n_ instanceof New) {
-                New neu = (New) n_;
+            if (n_ instanceof X10New) {
+                X10New neu = (X10New) n_;
                 X10ConstructorInstance ci = (X10ConstructorInstance) neu.constructorInstance();
                 ConstructorDef nci = ci.def();
                 X10ClassType container = (X10ClassType) Types.get(nci.container());
@@ -85,6 +86,8 @@ public class X10LocalClassRemover extends LocalClassRemover {
                 if (container.def() == theLocalClass) {
                     X10ClassType type = (X10ClassType) X10TypeMixin.baseType(neu.objectType().type());
                     List<Type> ta = type.typeArguments();
+                    List<TypeNode> nta = neu.typeArguments();
+                    assert (ta == null || ta.size() == nta.size());
                     List<ParameterType> params = type.x10Def().typeParameters();
                     if (!params.isEmpty() && (ta == null || ta.size() != params.size())) {
                         assert (context().currentCode() instanceof X10MethodDef);
@@ -93,15 +96,21 @@ public class X10LocalClassRemover extends LocalClassRemover {
                             ta = new ArrayList<Type>();
                         } else if (!md.typeParameters().isEmpty()) {
                             ta = new ArrayList<Type>(ta);
+                            nta = new ArrayList<TypeNode>(nta);
                         }
                         ta.addAll(md.typeParameters());
+                        for (Type pt : md.typeParameters()) {
+                            nta.add(nf.CanonicalTypeNode(neu.objectType().position(), pt));
+                        }
+                        assert (ta.size() == nta.size());
                         assert (ta.size() == params.size());
                     }
                     TypeParamSubst subst = new TypeParamSubst((TypeSystem) ts, ta, params);
                     X10ConstructorInstance xci = (X10ConstructorInstance) subst.reinstantiate(ci);
                     neu = neu.constructorInstance(xci);
                     neu = neu.objectType(nf.CanonicalTypeNode(neu.objectType().position(), subst.reinstantiate(type)));
-                    neu = (New) neu.type(subst.reinstantiate(neu.type()));
+                    neu = neu.typeArguments(nta);
+                    neu = (X10New) neu.type(subst.reinstantiate(neu.type()));
                     // FIX:XTENLANG-949 (for mismatch between neu.argument and neu.ci.formalTypes)
                     if (neu.arguments().size() > ci.formalTypes().size()) {
                         assert (false) : "This should not happen";

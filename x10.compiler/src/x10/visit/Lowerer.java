@@ -849,8 +849,8 @@ public class Lowerer extends ContextVisitor {
 
         // propagate async initialization info to backend
         X10Ext_c ext = (X10Ext_c) f.ext();
-        if (ext.asyncInitVal != null) {
-            tcfBlock = (Try)((X10Ext_c)tcfBlock.ext()).asyncInitVal(ext.asyncInitVal);
+        if (ext.initVals != null) {
+            tcfBlock = (Try)((X10Ext_c)tcfBlock.ext()).asyncInitVal(ext.initVals);
         }
 
         return xnf.Block(pos,
