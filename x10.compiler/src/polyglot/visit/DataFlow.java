@@ -440,7 +440,7 @@ public abstract class DataFlow extends ErrorHandlingVisitor
                 }
                 catch (CFGBuildError e) {
                     hadCFG_Error = true;
-                    if (reportCFG_Errors) reportError(e.message(), e.position());
+                    if (reportCFG_Errors) reportError(e.getMessage(), e.position);
                     return;
                 }
 

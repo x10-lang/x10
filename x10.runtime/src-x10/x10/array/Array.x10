@@ -135,7 +135,7 @@ public final class Array[T](
      *
      * @param reg The region over which to construct the array.
      */
-    public def this(reg:Region) // todo: {T haszero}
+    public def this(reg:Region) {T haszero}
         :Array[T]{self.region==reg} {
         property(reg, reg.size());
 
@@ -213,7 +213,7 @@ public final class Array[T](
     /**
      * Construct Array over the region 0..size-1 whose elements are zero-initialized.
      */
-    public def this(size:int) // todo: {T haszero}
+    public def this(size:int) {T haszero}
         :Array[T]{self.region.rank==1,self.region.rect,self.region.zeroBased,self.size==size} {
         property(0..size-1, size);
 
@@ -734,7 +734,7 @@ public final class Array[T](
      * @see #map((T)=>U)
      * @see #reduce((U,T)=>U,U)
      */
-    public def scan[U](op:(U,T)=>U, unit:U) //todo {U haszero}
+    public def scan[U](op:(U,T)=>U, unit:U) {U haszero}
         = scan(new Array[U](region), op, unit); // TODO: private constructor to avoid useless zeroing
 
 
