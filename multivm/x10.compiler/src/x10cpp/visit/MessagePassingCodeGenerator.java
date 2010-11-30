@@ -3327,34 +3327,48 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 	public void visit(IntLit_c n) {
 	    String val;
-	    if (n.kind() == IntLit_c.ULONG) {
+        switch (n.kind()) {
+        case ULONG:
 	        if (n.boundary())
 	            val = "0x" + Long.toHexString(n.value()).toUpperCase() + "llu";
 	        else if (n.value() < 0)
 	            val = "0x" + Long.toHexString(n.value()).toUpperCase() + "llu";
 	        else
 	            val = Long.toString(n.value()) + "ull";
-	    } else if (n.kind() == IntLit_c.UINT) {
+            break;
+        case UINT:
 	        if (n.value() >= 0x80000000L)
 	            val = "0x" + Long.toHexString(n.value()).toUpperCase() + "u";
 	        else if (n.boundary())
 	            val = "0x" + Long.toHexString(-n.value()).toUpperCase() + "u";
 	        else
 	            val = Long.toString((int) n.value()) + "u";
-	    } else if (n.kind() == IntLit_c.LONG) {
+            break;
+        case LONG:
 	        if (n.boundary())
 	            val = "0x" + Long.toHexString(n.value()).toUpperCase() + "llu";
 	        else
 	            val = Long.toString(n.value()) + "ll";
-	    } else if (n.kind() == IntLit_c.INT) {
+            break;
+        case INT:
 	        if (n.value() >= 0x80000000L)
 	            val = "0x" + Long.toHexString(n.value()).toUpperCase() + "u";
 	        else if (n.boundary())
 	            val = "0x" + Long.toHexString(-n.value()).toUpperCase() + "u";
 	        else
 	            val = Long.toString((int) n.value());
-	    } else
+            break;
+
+        case BYTE:
+        case SHORT:
+        case UBYTE:
+        case USHORT:
+            val = Long.toString((int) n.value());
+            break;
+
+        default:
 	        throw new InternalCompilerError("Unrecognized IntLit kind " + n.kind());
+        }
 	    sw.write("("); sw.begin(0);
 	    sw.write("(" + Emitter.translateType(n.type(), true) + ")");
 	    sw.write(val);
@@ -4652,7 +4666,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		Expr expr = n.expr();
 		if (operator == Unary_c.NEG && expr instanceof IntLit) {
 		    IntLit_c lit = (IntLit_c) expr;
-		    IntLit.Kind kind = (lit.kind() == IntLit_c.UINT) ? IntLit.INT : ((lit.kind() == IntLit_c.ULONG) ? IntLit.LONG : lit.kind());
+		    IntLit.Kind kind = lit.kind().toSigned();
 		    n.printSubExpr(lit.value(-lit.longValue()).kind(kind), true, sw, tr);
 		}
 		else if (operator.isPrefix()) {

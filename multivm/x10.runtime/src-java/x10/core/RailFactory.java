@@ -19,8 +19,8 @@ import x10.rtt.Types;
 public abstract class RailFactory {
     public static <T> Rail<T> makeVarRail(Type type, int length) {
         Object value = type.makeArray(length);
-        Object zeroValue = x10.rtt.Types.zeroValue(type);
-        if (zeroValue != null && !x10.rtt.Types.isJavaPrimitive(type)) {
+        if (!x10.rtt.Types.hasNaturalZero(type)) {
+            Object zeroValue = x10.rtt.Types.zeroValue(type);
             java.util.Arrays.fill((Object[]) value, zeroValue);
         }
         return new Rail<T>(type, length, value);

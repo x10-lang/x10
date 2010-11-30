@@ -49,6 +49,7 @@ import polyglot.visit.NodeVisitor;
 import x10.Configuration;
 import x10.ast.Closure;
 import x10.ast.DepParameterExpr;
+import x10.ast.ParExpr;
 import x10.ast.SettableAssign;
 import x10.ast.X10Binary_c;
 import x10.ast.X10Call;
@@ -111,6 +112,8 @@ public class Desugarer extends ContextVisitor {
     }
 
     public Node leaveCall(Node old, Node n, NodeVisitor v) throws SemanticException {
+        if (n instanceof ParExpr)
+            return visitParExpr((ParExpr) n);
         if (n instanceof Assign)
             return visitAssign((Assign) n);
         // We should be using interfaces (e.g., X10Binary, X10Unary) instead, but
@@ -141,6 +144,13 @@ public class Desugarer extends ContextVisitor {
 
     protected Expr call(Position pos, Name name, Type returnType) throws SemanticException {
     	return synth.makeStaticCall(pos, xts.Runtime(), name,  returnType, context());
+    }
+
+    /**
+     * Remove parenthesized expressions.
+     */
+    protected Expr visitParExpr(ParExpr e) {
+        return e.expr();
     }
 
     // desugar binary operators

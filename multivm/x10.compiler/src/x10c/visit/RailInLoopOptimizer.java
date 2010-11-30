@@ -501,6 +501,14 @@ public class RailInLoopOptimizer extends ContextVisitor {
 
     private boolean isOptimizationTarget(Type ttype) {
         ttype = X10TypeMixin.baseType(ttype);
-        return (xts.isRail(ttype) || isIMC(ttype)) && !(X10PrettyPrinterVisitor.hasParams(ttype) && xts.isParameterType(((X10ClassType) ttype).typeArguments().get(0)));
+        if (!xts.isRail(ttype) && !isIMC(ttype))
+            return false;
+        if (!X10PrettyPrinterVisitor.hasParams(ttype))
+            return true;
+        List<Type> ta = ((X10ClassType) ttype).typeArguments();
+        if (ta != null && !ta.isEmpty() && !xts.isParameterType(ta.get(0))) {
+            return true;
+        }
+        return false;
     }
 }

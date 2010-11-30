@@ -430,8 +430,8 @@ public class X10InnerClassRemover extends InnerClassRemover {
         return cd;
     }
 
-    protected void adjustConstrutorFormals(ConstructorDef ci, List<Formal> newFormals) {
-        super.adjustConstrutorFormals(ci, newFormals);
+    protected void adjustConstructorFormals(ConstructorDef ci, List<Formal> newFormals) {
+        super.adjustConstructorFormals(ci, newFormals);
         assert (ci instanceof X10ConstructorDef);
         List<LocalDef> newFormalNames = new ArrayList<LocalDef>();
         for (Formal f : newFormals) {

@@ -302,22 +302,17 @@ import x10.io.SerialData;
 
 
     protected static class State[Key,Value] {
-        val size:int;
-        val keys:Array[Key](1);
-        val vals:Array[Value](1);
+        val content:Array[Pair[Key,Value]](1);
 
         def this(map:HashMap[Key,Value]) {
-            size = map.size();
-            keys = new Array[Key](size);
-            vals = new Array[Value](size);
-	    var cur:int = 0;
+            val size = map.size();
             val it = map.entriesIterator();
-            while (it.hasNext()) {
-               val entry = it.next();
-               keys(cur) = entry.getKey();
-               vals(cur) = entry.getValue();
-               cur++;
-            }
+            content = new Array[Pair[Key,Value]](size,
+              (p:Int) => {
+                   val entry = it.next();
+                   return Pair[Key,Value](entry.getKey(),entry.getValue());
+              }
+            );
         }
     }
 
@@ -327,8 +322,9 @@ import x10.io.SerialData;
     public def this(x:SerialData) {
         this();
         val state = x.data as State[K,V];
-	for ([i] in 0..state.size-1) {
-            putInternal(state.keys(i), state.vals(i));
+	    for (p in state.content) {
+	        val pair = state.content(p);
+            putInternal(pair.first, pair.second);
         }
     }
 

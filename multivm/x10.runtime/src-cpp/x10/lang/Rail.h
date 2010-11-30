@@ -22,6 +22,7 @@
 
 #include <x10/lang/Place.struct_h>
 #include <x10/util/Pair.struct_h>
+#include <x10/util/IndexedMemoryChunk.struct_h>
 
 #define X10_LANG_ITERABLE_H_NODEPS
 #include <x10/lang/Iterable.h>
@@ -36,6 +37,7 @@
 namespace x10 { namespace lang { class VoidFun_0_0; } }
 namespace x10 { namespace lang { template<class R> class Fun_0_0; } }
 namespace x10 { namespace lang { template<class P1, class R> class Fun_0_1; } }
+namespace x10 { namespace util { template<class T> class IndexedMemoryChunk; } }
 
 namespace x10 {
 
@@ -79,6 +81,8 @@ namespace x10 {
             T* const _data;
             
             Rail(x10_int length_, T* storage) : FMGL(length)(length_),  _data(storage) { }
+
+            GPUSAFE x10::util::IndexedMemoryChunk<T> indexedMemoryChunk();
 
             GPUSAFE T set(T v, x10_int index) { 
                 return (*this)[index] = v; 
@@ -186,6 +190,10 @@ namespace x10 {
             x10aux::itable_entry(&x10aux::getRTT<x10::lang::Settable<x10_int, T> >, &x10::lang::Rail<T>::_itable_iterable),
             x10aux::itable_entry(NULL,  (void*)x10aux::getRTT<Rail<T> >())
         };
+
+        template <class T> x10::util::IndexedMemoryChunk<T> Rail<T>::indexedMemoryChunk() {
+            return x10::util::IndexedMemoryChunk<T>((T*)_data, (x10_int)FMGL(length));
+        }
 
         template <class T> x10aux::ref<Rail<T> > Rail<void>::makeAligned(x10_int length, x10_int alignment) {
             x10aux::ref<Rail<T> > rail = x10aux::alloc_aligned_rail<T,Rail<T> >(length, alignment);

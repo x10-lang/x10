@@ -13,6 +13,7 @@ package x10.lang;
 
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
+import x10.util.IndexedMemoryChunk;
 import x10.util.Pair;
 
 /** A 1-dimensional 0-based sequence of elements, each of the same type,
@@ -202,4 +203,14 @@ public final class Rail[T](length: Int)
         public def next() = rail(curIndex++);
     }
 
+    /**
+     * Return an IndexedMemoryChunk[T] that is wrapping the backing storage for the rail.
+     * This method is primarily intended to be used to interface with native libraries 
+     * (eg BLAS, ESSL). <p>
+     *
+     * @return an IndexedMemoryChunk[T] that is wrapping the backing storage for the Rail object.
+     */
+    @Native("java", "(#0).raw()")
+    @Native("c++", "(#0)->indexedMemoryChunk()")
+    public native def raw(): IndexedMemoryChunk[T];
 }
