@@ -130,6 +130,121 @@ JNIEXPORT void JNICALL Java_x10_x10rt_TeamSupport_nativeBarrierImpl(JNIEnv *env,
     x10rt_barrier(id, role, &barrierCallback, callbackArg);
 }
 
+
+/*****************************************************
+ * nativeAllReduceImpl
+ *****************************************************/
+
+typedef struct allReduceStruct {
+    jobject globalFinishState;
+    jobject globalDstArray;
+    jint typecode;
+    jint dstOffset;
+    jint count;
+    void *srcData;
+    void *dstData;
+} allReduceStruct;
+
+static void allReduceCallback(void *arg) {
+    allReduceStruct *callbackArg = (allReduceStruct*)arg;
+    JNIEnv *env = jniHelper_getEnv();
+
+    // Copy from native buffer to dstArray
+    switch(callbackArg->typecode) {
+    case 4:
+        // int[]
+        env->SetIntArrayRegion((jintArray)callbackArg->globalDstArray,
+                               callbackArg->dstOffset,
+                               callbackArg->count,
+                               (jint*)callbackArg->dstData);
+        break;
+    case 9:
+        // float[]
+        env->SetFloatArrayRegion((jfloatArray)callbackArg->globalDstArray,
+                                 callbackArg->dstOffset,
+                                 callbackArg->count,
+                                 (jfloat*)callbackArg->dstData);
+        break;
+
+    default:
+        fprintf(stderr, "Unsupported typecode %d in allReduceCallback\n", callbackArg->typecode);
+        abort();
+    }
+    
+    // notify that the activity that was performing the barrier has finished.
+    env->CallStaticVoidMethod(activityTerminationFunc.targetClass,
+                              activityTerminationFunc.targetMethod,
+                              callbackArg->globalFinishState);
+
+    // Free resources
+    env->DeleteGlobalRef(callbackArg->globalFinishState);
+    env->DeleteGlobalRef(callbackArg->globalDstArray);
+    free(callbackArg->srcData);
+    free(callbackArg->dstData);
+    free(callbackArg);
+}
+
+
+/*
+ * Class:     x10_x10rt_TeamSupport
+ * Method:    nativeAllReduceImpl
+ * Signature: (IILjava/lang/Object;ILjava/lang/Object;IIILx10/lang/FinishState;)V
+ */
+JNIEXPORT void JNICALL Java_x10_x10rt_TeamSupport_nativeAllReduceImpl(JNIEnv *env, jclass klazz,
+                                                                      jint id, jint role,
+                                                                      jobject src, jint src_off,
+                                                                      jobject dst, jint dst_off,
+                                                                      jint count, jint op, jint typecode,
+                                                                      jobject finishState) {
+    jobject globalDst = env->NewGlobalRef(dst);
+    jobject globalFinishState = env->NewGlobalRef(finishState);
+    if (NULL == globalDst || NULL == globalFinishState) {
+        fprintf(stderr, "OOM while attempting to create GlobalRef in nativeMakeImpl\n");
+        abort();
+    }
+
+    void *srcData;
+    void *dstData;
+    switch(typecode) {
+    case 4:
+        // int[]
+        srcData = malloc(count*sizeof(jint));
+        dstData = malloc(count*sizeof(jint));
+        if (NULL == srcData || NULL == dstData) {
+            fprintf(stderr, "OOM while attempting to allocate malloced storage in nativeMakeImpl\n");
+            abort();
+        }
+        env->GetIntArrayRegion((jintArray)src, src_off, count, (jint*)srcData);
+        break;
+    case 9:
+        // float[]
+        srcData = malloc(count*sizeof(jfloat));
+        dstData = malloc(count*sizeof(jfloat));
+        if (NULL == srcData || NULL == dstData) {
+            fprintf(stderr, "OOM while attempting to allocate malloced storage in nativeMakeImpl\n");
+            abort();
+        }
+        env->GetFloatArrayRegion((jfloatArray)src, src_off, count, (jfloat*)srcData);
+        break;
+    default:
+        fprintf(stderr, "Unsupported typecode %d in allReduceImpl\n", typecode);
+        abort();
+    }        
+
+    allReduceStruct* callbackArg = (allReduceStruct*)malloc(sizeof(allReduceStruct));
+    callbackArg->globalFinishState = globalFinishState;
+    callbackArg->globalDstArray = globalDst;
+    callbackArg->typecode = typecode;
+    callbackArg->dstOffset = dst_off;
+    callbackArg->count = count;
+    callbackArg->srcData = srcData;
+    callbackArg->dstData = dstData;
+
+    x10rt_allreduce(id, role, srcData, dstData, (x10rt_red_op_type)op, (x10rt_red_type)typecode,
+                    count, &allReduceCallback, callbackArg);
+}
+
+
 /*****************************************************
  * nativeDelImpl
  *****************************************************/
