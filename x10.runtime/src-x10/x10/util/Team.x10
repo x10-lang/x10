@@ -44,7 +44,9 @@ public struct Team {
     /** Create a team by defining the place where each member lives.  This would usually be called before creating an async for each member of the team.
      * @param places The place of each member
      */
-//    public def this (places:Rail[Place]) {
+    public def this (places:Rail[Place]) {
+        this(places.raw(), places.length);
+    }
 
     public def this (places:Array[Place]) {
         this(places.raw(), places.size);
@@ -100,7 +102,9 @@ public struct Team {
      *
      * @param count The number of elements being transferred
      */
-//    public def scatter[T] (role:Int, root:Int, src:Rail[T], src_off:Int, dst:Rail[T], dst_off:Int, count:Int) : void {
+    public def scatter[T] (role:Int, root:Int, src:Rail[T], src_off:Int, dst:Rail[T], dst_off:Int, count:Int) : void {
+        finish nativeScatter(id, role, root, src.raw(), src_off, dst.raw(), dst_off, count);
+    }
 
     public def scatter[T] (role:Int, root:Int, src:Array[T], src_off:Int, dst:Array[T], dst_off:Int, count:Int) : void {
         finish nativeScatter(id, role, root, src.raw(), src_off, dst.raw(), dst_off, count);
@@ -126,7 +130,9 @@ public struct Team {
      *
      * @param count The number of elements being transferred
      */
-//    public def bcast[T] (role:Int, root:Int, src:Rail[T], src_off:Int, dst:Rail[T], dst_off:Int, count:Int) : void {
+    public def bcast[T] (role:Int, root:Int, src:Rail[T], src_off:Int, dst:Rail[T], dst_off:Int, count:Int) : void {
+        finish nativeBcast(id, role, root, src.raw(), src_off, dst.raw(), dst_off, count);
+    }
 
     public def bcast[T] (role:Int, root:Int, src:Array[T], src_off:Int, dst:Array[T], dst_off:Int, count:Int) : void {
         finish nativeBcast(id, role, root, src.raw(), src_off, dst.raw(), dst_off, count);
@@ -155,7 +161,9 @@ public struct Team {
      *
      * @param count The number of elements being transferred
      */
-//    public def alltoall[T] (role:Int, src:Rail[T], src_off:Int, dst:Rail[T], dst_off:Int, count:Int) : void {
+    public def alltoall[T] (role:Int, src:Rail[T], src_off:Int, dst:Rail[T], dst_off:Int, count:Int) : void {
+        finish nativeAlltoall(id, role, src.raw(), src_off, dst.raw(), dst_off, count);
+    }
 
     public def alltoall[T] (role:Int, src:Array[T], src_off:Int, dst:Array[T], dst_off:Int, count:Int) : void {
         finish nativeAlltoall(id, role, src.raw(), src_off, dst.raw(), dst_off, count);
@@ -205,7 +213,9 @@ public struct Team {
      *
      * @param op The operation to perform
      */
-//    public def allreduce[T] (role:Int, src:Rail[T], src_off:Int, dst:Rail[T], dst_off:Int, count:Int, op:Int) : void {
+    public def allreduce[T] (role:Int, src:Rail[T], src_off:Int, dst:Rail[T], dst_off:Int, count:Int, op:Int) : void {
+        finish nativeAllreduce(id, role, src.raw(), src_off, dst.raw(), dst_off, count, op);
+    }
 
     public def allreduce[T] (role:Int, src:Array[T], src_off:Int, dst:Array[T], dst_off:Int, count:Int, op:Int) : void {
         finish nativeAllreduce(id, role, src.raw(), src_off, dst.raw(), dst_off, count, op);
