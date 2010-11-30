@@ -253,7 +253,7 @@ public struct Team {
 
     private static def nativeAllreduce[T](id:Int, role:Int, src:IndexedMemoryChunk[T], dst:IndexedMemoryChunk[T], op:Int) : void {
         @Native("c++", "x10rt_allreduce(id, role, src->raw(), dst->raw(), (x10rt_red_op_type)op, x10rt_get_red_type<FMGL(T)>(), 1, x10aux::coll_handler, x10aux::coll_enter());")
-        @Native("java", "x10.x10rt.TeamSupport.nativeAllReduce(id, role, src, dst, op);") {}
+        @Native("java", "x10.x10rt.TeamSupport.nativeAllReduce(id, role, src, 0, dst, 0, 1, op);") {}
     }
 
     /** Returns the index of the biggest double value across the team */
