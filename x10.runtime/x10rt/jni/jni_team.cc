@@ -151,12 +151,40 @@ static void allReduceCallback(void *arg) {
 
     // Copy from native buffer to dstArray
     switch(callbackArg->typecode) {
+    case 1:
+        // byte[]
+        env->SetByteArrayRegion((jbyteArray)callbackArg->globalDstArray,
+                                callbackArg->dstOffset,
+                                callbackArg->count,
+                                (jbyte*)callbackArg->dstData);
+        break;
+    case 2:
+        // short[]
+        env->SetShortArrayRegion((jshortArray)callbackArg->globalDstArray,
+                                 callbackArg->dstOffset,
+                                 callbackArg->count,
+                                 (jshort*)callbackArg->dstData);
+        break;
     case 4:
         // int[]
         env->SetIntArrayRegion((jintArray)callbackArg->globalDstArray,
                                callbackArg->dstOffset,
                                callbackArg->count,
                                (jint*)callbackArg->dstData);
+        break;
+    case 6:
+        // long[]
+        env->SetLongArrayRegion((jlongArray)callbackArg->globalDstArray,
+                               callbackArg->dstOffset,
+                               callbackArg->count,
+                               (jlong*)callbackArg->dstData);
+        break;
+    case 8:
+        // double[]
+        env->SetDoubleArrayRegion((jdoubleArray)callbackArg->globalDstArray,
+                                  callbackArg->dstOffset,
+                                  callbackArg->count,
+                                  (jdouble*)callbackArg->dstData);
         break;
     case 9:
         // float[]
@@ -165,7 +193,6 @@ static void allReduceCallback(void *arg) {
                                  callbackArg->count,
                                  (jfloat*)callbackArg->dstData);
         break;
-
     default:
         fprintf(stderr, "Unsupported typecode %d in allReduceCallback\n", callbackArg->typecode);
         abort();
@@ -206,6 +233,26 @@ JNIEXPORT void JNICALL Java_x10_x10rt_TeamSupport_nativeAllReduceImpl(JNIEnv *en
     void *srcData;
     void *dstData;
     switch(typecode) {
+    case 1:
+        // byte []
+        srcData = malloc(count*sizeof(jbyte));
+        dstData = malloc(count*sizeof(jbyte));
+        if (NULL == srcData || NULL == dstData) {
+            fprintf(stderr, "OOM while attempting to allocate malloced storage in nativeMakeImpl\n");
+            abort();
+        }
+        env->GetByteArrayRegion((jbyteArray)src, src_off, count, (jbyte*)srcData);
+        break;
+    case 2:
+        // short []
+        srcData = malloc(count*sizeof(jshort));
+        dstData = malloc(count*sizeof(jshort));
+        if (NULL == srcData || NULL == dstData) {
+            fprintf(stderr, "OOM while attempting to allocate malloced storage in nativeMakeImpl\n");
+            abort();
+        }
+        env->GetShortArrayRegion((jshortArray)src, src_off, count, (jshort*)srcData);
+        break;
     case 4:
         // int[]
         srcData = malloc(count*sizeof(jint));
@@ -215,6 +262,26 @@ JNIEXPORT void JNICALL Java_x10_x10rt_TeamSupport_nativeAllReduceImpl(JNIEnv *en
             abort();
         }
         env->GetIntArrayRegion((jintArray)src, src_off, count, (jint*)srcData);
+        break;
+    case 6:
+        // long[]
+        srcData = malloc(count*sizeof(jlong));
+        dstData = malloc(count*sizeof(jlong));
+        if (NULL == srcData || NULL == dstData) {
+            fprintf(stderr, "OOM while attempting to allocate malloced storage in nativeMakeImpl\n");
+            abort();
+        }
+        env->GetLongArrayRegion((jlongArray)src, src_off, count, (jlong*)srcData);
+        break;
+    case 8:
+        // double[]
+        srcData = malloc(count*sizeof(jdouble));
+        dstData = malloc(count*sizeof(jdouble));
+        if (NULL == srcData || NULL == dstData) {
+            fprintf(stderr, "OOM while attempting to allocate malloced storage in nativeMakeImpl\n");
+            abort();
+        }
+        env->GetDoubleArrayRegion((jdoubleArray)src, src_off, count, (jdouble*)srcData);
         break;
     case 9:
         // float[]
