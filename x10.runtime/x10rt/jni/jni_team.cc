@@ -21,23 +21,23 @@ typedef struct makeImplStruct {
 } makeImplStruct;
 
 static void nativeMakeCallback(x10rt_team team, void *arg) {
-    makeImplStruct* callbackStruct = (makeImplStruct*)arg;
+    makeImplStruct* callbackArg = (makeImplStruct*)arg;
     JNIEnv *env = jniHelper_getEnv();
     jint tmp = (jint)team;
 
     // put team id into backing int[]
-    env->SetIntArrayRegion(callbackStruct->globalResult, 0, 1, &tmp);
+    env->SetIntArrayRegion(callbackArg->globalResult, 0, 1, &tmp);
 
     // notify that the activity that was creating the team has finished.
     env->CallStaticVoidMethod(activityTerminationFunc.targetClass,
                               activityTerminationFunc.targetMethod,
-                              callbackStruct->globalFinishState);
+                              callbackArg->globalFinishState);
 
     // Free resources;
-    env->DeleteGlobalRef(callbackStruct->globalResult);
-    env->DeleteGlobalRef(callbackStruct->globalFinishState);
-    free(callbackStruct->inputPlaces);
-    free(callbackStruct);
+    env->DeleteGlobalRef(callbackArg->globalResult);
+    env->DeleteGlobalRef(callbackArg->globalFinishState);
+    free(callbackArg->inputPlaces);
+    free(callbackArg);
 }
     
 /*
@@ -56,17 +56,124 @@ JNIEXPORT void JNICALL Java_x10_x10rt_TeamSupport_nativeMakeImpl(JNIEnv *env, jc
         abort();
     }
     x10rt_place* nativePlaces = (x10rt_place*)malloc(count*(sizeof(x10rt_place)));
-    makeImplStruct* callbackStruct = (makeImplStruct*)malloc(sizeof(makeImplStruct));
-    if (NULL == nativePlaces || NULL == callbackStruct) {
+    makeImplStruct* callbackArg = (makeImplStruct*)malloc(sizeof(makeImplStruct));
+    if (NULL == nativePlaces || NULL == callbackArg) {
         fprintf(stderr, "OOM while attempting to allocate malloced storage in nativeMakeImpl\n");
         abort();
     }        
-    callbackStruct->globalResult = (jintArray)globalResult;
-    callbackStruct->globalFinishState = globalFinishState;
-    callbackStruct->inputPlaces = nativePlaces;
+    callbackArg->globalResult = (jintArray)globalResult;
+    callbackArg->globalFinishState = globalFinishState;
+    callbackArg->inputPlaces = nativePlaces;
     env->GetIntArrayRegion(places, 0, count, (jint*)nativePlaces);
 
-    x10rt_team_new(count, nativePlaces, &nativeMakeCallback, callbackStruct);
+    x10rt_team_new(count, nativePlaces, &nativeMakeCallback, callbackArg);
+}
+
+
+/*****************************************************
+ * nativeSizeImpl
+ *****************************************************/
+
+/*
+ * Class:     x10_x10rt_TeamSupport
+ * Method:    nativeSizeImpl
+ * Signature: (I)I
+ */
+JNIEXPORT jint JNICALL Java_x10_x10rt_TeamSupport_nativeSizeImpl(JNIEnv *env, jclass klazz, jint id) {
+    return x10rt_team_sz(id);
+}
+
+
+
+/*****************************************************
+ * nativeBarrierImpl
+ *****************************************************/
+
+typedef struct barrierImplStruct {
+    jobject globalFinishState;
+} barrierImplStruct;
+
+static void barrierCallback(void *arg) {
+    barrierImplStruct* callbackArg = (barrierImplStruct*)arg;
+    JNIEnv *env = jniHelper_getEnv();
+
+    // notify that the activity that was performing the barrier has finished.
+    env->CallStaticVoidMethod(activityTerminationFunc.targetClass,
+                              activityTerminationFunc.targetMethod,
+                              callbackArg->globalFinishState);
+
+    // Free resources
+    env->DeleteGlobalRef(callbackArg->globalFinishState);
+    free(callbackArg);
+}
+    
+
+/*
+ * Class:     x10_x10rt_TeamSupport
+ * Method:    nativeBarrierImpl
+ * Signature: (IILx10/lang/FinishState;)V
+ */
+JNIEXPORT void JNICALL Java_x10_x10rt_TeamSupport_nativeBarrierImpl(JNIEnv *env, jclass klazz,
+                                                                    jint id, jint role, jobject finishState) {
+    jobject globalFinishState = env->NewGlobalRef(finishState);
+    if (NULL == globalFinishState) {
+        fprintf(stderr, "OOM while attempting to create GlobalRef in nativeDelImpl\n");
+        abort();
+    }
+    barrierImplStruct *callbackArg = (barrierImplStruct*)malloc(sizeof(barrierImplStruct));
+    if (NULL == callbackArg) {
+        fprintf(stderr, "OOM while attempting to allocate malloced storage in nativeMakeImpl\n");
+        abort();
+    }
+    callbackArg->globalFinishState = globalFinishState;
+
+    x10rt_barrier(id, role, &barrierCallback, callbackArg);
+}
+
+/*****************************************************
+ * nativeDelImpl
+ *****************************************************/
+
+typedef struct delImplStruct {
+    jobject globalFinishState;
+} delImplStruct;
+
+static void delCallback(void *arg) {
+    delImplStruct* callbackArg = (delImplStruct*)arg;
+    JNIEnv *env = jniHelper_getEnv();
+
+    // notify that the activity that was deleting the team has finished.
+    env->CallStaticVoidMethod(activityTerminationFunc.targetClass,
+                              activityTerminationFunc.targetMethod,
+                              callbackArg->globalFinishState);
+
+    // Free resources
+    env->DeleteGlobalRef(callbackArg->globalFinishState);
+    free(callbackArg);
+}
+    
+
+/*
+ * Class:     x10_x10rt_TeamSupport
+ * Method:    nativeDelImpl
+ * Signature: (IILx10/lang/FinishState;)V
+ */
+JNIEXPORT void JNICALL Java_x10_x10rt_TeamSupport_nativeDelImpl(JNIEnv *env, jclass klazz,
+                                                                jint id, jint role, jobject finishState) {
+    jobject globalFinishState = env->NewGlobalRef(finishState);
+    if (NULL == globalFinishState) {
+        fprintf(stderr, "OOM while attempting to create GlobalRef in nativeDelImpl\n");
+        abort();
+    }
+
+    delImplStruct *callbackArg = (delImplStruct*)malloc(sizeof(delImplStruct));
+    if (NULL == callbackArg) {
+        fprintf(stderr, "OOM while attempting to allocate malloced storage in nativeMakeImpl\n");
+        abort();
+    }
+    callbackArg->globalFinishState = globalFinishState;
+    
+    x10rt_team_del(id, role, &delCallback, callbackArg);
 }
 
 

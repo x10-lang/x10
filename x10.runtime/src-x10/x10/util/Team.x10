@@ -66,7 +66,8 @@ public struct Team {
     public def size () : Int = nativeSize(id);
 
     private static def nativeSize (id:Int) : Int {
-        @Native("c++", "return (x10_int)x10rt_team_sz(id);") { return -1; }
+        @Native("c++", "return (x10_int)x10rt_team_sz(id);") 
+        @Native("java", "return x10.x10rt.TeamSupport.nativeSize(id);") { return -1; }
     }
 
     /** Blocks until all team members have reached the barrier.
@@ -77,7 +78,8 @@ public struct Team {
     }
 
     private static def nativeBarrier (id:int, role:Int) : void {
-        @Native("c++", "x10rt_barrier(id, role, x10aux::coll_handler, x10aux::coll_enter());") {}
+        @Native("c++", "x10rt_barrier(id, role, x10aux::coll_handler, x10aux::coll_enter());") 
+        @Native("java", "x10.x10rt.TeamSupport.nativeBarrier(id, role);") {}
     }
 
     /** Blocks until all members have received their part of root's array.
@@ -108,7 +110,8 @@ public struct Team {
     }
 
     private static def nativeScatter[T] (id:Int, role:Int, root:Int, src:IndexedMemoryChunk[T], src_off:Int, dst:IndexedMemoryChunk[T], dst_off:Int, count:Int) : void {
-        @Native("c++", "x10rt_scatter(id, role, root, &src->raw()[src_off], &dst->raw()[dst_off], sizeof(FMGL(T)), count, x10aux::coll_handler, x10aux::coll_enter());") {}
+        @Native("c++", "x10rt_scatter(id, role, root, &src->raw()[src_off], &dst->raw()[dst_off], sizeof(FMGL(T)), count, x10aux::coll_handler, x10aux::coll_enter());") 
+        @Native("java", "x10.x10rt.TeamSupport.nativeScatter(id, role, root, src, src_off, dst, dst_off, count);") {}
     }
 
     /** Blocks until all members have received root's array.
@@ -134,7 +137,8 @@ public struct Team {
     }
 
     private static def nativeBcast[T] (id:Int, role:Int, root:Int, src:IndexedMemoryChunk[T], src_off:Int, dst:IndexedMemoryChunk[T], dst_off:Int, count:Int) : void {
-        @Native("c++", "x10rt_bcast(id, role, root, &src->raw()[src_off], &dst->raw()[dst_off], sizeof(FMGL(T)), count, x10aux::coll_handler, x10aux::coll_enter());") {}
+        @Native("c++", "x10rt_bcast(id, role, root, &src->raw()[src_off], &dst->raw()[dst_off], sizeof(FMGL(T)), count, x10aux::coll_handler, x10aux::coll_enter());")
+        @Native("java", "x10.x10rt.TeamSupport.nativeBcast(id, role, root, src, src_off, dst, dst_off, count);") {}
     }
 
     /** Blocks until all members have received their part of each other member's array.
@@ -163,7 +167,8 @@ public struct Team {
     }
 
     private static def nativeAlltoall[T](id:Int, role:Int, src:IndexedMemoryChunk[T], src_off:Int, dst:IndexedMemoryChunk[T], dst_off:Int, count:Int) : void {
-        @Native("c++", "x10rt_alltoall(id, role, &src->raw()[src_off], &dst->raw()[dst_off], sizeof(FMGL(T)), count, x10aux::coll_handler, x10aux::coll_enter());") {}
+        @Native("c++", "x10rt_alltoall(id, role, &src->raw()[src_off], &dst->raw()[dst_off], sizeof(FMGL(T)), count, x10aux::coll_handler, x10aux::coll_enter());") 
+        @Native("java", "x10.x10rt.TeamSupport.nativeAllToAll(id, role, src, src_off, dst, dst_off, count);") {}
     }
 
     /** Indicates the operation to perform when reducing. */
@@ -213,7 +218,8 @@ public struct Team {
     }
 
     private static def nativeAllreduce[T](id:Int, role:Int, src:IndexedMemoryChunk[T], src_off:Int, dst:IndexedMemoryChunk[T], dst_off:Int, count:Int, op:Int) : void {
-        @Native("c++", "x10rt_allreduce(id, role, &src->raw()[src_off], &dst->raw()[dst_off], (x10rt_red_op_type)op, x10rt_get_red_type<FMGL(T)>(), count, x10aux::coll_handler, x10aux::coll_enter());") {}
+        @Native("c++", "x10rt_allreduce(id, role, &src->raw()[src_off], &dst->raw()[dst_off], (x10rt_red_op_type)op, x10rt_get_red_type<FMGL(T)>(), count, x10aux::coll_handler, x10aux::coll_enter());")
+        @Native("java", "x10.x10rt.TeamSupport.nativeAllReduce(id, role, src, src_off, dst, dst_off, count, op);") {}
     }
 
     /** Performs a reduction on a single value, returning the result */
@@ -246,7 +252,8 @@ public struct Team {
     }
 
     private static def nativeAllreduce[T](id:Int, role:Int, src:IndexedMemoryChunk[T], dst:IndexedMemoryChunk[T], op:Int) : void {
-        @Native("c++", "x10rt_allreduce(id, role, src->raw(), dst->raw(), (x10rt_red_op_type)op, x10rt_get_red_type<FMGL(T)>(), 1, x10aux::coll_handler, x10aux::coll_enter());") {}
+        @Native("c++", "x10rt_allreduce(id, role, src->raw(), dst->raw(), (x10rt_red_op_type)op, x10rt_get_red_type<FMGL(T)>(), 1, x10aux::coll_handler, x10aux::coll_enter());")
+        @Native("java", "x10.x10rt.TeamSupport.nativeAllReduce(id, role, src, dst, op);") {}
     }
 
     /** Returns the index of the biggest double value across the team */
@@ -259,7 +266,8 @@ public struct Team {
     }
 
     private static def nativeIndexOfMax(id:Int, role:Int, src:IndexedMemoryChunk[DoubleIdx], dst:IndexedMemoryChunk[DoubleIdx]) : void {
-        @Native("c++", "x10rt_allreduce(id, role, src->raw(), dst->raw(), X10RT_RED_OP_MAX, X10RT_RED_TYPE_DBL_S32, 1, x10aux::coll_handler, x10aux::coll_enter());") {}
+        @Native("c++", "x10rt_allreduce(id, role, src->raw(), dst->raw(), X10RT_RED_OP_MAX, X10RT_RED_TYPE_DBL_S32, 1, x10aux::coll_handler, x10aux::coll_enter());")
+        @Native("java", "x10.x10rt.TeamSupport.nativeIndexOfMax(id, role, src, dst);") {}
     }
 
     /** Returns the index of the smallest double value across the team */
@@ -272,7 +280,8 @@ public struct Team {
     }
 
     private static def nativeIndexOfMin(id:Int, role:Int, src:IndexedMemoryChunk[DoubleIdx], dst:IndexedMemoryChunk[DoubleIdx]) : void {
-        @Native("c++", "x10rt_allreduce(id, role, src->raw(), dst->raw(), X10RT_RED_OP_MIN, X10RT_RED_TYPE_DBL_S32, 1, x10aux::coll_handler, x10aux::coll_enter());") {}
+        @Native("c++", "x10rt_allreduce(id, role, src->raw(), dst->raw(), X10RT_RED_OP_MIN, X10RT_RED_TYPE_DBL_S32, 1, x10aux::coll_handler, x10aux::coll_enter());")
+        @Native("java", "x10.x10rt.TeamSupport.nativeIndexOfMin(id, role, src, dst);") {}
     }
 
     /** Create new teams by subdividing an existing team.  This is called by each member
@@ -296,7 +305,8 @@ public struct Team {
     }
 
     private static def nativeSplit(id:Int, role:Int, color:Int, new_role:Int, result:IndexedMemoryChunk[Int]) : void {
-        @Native("c++", "x10rt_team_split(id, role, color, new_role, x10aux::coll_handler2, x10aux::coll_enter2(result->raw()));") {}
+        @Native("c++", "x10rt_team_split(id, role, color, new_role, x10aux::coll_handler2, x10aux::coll_enter2(result->raw()));")
+        @Native("java", "x10.x10rt.TeamSupport.nativeSplit(id, role, color, new_role, result);") {}
     }
 
     /** Destroy a team that is no-longer needed.  Called simultaneously by each member of
@@ -309,7 +319,8 @@ public struct Team {
     }
 
     private static def nativeDel(id:Int, role:Int) : void {
-        @Native("c++", "x10rt_team_del(id, role, x10aux::coll_handler, x10aux::coll_enter());") {}
+        @Native("c++", "x10rt_team_del(id, role, x10aux::coll_handler, x10aux::coll_enter());")
+        @Native("java", "x10.x10rt.TeamSupport.nativeDel(id, role);") {}
     }
 }
 
