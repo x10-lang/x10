@@ -108,6 +108,10 @@ public class Types {
         };
     };
 
+    public static Class<?> UBYTE_CLASS;
+    public static Class<?> USHORT_CLASS;
+    public static Class<?> UINT_CLASS;
+    public static Class<?> ULONG_CLASS;
     public static RuntimeType<?> UBYTE;
     public static RuntimeType<?> USHORT;
     public static RuntimeType<?> UINT;
@@ -120,19 +124,19 @@ public class Types {
         try {
             Class<?> c;
             java.lang.reflect.Field f;
-            c = Class.forName("x10.lang.UByte");
+            UBYTE_CLASS = c = Class.forName("x10.lang.UByte");
             f = c.getDeclaredField("_RTT");
             UBYTE = (RuntimeType<?>) f.get(null);
             UBYTE_ZERO = c.getConstructor(new Class[]{byte.class}).newInstance(new Object[]{(byte)0});
-            c = Class.forName("x10.lang.UShort");
+            USHORT_CLASS = c = Class.forName("x10.lang.UShort");
             f = c.getDeclaredField("_RTT");
             USHORT = (RuntimeType<?>) f.get(null);
             USHORT_ZERO = c.getConstructor(new Class[]{short.class}).newInstance(new Object[]{(short)0});
-            c = Class.forName("x10.lang.UInt");
+            UINT_CLASS = c = Class.forName("x10.lang.UInt");
             f = c.getDeclaredField("_RTT");
             UINT = (RuntimeType<?>) f.get(null);
             UINT_ZERO = c.getConstructor(new Class[]{int.class}).newInstance(new Object[]{0});
-            c = Class.forName("x10.lang.ULong");
+            ULONG_CLASS = c = Class.forName("x10.lang.ULong");
             f = c.getDeclaredField("_RTT");
             ULONG = (RuntimeType<?>) f.get(null);
             ULONG_ZERO = c.getConstructor(new Class[]{long.class}).newInstance(new Object[]{0L});
@@ -226,19 +230,19 @@ public class Types {
         if (typeParamOrAny == null) {nullIsCastedToStruct();}
 
         if (rtt == UBYTE) {
-            if (typeParamOrAny instanceof x10.lang.UByte) { return typeParamOrAny;}
-//            if (typeParamOrAny instanceof x10.lang.UShort) { return (UByte)...;}
-//            if (typeParamOrAny instanceof x10.lang.UInt) { return (UByte)...;}
-//            if (typeParamOrAny instanceof x10.lang.ULong) { return (UByte)...;}
+            if (UBYTE_CLASS.isInstance(typeParamOrAny)) { return typeParamOrAny;}
+//            if (USHORT_CLASS.isInstance(typeParamOrAny)) { return (UByte)...;}
+//            if (UINT_CLASS.isInstance(typeParamOrAny)) { return (UByte)...;}
+//            if (ULONG_CLASS.isInstance(typeParamOrAny)) { return (UByte)...;}
         }
         else if (rtt == USHORT) {
-            if (typeParamOrAny instanceof x10.lang.UShort) { return typeParamOrAny;}
+            if (USHORT_CLASS.isInstance(typeParamOrAny)) { return typeParamOrAny;}
         }
         else if (rtt == UINT) {
-            if (typeParamOrAny instanceof x10.lang.UInt) { return typeParamOrAny;}
+            if (UINT_CLASS.isInstance(typeParamOrAny)) { return typeParamOrAny;}
         }
         else if (rtt == ULONG) {
-            if (typeParamOrAny instanceof x10.lang.ULong) { return typeParamOrAny;}
+            if (ULONG_CLASS.isInstance(typeParamOrAny)) { return typeParamOrAny;}
         }
         else {
             return typeParamOrAny;
