@@ -169,7 +169,7 @@ public class ExtensionInfo extends x10.ExtensionInfo {
 		@Override
 		public List<Goal> goals(Job job) {
 		    List<Goal> goals = super.goals(job);
-		    StaticNestedClassRemover(job).addPrereq(InnerClassRemover(job));
+		    StaticNestedClassRemover(job).addPrereq(Lowerer(job));
 		    for (Goal g: Optimizer.goals(this, job)) {
 		        StaticNestedClassRemover(job).addPrereq(g);
 		    }
