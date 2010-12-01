@@ -295,56 +295,63 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
 		return cc;
 	}
 	
-        public Type childExpectedType(Expr child, AscriptionVisitor av) {
-            if (child == init) {
-                TypeSystem ts = av.typeSystem();
-                return type.type();
-            }
+	public Type childExpectedType(Expr child, AscriptionVisitor av) {
+	    if (child == init) {
+	        TypeSystem ts = av.typeSystem();
+	        return type.type();
+	    }
+	    return child.type();
+	}
 
-            return child.type();
-        }
-        /** Visit the children of the declaration. */
-        public Node visitChildren(NodeVisitor v) {
-        	X10LocalDecl_c n = (X10LocalDecl_c) super.visitChildren(v);
-            TypeNode hasType = (TypeNode) visitChild(n.hasType, v);
-            return n.hasType(hasType);
-        }
+	/** Visit the children of the declaration. */
+	public Node visitChildren(NodeVisitor v) {
+	    X10LocalDecl_c n = (X10LocalDecl_c) super.visitChildren(v);
+	    TypeNode hasType = (TypeNode) visitChild(n.hasType, v);
+	    return n.hasType(hasType);
+	}
 
-        public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
-            boolean printSemi = tr.appendSemicolon(true);
-            boolean printType = tr.printType(true);
+	public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
+	    boolean printSemi = tr.appendSemicolon(true);
+	    boolean printType = tr.printType(true);
 
-            Flags f = flags.flags();
-            Boolean fin = f.isFinal();
-            f = f.clearFinal();
-            w.write(f.translate());
-            for (Iterator<AnnotationNode> i = (((X10Ext) this.ext()).annotations()).iterator(); i.hasNext(); ) {
-                AnnotationNode an = i.next();
-                an.prettyPrint(w, tr);
-                w.allowBreak(0, " ");
-            }
-            if (fin)
-                w.write("val ");
-            else
-                w.write("var ");
-            
-            tr.print(this, name, w);
-            if (printType) {
-                w.write(":");
-                print(type, w, tr);
-            }
+	    Flags f = flags.flags();
+	    Boolean fin = f.isFinal();
+	    f = f.clearFinal();
+	    w.write(f.translate());
+	    for (Iterator<AnnotationNode> i = (((X10Ext) this.ext()).annotations()).iterator(); i.hasNext(); ) {
+	        AnnotationNode an = i.next();
+	        an.prettyPrint(w, tr);
+	        w.allowBreak(0, " ");
+	    }
+	    if (fin)
+	        w.write("val ");
+	    else
+	        w.write("var ");
 
-            if (init != null) {
-                w.write(" =");
-                w.allowBreak(2, " ");
-                print(init, w, tr);
-            }
+	    tr.print(this, name, w);
+	    if (printType) {
+	        w.write(":");
+	        print(type, w, tr);
+	    }
 
-            if (printSemi) {
-                w.write(";");
-            }
+	    if (init != null) {
+	        w.write(" =");
+	        w.allowBreak(2, " ");
+	        print(init, w, tr);
+	    }
 
-            tr.printType(printType);
-            tr.appendSemicolon(printSemi);
-        }
+	    if (printSemi) {
+	        w.write(";");
+	    }
+
+	    tr.printType(printType);
+	    tr.appendSemicolon(printSemi);
+	}
+
+    @Override
+    public String toString() {
+        Flags flags = this.flags.flags();
+        return flags.clearFinal().translate() + (flags.isFinal() ? "val" : "var") + " " + name + ":" +
+               type + (init != null ? " = " + init : "") + ";";
+    }
 }
