@@ -15,19 +15,17 @@ import polyglot.util.Position;
  * a SemanticException, but is an error so it doesn't need to be declared
  * in the signature of Node.acceptCFG.
  */
-public class CFGBuildError extends InternalCompilerError
+public class CFGBuildError extends RuntimeException
 {
     private static final long serialVersionUID = -1748858695130055618L;
+    public final Position position;
 
     public CFGBuildError(String msg) {
-        super(msg);
-    }
-
-    public CFGBuildError(Position position, String msg) {
-        super(position, msg);
+        this(msg,null);
     }
 
     public CFGBuildError(String msg, Position position) {
-        super(msg, position);
+        super(msg);
+        this.position = position;
     }
 }

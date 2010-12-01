@@ -242,7 +242,7 @@ public class ConstrainedType_c extends ReferenceType_c implements ConstrainedTyp
 	}
 
 	// vj 08/11/09
-	// For each FieldInstance fi of baseType, need to return a new FieldInstance fi' obtained
+	// todo: For each FieldInstance fi of baseType, need to return a new FieldInstance fi' obtained
 	// by adding this: this.constraint.
 	@Override
 	public List<FieldInstance> fields() {

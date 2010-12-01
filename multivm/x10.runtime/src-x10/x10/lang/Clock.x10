@@ -70,7 +70,7 @@ public class Clock(name:String) {
     @Global private def put(ph:Int) = Runtime.activity().clockPhases().put(this, ph);
     @Global private def remove() = Runtime.activity().clockPhases().remove(this).value;
     @Global def register() {
-        if (dropped()) throw new ClockUseException();
+        if (dropped()) clockUseException("async clocked");
         val ph = get();
         at (root) {
         	val me = root();
@@ -120,20 +120,26 @@ public class Clock(name:String) {
     public @Global def registered():Boolean = Runtime.activity().clockPhases().containsKey(this);
     public @Global def dropped():Boolean = !registered();
     public @Global def phase():int {
-        if (dropped()) throw new ClockUseException();
+        if (dropped()) clockUseException("phase");
         return Math.abs(get());
     }
     public @Global def resume():void {
-        if (dropped()) throw new ClockUseException();
+        if (dropped()) clockUseException("resume");
         resumeUnsafe();
     }
     public @Global def next():void {
-        if (dropped()) throw new ClockUseException();
+        if (dropped()) clockUseException("next");
         nextUnsafe();
     }
     public @Global def drop():void {
-        if (dropped()) throw new ClockUseException();
+        if (dropped()) clockUseException("drop");
         dropUnsafe();
+    }
+
+    public def toString():String = name.equals("") ? super.toString() : name;
+    
+    private def clockUseException(method:String) {
+        if (dropped()) throw new ClockUseException("invalid invocation of " + method + "() on clock " + toString() + "; calling activity is not clocked on this clock");
     }
 }
 

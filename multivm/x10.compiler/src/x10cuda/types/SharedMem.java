@@ -138,7 +138,7 @@ public class SharedMem implements Cloneable {
 	            tr.print(null, numElements, inc);
             } else {
             	tr.print(null, init, inc);
-            	inc.write("->FMGL(rawLength)");
+            	inc.write("->FMGL(size)");
             }
             // FIXME: x10_float is baked in here
             inc.write("*sizeof("+elementType+")");

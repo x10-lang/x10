@@ -467,7 +467,9 @@ public class X10InnerClassRemover extends InnerClassRemover {
         CConstraint constraint = t instanceof ConstrainedType ? ((ConstrainedType) t).getRealXClause() : null;
         t = propagateTypeArgumentsToInnermostType(t);
         if (constraint != null) {
-            t = X10TypeMixin.xclause(t, fixConstraint(constraint));
+            CConstraint newConstraint = fixConstraint(constraint);
+            if (newConstraint != constraint)
+                t = X10TypeMixin.xclause(t, newConstraint);
         }
         return t;
     }
@@ -535,10 +537,16 @@ public class X10InnerClassRemover extends InnerClassRemover {
             return ct;
         } else if (t instanceof ConstrainedType) {
             ConstrainedType ct = (ConstrainedType) t;
-            t = ct.baseType(Types.ref(propagateTypeArgumentsToInnermostType(Types.get(ct.baseType()))));
+            Type baseType = Types.get(ct.baseType());
+            Type newBaseType = propagateTypeArgumentsToInnermostType(baseType);
+            if (newBaseType != baseType)
+                t = ct.baseType(Types.ref(newBaseType));
         } else if (t instanceof AnnotatedType) {
             AnnotatedType at = (AnnotatedType) t;
-            t = at.baseType(propagateTypeArgumentsToInnermostType(at.baseType()));
+            Type baseType = at.baseType();
+            Type newBaseType = propagateTypeArgumentsToInnermostType(baseType);
+            if (newBaseType != baseType)
+                t = at.baseType(newBaseType);
         }
         return t;
     }

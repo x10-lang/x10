@@ -853,9 +853,9 @@ import x10.util.Box;
         return activity().swapFinish(new FinishState.CollectingFinish[T](r));
     }
 
-    public static def offer[T](t:T) {
+    public static def makeOffer[T](t:T) {
         val state = activity().finishState();
-//      Console.OUT.println("Place(" + here.id + ") Runtime.offer: received " + t);
+//      Console.OUT.println("Place(" + here.id + ") Runtime.makeOffer: received " + t);
         (state as FinishState.CollectingFinish[T]).accept(t,workerId());
     }
 

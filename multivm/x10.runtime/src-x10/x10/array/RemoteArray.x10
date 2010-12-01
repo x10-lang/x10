@@ -43,10 +43,10 @@ public class RemoteArray[T](home:Place, region:Region, size:Int) {} {
         rawData = RemoteIndexedMemoryChunk.wrap(a.raw());
     }
 
-    public def this (gpu:Place, reg:Region, raw:IndexedMemoryChunk[T], raw_len:Int)
+    public def this (gpu:Place, reg:Region, raw:RemoteIndexedMemoryChunk[T], raw_len:Int)
       : RemoteArray[T]{self.home==gpu, self.region==reg, self.size==reg.size()} {
         property(gpu, reg, reg.size());
-        rawData = RemoteIndexedMemoryChunk.wrap(raw);
+        rawData = raw;
         @Native("c++", "") {
             array = (at (gpu) GlobalRef[Array[T]{self.region==this.region, self.size==this.size}](null)) as GlobalRef[Array[T]{self.region==this.region, self.size==this.size}]{self.home==this.home};
         }
