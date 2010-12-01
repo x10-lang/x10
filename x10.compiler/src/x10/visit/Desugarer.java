@@ -466,7 +466,12 @@ public class Desugarer extends ContextVisitor {
     private TypeNode stripClause(TypeNode tn) {
         Type t = tn.type();
         if (tn instanceof X10CanonicalTypeNode) {
-            return xnf.CanonicalTypeNode(tn.position(), X10TypeMixin.baseType(t));
+            X10CanonicalTypeNode ctn = (X10CanonicalTypeNode) tn;
+            Type baseType = X10TypeMixin.baseType(t);
+            if (baseType != t) {
+                return ctn.typeRef(Types.ref(baseType));
+            }
+            return ctn;
         }
         throw new InternalCompilerError("Unknown type node type: "+tn.getClass(), tn.position());
     }
@@ -480,7 +485,7 @@ public class Desugarer extends ContextVisitor {
         DepParameterExpr depClause = getClause(tn);
         tn = stripClause(tn);
         if (depClause == null || Configuration.NO_CHECKS)
-            return n;
+            return n.castType(tn);
         Name xn = getTmp();
         Type t = tn.type(); // the base type of the cast
         LocalDef xDef = xts.localDef(pos, xts.Final(), Types.ref(t), xn);
