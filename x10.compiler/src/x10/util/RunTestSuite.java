@@ -43,7 +43,8 @@ public class RunTestSuite {
             "AutoGen"
     };
     private static final String[] EXCLUDE_FILES = {
-            "NOT_WORKING","SSCA2","FT-alltoall","FT-global"
+            "NOT_WORKING","SSCA2","FT-alltoall","FT-global",
+            "FieldNamedValTest_MustFailCompile.x10", "VariableNamedValTest_MustFailCompile.x10",
     };
     private static final String[] EXCLUDE_FILES_WITH = {
             "HeatTransfer_v0.x10",

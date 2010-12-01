@@ -7,6 +7,7 @@ import polyglot.visit.NodeVisitor;
 import polyglot.visit.DataFlow;
 import polyglot.visit.FlowGraph;
 import polyglot.visit.ContextVisitor;
+import polyglot.visit.InitChecker;
 import polyglot.visit.DataFlow.Item;
 import polyglot.visit.FlowGraph.EdgeKey;
 import polyglot.frontend.Job;
@@ -48,6 +49,7 @@ import java.util.Map;
 import java.util.LinkedHashMap;
 import java.util.ArrayList;
 import java.util.Collections;
+import static polyglot.visit.InitChecker.*;
 
 /**
  * Checks correct object initialization, i.e.,
@@ -63,46 +65,8 @@ import java.util.Collections;
 
 public class CheckEscapingThis extends NodeVisitor
 {
-    // does one iteration in our fixed-point method analysis
-    // I use the first 3 bits of an integer to represent the 3 flags: read, write and seqWrite
-    private static final int READ = 1;
-    private static final int WRITE = 2;
-    private static final int SEQ_WRITE = 4;
-    private static boolean isRead(int i) { return (i&READ)==READ; }
-    private static boolean isWrite(int i) { return (i&WRITE)==WRITE; }
-    private static boolean isSeqWrite(int i) { return (i&SEQ_WRITE)==SEQ_WRITE; }
-    private static int build(boolean read,boolean write,boolean seqWrite) { return (read?READ:0) | (write?WRITE:0) | (seqWrite?SEQ_WRITE:0); }
-    private static int afterFinish(int i) { return build(isRead(i),isWrite(i),isWrite(i)); }
-    private static int afterAssign(int i) { return build(isRead(i),true,true); }
-    private static int afterRead(int i) { return build(isRead(i) || !isSeqWrite(i),isWrite(i),isSeqWrite(i)); }
-    private static int afterSeqBlock(int bBefore, int bAfter) { return build(isRead(bBefore) || (!isSeqWrite(bBefore) && isRead(bAfter)), isWrite(bBefore) || isWrite(bAfter),isSeqWrite(bBefore) || isSeqWrite(bAfter)); }
-    private static int afterAsync(int i1, int i2, boolean isUncounted) { return build(isRead(i1)||isRead(i2),!isUncounted ? isWrite(i1)||isWrite(i2) : isWrite(i1)&&isWrite(i2),isSeqWrite(i1)&&isSeqWrite(i2)); }
-    private static int afterIf(int i1, int i2) { return build(isRead(i1)||isRead(i2),isWrite(i1)&&isWrite(i2),isSeqWrite(i1)&&isSeqWrite(i2)); }
-    private static String flagsToString(int i) { return i==0? "none," : (isRead(i)?"read," : "")+(isWrite(i)?"write," : "")+(isSeqWrite(i)?"seqWrite," : ""); }
+    private static class DataFlowItem extends BaseDataFlowItem<FieldDef> {}
 
-
-    private static class DataFlowItem extends DataFlow.Item {
-        private final Map<FieldDef, Integer> initStatus = new HashMap<FieldDef, Integer>(); // immutable map of fields to 3flags
-
-        public boolean equals(Object o) {
-            if (o instanceof DataFlowItem) {
-                return this.initStatus.equals(((DataFlowItem)o).initStatus);
-            }
-            return false;
-        }
-        public int hashCode() {
-            return (initStatus.hashCode());
-        }
-
-        @Override
-        public String toString() {
-            StringBuilder res = new StringBuilder();
-            for (Map.Entry<FieldDef, Integer> pair : initStatus.entrySet()) {
-                res.append(pair.getKey().name()).append(":").append(flagsToString(pair.getValue())).append(" ");
-            }
-            return res.toString();
-        }
-    }
     class FieldChecker extends DataFlow {
         private ProcedureDecl currDecl;
         private DataFlowItem init;
@@ -144,15 +108,15 @@ public class CheckEscapingThis extends NodeVisitor
 
             for (int i=1; i<items.size(); i++) {
                 DataFlowItem item = (DataFlowItem) items.get(i);
-                for (Map.Entry<FieldDef, Integer> pair : item.initStatus.entrySet()) {
+                for (Map.Entry<FieldDef, MinMaxInitCount> pair : item.initStatus.entrySet()) {
                     final FieldDef key = pair.getKey();
-                    int i1 = res.initStatus.get(key);
-                    int i2 = pair.getValue();
+                    MinMaxInitCount i1 = res.initStatus.get(key);
+                    MinMaxInitCount i2 = pair.getValue();
                     // Async must be handled here, because DataFlow first calls safeConfluence, and only then it calls flow:
                     //p.inItem = this.safeConfluence(...
                     //p.outItems = this.flow(...
 
-                    int i_res = isAsync ? afterAsync(i1,i2,isUncounted) : afterIf(i1,i2);
+                    MinMaxInitCount i_res = isAsync ? i1.afterAsync(i2,isUncounted) : i1.afterIf(i2);
                     res.initStatus.put(key,i_res);
                 }
             }
@@ -170,9 +134,9 @@ public class CheckEscapingThis extends NodeVisitor
         private DataFlowItem fieldReadWrite(boolean isAssign, FieldDef field, DataFlowItem inItem) {
             DataFlowItem res = new DataFlowItem();
             res.initStatus.putAll(inItem.initStatus);
-            final Integer valueBefore = inItem.initStatus.get(field);
+            final MinMaxInitCount valueBefore = inItem.initStatus.get(field);
             if (valueBefore!=null) { // can happen for fake fields, e.g., class Bar { val q= this.f; }
-                int valueAfter = isAssign ? afterAssign(valueBefore) : afterRead(valueBefore);
+                MinMaxInitCount valueAfter = isAssign ? valueBefore.afterAssign() : valueBefore.afterRead();
                 res.initStatus.put(field,valueAfter);
             }
             return res;
@@ -196,6 +160,15 @@ public class CheckEscapingThis extends NodeVisitor
                 FieldDef field = fi.def();
                 if (field!=null && (isAssign ? isTargetThis((FieldAssign) n) : isTargetThis((Field) n))) {
                     res = fieldReadWrite(isAssign, field, inItem);
+                    if (isAssign) {
+                        // make sure we assign to val fields at most once
+                        if (field.flags().isFinal()) {
+                            // check it is assigned exactly once
+                            final MinMaxInitCount maxInitCount = res.initStatus.get(field);
+                            if (maxInitCount.isIllegalVal())
+                                reportError("Final field '"+field.name()+"' might already have been initialized.",n.position());
+                        }
+                    }
                 }
 
             } else if (n instanceof AssignPropertyCall) {
@@ -217,41 +190,6 @@ public class CheckEscapingThis extends NodeVisitor
                         }
                     }
 
-            } else if (n instanceof Closure) {
-                // the closure can write to whatever it wants and it won't affect the write-set (because it wasn't invoked yet)
-                // we only check that it can read what was written to, and call methods whose read-set was written to.
-                Closure closure = (Closure) n;
-                closure.body().visit(
-                    new NodeVisitor() {
-                        @Override public NodeVisitor enter(Node n) {
-                            if (n instanceof Field) {
-                                final Field f = (Field) n;
-                                // todo: remove this. Also check that "this" or it's fields are not captured by an AtStmt or AtExpr ClosureDef.capturedEnvironment();
-//                                if (isTargetThis(f)) {reportError("Cannot access fields of 'this' in a closure during construction", n.position());
-//                                    if (true) return this; }
-                                if (isTargetThis(f) && !isWrite(inItem.initStatus.get(f.fieldInstance().def()))) {
-                                    reportError("Cannot read from field '"+ f.name()+"' before it is definitely assigned.",n.position());
-                                    wasError = true;
-                                }
-                            }
-                            if (n instanceof X10Call) {
-                                MethodInfo info = getInfo((X10Call) n);
-                                if (info!=null) {
-//                                    reportError("Cannot call methods of 'this' in a closure during construction", n.position());
-//                                    if (true) return this;
-                                    for (FieldDef def : info.read) {
-                                        if (!isWrite( inItem.initStatus.get(def))) {
-                                            reportError("The method call reads from field '"+ def.name()+"' before it is definitely assigned.",n.position());
-                                            wasError = true;
-                                        }
-                                    }
-                                }
-                            }
-                            return this;
-                        }
-                    }
-                );
-
             } else if (n instanceof ConstructorCall) {
                 ConstructorCall ctorCall = (ConstructorCall) n;
                 assert (ctorCall.kind()==ConstructorCall.SUPER) : "We do not analyze ctors with 'this()' calls, because they're always correct - everything must be initialized after the 'this()' call";
@@ -267,7 +205,8 @@ public class CheckEscapingThis extends NodeVisitor
                         boolean isRead = info.read.contains(field);
                         boolean isWrite = info.write.contains(field);
                         boolean isWriteSeq = info.seqWrite.contains(field);
-                        res.initStatus.put(field, afterSeqBlock(res.initStatus.get(field),build(isRead,isWrite, isWriteSeq)));
+                        final MinMaxInitCount before = res.initStatus.get(field);
+                        res.initStatus.put(field, before.afterSeqBlock(MinMaxInitCount.build(isRead,isWrite, isWriteSeq)));
                     }
                 }
             } else if (n instanceof Expr && ((Expr)n).type().isBoolean() &&
@@ -278,8 +217,8 @@ public class CheckEscapingThis extends NodeVisitor
                 return itemsToMap(trueItem, falseItem, inItem, succEdgeKeys);
             } else if (n instanceof Finish) {
                 res = new DataFlowItem();
-                for (Map.Entry<FieldDef, Integer> pair : inItem.initStatus.entrySet()) {
-                    res.initStatus.put(pair.getKey(),afterFinish(pair.getValue()));
+                for (Map.Entry<FieldDef, MinMaxInitCount> pair : inItem.initStatus.entrySet()) {
+                    res.initStatus.put(pair.getKey(),pair.getValue().finish());
                 }
             }
             if (res!=inItem) {
@@ -290,13 +229,13 @@ public class CheckEscapingThis extends NodeVisitor
                 // can't read from any var if @NoThisAccess
                 if (ctor) {
                     for (FieldDef f : fields) {
-                        boolean readBefore = isRead(inItem.initStatus.get(f));
-                        final int fRes = res.initStatus.get(f);
-                        if (!readBefore && isRead(fRes)) {
+                        boolean readBefore = inItem.initStatus.get(f).isRead();
+                        final MinMaxInitCount fRes = res.initStatus.get(f);
+                        if (!readBefore && fRes.isRead()) {
                             // wasn't read before, and we read it now (either because of Field access, or X10Call)
                             reportError("Cannot read from field '"+f.name()+"' before it is definitely assigned.",n.position());
                             // I want to report more errors with this field, so I remove the read status
-                            res.initStatus.put(f,build(false, isWrite(fRes),isSeqWrite(fRes)));
+                            res.initStatus.put(f,MinMaxInitCount.build(false, fRes.isWrite(),fRes.isSeqWrite()));
                             wasError = true;
                         }
                     }
@@ -320,37 +259,36 @@ public class CheckEscapingThis extends NodeVisitor
             ProcedureDecl decl = currDecl;
             assert decl!=null;
             final ProcedureDef procDef = decl.procedureInstance();
-            MethodInfo newInfo = new MethodInfo();
-            for (Map.Entry<FieldDef, Integer> pair : finalResult.initStatus.entrySet()) {
-                int val = pair.getValue();
-                final FieldDef f = pair.getKey();
-                if (isRead(val)) newInfo.read.add(f);
-                if (isWrite(val)) newInfo.write.add(f);
-                if (isSeqWrite(val)) newInfo.seqWrite.add(f);
-            }
 
             // everything must be assigned in a ctor (and nothing read)
             if (isCtor()) {
-                int size = fields.size();
-                if (!newInfo.read.isEmpty()) assert wasError;
-                assert newInfo.write.containsAll(newInfo.seqWrite);
-                if (newInfo.seqWrite.size()!=size) {
-                    wasError = true;
-                    // report the field that wasn't written to
-                    for (FieldDef f : fields)
-                        // a VAR marked with @Uninitialized is not tracked
-                        if (!newInfo.seqWrite.contains(f) && !X10TypeMixin.isUninitializedField((X10FieldDef)f,(TypeSystem)ts)) {
-                            final Position pos = currDecl.position();
-                            // could be an auto-generated ctor
-                            reportError(X10Flags.toX10Flags(f.flags()).isProperty() ? "property(...) might not have been called" :
-                                    "Field '"+f.name()+"' was not definitely assigned.", pos.isCompilerGenerated() ? f.position() : pos);
-                        }
+                for (FieldDef f : fields) {
+                    // a VAR marked with @Uninitialized is not tracked
+                    if (!finalResult.initStatus.get(f).isSeqWrite() && !X10TypeMixin.isUninitializedField((X10FieldDef)f,(TypeSystem)ts)) {
+                        final Position pos = currDecl.position();
+                        // could be an auto-generated ctor
+                        wasError = true;
+                        reportError(f.flags().isProperty() ? "property(...) might not have been called" :
+                                "Field '"+f.name()+"' was not definitely assigned.", pos.isCompilerGenerated() ? f.position() : pos);
+                    }
                 }
             } else {
                 MethodInfo oldInfo = allMethods.get(procDef);
                 assert oldInfo!=null : currDecl;
                 assert !X10TypeMixin.isNoThisAccess((X10ProcedureDef)procDef,(TypeSystem)ts);
 
+
+                MethodInfo newInfo = new MethodInfo();
+                for (Map.Entry<FieldDef, MinMaxInitCount> pair : finalResult.initStatus.entrySet()) {
+                    MinMaxInitCount val = pair.getValue();
+                    final FieldDef f = pair.getKey();
+                    if (val.isRead()) newInfo.read.add(f);
+                    if (!f.flags().isFinal()) {
+                        // NonEscaping methods can only write to VAR (not VAL)
+                        if (val.isWrite()) newInfo.write.add(f);
+                        if (val.isSeqWrite()) newInfo.seqWrite.add(f);
+                    }
+                }
                 // proof that the fix-point terminates: write set decreases while the read set increases
                 assert oldInfo.write.containsAll(newInfo.write);
                 assert oldInfo.seqWrite.containsAll(newInfo.seqWrite);
@@ -436,6 +374,9 @@ public class CheckEscapingThis extends NodeVisitor
 
         @Override public Node visitEdgeNoOverride(Node parent, Node n) {
             Position pos = n.position();
+            if (getMsg(n)!=null) {
+                return n; // already checked
+            }
             if (!canUseThis() && n instanceof X10Call) {
                 final X10Call call = (X10Call) n;
                 if (isTargetThis(call)) {
@@ -560,8 +501,8 @@ public class CheckEscapingThis extends NodeVisitor
         this.xlassType = X10TypeMixin.baseType(xlass.classDef().asType());
         // calculate the set of all fields (including inherited fields)
         calcFields();
-        Integer notInited = build(false, false,false);
-        Integer inited = build(false, true,true);
+        MinMaxInitCount notInited = MinMaxInitCount.build(false, false,false);
+        MinMaxInitCount inited = MinMaxInitCount.build(false, true,true);
         for (FieldDef f : fields) {
             INIT.initStatus.put(f,notInited);
             CTOR_INIT.initStatus.put(f,notInited);
@@ -687,10 +628,7 @@ public class CheckEscapingThis extends NodeVisitor
                     if (isNoThisAccess) { // NoThisAccess is stronger than NonEscaping so we check it first (in case someone wrote both annotations)
                         // check "this" is not accessed at all
                         if (procBody != null) { // native/abstract methods
-                            ThisChecker thisChecker = new ThisChecker(job);
-                            procBody.visit(thisChecker);
-                            if (thisChecker.error())
-                                reportError("You cannot use 'this' or 'super' in a method annotated with @NoThisAccess",procBody.position());
+                            checkNoThis(procBody,"You cannot use 'this' or 'super' in a method annotated with @NoThisAccess");
                         }
                         // No need to do procBody.visit(this)  because "this"/"super" are not used in a NoThisAccess method.
                     } else if (isNonEscaping) {
@@ -780,9 +718,30 @@ public class CheckEscapingThis extends NodeVisitor
         }
         return null;
     }
+    private void checkNoThis(Node n, String msg) {
+        n.visit(new ThisCheckerIgnoringTypes(msg));
+    }
+    private String getMsg(Node n) {
+        if (n instanceof AtEach)
+            return "'this' or 'super' cannot escape via an 'ateach' statement during construction.";
+        if (n instanceof AtStmt)
+            return "'this' or 'super' cannot escape via an 'at' statement during construction.";
+        if (n instanceof AtExpr)
+            return "'this' or 'super' cannot escape via an 'at' expression during construction.";
+        if (n instanceof Closure)
+            return "'this' or 'super' cannot escape via a closure during construction.";
+        return null;        
+    }
 
     @Override public Node visitEdgeNoOverride(Node parent, Node n) {
         checkGlobalRef(n); // check globalRef usage in ctors and methods called from ctors
+
+        String msg = getMsg(n);
+        if (msg!=null) {
+            // "this" cannot escape into an AT or closure
+            checkNoThis(n,msg);
+            return n;
+        }
 
         if (n instanceof New) {
             New aNew = (New) n;
@@ -898,5 +857,18 @@ public class CheckEscapingThis extends NodeVisitor
             thisClass = X10TypeMixin.baseType(superClass);
         }
         return false;
+    }
+    class ThisCheckerIgnoringTypes extends NodeVisitor {
+        private final String errMsg;
+
+        public ThisCheckerIgnoringTypes(String errMsg) {
+            this.errMsg = errMsg;
+        }
+        @Override public Node override(Node n) {
+            if (isThis(n)) {
+                job.compiler().errorQueue().enqueue(ErrorInfo.SEMANTIC_ERROR,errMsg,n.position());
+            }
+            return null;
+        }
     }
 }

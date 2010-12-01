@@ -198,7 +198,7 @@ public class InitChecker extends DataFlow
      * different values of the counts that we are interested in are ZERO,
      * ONE and MANY.
      */
-    enum InitCount {
+    public enum InitCount {
         ZERO(0,"0"), ONE(1,"1"), MANY(2,"many");
 
         public final int count;
@@ -226,6 +226,9 @@ public class InitChecker extends DataFlow
         public InitCount max(InitCount b) {
             return fromNum(Math.max(count,b.count));
         }
+        public InitCount add(InitCount b) {
+            return fromNum(count+b.count);
+        }
         private static InitCount fromNum(int i) {
             assert i>=0 : i;
             switch (i) {
@@ -240,42 +243,48 @@ public class InitChecker extends DataFlow
      * Class to record counts of the minimum and maximum number of times
      * a local has been initialized or assigned to.
      */
-    protected static class MinMaxInitCount {
-        final static MinMaxInitCount ZERO =
+    public static class MinMaxInitCount {
+        public final static MinMaxInitCount ZERO =
             new MinMaxInitCount(InitCount.ZERO,InitCount.ZERO,InitCount.ZERO,InitCount.ZERO);
-        final static MinMaxInitCount ONE =
+        public final static MinMaxInitCount ONE =
             new MinMaxInitCount(InitCount.ONE,InitCount.ONE,InitCount.ONE,InitCount.ONE);
 
+        private final boolean wasRead; // used in CheckEscapingThis for fields read on NonEscaping methods (not used for locals in InitChecker)
         private final InitCount minSeq, maxSeq, minAsync, maxAsync;
 
-        private MinMaxInitCount(InitCount minSeq, InitCount maxSeq,InitCount minAsync, InitCount maxAsync) {
+        public MinMaxInitCount(InitCount minSeq, InitCount maxSeq,InitCount minAsync, InitCount maxAsync) {
+            this(minSeq, maxSeq,minAsync,maxAsync,false);
+        }
+        public MinMaxInitCount(InitCount minSeq, InitCount maxSeq,InitCount minAsync, InitCount maxAsync, boolean wasRead) {
             this.minSeq = minSeq;
             this.maxSeq = maxSeq;
             this.minAsync = minAsync;
             this.maxAsync = maxAsync;
+            this.wasRead = wasRead;
             assert minSeq.count<=minAsync.count && maxSeq.count<=maxAsync.count;
         }
-        MinMaxInitCount increment() { // when a variable is sequentially assigned
-            return new MinMaxInitCount(minSeq.increment(),maxSeq.increment(),minAsync.increment(),maxAsync.increment());
+        public MinMaxInitCount increment() { // when a variable is sequentially assigned
+            return new MinMaxInitCount(minSeq.increment(),maxSeq.increment(),minAsync.increment(),maxAsync.increment(), wasRead);
         }
-        InitCount getMin() { return minSeq; }
-        boolean isZero() {
+        public InitCount getMin() { return minSeq; }
+        public boolean isZero() {
             return equals(ZERO);
         }
-        boolean isOne() {
+        public boolean isOne() {
             return equals(ONE);
         }
-        boolean isIllegalVal() {
+        public boolean isIllegalVal() {
             return !isOne();
         }
         public int hashCode() {
-            return minSeq.hashCode() * 64 + maxSeq.hashCode() * 16 + minAsync.hashCode() * 4 + maxAsync.hashCode();
+            return (wasRead?256:0) + minSeq.hashCode() * 64 + maxSeq.hashCode() * 16 + minAsync.hashCode() * 4 + maxAsync.hashCode();
         }
         public String toString() {
-            return "[ min: " + minSeq + "; max: " + maxSeq + "; minAsync: " + minAsync + "; maxAsync: " + maxAsync + " ]";
+            return "[ min: " + minSeq + "; max: " + maxSeq + "; minAsync: " + minAsync + "; maxAsync: " + maxAsync + "; wasRead="+wasRead+"]";
         }
         public boolean equals(MinMaxInitCount maxInitCount) {
-            return this.minSeq==maxInitCount.minSeq &&
+            return     this.wasRead==maxInitCount.wasRead &&
+                       this.minSeq==maxInitCount.minSeq &&
                        this.maxSeq==maxInitCount.maxSeq &&
                        this.minAsync==maxInitCount.minAsync &&
                        this.maxAsync==maxInitCount.maxAsync;
@@ -286,36 +295,74 @@ public class InitChecker extends DataFlow
             }
             return false;
         }
-        MinMaxInitCount finish() {
-            return new MinMaxInitCount(minAsync,maxAsync,minAsync,maxAsync);//[c,d,c,d]
+        public MinMaxInitCount finish() {
+            return new MinMaxInitCount(minAsync,maxAsync,minAsync,maxAsync, wasRead);//[c,d,c,d]
         }
-        static MinMaxInitCount join(TypeSystem xts, VarDef v, Term node, boolean entry, MinMaxInitCount initCount1, MinMaxInitCount initCount2) {
+        public boolean isRead() { return wasRead; }
+        public boolean isWrite() { return minAsync!=InitCount.ZERO; }
+        public boolean isSeqWrite() { return minSeq!=InitCount.ZERO; }
+        public static MinMaxInitCount build(boolean read,boolean write,boolean seqWrite) {
+            final InitCount seqW = seqWrite ? InitCount.ONE : InitCount.ZERO;
+            final InitCount w = write ? InitCount.ONE : InitCount.ZERO;
+            return new MinMaxInitCount(seqW,seqW, w,w, read); 
+        }
+        public MinMaxInitCount afterAssign() { return increment(); }
+        public MinMaxInitCount afterRead() {
+            return new MinMaxInitCount(minSeq, maxSeq,minAsync,maxAsync,wasRead || maxSeq==InitCount.ZERO);
+        }
+        public MinMaxInitCount afterSeqBlock(MinMaxInitCount after) {
+            return new MinMaxInitCount(
+                    minSeq.add(after.minSeq),
+                    maxSeq.add(after.maxSeq),
+                    minAsync.add(after.minAsync),
+                    maxAsync.add(after.maxAsync),
+                    wasRead || (!isSeqWrite() && after.wasRead));
+        }
+        public MinMaxInitCount afterAsync(MinMaxInitCount initCount2, boolean isUncounted) {
+            MinMaxInitCount initCount1 = this;
+
+            // one flow must be smaller than the other (the one coming from the entry of the Async is
+            // smaller or equal to the one coming after the BODY)
+            MinMaxInitCount small =
+                            // is initCount1 the min?
+                    initCount1.minSeq.count<initCount2.minSeq.count ? initCount1 :
+                    initCount1.maxSeq.count<initCount2.maxSeq.count ? initCount1 :
+                    initCount1.minAsync.count<initCount2.minAsync.count ? initCount1 :
+                    initCount1.maxAsync.count<initCount2.maxAsync.count ? initCount1 :
+                            // is initCount2 the min?
+                    initCount1.minSeq.count>initCount2.minSeq.count ? initCount2 :
+                    initCount1.maxSeq.count>initCount2.maxSeq.count ? initCount2 :
+                    initCount1.minAsync.count>initCount2.minAsync.count ? initCount2 :
+                    initCount1.maxAsync.count>initCount2.maxAsync.count ? initCount2 :
+                            initCount1; // both are equal, so we just choose initCount1
+            MinMaxInitCount big = small==initCount1 ? initCount2 : initCount1;
+            assert small.minSeq.count<=big.minSeq.count &&
+                    small.maxSeq.count<=big.maxSeq.count &&
+                    small.minAsync.count<=big.minAsync.count &&
+                    small.maxAsync.count<=big.maxAsync.count;
+            final MinMaxInitCount res = new MinMaxInitCount(
+                    small.minSeq, small.maxSeq,
+                    isUncounted ? small.minAsync : big.minAsync, big.maxAsync,
+                    small.wasRead || big.wasRead);
+            return res; // [a',b', c, d]
+        }
+        public MinMaxInitCount afterIf(MinMaxInitCount o) {
+            // normal join: [min(a,a'), max(b,b'), min(c,c'), max(d,d')]
+            return new MinMaxInitCount(
+                    minSeq.min(o.minSeq),
+                    maxSeq.max(o.maxSeq),
+                    minAsync.min(o.minAsync),
+                    maxAsync.max(o.maxAsync),
+                    wasRead || o.wasRead);
+        }
+
+        public static MinMaxInitCount join(TypeSystem xts, VarDef v, Term node, boolean entry, MinMaxInitCount initCount1, MinMaxInitCount initCount2) {
             assert !(node instanceof Finish);
             if (initCount1 == null) return initCount2;
             if (initCount2 == null) return initCount1;
 
             if (!entry && node instanceof Async_c) {
                 Async_c async = (Async_c) node;
-                // one flow must be smaller than the other (the one coming from the entry of the Async is
-                // smaller or equal to the one coming after the BODY)
-                MinMaxInitCount small =
-                                // is initCount1 the min?
-                        initCount1.minSeq.count<initCount2.minSeq.count ? initCount1 :
-                        initCount1.maxSeq.count<initCount2.maxSeq.count ? initCount1 :
-                        initCount1.minAsync.count<initCount2.minAsync.count ? initCount1 :
-                        initCount1.maxAsync.count<initCount2.maxAsync.count ? initCount1 :
-                                // is initCount2 the min?
-                        initCount1.minSeq.count>initCount2.minSeq.count ? initCount2 :
-                        initCount1.maxSeq.count>initCount2.maxSeq.count ? initCount2 :
-                        initCount1.minAsync.count>initCount2.minAsync.count ? initCount2 :
-                        initCount1.maxAsync.count>initCount2.maxAsync.count ? initCount2 :
-                                initCount1; // both are equal, so we just choose initCount1
-                MinMaxInitCount big = small==initCount1 ? initCount2 : initCount1;
-                assert small.minSeq.count<=big.minSeq.count &&
-                        small.maxSeq.count<=big.maxSeq.count &&
-                        small.minAsync.count<=big.minAsync.count &&
-                        small.maxAsync.count<=big.maxAsync.count;
-
 
                 boolean isUncounted = Lowerer.isUncountedAsync(xts,async);
                 //@Uncounted async S
@@ -327,14 +374,11 @@ public class InitChecker extends DataFlow
                 if (!initCount1.equals(initCount2) && v instanceof X10LocalDef) {
                     ((X10LocalDef)v).setAsyncInit();
                 }
-                return new MinMaxInitCount(small.minSeq, small.maxSeq, isUncounted ? small.minAsync : big.minAsync, big.maxAsync); // [a',b', c, d]
+
+                return initCount1.afterAsync(initCount2,isUncounted);
             }
-            // normal join: [min(a,a'), max(b,b'), min(c,c'), max(d,d')]
-            return new MinMaxInitCount(
-                    initCount1.minSeq.min(initCount2.minSeq),
-                    initCount1.maxSeq.max(initCount2.maxSeq),
-                    initCount1.minAsync.min(initCount2.minAsync),
-                    initCount1.maxAsync.max(initCount2.maxAsync));
+            // normal join
+            return initCount1.afterIf(initCount2);
 
         }
     }
@@ -348,20 +392,16 @@ public class InitChecker extends DataFlow
      *
      * This class is immutable.
      */
-    protected static class DataFlowItem extends Item {
-        public Map<LocalDef, MinMaxInitCount> initStatus; // map of VarInstances to MinMaxInitCount
-
-        DataFlowItem(Map<LocalDef, MinMaxInitCount> m) {
-            this.initStatus = Collections.unmodifiableMap(m);
-        }
+    public static class BaseDataFlowItem<T extends VarDef> extends Item {
+        public final HashMap<T, MinMaxInitCount> initStatus = new HashMap<T, MinMaxInitCount>(); // map of VarDef to MinMaxInitCount
 
         public String toString() {
             return initStatus.toString();
         }
 
         public boolean equals(Object o) {
-            if (o instanceof DataFlowItem) {
-                return this.initStatus.equals(((DataFlowItem)o).initStatus);
+            if (o instanceof BaseDataFlowItem) {
+                return this.initStatus.equals(((BaseDataFlowItem)o).initStatus);
             }
             return false;
         }
@@ -371,6 +411,7 @@ public class InitChecker extends DataFlow
         }
 
     }
+    public static class DataFlowItem extends BaseDataFlowItem<LocalDef> {}
 
     /**
      * Initialise the FlowGraph to be used in the dataflow analysis.
@@ -475,7 +516,7 @@ public class InitChecker extends DataFlow
     }
 
     private DataFlowItem createInitDFI() {
-        return new DataFlowItem(new LinkedHashMap<LocalDef, MinMaxInitCount>());
+        return new DataFlowItem();
     }
 
     /**
@@ -513,10 +554,12 @@ public class InitChecker extends DataFlow
      */
     public Item confluence(List<Item> inItems, Term node, boolean entry, FlowGraph graph) {
         // Resolve any conflicts pairwise.
+        final DataFlowItem res = new DataFlowItem();
         Map<LocalDef, MinMaxInitCount> m = null;
         for (Item itm : inItems) {
             if (m == null) {
-                m = new LinkedHashMap<LocalDef, MinMaxInitCount>(((DataFlowItem)itm).initStatus);
+                m = res.initStatus;
+                m.putAll(((DataFlowItem)itm).initStatus);
             }
             else {
                 Map<LocalDef, MinMaxInitCount> n = ((DataFlowItem)itm).initStatus;
@@ -528,10 +571,7 @@ public class InitChecker extends DataFlow
                 }
             }
         }
-
-        if (m == null) return createInitDFI();
-
-        return new DataFlowItem(m);
+        return res;
     }
 
     protected Map<EdgeKey, Item> flow(List<Item> inItems, List<EdgeKey> inItemKeys,
@@ -616,14 +656,14 @@ public class InitChecker extends DataFlow
             if (falseItem == null) falseItem = inDFItem;
             return itemsToMap(trueItem, falseItem, inDFItem, succEdgeKeys);
         } else if (n instanceof Finish_c) {
-            Map<LocalDef, MinMaxInitCount> m = new LinkedHashMap<LocalDef, MinMaxInitCount>();
+            final DataFlowItem res = new DataFlowItem();
             for (Map.Entry<LocalDef, MinMaxInitCount> e : inDFItem.initStatus.entrySet()) {
                 final MinMaxInitCount before = e.getValue();
                 final MinMaxInitCount after = before.finish();
                 final LocalDef v = e.getKey();
-                m.put(v, after);
+                res.initStatus.put(v, after);
             }
-            return itemToMap(new DataFlowItem(m), succEdgeKeys);
+            return itemToMap(res, succEdgeKeys);
         }
         if (ret != null) {
             return ret;
@@ -637,15 +677,15 @@ public class InitChecker extends DataFlow
      */
     protected Map<EdgeKey, Item> flowFormal(DataFlowItem inItem, FlowGraph graph, Formal f,
             Set<EdgeKey> succEdgeKeys) {
-        Map<LocalDef, MinMaxInitCount> m =
-            new LinkedHashMap<LocalDef, MinMaxInitCount>(inItem.initStatus);
+        final DataFlowItem res = new DataFlowItem();
+        res.initStatus.putAll(inItem.initStatus);
         // a formal argument is always defined.
-        m.put(f.localDef(), MinMaxInitCount.ONE);
+        res.initStatus.put(f.localDef(), MinMaxInitCount.ONE);
 
         // record the fact that we have seen the formal declaration
         currCBI.localDeclarations.add(f.localDef());
 
-        return itemToMap(new DataFlowItem(m), succEdgeKeys);
+        return itemToMap(res, succEdgeKeys);
     }
 
     /**
@@ -656,9 +696,9 @@ public class InitChecker extends DataFlow
                                 FlowGraph graph,
                                 LocalDecl ld,
                                 Set<EdgeKey> succEdgeKeys) {
-        Map<LocalDef, MinMaxInitCount> m =
-            new LinkedHashMap<LocalDef, MinMaxInitCount>(inItem.initStatus);
-        MinMaxInitCount initCount = m.get(ld.localDef());
+        final DataFlowItem res = new DataFlowItem();
+        res.initStatus.putAll(inItem.initStatus);
+        MinMaxInitCount initCount = res.initStatus.get(ld.localDef());
         //if (initCount == null) {
             if (ld.init() != null) {
                 // declaration of local var with initialization.
@@ -669,7 +709,7 @@ public class InitChecker extends DataFlow
                 initCount = MinMaxInitCount.ZERO;
             }
 
-            m.put(ld.localDef(), initCount);
+            res.initStatus.put(ld.localDef(), initCount);
         //}
         //else {
             // the initCount is not null. We now have a problem. Why is the
@@ -684,7 +724,7 @@ public class InitChecker extends DataFlow
         // record the fact that we have seen a local declaration
         currCBI.localDeclarations.add(ld.localDef());
 
-        return itemToMap(new DataFlowItem(m), succEdgeKeys);
+        return itemToMap(res, succEdgeKeys);
     }
 
     /**
@@ -696,9 +736,9 @@ public class InitChecker extends DataFlow
                                   LocalAssign a,
                                   Set<EdgeKey> succEdgeKeys) {
           Local l = (Local) a.local();
-          Map<LocalDef, MinMaxInitCount> m =
-              new LinkedHashMap<LocalDef, MinMaxInitCount>(inItem.initStatus);
-          MinMaxInitCount initCount = m.get(l.localInstance().def());
+          final DataFlowItem res = new DataFlowItem();
+          res.initStatus.putAll(inItem.initStatus);
+          MinMaxInitCount initCount = res.initStatus.get(l.localInstance().def());
 
           // initcount could be null if the local is defined in the outer
           // class, or if we have not yet seen its declaration (i.e. the
@@ -709,8 +749,8 @@ public class InitChecker extends DataFlow
 
           initCount = initCount.increment();
 
-          m.put(l.localInstance().def(), initCount);
-          return itemToMap(new DataFlowItem(m), succEdgeKeys);
+          res.initStatus.put(l.localInstance().def(), initCount);
+          return itemToMap(res, succEdgeKeys);
     }
 
 
