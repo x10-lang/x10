@@ -29,6 +29,7 @@ import polyglot.types.LocalDef;
 import polyglot.types.Ref;
 import polyglot.types.Type;
 import polyglot.types.Types;
+import polyglot.types.VarInstance;
 import x10.ast.AssignPropertyCall;
 import x10.ast.Closure;
 import x10.ast.ClosureCall;
@@ -221,6 +222,20 @@ public class TypeTransformer extends NodeTransformer {
                                             argTypes, cd.thisDef(), formalNames,
                                             g == null ? null : g.valueConstraint(),
                                             null);
+            for (VarInstance<?> vi : cd.capturedEnvironment()) {
+                if (vi instanceof X10LocalInstance) {
+                    X10LocalInstance li = (X10LocalInstance) vi;
+                    X10LocalDef ld = getLocal(li.x10Def());
+                    if (li.x10Def() != ld) {
+                        li = transformLocalInstance(((X10LocalInstance) ld.asInstance()));
+                    }
+                    icd.addCapturedVariable(li);
+                } else
+                if (vi instanceof X10FieldInstance) {
+                    X10FieldInstance fi = transformFieldInstance((X10FieldInstance) vi);
+                    icd.addCapturedVariable(fi);
+                }
+            }
             return d.closureDef(icd);
         }
         return d;

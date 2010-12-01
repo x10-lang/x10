@@ -1969,6 +1969,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     }
 
 	public void visit(final Closure_c n) {
+		//System.out.println(this + ": " + n.position() + ": " + n + " captures "+n.closureDef().capturedEnvironment());
 		Translator tr2 = ((X10Translator) tr).inInnerClass(true);
 		tr2 = tr2.context(n.enterScope(tr2.context()));
 

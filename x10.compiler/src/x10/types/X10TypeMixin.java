@@ -1724,11 +1724,19 @@ public class X10TypeMixin {
 	public static Type instantiateTypeParametersExplicitly(Type t) {
 		if (t instanceof AnnotatedType) {
 			AnnotatedType at = (AnnotatedType) t;
-			return at.baseType(instantiateTypeParametersExplicitly(at.baseType()));
+			Type bt = at.baseType();
+			Type ibt = instantiateTypeParametersExplicitly(bt);
+			if (ibt != bt)
+			    return at.baseType(ibt);
+			return at;
 		} else
 		if (t instanceof ConstrainedType) {
 			ConstrainedType ct = (ConstrainedType) t;
-			return ct.baseType(Types.ref(instantiateTypeParametersExplicitly(Types.get(ct.baseType()))));
+			Type bt = Types.get(ct.baseType());
+			Type ibt = instantiateTypeParametersExplicitly(bt);
+			if (ibt != bt)
+			    ct = ct.baseType(Types.ref(ibt));
+			return ct;
 		} else
 		if (t instanceof X10ParsedClassType) {
 			X10ParsedClassType pct = (X10ParsedClassType) t;
