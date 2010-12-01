@@ -24,6 +24,7 @@ import polyglot.ast.ClassBody;
 import polyglot.ast.ClassMember;
 import polyglot.ast.Expr;
 import polyglot.ast.Field;
+import polyglot.ast.FieldAssign;
 import polyglot.ast.FieldDecl;
 import polyglot.ast.FlagsNode;
 import polyglot.ast.FloatLit;
@@ -61,6 +62,7 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.Types;
 import polyglot.types.VarDef;
+import polyglot.util.CollectionUtil;
 import polyglot.util.Pair;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
@@ -91,6 +93,7 @@ import x10.types.X10Def;
 import x10.types.X10FieldInstance;
 import x10.types.X10Flags;
 import x10.types.X10MethodDef;
+import x10.types.X10MethodInstance;
 import x10.types.X10TypeMixin;
 import polyglot.types.TypeSystem;
 import x10.types.X10TypeSystem_c;
@@ -315,8 +318,6 @@ public class Synthesizer {
 		return ld;
 	}
 	
-	
-	
     /**
      * Create a new local variable with the given flags, with initializer e. 
      * Return a Pair<LocalDecl, Local>, which includes the statement of the local variable and the reference to the variable
@@ -365,7 +366,6 @@ public class Synthesizer {
 	 * @param xc
 	 * @return
 	 */
-	
 	public Expr makeLocalVar(Position pos, Flags flags, Expr  e, List<Stmt> stmtList,
 			 Context xc) {
 		Expr result = null;
@@ -387,27 +387,58 @@ public class Synthesizer {
 		return result;
 	}
 	
-	    /** 
-	     * Create a local variable reference.
-	     * 
-	     * @param pos the Position of the reference in the source code
-	     * @param decl the declaration of the local variable
-	     * @return the synthesized Local variable reference
-	     */
-	    public Local createLocal(Position pos, LocalDecl decl) {
-	        return createLocal(pos, decl.localDef().asInstance());
+	/** 
+	 * Create a local variable reference.
+	 * 
+	 * @param pos the Position of the reference in the source code
+	 * @param decl the declaration of the local variable
+	 * @return the synthesized Local variable reference
+	 */
+	public Local createLocal(Position pos, LocalDecl decl) {
+	    return createLocal(pos, decl.localDef().asInstance());
+	}
+	
+	/** 
+	 * Create a local variable reference.
+	 * 
+	 * @param pos the Position of the reference in the source code
+	 * @param li a type system object representing this local variable
+	 * @return the synthesized Local variable reference
+	 */
+	public Local createLocal(Position pos, LocalInstance li) {
+	    return (Local) xnf.Local(pos, xnf.Id(pos, li.name())).localInstance(li).type(li.type());
+	}
+    
+	/**
+	 * Make an assignment whose left-hand-side is an expression.
+	 * 
+	 * @param pos the Position of the assignment in the source code
+	 * @param lhs the left-hand-side of the assignment
+	 * @param op the assignment operator to use
+	 * @param rhs the right-hand-side of the assignment
+	 * @param xc the context
+	 * @return the synthesized assignment
+	 * @throws SemanticException
+	 */
+	public Assign makeAssign(Position pos, Expr lhs, Assign.Operator op, Expr rhs, Context xc) throws SemanticException {
+	    Assign a = (Assign) xnf.Assign(pos, lhs, op, rhs).type(lhs.type());
+	    if (a instanceof FieldAssign) {
+	        assert (lhs instanceof Field);
+	        assert ((Field) lhs).fieldInstance() != null;
+	        a = ((FieldAssign) a).fieldInstance(((Field)lhs).fieldInstance());
+	    } else if (a instanceof SettableAssign) {
+	        assert (lhs instanceof X10Call);
+	        X10Call call = (X10Call) lhs;
+	        Receiver target = call.target();
+	        X10MethodInstance ami = call.methodInstance();
+	        List<Type> argTypes = CollectionUtil.append(Collections.singletonList(ami.returnType()), ami.formalTypes());
+	        X10MethodInstance smi = xts.findMethod(target.type(),
+	                xts.MethodMatcher(target.type(), SettableAssign.SET, argTypes, xc));
+	        a = ((SettableAssign) a).methodInstance(smi);
+	        a = ((SettableAssign) a).applyMethodInstance(ami);
 	    }
-
-	    /** 
-	     * Create a local variable reference.
-	     * 
-	     * @param pos the Position of the reference in the source code
-	     * @param li a type system object representing this local variable
-	     * @return the synthesized Local variable reference
-	     */
-	    public Local createLocal(Position pos, LocalInstance li) {
-	        return (Local) xnf.Local(pos, xnf.Id(pos, li.name())).localInstance(li).type(li.type());
-	    }
+	    return a;
+	}
 	
 	/**
 	 * Make a field access for r.name. Throw a SemanticException if such a field does not exist.

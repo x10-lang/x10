@@ -1136,16 +1136,59 @@ class TestFieldInitForwardRef {
 
     // We allow default values for:
     //    * a type that can be null  (e.g., Any, closures, but not a struct or Any{self!=null} )
-    //    * primitive/basic structs  (user defined structs do not have a default).
-    // includes: Short,UShort,Byte,UByte, Int, Long, ULong, UInt, Float, Double, Boolean, Char
-class SimpleUserDefinedStructTest {
+	//	  * Primitive structs (Short,UShort,Byte,UByte, Int, Long, ULong, UInt, Float, Double, Boolean, Char)
+    //    * non-constrained user defined structs without a class invariant where all fields haszero.
+class SimpleUserDefinedStructTest {	
 	static struct S {
-	  val x:int = 4;
-	  val y:int = 0;
+	  val x:Int = 4;
+	  val y:Int = 0;
+	}
+	static struct S2 {
+		val x:Int = 1;
+	}
+	static struct S3 {x==1} {
+		val x:Int = 1;
+	}
+	static struct S4 {
+		val x = 1;
+	}
+	static struct S5[T] {T haszero} {
+	  val s:S2 = Zero.get[S2](); 
+	  val t:T = Zero.get[T](); 
+	}
+	static struct S6 {
+		val s:Int{self==1} = 1;
+	}
+	static struct S7 {
+		val s:Int{self==0} = 0;
 	}
 
 	static class C {
-	  var s:S; // ERR: Field 's' was not definitely assigned.
+	  var s:S; 
+	  var x:S2; 
+	  var y:S3; // ShouldBeErr (because class invariant are not treated correctly: X10ClassDecl_c.classInvariant is fine, but  X10ClassDef_c.classInvariant is wrong)
+	  var z1:S4; // ERR
+	  var z2:S5[Int];
+	  var z3:S6; // ERR
+	  var z4:S7;
+
+	  var s6:S{y==0};  // ERR (any constrained user-defined struct, doesn't haszero. because of a bug in ConstrainedType_c.fields())
+	}
+	def main(Array[String]) {
+		Console.OUT.println( Zero.get[S5[S5[Int]]]().t.t );
+	}
+}
+class ConstraintPropogationToFields {
+	static struct S(x:Int,y:Int) {
+		def this(a:Int,b:Int):S{self.x==a,self.y==b} {
+			property(a,b);
+		}
+	}
+	static class C {
+	  val s1:S{y!=0} = S(0,1); 
+	  val s2:S{y!=0} = S(1,0); // ERR: The type of the field initializer is not a subtype of the field type.
+	  val z1:Int{self!=0} = s1.y;
+	  val z2:Int{self==0} = s1.y; // ERR
 	}
 }
 struct UserDefinedStruct {}
@@ -1220,7 +1263,7 @@ class TestFieldsWithoutDefaults[T] {
 
 
 	// user-defined private struct examples
-	var definedS1:UserDefinedStruct; // ERR
+	var definedS1:UserDefinedStruct;
 
 }
 
@@ -3342,6 +3385,18 @@ class ClosureAndSerialize {
 		Console.OUT.println(k);
 		assert k==3; // will fail when used on multiple places
 		return new SerialData(1,null);
+	}
+}
+class HashMapSerialize {
+	def testHashmapSerialize() {
+		val map = new HashMap[String,String]();
+		map.put("a","A");
+		map.put("b","B");
+		at (here) {
+			map.put("c","C");
+			assert(map.size()==3);
+		}		
+		assert(map.size()==2);
 	}
 }
 }

@@ -97,8 +97,8 @@ public class CUDAUtilities {
         val place = arr.home;
         if (place.isCUDA()) {
             @Native("c++",
-                "IndexedMemoryChunk<FMGL(T)> imc = arr->FMGL(rawData)->raw();\n"+
-                "x10aux::remote_free(place.FMGL(id), (x10_ulong)(size_t)imc->raw());\n"
+                "RemoteIndexedMemoryChunk<FMGL(T)> rimc = arr->FMGL(rawData);\n"+
+                "x10aux::remote_free(place.FMGL(id), (x10_ulong)(size_t)rimc->data);\n"
             ) { }
         }
     }

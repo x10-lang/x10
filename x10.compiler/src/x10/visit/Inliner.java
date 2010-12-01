@@ -697,6 +697,7 @@ public class Inliner extends ContextVisitor {
             getInlinerCache().badJob(candidateJob);
             return null;
         }
+        ast = ast.visit(new Desugarer(job, ts, nf).begin());
         decl = getDeclaration(candidate, ast);
         if (null == decl) {
             report("unable to find declaration for candidate: " +candidate, call);

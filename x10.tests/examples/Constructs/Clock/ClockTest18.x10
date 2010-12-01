@@ -64,11 +64,11 @@ public class ClockTest18 extends x10Test {
 		next;
 		x10.io.Console.OUT.println("#A0 after next");
 		}
-		} catch (e: ClockUseException) {
-			x10.io.Console.OUT.println("ClockUseException");
-			return true;
+		} catch (e: MultipleExceptions) {
+			x10.io.Console.OUT.println("MultipleExceptions");
+			return false;
 		}
-		return false;
+		return true;
 	}
 
 	public static def main(Array[String](1)){

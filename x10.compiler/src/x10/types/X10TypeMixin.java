@@ -49,6 +49,8 @@ import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.types.UnknownType;
 import polyglot.types.QName;
+import polyglot.types.FieldDef;
+import polyglot.types.StructType;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.ErrorInfo;
@@ -1258,6 +1260,34 @@ public class X10TypeMixin {
                     }
                 }
             }
+        } else if (isX10Struct(t)) {
+            if (!(t instanceof StructType)) return false;
+            StructType structType = (StructType) t;
+            // user-defined structs (such as Complex) can have zero iff
+            // 1) They do not have a class invariant
+            // 2) all their fields have zero
+
+            // todo: When ConstrainedType_c.fields() is fixed (it should add the constraint to the fields), then I can remove this "if"
+            if (isConstrained(t)) return false; // currently I don't handle constrained user-defined types, i.e., Complex{re!=3.0} doesn't haszero
+            // far to do: if t is constrained, then a constraint with all fields=zero entails t's constraint
+            // e.g., Complex and Complex{re!=3.0} haszero,
+            // Complex{re!=0.0} and Complex{re==3.0} doesn't haszero
+
+            { // do we have an classInvariant? todo: class invariant are not treated correctly: X10ClassDecl_c.classInvariant is fine, but  X10ClassDef_c.classInvariant is wrong
+                final Type base = baseType(t);
+                if (!(base instanceof X10ParsedClassType_c)) return false;
+                X10ParsedClassType_c xlass = (X10ParsedClassType_c) base;
+                final ClassDef def = xlass.def();
+                if (!(def instanceof X10ClassDef_c)) return false;
+                X10ClassDef_c x10ClassDef = (X10ClassDef_c) def;
+                final Ref<CConstraint> ref = x10ClassDef.classInvariant();
+                if (ref!=null && ref.get().constraints().size()>0) return false; // the struct has a class invariant (so the zero value might not satisfy it)
+            }
+            
+            // make sure all the fields and properties haszero
+            for (FieldInstance field : structType.fields())
+                if (!isHaszero(field.type(),xc)) return false;
+            return true;
         }
         if (zeroLit==null) return false;
         if (!isConstrained(t)) return true;
@@ -1309,28 +1339,12 @@ public class X10TypeMixin {
                 e = nf.FloatLit(p, FloatLit.DOUBLE, 0.0);
             } else if (ts.isObjectOrInterfaceType(t, context)) {
                 e = nf.NullLit(p);
-            } else if (ts.isParameterType(t)) {
+            } else if (ts.isParameterType(t) || isX10Struct(t)) {
                 // call Zero.get[T]()  (e.g., "0 as T" doesn't work if T is String)
                 TypeNode receiver = (TypeNode) nf.CanonicalTypeNode(p, (Type) ts.systemResolver().find(QName.make("x10.lang.Zero")));
                 //receiver = (TypeNode) receiver.del().typeCheck(tc).checkConstants(tc);
                 e = nf.X10Call(p,receiver, nf.Id(p,"get"),Collections.singletonList(typeNode), Collections.<Expr>emptyList());
-
-//                IntLit lit = nf.IntLit(p, IntLit_c.INT, 0L);
-//                lit = (IntLit) lit.del().typeCheck(tc).checkConstants(tc);
-//                e = nf.Cast(p,typeNode, lit);
             }
-            // todo: we should handle user-defined structs
-//          } else if (isX10Struct(t)) {
-            /*
-            My plan for user-defined structs is as follows:
-1) recursively verify that all generic parameters have zero/default (this might be stricter then necessary because a parameter might not be used in any field, but is easier to implement)
-2) We maintain a set of constraints C, and make sure all of them evaluate to true.
-We gather the constraints from:
-* the constraints on all the non-static fields and properties
-* the class invariant
-then we substitute 0/false/null in all the constraints in C and if they all evaluate to true, then we have a default value.
-             */
-
 
             if (e != null) {
                 e = (Expr) e.del().typeCheck(tc).checkConstants(tc);
@@ -1710,11 +1724,19 @@ then we substitute 0/false/null in all the constraints in C and if they all eval
 	public static Type instantiateTypeParametersExplicitly(Type t) {
 		if (t instanceof AnnotatedType) {
 			AnnotatedType at = (AnnotatedType) t;
-			return at.baseType(instantiateTypeParametersExplicitly(at.baseType()));
+			Type bt = at.baseType();
+			Type ibt = instantiateTypeParametersExplicitly(bt);
+			if (ibt != bt)
+			    return at.baseType(ibt);
+			return at;
 		} else
 		if (t instanceof ConstrainedType) {
 			ConstrainedType ct = (ConstrainedType) t;
-			return ct.baseType(Types.ref(instantiateTypeParametersExplicitly(Types.get(ct.baseType()))));
+			Type bt = Types.get(ct.baseType());
+			Type ibt = instantiateTypeParametersExplicitly(bt);
+			if (ibt != bt)
+			    ct = ct.baseType(Types.ref(ibt));
+			return ct;
 		} else
 		if (t instanceof X10ParsedClassType) {
 			X10ParsedClassType pct = (X10ParsedClassType) t;

@@ -134,7 +134,7 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
     // Cached realClause of the root type.
     Ref<CConstraint> rootClause;
 
-    protected Ref<CConstraint> classInvariant;
+    protected Ref<CConstraint> classInvariant; // todo: this doesn't include X10ClassDecl_c.classInvariant, and the code in X10ClassDecl_c.postBuildTypes  and X10ClassDef_c.getRootClause() looks redundant (and ignores classInvariant)
 
     public void setClassInvariant(Ref<CConstraint> c) {
         this.classInvariant = c;

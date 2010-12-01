@@ -76,6 +76,7 @@ import x10.types.checker.Converter;
 import x10.types.constraints.CConstraint;
 import x10.util.Synthesizer;
 import x10.visit.ConstantPropagator;
+import x10.visit.Desugarer;
 
 /**
  * Optimize loops of the form:  for (formal in domain) S.
@@ -777,7 +778,7 @@ public class ForLoopOptimizer extends ContextVisitor {
      * @return the synthesized assignment statement
      * TODO: move to Synthesizer
      */
-    public Stmt createAssignment(Assign expr) {
+    public Stmt createAssignment(Expr expr) {
         return createEval(expr);
     }
 
@@ -838,7 +839,7 @@ public class ForLoopOptimizer extends ContextVisitor {
      * @param pos the Position of the statement expression in source code
      * @param stmts the statements to proceed evaluation of expr
      * @param expr the result of the statement expression
-     * @return a synthesized statement expresssion comprising stmts and expr
+     * @return a synthesized statement expression comprising stmts and expr
      * TODO: move to Synthesizer
      */
     public StmtExpr createStmtExpr(Position pos, List<Stmt> stmts, Expr expr) {
@@ -873,7 +874,7 @@ public class ForLoopOptimizer extends ContextVisitor {
     }
 
     /**
-     * Create the boolean litteral "false".
+     * Create the boolean literal "false".
      * 
      * @param pos the Position of the literal in source code
      * @return the synthesized boolean literal
@@ -886,11 +887,11 @@ public class ForLoopOptimizer extends ContextVisitor {
     /**
      * Create the boolean negation of a given (boolean) expression.
      * 
-     * @param expr the boolean expressin to be negated
+     * @param expr the boolean expression to be negated
      * @return a synthesized expression which is the boolean negation of expr
      * TODO:  move to synthesizer
      */
-    public Unary createNot(Expr expr) {
+    public Expr createNot(Expr expr) {
         return createNot(expr.position(), expr);
     }
 
@@ -903,7 +904,7 @@ public class ForLoopOptimizer extends ContextVisitor {
      * @return a synthesized expression that negates expr
      * TODO: move to Synthesizer
      */
-    public Unary createNot(Position pos, Expr expr) {
+    public Expr createNot(Position pos, Expr expr) {
         assert (expr.type().isBoolean());
         return createUnary(pos, Unary.NOT, expr);
     }
@@ -918,8 +919,9 @@ public class ForLoopOptimizer extends ContextVisitor {
      * @return a synthesized unary expression equivalent to applying op to expr
      * TODO: move to Synthesizer
      */
-    public Unary createUnary(Position pos, polyglot.ast.Unary.Operator op, Expr expr) {
-        return (Unary) xnf.Unary(pos, op, expr).type(expr.type());
+    public Expr createUnary(Position pos, polyglot.ast.Unary.Operator op, Expr expr) {
+        Unary unary = (Unary) xnf.Unary(pos, op, expr).type(expr.type());
+        return Desugarer.desugarUnary(unary, this);
     }
 
     /**
@@ -971,12 +973,9 @@ public class ForLoopOptimizer extends ContextVisitor {
      * @return the synthesized Binary expression: (left op right)
      * TODO: move into Synthesizer
      */
-    public Binary createBinary(Position pos, Expr left, polyglot.ast.Binary.Operator op, Expr right) {
-        try {
-            return (Binary) xnf.Binary(pos, left, op, right).typeCheck(this);
-        } catch (SemanticException e) { 
-           throw new InternalCompilerError("Attempting to synthesize a Binary that cannot be typed", pos, e);
-        }
+    public Expr createBinary(Position pos, Expr left, Binary.Operator op, Expr right) {
+        Binary binary = (Binary) xnf.Binary(pos, left, op, right).type(left.type());
+        return Desugarer.desugarBinary(binary, this);
     }
 
     /**
@@ -989,8 +988,13 @@ public class ForLoopOptimizer extends ContextVisitor {
      * @return the synthesized Assign expression: (target op source)
      * TODO: move into Synthesizer
      */
-    public Assign createAssign(Position pos, Expr target, Operator op, Expr source) {
-        return (Assign) xnf.Assign(pos, target, op, source).type(target.type());
+    public Expr createAssign(Position pos, Expr target, Operator op, Expr source) {
+        try {
+            Assign assign = syn.makeAssign(pos, target, op, source, context());
+            return Desugarer.desugarAssign(assign, this);
+        } catch (SemanticException e) {
+            throw new InternalCompilerError("Attempting to synthesize an Assign that cannot be typed", pos, e);
+        }
     }
 
     /**
