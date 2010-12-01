@@ -29,6 +29,7 @@ import polyglot.ast.Formal;
 import polyglot.ast.IntLit;
 import polyglot.ast.Local;
 import polyglot.ast.LocalAssign;
+import polyglot.ast.LocalDecl;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.Stmt;
@@ -389,23 +390,22 @@ public class Desugarer extends ContextVisitor {
                         nf.Id(pos, ami.name()), idx1).methodInstance(ami).type(T),
                 op, nf.Local(pos, nf.Id(pos, zn)).localInstance(zDef.asInstance()).type(T)).type(T),
                 v);
+        Name rn = Name.make("r");
+        LocalDef rDef = ts.localDef(pos, ts.Final(), Types.ref(T), rn);
+        LocalDecl r = nf.LocalDecl(pos, nf.FlagsNode(pos, ts.Final()),
+                nf.CanonicalTypeNode(pos, T), nf.Id(pos, rn), val).localDef(rDef);
         List<Expr> args1 = new ArrayList<Expr>(idx1);
-        args1.add(0, val);
-        Type ret = mi.returnType();
+        args1.add(0, nf.Local(pos, nf.Id(pos, rn)).localInstance(rDef.asInstance()).type(T));
         Expr res = nf.Call(pos,
                 nf.Local(pos, nf.Id(pos, xn)).localInstance(xDef.asInstance()).type(mi.container()),
-                nf.Id(pos, mi.name()), args1).methodInstance(mi).type(ret);
-        // Have to create the appropriate node in case someone defines a set():void
-        Block block = ret.isVoid() ?
-                nf.Block(pos, nf.Eval(pos, res), nf.Return(pos, nf.Call(pos,
-                        nf.Local(pos, nf.Id(pos, xn)).localInstance(xDef.asInstance()).type(mi.container()),
-                        nf.Id(pos, ami.name()), idx1).methodInstance(ami).type(T))) :
-                nf.Block(pos, nf.Return(pos, res));
+                nf.Id(pos, mi.name()), args1).methodInstance(mi).type(mi.returnType());
+        Block block = nf.Block(pos, r, nf.Eval(pos, res),
+                nf.Return(pos, nf.Local(pos, nf.Id(pos, rn)).localInstance(rDef.asInstance()).type(T)));
         Closure c = closure(pos, T, parms, block, v);
         X10MethodInstance ci = c.closureDef().asType().applyMethod();
         args.add(0, n.array());
         args.add(n.right());
-        return nf.ClosureCall(pos, c, args).closureInstance(ci).type(ret);
+        return nf.ClosureCall(pos, c, args).closureInstance(ci).type(T);
     }
 
     /**
