@@ -171,6 +171,7 @@ import x10.types.ConstrainedType;
 import x10.types.FunctionType;
 import x10.types.ParameterType;
 import x10.types.ParameterType.Variance;
+import x10.types.constraints.SubtypeConstraint;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10ConstructorDef;
@@ -757,7 +758,22 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         return subtypeOfCustomSerializer(superDef);
     }
 
-	public void visit(X10ClassDecl_c n) {
+    // TODO haszero
+    private static boolean hasZeroValue(X10ClassDef def) {
+        if (def.flags().isInterface()) return false;
+        if (!def.flags().isStruct()) return false;
+        List<SubtypeConstraint> terms = def.typeBounds().get().terms();
+        for (SubtypeConstraint sc : terms) {
+            if (sc.isHaszero()) {
+                System.out.println("@@@ hasZeroValue: " + def);
+                return true;
+            }
+        }
+        // TODO should we also check haszero for all fields?
+        return false;
+    }
+
+    public void visit(X10ClassDecl_c n) {
 	    String className = n.classDef().name().toString();
 	    X10CContext_c context = (X10CContext_c) tr.context();
 	    if (n.classDef().isTopLevel() && !n.classDef().sourceFile().name().equals(className + ".x10") && !context.isContainsGeneratedClasses(n.classDef())) {
@@ -909,6 +925,13 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		// XTENLANG-1102
 		er.generateRTTInstance(def);
 		
+		// TODO haszero
+		/*
+		if (hasZeroValue(def)) {
+		    er.generateZeroValueConstructor(def, n);
+		}
+		*/
+
 		if (subtypeOfCustomSerializer(def)) {
             er.generateCustomSerializer(def, n);
         } else {

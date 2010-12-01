@@ -2815,17 +2815,26 @@ public class Emitter {
             w.write("final x10.io.SerialData a) { ");
 
             // call super deserialization constructor
-            w.write("super(");
-            X10ClassType superType = (X10ClassType) def.superType().get();
-            if (superType.typeArguments() != null) {
-                for (Type type : superType.typeArguments()) {
-                    // pass rtt of the type
-                    new RuntimeTypeExpander(this, type).expand(tr);
-                    w.write(", ");
+            Ref<? extends Type> superType0Ref = def.superType();
+            if (superType0Ref != null) {
+                Type superType0 = superType0Ref.get();
+                X10ClassType superType;
+                if (superType0 instanceof ConstrainedType_c) {
+                    superType = (X10ClassType) ((ConstrainedType_c) superType0).baseType().get();
+                } else {
+                    superType = (X10ClassType) superType0;
                 }
+                w.write("super(");
+                if (superType.typeArguments() != null) {
+                    for (Type type : superType.typeArguments()) {
+                        // pass rtt of the type
+                        new RuntimeTypeExpander(this, type).expand(tr);
+                        w.write(", ");
+                    }
+                }
+//                w.write("a.superclassData); ");
+                w.write("a); ");
             }
-//            w.write("a.superclassData); ");
-            w.write("a); ");
             
             // initialize rtt
             for (ParameterType type : def.typeParameters()) {
@@ -2863,6 +2872,78 @@ public class Emitter {
             w.newline();
         }
 
+	}
+
+	// TODO haszero
+	public void generateZeroValueConstructor(X10ClassDef def, X10ClassDecl_c n) {
+        w.write("// auto generated zero value constructor");
+        w.newline();
+        w.write("public " + def.name().toString() + "(");
+        for (ParameterType type : def.typeParameters()) {
+            w.write("final x10.rtt.Type " + type.name().toString() + ", ");
+        }
+        w.write("final java.lang.System[] dummy$0) { ");
+
+        /*
+        // call super constructor
+        Ref<? extends Type> superType0Ref = def.superType();
+        if (superType0Ref != null) {
+            Type superType0 = superType0Ref.get();
+            X10ClassType superType;
+            if (superType0 instanceof ConstrainedType_c) {
+                superType = (X10ClassType) ((ConstrainedType_c) superType0).baseType().get();
+            } else {
+                superType = (X10ClassType) superType0;
+            }
+            w.write("super(");
+            if (superType.typeArguments() != null) {
+                for (Type type : superType.typeArguments()) {
+                    // pass rtt of the type
+                    new RuntimeTypeExpander(this, type).expand(tr);
+                    w.write(", ");
+                }
+            }
+            w.write("(java.lang.System[]) null); ");
+        }
+        */
+        
+        // initialize rtt
+        for (ParameterType type : def.typeParameters()) {
+            w.write("this." + type.name().toString() + " = " + type.name().toString() + "; ");
+        }
+        
+        // copy the rest of default (standard) constructor to initialize properties and fields
+        X10ConstructorDecl ctor = hasDefaultConstructor(n);
+        // we must have default constructor to initialize properties
+//      assert ctor != null;
+        /*
+        if (ctor == null) {
+            ctor = createDefaultConstructor(def, (X10NodeFactory_c) tr.nodeFactory(), n);
+            // TODO apply FieldInitializerMover
+        }
+        */
+        if (ctor != null) {
+            // initialize properties and call field initializer
+            Block_c body = (Block_c) ctor.body();
+            if (body.statements().size() > 0) {
+                if (body.statements().get(0) instanceof ConstructorCall) {
+                    body = (Block_c) body.statements(body.statements().subList(1, body.statements().size()));
+                }
+                // X10PrettyPrinterVisitor.visit(Block_c body)
+                String s = getJavaImplForStmt(body, tr.typeSystem());
+                if (s != null) {
+                    w.write(s);
+                } else {
+                    body.translate(w, tr);
+                }
+            }
+        }
+        
+        // initialize fields with zero value
+        // TODO
+
+        w.write("}");
+        w.newline();
 	}
 
     private void printParent(final X10ClassDef def, Type type) {
