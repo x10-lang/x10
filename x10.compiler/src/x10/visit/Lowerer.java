@@ -122,14 +122,10 @@ import x10.visit.Desugarer.Substitution;
  * {@link Synthesizer}.
  */
 public class Lowerer extends ContextVisitor {
-    private final TypeSystem xts;
-    private final NodeFactory xnf;
     private final Synthesizer synth;
     public Lowerer(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf);
-        xts = (TypeSystem) ts;
-        xnf = (NodeFactory) nf;
-        synth = new Synthesizer(xnf, xts);
+        synth = new Synthesizer(nf, ts);
     }
 
     private static int count;
@@ -139,11 +135,9 @@ public class Lowerer extends ContextVisitor {
     private static int flag = 0;
 
     private static Name getTmp() {
-        return Name.make("__desugarer__var__" + (count++) + "__");
+        return Name.make("__lowerer__var__" + (count++) + "__");
     }
 
-    public Context context() { return (Context) context; }
-    
     private static final Name RUN_AT = Name.make("runAt");
     private static final Name EVAL_AT = Name.make("evalAt");
     private static final Name RUN_ASYNC = Name.make("runAsync");
@@ -207,33 +201,33 @@ public class Lowerer extends ContextVisitor {
     		Position pos = finish.position();
     		Name name = xc.makeFreshName("clock");
     		Flags flags = Flags.FINAL;
-    		Type type = xts.Clock();
+    		Type type = ts.Clock();
     		
     		final Name varName = xc.getNewVarName();
-			final LocalDef li = xts.localDef(pos, flags, Types.ref(type), varName);
-			final Id varId = xnf.Id(pos, varName);
-			final Local ldRef = (Local) xnf.Local(pos, varId).localInstance(li.asInstance()).type(type);
+			final LocalDef li = ts.localDef(pos, flags, Types.ref(type), varName);
+			final Id varId = nf.Id(pos, varName);
+			final Local ldRef = (Local) nf.Local(pos, varId).localInstance(li.asInstance()).type(type);
 			clockStack.push(ldRef);
 			
 			final Name outerVarName = xc.getNewVarName();
-			final LocalDef outerLi = xts.localDef(pos, flags, Types.ref(type), outerVarName);
-			final Id outerVarId = xnf.Id(pos, outerVarName);
-			final Local outerLdRef = (Local) xnf.Local(pos, outerVarId).localInstance(outerLi.asInstance()).type(type);
+			final LocalDef outerLi = ts.localDef(pos, flags, Types.ref(type), outerVarName);
+			final Id outerVarId = nf.Id(pos, outerVarName);
+			final Local outerLdRef = (Local) nf.Local(pos, outerVarId).localInstance(outerLi.asInstance()).type(type);
 
 			try {
 				Expr clock = synth.makeStaticCall(pos, type, MAKE, type, xc);
-				final TypeNode tn = xnf.CanonicalTypeNode(pos, type);
-				Expr nullLit = xnf.NullLit(pos).type(type);
-				final LocalDecl outerLd = xnf.LocalDecl(pos, xnf.FlagsNode(pos, Flags.NONE), tn, outerVarId, nullLit).localDef(outerLi);
+				final TypeNode tn = nf.CanonicalTypeNode(pos, type);
+				Expr nullLit = nf.NullLit(pos).type(type);
+				final LocalDecl outerLd = nf.LocalDecl(pos, nf.FlagsNode(pos, Flags.NONE), tn, outerVarId, nullLit).localDef(outerLi);
 				
 				Block block = synth.toBlock(finish.body());
-				final LocalDecl ld = xnf.LocalDecl(pos, xnf.FlagsNode(pos, flags), tn, varId, clock).localDef(li);
-				Stmt assign = xnf.Eval(pos, assign(pos, outerLdRef, Assign.ASSIGN, ldRef));
+				final LocalDecl ld = nf.LocalDecl(pos, nf.FlagsNode(pos, flags), tn, varId, clock).localDef(li);
+				Stmt assign = nf.Eval(pos, synth.makeAssign(pos, outerLdRef, Assign.ASSIGN, ldRef, xc));
 				block = block.prepend(assign);
 				block = block.prepend(ld);
-				Block drop = xnf.Block(pos,xnf.Eval(pos, new InstanceCallSynth(xnf, xc, pos, outerLdRef, DROP).genExpr()));
+				Block drop = nf.Block(pos,nf.Eval(pos, new InstanceCallSynth(nf, xc, pos, outerLdRef, DROP).genExpr()));
 				Stmt stm1 = nf.Try(pos, block, Collections.<Catch>emptyList(), drop);
-				Node result = visitEdgeNoOverride(parent, nf.Block(pos, outerLd, xnf.Finish(pos, stm1, false)));
+				Node result = visitEdgeNoOverride(parent, nf.Block(pos, outerLd, nf.Finish(pos, stm1, false)));
 				return result;
 			} catch (SemanticException z) {
 				return null;
@@ -247,9 +241,9 @@ public class Lowerer extends ContextVisitor {
     		if (atStm==null)
     			return null;
     		Expr place = atStm.place(); 
-    		if (xts.hasSameClassDef(X10TypeMixin.baseType(place.type()), xts.GlobalRef())) {
+    		if (ts.hasSameClassDef(X10TypeMixin.baseType(place.type()), ts.GlobalRef())) {
     			try {
-    				place = synth.makeFieldAccess(async.position(),place, xts.homeName(), context());
+    				place = synth.makeFieldAccess(async.position(),place, ts.homeName(), context());
     			} catch (SemanticException e) {
     			}
     		}
@@ -335,19 +329,6 @@ public class Lowerer extends ContextVisitor {
             return visitAtEach((AtEach) n);
         if (n instanceof Eval)
             return visitEval((Eval) n);
-        if (n instanceof Assign)
-            return visitAssign((Assign) n);
-        // We should be using interfaces (e.g., X10Binary, X10Unary) instead, but
-        // (a) there is no X10Unary, and (b) the method name functions are only
-        // available on concrete classes anyway.
-        if (n instanceof X10Binary_c)
-            return visitBinary((X10Binary_c) n);
-        if (n instanceof X10Unary_c)
-            return visitUnary((X10Unary_c) n);
-        if (n instanceof X10Cast)
-            return visitCast((X10Cast) n);
-        if (n instanceof X10Instanceof)
-            return visitInstanceof((X10Instanceof) n);
         if (n instanceof LocalDecl)
             return visitLocalDecl((LocalDecl) n);
         if (n instanceof Resume)
@@ -360,11 +341,11 @@ public class Lowerer extends ContextVisitor {
     }
 
     Expr getPlace(Position pos, Expr place) throws SemanticException{
-    	if (! xts.isImplicitCastValid(place.type(), xts.Place(), context())) {
-            	place = synth.makeInstanceCall(pos, place, xts.homeName(),
+    	if (! ts.isImplicitCastValid(place.type(), ts.Place(), context())) {
+            	place = synth.makeInstanceCall(pos, place, ts.homeName(),
             			Collections.<TypeNode>emptyList(),
             			Collections.<Expr>emptyList(),
-            			xts.Place(),
+            			ts.Place(),
             			Collections.<Type>emptyList(),
             			context());
             }
@@ -377,16 +358,16 @@ public class Lowerer extends ContextVisitor {
         List<TypeNode> typeArgs = Arrays.asList(new TypeNode[] { c.returnType() });
         Position bPos = c.body().position();
         ClosureDef cDef = c.closureDef().position(bPos);
-        Expr closure = xnf.Closure(c, bPos)
+        Expr closure = nf.Closure(c, bPos)
             .closureDef(cDef)
-        	.type(ClosureSynthesizer.closureAnonymousClassDef((X10TypeSystem_c) xts, cDef).asType());
+        	.type(ClosureSynthesizer.closureAnonymousClassDef((X10TypeSystem_c) ts, cDef).asType());
         List<Expr> args = new ArrayList<Expr>(Arrays.asList(new Expr[] { place, closure }));
         List<Type> mArgs = new ArrayList<Type>(Arrays.asList(new Type[] {
-            xts.Place(), cDef.asType()
+            ts.Place(), cDef.asType()
         }));
        // List<Type> tArgs = Arrays.asList(new Type[] { fDef.returnType().get() });
 
-        Expr result = synth.makeStaticCall(pos, xts.Runtime(), implName,
+        Expr result = synth.makeStaticCall(pos, ts.Runtime(), implName,
         		typeArgs, args, c.type(), context());
         return result;
     }
@@ -394,10 +375,10 @@ public class Lowerer extends ContextVisitor {
     private Stmt atStmt(Position pos, Stmt body, Expr place) throws SemanticException {
       	place = getPlace(pos, place);
         Closure closure =
-        	synth.makeClosure(body.position(), xts.Void(), synth.toBlock(body), context());
-        Stmt result = xnf.Eval(pos,
-        		synth.makeStaticCall(pos, xts.Runtime(), RUN_AT,
-        				Arrays.asList(new Expr[] { place, closure }), xts.Void(),
+        	synth.makeClosure(body.position(), ts.Void(), synth.toBlock(body), context());
+        Stmt result = nf.Eval(pos,
+        		synth.makeStaticCall(pos, ts.Runtime(), RUN_AT,
+        				Arrays.asList(new Expr[] { place, closure }), ts.Void(),
         				context()));
         return result;
     }
@@ -437,8 +418,8 @@ public class Lowerer extends ContextVisitor {
     	List<Expr> clocks = clocks(a.clocked(), a.clocks());
         Position pos = a.position();
         X10Ext ext = (X10Ext) a.ext();
-        List<X10ClassType> refs = Emitter.annotationsNamed(xts, a, REF);
-        if (isUncountedAsync(xts, a)) {
+        List<X10ClassType> refs = Emitter.annotationsNamed(ts, a, REF);
+        if (isUncountedAsync(ts, a)) {
         	if (old instanceof Async)
             	 return uncountedAsync(pos, a.body());
         }
@@ -454,8 +435,8 @@ public class Lowerer extends ContextVisitor {
     private Stmt visitAsyncPlace(Async a, Expr place, Stmt body) throws SemanticException {
     	List<Expr> clocks = clocks(a.clocked(), a.clocks());
         Position pos = a.position();
-        List<X10ClassType> refs = Emitter.annotationsNamed(xts, a, REF);
-        if (isUncountedAsync(xts, a)) {
+        List<X10ClassType> refs = Emitter.annotationsNamed(ts, a, REF);
+        if (isUncountedAsync(ts, a)) {
             return uncountedAsync(pos, body, place);
         }
         Stmt specializedAsync = specializeAsync(a, place, body);
@@ -471,8 +452,8 @@ public class Lowerer extends ContextVisitor {
         return false;
     }
 
-    public static boolean isUncountedAsync(TypeSystem xts, Async a) {
-        return Emitter.hasAnnotation(xts, a, UNCOUNTED);
+    public static boolean isUncountedAsync(TypeSystem ts, Async a) {
+        return Emitter.hasAnnotation(ts, a, UNCOUNTED);
     }
 
     /**
@@ -490,7 +471,7 @@ public class Lowerer extends ContextVisitor {
      * TODO: move into a separate pass!
      */
     private Stmt specializeAsync(Async a, Expr p, Stmt body) throws SemanticException {
-        if (!Emitter.hasAnnotation(xts, a, IMMEDIATE))
+        if (!Emitter.hasAnnotation(ts, a, IMMEDIATE))
             return null;
         if (a.clocks().size() != 0)
             return null;
@@ -523,12 +504,12 @@ public class Lowerer extends ContextVisitor {
             if (/*!isGloballyAvailable(r) || */!isGloballyAvailable(i) || !isGloballyAvailable(v))
                 return null;
     /*        List<Type> ta = ((X10ClassType) X10TypeMixin.baseType(r.type())).typeArguments();
-            if (!v.type().isLong() || !xts.isRailOf(r.type(), xts.Long()))
+            if (!v.type().isLong() || !ts.isRailOf(r.type(), ts.Long()))
                 return null;
             if (!PlaceChecker.isAtPlace(r, p, xContext()))
                 return null;
     */
-            ClassType RemoteOperation = (ClassType) xts.typeForName(REMOTE_OPERATION);
+            ClassType RemoteOperation = (ClassType) ts.typeForName(REMOTE_OPERATION);
             Position pos = a.position();
             List<Expr> args = new ArrayList<Expr>();
             Expr p1 = (Expr) leaveCall(null, q, this);
@@ -536,22 +517,22 @@ public class Lowerer extends ContextVisitor {
             args.add((Expr) leaveCall(null, r, this));
             args.add((Expr) leaveCall(null, i, this));
             args.add((Expr) leaveCall(null, v, this));
-            Stmt alt = xnf.Eval(pos, synth.makeStaticCall(pos, RemoteOperation, XOR, args, xts.Void(), context()));
-            Expr cond = xnf.Binary(pos, q, X10Binary_c.EQ, call(pos, HERE_INT, xts.Int())).type(xts.Boolean());
+            Stmt alt = nf.Eval(pos, synth.makeStaticCall(pos, RemoteOperation, XOR, args, ts.Void(), context()));
+            Expr cond = nf.Binary(pos, q, X10Binary_c.EQ, call(pos, HERE_INT, ts.Int())).type(ts.Boolean());
             Stmt cns = a.body();
-            return xnf.If(pos, cond, cns, alt);
+            return nf.If(pos, cond, cns, alt);
         } else {
             Expr r = sa.array();
             Expr v = sa.right();
             if (/*!isGloballyAvailable(r) || */!isGloballyAvailable(i) || !isGloballyAvailable(v))
                 return null;
     /*        List<Type> ta = ((X10ClassType) X10TypeMixin.baseType(r.type())).typeArguments();
-            if (!v.type().isLong() || !xts.isRailOf(r.type(), xts.Long()))
+            if (!v.type().isLong() || !ts.isRailOf(r.type(), ts.Long()))
                 return null;
             if (!PlaceChecker.isAtPlace(r, p, xContext()))
                 return null;
     */
-            ClassType RemoteOperation = (ClassType) xts.typeForName(REMOTE_OPERATION);
+            ClassType RemoteOperation = (ClassType) ts.typeForName(REMOTE_OPERATION);
             Position pos = a.position();
             List<Expr> args = new ArrayList<Expr>();
             Expr p1 = (Expr) leaveCall(null, p, this);
@@ -559,24 +540,24 @@ public class Lowerer extends ContextVisitor {
             args.add((Expr) leaveCall(null, r, this));
             args.add((Expr) leaveCall(null, i, this));
             args.add((Expr) leaveCall(null, v, this));
-            Stmt alt = xnf.Eval(pos, synth.makeStaticCall(pos, RemoteOperation, XOR, args, xts.Void(), context()));
-            Expr cond = xnf.Binary(pos, p, X10Binary_c.EQ, call(pos, HERE, xts.Place())).type(xts.Boolean());
+            Stmt alt = nf.Eval(pos, synth.makeStaticCall(pos, RemoteOperation, XOR, args, ts.Void(), context()));
+            Expr cond = nf.Binary(pos, p, X10Binary_c.EQ, call(pos, HERE, ts.Place())).type(ts.Boolean());
             Stmt cns = a.body();
-            return xnf.If(pos, cond, cns, alt);
+            return nf.If(pos, cond, cns, alt);
         }
     }
 
     private Stmt async(Position pos, Stmt body, List<Expr> clocks, Expr place, List<X10ClassType> annotations) throws SemanticException {
-        if (xts.isImplicitCastValid(place.type(), xts.GlobalRef(), context())) {
-            place = synth.makeFieldAccess(pos,place, xts.homeName(), context());
+        if (ts.isImplicitCastValid(place.type(), ts.GlobalRef(), context())) {
+            place = synth.makeFieldAccess(pos,place, ts.homeName(), context());
         }
         if (clocks.size() == 0)
         	return async(pos, body, place, annotations);
-        Type clockRailType = X10TypeMixin.makeArrayRailOf(xts.Clock(), pos);
-        Tuple clockRail = (Tuple) xnf.Tuple(pos, clocks).type(clockRailType);
+        Type clockRailType = X10TypeMixin.makeArrayRailOf(ts.Clock(), pos);
+        Tuple clockRail = (Tuple) nf.Tuple(pos, clocks).type(clockRailType);
 
         return makeAsyncBody(pos, new ArrayList<Expr>(Arrays.asList(new Expr[] { place, clockRail })),
-                             new ArrayList<Type>(Arrays.asList(new Type[] { xts.Place(), clockRailType})),
+                             new ArrayList<Type>(Arrays.asList(new Type[] { ts.Place(), clockRailType})),
                              body, annotations);
     }
 
@@ -584,15 +565,15 @@ public class Lowerer extends ContextVisitor {
         List<Expr> l = new ArrayList<Expr>(1);
         l.add(place);
         List<Type> t = new ArrayList<Type>(1);
-        t.add(xts.Place());
+        t.add(ts.Place());
         return makeAsyncBody(pos, l, t, body, annotations);
     }
 
     private Stmt async(Position pos, Stmt body, List<Expr> clocks, List<X10ClassType> annotations) throws SemanticException {
         if (clocks.size() == 0)
         	return async(pos, body, annotations);
-        Type clockRailType = X10TypeMixin.makeArrayRailOf(xts.Clock(), pos);
-        Tuple clockRail = (Tuple) xnf.Tuple(pos, clocks).type(clockRailType);
+        Type clockRailType = X10TypeMixin.makeArrayRailOf(ts.Clock(), pos);
+        Tuple clockRail = (Tuple) nf.Tuple(pos, clocks).type(clockRailType);
         return makeAsyncBody(pos, new ArrayList<Expr>(Arrays.asList(new Expr[] { clockRail })),
                              new ArrayList<Type>(Arrays.asList(new Type[] { clockRailType})), body, annotations);
     }
@@ -605,14 +586,14 @@ public class Lowerer extends ContextVisitor {
     private Stmt makeAsyncBody(Position pos, List<Expr> exprs, List<Type> types, Stmt body, List<X10ClassType> annotations) throws SemanticException {
     	if (annotations == null)
     		annotations = new ArrayList<X10ClassType>(1);
-    	annotations.add((X10ClassType) xts.systemResolver().find(ASYNC_CLOSURE));
-        Closure closure = synth.makeClosure(body.position(), xts.Void(),
+    	annotations.add((X10ClassType) ts.systemResolver().find(ASYNC_CLOSURE));
+        Closure closure = synth.makeClosure(body.position(), ts.Void(),
                 synth.toBlock(body), context(), annotations);
         exprs.add(closure);
         types.add(closure.closureDef().asType());
-        Stmt result = xnf.Eval(pos,
-                synth.makeStaticCall(pos, xts.Runtime(), RUN_ASYNC, exprs,
-                        xts.Void(), types, context()));
+        Stmt result = nf.Eval(pos,
+                synth.makeStaticCall(pos, ts.Runtime(), RUN_ASYNC, exprs,
+                        ts.Void(), types, context()));
         return result;
     }
 
@@ -620,7 +601,7 @@ public class Lowerer extends ContextVisitor {
         List<Expr> l = new ArrayList<Expr>(1);
         l.add(place);
         List<Type> t = new ArrayList<Type>(1);
-        t.add(xts.Place());
+        t.add(ts.Place());
         return makeUncountedAsyncBody(pos, l, t, body);
     }
 
@@ -630,13 +611,13 @@ public class Lowerer extends ContextVisitor {
     }
 
     private Stmt makeUncountedAsyncBody(Position pos, List<Expr> exprs, List<Type> types, Stmt body) throws SemanticException {
-        Closure closure = synth.makeClosure(body.position(), xts.Void(),
+        Closure closure = synth.makeClosure(body.position(), ts.Void(),
                 synth.toBlock(body), context());
         exprs.add(closure);
         types.add(closure.closureDef().asType());
-        Stmt result = xnf.Eval(pos,
-                synth.makeStaticCall(pos, xts.Runtime(), RUN_UNCOUNTED_ASYNC, exprs,
-                        xts.Void(), types, context()));
+        Stmt result = nf.Eval(pos,
+                synth.makeStaticCall(pos, ts.Runtime(), RUN_UNCOUNTED_ASYNC, exprs,
+                        ts.Void(), types, context()));
         return result;
     }
     // end Async
@@ -645,41 +626,41 @@ public class Lowerer extends ContextVisitor {
     // here -> Runtime.here()
     private Expr visitHere(Here h) throws SemanticException {
         Position pos = h.position();
-        return call(pos, HERE, xts.Place());
+        return call(pos, HERE, ts.Place());
     }
 
     // next; -> Runtime.next();
     private Stmt visitNext(Next n) throws SemanticException {
         Position pos = n.position();
-        return xnf.Eval(pos, call(pos, NEXT, xts.Void()));
+        return nf.Eval(pos, call(pos, NEXT, ts.Void()));
     }
     
     // next; -> Runtime.next();
     private Stmt visitResume(Resume n) throws SemanticException {
         Position pos = n.position();
-        return xnf.Eval(pos, call(pos, RESUME, xts.Void()));
+        return nf.Eval(pos, call(pos, RESUME, ts.Void()));
     }
 
     // atomic S; -> try { Runtime.enterAtomic(); S } finally { Runtime.exitAtomic(); }
     private Stmt visitAtomic(Atomic a) throws SemanticException {
         Position pos = a.position();
-        Block tryBlock = xnf.Block(pos, xnf.Eval(pos, call(pos, ENTER_ATOMIC, xts.Void())), a.body());
-        Block finallyBlock = xnf.Block(pos, xnf.Eval(pos, call(pos, EXIT_ATOMIC, xts.Void())));
-        return xnf.Try(pos, tryBlock, Collections.<Catch>emptyList(), finallyBlock);
+        Block tryBlock = nf.Block(pos, nf.Eval(pos, call(pos, ENTER_ATOMIC, ts.Void())), a.body());
+        Block finallyBlock = nf.Block(pos, nf.Eval(pos, call(pos, EXIT_ATOMIC, ts.Void())));
+        return nf.Try(pos, tryBlock, Collections.<Catch>emptyList(), finallyBlock);
     }
 
     private Stmt wrap(Position pos, Stmt s) {
-        return s.reachable() ? xnf.Block(pos, s, xnf.Break(pos)) : s;
+        return s.reachable() ? nf.Block(pos, s, nf.Break(pos)) : s;
     }
 
-    private Expr getLiteral(Position pos, Type type, boolean val) {
+    protected Expr getLiteral(Position pos, Type type, boolean val) {
         type = X10TypeMixin.baseType(type);
-        if (xts.isBoolean(type)) {
-            Type t = xts.Boolean();
+        if (ts.isBoolean(type)) {
+            Type t = ts.Boolean();
             try {
-                t = X10TypeMixin.addSelfBinding(t, val ? xts.TRUE() : xts.FALSE());
+                t = X10TypeMixin.addSelfBinding(t, val ? ts.TRUE() : ts.FALSE());
             } catch (XFailure e) { }
-            return xnf.BooleanLit(pos, val).type(t);
+            return nf.BooleanLit(pos, val).type(t);
         } else
             throw new InternalCompilerError(pos, "Unknown literal type: "+type);
     }
@@ -691,28 +672,28 @@ public class Lowerer extends ContextVisitor {
     //    finally { Runtime.exitAtomic(); }
     private Stmt visitWhen(When w) throws SemanticException {
         Position pos = w.position();
-        Block body = xnf.Block(pos, xnf.If(pos, w.expr(), wrap(pos, w.stmt())));
+        Block body = nf.Block(pos, nf.If(pos, w.expr(), wrap(pos, w.stmt())));
         for(int i=0; i<w.stmts().size(); i++) {
-            body = body.append(xnf.If(pos, (Expr) w.exprs().get(i), wrap(pos, (Stmt) w.stmts().get(i))));
+            body = body.append(nf.If(pos, (Expr) w.exprs().get(i), wrap(pos, (Stmt) w.stmts().get(i))));
         }
-        body = body.append(xnf.Eval(pos, call(pos, AWAIT_ATOMIC, xts.Void())));
-        Block tryBlock = xnf.Block(pos, 
-        		xnf.Eval(pos, call(pos, ENTER_ATOMIC, xts.Void())),
-        		xnf.While(pos, getLiteral(pos, xts.Boolean(), true), body));
-        Block finallyBlock = xnf.Block(pos, xnf.Eval(pos, call(pos, EXIT_ATOMIC, xts.Void())));
-        return xnf.Block(pos, 
-        		xnf.Eval(pos, call(pos, ENSURE_NOT_IN_ATOMIC, xts.Void())),
-        		xnf.Try(pos, 
+        body = body.append(nf.Eval(pos, call(pos, AWAIT_ATOMIC, ts.Void())));
+        Block tryBlock = nf.Block(pos, 
+        		nf.Eval(pos, call(pos, ENTER_ATOMIC, ts.Void())),
+        		nf.While(pos, getLiteral(pos, ts.Boolean(), true), body));
+        Block finallyBlock = nf.Block(pos, nf.Eval(pos, call(pos, EXIT_ATOMIC, ts.Void())));
+        return nf.Block(pos, 
+        		nf.Eval(pos, call(pos, ENSURE_NOT_IN_ATOMIC, ts.Void())),
+        		nf.Try(pos, 
         				tryBlock, Collections.<Catch>emptyList(), 
         				finallyBlock));
     }
 
-    private Expr call(Position pos, Name name, Type returnType) throws SemanticException {
-    	return synth.makeStaticCall(pos, xts.Runtime(), name,  returnType, context());
+    protected Expr call(Position pos, Name name, Type returnType) throws SemanticException {
+    	return synth.makeStaticCall(pos, ts.Runtime(), name, returnType, context());
     }
 
-    private Expr call(Position pos, Name name, Expr arg, Type returnType) throws SemanticException {
-        return synth.makeStaticCall(pos, xts.Runtime(), name, Collections.singletonList(arg), returnType, context());
+    protected Expr call(Position pos, Name name, Expr arg, Type returnType) throws SemanticException {
+        return synth.makeStaticCall(pos, ts.Runtime(), name, Collections.singletonList(arg), returnType, context());
     }
 
     /**
@@ -728,12 +709,12 @@ public class Lowerer extends ContextVisitor {
      * TODO: move into a separate pass!
      */
     private Stmt specializeFinish(Finish f) throws SemanticException {
-        if (!Emitter.hasAnnotation(xts, f, IMMEDIATE))
+        if (!Emitter.hasAnnotation(ts, f, IMMEDIATE))
             return null;
         Position pos = f.position();
-        ClassType target = (ClassType) xts.typeForName(REMOTE_OPERATION);
+        ClassType target = (ClassType) ts.typeForName(REMOTE_OPERATION);
         List<Expr> args = new ArrayList<Expr>();
-        return xnf.Block(pos, f.body(), xnf.Eval(pos, synth.makeStaticCall(pos, target, FENCE, args, xts.Void(), context())));
+        return nf.Block(pos, f.body(), nf.Eval(pos, synth.makeStaticCall(pos, target, FENCE, args, ts.Void(), context())));
     }
     
     private int getPatternFromAnnotation(AnnotationNode a){
@@ -756,7 +737,7 @@ public class Lowerer extends ContextVisitor {
     private Expr specializedFinish2(Finish f) throws SemanticException {
         Position pos = f.position();
     	int p=0;
-        Type annotation = (Type) xts.systemResolver().find(QName.make("x10.compiler.FinishAsync"));
+        Type annotation = (Type) ts.systemResolver().find(QName.make("x10.compiler.FinishAsync"));
         if (!((X10Ext) f.ext()).annotationMatching(annotation).isEmpty()) {
         	List<AnnotationNode> allannots = ((X10Ext)(f.ext())).annotations();
         	AnnotationNode a = null;
@@ -790,17 +771,17 @@ public class Lowerer extends ContextVisitor {
         		Report.report(0,"annotation is not correct "+ allannots.size());
         	}
         }
-        Type atype = (Type) xts.systemResolver().find(PRAGMA);
+        Type atype = (Type) ts.systemResolver().find(PRAGMA);
         List<X10ClassType> atypes  = ((X10Ext) f.ext()).annotationMatching(atype);
         if (!atypes.isEmpty()) {
-            return call(pos, START_FINISH, atypes.get(0).propertyInitializer(0), xts.FinishState());
+            return call(pos, START_FINISH, atypes.get(0).propertyInitializer(0), ts.FinishState());
         }
         
         switch(p){
-        case 1:return call(pos, START_LOCAL_FINISH, xts.FinishState());
-        case 2:return call(pos, START_SIMPLE_FINISH, xts.FinishState());
+        case 1:return call(pos, START_LOCAL_FINISH, ts.FinishState());
+        case 2:return call(pos, START_SIMPLE_FINISH, ts.FinishState());
         //TODO:more patterns can be filled here
-        default:return call(pos, START_FINISH, xts.FinishState());
+        default:return call(pos, START_FINISH, ts.FinishState());
         }
     }
 
@@ -821,31 +802,31 @@ public class Lowerer extends ContextVisitor {
             return specializedFinish;
 
         // TODO: merge with the call() function
-        MethodInstance mi = xts.findMethod(xts.Runtime(),
-                xts.MethodMatcher(xts.Runtime(), PUSH_EXCEPTION, Collections.singletonList(xts.Throwable()), context()));
-        LocalDef lDef = xts.localDef(pos, xts.NoFlags(), Types.ref(xts.Throwable()), tmp);
-        Formal formal = xnf.Formal(pos, xnf.FlagsNode(pos, xts.NoFlags()),
-                xnf.CanonicalTypeNode(pos, xts.Throwable()), xnf.Id(pos, tmp)).localDef(lDef);
-        Expr local = xnf.Local(pos, xnf.Id(pos, tmp)).localInstance(lDef.asInstance()).type(xts.Throwable());
-        Expr call = xnf.X10Call(pos, xnf.CanonicalTypeNode(pos, xts.Runtime()),
-                xnf.Id(pos, PUSH_EXCEPTION), Collections.<TypeNode>emptyList(),
-                Collections.singletonList(local)).methodInstance(mi).type(xts.Void());
+        MethodInstance mi = ts.findMethod(ts.Runtime(),
+                ts.MethodMatcher(ts.Runtime(), PUSH_EXCEPTION, Collections.singletonList(ts.Throwable()), context()));
+        LocalDef lDef = ts.localDef(pos, ts.NoFlags(), Types.ref(ts.Throwable()), tmp);
+        Formal formal = nf.Formal(pos, nf.FlagsNode(pos, ts.NoFlags()),
+                nf.CanonicalTypeNode(pos, ts.Throwable()), nf.Id(pos, tmp)).localDef(lDef);
+        Expr local = nf.Local(pos, nf.Id(pos, tmp)).localInstance(lDef.asInstance()).type(ts.Throwable());
+        Expr call = nf.X10Call(pos, nf.CanonicalTypeNode(pos, ts.Runtime()),
+                nf.Id(pos, PUSH_EXCEPTION), Collections.<TypeNode>emptyList(),
+                Collections.singletonList(local)).methodInstance(mi).type(ts.Void());
         Throw thr = throwRuntimeException(pos);
         Expr startCall = specializedFinish2(f);
 
         Context xc = context();
         final Name varName = xc.getNewVarName();
-        final Type type = xts.FinishState();
-        final LocalDef li = xts.localDef(pos, xts.Final(), Types.ref(type), varName);
-        final Id varId = xnf.Id(pos, varName);
-        final LocalDecl ld = xnf.LocalDecl(pos, xnf.FlagsNode(pos, xts.Final()), xnf.CanonicalTypeNode(pos, type), varId, startCall).localDef(li).type(xnf.CanonicalTypeNode(pos, type));
-        final Local ldRef = (Local) xnf.Local(pos, varId).localInstance(li.asInstance()).type(type);
+        final Type type = ts.FinishState();
+        final LocalDef li = ts.localDef(pos, ts.Final(), Types.ref(type), varName);
+        final Id varId = nf.Id(pos, varName);
+        final LocalDecl ld = nf.LocalDecl(pos, nf.FlagsNode(pos, ts.Final()), nf.CanonicalTypeNode(pos, type), varId, startCall).localDef(li).type(nf.CanonicalTypeNode(pos, type));
+        final Local ldRef = (Local) nf.Local(pos, varId).localInstance(li.asInstance()).type(type);
 
-        Block tryBlock = xnf.Block(pos, f.body());
-        Catch catchBlock = xnf.Catch(pos, formal, xnf.Block(pos, xnf.Eval(pos, call), thr));
-        Block finallyBlock = xnf.Block(pos, xnf.Eval(pos, call(pos, STOP_FINISH, ldRef, xts.Void())));
+        Block tryBlock = nf.Block(pos, f.body());
+        Catch catchBlock = nf.Catch(pos, formal, nf.Block(pos, nf.Eval(pos, call), thr));
+        Block finallyBlock = nf.Block(pos, nf.Eval(pos, call(pos, STOP_FINISH, ldRef, ts.Void())));
 
-        Try tcfBlock = xnf.Try(pos, tryBlock, Collections.singletonList(catchBlock), finallyBlock);
+        Try tcfBlock = nf.Try(pos, tryBlock, Collections.singletonList(catchBlock), finallyBlock);
 
         // propagate async initialization info to backend
         X10Ext_c ext = (X10Ext_c) f.ext();
@@ -853,18 +834,18 @@ public class Lowerer extends ContextVisitor {
             tcfBlock = (Try)((X10Ext_c)tcfBlock.ext()).asyncInitVal(ext.initVals);
         }
 
-        return xnf.Block(pos,
-        		xnf.Eval(pos, call(pos, ENSURE_NOT_IN_ATOMIC, xts.Void())),
+        return nf.Block(pos,
+        		nf.Eval(pos, call(pos, ENSURE_NOT_IN_ATOMIC, ts.Void())),
         		ld,
         		tcfBlock);
     }
 
     // Generates a throw of a new RuntimeException().
     private Throw throwRuntimeException(Position pos) throws SemanticException {
-        Type re = xts.RuntimeException();
-        X10ConstructorInstance ci = xts.findConstructor(re, xts.ConstructorMatcher(re, Collections.<Type>emptyList(), context()));
-        Expr newRE = xnf.New(pos, xnf.CanonicalTypeNode(pos, re), Collections.<Expr>emptyList()).constructorInstance(ci).type(re);
-        return xnf.Throw(pos, newRE);
+        Type re = ts.RuntimeException();
+        X10ConstructorInstance ci = ts.findConstructor(re, ts.ConstructorMatcher(re, Collections.<Type>emptyList(), context()));
+        Expr newRE = nf.New(pos, nf.CanonicalTypeNode(pos, re), Collections.<Expr>emptyList()).constructorInstance(ci).type(re);
+        return nf.Throw(pos, newRE);
     }
 
     // x = finish (R) S; ->
@@ -901,52 +882,52 @@ public class Lowerer extends ContextVisitor {
         Type reducerTarget = X10TypeMixin.reducerType(reducerType);
         assert reducerTarget!=null;
         
-        Call myCall = synth.makeStaticCall(pos, xts.Runtime(), START_COLLECTING_FINISH, Collections.<TypeNode>singletonList(xnf.CanonicalTypeNode(pos, reducerTarget)), Collections.singletonList(reducer), xts.Void(), Collections.singletonList(reducerType), context());
+        Call myCall = synth.makeStaticCall(pos, ts.Runtime(), START_COLLECTING_FINISH, Collections.<TypeNode>singletonList(nf.CanonicalTypeNode(pos, reducerTarget)), Collections.singletonList(reducer), ts.Void(), Collections.singletonList(reducerType), context());
 
         Context xc = context();
         final Name varName = xc.getNewVarName();
-        final Type type = xts.FinishState();
-        final LocalDef li = xts.localDef(pos, xts.Final(), Types.ref(type), varName);
-        final Id varId = xnf.Id(pos, varName);
-        final LocalDecl s1 = xnf.LocalDecl(pos, xnf.FlagsNode(pos, xts.Final()), xnf.CanonicalTypeNode(pos, type), varId, myCall).localDef(li).type(xnf.CanonicalTypeNode(pos, type));
-        final Local ldRef = (Local) xnf.Local(pos, varId).localInstance(li.asInstance()).type(type);
+        final Type type = ts.FinishState();
+        final LocalDef li = ts.localDef(pos, ts.Final(), Types.ref(type), varName);
+        final Id varId = nf.Id(pos, varName);
+        final LocalDecl s1 = nf.LocalDecl(pos, nf.FlagsNode(pos, ts.Final()), nf.CanonicalTypeNode(pos, type), varId, myCall).localDef(li).type(nf.CanonicalTypeNode(pos, type));
+        final Local ldRef = (Local) nf.Local(pos, varId).localInstance(li.asInstance()).type(type);
 
-        Block tryBlock = xnf.Block(pos,f.body());
+        Block tryBlock = nf.Block(pos,f.body());
 
         // Begin catch block
         Name tmp2 = getTmp();
-        MethodInstance mi = xts.findMethod(xts.Runtime(),
-                xts.MethodMatcher(xts.Runtime(), PUSH_EXCEPTION, Collections.singletonList(xts.Throwable()), context()));
-        LocalDef lDef = xts.localDef(pos, xts.NoFlags(), Types.ref(xts.Throwable()), tmp2);
-        Formal formal = xnf.Formal(pos, xnf.FlagsNode(pos, xts.NoFlags()),
-                xnf.CanonicalTypeNode(pos, xts.Throwable()), xnf.Id(pos, tmp2)).localDef(lDef);
-        Expr local = xnf.Local(pos, xnf.Id(pos, tmp2)).localInstance(lDef.asInstance()).type(xts.Throwable());
-        Expr call = xnf.X10Call(pos, xnf.CanonicalTypeNode(pos, xts.Runtime()),
-                xnf.Id(pos, PUSH_EXCEPTION), Collections.<TypeNode>emptyList(),
-                Collections.singletonList(local)).methodInstance(mi).type(xts.Void());
+        MethodInstance mi = ts.findMethod(ts.Runtime(),
+                ts.MethodMatcher(ts.Runtime(), PUSH_EXCEPTION, Collections.singletonList(ts.Throwable()), context()));
+        LocalDef lDef = ts.localDef(pos, ts.NoFlags(), Types.ref(ts.Throwable()), tmp2);
+        Formal formal = nf.Formal(pos, nf.FlagsNode(pos, ts.NoFlags()),
+                nf.CanonicalTypeNode(pos, ts.Throwable()), nf.Id(pos, tmp2)).localDef(lDef);
+        Expr local = nf.Local(pos, nf.Id(pos, tmp2)).localInstance(lDef.asInstance()).type(ts.Throwable());
+        Expr call = nf.X10Call(pos, nf.CanonicalTypeNode(pos, ts.Runtime()),
+                nf.Id(pos, PUSH_EXCEPTION), Collections.<TypeNode>emptyList(),
+                Collections.singletonList(local)).methodInstance(mi).type(ts.Void());
         Throw thr = throwRuntimeException(pos);
-        Catch catchBlock = xnf.Catch(pos, formal, xnf.Block(pos, xnf.Eval(pos, call), thr));
+        Catch catchBlock = nf.Catch(pos, formal, nf.Block(pos, nf.Eval(pos, call), thr));
         
         // Begin finally block
         Stmt returnS = null;
-        Call staticCall = synth.makeStaticCall(pos, xts.Runtime(), STOP_COLLECTING_FINISH, Collections.<TypeNode>singletonList(xnf.CanonicalTypeNode(pos, reducerTarget)), Collections.<Expr>singletonList(ldRef), reducerTarget, Collections.<Type>singletonList(type), context());
+        Call staticCall = synth.makeStaticCall(pos, ts.Runtime(), STOP_COLLECTING_FINISH, Collections.<TypeNode>singletonList(nf.CanonicalTypeNode(pos, reducerTarget)), Collections.<Expr>singletonList(ldRef), reducerTarget, Collections.<Type>singletonList(type), context());
         if ((l==null) && (n!=null)&& (r==null)) {
         	Expr left = n.left().type(reducerTarget);
-            Expr b = assign(pos, left, Assign.ASSIGN, staticCall);
-            returnS = xnf.Eval(pos, b);
+            Expr b = synth.makeAssign(pos, left, Assign.ASSIGN, staticCall, xc);
+            returnS = nf.Eval(pos, b);
         }
         if ((n==null) && (l!=null) && (r==null)) {
-            Expr local2 = xnf.Local(pos, l.name()).localInstance(l.localDef().asInstance()).type(reducerTarget);
-         	Expr b = assign(pos, local2, Assign.ASSIGN, staticCall);
-            returnS = xnf.Eval(pos, b);
+            Expr local2 = nf.Local(pos, l.name()).localInstance(l.localDef().asInstance()).type(reducerTarget);
+         	Expr b = synth.makeAssign(pos, local2, Assign.ASSIGN, staticCall, xc);
+            returnS = nf.Eval(pos, b);
         }
         if ((n==null) && (l==null) && (r!=null)) {
-            returnS = xnf.X10Return(pos, staticCall, true);
+            returnS = nf.X10Return(pos, staticCall, true);
         }
         
-        Block finalBlock = xnf.Block(pos, returnS);
+        Block finalBlock = nf.Block(pos, returnS);
         if(reducerS.size()>0) reducerS.pop();
-        return xnf.Block(pos, s1, xnf.Try(pos, tryBlock, Collections.singletonList(catchBlock), finalBlock));
+        return nf.Block(pos, s1, nf.Try(pos, tryBlock, Collections.singletonList(catchBlock), finalBlock));
     }
 
     //  offer e ->
@@ -968,22 +949,22 @@ public class Lowerer extends ContextVisitor {
             while(thisType != null) {
             //First check the reducerType itself is a reducible or not;
             //If not, it should be a class that implements reducible            
-            if(xts.isReducible(((ClassType)thisType).def().asType())){
+            if(ts.isReducible(((ClassType)thisType).def().asType())){
                 //generic type case
                 reducerTypeWithGenericType = (X10ParsedClassType) thisType;
                 break;
             }
             else{ 
                 //implement interface case
-                for (Type t : xts.interfaces(thisType)) {
+                for (Type t : ts.interfaces(thisType)) {
                     ClassType baseType = ((X10ParsedClassType)t).def().asType();
-                    if(xts.isReducible(baseType)){
+                    if(ts.isReducible(baseType)){
                         reducerTypeWithGenericType = (X10ParsedClassType) t;
                         break;
                     }
                 }
             }
-            thisType = xts.superClass(thisType);
+            thisType = ts.superClass(thisType);
             }
             
             assert(reducerTypeWithGenericType != null);
@@ -994,13 +975,13 @@ public class Lowerer extends ContextVisitor {
             expectType = offerTarget.type();
         }
    	 
-        CanonicalTypeNode CCE = xnf.CanonicalTypeNode(pos, expectType);
+        CanonicalTypeNode CCE = nf.CanonicalTypeNode(pos, expectType);
         TypeNode reducerA = (TypeNode) CCE;
-        Expr newOfferTarget = xnf.X10Cast(pos, reducerA, offerTarget,Converter.ConversionType.CHECKED).type(reducerA.type());
+        Expr newOfferTarget = nf.X10Cast(pos, reducerA, offerTarget,Converter.ConversionType.CHECKED).type(reducerA.type());
 
-    	Call call = synth.makeStaticCall(pos, xts.Runtime(), OFFER, Collections.singletonList(offerTarget), xts.Void(), Collections.singletonList(expectType),  context());
+    	Call call = synth.makeStaticCall(pos, ts.Runtime(), OFFER, Collections.singletonList(offerTarget), ts.Void(), Collections.singletonList(expectType),  context());
     	
-    	Stmt offercall = xnf.Eval(pos, call);     	
+    	Stmt offercall = nf.Eval(pos, call);     	
     	return offercall;		 
     }
 
@@ -1021,7 +1002,7 @@ public class Lowerer extends ContextVisitor {
             sList.add(n.init(null));                      
             Stmt s = visitFinishExpr(null, n,null);
             sList.add(s);
-            return xnf.StmtSeq(pos, sList);
+            return nf.StmtSeq(pos, sList);
         }
       	return n;
     }
@@ -1035,166 +1016,47 @@ public class Lowerer extends ContextVisitor {
 
         Expr domain = a.domain();
         Type dType = domain.type();
-        if (xts.isX10DistArray(dType)) {
+        if (ts.isX10DistArray(dType)) {
             FieldInstance fDist = dType.toClass().fieldNamed(DIST);
             dType = fDist.type();
-            domain = xnf.Field(pos, domain, xnf.Id(pos, DIST)).fieldInstance(fDist).type(dType);
+            domain = nf.Field(pos, domain, nf.Id(pos, DIST)).fieldInstance(fDist).type(dType);
         }
-        LocalDef lDef = xts.localDef(pos, xts.Final(), Types.ref(dType), tmp);
-        LocalDecl local = xnf.LocalDecl(pos, xnf.FlagsNode(pos, xts.Final()),
-                xnf.CanonicalTypeNode(pos, dType), xnf.Id(pos, tmp), domain).localDef(lDef);
+        LocalDef lDef = ts.localDef(pos, ts.Final(), Types.ref(dType), tmp);
+        LocalDecl local = nf.LocalDecl(pos, nf.FlagsNode(pos, ts.Final()),
+                nf.CanonicalTypeNode(pos, dType), nf.Id(pos, tmp), domain).localDef(lDef);
         X10Formal formal = (X10Formal) a.formal();
         Type fType = formal.type().type();
-        assert (xts.isPoint(fType));
-        assert (xts.isDistribution(dType));
+        assert (ts.isPoint(fType));
+        assert (ts.isDistribution(dType));
         // Have to desugar some newly-created nodes
-        Type pType = xts.Place();
-        MethodInstance rmi = xts.findMethod(dType,
-                xts.MethodMatcher(dType, RESTRICTION, Collections.singletonList(pType), context()));
-        Expr here = visitHere(xnf.Here(bpos));
-        Expr dAtPlace = xnf.Call(bpos,
-                xnf.Local(pos, xnf.Id(pos, tmp)).localInstance(lDef.asInstance()).type(dType),
-                xnf.Id(bpos, RESTRICTION),
+        Type pType = ts.Place();
+        MethodInstance rmi = ts.findMethod(dType,
+                ts.MethodMatcher(dType, RESTRICTION, Collections.singletonList(pType), context()));
+        Expr here = visitHere(nf.Here(bpos));
+        Expr dAtPlace = nf.Call(bpos,
+                nf.Local(pos, nf.Id(pos, tmp)).localInstance(lDef.asInstance()).type(dType),
+                nf.Id(bpos, RESTRICTION),
                 here).methodInstance(rmi).type(rmi.returnType());
-        Expr here1 = visitHere(xnf.Here(bpos));
+        Expr here1 = visitHere(nf.Here(bpos));
         Stmt body = async(a.body().position(), a.body(), a.clocks(), here1, null);
-        Stmt inner = xnf.ForLoop(pos, formal, dAtPlace, body).locals(formal.explode(this));
-        MethodInstance pmi = xts.findMethod(dType,
-                xts.MethodMatcher(dType, PLACES, Collections.<Type>emptyList(), context()));
-        Expr places = xnf.Call(bpos,
-                xnf.Local(pos, xnf.Id(pos, tmp)).localInstance(lDef.asInstance()).type(dType),
-                xnf.Id(bpos, PLACES)).methodInstance(pmi).type(pmi.returnType());
+        Stmt inner = nf.ForLoop(pos, formal, dAtPlace, body).locals(formal.explode(this));
+        MethodInstance pmi = ts.findMethod(dType,
+                ts.MethodMatcher(dType, PLACES, Collections.<Type>emptyList(), context()));
+        Expr places = nf.Call(bpos,
+                nf.Local(pos, nf.Id(pos, tmp)).localInstance(lDef.asInstance()).type(dType),
+                nf.Id(bpos, PLACES)).methodInstance(pmi).type(pmi.returnType());
         Name pTmp = getTmp();
-        LocalDef pDef = xts.localDef(pos, xts.Final(), Types.ref(pType), pTmp);
-        Formal pFormal = xnf.Formal(pos, xnf.FlagsNode(pos, xts.Final()),
-                xnf.CanonicalTypeNode(pos, pType), xnf.Id(pos, pTmp)).localDef(pDef);
+        LocalDef pDef = ts.localDef(pos, ts.Final(), Types.ref(pType), pTmp);
+        Formal pFormal = nf.Formal(pos, nf.FlagsNode(pos, ts.Final()),
+                nf.CanonicalTypeNode(pos, pType), nf.Id(pos, pTmp)).localDef(pDef);
         Stmt body1 = async(bpos, inner, a.clocks(),
-                xnf.Local(bpos, xnf.Id(bpos, pTmp)).localInstance(pDef.asInstance()).type(pType), null);
-        return xnf.Block(pos, 
-        		xnf.Eval(pos, call(pos, ENSURE_NOT_IN_ATOMIC, xts.Void())),
+                nf.Local(bpos, nf.Id(bpos, pTmp)).localInstance(pDef.asInstance()).type(pType), null);
+        return nf.Block(pos, 
+        		nf.Eval(pos, call(pos, ENSURE_NOT_IN_ATOMIC, ts.Void())),
         		local, 
-        		xnf.ForLoop(pos, pFormal, places, body1));
+        		nf.ForLoop(pos, pFormal, places, body1));
     }
 
-    // desugar binary operators
-    private Expr visitBinary(X10Binary_c n) throws SemanticException {
-        Position pos = n.position();
-
-        Call c = X10Binary_c.desugarBinaryOp(n, this);
-        if (c != null) {
-            X10MethodInstance mi = (X10MethodInstance) c.methodInstance();
-            if (mi.error() != null)
-                throw mi.error();
-            return c;
-        }
-
-        return n;
-    }
-
-    /**
-     * Same as xnf.Assign(...), but also set the appropriate type objects, which the
-     * node factory screws up.
-     * @throws SemanticException
-     */
-    protected Assign assign(Position pos, Expr e, Assign.Operator asgn, Expr val) throws SemanticException {
-        Assign a = (Assign) xnf.Assign(pos, e, asgn, val).type(e.type());
-        if (a instanceof FieldAssign) {
-            assert (e instanceof Field);
-            assert ((Field) e).fieldInstance() != null;
-            a = ((FieldAssign) a).fieldInstance(((Field)e).fieldInstance());
-        } else if (a instanceof SettableAssign) {
-            assert (e instanceof X10Call);
-            X10Call call = (X10Call) e;
-            X10Call n = (X10Call) xnf.X10Call(pos, call.target(), nf.Id(pos, SettableAssign.SET), call.typeArguments(), CollectionUtil.append(Collections.singletonList(val), call.arguments()));
-            n = (X10Call) n.del().disambiguate(this).typeCheck(this).checkConstants(this);
-            X10MethodInstance smi = n.methodInstance();
-            X10MethodInstance ami = call.methodInstance();
-//            List<Type> aTypes = new ArrayList<Type>(ami.formalTypes());
-//            aTypes.add(0, ami.returnType()); // rhs goes before index
-//            MethodInstance smi = xts.findMethod(ami.container(),
-//                    xts.MethodMatcher(ami.container(), SET, aTypes, context));
-            a = ((SettableAssign) a).methodInstance(smi);
-            a = ((SettableAssign) a).applyMethodInstance(ami);
-        }
-        return a;
-    }
-
-    private Expr getLiteral(Position pos, Type type, long val) throws SemanticException {
-        type = X10TypeMixin.baseType(type);
-        Expr lit = null;
-        if (xts.isIntOrLess(type)) {
-            lit = xnf.IntLit(pos, IntLit.INT, val);
-        } else if (xts.isLong(type)) {
-            lit = xnf.IntLit(pos, IntLit.LONG, val);
-        } else if (xts.isUInt(type)) {
-            lit = xnf.IntLit(pos, IntLit_c.UINT, val);
-        } else if (xts.isULong(type)) {
-            lit = xnf.IntLit(pos, IntLit_c.ULONG, val);
-        } else if (xts.isFloat(type)) {
-            lit = xnf.FloatLit(pos, FloatLit.FLOAT, val);
-        } else if (xts.isDouble(type)) {
-            lit = xnf.FloatLit(pos, FloatLit.DOUBLE, val);
-        } else if (xts.isChar(type)) {
-            // Don't want to cast
-            return (Expr) xnf.IntLit(pos, IntLit.INT, val).typeCheck(this);
-        } else
-            throw new InternalCompilerError(pos, "Unknown literal type: "+type);
-        lit = (Expr) lit.typeCheck(this);
-        if (!xts.isSubtype(lit.type(), type)) {
-            lit = xnf.X10Cast(pos, xnf.CanonicalTypeNode(pos, type), lit,
-                    Converter.ConversionType.PRIMITIVE).type(type);
-        }
-        return lit;
-    }
-
-    // ++x -> x+=1 or --x -> x-=1
-    private Expr unaryPre(Position pos, X10Unary_c.Operator op, Expr e) throws SemanticException {
-        Type ret = e.type();
-        Expr one = getLiteral(pos, ret, 1);
-        Assign.Operator asgn = (op == X10Unary_c.PRE_INC) ? Assign.ADD_ASSIGN : Assign.SUB_ASSIGN;
-        Expr a = assign(pos, e, asgn, one);
-        a = visitAssign((Assign) a);
-        return a;
-    }
-
-    // x++ -> (x+=1)-1 or x-- -> (x-=1)+1
-    private Expr unaryPost(Position pos, X10Unary_c.Operator op, Expr e) throws SemanticException {
-        Type ret = e.type();
-        Expr one = getLiteral(pos, ret, 1);
-        Assign.Operator asgn = (op == X10Unary_c.POST_INC) ? Assign.ADD_ASSIGN : Assign.SUB_ASSIGN;
-        X10Binary_c.Operator bin = (op == X10Unary_c.POST_INC) ? X10Binary_c.SUB : X10Binary_c.ADD;
-        Expr incr = assign(pos, e, asgn, one);
-        incr = visitAssign((Assign) incr);
-        return visitBinary((X10Binary_c) xnf.Binary(pos, incr, bin, one).type(ret));
-    }
-
-    // desugar unary operators
-    private Expr visitUnary(X10Unary_c n) throws SemanticException {
-        Position pos = n.position();
-
-        Expr left = n.expr();
-        Type l = left.type();
-        X10Unary_c.Operator op = n.operator();
-
-        if (op == X10Unary_c.PRE_DEC || op == X10Unary_c.PRE_INC) {
-            return unaryPre(pos, op, n.expr());
-        }
-        if (op == X10Unary_c.POST_DEC || op == X10Unary_c.POST_INC) {
-            return unaryPost(pos, op, n.expr());
-        }
-
-        Call c = X10Unary_c.desugarUnaryOp(n, this);
-        if (c != null) {
-            X10MethodInstance mi = (X10MethodInstance) c.methodInstance();
-            if (mi.error() != null)
-                throw mi.error();
-            return c;
-        }
-
-        return n;
-    }
-
-    // x++; -> ++x; or x--; -> --x; (to avoid creating an extra closure)
     private Stmt visitEval(Eval n) throws SemanticException {
         Position pos = n.position();
         if ((n.expr() instanceof Assign)&&(flag==1)) {
@@ -1202,267 +1064,7 @@ public class Lowerer extends ContextVisitor {
             Expr right = f.right();
             if (right instanceof FinishExpr)
                 return visitFinishExpr(f, null,null);
-             
-        }
-        if (n.expr() instanceof X10Unary_c) {
-            X10Unary_c e = (X10Unary_c) n.expr();
-            Position ePos = e.position();
-            if (e.operator() == X10Unary_c.POST_DEC)
-                return xnf.Eval(pos,
-                        visitUnary((X10Unary_c) xnf.Unary(ePos, X10Unary_c.PRE_DEC, e.expr())));
-            if (e.operator() == X10Unary_c.POST_INC)
-                return xnf.Eval(pos,
-                        visitUnary((X10Unary_c) xnf.Unary(ePos, X10Unary_c.PRE_INC, e.expr())));
         }
         return n;
-    }
-
-    private Expr visitAssign(Assign n) throws SemanticException {
-        if (n instanceof SettableAssign)
-            return visitSettableAssign((SettableAssign) n);
-        if (n instanceof LocalAssign)
-            return visitLocalAssign((LocalAssign) n);
-        if (n instanceof FieldAssign)
-            return visitFieldAssign((FieldAssign) n);
-        return n;
-    }
-
-    // x op=v -> x = x op v
-    private Expr visitLocalAssign(LocalAssign n) throws SemanticException { 
-        Position pos = n.position();
-        if (n.operator() == Assign.ASSIGN) return n;
-        X10Binary_c.Operator op = n.operator().binaryOperator();
-        Local left = (Local) n.left();
-        Expr right = n.right();
-        Type R = left.type();
-        Expr val = visitBinary((X10Binary_c) xnf.Binary(pos, left, op, right).type(R));
-        return assign(pos, left, Assign.ASSIGN, val);
-    }
-
-    // T.f op=v -> T.f = T.f op v or e.f op=v -> ((x:E,y:T)=>x.f=x.f op y)(e,v)
-    protected Expr visitFieldAssign(FieldAssign n) throws SemanticException { 
-        Position pos = n.position();
-        if (n.operator() == Assign.ASSIGN) return n;
-        X10Binary_c.Operator op = n.operator().binaryOperator();
-        Field left = (Field) n.left();
-        Expr right = n.right();
-        Type R = left.type();
-        if (left.flags().isStatic()) {
-            Expr val = visitBinary((X10Binary_c) xnf.Binary(pos, left, op, right).type(R));
-            return assign(pos, left, Assign.ASSIGN, val);
-        }
-        Expr e = (Expr) left.target();
-        Type E = e.type();
-        List<Formal> parms = new ArrayList<Formal>();
-        Name xn = Name.make("x");
-        LocalDef xDef = xts.localDef(pos, xts.Final(), Types.ref(E), xn);
-        Formal x = xnf.Formal(pos, xnf.FlagsNode(pos, xts.Final()),
-                xnf.CanonicalTypeNode(pos, E), xnf.Id(pos, xn)).localDef(xDef);
-        parms.add(x);
-        Name yn = Name.make("y");
-        Type T = right.type();
-        LocalDef yDef = xts.localDef(pos, xts.Final(), Types.ref(T), yn);
-        Formal y = xnf.Formal(pos, xnf.FlagsNode(pos, xts.Final()),
-                xnf.CanonicalTypeNode(pos, T), xnf.Id(pos, yn)).localDef(yDef);
-        parms.add(y);
-        Expr lhs = xnf.Field(pos,
-                xnf.Local(pos, xnf.Id(pos, xn)).localInstance(xDef.asInstance()).type(E),
-                xnf.Id(pos, left.name().id())).fieldInstance(left.fieldInstance()).type(R);
-        Expr val = visitBinary((X10Binary_c) xnf.Binary(pos,
-                lhs, op, xnf.Local(pos, xnf.Id(pos, yn)).localInstance(yDef.asInstance()).type(T)).type(R));
-        Expr res = assign(pos, lhs, Assign.ASSIGN, val);
-        Block body = xnf.Block(pos, xnf.Return(pos, res));
-        Closure c = synth.makeClosure(pos, R, parms, body, context());
-        X10MethodInstance ci = c.closureDef().asType().applyMethod();
-        List<Expr> args = new ArrayList<Expr>();
-        args.add(0, e);
-        args.add(right);
-        return xnf.ClosureCall(pos, c, args).closureInstance(ci).type(R);
-    }
-
-    // a(i)=v -> a.set(v, i) or a(i)op=v -> ((x:A,y:I,z:T)=>x.set(x.apply(y) op z,y))(a,i,v)
-    protected Expr visitSettableAssign(SettableAssign n) throws SemanticException {
-        Position pos = n.position();
-        MethodInstance mi = n.methodInstance();
-        List<Expr> args = new ArrayList<Expr>(n.index());
-        if (n.operator() == Assign.ASSIGN) {
-            // FIXME: this changes the order of evaluation, (a,i,v) -> (a,v,i)!
-            args.add(0, n.right());
-            return xnf.Call(pos, n.array(), xnf.Id(pos, mi.name()),
-                    args).methodInstance(mi).type(mi.returnType());
-        }
-        X10Binary_c.Operator op = n.operator().binaryOperator();
-        X10Call left = (X10Call) n.left();
-        MethodInstance ami = left.methodInstance();
-        List<Formal> parms = new ArrayList<Formal>();
-        Name xn = Name.make("x");
-        LocalDef xDef = xts.localDef(pos, xts.Final(), Types.ref(mi.container()), xn);
-        Formal x = xnf.Formal(pos, xnf.FlagsNode(pos, xts.Final()),
-                xnf.CanonicalTypeNode(pos, mi.container()), xnf.Id(pos, xn)).localDef(xDef);
-        parms.add(x);
-        List<Expr> idx1 = new ArrayList<Expr>();
-        int i = 0;
-        for (Type t : ami.formalTypes()) {
-            Name yn = Name.make("y"+i);
-            LocalDef yDef = xts.localDef(pos, xts.Final(), Types.ref(t), yn);
-            Formal y = xnf.Formal(pos, xnf.FlagsNode(pos, xts.Final()),
-                    xnf.CanonicalTypeNode(pos, t), xnf.Id(pos, yn)).localDef(yDef);
-            parms.add(y);
-            idx1.add(xnf.Local(pos, xnf.Id(pos, yn)).localInstance(yDef.asInstance()).type(t));
-            i++;
-        }
-        Name zn = Name.make("z");
-        Type T = mi.formalTypes().get(0);
-        assert (xts.isSubtype(ami.returnType(), T, context()));
-        LocalDef zDef = xts.localDef(pos, xts.Final(), Types.ref(T), zn);
-        Formal z = xnf.Formal(pos, xnf.FlagsNode(pos, xts.Final()),
-                xnf.CanonicalTypeNode(pos, T), xnf.Id(pos, zn)).localDef(zDef);
-        parms.add(z);
-        Expr val = visitBinary((X10Binary_c) xnf.Binary(pos,
-                xnf.Call(pos,
-                        xnf.Local(pos, xnf.Id(pos, xn)).localInstance(xDef.asInstance()).type(mi.container()),
-                        xnf.Id(pos, ami.name()), idx1).methodInstance(ami).type(T),
-                op, xnf.Local(pos, xnf.Id(pos, zn)).localInstance(zDef.asInstance()).type(T)).type(T));
-        List<Expr> args1 = new ArrayList<Expr>(idx1);
-        args1.add(0, val);
-        Type ret = mi.returnType();
-        Expr res = xnf.Call(pos,
-                xnf.Local(pos, xnf.Id(pos, xn)).localInstance(xDef.asInstance()).type(mi.container()),
-                xnf.Id(pos, mi.name()), args1).methodInstance(mi).type(ret);
-        // Have to create the appropriate node in case someone defines a set():void
-        Block block = ret.isVoid() ?
-                xnf.Block(pos, xnf.Eval(pos, res), xnf.Return(pos, xnf.Call(pos,
-                        xnf.Local(pos, xnf.Id(pos, xn)).localInstance(xDef.asInstance()).type(mi.container()),
-                        xnf.Id(pos, ami.name()), idx1).methodInstance(ami).type(T))) :
-                xnf.Block(pos, xnf.Return(pos, res));
-        Closure c = synth.makeClosure(pos, T, parms, block, context());
-        X10MethodInstance ci = c.closureDef().asType().applyMethod();
-        args.add(0, n.array());
-        args.add(n.right());
-        return xnf.ClosureCall(pos, c, args).closureInstance(ci).type(ret);
-    }
-
-    /**
-     * Concatenates the given list of clauses with &&, creating a conjunction.
-     * Any occurrence of "self" in the list of clauses is replaced by self.
-     */
-    private Expr conjunction(Position pos, List<Expr> clauses, Expr self) {
-        assert clauses.size() > 0;
-        Substitution<Expr> subst = new Substitution<Expr>(Expr.class, Collections.singletonList(self)) {
-            protected Expr subst(Expr n) {
-                if (n instanceof X10Special && ((X10Special) n).kind() == X10Special.SELF)
-                    return by.get(0);
-                return n;
-            }
-        };
-        Expr left = null;
-        for (Expr clause : clauses) {
-            Expr right = (Expr) clause.visit(subst);
-            right = (Expr) right.visit(this);
-            if (left == null)
-                left = right;
-            else {
-                left = xnf.Binary(pos, left, X10Binary_c.COND_AND, right).type(xts.Boolean());
-                try {
-                    left = visitBinary((X10Binary_c) left);
-                } catch (SemanticException e) {
-                    assert false : "Unexpected exception when typechecking "+left+": "+e;
-                }
-            }
-        }
-        return left;
-    }
-
-    private DepParameterExpr getClause(TypeNode tn) {
-        Type t = tn.type();
-        if (tn instanceof X10CanonicalTypeNode) {
-            CConstraint c = X10TypeMixin.xclause(t);
-            if (c == null || c.valid())
-                return null;
-            XConstrainedTerm here = context().currentPlaceTerm();
-            if (here != null && here.term() instanceof XVar) {
-                try {
-                    c = c.substitute(PlaceChecker.here(), (XVar) here.term());
-                } catch (XFailure e) { }
-            }
-            DepParameterExpr res = xnf.DepParameterExpr(tn.position(), new Synthesizer(xnf, xts).makeExpr(c, tn.position()));
-            res = (DepParameterExpr) res.visit(new X10TypeBuilder(job, xts, xnf)).visit(new X10TypeChecker(job, xts, xnf, job.nodeMemo()).context(context().pushDepType(tn.typeRef())));
-            return res;
-        } else {
-            assert false : "Unknown type node type: "+tn.getClass();
-        }
-        return null;
-    }
-
-    private TypeNode stripClause(TypeNode tn) {
-        Type t = tn.type();
-        if (tn instanceof X10CanonicalTypeNode) {
-            return xnf.CanonicalTypeNode(tn.position(), X10TypeMixin.baseType(t));
-        } else {
-            assert false : "Unknown type node type: "+tn.getClass();
-        }
-        return tn;
-    }
-
-    // e as T{c} -> ((x:T):T{c}=>{if (x!=null&&!c[self/x]) throwCCE(); return x;})(e as T)
-    private Expr visitCast(X10Cast n) throws SemanticException {
-        Position pos = n.position();
-        Expr e = n.expr();
-        TypeNode tn = n.castType();
-        Type ot = tn.type();
-        DepParameterExpr depClause = getClause(tn);
-        tn = stripClause(tn);
-        if (depClause == null || Configuration.NO_CHECKS)
-            return n;
-        Name xn = getTmp();
-        Type t = tn.type(); // the base type of the cast
-        LocalDef xDef = xts.localDef(pos, xts.Final(), Types.ref(t), xn);
-        Formal x = xnf.Formal(pos, xnf.FlagsNode(pos, xts.Final()),
-                xnf.CanonicalTypeNode(pos, t), xnf.Id(pos, xn)).localDef(xDef);
-        Expr xl = xnf.Local(pos, xnf.Id(pos, xn)).localInstance(xDef.asInstance()).type(t);
-        List<Expr> condition = depClause.condition();
-        Expr cond = xnf.Unary(pos, conjunction(depClause.position(), condition, xl), Unary.NOT).type(xts.Boolean());
-        if (xts.isSubtype(t, xts.Object(), context())) {
-            Expr nonnull = xnf.Binary(pos, xl, X10Binary_c.NE, xnf.NullLit(pos).type(xts.Null())).type(xts.Boolean());
-            cond = xnf.Binary(pos, nonnull, X10Binary_c.COND_AND, cond).type(xts.Boolean());
-        }
-        Type ccet = xts.ClassCastException();
-        CanonicalTypeNode CCE = xnf.CanonicalTypeNode(pos, ccet);
-        Expr msg = xnf.StringLit(pos, ot.toString()).type(xts.String());
-        X10ConstructorInstance ni = xts.findConstructor(ccet, xts.ConstructorMatcher(ccet, Collections.singletonList(xts.String()), context()));
-        Expr newCCE = xnf.New(pos, CCE, Collections.singletonList(msg)).constructorInstance(ni).type(ccet);
-        Stmt throwCCE = xnf.Throw(pos, newCCE);
-        Stmt check = xnf.If(pos, cond, throwCCE);
-        Block body = xnf.Block(pos, check, xnf.Return(pos, xl));
-        Closure c = synth.makeClosure(pos, ot, Collections.singletonList(x), body, context());
-        Expr cast = xnf.X10Cast(pos, tn, e, Converter.ConversionType.CHECKED).type(t);
-        X10MethodInstance ci = c.closureDef().asType().applyMethod();
-        return xnf.ClosureCall(pos, c, Collections.singletonList(cast)).closureInstance(ci).type(ot);
-    }
-
-    // e instanceof T{c} -> ((x:F)=>x instanceof T && c[self/x as T])(e)
-    private Expr visitInstanceof(X10Instanceof n) throws SemanticException {
-        Position pos = n.position();
-        Expr e = n.expr();
-        TypeNode tn = n.compareType();
-        DepParameterExpr depClause = getClause(tn);
-        tn = stripClause(tn);
-        if (depClause == null)
-            return n;
-        Name xn = getTmp();
-        Type et = e.type();
-        LocalDef xDef = xts.localDef(pos, xts.Final(), Types.ref(et), xn);
-        Formal x = xnf.Formal(pos, xnf.FlagsNode(pos, xts.Final()),
-                xnf.CanonicalTypeNode(pos, et), xnf.Id(pos, xn)).localDef(xDef);
-        Expr xl = xnf.Local(pos, xnf.Id(pos, xn)).localInstance(xDef.asInstance()).type(et);
-        Expr iof = xnf.Instanceof(pos, xl, tn).type(xts.Boolean());
-        Expr cast = xnf.X10Cast(pos, tn, xl, Converter.ConversionType.CHECKED).type(tn.type());
-        List<Expr> condition = depClause.condition();
-        Expr cond = conjunction(depClause.position(), condition, cast);
-        Expr rval = xnf.Binary(pos, iof, X10Binary_c.COND_AND, cond).type(xts.Boolean());
-        Block body = xnf.Block(pos, xnf.Return(pos, rval));
-        Closure c = synth.makeClosure(pos, xts.Boolean(), Collections.singletonList(x), body, context());
-        X10MethodInstance ci = c.closureDef().asType().applyMethod();
-        return xnf.ClosureCall(pos, c, Collections.singletonList(e)).closureInstance(ci).type(xts.Boolean());
     }
 }
