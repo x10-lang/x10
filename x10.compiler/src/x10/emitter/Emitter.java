@@ -3428,7 +3428,7 @@ public class Emitter {
 
     public boolean isMethodInlineTarget(TypeSystem xts, Type ttype) {
         ttype = X10TypeMixin.baseType(ttype);
-        if (!xts.isRail(ttype) /*&& !isIMC(ttype)*/) {
+        if (!xts.isRail(ttype) && !isIMC(ttype)) {
             return false;
         }
         if (!X10PrettyPrinterVisitor.hasParams(ttype)) {
