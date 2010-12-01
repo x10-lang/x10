@@ -33,9 +33,11 @@ import polyglot.types.TypeSystem;
 import polyglot.util.InternalCompilerError;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
+import x10.ast.X10Cast;
 import x10.errors.Errors;
 import x10.extension.X10Ext;
 import x10.types.X10Def;
+import x10.types.checker.Converter;
 
 /**
  * @author Bowen Alpern
@@ -100,7 +102,7 @@ public class SideEffectDetector extends ContextVisitor {
              || (n instanceof ProcedureCall && !isPure(((ProcedureCall) n).procedureInstance().def()))
              || (n instanceof Assign && isGlobalAssign((Assign) n))
              || (n instanceof Unary && isGlobalIncrement((Unary) n))
-             || (n instanceof Cast)
+             || (n instanceof Cast) && mustCheck((Cast) n)
              || (n instanceof Binary && ((Binary) n).operator() == Binary.DIV) ) {
             sideEffectDetected[0] = true;
             return n;
@@ -111,6 +113,24 @@ public class SideEffectDetector extends ContextVisitor {
         }
         return null;
     }
+
+    /**
+     * @param n
+     * @return
+     */
+    private boolean mustCheck(Cast n) {
+        // if (n.expr().type is a subtype of n.castType()) return false; // TODO: implement this
+        if (!(n instanceof X10Cast)) 
+            return true;
+        X10Cast c = (X10Cast) n;
+        if (c.conversionType() == Converter.ConversionType.CHECKED) {
+            return true;
+        }
+        if (true) // DEBUG: for now, check all casts
+            return true; 
+        return false;
+    }
+
 
     /**
      * Determine if a procedure has one or more side effects.
