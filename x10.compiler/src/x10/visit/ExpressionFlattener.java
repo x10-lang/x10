@@ -58,6 +58,7 @@ import polyglot.ast.While;
 import polyglot.ast.While_c;
 import polyglot.frontend.Job;
 import polyglot.frontend.Source;
+import polyglot.types.Context;
 import polyglot.types.Flags;
 import polyglot.types.Name;
 import polyglot.types.SemanticException;
@@ -107,7 +108,7 @@ public final class ExpressionFlattener extends ContextVisitor {
     private final TypeSystem xts;
     private final NodeFactory xnf;
 //    Synthesizer syn;
-    private final ForLoopOptimizer syn; // move functionality to Synthesizer
+    private ForLoopOptimizer syn; // move functionality to Synthesizer
     private final SideEffectDetector sed;
     
     List<Labeled> labels = new ArrayList<Labeled>();
@@ -130,7 +131,24 @@ public final class ExpressionFlattener extends ContextVisitor {
     @Override
     public NodeVisitor begin() {
         sed.begin();
+        syn.begin();
         return super.begin();
+    }
+
+    @Override
+    public ContextVisitor context(Context c) {
+        ExpressionFlattener res = (ExpressionFlattener) super.context(c);
+        if (res != this)
+            res.syn = (ForLoopOptimizer) syn.context(c);
+        return res;
+    }
+
+    @Override
+    public NodeVisitor superEnter(Node parent, Node n) {
+        ExpressionFlattener res = (ExpressionFlattener) super.superEnter(parent, n);
+        if (res != this)
+            res.syn = (ForLoopOptimizer) syn.enter(parent, n);
+        return res;
     }
 
     /* (non-Javadoc)
