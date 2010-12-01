@@ -26,7 +26,7 @@ import x10.util.Box;
 		
 		try {
 			// (nullable<int(:self==3)>) <-- int(:c)
-         var case4b: Box[int(3)] = new Box[int(3)](ni); //deptype check
+         var case4b: Box[int(3)] = new Box[int(3)](ni); // ERR deptype check
 		} catch (e: ClassCastException) {
 			res4 = true;
 		}

@@ -16,7 +16,8 @@ import harness.x10Test;
  */
 public class FloatLitDepType_MustFailCompile extends x10Test {
 	public def run(): boolean = {
-		var f: float{self==0.001F} = 0.003F;
+		var f1: float{self==0.001F} = 0.003F; // ERR
+		var f2: float{self==0.001F} = 0.001F;
 		return true;
 	}
 

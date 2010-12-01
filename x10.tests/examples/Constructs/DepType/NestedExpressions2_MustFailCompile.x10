@@ -29,7 +29,7 @@ public class NestedExpressions2_MustFailCompile extends x10Test {
 		def n() {
 			val x = new C(true);
 			val y = new C(true);
-			val z: C{self.a==(y.a&&x.a)} = and(x,y);
+			val z: C{self.a==(y.a&&x.a)} = and(x,y); // ERR
 		}
 	}
     public def run() = true;

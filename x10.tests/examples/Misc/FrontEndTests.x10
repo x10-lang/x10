@@ -32,10 +32,159 @@ class TestFinalField {
 		i=2;
 		x.i = 2;
 	}
+	def this(Int) { 
+		async f=2; 
+		f=2; // ERR
+	}
+}
 
+final class ClosuresDuringConstruction {
+	var k:Int;
+	def f() = k=3;
+	def f2() = 3;
+	val c1 = f.(); // ERR
+	val c2 = ()=>f(); // ERR
+	val c3 = f2.(); // ERR
+	val c4 = ()=>f2(); // ERR
+}
+class CaptureThisInAtStmtExpr {
+	val x = 3;
+	def this() {
+		val local = 3;
+		val y =
+			at (here) 
+				x*2; // ERR
+		at (here) { 
+			val z = 
+				x*2; // ERR
+		}		
+        finish ateach (p in Dist.makeUnique()) { 
+			val z = 
+				x*2; // ERR
+			val z2 = local*2;
+		}
+		async {
+			val z = x*2;
+		}
+
+		val y2 =
+			at (here) local*2;
+		at (here) {
+			val z2 = local*2;
+		}
+	}
+}
+
+
+class WithManyProperties(i:Int,j:Int) {
+	def this() {} // ERR: property(...) might not have been called
+}
+class NoPropertiesButWithPropertyCall {
+	def this() {
+		property(1); // ERR: Semantic Error: The property initializer must have the same number of arguments as properties for the class.
+	}
 	def this(Int) {
-		at (here) f=2; // ERR: Cannot assign a value to final field f
-		f=2;
+		super();
+	}
+	def this(Double) {
+		super();
+		property(1); // ERR
+	}
+}
+class FinalFieldWrittenExactlyOnce {
+	val f:Int;
+	var flag:Boolean;
+	var i:Int;
+	def this() {} // ERR: not written
+	def this(Int) { f=1; }
+	def this(Short) { if (flag) f=1; else f=2; }
+	def this(Double) { // ERR
+		async f=1; 
+	}
+	def this(String) { 
+		finish async f=1; 
+	}
+	def this(Float) { 
+		async f=1; 
+		f=2; // ERR
+	}
+	def this(Byte) { 
+		if (flag) f=1; 
+		f=2; // ERR
+	}
+	def this(Long) { // ERR
+		while (flag) f=1; // ERR
+	}
+	def this(Long,Long) {
+		do {
+			f=1; // ERR
+		} while (flag);
+	}
+	def this(Any) { 
+		while (flag);
+		{ f=1; }
+	}
+	def this(UByte) { 
+		if (flag) f=1;
+		else if (flag) f=2; 
+		else f=3;
+	}
+	def this(UShort) { 
+		switch (i) {
+		case 1:
+			f=1;
+			break;
+		case 3:
+			f=2;
+			break;
+		default:
+			f=3;
+		}
+	}
+	def this(UInt) { // ERR
+		switch (i) {
+		case 1:
+			f=1;
+			break;
+		case 3:
+			f=2;
+			break;
+		}
+	}
+	def this(ULong) {
+		switch (i) {
+		case 1:
+			f=1;
+			break;
+		case 3:
+			f=2;
+			break;
+		}
+		f=3;  // ERR
+	}
+	def this(Char) {  
+		switch (i) {
+		case 1:
+			f=1;
+		default:
+			f=3; // ERR
+		}
+	}
+	def this(Int,Int) { // ERR
+		if (flag) f=1;
+		else if (flag) f=2;
+	}
+	def this(Int,Byte) { // ERR
+		val b:Int = (b=5); // ShouldBeErr
+		var k:Int = (k=5);
+		while (true) { val i:Int = 4;}
+		f=f+1; // ERR
+	}
+	def this(Int,Short) { // ERR: Field 'f' was not definitely assigned.
+		m();
+	}
+	private def m() {
+		f=1; // ERR
 	}
 }
 
@@ -189,8 +338,10 @@ class SquareMatrixTest123(rows:Int, cols:Int, matDist:Dist, mat:DistArray[Int]){
 		val mShape:Region = null;
 		val mDist = Dist.makeBlock(mShape);
 		z++; // ERR: Can use 'this' only after 'property(...)'
-		val closure = () => z++; // ERR: Can use 'this' only after 'property(...)'
-		val closure2 = () => q; // ERR: Can use 'this' only after 'property(...)'	 ERR: Cannot read from field 'q' before it is definitely assigned.
+		val closure = () =>
+			z++; // ERR
+		val closure2 = () => 
+			q; // ERR
 		property(r, c, mDist, DistArray.make[Int](mDist, 
 			initMat // ERR: Can use 'this' only after 'property(...)'
 		));
@@ -202,7 +353,8 @@ class SquareMatrixTest123(rows:Int, cols:Int, matDist:Dist, mat:DistArray[Int]){
 class TwoErrorsInOneLineTest(o:Int) {
 	var k:Int;
 	def this() {
-		k=o; // ERR ERR
+		k=  // ERR
+			o; // ERR
 		property(2);
 	}
 }
@@ -374,21 +526,25 @@ class TestPropertyCalls(p:Int, p2:Int) {
 
 class ClosureExample {
   def this() {
-    val closure1 = () =>i; // OK, "i" is initialized here
+    val closure1 = () =>i; // ERR
+	val k = i;
+    val closure2 = () =>k; 
   }
-  val closure2 = () =>i; // ERR: Cannot read from field 'i' before it is definitely assigned.
+  val closure3 = () =>i; // ERR
   val i = 3;
+  val closure4 = () =>i; // ERR
 }
 class ClosureIsNotAWrite {
 	var i:Int{self != 0}; // ERR: Semantic Error: Field 'i' was not definitely assigned.
-	val closure = () =>  { i=2; } ;
+	val closure = () =>  { i=2; } ; // ERR
 }
 
 class TestPropertiesAndFields(i:Int, j:Int) {
 	def this() {
 		val x = 3;
 		property(x,x);
-		val closure = () => i+4;
+		val k = i;
+		val closure = () => k+4;
 		j2 = j;
 	}		
 	
@@ -428,19 +584,19 @@ class XTENLANG_1643 {
 
 final class ClosureTest57 {
 	val z = 1;
-	val c1 = () => z+1;
+	val c1 = () => z+1; // ERR
 	var x:Int{self!=0} = 1;
 	val c2 = () => { 
-		x=3; 
-		return x+1; 
+		x=3; // ERR
+		return x+1; // ERR
 	};
 	var y:Int{self!=0}; // ERR: Field 'y' was not definitely assigned.
 	val c3 = () => { 
-		y=3; 
-		return y+1; // ERR: Cannot read from field 'y' before it is definitely assigned. (even though "y" was assigned before, I do not do flow-analysis within the closures)
+		y=3; // ERR
+		return y+1; // ERR
 	};
 	
-	val c4 = () => w; // ERR: Cannot read from field 'w' before it is definitely assigned.
+	val c4 = () => w; // ERR
 	val w = 42;
 
     def a() = q+2;
@@ -453,8 +609,8 @@ final class ClosureTest57 {
             @NonEscaping def a() = q+4;
             val sum = (()=>(ClosureTest57.this.a()
             		+C.this.a()
-            		+D.this.a() // ERR: The method call reads from field 'q' before it is definitely assigned.
-            		+a()  // ERR: The method call reads from field 'q' before it is definitely assigned.
+            		+D.this.a() // ERR
+            		+a()  // ERR
 					))();
 			val z = q+2; // ERR: Cannot read from field 'q' before it is definitely assigned.
 			val q = 5;
@@ -469,7 +625,7 @@ final class ClosureTest58 {
 
   var w:Int{self!=0}; // ERR: Field 'w' was not definitely assigned.
   def setW() = w=2;
-  val q = this.setW.();
+  val q = this.setW.(); // ERR
   
   var w2:Int{self!=0}; 
   def setW2() = w2=2;
@@ -558,8 +714,9 @@ class DynamicDispatchingInCtorTest {
 			property(4);
 			k = p;
 		}
-		@NoThisAccess def calcSize(x:Int):Int { // ERR: You cannot use 'this' or 'super' in a method annotated with @NoThisAccess
-			use(w); 
+		@NoThisAccess def calcSize(x:Int):Int { 
+			use( // ERR: You cannot use 'this' or 'super' in a method annotated with @NoThisAccess
+				w); // ERR: You cannot use 'this' or 'super' in a method annotated with @NoThisAccess
 			return x+2; 
 		}
 	}
@@ -1134,10 +1291,10 @@ class TestFieldInitForwardRef {
 }
 
 
-    // We allow default values for:
-    //    * a type that can be null  (e.g., Any, closures, but not a struct or Any{self!=null} )
-	//	  * Primitive structs (Short,UShort,Byte,UByte, Int, Long, ULong, UInt, Float, Double, Boolean, Char)
-    //    * non-constrained user defined structs without a class invariant where all fields haszero.
+// The following types haszero:
+//    * a type that can be null  (e.g., Any, closures, but not a struct or Any{self!=null} )
+//	  * Primitive structs (Short,UShort,Byte,UByte, Int, Long, ULong, UInt, Float, Double, Boolean, Char)
+//    * user defined structs without a constraint and without a class invariant where all fields haszero.
 class SimpleUserDefinedStructTest {	
 	static struct S {
 	  val x:Int = 4;
@@ -2313,9 +2470,11 @@ class TestPropertyAssignment(x:Int, y:Int{self==3}) {
 
 final class ConstraintsInClosures {
   def f(x:Int) {x!=0} = 1/x;
-  val bar: (Int)=>Int = this.f.(Int);  // ERR: should we dynamically generate a new closure that checks the guard?
   def f2(x:Int{self!=0}) = 1/x;
-  val bar2: (Int)=>Int = this.f2.(Int{self!=0}); // ERR
+  def test() {
+	  val bar: (Int)=>Int = this.f.(Int);  // ERR: should we dynamically generate a new closure that checks the guard?
+	  val bar2: (Int)=>Int = this.f2.(Int{self!=0}); // ERR
+  }
 }
 class TestCasting[T] {
 	def testCasting(arr:Array[T], func: (Point)=>T) {
@@ -3359,13 +3518,15 @@ class TestSerialization {
 class TestAt {
 	var i:Int{self!=0};
 	def this() { // ERR: Semantic Error: Field 'i' was not definitely assigned.
-		at (here.next()) i=2;
+		at (here.next()) 
+			i=2; // ERR: 'this' or 'super' cannot escape via an 'at' statement during construction.
 	}
 }
 class TestSerialize {
 	var i:Int{self!=0};
 	def this() {
-		at (here.next()) this.set(3);
+		at (here.next()) 
+			this.set(3); // ERR: 'this' or 'super' cannot escape via an 'at' statement during construction.
 	    this.set(2);
 	}
 	private def set(x:Int{self!=0}) { i=x; }
@@ -3378,7 +3539,8 @@ class TestSerialize {
 class ClosureAndSerialize {
     val x = 2;    
 	val BigD = Dist.makeBlock((0..10)*(0..10), 0);
-    val A = DistArray.make[Double](BigD,(p:Point)=>1.0*this.x);
+    val A = DistArray.make[Double](BigD,(p:Point)=>
+		1.0*this.x); // ERR: 'this' or 'super' cannot escape via a closure during construction.
     val k:Int{self!=0} = 3;
 
     public def serialize():SerialData {

@@ -26,7 +26,7 @@ public class ClosureReturnType7_MustFailCompile extends ClosureTest {
         val f = (x:int) => {};
 
         // should fail because f() is void
-        val g = f(0);
+        val g = f(0); // ERR
 
         return result;
     }

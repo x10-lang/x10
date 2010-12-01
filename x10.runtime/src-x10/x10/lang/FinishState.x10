@@ -318,7 +318,8 @@ abstract class FinishState {
             if (ref.home.id == Runtime.hereInt()) {
                 me = (ref as GlobalRef[FinishState]{home==here})();
             } else {
-                me = Runtime.runtime().finishStates.apply(ref, ()=>new RemoteFinish(ref));
+                val _ref = ref;
+                me = Runtime.runtime().finishStates.apply(ref, ()=>new RemoteFinish(_ref));
             }
         }
     }
@@ -580,7 +581,8 @@ abstract class FinishState {
             if (ref.home.id == Runtime.hereInt()) {
                 me = (ref as GlobalRef[FinishState]{home==here})();
             } else {
-                me = Runtime.runtime().finishStates.apply(ref, ()=>new RemoteCollectingFinish[T](ref, tmpReducer));
+                val _ref = ref;
+                me = Runtime.runtime().finishStates.apply(ref, ()=>new RemoteCollectingFinish[T](_ref, tmpReducer));
             }
         }
         public def serialize():SerialData = new SerialData(reducer, super.serialize());

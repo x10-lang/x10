@@ -23,7 +23,7 @@ public class TestInterfaceParam_MustFailCompile extends x10Test {
 
     public def run() : boolean {
     	// this must fail compilation. C is not declared to implement I.
-        return doSomething(new C());
+        return doSomething(new C());  // ERR
     }
 
     public static def main(args : Array[String](1)) {

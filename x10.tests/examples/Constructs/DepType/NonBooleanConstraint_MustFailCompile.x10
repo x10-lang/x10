@@ -23,7 +23,9 @@ import harness.x10Test;
  *
  * @author pvarma
  */
-public class NonBooleanConstraint_MustFailCompile(i:int, j:int){this.i} extends x10Test {
+public class NonBooleanConstraint_MustFailCompile(i:int, j:int)
+    {this.i} // ERR: The type of the constraint NonBooleanConstraint_MustFailCompile.this.i must be boolean, not x10.lang.Int{self==NonBooleanConstraint_MustFailCompile#this.i}.
+    extends x10Test {
 
 	public def this(k:int):NonBooleanConstraint_MustFailCompile = {
 	    property(k,k);

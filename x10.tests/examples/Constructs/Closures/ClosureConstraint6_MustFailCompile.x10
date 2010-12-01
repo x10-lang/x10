@@ -23,7 +23,8 @@ public class ClosureConstraint6_MustFailCompile extends ClosureTest {
     public def run(): boolean = {
         
         // not allowed
-        val f = (var x:int){x==1} => x;
+        val f:Any =
+            (var x:int){x==1} => x; // ERR
 
         return result;
     }

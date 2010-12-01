@@ -26,7 +26,7 @@ public class NestedExpressions1_MustFailCompile  extends x10Test {
 			val x = new C(true);
 			val y = new C(u);
 			// this must fail. x is f type C(x.a), or even C(true), not C(x.a&&y.a).
-			val z1: C(x.a&&y.a) = x;
+			val z1: C(x.a&&y.a) = x; // ERR
 		}
 	}
     public def run() = true;

@@ -26,7 +26,7 @@ public class EntailsPositive_MustFailCompile(i:int, j:int) extends x10Test {
 
 	public def this(ii:int, jj:int) { property(ii,jj);}
 	public def run():boolean  {
-	    val x:EntailsPositive_MustFailCompile{self.i==1}  =  new EntailsPositive_MustFailCompile(one(),2);
+	    val x:EntailsPositive_MustFailCompile{self.i==1}  =  new EntailsPositive_MustFailCompile(one(),2);  // ERR
 	    return true;
 	}
 	def one():Int = 1;
