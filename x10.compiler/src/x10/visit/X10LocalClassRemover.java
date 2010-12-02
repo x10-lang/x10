@@ -94,6 +94,7 @@ public class X10LocalClassRemover extends LocalClassRemover {
                         X10MethodDef md = (X10MethodDef) context().currentCode();
                         if (ta == null) {
                             ta = new ArrayList<Type>();
+                            nta = new ArrayList<TypeNode>();
                         } else if (!md.typeParameters().isEmpty()) {
                             ta = new ArrayList<Type>(ta);
                             nta = new ArrayList<TypeNode>(nta);
