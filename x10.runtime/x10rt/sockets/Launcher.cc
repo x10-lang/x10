@@ -398,8 +398,10 @@ void Launcher::handleRequestsLoop(bool onlyCheckForNewConnections)
 			kill(_pidlst[i], SIGTERM);
 		}
 	}
-	if (_pidlst[_numchildren] != -1)
-		waitpid(_pidlst[_numchildren], NULL, 0); // wait for the local runtime
+	// wait for the SIGCHLD to come in from the local runtime.
+	while (_returncode == 0xDEADBEEF)
+		sched_yield();
+
 
 	// shut down any connections if they still exist
 	handleDeadParent();
