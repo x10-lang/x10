@@ -243,7 +243,7 @@ public class X10ConstructorCall_c extends ConstructorCall_c implements X10Constr
 	    catch (SemanticException e) {
 	        // Now, try to find the method with implicit conversions, making them explicit.
 	        try {
-	            Pair<ConstructorInstance,List<Expr>> p = tryImplicitConversions(n, tc, ct, argTypes);
+	            Pair<ConstructorInstance,List<Expr>> p = X10New_c.tryImplicitConversions(n, tc, ct, argTypes);
 	            ci = (X10ConstructorInstance) p.fst();
 	            args = p.snd();
 	        }
@@ -276,26 +276,8 @@ public class X10ConstructorCall_c extends ConstructorCall_c implements X10Constr
 
 		return n;
 	}
-	
-        static Pair<ConstructorInstance,List<Expr>> tryImplicitConversions(X10ConstructorCall_c n, 
-        		ContextVisitor tc, Type targetType, List<Type> argTypes) throws SemanticException {
-            final TypeSystem ts = (TypeSystem) tc.typeSystem();
-            final Context context = tc.context();
-            ClassDef currentClassDef = context.currentClassDef();
 
-            List<ConstructorInstance> methods 
-            = ts.findAcceptableConstructors(targetType, 
-            		new DumbConstructorMatcher(targetType, argTypes, context));
-            return Converter.tryImplicitConversions(n, tc, targetType, methods, 
-            		new MatcherMaker<ConstructorInstance>() {
-                public Matcher<ConstructorInstance> matcher(Type ct, List<Type> typeArgs, List<Type> argTypes) {
-                    return ts.ConstructorMatcher(ct, argTypes, context);
-                }
-            });
-        }
-
-	 public String toString() {
-			return (qualifier != null ? qualifier + "." : "") + kind + arguments;
-		    }
-
+	public String toString() {
+	    return (qualifier != null ? qualifier + "." : "") + kind + arguments;
+	}
 }
