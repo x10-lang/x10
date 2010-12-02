@@ -70,6 +70,7 @@ public abstract class Context_c implements Context
         Context_c c = (Context_c) this.copy();
         c.types = types != null ? new HashMap<Name, Named>(types) : null;
         c.vars = vars != null ? new HashMap<Name, VarInstance<?>>(vars) : null;
+        c.outer = outer != null ? outer.freeze() : null;
         return c;
     }
 
