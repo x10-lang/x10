@@ -12,7 +12,7 @@
 import harness.x10Test;
 
 /**
- * The argument to await must be boolean
+ * The argument to when must be boolean
  * @author vj  9/2006
  */
 public class ArgMustBeBoolean_MustFailCompile extends x10Test {
