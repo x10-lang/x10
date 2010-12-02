@@ -2883,7 +2883,7 @@ public class Emitter {
         for (ParameterType type : def.typeParameters()) {
             w.write("final x10.rtt.Type " + type.name().toString() + ", ");
         }
-        w.write("final java.lang.System[] dummy$0) { ");
+        w.write("final java.lang.System[] dummy$) { ");
 
         /* struct does not have super type
         // call super zero value constructor
@@ -2913,32 +2913,32 @@ public class Emitter {
             w.write("this." + type.name().toString() + " = " + type.name().toString() + "; ");
         }
         
-        // copy the rest of default (standard) constructor to initialize properties and fields
-        X10ConstructorDecl ctor = hasDefaultConstructor(n);
-        // we must have default constructor to initialize properties
-//      assert ctor != null;
-        /*
-        if (ctor == null) {
-            ctor = createDefaultConstructor(def, (X10NodeFactory_c) tr.nodeFactory(), n);
-            // TODO apply FieldInitializerMover
-        }
-        */
-        if (ctor != null) {
-            // initialize properties and call field initializer
-            Block_c body = (Block_c) ctor.body();
-            if (body.statements().size() > 0) {
-                if (body.statements().get(0) instanceof ConstructorCall) {
-                    body = (Block_c) body.statements(body.statements().subList(1, body.statements().size()));
-                }
-                // X10PrettyPrinterVisitor.visit(Block_c body)
-                String s = getJavaImplForStmt(body, tr.typeSystem());
-                if (s != null) {
-                    w.write(s);
-                } else {
-                    body.translate(w, tr);
-                }
-            }
-        }
+//        // copy the rest of default (standard) constructor to initialize properties and fields
+//        X10ConstructorDecl ctor = hasDefaultConstructor(n);
+//        // we must have default constructor to initialize properties
+////      assert ctor != null;
+//        /*
+//        if (ctor == null) {
+//            ctor = createDefaultConstructor(def, (X10NodeFactory_c) tr.nodeFactory(), n);
+//            // TODO apply FieldInitializerMover
+//        }
+//        */
+//        if (ctor != null) {
+//            // initialize properties and call field initializer
+//            Block_c body = (Block_c) ctor.body();
+//            if (body.statements().size() > 0) {
+//                if (body.statements().get(0) instanceof ConstructorCall) {
+//                    body = (Block_c) body.statements(body.statements().subList(1, body.statements().size()));
+//                }
+//                // X10PrettyPrinterVisitor.visit(Block_c body)
+//                String s = getJavaImplForStmt(body, tr.typeSystem());
+//                if (s != null) {
+//                    w.write(s);
+//                } else {
+//                    body.translate(w, tr);
+//                }
+//            }
+//        }
         
         TypeSystem xts = def.typeSystem();
 
@@ -2995,7 +2995,8 @@ public class Emitter {
                 }
             } else if (xts.isParameterType(type)) {
                 // for type parameter T, "(T) x10.rtt.Types.zeroValue(T);"
-                zero = "(" + type + ") x10.rtt.Types.zeroValue(" + type + "); ";
+                ParameterType paramType = (ParameterType) type;
+                zero = "(" + paramType.name().toString() + ") x10.rtt.Types.zeroValue(" + paramType.name().toString() + "); ";
             } else {
                 // reference (i.e. non-struct) type
                 zero = "null; ";
