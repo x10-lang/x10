@@ -1285,8 +1285,12 @@ public class X10TypeMixin {
             }
             
             // make sure all the fields and properties haszero
-            for (FieldInstance field : structType.fields())
+            for (FieldInstance field : structType.fields()) {
+                if (field.flags().isStatic()) {
+                    continue;
+                }
                 if (!isHaszero(field.type(),xc)) return false;
+            }
             return true;
         }
         if (zeroLit==null) return false;
