@@ -46,6 +46,12 @@ public final class PlaceLocalHandle<T> implements java.io.Serializable {
     objects = new Object[Runtime.MAX_PLACES];
   }
 
+  // TODO haszero
+  // zero value constructor
+  public PlaceLocalHandle(x10.rtt.Type<T> T, java.lang.System[] dummy$0) {
+      this(T);
+  }
+
   public T apply$G() {
     int here = Thread.currentThread().home().id;
     Object data = objects[here];

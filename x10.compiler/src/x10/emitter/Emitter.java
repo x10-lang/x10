@@ -2876,7 +2876,8 @@ public class Emitter {
 
 	// TODO haszero
 	public void generateZeroValueConstructor(X10ClassDef def, X10ClassDecl_c n) {
-        w.write("// auto generated zero value constructor");
+//	    System.out.println("Generating zero value constructor: " + def);
+        w.write("// zero value constructor");
         w.newline();
         w.write("public " + def.name().toString() + "(");
         for (ParameterType type : def.typeParameters()) {
@@ -2884,8 +2885,8 @@ public class Emitter {
         }
         w.write("final java.lang.System[] dummy$0) { ");
 
-        /*
-        // call super constructor
+        /* struct does not have super type
+        // call super zero value constructor
         Ref<? extends Type> superType0Ref = def.superType();
         if (superType0Ref != null) {
             Type superType0 = superType0Ref.get();
@@ -2939,8 +2940,68 @@ public class Emitter {
             }
         }
         
-        // initialize fields with zero value
-        // TODO
+        TypeSystem xts = def.typeSystem();
+
+        // initialize instance fields with zero value
+        for (polyglot.types.FieldDef field : def.fields()) {
+            if (field.flags().isStatic()) continue;
+            Type type = field.type().get();
+            if (type instanceof ConstrainedType_c) {
+                type = ((ConstrainedType_c) type).baseType().get();
+            }
+            String lhs = "this." + field.name().toString() + " = ";
+            String zero = null;
+            if (xts.isStruct(type)) {
+                if (xts.isUByte(type)) {
+                    zero = "(x10.lang.UByte) x10.rtt.Types.UBYTE_ZERO; ";
+                } else if (xts.isUShort(type)) {
+                    zero = "(x10.lang.UShort) x10.rtt.Types.USHORT_ZERO; ";
+                } else if (xts.isUInt(type)) {
+                    zero = "(x10.lang.UInt) x10.rtt.Types.UINT_ZERO; ";
+                } else if (xts.isULong(type)) {
+                    zero = "(x10.lang.ULong) x10.rtt.Types.ULONG_ZERO; ";
+                } else if (xts.isByte(type)) {
+                    zero = "(byte) 0; ";
+                } else if (xts.isShort(type)) {
+                    zero = "(short) 0; ";
+                } else if (xts.isInt(type)) {
+                    zero = "0; ";
+                } else if (xts.isLong(type)) {
+                    zero = "0L; ";
+                } else if (xts.isFloat(type)) {
+                    zero = "0.0F; ";
+                } else if (xts.isDouble(type)) {
+                    zero = "0.0; ";
+                } else if (xts.isChar(type)) {
+                    zero = "(char) 0; ";
+                } else if (xts.isBoolean(type)) {
+                    zero = "false; ";
+                } else {
+                    // user-defined struct type
+                    // for struct a.b.S[T], "new a.b.S(T, (java.lang.System[])null);"
+                    w.write(lhs); lhs = "";
+                    w.write("new ");
+                    printType(type, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS);
+                    w.write("(");
+                    X10ParsedClassType_c pcType = (X10ParsedClassType_c) type;
+                    if (pcType.typeArguments() != null) {
+                        for (Type typeArgument : pcType.typeArguments()) {
+                            // pass rtt of the type
+                            new RuntimeTypeExpander(this, typeArgument).expand(tr);
+                            w.write(", ");
+                        }
+                    }
+                    w.write("(java.lang.System[]) null); ");
+                }
+            } else if (xts.isParameterType(type)) {
+                // for type parameter T, "(T) x10.rtt.Types.zeroValue(T);"
+                zero = "(" + type + ") x10.rtt.Types.zeroValue(" + type + "); ";
+            } else {
+                // reference (i.e. non-struct) type
+                zero = "null; ";
+            }
+            if (zero != null) w.write(lhs + zero);
+        }
 
         w.write("}");
         w.newline();

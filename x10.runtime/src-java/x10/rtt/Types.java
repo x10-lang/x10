@@ -156,6 +156,20 @@ public class Types {
         return null;
     }
 
+    // TODO haszero
+    /*
+    private static boolean isPrimitiveStructType(Type<?> rtt) {
+        if (rtt == BYTE  || rtt == SHORT  || rtt == INT   || rtt == LONG ||
+            rtt == UBYTE  || rtt == USHORT  || rtt == UINT || rtt == ULONG ||
+            rtt == FLOAT || rtt == DOUBLE || rtt == CHAR || rtt == BOOLEAN) {
+            return true;
+        }
+        return false;
+    }
+    static boolean isStructType(Type<?> rtt) {
+        return rtt.isSubtype(x10.core.Struct._RTT) || isPrimitiveStructType(rtt);
+    }
+    */
     static boolean isStructType(Type<?> rtt) {
         if (rtt == BYTE  || rtt == SHORT  || rtt == INT   || rtt == LONG ||
             /*rtt == UBYTE  || rtt == USHORT  || rtt == UINT || rtt == ULONG ||*/
@@ -297,6 +311,8 @@ public class Types {
         return false;
     }
 
+    // TODO haszero
+    /*
     private static Object zeroValue(Class<?> c) {
         if (c.equals(BYTE.getJavaClass()) || c.equals(Byte.class)) return BYTE_ZERO;
         if (c.equals(SHORT.getJavaClass()) || c.equals(Short.class)) return SHORT_ZERO;
@@ -310,38 +326,76 @@ public class Types {
         if (c.equals(DOUBLE.getJavaClass()) || c.equals(Double.class)) return DOUBLE_ZERO;
         if (c.equals(CHAR.getJavaClass()) || c.equals(Character.class)) return CHAR_ZERO;
         if (c.equals(BOOLEAN.getJavaClass()) || c.equals(Boolean.class)) return BOOLEAN_ZERO;
-        if (x10.core.Struct.class.isAssignableFrom(c)) {
+        // Note: user defined structs is not supported
+//        assert !x10.core.Struct.class.isAssignableFrom(c) : "user defined structs is not supported";
+        return null;
+    }
+    */
+    public static Object zeroValue(Type<?> rtt) {
+        Type<?>[] typeParams = null;
+        if (rtt instanceof ParameterizedType) {
+            ParameterizedType<?> pt = (ParameterizedType<?>) rtt;
+            rtt = pt.getRuntimeType(); 
+            typeParams = pt.getParams();
+        }
+        if (isStructType(rtt)) {
+            if (rtt == BYTE) return BYTE_ZERO;
+            if (rtt == SHORT) return SHORT_ZERO;
+            if (rtt == INT) return INT_ZERO;
+            if (rtt == LONG) return LONG_ZERO;
+            if (rtt == UBYTE) return UBYTE_ZERO;
+            if (rtt == USHORT) return USHORT_ZERO;
+            if (rtt == UINT) return UINT_ZERO;
+            if (rtt == ULONG) return ULONG_ZERO;
+            if (rtt == FLOAT) return FLOAT_ZERO;
+            if (rtt == DOUBLE) return DOUBLE_ZERO;
+            if (rtt == CHAR) return CHAR_ZERO;
+            if (rtt == BOOLEAN) return BOOLEAN_ZERO;
+//            if (isPrimitiveStructType(rtt)) return zeroValue(rtt.getJavaClass());
+            // for user-defined structs, call zero value constructor
             try {
-                Object zero = null;
-                // Generate "default" constructor for all non-primitive structs, or 
-                //zero = c.getConstructor(null).newInstance(null);
-                // Instantiate with an arbitrary constructor then initialize all fields with zero value recursively
-                java.lang.reflect.Constructor<?> ctor = c.getConstructors()[0];
-                Class<?>[] paramTypes = ctor.getParameterTypes();
+                Class<?> c = rtt.getJavaClass();
+                java.lang.reflect.Constructor<?> ctor = null;
+                Class<?>[] paramTypes = null;
+                for (java.lang.reflect.Constructor<?> ctor0 : c.getConstructors()) {
+                    paramTypes = ctor0.getParameterTypes();
+                    if (paramTypes[paramTypes.length-1].equals(java.lang.System[].class)) {
+                        ctor = ctor0;
+                        break;
+                    }
+                }
+                assert ctor != null;
                 Object[] params = new Object[paramTypes.length];
-                for (int i = 0; i < paramTypes.length; ++i) {
-                    // these value is not necessarily same as zero value
+                
+                /*
+                int i = 0;
+                if (typeParams != null) {
+                    for ( ; i < typeParams.length; ++i) {
+                        // pass type params
+                        params[i] = typeParams[i];
+                    }
+                }
+                for ( ; i < paramTypes.length; ++i) {
+                    // these values are not necessarily zero value
                     params[i] = zeroValue(paramTypes[i]);
                 }
-                zero = ctor.newInstance(params);
-                for (java.lang.reflect.Field field : c.getDeclaredFields()) {
-                    if (java.lang.reflect.Modifier.isStatic(field.getModifiers())) continue;
-                    field.setAccessible(true);
-                    field.set(zero, zeroValue(field.getType()));
+                */
+                assert typeParams == null ? paramTypes.length == 1 : paramTypes.length == typeParams.length/*T1,T2,...*/ + 1/*(java.lang.String[])null*/;
+                int i = 0;
+                if (typeParams != null) {
+                    for ( ; i < typeParams.length; ++i) {
+                        // pass type params
+                        params[i] = typeParams[i];
+                    }
                 }
-                return zero;
+                params[i] = null;
+
+                return ctor.newInstance(params);
             } catch (Exception e) {
                 e.printStackTrace();
                 throw new java.lang.Error(e);
             }
         }
-        // zero-length array, or null (fall through)
-        //if (c.isArray()) return java.lang.reflect.Array.newInstance(c.getComponentType(), 0);
         return null;
-    }
-
-    public static Object zeroValue(Type<?> rtt) {
-        //assert isStructType(rtt) : "haszero is valid only for structs";
-        return zeroValue(rtt.getJavaClass());
     }
 }

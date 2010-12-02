@@ -173,6 +173,7 @@ import x10.types.ParameterType;
 import x10.types.ParameterType.Variance;
 import x10.types.constraints.SubtypeConstraint;
 import x10.types.X10ClassDef;
+import x10.types.X10ClassDef_c;
 import x10.types.X10ClassType;
 import x10.types.X10ConstructorDef;
 import x10.types.X10ConstructorInstance;
@@ -759,18 +760,29 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     }
 
     // TODO haszero
-    private static boolean hasZeroValue(X10ClassDef def) {
+    /* (Definition of haszero by Yoav)
+     * Formally, the following types haszero:
+     * a type that can be null (e.g., Any, closures, but not a struct or Any{self!=null})
+     * Primitive structs (Short,UShort,Byte,UByte, Int, Long, ULong, UInt, Float, Double, Boolean, Char)
+     * user defined structs without a constraint and without a class invariant where all fields haszero.
+     */
+    private static boolean isPrimitiveStruct(X10ClassDef def) {
+        TypeSystem xts = ((X10ClassDef_c) def).typeSystem();
+        Type type = def.asType();
+        return xts.isNumeric(type) || xts.isChar(type) || xts.isBoolean(type);
+    }
+    private static boolean needZeroValueConstructor(X10ClassDef def) {
         if (def.flags().isInterface()) return false;
         if (!def.flags().isStruct()) return false;
-        List<SubtypeConstraint> terms = def.typeBounds().get().terms();
-        for (SubtypeConstraint sc : terms) {
-            if (sc.isHaszero()) {
-                System.out.println("@@@ hasZeroValue: " + def);
-                return true;
-            }
-        }
-        // TODO should we also check haszero for all fields?
-        return false;
+        // Note: we don't need zero value constructor for primitive structs because they are cached in x10.rtt.Types class.
+        if (isPrimitiveStruct(def)) return false;
+        // TODO stop generating useless zero value constructor for user-defined struct that does not have zero value
+        // user-defined struct does not have zero value if it have a field of type of either
+        // 1) type parameter T that does not have haszero constraint
+        // 2) any reference (i.e. non-struct) type that has {self != null} consttaint
+        // 3) any struct type (including primitive structs) that has any constraint (e.g. Int{self != 0})
+        // 4) any user-defined struct that does not have zero value
+        return true;
     }
 
     public void visit(X10ClassDecl_c n) {
@@ -926,11 +938,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		er.generateRTTInstance(def);
 		
 		// TODO haszero
-		/*
-		if (hasZeroValue(def)) {
+		if (needZeroValueConstructor(def)) {
 		    er.generateZeroValueConstructor(def, n);
 		}
-		*/
 
 		if (subtypeOfCustomSerializer(def)) {
             er.generateCustomSerializer(def, n);
