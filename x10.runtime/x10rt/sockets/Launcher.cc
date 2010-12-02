@@ -398,9 +398,13 @@ void Launcher::handleRequestsLoop(bool onlyCheckForNewConnections)
 			kill(_pidlst[i], SIGTERM);
 		}
 	}
-	// wait for the SIGCHLD to come in from place 0.
-	while ((_myproc == 0 || _myproc == 0xFFFFFFFF) && _returncode == 0xDEADBEEF)
-		sched_yield();
+
+	while ((_myproc==0 || _myproc==0xFFFFFFFF) && _returncode == 0xDEADBEEF)
+	{
+		int status;
+		if (waitpid(_pidlst[_numchildren], &status, WNOHANG) == _pidlst[_numchildren])
+			_returncode = WEXITSTATUS(status);
+	}
 
 	// shut down any connections if they still exist
 	handleDeadParent();
