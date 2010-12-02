@@ -103,7 +103,8 @@ public final class ParameterizedType<T> implements Type<T>{
     }
 
     public final String toString() {
-        return rtt.toString();
+        //return rtt.toString();
+        return typeName();
     }
 
     public final String typeName() {
