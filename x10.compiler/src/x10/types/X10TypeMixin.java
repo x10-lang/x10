@@ -1212,7 +1212,7 @@ public class X10TypeMixin {
     }
     // this is an under-approximation (it is always safe to return false, i.e., the user will just get more errors). In the future we will improve the precision so more types will have zero.
     public static boolean isHaszero(Type t, Context xc) {
-        TypeSystem ts = xc.typeSystem();
+        X10TypeSystem_c ts = (X10TypeSystem_c) xc.typeSystem();
         XLit zeroLit = null;  // see Lit_c.constantValue() in its decendants
         if (t.isBoolean()) {
             zeroLit = XTerms.FALSE;
@@ -1273,17 +1273,24 @@ public class X10TypeMixin {
             // e.g., Complex and Complex{re!=3.0} haszero,
             // Complex{re!=0.0} and Complex{re==3.0} doesn't haszero
 
-            { // do we have an classInvariant? todo: class invariant are not treated correctly: X10ClassDecl_c.classInvariant is fine, but  X10ClassDef_c.classInvariant is wrong
-                final Type base = baseType(t);
-                if (!(base instanceof X10ParsedClassType_c)) return false;
-                X10ParsedClassType_c xlass = (X10ParsedClassType_c) base;
-                final ClassDef def = xlass.def();
-                if (!(def instanceof X10ClassDef_c)) return false;
-                X10ClassDef_c x10ClassDef = (X10ClassDef_c) def;
-                final Ref<CConstraint> ref = x10ClassDef.classInvariant();
-                if (ref!=null && ref.get().constraints().size()>0) return false; // the struct has a class invariant (so the zero value might not satisfy it)
-            }
-            
+            final Type base = baseType(t);
+            if (!(base instanceof X10ParsedClassType_c)) return false;
+            X10ParsedClassType_c xlass = (X10ParsedClassType_c) base;
+            final ClassDef def = xlass.def();
+            if (!(def instanceof X10ClassDef_c)) return false;
+            X10ClassDef_c x10ClassDef = (X10ClassDef_c) def;
+
+            final Boolean res = ts.structHaszero.get(x10ClassDef);
+            if (res!=null) return res;
+            ts.structHaszero.put(x10ClassDef,Boolean.FALSE);
+
+            // do we have an classInvariant? todo: class invariant are not treated correctly: X10ClassDecl_c.classInvariant is fine, but  X10ClassDef_c.classInvariant is wrong
+            final Ref<CConstraint> ref = x10ClassDef.classInvariant();
+            if (ref!=null && ref.get().constraints().size()>0) return false; // the struct has a class invariant (so the zero value might not satisfy it)
+
+            // We use ts.structHaszero to prevent infinite recursion such as in the case of:
+            // struct U(u:U) {}
+
             // make sure all the fields and properties haszero
             for (FieldInstance field : structType.fields()) {
                 if (field.flags().isStatic()) {
@@ -1291,6 +1298,7 @@ public class X10TypeMixin {
                 }
                 if (!isHaszero(field.type(),xc)) return false;
             }
+            ts.structHaszero.put(x10ClassDef,Boolean.TRUE);
             return true;
         }
         if (zeroLit==null) return false;

@@ -3566,3 +3566,28 @@ class HashMapSerialize {
 class XTENLANG_2142 implements CustomSerialization { // ShouldBeErr: missing ctor "def this(SerialData)"
 	public def serialize():SerialData= null;
 }
+
+
+class TestCircularStructs { // see XTENLANG-2187 
+	static struct Z(u:Z) {} // ShouldBeErr
+	static struct W {
+		val u:W; // ShouldBeErr
+		def this(u:W) { this.u = u; }
+	}
+	
+	static struct Cycle1(u:Cycle2) {} 
+	static struct Cycle2(u:Cycle1) {} // ShouldBeErr
+
+	// see XTENLANG-2144 that was closed
+	//TestStructStaticConstant
+    static struct S {
+        static val ONE = S();
+    }
+	static struct U(u:U) {} // ShouldBeErr
+
+
+    public static def main(Array[String]{rail}) {
+        val x1 = new Array[S](2);
+        val x2 = new Array[U](2); // ERR
+    }
+}

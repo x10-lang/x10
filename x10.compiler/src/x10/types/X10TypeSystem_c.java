@@ -1177,6 +1177,11 @@ public class X10TypeSystem_c extends TypeSystem_c {
         return new X10NullType_c(this);
     }
 
+    // User-defined structs and do they have zero (haszero)
+    // This is not just a cache: we use this map to prevent infinite recursion such as in the case of:
+    // struct U(u:U) {}
+    public HashMap<X10ClassDef_c, Boolean> structHaszero = new HashMap<X10ClassDef_c, Boolean>();
+
     /******************** Primitive types as Objects ******************/
 
     private static final String WRAPPER_PACKAGE = "x10.compilergenerated";
