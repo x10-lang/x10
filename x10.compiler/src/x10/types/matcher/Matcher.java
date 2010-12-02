@@ -339,7 +339,7 @@ public class Matcher {
 
 		    if (tQuery != null) {
 		        if ( ! xts.consistent(tQuery, context2)) {
-		            throw new SemanticException("Type guard " + query + " cannot be established; inconsistent in calling context.");
+		            throw new SemanticException("Type guard " + tQuery + " cannot be established; inconsistent in calling context.");
 		        }
 		        if (! tenv.entails(tQuery, context2)) {
 		            throw new SemanticException("Call invalid; calling environment does not entail the method guard.");
