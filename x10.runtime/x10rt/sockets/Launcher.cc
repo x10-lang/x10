@@ -398,10 +398,9 @@ void Launcher::handleRequestsLoop(bool onlyCheckForNewConnections)
 			kill(_pidlst[i], SIGTERM);
 		}
 	}
-	// wait for the SIGCHLD to come in from the local runtime.
-	while (_returncode == 0xDEADBEEF)
+	// wait for the SIGCHLD to come in from place 0.
+	while ((_myproc == 0 || _myproc == 0xFFFFFFFF) && _returncode == 0xDEADBEEF)
 		sched_yield();
-
 
 	// shut down any connections if they still exist
 	handleDeadParent();
