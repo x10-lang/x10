@@ -333,18 +333,16 @@ public struct Byte implements Comparable[Byte] /*TODO implements Arithmetic[Byte
     /**
      * @deprecated use {@link #parse(String,Int)} instead
      */
-    // @Native("java", "java.lang.Byte.parseByte(#1, #2)")
-    @Native("java", "new java.io.Serializable() { byte eval(String s, int radix) { try { return java.lang.Byte.parseByte(s, radix); } catch (java.lang.NumberFormatException e) { throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(e); } } }.eval(#1, #2)")
+    @Native("java", "x10.core.Signed.parseByte(#1, #2)")
     @Native("c++", "x10aux::byte_utils::parseByte(#1, #2)")
-    public native static def parseByte(String, radix:Int): Byte; //throwsNumberFormatException;
+    public native static def parseByte(s:String, radix:Int): Byte; //throwsNumberFormatException;
 
     /**
      * @deprecated use {@link #parse(String)} instead
      */
-    // @Native("java", "java.lang.Byte.parseByte(#1)")
-    @Native("java", "new java.io.Serializable() { byte eval(String s) { try { return java.lang.Byte.parseByte(s); } catch (java.lang.NumberFormatException e) { throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(e); } } }.eval(#1)")
+    @Native("java", "x10.core.Signed.parseByte(#1)")
     @Native("c++", "x10aux::byte_utils::parseByte(#1)")
-    public native static def parseByte(String): Byte ; //throwsNumberFormatException;
+    public native static def parseByte(s:String): Byte ; //throwsNumberFormatException;
 
     /**
      * Parses the String argument as a Byte in the radix specified by the second argument.
@@ -353,8 +351,7 @@ public struct Byte implements Comparable[Byte] /*TODO implements Arithmetic[Byte
      * @return the Byte represented by the String argument in the specified radix.
      * @; //throwsNumberFormatException if the String does not contain a parsable Byte.
      */
-    // @Native("java", "java.lang.Byte.parseByte(#1, #2)")
-    @Native("java", "new java.io.Serializable() { byte eval(String s, int radix) { try { return java.lang.Byte.parseByte(s, radix); } catch (java.lang.NumberFormatException e) { throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(e); } } }.eval(#1, #2)")
+    @Native("java", "x10.core.Signed.parseByte(#1, #2)")
     @Native("c++", "x10aux::byte_utils::parseByte(#1, #2)")
     public native static def parse(s:String, radix:Int): Byte ; //throwsNumberFormatException;
 
@@ -364,8 +361,7 @@ public struct Byte implements Comparable[Byte] /*TODO implements Arithmetic[Byte
      * @return the Byte represented by the String argument.
      * @throws NumberFormatException if the String does not contain a parsable Byte.
      */
-    // @Native("java", "java.lang.Byte.parseByte(#1)")
-    @Native("java", "new java.io.Serializable() { byte eval(String s) { try { return java.lang.Byte.parseByte(s); } catch (java.lang.NumberFormatException e) { throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(e); } } }.eval(#1)")
+    @Native("java", "x10.core.Signed.parseByte(#1)")
     @Native("c++", "x10aux::byte_utils::parseByte(#1)")
     public native static def parse(s:String): Byte ; //throwsNumberFormatException;
 
