@@ -1,12 +1,18 @@
 public class PrefixOrig {
-    const N = 64;
+    const N = 2048;
     global val a = Rail.make[int](N, (i:Int)=> i);
 
     public def run() = run(0, N-1);
     public def run(lo:int, hi:int) {
-        if (lo+1 == hi) {
-       		val e = a(lo);
-       		a(hi)= e + a(hi);
+ 	  if (hi - lo <= 64) { 
+		var i: int = 0;
+       		var eprev: int = a(lo);
+		for (i = lo + 1; i <= hi; i++) {
+       			var e: int = eprev + a(i);
+			a(i) = a(i) + eprev;
+			eprev = e;
+			
+		}
         	return;
         }
         val mid = lo + ((hi-lo+1)/2);
@@ -16,8 +22,7 @@ public class PrefixOrig {
         }
         { //expand
             val e = a(mid-1);
-            finish for ((p) in mid..hi)
-                async
+            for ((p) in mid..hi)
                     a(p) = e + a(p);
         }
     }

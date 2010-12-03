@@ -6,9 +6,9 @@ public class Stream {
     const MEG = 1024*1024;
     const alpha = 3.0D;
 
-    const NUM_TIMES = 10;
+    const NUM_TIMES = 1;
 
-    const DEFAULT_SIZE = MEG / 8;
+    const DEFAULT_SIZE = MEG/ 8;
 
     const NUM_PLACES = 64; //Place.MAX_PLACES;
 

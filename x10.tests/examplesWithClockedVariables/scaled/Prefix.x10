@@ -1,16 +1,22 @@
 import clocked.*;
 
 public class Prefix {
-    const N = 64;
+    const N = 2048;
     val c = Clock.make();
     static val op = Math.noOp.(Int, Int);
     global val a = Rail.make[int @ Clocked[Int](c, op, 0)](N, (i:Int)=> i);
 
    
     public def run(lo:int, hi:int) @ClockedM (c) {
-        if (lo+1 == hi) {
-       		val e = a(lo);
-       		a(hi)= e + a(hi);
+        if (hi - lo <= 64) { 
+		var i: int = 0;
+       		var eprev: int = a(lo);
+		for (i = lo + 1; i <= hi; i++) {
+       			var e: int = eprev + a(i);
+			a(i) = a(i) + eprev;
+			eprev = e;
+			
+		}
         	return;
         }
         
@@ -22,9 +28,9 @@ public class Prefix {
         { //expand
             val e = a(mid-1);
            for ((p) in mid..hi)
-                async clocked(c)
                     a(p) = e + a(p);
-            next;
+
+           next;
         }
        }
     }
