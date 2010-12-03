@@ -15,12 +15,12 @@ import harness.x10Test;
  * @author bdlucas 12/2008
  */
 
-class XTENLANG_298_MustFailCompile extends x10Test {
+class XTENLANG_298 extends x10Test {
 
     
     static class C(p:int) {
-    	// The field declaration must fail compilation because p will not be
-    	// initialized at this access.
+    	// The new initialization semantics guarantee that all properties
+        // will be initialized before all the fields.
         val q=p; 
         def this(p:int) {
         	property(p);
@@ -35,6 +35,6 @@ class XTENLANG_298_MustFailCompile extends x10Test {
     }
 
     public static def main(Array[String](1)) {
-        new XTENLANG_298_MustFailCompile().execute();
+        new XTENLANG_298().execute();
     }
 }

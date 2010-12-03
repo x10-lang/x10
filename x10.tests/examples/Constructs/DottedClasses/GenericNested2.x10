@@ -1,4 +1,4 @@
- /*
+/*
  *  This file is part of the X10 project (http://x10-lang.org).
  *
  *  This file is licensed to You under the Eclipse Public License (EPL);
@@ -8,14 +8,15 @@
  *
  *  (C) Copyright IBM Corporation 2006-2010.
  */
+
 import x10.util.*;
 import harness.x10Test;
 
-// Try a static nested class with instance methods, fields, etc.
+// A static nested class with instance methods, fields, etc.
 
 public class GenericNested2[T] extends x10Test {
   public static def main(Array[String](1)){
-     val p = new GenericNested2();
+     val p = new GenericNested2[Int]();
      p.execute();
   } 
   public def run():Boolean {

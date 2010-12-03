@@ -14,10 +14,12 @@ import harness.x10Test;
 
 // A simple test case of an inner class which refers to its outer class's 
 // generic type parameter.
+// Omits the type parameter in a constructor call, which should be caught
+// by the compiler.
 
-public class GenericInnerClass1[X] extends x10Test {
+public class GenericInnerClass1a_MustFailCompile[X] extends x10Test {
   public static def main(Array[String](1)){
-     val p = new GenericInnerClass1[Int]();
+     val p = new GenericInnerClass1a_MustFailCompile();
      p.execute();
   }
  
