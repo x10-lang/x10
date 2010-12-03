@@ -124,9 +124,9 @@ public final class GrowableRail<T> extends Ref implements x10.lang.Indexable<Int
     private void grow(int newSize) {
         if (newSize <= size())
             return;
-        newSize = Math.max(newSize, size()*2);
-        newSize = Math.max(newSize, length);
-        newSize = Math.max(newSize, 8);
+        newSize = java.lang.Math.max(newSize, size()*2);
+        newSize = java.lang.Math.max(newSize, length);
+        newSize = java.lang.Math.max(newSize, 8);
         Object tmp = elementType.makeArray(newSize);
         System.arraycopy(array, 0, tmp, 0, length);
         array = tmp;
@@ -135,8 +135,8 @@ public final class GrowableRail<T> extends Ref implements x10.lang.Indexable<Int
     private void shrink(int newSize) {
         if (newSize > size()/2 || newSize < 8)
             return;
-        newSize = Math.max(newSize, length);
-        newSize = Math.max(newSize, 8);
+        newSize = java.lang.Math.max(newSize, length);
+        newSize = java.lang.Math.max(newSize, 8);
         Object tmp = elementType.makeArray(newSize);
         System.arraycopy(array, 0, tmp, 0, length);
         array = tmp;
