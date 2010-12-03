@@ -43,11 +43,30 @@ namespace x10 {
             IndexedMemoryChunk(T* _data, x10_int _len): data((size_t)_data), len(_len) {}
             IndexedMemoryChunk(x10_ulong _data, x10_int _len): data(_data), len(_len) {}
 
-            inline T apply(x10_int index) { return raw()[index]; }
-            inline T apply(x10_long index) { return raw()[index]; }
+            inline T apply(x10_int index) { 
+                x10aux::checkRailBounds(index, len);
+                return raw()[index]; 
+            }
+            inline T apply(x10_long index) { 
+                x10aux::checkRailBounds((x10_int)index, len);
+                return raw()[index]; 
+            }
             
-            inline void set(T val, x10_int index) { raw()[index] = val; }
-            inline void set(T val, x10_long index) { raw()[index] = val; }
+            inline void set(T val, x10_int index) { 
+                x10aux::checkRailBounds(index, len);
+                raw()[index] = val; 
+            }
+            inline void set(T val, x10_long index) { 
+                x10aux::checkRailBounds((x10_int)index, len);
+                raw()[index] = val; 
+            }
+
+            inline T apply_unsafe(x10_int index) { return raw()[index]; }
+            inline T apply_unsafe(x10_long index) { return raw()[index]; }
+            
+            inline void set_unsafe(T val, x10_int index) { raw()[index] = val; }
+            inline void set_unsafe(T val, x10_long index) { raw()[index] = val; }
+
     
             x10::util::IndexedMemoryChunk<T>* operator->() { return this; }
         

@@ -19,7 +19,7 @@ import x10.io.Printer;
  * @author Christian Grothoff
  * @author tardieu
  */
-public class MultipleExceptions(exceptions:Array[Throwable]{rail}) extends Exception {
+public class MultipleExceptions(exceptions:Array[Throwable](1){rail}) extends Exception {
 
     public def this(stack:Stack[Throwable]) {
         property(stack.toArray());

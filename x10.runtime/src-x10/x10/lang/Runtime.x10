@@ -331,7 +331,7 @@ import x10.util.Box;
         private val semaphore = new Semaphore(0);
 
         // the workers in the pool
-        private val workers:Array[Worker]{rail};
+        private val workers:Array[Worker](1){rail};
 
         def this(size:Int) {
             this.size = size;
@@ -557,7 +557,7 @@ import x10.util.Box;
     /**
      * Run async at
      */
-    public static def runAsync(place:Place, clocks:Array[Clock]{rail}, body:()=>void):void {
+    public static def runAsync(place:Place, clocks:Array[Clock](1){rail}, body:()=>void):void {
         // Do this before anything else
         val a = activity();
         a.ensureNotInAtomic();
@@ -601,7 +601,7 @@ import x10.util.Box;
     /**
      * Run async
      */
-    public static def runAsync(clocks:Array[Clock]{rail}, body:()=>void):void {
+    public static def runAsync(clocks:Array[Clock](1){rail}, body:()=>void):void {
         // Do this before anything else
         val a = activity();
         a.ensureNotInAtomic();

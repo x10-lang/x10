@@ -285,9 +285,9 @@ public class BaseDist extends Dist /*implements Map[Place,Region]*/ {
     // access.
     //
 
-    protected val places:Array[Place]{rail};
-    protected val regions:Array[Region(rank)]{rail};
-    private val regionMap:Array[Region(rank)]{rail};
+    protected val places:Array[Place](1){rail};
+    protected val regions:Array[Region(rank)](1){rail};
+    private val regionMap:Array[Region(rank)](1){rail};
 
     public def this(r: Region, ps:Array[Place](1), rs:Array[Region(r.rank)](1)): BaseDist{self.region==r}{
     	this(r,ps.sequence(), rs.sequence());
