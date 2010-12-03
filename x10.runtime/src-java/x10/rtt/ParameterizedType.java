@@ -17,9 +17,9 @@ public final class ParameterizedType<T> implements Type<T>{
         return params;
     }
 
-    public final List<Type<?>> getTypeParameters() {
-        return Arrays.asList(params);
-    }
+//    public final List<Type<?>> getTypeParameters() {
+//        return Arrays.asList(params);
+//    }
 
     public ParameterizedType(RuntimeType<T> rtt, Type<?>... params) {
         this.rtt = rtt;
@@ -35,12 +35,12 @@ public final class ParameterizedType<T> implements Type<T>{
         }
         if (o instanceof ParameterizedType) {
             ParameterizedType<?> pt = (ParameterizedType<?>) o;
-            if (pt.getRuntimeType().isSuperType(pt.params, (RuntimeType<?>) rtt, params)) {
+            if (pt.getRuntimeType().isSuperType(pt.params, rtt, params)) {
                 return true;
             }
         }
         else if (o instanceof RuntimeType) {
-            if (((RuntimeType<?>) o).isSuperType(null, (RuntimeType<?>) rtt, params)) {
+            if (((RuntimeType<?>) o).isSuperType(null, rtt, params)) {
                 return true;
             }
         }
@@ -94,9 +94,10 @@ public final class ParameterizedType<T> implements Type<T>{
         return rtt.makeArray(elems);
     }
 
-    public final Type<T> reinstantiate(List<Type<?>> parms) {
-        return rtt.reinstantiate(parms);
-    }
+    // never called
+//    public final Type<T> reinstantiate(List<Type<?>> parms) {
+//        return rtt.reinstantiate(parms);
+//    }
 
     public final T setArray(Object array, int i, T v) {
         return rtt.setArray(array, i, v);

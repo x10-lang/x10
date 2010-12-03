@@ -71,20 +71,21 @@ public class RuntimeType<T> implements Type<T> {
         }
         if (o instanceof ParameterizedType) {
             ParameterizedType<?> pt = (ParameterizedType<?>) o;
-            if (pt.getRuntimeType().isSuperType(pt.getParams(), (RuntimeType<?>) this, null)) {
+            if (pt.getRuntimeType().isSuperType(pt.getParams(), this, null)) {
                 return true;
             }
         }
         return false;
     }
 
-    public List<Type<?>> getTypeParameters() {
-        return null;
-    }
+//    public List<Type<?>> getTypeParameters() {
+//        return null;
+//    }
 
-    public Type<T> reinstantiate(List<Type<?>> parms) {
-        return this;
-    }
+    // never called
+//    public Type<T> reinstantiate(List<Type<?>> parms) {
+//        return this;
+//    }
 
     public boolean instanceof$(Object o) {
         if (o == null) {return false;}

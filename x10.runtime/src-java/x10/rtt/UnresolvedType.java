@@ -26,9 +26,9 @@ public final class UnresolvedType implements Type {
         throw new UnsupportedOperationException();
     }
 
-    public final List getTypeParameters() {
-        throw new UnsupportedOperationException();
-    }
+//    public final List getTypeParameters() {
+//        throw new UnsupportedOperationException();
+//    }
 
     public final boolean instanceof$(Object o) {
         throw new UnsupportedOperationException();
