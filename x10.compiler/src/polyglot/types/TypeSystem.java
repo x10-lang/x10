@@ -825,9 +825,10 @@ public interface TypeSystem {
 
     FieldMatcher FieldMatcher(Type container, boolean contextKnowsReceiver, Name name, Context context);
     MethodMatcher MethodMatcher(Type container, Name name, List<Type> argTypes, Context context);
-    MethodMatcher MethodMatcher(Type container, Name name, List<Type> typeArgs,  List<Type> argTypes, Context context);
+    MethodMatcher MethodMatcher(Type container, Name name, List<Type> typeArgs, List<Type> argTypes, Context context);
 
     ConstructorMatcher ConstructorMatcher(Type container, List<Type> argTypes, Context context);
+    ConstructorMatcher ConstructorMatcher(Type container, List<Type> typeArgs, List<Type> argTypes, Context context);
 
     /**
      * Returns the field named 'name' defined on 'type'.

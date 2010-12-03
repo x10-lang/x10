@@ -14,7 +14,6 @@ package x10.types.matcher;
 import java.util.Collections;
 import java.util.List;
 
-import polyglot.ast.Expr;
 import polyglot.types.ConstructorInstance;
 import polyglot.types.Context;
 import polyglot.types.SemanticException;
@@ -25,16 +24,15 @@ import x10.types.X10ConstructorInstance;
 import polyglot.types.Context;
 
 public class X10ConstructorMatcher extends TypeSystem_c.ConstructorMatcher {
-    protected List<Expr> args;
+    protected List<Type> typeArgs;
     
     public X10ConstructorMatcher(Type container, List<Type> argTypes, Context context) {
-        this(container, null, argTypes, context);
+        this(container, Collections.<Type>emptyList(), argTypes, context);
     }
 
-    public X10ConstructorMatcher(Type container, List<Expr> args, List<Type> argTypes, 
-    		Context context) {
+    public X10ConstructorMatcher(Type container, List<Type> typeArgs, List<Type> argTypes, Context context) {
         super(container, argTypes, context);
-        this.args = args;
+        this.typeArgs = typeArgs;
     }
 
 
@@ -54,11 +52,10 @@ public class X10ConstructorMatcher extends TypeSystem_c.ConstructorMatcher {
         if (ci instanceof X10ConstructorInstance) {
             X10ConstructorInstance xmi = (X10ConstructorInstance) ci;
             Type c = container != null ? container : xmi.container();
-            return Matcher.inferAndCheckAndInstantiate((Context) context(), 
+            return Matcher.inferAndCheckAndInstantiate(context(),
                     xmi, c, Collections.<Type>emptyList(), argTypes, ci.position());
 // [IP] TODO
-//            return Matcher.inferAndCheckAndInstantiate((X10Context) context(), 
-//                    xmi, c, typeArgs, argTypes, ci.position());
+//            return Matcher.inferAndCheckAndInstantiate(context(), xmi, c, typeArgs, argTypes, ci.position());
         }
         return null;
     }

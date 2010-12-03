@@ -2409,6 +2409,10 @@ public class X10TypeSystem_c extends TypeSystem_c {
         return new X10ConstructorMatcher(container, argTypes, context);
     }
 
+    public X10ConstructorMatcher ConstructorMatcher(Type container, List<Type> typeArgs, List<Type> argTypes, Context context) {
+        return new X10ConstructorMatcher(container, typeArgs, argTypes, context);
+    }
+
     public X10FieldMatcher FieldMatcher(Type container, Name name, Context context) {
     	//container = X10TypeMixin.ensureSelfBound( container);
         return new X10FieldMatcher(container, name, context);
