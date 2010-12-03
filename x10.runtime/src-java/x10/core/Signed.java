@@ -13,6 +13,15 @@ package x10.core;
 
 public class Signed {
     
+    public static String toString(byte a, int radix) {
+        if (a >= 0) {
+            return Integer.toString(a, radix);
+        } else {
+            int b = (0x80000000 - a) & 0x7FFFFFFF;
+            return "-" + Integer.toString(b, radix);
+        }
+    }
+
     public static byte parseByte(String s, int radix) {
         try {
             return java.lang.Byte.parseByte(s, radix);
