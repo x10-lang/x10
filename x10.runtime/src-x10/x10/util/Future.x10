@@ -83,6 +83,9 @@ public class Future[+T] implements ()=>T {
         try {
             finish result.add(eval());
             latch.release();
+        } catch (m:MultipleExceptions){
+            exception.add(m.exceptions(0));
+            latch.release();
         } catch (t:Throwable) {
             exception.add(t);
             latch.release();
