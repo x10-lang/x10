@@ -57,7 +57,27 @@ public final class Array[T](
     /**
      * The region of this array.
      */
-    region:Region{self != null},
+    region:Region{self != null, self.rank==this.rank},
+
+    /**
+     * The rank of this array.
+     */
+    rank:int,
+
+    /**
+     * Is this array defined over a rectangular region?
+     */
+    rect:boolean,
+
+    /**
+     * Is this array's region zero-based?
+     */
+    zeroBased:boolean,
+
+    /**
+     * Is this array's region a "rail" (one-dimensional, rect, and zero-based)?
+     */
+    rail:boolean,
 
     /**
      * The number of points/data values in the array.
@@ -67,48 +87,14 @@ public final class Array[T](
 )  implements (Point(region.rank))=>T,
               Iterable[Point(region.rank)] {
 
-    //
-    // properties
-    //
-
     /**
-     * The rank of this array.
+     * The backing storage for the array's elements
      */
-    public property rank: int = region.rank;
-
-    /**
-     * Is this array defined over a rectangular region?
-     */
-    public property rect: boolean = region.rect;
-
-    /**
-     * Is this array's region zero-based?
-     */
-    public property zeroBased: boolean = region.zeroBased;
-
-    /**
-     * Is this array's region a "rail" (one-dimensional, rect, and zero-based)?
-     */
-    public property rail: boolean = region.rail;
-
-    /**
-     * Cache the value of the region.rail property as a field so that if we need
-     * it at runtime we can get it in a single load.<p>
-     * 
-     * TODO: 
-     *   We need to not lose the corelation between the value of this field and
-     * the static type of the Array by adding a constraint. However, I can't figure out
-     * how to express this in a way that is (a) correct and (b) supported by the constraint system.
-     */
-    private val cachedRail:boolean(rail);
-
-
-    // NOTE: For C++ backend, we should optimize serialization to
-    //       note bother sending this IMC, since we are just going 
-    //       to allocate a new one and ignore the old value. 
-    //       Not marking it as transient to avoid special case code
-    //       in Java backend. 
     private val raw:IndexedMemoryChunk[T];
+
+    /**
+     * Helper struct that encapsulates layout calculation for non-rail Arrays.
+     */
     private val layout:RectLayout;
 
     /**
@@ -135,14 +121,14 @@ public final class Array[T](
      *
      * @param reg The region over which to construct the array.
      */
-    public def this(reg:Region) {T haszero}
-        :Array[T]{self.region==reg} {
-        property(reg, reg.size());
+    public def this(reg:Region) {T haszero} :Array[T]{self.region==reg, self.rank==reg.rank, 
+                                                      self.rect==reg.rect, self.zeroBased==reg.zeroBased,
+                                                      self.rail==reg.rail} {
+        property(reg, reg.rank, reg.rect, reg.zeroBased, reg.rail, reg.size());
 
         layout = RectLayout(reg);
         val n = layout.size();
         raw = IndexedMemoryChunk.allocate[T](n, true);
-        cachedRail = rail;
     }
 
 
@@ -153,8 +139,10 @@ public final class Array[T](
      * @param reg The region over which to construct the array.
      * @param init The function to use to initialize the array.
      */    
-    public def this(reg:Region, init:(Point(reg.rank))=>T):Array[T]{self.region==reg} {
-        property(reg, reg.size());
+    public def this(reg:Region, init:(Point(reg.rank))=>T):Array[T]{self.region==reg, self.rank==reg.rank, 
+                                                                    self.rect==reg.rect, self.zeroBased==reg.zeroBased,
+                                                                    self.rail==reg.rail}{
+        property(reg, reg.rank, reg.rect, reg.zeroBased, reg.rail, reg.size());
 
         layout = RectLayout(reg);
         val n = layout.size();
@@ -163,7 +151,6 @@ public final class Array[T](
             r(layout.offset(p))= init(p);
         }
         raw = r;
-        cachedRail = rail;
     }
 
 
@@ -174,8 +161,10 @@ public final class Array[T](
      * @param reg The region over which to construct the array.
      * @param init The function to use to initialize the array.
      */    
-    public def this(reg:Region, init:T):Array[T]{self.region==reg} {
-        property(reg, reg.size());
+    public def this(reg:Region, init:T):Array[T]{self.region==reg, self.rank==reg.rank, 
+                                                 self.rect==reg.rect, self.zeroBased==reg.zeroBased,
+                                                 self.rail==reg.rail} {
+        property(reg, reg.rank, reg.rect, reg.zeroBased, reg.rail, reg.size());
 
         layout = RectLayout(reg);
         val n = layout.size();
@@ -192,35 +181,19 @@ public final class Array[T](
             }
         }
         raw = r;
-        cachedRail = rail;
     }
-
-
-    /**
-     * Construct Array over the region 0..aRail.length-1 whose
-     * values are initialized to the corresponding values in the 
-     * argument Rail.
-     *
-     */    
-
-// HACKING around typechecking bug:
-// Error message is: Cannot refer to type parameter T of x10.array.Array from a static context
-//    public def this(aRail:Rail[T]):Array[T]{self.rank==1,self.rect,self.zeroBased,self.rail} {
-//      this(Region.makeRectangular(0, aRail.length-1), ((i):Point(1)) => aRail(i));
-//    }
-
 
     /**
      * Construct Array over the region 0..size-1 whose elements are zero-initialized.
      */
-    public def this(size:int) {T haszero}
-        :Array[T]{self.region.rank==1,self.region.rect,self.region.zeroBased,self.size==size} {
-        property(0..size-1, size);
+    public def this(size:int) {T haszero} :Array[T]{self.rank==1, self.rect, 
+                                                    self.zeroBased, self.rail, 
+                                                    self.size==size} {
+        property(0..size-1, 1, true, true, true, size);
 
         layout = RectLayout(0, size-1);
         val n = layout.size();
         raw = IndexedMemoryChunk.allocate[T](n, true);
-        cachedRail = rail;
     }
 
 
@@ -231,8 +204,10 @@ public final class Array[T](
      * @param reg The region over which to construct the array.
      * @param init The function to use to initialize the array.
      */    
-    public def this(size:int, init:(int)=>T):Array[T]{rank==1,rect,zeroBased,self.size==size} {
-        property(0..size-1, size);
+    public def this(size:int, init:(int)=>T):Array[T]{self.rank==1, self.rect, 
+                                                      self.zeroBased, self.rail, 
+                                                      self.size==size} {
+        property(0..size-1, 1, true, true, true, size);
 
         layout = RectLayout(0, size-1);
         val n = layout.size();
@@ -241,7 +216,6 @@ public final class Array[T](
             r(i)= init(i);
         }
         raw = r;
-        cachedRail = rail;
     }
 
 
@@ -252,8 +226,10 @@ public final class Array[T](
      * @param reg The region over which to construct the array.
      * @param init The function to use to initialize the array.
      */    
-    public def this(size:int, init:T):Array[T]{rank==1,rect,zeroBased,self.rail,self.size==size} {
-        property(0..size-1, size);
+    public def this(size:int, init:T):Array[T]{self.rank==1, self.rect, 
+                                               self.zeroBased, self.rail, 
+                                               self.size==size} {
+        property(0..size-1, 1, true, true, true, size);
 
         layout = RectLayout(0, size-1);
         val n = layout.size();
@@ -262,7 +238,6 @@ public final class Array[T](
             r(i)= init;
         }
         raw = r;
-        cachedRail = rail;
     }
 
 
@@ -271,14 +246,15 @@ public final class Array[T](
      *
      * @param init The array to copy.
      */    
-    public def this(init:Array[T]):Array[T]{self.region==init.region, self.size==init.size} {
-        property(init.region, init.size);
+    public def this(init:Array[T]):Array[T]{self.region==init.region, self.rank==init.rank,
+                                            self.rect==init.rect, self.zeroBased==init.zeroBased, 
+                                            self.rail==init.rail, self.size==init.size} {
+        property(init.region, init.rank, init.rect, init.zeroBased, init.rail, init.size);
         layout = RectLayout(region);
         val n = layout.size();
         val r  = IndexedMemoryChunk.allocate[T](n);
 	IndexedMemoryChunk.copy(init.raw, 0, r, 0, n);
         raw = r;
-        cachedRail = rail;
     }
 
     /**
@@ -355,18 +331,8 @@ public final class Array[T](
      */
     @Native("cuda", "(#0).raw[#1]")
     public @Header @Inline def apply(i0:int){rank==1}:T {
-        if (cachedRail) {
-            if (CompilerFlags.checkBounds()) {
-                if (CompilerFlags.useUnsigned()) {
-                    if (!((i0 as UInt) < (size as UInt))) {
-                        raiseBoundsError(i0);
-                    }
-                } else {
-                    if (!region.contains(i0)) {
-                        raiseBoundsError(i0);
-                    }
-                }
-            }
+        if (rail) {
+            // Bounds checking by backing IndexedMemoryChunk is sufficient
             return raw(i0);
         } else {
             if (CompilerFlags.checkBounds() && !region.contains(i0)) {
@@ -464,18 +430,8 @@ public final class Array[T](
      */
     @Native("cuda", "(#0).raw[#2] = (#1)")
     public @Header @Inline def set(v:T, i0:int){rank==1}:T {
-        if (cachedRail) {
-            if (CompilerFlags.checkBounds()) {
-                if (CompilerFlags.useUnsigned()) {
-                    if (!((i0 as UInt) < (size as UInt))) {
-                        raiseBoundsError(i0);
-                    }
-                } else {
-                    if (!region.contains(i0)) {
-                        raiseBoundsError(i0);
-                    }
-                }
-            }
+        if (rail) {
+            // Bounds checking by backing IndexedMemoryChunk is sufficient
             raw(i0) = v;
         } else {
             if (CompilerFlags.checkBounds() && !region.contains(i0)) {

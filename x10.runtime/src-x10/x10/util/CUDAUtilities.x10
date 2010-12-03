@@ -58,7 +58,7 @@ public class CUDAUtilities {
         throw new UnsupportedOperationException();
     }
 
-    public static def makeRemoteArray[T] (place:Place, numElements:Int, init: Array[T]{rail})
+    public static def makeRemoteArray[T] (place:Place, numElements:Int, init: Array[T](1){rail})
         : RemoteArray[T]{self.rank==1, self.home==place}
     {
         if (place.isCUDA()) {
