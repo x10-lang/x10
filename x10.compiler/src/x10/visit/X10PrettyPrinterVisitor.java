@@ -907,7 +907,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			w.begin(0);
 			for (Iterator<TypeNode> i = interfaces.iterator(); i.hasNext(); ) {
 				TypeNode tn = (TypeNode) i.next();
-				if (!isSelfDispatch || (isSelfDispatch && !alreadyPrinted(alreadyPrintedTypes, tn))) {
+				if (!isSelfDispatch || (isSelfDispatch && !er.alreadyPrinted(alreadyPrintedTypes, tn.type()))) {
 				    if (alreadyPrintedTypes.size() != 0) {
 				        w.write(",");
 				        w.allowBreak(0);
@@ -1062,49 +1062,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         }
     	return -1;
     }
-
-    private boolean alreadyPrinted(List<Type> alreadyPrintedTypes, TypeNode tn) {
-        boolean alreadyPrinted = false;
-        Type type = tn.type();
-        if (type instanceof FunctionType) {
-            if (((FunctionType) type).returnType().isVoid()) {
-                for (Type apt : alreadyPrintedTypes) {
-                    if (apt instanceof FunctionType && ((FunctionType) apt).returnType().isVoid()) {
-                        if (((FunctionType) apt).typeArguments().size() == ((FunctionType) type).typeArguments().size()) {
-                            alreadyPrinted = true;
-                            break;
-                        }
-                    }
-                }
-            } else {
-                for (Type apt : alreadyPrintedTypes) {
-                    if (apt instanceof FunctionType && !((FunctionType) apt).returnType().isVoid()) {
-                        if (((FunctionType) apt).typeArguments().size() == ((FunctionType) type).typeArguments().size()) {
-                            alreadyPrinted = true;
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-        else if (type instanceof X10ClassType) {
-            X10ClassType ct = (X10ClassType) type;
-            if (ct.typeArguments() != null && ct.typeArguments().size() > 0) {
-                for (Type apt : alreadyPrintedTypes) {
-                    if (apt instanceof X10ClassType && !(apt instanceof FunctionType)) {
-                        if (((X10ClassType) apt).name().toString().equals(((X10ClassType) type).name().toString())) {
-                            alreadyPrinted = true;
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-        return alreadyPrinted;
-    }
-
-
-
 
         public void visit(X10Cast_c c) {
             TypeNode tn = c.castType();
@@ -1576,7 +1533,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		w.write(".");
 		w.write("apply");
         if (isSelfDispatch && (!newClosure && !mi.returnType().isVoid() && mi.formalTypes().size() == 0)) {
-            w.write(X10PrettyPrinterVisitor.RETURN_PARAMETER_TYPE_SUFFIX);
+            w.write(RETURN_PARAMETER_TYPE_SUFFIX);
 		}
         else if (
                 !isSelfDispatch

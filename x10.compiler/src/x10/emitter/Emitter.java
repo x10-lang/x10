@@ -1390,15 +1390,59 @@ public class Emitter {
             // FIXME need to check storategy for bounds of type parameter
             if (sups.size() > 0) {
                 w.write(" extends ");
+                List<Type> alreadyPrintedTypes = new ArrayList<Type>();
                 for (int i = 0; i < sups.size(); ++i) {
-                    if (i != 0) w.write(" & ");
-                    printType(sups.get(i), X10PrettyPrinterVisitor.NO_VARIANCE | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+                    Type type = sups.get(i);
+                    if (!alreadyPrinted(alreadyPrintedTypes, type)) {
+                        if (alreadyPrintedTypes.size() != 0) w.write(" & ");
+                        printType(sups.get(i), 0);
+                        alreadyPrintedTypes.add(type);
+                    }
                 }
             }
             sep = ", ";
         }
         w.end();
         w.write(">");
+    }
+    
+    public boolean alreadyPrinted(List<Type> alreadyPrintedTypes, Type type) {
+        boolean alreadyPrinted = false;
+        if (type instanceof FunctionType) {
+            if (((FunctionType) type).returnType().isVoid()) {
+                for (Type apt : alreadyPrintedTypes) {
+                    if (apt instanceof FunctionType && ((FunctionType) apt).returnType().isVoid()) {
+                        if (((FunctionType) apt).typeArguments().size() == ((FunctionType) type).typeArguments().size()) {
+                            alreadyPrinted = true;
+                            break;
+                        }
+                    }
+                }
+            } else {
+                for (Type apt : alreadyPrintedTypes) {
+                    if (apt instanceof FunctionType && !((FunctionType) apt).returnType().isVoid()) {
+                        if (((FunctionType) apt).typeArguments().size() == ((FunctionType) type).typeArguments().size()) {
+                            alreadyPrinted = true;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        else if (type instanceof X10ClassType) {
+            X10ClassType ct = (X10ClassType) type;
+            if (ct.typeArguments() != null && ct.typeArguments().size() > 0) {
+                for (Type apt : alreadyPrintedTypes) {
+                    if (apt instanceof X10ClassType && !(apt instanceof FunctionType)) {
+                        if (((X10ClassType) apt).name().toString().equals(((X10ClassType) type).name().toString())) {
+                            alreadyPrinted = true;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        return alreadyPrinted;
     }
     
     public static String mangleMethodName(MethodDef md, boolean printIncludingGeneric) {
@@ -3066,7 +3110,7 @@ public class Emitter {
                 }
                 for (int i = 0; i < x10Type.typeArguments().size(); i++) {
                     w.write(", ");
-                    Type ta = x10Type.typeArguments().get(i);
+                    Type ta = X10TypeMixin.baseType(x10Type.typeArguments().get(i));
                     if (ta.typeEquals(def.asType(), tr.context())) {
                         w.write("new x10.rtt.UnresolvedType(");
                         w.write("-1");
