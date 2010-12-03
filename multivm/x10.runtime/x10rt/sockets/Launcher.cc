@@ -948,7 +948,20 @@ void Launcher::startSSHclient(uint32_t id, char* masterPort, char* remotehost)
 	sprintf(argv[z], X10LAUNCHER_CWD"=%s", getenv(X10LAUNCHER_CWD));
 	argv[++z] = cmd;
 	for (int i = 1; i < _argc; i++)
-		argv[z + i] = _argv[i];
+	{
+		if (strchr(_argv[i], '$') != NULL)
+		{
+			// make sure ssh doesn't turn a $ into an env variable lookup
+			int l = strlen(_argv[i]);
+			argv[z+i] = (char*)alloca(l+3);
+			argv[z+i][0] = '\'';
+			strcpy(&argv[z+i][1], _argv[i]);
+			argv[z+i][l+1]='\'';
+			argv[z+i][l+2]='\0';
+		}
+		else
+			argv[z + i] = _argv[i];
+	}
 	argv[z + _argc] = NULL;
 
 	#ifdef DEBUG
