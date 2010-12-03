@@ -107,10 +107,10 @@ public class Random {
     public def nextBoolean(): boolean = nextInt() < 0;
 
     /** Return a random float between 0.0f and 1.0f. */
-    public def nextFloat(): float = (((nextInt() as UInt) >> (32-24)) as Int) / ((1<<24) as Float);
+    public def nextFloat(): float = (nextInt() >>> (32-24)) / ((1<<24) as Float);
 
     /** Return a random double between 0.0 and 1.0. */
-    public def nextDouble(): double = (((nextLong() as ULong) >> (64-53)) as Long) / ((1L<<53) as Double);
+    public def nextDouble(): double = (nextLong() >>> (64-53)) / ((1L<<53) as Double);
 
 /*
  * Mersenne twister.
