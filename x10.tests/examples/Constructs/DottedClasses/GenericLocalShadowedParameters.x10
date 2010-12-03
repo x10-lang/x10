@@ -13,20 +13,22 @@ import harness.x10Test;
 
 /**
  * Simple test that generic local classes can compile.
+ * Contains an extra twist that the type parameters on
+ * the method and the outer class have the same name.
  * @author vj
  */
-public class GenericLocal2 extends x10Test {
+public class GenericLocalShadowedParameters extends x10Test {
 
 	public class Hello[X] {
-		def m[Y]() {
+		def m[X]() {
 			class Local[A]{}
-			return new Local[Y]();
+			return new Local[X]();
 		}
 
 	}
 	public def run()=true;
 	
 	public static def main(Array[String]){
-		new GenericLocal2().execute();
+		new GenericLocalShadowedParameters().execute();
 	}
 }
