@@ -12,7 +12,7 @@ import clocked.*;
 	private const datasizes_M: ValRail[int] = [ 100, 100000, 500000 ];
 	private const datasizes_N: ValRail[int] = [ 100, 100000, 500000 ];
 	private const datasizes_nz: ValRail[int] = [ 500, 500000, 2500000 ];
-	private const SPARSE_NUM_ITER: int = 200;
+	private const SPARSE_NUM_ITER: int = 40000;
 
 	val R: Random! = new Random(RANDOM_SEED);
 
@@ -109,7 +109,7 @@ import clocked.*;
 
 	public def JGFvalidate(): void = {
 		//double refval[] = { 75.02484945753453, 150.0130719633895, 749.5245870753752 };
-	        val refval: ValRail[double] = [0.16484213206275583,  150.57514642658575, 749.5245870753752 ];
+	        val refval: ValRail[double] = [32.96842641254663 ,  150.57514642658575, 749.5245870753752 ];
 		var dev: double = Math.abs(ytotal - refval(size));
 		if (dev > 1.0e-10) {
 			Console.OUT.println("Validation failed");

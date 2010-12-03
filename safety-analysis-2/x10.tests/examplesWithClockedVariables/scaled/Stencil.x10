@@ -64,9 +64,6 @@ public class Stencil {
            
           }
          
-       
-   
-       
             delta  = step(A, blocks(0));
 			next;
  		}     

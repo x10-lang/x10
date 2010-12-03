@@ -138,7 +138,6 @@ class UTS {
     global val tiles : ValRail[Region(1)]!;
 
     def run() @ ClockedM(c) {
-  
        finish {
        for (var i:int=0;i<tiles.length;i++) {
          val j =i; 	  

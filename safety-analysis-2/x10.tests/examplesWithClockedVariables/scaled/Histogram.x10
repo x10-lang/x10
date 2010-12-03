@@ -6,10 +6,10 @@ public class Histogram {
 
     public static def main(args:Rail[String]!) {
     	val start_time = System.currentTimeMillis(); 
-	val N = 100;
-	val S = 5;
+	val N = 64;
+	val S = 10000;
 	val c = Clock.make();
-	val a = Rail.make[Int](N, (i:Int)=> i);
+	val a = Rail.make[Int](N*S, (i:Int)=> i);
 	val op = Int.+;
 
     val b = Rail.make[Int @  Clocked[Int] (c,op, 0)](S);
@@ -17,8 +17,11 @@ public class Histogram {
 	finish for(i = 0; i< N; i++)  {
 			val ii = i;
 			async clocked(c)  {
-	       		val bin = a(ii) % S;
-	      	    b(bin) = 1;
+			var j: int = 0;
+			for (j = ii * S; j < (ii + 1) * S; j++) { 
+	       			val bin = a(j) % S;
+	      	   	 	b(bin) = 1;
+			}
 	    
 	       }
 	}
