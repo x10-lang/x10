@@ -285,7 +285,7 @@ public class StaticInitializer extends ContextVisitor {
             @Override
             public Node override(Node parent, Node n) {
                 if (n instanceof Expr) {
-                    if (isGlobalInit((Expr)n))
+                    if (isGlobalInit((Expr)n) || isConstraintToLiteral(((Expr)n).type()))
                         // initialization can be done in all places -- do not visit subtree further
                         // System.out.println("isGlobalInit true in checkFieldDeclRHS: "+(Expr)n);
                         return n;
@@ -367,7 +367,7 @@ public class StaticInitializer extends ContextVisitor {
             @Override
             public Node override(Node parent, Node n) {
                 if (n instanceof Expr) {
-                    if (isGlobalInit((Expr)n))
+                    if (isGlobalInit((Expr)n) || isConstraintToLiteral(((Expr)n).type()))
                         // initialization can be done in all places -- do not visit subtree further
                         // System.out.println("isGlobalInit true in checkMethodDeclRHS: "+(Expr)n);
                         return n;
@@ -879,21 +879,27 @@ public class StaticInitializer extends ContextVisitor {
         if (f.isConstant())
             return false;
 
-        if (f.type() instanceof ConstrainedType) {
-            // check if self is bound to a constant
-            ConstrainedType ct = (ConstrainedType)(f.type());
-            if (ct.constraint().known()) {
-                CConstraint cc = ct.constraint().get();
-                XTerm selfVar = cc.selfVarBinding();
-                if (selfVar.kind() == XTermKind.LITERAL)
-                    return false;
-            }
-        }
+        if (isConstraintToLiteral(f.type()))
+            return false;
 
         Pair<Type,Name> key = new Pair<Type,Name>(f.target().type(), f.name().id());
         StaticFieldInfo fieldInfo = staticFinalFields.get(key);
         // not yet registered, or registered as replacement required
         return fieldInfo == null || fieldInfo.right != null || fieldInfo.methodDef != null;
+    }
+
+    private boolean isConstraintToLiteral(Type type) {
+        if (type instanceof ConstrainedType) {
+            // check if self is bound to a constant
+            ConstrainedType ct = (ConstrainedType)(type);
+            if (ct.constraint().known()) {
+                CConstraint cc = ct.constraint().get();
+                XTerm selfVar = cc.selfVarBinding();
+                if (selfVar != null && selfVar.kind() == XTermKind.LITERAL)
+                    return true;
+            }
+        }
+        return false;
     }
 
     static class StaticFieldInfo {

@@ -91,8 +91,8 @@ public class InitDispatcher {
 
     public static void broadcastStaticField(Object fieldValue) { //, int fieldId) {
         // dummy
-        System.out.println("broadcasting:"+fieldValue+" from place:"+x10.lang.Runtime.hereInt());
-/*
+/*        System.out.println("broadcasting:"+fieldValue+" from place:"+x10.lang.Runtime.hereInt());
+
         // serialize to bytearray
         java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
         try {
