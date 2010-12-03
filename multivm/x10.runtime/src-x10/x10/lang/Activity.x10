@@ -24,7 +24,7 @@ class Activity {
     static class ClockPhases extends HashMap[Clock,Int] {
         // compute spawnee clock phases from spawner clock phases in async clocked(clocks)
         // and register spawnee on these on clocks
-        static def make(clocks:Array[Clock]{rail}) {
+        static def make(clocks:Array[Clock](1){rail}) {
             val clockPhases = new ClockPhases();
             for(var i:Int = 0; i < clocks.size; i++) 
                 clockPhases.put(clocks(i), clocks(i).register());

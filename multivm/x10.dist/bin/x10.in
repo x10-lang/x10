@@ -81,6 +81,15 @@ java_args="-Djava.library.path=\"$externpath\" -ea -classpath \"$classpath\" ${j
 if [ -n "$mx" ]; then
    java_args="-Xmx$mx $java_args"
 fi
+
+if [ -n "$X10_NTHREADS" ]; then
+   java_args="-Dx10.INIT_THREADS=$X10_NTHREADS $java_args"
+fi
+
+if [ -n "$X10_STATIC_THREADS" ]; then
+   java_args="-Dx10.STATIC_THREADS=true $java_args"
+fi
+
 java_args="${java_args} ${defs}"
 
 command="\"$JAVA\" $java_args $config $args"
