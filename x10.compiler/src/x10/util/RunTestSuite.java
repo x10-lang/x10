@@ -19,32 +19,39 @@ import java.util.HashSet;
 import java.util.Iterator;
 
 import x10.types.X10TypeMixin;
+import x10.parser.AutoGenSentences;
 
 public class RunTestSuite {
     // I have 3 kind of markers:
-    // "// ... ERR"  - marks an error
+    // "// ... ERR"  - marks an error or warning
     // "// ... ShouldNotBeERR" - the compiler reports an error, but it shouldn't
     // ShouldBeErr - the compiler doesn't report an error, but it should
+    // We always run with -VERBOSE_CALLS.
 
-    // todo: some _MustFailCompile in the test suite cause compiler crashes
-    // todo: add support for various options, like testing with STATIC_CALLS/DYNAMIC_CALLS
-    // todo: add an option to compile only files without ERR markers, so we will proceed to codegen and check it correctness.
+    // some _MustFailCompile in the test suite cause compiler crashes
+    // files with ERR markers must end with _MustFailCompile, and these are compiled by themselves
+    // the rest of the files shouldn't have any errors, therefore we should proceed for these to code generation phase
+    // (and in the future even run the resulting code)
 
     //_MustFailCompile means the compilation should fail.
     // Inside those files we should have "//.*ERR" markers that we use to test the position of the errors is correct.
     //_MustFailTimeout means that when running the file it will have an infinite loop
     private static final String[] EXCLUDE_FILES_WITH_SUFFIX = {
-            "_DYNAMIC_CALLS.x10",
             "NonX10Constructs_MustFailCompile.x10",
-            "_MustFailCompile.x10",
+            //"_MustFailCompile.x10",
     };
     private static final String[] EXCLUDE_DIRS = {
             "WorkStealing", // Have duplicated class from the Samples directory such as ArraySumTest.x10
-            "AutoGen"
+            "AutoGen", // it takes too long to compile these files
+            "Manual",
     };
     private static final String[] EXCLUDE_FILES = {
             "NOT_WORKING","SSCA2","FT-alltoall","FT-global",
-            "FieldNamedValTest_MustFailCompile.x10", "VariableNamedValTest_MustFailCompile.x10",
+            "FieldNamedValTest_MustFailCompile.x10", "VariableNamedValTest_MustFailCompile.x10", // they have a lot of parsing errors
+            "GenericLocal4_MustFailCompile.x10", // it causes the compiler to crash
+            "TypedefNew11_MustFailCompile.x10", // it causes the compiler to crash
+            "TypedefBasic2.x10", //C:\cygwin\home\Yoav\intellij\sourceforge\x10.tests\examples\Constructs\Typedefs\TypedefBasic2.x10:37,13-31
+            "CUDA3DFD.x10", //C:\cygwin\home\Yoav\intellij\sourceforge\x10.dist\samples\CUDA\CUDA3DFD.x10:194,17-289,17
     };
     private static final String[] EXCLUDE_FILES_WITH = {
             "HeatTransfer_v0.x10",
@@ -96,9 +103,15 @@ public class RunTestSuite {
         assert args.length>0 : "The first command line argument must be an x10 filename or a comma separated list of the directories.\n"+
                     "E.g.,\n"+
                     "C:\\cygwin\\home\\Yoav\\intellij\\sourceforge\\x10.tests,C:\\cygwin\\home\\Yoav\\intellij\\sourceforge\\x10.dist\\samples,C:\\cygwin\\home\\Yoav\\intellij\\sourceforge\\x10.runtime\\src-x10";
+
         List<String> remainingArgs = new ArrayList<String>(Arrays.asList(args));
         remainingArgs.remove(0);
-        //remainingArgs.add("-STATIC_CALLS");
+
+        for (String s : args) {
+            if (s.contains("STATIC_CALLS") || s.contains("VERBOSE_CALLS"))
+                throw new RuntimeException("You should run the test suite without -VERBOSE_CALLS or -STATIC_CALLS");
+        }
+
 
         final String dirName = args[0];
         ArrayList<File> files = new ArrayList<File>(10);
@@ -115,17 +128,35 @@ public class RunTestSuite {
                 if (before==files.size()) System.out.println("Warning: Didn't find any .x10 files to compile in any subdirectory of "+dir);
             }
         }
+        ArrayList<FileSummary> summaries = new ArrayList<FileSummary>();
+        for (File f : files) {
+            FileSummary fileSummary = analyzeFile(f);
+            if (!fileSummary.shouldIgnoreFile) {
+                summaries.add(fileSummary);
+            }
+        }
+
         if (ONE_FILE_AT_A_TIME) {
-            for (File f : files) {
+            for (FileSummary f : summaries) {
                 compileFiles(Arrays.asList(f),remainingArgs);
             }
         } else {
-            compileFiles(files,remainingArgs);
+            // We need to compile _MustFailCompile and files with ERR separately (because they behave differently when compiled with other files)
+            ArrayList<FileSummary> shouldCompile = new ArrayList<FileSummary>();
+            for (FileSummary f : summaries) {
+                if (f.lines.size()>0 || f.file.getName().endsWith("_MustFailCompile.x10"))
+                    compileFiles(Arrays.asList(f),remainingArgs);
+                else
+                    shouldCompile.add(f);
+            }
+            if (shouldCompile.size()>0)
+                compileFiles(shouldCompile,remainingArgs);
         }
     }
     private static int count(String s, String sub) {
-        int index=-1, res=0;
-        while ((index=s.indexOf(sub,index+sub.length()))>=0) res++;
+        final int len = sub.length();
+        int index=-len, res=0;
+        while ((index=s.indexOf(sub,index+ len))>=0) res++;
         return res;
     }
     public static ArrayList<ErrorInfo> runCompiler(String[] newArgs) {
@@ -139,21 +170,57 @@ public class RunTestSuite {
         }
         final ArrayList<ErrorInfo> res = (ArrayList<ErrorInfo>) errQueue.getErrors();
         assert res.size()<MAX_ERR_QUEUE : "We passed the maximum number of errors!";
-        assert (res.size()!=0)==hadErrors : "The exitcode and number of errors do not match!";
+        int errCount = 0;
+        for (ErrorInfo e : res)
+            if (e.getErrorKind()!=ErrorInfo.WARNING)
+                errCount++;
+        assert (errCount!=0)==hadErrors : "The exitcode and number of errors do not match!";
         return res;
     }
-    private static void compileFiles(List<File> files, List<String> args) throws IOException {
-        // replace \ with /
-        ArrayList<String> fileNames = new ArrayList<String>(files.size());
-        for (File f : files) {
-            final BufferedReader in = new BufferedReader(new FileReader(f));
-            String firstLine = in.readLine();
-            assert firstLine!=null : f;
-            in.close();
-            if (firstLine.contains("IGNORE_FILE"))
-                continue;
-            fileNames.add(f.getAbsolutePath().replace('\\','/'));
+    static class LineSummary {
+        int lineNo;
+        int errCount;
+        // todo: add todo, ShouldNotBeERR, ShouldBeErr statistics.
+    }
+    static class FileSummary {
+        File file;
+        boolean shouldIgnoreFile;
+        boolean STATIC_CALLS = false;
+        ArrayList<String> options = new ArrayList<String>();
+        ArrayList<LineSummary> lines = new ArrayList<LineSummary>();
+    }
+    private static FileSummary analyzeFile(File file) throws IOException {
+        FileSummary res = new FileSummary();
+        res.file = file;
+        final ArrayList<String> lines = AutoGenSentences.readFile(file);
+        int lineNum = 0;
+        for (String line : lines) {
+            lineNum++;
+            boolean isERR = line.contains("ERR");
+            if (line.contains("IGNORE_FILE")) res.shouldIgnoreFile = true;
+            int optionsIndex = line.indexOf("OPTIONS:");
+            if (optionsIndex>=0) {
+                final String option = line.substring(optionsIndex + "OPTIONS:".length()).trim();
+                res.options.add(option);
+                if (option.equals("-STATIC_CALLS")) res.STATIC_CALLS = true;
+            }
+            if (isERR &&
+                    line.contains("//")) { // Console defines "static ERR:Printer"
+                LineSummary lineSummary = new LineSummary();
+                lineSummary.lineNo = lineNum;
+                lineSummary.errCount = count(line,"ERR");
+                res.lines.add(lineSummary);
+            }
         }
+        return res;
+    }
+    private static void compileFiles(List<FileSummary> summaries, List<String> args) throws IOException {
+        // replace \ with /
+        ArrayList<String> fileNames = new ArrayList<String>(summaries.size());
+        for (FileSummary f : summaries) {
+            fileNames.add(f.file.getAbsolutePath().replace('\\','/'));
+        }
+        boolean STATIC_CALLS = summaries.size()>1 ? true : summaries.get(0).STATIC_CALLS; // all the files without ERR markers are done in my batch, using STATIC_CALLS (cause they shouldn't have any errors)
         // adding the directories of the files to -sourcepath (in case they refer to other files that are not compiled, e.g., if we decide to compile the files one by one)
         HashSet<String> directories = new HashSet<String>();
         for (String f : fileNames) {
@@ -175,47 +242,35 @@ public class RunTestSuite {
         // Now running polyglot
         List<String> allArgs = new ArrayList<String>(fileNames);
         allArgs.addAll(args);
-        String[] newArgs = allArgs.toArray(new String[allArgs.size()]);
-        System.out.println("Running: "+ Arrays.toString(newArgs));
+        String[] newArgs = allArgs.toArray(new String[allArgs.size()+1]);
+        newArgs[newArgs.length-1] = STATIC_CALLS ? "-STATIC_CALLS" : "-VERBOSE_CALLS";
+        System.out.println("Running: "+ fileNames);
         ArrayList<ErrorInfo> errors = runCompiler(newArgs);
 
         // Now checking the errors reported are correct and match ERR markers
         // 1. find all ERR markers that don't have a corresponding error
-        for (File file : files) {
-            if (Report.should_report("TestSuite", 3))
-                Report.report(3, "Looking for ERR markers in file "+ file);
-            BufferedReader in = new BufferedReader(new FileReader(file));
-            int lineNum = 0;
-            boolean foundErr = false;
-            String line;
-            while ((line=in.readLine())!=null) {
-                lineNum++;
-                if (line.contains("ERR") && line.contains("//") &&
-                    !file.getName().contains("Console.x10")) { // Console defines "static ERR:Printer"
-                    foundErr = true;
-                    // try to find the matching error
-                    int expectedMatchCount = count(line,"ERR");
-                    int foundMatchCount = 0;
-                    ArrayList<ErrorInfo> errorsFound = new ArrayList<ErrorInfo>(expectedMatchCount);
-                    for (Iterator<ErrorInfo> it=errors.iterator(); it.hasNext(); ) {
-                        ErrorInfo err = it.next();
-                        final Position position = err.getPosition();
-                        if (position!=null && new File(position.file()).equals(file) && position.line()==lineNum) {
-                            // found it!
-                            errorsFound.add(err);
-                            if (Report.should_report("TestSuite", 2))
-                                Report.report(2, "Found error: "+ err);
-                            it.remove();
-                            foundMatchCount++;
-                        }
+        for (FileSummary fileSummary : summaries) {
+            File file = fileSummary.file;
+            for (LineSummary lineSummary : fileSummary.lines) {
+                // try to find the matching error
+                int expectedErrCount = lineSummary.errCount;
+                int lineNum = lineSummary.lineNo;
+                int foundErrCount = 0;
+                ArrayList<ErrorInfo> errorsFound = new ArrayList<ErrorInfo>(expectedErrCount);
+                for (Iterator<ErrorInfo> it=errors.iterator(); it.hasNext(); ) {
+                    ErrorInfo err = it.next();
+                    final Position position = err.getPosition();
+                    if (position!=null && new File(position.file()).equals(file) && position.line()==lineNum) {
+                        // found it!
+                        errorsFound.add(err);
+                        if (Report.should_report("TestSuite", 2))
+                            Report.report(2, "Found error: "+ err);
+                        it.remove();
+                        foundErrCount++;
                     }
-                    if (expectedMatchCount!=foundMatchCount)
-                        System.err.println("File "+file+" has "+expectedMatchCount+" ERR markers on line "+lineNum+", but the compiler reported "+foundMatchCount+" errors on that line! errorsFound=\n"+errorsFound);
                 }
-            }
-            in.close();
-            if (!foundErr && file.getName().endsWith("_MustFailCompile.x10")) {
-                System.err.println("File "+file+" ends in _MustFailCompile.x10 but it doesn't contain any 'ERR' markers!");
+                if (expectedErrCount!=foundErrCount)
+                    System.err.println("File "+file+" has "+expectedErrCount+" ERR markers on line "+lineNum+", but the compiler reported "+ foundErrCount+" errors on that line! errorsFound=\n"+errorsFound);
             }
         }
 

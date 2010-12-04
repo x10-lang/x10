@@ -33,11 +33,11 @@ public class Float_ConstraintDeclaredAsDouble_MustFailCompile extends x10Test {
 
 		// invalid assignment 
 		// float/*(:{self=2.0E-5F})*/ <-- float
-		var i3: float{self == 0.00002F} = 0.00002 as float; // ERR
+		var i3: float{self == 0.00002F} = 0.00002 as float; // ShouldBeErr
 
 		// invalid assignment 
 		// float/*(:{self=2.0E-5F})*/ <-- float
-		var i4: float{self == 0.00002F} = 0.00002D as float; // ERR
+		var i4: float{self == 0.00002F} = 0.00002D as float; // ShouldBeErr
 
 		// float/*(:{self=2.0E-5F})*/ <-- float
 		var i5: float{self == 0.00002F} = 0.00002F as float; // ok!

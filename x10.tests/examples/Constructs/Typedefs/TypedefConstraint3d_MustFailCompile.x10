@@ -21,8 +21,8 @@ class TypedefConstraint3d_MustFailCompile extends TypedefTest {
 
         type T(x:int){x==1} = int;
         val one:int = 1;
-        var a:T(one);
-
+        var a:T(one); // ERR
+        return true;
     }
 
     public static def main(var args: Array[String](1)): void = {

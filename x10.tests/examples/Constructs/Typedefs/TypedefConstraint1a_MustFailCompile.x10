@@ -22,11 +22,17 @@ public class TypedefConstraint1a_MustFailCompile extends TypedefTest {
     class Y extends X {def name(): String = "Y";}
     class Z extends Y {def name(): String = "Z";}
 
+    public static type A1 = Z;
+    public static type A2[T] = Z;
+    public static type A3[T] {T==Y} = Z;
+
     public def run(): boolean = {
-        
-        type A[T]{T==Y} = T;
-        a1:A[Z] = new Z();
-        check("a1.name()", a1.name(), "Z");
+        var a1:A1;
+        var a11:A1[X]; // ShouldBeErr
+        var a2:A2[X];
+        var a3:A3[Y];
+        var a4:A3[Z]; // ERR todo: better err msg: Could not find type "A3".
+        var a5:A3[X]; // ERR
 
         return result;
     }

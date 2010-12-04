@@ -23,10 +23,10 @@ public class ClosureConstraint3_MustFailCompile extends ClosureTest {
 
     public def run(): boolean = {
         
-        val f = (x:int){x==1}=>x;
+        val f = (x:int){x==1}=>x; // ShouldNotBeERR
 
         val b:int = 1;
-        f(b); // fails compilation
+        f(b); // ShouldBeErr fails compilation
 
         return result;
     }

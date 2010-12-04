@@ -25,7 +25,7 @@ public class ClosureReturnType5_MustFailCompile extends ClosureTest {
 
     public def run(){
         val foo = ():void =>
-            x();    // ERR: Cannot return value from void method or closure.  ShouldNotBeERR: Cannot return a value from closure ()null => x10.lang.Void.
+            x();    // ERR ERR : Cannot return value from void method or closure.  Cannot return a value from closure ()null => x10.lang.Void.
         return true;
     }
 

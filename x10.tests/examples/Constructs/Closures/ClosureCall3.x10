@@ -26,7 +26,7 @@ public class ClosureCall3 extends ClosureTest {
 		//	 Expression:  (val x: x10.lang.Int){}: x10.lang.Int{self==x} => { return x; }
 		//	 Type: (a1:x10.lang.Int)=> x10.lang.Int{self==x}
 		//	 Expected type: (a1:x10.lang.Int)=> x10.lang.Int{self==x}
-        val z :Int(1) = y(1);  // ShouldNotBeERR
+        val z :Int(1) = y(1);  // ERR todo: this is an error only with -STATIC_CALLS (with DYNAMIC_CALLS there is no warning!)
         return result;
     }
 

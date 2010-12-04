@@ -23,7 +23,7 @@ class Outer {
      def example() {
         doit(true, Outer.this);
         Outer.this.doit();
-        //ERROR: doit("fails");
+        //error: doit("fails");
      }
   }
 }

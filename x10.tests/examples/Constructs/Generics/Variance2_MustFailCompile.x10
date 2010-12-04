@@ -33,10 +33,12 @@ public class Variance2_MustFailCompile extends x10Test {
 
                 val gx : Get[A] = ga;
                 val x = gx.get();
-                val gy : Get[A] = gb; // covariance error
+                val gy : Get[A] = gb; // ERR: covariance error
                 val y = gy.get();
 
-                return gx == ga && gy == gb && x == a && y == b;
+                return gx == ga &&
+                    gy == gb // ERR: Operator must have operands of comparable type; the types Variance2_MustFailCompile.Get[Variance2_MustFailCompile.A] and Variance2_MustFailCompile.Get[Variance2_MustFailCompile.B] do not share any values. 
+                    && x == a && y == b;
         }
 
 	public static def main(var args: Array[String](1)): void = {

@@ -26,7 +26,8 @@ public class LCAClassAStructB_MustFailCompile extends x10Test {
 	  val x = new A();
       val y = B();
 	// should fail. LCA of A and B is Any, not Object.
-      val z:Array[Object] = [x,y];
+      val z:Array[Object] = [x,y]; // ERR
+      val z2:Array[Any] = [x,y]; 
 	  return true;
 	}
 

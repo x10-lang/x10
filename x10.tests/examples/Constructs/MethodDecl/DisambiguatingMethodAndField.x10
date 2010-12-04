@@ -31,10 +31,10 @@ class DisambiguatingMethodAndField extends x10Test {
     
     
     public def run() : boolean {
-      val t1 = ( this.a(0) == 2 ); // ShouldNotBeERR: Ambiguous call: the given procedure and closure match.
+      val t1 = ( this.a(0) == 2 );
       val t2 = ( (this.a)(0) == 1 );
       
-      val t3 = ( this.b(0) == 22 ); // ShouldNotBeERR: Ambiguous call: the given procedure and closure match.
+      val t3 = ( this.b(0) == 22 );
       val t4 = ( (this.b)(0) == 11 );
       
       chk(t1);

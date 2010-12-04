@@ -1,3 +1,4 @@
+// Yoav added: IGNORE_FILE
 /*
  *  This file is part of the X10 project (http://x10-lang.org).
  *
@@ -11,21 +12,22 @@
 
 import harness.x10Test;
 
+
+
 /**
- * @author bdlucas 10/2008
+ * Check that it is ok to initialize a field with an instance of a nested static class
+ * Yoav: it's not ok under the new initialization rules to let "this" escape as the receiver of "this. new InnerClass() "
  */
 
-class XTENLANG_16_MustFailCompile extends x10Test {
+public class InitFieldWithStaticClass extends x10Test {
 
-    public interface I[T] {
-        property rect: boolean = true; // ERR ERR [Semantic Error: Interface methods cannot have a body., Semantic Error: An abstract method cannot have a body.]
+    static class A { 
     }
-
-    public def run(): boolean {
-        return true;
-    }
+    val a = new A(); 
+  
+    public def run() =true;
 
     public static def main(Array[String](1)) {
-        new XTENLANG_16_MustFailCompile().execute();
+        new InitFieldWithStaticClass().execute();
     }
 }

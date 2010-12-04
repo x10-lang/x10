@@ -8,6 +8,40 @@ import x10.io.SerialData;
 
 // test object initialization (and more)
 
+class TestFinalField42 {
+	val q:Int;
+	def this() { // ERR		
+		finish {
+			if (true) {
+				async { 
+					q=7;
+					f(q);
+				}
+				f(q); // ERR
+			} else {
+				f(q); // ERR
+			}
+			f(q); // ERR
+		}
+		f(q); // ERR
+	}
+	private def f(i:Int):Int=i+1;
+}
+class TestFinalField43 {
+	val q:Int;
+	def this() { // ERR		
+		finish {
+			if (true) {
+				async { 
+					q=7;
+				}
+			} else {
+			}
+		}
+		f(q); // ERR
+	}
+	private def f(i:Int):Int=i+1;
+}
 class TestFinalField {
 	static val y:Int; // ERR
 	static val s:Int = 3;
@@ -2354,7 +2388,7 @@ class SuperQualifier { // see XTENLANG-1948
 	}
 }
 class TestArrayLiteralInference {	
-	var z: Array[int](1){rect, zeroBased, size==4} = [ 1, 2,3,4 ]; 
+	var z: Array[int](1){rect, zeroBased, size==4} = [ 1, 2,3,4 ];  // ShouldNotBeErr
 }
 
 class TestInstanceOperators {

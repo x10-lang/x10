@@ -74,7 +74,7 @@ public class ClockTest16a extends x10Test {
 
 			val f0 = new foo() {
 				public def apply(): void = {
-					val cx: Clock = ca(x.zero());// DYNAMIC_CHECK
+					val cx: Clock = ca(x.zero());
 					async clocked(cx) { //clock use error
 						next;
 					}
@@ -83,7 +83,7 @@ public class ClockTest16a extends x10Test {
 
 			val f1  = new foo() {
 				public def apply(): void = {
-					val cx: Clock = ca(x.one());// DYNAMIC_CHECK
+					val cx: Clock = ca(x.one());
 					async clocked(cx) { // no clock use error
 						next;
 					}

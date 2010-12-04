@@ -28,9 +28,9 @@ public class ClosureEnclosingScope6 extends ClosureTest {
         class D {
             @NonEscaping final def a() = 4;
             def sum() = (()=>(
-				ClosureEnclosingScope6.this.a // DYNAMIC_CHECK
+				ClosureEnclosingScope6.this.a
 				+
-					C.this.a()+  // DYNAMIC_CHECK
+					C.this.a()+
 					D.this.a()+a()))();
         }
     }

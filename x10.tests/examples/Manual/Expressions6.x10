@@ -18,7 +18,7 @@ import harness.x10Test;
 class DivideBy(denom:Int) {
   def doIt(numer:Int){denom != 0} = numer / denom;
   def example() {
-     //ERROR: denom might be zero: this.doIt(100);
+     //error: denom might be zero: this.doIt(100);
      (this as DivideBy{self.denom != 0}).doIt(100);
   }
 }

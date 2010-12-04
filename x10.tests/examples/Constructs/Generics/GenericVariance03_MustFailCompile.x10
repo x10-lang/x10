@@ -26,7 +26,7 @@ public class GenericVariance03_MustFailCompile extends GenericTest {
     class A[T] {}
 
     public def run() = {
-        val az:A[Z] = new A[Y](); // no
+        val az:A[Z] = new A[Y](); // ERR
         return result;
     }
 
