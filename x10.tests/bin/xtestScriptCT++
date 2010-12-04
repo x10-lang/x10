@@ -666,8 +666,8 @@ function main {
 		className=${className#\.}
 		__cat_test_name="$className"
 		local testDir=$(dirname $tc)
-		local tDir=${testDir%/$tPkg}
-		tDir=${tDir#\.\/}
+		local tDirSlash=${testDir%/$tPkg}
+		local tDir=${tDirSlash#\.\/}
 		tDir=`echo "$tDir" | sed -e 's/\//\./g'`
 		__cat_current_group="$tDir"
 		if [[ -d ${tcroot} ]]; then
@@ -694,9 +694,9 @@ function main {
 		__cat_test_x10c_classpath="${EXTRA_CLASSPATH}"
 		__cat_test_x10c_directory="$testDir"
 if [[ "$(uname -s)" == CYGWIN* ]]; then
-		comp_cmd="${X10CPP} $extra_opts $X10CPP_EXTRA_OPTS -t -v -report postcompile=1 -CHECK_INVARIANTS=true -MAIN_CLASS=$tctarget -sourcepath \"$(cygpath -am $X10_HOME/x10.tests/examples/$testDir)\" -sourcepath \"$(cygpath -am $X10_HOME/x10.tests/examples/x10lib)\" -sourcepath \"$(cygpath -am $tcroot)\" -sourcepath \"$(cygpath -am $X10_HOME/x10.dist/samples)\"  -sourcepath \"$(cygpath -am $X10_HOME/x10.dist/samples/tutorial)\" -sourcepath \"$(cygpath -am $X10_HOME/x10.dist/samples/CUDA)\" -d \"$(cygpath -am $tcroot)\" $tc $extendList \"$(cygpath -am ${X10TEST_PATH}/x10lib/harness/x10Test.x10)\""
+		comp_cmd="${X10CPP} $extra_opts $X10CPP_EXTRA_OPTS -t -v -report postcompile=1 -CHECK_INVARIANTS=true -MAIN_CLASS=$tctarget -sourcepath \"$(cygpath -am $X10_HOME/x10.tests/examples/$tDirSlash)\" -sourcepath \"$(cygpath -am $X10_HOME/x10.tests/examples/$testDir)\" -sourcepath \"$(cygpath -am $X10_HOME/x10.tests/examples/x10lib)\" -sourcepath \"$(cygpath -am $tcroot)\" -sourcepath \"$(cygpath -am $X10_HOME/x10.dist/samples)\"  -sourcepath \"$(cygpath -am $X10_HOME/x10.dist/samples/tutorial)\" -sourcepath \"$(cygpath -am $X10_HOME/x10.dist/samples/CUDA)\" -d \"$(cygpath -am $tcroot)\" $tc $extendList \"$(cygpath -am ${X10TEST_PATH}/x10lib/harness/x10Test.x10)\""
 else
-		comp_cmd="${X10CPP} $extra_opts $X10CPP_EXTRA_OPTS -t -v -report postcompile=1 -CHECK_INVARIANTS=true -MAIN_CLASS=$tctarget -sourcepath $X10_HOME/x10.tests/examples/$testDir -sourcepath $X10_HOME/x10.tests/examples/x10lib -sourcepath $tcroot -sourcepath $X10_HOME/x10.dist/samples -sourcepath $X10_HOME/x10.dist/samples/tutorial -sourcepath $X10_HOME/x10.dist/samples/CUDA -d $tcroot $tc $extendList ${X10TEST_PATH}/x10lib/harness/x10Test.x10"
+		comp_cmd="${X10CPP} $extra_opts $X10CPP_EXTRA_OPTS -t -v -report postcompile=1 -CHECK_INVARIANTS=true -MAIN_CLASS=$tctarget -sourcepath $X10_HOME/x10.tests/examples/$tDirSlash -sourcepath $X10_HOME/x10.tests/examples/$testDir -sourcepath $X10_HOME/x10.tests/examples/x10lib -sourcepath $tcroot -sourcepath $X10_HOME/x10.dist/samples -sourcepath $X10_HOME/x10.dist/samples/tutorial -sourcepath $X10_HOME/x10.dist/samples/CUDA -d $tcroot $tc $extendList ${X10TEST_PATH}/x10lib/harness/x10Test.x10"
 fi
 		tccompdat=${tcroot}/${tctarget}.comp
 		printf "\n****** $tDir $className ******\n\n" >> $tccompdat
