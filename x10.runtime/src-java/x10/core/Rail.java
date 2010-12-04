@@ -19,7 +19,7 @@ import x10.rtt.Types;
 import x10.rtt.UnresolvedType;
 import x10.rtt.RuntimeType.Variance;
 
-public final class Rail<T> extends Ref implements AnyRail<T>, Settable<Integer,T> {
+public class Rail<T> extends Ref implements AnyRail<T>, Settable<Integer,T> {
     public final int length;
     
     public final Object value;

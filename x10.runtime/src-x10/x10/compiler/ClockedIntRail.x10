@@ -11,16 +11,16 @@
  
 package x10.compiler;
 import x10.lang.Clock;
+import x10.util.concurrent.atomic.AtomicInteger;
 
 
 
-public class ClockedRail[T] extends ClockedRailBase[T] implements ClockableVar  {
+public class ClockedIntRail extends ClockedRailBase[Int] implements ClockableVar  {
 
   
-    var xRead: Rail[T]!;
-    var xWrite: Rail[T]!;
-    val op:(T,T)=>T;
-    val opInit:T;
+    var xRead: Rail[AtomicInteger]!;
+    var xWrite: Rail[AtomicInteger]!;
+    val opInit:int;
     var changed:Boolean;
     val length:int;
     
@@ -44,59 +44,55 @@ public class ClockedRail[T] extends ClockedRailBase[T] implements ClockableVar  
     
     
     val lock = new Lock();
+ 
 
 
-    public def this (length: int, c: Clock!, oper: (T,T)=>T!, opInitial:T) {
+    public def this (length: int, c: Clock!, opInitial:int) {
 	super(length);
 	this.length = length; 
     	c.addClockedVar(this); 
-    	xRead = Rail.make[T] (length, (i:int) => opInitial);
-    	xWrite = Rail.make[T] (length, (i:int) => opInitial);
-     	op = oper;
+    	xRead = Rail.make[AtomicInteger] (length, (i:int) => new AtomicInteger(opInitial));
+    	xWrite = Rail.make[AtomicInteger] (length, (i:int) => new AtomicInteger(opInitial));
      	opInit = opInitial;
      	changed = false;	
      	//xWrite = opInitial;
      }
     
-    public def this(length: int, c:Clock!, oper: (T,T)=>T, opInitial:T,  init: (int) => T)
+    public def this(length: int, c:Clock!, opInitial:int,  init: (int) => int)
      {
 	super(length);
 	this.length = length; 
     	val clk = c as Clock!; 
-    	xRead = Rail.make[T] (length, init);
-    	xWrite = Rail.make[T] (length, (i: int) => opInitial);
+    	xRead = Rail.make[AtomicInteger] (length, (i:int) => new AtomicInteger(init(i)));
+    	xWrite = Rail.make[AtomicInteger] (length, (i: int) => new AtomicInteger(opInitial));
 
         c.addClockedVar(this); 
-        op = oper; 
         opInit = opInitial;
         changed = false;
         //xWrite = opInitial; 
       }
       
-    public def getClocked(index: int):T {
-	  //Console.OUT.println("Reading" + this.xRead(index));
-    	  return xRead(index);
+    public def getClocked(index: int):int {
+	  Console.OUT.println("Reading" + (this.xRead(index) as AtomicInteger!).get());
+    	  return (xRead(index) as AtomicInteger!).get();
    }
 
 
 
-    public def setClocked(index:int, x:T) {
+    public def setClocked(index:int, x:int) {
     	changed = true;
-        lock.lock();
-        this.xWrite(index) = op(this.xWrite(index), x);
-        lock.unlock();
- 	//Console.OUT.println("Writing"); 
+        (this.xWrite(index) as AtomicInteger!).addAndGet(x);
     } 
     
-    public def setR(index: int, x:T){this.xRead(index)=x;}
+    public def setR(index: int, x:int){(this.xRead(index) as AtomicInteger!).set(x);}
     
-    public def getW(index: int){return xWrite(index);}
+    public def getW(index: int){return (xWrite(index) as AtomicInteger!).get();}
     
 
     public def move(): Void {
         if (changed)
         	this.xRead = this.xWrite;
-     	this.xWrite = Rail.make[T] (length, opInit);
+     	this.xWrite = Rail.make[AtomicInteger] (length, new AtomicInteger(opInit));
     	this.changed = false;
     }
 

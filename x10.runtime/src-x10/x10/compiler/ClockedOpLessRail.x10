@@ -11,65 +11,43 @@
  
 package x10.compiler;
 import x10.lang.Clock;
+import x10.util.concurrent.atomic.AtomicInteger;
 
 
 
-public class ClockedRail[T] extends ClockedRailBase[T] implements ClockableVar  {
+public class ClockedOpLessRail[T] extends ClockedRailBase[T] implements ClockableVar  {
 
   
     var xRead: Rail[T]!;
     var xWrite: Rail[T]!;
-    val op:(T,T)=>T;
     val opInit:T;
-    var changed:Boolean;
+    val changed:Rail[AtomicInteger]!;
     val length:int;
     
     
     
-    
-   @NativeClass("java", "java.util.concurrent.locks", "ReentrantLock")
-   @NativeClass("c++", "x10.lang", "Lock__ReentrantLock")
-    static class Lock {
-        public native def this();
 
-        public native def lock():Void;
-
-        public native def tryLock():Void;
-
-        public native def unlock():Void;
-
-        public native def getHoldCount():Int;
-    };
-    
-    
-    
-    val lock = new Lock();
-
-
-    public def this (length: int, c: Clock!, oper: (T,T)=>T!, opInitial:T) {
+    public def this (length: int, c: Clock!, opInitial:T) {
 	super(length);
 	this.length = length; 
     	c.addClockedVar(this); 
+	changed = Rail.make[AtomicInteger] (length, (i:int) => new AtomicInteger(0));
     	xRead = Rail.make[T] (length, (i:int) => opInitial);
     	xWrite = Rail.make[T] (length, (i:int) => opInitial);
-     	op = oper;
      	opInit = opInitial;
-     	changed = false;	
-     	//xWrite = opInitial;
      }
     
-    public def this(length: int, c:Clock!, oper: (T,T)=>T, opInitial:T,  init: (int) => T)
+    public def this(length: int, c:Clock!, opInitial:T, init: (int) => T)
      {
 	super(length);
 	this.length = length; 
     	val clk = c as Clock!; 
+	changed = Rail.make[AtomicInteger] (length, (i:int) => new AtomicInteger(0));
     	xRead = Rail.make[T] (length, init);
     	xWrite = Rail.make[T] (length, (i: int) => opInitial);
 
         c.addClockedVar(this); 
-        op = oper; 
         opInit = opInitial;
-        changed = false;
         //xWrite = opInitial; 
       }
       
@@ -81,11 +59,9 @@ public class ClockedRail[T] extends ClockedRailBase[T] implements ClockableVar  
 
 
     public def setClocked(index:int, x:T) {
-    	changed = true;
-        lock.lock();
-        this.xWrite(index) = op(this.xWrite(index), x);
-        lock.unlock();
- 	//Console.OUT.println("Writing"); 
+    	(changed(index) as AtomicInteger!).incrementAndGet();
+        this.xWrite(index) = x;
+ 	//Console.OUT.println("Writing" + this.xWrite(index)); 
     } 
     
     public def setR(index: int, x:T){this.xRead(index)=x;}
@@ -94,10 +70,17 @@ public class ClockedRail[T] extends ClockedRailBase[T] implements ClockableVar  
     
 
     public def move(): Void {
-        if (changed)
+	var move: boolean = true;
+	var i: int = 0;
+	for(; i < length; i++) {
+        	if ((changed(i) as AtomicInteger!).get() != 1)
+			move = false;
+    		 (changed(i) as AtomicInteger!).set(0);
+	}
+	if (move)
         	this.xRead = this.xWrite;
      	this.xWrite = Rail.make[T] (length, opInit);
-    	this.changed = false;
+	//Console.OUT.println("Moved");
     }
 
     

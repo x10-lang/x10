@@ -17,6 +17,10 @@ import x10.util.Pair;
 import x10.compiler.ClockedVar;
 import x10.compiler.ClockedAtomicInt;
 import x10.compiler.ClockedOpLessVar;
+import x10.compiler.ClockedRail;
+import x10.compiler.ClockedRailBase;
+import x10.compiler.ClockedIntRail;
+import x10.compiler.ClockedOpLessRail;
 import x10.compiler.Inline;
 
 // FIXME: should be static class in Rail
@@ -329,45 +333,47 @@ import x10.compiler.Inline;
             return r;
         }
 
-    	public static safe @Inline def makeClockedRail[T](length: Int, c:Clock, op:(T,T)=>T, opInit:T): Rail[ClockedVar[T]]!{self.length==length} 
-     	   =  Rail.make[ClockedVar[T]](length, (int) => new ClockedVar [T] (c as Clock!, op as (T,T) => T!, opInit as T!));
+    	public static safe @Inline def makeClockedRail[T](length: Int, c:Clock, op:(T,T)=>T, opInit:T): Rail[T]!{self.length==length} 
+     	  // =  Rail.make[ClockedVar[T]](length, (int) => new ClockedVar [T] (c as Clock!, op as (T,T) => T!, opInit as T!));
+     	   =  new ClockedRail[T] (length, c as Clock!, op as (T,T) => T!, opInit as T!) as Rail[T]!{self.length==length};
     	
     	
     	
     	
-    	public static safe @Inline def makeClockedRail[T](length: Int, init: (Int) => T, c:Clock, op:(T,T)=>T, opInit:T): Rail[ClockedVar[T]]!{self.length==length} 
-     	   =  Rail.make[ClockedVar[T]](length, (i:int) => new ClockedVar [T] (c as Clock!, op as (T,T) => T!, opInit as T!, init(i)));
+    	public static safe @Inline def makeClockedRail[T](length: Int, init: (Int) => T, c:Clock, op:(T,T)=>T, opInit:T): Rail[T]!{self.length==length} 
+     	   //=  Rail.make[ClockedVar[T]](length, (i:int) => new ClockedVar [T] (c as Clock!, op as (T,T) => T!, opInit as T!, init(i)));
+     	   =  new ClockedRail[T] (length, c as Clock!, op as (T,T) => T!, opInit as T!, init as (Int) => T!) as Rail[T]!{self.length==length};
 
 
-		public static safe @Inline def makeIntClockedRail[T](length: Int, c:Clock, op:(int,int)=>int, opInit:int): Rail[ClockedAtomicInt]!{self.length==length} 
-     	   =  Rail.make[ClockedAtomicInt](length, (int) => new ClockedAtomicInt (c as Clock!, op, opInit as int));
+		public static safe @Inline def makeIntClockedRail[T](length: Int, c:Clock, op:(int,int)=>int, opInit:int): Rail[Int]!{self.length==length} 
+     	   =  new ClockedIntRail[T] (length, c as Clock!, opInit) as Rail[Int]!{self.length==length};
     	
     	
     	
     	
-    	public static safe @Inline def makeIntClockedRail[T](length: Int, init: (Int) => int, c:Clock, op:(int,int)=>int, opInit:int): Rail[ClockedAtomicInt]!{self.length==length} 
-     	   =  Rail.make[ClockedAtomicInt](length, (i:int) => new ClockedAtomicInt  (c as Clock!, op, opInit, init(i)));
+    	public static safe @Inline def makeIntClockedRail[T](length: Int, init: (Int) => int, c:Clock, op:(int,int)=>int, opInit:int): Rail[Int]!{self.length==length} 
+     	   =  new ClockedIntRail[T] (length, c as Clock!, opInit, init) as Rail[Int]!{self.length==length};
 	
 
-     	public static safe @Inline def makeOpLessClockedRail[T](length: Int, c:Clock, op:(T,T)=>T, opInit:T): Rail[ClockedOpLessVar[T]]!{self.length==length} 
-     	   =  Rail.make[ClockedOpLessVar[T]](length, (int) => new ClockedOpLessVar [T] (c as Clock!, op as (T,T) => T!, opInit as T!));
+     	public static safe @Inline def makeOpLessClockedRail[T](length: Int, c:Clock, op:(T,T)=>T, opInit:T): Rail[T]!{self.length==length} 
+     	   =  new ClockedOpLessRail[T] (length, c as Clock!, opInit as T!) as Rail[T]!{self.length==length};
     	
     	
     	
     	
-    	public static safe @Inline def makeOpLessClockedRail[T](length: Int, init: (Int) => T, c:Clock, op:(T,T)=>T, opInit:T): Rail[ClockedOpLessVar[T]]!{self.length==length} 
-     	   =  Rail.make[ClockedOpLessVar[T]](length, (i:int) => new ClockedOpLessVar [T] (c as Clock!, op as (T,T) => T!, opInit as T!, init(i)));
+    	public static safe @Inline def makeOpLessClockedRail[T](length: Int, init: (Int) => T, c:Clock, op:(T,T)=>T, opInit:T): Rail[T]!{self.length==length} 
+     	   =  new ClockedOpLessRail[T] (length, c as Clock!, opInit as T!, init as (Int) => T!) as Rail[T]!{self.length==length};
 
 
 
 	   public static safe @Inline def setClocked[T](r: Rail[T]!, index: Int, value: T): void =
-	(r(index) as ClockedVar[T]!).setClocked(value);
+	(r as ClockedRailBase[T]!).setClocked(index, value);
 	   
     
     	
     	
     	 public static safe @Inline def getClocked[T](r: Rail[T]!, index: Int): T
-    	   = (r(index) as ClockedVar[T]!).getClocked();  
+    	   = (r as ClockedRailBase[T]!).getClocked(index);  
   
     	
 

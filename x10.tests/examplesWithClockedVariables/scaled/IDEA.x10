@@ -106,13 +106,13 @@ class IdeaTest {
 
 		// Generate user key randomly; eight 16-bit values in an array.
 
-		/*for ((i): Point in 0..7) {
+		for ((i): Point in 0..7) {
 			// Again, the random number function returns int. Converting
 			// to a short type preserves the bit pattern in the lower 16
 			// bits of the int and discards the rest.
 
 			userkey(i) =  rndnum.nextInt() as Short;
-		}*/
+		}
 
 		// Compute encryption and decryption subkeys.
 	
@@ -122,12 +122,13 @@ class IdeaTest {
 		// Fill plain1 with "text."
 		for (var i: int = 0; i < array_rows; i++)
 		{
-			plain1(i) =  i ;
+			plain1(i) =  i & 0xFF;
 
 			// Converting to a byte
 			// type preserves the bit pattern in the lower 8 bits of the
 			// int and discards the rest.
 		}
+		next;
 	}
 
 	/**
@@ -373,16 +374,17 @@ class IdeaTest {
 
 			// Repackage from 16-bit sub-blocks to 8-bit byte array text2.
 
-			text2(i2++) =  x1;
-			text2(i2++) =  (x1 >>> 8) ;
-			text2(i2++) =  x3 ;                // x3 and x2 are switched
-			text2(i2++) =  (x3 >>> 8) ;        // only in name.
-			text2(i2++) =  x2 ;
-			text2(i2++) =  (x2 >>> 8);
-			text2(i2++) =  x4;
-			text2(i2++) = (x4 >>> 8) ;
+			text2(i2++) =  x1 & 0xFF;
+			text2(i2++) =  (x1 >>> 8) & 0xFF ;
+			text2(i2++) =  x3  & 0xFF;                // x3 and x2 are switched
+			text2(i2++) =  (x3 >>> 8) & 0xFF ;        // only in name.
+			text2(i2++) =  x2 & 0xFF;
+			text2(i2++) =  (x2 >>> 8) & 0xFF;
+			text2(i2++) =  x4 & 0xFF;
+			text2(i2++) = (x4 >>> 8) & 0xFF ;
 		} // end async
 	  }   // End for loop.
+	 next;
 	} // end finish	
 	}   // End routine.
 
