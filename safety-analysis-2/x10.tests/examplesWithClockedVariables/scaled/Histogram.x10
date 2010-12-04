@@ -8,19 +8,21 @@ public class Histogram {
     	val start_time = System.currentTimeMillis(); 
 	val N = 64;
 	val S = 10000;
+	val B = 10;
 	val c = Clock.make();
 	val a = Rail.make[Int](N*S, (i:Int)=> i);
 	val op = Int.+;
 
-    val b = Rail.make[Int @  Clocked[Int] (c,op, 0)](S);
+    val b = Rail.make[Int @  Clocked[Int] (c,op, 0)](B);
     var i: int = 0 ;
 	finish for(i = 0; i< N; i++)  {
 			val ii = i;
 			async clocked(c)  {
 			var j: int = 0;
 			for (j = ii * S; j < (ii + 1) * S; j++) { 
-	       			val bin = a(j) % S;
-	      	   	 	b(bin) = 1;
+				val bin = a(j) % S;
+				if (bin < B)
+	      	   	 		b(bin) = 1;
 			}
 	    
 	       }

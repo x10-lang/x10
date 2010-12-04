@@ -26,11 +26,11 @@ import x10.compiler.ClockedVar;
  */
 @NativeRep("java", "x10.core.Rail<#1>", null, "new x10.rtt.ParameterizedType(x10.core.Rail._RTT, #2)")
 @NativeRep("c++", "x10aux::ref<x10::lang::Rail<#1 > >", "x10::lang::Rail<#1 >", null)
-public final class Rail[T](length: Int)
+public class Rail[T](length: Int)
     implements Settable[Int,T], Iterable[T]
 {
     // need to declare a constructor to shut up the initialization checker
-    private native def this(n: Int): Rail[T]{self.length==n};
+    public native def this(n: Int): Rail[T]{self.length==n};
 
     /**
      * Create a Rail and initialize it by evaluating the given closure at each index.

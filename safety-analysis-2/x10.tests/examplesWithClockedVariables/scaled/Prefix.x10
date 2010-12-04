@@ -24,7 +24,7 @@ public class Prefix {
         val mid = lo + ((hi-lo+1)/2);
          async clocked(c) run(lo, mid-1);
          run(mid, hi);
-         next;
+	 next;
         { //expand
             val e = a(mid-1);
            for ((p) in mid..hi)
@@ -40,8 +40,8 @@ public class Prefix {
     }
 
     public static def main(Rail[String]) {
- 
     	val start_time = System.currentTimeMillis(); 
+ 
         val s = new Prefix();
         s.run(0, N-1);
         s.print();

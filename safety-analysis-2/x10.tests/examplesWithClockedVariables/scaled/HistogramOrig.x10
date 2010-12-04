@@ -8,11 +8,12 @@ public class HistogramOrig {
     	val start_time = System.currentTimeMillis(); 
 	val N = 64;
 	val S = 10000;
+	val B = 10;
 
 	val a = Rail.make[Int](N * S, (i:Int)=> i);
 
 
-    val b = Rail.make[Int](S);
+    val b = Rail.make[Int](B);
     var i: int = 0 ;
 	finish for(i = 0; i< N; i++)  {
 			val ii = i;
@@ -20,7 +21,8 @@ public class HistogramOrig {
 			var j: int = 0;
 			for (j = ii * S; j < (ii + 1) * S; j++) { 
 	       			val bin = a(j) % S;
-	      	    		atomic b(bin)++;
+				if (bin < B)
+	      	    			atomic b(bin)++;
 			}
 	    
 	       }

@@ -560,7 +560,6 @@ public class ClockedVariableRefactor extends ContextVisitor {
 	 
 	 
 	 private Node visitApply(X10Call call) {	
-			
 				if (call.type() instanceof AnnotatedType) 	{
 					Receiver target = call.target();
 					Type type;
@@ -593,7 +592,7 @@ public class ClockedVariableRefactor extends ContextVisitor {
 }
 
 	
-	 private Node visitSettableAssign(SettableAssign sa) {	
+	 private Node visitSettableAssign(SettableAssign sa) {
 		 Type type;
 		  List<Type> typeArgs = new ArrayList<Type>();
 		
