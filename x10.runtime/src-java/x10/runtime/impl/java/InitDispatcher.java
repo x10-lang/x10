@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import x10.core.ThrowableUtilities;
-import x10.x10rt.ActiveMessage;
 
 public class InitDispatcher {
 
@@ -26,6 +25,7 @@ public class InitDispatcher {
     public static final int INITIALIZED = 2;
 
     private static List<Method> initializeMethods = new ArrayList<Method>();
+    private static List<Method> deserializeMethods = new ArrayList<Method>();
     private static int fieldId = 0;
 
     private static final String initializerPrefix = "getInitialized$";
@@ -64,7 +64,7 @@ public class InitDispatcher {
         fieldId = -1;
     }
 
-    public static int addInitializer(String className, String methodName) {
+    public static int addInitializer(String className, String fieldName) {
         if (fieldId < 0) {
             System.err.println("Adding initializer too late!");
             System.exit(-1);
@@ -72,12 +72,13 @@ public class InitDispatcher {
 
         try {
             Class<?> clazz = Class.forName(className);
-            // register initializer method (place 0) or deserializer method (all other places)
-//            String methodName = (x10.lang.Runtime.hereInt() == 0) ?
-//                    initializerPrefix+fieldName : deserializerPrefix+fieldName;
-
-            Method initlaizer = clazz.getMethod(methodName, (Class<?>[])null);
+            // register initializer and deserializer methods
+            Method initlaizer = clazz.getMethod(initializerPrefix+fieldName, (Class<?>[])null);
             initializeMethods.add(initlaizer);
+
+            Method deserializer = clazz.getMethod(deserializerPrefix+fieldName, byte[].class);
+            deserializeMethods.add(deserializer);
+
             fieldId++;
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
@@ -89,29 +90,51 @@ public class InitDispatcher {
         return fieldId;
     }
 
-    public static void broadcastStaticField(Object fieldValue) { //, int fieldId) {
-        // dummy
-/*        System.out.println("broadcasting:"+fieldValue+" from place:"+x10.lang.Runtime.hereInt());
-
+    public static void broadcastStaticField(final Object fieldValue, final int fieldId) {
+        // if (X10RT.VERBOSE) System.out.println("@MultiVM: broadcastStaticField(id="+fieldId+"):"+fieldValue);
+/*
         // serialize to bytearray
+        final byte[] buf = serialize(fieldValue).toByteArray();
+        x10.core.fun.VoidFun_0_0 body = new x10.core.fun.VoidFun_0_0() {
+            public void apply() {
+                // execute deserializer for fieldValue
+                try {
+                    deserializeMethods.get(fieldId-1).invoke(null, buf);
+                } catch (InvocationTargetException e) {
+                    e.printStackTrace();
+                    throw new java.lang.Error(e);
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                    throw new java.lang.Error(e);
+                }
+            }
+            public x10.rtt.RuntimeType<?> getRTT() {
+                return _RTT;
+            }
+            public x10.rtt.Type<?> getParam(int i) {
+                return null;
+            }
+        };
+
+        for (int place = 1; place < x10.lang.Place.getInitialized$MAX_PLACES(); place++) {
+            // call x10rt API to invoke the closure at specified place
+            Runtime.runClosureAt(place, body);
+        }
+*/
+    }
+
+    private static java.io.ByteArrayOutputStream serialize(Object object) {
         java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
         try {
             java.io.ObjectOutputStream out = new java.io.ObjectOutputStream(baos);
-            out.writeInt(fieldId);
-            out.writeObject(fieldValue);
+            out.writeObject(object);
             out.close();
         } catch (java.io.IOException e) {
             x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
             xe.printStackTrace();
             throw xe;
         }
-
-        for (int place = 1; place < x10.lang.Place.MAX_PLACES; place++) {
-            // call x10rt API to send byte array to place
-            // byte[] buf = baos.toByteArray();
-            // ActiveMessage.sendGeneralRemote(place, 0, buf.length, buf);
-        }
-*/
+        return baos;
     }
 
     public static Object deserializeField(byte[] buf) {
@@ -132,13 +155,19 @@ public class InitDispatcher {
         }
     }
 
+    public static void lockInitialized() {
+        x10.lang.Runtime.StaticInitBroadcastDispatcherLock();
+    }
+
+    public static void unlockInitialized() {
+        x10.lang.Runtime.StaticInitBroadcastDispatcherUnlock();
+    }
+
     public static void awaitInitialized() {
-        // dummy
-        // x10.lang.Runtime.StaticInitBroadcastDispatcherAwait();
+        x10.lang.Runtime.StaticInitBroadcastDispatcherAwait();
     }
 
     public static void notifyInitialized() {
-        // dummy
-        // x10.lang.Runtime.StaticInitBroadcastDispatcherNotify();
+        x10.lang.Runtime.StaticInitBroadcastDispatcherNotify();
     }
 }
