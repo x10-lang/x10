@@ -1395,7 +1395,7 @@ public class Emitter {
                     Type type = sups.get(i);
                     if (!alreadyPrinted(alreadyPrintedTypes, type)) {
                         if (alreadyPrintedTypes.size() != 0) w.write(" & ");
-                        printType(sups.get(i), 0);
+                        printType(sups.get(i), X10PrettyPrinterVisitor.BOX_PRIMITIVES);
                         alreadyPrintedTypes.add(type);
                     }
                 }
