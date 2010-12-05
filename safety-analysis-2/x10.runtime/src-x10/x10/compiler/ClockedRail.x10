@@ -43,7 +43,7 @@ public class ClockedRail[T] extends ClockedRailBase[T] implements ClockableVar  
     
     
     
-    val lock = new Lock();
+    val locks: Rail[Lock];
 
 
     public def this (length: int, c: Clock!, oper: (T,T)=>T!, opInitial:T) {
@@ -52,6 +52,7 @@ public class ClockedRail[T] extends ClockedRailBase[T] implements ClockableVar  
     	c.addClockedVar(this); 
     	xRead = Rail.make[T] (length, (i:int) => opInitial);
     	xWrite = Rail.make[T] (length, (i:int) => opInitial);
+	locks = Rail.make[Lock] (length, (i:int) => new Lock());
      	op = oper;
      	opInit = opInitial;
      	changed = false;	
@@ -65,6 +66,7 @@ public class ClockedRail[T] extends ClockedRailBase[T] implements ClockableVar  
     	val clk = c as Clock!; 
     	xRead = Rail.make[T] (length, init);
     	xWrite = Rail.make[T] (length, (i: int) => opInitial);
+	locks = Rail.make[Lock] (length, (i:int) => new Lock());
 
         c.addClockedVar(this); 
         op = oper; 
@@ -82,9 +84,9 @@ public class ClockedRail[T] extends ClockedRailBase[T] implements ClockableVar  
 
     public def setClocked(index:int, x:T) {
     	changed = true;
-        lock.lock();
+        (locks(index) as Lock!).lock();
         this.xWrite(index) = op(this.xWrite(index), x);
-        lock.unlock();
+        (locks(index) as Lock!).unlock();
  	//Console.OUT.println("Writing"); 
     } 
     
@@ -94,9 +96,14 @@ public class ClockedRail[T] extends ClockedRailBase[T] implements ClockableVar  
     
 
     public def move(): Void {
-        if (changed)
-        	this.xRead = this.xWrite;
-     	this.xWrite = Rail.make[T] (length, opInit);
+        if (changed) {
+		var i: int = 0;
+		for (i = 0; i < length; i++) {
+      	  		this.xRead(i) = this.xWrite(i);
+			this.xWrite(i) = opInit;
+		}
+
+	}
     	this.changed = false;
     }
 

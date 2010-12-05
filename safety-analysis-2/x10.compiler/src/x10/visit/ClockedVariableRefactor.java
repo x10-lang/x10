@@ -170,8 +170,8 @@ public class ClockedVariableRefactor extends ContextVisitor {
 			 isPlus = init.toString().contains("x + y");
 		 }
 		
-		 return false; // Do not use this optimization
-		 // return isInt && isPlus;
+		 //return false; // Do not use this optimization
+		  return isInt && isPlus;
 	 }
 	 
 	 private boolean isNoOp(Expr op) {
