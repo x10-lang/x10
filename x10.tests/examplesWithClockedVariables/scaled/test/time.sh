@@ -2,11 +2,11 @@ if [ $# == 1 ]
 then
  example=($1)
 else
- example=( AllReduceParallel Pipeline NQueensPar MontyPiParallel KMeansScalar Histogram MergeSort Stream Prefix UTS IDEA SOR Stencil Series RayTrace LUFact SparseMatMul)
+ example=(AllReduceParallel Pipeline NQueensPar MontyPiParallel KMeansScalar Histogram MergeSort Stream Prefix UTS IDEA SOR Stencil Series RayTrace LUFact SparseMatMul)
 fi
 echo "Sno. Application Original(ms) Determinized(ms) Speed-up"
 rm out.txt
-COUNT=10
+COUNT=5
 WORKERS=4
 for ((i = 0; i < ${#example[@]}; i++))
 do
