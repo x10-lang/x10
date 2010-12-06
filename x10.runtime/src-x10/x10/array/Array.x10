@@ -122,8 +122,8 @@ public final class Array[T](
      * @param reg The region over which to construct the array.
      */
     public def this(reg:Region) {T haszero} :Array[T]{self.region==reg, self.rank==reg.rank, 
-                                                      self.rect==reg.rect, self.zeroBased==reg.zeroBased,
-                                                      self.rail==reg.rail} {
+                                                      self.rect==reg.rect, self.zeroBased==reg.zeroBased}
+    {
         property(reg, reg.rank, reg.rect, reg.zeroBased, reg.rail, reg.size());
 
         layout = RectLayout(reg);
@@ -140,8 +140,8 @@ public final class Array[T](
      * @param init The function to use to initialize the array.
      */    
     public def this(reg:Region, init:(Point(reg.rank))=>T):Array[T]{self.region==reg, self.rank==reg.rank, 
-                                                                    self.rect==reg.rect, self.zeroBased==reg.zeroBased,
-                                                                    self.rail==reg.rail}{
+                                                                    self.rect==reg.rect, self.zeroBased==reg.zeroBased}
+    {
         property(reg, reg.rank, reg.rect, reg.zeroBased, reg.rail, reg.size());
 
         layout = RectLayout(reg);
@@ -162,8 +162,8 @@ public final class Array[T](
      * @param init The function to use to initialize the array.
      */    
     public def this(reg:Region, init:T):Array[T]{self.region==reg, self.rank==reg.rank, 
-                                                 self.rect==reg.rect, self.zeroBased==reg.zeroBased,
-                                                 self.rail==reg.rail} {
+                                                 self.rect==reg.rect, self.zeroBased==reg.zeroBased}
+    {
         property(reg, reg.rank, reg.rect, reg.zeroBased, reg.rail, reg.size());
 
         layout = RectLayout(reg);
