@@ -57,7 +57,7 @@ public final class Array[T](
     /**
      * The region of this array.
      */
-    region:Region{self != null, self.rank==this.rank},
+    region:Region{self != null, self.rank==this.rank, self.rect==this.rect, self.zeroBased==this.zeroBased},
 
     /**
      * The rank of this array.

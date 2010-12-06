@@ -1232,7 +1232,7 @@ public class X10TypeSystem_c extends TypeSystem_c {
 
     protected X10ClassType Boolean_;
 
-    public Type Boolean() {
+    public X10ClassType Boolean() {
         if (Boolean_ == null)
             Boolean_ = load("x10.lang.Boolean");
         return Boolean_;
@@ -1240,7 +1240,7 @@ public class X10TypeSystem_c extends TypeSystem_c {
 
     protected X10ClassType Byte_;
 
-    public Type Byte() {
+    public X10ClassType Byte() {
         if (Byte_ == null)
             Byte_ = load("x10.lang.Byte");
         return Byte_;
@@ -1248,7 +1248,7 @@ public class X10TypeSystem_c extends TypeSystem_c {
 
     protected X10ClassType Short_;
 
-    public Type Short() {
+    public X10ClassType Short() {
         if (Short_ == null)
             Short_ = load("x10.lang.Short");
         return Short_;
@@ -1256,7 +1256,7 @@ public class X10TypeSystem_c extends TypeSystem_c {
 
     protected X10ClassType Char_;
 
-    public Type Char() {
+    public X10ClassType Char() {
         if (Char_ == null)
             Char_ = load("x10.lang.Char");
         return Char_;
@@ -1264,7 +1264,7 @@ public class X10TypeSystem_c extends TypeSystem_c {
 
     protected X10ClassType Int_;
 
-    public Type Int() {
+    public X10ClassType Int() {
         if (Int_ == null)
             Int_ = load("x10.lang.Int");
         return Int_;
@@ -1272,7 +1272,7 @@ public class X10TypeSystem_c extends TypeSystem_c {
 
     protected X10ClassType Long_;
 
-    public Type Long() {
+    public X10ClassType Long() {
         if (Long_ == null)
             Long_ = load("x10.lang.Long");
         return Long_;
@@ -1280,7 +1280,7 @@ public class X10TypeSystem_c extends TypeSystem_c {
 
     protected X10ClassType Float_;
 
-    public Type Float() {
+    public X10ClassType Float() {
         if (Float_ == null)
             Float_ = load("x10.lang.Float");
         return Float_;
@@ -1288,7 +1288,7 @@ public class X10TypeSystem_c extends TypeSystem_c {
 
     protected X10ClassType Double_;
 
-    public Type Double() {
+    public X10ClassType Double() {
         if (Double_ == null)
             Double_ = load("x10.lang.Double");
         return Double_;
@@ -1297,7 +1297,7 @@ public class X10TypeSystem_c extends TypeSystem_c {
     // Unsigned integers
     protected X10ClassType UByte_;
 
-    public Type UByte() {
+    public X10ClassType UByte() {
         if (UByte_ == null)
             UByte_ = load("x10.lang.UByte");
         return UByte_;
@@ -1305,7 +1305,7 @@ public class X10TypeSystem_c extends TypeSystem_c {
 
     protected X10ClassType UShort_;
 
-    public Type UShort() {
+    public X10ClassType UShort() {
         if (UShort_ == null)
             UShort_ = load("x10.lang.UShort");
         return UShort_;
@@ -1313,7 +1313,7 @@ public class X10TypeSystem_c extends TypeSystem_c {
 
     protected X10ClassType UInt_;
 
-    public Type UInt() {
+    public X10ClassType UInt() {
         if (UInt_ == null)
             UInt_ = load("x10.lang.UInt");
         return UInt_;
@@ -1321,7 +1321,7 @@ public class X10TypeSystem_c extends TypeSystem_c {
 
     protected X10ClassType ULong_;
 
-    public Type ULong() {
+    public X10ClassType ULong() {
         if (ULong_ == null)
             ULong_ = load("x10.lang.ULong");
         return ULong_;
@@ -1330,7 +1330,7 @@ public class X10TypeSystem_c extends TypeSystem_c {
     // Atomic
     protected X10ClassType AtomicBoolean_;
 
-    public Type AtomicBoolean() {
+    public X10ClassType AtomicBoolean() {
         if (AtomicBoolean_ == null)
             AtomicBoolean_ = load("x10.util.concurrent.atomic.AtomicBoolean");
         return AtomicBoolean_;
@@ -1338,7 +1338,7 @@ public class X10TypeSystem_c extends TypeSystem_c {
 
     protected X10ClassType AtomicInteger_;
 
-    public Type AtomicInteger() {
+    public X10ClassType AtomicInteger() {
         if (AtomicInteger_ == null)
             AtomicInteger_ = load("x10.util.concurrent.atomic.AtomicInteger");
         return AtomicInteger_;
@@ -1346,30 +1346,30 @@ public class X10TypeSystem_c extends TypeSystem_c {
 
     protected X10ClassType nativeRail_;
 
-    public Type Rail() {
+    public X10ClassType Rail() {
         if (nativeRail_ == null)
             nativeRail_ = load("x10.lang.Rail");
         return nativeRail_;
     }
 
-    // protected ClassType XOBJECT_;
-    // public Type X10Object() {
+    // protected X10ClassType XOBJECT_;
+    // public X10ClassType X10Object() {
     // if (XOBJECT_ == null)
     // XOBJECT_ = load("x10.lang.Object");
     // return XOBJECT_;
     // }
 
-    protected Type GLOBAL_REF_;
-    public Type GlobalRef() {
+    protected X10ClassType GLOBAL_REF_;
+    public X10ClassType GlobalRef() {
         if (GLOBAL_REF_ == null)
             GLOBAL_REF_ = load("x10.lang.GlobalRef");
         return GLOBAL_REF_;
     }
 
-    public Type Object() {
+    public X10ClassType Object() {
         if (OBJECT_ == null)
             OBJECT_ = load("x10.lang.Object");
-        return OBJECT_;
+        return (X10ClassType) OBJECT_;
     }
 
     public Type Class() {
@@ -1378,8 +1378,8 @@ public class X10TypeSystem_c extends TypeSystem_c {
         return CLASS_ = load("x10.lang.Class");
     }
 
-    Type ANY_ = null;
-    public Type Any() {
+    X10ClassType ANY_ = null;
+    public X10ClassType Any() {
         if (ANY_ != null)
             return ANY_;
     	return ANY_ = load("x10.lang.Any"); // x10.util.Any.makeDef(this).asType();
@@ -1394,53 +1394,57 @@ public class X10TypeSystem_c extends TypeSystem_c {
 		});
 		return ANY;
     }
-    public Type String() {
+    public X10ClassType String() {
         if (STRING_ != null)
-            return STRING_;
-        return STRING_ = load("x10.lang.String");
+            return (X10ClassType) STRING_;
+        X10ClassType t = load("x10.lang.String");
+        STRING_ = t;
+        return t;
     }
 
-    public Type Throwable() {
+    public X10ClassType Throwable() {
         if (THROWABLE_ != null)
-            return THROWABLE_;
-        return THROWABLE_ = load("x10.lang.Throwable");
+            return (X10ClassType) THROWABLE_;
+        X10ClassType t = load("x10.lang.Throwable");
+        THROWABLE_ = t;
+        return t;
     }
 
-    public Type Error() {
+    public X10ClassType Error() {
         return load("x10.lang.Error");
     }
 
-    public Type Exception() {
+    public X10ClassType Exception() {
         return load("x10.lang.Exception");
     }
 
-    public Type RuntimeException() {
+    public X10ClassType RuntimeException() {
         return load("x10.lang.RuntimeException");
     }
 
-    public Type NullPointerException() {
+    public X10ClassType NullPointerException() {
         return load("x10.lang.NullPointerException");
     }
 
-    public Type ClassCastException() {
+    public X10ClassType ClassCastException() {
         return load("x10.lang.ClassCastException");
     }
 
-    public Type OutOfBoundsException() {
+    public X10ClassType OutOfBoundsException() {
         return load("x10.lang.ArrayIndexOutOfBoundsException");
     }
 
-    public Type ArrayStoreException() {
+    public X10ClassType ArrayStoreException() {
         return load("x10.lang.ArrayStoreException");
     }
 
-    public Type ArithmeticException() {
+    public X10ClassType ArithmeticException() {
         return load("x10.lang.ArithmeticException");
     }
 
     protected X10ClassType comparableType_;
 
-    public Type Comparable() {
+    public X10ClassType Comparable() {
         if (comparableType_ == null)
             comparableType_ = load("x10.lang.Comparable"); // java file
         return comparableType_;
@@ -1448,7 +1452,7 @@ public class X10TypeSystem_c extends TypeSystem_c {
 
     protected X10ClassType iterableType_;
 
-    public Type Iterable() {
+    public X10ClassType Iterable() {
         if (iterableType_ == null)
             iterableType_ = load("x10.lang.Iterable"); // java file
         return iterableType_;
@@ -1456,7 +1460,7 @@ public class X10TypeSystem_c extends TypeSystem_c {
 
     protected X10ClassType customSerializationType_;
 
-    public Type CustomSerialization() {
+    public X10ClassType CustomSerialization() {
         if (customSerializationType_ == null)
             customSerializationType_ = load("x10.io.CustomSerialization"); // java file
         return customSerializationType_;
@@ -1464,7 +1468,7 @@ public class X10TypeSystem_c extends TypeSystem_c {
 
     protected X10ClassType serialDataType_;
 
-    public Type SerialData() {
+    public X10ClassType SerialData() {
         if (serialDataType_ == null)
             serialDataType_ = load("x10.io.SerialData"); // java file
         return serialDataType_;
@@ -1472,36 +1476,36 @@ public class X10TypeSystem_c extends TypeSystem_c {
 
     protected X10ClassType reducibleType_;
 
-    public Type Reducible() {
+    public X10ClassType Reducible() {
         if (reducibleType_ == null)
             reducibleType_ = load("x10.lang.Reducible"); // java file
         return reducibleType_;
     }
 
     protected X10ClassType nativeRepType_;
-    public Type NativeRep() {
+    public X10ClassType NativeRep() {
     	if (nativeRepType_ == null)
     		nativeRepType_ = load("x10.compiler.NativeRep");
     	return nativeRepType_;
     }
     protected X10ClassType nativeType_;
-    public Type NativeType() {
+    public X10ClassType NativeType() {
     	if (nativeType_ == null)
     		nativeType_ = load("x10.compiler.Native");
     	return nativeType_;
     }
-    public Type Iterable(Type index) {
+    public X10ClassType Iterable(Type index) {
         return X10TypeMixin.instantiate(Iterable(), index);
     }
 
-    public Type Iterator(Type index) {
+    public X10ClassType Iterator(Type index) {
         return X10TypeMixin.instantiate(Iterator(), index);
     }
 
 
     protected X10ClassType iteratorType_;
 
-    public Type Iterator() {
+    public X10ClassType Iterator() {
         if (iteratorType_ == null)
             iteratorType_ = load("x10.lang.Iterator"); // java file
         return iteratorType_;
@@ -1509,7 +1513,7 @@ public class X10TypeSystem_c extends TypeSystem_c {
 
     protected X10ClassType containsType_;
 
-    public Type Contains() {
+    public X10ClassType Contains() {
         if (containsType_ == null)
             containsType_ = load("x10.lang.Contains"); // java file
         return containsType_;
@@ -1517,7 +1521,7 @@ public class X10TypeSystem_c extends TypeSystem_c {
 
     protected X10ClassType settableType_;
 
-    public Type Settable() {
+    public X10ClassType Settable() {
         if (settableType_ == null)
             settableType_ = load("x10.lang.Settable"); // java file
         return settableType_;
@@ -1525,7 +1529,7 @@ public class X10TypeSystem_c extends TypeSystem_c {
 
     protected X10ClassType containsAllType_;
 
-    public Type ContainsAll() {
+    public X10ClassType ContainsAll() {
         if (containsAllType_ == null)
             containsAllType_ = load("x10.lang.ContainsAll"); // java file
         return containsAllType_;
@@ -1533,7 +1537,7 @@ public class X10TypeSystem_c extends TypeSystem_c {
 
     protected X10ClassType placeType_;
 
-    public Type Place() {
+    public X10ClassType Place() {
         if (placeType_ == null)
             placeType_ = load("x10.lang.Place"); // java file
         return placeType_;
@@ -1541,15 +1545,15 @@ public class X10TypeSystem_c extends TypeSystem_c {
 
     protected X10ClassType regionType_;
 
-    public Type Region() {
+    public X10ClassType Region() {
         if (regionType_ == null)
             regionType_ = load("x10.array.Region"); // java file
         return regionType_;
     }
 
-    protected Type pointType_;
+    protected X10ClassType pointType_;
 
-    public Type Point() {
+    public X10ClassType Point() {
         if (pointType_ == null)
             pointType_ = load("x10.array.Point");
         return pointType_;
@@ -1557,7 +1561,7 @@ public class X10TypeSystem_c extends TypeSystem_c {
 
     protected X10ClassType distributionType_;
 
-    public Type Dist() {
+    public X10ClassType Dist() {
         if (distributionType_ == null)
             distributionType_ = load("x10.array.Dist"); // java file
         return distributionType_;
@@ -1565,7 +1569,7 @@ public class X10TypeSystem_c extends TypeSystem_c {
 
     protected X10ClassType clockType_;
 
-    public Type Clock() {
+    public X10ClassType Clock() {
         if (clockType_ == null)
             clockType_ = load("x10.lang.Clock"); // java file
         return clockType_;
@@ -1573,7 +1577,7 @@ public class X10TypeSystem_c extends TypeSystem_c {
 
     protected X10ClassType finishStateType_;
 
-    public Type FinishState() {
+    public X10ClassType FinishState() {
         if (finishStateType_ == null)
             finishStateType_ = load("x10.lang.FinishState"); // java file
         return finishStateType_;
@@ -1581,7 +1585,7 @@ public class X10TypeSystem_c extends TypeSystem_c {
 
     protected X10ClassType runtimeType_;
 
-    public Type Runtime() {
+    public X10ClassType Runtime() {
         if (runtimeType_ == null)
             runtimeType_ = load("x10.lang.Runtime"); // java file
         return runtimeType_;
@@ -1589,7 +1593,7 @@ public class X10TypeSystem_c extends TypeSystem_c {
 
     protected X10ClassType arrayType_ = null;
 
-    public Type Array() {
+    public X10ClassType Array() {
         if (arrayType_ == null)
             arrayType_ = load("x10.array.Array");
         return arrayType_;
@@ -1597,7 +1601,7 @@ public class X10TypeSystem_c extends TypeSystem_c {
 
     protected X10ClassType remoteArrayType_ = null;
 
-    public Type RemoteArray() {
+    public X10ClassType RemoteArray() {
         if (remoteArrayType_ == null)
             remoteArrayType_ = load("x10.array.RemoteArray");
         return remoteArrayType_;
@@ -1605,7 +1609,7 @@ public class X10TypeSystem_c extends TypeSystem_c {
 
     protected X10ClassType distArrayType_ = null;
 
-    public Type DistArray() {
+    public X10ClassType DistArray() {
         if (distArrayType_ == null)
             distArrayType_ = load("x10.array.DistArray");
         return distArrayType_;
@@ -1613,7 +1617,7 @@ public class X10TypeSystem_c extends TypeSystem_c {
 
     protected X10ClassType mortalType_ = null;
 
-    public Type Mortal() {
+    public X10ClassType Mortal() {
         if (mortalType_ == null)
             mortalType_ = load("x10.lang.Runtime.Mortal");
         return mortalType_;
@@ -1804,15 +1808,15 @@ public class X10TypeSystem_c extends TypeSystem_c {
         return false;
     }
 
-    public Type Rail(Type arg) {
+    public X10ClassType Rail(Type arg) {
         return X10TypeMixin.instantiate(Rail(), arg);
     }
 
-    public Type Array(Type arg) {
+    public X10ClassType Array(Type arg) {
         return X10TypeMixin.instantiate(Array(), arg);
     }
 
-    public Type Settable(Type domain, Type range) {
+    public X10ClassType Settable(Type domain, Type range) {
         return X10TypeMixin.instantiate(Settable(), domain, range);
     }
 
