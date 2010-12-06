@@ -172,6 +172,7 @@ import x10.types.FunctionType;
 import x10.types.ParameterType;
 import x10.types.ParameterType.Variance;
 import x10.types.constraints.SubtypeConstraint;
+import x10.types.ConstrainedType_c;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassDef_c;
 import x10.types.X10ClassType;
@@ -766,10 +767,13 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
      * Primitive structs (Short,UShort,Byte,UByte, Int, Long, ULong, UInt, Float, Double, Boolean, Char)
      * user defined structs without a constraint and without a class invariant where all fields haszero.
      */
-    private static boolean isPrimitiveStruct(X10ClassDef def) {
-        TypeSystem xts = ((X10ClassDef_c) def).typeSystem();
-        Type type = def.asType();
+    private static boolean isPrimitiveStruct(Type type, TypeSystem xts) {
         return xts.isNumeric(type) || xts.isChar(type) || xts.isBoolean(type);
+    }
+    private static boolean isPrimitiveStruct(X10ClassDef def) {
+        TypeSystem xts = def.typeSystem();
+        X10ClassType type = def.asType();
+        return isPrimitiveStruct(type, xts);
     }
     private static boolean needZeroValueConstructor(X10ClassDef def) {
         if (def.flags().isInterface()) return false;
@@ -785,6 +789,106 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         return true;
     }
 
+    private static boolean needZeroValueConstructor2(X10ClassDef def) {
+        if (!def.flags().isStruct()) return false;
+        return hasZeroValue(def.asType(), def.typeSystem());
+    }    
+    private static boolean hasZeroValue(Type type, TypeSystem xts) {
+        X10ClassType classType = (X10ClassType) type; 
+        if (classType.flags().isInterface()) return false;
+//        if (!classType.flags().isStruct()) return false;
+        // Note: we don't need zero value constructor for primitive structs because they are cached in x10.rtt.Types class.
+        if (isPrimitiveStruct(type, xts)) return false;
+        
+        // TODO
+        if (false) {
+//        if (true) {
+
+        // user-defined struct type, parameter type or reference type
+
+        // TODO stop generating useless zero value constructor for user-defined struct that does not have zero value
+        // user-defined struct does not have zero value if it have a field of type of either
+        // 1) type parameter T that does not have haszero constraint
+        // 2) any reference (i.e. non-struct) type that has {self != null} consttaint
+        // 3) any struct type (including primitive structs) that has any constraint (e.g. Int{self != 0})
+        // 4) any user-defined struct that does not have zero value
+        
+        if (type instanceof ConstrainedType_c) {
+            ConstrainedType_c constrainedType = (ConstrainedType_c) type; 
+            type = ((ConstrainedType_c) type).baseType().get();
+
+            if (xts.isParameterType(type)) {
+                // parameter type T
+                ParameterType paramType = (ParameterType) type;
+                // TODO
+//                if (T doesn't have haszero constrait) return false;
+                List<SubtypeConstraint> terms = classType.x10Def().typeBounds().get().terms();
+                for (SubtypeConstraint sc : terms) {
+                    if (sc.isHaszero()) {
+                        Type superType = sc.supertype();
+                        Type subType = sc.subtype();
+                        System.out.println(superType);
+                        System.out.println(subType);
+//                        if (superType.equals(type)) return true;
+                    }
+                }
+                return false;
+            } else if (xts.isStruct(type)) {
+                // user-defined struct type
+                return false;
+            } else {
+                // reference (i.e. non-struct) type
+                // TODO
+//                if (type has {self != null} constraint) return false;
+                x10.types.constraints.CConstraint constraint = constrainedType.constraint().get();
+                Set<x10.constraint.XTerm> terms = constraint.terms();
+                for (x10.constraint.XTerm term : terms) {
+                    System.out.println(term);
+                }
+            }
+
+        } else {
+            if (xts.isParameterType(type)) {
+                // parameter type T
+                ParameterType paramType = (ParameterType) type;
+                // TODO
+//                if (T doesn't have haszero constrait) return false;
+                List<SubtypeConstraint> terms = classType.x10Def().typeBounds().get().terms();
+                for (SubtypeConstraint sc : terms) {
+                    if (sc.isHaszero()) {
+                        Type superType = sc.supertype();
+                        Type subType = sc.subtype();
+                        System.out.println(superType);
+                        System.out.println(subType);
+//                        if (superType.equals(type)) return true;
+                    }
+                }
+                return false;
+            } else if (xts.isStruct(type)) {
+                // user-defined struct type
+                // OK
+                // check instance fields
+            } else  {
+                // reference (i.e. non-struct) type
+                // OK
+                // check instance fields
+            }
+
+            // check instance fields recursively
+            for (polyglot.types.FieldInstance field : classType.fields()) {
+                if (field.flags().isStatic()) continue;
+                if (!hasZeroValue(type, xts)) return false;
+            }
+        }
+        
+        }
+
+        return true;
+    }
+
+    
+    
+    
     public void visit(X10ClassDecl_c n) {
 	    String className = n.classDef().name().toString();
 	    X10CContext_c context = (X10CContext_c) tr.context();
@@ -799,9 +903,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	        tr.translate(sf);
 	        return;
 	    }
-		TypeSystem xts = (TypeSystem) tr.typeSystem();
+		TypeSystem xts = tr.typeSystem();
 
-		X10ClassDef def = (X10ClassDef) n.classDef();
+		X10ClassDef def = n.classDef();
 
 		// Do not generate code if the class is represented natively.
 		if (er.getJavaRep(def) != null) {
@@ -937,11 +1041,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		// XTENLANG-1102
 		er.generateRTTInstance(def);
 		
-		// TODO haszero
-		if (needZeroValueConstructor(def)) {
-		    er.generateZeroValueConstructor(def, n);
-		}
-
 		if (subtypeOfCustomSerializer(def)) {
             er.generateCustomSerializer(def, n);
         } else {
@@ -952,6 +1051,12 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 w.write("oos.defaultWriteObject(); }");
                 w.newline();
             }
+        }
+
+        // TODO haszero
+        if (needZeroValueConstructor(def)) {
+//        if (needZeroValueConstructor2(def)) {
+            er.generateZeroValueConstructor(def, n);
         }
 
 		// Generate dispatcher methods.
