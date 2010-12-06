@@ -81,7 +81,7 @@ public class SOR extends SORCore {
 
    private var size: Int;
    private val datasizes =   new Array[int](0..2, ((i):Point)=> i == 0? 64: (i==1? 1500 :2500));
-   private const JACOBI_NUM_ITER = 50;
+   private const JACOBI_NUM_ITER = 20;
    private const RANDOM_SEED  = 10101010L;
 
    val R  = new Random(RANDOM_SEED);

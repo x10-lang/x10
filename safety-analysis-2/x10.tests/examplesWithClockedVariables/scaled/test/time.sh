@@ -6,7 +6,7 @@ else
 fi
 echo "Sno. Application Original(ms) Determinized(ms) Speed-up"
 rm out.txt
-COUNT=5
+COUNT=10
 WORKERS=4
 for ((i = 0; i < ${#example[@]}; i++))
 do

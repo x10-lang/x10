@@ -75,14 +75,14 @@ public class ClockedRail[T] extends ClockedRailBase[T] implements ClockableVar  
         //xWrite = opInitial; 
       }
       
-    public def getClocked(index: int):T {
+    public  @Inline @Header def getClocked(index: int):T {
 	  //Console.OUT.println("Reading" + this.xRead(index));
     	  return xRead(index);
    }
 
 
 
-    public def setClocked(index:int, x:T) {
+    public @Inline @Header def setClocked(index:int, x:T) {
     	changed = true;
         (locks(index) as Lock!).lock();
         this.xWrite(index) = op(this.xWrite(index), x);
@@ -95,7 +95,7 @@ public class ClockedRail[T] extends ClockedRailBase[T] implements ClockableVar  
     public def getW(index: int){return xWrite(index);}
     
 
-    public def move(): Void {
+    public @Inline @Header def move(): Void {
         if (changed) {
 		var i: int = 0;
 		for (i = 0; i < length; i++) {
