@@ -190,6 +190,9 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
         runAtLocal(id, body);
     }
 
+    // TODO make it as runtime option
+    public static final boolean X10_TRACE_SER = false;
+//    public static final boolean X10_TRACE_SER = true;
     /**
      * Copy body (same place)
      */
@@ -198,7 +201,11 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
             // copy body
             java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
             new java.io.ObjectOutputStream(baos).writeObject(body);
-            body = (T) new java.io.ObjectInputStream(new java.io.ByteArrayInputStream(baos.toByteArray())).readObject();
+            byte[] ba = baos.toByteArray();
+            if (X10_TRACE_SER) {
+                System.out.println("Serializer: serialized " + ba.length + " bytes.");
+            }
+            body = (T) new java.io.ObjectInputStream(new java.io.ByteArrayInputStream(ba)).readObject();
         } catch (java.io.IOException e) {
             x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
             xe.printStackTrace();
@@ -222,7 +229,11 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
             final int ret = thread.home().id;
             thread.home(id); // update thread place
             try {
-                body = (T) new java.io.ObjectInputStream(new java.io.ByteArrayInputStream(baos.toByteArray())).readObject();
+                byte[] ba = baos.toByteArray();
+                if (X10_TRACE_SER) {
+                    System.out.println("Serializer: serialized " + ba.length + " bytes.");
+                }
+                body = (T) new java.io.ObjectInputStream(new java.io.ByteArrayInputStream(ba)).readObject();
             } finally {
                 thread.home(ret); // restore thread place
             }
