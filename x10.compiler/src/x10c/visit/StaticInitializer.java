@@ -303,7 +303,7 @@ public class StaticInitializer extends ContextVisitor {
                 if (n instanceof X10Call_c) {
                     X10Call call = (X10Call)n;
                     X10MethodInstance mi = (X10MethodInstance) call.methodInstance();
-                    if (mi.container().isClass() && mi.flags().isStatic() && !call.target().type().isNumeric()) {
+                    if (mi.container().isClass() && mi.flags().isStatic() && !mi.flags().isNative() && !call.target().type().isNumeric()) {
                         // found reference to static method
                         found.set(true);
                     }
