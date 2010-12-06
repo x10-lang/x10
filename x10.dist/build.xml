@@ -383,6 +383,7 @@
 #PATH_SEP='${path.separator}'
 #CONFIG_FILE='${config}'
 LPG_JAR='${lpg.jar}'
+MATH_JAR='${math.jar}'
 ECJ_JAR='${ecj.jar}'
 WALA_JAR='${wala.jar}'
 LPG_URL='${lpg.jar.url}'

@@ -11,35 +11,18 @@
 
 package x10.core;
 
-// XTENLANG-910
-// TODO may need to be reimplemented as JNI wrapper for native error functions
 public class MathUtils {
-    private static java.lang.reflect.Method erf;
-    static {
-        try {
-            Class<?> klass = Class.forName("org.apache.commons.math.special.Erf");
-            erf = klass.getDeclaredMethod("erf", double.class);
-        } catch (Exception e) {
-        }
-    }
     
     public static double erf(double a) {
-        if (erf == null) {
-            return ThrowableUtilities.<java.lang.Double> UnsupportedOperationException("x10.lang.Math.erf(Double):Double");
-        }
         try {
-            if (a == java.lang.Double.POSITIVE_INFINITY) return 1.0;
-            if (a == java.lang.Double.NEGATIVE_INFINITY) return -1.0;
-            return (java.lang.Double) erf.invoke(null, a);
-        } catch (java.lang.Exception e) {
+            return org.apache.commons.math.special.Erf.erf(a);
+        } catch (org.apache.commons.math.MathException e) {
             throw ThrowableUtilities.getCorrespondingX10Exception(e);
         }
     }
-
+    
     public static double erfc(double a) {
-        if (erf == null) {
-            return ThrowableUtilities.<java.lang.Double> UnsupportedOperationException("x10.lang.Math.erfc(Double):Double");
-        }
-        return 1 - erf(a);
+        return 1.0 - erf(a);
     }
+    
 }
