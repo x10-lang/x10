@@ -92,7 +92,7 @@ public class InitDispatcher {
 
     public static void broadcastStaticField(final Object fieldValue, final int fieldId) {
         // if (X10RT.VERBOSE) System.out.println("@MultiVM: broadcastStaticField(id="+fieldId+"):"+fieldValue);
-/*
+
         // serialize to bytearray
         final byte[] buf = serialize(fieldValue).toByteArray();
         x10.core.fun.VoidFun_0_0 body = new x10.core.fun.VoidFun_0_0() {
@@ -120,7 +120,7 @@ public class InitDispatcher {
             // call x10rt API to invoke the closure at specified place
             Runtime.runClosureAt(place, body);
         }
-*/
+
     }
 
     private static java.io.ByteArrayOutputStream serialize(Object object) {
