@@ -250,12 +250,13 @@ int initLink(uint32_t remotePlace)
 			#ifdef DEBUG
 				printf("X10rt.Sockets: Place %u changed hostname for place %u to %s\n", state.myPlaceId, remotePlace, link);
 			#endif
-			noDelay = true;
+//			noDelay = true;
 		}
-		else if (strcmp("localhost", link) == 0)
+// performance seems to be better when we disable nagle for everything.
+//		else if (strcmp("localhost", link) == 0)
 			noDelay = true;
-		else
-			noDelay = false;
+//		else
+//			noDelay = false;
 
 		int newFD;
 		if ((newFD = TCP::connect(link, port, 10, noDelay)) > 0)
