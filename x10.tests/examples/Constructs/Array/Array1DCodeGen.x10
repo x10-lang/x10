@@ -49,14 +49,14 @@ public class Array1DCodeGen extends x10Test {
     
     public def run(): boolean = {
 
-        val R = (0..9)*(0..9)*(0..9);
+        val R = (0..5)*(0..5)*(0..5);
         val a = DistArray.make[double](Dist.makeConstant(R, here));
         val b = DistArray.make[double](Dist.makeConstant(R, here));
 
         x10.io.Console.OUT.println("runtime type of 3dZeroBasedRect array is " + a.typeName());
 
         val result = matgen(a,b);
-        val S = (0..9)*(0..9)*(0..9);
+        val S = (0..5)*(0..5)*(0..5);
         val aa =  DistArray.make[double](Dist.makeConstant(S, here));
         val bb =  DistArray.make[double](Dist.makeConstant(S, here));
         var result1: double = matgen(aa,bb);
