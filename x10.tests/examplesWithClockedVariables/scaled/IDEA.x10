@@ -50,8 +50,9 @@ class IdeaTest {
 	// val op = Int.+;
 	val op = Math.noOp.(Int, Int);
 
-	var plain1: Rail[int @ Clocked[int](c, op, 0)]!;       // Buffer for plaintext data.
+	var plain1: Rail[int]!;       // Buffer for plaintext data.
 	var crypt1: Rail[int @ Clocked[int](c, op, 0)]!;       // Buffer for encrypted data.
+	var crypt11: Rail[int]!;       // Buffer for plaintext data.
 	var plain2: Rail[int @ Clocked[int](c,op, 0)]!;       // Buffer for decrypted data.
 
 	var userkey: Rail[int]!;     // Key for encryption/decryption.
@@ -65,7 +66,8 @@ class IdeaTest {
 		//JGFInstrumentor.startTimer("Section2:Crypt:Kernel");
 
 		cipher_idea(plain1 , crypt1, Z );     // Encrypt plain1.
-		cipher_idea(crypt1 , plain2 , DK );    // Decrypt.
+		crypt11 = Rail.make[int] (array_rows, (i:int) => crypt1(i));
+		cipher_idea(crypt11 , plain2 , DK );    // Decrypt.
 
 		// Stop the stopwatch.
 		//JGFInstrumentor.stopTimer("Section2:Crypt:Kernel");
@@ -83,7 +85,7 @@ class IdeaTest {
 	
 			val zero = (Int) => 0;
 		
-			plain1 = Rail.make[Int @ Clocked[int](c, op, 0) ](array_rows, zero);
+			plain1 = Rail.make[Int](array_rows, zero);
 			crypt1 = Rail.make[Int @ Clocked[int](c, op, 0)](array_rows, zero);
 			plain2 = Rail.make[Int @ Clocked[int](c,op,0)](array_rows, zero);
 		
@@ -128,7 +130,6 @@ class IdeaTest {
 			// type preserves the bit pattern in the lower 8 bits of the
 			// int and discards the rest.
 		}
-		next;
 	}
 
 	/**
@@ -252,7 +253,7 @@ class IdeaTest {
 	 * fit in 16 bits.
 	 */
 	 
-	private def cipher_idea(text1: Rail[Int @ Clocked[int](c,op,0)]!, text2: Rail[Int @ Clocked[int](c,op,0)]!, key: Rail[Int]!) @ ClockedM(c) {
+	private def cipher_idea(text1: Rail[Int]!, text2: Rail[Int @ Clocked[int](c,op,0)]!, key: Rail[Int]!) @ ClockedM(c) {
 		finish {
 			for ((i) in 0..(text1.length)/8 - 1) async clocked (c)  {
 			val itmp = i * 8;

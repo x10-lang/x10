@@ -72,12 +72,12 @@ public class Clock(name:String) {
     
     public def addClockedVar[T](cv: ClockedVar[T]) {
         val clockedVariables = clockedVars as HashSet[ClockableVar]!;
-    	clockedVariables.add(cv);
+    	atomic {clockedVariables.add(cv);}
     }
     
      public def addClockedVar(cv: ClockableVar) {
         val clockedVariables = clockedVars as HashSet[ClockableVar]!;
-    	clockedVariables.add(cv);
+    	atomic {clockedVariables.add(cv);}
     }
     
     

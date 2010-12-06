@@ -71,14 +71,14 @@ public class ClockedIntRail[T] extends ClockedRailBase[Int] implements Clockable
         //xWrite = opInitial; 
       }
       
-    public def getClocked(index: int):int {
+    public @Inline @Header def getClocked(index: int):int {
 	  //Console.OUT.println("Reading" + (this.xRead(index) as AtomicInteger!).get());
     	  return (xRead(index));
    }
 
 
 
-    public def setClocked(index:int, x:int) {
+    public @Inline @Header def setClocked(index:int, x:int) {
     	changed = true;
         (this.xWrite(index) as AtomicInteger!).addAndGet(x);
     } 
@@ -88,7 +88,7 @@ public class ClockedIntRail[T] extends ClockedRailBase[Int] implements Clockable
     public def getW(index: int){return (xWrite(index) as AtomicInteger!).get();}
     
 
-    public def move(): Void {
+    public @Inline @Header def move(): Void {
         if (changed) {
 		var i: int = 0;
 		for (i = 0; i < length; i++) {

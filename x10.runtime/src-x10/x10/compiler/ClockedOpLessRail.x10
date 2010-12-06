@@ -51,14 +51,14 @@ public class ClockedOpLessRail[T] extends ClockedRailBase[T] implements Clockabl
         //xWrite = opInitial; 
       }
       
-    public def getClocked(index: int):T {
+    public @Inline @Header def getClocked(index: int):T {
 	  //Console.OUT.println("Reading" + this.xRead(index));
     	  return xRead(index);
    }
 
 
 
-    public def setClocked(index:int, x:T) {
+    public @Inline @Header def setClocked(index:int, x:T) {
     	(changed(index) as AtomicInteger!).incrementAndGet();
         this.xWrite(index) = x;
  	//Console.OUT.println("Writing" + this.xWrite(index)); 
@@ -69,7 +69,7 @@ public class ClockedOpLessRail[T] extends ClockedRailBase[T] implements Clockabl
     public def getW(index: int){return xWrite(index);}
     
 
-    public def move(): Void {
+    public @Inline @Header def move(): Void {
 	var move: boolean = true;
 	var i: int = 0;
 	for(; i < length; i++) {
