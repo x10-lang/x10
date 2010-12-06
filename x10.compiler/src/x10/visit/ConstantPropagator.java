@@ -264,7 +264,7 @@ public class ConstantPropagator extends ContextVisitor {
             e = nf.BooleanLit(pos, (boolean) (Boolean) o);
         } else
         if (o instanceof String) {
-            e = nf.StringLit(pos, (String) o);
+            e = null; // strings have reference semantics
         } else
         if (o instanceof Object[]) {
             Object[] a = (Object[]) o;
