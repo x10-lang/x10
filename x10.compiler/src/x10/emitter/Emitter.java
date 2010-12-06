@@ -2920,7 +2920,6 @@ public class Emitter {
 
 	// TODO haszero
 	public void generateZeroValueConstructor(X10ClassDef def, X10ClassDecl_c n) {
-//	    System.out.println("Generating zero value constructor: " + def);
         w.write("// zero value constructor");
         w.newline();
         w.write("public " + def.name().toString() + "(");
@@ -2957,36 +2956,8 @@ public class Emitter {
             w.write("this." + type.name().toString() + " = " + type.name().toString() + "; ");
         }
         
-//        // copy the rest of default (standard) constructor to initialize properties and fields
-//        X10ConstructorDecl ctor = hasDefaultConstructor(n);
-//        // we must have default constructor to initialize properties
-////      assert ctor != null;
-//        /*
-//        if (ctor == null) {
-//            ctor = createDefaultConstructor(def, (X10NodeFactory_c) tr.nodeFactory(), n);
-//            // TODO apply FieldInitializerMover
-//        }
-//        */
-//        if (ctor != null) {
-//            // initialize properties and call field initializer
-//            Block_c body = (Block_c) ctor.body();
-//            if (body.statements().size() > 0) {
-//                if (body.statements().get(0) instanceof ConstructorCall) {
-//                    body = (Block_c) body.statements(body.statements().subList(1, body.statements().size()));
-//                }
-//                // X10PrettyPrinterVisitor.visit(Block_c body)
-//                String s = getJavaImplForStmt(body, tr.typeSystem());
-//                if (s != null) {
-//                    w.write(s);
-//                } else {
-//                    body.translate(w, tr);
-//                }
-//            }
-//        }
-        
-        TypeSystem xts = def.typeSystem();
-
         // initialize instance fields with zero value
+        TypeSystem xts = def.typeSystem();
         for (polyglot.types.FieldDef field : def.fields()) {
             if (field.flags().isStatic()) continue;
             Type type = field.type().get();
