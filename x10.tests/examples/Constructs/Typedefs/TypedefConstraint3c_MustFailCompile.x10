@@ -21,7 +21,7 @@ class TypedefConstraint3c_MustFailCompile extends TypedefTest {
 
         type T(x:int){x==1} = int;
         var one:int = 1; // fails because one: int, not int{self==1}
-        var a:T(one);
+        var a:T(one); // ERR
 
         return result;
     }

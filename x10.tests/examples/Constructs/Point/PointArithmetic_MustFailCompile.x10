@@ -38,6 +38,26 @@ public class PointArithmetic_MustFailCompile extends x10Test {
         var m: Point;
         var d: Point;
         
+        a = p + r; // ERR
+        s = p - r; // ERR
+        m = p * r; // ERR
+        d = p / r; // ERR
+        a = r + p; // ERR
+        s = r - p; // ERR
+        m = r * p; // ERR
+        d = r / p; // ERR
+        
+        return true;
+    }
+    def test() {
+        val r = [1, 2, 3, 4] as Point;
+        val p = [2, 2, 2, 2] as Point;
+
+        var a: Point;
+        var s: Point;
+        var m: Point;
+        var d: Point;
+
         a = p + r;
         s = p - r;
         m = p * r;
@@ -46,8 +66,24 @@ public class PointArithmetic_MustFailCompile extends x10Test {
         s = r - p;
         m = r * p;
         d = r / p;
-        
-        return true;
+    }
+    def test2() {
+        val r:Point = [1, 2, 3, 4] as Point;
+        val p:Point = [2, 2, 2, 2] as Point;
+
+        var a: Point;
+        var s: Point;
+        var m: Point;
+        var d: Point;
+
+        a = p + r; // ERR
+        s = p - r; // ERR
+        m = p * r; // ERR
+        d = p / r; // ERR
+        a = r + p; // ERR
+        s = r - p; // ERR
+        m = r * p; // ERR
+        d = r / p; // ERR
     }
 
     public static def main(var args: Array[String](1)): void = {

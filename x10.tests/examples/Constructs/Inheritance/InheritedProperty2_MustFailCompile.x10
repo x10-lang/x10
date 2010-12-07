@@ -25,7 +25,7 @@ public class InheritedProperty2_MustFailCompile extends x10Test {
     // fail here
     class Tester  /*(l:int)*/ implements Test {
       public def this(arg:int):Tester {  }
-      /*property*/ def l():int = 0;
+      /*property*/ def l():int = 0; // ERR: todo better err message:  l(): x10.lang.Int in InheritedProperty2_MustFailCompile.Tester cannot override l(): x10.lang.Int in InheritedProperty2_MustFailCompile.Test; attempting to assign weaker access privileges
       public def put()=0;
     }
  

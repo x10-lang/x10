@@ -40,7 +40,7 @@ public class TypedefNew10_MustFailCompile extends TypedefTest {
         type TY = A[Y];
 
         // not allowed - T has type parameter
-        val t4 = new T();
+        val t4 = new T(); // ERR ERR
 
         return result;
     }

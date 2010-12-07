@@ -282,13 +282,11 @@ public final class Math {
    @Native("c++", "x10aux::math_utils::cbrt(#1)")
    public static native def cbrt(a:Double):Double;
 
-   // See XTENLANG-910
-   @Native("java", "new java.io.Serializable() { public double apply(double a) { throw new x10.lang.UnsupportedOperationException(\"x10.lang.Math.erf(a:Double):Double\"); } }.apply(#1)")
+   @Native("java", "x10.core.MathUtils.erf(#1)")
    @Native("c++", "x10aux::math_utils::erf(#1)")
    public static native def erf(a:Double):Double;
 
-   // See XTENLANG-910
-   @Native("java", "new java.io.Serializable() { public double apply(double a) { throw new x10.lang.UnsupportedOperationException(\"x10.lang.Math.erfc(a:Double):Double\"); } }.apply(#1)")
+   @Native("java", "x10.core.MathUtils.erfc(#1)")
    @Native("c++", "x10aux::math_utils::erfc(#1)")
    public static native def erfc(a:Double):Double;
 

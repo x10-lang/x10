@@ -48,11 +48,11 @@ public class UserDefinedArray extends x10Test {
         /*
          //this top level future runs in D[1] since a[0]==v1 && v1.home()==D[1]
         var i0: int = (future((future(a.dist(0)){a(0)}).force().home())
-           { (future(a.dist(0)){a(0)}).force().v }).force(); // DYNAMIC_CHECK
+           { (future(a.dist(0)){a(0)}).force().v }).force(); 
 
         //this top level future runs in D[0] since a[1]==v2 && v2.home()==D[0]
         var i1: int = (future((future(a.dist(1)){a(1)}).force().home())
-            { (future(a.dist(1)){a(1)}).force().v }).force(); // DYNAMIC_CHECK
+            { (future(a.dist(1)){a(1)}).force().v }).force();
          */
         
         //this top level future runs in D[1] since a[0]==v1 && v1.home()==D[1]

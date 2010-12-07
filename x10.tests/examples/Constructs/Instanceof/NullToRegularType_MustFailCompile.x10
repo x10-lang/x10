@@ -20,7 +20,10 @@ public class NullToRegularType_MustFailCompile extends x10Test {
 
     // X10 forbids an instanceof test where the types are statically known to be incompatible.
     public def run(): Boolean 
-        = !(null instanceof X10DepTypeClassOneB{self!=null});
+        = !(null instanceof X10DepTypeClassOneB{self!=null}); // ERR
+
+    public def run2(): Boolean
+        = !(null instanceof X10DepTypeClassOneB);
 
     public static def main(Array[String](1)) {
         new NullToRegularType_MustFailCompile().execute();

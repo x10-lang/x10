@@ -308,7 +308,7 @@ public class InitChecker extends DataFlow
         }
         public MinMaxInitCount afterAssign() { return increment(); }
         public MinMaxInitCount afterRead() {
-            return new MinMaxInitCount(minSeq, maxSeq,minAsync,maxAsync,wasRead || maxSeq==InitCount.ZERO);
+            return new MinMaxInitCount(minSeq, maxSeq,minAsync,maxAsync,wasRead || minSeq==InitCount.ZERO);
         }
         public MinMaxInitCount afterSeqBlock(MinMaxInitCount after) {
             return new MinMaxInitCount(

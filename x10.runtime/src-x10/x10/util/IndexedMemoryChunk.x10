@@ -20,15 +20,14 @@ import x10.compiler.NativeRep;
 /**
  * A low-level abstraction of a chunk of memory that
  * contains a dense, indexed from 0 collection of 
- * values of type T.  No bounds checking or other
- * error checking is performed on read/write access to
- * this memory.<p>
+ * values of type T.<p>
  *
  * This abstraction is provide to enable other higher-level
  * abstractions (such as Array) to be implemented efficiently
  * and to allow low-level programming of memory regions at the
- * X10 level when absolutely required for performance. This class
- * is not intended for general usage, since it is inherently unsafe.<p>
+ * X10 level when absolutely required for performance. Most of the API
+ * of this class is safe, but there are some loopholes that can be 
+ * used when absolutely necessary for performance..<p>
  */
 @NativeRep("java", "x10.core.IndexedMemoryChunk<#1>", null, "new x10.rtt.ParameterizedType(x10.core.IndexedMemoryChunk._RTT, #2)")
 @NativeRep("c++", "x10::util::IndexedMemoryChunk<#1 >", "x10::util::IndexedMemoryChunk<#1 >", null)
@@ -110,6 +109,52 @@ public struct IndexedMemoryChunk[T] {
 
 
     /**
+     * Operator that allows UNSAFE access of IndexedMemoryChunk elements by index.
+     *
+     * @param i The index to retreive.
+     * @return The value at that index.
+     */
+    @Native("java", "(#0).apply$G(#1)")
+    @Native("c++", "(#0)->apply_unsafe(#1)")
+    public native def apply_unsafe(index:int):T;
+
+
+    /**
+     * Operator that allows UNSAFE access of IndexedMemoryChunk elements by index.
+     *
+     * @param i The index to retreive.
+     * @return The value at that index.
+     */
+    @Native("java", "(#0).apply$G((int)(#1))")
+    @Native("c++", "(#0)->apply_unsafe(#1)")
+    public native def apply_unsafe(index:long):T;
+
+
+    /**
+     * Operator that allows UNSAFE assignment of IndexedMemoryChunk elements by index.
+     *
+     * @param v The value to assign.
+     * @param i The index of the element to be changed.
+     * @return The new value.
+     */
+    @Native("java", "(#0).set(#1, #2)")
+    @Native("c++", "(#0)->set_unsafe(#1, #2)")
+    public native def set_unsafe(value:T, index:int):void;
+
+
+    /**
+     * Operator that allows UNSAFE assignment of IndexedMemoryChunk elements by index.
+     *
+     * @param v The value to assign.
+     * @param i The index of the element to be changed.
+     * @return The new value.
+     */
+    @Native("java", "(#0).set(#1, (int)(#2))")
+    @Native("c++", "(#0)->set_unsafe(#1, #2)")
+    public native def set_unsafe(value:T, index:long):void;
+
+
+    /**
      * Return the size of the IndexedMemoryChunk (in elements)
      *
      * @return the size of the IndexedMemoryChunk (in elements)
@@ -128,9 +173,10 @@ public struct IndexedMemoryChunk[T] {
      * registered with the dynamically enclosing finish of the activity that invoked 
      * asyncCopyTo.</p>
      *
-     * Note: No checking is performed to verify that this operation is safe;
-     * it is the responsibility of higher-level abstractions built on top of 
-     * IndexedMemoryChunk to ensure memory, type, and place safety.
+     * Note: This copy is a "raw" copy of the bytes from one indexed memory chunk
+     *       to another. If elements of type T contain references to class instances,
+     *       they will not be properly serialized.  This method is intended only for use
+     *       on non-pointer containing data structures.
      *
      * @param src the source IndexedMemoryChunk.
      * @param srcIndex the index of the first element to copy in the source.
@@ -160,9 +206,10 @@ public struct IndexedMemoryChunk[T] {
      * registered with the dynamically enclosing finish of the activity that invoked 
      * asyncCopyFrom.<p>
      *
-     * Note: No checking is performed to verify that this operation is safe;
-     * it is the responsibility of higher-level abstractions built on top of 
-     * IndexedMemoryChunk to ensure memory, type, and place safety.
+     * Note: This copy is a "raw" copy of the bytes from one indexed memory chunk
+     *       to another. If elements of type T contain references to class instances,
+     *       they will not be properly serialized.  This method is intended only for use
+     *       on non-pointer containing data structures.
      *
      * @param src the source RemoteIndexedMemoryChunk.
      * @param srcIndex the index of the first element to copy in the source.
@@ -191,10 +238,6 @@ public struct IndexedMemoryChunk[T] {
      * the copy happens asynchronously and the created remote activity will be 
      * registered with the dynamically enclosing finish of the activity that invoked 
      * asyncCopyFrom.<p>
-     *
-     * Note: No checking is performed to verify that this operation is safe;
-     * it is the responsibility of higher-level abstractions built on top of 
-     * IndexedMemoryChunk to ensure memory, type, and place safety.
      *
      * @param src the source IndexedMemoryChunk.
      * @param srcIndex the index of the first element to copy in the source.

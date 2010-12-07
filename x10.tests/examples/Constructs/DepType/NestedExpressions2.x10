@@ -12,7 +12,6 @@
 
 import harness.x10Test;
 
-//OPTIONS: -STATIC_CALLS
 
 /**
 * Checking that the type-checker can correctly handle boolean expressions as the values
@@ -28,7 +27,7 @@ public class NestedExpressions2 extends x10Test {
 		def n() {
 			val x = new C(true);
 			val y = new C(true);
-			val z: C{self.a==(y.a&&x.a)} = and(x,y); // ShouldNotBeERR
+			val z: C{self.a==(y.a&&x.a)} = and(x,y); // ERR todo: this is an error only with -STATIC_CALLS (with DYNAMIC_CALLS works)
 		}
 	}
     public def run() = true;

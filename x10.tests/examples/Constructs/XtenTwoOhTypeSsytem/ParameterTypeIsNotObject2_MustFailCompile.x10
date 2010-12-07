@@ -22,7 +22,7 @@ public class ParameterTypeIsNotObject2_MustFailCompile extends x10Test {
 		  var dummy:Object = null;
 		  public def testAssign(x:T) {
 		  // bad!!
-		    dummy = x;
+		    dummy = x; // ERR
 		  }
 		}
 	

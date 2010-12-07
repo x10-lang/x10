@@ -33,7 +33,7 @@ public class RuntimeType<T> implements Type<T> {
         this.variances = variances;
     }
 
-    public RuntimeType(Class<?>c, Type<?>[] parents) {
+    public RuntimeType(Class<?> c, Type<?>[] parents) {
         this.base = c;
         this.parents = parents;
     }
@@ -42,6 +42,18 @@ public class RuntimeType<T> implements Type<T> {
         this.base = c;
         this.variances = variances;
         this.parents = parents;
+    }
+
+    public Class<?> getJavaClass() {
+        return base;
+    }
+    
+    public Variance[] getVariances() {
+        return variances;
+    }
+    
+    public Type<?>[] getParents() {
+        return parents;
     }
     
     public String toString() {
@@ -286,10 +298,6 @@ public class RuntimeType<T> implements Type<T> {
         else {
             return false;
         }
-    }
-    
-    public Class<?> getJavaClass() {
-        return base;
     }
     
     public Object makeArray(int length) {

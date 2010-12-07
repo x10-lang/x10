@@ -18,7 +18,8 @@ import harness.x10Test;
  **/
 public class PrimitiveToPrimitiveConstrained_MustFailCompile extends x10Test {
 	 
-	public def run() = 3 instanceof int{self==4};
+	public def run() =
+	    3 instanceof int{self==4}; // ERR
 	
 	public static def main(var args: Array[String](1)): void = {
 		new PrimitiveToPrimitiveConstrained_MustFailCompile().execute();

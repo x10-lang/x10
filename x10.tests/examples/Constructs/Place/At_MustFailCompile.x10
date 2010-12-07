@@ -22,11 +22,14 @@ import harness.x10Test;
 public class At_MustFailCompile extends x10Test {
 	private val root = GlobalRef[At_MustFailCompile](this);
 	var x:int =0;
-    def m(b: GlobalRef[Any]):int {
+	def globalRefCanBeUsedOnlyWithObjects(
+	    GlobalRef[Any] // ERR
+	    ) {}
+    def m(b: GlobalRef[Object]):int {
     	
 	   return at (b) {
     	 // We dont know that this local. 
-	     root().x
+	     root().x // ERR
        }; 
     }
     

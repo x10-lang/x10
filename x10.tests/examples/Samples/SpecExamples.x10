@@ -121,7 +121,7 @@ class Crash {
 	val f : (Int) => String = (Int)=>"";
 	def f(Int) = false;
 	def test() {
-		val x = f(3); // ERR: Ambiguous call: the given procedure and closure match.	 Procedure: method Crash.f(id$2: x10.lang.Int)	 Closure: Crash.this.f(3)
+		val x = f(3); // can be disambiguated like this: (f)(3)
 	}
 }
 

@@ -25,7 +25,7 @@ public class AssignmentPrimitiveToPrimitiveConstrained_MustFailCompile extends x
 			var j: int = 0;
 			// Even if j equals zero, types are not compatible
 			// A cast would be necessary to check conversion validity
-			i = j; // ERR
+			i = j; // ShouldBeErr
 		}catch(e: Throwable) {
 			return false;
 		}

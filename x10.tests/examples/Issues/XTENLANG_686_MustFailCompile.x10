@@ -18,15 +18,14 @@ import harness.x10Test;
 class XTENLANG_686_MustFailCompile extends x10Test {
 
 	static class A(a:Int) {
-		  //def this() : A{1==this.a}{property(1);} // ok
+		  def this() : A{1==this.a}{property(1);} // ok
 		  def this(a:Int{self==this.a}) {property(a);} // ERR: Semantic Error: This or super cannot be used (implicitly or explicitly) in a constructor formal type.	 Formals: [val a: x10.lang.Int{self==FordesemiFoo#this.a}]
 		}
 	
 
 
 	public def run(): boolean {
-		//new A();
-		new A(1);
+		new A();
 		return true;
 	}
 

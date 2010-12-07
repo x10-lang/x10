@@ -12,6 +12,7 @@
     <property name="inc" location="${x10.dist.location}/include"/>
     <property name="lib" location="${x10.dist.location}/lib"/>
     <property name="jar" value="x10.jar"/>
+    <property name="math.jar" value="${lib}/commons-math-2.1.jar"/>
     <property name="bdwgc.dir" location="${basedir}/src-cpp/bdwgc"/>
     <property name="make.exe" value="make"/>
     <property name="bash.exe" value="bash"/>
@@ -30,6 +31,7 @@
         <path refid="mainproject.classpath"/>
         <path refid="x10.constraints.classpath"/>
         <path refid="x10.common.classpath"/>
+        <pathelement path="${math.jar}"/>
     </path>
     <path id="mainproject.classpath">
         <pathelement location="${build}"/>

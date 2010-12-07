@@ -161,6 +161,11 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
 	 */
 	public static final boolean STATIC_THREADS = Boolean.getBoolean("x10.STATIC_THREADS");
 
+    /**
+     * Trace serialization
+     */
+    public static final boolean TRACE_SER = Boolean.getBoolean("x10.TRACE_SER");
+
 	/**
 	 * Synchronously executes body at place(id) without copy
 	 */
@@ -196,9 +201,18 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
     public static <T> T deepCopy(T body) {
         try {
             // copy body
+            long startTime = 0L;
+            if (TRACE_SER) {
+                startTime = System.nanoTime();
+            }
             java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
             new java.io.ObjectOutputStream(baos).writeObject(body);
-            body = (T) new java.io.ObjectInputStream(new java.io.ByteArrayInputStream(baos.toByteArray())).readObject();
+            byte[] ba = baos.toByteArray();
+            if (TRACE_SER) {
+                long endTime = System.nanoTime();
+                System.out.println("Serializer: serialized " + ba.length + " bytes in " + (endTime - startTime) / 1000 + " ms.");
+            }
+            body = (T) new java.io.ObjectInputStream(new java.io.ByteArrayInputStream(ba)).readObject();
         } catch (java.io.IOException e) {
             x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
             xe.printStackTrace();
@@ -216,13 +230,22 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
     public static <T> T deepCopy(int id, T body) {
         try {
             // copy body
+            long startTime = 0L;
+            if (TRACE_SER) {
+                startTime = System.nanoTime();
+            }
             java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
             new java.io.ObjectOutputStream(baos).writeObject(body);
             final Thread thread = Thread.currentThread();
             final int ret = thread.home().id;
             thread.home(id); // update thread place
             try {
-                body = (T) new java.io.ObjectInputStream(new java.io.ByteArrayInputStream(baos.toByteArray())).readObject();
+                byte[] ba = baos.toByteArray();
+                if (TRACE_SER) {
+                    long endTime = System.nanoTime();
+                    System.out.println("Serializer: serialized " + ba.length + " bytes in " + (endTime - startTime) / 1000 + " ms.");
+                }
+                body = (T) new java.io.ObjectInputStream(new java.io.ByteArrayInputStream(ba)).readObject();
             } finally {
                 thread.home(ret); // restore thread place
             }

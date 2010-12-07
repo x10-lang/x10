@@ -29,6 +29,7 @@ import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.Return;
 import polyglot.ast.Stmt;
+import polyglot.ast.StringLit;
 import polyglot.ast.Throw;
 import polyglot.frontend.Job;
 import polyglot.types.Name;
@@ -196,7 +197,7 @@ public class ConstantPropagator extends ContextVisitor {
 
     public static boolean isConstant(Expr e) {
         
-        if (isNative(e))
+        if (isNative(e) || e instanceof StringLit)
             return false;
         
         if (e.isConstant())
@@ -263,7 +264,7 @@ public class ConstantPropagator extends ContextVisitor {
             e = nf.BooleanLit(pos, (boolean) (Boolean) o);
         } else
         if (o instanceof String) {
-            e = nf.StringLit(pos, (String) o);
+            e = null; // strings have reference semantics
         } else
         if (o instanceof Object[]) {
             Object[] a = (Object[]) o;

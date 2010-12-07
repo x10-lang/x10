@@ -22,7 +22,7 @@ public class ConInstanceHere_MustFailCompile extends x10Test {
 	def n() {
 		at (here.next()) {
 		  // This call will compile only if -strictCalls is not set.
-		  root().m(); // DYNAMIC_CHECK  ERR: Semantic Error: Method or static constructor not found for given call.	 Call: root()
+		  root().m(); // ShouldNotBeERR: should be a dynamic check: Semantic Error: Method or static constructor not found for given call.	 Call: root()
 		}
 	}
 	

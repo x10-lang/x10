@@ -18,7 +18,8 @@ import harness.x10Test;
  **/
 public class PrimitiveToNullablePrimitiveConstrained2_MustFailCompile extends x10Test {
 	 
-	public def run() = !(3 instanceof Box[Int(4)]);
+	public def run() =
+	    !(3 instanceof Box[Int(4)]); // ERR
 	
 	public static def main(var args: Array[String](1)): void = {
 		new PrimitiveToNullablePrimitiveConstrained2_MustFailCompile().execute();

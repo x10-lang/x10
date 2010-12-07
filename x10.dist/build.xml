@@ -16,6 +16,8 @@
     <property name="wala.jar.url" value="http://dist.codehaus.org/x10/dependencies/wala.jar"/>
     <property name="equinox.jar" value="org.eclipse.equinox.common_3.6.0.v20100503.jar"/>
     <property name="equinox.jar.url" value="http://dist.codehaus.org/x10/dependencies/org.eclipse.equinox.common_3.6.0.v20100503.jar"/>
+    <property name="math.jar" value="commons-math-2.1.jar"/>
+    <property name="math.jar.url" value="http://dist.codehaus.org/x10/dependencies/commons-math-2.1.jar"/>
     <property name="x10.bridge.location" location="${x10.home}/com.ibm.wala.cast.x10"/>
     <property name="bridge.jar" value="com.ibm.wala.cast.x10.jar" />
     <property name="x10.constraints.location" location="${x10.home}/x10.constraints"/>
@@ -48,6 +50,9 @@
         </condition>
         <condition property="local.equinox.jar" value="${env.LOCAL_EQUINOX_JAR}">
             <isset property="env.LOCAL_EQUINOX_JAR"/>
+        </condition>
+        <condition property="local.math.jar" value="${env.LOCAL_MATH_JAR}">
+            <isset property="env.LOCAL_MATH_JAR"/>
         </condition>
     </target>
 
@@ -133,12 +138,14 @@
         <available property="ecj.jar.present" file="${lib}/${ecj.jar}"/>
         <available property="wala.jar.present" file="${lib}/${wala.jar}"/>
         <available property="equinox.jar.present" file="${lib}/${equinox.jar}"/>
+        <available property="math.jar.present" file="${lib}/${math.jar}"/>
         <condition property="cache.up-to-date">
             <and>
                 <isset property="lpg.jar.present"/>
                 <isset property="ecj.jar.present"/>
                 <isset property="wala.jar.present"/>
                 <isset property="equinox.jar.present"/>
+                <isset property="math.jar.present"/>
             </and>
         </condition>
     </target>
@@ -196,7 +203,20 @@
         <fail message="Unable to find ${equinox.jar} at ${local.equinox.jar}" unless="equinox.jar.present"/>
     </target>
 
-    <target name="update-jar-cache" depends="init,lpg-jar,ecj-jar,wala-jar,equinox-jar"/>
+    <target name="math-jar" depends="init,math-local-jar" unless="local.math.jar">
+        <mkdir dir="${lib}"/>
+        <get usetimestamp="true" src="${math.jar.url}" dest="${lib}/${math.jar}"/>
+        <available property="math.jar.present" file="${lib}/${math.jar}"/>
+        <fail message="Unable to get ${math.jar} from ${math.jar.url}" unless="math.jar.present"/>
+    </target>
+    <target name="math-local-jar" depends="init" if="local.math.jar">
+        <mkdir dir="${lib}"/>
+        <copy file="${local.math.jar}" tofile="${lib}/${math.jar}"/>
+        <available property="math.jar.present" file="${lib}/${math.jar}"/>
+        <fail message="Unable to find ${math.jar} at ${local.math.jar}" unless="math.jar.present"/>
+    </target>
+
+    <target name="update-jar-cache" depends="init,lpg-jar,ecj-jar,wala-jar,equinox-jar,math-jar"/>
 
     <target name="prereq-jars" depends="init,check-jar-cache" unless="cache.up-to-date">
         <antcall target="update-jar-cache"/>
@@ -363,6 +383,7 @@
 #PATH_SEP='${path.separator}'
 #CONFIG_FILE='${config}'
 LPG_JAR='${lpg.jar}'
+MATH_JAR='${math.jar}'
 ECJ_JAR='${ecj.jar}'
 WALA_JAR='${wala.jar}'
 LPG_URL='${lpg.jar.url}'

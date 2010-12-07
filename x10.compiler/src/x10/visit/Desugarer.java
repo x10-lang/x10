@@ -351,10 +351,11 @@ public class Desugarer extends ContextVisitor {
         Position pos = n.position();
         MethodInstance mi = n.methodInstance();
         List<Expr> args = new ArrayList<Expr>(n.index());
+        Expr a = n.array();
         if (n.operator() == Assign.ASSIGN) {
             // FIXME: this changes the order of evaluation, (a,i,v) -> (a,v,i)!
             args.add(0, n.right());
-            return nf.Call(pos, n.array(), nf.Id(pos, mi.name()),
+            return nf.Call(pos, a, nf.Id(pos, mi.name()),
                     args).methodInstance(mi).type(mi.returnType());
         }
         Binary.Operator op = n.operator().binaryOperator();
@@ -362,13 +363,17 @@ public class Desugarer extends ContextVisitor {
         MethodInstance ami = left.methodInstance();
         List<Formal> parms = new ArrayList<Formal>();
         Name xn = Name.make("x");
-        LocalDef xDef = ts.localDef(pos, ts.Final(), Types.ref(mi.container()), xn);
+        Type aType = a.type();
+        assert (ts.isSubtype(aType, mi.container(), v.context()));
+        LocalDef xDef = ts.localDef(pos, ts.Final(), Types.ref(aType), xn);
         Formal x = nf.Formal(pos, nf.FlagsNode(pos, ts.Final()),
-                nf.CanonicalTypeNode(pos, mi.container()), nf.Id(pos, xn)).localDef(xDef);
+                nf.CanonicalTypeNode(pos, aType), nf.Id(pos, xn)).localDef(xDef);
         parms.add(x);
         List<Expr> idx1 = new ArrayList<Expr>();
         int i = 0;
-        for (Type t : ami.formalTypes()) {
+        assert (ami.formalTypes().size()==n.index().size());
+        for (Expr e : n.index()) {
+            Type t = e.type();
             Name yn = Name.make("y"+i);
             LocalDef yDef = ts.localDef(pos, ts.Final(), Types.ref(t), yn);
             Formal y = nf.Formal(pos, nf.FlagsNode(pos, ts.Final()),
@@ -379,33 +384,36 @@ public class Desugarer extends ContextVisitor {
         }
         Name zn = Name.make("z");
         Type T = mi.formalTypes().get(0);
+        Type vType = n.right().type();
         assert (ts.isSubtype(ami.returnType(), T, v.context()));
-        LocalDef zDef = ts.localDef(pos, ts.Final(), Types.ref(T), zn);
+        assert (ts.isSubtype(vType, T, v.context()));
+        LocalDef zDef = ts.localDef(pos, ts.Final(), Types.ref(vType), zn);
         Formal z = nf.Formal(pos, nf.FlagsNode(pos, ts.Final()),
-                nf.CanonicalTypeNode(pos, T), nf.Id(pos, zn)).localDef(zDef);
+                nf.CanonicalTypeNode(pos, vType), nf.Id(pos, zn)).localDef(zDef);
         parms.add(z);
         Expr val = desugarBinary((Binary) nf.Binary(pos,
                 nf.Call(pos,
-                        nf.Local(pos, nf.Id(pos, xn)).localInstance(xDef.asInstance()).type(mi.container()),
-                        nf.Id(pos, ami.name()), idx1).methodInstance(ami).type(T),
-                op, nf.Local(pos, nf.Id(pos, zn)).localInstance(zDef.asInstance()).type(T)).type(T),
+                        nf.Local(pos, nf.Id(pos, xn)).localInstance(xDef.asInstance()).type(aType),
+                        nf.Id(pos, ami.name()), idx1).methodInstance(ami).type(ami.returnType()),
+                op, nf.Local(pos, nf.Id(pos, zn)).localInstance(zDef.asInstance()).type(vType)).type(T),
                 v);
+        Type rType = val.type();
         Name rn = Name.make("r");
-        LocalDef rDef = ts.localDef(pos, ts.Final(), Types.ref(T), rn);
+        LocalDef rDef = ts.localDef(pos, ts.Final(), Types.ref(rType), rn);
         LocalDecl r = nf.LocalDecl(pos, nf.FlagsNode(pos, ts.Final()),
-                nf.CanonicalTypeNode(pos, T), nf.Id(pos, rn), val).localDef(rDef);
+                nf.CanonicalTypeNode(pos, rType), nf.Id(pos, rn), val).localDef(rDef);
         List<Expr> args1 = new ArrayList<Expr>(idx1);
-        args1.add(0, nf.Local(pos, nf.Id(pos, rn)).localInstance(rDef.asInstance()).type(T));
+        args1.add(0, nf.Local(pos, nf.Id(pos, rn)).localInstance(rDef.asInstance()).type(rType));
         Expr res = nf.Call(pos,
-                nf.Local(pos, nf.Id(pos, xn)).localInstance(xDef.asInstance()).type(mi.container()),
+                nf.Local(pos, nf.Id(pos, xn)).localInstance(xDef.asInstance()).type(aType),
                 nf.Id(pos, mi.name()), args1).methodInstance(mi).type(mi.returnType());
         Block block = nf.Block(pos, r, nf.Eval(pos, res),
-                nf.Return(pos, nf.Local(pos, nf.Id(pos, rn)).localInstance(rDef.asInstance()).type(T)));
-        Closure c = closure(pos, T, parms, block, v);
+                nf.Return(pos, nf.Local(pos, nf.Id(pos, rn)).localInstance(rDef.asInstance()).type(rType)));
+        Closure c = closure(pos, rType, parms, block, v);
         X10MethodInstance ci = c.closureDef().asType().applyMethod();
-        args.add(0, n.array());
+        args.add(0, a);
         args.add(n.right());
-        return nf.ClosureCall(pos, c, args).closureInstance(ci).type(T);
+        return nf.ClosureCall(pos, c, args).closureInstance(ci).type(rType);
     }
 
     /**

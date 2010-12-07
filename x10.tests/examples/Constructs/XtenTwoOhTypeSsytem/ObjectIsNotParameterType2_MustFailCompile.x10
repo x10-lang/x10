@@ -20,9 +20,9 @@ import harness.x10Test;
 public class ObjectIsNotParameterType2_MustFailCompile extends x10Test {
 	class GenericWrapper[T] {
 		  var dummy:Object = null;
-		  public def testAssign(x:T) {
+		  public def testAssign(var x:T) {
 		  // bad!!
-		    x=dummy;
+		    x=dummy; // ERR
 		  }
 		}
 	

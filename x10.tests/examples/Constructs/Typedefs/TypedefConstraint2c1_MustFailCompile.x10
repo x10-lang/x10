@@ -28,7 +28,7 @@ public class TypedefConstraint2c1_MustFailCompile extends TypedefTest {
     public def run(): boolean = {
         
         type C[T]{T<:Y} = FOO[T];
-        c:C[X] = new FOO[X](); // X<:Y make C[X] inconsistent
+        val c:C[X]; // ERR
         //check("c.name", c.name, "X");
 
         return result;

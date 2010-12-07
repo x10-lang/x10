@@ -825,9 +825,10 @@ public interface TypeSystem {
 
     FieldMatcher FieldMatcher(Type container, boolean contextKnowsReceiver, Name name, Context context);
     MethodMatcher MethodMatcher(Type container, Name name, List<Type> argTypes, Context context);
-    MethodMatcher MethodMatcher(Type container, Name name, List<Type> typeArgs,  List<Type> argTypes, Context context);
+    MethodMatcher MethodMatcher(Type container, Name name, List<Type> typeArgs, List<Type> argTypes, Context context);
 
     ConstructorMatcher ConstructorMatcher(Type container, List<Type> argTypes, Context context);
+    ConstructorMatcher ConstructorMatcher(Type container, List<Type> typeArgs, List<Type> argTypes, Context context);
 
     /**
      * Returns the field named 'name' defined on 'type'.
@@ -903,27 +904,26 @@ public interface TypeSystem {
      */
     List<X10ClassType> allImplementedInterfaces(X10ClassType type);
 
-    Type Place(); // needed for here, async (p) S, future (p) e, etc
-    // Type Region();
+    X10ClassType Place(); // needed for here, async (p) S, future (p) e, etc
 
-    Type Point(); // needed for destructuring assignment
+    X10ClassType Point(); // needed for destructuring assignment
 
-    Type Dist();
+    X10ClassType Dist();
 
-    Type Clock(); // needed for clocked loops
+    X10ClassType Clock(); // needed for clocked loops
 
-    Type FinishState();
+    X10ClassType FinishState();
 
-    Type Runtime(); // used by asyncCodeInstance
+    X10ClassType Runtime(); // used by asyncCodeInstance
 
     //Type Value();
 
     Type Object();
-    Type GlobalRef();
-    Type Any();
+    X10ClassType GlobalRef();
+    X10ClassType Any();
 
-    Type NativeType();
-    Type NativeRep();
+    X10ClassType NativeType();
+    X10ClassType NativeRep();
 
     XLit FALSE();
 
@@ -997,26 +997,26 @@ public interface TypeSystem {
     /**
      * Return the ClassType object for the x10.array.Array class.
      */
-    Type Array();
+    X10ClassType Array();
 
 
     /**
      * Return the ClassType object for the x10.array.DistArray class.
      */
-    Type DistArray();
+    X10ClassType DistArray();
 
     /**
      * Return the ClassType object for the x10.lang.Rail interface.
      *
      * @return
      */
-    Type Rail();
+    X10ClassType Rail();
 
 
     /**
      * Return the ClassType object for the x10.lang.Runtime.Mortal interface.
      */
-    Type Mortal();
+    X10ClassType Mortal();
 
     boolean isRail(Type t);
 
@@ -1026,19 +1026,19 @@ public interface TypeSystem {
 
     public boolean isArrayOf(Type t, Type p);
 
-    Type Rail(Type arg);
+    X10ClassType Rail(Type arg);
 
-    Type Array(Type arg);
+    X10ClassType Array(Type arg);
 
-    Type Settable();
+    X10ClassType Settable();
 
-    Type Settable(Type domain, Type range);
+    X10ClassType Settable(Type domain, Type range);
 
-    Type Iterable();
-    Type Iterable(Type index);
+    X10ClassType Iterable();
+    X10ClassType Iterable(Type index);
 
-    Type CustomSerialization();
-    Type SerialData();
+    X10ClassType CustomSerialization();
+    X10ClassType SerialData();
 
     boolean isSettable(Type me);
 
@@ -1109,16 +1109,16 @@ public interface TypeSystem {
 
     List<MacroType> findTypeDefs(Type container, Name name, ClassDef currClass) throws SemanticException;
 
-    Type UByte();
+    X10ClassType UByte();
 
-    Type UShort();
+    X10ClassType UShort();
 
-    Type UInt();
+    X10ClassType UInt();
 
-    Type ULong();
+    X10ClassType ULong();
 
     /** x10.lang.Box *
-    Type Box();
+    X10ClassType Box();
 
     Type boxOf(Ref<? extends Type> base);
 
@@ -1159,9 +1159,9 @@ public interface TypeSystem {
 
     boolean isParameterType(Type toType);
 
-    Type Region();
+    X10ClassType Region();
 
-    Type Iterator(Type formalType);
+    X10ClassType Iterator(Type formalType);
 
     boolean isUnsigned(Type r);
 
@@ -1184,20 +1184,20 @@ public interface TypeSystem {
 
     ClassType load(String name);
 
-    public boolean isRegion(Type me);
+    boolean isRegion(Type me);
 
-    public boolean isDistribution(Type me);
+    boolean isDistribution(Type me);
 
-    public boolean isDistributedArray(Type me);
+    boolean isDistributedArray(Type me);
 
-    public boolean isComparable(Type me);
+    boolean isComparable(Type me);
 
-    public boolean isIterable(Type me);
+    boolean isIterable(Type me);
 
-    public boolean isIterator(Type me);
-    public boolean isReducible(Type me);
-    public Type Reducible();
+    boolean isIterator(Type me);
+    boolean isReducible(Type me);
+    X10ClassType Reducible();
 
-    public boolean isUnknown(Type t);
-    public boolean hasUnknown(Type t);
+    boolean isUnknown(Type t);
+    boolean hasUnknown(Type t);
 }

@@ -31,7 +31,7 @@ public class DepTypeInMethodArg_MustFailCompile extends x10Test {
     public def run(): boolean = {
 	// should fail because the declared type of the variable is just Test.
 	val x: Test = new Test(1,1); 
-	return m(x); // ERR
+	return m(x); // ShouldNotBeERR
     }
     public static def main(var args: Array[String](1)): void = {
 	new DepTypeInMethodArg_MustFailCompile().execute();
