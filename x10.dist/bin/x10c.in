@@ -102,6 +102,7 @@ if [[ "$ext" = "x10c.ExtensionInfo" ]]; then
   command="\"$JAVA\" -Xmx512m $config $profile -classpath \"$classpath\" ${java_args} $MAIN -post \"$post\" -extclass $ext $extargs $args"
 else
   # C++ backend
+  [ -n "${output_path}" ] && args="$args -o ${output_path}"
   command="\"$JAVA\" -Xmx512m $config $profile -classpath \"$classpath\" ${java_args} $MAIN -extclass $ext $extargs $args"
 fi
 
