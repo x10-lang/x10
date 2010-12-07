@@ -11,9 +11,6 @@
 
 package x10.lang;
 
-import x10.compiler.Native;
-import x10.compiler.NativeRep;
-
 /**
  * An Error is a subclass of Throwable that indicates serious problems that a reasonable
  * application should not try to catch.  Most such errors are abnormal conditions.
@@ -23,7 +20,6 @@ import x10.compiler.NativeRep;
  * might be thrown during the execution of the method but not caught, since these errors
  * are abnormal conditions that should never occur.
  */
-// @NativeRep("java", "java.lang.Error", null, null)
 public class Error extends Throwable {
 
     /**

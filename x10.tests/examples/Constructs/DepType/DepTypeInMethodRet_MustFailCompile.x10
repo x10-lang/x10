@@ -18,7 +18,7 @@ import harness.x10Test;
  */
 public class DepTypeInMethodRet_MustFailCompile extends x10Test {
     
-   public def m(var t: boolean): boolean(true) = t;
+   public def m(var t: boolean): boolean(true) = t; // ERR
 	public def run()=m(false);
 	public static def main(var args: Array[String](1)): void = {
 		new DepTypeInMethodRet_MustFailCompile().execute();

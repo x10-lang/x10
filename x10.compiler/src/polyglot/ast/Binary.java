@@ -16,38 +16,68 @@ import polyglot.util.Enum;
 public interface Binary extends Expr
 {
     /** Binary expression operator. */
-    public static class Operator extends Enum {
-	private static final long serialVersionUID = 4475208101698678242L;
-	protected Precedence prec;
+    public static enum Operator {
+        GT      (">", Precedence.RELATIONAL),
+        LT      ("<", Precedence.RELATIONAL),
+        EQ      ("==", Precedence.EQUAL),
+        LE      ("<=", Precedence.RELATIONAL),
+        GE      (">=", Precedence.RELATIONAL),
+        NE      ("!=", Precedence.EQUAL),
+        COND_OR ("||", Precedence.COND_OR),
+        COND_AND("&&", Precedence.COND_AND),
+        ADD     ("+", Precedence.ADD),
+        SUB     ("-", Precedence.ADD),
+        MUL     ("*", Precedence.MUL),
+        DIV     ("/", Precedence.MUL),
+        MOD     ("%", Precedence.MUL),
+        BIT_OR  ("|", Precedence.BIT_OR),
+        BIT_AND ("&", Precedence.BIT_AND),
+        BIT_XOR ("^", Precedence.BIT_XOR),
+        SHL     ("<<", Precedence.SHIFT),
+        SHR     (">>", Precedence.SHIFT),
+        USHR    (">>>", Precedence.SHIFT);
 
-	public Operator(String name, Precedence prec) {
-	    super(name);
-	    this.prec = prec;
-	}
+	    protected final Precedence prec;
+        public final String name;
 
-	/** Returns the precedence of the operator. */
-	public Precedence precedence() { return prec; }
+        Operator(String name, Precedence prec) {
+            this.name = name;
+            this.prec = prec;
+        }
+
+        /** Returns the precedence of the operator. */
+        public Precedence precedence() { return prec; }
+
+        @Override public String toString() {
+            return name;
+        }
+        public static Operator fromOp(String opName) {
+            for (Operator op : values())
+                if (op.name.equals(opName)) return op;
+            return null;
+        }
     }
 
-    public static final Operator GT       = new Operator(">", Precedence.RELATIONAL);
-    public static final Operator LT       = new Operator("<", Precedence.RELATIONAL);
-    public static final Operator EQ       = new Operator("==", Precedence.EQUAL);
-    public static final Operator LE       = new Operator("<=", Precedence.RELATIONAL);
-    public static final Operator GE       = new Operator(">=", Precedence.RELATIONAL);
-    public static final Operator NE       = new Operator("!=", Precedence.EQUAL);
-    public static final Operator COND_OR  = new Operator("||", Precedence.COND_OR);
-    public static final Operator COND_AND = new Operator("&&", Precedence.COND_AND);
-    public static final Operator ADD      = new Operator("+", Precedence.ADD);
-    public static final Operator SUB      = new Operator("-", Precedence.ADD);
-    public static final Operator MUL      = new Operator("*", Precedence.MUL);
-    public static final Operator DIV      = new Operator("/", Precedence.MUL);
-    public static final Operator MOD      = new Operator("%", Precedence.MUL);
-    public static final Operator BIT_OR   = new Operator("|", Precedence.BIT_OR);
-    public static final Operator BIT_AND  = new Operator("&", Precedence.BIT_AND);
-    public static final Operator BIT_XOR  = new Operator("^", Precedence.BIT_XOR);
-    public static final Operator SHL      = new Operator("<<", Precedence.SHIFT);
-    public static final Operator SHR      = new Operator(">>", Precedence.SHIFT);
-    public static final Operator USHR     = new Operator(">>>", Precedence.SHIFT);
+    public static final Operator GT = Operator.GT;
+    public static final Operator LT = Operator.LT;
+    public static final Operator EQ = Operator.EQ;
+    public static final Operator LE = Operator.LE;
+    public static final Operator GE = Operator.GE;
+    public static final Operator NE = Operator.NE;
+    public static final Operator COND_OR = Operator.COND_OR;
+    public static final Operator COND_AND = Operator.COND_AND;
+    public static final Operator ADD = Operator.ADD;
+    public static final Operator SUB = Operator.SUB;
+    public static final Operator MUL = Operator.MUL;
+    public static final Operator DIV = Operator.DIV;
+    public static final Operator MOD = Operator.MOD;
+    public static final Operator BIT_OR = Operator.BIT_OR;
+    public static final Operator BIT_AND = Operator.BIT_AND;
+    public static final Operator BIT_XOR = Operator.BIT_XOR;
+    public static final Operator SHL = Operator.SHL;
+    public static final Operator SHR = Operator.SHR;
+    public static final Operator USHR = Operator.USHR; 
+
 
     /**
      * Left child of the binary.

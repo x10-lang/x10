@@ -35,7 +35,7 @@ import harness.x10Test;
 	 }
 	 public def run(): boolean = { 
 		 var a: A = new A(2,2);
-		 var x: A{i==3} = a;
+		 var x: A{i==3} = a; // ERR
 		 return true;
 	 }
     

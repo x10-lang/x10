@@ -29,9 +29,9 @@ import polyglot.visit.CFGBuilder;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
-import x10.types.X10Context;
+import polyglot.types.Context;
 import x10.types.X10NamedType;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 
 /**
  * @author Philippe Charles
@@ -82,19 +82,12 @@ implements Atomic {
 	}
 	
 	/** Type check the statement. */
-	public Node typeCheck(ContextVisitor tc) throws SemanticException {		
-		/*
-		 if (! ts.isSubtype(expr.type(), ts.Object()) ) {
-		 throw new SemanticException(
-		 "Cannot synchronize on an expression of type \"" +
-		 expr.type() + "\".", expr.position());
-		 }
-		 */
+	public Node typeCheck(ContextVisitor tc) {		
 		return this;
 	}
 	
 	public Context enterScope(Context c) {
-		X10Context cc = (X10Context) super.enterScope(c);
+		Context cc = (Context) super.enterScope(c);
 		 cc = cc.pushAtomicBlock();
 		return cc;
 		    

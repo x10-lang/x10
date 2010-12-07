@@ -27,4 +27,7 @@ public interface AtStmt extends CompoundStmt, RemoteActivityInvocation {
 
     /** Get the body of the Async. */
     Stmt body();
+
+    /** Is the target place the place of the lexically enclosing finish (if any) */
+    boolean isFinishPlace();
 }

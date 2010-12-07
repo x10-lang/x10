@@ -325,7 +325,13 @@ public class TypeBuilder extends NodeVisitor
                 "Can only push an anonymous class within code.");
         }
 
-	TypeSystem ts = typeSystem();
+        ClassDef ct = createAnonClass(pos);
+
+        return pushClass(ct);
+    }
+
+    protected ClassDef createAnonClass(Position pos) {
+        TypeSystem ts = typeSystem();
 
         ClassDef ct = ts.createClassDef(this.job().source());
         ct.kind(ClassDef.ANONYMOUS);
@@ -337,13 +343,12 @@ public class TypeBuilder extends NodeVisitor
             ct.setPackage(Types.<Package>ref(currentPackage()));
         }
         
-//        ct.superType(ts.unknownType(pos));
+//        ct.superType(Types.ref(ts.unknownType(pos)));
 
-        return pushClass(ct);
+        return ct;
     }
 
     public TypeBuilder pushClass(Position pos, Flags flags, Name name) {
-
         ClassDef t = newClass(pos, flags, name);
         return pushClass(t);
     }

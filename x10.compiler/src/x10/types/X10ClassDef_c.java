@@ -19,6 +19,8 @@ import java.util.List;
 import polyglot.frontend.Source;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassDef_c;
+import polyglot.types.ConstructorDef;
+import polyglot.types.Context;
 import polyglot.types.FieldDef;
 import polyglot.types.Flags;
 import polyglot.types.LazyRef_c;
@@ -51,27 +53,29 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
     private static final long serialVersionUID = -4644427081636650171L;
 
     protected List<ParameterType.Variance> variances;
-    XVar thisVar;
     
     public X10ClassDef_c(TypeSystem ts, Source fromSource) {
         super(ts, fromSource);
         this.variances = new ArrayList<ParameterType.Variance>();
         this.typeParameters = new ArrayList<ParameterType>();
         this.typeMembers = new ArrayList<TypeDef>();
-        this.thisVar = null;
+        this.thisDef = null;
     }
     
     public XVar thisVar() {
-        if (thisVar == null) {
-            String fullNameWithThis = fullName() + "#this";
-            XName thisName = new XNameWrapper<Object>(new Object(), fullNameWithThis);
-            thisVar = XTerms.makeLocal(thisName);
-        }
-        return this.thisVar;
+        if (this.thisDef != null)
+            return this.thisDef.thisVar();
+        return XTerms.makeEQV("#this");
     }
 
-    public void setThisVar(XVar thisVar) {
-        this.thisVar = thisVar;
+    ThisDef thisDef;
+
+    public ThisDef thisDef() {
+        return this.thisDef;
+    }
+
+    public void setThisDef(ThisDef thisDef) {
+        this.thisDef = thisDef;
     }
 
     // BEGIN ANNOTATION MIXIN
@@ -130,7 +134,7 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
     // Cached realClause of the root type.
     Ref<CConstraint> rootClause;
 
-    protected Ref<CConstraint> classInvariant;
+    protected Ref<CConstraint> classInvariant; // todo: this doesn't include X10ClassDecl_c.classInvariant, and the code in X10ClassDecl_c.postBuildTypes  and X10ClassDef_c.getRootClause() looks redundant (and ignores classInvariant)
 
     public void setClassInvariant(Ref<CConstraint> c) {
         this.classInvariant = c;
@@ -167,7 +171,7 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
 		    try {
 			    List<X10FieldDef> properties = properties();
 			    
-			    X10TypeSystem xts = (X10TypeSystem) ts;
+			    TypeSystem xts = (TypeSystem) ts;
 
 			    CConstraint result = new CConstraint();
 			    
@@ -309,9 +313,16 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
     public List<ParameterType.Variance> variances() {
 	return Collections.unmodifiableList(variances);
     }
+    public ParameterType.Variance getVariance(ParameterType t) {
+        int index = typeParameters.indexOf(t);
+        assert index!=-1 : "Param "+t+" not found in "+typeParameters;
+        return variances.get(index);
+    }
     
     public void addTypeParameter(ParameterType p, ParameterType.Variance v) {
+	typeParameters = new ArrayList<ParameterType>(typeParameters);
 	typeParameters.add(p);
+	variances = new ArrayList<ParameterType.Variance>(variances);
 	variances.add(v);
     }
 
@@ -375,9 +386,26 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
      * In the current X10 implementation closure types are final anonymous classes.
      */
     @Override
-    public Flags flags() {
+    public X10Flags flags() {
        if (kind() == ANONYMOUS)
-            return Flags.FINAL;
-        return flags;
+            return X10Flags.toX10Flags(Flags.FINAL);
+        return X10Flags.toX10Flags(flags);
     }
+
+    public X10ClassType asType() {
+        return (X10ClassType) super.asType();
+    }
+    
+    public boolean hasDeserializationConstructor(Context context) {
+        for (ConstructorDef cd: constructors()) {
+            if (cd.formalTypes().size() == 1) {
+                Type type = cd.formalTypes().get(0).get();
+                if (type.isSubtype(type.typeSystem().SerialData(), context)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    
 }

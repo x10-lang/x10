@@ -12,8 +12,9 @@
 package x10.util;
 
 import x10.compiler.TempNoInline_1;
-import x10.io.CustomSerialization;
 import x10.compiler.NonEscaping;
+import x10.io.CustomSerialization;
+import x10.io.SerialData;
 
   public class HashMap[K,V] implements Map[K,V], CustomSerialization {
     static class HashEntry[Key,Value] implements Map.Entry[Key,Value] {
@@ -226,7 +227,7 @@ import x10.compiler.NonEscaping;
     return iterator;
     }
 
-    protected static class EntriesIterator[-Key,Value] implements Iterator[HashEntry[Key,Value]] {
+    protected static class EntriesIterator[Key,Value] implements Iterator[HashEntry[Key,Value]] {
         val map: HashMap[Key,Value];
         var i: Int;
 		var originalModCount:Int;
@@ -261,7 +262,7 @@ import x10.compiler.NonEscaping;
     
     public def size() = size;
     
-    protected static class KeySet[-Key,Value] extends AbstractCollection[Key] implements Set[Key] {
+    protected static class KeySet[Key,Value] extends AbstractCollection[Key] implements Set[Key] {
         val map: HashMap[Key,Value];
         
         def this(map: HashMap[Key,Value]) { this.map = map; }
@@ -280,7 +281,7 @@ import x10.compiler.NonEscaping;
         public def size(): Int = map.size();
     }
 
-    protected static class EntrySet[-Key,Value] 
+    protected static class EntrySet[Key,Value] 
            extends AbstractCollection[Map.Entry[Key,Value]] 
            implements Set[Map.Entry[Key,Value]] {
         val map: HashMap[Key,Value];
@@ -301,38 +302,34 @@ import x10.compiler.NonEscaping;
 
 
     protected static class State[Key,Value] {
-        val size:int;
-        val keys:Array[Key](1);
-        val vals:Array[Value](1);
+        val content:Array[Pair[Key,Value]](1);
 
         def this(map:HashMap[Key,Value]) {
-            size = map.size();
-            keys = new Array[Key](size);
-            vals = new Array[Value](size);
-	    var cur:int = 0;
+            val size = map.size();
             val it = map.entriesIterator();
-            while (it.hasNext()) {
-               val entry = it.next();
-               keys(cur) = entry.getKey();
-               vals(cur) = entry.getValue();
-               cur++;
-            }
+            content = new Array[Pair[Key,Value]](size,
+              (p:Int) => {
+                   val entry = it.next();
+                   return Pair[Key,Value](entry.getKey(),entry.getValue());
+              }
+            );
         }
     }
 
     /*
      * Custom deserialization
      */
-    public def this(x:Any) {
+    public def this(x:SerialData) {
         this();
-        val state = x as State[K,V];
-	for ([i] in 0..state.size-1) {
-            putInternal(state.keys(i), state.vals(i));
+        val state = x.data as State[K,V];
+	    for (p in state.content) {
+	        val pair = state.content(p);
+            putInternal(pair.first, pair.second);
         }
     }
 
     /*
      * Custom serialization
      */
-    public def serialize():Any = new State(this);
+    public def serialize():SerialData = new SerialData(new State(this), null);
 }

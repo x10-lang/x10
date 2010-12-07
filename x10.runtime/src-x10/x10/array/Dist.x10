@@ -150,6 +150,27 @@ public abstract class Dist(
     }
 
     /**
+     * Creates a block, block distribution across all places.
+     * The coordinates are split along axis0 into M divisions such that M is the minimum of:
+     *   - 2^q where q is the next integer above log2(P) / 2
+     *   - the length of axis0
+     * and split along axis1 into N divisions such that M*(N-1) <= P <= M*N.
+     * Thus there are M*N blocks of size (axis0/M, axis1/N).
+     * The blocks are not necessarily of integer size in either dimension.
+     * Places 0..(M*N-P) are each assigned two such blocks, contiguous in axis0.
+     * The remaining places are assigned a single block.
+     * Block min and max coordinates are rounded to create subregions for each place,
+     * e.g. a block [1.0..1.5,2.25..2.75] is rounded to a subregion [1..2,2..2].
+     * @param r the given region
+     * @param axis0 the first dimension to block over
+     * @param axis1 the second dimension to block over
+     * @return a "block,block" distribution over r.
+     */
+    public static def makeBlockBlock(r:Region, axis0:int, axis1:int):Dist(r) {
+        return new BlockBlockWorldDist(r, axis0, axis1) as Dist(r); // TODO Should not need cast here!
+    }
+
+    /**
      * Create a distribution over the specified region that varies in
      * place only the zeroth axis. It divides the coordinates
      * along that axis into Place.MAX_PLACES blocks, and assigns

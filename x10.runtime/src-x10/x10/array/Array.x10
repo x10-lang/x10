@@ -109,7 +109,6 @@ public final class Array[T](
     //       Not marking it as transient to avoid special case code
     //       in Java backend. 
     private val raw:IndexedMemoryChunk[T];
-    /* package */ val rawLength:int; // Made accessible to RemoteArray
     private val layout:RectLayout;
 
     /**
@@ -132,19 +131,17 @@ public final class Array[T](
 
 
     /**
-     * Construct an Array over the region reg whose elements are zero-initialized; 
-     * in future releases of X10, this method will only be callable if sizeof(T) bytes 
-     * of zeros is a valid value of type T. 
+     * Construct an Array over the region reg whose elements are zero-initialized.
      *
      * @param reg The region over which to construct the array.
      */
-    public def this(reg:Region):Array[T]{self.region==reg} {
-	property(reg, reg.size());
+    public def this(reg:Region) {T haszero}
+        :Array[T]{self.region==reg} {
+        property(reg, reg.size());
 
         layout = RectLayout(reg);
         val n = layout.size();
         raw = IndexedMemoryChunk.allocate[T](n, true);
-        rawLength = n;
         cachedRail = rail;
     }
 
@@ -162,11 +159,10 @@ public final class Array[T](
         layout = RectLayout(reg);
         val n = layout.size();
         val r  = IndexedMemoryChunk.allocate[T](n);
-	for (p:Point(reg.rank) in reg) {
+        for (p:Point(reg.rank) in reg) {
             r(layout.offset(p))= init(p);
         }
         raw = r;
-        rawLength = n;
         cachedRail = rail;
     }
 
@@ -187,17 +183,16 @@ public final class Array[T](
         if (reg.rect) {
             // Can be optimized into a simple fill of the backing IndexedMemoryChunk
             // because every element of the chunk is used by a point in the region.
-	    for (var i:int = 0; i<n; i++) {
+            for (var i:int = 0; i<n; i++) {
                 r(i) = init;
-	    }
+            }
         } else {
-	    for (p:Point(reg.rank) in reg) {
+            for (p:Point(reg.rank) in reg) {
                 r(layout.offset(p))= init;
             }
         }
         raw = r;
-        rawLength = n;
-	    cachedRail = rail;
+        cachedRail = rail;
     }
 
 
@@ -211,22 +206,20 @@ public final class Array[T](
 // HACKING around typechecking bug:
 // Error message is: Cannot refer to type parameter T of x10.array.Array from a static context
 //    public def this(aRail:Rail[T]):Array[T]{self.rank==1,self.rect,self.zeroBased,self.rail} {
-//	this(Region.makeRectangular(0, aRail.length-1), ((i):Point(1)) => aRail(i));
+//      this(Region.makeRectangular(0, aRail.length-1), ((i):Point(1)) => aRail(i));
 //    }
 
 
     /**
-     * Construct Array over the region 0..size-1 whose elements are zero-initialized; 
-     * in future releases of X10, this method will only be callable if sizeof(T) bytes 
-     * of zeros is a valid value of type T. 
-     */    
-    public def this(size:int):Array[T]{self.region.rank==1,self.region.rect,self.region.zeroBased} {
+     * Construct Array over the region 0..size-1 whose elements are zero-initialized.
+     */
+    public def this(size:int) {T haszero}
+        :Array[T]{self.region.rank==1,self.region.rect,self.region.zeroBased,self.size==size} {
         property(0..size-1, size);
 
         layout = RectLayout(0, size-1);
         val n = layout.size();
         raw = IndexedMemoryChunk.allocate[T](n, true);
-        rawLength = n;
         cachedRail = rail;
     }
 
@@ -238,17 +231,16 @@ public final class Array[T](
      * @param reg The region over which to construct the array.
      * @param init The function to use to initialize the array.
      */    
-    public def this(size:int, init:(int)=>T):Array[T]{rank==1,rect,zeroBased} {
+    public def this(size:int, init:(int)=>T):Array[T]{rank==1,rect,zeroBased,self.size==size} {
         property(0..size-1, size);
 
         layout = RectLayout(0, size-1);
         val n = layout.size();
         val r  = IndexedMemoryChunk.allocate[T](n);
-	for ([i] in 0..size-1) {
+        for ([i] in 0..size-1) {
             r(i)= init(i);
         }
         raw = r;
-        rawLength = n;
         cachedRail = rail;
     }
 
@@ -260,17 +252,16 @@ public final class Array[T](
      * @param reg The region over which to construct the array.
      * @param init The function to use to initialize the array.
      */    
-    public def this(size:int, init:T):Array[T]{rank==1,rect,zeroBased,self.rail} {
+    public def this(size:int, init:T):Array[T]{rank==1,rect,zeroBased,self.rail,self.size==size} {
         property(0..size-1, size);
 
         layout = RectLayout(0, size-1);
         val n = layout.size();
         val r  = IndexedMemoryChunk.allocate[T](n);
-	for ([i] in 0..size-1) {
+        for ([i] in 0..size-1) {
             r(i)= init;
         }
         raw = r;
-        rawLength = n;
         cachedRail = rail;
     }
 
@@ -285,9 +276,8 @@ public final class Array[T](
         layout = RectLayout(region);
         val n = layout.size();
         val r  = IndexedMemoryChunk.allocate[T](n);
-        init.raw.asyncCopyTo(0, here, r, 0, n);
+	IndexedMemoryChunk.copy(init.raw, 0, r, 0, n);
         raw = r;
-        rawLength = n;
         cachedRail = rail;
     }
 
@@ -317,9 +307,9 @@ public final class Array[T](
      * @return an Iterable[T] over this array.
      */
     public def values():Iterable[T] {
-	// NOTE: If we could actually implement two instances of the
-	//       Iterable interface, then we woudn't need this code.
-        return new ValueIterable[T]();
+        // NOTE: If we could actually implement two instances of the
+        //       Iterable interface, then we woudn't need this code.
+        return new ValueIterable();
     }
 
     // TODO: Should be annonymous nested class in values, 
@@ -329,7 +319,7 @@ public final class Array[T](
         private val array:Array[U](rank);
 
         def this(a:Array[U]):ValueIterator[U]{self.rank==a.rank} {
-	        property(a.rank);
+                property(a.rank);
             regIt = a.iterator() as Iterator[Point(rank)]; // TODO: cast should not be needed!
             array = a as Array[U](rank);                   // TODO: cast should not be needed!
         }
@@ -337,7 +327,7 @@ public final class Array[T](
         public def next() = array(regIt.next());
     }
     private  class ValueIterable implements Iterable[T] {
-    	public def iterator()= new ValueIterator[T](Array.this);
+        public def iterator()= new ValueIterator[T](Array.this);
     }
 
     
@@ -345,12 +335,12 @@ public final class Array[T](
     // TODO: Should be annonymous nested class in values, 
     //       but that's too fragile with the 2.1 implementation of generics.
     private class ValueSequence(size:int) implements Sequence[T] {
-    	val array = Array.this as Array[T](1);
-    	public def iterator() = new ValueIterator(Array.this);
-    	def this() {
-    		property(Array.this.size);
-    	}
-    	public def apply(i:Int)=array(i);
+        val array = Array.this as Array[T](1);
+        public def iterator() = new ValueIterator(Array.this);
+        def this() {
+                property(Array.this.size);
+        }
+        public def apply(i:Int)=array(i);
     }
 
     /**
@@ -363,11 +353,19 @@ public final class Array[T](
      * @see #apply(Point)
      * @see #set(T, Int)
      */
-    @Native("cuda", "(#0).apply(#1)")
+    @Native("cuda", "(#0).raw[#1]")
     public @Header @Inline def apply(i0:int){rank==1}:T {
-	if (CompilerFlags.useUnsigned() && cachedRail) {
-            if (CompilerFlags.checkBounds() && !((i0 as UInt) < (size as UInt))) {
-                raiseBoundsError(i0);
+        if (cachedRail) {
+            if (CompilerFlags.checkBounds()) {
+                if (CompilerFlags.useUnsigned()) {
+                    if (!((i0 as UInt) < (size as UInt))) {
+                        raiseBoundsError(i0);
+                    }
+                } else {
+                    if (!region.contains(i0)) {
+                        raiseBoundsError(i0);
+                    }
+                }
             }
             return raw(i0);
         } else {
@@ -464,11 +462,19 @@ public final class Array[T](
      * @see #apply(Int)
      * @see #set(T, Point)
      */
-    @Native("cuda", "(#0).apply(#1,#2)")
+    @Native("cuda", "(#0).raw[#2] = (#1)")
     public @Header @Inline def set(v:T, i0:int){rank==1}:T {
-	if (CompilerFlags.useUnsigned() && cachedRail) {
-            if (CompilerFlags.checkBounds() && !((i0 as UInt) < (size as UInt))) {
-                raiseBoundsError(i0);
+        if (cachedRail) {
+            if (CompilerFlags.checkBounds()) {
+                if (CompilerFlags.useUnsigned()) {
+                    if (!((i0 as UInt) < (size as UInt))) {
+                        raiseBoundsError(i0);
+                    }
+                } else {
+                    if (!region.contains(i0)) {
+                        raiseBoundsError(i0);
+                    }
+                }
             }
             raw(i0) = v;
         } else {
@@ -572,13 +578,13 @@ public final class Array[T](
      * @param v the value with which to fill the array
      */
     public def fill(v:T) {
-	if (region.rect) {
+        if (region.rect) {
             // In a rect region, every element in the backing raw IndexedMemoryChunk[T]
             // is included in the points of region, therfore we can simply fill
             // the IndexedMemoryChunk itself.
-            for (var i:int =0; i<rawLength; i++) {
+            for (var i:int =0; i<raw.length(); i++) {
                 raw(i) = v;
-            }	
+            }   
         } else {
             for (p in region) {
                 raw(layout.offset(p)) = v;
@@ -586,7 +592,7 @@ public final class Array[T](
         }
     }
 
-	
+        
     /**
      * Map the function onto the elements of this array
      * constructing a new result array such that for all points <code>p</code>
@@ -618,14 +624,14 @@ public final class Array[T](
      * @see #scan((U,T)=>U,U)
      */
     public def map[U](dst:Array[U](region), op:(T)=>U):Array[U](region){self==dst} {
-	// TODO: parallelize these loops.
-	if (region.rect) {
+        // TODO: parallelize these loops.
+        if (region.rect) {
             // In a rect region, every element in the backing raw IndexedMemoryChunk[T]
             // is included in the points of region, therfore we can optimize
             // the traversal and simply map on the IndexedMemoryChunk itself.
-            for (var i:int =0; i<rawLength; i++) {
+            for (var i:int =0; i<raw.length(); i++) {
                 dst.raw(i) = op(raw(i));
-            }	
+            }   
         } else {
             for (p in region) {
                 dst(p) = op(apply(p));
@@ -666,14 +672,14 @@ public final class Array[T](
      * @see #scan((U,T)=>U,U)
      */
     public def map[S,U](dst:Array[S](region), src:Array[U](region), op:(T,U)=>S):Array[S](region) {
-	// TODO: parallelize these loops.
-	if (region.rect) {
+        // TODO: parallelize these loops.
+        if (region.rect) {
             // In a rect region, every element in the backing raw IndexedMemoryChunk
             // is included in the points of region, therfore we can optimize
             // the traversal and simply map on the IndexedMemoryChunk itself.
-            for (var i:int =0; i<rawLength; i++) {
+            for (var i:int =0; i<raw.length(); i++) {
                 dst.raw(i) = op(raw(i), src.raw(i));
-            }	
+            }   
         } else {
             for (p in region) {
                 dst(p) = op(apply(p), src(p));
@@ -699,18 +705,18 @@ public final class Array[T](
         // TODO: once collecting finish is available,
         //       use it to efficiently parallelize these loops.
         var accum:U = unit;
-	if (region.rect) {
+        if (region.rect) {
             // In a rect region, every element in the backing raw IndexedMemoryChunk[T]
             // is included in the points of region, therfore we can optimize
             // the traversal and simply reduce on the IndexedMemoryChunk itself.
-            for (var i:int=0; i<rawLength; i++) {
+            for (var i:int=0; i<raw.length(); i++) {
                 accum = op(accum, raw(i));
             }          
         } else {
             for (p in region) {
                 accum = op(accum, apply(p));
             }
-	}
+        }
         return accum;
     }
 
@@ -728,7 +734,8 @@ public final class Array[T](
      * @see #map((T)=>U)
      * @see #reduce((U,T)=>U,U)
      */
-    public def scan[U](op:(U,T)=>U, unit:U) = scan(new Array[U](region), op, unit); // TODO: private constructor to avoid useless zeroing
+    public def scan[U](op:(U,T)=>U, unit:U) {U haszero}
+        = scan(new Array[U](region), op, unit); // TODO: private constructor to avoid useless zeroing
 
 
     /**
@@ -777,8 +784,8 @@ public final class Array[T](
      *         of the two arrays.
      */
     public static def asyncCopy[T](src:Array[T], dst:RemoteArray[T]) {
-	if (src.rawLength != dst.rawLength) throw new IllegalArgumentException("source and destination do not have equal size");
-        src.raw.asyncCopyTo(0, dst.home, dst.rawData, 0, src.rawLength);
+        if (src.raw.length() != dst.rawData.length()) throw new IllegalArgumentException("source and destination do not have equal size");
+        IndexedMemoryChunk.asyncCopy(src.raw, 0, dst.rawData, 0, src.raw.length());
     }
 
 
@@ -810,19 +817,19 @@ public final class Array[T](
      */
     public static def asyncCopy[T](src:Array[T], srcPoint:Point, 
                                    dst:RemoteArray[T], dstPoint:Point, 
-	                           numElems:int) {
+                                   numElems:int) {
         val gra = dst.array;
-	val dstIndex = at (gra) gra().region.indexOf(dstPoint);
-	asyncCopy(src, src.region.indexOf(srcPoint), dst, dstIndex, numElems);
+        val dstIndex = at (gra) gra().region.indexOf(dstPoint);
+        asyncCopy(src, src.region.indexOf(srcPoint), dst, dstIndex, numElems);
     }
-	
+        
 
     /**
      * Asynchronously copy the specified values from the source Array to the 
      * specified portion of the Array referenced by the destination RemoteArray.
      * The index arguments that are used to specify the start of the source
      * and destination regions are interpreted as of they were the result
-     * of calling @link{Region@indexOf} on the Point that specifies the
+     * of calling {@link Region#indexOf} on the Point that specifies the
      * start of the copy region.  Note that for Arrays that have the 
      * <code>rail</code> property, this exactly corresponds to the index
      * that would be used to access the element via apply or set.
@@ -855,13 +862,13 @@ public final class Array[T](
     public static def asyncCopy[T](src:Array[T], srcIndex:int, 
                                    dst:RemoteArray[T], dstIndex:int, 
                                    numElems:int) {
-	if (srcIndex < 0 || ((srcIndex+numElems) > src.rawLength)) {
-	    throw new IllegalArgumentException("Specified range is beyond bounds of source array");
+        if (srcIndex < 0 || ((srcIndex+numElems) > src.raw.length())) {
+            throw new IllegalArgumentException("Specified range is beyond bounds of source array");
         }
-	if (dstIndex < 0 || ((dstIndex+numElems) > dst.rawLength)) {
-	    throw new IllegalArgumentException("Specified range is beyond bounds of destination array");
+        if (dstIndex < 0 || ((dstIndex+numElems) > dst.rawData.length())) {
+            throw new IllegalArgumentException("Specified range is beyond bounds of destination array");
         }
-        src.raw.asyncCopyTo(srcIndex, dst.home, dst.rawData, dstIndex, numElems);
+        IndexedMemoryChunk.asyncCopy(src.raw, srcIndex, dst.rawData, dstIndex, numElems);
     }
 
 
@@ -887,8 +894,8 @@ public final class Array[T](
      *         of the two arrays.
      */
     public static def asyncCopy[T](src:RemoteArray[T], dst:Array[T]) {
-	if (src.rawLength != dst.rawLength) throw new IllegalArgumentException("source and destination do not have equal size");
-        dst.raw.asyncCopyFrom(0, src.home, src.rawData, 0, dst.rawLength);
+        if (src.rawData.length() != dst.raw.length()) throw new IllegalArgumentException("source and destination do not have equal size");
+        IndexedMemoryChunk.asyncCopy(src.rawData, 0, dst.raw, 0, dst.raw.length());
     }
 
 
@@ -920,19 +927,19 @@ public final class Array[T](
      */
     public static def asyncCopy[T](src:RemoteArray[T], srcPoint:Point, 
                                    dst:Array[T], dstPoint:Point, 
-	                           numElems:int) {
+                                   numElems:int) {
         val gra = src.array;
-	val srcIndex = at (gra) gra().region.indexOf(srcPoint);
-	asyncCopy(src, srcIndex, dst, dst.region.indexOf(dstPoint), numElems);
+        val srcIndex = at (gra) gra().region.indexOf(srcPoint);
+        asyncCopy(src, srcIndex, dst, dst.region.indexOf(dstPoint), numElems);
     }
-	
+        
 
     /**
      * Asynchronously copy the specified values from the Array referenced by
      * the source RemoteArray to the specified portion of the destination Array.
      * The index arguments that are used to specify the start of the source
      * and destination regions are interpreted as of they were the result
-     * of calling @link{Region@indexOf} on the Point that specifies the
+     * of calling {@link Region#indexOf} on the Point that specifies the
      * start of the copy region.  Note that for Arrays that have the 
      * <code>rail</code> property, this exactly corresponds to the index
      * that would be used to access the element via apply or set.
@@ -965,13 +972,13 @@ public final class Array[T](
     public static def asyncCopy[T](src:RemoteArray[T], srcIndex:int, 
                                    dst:Array[T], dstIndex:int, 
                                    numElems:int) {
-	if (srcIndex < 0 || ((srcIndex+numElems) > src.rawLength)) {
-	    throw new IllegalArgumentException("Specified range is beyond bounds of source array");
+        if (srcIndex < 0 || ((srcIndex+numElems) > src.rawData.length())) {
+            throw new IllegalArgumentException("Specified range is beyond bounds of source array");
         }
-	if (dstIndex < 0 || ((dstIndex+numElems) > dst.rawLength)) {
-	    throw new IllegalArgumentException("Specified range is beyond bounds of destination array");
+        if (dstIndex < 0 || ((dstIndex+numElems) > dst.raw.length())) {
+            throw new IllegalArgumentException("Specified range is beyond bounds of destination array");
         }
-        dst.raw.asyncCopyFrom(dstIndex, src.home, src.rawData, srcIndex, numElems);
+        IndexedMemoryChunk.asyncCopy(src.rawData, srcIndex, dst.raw, dstIndex, numElems);
     }
 
 
@@ -987,8 +994,8 @@ public final class Array[T](
      *         of the two arrays.
      */
     public static def copy[T](src:Array[T], dst:Array[T]) {
-	if (src.rawLength != dst.rawLength) throw new IllegalArgumentException("source and destination do not have equal size");
-        src.raw.asyncCopyTo(0, here, dst.raw, 0, src.rawLength);
+        if (src.raw.length() != dst.raw.length()) throw new IllegalArgumentException("source and destination do not have equal size");
+        IndexedMemoryChunk.copy(src.raw, 0, dst.raw, 0, src.raw.length());
     }
 
 
@@ -1012,16 +1019,16 @@ public final class Array[T](
     public static def copy[T](src:Array[T], srcPoint:Point, 
                               dst:Array[T], dstPoint:Point, 
                               numElems:int) {
-	copy(src, src.region.indexOf(srcPoint), dst, dst.region.indexOf(dstPoint), numElems);
+        copy(src, src.region.indexOf(srcPoint), dst, dst.region.indexOf(dstPoint), numElems);
     }
-	
+        
 
     /**
      * Copy the specified values from the source Array to the 
      * specified portion of the destination Array.
      * The index arguments that are used to specify the start of the source
      * and destination regions are interpreted as of they were the result
-     * of calling @link{Region@indexOf} on the Point that specifies the
+     * of calling {@link Region#indexOf} on the Point that specifies the
      * start of the copy region.  Note that for Arrays that have the 
      * <code>rail</code> property, this exactly corresponds to the index
      * that would be used to access the element via apply or set.
@@ -1045,13 +1052,13 @@ public final class Array[T](
     public static def copy[T](src:Array[T], srcIndex:int, 
                               dst:Array[T], dstIndex:int, 
                               numElems:int) {
-	if (srcIndex < 0 || ((srcIndex+numElems) > src.rawLength)) {
-	    throw new IllegalArgumentException("Specified range is beyond bounds of source array");
+        if (srcIndex < 0 || ((srcIndex+numElems) > src.raw.length())) {
+            throw new IllegalArgumentException("Specified range is beyond bounds of source array");
         }
-	if (dstIndex < 0 || ((dstIndex+numElems) > dst.rawLength)) {
-	    throw new IllegalArgumentException("Specified range is beyond bounds of destination array");
+        if (dstIndex < 0 || ((dstIndex+numElems) > dst.raw.length())) {
+            throw new IllegalArgumentException("Specified range is beyond bounds of destination array");
         }
-        src.raw.asyncCopyTo(srcIndex, here, dst.raw, dstIndex, numElems);
+        IndexedMemoryChunk.copy(src.raw, srcIndex, dst.raw, dstIndex, numElems);
     }
 
 

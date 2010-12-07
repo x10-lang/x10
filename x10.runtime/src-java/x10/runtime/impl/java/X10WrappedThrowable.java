@@ -11,8 +11,8 @@
 
 package x10.runtime.impl.java;
 
-public class X10WrappedThrowable extends X10Throwable {
-
+public class X10WrappedThrowable extends x10.core.Throwable {
+    
     public X10WrappedThrowable(java.lang.Throwable t) {
         super(t);
     }

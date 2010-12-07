@@ -41,7 +41,6 @@ import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
 import polyglot.types.ClassType;
-import polyglot.types.Context;
 import polyglot.types.Name;
 import polyglot.types.NoClassException;
 import polyglot.types.QName;
@@ -60,10 +59,12 @@ import x10.ast.X10CanonicalTypeNode_c;
 import x10.extension.X10Ext;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
+import x10.types.X10MethodDef;
 import x10.types.X10MethodInstance;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 import x10.types.X10TypeSystem_c;
+import x10.util.HierarchyUtils;
 import x10cpp.Configuration;
 import x10cpp.types.X10CPPContext_c;
 
@@ -95,42 +96,15 @@ public class ASTQuery {
         return false;
     }
 
-    private static boolean seenMain = false; // FIXME: non-reentrant
-    private static boolean warnedAboutMain = false; // FIXME: non-reentrant
-    boolean isMainMethod(MethodDecl dec) {
-        final X10TypeSystem ts = (X10TypeSystem) dec.returnType().type().typeSystem();
-        X10ClassType container = (X10ClassType) dec.methodDef().asInstance().container();
-        Context context = tr.context();
-        assert (container.isClass());
-        boolean result =
-            (Configuration.MAIN_CLASS == null ||
-                    container.fullName().toString().equals(Configuration.MAIN_CLASS)) &&
-            dec.name().toString().equals("main") &&
-            dec.flags().flags().isPublic() &&
-            dec.flags().flags().isStatic() &&
-            dec.returnType().type().isVoid() &&
-            (dec.formals().size() == 1) &&
-            ts.isSubtype(((Formal)dec.formals().get(0)).type().type(),
-                         ts.Array(ts.String()),
-                         context);
-        if (result) {
-            boolean dash_c = tr.job().extensionInfo().getOptions().post_compiler == null;
-            if (seenMain && !warnedAboutMain && !dash_c && Configuration.MAIN_CLASS == null) {
-                tr.job().compiler().errorQueue().enqueue(ErrorInfo.SEMANTIC_ERROR,
-                                                         "Multiple main() methods encountered.  " +
-                                                         "Please specify MAIN_CLASS.");
-                warnedAboutMain = true;
-            }
-            seenMain = true;
-        }
-        return result;
+    public boolean isMainMethod(X10MethodDef md) {
+        return HierarchyUtils.isMainMethod(md, tr.context());
     }
 
     boolean hasAnnotation(Node dec, String name) {
-        return hasAnnotation((X10TypeSystem) tr.typeSystem(), dec, name);
+        return hasAnnotation((TypeSystem) tr.typeSystem(), dec, name);
     }
 
-	public static boolean hasAnnotation(X10TypeSystem ts, Node dec, String name) {
+	public static boolean hasAnnotation(TypeSystem ts, Node dec, String name) {
 		try {
 			if (annotationNamed(ts, dec, name) != null)
 				return true;
@@ -170,7 +144,7 @@ public class ASTQuery {
 		if (!(f.target() instanceof X10CanonicalTypeNode_c))
 			return false;
 		X10CanonicalTypeNode_c t = (X10CanonicalTypeNode_c) f.target();
-		X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
+		TypeSystem xts = (TypeSystem) tr.typeSystem();
 		if (!xts.isClock(t.type()) || !f.name().equals("factory"))
 			return false;
 		if (n.arguments().size() != 0)
@@ -211,7 +185,7 @@ public class ASTQuery {
 		if (!(f.target() instanceof X10CanonicalTypeNode_c))
 			return false;
 		X10CanonicalTypeNode_c t = (X10CanonicalTypeNode_c) f.target();
-		X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
+		TypeSystem xts = (TypeSystem) tr.typeSystem();
 		if (!xts.isPoint(t.type()) || !f.name().equals("factory"))
 			return false;
 		if (n.arguments().size() < 1)
@@ -250,7 +224,7 @@ public class ASTQuery {
 	static final ArrayList<X10MethodInstance> knownArrayCopyMethods = new ArrayList<X10MethodInstance>();
 
 	boolean isAsyncArrayCopy(Async_c n) {
-		X10TypeSystem ts = (X10TypeSystem) tr.typeSystem();
+		TypeSystem ts = (TypeSystem) tr.typeSystem();
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
 		if (knownArrayCopyMethods.size() == 0) {
 			try {
@@ -320,7 +294,7 @@ public class ASTQuery {
 	}
 	public static String getCppRepParam(X10ClassDef def, int i) {
 		try {
-			X10TypeSystem xts = (X10TypeSystem) def.typeSystem();
+			TypeSystem xts = (TypeSystem) def.typeSystem();
 			Type rep = (Type) xts.systemResolver().find(QName.make("x10.compiler.NativeRep"));
 			List<Type> as = def.annotationsMatching(rep);
 			for (Type at : as) {

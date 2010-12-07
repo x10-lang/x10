@@ -33,14 +33,13 @@ import x10cpp.Configuration;
 import x10cpp.X10CPPCompilerOptions;
 
 public class CXXCommandBuilder {
-    
+
     protected class X10RTPostCompileOptions {
-        
         public final String cxx;
         public final Collection<? extends String> cxxFlags;
         public final Collection<? extends String> libs;
         public final Collection<? extends String> ldFlags;
-        
+
         private Collection<? extends String> split(String s) {
             ArrayList<String> l = new ArrayList<String>();
             if (s==null) return l;
@@ -48,7 +47,7 @@ public class CXXCommandBuilder {
             while (q.hasMoreTokens()) l.add(q.nextToken());
             return l;
         }
-        
+
         public X10RTPostCompileOptions(String filename) {
             Properties properties = new Properties();
             try {
@@ -57,7 +56,7 @@ public class CXXCommandBuilder {
                 // [DC] proceeding from here will just yield a load of incomprehensible postcompile errors
                 throw new InternalCompilerError(
                         "Error finding X10RT properties file: "+ e.getMessage(), e);
-            }                
+            }
             String s = properties.getProperty("CXX");
             cxx = s==null ? "g++" : s; //fallback if CXX not given in properties file
             String regex = " +";
@@ -66,12 +65,11 @@ public class CXXCommandBuilder {
             ldFlags  = split(properties.getProperty("LDFLAGS"));
         }
     }
-    
+
     protected class BDWGCPostCompileOptions {
-        
         public final Collection<? extends String> cxxFlags;
         public final Collection<? extends String> libs;
-        
+
         private Collection<? extends String> split(String s) {
             ArrayList<String> l = new ArrayList<String>();
             if (s==null) return l;
@@ -79,7 +77,7 @@ public class CXXCommandBuilder {
             while (q.hasMoreTokens()) l.add(q.nextToken());
             return l;
         }
-        
+
         public BDWGCPostCompileOptions(String filename) {
             Properties properties = new Properties();
             try {
@@ -88,12 +86,12 @@ public class CXXCommandBuilder {
                 // [DC] proceeding from here will just yield a load of incomprehensible postcompile errors
                 throw new InternalCompilerError(
                         "Error finding BDWGC property file: "+ e.getMessage(), e);
-            }                
+            }
             cxxFlags = split(properties.getProperty("CXXFLAGS"));
             libs     = split(properties.getProperty("LDLIBS"));
         }
     }
-    
+
     protected static final String PLATFORM = System.getenv("X10_PLATFORM")==null?"unknown":System.getenv("X10_PLATFORM");
     public static final String X10_DIST = System.getenv("X10_DIST");
     protected static final boolean USE_XLC = (PLATFORM.startsWith("aix_") && System.getenv("USE_GCC")==null) || System.getenv("USE_XLC")!=null;
@@ -101,17 +99,17 @@ public class CXXCommandBuilder {
     //"mpCC_r -q64 -qrtti=all"
     public static final String XLC_EXTRA_FLAGS = System.getenv("XLC_EXTRA_FLAGS");
     public static final boolean USE_32BIT = System.getenv("USE_32BIT")!=null;
-    
+
     protected static final boolean ENABLE_PROFLIB = System.getenv("X10_ENABLE_PROFLIB") != null;
-  
+
     public static final String MANIFEST = "libx10.mft";
     public static final String[] MANIFEST_LOCATIONS = new String[] { X10_DIST+"/lib" };
 
 
     private final X10CPPCompilerOptions options;
-    
+
     protected X10RTPostCompileOptions x10rtOpts;
-    
+
     protected BDWGCPostCompileOptions bdwgcOpts;
 
     public CXXCommandBuilder(Options options, ErrorQueue eq) {
@@ -124,7 +122,7 @@ public class CXXCommandBuilder {
             if (PLATFORM.startsWith("aix_")) {
                 rtimpl = "pgas_lapi";
             } else {
-                rtimpl = "pgas_sockets";
+                rtimpl = "sockets";
             }
         }
         // allow the user to give an explicit path, otherwise look in etc
@@ -142,10 +140,10 @@ public class CXXCommandBuilder {
     /** Add the arguments that go before the output files */
     protected void addPreArgs(ArrayList<String> cxxCmd) {
         cxxCmd.add("-g");
-        
+
         // prebuilt XRX
         cxxCmd.add("-I"+X10_DIST+"/include");
-        
+
         // headers generated from user input
         cxxCmd.add("-I"+options.output_directory);
         cxxCmd.add("-I.");
@@ -161,21 +159,26 @@ public class CXXCommandBuilder {
                 cxxCmd.add("-qarch=auto");
             }
         }
-        
+
         if (USE_XLC) {
-            cxxCmd.add("-qsuppress=1540-0809:1540-1101:1500-029");
+            cxxCmd.add("-qsuppress=1540-0809"    // Do not warn about empty sources
+                               + ":1540-1101"    // Do not warn about non-void functions with no return
+                               + ":1500-029");   // Do not warn about being unable to inline when optimizing
             cxxCmd.add(USE_32BIT ? "-q32" : "-q64");
             if (XLC_EXTRA_FLAGS != null) {
                 cxxCmd.add(XLC_EXTRA_FLAGS);
             }
-        } 
+        } else {
+            cxxCmd.add("-Wno-long-long");        // Do not warn about using long long
+            cxxCmd.add("-Wno-unused-parameter"); // Do not warn about unused parameters
+            cxxCmd.add("-Wreturn-type");         // Do warn about non-void functions with no return
+        }
 
         if (x10.Configuration.NO_CHECKS) {
             cxxCmd.add("-DNO_CHECKS");
         }
-        
-        cxxCmd.addAll(x10rtOpts.cxxFlags);
 
+        cxxCmd.addAll(x10rtOpts.cxxFlags);
     }
 
     /** Add the arguments that go after the output files */
@@ -189,15 +192,14 @@ public class CXXCommandBuilder {
 
         cxxCmd.addAll(x10rtOpts.ldFlags);
         cxxCmd.addAll(x10rtOpts.libs);
-        
+
         cxxCmd.add("-ldl");
         cxxCmd.add("-lm");
         cxxCmd.add("-lpthread");
-        
+
         if (ENABLE_PROFLIB) {
             cxxCmd.add("-lprofiler");
         }
-        
     }
 
     protected void addExecutablePath(ArrayList<String> cxxCmd) {
@@ -230,7 +232,7 @@ public class CXXCommandBuilder {
             	cxxCmd.add(defaultPostCompiler());
             	continue;
             }
-            
+
         	// consume all tokens up until the next # (or %) whereupon we will insert (or not)
         	// default CXXFLAGS parameters and generated compilation units
             if (token.equals("#") || token.equals("%")) {
@@ -295,7 +297,7 @@ public class CXXCommandBuilder {
 
         return cxxCmd.toArray(new String[cxxCmd.size()]);
     }
-    
+
     public static CXXCommandBuilder getCXXCommandBuilder(Options options, ErrorQueue eq) {
         if (PLATFORM.startsWith("win32_"))
             return new Cygwin_CXXCommandBuilder(options, eq);

@@ -24,7 +24,7 @@ public class CF3Generic_MustFailCompile extends x10Test {
     }
     static class C[T] {
     	 def m(b:T) offers T {
-    	    	offer "a";
+    	    	offer "a"; // ERR
     	    }
         def m(a:Reducible[T], b:T):T {
       	  val x = finish(a) {

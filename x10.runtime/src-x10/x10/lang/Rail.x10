@@ -13,6 +13,7 @@ package x10.lang;
 
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
+import x10.util.IndexedMemoryChunk;
 import x10.util.Pair;
 
 /** A 1-dimensional 0-based sequence of elements, each of the same type,
@@ -105,7 +106,7 @@ public final class Rail[T](length: Int)
      */
     @Native("java", "x10.core.RailFactory.<#2>makeVarRail(#3, #4)")
     @Native("c++", "x10::lang::Rail<void>::make<#1 >(#4)")
-    public native static def make[S](length: Int): Rail[S]{self.length==length};
+    public native static def make[S](length: Int): Rail[S]{self.length==length,S haszero};
 
     /**
      * Creates an appropriately aligned Rail whose contents are zero-initialized;
@@ -118,7 +119,7 @@ public final class Rail[T](length: Int)
      */
     @Native("java", "x10.core.RailFactory.<#2>makeVarRail(#3, #4)")
     @Native("c++", "x10::lang::Rail<void>::makeAligned<#1 >(#4, #5)")
-    public native static def makeAligned[S](length: Int, alignment:Int): Rail[S]{self.length==length};
+    public native static def makeAligned[S](length: Int, alignment:Int): Rail[S]{self.length==length,S haszero};
 
     /**
      * Creates an Rail whose contents are initialized to init.
@@ -150,7 +151,7 @@ public final class Rail[T](length: Int)
      */
     @Native("java", "(#0).reset(#1)")
     @Native("c++", "(#0)->reset(#1)")
-    public native def reset(init: (Int) => T): Void;
+    public native def reset(init: (Int) => T): void;
 
     /**
      * Re-initializes a Rail to a constant value.
@@ -159,7 +160,7 @@ public final class Rail[T](length: Int)
      */
     @Native("java", "(#0).reset(#1)")
     @Native("c++", "(#0)->reset(#1)")
-    public native def reset(init: T): Void;
+    public native def reset(init: T): void;
 
     /**
      * Operator that allows access of Rail elements by index.
@@ -202,4 +203,14 @@ public final class Rail[T](length: Int)
         public def next() = rail(curIndex++);
     }
 
+    /**
+     * Return an IndexedMemoryChunk[T] that is wrapping the backing storage for the rail.
+     * This method is primarily intended to be used to interface with native libraries 
+     * (eg BLAS, ESSL). <p>
+     *
+     * @return an IndexedMemoryChunk[T] that is wrapping the backing storage for the Rail object.
+     */
+    @Native("java", "(#0).raw()")
+    @Native("c++", "(#0)->indexedMemoryChunk()")
+    public native def raw(): IndexedMemoryChunk[T];
 }

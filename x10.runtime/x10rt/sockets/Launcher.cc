@@ -1,6 +1,15 @@
-/* *********************************************************************** */
-/* *********************************************************************** */
-
+/*
+ *  This file is part of the X10 project (http://x10-lang.org).
+ *
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ *  (C) Copyright IBM Corporation 2006-2010.
+ *
+ *  This file was written by Ben Herta for IBM: bherta@us.ibm.com
+ */
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -14,6 +23,8 @@
 #include <alloca.h>
 #include <arpa/inet.h>
 #include <time.h>
+#include <sched.h>
+#include <errno.h>
 
 #include "Launcher.h"
 #include "TCP.h"
@@ -39,7 +50,7 @@ int Launcher::setPort(uint32_t place, char* port)
 					fprintf(stderr, "Runtime %u connecting to launcher at \"%s\"\n", place, getenv(X10LAUNCHER_PARENT));
 				#endif
 
-				_parentLauncherControlLink = TCP::connect((const char *) getenv(X10LAUNCHER_PARENT), 10);
+				_parentLauncherControlLink = TCP::connect((const char *) getenv(X10LAUNCHER_PARENT), 10, true);
 			}
 			if (_parentLauncherControlLink <= 0)
 				return -1; // connection failed for some reason
@@ -194,14 +205,75 @@ void Launcher::startChildren()
 
 			if (id == _numchildren && _myproc != 0xFFFFFFFF)
 			{ // start up the local x10 runtime
-				unsetenv(X10LAUNCHER_HOSTFILE);
+				unsetenv(X10_HOSTFILE);
+				unsetenv(X10_HOSTLIST);
 				unsetenv(X10LAUNCHER_SSH);
 				setenv(X10LAUNCHER_PARENT, masterPort, 1);
 				setenv(X10LAUNCHER_RUNTIME, "1", 1);
+				chdir(getenv(X10LAUNCHER_CWD));
+
+				// check to see if we want to launch this in a debugger
+				char* which = getenv(X10LAUNCHER_DEBUG);
+				if (which != NULL)
+				{
+					char placenum[64];
+					strcpy(placenum, which);
+					char * colon = strchr(placenum, ':');
+					if (colon != NULL)
+						colon[0] = '\0';
+
+					// see if the launcher argument applies to this place
+					char* p;
+					errno = 0;
+					if (strcasecmp("all", placenum) == 0 || ((_myproc == (uint32_t)strtoul(placenum, &p, 10)) && !(errno != 0 || *p != 0 || p == placenum)))
+					{
+						// launch this runtime in a debugger
+						char** newargv;
+						if (colon == NULL)
+						{
+							#ifdef DEBUG
+								fprintf(stderr, "Runtime %u forked with gdb in an xterm.  Running exec.\n", _myproc);
+							#endif
+							newargv = (char**)alloca(8*sizeof(char*));
+							if (newargv == NULL)
+								DIE("Allocating space for exec-ing gdb runtime %d\n", _myproc);
+							char* title = (char*)alloca(32);
+							sprintf(title, "Place %u debug", _myproc);
+							newargv[0] = (char*)"xterm";
+							newargv[1] = (char*)"-T";
+							newargv[2] = title;
+							newargv[3] = (char*)"-e";
+							newargv[4] = (char*)"gdb";
+							newargv[5] = _argv[0];
+							newargv[6] = '\0';
+						}
+						else
+						{
+							colon[0] = ':';
+							#ifdef DEBUG
+								fprintf(stderr, "Runtime %u forked with a remote gdbserver at port %s.  Running exec.\n", _myproc, &colon[1]);
+							#endif
+							int numArgs = 0;
+							while (_argv[numArgs] != NULL)
+								numArgs++;
+							newargv = (char**)alloca((numArgs+3)*sizeof(char*));
+							if (newargv == NULL)
+								DIE("Allocating space for exec-ing gdb runtime %d\n", _myproc);
+							newargv[0] = (char*)"gdbserver";
+							newargv[1] = colon;
+							for (int i=0; i<numArgs; i++)
+								newargv[i+2] = _argv[i];
+							newargv[numArgs+2] = '\0';
+						}
+						if (execvp(newargv[0], newargv))
+							// can't get here, if the exec succeeded
+							DIE("Launcher %u: runtime exec with gdb failed", _myproc);
+					}
+				}
+
 				#ifdef DEBUG
 					fprintf(stderr, "Runtime %u forked.  Running exec.\n", _myproc);
 				#endif
-				chdir(getenv(X10LAUNCHER_CWD));
 				if (execvp(_argv[0], _argv))
 					// can't get here, if the exec succeeded
 					DIE("Launcher %u: runtime exec failed", _myproc);
@@ -216,7 +288,7 @@ void Launcher::startChildren()
 					setenv(X10LAUNCHER_PARENT, masterPort, 1);
 					char idString[24];
 					sprintf(idString, "%d", _firstchildproc+id);
-					setenv(X10LAUNCHER_MYID, idString, 1);
+					setenv(X10_PLACE, idString, 1);
 					#ifdef DEBUG
 						fprintf(stderr, "Launcher %u forked launcher %s on localhost.  Running exec.\n", _myproc, idString);
 					#endif
@@ -228,7 +300,7 @@ void Launcher::startChildren()
 	}
 
 	/* process manager invokes main loop */
-	handleRequestsLoop();
+	handleRequestsLoop(false);
 }
 
 
@@ -236,9 +308,10 @@ void Launcher::startChildren()
 /* this is the infinite loop that the process manager is executing.        */
 /* *********************************************************************** */
 
-void Launcher::handleRequestsLoop()
+void Launcher::handleRequestsLoop(bool onlyCheckForNewConnections)
 {
 	#ifdef DEBUG
+	if (!onlyCheckForNewConnections)
 		fprintf(stderr, "Launcher %u: main loop start\n", _myproc);
 	#endif
 	bool running = true;
@@ -265,6 +338,8 @@ void Launcher::handleRequestsLoop()
 			else if (FD_ISSET(_listenSocket, &infds))
 				handleNewChildConnection();
 		}
+		if (onlyCheckForNewConnections)
+			return;
 		/* parent control socket */
 		if (_parentLauncherControlLink >= 0)
 		{
@@ -274,7 +349,7 @@ void Launcher::handleRequestsLoop()
 				if (handleControlMessage(_parentLauncherControlLink) < 0)
 					running = handleDeadParent();
 		}
-		/* runtime and children output, stdout and stderr */
+		/* runtime and children control, stdout and stderr */
 		for (uint32_t i = 0; i <= _numchildren; i++)
 		{
 			if (_childControlLinks[i] >= 0)
@@ -315,12 +390,21 @@ void Launcher::handleRequestsLoop()
 
 	for (uint32_t i = 0; i <= _numchildren; i++)
 	{
-		#ifdef DEBUG
-			fprintf(stderr, "Launcher %u: killing pid=%d\n", _myproc, _pidlst[i]);
-		#endif
-		kill(_pidlst[i], SIGTERM);
+		if (_pidlst[i] != -1)
+		{
+			#ifdef DEBUG
+				fprintf(stderr, "Launcher %u: killing pid=%d\n", _myproc, _pidlst[i]);
+			#endif
+			kill(_pidlst[i], SIGTERM);
+		}
 	}
-	waitpid(_pidlst[_numchildren], NULL, 0); // wait for the local runtime
+
+	while ((_myproc==0 || _myproc==0xFFFFFFFF) && _returncode == 0xDEADBEEF)
+	{
+		int status;
+		if (waitpid(_pidlst[_numchildren], &status, WNOHANG) == _pidlst[_numchildren])
+			_returncode = WEXITSTATUS(status);
+	}
 
 	// shut down any connections if they still exist
 	handleDeadParent();
@@ -404,7 +488,7 @@ void Launcher::connectToParentLauncher(void)
 		#ifdef DEBUG
 			fprintf(stderr, "Launcher %u: connecting to parent via inherited port: %s\n", _myproc, masterport);
 		#endif
-		_parentLauncherControlLink = TCP::connect(masterport, 10);
+		_parentLauncherControlLink = TCP::connect(masterport, 10, true);
 	}
 
 	/* case 2: the SOCK_PARENT env. var is set */
@@ -413,7 +497,7 @@ void Launcher::connectToParentLauncher(void)
 		#ifdef DEBUG
 			fprintf(stderr, "Launcher %u: connecting to parent via: %s\n", _myproc, getenv(X10LAUNCHER_PARENT));
 		#endif
-		_parentLauncherControlLink = TCP::connect((const char *) getenv(X10LAUNCHER_PARENT), 10);
+		_parentLauncherControlLink = TCP::connect((const char *) getenv(X10LAUNCHER_PARENT), 10, true);
 	}
 
 	/* case 3: launcher=-1 has no parent. We don't connect */
@@ -448,7 +532,7 @@ void Launcher::handleNewChildConnection(void)
 		fprintf(stderr, "Launcher %u: new connection detected\n", _myproc);
 	#endif
 	/* accept the new connection and read off the rank */
-	int fd = TCP::accept(_listenSocket);
+	int fd = TCP::accept(_listenSocket, true);
 	if (fd < 0)
 	{
 		close(_listenSocket);
@@ -612,6 +696,11 @@ int Launcher::handleControlMessage(int fd)
 		{
 			case PORT_REQUEST:
 			{
+				while (_runtimePort == NULL)
+				{
+					sched_yield();
+					handleRequestsLoop(true);
+				}
 				m.to = m.from;
 				m.from = _myproc;
 				m.type = PORT_RESPONSE;
@@ -642,7 +731,26 @@ int Launcher::handleControlMessage(int fd)
 		}
 	}
 	else
+	{
 		ret = forwardMessage(&m, data);
+		if (ret < 0 && m.type == PORT_REQUEST)
+		{
+			// if we're here, then we were unable to forward the PORT_REQUEST message.  Send an error message back as the response.
+			#ifdef DEBUG
+				fprintf(stderr, "Launcher %u failed to forward a %s message to place %u.  Sending an error response.\n", _myproc, CTRL_MSG_TYPE_STRINGS[PORT_RESPONSE], m.to);
+			#endif
+
+			char* dead = (char*)alloca(64);
+			sprintf(dead, "LAUNCHER_%u_IS_NOT_RUNNING", m.to);
+			m.to = m.from;
+			m.from = _myproc;
+			m.type = PORT_RESPONSE;
+			m.datalen = strlen(dead);
+
+			TCP::write(fd, &m, sizeof(struct ctrl_msg));
+			TCP::write(fd, dead, m.datalen);
+		}
+	}
 	return ret;
 }
 
@@ -687,7 +795,7 @@ int Launcher::forwardMessage(struct ctrl_msg* message, char* data)
 	// figure out where to send it, by determining if we are on the chain between place 0 and the dest
 	uint32_t child=message->to, parent;
 
-	int destFD = -1;
+	int destID = -1;
 	if (child > _singleton->_myproc)
 	{
 		do
@@ -696,9 +804,9 @@ int Launcher::forwardMessage(struct ctrl_msg* message, char* data)
 			if (parent == _singleton->_myproc)
 			{
 				if (child == _singleton->_firstchildproc)
-					destFD = _childControlLinks[0];
+					destID = 0; //_childControlLinks[0];
 				else
-					destFD = _childControlLinks[1];
+					destID = 1; //_childControlLinks[1];
 				#ifdef DEBUG
 					fprintf(stderr, "Launcher %u: forwarding %s message to child launcher %u.\n", _myproc, CTRL_MSG_TYPE_STRINGS[message->type], child);
 				#endif
@@ -710,13 +818,30 @@ int Launcher::forwardMessage(struct ctrl_msg* message, char* data)
 		while (parent > _singleton->_myproc);
 	}
 
-	if (destFD == -1)
+	#ifdef DEBUG
+	if (destID == -1)
+		fprintf(stderr, "Launcher %u: forwarding %s message to parent launcher.\n", _myproc, CTRL_MSG_TYPE_STRINGS[message->type]);
+	#endif
+
+	int destFD = -1;
+	do
 	{
-		destFD = _parentLauncherControlLink;
-		#ifdef DEBUG
-			fprintf(stderr, "Launcher %u: forwarding %s message to parent launcher.\n", _myproc, CTRL_MSG_TYPE_STRINGS[message->type]);
-		#endif
+		if (destID == -1) destFD = _parentLauncherControlLink;
+		else if (destID == 0) destFD = _childControlLinks[0];
+		else if (destID == 1) destFD = _childControlLinks[1];
+
+		// verify that the link is valid.  It may not be, if we're just starting up
+		if (destFD == -1)
+		{
+			if (destID >= 0 && _pidlst[destID] == -1)
+				return -1; // this request is for a launcher that has DIED
+
+			sched_yield();
+			handleRequestsLoop(true);
+		}
 	}
+	while (destFD == -1);
+
 
 	int ret = TCP::write(destFD, message, sizeof(struct ctrl_msg));
 	if (ret < (int)sizeof(struct ctrl_msg))
@@ -738,12 +863,31 @@ void Launcher::cb_sighandler_cld(int signo)
 	int status;
 	int pid=wait(&status);
 
-	if (_singleton->_pidlst[_singleton->_numchildren] == pid)
+	for (uint32_t i=0; i<=_singleton->_numchildren; i++)
 	{
-		#ifdef DEBUG
-			fprintf(stderr, "Launcher %d: SIGCHLD from runtime (pid=%d)\n", _singleton->_myproc, pid);
-		#endif
-		_singleton->_returncode = WEXITSTATUS(status);
+		if (_singleton->_pidlst[i] == pid)
+		{
+			_singleton->_pidlst[i] = -1;
+			if (i == _singleton->_numchildren)
+			{
+				#ifdef DEBUG
+					fprintf(stderr, "Launcher %d: SIGCHLD from runtime (pid=%d), status=%d\n", _singleton->_myproc, pid, WEXITSTATUS(status));
+				#endif
+				_singleton->_returncode = WEXITSTATUS(status);
+				if (_singleton->_runtimePort)
+				{
+					free(_singleton->_runtimePort);
+					_singleton->_runtimePort = (char*)malloc(64);
+					sprintf(_singleton->_runtimePort, "PLACE_%u_IS_DEAD", _singleton->_myproc);
+				}
+			}
+			#ifdef DEBUG
+			else
+				fprintf(stderr, "Launcher %d: SIGCHLD from child launcher for place %d (pid=%d), status=%d\n", _singleton->_myproc, i+_singleton->_firstchildproc, pid, WEXITSTATUS(status));
+			#endif
+
+			return;
+		}
 	}
 }
 
@@ -767,7 +911,8 @@ void Launcher::startSSHclient(uint32_t id, char* masterPort, char* remotehost)
 	"X10RT_MPI_THREAD_MULTIPLE", "X10_DISABLE_DEALLOC", "X10_TRACE_ALLOC", "X10_TRACE_ALL",
 	"X10_TRACE_INIT", "X10_TRACE_X10RT", "X10_TRACE_NET", "X10_TRACE_SER", "X10_NTHREADS",
 	"X10RT_CUDA_DMA_SLICE", "X10RT_EMULATE_REMOTE_OP", "X10RT_EMULATE_COLLECTIVES",
-	"X10RT_MPI_THREAD_MULTIPLE", "X10_STATIC_THREADS", "X10_NO_STEALS", "X10RT_ACCELS"};
+	"X10RT_MPI_THREAD_MULTIPLE", "X10_STATIC_THREADS", "X10_NO_STEALS", "X10RT_ACCELS",
+	X10RT_NOYIELD, X10LAUNCHER_DEBUG};
 	for (unsigned i=0; i<(sizeof envVariables)/sizeof(char*); i++)
 	{
 		char* ev = getenv(envVariables[i]);
@@ -782,16 +927,28 @@ void Launcher::startSSHclient(uint32_t id, char* masterPort, char* remotehost)
 	}
 
 	// add on our own environment variables
-	argv[++z] = (char*) alloca(256);
-	sprintf(argv[z], X10LAUNCHER_HOSTFILE"=%s", _hostfname);
+	if (_hostfname != '\0')
+	{
+		argv[++z] = (char*) alloca(strlen(_hostfname)+32);
+		sprintf(argv[z], X10_HOSTFILE"=%s", _hostfname);
+	}
+	else
+	{
+		char* hostlist = getenv(X10_HOSTLIST);
+		if (hostlist != NULL)
+		{
+			argv[++z] = (char*) alloca(strlen(hostlist)+32);
+			sprintf(argv[z], X10_HOSTLIST"=%s", hostlist);
+		}
+	}
 	argv[++z] = (char*) alloca(256);
 	sprintf(argv[z], X10LAUNCHER_SSH"=%s", _ssh_command);
 	argv[++z] = (char*) alloca(1024);
 	sprintf(argv[z], X10LAUNCHER_PARENT"=%s", masterPort);
 	argv[++z] = (char*) alloca(100);
-	sprintf(argv[z], X10LAUNCHER_MYID"=%d", id);
+	sprintf(argv[z], X10_PLACE"=%d", id);
 	argv[++z] = (char*) alloca(100);
-	sprintf(argv[z], X10LAUNCHER_NPROCS"=%d", _nplaces);
+	sprintf(argv[z], X10_NPLACES"=%d", _nplaces);
 	argv[++z] = (char*) alloca(1024);
 	sprintf(argv[z], X10LAUNCHER_CWD"=%s", getenv(X10LAUNCHER_CWD));
 	argv[++z] = cmd;

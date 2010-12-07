@@ -40,6 +40,7 @@ import polyglot.frontend.Job;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
 import polyglot.types.Name;
+import polyglot.types.QName;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
@@ -60,7 +61,11 @@ import x10.ast.X10Special;
 import x10.types.ParameterType;
 import x10.types.X10ClassType;
 import x10.types.X10Flags;
+import x10.types.X10LocalDef;
+import x10.types.X10ParsedClassType_c;
 import x10.types.X10TypeMixin;
+import polyglot.types.TypeSystem;
+import x10.visit.X10PrettyPrinterVisitor;
 import x10c.ast.BackingArray;
 import x10c.ast.BackingArrayAccess;
 import x10c.ast.X10CBackingArrayAccess_c;
@@ -69,9 +74,12 @@ import x10c.types.X10CTypeSystem_c;
 
 public class RailInLoopOptimizer extends ContextVisitor {
 
-    private static final boolean VALRAIL_OPTIMIZE = true;
     private final X10CTypeSystem_c xts;
     private final X10CNodeFactory_c xnf;
+
+    private final Map<Name,X10LocalDef> localdefs = new HashMap<Name,X10LocalDef>();
+
+    private Type imc;
 
     public RailInLoopOptimizer(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf);
@@ -79,6 +87,27 @@ public class RailInLoopOptimizer extends ContextVisitor {
         xnf = (X10CNodeFactory_c) nf;
     }
 
+    private X10LocalDef getLocalDef(Type type, Name name) {
+        if (localdefs.containsKey(name)) {
+            return localdefs.get(name);
+        }
+        else {
+           X10LocalDef ldef = xts.localDef(Position.COMPILER_GENERATED, xts.NoFlags(), Types.ref(type), name);
+           localdefs.put(name, ldef);
+           return ldef;
+        }
+    }
+    
+    @Override
+    public NodeVisitor begin() {
+        try {
+            imc = xts.typeForName(QName.make("x10.util.IndexedMemoryChunk"));
+        } catch (SemanticException e1) {
+            throw new InternalCompilerError("Something is terribly wrong");
+        }
+        return super.begin();
+    }
+    
     @Override
     protected Node leaveCall(Node parent, Node old, Node n, NodeVisitor v) throws SemanticException {
         if (n instanceof Loop) {
@@ -163,7 +192,8 @@ public class RailInLoopOptimizer extends ContextVisitor {
                                         ignores.add(ld.name().toString());
                                         X10CanonicalTypeNode tn = xnf.X10CanonicalTypeNode(n.position(), type);
                                         Id id = backingArrayToId.get(pair.fst());
-                                        LocalDef ldef = xts.localDef(n.position(), xts.Final(), Types.ref(type), id.id());
+                                        LocalDef ldef = getLocalDef(type, id.id());
+                                        ldef.setFlags(Flags.FINAL);
                                         return xnf.LocalDecl(n.position(), xnf.FlagsNode(n.position(), Flags.FINAL), tn, ld.name(), xnf.Local(n.position(), id).localInstance(ldef.asInstance()).type(type)).localDef(ldef).type(tn);
                                     }
                                 }
@@ -200,8 +230,11 @@ public class RailInLoopOptimizer extends ContextVisitor {
                         X10Call call = (X10Call) n;
                         Position pos = call.position();
                         Receiver target = call.target();
-                        Type type = X10TypeMixin.baseType(call.type());
-                        if (!(type instanceof ParameterType) && target != null && (xts.isRail(target.type()) || xts.isValRail(target.type())) && (call.methodInstance().name()==ClosureCall.APPLY || call.methodInstance().name()==SettableAssign.SET)) {
+                        if (
+                                target != null
+                                && isOptimizationTarget(target.type())
+                                && (call.methodInstance().name()==ClosureCall.APPLY || call.methodInstance().name()==SettableAssign.SET)
+                        ) {
                             if (ignores.contains(target.toString())) {
                                 return n;
                             }
@@ -215,11 +248,8 @@ public class RailInLoopOptimizer extends ContextVisitor {
                                 elem = call.arguments().get(0);
                                 index = call.arguments().get(1);
                             }
-
+                            
                             if (target instanceof Local) {
-                                if (X10Flags.toX10Flags(((Local) target).flags()).isShared()) {
-                                    return n;
-                                }
                             }
                             else if (target instanceof Field) {
                                 Field field = (Field) target;
@@ -247,6 +277,11 @@ public class RailInLoopOptimizer extends ContextVisitor {
                                 }
                             }
 
+                            X10ClassType ct = (X10ClassType) X10TypeMixin.baseType(target.type());
+                            List<Type> typeArguments = ct.typeArguments();
+                            if (typeArguments == null)
+                                typeArguments = new ArrayList<Type>(ct.x10Def().typeParameters());
+                            Type type = X10TypeMixin.baseType(typeArguments.get(0));
                             if (!contains) {
                                 id = xnf.Id(pos, Name.makeFresh(target.toString().replace(".", "$").replaceAll("[\\[\\]]", "_").replaceAll(", ","_") + "$value"));
                                 BackingArray ba = xnf.BackingArray(pos, id, createArrayType(type), (Expr) target);
@@ -254,17 +289,17 @@ public class RailInLoopOptimizer extends ContextVisitor {
                                 targetAndIsFinals.add(new Pair<BackingArray, Boolean>(ba, true));
                             }
                             if (elem == null) {
-                                LocalDef ldef = xts.localDef(n.position(), xts.NoFlags(), Types.ref(target.type()), id.id());
+                                LocalDef ldef = getLocalDef(target.type(), id.id());
                                 return xnf.BackingArrayAccess(pos, xnf.Local(pos, id).localInstance(ldef.asInstance()).type(target.type()), index, type);
                             }
-                            LocalDef ldef = xts.localDef(n.position(), xts.NoFlags(), Types.ref(type), id.id());
+                            LocalDef ldef = getLocalDef(type, id.id());
                             return xnf.BackingArrayAccessAssign(pos, xnf.Local(pos, id).localInstance(ldef.asInstance()), index, Assign.ASSIGN, elem).type(type);
                         }
                     }
                     if (n instanceof SettableAssign_c) {
                         Type type = X10TypeMixin.baseType(((SettableAssign_c) n).type());
                         Expr array = ((SettableAssign_c) n).array();
-                        if (!(type instanceof ParameterType) && xts.isRail(array.type())) {
+                        if (isOptimizationTarget(array.type())) {
                             if (((SettableAssign_c) n).index().size() > 1) {
                                 return n;
                             }
@@ -274,9 +309,6 @@ public class RailInLoopOptimizer extends ContextVisitor {
                             }
 
                             if (array instanceof Local) {
-                                if (X10Flags.toX10Flags(((Local) array).flags()).isShared()) {
-                                    return n;
-                                }
                             }
                             else if (array instanceof Field) {
                                 Field field = (Field) array;
@@ -313,7 +345,7 @@ public class RailInLoopOptimizer extends ContextVisitor {
                             else {
                                 ba = xnf.BackingArray(n.position(), id, createArrayType(type), array);
                             }
-                            LocalDef ldef = xts.localDef(n.position(), xts.NoFlags(), Types.ref(type), id.id());
+                            LocalDef ldef = getLocalDef(type, id.id());
                             return xnf.BackingArrayAccessAssign(n.position(), xnf.Local(n.position(), id).localInstance(ldef.asInstance()), ((SettableAssign_c) n).index().get(0), ((SettableAssign_c) n).operator(), ((SettableAssign_c) n).right()).type(type);
                         }
                     }
@@ -352,7 +384,7 @@ public class RailInLoopOptimizer extends ContextVisitor {
                         }
                     }
                     return n;
-                };
+                }
             });
 
             Stmt visited3 = (Stmt) visited2.visit(new NodeVisitor() {
@@ -367,7 +399,7 @@ public class RailInLoopOptimizer extends ContextVisitor {
                             LocalAssign la = (LocalAssign) ((Eval) n).expr();
                             Type type = X10TypeMixin.baseType(la.type());
                             Local local = la.local();
-                            if (xts.isRail(type) || xts.isValRail(type)) {
+                            if (xts.isRail(type) || isIMC(type)) {
                                 boolean contains = false;
                                 Id id = null;
                                 for (int i = 0; i < targetAndIsFinals.size(); i++) {
@@ -397,11 +429,10 @@ public class RailInLoopOptimizer extends ContextVisitor {
                                 Type pt = X10TypeMixin.baseType(((X10ClassType) type).typeArguments().get(0));
                                 Expr expr;
                                 Type arrayType = createArrayType(pt);
+                                LocalDef ldef = getLocalDef(arrayType, id.id());
                                 if (la.right() instanceof NullLit) {
-                                    LocalDef ldef = xts.localDef(n.position(), xts.NoFlags(), Types.ref(arrayType), id.id());
                                     expr = xnf.LocalAssign(n.position(), (Local) xnf.Local(n.position(), id).localInstance(ldef.asInstance()).type(arrayType), Assign.ASSIGN, la.right()).type(arrayType);
                                 } else {
-                                    LocalDef ldef = xts.localDef(n.position(), xts.NoFlags(), Types.ref(arrayType), id.id());
                                     expr = xnf.LocalAssign(n.position(), (Local) xnf.Local(n.position(), id).localInstance(ldef.asInstance()).type(arrayType), Assign.ASSIGN, xnf.BackingArray(n.position(), id, arrayType, local)).type(arrayType);
                                 }
                                 stmts.add(xnf.Eval(n.position(), expr));
@@ -413,163 +444,14 @@ public class RailInLoopOptimizer extends ContextVisitor {
                 };
             });
 
-            // for valrail
-            Stmt visited4;
-            if (VALRAIL_OPTIMIZE) {
-                visited4 = (Stmt) visited3.visit(new NodeVisitor() {
-                    @Override
-                    public Node override(Node parent, Node n) {
-                        if (n instanceof Loop) {
-                            return n;
-                        }
-                        if (n instanceof Closure) {
-                            return n;
-                        }
-                        return null;
-                    }
-                    @Override
-                    public Node leave(Node parent, Node old, Node n, NodeVisitor v) {
-                        if (n instanceof X10Call) {
-                            X10Call call = (X10Call) n;
-                            Position pos = call.position();
-                            Receiver target = call.target();
-                            Type type = X10TypeMixin.baseType(call.type());
-                            if (!(type instanceof ParameterType) && target != null && (xts.isRail(target.type()) || xts.isValRail(target.type())) && (call.methodInstance().name()==ClosureCall.APPLY || call.methodInstance().name()==SettableAssign.SET)) {
-                                if (ignores.contains(target.toString())) {
-                                    return n;
-                                }
-
-                                Expr elem;
-                                Expr index;
-                                if (call.arguments().size() == 1) {
-                                    elem = null;
-                                    index = call.arguments().get(0);
-                                } else {
-                                    elem = call.arguments().get(0);
-                                    index = call.arguments().get(1);
-                                }
-
-                                // for valrail
-                                if (target instanceof BackingArrayAccess) {
-                                    BackingArrayAccess ja = (BackingArrayAccess) target;
-                                    if (!xts.isValRail(ja.array().type())) {
-                                        return n;
-                                    }
-                                    if (!ja.index().isConstant() && !(ja.index() instanceof Local && !ignores.contains(ja.index().toString()))) {
-                                        return n;
-                                    }
-                                    boolean contain = false;
-                                    for (Pair<BackingArray, Boolean> pair : targetAndIsFinals) {
-                                        if (backingArrayToId.get(pair.fst()).toString().equals(ja.array().toString())) {
-                                            contain = true;
-                                            if (pair.snd() == false) {
-                                                return n;
-                                            }
-                                        }
-                                    }
-                                    if (contain == false) {
-                                        return n;
-                                    }
-                                } else {
-                                    return n;
-                                }
-
-                                boolean contains = false;
-                                Id id = null;
-                                for (Pair<BackingArray, Boolean> pair : targetAndIsFinals) {
-                                    if (pair.fst().container().toString().equals(target.toString())) {
-                                        contains = true;
-                                        id = backingArrayToId.get(pair.fst());
-                                        break;
-                                    }
-                                }
-
-                                if (!contains) {
-                                    id = xnf.Id(pos, Name.makeFresh(target.toString().replace(".", "$").replaceAll("[\\[\\]]", "_") + "$value"));
-                                    BackingArray ba = xnf.BackingArray(pos, id, createArrayType(type), (Expr) target);
-                                    backingArrayToId.put(ba, id);
-                                    targetAndIsFinals.add(new Pair<BackingArray, Boolean>(ba, true));
-                                }
-                                if (elem == null) {
-                                    LocalDef ldef = xts.localDef(n.position(), xts.NoFlags(), Types.ref(target.type()), id.id());
-                                    return xnf.BackingArrayAccess(pos, xnf.Local(pos, id).localInstance(ldef.asInstance()).type(target.type()), index, type);
-                                }
-                                LocalDef ldef = xts.localDef(n.position(), xts.NoFlags(), Types.ref(type), id.id());
-                                return xnf.BackingArrayAccessAssign(pos, xnf.Local(pos, id).localInstance(ldef.asInstance()).type(type), index, Assign.ASSIGN, elem).type(type);
-                            }
-                        }
-                        if (n instanceof SettableAssign_c) {
-                            Type type = X10TypeMixin.baseType(((SettableAssign_c) n).type());
-                            Expr array = ((SettableAssign_c) n).array();
-                            if (!(type instanceof ParameterType) && xts.isRail(array.type())) {
-                                if (((SettableAssign_c) n).index().size() > 1) {
-                                    return n;
-                                }
-
-                                if (ignores.contains(array.toString())) {
-                                    return n;
-                                }
-
-                                if (array instanceof BackingArrayAccess) {
-                                    BackingArrayAccess ja = (BackingArrayAccess) array;
-                                    if (!xts.isValRail(ja.array().type())) {
-                                        return n;
-                                    }
-                                    if (!ja.index().isConstant() && !(ja.index() instanceof Local && !ignores.contains(ja.index().toString()))) {
-                                        return n;
-                                    }
-                                    boolean contain = false;
-                                    for (Pair<BackingArray, Boolean> pair : targetAndIsFinals) {
-                                        if (backingArrayToId.get(pair.fst()).toString().equals(ja.array().toString())) {
-                                            contain = true;
-                                            if (pair.snd() == false) {
-                                                return n;
-                                            }
-                                        }
-                                    }
-                                    if (contain == false) {
-                                        return n;
-                                    }
-                                } else {
-                                    return n;
-                                }
-
-                                boolean contains = false;
-                                Id id = null;
-                                for (Pair<BackingArray, Boolean> pair : targetAndIsFinals) {
-                                    if (pair.fst().container().toString().equals(array.toString())) {
-                                        contains = true;
-                                        id = backingArrayToId.get(pair.fst());
-                                        break;
-                                    }
-                                }
-                                BackingArray jna;
-                                if (!contains) {
-                                    id = xnf.Id(n.position(), Name.makeFresh(array.toString().replace(".", "$").replaceAll("[\\[\\]]", "_") + "$value"));
-                                    jna = xnf.BackingArray(n.position(), id, createArrayType(type), array);
-                                    backingArrayToId.put(jna, id);
-                                    targetAndIsFinals.add(new Pair<BackingArray, Boolean>(jna, true));
-                                }
-                                LocalDef ldef = xts.localDef(n.position(), xts.NoFlags(), Types.ref(type), id.id());
-                                return xnf.BackingArrayAccessAssign(n.position(), xnf.Local(n.position(), id).localInstance(ldef.asInstance()).type(type), ((SettableAssign_c) n).index().get(0), ((SettableAssign_c) n).operator(), ((SettableAssign_c) n).right()).type(type);
-                            }
-                        }
-                        return n;
-                    };
-                });
-            } else {
-                visited4 = visited3;
-            }
-
-
             if (loop instanceof For) {
-                loop = ((For) loop).body(visited4);
+                loop = ((For) loop).body(visited3);
             } else if (loop instanceof While) {
-                loop = ((While) loop).body(visited4);
+                loop = ((While) loop).body(visited3);
             } else if (loop instanceof Do) {
-                loop = ((Do) loop).body(visited4);
+                loop = ((Do) loop).body(visited3);
             } else if (loop instanceof X10Loop) {
-                loop = (Loop) ((X10Loop) loop).body(visited4);
+                loop = (Loop) ((X10Loop) loop).body(visited3);
             } else {
                 throw new InternalCompilerError("something wrong!!!");
             }
@@ -586,14 +468,16 @@ public class RailInLoopOptimizer extends ContextVisitor {
                     Type pt = ((X10ClassType) type).typeArguments().get(0);
                     X10CanonicalTypeNode tn = xnf.X10CanonicalTypeNode(n.position(), pair.fst().type());
                     LocalDecl ld;
+                    LocalDef localDef = getLocalDef(pair.fst().type(), backingArrayToId.get(pair.fst()).id());
                     if (pair.snd()) {
+                        localDef.setFlags(xts.Final());
                         ld = xnf.LocalDecl(n.position(), xnf.FlagsNode(n.position(), xts.Final()), tn, backingArrayToId.get(pair.fst()), pair.fst())
-                        .localDef(xts.localDef(n.position(), xts.Final(), Types.ref(pair.fst().type()), backingArrayToId.get(pair.fst()).id()))
+                        .localDef(localDef)
                         .type(tn);
                     }
                     else {
                         ld = xnf.LocalDecl(n.position(), xnf.FlagsNode(n.position(), xts.NoFlags()), tn, backingArrayToId.get(pair.fst()), pair.fst())
-                        .localDef(xts.localDef(n.position(), xts.NoFlags(), Types.ref(pair.fst().type()), backingArrayToId.get(pair.fst()).id()))
+                        .localDef(localDef)
                         .type(tn);
                     }
                     statements.add(ld);
@@ -608,5 +492,23 @@ public class RailInLoopOptimizer extends ContextVisitor {
 
     Type createArrayType(Type t) {
         return xts.createBackingArray(t.position(), Types.ref(t));
+    }
+
+    private boolean isIMC(Type type) {
+        Type tbase = X10TypeMixin.baseType(type);
+        return tbase instanceof X10ParsedClassType_c && ((X10ParsedClassType_c) tbase).def().asType().typeEquals(imc, context);
+    };
+
+    private boolean isOptimizationTarget(Type ttype) {
+        ttype = X10TypeMixin.baseType(ttype);
+        if (!xts.isRail(ttype) && !isIMC(ttype))
+            return false;
+        if (!X10PrettyPrinterVisitor.hasParams(ttype))
+            return true;
+        List<Type> ta = ((X10ClassType) ttype).typeArguments();
+        if (ta != null && !ta.isEmpty() && !xts.isParameterType(ta.get(0))) {
+            return true;
+        }
+        return false;
     }
 }

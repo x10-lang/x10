@@ -38,7 +38,7 @@ public final class GlobalRef<T> extends x10.core.Struct {
     private static final java.util.ArrayList<Object> objects = new java.util.ArrayList<Object>(); // all referenced objects in this place
     final private int id; // place local id of referenced object
 
-    public GlobalRef(final x10.rtt.Type<?> T, final T t) {
+    public GlobalRef(final x10.rtt.Type<?> T, final T t, java.lang.Class<?> dummy$0) {
         this.T = T;
         this.home = x10.lang.Runtime.here();
         int size;

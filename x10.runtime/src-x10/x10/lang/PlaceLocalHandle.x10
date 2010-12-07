@@ -11,6 +11,7 @@
 
 package x10.lang;
 
+import x10.compiler.Pragma;
 import x10.compiler.NativeClass;
 import x10.util.Pair;
 
@@ -43,7 +44,7 @@ public final struct PlaceLocalHandle[T]{T <: Object} {
     public native def apply():T;
 
     // Only to be used by make method and Runtime class
-    native def set(newVal:T):Void;
+    native def set(newVal:T):void;
 
     public native def hashCode():Int;
 
@@ -63,8 +64,29 @@ public final struct PlaceLocalHandle[T]{T <: Object} {
     public static def make[T](dist:Dist, init:()=>T){T <: Object}:PlaceLocalHandle[T] {
         val handle = at(Place.FIRST_PLACE) PlaceLocalHandle[T]();
         finish for (p in dist.places()) {
-            at (p) async handle.set(init());
+            async at (p) handle.set(init());
         }
         return handle;
     }
+
+    /**
+    * Create a distributed object with local state of type T
+    * at each place in the argument distribution.  The local object will be initialized
+    * by evaluating init at each place.  When this method returns, the local objects
+    * will be initialized and available via the returned PlaceLocalHandle instance
+    * at every place in the distribution.
+    * 
+    * Require an initialization closure that does not change place asynchronously.
+    * 
+    * @param dist A distribution specifiying the places where local objects should be created.
+    * @param init the initialization closure used to create the local object.
+    * @return a PlaceLocalHandle that can be used to access the local objects.
+    */
+   public static def makeFlat[T](dist:Dist, init:()=>T){T <: Object}:PlaceLocalHandle[T] {
+       val handle = at(Place.FIRST_PLACE) PlaceLocalHandle[T]();
+       @Pragma(Pragma.FINISH_SPMD) finish for (p in dist.places()) {
+           async at (p) handle.set(init());
+       }
+       return handle;
+   }
 }

@@ -17,6 +17,7 @@ import java.util.List;
 
 import polyglot.ast.Block;
 import polyglot.ast.Formal;
+import polyglot.ast.NodeFactory;
 import polyglot.ast.TypeNode;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
@@ -31,13 +32,12 @@ import polyglot.types.Type;
 import polyglot.types.Types;
 import polyglot.types.MethodInstance;
 import polyglot.util.Position;
+import x10.ast.AnnotationNode;
 import x10.ast.Closure;
 import x10.ast.ClosureCall;
-import x10.ast.X10NodeFactory;
 import x10.ast.X10Local_c;
 import x10.constraint.XName;
 import x10.constraint.XNameWrapper;
-import x10.constraint.XVar;
 import x10.constraint.XTerms;
 import x10.constraint.XLocal;
 import x10.constraint.XFailure;
@@ -47,15 +47,17 @@ import x10.types.ClosureType_c;
 import x10.types.FunctionType;
 import x10.types.ParameterType;
 import x10.types.ParameterType_c;
+import x10.types.ThisDef;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassDef_c;
 import x10.types.X10ClassType;
-import x10.types.X10Context;
+import polyglot.types.Context;
 import x10.types.X10Flags;
 import x10.types.X10MethodDef;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 import x10.types.X10TypeSystem_c;
 import x10.types.constraints.CConstraint;
+import x10.extension.X10Ext;
 
 public class ClosureSynthesizer {
 
@@ -73,12 +75,12 @@ public class ClosureSynthesizer {
 	 * @param context
 	 * @return
 	 */
-	public static Closure makeClosure(X10TypeSystem_c xts, X10NodeFactory xnf, Position pos, Type retType, 
+	public static Closure makeClosure(X10TypeSystem_c xts, NodeFactory xnf, Position pos, Type retType, 
 			List<Formal> parms, Block body,
-			 X10Context context, List<X10ClassType> annotations) {
+			 Context context, List<X10ClassType> annotations) {
 	        List<Ref<? extends Type>> fTypes = new ArrayList<Ref<? extends Type>>();
 	        List<LocalDef> fNames = new ArrayList<LocalDef>();
-	        for (Formal f : parms) {
+	                        for (Formal f : parms) {
 	            fTypes.add(Types.ref(f.type().type()));
 	            fNames.add(f.localDef());
 	        }
@@ -87,7 +89,7 @@ public class ClosureSynthesizer {
 	                Types.ref(retType), 
 	                //Collections.EMPTY_LIST,
 	                fTypes, 
-	                (XVar) null, 
+	                null, 
 	                fNames, 
 	                null, 
 	               // Collections.<Ref<? extends Type>>emptyList(), 
@@ -97,7 +99,10 @@ public class ClosureSynthesizer {
 	            for (Type at : annotations) {
 	                ats.add(Types.ref(at));
 	            }
-	            cDef.setDefAnnotations(ats);
+                List<AnnotationNode> ans = new ArrayList<AnnotationNode>();
+                for (Type at : annotations) {
+                    ans.add(xnf.AnnotationNode(pos, xnf.CanonicalTypeNode(pos, at)));
+                }
 	        }
 	        Closure closure = (Closure) xnf.Closure(pos, //Collections.EMPTY_LIST,
 	                parms, 
@@ -106,6 +111,13 @@ public class ClosureSynthesizer {
 	                 body)
 	                .closureDef(cDef)
 	                .type(closureAnonymousClassDef((X10TypeSystem_c) xts, cDef).asType());
+            if (null != annotations && !annotations.isEmpty()) {
+                List<AnnotationNode> ans = new ArrayList<AnnotationNode>();
+                for (Type at : annotations) {
+                    ans.add(xnf.AnnotationNode(pos, xnf.CanonicalTypeNode(pos, at)));
+                }
+                closure = (Closure) ((X10Ext) closure.ext()).annotations(ans);
+            }
 	        return closure;
 	    }
 	/**
@@ -205,7 +217,7 @@ public class ClosureSynthesizer {
      * 
      *    public abstract def apply[X1,..,Xm,-Z1,..,-Zn,+U](formalNames){guard}:U;
      *    or: 
-     *    public abstract def apply[X1,..,Xm,-Z1,..,-Zn](formalNames){guard}:Void;
+     *    public abstract def apply[X1,..,Xm,-Z1,..,-Zn](formalNames){guard}:void;
      * }
      * 
      * 
@@ -246,12 +258,12 @@ public class ClosureSynthesizer {
                 return true;
             }
             @Override
-            public ClassType asType() {
+            public X10ClassType asType() {
                 if (asType == null) {
                     X10ClassDef cd = this;
                     asType = new ClosureType_c(xts, pos, this);
                 }
-                return asType;
+                return (X10ClassType) asType;
             }
         };
 
@@ -268,7 +280,7 @@ public class ClosureSynthesizer {
         cd.superType(null); // interfaces have no superclass
         // Functions implement the Any interface.
         cd.setInterfaces(Collections.<Ref<? extends Type>> singletonList(Types.ref(xts.Any())));
-        cd.flags(X10Flags.toX10Flags(Flags.PUBLIC.Abstract().Interface()));
+        cd.flags(Flags.PUBLIC.Abstract().Interface());
 
         final List<ParameterType> typeParams = new ArrayList<ParameterType>();
         final List<Ref<? extends Type>> argTypes = new ArrayList<Ref<? extends Type>>();
@@ -283,6 +295,8 @@ public class ClosureSynthesizer {
             argTypes.add(Types.ref(t));
             cd.addTypeParameter(t, ParameterType.Variance.CONTRAVARIANT);
         }
+
+        cd.setThisDef(xts.thisDef(pos, Types.ref(cd.asType())));
 
         Type rt = null;
 
@@ -300,10 +314,7 @@ public class ClosureSynthesizer {
         FunctionType ct = (FunctionType) cd.asType();
         xts.systemResolver().install(fullName, ct);
 
-        String fullNameWithThis = fullName + "#this";
-        //String fullNameWithThis = "this";
-        XName thisName = new XNameWrapper<Object>(new Object(), fullNameWithThis);
-        XVar thisVar = XTerms.makeLocal(thisName);
+        ThisDef thisDef = cd.thisDef();
 
         List<LocalDef> formalNames = xts.dummyLocalDefs(argTypes);
         X10MethodDef mi = xts.methodDef(pos, Types.ref(ct),
@@ -311,7 +322,7 @@ public class ClosureSynthesizer {
         		ClosureCall.APPLY, 
         		typeParams, 
         		argTypes, 
-        		thisVar,
+        		thisDef,
         		formalNames, 
         		null,//todo: it was guard1
         		null, 

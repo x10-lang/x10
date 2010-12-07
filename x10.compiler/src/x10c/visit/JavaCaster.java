@@ -26,9 +26,13 @@ import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.NullLit;
 import polyglot.ast.Receiver;
+import polyglot.ast.Return;
 import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
 import polyglot.frontend.Job;
+import polyglot.types.CodeDef;
+import polyglot.types.FunctionDef;
+import polyglot.types.FunctionInstance;
 import polyglot.types.QName;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
@@ -38,30 +42,32 @@ import polyglot.util.InternalCompilerError;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.ast.ClosureCall;
+import x10.ast.SettableAssign;
 import x10.ast.X10Call;
-import x10.ast.X10NodeFactory;
 import x10.ast.X10Return_c;
 import x10.emitter.Emitter;
 import x10.types.ParameterType;
+import x10.types.ParameterType.Variance;
 import x10.types.X10ClassType;
+import x10.types.X10MethodInstance;
 import x10.types.X10ParsedClassType_c;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 import x10.types.constraints.SubtypeConstraint;
 import x10.visit.X10PrettyPrinterVisitor;
 
 // add cast node for java code generator
 public class JavaCaster extends ContextVisitor {
     
-    private final X10TypeSystem xts;
-    private final X10NodeFactory xnf;
+    private final TypeSystem xts;
+    private final NodeFactory xnf;
 
     private Type imc;
 
     public JavaCaster(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf);
-        xts = (X10TypeSystem) ts;
-        xnf = (X10NodeFactory) nf;
+        xts = (TypeSystem) ts;
+        xnf = (NodeFactory) nf;
     }
     
     @Override
@@ -78,35 +84,117 @@ public class JavaCaster extends ContextVisitor {
     protected Node leaveCall(Node parent, Node old, Node n, NodeVisitor v) throws SemanticException {
         n = typeConstraintsCast(parent, old, n);
         n = railAccessCast(parent, n);
+        n = covReturnCast(parent, n);
         if (X10PrettyPrinterVisitor.isSelfDispatch) {
             n = typeParamCast(parent, n);
         }
         return n;
     }
 
+    private Node covReturnCast(Node parent, Node n) throws SemanticException {
+        if (n instanceof Return) {
+            Return return1 = (Return) n;
+            if (return1.expr() == null) {
+                return n;
+            }
+            CodeDef cd = context.currentCode();
+            if (cd instanceof FunctionDef) {
+                FunctionDef fd = (FunctionDef) cd;
+                Type expectedReturnType = ((FunctionInstance<?>) fd.asInstance()).returnType();
+                if (expectedReturnType.typeEquals(return1.expr().type(), context)) {
+                    return n;
+                }
+                Type rt = X10TypeMixin.baseType(return1.expr().type());
+                if (rt instanceof X10ClassType) {
+                    X10ClassType ct = (X10ClassType) rt;
+                    if (!ct.hasParams()) {
+                        return n;
+                    }
+                    List<Variance> variances = ct.x10Def().variances();
+                    for (Variance v : variances) {
+                        if (v != ParameterType.Variance.INVARIANT) {
+                            return return1.expr(cast(return1.expr(), expectedReturnType));  
+                        }
+                    }
+                }
+            }
+        }
+        return n;
+    }
+    
     private Node typeParamCast(Node parent, Node n) throws SemanticException {
         if (n instanceof X10Call && !(parent instanceof Eval)) {
             X10Call call = (X10Call) n;
             Receiver target = call.target();
-            if (!(target instanceof TypeNode) && !xts.isRail(call.target().type())) {
+            X10MethodInstance mi = call.methodInstance();
+            if (!(target instanceof TypeNode) && !xts.isRail(target.type())) {
                 Type bt = X10TypeMixin.baseType(target.type());
+                X10ClassType ct = null;
                 if (bt instanceof X10ClassType) {
-                    if (((X10ClassType) bt).typeArguments().size() > 0) {
-                        boolean isDispatch = false;
-                        if (((X10ClassType) bt).flags().isInterface()) {
-                            List<Ref<? extends Type>> formalTypes = call.methodInstance().def().formalTypes();
-                            for (Ref<? extends Type> ref : formalTypes) {
-                                Type type = ref.get();
-                                if (Emitter.containsTypeParam(type)) {
-                                    isDispatch = true;
-                                    break;
-                                }
-                            }
-                        }
-                        if (isDispatch) {
+                    ct = (X10ClassType) bt;
+                } else if (xts.isParameterType(bt)) {
+                    ct = (X10ClassType) X10TypeMixin.baseType(mi.container());
+                }
+                if (ct != null && (ct.typeArguments() != null && ct.typeArguments().size() > 0)) {
+                    if (isDispatch(ct, mi)) {
+                        return cast(call, call.type());
+                    } else {
+                        Type rt = mi.def().returnType().get();
+                        if (!xts.isParameterType(rt) && Emitter.containsTypeParam(rt)) {
                             return cast(call, call.type());
                         }
-                        else if (Emitter.containsTypeParam(call.methodInstance().def().returnType().get())) {
+                    }
+                }
+            }
+        }
+        if (n instanceof ClosureCall && !(parent instanceof Eval)) {
+            ClosureCall call = (ClosureCall) n;
+            Receiver target = call.target();
+            X10MethodInstance mi = call.closureInstance();
+            if (!(target instanceof TypeNode) && !xts.isRail(target.type())) {
+                Type bt = X10TypeMixin.baseType(target.type());
+                if (bt instanceof X10ClassType) {
+                    X10ClassType ct = (X10ClassType) bt;
+                    if (ct.typeArguments() != null && ct.typeArguments().size() > 0) {
+                        if (isDispatch(ct, mi)) {
+                            return cast(call, call.type());
+                        } else {
+                            Type rt = mi.def().returnType().get();
+                            if (!xts.isParameterType(rt) && Emitter.containsTypeParam(rt)) {
+                                return cast(call, call.type());
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return n;
+    }
+
+    private boolean isDispatch(Type bt, X10MethodInstance mi) {
+        boolean isDispatch = false;
+        if (((X10ClassType) bt).flags().isInterface()) {
+            List<Ref<? extends Type>> formalTypes = mi.def().formalTypes();
+            for (Ref<? extends Type> ref : formalTypes) {
+                Type type = ref.get();
+                if (Emitter.containsTypeParam(type)) {
+                    isDispatch = true;
+                    break;
+                }
+            }
+        }
+        return isDispatch;
+    }
+
+    private Node railAccessCast(Node parent, Node n) throws SemanticException {
+        if (n instanceof X10Call) {
+            X10Call call = (X10Call) n;
+            if (!xts.isParameterType(call.type())) {
+                if (call.target() != null && (xts.isRail(call.target().type()) || isIMC(call.target().type()))) {
+                    // e.g) val str = rail(0) = "str";
+                    //   -> val str = (String)(rail(0) = "str");
+                    if (!(parent instanceof Eval)) {
+                        if (call.methodInstance().name() == SettableAssign.SET && !X10PrettyPrinterVisitor.isPrimitiveRepedJava(call.type())) {
                             return cast(call, call.type());
                         }
                     }
@@ -116,24 +204,9 @@ public class JavaCaster extends ContextVisitor {
         return n;
     }
 
-    private Node railAccessCast(Node parent, Node n) throws SemanticException {
-        if (n instanceof X10Call) {
-            X10Call call = (X10Call) n;
-            if (!(X10TypeMixin.baseType(call.type()) instanceof ParameterType)) {
-                Type tbase = X10TypeMixin.baseType(call.target().type());
-                if (call.target() != null && (xts.isRail(call.target().type()) || tbase instanceof X10ParsedClassType_c && ((X10ParsedClassType_c) tbase).def().asType().typeEquals(imc, context))) {
-                    // e.g) val str = rail(0) = "str";
-                    //   -> val str = (String)(rail(0) = "str");
-                    if (!(parent instanceof Eval)) {
-                        if (call.methodInstance().name().toString().equals("set") && !(call.type().isBoolean() || call.type().isNumeric() || call.type().isChar())
-                        ) {
-                            return cast(call, call.type());
-                        }
-                    }
-                }
-            }
-        }
-        return n;
+    private boolean isIMC(Type type) {
+        Type tbase = X10TypeMixin.baseType(type);
+        return tbase instanceof X10ParsedClassType_c && ((X10ParsedClassType_c) tbase).def().asType().typeEquals(imc, context);
     }
 
     // add casts for type constraints to type parameters
@@ -164,7 +237,7 @@ public class JavaCaster extends ContextVisitor {
             e = (Expr) old;
         }
         
-        if (!(X10TypeMixin.baseType(e.type()) instanceof ParameterType)) {
+        if (!xts.isParameterType(e.type())) {
             return n;
         }
 
@@ -172,6 +245,7 @@ public class JavaCaster extends ContextVisitor {
         if (context.currentClass() instanceof X10ClassType) {
             List<SubtypeConstraint> terms = ((X10ClassType) context.currentClass()).x10Def().typeBounds().get().terms();
             for (SubtypeConstraint sc : terms) {
+                if (sc.isHaszero()) continue;
                 if (sc.subtype().typeEquals(X10TypeMixin.baseType(e.type()), context) && sc.subtype() instanceof ParameterType) {
                     superType = sc.supertype();
                 }

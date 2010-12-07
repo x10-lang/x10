@@ -37,15 +37,16 @@ public final class Rail<T> extends Ref implements AnyRail<T>, x10.lang.Settable<
         this.value = array;
     }
     
+
+    public IndexedMemoryChunk<T> raw() {
+        return new IndexedMemoryChunk<T>(type, length, value);
+    }
+
     public void copyToLocal(int src_off, Rail<T> dst, int dst_off, int len) {
         System.arraycopy(value, src_off, dst.value, dst_off, len);
     }
 
     public void copyFromLocal(int dst_off, Rail<T> src, int src_off, int len) {
-        System.arraycopy(src.value, src_off, value, dst_off, len);
-    }
-
-    public void copyFromLocal(int  dst_off, ValRail<T> src, int src_off, int len) {
         System.arraycopy(src.value, src_off, value, dst_off, len);
     }
 

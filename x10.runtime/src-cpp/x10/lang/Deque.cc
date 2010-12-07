@@ -41,14 +41,14 @@ ref<Deque> Deque::_constructor() {
 }
 
 const serialization_id_t Deque::_serialization_id =
-    DeserializationDispatcher::addDeserializer(Deque::_deserializer<Reference>);
+    DeserializationDispatcher::addDeserializer(Deque::_deserializer<Reference>, x10aux::CLOSURE_KIND_NOT_ASYNC);
 
 void Deque::growQueue() {
     Slots *oldQ = queue;
     int oldSize = oldQ->capacity;
     int newSize = oldSize << 1;
     if (newSize > MAXIMUM_QUEUE_CAPACITY) {
-        assert(false); /* throw new RuntimeException("Queue capacity exceeded"); */
+        UNIMPLEMENTED("Queue capacity exceeded");
     }
     Slots *newQ = x10aux::alloc<Slots>();
     newQ->capacity = newSize;
@@ -82,7 +82,7 @@ ref<Reference> Deque::steal() {
         base = b + 1;
         return t;
     }
-    return null;
+    return X10_NULL;
 }
 
 void Deque::_serialize_body(serialization_buffer &buf) {
@@ -94,6 +94,6 @@ void Deque::_deserialize_body(deserialization_buffer& buf) {
 }
 
 
-RTT_CC_DECLS1(Deque, "x10.lang.Deque", Object)
+RTT_CC_DECLS1(Deque, "x10.lang.Deque", RuntimeType::class_kind, Object)
 
 // vim:tabstop=4:shiftwidth=4:expandtab

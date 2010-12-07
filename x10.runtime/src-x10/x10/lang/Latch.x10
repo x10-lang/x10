@@ -12,10 +12,17 @@
 package x10.lang;
 
 import x10.compiler.Pinned;
-import x10.compiler.Global;
 
+/**
+ * Boolean latch.
+ * Inherited look/unlock/tryLock method from superclass can be used.
+ *
+ * @author tardieu
+ */
 @Pinned public class Latch extends Monitor implements ()=>Boolean {
-
+    /**
+     * Latch is initially unset
+     */
     public def this() { super(); }
 
     private def this(Any) {
@@ -24,15 +31,22 @@ import x10.compiler.Global;
 
     private var state:boolean = false;
 
+    /**
+     * Set the latch
+     */
     public def release():void {
         lock();
         state = true;
         super.release();
     }
 
+    /**
+     * Wait for the latch to be set
+     * Return instantly if it already is
+     */
     public def await():void {
-        // avoid locking if state == true
         Runtime.ensureNotInAtomic();
+        // avoid locking if state == true
         if (!state) {
             lock();
             while (!state) super.await();
@@ -40,5 +54,8 @@ import x10.compiler.Global;
             }
         }
 
-    public def apply():boolean = state; // memory model?
+    /**
+     * Check the latch state without blocking
+     */
+    public def apply():boolean = state;
 }

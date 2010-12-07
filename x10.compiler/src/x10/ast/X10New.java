@@ -13,8 +13,14 @@ package x10.ast;
 
 import java.util.List;
 
+import polyglot.ast.ClassBody;
+import polyglot.ast.Expr;
 import polyglot.ast.New;
 import polyglot.ast.TypeNode;
+import polyglot.types.ClassDef;
+import polyglot.types.ConstructorInstance;
+import x10.types.X10ClassDef;
+import x10.types.X10ConstructorInstance;
 
 public interface X10New extends New, X10ProcedureCall {
 	List<TypeNode> typeArguments();
@@ -24,4 +30,13 @@ public interface X10New extends New, X10ProcedureCall {
 	boolean newOmitted();
 
 	X10New newOmitted(boolean val);
+
+	X10ClassDef anonType();
+	X10ConstructorInstance constructorInstance();
+
+	X10New anonType(ClassDef anonType);
+	X10New constructorInstance(ConstructorInstance ci);
+	X10New qualifier(Expr qualifier);
+	X10New objectType(TypeNode t);
+	X10New body(ClassBody b);
 }

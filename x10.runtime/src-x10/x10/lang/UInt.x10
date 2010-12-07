@@ -27,7 +27,7 @@ import x10.util.Ordered;
 //                 v-- when used
 @NativeRep("c++", "x10_uint", "x10_uint", null)
 //                             ^ when constructed
-public final struct UInt /*TODO implements Arithmetic[UInt], Bitwise[UInt], Ordered[UInt]*/ {
+public struct UInt implements Comparable[UInt] /*TODO implements Arithmetic[UInt], Bitwise[UInt], Ordered[UInt]*/ {
 
     /** The actual number with Int representation */
     public val intVal:Int;
@@ -37,58 +37,54 @@ public final struct UInt /*TODO implements Arithmetic[UInt], Bitwise[UInt], Orde
 
     /**
      * A less-than operator.
-     * Compares the given UInt with another UInt and returns true if the given UInt is
+     * Compares this UInt with another UInt and returns true if this UInt is
      * strictly less than the other UInt.
-     * @param x the given UInt
-     * @param y the other UInt
-     * @return true if the given UInt is strictly less than the other UInt.
+     * @param x the other UInt
+     * @return true if this UInt is strictly less than the other UInt.
      */
-    // @Native("java", "x10.core.Unsigned.lt(#1, #2)")
-    @Native("c++",  "((#1) < (#2))")
-    public static operator (x:UInt) < (y:UInt): Boolean {
-         return (x.intVal + Int.MIN_VALUE) < (y.intVal + Int.MIN_VALUE);
+    // @Native("java", "x10.core.Unsigned.lt(#0, #1)")
+    @Native("c++",  "((#0) < (#1))")
+    public operator this < (x:UInt): Boolean {
+         return (intVal + Int.MIN_VALUE) < (x.intVal + Int.MIN_VALUE);
      }
 
     /**
      * A greater-than operator.
-     * Compares the given UInt with another UInt and returns true if the given UInt is
+     * Compares this UInt with another UInt and returns true if this UInt is
      * strictly greater than the other UInt.
-     * @param x the given UInt
-     * @param y the other UInt
-     * @return true if the given UInt is strictly greater than the other UInt.
+     * @param x the other UInt
+     * @return true if this UInt is strictly greater than the other UInt.
      */
-    // @Native("java", "x10.core.Unsigned.gt(#1, #2)")
-    @Native("c++",  "((#1) > (#2))")
-    public static operator (x:UInt) > (y:UInt): Boolean {
-        return (x.intVal + Int.MIN_VALUE) > (y.intVal + Int.MIN_VALUE);
+    // @Native("java", "x10.core.Unsigned.gt(#0, #1)")
+    @Native("c++",  "((#0) > (#1))")
+    public operator this > (x:UInt): Boolean {
+        return (intVal + Int.MIN_VALUE) > (x.intVal + Int.MIN_VALUE);
     }
 
     /**
      * A less-than-or-equal-to operator.
-     * Compares the given UInt with another UInt and returns true if the given UInt is
+     * Compares this UInt with another UInt and returns true if this UInt is
      * less than or equal to the other UInt.
-     * @param x the given UInt
-     * @param y the other UInt
-     * @return true if the given UInt is less than or equal to the other UInt.
+     * @param x the other UInt
+     * @return true if this UInt is less than or equal to the other UInt.
      */
-    // @Native("java", "x10.core.Unsigned.le(#1, #2)")
-    @Native("c++",  "((#1) <= (#2))")
-    public static operator (x:UInt) <= (y:UInt): Boolean {
-         return (x.intVal + Int.MIN_VALUE) <= (y.intVal + Int.MIN_VALUE);
+    // @Native("java", "x10.core.Unsigned.le(#0, #1)")
+    @Native("c++",  "((#0) <= (#1))")
+    public operator this <= (x:UInt): Boolean {
+         return (intVal + Int.MIN_VALUE) <= (x.intVal + Int.MIN_VALUE);
      }
 
     /**
      * A greater-than-or-equal-to operator.
-     * Compares the given UInt with another UInt and returns true if the given UInt is
+     * Compares this UInt with another UInt and returns true if this UInt is
      * greater than or equal to the other UInt.
-     * @param x the given UInt
-     * @param y the other UInt
-     * @return true if the given UInt is greater than or equal to the other UInt.
+     * @param x the other UInt
+     * @return true if this UInt is greater than or equal to the other UInt.
      */
-    // @Native("java", "x10.core.Unsigned.ge(#1, #2)")
-    @Native("c++",  "((#1) >= (#2))")
-    public static operator (x:UInt) >= (y:UInt): Boolean {
-        return (x.intVal + Int.MIN_VALUE) >= (y.intVal + Int.MIN_VALUE);
+    // @Native("java", "x10.core.Unsigned.ge(#0, #1)")
+    @Native("c++",  "((#0) >= (#1))")
+    public operator this >= (x:UInt): Boolean {
+        return (intVal + Int.MIN_VALUE) >= (x.intVal + Int.MIN_VALUE);
     }
 
 
@@ -96,263 +92,173 @@ public final struct UInt /*TODO implements Arithmetic[UInt], Bitwise[UInt], Orde
      * A binary plus operator.
      * Computes the result of the addition of the two operands.
      * Overflows result in truncating the high bits.
-     * @param x the given UInt
-     * @param y the other UInt
-     * @return the sum of the given UInt and the other UInt.
+     * @param x the other UInt
+     * @return the sum of this UInt and the other UInt.
      */
-    // @Native("java", "((#1) + (#2))")
-    @Native("c++",  "((x10_uint) ((#1) + (#2)))")
-    public static operator (x:UInt) + (y:UInt): UInt = UInt(x.intVal + y.intVal);
-    /**
-     * A binary plus operator (unsigned disambiguation).
-     * @see #operator(UInt)+(UInt)
-     */
-    // @Native("java", "((#1) + (#2))")
-    @Native("c++",  "((x10_uint) ((#1) + (#2)))")
-    public static operator (x:Int) + (y:UInt): UInt = UInt(x + y.intVal);
-    /**
-     * A binary plus operator (unsigned disambiguation).
-     * @see #operator(UInt)+(UInt)
-     */
-    // @Native("java", "((#1) + (#2))")
-    @Native("c++",  "((x10_uint) ((#1) + (#2)))")
-    public static operator (x:UInt) + (y:Int): UInt = UInt(x.intVal + y);
+    // @Native("java", "((#0) + (#1))")
+    @Native("c++",  "((x10_uint) ((#0) + (#1)))")
+    public operator this + (x:UInt): UInt = UInt(intVal + x.intVal);
 
     /**
      * A binary minus operator.
      * Computes the result of the subtraction of the two operands.
      * Overflows result in truncating the high bits.
-     * @param x the given UInt
-     * @param y the other UInt
-     * @return the difference of the given UInt and the other UInt.
+     * @param x the other UInt
+     * @return the difference of this UInt and the other UInt.
      */
-    // @Native("java", "((#1) - (#2))")
-    @Native("c++",  "((x10_uint) ((#1) - (#2)))")
-    public static operator (x:UInt) - (y:UInt): UInt = UInt(x.intVal - y.intVal);
-    /**
-     * A binary minus operator (unsigned disambiguation).
-     * @see #operator(UInt)-(UInt)
-     */
-    // @Native("java", "((#1) - (#2))")
-    @Native("c++",  "((x10_uint) ((#1) - (#2)))")
-    public static operator (x:Int) - (y:UInt): UInt = UInt(x - y.intVal);
-    /**
-     * A binary minus operator (unsigned disambiguation).
-     * @see #operator(UInt)-(UInt)
-     */
-    // @Native("java", "((#1) - (#2))")
-    @Native("c++",  "((x10_uint) ((#1) - (#2)))")
-    public static operator (x:UInt) - (y:Int): UInt = UInt(x.intVal - y);
+    // @Native("java", "((#0) - (#1))")
+    @Native("c++",  "((x10_uint) ((#0) - (#1)))")
+    public operator this - (x:UInt): UInt = UInt(intVal - x.intVal);
 
     /**
      * A binary multiply operator.
      * Computes the result of the multiplication of the two operands.
      * Overflows result in truncating the high bits.
-     * @param x the given UInt
-     * @param y the other UInt
-     * @return the product of the given UInt and the other UInt.
+     * @param x the other UInt
+     * @return the product of this UInt and the other UInt.
      */
-    // @Native("java", "((#1) * (#2))")
-    @Native("c++",  "((x10_uint) ((#1) * (#2)))")
-    public static operator (x:UInt) * (y:UInt): UInt = UInt(x.intVal * y.intVal);
-    /**
-     * A binary multiply operator (unsigned disambiguation).
-     * @see #operator(UInt)*(UInt)
-     */
-    // @Native("java", "((#1) * (#2))")
-    @Native("c++",  "((x10_uint) ((#1) * (#2)))")
-    public static operator (x:Int) * (y:UInt): UInt = UInt(x * y.intVal);
-    /**
-     * A binary multiply operator (unsigned disambiguation).
-     * @see #operator(UInt)*(UInt)
-     */
-    // @Native("java", "((#1) * (#2))")
-    @Native("c++",  "((x10_uint) ((#1) * (#2)))")
-    public static operator (x:UInt) * (y:Int): UInt = UInt(x.intVal * y);
+    // @Native("java", "((#0) * (#1))")
+    @Native("c++",  "((x10_uint) ((#0) * (#1)))")
+    public operator this * (x:UInt): UInt = UInt(intVal * x.intVal);
 
     /**
      * A binary divide operator.
      * Computes the result of the division of the two operands.
-     * @param x the given UInt
-     * @param y the other UInt
-     * @return the quotient of the given UInt and the other UInt.
+     * @param x the other UInt
+     * @return the quotient of this UInt and the other UInt.
      */
-    // @Native("java", "x10.core.Unsigned.div(#1, #2)")
-    @Native("c++",  "((x10_uint) ((#1) / (#2)))")
-    public static operator (x:UInt) / (y:UInt): UInt {
-        return UInt(((x.intVal as Long) / (y.intVal as Long)) as Int);
-    }
-    /**
-     * A binary divide operator (unsigned disambiguation).
-     * @see #operator(UInt)/(UInt)
-     */
-    // @Native("java", "x10.core.Unsigned.div(#1, #2)")
-    @Native("c++",  "((x10_uint) ((#1) / (#2)))")
-    public static operator (x:Int) / (y:UInt): UInt {
-        return UInt(((x as Long) / (y.intVal as Long)) as Int);
-    }
-    /**
-     * A binary divide operator (unsigned disambiguation).
-     * @see #operator(UInt)/(UInt)
-     */
-    // @Native("java", "x10.core.Unsigned.div(#1, #2)")
-    @Native("c++",  "((x10_uint) ((#1) / (#2)))")
-    public static operator (x:UInt) / (y:Int): UInt {
-        return UInt(((x.intVal as Long) / (y as Long)) as Int);
+    // @Native("java", "x10.core.Unsigned.div(#0, #1)")
+    @Native("c++",  "((x10_uint) ((#0) / x10aux::zeroCheck(#1)))")
+    public operator this / (x:UInt): UInt {
+        return UInt(((intVal as Long) / (x.intVal as Long)) as Int);
     }
 
     /**
      * A binary remainder operator.
      * Computes a remainder from the division of the two operands.
-     * @param x the given UInt
-     * @param y the other UInt
-     * @return the remainder from dividing the given UInt by the other UInt.
+     * @param x the other UInt
+     * @return the remainder from dividing this UInt by the other UInt.
      */
-    // @Native("java", "x10.core.Unsigned.rem(#1, #2)")
-    @Native("c++",  "((x10_uint) ((#1) % (#2)))")
-    public static operator (x:UInt) % (y:UInt): UInt {
-        return UInt(((x.intVal as Long) % (y.intVal as Long)) as Int);
-    }
-    /**
-     * A binary remainder operator (unsigned disambiguation).
-     * @see #operator(UInt)%(UInt)
-     */
-    // @Native("java", "x10.core.Unsigned.rem(#1, #2)")
-    @Native("c++",  "((x10_uint) ((#1) % (#2)))")
-    public static operator (x:Int) % (y:UInt): UInt {
-        return UInt(((x as Long) % (y.intVal as Long)) as Int);
-    }
-    /**
-     * A binary remainder operator (unsigned disambiguation).
-     * @see #operator(UInt)%(UInt)
-     */
-    // @Native("java", "x10.core.Unsigned.rem(#1, #2)")
-    @Native("c++",  "((x10_uint) ((#1) % (#2)))")
-    public static operator (x:UInt) % (y:Int): UInt {
-        return UInt(((x.intVal as Long) % (y as Long)) as Int);
+    // @Native("java", "x10.core.Unsigned.rem(#0, #1)")
+    @Native("c++",  "((x10_uint) ((#0) % x10aux::zeroCheck(#1)))")
+    public operator this % (x:UInt): UInt {
+        return UInt(((intVal as Long) % (x.intVal as Long)) as Int);
     }
 
     /**
      * A unary plus operator.
      * A no-op.
-     * @param x the given UInt
-     * @return the value of the given UInt.
+     * @return the value of this UInt.
      */
-    // @Native("java", "((int) +(#1))")
-    @Native("c++",  "((x10_uint) +(#1))")
-    public static operator + (x:UInt): UInt = x;
+    // @Native("java", "((int) +(#0))")
+    @Native("c++",  "((x10_uint) +(#0))")
+    public operator + this: UInt = this;
 
     /**
      * A unary minus operator.
      * Computes the two's complement of the operand.
      * Overflows result in truncating the high bits.
-     * @param x the given UInt
-     * @return the two's complement of the given UInt.
+     * @return the two's complement of this UInt.
      */
-    // @Native("java", "((int) -(#1))")
-    @Native("c++",  "((x10_int) -(#1))")
-    public static operator - (x:UInt): UInt = UInt(-(x.intVal));
+    // @Native("java", "((int) -(#0))")
+    @Native("c++",  "((x10_int) -(#0))")
+    public operator - this: UInt = UInt(-(intVal));
 
 
     /**
      * A bitwise and operator.
      * Computes a bitwise AND of the two operands.
-     * @param x the given UInt
-     * @param y the other UInt
-     * @return the bitwise AND of the given UInt and the other UInt.
+     * @param x the other UInt
+     * @return the bitwise AND of this UInt and the other UInt.
      */
-    // @Native("java", "((#1) & (#2))")
-    @Native("c++",  "((x10_uint) ((#1) & (#2)))")
-    public static operator (x:UInt) & (y:UInt): UInt = UInt(x.intVal & y.intVal);
+    // @Native("java", "((#0) & (#1))")
+    @Native("c++",  "((x10_uint) ((#0) & (#1)))")
+    public operator this & (x:UInt): UInt = UInt(intVal & x.intVal);
     /**
      * A bitwise and operator (unsigned disambiguation).
      * @see #operator(UInt)&(UInt)
      */
-    // @Native("java", "((#1) & (#2))")
-    @Native("c++",  "((x10_uint) ((#1) & (#2)))")
-    public static operator (x:Int) & (y:UInt): UInt = UInt(x & y.intVal);
+    // @Native("java", "((#0) & (#1))")
+    @Native("c++",  "((x10_uint) ((#0) & (#1)))")
+    public operator (x:Int) & this: UInt = UInt(x & intVal);
     /**
      * A bitwise and operator (unsigned disambiguation).
      * @see #operator(UInt)&(UInt)
      */
-    // @Native("java", "((#1) & (#2))")
-    @Native("c++",  "((x10_uint) ((#1) & (#2)))")
-    public static operator (x:UInt) & (y:Int): UInt = UInt(x.intVal & y);
+    // @Native("java", "((#0) & (#1))")
+    @Native("c++",  "((x10_uint) ((#0) & (#1)))")
+    public operator this & (x:Int): UInt = UInt(intVal & x);
 
     /**
      * A bitwise or operator.
      * Computes a bitwise OR of the two operands.
-     * @param x the given UInt
-     * @param y the other UInt
-     * @return the bitwise OR of the given UInt and the other UInt.
+     * @param x the other UInt
+     * @return the bitwise OR of this UInt and the other UInt.
      */
-    // @Native("java", "((#1) | (#2))")
-    @Native("c++",  "((x10_uint) ((#1) | (#2)))")
-    public static operator (x:UInt) | (y:UInt): UInt = UInt(x.intVal | y.intVal);
+    // @Native("java", "((#0) | (#1))")
+    @Native("c++",  "((x10_uint) ((#0) | (#1)))")
+    public operator this | (x:UInt): UInt = UInt(intVal | x.intVal);
     /**
      * A bitwise or operator (unsigned disambiguation).
      * @see #operator(UInt)|(UInt)
      */
-    // @Native("java", "((#1) | (#2))")
-    @Native("c++",  "((x10_uint) ((#1) | (#2)))")
-    public static operator (x:Int) | (y:UInt): UInt = UInt(x | y.intVal);
+    // @Native("java", "((#0) | (#1))")
+    @Native("c++",  "((x10_uint) ((#0) | (#1)))")
+    public operator (x:Int) | this: UInt = UInt(x | intVal);
     /**
      * A bitwise or operator (unsigned disambiguation).
      * @see #operator(UInt)|(UInt)
      */
-    // @Native("java", "((#1) | (#2))")
-    @Native("c++",  "((x10_uint) ((#1) | (#2)))")
-    public static operator (x:UInt) | (y:Int): UInt = UInt(x.intVal | y);
+    // @Native("java", "((#0) | (#1))")
+    @Native("c++",  "((x10_uint) ((#0) | (#1)))")
+    public operator this | (x:Int): UInt = UInt(intVal | x);
 
     /**
      * A bitwise xor operator.
      * Computes a bitwise XOR of the two operands.
-     * @param x the given UInt
-     * @param y the other UInt
-     * @return the bitwise XOR of the given UInt and the other UInt.
+     * @param x the other UInt
+     * @return the bitwise XOR of this UInt and the other UInt.
      */
-    // @Native("java", "((#1) ^ (#2))")
-    @Native("c++",  "((x10_uint) ((#1) ^ (#2)))")
-    public static operator (x:UInt) ^ (y:UInt): UInt = UInt(x.intVal ^ y.intVal);
+    // @Native("java", "((#0) ^ (#1))")
+    @Native("c++",  "((x10_uint) ((#0) ^ (#1)))")
+    public operator this ^ (x:UInt): UInt = UInt(intVal ^ x.intVal);
     /**
      * A bitwise xor operator (unsigned disambiguation).
      * @see #operator(UInt)^(UInt)
      */
-    // @Native("java", "((#1) ^ (#2))")
-    @Native("c++",  "((x10_uint) ((#1) ^ (#2)))")
-    public static operator (x:Int) ^ (y:UInt): UInt = UInt(x ^ y.intVal);
+    // @Native("java", "((#0) ^ (#1))")
+    @Native("c++",  "((x10_uint) ((#0) ^ (#1)))")
+    public operator (x:Int) ^ this: UInt = UInt(x ^ intVal);
     /**
      * A bitwise xor operator (unsigned disambiguation).
      * @see #operator(UInt)^(UInt)
      */
-    // @Native("java", "((#1) ^ (#2))")
-    @Native("c++",  "((x10_uint) ((#1) ^ (#2)))")
-    public static operator (x:UInt) ^ (y:Int): UInt = UInt(x.intVal ^ y);
+    // @Native("java", "((#0) ^ (#1))")
+    @Native("c++",  "((x10_uint) ((#0) ^ (#1)))")
+    public operator this ^ (x:Int): UInt = UInt(intVal ^ x);
 
     /**
      * A bitwise left shift operator.
      * Computes the value of the left-hand operand shifted left by the value of the right-hand operand.
      * If the right-hand operand is negative, the results are undefined.
-     * @param x the given UInt
      * @param count the shift count
-     * @return the given UInt shifted left by count.
+     * @return this UInt shifted left by count.
      */
-    // @Native("java", "((#1) << (#2))")
-    @Native("c++",  "((x10_uint) ((#1) << (#2)))")
-    public static operator (x:UInt) << (count:Int): UInt = UInt(x.intVal << count);
+    // @Native("java", "((#0) << (#1))")
+    @Native("c++",  "((x10_uint) ((#0) << (#1)))")
+    public operator this << (count:Int): UInt = UInt(intVal << count);
 
     /**
      * A bitwise right shift operator.
      * Computes the value of the left-hand operand shifted right by the value of the right-hand operand,
      * filling the high bits with zeros.
      * If the right-hand operand is negative, the results are undefined.
-     * @param x the given UInt
      * @param count the shift count
-     * @return the given UInt shifted right by count.
+     * @return this UInt shifted right by count.
      */
-    // @Native("java", "((#1) >>> (#2))")
-    @Native("c++",  "((x10_uint) ((#1) >> (#2)))")
-    public static operator (x:UInt) >> (count:Int): UInt = UInt(x.intVal >>> count);
+    // @Native("java", "((#0) >>> (#1))")
+    @Native("c++",  "((x10_uint) ((#0) >> (#1)))")
+    public operator this >> (count:Int): UInt = UInt(intVal >>> count);
 
     /**
      * A bitwise logical right shift operator (zero-fill).
@@ -360,23 +266,21 @@ public final struct UInt /*TODO implements Arithmetic[UInt], Bitwise[UInt], Orde
      * filling the high bits with zeros.
      * If the right-hand operand is negative, the results are undefined.
      * @deprecated use the right-shift operator.
-     * @param x the given UInt
      * @param count the shift count
-     * @return the given UInt shifted right by count with high bits zero-filled.
+     * @return this UInt shifted right by count with high bits zero-filled.
      */
-    // @Native("java", "((#1) >>> (#2))")
-    @Native("c++",  "((x10_uint) ((#1) >> (#2)))")
-    public static operator (x:UInt) >>> (count:Int): UInt = UInt(x.intVal >>> count);
+    // @Native("java", "((#0) >>> (#1))")
+    @Native("c++",  "((x10_uint) ((#0) >> (#1)))")
+    public operator this >>> (count:Int): UInt = UInt(intVal >>> count);
 
     /**
      * A bitwise complement operator.
      * Computes a bitwise complement (NOT) of the operand.
-     * @param x the given UInt
-     * @return the bitwise complement of the given UInt.
+     * @return the bitwise complement of this UInt.
      */
-    // @Native("java", "((int) ~(#1))")
-    @Native("c++",  "((x10_uint) ~(#1))")
-    public static operator ~ (x:UInt): UInt = UInt(~(x.intVal));
+    // @Native("java", "((int) ~(#0))")
+    @Native("c++",  "((x10_uint) ~(#0))")
+    public operator ~ this: UInt = UInt(~(intVal));
 
 
     /**
@@ -464,7 +368,7 @@ public final struct UInt /*TODO implements Arithmetic[UInt], Bitwise[UInt], Orde
      */
     // @Native("java", "((int)(int)(#1))")
     @Native("c++",  "((x10_uint) (#1))")
-    public static operator (x:Int): UInt = UInt(x);
+    public static operator (x:Int) as UInt = UInt(x);
 
 
     /**
@@ -530,7 +434,7 @@ public final struct UInt /*TODO implements Arithmetic[UInt], Bitwise[UInt], Orde
     @Native("c++", "((x10_uint) x10aux::int_utils::parseInt(#1, #2))")
     public static def parseUInt(s:String, radix:Int): UInt //throwsNumberFormatException 
     {
-        return UInt(Int.parse(s, radix));
+        return parse(s, radix);
     }
 
     /**
@@ -540,7 +444,7 @@ public final struct UInt /*TODO implements Arithmetic[UInt], Bitwise[UInt], Orde
     @Native("c++", "((x10_uint) x10aux::int_utils::parseInt(#1))")
     public static def parseUInt(s:String): UInt //throwsNumberFormatException 
     {
-        return UInt(Int.parse(s));
+        return parse(s);
     }
 
     /**
@@ -554,7 +458,11 @@ public final struct UInt /*TODO implements Arithmetic[UInt], Bitwise[UInt], Orde
     @Native("c++", "((x10_uint) x10aux::int_utils::parseInt(#1, #2))")
     public static def parse(s:String, radix:Int): UInt //throwsNumberFormatException 
     {
-        return UInt(Int.parse(s, radix));
+    	val l = Long.parse(s, radix);
+    	if (l < 0 || l > 0xffffffffL) {
+    		throw new NumberFormatException("Value out of range. Value:\"" + s + "\" Radix:" + radix);
+    	}
+    	return l as UInt;
     }
 
     /**
@@ -567,7 +475,7 @@ public final struct UInt /*TODO implements Arithmetic[UInt], Bitwise[UInt], Orde
     @Native("c++", "((x10_uint) x10aux::int_utils::parseInt(#1))")
     public static def parse(s:String): UInt //throwsNumberFormatException 
     {
-        return UInt(Int.parse(s));
+        return parse(s, 10);
     }
 
 
@@ -701,7 +609,7 @@ public final struct UInt /*TODO implements Arithmetic[UInt], Bitwise[UInt], Orde
      */
     // @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
-    public def equals(x:Any):Boolean = this.intVal.equals(x);
+    public def equals(x:Any):Boolean = x instanceof UInt && (x as UInt).intVal == this.intVal;
 
     /**
      * Returns true if this UInt is equal to the given UInt.
@@ -711,4 +619,15 @@ public final struct UInt /*TODO implements Arithmetic[UInt], Bitwise[UInt], Orde
     // @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
     public def equals(x:UInt):Boolean = this.intVal == x.intVal;
+
+    /**
+    * Returns a negative Int, zero, or a positive Int if this UInt is less than, equal
+    * to, or greater than the given UInt.
+    * @param x the given UInt
+    * @return a negative Int, zero, or a positive Int if this UInt is less than, equal
+    * to, or greater than the given UInt.
+    */
+    // @Native("java", "x10.rtt.Equality.compareTo(#0.intVal + java.lang.Integer.MIN_VALUE, #1.intVal + java.lang.Integer.MIN_VALUE)")
+    @Native("c++", "x10aux::int_utils::compareTo(#0, #1)")
+    public def compareTo(x:UInt): Int = (this.intVal + Int.MIN_VALUE).compareTo(x.intVal + Int.MIN_VALUE);
 }

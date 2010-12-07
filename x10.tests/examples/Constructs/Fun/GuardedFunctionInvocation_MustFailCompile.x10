@@ -18,9 +18,16 @@ import harness.x10Test;
  */
 public class GuardedFunctionInvocation_MustFailCompile extends x10Test {
 
-	val f = (x:Int){x==3}=>x;
+    def m(x:Int){x==3} = x;
+    def test() {
+        m(3);
+        m(4); // ERR
+        f(3);
+        f(4); // ShouldBeErr
+    }
+	val f = (x:Int){x==3}=>x; // ShouldNotBeERR
 	
-	public def run() = f(4)==3;
+	public def run() = true;
 
 	public static def main(Array[String](1)) {
 		new GuardedFunctionInvocation_MustFailCompile().execute();

@@ -3,16 +3,18 @@
  *
  * Copyright (c) 2000-2007 Polyglot project group, Cornell University
  * Copyright (c) 2006-2007 IBM Corporation
- * 
+ *
  */
 
 package polyglot.ast;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import polyglot.types.*;
 import polyglot.util.CodeWriter;
+import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.*;
 
@@ -37,11 +39,11 @@ public class LocalDecl_c extends Stmt_c implements LocalDecl {
         this.name = name;
         this.init = init;
     }
-    
+
     public List<Def> defs() {
         return Collections.<Def>singletonList(li);
     }
-    
+
     /** Get the type of the declaration. */
     public Type declType() {
         return type.type();
@@ -71,12 +73,12 @@ public class LocalDecl_c extends Stmt_c implements LocalDecl {
         n.type = type;
         return n;
     }
-    
+
     /** Get the name of the declaration. */
     public Id name() {
         return name;
     }
-    
+
     /** Set the name of the declaration. */
     public LocalDecl name(Id name) {
         LocalDecl_c n = (LocalDecl_c) copy();
@@ -110,7 +112,7 @@ public class LocalDecl_c extends Stmt_c implements LocalDecl {
     public LocalDef localDef() {
         return li;
     }
-    
+
     public VarDef varDef() {
         return li;
     }
@@ -140,7 +142,10 @@ public class LocalDecl_c extends Stmt_c implements LocalDecl {
 
     /**
      * Add the declaration of the variable as we enter the scope of the
-     * intializer
+     * intializer.
+     * In Java and X10 you can write this code:
+     * int i= (i=2)+4; int i= (i=2)+i, j=3+i+(j=2);
+     * var i:Int = (i=2)+4;
      */
     public Context enterChildScope(Node child, Context c) {
         if (child == init) {
@@ -187,10 +192,10 @@ public class LocalDecl_c extends Stmt_c implements LocalDecl {
         if (outerLocal != null && c.isLocal(li.name())) {
             throw new SemanticException("Local variable \"" + name + "\" multiply defined. Previous definition at " + outerLocal.position() + ".", position());
         }
-        
+
         return super.typeCheckEnter(tc);
     }
-    
+
     /** Type check the declaration. */
     public Node typeCheck(ContextVisitor tc) throws SemanticException {
         TypeSystem ts = tc.typeSystem();
@@ -214,10 +219,10 @@ public class LocalDecl_c extends Stmt_c implements LocalDecl {
                 }
             }
         }
-        
+
         return this;
     }
-    
+
     public Node checkConstants(ContextVisitor tc) throws SemanticException {
         if (init == null || ! init.isConstant() || ! li.flags().isFinal()) {
             li.setNotConstant();
@@ -228,7 +233,7 @@ public class LocalDecl_c extends Stmt_c implements LocalDecl {
 
         return this;
     }
-    
+
     public Type childExpectedType(Expr child, AscriptionVisitor av) {
         if (child == init) {
             TypeSystem ts = av.typeSystem();
@@ -301,6 +306,5 @@ public class LocalDecl_c extends Stmt_c implements LocalDecl {
 
         return succs;
     }
-    
 
 }

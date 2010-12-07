@@ -40,7 +40,7 @@ public class FlagsNode_c extends Node_c implements FlagsNode
 
   /** Write the name to an output file. */
   public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
-    w.write(flags.translate());
+    w.write(flags.translateJava());
   }
 
   public String toString() {

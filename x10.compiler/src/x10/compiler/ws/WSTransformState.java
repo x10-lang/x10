@@ -19,6 +19,7 @@ import java.util.List;
 
 import polyglot.ast.ClassDecl;
 import polyglot.ast.Node;
+import polyglot.ast.NodeFactory;
 import polyglot.ast.SourceFile;
 import polyglot.ast.TopLevelDecl;
 import polyglot.frontend.Job;
@@ -32,11 +33,10 @@ import polyglot.types.Type;
 import polyglot.util.Pair;
 import x10.ast.X10ClassDecl;
 import x10.ast.X10MethodDecl;
-import x10.ast.X10NodeFactory;
 import x10.compiler.ws.util.WSCallGraph;
 import x10.compiler.ws.util.WSCallGraphNode;
-import x10.types.X10Context;
-import x10.types.X10TypeSystem;
+import polyglot.types.Context;
+import polyglot.types.TypeSystem;
 import x10.types.checker.PlaceChecker;
 import x10.util.synthesizer.MethodSynth;
 import x10.visit.X10PrettyPrinterVisitor;
@@ -83,7 +83,7 @@ public class WSTransformState {
 
     private final WSCallGraph callGraph;
 
-    public WSTransformState(X10TypeSystem xts, X10NodeFactory xnf, String theLanguage){
+    public WSTransformState(TypeSystem xts, NodeFactory xnf, String theLanguage){
         if (theLanguage.equals("c++")) {
             frameType = xts.load("x10.compiler.ws.Frame");
             finishFrameType = xts.load("x10.compiler.ws.FinishFrame");

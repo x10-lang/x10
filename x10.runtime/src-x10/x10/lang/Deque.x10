@@ -1,24 +1,21 @@
 package x10.lang;
 
-import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
+/**
+ * Native deque. Only to be used in the runtime implementation.
+ * Temporarily public to enable use in WS runtime classes.
+ * 
+ * @author tardieu
+ */
 @NativeRep("java", "x10.runtime.impl.java.Deque", null, "x10.runtime.impl.java.Deque._RTT")
 @NativeRep("c++", "x10aux::ref<x10::lang::Deque>", "x10::lang::Deque", null)
 public final class Deque {
-    @Native("java", "#0.size()")
-    @Native("c++", "(#0)->size()")
     public native def size():Int;
 
-    @Native("java", "#0.poll()")
-    @Native("c++", "(#0)->poll()")
     public native def poll():Object;
 
-    @Native("java", "#0.push(#1)")
-    @Native("c++", "(#0)->push(#1)")
-    public native def push(t:Object):Void;
+    public native def push(t:Object):void;
 
-    @Native("java", "#0.steal()")
-    @Native("c++", "(#0)->steal()")
     public native def steal():Object;
 }

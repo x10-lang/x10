@@ -31,7 +31,9 @@ public class ClosureEnclosingScope2c_MustFailCompile extends ClosureTest {
         class C {
             def foo(): void {
               var c:int = 1;
-              (()=>a+b+c)();
+              (()=>a+b+
+                c) // ERR
+                ();
             }
         }
 

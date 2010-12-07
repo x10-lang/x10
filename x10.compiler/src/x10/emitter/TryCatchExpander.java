@@ -153,19 +153,19 @@ public class TryCatchExpander extends Expander {
 		if (additionalTryCatchForConversion != NO_CONVERSION) {
 	        w.write("}");
 
-            w.write("catch (x10.runtime.impl.java.X10Throwable __t__) {");
+            w.write("catch (x10.core.Throwable __t__) {");
             w.write("throw __t__;");
             w.write("}");
 
             if ((additionalTryCatchForConversion & EXC_CONVERSION) != 0) {
                 w.write("catch (java.lang.RuntimeException __e__) {");
-                w.write("throw x10.runtime.impl.java.X10Throwable.getCorrespondingX10Exception(__e__);");
+                w.write("throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(__e__);");
                 w.write("}");
             }
 
             if ((additionalTryCatchForConversion & ERROR_CONVERSION) != 0) {
                 w.write("catch (java.lang.Error __e__) {");
-                w.write("throw x10.runtime.impl.java.X10Throwable.getCorrespondingX10Error(__e__);");
+                w.write("throw x10.core.ThrowableUtilities.getCorrespondingX10Error(__e__);");
                 w.write("}");
             }
 		}

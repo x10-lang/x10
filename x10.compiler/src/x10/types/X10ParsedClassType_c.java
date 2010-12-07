@@ -98,6 +98,12 @@ implements X10ParsedClassType
         return false;
     }
     
+    public Object copy() {
+        X10ParsedClassType_c n = (X10ParsedClassType_c) super.copy();
+        n.cacheSubst = null;
+        return n;
+    }
+    
     public
     TypeParamSubst subst() {
         if (cacheSubst == null) {
@@ -105,16 +111,24 @@ implements X10ParsedClassType
             List<ParameterType> typeParameters = new ArrayList<ParameterType>();
             for (X10ParsedClassType_c c = this; c != null; c = (X10ParsedClassType_c) c.container()) {
                 List<ParameterType> tp = c.x10Def().typeParameters();
-                if (!tp.isEmpty() && c.typeArguments != null) {
-                    typeArguments.addAll(c.typeArguments);
+                List<Type> ta = c.typeArguments;
+                if (ta == null)
+                    ta = new ArrayList<Type>();
+                if (!tp.isEmpty() && !ta.isEmpty()) {
+                    typeArguments.addAll(ta);
                     typeParameters.addAll(tp);
                 }
-                if (!c.isMember())
+                if (!c.isMember() || (c.flags().isStatic() && ta.size() == tp.size()))
                     break;
             }
-            cacheSubst = new TypeParamSubst((X10TypeSystem) ts, typeArguments, typeParameters);
+            cacheSubst = new TypeParamSubst((TypeSystem) ts, typeArguments, typeParameters);
         }
         return cacheSubst;
+    }
+    
+    public boolean isMissingTypeArguments() {
+        List<ParameterType> tp = x10Def().typeParameters();
+        return (!tp.isEmpty() && (typeArguments == null || typeArguments.size() != tp.size()));
     }
     
     public X10ParsedClassType_c(ClassDef def) {
@@ -218,8 +232,6 @@ implements X10ParsedClassType
 	        catch (SemanticException e) {
 	        }
 	    }
-	    if (!hasParams())
-		return sup;
 	    TypeParamSubst subst = subst();
 	    return subst.reinstantiate(sup);
 	}
@@ -242,53 +254,39 @@ implements X10ParsedClassType
 	        newInterfaces.add(sup);
 	    }
 
-	    if (!hasParams())
-	        return newInterfaces;
 	    TypeParamSubst subst = subst();
 	    return subst.reinstantiate(newInterfaces);
 	}
 
 	public boolean isIdentityInstantiation() {
-	    if (!hasParams())
-		return true;
-            TypeParamSubst subst = subst();
+	    TypeParamSubst subst = subst();
 	    return subst.isIdentityInstantiation();
 	}
 
 	@Override
 	public List<FieldInstance> fields() {
-	    if (!hasParams())
-	        return super.fields();
-            TypeParamSubst subst = subst();
+	    TypeParamSubst subst = subst();
 	    return subst.reinstantiate(super.fields());
 	}
 
 	@Override
 	public List<MethodInstance> methods() {
-	    if (!hasParams())
-	        return super.methods();
-            TypeParamSubst subst = subst();
+	    TypeParamSubst subst = subst();
 	    return subst.reinstantiate(super.methods());
 	}
 	@Override
 	public List<ConstructorInstance> constructors() {
-	    if (!hasParams())
-	        return super.constructors();
-            TypeParamSubst subst = subst();
+	    TypeParamSubst subst = subst();
 	    return subst.reinstantiate(super.constructors());
 	}
 	@Override
 	public List<MemberInstance<?>> members() {
-	    if (!hasParams())
-	        return super.members();
-            TypeParamSubst subst = subst();
+	    TypeParamSubst subst = subst();
 	    return subst.reinstantiate(super.members());
 	}
 	@Override
 	public List<ClassType> memberClasses() {
-	    if (!hasParams())
-	        return super.memberClasses();
-            TypeParamSubst subst = subst();
+	    TypeParamSubst subst = subst();
 	    return subst.reinstantiate(super.memberClasses());
 	}
 
@@ -318,18 +316,13 @@ implements X10ParsedClassType
 	
 	public List<Type> typeMembers() {
 	    List<Type> l = new TransformingList<TypeDef, Type>(x10Def().memberTypes(), new TypeDefAsMacroTypeTransform());
-	    if (!hasParams())
-	        return l;
-            TypeParamSubst subst = subst();
+	    TypeParamSubst subst = subst();
 	    return subst.reinstantiate(l);
 	}
 	
 	List<Type> typeArguments;
 	
 	public List<Type> typeArguments() {
-	    if (typeArguments == null) {
-		return TypedList.<Type>copyAndCheck(x10Def().typeParameters(), Type.class, true);
-	    }
 	    return typeArguments;
 	}
 	
@@ -341,11 +334,15 @@ implements X10ParsedClassType
 	public X10ParsedClassType typeArguments(List<Type> typeArgs) {
 	    if (typeArgs == this.typeArguments) return this;
 	    X10ParsedClassType_c n = (X10ParsedClassType_c) copy();
-	    n.typeArguments = TypedList.copyAndCheck(typeArgs, Type.class, false);
-	    try {
-	    n.thisVar = X10TypeMixin.getThisVar(typeArgs);
-	    } catch (XFailure z) {
-	    	throw new InternalCompilerError(z.toString() + " for type " + this);
+	    if (typeArgs == null) {
+	        n.typeArguments = null;
+	    } else {
+	        n.typeArguments = TypedList.copyAndCheck(typeArgs, Type.class, false);
+	        try {
+	            n.thisVar = X10TypeMixin.getThisVar(typeArgs);
+	        } catch (XFailure z) {
+	            throw new InternalCompilerError(z.toString() + " for type " + this);
+	        }
 	    }
 	    n.cacheSubst = null;
 	    return n;
@@ -449,13 +446,26 @@ implements X10ParsedClassType
 	public X10ParsedClassType instantiateTypeParametersExplicitly() {
 	    X10ParsedClassType pct = this;
 	    List<ParameterType> typeParameters = pct.x10Def().typeParameters();
-	    if (pct.isMember()) {
-	        X10ClassType container = ((X10ParsedClassType) pct.container()).instantiateTypeParametersExplicitly();
+	    List<Type> typeArguments = pct.typeArguments();
+	    if (typeArguments == null)
+	        typeArguments = new ArrayList<Type>();
+	    if (pct.isMember() && (!pct.flags().isStatic() || typeArguments.size() != typeParameters.size())) {
+	        X10ParsedClassType container = ((X10ParsedClassType) pct.container()).instantiateTypeParametersExplicitly();
 	        if (container != pct.container()) {
 	            pct = pct.container(container);
 	        }
+	        if (typeArguments.size() < typeParameters.size()) {
+	            typeArguments = new ArrayList<Type>(typeArguments);
+	            for (int i = typeArguments.size(); i < typeParameters.size(); i++) {
+	                typeArguments.add(typeParameters.get(i));
+	            }
+	        }
+	        if (typeArguments != pct.typeArguments()) {
+	            pct = pct.typeArguments(typeArguments);
+	        }
+	        pct = container.subst().reinstantiate(pct);
 	    }
-	    if (!typeParameters.isEmpty() && pct.typeArguments().equals(typeParameters)) {
+	    if (!typeParameters.isEmpty() && typeArguments.isEmpty()) {
 	        pct = pct.typeArguments(new ArrayList<Type>(typeParameters));
 	    }
 	    return pct;

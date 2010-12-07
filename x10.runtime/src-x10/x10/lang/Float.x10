@@ -27,134 +27,123 @@ import x10.util.Ordered;
  */
 @NativeRep("java", "float", null, "x10.rtt.Types.FLOAT")
 @NativeRep("c++", "x10_float", "x10_float", null)
-public final struct Float /*TODO implements Arithmetic[Float], Ordered[Float]*/ {
+public struct Float implements Comparable[Float] /*TODO implements Arithmetic[Float], Ordered[Float]*/ {
     /**
      * A less-than operator.
-     * Compares the given Float with another Float and returns true if the given Float is
+     * Compares this Float with another Float and returns true if this Float is
      * strictly less than the other Float.
      * Note that NaN values are unordered.
-     * @param x the given Float
-     * @param y the other Float
-     * @return true if the given Float is strictly less than the other Float.
+     * @param x the other Float
+     * @return true if this Float is strictly less than the other Float.
      */
-    @Native("java", "((#1) < (#2))")
-    @Native("c++",  "((#1) < (#2))")
-    public native static operator (x:Float) < (y:Float): Boolean;
+    @Native("java", "((#0) < (#1))")
+    @Native("c++",  "((#0) < (#1))")
+    public native operator this < (x:Float): Boolean;
 
     /**
      * A greater-than operator.
-     * Compares the given Float with another Float and returns true if the given Float is
+     * Compares this Float with another Float and returns true if this Float is
      * strictly greater than the other Float.
      * Note that NaN values are unordered.
-     * @param x the given Float
-     * @param y the other Float
-     * @return true if the given Float is strictly greater than the other Float.
+     * @param x the other Float
+     * @return true if this Float is strictly greater than the other Float.
      */
-    @Native("java", "((#1) > (#2))")
-    @Native("c++",  "((#1) > (#2))")
-    public native static operator (x:Float) > (y:Float): Boolean;
+    @Native("java", "((#0) > (#1))")
+    @Native("c++",  "((#0) > (#1))")
+    public native operator this > (x:Float): Boolean;
 
     /**
      * A less-than-or-equal-to operator.
-     * Compares the given Float with another Float and returns true if the given Float is
+     * Compares this Float with another Float and returns true if this Float is
      * less than or equal to the other Float.
      * Note that NaN values are unordered.
-     * @param x the given Float
-     * @param y the other Float
-     * @return true if the given Float is less than or equal to the other Float.
+     * @param x the other Float
+     * @return true if this Float is less than or equal to the other Float.
      */
-    @Native("java", "((#1) <= (#2))")
-    @Native("c++",  "((#1) <= (#2))")
-    public native static operator (x:Float) <= (y:Float): Boolean;
+    @Native("java", "((#0) <= (#1))")
+    @Native("c++",  "((#0) <= (#1))")
+    public native operator this <= (x:Float): Boolean;
 
     /**
      * A greater-than-or-equal-to operator.
-     * Compares the given Float with another Float and returns true if the given Float is
+     * Compares this Float with another Float and returns true if this Float is
      * greater than or equal to the other Float.
      * Note that NaN values are unordered.
-     * @param x the given Float
-     * @param y the other Float
-     * @return true if the given Float is greater than or equal to the other Float.
+     * @param x the other Float
+     * @return true if this Float is greater than or equal to the other Float.
      */
-    @Native("java", "((#1) >= (#2))")
-    @Native("c++",  "((#1) >= (#2))")
-    public native static operator (x:Float) >= (y:Float): Boolean;
+    @Native("java", "((#0) >= (#1))")
+    @Native("c++",  "((#0) >= (#1))")
+    public native operator this >= (x:Float): Boolean;
 
 
     /**
      * A binary plus operator.
      * Computes the result of the addition of the two operands.
-     * @param x the given Float
-     * @param y the other Float
-     * @return the sum of the given Float and the other Float.
+     * @param x the other Float
+     * @return the sum of this Float and the other Float.
      */
-    @Native("java", "((#1) + (#2))")
-    @Native("c++",  "((#1) + (#2))")
-    public native static operator (x:Float) + (y:Float): Float;
+    @Native("java", "((#0) + (#1))")
+    @Native("c++",  "((#0) + (#1))")
+    public native operator this + (x:Float): Float;
 
     /**
      * A binary minus operator.
      * Computes the result of the subtraction of the two operands.
-     * @param x the given Float
-     * @param y the other Float
-     * @return the difference of the given Float and the other Float.
+     * @param x the other Float
+     * @return the difference of this Float and the other Float.
      */
-    @Native("java", "((#1) - (#2))")
-    @Native("c++",  "((#1) - (#2))")
-    public native static operator (x:Float) - (y:Float): Float;
+    @Native("java", "((#0) - (#1))")
+    @Native("c++",  "((#0) - (#1))")
+    public native operator this - (x:Float): Float;
 
     /**
      * A binary multiply operator.
      * Computes the result of the multiplication of the two operands.
-     * @param x the given Float
-     * @param y the other Float
-     * @return the product of the given Float and the other Float.
+     * @param x the other Float
+     * @return the product of this Float and the other Float.
      */
-    @Native("java", "((#1) * (#2))")
-    @Native("c++",  "((#1) * (#2))")
-    public native static operator (x:Float) * (y:Float): Float;
+    @Native("java", "((#0) * (#1))")
+    @Native("c++",  "((#0) * (#1))")
+    public native operator this * (x:Float): Float;
 
     /**
      * A binary divide operator.
      * Computes the result of the division of the two operands.
-     * @param x the given Float
-     * @param y the other Float
-     * @return the quotient of the given Float and the other Float.
+     * @param x the other Float
+     * @return the quotient of this Float and the other Float.
      */
-    @Native("java", "((#1) / (#2))")
-    @Native("c++",  "((#1) / (#2))")
-    public native static operator (x:Float) / (y:Float): Float;
+    @Native("java", "((#0) / (#1))")
+    @Native("c++",  "((#0) / (#1))")
+    public native operator this / (x:Float): Float;
 
     /**
      * A binary remainder operator.
      * Computes a remainder from the division of the two operands.
-     * @param x the given Float
-     * @param y the other Float
-     * @return the remainder from dividing the given Float by the other Float.
+     * @param x the other Float
+     * @return the remainder from dividing this Float by the other Float.
      */
-    @Native("java", "((#1) % (#2))")
-    @Native("c++",  "x10aux::mod(#1, #2)")
-    public native static operator (x:Float) % (y:Float): Float;
+    @Native("java", "((#0) % (#1))")
+    @Native("c++",  "x10aux::mod(#0, #1)")
+    public native operator this % (x:Float): Float;
 
     /**
      * A unary plus operator.
      * A no-op.
-     * @param x the given Float
-     * @return the value of the given Float.
+     * @return the value of this Float.
      */
-    @Native("java", "(+(#1))")
-    @Native("c++",  "(+(#1))")
-    public native static operator + (x:Float): Float;
+    @Native("java", "(+(#0))")
+    @Native("c++",  "(+(#0))")
+    public native operator + this: Float;
 
     /**
      * A unary minus operator.
      * Negates the operand.
-     * @param x the given Float
-     * @return the negated value of the given Float.
+     * @return the negated value of this Float.
      */
-    @Native("java", "(-(#1))")
-    @Native("c++",  "(-(#1))")
-    public native static operator - (x:Float): Float;
+    @Native("java", "(-(#0))")
+    @Native("c++",  "(-(#0))")
+    public native operator - this: Float;
 
 
     /**
@@ -413,4 +402,15 @@ public final struct Float /*TODO implements Arithmetic[Float], Ordered[Float]*/ 
     @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
     public native def equals(x:Float):Boolean;
+
+    /**
+    * Returns a negative Int, zero, or a positive Int if this Float is less than, equal
+    * to, or greater than the given Float.
+    * @param x the given Float
+    * @return a negative Int, zero, or a positive Int if this Float is less than, equal
+    * to, or greater than the given Float.
+    */
+   @Native("java", "x10.rtt.Equality.compareTo(#0, #1)")
+   @Native("c++", "x10aux::float_utils::compareTo(#0, #1)")
+   public native def compareTo(x:Float):Int;
 }

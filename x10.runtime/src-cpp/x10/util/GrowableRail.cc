@@ -29,7 +29,7 @@ namespace x10 {
             const RuntimeType* parents[1] = { Object::getRTT() };
             const RuntimeType* params[1] = { element };
             RuntimeType::Variance variances[1] = { RuntimeType::invariant };
-            location->initStageTwo("x10.lang.GrowableRail", 1, parents, 1, params, variances);
+            location->initStageTwo("x10.lang.GrowableRail", RuntimeType::class_kind, 1, parents, 1, params, variances);
         }
     }
 }

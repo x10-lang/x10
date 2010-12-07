@@ -26,6 +26,11 @@
 
 #include <x10/lang/Runtime.h>
 
+#include <strings.h>
+#ifdef __CYGWIN__
+extern "C" int strcasecmp(const char *, const char *);
+#endif
+
 using namespace x10::lang;
 using namespace x10aux;
 
@@ -147,106 +152,75 @@ void x10aux::network_init (int ac, char **av) {
     x10aux::num_hosts = x10rt_nhosts();
 }
 
-/*
-// FIXME: this is perhaps the worst hack i've ever done
-struct x10_runtime_Runtime__closure__8 : x10::lang::Closure {
-    static const x10aux::serialization_id_t _serialization_id;
-    x10aux::ref<x10::lang::VoidFun_0_0> body;
-    x10::lang::RID rid;
-};
-struct x10_runtime_Runtime__closure__7 : x10::lang::Closure {
-    static const x10aux::serialization_id_t _serialization_id;
-    x10aux::ref<x10::lang::VoidFun_0_0> body;
-    x10::lang::RID rid;
-};
-struct x10_runtime_Runtime__closure__6 : x10::lang::Closure {
-    static const x10aux::serialization_id_t _serialization_id;
-    x10aux::ref<x10::lang::VoidFun_0_0> body;
-    x10::lang::RID rid;
-};
-struct x10_runtime_Runtime__closure__5 : x10::lang::Closure {
-    static const x10aux::serialization_id_t _serialization_id;
-    x10aux::ref<x10::lang::VoidFun_0_0> body;
-    x10::lang::RID rid;
-};
-*/
+void x10aux::run_async_at(x10aux::place p, x10aux::ref<Reference> real_body, x10aux::ref<x10::lang::Reference> fs_) {
 
-struct nightmarish_hack : x10::lang::Closure {
-    x10aux::ref<x10::lang::VoidFun_0_0> body;
-    x10aux::ref<x10::lang::Reference> fs;
-};
+    x10aux::ref<x10::lang::FinishState> fs = fs_; // avoid including FinishState in the header
 
-void x10aux::run_at(x10aux::place p, x10aux::ref<Reference> body) {
+    serialization_id_t real_sid = real_body->_get_serialization_id();
+    if (!is_cuda(p)) {
+        _X_(ANSI_BOLD<<ANSI_X10RT<<"Transmitting a simple async: "<<ANSI_RESET
+            <<ref<Reference>(real_body)->toString()->c_str()
+            <<" sid "<<real_sid<<" to place: "<<p);
+
+    } else {
+
+        _X_(ANSI_BOLD<<ANSI_X10RT<<"This is actually a kernel: "<<ANSI_RESET
+            <<ref<Reference>(real_body)->toString()->c_str()
+            <<" sid "<<real_sid<<" at GPU: "<<p);
+
+    }
+
+    x10aux::msg_type real_id = DeserializationDispatcher::getMsgType(real_sid);
+    serialization_buffer buf;
+
+    _X_(ANSI_BOLD<<ANSI_X10RT<<"Async id: "<<ANSI_RESET<<real_id);
+
+    assert(DeserializationDispatcher::getClosureKind(real_sid)!=x10aux::CLOSURE_KIND_NOT_ASYNC);
+    assert(DeserializationDispatcher::getClosureKind(real_sid)!=x10aux::CLOSURE_KIND_GENERAL_ASYNC);
+
+    buf.write(fs);
+    real_body->_serialize_body(buf);
+
+    unsigned long sz = buf.length();
+    serialized_bytes += sz; asyncs_sent++;
+
+    _X_(ANSI_BOLD<<ANSI_X10RT<<"async size: "<<ANSI_RESET<<sz);
+
+    x10rt_msg_params params = {p, real_id, buf.borrow(), sz};
+    x10rt_send_msg(&params);
+}
+
+void x10aux::run_closure_at(x10aux::place p, x10aux::ref<Reference> body) {
+
+    serialization_id_t sid = body->_get_serialization_id();
+
+    _X_(ANSI_BOLD<<ANSI_X10RT<<"Transmitting a general async: "<<ANSI_RESET
+        <<ref<Reference>(body)->toString()->c_str()
+        <<" sid "<<sid<<" to place: "<<p);
 
     assert(p!=here); // this case should be handled earlier
     assert(p<num_places); // this is ensured by XRX runtime
 
+    assert(!is_cuda(p));
+
     serialization_buffer buf;
 
-    serialization_id_t sid = body->_get_serialization_id();
+    assert(DeserializationDispatcher::getClosureKind(sid)!=x10aux::CLOSURE_KIND_NOT_ASYNC);
+    assert(DeserializationDispatcher::getClosureKind(sid)!=x10aux::CLOSURE_KIND_SIMPLE_ASYNC);
     msg_type id = DeserializationDispatcher::getMsgType(sid);
 
-    _X_(ANSI_BOLD<<ANSI_X10RT<<"Transmitting an async: "<<ANSI_RESET
-        <<ref<Reference>(body)->toString()->c_str()<<" id "<<id
-        <<" sid "<<sid<<" to place: "<<p);
+    _X_(ANSI_BOLD<<ANSI_X10RT<<"Async id: "<<ANSI_RESET<<id);
 
-    if (!is_cuda(p)) {
+    body->_serialize_body(buf);
 
-        body->_serialize_body(buf);
+    unsigned long sz = buf.length();
+    serialized_bytes += sz; asyncs_sent++;
 
-        unsigned long sz = buf.length();
-        serialized_bytes += sz; asyncs_sent++;
+    _X_(ANSI_BOLD<<ANSI_X10RT<<"async size: "<<ANSI_RESET<<sz);
 
-        _X_(ANSI_BOLD<<ANSI_X10RT<<"async size: "<<ANSI_RESET<<sz);
+    x10rt_msg_params params = {p, id, buf.borrow(), sz};
+    x10rt_send_msg(&params);
 
-        x10rt_msg_params params = {p, id, buf.borrow(), sz};
-        x10rt_send_msg(&params);
-
-    } else {
-
-        // FIXME: this is a hack -- we should be doing this for all asyncs
-
-/*
-        assert (sid == x10_runtime_Runtime__closure__8::_serialization_id ||
-                sid == x10_runtime_Runtime__closure__7::_serialization_id ||
-                sid == x10_runtime_Runtime__closure__6::_serialization_id ||
-                sid == x10_runtime_Runtime__closure__5::_serialization_id);
-*/
-
-        x10aux::ref<nightmarish_hack> body_ = body;
-
-
-
-/*
-        // This version for runAt
-        x10aux::ref<nightmarish_hack> almost_there = body_->body;
-        x10aux::ref<x10::lang::Reference> real_body = almost_there->body;
-        x10aux::ref<x10::lang::Reference> fs = almost_there->fs;
-*/
-
-        // This version for runAt
-        x10aux::ref<x10::lang::Reference> real_body = body_->body;
-        x10aux::ref<x10::lang::Reference> fs = body_->fs;
-
-        serialization_id_t real_sid = real_body->_get_serialization_id();
-        msg_type real_id = DeserializationDispatcher::getMsgType(real_sid);
-
-        _X_(ANSI_BOLD<<ANSI_X10RT<<"This is actually a kernel: "<<ANSI_RESET
-            <<ref<Reference>(real_body)->toString()->c_str()<<" id "<<real_id
-            <<" sid "<<real_sid<<" at GPU: "<<p);
-
-        buf.write(fs);
-        real_body->_serialize_body(buf);
-
-        unsigned long sz = buf.length();
-        serialized_bytes += sz; asyncs_sent++;
-
-        _X_(ANSI_BOLD<<ANSI_X10RT<<"async size: "<<ANSI_RESET<<sz);
-
-        x10rt_msg_params params = {p, real_id, buf.borrow(), sz};
-        x10rt_send_msg(&params);
-
-    }
 }
 
 void x10aux::send_get (x10aux::place place, x10aux::serialization_id_t id_,
@@ -282,28 +256,53 @@ x10_int x10aux::num_threads() {
     return num;
 }
 
-x10_boolean x10aux::no_steals() { return getenv("X10_NO_STEALS") != NULL; }
+x10_boolean x10aux::no_steals()
+{
+    char* s = getenv("X10_NO_STEALS");
+    if (s && !(strcasecmp("false", s) == 0))
+        return true;
+    return false;
+}
 
 x10_boolean x10aux::static_threads() { 
 #ifdef __bg__
     return true;
 #else
-    return (getenv("X10_STATIC_THREADS") != NULL); 
+    char* s = getenv("X10_STATIC_THREADS");
+    if (s && !(strcasecmp("false", s) == 0))
+        return true;
+    return false;
 #endif
 }
 
 static void receive_async (const x10rt_msg_params *p) {
-    _X_(ANSI_X10RT<<"Receiving an async, deserialising..."<<ANSI_RESET);
+    _X_(ANSI_X10RT<<"Receiving an async, id ("<<p->type<<"), deserialising..."<<ANSI_RESET);
     x10aux::deserialization_buffer buf(static_cast<char*>(p->msg));
     // note: high bytes thrown away in implicit conversion
     serialization_id_t sid = x10aux::DeserializationDispatcher::getSerializationId(p->type);
-    ref<Reference> async(x10aux::DeserializationDispatcher::create<VoidFun_0_0>(buf, sid));
-    assert(buf.consumed() <= p->len);
-    _X_("The deserialised async was: "<<x10aux::safe_to_string(async));
-    deserialized_bytes += buf.consumed()  ; asyncs_received++;
-    if (async.isNull()) return;
-    (async.operator->()->*(findITable<VoidFun_0_0>(async->_getITables())->apply))();
-    x10aux::dealloc(async.operator->());
+    _X_(ANSI_X10RT<<"async sid: ("<<sid<<ANSI_RESET);
+    x10aux::ClosureKind ck = DeserializationDispatcher::getClosureKind(sid);
+    switch (ck) {
+        case x10aux::CLOSURE_KIND_GENERAL_ASYNC: {
+            ref<Reference> body(x10aux::DeserializationDispatcher::create(buf, sid));
+            assert(buf.consumed() <= p->len);
+            _X_("The deserialised general async was: "<<x10aux::safe_to_string(body));
+            deserialized_bytes += buf.consumed()  ; asyncs_received++;
+            if (body.isNull()) return;
+            VoidFun_0_0::apply(body);
+            x10aux::dealloc(body.operator->());
+        } break;
+        case x10aux::CLOSURE_KIND_SIMPLE_ASYNC: {
+            x10aux::ref<x10::lang::FinishState> fs = buf.read<x10aux::ref<x10::lang::FinishState> >();
+            ref<Reference> body(x10aux::DeserializationDispatcher::create(buf, sid));
+            assert(buf.consumed() <= p->len);
+            _X_("The deserialised simple async was: "<<x10aux::safe_to_string(body));
+            deserialized_bytes += buf.consumed()  ; asyncs_received++;
+            if (body.isNull()) return;
+            x10::lang::Runtime::execute(body, fs);
+        } break;
+        default: abort();
+    }
 }
 
 static void cuda_pre (const x10rt_msg_params *p, size_t *blocks, size_t *threads, size_t *shm,
@@ -311,7 +310,7 @@ static void cuda_pre (const x10rt_msg_params *p, size_t *blocks, size_t *threads
 {
     _X_(ANSI_X10RT<<"Receiving a kernel pre callback, deserialising..."<<ANSI_RESET);
     x10aux::deserialization_buffer buf(static_cast<char*>(p->msg));
-    buf.read<x10aux::ref<x10::lang::Reference> >();
+    buf.read<x10aux::ref<x10::lang::FinishState> >();
     // note: high bytes thrown away in implicit conversion
     serialization_id_t sid = x10aux::DeserializationDispatcher::getSerializationId(p->type);
     x10aux::CUDAPre pre = x10aux::DeserializationDispatcher::getCUDAPre(sid);
@@ -331,10 +330,9 @@ static void cuda_post (const x10rt_msg_params *p, size_t blocks, size_t threads,
     }
     {
         x10aux::deserialization_buffer buf(static_cast<char*>(p->msg));
-        x10aux::ref<x10::lang::Reference> fs = buf.read<x10aux::ref<x10::lang::Reference> >();
-        x10aux::ref<x10::lang::Runtime> rt = x10::lang::PlaceLocalHandle_methods<x10aux::ref<x10::lang::Runtime> >::apply(x10::lang::Runtime::FMGL(runtime));
-        (fs.operator->()->*(x10aux::findITable<x10::lang::Runtime__FinishState>(fs->_getITables())->notifyActivityCreation))();
-        (fs.operator->()->*(x10aux::findITable<x10::lang::Runtime__FinishState>(fs->_getITables())->notifyActivityTermination))();
+        x10aux::ref<x10::lang::FinishState> fs = buf.read<x10aux::ref<x10::lang::FinishState> >();
+        fs->notifyActivityCreation();
+        fs->notifyActivityTermination();
     }
 }
 
@@ -457,6 +455,45 @@ void x10aux::cuda_put (place gpu, x10_ulong addr, void *var, size_t sz)
     x10rt_msg_params p = {gpu, kernel_put, buf.borrow(), len};
     x10rt_send_put(&p, var, sz);
     while (!finished) x10rt_probe();
+}
+
+// teams
+
+void *x10aux::coll_enter() {
+    x10aux::ref<x10::lang::Runtime> rt = x10::lang::PlaceLocalHandle_methods<x10aux::ref<x10::lang::Runtime> >::apply(x10::lang::Runtime::FMGL(runtime));
+    x10aux::ref<x10::lang::FinishState> fs = rt->activity()->finishState();
+    fs->notifySubActivitySpawn(x10::lang::Place_methods::_make(x10aux::here));
+    fs->notifyActivityCreation();
+    return fs._val;
+}
+
+void x10aux::coll_handler(void *arg) {
+    x10::lang::FinishState* fs = (x10::lang::FinishState*)arg;
+    fs->notifyActivityTermination();
+}
+
+struct pointer_pair {
+    void *fst;
+    void *snd;
+};
+namespace x10aux {
+    template<> inline const char *typeName<pointer_pair>() { return "pointer_pair"; }
+}
+
+void *x10aux::coll_enter2(void *arg) {
+    struct pointer_pair *p = x10aux::alloc<struct pointer_pair>();
+    p->fst = x10aux::coll_enter();
+    p->snd = arg;
+    return p;
+}
+
+void x10aux::coll_handler2(x10rt_team id, void *arg) {
+    struct pointer_pair *p = (struct pointer_pair*)arg;
+    x10::lang::FinishState *fs = (x10::lang::FinishState*)p->fst;
+    x10rt_team *t = (x10rt_team*)p->snd;
+    *t = id;
+    x10aux::dealloc(p);
+    fs->notifyActivityTermination();
 }
 
 

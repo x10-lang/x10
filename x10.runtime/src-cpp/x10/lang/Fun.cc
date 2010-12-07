@@ -66,7 +66,7 @@ namespace x10 {
         VoidFun_0_0::_initRTT() {
             if (rtt.initStageOne(&rtt)) return;
             const RuntimeType* parents[1] = { x10aux::getRTT<x10::lang::Any>()};
-            rtt.initStageTwo("()=>Void", 1, parents, 0, NULL, NULL);
+            rtt.initStageTwo("()=>void", RuntimeType::interface_kind, 1, parents, 0, NULL, NULL);
         }
 
         void
@@ -74,7 +74,7 @@ namespace x10 {
             const RuntimeType* parents[1] = { x10aux::getRTT<x10::lang::Any>()};
             const RuntimeType* params[1] = { rtt0 };
             RuntimeType::Variance variances[1] = { RuntimeType::covariant };
-            location->initStageTwo("()=>R", 1, parents, 1, params, variances);
+            location->initStageTwo("()=>R", RuntimeType::interface_kind, 1, parents, 1, params, variances);
         }
 
         void
@@ -82,7 +82,7 @@ namespace x10 {
             const RuntimeType* parents[1] = { x10aux::getRTT<x10::lang::Any>()};
             const RuntimeType* params[2] = { rtt0, rtt1 };
             RuntimeType::Variance variances[2] = { RuntimeType::contravariant, RuntimeType::covariant };
-            location->initStageTwo("(P1)=>R", 1, parents, 2, params, variances);
+            location->initStageTwo("(P1)=>R", RuntimeType::interface_kind, 1, parents, 2, params, variances);
         }    
 
         void
@@ -93,7 +93,7 @@ namespace x10 {
             const RuntimeType* parents[1] = { x10aux::getRTT<x10::lang::Any>()};
             const RuntimeType* params[3] = { rtt0, rtt1, rtt2 };
             RuntimeType::Variance variances[] = { RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::covariant };
-            location->initStageTwo("(P1,P2)=>R", 1, parents, 3, params, variances);
+            location->initStageTwo("(P1,P2)=>R", RuntimeType::interface_kind, 1, parents, 3, params, variances);
         }    
 
         void
@@ -105,7 +105,7 @@ namespace x10 {
             const RuntimeType* parents[1] = { x10aux::getRTT<x10::lang::Any>()};
             const RuntimeType* params[4] = { rtt0, rtt1, rtt2, rtt3 };
             RuntimeType::Variance variances[4] = { RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::covariant };
-            location->initStageTwo("(P1,P2,P3)=>R", 1, parents, 4, params, variances);
+            location->initStageTwo("(P1,P2,P3)=>R", RuntimeType::interface_kind, 1, parents, 4, params, variances);
         }    
 
         void
@@ -118,7 +118,7 @@ namespace x10 {
             const RuntimeType* parents[1] = { x10aux::getRTT<x10::lang::Any>()};
             const RuntimeType* params[5] = { rtt0, rtt1, rtt2, rtt3, rtt4 };
             RuntimeType::Variance variances[5] = { RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::covariant };
-            location->initStageTwo("(P1,P2,P3,P4)=>R", 1, parents, 5, params, variances);
+            location->initStageTwo("(P1,P2,P3,P4)=>R", RuntimeType::interface_kind, 1, parents, 5, params, variances);
         }    
 
         void
@@ -133,7 +133,7 @@ namespace x10 {
             const RuntimeType* params[6] = { rtt0, rtt1, rtt2, rtt3, rtt4, rtt5 };
             RuntimeType::Variance variances[6] = { RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant,
                                                    RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::covariant };
-            location->initStageTwo("(P1,P2,P3,P4,P5)=>R", 1, parents, 6, params, variances);
+            location->initStageTwo("(P1,P2,P3,P4,P5)=>R", RuntimeType::interface_kind, 1, parents, 6, params, variances);
         }    
 
         void
@@ -150,7 +150,7 @@ namespace x10 {
             RuntimeType::Variance variances[7] = { RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant,
                                                    RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant,
                                                    RuntimeType::covariant };
-            location->initStageTwo("(P1,P2,P3,P4,P5,P6)=>R", 1, parents, 7, params, variances);
+            location->initStageTwo("(P1,P2,P3,P4,P5,P6)=>R", RuntimeType::interface_kind, 1, parents, 7, params, variances);
         }    
 
         void
@@ -168,7 +168,7 @@ namespace x10 {
             RuntimeType::Variance variances[8] = { RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant,
                                                    RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant,
                                                    RuntimeType::contravariant, RuntimeType::covariant };
-            location->initStageTwo("(P1,P2,P3,P4,P5,P6,P7)=>R", 1, parents, 8, params, variances);
+            location->initStageTwo("(P1,P2,P3,P4,P5,P6,P7)=>R", RuntimeType::interface_kind, 1, parents, 8, params, variances);
         }    
 
         void
@@ -187,7 +187,7 @@ namespace x10 {
             RuntimeType::Variance variances[9] = { RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant,
                                                    RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant,
                                                    RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::covariant };
-            location->initStageTwo("(P1,P2,P3,P4,P5,P6,P7,P8)=>R", 1, parents, 9, params, variances);
+            location->initStageTwo("(P1,P2,P3,P4,P5,P6,P7,P8)=>R", RuntimeType::interface_kind, 1, parents, 9, params, variances);
         }    
 
         void
@@ -208,7 +208,7 @@ namespace x10 {
                                                     RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant,
                                                     RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant,
                                                     RuntimeType::covariant };
-            location->initStageTwo("(P1,P2,P3,P4,P5,P6,P7,P8,P9)=>R", 1, parents, 10, params, variances);
+            location->initStageTwo("(P1,P2,P3,P4,P5,P6,P7,P8,P9)=>R", RuntimeType::interface_kind, 1, parents, 10, params, variances);
         }    
 
         void
@@ -216,7 +216,7 @@ namespace x10 {
             const RuntimeType* parents[1] = { x10aux::getRTT<x10::lang::Any>()};
             const RuntimeType* params[1] = { rtt1 };
             RuntimeType::Variance variances[] = { RuntimeType::contravariant };
-            location->initStageTwo("(P1)=>Void", 1, parents, 1, params, variances);
+            location->initStageTwo("(P1)=>void", RuntimeType::interface_kind, 1, parents, 1, params, variances);
         }    
 
         void
@@ -226,7 +226,7 @@ namespace x10 {
             const RuntimeType* parents[1] = { x10aux::getRTT<x10::lang::Any>()};
             const RuntimeType* params[2] = { rtt1, rtt2 };
             RuntimeType::Variance variances[2] = { RuntimeType::contravariant, RuntimeType::contravariant };
-            location->initStageTwo("(P1,P2)=>Void", 1, parents, 2, params, variances);
+            location->initStageTwo("(P1,P2)=>void", RuntimeType::interface_kind, 1, parents, 2, params, variances);
         }    
 
         void
@@ -237,7 +237,7 @@ namespace x10 {
             const RuntimeType* parents[1] = { x10aux::getRTT<x10::lang::Any>()};
             const RuntimeType* params[3] = { rtt1, rtt2, rtt3 };
             RuntimeType::Variance variances[3] = { RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant };
-            location->initStageTwo("(P1,P2,P3)=>Void", 1, parents, 3, params, variances);
+            location->initStageTwo("(P1,P2,P3)=>void", RuntimeType::interface_kind, 1, parents, 3, params, variances);
         }    
 
         void
@@ -249,7 +249,7 @@ namespace x10 {
             const RuntimeType* parents[1] = { x10aux::getRTT<x10::lang::Any>()};
             const RuntimeType* params[4] = { rtt1, rtt2, rtt3, rtt4 };
             RuntimeType::Variance variances[4] = { RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant };
-            location->initStageTwo("(P1,P2,P3,P4)=>Void", 1, parents, 4, params, variances);
+            location->initStageTwo("(P1,P2,P3,P4)=>void", RuntimeType::interface_kind, 1, parents, 4, params, variances);
         }    
 
         void
@@ -262,7 +262,7 @@ namespace x10 {
             const RuntimeType* parents[1] = { x10aux::getRTT<x10::lang::Any>()};
             const RuntimeType* params[5] = { rtt1, rtt2, rtt3, rtt4, rtt5 };
             RuntimeType::Variance variances[5] = { RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant };
-            location->initStageTwo("(P1,P2,P3,P4,P5)=>Void", 1, parents, 5, params, variances);
+            location->initStageTwo("(P1,P2,P3,P4,P5)=>void", RuntimeType::interface_kind, 1, parents, 5, params, variances);
         }    
 
         void
@@ -277,7 +277,7 @@ namespace x10 {
             const RuntimeType* params[6] = { rtt1, rtt2, rtt3, rtt4, rtt5, rtt6 };
             RuntimeType::Variance variances[6] = { RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant,
                                                    RuntimeType::contravariant };
-            location->initStageTwo("(P1,P2,P3,P4,P5,P6)=>Void", 1, parents, 6, params, variances);
+            location->initStageTwo("(P1,P2,P3,P4,P5,P6)=>void", RuntimeType::interface_kind, 1, parents, 6, params, variances);
         }    
 
         void
@@ -293,7 +293,7 @@ namespace x10 {
             const RuntimeType* params[7] = { rtt1, rtt2, rtt3, rtt4, rtt5, rtt6, rtt7 };
             RuntimeType::Variance variances[7] = { RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant,
                                                    RuntimeType::contravariant, RuntimeType::contravariant };
-            location->initStageTwo("(P1,P2,P3,P4,P5,P6,P7)=>Void", 1, parents, 7, params, variances);
+            location->initStageTwo("(P1,P2,P3,P4,P5,P6,P7)=>void", RuntimeType::interface_kind, 1, parents, 7, params, variances);
         }    
 
         void
@@ -310,7 +310,7 @@ namespace x10 {
             const RuntimeType* params[8] = { rtt1, rtt2, rtt3, rtt4, rtt5, rtt6, rtt7, rtt8 };
             RuntimeType::Variance variances[8] = { RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant,
                                                    RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant };
-            location->initStageTwo("(P1,P2,P3,P4,P5,P6,P7,P8)=>Void", 1, parents, 8, params, variances);
+            location->initStageTwo("(P1,P2,P3,P4,P5,P6,P7,P8)=>void", RuntimeType::interface_kind, 1, parents, 8, params, variances);
         }    
 
         void
@@ -328,7 +328,7 @@ namespace x10 {
             const RuntimeType* params[9] = { rtt1, rtt2, rtt3, rtt4, rtt5, rtt6, rtt7, rtt8, rtt9 };
             RuntimeType::Variance variances[9] = { RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant,
                                                    RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant };
-            location->initStageTwo("(P1,P2,P3,P4,P5,P6,P7,P8,P9)=>Void", 1, parents, 9, params, variances);
+            location->initStageTwo("(P1,P2,P3,P4,P5,P6,P7,P8,P9)=>void", RuntimeType::interface_kind, 1, parents, 9, params, variances);
         }    
     }
 }

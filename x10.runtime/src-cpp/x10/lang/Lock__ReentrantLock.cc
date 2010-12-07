@@ -36,6 +36,6 @@ Lock__ReentrantLock::raiseException() {
     throwException<IllegalMonitorStateException>();
 }
 
-RTT_CC_DECLS1(Lock__ReentrantLock, "x10.lang.Lock__ReentrantLock", Object)
+RTT_CC_DECLS1(Lock__ReentrantLock, "x10.lang.Lock__ReentrantLock", RuntimeType::class_kind, Object)
 
 // vim:tabstop=4:shiftwidth=4:expandtab

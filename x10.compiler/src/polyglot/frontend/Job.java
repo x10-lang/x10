@@ -147,10 +147,7 @@ public class Job
     
     public Goal TypesInitialized(Scheduler scheduler) {
         if (TypesInitialized == null) {
-            Job job = this;
-            TypeSystem ts = job.extensionInfo().typeSystem();
-            NodeFactory nf = job.extensionInfo().nodeFactory();
-            TypesInitialized = new ForgivingVisitorGoal("TypesInitialized", job, new TypeBuilder(job, ts, nf)).intern(scheduler);
+            TypesInitialized = scheduler.constructTypesInitialized(this);
         }
         return TypesInitialized;
     }

@@ -2,7 +2,7 @@
 
 # Dave Grove
 
-hosts="condor triloka3 nashira"
+hosts="condor triloka3 nashira rlsedx10"
 
 # TODO: we should get svn info by parsing svn info URL and extracting revision from there.
 while [ $# != 0 ]; do

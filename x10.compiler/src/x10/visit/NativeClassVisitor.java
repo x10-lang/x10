@@ -21,6 +21,7 @@ import polyglot.ast.CanonicalTypeNode;
 import polyglot.ast.ClassBody;
 import polyglot.ast.ClassMember;
 import polyglot.ast.Expr;
+import polyglot.ast.FieldDecl;
 import polyglot.ast.Formal;
 import polyglot.ast.Id;
 import polyglot.ast.New;
@@ -50,15 +51,17 @@ import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.ast.*;
+import x10.extension.X10Ext;
 import x10.types.ParameterType;
 import x10.types.X10Def;
 import x10.types.X10ConstructorDef;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
+import x10.types.X10FieldDef;
 import x10.types.X10Flags;
 import x10.types.X10MethodDef;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 
 /**
  * Visitor that expands @NativeClass and @NativeDef annotations.
@@ -67,13 +70,13 @@ public class NativeClassVisitor extends ContextVisitor {
     public static final Name NATIVE_FIELD_NAME = Name.make("__NATIVE_FIELD__");
 
     final String theLanguage;
-    final X10TypeSystem xts;
-    final X10NodeFactory xnf;
+    final TypeSystem xts;
+    final NodeFactory xnf;
 
     public NativeClassVisitor(Job job, TypeSystem ts, NodeFactory nf, String theLanguage) {
         super(job, ts, nf);
-        xts = (X10TypeSystem) ts;
-        xnf = (X10NodeFactory) nf;
+        xts = (TypeSystem) ts;
+        xnf = (NodeFactory) nf;
         this.theLanguage = theLanguage;
     }
 
@@ -130,7 +133,7 @@ public class NativeClassVisitor extends ContextVisitor {
     }
 
     protected static X10Flags clearNative(Flags flags) {
-        return X10Flags.toX10Flags(flags).clearX(Flags.NATIVE);
+        return X10Flags.toX10Flags(flags).clear(Flags.NATIVE);
     }
 
     protected Node leaveCall(Node parent, Node old, Node n, NodeVisitor v) throws SemanticException {
@@ -151,7 +154,7 @@ public class NativeClassVisitor extends ContextVisitor {
         ClassBody cbody = cdecl.body();
         List<ClassMember> cmembers = new ArrayList<ClassMember>();
 
-        Position p = X10NodeFactory_c.compilerGenerated(cbody);
+        Position p = Position.compilerGenerated(cbody.position());
 
         // create fake def for native class
         X10ClassDef fake = (X10ClassDef) xts.createClassDef();
@@ -173,14 +176,20 @@ public class NativeClassVisitor extends ContextVisitor {
             fake.addTypeParameter(pp, vv);
         }
 
+        X10ClassType embed = (X10ClassType) xts.systemResolver().find(QName.make("x10.compiler.Embed"));
+        List<AnnotationNode> anodes = Collections.<AnnotationNode>singletonList(xnf.AnnotationNode(p, xnf.CanonicalTypeNode(p, embed)));
+        
         // add field with native type
         Name fname = NATIVE_FIELD_NAME;
         Id fid = xnf.Id(p, fname);
         ClassType ftype = fake.asType();
         CanonicalTypeNode ftnode = xnf.CanonicalTypeNode(p, ftype);
         Flags fflags = X10Flags.PRIVATE.Final();
-        FieldDef fdef = xts.fieldDef(p, Types.ref(cdef.asType()), fflags, Types.ref(ftype), fname);
-        cmembers.add(xnf.FieldDecl(p, xnf.FlagsNode(p, fflags), ftnode, fid).fieldDef(fdef));
+        X10FieldDef fdef = xts.fieldDef(p, Types.ref(cdef.asType()), fflags, Types.ref(ftype), fname);
+        fdef.setDefAnnotations(Collections.<Ref<? extends Type>>singletonList(Types.ref(embed)));
+        FieldDecl fdecl = xnf.FieldDecl(p, xnf.FlagsNode(p, fflags), ftnode, fid).fieldDef(fdef);
+        fdecl = (FieldDecl) ((X10Ext) fdecl.ext()).annotations(anodes);
+        cmembers.add(fdecl);
         cdef.addField(fdef);
 
         // field selector
@@ -306,11 +315,22 @@ public class NativeClassVisitor extends ContextVisitor {
 
                 // call delegate constructor
                 Expr init = xnf.New(p, ftnode, args).constructorInstance(xdef.asInstance()).type(ftype);
-
+                init = (Expr) ((X10Ext) init.ext()).annotations(anodes);
+                
                 // invoke copy constructor
-                Stmt body = xnf.ThisCall(p, Collections.<Expr>singletonList(init)).constructorInstance(xinst);
+                Expr assign = xnf.FieldAssign(p, special, fid, Assign.ASSIGN, init).fieldInstance(fdef.asInstance()).type(ftype);
+                ArrayList<Stmt> ctorBlock = new ArrayList<Stmt>();
+                // super constructor def (noarg)
+                final TypeNode superClass = cdecl.superClass();
+                if (superClass!=null) {
+                    ConstructorDef sdef = xts.findConstructor(superClass.type(),
+                            xts.ConstructorMatcher(superClass.type(), Collections.<Type>emptyList(), context)).def();
+                    ctorBlock.add(xnf.SuperCall(p, Collections.<Expr>emptyList()).constructorInstance(sdef.asInstance()));
+                }
+                ctorBlock.add(xnf.Eval(p, assign));
+//                Stmt body = xnf.ThisCall(p, Collections.<Expr>singletonList(init)).constructorInstance(xinst);
 
-                cmembers.add((X10ConstructorDecl) xdecl.body(xnf.Block(p, body)));
+                cmembers.add((X10ConstructorDecl) xdecl.body(xnf.Block(p, ctorBlock)));
                 continue;
             }
 

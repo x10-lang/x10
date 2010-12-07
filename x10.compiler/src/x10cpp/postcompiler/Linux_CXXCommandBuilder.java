@@ -19,32 +19,30 @@ import polyglot.util.ErrorQueue;
 public class Linux_CXXCommandBuilder extends CXXCommandBuilder {
     protected static final boolean USE_X86 = CXXCommandBuilder.PLATFORM.endsWith("_x86");
     protected static final boolean USE_BFD = System.getenv("USE_BFD")!=null;
- 
+
     public Linux_CXXCommandBuilder(Options options, ErrorQueue eq) {
         super(options, eq);
         assert (CXXCommandBuilder.PLATFORM.startsWith("linux_"));
     }
 
     protected String defaultPostCompiler() {
-	  return USE_XLC ? "xlC_r" : super.defaultPostCompiler();
+        return USE_XLC ? "xlC_r" : super.defaultPostCompiler();
     }
 
     protected void addPreArgs(ArrayList<String> cxxCmd) {
         super.addPreArgs(cxxCmd);
-		if (!USE_XLC) {
-            cxxCmd.add("-Wno-long-long");
-            cxxCmd.add("-Wno-unused-parameter");
+        if (!USE_XLC) {
             cxxCmd.add("-pthread");
             if (USE_X86) {
                 cxxCmd.add("-msse2");
                 cxxCmd.add("-mfpmath=sse");
             }
-		}
+        }
     }
 
     protected void addPostArgs(ArrayList<String> cxxCmd) {
         super.addPostArgs(cxxCmd);
-        
+
         // Support for loading shared libraries from x10.dist/lib
         cxxCmd.add("-Wl,--rpath");
         cxxCmd.add("-Wl,"+X10_DIST+"/lib");

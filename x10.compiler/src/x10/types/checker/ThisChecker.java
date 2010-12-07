@@ -7,16 +7,17 @@ import java.util.List;
 
 import polyglot.ast.Expr;
 import polyglot.ast.Node;
+import polyglot.ast.NodeFactory;
 import polyglot.frontend.Globals;
 import polyglot.frontend.Job;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.ErrorHandlingVisitor;
+import polyglot.visit.NodeVisitor;
 import x10.ast.X10CanonicalTypeNode;
 import x10.ast.X10Field_c;
-import x10.ast.X10NodeFactory;
 import x10.ast.X10Special;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 import x10.types.constraints.CConstraint;
 import x10.util.Synthesizer;
 
@@ -26,9 +27,13 @@ import x10.util.Synthesizer;
  * @author vj
  *
  */
-public class ThisChecker extends ErrorHandlingVisitor {
+public class ThisChecker extends NodeVisitor {
+    protected boolean error;
+    protected TypeSystem ts;
+    protected NodeFactory nf;
     public ThisChecker(Job job) {
-    	   super(job, job.extensionInfo().typeSystem(), job.extensionInfo().nodeFactory());
+        ts = (TypeSystem) job.extensionInfo().typeSystem();
+        nf = (NodeFactory) job.extensionInfo().nodeFactory();
     }
     protected boolean catchErrors(Node n) { return false; }
     @Override
@@ -48,7 +53,7 @@ public class ThisChecker extends ErrorHandlingVisitor {
         }
         if (n instanceof X10CanonicalTypeNode) {
             CConstraint rc = X10TypeMixin.xclause(((X10CanonicalTypeNode) n).type());
-            List<Expr> clauses = new Synthesizer((X10NodeFactory) nf, (X10TypeSystem) ts).makeExpr(rc, n.position());
+            List<Expr> clauses = new Synthesizer(nf, ts).makeExpr(rc, n.position());
             for (Expr c : clauses) {
                 c.visit(this);
             }

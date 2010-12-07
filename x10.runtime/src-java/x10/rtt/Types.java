@@ -11,16 +11,6 @@
 
 package x10.rtt;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.atomic.AtomicReference;
-
 import x10.core.Any;
 import x10.core.fun.Fun_0_1;
 
@@ -54,94 +44,36 @@ public class Types {
         return s;
     }
 
-    public static Type runtimeType(Class<?> c) {
+    public static RuntimeType runtimeType(Class<?> c) {
         return new RuntimeType<Class<?>>(c);
     }
 
-    public static Type<Boolean> BOOLEAN = new BooleanType();
-    public static Type<Byte> BYTE = new ByteType();
-    public static Type<Short> SHORT = new ShortType();
-    public static Type<Character> CHAR = new CharType();
-    public static Type<Integer> INT = new IntType();
-    public static Type<Long> LONG = new LongType();
-    public static Type<Float> FLOAT = new FloatType();
-    public static Type<Double> DOUBLE = new DoubleType();
-    public static Type<AtomicBoolean> ATOMIC_BOOLEAN = new RuntimeType<AtomicBoolean>(AtomicBoolean.class) {
+    // create rtt of comparable before all types that implement comparable (e.g. int)
+    public static final RuntimeType<?> COMPARABLE = new RuntimeType(Comparable.class, RuntimeType.Variance.INVARIANT) {
         @Override
         public String typeName() {
-            return "x10.util.concurrent.atomic.AtomicBoolean";
-        }
-    };
-    public static Type<AtomicInteger> ATOMIC_INTEGER = new RuntimeType<AtomicInteger>(AtomicInteger.class) {
-        @Override
-        public String typeName() {
-            return "x10.util.concurrent.atomic.AtomicInteger";
-        }
-    };
-    public static Type<AtomicLong> ATOMIC_LONG = new RuntimeType<AtomicLong>(AtomicLong.class) {
-        @Override
-        public String typeName() {
-            return "x10.util.concurrent.atomic.AtomicLong";
-        }
-    };
-    public static RuntimeType<AtomicReference<?>> ATOMIC_REFERENCE = new RuntimeType<AtomicReference<?>>(
-        AtomicReference.class
-//        , new RuntimeType.Variance[] {RuntimeType.Variance.INVARIANT}/*TODO pass type params*/
-    ) {
-        @Override
-        public String typeName() {
-            return "x10.util.concurrent.atomic.AtomicReference";
-        }
-    };
-    public static Type<InputStream> INPUT_STREAM = new RuntimeType<InputStream>(InputStream.class) {
-        @Override
-        public String typeName() {
-            return "x10.io.InputStreamReader.InputStream";
-        }
-    };
-    public static Type<OutputStream> OUTPUT_STREAM = new RuntimeType<OutputStream>(OutputStream.class) {
-        @Override
-        public String typeName() {
-            return "x10.io.OutputStreamWriter.OutputStream";
-        }
-    };
-    public static Type<FileInputStream> FILE_INPUT_STREAM = new RuntimeType<FileInputStream>(
-        FileInputStream.class,
-        new Type[] {
-            Types.INPUT_STREAM
-        }
-    ) {
-        @Override
-        public String typeName() {
-            return "x10.io.FileReader.FileInputStream";
-        }
-    };
-    public static Type<FileOutputStream> FILE_OUTPUT_STREAM = new RuntimeType<FileOutputStream>(
-        FileOutputStream.class,
-        new Type[] {
-            Types.OUTPUT_STREAM
-        }
-    ) {
-        @Override
-        public String typeName() {
-            return "x10.io.FileWriter.FileOutputStream";
-        }
-    };
-    public static Type<File> NATIVE_FILE = new RuntimeType<File>(File.class) {
-        @Override
-        public String typeName() {
-            return "x10.io.File.NativeFile";
+            return "x10.lang.Comparable";
         }
     };
 
-    public static RuntimeType<Comparable<?>> COMPARABLE;
-    static {
-        try {
-            COMPARABLE = new RuntimeType<Comparable<?>>(Class.forName("x10.lang.Comparable"));
-        } catch (ClassNotFoundException e) {}
-    }
+    public static final RuntimeType<Boolean> BOOLEAN = new BooleanType();
+    public static final RuntimeType<Byte> BYTE = new ByteType();
+    public static final RuntimeType<Short> SHORT = new ShortType();
+    public static final RuntimeType<Character> CHAR = new CharType();
+    public static final RuntimeType<Integer> INT = new IntType();
+    public static final RuntimeType<Long> LONG = new LongType();
+    public static final RuntimeType<Float> FLOAT = new FloatType();
+    public static final RuntimeType<Double> DOUBLE = new DoubleType();
+    public static final Object BOOLEAN_ZERO = Boolean.valueOf(false);
+    public static final Object BYTE_ZERO = Byte.valueOf((byte) 0);
+    public static final Object SHORT_ZERO = Short.valueOf((short) 0);
+    public static final Object CHAR_ZERO = Character.valueOf((char) 0);
+    public static final Object INT_ZERO = Integer.valueOf(0);
+    public static final Object LONG_ZERO = Long.valueOf(0L);
+    public static final Object FLOAT_ZERO = Float.valueOf(0.0F);
+    public static final Object DOUBLE_ZERO = Double.valueOf(0.0);
 
-    public static Type<String> STRING = new RuntimeType<String>(
+    public static final RuntimeType<String> STRING = new RuntimeType<String>(
         String.class,
         new Type[] {
             new ParameterizedType(Fun_0_1._RTT, Types.INT, Types.CHAR),
@@ -153,7 +85,7 @@ public class Types {
             return "x10.lang.String";
         }
     };
-    public static Type<Object> OBJECT = new RuntimeType<Object>(Object.class) {
+    public static final RuntimeType<Object> OBJECT = new RuntimeType<Object>(Object.class) {
         @Override
         public String typeName() {
             return "x10.lang.Object";
@@ -164,7 +96,7 @@ public class Types {
             return o == OBJECT || o == ANY;
         };
     };
-    public static Type<Object> ANY = new RuntimeType<Object>(Object.class) {
+    public static final RuntimeType<Object> ANY = new RuntimeType<Object>(Object.class) {
         @Override
         public String typeName() {
             return "x10.lang.Any";
@@ -176,66 +108,82 @@ public class Types {
         };
     };
 
-    public static Type<?> UBYTE;
-    public static Type<?> USHORT;
-    public static Type<?> UINT;
-    public static Type<?> ULONG;
+    public static Class<?> UBYTE_CLASS;
+    public static Class<?> USHORT_CLASS;
+    public static Class<?> UINT_CLASS;
+    public static Class<?> ULONG_CLASS;
+    public static RuntimeType<?> UBYTE;
+    public static RuntimeType<?> USHORT;
+    public static RuntimeType<?> UINT;
+    public static RuntimeType<?> ULONG;
+    public static Object UBYTE_ZERO;
+    public static Object USHORT_ZERO;
+    public static Object UINT_ZERO;
+    public static Object ULONG_ZERO;
     static {
         try {
             Class<?> c;
             java.lang.reflect.Field f;
-            c = Class.forName("x10.lang.UByte");
+            UBYTE_CLASS = c = Class.forName("x10.lang.UByte");
             f = c.getDeclaredField("_RTT");
             UBYTE = (RuntimeType<?>) f.get(null);
-            c = Class.forName("x10.lang.UShort");
+            UBYTE_ZERO = c.getConstructor(new Class[]{byte.class}).newInstance(new Object[]{(byte)0});
+            USHORT_CLASS = c = Class.forName("x10.lang.UShort");
             f = c.getDeclaredField("_RTT");
             USHORT = (RuntimeType<?>) f.get(null);
-            c = Class.forName("x10.lang.UInt");
+            USHORT_ZERO = c.getConstructor(new Class[]{short.class}).newInstance(new Object[]{(short)0});
+            UINT_CLASS = c = Class.forName("x10.lang.UInt");
             f = c.getDeclaredField("_RTT");
             UINT = (RuntimeType<?>) f.get(null);
-            c = Class.forName("x10.lang.ULong");
+            UINT_ZERO = c.getConstructor(new Class[]{int.class}).newInstance(new Object[]{0});
+            ULONG_CLASS = c = Class.forName("x10.lang.ULong");
             f = c.getDeclaredField("_RTT");
             ULONG = (RuntimeType<?>) f.get(null);
+            ULONG_ZERO = c.getConstructor(new Class[]{long.class}).newInstance(new Object[]{0L});
         } catch (Exception e) {}
     }
 
-    public static Type<?> getNativeRepRTT(Object o) {
-        if (o instanceof Boolean) return BOOLEAN;
+    public static RuntimeType<?> getNativeRepRTT(Object o) {
         if (o instanceof Byte) return BYTE;
-        if (o instanceof Character) return CHAR;
         if (o instanceof Short) return SHORT;
         if (o instanceof Integer) return INT;
         if (o instanceof Long) return LONG;
         if (o instanceof Float) return FLOAT;
         if (o instanceof Double) return DOUBLE;
+        if (o instanceof Character) return CHAR;
+        if (o instanceof Boolean) return BOOLEAN;
         if (o instanceof String) return STRING;
-        if (o instanceof AtomicBoolean) return ATOMIC_BOOLEAN;
-        if (o instanceof AtomicInteger) return ATOMIC_INTEGER;
-        if (o instanceof AtomicLong) return ATOMIC_LONG;
-        if (o instanceof AtomicReference) return ATOMIC_REFERENCE;
-        if (o instanceof InputStream) return INPUT_STREAM;
-        if (o instanceof OutputStream) return OUTPUT_STREAM;
-        if (o instanceof FileInputStream) return FILE_INPUT_STREAM;
-        if (o instanceof FileOutputStream) return FILE_OUTPUT_STREAM;
-        if (o instanceof File) return NATIVE_FILE;
-        // Note: new x10.lang.Object() returns x10.core.Ref instead of java.lang.Object  
-//        if (Object.class.equals(o.getClass())) return OBJECT;
         return null;
     }
 
+    // TODO haszero
+    /*
+    private static boolean isPrimitiveStructType(Type<?> rtt) {
+        if (rtt == BYTE  || rtt == SHORT  || rtt == INT   || rtt == LONG ||
+            rtt == UBYTE  || rtt == USHORT  || rtt == UINT || rtt == ULONG ||
+            rtt == FLOAT || rtt == DOUBLE || rtt == CHAR || rtt == BOOLEAN) {
+            return true;
+        }
+        return false;
+    }
     static boolean isStructType(Type<?> rtt) {
-        if (
-            rtt == BOOLEAN
-            || rtt == BYTE  || rtt == SHORT  || rtt == CHAR || rtt == INT   || rtt == LONG
-            || rtt == UBYTE  || rtt == USHORT  || rtt == UINT   || rtt == ULONG
-            || rtt == FLOAT || rtt == DOUBLE
-            ) {
+        return rtt.isSubtype(x10.core.Struct._RTT) || isPrimitiveStructType(rtt);
+    }
+    */
+    static boolean isStructType(Type<?> rtt) {
+        if (rtt == BYTE  || rtt == SHORT  || rtt == INT   || rtt == LONG ||
+            /*rtt == UBYTE  || rtt == USHORT  || rtt == UINT || rtt == ULONG ||*/
+            rtt == FLOAT || rtt == DOUBLE || rtt == CHAR || rtt == BOOLEAN) {
             return true;
         }
         else if (rtt.isSubtype(x10.core.Struct._RTT)) {
             return true;
         }
         return false;
+    }
+
+    public static boolean instanceofObject(Object o) {
+        return o != null && !isStruct(o);
     }
 
     public static boolean isStruct(Object o) {
@@ -291,39 +239,62 @@ public class Types {
         if (typeParamOrAny instanceof java.lang.Character) {return (java.lang.Character) typeParamOrAny;}
         throw new ClassCastException();
     }
-    
+
+    public static Object asStruct(Type<?> rtt, Object typeParamOrAny) {
+        if (typeParamOrAny == null) {nullIsCastedToStruct();}
+
+        if (rtt == UBYTE) {
+            if (UBYTE_CLASS.isInstance(typeParamOrAny)) { return typeParamOrAny;}
+//            if (USHORT_CLASS.isInstance(typeParamOrAny)) { return (UByte)...;}
+//            if (UINT_CLASS.isInstance(typeParamOrAny)) { return (UByte)...;}
+//            if (ULONG_CLASS.isInstance(typeParamOrAny)) { return (UByte)...;}
+        }
+        else if (rtt == USHORT) {
+            if (USHORT_CLASS.isInstance(typeParamOrAny)) { return typeParamOrAny;}
+        }
+        else if (rtt == UINT) {
+            if (UINT_CLASS.isInstance(typeParamOrAny)) { return typeParamOrAny;}
+        }
+        else if (rtt == ULONG) {
+            if (ULONG_CLASS.isInstance(typeParamOrAny)) { return typeParamOrAny;}
+        }
+        else {
+            return typeParamOrAny;
+        }
+        throw new ClassCastException();
+    }
     
     public static Object conversion(Type<?> rtt, Object primOrTypeParam) {
         if (primOrTypeParam == null && isStructType(rtt)) {nullIsCastedToStruct();}
         
         if (rtt == BYTE) {
-            if (primOrTypeParam instanceof java.lang.Number) return ((java.lang.Number) primOrTypeParam).byteValue();
             if (primOrTypeParam instanceof java.lang.Byte) return primOrTypeParam;
+            if (primOrTypeParam instanceof java.lang.Number) return ((java.lang.Number) primOrTypeParam).byteValue();
             return primOrTypeParam;
         }
         if (rtt == SHORT) {
-            if (primOrTypeParam instanceof java.lang.Number) return ((java.lang.Number) primOrTypeParam).shortValue();
             if (primOrTypeParam instanceof java.lang.Short) return primOrTypeParam;
+            if (primOrTypeParam instanceof java.lang.Number) return ((java.lang.Number) primOrTypeParam).shortValue();
             return primOrTypeParam;
         }
         if (rtt == INT) {
-            if (primOrTypeParam instanceof java.lang.Number) return ((java.lang.Number) primOrTypeParam).intValue();
             if (primOrTypeParam instanceof java.lang.Integer) return primOrTypeParam;
+            if (primOrTypeParam instanceof java.lang.Number) return ((java.lang.Number) primOrTypeParam).intValue();
             return primOrTypeParam;
         }
         if (rtt == LONG) {
-            if (primOrTypeParam instanceof java.lang.Number) return ((java.lang.Number) primOrTypeParam).longValue();
             if (primOrTypeParam instanceof java.lang.Long) return primOrTypeParam;
+            if (primOrTypeParam instanceof java.lang.Number) return ((java.lang.Number) primOrTypeParam).longValue();
             return primOrTypeParam;
         }
         if (rtt == FLOAT) {
-            if (primOrTypeParam instanceof java.lang.Number) return ((java.lang.Number) primOrTypeParam).floatValue();
             if (primOrTypeParam instanceof java.lang.Float) return primOrTypeParam;
+            if (primOrTypeParam instanceof java.lang.Number) return ((java.lang.Number) primOrTypeParam).floatValue();
             return primOrTypeParam;
         }
         if (rtt == DOUBLE) {
-            if (primOrTypeParam instanceof java.lang.Number) return ((java.lang.Number) primOrTypeParam).doubleValue();
             if (primOrTypeParam instanceof java.lang.Double) return primOrTypeParam;
+            if (primOrTypeParam instanceof java.lang.Number) return ((java.lang.Number) primOrTypeParam).doubleValue();
             return primOrTypeParam;
         }
         
@@ -331,4 +302,100 @@ public class Types {
     }
 
     public static void nullIsCastedToStruct(){throw new java.lang.ClassCastException();}
+
+    public static boolean hasNaturalZero(Type<?> rtt) {
+        if (rtt.isSubtype(OBJECT) ||
+            rtt == BYTE || rtt == SHORT || rtt == INT || rtt == LONG ||
+            /*rtt == UBYTE || rtt == USHORT || rtt == UINT || rtt == ULONG ||*/
+            rtt == FLOAT || rtt == DOUBLE || rtt == CHAR || rtt == BOOLEAN) return true;
+        return false;
+    }
+
+    // TODO haszero
+    /*
+    private static Object zeroValue(Class<?> c) {
+        if (c.equals(BYTE.getJavaClass()) || c.equals(Byte.class)) return BYTE_ZERO;
+        if (c.equals(SHORT.getJavaClass()) || c.equals(Short.class)) return SHORT_ZERO;
+        if (c.equals(INT.getJavaClass()) || c.equals(Integer.class)) return INT_ZERO;
+        if (c.equals(LONG.getJavaClass()) || c.equals(Long.class)) return LONG_ZERO;
+        if (c.equals(UBYTE.getJavaClass())) return UBYTE_ZERO;
+        if (c.equals(USHORT.getJavaClass())) return USHORT_ZERO;
+        if (c.equals(UINT.getJavaClass())) return UINT_ZERO;
+        if (c.equals(ULONG.getJavaClass())) return ULONG_ZERO;
+        if (c.equals(FLOAT.getJavaClass()) || c.equals(Float.class)) return FLOAT_ZERO;
+        if (c.equals(DOUBLE.getJavaClass()) || c.equals(Double.class)) return DOUBLE_ZERO;
+        if (c.equals(CHAR.getJavaClass()) || c.equals(Character.class)) return CHAR_ZERO;
+        if (c.equals(BOOLEAN.getJavaClass()) || c.equals(Boolean.class)) return BOOLEAN_ZERO;
+        // Note: user defined structs is not supported
+//        assert !x10.core.Struct.class.isAssignableFrom(c) : "user defined structs is not supported";
+        return null;
+    }
+    */
+    public static Object zeroValue(Type<?> rtt) {
+        Type<?>[] typeParams = null;
+        if (rtt instanceof ParameterizedType) {
+            ParameterizedType<?> pt = (ParameterizedType<?>) rtt;
+            rtt = pt.getRuntimeType(); 
+            typeParams = pt.getParams();
+        }
+        if (isStructType(rtt)) {
+            if (rtt == BYTE) return BYTE_ZERO;
+            if (rtt == SHORT) return SHORT_ZERO;
+            if (rtt == INT) return INT_ZERO;
+            if (rtt == LONG) return LONG_ZERO;
+            if (rtt == UBYTE) return UBYTE_ZERO;
+            if (rtt == USHORT) return USHORT_ZERO;
+            if (rtt == UINT) return UINT_ZERO;
+            if (rtt == ULONG) return ULONG_ZERO;
+            if (rtt == FLOAT) return FLOAT_ZERO;
+            if (rtt == DOUBLE) return DOUBLE_ZERO;
+            if (rtt == CHAR) return CHAR_ZERO;
+            if (rtt == BOOLEAN) return BOOLEAN_ZERO;
+//            if (isPrimitiveStructType(rtt)) return zeroValue(rtt.getJavaClass());
+            // for user-defined structs, call zero value constructor
+            try {
+                Class<?> c = rtt.getJavaClass();
+                java.lang.reflect.Constructor<?> ctor = null;
+                Class<?>[] paramTypes = null;
+                for (java.lang.reflect.Constructor<?> ctor0 : c.getConstructors()) {
+                    paramTypes = ctor0.getParameterTypes();
+                    if (paramTypes[paramTypes.length-1].equals(java.lang.System[].class)) {
+                        ctor = ctor0;
+                        break;
+                    }
+                }
+                assert ctor != null;
+                Object[] params = new Object[paramTypes.length];
+                
+                /*
+                int i = 0;
+                if (typeParams != null) {
+                    for ( ; i < typeParams.length; ++i) {
+                        // pass type params
+                        params[i] = typeParams[i];
+                    }
+                }
+                for ( ; i < paramTypes.length; ++i) {
+                    // these values are not necessarily zero value
+                    params[i] = zeroValue(paramTypes[i]);
+                }
+                */
+                assert typeParams == null ? paramTypes.length == 1 : paramTypes.length == typeParams.length/*T1,T2,...*/ + 1/*(java.lang.String[])null*/;
+                int i = 0;
+                if (typeParams != null) {
+                    for ( ; i < typeParams.length; ++i) {
+                        // pass type params
+                        params[i] = typeParams[i];
+                    }
+                }
+                params[i] = null;
+
+                return ctor.newInstance(params);
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new java.lang.Error(e);
+            }
+        }
+        return null;
+    }
 }

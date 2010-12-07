@@ -28,7 +28,7 @@ public class ArrayLiteralTest extends x10Test {
         return suma==6 && sumr==6;
     }
 
-    public static def main(Array[String](1)): Void = {
+    public static def main(Array[String](1)): void = {
         new ArrayLiteralTest().execute();
     }
 }

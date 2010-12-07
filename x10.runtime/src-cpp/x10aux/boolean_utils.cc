@@ -13,7 +13,7 @@
 #include <x10aux/boolean_utils.h>
 #include <x10aux/basic_functions.h>
 
-#include <x10/lang/String.h>                    \
+#include <x10/lang/String.h>
 
 #include <strings.h>
 #ifdef __CYGWIN__
@@ -29,7 +29,7 @@ const ref<String> x10aux::boolean_utils::toString(x10_boolean value) {
 }
 
 x10_boolean x10aux::boolean_utils::parseBoolean(const ref<String>& s) {
-    return s != null && !::strcasecmp(nullCheck(s)->c_str(), "true");
+    return !s.isNull() && !::strcasecmp(nullCheck(s)->c_str(), "true");
 }
 
 // vim:tabstop=4:shiftwidth=4:expandtab

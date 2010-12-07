@@ -18,6 +18,7 @@ import polyglot.ast.Assign;
 import polyglot.ast.Expr;
 import polyglot.ast.FieldAssign;
 import polyglot.ast.Node;
+import polyglot.ast.NodeFactory;
 import polyglot.ast.Stmt;
 import polyglot.ast.Stmt_c;
 import polyglot.ast.Term;
@@ -44,12 +45,13 @@ import x10.constraint.XTerm;
 import x10.constraint.XVar;
 import x10.errors.Errors;
 import x10.types.X10ConstructorDef;
-import x10.types.X10Context;
+import polyglot.types.Context;
 import x10.types.X10FieldInstance;
 import x10.types.X10ParsedClassType;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 import x10.types.XTypeTranslator;
+import x10.types.X10Context_c;
 import x10.types.checker.ThisChecker;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint;
@@ -130,16 +132,15 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 	public Node typeCheck(ContextVisitor tc) {
 		TypeSystem ts = tc.typeSystem();
 		Context ctx = tc.context();
-		X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
+		NodeFactory nf = (NodeFactory) tc.nodeFactory();
 		Position pos = position();
 		Job job = tc.job();
-		X10ConstructorDef thisConstructor = null;
+		X10ConstructorDef thisConstructor = ((X10Context_c)ctx).getCtorIgnoringAsync();
 		X10ParsedClassType container = (X10ParsedClassType) ctx.currentClass();
-		if (!(ctx.inCode()) || !(ctx.currentCode() instanceof X10ConstructorDef)) {
+		if (thisConstructor==null) {
 			Errors.issue(job,
 			        new SemanticException("A property statement may only occur in the body of a constructor.", position()));
 		} else {
-		    thisConstructor = (X10ConstructorDef) ctx.currentCode();
 		    container = (X10ParsedClassType) thisConstructor.asInstance().container();
 		}
 		// Now check that the types of each actual argument are subtypes of the corresponding
@@ -178,7 +179,7 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 	protected static void checkAssignments(ContextVisitor tc, Position pos,
 	        List<FieldInstance> props, List<Expr> args)
 	{
-		X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
+		TypeSystem xts = (TypeSystem) tc.typeSystem();
 		// First check that the base types are correct.
 		for (int i=0; i < args.size() && i < props.size(); ++i) {
 			if (!xts.isSubtype(X10TypeMixin.baseType(args.get(i).type()), X10TypeMixin.baseType(props.get(i).type()))) {
@@ -188,13 +189,13 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 		}
 		// Now we check that the constraints are correct.
 	}
-	
+
 	protected void checkReturnType(ContextVisitor tc, Position pos,
 	        X10ConstructorDef thisConstructor, List<FieldInstance> definedProperties,
 	        List<Expr> args)
 	{
-		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
-		X10Context ctx = (X10Context) tc.context();
+		TypeSystem ts = (TypeSystem) tc.typeSystem();
+		Context ctx = (Context) tc.context();
 		if (ts.hasUnknown(Types.get(thisConstructor.returnType()))) {
 		    return;
 		}
@@ -225,7 +226,7 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 					if (c != null)
 						known.addIn(c.substitute(prop, c.self()));
 
-					XTerm initVar = ts.xtypeTranslator().trans(known, initializer, (X10Context) ctx);
+					XTerm initVar = ts.xtypeTranslator().trans(known, initializer, (Context) ctx);
 					if (initVar != null)
 						known.addBinding(prop, initVar);
 				}
@@ -237,7 +238,7 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 				// bind this==self; sup clause may constrain this.
 				if (thisVar != null) {
 					known = known.instantiateSelf(thisVar);
-					
+
 					// known.addSelfBinding(thisVar);
 					// known.setThisVar(thisVar);
 				}

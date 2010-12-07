@@ -93,5 +93,21 @@ public class System {
     @Native("c++", "printf(\"not setting %s\\n\", (#1)->c_str())") // FIXME: Trivial definition to allow XRX compilation to go through.
     public static native def setProperty(p:String,v:String):void;
 
-
+    /**
+     * Sleep for the specified number of milliseconds.
+     * [IP] NOTE: Unlike Java, x10 sleep() simply exits when interrupted.
+     * @param millis the number of milliseconds to sleep
+     * @return true if completed normally, false if interrupted
+     */
+    public static def sleep(millis:long):Boolean {
+        try {
+            Runtime.increaseParallelism();
+            Thread.sleep(millis);
+            Runtime.decreaseParallelism(1);
+            return true;
+        } catch (e:InterruptedException) {
+            Runtime.decreaseParallelism(1);
+            return false;
+        }
+    }
 }

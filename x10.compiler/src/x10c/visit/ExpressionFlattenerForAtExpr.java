@@ -20,21 +20,20 @@ import polyglot.types.TypeSystem;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.ast.AtExpr;
-import x10.ast.X10NodeFactory;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 import x10.visit.ExpressionFlattener;
 
 public class ExpressionFlattenerForAtExpr extends ContextVisitor {
     
-    private final X10TypeSystem xts;
-    private final X10NodeFactory xnf;
+    private final TypeSystem xts;
+    private final NodeFactory xnf;
 
     private Type imc;
 
     public ExpressionFlattenerForAtExpr(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf);
-        xts = (X10TypeSystem) ts;
-        xnf = (X10NodeFactory) nf;
+        xts = (TypeSystem) ts;
+        xnf = (NodeFactory) nf;
     }
     
     @Override

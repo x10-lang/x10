@@ -19,10 +19,10 @@ import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import x10.constraint.XFailure;
 import x10.constraint.XTerm;
-import x10.types.X10Context;
+import polyglot.types.Context;
 
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 import x10.types.XTypeTranslator;
 import x10.types.constraints.CConstraint;
 
@@ -42,21 +42,21 @@ public class X10FloatLit_c extends FloatLit_c {
 	 */
 	public X10FloatLit_c(Position pos, Kind kind, double value) {
 		super(pos, kind, value);
-		
 	}
-	  public Node typeCheck(ContextVisitor tc) throws SemanticException {
-		  X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
-		  Type Type =  (kind==FLOAT ? xts.Float() : xts.Double());
-		  
-			  CConstraint c = new CConstraint();
-			  XTerm term = xts.xtypeTranslator().trans(c, this.type(Type), (X10Context) tc.context());
-			  try {
-				  c.addSelfBinding(term);
-			  }
-			  catch (XFailure e) {
-			  }
-			  Type newType = X10TypeMixin.xclause(Type, c);
-			  return type(newType);
-	  }
+
+	public Node typeCheck(ContextVisitor tc) {
+	    TypeSystem xts = (TypeSystem) tc.typeSystem();
+	    Type type = (kind == FLOAT ? xts.Float() : xts.Double());
+
+	    CConstraint c = new CConstraint();
+	    XTerm term = xts.xtypeTranslator().trans(c, this.type(type), (Context) tc.context());
+	    try {
+	        c.addSelfBinding(term);
+	    }
+	    catch (XFailure e) {
+	    }
+	    Type newType = X10TypeMixin.xclause(type, c);
+	    return type(newType);
+	}
 
 }

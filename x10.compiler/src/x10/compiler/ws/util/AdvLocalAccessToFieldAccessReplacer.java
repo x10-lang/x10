@@ -1,3 +1,15 @@
+/*
+ *  This file is part of the X10 project (http://x10-lang.org).
+ *
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ *  (C) Copyright IBM Corporation 2006-2010.
+ */
+
+
 package x10.compiler.ws.util;
 
 import java.util.HashSet;
@@ -13,7 +25,7 @@ import polyglot.ast.Node;
 import polyglot.types.Name;
 import polyglot.types.SemanticException;
 import polyglot.visit.NodeVisitor;
-import x10.types.X10Context;
+import polyglot.types.Context;
 import x10.util.Synthesizer;
 
 /**
@@ -36,14 +48,14 @@ import x10.util.Synthesizer;
 public class AdvLocalAccessToFieldAccessReplacer extends NodeVisitor {
     protected ILocalToFieldContainerMap refMap;
     protected Synthesizer synth;
-    protected X10Context context;
+    protected Context context;
     
     private boolean replaceError; //record weather there are some replacing errors;
     
     protected HashSet<Name> localDeclaredVar; //all locals with these names will not be replaced
      
     
-    public AdvLocalAccessToFieldAccessReplacer(ILocalToFieldContainerMap refMap, Synthesizer synth, X10Context context,
+    public AdvLocalAccessToFieldAccessReplacer(ILocalToFieldContainerMap refMap, Synthesizer synth, Context context,
                                                Set<Name> declaredNames){
         this.refMap = refMap;
         this.synth = synth;

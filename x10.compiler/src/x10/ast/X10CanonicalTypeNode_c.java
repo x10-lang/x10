@@ -53,13 +53,13 @@ import x10.types.ConstrainedType_c;
 import x10.types.ParameterType;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
-import x10.types.X10Context;
+import polyglot.types.Context;
 import x10.types.X10Flags;
-import x10.types.X10ParsedClassType_c;
+import x10.types.X10ParsedClassType;
 import x10.types.XTypeTranslator;
 
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 import x10.types.constraints.CConstraint;
 import x10.visit.X10TypeChecker;
 
@@ -69,12 +69,11 @@ import x10.visit.X10TypeChecker;
  * @author vj
  *
  */
-public class X10CanonicalTypeNode_c extends CanonicalTypeNode_c implements X10CanonicalTypeNode,
-AddFlags {
+public class X10CanonicalTypeNode_c extends CanonicalTypeNode_c implements X10CanonicalTypeNode, AddFlags {
 	
-	  public X10CanonicalTypeNode_c(Position pos, Type type) {
-			this(pos, Types.<Type>ref(type));
-		    }
+    public X10CanonicalTypeNode_c(Position pos, Type type) {
+	this(pos, Types.<Type>ref(type));
+    }
     public X10CanonicalTypeNode_c(Position pos, Ref<? extends Type> type) {
 	super(pos, type);
     }
@@ -85,9 +84,9 @@ AddFlags {
     }
   
     @Override
-    public Node typeCheck(ContextVisitor tc) throws SemanticException {
-	X10Context c = (X10Context) tc.context();
-	X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+    public Node typeCheck(ContextVisitor tc) {
+	Context c = (Context) tc.context();
+	TypeSystem ts = (TypeSystem) tc.typeSystem();
 
 	// Expand, and transfer flags from the type node to the type.
 	Type t = Types.get(type);
@@ -99,9 +98,7 @@ AddFlags {
 		flags = null;
 	}
 	((Ref<Type>) type).update(xt);
-	
-	
-	
+
 	if (t instanceof ParameterType) {
 	    ParameterType pt = (ParameterType) t;
 	    Def def = Types.get(pt.def());
@@ -121,17 +118,20 @@ AddFlags {
 	        }
 	    }
 	    if (p.inStaticContext() && def instanceof ClassDef && ! inConstructor) {
-	        throw new SemanticException("Cannot refer to type parameter "+ pt.fullName() + " of " + def + " from a static context.", position());
+	        Errors.issue(tc.job(),
+	                new SemanticException("Cannot refer to type parameter "+ pt.fullName() + " of " + def + " from a static context.", position()));
 	    }
 	    if (flags != null && ! flags.equals(Flags.NONE)) {
-	    	throw new SemanticException("Cannot qualify type parameter "+ pt.fullName() + " of " + def + " with flags " + flags + ".", position());
+	    	Errors.issue(tc.job(),
+	    	        new SemanticException("Cannot qualify type parameter "+ pt.fullName() + " of " + def + " with flags " + flags + ".", position()));
 	    }
 	}
-	
-	
-	checkType(tc.context(), t, position());
-	
-	
+
+	try {
+	    checkType(tc.context(), t, position());
+	} catch (SemanticException e) {
+	    Errors.issue(tc.job(), e, this);
+	}
 
 	List<AnnotationNode> as = ((X10Del) this.del()).annotations();
 	if (as != null && !as.isEmpty()) {
@@ -151,7 +151,13 @@ AddFlags {
 	    tref.update(newType);
 	}
 
-	return super.typeCheck(tc);
+	Node n = this;
+	try {
+	    n = super.typeCheck(tc);
+	} catch (SemanticException e) {
+	    Errors.issue(tc.job(), e, this);
+	}
+	return n;
     }
     
     @Override
@@ -160,7 +166,7 @@ AddFlags {
     		LazyRef<Type> r = (LazyRef<Type>) typeRef();
     		TypeChecker tc = new X10TypeChecker(v.job(), v.typeSystem(), v.nodeFactory(), v.getMemo());
     		tc = (TypeChecker) tc.context(v.context().freeze());
-    		r.setResolver(new TypeCheckTypeGoal(parent, this, tc, r));
+    		r.setResolver(new X10TypeCheckTypeGoal(parent, this, tc, r));
     	}
     }
     @Override
@@ -174,9 +180,9 @@ AddFlags {
                     new SemanticException("Invalid type; the real clause of " + t + " is inconsistent.", position()));
         }
         
-        X10TypeSystem ts = (X10TypeSystem) t.typeSystem();
+        TypeSystem ts = (TypeSystem) t.typeSystem();
         
-        if (! ts.consistent(t, (X10Context) tc.context())) {
+        if (! ts.consistent(t, tc.context())) {
             Errors.issue(tc.job(), new SemanticException("Type " + t + " is inconsistent.", position()));
         }
         
@@ -201,7 +207,7 @@ AddFlags {
 	    X10ClassType ct = (X10ClassType) t;
         X10ClassDef def = ct.x10Def();
         final List<Type> typeArgs = ct.typeArguments();
-        final int typeArgNum = typeArgs.size();
+        final int typeArgNum = typeArgs == null ? 0 : typeArgs.size();
         final List<ParameterType> typeParam = def.typeParameters();
         final int typeParamNum = typeParam.size();
 
@@ -210,10 +216,7 @@ AddFlags {
         // But that is not true for a static method, e.g., Array.make(...)
         // so instead we do this check in all other places (e.g., field access, method definitions, new calls, etc)
         // But I can check it if there are typeArguments.
-
-        // typeArgNum>0 is wrong, cause by default we get typeArgs from our def, so that condition is always true
-        // Instead I use: typeParamNum!=typeArgNum
-        if (typeParamNum!=typeArgNum) X10TypeMixin.checkMissingParameters(t,pos);
+        if (typeArgNum > 0) X10TypeMixin.checkMissingParameters(t,pos);
         
 	    for (int j = 0; j < typeArgNum; j++) {
 	        Type actualType = typeArgs.get(j);
@@ -286,10 +289,10 @@ AddFlags {
             w.write("<unknown-type>");
         } else {
             type.get().print(w);
-            if (extras && X10TypeMixin.baseType(type.get()) instanceof X10ParsedClassType_c
+            if (extras && X10TypeMixin.baseType(type.get()) instanceof X10ParsedClassType
                     && !(X10TypeMixin.baseType(type.get()) instanceof ClosureType_c)) {
-                List<Type> typeArguments = ((X10ParsedClassType_c) X10TypeMixin.baseType(type.get())).typeArguments();
-                if (typeArguments.size() > 0) {
+                List<Type> typeArguments = ((X10ParsedClassType) X10TypeMixin.baseType(type.get())).typeArguments();
+                if (typeArguments != null && typeArguments.size() > 0) {
                     w.write("[");
                     w.allowBreak(2, 2, "", 0); // miser mode
                     w.begin(0);

@@ -15,6 +15,7 @@ import x10.constraint.XVar;
 import x10.types.constraints.XConstrainedTerm;
 
 public interface X10MemberDef extends X10Def {
+    ThisDef thisDef();
+    void setThisDef(ThisDef thisDef);
     XVar thisVar();
-    void setThisVar(XVar thisVar);
 }

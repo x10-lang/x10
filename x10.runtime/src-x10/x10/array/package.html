@@ -17,11 +17,41 @@
 </head>
 <body bgcolor="white">
 
-Provides an implementation of single place and distributed arrays and
-associated supporting abstractions such as regions, points, and
-distributions. 
+<p>Provides an implementation of single place and distributed arrays and
+supporting abstractions such as regions, points, and distributions. </p>
 
 <h2>Package Specification</h2>
+
+<p>This package provides an implementation of single place and distributed arrays and
+supporting abstractions such as regions, points, and distributions.</p>
+
+<h3>Points, Regions, and Arrays</h3>
+
+A Point represents a point in a rank-dimensional space. 
+
+The coordinates of a point <code>p</code>
+
+
+A Region(rank) represents a set of points of class Point(rank). The
+Region class defines a set of static factory methods for constructing
+regions. There are properties and methods for accessing basic
+information about of a region, such as its bounding box, its size,
+whether or not it is convex, whether or not it is empty. There are a
+set of methods for supporting algebraic operations on regions, such as
+intersection, union, difference, and so on. The set of points in a
+region may be iterated over.
+
+
+<p>Arrays provide indexed access to data at a single Place. An Array may
+be either single or multi-dimensional; in X10 the dimensionality of an
+Array is recorded in the Array's rank property.  An Array instance of
+a particular rank is indexed by using Points of the same rank.  As a
+convenience to the programmer, Arrays of rank 4 or less may also be
+indexed using the appropriate number of Integer indices. </p>
+
+<p>A
+
+
 
 
 <h2>Related Documentation</h2>

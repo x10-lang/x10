@@ -19,9 +19,9 @@ import harness.x10Test;
 public class PrimitiveIsNotParameterType_MustFailCompile extends x10Test {
 	class GenericWrapper[T] {
 		  public def testAssign(x:T) {
-		    var dummy:Primitive = Primitive();
+		    var dummy:Object;
 		  // bad!!
-		    x=dummy;
+		    dummy = x; // ERR
 		  }
 		}
 	

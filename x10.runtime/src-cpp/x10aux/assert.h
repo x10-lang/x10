@@ -23,7 +23,7 @@ namespace x10aux {
 
     void x10__assertion_failed(const ref<x10::lang::String>& message) X10_PRAGMA_NORETURN;
 
-    inline void x10__assert(x10_boolean val, const ref<x10::lang::String>& message = null) {
+    inline void x10__assert(x10_boolean val, const ref<x10::lang::String>& message = X10_NULL) {
         if (!val)
             x10__assertion_failed(message);
     }

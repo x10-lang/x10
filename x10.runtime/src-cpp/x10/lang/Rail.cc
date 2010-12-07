@@ -16,7 +16,6 @@
 #include <x10/lang/Object.h>
 #include <x10/lang/Rail.h>
 #include <x10/lang/Runtime.h>
-#include <x10/lang/Runtime__FinishStates.h>
 
 using namespace x10aux;
 
@@ -31,7 +30,7 @@ namespace x10 {
             const RuntimeType *parents[3] = { Object::getRTT(), p1, p2 };
             const RuntimeType *params[1] = { element };
             RuntimeType::Variance variances[1] = { RuntimeType::invariant };
-            location->initStageTwo("x10.lang.Rail", 3, parents, 1, params, variances);
+            location->initStageTwo("x10.lang.Rail", RuntimeType::class_kind, 3, parents, 1, params, variances);
         }
     }
 }

@@ -34,4 +34,6 @@ public interface X10MethodDef extends MethodDef, X10ProcedureDef {
     
     List<ParameterType> typeParameters();
     void setTypeParameters(List<ParameterType> typeParameters);
+
+    X10MethodInstance asInstance();
 }

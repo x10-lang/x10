@@ -114,7 +114,7 @@ public class X10TypeDefDoc extends X10Doc implements MethodDoc {
 	}
 
 	public boolean isSynchronized() {
-		return typeDef.flags().isSynchronized();
+		return false;
 	}
 
 	public boolean isVarArgs() {

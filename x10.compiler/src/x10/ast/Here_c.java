@@ -28,9 +28,10 @@ import polyglot.visit.PrettyPrinter;
 import x10.constraint.XFailure;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
-import x10.types.X10Context;
+import x10.errors.Errors;
+import polyglot.types.Context;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.XConstrainedTerm;
@@ -73,9 +74,9 @@ public class Here_c extends Expr_c
     }
     
     /** Type check the expression. */
-	public Node typeCheck(ContextVisitor tc) throws SemanticException {
-		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
-		X10Context xc = (X10Context) tc.context();
+	public Node typeCheck(ContextVisitor tc) {
+		TypeSystem ts = (TypeSystem) tc.typeSystem();
+		Context xc = (Context) tc.context();
 
 		Type tt = ts.Place();
 		XConstrainedTerm h = xc.currentPlaceTerm();
@@ -85,7 +86,8 @@ public class Here_c extends Expr_c
 				cc.addSelfBinding(h);
 			}
 			catch (XFailure e) {
-				throw new SemanticException("Constraint on here is inconsistent; " + e.getMessage(), position());
+				Errors.issue(tc.job(),
+				        new SemanticException("Constraint on here is inconsistent; " + e.getMessage(), position()));
 			}
 			tt = X10TypeMixin.xclause(X10TypeMixin.baseType(tt), cc);
 		}

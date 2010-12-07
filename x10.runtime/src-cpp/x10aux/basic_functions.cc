@@ -41,7 +41,7 @@ TO_STRING(7, x10_short, signed short, "%hd")
 
 TO_STRING(11, x10_uint, unsigned long, "%lu")
 TO_STRING(12, x10_int, signed long, "%ld")
-TO_STRING(20, x10_ulong, unsigned long long, "%llu")
+TO_STRING(21, x10_ulong, unsigned long long, "%llu")
 TO_STRING(21, x10_long, signed long long, "%lld")
 
 ref<String> x10aux::to_string(x10_float v) {

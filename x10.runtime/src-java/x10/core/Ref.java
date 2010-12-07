@@ -16,7 +16,7 @@ import x10.rtt.Type;
 
 
 // Base class of all X10 ref objects -- should be generated, but we need this class to get Box to compile.
-public class Ref implements Any {
+public class Ref implements RefI {
     
     public Ref() {}
      

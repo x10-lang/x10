@@ -7,6 +7,10 @@ public class Types {
         return ref != null ? ref.get() : null;
     }
 
+    public static <T> T getCached(Ref<T> ref) {
+        return ref != null ? ref.getCached() : null;
+    }
+
     @SuppressWarnings("unchecked") // Special-casing TypeObject
     public static <T> Ref<T> ref(T v) {
 	    if (v instanceof TypeObject)

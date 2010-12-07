@@ -81,48 +81,12 @@ namespace x10 {
              *********************************************************************************/
             virtual x10aux::serialization_id_t _get_serialization_id() = 0;
             virtual void _serialize_body(x10aux::serialization_buffer &) = 0;
-
-            // This pair of functions should be overridden to not emit/extract the id in subclasses
-            // that satisfy the following property:
-            //
-            //      "All instances of all my subclasses are de/serialised by the same code"
-            //
-            // Examples of classes that satisfy this property:  All final classes, and root classes
-            // in hierarchies that use double dispatch for deserialization (to save serialization id
-            // space).
-            //
-            // If one of these functions is overridden, the other should be too.
-            //
-            // Note these functions are static as we want to dispatch on the static type.
-
-            static void _serialize(x10aux::ref<Reference> this_,
-                                   x10aux::serialization_buffer &buf);
-
-            template<class T> static x10aux::ref<T> _deserialize(x10aux::deserialization_buffer &buf);
-
-            // Should only be overridden in Object
-            virtual x10aux::serialization_id_t _get_interface_serialization_id();
-
-            // Should only be overridden in Object
-            virtual void _serialize_interface(x10aux::serialization_buffer &buf);
         };
-
-        template<class T> x10aux::ref<T> Reference::_deserialize(x10aux::deserialization_buffer &buf) {
-            x10aux::serialization_id_t id = buf.peek<x10aux::serialization_id_t>();
-            if (id == 0) {
-                buf.read<x10aux::serialization_id_t>();
-                return x10aux::null;
-            }
-            // extract the id and execute a callback to instantiate the right concrete class
-            _S_("Deserializing an "<<ANSI_SER<<ANSI_BOLD<<"interface"<<ANSI_RESET<<
-                " (expecting id " << id << ") from buf: "<<&buf);
-            return x10aux::DeserializationDispatcher::create<T>(buf);
-        }
 
         /**
          * This is a class that exists only at the C++ implementation level,
          * not at the X10 language level.  It's only real purpose is to
-         * provide a C++ level type for x10aux::NullType and therefore permit
+         * provide a C++ level type for X10_NULL and therefore permit
          * a unique RTT object to be associated with the X10 value null.
          * 
          * This is an abstract class because no instance of it will ever be

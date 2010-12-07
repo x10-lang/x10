@@ -29,7 +29,7 @@ import x10.util.StringBuilder;
  */    
 public interface Marshal[T] {
     public def read(r: Reader): T; //throws IOException;
-    public def write(w: Writer, T): Void; //throws IOException;
+    public def write(w: Writer, T): void; //throws IOException;
     
     public static BOOLEAN = new BooleanMarshal();
     public static BYTE = new ByteMarshal();
@@ -51,7 +51,7 @@ public interface Marshal[T] {
             } while (ch != '\n');
             return sb.result();
         }
-        public def write(w: Writer, s: String): Void //throws IOException 
+        public def write(w: Writer, s: String): void //throws IOException 
         {
             for (var i: int = 0; i < s.length(); i++) {
                 val ch = s(i);
@@ -69,14 +69,14 @@ public interface Marshal[T] {
     public static class BooleanMarshal implements Marshal[Boolean] {
         public def read(r: Reader): Boolean //throws IOException 
         = r.read() != 0;
-        public def write(w: Writer, b: Boolean): Void //throws IOException 
+        public def write(w: Writer, b: Boolean): void //throws IOException 
         = w.write((b ? 0 : 1) as Byte);
     }
     
     public static class ByteMarshal implements Marshal[Byte] {
         public def read(r: Reader): Byte //throws IOException 
         = r.read();
-        public def write(w: Writer, b: Byte): Void //throws IOException 
+        public def write(w: Writer, b: Byte): void //throws IOException 
         = w.write(b);
     }
 
@@ -104,7 +104,7 @@ public interface Marshal[T] {
                 return Char.chr(b1);
         }
 
-        public def write(w: Writer, c: Char): Void //throws IOException 
+        public def write(w: Writer, c: Char): void //throws IOException 
         {
             val i = c.ord();
             if ((i & 0xffffff80) == 0) {
@@ -140,7 +140,7 @@ public interface Marshal[T] {
             return (((b1 & 0xff) << 8) | (b2 & 0xff)) as Short;
         }
 
-        public def write(w: Writer, s: Short): Void //throws IOException 
+        public def write(w: Writer, s: Short): void //throws IOException 
         {
             val i = s as Int;
             val b1 = (i >> 8) as Byte;
@@ -160,7 +160,7 @@ public interface Marshal[T] {
             return (((b1 & 0xff) << 24) | ((b2 & 0xff) << 16) | ((b3 & 0xff) << 8) | (b4 & 0xff)) as Int;
         }
         
-        public def write(w: Writer, i: Int): Void //throws IOException
+        public def write(w: Writer, i: Int): void //throws IOException
         {
             val b1 = (i >> 24) as Byte;
             val b2 = (i >> 16) as Byte;
@@ -184,7 +184,7 @@ public interface Marshal[T] {
             return l;
         }
         
-        public def write(w: Writer, l: Long): Void //throws IOException 
+        public def write(w: Writer, l: Long): void //throws IOException 
         {
             var shift: int = 64;
             while (shift > 0) {
@@ -201,7 +201,7 @@ public interface Marshal[T] {
             val i = INT.read(r);
             return Float.fromIntBits(i);
         }
-        public def write(w: Writer, f: Float): Void //throws IOException 
+        public def write(w: Writer, f: Float): void //throws IOException 
         {
             val i = f.toIntBits();
             INT.write(w, i);
@@ -214,7 +214,7 @@ public interface Marshal[T] {
             val l = LONG.read(r);
             return Double.fromLongBits(l);
         }
-        public def write(w: Writer, d: Double): Void //throws IOException 
+        public def write(w: Writer, d: Double): void //throws IOException 
         {
             val l = d.toLongBits();
             LONG.write(w, l);

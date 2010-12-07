@@ -39,6 +39,7 @@ import polyglot.types.Name;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.Types;
+import polyglot.types.TypeSystem;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import x10.ast.Contains;
@@ -49,6 +50,7 @@ import x10.ast.Tuple;
 import x10.ast.X10Cast;
 import x10.ast.X10Field_c;
 import x10.ast.X10Special;
+import x10.ast.HasZeroTest;
 import x10.constraint.XEQV;
 import x10.constraint.XEquals;
 import x10.constraint.XFailure;
@@ -77,9 +79,9 @@ import x10.util.Synthesizer;
 public class XTypeTranslator {
 	public static final boolean THIS_VAR = true;
 	
-    private final X10TypeSystem ts;
+    private final TypeSystem ts;
 
-	public XTypeTranslator(X10TypeSystem xts) {
+	public XTypeTranslator(TypeSystem xts) {
 		super();
 		ts = xts;
 	}
@@ -88,13 +90,13 @@ public class XTypeTranslator {
 	public void addTypeToEnv(XTerm self, final Type t) {
 	}
 
-	private XTerm trans(CConstraint c, Unary t, X10Context xc) throws SemanticException {
+	private XTerm trans(CConstraint c, Unary t, Context xc) {
 		XTerm v = null;
 		if (t.operator() == Unary.NOT) {
 		   // v = XTerms.makeNot(trans(c, t.expr(), xc));
 		} else {
 		    v = XTerms.makeAtom(XTerms.makeName(t.operator()), trans(c, t.expr(), xc));
-		    throw new SemanticException("Cannot translate " + t + " to constraint term.");
+		    return null;
 		}		    
 		addTypeToEnv(v, t.type());
 		return v;
@@ -102,10 +104,10 @@ public class XTypeTranslator {
 
 	public XVar trans(CConstraint c, XVar target, FieldInstance fi) {
 		XName field = XTerms.makeName(fi.def(),  fi.name().toString());
-	   // String string = Types.get(fi.def().container()) + "#" + fi.name().toString();
-	    XVar v = XTerms.makeField(target,field);
-	    addTypeToEnv(v, fi.type());
-	    return v;
+		//String string = Types.get(fi.def().container()) + "#" + fi.name().toString();
+		XVar v = XTerms.makeField(target,field);
+		addTypeToEnv(v, fi.type());
+		return v;
 	}
 
 	public XTerm trans(XTerm target, FieldInstance fi) {
@@ -115,13 +117,13 @@ public class XTypeTranslator {
 		if (fi == null)
 			return null;
 		try {
-		return trans(c, target, fi, fi.type());
+		    return trans(c, target, fi, fi.type());
 		} catch (SemanticException z) {
 			return null;
 		}
 	}
 	
-	public XTerm trans(CConstraint c, XTerm target, MethodInstance fi, Type t) throws SemanticException {
+	public XTerm trans(CConstraint c, XTerm target, MethodInstance fi, Type t) {
 	    assert X10Flags.toX10Flags(fi.flags()).isProperty() && fi.formalTypes().size() == 0;
 	    XTerm v;
 	    XName field = XTerms.makeName(fi.def(), Types.get(fi.def().container()) + "#" + fi.name().toString() + "()");
@@ -135,8 +137,12 @@ public class XTypeTranslator {
 	    return v;
 	}
 	
-	public XTerm trans(XTerm target, FieldInstance fi, Type t) throws SemanticException {
-		return trans(new CConstraint(), target, fi, t);
+	public XTerm trans(XTerm target, FieldInstance fi, Type t) {
+	    try {
+	        return trans(new CConstraint(), target, fi, t);
+	    } catch (SemanticException z) {
+	        return null;
+	    }
 	}
 	
 	public static final Object FAKE_KEY = new Object();
@@ -169,18 +175,24 @@ public class XTypeTranslator {
 		return v;
 	}
 	
-	private XTerm trans(CConstraint c, Field t, X10Context xc) throws SemanticException {
+	private XTerm trans(CConstraint c, Field t, Context xc) {
 		XTerm receiver = trans(c, t.target(), xc);
 		if (receiver == null)
 			return null;
-		return trans(c, receiver, t.fieldInstance(), t.type());
+		try {
+		    return trans(c, receiver, t.fieldInstance(), t.type());
+		} catch (SemanticException z) {
+		    return null;
+		}
 	}
 
-	private XTerm trans(CConstraint c, X10Special t, X10Context xc0) throws SemanticException {
-	    X10Context xc = xc0;
+	private XTerm trans(CConstraint c, X10Special t, Context xc0) {
+		Context xc = xc0;
 		if (t.kind() == X10Special.SELF) {
-		        if (c == null)
-		            throw new SemanticException("Cannot refer to self outside a dependent clause.");
+			if (c == null) {
+			    //throw new SemanticException("Cannot refer to self outside a dependent clause.");
+			    return null;
+			}
 			XVar v = (XVar) c.self().clone();
 			addTypeToEnv(v, t.type());
 			return v;
@@ -199,24 +211,18 @@ public class XTypeTranslator {
 		                else if (xc.currentClassDef() == ct.def()) {
 		                    break;
 		                }
-		                xc = (X10Context) xc.pop();
+		                xc = (Context) xc.pop();
 		            }
 		        }
 		    }
 		    // why is this code not in X10Context_c.thisVar()?
-		    XVar thisVar = xc == null ? null : xc.thisVar();
-		    for (X10Context outer = (X10Context) xc.pop();
-		    outer != null && thisVar == null;
-		    outer = (X10Context) outer.pop())
-		    {
+		    XVar thisVar = null;
+		    for (Context outer = xc; outer != null && thisVar == null; outer = outer.pop()) {
 		        thisVar = outer.thisVar();
 		    }
 		    if (thisVar == null) {
-		        SemanticException e = new SemanticException("Cannot refer to |this| from the context "
-		        		+ xc);
-		        if (true)
-		        throw new InternalCompilerError(e.getMessage());
-		        throw e;
+		        SemanticException e = new SemanticException("Cannot refer to |this| from the context " + xc);
+		        return null;
 		    }
 		    // vj: Need to set the thisVar for the constraint.
 		    if (c != null)
@@ -225,7 +231,7 @@ public class XTypeTranslator {
 		}
 	}
 
-	public CConstraint normalize(CConstraint c, X10Context xc) {
+	public CConstraint normalize(CConstraint c, Context xc) {
 		CConstraint result = new CConstraint();
 		for (XTerm term : c.extConstraints()) {
 			try {
@@ -262,7 +268,7 @@ public class XTypeTranslator {
 		return v;
 	}
 
-	private XLocal trans(CConstraint c, Local t) throws SemanticException {
+	private XLocal trans(CConstraint c, Local t) {
 		return trans(t.localInstance(), t.type());
 	}
 
@@ -350,7 +356,7 @@ public class XTypeTranslator {
 	
 	HereToken here;
 	*/
-	public XTerm transHere(X10Context xc) {
+	public XTerm transHere(Context xc) {
 	//	if (here == null) here = new HereToken();
 	//	return XTerms.makeLit(here);
 		// return xc.currentPlaceTerm().term();
@@ -361,7 +367,7 @@ public class XTypeTranslator {
 		return XTerms.makeLit(t.constantValue());
 	}
 
-	private void transType(TypeConstraint c, Binary t, X10Context xc) throws SemanticException {
+	private void transType(TypeConstraint c, Binary t, Context xc) throws SemanticException {
 	    Expr left = t.left();
 	    Expr right = t.right();
 	    XTerm v;
@@ -376,7 +382,7 @@ public class XTypeTranslator {
 	    }
 	}
 
-	private void transType(TypeConstraint c, Expr t, X10Context xc) throws SemanticException {
+	private void transType(TypeConstraint c, Expr t, Context xc) throws SemanticException {
 	    if (t instanceof Binary) {
 	        transType(c, (Binary) t, xc);
 	    }
@@ -385,6 +391,8 @@ public class XTypeTranslator {
 	    }
 	    else if (t instanceof SubtypeTest) {
 	        transType(c, (SubtypeTest) t, xc);
+        } else if (t instanceof HasZeroTest) {
+            transType(c, (HasZeroTest) t, xc);
 	    }
 	    else {
 	        throw new SemanticException("Cannot translate " + t + " into a type constraint.", t.position());
@@ -392,7 +400,11 @@ public class XTypeTranslator {
 	}
 	
 
-	private void transType(TypeConstraint c, SubtypeTest t, X10Context xc) throws SemanticException {
+	private void transType(TypeConstraint c, HasZeroTest t, Context xc) throws SemanticException {
+	    TypeNode left = t.parameter();
+	    c.addTerm(new SubtypeConstraint(left.type(), null, SubtypeConstraint.Kind.HASZERO));
+	}
+	private void transType(TypeConstraint c, SubtypeTest t, Context xc) throws SemanticException {
 	    TypeNode left = t.subtype();
 	    TypeNode right = t.supertype();
 	    c.addTerm(new SubtypeConstraint(left.type(), right.type(), t.equals()));
@@ -427,7 +439,7 @@ public class XTypeTranslator {
 	    return result;
 	}
 
-	private XTerm trans(CConstraint c, Binary t, X10Context xc) throws SemanticException {
+	private XTerm trans(CConstraint c, Binary t, Context xc) {
 	    Expr left = t.left();
 	    Expr right = t.right();
 	    XTerm v = null;
@@ -435,7 +447,7 @@ public class XTypeTranslator {
 	    XTerm rt = trans(c, right, xc);
 	    Operator op = t.operator();
 	    if (lt == null || rt == null)
-	        throw new SemanticException("Cannot translate " + t + " to constraint term.");
+	        return null;
 	    if (op == Binary.EQ || op == Binary.NE) {
 	    	if (right instanceof ParExpr) {
 	    		right = ((ParExpr)right).expr();
@@ -455,31 +467,34 @@ public class XTypeTranslator {
 	    }
 	    else  {
 	        v = XTerms.makeAtom(XTerms.makeName(t.operator()), lt, rt);
-	        throw new SemanticException("Cannot translate " + t + " to constraint term.");
+	        return null;
 	    }
 	    addTypeToEnv(v, t.type());
 	    return v;
 	}
 
-	private XTerm trans(CConstraint c, Tuple t, X10Context xc) {
+	private XTerm trans(CConstraint c, Tuple t, Context xc) {
 	    List<XTerm> terms = new ArrayList<XTerm>();
 	    for (Expr e : t.arguments()) {
-		terms.add(trans(c, e, xc));
+	        XTerm v = trans(c, e, xc);
+	        if (v == null)
+	            return null;
+	        terms.add(v);
 	    }
 	    return XTerms.makeAtom(XTerms.makeName("tuple"), terms);
 	}
 	
-	private XTerm trans(CConstraint c, Contains t, X10Context xc) {
+	private XTerm trans(CConstraint c, Contains t, Context xc) {
 	    Expr left = t.item();
 	    Expr right = t.collection();
 	    boolean containsAll = t.isSubsetTest();
 	    if (containsAll)
-		return XTerms.makeAtom(XTerms.makeName("subset"), trans(c, left, xc), trans(c, right, xc));
+	        return XTerms.makeAtom(XTerms.makeName("subset"), trans(c, left, xc), trans(c, right, xc));
 	    else
-		return XTerms.makeAtom(XTerms.makeName("in"), trans(c, left, xc), trans(c, right, xc));
+	        return XTerms.makeAtom(XTerms.makeName("in"), trans(c, left, xc), trans(c, right, xc));
 	}
 	
-	private XTerm trans(CConstraint c, Call t, X10Context xc) {
+	private XTerm trans(CConstraint c, Call t, Context xc) {
 		X10MethodInstance xmi = (X10MethodInstance) t.methodInstance();
 		Flags f = xmi.flags();
 		if (X10Flags.toX10Flags(f).isProperty()) {
@@ -531,19 +546,21 @@ public class XTypeTranslator {
 			List<XTerm> terms = new ArrayList<XTerm>();
 			terms.add(r);
 			for (Expr e : t.arguments()) {
-				terms.add(trans(c, e, xc));
+				XTerm v = trans(c, e, xc);
+				if (v == null)
+				    return null;
+				terms.add(v);
 			}
 			XTerm v = XTerms.makeAtom(XTerms.makeName(xmi, xmi.name().toString()), terms);
 			addTypeToEnv(v, xmi.returnType());
 			return v;
 		}
-		Type type =   t.type();
+		Type type = t.type();
 		return X10TypeMixin.selfVarBinding(type); // maybe null.
-
-//	    throw new SemanticException("Cannot translate call |" + t + "| into a constraint; it must be a property method call.");
+	    //throw new SemanticException("Cannot translate call |" + t + "| into a constraint; it must be a property method call.");
 	}
 
-	private XTerm trans(CConstraint c, Variable term, X10Context xc) throws SemanticException {
+	private XTerm trans(CConstraint c, Variable term, Context xc) {
 		//Report.report(1, "TypeTranslator: translating Variable " + term);
 		if (term instanceof Field)
 			return trans(c, (Field) term, xc);
@@ -551,14 +568,12 @@ public class XTypeTranslator {
 			return trans(c, (X10Special) term, xc);
 		if (term instanceof Local)
 			return trans(c, (Local) term);
-
 		return null;
-//		throw new SemanticException("Cannot translate variable |" + term + "| into a constraint; it must be a field, local, this, or self.");
+		//throw new SemanticException("Cannot translate variable |" + term + "| into a constraint; it must be a field, local, this, or self.");
 	}
 	
-	public XTerm trans(CConstraint c, Receiver term, X10Context xc)  {
+	public XTerm trans(CConstraint c, Receiver term, Context xc)  {
 		// Report.report(1, "TypeTranslator: translating Receiver " + term);
-		try {
 		if (term == null)
 			return null;
 		if (term instanceof Lit)
@@ -602,11 +617,8 @@ public class XTypeTranslator {
 		    return trans(c, (TypeNode) term);
 		if (term instanceof ParExpr)
 			return trans(c, ((ParExpr) term).expr(), xc);
-		} catch (SemanticException z) {
-			// fall through
-		}
 		return null;
-//		throw new SemanticException("Cannot translate type or expression |" + term + "| (" + term.getClass().getName() + ")" + " to a term.");
+		//throw new SemanticException("Cannot translate type or expression |" + term + "| (" + term.getClass().getName() + ")" + " to a term.");
 	}
 	
 	/**
@@ -620,7 +632,7 @@ public class XTypeTranslator {
 	 * @return
 	 * @throws SemanticException
 	 */
-	public CConstraint constraint(List<Formal> formals, Expr term, X10Context xc) throws SemanticException {
+	public CConstraint constraint(List<Formal> formals, Expr term, Context xc) throws SemanticException {
             CConstraint c = new CConstraint();
             if (term == null)
                 return c;
@@ -644,7 +656,7 @@ public class XTypeTranslator {
             return c;
 	}
 	
-	public TypeConstraint typeConstraint(List<Formal> formals, Expr term, X10Context xc) throws SemanticException {
+	public TypeConstraint typeConstraint(List<Formal> formals, Expr term, Context xc) throws SemanticException {
 	    TypeConstraint c = new TypeConstraint();
         if (term == null)
         	return c;
@@ -659,7 +671,7 @@ public class XTypeTranslator {
         return c;
 	}
 	
-	public static XTerm translate(CConstraint c, Receiver r, X10TypeSystem xts, X10Context xc) throws SemanticException {
+	public static XTerm translate(CConstraint c, Receiver r, TypeSystem xts, Context xc) throws SemanticException {
 		return xts.xtypeTranslator().trans(c, r, xc);
 	}
 

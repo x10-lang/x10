@@ -15,7 +15,7 @@ public class SimpleFinish4 {
                             val p_ = p;
                             async at (Place.place(p_)){
                                 for(var pp:int = 0; pp<Place.MAX_PLACES; pp++){
-                                     val i = pp;
+                                     val iii = pp; // todo: it should be an error to use "i" here (see XTENLANG-2056)
                                      async{}
                                 }
                             }

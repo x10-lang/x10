@@ -18,7 +18,7 @@ import harness.x10Test;
  * @author vj
  */
 public class HasTypeVarField_MustFailCompile extends x10Test {
-	var x <: Int = 1;
+	var x <: Int = 1; // ERR: Cannot infer type of non-final fields.
 	
 	public def run()=true;
 

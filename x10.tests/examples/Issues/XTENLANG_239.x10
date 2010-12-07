@@ -18,7 +18,7 @@ import harness.x10Test;
 class XTENLANG_239 extends x10Test {
 
     val x = 0;
-    val c = () => x;
+    def c() = () => x;
 
     public def run(): boolean {
         return true;

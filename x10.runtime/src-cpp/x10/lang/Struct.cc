@@ -17,7 +17,7 @@ using namespace x10::lang;
 RuntimeType Struct::rtt;
 void Struct::_initRTT() {
     if (rtt.initStageOne(&rtt)) return;
-    rtt.initStageTwo("x10.lang.Struct", 0, NULL, 0, NULL, NULL);
+    rtt.initStageTwo("x10.lang.Struct", RuntimeType::struct_kind, 0, NULL, 0, NULL, NULL);
 }
 
 // vim:tabstop=4:shiftwidth=4:expandtab:textwidth=100

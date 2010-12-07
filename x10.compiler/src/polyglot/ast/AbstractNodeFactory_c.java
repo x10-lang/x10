@@ -257,10 +257,6 @@ public abstract class AbstractNodeFactory_c implements NodeFactory
         return FieldDecl(pos, flags, type, name, null);
     }
 
-    public final Field Field(Position pos, Id name) {
-        return Field(pos, null, name);
-    }
-
     public final If If(Position pos, Expr cond, Stmt consequent) {
 	return If(pos, cond, consequent, null);
     }

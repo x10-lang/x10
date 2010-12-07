@@ -52,6 +52,6 @@ void InputStreamReader__InputStream::_deserialize_body(x10aux::deserialization_b
     x10::lang::Object::_deserialize_body(buf);
 }
 
-RTT_CC_DECLS1(InputStreamReader__InputStream, "x10.io.InputStreamReader.InputStream", Object)
+RTT_CC_DECLS1(InputStreamReader__InputStream, "x10.io.InputStreamReader.InputStream", RuntimeType::class_kind, Object)
 
 // vim:tabstop=4:shiftwidth=4:expandtab

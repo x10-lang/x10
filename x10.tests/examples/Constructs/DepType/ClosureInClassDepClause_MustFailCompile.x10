@@ -16,7 +16,9 @@ import harness.x10Test;
  *
  * @author igor
  */
-public class ClosureInClassDepClause_MustFailCompile(p:()=>Int){p==(()=>3)} extends x10Test {
+public class ClosureInClassDepClause_MustFailCompile(p:()=>Int){p==
+        (()=>3) // ERR: Closure cannot occur outside code body.
+        } extends x10Test {
 
     public def run() = true;
 

@@ -23,7 +23,7 @@ public class ConInstance1Arg extends x10Test {
 	def n(i:Int) {
 		val a = new A(i);
 		// This call will compile only if -strictCalls is not set.
-		m(a); // DYNAMIC_CHECK
+		m(a); // DYNAMIC_CHECK  ; with -STATIC_CALLS we get an ERR
 	}
 	
 	public def run(): boolean {

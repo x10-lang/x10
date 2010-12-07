@@ -1,38 +1,48 @@
+/*
+ *  This file is part of the X10 project (http://x10-lang.org).
+ *
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ *  (C) Copyright IBM Corporation 2006-2010.
+ */
+
+
 package x10.compiler.ws.codegen;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import polyglot.ast.Block;
 import polyglot.ast.Expr;
 import polyglot.ast.Formal;
 import polyglot.ast.MethodDecl;
 import polyglot.ast.New;
+import polyglot.ast.NodeFactory;
 import polyglot.ast.Return;
 import polyglot.ast.Special;
 import polyglot.ast.Stmt;
 import polyglot.frontend.Job;
-import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
+import polyglot.types.Context;
 import polyglot.types.Flags;
 import polyglot.types.MethodDef;
 import polyglot.types.Name;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
-import polyglot.util.Pair;
+import x10.ast.TypeParamNode;
 import x10.ast.X10MethodDecl;
-import x10.ast.X10NodeFactory;
-import x10.compiler.ws.WSCodeGenerator;
 import x10.compiler.ws.WSTransformState;
-import x10.compiler.ws.util.TransCodes;
 import x10.compiler.ws.util.WSCodeGenUtility;
+import x10.types.ParameterType;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
-import x10.types.X10Context;
 import x10.types.X10Flags;
+import x10.types.X10MethodDef;
+import x10.util.HierarchyUtils;
 import x10.util.synthesizer.CodeBlockSynth;
-import x10.util.synthesizer.ConstructorSynth;
 import x10.util.synthesizer.FieldSynth;
 import x10.util.synthesizer.InstanceCallSynth;
 import x10.util.synthesizer.MethodSynth;
@@ -58,13 +68,13 @@ public class WSMethodFrameClassGen extends WSRegularFrameClassGen {
     protected final boolean isMain;
     
 
-    public WSMethodFrameClassGen(Job job, X10NodeFactory xnf, X10Context xct,
-                                  MethodDef methodDef, MethodDecl methodDecl, WSTransformState wts) {
+    public WSMethodFrameClassGen(Job job, NodeFactory xnf, Context xct,
+                                  X10MethodDef methodDef, MethodDecl methodDecl, WSTransformState wts) {
         this(job, xnf, xct, methodDef, methodDecl, wts,
-                X10PrettyPrinterVisitor.isMainMethodInstance(methodDef.asInstance(), xct));
+                HierarchyUtils.isMainMethod(methodDef, xct));
     }
-    public WSMethodFrameClassGen(Job job, X10NodeFactory xnf, X10Context xct,
-                                  MethodDef methodDef, MethodDecl methodDecl, WSTransformState wts,
+    public WSMethodFrameClassGen(Job job, NodeFactory xnf, Context xct,
+                                  X10MethodDef methodDef, MethodDecl methodDecl, WSTransformState wts,
                                   boolean isMain) {
     
         super(job, xnf, xct, wts, WSCodeGenUtility.getMethodBodyClassName(methodDef),
@@ -77,16 +87,22 @@ public class WSMethodFrameClassGen extends WSRegularFrameClassGen {
         this.methodDecl = methodDecl;
         
 
+        //processing the type parameters
+        List<ParameterType> paramTypes = ((X10MethodDef)methodDef).typeParameters();
+        List<TypeParamNode> paramNodes = ((X10MethodDecl)methodDecl).typeParameters();
+        for(int i = 0; i < paramTypes.size(); i++){
+        	classSynth.addTypeParameter(paramTypes.get(i), paramNodes.get(i).variance());
+        }
         
         //processing the return
-        returnFlagName = ((X10Context)xct).makeFreshName("returnFlag");
+        returnFlagName = ((Context)xct).makeFreshName("returnFlag");
         FieldSynth returnFlagSynth = classSynth.createField(compilerPos, returnFlagName.toString(), xts.Boolean());
         returnFlagSynth.addAnnotation(genUninitializedAnnotation());
         fieldNames.add(returnFlagName); //add it as one field for query
         
         Type returnType = methodDef.returnType().get();
         if (returnType != xts.Void()){
-            returnFieldName = ((X10Context)xct).makeFreshName("result");
+            returnFieldName = ((Context)xct).makeFreshName("result");
             FieldSynth resurnFieldSynth = classSynth.createField(compilerPos, returnFieldName.toString(), returnType);
             resurnFieldSynth.addAnnotation(genUninitializedAnnotation());
             fieldNames.add(returnFieldName); //add it as one field for query
@@ -228,6 +244,15 @@ public class WSMethodFrameClassGen extends WSRegularFrameClassGen {
             orgFormalTypes.add(f.type().type());
             orgFormalRefs.add(methodSynth.addFormal(f)); //all formals are added in
         }
+        //add all type parameters (template)
+        X10MethodDecl mDecl = (X10MethodDecl)methodDecl;
+        X10MethodDef mDef = mDecl.methodDef();
+        int paramSize = mDef.typeParameters().size();
+        for(int i = 0; i < paramSize; i++){
+            methodSynth.addTypeParameter(mDef.typeParameters().get(i),
+            							mDecl.typeParameters().get(i).variance());        	
+        }
+
         //now create the body
         CodeBlockSynth mBodySynth = methodSynth.getMethodBodySynth(compilerPos);        
         NewInstanceSynth niSynth = new NewInstanceSynth(xnf, xct, compilerPos, classSynth.getClassDef().asType());

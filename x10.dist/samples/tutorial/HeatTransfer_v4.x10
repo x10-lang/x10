@@ -29,9 +29,8 @@ public class HeatTransfer_v4 {
 
      val BigD:Dist(2) = Dist.makeBlock(new Array[Region(1){self.rect}][0..n+1, 0..n+1], 0);
      val D = BigD | (1..n)*(1..n);
-     val LastRow = (0..0)*(1..n);
      val A:DistArray[double](BigD){self.rank==2} 
-      = DistArray.make[double](BigD,(p:Point)=>{ LastRow.contains(p) ? 1.0 : 0.0 });
+      = DistArray.make[double](BigD,(p:Point)=>{ ((0..0)*(1..n)).contains(p) ? 1.0 : 0.0 });
      val Temp = DistArray.make[Double](BigD);
 
      def stencil_1([x,y]:Point(2)): Double {

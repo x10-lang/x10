@@ -44,7 +44,9 @@ import polyglot.ast.LocalDecl;
 import polyglot.ast.New;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
+import polyglot.ast.ProcedureCall;
 import polyglot.ast.Return;
+import polyglot.ast.SourceFile;
 import polyglot.ast.Special;
 import polyglot.ast.Stmt;
 import polyglot.ast.Switch;
@@ -55,10 +57,13 @@ import polyglot.ast.Unary;
 import polyglot.ast.While;
 import polyglot.ast.While_c;
 import polyglot.frontend.Job;
+import polyglot.frontend.Source;
+import polyglot.types.Context;
 import polyglot.types.Flags;
 import polyglot.types.Name;
 import polyglot.types.SemanticException;
 import polyglot.types.TypeSystem;
+import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
@@ -68,7 +73,6 @@ import x10.ast.AtEach;
 import x10.ast.AtExpr;
 import x10.ast.AtStmt;
 import x10.ast.Atomic;
-import x10.ast.Await;
 import x10.ast.Closure;
 import x10.ast.ClosureCall;
 import x10.ast.Finish;
@@ -85,9 +89,10 @@ import x10.ast.SubtypeTest;
 import x10.ast.Tuple;
 import x10.ast.When;
 import x10.ast.X10ClassDecl;
-import x10.ast.X10NodeFactory;
+import x10.ast.HasZeroTest;
+import x10.errors.Warnings;
 import x10.optimizations.ForLoopOptimizer;
-import x10.types.X10TypeSystem;
+import x10.types.X10FieldInstance;
 
 /**
  * @author Bowen Alpern
@@ -97,10 +102,14 @@ public final class ExpressionFlattener extends ContextVisitor {
 
     private static final boolean DEBUG = false;
 
-    X10TypeSystem xts;
-    X10NodeFactory xnf;
+//  private static final boolean XTENLANG_2055 = false; // bug work around
+    private static final boolean XTENLANG_2055 = true; // bug work around
+
+    private final TypeSystem xts;
+    private final NodeFactory xnf;
 //    Synthesizer syn;
-    ForLoopOptimizer syn; // move functionality to Synthesizer
+    private ForLoopOptimizer syn; // move functionality to Synthesizer
+    private final SideEffectDetector sed;
     
     List<Labeled> labels = new ArrayList<Labeled>();
     Map<Node, List<Labeled>> labelMap = new HashMap<Node, List<Labeled>>();
@@ -112,10 +121,34 @@ public final class ExpressionFlattener extends ContextVisitor {
      */
     public ExpressionFlattener(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf);
-        xts = (X10TypeSystem) ts;
-        xnf = (X10NodeFactory) nf;
+        xts = (TypeSystem) ts;
+        xnf = (NodeFactory) nf;
 //        syn = new Synthesizer(xnf, xts);
         syn = new ForLoopOptimizer(job, ts, nf);
+        sed = new SideEffectDetector(job, ts, nf);
+    }
+
+    @Override
+    public NodeVisitor begin() {
+        sed.begin();
+        syn.begin();
+        return super.begin();
+    }
+
+    @Override
+    public ContextVisitor context(Context c) {
+        ExpressionFlattener res = (ExpressionFlattener) super.context(c);
+        if (res != this)
+            res.syn = (ForLoopOptimizer) syn.context(c);
+        return res;
+    }
+
+    @Override
+    public NodeVisitor superEnter(Node parent, Node n) {
+        ExpressionFlattener res = (ExpressionFlattener) super.superEnter(parent, n);
+        if (res != this)
+            res.syn = (ForLoopOptimizer) syn.enter(parent, n);
+        return res;
     }
 
     /* (non-Javadoc)
@@ -150,6 +183,12 @@ public final class ExpressionFlattener extends ContextVisitor {
      * @return true if the node cannot be flattened, false otherwise
      */
     public static boolean cannotFlatten(Node n) {
+        if (n instanceof SourceFile){
+            Source s = ((SourceFile) n).source();
+            if (XTENLANG_2055 && s.name().equals("Marshal.x10")) { // DEBUG: can't flatten Marshal
+                return true; 
+            }
+        }
         if (n instanceof ConstructorDecl) { // can't flatten constructors until local assignments can precede super() and this()
             return true;
         }
@@ -251,6 +290,7 @@ public final class ExpressionFlattener extends ContextVisitor {
         else if (expr instanceof AtExpr)         return flattenAtExpr((AtExpr) expr);
         else if (expr instanceof Future)         return flattenFuture((Future) expr);
         else if (expr instanceof SubtypeTest)    return flattenSubtypeTest((SubtypeTest) expr);
+        else if (expr instanceof HasZeroTest)    return expr;
         else if (expr instanceof ClosureCall)    return flattenClosureCall((ClosureCall) expr);
         else if (expr instanceof Conditional)    return flattenConditional((Conditional) expr);
         else if (expr instanceof StmtExpr)       return flattenStmtExpr((StmtExpr) expr);
@@ -293,16 +333,20 @@ public final class ExpressionFlattener extends ContextVisitor {
      * Flatten a parenthesized expression.
      * (This should never happen, but it does.)
      * <pre>
-     * (({s1; e1}))  ->  ({s1; val t1=e1; (t1)})
+     * (({s1; e1}))  ->  ({s1; val t1=e1; t1})
+     * (e)           ->  e
      * </pre>
      * 
      * @param expr the parenthesized expression to be flattened
-     * @return a flat expression equivalent to expr
+     * @return a flat expression equivalent to expr (without the parens)
      */
     private Expr flattenParExpr(ParExpr expr) {
         List<Stmt> stmts = new ArrayList<Stmt>();
-        Expr primary = getPrimaryAndStatements(expr.expr(), stmts);
-        return toFlatExpr(expr.position(), stmts, expr.expr(primary));
+        Expr primary = expr;
+        while (primary instanceof ParExpr) {
+            primary = getPrimaryAndStatements(((ParExpr) primary).expr(), stmts);
+        }
+        return toFlatExpr(expr.position(), stmts, primary);
     }
 
     /**
@@ -370,7 +414,9 @@ public final class ExpressionFlattener extends ContextVisitor {
      * </pre>,
      * otherwise
      * <pre>
-     * op ({s1; e1})  ->  ({s1; val t1 = e1; op t1})
+     * ! ({s1; true})   ->  ({s1; false})
+     * ! ({s1; false})  ->  ({s1; true})
+     * op ({s1; e1})    ->  ({s1; val t1 = e1; op t1})
      * </pre>
      * 
      * @param expr the unary expression to flatten
@@ -384,6 +430,15 @@ public final class ExpressionFlattener extends ContextVisitor {
             result = getResult(expr.expr());
         } else {
             result = getPrimaryAndStatements(expr.expr(), stmts);
+            if (result instanceof BooleanLit) {
+                assert (Unary.NOT == expr.operator());
+                if (((BooleanLit) result).value()) {
+                    result = syn.createFalse(expr.position());
+                } else {
+                    result = syn.createTrue(expr.position());
+                }
+                return toFlatExpr(expr.position(), stmts, result);
+            }
         }
         return toFlatExpr(expr.position(), stmts, expr.expr(result));
     }
@@ -548,9 +603,14 @@ public final class ExpressionFlattener extends ContextVisitor {
      * Flatten a binary expression.
      * (Short-circuit AND (&&) and OR (||) are special.)
      * <pre>
-     * ({s1; e1}) && ({s2; e2}))  ->  ({s1; var t  = e1; if ( t){s2; t = e2;}; t})
-     * ({s1; e1}) || ({s2; e2}))  ->  ({s1; var t  = e1; if (!t){s2; t =be2;}; t})
-     * ({s1; e1}) op ({s2; e2}))  ->  ({s1; val t1 = e1; s2; val t2 = e2; t1 op t2}) 
+     * 
+     * ({s1; false} && {s2; e2})  ->  ({s1; false})
+     * ({s1; true}  && {s2; e2})  ->  ({s1; s2; e2})
+     * ({s1; e1}    && {s2; e2})  ->  ({s1; var t  = e1; if ( t){s2; t = e2;}; t})
+     * ({s1; false} || {s2; e2})  ->  ({s1; s2; e2})
+     * ({s1; true}  || {s2; e2})  ->  ({s1; true})
+     * ({s1; e1}    || {s2; e2})  ->  ({s1; var t  = e1; if (!t){s2; t =be2;}; t})
+     * ({s1; e1}    op {s2; e2})  ->  ({s1; val t1 = e1; s2; val t2 = e2; t1 op t2}) 
      * </pre>
      * 
      * @param expr the binary expression to flatten
@@ -562,6 +622,12 @@ public final class ExpressionFlattener extends ContextVisitor {
         if (expr.operator().equals(Binary.COND_AND)) {
             stmts.addAll(getStatements(expr.left()));
             Expr left = getResult(expr.left());
+            if (left instanceof BooleanLit) {
+                if (false == ((BooleanLit) left).value()) 
+                    return toFlatExpr(pos, stmts, left);
+                stmts.addAll(getStatements(expr.right()));
+                return toFlatExpr(pos, stmts, getResult(expr.right()));
+            }
             LocalDecl tmpLDecl = syn.createLocalDecl( pos, 
                                                       Flags.NONE, 
                                                       syn.createTemporaryName(), 
@@ -583,6 +649,12 @@ public final class ExpressionFlattener extends ContextVisitor {
         } else if (expr.operator().equals(Binary.COND_OR)) {
             stmts.addAll(getStatements(expr.left()));
             Expr left = getResult(expr.left());
+            if (left instanceof BooleanLit) {
+                if (true == ((BooleanLit) left).value()) 
+                    return toFlatExpr(pos, stmts, left);
+                stmts.addAll(getStatements(expr.right()));
+                return toFlatExpr(pos, stmts, getResult(expr.right()));
+            }
             LocalDecl tmpLDecl = syn.createLocalDecl( pos, 
                                                       Flags.NONE, 
                                                       syn.createTemporaryName(), 
@@ -622,6 +694,10 @@ public final class ExpressionFlattener extends ContextVisitor {
         if (expr.target() instanceof Expr) {
             Expr target = getPrimaryAndStatements((Expr) expr.target(), stmts);
             expr = expr.target(target);
+        }
+        X10FieldInstance fi = (X10FieldInstance) expr.fieldInstance();
+        if (!fi.annotationsMatching(typeSystem().load("x10.compiler.Embed")).isEmpty()) {
+            return expr;
         }
         Expr right = getPrimaryAndStatements(expr.right(), stmts);
         return toFlatExpr(expr.position(), stmts, expr.right(right));
@@ -723,7 +799,6 @@ public final class ExpressionFlattener extends ContextVisitor {
         else if (stmt instanceof Assert)    return flattenAssert((Assert) stmt);
         else if (stmt instanceof Async)     return flattenAsync((Async) stmt);
         else if (stmt instanceof AtStmt)    return flattenAtStmt((AtStmt) stmt);
-        else if (stmt instanceof Await)     return flattenAwait((Await) stmt);
         else if (stmt instanceof When)      return flattenWhen((When) stmt);
         else if (stmt instanceof AtEach)    return flattenAtEach((AtEach) stmt);
         else if (stmt instanceof AssignPropertyCall) return flattenAssignPropertyCall((AssignPropertyCall) stmt);
@@ -775,23 +850,6 @@ public final class ExpressionFlattener extends ContextVisitor {
      * TODO: handle StmtExpr's in the Java back end.
      */
     private StmtSeq flattenAssert(Assert stmt) {
-        assert false;
-        return syn.toStmtSeq(stmt);
-    }
-
-    /**
-     * Flatten an await statement.
-     * The semantics of a flat assertion require the backend to be able to handle a StmtExpr.  The java back-end cannot.
-     * For the time being await statements are not flattened.
-     * <pre>
-     * await (({s1; e1}));  ->  await (({s1; e1})); // no-op 
-     * </pre>
-     * 
-     * @param stmt the await statement to flatten
-     * @return a flat statement with the same semantics as stmt
-     * TODO: handle StmtExpr's in the Java back end.
-     */
-    private StmtSeq flattenAwait(Await stmt) {
         assert false;
         return syn.toStmtSeq(stmt);
     }
@@ -965,8 +1023,9 @@ public final class ExpressionFlattener extends ContextVisitor {
     /**
      * Flatten the evaluation of an expression.
      * <pre>
-     * ({s1; e1});    ->  s1;               if "e1" is "null" or cannot have side-effects
-     * ({s1; e1});    ->  s1; Eval(e1);     otherwise
+     * ({s1; e1});    ->  s1;               if "e1" cannot have side-effects
+     * ({s1; e1});    ->  s1; Eval(e1);     if "e1" might have side-effects and it's type is void
+     * ({s1; e1));    ->  s1; val v = e1;   if "e1" might have side-effects and it's type isn't void
      * </pre>
      * 
      * @param stmt the evaluation to be flattened.
@@ -976,17 +1035,17 @@ public final class ExpressionFlattener extends ContextVisitor {
         List<Stmt> stmts = new ArrayList<Stmt>();
         stmts.addAll(getStatements(stmt.expr()));
         Expr result = getResult(stmt.expr());
-        while (result instanceof ParExpr) result = ((ParExpr) result).expr();
-        if (null != result && (
-                result instanceof Call || 
-                result instanceof Assign || 
-              ( result instanceof Unary && (
-                    ((Unary) result).operator().equals(Unary.POST_DEC) ||
-                    ((Unary) result).operator().equals(Unary.POST_INC) ||
-                    ((Unary) result).operator().equals(Unary.PRE_DEC) ||
-                    ((Unary) result).operator().equals(Unary.PRE_INC) )) )
-            ) {
-            stmts.add(syn.createEval(result));
+        while (result instanceof ParExpr) 
+            result = ((ParExpr) result).expr();
+        if (sed.hasSideEffects(result)) {
+            if (result instanceof ProcedureCall || result instanceof Assign || result instanceof Unary) {
+                stmts.add(syn.createEval(result));
+            } else if (!result.type().typeEquals(xts.Void(), context())){
+                stmts.add(syn.createLocalDecl(result.position(), Flags.FINAL, Name.makeFresh("dummy"), result));
+            } else {
+                Warnings.issue(job, "DEBUG: eval : " +result, result.position());
+                throw new InternalCompilerError("Cannot flatten " +result+ " at " +result.position()+ " (was " +stmt+ ")");
+            }
         }
         return syn.toStmtSeq(syn.toStmtSeq(stmt.position(), stmts));
     }

@@ -32,7 +32,7 @@ import x10.ast.ConstantDistMaker_c;
 import x10.types.X10ClassType;
 import x10.types.X10MethodInstance;
 import x10.types.X10ParsedClassType;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 import x10.types.X10TypeSystem_c;
 import x10cpp.types.X10CPPContext_c;
 
@@ -143,7 +143,7 @@ public class SharedVarsMethods {
 	}
 	static void populateKnownSafeClasses(Translator tr){
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
-		X10TypeSystem ts = (X10TypeSystem) tr.typeSystem();
+		TypeSystem ts = (TypeSystem) tr.typeSystem();
 		if (knownSafeClasses.size() == 0) {
 			try {
 				ReferenceType j_l_Math = (ReferenceType) ts.forName(QName.make("java.lang.Math"));

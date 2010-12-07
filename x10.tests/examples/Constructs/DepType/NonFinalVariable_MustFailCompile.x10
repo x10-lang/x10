@@ -33,7 +33,7 @@ class Test(i: int) {
 	
 	
 	public def run(): boolean = {
-	   var ii: int = 52;
+	   var ii: int{self==52} = 52;
 	   var a:
 	    Test{i==ii} // ERR 
 	    = new Test(52);

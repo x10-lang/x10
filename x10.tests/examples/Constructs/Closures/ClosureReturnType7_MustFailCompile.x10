@@ -13,7 +13,7 @@ import harness.x10Test;
 
 
 /**
- * if the method does not return a value, the inferred type is Void
+ * if the method does not return a value, the inferred type is void
  *
  * @author bdlucas 8/2008
  */
@@ -26,7 +26,7 @@ public class ClosureReturnType7_MustFailCompile extends ClosureTest {
         val f = (x:int) => {};
 
         // should fail because f() is void
-        val g = f(0);
+        val g = f(0); // ERR
 
         return result;
     }

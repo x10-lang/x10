@@ -45,9 +45,13 @@ public class X10ParameterizedType extends X10Type implements ParameterizedType {
 		polyglot.types.Type b = (depType ? (X10TypeMixin.baseType(t)) : t);
 		// polyglot.types.Type b = (depType ? ((polyglot.types.Type) X10TypeMixin.baseType(t)) : t);
 		List<polyglot.types.Type> args = ((X10ClassType)b).typeArguments();
-		typeArgs = new Type[args.size()];
-		for (int i = 0; i < typeArgs.length; i++) {
-			typeArgs[i] = rootDoc.getType(args.get(i), methodTypeVars);
+		if (args != null) {
+		    typeArgs = new Type[args.size()];
+		    for (int i = 0; i < typeArgs.length; i++) {
+		        typeArgs[i] = rootDoc.getType(args.get(i), methodTypeVars);
+		    }
+		} else {
+		    typeArgs = new Type[0];
 		}
 		// System.out.println("X10ParameterizedType{" + t + "}.typeArgs = " + Arrays.toString(typeArgs));
 		// System.out.println("X10ParameterizedType{" + t + "}: t.getClass() = " + t.getClass());

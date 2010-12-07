@@ -235,7 +235,7 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
             XVar cdThisVar = cd.thisVar();
             if (cdThisVar != null && cdThisVar != thisVar && ! xs.contains(cdThisVar) ) {
                 ys.add(thisVar);
-                xs.add(cd.thisVar());
+                xs.add(cdThisVar);
             }
 
             Type superClass = ((X10ClassType) container).superClass();
@@ -375,7 +375,7 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
     Type rightType;
 
     public Type rightType() {
-        X10TypeSystem xts = (X10TypeSystem) ts;
+        TypeSystem xts = (TypeSystem) ts;
 
         if (rightType == null) {
             Type t = returnType();
@@ -414,7 +414,9 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
                             self = xts.xtypeTranslator().trans(c, receiver, this, t);
                         }
 
-                        c.addSelfBinding(self);
+                        if (self != null) {
+                            c.addSelfBinding(self);
+                        }
                         if (! flags.isStatic()) {
                         	c.setThisVar((XVar) receiver);
                         }
@@ -422,9 +424,6 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
                     }
                     catch (XFailure f) {
                         throw new InternalCompilerError("Could not add self binding: " + f.getMessage(), f);
-                    }
-                    catch (SemanticException f) {
-                        throw new InternalCompilerError(f);
                     }
                 }
             }
@@ -438,9 +437,6 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
         return rightType;
     }
 
-    public boolean isSafe() {
-    	return X10Flags.toX10Flags(flags()).isSafe();
-    }
     static private String toString( XVar[] ys) {
     	String s = "";
     		for (XVar x : ys) s += x.toString() + " ";

@@ -23,7 +23,7 @@ FileWriter__FileOutputStream::_make(x10aux::ref<x10::lang::String> name) {
 }
 
 const x10aux::serialization_id_t FileWriter__FileOutputStream::_serialization_id = 
-    x10aux::DeserializationDispatcher::addDeserializer(FileWriter__FileOutputStream::_deserializer<x10::lang::Reference>);
+    x10aux::DeserializationDispatcher::addDeserializer(FileWriter__FileOutputStream::_deserializer<x10::lang::Reference>, x10aux::CLOSURE_KIND_NOT_ASYNC);
 
 void FileWriter__FileOutputStream::_serialize_body(x10aux::serialization_buffer& buf) {
     OutputStreamWriter__OutputStream::_serialize_body(buf);
@@ -45,6 +45,6 @@ void FileWriter__FileOutputStream::_deserialize_body(x10aux::deserialization_buf
     // _outputStream = buf.read<x10aux::io::FILEPtrOutputStream>();
 }
 
-RTT_CC_DECLS1(FileWriter__FileOutputStream, "x10.io.FileWriter.FileOutputStream", OutputStreamWriter__OutputStream)
+RTT_CC_DECLS1(FileWriter__FileOutputStream, "x10.io.FileWriter.FileOutputStream", RuntimeType::class_kind, OutputStreamWriter__OutputStream)
 
 // vim:tabstop=4:shiftwidth=4:expandtab

@@ -62,14 +62,14 @@ public class ParExpr_c extends Expr_c implements ParExpr {
 	return this;
     }
 
-    /** Visit the children of the statement. */
+    /** Visit the children of the parenthesized expression. */
     public Node visitChildren(NodeVisitor v) {
     	Expr expr = (Expr) visitChild(this.expr, v);
     	return reconstruct(expr);
     }
     
-    /** Type check the statement. */
-    public Node typeCheck(ContextVisitor tc) throws SemanticException {  	
+    /** Type check the parenthesized expression. */
+    public Node typeCheck(ContextVisitor tc) {  	
     	return type(expr.type());
     }
     

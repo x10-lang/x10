@@ -3,7 +3,7 @@
 <summary-spec>
   <classloader name="X10Primordial">
     <package name="x10/lang">
-    
+<!--    
 	  <class name="clock$factory" allocatable="true">
 	    <method name="clock" descriptor="()Lx10/lang/clock;">
 	      <new def="x" class="Lx10/lang/clock"/>
@@ -42,6 +42,7 @@
 	  	
 	  	
 	 </class>
+-->
    </package>
   </classloader>
 </summary-spec> 

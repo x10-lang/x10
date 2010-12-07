@@ -98,7 +98,7 @@ public class SubtypeTest_c extends Expr_c implements SubtypeTest {
 	}
 
 	/** Type check the statement. */
-	public Node typeCheck(ContextVisitor tc) throws SemanticException {
+	public Node typeCheck(ContextVisitor tc) {
 		TypeSystem ts = tc.typeSystem();
 		return type(ts.Boolean());
 	}

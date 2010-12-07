@@ -11,7 +11,7 @@ BDWGC_PROPERTIES=bdwgc_off.properties
 ifdef ENABLE_GC
   override CXXFLAGS += -DX10_USE_BDWGC
   BDWGC_INCLUDE_DIR= ./bdwgc/install/include
-  INCLUDE_DIRS += -I$(BDWGC_INCLUDE_DIR)
+  INCLUDE_DIRS += -I"$(BDWGC_INCLUDE_DIR)"
   BDWGC_PROPERTIES=bdwgc_on.properties
 endif
 
@@ -26,7 +26,7 @@ INSTDIR = $(call abspath,../../x10.dist)
 
 XRX_ARCHIVE = $(LIBPREFIX)x10$(LIBSUFFIX)
 ifeq ($(X10RT_PLATFORM),cygwin)
-  XRX_DEP_LIBS = -L$(INSTDIR)/lib -lx10rt_$(DEFAULT_X10RT_LIB)
+  XRX_DEP_LIBS = -L"$(INSTDIR)"/lib -lx10rt_$(DEFAULT_X10RT_LIB)
   ifdef ENABLE_GC
     override XRX_DEP_LIBS += -lgc
   endif
@@ -69,7 +69,8 @@ X10CPPFLAGS += -J-Xmx1024M -J-ea -rtdev -commandlineonly
 # this simply means there will be more symbols in the archive than there should
 # be.  This is harmless and equivalent to the old behaviour of this Makefile,
 # i.e. a make clean is needed.
-gen/all-cpp-generated: $(XRXFILES) $(INSTDIR)/lib/x10c.jar
+SPACE = $(EMPTY) $(EMPTY)
+gen/all-cpp-generated: $(XRXFILES) $(subst $(SPACE),\$(SPACE),$(INSTDIR))/lib/x10c.jar
 	@echo "Regenerating XRX cc/h/inc files"
 	mkdir -p gen
 	"$(INSTDIR)"/bin/x10c++ -c $(X10CPPFLAGS) -sourcepath ../src-x10 -d ../src-cpp/gen \
@@ -127,6 +128,7 @@ ALL_XRCPP_OBJECTS = \
 	x10aux/short_utils.o \
 	x10aux/string_utils.o \
 	x10aux/system_utils.o \
+	x10aux/throw.o \
 	x10aux/debug.o \
 	x10/io/FileReader__FileInputStream.o \
 	x10/io/FileWriter__FileOutputStream.o \
@@ -135,6 +137,7 @@ ALL_XRCPP_OBJECTS = \
 	x10/io/OutputStreamWriter__OutputStream.o \
 	x10/lang/Any.o \
 	x10/lang/Closure.o \
+	x10/lang/Comparable.o \
 	x10/lang/Fun.o \
 	x10/lang/GlobalRef.o \
 	x10/lang/Object.o \
@@ -143,13 +146,13 @@ ALL_XRCPP_OBJECTS = \
 	x10/lang/String.o \
 	x10/lang/Struct.o \
 	x10/lang/Throwable.o \
-	x10/lang/ValRail.o \
 	x10/lang/Deque.o \
 	x10/lang/Lock__ReentrantLock.o \
 	x10/lang/PlaceLocalHandle_Impl.o \
 	x10/lang/Thread.o \
 	x10/util/GrowableRail.o \
 	x10/util/IndexedMemoryChunk.o \
+	x10/util/RemoteIndexedMemoryChunk.o \
 	x10/util/concurrent/atomic/AtomicReference.o 
 
 ALL_MANUAL_OBJECTS=$(ALL_XRCPP_OBJECTS)
@@ -200,18 +203,18 @@ endif
 # FIXME: remove the part of the rule that copies the .inc files as soon as we get rid of them..
 install: $(XRCPP_ARCHIVE) $(XRX_ARCHIVE)
 	@echo "Installing into $(INSTDIR)"
-	@mkdir -p $(INSTDIR)/include $(INSTDIR)/lib
-	@(cd gen && find . -name \*.h | tar cf - $(INC_FLAG)) | (cd $(INSTDIR)/include && tar xf -)
-	@(cd gen && find . -name \*.struct_h | tar cf - $(INC_FLAG)) | (cd $(INSTDIR)/include && tar xf -)
-	@(cd gen && find . -name \*.inc | tar cf - $(INC_FLAG)) | (cd $(INSTDIR)/include && tar xf -)
-	@find x10 -name \*.h | tar cf - $(INC_FLAG) | (cd $(INSTDIR)/include && tar xf -)
-	@find x10 -name \*.struct_h | tar cf - $(INC_FLAG) | (cd $(INSTDIR)/include && tar xf -)
-	@find x10aux -name \*.h | tar cf - $(INC_FLAG) | (cd $(INSTDIR)/include && tar xf -)
-	@find x10aux -name \*.cuh | tar cf - $(INC_FLAG) | (cd $(INSTDIR)/include && tar xf -)
-	@cp -p x10rt.h $(INSTDIR)/include
-	@cp -p $(XRX_ARCHIVE) $(INSTDIR)/lib
-	@cp -p $(XRX_MANIFEST) $(INSTDIR)/lib
-	@cp -p $(BDWGC_PROPERTIES) $(INSTDIR)/etc/bdwgc.properties
+	@mkdir -p "$(INSTDIR)"/include "$(INSTDIR)"/lib
+	@(cd gen && find . -name \*.h | tar cf - $(INC_FLAG)) | (cd "$(INSTDIR)"/include && tar xf -)
+	@(cd gen && find . -name \*.struct_h | tar cf - $(INC_FLAG)) | (cd "$(INSTDIR)"/include && tar xf -)
+	@(cd gen && find . -name \*.inc | tar cf - $(INC_FLAG)) | (cd "$(INSTDIR)"/include && tar xf -)
+	@find x10 -name \*.h | tar cf - $(INC_FLAG) | (cd "$(INSTDIR)"/include && tar xf -)
+	@find x10 -name \*.struct_h | tar cf - $(INC_FLAG) | (cd "$(INSTDIR)"/include && tar xf -)
+	@find x10aux -name \*.h | tar cf - $(INC_FLAG) | (cd "$(INSTDIR)"/include && tar xf -)
+	@find x10aux -name \*.cuh | tar cf - $(INC_FLAG) | (cd "$(INSTDIR)"/include && tar xf -)
+	@cp -p x10rt.h "$(INSTDIR)"/include
+	@cp -p $(XRX_ARCHIVE) "$(INSTDIR)"/lib
+	@cp -p $(XRX_MANIFEST) "$(INSTDIR)"/lib
+	@cp -p $(BDWGC_PROPERTIES) "$(INSTDIR)"/etc/bdwgc.properties
 
 .PHONY: install
 

@@ -19,6 +19,7 @@ import polyglot.types.SemanticException;
 import polyglot.types.TypeSystem;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
+import x10.errors.Errors;
 
 /**
  * @author vj
@@ -34,17 +35,18 @@ public class X10If_c extends If_c {
 	 */
 	public X10If_c(Position pos, Expr cond, Stmt consequent, Stmt alternative) {
 		super(pos, cond, consequent, alternative);
-		
 	}
-	  /** Type check the statement. */
-    public Node typeCheck(ContextVisitor tc) throws SemanticException {
+
+    /** Type check the if statement. */
+    public Node typeCheck(ContextVisitor tc) {
         TypeSystem ts = tc.typeSystem();
 
-	if (! ts.isSubtype(cond.type(), ts.Boolean(), tc.context())) {
-	    throw new SemanticException("Condition of if statement must have boolean type, and not " + cond.type() + ".",cond.position());
-	}
+        if (! ts.isSubtype(cond.type(), ts.Boolean(), tc.context())) {
+            Errors.issue(tc.job(),
+                    new SemanticException("Condition of if statement must have boolean type, and not " + cond.type() + ".", cond.position()),
+                    this);
+        }
 
-	return this;
+        return this;
     }
-
 }

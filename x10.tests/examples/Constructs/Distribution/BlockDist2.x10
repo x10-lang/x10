@@ -9,7 +9,7 @@ public class BlockDist2 extends x10Test.BardTest {
   }
   static def str(d:Dist):String {
     var s : String = "";
-    for(p:Point in d.region) 
+    for(p in d.region) 
       s += " " + d(p).id;
     return s;
   }

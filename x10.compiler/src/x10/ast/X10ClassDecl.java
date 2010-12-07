@@ -29,7 +29,7 @@ import polyglot.types.Type;
 import polyglot.visit.TypeChecker;
 import x10.types.TypeDef;
 import x10.types.X10ClassDef;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 
 public interface X10ClassDecl extends ClassDecl {
 	DepParameterExpr classInvariant();

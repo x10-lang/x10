@@ -36,11 +36,19 @@ namespace x10aux {
         static x10_int numberOfLeadingZeros(x10_long value);
         static x10_int numberOfTrailingZeros(x10_long value);
         static x10_int bitCount(x10_long value);
-        static x10_long rotateLeft(x10_long value);
-        static x10_long rotateRight(x10_long value);
+        static x10_long rotateLeft(x10_long value, x10_int distance);
+        static x10_long rotateRight(x10_long value, x10_int distance);
         static x10_long reverse(x10_long value);
-        static x10_int signum(x10_long value);
+        static x10_int signum(x10_long value) {
+            return (value >> 63) | (((x10_ulong)(-value)) >> 63);
+        }
         static x10_long reverseBytes(x10_long value);
+        static x10_boolean compareTo(x10_long v1, x10_long v2) {
+            return v1 == v2 ? 0 : (v1 < v2 ? -1 : 1);
+        }
+        static x10_boolean compareTo(x10_ulong v1, x10_ulong v2) {
+            return v1 == v2 ? 0 : (v1 < v2 ? -1 : 1);
+        }
     };
 }
 

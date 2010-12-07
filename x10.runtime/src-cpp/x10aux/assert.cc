@@ -15,17 +15,17 @@
 #include <stdlib.h>
 
 #include <x10/lang/String.h>
+#include <x10/lang/AssertionError.h>
 
 using namespace x10aux;
 using namespace x10::lang;
 
 void x10aux::x10__assertion_failed(const ref<x10::lang::String>& message) {
-    if (message == null) {
-        fprintf(stderr,"Assertion failed.\n");
+    if (message.isNull()) {
+        x10aux::throwException(x10::lang::AssertionError::_make());
     } else {
-        fprintf(stderr,"Assertion failed: \"%s\"\n",message->c_str());
+        x10aux::throwException(x10::lang::AssertionError::_make(message));
     }
-    abort();
 }
 
 const bool x10aux::x10__assertions_enabled = ::getenv("X10_ENABLE_ASSERTIONS");

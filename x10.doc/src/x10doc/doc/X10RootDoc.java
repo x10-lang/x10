@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 
 import polyglot.ast.Import;
 import polyglot.types.ClassDef;
@@ -25,7 +26,7 @@ import x10.types.X10FieldDef;
 import x10.types.X10MethodDef;
 import x10.types.X10ParsedClassType;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 import x10.util.HierarchyUtils;
 
 import com.sun.javadoc.ClassDoc;
@@ -210,7 +211,7 @@ public class X10RootDoc extends X10Doc implements RootDoc {
 			// System.out.println("Primitive X10Type returned.");
 			return getPrimitiveType(t);
 		}
-		X10TypeSystem ts = (X10TypeSystem) t.typeSystem();
+		TypeSystem ts = (TypeSystem) t.typeSystem();
 		if (ts.isParameterType(t)) {
 			// TODO: get the constraints
 			ParameterType p = (ParameterType) X10TypeMixin.baseType(t);
@@ -273,7 +274,8 @@ public class X10RootDoc extends X10Doc implements RootDoc {
 			// the types of the closure's parameters and the return type of the closure
 			// earlier test: "if (((X10ParsedClassType)t).typeArguments().size() > 0)"; this earlier test 
 			// includes all closures except closures with 0 arguments, hence the instanceof test
-			if ((t instanceof FunctionType) || (((X10ParsedClassType)t).typeArguments().size() > 0)) {
+			List<polyglot.types.Type> typeArguments = ((X10ParsedClassType)t).typeArguments();
+			if ((t instanceof FunctionType) || (typeArguments != null && typeArguments.size() > 0)) {
 				return new X10ParameterizedType(t, methodTypeVars, false);
 				// return new X10ParameterizedType((polyglot.types.Type)t, methodTypeVars, false);
 			}
@@ -282,7 +284,8 @@ public class X10RootDoc extends X10Doc implements RootDoc {
 		else if (t instanceof ConstrainedType) {
 			polyglot.types.Type base = X10TypeMixin.baseType(t);
 			if (base instanceof X10ParsedClassType) {
-				if (((X10ParsedClassType)base).typeArguments().size() > 0) {
+				List<polyglot.types.Type> typeArguments = ((X10ParsedClassType)base).typeArguments();
+				if (typeArguments != null && typeArguments.size() > 0) {
 					// parameterized type with constraints
 					return new X10ParameterizedType(t, methodTypeVars, true); 
 					// return new X10ParameterizedType((polyglot.types.Type)t, methodTypeVars, true); 

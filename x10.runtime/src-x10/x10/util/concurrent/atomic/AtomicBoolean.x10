@@ -15,7 +15,7 @@ import x10.compiler.Native;
 import x10.compiler.NativeRep;
 import x10.compiler.Volatile;
 
-@NativeRep("java", "java.util.concurrent.atomic.AtomicBoolean", null, "x10.rtt.Types.ATOMIC_BOOLEAN")
+@NativeRep("java", "x10.core.atomic.AtomicBoolean", null, "x10.core.atomic.AtomicBoolean._RTT")
 public final class AtomicBoolean {
    /*
     * An int that will only contain 0 or 1 and is interpreted as an boolean.

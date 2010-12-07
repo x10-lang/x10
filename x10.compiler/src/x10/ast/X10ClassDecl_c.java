@@ -40,6 +40,7 @@ import polyglot.frontend.Job;
 import polyglot.frontend.Source;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
+import polyglot.types.ConstructorDef;
 import polyglot.types.Context;
 import polyglot.types.FieldDef;
 import polyglot.types.FieldInstance;
@@ -58,11 +59,13 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
+import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
 import polyglot.visit.CFGBuilder;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
+import polyglot.visit.PrettyPrinter;
 import polyglot.visit.PruningVisitor;
 import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeChecker;
@@ -78,7 +81,7 @@ import x10.types.TypeParamSubst;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassDef_c;
 import x10.types.X10ClassType;
-import x10.types.X10Context;
+import polyglot.types.Context;
 import x10.types.X10FieldInstance;
 import x10.types.X10Flags;
 import x10.types.X10LocalDef;
@@ -87,7 +90,7 @@ import x10.types.X10MethodInstance;
 import x10.types.X10ParsedClassType;
 
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 import x10.types.X10TypeSystem_c;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
@@ -192,7 +195,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     protected void setSuperClass(TypeSystem ts, ClassDef thisType) throws SemanticException {
         TypeNode superClass = this.superClass;
 
-        final X10TypeSystem xts = (X10TypeSystem) ts;
+        final TypeSystem xts = (TypeSystem) ts;
         
         // We need to lazily set the superclass, otherwise we go into an infinite loop
         // during bootstrapping: Object, refers to Int, refers to Object, ...
@@ -229,7 +232,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     
     @Override
     protected void setInterfaces(TypeSystem ts, ClassDef thisType) throws SemanticException {
-    	final X10TypeSystem xts = (X10TypeSystem) ts;
+    	final TypeSystem xts = (TypeSystem) ts;
 
     	// For every struct and interface, add the implicit Any interface.
     	X10Flags flags = X10Flags.toX10Flags(flags().flags());
@@ -275,13 +278,15 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     public Context enterScope(Context c) {
     	return c.pushBlock();
     }
+
+    @Override
     public Context enterChildScope(Node child, Context c) {
-    	X10Context xc = (X10Context) c;
+    	Context xc = (Context) c;
     	if (child != this.body ) {
     		
     		X10ClassDef_c type = (X10ClassDef_c) this.type;
     		if (child == this.classInvariant) {
-        		xc = (X10Context) xc.pushClass(type, type.asType());
+        		xc = (Context) xc.pushClass(type, type.asType());
         		// Add type parameters
         		for (ParameterType t : type.typeParameters()) {
         			xc.addNamed(t);
@@ -292,7 +297,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     			// Add this class to the context, but don't push a class scope.
     			// This allows us to detect loops in the inheritance
     			// hierarchy, but avoids an infinite loop.
-    			xc = (X10Context) xc.pushBlock();
+    			xc = (Context) xc.pushBlock();
     			xc.addNamed(type.asType());
     		}
 
@@ -333,7 +338,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
 
     	if (child == this.body || child == this.properties || (this.properties != null && this.properties.contains(child))) {
     		X10ClassDef_c type = (X10ClassDef_c) this.type;
-    		xc = (X10Context) xc.pushClass(type, type.asType());
+    		xc = (Context) xc.pushClass(type, type.asType());
     		// Add type parameters
     		for (ParameterType t : type.typeParameters()) {
     			xc.addNamed(t);
@@ -375,6 +380,8 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         X10ClassDecl_c n = (X10ClassDecl_c) super.preBuildTypes(tb);
         
         final X10ClassDef def = (X10ClassDef) n.type;
+        
+        def.setThisDef(tb.typeSystem().thisDef(n.position(), Types.ref(def.asType())));
         
         TypeBuilder childTb = tb.pushClass(def);
         
@@ -539,9 +546,9 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     	if (! n.flags().flags().isAbstract())
     		return n;
     	
-    	Position CG = X10NodeFactory_c.compilerGenerated(body());
+    	Position CG = Position.compilerGenerated(body().position());
     	X10TypeSystem_c xts = (X10TypeSystem_c) tc.typeSystem();
-    	X10NodeFactory xnf = (X10NodeFactory) tc.nodeFactory();
+    	NodeFactory xnf = (NodeFactory) tc.nodeFactory();
     	X10ClassType targetType = (X10ClassType) n.classDef().asType();
     	List<X10ClassType> interfaces = xts.allImplementedInterfaces(targetType, false);
     	LinkedList<X10MethodInstance> candidates = new LinkedList<X10MethodInstance>();
@@ -629,6 +636,31 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     	ContextVisitor oldtc = (ContextVisitor) tc.copy();
     	
     	n = (X10ClassDecl_c) n.typeCheckSupers(tc, childtc);
+    	X10TypeSystem_c xts = (X10TypeSystem_c) tc.typeSystem();
+    	if (superClass != null) {
+    	    Ref<? extends Type> stref = superClass.typeRef();
+    	    try {
+                checkSuperclass(xts, stref);
+    	    } catch (SemanticException e) {
+                X10ClassType uc = xts.createFakeClass(QName.make(superClass.nameString()), e);
+                for (ConstructorDef cd : classDef().constructors()) {
+                    ConstructorDef ucd = (ConstructorDef) cd.copy();
+                    ucd.setContainer(Types.ref(uc));
+                    uc.def().addConstructor(ucd);
+                }
+                ((Ref<Type>) stref).update(uc);
+    	    }
+    	}
+    	for (TypeNode itn : interfaces()) {
+    	    Ref<? extends Type> tref = itn.typeRef();
+    	    try {
+    	        checkSuperinterface(xts, tref);
+    	    } catch (SemanticException e) {
+                X10ClassType uc = xts.createFakeClass(QName.make(itn.nameString()), e);
+                uc.def().flags(uc.def().flags().Interface());
+                ((Ref<Type>) tref).update(uc);
+    	    }
+    	}
     	n = (X10ClassDecl_c) n.typeCheckProperties(parent, tc, childtc);
     	n = (X10ClassDecl_c) n.typeCheckClassInvariant(parent, tc, childtc);
     	n = (X10ClassDecl_c) n.typeCheckBody(parent, tc, childtc);
@@ -665,7 +697,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
                 }
             }
             if (! added) {
-                TypeNode tn = nf.CanonicalTypeNode(position(), t);
+                TypeNode tn = nf.CanonicalTypeNode(position().markCompilerGenerated(), t);
                 newInterfaces.add(tn);
             }
         }
@@ -720,6 +752,10 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     		n.checkStructMethods(parent, tc);
     	}
 
+        // a superclass/interface is a covariant position (+)
+        if (n.superClass!=null) X10TypeMixin.checkVariance(n.superClass, ParameterType.Variance.COVARIANT,tc.job());
+        for (TypeNode typeNode : n.interfaces)
+            X10TypeMixin.checkVariance(typeNode, ParameterType.Variance.COVARIANT,tc.job());
     	return n;
     }
     
@@ -728,35 +764,43 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     	
     }
 
-    
     @Override
     protected void checkSupertypeCycles(TypeSystem ts) throws SemanticException {
-        X10TypeSystem xts = (X10TypeSystem) ts;
+        TypeSystem xts = (TypeSystem) ts;
+
         Ref<? extends Type> stref = type.superType();
-        
-        if (stref != null) {
-            Type t = stref.get();
-            t = followDefs(t);
-            if (xts.hasUnknown(t))
-                return;
-            if (! t.isClass() || t.toClass().flags().isInterface()) {
-                throw new SemanticException("Cannot extend type " + t + "; not a class.", superClass != null ? superClass.position() : position());
-            }
-            ts.checkCycles((ReferenceType) t);
-        }
+        checkSuperclass(xts, stref);
 
         for (Ref<? extends Type> tref : type.interfaces()) {
-            Type t = tref.get();
-            t = followDefs(t);
-            if (xts.hasUnknown(t))
-                throw new SemanticException(); // already reported
-            if (! t.isClass() || ! t.toClass().flags().isInterface()) {
-                String s = type.flags().isInterface() ? "extend" : "implement";
-                throw new SemanticException("Cannot " + s + " type " + t + "; not an interface.", position());
-            }
-            
-            ts.checkCycles((ReferenceType) t);
+            checkSuperinterface(xts, tref);
         }
+    }
+
+    protected void checkSuperclass(TypeSystem xts, Ref<? extends Type> stref) throws SemanticException {
+        if (stref == null)
+            return;
+        Type t = stref.get();
+        t = followDefs(t);
+        if (xts.hasUnknown(t))
+            return;
+        if (! t.isClass() || t.toClass().flags().isInterface()) {
+            throw new SemanticException("Cannot extend type " + t + "; not a class.", superClass != null ? superClass.position() : position());
+        }
+        xts.checkCycles((ReferenceType) t);
+    }
+
+    protected void checkSuperinterface(TypeSystem xts, Ref<? extends Type> tref) throws SemanticException {
+        if (tref == null)
+            return;
+        Type t = tref.get();
+        t = followDefs(t);
+        if (xts.hasUnknown(t))
+            return;
+        if (! t.isClass() || ! t.toClass().flags().isInterface()) {
+            String s = type.flags().isInterface() ? "extend" : "implement";
+            throw new SemanticException("Cannot " + s + " type " + t + "; not an interface.", position());
+        }
+        xts.checkCycles((ReferenceType) t);
     }
 
     protected List<TypeNode> followDefs(List<TypeNode> tns) {
@@ -791,7 +835,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
 
     public Node conformanceCheck(ContextVisitor tc) {
     	X10ClassDecl_c result = (X10ClassDecl_c) super.conformanceCheck(tc);
-    	X10Context context = (X10Context) tc.context();
+    	Context context = (Context) tc.context();
     	
     	X10ClassDef cd = (X10ClassDef) classDef();
         CConstraint c = cd.classInvariant().get();
@@ -814,7 +858,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     	    }
     	}
 
-    	X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+    	TypeSystem ts = (TypeSystem) tc.typeSystem();
     	
     	Type superClass = type.asType().superClass();
 
@@ -856,7 +900,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     }
 
     protected boolean isValidType(Type type) {
-        X10TypeSystem xts = (X10TypeSystem) type.typeSystem();
+        TypeSystem xts = (TypeSystem) type.typeSystem();
         return !xts.hasUnknown(type);
     }
 
@@ -881,67 +925,69 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     protected ConstructorDecl createDefaultConstructor(ClassDef _thisType,
     		TypeSystem ts, NodeFactory nf) throws SemanticException
     {
-          X10ClassDef thisType = (X10ClassDef) _thisType;
-    	  Position pos = X10NodeFactory_c.compilerGenerated(body());
-    	  X10NodeFactory xnf = (X10NodeFactory) nf;
-          Block block = null;
+        X10ClassDef thisType = (X10ClassDef) _thisType;
+        Position pos = Position.compilerGenerated(body().position());
+        NodeFactory xnf = (NodeFactory) nf;
+        Block block = null;
 
-          Ref<? extends Type> superType = thisType.superType();
-          Stmt s1 = null;
-          if (superType != null) {
-              s1 = nf.SuperCall(pos, Collections.<Expr>emptyList());
-          }
-          
-          Stmt s2 = null; 
-          List<TypeParamNode> typeFormals = Collections.<TypeParamNode>emptyList();
-          List<Formal> formals = Collections.<Formal>emptyList();
-          DepParameterExpr guard = null;
+        Ref<? extends Type> superType = thisType.superType();
+        Stmt s1 = null;
+        if (superType != null) {
+            s1 = nf.SuperCall(pos, Collections.<Expr>emptyList());
+        }
 
-          if (! properties.isEmpty()) {
-        	  // build type parameters.
-        	/*  typeFormals = new ArrayList<TypeParamNode>(typeParameters.size());
-        	  List<TypeNode> typeActuals = new ArrayList<TypeNode>(typeParameters.size());
-        	  for (TypeParamNode tp : typeParameters) {
-        		  typeFormals.add(xnf.TypeParamNode(pos, tp.name()));
-        		  typeActuals.add(xnf.CanonicalTypeNode(pos, tp.type()));
-        	  }*/
-        	  
-        	  formals = new ArrayList<Formal>(properties.size());
-        	  List<Expr> actuals = new ArrayList<Expr>(properties.size());
-              ChangePositionVisitor changePositionVisitor = new ChangePositionVisitor(pos);
-        	  for (PropertyDecl pd: properties) {
-        		  Id name = (Id) pd.name().position(pos);
-                  TypeNode typeNode = (TypeNode) pd.type().copy();
-                  Node newNode = typeNode.visit(changePositionVisitor);
-                  formals.add(xnf.Formal(pos, nf.FlagsNode(pos, Flags.FINAL),
-        				  (TypeNode) newNode, name));
-        		  actuals.add(xnf.Local(pos, name));
-        	  }
-        	 
-        	  guard = classInvariant();
-        	  s2 = xnf.AssignPropertyCall(pos, Collections.<TypeNode>emptyList(), actuals);
-        	  // TODO: add constraint on the return type
-          }
-          block = s2 == null ? (s1 == null ? nf.Block(pos) : nf.Block(pos, s1))
-        		  : (s1 == null ? nf.Block(pos, s2) : nf.Block(pos, s1, s2));
+        Stmt s2 = null; 
+        List<TypeParamNode> typeFormals = Collections.<TypeParamNode>emptyList();
+        List<Formal> formals = Collections.<Formal>emptyList();
+        DepParameterExpr guard = null;
 
-          X10ClassType resultType = (X10ClassType) thisType.asType();
-          // for Generic classes
-          final List<ParameterType> typeParams = thisType.typeParameters();
-          resultType = (X10ClassType)resultType.typeArguments((List)typeParams);
-          X10CanonicalTypeNode returnType = (X10CanonicalTypeNode) xnf.CanonicalTypeNode(pos, resultType);
+        if (! properties.isEmpty()) {
+            // build type parameters.
+            /*typeFormals = new ArrayList<TypeParamNode>(typeParameters.size());
+            List<TypeNode> typeActuals = new ArrayList<TypeNode>(typeParameters.size());
+            for (TypeParamNode tp : typeParameters) {
+                typeFormals.add(xnf.TypeParamNode(pos, tp.name()));
+                typeActuals.add(xnf.CanonicalTypeNode(pos, tp.type()));
+            }*/
 
-          ConstructorDecl cd = xnf.X10ConstructorDecl(pos,
-                  nf.FlagsNode(pos, Flags.PUBLIC),
-                  nf.Id(pos, "this"), 
-                  returnType,
-                  typeFormals,
-                  formals,
-                  guard, 
-                  null, // offerType
-                  block);
+            formals = new ArrayList<Formal>(properties.size());
+            List<Expr> actuals = new ArrayList<Expr>(properties.size());
+            ChangePositionVisitor changePositionVisitor = new ChangePositionVisitor(pos);
+            for (PropertyDecl pd: properties) {
+                Id name = (Id) pd.name().position(pos);
+                TypeNode typeNode = (TypeNode) pd.type().copy();
+                Node newNode = typeNode.visit(changePositionVisitor);
+                formals.add(xnf.Formal(pos, nf.FlagsNode(pos, Flags.FINAL),
+                        (TypeNode) newNode, name));
+                actuals.add(xnf.Local(pos, name));
+            }
+
+            guard = classInvariant();
+            s2 = xnf.AssignPropertyCall(pos, Collections.<TypeNode>emptyList(), actuals);
+            // TODO: add constraint on the return type
+        }
+        block = s2 == null ? (s1 == null ? nf.Block(pos) : nf.Block(pos, s1))
+                : (s1 == null ? nf.Block(pos, s2) : nf.Block(pos, s1, s2));
+
+        X10ClassType resultType = (X10ClassType) thisType.asType();
+        // for Generic classes
+        final List<ParameterType> typeParams = thisType.typeParameters();
+        if (!typeParams.isEmpty()) {
+            List<Type> typeArgs = new ArrayList<Type>(typeParams);
+            resultType = (X10ClassType) resultType.typeArguments(typeArgs);
+        }
+        X10CanonicalTypeNode returnType = (X10CanonicalTypeNode) xnf.CanonicalTypeNode(pos, resultType);
+
+        ConstructorDecl cd = xnf.X10ConstructorDecl(pos,
+                nf.FlagsNode(pos, Flags.PUBLIC),
+                nf.Id(pos, "this"), 
+                returnType,
+                typeFormals,
+                formals,
+                guard, 
+                null, // offerType
+                block);
         return cd;
-        
     }
 
     public String toString() {
@@ -978,5 +1024,88 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         sb.append(" ");
         sb.append(body);
         return sb.toString();
+    }
+
+    @Override
+    public void prettyPrintHeader(CodeWriter w, PrettyPrinter tr) {
+        w.begin(0);
+        Flags flags = type.flags();
+        
+        if (flags.isInterface()) {
+            w.write(flags.clearInterface().clearAbstract().translate());
+        }
+        else {
+            w.write(flags.translate());
+        }
+        
+        if (flags.isInterface()) {
+            w.write("interface ");
+        }
+        else {
+            w.write("class ");
+        }
+        
+        tr.print(this, name, w);
+        
+        if (!typeParameters.isEmpty()) {
+            w.write("[");
+            w.begin(0);
+            for (Iterator<TypeParamNode> pi = typeParameters.iterator(); pi.hasNext(); ) {
+                TypeParamNode pn = pi.next();
+                print(pn, w, tr);
+                if (pi.hasNext()) {
+                    w.write(",");
+                    w.allowBreak(0, " ");
+                }
+            }
+            w.end();
+            w.write("]");
+        }
+        
+        if (!properties.isEmpty()) {
+            w.write("(");
+            w.begin(0);
+            for (Iterator<PropertyDecl> pi = properties.iterator(); pi.hasNext(); ) {
+                PropertyDecl pd = pi.next();
+                print(pd, w, tr);
+                if (pi.hasNext()) {
+                    w.write(",");
+                    w.allowBreak(0, " ");
+                }
+            }
+            w.end();
+            w.write(")");
+        }
+        
+        if (superClass() != null) {
+            w.allowBreak(0);
+            w.write("extends ");
+            print(superClass(), w, tr);
+        }
+        
+        if (! interfaces.isEmpty()) {
+            w.allowBreak(2);
+            if (flags.isInterface()) {
+                w.write("extends ");
+            }
+            else {
+                w.write("implements ");
+            }
+        
+            w.begin(0);
+            for (Iterator<TypeNode> i = interfaces().iterator(); i.hasNext(); ) {
+                TypeNode tn = (TypeNode) i.next();
+                print(tn, w, tr);
+        
+                if (i.hasNext()) {
+                    w.write(",");
+                    w.allowBreak(0);
+                }
+            }
+            w.end();
+        }
+        w.unifiedBreak(0);
+        w.end();
+        w.write("{");
     }
 } 

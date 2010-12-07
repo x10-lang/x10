@@ -11,6 +11,7 @@
 
 package x10.emitter;
 
+import java.util.Collections;
 import java.util.List;
 
 import polyglot.types.Type;
@@ -20,7 +21,7 @@ import x10.types.FunctionType;
 import x10.types.ParameterType;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 import x10.visit.X10PrettyPrinterVisitor;
 
 final public class RuntimeTypeExpander extends Expander {
@@ -102,26 +103,28 @@ final public class RuntimeTypeExpander extends Expander {
             	return;
             }
             
+            List<Type> typeArgs = ct.typeArguments();
+            if (typeArgs == null) typeArgs = Collections.<Type>emptyList();
             if (pat == null) {
                 // XTENLANG-1102
-                if (ct.isGloballyAccessible() && ct.typeArguments().size() == 0) {
+                if (ct.isGloballyAccessible() && typeArgs.size() == 0) {
                     er.w.write(cd.fullName().toString() + "." + "_RTT");
                 } else {
                     er.w.write("new x10.rtt.ParameterizedType(");
                     er.w.write(cd.fullName().toString() + "." + "_RTT");
-                    for (int i = 0; i < ct.typeArguments().size(); i++) {
+                    for (int i = 0; i < typeArgs.size(); i++) {
                         er.w.write(", ");
-                        new RuntimeTypeExpander(er, ct.typeArguments().get(i)).expand(tr);
+                        new RuntimeTypeExpander(er, typeArgs.get(i)).expand(tr);
                     }
                     er.w.write(")");
                 }
                 return;
             }
             else {
-            	Object[] components = new Object[1 + ct.typeArguments().size() * 2];
+            	Object[] components = new Object[1 + typeArgs.size() * 2];
             	int i = 0;
             	components[i++] = new TypeExpander(er, ct, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
-            	for (Type at : ct.typeArguments()) {
+            	for (Type at : typeArgs) {
             		components[i++] = new TypeExpander(er, at, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
             		components[i++] = new RuntimeTypeExpander(er, at);
             	}
@@ -160,7 +163,7 @@ final public class RuntimeTypeExpander extends Expander {
         if (t.isChar())
             return "x10.rtt.Types.CHAR";
         if (t.isNumeric()) {
-            X10TypeSystem ts = (X10TypeSystem) er.tr.typeSystem();
+            TypeSystem ts = (TypeSystem) er.tr.typeSystem();
             if (ts.isUnsigned(t)) {
                 if (ts.isUByte(t))
                     return "x10.rtt.Types.UBYTE";

@@ -31,6 +31,7 @@ import polyglot.types.SemanticException;
 import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.Types;
+import polyglot.types.TypeSystem;
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 import polyglot.util.Transformation;
@@ -56,7 +57,7 @@ public class ConstrainedType_c extends ReferenceType_c implements ConstrainedTyp
 	private Ref<CConstraint> constraint;
 	private Ref<? extends Type> baseType;
 
-	public ConstrainedType_c(X10TypeSystem ts, Position pos, 
+	public ConstrainedType_c(TypeSystem ts, Position pos, 
 			Ref<? extends Type> baseType, Ref<CConstraint> constraint) {
 		super(ts, pos);
 		assert ts != null;
@@ -241,35 +242,14 @@ public class ConstrainedType_c extends ReferenceType_c implements ConstrainedTyp
 	}
 
 	// vj 08/11/09
-	// For each FieldInstance fi of baseType, need to return a new FieldInstance fi' obtained
+	// todo: For each FieldInstance fi of baseType, need to return a new FieldInstance fi' obtained
 	// by adding this: this.constraint.
 	@Override
 	public List<FieldInstance> fields() {
 		Type base = baseType.get();
-		CConstraint c = getRealXClause();
-		final XVar thisVar = thisVar();
-		/*try {
-		c = c.substitute(thisVar, c.self());
-		} catch (XFailure f) {
-		    throw new InternalCompilerError("Unexpected failure when substituting thisVar() for self in " + c);
-		}*/
-		final CConstraint cc = c;
 		if (base instanceof StructType) {
 			final List<FieldInstance> fis = ((StructType) base).fields();
 			return fis;
-			/*return new TransformingList<FieldInstance, FieldInstance>(fis, new Transformation<FieldInstance, FieldInstance>() {
-				public FieldInstance transform(FieldInstance o) {
-					assert o instanceof X10FieldInstance;
-					X10FieldInstance xo = (X10FieldInstance) o;
-					Type t = xo.rightType();
-					// Now need to add the constainer's constraint.
-					t = X10TypeMixin.addConstraint(t, cc);
-					
-					FieldInstance o1 = o.type(t);
-					return o1;
-				}		
-			});*/
-
 		}
 		return Collections.emptyList();
 	}
@@ -309,7 +289,7 @@ public class ConstrainedType_c extends ReferenceType_c implements ConstrainedTyp
 
 		return new TransformingList<Type, Type>(l, new Transformation<Type, Type>() {
 			public Type transform(Type o) {
-				X10TypeSystem xts = (X10TypeSystem) o.typeSystem();
+				TypeSystem xts = (TypeSystem) o.typeSystem();
 				CConstraint c2 = X10TypeMixin.xclause(o);
 				c2 = c2 != null ? c2.copy() : new CConstraint();
 				try {
@@ -347,7 +327,7 @@ public class ConstrainedType_c extends ReferenceType_c implements ConstrainedTyp
 		        CConstraint c2 = X10TypeMixin.xclause(o);
 		        c2 = c2 != null ? c2.copy() : new CConstraint();
 		        try {
-		            X10TypeSystem xts = (X10TypeSystem) o.typeSystem();
+		            TypeSystem xts = (TypeSystem) o.typeSystem();
 		            c2.addSelfBinding(t);
 		            return X10TypeMixin.xclause(o, c2);
 		        }
@@ -441,9 +421,6 @@ public class ConstrainedType_c extends ReferenceType_c implements ConstrainedTyp
     public void printConstraint(CodeWriter w) {
         Type base = baseType.getCached();
         CConstraint c = constraint.getCached();
-        if (c != null && !c.valid() && !X10TypeMixin.isX10Struct(baseType.get())) {
-            w.write("!"); // HACK
-        }
     }
 	
 	public boolean equalsNoFlag(Type t2) {

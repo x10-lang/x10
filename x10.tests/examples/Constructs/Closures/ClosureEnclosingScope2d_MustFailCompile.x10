@@ -33,7 +33,9 @@ public class ClosureEnclosingScope2d_MustFailCompile extends ClosureTest {
             def foo() = {
                 val fun = () => {
                     var d:int = 1;
-                    (() => a+b+c+d)()
+                    (() => a+b+c+
+                        d // ERR
+                        )()
                 };
                 fun()
             }

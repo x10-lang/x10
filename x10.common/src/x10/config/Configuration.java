@@ -165,6 +165,47 @@ public abstract class Configuration {
 		}
 	}
 
+    /**
+     * Get a given field or component in a given class to the given value.
+     * @throws OptionError if the argument is invalid
+     * @throws ConfigurationError if there was a problem processing the argument
+     */
+    public static Object get(Class<?> cls, String key)
+        throws ConfigurationError, OptionError
+    {
+        assert (key != null);
+        int idx = 0;
+        String fld = null;
+        try {
+            if (key.indexOf('[') > 0) {
+                idx = Integer.parseInt(key.substring(key.indexOf('[')+1,key.indexOf(']')));
+                fld = key.substring(key.indexOf('.')+1);
+                key = key.substring(0, key.indexOf('['));
+            }
+            Field f = cls.getField(key);
+            Class<?> t = f.getType();
+            Object o = null;
+            // TODO: implement arrays as described above
+            // FIXME: do we need support for Object arrays?
+            if (fld != null) {
+                if (t.isArray()) {
+                    if (!t.getComponentType().isPrimitive()) {
+                        o = Array.get(f.get(null), idx);
+                        f = o.getClass().getField(fld);
+                        t = f.getType();
+                    }
+                } else
+                    throw new OptionError(key + " is not an array");
+            }
+            return f.get(o);
+        } catch (NoSuchFieldException nsfe) {
+            throw new OptionError("Parameter "+key+" not found");
+        } catch (IllegalAccessException iae) {
+            System.err.println("Wrong permissions for field " + key + ": " + iae);
+            throw new ConfigurationError(iae);
+        }
+    }
+
 	/**
 	 * Obtain the name of the configuration resource used for the current
 	 * configuration.

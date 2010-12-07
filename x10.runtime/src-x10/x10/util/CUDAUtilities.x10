@@ -40,11 +40,10 @@ public class CUDAUtilities {
       */
     public static def autoThreads() : Int = 1;
 
-    private static def initCUDAArray[T] (gpu:Place,
-                                         local:IndexedMemoryChunk[T],
-                                         remote:IndexedMemoryChunk[T],
-                                         numElements:Int) : Void {
-        finish local.asyncCopyTo(0,gpu,remote,0,numElements);
+    private static def initCUDAArray[T] (local:IndexedMemoryChunk[T],
+                                         remote:RemoteIndexedMemoryChunk[T],
+                                         numElements:Int) : void {
+          finish IndexedMemoryChunk.asyncCopy(local, 0, remote, 0, numElements);
     }
 
     private static def makeCUDAArray[T] (gpu:Place, numElements:Int, init:IndexedMemoryChunk[T])
@@ -52,9 +51,9 @@ public class CUDAUtilities {
         val reg = 0 .. numElements-1;
         @Native("c++",
             "x10_ulong addr = x10aux::remote_alloc(gpu.FMGL(id), ((size_t)numElements)*sizeof(FMGL(T)));\n"+
-            "IndexedMemoryChunk<FMGL(T)> imc(addr);\n"+
-            "initCUDAArray<FMGL(T)>(gpu,init,imc,numElements);\n"+
-            "return x10::array::RemoteArray<FMGL(T)>::_make(gpu, reg, imc, numElements);\n"
+            "RemoteIndexedMemoryChunk<FMGL(T)> rimc(addr, numElements, gpu);\n"+
+            "initCUDAArray<FMGL(T)>(init,rimc,numElements);\n"+
+            "return x10::array::RemoteArray<FMGL(T)>::_make(gpu, reg, rimc, numElements);\n"
         ) { }
         throw new UnsupportedOperationException();
     }
@@ -93,17 +92,19 @@ public class CUDAUtilities {
         }
     }
 
-    public static def deleteRemoteArray[T] (arr: RemoteArray[T]{self.rank==1}) : Void
+    public static def deleteRemoteArray[T] (arr: RemoteArray[T]{self.rank==1}) : void
     {
         val place = arr.home;
         if (place.isCUDA()) {
             @Native("c++",
-                "IndexedMemoryChunk<FMGL(T)> imc = arr->apply()->raw();\n"+
-                "x10aux::remote_free(place.FMGL(id), (x10_ulong)(size_t)imc->raw());\n"
+                "RemoteIndexedMemoryChunk<FMGL(T)> rimc = arr->FMGL(rawData);\n"+
+                "x10aux::remote_free(place.FMGL(id), (x10_ulong)(size_t)rimc->data);\n"
             ) { }
         }
     }
+
+    @Native("cuda","__mul24(#1,#2)")
+    public static def mul24 (a:Int, b:Int) : Int = a * b;
 }
 
 // vim: shiftwidth=4:tabstop=4:expandtab
-

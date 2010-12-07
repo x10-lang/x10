@@ -63,7 +63,7 @@ import x10.errors.Errors;
 import x10.types.X10ClassDef;
 import x10.types.X10MethodInstance;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 import x10.types.X10TypeSystem_c;
 import x10.types.checker.Checker;
 import x10.types.checker.Converter;
@@ -90,10 +90,8 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 	 * @param op
 	 * @param right
 	 */
-    public SettableAssign_c(X10NodeFactory nf, Position pos, Expr array, List<Expr> index, Operator op, Expr right) {
+    public SettableAssign_c(NodeFactory nf, Position pos, Expr array, List<Expr> index, Operator op, Expr right) {
 		super(nf, pos, op, right);
-		if (index.size() < 1)
-		assert index.size() >= 1;
 		this.array = array;
 		this.index = index;
 	}
@@ -169,7 +167,7 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
    	}
    	
    	public Type childExpectedType(Expr child, AscriptionVisitor av) {
-   		X10TypeSystem ts = (X10TypeSystem) av.typeSystem();
+   		TypeSystem ts = (TypeSystem) av.typeSystem();
    		
    		if (child == array) {
    			return ts.Settable();
@@ -202,7 +200,7 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 	public Node buildTypes(TypeBuilder tb) throws SemanticException {
 	    SettableAssign_c n = (SettableAssign_c) super.buildTypes(tb);
 
-	    X10TypeSystem ts = (X10TypeSystem) tb.typeSystem();
+	    TypeSystem ts = (TypeSystem) tb.typeSystem();
 
 	    X10MethodInstance mi = ts.createMethodInstance(position(), new ErrorRef_c<MethodDef>(ts, position(), "Cannot get MethodDef before type-checking settable assign."));
 	    X10MethodInstance ami = ts.createMethodInstance(position(), new ErrorRef_c<MethodDef>(ts, position(), "Cannot get MethodDef before type-checking settable assign."));
@@ -211,7 +209,7 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 
 	static Pair<MethodInstance,List<Expr>> tryImplicitConversions(X10Call_c n, ContextVisitor tc,
 	        Type targetType, List<Type> typeArgs, List<Type> argTypes) throws SemanticException {
-	    final X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+	    final TypeSystem ts = (TypeSystem) tc.typeSystem();
 	    final Context context = tc.context();
 
 	    List<MethodInstance> methods = ts.findAcceptableMethods(targetType,
@@ -228,10 +226,10 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 	}
 
 	@Override
-	public Assign typeCheckLeft(ContextVisitor tc) throws SemanticException {
-		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
-		X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
-		X10TypeSystem xts = ts;
+	public Assign typeCheckLeft(ContextVisitor tc) {
+		TypeSystem ts = (TypeSystem) tc.typeSystem();
+		NodeFactory nf = (NodeFactory) tc.nodeFactory();
+		TypeSystem xts = ts;
 
 		X10MethodInstance mi = null;
 
@@ -257,8 +255,9 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 		        args = p.snd();
 		    }
 		    catch (SemanticException e) {
-		        if (mi.error() instanceof Errors.CannotGenerateCast)
-		            throw mi.error();
+		        if (mi.error() instanceof Errors.CannotGenerateCast) {
+		            throw new InternalCompilerError("Unexpected cast error", mi.error());
+		        }
 		        Type bt = X10TypeMixin.baseType(array.type());
 		        boolean arrayP = xts.isX10Array(bt) || xts.isX10DistArray(bt);
 		        Errors.issue(tc.job(), new Errors.CannotAssignToElement(leftToString(), arrayP, right, X10TypeMixin.arrayElementType(array.type()), position(), mi.error()));
@@ -288,7 +287,8 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 		    if (cmi.error() != null) {
 		        Type bt = X10TypeMixin.baseType(array.type());
 		        boolean arrayP = xts.isX10Array(bt) || xts.isX10DistArray(bt);
-		        throw new Errors.CannotPerformAssignmentOperation(leftToString(), arrayP, op.toString(), right, X10TypeMixin.arrayElementType(array.type()), position(), cmi.error());
+		        Errors.issue(tc.job(),
+		                new Errors.CannotPerformAssignmentOperation(leftToString(), arrayP, op.toString(), right, X10TypeMixin.arrayElementType(array.type()), position(), cmi.error()));
 		    }
 		}
 
@@ -366,6 +366,7 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 	        }
 	    }
 
+	    w.write (")");
 	    w.write(" ");
 	    w.write(op.toString());
 	    w.write(" ");
@@ -373,8 +374,6 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 	    print(right, w, tr);
 
 	    w.end();
-
-	    w.write (")");
 	}
 
 	public String leftToString() {

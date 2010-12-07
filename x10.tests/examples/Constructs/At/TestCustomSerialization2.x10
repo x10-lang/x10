@@ -11,6 +11,7 @@
 
 import harness.x10Test;
 import x10.io.CustomSerialization;
+import x10.io.SerialData;
 import x10.util.HashMap;
 
 /*
@@ -24,10 +25,10 @@ public class TestCustomSerialization2 extends x10Test {
         val y:int;
         transient var sum:int;
  
-         public def serialize():Any = [x,y];
+         public def serialize() = new SerialData([x,y], null);
   
-         def this(a:Any) {
-             val t = a as Array[int](1);
+         def this(a:SerialData) {
+             val t = a.data as Array[int](1);
              x = t(0);
              y = t(1);
              sum = x + y;

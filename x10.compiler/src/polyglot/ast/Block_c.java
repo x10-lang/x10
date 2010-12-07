@@ -8,11 +8,15 @@
 
 package polyglot.ast;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import polyglot.types.Name;
+import polyglot.types.VarInstance;
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 import polyglot.visit.PrettyPrinter;
+import x10cuda.types.CUDAData;
 
 /**
  * A <code>Block</code> represents a Java block statement -- an immutable
@@ -34,4 +38,9 @@ public class Block_c extends AbstractBlock_c implements Block
 	w.unifiedBreak(0, 1, " ", 1);
 	w.write("}");
     }
+    
+    private int cudaTag;
+    public int cudaTag() { return cudaTag; }
+    public void cudaTag(int cudaTag) { this.cudaTag = cudaTag; }
+
 }

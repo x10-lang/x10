@@ -23,8 +23,6 @@
 #include <x10aux/hash.h>
 #include <x10aux/basic_functions.h>
 
-#include <x10aux/cuda_kernel.h>
-
 #include <x10aux/atomic_ops.h>
 #include <x10aux/atomic_boolean_funs.h>
 #include <x10aux/atomic_int_funs.h>
@@ -48,6 +46,8 @@
 #include <x10aux/system_utils.h>
 
 #include <x10aux/place_local.h>
+
+#include <x10aux/cuda_kernel.h>
 
 #endif
 // vim:tabstop=4:shiftwidth=4:expandtab

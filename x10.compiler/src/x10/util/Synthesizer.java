@@ -24,6 +24,7 @@ import polyglot.ast.ClassBody;
 import polyglot.ast.ClassMember;
 import polyglot.ast.Expr;
 import polyglot.ast.Field;
+import polyglot.ast.FieldAssign;
 import polyglot.ast.FieldDecl;
 import polyglot.ast.FlagsNode;
 import polyglot.ast.FloatLit;
@@ -37,6 +38,7 @@ import polyglot.ast.Local;
 import polyglot.ast.LocalDecl;
 import polyglot.ast.MethodDecl;
 import polyglot.ast.New;
+import polyglot.ast.NodeFactory;
 import polyglot.ast.Receiver;
 import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
@@ -59,6 +61,8 @@ import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.Types;
+import polyglot.types.VarDef;
+import polyglot.util.CollectionUtil;
 import polyglot.util.Pair;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
@@ -78,21 +82,26 @@ import x10.constraint.XNot;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
+import x10.constraint.XNameWrapper;
 import x10.extension.X10Del;
 import x10.types.FunctionType;
 import x10.types.ParameterType;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
-import x10.types.X10Context;
+import polyglot.types.Context;
 import x10.types.X10Def;
 import x10.types.X10FieldInstance;
 import x10.types.X10Flags;
 import x10.types.X10MethodDef;
+import x10.types.X10MethodInstance;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 import x10.types.X10TypeSystem_c;
+import x10.types.X10LocalDef;
+import x10.types.X10FieldDef;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
+import x10.visit.X10TypeBuilder;
 import x10.visit.X10TypeChecker;
 
 /**
@@ -104,9 +113,9 @@ import x10.visit.X10TypeChecker;
  */
 public class Synthesizer {
 
-	X10TypeSystem xts;
-	X10NodeFactory xnf;
-	public Synthesizer(X10NodeFactory nf, X10TypeSystem ts) {
+	TypeSystem xts;
+	NodeFactory xnf;
+	public Synthesizer(NodeFactory nf, TypeSystem ts) {
 		xts = ts;
 		xnf = nf;
 	}
@@ -159,7 +168,7 @@ public class Synthesizer {
 	public MethodDecl makeSyntheticMethod(X10ClassDecl_c ct, Flags flags, List<ParameterType> typeParameters,
 	        Name name, List<LocalDef> fmls, Type returnType, Block block)
 	{
-	    Position CG = X10NodeFactory_c.compilerGenerated(ct.body());
+	    Position CG = Position.compilerGenerated(ct.body().position());
 
 	    List<TypeParamNode> typeParamNodes = new ArrayList<TypeParamNode>();
 	    for (ParameterType pt : typeParameters) {
@@ -186,7 +195,7 @@ public class Synthesizer {
 	        xnf.X10MethodDecl(CG, newFlags, rt, xnf.Id(CG,name), typeParamNodes, formals, null, null, block);
 
 	    MethodDef rmi = xts.methodDef(CG, Types.ref(ct.classDef().asType()), 
-	            newFlags.flags(), rt.typeRef(), name, typeParameters, argTypes, ct.classDef().thisVar(), formalNames, null, null, null, null);
+	            newFlags.flags(), rt.typeRef(), name, typeParameters, argTypes, ct.classDef().thisDef(), formalNames, null, null, null, null);
 
 	    result = result.methodDef(rmi);
 	    return result;
@@ -274,8 +283,8 @@ public class Synthesizer {
 	  */
 	public For makeForLoop(Position pos, 
 			X10Formal formal, Expr low, Expr high, Stmt body, 
-			 X10Context context) {
-		Position CG = X10NodeFactory_c.compilerGenerated(pos);
+			 Context context) {
+		Position CG = Position.compilerGenerated(pos);
 		List<Stmt> inits = new ArrayList<Stmt>();
 		// FIXME: use formal here directly, instead of local
 		Expr local = makeLocalVar(CG, null, low, inits, context);
@@ -309,8 +318,6 @@ public class Synthesizer {
 		return ld;
 	}
 	
-	
-	
     /**
      * Create a new local variable with the given flags, with initializer e. 
      * Return a Pair<LocalDecl, Local>, which includes the statement of the local variable and the reference to the variable
@@ -320,7 +327,7 @@ public class Synthesizer {
      * @param context
      * @return
      */
-    public Pair<LocalDecl, Local> makeLocalVarWithAnnotation(Position pos, Flags flags, Expr initializer, List<AnnotationNode> annotations, X10Context context) {
+    public Pair<LocalDecl, Local> makeLocalVarWithAnnotation(Position pos, Flags flags, Expr initializer, List<AnnotationNode> annotations, Context context) {
 
         LocalDecl localDecl = null;
         Local ldRef = null;
@@ -359,9 +366,8 @@ public class Synthesizer {
 	 * @param xc
 	 * @return
 	 */
-	
 	public Expr makeLocalVar(Position pos, Flags flags, Expr  e, List<Stmt> stmtList,
-			 X10Context xc) {
+			 Context xc) {
 		Expr result = null;
 		if (flags == null) {
 			flags = Flags.NONE;
@@ -381,27 +387,58 @@ public class Synthesizer {
 		return result;
 	}
 	
-	    /** 
-	     * Create a local variable reference.
-	     * 
-	     * @param pos the Position of the reference in the source code
-	     * @param decl the declaration of the local variable
-	     * @return the synthesized Local variable reference
-	     */
-	    public Local createLocal(Position pos, LocalDecl decl) {
-	        return createLocal(pos, decl.localDef().asInstance());
+	/** 
+	 * Create a local variable reference.
+	 * 
+	 * @param pos the Position of the reference in the source code
+	 * @param decl the declaration of the local variable
+	 * @return the synthesized Local variable reference
+	 */
+	public Local createLocal(Position pos, LocalDecl decl) {
+	    return createLocal(pos, decl.localDef().asInstance());
+	}
+	
+	/** 
+	 * Create a local variable reference.
+	 * 
+	 * @param pos the Position of the reference in the source code
+	 * @param li a type system object representing this local variable
+	 * @return the synthesized Local variable reference
+	 */
+	public Local createLocal(Position pos, LocalInstance li) {
+	    return (Local) xnf.Local(pos, xnf.Id(pos, li.name())).localInstance(li).type(li.type());
+	}
+    
+	/**
+	 * Make an assignment whose left-hand-side is an expression.
+	 * 
+	 * @param pos the Position of the assignment in the source code
+	 * @param lhs the left-hand-side of the assignment
+	 * @param op the assignment operator to use
+	 * @param rhs the right-hand-side of the assignment
+	 * @param xc the context
+	 * @return the synthesized assignment
+	 * @throws SemanticException
+	 */
+	public Assign makeAssign(Position pos, Expr lhs, Assign.Operator op, Expr rhs, Context xc) throws SemanticException {
+	    Assign a = (Assign) xnf.Assign(pos, lhs, op, rhs).type(lhs.type());
+	    if (a instanceof FieldAssign) {
+	        assert (lhs instanceof Field);
+	        assert ((Field) lhs).fieldInstance() != null;
+	        a = ((FieldAssign) a).fieldInstance(((Field)lhs).fieldInstance());
+	    } else if (a instanceof SettableAssign) {
+	        assert (lhs instanceof X10Call);
+	        X10Call call = (X10Call) lhs;
+	        Receiver target = call.target();
+	        X10MethodInstance ami = call.methodInstance();
+	        List<Type> argTypes = CollectionUtil.append(Collections.singletonList(ami.returnType()), ami.formalTypes());
+	        X10MethodInstance smi = xts.findMethod(target.type(),
+	                xts.MethodMatcher(target.type(), SettableAssign.SET, argTypes, xc));
+	        a = ((SettableAssign) a).methodInstance(smi);
+	        a = ((SettableAssign) a).applyMethodInstance(ami);
 	    }
-
-	    /** 
-	     * Create a local variable reference.
-	     * 
-	     * @param pos the Position of the reference in the source code
-	     * @param li a type system object representing this local variable
-	     * @return the synthesized Local variable reference
-	     */
-	    public Local createLocal(Position pos, LocalInstance li) {
-	        return (Local) xnf.Local(pos, xnf.Id(pos, li.name())).localInstance(li).type(li.type());
-	    }
+	    return a;
+	}
 	
 	/**
 	 * Make a field access for r.name. Throw a SemanticException if such a field does not exist.
@@ -412,7 +449,7 @@ public class Synthesizer {
 	 * @return
 	 * @throws SemanticException
 	 */
-	public Expr makeFieldAccess(Position pos, Receiver r, Name name, X10Context context) throws SemanticException {
+	public Expr makeFieldAccess(Position pos, Receiver r, Name name, Context context) throws SemanticException {
 		FieldInstance fi = xts.findField(r.type(), xts.FieldMatcher(r.type(), name, context));
 		 Expr result = xnf.Field(pos, r, xnf.Id(pos, name)).fieldInstance(fi)
 		 .type(fi.type());
@@ -430,7 +467,7 @@ public class Synthesizer {
 	 * @return
 	 * @throws SemanticException
 	 */
-	public Expr makeSuperTypeFieldAccess(Position pos, Type superType, Receiver r, Name name, X10Context context) throws SemanticException {
+	public Expr makeSuperTypeFieldAccess(Position pos, Type superType, Receiver r, Name name, Context context) throws SemanticException {
             FieldInstance fi = xts.findField(superType, xts.FieldMatcher(superType, name, context));
             Expr result = xnf.Field(pos, r, xnf.Id(pos, name)).fieldInstance(fi)
             .type(fi.type());
@@ -447,7 +484,7 @@ public class Synthesizer {
      * @return
      * @throws SemanticException
      */
-    public Expr makeFieldAssign(Position pos, Receiver leftReceiver, Name leftName, Expr rightExpr, X10Context context)
+    public Expr makeFieldAssign(Position pos, Receiver leftReceiver, Name leftName, Expr rightExpr, Context context)
             throws SemanticException {
         Field field = makeStaticField(pos, leftReceiver.type(), leftName, xts.Int(), context);
         // assign
@@ -469,7 +506,7 @@ public class Synthesizer {
 	 * @throws SemanticException 
 	 */
 	public Expr makeFieldToFieldAssign(Position pos, Receiver leftReceiver, Name leftName,
-	                                   Receiver rightReceiver, Name rightName, X10Context context) throws SemanticException{
+	                                   Receiver rightReceiver, Name rightName, Context context) throws SemanticException{
 	    
 
             Expr rightExpr = makeFieldAccess(pos, rightReceiver, rightName, context);
@@ -502,7 +539,7 @@ public class Synthesizer {
 	 * @throws SemanticException 
 	 */
 	public Expr makeLocalToFieldAssign(Position pos, Receiver leftReceiver, Name leftName,
-                                           Name localName, Type localType, Flags localFlags, X10Context context) throws SemanticException{
+                                           Name localName, Type localType, Flags localFlags, Context context) throws SemanticException{
 	    
 	    
             LocalDef ldef = xts.localDef(pos, localFlags, Types.ref(localType), localName);
@@ -531,7 +568,7 @@ public class Synthesizer {
 	 * @throws SemanticException 
 	 */
 	public Expr makeFieldToLocalAssign(Position pos, Name localName, Type localType, Flags localFlags, Receiver rightReceiver, Name rightName
-	                                   , X10Context context) throws SemanticException{
+	                                   , Context context) throws SemanticException{
 	    
 	    //FIXME: need check whether this method returns correct expr
 	    //right 
@@ -552,7 +589,7 @@ public class Synthesizer {
 			Type receiver, 
 			Name name,
 			Type returnType,
-			X10Context xc) throws SemanticException {
+			Context xc) throws SemanticException {
 		return makeStaticCall(pos, receiver, name, Collections.<TypeNode>emptyList(), 
 				Collections.<Expr>emptyList(), returnType, xc);
 	}
@@ -562,7 +599,7 @@ public class Synthesizer {
 			Name name,
 			List<Expr> args,
 			Type returnType,
-			X10Context xc) throws SemanticException {
+			Context xc) throws SemanticException {
 		return makeStaticCall(pos, receiver, name, Collections.<TypeNode>emptyList(), args, returnType, xc);
 	}
 
@@ -572,7 +609,7 @@ public class Synthesizer {
 			List<Expr> args,
 			Type returnType,
 			List<Type> argTypes,
-			X10Context xc) throws SemanticException {
+			Context xc) throws SemanticException {
 		return makeStaticCall(pos, receiver, name, Collections.<TypeNode>emptyList(), args, 
 				returnType, argTypes, xc);
 	}
@@ -580,7 +617,7 @@ public class Synthesizer {
 			List<TypeNode> typeArgsN, 
 			List<Expr> args,
 			Type returnType, 
-			X10Context xc) throws SemanticException {
+			Context xc) throws SemanticException {
 		List<Type> argT = new ArrayList<Type>();
         for (Expr t: args) argT.add(t.type());
 		return makeStaticCall(pos, receiver, name, typeArgsN, args,  returnType, argT, xc);
@@ -592,8 +629,8 @@ public class Synthesizer {
 	 * @param name
 	 * @param typeArgsN
 	 * @param args
-	 * @param xnf
-	 * @param xts
+	 * @param returnType
+	 * @param argTypes
 	 * @param xc
 	 * @return
 	 * @throws SemanticException if no method can be located with this data
@@ -605,12 +642,13 @@ public class Synthesizer {
 			List<Expr> args,
 			Type returnType,
 			List<Type> argTypes,
-			X10Context xc) throws SemanticException {
+			Context xc) throws SemanticException {
 		
         List<Type> typeArgs = new ArrayList<Type>();
         for (TypeNode t : typeArgsN) typeArgs.add(t.type());
+        ClassType container = receiver.toClass();
         MethodInstance mi = xts.findMethod(receiver,
-                xts.MethodMatcher(receiver, name, typeArgs, argTypes, xc));
+                xts.MethodMatcher(receiver, name, typeArgs, argTypes, xc.pushClass(container.def(), container)));
         Call result= (Call) xnf.X10Call(pos, 
         		xnf.CanonicalTypeNode(pos, receiver),
                 xnf.Id(pos, name), 
@@ -638,7 +676,7 @@ public class Synthesizer {
      * @throws SemanticException
      */
     public Call makeSuperTypeInstanceCall(Position pos, Type superType, Receiver receiver, Name name, List<TypeNode> typeArgsN,
-                                       List<Expr> args, Type returnType, List<Type> argTypes, X10Context xc)
+                                       List<Expr> args, Type returnType, List<Type> argTypes, Context xc)
             throws SemanticException {
 
         List<Type> typeArgs = new ArrayList<Type>();
@@ -660,12 +698,13 @@ public class Synthesizer {
 			List<Expr> args,
 			Type returnType,
 			List<Type> argTypes,
-			X10Context xc) throws SemanticException {
+			Context xc) throws SemanticException {
 		
         List<Type> typeArgs = new ArrayList<Type>();
         for (TypeNode t : typeArgsN) typeArgs.add(t.type());
-        MethodInstance mi = xts.findMethod(receiver.type(),
-                xts.MethodMatcher(receiver.type(), name, typeArgs, argTypes, xc));
+        ClassType container = receiver.type().toClass();
+        MethodInstance mi = xts.findMethod(container,
+                xts.MethodMatcher(container, name, typeArgs, argTypes, xc.pushClass(container.def(), container)));
         Call result= (Call) xnf.X10Call(pos, 
         		receiver,
                 xnf.Id(pos, name), 
@@ -685,11 +724,11 @@ public class Synthesizer {
 	 * @param context
 	 * @return
 	 */
-	public Closure makeClosure(Position pos, Type retType, List<Formal> parms, Block body, X10Context context) {
+	public Closure makeClosure(Position pos, Type retType, List<Formal> parms, Block body, Context context) {
 		return ClosureSynthesizer.makeClosure((X10TypeSystem_c) xts, xnf, pos, retType, parms, body, context, null);
 	}
 	
-    public Closure makeClosure(Position pos, Type retType, List<Formal> parms, Block body, X10Context context, List<X10ClassType> annotations) {
+    public Closure makeClosure(Position pos, Type retType, List<Formal> parms, Block body, Context context, List<X10ClassType> annotations) {
         return ClosureSynthesizer.makeClosure((X10TypeSystem_c) xts, xnf, pos, retType, parms, body, context, annotations);
     }
     
@@ -703,11 +742,11 @@ public class Synthesizer {
 	 * @return
 	 */
 	
-	public Closure makeClosure(Position pos, Type retType, Block body, X10Context context, List<X10ClassType> annotations) {
+	public Closure makeClosure(Position pos, Type retType, Block body, Context context, List<X10ClassType> annotations) {
 		return makeClosure(pos, retType, Collections.<Formal>emptyList(), body, context, annotations);
 	}
 	 
-    public Closure makeClosure(Position pos, Type retType, Block body, X10Context context) {
+    public Closure makeClosure(Position pos, Type retType, Block body, Context context) {
         return makeClosure(pos, retType, Collections.<Formal>emptyList(), body, context);
     }
 	 
@@ -722,7 +761,7 @@ public class Synthesizer {
 			c.addBinding(id, XTerms.makeLit(0));
 			Type type = X10TypeMixin.xclause(xts.Place(), c);
 			return makeStaticField(Position.COMPILER_GENERATED, xts.Place(),
-					Name.make("FIRST_PLACE"), type, (X10Context) xts.emptyContext());
+					Name.make("FIRST_PLACE"), type, (Context) xts.emptyContext());
 		} catch (XFailure z) {
 			// wont happen
 		} catch (SemanticException z) {
@@ -735,7 +774,7 @@ public class Synthesizer {
 			Type receiver, 
 			Name name,
 			Type returnType,
-			X10Context xc) throws SemanticException {
+			Context xc) throws SemanticException {
 
 		FieldInstance fi = xts.findField(receiver,
 				xts.FieldMatcher(receiver, name, xc));
@@ -884,7 +923,7 @@ public class Synthesizer {
 	 */	
     public X10ConstructorDecl makeClassCopyConstructor(Position p, X10ClassDecl cDecl, List<Name> fieldName,
                                                        List<Name> parmName, List<Type> parmType, List<Flags> parmFlags,
-                                                       X10Context context) throws SemanticException {
+                                                       Context context) throws SemanticException {
         X10ClassDef cDef = (X10ClassDef) cDecl.classDef();
 
         // super constructor def (noarg)
@@ -948,7 +987,7 @@ public class Synthesizer {
                                             List<Type> parmType,
                                             List<Flags> parmFlags,
                                             List<Stmt> stmts,
-                                            X10Context context) throws SemanticException {
+                                            Context context) throws SemanticException {
         X10ClassDef cDef = (X10ClassDef) cDecl.classDef();
         ClassType cType = cDef.asType();
 
@@ -1011,7 +1050,7 @@ public class Synthesizer {
      * @throws SemanticException
      */
     public Expr makeNewInstance(Position pos, X10ClassDef classDef, List<Type> formalTypes, List<Expr> args, List<AnnotationNode> annotations,
-                                X10Context context) throws SemanticException {
+                                Context context) throws SemanticException {
 
         //It's possible we need use formal types to look for the constructor
         //not from the input expressions
@@ -1088,7 +1127,7 @@ public class Synthesizer {
                                        List<Name> parmName,
                                        List<Type> parmType,
                                        List<Flags> parmFlags,
-                                       X10Context context) throws SemanticException{
+                                       Context context) throws SemanticException{
         X10ClassDef cDef = (X10ClassDef) cDecl.classDef();
         ClassType cType = cDef.asType();
 
@@ -1133,7 +1172,7 @@ public class Synthesizer {
             List<Name> parmName,
             List<Type> parmType,
             List<Flags> parmFlags,
-            X10Context context) throws SemanticException {
+            Context context) throws SemanticException {
        
         Stmt s = makeSuperCallStatement(p, cDecl, parmName, parmType, parmFlags, context);                   
         return addClassConstructor(p, cDecl, parmName, parmType, parmFlags, Collections.singletonList(s), context);
@@ -1238,7 +1277,7 @@ public class Synthesizer {
      * @throws SemanticException
      */
     public X10ClassDecl createClass(Position p, X10ClassDef cDef,
-                                    X10Context context) throws SemanticException {
+                                    Context context) throws SemanticException {
 
         FlagsNode fNode = xnf.FlagsNode(p, cDef.flags());
         Id id = xnf.Id(p, cDef.name());
@@ -1292,7 +1331,7 @@ public class Synthesizer {
      */ 
     public X10ClassDecl createClassWithConstructor(Position p, 
                                                    X10ClassDef cDef,
-                                                   X10Context context) throws SemanticException
+                                                   Context context) throws SemanticException
     {
         X10ClassDecl cDecl = createClass(p, cDef, context);
         
@@ -1330,8 +1369,8 @@ public class Synthesizer {
      */
     // TODO: This has to be made to work with nested types.
     public X10CanonicalTypeNode makeCanonicalTypeNodeWithDepExpr(Position pos, Type type, ContextVisitor tc) {
-    	X10NodeFactory nf = ((X10NodeFactory) tc.nodeFactory());
-    	X10TypeSystem ts = ((X10TypeSystem) tc.typeSystem());
+    	NodeFactory nf = ((NodeFactory) tc.nodeFactory());
+    	TypeSystem ts = ((TypeSystem) tc.typeSystem());
     	
     	type = PlaceChecker.ReplacePlaceTermByHere(type, tc.context());
 		CConstraint c = X10TypeMixin.xclause(type);
@@ -1345,6 +1384,8 @@ public class Synthesizer {
 		if (base instanceof X10ClassType) {
 			X10ClassType xc = (X10ClassType) base;
 			types = xc.typeArguments();
+			if (types == null)
+			    types = Collections.<Type>emptyList();
 			if (! types.isEmpty()) {
 				typeName = xc.def().toString();
 				typeArgs = new ArrayList<TypeNode>(types.size());
@@ -1362,7 +1403,7 @@ public class Synthesizer {
 		QName qual = qName.qualifier();
 		TypeNode tn =  nf.AmbDepTypeNode(pos, qual==null ? null : nf.PrefixFromQualifiedName(pos, qual), 
 				nf.Id(pos, qName.name()), typeArgs, Collections.<Expr>emptyList(), dep);
-		TypeBuilder tb = new TypeBuilder(tc.job(),  tc.typeSystem(), nf);
+		TypeBuilder tb = new X10TypeBuilder(tc.job(), tc.typeSystem(), nf);
 		tn = (TypeNode) tn.visit(tb);
 		TypeChecker typeChecker = (TypeChecker) new X10TypeChecker(tc.job(), ts, nf,tc.job().nodeMemo()).context(tc.context());
 		tn = (TypeNode) tn.visit(typeChecker);
@@ -1371,6 +1412,53 @@ public class Synthesizer {
 		return (X10CanonicalTypeNode) tn;
     }
 
+    // For the purpose of InitChecker and CheckEscapingThis:
+    // we need to extract from a constraint all the locals and fields of "this" and check they are definitely assigned.
+    public static java.util.Set<VarDef> getLocals(TypeNode n) {
+        java.util.Set<VarDef> res = new java.util.HashSet<VarDef>();
+        CConstraint c = X10TypeMixin.xclause(n.type());
+        if (c == null || c.valid()) {
+            // nothing to check
+            return res;
+        } 
+        List<XTerm> terms  = c.extConstraints();
+        for (XTerm t : terms)
+            res.addAll(getLocals(t));
+        return res;
+    }        
+    private static java.util.Set<VarDef> getLocals(XTerm t) {
+        java.util.Set<VarDef> res = new java.util.HashSet<VarDef>();
+        // FieldDef
+        if (t instanceof XField) {
+            final XField field = (XField) t;
+            final XVar receiver = field.receiver();
+            res.addAll(getLocals(receiver));
+
+            if (receiver instanceof XLocal && ((XLocal)receiver).name.toString().endsWith("#this")) { // only if the receiver is "this"
+                final XName xName = field.field;
+                if (xName instanceof XNameWrapper) {
+                    XNameWrapper wrapper = (XNameWrapper) xName;
+                    final Object v = wrapper.val();
+                    if (v instanceof X10FieldDef)
+                        res.add((X10FieldDef)v);
+                }
+            }
+        } else if (t instanceof XLocal) {
+            XLocal local = (XLocal) t;
+            final XName xName = local.name;
+            if (xName instanceof XNameWrapper) {
+                XNameWrapper wrapper = (XNameWrapper)xName;
+                final Object v = wrapper.val();
+                if (v instanceof X10LocalDef)
+                    res.add((X10LocalDef)v);
+            }
+        } else if (t instanceof XFormula) {
+            final XFormula xFormula = (XFormula) t;
+            for (XTerm tt: xFormula.arguments())
+                res.addAll(getLocals(tt));
+        }
+        return res;
+    }
     /**
      * Return a synthesized AST for a constraint. Used when generating code from implicit casts.
      * @param c the constraint

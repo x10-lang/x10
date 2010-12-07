@@ -16,9 +16,9 @@ import harness.x10Test;
  */
 public class ExpressionParentheses extends x10Test {
 
-	var x: UInt = 0x80000000;
-	var n: Int = 16;
-	var z: Int;
+	var x: UInt = 0x80000000u;
+	var n: UInt = 16;
+	var z: UInt;
 
 	public def run(): boolean = {
 		z = ((x ^ (x>>8) ^ (x>>31)) & (n-1));

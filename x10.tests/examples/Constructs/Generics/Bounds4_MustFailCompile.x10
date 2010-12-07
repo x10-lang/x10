@@ -21,12 +21,12 @@ public class Bounds4_MustFailCompile extends x10Test {
         class B extends A { }
 
         class C[T]{T<:A} {
-                var x: T = new B(); // error: B not a subtype of T
+                var x: T = new B(); // ERR: B not a subtype of T
         }
 
 	public def run(): boolean = {
                 val a = new A();
-                return new C[A](a).x == a;
+                return new C[A]().x == a;
 	}
 
 	public static def main(var args: Array[String](1)): void = {

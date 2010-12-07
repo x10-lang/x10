@@ -31,7 +31,7 @@ class XTENLANG_637 extends x10Test {
 }
 
 class Get_637[+X] {
-  var x : X;
+  val x : X;
   def this(x:X) { this.x = x; }
 }        
 class Super_637  {

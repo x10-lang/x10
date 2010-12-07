@@ -71,20 +71,21 @@ public class RuntimeType<T> implements Type<T> {
         }
         if (o instanceof ParameterizedType) {
             ParameterizedType<?> pt = (ParameterizedType<?>) o;
-            if (pt.getRuntimeType().isSuperType(pt.getParams(), (RuntimeType<?>) this, null)) {
+            if (pt.getRuntimeType().isSuperType(pt.getParams(), this, null)) {
                 return true;
             }
         }
         return false;
     }
 
-    public List<Type<?>> getTypeParameters() {
-        return null;
-    }
+//    public List<Type<?>> getTypeParameters() {
+//        return null;
+//    }
 
-    public Type<T> reinstantiate(List<Type<?>> parms) {
-        return this;
-    }
+    // never called
+//    public Type<T> reinstantiate(List<Type<?>> parms) {
+//        return this;
+//    }
 
     public boolean instanceof$(Object o) {
         if (o == null) {return false;}
@@ -118,6 +119,10 @@ public class RuntimeType<T> implements Type<T> {
         else if (base.isInstance(o)) { // i.e. type of o != This
             return checkParents(o, params);
         }
+        else if (o instanceof String || o instanceof Number) {
+            // @NativeRep'ed type
+            return checkParents(o, params);
+        }
         else {
             return false;
         }
@@ -145,6 +150,7 @@ public class RuntimeType<T> implements Type<T> {
             }
             return instantiateCheck(params, rtt, any);
         }
+        /*
         else if (o instanceof String) {
             // @NativeRep'ed String type (the one with parents info)
             RuntimeType<?> rtt = (RuntimeType<?>) Types.getNativeRepRTT(o);
@@ -153,6 +159,12 @@ public class RuntimeType<T> implements Type<T> {
         else if (o instanceof Number) {
             // @NativeRep'ed numeric type
             return false;
+        }
+        */
+        else if (null != Types.getNativeRepRTT(o)) {
+            // @NativeRep'ed types to raw Java classes (e.g. String, Integer, etc.)
+            RuntimeType<?> rtt = Types.getNativeRepRTT(o);
+            return instantiateCheck(params, rtt, o);
         }
         return false;
     }
@@ -330,7 +342,7 @@ public class RuntimeType<T> implements Type<T> {
                 str += ((Any) o).getParam(i).typeName();
             }
         }
-        str += ")=>Void";
+        str += ")=>void";
         return str;
     }
     protected final String typeNameForOthers(Object o) {
@@ -460,7 +472,11 @@ public class RuntimeType<T> implements Type<T> {
             return true;
         }
         else if (base.isInstance(o)) {
-            return checkParents(o, param1, param2);
+            return checkParents(o, param0, param1, param2);
+        }
+        else if (o instanceof String || o instanceof Number) {
+            // @NativeRep'ed type
+            return checkParents(o, param0, param1, param2);
         }
         else {
             return false;

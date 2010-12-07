@@ -12,54 +12,60 @@
 package x10.lang;
 
 import x10.compiler.Pinned;
-import x10.compiler.Global;
+import x10.io.SerialData;
 import x10.util.Stack;
 
+/**
+ * Lock with wait/notify capabilities.
+ * Cooperates with runtime scheduler.
+ * 
+ * @author tardieu
+ */
 @Pinned public class Monitor extends Lock {
     public def this() { super(); }
 
-    private def this(Any) {
+    public def serialize():SerialData {
+        throw new UnsupportedOperationException("Cannot serialize "+typeName());
+    }
+
+    private def this(SerialData) {
         throw new UnsupportedOperationException("Cannot deserialize "+typeName());
     }
 
-
-    static type Thread = Runtime.Thread;
+    static type Worker = Runtime.Worker;
 
     /**
-     * Parked threads
+     * Parked workers
      */
-    private val threads = new Stack[Thread]();
+    private val workers = new Stack[Worker]();
 
     /**
-     * Park calling thread
-     * Increment blocked thread count
+     * Await notification
      * Must be called while holding the lock
      * Must not be called while holding the lock more than once
      */
-    def await():void {
-        Runtime.increaseParallelism();
-        val thread = Thread.currentThread();
-        threads.push(thread);
-        while (threads.contains(thread)) {
-            unlock();
-            Runtime.park();
-            lock();
+    public def await():void {
+        Runtime.increaseParallelism(); // likely to be blocked for a while
+        val worker = Runtime.worker();
+        workers.push(worker);
+        while (workers.contains(worker)) {
+            super.unlock();
+            Worker.park();
+            super.lock();
         }
     }
 
     /**
-     * Unpark every thread
-     * Decrement blocked thread count
-     * Release the lock
+     * Notify and unlock
      * Must be called while holding the lock
      */
-    def release():void {
-        val size = threads.size();
+    public def release():void {
+        val size = workers.size();
         if (size > 0) {
             Runtime.decreaseParallelism(size);
-            for (var i:Int = 0; i<size; i++) Runtime.unpark(threads.pop());
+            for (var i:Int = 0; i<size; i++) workers.pop().unpark();
         }
-        unlock();
+        super.unlock();
     }
 }
 

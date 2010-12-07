@@ -14,7 +14,10 @@ package x10.rtt;
 
 public class BooleanType extends RuntimeType<Boolean> {
     public BooleanType() {
-        super(boolean.class);
+        super(boolean.class,
+              new Type[] {
+                  new ParameterizedType(Types.COMPARABLE, new UnresolvedType(-1))
+              });
     }
     
     @Override

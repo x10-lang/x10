@@ -36,7 +36,7 @@ import x10.errors.Errors;
 import x10.types.ParameterType;
 import x10.types.X10ClassType;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 import x10.types.checker.Converter;
 import x10.types.checker.Converter.ConversionType;
 
@@ -68,7 +68,7 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
         n.convert = convert;
         return n;
     }
-    public X10Cast conversionType(Expr expr, ConversionType convert) {
+    public X10Cast exprAndConversionType(Expr expr, ConversionType convert) {
     	  X10Cast_c n = (X10Cast_c) copy();
           n.convert = convert;
           n.expr = expr;
@@ -86,24 +86,24 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
         }
     }
 
-    public Node typeCheck(ContextVisitor tc) throws SemanticException {
-        if (castType()!= null) {
+    public Node typeCheck(ContextVisitor tc) {
+        if (castType() != null) {
             try {
                 X10TypeMixin.checkMissingParameters(castType());
             } catch (SemanticException e) {
-                throw e; // FIXME: cannot remove this -- used by Converter.attemptCoercion()
+                Errors.issue(tc.job(), e, this);
             }
         }
         try {
             Expr e = Converter.converterChain(this, tc);
             assert e.type() != null;
-            assert ! (e instanceof X10Cast_c) || ((X10Cast_c) e).convert != Converter.ConversionType.UNKNOWN_CONVERSION;
-            assert ! (e instanceof X10Cast_c) || ((X10Cast_c) e).convert != Converter.ConversionType.UNKNOWN_IMPLICIT_CONVERSION;
+            assert ! (e instanceof X10Cast_c) || ((X10Cast_c) e).conversionType() != Converter.ConversionType.UNKNOWN_CONVERSION;
+            assert ! (e instanceof X10Cast_c) || ((X10Cast_c) e).conversionType() != Converter.ConversionType.UNKNOWN_IMPLICIT_CONVERSION;
             return e;
         } catch (SemanticException e) {
-            throw e; // FIXME: cannot remove this -- used by Converter.attemptCoercion()
+            Errors.issue(tc.job(), e, this);
         }
-        //return this;
+        return this;
     }
 
     public TypeNode getTypeNode() {

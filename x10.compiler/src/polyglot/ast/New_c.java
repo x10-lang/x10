@@ -172,7 +172,8 @@ public class New_c extends Expr_c implements New
         if (n.body() != null) {
             TypeBuilder tb2 = tb.pushAnonClass(position());
             ClassDef type = tb2.currentClass();
-
+            type.superType(objectType.typeRef());
+            
             n = (New_c) n.anonType(type);
             
             body = (ClassBody) n.visitChild(n.body(), tb2);
@@ -335,8 +336,8 @@ public class New_c extends Expr_c implements New
                 if (mt instanceof ClassType) {
                     ClassType cmt = (ClassType) mt;
                     if (cmt.def() == ct.def()) {
-                	outer = t;
-                	break;
+                        outer = t;
+                        break;
                     }
                 }
             }

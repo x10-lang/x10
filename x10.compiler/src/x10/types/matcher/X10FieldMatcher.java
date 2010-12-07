@@ -23,10 +23,10 @@ import x10.constraint.XVar;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
 import x10.types.ParameterType;
-import x10.types.X10Context;
+import polyglot.types.Context;
 import x10.types.X10FieldInstance;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 import x10.types.constraints.CConstraint;
 
 public class X10FieldMatcher extends TypeSystem_c.FieldMatcher {
@@ -45,7 +45,7 @@ public class X10FieldMatcher extends TypeSystem_c.FieldMatcher {
         X10FieldInstance fi = (X10FieldInstance) super.instantiate(mi);
         if (fi == null)
             return null;
-        X10TypeSystem ts = (X10TypeSystem) fi.typeSystem();
+        TypeSystem ts = (TypeSystem) fi.typeSystem();
         Type t = fi.type();
         Type rt = fi.rightType();
         
@@ -120,7 +120,7 @@ public class X10FieldMatcher extends TypeSystem_c.FieldMatcher {
         //	rt = X10TypeMixin.setThisVar(rt, v);
         // }
 
-        if (!ts.consistent(t, (X10Context) context) || !ts.consistent(rt, (X10Context) context)) {
+        if (!ts.consistent(t, (Context) context) || !ts.consistent(rt, (Context) context)) {
         	throw new SemanticException("Type of field access is not consistent.");
         }
 

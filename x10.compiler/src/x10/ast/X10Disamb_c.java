@@ -20,6 +20,7 @@ import polyglot.ast.Expr;
 import polyglot.ast.Field;
 import polyglot.ast.Id;
 import polyglot.ast.Node;
+import polyglot.ast.NodeFactory;
 import polyglot.ast.PackageNode;
 import polyglot.ast.Receiver;
 import polyglot.ast.Special;
@@ -46,13 +47,13 @@ import polyglot.visit.ContextVisitor;
 import x10.extension.X10Del;
 import x10.types.ClosureDef;
 import x10.types.X10ClassType;
-import x10.types.X10Context;
+import polyglot.types.Context;
 import x10.types.X10FieldInstance;
 import x10.types.X10Flags;
 import x10.types.X10MethodInstance;
 import x10.types.X10NamedType;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 import x10.types.checker.Checker;
 
 public class X10Disamb_c extends Disamb_c {
@@ -64,8 +65,8 @@ public class X10Disamb_c extends Disamb_c {
 	
 	@Override
 	protected Node disambiguateNoPrefix() throws SemanticException {
-	    X10Context c = (X10Context) this.c;
-	    X10TypeSystem ts = (X10TypeSystem) this.ts;
+	    Context c = (Context) this.c;
+	    TypeSystem ts = (TypeSystem) this.ts;
 	    
 	    if (c.inDepType()) {
 	    	X10NamedType t = c.currentDepType();
@@ -75,7 +76,7 @@ public class X10Disamb_c extends Disamb_c {
 	    		VarInstance<?> vi = c.pop().findVariableSilent(name.id());
 
 	    		if (vi != null && vi.def() == c.varWhoseTypeIsBeingElaborated()) {
-	    		    Expr e = ((X10NodeFactory) nf).Self(pos); 
+	    		    Expr e = ((NodeFactory) nf).Self(pos); 
 	    		    e = e.type(t);
 	    		    return e;
 	    		}
@@ -94,7 +95,7 @@ public class X10Disamb_c extends Disamb_c {
 	    		catch (SemanticException ex) {
 	    		}
 
-	    		if (fi != null && vi instanceof FieldInstance && !c.inStaticContext()) {
+	    		if (fi != null && vi instanceof FieldInstance && !c.inStaticContext() && !fi.flags().isStatic() && !vi.flags().isStatic()) {
 	    		    Receiver e = makeMissingFieldTarget((FieldInstance) vi);
 	    		    throw new SemanticException("Ambiguous reference to field " + this.name + "; both self." + name + " and " + e + "." + name + " match.", pos);
 	    		}
@@ -160,11 +161,11 @@ public class X10Disamb_c extends Disamb_c {
 
 	        if (vi instanceof FieldInstance) {
 	            FieldInstance fi = (FieldInstance) vi;
-	            X10TypeSystem xts = (X10TypeSystem) v.typeSystem();
+	            TypeSystem xts = (TypeSystem) v.typeSystem();
 	            Context p = c;
-	            // Pop back to the right context before proceeding
-	            while (p.pop() != null && ((p.currentClass() != null && !xts.typeEquals(p.currentClass(), fi.container(), p)) || p.currentCode() instanceof ClosureDef))
-	                p = p.pop();
+	            // FIXME: [IP] should we pop back to the right context before proceeding?
+	            //while (p.pop() != null && ((p.currentClass() != null && !xts.typeEquals(p.currentClass(), fi.container(), p)) || p.currentCode() instanceof ClosureDef))
+	            //    p = p.pop();
 	            if (p.inStaticContext() && !fi.flags().isStatic())
 	                throw new SemanticException("Cannot access a non-static field "+this.name+" from a static context.", pos);
 	        }
@@ -242,7 +243,7 @@ public class X10Disamb_c extends Disamb_c {
 	    
 		Type t = e.type();
 
-	        X10Context xc = (X10Context) this.c;
+	        Context xc = (Context) this.c;
 
 		// If in a class header, don't search the supertypes of this class.
 		if (xc.inSuperTypeDeclaration()) {
@@ -313,9 +314,9 @@ public class X10Disamb_c extends Disamb_c {
 
 	public static Receiver makeMissingFieldTarget(FieldInstance fi, Position pos, ContextVisitor v) {
 	    Receiver r = null;
-	    X10NodeFactory nf = (X10NodeFactory) v.nodeFactory();
-	    X10TypeSystem ts = (X10TypeSystem) v.typeSystem();
-        X10Context c = (X10Context) v.context();
+	    NodeFactory nf = (NodeFactory) v.nodeFactory();
+	    TypeSystem ts = (TypeSystem) v.typeSystem();
+        Context c = (Context) v.context();
         ClassType cur = c.currentClass();
 
 	    try {
@@ -359,7 +360,7 @@ public class X10Disamb_c extends Disamb_c {
 	protected Receiver makeMissingMethodTarget(MethodInstance mi) throws SemanticException {
 	    Receiver r;
 
-	    X10Context c = (X10Context) this.c;
+	    Context c = (Context) this.c;
 	    ClassType cur  =c.currentClass();
 	    if (c.inSuperTypeDeclaration())
 	        cur = c.supertypeDeclarationType().asType();
@@ -396,7 +397,7 @@ public class X10Disamb_c extends Disamb_c {
 	    else {
 		// The field is non-static, so we must prepend with self.
 		
-		Expr e = ((X10NodeFactory) nf).Self(pos); 
+		Expr e = ((NodeFactory) nf).Self(pos); 
 		e = e.type(currentDepType);
 		r = e;
 	    }

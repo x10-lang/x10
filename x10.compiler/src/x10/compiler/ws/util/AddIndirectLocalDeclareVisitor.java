@@ -1,3 +1,15 @@
+/*
+ *  This file is part of the X10 project (http://x10-lang.org).
+ *
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ *  (C) Copyright IBM Corporation 2006-2010.
+ */
+
+
 package x10.compiler.ws.util;
 
 import java.util.ArrayList;
@@ -9,9 +21,9 @@ import polyglot.ast.Block;
 import polyglot.ast.Expr;
 import polyglot.ast.Local;
 import polyglot.ast.Node;
+import polyglot.ast.NodeFactory;
 import polyglot.ast.Stmt;
 import polyglot.visit.NodeVisitor;
-import x10.ast.X10NodeFactory;
 
 /**
  * @author Haichuan
@@ -25,11 +37,11 @@ import x10.ast.X10NodeFactory;
  *
  */
 public class AddIndirectLocalDeclareVisitor extends NodeVisitor{
-    X10NodeFactory xnf;
+    NodeFactory xnf;
     Block targetBlock;
     Map<Expr, Stmt>refToDeclMap;
     
-    public AddIndirectLocalDeclareVisitor(X10NodeFactory xnf, Map<Expr, Stmt>refToDeclMap){
+    public AddIndirectLocalDeclareVisitor(NodeFactory xnf, Map<Expr, Stmt>refToDeclMap){
         this.xnf = xnf;
         this.refToDeclMap = refToDeclMap;
     }

@@ -23,10 +23,8 @@ import polyglot.util.Position;
 import polyglot.util.TypedList;
 import x10.ExtensionInfo;
 import x10.types.ParameterType;
-import x10.types.X10ConstructorDef;
-import x10.types.X10Flags;
 import x10.types.checker.Converter;
-import x10.types.checker.Converter.ConversionType;
+import x10cuda.ast.CUDAKernel;
 
 /**
  * NodeFactory for X10 extension.
@@ -35,7 +33,7 @@ import x10.types.checker.Converter.ConversionType;
  * @author vj
  * @author Christian Grothoff
  */
-public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
+public class X10NodeFactory_c extends NodeFactory_c {
 
 	public X10NodeFactory_c(ExtensionInfo extInfo) {
 		this(extInfo, new X10ExtFactory_c(), new X10DelFactory_c());
@@ -51,14 +49,6 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		return new X10Disamb_c();
 	}
 	
-	 public Expr AmbHereThis(Position pos) {
-	        Expr n = new AmbHereThis_c(pos);
-	        n = (Expr)n.ext(extFactory().extAmbExpr());
-	        n = (Expr)n.del(delFactory().delAmbExpr());
-	        return n;
-	    }
-	
-	@Override
 	public Initializer Initializer(Position pos, FlagsNode flags, Block body) {
 	    Initializer n = new X10Initializer_c(pos, flags, body);
 	    n = (Initializer)n.ext(extFactory().extInitializer());
@@ -66,18 +56,17 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 	    return n;
 	}
 	
-	    public LocalAssign LocalAssign(Position pos, Local left, Assign.Operator op, Expr right) {
-	        LocalAssign n = new X10LocalAssign_c(this, pos, left, op, right);
-	        n = (LocalAssign)n.ext(extFactory().extLocalAssign());
-	        n = (LocalAssign)n.del(delFactory().delLocalAssign());
-	        return n;
-	    }
-	    @Override
-	    public FieldAssign FieldAssign(Position pos, Receiver target, Id field, Assign.Operator op, Expr right) {
-	        FieldAssign n = new X10FieldAssign_c(this, pos, target, field, op, right);
-	        n = (FieldAssign)n.ext(extFactory().extFieldAssign());
-	        n = (FieldAssign)n.del(delFactory().delFieldAssign());
-	        return n;
+	public LocalAssign LocalAssign(Position pos, Local left, Assign.Operator op, Expr right) {
+	    LocalAssign n = new X10LocalAssign_c(this, pos, left, op, right);
+	    n = (LocalAssign)n.ext(extFactory().extLocalAssign());
+	    n = (LocalAssign)n.del(delFactory().delLocalAssign());
+	    return n;
+	}
+	public FieldAssign FieldAssign(Position pos, Receiver target, Id field, Assign.Operator op, Expr right) {
+	    FieldAssign n = new X10FieldAssign_c(this, pos, target, field, op, right);
+	    n = (FieldAssign)n.ext(extFactory().extFieldAssign());
+	    n = (FieldAssign)n.del(delFactory().delFieldAssign());
+	    return n;
 	    }
 
 	public LocalTypeDef LocalTypeDef(Position pos, TypeDecl typeDefDeclaration) {
@@ -87,7 +76,6 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 	    return n;
 	}
 
-	@Override
 	public AmbExpr AmbExpr(Position pos, Id name) {
 	    AmbExpr n = new X10AmbExpr_c(pos, name);
 	    n = (AmbExpr)n.ext(extFactory().extAmbExpr());
@@ -136,7 +124,6 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		return n;
 	}
 
-	@Override
 	public Return Return(Position pos, Expr expr) {
 	    return X10Return(pos, expr, false);
 	}
@@ -151,15 +138,21 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		n = (TypeParamNode_c) n.del(delFactory().delNode());
 		return n;
 	}
-	
-	public Expr SubtypeTest(Position pos, TypeNode sub, TypeNode sup, boolean equals) {
+
+	public HasZeroTest HasZeroTest(Position pos, TypeNode t) {
+		HasZeroTest n = new HasZeroTest_c(pos, t);
+		n = (HasZeroTest) n.ext(extFactory().extExpr());
+		n = (HasZeroTest) n.del(delFactory().delExpr());
+		return n;
+	}
+	public SubtypeTest SubtypeTest(Position pos, TypeNode sub, TypeNode sup, boolean equals) {
 		SubtypeTest n = new SubtypeTest_c(pos, sub, sup, equals);
 		n = (SubtypeTest) n.ext(extFactory().extExpr());
 		n = (SubtypeTest) n.del(delFactory().delExpr());
 		return n;
 	}
 	
-	public Expr Contains(Position pos, Expr item, Expr collection) {
+	public Contains Contains(Position pos, Expr item, Expr collection) {
 	    Contains n = new Contains_c(pos, item, collection);
 	    n = (Contains) n.ext(extFactory().extExpr());
 	    n = (Contains) n.del(delFactory().delExpr());
@@ -173,7 +166,6 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 	    return n;
 	}
 	
-	@Override
 	public SourceFile SourceFile(Position position, PackageNode packageName, List<Import> imports, List<TopLevelDecl> decls) {
 		 SourceFile n = new X10SourceFile_c(position, packageName, CollectionUtil.nonNullList(imports), CollectionUtil.nonNullList(decls));
 		 n = (SourceFile)n.ext(extFactory().extSourceFile());
@@ -200,10 +192,10 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		return AmbDepTypeNode(pos, prefix, name, Collections.<TypeNode>emptyList(), Collections.<Expr>emptyList(), dep);
 	}
 
-	public Instanceof Instanceof(Position pos, Expr expr, TypeNode type) {
-		Instanceof n = new X10Instanceof_c(pos, expr, type);
-		n = (Instanceof) n.ext(extFactory().extInstanceof());
-		n = (Instanceof) n.del(delFactory().delInstanceof());
+	public X10Instanceof Instanceof(Position pos, Expr expr, TypeNode type) {
+		X10Instanceof n = new X10Instanceof_c(pos, expr, type);
+		n = (X10Instanceof) n.ext(extFactory().extInstanceof());
+		n = (X10Instanceof) n.del(delFactory().delInstanceof());
 		return n;
 	}
 
@@ -216,7 +208,7 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 	}
 
 	// Wrap the body of the async in a Block so as to ease further code transforamtions.
-	public Async Async(Position pos,  List<Expr> clocks, Stmt body) {
+	public Async Async(Position pos, List<Expr> clocks, Stmt body) {
 		Async a = new Async_c(pos,  clocks, asBlock(body));
 		X10ExtFactory_c ext_fac = (X10ExtFactory_c) extFactory();
 		a = (Async) a.ext(ext_fac.extAsyncImpl());
@@ -224,7 +216,7 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		a = (Async) a.del(del_fac.delAsyncImpl());
 		return a;
 	}
-	public Async Async(Position pos,  Stmt body, boolean clocked) {
+	public Async Async(Position pos, Stmt body, boolean clocked) {
 		Async a = new Async_c(pos,  asBlock(body), clocked);
 		X10ExtFactory_c ext_fac = (X10ExtFactory_c) extFactory();
 		a = (Async) a.ext(ext_fac.extAsyncImpl());
@@ -318,8 +310,7 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		return n;
 	}
 	
-	@Override
-	public ClassDecl ClassDecl(Position pos, FlagsNode flags, Id name, TypeNode superClass, List<TypeNode> interfaces, ClassBody body) {
+	public X10ClassDecl ClassDecl(Position pos, FlagsNode flags, Id name, TypeNode superClass, List<TypeNode> interfaces, ClassBody body) {
 		return X10ClassDecl(pos, flags, name, Collections.<TypeParamNode>emptyList(), Collections.<PropertyDecl>emptyList(), null, superClass, interfaces, body);
 	}
 
@@ -328,7 +319,7 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		return (X10ClassDecl) ClassDecl(pos, flags, name, typeParameters, properties, superClass, interfaces, body, ci);
 	}
 
-	private ClassDecl ClassDecl(Position pos, FlagsNode flags, Id name, List<TypeParamNode> typeParameters, List<PropertyDecl> properties,
+	private X10ClassDecl ClassDecl(Position pos, FlagsNode flags, Id name, List<TypeParamNode> typeParameters, List<PropertyDecl> properties,
 			TypeNode superClass, List<TypeNode> interfaces, ClassBody body, DepParameterExpr tci) {
 	    boolean isInterface = flags.flags().isInterface();
 	    if (flags.flags().isInterface()) {
@@ -336,34 +327,27 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 	    } else {
 	    	  body = PropertyDecl_c.addPropertyGetters(properties, body, this);
 	    }
-	  
-	    
-	    ClassDecl n = new X10ClassDecl_c(pos, flags, name, typeParameters, properties, tci, superClass, interfaces, body);
-		n = (ClassDecl)n.ext(extFactory().extClassDecl());
-		n = (ClassDecl)n.del(delFactory().delClassDecl());
+	    X10ClassDecl n = new X10ClassDecl_c(pos, flags, name, typeParameters, properties, tci, superClass, interfaces, body);
+		n = (X10ClassDecl)n.ext(extFactory().extClassDecl());
+		n = (X10ClassDecl)n.del(delFactory().delClassDecl());
 		return n;
 	}
 	public X10ClassDecl X10ClassDecl(Position pos, FlagsNode flags, Id name, TypeNode superClass, List<TypeNode> interfaces, ClassBody body, DepParameterExpr tci) {
 		return (X10ClassDecl) ClassDecl(pos, flags, name, Collections.<TypeParamNode>emptyList(), Collections.<PropertyDecl>emptyList(), superClass, interfaces, body, tci);
 	}
 
-	public Await Await(Position pos, Expr expr) {
-		Await n = new Await_c(pos, expr);
-		n = (Await) n.ext(extFactory().extStmt());
-		return (Await) n.del(delFactory().delStmt());
-	}
-
-	public Call X10Call(Position pos, Receiver target, Id name, List<TypeNode> typeArguments, List<Expr> args) {
-		Call n = new X10Call_c(pos, target, name, typeArguments, args);
-		n = (Call) n.ext(extFactory().extExpr());
-		return (Call) n.del(delFactory().delExpr());
+	public X10Call X10Call(Position pos, Receiver target, Id name, List<TypeNode> typeArguments, List<Expr> args) {
+		X10Call n = new X10Call_c(pos, target, name, typeArguments, args);
+		n = (X10Call) n.ext(extFactory().extExpr());
+		n = (X10Call) n.del(delFactory().delExpr());
+		return n;
 	}
 	
-	public Call Call(Position pos, Receiver target, Id name, List<Expr> args) {
+	public X10Call Call(Position pos, Receiver target, Id name, List<Expr> args) {
 		return X10Call(pos, target, name, Collections.<TypeNode>emptyList(), args);
 	}
 	
-	public Expr ConstantDistMaker(Position pos, Expr e1, Expr e2) {
+	public ConstantDistMaker ConstantDistMaker(Position pos, Expr e1, Expr e2) {
 		Receiver x10LangDistributionFactory = ReceiverFromQualifiedName(pos, QName.make("x10.array.Dist"));
 		List<Expr> l = new TypedList<Expr>(new LinkedList<Expr>(), Expr.class, false);
 		l.add(e1);
@@ -398,11 +382,11 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		return X10New(pos, null, objectType, typeArguments, arguments, null);
 	}
 
-	public New New(Position pos, Expr qualifier, TypeNode objectType, List<Expr> arguments, ClassBody body) {
+	public X10New New(Position pos, Expr qualifier, TypeNode objectType, List<Expr> arguments, ClassBody body) {
 		return X10New(pos, qualifier, objectType, Collections.<TypeNode>emptyList(), arguments, body);
 	}
 	
-//	 Wrap the body in a block to facilitate code transformations
+	// Wrap the body in a block to facilitate code transformations
 	public AtEach AtEach(Position pos, Formal formal, Expr domain,
 						 List<Expr> clocks, Stmt body)
 	{
@@ -431,7 +415,7 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		return n;
 	}
 
-//	 Wrap the body in a block to facilitate code transformations
+	// Wrap the body in a block to facilitate code transformations
 	public X10Loop ForLoop(Position pos, Formal formal, Expr domain, Stmt body)
 	{
 		X10Loop n = new ForLoop_c(pos, formal, domain, asBlock(body));
@@ -441,7 +425,6 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		n = (X10Loop) n.del(del_fac.delForLoopImpl());
 		return n;
 	}
-
 
 
 	// Wrap the body in a block to facilitate code transformations
@@ -465,17 +448,15 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		return (DepParameterExpr) n.del(delFactory().delStmt());
 	}
 
-	public Assign Assign(Position pos, Expr left, Assign.Operator op,
-						 Expr right)
+	public Assign Assign(Position pos, Expr left, Assign.Operator op, Expr right)
 	{
 	    if (left instanceof Call) {
 		Call c = (Call) left;
 		return SettableAssign(pos, (Expr) c.target(), c.arguments(), op, right);
 	    }
-	    return super.Assign(pos, left, op, right);
+	    return SUPER_Assign(pos, left, op, right);
 	}
 	
-	@Override
 	public polyglot.ast.AmbAssign AmbAssign(Position pos, Expr left, Operator op, Expr right) {
 	    AmbAssign n = new X10AmbAssign_c(this, pos, left, op, right);
 	    n = (AmbAssign)n.ext(extFactory().extAmbAssign());
@@ -524,13 +505,10 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 	    return tn;
 	}
 
-	
-
-	@Override
-	public CanonicalTypeNode CanonicalTypeNode(Position pos, Ref<? extends Type> type) {
-	    CanonicalTypeNode n = new X10CanonicalTypeNode_c(pos, type);
-	    n = (CanonicalTypeNode)n.ext(extFactory().extCanonicalTypeNode());
-	    n = (CanonicalTypeNode)n.del(delFactory().delCanonicalTypeNode());
+	public X10CanonicalTypeNode CanonicalTypeNode(Position pos, Ref<? extends Type> type) {
+	    X10CanonicalTypeNode n = new X10CanonicalTypeNode_c(pos, type);
+	    n = (X10CanonicalTypeNode)n.ext(extFactory().extCanonicalTypeNode());
+	    n = (X10CanonicalTypeNode)n.del(delFactory().delCanonicalTypeNode());
 	    return n;
 	}
 	
@@ -543,7 +521,7 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		return n;
 	}
 
-	public Formal Formal(Position pos, FlagsNode flags, TypeNode type, Id name)
+	public X10Formal Formal(Position pos, FlagsNode flags, TypeNode type, Id name)
 	{
 		return X10Formal(pos, flags, type, name, null, false);
 	}
@@ -554,12 +532,6 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		return (ParExpr) n.del(delFactory().delExpr());
 	}
 
-	public PlaceCast PlaceCast(Position pos, Expr place, Expr expr) {
-		PlaceCast n = new PlaceCast_c(pos, place, expr);
-		n = (PlaceCast) n.ext(extFactory().extExpr());
-		return (PlaceCast) n.del(delFactory().delExpr());
-	}
-
 	public Field Field(Position pos, Receiver target, Id name) {
 		Field n = new X10Field_c(pos, target, name);
 		n = (Field) n.ext(extFactory().extField());
@@ -567,12 +539,12 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		return n;
 	}
 
-	public FieldDecl FieldDecl(Position pos, FlagsNode flags, TypeNode type,
+	public X10FieldDecl FieldDecl(Position pos, FlagsNode flags, TypeNode type,
 							   Id name, Expr init)
 	{
-		FieldDecl n = new X10FieldDecl_c(this, pos, flags, type, name, init);
-		n = (FieldDecl) n.ext(extFactory().extFieldDecl());
-		n = (FieldDecl) n.del(delFactory().delFieldDecl());
+		X10FieldDecl n = new X10FieldDecl_c(this, pos, flags, type, name, init);
+		n = (X10FieldDecl) n.ext(extFactory().extFieldDecl());
+		n = (X10FieldDecl) n.del(delFactory().delFieldDecl());
 		return n;
 	}
 
@@ -587,8 +559,7 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 	    return n;
 	}
 
-	@Override
-	public Cast Cast(Position pos, TypeNode castType, Expr expr) {
+	public X10Cast Cast(Position pos, TypeNode castType, Expr expr) {
 	    return X10Cast(pos, castType, expr, Converter.ConversionType.UNKNOWN_CONVERSION);
 	}
 
@@ -609,8 +580,7 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		return n;
 	}
 	
-	public LocalDecl LocalDecl(Position pos, FlagsNode flags, TypeNode type,
-							   Id name, Expr init)
+	public LocalDecl LocalDecl(Position pos, FlagsNode flags, TypeNode type, Id name, Expr init)
 	{
 		LocalDecl n = new X10LocalDecl_c(this, pos, flags, type, name, init);
 		n = (LocalDecl)n.ext(extFactory().extLocalDecl());
@@ -618,25 +588,22 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		return n;
 	}
 	
-	//@Override
-	public ConstructorDecl ConstructorDecl(Position pos, FlagsNode flags, Id name,
-			List<Formal> formals, 
-			Block body) {
+	public X10ConstructorDecl ConstructorDecl(Position pos, FlagsNode flags, Id name, List<Formal> formals, Block body) {
 		return X10ConstructorDecl(pos, flags, name, null, Collections.<TypeParamNode>emptyList(), formals, null,  null, body);
 	}
 
-	public ConstructorDecl X10ConstructorDecl(Position pos, FlagsNode flags,
+	public X10ConstructorDecl X10ConstructorDecl(Position pos, FlagsNode flags,
 			Id name, TypeNode returnType,
 			List<TypeParamNode> typeParams, List<Formal> formals,
 			DepParameterExpr guard, TypeNode offerType, Block body)
 	{
-		ConstructorDecl n =
+		X10ConstructorDecl n =
 			new X10ConstructorDecl_c(pos, flags,
 					name, returnType,
 					typeParams, formals,
 					guard,  offerType, body);
-		n = (ConstructorDecl)n.ext(extFactory().extConstructorDecl());
-		n = (ConstructorDecl)n.del(delFactory().delConstructorDecl());
+		n = (X10ConstructorDecl)n.ext(extFactory().extConstructorDecl());
+		n = (X10ConstructorDecl)n.del(delFactory().delConstructorDecl());
 		return n;
 	}
 	public PropertyDecl PropertyDecl(Position pos, FlagsNode flags, TypeNode type, Id name) {
@@ -651,13 +618,13 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		n = (PropertyDecl)n.del(delFactory().delFieldDecl());
 		return n;
 	}
-	public final Special Self(Position pos) {
+	public final X10Special Self(Position pos) {
 		return Special(pos, X10Special.SELF, null);
 	}
-	public Special Special(Position pos, Special.Kind kind, TypeNode outer) {
-		Special n = new X10Special_c(pos, kind, outer);
-		n = (Special)n.ext(extFactory().extSpecial());
-		n = (Special)n.del(delFactory().delSpecial());
+	public X10Special Special(Position pos, Special.Kind kind, TypeNode outer) {
+		X10Special n = new X10Special_c(pos, kind, outer);
+		n = (X10Special)n.ext(extFactory().extSpecial());
+		n = (X10Special)n.del(delFactory().delSpecial());
 		return n;
 	}
 
@@ -693,14 +660,14 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		n = (If)n.del(delFactory().delIf());
 		return n;
 	}
-	public Expr RegionMaker(Position pos, Expr e1, Expr e2) {
+	public RegionMaker RegionMaker(Position pos, Expr e1, Expr e2) {
 		List<Expr> l = new TypedList<Expr>(new LinkedList<Expr>(), Expr.class, false);
 		l.add(e1);
 		l.add(e2);
 
-		Call n = new RegionMaker_c(pos, TypeNodeFromQualifiedName(pos, QName.make("x10.array.Region")), Id(pos, "makeRectangular"), l);
-		n = (Call) n.ext(extFactory().extExpr());
-		n = (Call) n.del(delFactory().delExpr());
+		RegionMaker n = new RegionMaker_c(pos, TypeNodeFromQualifiedName(pos, QName.make("x10.array.Region")), Id(pos, "makeRectangular"), l);
+		n = (RegionMaker) n.ext(extFactory().extExpr());
+		n = (RegionMaker) n.del(delFactory().delExpr());
 		return n;
 	}
 	public Do Do(Position pos, Stmt body, Expr cond) {
@@ -716,7 +683,7 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		return n;
 	}
 	public IntLit IntLit(Position pos, IntLit.Kind kind, long value) {
-		IntLit n = new X10IntLit_c(pos, kind, value);
+		IntLit n = new IntLit_c(pos, kind, value);
 		n = (IntLit)n.ext(extFactory().extIntLit());
 		n = (IntLit)n.del(delFactory().delIntLit());
 		return n;
@@ -747,33 +714,33 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		n= (AssignPropertyCall) n.del(delFactory().delExpr());
 		return n;
 	}
-	public Conditional Conditional(Position pos, Expr cond, Expr consequent, Expr alternative) {
-		Conditional n = new X10Conditional_c(pos, cond, consequent, alternative);
-		n = (Conditional)n.ext(extFactory().extConditional());
-		n = (Conditional)n.del(delFactory().delConditional());
+	public X10Conditional Conditional(Position pos, Expr cond, Expr consequent, Expr alternative) {
+		X10Conditional n = new X10Conditional_c(pos, cond, consequent, alternative);
+		n = (X10Conditional)n.ext(extFactory().extConditional());
+		n = (X10Conditional)n.del(delFactory().delConditional());
 		return n;
 	}
 
-	public ConstructorCall X10ThisCall(Position pos, Expr outer, List<TypeNode> typeArgs, List<Expr> args) {
+	public X10ConstructorCall X10ThisCall(Position pos, Expr outer, List<TypeNode> typeArgs, List<Expr> args) {
 		return X10ConstructorCall(pos, ConstructorCall.THIS, outer, typeArgs, args);
 	}
 
-	public ConstructorCall X10ThisCall(Position pos, List<TypeNode> typeArgs, List<Expr> args) {
+	public X10ConstructorCall X10ThisCall(Position pos, List<TypeNode> typeArgs, List<Expr> args) {
 		return X10ConstructorCall(pos, ConstructorCall.THIS, null, typeArgs, args);
 	}
 
-	public ConstructorCall X10SuperCall(Position pos, Expr outer, List<TypeNode> typeArgs, List<Expr> args) {
+	public X10ConstructorCall X10SuperCall(Position pos, Expr outer, List<TypeNode> typeArgs, List<Expr> args) {
 		return X10ConstructorCall(pos, ConstructorCall.SUPER, outer, typeArgs, args);
 	}
 
-	public ConstructorCall X10SuperCall(Position pos, List<TypeNode> typeArgs, List<Expr> args) {
+	public X10ConstructorCall X10SuperCall(Position pos, List<TypeNode> typeArgs, List<Expr> args) {
 		return X10ConstructorCall(pos, ConstructorCall.SUPER, null, typeArgs, args);
 	}
 
-	public ConstructorCall X10ConstructorCall(Position pos, ConstructorCall.Kind kind, Expr outer, List<TypeNode> typeArgs, List<Expr> args) {
-		ConstructorCall n = new X10ConstructorCall_c(pos, kind, outer, CollectionUtil.nonNullList(typeArgs), CollectionUtil.nonNullList(args));
-		n = (ConstructorCall)n.ext(extFactory().extConstructorCall());
-		n = (ConstructorCall)n.del(delFactory().delConstructorCall());
+	public X10ConstructorCall X10ConstructorCall(Position pos, ConstructorCall.Kind kind, Expr outer, List<TypeNode> typeArgs, List<Expr> args) {
+		X10ConstructorCall n = new X10ConstructorCall_c(pos, kind, outer, CollectionUtil.nonNullList(typeArgs), CollectionUtil.nonNullList(args));
+		n = (X10ConstructorCall)n.ext(extFactory().extConstructorCall());
+		n = (X10ConstructorCall)n.del(delFactory().delConstructorCall());
 		return n;
 	}
 	
@@ -834,14 +801,10 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		return n;
 	}
 
-
-    public static Position compilerGenerated(Node n) {
-        return compilerGenerated(n==null ? null : n.position());
-    }
-    public static Position compilerGenerated(TypeObject n) {
-        return compilerGenerated(n==null ? null : n.position());
-    }
-    public static Position compilerGenerated(Position pos) {
-        return pos==null ? Position.COMPILER_GENERATED : pos.startOf().markCompilerGenerated();
-    }
+	public CUDAKernel CUDAKernel(Position position, List<Stmt> statements) {
+        CUDAKernel n = new CUDAKernel(position, CollectionUtil.nonNullList(statements));
+        n = (CUDAKernel)n.ext(extFactory().extBlock());
+        n = (CUDAKernel)n.del(delFactory().delBlock());
+        return n;
+	}
 }

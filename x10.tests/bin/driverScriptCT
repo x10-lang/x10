@@ -259,10 +259,8 @@ fi
 
 ##### cat feed - test (cases) compilation & execution
 __cat_feed_stage=TEST
-#export EXTRA_CLASSPATH=$X10_HOME/x10.runtime/src-x10/classes
-export EXTRA_CLASSPATH=$X10_HOME/x10.runtime/classes/gen
 if [[ "${__cat_backend}" == x10c ]]; then
-	__cat_extra_classpath=$EXTRA_CLASSPATH
+	__cat_extra_classpath=NA
 else
 	__cat_extra_classpath=NA
 fi

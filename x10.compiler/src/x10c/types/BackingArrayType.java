@@ -15,11 +15,11 @@ import polyglot.types.ArrayType_c;
 import polyglot.types.Ref;
 import polyglot.types.Type;
 import polyglot.util.Position;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 
 public class BackingArrayType extends ArrayType_c {
     private static final long serialVersionUID = 1504080841867595349L;
-    public BackingArrayType(X10TypeSystem xts, Position position, Ref<? extends Type> ref) {
+    public BackingArrayType(TypeSystem xts, Position position, Ref<? extends Type> ref) {
         super(xts, position, ref);
     }
 }

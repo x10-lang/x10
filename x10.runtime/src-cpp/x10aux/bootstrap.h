@@ -25,6 +25,7 @@
 #include <x10/lang/Throwable.h>
 
 #include <x10/lang/Thread.h>
+#include <x10/lang/Runtime__Worker.h>
 #include <x10/lang/Closure.h>
 
 #include <stdio.h>
@@ -122,7 +123,7 @@ namespace x10aux {
 #ifdef X10_USE_BDWGC
         GC_INIT();
 #endif
-        x10aux::ref<x10::array::Array<x10aux::ref<x10::lang::String> > > args = x10aux::null;
+        x10aux::ref<x10::array::Array<x10aux::ref<x10::lang::String> > > args = X10_NULL;
 
 #ifndef NO_EXCEPTIONS
         try {
@@ -131,7 +132,7 @@ namespace x10aux {
 
             // Initialise enough state to make this 'main' thread look like a normal x10 thread
             // (e.g. make Thread::CurrentThread work properly).
-            x10::lang::Thread::_make(x10aux::null, x10aux::string_utils::lit("thread-main"));
+            x10::lang::Runtime__Worker::_make(X10_NULL);
             x10aux::initialize_xrx();
 
             args = x10aux::convert_args(ac, av);
@@ -141,7 +142,7 @@ namespace x10aux {
                 x10aux::ref<StaticInitClosure>(new (x10aux::alloc<x10::lang::VoidFun_0_0>(sizeof(x10aux::StaticInitClosure)))
                                                x10aux::StaticInitClosure());
 
-            // Construct closure to invoke the user's "public static def main(Array[String]) : Void"
+            // Construct closure to invoke the user's "public static def main(Array[String]) : void"
             // if at place 0 otherwise wait for asyncs.
             x10aux::ref<x10::lang::VoidFun_0_0> main_closure =
                 x10aux::ref<BootStrapClosure>(new (x10aux::alloc<x10::lang::VoidFun_0_0>(sizeof(x10aux::BootStrapClosure)))

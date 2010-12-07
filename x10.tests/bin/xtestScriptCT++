@@ -314,7 +314,7 @@ function execTimeOut {
 	"$MYDIR"/xnewpgrp "$@" >> $outfile 2>&1 &
 	typeset cmd_pid=$!
 	printf "\n===> sleep $timeout && kill -9 -$cmd_pid >/dev/null 2>&1 &\n\n" 1>&2
-	"$MYDIR"/xnewpgrp "sleep $timeout && kill -9 -$cmd_pid" >/dev/null 2>&1 &
+	"$MYDIR"/xnewpgrp "sleep $timeout && kill -9 -$cmd_pid && echo 'Timeout' >> $outfile" >/dev/null 2>&1 &
 	typeset sleep_pid=$!
 	printf "\n===> wait $cmd_pid 2>/dev/null\n\n" 1>&2
 	wait $cmd_pid >/dev/null 2>&1
@@ -606,13 +606,15 @@ function main {
 	if [[ "$(uname -s)" == "AIX" ]]; then
 		X10CPP="$X10CPP -x10rt pgas_lapi"
 	elif [[ "$(uname -s)" == "Linux" && "$(uname -m)" == "x86_64" ]]; then
-	    X10CPP="$X10CPP -x10rt pgas_sockets"
+	    X10CPP="$X10CPP -x10rt sockets"
 	elif [[ "$(uname -s)" == "Linux" && "$(uname -m)" == "ppc64" ]]; then
-	    X10CPP="$X10CPP -x10rt pgas_sockets"
+	    X10CPP="$X10CPP -x10rt sockets"
 	elif [[ "$(uname -s)" == "SunOS" && "$(uname -p)" == "sparc" ]]; then
-	    X10CPP="$X10CPP -x10rt pgas_sockets"
+	    X10CPP="$X10CPP -x10rt sockets"
 	elif [[ "$(uname -s)" == CYGWIN* && "$(uname -m)" == "i686" ]]; then
-	    X10CPP="$X10CPP -x10rt pgas_sockets"
+	    X10CPP="$X10CPP -x10rt sockets"
+	elif [[ "$(uname -s)" == "Darwin" ]]; then
+	    X10CPP="$X10CPP -x10rt sockets"
 	fi
 
 	if [[ ! -f $X10_HOME/x10.dist/include/x10rt.h ]]; then
@@ -692,9 +694,9 @@ function main {
 		__cat_test_x10c_classpath="${EXTRA_CLASSPATH}"
 		__cat_test_x10c_directory="$testDir"
 if [[ "$(uname -s)" == CYGWIN* ]]; then
-		comp_cmd="${X10CPP} $extra_opts $X10CPP_EXTRA_OPTS -t -v -report postcompile=1 -CHECK_INVARIANTS=true -MAIN_CLASS=$tctarget -sourcepath \"$(cygpath -am $tcroot)\" -sourcepath \"$(cygpath -am $X10_HOME/x10.dist/samples)\"  -sourcepath \"$(cygpath -am $X10_HOME/x10.dist/samples/tutorial)\" -sourcepath \"$(cygpath -am $X10_HOME/x10.dist/samples/CUDA)\" -d \"$(cygpath -am $tcroot)\" $tc $extendList \"$(cygpath -am ${X10TEST_PATH}/x10lib/harness/x10Test.x10)\""
+		comp_cmd="${X10CPP} $extra_opts $X10CPP_EXTRA_OPTS -t -v -report postcompile=1 -CHECK_INVARIANTS=true -MAIN_CLASS=$tctarget -sourcepath \"$(cygpath -am $X10_HOME/x10.tests/examples/$testDir)\" -sourcepath \"$(cygpath -am $X10_HOME/x10.tests/examples/x10lib)\" -sourcepath \"$(cygpath -am $tcroot)\" -sourcepath \"$(cygpath -am $X10_HOME/x10.dist/samples)\"  -sourcepath \"$(cygpath -am $X10_HOME/x10.dist/samples/tutorial)\" -sourcepath \"$(cygpath -am $X10_HOME/x10.dist/samples/CUDA)\" -d \"$(cygpath -am $tcroot)\" $tc $extendList \"$(cygpath -am ${X10TEST_PATH}/x10lib/harness/x10Test.x10)\""
 else
-		comp_cmd="${X10CPP} $extra_opts $X10CPP_EXTRA_OPTS -t -v -report postcompile=1 -CHECK_INVARIANTS=true -MAIN_CLASS=$tctarget -sourcepath $tcroot -sourcepath $X10_HOME/x10.dist/samples -sourcepath $X10_HOME/x10.dist/samples/tutorial -sourcepath $X10_HOME/x10.dist/samples/CUDA -d $tcroot $tc $extendList ${X10TEST_PATH}/x10lib/harness/x10Test.x10"
+		comp_cmd="${X10CPP} $extra_opts $X10CPP_EXTRA_OPTS -t -v -report postcompile=1 -CHECK_INVARIANTS=true -MAIN_CLASS=$tctarget -sourcepath $X10_HOME/x10.tests/examples/$testDir -sourcepath $X10_HOME/x10.tests/examples/x10lib -sourcepath $tcroot -sourcepath $X10_HOME/x10.dist/samples -sourcepath $X10_HOME/x10.dist/samples/tutorial -sourcepath $X10_HOME/x10.dist/samples/CUDA -d $tcroot $tc $extendList ${X10TEST_PATH}/x10lib/harness/x10Test.x10"
 fi
 		tccompdat=${tcroot}/${tctarget}.comp
 		printf "\n****** $tDir $className ******\n\n" >> $tccompdat
@@ -781,9 +783,9 @@ done
 			fi
 fi
 if [[ "$(uname -s)" == CYGWIN* ]]; then
-			run_cmd="/usr/bin/time -p mpirun -np $my_nplaces ./${tctarget}.exe"
+			run_cmd="X10_NPLACES=${my_nplaces} X10_HOSTLIST=localhost /usr/bin/time -p ./${tctarget}.exe"
 else
-			run_cmd="/usr/bin/time -p mpirun -np $my_nplaces ./${tctarget}"
+			run_cmd="X10_NPLACES=${my_nplaces} X10_HOSTLIST=localhost /usr/bin/time -p ./${tctarget}"
 fi
 			printf "\n${run_cmd}\n" >> $tcoutdat
 		fi

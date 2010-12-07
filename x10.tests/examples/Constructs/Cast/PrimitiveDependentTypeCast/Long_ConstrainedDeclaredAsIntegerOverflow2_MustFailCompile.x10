@@ -9,15 +9,16 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
+//OPTIONS: -STATIC_CALLS
+
 import harness.x10Test;
 
 /**
  * Purpose: Checks an overflow is statically detected when a constant is to assign.
  * Issue: At compile time we can infer the integer constant has been overflowed,
-  *       and throw an exception as constraint is not meet.
+ *        and report an error that constraint is not met.
  * @author vcave
- 
- **/
+ */
 public class Long_ConstrainedDeclaredAsIntegerOverflow2_MustFailCompile extends x10Test {
 
 	 public def run(): boolean = {
@@ -39,5 +40,4 @@ public class Long_ConstrainedDeclaredAsIntegerOverflow2_MustFailCompile extends 
 	public static def main(var args: Array[String](1)): void = {
 		new  Long_ConstrainedDeclaredAsIntegerOverflow2_MustFailCompile().execute();
 	}
-
 }

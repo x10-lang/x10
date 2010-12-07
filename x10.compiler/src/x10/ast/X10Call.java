@@ -22,7 +22,7 @@ import polyglot.ast.TypeNode;
 import polyglot.types.MethodInstance;
 import x10.types.X10MethodInstance;
 
-public interface X10Call extends Call {
+public interface X10Call extends Call, X10ProcedureCall {
 	List<TypeNode> typeArguments();
 
 	X10Call typeArguments(List<TypeNode> args);

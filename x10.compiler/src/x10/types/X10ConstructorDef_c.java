@@ -28,6 +28,7 @@ import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
 
+import x10.constraint.XTerms;
 import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.types.constraints.CConstraint;
@@ -57,16 +58,16 @@ public class X10ConstructorDef_c extends ConstructorDef_c implements X10Construc
             Flags flags,
             Ref<? extends ClassType> returnType,
             List<Ref<? extends Type>> formalTypes,
-            XVar thisVar,
+            ThisDef thisDef,
             List<LocalDef> formalNames, Ref<CConstraint> guard,
             Ref<TypeConstraint> typeGuard, 
             Ref<? extends Type> offerType) {
         super(ts, pos, container, flags, formalTypes);
         this.returnType = returnType;
-        this.thisVar = thisVar;
         this.formalNames = TypedList.copyAndCheck(formalNames, LocalDef.class, true);
         this.guard = guard;
         this.typeGuard = typeGuard;
+        this.thisDef = thisDef;
         this.offerType = offerType;
     }
 
@@ -106,15 +107,22 @@ public class X10ConstructorDef_c extends ConstructorDef_c implements X10Construc
         this.returnType = r;
     }
 
-    XVar thisVar;
     public XVar thisVar() {
-        return this.thisVar;
-    }
-    
-    public void setThisVar(XVar thisVar) {
-        this.thisVar = thisVar;
+        if (this.thisDef != null)
+            return this.thisDef.thisVar();
+        return XTerms.makeEQV("#this");
     }
 
+    ThisDef thisDef;
+
+    public ThisDef thisDef() {
+        return this.thisDef;
+    }
+
+    public void setThisDef(ThisDef thisDef) {
+        this.thisDef = thisDef;
+    }
+    
     public List<LocalDef> formalNames() {
 	return Collections.unmodifiableList(formalNames);
     }
