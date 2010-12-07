@@ -53,11 +53,11 @@ import x10.util.IndexedMemoryChunk;
  * @see Region
  * @see DistArray
  */
-public final class Array[T](
+public final class Array[T] (
     /**
      * The region of this array.
      */
-    region:Region{self != null, self.rank==this.rank, self.rect==this.rect, self.zeroBased==this.zeroBased},
+    region:Region{self != null,self.rank==this.rank,self.rect==this.rect,self.zeroBased==this.zeroBased,self.rail==this.rail},
 
     /**
      * The rank of this array.
@@ -84,8 +84,8 @@ public final class Array[T](
      * Will always be equal to region.size(), but cached here to make it available as a property.
      */
      size:Int
-)  implements (Point(region.rank))=>T,
-              Iterable[Point(region.rank)] {
+) implements (Point(region.rank))=>T,
+           Iterable[Point(region.rank)] {
 
     /**
      * The backing storage for the array's elements
@@ -122,7 +122,8 @@ public final class Array[T](
      * @param reg The region over which to construct the array.
      */
     public def this(reg:Region) {T haszero} :Array[T]{self.region==reg, self.rank==reg.rank, 
-                                                      self.rect==reg.rect, self.zeroBased==reg.zeroBased}
+                                                      self.rect==reg.rect, self.zeroBased==reg.zeroBased,
+                                                      self.rail==reg.rail}
     {
         property(reg, reg.rank, reg.rect, reg.zeroBased, reg.rail, reg.size());
 
@@ -140,7 +141,8 @@ public final class Array[T](
      * @param init The function to use to initialize the array.
      */    
     public def this(reg:Region, init:(Point(reg.rank))=>T):Array[T]{self.region==reg, self.rank==reg.rank, 
-                                                                    self.rect==reg.rect, self.zeroBased==reg.zeroBased}
+                                                                    self.rect==reg.rect, self.zeroBased==reg.zeroBased,
+                                                                    self.rail==reg.rail}
     {
         property(reg, reg.rank, reg.rect, reg.zeroBased, reg.rail, reg.size());
 
@@ -162,7 +164,8 @@ public final class Array[T](
      * @param init The function to use to initialize the array.
      */    
     public def this(reg:Region, init:T):Array[T]{self.region==reg, self.rank==reg.rank, 
-                                                 self.rect==reg.rect, self.zeroBased==reg.zeroBased}
+                                                 self.rect==reg.rect, self.zeroBased==reg.zeroBased,
+                                                 self.rail==reg.rail}
     {
         property(reg, reg.rank, reg.rect, reg.zeroBased, reg.rail, reg.size());
 

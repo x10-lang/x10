@@ -909,6 +909,9 @@ public class X10TypeMixin {
 	public static XTerm makeZeroBased(Type t) {
 		return makeProperty(t, "zeroBased");
 	}
+    public static XTerm makeRail(Type t) {
+        return makeProperty(t, "rail");
+    }
 	 
 	public static XTerm makeProperty(Type t, String propStr) {
 		Name propName = Name.make(propStr);
