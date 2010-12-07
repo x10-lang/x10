@@ -30,7 +30,7 @@ public class Pipeline {
                 }
 		}
       		var i: int;
-      		for (i = 0; i < 2*N; i++)  {
+      		for (i = 0; i < 2*N + 1; i++)  {
                         val o = a(N-1) + 1;
                         Console.OUT.println(o);
                         next; /*write phase over */
