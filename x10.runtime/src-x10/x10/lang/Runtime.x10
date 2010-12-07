@@ -662,6 +662,7 @@ import x10.util.Box;
             throw new UnsupportedOperationException("Cannot deserialize "+typeName());
         }
         var e:Throwable = null;
+        var clockPhases:Activity.ClockPhases = null;
     }
 
     /**
@@ -671,24 +672,30 @@ import x10.util.Box;
         Runtime.ensureNotInAtomic();
         @StackAllocate val me = @StackAllocate new RemoteControl();
         val box = GlobalRef(me);
+        val clockPhases = activity().clockPhases;
         async at(place) {
+            activity().clockPhases = clockPhases;
             try {
                 body();
                 async at(box.home) {
                     val me2 = box();
+                    me2.clockPhases = clockPhases;
                     me2.release();
                 }
             } catch (e:Throwable) {
                 async at(box.home) {
                     val me2 = box();
                     me2.e = e;
+                    me2.clockPhases = clockPhases;
                     me2.release();
                 }
             }
+            activity().clockPhases = null;
         }
         if (!NO_STEALS && activity().safe()) worker().join(me);
         me.await();
         dealloc(body);
+        activity().clockPhases = me.clockPhases;
         if (null != me.e) {
             throw me.e;
         }
@@ -711,25 +718,31 @@ import x10.util.Box;
     public static def evalAt[T](place:Place, eval:()=>T):T {
         @StackAllocate val me = @StackAllocate new Remote[T]();
         val box = GlobalRef(me);
+        val clockPhases = activity().clockPhases;
         async at(place) {
+            activity().clockPhases = clockPhases;
             try {
                 val result = eval();
                 async at(box.home) {
                     val me2 = box();
                     me2.t = result;
+                    me2.clockPhases = clockPhases;
                     me2.release();
                 }
             } catch (e:Throwable) {
                 async at(box.home) {
                     val me2 = box();
                     me2.e = e;
+                    me2.clockPhases = clockPhases;
                     me2.release();
                 }
             }
+            activity().clockPhases = null;
         }
         if (!NO_STEALS && activity().safe()) worker().join(me);
         me.await();
         dealloc(eval);
+        activity().clockPhases = me.clockPhases;
         if (null != me.e) {
             throw me.e;
         }

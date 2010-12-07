@@ -80,7 +80,7 @@ class Activity {
      * The mapping from registered clocks to phases for this activity.
      * Lazily created.
      */
-    private var clockPhases:ClockPhases;
+    var clockPhases:ClockPhases;
 
     /**
      * Depth of enclosong atomic blocks
