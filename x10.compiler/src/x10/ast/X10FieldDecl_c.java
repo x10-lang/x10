@@ -27,6 +27,7 @@ import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.StringLit;
 import polyglot.ast.TypeNode;
+import polyglot.ast.CanonicalTypeNode;
 import polyglot.frontend.AbstractGoal_c;
 import polyglot.frontend.Globals;
 import polyglot.frontend.Goal;
@@ -445,7 +446,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 
 	    	NodeFactory nf = (NodeFactory) tc.nodeFactory();
 
-	    	X10FieldDecl_c n = (X10FieldDecl_c) this.type(nf.CanonicalTypeNode(type().position(), type));
+	    	X10FieldDecl_c n = (X10FieldDecl_c) this.type((CanonicalTypeNode) nf.CanonicalTypeNode(type().position(), type).ext(type().ext().copy()));
 
 	    	// Add an initializer to uninitialized var field unless field is annotated @Uninitialized.
             final X10FieldDef fieldDef = (X10FieldDef) n.fieldDef();

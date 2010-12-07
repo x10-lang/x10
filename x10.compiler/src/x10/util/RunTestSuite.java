@@ -205,7 +205,7 @@ public class RunTestSuite {
                 if (option.equals("-STATIC_CALLS")) res.STATIC_CALLS = true;
             }
             if (isERR &&
-                    line.contains("//")) { // Console defines "static ERR:Printer"
+                    (line.contains("//") || line.contains("@ERR")|| line.contains("@ShouldNotBeERR")|| line.contains("@ShouldBeErr"))) { // Console defines "static ERR:Printer"
                 LineSummary lineSummary = new LineSummary();
                 lineSummary.lineNo = lineNum;
                 lineSummary.errCount = count(line,"ERR");

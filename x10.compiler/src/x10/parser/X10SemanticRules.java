@@ -3693,9 +3693,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
     }
     // Production: MethodBody ::= Annotationsopt Block
     void rule_MethodBody3(Object _Annotationsopt, Object _Block) {
-        List<AnnotationNode> Annotationsopt = (List<AnnotationNode>) _Annotationsopt;
-        Block Block = (Block) _Block;
-        setResult((Block) ((X10Ext) Block.ext()).annotations(Annotationsopt).position(pos()));
+        rule_MethodBody2(_Annotationsopt,_Block);
     }
     // Production: FieldDeclaration ::= Modifiersopt FieldKeyword FieldDeclarators ';'
     void rule_FieldDeclaration0(Object _Modifiersopt, Object _FieldKeyword, Object _FieldDeclarators) {
@@ -3724,28 +3722,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
     }
     // Production: FieldDeclaration ::= Modifiersopt FieldDeclarators ';'
     void rule_FieldDeclaration1(Object _Modifiersopt, Object _FieldDeclarators) {
-        List<Modifier> Modifiersopt = (List<Modifier>) _Modifiersopt;
-        List<Object[]> FieldDeclarators = (List<Object[]>) _FieldDeclarators;
-        List<Node> modifiers = checkFieldModifiers(Modifiersopt);
-        List<FlagsNode> FieldKeyword = Collections.singletonList(nf.FlagsNode(pos(), Flags.FINAL));
-        FlagsNode fn = extractFlags(modifiers, FieldKeyword);
-        List<ClassMember> l = new TypedList<ClassMember>(new LinkedList<ClassMember>(), ClassMember.class, false);
-        for (Object[] o : FieldDeclarators)
-        {
-            Position pos = (Position) o[0];
-            Id name = (Id) o[1];
-            if (name == null) name = nf.Id(pos, Name.makeFresh());
-            List<Id> exploded = (List<Id>) o[2];
-            TypeNode type = (TypeNode) o[3];
-            if (type == null) type = nf.UnknownTypeNode(name.position());
-            Expr init = (Expr) o[4];
-            FieldDecl fd = nf.FieldDecl(pos, fn,
-                    type, name, init);
-            fd = (FieldDecl) ((X10Ext) fd.ext()).annotations(extractAnnotations(modifiers));
-            fd = (FieldDecl) ((X10Ext) fd.ext()).setComment(comment(getRhsFirstTokenIndex(1)));
-            l.add(fd);
-        }
-        setResult(l);
+        rule_FieldDeclaration0(_Modifiersopt,Collections.singletonList(nf.FlagsNode(pos(), Flags.FINAL)),_FieldDeclarators);
     }
     // Production: Interfaces ::= implements InterfaceTypeList
     void rule_Interfaces0(Object _InterfaceTypeList) {
