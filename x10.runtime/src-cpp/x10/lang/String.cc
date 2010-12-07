@@ -336,7 +336,7 @@ ref<String> String::format(ref<String> format, ref<x10::array::Array<ref<Any> > 
     nullCheck(format);
     nullCheck(parms);
     //size_t len = format->FMGL(content_length);
-    char* orig = const_cast<char*>(format->c_str());
+    char* orig = ::strdup(format->c_str());
     char* fmt = orig;
     char* next = NULL;
     for (x10_int i = 0; fmt != NULL; ++i, fmt = next) {
@@ -353,6 +353,7 @@ ref<String> String::format(ref<String> format, ref<x10::array::Array<ref<Any> > 
         if (next != NULL)
             *next = '%';
     }
+    ::free(orig);
     return String::Lit(ss.str().c_str());
 }
 
