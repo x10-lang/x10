@@ -51,7 +51,7 @@ x10aux::ref<String>
 String::_make(const char *content, bool steal) {
     x10aux::ref<String> this_ = new (x10aux::alloc<String>()) String();
     size_t len = strlen(content);
-    if (!steal) content = strdup(content);
+    if (!steal) content = string_utils::strdup(content);
     this_->_constructor(content,len);
     return this_;
 }

@@ -39,6 +39,7 @@ namespace x10aux {
 
         const char* cstr(ref<x10::lang::String>);
 
+        char *strdup(const char*);
     }
 
     /*

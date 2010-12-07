@@ -21,9 +21,6 @@
 #include <x10/lang/Fun_0_1.h>
 #include <x10/lang/Comparable.h>
 
-#ifdef __CYGWIN__
-extern "C" char *strdup (const char *);
-#endif
 namespace x10 {
 
     namespace lang {
@@ -157,7 +154,9 @@ namespace x10 {
 
             String () : FMGL(content)(NULL) { }
             virtual ~String () {
+                #ifndef X10_USE_BDWGC
                 x10aux::dealloc(FMGL(content));
+                #endif
             }
         };
 
