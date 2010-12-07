@@ -212,7 +212,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
             byte[] ba = baos.toByteArray();
             if (TRACE_SER) {
                 long endTime = System.nanoTime();
-                System.out.println("Serializer: serialized " + ba.length + " bytes in " + (endTime - startTime) / 1000 + " ms.");
+                System.out.println("Serializer: serialized " + ba.length + " bytes in " + (endTime - startTime) / 1000 + " microsecs.");
             }
             java.io.ObjectInputStream ois = new java.io.ObjectInputStream(new java.io.ByteArrayInputStream(ba)); 
             body = (T) ois.readObject();
@@ -249,7 +249,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
                 byte[] ba = baos.toByteArray();
                 if (TRACE_SER) {
                     long endTime = System.nanoTime();
-                    System.out.println("Serializer: serialized " + ba.length + " bytes in " + (endTime - startTime) / 1000 + " ms.");
+                    System.out.println("Serializer: serialized " + ba.length + " bytes in " + (endTime - startTime) / 1000 + " microsecs.");
                 }
                 java.io.ObjectInputStream ois = new java.io.ObjectInputStream(new java.io.ByteArrayInputStream(ba)); 
                 body = (T) ois.readObject();
