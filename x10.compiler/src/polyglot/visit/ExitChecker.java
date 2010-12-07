@@ -12,10 +12,13 @@ import java.util.*;
 
 import polyglot.ast.*;
 import polyglot.frontend.Job;
+import polyglot.types.FunctionDef;
+import polyglot.types.MethodDef;
 import polyglot.types.SemanticException;
 import polyglot.types.TypeSystem;
 import polyglot.visit.DataFlow.Item;
 import polyglot.visit.FlowGraph.EdgeKey;
+import x10.ast.Closure;
 
 /**
  * Visitor which checks that all (terminating) paths through a 
@@ -37,6 +40,12 @@ public class ExitChecker extends DataFlow
         if (code instanceof MethodDecl) {
             MethodDecl d = (MethodDecl) code;
             if (! d.methodDef().returnType().get().isVoid()) {
+                return super.initGraph(code, root);
+            }
+        }
+        if (code instanceof Closure) {
+            Closure d = (Closure) code;
+            if (! d.closureDef().returnType().get().isVoid()) {
                 return super.initGraph(code, root);
             }
         }
@@ -125,10 +134,16 @@ public class ExitChecker extends DataFlow
             if (outItems != null && !outItems.isEmpty()) {
                 // due to the flow equations, all DataFlowItems in the outItems map
                 // are the same, so just take the first one.
-                DataFlowItem outItem = (DataFlowItem)outItems.values().iterator().next(); 
-                if (outItem != null && !outItem.exits) { 
-                    reportError("Missing return statement.",
-                            code.position());
+                DataFlowItem outItem = (DataFlowItem)outItems.values().iterator().next();
+                if (outItem != null && !outItem.exits) {
+                    if (code.codeDef() instanceof FunctionDef) {
+                        FunctionDef fd = (FunctionDef) code.codeDef();
+                        String designator = (fd instanceof MethodDef) ? "Method" : "Closure";
+                        reportError(designator + " must return a value of type "+fd.returnType().get(),
+                                code.position());
+                    } else {
+                        reportError("Missing return statement.", code.position());
+                    }
                 }
             }
         }
