@@ -17,7 +17,7 @@ public final class GlobalRef<T> extends x10.core.Struct {
         new x10.rtt.RuntimeType.Variance[] { x10.rtt.RuntimeType.Variance.INVARIANT }
     ) {
         @Override
-        public String typeName() {
+        public java.lang.String typeName() {
             return "x10.lang.GlobalRef";
         } 
     };

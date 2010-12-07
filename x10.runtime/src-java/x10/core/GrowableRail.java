@@ -25,7 +25,7 @@ public final class GrowableRail<T> extends Ref implements x10.lang.Indexable<Int
     private Object array;
     private int length;
 
-    public String toString() {
+    public java.lang.String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("[");
         for (int i = 0; i < length; i++) {
@@ -187,7 +187,7 @@ public final class GrowableRail<T> extends Ref implements x10.lang.Indexable<Int
         }
     ) {
         @Override
-        public String typeName() {
+        public java.lang.String typeName() {
             return "x10.lang.GrowableRail";
         }
     };

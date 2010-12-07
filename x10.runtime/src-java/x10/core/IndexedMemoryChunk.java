@@ -91,7 +91,7 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct {
         Variance.INVARIANT
     ) {
         @Override
-        public String typeName() {
+        public java.lang.String typeName() {
             return "x10.util.IndexedMemoryChunk";
         }
     };
