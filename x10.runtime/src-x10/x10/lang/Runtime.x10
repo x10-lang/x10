@@ -670,6 +670,10 @@ import x10.util.Box;
      */
     public static def runAt(place:Place, body:()=>void):void {
         Runtime.ensureNotInAtomic();
+        if (place.id == hereInt()) {
+            deepCopy(body)();
+            return;
+        }
         @StackAllocate val me = @StackAllocate new RemoteControl();
         val box = GlobalRef(me);
         val clockPhases = activity().clockPhases;
@@ -716,6 +720,10 @@ import x10.util.Box;
      * Eval at expression
      */
     public static def evalAt[T](place:Place, eval:()=>T):T {
+        Runtime.ensureNotInAtomic();
+        if (place.id == hereInt()) {
+            return deepCopy(eval)();
+        }
         @StackAllocate val me = @StackAllocate new Remote[T]();
         val box = GlobalRef(me);
         val clockPhases = activity().clockPhases;
