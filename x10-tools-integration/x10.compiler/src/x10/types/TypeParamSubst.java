@@ -21,6 +21,7 @@ import polyglot.types.LazyRef;
 import polyglot.types.Ref;
 import polyglot.types.Type;
 import polyglot.types.Types;
+import polyglot.types.TypeSystem;
 import polyglot.util.Pair;
 import polyglot.util.Transformation;
 import polyglot.util.TransformingList;
@@ -44,18 +45,16 @@ import x10.types.constraints.TypeConstraint;
 public class TypeParamSubst {
 	private final List<? extends Type> typeArguments;
 	private final List<ParameterType> typeParameters;
-	private final X10TypeSystem ts;
+	private final TypeSystem ts;
 
-	private final boolean missingArgs;
 	private final boolean identityInstantiation;
 	private final boolean eager;
 
-	public TypeParamSubst(X10TypeSystem ts, List<? extends Type> tas, List<ParameterType> tps) {
+	public TypeParamSubst(TypeSystem ts, List<? extends Type> tas, List<ParameterType> tps) {
 	    this(ts, tas, tps, false);
 	}
 
-	public TypeParamSubst(X10TypeSystem ts, List<? extends Type> tas, List<ParameterType> tps, boolean eager) {
-		this.missingArgs = tps != null && tps.size() > 0 && tas == null;
+	public TypeParamSubst(TypeSystem ts, List<? extends Type> tas, List<ParameterType> tps, boolean eager) {
 		this.identityInstantiation = isIdentityInstantiation(tas, tps);
 		this.eager = eager;
 		tas = tas == null ? tps : tas;
@@ -112,7 +111,10 @@ public class TypeParamSubst {
 				return ct;
 			List<Type> typeArgs = ct.typeArguments();
 			List<ParameterType> tParams = ct.x10Def().typeParameters();
-			if (typeArgs.size() < tParams.size()) {
+			if (typeArgs == null && !tParams.isEmpty()) {
+			    typeArgs = new ArrayList<Type>(tParams);
+			}
+			if (typeArgs != null && typeArgs.size() < tParams.size()) {
 			    typeArgs = new ArrayList<Type>(typeArgs);
 			    // The def changed since the type was created; params were added
 			    for (int i = typeArgs.size(); i < tParams.size(); i++) {
@@ -129,7 +131,7 @@ public class TypeParamSubst {
 	}
 
 	private static boolean canReferToParams(X10ClassType t) {
-		if (t.typeArguments().size() != 0) {
+		if (t.typeArguments() == null || t.typeArguments().size() != 0) {
 			return true;
 		}
 		if (t.isMember())
@@ -139,9 +141,6 @@ public class TypeParamSubst {
 		return false;
 	}
 
-	public boolean isMissingParameters() {
-		return missingArgs;
-	}
 	public boolean isIdentityInstantiation() {
 	    return identityInstantiation;
 	}
@@ -309,12 +308,12 @@ public class TypeParamSubst {
 		List<SubtypeConstraint> terms = new ArrayList<SubtypeConstraint>(c.terms().size());
 		for (SubtypeConstraint s : c.terms()) {
 			Type sub = s.subtype();
-			Type sup = s.supertype();
+			Type sup = s.isHaszero() ? null : s.supertype();
 			Type sub1 = reinstantiate(sub);
 			Type sup1 = reinstantiate(sup);
 			if (sub != sub1 || sup != sup1) {
 				changed = true;
-				s = new SubtypeConstraint(sub1, sup1, s.isEqualityConstraint());
+				s = new SubtypeConstraint(sub1, sup1, s.kind());
 			}
 			terms.add(s);
 		}
@@ -398,6 +397,8 @@ public class TypeParamSubst {
 		        return list;
 		    return res;
 		}
+		if (list == null)
+		    return null;
 		return new TransformingList<T, T>(list, new Transformation<T, T>() {
 			public T transform(T o) {
 				return reinstantiate(o);

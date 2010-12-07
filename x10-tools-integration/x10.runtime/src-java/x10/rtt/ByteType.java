@@ -14,7 +14,10 @@ package x10.rtt;
 
 public class ByteType extends RuntimeType<Byte> {
     public ByteType() {
-        super(byte.class);
+        super(byte.class,
+              new Type[] {
+                  new ParameterizedType(Types.COMPARABLE, new UnresolvedType(-1))
+              });
     }
     
     @Override

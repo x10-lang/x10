@@ -22,52 +22,48 @@ import x10.compiler.NativeRep;
  */
 @NativeRep("java", "boolean", null, "x10.rtt.Types.BOOLEAN")
 @NativeRep("c++", "x10_boolean", "x10_boolean", null)
-public final struct Boolean {
+public struct Boolean implements Comparable[Boolean] {
 
     /**
      * A logical complement operator.
-     * Computes a logical complement of the given Boolean.
-     * @param x the given Boolean
-     * @return the logical complement of the given Boolean.
+     * Computes a logical complement of this Boolean.
+     * @return the logical complement of this Boolean.
      */
-    @Native("java", "(!(#1))")
-    @Native("c++",  "(!(#1))")
-    public native static operator ! (x:Boolean): Boolean;
+    @Native("java", "!(#0)")
+    @Native("c++",  "!(#0)")
+    public native operator ! this: Boolean;
 
     /**
      * A logical and operator (not short-circuiting).
-     * Computes a logical AND of the given Boolean and the other Boolean.
+     * Computes a logical AND of this Boolean and the other Boolean.
      * Evaluates both arguments.
-     * @param x the given Boolean
-     * @param y the other Boolean
-     * @return the logical AND of the given Boolean and the other Boolean.
+     * @param x the other Boolean
+     * @return the logical AND of this Boolean and the other Boolean.
      */
-    @Native("java", "((#1) & (#2))")
-    @Native("c++",  "((x10_boolean) (((#1) ? 1 : 0) & ((#2) ? 1 : 0)))")
-    public native static operator (x:Boolean) & (y:Boolean): Boolean;
+    @Native("java", "((#0) & (#1))")
+    @Native("c++",  "((x10_boolean) (((#0) ? 1 : 0) & ((#1) ? 1 : 0)))")
+    public native operator this & (x:Boolean): Boolean;
 
     /**
      * A logical or operator (not short-circuiting).
-     * Computes a logical OR of the given Boolean and the other Boolean.
+     * Computes a logical OR of this Boolean and the other Boolean.
      * Evaluates both arguments.
-     * @param x the given Boolean
-     * @param y the other Boolean
-     * @return the logical OR of the given Boolean and the other Boolean.
+     * @param x the other Boolean
+     * @return the logical OR of this Boolean and the other Boolean.
      */
-    @Native("java", "((#1) | (#2))")
-    @Native("c++",  "((x10_boolean) (((#1) ? 1 : 0) | ((#2) ? 1 : 0)))")
-    public native static operator (x:Boolean) | (y:Boolean): Boolean;
+    @Native("java", "((#0) | (#1))")
+    @Native("c++",  "((x10_boolean) (((#0) ? 1 : 0) | ((#1) ? 1 : 0)))")
+    public native operator this | (x:Boolean): Boolean;
 
     /**
      * A logical xor operator.
-     * Computes a logical XOR of the given Boolean and the other Boolean.
-     * @param x the given Boolean
-     * @param y the other Boolean
-     * @return the logical XOR of the given Boolean and the other Boolean.
+     * Computes a logical XOR of this Boolean and the other Boolean.
+     * @param x the other Boolean
+     * @return the logical XOR of this Boolean and the other Boolean.
      */
-    @Native("java", "((#1) ^ (#2))")
-    @Native("c++",  "((x10_boolean) (((#1) ? 1 : 0) ^ ((#2) ? 1 : 0)))")
-    public native static operator (x:Boolean) ^ (y:Boolean): Boolean;
+    @Native("java", "((#0) ^ (#1))")
+    @Native("c++",  "((x10_boolean) (((#0) ? 1 : 0) ^ ((#1) ? 1 : 0)))")
+    public native operator this ^ (x:Boolean): Boolean;
 
 
     /**
@@ -131,6 +127,17 @@ public final struct Boolean {
     @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
     public native def equals(x:Boolean):Boolean;
+
+    /**
+    * Returns a negative Int, zero, or a positive Int if this Boolean is less than, equal
+    * to, or greater than the given Boolean.
+    * @param x the given Boolean
+    * @return a negative Int, zero, or a positive Int if this Boolean is less than, equal
+    * to, or greater than the given Boolean.
+    */
+    @Native("java", "x10.rtt.Equality.compareTo(#0, #1)")
+    @Native("c++", "x10aux::boolean_utils::compareTo(#0, #1)")
+    public native def compareTo(x:Boolean):Int;
 
     // These operations are built-in.  Declaring them will prevent the
     // short-circuiting behavior.

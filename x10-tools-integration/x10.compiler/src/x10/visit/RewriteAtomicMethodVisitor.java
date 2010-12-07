@@ -28,10 +28,8 @@ import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.ast.Atomic;
 import x10.ast.X10MethodDecl;
-import x10.ast.X10NodeFactory;
-import x10.extension.X10ClassBodyExt_c;
 import x10.types.X10Flags;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 
 public class RewriteAtomicMethodVisitor extends ContextVisitor {
 
@@ -52,7 +50,7 @@ public class RewriteAtomicMethodVisitor extends ContextVisitor {
 			X10Flags flags = X10Flags.toX10Flags(md.flags().flags());
 			if (flags.isAtomic()) {
 				Block b = md.body();
-				X10NodeFactory nf = (X10NodeFactory) this.nf;
+				NodeFactory nf = (NodeFactory) this.nf;
 				Position pos = b.position();
 
 				Expr here = nf.Here(pos);

@@ -19,7 +19,7 @@ import polyglot.util.ErrorQueue;
 public class FreeBSD_CXXCommandBuilder extends CXXCommandBuilder {
     protected static final boolean USE_X86 = CXXCommandBuilder.PLATFORM.endsWith("_x86");
     protected static final boolean USE_BFD = System.getenv("USE_BFD")!=null;
- 
+
     public FreeBSD_CXXCommandBuilder(Options options, ErrorQueue eq) {
         super(options, eq);
         assert (CXXCommandBuilder.PLATFORM.startsWith("freebsd_"));
@@ -27,8 +27,6 @@ public class FreeBSD_CXXCommandBuilder extends CXXCommandBuilder {
 
     protected void addPreArgs(ArrayList<String> cxxCmd) {
         super.addPreArgs(cxxCmd);
-        cxxCmd.add("-Wno-long-long");
-        cxxCmd.add("-Wno-unused-parameter");
         cxxCmd.add("-pthread");
         if (USE_X86) {
             cxxCmd.add("-msse2");
@@ -38,7 +36,7 @@ public class FreeBSD_CXXCommandBuilder extends CXXCommandBuilder {
 
     protected void addPostArgs(ArrayList<String> cxxCmd) {
         super.addPostArgs(cxxCmd);
-        
+
         cxxCmd.remove("-ldl");
         // Support for loading shared libraries from x10.dist/lib
         cxxCmd.add("-Wl,--rpath");

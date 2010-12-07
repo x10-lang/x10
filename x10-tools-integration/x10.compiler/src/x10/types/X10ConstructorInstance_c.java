@@ -141,6 +141,11 @@ public class X10ConstructorInstance_c extends ConstructorInstance_c implements X
             return Types.get(x10Def().guard());
         return guard;
     }
+    public TypeConstraint typeGuard() {
+        if (typeGuard == null)
+            return Types.get(x10Def().typeGuard());
+        return typeGuard;
+    }
 
     public X10ConstructorInstance guard(CConstraint c) {
         if (c == this.guard) return this;
@@ -151,7 +156,6 @@ public class X10ConstructorInstance_c extends ConstructorInstance_c implements X
 
     /** Constraint on type parameters. */
     protected TypeConstraint typeGuard;
-    public TypeConstraint typeGuard() { return typeGuard; }
     public X10ConstructorInstance typeGuard(TypeConstraint s) {
         if (s == this.typeGuard) return this;
         X10ConstructorInstance_c n = (X10ConstructorInstance_c) copy();
@@ -225,7 +229,7 @@ public class X10ConstructorInstance_c extends ConstructorInstance_c implements X
     }
 
     public String toString() {
-	    String s = designator() + " " + X10Flags.toX10Flags(flags()).prettyPrint() + container() + "." + signature();
+	    String s = designator() + " " + X10Flags.toX10Flags(flags()).prettyPrint() + signature();
 
 	
 	    return s;
@@ -233,6 +237,8 @@ public class X10ConstructorInstance_c extends ConstructorInstance_c implements X
     
     public String signature() {
         StringBuilder sb = new StringBuilder();
+        sb.append(container().toString());
+        sb.append(".");
         sb.append("this");
         // [IP] Constructors don't have type parameters, they inherit them from the container.
         //List<String> params = new ArrayList<String>();

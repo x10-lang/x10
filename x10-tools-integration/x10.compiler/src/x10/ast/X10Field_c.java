@@ -22,6 +22,7 @@ import polyglot.ast.Field;
 import polyglot.ast.Field_c;
 import polyglot.ast.Id;
 import polyglot.ast.Node;
+import polyglot.ast.NodeFactory;
 import polyglot.ast.Receiver;
 import polyglot.ast.Special;
 import polyglot.ast.TypeNode;
@@ -31,6 +32,8 @@ import polyglot.types.FieldDef;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.Name;
+import polyglot.types.Named;
+import polyglot.types.QName;
 import polyglot.types.SemanticException;
 import polyglot.types.StructType;
 import polyglot.types.Type;
@@ -46,14 +49,14 @@ import x10.types.ConstrainedType;
 import x10.types.ParameterType;
 import x10.types.ParametrizedType_c;
 import x10.types.X10ClassType;
-import x10.types.X10Context;
+import polyglot.types.Context;
 import x10.types.X10FieldInstance;
 import x10.types.X10Flags;
 import x10.types.X10MethodInstance;
 import x10.types.X10TypeSystem_c;
 
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 import x10.types.checker.Checker;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
@@ -96,8 +99,8 @@ public class X10Field_c extends Field_c {
 
     public static X10FieldInstance findAppropriateField(ContextVisitor tc,
             Type targetType, Name name, boolean isStatic, boolean receiverInContext) {
-        X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
-        X10Context c = (X10Context) tc.context();
+        TypeSystem ts = (TypeSystem) tc.typeSystem();
+        Context c = (Context) tc.context();
         X10FieldInstance fi = null;
         try {
             // vj: Hack to work around the design decision to represent "here" as this.home for
@@ -162,6 +165,10 @@ public class X10Field_c extends Field_c {
 	    if (isStatic) flags = flags.Static();
 	    if (haveUnknown)
 	        e = new SemanticException(); // null message
+	    if (!targetType.isClass()) {
+	        Name tName = targetType instanceof Named ? ((Named) targetType).name() : Name.make(targetType.toString()); 
+	        targetType = xts.createFakeClass(QName.make(null, tName), new SemanticException("Target type is not a class: "+targetType));
+	    }
 	    fi = xts.createFakeField(targetType.toClass(), flags, name, e);
 	    if (rt == null) rt = fi.type();
 	    rt = PlaceChecker.AddIsHereClause(rt, context);
@@ -195,9 +202,9 @@ public class X10Field_c extends Field_c {
     }
 	
     public Node typeCheck1(ContextVisitor tc) throws SemanticException {
-		final X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
-		final X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
-		final X10Context c = (X10Context) tc.context(); 
+		final TypeSystem ts = (TypeSystem) tc.typeSystem();
+		final NodeFactory nf = (NodeFactory) tc.nodeFactory();
+		final Context c = (Context) tc.context(); 
 		Type tType = target != null ? target.type() : c.currentClass();
 
 		if (target instanceof TypeNode) {
@@ -263,6 +270,8 @@ public class X10Field_c extends Field_c {
             throw fi.error();
         }
 
+        c.recordCapturedVariable(fi);
+
 //		// Fix XTENLANG-945 (alternative common fix)
 //		if (isInterfaceProperty(tType, fi)) {
 //			throw new NoMemberException(NoMemberException.FIELD, "interface property access will be translated to property method call");
@@ -305,9 +314,9 @@ public class X10Field_c extends Field_c {
 	protected void checkClockedFieldAccessesAreInClockedMethods(X10Field_c result, ContextVisitor tc) 
 	throws SemanticException {
 		//		 Check that field accesses in dep clauses refer to final fields.
-		X10Context xtc = (X10Context) tc.context();
+		Context xtc = (Context) tc.context();
 		if (X10Flags.toX10Flags(result.flags()).isClocked() 
-				&& ! ((X10Context) tc.context()).isClocked()) {
+				&& ! ((Context) tc.context()).isClocked()) {
 			throw new Errors.IllegalClockedAccess(this, position());
 		}
 	}
@@ -317,7 +326,7 @@ public class X10Field_c extends Field_c {
 	protected void checkFieldAccessesInDepClausesAreFinal(X10Field_c result, ContextVisitor tc) 
 	throws SemanticException {
 		//		 Check that field accesses in dep clauses refer to final fields.
-		X10Context xtc = (X10Context) tc.context();
+		Context xtc = (Context) tc.context();
 		if (xtc.inDepType()) {
 			FieldInstance fi = result.fieldInstance();
 			if (! fi.flags().contains(Flags.FINAL))

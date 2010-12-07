@@ -12,6 +12,9 @@
 package x10.ast;
 
 import polyglot.ast.CanonicalTypeNode;
+import polyglot.ast.Node;
+import polyglot.visit.ContextVisitor;
 
 public interface X10CanonicalTypeNode extends CanonicalTypeNode, AddFlags {
+    Node typeCheck(ContextVisitor tc);
 }

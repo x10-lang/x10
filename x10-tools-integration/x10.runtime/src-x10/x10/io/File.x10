@@ -33,7 +33,7 @@ import x10.compiler.Incomplete;
  * catch (IOException) { }
  */
 public class File {
-    @NativeRep("java", "java.io.File", null, "x10.rtt.Types.NATIVE_FILE")
+    @NativeRep("java", "x10.core.io.NativeFile", null, "x10.core.io.NativeFile._RTT")
     @NativeRep("c++", "x10aux::ref<x10::io::File__NativeFile>", "x10::io::File__NativeFile", null)
     protected final static class NativeFile {
         native def this(String);
@@ -55,9 +55,8 @@ public class File {
         @Native("java", "#0.getAbsolutePath()")
         @Native("c++", "(#0)->getAbsolutePath()")
         native def getAbsolutePath(): String;
-        // here's what we must do if we make IOException non-native
-        @Native("java", "new Object() { String eval(java.io.File f) { try { return f.getCanonicalPath(); } catch (java.io.IOException e) { throw new x10.io.IOException(e.getMessage()); } } }.eval(#0)")
-        // @Native("java", "#0.getCanonicalPath()")
+
+        @Native("java", "#0.getCanonicalPath()")
         @Native("c++", "(#0)->getCanonicalPath()")
         native def getCanonicalPath(): String; //throws IOException;
 

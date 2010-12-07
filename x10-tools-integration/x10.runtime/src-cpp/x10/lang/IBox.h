@@ -62,15 +62,17 @@ namespace x10 {
         }
         
         template<class T> const x10aux::serialization_id_t x10::lang::IBox<T>::_serialization_id = 
-            x10aux::DeserializationDispatcher::addDeserializer(x10::lang::IBox<T>::template _deserializer<x10::lang::Reference>);
+            x10aux::DeserializationDispatcher::addDeserializer(x10::lang::IBox<T>::template _deserializer<x10::lang::Reference>, x10aux::CLOSURE_KIND_NOT_ASYNC);
 
         template<class T> void IBox<T>::_serialize_body(x10aux::serialization_buffer &buf) {
             buf.write(value);
         }
         
         template<class T> template<class __T> x10aux::ref<__T> x10::lang::IBox<T>::_deserializer(x10aux::deserialization_buffer& buf) {
+            IBox<T> * storage = x10aux::alloc<IBox<T> >();
+            buf.record_reference(x10aux::ref<IBox<T> >(storage));
             T tmp = buf.read<T>();
-            x10aux::ref<x10::lang::IBox<T> > this_ = new (x10aux::alloc<x10::lang::IBox<T> >()) x10::lang::IBox<T>(tmp);
+            x10aux::ref<x10::lang::IBox<T> > this_ = new (storage) x10::lang::IBox<T>(tmp);
             return this_;
         }
     }

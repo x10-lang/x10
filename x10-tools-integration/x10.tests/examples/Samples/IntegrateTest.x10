@@ -13,7 +13,7 @@ import harness.x10Test;
 
 public class IntegrateTest extends x10Test {
     public def run():boolean {
-        val obj = new IntegrateTest((x:double)=>(x*x + 1.0) * x);
+        val obj = new IntegrateTutorial((x:double)=>(x*x + 1.0) * x);
         val area = obj.computeArea(0, 10);
 	    Console.OUT.println("Computed area is "+area);
 	    chk(area > 2549.999);

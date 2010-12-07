@@ -35,7 +35,9 @@ import polyglot.types.Matcher;
 import polyglot.types.MethodDef;
 import polyglot.types.MethodInstance;
 import polyglot.types.Name;
+import polyglot.types.Named;
 import polyglot.types.ProcedureDef;
+import polyglot.types.QName;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
@@ -64,13 +66,13 @@ import x10.types.MacroType;
 import x10.types.ParameterType;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
-import x10.types.X10Context;
+import polyglot.types.Context;
 import x10.types.X10Flags;
 import x10.types.X10MemberDef;
 import x10.types.X10MethodInstance;
 import x10.types.X10ProcedureInstance;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 import x10.types.X10TypeSystem_c;
 import x10.types.XTypeTranslator;
 import x10.types.constraints.CConstraint;
@@ -88,7 +90,7 @@ public class Checker {
 	
 	public static void checkOfferType(Position pos, 
 			X10ProcedureInstance<? extends ProcedureDef> pi,ContextVisitor tc) throws SemanticException {
-		X10Context cxt = (X10Context) tc.context();
+		Context cxt = (Context) tc.context();
 		Type offerType = (Type) Types.get(pi.offerType());
 		Type type = cxt.collectingFinishType();
 		if (offerType != null) {
@@ -107,7 +109,7 @@ public class Checker {
 	    try {
 	        n = (Assign) a.typeCheckLeft(tc);
 	    } catch (SemanticException e) {
-	        Errors.issue(tc.job(), e, a);
+	        throw new InternalCompilerError("Unexpected exception while typechecking "+a.left(), a.position(), e);
 	    }
 
 	    TypeSystem ts = tc.typeSystem();
@@ -122,13 +124,12 @@ public class Checker {
 	    Type s = right.type();
 
 	    if (op == ASSIGN) {
-	        try {
-	            Expr e = Converter.attemptCoercion(tc, right, t);
+	        Expr e = Converter.attemptCoercion(tc, right, t);
+	        if (e != null) {
 	            n = n.right(e);
-	        }
-	        catch (SemanticException e) {
-	        	// Don't try to extract the LHS expression, this is called by X10FieldAssign_c as well.
-	        	Errors.issue(tc.job(), new Errors.CannotAssign(right, t, n.position()));
+	        } else {
+	            // Don't try to extract the LHS expression, this is called by X10FieldAssign_c as well.
+	            Errors.issue(tc.job(), new Errors.CannotAssign(right, t, n.position()));
 	        }
 	    }
 
@@ -194,6 +195,8 @@ public class Checker {
 	    if (t instanceof X10ClassType) {
 	        X10ClassType ct = (X10ClassType) t;
 	        X10ClassDef def = ct.x10Def();
+	        if (ct.typeArguments() == null)
+	            return;
 	        for (int i = 0; i < ct.typeArguments().size(); i++) {
 	            Type at = ct.typeArguments().get(i);
 	            ParameterType pt = def.typeParameters().get(i);
@@ -236,8 +239,8 @@ public class Checker {
 			return t;
 		XVar receiver = null;
 
-		X10TypeSystem ts = (X10TypeSystem) t.typeSystem();
-		XTerm r = ts.xtypeTranslator().trans(new CConstraint(), target, (X10Context) c);
+		TypeSystem ts = (TypeSystem) t.typeSystem();
+		XTerm r = ts.xtypeTranslator().trans(new CConstraint(), target, (Context) c);
 		if (r instanceof XVar) {
 			receiver = (XVar) r;
 		}
@@ -254,9 +257,9 @@ public class Checker {
 	}
 
 	public static Type expandCall(Type type, Call t,  Context c) throws SemanticException {
-		X10Context xc = (X10Context) c;
+		Context xc = (Context) c;
 		X10MethodInstance xmi = (X10MethodInstance) t.methodInstance();
-		XTypeTranslator xt = ((X10TypeSystem) type.typeSystem()).xtypeTranslator();
+		XTypeTranslator xt = ((TypeSystem) type.typeSystem()).xtypeTranslator();
 		Flags f = xmi.flags();
 		XTerm body = null;
 		if (X10Flags.toX10Flags(f).isProperty()) {
@@ -420,6 +423,10 @@ public class Checker {
 	    }
 	    if (haveUnknown)
 	        error = new SemanticException(); // null message
+	    if (!targetType.isClass()) {
+	        Name tName = targetType instanceof Named ? ((Named) targetType).name() : Name.make(targetType.toString()); 
+	        targetType = xts.createFakeClass(QName.make(null, tName), new SemanticException("Target type is not a class: "+targetType));
+	    }
 	    mi = xts.createFakeMethod(targetType.toClass(), Flags.PUBLIC, name, typeArgs, actualTypes, error);
 	    if (rt == null) rt = mi.returnType();
 	    rt = PlaceChecker.AddIsHereClause(rt, context);
@@ -440,7 +447,7 @@ public class Checker {
 	 */
 	public static Pair<MethodInstance,List<Expr>> tryImplicitConversions(X10ProcedureCall n, ContextVisitor tc,
 	        Type targetType, final Name name, List<Type> typeArgs, List<Type> argTypes) throws SemanticException {
-	    final X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+	    final TypeSystem ts = (TypeSystem) tc.typeSystem();
 	    final Context context = tc.context();
 	
 	    List<MethodInstance> methods = ts.findAcceptableMethods(targetType,
@@ -463,7 +470,7 @@ public class Checker {
 	        Type targetType, Name name, List<Type> typeArgs, List<Type> actualTypes) {
 	    X10MethodInstance mi;
 	    X10TypeSystem_c xts = (X10TypeSystem_c) tc.typeSystem();
-	    X10Context context = (X10Context) tc.context();
+	    Context context = (Context) tc.context();
 	    boolean haveUnknown = xts.hasUnknown(targetType);
 	    for (Type t : actualTypes) {
 	        if (xts.hasUnknown(t)) haveUnknown = true;
@@ -501,23 +508,27 @@ public class Checker {
 	        targetType = context.currentClass();
 	    if (haveUnknown)
 	        error = new SemanticException(); // null message
-	    mi = xts.createFakeMethod(targetType.toClass(), Flags.PUBLIC, name, typeArgs, actualTypes, error);
+	    if (!targetType.isClass()) {
+	        Name tName = targetType instanceof Named ? ((Named) targetType).name() : Name.make(targetType.toString()); 
+	        targetType = xts.createFakeClass(QName.make(null, tName), new SemanticException("Target type is not a class: "+targetType));
+	    }
+	    mi = xts.createFakeMethod(targetType.toClass(), Flags.PUBLIC.Static(), name, typeArgs, actualTypes, error);
 	    if (rt != null) mi = mi.returnType(rt);
 	    return new Pair<MethodInstance, List<Expr>>(mi, n.arguments());
 	}
 
-	private static Pair<MethodInstance,List<Expr>> findMethod(ContextVisitor tc, X10Context xc,
+	private static Pair<MethodInstance,List<Expr>> findMethod(ContextVisitor tc, Context xc,
 	        X10ProcedureCall n, Type targetType, Name name, List<Type> typeArgs,
 			List<Type> argTypes, boolean requireStatic) throws SemanticException {
 	
 	    X10MethodInstance mi = null;
-	    X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
+	    TypeSystem xts = (TypeSystem) tc.typeSystem();
 	    if (targetType != null) {
 	        mi = xts.findMethod(targetType, xts.MethodMatcher(targetType, name, typeArgs, argTypes, xc));
 	        return new Pair<MethodInstance, List<Expr>>(mi, n.arguments());
 	    }
 	    if (xc.currentDepType() != null)
-	        xc = (X10Context) xc.pop();
+	        xc = (Context) xc.pop();
 	    ClassType currentClass = xc.currentClass();
 	    if (currentClass != null && xts.hasMethodNamed(currentClass, name)) {
 	        // Override to change the type from C to C{self==this}.
@@ -560,9 +571,9 @@ public class Checker {
 	    }
 	
 	    while (xc.pop() != null && xc.pop().currentClass() == currentClass)
-	        xc = (X10Context) xc.pop();
+	        xc = (Context) xc.pop();
 	    if (xc.pop() != null) {
-	        return findMethod(tc, (X10Context) xc.pop(), n, targetType, name, typeArgs, argTypes, currentClass.flags().isStatic());
+	        return findMethod(tc, (Context) xc.pop(), n, targetType, name, typeArgs, argTypes, currentClass.flags().isStatic());
 	    }
 	
 	    TypeSystem_c.MethodMatcher matcher = xts.MethodMatcher(targetType, name, typeArgs, argTypes, xc);
@@ -572,7 +583,7 @@ public class Checker {
 	public static Collection<X10MethodInstance> findMethods(ContextVisitor tc, Type targetType, Name name, List<Type> typeArgs,
 	        List<Type> actualTypes) throws SemanticException {
 	    X10TypeSystem_c xts = (X10TypeSystem_c) tc.typeSystem();
-	    X10Context context = (X10Context) tc.context();
+	    Context context = (Context) tc.context();
 	    if (targetType == null) {
 	        // TODO
 	        return Collections.emptyList();

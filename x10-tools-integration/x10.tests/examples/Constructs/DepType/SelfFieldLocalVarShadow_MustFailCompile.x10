@@ -16,6 +16,9 @@
  *  This file is part of X10 Test.
  *
  */
+
+//OPTIONS: -STATIC_CALLS
+
 import harness.x10Test;
 
 /**

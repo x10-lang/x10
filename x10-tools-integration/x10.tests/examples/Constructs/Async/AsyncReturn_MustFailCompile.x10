@@ -22,7 +22,7 @@ public class AsyncReturn_MustFailCompile extends x10Test {
 
 	public def run(): boolean = {
 		finish async {
-				return;
+				return; // ERR: Cannot return from an async.
 		}
 		return true;
 	}

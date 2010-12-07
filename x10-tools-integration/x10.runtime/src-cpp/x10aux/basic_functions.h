@@ -15,6 +15,8 @@
 #include <x10aux/config.h>
 #include <x10aux/ref.h>
 #include <x10aux/hash.h>
+#include <x10aux/double_utils.h>
+#include <x10aux/float_utils.h>
 #include <x10aux/string_utils.h>
 
 #include <x10/lang/IBox.struct_h>
@@ -304,27 +306,28 @@ namespace x10aux {
         return x->hashCode();
     }
 
-    inline x10_int hash_code(const x10_double x) {
-        return hash(reinterpret_cast<const unsigned char*>(&x), sizeof(x));
-    }
-    inline x10_int hash_code(const x10_float x) {
-        return hash(reinterpret_cast<const unsigned char*>(&x), sizeof(x));
+    inline x10_int hash_code(const x10_boolean x) { return x; }
+    inline x10_int hash_code(const x10_byte x) { return x; }
+    inline x10_int hash_code(const x10_ubyte x) { return x; }
+    inline x10_int hash_code(const x10_short x) { return x; }
+    inline x10_int hash_code(const x10_ushort x) { return x; }
+    inline x10_int hash_code(const x10_char x) { return x.v; }
+    inline x10_int hash_code(const x10_int x) { return x; }
+    inline x10_int hash_code(const x10_uint x) { return x; }
+    inline x10_int hash_code(const x10_ulong x) {
+        return (x10_int)(x ^ (x >> 32));
     }
     inline x10_int hash_code(const x10_long x) {
-        return hash(reinterpret_cast<const unsigned char*>(&x), sizeof(x));
+        return hash_code((x10_ulong)x);
     }
-    inline x10_int hash_code(const x10_int x) { return x; }
-    inline x10_int hash_code(const x10_short x) { return x; }
-    inline x10_int hash_code(const x10_byte x) { return x; }
-    inline x10_int hash_code(const x10_ulong x) {
-        return hash(reinterpret_cast<const unsigned char*>(&x), sizeof(x));
+    inline x10_int hash_code(const x10_double x) {
+        return hash_code(double_utils::toLongBits(x));
     }
-    inline x10_int hash_code(const x10_uint x) { return x; }
-    inline x10_int hash_code(const x10_ushort x) { return x; }
-    inline x10_int hash_code(const x10_ubyte x) { return x; }
-    inline x10_int hash_code(const x10_char x) { return x.v; }
-    inline x10_int hash_code(const x10_boolean x) { return x; }
+    inline x10_int hash_code(const x10_float x) {
+        return hash_code(float_utils::toIntBits(x));
+    }
 
+    
     /******* to_string ********/
 
     template<class T> ref<x10::lang::String> to_string(ref<T> x) {
@@ -355,6 +358,36 @@ namespace x10aux {
     ref<x10::lang::String> to_string(x10_double v);
 
     ref<x10::lang::String> to_string(x10_char v);
+
+
+    /******* zeroValue ********/
+    template<class T> struct Zero {
+        static T _() {
+            T ans;
+            memset(&ans, 0, sizeof(T));
+            return ans;
+        }
+    };
+    template<class T> struct Zero<ref<T> > {
+        static ref<T> _() { return X10_NULL; }
+    };
+    #define X10_PRIM_ZERO(T) template<> struct Zero<T> { static T _() { return static_cast<T>(0); } };
+    X10_PRIM_ZERO(x10_byte)
+    X10_PRIM_ZERO(x10_ubyte)
+    X10_PRIM_ZERO(x10_short)
+    X10_PRIM_ZERO(x10_ushort)
+    X10_PRIM_ZERO(x10_int)
+    X10_PRIM_ZERO(x10_uint)
+    X10_PRIM_ZERO(x10_long)
+    X10_PRIM_ZERO(x10_ulong)
+    X10_PRIM_ZERO(x10_float)
+    X10_PRIM_ZERO(x10_double)
+    #undef X10_PRIM_ZERO
+    template<> struct Zero<x10_boolean> { static x10_boolean _() { return false; } };
+    template<> struct Zero<x10_char> { static x10_char _() { return x10_char(0); } };
+
+    template <class T> T zeroValue() { return Zero<T>::_(); }
+    
 }
 
 #endif

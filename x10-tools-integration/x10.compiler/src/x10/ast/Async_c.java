@@ -20,6 +20,7 @@ import java.util.Set;
 import polyglot.ast.Expr;
 import polyglot.ast.Formal;
 import polyglot.ast.Node;
+import polyglot.ast.NodeFactory;
 import polyglot.ast.Stmt;
 import polyglot.ast.Stmt_c;
 import polyglot.ast.Term;
@@ -47,9 +48,9 @@ import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.errors.Errors;
 import x10.types.ParameterType;
-import x10.types.X10Context;
+import polyglot.types.Context;
 import x10.types.X10MethodDef;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.XConstrainedTerm;
@@ -138,7 +139,7 @@ public class Async_c extends Stmt_c implements Async {
 	
 	@Override
 	public Node typeCheckOverride(Node parent, ContextVisitor tc) {
-	    X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+	    TypeSystem ts = (TypeSystem) tc.typeSystem();
 	    NodeVisitor v = tc.enter(parent, this);
 
 	    if (v instanceof PruningVisitor) {
@@ -165,10 +166,10 @@ public class Async_c extends Stmt_c implements Async {
 	}
 
 	public Node typeCheck(ContextVisitor tc) {
-		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
-		X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
+		TypeSystem ts = (TypeSystem) tc.typeSystem();
+		NodeFactory nf = (NodeFactory) tc.nodeFactory();
 
-		X10Context c = (X10Context) tc.context();
+		Context c = (Context) tc.context();
 		if (clocked() && ! c.inClockedFinishScope())
 			Errors.issue(tc.job(),
 			        new SemanticException("clocked async must be invoked inside a statically enclosing clocked finish.", position()));
@@ -186,7 +187,7 @@ public class Async_c extends Stmt_c implements Async {
 
 	
 	public Type childExpectedType(Expr child, AscriptionVisitor av) {
-		X10TypeSystem ts = (X10TypeSystem) av.typeSystem();
+		TypeSystem ts = (TypeSystem) av.typeSystem();
 		return child.type();
 	}
 

@@ -26,7 +26,7 @@ import polyglot.parse.VarDeclarator;
 import polyglot.types.Flags;
 import polyglot.types.TypeSystem;
 import polyglot.util.Position;
-import x10.parser.X10Parser.JPGPosition;
+import x10.parser.X10SemanticRules.JPGPosition;
 
 /**
  * @author vj Jan 23, 2005

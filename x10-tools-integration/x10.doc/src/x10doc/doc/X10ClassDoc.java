@@ -16,7 +16,7 @@ import x10.types.X10ClassDef;
 import x10.types.X10ConstructorDef;
 import x10.types.X10FieldDef;
 import x10.types.X10MethodDef;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.SubtypeConstraint;
 import x10.types.constraints.TypeConstraint;
@@ -754,13 +754,13 @@ public class X10ClassDoc extends X10Doc implements ClassDoc {
 
 	@Override
 	public boolean isError() {
-		X10TypeSystem ts = (X10TypeSystem) classDef.typeSystem();
+		TypeSystem ts = (TypeSystem) classDef.typeSystem();
 		return ts.isSubtype(classDef.asType(), ts.Error(), ts.emptyContext());
 	}
 
 	@Override
 	public boolean isException() {
-		X10TypeSystem ts = (X10TypeSystem) classDef.typeSystem();
+		TypeSystem ts = (TypeSystem) classDef.typeSystem();
 		return ts.isSubtype(classDef.asType(), ts.Exception(), ts.emptyContext());
 	}
 

@@ -44,8 +44,8 @@ public class AsyncTest3 extends x10Test {
             chk(A(0) == 8 && A(1) == 2);
             x10.io.Console.OUT.println("3");
             return false;
-        } catch (z:BadPlaceException) {
-            return true;
+        } catch (z:MultipleExceptions) {
+            return (z.exceptions.size() == 1 && z.exceptions(0) instanceof BadPlaceException);
         }
     }
 

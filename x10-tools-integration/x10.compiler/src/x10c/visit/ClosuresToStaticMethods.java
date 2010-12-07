@@ -45,25 +45,25 @@ import x10.ast.ParExpr;
 import x10.ast.TypeParamNode;
 import x10.ast.X10Call;
 import x10.ast.X10MethodDecl;
-import x10.ast.X10NodeFactory;
 import x10.ast.X10Special;
 import x10.types.ParameterType;
+import x10.types.X10ClassDef;
 import x10.types.X10MethodDef;
 import x10.types.X10ParsedClassType;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 
 public class ClosuresToStaticMethods extends ContextVisitor {
     
     private static final String STATIC_METHOD_BASE_NAME = "__$closure$apply$__";
 
-    private final X10TypeSystem xts;
-    private final X10NodeFactory xnf;
+    private final TypeSystem xts;
+    private final NodeFactory xnf;
     private final Map<CodeDef,List<ParameterType>> closureDefToTypePrams = new HashMap<CodeDef,List<ParameterType>>();
     
     public ClosuresToStaticMethods(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf);
-        xts = (X10TypeSystem) ts;
-        xnf = (X10NodeFactory) nf;
+        xts = (TypeSystem) ts;
+        xnf = (NodeFactory) nf;
     }
     
     @Override
@@ -95,6 +95,15 @@ public class ClosuresToStaticMethods extends ContextVisitor {
             CodeDef ci = context.pop().currentCode();
             if (ci instanceof X10MethodDef) {
                 mtps = ((X10MethodDef) ci).typeParameters();
+            }
+            X10ClassDef cd = (X10ClassDef) context.currentClassDef();
+            if (!cd.typeParameters().isEmpty()) {
+                if (mtps != null) {
+                    mtps = new ArrayList<ParameterType>(mtps);
+                } else {
+                    mtps = new ArrayList<ParameterType>();
+                }
+                mtps.addAll(cd.typeParameters());
             }
             
             if (!cc.isCap && !context.inStaticContext()) {
@@ -141,19 +150,6 @@ public class ClosuresToStaticMethods extends ContextVisitor {
                                 List<ParameterType> rts = new ArrayList<ParameterType>();
                                 List<TypeNode> tns = new ArrayList<TypeNode>();
                                 List<TypeParamNode> tps = new ArrayList<TypeParamNode>();
-                                if (ct instanceof X10ParsedClassType) {
-                                    X10ParsedClassType pct = (X10ParsedClassType) ct;
-                                    if (pct.typeArguments().size() > 0) {
-                                        for (Type t3 : pct.typeArguments()) {
-                                            if (t3 instanceof ParameterType) {
-                                                ParameterType pt = (ParameterType) t3;
-                                                tps.add(xnf.TypeParamNode(cg, xnf.Id(cg, pt.name())).type(pt));
-                                                tns.add(xnf.X10CanonicalTypeNode(cg, pt));
-                                                rts.add(pt);
-                                            }
-                                        }
-                                    }
-                                }
                                 
                                 List<ParameterType> mtps = closureDefToTypePrams.get(closure.codeDef());
                                 if (mtps != null) {

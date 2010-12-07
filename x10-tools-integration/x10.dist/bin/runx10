@@ -36,7 +36,7 @@ else
         export LD_PRELOAD="$LDPRELOAD /usr/lib/libprofiler.so"
     fi
 
-    if [ -z "$PGASRT_HOME_PORT" ] ; then
+    if [ -z "$BE" -a -z "$OF" -a -z "$PGASRT_HOME_PORT" ] ; then
         DEFAULT_PORT=21053
         IP=$(host -t A $(hostname) | awk '{print $NF}')
         PORT=$(expr $DEFAULT_PORT + $$ % 1024)

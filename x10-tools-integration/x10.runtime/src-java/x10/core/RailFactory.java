@@ -19,108 +19,72 @@ import x10.rtt.Types;
 public abstract class RailFactory {
     public static <T> Rail<T> makeVarRail(Type type, int length) {
         Object value = type.makeArray(length);
-        Rail<T> array = new Rail<T>(type, length, value);
-        return array;
-    }
-
-    public static <T> ValRail<T> makeValRail(Type type, int length) {
-        Object o = type.makeArray(length);
-        ValRail<T> array = new ValRail<T>(type, length, o);
-        return array;
+        if (!x10.rtt.Types.hasNaturalZero(type)) {
+            Object zeroValue = x10.rtt.Types.zeroValue(type);
+            java.util.Arrays.fill((Object[]) value, zeroValue);
+        }
+        return new Rail<T>(type, length, value);
     }
 
     public static <T> Rail<T> makeVarRail(Type type, int length, T init) {
-        Object o = type.makeArray(length);
-        Rail.resetLocal(o, init);
-        return new Rail<T>(type, length, o);
+        Object value = type.makeArray(length);
+        Rail.resetLocal(value, init);
+        return new Rail<T>(type, length, value);
     }
 
     public static <T> Rail<T> makeVarRail(Type type, int length, Fun_0_1<Integer,T> init) {
-        Object o = type.makeArray(length);
-        initJavaArray(o, init);
-        Rail<T> array = new Rail<T>(type, length, o);
-        return array;
-    }
-
-    public static <T> ValRail<T> makeValRail(Type type, int length, Fun_0_1<Integer,T> init) {
-        Object o = type.makeArray(length);
-        initJavaArray(o, init);
-        ValRail<T> array = new ValRail<T>(type, length, o);
-        return array;
+        Object value = type.makeArray(length);
+        initJavaArray(value, init);
+        return new Rail<T>(type, length, value);
     }
 
     public static <T> Rail<T> makeVarRail(Type type, int length, int offset, Rail<T> init) {
-        Object newArray = type.makeArray(length);
-        System.arraycopy(init.getBackingArray(), offset, newArray, 0, length);
-        return new Rail<T>(type, length, newArray);
+        Object value = type.makeArray(length);
+        System.arraycopy(init.getBackingArray(), offset, value, 0, length);
+        return new Rail<T>(type, length, value);
     }
 
-//    public static <T> Rail<T> makeRailFromJavaArray(Object array) {
-//        if (array instanceof int[]) {
-//            return new Rail<T>((Type) Types.INT, ((int[]) array).length, array);
+//    public static <T> Rail<T> makeRailFromJavaArray(Object value) {
+//        if (value instanceof int[]) {
+//            return new Rail<T>((Type) Types.INT, ((int[]) value).length, value);
 //        }
-//        if (array instanceof long[]) {
-//            return new Rail<T>((Type) Types.LONG, ((long[]) array).length, array);
+//        if (value instanceof long[]) {
+//            return new Rail<T>((Type) Types.LONG, ((long[]) value).length, value);
 //        }
-//        if (array instanceof float[]) {
-//            return new Rail<T>((Type) Types.FLOAT, ((float[]) array).length, array);
+//        if (value instanceof float[]) {
+//            return new Rail<T>((Type) Types.FLOAT, ((float[]) value).length, value);
 //        }
-//        if (array instanceof double[]) {
-//            return new Rail<T>((Type) Types.DOUBLE, ((double[]) array).length, array);
+//        if (value instanceof double[]) {
+//            return new Rail<T>((Type) Types.DOUBLE, ((double[]) value).length, value);
 //        }
-//        if (array instanceof byte[]) {
-//            return new Rail<T>((Type) Types.BYTE, ((byte[]) array).length, array);
+//        if (value instanceof byte[]) {
+//            return new Rail<T>((Type) Types.BYTE, ((byte[]) value).length, value);
 //        }
-//        if (array instanceof short[]) {
-//            return new Rail<T>((Type) Types.SHORT, ((short[]) array).length, array);
+//        if (value instanceof short[]) {
+//            return new Rail<T>((Type) Types.SHORT, ((short[]) value).length, value);
 //        }
-//        if (array instanceof char[]) {
-//            return new Rail<T>((Type) Types.CHAR, ((char[]) array).length, array);
+//        if (value instanceof char[]) {
+//            return new Rail<T>((Type) Types.CHAR, ((char[]) value).length, value);
 //        }
-//        if (array instanceof boolean[]) {
-//            return new Rail<T>((Type) Types.BOOLEAN, ((boolean[]) array).length, array);
+//        if (value instanceof boolean[]) {
+//            return new Rail<T>((Type) Types.BOOLEAN, ((boolean[]) value).length, value);
 //        }
-//        if (array instanceof String[]) {
-//            return new Rail<T>(new RuntimeType(String.class), ((String[]) array).length, array);
+//        if (value instanceof String[]) {
+//            return new Rail<T>(new RuntimeType(String.class), ((String[]) value).length, value);
 //        }
 //        // cannot get correct RTT info. from array
-//        return new Rail<T>(new RuntimeType(array.getClass().getComponentType()), ((Object[]) array).length, array);
+//        return new Rail<T>(new RuntimeType(value.getClass().getComponentType()), ((Object[]) value).length, value);
 //    }
 
-//    public static <T> ValRail<T> makeValRailFromJavaArray(Object array) {
-//        Rail<T> r = makeRailFromJavaArray(array);
-//        return new ValRail<T>(r.type, r.length, r.value);
-//    }
-
-    public static <T> x10.array.Array<T> makeArrayFromJavaArray(Type type, Object array) {
-        int len = type.arrayLength(array);
-        x10.array.Array<T> arr = new x10.array.Array<T>(type, len);
-        System.arraycopy(array, 0, arr.raw.value, 0, len);
-        return arr;
+    public static <T> x10.array.Array<T> makeArrayFromJavaArray(Type type, Object value) {
+        int length = type.arrayLength(value);
+        x10.array.Array<T> array = new x10.array.Array<T>(type, length);
+        System.arraycopy(value, 0, array.raw.value, 0, length);
+        return array;
     }
 
-    public static <T> Rail<T> makeRailFromJavaArray(Type type, Object array) {
-        return new Rail<T>(type, type.arrayLength(array) , array);
-    }
-    
-    public static <T> ValRail<T> makeValRailFromJavaArray(Type type, Object array) {
-        return new ValRail<T>(type, type.arrayLength(array), array);
-    }
-
-    public static <T> Rail<T> makeRailFromValRail(Type type, ValRail<T> r) {
-        Object newArray = type.makeArray(r.length);
-        System.arraycopy(r.getBackingArray(), 0, newArray, 0, r.length);
-        return new Rail<T>(type, r.length, newArray);
-    }
-
-    public static <T> ValRail<T> makeValRailFromRail(Type type, Rail<T> r) {
-        Object newArray = type.makeArray(r.length);
-        System.arraycopy(r.getBackingArray(), 0, newArray, 0, r.length);
-        return new ValRail<T>(r.type, r.length, newArray);
-    }
-
-    public static <T> ValRail<T> makeValRailViewFromRail(Type type, Rail<T> r) {
-        return new ValRail<T>(r.type, r);
+    public static <T> Rail<T> makeRailFromJavaArray(Type type, Object value) {
+        return new Rail<T>(type, type.arrayLength(value) , value);
     }
 
     private static <T> void initJavaArray(Object value, Fun_0_1<Integer,T> init) {

@@ -1,3 +1,15 @@
+/*
+ *  This file is part of the X10 project (http://x10-lang.org).
+ *
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ *  (C) Copyright IBM Corporation 2006-2010.
+ */
+
+
 package x10.compiler.ws.util;
 
 import polyglot.ast.Node;
@@ -7,7 +19,7 @@ import polyglot.types.Types;
 import polyglot.visit.NodeVisitor;
 import x10.ast.Closure;
 import x10.types.ClosureDef;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 
 /**
  * @author Haichuan
@@ -25,11 +37,11 @@ import x10.types.X10TypeSystem;
  */
 public class ClosureDefReinstantiator extends NodeVisitor {
 
-    X10TypeSystem xts;
+    TypeSystem xts;
     ClassDef containerClassDef;
     MethodDef containerMethodDef;
     
-    public ClosureDefReinstantiator(X10TypeSystem xts, ClassDef containerClassDef, MethodDef containerMethodDef){
+    public ClosureDefReinstantiator(TypeSystem xts, ClassDef containerClassDef, MethodDef containerMethodDef){
         this.xts = xts;
         this.containerClassDef = containerClassDef;
         this.containerMethodDef = containerMethodDef;
@@ -49,7 +61,7 @@ public class ClosureDefReinstantiator extends NodeVisitor {
                                             Types.ref(containerMethodDef.asInstance()), 
                                             cd.returnType(), 
                                             cd.formalTypes(), 
-                                            cd.thisVar(), 
+                                            cd.thisDef(), 
                                             cd.formalNames(),
                                             cd.guard(), 
                                             //cd.throwTypes(),

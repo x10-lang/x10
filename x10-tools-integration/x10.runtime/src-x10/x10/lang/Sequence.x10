@@ -11,6 +11,8 @@
 
 package x10.lang;
 
+import x10.compiler.Native;
+
 /**
  * A Sequence represents a fixed-size ordered collection of entities of type T
  * that can be accessed randomly and iterated over using an enhanced-for loop,
@@ -26,4 +28,7 @@ package x10.lang;
  * 1-d array.
  * @author vj 10/10
  */
-public interface Sequence[+T](size:int) extends (int)=> T, Iterable[T] {}
+public interface Sequence[+T](size:int) extends (Int)=> T, Iterable[T] {
+    @Native("cuda", "(#0).raw[#1]")
+    public def apply (Int) : T;
+}

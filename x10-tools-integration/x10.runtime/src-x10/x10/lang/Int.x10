@@ -27,193 +27,177 @@ import x10.util.Ordered;
 //                 v-- when used
 @NativeRep("c++", "x10_int", "x10_int", null)
 //                            ^ when constructed
-public struct Int /*TODO implements Arithmetic[Int], Bitwise[Int], Ordered[Int]*/ {
+public struct Int implements Comparable[Int] /*TODO implements Arithmetic[Int], Bitwise[Int], Ordered[Int]*/ {
     /**
      * A less-than operator.
-     * Compares the given Int with another Int and returns true if the given Int is
+     * Compares this Int with another Int and returns true if this Int is
      * strictly less than the other Int.
-     * @param x the given Int
-     * @param y the other Int
-     * @return true if the given Int is strictly less than the other Int.
+     * @param x the other Int
+     * @return true if this Int is strictly less than the other Int.
      */
-    @Native("java", "((#1) < (#2))")
-    @Native("c++",  "((#1) < (#2))")
-    public native static operator (x:Int) < (y:Int): Boolean;
+    @Native("java", "((#0) < (#1))")
+    @Native("c++",  "((#0) < (#1))")
+    public native operator this < (x:Int): Boolean;
 
     /**
      * A greater-than operator.
-     * Compares the given Int with another Int and returns true if the given Int is
+     * Compares this Int with another Int and returns true if this Int is
      * strictly greater than the other Int.
-     * @param x the given Int
-     * @param y the other Int
-     * @return true if the given Int is strictly greater than the other Int.
+     * @param x the other Int
+     * @return true if this Int is strictly greater than the other Int.
      */
-    @Native("java", "((#1) > (#2))")
-    @Native("c++",  "((#1) > (#2))")
-    public native static operator (x:Int) > (y:Int): Boolean;
+    @Native("java", "((#0) > (#1))")
+    @Native("c++",  "((#0) > (#1))")
+    public native operator this > (x:Int): Boolean;
 
     /**
      * A less-than-or-equal-to operator.
-     * Compares the given Int with another Int and returns true if the given Int is
+     * Compares this Int with another Int and returns true if this Int is
      * less than or equal to the other Int.
-     * @param x the given Int
-     * @param y the other Int
-     * @return true if the given Int is less than or equal to the other Int.
+     * @param x the other Int
+     * @return true if this Int is less than or equal to the other Int.
      */
-    @Native("java", "((#1) <= (#2))")
-    @Native("c++",  "((#1) <= (#2))")
-    public native static operator (x:Int) <= (y:Int): Boolean;
+    @Native("java", "((#0) <= (#1))")
+    @Native("c++",  "((#0) <= (#1))")
+    public native operator this <= (x:Int): Boolean;
 
     /**
      * A greater-than-or-equal-to operator.
-     * Compares the given Int with another Int and returns true if the given Int is
+     * Compares this Int with another Int and returns true if this Int is
      * greater than or equal to the other Int.
-     * @param x the given Int
-     * @param y the other Int
-     * @return true if the given Int is greater than or equal to the other Int.
+     * @param x the other Int
+     * @return true if this Int is greater than or equal to the other Int.
      */
-    @Native("java", "((#1) >= (#2))")
-    @Native("c++",  "((#1) >= (#2))")
-    public native static operator (x:Int) >= (y:Int): Boolean;
+    @Native("java", "((#0) >= (#1))")
+    @Native("c++",  "((#0) >= (#1))")
+    public native operator this >= (x:Int): Boolean;
 
 
     /**
      * A binary plus operator.
      * Computes the result of the addition of the two operands.
      * Overflows result in truncating the high bits.
-     * @param x the given Int
-     * @param y the other Int
-     * @return the sum of the given Int and the other Int.
+     * @param x the other Int
+     * @return the sum of this Int and the other Int.
      */
-    @Native("java", "((#1) + (#2))")
-    @Native("c++",  "((x10_int) ((#1) + (#2)))")
-    public native static operator (x:Int) + (y:Int): Int;
+    @Native("java", "((#0) + (#1))")
+    @Native("c++",  "((x10_int) ((#0) + (#1)))")
+    public native operator this + (x:Int): Int;
 
     /**
      * A binary minus operator.
      * Computes the result of the subtraction of the two operands.
      * Overflows result in truncating the high bits.
-     * @param x the given Int
-     * @param y the other Int
-     * @return the difference of the given Int and the other Int.
+     * @param x the other Int
+     * @return the difference of this Int and the other Int.
      */
-    @Native("java", "((#1) - (#2))")
-    @Native("c++",  "((x10_int) ((#1) - (#2)))")
-    public native static operator (x:Int) - (y:Int): Int;
+    @Native("java", "((#0) - (#1))")
+    @Native("c++",  "((x10_int) ((#0) - (#1)))")
+    public native operator this - (x:Int): Int;
 
     /**
      * A binary multiply operator.
      * Computes the result of the multiplication of the two operands.
      * Overflows result in truncating the high bits.
-     * @param x the given Int
-     * @param y the other Int
-     * @return the product of the given Int and the other Int.
+     * @param x the other Int
+     * @return the product of this Int and the other Int.
      */
-    @Native("java", "((#1) * (#2))")
-    @Native("c++",  "((x10_int) ((#1) * (#2)))")
-    public native static operator (x:Int) * (y:Int): Int;
+    @Native("java", "((#0) * (#1))")
+    @Native("c++",  "((x10_int) ((#0) * (#1)))")
+    public native operator this * (x:Int): Int;
 
     /**
      * A binary divide operator.
      * Computes the result of the division of the two operands.
-     * @param x the given Int
-     * @param y the other Int
-     * @return the quotient of the given Int and the other Int.
+     * @param x the other Int
+     * @return the quotient of this Int and the other Int.
      */
-    @Native("java", "((#1) / (#2))")
-    @Native("c++",  "((x10_int) ((#1) / (#2)))")
-    public native static operator (x:Int) / (y:Int): Int;
+    @Native("java", "((#0) / (#1))")
+    @Native("c++",  "((x10_int) ((#0) / x10aux::zeroCheck(#1)))")
+    public native operator this / (x:Int): Int;
 
     /**
      * A binary remainder operator.
      * Computes a remainder from the division of the two operands.
-     * @param x the given Int
-     * @param y the other Int
-     * @return the remainder from dividing the given Int by the other Int.
+     * @param x the other Int
+     * @return the remainder from dividing this Int by the other Int.
      */
-    @Native("java", "((#1) % (#2))")
-    @Native("c++",  "((x10_int) ((#1) % (#2)))")
-    public native static operator (x:Int) % (y:Int): Int;
+    @Native("java", "((#0) % (#1))")
+    @Native("c++",  "((x10_int) ((#0) % x10aux::zeroCheck(#1)))")
+    public native operator this % (x:Int): Int;
 
     /**
      * A unary plus operator.
      * A no-op.
-     * @param x the given Int
-     * @return the value of the given Int.
+     * @return the value of this Int.
      */
-    @Native("java", "(+(#1))")
-    @Native("c++",  "((x10_int) +(#1))")
-    public native static operator + (x:Int): Int;
+    @Native("java", "(+(#0))")
+    @Native("c++",  "((x10_int) +(#0))")
+    public native operator + this: Int;
 
     /**
      * A unary minus operator.
      * Negates the operand.
      * Overflows result in truncating the high bits.
-     * @param x the given Int
-     * @return the negated value of the given Int.
+     * @return the negated value of this Int.
      */
-    @Native("java", "(-(#1))")
-    @Native("c++",  "((x10_int) -(#1))")
-    public native static operator - (x:Int): Int;
+    @Native("java", "(-(#0))")
+    @Native("c++",  "((x10_int) -(#0))")
+    public native operator - this: Int;
 
 
     /**
      * A bitwise and operator.
      * Computes a bitwise AND of the two operands.
-     * @param x the given Int
-     * @param y the other Int
-     * @return the bitwise AND of the given Int and the other Int.
+     * @param x the other Int
+     * @return the bitwise AND of this Int and the other Int.
      */
-    @Native("java", "((#1) & (#2))")
-    @Native("c++",  "((x10_int) ((#1) & (#2)))")
-    public native static operator (x:Int) & (y:Int): Int;
+    @Native("java", "((#0) & (#1))")
+    @Native("c++",  "((x10_int) ((#0) & (#1)))")
+    public native operator this & (x:Int): Int;
 
     /**
      * A bitwise or operator.
      * Computes a bitwise OR of the two operands.
-     * @param x the given Int
-     * @param y the other Int
-     * @return the bitwise OR of the given Int and the other Int.
+     * @param x the other Int
+     * @return the bitwise OR of this Int and the other Int.
      */
-    @Native("java", "((#1) | (#2))")
-    @Native("c++",  "((x10_int) ((#1) | (#2)))")
-    public native static operator (x:Int) | (y:Int): Int;
+    @Native("java", "((#0) | (#1))")
+    @Native("c++",  "((x10_int) ((#0) | (#1)))")
+    public native operator this | (x:Int): Int;
 
     /**
      * A bitwise xor operator.
      * Computes a bitwise XOR of the two operands.
-     * @param x the given Int
-     * @param y the other Int
-     * @return the bitwise XOR of the given Int and the other Int.
+     * @param x the other Int
+     * @return the bitwise XOR of this Int and the other Int.
      */
-    @Native("java", "((#1) ^ (#2))")
-    @Native("c++",  "((x10_int) ((#1) ^ (#2)))")
-    public native static operator (x:Int) ^ (y:Int): Int;
+    @Native("java", "((#0) ^ (#1))")
+    @Native("c++",  "((x10_int) ((#0) ^ (#1)))")
+    public native operator this ^ (x:Int): Int;
 
     /**
      * A bitwise left shift operator.
      * Computes the value of the left-hand operand shifted left by the value of the right-hand operand.
      * If the right-hand operand is negative, the results are undefined.
-     * @param x the given Int
      * @param count the shift count
-     * @return the given Int shifted left by count.
+     * @return this Int shifted left by count.
      */
-    @Native("java", "((#1) << (#2))")
-    @Native("c++",  "((x10_int) ((#1) << (#2)))")
-    public native static operator (x:Int) << (count:Int): Int;
+    @Native("java", "((#0) << (#1))")
+    @Native("c++",  "((x10_int) ((#0) << (#1)))")
+    public native operator this << (count:Int): Int;
 
     /**
      * A bitwise right shift operator.
      * Computes the value of the left-hand operand shifted right by the value of the right-hand operand,
      * replicating the sign bit into the high bits.
      * If the right-hand operand is negative, the results are undefined.
-     * @param x the given Int
      * @param count the shift count
-     * @return the given Int shifted right by count.
+     * @return this Int shifted right by count.
      */
-    @Native("java", "((#1) >> (#2))")
-    @Native("c++",  "((x10_int) ((#1) >> (#2)))")
-    public native static operator (x:Int) >> (count:Int): Int;
+    @Native("java", "((#0) >> (#1))")
+    @Native("c++",  "((x10_int) ((#0) >> (#1)))")
+    public native operator this >> (count:Int): Int;
 
     /**
      * A bitwise logical right shift operator (zero-fill).
@@ -221,23 +205,21 @@ public struct Int /*TODO implements Arithmetic[Int], Bitwise[Int], Ordered[Int]*
      * filling the high bits with zeros.
      * If the right-hand operand is negative, the results are undefined.
      * @deprecated use the right-shift operator and unsigned conversions instead.
-     * @param x the given Int
      * @param count the shift count
-     * @return the given Int shifted right by count with high bits zero-filled.
+     * @return this Int shifted right by count with high bits zero-filled.
      */
-    @Native("java", "((#1) >>> (#2))")
-    @Native("c++",  "((x10_int) ((x10_uint) (#1) >> (#2)))")
-    public native static operator (x:Int) >>> (count:Int): Int;
+    @Native("java", "((#0) >>> (#1))")
+    @Native("c++",  "((x10_int) ((x10_uint) (#0) >> (#1)))")
+    public native operator this >>> (count:Int): Int;
 
     /**
      * A bitwise complement operator.
      * Computes a bitwise complement (NOT) of the operand.
-     * @param x the given Int
-     * @return the bitwise complement of the given Int.
+     * @return the bitwise complement of this Int.
      */
-    @Native("java", "(~(#1))")
-    @Native("c++",  "((x10_int) ~(#1))")
-    public native static operator ~ (x:Int): Int;
+    @Native("java", "(~(#0))")
+    @Native("c++",  "((x10_int) ~(#0))")
+    public native operator ~ this: Int;
 
 
     /**
@@ -292,7 +274,7 @@ public struct Int /*TODO implements Arithmetic[Int], Bitwise[Int], Ordered[Int]*
      */
     @Native("java", "((int) (#1.intVal))")
     @Native("c++",  "((x10_int) (#1))")
-    public native static operator (x:UInt): Int;
+    public native static operator (x:UInt) as Int;
 
 
     /**
@@ -355,7 +337,7 @@ public struct Int /*TODO implements Arithmetic[Int], Bitwise[Int], Ordered[Int]*
      * @deprecated use {@link #parse(String,Int)} instead
      */
     // @Native("java", "java.lang.Integer.parseInt(#1, #2)")
-    @Native("java", "new Object() { int eval(String s, int radix) { try { return java.lang.Integer.parseInt(s, radix); } catch (java.lang.NumberFormatException e) { throw new x10.lang.NumberFormatException(e.getMessage()); } } }.eval(#1, #2)")
+    @Native("java", "new java.io.Serializable() { int eval(String s, int radix) { try { return java.lang.Integer.parseInt(s, radix); } catch (java.lang.NumberFormatException e) { throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(e); } } }.eval(#1, #2)")
     @Native("c++", "x10aux::int_utils::parseInt(#1, #2)")
     public native static def parseInt(String, radix:Int): Int; //throwsNumberFormatException;
 
@@ -363,7 +345,7 @@ public struct Int /*TODO implements Arithmetic[Int], Bitwise[Int], Ordered[Int]*
      * @deprecated use {@link #parse(String)} instead
      */
     // @Native("java", "java.lang.Integer.parseInt(#1)")
-    @Native("java", "new Object() { int eval(String s) { try { return java.lang.Integer.parseInt(s); } catch (java.lang.NumberFormatException e) { throw new x10.lang.NumberFormatException(e.getMessage()); } } }.eval(#1)")
+    @Native("java", "new java.io.Serializable() { int eval(String s) { try { return java.lang.Integer.parseInt(s); } catch (java.lang.NumberFormatException e) { throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(e); } } }.eval(#1)")
     @Native("c++", "x10aux::int_utils::parseInt(#1)")
     public native static def parseInt(String): Int; //throwsNumberFormatException;
 
@@ -375,7 +357,7 @@ public struct Int /*TODO implements Arithmetic[Int], Bitwise[Int], Ordered[Int]*
      * @throws NumberFormatException if the String does not contain a parsable Int.
      */
     // @Native("java", "java.lang.Integer.parseInt(#1, #2)")
-    @Native("java", "new Object() { int eval(String s, int radix) { try { return java.lang.Integer.parseInt(s, radix); } catch (java.lang.NumberFormatException e) { throw new x10.lang.NumberFormatException(e.getMessage()); } } }.eval(#1, #2)")
+    @Native("java", "new java.io.Serializable() { int eval(String s, int radix) { try { return java.lang.Integer.parseInt(s, radix); } catch (java.lang.NumberFormatException e) { throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(e); } } }.eval(#1, #2)")
     @Native("c++", "x10aux::int_utils::parseInt(#1, #2)")
     public native static def parse(s:String, radix:Int): Int; //throwsNumberFormatException;
 
@@ -386,7 +368,7 @@ public struct Int /*TODO implements Arithmetic[Int], Bitwise[Int], Ordered[Int]*
      * @throws NumberFormatException if the String does not contain a parsable Int.
      */
     // @Native("java", "java.lang.Integer.parseInt(#1)")
-    @Native("java", "new Object() { int eval(String s) { try { return java.lang.Integer.parseInt(s); } catch (java.lang.NumberFormatException e) { throw new x10.lang.NumberFormatException(e.getMessage()); } } }.eval(#1)")
+    @Native("java", "new java.io.Serializable() { int eval(String s) { try { return java.lang.Integer.parseInt(s); } catch (java.lang.NumberFormatException e) { throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(e); } } }.eval(#1)")
     @Native("c++", "x10aux::int_utils::parseInt(#1)")
     public native static def parse(s:String): Int; //throwsNumberFormatException;
 
@@ -532,4 +514,15 @@ public struct Int /*TODO implements Arithmetic[Int], Bitwise[Int], Ordered[Int]*
     @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
     public native def equals(x:Int):Boolean;
+
+    /**
+     * Returns a negative Int, zero, or a positive Int if this Int is less than, equal
+     * to, or greater than the given Int.
+     * @param x the given Int
+     * @return a negative Int, zero, or a positive Int if this Int is less than, equal
+     * to, or greater than the given Int.
+     */
+    @Native("java", "x10.rtt.Equality.compareTo(#0, #1)")
+    @Native("c++", "x10aux::int_utils::compareTo(#0, #1)")
+    public native def compareTo(x:Int):Int;
 }

@@ -20,9 +20,10 @@ public class FunIsNotObject_MustFailCompile extends x10Test {
 	public static N: int = 100;
 	var nActivities: int = 0;
 
-	public def run() {
+	public def run():Boolean {
 		val f = (x1:int, x2:int)=> x1+x2;
-		val x:Object = f;
+		val x:Object = f;  // ERR: Cannot assign expression to target.
+		return false;
 	}
 	public static def main(Array[String](1)) {
 		new FunIsNotObject_MustFailCompile().execute();

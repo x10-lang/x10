@@ -396,10 +396,10 @@ class XPromise_c implements XPromise, Serializable {
         			XPromise p = m.getValue();
         			XTerm t = p.term();
         			XVar path2 = null;
-        			if (v != null && !(t instanceof XField) && !((XField) t).receiver().equals(v)) {
-        			    assert false;
-//        			    path2 = XTerms.makeField(v, name);
-        			}
+//        			if (v != null && !(t instanceof XField && ((XField) t).receiver().equals(v))) {
+//        			    assert false;
+////        			    path2 = XTerms.makeField(v, name);
+//        			}
 //        			path2 = v == null ? null : (XVar) t;
         			boolean hidden = t instanceof XField ? ((XField) t).isHidden() : false;
         			path2 = v == null ? null :
@@ -414,11 +414,17 @@ class XPromise_c implements XPromise, Serializable {
         }
     }
 
+    private boolean toStringMark = false;
     public String toString() {
-        return var + ((value != null) 
-        		? "->" + value 
-        				: ((fields != null) ? fields.toString() : "")
-        				+ (disEquals != null ? " != " + disEquals.toString() : ""));
+        if (toStringMark)
+            return "...";
+        toStringMark = true;
+        String res = var + ((value != null)
+                ? "->" + value 
+                        : ((fields != null) ? fields.toString() : "")
+                        + (disEquals != null ? " != " + disEquals.toString() : ""));
+        toStringMark = false;
+        return res;
     }
 
     public void replaceDescendant(XPromise y, XPromise x, XConstraint c) {

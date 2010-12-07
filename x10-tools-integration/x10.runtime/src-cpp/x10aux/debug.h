@@ -195,5 +195,13 @@ struct _MetaDebugInfo_t {
 extern void _X10_STATEMENT_HOOK();   // A hook at the start of every X10 executable statement.
                                      // Follows any method start hook, and precedes any method end hook.
 
+#ifdef __APPLE__
+#define _X10_DEBUG_SECTION section(".section __DWARF,_X10_DEBUG,regular,debug")
+#define _X10_DEBUG_DATA_SECTION section(".section __DWARF,_X10_DEBUG_DATA,regular,debug")
+#else
+#define _X10_DEBUG_SECTION section("_X10_DEBUG")
+#define _X10_DEBUG_DATA_SECTION section("_X10_DEBUG_DATA")
+#endif
+
 #endif //X10AUX_DEBUG_H
 // vim:tabstop=4:shiftwidth=4:expandtab

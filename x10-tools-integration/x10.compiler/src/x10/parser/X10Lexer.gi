@@ -19,6 +19,9 @@
      *
      *  (C) Copyright IBM Corporation 2006-2010.
      */
+    /*****************************************************
+     * WARNING!  THIS IS A GENERATED FILE.  DO NOT EDIT! *
+     *****************************************************/
     ./
 %End
 
@@ -48,11 +51,35 @@
             {
                 int index = lexStream.getIPrsStream().getSize() - 1;
                 IToken token = lexStream.getIPrsStream().getIToken(index);
-                if (token.getKind() == X10Parsersym.TK_DoubleLiteral && lexStream.getInputChars()[token.getEndOffset()] == '.')
+                if (token.getKind() == X10Parsersym.TK_DoubleLiteral ||
+                    token.getKind() == X10Parsersym.TK_FloatingPointLiteral ||
+                    token.getKind() == X10Parsersym.TK_PseudoDoubleLiteral)
                 {
-                    token.setEndOffset(token.getEndOffset() - 1);
-                    token.setKind(X10Parsersym.TK_IntegerLiteral);
-                lexStream.getIPrsStream().makeToken(token.getEndOffset()+1, token.getEndOffset()+1, X10Parsersym.TK_DOT);
+                    char[] input = lexStream.getInputChars();
+                    int end = token.getEndOffset();
+                    int dot = end;
+                    boolean valid = true;
+                    for (; dot > token.getStartOffset() && input[dot] != '.'; dot--)
+                        if (!Character.isJavaIdentifierPart(input[dot]))
+                            valid = false;
+                    if (valid && dot > token.getStartOffset())
+                    {
+                        token.setEndOffset(dot - 1);
+                        token.setKind(X10Parsersym.TK_IntegerLiteral);
+                        lexStream.getIPrsStream().makeToken(dot, dot, X10Parsersym.TK_DOT);
+                        if (dot < end)
+                        {
+                            if (startLoc == end + 1)
+                            {
+                                // No spaces -- merge in with the following identifier
+                                startLoc = dot + 1;
+                            }
+                            else
+                            {
+                                lexStream.getIPrsStream().makeToken(dot + 1, end, X10Parsersym.TK_IDENTIFIER);
+                            }
+                        }
+                    }
                 }
             }
             lexStream.makeToken(startLoc, endLoc, kind);
@@ -64,6 +91,14 @@
                 endOffset = getRightSpan(),
                 kwKind = kwLexer.lexer(startOffset, endOffset);
             makeX10Token(startOffset, endOffset, kwKind);
+            if (printTokens) printValue(startOffset, endOffset);
+        }
+
+        final void makeQuotedIdentifier()
+        {
+            int startOffset = getLeftSpan()+1,
+                endOffset = getRightSpan()-1;
+            makeX10Token(startOffset, endOffset, $_IDENTIFIER);
             if (printTokens) printValue(startOffset, endOffset);
         }
 
@@ -116,10 +151,15 @@
     DocComment
     IntegerLiteral
     LongLiteral
+    ByteLiteral
+    ShortLiteral
     UnsignedIntegerLiteral
     UnsignedLongLiteral
+    UnsignedByteLiteral
+    UnsignedShortLiteral
     FloatingPointLiteral
     DoubleLiteral
+    PseudoDoubleLiteral
     CharacterLiteral
     StringLiteral
     PLUS_PLUS
@@ -234,6 +274,11 @@
                     checkForX10KeyWord();
           $EndAction
         ./
+    Token ::= '`' QuotedIdentifierBody '`'
+        /.$BeginAction
+                    makeQuotedIdentifier();
+          $EndAction
+        ./
     Token ::= '"' SLBody '"'
         /.$BeginAction
                     makeToken($_StringLiteral);
@@ -254,6 +299,16 @@
                     makeToken($_LongLiteral);
           $EndAction
         ./
+    Token ::= ByteLiteral
+        /.$BeginAction
+                    makeToken($_ByteLiteral);
+          $EndAction
+        ./
+    Token ::= ShortLiteral
+        /.$BeginAction
+                    makeToken($_ShortLiteral);
+          $EndAction
+        ./
     Token ::= UnsignedIntegerLiteral
         /.$BeginAction
                     makeToken($_UnsignedIntegerLiteral);
@@ -264,6 +319,16 @@
                     makeToken($_UnsignedLongLiteral);
           $EndAction
         ./
+    Token ::= UnsignedByteLiteral
+        /.$BeginAction
+                    makeToken($_UnsignedByteLiteral);
+          $EndAction
+        ./
+    Token ::= UnsignedShortLiteral
+        /.$BeginAction
+                    makeToken($_UnsignedShortLiteral);
+          $EndAction
+        ./
     Token ::= FloatingPointLiteral
         /.$BeginAction
                     makeToken($_FloatingPointLiteral);
@@ -272,6 +337,11 @@
     Token ::= DoubleLiteral
         /.$BeginAction
                     makeToken($_DoubleLiteral);
+          $EndAction
+        ./
+    Token ::= PseudoDoubleLiteral
+        /.$BeginAction
+                    makeToken($_PseudoDoubleLiteral);
           $EndAction
         ./
 
@@ -571,11 +641,21 @@
                     | '0' LetterXx HexDigits
 
     LongLiteral ::= IntegerLiteral LetterLl
+
+    ByteLiteral ::= IntegerLiteral LetterYy
+
+    ShortLiteral ::= IntegerLiteral LetterSs
     
     UnsignedIntegerLiteral ::= IntegerLiteral LetterUu
 
     UnsignedLongLiteral -> IntegerLiteral LetterUu LetterLl
                          | IntegerLiteral LetterLl LetterUu
+
+    UnsignedByteLiteral -> IntegerLiteral LetterUu LetterYy
+                         | IntegerLiteral LetterYy LetterUu
+
+    UnsignedShortLiteral -> IntegerLiteral LetterUu LetterSs
+                         | IntegerLiteral LetterSs LetterUu
 
     FloatingPointLiteral -> Decimal LetterFf
                           | Decimal Exponent LetterFf
@@ -589,6 +669,8 @@
                    | Decimal Exponent LetterDd
                    | Integer Exponent LetterDd
                    | Integer LetterDd
+
+    PseudoDoubleLiteral -> Decimal LetterEe
 
     MultiLineComment ::= '/' '*' Inside Stars '/'
         /.$BeginAction
@@ -614,6 +696,9 @@
 
     SLC ::= '/' '/'
           | SLC NotEol
+
+    QuotedIdentifierBody -> %empty
+                          | QuotedIdentifierBody NotBQ
 
     SLBody -> %empty
             | SLBody NotDQ
@@ -671,7 +756,13 @@
 
     LetterLl -> 'L'
               | 'l'
-              
+
+    LetterYy -> 'Y'
+              | 'y'
+
+    LetterSs -> 'S'
+              | 's'
+
     LetterUu -> 'U'
               | 'u'
 
@@ -697,11 +788,15 @@
                        '%' | '&' | '^' | ':' | ';' | "'" | '\' | '|' | '{' | '}' |
                        '[' | ']' | '?' | ',' | '.' | '<' | '>' | '=' | '#'
 
-    SpecialNotDQ -> '+' | '-' | '/' | '(' | ')' | '*' | '!' | '@' | '`' | '~' |
-                    '%' | '&' | '^' | ':' | ';' | "'" | '|' | '{' | '}' |
+    SpecialNotDQ -> '+' | '-' | '*' | '(' | ')' | "'" | '!' | '@' | '`' | '~' |
+                    '%' | '&' | '^' | ':' | ';' | '/' | '|' | '{' | '}' |
                     '[' | ']' | '?' | ',' | '.' | '<' | '>' | '=' | '#'
 
     SpecialNotSQ -> '+' | '-' | '*' | '(' | ')' | '"' | '!' | '@' | '`' | '~' |
+                    '%' | '&' | '^' | ':' | ';' | '/' | '|' | '{' | '}' |
+                    '[' | ']' | '?' | ',' | '.' | '<' | '>' | '=' | '#'
+
+    SpecialNotBQ -> '+' | '-' | '*' | '(' | ')' | '"' | '!' | '@' | "'" | '~' |
                     '%' | '&' | '^' | ':' | ';' | '/' | '|' | '{' | '}' |
                     '[' | ']' | '?' | ',' | '.' | '<' | '>' | '=' | '#'
 
@@ -742,6 +837,16 @@
            | '\' u HexDigit HexDigit HexDigit HexDigit
            | '\' OctalDigits3
 
+    NotBQ -> Letter
+           | Digit
+           | SpecialNotBQ
+           | Space
+           | HT
+           | FF
+           | EscapeSequence
+           | '\' u HexDigit HexDigit HexDigit HexDigit
+           | '\' OctalDigits3
+
     EscapeSequence -> '\' b
                     | '\' t
                     | '\' n
@@ -749,6 +854,7 @@
                     | '\' r
                     | '\' '"'
                     | '\' "'"
+                    | '\' '`'
                     | '\' '\'
 
      --- X10 Tokens

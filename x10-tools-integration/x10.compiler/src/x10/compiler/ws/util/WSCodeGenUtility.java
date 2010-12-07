@@ -1,3 +1,15 @@
+/*
+ *  This file is part of the X10 project (http://x10-lang.org).
+ *
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ *  (C) Copyright IBM Corporation 2006-2010.
+ */
+
+
 package x10.compiler.ws.util;
 
 import java.util.ArrayList;
@@ -17,6 +29,7 @@ import polyglot.ast.LocalAssign;
 import polyglot.ast.LocalDecl;
 import polyglot.ast.New;
 import polyglot.ast.Node;
+import polyglot.ast.NodeFactory;
 import polyglot.ast.Receiver;
 import polyglot.ast.Return;
 import polyglot.ast.Special;
@@ -41,10 +54,9 @@ import x10.ast.Future;
 import x10.ast.PlacedClosure;
 import x10.ast.StmtSeq;
 import x10.ast.When;
-import x10.ast.X10NodeFactory;
 import x10.compiler.ws.WSTransformState;
-import x10.types.X10Context;
-import x10.types.X10TypeSystem;
+import polyglot.types.Context;
+import polyglot.types.TypeSystem;
 
 /**
  * @author Haichuan
@@ -302,7 +314,7 @@ public class WSCodeGenUtility {
         return result;
     }
     
-    static public boolean needAsContinuationFrame(Block block, X10Context xct){
+    static public boolean needAsContinuationFrame(Block block, Context xct){
         
         for(Stmt s : block.statements()){
             if(s instanceof Async
@@ -321,8 +333,8 @@ public class WSCodeGenUtility {
      * @param s
      * @return Pair<Assign, Call> pair. If null, not such an expression
      */
-    static public Pair<Assign, Call> identifyAssignByAsyncCall(Stmt s, X10Context context){
-        X10TypeSystem xts = (X10TypeSystem) context.typeSystem();
+    static public Pair<Assign, Call> identifyAssignByAsyncCall(Stmt s, Context context){
+        TypeSystem xts = (TypeSystem) context.typeSystem();
         Pair<Assign, Call> result = null;
         if(s instanceof Eval){
             
@@ -368,7 +380,7 @@ public class WSCodeGenUtility {
      * @param s
      * @return
      */
-    static public Stmt seqStmtsToBlock(X10NodeFactory xnf, Stmt s){
+    static public Stmt seqStmtsToBlock(NodeFactory xnf, Stmt s){
         if(s instanceof StmtSeq){
             return xnf.Block(s.position(),((StmtSeq)s).statements());
         }
@@ -412,7 +424,7 @@ public class WSCodeGenUtility {
      * @param xnf
      * @return
      */
-    static public Stmt setSpeicalQualifier(Stmt s, ClassDef outerDef, X10NodeFactory xnf){
+    static public Stmt setSpeicalQualifier(Stmt s, ClassDef outerDef, NodeFactory xnf){
         SpecialQualifierSetter sqs = new SpecialQualifierSetter(xnf, outerDef);
         
         return (Stmt) s.visit(sqs);
@@ -650,7 +662,7 @@ public class WSCodeGenUtility {
     static class SpecialQualifierSetter extends NodeVisitor{
         //protected ClassDef outerDef;
         TypeNode  tn ;
-        public SpecialQualifierSetter(X10NodeFactory xnf, ClassDef outerDef){
+        public SpecialQualifierSetter(NodeFactory xnf, ClassDef outerDef){
            tn = xnf.CanonicalTypeNode(Position.COMPILER_GENERATED, outerDef.asType());
         }
         

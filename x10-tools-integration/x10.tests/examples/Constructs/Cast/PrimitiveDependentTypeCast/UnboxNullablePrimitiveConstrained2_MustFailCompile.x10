@@ -25,7 +25,8 @@ import x10.util.Box;
 
 		try {
 			// (nullable<int(:self==3)>) <-- nullable<int(:c)>
-         var case4a: Box[int(3)] = ni as Box[int(4)];
+         var case4a: Box[int(3)] = ni as Box[int(4)]; // ERR
+         var case5a: Box[int(4)] = ni as Box[int(4)];
 		} catch (var e: ClassCastException) {
 			res4 = true;
 		}

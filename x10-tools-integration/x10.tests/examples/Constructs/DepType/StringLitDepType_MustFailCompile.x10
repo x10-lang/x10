@@ -16,7 +16,7 @@ import harness.x10Test;
  */
 public class StringLitDepType_MustFailCompile extends x10Test {
 	public def run(): boolean = {
-		var f: String{self=="abc"} = "abd";
+		var f: String{self=="abc"} = "abd"; // ERR
 		return true;
 	}
 

@@ -36,6 +36,7 @@ import polyglot.util.Position;
 import polyglot.util.TypedList;
 import x10.constraint.XConstraint;
 import x10.constraint.XFailure;
+import x10.constraint.XTerms;
 import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
@@ -66,7 +67,7 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
             Name name,
             List<ParameterType> typeParams,
             List<Ref<? extends Type>> formalTypes,
-            XVar thisVar,
+            ThisDef thisDef,
             List<LocalDef> formalNames,
             Ref<CConstraint> guard,
             Ref<TypeConstraint> typeGuard,
@@ -74,25 +75,32 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
             Ref<XTerm> body) {
         super(ts, pos, container, flags, returnType, name, formalTypes);
         this.typeParameters = TypedList.copyAndCheck(typeParams, ParameterType.class, true);
-        this.thisVar = thisVar;
         this.formalNames = TypedList.copyAndCheck(formalNames, LocalDef.class, true);
         this.guard = guard;
         this.typeGuard = typeGuard;
+        this.thisDef = thisDef;
         this.body = body;
         this.offerType = offerType;
     }
 
-    XVar thisVar;
     public XVar thisVar() {
-        return this.thisVar;
+        if (this.thisDef != null)
+            return this.thisDef.thisVar();
+        return XTerms.makeEQV("#this");
     }
-    
+
+    ThisDef thisDef;
+
+    public ThisDef thisDef() {
+        return this.thisDef;
+    }
+
+    public void setThisDef(ThisDef thisDef) {
+        this.thisDef = thisDef;
+    }
 
     public Ref<? extends Type> offerType() {
     	return this.offerType;
-    }
-    public void setThisVar(XVar thisVar) {
-        this.thisVar = thisVar;
     }
 
     public List<LocalDef> formalNames() {
@@ -200,11 +208,11 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
     }
 
     @Override
-    public MethodInstance asInstance() {
+    public X10MethodInstance asInstance() {
         if (asInstance == null) {
             asInstance = new X10MethodInstance_c(ts, position(), Types.<X10MethodDef>ref(this));
         }
-        return asInstance;
+        return (X10MethodInstance) asInstance;
     }
     
     public static boolean hasVar(Type type, XVar var) {

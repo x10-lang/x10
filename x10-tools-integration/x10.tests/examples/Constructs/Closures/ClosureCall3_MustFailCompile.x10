@@ -25,7 +25,7 @@ public class ClosureCall3_MustFailCompile extends x10Test {
     val f = (x:int) => "desert topping";
 
     public def run(): boolean = {
-        check("f(1)", f(1), "comedic hilarity");
+        check("f(1)", f(1), "comedic hilarity"); // ERR: Ambiguous call: the given procedure and closure match.
         return result;
     }
 

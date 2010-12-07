@@ -14,103 +14,186 @@ package x10cuda.types;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import polyglot.ast.Block;
 import polyglot.ast.Expr;
+import polyglot.ast.Local;
 import polyglot.ast.LocalDecl;
+import polyglot.ast.Node;
+import polyglot.ast.Return;
+import polyglot.ast.Stmt;
 import polyglot.types.Name;
 import polyglot.types.Type;
+import polyglot.visit.NodeVisitor;
 import polyglot.visit.Translator;
-import x10.types.X10TypeSystem;
+import x10.ast.Closure;
+import polyglot.types.TypeSystem;
 import x10.util.ClassifiedStream;
 import x10.util.StreamWrapper;
+import x10.visit.Inliner.InliningRewriter;
 
-public class SharedMem {
+/**
+ * This class holds information about Shared memory definitions in a CUDA kernel (also used for constant memory).
+ *
+ * @author Dave Cunningham
+ */
+public class SharedMem implements Cloneable {
     
     ArrayList<Decl> decls = new ArrayList<Decl>();
+    
+    public String toString() {
+    	return decls.toString();
+    }
     
     private abstract static class Decl {
         public final LocalDecl ast;
         public Decl (LocalDecl ast) { this.ast = ast; }
-        abstract public void generateDef(StreamWrapper out, String offset, Translator tr);
-        abstract public void generateInit(StreamWrapper out, String offset, Translator tr);
+        abstract public void visitChildren(Node parent, NodeVisitor v);
+		abstract public String generateDef(StreamWrapper out, String offset, Translator tr);
+        abstract public String generateInit(StreamWrapper out, String offset, Translator tr);
         abstract public void generateSize(StreamWrapper inc, Translator tr);
+		abstract public void generateCMemPop(StreamWrapper out, Translator tr);
+		abstract public String toString();
     }
     
     private static class Array extends Decl {
-        public final Expr numElements;
-        public final Expr init;
-        public Array (LocalDecl ast, Expr numElements, Expr init) {
+        public Expr numElements;
+        public Expr init;
+        public final String elementType;
+        public String toString() {
+        	return "["+numElements+" of "+elementType+" init to "+init+"]";
+        }
+        public Array (LocalDecl ast, Expr numElements, Expr init, String elementType) {
             super(ast);
             this.numElements = numElements;
             this.init = init;
+            this.elementType = elementType;
         }
-        public void generateDef(StreamWrapper out, String offset, Translator tr) {
+        public String generateDef(StreamWrapper out, String raw, Translator tr) {
             String name = ast.name().id().toString();
-            // FIXME: x10_float is baked in here
-            out.write("x10aux::cuda_array<x10_float> "+name+" = { ");
+            out.write("x10aux::cuda_array<"+elementType+"> "+name+" = { ");
             if (numElements!=null) {
 	            tr.print(null, numElements, out);
             } else {
             	tr.print(null, init, out);
-            	out.write(".size");
+            	out.write(".FMGL(size)");
             }
-            out.write(", (x10_float*) &__shm["+offset+"] };"); out.newline();
+            out.write(", ("+elementType+"*) "+raw+" };"); out.newline();
+            return "&"+ast.name().id()+".raw["+ast.name().id()+".FMGL(size)]";
         }
-        public void generateInit(StreamWrapper out, String offset, Translator tr) {
+        public String generateInit(StreamWrapper out, String offset, Translator tr) {
             out.write("{"); out.newline(4); out.begin(0);
             out.write("x10_int __len = ");
             if (numElements!=null) {
 	            tr.print(null, numElements, out);
             } else {
             	tr.print(null, init, out);
-            	out.write(".size");
+            	out.write(".FMGL(size)");
             }
             out.write(";"); out.newline();
             
             out.write("for (int __i=0 ; __i<__len ; ++__i) {"); out.newline(4); out.begin(0);
             // TODO: assumes Array initialised with another Array -- closure version also possible
-            out.write(ast.name().id()+".apply(");
-            tr.print(null, init, out);
-            out.write(".raw[__i], __i);"); out.newline();
+            if (numElements == null) {
+            	out.write("const "+elementType+" &__v = ");
+                tr.print(null, init, out);
+            	out.write(".raw[__i];");
+            } else {
+            	if (init instanceof Closure) {
+            		Closure lit = (Closure) init;
+            		// Use the InlininingRewriter to get rid of the early returns.
+            		// Then strip off the final return and assign __v instead.
+            		try {
+	            		((X10CUDAContext_c) tr.context()).shmIterationVar(lit.formals().get(0));
+	            		Closure init_c_norm = (Closure) lit.visit(new InliningRewriter(lit, tr.job(), tr.typeSystem(), tr.nodeFactory(), tr.context()));
+	            		Block b = init_c_norm.body();
+	            		for (int i=0; i<b.statements().size()-1 ; ++i ) {
+		            		tr.print(null, b.statements().get(i), out);
+	            		}
+	            		Stmt return_stmt = b.statements().get(b.statements().size()-1);
+	            		Return return_ = (Return)return_stmt;
+	                	out.write(elementType+" __v = ");
+	            		tr.print(null, return_.expr(), out);
+	                	out.write(";");
+            		} finally {
+	            		((X10CUDAContext_c) tr.context()).shmIterationVar(null);
+            		}
+            	} else {
+                	out.write("const "+elementType+" &__v = ");
+            		tr.print(null, init, out);
+                	out.write(";");
+            	}
+            }
+    		out.newline();
+            out.write(ast.name().id()+".raw[__i] = __v;");
+            out.newline();
+            
             out.end(); out.newline();
             out.write("}");
             out.end(); out.newline();
             out.write("}");
+            return "&"+ast.name().id()+".raw["+ast.name().id()+".FMGL(size)]";
         }
         public void generateSize(StreamWrapper inc, Translator tr) {
             if (numElements!=null) {
 	            tr.print(null, numElements, inc);
             } else {
             	tr.print(null, init, inc);
-            	inc.write("->FMGL(rawLength)");
+            	inc.write("->FMGL(size)");
             }
             // FIXME: x10_float is baked in here
-            inc.write("*sizeof(x10_float)");
+            inc.write("*sizeof("+elementType+")");
 
         }
+		@Override
+		public void generateCMemPop(StreamWrapper out, Translator tr) {
+			// TODO Auto-generated method stub
+			out.write("pop.populateArr<"+elementType+", x10aux::ref<x10::array::Array<"+elementType+"> > >(");
+            tr.print(null, init, out);
+			out.write(");");
+		}
+		@Override
+		public void visitChildren(Node parent, NodeVisitor v) {
+        	numElements = (Expr) parent.visitChild(numElements, v);
+	        if (init!=null) init = (Expr) init.visitChildren(v);
+		}
     }
     private static class Var extends Decl {
-        public Var (LocalDecl ast) { super(ast); }
-        public void generateDef(StreamWrapper out, String offset, Translator tr) {
-            // TODO: not implemented
-            assert false: "not implemented";
+        public String toString() {
+        	return "[???]";
         }
-        public void generateInit(StreamWrapper out, String offset, Translator tr) {
+        public Var (LocalDecl ast) { super(ast); }
+        public String generateDef(StreamWrapper out, String offset, Translator tr) {
             // TODO: not implemented
             assert false: "not implemented";
+    		return "";
+        }
+        public String generateInit(StreamWrapper out, String offset, Translator tr) {
+            // TODO: not implemented
+            assert false: "not implemented";
+        	return "";
         }
         public void generateSize(StreamWrapper inc, Translator tr) {
             // TODO: not implemented
             assert false: "not implemented";
         }
+		@Override
+		public void generateCMemPop(StreamWrapper out, Translator tr) {
+			// TODO Auto-generated method stub
+			
+		}
+		@Override
+		public void visitChildren(Node parent, NodeVisitor v) {
+			// TODO Auto-generated method stub
+			
+		}
     }
     
-    public void addArrayInitClosure(LocalDecl ast, Expr numElements, Expr init) {
-    	assert false : "This does not actually work, I think";
-        decls.add(new Array(ast, numElements, init));
+    public void addArrayInitClosure(LocalDecl ast, Expr numElements, Expr init, String type) {
+        decls.add(new Array(ast, numElements, init, type));
     }
 
-    public void addArrayInitArray(LocalDecl ast, Expr init) {
-        decls.add(new Array(ast, null, init));
+    public void addArrayInitArray(LocalDecl ast, Expr init, String type) {
+        decls.add(new Array(ast, null, init, type));
     }
 
     public void addVar(LocalDecl ast) {
@@ -126,26 +209,45 @@ public class SharedMem {
         return false;
     }
 
-    public void generateCode(StreamWrapper out, Translator tr) {
-        if (decls.size()==0) return;
-
+    public void generateCodeSharedMem(StreamWrapper out, Translator tr) {
         out.write("// shm");
         out.newline();
-        
-        for (SharedMem.Decl d : decls) {
-                // FIXME: offset is broken when more than one shm definition
-                String offset = "0";
-                d.generateDef(out, offset, tr);
-                out.write("if (threadIdx.x == 0) {"); out.newline(4); out.begin(0);
-                d.generateInit(out, offset, tr);
-                out.end(); out.newline();
-                out.write("}"); out.newline();
-        }
-        
-        out.write("__syncthreads();"); out.newline();        
 
-        out.forceNewline();                
+        if (decls.size()==0) return;
+
+        String raw = "__shm";
+        for (SharedMem.Decl d : decls) {
+            d.generateDef(out, raw, tr);
+            out.write("if (threadIdx.x == 0) {"); out.newline(4); out.begin(0);
+            raw = d.generateInit(out, raw, tr);
+            out.end(); out.newline();
+            out.write("}"); out.newline();
+        }
     }
+
+    public void generateCodeConstantMemory(StreamWrapper out, Translator tr) {
+    	out.write("// cmem");
+        out.newline();
+
+        String raw = "&__cmem[0]";
+        for (SharedMem.Decl d : decls) {
+            raw = d.generateDef(out, raw, tr);
+        }
+    }
+
+    public void generateHostCodeConstantMemory(StreamWrapper out, Translator tr) {
+        out.write("// cmem");        
+        out.newline();
+
+        if (decls.size()==0) return;
+
+		out.write("x10aux::CMemPopulator pop(__cmemv);");
+
+        for (SharedMem.Decl d : decls) {
+            d.generateCMemPop(out, tr);
+        }
+    }
+
 
     public void generateSize(StreamWrapper inc, Translator tr) {
         // TODO Auto-generated method stub
@@ -157,4 +259,24 @@ public class SharedMem {
         }
         if (prefix.equals("")) inc.write("0");
     }
+
+	public void visitChildren(Node parent, NodeVisitor v) {
+        for (SharedMem.Decl d : decls) {
+        	d.visitChildren(parent, v);
+        }
+	}
+
+	public SharedMem clone () {
+		try {
+			SharedMem this_ = (SharedMem) super.clone();
+			ArrayList<Decl> decls = new ArrayList<Decl>();
+			for (Decl d : this.decls) {
+				decls.add(d);
+			}
+			this_.decls = decls;
+			return this_;
+		} catch (CloneNotSupportedException e) {
+			return null;
+		}
+	}
 }

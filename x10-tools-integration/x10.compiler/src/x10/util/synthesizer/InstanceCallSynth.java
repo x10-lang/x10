@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import polyglot.ast.Expr;
+import polyglot.ast.NodeFactory;
 import polyglot.ast.Receiver;
 import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
@@ -22,9 +23,8 @@ import polyglot.types.Name;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.util.Position;
-import x10.ast.X10NodeFactory;
-import x10.types.X10Context;
-import x10.types.X10TypeSystem;
+import polyglot.types.Context;
+import polyglot.types.TypeSystem;
 
 /**
  * A simple synthesizer to create a instance call.
@@ -43,7 +43,7 @@ public class InstanceCallSynth extends AbstractStateSynth implements IStmtSynth,
     List<Expr> args;     //arguments
     Type returnType;
     
-    public InstanceCallSynth(X10NodeFactory xnf, X10Context xct, Position pos, Receiver insRef, Name methodName){
+    public InstanceCallSynth(NodeFactory xnf, Context xct, Position pos, Receiver insRef, Name methodName){
         super(xnf, xct, pos);
         this.insRef = insRef;
         this.methodName = methodName;
@@ -55,11 +55,11 @@ public class InstanceCallSynth extends AbstractStateSynth implements IStmtSynth,
         returnType = null; //default null, refer from expression
     }
     
-    public InstanceCallSynth(X10NodeFactory xnf, X10Context xct, Position pos, Receiver insRef, String methodName){
+    public InstanceCallSynth(NodeFactory xnf, Context xct, Position pos, Receiver insRef, String methodName){
         this(xnf, xct, pos, insRef, Name.make(methodName));
     }
     
-    public InstanceCallSynth(X10NodeFactory xnf, X10Context xct, Receiver insRef, String methodName){
+    public InstanceCallSynth(NodeFactory xnf, Context xct, Receiver insRef, String methodName){
         this(xnf, xct, compilerPos, insRef, Name.make(methodName));
     }
 
@@ -88,7 +88,7 @@ public class InstanceCallSynth extends AbstractStateSynth implements IStmtSynth,
     
     public Expr genExpr() throws SemanticException {
 
-        X10TypeSystem xts = (X10TypeSystem) xct.typeSystem();
+        TypeSystem xts = (TypeSystem) xct.typeSystem();
         
         List<Type> typeArgs = new ArrayList<Type>();
         for (TypeNode t : typeNodes){
@@ -97,7 +97,7 @@ public class InstanceCallSynth extends AbstractStateSynth implements IStmtSynth,
 
         MethodInstance mi = xts.findMethod(methodLocationType, xts.MethodMatcher(methodLocationType, methodName, typeArgs,
                                                                               argTypes, xct));
-        
+
         //handle return type
         if(returnType == null){ //not set
             returnType = mi.returnType();

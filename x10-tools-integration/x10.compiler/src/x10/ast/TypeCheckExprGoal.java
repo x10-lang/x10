@@ -13,6 +13,7 @@ package x10.ast;
 
 import polyglot.ast.Expr;
 import polyglot.ast.Node;
+import polyglot.ast.TypeCheckFragmentGoal;
 import polyglot.types.LazyRef;
 import polyglot.types.Type;
 import polyglot.util.ErrorInfo;
@@ -28,8 +29,8 @@ public class TypeCheckExprGoal extends TypeCheckFragmentGoal<Type> {
 
 	@Override
 	protected Type defaultRecursiveValue() {
-		v.job().compiler().errorQueue().enqueue(ErrorInfo.SEMANTIC_ERROR, "Could not infer type; possible recursive or ambiguous initialization.", n.position());
-		return v.typeSystem().unknownType(n.position());
+		v().errorQueue().enqueue(ErrorInfo.SEMANTIC_ERROR, "Could not infer type; possible recursive or ambiguous initialization.", n().position());
+		return v().typeSystem().unknownType(n().position());
 	}
 
 	@Override
@@ -53,6 +54,6 @@ public class TypeCheckExprGoal extends TypeCheckFragmentGoal<Type> {
 
 	@Override
 	public String toString() {
-		return name() + "[" + n + "] (" + stateString() + ")";
+		return name() + "[" + n() + "] (" + stateString() + ")";
 	}
 }

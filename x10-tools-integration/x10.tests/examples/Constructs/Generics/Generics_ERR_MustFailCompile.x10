@@ -1,5 +1,5 @@
 struct Struct1 {}
-//struct Struct2 extends Struct1 {} // parsing error!
+//struct Struct2 extends Struct1 {} // I would prefer it was a semantic error and not a parsing error!
 class AClass extends Struct1 {} // ERR: Struct1 cannot be the superclass for AClass; a class must subclass a class.
 
 class Bla[T] extends Throwable
@@ -7,13 +7,13 @@ class Bla[T] extends Throwable
 		Bla} // ShouldBeErr
 	{
 	var x1:
-		Bla; // ShouldBeErr
+		Bla; // ERR
 	var x2:
 		Bla[Int,Int]; // ERR: Number of type arguments (2) for Bla is not the same as number of type parameters (1).
 	var x3:
-		Bla[Bla]; // ShouldBeErr
+		Bla[Bla]; // ERR
 	var x4:
-		Bla[Bla[Bla]]; // ShouldBeErr
+		Bla[Bla[Bla]]; // ERR
 	var x5:Bla[Bla[Bla[Int]]];
 	var x6:Bla[Int]{T<:Bla[Int]};
 	var x7:Bla[Int]{T<:
@@ -22,26 +22,28 @@ class Bla[T] extends Throwable
 	static def m() {}
 	static def m2():Bla[Int] {
 		Bla.m();
-		//Bla[Int].m(); // parsing error!
+		//Bla[Int].m(); // I would prefer it was a semantic error and not a parsing error!
 		val z1 =
-			new Bla(); // ShouldBeErr
-		val z2 =
-			new Bla[Bla](); // ShouldBeErr
+			new Bla(); // ctor type parameters are inferred!
+		val z2 = // ShouldNotBeERR
+			new Bla[Bla](); // ERR
 		val z3 =
 			new Bla[Int[Int]](); // ShouldBeErr
 
 		val b1 =
 			null instanceof Bla[Int]
 			|| null instanceof
-				Bla // ShouldBeErr
+				Bla // ERR
 			|| null instanceof
-				Bla[Bla]; // ShouldBeErr
+				Bla[Bla]; // ERR
 
 		val a1 = null as Bla[Int];
-		val a2 = null as
-			Bla; // ShouldBeErr
+		val a2 =  // ShouldNotBeERR
+		    null as
+			Bla; // ERR
 
-		val c1 = (x:Bla[Int],
+		val c1 = // ShouldNotBeERR 
+		    (x:Bla[Int],
 				y:
 					Bla, // ShouldBeErr
 				z:Bla[Bla[Int]]):
@@ -53,7 +55,7 @@ class Bla[T] extends Throwable
 	static def m3(x:
 		Bla, // ShouldBeErr
 		y:Bla[Int]):
-			Bla // ShouldBeErr
+			Bla // ERR
 		= null;
 
 	def m5[U]() {U<:Bla[T]} {}
@@ -64,7 +66,7 @@ class Bla[T] extends Throwable
 
 	static type BlaInt = Bla[Int];
 	static type Bla2 =
-		Bla[Bla]; // ShouldBeErr
+		Bla[Bla]; // ERR
 	static type Bla3 =
 		Bla; // ShouldBeErr
 	static type Bla4(x:
@@ -73,10 +75,11 @@ class Bla[T] extends Throwable
 
 	static class S {}
 	var s1:S;
-	var s2:Bla.S = new Bla.S();
+	var s2:Bla.S
+	    = new Bla.S();  // ctor params are inferred
 
-	//var s3:Bla[Int].S; // parsing error!
-	//var s4:Bla.S = new Bla[Int].S(); // parsing error!
+	var s3:Bla[Int].S;
+	//var s4 = new Bla[Int].S(); // I would prefer it was a semantic error and not a parsing error!
 	var s5:
 		S[T]; // ShouldBeErr
 
@@ -89,7 +92,7 @@ class Bla[T] extends Throwable
 	var i4:
 		Bla.Inner; // ShouldBeErr
 	var i5:Bla[T].Inner =
-		new Bla(). new Inner(); // ShouldBeErr
+		new Bla(). new Inner(); // ctor type parameters are inferred!
 	var i6:
 		Inner[T]; // ShouldBeErr
 
@@ -99,10 +102,10 @@ class Bla[T] extends Throwable
 	var j2:Bla[T].Inner2[T] = other.new Inner2[T]();
 	var j3:Bla[Int].Inner2[T] = new Bla[Int]().new Inner2[T]();
 	var j4:
-		Inner2; // ShouldBeErr
+		Inner2; // ERR
 	var j5:Bla[T].Inner2[T] =
 		other.new Inner2(); // ERR
 	var j6:Inner2[T];
 	var j7:
-		Inner2; // ShouldBeErr
+		Inner2; // ERR
 }

@@ -30,7 +30,7 @@ public class LocalAssign_c extends Assign_c implements LocalAssign
     }
 
     @Override
-    public Assign typeCheckLeft(ContextVisitor tc) throws SemanticException {
+    public Assign typeCheckLeft(ContextVisitor tc) {
 	return this;
     }
 

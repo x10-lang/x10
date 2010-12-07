@@ -34,7 +34,7 @@ template<class T> T *zrealloc (T *buf, size_t was, size_t now)
     return buf;
 }
 
-serialization_id_t DeserializationDispatcher::addDeserializer (Deserializer deser, bool is_async,
+serialization_id_t DeserializationDispatcher::addDeserializer (Deserializer deser, ClosureKind kind,
                                                                CUDAPre cuda_pre,
                                                                CUDAPost cuda_post,
                                                                const char *cubin,
@@ -43,7 +43,7 @@ serialization_id_t DeserializationDispatcher::addDeserializer (Deserializer dese
     if (NULL == it) {
         it = new (system_alloc<DeserializationDispatcher>()) DeserializationDispatcher();
     }
-    return it->addDeserializer_(deser, is_async, cuda_pre, cuda_post, cubin, kernel);
+    return it->addDeserializer_(deser, kind, cuda_pre, cuda_post, cubin, kernel);
 }
 
 static void ensure_data_size (DeserializationDispatcher::Data *&data_v,
@@ -55,21 +55,20 @@ static void ensure_data_size (DeserializationDispatcher::Data *&data_v,
     data_c = newsz;
 }
 
-serialization_id_t DeserializationDispatcher::addDeserializer_ (Deserializer deser, bool is_async,
+serialization_id_t DeserializationDispatcher::addDeserializer_ (Deserializer deser, ClosureKind kind,
                                                                 CUDAPre cuda_pre,
                                                                 CUDAPost cuda_post,
                                                                 const char *cubin,
                                                                 const char *kernel)
 {
-    is_async = true; // FIXME: x10 compiler backend should give us this info
     // grow slowly as this is init phase and we don't want to take
     // up RAM unnecessarily
     ensure_data_size(data_v, next_id+1, data_c);
     serialization_id_t r = next_id++;
     _S_("DeserializationDispatcher "<<this<<" "<<(this==it?"(the system one) ":"")<<"registered the following handler for id: "
-        <<r<<": "<<std::hex<<(size_t)deser<<std::dec);
+        <<r<<": "<<std::hex<<(size_t)deser<<std::dec<<" kind: "<<kind);
     data_v[r].deser = deser;
-    data_v[r].has_mt = is_async;
+    data_v[r].closure_kind = kind;
     data_v[r].cuda_pre = cuda_pre;
     data_v[r].cuda_post = cuda_post;
     data_v[r].cubin = cubin;
@@ -111,7 +110,7 @@ serialization_id_t DeserializationDispatcher::addPutFunctions_ (BufferFinder bfi
     data_v[r].put_notifier = notifier;
     data_v[r].cuda_put_bfinder = cuda_bfinder;
     data_v[r].cuda_put_notifier = cuda_notifier;
-    data_v[r].has_mt = true;
+    data_v[r].closure_kind = x10aux::CLOSURE_KIND_SIMPLE_ASYNC;
     return r;
 }
 
@@ -149,7 +148,7 @@ serialization_id_t DeserializationDispatcher::addGetFunctions_ (BufferFinder bfi
     data_v[r].get_notifier = notifier;
     data_v[r].cuda_get_bfinder = cuda_bfinder;
     data_v[r].cuda_get_notifier = cuda_notifier;
-    data_v[r].has_mt = true;
+    data_v[r].closure_kind = x10aux::CLOSURE_KIND_SIMPLE_ASYNC;
     return r;
 }
 
@@ -165,8 +164,12 @@ BufferFinder DeserializationDispatcher::getCUDAGetBufferFinder_ (serialization_i
 Notifier DeserializationDispatcher::getCUDAGetNotifier_ (serialization_id_t id)
 { return data_v[id].cuda_get_notifier; }
 
+x10aux::ClosureKind DeserializationDispatcher::getClosureKind_ (serialization_id_t id) {
+    return data_v[id].closure_kind;
+}
+
 x10aux::msg_type DeserializationDispatcher::getMsgType_ (serialization_id_t id) {
-    if (!data_v[id].has_mt) {
+    if (data_v[id].closure_kind == x10aux::CLOSURE_KIND_NOT_ASYNC) {
         fprintf(stderr, "This serialization id does not have a message id: %llu\n",
                         (unsigned long long)id);
         abort();
@@ -176,8 +179,13 @@ x10aux::msg_type DeserializationDispatcher::getMsgType_ (serialization_id_t id) 
 
 serialization_id_t DeserializationDispatcher::getSerializationId_ (x10aux::msg_type id) {
     serialization_id_t sid = data_v[id].sid;
-    if (!data_v[sid].has_mt || data_v[sid].mt!=id) {
+    if (data_v[sid].mt!=id) {
         fprintf(stderr, "This async id was unrecognised: %llu\n",
+                        (unsigned long long)id);
+        abort();
+    }
+    if (data_v[sid].closure_kind == x10aux::CLOSURE_KIND_NOT_ASYNC) {
+        fprintf(stderr, "This async id maps to a non-async closure: %llu\n",
                         (unsigned long long)id);
         abort();
     }
@@ -192,7 +200,7 @@ void DeserializationDispatcher::registerHandlers () {
 void DeserializationDispatcher::registerHandlers_ () {
     for (size_t i=0 ; i<next_id ; ++i) {
         Data &d = data_v[i];
-        if (d.has_mt) {
+        if (d.closure_kind != x10aux::CLOSURE_KIND_NOT_ASYNC) {
             msg_type id;
             if (d.deser!=NULL) {
                 id = x10aux::register_async_handler(d.cubin, d.kernel);

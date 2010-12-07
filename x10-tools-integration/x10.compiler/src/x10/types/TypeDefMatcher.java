@@ -21,7 +21,7 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.util.CollectionUtil;
 
-class TypeDefMatcher implements Matcher<Named> {
+public class TypeDefMatcher implements Matcher<Named> {
     Type container;
     Name name;
     List<Type> typeArgs;
@@ -63,7 +63,7 @@ class TypeDefMatcher implements Matcher<Named> {
             Type c = container != null ? container : mi.container();
             if (typeArgs.isEmpty() || typeArgs.size() == mi.typeParameters().size()) {
                 // no implicit coercions!
-                MacroType result = x10.types.matcher.Matcher.inferAndCheckAndInstantiate((X10Context) context, 
+                MacroType result = x10.types.matcher.Matcher.inferAndCheckAndInstantiate((Context) context, 
                         mi, c, typeArgs, argTypes, mi.position());
                 return result;
             }

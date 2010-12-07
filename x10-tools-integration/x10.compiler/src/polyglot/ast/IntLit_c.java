@@ -10,13 +10,20 @@ package polyglot.ast;
 
 import polyglot.types.SemanticException;
 import polyglot.types.TypeSystem;
+import polyglot.types.Type;
+import polyglot.types.Context;
 import polyglot.util.*;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.PrettyPrinter;
+import x10.errors.Errors;
+import x10.types.constraints.CConstraint;
+import x10.types.X10TypeMixin;
+import x10.constraint.XTerm;
+import x10.constraint.XFailure;
 
 /**
- * An <code>IntLit</code> represents a literal in Java of an integer
- * type.
+ * An immutable representation of an int lit, modified from JL to support a
+ * self-clause in the dep type.
  */
 public class IntLit_c extends NumLit_c implements IntLit
 {
@@ -35,7 +42,9 @@ public class IntLit_c extends NumLit_c implements IntLit
      */
     public boolean boundary() {
         return (kind == INT && (int) value == Integer.MIN_VALUE)
-            || (kind == LONG && value == Long.MIN_VALUE);
+            || (kind == LONG && value == Long.MIN_VALUE)
+            || (kind == BYTE && value == Byte.MIN_VALUE)
+            || (kind == SHORT && value == Short.MIN_VALUE);
     }
 
     /** Get the value of the expression. */
@@ -63,56 +72,96 @@ public class IntLit_c extends NumLit_c implements IntLit
     }
 
     /** Type check the expression. */
+    private void rangeCheck(ContextVisitor tc, Kind signed, Kind unsigned, long max, long min, long boundary) {
+        if (kind == signed) {
+            if ((value > max  || value < min)) {
+                Errors.issue(tc.job(),
+                        new SemanticException(signed.toString()+" literal " + value + " is out of range.", position()));
+            }
+        }
+        if (kind == unsigned) {
+            if (value < 0 || value > boundary) {
+                Errors.issue(tc.job(),
+                        new SemanticException(unsigned.toString()+" literal " + value + " is out of range.", position()));
+            }
+        }
+
+    }
     public Node typeCheck(ContextVisitor tc) throws SemanticException {
-        TypeSystem ts = tc.typeSystem();
-
-	Kind kind = kind();
-
-        if (kind == INT) {
-	    return type(ts.Int());
-	}
-	else if (kind == LONG) {
-	    return type(ts.Long());
-	}
-	else {
-	    throw new InternalCompilerError("Unrecognized IntLit kind " + kind);
-	}
+        // todo: handle LONG and ULONG
+        rangeCheck(tc, Kind.INT, Kind.UINT, 1l+Integer.MAX_VALUE, Integer.MIN_VALUE, 0xffffffffl);
+        rangeCheck(tc, Kind.SHORT, Kind.USHORT, 1l+Short.MAX_VALUE, Short.MIN_VALUE, 0xffffl);
+        rangeCheck(tc, Kind.BYTE, Kind.UBYTE, 1l+Byte.MAX_VALUE, Byte.MIN_VALUE, 0xffl);
+        TypeSystem xts = (TypeSystem) tc.typeSystem();
+        Type Type;
+        switch (kind) {
+        case BYTE:
+            Type = xts.Byte();
+            break;
+        case SHORT:
+            Type = xts.Short();
+            break;
+        case INT:
+            Type = xts.Int();
+            break;
+        case LONG:
+            Type = xts.Long();
+            break;
+        case UBYTE:
+            Type = xts.UByte();
+            break;
+        case USHORT:
+            Type = xts.UShort();
+            break;
+        case UINT:
+            Type = xts.UInt();
+            break;
+        case ULONG:
+            Type = xts.ULong();
+            break;
+        default:
+            throw new InternalCompilerError("bad integer literal kind", position());
+        }
+        CConstraint c = new CConstraint();
+        XTerm term = xts.xtypeTranslator().trans(c, this.type(Type), (Context) tc.context());
+        try {
+            c.addSelfBinding(term);
+        }
+        catch (XFailure e) {
+        }
+        Type newType = X10TypeMixin.xclause(Type, c);
+        return type(newType);
     }
 
     public String positiveToString() {
-	if (kind() == LONG) {
-            if (boundary()) {
-                // the literal is negative, but print it as positive.
-                return "9223372036854775808L";
-            }
-            else if (value < 0) {
-                return "0x" + Long.toHexString(value) + "L";
-            }
-            else {
-                return Long.toString(value) + "L";
-            }
-	}
-	else {
-            if (boundary()) {
-                // the literal is negative, but print it as positive.
-                return "2147483648";
-            }
-            else if ((int) value < 0) {
-                return "0x" + Integer.toHexString((int) value);
-            }
-            else {
-                return Integer.toString((int) value);
-            }
-	}
+        assert boundary();
+        return kind == LONG ? "9223372036854775808L" :
+                kind == INT ? "2147483648" :
+                ""+Math.abs(value);
     }
 
     public String toString() {
-	if (kind() == LONG) {
+        if (kind() == UINT) {
+            return Long.toString(value & 0xffffffffL) + "U";
+        }
+        else if (kind() == LONG) {
             return Long.toString(value) + "L";
-	}
-	else {
+        }
+        else if (kind() == ULONG) {
+            StringBuilder sb = new StringBuilder();
+            long a = value;
+            if (a >= 0)
+                return Long.toString(a);
+            while (a != 0) {
+                char ch = (char) ('0' + a % 10);
+                sb.append(ch);
+                a /= 10;
+            }
+            return sb.reverse().toString() + "UL";
+        }
+        else {
             return Long.toString((int) value);
-	}
+        }
     }
 
     public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
@@ -120,7 +169,8 @@ public class IntLit_c extends NumLit_c implements IntLit
     }
 
     public Object constantValue() {
-	if (kind() == LONG) {
+        // this object is used in the constraint system (see XTerms.ZERO_INT and ZERO_LONG)
+	if (kind() == LONG || kind()==UINT || kind()==ULONG) {  // todo: what about ULong out of range?
             return Long.valueOf(value);
 	}
 	else {

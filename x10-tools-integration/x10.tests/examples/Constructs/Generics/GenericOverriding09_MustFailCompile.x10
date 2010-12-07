@@ -24,11 +24,17 @@ import harness.x10Test;
 public class GenericOverriding09_MustFailCompile extends GenericTest {
 
     class A[T] {
-        def m() = 0;
+        def m():Int = 0;
+        def m1(){T<:String}:Int = 0;
+        def m2(x:Int):Int = x;
+        def m3(x:Int) {x!=0} :Int = x;
     }
         
     class B[T] extends A[T] {
-        def m(){T<:String} = 1;
+        def m(){T<:String}:Int = 1; // ShouldBeErr (type constraint in a guard)
+        def m1():Int = 1; // ok 
+        def m2(x:Int) {x!=0} :Int = x; // ERR (value constraint in a guard): Semantic Error: m2(x: x10.lang.Int){x!=0}[]: x10.lang.Int in GenericOverriding09_MustFailCompile.B cannot override m2(x: x10.lang.Int): x10.lang.Int in GenericOverriding09_MustFailCompile.A[T]; method guard is not entailed.
+        def m3(x:Int) :Int = x; // ok
     }
 
     public def run() = true;

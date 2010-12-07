@@ -31,7 +31,7 @@ import x10.types.X10ClassType;
 import x10.types.X10MethodDef;
 import x10.types.X10MethodInstance;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 import x10.types.X10TypeSystem_c;
 import x10cpp.types.X10CPPContext_c;
 
@@ -42,8 +42,6 @@ import x10cpp.types.X10CPPContext_c;
  * are implemented.
  */
 public final class ITable {
-	private static final HashMap<X10ClassType, ITable> cachedITables = new HashMap<X10ClassType, ITable>();
-
 	private final X10ClassType interfaceType;
 	private final MethodInstance[] methods;
 	private final boolean hasOverloadedMethods;
@@ -53,7 +51,7 @@ public final class ITable {
 	 * Construct the ITable instance for the given X10 interface type
 	 * @param interfaceType The interface for which to build the ITable
 	 */
-	private ITable(X10ClassType interfaceType) {
+	public ITable(X10ClassType interfaceType) {
 		assert interfaceType.flags().isInterface() : "Cannot create an ITable for a non-interface type";
 		this.interfaceType = interfaceType;
 		methods = collectMethods(interfaceType);
@@ -72,11 +70,11 @@ public final class ITable {
 	}
 
 	private static MethodInstance[] collectMethods(X10ClassType interfaceType) {
-	    X10TypeSystem xts = (X10TypeSystem)interfaceType.typeSystem();
+	    TypeSystem xts = (TypeSystem)interfaceType.typeSystem();
 		ArrayList<MethodInstance> uniqueMethods = new ArrayList<MethodInstance>();
 		uniqueMethods.addAll(interfaceType.methods());
 
-		for (X10ClassType superInterface : ((X10TypeSystem)interfaceType.typeSystem()).allImplementedInterfaces(interfaceType)) {
+		for (X10ClassType superInterface : ((TypeSystem)interfaceType.typeSystem()).allImplementedInterfaces(interfaceType)) {
 			for (MethodInstance newMethod : superInterface.methods()) {
 				boolean duplicate = false;
 				for (MethodInstance oldMethod : uniqueMethods) {
@@ -92,18 +90,6 @@ public final class ITable {
 		}
 
 		return uniqueMethods.toArray(new MethodInstance[uniqueMethods.size()]);
-	}
-
-	/**
-	 * Find or construct the ITable instance for the argument X10 interface type.
-	 */
-	public static ITable getITable(X10ClassType interfaceType) {
-		ITable ans = cachedITables.get(interfaceType);
-		if (ans == null) {
-			ans = new ITable(interfaceType);
-			cachedITables.put(interfaceType, ans);
-		}
-		return ans;
 	}
 
 	/**
@@ -176,30 +162,31 @@ public final class ITable {
 
 	public void emitITableDecl(X10ClassType cls, int itableNum, Emitter emitter, CodeWriter h) {
 		String interfaceCType = Emitter.translateType(interfaceType, false);
-		boolean doubleTemplate = cls.typeArguments().size() > 0 && interfaceType.typeArguments().size() > 0;
+		X10ClassDef cd = cls.x10Def();
+		boolean doubleTemplate = cd.typeParameters().size() > 0 && interfaceType.x10Def().typeParameters().size() > 0;
 		h.write("static "+(doubleTemplate ? "typename ":"")+interfaceCType+
 				(doubleTemplate ? "::template itable<":"::itable<")+Emitter.translateType(cls, false)+" > _itable_"+itableNum+";");
 		h.newline();
 	}
 
 	public void emitITableInitialization(X10ClassType cls, int itableNum, MessagePassingCodeGenerator cg, CodeWriter h, CodeWriter sw) {
+	    X10ClassDef cd = cls.x10Def();
 	    if (cls.isX10Struct()) {
             String interfaceCType = Emitter.translateType(interfaceType, false);
             String clsCType = Emitter.translateType(cls, false);
-            X10ClassDef cd = ((X10ClassType) cls).x10Def();
             String thunkBaseType = Emitter.mangled_non_method_name(cd.name().toString());
             String thunkParams = "";
-            if (cls.typeArguments().size() != 0) {
+            if (cd.typeParameters().size() != 0) {
                 String args = "";
-                int s = cls.typeArguments().size();
-                for (Type t: cls.typeArguments()) {
+                int s = cd.typeParameters().size();
+                for (Type t: cd.typeParameters()) {
                     args += Emitter.translateType(t, true); // type arguments are always translated as refs
                     if (--s > 0)
                         args +=", ";
                 }
                 thunkParams = chevrons(args);
             }
-            boolean doubleTemplate = cls.typeArguments().size() > 0 && interfaceType.typeArguments().size() > 0;
+            boolean doubleTemplate = cd.typeParameters().size() > 0 && interfaceType.x10Def().typeParameters().size() > 0;
             
             if (cd.package_() != null) {
                 Emitter.openNamespaces(sw, cd.package_().get().fullName()); sw.newline();
@@ -210,9 +197,7 @@ public final class ITable {
                 String parentCType = ibox ? "x10::lang::IBox"+chevrons(clsCType) : clsCType;
                 String recvArg = ibox ? "this->value" : "*this";
 
-                if (!cls.typeArguments().isEmpty()) {
-                    cg.emitter.printTemplateSignature(cls.typeArguments(), sw);
-                }
+                cg.emitter.printTemplateSignature(cd.typeParameters(), sw);
                 sw.write("class "+thunkType+" : public "+parentCType+" {"); sw.newline();
                 sw.write("public:"); sw.newline(4); sw.begin(0);
                 sw.write("static "+(doubleTemplate ? "typename ":"")+interfaceCType+
@@ -241,7 +226,9 @@ public final class ITable {
                     String pat = cg.getCppImplForDef(((X10MethodInstance)implMeth).x10Def());
                     if (pat != null) {
                         X10ClassType ct = (X10ClassType) implMeth.container().toClass();
-                        List<Type> typeArguments  = ct.typeArguments();
+                        List<Type> typeArguments = ct.typeArguments();
+                        if (typeArguments == null)
+                            typeArguments = new ArrayList<Type>(ct.x10Def().typeParameters());
                         ArrayList<String> args = new ArrayList<String>();
                         int numArgs = implMeth.formalTypes().size();
                         argNum = 0;
@@ -263,9 +250,7 @@ public final class ITable {
                 sw.end(); sw.newline();
                 sw.write("};"); sw.newline();
 
-                if (!cls.typeArguments().isEmpty()) {
-                    cg.emitter.printTemplateSignature(cls.typeArguments(), sw);
-                }           
+                cg.emitter.printTemplateSignature(cd.typeParameters(), sw);
                 sw.write((doubleTemplate ? "typename " : "")+interfaceCType+(doubleTemplate ? "::template itable<" : "::itable<")+
                          thunkType+thunkParams+" > "+" "+thunkType+thunkParams+"::itable");
                 if (!isEmpty()) {
@@ -286,11 +271,9 @@ public final class ITable {
 	    } else {
 	        String interfaceCType = Emitter.translateType(interfaceType, false);
 	        String clsCType = Emitter.translateType(cls, false);
-	        boolean doubleTemplate = cls.typeArguments().size() > 0 && interfaceType.typeArguments().size() > 0;
+	        boolean doubleTemplate = cd.typeParameters().size() > 0 && interfaceType.x10Def().typeParameters().size() > 0;
 
-	        if (!cls.typeArguments().isEmpty()) {
-	            cg.emitter.printTemplateSignature(cls.typeArguments(), sw);
-	        }
+	        cg.emitter.printTemplateSignature(cd.typeParameters(), sw);
 	        sw.write((doubleTemplate ? "typename " : "")+interfaceCType+(doubleTemplate ? "::template itable<" : "::itable<")+
 	                 Emitter.translateType(cls, false)+" > "+" "+clsCType+"::_itable_"+itableNum+"");
 	        if (!isEmpty()) {

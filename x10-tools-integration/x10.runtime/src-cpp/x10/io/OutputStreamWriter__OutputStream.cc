@@ -57,6 +57,6 @@ void OutputStreamWriter__OutputStream::_deserialize_body(x10aux::deserialization
     x10::lang::Object::_deserialize_body(buf);
 }
 
-RTT_CC_DECLS1(OutputStreamWriter__OutputStream, "x10.io.OutputStreamWriter.OutputStream", Object)
+RTT_CC_DECLS1(OutputStreamWriter__OutputStream, "x10.io.OutputStreamWriter.OutputStream", RuntimeType::class_kind, Object)
 
 // vim:tabstop=4:shiftwidth=4:expandtab

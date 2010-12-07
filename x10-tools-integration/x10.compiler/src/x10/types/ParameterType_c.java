@@ -21,6 +21,7 @@ import polyglot.types.Resolver;
 import polyglot.types.Name;
 import polyglot.types.TypeObject;
 import polyglot.types.Type_c;
+import polyglot.types.TypeSystem;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 
@@ -30,12 +31,19 @@ public class ParameterType_c extends Type_c implements ParameterType {
     Name name;
 	Ref<? extends Def> def;
 	
-	public ParameterType_c(X10TypeSystem ts, Position pos, Name name, Ref<? extends Def> def) {
+	public ParameterType_c(TypeSystem ts, Position pos, Name name, Ref<? extends Def> def) {
 		super(ts, pos);
 		this.name = name;
 		this.def = def;
 	}
-	
+
+    public Variance getVariance() {
+        Def def = def().get();
+        // either method generic param (which are always invariant) or class param
+        if (!(def instanceof X10ClassDef_c)) return Variance.INVARIANT;
+        X10ClassDef_c classDef = (X10ClassDef_c) def;
+        return classDef.getVariance(this);
+    }
 	public boolean isGloballyAccessible() {
 	    return false;
 	}

@@ -28,7 +28,10 @@ public class ClosureEnclosingScope2b_MustFailCompile extends ClosureTest {
         
         var b:int = 1;
 
-        check("(()=>a+b)()", (()=>a+b)(), 2);
+        check("(()=>a+b)()",
+            (()=>a+
+                b) // ERR
+            (), 2);
 
         return result;
     }

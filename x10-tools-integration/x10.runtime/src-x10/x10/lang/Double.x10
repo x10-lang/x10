@@ -27,134 +27,123 @@ import x10.util.Ordered;
  */
 @NativeRep("java", "double", null, "x10.rtt.Types.DOUBLE")
 @NativeRep("c++", "x10_double", "x10_double", null)
-public final struct Double /*TODO implements Arithmetic[Double], Ordered[Double]*/ {
+public struct Double implements Comparable[Double] /*TODO implements Arithmetic[Double], Ordered[Double]*/ {
     /**
      * A less-than operator.
-     * Compares the given Double with another Double and returns true if the given Double is
+     * Compares this Double with another Double and returns true if this Double is
      * strictly less than the other Double.
      * Note that NaN values are unordered.
-     * @param x the given Double
-     * @param y the other Double
-     * @return true if the given Double is strictly less than the other Double.
+     * @param x the other Double
+     * @return true if this Double is strictly less than the other Double.
      */
-    @Native("java", "((#1) < (#2))")
-    @Native("c++",  "((#1) < (#2))")
-    public native static operator (x:Double) < (y:Double): Boolean;
+    @Native("java", "((#0) < (#1))")
+    @Native("c++",  "((#0) < (#1))")
+    public native operator this < (x:Double): Boolean;
 
     /**
      * A greater-than operator.
-     * Compares the given Double with another Double and returns true if the given Double is
+     * Compares this Double with another Double and returns true if this Double is
      * strictly greater than the other Double.
      * Note that NaN values are unordered.
-     * @param x the given Double
-     * @param y the other Double
-     * @return true if the given Double is strictly greater than the other Double.
+     * @param x the other Double
+     * @return true if this Double is strictly greater than the other Double.
      */
-    @Native("java", "((#1) > (#2))")
-    @Native("c++",  "((#1) > (#2))")
-    public native static operator (x:Double) > (y:Double): Boolean;
+    @Native("java", "((#0) > (#1))")
+    @Native("c++",  "((#0) > (#1))")
+    public native operator this > (x:Double): Boolean;
 
     /**
      * A less-than-or-equal-to operator.
-     * Compares the given Double with another Double and returns true if the given Double is
+     * Compares this Double with another Double and returns true if this Double is
      * less than or equal to the other Double.
      * Note that NaN values are unordered.
-     * @param x the given Double
-     * @param y the other Double
-     * @return true if the given Double is less than or equal to the other Double.
+     * @param x the other Double
+     * @return true if this Double is less than or equal to the other Double.
      */
-    @Native("java", "((#1) <= (#2))")
-    @Native("c++",  "((#1) <= (#2))")
-    public native static operator (x:Double) <= (y:Double): Boolean;
+    @Native("java", "((#0) <= (#1))")
+    @Native("c++",  "((#0) <= (#1))")
+    public native operator this <= (x:Double): Boolean;
 
     /**
      * A greater-than-or-equal-to operator.
-     * Compares the given Double with another Double and returns true if the given Double is
+     * Compares this Double with another Double and returns true if this Double is
      * greater than or equal to the other Double.
      * Note that NaN values are unordered.
-     * @param x the given Double
-     * @param y the other Double
-     * @return true if the given Double is greater than or equal to the other Double.
+     * @param x the other Double
+     * @return true if this Double is greater than or equal to the other Double.
      */
-    @Native("java", "((#1) >= (#2))")
-    @Native("c++",  "((#1) >= (#2))")
-    public native static operator (x:Double) >= (y:Double): Boolean;
+    @Native("java", "((#0) >= (#1))")
+    @Native("c++",  "((#0) >= (#1))")
+    public native operator this >= (x:Double): Boolean;
 
 
     /**
      * A binary plus operator.
      * Computes the result of the addition of the two operands.
-     * @param x the given Double
-     * @param y the other Double
-     * @return the sum of the given Double and the other Double.
+     * @param x the other Double
+     * @return the sum of this Double and the other Double.
      */
-    @Native("java", "((#1) + (#2))")
-    @Native("c++",  "((#1) + (#2))")
-    public native static operator (x:Double) + (y:Double): Double;
+    @Native("java", "((#0) + (#1))")
+    @Native("c++",  "((#0) + (#1))")
+    public native operator this + (x:Double): Double;
 
     /**
      * A binary minus operator.
      * Computes the result of the subtraction of the two operands.
-     * @param x the given Double
-     * @param y the other Double
-     * @return the difference of the given Double and the other Double.
+     * @param x the other Double
+     * @return the difference of this Double and the other Double.
      */
-    @Native("java", "((#1) - (#2))")
-    @Native("c++",  "((#1) - (#2))")
-    public native static operator (x:Double) - (y:Double): Double;
+    @Native("java", "((#0) - (#1))")
+    @Native("c++",  "((#0) - (#1))")
+    public native operator this - (x:Double): Double;
 
     /**
      * A binary multiply operator.
      * Computes the result of the multiplication of the two operands.
-     * @param x the given Double
-     * @param y the other Double
-     * @return the product of the given Double and the other Double.
+     * @param x the other Double
+     * @return the product of this Double and the other Double.
      */
-    @Native("java", "((#1) * (#2))")
-    @Native("c++",  "((#1) * (#2))")
-    public native static operator (x:Double) * (y:Double): Double;
+    @Native("java", "((#0) * (#1))")
+    @Native("c++",  "((#0) * (#1))")
+    public native operator this * (x:Double): Double;
 
     /**
      * A binary divide operator.
      * Computes the result of the division of the two operands.
-     * @param x the given Double
-     * @param y the other Double
-     * @return the quotient of the given Double and the other Double.
+     * @param x the other Double
+     * @return the quotient of this Double and the other Double.
      */
-    @Native("java", "((#1) / (#2))")
-    @Native("c++",  "((#1) / (#2))")
-    public native static operator (x:Double) / (y:Double): Double;
+    @Native("java", "((#0) / (#1))")
+    @Native("c++",  "((#0) / (#1))")
+    public native operator this / (x:Double): Double;
 
     /**
      * A binary remainder operator.
      * Computes a remainder from the division of the two operands.
-     * @param x the given Double
-     * @param y the other Double
-     * @return the remainder from dividing the given Double by the other Double.
+     * @param x the other Double
+     * @return the remainder from dividing this Double by the other Double.
      */
-    @Native("java", "((#1) % (#2))")
-    @Native("c++",  "x10aux::mod(#1, #2)")
-    public native static operator (x:Double) % (y:Double): Double;
+    @Native("java", "((#0) % (#1))")
+    @Native("c++",  "x10aux::mod(#0, #1)")
+    public native operator this % (x:Double): Double;
 
     /**
      * A unary plus operator.
      * A no-op.
-     * @param x the given Double
-     * @return the value of the given Double.
+     * @return the value of this Double.
      */
-    @Native("java", "(+(#1))")
-    @Native("c++",  "(+(#1))")
-    public native static operator + (x:Double): Double;
+    @Native("java", "(+(#0))")
+    @Native("c++",  "(+(#0))")
+    public native operator + this: Double;
 
     /**
      * A unary minus operator.
      * Negates the operand.
-     * @param x the given Double
-     * @return the negated value of the given Double.
+     * @return the negated value of this Double.
      */
-    @Native("java", "(-(#1))")
-    @Native("c++",  "(-(#1))")
-    public native static operator - (x:Double): Double;
+    @Native("java", "(-(#0))")
+    @Native("c++",  "(-(#0))")
+    public native operator - this: Double;
 
 
     /**
@@ -410,4 +399,15 @@ public final struct Double /*TODO implements Arithmetic[Double], Ordered[Double]
     @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
     public native def equals(x:Double):Boolean;
+
+    /**
+    * Returns a negative Int, zero, or a positive Int if this Double is less than, equal
+    * to, or greater than the given Double.
+    * @param x the given Double
+    * @return a negative Int, zero, or a positive Int if this Double is less than, equal
+    * to, or greater than the given Double.
+    */
+   @Native("java", "x10.rtt.Equality.compareTo(#0, #1)")
+   @Native("c++", "x10aux::double_utils::compareTo(#0, #1)")
+   public native def compareTo(x:Double):Int;
 }

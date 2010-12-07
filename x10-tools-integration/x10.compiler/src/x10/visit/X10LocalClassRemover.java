@@ -44,7 +44,8 @@ import polyglot.visit.NodeVisitor;
 import polyglot.visit.TypeBuilder;
 import x10.ast.TypeParamNode;
 import x10.ast.X10ClassDecl;
-import x10.ast.X10NodeFactory;
+import x10.ast.X10MethodDecl;
+import x10.ast.X10New;
 import x10.types.ParameterType;
 import x10.types.TypeParamSubst;
 import x10.types.X10ClassDef;
@@ -54,7 +55,8 @@ import x10.types.X10ConstructorInstance;
 import x10.types.X10Context_c;
 import x10.types.X10MethodDef;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import x10.types.X10TypeSystem_c;
+import polyglot.types.TypeSystem;
 
 public class X10LocalClassRemover extends LocalClassRemover {
 
@@ -63,42 +65,56 @@ public class X10LocalClassRemover extends LocalClassRemover {
      * implements an interface.
      */
     protected TypeNode defaultSuperType(Position pos) {
-        X10TypeSystem ts = (X10TypeSystem) this.ts;
+        TypeSystem ts = (TypeSystem) this.ts;
         return nf.CanonicalTypeNode(pos, ts.Object());
     }
 
     protected class X10ConstructorCallRewriter extends ConstructorCallRewriter {
-        private List<? extends Type> typeArgs;
-        public X10ConstructorCallRewriter(List<FieldDef> fields, ClassDef ct, List<? extends Type> typeArgs) {
+        public X10ConstructorCallRewriter(List<FieldDef> fields, ClassDef ct) {
             super(fields, ct);
-            this.typeArgs = typeArgs;
         }
             
         public Node leave(Node old, Node n, NodeVisitor v) {
             Node n_ = super.leave(old, n, v);
             
-            if (n_ instanceof New) {
-                New neu = (New) n_;
+            if (n_ instanceof X10New) {
+                X10New neu = (X10New) n_;
                 X10ConstructorInstance ci = (X10ConstructorInstance) neu.constructorInstance();
                 ConstructorDef nci = ci.def();
                 X10ClassType container = (X10ClassType) Types.get(nci.container());
                 
                 if (container.def() == theLocalClass) {
                     X10ClassType type = (X10ClassType) X10TypeMixin.baseType(neu.objectType().type());
-                    List<Type> ta = new ArrayList<Type>(type.typeArguments());
+                    List<Type> ta = type.typeArguments();
+                    List<TypeNode> nta = neu.typeArguments();
+                    assert (ta == null || ta.size() == nta.size());
                     List<ParameterType> params = type.x10Def().typeParameters();
-                    if (!params.isEmpty() && (ta.equals(params) || ta.isEmpty())) {
-                        ta.clear();
-                        ta.addAll(typeArgs);
-                        assert (typeArgs.size() == params.size());
+                    if (!params.isEmpty() && (ta == null || ta.size() != params.size())) {
+                        assert (context().currentCode() instanceof X10MethodDef);
+                        X10MethodDef md = (X10MethodDef) context().currentCode();
+                        if (ta == null) {
+                            ta = new ArrayList<Type>();
+                            nta = new ArrayList<TypeNode>();
+                        } else if (!md.typeParameters().isEmpty()) {
+                            ta = new ArrayList<Type>(ta);
+                            nta = new ArrayList<TypeNode>(nta);
+                        }
+                        ta.addAll(md.typeParameters());
+                        for (Type pt : md.typeParameters()) {
+                            nta.add(nf.CanonicalTypeNode(neu.objectType().position(), pt));
+                        }
+                        assert (ta.size() == nta.size());
+                        assert (ta.size() == params.size());
                     }
-                    TypeParamSubst subst = new TypeParamSubst((X10TypeSystem) ts, ta, params);
+                    TypeParamSubst subst = new TypeParamSubst((TypeSystem) ts, ta, params);
                     X10ConstructorInstance xci = (X10ConstructorInstance) subst.reinstantiate(ci);
                     neu = neu.constructorInstance(xci);
                     neu = neu.objectType(nf.CanonicalTypeNode(neu.objectType().position(), subst.reinstantiate(type)));
-                    neu = (New) neu.type(subst.reinstantiate(neu.type()));
+                    neu = neu.typeArguments(nta);
+                    neu = (X10New) neu.type(subst.reinstantiate(neu.type()));
                     // FIX:XTENLANG-949 (for mismatch between neu.argument and neu.ci.formalTypes)
                     if (neu.arguments().size() > ci.formalTypes().size()) {
+                        assert (false) : "This should not happen";
                         List<Type> newFormalTypes = new ArrayList<Type>();
                         for (Expr arg : neu.arguments()) {
                             newFormalTypes.add(arg.type());
@@ -119,17 +135,40 @@ public class X10LocalClassRemover extends LocalClassRemover {
     }
 
     @Override
-    protected X10ConstructorInstance computeConstructorInstance(ConstructorDef cd) {
-        ClassDef container = ((X10ClassType) Types.get(cd.container())).def();
-        return (X10ConstructorInstance) cd.asInstance().container(computeConstructedType(container));
+    protected Node leaveCall(Node old, Node n, NodeVisitor v) {
+        Node res = super.leaveCall(old, n, v);
+        if (res instanceof X10MethodDecl) {
+            X10MethodDecl decl = (X10MethodDecl) res;
+            Type rt = decl.returnType().type();
+            if (!rt.isClass())
+                return decl;
+            X10ClassType type = (X10ClassType) X10TypeMixin.baseType(rt.toClass());
+            List<Type> ta = type.typeArguments();
+            List<ParameterType> params = type.x10Def().typeParameters();
+            if (!params.isEmpty() && (ta == null || ta.size() != params.size())) {
+                X10MethodDef md = decl.methodDef();
+                if ((ta == null || ta.equals(params)) && !md.typeParameters().isEmpty())
+                    ta = new ArrayList<Type>();
+                ta.addAll(md.typeParameters());
+                assert (ta.size() == params.size());
+            }
+            TypeParamSubst subst = new TypeParamSubst((TypeSystem) ts, ta, params);
+            res = decl.returnType(decl.returnType().typeRef(Types.ref(subst.reinstantiate(rt))));
+        }
+        return res;
     }
 
     @Override
-    protected X10ClassType computeConstructedType(ClassDef cd) {
+    protected X10ConstructorInstance computeConstructorInstance(ConstructorDef cd) {
+        ClassDef container = ((X10ClassType) Types.get(cd.container())).def();
+        return (X10ConstructorInstance) cd.asInstance().container(computeConstructedType(container, context().currentCode()));
+    }
+
+    @Override
+    protected X10ClassType computeConstructedType(ClassDef cd, CodeDef currentCode) {
         X10ClassDef def = (X10ClassDef) cd;
-        X10ClassDef outer = (X10ClassDef) Types.get(def.outer());
-        assert outer != null;
-        X10ClassType t = ((X10ClassType)def.asType()).typeArguments(new ArrayList<Type>(outer.typeParameters()));
+        X10CodeDef md = (X10CodeDef) currentCode;
+        X10ClassType t = ((X10ClassType)def.asType()).typeArguments(new ArrayList<Type>(md.typeParameters()));
         return t;
     }
 
@@ -171,19 +210,21 @@ public class X10LocalClassRemover extends LocalClassRemover {
         List<ParameterType> typeParameters = new ArrayList<ParameterType>();
         List<ParameterType.Variance> variances = new ArrayList<ParameterType.Variance>();
 
+        params.addAll(cd.typeParameters());
         typeParameters.addAll(method.typeParameters());
         for (ParameterType pt : method.typeParameters()) {
             // methods cannot have variant type parameters
             variances.add(ParameterType.Variance.INVARIANT);
         }
 
+        List<ParameterType> origTypeParams = def.typeParameters();
         for (int i = 0; i < typeParameters.size(); i++) {
             ParameterType p = typeParameters.get(i);
             ParameterType.Variance v = variances.get(i);
 
-            X10NodeFactory xnf = (X10NodeFactory) nf;
+            NodeFactory xnf = (NodeFactory) nf;
             TypeParamNode pn = xnf.TypeParamNode(n.position(), xnf.Id(n.position(), Name.makeFresh(p.name())), v);
-            TypeBuilder tb = new TypeBuilder(job, ts, nf);
+            TypeBuilder tb = new X10TypeBuilder(job, ts, nf);
             try {
                 tb = tb.pushClass(outer);
                 tb = tb.pushCode(method);
@@ -197,13 +238,16 @@ public class X10LocalClassRemover extends LocalClassRemover {
             params.add(pn);
         }
 
-        if (! params.isEmpty()) {
+        if (params.size() != cd.typeParameters().size()) {
             cd = cd.typeParameters(params);
-            TypeParamSubst subst = new TypeParamSubst((X10TypeSystem) ts, def.typeParameters(), typeParameters);
+            typeParameters.addAll(0, origTypeParams);
+            TypeParamSubst subst = new TypeParamSubst((TypeSystem) ts, def.typeParameters(), typeParameters);
+            def.superType(subst.reinstantiate(def.superType()));
+            def.setInterfaces(subst.reinstantiate(def.interfaces()));
             cd = rewriteTypeParams(subst, cd);
         }
 
-        n = cd.body((ClassBody) rewriteConstructorCalls(cd.body(), def, newFields, def.typeParameters()));
+        n = cd.body((ClassBody) rewriteConstructorCalls(cd.body(), def, newFields));
 
         return icrv.addFieldsToClass(n, newFields, ts, nf, false);
     }
@@ -221,7 +265,7 @@ public class X10LocalClassRemover extends LocalClassRemover {
             CodeDef curr = c.currentCode();
             if (curr == ci) return true;
             // Allow closures, asyncs
-            if (curr instanceof MethodDef && ((MethodDef) curr).name().equals(Name.make("$dummyAsync$")))
+            if (curr instanceof MethodDef && ((MethodDef) curr).name().equals(Name.make(X10TypeSystem_c.DUMMY_AT_ASYNC+"$")))
                 ;
             else {
                 // FIX:XTENLANG-1159
@@ -233,8 +277,8 @@ public class X10LocalClassRemover extends LocalClassRemover {
         return xcon.isValInScopeInClass(name);
     }
     
-    protected Node rewriteConstructorCalls(Node s, final ClassDef ct, final List<FieldDef> fields, List<? extends Type> typeArgs) {
-        Node r = s.visit(new X10ConstructorCallRewriter(fields, ct, typeArgs));
+    protected Node rewriteConstructorCalls(Node s, final ClassDef ct, final List<FieldDef> fields) {
+        Node r = s.visit(new X10ConstructorCallRewriter(fields, ct));
         return r;
     }
 }

@@ -1,3 +1,15 @@
+/*
+ *  This file is part of the X10 project (http://x10-lang.org).
+ *
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ *  (C) Copyright IBM Corporation 2006-2010.
+ */
+
+
 package x10.compiler.ws.codegen;
 
 import java.util.ArrayList;
@@ -22,6 +34,7 @@ import polyglot.ast.LocalAssign;
 import polyglot.ast.LocalDecl;
 import polyglot.ast.Loop;
 import polyglot.ast.Node;
+import polyglot.ast.NodeFactory;
 import polyglot.ast.Receiver;
 import polyglot.ast.Return;
 import polyglot.ast.Stmt;
@@ -33,6 +46,7 @@ import polyglot.frontend.Job;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.FieldDef;
+import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
 import polyglot.types.MethodDef;
@@ -53,7 +67,6 @@ import x10.ast.Finish;
 import x10.ast.When;
 import x10.ast.X10Call;
 import x10.ast.X10ClassDecl;
-import x10.ast.X10NodeFactory;
 import x10.extension.X10Ext_c;
 import x10.compiler.ws.WSCodeGenerator;
 import x10.compiler.ws.WSTransformState;
@@ -65,10 +78,10 @@ import x10.compiler.ws.util.TransCodes;
 import x10.compiler.ws.util.WSCodeGenUtility;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
-import x10.types.X10Context;
+import polyglot.types.Context;
 import x10.types.X10LocalDef;
 import x10.types.X10MethodDef;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 import x10.types.checker.PlaceChecker;
 import x10.util.Synthesizer;
 import x10.util.synthesizer.ClassSynth;
@@ -112,9 +125,9 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
     static final protected Name REDO = Name.make("redo");
 
     final protected Job job;
-    final protected X10NodeFactory xnf;
-    final protected X10TypeSystem xts;
-    final protected X10Context xct;
+    final protected NodeFactory xnf;
+    final protected TypeSystem xts;
+    final protected Context xct;
     final protected WSTransformState wts;
     final protected Synthesizer synth; //stateless synthesizer
 
@@ -135,11 +148,11 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
     private List<AbstractWSClassGen> children; //lazy initialization
 
 
-    private AbstractWSClassGen(Job job, X10Context xct, WSTransformState wts, AbstractWSClassGen up,
+    private AbstractWSClassGen(Job job, Context xct, WSTransformState wts, AbstractWSClassGen up,
             String className, ClassType frameType, int frameDepth, Flags flags, ClassDef outer, Stmt stmt) {
         this.job = job;
-        xnf = (X10NodeFactory) job.extensionInfo().nodeFactory();
-        xts = (X10TypeSystem) job.extensionInfo().typeSystem();
+        xnf = (NodeFactory) job.extensionInfo().nodeFactory();
+        xts = (TypeSystem) job.extensionInfo().typeSystem();
         synth = new Synthesizer(xnf, xts);
         this.xct = xct;
         this.wts = wts;
@@ -175,12 +188,10 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
 
         conSynth = classSynth.createConstructor(compilerPos);
         conSynth.addAnnotation(genHeaderAnnotation());
-
-        addPCField();
     }
 
     // method frames
-    protected AbstractWSClassGen(Job job, X10NodeFactory xnf, X10Context xct, WSTransformState wts,
+    protected AbstractWSClassGen(Job job, NodeFactory xnf, Context xct, WSTransformState wts,
             String className, ClassType frameType, Flags flags, ClassDef outer, Stmt stmt) {
         this(job, xct, wts, null, className, frameType, 0, flags, outer, stmt);
     }
@@ -192,6 +203,10 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
                 parent.frameDepth + 1, parent.classSynth.getClassDef().flags(),
                 parent.classSynth.getOuter(), stmt);
         parent.addChild(this);
+        //here we process the type parameters. For a target method that contains type parameters,
+        //all the generated inner classes should contain the type parameters;
+        X10ClassDef parentDef = parent.classSynth.getClassDef();
+        classSynth.addTypeParameters(parentDef.typeParameters(), parentDef.variances());
     }
 
 
@@ -301,11 +316,11 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
         return className;
     }
     
-    public X10NodeFactory getX10NodeFactory() {
+    public NodeFactory getX10NodeFactory() {
         return xnf;
     }
 
-    public X10Context getX10Context() {
+    public Context getX10Context() {
         return xct;
     }
 
@@ -407,7 +422,15 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
                 childClassGen = new WSWhenFrameClassGen(this, (When)stmt);
             }
             else if(stmt instanceof Async){
-                childClassGen = new WSAsyncClassGen(this, (Async)stmt);
+                //Two situations:
+                //1) current frame is finish (? including async or not??) stmt, we need wrap async into a block
+                //2) current frame is normal stmt, just transform it directly
+                if(xts.isSubtype(getClassType(), wts.finishFrameType)){
+                    childClassGen = new WSRegularFrameClassGen(this, synth.toBlock(stmt), namePrefix);
+                }
+                else{
+                    childClassGen = new WSAsyncClassGen(this, (Async)stmt);                    
+                }
             }
             else{
                 //stmt.prettyPrint(System.out);               
@@ -434,10 +457,18 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
         
         ClassType newClassType = newClassGen.getClassType();
         //pc = x;
-        Expr pcAssgn = synth.makeFieldAssign(compilerPos, getThisRef(), PC,
-                              synth.intValueExpr(pc, compilerPos), xct).type(xts.Int());
-        transCodes.addFirst(xnf.Eval(compilerPos, pcAssgn));
-        transCodes.addSecond(xnf.Eval(compilerPos, pcAssgn));        
+        try{
+            //check whether the frame contains pc field. For optimized finish frame and async frame, there is no pc field
+            
+            Expr pcAssgn = synth.makeFieldAssign(compilerPos, getThisRef(), PC,
+                                                 synth.intValueExpr(pc, compilerPos), xct).type(xts.Int());
+            transCodes.addFirst(xnf.Eval(compilerPos, pcAssgn));
+            transCodes.addSecond(xnf.Eval(compilerPos, pcAssgn));              
+        }
+        catch(polyglot.types.NoMemberException e){
+            //Just ignore the pc assign statement
+        }
+      
         
         
         //if the new frame is an async frame, push() instructions should be inserted here
@@ -713,10 +744,16 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
         TransCodes transCodes = new TransCodes(prePcValue + 1); //increase the pc value;
 
         //pc = x;
-        Expr pcAssgn = synth.makeFieldAssign(compilerPos, getThisRef(), PC,
-                              synth.intValueExpr(transCodes.getPcValue(), compilerPos), xct).type(xts.Int());
-        transCodes.addFirst(xnf.Eval(compilerPos, pcAssgn));
-        transCodes.addSecond(xnf.Eval(compilerPos, pcAssgn));   
+        try{
+            //check whether the frame contains pc field. For optimized finish frame and async frame, there is no pc field
+            Expr pcAssgn = synth.makeFieldAssign(compilerPos, getThisRef(), PC,
+                                  synth.intValueExpr(transCodes.getPcValue(), compilerPos), xct).type(xts.Int());
+            transCodes.addFirst(xnf.Eval(compilerPos, pcAssgn));
+            transCodes.addSecond(xnf.Eval(compilerPos, pcAssgn));   
+        }
+        catch(polyglot.types.NoMemberException e){
+            //Just ignore the pc assign statement
+        }
         
         //replace local access with field access
         //FIXME: async frame's local decl specifica processing
@@ -801,17 +838,21 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
         // trigger trans call
         TransCodes callTransCodes = transCall(call, prePcValue, declaredLocals);
         TransCodes transCodes = new TransCodes(callTransCodes.getPcValue());
-        //add pc change statement
-        transCodes.addFirst(callTransCodes.first().get(0));
-        transCodes.addSecond(callTransCodes.second().get(0));
         
-        // and move content to the transCodes according to assign content;
-        Call fastCall = (Call) ((Eval) callTransCodes.first().get(1)).expr();
-        Call slowCall = (Call) ((Eval) callTransCodes.second().get(1)).expr();
-
+        //If the pc_field optimization is turned on, only return 1 statement (call)
+        //other wise, two stmts, 1st, the pc assign; 2nd, the call
+        int codesSize = callTransCodes.first().size(); 
+        if(codesSize == 2){
+            //add pc change statement
+            transCodes.addFirst(callTransCodes.first().get(0));
+            transCodes.addSecond(callTransCodes.second().get(0));
+        }
+        //the call is the last stmt
+        Call fastCall = (Call) ((Eval) callTransCodes.first().get(codesSize - 1)).expr();
+        Call slowCall = (Call) ((Eval) callTransCodes.second().get(codesSize - 1)).expr();
         transCodes.addFirst(xnf.Eval(compilerPos, aAssign.right(fastCall)));
         transCodes.addSecond(xnf.Eval(compilerPos, aAssign.right(slowCall)));
-
+        
         // back path
         // construct move content statements
         // _m_fib.t1 = cast[Frame,()=>Int](frame)();
@@ -1163,15 +1204,25 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
      */
     public X10Call replaceMethodCallWithWSMethodCall(X10Call aCall, X10MethodDef methodDef, 
                                                   List<Expr> newArgs){
-        
-        //for arguments
+    	
+        //for arguments & new method instance's formal types
         ArrayList<Expr> args = new ArrayList<Expr>(newArgs);
         args.addAll(aCall.arguments());
+        ArrayList<Type> argTypes = new ArrayList<Type>();
+        for(Expr e : newArgs){
+        	argTypes.add(e.type());
+        }
+        argTypes.addAll(aCall.methodInstance().formalTypes());
+        
         //for the name
         Name name = methodDef.name(); //new name
         
-        //new method instance
+        //new method instance with original properties
         MethodInstance mi = methodDef.asInstance();
+        mi = mi.formalTypes(argTypes);
+        mi = mi.returnType(aCall.methodInstance().returnType());
+        mi = (MethodInstance) mi.container(aCall.methodInstance().container());
+        
         //build new call
         aCall = (X10Call) aCall.methodInstance(mi);
         aCall = (X10Call) aCall.name(xnf.Id(aCall.name().position(), name));

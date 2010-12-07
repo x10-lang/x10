@@ -11,10 +11,6 @@
 
 package x10.lang;
 
-import x10.compiler.Native;
-import x10.compiler.NativeRep;
-
-// @NativeRep("java", "java.lang.NumberFormatException", null, null)
 public class NumberFormatException extends IllegalArgumentException {
     public def this() { super(); }
     public def this(message: String) { super(message); }

@@ -23,7 +23,7 @@ public class GenericMethods5_MustFailCompile extends GenericTest {
 
     public def run() = {
 
-        m[String,int](1,"1");
+        m[String,int](1,"1"); // ERR
 
         return result;
     }

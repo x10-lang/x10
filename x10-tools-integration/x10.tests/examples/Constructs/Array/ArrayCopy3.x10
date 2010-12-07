@@ -24,7 +24,7 @@ public class ArrayCopy3 extends x10Test {
      * Returns true iff point x is not in the domain of
      * dist D
      */
-    static def outOfRange(val D: Dist, val x: Point): boolean = {
+    static def outOfRange(val D: Dist, val x: Point{x.rank==D.rank}): boolean = {
         var gotException: boolean = false;
         try {
             async at(D(x)) {}; // dummy op just to use D[x]
@@ -71,7 +71,7 @@ public class ArrayCopy3 extends x10Test {
         val accessed_b  = DistArray.make[int](E, (Point)=>0);
 
         finish
-            ateach (val x: Point in D_1) {
+            ateach (val x in D_1) {
                 val px: Place = D_1(x);
                 chk(here == px);
                 val LocalD: Region(A.rank) = (D | px).region;

@@ -85,6 +85,12 @@ public class JLScheduler extends Scheduler {
         return job.TypesInitialized(this);
     }
 
+    protected Goal constructTypesInitialized(Job job) {
+        TypeSystem ts = extInfo.typeSystem();
+        NodeFactory nf = extInfo.nodeFactory();
+        return new ForgivingVisitorGoal("TypesInitialized", job, new TypeBuilder(job, ts, nf)).intern(this);
+    }
+
     public Goal TypesInitializedForCommandLineBarrier() {
         TypeSystem ts = extInfo.typeSystem();
         NodeFactory nf = extInfo.nodeFactory();

@@ -53,14 +53,14 @@ import x10.errors.Warnings;
 import x10.types.ParameterType;
 import x10.types.X10ClassType;
 import x10.types.X10ConstructorInstance;
-import x10.types.X10Context;
+import polyglot.types.Context;
 import x10.types.X10FieldInstance;
 import x10.types.X10Flags;
 import x10.types.X10LocalInstance;
 import x10.types.X10MethodInstance;
 import x10.types.X10ParsedClassType;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 import x10.types.X10TypeSystem_c;
 import x10.types.checker.Checker;
 import x10.types.checker.PlaceChecker;
@@ -130,8 +130,8 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 
 
 	private Type resolveType(ContextVisitor tc, Position pos, Receiver r, Name name) {
-        X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
-        X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+        NodeFactory nf = (NodeFactory) tc.nodeFactory();
+        TypeSystem ts = (TypeSystem) tc.typeSystem();
 
         TypeNode otn;
         List<TypeNode> typeArgs = typeArguments();
@@ -158,8 +158,8 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
     
     private static Type ambTypeNodeType(ContextVisitor tc, Type t) {
         
-        X10Context c = (X10Context) tc.context();
-        X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+        Context c = (Context) tc.context();
+        TypeSystem ts = (TypeSystem) tc.typeSystem();
         
         t = ts.expandMacros(t);
         
@@ -201,7 +201,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
     }
     
     private static Type ambMacroTypeNodeType(ContextVisitor tc, Type t, List<TypeNode> typeArgs) {
-        X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
+        TypeSystem xts = (TypeSystem) tc.typeSystem();
         
         if (xts.isUnknown(t)) {
             return null;
@@ -245,7 +245,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
      * @throws SemanticException
      */
     protected X10New findStructConstructor(ContextVisitor tc, Receiver r, List<Type> typeArgs, List<Type> argTypes, List<Expr> args) {
-        X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
+        NodeFactory nf = (NodeFactory) tc.nodeFactory();
         Type t = resolveType(tc, position(), r, name().id());
         if (t == null)
             return null;
@@ -261,16 +261,16 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
                 neu = (X10New_c) neu.typeCheck1(tc);
                 return neu;
             } catch (SemanticException cause) {
-                throw new InternalCompilerError("Unexpected exception when typechecking "+neu, neu.position(), cause);
+                Errors.issue(tc.job(),cause);
             }
         }
         return null;
     }
 
     private Receiver computeReceiver(ContextVisitor tc, X10MethodInstance mi) {
-        X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
+        TypeSystem xts = (TypeSystem) tc.typeSystem();
         NodeFactory nf = tc.nodeFactory();
-        X10Context c = (X10Context) tc.context();
+        Context c = (Context) tc.context();
         Position prefixPos = position().startOf().markCompilerGenerated();
         try {
             if (mi.flags().isStatic() || c.inStaticContext()) {
@@ -309,7 +309,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
     protected X10Call typeCheckNullTargetForMethod(ContextVisitor tc, List<Type> typeArgs, List<Type> argTypes, X10MethodInstance mi, List<Expr> args) throws SemanticException {
 		Receiver r = computeReceiver(tc, mi);
 		X10Call_c call = (X10Call_c) this.targetImplicit(true).target(r).arguments(args);
-		Type rt = Checker.rightType(mi.rightType(), mi.x10Def(), r, (X10Context) tc.context());
+		Type rt = Checker.rightType(mi.rightType(), mi.x10Def(), r, (Context) tc.context());
 		call = (X10Call_c)call.methodInstance(mi).type(rt);
 		return call;
 	}
@@ -347,9 +347,9 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 	    return n;
 	}
 	public Node typeCheck1(ContextVisitor tc) throws SemanticException {
-		X10NodeFactory xnf = (X10NodeFactory) tc.nodeFactory();
-		X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
-		X10Context c = (X10Context) tc.context();
+		NodeFactory xnf = (NodeFactory) tc.nodeFactory();
+		TypeSystem xts = (TypeSystem) tc.typeSystem();
+		Context c = (Context) tc.context();
 
 		if (mi != null && ((X10MethodInstance)mi).isValid()) // already typechecked
 		    return this;
@@ -361,8 +361,8 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 		{
 			// Check if target.name is a field or local of function type;
 			// if so, convert to a closure call.
-			X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
-			X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+			NodeFactory nf = (NodeFactory) tc.nodeFactory();
+			TypeSystem ts = (TypeSystem) tc.typeSystem();
 
 			Expr e = null;
 
@@ -532,11 +532,6 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 		    throw new Errors.AmbiguousCall(mi, structCall.constructorInstance(), position());
 		}
 
-		if (cc != null) {
-		    // We have both a method call and a closure call.  Spec section 8.2.
-		    throw new Errors.AmbiguousCall(mi, cc, position());
-		}
-
 		// if the target is null, and thus implicit, find the target using the context
 		Receiver target = this.target() == null ? computeReceiver(tc, mi) : this.target();
 
@@ -607,7 +602,17 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
     /** Write the expression to an output file. */
    @Override
 	  public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
-	    w.begin(0);
+       if (name.toString().startsWith("operator") && arguments.size() >= 2) {
+           w.begin(0);
+           print(arguments.get(0), w, tr);
+           w.write(name.toString().substring(8));
+           print(arguments.get(1), w, tr);
+           w.allowBreak(0, " ");
+           w.end();
+           return;
+       }
+
+       w.begin(0);
 	    if (!targetImplicit) {
 	        if (target instanceof Expr) {
 	          printSubExpr((Expr) target, w, tr);

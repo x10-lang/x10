@@ -13,7 +13,7 @@ import harness.x10Test;
 
 
 /**
- * As with methods, a closure with return type Void cannot have a
+ * As with methods, a closure with return type void cannot have a
  * terminating expression.
  *
  * @author bdlucas 8/2008
@@ -24,7 +24,8 @@ public class ClosureReturnType1_MustFailCompile extends ClosureTest {
     def foo() = {}
 
     public def run(): boolean = {
-        val f = ():void => {foo(); 1};
+        val f = ():void => {foo();
+            1}; // ERR ShouldNotBeERR (Cannot return a value from closure ()null => x10.lang.Void.)
         return true;
     }
 

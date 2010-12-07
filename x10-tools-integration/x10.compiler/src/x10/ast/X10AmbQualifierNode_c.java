@@ -17,6 +17,7 @@ import polyglot.ast.Node;
 import polyglot.ast.Node_c;
 import polyglot.ast.Prefix;
 import polyglot.ast.QualifierNode;
+import polyglot.ast.TypeCheckFragmentGoal;
 import polyglot.frontend.SetResolverGoal;
 import polyglot.types.LazyRef;
 import polyglot.types.Qualifier;
@@ -47,7 +48,8 @@ public class X10AmbQualifierNode_c extends AmbQualifierNode_c implements X10AmbQ
 		assert (name != null); // qual may be null
 	}
 
-	public void setResolver(Node parent, final TypeCheckPreparer v) {
+
+	public void setResolver(Node parent, TypeCheckPreparer v) {
 		final LazyRef<Qualifier> r = (LazyRef<Qualifier>) qualifierRef();
 		TypeChecker tc = new X10TypeChecker(v.job(), v.typeSystem(), v.nodeFactory(), v.getMemo());
 		tc = (TypeChecker) tc.context(v.context().freeze());
@@ -58,7 +60,7 @@ public class X10AmbQualifierNode_c extends AmbQualifierNode_c implements X10AmbQ
 		        boolean result = super.runTask();
 		        if (result) {
 		            if (r().getCached() instanceof UnknownType) {
-		                v.errorQueue().enqueue(ErrorInfo.SEMANTIC_ERROR, "Could not compute type.", n.position());
+		                v().errorQueue().enqueue(ErrorInfo.SEMANTIC_ERROR, "Could not compute type.", n().position());
 		                return false;
 		            }
 		        }

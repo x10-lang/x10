@@ -11,9 +11,6 @@
 
 package x10.lang;
 
-import x10.compiler.Native;
-import x10.compiler.NativeRep;
-
 /*
  * This class is in the runtime package instead of x10.lang because
  * we think (maybe?) that this exception can be confined to
@@ -25,7 +22,6 @@ import x10.compiler.NativeRep;
 /**
  * InterruptedException that may be thrown by NativeWorker.sleep.
  */
-// @NativeRep("java", "java.lang.InterruptedException", null, null)
 class InterruptedException extends Exception {
 }
 

@@ -59,7 +59,7 @@ public class Random {
         return x;
     }
 
-    public def nextBytes(buf: Rail[Byte]): Void {
+    public def nextBytes(buf: Rail[Byte]): void {
         var i: int = 0;
         while (true) {
             var x: int = nextInt();
@@ -132,7 +132,7 @@ public class Random {
     private var index: int;
     private var MT: Rail[int];
 
-    @NonEscaping public final def init(seed: long): Void {
+    @NonEscaping public final def init(seed: long): void {
         val mt = Rail.make[int](N);
         MT=mt;
         // Ensure the seed is nonzero.

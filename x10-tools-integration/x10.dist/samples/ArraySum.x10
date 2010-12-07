@@ -28,7 +28,9 @@ public class ArraySum {
 
     def sum(a:Array[Int](1), start:Int, last:Int) {
         var mySum: Int = 0;
-        for ([i] in start..last-1) mySum += a(i);
+        for ([i] in start..last-1) { 
+        	mySum += a(i);
+        }
         return mySum;
     }
 

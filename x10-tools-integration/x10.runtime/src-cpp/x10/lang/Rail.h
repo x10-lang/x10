@@ -22,6 +22,7 @@
 
 #include <x10/lang/Place.struct_h>
 #include <x10/util/Pair.struct_h>
+#include <x10/util/IndexedMemoryChunk.struct_h>
 
 #define X10_LANG_ITERABLE_H_NODEPS
 #include <x10/lang/Iterable.h>
@@ -36,6 +37,7 @@
 namespace x10 { namespace lang { class VoidFun_0_0; } }
 namespace x10 { namespace lang { template<class R> class Fun_0_0; } }
 namespace x10 { namespace lang { template<class P1, class R> class Fun_0_1; } }
+namespace x10 { namespace util { template<class T> class IndexedMemoryChunk; } }
 
 namespace x10 {
 
@@ -80,6 +82,8 @@ namespace x10 {
             
             Rail(x10_int length_, T* storage) : FMGL(length)(length_),  _data(storage) { }
 
+            GPUSAFE x10::util::IndexedMemoryChunk<T> indexedMemoryChunk();
+
             GPUSAFE T set(T v, x10_int index) { 
                 return (*this)[index] = v; 
             } 
@@ -106,16 +110,11 @@ namespace x10 {
 
             virtual x10aux::serialization_id_t _get_serialization_id() { return _serialization_id; };
 
-            static void _serialize(R this_,
-                                   x10aux::serialization_buffer &buf);
-
             void _serialize_body(x10aux::serialization_buffer &buf);
 
             void _deserialize_body(x10aux::deserialization_buffer &buf);
 
             template<class S> static x10aux::ref<S> _deserializer(x10aux::deserialization_buffer &buf);
-
-            template<class S> static x10aux::ref<S> _deserialize(x10aux::deserialization_buffer &buf);
 
             virtual x10aux::ref<String> toString();
         };
@@ -191,6 +190,10 @@ namespace x10 {
             x10aux::itable_entry(&x10aux::getRTT<x10::lang::Settable<x10_int, T> >, &x10::lang::Rail<T>::_itable_iterable),
             x10aux::itable_entry(NULL,  (void*)x10aux::getRTT<Rail<T> >())
         };
+
+        template <class T> x10::util::IndexedMemoryChunk<T> Rail<T>::indexedMemoryChunk() {
+            return x10::util::IndexedMemoryChunk<T>((T*)_data, (x10_int)FMGL(length));
+        }
 
         template <class T> x10aux::ref<Rail<T> > Rail<void>::makeAligned(x10_int length, x10_int alignment) {
             x10aux::ref<Rail<T> > rail = x10aux::alloc_aligned_rail<T,Rail<T> >(length, alignment);
@@ -289,16 +292,7 @@ namespace x10 {
 
         template<class T> const x10aux::serialization_id_t Rail<T>::_serialization_id =
             x10aux::DeserializationDispatcher
-                ::addDeserializer(Rail<T>::template _deserializer<Reference>);
-
-        // Specialized serialization
-        template <class T> void Rail<T>::_serialize(x10aux::ref<Rail<T> > this_,
-                                                    x10aux::serialization_buffer &buf) {
-            Object::_serialize_reference(this_, buf);
-            if (this_ != x10aux::null) {
-                this_->_serialize_body(buf);
-            }
-        }
+                ::addDeserializer(Rail<T>::template _deserializer<Reference>, x10aux::CLOSURE_KIND_NOT_ASYNC);
 
         template <class T> void Rail<T>::_serialize_body(x10aux::serialization_buffer &buf) {
             x10_int length = this->FMGL(length);
@@ -326,19 +320,6 @@ namespace x10 {
             buf.record_reference(this_); 
             this_->_deserialize_body(buf);
             return this_;
-        }
-
-        // Specialized deserialization
-        template <class T> template<class S> x10aux::ref<S> Rail<T>::_deserialize(x10aux::deserialization_buffer &buf) {
-            Object::_reference_state rr = Object::_deserialize_reference_state(buf);
-            if (0 == rr.ref) {
-                return x10aux::null;
-            } else {
-                R res = Rail<T>::template _deserializer<Rail<T> >(buf);
-                _S_("Deserialized a "<<ANSI_SER<<ANSI_BOLD<<"class"<<ANSI_RESET<<
-                    " "<<res->_type()->name());
-                return res;
-            }
         }
     }
 }

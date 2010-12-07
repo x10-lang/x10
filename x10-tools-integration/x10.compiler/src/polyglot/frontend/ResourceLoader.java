@@ -40,6 +40,11 @@ public class ResourceLoader
      */
     protected Map<File, Set<String>> dirContentsCache;
 
+    /**
+     * Cache File.canRead()
+     */
+    protected Map<File, Boolean> dirCanRead = new HashMap<File, Boolean>();
+
     protected final static Object not_found = new Object();
 
     public ResourceLoader() {
@@ -48,6 +53,14 @@ public class ResourceLoader
         this.dirCache = new HashSet<String>();
     }
 
+    private boolean canRead(File dir) {
+        Boolean res = dirCanRead.get(dir);
+        if (res==null) {
+            res = dir.canRead();
+            dirCanRead.put(dir,res);
+        }
+        return res;
+    }
     /**
      * Return true if the package name exists under the directory or file
      * <code>dir</code>.
@@ -58,7 +71,7 @@ public class ResourceLoader
                              name.replace('.', File.separatorChar));
         }
 
-        if (!dir.canRead())
+        if (!canRead(dir))
             return false;
 
         try {
@@ -102,7 +115,7 @@ public class ResourceLoader
 	    Report.report(3, "looking in " + dir + " for " + name);
         }
 	
-        if (!dir.canRead())
+        if (!canRead(dir))
             return null;
         
         try {
@@ -120,7 +133,7 @@ public class ResourceLoader
             // ignore the exception.
         }
         catch (IOException e) {
-            throw new InternalCompilerError(e);
+            throw new InternalCompilerError("Error while processing "+dir, e);
         }
 
         return null;

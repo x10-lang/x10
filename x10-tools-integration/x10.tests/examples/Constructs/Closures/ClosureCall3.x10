@@ -20,13 +20,13 @@ import harness.x10Test;
 public class ClosureCall3 extends ClosureTest {
 
     public def run(): boolean = {
-        val y = (x:Int)=> x; // DYNAMIC_CHECK todo: we should infer type (x:Int)=>Int{self==x},
+        val y = (x:Int)=> x; // todo: we should infer type (x:Int)=>Int{self==x},
 		// but closures have a bug:
 		//Semantic Error: Cannot assign expression to target.
 		//	 Expression:  (val x: x10.lang.Int){}: x10.lang.Int{self==x} => { return x; }
 		//	 Type: (a1:x10.lang.Int)=> x10.lang.Int{self==x}
 		//	 Expected type: (a1:x10.lang.Int)=> x10.lang.Int{self==x}
-        val z :Int(1) = y(1);
+        val z :Int(1) = y(1);  // ShouldNotBeERR
         return result;
     }
 

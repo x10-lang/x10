@@ -35,13 +35,13 @@ public class ArrayToDist extends x10Test {
             chk(f(i, j) == A1(i, j), "3");
 
         for (val p[i,j]: Point(2) in A2.region) 
-            chk(f(i, j) == (at(A2.dist(i, j)) { A2(i, j).val }), "4");
+            chk(f(i, j) == (at(A2.dist(i, j)) { A2(i, j).value }), "4");
 
         finish for (val p[i,j]: Point(2) in A2.region) async
-           chk(f(i, j) == (at(A2.dist(i, j)) { A2(i, j).val }), "5");
+           chk(f(i, j) == (at(A2.dist(i, j)) { A2(i, j).value }), "5");
 
         finish ateach (val p[i,j]: Point(2)  in A2.dist) 
-            chk(f(i, j) == A2(i, j).val, "6");
+            chk(f(i, j) == A2(i, j).value, "6");
 
         return true;
     }
@@ -54,7 +54,7 @@ public class ArrayToDist extends x10Test {
     }
 
     static class foo {
-        public var val: int;
-        public def this(var x: int): foo = { this.val = x; }
+        public var value: int;
+        public def this(var x: int): foo = { this.value = x; }
     }
 }

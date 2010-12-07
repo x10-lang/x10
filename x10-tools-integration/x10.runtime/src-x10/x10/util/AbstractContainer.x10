@@ -12,7 +12,7 @@
 package x10.util;
 
 /** A mutable or immutable collection. */
-public abstract class AbstractContainer[+T] implements Container[T] {
+public abstract class AbstractContainer[T] implements Container[T] {
   public abstract def size(): Int;
   
   public def isEmpty(): Boolean = size() == 0;

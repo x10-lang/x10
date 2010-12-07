@@ -13,7 +13,6 @@ package x10.ast;
 
 import polyglot.ast.AbstractExtFactory_c;
 import polyglot.ast.Ext;
-import x10.extension.X10ClassBodyExt_c;
 import x10.extension.X10Ext_c;
 
 /**
@@ -26,10 +25,6 @@ public class X10ExtFactory_c extends AbstractExtFactory_c {
 
 	public Ext extNodeImpl() {
 		return new X10Ext_c();
-	}
-
-	protected Ext extClassBodyImpl() {
-		return new X10ClassBodyExt_c();
 	}
 
 	public Ext extFutureImpl() {

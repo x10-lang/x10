@@ -29,11 +29,11 @@ public class ClosureEnclosingScope4 extends ClosureTest {
             val a = 2;
             class D {
                 val a = 4;
-                val sum = (()=>(ClosureEnclosingScope4.this.a+C.this.a+D.this.a+a))();
+                def sum() = (()=>(ClosureEnclosingScope4.this.a+C.this.a+D.this.a+a))();
             }
         }
 
-        check("new C().new D().sum", new C().new D().sum, 11);
+        check("new C().new D().sum", new C().new D().sum(), 11);
 
         return result;
     }

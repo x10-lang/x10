@@ -18,6 +18,8 @@ import java.util.List;
 import java.util.HashSet;
 import java.util.Iterator;
 
+import x10.types.X10TypeMixin;
+
 public class RunTestSuite {
     // I have 3 kind of markers:
     // "// ... ERR"  - marks an error
@@ -26,6 +28,7 @@ public class RunTestSuite {
 
     // todo: some _MustFailCompile in the test suite cause compiler crashes
     // todo: add support for various options, like testing with STATIC_CALLS/DYNAMIC_CALLS
+    // todo: add an option to compile only files without ERR markers, so we will proceed to codegen and check it correctness.
 
     //_MustFailCompile means the compilation should fail.
     // Inside those files we should have "//.*ERR" markers that we use to test the position of the errors is correct.
@@ -35,8 +38,13 @@ public class RunTestSuite {
             "NonX10Constructs_MustFailCompile.x10",
             "_MustFailCompile.x10",
     };
+    private static final String[] EXCLUDE_DIRS = {
+            "WorkStealing", // Have duplicated class from the Samples directory such as ArraySumTest.x10
+            "AutoGen"
+    };
     private static final String[] EXCLUDE_FILES = {
-            "NOT_WORKING","SSCA2","FT-alltoall","FT-global"
+            "NOT_WORKING","SSCA2","FT-alltoall","FT-global",
+            "FieldNamedValTest_MustFailCompile.x10", "VariableNamedValTest_MustFailCompile.x10",
     };
     private static final String[] EXCLUDE_FILES_WITH = {
             "HeatTransfer_v0.x10",
@@ -46,9 +54,15 @@ public class RunTestSuite {
     private static final String[] INCLUDE_ONLY_FILES_WITH = {
             //"_MustFailCompile.x10",
     };
+    public static final int MAX_ERR_QUEUE = 10000;
 
     static {
         Arrays.sort(EXCLUDE_FILES);
+        Arrays.sort(EXCLUDE_DIRS);
+    }
+    private static boolean shouldIgnoreDir(String name) {
+        if (Arrays.binarySearch(EXCLUDE_DIRS,name)>=0) return true;
+        return false;
     }
     private static boolean shouldIgnoreFile(String name) {
         if (Arrays.binarySearch(EXCLUDE_FILES,name)>=0) return true;
@@ -62,12 +76,12 @@ public class RunTestSuite {
             for (String mid : INCLUDE_ONLY_FILES_WITH)
                 if (name.contains(mid))
                     return false;
-            return true; 
+            return true;
         }
         return false;
     }
     public static boolean ONE_FILE_AT_A_TIME = false;
-    private static final int MAX_FILES_NUM = Integer.MAX_VALUE; // Change it if you want to process only a small number of files    
+    private static final int MAX_FILES_NUM = Integer.MAX_VALUE; // Change it if you want to process only a small number of files
 
     /**
      * Finds all *.x10 files in all sub-directories, and compiles them.
@@ -79,8 +93,6 @@ public class RunTestSuite {
      * @throws Throwable Can be a failed assertion or missing file.
      */
     public static void main(String[] args) throws Throwable {
-        int i = 012;
-        assert i==11;
         assert args.length>0 : "The first command line argument must be an x10 filename or a comma separated list of the directories.\n"+
                     "E.g.,\n"+
                     "C:\\cygwin\\home\\Yoav\\intellij\\sourceforge\\x10.tests,C:\\cygwin\\home\\Yoav\\intellij\\sourceforge\\x10.dist\\samples,C:\\cygwin\\home\\Yoav\\intellij\\sourceforge\\x10.runtime\\src-x10";
@@ -93,7 +105,7 @@ public class RunTestSuite {
         if (dirName.endsWith(".x10")) {
             final File dir = new File(dirName);
             assert dir.isFile() : "File doesn't not exists: "+dirName;
-            files.add(dir);
+            files.add(getCanonicalFile(dir));
         } else {
             for (String dirStr : dirName.split(",")) {
                 File dir = new File(dirStr);
@@ -114,6 +126,20 @@ public class RunTestSuite {
     private static int count(String s, String sub) {
         int index=-1, res=0;
         while ((index=s.indexOf(sub,index+sub.length()))>=0) res++;
+        return res;
+    }
+    public static ArrayList<ErrorInfo> runCompiler(String[] newArgs) {
+        SilentErrorQueue errQueue = new SilentErrorQueue(MAX_ERR_QUEUE,"TestSuiteErrQueue");
+        boolean hadErrors = false;
+        try {
+            new polyglot.main.Main().start(newArgs,errQueue);
+        } catch (Main.TerminationException e) {
+            hadErrors = e.exitCode!=0;
+            // If we had errors (and we should because we compile _MustFailCompile) then we will get a non-zero exitCode
+        }
+        final ArrayList<ErrorInfo> res = (ArrayList<ErrorInfo>) errQueue.getErrors();
+        assert res.size()<MAX_ERR_QUEUE : "We passed the maximum number of errors!";
+        assert (res.size()!=0)==hadErrors : "The exitcode and number of errors do not match!";
         return res;
     }
     private static void compileFiles(List<File> files, List<String> args) throws IOException {
@@ -151,13 +177,7 @@ public class RunTestSuite {
         allArgs.addAll(args);
         String[] newArgs = allArgs.toArray(new String[allArgs.size()]);
         System.out.println("Running: "+ Arrays.toString(newArgs));
-        SilentErrorQueue errQueue = new SilentErrorQueue(10000,"TestSuiteErrQueue");
-        try {
-            new polyglot.main.Main().start(newArgs,errQueue);
-        } catch (Main.TerminationException e) {
-            // If we had errors (and we should because we compile _MustFailCompile) then we will get a non-zero exitCode
-        }
-        ArrayList<ErrorInfo> errors = (ArrayList<ErrorInfo>)errQueue.getErrors();
+        ArrayList<ErrorInfo> errors = runCompiler(newArgs);
 
         // Now checking the errors reported are correct and match ERR markers
         // 1. find all ERR markers that don't have a corresponding error
@@ -180,7 +200,7 @@ public class RunTestSuite {
                     for (Iterator<ErrorInfo> it=errors.iterator(); it.hasNext(); ) {
                         ErrorInfo err = it.next();
                         final Position position = err.getPosition();
-                        if (new File(position.file()).equals(file) && position.line()==lineNum) {
+                        if (position!=null && new File(position.file()).equals(file) && position.line()==lineNum) {
                             // found it!
                             errorsFound.add(err);
                             if (Report.should_report("TestSuite", 2))
@@ -204,7 +224,8 @@ public class RunTestSuite {
         int warningCount = 0;
         for (ErrorInfo err : errors)
             if (err.getErrorKind()==ErrorInfo.WARNING) {
-                System.err.println("Got a warning in position: "+err.getPosition()+"\nMessage: "+err+"\n");
+                if (!err.getMessage().startsWith(X10TypeMixin.MORE_SEPCIFIC_WARNING)) // ignore those warning messages
+                    System.err.println("Got a warning in position: "+err.getPosition()+"\nMessage: "+err+"\n");
                 warningCount++;
             }
         if (errors.size()>warningCount) {
@@ -213,21 +234,30 @@ public class RunTestSuite {
                 if (err.getErrorKind()!=ErrorInfo.WARNING)
                     System.err.println("Position:\n"+err.getPosition()+"\nMessage: "+err+"\n");
         }
-        // todo: check that for each file (without errors) we generated a *.class file, and load them and run their main method (except for the ones with _MustFailTimeout) 
+        // todo: check that for each file (without errors) we generated a *.class file, and load them and run their main method (except for the ones with _MustFailTimeout)
     }
     private static void recurse(File dir, ArrayList<File> files) {
         if (files.size()>=MAX_FILES_NUM) return;
         for (File f : dir.listFiles()) {
             String name = f.getName();
-            if (!f.isDirectory() && shouldIgnoreFile(name)) continue;
+            final boolean isDir = f.isDirectory();
+            if (!isDir && shouldIgnoreFile(name)) continue;
+            if (isDir && shouldIgnoreDir(name)) continue;
             if (files.size()>=MAX_FILES_NUM) return;
-            if (f.isDirectory())
+            if (isDir)
                 recurse(f, files);
             else {
                 if (name.endsWith(".x10")) {
-                    files.add(f);
+                    files.add(getCanonicalFile(f));
                 }
             }
+        }
+    }
+    private static File getCanonicalFile(File f) {
+        try {
+            return f.getCanonicalFile();
+        } catch (java.io.IOException e) {
+            return f;
         }
     }
 }

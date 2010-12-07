@@ -14,7 +14,7 @@ public abstract class RegularFrame extends Frame {
         worker.deque.push(this);
     }
 
-    @Inline public final def redo(worker:Worker):Void {
+    @Inline public final def redo(worker:Worker):void {
         worker.migrate();
         worker.fifo.push(this);
         throw Stolen.STOLEN;

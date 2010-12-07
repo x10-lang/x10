@@ -24,6 +24,7 @@ public class CompilerFlags {
      */
     @Native("java", "(!`NO_CHECKS`)")
     @Native("c++", "BOUNDS_CHECK_BOOL")
+    @CompileTimeConstant("!NO_CHECKS")
     public static native def checkBounds():boolean;
 
     /**
@@ -32,6 +33,7 @@ public class CompilerFlags {
      */
     @Native("java", "(!`NO_CHECKS`)")
     @Native("c++", "PLACE_CHECK_BOOL")
+    @CompileTimeConstant("!NO_CHECKS")
     public static native def checkPlace():boolean;
 
     /**
@@ -41,5 +43,25 @@ public class CompilerFlags {
     @Native("c++", "true")
     public static native def useUnsigned():boolean;
 
+    /**
+     * (Managed X10) each place is hosted by different Java VM
+     */
+    @Native("java", "(!`MULTI_NODE`)")
+    @Native("c++", "false")
+    public static native def singleNode():boolean;
 
+    /**
+     * A false that is not understood by the constant propagator
+     */
+    @Native("java", "false")
+    @Native("c++", "false")
+    public static native def FALSE():boolean;
+    
+    /**
+     * A "true" that is not understood by the constant propagator
+     */
+    @Native("java", "true")
+    @Native("c++",  "true")
+    public static native def TRUE():boolean;
+    
 }

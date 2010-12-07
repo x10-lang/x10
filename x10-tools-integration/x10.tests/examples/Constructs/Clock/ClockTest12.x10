@@ -35,21 +35,21 @@ public class ClockTest12 extends x10Test {
 
 	def taskA(var id: int, val c: Clock): void = {
 		var tmp: int;
-		Activity.sleep(1000);
+		System.sleep(1000);
 		atomic tmp = phase;
 		x10.io.Console.OUT.println(""+id+" observed current phase = "+tmp);
 		chk(tmp == 0);
 		c.resume(); //  1st next advances in activity #2
-		Activity.sleep(1000);
+		System.sleep(1000);
 		c.resume(); // not an error, still in phase 0
 		when (phase > 0) {
 			x10.io.Console.OUT.println(""+id+" observed future phase = "+phase);
 			chk(phase == 1);
-			Activity.sleep(5000);
+			System.sleep(5000);
 			chk(phase == 1); // cannot go beyond next phase
 		}
 		next;
-		Activity.sleep(1000);
+		System.sleep(1000);
 		atomic tmp = phase;
 		x10.io.Console.OUT.println(""+id+" observed current phase = "+tmp);
 		chk(tmp == 1);
@@ -59,7 +59,7 @@ public class ClockTest12 extends x10Test {
 		when (phase>1) {
 			x10.io.Console.OUT.println(""+id+" observed future phase = "+phase);
 			chk(phase == 2);
-			Activity.sleep(5000);
+			System.sleep(5000);
 			chk(phase == 2); // cannot go beyond next phase
 		}
 		next;

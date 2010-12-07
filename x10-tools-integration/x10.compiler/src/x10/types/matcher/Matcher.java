@@ -38,12 +38,12 @@ import x10.constraint.XVar;
 import x10.errors.Errors;
 import x10.errors.Errors.InvalidParameter;
 import x10.types.ParameterType;
-import x10.types.X10Context;
+import polyglot.types.Context;
 import x10.types.X10MethodInstance;
 import x10.types.X10ProcedureDef;
 import x10.types.X10ProcedureInstance;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint;
@@ -65,7 +65,7 @@ public class Matcher {
 	// t and a method name m and actual type args, we proceed in two stages.
 	// First we determine the set S of applicable and available methods.
 	// 
-	public static <PI extends X10ProcedureInstance<?>> PI inferAndCheckAndInstantiate(X10Context context, PI me, 
+	public static <PI extends X10ProcedureInstance<?>> PI inferAndCheckAndInstantiate(Context context, PI me, 
 			Type thisType, 
 			List<Type> typeActuals, 
 			final List<Type> actuals,
@@ -85,7 +85,7 @@ public class Matcher {
 	    return newMe;
 	}
 
-	public static <PI extends X10ProcedureInstance<?>> PI instantiate(X10Context context, PI me, 
+	public static <PI extends X10ProcedureInstance<?>> PI instantiate(Context context, PI me, 
 			Type thisType, 
 			List<Type> typeActuals, 
 			final List<Type> actuals) throws SemanticException {
@@ -107,7 +107,7 @@ public class Matcher {
 	 * @return  -- An instantiated version of me, with actuals substituted for formals in actual types and return types. 
 	 * @throws SemanticException
 	 */
-	private static <PI extends X10ProcedureInstance<?>> PI instantiate2(final X10Context context, final PI me, 
+	private static <PI extends X10ProcedureInstance<?>> PI instantiate2(final Context context, final PI me, 
 	    		/*inout*/ Type[] thisTypeArray,  
 	    		List<Type> typeActuals, 
 	    		List<Type> actuals, 
@@ -115,7 +115,7 @@ public class Matcher {
 	{
 		final XVar[] ys = new XVar[actuals.size()+1];
 		final  boolean[] hasSymbol = new boolean[actuals.size()+1];
-		final X10TypeSystem xts = (X10TypeSystem) me.typeSystem();
+		final TypeSystem xts = (TypeSystem) me.typeSystem();
 
 		List<Type> formals = new ArrayList<Type>();
 		for (Type formal : me.formalTypes()) {
@@ -315,7 +315,7 @@ public class Matcher {
 		    }
 		    */
 
-		    X10Context context2 = context.pushAdditionalConstraint(returnEnv);
+		    Context context2 = context.pushAdditionalConstraint(returnEnv);
 		    CConstraint query = newMe.guard();
 		    try {
 		        if (! returnEnv.entails(query, context2.constraintProjection(returnEnv, query))) {
@@ -339,7 +339,7 @@ public class Matcher {
 
 		    if (tQuery != null) {
 		        if ( ! xts.consistent(tQuery, context2)) {
-		            throw new SemanticException("Type guard " + query + " cannot be established; inconsistent in calling context.");
+		            throw new SemanticException("Type guard " + tQuery + " cannot be established; inconsistent in calling context.");
 		        }
 		        if (! tenv.entails(tQuery, context2)) {
 		            throw new SemanticException("Call invalid; calling environment does not entail the method guard.");
@@ -365,7 +365,7 @@ public class Matcher {
 
 	
 	public static CConstraint computeNewSigma(Type thisType, List<Type> actuals, 
-			XVar ythis, XVar[] y, boolean[] hasSymbol, boolean isStatic, X10TypeSystem xts) 
+			XVar ythis, XVar[] y, boolean[] hasSymbol, boolean isStatic, TypeSystem xts) 
 	throws SemanticException {
 	
 		CConstraint env = null; 
@@ -394,7 +394,7 @@ public class Matcher {
 	}
 	
 	public static CConstraint computeNewSigma2(Type thisType, List<Type> actuals, 
-			XVar ythis, XVar[] y, boolean[] hasSymbol, boolean isStatic, X10TypeSystem xts) 
+			XVar ythis, XVar[] y, boolean[] hasSymbol, boolean isStatic, TypeSystem xts) 
 	throws SemanticException {
 	
 		CConstraint env = null; 
@@ -446,7 +446,7 @@ public class Matcher {
           }
           return ySymbols;
     }
-    public static XVar[] getSymbolicNames(List<Type> formals, List<LocalInstance> formalNames, X10TypeSystem xts) 
+    public static XVar[] getSymbolicNames(List<Type> formals, List<LocalInstance> formalNames, TypeSystem xts) 
     throws SemanticException {
     	 XVar[] x = new XVar[formals.size()];
          for (int i = 0; i < formals.size(); i++) {

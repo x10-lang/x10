@@ -1,3 +1,15 @@
+/*
+ *  This file is part of the X10 project (http://x10-lang.org).
+ *
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ *  (C) Copyright IBM Corporation 2006-2010.
+ */
+
+
 package x10.compiler.ws.codegen;
 
 import java.util.ArrayList;
@@ -16,6 +28,7 @@ import polyglot.ast.If;
 import polyglot.ast.LocalDecl;
 import polyglot.ast.Loop;
 import polyglot.ast.Node;
+import polyglot.ast.NodeFactory;
 import polyglot.ast.Stmt;
 import polyglot.ast.Switch;
 import polyglot.ast.Try;
@@ -33,7 +46,6 @@ import x10.ast.ForLoop;
 import x10.ast.When;
 import x10.ast.X10Formal;
 import x10.ast.X10Loop;
-import x10.ast.X10NodeFactory;
 import x10.compiler.ws.WSCodeGenerator;
 import x10.compiler.ws.WSTransformState;
 import x10.compiler.ws.util.AddIndirectLocalDeclareVisitor;
@@ -43,7 +55,7 @@ import x10.compiler.ws.util.TransCodes;
 import x10.compiler.ws.util.Triple;
 import x10.compiler.ws.util.WSCodeGenUtility;
 import x10.optimizations.ForLoopOptimizer;
-import x10.types.X10Context;
+import polyglot.types.Context;
 import x10.util.synthesizer.ClassSynth;
 import x10.util.synthesizer.CodeBlockSynth;
 import x10.util.synthesizer.ConstructorSynth;
@@ -70,15 +82,19 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
     boolean isReturnPathChanged;
 
     // method frames
-    protected WSRegularFrameClassGen(Job job, X10NodeFactory xnf, X10Context xct, WSTransformState wts,
+    protected WSRegularFrameClassGen(Job job, NodeFactory xnf, Context xct, WSTransformState wts,
            String className, Stmt stmt, ClassDef outer, Flags flags, ClassType superType) {
         super(job, xnf, xct, wts, className, superType, flags, outer,
                 WSCodeGenUtility.setSpeicalQualifier(stmt, outer, xnf));
+        
+        addPCField();
     }
 
     // nested frames
     protected WSRegularFrameClassGen(AbstractWSClassGen parent, Stmt stmt, String classNamePrefix) {
         super(parent, parent, classNamePrefix, parent.wts.regularFrameType, stmt);
+        
+        addPCField();
     }
 
     @Override

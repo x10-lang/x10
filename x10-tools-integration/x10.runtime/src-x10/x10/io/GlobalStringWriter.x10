@@ -21,7 +21,7 @@ public class GlobalStringWriter extends Writer {
     val b:GlobalRef[StringBuilder];
     public def this() { this.b = GlobalRef[StringBuilder](new StringBuilder()); }
 
-    public def write(x:Byte): Void { 
+    public def write(x:Byte): void { 
         at (b) {
        	    b().add((x as Byte) as Char);
         }
@@ -30,7 +30,7 @@ public class GlobalStringWriter extends Writer {
     public def size() = at (b) b().length();
     public def result() = at (b) b().result(); 
     
-    public def flush(): Void { }
-    public def close(): Void { }
+    public def flush(): void { }
+    public def close(): void { }
 }
 

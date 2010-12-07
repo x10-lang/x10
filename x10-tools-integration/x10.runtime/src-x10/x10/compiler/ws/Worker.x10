@@ -24,7 +24,9 @@ public final class Worker {
         lock.lock();
         while (null != (k = Frame.cast[Object,RegularFrame](deque.steal()))) {
 //            Runtime.println(k + " migrated by " + this);
-            fifo.push(Frame.upcast[RegularFrame,Object](k.remap()));
+            val r = k.remap();
+            atomic r.ff.asyncs++;
+            fifo.push(Frame.upcast[RegularFrame,Object](r));
         }
         lock.unlock();
     }                            

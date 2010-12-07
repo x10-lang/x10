@@ -19,6 +19,7 @@ import java.util.List;
 import polyglot.ast.Expr;
 import polyglot.ast.Expr_c;
 import polyglot.ast.Node;
+import polyglot.ast.NodeFactory;
 import polyglot.ast.Precedence;
 import polyglot.ast.Term;
 import polyglot.ast.TypeNode;
@@ -44,7 +45,7 @@ import polyglot.visit.TypeBuilder;
 import x10.errors.Errors;
 import x10.types.FunctionType;
 import x10.types.X10MethodInstance;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 import x10.types.checker.Checker;
 import x10.types.checker.Converter;
 import x10.types.matcher.DumbMethodMatcher;
@@ -63,37 +64,6 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
 		this.target= target;
 		this.arguments = TypedList.copyAndCheck(arguments, Expr.class, true);
 	}
-
-	@Override
-	public boolean isConstant() {
-		Expr t = target;
-		if (t.isConstant()) {
-			X10TypeSystem ts = (X10TypeSystem) t.type().typeSystem();
-			if (ts.isValRail(t.type()) && arguments.size() == 1) {
-				Expr e = arguments.get(0);
-				return e.isConstant();
-			}
-		}
-		return super.isConstant();
-	}
-
-	@Override
-	public Object constantValue() {
-		Expr t = target;
-		if (t.isConstant()) {
-			X10TypeSystem ts = (X10TypeSystem) t.type().typeSystem();
-			if (ts.isValRail(t.type()) && arguments.size() == 1) {
-				Expr e = arguments.get(0);
-				Object a = t.constantValue();
-				Object i = e.constantValue();
-				if (a instanceof Object[] && i instanceof Integer) {
-					return ((Object[]) a)[(Integer) i];
-				}
-			}
-		}
-		return super.constantValue();
-	}
-
 
 	@Override
 	public Precedence precedence() {
@@ -214,7 +184,7 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
 	public Node buildTypes(TypeBuilder tb) throws SemanticException {
 		ClosureCall_c n= (ClosureCall_c) super.buildTypes(tb);
 
-		X10TypeSystem ts = (X10TypeSystem) tb.typeSystem();
+		TypeSystem ts = (TypeSystem) tb.typeSystem();
 
 		X10MethodInstance mi = (X10MethodInstance) ts.createMethodInstance(position(), 
 				new ErrorRef_c<MethodDef>(ts, position(), 
@@ -261,9 +231,9 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
 			//	    ClosureType ct = ts.Function(mi.typeParameters(), mi.formalTypes(), mi.returnType());
 			//	    if (! targetType.isSubtype(ct))
 			//		throw new SemanticException("Invalid closure call; target does not implement " + ct + ".", position());
-			X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
+			NodeFactory nf = (NodeFactory) tc.nodeFactory();
 			X10Call_c n = (X10Call_c) nf.X10Call(position(), target(), 
-					nf.Id(X10NodeFactory_c.compilerGenerated(position()), mi.name().toString()), Collections.<TypeNode>emptyList(), args);
+					nf.Id(Position.compilerGenerated(position()), mi.name().toString()), Collections.<TypeNode>emptyList(), args);
 			n = (X10Call_c) n.methodInstance(mi).type(mi.returnType());
 			return n;
 		}

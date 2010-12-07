@@ -18,7 +18,7 @@ import polyglot.types.MethodInstance;
 import polyglot.types.Name;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
-import x10.types.X10Context;
+import polyglot.types.Context;
 import x10.types.X10MethodInstance;
 
 /** A method matcher that only checks name and arity. */
@@ -53,7 +53,7 @@ public class DumbMethodMatcher extends X10MethodMatcher {
             // typeArgs = Arrays.asList(Y);
             // }
             if (typeArgs.size() == xmi.typeParameters().size()) {
-                X10MethodInstance newXmi = Matcher.instantiate((X10Context) context, xmi, c, typeArgs, argTypes);
+                X10MethodInstance newXmi = Matcher.instantiate((Context) context, xmi, c, typeArgs, argTypes);
                 return newXmi;
             }
         }

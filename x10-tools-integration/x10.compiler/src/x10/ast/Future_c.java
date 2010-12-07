@@ -18,6 +18,7 @@ import polyglot.ast.Block;
 import polyglot.ast.Expr;
 import polyglot.ast.Expr_c;
 import polyglot.ast.Node;
+import polyglot.ast.NodeFactory;
 import polyglot.ast.Term;
 import polyglot.ast.TypeNode;
 import polyglot.types.SemanticException;
@@ -32,10 +33,10 @@ import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
 import polyglot.visit.ReachChecker;
 import x10.types.ClosureDef;
-import x10.types.X10Context;
+import polyglot.types.Context;
 import x10.types.X10NamedType;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 
 
 /** A <code>Future </code> is a representation of the X10 future construct:
@@ -49,13 +50,13 @@ import x10.types.X10TypeSystem;
 public class Future_c extends PlacedClosure_c
     implements Future {
     
-    public Future_c(X10NodeFactory nf, Position p, Expr place, TypeNode returnType, TypeNode offerType, Block body) {
+    public Future_c(NodeFactory nf, Position p, Expr place, TypeNode returnType, TypeNode offerType, Block body) {
 	    super(nf, p, place, returnType, offerType, body);
     }
 
     /** Type check the expression. */
     public Node typeCheck(ContextVisitor tc) {
-    	X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+    	TypeSystem ts = (TypeSystem) tc.typeSystem();
     	Future_c n = (Future_c) super.typeCheck(tc);
     	Type t = n.returnType().type();
     	return n.type( ts.futureOf(position(), Types.ref(t)));

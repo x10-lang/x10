@@ -123,6 +123,7 @@ namespace {
         MemberObj **memberv;
         x10rt_place *placev; // INVARIANT: memberv[i]!=null <==> placev[i]==here
         TeamObj (x10rt_team id, x10rt_place placec, x10rt_place *placev_)
+          : localUsers(0)
         {
             memberc = placec;
             memberv = safe_malloc<MemberObj*>(memberc);

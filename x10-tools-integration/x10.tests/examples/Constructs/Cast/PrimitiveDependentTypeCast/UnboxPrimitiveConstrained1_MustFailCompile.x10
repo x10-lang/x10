@@ -26,7 +26,7 @@ import harness.x10Test;
 		try {
 			// (int(:self==3)) <-- int(:c)
 			// not null check when unboxing and deptype check
-         var case2a: int(3) = ni as int(3);
+         var case2a: int(3) = ni as int(3); // ERR
 		} catch (e: ClassCastException) {
 			res2 = true;
 		}

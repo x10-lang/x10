@@ -16,13 +16,13 @@ import java.util.List;
 import polyglot.ast.Case;
 import polyglot.ast.Expr;
 import polyglot.ast.IntLit;
+import polyglot.ast.NodeFactory;
 import polyglot.ast.Stmt;
 import polyglot.ast.Switch;
 import polyglot.ast.SwitchBlock;
 import polyglot.ast.SwitchElement;
 import polyglot.util.Position;
-import x10.ast.X10NodeFactory;
-import x10.types.X10Context;
+import polyglot.types.Context;
 
 /**
  * The first try a state synthesizer for Switch statements
@@ -38,7 +38,7 @@ public class SwitchSynth extends AbstractStateSynth implements IStmtSynth{
     
     List<Stmt> defaultStmts;
     
-    public SwitchSynth(X10NodeFactory xnf, X10Context context, Position pos, Expr switchCond){
+    public SwitchSynth(NodeFactory xnf, Context context, Position pos, Expr switchCond){
         super(xnf, context, pos);
         this.switchCond = switchCond;
         

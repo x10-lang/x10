@@ -102,7 +102,7 @@ This does not typecheck:
 
 public class Y {
 
-    def m():Void {
+    def m():void {
 	for ((p) in 0..9);
     }
 }
@@ -111,7 +111,7 @@ but this does:
 
 public class Y {
 
-    def m():Void {
+    def m():void {
         val r = 0..9;
 	for ((p) in r);
     }
@@ -167,7 +167,7 @@ public class X {
        { 
 	   for (r:Row in this) ;
        }
-       incomplete def m(x:T):Void;
+       incomplete def m(x:T):void;
    }
 
 }

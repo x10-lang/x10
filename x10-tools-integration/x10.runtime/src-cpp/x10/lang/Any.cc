@@ -18,7 +18,7 @@ x10aux::RuntimeType x10::lang::Any::rtt;
 
 void x10::lang::Any::_initRTT() {
     if (rtt.initStageOne(&rtt)) return;
-    rtt.initStageTwo("x10.lang.Any", 0, NULL, 0, NULL, NULL);
+    rtt.initStageTwo("x10.lang.Any", x10aux::RuntimeType::interface_kind, 0, NULL, 0, NULL, NULL);
 }
 
 // vim:tabstop=4:shiftwidth=4:expandtab

@@ -16,13 +16,32 @@ import polyglot.util.Enum;
 public interface IntLit extends NumLit 
 {
     /** Integer literal kinds: int (e.g., 0) or long (e.g., 0L). */
-    public static class Kind extends Enum {
-        private static final long serialVersionUID = 2490235381600621044L;
-        public Kind(String name) { super(name); }
+    public enum Kind {
+        INT("Int"), LONG("Long"), BYTE("Byte"), SHORT("Short"), UINT("UInt"), ULONG("ULong"), UBYTE("UByte"), USHORT("UShort");
+        private final String name;
+
+        private Kind(String name) {
+            this.name = name;
+        }
+        public String toString() { return name; }
+        public Kind toSigned() {
+            if (this==ULONG) return LONG;
+            if (this==UINT) return INT;
+            if (this==USHORT) return SHORT;
+            if (this==UBYTE) return BYTE;
+            return this;
+        }
     }
 
-    public static final Kind INT   = new Kind("int");
-    public static final Kind LONG  = new Kind("long");
+    public static final Kind INT   = Kind.INT;
+    public static final Kind LONG  = Kind.LONG;
+    public static final Kind BYTE  = Kind.BYTE;
+    public static final Kind SHORT  = Kind.SHORT;
+    public static final Kind UINT = Kind.UINT;
+    public static final Kind ULONG = Kind.ULONG;
+    public static final Kind UBYTE = Kind.UBYTE;
+    public static final Kind USHORT = Kind.USHORT;
+
 
     /** Get the literal's value. */
     long value();

@@ -25,11 +25,11 @@ import harness.x10Test;
 public class PropertyNotInvoked2_MustFailCompile extends x10Test {
 
     static class Tester(i: int(2)) {
-        public def this(arg:int(2)):Tester{self.i==arg} {
+        public def this(arg:int(2)):Tester{self.i==arg} { // ERR: property(...) might not have been called
             if (arg == 2) {
                 property(arg);
             } else {
-                i=2;
+                i=2; // ERR: Must use property(...) to assign to a property.
             }
         }
     }

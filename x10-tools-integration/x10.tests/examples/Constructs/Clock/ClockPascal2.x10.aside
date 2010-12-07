@@ -112,7 +112,7 @@ public class ClockPascal2 extends x10Test {
 	static def randDelay(var millis: int): void = {
 		var n: int;
 		atomic n = rand.nextInt(millis);
-		Activity.sleep(n);
+		System.sleep(n);
 	}
 
 	public static startTime: long = System.currentTimeMillis();

@@ -52,7 +52,7 @@ import x10.constraint.XTerms;
 import x10.constraint.XVar;
 import x10.errors.Errors;
 import x10.types.X10ClassType;
-import x10.types.X10Context;
+import polyglot.types.Context;
 import x10.types.X10FieldInstance;
 import x10.types.X10LocalDef;
 import x10.types.X10MethodInstance;
@@ -60,7 +60,7 @@ import x10.types.X10MethodInstance;
 import x10.types.X10TypeEnv;
 import x10.types.X10TypeEnv_c;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 import x10.types.checker.Converter;
 import x10.types.constraints.CConstraint;
 import x10.types.matcher.Subst;
@@ -125,16 +125,16 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop {
 	
 
 	
-	public Node typeCheckOverride(Node parent, ContextVisitor tc) throws SemanticException {
+	public Node typeCheckOverride(Node parent, ContextVisitor tc) {
 	    TypeChecker tc1 = (TypeChecker) tc.enter(parent, this);
 	    
 	    Expr domain = (Expr) this.visitChild(this.domain, tc1);
-	    Type domainType =  domain.type();
+	    Type domainType = domain.type();
 	    
 	    Formal formal = (Formal) this.visitChild(this.formal, tc1);
 	    
-	    X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
-	    X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+	    NodeFactory nf = (NodeFactory) tc.nodeFactory();
+	    TypeSystem ts = (TypeSystem) tc.typeSystem();
 	    
 //	    if (ts.isPoint(formal.type().type())) {
 //	        X10Type point = (X10Type) formal.type().type();
@@ -145,19 +145,19 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop {
 	}
 
 	/** Type check the statement. */
-	public Node typeCheck(ContextVisitor tc) throws SemanticException {
+	public Node typeCheck(ContextVisitor tc) {
 		X10Loop_c n = (X10Loop_c) typeCheckNode(tc);
 		return n;
 	}
 	
 	
-	public Node typeCheckNode(ContextVisitor tc) throws SemanticException {
-                NodeFactory nf = tc.nodeFactory();
-		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
-		Type domainType =  domainTypeRef.get();
+	public Node typeCheckNode(ContextVisitor tc) {
+		NodeFactory nf = tc.nodeFactory();
+		TypeSystem ts = (TypeSystem) tc.typeSystem();
+		Type domainType = domainTypeRef.get();
 		if (domainType == null ) {
 			// aha, in this case the type inferencer did not run, since an explicit type was givem.
-			domainType =  domain.type();
+			domainType = domain.type();
 		}
 		Type formalType = formal.declType();
 		Type Iterable = ts.Iterable(formalType);
@@ -178,14 +178,14 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop {
 		if (ts.isSubtype(formalType, ts.Point(), tc.context())) {
 		    try {
 		        Expr newDomain = Converter.attemptCoercion(tc, domain, ts.Region());
-		        if (newDomain != domain)
+		        if (newDomain != null && newDomain != domain)
 		            return this.domain(newDomain).del().typeCheck(tc);
 		    }
 		    catch (SemanticException e) {
 		    }
 		    try {
 		        Expr newDomain = Converter.attemptCoercion(tc, domain, ts.Dist());
-		        if (newDomain != domain)
+		        if (newDomain != null && newDomain != domain)
 		            return this.domain(newDomain).del().typeCheck(tc);
 		    }
 		    catch (SemanticException e) {
@@ -337,13 +337,14 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop {
 	
 	LazyRef<Type> domainTypeRef = Types.lazyRef(null);
 	public Type domainType() {
-		Type domainType =  domainTypeRef.get();
+		Type domainType = domainTypeRef.get();
 		if (domainType == null ) {
 			// aha, in this case the type inferencer did not run, since an explicit type was givem.
-			domainType =  domain.type();
+			domainType = domain.type();
 		}
 		return domainType;
 	}
+
 	@Override
 	public Node setResolverOverride(final Node parent, final TypeCheckPreparer v) {
 		final Expr domain = this.domain;
@@ -368,8 +369,8 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop {
 				final LazyRef<Type> domainTypeRef = this.domainTypeRef;
 				domainTypeRef.setResolver(new TypeCheckExprGoal(loop, domain, tc, domainTypeRef));
 
-				final X10NodeFactory nf = (X10NodeFactory) v.nodeFactory();
-				final X10TypeSystem ts = (X10TypeSystem) v.typeSystem();
+				final NodeFactory nf = (NodeFactory) v.nodeFactory();
+				final TypeSystem ts = (TypeSystem) v.typeSystem();
 				final ClassDef curr = v.context().currentClassDef();
 
 				// Now, infer index Type.

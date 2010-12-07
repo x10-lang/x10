@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import polyglot.ast.Expr;
+import polyglot.ast.NodeFactory;
 import polyglot.ast.Stmt;
 import polyglot.types.Name;
 import polyglot.types.SemanticException;
@@ -11,8 +12,7 @@ import polyglot.types.Type;
 import polyglot.util.Position;
 import x10.ast.Closure;
 import x10.ast.Tuple;
-import x10.ast.X10NodeFactory;
-import x10.types.X10Context;
+import polyglot.types.Context;
 
 /**
  * Some codes based on desugar
@@ -23,7 +23,7 @@ public class AsyncSynth extends AbstractStateSynth implements IStmtSynth {
     List<Expr> clocks;
     Expr place;
     
-    public AsyncSynth(X10NodeFactory xnf, X10Context xct, Position pos,
+    public AsyncSynth(NodeFactory xnf, Context xct, Position pos,
                       Stmt body, List<Expr> clocks, Expr place) {
         super(xnf, xct, pos);
         this.body = body;
@@ -31,7 +31,7 @@ public class AsyncSynth extends AbstractStateSynth implements IStmtSynth {
         this.place = place;
     }
     
-    public AsyncSynth(X10NodeFactory xnf, X10Context xct, Position pos,
+    public AsyncSynth(NodeFactory xnf, Context xct, Position pos,
                       Stmt body, Expr place) {
         super(xnf, xct, pos);
         this.body = body;
@@ -39,14 +39,14 @@ public class AsyncSynth extends AbstractStateSynth implements IStmtSynth {
         this.place = place;
     }
     
-    public AsyncSynth(X10NodeFactory xnf, X10Context xct, Position pos,
+    public AsyncSynth(NodeFactory xnf, Context xct, Position pos,
                       Stmt body, List<Expr> clocks) {
         super(xnf, xct, pos);
         this.body = body;
         this.clocks = clocks;
     }
     
-    public AsyncSynth(X10NodeFactory xnf, X10Context xct, Position pos,
+    public AsyncSynth(NodeFactory xnf, Context xct, Position pos,
                       Stmt body) {
         super(xnf, xct, pos);
         this.body = body;
@@ -63,7 +63,7 @@ public class AsyncSynth extends AbstractStateSynth implements IStmtSynth {
         
         if(place == null){
             if(clocks.size() > 0){
-                Type clockRailType = xts.ValRail(xts.Clock());
+                Type clockRailType = xts.Rail(xts.Clock());
                 Tuple clockRail = (Tuple) xnf.Tuple(pos, clocks).type(clockRailType);
                 exprs.add(clockRail);
                 types.add(clockRailType);
@@ -78,7 +78,7 @@ public class AsyncSynth extends AbstractStateSynth implements IStmtSynth {
             types.add(xts.Place());
             
             if(clocks.size() > 0){
-                Type clockRailType = xts.ValRail(xts.Clock());
+                Type clockRailType = xts.Rail(xts.Clock());
                 Tuple clockRail = (Tuple) xnf.Tuple(pos, clocks).type(clockRailType);
                 exprs.add(clockRail);
                 types.add(clockRailType);

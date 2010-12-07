@@ -11,6 +11,7 @@
 
 package x10.types;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -23,10 +24,13 @@ import polyglot.types.Ref;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
+import polyglot.types.VarDef;
+import polyglot.types.VarInstance;
 import polyglot.util.CollectionUtil;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
+import x10.constraint.XTerms;
 import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.types.constraints.CConstraint;
@@ -48,14 +52,14 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
     protected XConstrainedTerm placeTerm;
     protected Ref<? extends Type> offerType;
     
-  
+    protected List<VarInstance<? extends VarDef>> capturedEnvironment;
 
     public ClosureDef_c(TypeSystem ts, Position pos, 
             Ref<? extends ClassType> typeContainer,
             Ref<? extends CodeInstance<?>> methodContainer,
             Ref<? extends Type> returnType,
             List<Ref<? extends Type>> formalTypes,
-            XVar thisVar,
+            ThisDef thisDef,
             List<LocalDef> formalNames, 
             Ref<CConstraint> guard,
             //Ref<TypeConstraint> typeGuard,
@@ -66,12 +70,13 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
         this.typeContainer = typeContainer;
         this.methodContainer = methodContainer;
         this.returnType = returnType;
-        this.thisVar = thisVar;
         this.formalTypes = TypedList.copyAndCheck(formalTypes, Ref.class, true);
         this.formalNames = TypedList.copyAndCheck(formalNames, LocalDef.class, true);
         this.guard = guard;
         //this.typeGuard = typeGuard;
+        this.thisDef = thisDef;
         this.offerType = offerType;
+        this.capturedEnvironment = new ArrayList<VarInstance<? extends VarDef>>();
     }
     
     public Ref<? extends Type> offerType() {
@@ -87,7 +92,7 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
     
     public FunctionType asType() {
 	if (asType == null) {
-	    X10TypeSystem ts = (X10TypeSystem) this.ts;
+	    TypeSystem ts = (TypeSystem) this.ts;
 	    asType = ts.closureType(position(), returnType, 
 	    		// Collections.EMPTY_LIST, 
 	    		formalTypes, formalNames, guard);
@@ -127,7 +132,7 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
 
     public ClosureInstance asInstance() {
         if (asInstance == null) {
-            asInstance = ((X10TypeSystem) ts).createClosureInstance(position(), Types.ref(this));
+            asInstance = ((TypeSystem) ts).createClosureInstance(position(), Types.ref(this));
         }
         return (ClosureInstance) asInstance;
     }
@@ -144,15 +149,22 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
         throw new InternalCompilerError("Attempt to set type parameters on a closure def: "+this, position());
     }
     
-    XVar thisVar;
     public XVar thisVar() {
-        return this.thisVar;
-    }
-    
-    public void setThisVar(XVar thisVar) {
-        this.thisVar = thisVar;
+        if (this.thisDef != null)
+            return this.thisDef.thisVar();
+        return XTerms.makeEQV("#this");
     }
 
+    ThisDef thisDef;
+
+    public ThisDef thisDef() {
+        return this.thisDef;
+    }
+
+    public void setThisDef(ThisDef thisDef) {
+        this.thisDef = thisDef;
+    }
+    
     public void setPlaceTerm(XConstrainedTerm p) {
     	this.placeTerm = p;
     }
@@ -221,6 +233,39 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
          this.formalTypes = TypedList.copyAndCheck(formalTypes, Ref.class, true);
      }
 
+     public List<VarInstance<? extends VarDef>> capturedEnvironment() {
+         return Collections.unmodifiableList(capturedEnvironment);
+     }
+
+     private static boolean containsDef(List<VarInstance<? extends VarDef>> l, VarInstance<? extends VarDef> v) {
+         for (VarInstance<? extends VarDef> e : l) {
+             if (e == v)
+                 return true;
+             if (e.def() == v.def())
+                 return true;
+         }
+         return false;
+     }
+
+     public void addCapturedVariable(VarInstance<? extends VarDef> vi) {
+         List<VarInstance<? extends VarDef>> capturedEnvironment = this.capturedEnvironment;
+         if (!containsDef(capturedEnvironment, vi)) {
+             capturedEnvironment.add(vi);
+             //if (vi instanceof ThisInstance)
+             //    System.err.println("Closure at "+position()+" captures this");
+         }
+     }
+
+     private boolean isStatic;
+
+     public boolean staticContext() {
+         return isStatic;
+     }
+     
+     public void setStaticContext(boolean v) {
+         isStatic = v;
+     }
+     
      
      public String signature() {
          return "(" + CollectionUtil.listToString(formalTypes) + ")" + Types.get(guard());

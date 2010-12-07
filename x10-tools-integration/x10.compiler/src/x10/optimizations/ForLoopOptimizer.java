@@ -20,6 +20,7 @@ import polyglot.ast.Binary;
 import polyglot.ast.Block;
 import polyglot.ast.BooleanLit;
 import polyglot.ast.Branch;
+import polyglot.ast.Call;
 import polyglot.ast.Expr;
 import polyglot.ast.Field;
 import polyglot.ast.For;
@@ -28,11 +29,13 @@ import polyglot.ast.ForUpdate;
 import polyglot.ast.Formal;
 import polyglot.ast.Id;
 import polyglot.ast.IntLit;
+import polyglot.ast.Labeled;
 import polyglot.ast.Local;
 import polyglot.ast.LocalDecl;
 import polyglot.ast.Loop;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
+import polyglot.ast.Receiver;
 import polyglot.ast.Stmt;
 import polyglot.ast.Switch;
 import polyglot.ast.Term;
@@ -41,7 +44,6 @@ import polyglot.ast.Unary;
 import polyglot.ast.Assign.Operator;
 import polyglot.frontend.Job;
 import polyglot.types.Context;
-import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
 import polyglot.types.LocalInstance;
@@ -54,26 +56,27 @@ import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
+import x10.ast.ClosureCall;
 import x10.ast.ForLoop;
-import x10.ast.ForLoop_c;
 import x10.ast.RegionMaker;
 import x10.ast.StmtExpr;
 import x10.ast.StmtSeq;
 import x10.ast.X10Call;
 import x10.ast.X10Cast;
 import x10.ast.X10Formal;
-import x10.ast.X10NodeFactory;
 import x10.constraint.XFailure;
 import x10.constraint.XTerm;
-import x10.types.X10Context;
+import polyglot.types.Context;
+import x10.types.X10FieldInstance;
 import x10.types.X10MethodInstance;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 import x10.types.X10TypeSystem_c;
 import x10.types.checker.Converter;
 import x10.types.constraints.CConstraint;
 import x10.util.Synthesizer;
 import x10.visit.ConstantPropagator;
+import x10.visit.Desugarer;
 
 /**
  * Optimize loops of the form:  for (formal in domain) S.
@@ -97,20 +100,48 @@ public class ForLoopOptimizer extends ContextVisitor {
     private static final Name MAX      = Name.make("max");
     private static final Name SET      = Name.make("set");
 
-    private final X10TypeSystem  xts;
-    private final X10NodeFactory xnf;
+    private final TypeSystem  xts;
+    private final NodeFactory xnf;
     private final Synthesizer    syn;
 
     public ForLoopOptimizer(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf);
-        xts = (X10TypeSystem) ts;
-        xnf = (X10NodeFactory) nf; 
+        xts = (TypeSystem) ts;
+        xnf = (NodeFactory) nf; 
         syn = new Synthesizer(xnf, xts);
     }
 
+    private Name label = null;
+    protected Name label() { return label; }
+    protected ForLoopOptimizer label(Name label) {
+        ForLoopOptimizer flo = (ForLoopOptimizer) copy();
+        flo.label = label;
+        return flo;
+    }
+
+    @Override
+    protected NodeVisitor enterCall(Node n) throws SemanticException {
+        // Set the label when seeing a Labeled; clear it for anything but a ForLoop
+        if (n instanceof Labeled) {
+            return label(((Labeled) n).labelNode().id());
+        } else if (n instanceof ForLoop) {
+            return this;
+        }
+        return label(null);
+    }
+
+    @Override
     public Node leaveCall(Node old, Node n, NodeVisitor v) throws SemanticException {
         if (n instanceof ForLoop)
-            return visitForLoop((ForLoop_c) n);
+            return visitForLoop((ForLoop) n);
+        if (n instanceof Labeled) {
+            Labeled l = (Labeled) n;
+            ForLoopOptimizer flo = (ForLoopOptimizer) v;
+            assert (l.labelNode().id().equals(flo.label()));
+            if (old instanceof Labeled && ((Labeled) old).statement() instanceof ForLoop && !(l.statement() instanceof ForLoop)) {
+                return l.statement(); // The label will have been propagated onto the loop
+            }
+        }
         return n;
     }
 
@@ -146,7 +177,7 @@ public class ForLoopOptimizer extends ContextVisitor {
      * @param loop the ForLoop to be transformed
      * @return the transformed loop
      */
-    public Node visitForLoop(ForLoop_c loop) {
+    public Node visitForLoop(ForLoop loop) {
         
         Position     pos        = loop.position();
         X10Formal    formal     = (X10Formal) loop.formal();
@@ -181,7 +212,7 @@ public class ForLoopOptimizer extends ContextVisitor {
         }
 
         Id           label      = createLabel(pos);
-        X10Context   context    = (X10Context) context();
+        Context   context    = (Context) context();
         List<Formal> formalVars = formal.vars();
         boolean      named      = !formal.isUnnamed();
         boolean      isRect     = X10TypeMixin.isRect(domain.type(), context);
@@ -194,7 +225,7 @@ public class ForLoopOptimizer extends ContextVisitor {
         // SPECIAL CASE (XTENLANG-1340):
         // for (p(i) in e1..e2) S  =>
         //     val min=e1; val max=e2; for(var z:Int=min; z<=max; z++){ val p=Point.make(z); val i=z; S }
-        // TODO inline (min and max), scalar replace Region object and its constituent ValRails then delete this code
+        // TODO inline (min and max), scalar replace Region object and its constituent Arrays then delete this code
         //
         if (1 == rank && domain instanceof RegionMaker) {
             List<Expr> args = ((RegionMaker) loop.domain()).arguments();
@@ -208,7 +239,7 @@ public class ForLoopOptimizer extends ContextVisitor {
             LocalDecl minLDecl = createLocalDecl(pos, Flags.FINAL, minName, low);
             LocalDecl maxLDecl = createLocalDecl(pos, Flags.FINAL, maxName, high);
             
-            LocalDecl varLDecl = createLocalDecl(pos, Flags.NONE, varName, createLocal(pos, minLDecl));
+            LocalDecl varLDecl = createLocalDecl(pos, Flags.NONE, varName, xts.Int(), createLocal(pos, minLDecl));
             Expr cond = createBinary(domain.position(), createLocal(pos, varLDecl), Binary.LE, createLocal(pos, maxLDecl));
             Expr update = createAssign(domain.position(), createLocal(pos, varLDecl), Assign.ADD_ASSIGN, createIntLit(1));
             
@@ -225,7 +256,11 @@ public class ForLoopOptimizer extends ContextVisitor {
             bodyStmts.add(body);
             body = createBlock(loop.body().position(), bodyStmts);
             For forLoop = createStandardFor(pos, varLDecl, cond, update, body);
-            return createBlock(pos, minLDecl, maxLDecl, forLoop);
+            Stmt newLoop = forLoop;
+            if (label() != null) {
+                newLoop = createLabeledStmt(pos, label(), forLoop);
+            }
+            return createBlock(pos, minLDecl, maxLDecl, newLoop);
         }
 
         // transform rectangular regions of known rank 
@@ -258,6 +293,7 @@ public class ForLoopOptimizer extends ContextVisitor {
                 stmts.add(indexLDecl);
             }
             
+            LocalDecl varLDecls[] = new LocalDecl[rank];
             // create the loop nest (from the inside out)
             for (int r=rank-1; 0<=r; r--) {
                 
@@ -274,7 +310,9 @@ public class ForLoopOptimizer extends ContextVisitor {
                 // create an AST node for the declaration of the temporary locations for the r-th var, min, and max
                 LocalDecl minLDecl = createLocalDecl(pos, Flags.FINAL, minName, minVal);
                 LocalDecl maxLDecl = createLocalDecl(pos, Flags.FINAL, maxName, maxVal);
-                LocalDecl varLDecl = createLocalDecl(pos, Flags.NONE, varName, createLocal(pos, minLDecl));
+                LocalDecl varLDecl = createLocalDecl(pos, Flags.NONE, varName, xts.Int(), createLocal(pos, minLDecl));
+                
+                varLDecls[r] = varLDecl;
                 
                 // add the declarations for the r-th min and max to the list of statements to be executed before the loop nest
                 stmts.add(minLDecl);
@@ -315,6 +353,10 @@ public class ForLoopOptimizer extends ContextVisitor {
             if (1 < rank) {
                 body = xnf.Labeled(body.position(), label, body);
             }
+            body = explodePoint(formal, indexLDecl, varLDecls, body);
+            if (label() != null) {
+                body = createLabeledStmt(pos, label(), body);
+            }
             stmts.add(body);
             Block result = createBlock(pos, stmts);
             if (VERBOSE) result.dump(System.out);
@@ -347,8 +389,56 @@ public class ForLoopOptimizer extends ContextVisitor {
             bodyStmts.add(body);
         }
         Stmt result           = createStandardFor(pos, iterLDecl, hasExpr, createBlock(pos, bodyStmts));
+        if (label() != null) {
+            result = createLabeledStmt(pos, label(), result);
+        }
         if (VERBOSE) result.dump(System.out);
         return result;
+    }
+
+    /**
+     * Replace calls to the apply method on point with corresponding calls to the corresponding method on rail throughout the body
+     * 
+     * @param point a Point formal variable
+     * @param rail the underlying Rail defining point
+     * @param body the AST containing the usses of point to be replaced 
+     * @return a copy of body with every call to point.apply() replaced by a call to rail.apply()
+     */
+    private Stmt explodePoint(final X10Formal point, final LocalDecl rail, final LocalDecl[] indices, final Stmt body) {
+        ContextVisitor pointExploder = new ContextVisitor(job, xts, xnf) {
+            /* (non-Javadoc)
+             * @see polyglot.visit.ErrorHandlingVisitor#leaveCall(polyglot.ast.Node)
+             */
+            @Override
+            protected Node leaveCall(Node n) throws SemanticException {
+                if (n instanceof Call) {
+                    X10Formal p = point;
+                    LocalDecl r = rail;
+                    LocalDecl[] is = indices;
+                    Call call = (Call) n;
+                    Receiver target = call.target();
+                    if (target instanceof Local && call.methodInstance().name().equals(ClosureCall.APPLY)) {
+                        if (((Local) target).localInstance().def() == point.localDef()) {
+                            List<Expr> args = call.arguments();
+                            assert (1 == args.size());
+                            Expr arg = args.get(0);
+                            if (arg.isConstant()) {
+                                int i =(Integer) arg.constantValue();
+                                return syn.createLocal(n.position(), indices[i]);
+                            }
+                            call = call.target(createLocal(target.position(), rail));
+                            call = call.methodInstance(createMethodInstance( rail.type().type(), 
+                                                                             ClosureCall.APPLY, 
+                                                                             Collections.<Type>emptyList(),
+                                                                             call.methodInstance().formalTypes()));
+                            return call;
+                        }
+                    }
+                }
+                return n;
+            }
+        };
+        return (Stmt) body.visit(pointExploder.begin());
     }
 
     /**
@@ -399,7 +489,7 @@ public class ForLoopOptimizer extends ContextVisitor {
      * TODO: move into ASTQuery
      */
     public Object getPropertyConstantValue(Expr expr, Name name) {
-        FieldInstance propertyFI = X10TypeMixin.getProperty(expr.type(), name);
+        X10FieldInstance propertyFI = X10TypeMixin.getProperty(expr.type(), name);
         if (null == propertyFI) return null;
         Expr propertyExpr = createFieldRef(expr.position(), expr, propertyFI);
         if (null == propertyExpr) return null;
@@ -520,10 +610,25 @@ public class ForLoopOptimizer extends ContextVisitor {
     }
 
     /** 
+     * Create a labeled statement.
+     * 
+     * @param pos the Position of the statement in the source program
+     * @param label the label for the statement
+     * @param stmt the statement to label
+     * @return the synthesized labeled statement
+     * TODO: move into Synthesizer
+     */
+    public Labeled createLabeledStmt(Position pos, Name label, Stmt stmt) {
+        return xnf.Labeled( pos, 
+                            xnf.Id(pos, label), 
+                            stmt );
+    }
+
+    /** 
      * Create a traditional C-style 'for' loop.
      * This form assumes that the update part of the for header is empty.
      * 
-     * @param pos the Position of the loop is the source program
+     * @param pos the Position of the loop in the source program
      * @param init the declaration that initializes the iterate
      * @param cond the condition governing whether the body should continue to be executed
      * @param body the body of the loop to be executed repeatedly
@@ -541,7 +646,7 @@ public class ForLoopOptimizer extends ContextVisitor {
     /** 
      * Create a traditional C-style 'for' loop.
      * 
-     * @param pos the Position of the loop is the source program
+     * @param pos the Position of the loop in the source program
      * @param init the declaration that initializes the iterate
      * @param cond the condition governing whether the body should continue to be executed
      * @param update the statement to increment the iterate after each execution of the body
@@ -673,7 +778,7 @@ public class ForLoopOptimizer extends ContextVisitor {
      * @return the synthesized assignment statement
      * TODO: move to Synthesizer
      */
-    public Stmt createAssignment(Assign expr) {
+    public Stmt createAssignment(Expr expr) {
         return createEval(expr);
     }
 
@@ -734,7 +839,7 @@ public class ForLoopOptimizer extends ContextVisitor {
      * @param pos the Position of the statement expression in source code
      * @param stmts the statements to proceed evaluation of expr
      * @param expr the result of the statement expression
-     * @return a synthesized statement expresssion comprising stmts and expr
+     * @return a synthesized statement expression comprising stmts and expr
      * TODO: move to Synthesizer
      */
     public StmtExpr createStmtExpr(Position pos, List<Stmt> stmts, Expr expr) {
@@ -769,7 +874,7 @@ public class ForLoopOptimizer extends ContextVisitor {
     }
 
     /**
-     * Create the boolean litteral "false".
+     * Create the boolean literal "false".
      * 
      * @param pos the Position of the literal in source code
      * @return the synthesized boolean literal
@@ -782,11 +887,11 @@ public class ForLoopOptimizer extends ContextVisitor {
     /**
      * Create the boolean negation of a given (boolean) expression.
      * 
-     * @param expr the boolean expressin to be negated
+     * @param expr the boolean expression to be negated
      * @return a synthesized expression which is the boolean negation of expr
      * TODO:  move to synthesizer
      */
-    public Unary createNot(Expr expr) {
+    public Expr createNot(Expr expr) {
         return createNot(expr.position(), expr);
     }
 
@@ -799,7 +904,7 @@ public class ForLoopOptimizer extends ContextVisitor {
      * @return a synthesized expression that negates expr
      * TODO: move to Synthesizer
      */
-    public Unary createNot(Position pos, Expr expr) {
+    public Expr createNot(Position pos, Expr expr) {
         assert (expr.type().isBoolean());
         return createUnary(pos, Unary.NOT, expr);
     }
@@ -814,8 +919,9 @@ public class ForLoopOptimizer extends ContextVisitor {
      * @return a synthesized unary expression equivalent to applying op to expr
      * TODO: move to Synthesizer
      */
-    public Unary createUnary(Position pos, polyglot.ast.Unary.Operator op, Expr expr) {
-        return (Unary) xnf.Unary(pos, op, expr).type(expr.type());
+    public Expr createUnary(Position pos, polyglot.ast.Unary.Operator op, Expr expr) {
+        Unary unary = (Unary) xnf.Unary(pos, op, expr).type(expr.type());
+        return Desugarer.desugarUnary(unary, this);
     }
 
     /**
@@ -867,12 +973,9 @@ public class ForLoopOptimizer extends ContextVisitor {
      * @return the synthesized Binary expression: (left op right)
      * TODO: move into Synthesizer
      */
-    public Binary createBinary(Position pos, Expr left, polyglot.ast.Binary.Operator op, Expr right) {
-        try {
-            return (Binary) xnf.Binary(pos, left, op, right).typeCheck(this);
-        } catch (SemanticException e) { 
-           throw new InternalCompilerError("Attempting to synthesize a Binary that cannot be typed", pos, e);
-        }
+    public Expr createBinary(Position pos, Expr left, Binary.Operator op, Expr right) {
+        Binary binary = (Binary) xnf.Binary(pos, left, op, right).type(left.type());
+        return Desugarer.desugarBinary(binary, this);
     }
 
     /**
@@ -885,8 +988,13 @@ public class ForLoopOptimizer extends ContextVisitor {
      * @return the synthesized Assign expression: (target op source)
      * TODO: move into Synthesizer
      */
-    public Assign createAssign(Position pos, Expr target, Operator op, Expr source) {
-        return (Assign) xnf.Assign(pos, target, op, source).type(target.type());
+    public Expr createAssign(Position pos, Expr target, Operator op, Expr source) {
+        try {
+            Assign assign = syn.makeAssign(pos, target, op, source, context());
+            return Desugarer.desugarAssign(assign, this);
+        } catch (SemanticException e) {
+            throw new InternalCompilerError("Attempting to synthesize an Assign that cannot be typed", pos, e);
+        }
     }
 
     /**
@@ -932,9 +1040,9 @@ public class ForLoopOptimizer extends ContextVisitor {
      */
     public Field createFieldRef(Position pos, Expr receiver, Name name) {
         final Type type = receiver.type();
-        FieldInstance fi = X10TypeMixin.getProperty(type, name);
+        X10FieldInstance fi = X10TypeMixin.getProperty(type, name);
         if (null == fi) {
-            fi = type.toClass().fieldNamed(name);
+            fi = (X10FieldInstance) type.toClass().fieldNamed(name);
         }
         if (null == fi) return null;
         return createFieldRef(pos, receiver, fi);
@@ -950,9 +1058,9 @@ public class ForLoopOptimizer extends ContextVisitor {
      * @return the synthesized Field expression
      * TODO: move into Synthesizer
      */
-    public Field createFieldRef(Position pos, Expr receiver, FieldInstance fi) {
+    public Field createFieldRef(Position pos, Expr receiver, X10FieldInstance fi) {
         Field f       = xnf.Field(pos, receiver, xnf.Id(pos, fi.name())).fieldInstance(fi);
-        Type type     = fi.type();
+        Type type     = fi.rightType();
         // propagate self binding (if any)
         CConstraint c = X10TypeMixin.realX(receiver.type());
         XTerm term    = X10TypeMixin.selfVarBinding(c);  // the RHS of {self==x} in c

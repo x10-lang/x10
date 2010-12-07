@@ -34,14 +34,12 @@ import java.util.Iterator;
 import java.util.List;
 
 import polyglot.ast.Call_c;
-import polyglot.ast.ClassDecl_c;
 import polyglot.ast.ConstructorDecl_c;
 import polyglot.ast.Expr;
 import polyglot.ast.FieldDecl_c;
 import polyglot.ast.Formal;
 import polyglot.ast.Formal_c;
 import polyglot.ast.LocalDecl_c;
-import polyglot.ast.MethodDecl_c;
 import polyglot.ast.New_c;
 import polyglot.ast.Node;
 import polyglot.ast.Receiver;
@@ -61,10 +59,13 @@ import polyglot.types.Types;
 import polyglot.types.VarDef;
 import polyglot.types.VarInstance;
 import polyglot.util.CodeWriter;
+import polyglot.util.CollectionUtil;
 import polyglot.util.ErrorInfo;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.Translator;
+import x10.ast.X10ClassDecl_c;
+import x10.ast.X10MethodDecl_c;
 import x10.ast.X10Special;
 import x10.ast.X10Special_c;
 import x10.errors.Warnings;
@@ -79,8 +80,9 @@ import x10.types.X10LocalDef;
 import x10.types.X10MethodDef;
 import x10.types.X10MethodInstance;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 import x10.types.X10TypeSystem_c;
+import x10.types.X10TypeSystem_c.BaseTypeEquals;
 import x10.visit.StaticNestedClassRemover;
 import x10.util.ClassifiedStream;
 import x10.util.StreamWrapper;
@@ -264,6 +266,7 @@ public class Emitter {
 //		    ClosureType ct = (ClosureType) type;
 //		    assert (ct.typeArguments().size() != 0);
 //		    name = "x10aux::Fun";
+//		    name = translate_mangled_FQN(name);
 //		    String args = "";
 //		    if (ct.returnType().isVoid())
 //		        args += translateType(ct.returnType(), true) + ", ";
@@ -283,6 +286,9 @@ public class Emitter {
 				asRef = false;
 			}
 
+		    List<Type> typeArguments = ct.typeArguments();
+		    X10ClassDef cd = ct.x10Def();
+		    if (typeArguments == null) typeArguments = new ArrayList<Type>(cd.typeParameters());
 		    if (ct.isAnonymous()) {
 		        if (ct.interfaces().size() == 1 && ct.interfaces().get(0) instanceof FunctionType) {
 		            return translateType(ct.interfaces().get(0), asRef);
@@ -292,14 +298,12 @@ public class Emitter {
 		       	    return translateType(ct.superClass(), asRef);
 		       	}
 		    } else {
-				X10ClassDef cd = ((X10ClassType) type).x10Def();
 				String pat = null;
 				if (!asRef)
 					pat = getCppBoxRep(cd);
 				else
 					pat = getCppRep(cd);
 				if (pat != null) {
-					List<Type> typeArguments = ct.typeArguments();
 					Object[] o = new Object[typeArguments.size()+1];
 					int i = 0;
 					o[i++] = type;
@@ -313,10 +317,11 @@ public class Emitter {
 					name = fullName(ct).toString();
 				}
 			}
-			if (ct.typeArguments().size() != 0) {
+		    name = translate_mangled_FQN(name);
+			if (typeArguments.size() != 0) {
 				String args = "";
-				int s = ct.typeArguments().size();
-				for (Type t: ct.typeArguments()) {
+				int s = typeArguments.size();
+				for (Type t: typeArguments) {
 					args += translateType(t, true); // type arguments are always translated as refs
 					if (--s > 0)
 						args +=", ";
@@ -328,31 +333,33 @@ public class Emitter {
 			return mangled_parameter_type_name(name); // parameter types shouldn't be refs
 		} else if (type.isNull()) {
 			return "x10aux::ref<x10::lang::NullType>"; // typedef to something sensible
-		} else
+		} else {
 			assert false : type; // unhandled type.
+		}
 		assert (name != null);
-		name = translate_mangled_FQN(name);
 		if (!asRef)
 			return name;
 		return make_ref(name);
 	}
 	
-	public static String structMethodClass(ClassType ct, boolean fqn, boolean chevrons) {
-	    X10ClassType classType = (X10ClassType)ct;
-	    QName full = fullName(classType);
+	public static String structMethodClass(X10ClassType ct, boolean fqn, boolean chevrons) {
+	    X10ClassDef cd = ct.x10Def();
+	    QName full = fullName(cd.asType());
 	    String name = fqn ? full.toString() : full.name().toString();
 	    name += "_methods";
-	    if (chevrons && classType.typeArguments().size() != 0) {
+	    name = translate_mangled_FQN(name);
+	    List<Type> typeArguments = ct.typeArguments();
+	    if (typeArguments == null) typeArguments = new ArrayList<Type>(cd.typeParameters());
+	    if (chevrons && typeArguments.size() != 0) {
 	        String args = "";
-	        int s = classType.typeArguments().size();
-	        for (Type t: classType.typeArguments()) {
+	        int s = typeArguments.size();
+	        for (Type t: typeArguments) {
 	            args += translateType(t, true); // type arguments are always translated as refs
 	            if (--s > 0)
 	                args +=", ";
 	        }
 	        name += chevrons(args);
 	    }
-	    name = translate_mangled_FQN(name);
 	    return name;
 	}
 
@@ -388,7 +395,7 @@ public class Emitter {
 
 
 	public void printTemplateSignature(List<? extends Type> list, CodeWriter h) {
-		int size = list.size();
+		int size = list == null ? 0 : list.size();
 		if (size != 0) {
 			h.write("template<class ");
 			for (Type t: list) {
@@ -432,16 +439,18 @@ public class Emitter {
 		return b.toString();
 	}
 
-	static MethodInstance getOverridingMethod(X10TypeSystem xts, ClassType localClass, MethodInstance mi, Context context) {
+	static MethodInstance getOverridingMethod(TypeSystem xts, ClassType localClass, MethodInstance mi, Context context) {
 	    try {
 	        List<Type> params = ((X10MethodInstance) mi).typeParameters();
 	        List<MethodInstance> overrides = xts.findAcceptableMethods(localClass, xts.MethodMatcher(localClass, mi.name(), ((X10MethodInstance) mi).typeParameters(), mi.formalTypes(), context));
 	        for (MethodInstance smi : overrides) {
-	            List<Type> sparams = ((X10MethodInstance) smi).typeParameters();
-	            if (params == null && sparams == null)
-	                return smi;
-	            if (params != null && params.equals(sparams))
-	                return smi;
+	            if (CollectionUtil.allElementwise(mi.formalTypes(), smi.formalTypes(), new BaseTypeEquals(context))) {
+	                List<Type> sparams = ((X10MethodInstance) smi).typeParameters();
+	                if (params == null && sparams == null)
+	                    return smi;
+	                if (params != null && params.equals(sparams))
+	                    return smi;
+	            }
 	        }
 	        return null;
 	    } catch (SemanticException e) {
@@ -452,7 +461,7 @@ public class Emitter {
 	Type findRootMethodReturnType(X10MethodDef n, Position pos, MethodInstance from) {
 		assert from != null;
 		// [IP] Optimizations
-		X10Flags flags = X10Flags.toX10Flags(from.flags());
+		Flags flags = from.flags();
 		if (flags.isStatic() || flags.isPrivate() || flags.isProperty() || from.returnType().isVoid())
 			return from.returnType();
 
@@ -478,7 +487,7 @@ public class Emitter {
 		*/
 
 		// [DC] TODO: There has to be a better way!
-		X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
+		TypeSystem xts = (TypeSystem) tr.typeSystem();
 		Context context = tr.context();
 
 		X10ClassType classType = (X10ClassType) from.container();
@@ -518,12 +527,12 @@ public class Emitter {
 
 	private static final QName NORETURN_ANNOTATION = QName.make("x10.compiler.NoReturn");
 
-	void printHeader(MethodDecl_c n, CodeWriter h, Translator tr, boolean qualify, boolean inlineDirective) {
+	void printHeader(X10MethodDecl_c n, CodeWriter h, Translator tr, boolean qualify, boolean inlineDirective) {
 		printHeader(n, h, tr, n.name().id().toString(), n.returnType().type(), qualify, inlineDirective);
 	}
-	void printHeader(MethodDecl_c n, CodeWriter h, Translator tr, String name, Type ret, 
+	void printHeader(X10MethodDecl_c n, CodeWriter h, Translator tr, String name, Type ret, 
 	                 boolean qualify, boolean inlineDirective) {
-		X10Flags flags = X10Flags.toX10Flags(n.flags().flags());
+		Flags flags = n.flags().flags();
 		X10MethodDef def = (X10MethodDef) n.methodDef();
 		X10MethodInstance mi = (X10MethodInstance) def.asInstance();
 		X10ClassType container = (X10ClassType) mi.container();
@@ -532,7 +541,7 @@ public class Emitter {
 		h.begin(0);
 
 		if (qualify) {
-			printTemplateSignature(((X10ClassType)n.methodDef().container().get()).typeArguments(), h);
+			printTemplateSignature(((X10ClassType)Types.get(n.methodDef().container())).x10Def().typeParameters(), h);
 		}
 		
 		if (inlineDirective) {
@@ -543,7 +552,7 @@ public class Emitter {
 
 		if (!qualify) {
 			if (flags.isStatic())
-				h.write(flags.retain(Flags.STATIC).translate());
+				h.write(flags.retain(Flags.STATIC).translateJava());
 			else if (def.typeParameters().size() != 0) {
 			    X10ClassDef cd = (X10ClassDef) Types.get(def.container()).toClass().def();
 			    if (!flags.isFinal() && !cd.flags().isFinal() && !cd.isStruct()) {
@@ -602,7 +611,7 @@ public class Emitter {
 		if (!qualify) {
 		    boolean noReturnPragma = false;
 		    try {
-		        X10TypeSystem xts = (X10TypeSystem)tr.typeSystem();
+		        TypeSystem xts = (TypeSystem)tr.typeSystem();
 		        Type annotation = (Type) xts.systemResolver().find(NORETURN_ANNOTATION);
 		        if (!((X10Ext) n.ext()).annotationMatching(annotation).isEmpty()) {
 		            noReturnPragma = true;
@@ -619,7 +628,7 @@ public class Emitter {
 		h.end();
 		if (!qualify) {
 			assert (!flags.isNative());
-			if (n.body() == null && !flags.isExtern() && !flags.isProperty() && !isStruct)
+			if (n.body() == null && !flags.isProperty() && !isStruct)
 				h.write(" = 0");
 		}
 	}
@@ -631,7 +640,7 @@ public class Emitter {
 //		h.write("const ");
 		printType(n.type().type(), h);
 		h.write(" ");
-		X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
+		TypeSystem xts = (TypeSystem) tr.typeSystem();
 		Type param_type = n.type().type();
 		param_type = X10TypeMixin.baseType(param_type);
 		if (param_type instanceof X10ClassType) {
@@ -649,24 +658,33 @@ public class Emitter {
 		h.end();
 	}
 
-	private void printAllTemplateSignatures(ClassDef cd, CodeWriter h) {
+	private void printAllTemplateSignatures(X10ClassDef cd, CodeWriter h) {
 		if (cd.isNested()) {
 			assert (false) : ("Nested class alert!");
-			printAllTemplateSignatures(cd.outer().get(), h);
+			printAllTemplateSignatures((X10ClassDef) Types.get(cd.outer()), h);
 		}
-		printTemplateSignature(((X10ClassType)cd.asType()).typeArguments(), h);
+		printTemplateSignature(cd.typeParameters(), h);
 	}
 
 	void printRTTDefn(X10ClassType ct, CodeWriter h) {
 	    X10TypeSystem_c xts = (X10TypeSystem_c) ct.typeSystem();
+	    X10ClassDef cd = ct.x10Def();
 	    String x10name = fullName(ct).toString().replace('$','.');
 	    int numParents = 0;
 	    if (ct.superClass() != null) {
 	        numParents++;
 	    }
 	    numParents += ct.interfaces().size();
+	    String kind;
+	    if (ct.isX10Struct()) {
+	        kind = "x10aux::RuntimeType::struct_kind";
+	    } else if (ct.flags().isInterface()) {
+	        kind = "x10aux::RuntimeType::interface_kind";
+	    } else {
+	        kind = "x10aux::RuntimeType::class_kind";
+	    }
 
-	    if (ct.typeArguments().isEmpty()) {
+	    if (cd.typeParameters().isEmpty()) {
 	        boolean first = true;
 	        h.write("x10aux::RuntimeType "+translateType(ct)+"::rtt;"); h.newline();
 	        h.write("void "+translateType(ct)+"::_initRTT() {"); h.newline(4); h.begin(0);
@@ -686,7 +704,7 @@ public class Emitter {
 	        } else {
 	            h.write("const x10aux::RuntimeType** parents = NULL; "); h.newline();
 	        }
-	        h.write("rtt.initStageTwo(\""+x10name+"\", "+numParents+ ", parents, 0, NULL, NULL);");
+	        h.write("rtt.initStageTwo(\""+x10name+"\","+kind+", "+numParents+ ", parents, 0, NULL, NULL);");
 	        if (ct.isX10Struct() && isPointerless(ct)) {
 	            h.newline(); h.write("rtt.containsPtrs = false;");
 	        }
@@ -694,13 +712,13 @@ public class Emitter {
 	        h.write("}"); h.newline();
 	    } else {
 	        boolean first = true;
-	        int numTypeParams = ct.typeArguments().size();
-	        printTemplateSignature(ct.typeArguments(), h);
+	        int numTypeParams = cd.typeParameters().size();
+	        printTemplateSignature(cd.typeParameters(), h);
 	        h.write("x10aux::RuntimeType "+translateType(ct)+"::rtt;"); h.newline();
 
-	        printTemplateSignature(ct.typeArguments(), h);
+	        printTemplateSignature(cd.typeParameters(), h);
 	        h.write("void "+translateType(ct)+"::_initRTT() {"); h.newline(4); h.begin(0);
-                h.write("const x10aux::RuntimeType *canonical = x10aux::getRTT"+chevrons(translateType(MessagePassingCodeGenerator.getStaticMemberContainer(ct),false))+"();");
+                h.write("const x10aux::RuntimeType *canonical = x10aux::getRTT"+chevrons(translateType(MessagePassingCodeGenerator.getStaticMemberContainer(cd), false))+"();");
                 h.newline();
                 h.write("if (rtt.initStageOne(canonical)) return;"); h.newline();
 	        
@@ -721,7 +739,7 @@ public class Emitter {
 	        }
 	        h.write("const x10aux::RuntimeType* params["+numTypeParams+"] = { ");
 	        first = true;
-	        for (Type param : ct.typeArguments()) {
+	        for (Type param : cd.typeParameters()) {
 	            if (!first) h.write(", ");
 	            h.write("x10aux::getRTT"+chevrons(translateType(param))+"()");
 	            first = false;
@@ -743,7 +761,7 @@ public class Emitter {
 	        h.write("};"); h.newline();
 
 	        h.write("const char *baseName = \""+x10name+"\";"); h.newline();
-	        h.write("rtt.initStageTwo(baseName, "+numParents+", parents, "+numTypeParams+", params, variances);"); h.end(); h.newline();
+	        h.write("rtt.initStageTwo(baseName, "+kind+", "+numParents+", parents, "+numTypeParams+", params, variances);"); h.end(); h.newline();
 	        h.write("}"); h.newline();
 	    }
 	    h.newline();
@@ -751,7 +769,7 @@ public class Emitter {
 
     // Helper method to recursively examine the fields of a struct and determine if they
     // are pointers.  Used to mark the RTT of the struct as pointerless, thus enabling
-    // Rails/ValRails of pointerless structs to be allocated with GC_MALLOC_ATOMIC
+    // Rails and Arrays of pointerless structs to be allocated with GC_MALLOC_ATOMIC
     private boolean isPointerless(X10ClassType ct) {
         assert ct.isX10Struct() : "Only structs should be checked to see if they are pointerless";
         
@@ -773,7 +791,7 @@ public class Emitter {
                                                     
                                                     
     
-    void printHeader(ClassDecl_c n, CodeWriter h, Translator tr) {
+    void printHeader(X10ClassDecl_c n, CodeWriter h, Translator tr) {
 		h.begin(0);
 		
 		// Handle generics
@@ -797,7 +815,7 @@ public class Emitter {
 		h.end();
 	}
     
-    void printHeaderForStructMethods(ClassDecl_c n, CodeWriter h, Translator tr) {
+    void printHeaderForStructMethods(X10ClassDecl_c n, CodeWriter h, Translator tr) {
         h.begin(0);
         
         // Handle generics
@@ -815,9 +833,9 @@ public class Emitter {
                      boolean define, boolean isMakeMethod, String rType) {
         Flags flags = n.flags().flags();
 
-		X10ClassType container = (X10ClassType) n.constructorDef().container().get();
+		X10ClassType container = (X10ClassType) Types.get(n.constructorDef().container());
 		if (define){
-			printTemplateSignature((container).typeArguments(), h);
+			printTemplateSignature(container.x10Def().typeParameters(), h);
 		}
 
 		// [IP] Constructors don't have type parameters, they inherit them from the container. 
@@ -858,7 +876,7 @@ public class Emitter {
 		h.begin(0);
 		if (!qualify) {
 			if (flags.isStatic())
-				h.write(flags.retain(Flags.STATIC).translate());
+				h.write(flags.retain(Flags.STATIC).translateJava());
 		}
 
 		if (query.hasAnnotation(n, "x10.lang.shared") || query.hasAnnotation(n, "x10.compiler.Volatile")) {
@@ -949,9 +967,10 @@ public class Emitter {
 
     void generateClassSerializationMethods(ClassType type, StreamWrapper sw) {
         X10ClassType ct = (X10ClassType) type.toClass();
-        X10TypeSystem ts = (X10TypeSystem) type.typeSystem();
+        X10TypeSystem_c ts = (X10TypeSystem_c) type.typeSystem();
         X10CPPContext_c context = (X10CPPContext_c) tr.context();
         Type parent = type.superClass();
+        boolean customSerialization = type.isSubtype(ts.CustomSerialization(), context);
         ClassifiedStream w = sw.body();
         ClassifiedStream h = sw.header();
         h.forceNewline();
@@ -965,31 +984,12 @@ public class Emitter {
             // _serialization_id
             h.write("public: static const x10aux::serialization_id_t "+SERIALIZATION_ID_FIELD+";"); h.newline();
             h.forceNewline();
-            printTemplateSignature(ct.typeArguments(), w);
+            printTemplateSignature(ct.x10Def().typeParameters(), w);
             w.write("const x10aux::serialization_id_t "+klass+"::"+SERIALIZATION_ID_FIELD+" = ");
             w.newline(4);
             w.write("x10aux::DeserializationDispatcher::addDeserializer(");
-            w.write(klass+"::"+template+DESERIALIZER_METHOD+chevrons("x10::lang::Reference")+");");
+            w.write(klass+"::"+template+DESERIALIZER_METHOD+chevrons("x10::lang::Reference")+", x10aux::CLOSURE_KIND_NOT_ASYNC);");
             w.newline(); w.forceNewline();
-        }
-
-        if (type.flags().isFinal()) {
-            // _serialize()
-            h.write("public: ");
-            h.write("static void "+SERIALIZE_METHOD+"("); h.begin(0);
-            h.write(make_ref(klass)+" this_,"); h.newline();
-            h.write(SERIALIZATION_BUFFER+"& buf);"); h.end();
-            h.newline(); h.forceNewline();
-            printTemplateSignature(ct.typeArguments(), w);
-            w.write("void "+klass+"::"+SERIALIZE_METHOD+"("); w.begin(0);
-            w.write(make_ref(klass)+" this_,"); w.newline();
-            w.write(SERIALIZATION_BUFFER+"& buf) {"); w.end(); w.newline(4); w.begin(0);
-            w.write(    "_serialize_reference(this_, buf);"); w.newline();
-            w.write(    "if (this_ != x10aux::null) {"); w.newline(4); w.begin(0);
-            w.write(        "this_->_serialize_body(buf);"); w.end(); w.newline();
-            w.write(    "}"); w.end(); w.newline();
-            w.write("}"); w.newline();
-            w.forceNewline();
         }
 
         // _serialize_id()
@@ -1004,18 +1004,27 @@ public class Emitter {
             h.forceNewline();
         }
 
+        if (customSerialization && !((X10ClassDef)ct.def()).hasDeserializationConstructor(context)) {
+            h.writeln("// autogenerated custom deserialization");
+            h.writeln("void "+CONSTRUCTOR+"("+translateType(ts.SerialData(), true)+" sd) {");
+            h.newline(4); h.begin(0);
+            h.write(translateType(parent)+"::"+CONSTRUCTOR+"(sd);");
+            h.end(); h.newline();
+            h.write("}"); h.newline();
+            h.forceNewline();
+        }
+        
         // _serialize_body()
         h.write("public: ");
-        if (!type.flags().isFinal())
-            h.write("virtual ");
+        h.write("virtual ");
         h.write("void "+SERIALIZE_BODY_METHOD+"("+SERIALIZATION_BUFFER+"& buf);");
         h.newline(0); h.forceNewline();
 
-        printTemplateSignature(ct.typeArguments(), w);
+        printTemplateSignature(ct.x10Def().typeParameters(), w);
         w.write("void "+klass+"::"+SERIALIZE_BODY_METHOD+
                     "("+SERIALIZATION_BUFFER+"& buf) {");
         w.newline(4); w.begin(0);
-        if (type.isSubtype(ts.CustomSerialization(), context)) {
+        if (customSerialization) {
             w.writeln("/* NOTE: Implements x10.io.CustomSerialization */");
             w.writeln("buf.write(this->serialize());");
         } else {
@@ -1035,14 +1044,6 @@ public class Emitter {
                 String fieldName = mangled_field_name(f.name().toString());
                 w.write("buf.write(this->"+fieldName+");"); w.newline();
             }
-            // Special case x10.lang.Array to serialize the contents of rawChunk too
-            if (ts.isX10Array(type)) {
-                w.write("for (x10_int i = 0; i<this->FMGL(rawLength); i++) {");
-                w.newline(4); w.begin(0);
-                w.write("buf.write(this->FMGL(raw)->apply(i));");
-                w.end(); w.newline();
-                w.write("}");
-            }
         }
         w.end(); w.newline();
         w.write("}");
@@ -1054,7 +1055,7 @@ public class Emitter {
             h.write(make_ref("__T")+" "+DESERIALIZER_METHOD+"("+DESERIALIZATION_BUFFER+"& buf);");
             h.newline(); h.forceNewline();
             sw.pushCurrentStream(context.templateFunctions);
-            printTemplateSignature(ct.typeArguments(), sw);
+            printTemplateSignature(ct.x10Def().typeParameters(), sw);
             sw.write("template<class __T> ");
             sw.write(make_ref("__T")+" "+klass+"::"+DESERIALIZER_METHOD+"("+DESERIALIZATION_BUFFER+"& buf) {");
             sw.newline(4); sw.begin(0);
@@ -1068,43 +1069,15 @@ public class Emitter {
             sw.popCurrentStream();
         }
 
-        if (type.flags().isFinal()) {
-            // _deserialize()
-            h.write("public: template<class __T> static ");
-            h.write(make_ref("__T")+" "+DESERIALIZE_METHOD+"("+DESERIALIZATION_BUFFER+"& buf);");
-            h.newline(); h.forceNewline();
-            sw.pushCurrentStream(context.templateFunctions);
-            printTemplateSignature(ct.typeArguments(), sw);
-            sw.write("template<class __T> ");
-            sw.write(make_ref("__T")+" "+klass+"::"+DESERIALIZE_METHOD+"("+DESERIALIZATION_BUFFER+"& buf) {");
-            sw.newline(4); sw.begin(0);
-            sw.writeln("x10::lang::Object::_reference_state rr = x10::lang::Object::_deserialize_reference_state(buf);");
-            sw.write("if (0 == rr.ref) {");                
-            sw.newline(4); sw.begin(0);
-            sw.write("return x10aux::null;");
-            sw.end(); sw.newline();
-            sw.write("} else {");
-            sw.newline(4); sw.begin(0);
-            sw.writeln(make_ref(klass)+" res;");
-            sw.writeln("res = "+klass+"::"+template+DESERIALIZER_METHOD+chevrons(klass)+"(buf);");
-            sw.writeln("_S_(\"Deserialized a \"<<ANSI_SER<<ANSI_BOLD<<\"class\"<<ANSI_RESET<<\""+klass+"\");");
-            sw.write("return res;");
-            sw.end(); sw.newline();
-            sw.writeln("}");
-            sw.end(); sw.newline();
-            sw.writeln("}"); sw.forceNewline();
-            sw.popCurrentStream();
-        }
-
         // _deserialize_body()
         h.write("public: ");
         h.write("void "+DESERIALIZE_BODY_METHOD+"("+DESERIALIZATION_BUFFER+"& buf);"); h.newline(0);
-        printTemplateSignature(ct.typeArguments(), w);
+        printTemplateSignature(ct.x10Def().typeParameters(), w);
         w.write("void "+klass+"::"+DESERIALIZE_BODY_METHOD+"("+DESERIALIZATION_BUFFER+"& buf) {");
         w.newline(4); w.begin(0);
-        if (type.isSubtype(ts.CustomSerialization(), context)) {
+        if (customSerialization) {
             w.writeln("/* NOTE: Implements x10.io.CustomSerialization */");
-            w.writeln(translateType(ts.Any(), true)+ "val_ = buf.read"+chevrons(translateType(ts.Any(), true))+"();");
+            w.writeln(translateType(ts.SerialData(), true)+ "val_ = buf.read"+chevrons(translateType(ts.SerialData(), true))+"();");
             w.writeln(CONSTRUCTOR+"(val_);");
         } else {
             if (parent != null && parent.isClass()) {
@@ -1122,17 +1095,6 @@ public class Emitter {
                 String fieldName = mangled_field_name(f.name().toString());
                 w.write(fieldName+" = buf.read"+chevrons(translateType(f.type(),true))+"();");
             }
-            // Special case x10.lang.Array to deserialize the contents of rawChunk too
-            if (ts.isX10Array(type)) {
-                String elemType = translateType(ct.typeArguments().get(0),true);
-                w.newline();
-                w.writeln("FMGL(raw) = x10::util::IndexedMemoryChunk<void>::allocate"+chevrons(elemType)+"(FMGL(rawLength),8,false,false);");
-                w.write("for (x10_int i = 0; i<this->FMGL(rawLength); i++) {");
-                w.newline(4); w.begin(0);
-                w.write("this->FMGL(raw)->set(buf.read"+chevrons(elemType)+"(), i);");
-                w.end(); w.newline();
-                w.write("}");
-            }
         }
         w.end(); w.newline();
         w.write("}");
@@ -1142,7 +1104,7 @@ public class Emitter {
 
     void generateStructSerializationMethods(ClassType type, StreamWrapper sw) {
         X10ClassType ct = (X10ClassType) type.toClass();
-        X10TypeSystem ts = (X10TypeSystem) type.typeSystem();
+        TypeSystem ts = (TypeSystem) type.typeSystem();
         X10CPPContext_c context = (X10CPPContext_c) tr.context();
         ClassifiedStream w = sw.body();
         ClassifiedStream sh = context.structHeader;
@@ -1154,7 +1116,7 @@ public class Emitter {
         sh.write("static void "+SERIALIZE_METHOD+"("+klass+" this_, "+SERIALIZATION_BUFFER+"& buf);");
         sh.newline(0); sh.forceNewline();
 
-        printTemplateSignature(ct.typeArguments(), w);
+        printTemplateSignature(ct.x10Def().typeParameters(), w);
         w.write("void "+klass+"::"+SERIALIZE_METHOD+"("+klass+" this_, "+SERIALIZATION_BUFFER+"& buf) {");
         w.newline(4); w.begin(0);
         Type parent = type.superClass();
@@ -1188,7 +1150,7 @@ public class Emitter {
 
         // _deserialize_body()
         sh.write("void "+DESERIALIZE_BODY_METHOD+"("+DESERIALIZATION_BUFFER+"& buf);"); sh.newline(0);
-        printTemplateSignature(ct.typeArguments(), w);
+        printTemplateSignature(ct.x10Def().typeParameters(), w);
         w.write("void "+klass+"::"+DESERIALIZE_BODY_METHOD+"("+DESERIALIZATION_BUFFER+"& buf) {");
         w.newline(4); w.begin(0);
         if (parent != null) {

@@ -24,6 +24,8 @@ namespace x10aux {
 
     void throwException(x10aux::ref<x10::lang::Throwable> e) X10_PRAGMA_NORETURN;
 
+    void throwArithmeticException() X10_PRAGMA_NORETURN;
+
     inline void throwException(x10aux::ref<x10::lang::Throwable> e) {
         throw e->fillInStackTrace();
     }
@@ -32,6 +34,54 @@ namespace x10aux {
         throwException(T::_make());
     }
 
+    inline x10_byte zeroCheck(x10_byte val) {
+        #if !defined(NO_CHECKS) && !defined(NO_EXCEPTIONS)
+        if (0 == val) throwArithmeticException();
+        #endif
+        return val;
+    }
+    inline x10_ubyte zeroCheck(x10_ubyte val) {
+        #if !defined(NO_CHECKS) && !defined(NO_EXCEPTIONS)
+        if (0 == val) throwArithmeticException();
+        #endif
+        return val;
+    }
+    inline x10_short zeroCheck(x10_short val) {
+        #if !defined(NO_CHECKS) && !defined(NO_EXCEPTIONS)
+        if (0 == val) throwArithmeticException();
+        #endif
+        return val;
+    }
+    inline x10_ushort zeroCheck(x10_ushort val) {
+        #if !defined(NO_CHECKS) && !defined(NO_EXCEPTIONS)
+        if (0 == val) throwArithmeticException();
+        #endif
+        return val;
+    }
+    inline x10_int zeroCheck(x10_int val) {
+        #if !defined(NO_CHECKS) && !defined(NO_EXCEPTIONS)
+        if (0 == val) throwArithmeticException();
+        #endif
+        return val;
+    }
+    inline x10_uint zeroCheck(x10_uint val) {
+        #if !defined(NO_CHECKS) && !defined(NO_EXCEPTIONS)
+        if (0 == val) throwArithmeticException();
+        #endif
+        return val;
+    }
+    inline x10_long zeroCheck(x10_long val) {
+        #if !defined(NO_CHECKS) && !defined(NO_EXCEPTIONS)
+        if (0 == val) throwArithmeticException();
+        #endif
+        return val;
+    }
+    inline x10_ulong zeroCheck(x10_ulong val) {
+        #if !defined(NO_CHECKS) && !defined(NO_EXCEPTIONS)
+        if (0 == val) throwArithmeticException();
+        #endif
+        return val;
+    }
 }
 
 #endif

@@ -20,7 +20,7 @@ public class VarBeingDefinedInType_MustFailCompile extends x10Test {
     
 	public def run(): boolean = {
 		var v: int{v ==0} = 0;
-		var w: int{w==v} = 1; // cannot reference v in deptype, v is not final.
+		var w: int{w==v} = 0; // ERR: cannot reference v in deptype, v is not final.
 	    return v==0;
 	}
 	public static def main(Array[String](1)): void = {

@@ -26,7 +26,7 @@ import x10.compiler.Native;
  */
 @NativeRep("java", "x10.core.GlobalRef<#1>", null, "new x10.rtt.ParameterizedType(x10.core.GlobalRef._RTT, #2)")
 @NativeRep("c++", "x10::lang::GlobalRef<#1 >", "x10::lang::GlobalRef<#1 >", null)
-public struct GlobalRef[T](
+public struct GlobalRef[+T](
     @Native("java", "(#0).home")
     @Native("c++", "x10::lang::Place_methods::place((#0)->location)")
     home:Place) {T <: Object} { 
@@ -35,7 +35,7 @@ public struct GlobalRef[T](
     * Create a value encapsulating the given object of type T.
     */
    @Native("c++", "x10::lang::GlobalRef(#0)")
-   public native def this(t:T):GlobalRef{self.home==here}; 
+   public native def this(t:T):GlobalRef[T]{self.home==here}; 
 
    /** 
     * Can only be invoked at the place at which the value was

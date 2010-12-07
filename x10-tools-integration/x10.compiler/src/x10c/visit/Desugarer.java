@@ -30,29 +30,28 @@ import polyglot.util.Position;
 import x10.ast.SettableAssign;
 import x10.ast.SettableAssign_c;
 import x10.ast.X10Call;
-import x10.ast.X10NodeFactory;
 import x10.ast.X10Unary_c;
 import x10.types.X10MethodInstance;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 import x10.types.checker.Converter;
 
 /**
  * Visitor to desugar the AST before code gen.
  */
 public class Desugarer extends x10.visit.Desugarer {
-    private X10TypeSystem xts;
-    private X10NodeFactory xnf;
+    private TypeSystem xts;
+    private NodeFactory xnf;
     public Desugarer(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf);
-        this.xts = (X10TypeSystem) ts;
-        this.xnf = (X10NodeFactory) nf;
+        this.xts = (TypeSystem) ts;
+        this.xnf = (NodeFactory) nf;
     }
 
     @Override
-    protected Expr visitSettableAssign(SettableAssign n) throws SemanticException {
+    protected Expr visitSettableAssign(SettableAssign n) {
         if (n.operator() != Assign.ASSIGN) {
             X10Call left = (X10Call) ((SettableAssign_c) n).left(xnf, this);
-            if ((n.type().isBoolean() || n.type().isNumeric()) && (xts.isRail(left.target().type()) || xts.isValRail(left.target().type()))) {
+            if ((n.type().isBoolean() || n.type().isNumeric()) && xts.isRail(left.target().type())) {
                 return n;
             }
         }

@@ -25,6 +25,7 @@ import polyglot.frontend.Compiler;
 import polyglot.frontend.Globals;
 import polyglot.frontend.Goal;
 import polyglot.frontend.Job;
+import polyglot.frontend.JobExt;
 import polyglot.frontend.OutputGoal;
 import polyglot.frontend.Scheduler;
 import polyglot.frontend.VisitorGoal;
@@ -123,6 +124,11 @@ public class ExtensionInfo extends x10.ExtensionInfo {
         }
     }
 
+    @Override
+    public JobExt jobExt() {
+        return new X10CPPJobExt();
+    }
+
     // =================================
 	// X10-specific goals and scheduling
 	// =================================
@@ -163,8 +169,8 @@ public class ExtensionInfo extends x10.ExtensionInfo {
 		@Override
 		public List<Goal> goals(Job job) {
 		    List<Goal> goals = super.goals(job);
-		    StaticNestedClassRemover(job).addPrereq(InnerClassRemover(job));
-		    for (Goal g: Optimizer.goals(this, job, ExpressionFlattener(job))) {
+		    StaticNestedClassRemover(job).addPrereq(Lowerer(job));
+		    for (Goal g: Optimizer.goals(this, job)) {
 		        StaticNestedClassRemover(job).addPrereq(g);
 		    }
 		    return goals;

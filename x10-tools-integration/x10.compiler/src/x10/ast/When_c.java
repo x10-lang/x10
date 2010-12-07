@@ -31,7 +31,8 @@ import polyglot.visit.ContextVisitor;
 import polyglot.visit.FlowGraph;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
-import x10.types.X10Context;
+import polyglot.types.Context;
+import x10.errors.Errors;
 
 /**
  * An immutable representation of the when statement.
@@ -127,6 +128,14 @@ public class When_c extends Stmt_c implements CompoundStmt, When {
 				printSubStmt(s, w, tr);
 			}
 		}
+	}
+
+	@Override
+	public Node typeCheck(ContextVisitor tc) throws SemanticException {
+	    if (!expr().type().isBoolean()) {
+	        Errors.issue(tc.job(), new SemanticException("The type of the argument of a 'when' statement must be Boolean", position()));
+	    }
+	    return this;
 	}
 
 	/**

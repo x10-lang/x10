@@ -1,5 +1,5 @@
 interface IDoom {
-  def doom():Void;
+  def doom():void;
 }
 
 interface IBloom {

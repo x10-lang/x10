@@ -21,6 +21,7 @@ import polyglot.ast.FlagsNode;
 import polyglot.ast.Id;
 import polyglot.ast.LocalDecl_c;
 import polyglot.ast.Node;
+import polyglot.ast.NodeFactory;
 import polyglot.ast.TypeCheckFragmentGoal;
 import polyglot.ast.TypeNode;
 import polyglot.frontend.Globals;
@@ -49,13 +50,13 @@ import x10.extension.X10Del_c;
 import x10.extension.X10Ext;
 import x10.types.ConstrainedType_c;
 import x10.types.X10ClassType;
-import x10.types.X10Context;
+import polyglot.types.Context;
 import x10.types.X10FieldDef;
 import x10.types.X10Flags;
 import x10.types.X10LocalDef;
 import x10.types.X10ParsedClassType_c;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 import x10.types.checker.Converter;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.XConstrainedTerm;
@@ -64,7 +65,7 @@ import x10.visit.X10TypeChecker;
 
 public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
 	TypeNode hasType;
-	public X10LocalDecl_c(X10NodeFactory nf, Position pos, FlagsNode flags, TypeNode type,
+	public X10LocalDecl_c(NodeFactory nf, Position pos, FlagsNode flags, TypeNode type,
 			Id name, Expr init) {
 		super(pos, flags, 
 				type instanceof HasTypeNode_c ? nf.UnknownTypeNode(type.position()) : type, name, init);
@@ -154,7 +155,7 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
     public Node typeCheckOverride(Node parent, ContextVisitor tc) {
         NodeVisitor childtc = tc.enter(parent, this);
 
-        XConstrainedTerm  pt = ((X10Context) tc.context()).currentPlaceTerm();
+        XConstrainedTerm  pt = ((Context) tc.context()).currentPlaceTerm();
         if (pt != null && pt.term() != null)
             ((X10LocalDef) localDef()).setPlaceTerm(pt.term());
         if (type() instanceof UnknownTypeNode) {
@@ -220,7 +221,7 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
         // Replace here by PlaceTerm because this local variable may be referenced
         // later by code that has been place-shifted, and will have a different 
         // interpretation of here. 
-        type = PlaceChecker.ReplaceHereByPlaceTerm(type, (X10Context) tc.context());
+        type = PlaceChecker.ReplaceHereByPlaceTerm(type, (Context) tc.context());
         Ref<Type> r = (Ref<Type>) typeNode.typeRef();
         r.update(type);
 
@@ -243,37 +244,33 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
         // Need to check that the initializer is a subtype of the (declared or inferred) type of the variable,
         // or can be implicitly coerced to the type.
         if (n.init != null) {
-            try {
-                Expr newInit = Converter.attemptCoercion(tc, n.init, type);
+            Expr newInit = Converter.attemptCoercion(tc, n.init, type);
+            if (newInit != null)
                 return n.init(newInit);
-            }
-            catch (SemanticException e) {
-                Errors.CannotAssign e2 = new Errors.CannotAssign(n.init, type, n.init.position());
-                Errors.issue(tc.job(), e2, n);
-            }
+            Errors.issue(tc.job(), new Errors.CannotAssign(n.init, type, n.init.position()), n);
         }
 
         return n;
     }
 
-	    @Override
-	    public Node setResolverOverride(Node parent, TypeCheckPreparer v) {
-		    if (type() instanceof UnknownTypeNode && init != null) {
-			    UnknownTypeNode tn = (UnknownTypeNode) type();
+    @Override
+    public Node setResolverOverride(Node parent, TypeCheckPreparer v) {
+        if (type() instanceof UnknownTypeNode && init != null) {
+            UnknownTypeNode tn = (UnknownTypeNode) type();
 
-			    NodeVisitor childv = v.enter(parent, this);
-	    	            childv = childv.enter(this, init);
-	    		    			    
-			    if (childv instanceof TypeCheckPreparer) {
-				    TypeCheckPreparer tcp = (TypeCheckPreparer) childv;
-				    final LazyRef<Type> r = (LazyRef<Type>) tn.typeRef();
-				    TypeChecker tc = new X10TypeChecker(v.job(), v.typeSystem(), v.nodeFactory(), v.getMemo());
-				    tc = (TypeChecker) tc.context(tcp.context().freeze());
-				    r.setResolver(new TypeCheckExprGoal(this, init, tc, r));
-			    }
-		    }
-		    return super.setResolverOverride(parent, v);
-	    }
+            NodeVisitor childv = v.enter(parent, this);
+            childv = childv.enter(this, init);
+
+            if (childv instanceof TypeCheckPreparer) {
+                TypeCheckPreparer tcp = (TypeCheckPreparer) childv;
+                final LazyRef<Type> r = (LazyRef<Type>) tn.typeRef();
+                TypeChecker tc = new X10TypeChecker(v.job(), v.typeSystem(), v.nodeFactory(), v.getMemo());
+                tc = (TypeChecker) tc.context(tcp.context().freeze());
+                r.setResolver(new TypeCheckExprGoal(this, init, tc, r));
+            }
+        }
+        return super.setResolverOverride(parent, v);
+    }
 
 
 	public String shortToString() {
@@ -288,7 +285,7 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
 
 	public Context enterChildScope(Node child, Context c) {
 		if (child == this.type || child == this.hasType) {
-			X10Context xc = (X10Context) c.pushBlock();
+			Context xc = (Context) c.pushBlock();
 			LocalDef li = localDef();
 			xc.addVariable(li.asInstance());
 			xc.setVarWhoseTypeIsBeingElaborated(li);
@@ -298,56 +295,63 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
 		return cc;
 	}
 	
-        public Type childExpectedType(Expr child, AscriptionVisitor av) {
-            if (child == init) {
-                TypeSystem ts = av.typeSystem();
-                return type.type();
-            }
+	public Type childExpectedType(Expr child, AscriptionVisitor av) {
+	    if (child == init) {
+	        TypeSystem ts = av.typeSystem();
+	        return type.type();
+	    }
+	    return child.type();
+	}
 
-            return child.type();
-        }
-        /** Visit the children of the declaration. */
-        public Node visitChildren(NodeVisitor v) {
-        	X10LocalDecl_c n = (X10LocalDecl_c) super.visitChildren(v);
-            TypeNode hasType = (TypeNode) visitChild(n.hasType, v);
-            return n.hasType(hasType);
-        }
+	/** Visit the children of the declaration. */
+	public Node visitChildren(NodeVisitor v) {
+	    X10LocalDecl_c n = (X10LocalDecl_c) super.visitChildren(v);
+	    TypeNode hasType = (TypeNode) visitChild(n.hasType, v);
+	    return n.hasType(hasType);
+	}
 
-        public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
-            boolean printSemi = tr.appendSemicolon(true);
-            boolean printType = tr.printType(true);
+	public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
+	    boolean printSemi = tr.appendSemicolon(true);
+	    boolean printType = tr.printType(true);
 
-            Flags f = flags.flags();
-            Boolean fin = f.isFinal();
-            f = f.clearFinal();
-            w.write(f.translate());
-            for (Iterator<AnnotationNode> i = (((X10Ext) this.ext()).annotations()).iterator(); i.hasNext(); ) {
-                AnnotationNode an = i.next();
-                an.prettyPrint(w, tr);
-                w.allowBreak(0, " ");
-            }
-            if (fin)
-                w.write("val ");
-            else
-                w.write("var ");
-            
-            tr.print(this, name, w);
-            if (printType) {
-                w.write(":");
-                print(type, w, tr);
-            }
+	    Flags f = flags.flags();
+	    Boolean fin = f.isFinal();
+	    f = f.clearFinal();
+	    w.write(f.translate());
+	    for (Iterator<AnnotationNode> i = (((X10Ext) this.ext()).annotations()).iterator(); i.hasNext(); ) {
+	        AnnotationNode an = i.next();
+	        an.prettyPrint(w, tr);
+	        w.allowBreak(0, " ");
+	    }
+	    if (fin)
+	        w.write("val ");
+	    else
+	        w.write("var ");
 
-            if (init != null) {
-                w.write(" =");
-                w.allowBreak(2, " ");
-                print(init, w, tr);
-            }
+	    tr.print(this, name, w);
+	    if (printType) {
+	        w.write(":");
+	        print(type, w, tr);
+	    }
 
-            if (printSemi) {
-                w.write(";");
-            }
+	    if (init != null) {
+	        w.write(" =");
+	        w.allowBreak(2, " ");
+	        print(init, w, tr);
+	    }
 
-            tr.printType(printType);
-            tr.appendSemicolon(printSemi);
-        }
+	    if (printSemi) {
+	        w.write(";");
+	    }
+
+	    tr.printType(printType);
+	    tr.appendSemicolon(printSemi);
+	}
+
+    @Override
+    public String toString() {
+        Flags flags = this.flags.flags();
+        return flags.clearFinal().translate() + (flags.isFinal() ? "val" : "var") + " " + name + ":" +
+               type + (init != null ? " = " + init : "") + ";";
+    }
 }

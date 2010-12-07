@@ -17,6 +17,7 @@ import polyglot.ast.CanonicalTypeNode;
 import polyglot.ast.FieldDecl;
 import polyglot.ast.FlagsNode;
 import polyglot.ast.Id;
+import polyglot.ast.NodeFactory;
 import polyglot.types.ClassDef;
 import polyglot.types.Flags;
 import polyglot.types.Name;
@@ -28,9 +29,8 @@ import polyglot.util.Position;
 import x10.ast.AnnotationNode;
 import x10.ast.X10FieldDecl;
 import x10.ast.X10MethodDecl;
-import x10.ast.X10NodeFactory;
 import x10.extension.X10Del;
-import x10.types.X10Context;
+import polyglot.types.Context;
 import x10.types.X10FieldDef;
 
 /**
@@ -43,7 +43,7 @@ public class FieldSynth extends AbstractStateSynth implements IClassMemberSynth 
     X10FieldDecl fieldDecl;
     List<AnnotationNode> annotations;  // annotations of the new method
     
-    public FieldSynth(X10NodeFactory xnf, X10Context xct, Position pos, ClassDef classDef, Name name, Flags flags,
+    public FieldSynth(NodeFactory xnf, Context xct, Position pos, ClassDef classDef, Name name, Flags flags,
             Type type) {
         super(xnf, xct, pos);
 
@@ -52,11 +52,11 @@ public class FieldSynth extends AbstractStateSynth implements IClassMemberSynth 
         annotations = new ArrayList<AnnotationNode>();
     }
 
-    public FieldSynth(X10NodeFactory xnf, X10Context xct, ClassDef classDef, String name, Type type) {
+    public FieldSynth(NodeFactory xnf, Context xct, ClassDef classDef, String name, Type type) {
         this(xnf, xct, compilerPos, classDef, name, type);
     }
 
-    public FieldSynth(X10NodeFactory xnf, X10Context xct, Position pos, ClassDef classDef, String name, Type type) {
+    public FieldSynth(NodeFactory xnf, Context xct, Position pos, ClassDef classDef, String name, Type type) {
         this(xnf, xct, pos, classDef, Name.make(name), Flags.NONE, type);
     }
 

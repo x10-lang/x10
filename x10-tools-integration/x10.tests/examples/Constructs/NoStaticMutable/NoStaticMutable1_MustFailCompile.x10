@@ -34,7 +34,7 @@ public class NoStaticMutable1_MustFailCompile extends x10Test {
 
 	public def run(): boolean = {
 		x1++;
-		f1 = new foo(2);
+		f1 = new foo(2); // ERR: Cannot assign to static field f1
 		return true;
 	}
 
@@ -43,7 +43,7 @@ public class NoStaticMutable1_MustFailCompile extends x10Test {
 	}
 
 	static class foo {
-		var val: int;
-		def this(var x: int): foo = { val = x; }
+		var VAL: int; // val is a keyword! you can't use it as a field name.
+		def this(var x: int): foo = { VAL = x; }
 	}
 }

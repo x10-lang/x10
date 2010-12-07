@@ -57,20 +57,20 @@ endif
 
 ifdef JAVA_HOME
   ifeq ($(shell uname -s),AIX)
-      JNI_INCLUDES = -I$(JAVA_HOME)/include -I$(JAVA_HOME)/inclue/aix
+      JNI_INCLUDES = -I"$(JAVA_HOME)"/include -I"$(JAVA_HOME)"/include/aix
   else
   ifeq ($(shell uname -s),Linux)
-    JNI_INCLUDES = -I$(JAVA_HOME)/include -I$(JAVA_HOME)/include/linux
+    JNI_INCLUDES = -I"$(JAVA_HOME)"/include -I"$(JAVA_HOME)"/include/linux
   else
   ifeq ($(firstword $(subst _, ,$(shell uname -s))),CYGWIN)
-    JAVA_CYGPATH = "$(shell cygpath $(JAVA_HOME))"
-    JNI_INCLUDES = -I$(JAVA_CYGPATH)/include -I$(JAVA_CYGPATH)/include/win32
+    JAVA_CYGPATH = $(shell cygpath "$(JAVA_HOME)")
+    JNI_INCLUDES = -I"$(JAVA_CYGPATH)"/include -I"$(JAVA_CYGPATH)"/include/win32
   else
   ifeq ($(shell uname -s),Darwin)
     # TODO!!
   else
   ifeq ($(shell uname -s),FreeBSD)
-    JNI_INCLUDES = -I$(JAVA_HOME)/include -I$(JAVA_HOME)/include/freebsd
+    JNI_INCLUDES = -I"$(JAVA_HOME)"/include -I"$(JAVA_HOME)"/include/freebsd
   endif
   endif
   endif
@@ -88,7 +88,7 @@ ifdef ENABLE_CROSS_COMPILE_BGP
   override CC =/bgsys/drivers/ppcfloor/gnu-linux/bin/powerpc-bgp-linux-gcc
   export X10RT_PLATFORM=bgp
   # needed for gcc 4.1
-  X10CPPFLAGS += -CLOSURE_INLINING=false
+  X10CPPFLAGS += -ALLOW_STATEMENT_EXPRESSIONS=false
   ifdef OPTIMIZE
     override CXXFLAGS += -O2 -finline-functions
   endif
@@ -118,6 +118,7 @@ else
       override CXXFLAGS += -O3 -qinline -qarch=auto -qtune=auto -qhot
     endif
     override CXXFLAGS += -qsuppress=1540-0809:1500-029:1540-1101
+    override CXXFLAGS += -qminimaltoc
     override CXXFLAGS += $(XLC_EXTRA_FLAGS)
     override CXXFLAGS -= -g
     ifndef USE_32BIT
@@ -134,7 +135,7 @@ else
       override CXXFLAGS += -maix64
       override CXXFLAGS_SHARED += -shared -fPIC -Wl,-bbigtoc -Wl,-G
       override LDFLAGS += -Wl,-brtl
-      export X10RT_TEST_LDFLAGS = -Wl,-L$(X10_HOME)/x10.runtime/x10rt/lib
+      export X10RT_TEST_LDFLAGS = -Wl,-L"$(X10_HOME)"/x10.runtime/x10rt/lib
     endif
     ifdef USE_XLC
       export X10RT_PLATFORM=aix_xlc
@@ -161,12 +162,15 @@ else
       ifdef USE_GCC
         override CXXFLAGS += -pthread
         override CXXFLAGS_SHARED += -shared -fPIC
-        export X10RT_TEST_LDFLAGS = -Wl,--rpath -Wl,$(X10_HOME)/x10.runtime/x10rt/lib
+        export X10RT_TEST_LDFLAGS = -Wl,--rpath -Wl,"$(X10_HOME)"/x10.runtime/x10rt/lib
       endif
       ifdef USE_XLC
         override CXXFLAGS += -qpic
         override CXXFLAGS_SHARED += -qmkshrobj
-        export X10RT_TEST_LDFLAGS = -Wl,--rpath -Wl,$(X10_HOME)/x10.runtime/x10rt/lib
+        export X10RT_TEST_LDFLAGS = -Wl,--rpath -Wl,"$(X10_HOME)"/x10.runtime/x10rt/lib
+      endif
+      ifdef USE_64BIT
+        override CXXFLAGS += -m64
       endif
       ifeq ($(shell uname -m),x86_64)
         export X10RT_PLATFORM=linux_x86_64
@@ -189,14 +193,14 @@ else
       LIBPREFIX :=
       LIBSUFFIX := .dll
       ifndef DEFAULT_X10RT_LIB
-        DEFAULT_X10RT_LIB = pgas_sockets
+        DEFAULT_X10RT_LIB = sockets
       endif
     else
     ifeq ($(shell uname -s),Darwin)
       export X10RT_PLATFORM=$(shell echo | gcc -E -dM - | grep -q x86_64 && echo darwin64 || echo darwin)
       override CXXFLAGS_SHARED += -fPIC
       override LDFLAGS_SHARED += -dynamiclib -undefined dynamic_lookup -install_name '@rpath/$@'
-      export X10RT_TEST_LDFLAGS = -Wl,-rpath -Wl,$(X10_HOME)/x10.runtime/x10rt/lib -Wl,-rpath -Wl,$(X10_HOME)/x10.runtime/x10rt
+      export X10RT_TEST_LDFLAGS = -Wl,-rpath -Wl,"$(X10_HOME)"/x10.runtime/x10rt/lib -Wl,-rpath -Wl,"$(X10_HOME)"/x10.runtime/x10rt
       ifdef USE_32BIT
         override CXXFLAGS += -arch i386
       endif
@@ -217,7 +221,7 @@ else
     ifeq ($(shell uname -s),FreeBSD)
       override CXXFLAGS += -pthread
       override CXXFLAGS_SHARED += -shared -fPIC
-      export X10RT_TEST_LDFLAGS = -Wl,--rpath -Wl,$(X10_HOME)/x10.runtime/x10rt/lib
+      export X10RT_TEST_LDFLAGS = -Wl,--rpath -Wl,"$(X10_HOME)"/x10.runtime/x10rt/lib
       ifeq ($(shell uname -m),amd64)
         export X10RT_PLATFORM=freebsd_amd64
       endif

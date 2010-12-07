@@ -16,7 +16,7 @@ import harness.x10Test;
  */
 public class LongLitDepType_MustFailCompile extends x10Test {
 	public def run(): boolean = {
-		var f: long{self==100L} = 200L;
+		var f: long{self==100L} = 200L; // ERR
 		return true;
 	}
 

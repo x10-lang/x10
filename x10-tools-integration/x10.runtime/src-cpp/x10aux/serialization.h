@@ -43,75 +43,43 @@
  * These functions must be generated (or hand-written) for every struct S.
  *
  *
- * The mechanism (3) is designed for 4 cases:
+ * The mechanism (3) has two subcases:
+ *   the value is null
+ *   the value is non-null
+ * Null values are indicated by the serialization id 0.
+ * Non-null values are indicated by writing a non-zero serialization id,
+ * followed by a serialization of the fields (if any) of the value generated
+ * by recursively following this algorithm. The serialization id is used to
+ * dispatch to a function that will create an object of the appropriate concrete type
+ * and then deserialize its fields.
  *
- * a) Interfaces (unknown(*) whether they are an Object, boxed struct, or a closure)
+ * There is an additional complication of breaking cyclic object graphs by indicating
+ * that we are about to read an object that has already been read.  This is indicated
+ * by the serialization id 0xFFFFFFFF followed by an offset (in objects) to the
+ * object which has been repeatedly serialized.
  *
- * b) null references
- *
- * c) Polymorphic subclasses of Object (whose concrete type is not known at compile time)
- *
- * d) Final subclasses of Object and closures
- *
- *
- * The mechanism (3) invokes a static function T::_serialize whenever a ref<T> is written into
- * a serialization_buffer, and T::_deserialize whenever a ref<T> is read from a
- * serialization_buffer.  The _serialize and _deserialize functions may either be defined
- * in the class or inherited from a superclass.
- *
- * The mechanism is used in exactly the same way by hand-written c++ classes and by c++ code that is
- * generated from X10 classes by the X10 compiler.
- *
- * 'Reference' is a common supertype of all Objects and closures, and is used to represent interface types.
- * 'Reference' declares a static function _serialize which behaves the same way regardless of the
- * concrete type of the target.  Reference::_serialize will emit an interface id (via a virtual
- * function _get_serialization_id) that is unique to each class, and then serialize the object's
- * representation (via another virtual function _serialize_body).  For the special case of a null
- * reference (b) it does not defer to these virtual functions.  Since interfaces do not, in general,
- * define _serialize and _deserialize functions, they are "inherited" from Reference.
- * For all other cases, assuming all classes implement _get_serialization_id and _serialize_body
- * properly, this is sufficient.  All subclasses of Reference, namely closures and Object
- * must define _serialize and _deserialize functions.
- *
- * Unique ids are generated at runtime in a place-independent fashion.  Classes obtain their id by
+ * Serialization ids are generated at runtime in a place-independent fashion.  Classes obtain their id by
  * registering a deserialization function with DeserializationDispatcher at initialization time, and
  * storing this id in a static field.  Every non-abstract class and every closure has its own id.
  * The virtual _get_serialization_id function returns this id for writing into the buffer.
  *
  * To write data (of any kind) we use the method serialization_buffer::write(data) which does the
- * right thing, no matter which of the 3 methods (or which of the 4 categories (a-d)) it is given.
+ * right thing, no matter which of the 3 methods applies.
  * An internal cursor is incremented ready for the next write().  Note that a class's
  * _serialize_body function should also serialize its super class's representation, e.g. by
  * deferring to the super class's _serialize_body function.
  *
- * In the case (d) where the object is statically known to be a particular class at deserialization
- * time (e.g. if we are deserializing into a variable whose type is final), we would like to omit
- * the id from the communication, as it is not required.  This is achieved through a final class C
- * providing its own _serialize function that does not write the serialization id to the buffer.
- * The write() function will call C::_serialize() instead of resolving the call to
- * Object::_serialize().  This does not affect the behaviour of _serialize when invoked on an
- * instance of C that has been up-cast to Reference because _serialize is a static function.  In
- * this case the id would still be emitted.  This strategy is used to omit the id in the cases of
- * (b) and (d) above.
- *
- *
- * Deserialization is more complicated as an object has to be constructed.  In the case where we are
- * deserializing into a variable of non-final or interface type, the DeserializationDispatcher is
- * invoked to read an id from the stream and decide what to do.  Note that in such cases, the value
- * has always been serialized from a matching variable on the sending side, so an id will always be
- * present.  During initialization time, classes register deserialization functions with the
+ * Deserialization is more complicated as an object has to be constructed.  In case (3) 
+ * the DeserializationDispatcher is invoked to read an id from the stream and decide what to do.
+ * Note that in such cases, the value has always been serialized from a matching variable on the sending side,
+ * so an id will always be present.  During initialization time, classes register deserialization functions with the
  * DeserializationDispatcher, which hands out the unique ids.  Thus the DeserializationDispatcher
  * can look up the id in its internal table and dispatch to the appropriate static function which
  * will construct the right kind of object and initialize it by deserializing the object's
  * representation from the stream (provided as a serialization_buffer).
  *
- * Reference::_deserialize is the complement of Reference::_serialize and defers deserialization to
- * DeserializationDispatcher.  Final classes and structs can provide their own static _deserialize
- * functions that do not use DeserializationDispatcher and assume that no id is found in the stream.
- * Thus classes should either define both _serialize and _deserialize or define neither.
- *
  * Classes define a _deserialize_body function that extracts the object's representation from the
- * stream.  The DeserializationDispatcher callback and _deserialize (if present) should usually just
+ * stream.  The DeserializationDispatcher callback should usually just
  * create an object of the right type and then call _deserialize_body to handle the rest.  Arbitrary
  * data can be extracted from a serialization_buffer via its read<T>() function.  An internal cursor
  * is incremented so the buffer is ready for the next read().  This function will do the right thing
@@ -120,9 +88,9 @@
  * _serialize_body and _deserialize_body are dual, and obviously they should be written to match
  * each other.
  *
- * Classes must call buf.record_reference(R) on the deserialization buffer buf right after
- * allocating the object in the DeserializationDispatcher callback (where R is the newly allocated
- * object).
+ * Classes, clousres, and boxed structs must call buf.record_reference(R) on the deserialization buffer
+ * buf right after allocating the object in the DeserializationDispatcher callback
+ * (where R is the newly allocated object).
  */
 
 
@@ -223,6 +191,8 @@ namespace x10aux {
         char *steal() { char *buf = buffer; buffer = NULL; return buf; }
         char *borrow() { return buffer; }
 
+        static void serialize_reference(serialization_buffer &buf, ref<x10::lang::Reference>);
+        
         // Default case for primitives and other things that never contain pointers
         template<class T> struct Write;
         template<class T> struct Write<ref<T> >;
@@ -233,6 +203,7 @@ namespace x10aux {
         // So it can access the addr_map
         template<class T> friend struct Write;
     };
+
     
     // Case for non-refs (includes simple primitives like x10_int and all structs)
     template<class T> struct serialization_buffer::Write {
@@ -295,18 +266,14 @@ namespace x10aux {
         
     PRIMITIVE_VOLATILE_WRITE(x10_int)
     PRIMITIVE_VOLATILE_WRITE(x10_long)
-        
-    // Case for references e.g. ref<Reference>, 
+
+    // Case for references e.g. ref<Reference>
     template<class T> struct serialization_buffer::Write<ref<T> > {
         static void _(serialization_buffer &buf, ref<T> val);
     };
     template<class T> void serialization_buffer::Write<ref<T> >::_(serialization_buffer &buf,
                                                                    ref<T> val) {
         _S_("Serializing a "<<ANSI_SER<<ANSI_BOLD<<TYPENAME(T)<<ANSI_RESET<<" into buf: "<<&buf);
-        // FIXME: [IP] the code below happens to work for closures now because they are always
-        // serialized via the appropriate function interface.  If they are ever serialized
-        // via their exact type, this code will break (if the first captured variable in
-        // the closure happens to have a value of -1).
         if (!val.isNull()) {
             int pos = buf.map.previous_position(val);
             if (pos != 0) {
@@ -316,8 +283,7 @@ namespace x10aux {
                 return;
             }
         }
-        // Depends what T is (interface/Object/Closure)
-        T::_serialize(val,buf);
+        serialize_reference(buf, ref<x10::lang::Reference>(val));
     }
     
     // Case for captured stack variables e.g. captured_ref_lval<T> and captured_struct_lval<T>.
@@ -362,6 +328,8 @@ namespace x10aux {
 
         size_t consumed (void) { return cursor - buffer; }
 
+        static ref<x10::lang::Reference> deserialize_reference(deserialization_buffer &buf);
+        
         // Default case for primitives and other things that never contain pointers
         template<class T> struct Read;
         template<class T> struct Read<ref<T> >;
@@ -372,7 +340,7 @@ namespace x10aux {
             cursor = saved_cursor;
             return val;
         }
-        // This has to be called every time a remote reference is created, but
+        // This has to be called every time a reference is created, but
         // before the rest of the object is deserialized!
         template<typename T> bool record_reference(ref<T> r);
 
@@ -405,7 +373,7 @@ namespace x10aux {
     // General case for structs
     template<class T> T deserialization_buffer::Read<T>::_(deserialization_buffer &buf) {
         _S_("Deserializing a "<<ANSI_SER<<ANSI_BOLD<<TYPENAME(T)<<ANSI_RESET<<" from buf: "<<&buf);
-        // Dispatch because we don't know what it is
+        // Call the struct's static deserialization method
         return T::_deserialize(buf);
     }
 
@@ -445,7 +413,6 @@ namespace x10aux {
     PRIMITIVE_READ(x10_float)
     PRIMITIVE_READ(x10_double)
     //PRIMITIVE_READ(x10_addr_t) // already defined above
-    //PRIMITIVE_READ(remote_ref)
 
     // Case for references e.g. ref<Reference>, 
     template<class T> struct deserialization_buffer::Read<ref<T> > {
@@ -453,10 +420,6 @@ namespace x10aux {
     };
     template<class T> ref<T> deserialization_buffer::Read<ref<T> >::_(deserialization_buffer &buf) {
         _S_("Deserializing a "<<ANSI_SER<<ANSI_BOLD<<TYPENAME(T)<<ANSI_RESET<<" from buf: "<<&buf);
-        // FIXME: [IP] the code below happens to work for closures now because they are always
-        // serialized via the appropriate function interface.  If they are ever serialized
-        // via their exact type, this code will break (if the first captured variable in
-        // the closure happens to have a value of -1).
         x10_uint code = buf.peek<x10_uint>();
         if (code == (x10_uint) 0xFFFFFFFF) {
             buf.read<x10_uint>();
@@ -464,8 +427,8 @@ namespace x10aux {
             _S_("\tRepeated ("<<pos<<") deserialization of a "<<ANSI_SER<<ANSI_BOLD<<TYPENAME(T)<<ANSI_RESET<<" from buf: "<<&buf);
             return buf.map.get_at_position<T>(pos);
         }
-        // Dispatch because we don't know what it is
-        return T::template _deserialize<T>(buf);
+        // Deserialize it
+        return deserialize_reference(buf);
     }
 
     // Case for captured stack addresses, captured_ref_lval<T> and captured_struct_lval<T>

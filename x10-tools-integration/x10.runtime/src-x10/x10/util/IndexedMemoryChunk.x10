@@ -38,29 +38,29 @@ public struct IndexedMemoryChunk[T] {
     @Native("c++", "null")
     private native def this(); // unused; prevent instantiaton outside of native code
 
-    @Native("java", "x10.core.IndexedMemoryChunk.<#2>allocate(#3, #4)")
+    @Native("java", "x10.core.IndexedMemoryChunk.<#2>allocate(#3, #4, false)")
     @Native("c++", "x10::util::IndexedMemoryChunk<void>::allocate<#1 >(#4, 8, false, false)")
     public static native def allocate[T](numElements:int):IndexedMemoryChunk[T];
 
-    @Native("java", "x10.core.IndexedMemoryChunk.<#2>allocate(#3, #4)")
+    @Native("java", "x10.core.IndexedMemoryChunk.<#2>allocate(#3, #4, #5)")
     @Native("c++", "x10::util::IndexedMemoryChunk<void>::allocate<#1 >(#4, 8, false, #5)")
-    public static native def allocate[T](numElements:int, zeroed:boolean):IndexedMemoryChunk[T];
+    public static native def allocate[T](numElements:int, zeroed:boolean):IndexedMemoryChunk[T]{!zeroed || T haszero};
 
-    @Native("java", "x10.core.IndexedMemoryChunk.<#2>allocate(#3, #4)")
+    @Native("java", "x10.core.IndexedMemoryChunk.<#2>allocate(#3, #4, #7)")
     @Native("c++", "x10::util::IndexedMemoryChunk<void>::allocate<#1 >(#4, #5, #6, #7)")
-    public static native def allocate[T](numElements:int, alignment:int, pinned:boolean, zeroed:boolean):IndexedMemoryChunk[T];
+    public static native def allocate[T](numElements:int, alignment:int, pinned:boolean, zeroed:boolean):IndexedMemoryChunk[T]{!zeroed || T haszero};
 
-    @Native("java", "x10.core.IndexedMemoryChunk.<#2>allocate(#3, #4)")
+    @Native("java", "x10.core.IndexedMemoryChunk.<#2>allocate(#3, #4, false)")
     @Native("c++", "x10::util::IndexedMemoryChunk<void>::allocate<#1 >(#4, 8, false, false)")
     public static native def allocate[T](numElements:long):IndexedMemoryChunk[T];
 
-    @Native("java", "x10.core.IndexedMemoryChunk.<#2>allocate(#3, #4)")
+    @Native("java", "x10.core.IndexedMemoryChunk.<#2>allocate(#3, #4, #5)")
     @Native("c++", "x10::util::IndexedMemoryChunk<void>::allocate<#1 >(#4, 8, false, #5)")
-    public static native def allocate[T](numElements:long, zeroed:boolean):IndexedMemoryChunk[T];
+    public static native def allocate[T](numElements:long, zeroed:boolean):IndexedMemoryChunk[T]{!zeroed || T haszero};
 
-    @Native("java", "x10.core.IndexedMemoryChunk.<#2>allocate(#3, #4)")
+    @Native("java", "x10.core.IndexedMemoryChunk.<#2>allocate(#3, #4, #7)")
     @Native("c++", "x10::util::IndexedMemoryChunk<void>::allocate<#1 >(#4, #5, #6, #7)")
-    public static native def allocate[T](numElements:long, alignment:int, pinned:boolean, zeroed:boolean):IndexedMemoryChunk[T];
+    public static native def allocate[T](numElements:long, alignment:int, pinned:boolean, zeroed:boolean):IndexedMemoryChunk[T]{!zeroed || T haszero};
 
 
     /**
@@ -110,8 +110,18 @@ public struct IndexedMemoryChunk[T] {
 
 
     /**
-     * Copies a contiguous portion of this IndexedMemoryChunk 
-     * to a destination IndexedMemoryChunk at the specified place.
+     * Return the size of the IndexedMemoryChunk (in elements)
+     *
+     * @return the size of the IndexedMemoryChunk (in elements)
+     */
+    @Native("java", "((#0).length)")
+    @Native("c++", "(#0)->length()")
+    public native def length():int; /* TODO: We need to convert this to returning a long */
+
+
+    /**
+     * Copies a contiguous portion of a local IndexedMemoryChunk 
+     * to a destination RemoteIndexedMemoryChunk at the specified place.
      * If the destination place is the current place, then the copy happens synchronously.
      * If the destination place is not the same as the current place, then
      * the copy happens asynchronously and the created remote activity will be 
@@ -122,22 +132,28 @@ public struct IndexedMemoryChunk[T] {
      * it is the responsibility of higher-level abstractions built on top of 
      * IndexedMemoryChunk to ensure memory, type, and place safety.
      *
+     * @param src the source IndexedMemoryChunk.
      * @param srcIndex the index of the first element to copy in the source.
-     * @param dstPlace the destination place (must be the real home of dst).
-     * @param dst the destination IndexedMemoryChunk.
+     * @param dst the destination RemoteIndexedMemoryChunk.
      * @param dstIndex the index of the first element to store in the destination.
      * @param numElems the number of elements to copy.
      */
-    @Native("java", "x10.util.IndexedMemoryChunk__NativeRep.copyTo_0_$_x10$util$IndexedMemoryChunk__NativeRep_T_$_3_$_x10$util$IndexedMemoryChunk__NativeRep_T_$(#8, #0,#1,#2,#3,#4,#5)")
-    @Native("c++", "(#0)->copyTo(#1,#2,#3,#4,#5)")
-    public native def asyncCopyTo (srcIndex:int, 
-                                   dstPlace:Place, dst:IndexedMemoryChunk[T], dstIndex:int, 
-                                   numElems:int):void;
+    @Native("java", "x10.core.IndexedMemoryChunk.<#2>asyncCopy(#4,#5,#6,#7,#8)")
+    @Native("c++", "x10::util::IndexedMemoryChunk<void>::asyncCopy<#1 >(#4,#5,#6,#7,#8)")
+    public static native def asyncCopy[T](src:IndexedMemoryChunk[T], srcIndex:int, 
+                                          dst:RemoteIndexedMemoryChunk[T], dstIndex:int, 
+                                          numElems:int):void;
 
+    @Native("java", "x10.core.IndexedMemoryChunk.<#2>asyncCopy(#4,#5,#6,#7,#8,#9)")
+    @Native("c++", "x10::util::IndexedMemoryChunk<void>::asyncCopy<#1 >(#4,#5,#6,#7,#8,#9)")
+    public static native def uncountedCopy[T](src:IndexedMemoryChunk[T], srcIndex:int, 
+                                              dst:RemoteIndexedMemoryChunk[T], dstIndex:int, 
+                                              numElems:int,
+                                              notifier:()=>void):void;
 
     /**
-     * Copies a contiguous portion of the src IndexedMemoryChunk found
-     * at the specified place into this IndexedMemoryChunk.
+     * Copies a contiguous portion of the remote src RemoteIndexedMemoryChunk 
+     * into the local destination IndexedMemoryChunk.
      * If the source place is the current place, then the copy happens synchronously.
      * If the source place is not the same as the current place, then
      * the copy happens asynchronously and the created remote activity will be 
@@ -148,17 +164,49 @@ public struct IndexedMemoryChunk[T] {
      * it is the responsibility of higher-level abstractions built on top of 
      * IndexedMemoryChunk to ensure memory, type, and place safety.
      *
-     * @param dstIndex the index of the first element to store in the destination.
-     * @param srcPlace the source place (must be the real home of src).
-     * @param src the destination IndexedMemoryChunk.
+     * @param src the source RemoteIndexedMemoryChunk.
      * @param srcIndex the index of the first element to copy in the source.
+     * @param dst the destination IndexedMemoryChunk.
+     * @param dstIndex the index of the first element to store in the destination.
      * @param numElems the number of elements to copy.
      */
-    @Native("java", "x10.util.IndexedMemoryChunk__NativeRep.copyFrom_0_$_x10$util$IndexedMemoryChunk__NativeRep_T_$_3_$_x10$util$IndexedMemoryChunk__NativeRep_T_$(#8, #0,#1,#2,#3,#4,#5)")
-    @Native("c++", "(#0)->copyFrom(#1,#2,#3,#4,#5)")
-    public native def asyncCopyFrom(dstIndex:int,
-                                    srcPlace:Place, src:IndexedMemoryChunk[T], srcIndex:int,
-                                    numElems:int):void;
+    @Native("java", "x10.core.IndexedMemoryChunk.<#2>asyncCopy(#4,#5,#6,#7,#8)")
+    @Native("c++", "x10::util::IndexedMemoryChunk<void>::asyncCopy<#1 >(#4,#5,#6,#7,#8)")
+    public static native def asyncCopy[T](src:RemoteIndexedMemoryChunk[T], srcIndex:int, 
+                                          dst:IndexedMemoryChunk[T], dstIndex:int, 
+                                          numElems:int):void;
+
+    @Native("java", "x10.core.IndexedMemoryChunk.<#2>asyncCopy(#4,#5,#6,#7,#8,#9)")
+    @Native("c++", "x10::util::IndexedMemoryChunk<void>::asyncCopy<#1 >(#4,#5,#6,#7,#8,#9)")
+    public static native def uncountedCopy[T](src:RemoteIndexedMemoryChunk[T], srcIndex:int, 
+                                              dst:IndexedMemoryChunk[T], dstIndex:int, 
+                                              numElems:int,
+                                              notifier:()=>void):void;
+
+    /**
+     * Synchronously copy a contiguous portion of the src IndexedMemoryChunk 
+     * into the destination IndexedMemoryChunk. Both src and dst are local.
+     * If the source place is the current place, then the copy happens synchronously.
+     * If the source place is not the same as the current place, then
+     * the copy happens asynchronously and the created remote activity will be 
+     * registered with the dynamically enclosing finish of the activity that invoked 
+     * asyncCopyFrom.<p>
+     *
+     * Note: No checking is performed to verify that this operation is safe;
+     * it is the responsibility of higher-level abstractions built on top of 
+     * IndexedMemoryChunk to ensure memory, type, and place safety.
+     *
+     * @param src the source IndexedMemoryChunk.
+     * @param srcIndex the index of the first element to copy in the source.
+     * @param dst the destination IndexedMemoryChunk.
+     * @param dstIndex the index of the first element to store in the destination.
+     * @param numElems the number of elements to copy.
+     */
+    @Native("java", "x10.core.IndexedMemoryChunk.<#2>copy(#4,#5,#6,#7,#8)")
+    @Native("c++", "x10::util::IndexedMemoryChunk<void>::copy<#1 >(#4,#5,#6,#7,#8)")
+    public static native def copy[T](src:IndexedMemoryChunk[T], srcIndex:int, 
+                                     dst:IndexedMemoryChunk[T], dstIndex:int, 
+                                     numElems:int):void;
 
 
    /*

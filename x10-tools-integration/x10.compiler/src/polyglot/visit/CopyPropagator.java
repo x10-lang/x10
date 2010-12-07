@@ -255,7 +255,7 @@ public class CopyPropagator extends DataFlow {
 	}
 
 	public int hashCode() {
-	    int result = 0;
+	    int result = 1;
 	    for (Map.Entry<LocalDef, CopyInfo> e : map.entrySet()) {
 		result = 31*result + e.getKey().hashCode();
 		result = 31*result + e.getValue().hashCode();

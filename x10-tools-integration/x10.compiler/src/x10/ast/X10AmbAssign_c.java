@@ -18,15 +18,16 @@ import polyglot.ast.Expr;
 import polyglot.ast.Field;
 import polyglot.ast.Local;
 import polyglot.ast.Node;
+import polyglot.ast.NodeFactory;
 import polyglot.types.SemanticException;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
-import x10.types.X10Context;
+import polyglot.types.Context;
 
 public class X10AmbAssign_c extends AmbAssign_c {
 
-    public X10AmbAssign_c(X10NodeFactory nf, Position pos, Expr left, Operator op, Expr right) {
+    public X10AmbAssign_c(NodeFactory nf, Position pos, Expr left, Operator op, Expr right) {
 	super(nf, pos, left, op, right);
     }
     
@@ -38,8 +39,8 @@ public class X10AmbAssign_c extends AmbAssign_c {
     		// Do not update context if within a deptype. 
     		// This is an illegal user program -- assignments are not allowed in dep types --
     		// and the error will be reported separately to the user.
-    		if (! ((X10Context) cv.context()).inDepType())
-    			v = cv.context(((X10Context) cv.context()).pushAssignment());
+    		if (! ((Context) cv.context()).inDepType())
+    			v = cv.context(((Context) cv.context()).pushAssignment());
     	}
     	return super.visitLeft(v);
     }
@@ -50,7 +51,7 @@ public class X10AmbAssign_c extends AmbAssign_c {
 	if (left instanceof Call) {
 	    Call c = (Call) left;
 	    if (c.target() instanceof Expr) {
-		X10NodeFactory nf = (X10NodeFactory) ar.nodeFactory();
+		NodeFactory nf = (NodeFactory) ar.nodeFactory();
 		return nf.SettableAssign(position(), (Expr) c.target(), c.arguments(), operator(), right());
 	    }
 	}

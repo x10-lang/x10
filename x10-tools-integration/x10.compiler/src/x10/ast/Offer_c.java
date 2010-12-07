@@ -22,7 +22,7 @@ import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
 import x10.errors.Errors;
-import x10.types.X10Context;
+import polyglot.types.Context;
 import x10.types.X10TypeMixin;
 import x10.visit.X10TypeChecker;
 
@@ -45,8 +45,8 @@ public class Offer_c extends Stmt_c implements Offer {
 		super(pos);
 		this.expr = e;
 	}
-	
-	  /** Get the expression to return, or null. */
+
+    /** Get the expression to return, or null. */
     public Expr expr() {
 	return this.expr;
     }
@@ -70,24 +70,24 @@ public class Offer_c extends Stmt_c implements Offer {
     }
     
     /** Type check the statement. */
-    public Node typeCheck(ContextVisitor tc) throws SemanticException {
+    public Node typeCheck(ContextVisitor tc) {
     	// Find a T such that t is an instance of Reducer[T].
     	// check that the type of the expression e is a subtype of T.
     	if ((tc instanceof X10TypeChecker) && ((X10TypeChecker) tc).isFragmentChecker()) {
     		return this;
     	}
-    	Type rType = ((X10Context) tc.context()).collectingFinishType();
+    	Type rType = ((Context) tc.context()).collectingFinishType();
     	if (rType != null) {
     		Type eType = expr().type();
     		// rType will already be T, not Reducible[T]
     		if (rType != null && ! tc.typeSystem().isSubtype(eType, rType, tc.context()))
-    			throw new Errors.OfferDoesNotMatchCollectingFinishType(eType, rType, position());
+    			Errors.issue(tc.job(),
+    			        new Errors.OfferDoesNotMatchCollectingFinishType(eType, rType, position()));
     		if (rType != null)
     			return this;
     	}
-    	throw 
-    	 new Errors.NoCollectingFinishFound(this.toString(), position());
-
+    	Errors.issue(tc.job(), new Errors.NoCollectingFinishFound(this.toString(), position()));
+    	return this;
     }
     
     /** Visit the children of the statement. */

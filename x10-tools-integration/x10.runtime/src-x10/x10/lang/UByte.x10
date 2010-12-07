@@ -25,7 +25,7 @@ import x10.util.Ordered;
  */
 // @NativeRep("java", "byte", null, "x10.rtt.Types.UBYTE")
 @NativeRep("c++", "x10_ubyte", "x10_ubyte", null)
-public final struct UByte /*TODO implements Arithmetic[UByte], Bitwise[UByte], Ordered[UByte]*/ {
+public struct UByte implements Comparable[UByte] /*TODO implements Arithmetic[UByte], Bitwise[UByte], Ordered[UByte]*/ {
 
     /** The actual number with Byte representation */
     public val byteVal:Byte;
@@ -35,58 +35,54 @@ public final struct UByte /*TODO implements Arithmetic[UByte], Bitwise[UByte], O
 
     /**
      * A less-than operator.
-     * Compares the given UByte with another UByte and returns true if the given UByte is
+     * Compares this UByte with another UByte and returns true if this UByte is
      * strictly less than the other UByte.
-     * @param x the given UByte
-     * @param y the other UByte
-     * @return true if the given UByte is strictly less than the other UByte.
+     * @param x the other UByte
+     * @return true if this UByte is strictly less than the other UByte.
      */
-    // @Native("java", "x10.core.Unsigned.lt(#1, #2)")
-    @Native("c++",  "((#1) < (#2))")
-    public static operator (x:UByte) < (y:UByte): Boolean {
-        return (x.byteVal + Byte.MIN_VALUE) < (y.byteVal + Byte.MIN_VALUE);
+    // @Native("java", "x10.core.Unsigned.lt(#0, #1)")
+    @Native("c++",  "((#0) < (#1))")
+    public operator this < (x:UByte): Boolean {
+        return (byteVal + Byte.MIN_VALUE) < (x.byteVal + Byte.MIN_VALUE);
     }
 
     /**
      * A greater-than operator.
-     * Compares the given UByte with another UByte and returns true if the given UByte is
+     * Compares this UByte with another UByte and returns true if this UByte is
      * strictly greater than the other UByte.
-     * @param x the given UByte
-     * @param y the other UByte
-     * @return true if the given UByte is strictly greater than the other UByte.
+     * @param x the other UByte
+     * @return true if this UByte is strictly greater than the other UByte.
      */
-    // @Native("java", "x10.core.Unsigned.gt(#1, #2)")
-    @Native("c++",  "((#1) > (#2))")
-    public static operator (x:UByte) > (y:UByte): Boolean {
-        return (x.byteVal + Byte.MIN_VALUE) > (y.byteVal + Byte.MIN_VALUE);
+    // @Native("java", "x10.core.Unsigned.gt(#0, #1)")
+    @Native("c++",  "((#0) > (#1))")
+    public operator this > (x:UByte): Boolean {
+        return (byteVal + Byte.MIN_VALUE) > (x.byteVal + Byte.MIN_VALUE);
     }
 
     /**
      * A less-than-or-equal-to operator.
-     * Compares the given UByte with another UByte and returns true if the given UByte is
+     * Compares this UByte with another UByte and returns true if this UByte is
      * less than or equal to the other UByte.
-     * @param x the given UByte
-     * @param y the other UByte
-     * @return true if the given UByte is less than or equal to the other UByte.
+     * @param x the other UByte
+     * @return true if this UByte is less than or equal to the other UByte.
      */
-    // @Native("java", "x10.core.Unsigned.le(#1, #2)")
-    @Native("c++",  "((#1) <= (#2))")
-    public static operator (x:UByte) <= (y:UByte): Boolean {
-        return (x.byteVal + Byte.MIN_VALUE) <= (y.byteVal + Byte.MIN_VALUE);
+    // @Native("java", "x10.core.Unsigned.le(#0, #1)")
+    @Native("c++",  "((#0) <= (#1))")
+    public operator this <= (x:UByte): Boolean {
+        return (byteVal + Byte.MIN_VALUE) <= (x.byteVal + Byte.MIN_VALUE);
     }
 
     /**
      * A greater-than-or-equal-to operator.
-     * Compares the given UByte with another UByte and returns true if the given UByte is
+     * Compares this UByte with another UByte and returns true if this UByte is
      * greater than or equal to the other UByte.
-     * @param x the given UByte
-     * @param y the other UByte
-     * @return true if the given UByte is greater than or equal to the other UByte.
+     * @param x the other UByte
+     * @return true if this UByte is greater than or equal to the other UByte.
      */
-    // @Native("java", "x10.core.Unsigned.ge(#1, #2)")
-    @Native("c++",  "((#1) >= (#2))")
-    public static operator (x:UByte) >= (y:UByte): Boolean {
-        return (x.byteVal + Byte.MIN_VALUE) >= (y.byteVal + Byte.MIN_VALUE);
+    // @Native("java", "x10.core.Unsigned.ge(#0, #1)")
+    @Native("c++",  "((#0) >= (#1))")
+    public operator this >= (x:UByte): Boolean {
+        return (byteVal + Byte.MIN_VALUE) >= (x.byteVal + Byte.MIN_VALUE);
     }
 
 
@@ -94,266 +90,173 @@ public final struct UByte /*TODO implements Arithmetic[UByte], Bitwise[UByte], O
      * A binary plus operator.
      * Computes the result of the addition of the two operands.
      * Overflows result in truncating the high bits.
-     * @param x the given UByte
-     * @param y the other UByte
-     * @return the sum of the given UByte and the other UByte.
+     * @param x the other UByte
+     * @return the sum of this UByte and the other UByte.
      */
-    // @Native("java", "((byte) ((#1) + (#2)))")
-    @Native("c++",  "((x10_ubyte) ((#1) + (#2)))")
-    public static operator (x:UByte) + (y:UByte): UByte = UByte(x.byteVal + y.byteVal);
-
-    /**
-     * A binary plus operator (unsigned disambiguation).
-     * @see #operator(UByte)+(UByte)
-     */
-    // @Native("java", "((byte) ((#1) + (#2)))")
-    @Native("c++",  "((x10_ubyte) ((#1) + (#2)))")
-    public static operator (x:Byte) + (y:UByte): UByte = UByte(x + y.byteVal);
-    /**
-     * A binary plus operator (unsigned disambiguation).
-     * @see #operator(UByte)+(UByte)
-     */
-    // @Native("java", "((byte) ((#1) + (#2)))")
-    @Native("c++",  "((x10_ubyte) ((#1) + (#2)))")
-    public static operator (x:UByte) + (y:Byte): UByte = UByte(x.byteVal + y);
+    // @Native("java", "((byte) ((#0) + (#1)))")
+    @Native("c++",  "((x10_ubyte) ((#0) + (#1)))")
+    public operator this + (x:UByte): UByte = UByte(byteVal + x.byteVal);
 
     /**
      * A binary minus operator.
      * Computes the result of the subtraction of the two operands.
      * Overflows result in truncating the high bits.
-     * @param x the given UByte
-     * @param y the other UByte
-     * @return the difference of the given UByte and the other UByte.
+     * @param x the other UByte
+     * @return the difference of this UByte and the other UByte.
      */
-    // @Native("java", "((byte) ((#1) - (#2)))")
-    @Native("c++",  "((x10_ubyte) ((#1) - (#2)))")
-    public static operator (x:UByte) - (y:UByte): UByte = UByte(x.byteVal - y.byteVal);
-
-    /**
-     * A binary minus operator (unsigned disambiguation).
-     * @see #operator(UByte)-(UByte)
-     */
-    // @Native("java", "((byte) ((#1) - (#2)))")
-    @Native("c++",  "((x10_ubyte) ((#1) - (#2)))")
-    public static operator (x:Byte) - (y:UByte): UByte = UByte(x - y.byteVal);
-    /**
-     * A binary minus operator (unsigned disambiguation).
-     * @see #operator(UByte)-(UByte)
-     */
-    // @Native("java", "((byte) ((#1) - (#2)))")
-    @Native("c++",  "((x10_ubyte) ((#1) - (#2)))")
-    public static operator (x:UByte) - (y:Byte): UByte = UByte(x.byteVal - y);
+    // @Native("java", "((byte) ((#0) - (#1)))")
+    @Native("c++",  "((x10_ubyte) ((#0) - (#1)))")
+    public operator this - (x:UByte): UByte = UByte(byteVal - x.byteVal);
 
     /**
      * A binary multiply operator.
      * Computes the result of the multiplication of the two operands.
      * Overflows result in truncating the high bits.
-     * @param x the given UByte
-     * @param y the other UByte
-     * @return the product of the given UByte and the other UByte.
+     * @param x the other UByte
+     * @return the product of this UByte and the other UByte.
      */
-    // @Native("java", "((byte) ((#1) * (#2)))")
-    @Native("c++",  "((x10_ubyte) ((#1) * (#2)))")
-    public static operator (x:UByte) * (y:UByte): UByte = UByte(x.byteVal * y.byteVal);
-
-    /**
-     * A binary multiply operator (unsigned disambiguation).
-     * @see #operator(UByte)*(UByte)
-     */
-    // @Native("java", "((byte) ((#1) * (#2)))")
-    @Native("c++",  "((x10_ubyte) ((#1) * (#2)))")
-    public static operator (x:Byte) * (y:UByte): UByte = UByte(x * y.byteVal);
-    /**
-     * A binary multiply operator (unsigned disambiguation).
-     * @see #operator(UByte)*(UByte)
-     */
-    // @Native("java", "((byte) ((#1) * (#2)))")
-    @Native("c++",  "((x10_ubyte) ((#1) * (#2)))")
-    public static operator (x:UByte) * (y:Byte): UByte = UByte(x.byteVal * y);
+    // @Native("java", "((byte) ((#0) * (#1)))")
+    @Native("c++",  "((x10_ubyte) ((#0) * (#1)))")
+    public operator this * (x:UByte): UByte = UByte(byteVal * x.byteVal);
 
     /**
      * A binary divide operator.
      * Computes the result of the division of the two operands.
-     * @param x the given UByte
-     * @param y the other UByte
-     * @return the quotient of the given UByte and the other UByte.
+     * @param x the other UByte
+     * @return the quotient of this UByte and the other UByte.
      */
-    // @Native("java", "((byte) x10.core.Unsigned.div(#1, #2))")
-    @Native("c++",  "((x10_ubyte) ((#1) / (#2)))")
-    public static operator (x:UByte) / (y:UByte): UByte {
-        return UByte(((x.byteVal as Long) / (y.byteVal as Long)) as Byte);
-    }
-    /**
-     * A binary divide operator (unsigned disambiguation).
-     * @see #operator(UByte)/(UByte)
-     */
-    // @Native("java", "((byte) x10.core.Unsigned.div(#1, #2))")
-    @Native("c++",  "((x10_ubyte) ((#1) / (#2)))")
-    public static operator (x:Byte) / (y:UByte): UByte {
-        return UByte(((x as Long) / (y.byteVal as Long)) as Byte);
-    }
-    /**
-     * A binary divide operator (unsigned disambiguation).
-     * @see #operator(UByte)/(UByte)
-     */
-    // @Native("java", "((byte) x10.core.Unsigned.div(#1, #2))")
-    @Native("c++",  "((x10_ubyte) ((#1) / (#2)))")
-    public static operator (x:UByte) / (y:Byte): UByte {
-        return UByte(((x.byteVal as Long) / (y as Long)) as Byte);
+    // @Native("java", "((byte) x10.core.Unsigned.div(#0, #1))")
+    @Native("c++",  "((x10_ubyte) ((#0) / x10aux::zeroCheck(#1)))")
+    public operator this / (x:UByte): UByte {
+        return UByte(((byteVal as Long) / (x.byteVal as Long)) as Byte);
     }
 
     /**
      * A binary remainder operator.
      * Computes a remainder from the division of the two operands.
-     * @param x the given UByte
-     * @param y the other UByte
-     * @return the remainder from dividing the given UByte by the other UByte.
+     * @param x the other UByte
+     * @return the remainder from dividing this UByte by the other UByte.
      */
-    // @Native("java", "((byte) x10.core.Unsigned.rem(#1, #2))")
-    @Native("c++",  "((x10_ubyte) ((#1) % (#2)))")
-    public static operator (x:UByte) % (y:UByte): UByte {
-        return UByte(((x.byteVal as Long) % (y.byteVal as Long)) as Byte);
-    }
-    /**
-     * A binary remainder operator (unsigned disambiguation).
-     * @see #operator(UByte)%(UByte)
-     */
-    // @Native("java", "((byte) x10.core.Unsigned.rem(#1, #2))")
-    @Native("c++",  "((x10_ubyte) ((#1) % (#2)))")
-    public static operator (x:Byte) % (y:UByte): UByte {
-        return UByte(((x as Long) % (y.byteVal as Long)) as Byte);
-    }
-    /**
-     * A binary remainder operator (unsigned disambiguation).
-     * @see #operator(UByte)%(UByte)
-     */
-    // @Native("java", "((byte) x10.core.Unsigned.rem(#1, #2))")
-    @Native("c++",  "((x10_ubyte) ((#1) % (#2)))")
-    public static operator (x:UByte) % (y:Byte): UByte {
-        return UByte(((x.byteVal as Long) % (y as Long)) as Byte);
+    // @Native("java", "((byte) x10.core.Unsigned.rem(#0, #1))")
+    @Native("c++",  "((x10_ubyte) ((#0) % x10aux::zeroCheck(#1)))")
+    public operator this % (x:UByte): UByte {
+        return UByte(((byteVal as Long) % (x.byteVal as Long)) as Byte);
     }
 
     /**
      * A unary plus operator.
      * A no-op.
-     * @param x the given UByte
-     * @return the value of the given UByte.
+     * @return the value of this UByte.
      */
-    // @Native("java", "((byte) +(#1))")
-    @Native("c++",  "((x10_ubyte) +(#1))")
-    public static operator + (x:UByte): UByte = x;
+    // @Native("java", "((byte) +(#0))")
+    @Native("c++",  "((x10_ubyte) +(#0))")
+    public operator + this: UByte = this;
 
     /**
      * A unary minus operator.
      * Computes the two's complement of the operand.
      * Overflows result in truncating the high bits.
-     * @param x the given UByte
-     * @return the two's complement of the given UByte.
+     * @return the two's complement of this UByte.
      */
-    // @Native("java", "((byte) -(#1))")
-    @Native("c++",  "((x10_ubyte) -(#1))")
-    public static operator - (x:UByte): UByte = UByte(-(x.byteVal));
+    // @Native("java", "((byte) -(#0))")
+    @Native("c++",  "((x10_ubyte) -(#0))")
+    public operator - this: UByte = UByte(-(byteVal));
 
 
     /**
      * A bitwise and operator.
      * Computes a bitwise AND of the two operands.
-     * @param x the given UByte
-     * @param y the other UByte
-     * @return the bitwise AND of the given UByte and the other UByte.
+     * @param x the other UByte
+     * @return the bitwise AND of this UByte and the other UByte.
      */
-    // @Native("java", "((byte) ((#1) & (#2)))")
-    @Native("c++",  "((x10_ubyte) ((#1) & (#2)))")
-    public static operator (x:UByte) & (y:UByte): UByte = UByte(x.byteVal & y.byteVal);
+    // @Native("java", "((byte) ((#0) & (#1)))")
+    @Native("c++",  "((x10_ubyte) ((#0) & (#1)))")
+    public operator this & (x:UByte): UByte = UByte(byteVal & x.byteVal);
     /**
      * A bitwise and operator (unsigned disambiguation).
      * @see #operator(UByte)&(UByte)
      */
-    // @Native("java", "((byte) ((#1) & (#2)))")
-    @Native("c++",  "((x10_ubyte) ((#1) & (#2)))")
-    public static operator (x:Byte) & (y:UByte): UByte = UByte(x & y.byteVal);
+    // @Native("java", "((byte) ((#0) & (#1)))")
+    @Native("c++",  "((x10_ubyte) ((#0) & (#1)))")
+    public operator (x:Byte) & this: UByte = UByte(x & byteVal);
     /**
      * A bitwise and operator (unsigned disambiguation).
      * @see #operator(UByte)&(UByte)
      */
-    // @Native("java", "((byte) ((#1) & (#2)))")
-    @Native("c++",  "((x10_ubyte) ((#1) & (#2)))")
-    public static operator (x:UByte) & (y:Byte): UByte = UByte(x.byteVal & y);
+    // @Native("java", "((byte) ((#0) & (#1)))")
+    @Native("c++",  "((x10_ubyte) ((#0) & (#1)))")
+    public operator this & (x:Byte): UByte = UByte(byteVal & x);
 
     /**
      * A bitwise or operator.
      * Computes a bitwise OR of the two operands.
-     * @param x the given UByte
-     * @param y the other UByte
-     * @return the bitwise OR of the given UByte and the other UByte.
+     * @param x the other UByte
+     * @return the bitwise OR of this UByte and the other UByte.
      */
-    // @Native("java", "((byte) ((#1) | (#2)))")
-    @Native("c++",  "((x10_ubyte) ((#1) | (#2)))")
-    public static operator (x:UByte) | (y:UByte): UByte = UByte(x.byteVal | y.byteVal);
+    // @Native("java", "((byte) ((#0) | (#1)))")
+    @Native("c++",  "((x10_ubyte) ((#0) | (#1)))")
+    public operator this | (x:UByte): UByte = UByte(byteVal | x.byteVal);
     /**
      * A bitwise or operator (unsigned disambiguation).
      * @see #operator(UByte)|(UByte)
      */
-    // @Native("java", "((byte) ((#1) | (#2)))")
-    @Native("c++",  "((x10_ubyte) ((#1) | (#2)))")
-    public static operator (x:Byte) | (y:UByte): UByte = UByte(x | y.byteVal);
+    // @Native("java", "((byte) ((#0) | (#1)))")
+    @Native("c++",  "((x10_ubyte) ((#0) | (#1)))")
+    public operator (x:Byte) | this: UByte = UByte(x | byteVal);
     /**
      * A bitwise or operator (unsigned disambiguation).
      * @see #operator(UByte)|(UByte)
      */
-    // @Native("java", "((byte) ((#1) | (#2)))")
-    @Native("c++",  "((x10_ubyte) ((#1) | (#2)))")
-    public static operator (x:UByte) | (y:Byte): UByte = UByte(x.byteVal | y);
+    // @Native("java", "((byte) ((#0) | (#1)))")
+    @Native("c++",  "((x10_ubyte) ((#0) | (#1)))")
+    public operator this | (x:Byte): UByte = UByte(byteVal | x);
 
     /**
      * A bitwise xor operator.
      * Computes a bitwise XOR of the two operands.
-     * @param x the given UByte
-     * @param y the other UByte
-     * @return the bitwise XOR of the given UByte and the other UByte.
+     * @param x the other UByte
+     * @return the bitwise XOR of this UByte and the other UByte.
      */
-    // @Native("java", "((byte) ((#1) ^ (#2)))")
-    @Native("c++",  "((x10_ubyte) ((#1) ^ (#2)))")
-    public static operator (x:UByte) ^ (y:UByte): UByte = UByte(x.byteVal ^ y.byteVal);
+    // @Native("java", "((byte) ((#0) ^ (#1)))")
+    @Native("c++",  "((x10_ubyte) ((#0) ^ (#1)))")
+    public operator this ^ (x:UByte): UByte = UByte(byteVal ^ x.byteVal);
     /**
      * A bitwise xor operator (unsigned disambiguation).
      * @see #operator(UByte)^(UByte)
      */
-    // @Native("java", "((byte) ((#1) ^ (#2)))")
-    @Native("c++",  "((x10_ubyte) ((#1) ^ (#2)))")
-    public static operator (x:Byte) ^ (y:UByte): UByte = UByte(x ^ y.byteVal);
+    // @Native("java", "((byte) ((#0) ^ (#1)))")
+    @Native("c++",  "((x10_ubyte) ((#0) ^ (#1)))")
+    public operator (x:Byte) ^ this: UByte = UByte(x ^ byteVal);
     /**
      * A bitwise xor operator (unsigned disambiguation).
      * @see #operator(UByte)^(UByte)
      */
-    // @Native("java", "((byte) ((#1) ^ (#2)))")
-    @Native("c++",  "((x10_ubyte) ((#1) ^ (#2)))")
-    public static operator (x:UByte) ^ (y:Byte): UByte = UByte(x.byteVal ^ y);
+    // @Native("java", "((byte) ((#0) ^ (#1)))")
+    @Native("c++",  "((x10_ubyte) ((#0) ^ (#1)))")
+    public operator this ^ (x:Byte): UByte = UByte(byteVal ^ x);
 
     /**
      * A bitwise left shift operator.
      * Computes the value of the left-hand operand shifted left by the value of the right-hand operand.
      * If the right-hand operand is negative, the results are undefined.
-     * @param x the given UByte
      * @param count the shift count
-     * @return the given UByte shifted left by count.
+     * @return this UByte shifted left by count.
      */
-    // @Native("java", "((byte) ((#1) << (#2)))")
-    @Native("c++",  "((x10_ubyte) ((#1) << (#2)))")
-    public static operator (x:UByte) << (count:Int): UByte = UByte(x.byteVal << count);
+    // @Native("java", "((byte) ((#0) << (#1)))")
+    @Native("c++",  "((x10_ubyte) ((#0) << (#1)))")
+    public operator this << (count:Int): UByte = UByte(byteVal << count);
 
     /**
      * A bitwise right shift operator.
      * Computes the value of the left-hand operand shifted right by the value of the right-hand operand,
      * filling the high bits with zeros.
      * If the right-hand operand is negative, the results are undefined.
-     * @param x the given UByte
      * @param count the shift count
-     * @return the given UByte shifted right by count.
+     * @return this UByte shifted right by count.
      */
-    // @Native("java", "((byte) ((#1) >>> (#2)))")
-    @Native("c++",  "((x10_ubyte) ((#1) >> (#2)))")
-    public static operator (x:UByte) >> (count:Int): UByte = UByte(x.byteVal >>> count);
+    // @Native("java", "((byte) ((#0) >>> (#1)))")
+    @Native("c++",  "((x10_ubyte) ((#0) >> (#1)))")
+    public operator this >> (count:Int): UByte = UByte(byteVal >>> count);
 
     /**
      * A bitwise logical right shift operator (zero-fill).
@@ -361,24 +264,21 @@ public final struct UByte /*TODO implements Arithmetic[UByte], Bitwise[UByte], O
      * filling the high bits with zeros.
      * If the right-hand operand is negative, the results are undefined.
      * @deprecated use the right-shift operator.
-     * @param x the given UByte
      * @param count the shift count
-     * @return the given UByte shifted right by count with high bits zero-filled.
+     * @return this UByte shifted right by count with high bits zero-filled.
      */
-    // @Native("java", "((byte) ((#1) >>> (#2)))")
-    @Native("c++",  "((x10_ubyte) ((#1) >> (#2)))")
-    public static operator (x:UByte) >>> (count:Int): UByte = UByte(x.byteVal >>> count);
+    // @Native("java", "((byte) ((#0) >>> (#1)))")
+    @Native("c++",  "((x10_ubyte) ((#0) >> (#1)))")
+    public operator this >>> (count:Int): UByte = UByte(byteVal >>> count);
 
     /**
      * A bitwise complement operator.
      * Computes a bitwise complement (NOT) of the operand.
-     * @param x the given UByte
-     * @return the bitwise complement of the given UByte.
+     * @return the bitwise complement of this UByte.
      */
-    // @Native("java", "((byte) ~(#1))")
-    @Native("c++",  "((x10_ubyte) ~(#1))")
-    public static operator ~ (x:UByte): UByte = UByte(~(x.byteVal));
-
+    // @Native("java", "((byte) ~(#0))")
+    @Native("c++",  "((x10_ubyte) ~(#0))")
+    public operator ~ this: UByte = UByte(~(byteVal));
 
     /**
      * Convert a given UShort to a UByte.
@@ -468,9 +368,9 @@ public final struct UByte /*TODO implements Arithmetic[UByte], Bitwise[UByte], O
      * @param x the given Byte
      * @return the given Byte converted to a UByte.
      */
-    // // @Native("java", "((byte)(#1))")
+    // @Native("java", "((byte)(#1))")
     @Native("c++",  "((x10_ubyte) (#1))")
-    public static operator (x:Byte): UByte = UByte(x);
+    public static operator (x:Byte) as UByte = UByte(x);
 
 
     /**
@@ -536,7 +436,7 @@ public final struct UByte /*TODO implements Arithmetic[UByte], Bitwise[UByte], O
     @Native("c++", "((x10_ubyte) x10aux::int_utils::parseInt(#1, #2))")
     public static def parseUByte(s:String, radix:Int): UByte //throws NumberFormatException 
     {
-        return UByte(Byte.parse(s, radix));
+        return parse(s, radix);
     }
 
     /**
@@ -546,7 +446,7 @@ public final struct UByte /*TODO implements Arithmetic[UByte], Bitwise[UByte], O
     @Native("c++", "x10aux::int_utils::parseInt(#1)")
     public static def parseUByte(s:String): UByte //throws NumberFormatException 
     {
-        return UByte(Byte.parse(s));
+        return parse(s);
     }
 
     /**
@@ -560,7 +460,11 @@ public final struct UByte /*TODO implements Arithmetic[UByte], Bitwise[UByte], O
     @Native("c++", "((x10_ubyte) x10aux::int_utils::parseInt(#1, #2))")
     public static def parse(s:String, radix:Int): UByte //throws NumberFormatException 
     {
-        return UByte(Byte.parse(s, radix));
+    	val i = Int.parse(s, radix);
+    	if (i < 0 || i > 0xff) {
+    		throw new NumberFormatException("Value out of range. Value:\"" + s + "\" Radix:" + radix);
+    	}
+    	return i as UByte;
     }
 
     /**
@@ -573,7 +477,7 @@ public final struct UByte /*TODO implements Arithmetic[UByte], Bitwise[UByte], O
     @Native("c++", "x10aux::int_utils::parseInt(#1)")
     public static def parse(s:String): UByte //throws NumberFormatException 
     {
-        return UByte(Byte.parse(s));
+        return parse(s, 10);
     }
 
 
@@ -604,7 +508,7 @@ public final struct UByte /*TODO implements Arithmetic[UByte], Bitwise[UByte], O
      */
     // @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
-    public def equals(x:Any):Boolean = this.byteVal.equals(x);
+    public def equals(x:Any):Boolean = x instanceof UByte && (x as UByte).byteVal == this.byteVal;
 
     /**
      * Returns true if this UByte is equal to the given UByte.
@@ -614,4 +518,15 @@ public final struct UByte /*TODO implements Arithmetic[UByte], Bitwise[UByte], O
     // @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
     public def equals(x:UByte):Boolean = this.byteVal == x.byteVal;
+
+    /**
+    * Returns a negative Int, zero, or a positive Int if this UByte is less than, equal
+    * to, or greater than the given UByte.
+    * @param x the given UByte
+    * @return a negative Int, zero, or a positive Int if this UByte is less than, equal
+    * to, or greater than the given UByte.
+    */
+    // @Native("java", "x10.rtt.Equality.compareTo(#0.byteVal + java.lang.Byte.MIN_VALUE, #1.byteVal + java.lang.Byte.MIN_VALUE)")
+    @Native("c++", "x10aux::_utils::compareTo(#0, #1)")
+    public def compareTo(x:UByte): Int = (this.byteVal + Byte.MIN_VALUE).compareTo(x.byteVal + Byte.MIN_VALUE);
 }

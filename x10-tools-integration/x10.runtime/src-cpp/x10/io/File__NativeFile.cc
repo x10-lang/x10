@@ -44,9 +44,9 @@ void File__NativeFile::_deserialize_body(deserialization_buffer& buf) {
 }
 
 const x10aux::serialization_id_t File__NativeFile::_serialization_id =
-    x10aux::DeserializationDispatcher::addDeserializer(File__NativeFile::_deserializer<Reference>);
+    x10aux::DeserializationDispatcher::addDeserializer(File__NativeFile::_deserializer<Reference>, x10aux::CLOSURE_KIND_NOT_ASYNC);
 
-RTT_CC_DECLS1(File__NativeFile, "x10.io.File.NativeFile", Object)
+RTT_CC_DECLS1(File__NativeFile, "x10.io.File.NativeFile", RuntimeType::class_kind, Object)
 
 x10aux::ref<String>
 File__NativeFile::getAbsolutePath() {
@@ -54,7 +54,7 @@ File__NativeFile::getAbsolutePath() {
         return path;
     char* cwd = getcwd(NULL, _POSIX_PATH_MAX);
     if (cwd == NULL)
-        return x10aux::null;
+        return X10_NULL;
     x10aux::ref<String> absPath = String::Lit(cwd) + String::Lit("/") + path;
     free(cwd);
     return absPath;

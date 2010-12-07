@@ -12,29 +12,25 @@
 package x10.lang;
 
 import x10.compiler.Native;
-import x10.compiler.NativeClass;
-import x10.compiler.NativeString;
 import x10.compiler.Pinned;
 import x10.compiler.Global;
-import x10.compiler.SuppressTransientError;
+import x10.compiler.Pragma;
+import x10.compiler.StackAllocate;
+import x10.compiler.TempNoInline_1;
 
-import x10.io.CustomSerialization;
-
-import x10.util.HashMap;
-import x10.util.GrowableRail;
-import x10.util.Pair;
 import x10.util.Random;
 import x10.util.Stack;
-import x10.util.concurrent.atomic.AtomicInteger;
 import x10.util.Box;
 /**
  * @author tardieu
  */
 @Pinned public final class Runtime {
 
+    // Print methods for debugging
+
     @Native("java", "java.lang.System.err.println(#1)")
-    @Native("c++", "x10aux::system_utils::println((#1)->toString()->c_str())")
-    public native static def println(o:Object) : void;
+    @Native("c++", "x10aux::system_utils::println(x10aux::to_string(#1)->c_str())")
+    public native static def println(any:Any) : void;
 
     @Native("java", "java.lang.System.err.println()")
     @Native("c++", "x10aux::system_utils::println(\"\")")
@@ -43,12 +39,6 @@ import x10.util.Box;
     @Native("java", "java.lang.System.err.printf(#4, #5)")
     @Native("c++", "x10aux::system_utils::printf(#4, #5)")
     public native static def printf[T](fmt:String, t:T) : void;
-
-    @Native("c++", "(#1)._val")
-    public static def nativeThis(x:Object) = 0L;
-
-    @Native("c++", "((x10aux::ref<x10::lang::Closure>)(#4))->toNativeString()")
-    public static def nativeClosureName[T](cl:T) = cl.toString();
 
     // Configuration options
 
@@ -64,74 +54,88 @@ import x10.util.Box;
     @Native("c++", "x10aux::static_threads()")
     public static STATIC_THREADS = false;
 
-    /**
-     * Run body at place(id).
-     * May be implemented synchronously or asynchronously.
-     * Body cannot spawn activities, use clocks, or raise exceptions.
-     */
-    @Native("java", "x10.runtime.impl.java.Runtime.runAt(#1, #2)")
-    @Native("c++", "x10aux::run_at(#1, #2)")
-    public static def runAtNative(id:Int, body:()=>void):void { body(); }
+    // Native runtime interface
 
     /**
      * Run body at place(id).
      * May be implemented synchronously or asynchronously.
      * Body cannot spawn activities, use clocks, or raise exceptions.
      */
-    @Native("java", "x10.runtime.impl.java.Runtime.deepCopy(#4)")
+    @Native("java", "x10.runtime.impl.java.Runtime.runClosureAt(#1, #2)")
+    @Native("c++", "x10aux::run_closure_at(#1, #2)")
+    static def runClosureAt(id:Int, body:()=>void):void { body(); }
+
+    @Native("java", "x10.runtime.impl.java.Runtime.runClosureCopyAt(#1, #2)")
+    @Native("c++", "x10aux::run_closure_at(#1, #2)")
+    static def runClosureCopyAt(id:Int, body:()=>void):void { body(); }
+
+    @Native("c++", "x10aux::run_async_at(#1, #2, #3)")
+    static def runAsyncAt(id:Int, body:()=>void, finishState:FinishState):void {
+        val closure = ()=> @x10.compiler.RemoteInvocation {execute(body, finishState);};
+        runClosureCopyAt(id, closure);
+        dealloc(closure);
+    }
+
+    /**
+     * Deep copy.
+     */
+    @Native("java", "x10.runtime.impl.java.Runtime.<#1>deepCopy(#4)")
     @Native("c++", "x10aux::deep_copy<#1 >(#4)")
-    public static native def deepCopy[T](o:T):T;
+    static native def deepCopy[T](o:T):T;
 
     /**
      * Java: run body synchronously at place(id) in the same node as the current place.
      * C++: run body. (no need for a native implementation)
      */
     @Native("java", "x10.runtime.impl.java.Runtime.runAtLocal(#1, #2)")
-    public static def runAtLocal(id:Int, body:()=>void):void { body(); }
-
-    /**
-     * Java: pretend receiver is local.
-     */
-    @Native("java", "#4")
-    public static def pretendLocal[T](x:T):T = x;
+    @TempNoInline_1
+    static def runAtLocal(id:Int, body:()=>void):void { body(); }
 
     /**
      * Return true if place(id) is in the current node.
      */
     @Native("java", "x10.runtime.impl.java.Runtime.local(#1)")
-    public static def isLocal(id:Int):Boolean = id == here.id;
+    static def isLocal(id:Int):Boolean = id == here.id;
 
     /**
      * Process one incoming message if any (non-blocking).
      */
     @Native("c++", "x10aux::event_probe()")
-    public static def event_probe():void {}
+    static def event_probe():void {}
 
-    /** Accessors for native performance counters
+    /**
+     * Register x10rt handlers.
      */
+    @Native("c++", "x10aux::DeserializationDispatcher::registerHandlers()")
+    static def registerHandlers() {}
+
+    // Accessors for native performance counters
+
     @Native("c++","x10aux::asyncs_sent")
-    static def getAsyncsSent() = 0 as Long;
+    static def getAsyncsSent() = 0L;
 
     @Native("c++","x10aux::asyncs_sent = #1")
     static def setAsyncsSent(v:Long) { }
 
     @Native("c++","x10aux::asyncs_received")
-    static def getAsyncsReceived() = 0 as Long;
+    static def getAsyncsReceived() = 0L;
 
     @Native("c++","x10aux::asyncs_received = #1")
     static def setAsyncsReceived(v:Long) { }
 
     @Native("c++","x10aux::serialized_bytes")
-    static def getSerializedBytes() = 0 as Long;
+    static def getSerializedBytes() = 0L;
 
     @Native("c++","x10aux::serialized_bytes = #1")
     static def setSerializedBytes(v:Long) { }
 
     @Native("c++","x10aux::deserialized_bytes")
-    static def getDeserializedBytes() = 0 as Long;
+    static def getDeserializedBytes() = 0L;
 
     @Native("c++","x10aux::deserialized_bytes = #1")
     static def setDeserializedBytes(v:Long) { }
+
+    // Methods for explicit memory management
 
     @Native("c++", "x10::lang::Object::dealloc_object((x10::lang::Object*)#1.operator->())")
     public static def deallocObject (o:Object) { }
@@ -142,1088 +146,69 @@ import x10.util.Box;
     @Native("c++", "x10aux::dealloc(#1.operator->())")
     public static def dealloc (o:()=>void) { }
 
-    @Native("c++", "x10aux::DeserializationDispatcher::registerHandlers()")
-    public static def registerHandlers() {}
-
-
-    @NativeClass("java", "x10.runtime.impl.java", "Deque")
-    @NativeClass("c++", "x10.lang", "Deque")
-    @Pinned static final class Deque implements CustomSerialization {
-        public native def this();
-
-        public native def size():Int;
-
-        public native def poll():Object;
-
-        public native def push(t:Object):void;
-
-        public native def steal():Object;
-
-        public def serialize():Any {
-            throw new UnsupportedOperationException("Cannot serialize "+typeName());
-        }
-	private def this(Any) {
-            throw new UnsupportedOperationException("Cannot deserialize "+typeName());
-        }
-    }
-
-
-  
-  
-
-  
-    static class ClockPhases extends HashMap[Clock,Int] {
-        static def make(clocks:Array[Clock]{rail}, phases:Array[Int]{rail}):ClockPhases {
-            val clockPhases = new ClockPhases();
-            for(var i:Int = 0; i < clocks.size; i++) 
-            	clockPhases.put(clocks(i), phases(i));
-            return clockPhases;
-        }
-
-        def register(clocks:Array[Clock]{rail}) {
-            return new Array[Int](clocks.size, (i:Int)=>clocks(i).register());
-        }
-
-        def next() {
-            for(clock:Clock in keySet()) clock.resumeUnsafe();
-            for(clock:Clock in keySet()) clock.nextUnsafe();
-        }
-        def resume() {
-            for(clock:Clock in keySet()) clock.resume();
-        }
-
-        def drop() {
-            for(clock:Clock in keySet()) clock.dropInternal();
-            clear();
-        }
-
-	// HashMap implments CustomSerialization, so we must as well
-	// Only constructor is actually required, but stub out serialize as well
-	// as a reminder that if instance fields are added to ClockPhases then
-	// work will have to be done here to serialize them.
-	public def serialize() = super.serialize(); 
-	def this() { super(); }
-	def this(a:Any) { super(a); }
-    }
-
 
     /**
      * A mortal object is garbage collected when there are no remaining local refs even if remote refs might still exist
      */
     public interface Mortal { }
 
-
-    static interface FinishState {
-
-        /**
-         * An activity is spawned under this finish (called by spawner).
-         */
-        @Global def notifySubActivitySpawn(place:Place):void;
-
-        /**
-         * An activity is created under this finish (called by spawnee).
-         */
-        @Global def notifyActivityCreation():void;
-
-        /**
-         * An activity created under this finish has terminated.
-         * Also called be the activity governing the finish when it completes the finish body.
-         */
-        @Global def notifyActivityTermination():void;
-
-        /**
-         * Push an exception onto the stack.
-         */
-        @Global def pushException(t:Throwable):void;
-
-        /**
-         * Wait for pending subactivities to complete.
-         */
-        def waitForFinish(safe:Boolean):void;
-
-        /**
-         * Create a corresponding remote finish
-         */
-        @Global def makeRemote():RemoteFinishState;
-        @Global def home():Place;
-    }
-
-    @Pinned static class FinishStates implements (FinishState)=>RemoteFinishState {
-
-        private val map = new HashMap[FinishState, RemoteFinishState]();
+    @Pinned static class Semaphore {
         private val lock = new Lock();
 
-        public def apply(rootFinish:FinishState):RemoteFinishState{
+        private val threads = new Array[Worker](MAX_WORKERS);
+        private var size:Int = 0;
+
+        private var permits:Int;
+
+        def this(n:Int) {
+            permits = n;
+        }
+
+        private static def min(i:Int, j:Int):Int = i<j ? i : j;
+
+        def release(n:Int):void {
             lock.lock();
-            val finishState = map.getOrElse(rootFinish, null);
-            if (null != finishState) {
-                lock.unlock();
-                return finishState;
+            permits += n;
+            val m = min(permits, min(n, size));
+            for (var i:Int = 0; i<m; i++) {
+                threads(--size).unpark();
+                threads(size) = null;
             }
-            
-            val remoteFinish = rootFinish.makeRemote();
-            map.put(rootFinish, remoteFinish);
-            lock.unlock();
-            return remoteFinish;
-        }
-        public def remove(rootFinish:FinishState) {
-            lock.lock();
-            map.remove(rootFinish);
-            lock.unlock();
-        }
-    }
-
-    @Pinned static class StatefulReducer[T] {
-    	val reducer:Reducible[T];
-        var result:T;
-        val MAX = 1000;
-        var resultRail : Rail[T];
-        var workerFlag : Rail[Boolean] = Rail.make[Boolean](MAX,(Int) => false);
-        def this(r:Reducible[T]) {
-    	    this.reducer=r;
-    	    val zero = reducer.zero();
-    	    this.result=zero;
-    	    this.resultRail = Rail.make[T](MAX, (Int) => zero);
-        }
-        def accept(t:T) {
-    	    this.result=reducer(result,t);
-        }
-        def accept(t: T, id : Int ) {
-            if ((id >= 0 ) && (id < MAX)) {
-                this.resultRail(id) = reducer(this.resultRail(id),t);
-                this.workerFlag(id) = true;   
-            }    
-        }
-       def  placeMerge(){
-            for(var i:Int =0; i<MAX; i++) {
-                if (this.workerFlag(i)) {
-                    this.result = reducer(result,resultRail(i));
-		            resultRail(i)=reducer.zero();
-	            }
-            }
-        }
-
-        def result()=result;
-	    def reset() {
-	        result = reducer.zero();
-	    }
-    }
-
-    // Single class translation of an X10 2.0 class
-    static class RootCollectingFinish[T] extends RootFinish {
-    	private val root = GlobalRef[RootCollectingFinish[T]](this);
-    	transient val sr:StatefulReducer[T];
-    	val reducer:Reducible[T];
-        def this(r:Reducible[T]) {
-    	   super();
-    	   this.reducer=r;
-    	   this.sr=new StatefulReducer[T](r);
-        }
-        @Global public def makeRemote() = new RemoteCollectingFinish[T](reducer);
-        @Global public def equals(a:Any) =
-        	(a instanceof RootCollectingFinish[T]) && this.root.equals((a as RootCollectingFinish[T]).root);
-        @Global public def hashCode():Int = root.hashCode();
-        @Global public def home():Place = root.home;
-        @Pinned def accept(t:T) {
-    	   lock();
-    	   sr.accept(t);
-    	   unlock();
-        }
-        @Pinned def accept(t:T, id:Int) {
-           sr.accept(t,id);
-         }
-        @Pinned def notify(rail:Rail[Int], v:T):void {
-            var b:Boolean = true;
-            lock();
-            for(var i:Int=0; i<Place.MAX_PLACES; i++) {
-                counts(i) += rail(i);
-                seen(i) |= counts(i) != 0;
-                if (counts(i) != 0) b = false;
-            }
-            accept(v);
-            if (b) release();
-            unlock();
-         }
-         @Pinned def notify2(rail:Rail[Pair[Int,Int]], v:T):void {
-            lock();
-            for(var i:Int=0; i<rail.length; i++) {
-                counts(rail(i).first) += rail(i).second;
-                seen(rail(i).first) = true;
-            }
-            for(var i:Int=0; i<Place.MAX_PLACES; i++) {
-                if (counts(i) != 0) {
-                    accept(v);
-                    unlock();
-                    return;
-                }
-            }
-            accept(v);
-            release();
-            unlock();
-        }
-    
-        //Collecting Finish Use: for start merger at each place to collect result
-        @Pinned final public def waitForFinishExpr(safe:Boolean):T {
-            waitForFinish(safe);
-            sr.placeMerge();
-	    val result = sr.result();
-            sr.reset();
-            return result;
-        }
-    }
-    	
-    static class RootFinish implements FinishState, Mortal {
-        private val root = GlobalRef[RootFinish](this);
-        transient protected val counts:Rail[Int];
-        transient protected val seen:Rail[Boolean];
-        transient protected var exceptions:Stack[Throwable];
-        transient protected val latch:Latch; 
-        def this() {
-	    latch = new Latch();
-            val c = Rail.make[Int](Place.MAX_PLACES, (Int)=>0);
-            seen = Rail.make[Boolean](Place.MAX_PLACES, (Int)=>false);
-            c(here.id) = 1;
-            counts = c;
-        }
-        @Global public def hashCode() = root.hashCode();
-        /**
-           Two RootFinish's are equal if they have == root's. Thus if a
-           RootFinish makes a round-trip through other places it will
-           still be equal to the original RootFinish. This is the way to
-           get the effect of 2.0 interning for global object references
-           in their home place.
-         */
-        @Global public def equals(a:Any) =
-        	(a instanceof RootFinish) && (a as RootFinish).root.equals(this.root);
-        @Global public def home():Place = root.home;
-
-        @Pinned public def lock() = root().latch.lock();
-        @Pinned public def unlock() = root().latch.unlock();
-        @Pinned public def tryLock() = root().latch.tryLock();
-        @Pinned public def release() = root().latch.release();
-        @Pinned public def await() = root().latch.await();
-        @Pinned public def apply() = root().latch.apply();
-	    
-        @Pinned private def notifySubActivitySpawnLocal(place:Place):void {
-            lock();
-            counts(place.parent().id)++;
-            unlock();
-        }
-
-        @Pinned private def notifyActivityTerminationLocal():void {
-            lock();
-            counts(here.id)--;
-            for(var i:Int=0; i<Place.MAX_PLACES; i++) {
-                if (counts(i) != 0) {
-                    unlock();
-                    return;
-                }
-            }
-            release();
-            unlock();
-        }
-
-        @Pinned private def pushExceptionLocal(t:Throwable):void {
-            lock();
-            if (null == exceptions) exceptions = new Stack[Throwable]();
-            exceptions.push(t);
-            unlock();
-        }
-
-        @Pinned public def waitForFinish(safe:Boolean):void {
-            if (!NO_STEALS && safe) worker().join(this.latch);
-            await();
-            val closure = ()=>runtime().finishStates.remove(this);
-            seen(hereInt()) = false;
-            for(var i:Int=0; i<Place.MAX_PLACES; i++) {
-                if (seen(i)) {
-                    runAtNative(i, closure);
-                }
-            }
-            dealloc(closure);
-            if (null != exceptions) {
-                if (exceptions.size() == 1) {
-                    val t = exceptions.peek();
-                    if (t instanceof Error) {
-                        throw t as Error;
-                    }
-                    if (t instanceof RuntimeException) {
-                        throw t as RuntimeException;
-                    }
-                }
-                throw new MultipleExceptions(exceptions);
-            }
-        }
-
-       @Pinned def notify(rail:Rail[Int]):void {
-            var b:Boolean = true;
-            lock();
-            for(var i:Int=0; i<Place.MAX_PLACES; i++) {
-                counts(i) += rail(i);
-                seen(i) |= counts(i) != 0;
-                if (counts(i) != 0) b = false;
-            }
-            if (b) release();
-            unlock();
-        }
-
-        @Pinned def notify2(rail:Rail[Pair[Int,Int]]):void {
-            lock();
-            for(var i:Int=0; i<rail.length; i++) {
-                counts(rail(i).first) += rail(i).second;
-                seen(rail(i).first) = true;
-            }
-            for(var i:Int=0; i<Place.MAX_PLACES; i++) {
-                if (counts(i) != 0) {
-                    unlock();
-                    return;
-                }
-            }
-            release();
-            unlock();
-        }
-
-        @Pinned def notify(rail:Rail[Int], t:Throwable):void {
-            pushExceptionLocal(t);
-            notify(rail);
-        }
-
-        @Pinned def notify2(rail:Rail[Pair[Int,Int]], t:Throwable):void {
-            pushExceptionLocal(t);
-            notify2(rail);
-        }
-        
-        @Global public def makeRemote() = new RemoteFinish();
-        
-        @Global public def notifySubActivitySpawn(place:Place):void {
-            if (here.equals(root.home)) {
-                val rf:RootFinish = (root as GlobalRef[RootFinish]{here==root.home})();
-	            rf.notifySubActivitySpawnLocal(place);
-            } else {
-                (Runtime.proxy(this) as RemoteFinish).notifySubActivitySpawn(place);
-            }
-        }
-
-        @Global public def notifyActivityCreation():void {
-            if (! here.equals(root.home))
-                (Runtime.proxy(this) as RemoteFinish).notifyActivityCreation();
-        }
-
-        @Global public def notifyActivityTermination():void {
-            if (here.equals(root.home)) {
-            	val rf:RootFinish = (root as GlobalRef[RootFinish]{here==root.home})();
-            	rf.notifyActivityTerminationLocal();
-            } else {
-                (Runtime.proxy(this) as RemoteFinish).notifyActivityTermination(this);
-            }
-        }
-
-        @Global public def pushException(t:Throwable):void {
-            if (here.equals(root.home)) {
-            	val rf:RootFinish = (root as GlobalRef[RootFinish]{here==root.home})();
-            	rf.pushExceptionLocal(t);
-            } else {
-                (Runtime.proxy(this) as RemoteFinish).pushException(t);
-            }
-        }
-
-    }
-
-    @Pinned static class RemoteCollectingFinish[T] extends RemoteFinish {
-    	val sr:StatefulReducer[T];
-        val stepAtomic :AtomicInteger = new AtomicInteger(0);
-        def this(r:Reducible[T]) {
-    	  super();
-    	  this.sr=new StatefulReducer[T](r);
-        }
-    
-    /**
-     * An activity created under this finish has terminated.
-     */
-    public def notifyActivityTermination(r:FinishState):Void {
-        lock.lock();
-        counts(here.id)--;
-        if (count.decrementAndGet() > 0) {
-            lock.unlock();
-            return;
-        }
-        val e = exceptions;
-        exceptions = null;
-        lock.unlock();
-        if (2*length > Place.MAX_PLACES) {
-            if (null != e) {
-                lock.lock();
-                val m = Rail.make[Int](counts.length, 0, counts);
-                for (var i:Int=0; i<Place.MAX_PLACES; i++) counts(i) = 0;
-                length = 1;
-                lock.unlock();
-                val t:Throwable;
-                if (e.size() == 1) {
-                    t = e.peek();
-                } else {
-                    t = new MultipleExceptions(e);
-                }
-	        val rrcf = (r as RootCollectingFinish[T]).root;
-                val closure = () => { 
-                    val rrcfHere = rrcf as GlobalRef[RootCollectingFinish[T]]{self.home==here};
-                    rrcfHere().notify(m, t); 
-                    deallocObject(m); 
-                };
-                runAtNative(r.home().id, closure);
-                dealloc(closure);
-                deallocObject(m);
-            } else {
-                val path = pathCompute(r);
-                //Fixme : Here should use await().
-                while (stepAtomic.get() <path.first) {};
-                lock.lock();
-                val m = Rail.make[Int](counts.length, 0, counts);
-                for (var i:Int=0; i<Place.MAX_PLACES; i++) counts(i) = 0;
-                length = 1;
-                lock.unlock();
-                sr.placeMerge();              
-                val x = sr.result();
-		        sr.reset();
-                stepAtomic.set(0);
-                if(path.second != r.home().id) {
-                     val closure = () => {
-                     (Runtime.proxy(r) as RemoteCollectingFinish[T]).notify(m, x);
-                     deallocObject(m);
-                     };
-                    runAtNative( path.second, closure);
-                    dealloc(closure);
-                    }
-                else {
-                     val rrcf = (r as RootCollectingFinish[T]).root;
-                     val closure = () => {
-                         val rrcfHere = rrcf as GlobalRef[RootCollectingFinish[T]]{self.home==here};
-                         rrcfHere().notify(m, x);
-                         deallocObject(m);
-                     };
-                     runAtNative( path.second, closure);
-                     dealloc(closure);
-                    }
-
-                deallocObject(m);
-            }
-            
-        } else {
-            if (null != e) {
-                lock.lock();
-                val m = Rail.make[Pair[Int,Int]](length, (i:Int)=>Pair[Int,Int](message(i), counts(message(i))));
-                for (var i:Int=0; i<Place.MAX_PLACES; i++) counts(i) = 0;
-                length = 1;
-                lock.unlock();
-
-                val t:Throwable;
-                if (e.size() == 1) {
-                    t = e.peek();
-                } else {
-                    t = new MultipleExceptions(e);
-                }
-                val rrcf = (r as RootCollectingFinish[T]).root;
-                val closure = () => { 
-                     val rrcfHere = rrcf  as GlobalRef[RootCollectingFinish[T]]{self.home==here};
-                     rrcfHere().notify2(m, t); 
-                     deallocObject(m); 
-                };
-                runAtNative(r.home().id, closure);
-                dealloc(closure);
-                deallocObject(m);
-            } else {
-                val path = pathCompute(r);
-                //FIXME here should use await(). 
-                while(stepAtomic.get() < path.first){};
-                lock.lock();
-                val m = Rail.make[Pair[Int,Int]](length, (i:Int)=>Pair[Int,Int](message(i), counts(message(i))));
-                for (var i:Int=0; i<Place.MAX_PLACES; i++) counts(i) = 0;
-                length = 1;
-                lock.unlock();
-                sr.placeMerge();
-                val x = sr.result();
-		        sr.reset();
-                stepAtomic.set(0);
-                if(path.second != r.home().id) {
-                     val closure = () => {
-                     (Runtime.proxy(r) as RemoteCollectingFinish[T]).notify2(m, x);
-                     deallocObject(m);
-                     };
-                    runAtNative( path.second, closure);
-                    dealloc(closure);
-                    }
-                else {
-                     val rrcf = (r as RootCollectingFinish[T]).root;
-                     val closure = () => {
-                         val rrcfHere = rrcf  as GlobalRef[RootCollectingFinish[T]]{self.home==here};
-                         rrcfHere().notify2(m, x);
-                         deallocObject(m);
-                     };
-                     runAtNative( path.second, closure);
-                     dealloc(closure);
-                    }
-
-                deallocObject(m);
-            }
-            
-        }
-        }
-        def accept(t:T) {
-    	    lock.lock();
-    	    sr.accept(t);
-    	    lock.unlock();
-        }
-        def accept(t:T, id:Int) {
-            sr.accept(t,id);
-        }
-        def notify(rail:Rail[Int], v:T):Void {
-            var b:Boolean = true;
-            lock.lock();
-            for(var i:Int=0; i<Place.MAX_PLACES; i++) {
-                counts(i) += rail(i);
-            if (counts(i) != 0) b = false;
-            }
-            accept(v);
-            stepAtomic.getAndIncrement();
-            if (b) release();
             lock.unlock();
         }
 
-        def notify2(rail:Rail[Pair[Int,Int]], v:T):Void {
-            lock.lock();
-            
-            for(var i:Int=0; i<rail.length; i++) {
-                counts(rail(i).first) += rail(i).second;
-                message(length++) = rail(i).first;
-            }
+        def release():void {
+            release(1);
+        }
 
-            for(var i:Int=0; i<Place.MAX_PLACES; i++) {
-                if (counts(i) != 0) {
-                    accept(v);
-                    stepAtomic.getAndIncrement();
+        def reduce(n:Int):void {
+            lock.lock();
+            permits -= n;
+            lock.unlock();
+        }
+
+        def acquire():void {
+            lock.lock();
+            val thread = worker();
+            while (permits <= 0) {
+                val s = size;
+                threads(size++) = thread;
+                while (threads(s) == thread) {
                     lock.unlock();
-                    return;
+                    Worker.park();
+                    lock.lock();
                 }
             }
-            accept(v);
-            stepAtomic.getAndIncrement();
-            release();
-            lock.unlock();
-         }
-        // Pair[Int,Int] the first one is how many steps need to wait
-        // the second one is where to run this notify
-        def pathCompute(r:FinishState):Pair[Int,Int] {
-            val max = Place.MAX_PLACES;
-            val id  = here.id;
-            val step = Math.log2(max);
-            var stage : Int = 0;
-            var target : Int = 0;
-            var interval : Int = 2;
-            if(INIT_THREADS==1) return Pair[Int,Int](0,r.home().id);
-            if(id!=r.home().id){
-                for (var i:Int =0; i < step; i++) {
-                    if(id%interval != 0) {
-                        val distance = id%interval;
-                        stage = i;
-                        target = here.id - distance;
-                        if((id < r.home().id)&&(r.home().id < id+Math.pow2(stage)))
-                            stage --;
-                        if(here.id < Math.pow2(step))
-                            return Pair[Int,Int](stage,target);
-                        else {
-                            if(stage > 0) {
-                                for(var j:Int = stage; j>0;j--) {
-                                    if((id + Math.pow2(j-1)) > (max-1))
-                                        stage--;
-                                }
-                            }
-                            return Pair[Int,Int](stage,target);
-                        }
-                    }
-                interval = interval*2;
-               }
-               if(here.id == Math.pow2(step)) {
-               val delta = max - here.id -1;
-               if (delta == 0) return Pair[Int,Int](0,r.home().id);
-               else  {
-                   val subStep = Math.log2(delta);
-                   return Pair[Int,Int](subStep+1,r.home().id);
-                    }
-                 }
-             }
-            assert (max>1);
-            val subStep = Math.log2(max-1);
-            if(Math.powerOf2(r.home().id))   return Pair[Int,Int](subStep,r.home().id);
-            return Pair[Int,Int](subStep+1,r.home().id);
-        }
-    
-    }
-
-    // FIXME.  This class is not being used consistiently
-    //         It claims it is a Pinned class, however when an activity
-    //         terminates, instances of this class are then serialized
-    //         back to the place of the root finish to transfer exceptions, etc.
-    //         So, it really isn't a Pinned class after all...
-    //         Probably need to pull out the set of fields that need to be 
-    //         sent back to the root place and not send back the whole object
-    //         or otherwise refactor.
-    @Pinned static class RemoteFinish implements RemoteFinishState {
-        /**
-         * The Exception Stack is used to collect exceptions
-         * issued when activities associated with this finish state terminate abruptly.
-         */
-        protected var exceptions:Stack[Throwable];
-
-        /**
-         * The monitor is used to serialize updates to the finish state.
-         */
-        @SuppressTransientError protected transient val lock = new Lock(); // FIXME: Marked transient, but this class needs to be refactored.
-
-        /**
-         * Keep track of the number of activities associated with this finish state.
-         */
-        protected val counts = Rail.make[Int](Place.MAX_PLACES, (Int)=>0);
-
-        protected val message = Rail.make[Int](Place.MAX_PLACES, (Int)=>here.id);
-        protected var length:Int = 1;
-
-        protected var count:AtomicInteger = new AtomicInteger(0);
-
-        public def notifyActivityCreation():void {
-            count.getAndIncrement();
-        }
-
-        /**
-         * An activity created under this finish has been created. Increment the count
-         * associated with the finish.
-         */
-        public def notifySubActivitySpawn(place:Place):void {
-            lock.lock();
-            if (counts(place.id)++ == 0 && here.id != place.id) {
-                message(length++) = place.id;
-            }
+            --permits;
             lock.unlock();
         }
 
-        /**
-         * An activity created under this finish has terminated.
-         */
-        public def notifyActivityTermination(r:FinishState):void {
-            lock.lock();
-            counts(here.id)--;
-            if (count.decrementAndGet() > 0) {
-                lock.unlock();
-                return;
-            }
-            val e = exceptions;
-            exceptions = null;
-            if (2*length > Place.MAX_PLACES) {
-                val m = Rail.make[Int](counts.length, 0, counts);
-                for (var i:Int=0; i<Place.MAX_PLACES; i++) counts(i) = 0;
-                length = 1;
-                lock.unlock();
-                if (null != e) {
-                    val t:Throwable;
-                    if (e.size() == 1) {
-                        t = e.peek();
-                    } else {
-                        t = new MultipleExceptions(e);
-                    }
-                    val rrf = (r as RootFinish).root;
-                    val closure = () => { 
-                        val rrfHere = rrf as GlobalRef[RootFinish]{self.home==here};
-                        rrfHere().notify(m, t); 
-                        deallocObject(m); 
-                    };
-                    runAtNative(r.home().id, closure);
-                    dealloc(closure);
-                } else {
-                    val rrf = (r as RootFinish).root;
-                    val closure = () => {
-                        val rrfHere = rrf as GlobalRef[RootFinish]{self.home==here};
-                        rrfHere().notify(m);
-                        deallocObject(m); 
-                    };
-                    runAtNative(r.home().id, closure);
-                    dealloc(closure);
-                }
-                deallocObject(m);
-            } else {
-                val m = Rail.make[Pair[Int,Int]](length, (i:Int)=>Pair[Int,Int](message(i), counts(message(i))));
-                for (var i:Int=0; i<Place.MAX_PLACES; i++) counts(i) = 0;
-                length = 1;
-                lock.unlock();
-                if (null != e) {
-                    val t:Throwable;
-                    if (e.size() == 1) {
-                        t = e.peek();
-                    } else {
-                        t = new MultipleExceptions(e);
-                    }
-                    val rrf = (r as RootFinish).root;
-                    val closure = () => { 
-                        val rrfHere = rrf as GlobalRef[RootFinish]{self.home==here};
-                        rrfHere().notify2(m, t); 
-                        deallocObject(m); 
-                    };
-                    runAtNative(r.home().id, closure);
-                    dealloc(closure);
-                } else {
-                    val rrf = (r as RootFinish).root;
-                    val closure = () => { 
-                        val rrfHere = rrf as GlobalRef[RootFinish]{self.home==here};
-                        rrfHere().notify2(m); 
-                        deallocObject(m); 
-                    };
-                    runAtNative(r.home().id, closure);
-                    dealloc(closure);
-                }
-                deallocObject(m);
-            }
-        }
-
-        /**
-         * Push an exception onto the stack.
-         */
-        public def pushException(t:Throwable):void {
-            lock.lock();
-            if (null == exceptions) exceptions = new Stack[Throwable]();
-            exceptions.push(t);
-            lock.unlock();
-        }
-     
+        def available():Int = permits;
     }
 
-
-    /**
-     * LocalRootFinish deals with the case that all asyncs in the finish are
-     * in the same place as this finish. Therefore, no RemoteFinishState is
-     * needed nor does the FinishState need a rail of counters: one is 
-     * enough!
-     */
-    @Pinned static class LocalRootFinish extends Latch implements FinishState, Mortal, CustomSerialization {
-    	private var counts:int;
-        private var exceptions:Stack[Throwable];
-        public def this() {
-        	counts = 1;
-        }
-        public home()=here;
-        public def notifySubActivitySpawnLocal(place:Place):void {
-        	lock();
-        	counts++;
-            unlock();
-            
-        }
-
-        public def notifyActivityTerminationLocal():void {
-            lock();
-            counts--;
-            if (counts!= 0) {
-            	unlock();
-                return;
-            } 
-            release();
-            unlock();
-            
-        }
-
-        public def pushExceptionLocal(t:Throwable):void {
-            lock();
-            if (null == exceptions) exceptions = new Stack[Throwable]();
-            exceptions.push(t);
-            unlock();
-        }
-
-        public def waitForFinish(safe:Boolean):void {
-            if (!NO_STEALS && safe) worker().join(this);
-            await();
-            if (null != exceptions) {
-                if (exceptions.size() == 1) {
-                    val t = exceptions.peek();
-                    if (t instanceof Error) {
-                        throw t as Error;
-                    }
-                    if (t instanceof RuntimeException) {
-                        throw t as RuntimeException;
-                    }
-                }
-                throw new MultipleExceptions(exceptions);
-            }
-        }
-
-        public def notifySubActivitySpawn(place:Place):void {	
-        	notifySubActivitySpawnLocal(place);
-        }
-
-        public def notifyActivityCreation():void {}
-
-        public def notifyActivityTermination():void {	 
-        	this.notifyActivityTerminationLocal();
-        }
-
-        public def pushException(t:Throwable):void {
-        	this.pushExceptionLocal(t);
-        }
-        public def makeRemote():RemoteFinishState = null;
-
-        public def serialize():Any {
-            throw new UnsupportedOperationException("Cannot serialize "+typeName());
-        }
-	private def this(Any) {
-            throw new UnsupportedOperationException("Cannot deserialize "+typeName());
-        }
-    }
-
-    /**
-     * SimpleRootFinish and SimpleRemoteFinish are desgined for the "finish"
-     * which has asyncs that do not spawn asyncs in other places: in other words,
-     * these asyncs in the finish do not have nested remote asyncs. In this case,
-     * SimpleRootFinish still requires a rail of counters, but SimpleRemoteFinish
-     * only needs a counter
-     */
-    @Pinned static class SimpleRemoteFinish implements RemoteFinishState {
-        /**
-         * The Exception Stack is used to collect exceptions
-         * issued when activities associated with this finish state terminate abruptly.
-         */
-        protected var exceptions:Stack[Throwable];
-
-        /**
-         * The monitor is used to serialize updates to the finish state.
-         */
-        protected val lock = new Lock();
-
-        /**
-         * Keep track of the number of activities associated with this finish state.
-         */
-        protected var spawnedActCounts:Int;
-        protected var liveActCounts:AtomicInteger = new AtomicInteger(0);
-
-        public def notifyActivityCreation():void {
-            liveActCounts.getAndIncrement();
-        }
-
-        /**
-         * An activity created under this finish has been created. Increment the count
-         * associated with the finish.
-         */
-        public def notifySubActivitySpawn(place:Place):void {
-            lock.lock();
-            spawnedActCounts++;
-            lock.unlock();
-        }
-
-        /**
-         * An activity created under this finish has terminated.
-         */
-         public def notifyActivityTermination(r:FinishState):void {
-            lock.lock();
-            spawnedActCounts--;
-            if (liveActCounts.decrementAndGet() > 0) {
-                lock.unlock();
-                return;
-            }
-            //if terminated
-            val e = exceptions;
-            exceptions = null;
-            val m = spawnedActCounts;
-            spawnedActCounts = 0;
-            lock.unlock();
-            if (null != e) {
-            	val t:Throwable;
-                if (e.size() == 1) {
-                	t = e.peek();
-                } else {
-                    t = new MultipleExceptions(e);
-                }
-                val closure = () => { (r as SimpleRootFinish).notify(m,t);};
-                runAtNative(r.home().id, closure);
-                dealloc(closure);
-           } else {
-                val closure = () => { (r as SimpleRootFinish).notify(m);};
-                runAtNative(r.home().id, closure);
-                dealloc(closure);
-           }
-           runtime().finishStates.remove(r);
-                
-        }
-        /**
-         * Push an exception onto the stack.
-         */
-        public def pushException(t:Throwable):void {
-            lock.lock();
-            if (null == exceptions) exceptions = new Stack[Throwable]();
-            exceptions.push(t);
-            lock.unlock();
-        }
-    }
-
-
-
-    
-     static class SimpleRootFinish extends Latch implements FinishState, Mortal {
-    	 private val root = GlobalRef[SimpleRootFinish](this);
-    	 transient protected var counts:int;
-         transient protected var exceptions:Stack[Throwable];
-	 @SuppressTransientError transient protected val latch = new Latch();
-                                        
-         public def this() {
-             counts = 1;
-         }
-	 private def this(Any) {
-             throw new UnsupportedOperationException("Cannot deserialize "+typeName());
-         }
-
-         @Global public def equals(a:Any) =
-        	 (a instanceof SimpleRootFinish) && this.root.equals((a as SimpleRootFinish).root);
-        @Global public def hashCode() = root.hashCode();
-        @Global public def home()=root.home;
-
-        @Pinned public def lock() = latch.lock();
-        @Pinned public def unlock() = latch.unlock();
-        @Pinned public def tryLock() = latch.tryLock();
-        @Pinned public def release() = latch.release();
-        @Pinned public def await() = latch.await();
-        @Pinned public def apply() = latch.apply();
-        
-        @Pinned public  def notifySubActivitySpawnLocal(place:Place):void {
-        	 lock();
-        	 counts++;
-        	 unlock();
-         }
-
-         @Pinned public def notifyActivityTerminationLocal():void {     
-        	 lock();
-        	 counts--;
-        	 if (counts!= 0) {
-        		 unlock();
-        		 return;
-        	 }   	 
-        	 release();
-        	 unlock();
-         }
-         @Pinned public def pushExceptionLocal(t:Throwable):void {
-        	 lock();
-        	 if (null == exceptions) exceptions = new Stack[Throwable]();
-        	 exceptions.push(t);
-        	 unlock();
-         }
-         @Pinned def notify(remoteCount:Int):void {
-        	 var b:Boolean = true; 
-        	 lock();
-        	 counts+= remoteCount;
-             if (counts == 0) release();
-        	 unlock();
-         }
-         @Pinned def notify(remoteCount:Int,t:Throwable):void {
-    		 pushExceptionLocal(t);
-    		 notify(remoteCount);
-         }
-         @Pinned public def waitForFinish(safe:Boolean):void {
-             if (!NO_STEALS && safe) worker().join(this);
-             await();
-             if (null != exceptions) {
-                 if (exceptions.size() == 1) {
-                     val t = exceptions.peek();
-                     if (t instanceof Error) {
-                         throw t as Error;
-                     }
-                     if (t instanceof RuntimeException) {
-                         throw t as RuntimeException;
-                     }
-                 }
-                 throw new MultipleExceptions(exceptions);
-             }
-         }
-
-         @Global public def notifySubActivitySpawn(place:Place):void {
-       	     if (here.equals(home())) {
-                 val srf:SimpleRootFinish = (root as GlobalRef[SimpleRootFinish]{here==root.home})();
-                 srf.notifySubActivitySpawnLocal(place);
-             } else {
-            	 (Runtime.proxy(this) as SimpleRemoteFinish).notifySubActivitySpawn(place);
-             }
-         }
-         
-         @Global public def notifyActivityCreation():void {
-        	 if (here.equals(root.home)){
-        		 (Runtime.proxy(this) as SimpleRemoteFinish).notifyActivityCreation();
-        	 } 
-         }
-         
-         @Global public def notifyActivityTermination():void {
-        	 if (here.equals(root.home)) {
-        	     val srf:SimpleRootFinish = (root as GlobalRef[SimpleRootFinish]{here==root.home})();
-                     srf.notifyActivityTerminationLocal();
-        	 } else {
-        		 (Runtime.proxy(this) as SimpleRemoteFinish).notifyActivityTermination(this);
-        	 }
-         }
-         
-         @Global public def pushException(t:Throwable):void {
-        	 if (here.equals(root.home)) {
-        	     val srf:SimpleRootFinish = (root as GlobalRef[SimpleRootFinish]{here==root.home})();
-                     srf.pushExceptionLocal(t);
-        	 } else {
-                     (Runtime.proxy(this) as SimpleRemoteFinish).pushException(t);
-        	 }
-         }
-         @Global public def makeRemote():RemoteFinishState{
-        	 return new SimpleRemoteFinish();
-         }
-    }
-
-
-    @NativeClass("java", "x10.runtime.impl.java", "Thread")
-    @NativeClass("c++", "x10.lang", "Thread")
-    @Pinned final static class Thread implements CustomSerialization {
-
-        /**
-         * Allocates new thread in current place
-         */
-        public native def this(body:()=>void, name:String);
-
-        public static native def currentThread():Thread;
-
-        public native def start():void;
-
-        public native static def sleep(millis:Long):void; //throwsInterruptedException;
-
-        public native static def sleep(millis:Long, nanos:Int):void; //throwsInterruptedException;
-
-        public native static def park():void;
-
-        public native static def parkNanos(nanos:Long):void;
-
-        public native def unpark():void;
-
-        public native def worker():Object;
-
-        public native def worker(worker:Worker):void;
-
-        public native def name():String;
-
-        public native def name(name:String):void;
-
-        public native def locInt():Int;
-
-        public static native def getTid():Long;
-        public native def home():Place;
-
-        public def serialize():Any {
-            throw new UnsupportedOperationException("Cannot serialize "+typeName());
-        }
-	private def this(Any) {
-            throw new UnsupportedOperationException("Cannot deserialize "+typeName());
-        }
-    }
-
-
-    @Pinned public final static class Worker implements ()=>void {
-        val latch:Latch;
-        // release the latch to stop the worker
-
+    @Pinned final static class Worker extends Thread {
         // bound on loop iterations to help j9 jit
-        static BOUND = 100;
+        private static BOUND = 100;
 
         // activity (about to be) executed by this worker
         private var activity:Activity = null;
@@ -1234,26 +219,23 @@ import x10.util.Box;
         // random number generator for this worker
         private val random:Random;
 
-        // blocked activities (debugging info)
-        private val debug = new GrowableRail[Activity]();
-
-        private var tid:Long;
-
         //Worker Id for CollectingFinish
-        private var workerId :Int;
-        public def setWorkerId(id:Int) {
-            workerId = id;
+        val workerId:Int;
+
+        def this(main:()=>void) {
+            super(main, "thread-main");
+            workerId = 0;
+            random = new Random(0);
         }
 
-        def this(latch:Latch, p:Int) {
-            this.latch = latch;
-            random = new Random(p + (p << 8) + (p << 16) + (p << 24));
+        def this(workerId:Int) {
+            super(()=>runtime().pool.workers(workerId)(), "thread-" + workerId);
+            this.workerId = workerId;
+            random = new Random(workerId + (workerId << 8) + (workerId << 16) + (workerId << 24));
         }
-
-        // all methods are local
 
         // return size of the deque
-        public def size():Int = queue.size();
+        def size():Int = queue.size();
 
         // return activity executed by this worker
         def activity() = activity;
@@ -1268,125 +250,113 @@ import x10.util.Box;
         def push(activity:Activity):void = queue.push(activity);
 
         // run pending activities
-        public def apply():void {
-            tid = Thread.getTid();
+        def apply():void {
+            val latch = runtime().pool.latch;
             try {
                 while (loop(latch, true));
             } catch (t:Throwable) {
                 println("Uncaught exception in worker thread");
                 t.printStackTrace();
             } finally {
-                Runtime.report();
+                runtime().pool.release();
             }
         }
 
         // run activities while waiting on finish
-        def join(latch:Latch):void {
+        def join(latch:SimpleLatch):void {
             val tmp = activity; // save current activity
             while (loop(latch, false));
             activity = tmp; // restore current activity
         }
 
         // inner loop to help j9 jit
-        private def loop(latch:Latch, block:Boolean):Boolean {
+        @TempNoInline_1
+        private def loop(latch:SimpleLatch, block:Boolean):Boolean {
+            @TempNoInline_1
             for (var i:Int = 0; i < BOUND; i++) {
                 if (latch()) return false;
                 activity = poll();
                 if (activity == null) {
-                    activity = Runtime.scan(random, latch, block);
+                    activity = runtime().pool.scan(random, latch, block);
                     if (activity == null) return false;
                 }
-                debug.add(pretendLocal(activity));
-                runAtLocal(activity.home().id, (activity as Activity).run.());
-                debug.removeLast();
+                runAtLocal(activity.home, activity.run.());
             }
             return true;
         }
 
-        public def probe () : void {
+        @TempNoInline_1
+        def probe():void {
+            @TempNoInline_1
             // process all queued activities
             val tmp = activity; // save current activity
+            event_probe();
             while (true) {
                 activity = poll();
                 if (activity == null) {
                     activity = tmp; // restore current activity
                     return;
                 }
-                debug.add(pretendLocal(activity));
-                runAtLocal(activity.home().id, (activity as Activity).run.());
-                debug.removeLast();
+                runAtLocal(activity.home, activity.run.());
             }
         }
 
-        def dump(id:Int, thread:Thread) {
-            Runtime.printf(@NativeString "WORKER %d", id);
-            Runtime.printf(@NativeString " = THREAD %#lx\n", tid);
-            for (var i:Int=debug.length()-1; i>=0; i--) {
-                debug(i).dump();
+        // park current worker
+        public static def park() {
+            if (!STATIC_THREADS) {
+                Thread.park();
+            } else {
+                probe();
             }
-            Runtime.println();
+        }
+
+        // unpark worker
+        public def unpark() {
+            if (!STATIC_THREADS) {
+                super.unpark();
+            }
         }
     }
 
-    public static def probe () {
-        event_probe();
-        worker().probe();
-    }
+    @Pinned static class Pool {
+        val latch:SimpleLatch;
 
-    @Pinned static class Pool implements ()=>void {
-        private val latch:Latch;
         private var size:Int; // the number of workers in the pool
 
         private var spares:Int = 0; // the number of spare workers in the pool
+
+        private var dead:Int = 0;
 
         private val lock = new Lock();
 
         private val semaphore = new Semaphore(0);
 
-        // an upper bound on the number of workers
-        private static MAX = 1000;
-
         // the workers in the pool
-        private val workers:Rail[Worker];
+        private val workers:Array[Worker]{rail};
 
-        // the threads in the pool
-        private val threads:Rail[Thread];
-
-        def this(latch:Latch, size:Int) {
-            this.latch = latch;
+        def this(size:Int) {
             this.size = size;
-            val workers = Rail.make[Worker](MAX);
-            val threads = Rail.make[Thread](size);
+            this.latch = new SimpleLatch();
+            val workers = new Array[Worker](MAX_WORKERS);
 
-            // worker for the master thread
-            val master = new Worker(latch, 0);
-            workers(0) = master;
-            threads(0) = Thread.currentThread();
-            Thread.currentThread().worker(master);
-            workers.apply(0).setWorkerId(0);
+            // main worker
+            workers(0) = worker();
 
             // other workers
             for (var i:Int = 1; i<size; i++) {
-                val worker = new Worker(latch, i);
-                workers(i) = worker;
-                threads(i) = new Thread(worker.apply.(), "thread-" + i);
-                threads(i).worker(worker);
-                (workers.apply(i)).setWorkerId(i);
+                workers(i) = new Worker(i);
             }
             this.workers = workers;
-            this.threads = threads;
         }
 
-        public def apply():void {
+        def apply():void {
             val s = size;
             for (var i:Int = 1; i<s; i++) {
-                threads(i).start();
+                workers(i).start();
             }
             workers(0)();
-            while (size > 0) Thread.park();
+            while (size > dead) Worker.park();
         }
-
-        // all methods are local
 
         // notify the pool a worker is about to execute a blocking operation
         def increase():void {
@@ -1400,16 +370,14 @@ import x10.util.Box;
                 // allocate and start a new worker
                 val i = size++;
                 lock.unlock();
-                assert (i < MAX);
-                if (i >= MAX) {
+                assert (i < MAX_WORKERS);
+                if (i >= MAX_WORKERS) {
                     println("TOO MANY THREADS... ABORTING");
                     System.exit(1);
                 }
-                val worker = new Worker(latch, i);
+                val worker = new Worker(i);
                 workers(i) = worker;
-                val thread = new Thread(worker.apply.(), "thread-" + i);
-                thread.worker(worker);
-                thread.start();
+                worker.start();
             }
         }
 
@@ -1427,13 +395,13 @@ import x10.util.Box;
         def release() {
             semaphore.release();
             lock.lock();
-            size--;
-            if (size == 0) threads(0).unpark();
+            dead++;
+            if (size == dead) workers(0).unpark();
             lock.unlock();
         }
 
         // scan workers for activity to steal
-        def scan(random:Random, latch:Latch, block:Boolean):Activity {
+        def scan(random:Random, latch:SimpleLatch, block:Boolean):Activity {
             var activity:Activity = null;
             var next:Int = random.nextInt(size);
             for (;;) {
@@ -1454,54 +422,60 @@ import x10.util.Box;
             }
         }
 
-        def dump() {
-            for (var i:Int=0; i<size; i++) {
-                workers(i).dump(i, threads(i));
-            }
-        }
+        def size() = size;
     }
 
+    // static fields
 
-    // for debugging
     static PRINT_STATS = false;
 
-    static public def dump() {
-        runtime().pool.dump();
-    }
+    // runtime instance associated with each place
+    public static runtime = PlaceLocalHandle[Runtime]();
 
     // instance fields
 
     // per process members
-    private transient val pool:Pool;
+    transient val pool:Pool;
 
     // per place members
-    @SuppressTransientError private transient val monitor = new Monitor();
-    @SuppressTransientError private transient val finishStates = new FinishStates();
+    private transient val atomicMonitor:Monitor;
+    private transient val staticMonitor:Monitor;
+    public transient val finishStates:FinishState.FinishStates;
 
     // constructor
 
     private def this(pool:Pool):Runtime {
         this.pool = pool;
+        this.atomicMonitor = new Monitor();
+        this.staticMonitor = new Monitor();
+        this.finishStates = new FinishState.FinishStates();
     }
-
-    /**
-     * The runtime instance associated with each place
-     */
-    private static runtime = PlaceLocalHandle[Runtime]();
-
-    static def proxy(rootFinish:FinishState) = runtime().finishStates(rootFinish);
 
     /**
      * Return the current worker
      */
-    private static def worker():Worker =
-        pretendLocal(Thread.currentThread().worker() as Worker);
+    static def worker():Worker = Thread.currentThread() as Worker;
+
+    /**
+     * Return the current worker id
+     */
+    public static def workerId():Int = worker().workerId;
+
+    /**
+     * An upper bound on the number of workers
+     */
+    public static MAX_WORKERS = 1000;
+
+    /**
+     * Return the number of workers currently in the pool
+     * (can increase, cannot decrease)
+     */
+    public static def poolSize():Int = runtime().pool.size();
 
     /**
      * Return the current activity
      */
-    public static def activity():Activity
-               = worker().activity() as Activity;
+    static def activity():Activity = worker().activity();
 
     /**
      * Return the current place
@@ -1513,7 +487,7 @@ import x10.util.Box;
      * Return the id of the current place
      */
     @Native("c++", "x10aux::here")
-    public static def hereInt():int = Thread.currentThread().locInt();
+    public static def hereInt():int = here().id;
 
     /**
      * The amount of unscheduled activities currently available to this worker thread.
@@ -1524,28 +498,47 @@ import x10.util.Box;
 
     /**
      * Run main activity in a finish
+     * @param init Static initializers
+     * @param body Main activity
      */
     public static def start(init:()=>void, body:()=>void):void {
-        val rootFinish = new RootFinish();
-        val pool = new Pool(rootFinish.latch, INIT_THREADS);
+        // initialize thread pool for the current process
+        val pool = new Pool(INIT_THREADS);
+
         try {
+            // initialize runtime
             for (var i:Int=0; i<Place.MAX_PLACES; i++) {
                 if (isLocal(i)) {
-                    // needed because the closure can be invoked in places other than the p
-                    runAtLocal(i, ()=>runtime.set(new Runtime(pretendLocal(pool))));
+                    // we need to instantiate a runtime for each place hosted by the current process
+                    // all these runtimes share the same thread pool
+                    runAtLocal(i, ()=>runtime.set(new Runtime(pool)));
                 }
             }
+
+            // initialize x10rt
             registerHandlers();
+
             if (hereInt() == 0) {
+                val rootFinish = new FinishState.Finish(runtime().pool.latch);
+                // in place 0 schedule the execution of the static initializers fby main activity
                 execute(new Activity(()=>{finish init(); body();}, rootFinish, true));
+
+                // wait for thread pool to die
+                // (happens when main activity terminates)
                 pool();
+
+                // root finish has terminated, kill remote processes if any
                 if (!isLocal(Place.MAX_PLACES - 1)) {
                     for (var i:Int=1; i<Place.MAX_PLACES; i++) {
-                        runAtNative(i, worker().latch.release.());
+                        runClosureAt(i, ()=> @x10.compiler.RemoteInvocation {runtime().pool.latch.release();});
                     }
                 }
+
+                // we need to call waitForFinish here to see the exceptions thrown by main if any
                 rootFinish.waitForFinish(false);
             } else {
+                // wait for thread pool to die
+                // (happens when a kill signal is received from place 0)
                 pool();
             }
         } finally {
@@ -1556,305 +549,286 @@ import x10.util.Box;
         }
     }
 
-    static def report():void {
-        runtime().pool.release();
+    // async at, async, at statement, and at expression implementation
+    // at is implemented using async at
+    // async at and at must make a copy of the closure parameter (local or remote)
+    // async at and at should dealloc the closure parameter
+    // async must not copy or dealloc the closure parameter
+    
+    /**
+     * Run async at
+     */
+    public static def runAsync(place:Place, clocks:Array[Clock]{rail}, body:()=>void):void {
+        // Do this before anything else
+        val a = activity();
+        a.ensureNotInAtomic();
+        
+        val state = a.finishState();
+        val clockPhases = a.clockPhases().make(clocks);
+        state.notifySubActivitySpawn(place);
+        if (place.id == hereInt()) {
+            execute(new Activity(deepCopy(body), state, clockPhases));
+        } else {
+            val closure = ()=> @x10.compiler.RemoteInvocation { execute(new Activity(body, state, clockPhases)); };
+            runClosureCopyAt(place.id, closure);
+            dealloc(closure);
+        }
+        dealloc(body);
     }
 
-    // async -> at statement -> at expression -> future
-    // do not introduce cycles!!!
+    public static def runAsync(place:Place, body:()=>void):void {
+        // Do this before anything else
+        val a = activity();
+        a.ensureNotInAtomic();
+        
+        val state = a.finishState();
+        state.notifySubActivitySpawn(place);
+        val ok = a.safe();
+        if (place.id == hereInt()) {
+            execute(new Activity(deepCopy(body), state, ok));
+        } else {
+            if (ok) {
+                runAsyncAt(place.id, body, state); // optimized case
+            } else {
+                var closure:()=>void;
+                closure = ()=> @x10.compiler.RemoteInvocation { execute(new Activity(body, state, false)); };
+                runClosureCopyAt(place.id, closure);
+                dealloc(closure);
+            }
+        }
+        dealloc(body);
+    }
 
     /**
      * Run async
      */
-    public static def runAsync(place:Place, clocks:Array[Clock]{rail}, body:()=>void):void {
-    	// Do this before anything else
-        activity().ensureNotInAtomic();
-        
-        val state = currentState();
-        val phases = clockPhases().register(clocks);
-        state.notifySubActivitySpawn(place);
-        if (place.id == hereInt()) {
-            execute(new Activity(deepCopy(body), state, clocks, phases));
-        } else {
-            val c = ()=>execute(new Activity(body, state, clocks, phases));
-            runAtNative(place.id, c);
-        }
-    }
-
-    public static def runAsync(place:Place, body:()=>void):void {
-    	// Do this before anything else
-        activity().ensureNotInAtomic();
-        
-        val state = currentState();
-        state.notifySubActivitySpawn(place);
-        val ok = safe();
-        if (place.id == hereInt()) {
-            execute(new Activity(deepCopy(body), state, ok));
-        } else {
-            var closure:()=>void;
-            // Workaround for XTENLANG_614
-            if (ok) {
-                closure = ()=>execute(new Activity(body, state, true));
-            } else {
-                closure = ()=>execute(new Activity(body, state, false));
-            }
-            runAtNative(place.id, closure);
-            dealloc(closure);
-        }
-    }
-
     public static def runAsync(clocks:Array[Clock]{rail}, body:()=>void):void {
-    	// Do this before anything else
-        activity().ensureNotInAtomic();
+        // Do this before anything else
+        val a = activity();
+        a.ensureNotInAtomic();
         
-        val state = currentState();
-        val phases = clockPhases().register(clocks);
+        val state = a.finishState();
+        val clockPhases = a.clockPhases().make(clocks);
         state.notifySubActivitySpawn(here);
-        execute(new Activity(body, state, clocks, phases));
+        execute(new Activity(body, state, clockPhases));
     }
 
     public static def runAsync(body:()=>void):void {
-    	// Do this before anything else
-        activity().ensureNotInAtomic();
+        // Do this before anything else
+        val a = activity();
+        a.ensureNotInAtomic();
         
-        val state = currentState();
+        val state = a.finishState();
         state.notifySubActivitySpawn(here);
-        execute(new Activity(body, state, safe()));
+        execute(new Activity(body, state, a.safe()));
     }
 
+    /**
+     * Run @Uncounted async at
+     */
     public static def runUncountedAsync(place:Place, body:()=>void):void {
-    	// Do this before anything else
-        activity().ensureNotInAtomic();
+        // Do this before anything else
+        val a = activity();
+        a.ensureNotInAtomic();
         
-        val ok = safe();
+        val ok = a.safe();
         if (place.id == hereInt()) {
-            execute(new Activity(deepCopy(body), ok));
+            execute(new Activity(deepCopy(body), FinishState.UNCOUNTED_FINISH, ok));
         } else {
-            var closure:()=>void;
-            // Workaround for XTENLANG_614
-            if (ok) {
-                closure = ()=>execute(new Activity(body, true));
-            } else {
-                closure = ()=>execute(new Activity(body, false));
-            }
-            runAtNative(place.id, closure);
+            val closure = ()=> @x10.compiler.RemoteInvocation { execute(new Activity(body, FinishState.UNCOUNTED_FINISH, ok)); };
+            runClosureCopyAt(place.id, closure);
             dealloc(closure);
         }
+        dealloc(body);
     }
 
+    /**
+     * Run @Uncounted async
+     */
     public static def runUncountedAsync(body:()=>void):void {
-    	// Do this before anything else
-        activity().ensureNotInAtomic();
+        // Do this before anything else
+        val a = activity();
+        a.ensureNotInAtomic();
         
-        execute(new Activity(body, safe()));
+        execute(new Activity(body, new FinishState.UncountedFinish(), a.safe()));
+    }
+
+    /**
+     * a latch with a place for an exception
+     */
+    static class RemoteControl extends SimpleLatch implements Mortal {
+        public def this() { super(); }
+        private def this(Any) {
+            throw new UnsupportedOperationException("Cannot deserialize "+typeName());
+        }
+        var e:Throwable = null;
     }
 
     /**
      * Run at statement
      */
-    static class RemoteControl {
-    	private val root = GlobalRef[RemoteControl](this);
-        transient var e:Box[Throwable] = null;
-        @SuppressTransientError transient val latch = new Latch();
-        @Global public def equals(a:Any) =
-        	(a instanceof RemoteControl) && this.root.equals((a as RemoteControl).root);
-        @Global public def hashCode()=root.hashCode();
-        @Global public def home() = root.home();
-    }
-
     public static def runAt(place:Place, body:()=>void):void {
-    	Runtime.ensureNotInAtomic();
-        val box = (new RemoteControl()).root;
+        Runtime.ensureNotInAtomic();
+        @StackAllocate val me = @StackAllocate new RemoteControl();
+        val box = GlobalRef(me);
         async at(place) {
             try {
                 body();
                 async at(box.home) {
-                	val me = box();
-                	me.latch.release();
+                    val me2 = box();
+                    me2.release();
                 }
             } catch (e:Throwable) {
                 async at(box.home) {
-                	val me = box();
-                    me.e = new Box[Throwable](e);
-                    me.latch.release();
+                    val me2 = box();
+                    me2.e = e;
+                    me2.release();
                 }
             }
         }
-        val me = box();
-        if (!NO_STEALS && safe()) worker().join(me.latch);
-        me.latch.await();
+        if (!NO_STEALS && activity().safe()) worker().join(me);
+        me.await();
+        dealloc(body);
         if (null != me.e) {
-            val x = me.e.value;
-            if (x instanceof Error)
-                throw x as Error;
-            if (x instanceof RuntimeException)
-                throw x as RuntimeException;
+            throw me.e;
         }
+    }
+
+    /**
+     * a latch with a place for an exception and return value
+     */
+    static class Remote[T] extends RemoteControl {
+        public def this() { super(); }
+        private def this(Any) {
+            throw new UnsupportedOperationException("Cannot deserialize "+typeName());
+        }
+        var t:Box[T] = null;
     }
 
     /**
      * Eval at expression
      */
-    static class Remote[T] {
-        transient var t:Box[T] = null;
-        transient var e:Box[Throwable] = null;
-        @SuppressTransientError transient val latch = new Latch();
-        private val root = GlobalRef[Remote](this);
-        @Global public def equals(a:Any)=
-        	(a instanceof Remote[T]) && this.root.equals((a as Remote[T]).root);
-        @Global public def hashCode()=root.hashCode();
-        @Global public def home() = root.home();
-    }
-
     public static def evalAt[T](place:Place, eval:()=>T):T {
-        val box = (new Remote[T]()).root;
+        @StackAllocate val me = @StackAllocate new Remote[T]();
+        val box = GlobalRef(me);
         async at(place) {
             try {
                 val result = eval();
                 async at(box.home) {
-                	val me = box();
-                    me.t = result;
-                    me.latch.release();
+                    val me2 = box();
+                    me2.t = result;
+                    me2.release();
                 }
             } catch (e:Throwable) {
                 async at(box.home) {
-                	val me = box();
-                	me.e = e;
-                    me.latch.release();
+                    val me2 = box();
+                    me2.e = e;
+                    me2.release();
                 }
             }
         }
-        val me = box();
-        if (!NO_STEALS && safe()) worker().join(me.latch);
-        me.latch.await();
+        if (!NO_STEALS && activity().safe()) worker().join(me);
+        me.await();
+        dealloc(eval);
         if (null != me.e) {
-            val x = me.e.value;
-            if (x instanceof Error)
-                throw x as Error;
-            if (x instanceof RuntimeException)
-                throw x as RuntimeException;
+            throw me.e;
         }
         return me.t.value;
     }
 
-    /**
-     * Eval future expression
-  
-    public static def evalFuture[T](place:Place, eval:()=>T):Future[T] {
-        val f = at (place) {
-                   val f1 = new Future[T](eval);
-                   async f1.run();
-                   f1
-                };
-        return f;
-    }
-   */
+    // initialization of static fields in c++ backend
 
-    // atomic, await, when
-
-    /**
-     * Lock current place
-     * not reentrant!
-     */
-    public static def lock():void {
-        runtime().monitor.lock();
+    public static def StaticInitBroadcastDispatcherLock() {
+        runtime().staticMonitor.lock();
     }
-    
+
+    public static def StaticInitBroadcastDispatcherAwait() {
+        runtime().staticMonitor.await();
+    }
+
+    public static def StaticInitBroadcastDispatcherUnlock() {
+        runtime().staticMonitor.unlock();
+    }
+
+    public static def StaticInitBroadcastDispatcherNotify() {
+        runtime().staticMonitor.release();
+    }
+
+    // atomic and when
+
     public static def enterAtomic() {
-    	lock();
-    	activity().pushAtomic();
+        runtime().atomicMonitor.lock();
+        val a = activity();
+        if (a != null)
+           a.pushAtomic();
     }
-    public static def inAtomic():boolean = activity().inAtomic();
+
     public static def ensureNotInAtomic() {
-    	val act = activity();
-    	if (act != null) // could be null in main thread?
-    	   act.ensureNotInAtomic();
+        val a = activity();
+        if (a != null)
+           a.ensureNotInAtomic();
     }
+
     public static def exitAtomic() {
-    	activity().popAtomic();
-    	release();
+        val a = activity();
+        if (a != null)
+           a.popAtomic();
+        runtime().atomicMonitor.release();
     }
 
-    /**
-     * Wait on current place lock
-     * Must be called while holding the place lock
-     */
-    public static def await():void {
-        runtime().monitor.await();
+    public static def awaitAtomic():void {
+        runtime().atomicMonitor.await();
     }
-
-    /**
-     * Unlock current place
-     * Notify all
-     */
-    public static def release():void {
-        runtime().monitor.release();
-    }
-
 
     // clocks
 
     /**
-     * Return the clock phases for the current activity
-     */
-    static def clockPhases():ClockPhases {
-        val a = activity();
-        if (null == a.clockPhases)
-            a.clockPhases = new ClockPhases();
-        return a.clockPhases;
-    }
-
-    /**
      * Next statement = next on all clocks in parallel.
      */
+    @Native("cuda", "__syncthreads()")
     public static def next():void {
-    	ensureNotInAtomic();
-    	clockPhases().next();
+        ensureNotInAtomic();
+        activity().clockPhases().next();
     }
-    
+
     /**
      * Resume statement = resume on all clocks in parallel.
      */
-    public static def resume():void = clockPhases().resume();
-
+    public static def resume():void = activity().clockPhases().resume();
 
     // finish
-
-    /**
-     * Return the innermost finish state for the current activity
-     */
-    private static def currentState():FinishState {
-        val a = activity();
-        if (null == a.finishStack || a.finishStack.isEmpty())
-            return a.finishState;
-        return a.finishStack.peek();
-    }
 
     /**
      * Start executing current activity synchronously
      * (i.e. within a finish statement).
      */
-    public static def startFinish():void {
-        val a = activity();
-        if (null == a.finishStack)
-            a.finishStack = new Stack[FinishState]();
-        a.finishStack.push(new RootFinish());
+    public static def startFinish():FinishState {
+        return activity().swapFinish(new FinishState.Finish());
     }
 
-    public static def startLocalFinish():void {
-        val a = activity();
-        if (null == a.finishStack)
-            a.finishStack = new Stack[FinishState]();
-        val r = new LocalRootFinish();
-        a.finishStack.push(r);
+    public static def startFinish(pragma:Int):FinishState {
+        val f:FinishState;
+        switch (pragma) {
+        case Pragma.FINISH_ASYNC:
+            f = new FinishState.FinishAsync(); break;
+        case Pragma.FINISH_HERE:
+            f = new FinishState.FinishHere(); break;
+        case Pragma.FINISH_SPMD:
+            f = new FinishState.FinishSPMD(); break;
+        case Pragma.FINISH_LOCAL:
+            f = new FinishState.LocalFinish(); break;
+        default: 
+            f = new FinishState.Finish();
+        }
+        return activity().swapFinish(f);
     }
 
-    public static def startSimpleFinish():void {
-        val a = activity();
-        if (null == a.finishStack)
-            a.finishStack = new Stack[FinishState]();
-        val r = new SimpleRootFinish();
-        a.finishStack.push(r);
+    public static def startLocalFinish():FinishState {
+        return activity().swapFinish(new FinishState.LocalFinish());
+    }
+
+    public static def startSimpleFinish():FinishState {
+        return activity().swapFinish(new FinishState.Finish());
     }
 
     /**
@@ -1863,11 +837,10 @@ import x10.util.Box;
      * async terminated abruptly. Otherwise continue normally.
      * Should only be called by the thread executing the current activity.
      */
-    public static def stopFinish():void {
+    public static def stopFinish(f:FinishState):void {
         val a = activity();
-        val finishState = a.finishStack.pop();
-        finishState.notifyActivityTermination();
-        finishState.waitForFinish(safe());
+        val finishState = a.swapFinish(f);
+        finishState.waitForFinish(a.safe());
     }
 
     /**
@@ -1875,23 +848,35 @@ import x10.util.Box;
      * onto the finish state.
      */
     public static def pushException(t:Throwable):void  {
-        currentState().pushException(t);
+        activity().finishState().pushException(t);
+    }
+    public static def startCollectingFinish[T](r:Reducible[T]) {
+        return activity().swapFinish(new FinishState.CollectingFinish[T](r));
     }
 
-    private static def safe():Boolean {
-        val a = activity();
-        return a.safe && (null == a.clockPhases);
+    public static def makeOffer[T](t:T) {
+        val state = activity().finishState();
+//      Console.OUT.println("Place(" + here.id + ") Runtime.makeOffer: received " + t);
+        (state as FinishState.CollectingFinish[T]).accept(t,workerId());
     }
 
-
-    static def scan(random:Random, latch:Latch, block:Boolean):Activity {
-        return runtime().pool.scan(random, latch, block);
+    public static def stopCollectingFinish[T](f:FinishState):T {
+        val state = activity().swapFinish(f);
+        return (state as FinishState.CollectingFinish[T]).waitForFinishExpr(true);
     }
-
 
     // submit an activity to the pool
-    private static def execute(activity:Activity):void {
+    static def execute(activity:Activity):void {
         worker().push(activity);
+    }
+
+    // submit 
+    public static def execute(body:()=>void, finishState:FinishState):void {
+        execute(new Activity(body, finishState));
+    }
+
+    public static def probe() {
+        worker().probe();
     }
 
     // notify the pool a worker is about to execute a blocking operation
@@ -1906,80 +891,6 @@ import x10.util.Box;
         if (!STATIC_THREADS) {
             runtime().pool.decrease(n);
         }
-    }
-
-    // park current thread
-    static def park() {
-        if (!STATIC_THREADS) {
-            Thread.park();
-        } else {
-            event_probe();
-        }
-    }
-
-    // unpark given thread
-    static def unpark(thread:Thread) {
-        if (!STATIC_THREADS) {
-            thread.unpark();
-        }
-    }
-    //Collecting Finish Implementation
-    // All these methods should be moved to Pool.
-    @Pinned public static class CollectingFinish[T] {
-        //Exposed API
-    	// should become startFinish(r:Reducible[T])
-        public def this(r:Reducible[T]) {
-        	val a = activity();
-        	if (null == a.finishStack)
-        		a.finishStack = new Stack[FinishState]();
-        	a.finishStack.push(new RootCollectingFinish[T](r));
-
-        }
-
-        public static def offer[T](t:T) {
-            val thisWorker = worker();
-            val id = thisWorker.workerId;
-            val state = currentState();
-	    //	    Console.OUT.println("Place(" + here.id + ") Runtime.offer: received " + t);
-            if (here.equals(state.home())) {
-                (state as RootCollectingFinish[T]).accept(t,id);
-            } else {
-                (Runtime.proxy(state as RootFinish) as RemoteCollectingFinish[T]).accept(t,id);
-            }
-       }
-        public def stopFinishExpr():T {
-        	 val thisWorker = worker();
-             val id = thisWorker.workerId;
-             val state = currentState();
-             (state as RootCollectingFinish[T]).notifyActivityTermination();                       
-             //assert here.equals(home);
-             val result = (state as RootCollectingFinish[T]).waitForFinishExpr(true);
-             val a = activity();
-             a.finishStack.pop();  
-             return result;
-            
-       }
-
-    }
-
-    static interface RemoteFinishState {
-        
-        public def notifyActivityCreation():void;
-
-        /**
-         * An activity created under this finish has been created. Increment the count
-         * associated with the finish.
-         */
-        public def notifySubActivitySpawn(place:Place):void;
-
-        /**
-         * An activity created under this finish has terminated.
-         */
-        public def notifyActivityTermination(r:FinishState):void;
-        /**
-         * Push an exception onto the stack.
-         */
-        public def pushException(t:Throwable):void;
     }
 }
 

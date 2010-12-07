@@ -14,7 +14,7 @@ public abstract class AsyncFrame extends Frame {
         super(upcast[FinishFrame,Frame](cast[Frame,FinishFrame](o.up).redirect));
     }
 
-    abstract public def move(ff:FinishFrame):Void;
+    abstract public def move(ff:FinishFrame):void;
 
     @Inline public final def poll(worker:Worker) {
         if (null == worker.deque.poll()) {

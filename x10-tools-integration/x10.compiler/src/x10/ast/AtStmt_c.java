@@ -48,10 +48,11 @@ import x10.constraint.XTerm;
 import x10.errors.Errors;
 import x10.types.ClosureDef;
 import x10.types.ParameterType;
-import x10.types.X10Context;
+import x10.types.X10ProcedureDef;
+import polyglot.types.Context;
 import x10.types.X10MethodDef;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 import x10.types.X10Context_c;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
@@ -127,9 +128,24 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
     XConstrainedTerm placeTerm;
     boolean placeError = false;
   
+    XConstrainedTerm finishPlaceTerm;
+    public boolean isFinishPlace() {
+        boolean isFinishPlace = false;
+        if (null != finishPlaceTerm) {
+            XConstraint constraint = new XConstraint();
+            try {
+                constraint.addBinding(finishPlaceTerm.term(),placeTerm.term());
+                if (placeTerm.constraint().entails(constraint)) {
+                    isFinishPlace = true;
+                }
+            } catch (XFailure xFailure) {}
+        }
+        return isFinishPlace;
+    }
+
     @Override
     public Node typeCheckOverride(Node parent, ContextVisitor tc) {
-    	X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+    	TypeSystem ts = (TypeSystem) tc.typeSystem();
     	NodeVisitor v = tc.enter(parent, this);
     	
     	if (v instanceof PruningVisitor) {
@@ -139,7 +155,8 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
         if (placeTerm == null) {
             try {
                 placeTerm = PlaceChecker.computePlaceTerm((Expr) visitChild(this.place, v),
-                        (X10Context) tc.context(), ts);
+                        (Context) tc.context(), ts);
+                finishPlaceTerm = tc.context().currentFinishPlaceTerm();
             } catch (SemanticException e) {
                 CConstraint d = new CConstraint();
                 XTerm term = PlaceChecker.makePlace();
@@ -157,16 +174,16 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
     	
     	return null;
     }
-   @Override
-   public Node typeCheck(ContextVisitor tc) throws SemanticException {
-		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
-	   if (placeError) { // this means we were not able to convert this.place into a term of type Place.
-		   Errors.issue(tc.job(), 
-					new Errors.AtArgMustBePlace(this.place, ts.Place(), this.position()));
-	   }
-	
-		return super.typeCheck(tc);
-   }
+
+    @Override
+    public Node typeCheck(ContextVisitor tc) {
+        TypeSystem ts = (TypeSystem) tc.typeSystem();
+        if (placeError) { // this means we were not able to convert this.place into a term of type Place.
+            Errors.issue(tc.job(), 
+                    new Errors.AtArgMustBePlace(this.place, ts.Place(), this.position()));
+        }
+        return this;
+    }
     
 	/** Visit the children of the statement. */
 	public Node visitChildren(NodeVisitor v) {
@@ -176,13 +193,12 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
 	}
 
     public static Context createDummyAsync(Context c, boolean isAsyncOrAt) {        
-        X10TypeSystem ts = (X10TypeSystem) c.typeSystem();
+        TypeSystem ts = (TypeSystem) c.typeSystem();
         X10MethodDef asyncInstance = (X10MethodDef) ts.asyncCodeInstance(c.inStaticContext());
 
-        if (c.currentCode() instanceof X10MethodDef) {
-            X10MethodDef outer = (X10MethodDef) c.currentCode();
-            XVar thisVar = outer.thisVar();
-            asyncInstance.setThisVar(thisVar);
+        if (c.currentCode() instanceof X10ProcedureDef) {
+            X10ProcedureDef outer = (X10ProcedureDef) c.currentCode();
+            asyncInstance.setThisDef(outer.thisDef());
             List<ParameterType> capturedTypes = outer.typeParameters();
             if (!capturedTypes.isEmpty()) {
                 asyncInstance = ((X10MethodDef) asyncInstance.copy());
@@ -204,7 +220,7 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
 			c = c.pop();
 		} else {
 			c = super.enterChildScope(child,c);
-			X10Context xc = (X10Context) c;
+			Context xc = (Context) c;
 			if (child == body) {
 				if (placeTerm != null)
 					c = xc.pushPlace(placeTerm);
@@ -216,7 +232,7 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
 
 
 	public Type childExpectedType(Expr child, AscriptionVisitor av) {
-		X10TypeSystem ts = (X10TypeSystem) av.typeSystem();
+		TypeSystem ts = (TypeSystem) av.typeSystem();
 		if (child == place) {
 			return ts.Place();
 		}

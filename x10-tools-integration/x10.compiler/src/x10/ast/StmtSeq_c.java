@@ -31,14 +31,14 @@ import polyglot.util.TypedList;
  */
 public class StmtSeq_c extends AbstractBlock_c implements StmtSeq {
 
-    private final X10NodeFactory xnf;
+    private final NodeFactory xnf;
 
     /**
      * @param xnf
      * @param pos
      * @param statements
      */
-    public StmtSeq_c(X10NodeFactory xnf, Position pos, List<Stmt> statements) {
+    public StmtSeq_c(NodeFactory xnf, Position pos, List<Stmt> statements) {
         super(pos, statements);
         this.xnf = xnf;
 

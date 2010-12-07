@@ -12,6 +12,8 @@
 package x10.runtime.impl.java;
 
 import x10.lang.Place;
+import x10.rtt.RuntimeType;
+import x10.rtt.Type;
 
 /**
  * @author Christian Grothoff
@@ -20,42 +22,23 @@ import x10.lang.Place;
  * @author tardieu
  */
 public class Thread extends java.lang.Thread {
+    public RuntimeType<?> getRTT() { return null; }
+    public Type<?> getParam(int i) { return null; }
+
 	public static Thread currentThread() {
 		return (Thread) java.lang.Thread.currentThread();
 	}
 
 	private Place home;    // the current place
-	private Object worker;   // the current worker
 
-	/**
-	 * Create main x10 thread (called by native runtime only )
-	 */
-	Thread(int home, Runnable runnable, String name) {
-		super(runnable, name);
-		this.home = Place.place(home);
-	}
-
-	/**
-	 * Create additional x10 threads (called by xrx only)
-	 */
-	public Thread(final x10.core.fun.VoidFun_0_0 body, String name) {
-		super(new Runnable() { public void run() { body.apply(); } }, name);
-		home = currentThread().home;
-	}
-
-	/**
-	 * Attach worker to thread
-	 */
-	public void worker(Object worker) {
-		this.worker = worker;
-	}
-
-	/**
-	 * Return current worker
-	 */
-	public Object worker() {
-		return worker;
-	}
+    public Thread(final x10.core.fun.VoidFun_0_0 body, String name) {
+        super(new Runnable() { public void run() { body.apply(); } }, name);
+        if (!(java.lang.Thread.currentThread() instanceof Thread)) {
+            home = Place.place(0);
+        } else {
+            home = currentThread().home();
+        }
+    }
 
 	/**
 	 * Update thread place (called by native runtime only)
@@ -70,10 +53,6 @@ public class Thread extends java.lang.Thread {
 	public Place home() {
 		return home;
 	}
-
-    public int locInt() {
-        return home.id;
-    }
 
     public String name() {
         return getName();
@@ -107,9 +86,9 @@ public class Thread extends java.lang.Thread {
         try {
             java.lang.Thread.sleep(time, nanos);
         } catch (InterruptedException e) {
-            X10Throwable e1 = null;
+            x10.core.Throwable e1 = null;
             try {
-                e1 = (X10Throwable)Class.forName("x10.lang.InterruptedException").newInstance();
+                e1 = (x10.core.Throwable)Class.forName("x10.lang.InterruptedException").newInstance();
             } catch (Exception e2) {
                 e2.printStackTrace();
             }

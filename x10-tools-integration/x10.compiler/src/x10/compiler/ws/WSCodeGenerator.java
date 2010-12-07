@@ -24,8 +24,6 @@ import polyglot.frontend.Job;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.ConstructorDef;
-import polyglot.types.MethodDef;
-import polyglot.types.ProcedureDef;
 import polyglot.types.SemanticException;
 import polyglot.types.TypeSystem;
 import polyglot.visit.ContextVisitor;
@@ -39,14 +37,14 @@ import x10.ast.PlacedClosure;
 import x10.ast.RemoteActivityInvocation;
 import x10.ast.X10ClassDecl;
 import x10.ast.X10MethodDecl;
-import x10.ast.X10NodeFactory;
 import x10.compiler.ws.codegen.AbstractWSClassGen;
 import x10.compiler.ws.codegen.WSMethodFrameClassGen;
 import x10.compiler.ws.util.WSCallGraph;
 import x10.compiler.ws.util.WSCallGraphNode;
 import x10.types.ClosureDef;
-import x10.types.X10Context;
-import x10.types.X10TypeSystem;
+import x10.types.X10MethodDef;
+import polyglot.types.Context;
+import polyglot.types.TypeSystem;
 import x10.types.checker.PlaceChecker;
 import x10.util.Synthesizer;
 import x10.util.synthesizer.MethodSynth;
@@ -88,7 +86,7 @@ public class WSCodeGenerator extends ContextVisitor {
         genClassDecls = new HashSet<X10ClassDecl>();
     }
 
-    public static void buildCallGraph(X10TypeSystem xts, X10NodeFactory xnf, String theLanguage) {
+    public static void buildCallGraph(TypeSystem xts, NodeFactory xnf, String theLanguage) {
         wts = new WSTransformState(xts, xnf, theLanguage);
     }
 
@@ -112,7 +110,8 @@ public class WSCodeGenerator extends ContextVisitor {
                 throw new SemanticException("Work-Stealing doesn't support at: " + r, n.position());
             }
         }
-        if(n instanceof Closure){
+        if(n instanceof Closure && !(n instanceof PlacedClosure)){
+            //match with WSCallGraph, not handle PlacedClosure
             Closure closure = (Closure)n;           
             ClosureDef cDef = closure.closureDef();
             if(wts.isTargetProcedure(cDef)){
@@ -127,17 +126,24 @@ public class WSCodeGenerator extends ContextVisitor {
         }
 
         // transform methods
-        if(n instanceof MethodDecl) {
-            MethodDecl mDecl = (MethodDecl)n;
-            MethodDef mDef = mDecl.methodDef();
+        if(n instanceof X10MethodDecl) {
+            X10MethodDecl mDecl = (X10MethodDecl)n;
+            X10MethodDef mDef = mDecl.methodDef();
             if(wts.isTargetProcedure(mDef)){
                 if(debugLevel > 3){
                     System.out.println("[WS_INFO] Start transforming target method: " + mDef.name());
                 }
                 
                 Job job = ((ClassType) mDef.container().get()).def().job();
-                WSMethodFrameClassGen mFrame = new WSMethodFrameClassGen(job, (X10NodeFactory) nf, (X10Context) context, mDef, mDecl, wts);
+                WSMethodFrameClassGen mFrame = new WSMethodFrameClassGen(job, (NodeFactory) nf, (Context) context, mDef, mDecl, wts);
+                try{
                 n = mFrame.transform();
+                }
+                catch(SemanticException e){
+                    System.err.println("==========>" + e.getMessage());
+                    e.printStackTrace();
+                    System.exit(-1);
+                }
                 genClassDecls.addAll(mFrame.close()); 
                 genMethodDecls.add(mFrame.getWraperMethod());
                 if(debugLevel > 3){

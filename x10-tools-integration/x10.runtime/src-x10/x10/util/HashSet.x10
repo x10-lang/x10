@@ -10,11 +10,12 @@
  */
 
 package x10.util;
-import x10.compiler.Incomplete;
-public class HashSet[T] extends MapSet[T] {
+import x10.io.CustomSerialization;
+import x10.io.SerialData;
+public class HashSet[T] extends MapSet[T] implements CustomSerialization {
     public def this() { super(new HashMap[T,boolean]()); }
     public def this(sz: int) { super(new HashMap[T,boolean](sz)); }
-  
-    public @Incomplete def clone(): HashSet[T] 
-    {         throw new UnsupportedOperationException(); }
+    public def serialize():SerialData = (map as HashMap[T,boolean]).serialize();
+    def this(a:SerialData) { super(new HashMap[T,boolean](a)); }
+    public def clone(): HashSet[T] = new HashSet[T](serialize());
 }

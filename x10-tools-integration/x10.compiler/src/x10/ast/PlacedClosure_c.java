@@ -18,6 +18,7 @@ import polyglot.ast.Block;
 import polyglot.ast.Expr;
 import polyglot.ast.Formal;
 import polyglot.ast.Node;
+import polyglot.ast.NodeFactory;
 import polyglot.ast.Term;
 import polyglot.ast.TypeNode;
 import polyglot.types.Context;
@@ -36,8 +37,8 @@ import x10.constraint.XFailure;
 import x10.constraint.XTerm;
 import x10.errors.Errors;
 import x10.types.ClosureDef;
-import x10.types.X10Context;
-import x10.types.X10TypeSystem;
+import polyglot.types.Context;
+import polyglot.types.TypeSystem;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.XConstrainedTerm;
@@ -54,7 +55,7 @@ public class PlacedClosure_c extends Closure_c implements PlacedClosure {
 
 	protected Expr place;
 
-	public PlacedClosure_c(X10NodeFactory nf, Position p, Expr place, TypeNode returnType, TypeNode offerType, Block body) {
+	public PlacedClosure_c(NodeFactory nf, Position p, Expr place, TypeNode returnType, TypeNode offerType, Block body) {
 		super(nf, p, Collections.<Formal>emptyList(), returnType, null, 
 				offerType, body);
 		this.place = place;
@@ -92,7 +93,7 @@ public class PlacedClosure_c extends Closure_c implements PlacedClosure {
     
     @Override
     public Node typeCheck(ContextVisitor tc)  {
-    	X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+    	TypeSystem ts = (TypeSystem) tc.typeSystem();
     	if (placeError) { // this means we were not able to convert this.place into a term of type Place.
     		Errors.issue(tc.job(), 
     				new Errors.AtArgMustBePlace(this.place, ts.Place(), this.position()));
@@ -103,7 +104,7 @@ public class PlacedClosure_c extends Closure_c implements PlacedClosure {
   @Override
     public Node typeCheckOverride(Node parent, ContextVisitor tc) {
     	
-    	X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+    	TypeSystem ts = (TypeSystem) tc.typeSystem();
     	NodeVisitor v = tc.enter(parent, this);
     	
     	if (v instanceof PruningVisitor) {
@@ -114,7 +115,7 @@ public class PlacedClosure_c extends Closure_c implements PlacedClosure {
     		Expr e = (Expr) visitChild(place, v);
     		XConstrainedTerm placeTerm = null;
     		try {
-    		    placeTerm = PlaceChecker.computePlaceTerm(e, (X10Context) tc.context(), ts);
+    		    placeTerm = PlaceChecker.computePlaceTerm(e, (Context) tc.context(), ts);
     		} catch (SemanticException se) {
     			placeError=true;
     		    CConstraint d = new CConstraint();
@@ -133,18 +134,18 @@ public class PlacedClosure_c extends Closure_c implements PlacedClosure {
     	return null;
     }
     
-    protected X10Context pushPlaceTerm(X10Context xc) {
+    protected Context pushPlaceTerm(Context xc) {
     	ClosureDef def = (ClosureDef) codeDef();
     	XConstrainedTerm pt = def.placeTerm();
     	if (pt != null) {
-    		xc = (X10Context) xc.pushPlace(pt);
+    		xc = (Context) xc.pushPlace(pt);
     	}
     	return xc;
     }
     @Override
     public Context enterChildScope(Node child, Context c) {
     	if (child == place) return c.pop();
-    	X10Context xc = (X10Context) super.enterChildScope(child, c);
+    	Context xc = (Context) super.enterChildScope(child, c);
     	if (child == body) {
     		xc = pushPlaceTerm(xc);
     		addDecls(xc);
@@ -185,7 +186,7 @@ public class PlacedClosure_c extends Closure_c implements PlacedClosure {
     }
     
     public Type childExpectedType(Expr child, AscriptionVisitor av) {
-    	X10TypeSystem ts = (X10TypeSystem) av.typeSystem();
+    	TypeSystem ts = (TypeSystem) av.typeSystem();
     	if ( child == place ) {
     		return ts.Place();
     	}

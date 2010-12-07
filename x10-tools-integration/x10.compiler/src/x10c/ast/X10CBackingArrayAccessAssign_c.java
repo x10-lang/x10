@@ -13,11 +13,11 @@ package x10c.ast;
 
 import polyglot.ast.ArrayAccessAssign_c;
 import polyglot.ast.Expr;
+import polyglot.ast.NodeFactory;
 import polyglot.util.Position;
-import x10.ast.X10NodeFactory;
 
 public class X10CBackingArrayAccessAssign_c extends ArrayAccessAssign_c implements BackingArrayAccessAssign {
-    public X10CBackingArrayAccessAssign_c(X10NodeFactory nf, Position pos, Expr array, Expr index, Operator op, Expr right) {
+    public X10CBackingArrayAccessAssign_c(NodeFactory nf, Position pos, Expr array, Expr index, Operator op, Expr right) {
         super(nf, pos, array, index, op, right);
     }
 }

@@ -32,10 +32,10 @@ import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeChecker;
 import x10.ast.X10Loop.LoopKind;
 import x10.errors.Errors;
-import x10.types.X10Context;
+import polyglot.types.Context;
 import x10.types.X10Flags;
 import x10.types.X10MethodInstance;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 import x10.types.checker.Checker;
 import x10.types.checker.PlaceChecker;
 
@@ -77,9 +77,9 @@ public class ForLoop_c extends X10Loop_c implements ForLoop {
 	}
 
 	private static final Name ITERATOR = Name.make("iterator");
-	public Node typeCheck(ContextVisitor tc) throws SemanticException {
+	public Node typeCheck(ContextVisitor tc) {
 	    X10Loop result = (X10Loop) super.typeCheck(tc);
-	    X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
+	    TypeSystem xts = (TypeSystem) tc.typeSystem();
 	    // TODO: generate a cast if STATIC_CALLS is off
 	    X10MethodInstance mi = null;
 	    Expr domain = result.domain();
@@ -95,18 +95,6 @@ public class ForLoop_c extends X10Loop_c implements ForLoop {
 	    return result;
 	}
 
-	/** Type check the statement. */
-//	public Node typeCheck(TypeChecker tc) throws SemanticException {
-//		ForLoop_c n = (ForLoop_c) super.typeCheck(tc);
-//		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
-//		Expr newDomain = n.domain;
-//		X10Type type = (X10Type) newDomain.type();
-//		// FIXME: [IP] remove desugaring
-//		if (ts.isDistribution(type))
-//			newDomain = (Expr) tc.nodeFactory().Field(n.position(), newDomain, tc.nodeFactory().Id(n.position(), "region")).del().typeCheck(tc);
-//		return n.domain(newDomain);
-//	}
-
 	public boolean condIsConstant() { return false; }
 	public boolean condIsConstantTrue() { return false; }
 
@@ -117,6 +105,15 @@ public class ForLoop_c extends X10Loop_c implements ForLoop {
 	public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
 		w.write("for(");
 		printBlock(formal, w, tr);
+		if (formal instanceof X10Formal) {
+			X10Formal f = (X10Formal) formal;
+			w.write("[");
+			for (int i=0 ; i<f.vars().size() ; ++i) {
+				if (i>0) w.write(",");
+				printBlock(f.vars().get(i), w, tr);
+			}
+			w.write("]");
+		}
 		w.write(" : ");
 		printBlock(domain, w, tr);
 		w.write(") ");

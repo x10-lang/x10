@@ -26,7 +26,9 @@ public class ClosureEnclosingScope2a_MustFailCompile extends ClosureTest {
 
     public def run(): boolean = {
     		var a:int = 1;
-        check("(()=>a)()", (()=>a)(), 1);
+        check("(()=>a)()",
+            (()=>a) // ERR
+            (), 1);
 
         return result;
     }

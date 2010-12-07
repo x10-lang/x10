@@ -18,6 +18,7 @@ import polyglot.ast.Block;
 import polyglot.ast.Expr;
 import polyglot.ast.Expr_c;
 import polyglot.ast.Node;
+import polyglot.ast.NodeFactory;
 import polyglot.ast.Term;
 import polyglot.ast.TypeNode;
 import polyglot.types.Context;
@@ -35,10 +36,10 @@ import polyglot.visit.PruningVisitor;
 import polyglot.visit.ReachChecker;
 import x10.constraint.XTerm;
 import x10.types.ClosureDef;
-import x10.types.X10Context;
+import polyglot.types.Context;
 import x10.types.X10NamedType;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 import x10.types.checker.PlaceChecker;
 
 
@@ -52,7 +53,7 @@ import x10.types.checker.PlaceChecker;
 public class AtExpr_c extends PlacedClosure_c
     implements AtExpr {
     
-    public AtExpr_c(X10NodeFactory nf, Position p, Expr place, TypeNode returnType, TypeNode offerType, Block body) {
+    public AtExpr_c(NodeFactory nf, Position p, Expr place, TypeNode returnType, TypeNode offerType, Block body) {
 	    super(nf, p, place, returnType, offerType, body);
     }
 
@@ -60,7 +61,7 @@ public class AtExpr_c extends PlacedClosure_c
     	AtExpr_c n = (AtExpr_c) super.typeCheck(tc);
     	Type t = n.returnType().type();
     	Context childC = enterChildScope(body, tc.context());
-    	t = PlaceChecker.ReplaceHereByPlaceTerm(t, (X10Context) childC);
+    	t = PlaceChecker.ReplaceHereByPlaceTerm(t, (Context) childC);
     	return n.type(t);
     }
     

@@ -24,14 +24,14 @@ import x10.util.Ordered;
  */
 @NativeRep("java", "char", null, "x10.rtt.Types.CHAR")
 @NativeRep("c++", "x10_char", "x10_char", null)
-public final struct Char /*TODO implements Ordered[Char]*/ {
+public struct Char implements Comparable[Char] /*TODO implements Ordered[Char]*/ {
     /**
      * Convert a given Byte to a Char with that ordinal value.
      * @param x the given Byte
      * @return the Char with the same ordinal value as the given Byte.
      */
     @Native("java", "((char) (#1))")
-    @Native("c++",  "((x10_char) (char) (#1))")
+    @Native("c++",  "(x10_char((x10_int)(#1)))")
     public native static operator (x:Byte) as Char;
 
     /**
@@ -40,7 +40,7 @@ public final struct Char /*TODO implements Ordered[Char]*/ {
      * @return the Char with the same ordinal value as the given Short.
      */
     @Native("java", "((char) (#1))")
-    @Native("c++",  "((x10_char) (int) (#1))")
+    @Native("c++",  "(x10_char((x10_int)(#1)))")
     public native static operator (x:Short) as Char;
 
     /**
@@ -49,7 +49,7 @@ public final struct Char /*TODO implements Ordered[Char]*/ {
      * @return the Char with the same ordinal value as the given Int.
      */
     @Native("java", "((char) (#1))")
-    @Native("c++",  "((x10_char) (int) (#1))")
+    @Native("c++",  "(x10_char(#1))")
     public native static operator (x:Int) as Char;
 
     /**
@@ -58,7 +58,7 @@ public final struct Char /*TODO implements Ordered[Char]*/ {
      * @return the Char with the same ordinal value as the given Long.
      */
     @Native("java", "((char) (#1))")
-    @Native("c++",  "((x10_char) (int) (#1))")
+    @Native("c++",  "(x10_char((x10_int)(#1)))")
     public native static operator (x:Long) as Char;
 
 
@@ -69,7 +69,7 @@ public final struct Char /*TODO implements Ordered[Char]*/ {
      * @return the Char whose ordinal value is the sum of the given Char's ordinal value and the given distance.
      */
     @Native("java", "((char) ((#1) + (#2)))")
-    @Native("c++",  "((x10_char) (int) ((#1) + (#2)))")
+    @Native("c++",  "(x10_char(((#1).v) + (#2)))")
     public native static operator (x:Char) + (y:Int): Char;
 
     /**
@@ -79,7 +79,7 @@ public final struct Char /*TODO implements Ordered[Char]*/ {
      * @return the Char whose ordinal value is the sum of the given Char's ordinal value and the given distance.
      */
     @Native("java", "((char) ((#1) + (#2)))")
-    @Native("c++",  "((x10_char) (int) ((#1) + (#2)))")
+    @Native("c++",  "(x10_char((#1) + ((#2).v)))")
     public native static operator (x:Int) + (y:Char): Char;
 
     /**
@@ -89,7 +89,7 @@ public final struct Char /*TODO implements Ordered[Char]*/ {
      * @return the Char whose ordinal value is the difference of the given Char's ordinal value and the given distance.
      */
     @Native("java", "((char) ((#1) - (#2)))")
-    @Native("c++",  "((x10_char) (int) ((#1) - (#2)))")
+    @Native("c++",  "(x10_char((int)((#1).v - (#2))))")
     public native static operator (x:Char) - (y:Int): Char;
 
     /**
@@ -99,7 +99,7 @@ public final struct Char /*TODO implements Ordered[Char]*/ {
      * @return the distance between the source Char and the target Char.
      */
     @Native("java", "((#1) - (#2))")
-    @Native("c++",  "((#1) - (#2))")
+    @Native("c++",  "x10_char((#1).v - (#2).v)")
     public native static operator (x:Char) - (y:Char): Int;
 
 
@@ -295,7 +295,7 @@ public final struct Char /*TODO implements Ordered[Char]*/ {
      * @return the Char with the same ordinal value as the given Int.
      */
     @Native("java", "((char) (#1))")
-    @Native("c++", "((x10_char) (int) (#1))")
+    @Native("c++", "(x10_char(#1))")
     public native static def chr(x:Int): Char;
 
 
@@ -317,4 +317,15 @@ public final struct Char /*TODO implements Ordered[Char]*/ {
     @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
     public native def equals(x:Char):Boolean;
+
+    /**
+    * Returns a negative Int, zero, or a positive Int if this Char is less than, equal
+    * to, or greater than the given Char.
+    * @param x the given Char
+    * @return a negative Int, zero, or a positive Int if this Char is less than, equal
+    * to, or greater than the given Char.
+    */
+   @Native("java", "x10.rtt.Equality.compareTo(#0, #1)")
+   @Native("c++", "x10aux::char_utils::compareTo(#0, #1)")
+   public native def compareTo(x:Char):Int;
 }

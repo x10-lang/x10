@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import polyglot.ast.Expr;
+import polyglot.ast.NodeFactory;
 import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
 import polyglot.types.ClassDef;
@@ -21,8 +22,7 @@ import polyglot.types.ConstructorDef;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.util.Position;
-import x10.ast.X10NodeFactory;
-import x10.types.X10Context;
+import polyglot.types.Context;
 
 /**
  * An simple synthesizer to create a super call.
@@ -38,7 +38,7 @@ public class SuperCallSynth extends AbstractStateSynth implements IStmtSynth {
     List<Type> argTypes; //arguments' type --> If we could reason the args' type from args, the list could be eliminated
     List<Expr> args;     //arguments
     
-    public SuperCallSynth(X10NodeFactory xnf, X10Context xct, Position pos, ClassDef classDef,
+    public SuperCallSynth(NodeFactory xnf, Context xct, Position pos, ClassDef classDef,
                           List<TypeNode> typeNodes, List<Type> argTypes, List<Expr> args){
         super(xnf, xct, pos);
         this.classDef = classDef;
@@ -47,12 +47,12 @@ public class SuperCallSynth extends AbstractStateSynth implements IStmtSynth {
         this.args = args;
     }
     
-    public SuperCallSynth(X10NodeFactory xnf, X10Context xct, Position pos, ClassDef classDef){
+    public SuperCallSynth(NodeFactory xnf, Context xct, Position pos, ClassDef classDef){
         this(xnf, xct, pos, classDef,
              new ArrayList<TypeNode>(), new ArrayList<Type>(), new ArrayList<Expr>());
     }
     
-    public SuperCallSynth(X10NodeFactory xnf, X10Context xct, ClassDef classDef){
+    public SuperCallSynth(NodeFactory xnf, Context xct, ClassDef classDef){
         this(xnf, xct, compilerPos, classDef);
     }
 

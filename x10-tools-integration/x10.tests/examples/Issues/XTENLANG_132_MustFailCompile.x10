@@ -28,7 +28,8 @@ class XTENLANG_132_MustFailCompile extends x10Test {
         public static def run():boolean {
     
             val a = new A(0);
-            val a1 = a as A(1); // Must fail compilation.
+            val a1 = a as A(1); // ERR Must fail compilation.
+            return false;
         }
     }
 

@@ -69,16 +69,18 @@ import polyglot.main.Report;
 import polyglot.types.ClassType;
 import polyglot.types.Context;
 import polyglot.types.MemberDef;
-import polyglot.types.Name;
+import polyglot.types.MethodDef;
 import polyglot.types.Package;
 import polyglot.types.QName;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
+import polyglot.types.Types;
 import polyglot.util.CodeWriter;
 import polyglot.util.ErrorInfo;
 import polyglot.util.ErrorQueue;
 import polyglot.util.InternalCompilerError;
+import polyglot.util.SimpleCodeWriter;
 import polyglot.util.StdErrorQueue;
 import polyglot.util.StringUtil;
 import polyglot.visit.Translator;
@@ -91,7 +93,10 @@ import x10.types.X10TypeSystem_c;
 import x10.util.ClassifiedStream;
 import x10.util.StreamWrapper;
 import x10.util.WriterStreams;
+import x10.visit.StaticNestedClassRemover;
+import x10cpp.Configuration;
 import x10cpp.X10CPPCompilerOptions;
+import x10cpp.X10CPPJobExt;
 import x10cpp.debug.LineNumberMap;
 import x10cpp.postcompiler.AIX_CXXCommandBuilder;
 import x10cpp.postcompiler.CXXCommandBuilder;
@@ -169,7 +174,7 @@ public class X10CPPTranslator extends Translator {
 			w.newline();
 		}
 		
-		if (x10.Configuration.DEBUG && n instanceof Stmt && !(n instanceof Assert) && !(n instanceof Block) && !(n instanceof Catch))
+		if (x10.Configuration.DEBUG && n instanceof Stmt && !(n instanceof Assert) && !(n instanceof Block) && !(n instanceof Catch) && !(parent instanceof If))
 		{
 			w.write("_X10_STATEMENT_HOOK()");
 			if (!(parent instanceof For))
@@ -220,15 +225,19 @@ public class X10CPPTranslator extends Translator {
 		                    }
 		                });
 		            }
-		            if (n instanceof FieldDecl)
+		            if (n instanceof FieldDecl && !c.inTemplate()) // the c.inTemplate() skips mappings for templates, which don't have a fixed size.
 		            	lineNumberMap.addClassMemberVariable(((FieldDecl)n).name().toString(), ((FieldDecl)n).type().toString(), Emitter.mangled_non_method_name(context.currentClass().toString()));
 		            else if (n instanceof LocalDecl && !((LocalDecl)n).position().isCompilerGenerated())
-		            	lineNumberMap.addLocalVariableMapping(((LocalDecl)n).name().toString(), ((LocalDecl)n).type().toString(), line, parent.position().endLine(), file);
+		            	lineNumberMap.addLocalVariableMapping(((LocalDecl)n).name().toString(), ((LocalDecl)n).type().toString(), line, parent.position().endLine(), file, false);
 		            else if (def != null)
 		            {
+		            	// include method arguments in the local variable tables
 		            	List<Formal> args = ((ProcedureDecl)parent).formals();
 		            	for (int i=0; i<args.size(); i++)
-		            		lineNumberMap.addLocalVariableMapping(args.get(i).name().toString(), args.get(i).type().toString(), line, parent.position().endLine(), file);
+		            		lineNumberMap.addLocalVariableMapping(args.get(i).name().toString(), args.get(i).type().toString(), line, parent.position().endLine(), file, false);
+		            	// include "this" for non-static methods		            	
+		            	if (!def.flags().isStatic() && ((ProcedureDecl)parent).reachable())
+		            		lineNumberMap.addLocalVariableMapping("this", Emitter.mangled_non_method_name(context.currentClass().toString()), line, parent.position().endLine(), file, true);
 		            }
 		        }
 		    }
@@ -453,8 +462,9 @@ public class X10CPPTranslator extends Translator {
 
 	public static final String postcompile = "postcompile";
 
+	public static final String MAIN_STUB_NAME = "xxx_main_xxx";
 
-    /**
+	/**
 	 * The post-compiler option has the following structure:
 	 * "[pre-command with options (usually g++)] [(#|%) [post-options (usually extra files)] [(#|%) [library options]]]".
 	 * Using '%' instead of '#' to delimit a section will cause the default values in that section to be omitted.
@@ -465,16 +475,81 @@ public class X10CPPTranslator extends Translator {
 
 		if (options.post_compiler != null && !options.output_stdout) {
 			// use set to avoid duplicates
-            Set<String> compilationUnits = new HashSet<String>(options.compilationUnits());
-            CXXCommandBuilder ccb = CXXCommandBuilder.getCXXCommandBuilder(options, eq);
-            String[] cxxCmd = ccb.buildCXXCommandLine(compilationUnits);
+			Set<String> compilationUnits = new HashSet<String>(options.compilationUnits());
+
+			try {
+			    final File file = outputFile(options, null, MAIN_STUB_NAME, "cc");
+			    ExtensionInfo ext = compiler.sourceExtension();
+			    SimpleCodeWriter sw = new SimpleCodeWriter(ext.targetFactory().outputWriter(file),
+			            compiler.outputWidth());
+			    List<MethodDef> mainMethods = new ArrayList<MethodDef>();
+			    for (Job job : ext.scheduler().commandLineJobs()) {
+			        mainMethods.addAll(getMainMethods(job));
+			    }
+			    if (mainMethods.size() < 1) {
+			        // If there are no main() methods in the command-line jobs, try other files
+			        for (Job job : ext.scheduler().jobs()) {
+			            mainMethods.addAll(getMainMethods(job));
+			        }
+			    }
+			    if (mainMethods.size() < 1) {
+			        eq.enqueue(ErrorInfo.SEMANTIC_ERROR, "No main method found");
+			        return false;
+			    } else if (mainMethods.size() > 1) {
+			        eq.enqueue(ErrorInfo.SEMANTIC_ERROR,
+			                "Multiple main() methods found, please specify MAIN_CLASS:"+listMethods(mainMethods));
+			        return false;
+			    }
+			    assert (mainMethods.size() == 1);
+			    X10ClassType container = (X10ClassType) Types.get(mainMethods.get(0).container());
+			    MessagePassingCodeGenerator.processMain(container, sw);
+			    sw.flush();
+			    sw.close();
+			    compilationUnits.add(file.getName());
+			}
+			catch (IOException e) {
+			    eq.enqueue(ErrorInfo.IO_ERROR, "I/O error while translating: " + e.getMessage());
+			    return false;
+			}
+
+			CXXCommandBuilder ccb = CXXCommandBuilder.getCXXCommandBuilder(options, eq);
+			String[] cxxCmd = ccb.buildCXXCommandLine(compilationUnits);
 
 			if (!doPostCompile(options, eq, compilationUnits, cxxCmd)) return false;
-            
+
 			// FIXME: [IP] HACK: Prevent the java post-compiler from running
 			options.post_compiler = null;
 		}
 		return true;
+	}
+
+	private static List<MethodDef> getMainMethods(Job job) {
+	    X10CPPJobExt jobext = (X10CPPJobExt) job.ext();
+	    if (Configuration.MAIN_CLASS != null) {
+	        QName mainClass = QName.make(Configuration.MAIN_CLASS);
+	        try {
+	            ClassType mct = (ClassType) job.extensionInfo().typeSystem().forName(mainClass);
+	            QName pkgName = mct.package_() == null ? null : mct.package_().fullName();
+	            mainClass = QName.make(pkgName, StaticNestedClassRemover.mangleName(mct.def()));
+	        } catch (SemanticException e) { }
+	        for (MethodDef md : jobext.mainMethods()) {
+	            QName containerName = ((X10ClassType) Types.get(md.container())).fullName();
+	            if (containerName.equals(mainClass)) {
+	                return Collections.singletonList(md);
+	            }
+	        }
+	        return Collections.<MethodDef>emptyList();
+	    } else {
+	        return jobext.mainMethods();
+	    }
+	}
+
+	private static String listMethods(List<MethodDef> mainMethods) {
+	    StringBuilder sb = new StringBuilder();
+	    for (MethodDef md : mainMethods) {
+            sb.append("\n\t").append(md.toString());
+        }
+	    return sb.toString();
 	}
 
     public static boolean doPostCompile(Options options, ErrorQueue eq, Collection<String> outputFiles, String[] cxxCmd) {

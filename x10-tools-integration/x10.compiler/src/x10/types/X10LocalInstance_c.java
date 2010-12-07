@@ -78,7 +78,7 @@ public class X10LocalInstance_c extends LocalInstance_c implements X10LocalInsta
         assert rightType != null : "The type() for " + this + " at " + position() + " is null.";
         	rightType = PlaceChecker.ReplaceHereByPlaceTerm(rightType, x10Def().placeTerm());
         Flags flags = flags();
-        X10TypeSystem xts = (X10TypeSystem) ts;
+        TypeSystem xts = (TypeSystem) ts;
         if ((! flags.isFinal())|| xts.isUnknown(rightType)) {
         	return rightType;
         }
@@ -111,8 +111,9 @@ public class X10LocalInstance_c extends LocalInstance_c implements X10LocalInsta
         n.error = e;
         return n;
     }
+
     public String toString() {
-        String s = "local " + X10Flags.toX10Flags(flags()).prettyPrint() + name() + ": " + type();
+        String s = "local " + X10Flags.toX10Flags(flags()).prettyPrint() + name() + ": " + safeType();
         return s;
     }
 

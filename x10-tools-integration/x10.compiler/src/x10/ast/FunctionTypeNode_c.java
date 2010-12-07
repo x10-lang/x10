@@ -46,7 +46,7 @@ import polyglot.visit.TypeChecker;
 
 import x10.types.ClosureDef;
 import x10.types.X10ClassType;
-import x10.types.X10TypeSystem;
+import polyglot.types.TypeSystem;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint;
 import x10.visit.X10TypeChecker;
@@ -73,8 +73,8 @@ public class FunctionTypeNode_c extends TypeNode_c implements FunctionTypeNode {
 
 	@Override
 	public Node disambiguate(ContextVisitor ar) throws SemanticException {
-		X10NodeFactory nf = (X10NodeFactory) ar.nodeFactory();
-		X10TypeSystem ts = (X10TypeSystem) ar.typeSystem();
+		NodeFactory nf = (NodeFactory) ar.nodeFactory();
+		TypeSystem ts = (TypeSystem) ar.typeSystem();
 		FunctionTypeNode_c n = this;
 		List<Ref<? extends Type>> typeParams = new ArrayList<Ref<? extends Type>>(n.typeParameters().size());
 		for (TypeParamNode tpn : n.typeParameters()) {
@@ -147,7 +147,7 @@ public class FunctionTypeNode_c extends TypeNode_c implements FunctionTypeNode {
 	    		LazyRef<Type> r = (LazyRef<Type>) typeRef();
 	    		TypeChecker tc = new X10TypeChecker(v.job(), v.typeSystem(), v.nodeFactory(), v.getMemo());
 	    		tc = (TypeChecker) tc.context(v.context().freeze());
-	    		r.setResolver(new TypeCheckTypeGoal(parent, this, tc, r));
+	    		r.setResolver(new X10TypeCheckTypeGoal(parent, this, tc, r));
 	    	}
 	    }
 	/* (non-Javadoc)

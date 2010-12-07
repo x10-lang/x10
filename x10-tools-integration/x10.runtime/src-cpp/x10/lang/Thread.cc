@@ -45,7 +45,7 @@ using namespace std;
 
 
 // initialize static data members
-ref<Thread> Thread::__current_thread = null;
+ref<Thread> Thread::__current_thread = X10_NULL;
 long x10::lang::Thread::__thread_cnt = 0;
 pthread_key_t Thread::__thread_mapper = 0;
 x10_boolean Thread::__thread_mapper_inited = false;
@@ -71,7 +71,7 @@ x10::lang::Thread::thread_start_routine(void *arg)
     tp->__thread_running = true;
 
     ref<Reference> taskBody = nullCheck(tp->__taskBody);
-    (taskBody.operator->()->*(x10aux::findITable<VoidFun_0_0>(taskBody->_getITables())->apply))();
+    VoidFun_0_0::apply(taskBody);
 
     // finished running
     tp->__thread_running = false;
@@ -87,7 +87,7 @@ Thread::_make(ref<x10::lang::VoidFun_0_0> task, ref<x10::lang::String> name) {
 }
 
 const serialization_id_t Thread::_serialization_id =
-    DeserializationDispatcher::addDeserializer(Thread::_deserializer<Reference>);
+    DeserializationDispatcher::addDeserializer(Thread::_deserializer<Reference>, x10aux::CLOSURE_KIND_NOT_ASYNC);
 
 
 // Helper method to initialize a Thread object.
@@ -105,7 +105,7 @@ Thread::thread_init(ref<VoidFun_0_0> task, const ref<String> name)
     __thread_already_started = false;
     __thread_running = false;
 
-	__current_worker = null;
+	__current_worker = X10_NULL;
     __thread_name = String::_make(name);
     __taskBody = task;
 
@@ -166,9 +166,13 @@ Thread::thread_init(ref<VoidFun_0_0> task, const ref<String> name)
     //pthread_attr_setsuspendstate_np(&__xthread_attr, suspendstate);
 
     // create a new execution thread ??in suspended state??
-    if (__taskBody!=x10aux::null) {
-        (void)pthread_create(&__xthread, &__xthread_attr,
+    if (!__taskBody.isNull()) {
+        int err = pthread_create(&__xthread, &__xthread_attr,
                              thread_start_routine, (void *)this);
+        if (err) {
+            ::fprintf(stderr,"Could not create worker thread: %s\n", ::strerror(err));
+            ::abort();
+        }
     } else {
         pthread_setspecific(__thread_mapper, this);
         __thread_running = true;
@@ -441,12 +445,6 @@ Thread::worker(void)
     return __current_worker;
 }
 
-x10_int
-Thread::locInt(void)
-{
-    return (x10_int) x10aux::here;
-}
-
 x10::lang::Place
 Thread::home(void)
 {
@@ -496,6 +494,6 @@ void Thread::_deserialize_body(deserialization_buffer& buf) {
     this->Object::_deserialize_body(buf);
 }
 
-RTT_CC_DECLS1(Thread, "x10.lang.Thread", Object)
+RTT_CC_DECLS1(Thread, "x10.lang.Thread", RuntimeType::class_kind, Object)
 
 // vim:tabstop=4:shiftwidth=4:expandtab

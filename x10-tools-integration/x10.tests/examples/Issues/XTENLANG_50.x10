@@ -24,7 +24,7 @@ class XTENLANG_50 extends x10Test {
     
         public static operator (rs:Array[R]) = make(rs);
     
-        def this(rank:int) = property(rank);
+        def this(rank:int):R{self.rank==rank} = property(rank);
     }
     
     val x: R{rank==2} = [new R(1), new R(1)];
