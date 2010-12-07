@@ -11,21 +11,14 @@
 
 package x10.core;
 
+import x10.rtt.Types;
+
 final public class String extends x10.core.Ref implements
     x10.core.fun.Fun_0_1<java.lang.Integer, java.lang.Character>,
     java.lang.Comparable<java.lang.String>
 {
-    public static final x10.rtt.RuntimeType<x10.core.String> _RTT =
-        new x10.rtt.RuntimeType<x10.core.String>(
-            /* base class */x10.core.String.class
-          , /* parents */ new x10.rtt.Type[] {
-                new x10.rtt.ParameterizedType(x10.core.fun.Fun_0_1._RTT, x10.rtt.Types.INT, x10.rtt.Types.CHAR),
-                new x10.rtt.ParameterizedType(x10.rtt.Types.COMPARABLE, new x10.rtt.UnresolvedType(-1)),
-                x10.rtt.Types.OBJECT
-            }
-        ) {
-            public java.lang.String typeName() { return "x10.lang.String"; }
-        };
+    public static final x10.rtt.RuntimeType<java.lang.String> _RTT = Types.STRING;
+    
     public x10.rtt.RuntimeType<?> getRTT() {return _RTT;}
     
     public static String box(java.lang.String str) {

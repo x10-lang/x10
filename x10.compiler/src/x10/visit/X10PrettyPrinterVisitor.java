@@ -1347,8 +1347,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                                             "final Object self2 = " + (isString(castType, tr.context()) ? X10_CORE_STRING + ".unbox(self)" : "self") + ";"+
                                             "if (self2==null) return null;" +
                                             "x10.rtt.Type rtt = #2;" +
-                                            "if (rtt != null && ! rtt.instanceof$(self2)) throw new x10.lang.ClassCastException();" +
-                                            "return (#0) self2;" +
+                                            "final Object self3 = " + (xts.isParameterType(exprType) ? X10_RTT_TYPES + ".conversion(rtt,self2)" : "self2") + ";" +
+                                            "if (rtt != null && ! rtt.instanceof$(self3)) throw new x10.lang.ClassCastException();" +
+                                            "return (#0) self3;" +
                                         "}" +
                                     "}.cast(#1))";
                                 er.dumpRegex("cast_deptype", new Object[] { castTE, expr, castRE }, tr, regex);
