@@ -1549,7 +1549,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                         
                         w.write(X10_RTT_TYPES);
                         w.write(".conversion(");
-                        new RuntimeTypeExpander(er, X10TypeMixin.baseType(targetType)).expand(tr);
+                        new RuntimeTypeExpander(er, X10TypeMixin.baseType(mi.container())).expand(tr);
                         w.write(",");
                         
                         er.prettyPrint(target, tr);
@@ -1795,7 +1795,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		    
             w.write(X10_RTT_TYPES);
             w.write(".conversion(");
-            new RuntimeTypeExpander(er, X10TypeMixin.baseType(targetType)).expand(tr);
+            new RuntimeTypeExpander(er, X10TypeMixin.baseType(mi.container())).expand(tr);
             w.write(",");
 
             c.printSubExpr(target, w, tr);
