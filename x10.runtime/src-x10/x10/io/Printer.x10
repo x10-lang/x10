@@ -32,6 +32,8 @@ public class Printer extends FilterWriter {
 
     private static NEWLINE:Char = '\n'; // System.getProperty("line.separator");
 
+    private lock = new Lock();
+    
     public def println(): void = print(NEWLINE);
     
     public final def println(o:Any): void {
@@ -42,13 +44,18 @@ public class Printer extends FilterWriter {
     }
 
     public def print(s:String): void {
+        lock.lock();
         try {
             val b = s.bytes();
             write(b, 0, b.length);
         }
         catch (e: IOException) {
+            // should use a finally block here but until we fix XTENLANG-203 this is better
+            lock.unlock();
             throw new IORuntimeException(e.getMessage());
         }
+        // should use a finally block here but until we fix XTENLANG-203 this is better
+        lock.unlock();
     }
 
     public def printf(fmt: String): void { printfArray(fmt, new Array[Any][]); }
