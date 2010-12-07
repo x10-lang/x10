@@ -1,44 +1,51 @@
 import clocked.Clocked;
 
-class Convolve {
 
-    static def run(w:ValRail[Int], x:ValRail[Int]) {
-    
-    		finish {
- 			 val c = Clock.make();       
-             val n = x.length;
-	     val op = Math.noOp.(Int, Int);
-             val yi = Rail.make[Int @ Clocked[int] (c, op, 0)](w.length, (Int)=>0);
-             val xz: int @ Clocked[int] (c, op, 0) = 0;
-             async clocked (c) {
-                       for (v in x) {
-                                xz = v;
-                                next; // end of one phase, now you can read the values
-                        } 
-               } 
-               for ((i) in 0..w.length-1) async clocked (c)  {
-                    for ((j) in 1..n) {
-                        next; // end of one phase
-                        val v =( (i==0? 0:yi(i-1)) + w(i)*xz) as Int;
+public class Convolve {
 
-                        yi(i)=v;
-                    }
-                } 
+   val N = 64;
+   public def pipeline() {
+   		finish {
+  		val c = Clock.make(); 
+		val op = Math.noOp.(Int, Int);
+         	val a = Rail.make[int @ Clocked[Int](c,op,0)](N, (i:int)=> 0);
+         	val w = Rail.make[Double](N, (i:int)=> (i/1000.0));
 
-                next;
-                Console.OUT.print("y = ");
-                for ((j) in 1..n) {
-                        next; // end of read phase, now you can write the values
-                        Console.OUT.print(yi(w.length-1)+ " " );
+ 	   	 async clocked(c)  {
+                        var i: int;
+                        for (i = 0; i < 2*N; i++)  {
+                                a(0) = i;
+                                next;  /*write phase over */
+                        }
                 }
-                 Console.OUT.println();
-        	}
+		var j: int = 0;
+		for (j = 1; j <= N-1; j++) {
+		val jj = j;
+        	async clocked (c) {
+                        var i: int;
+                        for (i = 0; i < 2*N; i++)  {
+                                a(jj) = (a(jj) * w(jj) as Int) + a(jj - 1);
+                                next; /*write phase over */
+                        }
+                }
+		}
+      		var i: int;
+      		for (i = 0; i < 2*N + 1; i++)  {
+                        val o = a(N-1);
+                        Console.OUT.println(o);
+                        next; /*write phase over */
+                 	}
+          	}
+        }
+
+   
+
+    public static def main(args:Rail[String]!) {
+    	 val start_time = System.currentTimeMillis(); 
+         val h = new Convolve();  // final variable
+         h.pipeline();
+    	val compute_time = (System.currentTimeMillis() - start_time);
+    	Console.ERR.print( compute_time + " ");
     }
 
-    public static def main(args: Rail[String]) {
-        Console.OUT.print("Should get "); for (a in [3,8,14,20,26,32]) Console.OUT.print(a+ " ");
-        Console.OUT.println();
-        run([1,2,3], [1,2,3,4,5,6]);
-
-    }
 }
