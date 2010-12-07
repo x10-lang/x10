@@ -161,6 +161,11 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
 	 */
 	public static final boolean STATIC_THREADS = Boolean.getBoolean("x10.STATIC_THREADS");
 
+    /**
+     * Trace serialization
+     */
+    public static final boolean TRACE_SER = Boolean.getBoolean("x10.TRACE_SER");
+
 	/**
 	 * Synchronously executes body at place(id) without copy
 	 */
@@ -190,20 +195,22 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
         runAtLocal(id, body);
     }
 
-    // TODO make it as runtime option
-    public static final boolean X10_TRACE_SER = false;
-//    public static final boolean X10_TRACE_SER = true;
     /**
      * Copy body (same place)
      */
     public static <T> T deepCopy(T body) {
         try {
             // copy body
+            long startTime = 0L;
+            if (TRACE_SER) {
+                startTime = System.nanoTime();
+            }
             java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
             new java.io.ObjectOutputStream(baos).writeObject(body);
             byte[] ba = baos.toByteArray();
-            if (X10_TRACE_SER) {
-                System.out.println("Serializer: serialized " + ba.length + " bytes.");
+            if (TRACE_SER) {
+                long endTime = System.nanoTime();
+                System.out.println("Serializer: serialized " + ba.length + " bytes in " + (endTime - startTime) / 1000 + " ms.");
             }
             body = (T) new java.io.ObjectInputStream(new java.io.ByteArrayInputStream(ba)).readObject();
         } catch (java.io.IOException e) {
@@ -223,6 +230,10 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
     public static <T> T deepCopy(int id, T body) {
         try {
             // copy body
+            long startTime = 0L;
+            if (TRACE_SER) {
+                startTime = System.nanoTime();
+            }
             java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
             new java.io.ObjectOutputStream(baos).writeObject(body);
             final Thread thread = Thread.currentThread();
@@ -230,8 +241,9 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
             thread.home(id); // update thread place
             try {
                 byte[] ba = baos.toByteArray();
-                if (X10_TRACE_SER) {
-                    System.out.println("Serializer: serialized " + ba.length + " bytes.");
+                if (TRACE_SER) {
+                    long endTime = System.nanoTime();
+                    System.out.println("Serializer: serialized " + ba.length + " bytes in " + (endTime - startTime) / 1000 + " ms.");
                 }
                 body = (T) new java.io.ObjectInputStream(new java.io.ByteArrayInputStream(ba)).readObject();
             } finally {

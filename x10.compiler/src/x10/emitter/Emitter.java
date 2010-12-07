@@ -2796,9 +2796,6 @@ public class Emitter {
         return cd;
     }
 
-    // TODO make it as compile-time option
-    public static final boolean X10_TRACE_SER = false;
-//    public static final boolean X10_TRACE_SER = true;
 	public void generateCustomSerializer(X10ClassDef def, X10ClassDecl_c n) {
 	    String fieldName = "__serialdata";
 	    w.write("// custom serializer");
@@ -2806,12 +2803,16 @@ public class Emitter {
         w.write("private transient x10.io.SerialData " + fieldName + ";");
         w.newline();
         w.write("private Object writeReplace() { ");
-        if (X10_TRACE_SER) {
+        if (!x10.Configuration.NO_TRACES) {
+            w.write("if (x10.runtime.impl.java.Runtime.TRACE_SER) { ");
             w.write("java.lang.System.out.println(\"Serializer: serialize() of \" + this + \" calling\"); ");
+            w.write("} ");
         }
         w.write(fieldName + " = serialize(); ");
-        if (X10_TRACE_SER) {
+        if (!x10.Configuration.NO_TRACES) {
+            w.write("if (x10.runtime.impl.java.Runtime.TRACE_SER) { ");
             w.write("java.lang.System.out.println(\"Serializer: serialize() of \" + this + \" returned \" + " + fieldName + "); ");
+            w.write("} ");
         }
         w.write("return this; }");
         w.newline();
