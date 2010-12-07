@@ -15,7 +15,7 @@ import harness.x10Test;
  * Checks for improper optimization of val fields
  * that are set both in initializers and in constructors
  */
-class XTENLANG_2190 extends x10Test {
+class XTENLANG_2190_MustFailCompile extends x10Test {
     val a:int = 1;
     val b:int = 2;
 
@@ -28,13 +28,13 @@ class XTENLANG_2190 extends x10Test {
       return runS(this);
     }
 
-    static def runS(t:XTENLANG_2190): boolean {
+    static def runS(t:XTENLANG_2190_MustFailCompile): boolean {
       chk(t.a == 10);
       chk(t.b == 10);
       return true;
     }
 
     public static def main(Array[String](1)) {
-        new XTENLANG_2190(10).execute();
+        new XTENLANG_2190_MustFailCompile(10).execute();
     }
 }
