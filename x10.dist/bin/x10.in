@@ -38,7 +38,7 @@ done
 if [ -n "$help" -o -z "$args" ]; then
     cat << EOF
 Usage: x10 [options] <main-class> [arg0 arg1 ...]
-Usage: x10 [options] <jar-file> [arg0 arg1 ...]
+Usage: x10 [options] <jar-file>.jar [arg0 arg1 ...]
 where [options] includes:
     -t -time                 display execution time
     -v -verbose --verbose    print verbose debugging information
