@@ -30,6 +30,10 @@ public class Pool extends x10.runtime.impl.java.Runtime {
         x10.lang.Runtime.runAsync(p, task);
     }
 
+    public static void runFinish(Task task) {
+        x10.lang.Runtime.runFinish(task);
+    }
+    
     public static int numPlaces() { 
         return x10.lang.Place.numPlaces();
     }
