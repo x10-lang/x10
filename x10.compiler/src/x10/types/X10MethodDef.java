@@ -22,10 +22,6 @@ import x10.constraint.XTerm;
 
 public interface X10MethodDef extends MethodDef, X10ProcedureDef {
 
-    /** Set a flag indicating we should infer the return type. */
-    boolean inferReturnType();
-    void inferReturnType(boolean r);
-    
     Ref<XTerm> body();
     void body(Ref<XTerm> body);
 
