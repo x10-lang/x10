@@ -141,7 +141,6 @@ public class Equality {
         // For boxed String object
         if (a instanceof x10.core.String) a = ((x10.core.String) a).$str;
         if (b instanceof x10.core.String) b = ((x10.core.String) b).$str;
-        System.out.println(a + " " + b);
         if (a == b) return true;
 
         if (a instanceof RefI || b instanceof RefI) return false;
