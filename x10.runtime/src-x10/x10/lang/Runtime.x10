@@ -597,7 +597,7 @@ import x10.util.Box;
         }
         dealloc(body);
     }
-
+    
     /**
      * Run async
      */
@@ -621,6 +621,10 @@ import x10.util.Box;
         state.notifySubActivitySpawn(here);
         execute(new Activity(body, state, a.safe()));
     }
+
+	public static def runFinish(body:()=>void):void {
+	    finish body();
+	}
 
     /**
      * Run @Uncounted async at
