@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="com.ibm.wala.cast.x10" default="jar" basedir=".">
+<project name="x10.wala" default="jar" basedir=".">
     <property name="x10.home" value="${basedir}/.."/>
     <property name="x10.dist.location" location="${x10.home}/x10.dist"/>
     <property name="x10.compiler.location" location="${x10.home}/x10.compiler"/>
     <property name="build" location="${basedir}/bin"/>
     <property name="src" location="${basedir}/src"/>
     <property name="lib" location="${x10.dist.location}/lib"/>
-    <property name="jar" value="com.ibm.wala.cast.x10.jar"/>
+    <property name="jar" value="x10wala.jar"/>
     <property name="wala.jar.url" value="http://dist.codehaus.org/x10/dependencies/wala.jar"/>
     <property name="equinox.jar.url" value="http://dist.codehaus.org/x10/dependencies/org.eclipse.equinox.common_3.6.0.v20100503.jar"/>
     <property name="wala.jar" value="wala.jar"/>
