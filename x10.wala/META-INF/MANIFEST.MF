@@ -8,11 +8,11 @@ Bundle-Localization: plugin
 Require-Bundle: org.eclipse.core.runtime,
  x10.compiler
 Eclipse-AutoStart: true
-Export-Package: com.ibm.wala.cast.x10.analysis.typeInference,
- com.ibm.wala.cast.x10.classLoader,
- com.ibm.wala.cast.x10.client,
- com.ibm.wala.cast.x10.ipa.callgraph,
- com.ibm.wala.cast.x10.ipa.cha,
- com.ibm.wala.cast.x10.ssa,
- com.ibm.wala.cast.x10.translator,
- com.ibm.wala.cast.x10.tree.visit
+Export-Package: x10.wala.analysis.typeInference,
+ x10.wala.classLoader,
+ x10.wala.client,
+ x10.wala.ipa.callgraph,
+ x10.wala.ipa.cha,
+ x10.wala.ssa,
+ x10.wala.translator,
+ x10.wala.tree.visit
