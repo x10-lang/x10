@@ -2,6 +2,7 @@ help=""
 time=""
 verbose=""
 extra_cp=""
+temp_path=""
 output_path=""
 ext=""
 dev=""
@@ -22,6 +23,7 @@ while [ -n "$1" ]; do
         -v|-verbose|--verbose) verbose="1";;
         -t|-time) time="time ";;
         -classpath|-cp) shift; extra_cp="$1";;
+        -d) shift; temp_path=$1; args="$args -d '$1'";;
         -o) shift; output_path=$1;;
         -profile) profile="-Xrunhprof:cpu=samples";;
         -config) shift; config="$1.cfg";;
@@ -44,7 +46,7 @@ where [options] includes:
     -sourcepath <path>       source path
     -classpath <path>        search path for class files
     -d <path>                output path for intermediate files (and class files if -o is omitted)
-    -o <path>                output path for class files
+    -o <path>                output path for class files or jar file
     -config <conf>           read configuration <conf> from etc${FILE_SEP}<conf>.cfg
     -version                 print version info
     -x10rt <impl>            select x10rt impl (lapi, pgp, sockets, mpi, standalone)
@@ -91,14 +93,26 @@ classpath="${classpath}${LIB_DIR}${FILE_SEP}x10c.jar${PATH_SEP}${LIB_DIR}${FILE_
 [ -z "$MAIN" ] && MAIN="polyglot.main.Main"
 
 # Set flags to generate optimized code if we've been asked to do so.
-if [[ "$optimize" = "true" ]]; then
+if [ "$optimize" = "true" ]; then
   args=" -OPTIMIZE=true $args"
 fi
 
-if [[ "$ext" = "x10c.ExtensionInfo" ]]; then
+command2=""
+if [ "$ext" = "x10c.ExtensionInfo" ]; then
   # Java backend
   post='java -jar \"${LIB_DIR}${FILE_SEP}${ECJ_JAR}\" -1.5 -nowarn'
-  [ -n "${output_path}" ] && post="$post -d ${output_path}"
+  if [ -n "${output_path}" ]; then
+    if [[ "${output_path}" == *.jar ]]; then
+      if [ -z "${temp_path}" ]; then
+        temp_path=`mktemp -d`
+        if [[ "$UNAME" = CYGWIN* ]]; then temp_path="$(cygpath -am "${temp_path}")"; fi
+      fi
+      post="$post -d ${temp_path}"
+      command2="\"$JAR\" cf \"${output_path}\" -C \"${temp_path}\" ."
+    else
+      post="$post -d ${output_path}"
+    fi
+  fi
   command="\"$JAVA\" -Xmx512m $config $profile -classpath \"$classpath\" ${java_args} $MAIN -post \"$post\" -extclass $ext $extargs $args"
 else
   # C++ backend
@@ -107,7 +121,12 @@ else
 fi
 
 [ -n "$verbose" ] && echo "$command"
-
 eval "$time$command"
+
+if [ -n "$command2" ]; then
+  [ -n "$verbose" ] && echo "$command2"
+  eval "$time$command2"
+fi
+
 exit $?
 
