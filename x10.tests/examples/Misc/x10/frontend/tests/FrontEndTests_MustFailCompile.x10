@@ -3719,7 +3719,7 @@ interface Ann42 //extends MethodAnnotation, ClassAnnotation, FieldAnnotation, Im
 	@ERR @Ann42 def m3() = @ERR @Ann42 { 5 };
 }
 
-class SubtypeCheckForUserDefinedConversion { // see also 
+class SubtypeCheckForUserDefinedConversion { // see also SubtypeCheckForUserDefinedConversion_MustFailCompile
 	static class Foo {}
 	static class A {
 		@ERR public static operator (p:Int):Foo = null;
@@ -3730,6 +3730,7 @@ class SubtypeCheckForUserDefinedConversion { // see also
 	static class B[U] {	
 	    public static operator[T](x:Double):B[T] = null;
 	    public static operator[T](x:Int):B[A] = null;
-	    @ERR public static operator[T](x:T):A[T] = null;
+	    @ERR public static operator[T](x:T):T = x;
+	    @ERR public static operator[T](x:String):A[T] = null;
 	}
 }
