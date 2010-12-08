@@ -379,6 +379,7 @@
 #JAVA='${java.executable}'
 [ -n "$JAVA_HOME" ] || JAVA_HOME='${env.JAVA_HOME}'
 [ -n "$JRE_HOME" ] || JRE_HOME='${java.home}'
+if [[ "$UNAME" = CYGWIN* ]]; then JAVA_HOME="$(cygpath -am "$JAVA_HOME")"; JRE_HOME="$(cygpath -am "$JRE_HOME")"; fi
 #FILE_SEP='${file.separator}'
 #PATH_SEP='${path.separator}'
 #CONFIG_FILE='${config}'
@@ -422,8 +423,7 @@ else
     echo "JAVA_HOME ($JAVA_HOME) is not pointing to a JRE or a JDK"
     exit 1
 fi
-if [[ "$UNAME" = CYGWIN* ]]; then JAVA="$(cygpath -au "$JAVA")"; fi
-if [[ "$UNAME" = CYGWIN* ]]; then JAVA_HOME="$(cygpath -am "$JAVA_HOME")"; fi
+if [[ "$UNAME" = CYGWIN* ]]; then JAVA="$(cygpath -au "$JAVA")"; JAR="$(cygpath -au "$JAR")"; fi
 
 </echo>
     </target>
