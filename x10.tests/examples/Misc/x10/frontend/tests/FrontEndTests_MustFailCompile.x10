@@ -1,10 +1,35 @@
-package x10.yoav.tests;
+/*
+ *  This file is part of the X10 project (http://x10-lang.org).
+ *
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ *  (C) Copyright IBM Corporation 2006-2010.
+ */
+
+package x10.frontend.tests;
+
+import harness.x10Test;
 
 import x10.compiler.*; // @Uncounted @NonEscaping @NoThisAccess
 import x10.util.*;
 
 import x10.io.CustomSerialization;
 import x10.io.SerialData;
+
+/**
+ * A group of tests for various frontend-related compilation issues.
+ */
+public class FrontEndTests_MustFailCompile extends x10Test {
+	public def run():Boolean {
+		return true;
+	}
+	public static def main(Array[String]) {
+		new FrontEndTests_MustFailCompile().execute();
+	}
+}
 
 // test object initialization (and more)
 
@@ -591,8 +616,6 @@ class CheckCtorContextIsNotStatic[T](p:T) {
     }
 } 
 
-
-//public class EscapingThisTest {
 
 class TransientTest(p:Int) { // The transient field '...' must have a type with a default value.
 	transient val x1 = 2; // ERR (because the type is infered to be Int{self==2}
