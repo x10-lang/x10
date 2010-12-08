@@ -38,7 +38,7 @@ final public class String extends x10.core.Ref implements
         return compareTo((java.lang.String)a1);
     }
 
-    private final java.lang.String $str;
+    public final java.lang.String $str;
 
     public String() {
         $str = "";
