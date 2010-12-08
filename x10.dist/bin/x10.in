@@ -28,7 +28,8 @@ while [ -n "$1" ]; do
         -J*) java_args="${java_args} '${1##-J}'";;
         -*=*) java_args="${java_args} -Dx10.${1##-}";;
         -*) java_args="${java_args} -Dx10.${1##-}=true";;
-        *.x10) args="$args '${1%%.x10}\$Main'"; shift; args="$args $*"; break;;
+#        *.x10) args="$args '${1%%.x10}\$Main'"; shift; args="$args $*"; break;;
+        *.jar) args="$args -jar '$1'"; shift; args="$args $*"; break;;
         *) args="$args '$1\$Main'"; shift; args="$args $*"; break;;
     esac
     shift
@@ -37,6 +38,7 @@ done
 if [ -n "$help" -o -z "$args" ]; then
     cat << EOF
 Usage: x10 [options] <main-class> [arg0 arg1 ...]
+Usage: x10 [options] <jar-file> [arg0 arg1 ...]
 where [options] includes:
     -t -time                 display execution time
     -v -verbose --verbose    print verbose debugging information
@@ -76,7 +78,9 @@ if [ -n "$extra_lib" ]; then
    externpath="$extra_lib${PATH_SEP}$externpath"
 fi
 
-java_args="-Djava.library.path=\"$externpath\" -ea -classpath \"$classpath\" ${java_args}"
+# Note: use bootstrap class path instead of user class path to make it visible from jar file
+#java_args="-Djava.library.path=\"$externpath\" -ea -classpath \"$classpath\" ${java_args}"
+java_args="-Djava.library.path=\"$externpath\" -ea -Xbootclasspath/a:\"$classpath\" ${java_args}"
 
 if [ -n "$mx" ]; then
    java_args="-Xmx$mx $java_args"
@@ -86,7 +90,6 @@ java_args="${java_args} ${defs}"
 command="\"$JAVA\" $java_args $config $args"
 
 [ -n "$verbose" ] && echo "$command"
-
 eval "$time$command"
-exit $?
 
+exit $?

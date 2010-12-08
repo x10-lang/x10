@@ -4,6 +4,7 @@ verbose=""
 extra_cp=""
 temp_path=""
 output_path=""
+main_class=""
 ext=""
 dev=""
 rtdev=""
@@ -25,11 +26,12 @@ while [ -n "$1" ]; do
         -classpath|-cp) shift; extra_cp="$1";;
         -d) shift; temp_path=$1; args="$args -d '$1'";;
         -o) shift; output_path=$1;;
+        -MAIN_CLASS) shift; main_class=$1;;
         -profile) profile="-Xrunhprof:cpu=samples";;
         -config) shift; config="$1.cfg";;
         -extclass) shift; ext=$1;;
         -dev) dev="true";;
-	-x10rt) shift; export X10RT_IMPL=$1;;
+        -x10rt) shift; export X10RT_IMPL=$1;;
         -O|-optimize) optimize="true";;
         -rtdev) rtdev="true";;
         -J*) java_args="${java_args} '${1##-J}'";;
@@ -108,7 +110,16 @@ if [ "$ext" = "x10c.ExtensionInfo" ]; then
         if [[ "$UNAME" = CYGWIN* ]]; then temp_path="$(cygpath -am "${temp_path}")"; fi
       fi
       post="$post -d ${temp_path}"
-      command2="\"$JAR\" cf \"${output_path}\" -C \"${temp_path}\" ."
+      if [ -n "${main_class}" ]; then
+        manifest_file=`mktemp`
+        if [[ "$UNAME" = CYGWIN* ]]; then manifest_file="$(cygpath -am "${manifest_file}")"; fi
+        echo "Manifest-Version: 1.0" > "${manifest_file}"
+        echo "Main-Class: ${main_class}\$Main" >> "${manifest_file}"
+        echo "Created-By: `$0 -version | head -1`" >> "${manifest_file}"
+        command2="\"$JAR\" cmf \"${manifest_file}\" \"${output_path}\" -C \"${temp_path}\" ."
+      else
+        command2="\"$JAR\" cf \"${output_path}\" -C \"${temp_path}\" ."
+      fi
     else
       post="$post -d ${output_path}"
     fi
@@ -117,6 +128,7 @@ if [ "$ext" = "x10c.ExtensionInfo" ]; then
 else
   # C++ backend
   [ -n "${output_path}" ] && args="$args -o ${output_path}"
+  [ -n "${main_class}" ] && args="$args -MAIN_CLASS ${main_class}"
   command="\"$JAVA\" -Xmx512m $config $profile -classpath \"$classpath\" ${java_args} $MAIN -extclass $ext $extargs $args"
 fi
 
@@ -129,4 +141,3 @@ if [ -n "$command2" ]; then
 fi
 
 exit $?
-
