@@ -161,20 +161,13 @@ public class RunTestSuite {
     }
     public static ArrayList<ErrorInfo> runCompiler(String[] newArgs) {
         SilentErrorQueue errQueue = new SilentErrorQueue(MAX_ERR_QUEUE,"TestSuiteErrQueue");
-        boolean hadErrors = false;
         try {
             new polyglot.main.Main().start(newArgs,errQueue);
         } catch (Main.TerminationException e) {
-            hadErrors = e.exitCode!=0;
             // If we had errors (and we should because we compile _MustFailCompile) then we will get a non-zero exitCode
         }
         final ArrayList<ErrorInfo> res = (ArrayList<ErrorInfo>) errQueue.getErrors();
         assert res.size()<MAX_ERR_QUEUE : "We passed the maximum number of errors!";
-        int errCount = 0;
-        for (ErrorInfo e : res)
-            if (e.getErrorKind()!=ErrorInfo.WARNING)
-                errCount++;
-        assert (errCount!=0)==hadErrors : "The exitcode and number of errors do not match!";
         return res;
     }
     static class LineSummary {
@@ -196,7 +189,8 @@ public class RunTestSuite {
         int lineNum = 0;
         for (String line : lines) {
             lineNum++;
-            boolean isERR = line.contains("ERR");
+            int errIndex = line.indexOf("ERR");
+            boolean isERR = errIndex!=-1;
             if (line.contains("IGNORE_FILE")) res.shouldIgnoreFile = true;
             int optionsIndex = line.indexOf("OPTIONS:");
             if (optionsIndex>=0) {
@@ -204,8 +198,8 @@ public class RunTestSuite {
                 res.options.add(option);
                 if (option.equals("-STATIC_CALLS")) res.STATIC_CALLS = true;
             }
-            if (isERR &&
-                    (line.contains("//") || line.contains("@ERR")|| line.contains("@ShouldNotBeERR")|| line.contains("@ShouldBeErr"))) { // Console defines "static ERR:Printer"
+            int commentIndex = line.indexOf("//");
+            if (isERR && commentIndex!=-1 && commentIndex<errIndex) { 
                 LineSummary lineSummary = new LineSummary();
                 lineSummary.lineNo = lineNum;
                 lineSummary.errCount = count(line,"ERR");
@@ -246,6 +240,13 @@ public class RunTestSuite {
         newArgs[newArgs.length-1] = STATIC_CALLS ? "-STATIC_CALLS" : "-VERBOSE_CALLS";
         System.out.println("Running: "+ fileNames);
         ArrayList<ErrorInfo> errors = runCompiler(newArgs);
+        // remove GOOD_ERR_MARKERS  and EXPECTED_ERR_MARKERS
+        for (Iterator<ErrorInfo> it = errors.iterator(); it.hasNext(); ) {
+            ErrorInfo info = it.next();
+            final int kind = info.getErrorKind();
+            if (kind==ErrorInfo.GOOD_ERR_MARKERS || kind==ErrorInfo.EXPECTED_ERR_MARKERS)
+                it.remove();
+        }
 
         // Now checking the errors reported are correct and match ERR markers
         // 1. find all ERR markers that don't have a corresponding error

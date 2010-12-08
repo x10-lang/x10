@@ -1,3 +1,4 @@
+// Yoav added: IGNORE_FILE
 /*
  *  This file is part of the X10 project (http://x10-lang.org).
  *
@@ -10,15 +11,23 @@
  */
 
 import harness.x10Test;
-import x10.compiler.*; // @Uncounted @NonEscaping @NoThisAccess @ERR @ShouldNotBeERR @ShouldBeErr
+
+
 
 /**
+ * Check that it is illegal to initialize a field with an instance of an instance inner class.
+ * "this" escape as the receiver of "this. new InnerClass() "
  */
-public class SubtypeCheckForUserDefinedConversion_MustFailCompile extends x10Test {
-    static class Foo {}
-    @ERR public static operator (p:Array[Int]) = new Foo(); // (because the return type should be a subtype of the container's type)
-    public def run()=true;
+
+public class InitFieldWithInstanceClass_MustFailCompile extends x10Test {
+
+    class A { 
+    }
+    val a = new A(); // ERR
+  
+    public def run() =true;
+
     public static def main(Array[String](1)) {
-	new SubtypeCheckForUserDefinedConversion_MustFailCompile().execute();
+        new InitFieldWithInstanceClass_MustFailCompile().execute();
     }
 }

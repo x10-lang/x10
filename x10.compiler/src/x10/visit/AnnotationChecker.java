@@ -35,13 +35,14 @@ import polyglot.visit.NodeVisitor;
 import x10.ast.AnnotationNode;
 import x10.extension.X10Ext;
 import x10.types.X10ClassType;
+import x10.errors.Errors;
 
 public class AnnotationChecker extends ContextVisitor {
 	public AnnotationChecker(Job job, TypeSystem ts, NodeFactory nf) {
 		super(job, ts, nf);
 	}
 	
-	public Node leaveCall(Node parent, Node old, Node n, NodeVisitor v) throws SemanticException {
+	public Node leaveCall(Node parent, Node old, Node n, NodeVisitor v) {
 
 		if (! (n.ext() instanceof X10Ext)) {
 			return n;
@@ -55,31 +56,31 @@ public class AnnotationChecker extends ContextVisitor {
 			AnnotationNode a = i.next(); 
 			X10ClassType at = a.annotationInterface();
 			if (n instanceof TypeNode && ! at.isSubtype(TA, context)) {
-				throw new SemanticException("Annotations on types must implement " + TA, n.position());
+				Errors.issue(job, new SemanticException("Annotation "+at+" on types must implement " + TA, n.position()));
 			}
-			if (n instanceof Expr && ! at.isSubtype(EA, context)) {
-				throw new SemanticException("Annotations on expressions must implement " + EA, n.position());
+			else if (n instanceof Expr && ! at.isSubtype(EA, context)) {
+				Errors.issue(job, new SemanticException("Annotation "+at+" on expressions must implement " + EA, n.position()));
 			}
-			if (n instanceof Stmt && ! at.isSubtype(SA, context)) {
-				throw new SemanticException("Annotations on statements must implement " + SA, n.position());
+			else if (n instanceof Stmt && ! at.isSubtype(SA, context)) {
+				Errors.issue(job, new SemanticException("Annotation "+at+" on statements must implement " + SA, n.position()));
 			}
-			if (n instanceof MethodDecl && ! at.isSubtype(MA, context)) {
-				throw new SemanticException("Annotations on method declarations must implement " + MA, n.position());
+			else if (n instanceof MethodDecl && ! at.isSubtype(MA, context)) {
+				Errors.issue(job, new SemanticException("Annotation "+at+" on method declarations must implement " + MA, n.position()));
 			}
-			if (n instanceof FieldDecl && ! at.isSubtype(FA, context)) {
-				throw new SemanticException("Annotations on field declarations must implement " + FA, n.position());
+			else if (n instanceof FieldDecl && ! at.isSubtype(FA, context)) {
+				Errors.issue(job, new SemanticException("Annotation "+at+" on field declarations must implement " + FA, n.position()));
 			}
-			if (n instanceof ClassDecl && ! at.isSubtype(CA, context)) {
-				throw new SemanticException("Annotations on class declarations must implement " + CA, n.position());
+			else if (n instanceof ClassDecl && ! at.isSubtype(CA, context)) {
+				Errors.issue(job, new SemanticException("Annotation "+at+" on class declarations must implement " + CA, n.position()));
 			}
-			if (n instanceof PackageNode && parent instanceof SourceFile && ! at.isSubtype(PA, context)) {
-				throw new SemanticException("Annotations on package declarations must implement " + PA, n.position());
+			else if (n instanceof PackageNode && parent instanceof SourceFile && ! at.isSubtype(PA, context)) {
+				Errors.issue(job, new SemanticException("Annotation "+at+" on package declarations must implement " + PA, n.position()));
 			}
-			if (n instanceof Import && ! at.isSubtype(IA, context)) {
-				throw new SemanticException("Annotations on imports must implement " + IA, n.position());
+			else if (n instanceof Import && ! at.isSubtype(IA, context)) {
+				Errors.issue(job, new SemanticException("Annotation "+at+" on imports must implement " + IA, n.position()));
 			}
-			if (! at.isSubtype(A, context)) {
-				throw new SemanticException("Annotations must implement " + A, n.position());
+			else if (! at.isSubtype(A, context)) {
+				Errors.issue(job, new SemanticException("Annotation"+at+" must implement " + A, n.position()));
 			}
 		}
 		
@@ -88,16 +89,20 @@ public class AnnotationChecker extends ContextVisitor {
 	
 	ClassType A, TA, EA, SA, MA, FA, CA, IA, PA;
 	
-	public void init() throws SemanticException {
+	public void init() {
 		if (A != null) return;
-		TA = (ClassType) ts.systemResolver().find(QName.make("x10.lang.annotations.TypeAnnotation"));
-		EA = (ClassType) ts.systemResolver().find(QName.make("x10.lang.annotations.ExpressionAnnotation"));
-		SA = (ClassType) ts.systemResolver().find(QName.make("x10.lang.annotations.StatementAnnotation"));
-		MA = (ClassType) ts.systemResolver().find(QName.make("x10.lang.annotations.MethodAnnotation"));
-		FA = (ClassType) ts.systemResolver().find(QName.make("x10.lang.annotations.FieldAnnotation"));
-		CA = (ClassType) ts.systemResolver().find(QName.make("x10.lang.annotations.ClassAnnotation"));
-		IA = (ClassType) ts.systemResolver().find(QName.make("x10.lang.annotations.ImportAnnotation"));
-		PA = (ClassType) ts.systemResolver().find(QName.make("x10.lang.annotations.PackageAnnotation"));
-		A  = (ClassType) ts.systemResolver().find(QName.make("x10.lang.annotations.Annotation"));
-	}
+        try {
+            TA = (ClassType) ts.systemResolver().find(QName.make("x10.lang.annotations.TypeAnnotation"));
+            EA = (ClassType) ts.systemResolver().find(QName.make("x10.lang.annotations.ExpressionAnnotation"));
+            SA = (ClassType) ts.systemResolver().find(QName.make("x10.lang.annotations.StatementAnnotation"));
+            MA = (ClassType) ts.systemResolver().find(QName.make("x10.lang.annotations.MethodAnnotation"));
+            FA = (ClassType) ts.systemResolver().find(QName.make("x10.lang.annotations.FieldAnnotation"));
+            CA = (ClassType) ts.systemResolver().find(QName.make("x10.lang.annotations.ClassAnnotation"));
+            IA = (ClassType) ts.systemResolver().find(QName.make("x10.lang.annotations.ImportAnnotation"));
+            PA = (ClassType) ts.systemResolver().find(QName.make("x10.lang.annotations.PackageAnnotation"));
+            A  = (ClassType) ts.systemResolver().find(QName.make("x10.lang.annotations.Annotation"));
+        } catch (SemanticException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

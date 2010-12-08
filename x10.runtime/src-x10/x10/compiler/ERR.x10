@@ -13,15 +13,7 @@ package x10.compiler;
 
 import x10.lang.annotations.*;
 
-/** An annotation that requests the compiler to embed an object inside another object
- * must be used *exactly* as the following for now:
- * class C {
- *   @Embed val v:T;
- *   def this() {
- *     v = @Embed new T(...);
- *   }
- * }
- * EXPERIMENTAL
- * @author Olivier Tardieu
+/**
+ * @ERR marks a compiler error on the line where the @ERR marker is written.
  */
-public interface Embed extends FieldAnnotation, StatementAnnotation,ExpressionAnnotation { }
+public interface ERR extends MethodAnnotation, ClassAnnotation, FieldAnnotation, ImportAnnotation, PackageAnnotation, TypeAnnotation, ExpressionAnnotation, StatementAnnotation { }

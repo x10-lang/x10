@@ -121,6 +121,8 @@ import x10.visit.X10TypeChecker;
 import x10.visit.PositionInvariantChecker;
 import x10.visit.InstanceInvariantChecker;
 import x10.visit.CheckEscapingThis;
+import x10.visit.AnnotationChecker;
+import x10.visit.ErrChecker;
 
 /**
  * Extension information for x10 extension.
@@ -417,8 +419,11 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            goals.add(ForwardReferencesChecked(job));
 //           goals.add(CheckNativeAnnotations(job));
            goals.add(CheckEscapingThis(job));
+           goals.add(AnnotationChecker(job));
+           goals.add(ErrChecker(job)); // must be the last phase that might add errors to the errorQueue
            goals.add(CheckASTForErrors(job));
 //           goals.add(TypeCheckBarrier());
+
 
            goals.add(End(job));
        }
@@ -511,9 +516,9 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                for (Goal g : goals) {
                    newGoals.add(g);
                    if (!reachedTypeChecking)
-                       newGoals.add(new VisitorGoal("PositionInvariantChecker"+(ctr++), job, new PositionInvariantChecker(job, g.name())).intern(this));
+                       newGoals.add(new ForgivingVisitorGoal("PositionInvariantChecker"+(ctr++), job, new PositionInvariantChecker(job, g.name())).intern(this));
                    if (g==TypeChecked(job)) {
-                       newGoals.add(new VisitorGoal("InstanceInvariantChecker", job, new InstanceInvariantChecker(job)).intern(this));
+                       newGoals.add(new ForgivingVisitorGoal("InstanceInvariantChecker", job, new InstanceInvariantChecker(job)).intern(this));
                        reachedTypeChecking = true;
                    }
                }
@@ -801,7 +806,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
        public Goal X10MLTypeChecked(Job job) {
            TypeSystem ts = extInfo.typeSystem();
            NodeFactory nf = extInfo.nodeFactory();
-           return new VisitorGoal("X10MLTypeChecked", job, new X10MLVerifier(job, ts, nf)).intern(this);
+           return new ForgivingVisitorGoal("X10MLTypeChecked", job, new X10MLVerifier(job, ts, nf)).intern(this);
        }
 
        @Override
@@ -848,8 +853,15 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
        }
 
        public Goal CheckEscapingThis(Job job) {
-           return new VisitorGoal("CheckEscapingThis", job, new CheckEscapingThis.Main(job)).intern(this);
+           return new ForgivingVisitorGoal("CheckEscapingThis", job, new CheckEscapingThis.Main(job)).intern(this);
        }
+       private Goal AnnotationChecker(Job job) {
+           return new ForgivingVisitorGoal("AnnotationChecker", job, new AnnotationChecker(job,job.extensionInfo().typeSystem(),job.extensionInfo().nodeFactory())).intern(this);
+       }
+       private Goal ErrChecker(Job job) {
+           return new ForgivingVisitorGoal("ErrChecker", job, new ErrChecker(job)).intern(this);
+       }
+
 
 
        public String nativeAnnotationLanguage() { return "java"; }
@@ -857,7 +869,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
        public Goal CheckNativeAnnotations(Job job) {
            TypeSystem ts = extInfo.typeSystem();
            NodeFactory nf = extInfo.nodeFactory();
-           return new VisitorGoal("CheckNativeAnnotations", job, new CheckNativeAnnotationsVisitor(job, ts, nf, nativeAnnotationLanguage())).intern(this);
+           return new ForgivingVisitorGoal("CheckNativeAnnotations", job, new CheckNativeAnnotationsVisitor(job, ts, nf, nativeAnnotationLanguage())).intern(this);
        }
 
        public static class ValidatingVisitorGoal extends VisitorGoal {

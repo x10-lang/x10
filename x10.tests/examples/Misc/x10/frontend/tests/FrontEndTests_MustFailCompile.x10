@@ -9,11 +9,11 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-package x10.frontend.tests;
+package x10.frontend.tests; // todo: We should put ALL our tests in different packages according to the directory structure
 
 import harness.x10Test;
 
-import x10.compiler.*; // @Uncounted @NonEscaping @NoThisAccess
+import x10.compiler.*; // @Uncounted @NonEscaping @NoThisAccess @ERR @ShouldNotBeERR @ShouldBeErr
 import x10.util.*;
 
 import x10.io.CustomSerialization;
@@ -30,6 +30,7 @@ public class FrontEndTests_MustFailCompile extends x10Test {
 		new FrontEndTests_MustFailCompile().execute();
 	}
 }
+
 
 // test object initialization (and more)
 
@@ -2212,7 +2213,8 @@ class TestInterfaceInvariants { // see XTENLANG-1930
 	interface I2 extends I{p==2} {} // ShouldBeErr
 	interface I3 {p==3} extends I2 {} // ShouldBeErr
 	static def test(i:I) {
-		var i2:I{p==1} = i; // ShouldNotBeERR
+		var i1:I{p==5} = i; // ShouldBeErr
+		var i2:I{p==1} = i;
 	}
 }
 
@@ -2411,7 +2413,7 @@ class SuperQualifier { // see XTENLANG-1948
 	}
 }
 class TestArrayLiteralInference {	
-	var z: Array[int](1){rect, zeroBased, size==4} = [ 1, 2,3,4 ];  // ShouldNotBeErr
+	var z: Array[int](1){rect, zeroBased, size==4} = [ 1, 2,3,4 ];  // ShouldNotBeERR
 }
 
 class TestInstanceOperators {
@@ -3647,4 +3649,87 @@ class TestCircularStructs { // see XTENLANG-2187
         val x1 = new Array[S](2);
         val x2 = new Array[U](2); // ERR
     }
+}
+class TestComparableAndArithmetic {
+  def compare[T](x:T,y:T) { T <: Comparable[T] } = x.compareTo(y);
+  def add[T](x:T,y:T) { T <: Arithmetic[T] } = x+y;
+  def test() {
+	  {
+		  var x:Int=2, y:Int=3;
+		  use(compare(x,y));
+		  use(compare(x,x));
+		  use(compare(y,y));
+		  use(add(x,y)); // ShouldNotBeERR
+		  use(add(x,x)); // ShouldNotBeERR
+		  use(add(y,y)); // ShouldNotBeERR
+	  }
+	  {
+		  var x:Double=2.0, y:Double=3.0;
+		  use(compare(x,y));
+		  use(compare(x,x));
+		  use(compare(y,y));
+		  use(add(x,y)); // ShouldNotBeERR
+		  use(add(x,x)); // ShouldNotBeERR
+		  use(add(y,y)); // ShouldNotBeERR
+	  }
+  }
+  def use(i:Int) {}
+}
+
+interface Ann42 //extends MethodAnnotation, ClassAnnotation, FieldAnnotation, ImportAnnotation, PackageAnnotation, TypeAnnotation, ExpressionAnnotation, StatementAnnotation 
+	{ }
+@ERR @Ann42 class TestAnnotationChecker( // Annotations on class declarations must implement x10.lang.annotations.ClassAnnotation
+	@ERR @Ann42 p:Int) { // Annotations on field declarations must implement x10.lang.annotations.FieldAnnotation
+	@ERR def use(@Ann42 x:Any)=x;  // Annotations must implement x10.lang.annotations.Annotation
+	@ERR @Ann42 def m0() {} // Annotations on method declarations must implement x10.lang.annotations.MethodAnnotation
+	def test() {
+		use(@ERR @Ann42 "A"); // Annotations on expressions must implement x10.lang.annotations.ExpressionAnnotation
+		@ERR @Ann42 {} // Annotations on statements must implement x10.lang.annotations.StatementAnnotation
+	}
+	var i:Int @ERR @Ann42; // Annotations on types must implement x10.lang.annotations.TypeAnnotation
+	@ERR @Ann42 var j:Int; // Annotations on field declarations must implement x10.lang.annotations.FieldAnnotation
+
+	def m1() {
+		@ERR @Ann42 {}
+		@ERR @Ann42 while (true) {
+			@ERR @Ann42 if (true) 
+				@ERR @Ann42 continue;
+			@ERR @Ann42 break;
+		}
+		val c1 = ()=>
+			@ERR @Ann42 { 5 };
+
+		val c2 = ()=>
+			@ERR @Ann42 { return 5; };
+
+		@ERR @Ann42 ;
+		@ERR @Ann42 assert false;
+		@ERR @Ann42 if (true);
+		var y:Int = @ERR @Ann42 5;
+		var x:Int = @ERR @Ann42 + 5;
+		@ERR @Ann42 val z = 
+			@ERR @Ann42 + 5;
+		use(@ERR @Ann42 ++x);
+		use(@ERR @Ann42 4+5);
+		use(@ERR @Ann42 5);
+		use(@ERR @Ann42 use(5));
+		//@Ann42 use(5); // todo: it should parse!
+	}
+	@ERR @Ann42 def m2() = @ERR @Ann42 4;
+	@ERR @Ann42 def m3() = @ERR @Ann42 { 5 };
+}
+
+class SubtypeCheckForUserDefinedConversion { // see also 
+	static class Foo {}
+	static class A {
+		@ERR public static operator (p:Int):Foo = null;
+		public static operator (p:Long):A = null;
+		@ERR public static operator (x:Double) as Foo = null;
+		public static operator (x:String) as A = null;
+	}
+	static class B[U] {	
+	    public static operator[T](x:Double):B[T] = null;
+	    public static operator[T](x:Int):B[A] = null;
+	    @ERR public static operator[T](x:T):A[T] = null;
+	}
 }

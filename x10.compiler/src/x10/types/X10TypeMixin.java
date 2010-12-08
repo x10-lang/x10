@@ -377,10 +377,6 @@ public class X10TypeMixin {
 	        ConstrainedType ct = (ConstrainedType) t;
 	        return erasedType(baseType(Types.get(ct.baseType())));
 	    }
-	    if (t instanceof ConstrainedType) {
-	        ConstrainedType ct = (ConstrainedType) t;
-	        return erasedType(baseType(Types.get(ct.baseType())));
-	    }
 	    return t;
 	}
 	
