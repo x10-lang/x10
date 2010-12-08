@@ -104,6 +104,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
 {
     public ParseTable getParseTable() { return p.getParseTable(); }
     public BacktrackingParser getParser() { return p.getParser(); }
+    public X10Parser getX10Parser() { return p; }
 
     //private Object setResult(Object o) { return o; } // todo: refactor it out
     private void setResult(Object object) { getParser().setSym1(object); }
