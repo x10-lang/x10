@@ -1,11 +1,13 @@
 package com.ibm.apgas;
 
+import x10.lang.Place;
+
 
 @SuppressWarnings("serial")
 public class Pool extends x10.runtime.impl.java.Runtime {
-    Runnable mainTask;
+    Task mainTask;
     
-    public Pool(Runnable task) {
+    public Pool(Task task) {
         mainTask = task;
     }
   
@@ -16,12 +18,23 @@ public class Pool extends x10.runtime.impl.java.Runtime {
     
     // called by native runtime inside main x10 thread
     public void runtimeCallback(final x10.array.Array<java.lang.String> args) {
-        mainTask.run();
+        mainTask.body();
     }
     
-    public void runAsync(Runnable task) {
-        Task t = new Task(task);
-        x10.lang.Runtime.runAsync(t);
+    public static void runAsync(Task task) {
+        x10.lang.Runtime.runAsync(task);                
     }
-                                          
+    
+    public static void runAsync(int place, Task task) {
+        Place p =  x10.lang.Place.place(place);
+        x10.lang.Runtime.runAsync(p, task);
+    }
+
+    public static int numPlaces() { 
+        return x10.lang.Place.numPlaces();
+    }
+    
+    public static int here() {
+        return x10.lang.Runtime.hereInt();
+    }
 }
