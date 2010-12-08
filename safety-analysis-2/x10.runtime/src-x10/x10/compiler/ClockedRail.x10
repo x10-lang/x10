@@ -97,13 +97,9 @@ public class ClockedRail[T] extends ClockedRailBase[T] implements ClockableVar  
 
     public @Inline @Header def move(): Void {
         if (changed) {
-		var i: int = 0;
-		for (i = 0; i < length; i++) {
-      	  		this.xRead(i) = this.xWrite(i);
-			this.xWrite(i) = opInit;
-		}
-
+		xRead = xWrite;
 	}
+    	xWrite = Rail.make[T] (length, (i: int) => opInit);
     	this.changed = false;
     }
 

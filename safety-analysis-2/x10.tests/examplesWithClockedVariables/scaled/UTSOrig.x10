@@ -103,24 +103,20 @@ class UTSOrig {
     def expected() = 7338936.0;        // expected size given above params 
 
     
-    var size: Rail[int]!;
-    var sumb: Rail[int]!;
-    var totSize : int;
-    var totSumb : int;
+    var size: int = 0;
+    var sumb: int = 0;
 
     def this(P:int) 
     {
 	 this.P=P;
-	 sumb = Rail.make[int](P);
-	 size = Rail.make[int](P);
 	 tiles = Tile.tile(0..b0-1 as Region(1), 0..P-1 as Region(1)) as Rail[Region(1)]!;
  		
     }
     def visit(r:UTSRand.descriptor,p:int) {
 	val x = UTSRand.number(r);
         val b = x<q? m : 0; // binomial distributio
-        sumb(p) += b;
-        size(p) ++;
+        atomic sumb += b;
+       	atomic size ++;
        
         for (var i:int=0; i<b; i++)
 	    visit(UTSRand.next(r,i),p);
@@ -135,36 +131,26 @@ class UTSOrig {
 
     def run() {
         // root node
-      for(var i:int =0; i< P; i++){
-	    size(i) = 0;
-            sumb(i) = 0;
-	}    
-	totSumb = 0;
-	totSize = 0;
 	
         finish 
        for (var i:int=0;i<tiles.length;i++) {
          val j =i; 	  
 	  	async (here) visitRegion(tiles(j),j);
 	}
-	for (var i:int=0;i< P;i++){
-	    totSumb += sumb(i);
-	    totSize += size(i);
-	}
 
         // sanity check on size and branching factor
     
             val expSize = b0 / (1.0 - q*m);
-            val obsBranch = (totSumb as double) / totSize;
+            val obsBranch = (sumb as double) / size;
             val expBranch = q * m;
             x10.io.Console.OUT.println("exp size / obs size: " 
-				       + (expSize/totSize));
+				       + (expSize/size));
             x10.io.Console.OUT.println("exp branching / obs branching: " 
 				       + (expBranch / obsBranch));
         
     
         // should always get same size tree
-        return totSize as double;
+        return size as double;
     }
      
     public static def main(args: Rail[String]) {
