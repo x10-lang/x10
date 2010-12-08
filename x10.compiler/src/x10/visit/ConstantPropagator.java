@@ -197,17 +197,20 @@ public class ConstantPropagator extends ContextVisitor {
 
     public static boolean isConstant(Expr e) {
         
-        if (isNative(e) || e instanceof StringLit)
+        if (isNative(e))
             return false;
         
-        if (e.isConstant())
-            return true;
-
         Type type = e.type();
         if (null == type) // TODO: this should never happen, determine if and why it does
             return false;
         
+        if (type.typeSystem().isSubtype(type, type.typeSystem().String()))
+            return false; // Strings have reference semantics
+        
         if (type.isNull())
+            return true;
+        
+        if (e.isConstant())
             return true;
         
         if (e instanceof Field) {
