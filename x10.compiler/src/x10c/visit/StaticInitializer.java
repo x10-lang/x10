@@ -13,10 +13,8 @@ package x10c.visit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import polyglot.ast.Assign;
@@ -28,6 +26,7 @@ import polyglot.ast.Cast;
 import polyglot.ast.ClassBody;
 import polyglot.ast.ClassMember;
 import polyglot.ast.Conditional;
+import polyglot.ast.ConstructorDecl;
 import polyglot.ast.Expr;
 import polyglot.ast.FieldDecl;
 import polyglot.ast.FlagsNode;
@@ -37,11 +36,11 @@ import polyglot.ast.Id;
 import polyglot.ast.Initializer;
 import polyglot.ast.IntLit;
 import polyglot.ast.IntLit_c;
-import polyglot.ast.Lit;
 import polyglot.ast.Local;
 import polyglot.ast.MethodDecl;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
+import polyglot.ast.ProcedureDecl;
 import polyglot.ast.Receiver;
 import polyglot.ast.Return;
 import polyglot.ast.Stmt;
@@ -50,6 +49,7 @@ import polyglot.ast.Try;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
 import polyglot.frontend.Job;
+import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.ConstructorDef;
 import polyglot.types.ConstructorInstance;
@@ -59,10 +59,10 @@ import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.InitializerDef;
 import polyglot.types.LocalDef;
-import polyglot.types.LocalDef_c;
 import polyglot.types.MethodDef;
 import polyglot.types.MethodInstance;
 import polyglot.types.Name;
+import polyglot.types.Package;
 import polyglot.types.ParsedClassType;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
@@ -80,16 +80,17 @@ import x10.ast.ParExpr;
 import x10.ast.TypeParamNode;
 import x10.ast.X10Call;
 import x10.ast.X10Call_c;
-import x10.ast.X10ClassBody_c;
 import x10.ast.X10ClassDecl_c;
-import x10.ast.X10FieldDecl_c;
+import x10.ast.X10ConstructorDecl;
+import x10.ast.X10FieldDecl;
 import x10.ast.X10Field_c;
 import x10.ast.X10Formal_c;
 import x10.ast.X10LocalAssign_c;
 import x10.ast.X10LocalDecl_c;
-import x10.ast.X10MethodDecl_c;
+import x10.ast.X10MethodDecl;
+import x10.ast.X10New_c;
 import x10.ast.X10NodeFactory_c;
-import x10.ast.X10Return_c;
+import x10.ast.X10SourceFile_c;
 import x10.constraint.XTerm;
 import x10.constraint.XTermKind;
 import x10.types.constraints.CConstraint;
@@ -97,9 +98,15 @@ import x10.types.ConstrainedType;
 import x10.types.ParameterType;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
+import x10.types.X10ConstructorDef;
+import x10.types.X10ConstructorInstance;
 import x10.types.X10Flags;
+import x10.types.X10MethodDef;
 import x10.types.X10MethodInstance;
+import x10.types.X10ProcedureDef;
 import x10.types.X10TypeSystem_c;
+import x10.visit.Desugarer;
+import x10.visit.X10TypeChecker;
 import x10c.ast.BackingArray;
 import x10c.ast.X10CNodeFactory_c;
 import x10c.types.BackingArrayType;
@@ -219,8 +226,8 @@ public class StaticInitializer extends ContextVisitor {
 
             @Override
             public Node leave(Node parent, Node old, Node n, NodeVisitor v) {
-                if (n instanceof X10FieldDecl_c) {
-                    X10FieldDecl_c fd = (X10FieldDecl_c)n;
+                if (n instanceof X10FieldDecl) {
+                    X10FieldDecl fd = (X10FieldDecl)n;
                     Flags flags = fd.fieldDef().flags();
                     if (flags.isFinal() && flags.isStatic()) {
                         // static final field
@@ -232,27 +239,6 @@ public class StaticInitializer extends ContextVisitor {
                             Expr init = getDefaultValue(fd.position(), fd.init().type());
                             return xnf.FieldDecl(fd.position(), fn, fd.type(), fd.name(),
                                                  init).fieldDef(fd.fieldDef());
-                        }
-                    }
-                }
-                if (n instanceof X10MethodDecl_c) {
-                    X10MethodDecl_c md = (X10MethodDecl_c)n;
-                    if (md.methodDef().flags().isStatic() && md.body() != null && 
-                        md.body().statements().size() == 1) {
-                        // static method with single body
-                        Stmt stmt = md.body().statements().get(0);
-                        if (stmt instanceof X10Return_c) {
-
-                            Expr right = checkMethodDeclRHS(((X10Return_c)stmt).expr());
-                            if (right != ((X10Return_c)stmt).expr()) {
-                                // rhs replaced
-                                // System.out.println("RHS of MethodDecl replaced: "+ct.classDef()+"."+md.methodDef().name());
-                                List<Stmt> stmts = new ArrayList<Stmt>();
-                                stmts.add(xnf.X10Return(n.position(), right, true));
-                                Block newBody = xnf.Block(n.position(), stmts);
-                                return xnf.MethodDecl(n.position(), md.flags(), md.returnType(), md.name(),
-                                                      md.formals(), newBody).methodDef(md.methodDef());
-                            }
                         }
                     }
                 }
@@ -281,7 +267,7 @@ public class StaticInitializer extends ContextVisitor {
         return c;
     }
 
-    private Expr checkFieldDeclRHS(Expr rhs, X10FieldDecl_c fd, X10ClassDef cd) {
+    private Expr checkFieldDeclRHS(Expr rhs, X10FieldDecl fd, X10ClassDef cd) {
         // traverse nodes in RHS
         Id leftName = fd.name();
 
@@ -305,7 +291,14 @@ public class StaticInitializer extends ContextVisitor {
                     X10MethodInstance mi = (X10MethodInstance) call.methodInstance();
                     if (mi.container().isClass() && mi.flags().isStatic() && !mi.flags().isNative() && !call.target().type().isNumeric()) {
                         // found reference to static method
-                        found.set(true);
+                        if (mi.name().toString().startsWith(initializerPrefix)) {
+                            // already converted to getInitialized$
+                            found.set(true);
+                        } else {
+                            X10MethodDecl mdecl = getMethodDeclaration(mi);
+                            if (mdecl != null && checkProcedureBody(mdecl.body(), 0))
+                                found.set(true);
+                        }
                     }
                 }
                 if (n instanceof X10Field_c) {
@@ -320,6 +313,15 @@ public class StaticInitializer extends ContextVisitor {
                             return makeStaticCall(n.position(), receiver, f.name(), f.type());
                         }
                     }
+                }
+                if (n instanceof X10New_c) {
+                    X10New_c neu = (X10New_c)n;
+                    X10ConstructorInstance ci = neu.constructorInstance();
+                    // get declaration of constructor
+                    X10ConstructorDecl cdecl = getConstructorDeclaration(ci);
+                    if (cdecl != null && checkProcedureBody(cdecl.body(), 0))
+                        // constructor include static field references to be replaced
+                        found.set(true);
                 }
                 return n;
             }
@@ -338,7 +340,130 @@ public class StaticInitializer extends ContextVisitor {
         return rhs;
     }
 
-    Call makeStaticCall(Position pos, X10ClassType receiver, Id id, Type returnType) {
+    private X10ConstructorDecl getConstructorDeclaration(X10ConstructorInstance ci) {
+        X10ConstructorDef cd = ci.x10Def();
+        X10ClassType containerBase = (X10ClassType) Types.get(cd.container());
+        X10ClassDef container = containerBase.x10Def();
+        if (container == null)
+            return null;
+        return (X10ConstructorDecl)getProcedureDeclaration(cd, container);
+    }
+
+    private X10MethodDecl getMethodDeclaration(X10MethodInstance mi) {
+        X10MethodDef md = mi.x10Def();
+        // get container and declaration for method
+        X10ClassType containerBase = (X10ClassType) Types.get(md.container());
+        X10ClassDef container = containerBase.x10Def();
+        if (container == null)
+            return null;
+        return (X10MethodDecl)getProcedureDeclaration(md, container);
+    }
+
+    private ProcedureDecl getProcedureDeclaration(final X10ProcedureDef candidate, X10ClassDef container) {
+        // obtain X10SourceFile ast of the target class that already runs preliminary compilation phases
+        final Node ast = getAST(container);
+        if (ast == null)
+            return null;
+
+        // find the target declaration of constructor or method
+        final ProcedureDecl[] decl = new ProcedureDecl[1];
+        ast.visit(new NodeVisitor() {
+            public Node override(Node n) {
+                if (decl[0] != null)
+                    // already found the decl, short-circuit search
+                    return n;
+                if (n instanceof X10FieldDecl)
+                    // not contain ctor decls, short-circuit search
+                    return n;
+                if (n instanceof X10MethodDecl) {
+                    if (candidate == ((X10MethodDecl) n).methodDef()) {
+                        // found it!!
+                        decl[0] = (X10MethodDecl) n;
+                    }
+                    return n;
+                }
+                if (n instanceof X10ConstructorDecl) {
+                    if (candidate == ((X10ConstructorDecl) n).constructorDef()) {
+                        // found it!!
+                        decl[0] = (X10ConstructorDecl) n;
+                    }
+                    return n;
+                }
+                // continue traversal
+                return null;
+            }
+        });
+        if (decl[0] == null || decl[0].body() == null) {
+            return null;
+        }
+        return decl[0];
+    }
+
+    private Node getAST(X10ClassDef container) {
+        // obtain the job for containing the constructor declaration
+        Job job = container.job();
+        if (job == null || job.ast() == null)
+            return null;
+
+        if (job == this.job())
+            // current class
+            return job.ast();
+
+        // run the preliminary compilation phases on the job's AST
+        Node ast = job.ast();
+        assert (ast instanceof X10SourceFile_c);
+        if (!((X10SourceFile_c) ast).hasBeenTypeChecked())
+            ast = ast.visit(new X10TypeChecker(job, ts, nf, job.nodeMemo()).begin());
+        if (ast == null)
+            return null;
+
+        ast = ast.visit(new Desugarer(job, ts, nf).begin());
+        return ast;
+    }
+
+    private boolean checkProcedureBody(Block body, final int count) {
+        // check static field references in the body of constructor or method
+        final AtomicBoolean found = new AtomicBoolean(false);
+        body.visit(new NodeVisitor() {
+            public Node override(Node n) {
+                if (found.get())
+                    // already found
+                    return n;
+                if (n instanceof X10Call) {
+                    if (count > 0)
+                        // do not repeat more than once recursively (allow constructor --> __fieldInitializers)
+                        return null;
+
+                    X10Call call = (X10Call)n;
+                    X10MethodInstance mi = (X10MethodInstance) call.methodInstance();
+                    if (mi.container().isClass()) {
+                        // found reference to special initializer method
+                        X10MethodDecl mdecl = getMethodDeclaration(mi);
+                        if (mdecl != null && checkProcedureBody(mdecl.body(), count+1)) {
+                            // target method include static field references
+                            found.set(true);
+                            return n;
+                        }
+                    }
+                }
+                if (n instanceof X10Field_c) {
+                    X10Field_c f = (X10Field_c)n;
+                    if (f.flags().isFinal() && f.flags().isStatic()) {
+                        if (checkFieldRefReplacementRequired(f)) {
+                            // found reference to static field to be replaced
+                            found.set(true);
+                        }
+                    }
+                    return n;
+                }
+                // continue traversal
+                return null;
+            }
+        });
+        return found.get();
+    }
+
+    private Call makeStaticCall(Position pos, X10ClassType receiver, Id id, Type returnType) {
         // create MethodDef
         Name name = Name.make(initializerPrefix+id);
         StaticFieldInfo fieldInfo = getFieldEntry(receiver, id.id());
@@ -364,38 +489,6 @@ public class StaticInitializer extends ContextVisitor {
         MethodDef md = xts.methodDef(CG, Types.ref(receiver), 
                                      Flags.STATIC, Types.ref(returnType), name, argTypes);
         return md;
-    }
-
-    private Expr checkMethodDeclRHS(Expr rhs) {
-        // traverse nodes in RHS
-        Expr newRhs = (Expr)rhs.visit(new NodeVisitor() {
-            @Override
-            public Node override(Node parent, Node n) {
-                if (n instanceof Expr) {
-                    if (isGlobalInit((Expr)n) || isConstraintToLiteral(((Expr)n).type()))
-                        // initialization can be done in all places -- do not visit subtree further
-                        // System.out.println("isGlobalInit true in checkMethodDeclRHS: "+(Expr)n);
-                        return n;
-                }
-                return null;
-            }
-
-            @Override
-            public Node leave(Node parent, Node old, Node n, NodeVisitor v) {
-                if (n instanceof X10Field_c) {
-                    X10Field_c f = (X10Field_c)n;
-                    if (f.flags().isFinal() && f.flags().isStatic()) {
-                        // replace reference to static field with a static method call
-                        if (checkFieldRefReplacementRequired(f)) {
-                            X10ClassType receiver = (X10ClassType)f.target().type();
-                            return makeStaticCall(n.position(), receiver, f.name(), f.type());
-                        }
-                    }
-                }
-                return n;
-            }
-        });
-        return newRhs;
     }
 
     private FieldDecl makeFieldVar4Guard(Position pos, Name fName, X10ClassDef classDef) {
@@ -606,7 +699,6 @@ public class StaticInitializer extends ContextVisitor {
         // make statement block of the entire method body
         stmts =  new ArrayList<Stmt>();
         stmts.add(xnf.If(pos, placeCheck, xnf.If(pos, ifCond, initBody)));
-        // stmts.add(xnf.If(pos, ifCond, ifBody));
         stmts.add(xnf.If(pos, initCheckCond, waitBody));
         stmts.add(xnf.X10Return(pos, left, false));
         Block body = xnf.Block(pos, stmts);
@@ -794,13 +886,13 @@ public class StaticInitializer extends ContextVisitor {
                                      Flags.NONE, Types.ref(xts.Void()), id.id(), argTypes);
         MethodInstance mi = xts.createMethodInstance(pos, Types.ref(md));
 
+        // get full path class name
+        Package p = Types.get(classDef.package_());
+        String fullName = (p != null ? p.toString() + "." : "") + getClassName(classDef);
+
         // actual arguments
         List<Expr> args = new ArrayList<Expr>();
-        // args.add(xnf.ClassLit(pos, xnf.CanonicalTypeNode(pos, classDef.asType())).type(xts.Class()));
-        String className = classDef.toString();
-        if (classDef.isNested()) 
-            className = className.replace('.', '$');
-        args.add(xnf.StringLit(pos, className).type(xts.String()));
+        args.add(xnf.StringLit(pos, fullName).type(xts.String()));
         args.add(xnf.StringLit(pos, fieldName.toString()).type(xts.String()));
 
         List<TypeNode> typeParamNodes = new ArrayList<TypeNode>();
@@ -812,6 +904,17 @@ public class StaticInitializer extends ContextVisitor {
         receiver = xnf.X10CanonicalTypeNode(pos, classDef.asType());
         return xnf.Eval(pos, xnf.FieldAssign(pos, receiver, xnf.Id(pos, fdId.name()),
                                              Assign.ASSIGN, call).fieldInstance(fdId.asInstance()).type(xts.Int()));
+    }
+
+    private String getClassName(ClassDef classDef) {
+        String name = classDef.name().toString();
+        if (classDef.isNested()) {
+            ClassDef outer = Types.get(classDef.outer());
+            if (outer != null)
+                // get outer's name recursively
+                name = getClassName(outer) +'$' + name;
+        }
+        return name;
     }
 
     private StaticFieldInfo getFieldEntry(Type target, Name name) {
