@@ -36,7 +36,7 @@ public class InitDispatcher {
      */
     public static void runInitializer() {
         for (final Method initializer : initializeMethods) {
-            // System.out.println(" executing " + initializer.getName());
+            // System.out.println("runInitializer executes " + initializer.getName());
             x10.core.fun.VoidFun_0_0 body = new x10.core.fun.VoidFun_0_0() {
                 public void apply() {
                     // execute X10-level static initialization
@@ -70,6 +70,7 @@ public class InitDispatcher {
             System.exit(-1);
         }
 
+        // System.out.println("addInitializer(id="+fieldId+"): "+className+"."+fieldName);
         try {
             Class<?> clazz = Class.forName(className);
             // register initializer and deserializer methods
@@ -87,7 +88,7 @@ public class InitDispatcher {
             e.printStackTrace();
             throw new java.lang.Error(e);
         }
-        return fieldId;
+        return fieldId-1;
     }
 
     public static void broadcastStaticField(final Object fieldValue, final int fieldId) {
@@ -99,7 +100,7 @@ public class InitDispatcher {
             public void apply() {
                 // execute deserializer for fieldValue
                 try {
-                    deserializeMethods.get(fieldId-1).invoke(null, buf);
+                    deserializeMethods.get(fieldId).invoke(null, buf);
                 } catch (InvocationTargetException e) {
                     e.printStackTrace();
                     throw new java.lang.Error(e);
