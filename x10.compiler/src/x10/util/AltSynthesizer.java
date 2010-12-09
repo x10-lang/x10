@@ -1127,7 +1127,7 @@ public class AltSynthesizer extends ContextVisitor {
 
     public Expr createLiteral(Position pos, Object value) {
         if (value == null)
-            return nf.NullLit(pos);
+            return nf.NullLit(pos).type(ts.Null());
         if (value instanceof Integer)
             return nf.IntLit(pos, IntLit.INT, (long) (int) (Integer) value).type(ts.Int());
         if (value instanceof Long)
