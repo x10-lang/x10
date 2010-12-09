@@ -9,25 +9,23 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-#include <x10/util/concurrent/atomic/AtomicReference.h>
+#include <x10/util/concurrent/AtomicReference.h>
 
 using namespace x10aux;
 using namespace x10::lang;
-using namespace x10::util::concurrent::atomic;
+using namespace x10::util::concurrent;
 
 namespace x10 {
     namespace util {
         namespace concurrent {
-            namespace atomic {
                 RuntimeType AtomicReference<void>::rtt;
 
                 void _initRTTHelper_AtomicReference(RuntimeType *location, const RuntimeType *rtt) {
                     const RuntimeType* parents[1] = { Object::getRTT() };
                     const RuntimeType* params[1] = { rtt };
                     RuntimeType::Variance variances[1] = { RuntimeType::invariant };
-                    location->initStageTwo("x10.util.concurrent.atomic.AtomicReference", RuntimeType::class_kind, 1, parents, 1, params, variances);
+                    location->initStageTwo("x10.util.concurrent.AtomicReference", RuntimeType::class_kind, 1, parents, 1, params, variances);
                 }
-            }
         }
     }
 }

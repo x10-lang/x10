@@ -11,10 +11,10 @@
 
 #include <x10aux/atomic_int_funs.h>
 #include <x10aux/atomic_ops.h>
-#include <x10/util/concurrent/atomic/AtomicLong.h>
+#include <x10/util/concurrent/AtomicLong.h>
 
 using namespace x10aux;
-using namespace x10::util::concurrent::atomic;
+using namespace x10::util::concurrent;
 
 
 x10_boolean atomic_long_funs::compareAndSet(ref<AtomicLong> obj, x10_long expect, x10_long update) {

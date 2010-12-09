@@ -11,10 +11,10 @@
 
 #include <x10aux/atomic_boolean_funs.h>
 #include <x10aux/atomic_ops.h>
-#include <x10/util/concurrent/atomic/AtomicBoolean.h>
+#include <x10/util/concurrent/AtomicBoolean.h>
 
 using namespace x10aux;
-using namespace x10::util::concurrent::atomic;
+using namespace x10::util::concurrent;
 
 x10_boolean atomic_boolean_funs::compareAndSet(ref<AtomicBoolean> obj,
                                                x10_boolean expect, x10_boolean update) {

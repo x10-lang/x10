@@ -38,7 +38,7 @@ public final class AtomicReference<T> extends java.util.concurrent.atomic.Atomic
     ) {
         @Override
         public String typeName() {
-            return "x10.util.concurrent.atomic.AtomicReference";
+            return "x10.util.concurrent.AtomicReference";
         }
     };
     public RuntimeType<AtomicReference> getRTT() {return _RTT;}

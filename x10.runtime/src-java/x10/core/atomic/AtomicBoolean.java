@@ -34,7 +34,7 @@ public final class AtomicBoolean extends java.util.concurrent.atomic.AtomicBoole
     ) {
         @Override
         public String typeName() {
-            return "x10.util.concurrent.atomic.AtomicBoolean";
+            return "x10.util.concurrent.AtomicBoolean";
         }
     };
     public RuntimeType<AtomicBoolean> getRTT() {return _RTT;}

@@ -14,16 +14,16 @@
 
 #include <x10aux/ref.h>
 
-namespace x10 { namespace util { namespace concurrent { namespace atomic { class AtomicBoolean; }}}}
+namespace x10 { namespace util { namespace concurrent { class AtomicBoolean; }}}
 
 namespace x10aux {
                 
     class atomic_boolean_funs {
     public:
-        static x10_boolean compareAndSet(x10aux::ref<x10::util::concurrent::atomic::AtomicBoolean> obj,
+        static x10_boolean compareAndSet(x10aux::ref<x10::util::concurrent::AtomicBoolean> obj,
                                          x10_boolean expect, x10_boolean update);
                     
-        static x10_boolean weakCompareAndSet(x10aux::ref<x10::util::concurrent::atomic::AtomicBoolean> obj,
+        static x10_boolean weakCompareAndSet(x10aux::ref<x10::util::concurrent::AtomicBoolean> obj,
                                              x10_boolean expect, x10_boolean update);
     };
 }

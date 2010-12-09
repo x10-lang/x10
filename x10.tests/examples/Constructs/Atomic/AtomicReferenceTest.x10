@@ -10,7 +10,7 @@
  */
 
 import harness.x10Test;
-import x10.util.concurrent.atomic.AtomicReference;
+import x10.util.concurrent.AtomicReference;
 
 /**
  * Simple test cases for AtomicReference API functions.
