@@ -104,7 +104,7 @@ class StructSpheres {
         val time_taken = System.nanoTime() - time_start;
         Console.OUT.println("Total time: "+time_taken/1E9);
 
-        val expected = 109332;
+        val expected = 107695; // As of r18883
         if (counter != expected) {
             Console.ERR.println("number of intersections: "+counter
                                 +" (expected "+expected+")");
