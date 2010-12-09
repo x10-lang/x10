@@ -18,7 +18,7 @@ import x10.compiler.CUDADirectParams;
 
 public class CUDAKernelTest {
 
-    static def doTest1 (init:Array[Float]{rail}, recv:Array[Float]{rail}, p:Place, len:Int) {
+    static def doTest1 (init:Array[Float](1){rail}, recv:Array[Float](1){rail}, p:Place, len:Int) {
 
         val remote = CUDAUtilities.makeRemoteArray[Float](p,len,(Int)=>0.0 as Float); // allocate 
 
