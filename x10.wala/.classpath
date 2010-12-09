@@ -4,6 +4,9 @@
 	<classpathentry kind="src" path="data"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="/x10.dist/lib/wala.jar"/>
+	<classpathentry kind="lib" path="/x10.dist/lib/com.ibm.wala.cast_1.0.0.201012091449.jar"/>
+	<classpathentry kind="lib" path="/x10.dist/lib/com.ibm.wala.cast.java_1.0.0.201012091449.jar"/>
+	<classpathentry kind="lib" path="/x10.dist/lib/com.ibm.wala.core_1.1.3.201012091449.jar"/>
+	<classpathentry kind="lib" path="/x10.dist/lib/com.ibm.wala.shrike_1.1.3.201012091449.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
