@@ -183,7 +183,7 @@ public class FinallyEliminator extends ContextVisitor {
         }
         Name name           = Name.makeFresh("throwable");
         Type throwableType  = ts.Throwable();
-        LocalDecl throwDecl = syn.createLocalDecl(pos, Flags.NONE, name, throwableType);
+        LocalDecl throwDecl = syn.createLocalDecl(pos, Flags.NONE, name, throwableType, syn.createLiteral(pos, null));
         Block tryBody       = syn.createBlock(pos, s, syn.createStaticCall(pos, finalization, PLAUSIBLE_THROW));
         Formal f            = syn.createFormal(pos, throwableType);
         Stmt assignment     = syn.createAssignment(pos, syn.createLocal(pos, throwDecl), Assign.ASSIGN, syn.createLocal(pos, f));
