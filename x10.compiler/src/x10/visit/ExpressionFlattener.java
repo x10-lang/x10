@@ -78,6 +78,7 @@ import x10.ast.ClosureCall;
 import x10.ast.Finish;
 import x10.ast.ForLoop;
 import x10.ast.Future;
+import x10.ast.HasZeroTest;
 import x10.ast.Here;
 import x10.ast.Next;
 import x10.ast.ParExpr;
@@ -89,10 +90,10 @@ import x10.ast.SubtypeTest;
 import x10.ast.Tuple;
 import x10.ast.When;
 import x10.ast.X10ClassDecl;
-import x10.ast.HasZeroTest;
 import x10.errors.Warnings;
 import x10.optimizations.ForLoopOptimizer;
 import x10.types.X10FieldInstance;
+import x10.util.AltSynthesizer;
 
 /**
  * @author Bowen Alpern
@@ -106,9 +107,7 @@ public final class ExpressionFlattener extends ContextVisitor {
     private static final boolean XTENLANG_2055 = true; // bug work around
 
     private final TypeSystem xts;
-    private final NodeFactory xnf;
-//    Synthesizer syn;
-    private ForLoopOptimizer syn; // move functionality to Synthesizer
+    private AltSynthesizer syn; // move functionality to Synthesizer
     private final SideEffectDetector sed;
     
     List<Labeled> labels = new ArrayList<Labeled>();
@@ -121,10 +120,8 @@ public final class ExpressionFlattener extends ContextVisitor {
      */
     public ExpressionFlattener(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf);
-        xts = (TypeSystem) ts;
-        xnf = (NodeFactory) nf;
-//        syn = new Synthesizer(xnf, xts);
-        syn = new ForLoopOptimizer(job, ts, nf);
+        xts = ts;
+        syn = new AltSynthesizer(job, ts, nf);
         sed = new SideEffectDetector(job, ts, nf);
     }
 
@@ -139,7 +136,7 @@ public final class ExpressionFlattener extends ContextVisitor {
     public ContextVisitor context(Context c) {
         ExpressionFlattener res = (ExpressionFlattener) super.context(c);
         if (res != this)
-            res.syn = (ForLoopOptimizer) syn.context(c);
+            res.syn = (AltSynthesizer) syn.context(c);
         return res;
     }
 
@@ -147,7 +144,7 @@ public final class ExpressionFlattener extends ContextVisitor {
     public NodeVisitor superEnter(Node parent, Node n) {
         ExpressionFlattener res = (ExpressionFlattener) super.superEnter(parent, n);
         if (res != this)
-            res.syn = (ForLoopOptimizer) syn.enter(parent, n);
+            res.syn = (AltSynthesizer) syn.enter(parent, n);
         return res;
     }
 
