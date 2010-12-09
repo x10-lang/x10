@@ -142,7 +142,7 @@ public class Lowerer extends ContextVisitor {
     private static final Name EVAL_AT = Name.make("evalAt");
     private static final Name RUN_ASYNC = Name.make("runAsync");
     private static final Name RUN_UNCOUNTED_ASYNC = Name.make("runUncountedAsync");
-    private static final Name HERE = Name.make("here");
+    private static final Name HOME = Name.make("home");
     private static final Name HERE_INT = Name.make("hereInt");
     private static final Name NEXT = Name.make("next");
     private static final Name RESUME = Name.make("resume");
@@ -541,7 +541,7 @@ public class Lowerer extends ContextVisitor {
             args.add((Expr) leaveCall(null, i, this));
             args.add((Expr) leaveCall(null, v, this));
             Stmt alt = nf.Eval(pos, synth.makeStaticCall(pos, RemoteOperation, XOR, args, ts.Void(), context()));
-            Expr cond = nf.Binary(pos, p, X10Binary_c.EQ, call(pos, HERE, ts.Place())).type(ts.Boolean());
+            Expr cond = nf.Binary(pos, p, X10Binary_c.EQ, call(pos, HOME, ts.Place())).type(ts.Boolean());
             Stmt cns = a.body();
             return nf.If(pos, cond, cns, alt);
         }
@@ -623,10 +623,10 @@ public class Lowerer extends ContextVisitor {
     // end Async
 
 
-    // here -> Runtime.here()
+    // here -> Runtime.home()
     private Expr visitHere(Here h) throws SemanticException {
         Position pos = h.position();
-        return call(pos, HERE, ts.Place());
+        return call(pos, HOME, ts.Place());
     }
 
     // next; -> Runtime.next();

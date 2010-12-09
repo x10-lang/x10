@@ -95,7 +95,7 @@ public class Here_c extends Expr_c
 		return type(tt);
 	}
     public String translate(Resolver c) {
-      return "x10.lang.Runtime.here()";
+      return "x10.lang.Runtime.home()";
     }
     /** Write the statement to an output file. */
     public void prettyPrint(CodeWriter w, PrettyPrinter tr) {

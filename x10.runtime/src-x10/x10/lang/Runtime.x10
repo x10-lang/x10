@@ -498,13 +498,13 @@ import x10.util.Box;
      * Return the current place
      */
     @Native("c++", "x10::lang::Place_methods::_make(x10aux::here)")
-    public static def here():Place = Thread.currentThread().home();
+    public static def home():Place = Thread.currentThread().home();
 
     /**
      * Return the id of the current place
      */
     @Native("c++", "x10aux::here")
-    public static def hereInt():int = here().id;
+    public static def hereInt():int = here.id;
 
     /**
      * The amount of unscheduled activities currently available to this worker thread.
