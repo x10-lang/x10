@@ -30,6 +30,6 @@ public class HistogramOrig {
 	
     Console.OUT.println("Test ok." + b(0));
     val compute_time = (System.currentTimeMillis() - start_time);
-    Console.ERR.print( compute_time + " ");
+    Console.OUT.println( compute_time + " ");
     }
 }

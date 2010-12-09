@@ -549,7 +549,7 @@ class IdeaTest {
 		//JGFInstrumentor.addOpsToTimer("Section2:Crypt:Kernel", (2*array_rows)/1000.);
 		//JGFInstrumentor.printTimer("Section2:Crypt:Kernel");
     		val compute_time = (System.currentTimeMillis() - start_time);
-    		Console.ERR.print( compute_time + " ");
+    		Console.OUT.println( compute_time + " ");
 	}
 }
 

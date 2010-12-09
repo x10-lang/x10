@@ -48,6 +48,6 @@ public class AllReduceParallelOrig {
    
     Console.OUT.println("allReduce = " + result);
     val compute_time = (System.currentTimeMillis() - start_time);
-    Console.ERR.print( compute_time + " ");
+    Console.OUT.println( compute_time + " ");
   }
 }

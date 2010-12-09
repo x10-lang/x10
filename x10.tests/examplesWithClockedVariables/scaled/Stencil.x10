@@ -90,6 +90,6 @@ public class Stencil {
         time += System.nanoTime();
        x10.io.Console.OUT.println("N=" + n + " P=" + p + " Iters=" + s.iters + " time=" + time/(1000*1000) + " ms");
     	val compute_time = (System.currentTimeMillis() - start_time);
-    	Console.ERR.print( compute_time + " ");
+    	Console.OUT.println( compute_time + " ");
     }
 }

@@ -25,6 +25,7 @@ while [ -n "$1" ]; do
         -libpath) shift; extra_lib="$1";;
         -config) shift; config="$1.cfg";;
         -dev) dev="true";;
+	-azul) JAVA="/homes/cjhammer/scratch/azul-jdk1.6.0_07-2.5.0.11-2/bin/java"; java_args="-PX:CPMDomain=CS -PX:PolicyVhost=128.10.129.74"
         -J*) java_args="${java_args} '${1##-J}'";;
         -*=*) java_args="${java_args} -Dx10.${1##-}";;
         -*) java_args="${java_args} -Dx10.${1##-}=true";;

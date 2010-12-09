@@ -37,6 +37,6 @@ public class PrefixOrig {
         s.run();
         s.print();
     	val compute_time = (System.currentTimeMillis() - start_time);
-    	Console.ERR.print( compute_time + " ");
+    	Console.OUT.println( compute_time + " ");
     }
 }

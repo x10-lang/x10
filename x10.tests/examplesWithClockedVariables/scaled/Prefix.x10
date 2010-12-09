@@ -46,6 +46,6 @@ public class Prefix {
         s.run(0, N-1);
         s.print();
     	val compute_time = (System.currentTimeMillis() - start_time);
-    	Console.ERR.print( compute_time + " ");
+    	Console.OUT.println( compute_time + " ");
     }
 }

@@ -32,7 +32,7 @@ public class MergeSort{
      	 for ( i = 0; i < N; i++)
      		Console.OUT.print(myArray(i) + " ");
     	val compute_time = (System.currentTimeMillis() - start_time);
-    	Console.ERR.print( compute_time + " ");
+    	Console.OUT.println("\n" + compute_time + " ");
          
       
     }

@@ -33,6 +33,6 @@ public class MontyPiParallel {
     val pi = 4*result/(N*P);
     Console.OUT.println("The value of pi is " + pi);
     val compute_time = (System.currentTimeMillis() - start_time);
-    Console.ERR.print( compute_time + " ");
+    Console.OUT.println( compute_time + " ");
   }
 }

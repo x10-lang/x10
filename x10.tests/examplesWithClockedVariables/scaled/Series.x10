@@ -221,7 +221,7 @@ public class Series extends SeriesTest {
     			val start_time = System.currentTimeMillis(); 
 			new Series().JGFrun(0);
     			val compute_time = (System.currentTimeMillis() - start_time);
-    			Console.ERR.print( compute_time + " ");
+    			Console.OUT.println( compute_time + " ");
 		
 	}
 }
