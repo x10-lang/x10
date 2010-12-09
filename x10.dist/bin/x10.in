@@ -80,9 +80,10 @@ if [ -n "$extra_lib" ]; then
    externpath="$extra_lib${PATH_SEP}$externpath"
 fi
 
+# TODO adding x10 classes in bootstrap class path made static initialization failed. reverted for now.
 # Note: use bootstrap class path instead of user class path to make it visible from jar file
-#java_args="-Djava.library.path=\"$externpath\" -ea -classpath \"$classpath\" ${java_args}"
-java_args="-Djava.library.path=\"$externpath\" -ea -Xbootclasspath/a:\"$classpath\" ${java_args}"
+java_args="-Djava.library.path=\"$externpath\" -ea -classpath \"$classpath\" ${java_args}"
+#java_args="-Djava.library.path=\"$externpath\" -ea -Xbootclasspath/a:\"$classpath\" ${java_args}"
 
 if [ -n "$mx" ]; then
    java_args="-Xmx$mx $java_args"
