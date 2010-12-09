@@ -21,12 +21,12 @@ public class AllReduce extends x10Test {
         val count = 113;        
         val src = new Array[Float](count, (i:int)=>((role+1) as Float) * i * i);
         val dst = new Array[Float](count, (i:int)=>-(i as Float));
-	var success: boolean = true;
-	        
-	team.allreduce(role, src, 0, dst, 0, count, Team.ADD);
+        var success: boolean = true;
+                
+        team.allreduce(role, src, 0, dst, 0, count, Team.ADD);
 
-	val oracle_base = ((team.size()*team.size() + team.size())/2) as Float;
-	for ([i] in 0..count-1) {
+        val oracle_base = ((team.size()*team.size() + team.size())/2) as Float;
+        for ([i] in 0..count-1) {
             val oracle:float = oracle_base * i * i;
             if (dst(i) != oracle) {
                 Console.OUT.printf("Team %d role %d received invalid sum %f at %d instead of %f\n",
@@ -37,25 +37,25 @@ public class AllReduce extends x10Test {
 
         team.barrier(role);
 
-	val reducedSuccess = team.allreduce(role, success ? 1 : 0, Team.AND);
+        val reducedSuccess = team.allreduce(role, success ? 1 : 0, Team.AND);
 
-	team.barrier(role);
+        team.barrier(role);
 
-	if (reducedSuccess != 1) {
+        if (reducedSuccess != 1) {
             Console.OUT.println("Reduced Success value was "+reducedSuccess+" but expected 1");
         }
 
-	success &= (reducedSuccess == 1);
+        success &= (reducedSuccess == 1);
 
-	if (!success) at (res.home) res()() = false;
+        if (!success) at (res.home) res()() = false;
 
-	team.del(role);
+        team.del(role);
     }
 
     public def run(): boolean {
         Console.OUT.println("Doing all reduce for World ("+Place.numPlaces()+" places)");
         val res:Cell[Boolean] = new Cell[Boolean](true);
-	val gr:GlobalRef[Cell[Boolean]] = GlobalRef(res);
+        val gr:GlobalRef[Cell[Boolean]] = GlobalRef(res);
         finish for (p in Place.places()) {
             async at(p) allReduceTest(Team.WORLD, here.id, gr);
         }
