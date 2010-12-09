@@ -14,7 +14,7 @@ package polyglot.util;
 public abstract class AbstractErrorQueue implements ErrorQueue
 {
     protected boolean flushed;
-    protected int errorCount;
+    protected int errorCount; // todo: errorCount is wrong if we remove/add errors from SilentErrorQueue or StdErrorQueue, so we should move it to SimpleErrorQueue  
     protected final int limit;
     protected final String name;
     

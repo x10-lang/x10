@@ -536,17 +536,22 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
         // the return type must be a subtype of the container type
         final Name nameId = n.name.id();
         if (nameId==Converter.implicit_operator_as || nameId==Converter.operator_as) {
-            final StructType container = n.methodDef().container().get();
-            final Type returnT = X10TypeMixin.baseType(n.returnType.type());
+            final X10MethodDef methodDef = n.methodDef();
+            final StructType container = methodDef.container().get();
+            final Type returnT = X10TypeMixin.baseType(methodDef.returnType().get());
+            final List<Ref<? extends Type>> formals = methodDef.formalTypes();
+            assert formals.size()==1 : "Currently it is a parsing error if the number of formals for an implicit or explicit 'as' operator is different than 1! formals="+formals;
+            final Type argumentT = X10TypeMixin.baseType(formals.get(0).get());
             // I compare ClassDef due to this example:
             //class B[U] {
             //    public static operator[T](x:T):B[T] = null;
             //}
-            if (!(container instanceof X10ParsedClassType) ||
-                !(returnT instanceof X10ParsedClassType) ||
-                ((X10ParsedClassType)container).def()!=((X10ParsedClassType)returnT).def()) {
+            assert container instanceof X10ParsedClassType : container;
+            boolean isReturnWrong = !(returnT   instanceof X10ParsedClassType) || ((X10ParsedClassType)returnT  ).def()!=((X10ParsedClassType)container).def();
+            boolean isFormalWrong = !(argumentT instanceof X10ParsedClassType) || ((X10ParsedClassType)argumentT).def()!=((X10ParsedClassType)container).def();
+            if (isReturnWrong && isFormalWrong) {
                 Errors.issue(tc.job(),
-				        new SemanticException("The return type of operator 'as' must have the same class as the container.", n.returnType.position()));
+				        new SemanticException("The return type or the formal type of an explicit or implicit operator 'as' must have the same class as the container.", n.position()));
             }
         }
 		return n;
