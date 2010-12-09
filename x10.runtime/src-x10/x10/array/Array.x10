@@ -121,9 +121,7 @@ public final class Array[T] (
      *
      * @param reg The region over which to construct the array.
      */
-    public def this(reg:Region) {T haszero} :Array[T]{self.region==reg, self.rank==reg.rank, 
-                                                      self.rect==reg.rect, self.zeroBased==reg.zeroBased,
-                                                      self.rail==reg.rail}
+    public def this(reg:Region) {T haszero}
     {
         property(reg, reg.rank, reg.rect, reg.zeroBased, reg.rail, reg.size());
 
@@ -140,9 +138,7 @@ public final class Array[T] (
      * @param reg The region over which to construct the array.
      * @param init The function to use to initialize the array.
      */    
-    public def this(reg:Region, init:(Point(reg.rank))=>T):Array[T]{self.region==reg, self.rank==reg.rank, 
-                                                                    self.rect==reg.rect, self.zeroBased==reg.zeroBased,
-                                                                    self.rail==reg.rail}
+    public def this(reg:Region, init:(Point(reg.rank))=>T)
     {
         property(reg, reg.rank, reg.rect, reg.zeroBased, reg.rail, reg.size());
 
@@ -163,9 +159,7 @@ public final class Array[T] (
      * @param reg The region over which to construct the array.
      * @param init The function to use to initialize the array.
      */    
-    public def this(reg:Region, init:T):Array[T]{self.region==reg, self.rank==reg.rank, 
-                                                 self.rect==reg.rect, self.zeroBased==reg.zeroBased,
-                                                 self.rail==reg.rail}
+    public def this(reg:Region, init:T)
     {
         property(reg, reg.rank, reg.rect, reg.zeroBased, reg.rail, reg.size());
 
@@ -189,9 +183,8 @@ public final class Array[T] (
     /**
      * Construct Array over the region 0..size-1 whose elements are zero-initialized.
      */
-    public def this(size:int) {T haszero} :Array[T]{self.rank==1, self.rect, 
-                                                    self.zeroBased, self.rail, 
-                                                    self.size==size} {
+    public def this(size:int) {T haszero}
+    {
         property(0..size-1, 1, true, true, true, size);
 
         layout = RectLayout(0, size-1);
@@ -207,9 +200,8 @@ public final class Array[T] (
      * @param reg The region over which to construct the array.
      * @param init The function to use to initialize the array.
      */    
-    public def this(size:int, init:(int)=>T):Array[T]{self.rank==1, self.rect, 
-                                                      self.zeroBased, self.rail, 
-                                                      self.size==size} {
+    public def this(size:int, init:(int)=>T)
+    {
         property(0..size-1, 1, true, true, true, size);
 
         layout = RectLayout(0, size-1);
@@ -229,9 +221,8 @@ public final class Array[T] (
      * @param reg The region over which to construct the array.
      * @param init The function to use to initialize the array.
      */    
-    public def this(size:int, init:T):Array[T]{self.rank==1, self.rect, 
-                                               self.zeroBased, self.rail, 
-                                               self.size==size} {
+    public def this(size:int, init:T)
+    {
         property(0..size-1, 1, true, true, true, size);
 
         layout = RectLayout(0, size-1);
@@ -249,9 +240,8 @@ public final class Array[T] (
      *
      * @param init The array to copy.
      */    
-    public def this(init:Array[T]):Array[T]{self.region==init.region, self.rank==init.rank,
-                                            self.rect==init.rect, self.zeroBased==init.zeroBased, 
-                                            self.rail==init.rail, self.size==init.size} {
+    public def this(init:Array[T])
+    {
         property(init.region, init.rank, init.rect, init.zeroBased, init.rail, init.size);
         layout = RectLayout(region);
         val n = layout.size();
@@ -265,7 +255,8 @@ public final class Array[T] (
      *
      * @param init The remote array to copy.
      */    
-    public def this(init:RemoteArray[T]{init.home==here}):Array[T]{self.region==init.region, self.size==init.size} {
+    public def this(init:RemoteArray[T]{init.home==here})
+    {
         this(init.array());
     }
 
