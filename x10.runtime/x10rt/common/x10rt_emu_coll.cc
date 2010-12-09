@@ -728,8 +728,8 @@ namespace {
     template<> int16_t  min<int16_t>  (void) { return (int16_t)0x8000; }
     template<> int32_t  min<int32_t>  (void) { return (int32_t)0x80000000; }
     template<> int64_t  min<int64_t>  (void) { return (int64_t)0x8000000000000000ULL; }
-    template<> double   min<double>   (void) { return DBL_MIN; }
-    template<> float    min<float>    (void) { return FLT_MIN; }
+    template<> double   min<double>   (void) { return -DBL_MAX; }
+    template<> float    min<float>    (void) { return -FLT_MAX; }
 
     template<class T> T max (void) { T::error(); } // specialised
     template<> uint8_t  max<uint8_t>  (void) { return 0xFF; }
