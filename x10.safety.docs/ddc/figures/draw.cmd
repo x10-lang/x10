@@ -4,7 +4,6 @@ unset grid
 set border 3 
 set key spacing 1.2
 set boxwidth 0.2
-set key 6,5
 set xrange [-0.25:6]
 set yrange [0:5]
 #landscape enhanced monochrome
@@ -12,7 +11,7 @@ set style data histogram
 set ytics nomirror
 #set grid
 unset grid
-set key 9,3
+#set key 9,3
 set style fill pattern 3 border
 #set palette gray
 set border 3 # bottom and left only
@@ -21,7 +20,7 @@ set border 3 # bottom and left only
 set ylabel "Relative Speed"
 set xlabel "Application"
 set xtics rotate 90
-set xrange [0:18]
+set xrange [0:19]
 set yrange [0:3.2]
 set boxwidth .148
 set xtics nomirror
@@ -32,7 +31,7 @@ set size 0.65, 0.65
 set ylabel "Time"
 set xlabel "Number of tasks"
 set output 'figures/next.eps'
-set xrange [0:5]
+set xrange [0:4]
 set yrange [0:1200]
-set key 3,1100
+#set key 3,1100
 plot  'figures/javaNext.dat' using ($1):($2) title "Java" with lines , 'figures/cppNext.dat'  using ($1):($2) title "C++" with lines 
