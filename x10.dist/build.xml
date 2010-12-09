@@ -64,6 +64,7 @@
                 <include name="java_x10rt"/>
                 <include name="x10"/>
                 <include name="x10c"/>
+                <include name="precommit"/>
             </fileset>
         </delete>
     </target>
@@ -279,6 +280,7 @@
         <antcall target="setupX10"/>
         <antcall target="x10"/>
         <antcall target="x10c"/>
+        <antcall target="precommit"/>
         <antcall target="java_x10rt"/>
     </target>
 
@@ -309,6 +311,10 @@
             <srcfiles file="${ant.file}"/>
             <srcfiles file="${bin}/x10c.in"/>
         </uptodate>
+        <uptodate property="precommit.up-to-date" targetfile="${bin}/precommit">
+            <srcfiles file="${ant.file}"/>
+            <srcfiles file="${bin}/precommit.in"/>
+        </uptodate>
         <uptodate property="java_x10rt.up-to-date" targetfile="${bin}/java_x10rt">
             <srcfiles file="${ant.file}"/>
             <srcfiles file="${bin}/java_x10rt.in"/>
@@ -316,6 +322,7 @@
         <condition property="bin.up-to-date">
             <and>
                 <isset property="setupX10.up-to-date"/>
+                <isset property="precommit.up-to-date"/>
                 <isset property="x10.up-to-date"/>
                 <isset property="x10c.up-to-date"/>
                 <isset property="java_x10rt.up-to-date"/>
@@ -454,6 +461,22 @@ WALA_URL='${wala.jar.url}'
         </concat>
 
         <chmod perm="+x" file="${bin}/x10c"/>
+
+        <delete file="${bin}/defs"/>
+    </target>
+
+    <target name="precommit" unless="precommit.up-to-date"
+            depends="executable-defs"
+            description="creates the executable script precommit">
+        <echo message="Creating ${bin}/precommit"/>
+        <concat destfile="${bin}/precommit" append="no">
+            <filelist dir="${bin}" files="defs"/>
+        </concat>
+        <concat destfile="${bin}/precommit" append="yes">
+            <filelist dir="${bin}" files="precommit.in"/>
+        </concat>
+
+        <chmod perm="+x" file="${bin}/precommit"/>
 
         <delete file="${bin}/defs"/>
     </target>
