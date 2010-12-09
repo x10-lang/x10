@@ -4,6 +4,7 @@ unset grid
 set border 3 
 set key spacing 1.2
 set boxwidth 0.2
+set key at 6,5
 set xrange [-0.25:6]
 set yrange [0:5]
 #landscape enhanced monochrome
@@ -11,7 +12,7 @@ set style data histogram
 set ytics nomirror
 #set grid
 unset grid
-#set key 9,3
+set key at 9,3
 set style fill pattern 3 border
 #set palette gray
 set border 3 # bottom and left only
@@ -25,7 +26,7 @@ set yrange [0:3.2]
 set boxwidth .148
 set xtics nomirror
 set output 'figures/output.eps'
-plot  'figures/java.dat' using -1:xticlabel(2) notitle,  'figures/java.dat'  using ($1-0.9):($5) title "Determinized (Java)" with boxes fs solid 1, 'figures/cpp.dat'  using ($1-0.7):($5) title "Determinized (C++)" with boxes fs 2,1 with lines lt 4 title "Original"
+plot  'figures/java.dat' using -1:xticlabel(2) notitle,  'figures/java.dat'  using ($1-0.9):($5) title "Determinized (Java)" with boxes fs solid 1, 'figures/cpp.dat'  using ($1-0.7):($5) title "Determinized (C++)" with boxes fs empty,1 with lines lt 4 title "Original"
 
 set size 0.65, 0.65 
 set ylabel "Time"
@@ -33,5 +34,5 @@ set xlabel "Number of tasks"
 set output 'figures/next.eps'
 set xrange [0:4]
 set yrange [0:1200]
-#set key 3,1100
+set key at 3,1100
 plot  'figures/javaNext.dat' using ($1):($2) title "Java" with lines , 'figures/cppNext.dat'  using ($1):($2) title "C++" with lines 
