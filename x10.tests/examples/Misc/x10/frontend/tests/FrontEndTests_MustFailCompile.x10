@@ -9,7 +9,8 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-package x10.frontend.tests; // todo: We should put ALL our tests in different packages according to the directory structure
+package x10.frontend.tests;
+// TODO: We should put ALL our tests in different packages according to the directory structure
 
 import harness.x10Test;
 
