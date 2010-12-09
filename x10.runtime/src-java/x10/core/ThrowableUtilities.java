@@ -53,7 +53,7 @@ public class ThrowableUtilities {
         } catch (java.lang.NoSuchMethodException e4) {
         } catch (java.lang.reflect.InvocationTargetException e5) {
         }
-        throw new java.lang.Error();
+        throw new java.lang.Error(e);
     }
 
     static public x10.core.Throwable getCorrespondingX10Exception(java.lang.Exception e) {
@@ -82,7 +82,7 @@ public class ThrowableUtilities {
         } catch (java.lang.NoSuchMethodException e4) {
         } catch (java.lang.reflect.InvocationTargetException e5) {
         }
-        throw new java.lang.Error();
+        throw new java.lang.Error(e);
     }
 
     static public x10.core.Throwable getCorrespondingX10Error(java.lang.Error e) {
@@ -106,7 +106,7 @@ public class ThrowableUtilities {
         } catch (java.lang.reflect.InvocationTargetException e5) {
         }
         System.out.println(e);
-        throw new java.lang.Error();
+        throw new java.lang.Error(e);
     }
 
     public static <T> T UnsupportedOperationException(java.lang.String message) {
