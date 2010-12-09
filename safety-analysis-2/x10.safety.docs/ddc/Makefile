@@ -1,5 +1,6 @@
 %.dvi : %.tex figures/draw.cmd figures/laptop.dat figures/triloka11.dat
 	gnuplot figures/draw.cmd 
+	gnuplot figures/draw-azul.cmd 
 	latex $< < /dev/null
 	if grep -s Citation $*.log; then \
 	    bibtex $*; \

@@ -4,13 +4,12 @@ unset grid
 set border 3 
 set key spacing 1.2
 set boxwidth 0.1
-set key 6,5
 set xrange [-0.25:6]
 set style data histogram
 set ytics nomirror
 #set grid
 unset grid
-set key 9,23
+#set key 9,23
 set style fill pattern 3 border
 #set palette gray
 set border 3 # bottom and left only
@@ -20,7 +19,7 @@ set ylabel "Relative Speed"
 set xlabel "Application"
 set xtics rotate 90
 set log y
-set xrange [0:18]
+set xrange [-0.5:18]
 set yrange [0.01:100]
 set boxwidth .148
 set xtics nomirror
