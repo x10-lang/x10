@@ -49,7 +49,6 @@ public class AllReduce extends x10Test {
 
         if (!success) at (res.home) res()() = false;
 
-        team.del(role);
     }
 
     public def run(): boolean {
