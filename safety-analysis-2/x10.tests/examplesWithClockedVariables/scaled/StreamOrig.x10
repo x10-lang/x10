@@ -67,7 +67,7 @@ public class StreamOrig {
         
         printStats(N, min, verified(0));
     	val compute_time = (System.currentTimeMillis() - start_time);
-    	Console.ERR.print( compute_time + " ");
+    	Console.OUT.println( compute_time + " ");
     }
 
     static def now():double = Timer.nanoTime() * 1e-9;

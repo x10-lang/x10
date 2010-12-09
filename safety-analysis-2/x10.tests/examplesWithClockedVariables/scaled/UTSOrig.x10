@@ -162,7 +162,7 @@ class UTSOrig {
 	val P = 64; //Int.parseInt(args(0));
         new UTSOrig(P).run();
     	val compute_time = (System.currentTimeMillis() - start_time);
-    	Console.ERR.print( compute_time + " ");
+    	Console.OUT.println( compute_time + " ");
     }
    
  

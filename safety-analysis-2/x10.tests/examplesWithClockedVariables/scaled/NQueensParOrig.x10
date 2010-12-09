@@ -107,7 +107,7 @@ public class NQueensParOrig {
                     (result? " (ok)." : " (wrong).") + "time=" + start + "ms");
         }
     	val compute_time = (System.currentTimeMillis() - start_time);
-    	Console.ERR.print( compute_time + " ");
+    	Console.OUT.println( compute_time + " ");
     }
 
     static def println(s:String) = Console.OUT.println(s);

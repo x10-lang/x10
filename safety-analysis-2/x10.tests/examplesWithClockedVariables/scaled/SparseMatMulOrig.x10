@@ -164,7 +164,7 @@ import x10.util.Random;
     		val start_time = System.currentTimeMillis(); 
 		new SparseMatMulOrig (). JGFrun(0);
     		val compute_time = (System.currentTimeMillis() - start_time);
-    		Console.ERR.print( compute_time + " ");
+    		Console.OUT.println( compute_time + " ");
 		
 	}
 	

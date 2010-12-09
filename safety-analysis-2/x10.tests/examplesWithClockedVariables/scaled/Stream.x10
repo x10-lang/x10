@@ -72,7 +72,7 @@ public class Stream {
         Console.OUT.println("Result is " + (verified ? "verified." : "NOT verified."));
       }
     val compute_time = (System.currentTimeMillis() - start_time);
-    Console.ERR.print( compute_time + " ");
+    Console.OUT.println( compute_time + " ");
     }
 
     static def now():double = Timer.nanoTime() * 1e-9;
