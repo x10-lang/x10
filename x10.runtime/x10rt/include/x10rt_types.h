@@ -119,7 +119,6 @@ typedef enum {
 typedef enum {
     X10RT_RED_OP_ADD = 0,
     X10RT_RED_OP_MUL = 1,
-    X10RT_RED_OP_DIV = 2,
     X10RT_RED_OP_AND = 3,
     X10RT_RED_OP_OR  = 4,
     X10RT_RED_OP_XOR = 5,
