@@ -11,9 +11,12 @@
 
 package x10.compiler;
 
-/** An annotation that instructs the CUDA backend to use conventional CUDA
+import x10.lang.annotations.StatementAnnotation;
+
+/**
+ * An annotation that instructs the CUDA backend to use conventional CUDA
  * kernel parameters to pass the capture enviornment, instead of DMA'ing a
- * structure to the GPU and passing a pointer to this structure.  @author Dave
- * Cunningham
+ * structure to the GPU and passing a pointer to this structure.
+ * @author Dave Cunningham
  */
-public interface CUDADirectParams { }
+public interface CUDADirectParams extends StatementAnnotation { }
