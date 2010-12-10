@@ -238,17 +238,17 @@ public class LineNumberMap extends StringTable {
 	 * @param startLine first generated line of the method body
 	 * @param endLine last generated line of the method body
 	 */
-	public void addMethodMapping(MemberDef def, String cppFile, int startLine, int endLine) {
+	public void addMethodMapping(MemberDef def, String cppFile, int startLine, int endLine, int lastX10Line) {
 	    Key tk = new Key(stringId(cppFile), startLine, endLine);
 	    Type container = def.container().get();
 	    assert (def instanceof ProcedureDef);
 	    String name = (def instanceof MethodDef) ? ((MethodDef) def).name().toString() : null;
 	    Type returnType = (def instanceof MethodDef) ? ((MethodDef) def).returnType().get() : null;
 	    List<Ref<? extends Type>> formalTypes = ((ProcedureDef) def).formalTypes();
-	    addMethodMapping(container, name, returnType, formalTypes, tk);
+	    addMethodMapping(container, name, returnType, formalTypes, tk, lastX10Line);
 	}
 
-	private void addMethodMapping(Type c, String n, Type r, List<Ref<? extends Type>> f, Key tk) {
+	private void addMethodMapping(Type c, String n, Type r, List<Ref<? extends Type>> f, Key tk, int lastX10Line) {
 		assert (c != null);
 		assert (f != null);
 		String sc = c.toString();
@@ -258,7 +258,7 @@ public class LineNumberMap extends StringTable {
 		for (int i = 0; i < sa.length; i++) {
 			sa[i] = f.get(i).get().toString();
 		}
-		MethodDescriptor src = createMethodDescriptor(sc, sn, sr, sa, null);
+		MethodDescriptor src = createMethodDescriptor(sc, sn, sr, sa, new Key(-1, -1, lastX10Line));
 		String tc = Emitter.translateType(c);
 		String tn = n == null ? "_constructor" : Emitter.mangled_method_name(n);
 		String tr = r == null ? "void" : Emitter.translateType(r, true);
@@ -650,12 +650,14 @@ public class LineNumberMap extends StringTable {
 	    public final int[] x10args;
 	    public final int cppclass;
 	    public int cpplineindex;
-	    public CPPMethodInfo(int x10class, int x10method, int x10rettype, int[] x10args, int cppclass) {
+	    public int lastX10Line;
+	    public CPPMethodInfo(int x10class, int x10method, int x10rettype, int[] x10args, int cppclass, int lastX10Line) {
 	        this.x10class = x10class;
 	        this.x10method = x10method;
 	        this.x10rettype = x10rettype;
 	        this.x10args = x10args;
 	        this.cppclass = cppclass;
+	        this.lastX10Line = lastX10Line;
 	    }
 	    private String concatArgs() {
 	        StringBuilder sb = new StringBuilder();
@@ -755,7 +757,7 @@ public class LineNumberMap extends StringTable {
 		    for (CPPLineInfo cppDebugInfo : x10toCPPlist) {
 		        w.write("    { ");
 		        w.write(""+cppDebugInfo.x10index+", ");                            // _X10index
-		        w.write(""+cppDebugInfo.x10method+", ");                           // _X10method
+//		        w.write(""+cppDebugInfo.x10method+", ");                           // _X10method
 		        w.write(""+cppDebugInfo.cppindex+", ");                            // _CPPindex
 		        w.write(""+cppDebugInfo.x10line+", ");                             // _X10line
 		        w.write(""+cppDebugInfo.cppfromline+", ");                         // _CPPFromLine
@@ -775,7 +777,8 @@ public class LineNumberMap extends StringTable {
 		                                                      sm.name,             // _x10method
 		                                                      sm.returnType,       // _x10returnType
 		                                                      sm.args,             // _x10args
-		                                                      md.container);       // _cppClass
+		                                                      md.container,        // _cppClass
+		                                                      sm.lines.end_line);  // _lastX10Line
 		        x10MethodList.add(cmi);
 		        keyToMethod.put(md.lines, cmi);
 		    }
@@ -802,7 +805,7 @@ public class LineNumberMap extends StringTable {
 		    for (CPPLineInfo cppDebugInfo : cpptoX10xrefList) {
 		        w.write("    { ");
 		        w.write(""+cppDebugInfo.x10index+", ");                            // _X10index
-		        w.write(""+cppDebugInfo.x10method+", ");                           // _X10method
+//		        w.write(""+cppDebugInfo.x10method+", ");                           // _X10method
 		        w.write(""+cppDebugInfo.cppindex+", ");                            // _CPPindex
 		        w.write(""+cppDebugInfo.x10line+", ");                             // _X10line
 		        w.write(""+cppDebugInfo.cppfromline+", ");                         // _CPPfromline
@@ -832,7 +835,8 @@ public class LineNumberMap extends StringTable {
 		            w.write(""+offsets[cppMethodInfo.cppclass]+", ");                  // _cppClass
 		            w.write("(uint64_t) 0, "); // TODO - this needs to be re-designed, with the debugger team            
 		            w.write(""+cppMethodInfo.x10args.length+", ");                     // _x10argCount
-		            w.write(""+cppMethodInfo.cpplineindex);                            // _lineIndex
+		            w.write(""+cppMethodInfo.cpplineindex+", ");                       // _lineIndex
+		            w.write(""+cppMethodInfo.lastX10Line);                             // _lastX10Line
 		            w.writeln(" },");
 		        }
 		        w.writeln("#else");
@@ -849,7 +853,8 @@ public class LineNumberMap extends StringTable {
 		            }
 		            w.write("\"\", ");
 		            w.write(""+cppMethodInfo.x10args.length+", ");                     // _x10argCount
-		            w.write(""+cppMethodInfo.cpplineindex);                            // _lineIndex
+		            w.write(""+cppMethodInfo.cpplineindex+", ");                       // _lineIndex
+		            w.write(""+cppMethodInfo.lastX10Line);                             // _lastX10Line
 		            w.writeln(" },");
 		        }
 		        w.writeln("#endif");
