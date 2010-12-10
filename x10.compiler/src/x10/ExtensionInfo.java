@@ -490,10 +490,6 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            goals.add(Postoptimization(job));
            
            goals.add(Lowerer(job));
-           
-           if (x10.Configuration.EXPERIMENTAL)
-               goals.add(FinallyEliminator(job));
-           
            goals.add(CodeGenerated(job));
            
            // the barrier will handle prereqs on its own
