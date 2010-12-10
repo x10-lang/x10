@@ -184,8 +184,6 @@ public struct Team {
     /** Indicates the operation to perform when reducing. */
     public static val MUL = 1;
     /** Indicates the operation to perform when reducing. */
-    public static val DIV = 2;
-    /** Indicates the operation to perform when reducing. */
     public static val AND = 3;
     /** Indicates the operation to perform when reducing. */
     public static val OR  = 4;
@@ -325,6 +323,7 @@ public struct Team {
      * @param role Our role in this team
      */
     public def del (role:Int) : void {
+        if (this == WORLD) throw new IllegalArgumentException("Cannot delete Team.WORLD");
         finish nativeDel(id, role);
     }
 

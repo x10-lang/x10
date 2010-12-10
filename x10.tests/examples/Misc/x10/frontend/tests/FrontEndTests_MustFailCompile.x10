@@ -9,7 +9,8 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-package x10.frontend.tests; // todo: We should put ALL our tests in different packages according to the directory structure
+package x10.frontend.tests;
+// TODO: We should put ALL our tests in different packages according to the directory structure
 
 import harness.x10Test;
 
@@ -3722,15 +3723,78 @@ interface Ann42 //extends MethodAnnotation, ClassAnnotation, FieldAnnotation, Im
 class SubtypeCheckForUserDefinedConversion { // see also SubtypeCheckForUserDefinedConversion_MustFailCompile
 	static class Foo {}
 	static class A {
+		// implicit_as
 		@ERR public static operator (p:Int):Foo = null;
 		public static operator (p:Long):A = null;
+		public static operator (x:A):String = null;
+
+		// explicit_as
 		@ERR public static operator (x:Double) as Foo = null;
-		public static operator (x:String) as A = null;
+		public static operator (x:Float) as A = null;
+
+		// far todo: trying 2+ or 0 formals causes a syntax error, and I think it should be a semantic error
+		// public static operator (p:Long, x:Int) as A = null;
+		// public static operator () as A = null;
 	}
+	static struct St {
+		// implicit_as
+		@ERR public static operator (p:Int):Foo = null;
+		public static operator (p:Long):St = St();
+		public static operator (x:St):String = null;
+
+		// explicit_as
+		@ERR public static operator (x:Double) as Foo = null;
+		public static operator (x:Float) as St = St();
+	}
+	static class C[V] {}
 	static class B[U] {	
+		def test(var l:Long, var s:String, var a:A) {
+			a = l;
+			s = a;
+
+			l = @ERR a;
+			a = @ERR s;
+			l = @ERR s;
+			s = @ERR l;
+		}
+
+		// implicit_as
 	    public static operator[T](x:Double):B[T] = null;
 	    public static operator[T](x:Int):B[A] = null;
 	    @ERR public static operator[T](x:T):T = x;
-	    @ERR public static operator[T](x:String):A[T] = null;
+	    @ERR public static operator[T](x:String):C[T] = null;
+		
+		// explicit_as
+		@ERR public static operator (x:Double) as Foo = null;
+		public static operator[T] (x:Float) as B[T] = null;
+		@ERR public static operator[T] (x:String) as B = null; // Type is missing parameters.
+	}
+
+	// what happens if we have two possible implicit/explicit coercions?
+	// We give priority to coercions found in the target type (over the single one that can be found in the source type).
+	static class Y(j:Int) {
+		public static operator (p:Y):X{i==2} = null;
+		public static operator (p:Y) as ? :X{i==3} = null;
+	}
+	static class X(i:Int) {
+		public static operator (p:Y):X{i==1} = null;
+		public static operator (p:Y) as ? :X{i==4} = null;
+	}
+	static class Z(i:Int) {
+		@ShouldNotBeERR public static operator (p:Int) as Z{i==4} = null; // see XTENLANG-2202
+	}
+	static class W(i:Int) {
+		public static operator (p:Int) as ? :W{i==4} = null;
+	}
+	static class TestAmbiguity {
+		def test1(y:Y):X{i==1} = y;
+		@ERR def test2(y:Y):X{i==2} = y; // Cannot return expression of given type.
+		@ERR def test3(y:Y):X{i==3} = y; // Cannot return expression of given type.
+		@ERR def test4(y:Y):X{i==4} = y; // Cannot return expression of given type.
+		
+		@ERR def test5(y:Y):X{i==1} = y as X; // Cannot return expression of given type.
+		@ERR def test6(y:Y):X{i==2} = y as X; // Cannot return expression of given type.
+		@ERR def test7(y:Y):X{i==3} = y as X; // Cannot return expression of given type.
+		def test8(y:Y):X{i==4} = y as X;
 	}
 }

@@ -15,7 +15,7 @@ import harness.x10Test;
  * @author bdlucas 12/2008
  */
 
-import x10.util.concurrent.atomic.AtomicInteger;
+import x10.util.concurrent.AtomicInteger;
 
 class XTENLANG_238 extends x10Test {
 

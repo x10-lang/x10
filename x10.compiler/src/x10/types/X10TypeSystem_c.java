@@ -1332,7 +1332,7 @@ public class X10TypeSystem_c extends TypeSystem_c {
 
     public X10ClassType AtomicBoolean() {
         if (AtomicBoolean_ == null)
-            AtomicBoolean_ = load("x10.util.concurrent.atomic.AtomicBoolean");
+            AtomicBoolean_ = load("x10.util.concurrent.AtomicBoolean");
         return AtomicBoolean_;
     }
 
@@ -1340,7 +1340,7 @@ public class X10TypeSystem_c extends TypeSystem_c {
 
     public X10ClassType AtomicInteger() {
         if (AtomicInteger_ == null)
-            AtomicInteger_ = load("x10.util.concurrent.atomic.AtomicInteger");
+            AtomicInteger_ = load("x10.util.concurrent.AtomicInteger");
         return AtomicInteger_;
     }
 

@@ -2885,7 +2885,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		Template tmp = null; 
 //		if (needsHereCheck) {
 //            // SYNOPSIS: (#0)((#1)!here) #0=type #1=object -- wrap in Object to help javac
-//            String regex = "((#0) x10.runtime.Runtime.placeCheck(x10.runtime.Runtime.here(), #1))";
+//            String regex = "((#0) x10.runtime.Runtime.placeCheck(x10.runtime.Runtime.home(), #1))";
 //			tmp = Template.createTemplateFromRegex(er, "place-check", regex, new TypeExpander(er, array.type(), true, false, false), array);
 //		}
 

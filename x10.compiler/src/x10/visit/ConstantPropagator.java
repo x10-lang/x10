@@ -29,7 +29,6 @@ import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.Return;
 import polyglot.ast.Stmt;
-import polyglot.ast.StringLit;
 import polyglot.ast.Throw;
 import polyglot.frontend.Job;
 import polyglot.types.Name;
@@ -50,6 +49,7 @@ import x10.optimizations.ForLoopOptimizer;
 import x10.types.X10TypeMixin;
 import x10.types.checker.Converter;
 import x10.types.constraints.CConstraint;
+import x10.util.AltSynthesizer;
 
 /**
  * Very simple constant propagation pass. 
@@ -67,17 +67,15 @@ import x10.types.constraints.CConstraint;
  */
 public class ConstantPropagator extends ContextVisitor {
     
-    private static ForLoopOptimizer syn;
+    private static AltSynthesizer syn;
     private final Job         job;
     private final TypeSystem  xts;
-    private final NodeFactory xnf;
     
     public ConstantPropagator(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf);
-        syn = new ForLoopOptimizer(job, ts, nf);
+        syn = new AltSynthesizer(job, ts, nf);
         this.job = job;
         this.xts = ts;
-        this.xnf = nf;
     }
     
     @Override
@@ -272,7 +270,7 @@ public class ConstantPropagator extends ContextVisitor {
         if (o instanceof Object[]) {
             Object[] a = (Object[]) o;
             List<Expr> args = new ArrayList<Expr>(a.length);
-            for (Object ai : args) {
+            for (Object ai : a) {
                 Expr ei = toExpr(ai, pos);
                 if (ei == null)
                     return null;

@@ -84,7 +84,12 @@ extargs=""
 # [DC] assert should be off by default
 # extargs="$extargs -assert"
 #${LIB_DIR}${FILE_SEP}polyglot.jar${PATH_SEP}${LIB_DIR}${FILE_SEP}java_cup.jar${PATH_SEP}
-WALA_JARS="${LIB_DIR}${FILE_SEP}wala.jar${PATH_SEP}${LIB_DIR}${FILE_SEP}x10wala.jar${PATH_SEP}${LIB_DIR}${FILE_SEP}org.eclipse.equinox.common_3.6.0.v20100503.jar"
+WALA_JARS="${LIB_DIR}${FILE_SEP}com.ibm.wala.cast.java_1.0.0.201012091449.jar"
+WALA_JARS="${WALA_JARS}${PATH_SEP}${LIB_DIR}${FILE_SEP}com.ibm.wala.cast_1.0.0.201012091449.jar"
+WALA_JARS="${WALA_JARS}${PATH_SEP}${LIB_DIR}${FILE_SEP}com.ibm.wala.core_1.1.3.201012091449.jar"
+WALA_JARS="${WALA_JARS}${PATH_SEP}${LIB_DIR}${FILE_SEP}com.ibm.wala.shrike_1.1.3.201012091449.jar"
+WALA_JARS="${WALA_JARS}${PATH_SEP}${LIB_DIR}${FILE_SEP}x10wala.jar"
+WALA_JARS="${WALA_JARS}${PATH_SEP}${LIB_DIR}${FILE_SEP}org.eclipse.equinox.common_3.6.0.v20100503.jar"
 
 classpath="${CP_OVERRIDE}"
 [ -n "$dev" ] && classpath="${classpath}${TOP}${FILE_SEP}..${FILE_SEP}x10.compiler${FILE_SEP}classes${PATH_SEP}${TOP}${FILE_SEP}..${FILE_SEP}x10.runtime${FILE_SEP}classes${PATH_SEP}"
@@ -98,7 +103,7 @@ classpath="${classpath}${LIB_DIR}${FILE_SEP}x10c.jar${PATH_SEP}${LIB_DIR}${FILE_
 
 # Set flags to generate optimized code if we've been asked to do so.
 if [ "$optimize" = "true" ]; then
-  args=" -OPTIMIZE=true $args"
+  args="-OPTIMIZE=true $args"
 fi
 
 command2=""
@@ -110,6 +115,7 @@ if [ "$ext" = "x10c.ExtensionInfo" ]; then
       if [ -z "${temp_path}" ]; then
         temp_path=`mktemp -d`
         if [[ "$UNAME" = CYGWIN* ]]; then temp_path="$(cygpath -am "${temp_path}")"; fi
+        args="$args -d "${temp_path}""
       fi
       post="$post -d ${temp_path}"
       main_java_class=""
@@ -121,8 +127,9 @@ if [ "$ext" = "x10c.ExtensionInfo" ]; then
       if [ -n "${main_java_class}" ]; then
         manifest_file=`mktemp`
         if [[ "$UNAME" = CYGWIN* ]]; then manifest_file="$(cygpath -am "${manifest_file}")"; fi
-        echo "Manifest-Version: 1.0" > "${manifest_file}"
-        echo "Main-Class: ${main_java_class}\$Main" >> "${manifest_file}"
+        echo "Main-Class: ${main_java_class}\$Main" > "${manifest_file}"
+# TODO Cannot put x10.jar in manifest file because it will be loaded by system class loader and static initialization will fail
+#        echo "Class-Path: x10.jar commons-math-2.1.jar" >> "${manifest_file}"
         echo "Created-By: `$0 -version | head -1`" >> "${manifest_file}"
         command2="\"$JAR\" cmf \"${manifest_file}\" \"${output_path}\" -C \"${temp_path}\" ."
       else

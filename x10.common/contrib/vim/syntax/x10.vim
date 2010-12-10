@@ -18,7 +18,7 @@ syn case match
 syn sync minlines=50
 
 " most X10 keywords
-syn keyword x10Keyword abstract any as async at ateach atomic await break case catch class clocked const continue current def default do else extends extern final finally finish for foreach future goto has here if implements import in instanceof interface local native new next nonblocking or package private protected property public return safe self shared static super switch this throw throws try type val value var when while
+syn keyword x10Keyword abstract as assert async at ateach atomic break case catch class clocked continue def default do else extends false final finally finish for goto haszero here if implements import in instanceof interface native new next null offer offers operator package private property protected public resume return self static struct super switch this throw transient true try type val var void when while
 syn match x10Keyword "=>"
 syn match x10Keyword "<-"
 syn match x10Keyword "_"

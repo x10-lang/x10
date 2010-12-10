@@ -40,7 +40,7 @@ public final class GlobalRef<T> extends x10.core.Struct {
 
     public GlobalRef(final x10.rtt.Type<?> T, final T t, java.lang.Class<?> dummy$0) {
         this.T = T;
-        this.home = x10.lang.Runtime.here();
+        this.home = x10.lang.Runtime.home();
         int size;
         synchronized (objects) {
             size = objects.size();

@@ -11,10 +11,10 @@
 
 #include <x10aux/atomic_int_funs.h>
 #include <x10aux/atomic_ops.h>
-#include <x10/util/concurrent/atomic/AtomicInteger.h>
+#include <x10/util/concurrent/AtomicInteger.h>
 
 using namespace x10aux;
-using namespace x10::util::concurrent::atomic;
+using namespace x10::util::concurrent;
 
 
 x10_boolean atomic_int_funs::compareAndSet(ref<AtomicInteger> obj, x10_int expect, x10_int update) {

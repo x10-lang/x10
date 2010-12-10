@@ -9,7 +9,7 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-package x10.util.concurrent.atomic;
+package x10.util.concurrent;
 
 public final class AtomicFloat {
 

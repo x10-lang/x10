@@ -68,12 +68,15 @@ public class ClosuresToStaticMethods extends ContextVisitor {
     
     @Override
     protected Node leaveCall(Node parent, Node old, Node n, NodeVisitor v) throws SemanticException {
-        if (n instanceof Block && parent instanceof Closure) {
+        if (parent instanceof Closure && ((Closure) parent).body() == old) {
             
-            class ClosureCapChecker extends NodeVisitor {
+            class ClosureCapChecker extends ContextVisitor {
+                
+                private ClosureCapChecker(Job job, TypeSystem ts, NodeFactory nf) {super(job, ts, nf);}
+                
                 public boolean isCap = false;
                 @Override
-                public Node leave(Node parent, Node old, Node n, NodeVisitor v) {
+                public Node leaveCall(Node parent, Node old, Node n, NodeVisitor v) {
                     if (n instanceof Local) {
                         if (!context.isLocal(((Local) n).name().id())) {
                             isCap = true;
@@ -88,8 +91,8 @@ public class ClosuresToStaticMethods extends ContextVisitor {
                 }
             }
             
-            ClosureCapChecker cc = new ClosureCapChecker();
-            n.visit(cc);
+            ClosureCapChecker cc = (ClosureCapChecker) new ClosureCapChecker(job, ts, nf).context(context);
+            n.visitChildren(cc);
             
             List<ParameterType> mtps = null;
             CodeDef ci = context.pop().currentCode();

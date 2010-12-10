@@ -26,7 +26,7 @@ public final class RemoteIndexedMemoryChunk<T> extends x10.core.Struct {
         this.length = length;
         this.type = type;
         this.value = value;
-        this.home = x10.lang.Runtime.here();
+        this.home = x10.lang.Runtime.home();
     }
 
     public static <T> RemoteIndexedMemoryChunk<T> wrap(IndexedMemoryChunk<T> chunk) {
