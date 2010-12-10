@@ -81,10 +81,10 @@ import x10.types.matcher.Matcher;
 public class X10TypeMixin {
 
     public static X10FieldInstance getProperty(Type t, Name propName) {
-        TypeSystem xts = (TypeSystem) t.typeSystem();
+        TypeSystem xts = t.typeSystem();
         try {
             Context c = xts.emptyContext();
-            X10FieldInstance fi = (X10FieldInstance) xts.findField(t, xts.FieldMatcher(t, propName, c));
+            X10FieldInstance fi = xts.findField(t, xts.FieldMatcher(t, propName, c));
             if (fi != null && fi.isProperty()) {
                 return fi;
             }
@@ -95,6 +95,21 @@ public class X10TypeMixin {
         return null;
     }
 
+    public static X10MethodInstance getPropertyMethod(Type t, Name propName) {
+        TypeSystem xts = t.typeSystem();
+        try {
+            Context c = xts.emptyContext();
+            X10MethodInstance mi = xts.findMethod(t, xts.MethodMatcher(t, propName, Collections.<Type>emptyList(), c));
+            if (mi != null && mi.flags().isProperty()) {
+                return mi;
+            }
+        }
+        catch (SemanticException e) {
+            // ignore
+        }
+        return null;
+    }
+    
     /**
      * Return the type Array[type]{self.rail==true,self.size==size}.
      * @param type
@@ -930,22 +945,25 @@ public class X10TypeMixin {
 	}
 	public static XTerm find(Type t, Name propName) {
 	    XTerm val = findProperty(t, propName);
-	    
+
 	    if (val == null) {
-		    CConstraint c = realX(t);
-		    if (c != null) {
-			    // build the synthetic term.
-			    XTerm var = selfVar(c);
-			    if (var !=null) {
-				    X10FieldInstance fi = getProperty(t, propName);
-				    if (fi != null) {
-					    
-						    TypeSystem xts = (TypeSystem) t.typeSystem();
-						    val = xts.xtypeTranslator().trans(c, var, fi);
-					    
-				    }
-			    }
-		    }
+	        TypeSystem xts = (TypeSystem) t.typeSystem();
+	        CConstraint c = realX(t);
+	        if (c != null) {
+	            // build the synthetic term.
+	            XTerm var = selfVar(c);
+	            if (var !=null) {
+	                X10FieldInstance fi = getProperty(t, propName);
+	                if (fi != null) {
+	                    val = xts.xtypeTranslator().trans(c, var, fi);
+	                } else {
+	                    X10MethodInstance mi = getPropertyMethod(t, propName);
+	                    if (mi != null) {
+	                        val = xts.xtypeTranslator().trans(c, var, mi, mi.rightType());
+	                    }
+	                }
+	            }
+	        }
 	    }
 	    return val;
 	}
@@ -976,10 +994,15 @@ public class X10TypeMixin {
 
 		// TODO: check dist.region.p and region.p
 
-		FieldInstance fi = getProperty(t, propName);
+		X10FieldInstance fi = getProperty(t, propName);
 		if (fi != null)
 			return c.bindingForSelfField(XTerms.makeName(fi.def()));
 
+		X10MethodInstance mi = getPropertyMethod(t, propName);
+		if (mi != null) {
+		    return c.bindingForSelfField(XTerms.makeName(mi.def()));
+		}
+		
 		return null;
 	}
 
@@ -1011,34 +1034,32 @@ public class X10TypeMixin {
 	    XTerm xt = findOrSynthesize(t, Name.make("rank"));
 	    try {
 	        t = addBinding(t, xt, x);
-	        return t;
 	    } catch (XFailure f) {
-	        return t; // without the binding added.
+	        // without the binding added.
 	    }
+	    return t;
 	}
 
 	public static Type addRect(Type t) {
 	    TypeSystem xts = (TypeSystem) t.typeSystem();
 	    XTerm xt = findOrSynthesize(t, Name.make("rect"));
 	    try {
-	    t = addBinding(t, xt, XTerms.TRUE);
-	    return t;
+	        t = addBinding(t, xt, XTerms.TRUE);
 	    } catch (XFailure f) {
-	    	return t; // without the binding added.
+	    	// without the binding added.
 	    }
-	 
+	    return t;
 	}
 
 	public static Type addZeroBased(Type t) {
 	    TypeSystem xts = (TypeSystem) t.typeSystem();
 	    XTerm xt = findOrSynthesize(t, Name.make("zeroBased"));
 	    try {
-	    t = addBinding(t, xt, XTerms.TRUE);
-	    return t;
+	        t = addBinding(t, xt, XTerms.TRUE);
 	    } catch (XFailure f) {
-	    	return t; // without the binding added.
+	    	// without the binding added.
 	    }
-	 
+	    return t;
 	}
 
 	public static Type railBaseType(Type t) {
