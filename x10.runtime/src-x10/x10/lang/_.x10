@@ -14,7 +14,6 @@ package x10.lang;
 
 // Members of the class x10.lang._ are imported automatically.
 public class _ {
-    public static type void = Void;
     public static type boolean = Boolean;
     public static type byte = Byte;
     public static type short = Short;

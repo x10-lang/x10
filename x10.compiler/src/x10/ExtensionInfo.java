@@ -420,7 +420,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 //           goals.add(CheckNativeAnnotations(job));
            goals.add(CheckEscapingThis(job));
            goals.add(AnnotationChecker(job));
-           goals.add(ErrChecker(job)); // must be the last phase that might add errors to the errorQueue
+           if (Configuration.CHECK_ERR_MARKERS) goals.add(ErrChecker(job)); // must be the last phase that might add errors to the errorQueue
            goals.add(CheckASTForErrors(job));
 //           goals.add(TypeCheckBarrier());
 

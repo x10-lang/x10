@@ -12,6 +12,8 @@
 //OPTIONS: -STATIC_CALLS
 
 import harness.x10Test;
+import x10.compiler.*; // @Uncounted @NonEscaping @NoThisAccess
+import x10.compiler.tests.*; // err markers
 
 /**
  * Purpose: Check primitive variable assignment to primitive dependent type.
@@ -27,7 +29,7 @@ public class AssignmentPrimitiveToPrimitiveConstrained_MustFailCompile extends x
 			var j: int = 0;
 			// Even if j equals zero, types are not compatible
 			// A cast would be necessary to check conversion validity
-			i = j; // ShouldBeErr
+			i = @ShouldBeErr j;
 		}catch(e: Throwable) {
 			return false;
 		}

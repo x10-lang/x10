@@ -14,7 +14,8 @@ package x10.frontend.tests;
 
 import harness.x10Test;
 
-import x10.compiler.*; // @Uncounted @NonEscaping @NoThisAccess @ERR @ShouldNotBeERR @ShouldBeErr
+import x10.compiler.*; // @Uncounted @NonEscaping @NoThisAccess
+import x10.compiler.tests.*; // err markers
 import x10.util.*;
 
 import x10.io.CustomSerialization;
@@ -1738,7 +1739,7 @@ class Possel811 { //XTENLANG-811
 	def i():void; 
   }
   def test() {
-    new I(){}; // ERR: <anonymous class> should be declared abstract; it does not define i(): x10.lang.Void, which is declared in Possel811.I
+    new I(){}; // ERR: <anonymous class> should be declared abstract; it does not define i(): void, which is declared in Possel811.I
   }
 }
 
@@ -2066,7 +2067,7 @@ class A564[T,U] {
     def foo(x:T,y:U, z:String):void {}
 }
 class B564 extends A564[String,String] {
-    def foo(x:String,y:String, z:String):Int { return 1; } // ERR: foo(x: x10.lang.String, y: x10.lang.String, z: x10.lang.String): x10.lang.Int in B cannot override foo(x: x10.lang.String, y: x10.lang.String, z: x10.lang.String): x10.lang.Void in A[x10.lang.String, x10.lang.String]; attempting to use incompatible return type.
+    def foo(x:String,y:String, z:String):Int { return 1; } // ERR: foo(x: x10.lang.String, y: x10.lang.String, z: x10.lang.String): x10.lang.Int in B cannot override foo(x: x10.lang.String, y: x10.lang.String, z: x10.lang.String): void in A[x10.lang.String, x10.lang.String]; attempting to use incompatible return type.
 	// B.foo(String,String,String) cannot override A.foo(T,U,String); attempting to use incompatible return type.  found: int required: void
 }
 
@@ -2075,12 +2076,12 @@ class ReturnStatementTest {
 	
 	class A {
 	  def m() {
-		at (here.next()) return here;// ShouldNotBeERR (Semantic Error: Cannot return value from void method or closure.)// ShouldNotBeERR (Semantic Error: Cannot return a value from method public x10.lang.Runtime.$dummyAsync(): x10.lang.Void.)
+		at (here.next()) return here;// ShouldNotBeERR (Semantic Error: Cannot return value from void method or closure.)// ShouldNotBeERR (Semantic Error: Cannot return a value from method public x10.lang.Runtime.$dummyAsync(): void.)
 	  }
 	  def test() {
-			val x1 = m();// ShouldNotBeERR (Semantic Error: Local variable cannot have type x10.lang.Void.)
-			val x2 = m();// ShouldNotBeERR (Semantic Error: Local variable cannot have type x10.lang.Void.)
-			testSameType(x1,x2,[x1,x2]);// ShouldNotBeERR (Semantic Error: Method testSameType[T](x: T, y: T, arr: x10.array.Array[T]) in A{self==A#this} cannot be called with arguments (x10.lang.Void{self==x1}, x10.lang.Void{self==x2}, x10.array.Array[x10.lang.Void]{self.size==2, self.region.rank==1, self.region.rect==true, self.region.zeroBased==true});    Invalid Parameter.		 Expected type: x10.lang.Void		 Found type: x10.lang.Void{self==x1})
+			val x1 = m();// ShouldNotBeERR (Semantic Error: Local variable cannot have type void.)
+			val x2 = m();// ShouldNotBeERR (Semantic Error: Local variable cannot have type void.)
+			testSameType(x1,x2,[x1,x2]);// ShouldNotBeERR (Semantic Error: Method testSameType[T](x: T, y: T, arr: x10.array.Array[T]) in A{self==A#this} cannot be called with arguments (void{self==x1}, void{self==x2}, x10.array.Array[void]{self.size==2, self.region.rank==1, self.region.rect==true, self.region.zeroBased==true});    Invalid Parameter.		 Expected type: void		 Found type: void{self==x1})
 	  }
 	  def testSameType[T](x:T,y:T,arr:Array[T]) {}
 	}
@@ -2096,7 +2097,7 @@ class ReturnStatementTest {
 			}
 		}
 		at (here.next())
-			return 2; // ShouldNotBeERR ERR todo: we get 2 errors: Cannot return value from void method or closure.		Cannot return a value from method public static x10.lang.Runtime.$dummyAsync(): x10.lang.Void
+			return 2; // ShouldNotBeERR ERR todo: we get 2 errors: Cannot return value from void method or closure.		Cannot return a value from method public static x10.lang.Runtime.$dummyAsync(): void
 		finish {
 			async { val y=1; }
 			return 3;
@@ -2162,7 +2163,7 @@ class TestHereInGenericTypes { // see also XTENLANG-1922
 	}
 	static def bar(y:Place{self==here}) {
 		at (here.next()) foo(y); // ERR: todo: how can we report an error message that won't contain _place6 ?
-		// Today's error: Method foo(y: x10.lang.Place{self==here}): x10.lang.Void in TestHereInGenericTypes{self==TestHereInGenericTypes#this} cannot be called with arguments (x10.lang.Place{self==y, _place6==y});    Invalid Parameter.
+		// Today's error: Method foo(y: x10.lang.Place{self==here}): void in TestHereInGenericTypes{self==TestHereInGenericTypes#this} cannot be called with arguments (x10.lang.Place{self==y, _place6==y});    Invalid Parameter.
 //	 Expected type: x10.lang.Place{self==here}
 //	 Found type: x10.lang.Place{self==y, _place6==y}
 	}
@@ -2263,7 +2264,7 @@ class NullaryPropertyMethod {
 class TestXtenLang1938 { // see XTENLANG-1938
 	public static def main(Array[String]) {
 		val h = new TestXtenLang1938();
-		val x = h+h; // ShouldNotBeERR: Local variable cannot have type x10.lang.Void
+		val x = h+h; // ShouldNotBeERR: Local variable cannot have type void
 		// h+h; // doesn't parse! maybe it should?
 
 	}
@@ -2625,7 +2626,7 @@ final class TestCasts { // TestInitInCasts
 class CyclicInference {
 	def f1() {
 		if (true) return 2;
-		val x = f2(); // err: (only if f1 is before f2): Local variable cannot have type x10.lang.Void.
+		val x = f2(); // err: (only if f1 is before f2): Local variable cannot have type void.
 		return 3;
 	}
 	def f2() {
@@ -3797,4 +3798,23 @@ class SubtypeCheckForUserDefinedConversion { // see also SubtypeCheckForUserDefi
 		@ERR def test7(y:Y):X{i==3} = y as X; // Cannot return expression of given type.
 		def test8(y:Y):X{i==4} = y as X;
 	}
+}
+
+
+class Void_Is_Not_A_Type_Tests {
+	static class B[T] {}
+	val i:Int=1;
+	@ERR def test2(void) {}
+	def test3() {
+		@ERR val closure:Any = (void)=>{};
+	}
+	@ShouldBeErr def test4():void{i==i} {
+	}
+
+	@ERR def test(arg:void) {
+		@ERR val z:void; //Local variable cannot have type void.
+		@ERR var k:void{@ShouldBeErr i==1};
+		@ERR var b:B[void]; // Cannot instantiate invariant parameter T of A.B with type void.
+		@ERR var b2:B[void{@ShouldBeErr i==1}];
+	}	
 }

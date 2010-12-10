@@ -1537,8 +1537,9 @@ public abstract class TypeSystem_c implements TypeSystem
 	return new PrimitiveType_c(this, name);
     }
 
+    public static final Name voidName = Name.make("void");
     protected final NullType NULL_         = createNull();
-    protected final PrimitiveType VOID_    = createPrimitive(Name.make("void"));
+    protected final PrimitiveType VOID_    = createPrimitive(voidName);
     protected final PrimitiveType BOOLEAN_ = createPrimitive(Name.make("boolean"));
     protected final PrimitiveType CHAR_    = createPrimitive(Name.make("char"));
     protected final PrimitiveType BYTE_    = createPrimitive(Name.make("byte"));
