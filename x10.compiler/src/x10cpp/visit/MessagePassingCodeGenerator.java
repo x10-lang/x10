@@ -1200,17 +1200,44 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         // Static methods that encapsulate itable lookup and invocation
         for (MethodInstance meth : itable.getMethods()) {
             String mname = itable.mangledName(meth);
-            h.write("static "+Emitter.translateType(meth.returnType(), true));
-            h.write(" "+mname+"(x10aux::ref<x10::lang::Reference> recv");
+            
+            // Method for x10::lang::Reference (objects, closures, boxed structs)
+            h.write("template <class R> static "+Emitter.translateType(meth.returnType(), true));
+            h.write(" "+mname+"(x10aux::ref<R> _recv");
             int argNum=0;
             for (Type f : meth.formalTypes()) {
                 h.write(", ");
                 h.write(Emitter.translateType(f, true)+" arg"+(argNum++));
             }
             h.write(") {"); h.newline(4); h.begin(0);
+            h.writeln("x10aux::ref<x10::lang::Reference> _refRecv(_recv);");
             if (!meth.returnType().isVoid()) h.write("return ");
-            h.write("(recv.operator->()->*(x10aux::findITable"+chevrons(Emitter.translateType(currentClass, false))+"(recv->_getITables())->"+mname+"))(");
+            h.write("(_refRecv.operator->()->*(x10aux::findITable"+chevrons(Emitter.translateType(currentClass, false))+"(_refRecv->_getITables())->"+mname+"))(");
             boolean first = true;
+            argNum = 0;
+            for (Type f : meth.formalTypes()) {
+                if (!first) h.write(", ");
+                h.write("arg"+(argNum++));
+                first = false;
+            }
+            h.write(");");
+            h.end(); h.newline();
+            h.writeln("}");
+            
+            
+            // Method for unboxed structs that are not C++ built-in primitives
+            h.write("template <class R> static "+Emitter.translateType(meth.returnType(), true));
+            h.write(" "+mname+"(R _recv");
+            argNum=0;
+            for (Type f : meth.formalTypes()) {
+                h.write(", ");
+                h.write(Emitter.translateType(f, true)+" arg"+(argNum++));
+            }
+            h.write(") {"); h.newline(4); h.begin(0);
+            h.writeln("x10::lang::IBox<R > _iboxRecv(_recv);");
+            if (!meth.returnType().isVoid()) h.write("return ");
+            h.write("((&_iboxRecv)->*(x10aux::findITable"+chevrons(Emitter.translateType(currentClass, false))+"(_iboxRecv._getITables())->"+mname+"))(");
+            first = true;
             argNum = 0;
             for (Type f : meth.formalTypes()) {
                 if (!first) h.write(", ");
