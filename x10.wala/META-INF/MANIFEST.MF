@@ -2,16 +2,15 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: X10 WALA AST Translator
 Bundle-SymbolicName: x10.wala;singleton:=true
-Bundle-Version: 1.0.0
-Bundle-Vendor: rfuhrer@watson.ibm.com
-Bundle-Localization: plugin
-Require-Bundle: org.eclipse.core.runtime,
- x10.compiler,
- com.ibm.wala.cast;bundle-version="1.0.0",
- com.ibm.wala.cast.java;bundle-version="1.0.0",
- com.ibm.wala.core;bundle-version="1.1.3",
- com.ibm.wala.shrike;bundle-version="1.1.3"
-Eclipse-AutoStart: true
+Bundle-Version: 2.1.1.qualifier
+Bundle-Vendor: x10-users@lists.sourceforge.net
+Require-Bundle: com.ibm.wala.cast,
+ com.ibm.wala.cast.java,
+ com.ibm.wala.core,
+ com.ibm.wala.shrike,
+ org.eclipse.core.runtime,
+ x10.compiler
+Bundle-ActivationPolicy: lazy
 Export-Package: x10.wala.analysis.typeInference,
  x10.wala.classLoader,
  x10.wala.client,
@@ -20,3 +19,4 @@ Export-Package: x10.wala.analysis.typeInference,
  x10.wala.ssa,
  x10.wala.translator,
  x10.wala.tree.visit
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
