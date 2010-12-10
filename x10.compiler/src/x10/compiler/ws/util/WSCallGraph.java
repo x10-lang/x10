@@ -22,6 +22,7 @@ import polyglot.ast.ConstructorDecl;
 import polyglot.ast.MethodDecl;
 import polyglot.ast.Node;
 import polyglot.ast.Term;
+import polyglot.main.Report;
 import polyglot.types.Package;
 import polyglot.types.ProcedureDef;
 import polyglot.types.Ref;
@@ -38,6 +39,7 @@ import x10.ast.PlacedClosure;
  *
  */
 public class WSCallGraph {
+	
     
     static final String ignorePackages[] = {
         "x10",
@@ -81,9 +83,47 @@ public class WSCallGraph {
         return false;
     }
     
-    
-    
     static final int debugLevel = 0;
+    
+    //Store WALA analysis result - Need refactoring
+    //        Map<className : Map<methodSig: methodType>  methodType == false: derived target
+    static Map<String, Map<String, Boolean>> walaClass2MethodMap;
+    
+    static public void setWALAResult(List<String> result){
+    	walaClass2MethodMap = new HashMap<String, Map<String, Boolean>>();
+    	for(String str : result){
+    		//format: [C]Fib.fib(Lx10/lang/Int;)Lx10/lang/Int;
+    		boolean type = str.charAt(1) == 'C'; 
+    		int dotIndex = str.lastIndexOf('.');
+    		String className = str.substring(3, dotIndex);
+    		String methodSig = str.substring(dotIndex + 1);
+    		
+    		//insert into the map;
+    		Map<String, Boolean> methodMap;
+    		if(walaClass2MethodMap.containsKey(className)){
+    			methodMap = walaClass2MethodMap.get(className);
+    		}
+    		else{
+    			methodMap = new HashMap<String, Boolean>();
+    			walaClass2MethodMap.put(className, methodMap);
+    		}
+    		methodMap.put(methodSig, type);
+    	}
+    	
+    	//final: show found result;
+    	if(Report.should_report("workstealing", 5)){
+    		Report.report(5, "Results set from WALA");
+    		for(String className : walaClass2MethodMap.keySet()){
+    			Report.report(5, "   Class: " + className);
+    			Map<String, Boolean> methodMap = walaClass2MethodMap.get(className);
+    			for(String methodSig : methodMap.keySet()){
+    				String typeStr = methodMap.get(methodSig) ? "[C]" : "[D]";
+    				Report.report(5, "     "+typeStr + methodSig);
+    			}
+    		}
+    	}
+    	
+    }
     
     protected Map<ProcedureDef, WSCallGraphNode> def2NodeMap;
     

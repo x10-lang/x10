@@ -452,8 +452,10 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                        Method buildCallTableMethod = c.getMethod("analyze");
                        barrier = IRBarrier(ir, buildCallTableMethod);
                    } else {
-                       Method printCallGraph = c.getMethod("printCallGraph");
-                       barrier = IRBarrier(ir, printCallGraph);
+                       //Method printCallGraph = c.getMethod("printCallGraph");
+                       //barrier = IRBarrier(ir, printCallGraph);
+                       Method wsAnalyzeCallGraph = c.getMethod("wsAnalyzeCallGraph");
+                       barrier = IRBarrier(ir, wsAnalyzeCallGraph);
                    }
                    goals.add(barrier);
                    goals.add(FinishAsyncBarrier(barrier,job,this));
