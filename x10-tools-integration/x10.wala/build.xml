@@ -7,10 +7,6 @@
     <property name="src" location="${basedir}/src"/>
     <property name="lib" location="${x10.dist.location}/lib"/>
     <property name="jar" value="x10wala.jar"/>
-    <property name="wala.jar.url" value="http://dist.codehaus.org/x10/dependencies/wala.jar"/>
-    <property name="equinox.jar.url" value="http://dist.codehaus.org/x10/dependencies/org.eclipse.equinox.common_3.6.0.v20100503.jar"/>
-    <property name="wala.jar" value="wala.jar"/>
-    <property name="equinox.jar" value="org.eclipse.equinox.common_3.6.0.v20100503.jar"/>
     <path id="project.classpath">
         <path refid="mainproject.classpath"/>
         <path refid="compiler.classpath"/>
@@ -23,8 +19,9 @@
         <pathelement location="${x10.compiler.location}/classes"/>
     </path>
     <path id="lib.classpath">
-        <fileset dir="${lib}" includes="wala.jar,org.eclipse.equinox.common_3.6.0.v20100503.jar"/>
+        <fileset dir="${lib}" includes="com.ibm.wala.cast.java_1.0.0.201012091449.jar,com.ibm.wala.cast_1.0.0.201012091449.jar,com.ibm.wala.core_1.1.3.201012091449.jar,com.ibm.wala.shrike_1.1.3.201012091449.jar,org.eclipse.equinox.common_3.6.0.v20100503.jar"/>
     </path>
+    <fileset id="classes" dir="${build}" includes="x10/wala/**" excludes="${jar}"/>
     <!-- get the environment variables -->
     <property environment="env"/>
     <target name="init">
@@ -35,10 +32,7 @@
     <target name="clean">
         <delete dir="${build}" failonerror="false"/>
     </target>
-    <target name="check-jar" depends="init">
-        <fileset id="classes" dir="${build}" includes="x10/wala/**" excludes="${jar}"/>
-    </target>
-    <target name="jar" depends="build,check-jar">
+    <target name="jar" depends="build">
         <jar jarfile="${build}/${jar}">
             <fileset refid="classes"/>
             <fileset dir="${build}/data" >
@@ -46,33 +40,7 @@
             </fileset>
         </jar>
     </target>
-    <target name="check-jar-cache" depends="init">
-        <available property="wala.jar.present" file="${lib}/${wala.jar}"/>
-        <available property="equinox.jar.present" file="${lib}/${equinox.jar}"/>
-        <condition property="cache.up-to-date">
-            <and>
-                <isset property="wala.jar.present"/>
-                <isset property="equinox.jar.present"/>
-            </and>
-        </condition>
-    </target>
-    <target name="wala-jar" depends="init,check-jar-cache" unless="wala.jar.present" >
-        <mkdir dir="${lib}"/>
-        <get usetimestamp="true" src="${wala.jar.url}" dest="${lib}/${wala.jar}"/>
-        <available property="wala.jar.present" file="${lib}/${wala.jar}"/>
-        <fail message="Unable to get ${wala.jar} from ${wala.jar.url}" unless="wala.jar.present"/>
-    </target>
-    <target name="equinox-jar" depends="init,check-jar-cache" unless="equinox.jar.present">
-        <mkdir dir="${lib}"/>
-        <get usetimestamp="true" src="${equinox.jar.url}" dest="${lib}/${equinox.jar}"/>
-        <available property="equinox.jar.present" file="${lib}/${equinox.jar}"/>
-        <fail message="Unable to get ${equinox.jar} from ${equinox.jar.url}" unless="equinox.jar.present"/>
-    </target>
-    <target name="update-jar-cache" depends="init,wala-jar,equinox-jar"/>
-    <target name="prereq-jars" depends="init,check-jar-cache" unless="cache.up-to-date">
-        <antcall target="update-jar-cache"/>
-    </target>
-    <target name="build" depends="init,prereq-jars">
+    <target name="build" depends="init">
         <echo message="${ant.project.name}: ${ant.file}"/>
         <javac destdir="${build}" source="1.5" target="1.5" debug="on" includes="x10/wala/**">
             <src path="${src}"/>

@@ -25,6 +25,7 @@ import polyglot.ast.Catch;
 import polyglot.ast.Expr;
 import polyglot.ast.Field;
 import polyglot.ast.FlagsNode;
+import polyglot.ast.FloatLit;
 import polyglot.ast.For;
 import polyglot.ast.ForInit;
 import polyglot.ast.ForUpdate;
@@ -103,12 +104,6 @@ public class AltSynthesizer extends ContextVisitor {
         synth   = new Synthesizer(nf, ts);
     }
 
-
-    // helper methods that build AST Nodes
-    // These methods could move into the X10 Synthesizer.
-
-    // helper method that create subclasses of Stmt
-
     /**
      * Turn a formal parameter into local variable declaration.
      * 
@@ -182,9 +177,7 @@ public class AltSynthesizer extends ContextVisitor {
      * TODO: move into Synthesizer
      */
     public Labeled createLabeledStmt(Position pos, Name label, Stmt stmt) {
-        return nf.Labeled( pos, 
-                            nf.Id(pos, label), 
-                            stmt );
+        return createLabeledStmt(pos, nf.Id(pos, label), stmt);
     }
 
     /** 
@@ -1123,6 +1116,55 @@ public class AltSynthesizer extends ContextVisitor {
         return nf.X10Cast(pos, nf.CanonicalTypeNode(pos, type), expr, Converter.ConversionType.UNCHECKED).type(type);
     }
 
+    /**
+     * @param pos
+     * @return
+     */
+    public Id createLabel(Position pos) {
+        Id label = nf.Id(pos, Name.makeFresh("L"));
+        return label;
+    }
 
+    public Expr createLiteral(Position pos, Object value) {
+        if (value == null)
+            return nf.NullLit(pos).type(ts.Null());
+        if (value instanceof Integer)
+            return nf.IntLit(pos, IntLit.INT, (long) (int) (Integer) value).type(ts.Int());
+        if (value instanceof Long)
+            return nf.IntLit(pos, IntLit.LONG, (long) (Long) value).type(ts.Long());
+        if (value instanceof Float)
+            return nf.FloatLit(pos, FloatLit.FLOAT, (double) (float) (Float) value).type(ts.Float());
+        if (value instanceof Double)
+            return nf.FloatLit(pos, FloatLit.DOUBLE, (double) (Double) value).type(ts.Double());
+        if (value instanceof Character)
+            return nf.CharLit(pos, (char) (Character) value).type(ts.Char());
+        if (value instanceof Boolean)
+            return nf.BooleanLit(pos, (boolean) (Boolean) value).type(ts.Boolean());
+        if (value instanceof String)
+        //  return nf.StringLit(pos, (String) value).type(ts.String());
+            return null; // strings have reference semantics
+        if (value instanceof Object[]) {
+            Object[] a = (Object[]) value;
+            List<Expr> args = new ArrayList<Expr>(a.length);
+            for (Object ai : a) {
+                Expr ei = createLiteral(pos, ai);
+                if (ei == null)
+                    return null;
+                args.add(ei);
+            }
+            return nf.Tuple(pos, args).type(ts.arrayOf(ts.Object()));
+        }
+        return null;
+    }
+
+    /**
+     * @param position
+     * @param label
+     * @param body
+     * @return
+     */
+    public Labeled createLabeledStmt(Position position, Id label, Stmt body) {
+        return nf.Labeled(position, label, body);
+    }
 
 }

@@ -74,8 +74,7 @@ public class GlobalCell[T] {
      * @param x the given Cell
      * @return the value stored in the given Cell.
      */
-    // todo: The return type of operator 'as' must have the same class as the container.
-    // public static operator[T](x:GlobalCell[T]) = x();
+    public static operator[T](x:GlobalCell[T]) = x();
 
 }
 

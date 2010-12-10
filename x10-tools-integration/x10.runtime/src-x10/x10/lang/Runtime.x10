@@ -103,12 +103,6 @@ import x10.util.Box;
     @Native("c++", "x10aux::event_probe()")
     static def event_probe():void {}
 
-    /**
-     * Register x10rt handlers.
-     */
-    @Native("c++", "x10aux::DeserializationDispatcher::registerHandlers()")
-    static def registerHandlers() {}
-
     // Accessors for native performance counters
 
     @Native("c++","x10aux::asyncs_sent")
@@ -498,13 +492,13 @@ import x10.util.Box;
      * Return the current place
      */
     @Native("c++", "x10::lang::Place_methods::_make(x10aux::here)")
-    public static def here():Place = Thread.currentThread().home();
+    public static def home():Place = Thread.currentThread().home();
 
     /**
      * Return the id of the current place
      */
     @Native("c++", "x10aux::here")
-    public static def hereInt():int = here().id;
+    public static def hereInt():int = here.id;
 
     /**
      * The amount of unscheduled activities currently available to this worker thread.
@@ -531,9 +525,6 @@ import x10.util.Box;
                     runAtLocal(i, ()=>runtime.set(new Runtime(pool)));
                 }
             }
-
-            // initialize x10rt
-            registerHandlers();
 
             if (hereInt() == 0) {
                 val rootFinish = new FinishState.Finish(runtime().pool.latch);

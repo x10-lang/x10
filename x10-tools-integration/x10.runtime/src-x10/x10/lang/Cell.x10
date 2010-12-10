@@ -88,8 +88,7 @@ public final class Cell[T] {
      * @param x the given Cell
      * @return the value stored in the given Cell.
      */
-    // todo: The return type of operator 'as' must have the same class as the container.
-    //public static operator[V](x:Cell[V]) = x();
+    public static operator[V](x:Cell[V]) = x();
 
     /**
      * Create a new Cell with the given value stored in it.

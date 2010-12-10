@@ -169,7 +169,7 @@ public class ExtensionInfo extends x10.ExtensionInfo {
 		@Override
 		public List<Goal> goals(Job job) {
 		    List<Goal> goals = super.goals(job);
-		    if (false && x10.Configuration.EXPERIMENTAL) {
+		    if (x10.Configuration.EXPERIMENTAL) {
 		        FinallyEliminator(job).addPrereq(Lowerer(job));
 		        for (Goal g: Optimizer.goals(this, job)) {
 		            FinallyEliminator(job).addPrereq(g);

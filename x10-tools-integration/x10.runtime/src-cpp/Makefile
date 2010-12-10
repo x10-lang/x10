@@ -153,7 +153,7 @@ ALL_XRCPP_OBJECTS = \
 	x10/util/GrowableRail.o \
 	x10/util/IndexedMemoryChunk.o \
 	x10/util/RemoteIndexedMemoryChunk.o \
-	x10/util/concurrent/atomic/AtomicReference.o 
+	x10/util/concurrent/AtomicReference.o 
 
 ALL_MANUAL_OBJECTS=$(ALL_XRCPP_OBJECTS)
 

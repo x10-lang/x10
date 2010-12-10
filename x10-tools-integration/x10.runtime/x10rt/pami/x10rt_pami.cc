@@ -12,6 +12,7 @@
  */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
 #include <errno.h> // for the strerror function
@@ -69,6 +70,7 @@ void x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter)
 	pami_context_t  context;
 	pami_result_t   status = PAMI_ERROR;
 	const char    *name = "X10";
+	setenv("MP_MSG_API", name, 1); // workaround for a PAMI issue
 	if ((status = PAMI_Client_create(name, &state.client, NULL, 0)) != PAMI_SUCCESS)
 		error("Unable to initialize the PAMI client: %i\n", status);
 

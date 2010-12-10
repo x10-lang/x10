@@ -34,7 +34,7 @@ public final class AtomicLong extends java.util.concurrent.atomic.AtomicLong imp
     ) {
         @Override
         public String typeName() {
-            return "x10.util.concurrent.atomic.AtomicLong";
+            return "x10.util.concurrent.AtomicLong";
         }
     };
     public RuntimeType<AtomicLong> getRTT() {return _RTT;}

@@ -34,7 +34,7 @@ public final class AtomicInteger extends java.util.concurrent.atomic.AtomicInteg
     ) {
         @Override
         public String typeName() {
-            return "x10.util.concurrent.atomic.AtomicInteger";
+            return "x10.util.concurrent.AtomicInteger";
         }
     };
     public RuntimeType<AtomicInteger> getRTT() {return _RTT;}

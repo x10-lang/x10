@@ -9,13 +9,13 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-package x10.util.concurrent.atomic;
+package x10.util.concurrent;
 
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
 @NativeRep("java", "x10.core.atomic.AtomicReference<#1>", null, "new x10.rtt.ParameterizedType(x10.core.atomic.AtomicReference._RTT, #2)")
-@NativeRep("c++", "x10aux::ref<x10::util::concurrent::atomic::AtomicReference<#1 > >", "x10::util::concurrent::atomic::AtomicReference<#1 >", null)
+@NativeRep("c++", "x10aux::ref<x10::util::concurrent::AtomicReference<#1 > >", "x10::util::concurrent::AtomicReference<#1 >", null)
 public final class AtomicReference[T]{T<:Object} {
 	
 	// Unusable due to compiler bug.  See http://jira.codehaus.org/browse/XTENLANG-127 (Yoav todo: this bug was fixed!)
@@ -24,12 +24,12 @@ public final class AtomicReference[T]{T<:Object} {
 	
 	// Hack around XTENLANG-127.  Delete as soon as it is fixed.
 	@Native("java", "new x10.core.atomic.AtomicReference<#1>(#3)")
-	@Native("c++", "x10::util::concurrent::atomic::AtomicReference<#1 >::_make()")
+	@Native("c++", "x10::util::concurrent::AtomicReference<#1 >::_make()")
 	public static native def newAtomicReference[T]() {T<:Object} :AtomicReference[T];
 
 	// Hack around XTENLANG-127.  Delete as soon as it is fixed.
 	@Native("java", "new x10.core.atomic.AtomicReference<#1>(#3,#4)")
-	@Native("c++", "x10::util::concurrent::atomic::AtomicReference<#1 >::_make(#4)")
+	@Native("c++", "x10::util::concurrent::AtomicReference<#1 >::_make(#4)")
 	public static  native def newAtomicReference[T](v:T) {T<:Object} :AtomicReference[T];
 
 	@Native("java", "#0.get()")

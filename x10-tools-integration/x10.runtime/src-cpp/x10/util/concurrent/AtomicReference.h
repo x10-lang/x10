@@ -9,8 +9,8 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-#ifndef X10_UTIL_CONCURRENT_ATOMIC_ATOMICREFERENCE_H
-#define X10_UTIL_CONCURRENT_ATOMIC_ATOMICREFERENCE_H
+#ifndef X10_UTIL_CONCURRENT_ATOMICREFERENCE_H
+#define X10_UTIL_CONCURRENT_ATOMICREFERENCE_H
 
 #include <x10aux/config.h>
 #include <x10aux/ref.h>
@@ -27,7 +27,6 @@ namespace x10 {
 
     namespace util {
         namespace concurrent {
-            namespace atomic {
 
                 void _initRTTHelper_AtomicReference(x10aux::RuntimeType *location, const x10aux::RuntimeType *rtt);
 
@@ -133,7 +132,7 @@ namespace x10 {
                 
                 template<class T> void AtomicReference<T>::_initRTT() {
                     if (rtt.initStageOne(x10aux::getRTT<AtomicReference<void> >())) return;
-                    x10::util::concurrent::atomic::_initRTTHelper_AtomicReference(&rtt, x10aux::getRTT<T>());
+                    x10::util::concurrent::_initRTTHelper_AtomicReference(&rtt, x10aux::getRTT<T>());
                 }
 
                 template<class T> x10aux::RuntimeType AtomicReference<T>::rtt;
@@ -174,7 +173,6 @@ namespace x10 {
                     static const x10aux::RuntimeType* getRTT() { return &rtt; }
                 };
             }
-        }
     }
 }
 
