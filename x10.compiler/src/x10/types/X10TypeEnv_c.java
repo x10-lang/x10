@@ -1105,6 +1105,9 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         fromType = ts.expandMacros(fromType);
         toType =ts. expandMacros(toType);
 
+        if (isSubtype(fromType, toType) || isSubtype(toType, fromType))
+            return true;
+
         // Handle the rooted flag.
     /*    if (((X10Type) toType).isRooted() && ! (((X10Type) fromType).isRooted()))
         	return false;
