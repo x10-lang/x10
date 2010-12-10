@@ -449,7 +449,7 @@ PATH_SEP=':'; if [[ "$UNAME" = CYGWIN* ]]; then PATH_SEP=';'; fi
 prog="$(readlink "$0" 2&gt;&amp;1)"
 [ $? -eq 127 -o "$prog" = "" ] &amp;&amp; prog="$0"
 TOP="$(cd "$(dirname "$prog")/.." &amp;&amp; pwd)"
-if [[ "$UNAME" = CYGWIN* ]]; then TOP="$(cygpath -am "$TOP")"; fi
+if [[ "$UNAME" = CYGWIN* ]]; then PATH="$PATH:$TOP/lib"; TOP="$(cygpath -am "$TOP")"; fi
 
 [ -n "$JAVA_HOME" ] || JAVA_HOME='${env.JAVA_HOME}'
 [ -n "$JRE_HOME" ] || JRE_HOME='${java.home}'
