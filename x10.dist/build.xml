@@ -79,7 +79,8 @@
                 <include name="java_x10rt"/>
                 <include name="x10"/>
                 <include name="x10c"/>
-                <include name="precommit"/>
+                <!-- stopped removing precommit since it requires overwriting running program which is not allowed in Windows -->
+                <!-- <include name="precommit"/> -->
             </fileset>
         </delete>
     </target>
