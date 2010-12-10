@@ -147,7 +147,7 @@ public final class Rail<T> extends Ref implements AnyRail<T>, x10.lang.Settable<
 //		return zero;
 //    }
     
-    public String toString() {
+    public java.lang.String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("[");
         for (int i = 0; i < length; i++) {
@@ -217,7 +217,7 @@ public final class Rail<T> extends Ref implements AnyRail<T>, x10.lang.Settable<
         }
     ) {
         @Override
-        public String typeName() {
+        public java.lang.String typeName() {
             return "x10.lang.Rail";
         }
     };

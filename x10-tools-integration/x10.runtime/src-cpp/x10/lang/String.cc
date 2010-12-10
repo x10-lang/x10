@@ -51,7 +51,7 @@ x10aux::ref<String>
 String::_make(const char *content, bool steal) {
     x10aux::ref<String> this_ = new (x10aux::alloc<String>()) String();
     size_t len = strlen(content);
-    if (!steal) content = strdup(content);
+    if (!steal) content = string_utils::strdup(content);
     this_->_constructor(content,len);
     return this_;
 }
@@ -336,7 +336,7 @@ ref<String> String::format(ref<String> format, ref<x10::array::Array<ref<Any> > 
     nullCheck(format);
     nullCheck(parms);
     //size_t len = format->FMGL(content_length);
-    char* orig = const_cast<char*>(format->c_str());
+    char* orig = string_utils::strdup(format->c_str());
     char* fmt = orig;
     char* next = NULL;
     for (x10_int i = 0; fmt != NULL; ++i, fmt = next) {
@@ -353,6 +353,7 @@ ref<String> String::format(ref<String> format, ref<x10::array::Array<ref<Any> > 
         if (next != NULL)
             *next = '%';
     }
+    dealloc(orig);
     return String::Lit(ss.str().c_str());
 }
 

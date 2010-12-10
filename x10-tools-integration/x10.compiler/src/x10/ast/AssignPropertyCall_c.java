@@ -37,6 +37,7 @@ import polyglot.util.TypedList;
 import polyglot.visit.CFGBuilder;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
+import polyglot.visit.TypeBuilder;
 
 import x10.Configuration;
 import x10.constraint.XFailure;
@@ -128,7 +129,23 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 		return sb.toString();
 	}
 
+	public static X10ConstructorDef getConstructorDef(TypeBuilder tb) {
+	    for (; tb != null && tb.inCode(); tb = tb.pop())
+	        if (tb.def() instanceof X10ConstructorDef)
+	            return (X10ConstructorDef) tb.def();
+	    return null;
+	}
 
+	@Override
+	public Node buildTypes(TypeBuilder tb) {
+	    X10ConstructorDef cd = getConstructorDef(tb);
+	    if (cd != null) {
+	        cd.derivedReturnType(true);
+	    }
+	    return this;
+	}
+
+	@Override
 	public Node typeCheck(ContextVisitor tc) {
 		TypeSystem ts = tc.typeSystem();
 		Context ctx = tc.context();
@@ -196,15 +213,15 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 	{
 		TypeSystem ts = (TypeSystem) tc.typeSystem();
 		Context ctx = (Context) tc.context();
-		if (ts.hasUnknown(Types.get(thisConstructor.returnType()))) {
+		if (ts.hasUnknown(Types.getCached(thisConstructor.returnType()))) {
 		    return;
 		}
 
-		Type returnType = Types.get(thisConstructor.returnType());
+		Type returnType = Types.getCached(thisConstructor.returnType());
 
 		CConstraint result = X10TypeMixin.xclause(returnType);
 
-		if (result.valid())
+		if (result != null && result.valid())
 			result = null;   // FIXME: the code below that infers the return type of a ctor is buggy, since it infers "this". see XTENLANG-1770
 
 		{

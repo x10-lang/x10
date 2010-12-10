@@ -20,7 +20,7 @@ import x10.rtt.RuntimeType;
 public class ThrowableUtilities {
     
     static public x10.core.Throwable getCorrespondingX10Exception(java.lang.RuntimeException e) {
-        String newExcName = "x10.lang.RuntimeException";
+        java.lang.String newExcName = "x10.lang.RuntimeException";
         if (e instanceof java.lang.ArithmeticException) {
             newExcName = "x10.lang.ArithmeticException";
         } else if (e instanceof java.lang.ArrayIndexOutOfBoundsException) {
@@ -44,7 +44,7 @@ public class ThrowableUtilities {
         }
 
         try {
-            x10.core.Throwable t = Class.forName(newExcName).asSubclass(x10.core.Throwable.class).getConstructor(new Class[] { String.class }).newInstance(new Object[] { e.getMessage() });
+            x10.core.Throwable t = Class.forName(newExcName).asSubclass(x10.core.Throwable.class).getConstructor(new Class[] { java.lang.String.class }).newInstance(new Object[] { e.getMessage() });
             t.setStackTrace(e.getStackTrace());
             return t;
         } catch (java.lang.ClassNotFoundException e1) {
@@ -53,11 +53,11 @@ public class ThrowableUtilities {
         } catch (java.lang.NoSuchMethodException e4) {
         } catch (java.lang.reflect.InvocationTargetException e5) {
         }
-        throw new java.lang.Error();
+        throw new java.lang.Error(e);
     }
 
     static public x10.core.Throwable getCorrespondingX10Exception(java.lang.Exception e) {
-        String newExcName = "x10.lang.Exception";
+        java.lang.String newExcName = "x10.lang.Exception";
         if (e instanceof java.io.FileNotFoundException) {
             newExcName = "x10.io.FileNotFoundException";
         } else if (e instanceof java.io.EOFException) {
@@ -82,11 +82,11 @@ public class ThrowableUtilities {
         } catch (java.lang.NoSuchMethodException e4) {
         } catch (java.lang.reflect.InvocationTargetException e5) {
         }
-        throw new java.lang.Error();
+        throw new java.lang.Error(e);
     }
 
     static public x10.core.Throwable getCorrespondingX10Error(java.lang.Error e) {
-        String newExcName = "x10.lang.Error";
+        java.lang.String newExcName = "x10.lang.Error";
         if (e instanceof java.lang.OutOfMemoryError) {
             newExcName = "x10.lang.OutOfMemoryError";
         } else if (e instanceof java.lang.AssertionError) {
@@ -96,7 +96,7 @@ public class ThrowableUtilities {
         }
 
         try {
-            x10.core.Throwable t = Class.forName(newExcName).asSubclass(x10.core.Throwable.class).getConstructor(new Class[] { String.class }).newInstance(new Object[] { e.getMessage() });
+            x10.core.Throwable t = Class.forName(newExcName).asSubclass(x10.core.Throwable.class).getConstructor(new Class[] { java.lang.String.class }).newInstance(new Object[] { e.getMessage() });
             t.setStackTrace(e.getStackTrace());
             return t;
         } catch (java.lang.ClassNotFoundException e1) {
@@ -105,24 +105,25 @@ public class ThrowableUtilities {
         } catch (java.lang.NoSuchMethodException e4) {
         } catch (java.lang.reflect.InvocationTargetException e5) {
         }
-        throw new java.lang.Error();
+        System.out.println(e);
+        throw new java.lang.Error(e);
     }
 
-    public static <T> T UnsupportedOperationException(String message) {
+    public static <T> T UnsupportedOperationException(java.lang.String message) {
         try {
-            throw Class.forName("x10.lang.UnsupportedOperationException").asSubclass(x10.core.Throwable.class).getConstructor(new Class[] { String.class }).newInstance(new Object[] { message });
+            throw Class.forName("x10.lang.UnsupportedOperationException").asSubclass(x10.core.Throwable.class).getConstructor(new Class[] { java.lang.String.class }).newInstance(new Object[] { message });
         } catch (java.lang.Exception e) {
         }
         return null;
     }
 
-    public static Rail<String> getStackTrace(Throwable t) {
+    public static Rail<java.lang.String> getStackTrace(Throwable t) {
         StackTraceElement[] elements = t.getStackTrace();
-        String str[] = new String[elements.length];
+        java.lang.String str[] = new java.lang.String[elements.length];
         for (int i=0 ; i<elements.length ; ++i) {
             str[i] = elements[i].toString();
         }
-        return new Rail<String>(new RuntimeType<String>(String.class),str.length,(Object)str);
+        return new Rail<java.lang.String>(new RuntimeType<java.lang.String>(java.lang.String.class),str.length,(Object)str);
     }
     
     public static void printStackTrace(Throwable t, Object/*x10.io.Printer*/ p) {

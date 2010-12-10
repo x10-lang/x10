@@ -1,0 +1,18 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: X10 WALA AST Translator
+Bundle-SymbolicName: x10.wala;singleton:=true
+Bundle-Version: 1.0.0
+Bundle-Vendor: rfuhrer@watson.ibm.com
+Bundle-Localization: plugin
+Require-Bundle: org.eclipse.core.runtime,
+ x10.compiler
+Eclipse-AutoStart: true
+Export-Package: x10.wala.analysis.typeInference,
+ x10.wala.classLoader,
+ x10.wala.client,
+ x10.wala.ipa.callgraph,
+ x10.wala.ipa.cha,
+ x10.wala.ssa,
+ x10.wala.translator,
+ x10.wala.tree.visit

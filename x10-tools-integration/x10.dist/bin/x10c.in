@@ -2,6 +2,10 @@ help=""
 time=""
 verbose=""
 extra_cp=""
+temp_path=""
+output_path=""
+main_x10_class=""
+main_x10_source=""
 ext=""
 dev=""
 rtdev=""
@@ -21,15 +25,19 @@ while [ -n "$1" ]; do
         -v|-verbose|--verbose) verbose="1";;
         -t|-time) time="time ";;
         -classpath|-cp) shift; extra_cp="$1";;
+        -d) shift; temp_path=$1; args="$args -d '$1'";;
+        -o) shift; output_path=$1;;
+        -MAIN_CLASS) shift; main_x10_class=$1;;
         -profile) profile="-Xrunhprof:cpu=samples";;
         -config) shift; config="$1.cfg";;
         -extclass) shift; ext=$1;;
         -dev) dev="true";;
-	-x10rt) shift; export X10RT_IMPL=$1;;
+        -x10rt) shift; export X10RT_IMPL=$1;;
         -O|-optimize) optimize="true";;
         -rtdev) rtdev="true";;
         -J*) java_args="${java_args} '${1##-J}'";;
         --) parse=;;
+        *.x10) [ -z "${main_x10_source}" ] && main_x10_source="${1%%.x10}"; args="$args '$1'";;
         *) args="$args '$1'";;
     esac
     shift
@@ -41,6 +49,8 @@ Usage: x10c [options] <source-file>.x10 ...
 where [options] includes:
     -sourcepath <path>       source path
     -classpath <path>        search path for class files
+    -d <path>                output path for intermediate files (and class files if -o is omitted)
+    -o <path>                output path for class files or jar file
     -config <conf>           read configuration <conf> from etc${FILE_SEP}<conf>.cfg
     -version                 print version info
     -x10rt <impl>            select x10rt impl (lapi, pgp, sockets, mpi, standalone)
@@ -74,7 +84,7 @@ extargs=""
 # [DC] assert should be off by default
 # extargs="$extargs -assert"
 #${LIB_DIR}${FILE_SEP}polyglot.jar${PATH_SEP}${LIB_DIR}${FILE_SEP}java_cup.jar${PATH_SEP}
-WALA_JARS="${LIB_DIR}${FILE_SEP}wala.jar${PATH_SEP}${LIB_DIR}${FILE_SEP}com.ibm.wala.cast.x10.jar${PATH_SEP}${LIB_DIR}${FILE_SEP}org.eclipse.equinox.common_3.6.0.v20100503.jar"
+WALA_JARS="${LIB_DIR}${FILE_SEP}wala.jar${PATH_SEP}${LIB_DIR}${FILE_SEP}x10wala.jar${PATH_SEP}${LIB_DIR}${FILE_SEP}org.eclipse.equinox.common_3.6.0.v20100503.jar"
 
 classpath="${CP_OVERRIDE}"
 [ -n "$dev" ] && classpath="${classpath}${TOP}${FILE_SEP}..${FILE_SEP}x10.compiler${FILE_SEP}classes${PATH_SEP}${TOP}${FILE_SEP}..${FILE_SEP}x10.runtime${FILE_SEP}classes${PATH_SEP}"
@@ -87,20 +97,55 @@ classpath="${classpath}${LIB_DIR}${FILE_SEP}x10c.jar${PATH_SEP}${LIB_DIR}${FILE_
 [ -z "$MAIN" ] && MAIN="polyglot.main.Main"
 
 # Set flags to generate optimized code if we've been asked to do so.
-if [[ "$optimize" = "true" ]]; then
+if [ "$optimize" = "true" ]; then
   args=" -OPTIMIZE=true $args"
 fi
 
-if [[ "$ext" = "x10c.ExtensionInfo" ]]; then
+command2=""
+if [ "$ext" = "x10c.ExtensionInfo" ]; then
   # Java backend
-  command="\"$JAVA\" -Xmx512m $config $profile -classpath \"$classpath\" ${java_args} $MAIN -post 'java -jar \"${LIB_DIR}${FILE_SEP}${ECJ_JAR}\" -1.5 -nowarn' -extclass $ext $extargs $args"
+  post='java -jar \"${LIB_DIR}${FILE_SEP}${ECJ_JAR}\" -1.5 -nowarn'
+  if [ -n "${output_path}" ]; then
+    if [[ "${output_path}" == *.jar ]]; then
+      if [ -z "${temp_path}" ]; then
+        temp_path=`mktemp -d`
+        if [[ "$UNAME" = CYGWIN* ]]; then temp_path="$(cygpath -am "${temp_path}")"; fi
+      fi
+      post="$post -d ${temp_path}"
+      main_java_class=""
+      if [ -n "${main_x10_class}" ]; then
+        main_java_class="${main_x10_class}"
+      elif [ -n "${main_x10_source}" ]; then
+        main_java_class="${main_x10_source}"
+      fi
+      if [ -n "${main_java_class}" ]; then
+        manifest_file=`mktemp`
+        if [[ "$UNAME" = CYGWIN* ]]; then manifest_file="$(cygpath -am "${manifest_file}")"; fi
+        echo "Manifest-Version: 1.0" > "${manifest_file}"
+        echo "Main-Class: ${main_java_class}\$Main" >> "${manifest_file}"
+        echo "Created-By: `$0 -version | head -1`" >> "${manifest_file}"
+        command2="\"$JAR\" cmf \"${manifest_file}\" \"${output_path}\" -C \"${temp_path}\" ."
+      else
+        command2="\"$JAR\" cf \"${output_path}\" -C \"${temp_path}\" ."
+      fi
+    else
+      post="$post -d ${output_path}"
+    fi
+  fi
+  command="\"$JAVA\" -Xmx512m $config $profile -classpath \"$classpath\" ${java_args} $MAIN -post \"$post\" -extclass $ext $extargs $args"
 else
   # C++ backend
+  [ -n "${output_path}" ] && args="$args -o ${output_path}"
+  [ -n "${main_x10_class}" ] && args="$args -MAIN_CLASS ${main_x10_class}"
   command="\"$JAVA\" -Xmx512m $config $profile -classpath \"$classpath\" ${java_args} $MAIN -extclass $ext $extargs $args"
 fi
 
 [ -n "$verbose" ] && echo "$command"
-
 eval "$time$command"
-exit $?
 
+if [ -n "$command2" ]; then
+  [ -n "$verbose" ] && echo "$command2"
+  eval "$time$command2"
+fi
+
+exit $?

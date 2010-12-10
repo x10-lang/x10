@@ -24,6 +24,10 @@ public interface X10ProcedureDef extends X10CodeDef, ProcedureDef, X10MemberDef 
     Ref<? extends Type> returnType();
     void setReturnType(Ref<? extends Type> rt);
 
+    /** Set a flag indicating we should infer the return type. */
+    boolean inferReturnType();
+    void inferReturnType(boolean r);
+
     Ref<CConstraint> guard();
     void setGuard(Ref<CConstraint> s);
     

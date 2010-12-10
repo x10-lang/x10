@@ -71,9 +71,18 @@ public class X10ConstructorDef_c extends ConstructorDef_c implements X10Construc
         this.offerType = offerType;
     }
 
-   public Ref<? extends Type> offerType() {
-	   return offerType;
-   }
+    public Ref<? extends Type> offerType() {
+        return offerType;
+    }
+
+    protected boolean inferReturnType;
+    public boolean inferReturnType() { return inferReturnType; }
+    public void inferReturnType(boolean r) { this.inferReturnType = r; }
+
+    protected boolean derivedReturnType;
+    public boolean derivedReturnType() { return derivedReturnType; }
+    public void derivedReturnType(boolean r) { this.derivedReturnType = r; }
+
     // BEGIN ANNOTATION MIXIN
     List<Ref<? extends Type>> annotations;
 

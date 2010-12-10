@@ -20,7 +20,7 @@ public class Throwable extends java.lang.RuntimeException implements RefI {
         super();
     }
 
-    public Throwable(String message) {
+    public Throwable(java.lang.String message) {
         super(message);
     }
 
@@ -28,7 +28,7 @@ public class Throwable extends java.lang.RuntimeException implements RefI {
         super(cause);
     }
 
-    public Throwable(String message, java.lang.Throwable cause) {
+    public Throwable(java.lang.String message, java.lang.Throwable cause) {
         super(message, cause);
     }
 
@@ -37,7 +37,7 @@ public class Throwable extends java.lang.RuntimeException implements RefI {
         super();
     }
 
-    public Throwable(Object out$, String message) {
+    public Throwable(Object out$, java.lang.String message) {
         super(message);
     }
 
@@ -45,7 +45,7 @@ public class Throwable extends java.lang.RuntimeException implements RefI {
         super(cause);
     }
 
-    public Throwable(Object out$, String message, java.lang.Throwable cause) {
+    public Throwable(Object out$, java.lang.String message, java.lang.Throwable cause) {
         super(message, cause);
     }
 
@@ -54,7 +54,7 @@ public class Throwable extends java.lang.RuntimeException implements RefI {
         new Type[] { x10.rtt.Types.OBJECT }
     ) {
         @Override
-        public String typeName() {
+        public java.lang.String typeName() {
             return "x10.lang.Throwable";
         }
     };

@@ -74,7 +74,7 @@ public abstract class Ext_c implements Ext {
     /**
      * Copy the extension.
      */
-    public Object copy() {
+    public Ext_c copy() {
         try {
             Ext_c copy = (Ext_c) super.clone();
             if (ext != null) {

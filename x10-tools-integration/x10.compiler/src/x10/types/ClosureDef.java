@@ -44,9 +44,6 @@ public interface ClosureDef extends FunctionDef, X10Def, X10ProcedureDef {
      * @return
      */
     public ClosureDef position(Position pos);
-    /** Set a flag indicating we should infer the return type. */
-    boolean inferReturnType();
-    void inferReturnType(boolean r);
 
     Ref<? extends CodeInstance<?>> methodContainer();
     void setMethodContainer(Ref<? extends CodeInstance<?>> mi);

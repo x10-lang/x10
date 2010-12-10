@@ -164,9 +164,11 @@ public class X10CanonicalTypeNode_c extends CanonicalTypeNode_c implements X10Ca
     public void setResolver(Node parent, final TypeCheckPreparer v) {
     	if (typeRef() instanceof LazyRef<?>) {
     		LazyRef<Type> r = (LazyRef<Type>) typeRef();
-    		TypeChecker tc = new X10TypeChecker(v.job(), v.typeSystem(), v.nodeFactory(), v.getMemo());
-    		tc = (TypeChecker) tc.context(v.context().freeze());
-    		r.setResolver(new X10TypeCheckTypeGoal(parent, this, tc, r));
+    		if (!r.isResolverSet()) {
+    		    TypeChecker tc = new X10TypeChecker(v.job(), v.typeSystem(), v.nodeFactory(), v.getMemo());
+    		    tc = (TypeChecker) tc.context(v.context().freeze());
+    		    r.setResolver(new X10TypeCheckTypeGoal(parent, this, tc, r));
+    		}
     	}
     }
     @Override

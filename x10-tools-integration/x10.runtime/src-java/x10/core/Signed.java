@@ -13,7 +13,7 @@ package x10.core;
 
 public class Signed {
     
-    public static String toString(byte a, int radix) {
+    public static java.lang.String toString(byte a, int radix) {
         if (a >= 0) {
             return Integer.toString(a, radix);
         } else {
@@ -22,7 +22,7 @@ public class Signed {
         }
     }
 
-    public static byte parseByte(String s, int radix) {
+    public static byte parseByte(java.lang.String s, int radix) {
         try {
             return java.lang.Byte.parseByte(s, radix);
         } catch (java.lang.NumberFormatException e) {
@@ -30,7 +30,7 @@ public class Signed {
         }
     }
 
-    public static byte parseByte(String s) {
+    public static byte parseByte(java.lang.String s) {
         try {
             return java.lang.Byte.parseByte(s);
         } catch (java.lang.NumberFormatException e) {
@@ -38,7 +38,7 @@ public class Signed {
         }
     }
     
-    public static short parseShort(String s, int radix) {
+    public static short parseShort(java.lang.String s, int radix) {
         try {
             return java.lang.Short.parseShort(s, radix);
         } catch (java.lang.NumberFormatException e) {
@@ -46,7 +46,7 @@ public class Signed {
         }
     }
 
-    public static short parseShort(String s) {
+    public static short parseShort(java.lang.String s) {
         try {
             return java.lang.Short.parseShort(s);
         } catch (java.lang.NumberFormatException e) {
@@ -54,7 +54,7 @@ public class Signed {
         }
     }
     
-    public static int parseInt(String s, int radix) {
+    public static int parseInt(java.lang.String s, int radix) {
         try {
             return java.lang.Integer.parseInt(s, radix);
         } catch (java.lang.NumberFormatException e) {
@@ -62,7 +62,7 @@ public class Signed {
         }
     }
 
-    public static int parseInt(String s) {
+    public static int parseInt(java.lang.String s) {
         try {
             return java.lang.Integer.parseInt(s);
         } catch (java.lang.NumberFormatException e) {
@@ -70,7 +70,7 @@ public class Signed {
         }
     }
     
-    public static long parseLong(String s, int radix) {
+    public static long parseLong(java.lang.String s, int radix) {
         try {
             return java.lang.Long.parseLong(s, radix);
         } catch (java.lang.NumberFormatException e) {
@@ -78,7 +78,7 @@ public class Signed {
         }
     }
 
-    public static long parseLong(String s) {
+    public static long parseLong(java.lang.String s) {
         try {
             return java.lang.Long.parseLong(s);
         } catch (java.lang.NumberFormatException e) {

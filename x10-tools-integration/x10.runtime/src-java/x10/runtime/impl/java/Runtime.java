@@ -206,13 +206,17 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
                 startTime = System.nanoTime();
             }
             java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
-            new java.io.ObjectOutputStream(baos).writeObject(body);
+            java.io.ObjectOutputStream oos = new java.io.ObjectOutputStream(baos);
+            oos.writeObject(body);
+            oos.close();
             byte[] ba = baos.toByteArray();
             if (TRACE_SER) {
                 long endTime = System.nanoTime();
-                System.out.println("Serializer: serialized " + ba.length + " bytes in " + (endTime - startTime) / 1000 + " ms.");
+                System.out.println("Serializer: serialized " + ba.length + " bytes in " + (endTime - startTime) / 1000 + " microsecs.");
             }
-            body = (T) new java.io.ObjectInputStream(new java.io.ByteArrayInputStream(ba)).readObject();
+            java.io.ObjectInputStream ois = new java.io.ObjectInputStream(new java.io.ByteArrayInputStream(ba)); 
+            body = (T) ois.readObject();
+            ois.close();
         } catch (java.io.IOException e) {
             x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
             xe.printStackTrace();
@@ -235,7 +239,9 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
                 startTime = System.nanoTime();
             }
             java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
-            new java.io.ObjectOutputStream(baos).writeObject(body);
+            java.io.ObjectOutputStream oos = new java.io.ObjectOutputStream(baos);
+            oos.writeObject(body);
+            oos.close();
             final Thread thread = Thread.currentThread();
             final int ret = thread.home().id;
             thread.home(id); // update thread place
@@ -243,9 +249,11 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
                 byte[] ba = baos.toByteArray();
                 if (TRACE_SER) {
                     long endTime = System.nanoTime();
-                    System.out.println("Serializer: serialized " + ba.length + " bytes in " + (endTime - startTime) / 1000 + " ms.");
+                    System.out.println("Serializer: serialized " + ba.length + " bytes in " + (endTime - startTime) / 1000 + " microsecs.");
                 }
-                body = (T) new java.io.ObjectInputStream(new java.io.ByteArrayInputStream(ba)).readObject();
+                java.io.ObjectInputStream ois = new java.io.ObjectInputStream(new java.io.ByteArrayInputStream(ba)); 
+                body = (T) ois.readObject();
+                ois.close();
             } finally {
                 thread.home(ret); // restore thread place
             }

@@ -162,7 +162,7 @@ int backtrace(void** trace, size_t max_size) {
         }
         if (sz >= max_size)
             break;
-        trace[sz++] = strdup(s);
+        trace[sz++] = string_utils::strdup(s);
     }
     fclose(pf);
     close(p[0]);
@@ -211,7 +211,7 @@ void extract_frame (const char *start, char * &filename, char * &symbol, size_t 
 
     if (lparen==NULL || plus==NULL || x==NULL) {
         filename = NULL;
-        symbol = strdup(start);
+        symbol = string_utils::strdup(start);
         addr = 0;
         return;
     }
@@ -251,7 +251,7 @@ void extract_frame (const char *start, char * &filename, char * &symbol, size_t 
 
     if (space==NULL || plus==NULL || x==NULL) {
         filename = NULL;
-        symbol = strdup(start);
+        symbol = string_utils::strdup(start);
         addr = 0;
         return;
     }
