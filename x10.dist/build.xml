@@ -79,8 +79,6 @@
                 <include name="java_x10rt"/>
                 <include name="x10"/>
                 <include name="x10c"/>
-                <!-- stopped removing precommit since it requires overwriting running program which is not allowed in Windows -->
-                <!-- <include name="precommit"/> -->
             </fileset>
         </delete>
     </target>
@@ -130,6 +128,12 @@
     <target name="distclean" depends="squeakyclean">
         <delete dir="${lib}" failonerror="false"/>
         <mkdir dir="${lib}" />
+        <!-- Delete here instead of in clean rule because precommit invokes squeakyclean when it is running -->
+        <delete>
+            <fileset dir="${bin}">
+                <include name="precommit"/>
+            </fileset>
+        </delete>
         <ant antfile="${x10.runtime.location}/build.xml" target="distclean" inheritAll="false" dir="${x10.runtime.location}"/>
     </target>
 
