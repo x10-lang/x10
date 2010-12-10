@@ -25,13 +25,23 @@ import x10.compiler.TempNoInline_3;
  * so on. The set of points in a region may be iterated over.
  */
 public abstract class Region(
+    /**
+     * The rank of this region.
+     */
     rank: int,
+    /**
+     * Is the region rectangular?
+     */
     rect: boolean,
-    zeroBased: boolean
+    /**
+     * Is the region zero-based?
+     */
+    zeroBased: boolean,
+    /**
+     * Is the region rank 1, rectangular, and zero-based?
+     */
+    rail: boolean
 ) implements Iterable[Point(rank)] {
-
-    property rail = rank==1 && rect && zeroBased;
-    property region = this; // structural affinity w/ Dist, Array for compiler
 
     //
     // factories
@@ -435,7 +445,7 @@ public abstract class Region(
 
     protected def this(r: int, t: boolean, z: boolean)
         :Region{self.rank==r, self.rect==t, self.zeroBased==z} {
-        property(r, t, z);
+        property(r, t, z, (r == 1) && t && z);
     }
 }
 

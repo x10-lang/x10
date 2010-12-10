@@ -78,7 +78,14 @@ public class X10ConstructorCall_c extends ConstructorCall_c implements X10Constr
 
 	    // Remove super() calls for java.lang.Object.
 	    if (kind == SUPER && tb.currentClass().fullName().equals(QName.make("x10.lang.Object"))) {
-		return tb.nodeFactory().Empty(position());
+	        return tb.nodeFactory().Empty(position());
+	    }
+
+	    if (kind == THIS) {
+	        X10ConstructorDef cd = AssignPropertyCall_c.getConstructorDef(tb);
+	        if (cd != null) {
+	            cd.derivedReturnType(true);
+	        }
 	    }
 
 	    ConstructorCall_c n = this;

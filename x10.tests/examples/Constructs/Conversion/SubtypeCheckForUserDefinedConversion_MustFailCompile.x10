@@ -10,12 +10,13 @@
  */
 
 import harness.x10Test;
+import x10.compiler.*; // @Uncounted @NonEscaping @NoThisAccess @ERR @ShouldNotBeERR @ShouldBeErr
 
 /**
  */
 public class SubtypeCheckForUserDefinedConversion_MustFailCompile extends x10Test {
     static class Foo {}
-    public static operator (p:Array[Int]) = new Foo();
+    @ERR public static operator (p:Array[Int]) = new Foo(); // (because the return type should be a subtype of the container's type)
     public def run()=true;
     public static def main(Array[String](1)) {
 	new SubtypeCheckForUserDefinedConversion_MustFailCompile().execute();

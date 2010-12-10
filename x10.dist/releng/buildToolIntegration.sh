@@ -43,7 +43,7 @@ case "$UNAME" in
 esac
 
 distdir=$workdir/x10
-projectList="x10.common x10.compiler x10.constraints x10.dist x10.runtime x10.tests com.ibm.wala.cast.x10"
+projectList="x10.common x10.compiler x10.constraints x10.dist x10.runtime x10.tests x10.wala"
 MAX_RETRIES=5
 
 if [ ! -z "$CLEAN" ]; then

@@ -33,6 +33,8 @@ public interface Ext extends Copy
     /** Set the extension of this extension. */
     Ext ext(Ext ext);
 
+    Ext copy();
+
     /**
      * Dump the AST node for debugging purposes.
      */

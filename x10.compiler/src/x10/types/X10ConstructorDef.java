@@ -28,6 +28,9 @@ public interface X10ConstructorDef extends ConstructorDef, X10ProcedureDef {
      */
     void setReturnType(Ref<? extends Type> t);
     
+    boolean derivedReturnType();
+    void derivedReturnType(boolean r);
+
     /** Return type associated with the constructor. */
     Ref<? extends Type> returnType();
     

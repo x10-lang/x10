@@ -377,10 +377,6 @@ public class X10TypeMixin {
 	        ConstrainedType ct = (ConstrainedType) t;
 	        return erasedType(baseType(Types.get(ct.baseType())));
 	    }
-	    if (t instanceof ConstrainedType) {
-	        ConstrainedType ct = (ConstrainedType) t;
-	        return erasedType(baseType(Types.get(ct.baseType())));
-	    }
 	    return t;
 	}
 	
@@ -909,6 +905,9 @@ public class X10TypeMixin {
 	public static XTerm makeZeroBased(Type t) {
 		return makeProperty(t, "zeroBased");
 	}
+    public static XTerm makeRail(Type t) {
+        return makeProperty(t, "rail");
+    }
 	 
 	public static XTerm makeProperty(Type t, String propStr) {
 		Name propName = Name.make(propStr);
@@ -988,6 +987,7 @@ public class X10TypeMixin {
 	    TypeSystem xts = (TypeSystem) t.typeSystem();
 	    return findOrSynthesize(t, Name.make("rank"));
 	}
+
 	/**
 	 * Add the constraint self.rank==x to t unless
 	 * that causes an inconsistency.
@@ -996,16 +996,27 @@ public class X10TypeMixin {
 	 * @return
 	 */
 	public static Type addRank(Type t, int x) {
+	    return addRank(t, XTerms.makeLit(new Integer(x)));
+	}
+
+	/**
+	 * Add the constraint self.rank==x to t unless
+	 * that causes an inconsistency.
+	 * @param t
+	 * @param x
+	 * @return
+	 */
+	public static Type addRank(Type t, XTerm x) {
 	    TypeSystem xts = (TypeSystem) t.typeSystem();
 	    XTerm xt = findOrSynthesize(t, Name.make("rank"));
 	    try {
-	    t = addBinding(t, xt, XTerms.makeLit(new Integer(x)));
-	    return t;
+	        t = addBinding(t, xt, x);
+	        return t;
 	    } catch (XFailure f) {
-	    	return t; // without the binding added.
+	        return t; // without the binding added.
 	    }
-	 
 	}
+
 	public static Type addRect(Type t) {
 	    TypeSystem xts = (TypeSystem) t.typeSystem();
 	    XTerm xt = findOrSynthesize(t, Name.make("rect"));
@@ -1017,6 +1028,7 @@ public class X10TypeMixin {
 	    }
 	 
 	}
+
 	public static Type addZeroBased(Type t) {
 	    TypeSystem xts = (TypeSystem) t.typeSystem();
 	    XTerm xt = findOrSynthesize(t, Name.make("zeroBased"));
@@ -1028,7 +1040,6 @@ public class X10TypeMixin {
 	    }
 	 
 	}
-	
 
 	public static Type railBaseType(Type t) {
 	    t = baseType(t);

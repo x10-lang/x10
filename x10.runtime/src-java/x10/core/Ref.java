@@ -25,7 +25,7 @@ public class Ref implements RefI {
 
     public static RuntimeType<Ref> _RTT = new RuntimeType<Ref>(Ref.class) {
         @Override
-        public String typeName() {
+        public java.lang.String typeName() {
             return "x10.lang.Object";
         }
     };

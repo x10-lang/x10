@@ -38,6 +38,10 @@ public class LazyRef_c<T> extends AbstractRef_c<T> implements LazyRef<T>, Serial
 		this.resolver = resolver;
 	}
 
+	public boolean isResolverSet() {
+		return !(this.resolver instanceof ErrorRunnable);
+	}
+
 	public T get() {
 		if (! known()) {
 			if (resolver == null) {

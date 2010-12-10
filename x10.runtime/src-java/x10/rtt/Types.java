@@ -264,6 +264,7 @@ public class Types {
         throw new ClassCastException();
     }
     
+    // FIXME this should be replaced by virtual method for user defined conversion
     public static Object conversion(Type<?> rtt, Object primOrTypeParam) {
         if (primOrTypeParam == null && isStructType(rtt)) {nullIsCastedToStruct();}
         
@@ -296,6 +297,13 @@ public class Types {
             if (primOrTypeParam instanceof java.lang.Double) return primOrTypeParam;
             if (primOrTypeParam instanceof java.lang.Number) return ((java.lang.Number) primOrTypeParam).doubleValue();
             return primOrTypeParam;
+        }
+        if (rtt == STRING) {
+            if (primOrTypeParam instanceof x10.core.String) return x10.core.String.unbox(primOrTypeParam);
+            return primOrTypeParam;
+        }
+        else if (primOrTypeParam instanceof java.lang.String) { // i.e. rtt==Any|Object|Fun
+            return x10.core.String.box((java.lang.String) primOrTypeParam);
         }
         
         return primOrTypeParam;

@@ -1381,6 +1381,13 @@ public class Emitter {
                         }
                         it.remove();
                     }
+                    // TODO quick fix for boxing String
+                    if (type instanceof FunctionType) {
+                        List<Type> argTypes = ((FunctionType) type).argumentTypes();
+                        if (argTypes.size() == 1 && argTypes.get(0).isInt() && ((FunctionType) type).returnType().isChar()) {
+                            it.remove();
+                        }
+                    }
                 }
             }
             if (supClassType != null) {
@@ -2414,6 +2421,7 @@ public class Emitter {
 		return true;
 	}
 
+	    // TODO:CAST
         public void coerce(Node parent, Expr e, Type expected) {
             Type actual = e.type();
 

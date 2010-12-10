@@ -29,6 +29,7 @@ import polyglot.types.ClassDef;
 import polyglot.types.ConstructorDef;
 import polyglot.types.Context;
 import polyglot.types.Flags;
+import polyglot.types.LazyRef;
 import polyglot.types.LocalDef;
 import polyglot.types.MethodDef;
 import polyglot.types.Name;
@@ -49,6 +50,7 @@ import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeBuilder;
+import polyglot.visit.TypeCheckPreparer;
 import polyglot.visit.TypeChecker;
 import x10.constraint.XFailure;
 import x10.constraint.XName;
@@ -80,6 +82,7 @@ import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
 import x10.types.constraints.XConstrainedTerm;
 import x10.visit.CheckEscapingThis;
+import x10.visit.X10TypeChecker;
 
 /**
  * An X10ConstructorDecl differs from a ConstructorDecl in that it has a returnType.
@@ -218,11 +221,19 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
         TypeNode htn = (TypeNode) n.visitChild(n.hasType, tb);
         n = (X10ConstructorDecl_c) n.hasType(htn);
         
-        if (returnType == null) {
+        TypeNode rtn = (TypeNode) n.visitChild(n.returnType, tb);
+        // Enable return type inference for this constructor declaration.
+        if (rtn == null) {
             Type rType = currentClass.asType();
             rType = X10TypeMixin.instantiateTypeParametersExplicitly(rType);
-            n = (X10ConstructorDecl_c) n.returnType(nf.CanonicalTypeNode(n.position(), rType));
+            if (ci.derivedReturnType()) {
+                ci.inferReturnType(true);
+                rtn = nf.CanonicalTypeNode(n.position(), Types.lazyRef(rType));
+            } else {
+                rtn = nf.CanonicalTypeNode(n.position(), rType);
+            }
         }
+        n = (X10ConstructorDecl_c) n.returnType(rtn);
         
         ci.setReturnType((Ref<? extends X10ClassType>) n.returnType().typeRef());
         
@@ -338,6 +349,24 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
     	return result;
     }
 
+    @Override
+    public Node setResolverOverride(Node parent, TypeCheckPreparer v) {
+        if (constructorDef().inferReturnType() && body() != null) {
+            TypeNode tn = returnType();
+
+            NodeVisitor childv = v.enter(parent, this);
+            childv = childv.enter(this, returnType());
+
+            if (childv instanceof TypeCheckPreparer) {
+                TypeCheckPreparer tcp = (TypeCheckPreparer) childv;
+                final LazyRef<Type> r = (LazyRef<Type>) tn.typeRef();
+                TypeChecker tc = new X10TypeChecker(v.job(), v.typeSystem(), v.nodeFactory(), v.getMemo(), true);
+                tc = (TypeChecker) tc.context(tcp.context().freeze());
+                r.setResolver(new TypeCheckReturnTypeGoal(this, new Node[] { guard() }, body(), tc, r, r.getCached()));
+            }
+        }
+        return super.setResolverOverride(parent, v);
+    }
 
     public Node typeCheckOverride(Node parent, ContextVisitor tc) {
     	X10ConstructorDecl nn = this;

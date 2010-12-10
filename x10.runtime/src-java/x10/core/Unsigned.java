@@ -158,12 +158,12 @@ public class Unsigned {
         }
     }
     
-    private static String forInputString(String s) {
+    private static java.lang.String forInputString(java.lang.String s) {
         return "For input string: \"" + s + "\"";
     }
-    private static x10.core.Throwable newNumberFormatException(String s) {
+    private static x10.core.Throwable newNumberFormatException(java.lang.String s) {
         try {
-            return Class.forName("x10.lang.NumberFormatException").asSubclass(x10.core.Throwable.class).getConstructor(new Class[] { String.class }).newInstance(new Object[] { s });
+            return Class.forName("x10.lang.NumberFormatException").asSubclass(x10.core.Throwable.class).getConstructor(new Class[] { java.lang.String.class }).newInstance(new Object[] { s });
         } catch (java.lang.ClassNotFoundException e1) {
         } catch (java.lang.InstantiationException e2) {
         } catch (java.lang.IllegalAccessException e3) {
@@ -192,7 +192,7 @@ public class Unsigned {
 
     
     private static final java.math.BigInteger ULONG_MAX = toULONG(0xFFFFFFFFFFFFFFFFL);
-    public static long parseULong(String s, int radix) {
+    public static long parseULong(java.lang.String s, int radix) {
         java.math.BigInteger ulong = new java.math.BigInteger(s, radix);
         if (ulong.signum() < 0) {
             throw newNumberFormatException(forInputString(s));
@@ -230,7 +230,7 @@ public class Unsigned {
         return toString(a, 10);
     }
     */
-    public static String toString(long a, int radix) {
+    public static java.lang.String toString(long a, int radix) {
         return toULONG(a).toString(radix);
     }
     /*

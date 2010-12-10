@@ -18,8 +18,8 @@
     <property name="equinox.jar.url" value="http://dist.codehaus.org/x10/dependencies/org.eclipse.equinox.common_3.6.0.v20100503.jar"/>
     <property name="math.jar" value="commons-math-2.1.jar"/>
     <property name="math.jar.url" value="http://dist.codehaus.org/x10/dependencies/commons-math-2.1.jar"/>
-    <property name="x10.bridge.location" location="${x10.home}/com.ibm.wala.cast.x10"/>
-    <property name="bridge.jar" value="com.ibm.wala.cast.x10.jar" />
+    <property name="x10.bridge.location" location="${x10.home}/x10.wala"/>
+    <property name="bridge.jar" value="x10wala.jar" />
     <property name="x10.constraints.location" location="${x10.home}/x10.constraints"/>
     <property name="constraints.jar" value="x10constraints.jar"/>
     <property name="x10.common.location" location="${x10.home}/x10.common"/>
@@ -375,24 +375,30 @@
         <!-- TODO: some of this is x10c-specific; factor out into x10c.in -->
 	<echo file="${bin}/defs" append="no">#!/usr/bin/env bash
 # DO NOT EDIT - This file was automatically generated.
-
-#JAVA='${java.executable}'
-[ -n "$JAVA_HOME" ] || JAVA_HOME='${env.JAVA_HOME}'
-[ -n "$JRE_HOME" ] || JRE_HOME='${java.home}'
-#FILE_SEP='${file.separator}'
-#PATH_SEP='${path.separator}'
-#CONFIG_FILE='${config}'
-LPG_JAR='${lpg.jar}'
-MATH_JAR='${math.jar}'
-ECJ_JAR='${ecj.jar}'
-WALA_JAR='${wala.jar}'
-LPG_URL='${lpg.jar.url}'
-ECJ_URL='${ecj.jar.url}'
-WALA_URL='${wala.jar.url}'
-
 UNAME=`uname -smp | sed -e 's/ /,/g'`
 FILE_SEP='/'; if [[ "$UNAME" = CYGWIN* ]]; then FILE_SEP='\\'; fi
 PATH_SEP=':'; if [[ "$UNAME" = CYGWIN* ]]; then PATH_SEP=';'; fi
+
+prog="$(readlink "$0" 2&gt;&amp;1)"
+[ $? -eq 127 -o "$prog" = "" ] &amp;&amp; prog="$0"
+TOP="$(cd "$(dirname "$prog")/.." &amp;&amp; pwd)"
+if [[ "$UNAME" = CYGWIN* ]]; then TOP="$(cygpath -am "$TOP")"; fi
+
+[ -n "$JAVA_HOME" ] || JAVA_HOME='${env.JAVA_HOME}'
+[ -n "$JRE_HOME" ] || JRE_HOME='${java.home}'
+if [[ "$UNAME" = CYGWIN* ]]; then JAVA_HOME="$(cygpath -am "$JAVA_HOME")"; JRE_HOME="$(cygpath -am "$JRE_HOME")"; fi
+if [ -n "$JAVA_HOME" -a -e "$JAVA_HOME/bin/java" ]; then
+    JAVA="$JAVA_HOME/bin/java"
+    JAR="$JAVA_HOME/bin/jar"
+elif [ -n "$JRE_HOME" -a -e "$JRE_HOME/bin/java" ]; then
+    JAVA="$JRE_HOME/bin/java"
+    JAR="$JRE_HOME/bin/jar"
+else
+    echo "JAVA_HOME ($JAVA_HOME) is not pointing to a JRE or a JDK"
+    exit 1
+fi
+if [[ "$UNAME" = CYGWIN* ]]; then JAVA="$(cygpath -au "$JAVA")"; JAR="$(cygpath -au "$JAR")"; fi
+
 [ -n "$X10_PLATFORM" ] || \
 case "$UNAME" in
   CYGWIN*,i*86,*) export X10_PLATFORM='win32_x86';;
@@ -407,21 +413,15 @@ case "$UNAME" in
 esac
 # NOTE: the above assumes that Cygwin==win32 (probably valid)
 
-prog="$(readlink "$0" 2&gt;&amp;1)"
-[ $? -eq 127 -o "$prog" = "" ] &amp;&amp; prog="$0"
-TOP="$(cd "$(dirname "$prog")/.." &amp;&amp; pwd)"
-if [[ "$UNAME" = CYGWIN* ]]; then TOP="$(cygpath -am "$TOP")"; fi
+#CONFIG_FILE='${config}'
+LPG_JAR='${lpg.jar}'
+ECJ_JAR='${ecj.jar}'
+WALA_JAR='${wala.jar}'
+MATH_JAR='${math.jar}'
+LPG_URL='${lpg.jar.url}'
+ECJ_URL='${ecj.jar.url}'
+WALA_URL='${wala.jar.url}'
 
-if [ -n "$JAVA_HOME" -a -e "$JAVA_HOME/bin/java" ]; then
-    JAVA="$JAVA_HOME/bin/java"
-elif [ -n "$JRE_HOME" -a -e "$JRE_HOME/bin/java" ]; then
-    JAVA="$JRE_HOME/bin/java"
-else
-    echo "JAVA_HOME ($JAVA_HOME) is not pointing to a JRE or a JDK"
-    exit 1
-fi
-if [[ "$UNAME" = CYGWIN* ]]; then JAVA="$(cygpath -au "$JAVA")"; fi
-if [[ "$UNAME" = CYGWIN* ]]; then JAVA_HOME="$(cygpath -am "$JAVA_HOME")"; fi
 
 </echo>
     </target>

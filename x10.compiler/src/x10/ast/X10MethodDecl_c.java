@@ -117,9 +117,11 @@ import x10.types.X10TypeMixin;
 import polyglot.types.TypeSystem;
 import x10.types.XTypeTranslator;
 import x10.types.X10Context_c;
+import x10.types.X10ParsedClassType;
 import x10.types.checker.Checker;
 import x10.types.checker.PlaceChecker;
 import x10.types.checker.VarChecker;
+import x10.types.checker.Converter;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
 import x10.types.constraints.XConstrainedTerm;
@@ -528,6 +530,24 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
                 X10TypeMixin.checkVariance(fType, ParameterType.Variance.CONTRAVARIANT,tc.job());
             }
             X10TypeMixin.checkVariance(n.returnType, ParameterType.Variance.COVARIANT,tc.job());
+        }
+
+        // check subtype restriction on implicit and explicit operator as:
+        // the return type must be a subtype of the container type
+        final Name nameId = n.name.id();
+        if (nameId==Converter.implicit_operator_as || nameId==Converter.operator_as) {
+            final StructType container = n.methodDef().container().get();
+            final Type returnT = X10TypeMixin.baseType(n.returnType.type());
+            // I compare ClassDef due to this example:
+            //class B[U] {
+            //    public static operator[T](x:T):B[T] = null;
+            //}
+            if (!(container instanceof X10ParsedClassType) ||
+                !(returnT instanceof X10ParsedClassType) ||
+                ((X10ParsedClassType)container).def()!=((X10ParsedClassType)returnT).def()) {
+                Errors.issue(tc.job(),
+				        new SemanticException("The return type of operator 'as' must have the same class as the container.", n.returnType.position()));
+            }
         }
 		return n;
 	}

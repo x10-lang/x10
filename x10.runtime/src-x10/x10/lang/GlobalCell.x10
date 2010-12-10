@@ -63,7 +63,7 @@ public class GlobalCell[T] {
      * @param x the given value
      * @return a new Cell with the given value stored in it.
      */
-    public static def make[T](x:T)= (new GlobalCell[T](new Cell[T](x)));
+    public static def make[T](x:T)= (new GlobalCell[T](x));
 
 
     /**
@@ -74,7 +74,8 @@ public class GlobalCell[T] {
      * @param x the given Cell
      * @return the value stored in the given Cell.
      */
-    public static operator[T](x:GlobalCell[T]) = x();
+    // todo: The return type of operator 'as' must have the same class as the container.
+    // public static operator[T](x:GlobalCell[T]) = x();
 
 }
 
