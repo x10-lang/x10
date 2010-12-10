@@ -178,7 +178,13 @@ One way to address these problems is to build a deterministic, deadlock-free con
 model and $D^2C$ is an instance. 
 Any application written in this model will guarantee to give 
 the same output for a given input
-and will never deadlock. We start by discussing our model in~\secref{model} and a few examples in~\secref{examples}. 
+and will never deadlock. 
+It is important to note that we do not gaurantee termination.
+We do not try to solve the halting problem here - our model is applicable
+only for terminating programs.
+
+
+We start by discussing our model in~\secref{model} and a few examples in~\secref{examples}. 
  semantics in~\secref{semantics} and provide a proof of correcness (determinism and deadlock-freedom) in~\secref{proof}. 
 We provide a basic implementation of the runtime in~\secref{implementation}. 
 We then evaluate our model by experimenting on a set of examples in~\secref{experimental}. 
@@ -684,11 +690,11 @@ version requires just a single phase, because the implementation maintains
 to eliminate read-write conflicts. Hence, the deterministic
 version performed better. The Java and c++ versions did about the same.
 
-\begin{figure*}[htbp]
-\includegraphics[angle=-90]{figures/next.eps}
+\begin{figure}[htbp]
+\includegraphics[scale=0.5,angle=-90]{figures/next.eps}
 \caption{Performance of $next$ statement with varying number of tasks}
 \label{fig:next}
-\end{figure*}
+\end{figure}
 
 
 To measure the performance of the synchronizing $next$ statement, which
