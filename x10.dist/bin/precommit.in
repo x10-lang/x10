@@ -9,13 +9,12 @@ testFailed() {
 
 echo "Running precommit tests for X10"
 
-ROOT="${TOP}${FILE_SEP}.."
+ROOT="$TOP/.."
 
 echo "Rebuilding X10"
 
-cd "${ROOT}${FILE_SEP}x10.dist"
-ant squeakyclean || testFailed
-ant dist || testFailed;
+cd "$ROOT/x10.dist"
+nice ant "$@" squeakyclean dist || testFailed
 
 echo "Making temp dir"
 if [ -z "$TMP_DIR" ] ; then
@@ -30,26 +29,26 @@ echo "Testing "
 
 echo "Compiling PreCommit.x10 with x10c++"
 
-cd "${ROOT}${FILE_SEP}x10.tests${FILE_SEP}examples${FILE_SEP}Misc"
+cd "$ROOT/x10.tests/examples/Misc"
 
-${ROOT}${FILE_SEP}x10.dist${FILE_SEP}bin${FILE_SEP}x10c++ -O \
- -sourcepath "${ROOT}${FILE_SEP}x10.dist${FILE_SEP}samples${FILE_SEP}tutorial" \
- -sourcepath "${ROOT}${FILE_SEP}x10.tests${FILE_SEP}examples${FILE_SEP}x10lib" \
--d $TMP_DIR -o ${TMP_DIR}${FILE_SEP}PreCommit PreCommit.x10 || testFailed
+nice "$ROOT/x10.dist/bin/x10c++" -O \
+ -sourcepath "$ROOT/x10.dist/samples/tutorial" \
+ -sourcepath "$ROOT/x10.tests/examples/x10lib" \
+-d "$TMP_DIR" -o "$TMP_DIR/PreCommit" PreCommit.x10 || testFailed
 
 echo "Running"
 
-export X10_NPLACES=2; export X10_HOSTLIST=localhost; ${TMP_DIR}${FILE_SEP}PreCommit || testFailed
+X10_NPLACES=2 X10_HOSTLIST=localhost "$TMP_DIR/PreCommit" || testFailed
 
 echo "Compiling PreCommit.x10 with x10c"
 
-${ROOT}${FILE_SEP}x10.dist${FILE_SEP}bin${FILE_SEP}x10c -O \
- -sourcepath "${ROOT}${FILE_SEP}x10.dist${FILE_SEP}samples${FILE_SEP}tutorial" \
- -sourcepath "${ROOT}${FILE_SEP}x10.tests${FILE_SEP}examples${FILE_SEP}x10lib" \
--d $TMP_DIR PreCommit.x10 || testFailed
+nice "$ROOT/x10.dist/bin/x10c" -O \
+ -sourcepath "$ROOT/x10.dist/samples/tutorial" \
+ -sourcepath "$ROOT/x10.tests/examples/x10lib" \
+-d "$TMP_DIR" PreCommit.x10 || testFailed
 
 echo "Running"
-${ROOT}${FILE_SEP}x10.dist${FILE_SEP}bin${FILE_SEP}x10 -classpath $TMP_DIR PreCommit || testFailed
+"$ROOT/x10.dist/bin/x10" -classpath "$TMP_DIR" PreCommit || testFailed
 
 echo ""
 echo ""
