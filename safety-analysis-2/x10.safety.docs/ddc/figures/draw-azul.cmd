@@ -19,7 +19,7 @@ set ylabel "Relative Speed"
 set xlabel "Application"
 set xtics rotate 90
 set log y
-set xrange [-0.5:18]
+set xrange [-0.5:19]
 set yrange [0.01:100]
 set boxwidth .148
 set xtics nomirror
