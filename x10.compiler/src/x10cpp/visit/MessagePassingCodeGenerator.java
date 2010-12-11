@@ -2933,7 +2933,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		X10MethodInstance mi = (X10MethodInstance) n.methodInstance();
 		Receiver target = n.target();
 		Type t = target.type();
-
+		
 		X10MethodDef md = mi.x10Def();
 		if (mi.flags().isStatic()) {
 		    TypeNode tn =
@@ -3091,8 +3091,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                             if (needsNullCheck) sw.write(")");
 		                    sw.write("->");
 		                }
-
-
 		            }
 		        } else if (target instanceof TypeNode || target instanceof AmbReceiver) {
 		            n.print(target, sw, tr);
@@ -3262,6 +3260,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		}
 		sw.allowBreak(2, 3, "", 0);
 		if (!n.fieldInstance().flags().isStatic()) {
+            if (target instanceof X10Special_c && ((X10Special_c)target).kind().equals(X10Special_c.SUPER)) {
+                sw.write(Emitter.translateType(context.currentClass().superClass())+"::");
+            }
 		    sw.write(mangled_field_name(name));
 		} else {
 		    sw.write(mangled_field_name(name+STATIC_FIELD_ACCESSOR_SUFFIX) + "()");
@@ -3967,33 +3968,23 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
     public void visit(X10Special_c n) {
         X10CPPContext_c context = (X10CPPContext_c) tr.context();
 
-        // inner classes have been removed
-        // [NN] but qualifier may still be nonnull (== currentClass)
-//        assert (n.qualifier() == null) :
-//               n.qualifier()+" "+n.kind()+" "+n.position().nameAndLineString();
-
-        if (n.kind().equals(X10Special_c.THIS)) {
-            if (context.isInsideClosure()) {
-                sw.write(SAVED_THIS);
-                context.saveEnvVariableInfo(THIS);
+        if (context.isInsideClosure()) {
+            assert n.kind().equals(X10Special_c.THIS) || n.kind().equals(X10Special_c.SUPER);
+            sw.write(SAVED_THIS);
+            context.saveEnvVariableInfo(THIS);
+        } else {
+            if (X10TypeMixin.isX10Struct(n.type())) {
+                sw.write("this_");
             } else {
-            	if (X10TypeMixin.isX10Struct(n.type())) {
-                    sw.write("this_");
-            	} else {
-            		sw.write("(("+Emitter.translateType(n.type(),true)+")"+n.kind()+")");
-            	}
+                if (n.kind().equals(X10Special_c.THIS)) {
+                    sw.write("(("+Emitter.translateType(n.type(),true)+")"+n.kind()+")");
+                } else {
+                    assert n.kind().equals(X10Special_c.SUPER);
+                    sw.write("(("+Emitter.translateType(context.currentClass().superClass(),true)+")this)");
+                }
             }
-        } else if (n.kind().equals(X10Special_c.SUPER)) {
-            sw.write(Emitter.translateType(context.currentClass().superClass()));
-        } else if (n.isSelf()) {
-            assert false: "I do not believe we ever visit over constraints.";
-            // FIXME: Why are we printing the string "self"?
-            // Confirm with Igor. [Krishna]
-            //sw.write((context.Self() == null)? "self":context.Self());
-        } else assert (false) : n.kind();
-
+        }
     }
-
 
     public static String getClosureName(String className, int id) {
         // TODO: factor out into a constant
@@ -4861,7 +4852,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    assert (receiver != null);
 	    components[0] = receiver;
 	    if (receiver instanceof X10Special_c && ((X10Special_c)receiver).kind() == X10Special_c.SUPER) {
-	        pat = pat.replaceAll("\\(#0\\)->", "#0::"); // FIXME: HACK
+	        pat = pat.replaceAll("\\(#0\\)->", Emitter.translateType(tr.context().currentClass().superClass())+"::"); // FIXME: HACK
 	        pat = pat.replaceAll("\\(#0\\)", "("+Emitter.translateType(((X10Special_c)receiver).type(), true)+"((#0*)this))"); // FIXME: An even bigger HACK (remove when @Native migrates to the body)
 	    }
 
