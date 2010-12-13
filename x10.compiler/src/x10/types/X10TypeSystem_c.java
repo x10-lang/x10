@@ -1676,6 +1676,10 @@ public class X10TypeSystem_c extends TypeSystem_c {
         return super.isNumeric(t) || isUByte(t) || isUShort(t) || isUInt(t) || isULong(t);
     }
 
+    public boolean isUnsignedNumeric(Type t) {
+        return super.isUnsignedNumeric(t) || isUByte(t) || isUShort(t) || isUInt(t) || isULong(t);
+    }
+
     public boolean isIntOrLess(Type t) {
         if (isChar(t))
             return false;

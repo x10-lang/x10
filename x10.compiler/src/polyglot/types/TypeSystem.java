@@ -775,6 +775,7 @@ public interface TypeSystem {
     public Flags Abstract();
 
     boolean isNumeric(Type t);
+    boolean isUnsignedNumeric(Type t);
     boolean isIntOrLess(Type t);
     boolean isLongOrLess(Type t);
     boolean isByte(Type t);

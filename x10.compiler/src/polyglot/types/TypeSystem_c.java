@@ -534,6 +534,10 @@ public abstract class TypeSystem_c implements TypeSystem
 	return t.isLongOrLess() || t.isFloat() || t.isDouble();
     }
 
+    public boolean isUnsignedNumeric(Type t) {
+        return false; // No such thing in Java type system
+    }
+
     public boolean isIntOrLess(Type t) {
 	return t.isByte() || t.isShort() || t.isChar() || t.isInt();
     }
