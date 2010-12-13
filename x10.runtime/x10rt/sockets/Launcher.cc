@@ -399,7 +399,7 @@ void Launcher::handleRequestsLoop(bool onlyCheckForNewConnections)
 		}
 	}
 
-	while ((_myproc==0 || _myproc==0xFFFFFFFF) && _returncode == 0xDEADBEEF)
+	while ((_myproc==0 || _myproc==0xFFFFFFFF) && _returncode == (int)0xDEADBEEF)
 	{
 		int status;
 		if (waitpid(_pidlst[_numchildren], &status, WNOHANG) == _pidlst[_numchildren])
@@ -912,7 +912,7 @@ void Launcher::startSSHclient(uint32_t id, char* masterPort, char* remotehost)
 	"X10_TRACE_INIT", "X10_TRACE_X10RT", "X10_TRACE_NET", "X10_TRACE_SER", "X10_NTHREADS",
 	"X10RT_CUDA_DMA_SLICE", "X10RT_EMULATE_REMOTE_OP", "X10RT_EMULATE_COLLECTIVES",
 	"X10RT_MPI_THREAD_MULTIPLE", "X10_STATIC_THREADS", "X10_NO_STEALS", "X10RT_ACCELS",
-	X10RT_NOYIELD, X10LAUNCHER_DEBUG};
+	X10RT_NOYIELD, X10LAUNCHER_DEBUG, X10_HOSTLIST, X10_NPLACES};
 	for (unsigned i=0; i<(sizeof envVariables)/sizeof(char*); i++)
 	{
 		char* ev = getenv(envVariables[i]);
@@ -926,20 +926,10 @@ void Launcher::startSSHclient(uint32_t id, char* masterPort, char* remotehost)
 		}
 	}
 
-	// add on our own environment variables
 	if (_hostfname != '\0')
 	{
 		argv[++z] = (char*) alloca(strlen(_hostfname)+32);
 		sprintf(argv[z], X10_HOSTFILE"=%s", _hostfname);
-	}
-	else
-	{
-		char* hostlist = getenv(X10_HOSTLIST);
-		if (hostlist != NULL)
-		{
-			argv[++z] = (char*) alloca(strlen(hostlist)+32);
-			sprintf(argv[z], X10_HOSTLIST"=%s", hostlist);
-		}
 	}
 	argv[++z] = (char*) alloca(256);
 	sprintf(argv[z], X10LAUNCHER_SSH"=%s", _ssh_command);
@@ -947,8 +937,6 @@ void Launcher::startSSHclient(uint32_t id, char* masterPort, char* remotehost)
 	sprintf(argv[z], X10LAUNCHER_PARENT"=%s", masterPort);
 	argv[++z] = (char*) alloca(100);
 	sprintf(argv[z], X10_PLACE"=%d", id);
-	argv[++z] = (char*) alloca(100);
-	sprintf(argv[z], X10_NPLACES"=%d", _nplaces);
 	argv[++z] = (char*) alloca(1024);
 	sprintf(argv[z], X10LAUNCHER_CWD"=%s", getenv(X10LAUNCHER_CWD));
 	argv[++z] = cmd;
