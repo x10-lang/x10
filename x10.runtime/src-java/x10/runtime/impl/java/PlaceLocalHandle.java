@@ -65,6 +65,11 @@ public final class PlaceLocalHandle<T> implements java.io.Serializable {
     objects[here] = data;
   }
 
+  public void set_0_$$x10$lang$PlaceLocalHandle_T(int place, T data) {
+      assert objects[place] == null : "At "+place+": set called on already initialized local object";
+      objects[place] = data;
+    }
+
   @Override
   public String toString() {
       return "PlaceLocalHandle(" + this.id + ")";
