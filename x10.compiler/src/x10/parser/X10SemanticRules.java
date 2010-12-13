@@ -3038,7 +3038,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         else {
             pd = nf.X10MethodDecl(pos(),
                     extractFlags(modifiers),
-                    HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
+                    HasResultTypeopt == null ? nf.UnknownTypeNode(MethodBody.position().startOf().markCompilerGenerated()) : HasResultTypeopt,
                     Identifier,
                     TypeParametersopt,
                     FormalParameters,
@@ -3068,7 +3068,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         }
         MethodDecl md = nf.X10MethodDecl(pos(),
                 extractFlags(modifiers),
-                HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
+                HasResultTypeopt == null ? nf.UnknownTypeNode(MethodBody.position().startOf().markCompilerGenerated()) : HasResultTypeopt,
                 nf.Id(pos(getRhsFirstTokenIndex(7)), opName),
                 TypeParametersopt,
                 Arrays.<Formal>asList(fp1, fp2),
@@ -3101,7 +3101,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         }
         MethodDecl md = nf.X10MethodDecl(pos(),
                 extractFlags(modifiers),
-                HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
+                HasResultTypeopt == null ? nf.UnknownTypeNode(MethodBody.position().startOf().markCompilerGenerated()) : HasResultTypeopt,
                 nf.Id(pos(getRhsFirstTokenIndex(4)), opName),
                 TypeParametersopt,
                 Collections.<Formal>singletonList(fp2),
@@ -3134,7 +3134,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         }
         MethodDecl md = nf.X10MethodDecl(pos(),
                 extractFlags(modifiers),
-                HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
+                HasResultTypeopt == null ? nf.UnknownTypeNode(MethodBody.position().startOf().markCompilerGenerated()) : HasResultTypeopt,
                 nf.Id(pos(getRhsFirstTokenIndex(5)), opName),
                 TypeParametersopt,
                 Collections.<Formal>singletonList(fp2),
@@ -3167,7 +3167,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         }
         MethodDecl md = nf.X10MethodDecl(pos(),
                 extractFlags(modifiers),
-                HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
+                HasResultTypeopt == null ? nf.UnknownTypeNode(MethodBody.position().startOf().markCompilerGenerated()) : HasResultTypeopt,
                 nf.Id(pos(getRhsFirstTokenIndex(7)), opName),
                 TypeParametersopt,
                 Collections.<Formal>singletonList(fp1),
@@ -3199,7 +3199,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         }
         MethodDecl md = nf.X10MethodDecl(pos(),
                 extractFlags(modifiers),
-                HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
+                HasResultTypeopt == null ? nf.UnknownTypeNode(MethodBody.position().startOf().markCompilerGenerated()) : HasResultTypeopt,
                 nf.Id(pos(getRhsFirstTokenIndex(4)), opName),
                 TypeParametersopt,
                 Collections.<Formal>emptyList(),
@@ -3226,7 +3226,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
         MethodDecl md = nf.X10MethodDecl(pos(),
                 extractFlags(modifiers),
-                HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
+                HasResultTypeopt == null ? nf.UnknownTypeNode(MethodBody.position().startOf().markCompilerGenerated()) : HasResultTypeopt,
                 nf.Id(pos(), ClosureCall.APPLY),
                 TypeParametersopt,
                 FormalParameters,
@@ -3254,7 +3254,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
         MethodDecl md = nf.X10MethodDecl(pos(),
                 extractFlags(modifiers),
-                HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
+                HasResultTypeopt == null ? nf.UnknownTypeNode(MethodBody.position().startOf().markCompilerGenerated()) : HasResultTypeopt,
                 nf.Id(pos(), SettableAssign.SET),
                 TypeParametersopt,
                 CollectionUtil.append(Collections.singletonList(fp2), FormalParameters),
@@ -3308,7 +3308,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
         MethodDecl md = nf.X10MethodDecl(pos(),
                 extractFlags(modifiers),
-                HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
+                HasResultTypeopt == null ? nf.UnknownTypeNode(MethodBody.position().startOf().markCompilerGenerated()) : HasResultTypeopt,
                 nf.Id(pos(), Converter.operator_as),
                 TypeParametersopt,
                 Collections.<Formal>singletonList(fp1),
@@ -3335,7 +3335,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
         MethodDecl md = nf.X10MethodDecl(pos(),
                 extractFlags(modifiers),
-                HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
+                HasResultTypeopt == null ? nf.UnknownTypeNode(MethodBody.position().startOf().markCompilerGenerated()) : HasResultTypeopt,
                 nf.Id(pos(), Converter.implicit_operator_as),
                 TypeParametersopt,
                 Collections.<Formal>singletonList(fp1),
