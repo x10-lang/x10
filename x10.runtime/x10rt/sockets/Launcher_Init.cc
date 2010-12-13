@@ -101,7 +101,7 @@ void Launcher::initialize(int argc, char ** argv)
 	}
 	else
 		_nplaces = atoi(getenv(X10_NPLACES));
-	if (!getenv(X10_PLACE)) // TODO - need to set?
+	if (!getenv(X10_PLACE))
 		_myproc = 0xFFFFFFFF;
 	else
 		_myproc = atoi(getenv(X10_PLACE));
@@ -148,13 +148,10 @@ void Launcher::initialize(int argc, char ** argv)
 	const char * hostlist = (const char *) getenv(X10_HOSTLIST);
 	if (hostfname && strlen(hostfname) > 0)
 	{
-		if (strcasecmp("NONE", hostfname) != 0) // TODO - this check is obsolete.  Take it out someday when it's not used anymore.
-		{
-			if (strlen(hostfname) > sizeof(_hostfname) - 10)
-				DIE("Launcher %u: host file name is too long", _myproc);
-			realpath(hostfname, _hostfname);
-			readHostFile();
-		}
+		if (strlen(hostfname) > sizeof(_hostfname) - 10)
+			DIE("Launcher %u: host file name is too long", _myproc);
+		realpath(hostfname, _hostfname);
+		readHostFile();
 	}
 	else if (hostlist && strlen(hostlist) > 0)
 	{
@@ -218,8 +215,8 @@ void Launcher::initialize(int argc, char ** argv)
 			currentNumber++;
 		}
 	}
-	else if (_myproc == 0xFFFFFFFF)
-		fprintf(stderr, "Warning: Neither %s nor %s has been set. Proceeding as if you had specified \"%s=localhost\".\n", X10_HOSTFILE, X10_HOSTLIST, X10_HOSTLIST);
+//	else if (_myproc == 0xFFFFFFFF)
+//		fprintf(stderr, "Warning: Neither %s nor %s has been set. Proceeding as if you had specified \"%s=localhost\".\n", X10_HOSTFILE, X10_HOSTLIST, X10_HOSTLIST);
 
 	connectToParentLauncher();
 

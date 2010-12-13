@@ -509,7 +509,7 @@ void x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter)
 	char* NPROCS = getenv(X10_NPLACES);
 	if (NPROCS == NULL) 
 	{
-		fprintf(stderr, "Warning: "X10_NPLACES" not set.  Assuming 1 place\n");
+//		fprintf(stderr, "Warning: "X10_NPLACES" not set.  Assuming 1 place\n");
 		state.numPlaces = 1;
 	}
 	else
