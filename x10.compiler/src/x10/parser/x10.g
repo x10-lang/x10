@@ -122,7 +122,7 @@
 --    async
 --    at
 --    ateach
-    atomic
+--    atomic
 --    break
 --    case
 --    catch
@@ -141,7 +141,7 @@
 --    for
 --    goto
 --    haszero
-    here
+--    here
 --    if
 --    implements
 --    import
@@ -152,7 +152,7 @@
 --    new
     next
 --    null
-    offer
+--    offer
 --    offers
 --    operator
 --    package
