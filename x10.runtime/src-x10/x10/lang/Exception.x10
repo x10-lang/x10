@@ -43,6 +43,11 @@ public class Exception extends Throwable {
      * @param cause the cause
      */
     public def this(cause: Throwable) { super(cause); } 
+
+    /**
+     * Create a String representation of this Exception.
+     */
+    public def toString() = typeName() + ": " + getMessage();
 }
 
 // vim:tabstop=4:shiftwidth=4:expandtab
