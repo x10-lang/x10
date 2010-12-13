@@ -15,6 +15,7 @@
 #include <limits.h>
 #include <sys/select.h>
 #include <stdint.h>
+#include <time.h>
 
 /* ************************************************************************ */
 /*            some explicit declarations for strict ANSI mode               */
@@ -107,6 +108,7 @@ class Launcher
 		uint32_t _nplaces; /* number of processors in job */
 		uint32_t _myproc; /* my processor ID */
 		int _returncode; // the return code from the local runtime
+		time_t _dieAt; // used to shut everything down in the event of an unexpected death somewhere
 
 		/* parent child structure */
 		char ** _hostlist; /* child host list */

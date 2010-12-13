@@ -22,7 +22,6 @@
 #include <stdarg.h>
 #include <alloca.h>
 #include <arpa/inet.h>
-#include <time.h>
 #include <sched.h>
 #include <errno.h>
 
@@ -318,6 +317,13 @@ void Launcher::handleRequestsLoop(bool onlyCheckForNewConnections)
 
 	while (running)
 	{
+		if (_dieAt > 0)
+		{
+			time_t now = time(NULL);
+			if (now >= _dieAt)
+				break;
+		}
+
 		struct timeval timeout = { 0, 100000 };
 		fd_set infds, efds;
 		int fd_max = makeFDSets(&infds, NULL, &efds);
@@ -886,9 +892,12 @@ void Launcher::cb_sighandler_cld(int signo)
 				fprintf(stderr, "Launcher %d: SIGCHLD from child launcher for place %d (pid=%d), status=%d\n", _singleton->_myproc, i+_singleton->_firstchildproc, pid, WEXITSTATUS(status));
 			#endif
 
-			return;
+			break;
 		}
 	}
+	// limit our lifetime to a few seconds, to allow any children to shut down on their own. Then kill em' all.
+	if (_singleton->_dieAt == 0)
+		_singleton->_dieAt = 3+time(NULL);
 }
 
 
