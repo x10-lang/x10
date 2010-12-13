@@ -13,6 +13,7 @@ package x10.core;
 
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
+import x10.rtt.Types;
 
 public class Throwable extends java.lang.RuntimeException implements RefI {
 
@@ -63,6 +64,11 @@ public class Throwable extends java.lang.RuntimeException implements RefI {
     }
     public Type<?> getParam(int i) {
         return null;
+    }
+
+    @Override
+    public java.lang.String toString() {
+        return Types.typeName(this) + "@" + Integer.toHexString(System.identityHashCode(this));
     }
 
 }

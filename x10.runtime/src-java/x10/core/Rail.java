@@ -149,13 +149,13 @@ public final class Rail<T> extends Ref implements AnyRail<T>, x10.lang.Settable<
     
     public java.lang.String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("[");
+        sb.append("Rail(");
         for (int i = 0; i < length; i++) {
             if (i > 0)
-                sb.append(", ");
+                sb.append(",");
             sb.append(apply$G(i));
         }
-        sb.append("]");
+        sb.append(")");
         return sb.toString();
     }
 

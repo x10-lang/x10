@@ -362,7 +362,7 @@ public class DistArray[T] (
 
 
     public def toString(): String {
-        return "Array(" + dist + ")";
+        return "DistArray(" + dist + ")";
     }
 
 
