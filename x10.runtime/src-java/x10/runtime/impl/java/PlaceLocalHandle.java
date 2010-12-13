@@ -18,6 +18,7 @@ package x10.runtime.impl.java;
 public final class PlaceLocalHandle<T> implements java.io.Serializable {
 //  private final Object[] objects;
     transient private final Object[] objects;
+    transient private final boolean[] init_stat;
     
     // single process implementation
     private static final java.util.ArrayList<PlaceLocalHandle<?>> handles = new java.util.ArrayList<PlaceLocalHandle<?>>(); // all place local handles in this process
@@ -44,6 +45,7 @@ public final class PlaceLocalHandle<T> implements java.io.Serializable {
 
   public PlaceLocalHandle(x10.rtt.Type<T> T) {
     objects = new Object[Runtime.MAX_PLACES];
+    init_stat = new boolean[Runtime.MAX_PLACES];
   }
 
   // TODO haszero
@@ -55,19 +57,21 @@ public final class PlaceLocalHandle<T> implements java.io.Serializable {
   public T apply$G() {
     int here = Thread.currentThread().home().id;
     Object data = objects[here];
-    assert data != null : "At "+here+": get called on uninitialized local object";
+    assert init_stat[here] : "At "+here+": get called on uninitialized local object";
     return (T)data;
   }
 
   public void set_0_$$x10$lang$PlaceLocalHandle_T(T data) {
     int here = Thread.currentThread().home().id;
-    assert objects[here] == null : "At "+here+": set called on already initialized local object";
+    assert !init_stat[here] : "At "+here+": set called on already initialized local object";
     objects[here] = data;
+    init_stat[here] = true;
   }
 
   public void set_0_$$x10$lang$PlaceLocalHandle_T(int place, T data) {
-      assert objects[place] == null : "At "+place+": set called on already initialized local object";
+      assert !init_stat[place] : "At "+place+": set called on already initialized local object";
       objects[place] = data;
+      init_stat[place] = true;
     }
 
   @Override
