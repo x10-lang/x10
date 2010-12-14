@@ -113,6 +113,7 @@ import polyglot.ast.SwitchBlock_c;
 import polyglot.ast.SwitchElement;
 import polyglot.ast.Switch_c;
 import polyglot.ast.Throw_c;
+import polyglot.ast.Try;
 import polyglot.ast.Try_c;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
@@ -192,6 +193,7 @@ import x10.ast.X10MethodDecl_c;
 import x10.ast.X10Special_c;
 import x10.ast.X10Unary_c;
 import x10.extension.X10Ext;
+import x10.extension.X10Ext_c;
 import x10.types.ClosureDef;
 import x10.types.ClosureInstance;
 import x10.types.ParameterType;
@@ -3569,6 +3571,18 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	public void visit(Try_c n) {
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
 		X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
+		
+        X10Ext_c ext = (X10Ext_c) n.ext();
+        if (ext.initVals != null) {
+            Set<LocalDef> asyncInits = context.findData(SharedVarsMethods.ASYNC_INIT_VALS_KEY);
+            if (asyncInits == null) {
+                asyncInits = new HashSet<LocalDef>(ext.initVals);
+                context.addData(SharedVarsMethods.ASYNC_INIT_VALS_KEY, asyncInits);
+            } else {
+                asyncInits.addAll(ext.initVals);
+            }
+        }
+		
 		if (n.finallyBlock() != null) {
 			sw.write("try {");
 			sw.newline(0); sw.begin(0);
@@ -3577,7 +3591,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		assert (n.tryBlock() instanceof Block_c);
 		n.printSubStmt(n.tryBlock(), sw, tr);
 		sw.newline(0);
-
+        
 		// [IP] C++ will not catch ref types properly, as there is no hierarchy.
 		// So, we have to do the dispatching ourselves.
 		sw.newline();
@@ -4277,8 +4291,13 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             VarDef def = var.def();
             if ((def instanceof X10LocalDef)) {
                 X10LocalDef ld = ((X10LocalDef)def);
-                if (ld.isAsyncInit() || !ld.flags().isFinal()) {
+                if (!ld.flags().isFinal()) {
                     refs.add(var);
+                } else if (ld.isAsyncInit()) {
+                    Set<LocalDef> currentAsyncInits = c.findData(SharedVarsMethods.ASYNC_INIT_VALS_KEY);
+                    if (currentAsyncInits != null && currentAsyncInits.contains(ld)) {
+                        refs.add(var);
+                    }
                 }
             }
         }
