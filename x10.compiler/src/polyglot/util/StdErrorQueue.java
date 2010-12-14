@@ -249,11 +249,16 @@ public class StdErrorQueue extends SilentErrorQueue
     public void flush() {
 	    if (! flushed) {
             final List<ErrorInfo> errList = getErrors();
-            for (ErrorInfo info : errList)
+            int count = 0;
+            for (ErrorInfo info : errList) {
                 println(info);
+                if (info.getErrorKind() != ErrorInfo.WARNING &&
+                        info.getErrorKind() != ErrorInfo.DEBUG) {
+                    count++;
+                }
+            }
             for (String msg : tooManyErrorsMsgs)
                 err.println(msg);
-            final int count = errList.size();
             if (count > 0) {
                 err.println(count + " error" +
                             (count > 1 ? "s." : "."));
