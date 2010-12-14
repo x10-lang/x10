@@ -68,7 +68,7 @@ public class Throwable extends java.lang.RuntimeException implements RefI {
 
     @Override
     public java.lang.String toString() {
-        return Types.typeName(this) + "@" + Integer.toHexString(System.identityHashCode(this));
+        return Types.typeName(this) + ": " + this.getMessage();
     }
 
 }
