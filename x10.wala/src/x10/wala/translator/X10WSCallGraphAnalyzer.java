@@ -83,7 +83,7 @@ public class X10WSCallGraphAnalyzer {
 
 			protected Iterator<? extends CGNode> getConnected(CGNode n) {
                 return callGraph.getPredNodes(n); //reverse traverse;
-              }
+            }
 		};
 		
 		//now add all reachable nodes, but filter out fake root and async activity

@@ -1,26 +1,18 @@
 package x10.wala.translator;
 
-import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 
 import polyglot.frontend.ExtensionInfo;
 import polyglot.frontend.Job;
 import polyglot.frontend.SourceGoal_c;
 import polyglot.main.Report;
-import x10.compiler.ws.util.WSCallGraph;
+import x10.compiler.ws.WSCodeGenerator;
 import x10.wala.client.X10SourceAnalysisEngine;
 import x10.wala.ipa.cha.X10ClassHierarchy;
 import x10.wala.loader.X10SourceLoaderImpl;
-import x10.wala.util.GraphUtil;
-/* FIXME: uncomment after fixing compiler
-import x10.finish.table.CallTableKey;
-import x10.finish.table.CallTableUtil;
-import x10.finish.table.CallTableVal;
-*/
+
 import com.ibm.wala.cast.tree.CAstEntity;
 import com.ibm.wala.ipa.callgraph.CallGraph;
 import com.ibm.wala.ipa.callgraph.Entrypoint;
@@ -107,7 +99,7 @@ public class X102IRGoal extends SourceGoal_c {
     public static void wsAnalyzeCallGraph() {
     	List<String> targets = new X10WSCallGraphAnalyzer(buildCallGraph()).simpleAnalyze();
     	//FIXME: the current way to set the results is not good. Need refactoring
-    	WSCallGraph.setWALAResult(targets);
+    	WSCodeGenerator.setWALAResult(targets);
     }
     
 	private static CallGraph buildCallGraph(){
