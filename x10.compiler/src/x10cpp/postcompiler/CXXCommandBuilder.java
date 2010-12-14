@@ -171,7 +171,8 @@ public class CXXCommandBuilder {
         } else {
             cxxCmd.add("-Wno-long-long");        // Do not warn about using long long
             cxxCmd.add("-Wno-unused-parameter"); // Do not warn about unused parameters
-            cxxCmd.add("-Wreturn-type");         // Do warn about non-void functions with no return
+            // DISABLED due to XTENLANG-2215; finally block rewriting has (dynamically unreachable) path in which there is no return
+            // cxxCmd.add("-Wreturn-type");         // Do warn about non-void functions with no return
         }
 
         if (x10.Configuration.NO_CHECKS) {
