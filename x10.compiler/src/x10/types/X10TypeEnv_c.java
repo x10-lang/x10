@@ -691,9 +691,16 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     	assert t1 != null;
     	assert t2 != null;
     	if (ts.hasUnknown(t1) || ts.hasUnknown(t2)) return true;
-        
+
+    	if (t1.isVoid())
+    		return t2.isVoid();
+    	if (t2.isVoid())
+    		return false;
+
     	t1 = ts.expandMacros(t1);
     	t2 = ts.expandMacros(t2);
+        assert !t1.isVoid() && !t2.isVoid();
+        
     	if (ts.isAny(t2))
     		return true;
     	Context xcontext = (Context) context;
@@ -720,11 +727,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     	
     	if (t1 == t2) 
     		return true;
-   
-    	if (t1.isVoid()) 
-    		return t2.isVoid();
-    	if (t2.isVoid())
-    		return false;
+
 
     	if (t1.isNull())
     		return X10TypeMixin.permitsNull(t2);

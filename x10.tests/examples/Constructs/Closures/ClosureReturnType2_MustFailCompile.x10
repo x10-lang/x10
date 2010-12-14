@@ -10,6 +10,8 @@
  */
 
 import harness.x10Test;
+import x10.compiler.*; // @Uncounted @NonEscaping @NoThisAccess
+import x10.compiler.tests.*; // err markers
 
 
 /**
@@ -26,7 +28,7 @@ public class ClosureReturnType2_MustFailCompile extends ClosureTest {
     def foo() = {}
 
     public def run(): boolean = {
-        val f = ():int => {foo();};  // inferred return type is void, not int
+        @ERR val f = ():int => {foo();};  // Closure must return a value of type x10.lang.Int
         return true;
     }
 

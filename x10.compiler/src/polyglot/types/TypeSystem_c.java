@@ -1427,7 +1427,7 @@ public abstract class TypeSystem_c implements TypeSystem
 	return env(context).implemented(mi);
     }
 
-    protected List<MethodInstance> implemented(MethodInstance mi, StructType st, Context context) {
+    public List<MethodInstance> implemented(MethodInstance mi, StructType st, Context context) {
 	return env(context).implemented(mi, st);
     }
 

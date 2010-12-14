@@ -15,6 +15,8 @@ import polyglot.types.*;
 import polyglot.util.*;
 import polyglot.visit.*;
 import x10.errors.Errors;
+import x10.types.X10ParsedClassType_c;
+import x10.types.X10TypeMixin;
 
 /**
  * A <code>ClassDecl</code> is the definition of a class, abstract class,
@@ -451,14 +453,13 @@ public class ClassDecl_c extends Term_c implements ClassDecl
 
         // A local class name cannot be redeclared within the same
         // method, constructor or initializer, and within its scope                
+        final Context context = tc.context();
         if (type.isLocal()) {
-            Context ctxt = tc.context();
-
-            if (ctxt.isLocal(name)) {
+            if (context.isLocal(name)) {
                 // Something with the same name was declared locally.
                 // (but not in an enclosing class)
                 try {
-                    Named nm = ctxt.find(ts.TypeMatcher(name));
+                    Named nm = context.find(ts.TypeMatcher(name));
                     if (nm instanceof Type) {
                         Type another = (Type) nm;
                         if (another.isClass() && another.toClass().isLocal()) {
@@ -497,7 +498,7 @@ public class ClassDecl_c extends Term_c implements ClassDecl
                                 position()));
             }
 
-            if (objectIsRoot() && type.typeEquals(ts.Object(), tc.context())) {
+            if (objectIsRoot() && type.typeEquals(ts.Object(), context)) {
                 Errors.issue(tc.job(),
                         new Errors.CannotHaveSuperclass(type,
                                 superClass.position()));
@@ -514,10 +515,52 @@ public class ClassDecl_c extends Term_c implements ClassDecl
                                 tn.position()));
             }
 
-            if (objectIsRoot() && type.typeEquals(ts.Object(), tc.context())) {
+            if (objectIsRoot() && type.typeEquals(ts.Object(), context)) {
                 Errors.issue(tc.job(),
                         new Errors.ClassCannotHaveSuperInterface(type,
                                 tn.position()));
+            }
+        }
+
+
+        // check that 2 super-interfaces (or a superclass and superinterface)
+        // do not cause a method collision (see InterfaceMethodCollision_MustFailCompile.x10)
+        //interface A {		def m():void;	}
+        //interface B {		def m():Any;	}
+        //abstract class B2 implements B {}
+        //@ERR interface C extends A,B {}
+        //@ERR abstract C2 extends B2 implements A {}
+        // (other kinds of method collisions are checked in MethodDecl_c.overrideMethodCheck)
+        // optimization: methods in Any cannot cause problems (such errors will be caught in MethodDecl_c)
+        if (interfaces.size()>=1) {
+            final List<X10ParsedClassType_c> directSuperTypes = new ArrayList<X10ParsedClassType_c>(((X10ParsedClassType_c) type).directSuperTypes());
+            int len = directSuperTypes.size();
+            for (int i1=0; i1<len; i1++) {
+                X10ParsedClassType_c it1 = directSuperTypes.get(i1);
+                if (ts.isAny(it1)) continue;
+                final List<MethodInstance> methods1 = it1.getAllMethods();
+                if (methods1.size()==0) continue;
+                for (int i2=i1+1; i2<len; i2++) {
+                    X10ParsedClassType_c it2 = directSuperTypes.get(i2);
+                    if (ts.isAny(it2)) continue;
+                    for (MethodInstance mi : methods1) {
+                        final List<MethodInstance> implementedBy = ((TypeSystem_c) ts).implemented(mi, (StructType) it2, context);
+                        for (MethodInstance mj : implementedBy) {
+                            if (mi==mj) continue;
+                            try {
+                                // due to covariant return type, the first argument should be the one with return type who is a subtype of the second
+                                ts.checkOverride(mi, mj, context);
+                            } catch (SemanticException e2) {
+                                try {
+                                    ts.checkOverride(mj, mi, context);
+                                } catch (SemanticException e) {
+                                    e.setPosition(this.position());
+                                    Errors.issue(tc.job(),e, this);
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
 
@@ -538,7 +581,7 @@ public class ClassDecl_c extends Term_c implements ClassDecl
 
         // Check that the class implements all abstract methods that it needs to.
         try {
-            ts.checkClassConformance(type, enterChildScope(body, tc.context()));
+            ts.checkClassConformance(type, enterChildScope(body, context));
         } catch (SemanticException e) {
             Errors.issue(tc.job(), e, this);
         }

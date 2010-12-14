@@ -1153,7 +1153,7 @@ class TestFieldInitializer {
 	val j = flag ? 3 : foo(); // ERR: reads from j before it is assigned.
 	val k = foo();	
 	var i:Int{self!=0};
-	@NonEscaping final def foo() {
+	@NonEscaping final def foo():Int {
 		val z = j;
 		i = 1;
 		return 2;
@@ -1395,7 +1395,7 @@ class SimpleUserDefinedStructTest {
 		Console.OUT.println( Zero.get[S5[S5[Int]]]().t.t );
 	}
 }
-class ConstraintPropogationToFields {
+class ConstraintPropagationToFields {
 	static struct S(x:Int,y:Int) {
 		def this(a:Int,b:Int):S{self.x==a,self.y==b} {
 			property(a,b);
@@ -2081,7 +2081,7 @@ class ReturnStatementTest {
 	  def test() {
 			val x1 = m();// ShouldNotBeERR (Semantic Error: Local variable cannot have type void.)
 			val x2 = m();// ShouldNotBeERR (Semantic Error: Local variable cannot have type void.)
-			testSameType(x1,x2,[x1,x2]);// ShouldNotBeERR (Semantic Error: Method testSameType[T](x: T, y: T, arr: x10.array.Array[T]) in A{self==A#this} cannot be called with arguments (void{self==x1}, void{self==x2}, x10.array.Array[void]{self.size==2, self.region.rank==1, self.region.rect==true, self.region.zeroBased==true});    Invalid Parameter.		 Expected type: void		 Found type: void{self==x1})
+			testSameType(x1,x2,[x1,x2]);
 	  }
 	  def testSameType[T](x:T,y:T,arr:Array[T]) {}
 	}
@@ -2215,8 +2215,8 @@ class TestInterfaceInvariants { // see XTENLANG-1930
 	interface I2 extends I{p==2} {} // ShouldBeErr
 	interface I3 {p==3} extends I2 {} // ShouldBeErr
 	static def test(i:I) {
-		var i1:I{p==5} = i; // ShouldBeErr
-		var i2:I{p==1} = i;
+		@ERR var i1:I{p==5} = i;
+		@ShouldNotBeERR var i2:I{p==1} = i;
 	}
 }
 
@@ -2376,7 +2376,7 @@ class TestCoAndContraVarianceInInterfaces {
 		}
 	{
 		// todo: can we use variance in method guards?
-		def m():void { CO <: CR };
+		def m() { CO <: CR } :void;
 		// todo: property methods?
 		property pm():CO;
 	}
@@ -2415,7 +2415,7 @@ class SuperQualifier { // see XTENLANG-1948
 	}
 }
 class TestArrayLiteralInference {	
-	var z: Array[int](1){rect, zeroBased, size==4} = [ 1, 2,3,4 ];  // ShouldNotBeERR
+	var z: Array[int](1){rect, zeroBased, size==4} = [ 1, 2,3,4 ];
 }
 
 class TestInstanceOperators {
@@ -2460,14 +2460,14 @@ class ExplodingPointTest {
 		return 3;
 	}
 	def test4() {
-		for(p[i,j] in (3..4)) // ERR: Loop domain is not of expected type.  ShouldNotBeERR (duplicate IDENTICAL error message) todo: should give better error message: Loop domain is not of expected type.	 Expected type: Iterable[x10.array.Point{self.x10.array.Point#rank==2}]	 Actual type: x10.array.Region
+		for(p[i,j] in (3..4)) // ERR: Loop domain is not of expected type.  
 			return p(0)+i+j;
 		return 3;
 	}
 	def test5() {
 		var r:Region = null;
 		for (p in r) {}
-		for (p[i] in r) {} // ERR ShouldNotBeERR (duplicate)
+		for (p[i] in r) {} // ERR Loop domain is not of expected type.
 	}
 	// val p[i,j] = [1,2]; // doesn't parse for fields :)
 }
@@ -2785,7 +2785,7 @@ class TestOverflows { // see XTENLANG-1774
 //		useDouble(-0x1.fffffffffffffP+1024); // ShouldBeErr: floating point number too large
 
 
-		// todo: test constant propogation (+1, *1, *2)
+		// todo: test constant propagation (+1, *1, *2)
 
 		// todo: unary minus (it's a special case)
 
@@ -3801,20 +3801,123 @@ class SubtypeCheckForUserDefinedConversion { // see also SubtypeCheckForUserDefi
 }
 
 
-class Void_Is_Not_A_Type_Tests {
+class Void_Is_Not_A_Type_Tests { // see also XTENLANG-2220
 	static class B[T] {}
 	val i:Int=1;
 	@ERR def test2(void) {}
 	def test3() {
 		@ERR val closure:Any = (void)=>{};
 	}
-	@ShouldBeErr def test4():void{i==i} {
-	}
+	// parsing error: def test4():void{i==i} {}
 
 	@ERR def test(arg:void) {
 		@ERR val z:void; //Local variable cannot have type void.
-		@ERR var k:void{@ShouldBeErr i==1};
+		// parsing error: var k:void{i==1};
 		@ERR var b:B[void]; // Cannot instantiate invariant parameter T of A.B with type void.
-		@ERR var b2:B[void{@ShouldBeErr i==1}];
+		// parsing error: var b2:B[void{i==1}];
 	}	
+}
+
+
+class MethodCollisionTests { // see also \x10.tests\examples\Constructs\Interface\InterfaceMethodCollision_MustFailCompile.x10
+	static class NoVariantTests {
+		static interface Q {
+			@ERR def hashCode():void;
+		}
+		static interface A {
+			def m():void;
+			def m(i:Int):void;
+		}
+		static interface A2 extends A {}
+		static interface D extends A {
+			@ERR def m():Any;
+			def m(i:Double):void;
+		}
+		static interface B {
+			def m():Any;
+			def m(i:Double):void;
+		}
+		static interface B2 extends B {}
+		@ERR static interface C extends A,B {}
+		@ERR static interface C2 extends A2,B2 {}
+
+		static abstract class A3 implements A2 {}
+		static abstract class B3 implements B2 {}
+		// we have two errors because the method was inherited from two different paths
+		@ERR @ERR static abstract class C3_1 extends B3 implements A2 {}
+		@ERR @ERR static abstract class C3_2 extends A3 implements B2 {}
+	}
+	// covariant return tests
+	/*
+	This compiles fine in Java:
+    interface A {
+        Object m();
+    }
+    interface B {
+        String m();
+    }
+    interface C extends A,B{}
+    class D implements C {
+        public String m() { return "a"; }        
+    }
+	*/
+	
+	static class CovariantReturnTests {
+		static interface A {
+			def m():Any;
+		}
+		static interface B {
+			def m():Int; // gives java-backend errors: XTENLANG-2221
+		}
+		static interface C extends A,B {}
+		static class D implements C {
+			public def m():Int = 2;
+		}
+	}
+	static class CovariantReturnTests2 {
+		static interface A {
+			def m():Any;
+		}
+		static interface B {
+			def m():String;
+		}
+		static interface C extends A,B {}
+		static class D implements C {
+			public def m():String = "";
+		}
+	}
+	static class CloneTest {
+		static interface A {
+			def clone():A;
+		}
+		static interface B extends A {
+			def clone():B;
+		}
+		static class C1 implements B,A {
+			public def clone():C1=null;
+		}
+		static class C2 implements B,A {
+			public def clone():B=null;
+		}
+		static class C3 implements B,A {
+			@ERR public def clone():A=null;
+		}
+	}
+	static class CloneTest2 {	
+		static interface A[T] {
+			def clone():A[T];
+		}
+		static interface B[T] extends A[T] {
+			def clone():B[T];
+		}
+		static class C1[T] implements B[T],A[T] {
+			public def clone():C1[T]=null;
+		}
+		static class C2[T] implements B[T],A[T] {
+			public def clone():B[T]=null;
+		}
+		static class C3[T] implements B[T],A[T] {
+			@ERR public def clone():A[T]=null;
+		}
+	}
 }

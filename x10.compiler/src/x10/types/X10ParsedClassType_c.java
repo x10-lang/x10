@@ -14,6 +14,7 @@ package x10.types;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.HashSet;
 
 import polyglot.ast.Expr;
 import polyglot.types.ClassDef;
@@ -62,6 +63,48 @@ implements X10ParsedClassType
 
     TypeParamSubst cacheSubst; // "subst" is just an auxiliary structure (cached to improve performance). It represents the typeArguments (thus it is nullified when assigning to typeArguments).
 
+    // We ignore all constraints (we only handle generics)
+    private HashSet<X10ParsedClassType_c> cacheDirectSupertypes = null;
+    private HashSet<X10ParsedClassType_c> cacheAllSupertypes = null;
+
+    private void clearCache() {
+        cacheSubst = null;
+        cacheDirectSupertypes = null;
+        cacheAllSupertypes = null;
+    }
+    
+    private void calcSuperTypes() {
+        cacheDirectSupertypes = new HashSet<X10ParsedClassType_c>();
+        final Type superClass_ = superClass();
+        if (superClass_ !=null) cacheDirectSupertypes.add((X10ParsedClassType_c)X10TypeMixin.baseType(superClass_));
+        for (Type tn : interfaces())
+            cacheDirectSupertypes.add((X10ParsedClassType_c)X10TypeMixin.baseType(tn));
+        
+        cacheAllSupertypes = new HashSet<X10ParsedClassType_c>(cacheDirectSupertypes);
+        for (X10ParsedClassType_c t : cacheDirectSupertypes)
+            cacheAllSupertypes.addAll(t.allSuperTypes());
+    }
+    public HashSet<X10ParsedClassType_c> directSuperTypes() {
+        if (cacheDirectSupertypes==null) calcSuperTypes();
+        return cacheDirectSupertypes;
+    }
+    public HashSet<X10ParsedClassType_c> allSuperTypes() {
+        if (cacheAllSupertypes==null) calcSuperTypes();
+        final List<MethodInstance> list = methods();
+        return cacheAllSupertypes;
+    }
+
+    /**
+     * @return all methods defined in the class/interface including all inherited methods
+     */
+    public List<MethodInstance> getAllMethods() {
+        ArrayList<MethodInstance> res = new ArrayList<MethodInstance>(methods());
+        for (X10ParsedClassType_c supertype : allSuperTypes())
+            res.addAll(supertype.methods());
+        return res;
+    }
+
+
     public int hashCode() {
         return def.hashCode();
     }
@@ -100,7 +143,7 @@ implements X10ParsedClassType
     
     public Object copy() {
         X10ParsedClassType_c n = (X10ParsedClassType_c) super.copy();
-        n.cacheSubst = null;
+        n.clearCache();
         return n;
     }
     
@@ -133,12 +176,12 @@ implements X10ParsedClassType
     
     public X10ParsedClassType_c(ClassDef def) {
         super(def);
-        cacheSubst = null;
+        clearCache();
     }
 
     public X10ParsedClassType_c(TypeSystem ts, Position pos, Ref<? extends ClassDef> def) {
         super(ts, pos, def);
-        cacheSubst = null;
+        clearCache();
     }
  
 	public Type setFlags(Flags f) {
@@ -344,7 +387,7 @@ implements X10ParsedClassType
 	            throw new InternalCompilerError(z.toString() + " for type " + this);
 	        }
 	    }
-	    n.cacheSubst = null;
+        n.clearCache();
 	    return n;
 	}
 	

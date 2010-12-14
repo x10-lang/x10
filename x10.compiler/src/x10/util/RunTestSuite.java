@@ -22,6 +22,7 @@ import x10.types.X10TypeMixin;
 import x10.parser.AutoGenSentences;
 
 public class RunTestSuite {
+    // todo: C:\cygwin\home\Yoav\intellij\sourceforge\x10.dist\samples\tutorial\HeatTransfer_v1.x10:47,46-57 causes: (Warning) Reached threshold when checking constraints. If type-checking fails
     // I have 3 kind of markers:
     // "// ... ERR"  - marks an error or warning
     // "// ... ShouldNotBeERR" - the compiler reports an error, but it shouldn't
@@ -52,6 +53,7 @@ public class RunTestSuite {
             "TypedefNew11_MustFailCompile.x10", // it causes the compiler to crash
             "TypedefBasic2.x10", //C:\cygwin\home\Yoav\intellij\sourceforge\x10.tests\examples\Constructs\Typedefs\TypedefBasic2.x10:37,13-31
             "CUDA3DFD.x10", //C:\cygwin\home\Yoav\intellij\sourceforge\x10.dist\samples\CUDA\CUDA3DFD.x10:194,17-289,17
+            "CUDAMatMul.x10",
     };
     private static final String[] EXCLUDE_FILES_WITH = {
             "HeatTransfer_v0.x10",
