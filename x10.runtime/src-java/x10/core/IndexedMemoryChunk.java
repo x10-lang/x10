@@ -44,11 +44,13 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct {
     public java.lang.String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("IndexedMemoryChunk(");
-        for (int i = 0; i < length; i++) {
+        int sz = Math.min(length, 10);
+        for (int i = 0; i < sz; i++) {
             if (i > 0)
                 sb.append(",");
             sb.append(apply$G(i));
         }
+        if (sz < length) sb.append("...");
         sb.append(")");
         return sb.toString();
     }

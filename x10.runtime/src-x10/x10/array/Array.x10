@@ -269,10 +269,12 @@ public final class Array[T] (
     	if (rail) {
     		val sb = new x10.util.StringBuilder();
     		sb.add("[");
-    		for (var i:Int = 0; i < size; ++i) {
+    		val sz = Math.min(size, 10);
+    		for (var i:Int = 0; i < sz; ++i) {
     			if (i > 0) sb.add(",");
     			sb.add("" + raw.apply(i));
     		}
+    		if (sz < size) sb.add("...");
     		sb.add("]");
     		return sb.toString();
     	} else {
