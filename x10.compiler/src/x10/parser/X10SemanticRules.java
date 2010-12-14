@@ -1100,7 +1100,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
         formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
         TypeNode tn = nf.UnknownTypeNode(pos());
-        setResult(nf.Closure(pos(),  formals, (DepParameterExpr) null, tn,  nf.Block(pos(),
+        setResult(nf.Closure(pos(),  formals, (DepParameterExpr) null, tn, nf.Block(pos(),
                 nf.X10Return(pos(), nf.Binary(pos(), nf.Local(pos(), nf.Id(pos(), "x")),
                         Binary.ADD, nf.Local(pos(), nf.Id(pos(), "y"))), true))));
     }
@@ -1122,7 +1122,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
         formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
         TypeNode tn = nf.UnknownTypeNode(pos());
-        setResult(nf.Closure(pos(),  formals, (DepParameterExpr) null, tn,   nf.Block(pos(),
+        setResult(nf.Closure(pos(),  formals, (DepParameterExpr) null, tn, nf.Block(pos(),
                 nf.X10Return(pos(), nf.Binary(pos(), nf.Local(pos(), nf.Id(pos(), "x")),
                         Binary.MUL, nf.Local(pos(), nf.Id(pos(), "y"))), true))));
     }
@@ -1133,7 +1133,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
         formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
         TypeNode tn = nf.UnknownTypeNode(pos());
-        setResult(nf.Closure(pos(),  formals, (DepParameterExpr) null, tn,   nf.Block(pos(),
+        setResult(nf.Closure(pos(),  formals, (DepParameterExpr) null, tn, nf.Block(pos(),
                 nf.X10Return(pos(), nf.Binary(pos(), nf.Local(pos(), nf.Id(pos(), "x")),
                         Binary.DIV, nf.Local(pos(), nf.Id(pos(), "y"))), true))));
     }
@@ -1144,7 +1144,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
         formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
         TypeNode tn = nf.UnknownTypeNode(pos());
-        setResult(nf.Closure(pos(),  formals, (DepParameterExpr) null, tn,   nf.Block(pos(),
+        setResult(nf.Closure(pos(),  formals, (DepParameterExpr) null, tn, nf.Block(pos(),
                 nf.X10Return(pos(), nf.Binary(pos(), nf.Local(pos(), nf.Id(pos(), "x")),
                         Binary.MOD, nf.Local(pos(), nf.Id(pos(), "y"))), true))));
     }
@@ -1155,7 +1155,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
         formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
         TypeNode tn = nf.UnknownTypeNode(pos());
-        setResult(nf.Closure(pos(),  formals, (DepParameterExpr) null, tn,   nf.Block(pos(),
+        setResult(nf.Closure(pos(),  formals, (DepParameterExpr) null, tn, nf.Block(pos(),
                 nf.X10Return(pos(), nf.Binary(pos(), nf.Local(pos(), nf.Id(pos(), "x")),
                         Binary.BIT_AND, nf.Local(pos(), nf.Id(pos(), "y"))), true))));
     }
@@ -1166,7 +1166,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
         formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
         TypeNode tn = nf.UnknownTypeNode(pos());
-        setResult(nf.Closure(pos(),  formals, (DepParameterExpr) null, tn,   nf.Block(pos(),
+        setResult(nf.Closure(pos(),  formals, (DepParameterExpr) null, tn, nf.Block(pos(),
                 nf.X10Return(pos(), nf.Binary(pos(), nf.Local(pos(), nf.Id(pos(), "x")),
                         Binary.BIT_OR, nf.Local(pos(), nf.Id(pos(), "y"))), true))));
     }
@@ -1188,7 +1188,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
         formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
         TypeNode tn = nf.UnknownTypeNode(pos());
-        setResult(nf.Closure(pos(),  formals, (DepParameterExpr) null, tn,  nf.Block(pos(),
+        setResult(nf.Closure(pos(),  formals, (DepParameterExpr) null, tn, nf.Block(pos(),
                 nf.X10Return(pos(), nf.Binary(pos(), nf.Local(pos(), nf.Id(pos(), "x")),
                         Binary.SHL, nf.Local(pos(), nf.Id(pos(), "y"))), true))));
     }
@@ -1199,7 +1199,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
         formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
         TypeNode tn = nf.UnknownTypeNode(pos());
-        setResult(nf.Closure(pos(),  formals, (DepParameterExpr) null, tn,  nf.Block(pos(),
+        setResult(nf.Closure(pos(),  formals, (DepParameterExpr) null, tn, nf.Block(pos(),
                 nf.X10Return(pos(), nf.Binary(pos(), nf.Local(pos(), nf.Id(pos(), "x")),
                         Binary.SHR, nf.Local(pos(), nf.Id(pos(), "y"))), true))));
     }
@@ -1210,7 +1210,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
         formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
         TypeNode tn = nf.UnknownTypeNode(pos());
-        setResult(nf.Closure(pos(),  formals, (DepParameterExpr) null, tn,   nf.Block(pos(),
+        setResult(nf.Closure(pos(),  formals, (DepParameterExpr) null, tn, nf.Block(pos(),
                 nf.X10Return(pos(), nf.Binary(pos(), nf.Local(pos(), nf.Id(pos(), "x")),
                         Binary.USHR, nf.Local(pos(), nf.Id(pos(), "y"))), true))));
     }
@@ -1221,7 +1221,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
         formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
         TypeNode tn = nf.CanonicalTypeNode(pos(), ts.Boolean());
-        setResult(nf.Closure(pos(),  formals, (DepParameterExpr) null, tn,  nf.Block(pos(),
+        setResult(nf.Closure(pos(),  formals, (DepParameterExpr) null, tn, nf.Block(pos(),
                 nf.X10Return(pos(), nf.Binary(pos(), nf.Local(pos(), nf.Id(pos(), "x")),
                         Binary.LT, nf.Local(pos(), nf.Id(pos(), "y"))), true))));
     }
@@ -1232,7 +1232,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
         formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
         TypeNode tn = nf.CanonicalTypeNode(pos(), ts.Boolean());
-        setResult(nf.Closure(pos(),  formals, (DepParameterExpr) null, tn,  nf.Block(pos(),
+        setResult(nf.Closure(pos(),  formals, (DepParameterExpr) null, tn, nf.Block(pos(),
                 nf.X10Return(pos(), nf.Binary(pos(), nf.Local(pos(), nf.Id(pos(), "x")),
                         Binary.LE, nf.Local(pos(), nf.Id(pos(), "y"))), true))));
     }
@@ -1254,7 +1254,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
         formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
         TypeNode tn = nf.CanonicalTypeNode(pos(), ts.Boolean());
-        setResult(nf.Closure(pos(),  formals, (DepParameterExpr) null, tn,  nf.Block(pos(),
+        setResult(nf.Closure(pos(),  formals, (DepParameterExpr) null, tn, nf.Block(pos(),
                 nf.X10Return(pos(), nf.Binary(pos(), nf.Local(pos(), nf.Id(pos(), "x")),
                         Binary.GT, nf.Local(pos(), nf.Id(pos(), "y"))), true))));
     }
@@ -1265,7 +1265,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
         formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
         TypeNode tn = nf.CanonicalTypeNode(pos(), ts.Boolean());
-        setResult(nf.Closure(pos(),  formals, (DepParameterExpr) null, tn,  nf.Block(pos(),
+        setResult(nf.Closure(pos(),  formals, (DepParameterExpr) null, tn, nf.Block(pos(),
                 nf.X10Return(pos(), nf.Binary(pos(), nf.Local(pos(), nf.Id(pos(), "x")),
                         Binary.EQ, nf.Local(pos(), nf.Id(pos(), "y"))), true))));
     }
@@ -1276,7 +1276,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
         formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
         TypeNode tn = nf.CanonicalTypeNode(pos(), ts.Boolean());
-        setResult(nf.Closure(pos(),  formals, (DepParameterExpr) null, tn,  nf.Block(pos(),
+        setResult(nf.Closure(pos(),  formals, (DepParameterExpr) null, tn, nf.Block(pos(),
                 nf.X10Return(pos(), nf.Binary(pos(), nf.Local(pos(), nf.Id(pos(), "x")),
                         Binary.NE, nf.Local(pos(), nf.Id(pos(), "y"))), true))));
     }
@@ -2300,6 +2300,10 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         TypeNode DepNamedType = (TypeNode) _DepNamedType;
         Id Identifier = (Id) _Identifier;
         setResult(nf.AmbTypeNode(pos(), DepNamedType, Identifier));
+    }
+    // Production: VoidType ::= void
+    void rule_VoidType0() {
+        setResult(nf.CanonicalTypeNode(pos(), ts.Void()));
     }
     // Production: PreIncrementExpression ::= '++' UnaryExpressionNotPlusMinus
     void rule_PreIncrementExpression0(Object _UnaryExpressionNotPlusMinus) {

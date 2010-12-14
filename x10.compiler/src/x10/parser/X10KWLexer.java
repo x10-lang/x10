@@ -20,7 +20,7 @@ import java.util.*;
 public class X10KWLexer extends X10KWLexerprs
 {
     private char[] inputChars;
-    private final int keywordKind[] = new int[61 + 1];
+    private final int keywordKind[] = new int[62 + 1];
 
     public int[] getKeywordKinds() { return keywordKind; }
 
@@ -526,24 +526,31 @@ public class X10KWLexer extends X10KWLexerprs
       
     
         //
-        // Rule 59:  KeyWord ::= w h e n
+        // Rule 59:  KeyWord ::= v o i d
         //
         
-            keywordKind[59] = (X10Parsersym.TK_when);
+            keywordKind[59] = (X10Parsersym.TK_void);
       
     
         //
-        // Rule 60:  KeyWord ::= w h i l e
+        // Rule 60:  KeyWord ::= w h e n
         //
         
-            keywordKind[60] = (X10Parsersym.TK_while);
+            keywordKind[60] = (X10Parsersym.TK_when);
       
     
         //
-        // Rule 61:  KeyWord ::= h a s z e r o
+        // Rule 61:  KeyWord ::= w h i l e
         //
         
-            keywordKind[61] = (X10Parsersym.TK_haszero);
+            keywordKind[61] = (X10Parsersym.TK_while);
+      
+    
+        //
+        // Rule 62:  KeyWord ::= h a s z e r o
+        //
+        
+            keywordKind[62] = (X10Parsersym.TK_haszero);
       
     
         for (int i = 0; i < keywordKind.length; i++)
