@@ -463,8 +463,6 @@ public class X10CPPTranslator extends Translator {
 
 	public static final String postcompile = "postcompile";
 
-	public static final String MAIN_STUB_NAME = "xxx_main_xxx";
-
 	/**
 	 * The post-compiler option has the following structure:
 	 * "[pre-command with options (usually g++)] [(#|%) [post-options (usually extra files)] [(#|%) [library options]]]".
@@ -479,7 +477,7 @@ public class X10CPPTranslator extends Translator {
 			Set<String> compilationUnits = new HashSet<String>(options.compilationUnits());
 
 			try {
-			    final File file = outputFile(options, null, MAIN_STUB_NAME, "cc");
+			    final File file = outputFile(options, null, Configuration.MAIN_STUB_NAME, "cc");
 			    ExtensionInfo ext = compiler.sourceExtension();
 			    SimpleCodeWriter sw = new SimpleCodeWriter(ext.targetFactory().outputWriter(file),
 			            compiler.outputWidth());
