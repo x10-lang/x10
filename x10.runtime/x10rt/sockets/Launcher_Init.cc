@@ -225,6 +225,7 @@ void Launcher::initialize(int argc, char ** argv)
 	/*  set up notification from dying processes    */
 	/* -------------------------------------------- */
 	signal(SIGCHLD, Launcher::cb_sighandler_cld);
+	signal(SIGTERM, Launcher::cb_sighandler_term);
 }
 
 /* *********************************************************************** */

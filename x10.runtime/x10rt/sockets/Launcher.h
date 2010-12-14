@@ -71,6 +71,7 @@ class Launcher
 		static int _parentLauncherControlLink; /* parent control connection */
 		static void Setup(int argc, char ** argv);
 		static void cb_sighandler_cld(int signo);
+		static void cb_sighandler_term(int signo);
 		static int lookupPlace(uint32_t myPlace, uint32_t destPlace, char* response, int responseLen);
 		static int setPort(uint32_t place, char* port);
 

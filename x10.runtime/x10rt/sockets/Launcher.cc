@@ -317,18 +317,18 @@ void Launcher::handleRequestsLoop(bool onlyCheckForNewConnections)
 
 	while (running)
 	{
+		struct timeval timeout = { 0, 100000 };
+		fd_set infds, efds;
+		int fd_max = makeFDSets(&infds, NULL, &efds);
+		if (select(fd_max+1, &infds, NULL, &efds, &timeout) < 0)
+			break; // select error.  This can happen when we're in the middle of shutdown
+
 		if (_dieAt > 0)
 		{
 			time_t now = time(NULL);
 			if (now >= _dieAt)
 				break;
 		}
-
-		struct timeval timeout = { 0, 100000 };
-		fd_set infds, efds;
-		int fd_max = makeFDSets(&infds, NULL, &efds);
-		if (select(fd_max+1, &infds, NULL, &efds, &timeout) < 0)
-			break; // select error.  This can happen when we're in the middle of shutdown
 
 		/* listener socket (new connections) */
 		if (_listenSocket >= 0)
@@ -897,7 +897,15 @@ void Launcher::cb_sighandler_cld(int signo)
 	}
 	// limit our lifetime to a few seconds, to allow any children to shut down on their own. Then kill em' all.
 	if (_singleton->_dieAt == 0)
-		_singleton->_dieAt = 3+time(NULL);
+		_singleton->_dieAt = 2+time(NULL);
+}
+
+void Launcher::cb_sighandler_term(int signo)
+{
+	#ifdef DEBUG
+		fprintf(stderr, "Launcher %d: got a SIGTERM\n", _singleton->_myproc);
+	#endif
+	_singleton->_dieAt = 1; // die now.
 }
 
 
