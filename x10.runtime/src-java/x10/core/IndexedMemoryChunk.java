@@ -50,7 +50,7 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct {
                 sb.append(",");
             sb.append(apply$G(i));
         }
-        if (sz < length) sb.append("...");
+        if (sz < length) sb.append("...(omitted " + (length - sz) + " elements)");
         sb.append(")");
         return sb.toString();
     }

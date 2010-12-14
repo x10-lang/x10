@@ -34,7 +34,7 @@ public final class GrowableRail<T> extends Ref implements x10.lang.Indexable<Int
                 sb.append(",");
             sb.append(apply$G(i));
         }
-        if (sz < length) sb.append("...");
+        if (sz < length) sb.append("...(omitted " + (length - sz) + " elements)");
         sb.append(")");
         return sb.toString();
     }

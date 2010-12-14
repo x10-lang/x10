@@ -156,7 +156,7 @@ public final class Rail<T> extends Ref implements AnyRail<T>, x10.lang.Settable<
                 sb.append(",");
             sb.append(apply$G(i));
         }
-        if (sz < length) sb.append("...");
+        if (sz < length) sb.append("...(omitted " + (length - sz) + " elements)");
         sb.append(")");
         return sb.toString();
     }

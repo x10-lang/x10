@@ -274,7 +274,7 @@ public final class Array[T] (
     			if (i > 0) sb.add(",");
     			sb.add("" + raw.apply(i));
     		}
-    		if (sz < size) sb.add("...");
+    		if (sz < size) sb.add("...(omitted " + (size - sz) + " elements)");
     		sb.add("]");
     		return sb.toString();
     	} else {
