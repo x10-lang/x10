@@ -142,7 +142,7 @@ public class X10SourceClassResolver implements TopLevelResolver {
     public Named find(QName name) throws SemanticException {
         TypeSystem ts = (TypeSystem) this.ts;
 
-        if (name.equals(QName.make("x10.lang.Void")))
+        if (name.equals(QName.make("void")))
             return (Named) ts.Void();
 
         if (Report.should_report(report_topics, 3))

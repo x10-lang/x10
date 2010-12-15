@@ -15,6 +15,7 @@
 #include <limits.h>
 #include <sys/select.h>
 #include <stdint.h>
+#include <time.h>
 
 /* ************************************************************************ */
 /*            some explicit declarations for strict ANSI mode               */
@@ -70,6 +71,7 @@ class Launcher
 		static int _parentLauncherControlLink; /* parent control connection */
 		static void Setup(int argc, char ** argv);
 		static void cb_sighandler_cld(int signo);
+		static void cb_sighandler_term(int signo);
 		static int lookupPlace(uint32_t myPlace, uint32_t destPlace, char* response, int responseLen);
 		static int setPort(uint32_t place, char* port);
 
@@ -107,6 +109,7 @@ class Launcher
 		uint32_t _nplaces; /* number of processors in job */
 		uint32_t _myproc; /* my processor ID */
 		int _returncode; // the return code from the local runtime
+		time_t _dieAt; // used to shut everything down in the event of an unexpected death somewhere
 
 		/* parent child structure */
 		char ** _hostlist; /* child host list */

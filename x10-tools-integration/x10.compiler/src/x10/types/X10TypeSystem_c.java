@@ -1205,11 +1205,11 @@ public class X10TypeSystem_c extends TypeSystem_c {
         private static final long serialVersionUID = -1026975473924276266L;
 
         public Void(TypeSystem ts) {
-            super(ts, Name.make("Void"));
+            super(ts, Name.make("void"));
         }
 
         public QName fullName() {
-            return QName.make("x10.lang.Void");
+            return QName.make("void");
         }
 
         public String toString() {
@@ -1227,7 +1227,9 @@ public class X10TypeSystem_c extends TypeSystem_c {
     }
 
     public boolean isVoid(Type t) {
-        return t != null && expandMacros(t).equals((Object) Void());
+        return t != null &&
+                X10TypeMixin.baseType( // in case someone writes:  void{i==1}
+                        expandMacros(t)).equals((Object) Void());
     } // do not use typeEquals
 
     protected X10ClassType Boolean_;
@@ -1672,6 +1674,10 @@ public class X10TypeSystem_c extends TypeSystem_c {
         if (isChar(t))
             return false;
         return super.isNumeric(t) || isUByte(t) || isUShort(t) || isUInt(t) || isULong(t);
+    }
+
+    public boolean isUnsignedNumeric(Type t) {
+        return super.isUnsignedNumeric(t) || isUByte(t) || isUShort(t) || isUInt(t) || isULong(t);
     }
 
     public boolean isIntOrLess(Type t) {

@@ -194,6 +194,7 @@ public class TypeParamSubst {
 		if (t instanceof TypeConstraint) return (T) reinstantiateTypeConstraint((TypeConstraint) t);
 		if (t instanceof X10LocalInstance) return (T) reinstantiateLI((X10LocalInstance) t);
 		//if (t instanceof X10LocalDef) return (T) reinstantiateLD((X10LocalDef) t);
+        assert false : t;
 		return t;
 	}
 

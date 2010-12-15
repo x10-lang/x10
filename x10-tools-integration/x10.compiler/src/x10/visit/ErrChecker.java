@@ -132,9 +132,9 @@ public class ErrChecker extends NodeVisitor {
         TypeSystem ts = job.extensionInfo().typeSystem();
         emptyContext = ts.emptyContext();
         try {
-            ERR = (ClassType) ts.systemResolver().find(QName.make("x10.compiler.ERR"));
-            ShouldBeErr = (ClassType) ts.systemResolver().find(QName.make("x10.compiler.ShouldBeErr"));
-            ShouldNotBeERR = (ClassType) ts.systemResolver().find(QName.make("x10.compiler.ShouldNotBeERR"));
+            ERR = (ClassType) ts.systemResolver().find(QName.make("x10.compiler.tests.ERR"));
+            ShouldBeErr = (ClassType) ts.systemResolver().find(QName.make("x10.compiler.tests.ShouldBeErr"));
+            ShouldNotBeERR = (ClassType) ts.systemResolver().find(QName.make("x10.compiler.tests.ShouldNotBeERR"));
         } catch (SemanticException e) {
             throw new RuntimeException(e);
         }

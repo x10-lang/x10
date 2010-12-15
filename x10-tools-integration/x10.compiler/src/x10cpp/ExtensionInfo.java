@@ -169,18 +169,11 @@ public class ExtensionInfo extends x10.ExtensionInfo {
 		@Override
 		public List<Goal> goals(Job job) {
 		    List<Goal> goals = super.goals(job);
-		    if (x10.Configuration.EXPERIMENTAL) {
-		        FinallyEliminator(job).addPrereq(Lowerer(job));
-		        for (Goal g: Optimizer.goals(this, job)) {
-		            FinallyEliminator(job).addPrereq(g);
-		        }
-		        StaticNestedClassRemover(job).addPrereq(FinallyEliminator(job));
-		    } else {
-		        StaticNestedClassRemover(job).addPrereq(Lowerer(job));
-		        for (Goal g: Optimizer.goals(this, job)) {
-		            StaticNestedClassRemover(job).addPrereq(g);
-		        }
+		    FinallyEliminator(job).addPrereq(Lowerer(job));
+		    for (Goal g: Optimizer.goals(this, job)) {
+		        FinallyEliminator(job).addPrereq(g);
 		    }
+		    StaticNestedClassRemover(job).addPrereq(FinallyEliminator(job));
 		    return goals;
 		}
 	}

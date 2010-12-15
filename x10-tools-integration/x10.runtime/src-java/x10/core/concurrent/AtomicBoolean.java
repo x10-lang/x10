@@ -9,7 +9,7 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-package x10.core.atomic;
+package x10.core.concurrent;
 
 import x10.core.RefI;
 import x10.rtt.RuntimeType;

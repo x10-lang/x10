@@ -29,8 +29,10 @@ public class Random {
     /** Return a 32-bit random integer */
     public def nextInt(): Int = random();
 
-    /** Return a 32-bit random integer in the range 0 to n-1.
-     * If n <= 0, returns 0. */
+    /** Return a 32-bit random integer in the range 0 to maxPlus1-1
+     * when maxPlus1 > 0. Return 0 if maxPlus1 <= 0 instead of throwing 
+     * an IllegalArgumentException, to simplify user code.
+     */
     public def nextInt(maxPlus1: int): int {
         if (maxPlus1 <= 0)
             return 0;

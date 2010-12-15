@@ -24,6 +24,7 @@ import polyglot.ast.NodeFactory;
 import polyglot.ast.TypeNode;
 import polyglot.frontend.Job;
 import polyglot.types.ClassDef;
+import polyglot.types.ClassType;
 import polyglot.types.CodeDef;
 import polyglot.types.ConstructorDef;
 import polyglot.types.Context;
@@ -156,6 +157,22 @@ public class X10LocalClassRemover extends LocalClassRemover {
             res = decl.returnType(decl.returnType().typeRef(Types.ref(subst.reinstantiate(rt))));
         }
         return res;
+    }
+
+    @Override
+    protected New adjustObjectType(New neu, ClassType ct) {
+        X10New r = (X10New) super.adjustObjectType(neu, ct);
+        assert (r.body() != null);
+        Position pos = r.objectType().position();
+        List<Type> ta = ((X10ClassType) ct).typeArguments();
+        List<TypeNode> typeArgs = new ArrayList<TypeNode>();
+        if (ta != null) {
+            for (Type t : ta) {
+                typeArgs.add(nf.CanonicalTypeNode(pos, t));
+            }
+        }
+        r = r.typeArguments(typeArgs);
+        return r;
     }
 
     @Override

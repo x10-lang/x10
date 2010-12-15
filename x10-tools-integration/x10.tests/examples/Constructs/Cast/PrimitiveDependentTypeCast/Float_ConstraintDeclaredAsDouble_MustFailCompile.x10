@@ -10,6 +10,8 @@
  */
 
 import harness.x10Test;
+import x10.compiler.*; // @Uncounted @NonEscaping @NoThisAccess
+import x10.compiler.tests.*; // err markers
 
 /**
  * Purpose: Illustrates float dependent type usage and Checks the numeric 
@@ -25,19 +27,19 @@ public class Float_ConstraintDeclaredAsDouble_MustFailCompile extends x10Test {
 		
 		// invalid assignment 
 		// float/*(:{self=2.0E-5F})*/ <-- double/*(:{self=2.0E-5})*/  
-		var i1: float{self == 0.00002F} = 0.00002; // ERR
+		@ERR var i1: float{self == 0.00002F} = 0.00002;
 
 		// invalid assignment 
 		// float/*(:{self=2.0E-5F})*/ <-- double/*(:{self=2.0E-5})*/  
-		var i2: float{self == 0.00002F} = 0.00002D; // ERR
+		@ERR var i2: float{self == 0.00002F} = 0.00002D;
 
 		// invalid assignment 
 		// float/*(:{self=2.0E-5F})*/ <-- float
-		var i3: float{self == 0.00002F} = 0.00002 as float; // ShouldBeErr
+		@ERR var i3: float{self == 0.00002F} = 0.00002 as float;
 
 		// invalid assignment 
 		// float/*(:{self=2.0E-5F})*/ <-- float
-		var i4: float{self == 0.00002F} = 0.00002D as float; // ShouldBeErr
+		@ERR var i4: float{self == 0.00002F} = 0.00002D as float;
 
 		// float/*(:{self=2.0E-5F})*/ <-- float
 		var i5: float{self == 0.00002F} = 0.00002F as float; // ok!

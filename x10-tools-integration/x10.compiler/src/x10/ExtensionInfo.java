@@ -420,7 +420,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 //           goals.add(CheckNativeAnnotations(job));
            goals.add(CheckEscapingThis(job));
            goals.add(AnnotationChecker(job));
-           goals.add(ErrChecker(job)); // must be the last phase that might add errors to the errorQueue
+           if (Configuration.CHECK_ERR_MARKERS) goals.add(ErrChecker(job)); // must be the last phase that might add errors to the errorQueue
            goals.add(CheckASTForErrors(job));
 //           goals.add(TypeCheckBarrier());
 
@@ -435,7 +435,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 
            if (!x10.Configuration.ONLY_TYPE_CHECKING) {
 
-       
+           Goal walaBarrier = null;
            if (x10.Configuration.WALA || x10.Configuration.FINISH_ASYNCS) {
                try{
                    ClassLoader cl = Thread.currentThread().getContextClassLoader();
@@ -447,16 +447,17 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                    Goal finder = MainMethodFinder(job, hasMain);
                    finder.addPrereq(TypeCheckBarrier());
                    ir.addPrereq(finder);
-                   Goal barrier;
                    if(x10.Configuration.FINISH_ASYNCS){
                        Method buildCallTableMethod = c.getMethod("analyze");
-                       barrier = IRBarrier(ir, buildCallTableMethod);
+                       walaBarrier = IRBarrier(ir, buildCallTableMethod);
                    } else {
-                       Method printCallGraph = c.getMethod("printCallGraph");
-                       barrier = IRBarrier(ir, printCallGraph);
+                       //Method printCallGraph = c.getMethod("printCallGraph");
+                       //barrier = IRBarrier(ir, printCallGraph);
+                       Method wsAnalyzeCallGraph = c.getMethod("wsAnalyzeCallGraph");
+                       walaBarrier = IRBarrier(ir, wsAnalyzeCallGraph);
                    }
-                   goals.add(barrier);
-                   goals.add(FinishAsyncBarrier(barrier,job,this));
+                   goals.add(walaBarrier);
+                   goals.add(FinishAsyncBarrier(walaBarrier,job,this));
                } catch (Throwable e) {
                    System.err.println("WALA not found.");
                    e.printStackTrace();
@@ -479,8 +480,13 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            goals.add(Serialized(job));
            if (x10.Configuration.WORK_STEALING) {
                Goal wsCodeGenGoal = WSCodeGenerator(job);
-               goals.add(wsCodeGenGoal);                   
-               wsCodeGenGoal.addPrereq(WSCallGraphBarrier());
+               goals.add(wsCodeGenGoal);
+               Goal wsCallGraphBarrier = WSCallGraphBarrier();
+               if(walaBarrier != null){
+            	   //If we use WALA to analyze the call graph, we need add it before WSCallGraph
+            	   wsCallGraphBarrier.addPrereq(walaBarrier);
+               }
+               wsCodeGenGoal.addPrereq(wsCallGraphBarrier);
            }
            
            goals.add(Preoptimization(job));
@@ -488,10 +494,6 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            goals.add(Postoptimization(job));
            
            goals.add(Lowerer(job));
-           
-           if (x10.Configuration.EXPERIMENTAL)
-               goals.add(FinallyEliminator(job));
-           
            goals.add(CodeGenerated(job));
            
            // the barrier will handle prereqs on its own

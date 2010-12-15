@@ -54,6 +54,7 @@ import x10.types.X10MethodInstance;
 import x10.types.X10NamedType;
 import x10.types.X10TypeMixin;
 import polyglot.types.TypeSystem;
+import polyglot.types.TypeSystem_c;
 import x10.types.checker.Checker;
 
 public class X10Disamb_c extends Disamb_c {
@@ -65,6 +66,9 @@ public class X10Disamb_c extends Disamb_c {
 	
 	@Override
 	protected Node disambiguateNoPrefix() throws SemanticException {
+        if (name.id()== TypeSystem_c.voidName)
+			return makeTypeNode(ts.Void());
+
 	    Context c = (Context) this.c;
 	    TypeSystem ts = (TypeSystem) this.ts;
 	    

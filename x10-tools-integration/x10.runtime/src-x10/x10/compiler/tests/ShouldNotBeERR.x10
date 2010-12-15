@@ -9,7 +9,7 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-package x10.compiler;
+package x10.compiler.tests;
 
 import x10.lang.annotations.*;
 

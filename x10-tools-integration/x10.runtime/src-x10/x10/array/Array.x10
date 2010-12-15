@@ -260,7 +260,27 @@ public final class Array[T] (
         this(init.array());
     }
 
-
+    /**
+     * Return the string representation of this array.
+     * 
+     * @return the string representation of this array.
+     */
+    public def toString(): String {
+    	if (rail) {
+    		val sb = new x10.util.StringBuilder();
+    		sb.add("[");
+    		val sz = Math.min(size, 10);
+    		for (var i:Int = 0; i < sz; ++i) {
+    			if (i > 0) sb.add(",");
+    			sb.add("" + raw.apply(i));
+    		}
+    		if (sz < size) sb.add("...(omitted " + (size - sz) + " elements)");
+    		sb.add("]");
+    		return sb.toString();
+    	} else {
+    		return "Array(" + region + ")";
+    	}
+    }
 
     /**
      * Return an iterator over the points in the region of this array.
