@@ -4,6 +4,7 @@ import clocked.Clocked;
 public class Pipeline {
 
    val N = 64;
+   val REPEAT = 64;
    public def pipeline() {
    		finish {
   		val c = Clock.make(); 
@@ -13,7 +14,7 @@ public class Pipeline {
 
  	   	 async clocked(c)  {
                         var i: int;
-                        for (i = 0; i < 2*N; i++)  {
+                        for (i = 0; i < REPEAT*N; i++)  {
                                 a(0) = i;
                                 next;  /*write phase over */
                         }
@@ -23,14 +24,14 @@ public class Pipeline {
 		val jj = j;
         	async clocked (c) {
                         var i: int;
-                        for (i = 0; i < 2*N; i++)  {
+                        for (i = 0; i < REPEAT*N; i++)  {
                                 a(jj) = a(jj-1) + 1;
                                 next; /*write phase over */
                         }
                 }
 		}
       		var i: int;
-      		for (i = 0; i < 2*N + 1; i++)  {
+      		for (i = 0; i < REPEAT*N + 1; i++)  {
                         val o = a(N-1) + 1;
                         Console.OUT.println(o);
                         next; /*write phase over */

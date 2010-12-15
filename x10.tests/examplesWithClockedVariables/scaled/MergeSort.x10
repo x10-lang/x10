@@ -12,7 +12,7 @@ public class MergeSort{
 
 	static val op = Math.noOp.(Int, Int);
 
-    static val N: int = 128;
+    static val N: int = 512;
     public static def main(args:Rail[String]!){
     	val start_time = System.currentTimeMillis(); 
 

@@ -3,7 +3,7 @@ import x10.util.Random;
 
 public class KMeansScalarOrig {
     
-    static val DIM=2,  K=4, POINTS=2000, ITERATIONS=50;
+    static val DIM=2,  K=4, POINTS=1048576, ITERATIONS=50, THREADS=64;
   
    static def  add (r1: Rail[int]!, r2: Rail[int]!): Rail[int] {
        var r3 : Rail[int]! = Rail.make[int](DIM);
@@ -46,12 +46,13 @@ public class KMeansScalarOrig {
             bC = tmp;
             val redCluster = rC;
             val blackCluster = bC;
-            for ((p) in 0..POINTS-1) { 
+	   val slice = POINTS/THREADS;
+            for ((p) in 0..THREADS-1) { 
                async (this) clocked(c) { 
+		  for ((l) in ((p*slice)..((p+1)*slice -1))) {
+                   val point = points(l);
                   var closest:Int = -1;
-               
                    var closestDist:Double = Double.MAX_VALUE;
-                   val point = points(p);
                    for ((k) in 0..K-1) { // compute closest mean in cluster.
                        val distance =this.dist(point, redCluster(k));
                        if (distance < closestDist) {
@@ -62,6 +63,7 @@ public class KMeansScalarOrig {
                         
                        atomic blackCluster(closest) += point;
                        atomic count(closest) += 1;
+		  } // l 
                  } // end async
                } // end for 
             next;  // Main activity waits for all the activities to finish

@@ -4,6 +4,7 @@
 public class PipelineOrig {
 
    val N = 64;
+   val REPEAT = 64;
    public def pipeline() {
   		val c = Clock.make(); 
    		val op = Int.+;
@@ -11,7 +12,7 @@ public class PipelineOrig {
    		val b = Rail.make[int] (N, (Int)=> 0);
  	    	async clocked(c)  {
                         var i: int;
-                        for (i = 0; i < 2*N; i++)  {
+                        for (i = 0; i < REPEAT*N; i++)  {
                                 b(0) = i;
                                 next;  /*write phase over */
                                 next; /*read phase over */
@@ -22,7 +23,7 @@ public class PipelineOrig {
 		val jj = j; 
                 async clocked (c) {
                         var i: int;
-                        for (i = 0; i < 2*N; i++)  {
+                        for (i = 0; i < REPEAT*N; i++)  {
                                 next; /*write phase over */                   
                                 val tmp  = b(jj - 1) + 1;
                                 next;
@@ -32,7 +33,7 @@ public class PipelineOrig {
 		}
                 var i: int;
               
-                for (i = 0; i < 2*N; i++)  {
+                for (i = 0; i < REPEAT*N; i++)  {
                         next; /*write phase over */
                         val o = b(N-1) + 1;
                         Console.OUT.println(o);
