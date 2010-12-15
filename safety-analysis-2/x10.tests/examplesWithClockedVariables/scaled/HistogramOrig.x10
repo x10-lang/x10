@@ -7,7 +7,8 @@ public class HistogramOrig {
     public static def main(args:Rail[String]!) {
     	val start_time = System.currentTimeMillis(); 
 	val N = 64;
-	val S = 10000;
+	val S = 100000;
+	val REPEAT = 6000;
 	val B = 10;
 
 	val a = Rail.make[Int](N * S, (i:Int)=> i);
@@ -19,6 +20,8 @@ public class HistogramOrig {
 			val ii = i;
 			async {
 			var j: int = 0;
+			var k: int = 0;
+			for (k = 0; k < REPEAT; k++)
 			for (j = ii * S; j < (ii + 1) * S; j++) { 
 	       			val bin = a(j) % S;
 				if (bin < B)

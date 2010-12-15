@@ -9,7 +9,7 @@ public class MontyPiParallelOrig {
     val start_time = System.currentTimeMillis(); 
 
     val P = 64;
-   val N = 1000000; 
+   val N = 10000000; 
  
     val op = Double.+;
     val result = Rail.make[Double](1, (int)=>0.0D);

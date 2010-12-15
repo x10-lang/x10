@@ -9,7 +9,7 @@ public class MontyPiParallel {
     val start_time = System.currentTimeMillis(); 
 
     val P = 64;
-    val N = 1000000; 
+    val N = 10000000; 
     val c = Clock.make();
     val op = Double.+;
     shared var result: double @ Clocked[Double](c, op, 0.0) = 0.0;

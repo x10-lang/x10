@@ -14,8 +14,8 @@ fi
 
 echo "Sno. Application Original(ms) Determinized(ms) Speed-up"
 rm out.txt
-COUNT=10
-WORKERS=64
+COUNT=1
+WORKERS=4
 for ((i = 0; i < ${#example[@]}; i++))
 do
 	DIFF1=0

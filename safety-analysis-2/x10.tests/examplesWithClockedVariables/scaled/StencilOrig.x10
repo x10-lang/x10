@@ -16,7 +16,7 @@
  * //done
  */
 public class StencilOrig {
-    const epsilon  = 1E-1D;
+    const epsilon  = 1E-2D;
     val N: int, P: int;
     var iters: int;
     var delta: double = epsilon+1;
@@ -65,7 +65,7 @@ public class StencilOrig {
 
     public static def main(args: Rail[String]!) {
     	val start_time = System.currentTimeMillis(); 
-       var n: int = args.length > 0 ? Int.parse(args(0)) : 10;
+       var n: int = args.length > 0 ? Int.parse(args(0)) : 64;
        var p: int = args.length > 1 ? Int.parse(args(1)) : 64;
        // x10.io.Console.OUT.println("Starting: N=" + n + " P=" + p);
         var time: Long = -System.nanoTime();

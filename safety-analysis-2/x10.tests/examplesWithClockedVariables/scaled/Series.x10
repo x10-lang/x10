@@ -37,7 +37,7 @@ class SeriesTest {
 
 		testArray(0, 0) = TrapezoidIntegrate(0.0D, // Lower bound.
 				2.0,            // Upper bound.
-				100000,                    // # of steps.
+				3000000,                    // # of steps.
 				0.0,            // No omega*n needed.
 				0) / 2.0;       // 0 = term A[0].
 
@@ -57,7 +57,7 @@ class SeriesTest {
 
 			testArray(0, i) = TrapezoidIntegrate(0.0,
 					2.0,
-					100000,
+					3000000,
 					omega * i,
 					1);                       // 1 = cosine term.
 
@@ -65,7 +65,7 @@ class SeriesTest {
 
 			testArray(1, i) = TrapezoidIntegrate(0.0,
 					2.0,
-					100000,
+					3000000,
 					omega * i,
 					2);                       // 2 = sine term.
 		}
