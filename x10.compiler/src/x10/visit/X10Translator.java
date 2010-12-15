@@ -13,6 +13,7 @@ package x10.visit;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -27,14 +28,19 @@ import polyglot.ast.NodeFactory;
 import polyglot.ast.SourceFile;
 import polyglot.ast.Stmt;
 import polyglot.ast.TopLevelDecl;
+import polyglot.frontend.Compiler;
 import polyglot.frontend.Job;
 import polyglot.frontend.TargetFactory;
+import polyglot.main.Report;
 import polyglot.types.Package;
 import polyglot.types.QName;
 import polyglot.types.TypeSystem;
 import polyglot.util.CodeWriter;
 import polyglot.util.ErrorInfo;
+import polyglot.util.ErrorQueue;
+import polyglot.util.QuotedStringTokenizer;
 import polyglot.visit.Translator;
+import x10.X10CompilerOptions;
 
 public class X10Translator extends Translator {
     public X10Translator(Job job, TypeSystem ts, NodeFactory nf, TargetFactory tf) {
@@ -70,60 +76,135 @@ public class X10Translator extends Translator {
 	
 	/** Override to not open a new file for each declaration. */
 	@Override
-	    protected boolean translateSource(SourceFile sfn) {
-	    	TypeSystem ts = typeSystem();
-	    	NodeFactory nf = nodeFactory();
-	    	TargetFactory tf = this.tf;
-	    	int outputWidth = job.compiler().outputWidth();
-	    	Collection<String> outputFiles = job.compiler().outputFiles();
-                CodeWriter w= null;
+	protected boolean translateSource(SourceFile sfn) {
+	    TypeSystem ts = typeSystem();
+	    NodeFactory nf = nodeFactory();
+	    TargetFactory tf = this.tf;
+	    int outputWidth = job.compiler().outputWidth();
+	    Collection<String> outputFiles = job.compiler().outputFiles();
+	    CodeWriter w= null;
 
-	    	try {
-	    	    File of;
-	    	    
-	    	    QName pkg = null;
-	    	    
-	    	    if (sfn.package_() != null) {
-	    	        Package p = sfn.package_().package_().get();
-	    	        pkg = p.fullName();
-	    	    }
-	    	    
-	    	    // Use the source name to derive a default output file name.
-	    	    of = tf.outputFile(pkg, sfn.source());
-	    	    
-	    	    String opfPath = of.getPath();
-	    	    if (!opfPath.endsWith("$")) outputFiles.add(of.getPath());
-	    	    w = tf.outputCodeWriter(of, outputWidth);
-	    	    
-	    	    writeHeader(sfn, w);
-	    	    
-	    	    for (Iterator<TopLevelDecl> i = sfn.decls().iterator(); i.hasNext(); ) {
-	    	        TopLevelDecl decl = i.next();
+	    try {
+	        File of;
 
-	    	        translateTopLevelDecl(w, sfn, decl);
-	    	        
-	    	        if (i.hasNext()) {
-	    	            w.newline(0);
-	    	        }
-	    	    }
-	    	    
-	    	    w.flush();
-	    	    return true;
-	    	}
-	    	catch (IOException e) {
-	    	    job.compiler().errorQueue().enqueue(ErrorInfo.IO_ERROR,
-	    	            "I/O error while translating: " + e.getMessage());
-	    	    return false;
-	    	} finally {
-	    	    if (w != null) {
-	    	        try {
-                        w.close();
-                    } catch (IOException e) {
-                        job.compiler().errorQueue().enqueue(ErrorInfo.IO_ERROR,
-                                "I/O error while closing output file: " + e.getMessage());
-                    }
-	    	    }
-	    	}
+	        QName pkg = null;
+
+	        if (sfn.package_() != null) {
+	            Package p = sfn.package_().package_().get();
+	            pkg = p.fullName();
+	        }
+
+	        // Use the source name to derive a default output file name.
+	        of = tf.outputFile(pkg, sfn.source());
+
+	        String opfPath = of.getPath();
+	        if (!opfPath.endsWith("$")) outputFiles.add(of.getPath());
+	        w = tf.outputCodeWriter(of, outputWidth);
+
+	        writeHeader(sfn, w);
+
+	        for (Iterator<TopLevelDecl> i = sfn.decls().iterator(); i.hasNext(); ) {
+	            TopLevelDecl decl = i.next();
+
+	            translateTopLevelDecl(w, sfn, decl);
+
+	            if (i.hasNext()) {
+	                w.newline(0);
+	            }
+	        }
+
+	        w.flush();
+	        return true;
 	    }
+	    catch (IOException e) {
+	        job.compiler().errorQueue().enqueue(ErrorInfo.IO_ERROR,
+	                "I/O error while translating: " + e.getMessage());
+	        return false;
+	    } finally {
+	        if (w != null) {
+	            try {
+	                w.close();
+	            } catch (IOException e) {
+	                job.compiler().errorQueue().enqueue(ErrorInfo.IO_ERROR,
+	                        "I/O error while closing output file: " + e.getMessage());
+	            }
+	        }
+	    }
+	}
 
+    public static final String postcompile = "postcompile";
+
+    public static boolean postCompile(X10CompilerOptions options, Compiler compiler, ErrorQueue eq) {
+        if (eq.hasErrors())
+            return false;
+
+        if (options.post_compiler != null && !options.output_stdout) {
+            Runtime runtime = Runtime.getRuntime();
+            QuotedStringTokenizer st = new QuotedStringTokenizer(options.post_compiler, '?');
+            int pc_size = st.countTokens();
+            String[] javacCmd = new String[pc_size+2+compiler.outputFiles().size()];
+            int j = 0;
+            for (int i = 0; i < pc_size; i++) {
+                javacCmd[j++] = st.nextToken();
+            }
+            javacCmd[j++] = "-classpath";
+            javacCmd[j++] = options.constructPostCompilerClasspath();
+
+            Iterator<String> iter = compiler.outputFiles().iterator();
+            for (; iter.hasNext(); j++) {
+                javacCmd[j] = (String) iter.next();
+            }
+
+            if (Report.should_report(postcompile, 1)) {
+                StringBuffer cmdStr = new StringBuffer();
+                for (int i = 0; i < javacCmd.length; i++)
+                    cmdStr.append(javacCmd[i]+" ");
+                Report.report(1, "Executing post-compiler " + cmdStr);
+            }
+
+            try {
+                Process proc = runtime.exec(javacCmd);
+
+                InputStreamReader err = new InputStreamReader(proc.getErrorStream());
+
+                try {
+                    char[] c = new char[72];
+                    int len;
+                    StringBuffer sb = new StringBuffer();
+                    while((len = err.read(c)) > 0) {
+                        sb.append(String.valueOf(c, 0, len));
+                    }
+
+                    if (sb.length() != 0) {
+                        eq.enqueue(ErrorInfo.POST_COMPILER_ERROR, sb.toString());
+                    }
+                }
+                finally {
+                    err.close();
+                }
+
+                proc.waitFor();
+
+                if (!options.keep_output_files) {
+                    String[] rmCmd = new String[1+compiler.outputFiles().size()];
+                    rmCmd[0] = "rm";
+                    iter = compiler.outputFiles().iterator();
+                    for (int i = 1; iter.hasNext(); i++)
+                        rmCmd[i] = (String) iter.next();
+                    runtime.exec(rmCmd);
+                }
+
+                if (proc.exitValue() > 0) {
+                    eq.enqueue(ErrorInfo.POST_COMPILER_ERROR,
+                            "Non-zero return code: " + proc.exitValue());
+                    return false;
+                }
+            }
+            catch(Exception e) {
+                eq.enqueue(ErrorInfo.POST_COMPILER_ERROR, e.getMessage());
+                return false;
+            }
+        }
+        return true;
+    }
 }

@@ -15,11 +15,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 import polyglot.ast.NodeFactory;
+import polyglot.frontend.Compiler;
 import polyglot.frontend.Goal;
 import polyglot.frontend.Job;
 import polyglot.frontend.Scheduler;
 import polyglot.frontend.SourceGoal_c;
+import polyglot.main.Options;
 import polyglot.types.TypeSystem;
+import polyglot.util.ErrorQueue;
+import polyglot.visit.PostCompiled;
+import x10.X10CompilerOptions;
+import x10.visit.X10Translator;
 import x10c.ast.X10CNodeFactory_c;
 import x10c.types.X10CTypeSystem_c;
 import x10c.visit.AsyncInitializer;
@@ -83,19 +89,30 @@ public class ExtensionInfo extends x10.ExtensionInfo {
             }
             return goals;
         }
-        
+
         protected Goal codegenPrereq(Job job) {
             if (PREPARE_FOR_INLINING) {
                 return InlineHelped(job);
             }
             return AsyncInitializer(job);
         }
-        
+
         @Override
         public Goal Desugarer(Job job) {
             TypeSystem ts = extInfo.typeSystem();
             NodeFactory nf = extInfo.nodeFactory();
             return new ValidatingVisitorGoal("Desugarer", job, new Desugarer(job, ts, nf)).intern(this);
+        }
+
+        @Override
+        protected Goal PostCompiled() {
+            return new PostCompiled(extInfo) {
+                protected boolean invokePostCompiler(Options options, Compiler compiler, ErrorQueue eq) {
+                    if (System.getProperty("x10.postcompile", "TRUE").equals("FALSE"))
+                        return true;
+                    return X10Translator.postCompile((X10CompilerOptions)options, compiler, eq);
+                }
+            }.intern(this);
         }
 
         public Goal JavaCodeGenStart(Job job) {
