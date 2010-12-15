@@ -117,11 +117,24 @@ public class InitDispatcher {
             }
         };
 
-        for (int place = 1; place < x10.lang.Place.getInitialized$MAX_PLACES(); place++) {
+        for (int place = 1; place < Runtime.MAX_PLACES; place++) {
             // call x10rt API to invoke the closure at specified place
             Runtime.runClosureAt(place, body);
         }
+    }
 
+    public static PlaceLocalHandle<Object> broadcastStaticFieldSingleVM(Object fieldValue, int fieldId) {
+        // System.out.println("@SingleVM: broadcastStaticField(id="+fieldId+"):"+fieldValue);
+
+        // create PlaceLocalHandle with the copies of fieldValue
+        PlaceLocalHandle<Object> plh = new PlaceLocalHandle<Object>(x10.rtt.Types.OBJECT);
+        plh.set_0_$$x10$lang$PlaceLocalHandle_T(0, fieldValue);
+        for (int place = 1; place < Runtime.MAX_PLACES; place++) {
+            Object copy = Runtime.deepCopy(fieldValue);
+            // System.out.println("set plh.object["+place+"]="+copy);
+            plh.set_0_$$x10$lang$PlaceLocalHandle_T(place, copy);
+        }
+        return plh;
     }
 
     private static java.io.ByteArrayOutputStream serialize(Object object) {

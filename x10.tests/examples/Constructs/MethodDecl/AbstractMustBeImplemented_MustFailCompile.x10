@@ -14,7 +14,7 @@ import harness.x10Test;
 /**
  * @author vj  9/2006
  */
-public class AbstractMustBeImplemented_MustFailCompile extends x10Test { // ERR: AbstractMustBeImplemented_MustFailCompile should be declared abstract; it does not define m(): x10.lang.Void, which is declared in AbstractMustBeImplemented_MustFailCompile
+public class AbstractMustBeImplemented_MustFailCompile extends x10Test { // ERR: AbstractMustBeImplemented_MustFailCompile should be declared abstract; it does not define m(): void, which is declared in AbstractMustBeImplemented_MustFailCompile
 
     class X {
         def m(): void; // ERR: Missing method body.

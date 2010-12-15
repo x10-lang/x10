@@ -21,6 +21,7 @@ import polyglot.ast.MethodDecl;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.frontend.Job;
+import polyglot.main.Report;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.ConstructorDef;
@@ -68,10 +69,18 @@ import x10.visit.X10PrettyPrinterVisitor;
  */
 public class WSCodeGenerator extends ContextVisitor {
     public static final int debugLevel = 5; //0: no; 3: little; 5: median; 7: heave; 9: verbose
+	public static final String WS_TOPIC = "workstealing";
+	public static final void wsReport(int level, String message){
+		if(Report.should_report(WS_TOPIC, level)){
+			Report.report(level, message);
+		}
+	}
     
     // Single static WSTransformState shared by all visitors (FIXME)
     public static WSTransformState wts; 
-
+    // Single static walaResult to store the analysis result from WALA (FIXME)
+    protected static List<String> walaResult;
+    
     private final HashSet<X10MethodDecl> genMethodDecls;
     private final HashSet<X10ClassDecl> genClassDecls;
 
@@ -86,8 +95,14 @@ public class WSCodeGenerator extends ContextVisitor {
         genClassDecls = new HashSet<X10ClassDecl>();
     }
 
+    public static void setWALAResult(List<String> result){
+    	wsReport(5, "wala result is set to WSCodeGenerator");
+    	walaResult = result; //If wala is turned on, the method is called before buildCallGraph()
+    }
+    
     public static void buildCallGraph(TypeSystem xts, NodeFactory xnf, String theLanguage) {
-        wts = new WSTransformState(xts, xnf, theLanguage);
+    	wsReport(5, "BuildGraphGraph...");
+    	wts = new WSTransformState(xts, xnf, theLanguage, walaResult);
     }
 
     /** 

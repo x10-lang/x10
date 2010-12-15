@@ -9,35 +9,35 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-package x10.core.atomic;
+package x10.core.concurrent;
 
 import x10.core.RefI;
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
 
-public final class AtomicInteger extends java.util.concurrent.atomic.AtomicInteger implements RefI {
+public final class AtomicLong extends java.util.concurrent.atomic.AtomicLong implements RefI {
 
-    public AtomicInteger() {
+    public AtomicLong() {
         super();
     }
     
-    public AtomicInteger(int initialValue) {
+    public AtomicLong(long initialValue) {
         super(initialValue);
     }
     
     //
     // Runtime type information
     //
-    public static final RuntimeType<AtomicInteger> _RTT = new RuntimeType<AtomicInteger>(
-        AtomicInteger.class,
+    public static final RuntimeType<AtomicLong> _RTT = new RuntimeType<AtomicLong>(
+        AtomicLong.class,
         new x10.rtt.Type[] { x10.rtt.Types.OBJECT }
     ) {
         @Override
         public String typeName() {
-            return "x10.util.concurrent.AtomicInteger";
+            return "x10.util.concurrent.AtomicLong";
         }
     };
-    public RuntimeType<AtomicInteger> getRTT() {return _RTT;}
+    public RuntimeType<AtomicLong> getRTT() {return _RTT;}
     public Type<?> getParam(int i) {
         return null;
     }

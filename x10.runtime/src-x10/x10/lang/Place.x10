@@ -129,7 +129,7 @@ public final struct Place(id: Int)  {
         return childIndex(id);
     }
 
-    public def toString() = "(Place " + this.id + ")";
+    public def toString() = "Place(" + this.id + ")";
     public def equals(p:Place) = p.id==this.id;
     public def equals(p:Any) = p instanceof Place && (p as Place).id==this.id;
     public def hashCode()=id;

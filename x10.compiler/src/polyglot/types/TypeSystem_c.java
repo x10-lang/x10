@@ -534,6 +534,10 @@ public abstract class TypeSystem_c implements TypeSystem
 	return t.isLongOrLess() || t.isFloat() || t.isDouble();
     }
 
+    public boolean isUnsignedNumeric(Type t) {
+        return false; // No such thing in Java type system
+    }
+
     public boolean isIntOrLess(Type t) {
 	return t.isByte() || t.isShort() || t.isChar() || t.isInt();
     }
@@ -1423,7 +1427,7 @@ public abstract class TypeSystem_c implements TypeSystem
 	return env(context).implemented(mi);
     }
 
-    protected List<MethodInstance> implemented(MethodInstance mi, StructType st, Context context) {
+    public List<MethodInstance> implemented(MethodInstance mi, StructType st, Context context) {
 	return env(context).implemented(mi, st);
     }
 
@@ -1537,8 +1541,9 @@ public abstract class TypeSystem_c implements TypeSystem
 	return new PrimitiveType_c(this, name);
     }
 
+    public static final Name voidName = Name.make("void");
     protected final NullType NULL_         = createNull();
-    protected final PrimitiveType VOID_    = createPrimitive(Name.make("void"));
+    protected final PrimitiveType VOID_    = createPrimitive(voidName);
     protected final PrimitiveType BOOLEAN_ = createPrimitive(Name.make("boolean"));
     protected final PrimitiveType CHAR_    = createPrimitive(Name.make("char"));
     protected final PrimitiveType BYTE_    = createPrimitive(Name.make("byte"));

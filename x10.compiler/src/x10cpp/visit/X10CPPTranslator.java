@@ -209,6 +209,7 @@ public class X10CPPTranslator extends Translator {
 		                    (parent instanceof ConstructorDecl) ? ((ConstructorDecl) parent).constructorDef()
 		                    : null
 		                : null;
+		            final int lastX10Line = parent.position().endLine();
 		            if (n instanceof Stmt) {
 		                final int adjustedStartLine = adjustSLNForNode(startLine, n);
 		                final int adjustedEndLine = adjustELNForNode(endLine, n);
@@ -220,7 +221,7 @@ public class X10CPPTranslator extends Translator {
 //		                        System.out.println("Adding line number entry: "+cppFile+":"+cppStartLine+"-"+cppEndLine+"->"+file+":"+line);
 		                        lineNumberMap.put(cppFile, cppStartLine, cppEndLine, file, line, column);
 		                        if (def != null) {
-		                            lineNumberMap.addMethodMapping(def, cppFile, cppStartLine, cppEndLine);
+		                            lineNumberMap.addMethodMapping(def, cppFile, cppStartLine, cppEndLine, lastX10Line);
 		                        }
 		                    }
 		                });
@@ -228,16 +229,16 @@ public class X10CPPTranslator extends Translator {
 		            if (n instanceof FieldDecl && !c.inTemplate()) // the c.inTemplate() skips mappings for templates, which don't have a fixed size.
 		            	lineNumberMap.addClassMemberVariable(((FieldDecl)n).name().toString(), ((FieldDecl)n).type().toString(), Emitter.mangled_non_method_name(context.currentClass().toString()));
 		            else if (n instanceof LocalDecl && !((LocalDecl)n).position().isCompilerGenerated())
-		            	lineNumberMap.addLocalVariableMapping(((LocalDecl)n).name().toString(), ((LocalDecl)n).type().toString(), line, parent.position().endLine(), file, false);
+		            	lineNumberMap.addLocalVariableMapping(((LocalDecl)n).name().toString(), ((LocalDecl)n).type().toString(), line, lastX10Line, file, false);
 		            else if (def != null)
 		            {
 		            	// include method arguments in the local variable tables
 		            	List<Formal> args = ((ProcedureDecl)parent).formals();
 		            	for (int i=0; i<args.size(); i++)
-		            		lineNumberMap.addLocalVariableMapping(args.get(i).name().toString(), args.get(i).type().toString(), line, parent.position().endLine(), file, false);
+		            		lineNumberMap.addLocalVariableMapping(args.get(i).name().toString(), args.get(i).type().toString(), line, lastX10Line, file, false);
 		            	// include "this" for non-static methods		            	
 		            	if (!def.flags().isStatic() && ((ProcedureDecl)parent).reachable())
-		            		lineNumberMap.addLocalVariableMapping("this", Emitter.mangled_non_method_name(context.currentClass().toString()), line, parent.position().endLine(), file, true);
+		            		lineNumberMap.addLocalVariableMapping("this", Emitter.mangled_non_method_name(context.currentClass().toString()), line, lastX10Line, file, true);
 		            }
 		        }
 		    }
@@ -462,8 +463,6 @@ public class X10CPPTranslator extends Translator {
 
 	public static final String postcompile = "postcompile";
 
-	public static final String MAIN_STUB_NAME = "xxx_main_xxx";
-
 	/**
 	 * The post-compiler option has the following structure:
 	 * "[pre-command with options (usually g++)] [(#|%) [post-options (usually extra files)] [(#|%) [library options]]]".
@@ -478,7 +477,7 @@ public class X10CPPTranslator extends Translator {
 			Set<String> compilationUnits = new HashSet<String>(options.compilationUnits());
 
 			try {
-			    final File file = outputFile(options, null, MAIN_STUB_NAME, "cc");
+			    final File file = outputFile(options, null, Configuration.MAIN_STUB_NAME, "cc");
 			    ExtensionInfo ext = compiler.sourceExtension();
 			    SimpleCodeWriter sw = new SimpleCodeWriter(ext.targetFactory().outputWriter(file),
 			            compiler.outputWidth());

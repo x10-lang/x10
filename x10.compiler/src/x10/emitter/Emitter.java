@@ -3047,11 +3047,11 @@ public class Emitter {
                 components[i++] = new TypeExpander(this, x10Type, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
                 for (final Type at : typeArgs) {
                     components[i++] = new TypeExpander(this, at, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
-                    if (at.typeEquals(def.asType(), tr.context())) {
+                    if (X10TypeMixin.baseType(at).typeEquals(def.asType(), tr.context())) {
                         components[i++] = "new x10.rtt.UnresolvedType(-1)";
                     }
-                    else if (at instanceof ParameterType) {
-                        components[i++] = "new x10.rtt.UnresolvedType(" + getIndex(def.typeParameters(), (ParameterType) at) + ")";
+                    else if (X10TypeMixin.baseType(at) instanceof ParameterType) {
+                        components[i++] = "new x10.rtt.UnresolvedType(" + getIndex(def.typeParameters(), (ParameterType) X10TypeMixin.baseType(at)) + ")";
                     } else {
                         components[i++] = new Expander(this) {
                             public void expand(Translator tr) {

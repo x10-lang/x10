@@ -56,6 +56,9 @@ namespace x10 {
                 this->FMGL(content_length) = content_length;
                 return this;
             }
+            static x10aux::ref<String> _make() {
+                return Lit("");
+            }
             static x10aux::ref<String> _make(x10aux::ref<String> s);
             static x10aux::ref<String> _make(x10aux::ref<Rail<x10_char> > rail,
                                              x10_int start, x10_int length);

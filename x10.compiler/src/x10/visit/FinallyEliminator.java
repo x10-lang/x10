@@ -34,6 +34,7 @@ import polyglot.ast.NodeFactory;
 import polyglot.ast.Return;
 import polyglot.ast.Stmt;
 import polyglot.ast.StringLit;
+import polyglot.ast.Switch;
 import polyglot.ast.Try;
 import polyglot.ast.TypeNode;
 import polyglot.frontend.Job;
@@ -326,7 +327,7 @@ public class FinallyEliminator extends ContextVisitor {
                 String label = name.toString();
                 tvs.ignoreLabels.add(label);
             }
-            if (n instanceof Loop) {
+            if (n instanceof Loop || n instanceof Switch) {
                 tvs.loopNesting++;
             }
             return super.enterCall(n);
@@ -395,7 +396,7 @@ public class FinallyEliminator extends ContextVisitor {
                     }
                 }
             }
-            if (n instanceof Loop) {
+            if (n instanceof Loop || n instanceof Switch) {
                 tvs.loopNesting++;
             }
             return super.leaveCall(n);

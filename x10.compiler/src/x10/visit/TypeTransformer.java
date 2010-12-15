@@ -13,7 +13,9 @@ package x10.visit;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import polyglot.ast.Call;
 import polyglot.ast.Expr;
@@ -23,7 +25,9 @@ import polyglot.ast.Formal;
 import polyglot.ast.Local;
 import polyglot.ast.LocalDecl;
 import polyglot.ast.New;
+import polyglot.ast.Node;
 import polyglot.ast.Special;
+import polyglot.ast.Term;
 import polyglot.ast.TypeNode;
 import polyglot.types.LocalDef;
 import polyglot.types.Ref;
@@ -38,6 +42,7 @@ import x10.ast.SettableAssign;
 import x10.ast.TypeParamNode;
 import x10.ast.X10ConstructorCall;
 import x10.ast.X10Formal;
+import x10.extension.X10Ext_c;
 import x10.types.ClosureDef;
 import x10.types.ParameterType;
 import x10.types.X10ConstructorInstance;
@@ -46,6 +51,7 @@ import x10.types.X10LocalDef;
 import x10.types.X10LocalInstance;
 import x10.types.X10MethodInstance;
 import polyglot.types.TypeSystem;
+import polyglot.visit.ContextVisitor;
 
 /**
  * A {@link NodeTransformer} that transforms the types stored
@@ -93,6 +99,24 @@ public class TypeTransformer extends NodeTransformer {
             }
         }
         return res;
+    }
+
+    @Override
+    public Node transform(Node n, Node old, ContextVisitor v) {
+        n = super.transform(n, old, v);
+        if (n instanceof Term) {
+            X10Ext_c ext = (X10Ext_c) n.ext();
+            Set<LocalDef> initVals = ext.initVals;
+            if (initVals != null) {
+                ext = (X10Ext_c) ext.copy();
+                ext.initVals = new HashSet<LocalDef>();
+                for (LocalDef ld : initVals) {
+                    ext.initVals.add(getLocal((X10LocalDef) ld));
+                }
+                n = n.ext(ext);
+            }
+        }
+        return n;
     }
 
     @Override
@@ -279,6 +303,7 @@ public class TypeTransformer extends NodeTransformer {
             X10LocalDef ld = (X10LocalDef) d.localDef();
             TypeSystem xts = (TypeSystem) visitor().typeSystem();
             X10LocalDef ild = xts.localDef(ld.position(), ld.flags(), d.type().typeRef(), ld.name());
+            if (ld.isAsyncInit()) ild.setAsyncInit(); // FIXME: we should really be using copy()
             mapLocal(ld, ild);
             return d.localDef(ild);
         }
@@ -292,6 +317,7 @@ public class TypeTransformer extends NodeTransformer {
             X10LocalDef ld = f.localDef();
             TypeSystem xts = (TypeSystem) visitor().typeSystem();
             X10LocalDef ild = xts.localDef(ld.position(), ld.flags(), f.type().typeRef(), ld.name());
+            if (ld.isAsyncInit()) ild.setAsyncInit(); // FIXME: we should really be using copy()
             mapLocal(ld, ild);
             return f.localDef(ild);
         }

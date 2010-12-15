@@ -15,7 +15,7 @@ import x10.compiler.Native;
 import x10.compiler.NativeRep;
 import x10.compiler.Volatile;
 
-@NativeRep("java", "x10.core.atomic.AtomicInteger", null, "x10.core.atomic.AtomicInteger._RTT")
+@NativeRep("java", "x10.core.concurrent.AtomicInteger", null, "x10.core.concurrent.AtomicInteger._RTT")
 public final class AtomicInteger {
 
     private @Volatile var value:int;

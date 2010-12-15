@@ -9,11 +9,11 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-package x10.compiler;
+package x10.compiler.tests;
 
 import x10.lang.annotations.*;
 
 /**
- * @ShouldBeErr marks that a compiler should report an error on that line.
+ * @ERR marks a compiler error on the line where the @ERR marker is written.
  */
-public interface ShouldBeErr extends MethodAnnotation, ClassAnnotation, FieldAnnotation, ImportAnnotation, PackageAnnotation, TypeAnnotation, ExpressionAnnotation, StatementAnnotation { }
+public interface ERR extends MethodAnnotation, ClassAnnotation, FieldAnnotation, ImportAnnotation, PackageAnnotation, TypeAnnotation, ExpressionAnnotation, StatementAnnotation { }

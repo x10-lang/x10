@@ -62,7 +62,6 @@ struct _X10sourceFile
 struct _X10toCPPxref
 {
     uint16_t _X10index;       // Index of X10 file name in _X10sourceList
-    uint16_t _X10method;      // Index into _X10methodNameList of the X10 method (see Method Mapping)
     uint32_t _CPPindex;       // Index of C++ file name in _X10strings
     uint32_t _X10line;        // Line number of X10 source file line
     uint32_t _CPPfromLine;    // First line number of C++ line range
@@ -72,7 +71,6 @@ struct _X10toCPPxref
 struct _CPPtoX10xref
 {
     uint16_t _X10index;       // Index of X10 file name in _X10sourceList
-    uint16_t _X10method;      // Index into _X10methodNameList of the X10 method (see Method Mapping)
     uint32_t _CPPindex;       // Index of C++ file name in _X10strings
     uint32_t _X10line;        // Line number of X10 line
     uint32_t _CPPfromLine;    // First line number of C++ line range
@@ -90,6 +88,7 @@ struct _X10methodName
                                  // of the corresponding argument in _X10strings
     uint16_t _x10argCount;       // The number of X10 arguments
     uint16_t _lineIndex;         // Index into _CPPtoX10xrefList of the first line of the method
+    uint16_t _lastX10Line;       // The last line number of the method, in the original X10 source
 };
 
 struct _X10LocalVarMap

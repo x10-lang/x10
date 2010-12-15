@@ -25,7 +25,7 @@ public class ClosureReturnType1_MustFailCompile extends ClosureTest {
 
     public def run(): boolean = {
         val f = ():void => {foo();
-            1}; // ERR ShouldNotBeERR (Cannot return a value from closure ()null => x10.lang.Void.)
+            1}; // ERR ShouldNotBeERR (Cannot return a value from closure ()null => void.)
         return true;
     }
 

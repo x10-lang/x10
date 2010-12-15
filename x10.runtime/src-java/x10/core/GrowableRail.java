@@ -27,13 +27,15 @@ public final class GrowableRail<T> extends Ref implements x10.lang.Indexable<Int
 
     public java.lang.String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("[");
-        for (int i = 0; i < length; i++) {
+        sb.append("GrowableRail(");
+        int sz = Math.min(length, 10);
+        for (int i = 0; i < sz; i++) {
             if (i > 0)
-                sb.append(", ");
+                sb.append(",");
             sb.append(apply$G(i));
         }
-        sb.append("]");
+        if (sz < length) sb.append("...(omitted " + (length - sz) + " elements)");
+        sb.append(")");
         return sb.toString();
     }
 

@@ -10,6 +10,8 @@
  */
 
 import harness.x10Test;
+import x10.compiler.*; // @Uncounted @NonEscaping @NoThisAccess
+import x10.compiler.tests.*; // err markers
 
 /**
  * Checks for improper optimization of val fields
@@ -20,7 +22,7 @@ class XTENLANG_2190_MustFailCompile extends x10Test {
     val b:int = 2;
 
     def this() {}
-    def this(x:int) { a = b = x; }
+    @ERR @ERR def this(x:int) { a = b = x; } // Final field 'b' might already have been initialized. Final field 'a' might already have been initialized.
 
     public def run(): boolean {
       chk(a == 10);

@@ -114,6 +114,10 @@ public class Binary_c extends Expr_c implements Binary
 	    return null;
 	}
 
+	    if (type.isUnsignedNumeric()) {
+	        return null;
+	    }
+	
         Object lv = left.constantValue();
         Object rv = right.constantValue();
 

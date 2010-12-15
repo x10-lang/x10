@@ -336,7 +336,7 @@ void x10rt_net_init (int * argc, char ***argv, x10rt_msg_type *counter)
 	char* NPROCS = getenv(X10_NPLACES);
 	if (NPROCS == NULL)
 	{
-		fprintf(stderr, "%s not set.  Assuming 1 place, running locally\n", X10_NPLACES);
+//		fprintf(stderr, "%s not set.  Assuming 1 place, running locally\n", X10_NPLACES);
 		state.numPlaces = 1;
 	}
 	else

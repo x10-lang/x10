@@ -253,7 +253,7 @@ class X10IdentityMapper {
         sTypeTranslationMap.put("x10.lang.Int", "int");
         sTypeTranslationMap.put("x10.lang.Long", "long");
         sTypeTranslationMap.put("x10.lang.Short", "short");
-        sTypeTranslationMap.put("x10.lang.Void", "void");
+        sTypeTranslationMap.put("void", "void");
     }
 
     public static String getJavaPrimitiveTypeFor(String x10PrimitiveName) {

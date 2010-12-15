@@ -74,7 +74,7 @@ public final class GlobalRef<T> extends x10.core.Struct {
     }
 
     final public java.lang.String toString() {
-        return "struct x10.core.GlobalRef:" + " home=" + this.home + " id=" + this.id;
+        return "GlobalRef(" + this.home + "," + this.id + ")";
     }
 
     final public int hashCode() {

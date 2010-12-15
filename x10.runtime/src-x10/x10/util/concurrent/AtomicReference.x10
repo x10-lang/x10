@@ -14,7 +14,7 @@ package x10.util.concurrent;
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
-@NativeRep("java", "x10.core.atomic.AtomicReference<#1>", null, "new x10.rtt.ParameterizedType(x10.core.atomic.AtomicReference._RTT, #2)")
+@NativeRep("java", "x10.core.concurrent.AtomicReference<#1>", null, "new x10.rtt.ParameterizedType(x10.core.concurrent.AtomicReference._RTT, #2)")
 @NativeRep("c++", "x10aux::ref<x10::util::concurrent::AtomicReference<#1 > >", "x10::util::concurrent::AtomicReference<#1 >", null)
 public final class AtomicReference[T]{T<:Object} {
 	
@@ -23,12 +23,12 @@ public final class AtomicReference[T]{T<:Object} {
 	// public native def this(v:T):AtomicReference[T];
 	
 	// Hack around XTENLANG-127.  Delete as soon as it is fixed.
-	@Native("java", "new x10.core.atomic.AtomicReference<#1>(#3)")
+	@Native("java", "new x10.core.concurrent.AtomicReference<#1>(#3)")
 	@Native("c++", "x10::util::concurrent::AtomicReference<#1 >::_make()")
 	public static native def newAtomicReference[T]() {T<:Object} :AtomicReference[T];
 
 	// Hack around XTENLANG-127.  Delete as soon as it is fixed.
-	@Native("java", "new x10.core.atomic.AtomicReference<#1>(#3,#4)")
+	@Native("java", "new x10.core.concurrent.AtomicReference<#1>(#3,#4)")
 	@Native("c++", "x10::util::concurrent::AtomicReference<#1 >::_make(#4)")
 	public static  native def newAtomicReference[T](v:T) {T<:Object} :AtomicReference[T];
 

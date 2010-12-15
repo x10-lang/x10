@@ -83,7 +83,7 @@ public class WSTransformState {
 
     private final WSCallGraph callGraph;
 
-    public WSTransformState(TypeSystem xts, NodeFactory xnf, String theLanguage){
+    public WSTransformState(TypeSystem xts, NodeFactory xnf, String theLanguage, List<String> walaResult){
         if (theLanguage.equals("c++")) {
             frameType = xts.load("x10.compiler.ws.Frame");
             finishFrameType = xts.load("x10.compiler.ws.FinishFrame");
@@ -112,6 +112,10 @@ public class WSTransformState {
         uninitializedType = xts.load("x10.compiler.Uninitialized");
         
         callGraph = new WSCallGraph();
+        
+        if(walaResult != null){
+            callGraph.setWALAResult(walaResult);	
+        }
         
         //start to iterate the ast in jobs and build all;
         for(Job job : xts.extensionInfo().scheduler().jobs()){

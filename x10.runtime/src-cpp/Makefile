@@ -159,7 +159,7 @@ ALL_MANUAL_OBJECTS=$(ALL_XRCPP_OBJECTS)
 
 # This target will build the XRX cc files into object files
 gen/all-o-generated: gen/all-cpp-generated $(XRX_MANIFEST) 
-	$(MAKE) $(shell sed -e 's@^\(.*\)\.cc$$@gen/\1.o@' -e '/\.x10$$/d' -e '/\.jar$$/d' $(XRX_MANIFEST))
+	$(MAKE) CXX_NO_WARNINGS=1 $(shell sed -e 's@^\(.*\)\.cc$$@gen/\1.o@' -e '/\.x10$$/d' -e '/\.jar$$/d' $(XRX_MANIFEST)) 
 	touch $@
 
 ifdef X10_STATIC_LIB
@@ -236,9 +236,9 @@ install: $(XRCPP_ARCHIVE) $(XRX_ARCHIVE)
 # manually written code may #include some of the generated headers
 
 %.o: %.cc gen/all-cpp-generated 
-	$(CXX) $(CXXFLAGS) $(CXXFLAGS_SHARED) -c $< -o $@
+	$(CXX) $(CXXFLAGS) $(CXX_WARNING_FLAGS) $(CXXFLAGS_SHARED) -c $< -o $@
 %.o: %.cc %.h gen/all-cpp-generated 
-	$(CXX) $(CXXFLAGS) $(CXXFLAGS_SHARED) -c $< -o $@
+	$(CXX) $(CXXFLAGS)  $(CXX_WARNING_FLAGS) $(CXXFLAGS_SHARED) -c $< -o $@
 
 
 depend:
