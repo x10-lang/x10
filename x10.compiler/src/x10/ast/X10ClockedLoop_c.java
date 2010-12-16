@@ -21,7 +21,6 @@ import polyglot.ast.Formal;
 import polyglot.ast.Node;
 import polyglot.ast.Stmt;
 import polyglot.main.Report;
-import polyglot.types.Context;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
@@ -91,14 +90,6 @@ public abstract class X10ClockedLoop_c extends X10Loop_c implements Clocked {
 		return ((Clocked) reconstruct(formal, domain, body)).clocks(clocks);
 	}
 
-	public Context enterChildScope(Node child, Context c) {
-	    if (child == this.body) {
-	        return AtStmt_c.createDummyAsync(c,false); // only subclass is AtEach (so it is an at, not an async)
-	    }
-	    return c;
-	}
-
-	
 	public Node typeCheck(ContextVisitor tc) {
 		TypeSystem ts = (TypeSystem) tc.typeSystem();
 	        for (Expr clock : (List<Expr>) clocks) {

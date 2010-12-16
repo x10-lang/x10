@@ -111,7 +111,6 @@ import x10.visit.X10TypeBuilder;
  * @author vj
  */
 public class X10TypeSystem_c extends TypeSystem_c {
-	public static final String DUMMY_AT_ASYNC = "$dummyAsync"; // for async/at/ateach
 	public static final int EXPAND_MACROS_DEPTH=25;
 
     public X10TypeSystem_c() {
@@ -1093,11 +1092,10 @@ public class X10TypeSystem_c extends TypeSystem_c {
             List<Ref<? extends Type>> argTypes,  Ref<? extends Type> offerType)
     {
         ThisDef thisDef = ((X10ClassType) Types.get(container)).x10Def().thisDef();
-
+        assert (!name.toString().contains(AtDef.DUMMY_AT_ASYNC));
         // set up null thisVar for method def's, so the outer contexts are searched for thisVar.
         return methodDef(pos, container, flags, returnType, name, Collections.<ParameterType>emptyList(), argTypes,
-                name.toString().contains(DUMMY_AT_ASYNC) ? null : thisDef, dummyLocalDefs(argTypes), null, null,  offerType,
-                        null);
+                thisDef, dummyLocalDefs(argTypes), null, null, offerType, null);
     }
 
     public X10MethodDef methodDef(Position pos, Ref<? extends StructType> container,
@@ -1134,19 +1132,24 @@ public class X10TypeSystem_c extends TypeSystem_c {
         return X10TypeMixin.instantiate(futureType_, base);
     }
 
-    /**
-     * [IP] TODO: this should be a special CodeInstance instead
-     */
-    protected X10CodeDef asyncStaticCodeInstance_;
-    protected X10CodeDef asyncCodeInstance_;
-
-    public X10CodeDef asyncCodeInstance(boolean isStatic) {
-    	// Need to create a new one on each call. Portions of this methodDef, such as thisVar may be destructively modified later.
-                return methodDef(Position.COMPILER_GENERATED, Types.ref((StructType) Runtime()), isStatic ? Public().Static() : Public(),
-                		Types.ref(VOID_),
-                		Name.make(DUMMY_AT_ASYNC), Collections.<Ref<? extends Type>>emptyList());
+    // TODO: [IP] this should be a special CodeInstance instead
+    public AsyncDef asyncCodeInstance(Position pos, ThisDef thisDef,
+            List<ParameterType> typeParameters,
+            Ref<? extends CodeInstance<?>> methodContainer,
+            Ref<? extends ClassType> typeContainer, boolean isStatic) {
+        // Need to create a new one on each call. Portions of this asyncDef, such as thisVar may be destructively modified later.
+        return new AsyncDef_c(this, pos, thisDef, typeParameters, methodContainer, typeContainer, isStatic);
     }
 
+    // TODO: [IP] this should be a special CodeInstance instead
+    public AtDef atCodeInstance(Position pos, ThisDef thisDef,
+            List<ParameterType> typeParameters,
+            Ref<? extends CodeInstance<?>> methodContainer,
+            Ref<? extends ClassType> typeContainer, boolean isStatic) {
+        // Need to create a new one on each call. Portions of this atDef, such as thisVar may be destructively modified later.
+        return new AtDef_c(this, pos, thisDef, typeParameters, methodContainer, typeContainer, isStatic);
+    }
+    
     public ClosureDef closureDef(Position p, Ref<? extends ClassType> typeContainer, Ref<? extends CodeInstance<?>> methodContainer,
             Ref<? extends Type> returnType, List<Ref<? extends Type>> argTypes, ThisDef thisDef,
             List<LocalDef> formalNames, Ref<CConstraint> guard,

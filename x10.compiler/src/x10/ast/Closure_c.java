@@ -85,13 +85,13 @@ import x10.visit.X10TypeChecker;
  */
 public class Closure_c extends Expr_c implements Closure {
 	//  List<TypeParamNode> typeParameters;
-	List<Formal> formals;
-	TypeNode returnType;
-	Block body;
-	MethodInstance container;
-	ClosureDef closureDef;
-	ClassType typeContainer;
-	DepParameterExpr guard;
+	protected List<Formal> formals;
+	protected TypeNode returnType;
+	protected Block body;
+	protected MethodInstance container;
+	protected ClosureDef closureDef;
+	protected ClassType typeContainer;
+	protected DepParameterExpr guard;
 
 	private static final Collection<String> TOPICS = 
 		CollectionUtil.list(Report.types, Report.context);
@@ -100,8 +100,8 @@ public class Closure_c extends Expr_c implements Closure {
 		super(pos);
 	}
 
-	TypeNode hasType;
-	TypeNode offerType;
+	protected TypeNode hasType;
+	protected TypeNode offerType;
 	public Closure_c(NodeFactory nf, Position pos,  List<Formal> formals, 
 			TypeNode returnType, DepParameterExpr guard,  TypeNode offerType, Block body) {
 		super(pos);

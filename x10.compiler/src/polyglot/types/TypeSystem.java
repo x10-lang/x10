@@ -24,6 +24,8 @@ import x10.constraint.XLit;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
 import x10.types.AnnotatedType;
+import x10.types.AsyncDef;
+import x10.types.AtDef;
 import x10.types.ClosureDef;
 import x10.types.ClosureInstance;
 import x10.types.FunctionType;
@@ -942,7 +944,16 @@ public interface TypeSystem {
 
     XLit NULL();
 
-    CodeDef asyncCodeInstance(boolean isStatic);
+
+    AsyncDef asyncCodeInstance(Position pos, ThisDef thisDef,
+            List<ParameterType> typeParameters,
+            Ref<? extends CodeInstance<?>> methodContainer,
+            Ref<? extends ClassType> typeContainer, boolean isStatic);
+
+    AtDef atCodeInstance(Position pos, ThisDef thisDef,
+            List<ParameterType> typeParameters,
+            Ref<? extends CodeInstance<?>> methodContainer,
+            Ref<? extends ClassType> typeContainer, boolean isStatic);
 
     ThisDef thisDef(Position pos, Ref<? extends ClassType> type);
 

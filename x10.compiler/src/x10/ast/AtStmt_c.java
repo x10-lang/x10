@@ -11,25 +11,31 @@
 
 package x10.ast;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
+import java.util.Collections;
 import java.util.List;
 
-import polyglot.ast.Block;
-import polyglot.ast.CompoundStmt;
 import polyglot.ast.Expr;
 import polyglot.ast.Formal;
 import polyglot.ast.Node;
 import polyglot.ast.Stmt;
-import polyglot.ast.Term;
-import polyglot.ast.TypeNode;
 import polyglot.ast.Stmt_c;
+import polyglot.ast.Term;
 import polyglot.main.Report;
+import polyglot.types.ClassType;
+import polyglot.types.CodeDef;
+import polyglot.types.CodeInstance;
 import polyglot.types.Context;
+import polyglot.types.Def;
+import polyglot.types.FieldDef;
+import polyglot.types.Flags;
+import polyglot.types.LocalDef;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
+import polyglot.types.Types;
 import polyglot.util.CodeWriter;
 import polyglot.util.CollectionUtil;
 import polyglot.util.InternalCompilerError;
@@ -41,19 +47,20 @@ import polyglot.visit.FlowGraph;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
 import polyglot.visit.PruningVisitor;
+import polyglot.visit.TypeBuilder;
 import x10.constraint.XConstraint;
 import x10.constraint.XFailure;
-import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.errors.Errors;
+import x10.types.AtDef;
 import x10.types.ClosureDef;
 import x10.types.ParameterType;
-import x10.types.X10ProcedureDef;
-import polyglot.types.Context;
-import x10.types.X10MethodDef;
-import x10.types.X10TypeMixin;
-import polyglot.types.TypeSystem;
+import x10.types.ThisDef;
+import x10.types.X10ClassDef;
 import x10.types.X10Context_c;
+import x10.types.X10MemberDef;
+import x10.types.X10MethodDef;
+import x10.types.X10ProcedureDef;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.XConstrainedTerm;
@@ -69,8 +76,9 @@ import x10.types.constraints.XConstrainedTerm;
 
 public class AtStmt_c extends Stmt_c implements AtStmt {
 
-	public Expr place;
-	public Stmt body;
+	protected Expr place;
+	protected Stmt body;
+	protected AtDef atDef;
 
 	public AtStmt_c(Position pos, Expr place, Stmt body) {
 		super(pos);
@@ -78,12 +86,8 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
 		this.body = body;
 	}
 
-	public AtStmt_c(Position p) {
-		super(p);
-	}
-
-	/* (non-Javadoc)
-	 * @see x10.ast.Future#body()
+	/**
+	 * Get the body of the statement.
 	 */
 	public Stmt body() {
 		return body;
@@ -104,7 +108,7 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
 	}
 
 	/** Set the RemoteActivity's place. */
-	public RemoteActivityInvocation place(Expr place) {
+	public AtStmt place(Expr place) {
 		if (place != this.place) {
 			AtStmt_c n = (AtStmt_c) copy();
 			n.place = place;
@@ -112,6 +116,17 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
 		}
 
 		return this;
+	}
+
+	public AtDef atDef() {
+	    return this.atDef;
+	}
+
+	public AtStmt atDef(AtDef ci) {
+	    if (ci == this.atDef) return this;
+	    AtStmt_c n = (AtStmt_c) copy();
+	    n.atDef = ci;
+	    return n;
 	}
 
 	/** Reconstruct the statement. */
@@ -125,10 +140,10 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
 		return this;
 	}
 
-    XConstrainedTerm placeTerm;
-    boolean placeError = false;
+    protected XConstrainedTerm placeTerm;
+    protected boolean placeError = false;
   
-    XConstrainedTerm finishPlaceTerm;
+    protected XConstrainedTerm finishPlaceTerm;
     public boolean isFinishPlace() {
         boolean isFinishPlace = false;
         if (null != finishPlaceTerm) {
@@ -141,6 +156,45 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
             } catch (XFailure xFailure) {}
         }
         return isFinishPlace;
+    }
+
+    @Override
+    public Node buildTypesOverride(TypeBuilder tb) {
+        TypeSystem ts = (TypeSystem) tb.typeSystem();
+
+        X10ClassDef ct = (X10ClassDef) tb.currentClass();
+        assert ct != null;
+
+        Def def = tb.def();
+
+        if (def instanceof FieldDef) {
+            // FIXME: is this possible?
+            FieldDef fd = (FieldDef) def;
+            def = fd.initializer();
+        }
+
+        if (!(def instanceof CodeDef)) {
+            Errors.issue(tb.job(),
+                         new SemanticException("At cannot occur outside code body.", position()));
+            // Fake it
+            def = ts.initializerDef(position(), Types.ref(ct.asType()), Flags.STATIC);
+        }
+
+        CodeDef code = (CodeDef) def;
+
+        AtDef mi = (AtDef) createDummyAsync(position(), ts, ct.asType(), code, code.staticContext(), false);
+        
+        // Unlike methods and constructors, do not create new goals for resolving the signature and body separately;
+        // since closures don't have names, we'll never have to resolve the signature.  Just push the code context.
+        TypeBuilder tb2 = tb.pushCode(mi);
+
+        AtStmt_c n = (AtStmt_c) this.del().visitChildren(tb2);
+
+        if (code instanceof X10MemberDef) {
+            assert mi.thisDef() == ((X10MemberDef) code).thisDef();
+        }
+
+        return n.atDef(mi);
     }
 
     @Override
@@ -192,25 +246,27 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
 		return reconstruct(place, body);
 	}
 
-    public static Context createDummyAsync(Context c, boolean isAsyncOrAt) {        
-        TypeSystem ts = (TypeSystem) c.typeSystem();
-        X10MethodDef asyncInstance = (X10MethodDef) ts.asyncCodeInstance(c.inStaticContext());
+	public static X10MethodDef createDummyAsync(Position pos, TypeSystem ts, ClassType cc, CodeDef cd, boolean isStaticContext, boolean isAsync) {        
+	    ThisDef thisDef = null;
+	    List<ParameterType> capturedTypes = Collections.<ParameterType>emptyList();
+	    CodeInstance<?> ci = cd.asInstance();
+	    if (cd instanceof X10ProcedureDef) {
+	        X10ProcedureDef outer = (X10ProcedureDef) cd;
+	        thisDef = outer.thisDef();
+	        capturedTypes = outer.typeParameters();
+	    }
+	    X10MethodDef asyncInstance =
+	        isAsync ?
+	                ts.asyncCodeInstance(pos, thisDef, capturedTypes, Types.ref(ci), Types.ref(cc), isStaticContext)
+	                :
+	                ts.atCodeInstance(pos, thisDef, capturedTypes, Types.ref(ci), Types.ref(cc), isStaticContext);
+	    return asyncInstance; 
+	}
 
-        if (c.currentCode() instanceof X10ProcedureDef) {
-            X10ProcedureDef outer = (X10ProcedureDef) c.currentCode();
-            asyncInstance.setThisDef(outer.thisDef());
-            List<ParameterType> capturedTypes = outer.typeParameters();
-            if (!capturedTypes.isEmpty()) {
-                asyncInstance = ((X10MethodDef) asyncInstance.copy());
-                asyncInstance.setTypeParameters(capturedTypes);
-            }
-        }
-        c = c.pushCode(asyncInstance);
-        ((X10Context_c)c).x10Kind = isAsyncOrAt ? X10Context_c.X10Kind.Async : X10Context_c.X10Kind.At;
-        return c;
-    }
 	public Context enterScope(Context c) {
-        return createDummyAsync(c, false);
+	    c = c.pushCode(atDef);
+	    ((X10Context_c)c).x10Kind = X10Context_c.X10Kind.At;
+	    return c;
 	}
 
 	@Override

@@ -47,6 +47,8 @@ import x10.ast.TypeParamNode;
 import x10.ast.X10ClassDecl;
 import x10.ast.X10MethodDecl;
 import x10.ast.X10New;
+import x10.types.AsyncDef;
+import x10.types.AtDef;
 import x10.types.ParameterType;
 import x10.types.TypeParamSubst;
 import x10.types.X10ClassDef;
@@ -282,7 +284,7 @@ public class X10LocalClassRemover extends LocalClassRemover {
             CodeDef curr = c.currentCode();
             if (curr == ci) return true;
             // Allow closures, asyncs
-            if (curr instanceof MethodDef && ((MethodDef) curr).name().equals(Name.make(X10TypeSystem_c.DUMMY_AT_ASYNC+"$")))
+            if (curr instanceof AsyncDef || curr instanceof AtDef)
                 ;
             else {
                 // FIX:XTENLANG-1159
