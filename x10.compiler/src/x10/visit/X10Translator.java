@@ -227,7 +227,7 @@ public class X10Translator extends Translator {
                         // TODO Cannot add x10.jar in Class-Path attribute because it will be loaded by system class loader and static initialization will fail
                         //out.println("Class-Path: x10.jar commons-math-2.1.jar");
                     }
-                    out.println("Created-By: " + options.extension.compilerName() + " version " + options.extension.version());
+                    out.println("Created-By: " + compiler.sourceExtension().compilerName() + " version " + compiler.sourceExtension().version());
                     out.close();
 
                     // execute "jar cmf ${manifest_file} ${executable_path} -C ${output_directory} ."
