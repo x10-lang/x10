@@ -504,9 +504,16 @@ x10aux::itable_entry String::_itables[3] = {
     x10aux::itable_entry(NULL,  (void*)x10aux::getRTT<String>())
 };
 
+x10aux::RuntimeType String::rtt;
 
-
-
-RTT_CC_DECLS1(String, "x10.lang.String", RuntimeType::class_kind, Object)
+void String::_initRTT() {
+    if (rtt.initStageOne(&rtt)) return;
+    const x10aux::RuntimeType* parents[3] =
+        {Object::getRTT(),
+         Fun_0_1<x10_int, x10_char>::getRTT(),
+         Comparable<String>::getRTT() };
+    
+    rtt.initStageTwo("x10.lang.String", RuntimeType::class_kind, 3, parents, 0, NULL, NULL);
+}    
 
 // vim:tabstop=4:shiftwidth=4:expandtab
