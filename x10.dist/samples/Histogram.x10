@@ -25,20 +25,24 @@ public class Histogram {
 	    }
     }
 
-    public static def main(args:Array[String](1)) {
-	if (args.size != 2) {
-	    Console.OUT.println("Usage: Histogram SizeOfArray Buckets");
-	    at (Place.FIRST_PLACE) System.setExitCode(-1);
-	    return;
-        }
-	val N = int.parse(args(0));
-	val S = int.parse(args(1));
+    public static def compute(N:int, S:int):boolean {
 	val a = new Array[int](N, (i:int)=> i);
 	val b = new Array[int](S);
 	run(a, b);
 	val v = b(0);
         var ok:boolean = true;
 	for ([x] in b) ok &= (b(x)==v);
+        return ok;
+    }
+
+    public static def main(args:Array[String](1)) {
+	if (args.size != 2) {
+	    Console.OUT.println("Usage: Histogram SizeOfArray Buckets");
+	    return;
+        }
+	val N = int.parse(args(0));
+	val S = int.parse(args(1));
+        val ok = compute(N,S);
 	if (ok) {
 	    Console.OUT.println("Test ok.");
 	} else {
