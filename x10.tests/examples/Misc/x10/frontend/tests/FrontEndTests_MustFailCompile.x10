@@ -2062,6 +2062,29 @@ class TestGlobalRefHomeAt { // see http://jira.codehaus.org/browse/XTENLANG-1905
 	}
 	def use(x:Any) {}
 }
+class TestGlobalRefHomeAt2 {
+	 private val root = GlobalRef(this); 
+	 def test1() {
+		 val x = (new TestGlobalRefHomeAt2()).root; 
+		 return @ShouldNotBeERR x();
+	 }
+	 def test2() {
+		 val x = (at (here.next()) new TestGlobalRefHomeAt2()).root; 
+		 return @ERR x();
+	 }
+	 def test3() {
+		 val x = at (here.next()) (new TestGlobalRefHomeAt2().root); 
+		 return @ERR x();
+	 }
+	 def test4() {
+		 val x = this.root; 
+		 return @ShouldBeErr x();
+	 }
+	 def test5(y:TestGlobalRefHomeAt2) {
+		 val x = y.root; 
+		 return @ERR x();
+	 }
+}
 
 class A564[T,U] {
     def foo(x:T,y:U, z:String):void {}

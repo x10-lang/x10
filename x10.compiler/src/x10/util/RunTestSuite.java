@@ -163,11 +163,13 @@ public class RunTestSuite {
     }
     public static ArrayList<ErrorInfo> runCompiler(String[] newArgs) {
         SilentErrorQueue errQueue = new SilentErrorQueue(MAX_ERR_QUEUE,"TestSuiteErrQueue");
+        long start = System.currentTimeMillis();
         try {
             new polyglot.main.Main().start(newArgs,errQueue);
         } catch (Main.TerminationException e) {
             // If we had errors (and we should because we compile _MustFailCompile) then we will get a non-zero exitCode
         }
+        System.out.println("Compiler running time="+(System.currentTimeMillis()-start));
         final ArrayList<ErrorInfo> res = (ArrayList<ErrorInfo>) errQueue.getErrors();
         assert res.size()<MAX_ERR_QUEUE : "We passed the maximum number of errors!";
         return res;
