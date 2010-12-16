@@ -67,6 +67,9 @@ public class X10CCompilerOptions extends x10.X10CompilerOptions {
     public void setDefaultValues() {
         super.setDefaultValues();
         
+        // default value of output_directory will be set in the last of parseCommandLine
+        output_directory = null;
+        
         // change post_compiler from "javac" to "java -jar ${x10.dist}/lib/ecj.jar"
         post_compiler = findJavaCommand("java") + " -jar " + System.getProperty("x10.dist") + "/lib/ecj.jar -1.5 -nowarn";
     }
@@ -86,14 +89,19 @@ public class X10CCompilerOptions extends x10.X10CompilerOptions {
     @Override
     public void parseCommandLine(String[] args, Set<String> source) throws UsageError {
         super.parseCommandLine(args, source);
-        
-        if (executable_path != null) {
-            // change the default output_directory from current directory to a new temporary directory for creating a jar file
-            try {
-                output_directory = createTempDir("x10c.output_directory.", null);
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+
+        if (output_directory == null) { // -d output_directory was not specified
+            if (executable_path != null) {
+                // set a new temporary directory to output_directory for creating a jar file
+                try {
+                    output_directory = createTempDir("x10c.output_directory.", null);
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            } else {
+                String current_dir = System.getProperty("user.dir");
+                output_directory = new File(current_dir);
             }
         }
     }
