@@ -1405,7 +1405,7 @@ class ConstraintPropagationToFields {
 	  val s1:S{y!=0} = S(0,1); 
 	  val s2:S{y!=0} = S(1,0); // ERR: The type of the field initializer is not a subtype of the field type.
 	  val z1:Int{self!=0} = s1.y;
-	  val z2:Int{self==0} = s1.y; // ERR
+	  @ShouldBeErr val z2:Int{self==0} = s1.y;
 	}
 }
 struct UserDefinedStruct {}
@@ -2215,8 +2215,8 @@ class TestInterfaceInvariants { // see XTENLANG-1930
 	interface I2 extends I{p==2} {} // ShouldBeErr
 	interface I3 {p==3} extends I2 {} // ShouldBeErr
 	static def test(i:I) {
-		@ERR var i1:I{p==5} = i;
-		@ShouldNotBeERR var i2:I{p==1} = i;
+		@ShouldBeErr var i1:I{p==5} = i;
+		var i2:I{p==1} = i;
 	}
 }
 
@@ -2228,7 +2228,8 @@ class OuterThisConstraint(i:Int) { // see XTENLANG-1932
 	static def test(a:OuterThisConstraint{i==3}) {
 		val inner:OuterThisConstraint{self.i==3}.Inner = a.new Inner();
 		val x1:OuterThisConstraint{i==3} = a.m1();
-		val x2:OuterThisConstraint{i==3} = inner.m2(); // ShouldNotBeERR: Cannot assign expression to target.	 Expression: inner.m2()	 Expected type: OuterThisConstraint{self.i==3}	 Found type: OuterThisConstraint{self.i==A#this.i, inner!=null}
+		val x2:OuterThisConstraint{i==3} = inner.m2();
+		@ShouldBeErr val x3:OuterThisConstraint{i==4} = inner.m2();
 	}
 }
 
@@ -2467,7 +2468,7 @@ class ExplodingPointTest {
 	def test5() {
 		var r:Region = null;
 		for (p in r) {}
-		for (p[i] in r) {} // ERR Loop domain is not of expected type.
+		@ShouldBeErr for (p[i] in r) {} //  Loop domain is not of expected type.
 	}
 	// val p[i,j] = [1,2]; // doesn't parse for fields :)
 }
@@ -3232,7 +3233,8 @@ class XTENLANG_967  {
 }
 class XTENLANG_1574(v:Int) {v==1} {
 	static def m(a:XTENLANG_1574) {
-		val b:XTENLANG_1574{self.v==1} = a; // ShouldNotBeERR, see XTENLANG-1574
+		val b:XTENLANG_1574{self.v==1} = a; 
+		@ShouldBeErr val b2:XTENLANG_1574{self.v==2} = a;
 	}
 }
 class TestMethodGuards[T](a:Int, p:Place) {
@@ -3529,7 +3531,8 @@ class TreeUsingFieldNotProperty { this.left==null } { // ShouldBeErr
 }
 class XTENLANG_1149 {
     def m(b:Boolean, x:Object{self!=null}, y:Object{self!=null}):Object{self!=null} {
-        val z:Object{self!=null} = b ? x : y; // ShouldNotBeERR
+        val z:Object{self!=null} = b ? x : y;
+        @ShouldBeErr val z2:Object{self==null} = b ? x : y;
         return z;
     }
 }
@@ -3539,16 +3542,18 @@ class XTENLANG_1149_2 {
 	def test() {
 		val b1 = new B();
 		val b2 = new B();
-		val c1:B{self!=null} = f ? b1 : b2; // ShouldNotBeERR
+		@ShouldBeErr val c0:B{self==null} = f ? b1 : b2;
+		val c1:B{self!=null} = f ? b1 : b2;
 		val c2:B = f ? b1 : b2;
-		val c3:B{self!=null} = f ? (b1 as B{self!=null}) : b2;  // ShouldNotBeERR
-		val c4:B{self!=null} = f ? (b1 as B{self!=null}) : (b2 as B{self!=null});  // ShouldNotBeERR
-		val c5:B{self!=null} = f ? b1 : b1; 
+		val c3:B{self!=null} = f ? (b1 as B{self!=null}) : b2;
+		val c4:B{self!=null} = f ? (b1 as B{self!=null}) : (b2 as B{self!=null});
+		val c5:B{self!=null} = f ? b1 : b1;
+		@ERR val c6:B{self==null} = f ? b1 : b1;
 
 		val arr1 = new Array[B{self!=null}][b1,b2];
-		val arr2:Array[B{self!=null}] = [b1,b2]; // ERR. we do not infer constraints, because then [1] will be Array[Int{self==1}]
+		@ERR val arr2:Array[B{self!=null}] = [b1,b2]; //  we do not infer constraints, because then [1] will be Array[Int{self==1}]
 		val arr3:Array[B] = [b1,b2]; 
-		val arr4 = new Array[B{self==b2}][b1,b2]; // ERR
+		@ShouldBeErr val arr4 = new Array[B{self==b2}][b1,b2];
 	}
 }
 
@@ -3559,12 +3564,14 @@ class BB(v:Int) {v==1} {
 }
 static class A(v:Int) {v==1} {
 	static def m(a:A) {
-		val b:A{self.v==1} = a; // ShouldNotBeERR
+		val b:A{self.v==1} = a;
+		@ShouldBeErr val b2:A{self.v==2} = a;
 	}
 	def m2(a:A) {
 		val b1:A{self.v==1} = this;
 		val b2:A{this.v==1} = this;
-		val b3:A{self.v==1} = a; // ShouldNotBeERR
+		val b3:A{self.v==1} = a;
+		@ShouldBeErr val b33:A{self.v==2} = a; 
 		val b4:A{this.v==1} = a;
 	}
 }
