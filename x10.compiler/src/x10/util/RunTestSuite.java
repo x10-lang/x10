@@ -54,6 +54,8 @@ public class RunTestSuite {
             "TypedefBasic2.x10", //C:\cygwin\home\Yoav\intellij\sourceforge\x10.tests\examples\Constructs\Typedefs\TypedefBasic2.x10:37,13-31
             "CUDA3DFD.x10", //C:\cygwin\home\Yoav\intellij\sourceforge\x10.dist\samples\CUDA\CUDA3DFD.x10:194,17-289,17
             "CUDAMatMul.x10",
+            "NestedExpressions2.x10",
+            "ClosureCall3.x10",
     };
     private static final String[] EXCLUDE_FILES_WITH = {
             "HeatTransfer_v0.x10",
@@ -138,22 +140,25 @@ public class RunTestSuite {
             }
         }
 
+
+        boolean hadErrors = false;
         if (ONE_FILE_AT_A_TIME) {
             for (FileSummary f : summaries) {
-                compileFiles(Arrays.asList(f),remainingArgs);
+                hadErrors |= compileFiles(Arrays.asList(f),remainingArgs);
             }
         } else {
             // We need to compile _MustFailCompile and files with ERR separately (because they behave differently when compiled with other files)
             ArrayList<FileSummary> shouldCompile = new ArrayList<FileSummary>();
             for (FileSummary f : summaries) {
                 if (f.lines.size()>0 || f.file.getName().endsWith("_MustFailCompile.x10"))
-                    compileFiles(Arrays.asList(f),remainingArgs);
+                    hadErrors |= compileFiles(Arrays.asList(f),remainingArgs);
                 else
                     shouldCompile.add(f);
             }
             if (shouldCompile.size()>0)
-                compileFiles(shouldCompile,remainingArgs);
+                hadErrors |= compileFiles(shouldCompile,remainingArgs);
         }
+        if (hadErrors) System.exit(1);
     }
     private static int count(String s, String sub) {
         final int len = sub.length();
@@ -212,7 +217,7 @@ public class RunTestSuite {
         }
         return res;
     }
-    private static void compileFiles(List<FileSummary> summaries, List<String> args) throws IOException {
+    private static boolean compileFiles(List<FileSummary> summaries, List<String> args) throws IOException {
         // replace \ with /
         ArrayList<String> fileNames = new ArrayList<String>(summaries.size());
         for (FileSummary f : summaries) {
@@ -240,8 +245,9 @@ public class RunTestSuite {
         // Now running polyglot
         List<String> allArgs = new ArrayList<String>(fileNames);
         allArgs.addAll(args);
-        String[] newArgs = allArgs.toArray(new String[allArgs.size()+1]);
-        newArgs[newArgs.length-1] = STATIC_CALLS ? "-STATIC_CALLS" : "-VERBOSE_CALLS";
+        String[] newArgs = allArgs.toArray(new String[allArgs.size()+2]);
+        newArgs[newArgs.length-2] = STATIC_CALLS ? "-STATIC_CALLS" : "-VERBOSE_CALLS";
+        newArgs[newArgs.length-1] = !STATIC_CALLS ? "-STATIC_CALLS=false" : "-VERBOSE_CALLS=false";
         System.out.println("Running: "+ fileNames);
         ArrayList<ErrorInfo> errors = runCompiler(newArgs);
         // remove GOOD_ERR_MARKERS  and EXPECTED_ERR_MARKERS
@@ -254,6 +260,7 @@ public class RunTestSuite {
 
         // Now checking the errors reported are correct and match ERR markers
         // 1. find all ERR markers that don't have a corresponding error
+        boolean hadErrors = false; // all fine
         for (FileSummary fileSummary : summaries) {
             File file = fileSummary.file;
             for (LineSummary lineSummary : fileSummary.lines) {
@@ -274,8 +281,10 @@ public class RunTestSuite {
                         foundErrCount++;
                     }
                 }
-                if (expectedErrCount!=foundErrCount)
+                if (expectedErrCount!=foundErrCount) {
+                    hadErrors = true;
                     System.err.println("File "+file+" has "+expectedErrCount+" ERR markers on line "+lineNum+", but the compiler reported "+ foundErrCount+" errors on that line! errorsFound=\n"+errorsFound);
+                }
             }
         }
 
@@ -284,17 +293,21 @@ public class RunTestSuite {
         int warningCount = 0;
         for (ErrorInfo err : errors)
             if (err.getErrorKind()==ErrorInfo.WARNING) {
-                if (!err.getMessage().startsWith(X10TypeMixin.MORE_SEPCIFIC_WARNING)) // ignore those warning messages
+                if (!err.getMessage().startsWith(X10TypeMixin.MORE_SEPCIFIC_WARNING)) { // ignore those warning messages
+                    hadErrors = true;
                     System.err.println("Got a warning in position: "+err.getPosition()+"\nMessage: "+err+"\n");
+                }
                 warningCount++;
             }
         if (errors.size()>warningCount) {
+            hadErrors = true;
             System.err.println("\nThe following errors did not have a matching ERR marker:\n\n");
             for (ErrorInfo err : errors)
                 if (err.getErrorKind()!=ErrorInfo.WARNING)
                     System.err.println("Position:\n"+err.getPosition()+"\nMessage: "+err+"\n");
         }
         // todo: check that for each file (without errors) we generated a *.class file, and load them and run their main method (except for the ones with _MustFailTimeout)
+        return hadErrors;
     }
     private static void recurse(File dir, ArrayList<File> files) {
         if (files.size()>=MAX_FILES_NUM) return;
