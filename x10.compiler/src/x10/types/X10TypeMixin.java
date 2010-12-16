@@ -1280,25 +1280,28 @@ public class X10TypeMixin {
             if (!(def instanceof X10ClassDef_c)) return false;
             X10ClassDef_c x10ClassDef = (X10ClassDef_c) def;
 
-            final Boolean res = ts.structHaszero.get(x10ClassDef);
-            if (res!=null) return res;
-            ts.structHaszero.put(x10ClassDef,Boolean.FALSE);
-
             // do we have an classInvariant? todo: class invariant are not treated correctly: X10ClassDecl_c.classInvariant is fine, but  X10ClassDef_c.classInvariant is wrong
             final Ref<CConstraint> ref = x10ClassDef.classInvariant();
             if (ref!=null && ref.get().constraints().size()>0) return false; // the struct has a class invariant (so the zero value might not satisfy it)
 
             // We use ts.structHaszero to prevent infinite recursion such as in the case of:
             // struct U(u:U) {}
+            final Boolean res = ts.structHaszero.get(x10ClassDef);
+            if (res!=null) return res;
+            // it is true for type-checking: S[S[Int]]
+            // struct S[T] {T haszero} {val t:T = Zero.get[T](); }
+            ts.structHaszero.put(x10ClassDef,Boolean.TRUE);
 
             // make sure all the fields and properties haszero
             for (FieldInstance field : structType.fields()) {
                 if (field.flags().isStatic()) {
                     continue;
                 }
-                if (!isHaszero(field.type(),xc)) return false;
+                if (!isHaszero(field.type(),xc)) {
+                    ts.structHaszero.put(x10ClassDef,Boolean.FALSE);
+                    return false;
+                }
             }
-            ts.structHaszero.put(x10ClassDef,Boolean.TRUE);
             return true;
         }
         if (zeroLit==null) return false;

@@ -3651,12 +3651,11 @@ class TestCircularStructs { // see XTENLANG-2187
     static struct S {
         static val ONE = S();
     }
-	static struct U(u:U) {} // ShouldBeErr
+	@ShouldBeErr static struct U(u:U) {} 
 
 
     public static def main(Array[String]{rail}) {
         val x1 = new Array[S](2);
-        val x2 = new Array[U](2); // ERR
     }
 }
 class TestComparableAndArithmetic {
