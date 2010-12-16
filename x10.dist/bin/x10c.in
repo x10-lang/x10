@@ -70,10 +70,6 @@ if [ -n "$extra_cp" ]; then
     extra_cp="${PATH_SEP}${extra_cp}"
 fi
 
-extargs=""
-# [DC] assert should be off by default
-# extargs="$extargs -assert"
-#${LIB_DIR}${FILE_SEP}polyglot.jar${PATH_SEP}${LIB_DIR}${FILE_SEP}java_cup.jar${PATH_SEP}
 WALA_JARS="${LIB_DIR}${FILE_SEP}com.ibm.wala.cast.java_1.0.0.201012091449.jar"
 WALA_JARS="${WALA_JARS}${PATH_SEP}${LIB_DIR}${FILE_SEP}com.ibm.wala.cast_1.0.0.201012091449.jar"
 WALA_JARS="${WALA_JARS}${PATH_SEP}${LIB_DIR}${FILE_SEP}com.ibm.wala.core_1.1.3.201012091449.jar"
@@ -83,25 +79,23 @@ WALA_JARS="${WALA_JARS}${PATH_SEP}${LIB_DIR}${FILE_SEP}org.eclipse.equinox.commo
 
 classpath="${CP_OVERRIDE}"
 [ -n "$dev" ] && classpath="${classpath}${TOP}${FILE_SEP}..${FILE_SEP}x10.compiler${FILE_SEP}classes${PATH_SEP}${TOP}${FILE_SEP}..${FILE_SEP}x10.runtime${FILE_SEP}classes${PATH_SEP}"
-classpath="${classpath}${LIB_DIR}${FILE_SEP}x10c.jar${PATH_SEP}${LIB_DIR}${FILE_SEP}x10.jar${PATH_SEP}${LIB_DIR}${FILE_SEP}${MATH_JAR}${PATH_SEP}${LIB_DIR}${FILE_SEP}${LPG_JAR}${PATH_SEP}${WALA_JARS}${ext_cp}${extra_cp}"
+classpath="${classpath}${LIB_DIR}${FILE_SEP}x10c.jar${PATH_SEP}${LIB_DIR}${FILE_SEP}x10.jar${PATH_SEP}${LIB_DIR}${FILE_SEP}${MATH_JAR}${PATH_SEP}${LIB_DIR}${FILE_SEP}${LPG_JAR}${PATH_SEP}${WALA_JARS}${extra_cp}"
+
+# Set flags to generate optimized code if we've been asked to do so.
+[ "$optimize" = "true" ] && args="-OPTIMIZE=true $args"
 
 # include x10.jar in sourcepath
 [ -z "$X10SOURCES" ] && export X10SOURCES="${LIB_DIR}${FILE_SEP}x10.jar"
-[ -z "$rtdev" ] && extargs="$extargs -sourcepath \"${X10SOURCES}\""
+[ -z "$rtdev" ] && args="-sourcepath \"${X10SOURCES}\" $args"
 
 [ -z "$MAIN" ] && MAIN="polyglot.main.Main"
 
-# Set flags to generate optimized code if we've been asked to do so.
-if [[ "$optimize" = "true" ]]; then
-  args=" -OPTIMIZE=true $args"
-fi
-
-if [[ "$ext" = "x10c.ExtensionInfo" ]]; then
+if [ "$ext" = "x10c.ExtensionInfo" ]; then
   # Java backend
-  command="\"$JAVA\" -Xmx512m -Dfile.encoding=UTF-8 -Dx10.dist=${TOP} $config $profile -classpath \"$classpath\" ${java_args} $MAIN -extclass $ext $extargs $args"
+  command="\"$JAVA\" -Xmx512m -Dfile.encoding=UTF-8 -Dx10c.ecj.jar=\"${LIB_DIR}${FILE_SEP}${ECJ_JAR}\" $config $profile -classpath \"$classpath\" ${java_args} $MAIN -extclass $ext $args"
 else
   # C++ backend
-  command="\"$JAVA\" -Xmx512m $config $profile -classpath \"$classpath\" ${java_args} $MAIN -extclass $ext $extargs $args"
+  command="\"$JAVA\" -Xmx512m $config $profile -classpath \"$classpath\" ${java_args} $MAIN -extclass $ext $args"
 fi
 
 [ -n "$verbose" ] && echo "$command"

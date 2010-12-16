@@ -70,8 +70,8 @@ public class X10CCompilerOptions extends x10.X10CompilerOptions {
         // default value of output_directory will be set in the last of parseCommandLine
         output_directory = null;
         
-        // change post_compiler from "javac" to "java -jar ${x10.dist}/lib/ecj.jar"
-        post_compiler = findJavaCommand("java") + " -jar " + System.getProperty("x10.dist") + "/lib/ecj.jar -1.5 -nowarn";
+        // change post_compiler from "javac" to "java -jar ${x10c.ecj.jar}"
+        post_compiler = findJavaCommand("java") + " -jar " + System.getProperty("x10c.ecj.jar") + " -1.5 -nowarn";
     }
 
     @Override
