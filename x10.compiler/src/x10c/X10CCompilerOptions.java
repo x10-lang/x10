@@ -66,13 +66,13 @@ public class X10CCompilerOptions extends x10.X10CompilerOptions {
         String x10_dist = System.getProperty("x10.dist");
         String libdir = x10_dist + File.separator + "lib";
         String x10_jar = "x10.jar"; // FIXME: is this overridable?
-        String math_jar = System.getProperty("x10c.math.jar");
+        String math_jar = System.getProperty("x10c.math.jar", "commons-math-2.1.jar");
         default_output_classpath = libdir + File.separator + x10_jar + File.pathSeparator +
             libdir + File.separator + math_jar;
         output_classpath = default_output_classpath;
 
         // change post_compiler from "javac" to "java -jar ${x10.dist}/lib/ecj.jar"
-        String ecj_jar = System.getProperty("x10c.ecj.jar");
+        String ecj_jar = System.getProperty("x10c.ecj.jar", "ecj.jar");
         post_compiler = findJavaCommand("java") + " -jar \"" + libdir + File.separator + ecj_jar + "\" -1.5 -nowarn";
     }
 
