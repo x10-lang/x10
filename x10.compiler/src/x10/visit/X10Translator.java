@@ -40,7 +40,9 @@ import polyglot.util.ErrorInfo;
 import polyglot.util.ErrorQueue;
 import polyglot.util.QuotedStringTokenizer;
 import polyglot.visit.Translator;
+import x10.Configuration;
 import x10.X10CompilerOptions;
+import x10c.X10CCompilerOptions;
 
 public class X10Translator extends Translator {
     public X10Translator(Job job, TypeSystem ts, NodeFactory nf, TargetFactory tf) {
@@ -198,6 +200,67 @@ public class X10Translator extends Translator {
                     eq.enqueue(ErrorInfo.POST_COMPILER_ERROR,
                             "Non-zero return code: " + proc.exitValue());
                     return false;
+                }
+
+                if (options.executable_path != null) {  // -o executable_path
+                    // create jar file
+                    
+                    java.util.ArrayList<String> jarCmdList = new java.util.ArrayList<String>();
+                    jarCmdList.add(X10CCompilerOptions.findJavaCommand("jar"));
+                    
+                    // create Main-Class attribute from main (= first) source name if MAIN_CLASS is not specified
+                    String main_class = Configuration.MAIN_CLASS;
+                    if (main_class == null) {
+                        String main_source = ((X10CCompilerOptions) options).main_source;
+                        if (main_source != null) {
+                            main_class = main_source.substring(0, main_source.length() - ".x10".length());
+                        }
+                    }
+                    
+                    // create manifest file
+                    File manifest = File.createTempFile("x10c.manifest.", null);
+                    manifest.deleteOnExit();    // TODO delete explicitly
+                    java.io.PrintWriter out = new java.io.PrintWriter(new java.io.FileWriter(manifest));
+                    if (main_class != null) {
+                        // add Main-Class attribute for executable jar
+                        out.println("Main-Class: " + main_class + "$Main");
+                        // TODO Cannot add x10.jar in Class-Path attribute because it will be loaded by system class loader and static initialization will fail
+                        //out.println("Class-Path: x10.jar commons-math-2.1.jar");
+                    }
+                    out.println("Created-By: " + options.extension.compilerName() + " version " + options.extension.version());
+                    out.close();
+
+                    // execute "jar cmf ${manifest_file} ${executable_path} -C ${output_directory} ."
+                    jarCmdList.add("cmf");
+                    jarCmdList.add(manifest.getAbsolutePath());
+                    jarCmdList.add(options.executable_path);
+                    jarCmdList.add("-C");
+                    jarCmdList.add(options.output_directory.getAbsolutePath()); // -d output_directory
+                    jarCmdList.add(".");
+                    
+                    String[] jarCmd = jarCmdList.toArray(new String[0]);
+                    Process jarProc = runtime.exec(jarCmd);
+                    InputStreamReader jarErr = new InputStreamReader(jarProc.getErrorStream());
+                    try {
+                        char[] c = new char[72];
+                        int len;
+                        StringBuffer sb = new StringBuffer();
+                        while ((len = jarErr.read(c)) > 0) {
+                            sb.append(String.valueOf(c, 0, len));
+                        }
+                        if (sb.length() != 0) {
+                            eq.enqueue(ErrorInfo.POST_COMPILER_ERROR, sb.toString());
+                        }
+                    }
+                    finally {
+                        jarErr.close();
+                    }
+                    jarProc.waitFor();
+
+                    if (jarProc.exitValue() > 0) {
+                        eq.enqueue(ErrorInfo.POST_COMPILER_ERROR, "Non-zero return code: " + jarProc.exitValue());
+                        return false;
+                    }
                 }
             }
             catch(Exception e) {

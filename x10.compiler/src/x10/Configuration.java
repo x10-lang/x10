@@ -33,6 +33,9 @@ public final class Configuration extends x10.config.Configuration {
      */
     public static final ConfigurationError LOAD_ERROR;
 
+    public static String MAIN_CLASS = null;
+    private static final String MAIN_CLASS_desc = "The class whose main() will be invoked";
+
     public static boolean CHECK_INVARIANTS = false;
     private static final String CHECK_INVARIANTS_desc = "Check AST invariants such as position containment, existence of xxxInstance(), etc";
 

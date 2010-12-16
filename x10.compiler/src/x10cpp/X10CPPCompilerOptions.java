@@ -26,8 +26,6 @@ import x10.config.OptionError;
 
 public class X10CPPCompilerOptions extends x10.X10CompilerOptions {
 
-    public String executable_path = null;
-
     public X10CPPCompilerOptions(ExtensionInfo extension) {
         super(extension);
     }
@@ -37,13 +35,6 @@ public class X10CPPCompilerOptions extends x10.X10CompilerOptions {
     {
         int i = super.parseCommand(args, index, source);
         if (i != index) return i;
-
-        if (args[i].equals("-o")) {
-            index++;
-            executable_path = args[index];
-            index++;
-            return index;
-        }
 
         // FIXME: [IP] allow overriding super's option processing
         try {
@@ -60,7 +51,6 @@ public class X10CPPCompilerOptions extends x10.X10CompilerOptions {
 	 */
 	public void usage(PrintStream out) {
 		super.usage(out);
-        usageForFlag(out, "-o path", "set generated executable path (for the post-compiler)");
 		String[][] options = Configuration.options();
 		for (int i = 0; i < options.length; i++) {
 			String[] optinfo = options[i];

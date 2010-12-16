@@ -55,6 +55,11 @@ public class ExtensionInfo extends x10.ExtensionInfo {
         return new X10CTypeSystem_c();
     }
 
+    @Override
+    protected Options createOptions() {
+        return new X10CCompilerOptions(this);
+    }
+
 //    public static boolean PREPARE_FOR_INLINING() { return x10.optimizations.Optimizer.INLINING(); }
     public static final boolean PREPARE_FOR_INLINING = true;
 

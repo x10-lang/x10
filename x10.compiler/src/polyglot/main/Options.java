@@ -19,7 +19,7 @@ public class Options {
     /**
      * Back pointer to the extension that owns this options
      */
-    protected ExtensionInfo extension = null;
+    public ExtensionInfo extension = null;
     
     /*
      * Fields for storing values for options.
