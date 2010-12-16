@@ -29,6 +29,7 @@ public class X10CompilerOptions extends polyglot.main.Options {
 		assertions = true; // turn on assertion generation for X10
 	}
 
+	@Override
 	protected int parseCommand(String args[], int index, Set<String> source) 
 		throws UsageError, Main.TerminationException
 	{
@@ -41,9 +42,9 @@ public class X10CompilerOptions extends polyglot.main.Options {
 		}
 		if (args[i].equals("-o")) {
 		    ++i;
-            executable_path = args[i];
-            return ++i;
-        }
+		    executable_path = args[i];
+		    return ++i;
+		}
 
 		try {
 			Configuration.parseArgument(args[index]);
@@ -67,6 +68,7 @@ public class X10CompilerOptions extends polyglot.main.Options {
 	/**
 	 * Print usage information
 	 */
+	@Override
 	public void usage(PrintStream out) {
 		super.usage(out);
 		usageForFlag(out, "-noassert", "turn off assertion generation");
