@@ -86,6 +86,7 @@ import polyglot.visit.ReachChecker;
 import polyglot.visit.Translator;
 import x10.ast.X10NodeFactory_c;
 import x10.compiler.ws.WSCodeGenerator;
+import x10.compiler.ws.util.WSTransformationContent;
 import x10.errors.Warnings;
 import x10.extension.X10Ext;
 //import x10.finish.table.CallTableKey;
@@ -481,12 +482,15 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            if (x10.Configuration.WORK_STEALING) {
                Goal wsCodeGenGoal = WSCodeGenerator(job);
                goals.add(wsCodeGenGoal);
-               Goal wsCallGraphBarrier = WSCallGraphBarrier();
                if(walaBarrier != null){
             	   //If we use WALA to analyze the call graph, we need add it before WSCallGraph
-            	   wsCallGraphBarrier.addPrereq(walaBarrier);
+            	   wsCodeGenGoal.addPrereq(walaBarrier);
                }
-               wsCodeGenGoal.addPrereq(wsCallGraphBarrier);
+               else{
+            	   //Still use simple call graph analyzer to detect concurrent
+                   wsCodeGenGoal.addPrereq(WSCallGraphBarrier());            	   
+               }
+
            }
            
            goals.add(Preoptimization(job));
@@ -612,8 +616,13 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                    if (Configuration.FINISH_ASYNCS) {
 //                   calltable = X10Scheduler.<HashMap<CallTableKey, LinkedList<CallTableVal>>>invokeGeneric(method);
                    } else {
+                	   //This path is only for WALA call graph analysis for Work-Stealing
                        try {
-                           method.invoke(null);
+                           WSTransformationContent transTarget = (WSTransformationContent) method.invoke(null);
+                           //now use this one to construct WSTransformationState
+                           TypeSystem ts  = extInfo.typeSystem();
+                           NodeFactory nf = extInfo.nodeFactory();
+                           WSCodeGenerator.setWALATransTarget(ts, nf, nativeAnnotationLanguage(), transTarget);
                        } catch (IllegalArgumentException e) {
                        } catch (IllegalAccessException e) {
                        } catch (InvocationTargetException e) {

@@ -42,6 +42,7 @@ import x10.compiler.ws.codegen.AbstractWSClassGen;
 import x10.compiler.ws.codegen.WSMethodFrameClassGen;
 import x10.compiler.ws.util.WSCallGraph;
 import x10.compiler.ws.util.WSCallGraphNode;
+import x10.compiler.ws.util.WSTransformationContent;
 import x10.types.ClosureDef;
 import x10.types.X10MethodDef;
 import polyglot.types.Context;
@@ -78,8 +79,6 @@ public class WSCodeGenerator extends ContextVisitor {
     
     // Single static WSTransformState shared by all visitors (FIXME)
     public static WSTransformState wts; 
-    // Single static walaResult to store the analysis result from WALA (FIXME)
-    protected static List<String> walaResult;
     
     private final HashSet<X10MethodDecl> genMethodDecls;
     private final HashSet<X10ClassDecl> genClassDecls;
@@ -95,14 +94,22 @@ public class WSCodeGenerator extends ContextVisitor {
         genClassDecls = new HashSet<X10ClassDecl>();
     }
 
-    public static void setWALAResult(List<String> result){
-    	wsReport(5, "wala result is set to WSCodeGenerator");
-    	walaResult = result; //If wala is turned on, the method is called before buildCallGraph()
+    public static void setWALATransTarget(TypeSystem xts, NodeFactory xnf, String theLanguage, WSTransformationContent target){
+    	//DEBUG
+    	if(debugLevel > 3){
+        	//wsReport(5, "Use WALA CallGraph Data...");    
+    		System.out.println("[WS_INFO] Use WALA CallGraph Data...");
+    	}
+    	wts = new WSTransformState(xts, xnf, theLanguage, target);
     }
     
     public static void buildCallGraph(TypeSystem xts, NodeFactory xnf, String theLanguage) {
-    	wsReport(5, "BuildGraphGraph...");
-    	wts = new WSTransformState(xts, xnf, theLanguage, walaResult);
+    	//DEBUG
+    	if(debugLevel > 3){
+        	//wsReport(5, "Build Simple Graph Graph..."); 
+    		System.out.println("[WS_INFO] Build Simple Graph Graph...");
+    	}
+    	wts = new WSTransformState(xts, xnf, theLanguage);
     }
 
     /** 
@@ -114,9 +121,8 @@ public class WSCodeGenerator extends ContextVisitor {
         // reject unsupported patterns
         if(n instanceof ConstructorDecl){
             ConstructorDecl cDecl = (ConstructorDecl)n;
-            ConstructorDef cDef = cDecl.constructorDef();
-            if(wts.isTargetProcedure(cDef)){
-                throw new SemanticException("Work Stealing doesn't support concurrent constructor: " + cDef,n.position());
+            if(wts.isTargetMethod(cDecl)){
+                throw new SemanticException("Work Stealing doesn't support concurrent constructor: " + cDecl, n.position());
             }
         }
         if(n instanceof RemoteActivityInvocation){
@@ -128,9 +134,8 @@ public class WSCodeGenerator extends ContextVisitor {
         if(n instanceof Closure && !(n instanceof PlacedClosure)){
             //match with WSCallGraph, not handle PlacedClosure
             Closure closure = (Closure)n;           
-            ClosureDef cDef = closure.closureDef();
-            if(wts.isTargetProcedure(cDef)){
-                throw new SemanticException("Work Stealing doesn't support concurrent closure: " + cDef,n.position());
+            if(wts.isTargetMethod(closure)){
+                throw new SemanticException("Work Stealing doesn't support concurrent closure: " + closure, n.position());
             }
         }
         if(n instanceof AtEach){
@@ -144,7 +149,7 @@ public class WSCodeGenerator extends ContextVisitor {
         if(n instanceof X10MethodDecl) {
             X10MethodDecl mDecl = (X10MethodDecl)n;
             X10MethodDef mDef = mDecl.methodDef();
-            if(wts.isTargetProcedure(mDef)){
+            if(wts.isTargetMethod(mDecl)){
                 if(debugLevel > 3){
                     System.out.println("[WS_INFO] Start transforming target method: " + mDef.name());
                 }

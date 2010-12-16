@@ -610,7 +610,7 @@ public class WSCodeGenUtility {
 
                 if((wsState != null)){
                     Call aCall = (Call)n;
-                    if(wsState.isTargetProcedure(aCall.methodInstance().def())){
+                    if(wsState.isTargetCallSite(aCall)){
                         complexCallNum++;
                     }
                 }
