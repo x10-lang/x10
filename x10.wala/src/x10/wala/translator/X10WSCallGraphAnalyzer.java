@@ -14,12 +14,15 @@ package x10.wala.translator;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 
 import polyglot.main.Report;
+import x10.compiler.ws.util.WSTransformationContent;
 import x10.wala.classLoader.AsyncCallSiteReference;
 
+import com.ibm.wala.cast.loader.AstMethod;
+import com.ibm.wala.cast.tree.CAstSourcePositionMap.Position;
 import com.ibm.wala.classLoader.CallSiteReference;
+import com.ibm.wala.classLoader.IMethod;
 import com.ibm.wala.ipa.callgraph.CGNode;
 import com.ibm.wala.ipa.callgraph.CallGraph;
 import com.ibm.wala.util.graph.traverse.NumberedDFSDiscoverTimeIterator;
@@ -56,7 +59,10 @@ public class X10WSCallGraphAnalyzer {
 	 * This method doesn't use class hierarchy information.
 	 * @return
 	 */
-	public List<String> simpleAnalyze(){
+	public WSTransformationContent simpleAnalyze(){
+
+		WSTransformationContent result = new WSTransformationContent();
+
 		if(callGraph == null){
 			new ArrayList<String>();
 		}
@@ -93,20 +99,54 @@ public class X10WSCallGraphAnalyzer {
 			if(cgn != callGraph.getFakeRootNode()
 					&& cgn.getMethod() != null
 					&& !cgn.getMethod().getSignature().startsWith("A<activity")){
-				targetMethodNodes.add(cgn);
+				targetMethodNodes.add(cgn);				
 			}
 		}
 		
-		//get the signature and store into the result
-		ArrayList<String> result = new ArrayList<String>();
-		wsReport(3, "[WS_CallGraph]Found " + conMethodNodes.size() + " concurrent methods.");
-		wsReport(3, "[WS_CallGraph]Found " + targetMethodNodes.size() + " target methods.");
-		for(CGNode cgn : targetMethodNodes){
-			String type = conMethodNodes.contains(cgn) ? "[C]" : "[D]";
-			String signature = type + cgn.getMethod().getSignature();
-			wsReport(5, signature);
-			result.add(signature);
+		//now get all call sites - each call site is a call statement in X10 ast node
+		for(CGNode targetNode : targetMethodNodes){
+
+			AstMethod targetMethod = (AstMethod) targetNode.getMethod();
+			Position pos = targetMethod.debugInfo().getCodeBodyPosition();
+			//DEBUG information
+			//show location information
+			//System.out.printf("[TargetMethod]%s\n", targetMethod);
+			//System.out.printf("          url:%s; line:%d; col:%d\n",
+			//		pos.getURL(), pos.getFirstLine(), pos.getFirstCol());
+			
+			String info = conMethodNodes.contains(targetNode) ? "[C]" : "[D]";
+			info += targetNode.getMethod().getName().toString();
+			String url = pos.getURL().toString().substring(5); //remove "files"
+			result.addConcurrentMethod(url, pos.getFirstLine(), pos.getFirstCol(),
+					pos.getLastLine(), pos.getLastCol(), info);
+			
+			for(Iterator<CGNode> srcNodesI = callGraph.getPredNodes(targetNode); srcNodesI.hasNext();){
+				CGNode srcNode = srcNodesI.next();
+				IMethod method = srcNode.getMethod();
+				if(!(method instanceof AstMethod)){
+					continue; //remove the fake root;
+				}
+				AstMethod srcMethod = (AstMethod) method;
+				for(Iterator<CallSiteReference> callSitesI = callGraph.getPossibleSites(srcNode, targetNode);
+					callSitesI.hasNext();){
+					CallSiteReference callSite = callSitesI.next();
+					int callPC = callSite.getProgramCounter();
+					Position position = srcMethod.debugInfo().getInstructionPosition(callPC);
+					
+					//DEBUG
+					//IR ir = srcNode.getIR();
+					//System.out.printf("[CallSite]%s\n", callSite);
+					//System.out.printf("[CallInst]%s\n", ir.getInstructions()[callPC]);
+					//System.out.printf("          url:%s; line:%d; col:%d\n",
+					//		position.getURL(), position.getFirstLine(), position.getFirstCol());
+					
+					result.addConcurrentCallSite(position.getURL().toString().substring(5),
+							position.getFirstLine(), position.getFirstCol(),
+							position.getLastLine(), position.getLastCol(), callSite.toString());
+				}
+			}
 		}
+		
 		return result;
 	}
 }

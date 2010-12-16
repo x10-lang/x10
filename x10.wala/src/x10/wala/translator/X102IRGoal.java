@@ -8,7 +8,7 @@ import polyglot.frontend.ExtensionInfo;
 import polyglot.frontend.Job;
 import polyglot.frontend.SourceGoal_c;
 import polyglot.main.Report;
-import x10.compiler.ws.WSCodeGenerator;
+import x10.compiler.ws.util.WSTransformationContent;
 import x10.wala.client.X10SourceAnalysisEngine;
 import x10.wala.ipa.cha.X10ClassHierarchy;
 import x10.wala.loader.X10SourceLoaderImpl;
@@ -96,10 +96,9 @@ public class X102IRGoal extends SourceGoal_c {
     }
     
     // A simple method to analyze the call graph and identify transformation taret;
-    public static void wsAnalyzeCallGraph() {
-    	List<String> targets = new X10WSCallGraphAnalyzer(buildCallGraph()).simpleAnalyze();
-    	//FIXME: the current way to set the results is not good. Need refactoring
-    	WSCodeGenerator.setWALAResult(targets);
+    public static WSTransformationContent wsAnalyzeCallGraph() {
+    	WSTransformationContent targets = new X10WSCallGraphAnalyzer(buildCallGraph()).simpleAnalyze();
+    	return targets;
     }
     
 	private static CallGraph buildCallGraph(){
