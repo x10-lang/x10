@@ -7,22 +7,27 @@
 
 package polyglot.ast;
 
-import polyglot.util.Enum;
-
-/** 
+/**
  * A <code>FloatLit</code> represents a literal in java of type
  * <code>float</code> or <code>double</code>.
  */
 public interface FloatLit extends Lit 
 {    
     /** Integer literal kinds: float (e.g., 0.0F) or double (e.g., 0.0). */
-    public static class Kind extends Enum {
-        private static final long serialVersionUID = -3253935710240131093L;
-        public Kind(String name) { super(name); }
+    public static enum Kind {
+        FLOAT("float"),DOUBLE("double");
+
+        public final String name;
+        private Kind(String name) {
+            this.name = name;
+        }
+        @Override public String toString() {
+            return name;
+        }
     }
 
-    public static final Kind FLOAT = new Kind("float");
-    public static final Kind DOUBLE = new Kind("double");
+    public static final Kind FLOAT = Kind.FLOAT;
+    public static final Kind DOUBLE = Kind.DOUBLE;
 
     /** The kind of literal: FLOAT or DOUBLE. */
     Kind kind();

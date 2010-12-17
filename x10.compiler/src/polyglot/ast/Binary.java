@@ -7,8 +7,6 @@
 
 package polyglot.ast;
 
-import polyglot.util.Enum;
-
 /**
  * A <code>Binary</code> represents a Java binary expression, an
  * immutable pair of expressions combined with an operator.

@@ -7,8 +7,6 @@
 
 package polyglot.ast;
 
-import polyglot.util.Enum;
-
 /**
  * A <code>Unary</code> represents a Java unary expression, an
  * immutable pair of an expression and an an operator.
@@ -16,13 +14,20 @@ import polyglot.util.Enum;
 public interface Unary extends Expr 
 {
     /** Unary expression operator. */
-    public static class Operator extends Enum {
-        private static final long serialVersionUID = -2921303341693246520L;
+    public static enum Operator {
+        BIT_NOT  ("~", true),
+        NEG      ("-", true),
+        POST_INC ("++", false),
+        POST_DEC ("--", false),
+        PRE_INC  ("++", true),
+        PRE_DEC  ("--", true),
+        POS      ("+", true),
+        NOT      ("!", true);
+
         protected boolean prefix;
         protected String name;
 
-        public Operator(String name, boolean prefix) {
-            super(name + (prefix ? "" : "post"));
+        private Operator(String name, boolean prefix) {
             this.name = name;
             this.prefix = prefix;
         }
@@ -31,17 +36,17 @@ public interface Unary extends Expr
          * postfix. */
         public boolean isPrefix() { return prefix; }
 
-        public String toString() { return name; }
+        @Override public String toString() { return name; }
     }
 
-    public static final Operator BIT_NOT  = new Operator("~", true);
-    public static final Operator NEG      = new Operator("-", true);
-    public static final Operator POST_INC = new Operator("++", false);
-    public static final Operator POST_DEC = new Operator("--", false);
-    public static final Operator PRE_INC  = new Operator("++", true);
-    public static final Operator PRE_DEC  = new Operator("--", true);
-    public static final Operator POS      = new Operator("+", true);
-    public static final Operator NOT      = new Operator("!", true);
+    public static final Operator BIT_NOT  = Operator.BIT_NOT;
+    public static final Operator NEG      = Operator.NEG;
+    public static final Operator POST_INC = Operator.POST_INC;
+    public static final Operator POST_DEC = Operator.POST_DEC;
+    public static final Operator PRE_INC  = Operator.PRE_INC;
+    public static final Operator PRE_DEC  = Operator.PRE_DEC;
+    public static final Operator POS      = Operator.POS;
+    public static final Operator NOT      = Operator.NOT;
 
     /** The sub-expression on that to apply the operator. */
     Expr expr();
