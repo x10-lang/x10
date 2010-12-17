@@ -1,0 +1,9 @@
+Index: include/private/pthread_support.h
+===================================================================
+RCS file: /cvsroot/bdwgc/bdwgc/include/private/pthread_support.h,v
+retrieving revision 1.1.1.1
+diff -r1.1.1.1 pthread_support.h
+69c69
+< # define THREAD_TABLE_SZ 256	/* Must be power of 2	*/
+---
+> # define THREAD_TABLE_SZ 4096	/* Must be power of 2	*/

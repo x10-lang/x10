@@ -381,7 +381,7 @@ import x10.util.Box;
                 // allocate and start a new worker
                 val i = size++;
                 lock.unlock();
-                assert (i < MAX_WORKERS);
+//                assert (i < MAX_WORKERS);
                 if (i >= MAX_WORKERS) {
                     println("TOO MANY THREADS... ABORTING");
                     System.exit(1);
@@ -417,7 +417,7 @@ import x10.util.Box;
             var next:Int = random.nextInt(size);
             for (;;) {
                 event_probe();
-                if (null != workers(next)) { // avoid race with increase method
+                if (next < MAX_WORKERS && null != workers(next)) { // avoid race with increase method
                     activity = workers(next).steal();
                 }
                 if (null != activity || latch()) return activity;
