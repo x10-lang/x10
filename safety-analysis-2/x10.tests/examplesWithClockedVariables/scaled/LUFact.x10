@@ -117,8 +117,8 @@ class Linpack {
 			finish write(a, i, j, value);
 			norma = value > norma ? value : norma;
 		}
-		finish for (val (i,j): Point in b) async clocked(c) b(i, j) = 0.0;
-		finish for ((i,j): Point in [0..n-1, 0..n-1]) async clocked(c) plusWrite(b, 0, j, a(i, j));
+		for (val (i,j): Point in b)  b(i, j) = 0.0;
+		 for ((i,j): Point in [0..n-1, 0..n-1])  plusWrite(b, 0, j, a(i, j));
 		return norma;
 	}
 
@@ -506,7 +506,7 @@ public class LUFact extends Linpack {
 
 	private var size: int;
 	//private int datasizes[] = { 150, 1000, 2000 };
-	private var datasizes: ValRail[int] = [ 64, 1000, 2000 ];
+	private var datasizes: ValRail[int] = [ 192, 1000, 2000 ];
 	public def JGFsetsize(var size: int): void = {
 		this.size = size;
 	}

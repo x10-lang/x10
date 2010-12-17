@@ -2,7 +2,7 @@
 
 public class AllReduceParallelOrig {
   
-  static val P = 64;
+  static val P = 512;
 
   public static def allReduce(c: Clock, op: (int,int)=>int, myA:Rail[int]!) {
     val phases = Math.log2(P);

@@ -12,7 +12,8 @@ public class MergeSortOrig{
 
 	static val op = Int.+;
 
-    static val N: int = 512;
+    static val N: int = 1048576;
+    	val SLICE = 2048;
     public static def main(args:Rail[String]!){
     	val start_time = System.currentTimeMillis(); 
 
@@ -38,12 +39,40 @@ public class MergeSortOrig{
       
     }
     
+ public def selsort(dest:Rail[int]!, src: Rail[int]!, start:int, end: int) {
+		var i: int = 0;
+		var j: int = 0;
+		for (i = start; i <= end; i++) {
+			var min:int = src(i);
+			var minIndex:int = i;
+			for (j = start + i; j <= end; j++) {
+				if (src(j) < min) {
+					min = src(j);
+					minIndex = j;
+				}	
+				
+			}
+			val temp = src(minIndex);
+			src(minIndex) = src(i);
+			src(i) = dest(i) = temp;
+		
+		}
+
+
+
+
+}
  
     
     /** x10doc comment for myMethod */;
     public def sort (red: Rail[int]!, black: Rail[int]!, start: int, end: int, level: int) 
     {
-    	
+	if (end - start < SLICE) {
+
+                	selsort(black, red,  start, end);
+			return;
+	}
+  
     	val fstart: int = start;
     	val fend: int = start + (end - start)/2;
     	val sstart: int = fend + 1;

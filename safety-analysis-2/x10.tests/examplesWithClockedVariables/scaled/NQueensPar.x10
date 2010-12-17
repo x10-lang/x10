@@ -71,8 +71,8 @@ public class NQueensPar {
             if (q.length == 0) {
                 val R = block(0..N-1, P);
                 //val d = at (NQueensPar.this) c;
-                finish for ((q) in 0..P-1)
-                  async clocked (c) search(R(q));
+               	 finish for ((q) in 0..P-1)
+                  	async clocked (c) search(R(q));
             } else search(0..N-1);
         }
   
@@ -86,7 +86,7 @@ public class NQueensPar {
 
     public static def main(args: Rail[String]!)  {
     	val start_time = System.currentTimeMillis(); 
-        val n = args.length > 0 ? Int.parseInt(args(0)) : 8;
+        val n = args.length > 0 ? Int.parseInt(args(0)) : 14;
         println("N=" + n);
         //warmup
         //finish new NQueensPar(12, 1).start();

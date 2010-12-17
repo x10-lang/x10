@@ -1,10 +1,11 @@
 public class PrefixOrig {
-    const N = 2048;
+     const N  = 1048576;
+     val SLICE = 2048;
     global val a = Rail.make[int](N, (i:Int)=> i);
 
     public def run() = run(0, N-1);
     public def run(lo:int, hi:int) {
- 	  if (hi - lo <= 64) { 
+ 	  if (hi - lo < SLICE) { 
 		var i: int = 0;
        		var eprev: int = a(lo);
 		for (i = lo + 1; i <= hi; i++) {

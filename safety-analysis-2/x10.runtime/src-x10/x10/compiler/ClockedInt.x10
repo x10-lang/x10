@@ -21,7 +21,7 @@ public class ClockedInt extends ClockedVar[int] implements ClockableVar{
 
 
     var xRead:int;
-    val MAXWORKERS = 1024;
+    val MAXWORKERS = 1050;
     val xWrite: Rail[int]! = Rail.make[int](MAXWORKERS, (int) => 0);
     var changed:Boolean;
 
@@ -49,10 +49,9 @@ public class ClockedInt extends ClockedVar[int] implements ClockableVar{
 
 
 
-
     public @Inline def setClocked(x:Int) {
-    	val i = Runtime.workerTid();
-		changed = true;
+	val i = Runtime.workerTid();
+	changed = true;
         this.xWrite(i) += x;
     } 
     
@@ -65,8 +64,8 @@ public class ClockedInt extends ClockedVar[int] implements ClockableVar{
         if (changed) {
         	this.xRead = this.xWrite(0);
         	this.xWrite(0) = 0;
-		    val numOfWorkers = Runtime.numOfWorkers();
-        	//Console.OUT.println("Worker id" + numOfWorkers);
+       	        val numOfWorkers = Runtime.numOfWorkers() + 10;
+        	//Console.OUT.println("Worker id max" + numOfWorkers);
 		     var i: int;
         	for (i = 1; i < numOfWorkers; i++) {
         		this.xRead +=  this.xWrite(i);

@@ -96,7 +96,7 @@
 class UTSOrig {
  
     const r0 = 0;                      // seed for root
-    const b0 = 300000;                  // branching factor of root node
+    const b0 = 1800000;                  // branching factor of root node
     const q = 0.12;                    // prob of non-zero branching factor
     const m = 8;                       // branching factor is m with prob q
     val P:int;

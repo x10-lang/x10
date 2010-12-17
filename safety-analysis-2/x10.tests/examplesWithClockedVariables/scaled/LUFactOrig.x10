@@ -499,7 +499,7 @@ public class LUFactOrig extends Linpack {
 
 	private var size: int;
 	//private int datasizes[] = { 150, 1000, 2000 };
-	private var datasizes: ValRail[int] = [ 64, 1000, 2000 ];
+	private var datasizes: ValRail[int] = [ 192, 1000, 2000 ];
 	public def JGFsetsize(var size: int): void = {
 		this.size = size;
 	}
