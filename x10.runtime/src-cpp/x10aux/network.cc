@@ -260,12 +260,17 @@ x10_int x10aux::max_threads() {
 #ifdef __bg__
     x10_int default_max_threads = 1;
 #else
-    x10_int default_max_threads = 1000; // <= THREAD_TABLE_SZ from BDWGC
+    x10_int default_max_threads = 1000;
 #endif
     const char* env = getenv("X10_MAX_THREADS");
     if (env==NULL) return default_max_threads;
     x10_int num = strtol(env, NULL, 10);
     assert (num > 0);
+#ifdef THREAD_TABLE_SZ // bdwgc cap on the number of threads
+    // we need to cap the number of threads potentially created by XRX
+    // here we assume there will be no more than 16 threads created outside of XRX (e.g., transport)
+    if (num > THREAD_TABLE_SZ - 16) num = THREAD_TABLE_SZ - 16;
+#endif
     return num;
 }
 
