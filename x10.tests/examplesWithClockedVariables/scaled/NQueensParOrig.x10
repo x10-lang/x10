@@ -86,7 +86,7 @@ public class NQueensParOrig {
 
     public static def main(args: Rail[String]!)  {
     	val start_time = System.currentTimeMillis(); 
-        val n = args.length > 0 ? Int.parseInt(args(0)) : 8;
+        val n = args.length > 0 ? Int.parseInt(args(0)) : 14;
         println("N=" + n);
         //warmup
         //finish new NQueensPar(12, 1).start();

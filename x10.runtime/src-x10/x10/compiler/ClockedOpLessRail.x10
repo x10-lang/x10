@@ -70,17 +70,14 @@ public class ClockedOpLessRail[T] extends ClockedRailBase[T] implements Clockabl
     
 
     public @Inline @Header def move(): Void {
-	var move: boolean = true;
 	var i: int = 0;
 	for(; i < length; i++) {
-        	if ((changed(i) as AtomicInteger!).get() != 1)
-			move = false;
-    		 (changed(i) as AtomicInteger!).set(0);
+        	if ((changed(i) as AtomicInteger!).get() == 1) {
+			this.xRead(i) = this.xWrite(i);
+		}
+    		(changed(i) as AtomicInteger!).set(0);
+    
 	}
-	if (move)
-        	this.xRead = this.xWrite;
-     	this.xWrite = Rail.make[T] (length, opInit);
-	//Console.OUT.println("Moved");
     }
 
     

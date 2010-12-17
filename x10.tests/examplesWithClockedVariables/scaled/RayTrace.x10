@@ -427,7 +427,7 @@ class RayTracer {
 	var width: int;
 
 	//int datasizes[] = { 150, 500 };
-	val datasizes: ValRail[int] = [64, 128]; //reducing data size
+	val datasizes: ValRail[int] = [256, 1024]; //reducing data size
 	
 	global val c = Clock.make();
 	val op = Long.+;
@@ -732,7 +732,7 @@ public class RayTrace extends RayTracer {
 
 	public def JGFvalidate(): void = @ClockedM (RayTracer.c) {
 		//long refval[] = { 2676692, 29827635 };
-		val refval: ValRail[int] = [486811 , 29827635 ]; // reduced data size
+		val refval: ValRail[int] = [7790739, 29827635 ]; // reduced data size
 		var dev: long = checksum - refval(size);
 		if (Math.abs(dev) > 50) { //FIXME
 			Console.OUT.println("Validation failed");

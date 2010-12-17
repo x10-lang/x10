@@ -2,8 +2,8 @@ import clocked.*;
 
 public class AllReduceParallel {
   
-  static val P = 64;
-
+  static val P = 512;
+  val ITER = 1000;
   public static def allReduce(c: Clock, op: (int,int)=>int, myA:Rail[int @ Clocked[int](c,op, 0)]!) @ClockedM(c) {
   finish {
     val phases = Math.log2(P);

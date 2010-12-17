@@ -493,7 +493,7 @@ class IdeaTest {
  class IDEA extends IdeaTest {
 
 	private var size: int;
-	private val datasizes  = [512, 20000000, 50000000 ];
+	private val datasizes  = [1048576, 20000000, 50000000 ];
 
 	public def JGFsetsize(var size: int): void = {
 		this.size = size;

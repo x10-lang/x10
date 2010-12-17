@@ -376,7 +376,7 @@ public final class Runtime {
         private var exceptions:Stack[Throwable]!;
 
         //Collecting Finish Use : Stack to store, each Worker has one Stack
-        public const MAX = 1000;
+        public const MAX = 1050;
         public global val mapStack :Rail[Stack[Object]!]! = Rail.make[Stack[Object]!](MAX, (Int) => new Stack[Object]());
 
         def this() {
@@ -617,7 +617,7 @@ public final class Runtime {
 
         private var count:AtomicInteger! = new AtomicInteger(0);
         //Collecting Finish Use
-        public const MAX = 1000;
+        public const MAX = 1050;
         public global val mapStack :Rail[Stack[Object]!]! = Rail.make[Stack[Object]!](MAX, (Int) => new Stack[Object]());
 
 
@@ -889,7 +889,7 @@ public final class Runtime {
         private val semaphore = new Semaphore(0);
 
         // an upper bound on the number of workers
-        private const MAX = 1000;
+        private const MAX = 1050;
 
         // the workers in the pool
         private val workers:Rail[Worker!]!;
@@ -1045,7 +1045,8 @@ public final class Runtime {
         pretendLocal(Thread.currentThread().worker() as Worker);
         
      public static @Inline def workerTid():Int =
-        (Thread.currentThread().worker() as Worker!).workerId;
+        //(Thread.currentThread().worker() as Worker!).workerId;
+        (Thread.currentThread().getTid()) as Int;
 
      public static @Inline def numOfWorkers():Long = runtime().pool.size;
 
@@ -1403,7 +1404,7 @@ public final class Runtime {
     public static class CollectingFinish[T] {
         protected global val Reducible : Reducible[T];
        // an upper bound on the number of workers
-        private const MAX = 1000;
+        private const MAX = 1050;
 
         //Exposed API
         public def this(r:Reducible[T]) {
