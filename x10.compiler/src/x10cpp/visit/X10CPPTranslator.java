@@ -524,8 +524,8 @@ public class X10CPPTranslator extends Translator {
 
 	private static List<MethodDef> getMainMethods(Job job) {
 	    X10CPPJobExt jobext = (X10CPPJobExt) job.ext();
-	    if (Configuration.MAIN_CLASS != null) {
-	        QName mainClass = QName.make(Configuration.MAIN_CLASS);
+	    if (x10.Configuration.MAIN_CLASS != null) {
+	        QName mainClass = QName.make(x10.Configuration.MAIN_CLASS);
 	        try {
 	            ClassType mct = (ClassType) job.extensionInfo().typeSystem().forName(mainClass);
 	            QName pkgName = mct.package_() == null ? null : mct.package_().fullName();

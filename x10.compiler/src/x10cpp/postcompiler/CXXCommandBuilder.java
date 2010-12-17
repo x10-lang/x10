@@ -29,7 +29,7 @@ import polyglot.util.ErrorInfo;
 import polyglot.util.ErrorQueue;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.QuotedStringTokenizer;
-import x10cpp.Configuration;
+import x10.Configuration;
 import x10cpp.X10CPPCompilerOptions;
 
 public class CXXCommandBuilder {
