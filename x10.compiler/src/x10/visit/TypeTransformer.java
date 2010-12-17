@@ -365,13 +365,14 @@ public class TypeTransformer extends NodeTransformer {
                     res = ice;
                 }
                 ClosureDef_c.addCapturedVariable(ice, li);
-            } else
-            if (vi instanceof X10FieldInstance) {
+            } else if (vi instanceof X10FieldInstance) {
                 X10FieldInstance fi = transformFieldInstance((X10FieldInstance) vi);
                 if (fi != vi) {
                     res = ice;
                 }
                 ClosureDef_c.addCapturedVariable(ice, fi);
+            } else {
+                ClosureDef_c.addCapturedVariable(ice, vi);
             }
         }
         return res;
