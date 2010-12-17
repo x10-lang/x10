@@ -192,6 +192,7 @@ import x10.ast.X10MethodDecl;
 import x10.ast.X10MethodDecl_c;
 import x10.ast.X10Special_c;
 import x10.ast.X10Unary_c;
+import x10.errors.Warnings;
 import x10.extension.X10Ext;
 import x10.extension.X10Ext_c;
 import x10.types.ClosureDef;
@@ -4117,6 +4118,15 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
         inc.write("// captured environment"); inc.newline();
         List<VarInstance<?>> refs = computeBoxedRefs(c, closureDef);
+
+        List<VarInstance<? extends VarDef>> env = closureDef.capturedEnvironment();
+        for (VarInstance<?> vi : c.variables) {
+            if (!env.contains(vi) && !vi.name().toString().equals(THIS)) {
+                // Sanity check
+                String msg = "Closure "+n+" at "+n.position()+" captures "+vi+" which is not in the environment";
+                Warnings.issue(tr.job(), msg, n.position());
+            }
+        }
 
         emitter.printDeclarationList(inc, c, c.variables, refs);
         inc.forceNewline();

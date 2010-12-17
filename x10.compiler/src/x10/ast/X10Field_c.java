@@ -270,7 +270,9 @@ public class X10Field_c extends Field_c {
             throw fi.error();
         }
 
-        c.recordCapturedVariable(fi);
+        if (target() instanceof X10Special) {
+            c.recordCapturedVariable(fi);
+        }
 
 //		// Fix XTENLANG-945 (alternative common fix)
 //		if (isInterfaceProperty(tType, fi)) {

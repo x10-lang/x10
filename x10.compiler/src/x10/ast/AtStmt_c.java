@@ -236,6 +236,14 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
             Errors.issue(tc.job(), 
                     new Errors.AtArgMustBePlace(this.place, ts.Place(), this.position()));
         }
+
+        Context c = tc.context();
+        AtDef def = this.atDef();
+        //if (!def.capturedEnvironment().isEmpty()) {
+        //    System.out.println(this.position() + ": " + this + " captures "+def.capturedEnvironment());
+        //}
+        Closure_c.propagateCapturedEnvironment(c, def);
+
         return this;
     }
     

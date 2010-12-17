@@ -32,6 +32,7 @@ import polyglot.types.Types;
 import polyglot.util.CodeWriter;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
+import polyglot.visit.ContextVisitor;
 import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeBuilder;
 import x10.ast.X10Loop.LoopKind;
@@ -161,19 +162,27 @@ public class AtEach_c extends X10ClockedLoop_c implements AtEach, Clocked {
 				placeTerm = XConstrainedTerm.instantiate(d, term);
 			}
 
-            if (child == body)
-                xc = (Context) xc.pushPlace(placeTerm);
+			if (child == body)
+			    xc = (Context) xc.pushPlace(placeTerm);
 		} 
 		catch (XFailure z) {
 			throw new InternalCompilerError("Cannot construct placeTerm from  term  and constraint.");
 		}
-        return xc;
+		return xc;
 	}
 
 	@Override
-	protected Object clone() throws CloneNotSupportedException {
-		// TODO Auto-generated method stub
-		return super.clone();
+	public Node typeCheck(ContextVisitor tc) {
+	    AtEach_c n = (AtEach_c) super.typeCheck(tc);
+
+	    Context c = tc.context();
+	    AtDef def = n.atDef;
+	    //if (!def.capturedEnvironment().isEmpty()) {
+	    //    System.out.println(this.position() + ": " + this + " captures "+def.capturedEnvironment());
+	    //}
+	    Closure_c.propagateCapturedEnvironment(c, def);
+
+	    return n;
 	}
 
 	public String toString() {

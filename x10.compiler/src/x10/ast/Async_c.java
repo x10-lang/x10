@@ -212,18 +212,24 @@ public class Async_c extends Stmt_c implements Async {
 		TypeSystem ts = (TypeSystem) tc.typeSystem();
 		NodeFactory nf = (NodeFactory) tc.nodeFactory();
 
-		Context c = (Context) tc.context();
+		Context c = tc.context();
 		if (clocked() && ! c.inClockedFinishScope())
 			Errors.issue(tc.job(),
 			        new SemanticException("clocked async must be invoked inside a statically enclosing clocked finish.", position()));
-			
-        for (Expr e : clocks()) {
-            Type t = e.type();
-            if (!t.isSubtype(ts.Clock(), tc.context())) {
-                Errors.issue(tc.job(),
-                        new SemanticException("Type \"" + t + "\" must be x10.lang.clock.", e.position()));
-            }
-        }
+
+		for (Expr e : clocks()) {
+		    Type t = e.type();
+		    if (!t.isSubtype(ts.Clock(), tc.context())) {
+			Errors.issue(tc.job(),
+				new SemanticException("Type \"" + t + "\" must be x10.lang.clock.", e.position()));
+		    }
+		}
+
+		AsyncDef def = this.asyncDef();
+		//if (!def.capturedEnvironment().isEmpty()) {
+		//    System.out.println(this.position() + ": " + this + " captures "+def.capturedEnvironment());
+		//}
+		Closure_c.propagateCapturedEnvironment(c, def);
 
 		return this;
 	}
