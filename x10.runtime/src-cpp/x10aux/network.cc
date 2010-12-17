@@ -256,6 +256,19 @@ x10_int x10aux::num_threads() {
     return num;
 }
 
+x10_int x10aux::max_threads() {
+#ifdef __bg__
+    x10_int default_max_threads = 1;
+#else
+    x10_int default_max_threads = 1000; // <= THREAD_TABLE_SZ from BDWGC
+#endif
+    const char* env = getenv("X10_MAX_THREADS");
+    if (env==NULL) return default_max_threads;
+    x10_int num = strtol(env, NULL, 10);
+    assert (num > 0);
+    return num;
+}
+
 x10_boolean x10aux::no_steals()
 {
     char* s = getenv("X10_NO_STEALS");

@@ -46,9 +46,19 @@ import x10.util.Box;
     @Native("c++", "x10aux::no_steals()")
     public static NO_STEALS = false;
 
+    /**
+     * The initial number of worker threads
+     */
     @Native("java", "x10.runtime.impl.java.Runtime.INIT_THREADS")
     @Native("c++", "x10aux::num_threads()")
     public static INIT_THREADS = 1;
+
+    /**
+     * An upper bound on the number of worker threads
+     */
+    @Native("java", "x10.runtime.impl.java.Runtime.MAX_THREADS")
+    @Native("c++", "x10aux::max_threads()")
+    public static MAX_WORKERS = 1000;
 
     @Native("java", "x10.runtime.impl.java.Runtime.STATIC_THREADS")
     @Native("c++", "x10aux::static_threads()")
@@ -471,11 +481,6 @@ import x10.util.Box;
      * Return the current worker id
      */
     public static def workerId():Int = worker().workerId;
-
-    /**
-     * An upper bound on the number of workers
-     */
-    public static MAX_WORKERS = 1000;
 
     /**
      * Return the number of workers currently in the pool

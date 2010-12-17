@@ -156,6 +156,11 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
 	 */
 	public static final int INIT_THREADS = Integer.getInteger("x10.INIT_THREADS", java.lang.Runtime.getRuntime().availableProcessors());
 
+    /**
+     * The maximal size of the thread pool
+     */
+    public static final int MAX_THREADS = Integer.getInteger("x10.MAX_THREADS", 1000);
+
 	/**
 	 * Whether or not to start more threads while blocking
 	 */

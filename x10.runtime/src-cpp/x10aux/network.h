@@ -92,6 +92,8 @@ namespace x10aux {
 
     x10_int num_threads();
 
+    x10_int max_threads();
+
     x10_boolean no_steals();
 
     x10_boolean static_threads();
