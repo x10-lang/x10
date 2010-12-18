@@ -75,7 +75,7 @@ public class FinallyEliminator extends ContextVisitor {
     private static final Name EQUALS          = Name.make("equals");
     private static final QName FINALIZATION   = QName.make("x10.compiler.Finalization");
 
-    protected static ClassType finalization;
+    protected ClassType finalization;
 
     protected final TypeSystem ts;
     protected AltSynthesizer syn;
@@ -126,7 +126,7 @@ public class FinallyEliminator extends ContextVisitor {
     @Override
     protected NodeVisitor enterCall(Node n) throws SemanticException {
         if (n instanceof Closure) {
-            return new FinallyEliminator(job, ts, nodeFactory()).context(context());
+            return ((ContextVisitor) new FinallyEliminator(job, ts, nodeFactory()).begin()).context(context());
         }
         Try t = tryWithFinally(n);
         if (null == t) {
