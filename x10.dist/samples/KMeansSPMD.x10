@@ -128,16 +128,9 @@ public class KMeansSPMD {
                                     }
                                 }
                                 for (var d:Int=0 ; d<dim ; ++d) { 
-                                    // Working around XTENLANG-2195.
-                                    // The code should be: 
-                                    // host_clusters(closest*dim+d) += host_points(p+d*num_slice_points_stride);
-                                    val idx_tmp = closest*dim+d;
-                                    host_clusters(idx_tmp) = host_clusters(idx_tmp) + host_points(p+d*num_slice_points_stride);
+                                    host_clusters(closest*dim+d) += host_points(p+d*num_slice_points_stride);
                                 }
-                                // Working around XTENLANG-2195.
-                                // The code should be: 
-                                //   host_cluster_counts(closest)++;
-                                host_cluster_counts(closest) = host_cluster_counts(closest) + 1;
+                                host_cluster_counts(closest)++;
                             }
                             compute_time += System.nanoTime() - compute_start;
 
