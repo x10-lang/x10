@@ -366,10 +366,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
         return new X10TypeSystem_c();
     }
 
-    public void initCompiler(Compiler compiler) {
-	super.initCompiler(compiler);
-	//QueryEngine.init(this);
-    }
+
 
     // =================================
     // X10-specific goals and scheduling

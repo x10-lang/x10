@@ -117,10 +117,6 @@ public class ClosureType_c extends X10ParsedClassType_c implements FunctionType 
         return "(" + sb.toString() + ")" + (guard==null? "" : guard) + "=> " + mi.returnType();
     }
 
-	@Override
-	public boolean equalsImpl(TypeObject t) {
-		return super.equalsImpl(t);
-	}
 
 	@Override
 	public int hashCode() {

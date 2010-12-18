@@ -23,9 +23,5 @@ public class Def_c extends TypeObject_c {
         return System.identityHashCode(this);
     }
     
-    public Object copy() {
-//        assert false;
-        return super.copy();
-    }
 
 }

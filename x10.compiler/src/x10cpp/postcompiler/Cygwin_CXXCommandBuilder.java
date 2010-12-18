@@ -33,7 +33,4 @@ public class Cygwin_CXXCommandBuilder extends CXXCommandBuilder {
         cxxCmd.add("-mfpmath=sse");
     }
 
-    protected void addPostArgs(ArrayList<String> cxxCmd) {
-        super.addPostArgs(cxxCmd);
-    }
 }
