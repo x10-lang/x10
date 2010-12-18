@@ -394,6 +394,10 @@ public class X10TypeMixin {
 	    }
 	    return t;
 	}
+    public static X10ClassDef_c getDef(Type t) {
+        if (t==null) return null;
+        return (X10ClassDef_c) ((X10ParsedClassType_c)baseType(t)).def();
+    }
 	
     public static Type stripConstraints(Type t) {
         TypeSystem ts = (TypeSystem) t.typeSystem();
