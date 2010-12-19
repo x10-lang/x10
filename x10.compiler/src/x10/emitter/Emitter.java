@@ -1371,7 +1371,11 @@ public class Emitter {
                     it.remove();
                 }
                 if (type instanceof X10ClassType) {
-                    if (!((X10ClassType) type).flags().isInterface()) {
+                    TypeSystem ts = context.typeSystem();
+                    if (ts.isAny(type) || ts.isObjectType(type, context)) {
+                        it.remove();
+                    }
+                    else if (!((X10ClassType) type).flags().isInterface()) {
                         if (supClassType != null ) {
                             if (type.isSubtype(supClassType, context)) {
                                 supClassType = type;
