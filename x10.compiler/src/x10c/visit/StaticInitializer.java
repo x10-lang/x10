@@ -156,6 +156,10 @@ public class StaticInitializer extends ContextVisitor {
         // classBody.dump(System.err);
         classBody = checkStaticFields(classBody, context);
 
+        if (staticFinalFields.isEmpty())
+            // nothing to do
+            return classBody;
+
         List<ClassMember> currMembers = new ArrayList<ClassMember>();
         currMembers.addAll(classBody.members());
 
@@ -163,7 +167,6 @@ public class StaticInitializer extends ContextVisitor {
             // create a new member list for initializer/deserializer methods of each static field
             List<ClassMember> newMembers = createNewMembers(classDef);
             currMembers.addAll(newMembers);
-            classBody = classBody.members(currMembers);
         } else {
             // create a nested shadow class
             X10ClassDecl shadowDecl = createNestedShadowClass(ct);
@@ -178,9 +181,9 @@ public class StaticInitializer extends ContextVisitor {
 
             // add the shadow class in the original interface body
             currMembers.add(shadowDecl);
-            classBody = classBody.members(currMembers);
         }
 
+        classBody = classBody.members(currMembers);
         // classBody.dump(System.err);
         return classBody;
     }
