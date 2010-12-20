@@ -277,7 +277,7 @@ public class StaticInitializer extends ContextVisitor {
     }
 
     private X10ClassDef createShadowClassDef(ClassDef interfaceClassDef) {
-        X10ClassDef cDef = (X10ClassDef) xts.createClassDef();
+        X10ClassDef cDef = (X10ClassDef) xts.createClassDef(interfaceClassDef.sourceFile());
         cDef.superType(Types.ref(xts.Any()));
         List<Ref<? extends Type>> interfacesRef = Collections.<Ref<? extends Type>>emptyList();
         cDef.setInterfaces(interfacesRef);
