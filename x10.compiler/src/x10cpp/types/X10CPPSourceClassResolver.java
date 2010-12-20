@@ -61,6 +61,7 @@ public class X10CPPSourceClassResolver extends X10SourceClassResolver {
         //        containing multiple x10 classes.
         //        Need to properly track the relationship between source files and generated C++ entities
         //        for this to actually work reliably.
+        // SEE XTENLANG-2256.
         if (false) {
             String packageName = name.qualifier() != null ? name.qualifier().toString() : null;
             final File cc = X10CPPTranslator.outputFile(ext.getOptions(), packageName, name.name().toString(), StreamWrapper.CC);
