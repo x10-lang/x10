@@ -198,7 +198,7 @@ public class X10TypeMixin {
 	// TODO: should not deref now, since could be called by class loader
 	return instantiate(t, Types.get(typeArg));
     }
-   
+
     public static TypeConstraint parameterBounds(Type t) {
         if (t instanceof ParameterType) {
         }
@@ -1478,7 +1478,10 @@ public class X10TypeMixin {
 	    			+ "\n\t: p1: " + getOrigMI(xp1)
 	    			+ "\n\t: at " + xp1.position()
 	    			+ "\n\t: p2: " + getOrigMI(xp2)
-	    			+ "\n\t: at " + xp2.position();
+	    			+ "\n\t: at " + xp2.position()
+	    			+ "\n\t: t1 is  " + t1
+	    			+ "\n\t: t2 is " + t2;
+           // new Error().printStackTrace();
             ts.extensionInfo().compiler().errorQueue().enqueue(ErrorInfo.WARNING,msg);
 	    }
 	    // Change this to return old to re-enable 2.0.6 style computation.
@@ -1560,7 +1563,7 @@ public class X10TypeMixin {
 		assert xp2 != null;
 		assert context != null;
 		TypeSystem ts = (TypeSystem) context.typeSystem();
-	    	List<Type> typeArgs = Collections.<Type>emptyList();
+	    
 	    	try {
 	    		if (xp2 instanceof X10MethodInstance) {
 	    			// Both xp1 and xp2 should be X10MethodInstance's 
@@ -1579,15 +1582,29 @@ public class X10TypeMixin {
 	    			List<Type> argTypes = new ArrayList<Type>(origMI1.formalTypes());
 	    			if (xp2.formalTypes().size() != argTypes.size())
 	        			return false;
+	    			// For xp1 to be more specific than xp2, it must have the same number of type parameters
+	    			//if (xmi1.typeParameters().size() != 0 && (xmi2.typeParameters().size() != xmi1.typeParameters().size()))
+	    			//	return false;
 	    			// TODO: Establish that the current context is aware of the method
 	    			// guard for xmi1.
-	    			
-	    			if (typeArgs.isEmpty() || typeArgs.size() == xmi2.typeParameters().size()) {
-	    				MethodInstance r = Matcher.inferAndCheckAndInstantiate(context, 
-	    						origMI2, ct1, typeArgs, argTypes, xp2.position());
-	    				if (r == null)
-	    					return false;
+	    			List<Type> typeArgs = origMI1.typeParameters(); // pass in the type parameters, no need to infer
+	    			MethodInstance r = null;
+	    			try { 
+	    				r=Matcher.inferAndCheckAndInstantiate(context, origMI2, ct1, typeArgs, argTypes, xp2.position());
+	    			} catch (SemanticException z) {
+	    				
 	    			}
+	    					
+	    			if (r == null){
+	    				r = Matcher.inferAndCheckAndInstantiate(context, 
+		    					origMI2, ct1, Collections.<Type>emptyList(), argTypes, xp2.position());
+	    				if (r == null){
+		    				return false;
+		    			}
+	    				
+	    			}
+	    			// fall through, we know that xp1 can be used to make a call to xp2
+	    			
 	    		} else  if (xp2 instanceof X10ConstructorInstance) {
 	    			// Both xp1 and xp2 should be X10ConstructorInstance's 
 	                X10ConstructorInstance xmi2 = (X10ConstructorInstance) xp2;
@@ -1600,13 +1617,25 @@ public class X10TypeMixin {
 	            	X10ConstructorInstance origMI1 = (X10ConstructorInstance) xmi1.origMI();
 	            	assert origMI1 != null;
 	            	List<Type> argTypes = new ArrayList<Type>(origMI1.formalTypes());
+	            	
 	    			if (xp2.formalTypes().size() != argTypes.size())
 	        			return false;
 	    			// TODO: Figure out how to do type inference.
-	                X10ConstructorInstance r = Matcher.inferAndCheckAndInstantiate( context, 
-	                        origMI2, ct1, typeArgs, argTypes, xp2.position());
-	                if (r == null)
+	    			List<Type> typeArgs = xmi2.typeParameters();
+	                X10ConstructorInstance r=null;
+	                try {
+	                	r= Matcher.inferAndCheckAndInstantiate( context,  origMI2, ct1, typeArgs, argTypes, xp2.position());
+	                } catch (SemanticException z) {
+	                	
+	                }
+	                if (r == null) {
+                    	r = Matcher.inferAndCheckAndInstantiate(context, 
+		    					origMI2, ct1, Collections.<Type>emptyList(), argTypes, xp2.position());
+                    	if (r == null)
 	                	return false;
+                    }    
+	            
+	             // fall through, we know that xp1 can be used to make a call to xp2
 	            }	else {
 	            	// Should not happen.
 	            	// System.out.println("Diagnostic. Unhandled MoreSpecificMatcher case: " + xp2 + " class " + xp2.getClass());
@@ -1622,10 +1651,10 @@ public class X10TypeMixin {
 	        Type f1 = xp1.formalTypes().get(i);
 	        Type f2 = xp2.formalTypes().get(i);
 	        if (! ts.typeEquals(f1, f2, context)) {
-	            return true;
+	        	return true;
 	        }
 	    }
-	
+	// the types are all equal, check the containers
 	    if (t1 != null && t2 != null) {
 	        // If p1 overrides p2 or if p1 is in an inner class of p2, pick p1.
 	        if (descends) {
@@ -1636,6 +1665,7 @@ public class X10TypeMixin {
 	                return true;
 	            }
 	        }
+          // p1 may be intfc method, p2 the implementing method
 	        return false;
 	    }
 	

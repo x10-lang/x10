@@ -577,7 +577,7 @@ public class TypeConstraint implements Copy, Serializable {
 	        			"Returning Any instead of throwing an exception."
 	        			 + (X[i] != null ? "\n\t: Position: " +  X[i].position().toString() : ""));
 	        			 */
-	        	Y[i] = xts.Any();
+	        	//Y[i] = xts.Any();
 	           // throw new SemanticException("Could not infer type for type parameter " + X[i] + ".", me.position());
 	        }
 	    }
