@@ -102,7 +102,7 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct {
 
     public static final RuntimeType<IndexedMemoryChunk<?>> _RTT = new RuntimeType<IndexedMemoryChunk<?>>(
         IndexedMemoryChunk.class,
-        Variance.INVARIANT
+        new RuntimeType.Variance[] { Variance.INVARIANT }
     ) {
         @Override
         public java.lang.String typeName() {

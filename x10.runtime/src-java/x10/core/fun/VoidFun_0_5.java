@@ -20,11 +20,13 @@ public interface VoidFun_0_5<T1,T2,T3,T4,T5> extends VoidFun {
     
     public static final RuntimeType<VoidFun_0_5<?,?,?,?,?>> _RTT = new RuntimeType<VoidFun_0_5<?,?,?,?,?>>(
         VoidFun_0_5.class,
-        Variance.CONTRAVARIANT,
-        Variance.CONTRAVARIANT,
-        Variance.CONTRAVARIANT,
-        Variance.CONTRAVARIANT,
-        Variance.CONTRAVARIANT
+        new RuntimeType.Variance[] {
+            Variance.CONTRAVARIANT,
+            Variance.CONTRAVARIANT,
+            Variance.CONTRAVARIANT,
+            Variance.CONTRAVARIANT,
+            Variance.CONTRAVARIANT
+        }
     ) {
         @Override
         public String typeName(Object o) {

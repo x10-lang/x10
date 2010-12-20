@@ -42,7 +42,7 @@ public final class RemoteIndexedMemoryChunk<T> extends x10.core.Struct {
 
     public static final RuntimeType<RemoteIndexedMemoryChunk<?>> _RTT = new RuntimeType<RemoteIndexedMemoryChunk<?>>(
         RemoteIndexedMemoryChunk.class,
-        Variance.INVARIANT
+        new RuntimeType.Variance[] { Variance.INVARIANT }
     ) {
         @Override
         public java.lang.String typeName() {

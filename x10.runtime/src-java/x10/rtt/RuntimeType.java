@@ -28,7 +28,7 @@ public class RuntimeType<T> implements Type<T> {
         this.base = c;
     }
     
-    public RuntimeType(Class<?> c, Variance... variances) {
+    public RuntimeType(Class<?> c, Variance[] variances) {
         this.base = c;
         this.variances = variances;
     }

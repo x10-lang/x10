@@ -49,7 +49,12 @@ public class Types {
     }
 
     // create rtt of comparable before all types that implement comparable (e.g. int)
-    public static final RuntimeType<?> COMPARABLE = new RuntimeType(Comparable.class, RuntimeType.Variance.INVARIANT) {
+    public static final RuntimeType<?> COMPARABLE = new RuntimeType(
+        Comparable.class, 
+        new RuntimeType.Variance[] {
+            RuntimeType.Variance.INVARIANT
+        }
+    ) {
         @Override
         public String typeName() {
             return "x10.lang.Comparable";
