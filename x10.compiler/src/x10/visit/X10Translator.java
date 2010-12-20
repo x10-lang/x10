@@ -52,6 +52,19 @@ public class X10Translator extends Translator {
     
     boolean inInnerClass;
 
+    private static String escapePath(String path) {
+        StringBuffer sb = new StringBuffer();
+        for (int i = 0; i < path.length(); ++i) {
+            char c = path.charAt(i);
+            if (c == '\\') {
+//                sb.append(c).append(c);
+                sb.append('/');
+            } else {
+                sb.append(c);
+            }
+        }
+        return sb.toString();
+    }
     public void print(Node parent, Node n, CodeWriter w) {
         if (n != null && n.position().line() > 0 &&
                 ((n instanceof Stmt && (! (n instanceof Block))) ||
@@ -59,7 +72,8 @@ public class X10Translator extends Translator {
                  (n instanceof MethodDecl) ||
                  (n instanceof ConstructorDecl) ||
                  (n instanceof ClassDecl)))
-            w.write("\n//#line " + n.position().line() + "\n");
+//            w.write("\n//#line " + n.position().line() + "\n");
+            w.write("\n//#line " + n.position().line() + " \"" + escapePath(n.position().file()) + "\"\n");
 
         super.print(parent, n, w);
     }
