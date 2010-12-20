@@ -39,17 +39,14 @@ endif
 
 CXXFLAGS += -g
 
-#avoid specifying -NDEBUG twice
 ifdef OPTIMIZE
-  USE_NDEBUG := -DNDEBUG -DNO_PLACE_CHECKS
+  CXXFLAGS += -DNO_TRACING
   X10CPPFLAGS += -optimize
 endif
 ifdef NO_CHECKS
-  USE_NDEBUG := -DNDEBUG
   CXXFLAGS += -DNO_CHECKS
   X10CPPFLAGS += -NO_CHECKS
 endif
-CXXFLAGS += $(USE_NDEBUG)
 
 ifdef USE_BFD
   CXXFLAGS += -DUSE_BFD
