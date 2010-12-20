@@ -343,18 +343,14 @@ public class X10CPPTranslator extends Translator {
 				String className = cd.classDef().name().toString();
 				WriterStreams wstreams = new WriterStreams(className, pkg, job, tf);
 				StreamWrapper sw = new StreamWrapper(wstreams, outputWidth);
-				// [DC] TODO: This hack is to ensure the .inc is always generated.
-				sw.getNewStream(StreamWrapper.Closures, true);
 				// [IP] FIXME: This hack is to ensure the .cc is always generated.
 				sw.getNewStream(StreamWrapper.CC, true);
                 // [DC] TODO: This hack is to ensure the .h is always generated.
                 sw.getNewStream(StreamWrapper.Header, true);
 
-				String closures = wstreams.getStreamName(StreamWrapper.Closures);
 				String cc = wstreams.getStreamName(StreamWrapper.CC);
 				String header = wstreams.getStreamName(StreamWrapper.Header);
 
-				outputFiles.add(closures);
 				outputFiles.add(cc);
 				outputFiles.add(header);
 				opts.compilationUnits().add(cc);
@@ -362,7 +358,6 @@ public class X10CPPTranslator extends Translator {
 				if (x10.Configuration.DEBUG) {
 					HashMap<String, LineNumberMap> fileToLineNumberMap =
 					    c.<HashMap<String, LineNumberMap>>getData(FILE_TO_LINE_NUMBER_MAP);
-					fileToLineNumberMap.put(closures, new LineNumberMap());
 					fileToLineNumberMap.put(cc, new LineNumberMap());
 					fileToLineNumberMap.put(header, new LineNumberMap());
 				}

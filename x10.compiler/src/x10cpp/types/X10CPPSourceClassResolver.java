@@ -60,10 +60,9 @@ public class X10CPPSourceClassResolver extends X10SourceClassResolver {
         String packageName = name.qualifier() != null ? name.qualifier().toString() : null;
         final File cc = X10CPPTranslator.outputFile(ext.getOptions(), packageName, name.name().toString(), StreamWrapper.CC);
         final File h = X10CPPTranslator.outputFile(ext.getOptions(), packageName, name.name().toString(), StreamWrapper.Header);
-        final File inc = X10CPPTranslator.outputFile(ext.getOptions(), packageName, name.name().toString(), StreamWrapper.Closures);
 
-        if (cc.exists() && h.exists() && inc.exists()) {
-            final File oldest = oldestFile(new File[] {cc,h,inc});
+        if (cc.exists() && h.exists()) {
+            final File oldest = oldestFile(new File[] {cc,h});
             return new Resource() {
             	public File file() {
             		return oldest;
@@ -93,13 +92,11 @@ public class X10CPPSourceClassResolver extends X10SourceClassResolver {
         String packageName = name.qualifier() != null ? name.qualifier().toString() : null;
         String cc = X10CPPTranslator.outputFileName(packageName, name.name().toString(), StreamWrapper.CC);
         String h = X10CPPTranslator.outputFileName(packageName, name.name().toString(), StreamWrapper.Header);
-        String inc = X10CPPTranslator.outputFileName(packageName, name.name().toString(), StreamWrapper.Closures);
 
         System.out.println("Not recompiling: "+name);
 
         ((X10CPPCompilerOptions)ext.getOptions()).compilationUnits().add(cc);
         ext.compiler().outputFiles().add(cc);
         ext.compiler().outputFiles().add(h);
-        ext.compiler().outputFiles().add(inc);
     }
 }

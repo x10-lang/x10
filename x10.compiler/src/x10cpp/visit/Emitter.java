@@ -1054,7 +1054,7 @@ public class Emitter {
             h.write("public: template<class __T> static ");
             h.write(make_ref("__T")+" "+DESERIALIZER_METHOD+"("+DESERIALIZATION_BUFFER+"& buf);");
             h.newline(); h.forceNewline();
-            sw.pushCurrentStream(context.templateFunctions);
+            sw.pushCurrentStream(context.genericFunctions);
             printTemplateSignature(ct.x10Def().typeParameters(), sw);
             sw.write("template<class __T> ");
             sw.write(make_ref("__T")+" "+klass+"::"+DESERIALIZER_METHOD+"("+DESERIALIZATION_BUFFER+"& buf) {");

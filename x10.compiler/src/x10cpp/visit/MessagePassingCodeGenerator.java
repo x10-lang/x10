@@ -656,13 +656,18 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
         ClassifiedStream save_body = sw.body();
         ClassifiedStream save_header = sw.header();
-        ClassifiedStream save_generic = context.templateFunctions;
+        ClassifiedStream save_generic = context.genericFunctions;
+        ClassifiedStream save_generic_cls = context.genericFunctionClosures;
         ClassifiedStream save_structHeader = context.structHeader;
+        ClassifiedStream save_closures = context.closures;
         // Header stream
         ClassifiedStream h = sw.getNewStream(StreamWrapper.Header, false);
+        // Stream for closures that are within generic functions (always in the header, may be empty)
+        ClassifiedStream g_cls = sw.getNewStream(StreamWrapper.Header, false);
+        context.genericFunctionClosures = g_cls;
         // Stream for generic functions (always in the header, may be empty)
         ClassifiedStream g = sw.getNewStream(StreamWrapper.Header, false);
-        context.templateFunctions = g;
+        context.genericFunctions = g;
         // Stream for struct data definition (only if n is a struct)
         ClassifiedStream sh = null;
         if (isStruct) {
@@ -673,10 +678,14 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         // Implementation stream.
         //    In generic context, in .h, but after the logical header stream.
         //    In non-generic context, in .cc
-        ClassifiedStream w = sw.getNewStream(def.typeParameters().size() != 0 ? StreamWrapper.Header : StreamWrapper.CC, false);
+        ClassifiedStream w_header = sw.getNewStream(def.typeParameters().size() != 0 ? StreamWrapper.Header : StreamWrapper.CC, false);
+        ClassifiedStream w_closures = sw.getNewStream(def.typeParameters().size() != 0 ? StreamWrapper.Header : StreamWrapper.CC, false);
+        context.closures = w_closures;
+        ClassifiedStream w_body = sw.getNewStream(def.typeParameters().size() != 0 ? StreamWrapper.Header : StreamWrapper.CC, false);
+        ClassifiedStream w_footer = sw.getNewStream(def.typeParameters().size() != 0 ? StreamWrapper.Header : StreamWrapper.CC, false);
         // Dependences guard closing stream (comes at the end of the header)
         ClassifiedStream z = sw.getNewStream(StreamWrapper.Header, false);
-        sw.set(h, w);
+        sw.set(h, w_body);
 
         context.setInsideClosure(false);
         context.hasInits = false;
@@ -721,21 +730,16 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
         boolean inTemplate = def.typeParameters().size() != 0;
         if (inTemplate) {
-            w.write("#ifndef "+cguard+"_IMPLEMENTATION"); w.newline();
-            w.write("#define "+cguard+"_IMPLEMENTATION"); w.newline();
+            w_header.write("#ifndef "+cguard+"_IMPLEMENTATION"); w_header.newline();
+            w_header.write("#define "+cguard+"_IMPLEMENTATION"); w_header.newline();
         }
 
-        w.write("#include <"+cheader+">"); w.newline();
+        w_header.write("#include <"+cheader+">"); w_header.newline();
 
-        w.forceNewline(0);
-        w.forceNewline(0);
+        w_header.forceNewline(0);
+        w_header.forceNewline(0);
 
         String packageName = context.package_() == null ? null : context.package_().fullName().toString();
-        		
-        String incfile = X10CPPTranslator.outputFileName(packageName, n.name().toString(), StreamWrapper.Closures); 
-
-        w.write("#include \""+incfile+"\""); w.newline();
-        w.forceNewline(0);
 
 		ArrayList<Type> allIncludes = new ArrayList<Type>();
 		if (n.superClass() != null) {
@@ -967,7 +971,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         g.write("#endif // "+cguard+"_GENERICS"); g.newline();
 
         if (inTemplate) {
-            w.write("#endif // "+cguard+"_IMPLEMENTATION"); w.newline();
+            w_footer.write("#endif // "+cguard+"_IMPLEMENTATION"); w_footer.newline();
         }
 
         // The declarations below are intentionally outside of the guard
@@ -1001,7 +1005,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         z.write("#endif // __"+cguard+"_NODEPS"); h.newline();
         z.forceNewline(0);
 
-        context.templateFunctions = save_generic;
+        context.genericFunctions = save_generic;
+        context.genericFunctionClosures = save_generic_cls;
+        context.closures = save_closures;
         context.structHeader = save_structHeader;
         sw.set(save_header, save_body);
 	}
@@ -1620,7 +1626,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				if (dropzone.flags().isAbstract()) continue;
 
 				if (newTypeParameters.size() != 0) {
-					sw.pushCurrentStream(context.templateFunctions);
+					sw.pushCurrentStream(context.genericFunctions);
 				}
 
 				emitter.printTemplateSignature(cd.typeParameters(), sw);
@@ -1742,7 +1748,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		}
 		int mid = getUniqueId_().intValue();
 		if (def.typeParameters().size() != 0) {
-		    sw.pushCurrentStream(context.templateFunctions);
+		    sw.pushCurrentStream(context.genericFunctions);
 		    String guard = getHeaderGuard(getHeader(mi.container().toClass()));
 		    sw.write("#ifndef "+guard+"_"+mi.name().toString()+"_"+mid); sw.newline();
 		    sw.write("#define "+guard+"_"+mi.name().toString()+"_"+mid); sw.newline();
@@ -4054,15 +4060,20 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         }
         if (in_template_closure) cnamet_.append(" >");
         String cnamet = cnamet_.toString();
-
-
-        // create closure and packed arguments
                 
         // Prepend this stream to closures.  Closures are created from the outside in.
         // Thus, later closures can be used by earlier ones, but not vice versa.
-        ClassifiedStream inc_s = in_template_closure ?
-                sw.getNewStream(StreamWrapper.Header, sw.header(), false) :
-                sw.getNewStream(StreamWrapper.Closures, true);
+        ClassifiedStream saved_closures = c.closures;
+        ClassifiedStream saved_generic_closures = c.genericFunctionClosures;
+        ClassifiedStream inc_s;
+        if (in_template_closure) {
+            inc_s = sw.getNewStream(c.genericFunctionClosures.ext, c.genericFunctionClosures, true);
+            c.closures = inc_s;
+            c.genericFunctionClosures = inc_s;
+        } else {
+            inc_s = sw.getNewStream(c.closures.ext, c.closures, true);
+            c.closures = inc_s;
+        }
         sw.pushCurrentStream(inc_s);
 
         StreamWrapper inc = sw;
@@ -4072,12 +4083,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         // If the def is not templatized, it has to go in the CC stream (even if sw is the Header stream).
         ClassifiedStream defn_s =  in_template_closure ? inc.currentStream() : sw.getNewStream(StreamWrapper.CC, false);
 
-
-        if (in_template_closure) {
-            String guard = getHeaderGuard(cname);
-            inc.write("#ifndef "+guard+"_CLOSURE"); inc.newline();
-            inc.write("#define "+guard+"_CLOSURE"); inc.newline();
-        }
+        String headerGuard = getHeaderGuard(cname);
+        inc.write("#ifndef "+headerGuard+"_CLOSURE"); inc.newline();
+        inc.write("#define "+headerGuard+"_CLOSURE"); inc.newline();
 
         Type retType = n.returnType().type();
         X10ClassType sup = (X10ClassType) ClosureSynthesizer.closureBaseInterfaceDef(xts,0, n.formals().size(), retType.isVoid()).asType();
@@ -4234,12 +4242,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		}
 		generateClosureDeserializationIdDef(defn_s, cnamet, freeTypeParams, hostClassName, n.body(), kind);
 
-        if (in_template_closure) {
-            String guard = getHeaderGuard(cname);
-            inc.write("#endif // "+guard+"_CLOSURE"); inc.newline();
-        }
+		inc.write("#endif // "+headerGuard+"_CLOSURE"); inc.newline();
 
         sw.popCurrentStream();
+        c.closures = saved_closures;
+        c.genericFunctionClosures = saved_generic_closures;
 
         // create closure instantiation (not in inc but where the closure was defined)
         // note that we alloc using the typeof the superType but we pass in the correct size
