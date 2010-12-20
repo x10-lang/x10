@@ -226,7 +226,7 @@ public final class Point(rank:Int) implements (Int) => Int,
      * {@link Comparable#compareTo}
      */
     public def compareTo(that:Point(rank)) {
-        return this == that ? 0 : this < that ? -1 : 1;
+        return this.equals(that) ? 0 : this < that ? -1 : 1;
     }
 
     /**
