@@ -49,6 +49,7 @@ import x10.optimizations.ForLoopOptimizer;
 import x10.types.X10TypeMixin;
 import x10.types.checker.Converter;
 import x10.types.constraints.CConstraint;
+import x10.util.AltSynthesizer;
 
 /**
  * Very simple constant propagation pass. 
@@ -66,17 +67,15 @@ import x10.types.constraints.CConstraint;
  */
 public class ConstantPropagator extends ContextVisitor {
     
-    private static ForLoopOptimizer syn;
+    private static AltSynthesizer syn;
     private final Job         job;
     private final TypeSystem  xts;
-    private final NodeFactory xnf;
     
     public ConstantPropagator(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf);
-        syn = new ForLoopOptimizer(job, ts, nf);
+        syn = new AltSynthesizer(job, ts, nf);
         this.job = job;
         this.xts = ts;
-        this.xnf = nf;
     }
     
     @Override
@@ -199,14 +198,17 @@ public class ConstantPropagator extends ContextVisitor {
         if (isNative(e))
             return false;
         
-        if (e.isConstant())
-            return true;
-
         Type type = e.type();
         if (null == type) // TODO: this should never happen, determine if and why it does
             return false;
         
+        if (type.typeSystem().isSubtype(type, type.typeSystem().String()))
+            return false; // Strings have reference semantics
+        
         if (type.isNull())
+            return true;
+        
+        if (e.isConstant())
             return true;
         
         if (e instanceof Field) {
@@ -263,12 +265,12 @@ public class ConstantPropagator extends ContextVisitor {
             e = nf.BooleanLit(pos, (boolean) (Boolean) o);
         } else
         if (o instanceof String) {
-            e = nf.StringLit(pos, (String) o);
+            e = null; // strings have reference semantics
         } else
         if (o instanceof Object[]) {
             Object[] a = (Object[]) o;
             List<Expr> args = new ArrayList<Expr>(a.length);
-            for (Object ai : args) {
+            for (Object ai : a) {
                 Expr ei = toExpr(ai, pos);
                 if (ei == null)
                     return null;

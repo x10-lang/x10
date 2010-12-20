@@ -17,7 +17,7 @@ public final class GlobalRef<T> extends x10.core.Struct {
         new x10.rtt.RuntimeType.Variance[] { x10.rtt.RuntimeType.Variance.INVARIANT }
     ) {
         @Override
-        public String typeName() {
+        public java.lang.String typeName() {
             return "x10.lang.GlobalRef";
         } 
     };
@@ -40,7 +40,7 @@ public final class GlobalRef<T> extends x10.core.Struct {
 
     public GlobalRef(final x10.rtt.Type<?> T, final T t, java.lang.Class<?> dummy$0) {
         this.T = T;
-        this.home = x10.lang.Runtime.here();
+        this.home = x10.lang.Runtime.home();
         int size;
         synchronized (objects) {
             size = objects.size();
@@ -74,7 +74,7 @@ public final class GlobalRef<T> extends x10.core.Struct {
     }
 
     final public java.lang.String toString() {
-        return "struct x10.core.GlobalRef:" + " home=" + this.home + " id=" + this.id;
+        return "GlobalRef(" + this.home + "," + this.id + ")";
     }
 
     final public int hashCode() {

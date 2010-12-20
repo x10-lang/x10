@@ -18,10 +18,10 @@ Yoav reported bug:
 C:\cygwin\home\Yoav\intellij\sourceforge\x10.tests\examples\Misc\ListTest.x10:35: Cannot return expression of type ListTest.List{self.home==here} from method public ListTest.List.append(l:ListTest.List{self.home==here}): ListTest.List{self.home==here}.
 C:\cygwin\home\Yoav\intellij\sourceforge\x10.tests\examples\Misc\ListTest.x10:52: Constructor this(x10.lang.Int, ListTest.List{self.home==here})    
      cannot be invoked with arguments    
-     (x10.lang.Int{self==k}, x10.lang.Void).
+     (x10.lang.Int{self==k}, void).
 C:\cygwin\home\Yoav\intellij\sourceforge\x10.tests\examples\Misc\ListTest.x10:52: Constructor this(x10.lang.Int, ListTest.List{self.home==here})    
      cannot be invoked with arguments    
-     (x10.lang.Int{self==k}, x10.lang.Void).
+     (x10.lang.Int{self==k}, void).
 */
 
 public class ListTest extends x10Test {

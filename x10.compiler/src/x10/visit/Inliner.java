@@ -32,7 +32,6 @@ import polyglot.ast.CodeBlock;
 import polyglot.ast.Expr;
 import polyglot.ast.Field;
 import polyglot.ast.Formal;
-import polyglot.ast.Lit;
 import polyglot.ast.LocalDecl;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
@@ -45,7 +44,6 @@ import polyglot.ast.TypeNode;
 import polyglot.frontend.ExtensionInfo;
 import polyglot.frontend.Goal;
 import polyglot.frontend.Job;
-import polyglot.frontend.Source;
 import polyglot.types.Context;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
@@ -98,7 +96,6 @@ import x10.constraint.XVar;
 import x10.errors.Errors;
 import x10.errors.Warnings;
 import x10.extension.X10Ext;
-import x10.optimizations.ForLoopOptimizer;
 import x10.types.ParameterType;
 import x10.types.TypeParamSubst;
 import x10.types.X10ClassDef;
@@ -113,6 +110,7 @@ import x10.types.X10ParsedClassType;
 import x10.types.X10TypeMixin;
 import x10.types.checker.Converter;
 import x10.types.matcher.Subst;
+import x10.util.AltSynthesizer;
 
 /**
  * This visitor inlines calls to methods and closures under the following
@@ -160,7 +158,7 @@ public class Inliner extends ContextVisitor {
     private TypeSystem xts;
     private NodeFactory xnf;
     // private Synthesizer syn;
-    private ForLoopOptimizer syn; // move functionality to Synthesizer
+    private AltSynthesizer syn; // move functionality to Synthesizer
     private InlineCostEstimator ice;
     private SoftReference<InlinerCache> inlinerCacheRef[] = (SoftReference<InlinerCache>[]) new SoftReference<?>[1];
 
@@ -169,7 +167,7 @@ public class Inliner extends ContextVisitor {
         xts = ts;
         xnf = nf;
         // syn = new Synthesizer(xnf, xts);
-        syn = new ForLoopOptimizer(job, ts, nf);
+        syn = new AltSynthesizer(job, ts, nf);
         ice = new InlineCostEstimator(xts, xnf);
     }
 
@@ -1066,7 +1064,8 @@ public class Inliner extends ContextVisitor {
     private CodeBlock instantiate(final CodeBlock code, X10ProcedureCall call) {
         try {
             debug("Instantiate " + code, call);
-            InliningTypeTransformer transformer = new InliningTypeTransformer(makeTypeMap((X10MethodInstance) call.procedureInstance()));
+            TypeParamSubst typeMap = makeTypeMap((X10MethodInstance) call.procedureInstance());
+            InliningTypeTransformer transformer = new InliningTypeTransformer(typeMap);
             ContextVisitor visitor = new NodeTransformingVisitor(job, ts, nf, transformer).context(context());
             CodeBlock visitedDecl = (CodeBlock) code.visit(visitor);
             return visitedDecl;
@@ -1380,7 +1379,7 @@ public class Inliner extends ContextVisitor {
         private final Name label;
     //    private int returnCount;
     //    private int throwCount;
-        private ForLoopOptimizer syn;
+        private AltSynthesizer syn;
         private boolean[] failed = new boolean[1];
 
         public InliningRewriter(Closure closure, Job j, TypeSystem ts, NodeFactory nf, Context ctx) {
@@ -1398,7 +1397,7 @@ public class Inliner extends ContextVisitor {
             this.ths = ths;
       //    this.returnCount = 0;
       //    this.throwCount = 0;
-            this.syn = new ForLoopOptimizer(j, ts, nf);
+            this.syn = new AltSynthesizer(j, ts, nf);
             this.syn.begin();
             if (body.size() == 1 && body.get(0) instanceof Return) {
                 // Closure already has the right properties; make return rewriting a no-op

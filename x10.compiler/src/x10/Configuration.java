@@ -33,6 +33,9 @@ public final class Configuration extends x10.config.Configuration {
      */
     public static final ConfigurationError LOAD_ERROR;
 
+    public static String MAIN_CLASS = null;
+    private static final String MAIN_CLASS_desc = "The class whose main() will be invoked";
+
     public static boolean CHECK_INVARIANTS = false;
     private static final String CHECK_INVARIANTS_desc = "Check AST invariants such as position containment, existence of xxxInstance(), etc";
 
@@ -42,8 +45,14 @@ public final class Configuration extends x10.config.Configuration {
     public static boolean OPTIMIZE = false;
     private static final String OPTIMIZE_desc = "Generate optimized code";
 
+    public static boolean CHECK_ERR_MARKERS = false;
+    private static final String CHECK_ERR_MARKERS_desc = "Check for @ERR markers";
+
     public static boolean DEBUG = false;
     private static final String DEBUG_desc = "Generate debug information";
+
+    public static boolean NO_TRACES = false;
+    private static final String NO_TRACES_desc = "Disable traces";
 
     public static boolean NO_CHECKS = false;
     private static final String NO_CHECKS_desc = "Disable generation of all null, bounds, and place checks";

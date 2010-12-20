@@ -37,7 +37,7 @@ public class TypedefNew06_MustFailCompile extends TypedefTest {
         type T1 = A{self.k==1};
 
         // not allowed
-        val t = new T1();  // A(1) !<: A(0)
+        val t = new T1();  // ERR A(1) !<: A(0)
 
         return result;
     }

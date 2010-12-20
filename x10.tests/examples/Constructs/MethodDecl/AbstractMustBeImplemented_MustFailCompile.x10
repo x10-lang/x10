@@ -12,12 +12,15 @@
 import harness.x10Test;
 
 /**
- * Check that the local annotation is recognized.
  * @author vj  9/2006
  */
-public class AbstractMustBeImplemented_MustFailCompile extends x10Test {
+public class AbstractMustBeImplemented_MustFailCompile extends x10Test { // ERR: AbstractMustBeImplemented_MustFailCompile should be declared abstract; it does not define m(): void, which is declared in AbstractMustBeImplemented_MustFailCompile
 
-    def m(): void;
+    class X {
+        def m(): void; // ERR: Missing method body.
+    }
+    
+    abstract def m(): void;
 
 	public def run(): boolean = {
 		m();

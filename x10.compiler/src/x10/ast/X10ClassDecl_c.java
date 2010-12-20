@@ -661,6 +661,10 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
                 ((Ref<Type>) tref).update(uc);
     	    }
     	}
+
+        // check cycles in a struct declaration, e.g., struct Z(u:Z) {}
+        //todo
+
     	n = (X10ClassDecl_c) n.typeCheckProperties(parent, tc, childtc);
     	n = (X10ClassDecl_c) n.typeCheckClassInvariant(parent, tc, childtc);
     	n = (X10ClassDecl_c) n.typeCheckBody(parent, tc, childtc);

@@ -21,6 +21,7 @@ import polyglot.ast.MethodDecl;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.frontend.Job;
+import polyglot.main.Report;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.ConstructorDef;
@@ -41,6 +42,7 @@ import x10.compiler.ws.codegen.AbstractWSClassGen;
 import x10.compiler.ws.codegen.WSMethodFrameClassGen;
 import x10.compiler.ws.util.WSCallGraph;
 import x10.compiler.ws.util.WSCallGraphNode;
+import x10.compiler.ws.util.WSTransformationContent;
 import x10.types.ClosureDef;
 import x10.types.X10MethodDef;
 import polyglot.types.Context;
@@ -68,10 +70,16 @@ import x10.visit.X10PrettyPrinterVisitor;
  */
 public class WSCodeGenerator extends ContextVisitor {
     public static final int debugLevel = 5; //0: no; 3: little; 5: median; 7: heave; 9: verbose
+	public static final String WS_TOPIC = "workstealing";
+	public static final void wsReport(int level, String message){
+		if(Report.should_report(WS_TOPIC, level)){
+			Report.report(level, message);
+		}
+	}
     
     // Single static WSTransformState shared by all visitors (FIXME)
     public static WSTransformState wts; 
-
+    
     private final HashSet<X10MethodDecl> genMethodDecls;
     private final HashSet<X10ClassDecl> genClassDecls;
 
@@ -86,8 +94,22 @@ public class WSCodeGenerator extends ContextVisitor {
         genClassDecls = new HashSet<X10ClassDecl>();
     }
 
+    public static void setWALATransTarget(TypeSystem xts, NodeFactory xnf, String theLanguage, WSTransformationContent target){
+    	//DEBUG
+    	if(debugLevel > 3){
+        	//wsReport(5, "Use WALA CallGraph Data...");    
+    		System.out.println("[WS_INFO] Use WALA CallGraph Data...");
+    	}
+    	wts = new WSTransformState(xts, xnf, theLanguage, target);
+    }
+    
     public static void buildCallGraph(TypeSystem xts, NodeFactory xnf, String theLanguage) {
-        wts = new WSTransformState(xts, xnf, theLanguage);
+    	//DEBUG
+    	if(debugLevel > 3){
+        	//wsReport(5, "Build Simple Graph Graph..."); 
+    		System.out.println("[WS_INFO] Build Simple Graph Graph...");
+    	}
+    	wts = new WSTransformState(xts, xnf, theLanguage);
     }
 
     /** 
@@ -99,9 +121,8 @@ public class WSCodeGenerator extends ContextVisitor {
         // reject unsupported patterns
         if(n instanceof ConstructorDecl){
             ConstructorDecl cDecl = (ConstructorDecl)n;
-            ConstructorDef cDef = cDecl.constructorDef();
-            if(wts.isTargetProcedure(cDef)){
-                throw new SemanticException("Work Stealing doesn't support concurrent constructor: " + cDef,n.position());
+            if(wts.isTargetMethod(cDecl)){
+                throw new SemanticException("Work Stealing doesn't support concurrent constructor: " + cDecl, n.position());
             }
         }
         if(n instanceof RemoteActivityInvocation){
@@ -113,9 +134,8 @@ public class WSCodeGenerator extends ContextVisitor {
         if(n instanceof Closure && !(n instanceof PlacedClosure)){
             //match with WSCallGraph, not handle PlacedClosure
             Closure closure = (Closure)n;           
-            ClosureDef cDef = closure.closureDef();
-            if(wts.isTargetProcedure(cDef)){
-                throw new SemanticException("Work Stealing doesn't support concurrent closure: " + cDef,n.position());
+            if(wts.isTargetMethod(closure)){
+                throw new SemanticException("Work Stealing doesn't support concurrent closure: " + closure, n.position());
             }
         }
         if(n instanceof AtEach){
@@ -129,7 +149,7 @@ public class WSCodeGenerator extends ContextVisitor {
         if(n instanceof X10MethodDecl) {
             X10MethodDecl mDecl = (X10MethodDecl)n;
             X10MethodDef mDef = mDecl.methodDef();
-            if(wts.isTargetProcedure(mDef)){
+            if(wts.isTargetMethod(mDecl)){
                 if(debugLevel > 3){
                     System.out.println("[WS_INFO] Start transforming target method: " + mDef.name());
                 }

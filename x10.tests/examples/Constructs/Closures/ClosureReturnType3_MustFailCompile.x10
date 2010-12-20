@@ -26,7 +26,8 @@ public class ClosureReturnType3_MustFailCompile extends ClosureTest {
     def foo() = {}
 
     public def run(): boolean = {
-        val f = ():int => {foo(); return "not an int";};
+        val f = ():int => {foo();
+            return "not an int";}; // ERR
         return true;
     }
 

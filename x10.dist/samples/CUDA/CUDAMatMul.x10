@@ -8,14 +8,14 @@ public class CUDAMatMul {
     //
     //  auxiliary routines
     //  
-    static def fill (A:Array[Float]{rail}, n:Int, maxi:Int)
+    static def fill (A:Array[Float](1){rail}, n:Int, maxi:Int)
     {
         val r = new Random();
         for([j] in 0..n-1)
             A(j) = (r.nextInt(maxi*2) - maxi) / (maxi + 1.0f);
     }
 
-    static def diff (m:Int, n:Int, A:Array[Float]{rail}, lda:Int, B:Array[Float]{rail}, ldb:Int )
+    static def diff (m:Int, n:Int, A:Array[Float](1){rail}, lda:Int, B:Array[Float](1){rail}, ldb:Int )
     {
         var err:Float = 0;
         for([j] in 0..n-1)

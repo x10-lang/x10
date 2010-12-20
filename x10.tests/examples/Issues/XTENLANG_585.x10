@@ -17,7 +17,7 @@ import harness.x10Test;
 
 public class XTENLANG_585  extends x10Test {
     public static def main(Array[String](1)) {
-        new XTENLANG_547_MustFailCompile().execute();
+        new XTENLANG_585().execute();
     }
     public def run()  {
          Console.OUT.println("Hello, X10 world!");

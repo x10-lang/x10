@@ -18,7 +18,7 @@ import harness.x10Test;
 public class NewForStruct_MustFailCompile  extends x10Test {
 
     public def run() {
-        val m : Metajamjirrox  = new Metajamjirrox(1);    // use Metajamjirrox(1);  instead
+        val m : Metajamjirrox  = new Metajamjirrox(1);    // ERR use Metajamjirrox(1);  instead
     	return true;
     }
 

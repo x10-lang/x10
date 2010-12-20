@@ -117,9 +117,11 @@ import x10.types.X10TypeMixin;
 import polyglot.types.TypeSystem;
 import x10.types.XTypeTranslator;
 import x10.types.X10Context_c;
+import x10.types.X10ParsedClassType;
 import x10.types.checker.Checker;
 import x10.types.checker.PlaceChecker;
 import x10.types.checker.VarChecker;
+import x10.types.checker.Converter;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
 import x10.types.constraints.XConstrainedTerm;
@@ -528,6 +530,29 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
                 X10TypeMixin.checkVariance(fType, ParameterType.Variance.CONTRAVARIANT,tc.job());
             }
             X10TypeMixin.checkVariance(n.returnType, ParameterType.Variance.COVARIANT,tc.job());
+        }
+
+        // check subtype restriction on implicit and explicit operator as:
+        // the return type must be a subtype of the container type
+        final Name nameId = n.name.id();
+        if (nameId==Converter.implicit_operator_as || nameId==Converter.operator_as) {
+            final X10MethodDef methodDef = n.methodDef();
+            final StructType container = methodDef.container().get();
+            final Type returnT = X10TypeMixin.baseType(methodDef.returnType().get());
+            final List<Ref<? extends Type>> formals = methodDef.formalTypes();
+            assert formals.size()==1 : "Currently it is a parsing error if the number of formals for an implicit or explicit 'as' operator is different than 1! formals="+formals;
+            final Type argumentT = X10TypeMixin.baseType(formals.get(0).get());
+            // I compare ClassDef due to this example:
+            //class B[U] {
+            //    public static operator[T](x:T):B[T] = null;
+            //}
+            assert container instanceof X10ParsedClassType : container;
+            boolean isReturnWrong = !(returnT   instanceof X10ParsedClassType) || ((X10ParsedClassType)returnT  ).def()!=((X10ParsedClassType)container).def();
+            boolean isFormalWrong = !(argumentT instanceof X10ParsedClassType) || ((X10ParsedClassType)argumentT).def()!=((X10ParsedClassType)container).def();
+            if (isReturnWrong && isFormalWrong) {
+                Errors.issue(tc.job(),
+				        new SemanticException("The return type or the formal type of an explicit or implicit operator 'as' must have the same class as the container.", n.position()));
+            }
         }
 		return n;
 	}

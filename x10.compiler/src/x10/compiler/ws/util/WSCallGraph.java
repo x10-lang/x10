@@ -17,14 +17,21 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import polyglot.ast.Call;
 import polyglot.ast.ClassDecl;
 import polyglot.ast.ConstructorDecl;
 import polyglot.ast.MethodDecl;
 import polyglot.ast.Node;
 import polyglot.ast.Term;
+import polyglot.main.Report;
+import polyglot.types.ClassDef;
+import polyglot.types.FunctionDef;
+import polyglot.types.MemberDef;
 import polyglot.types.Package;
 import polyglot.types.ProcedureDef;
 import polyglot.types.Ref;
+import polyglot.types.StructType;
+import polyglot.types.Type;
 import polyglot.visit.NodeVisitor;
 import x10.ast.Closure;
 import x10.ast.PlacedClosure;
@@ -38,6 +45,13 @@ import x10.ast.PlacedClosure;
  *
  */
 public class WSCallGraph {
+	public static final String WS_TOPIC = "workstealing";
+	public static final void wsReport(int level, String message){
+		if(Report.should_report(WS_TOPIC, level)){
+			Report.report(level, message);
+		}
+	}
+	
     
     static final String ignorePackages[] = {
         "x10",
@@ -56,9 +70,9 @@ public class WSCallGraph {
         "Deque",
     };
     
-    static public boolean ignoreClass(ClassDecl classDecl){
+    static public boolean ignoreClass(ClassDef classDef){
         
-        Ref<? extends Package> pRef = classDecl.classDef().package_();
+        Ref<? extends Package> pRef = classDef.package_();
         if(pRef != null){
             Package p = pRef.get();
             String pName = p.toString();
@@ -70,8 +84,7 @@ public class WSCallGraph {
             }
         }
         
-        
-        String className = classDecl.name().id().toString();
+        String className = classDef.toString();
         
         for(String s : ignoreClasses){
             if(className.equals(s)){
@@ -80,8 +93,6 @@ public class WSCallGraph {
         }
         return false;
     }
-    
-    
     
     static final int debugLevel = 0;
     
@@ -108,7 +119,7 @@ public class WSCallGraph {
     
     public boolean addClass(ClassDecl classDecl){
         
-        if(ignoreClass(classDecl)){
+        if(ignoreClass(classDecl.classDef())){
             if(debugLevel > 3){
                 System.out.println("[WS_INFO]WSCallGraph: Ingore Class: " + classDecl);
             }
@@ -123,7 +134,7 @@ public class WSCallGraph {
                         || n instanceof ConstructorDecl
                         || (n instanceof Closure && !(n instanceof PlacedClosure))){
                     //Note, PlacedClosure are not treated as normal closure, not build node
-                    addProcedure((Term)n);
+                    addProcedure((Term)n);                    
                 }
                 return n;
             }
@@ -154,6 +165,7 @@ public class WSCallGraph {
 
         WSCallGraphNode node = findOrCreateNode(pDef);
         
+        //otherwise depend on the current one
 
         if(!node.isCallgraphBuild()){ //prevent add one method again
             //now check whether this method has parallel;
@@ -172,7 +184,72 @@ public class WSCallGraph {
 //            }
         }
     }
+
+	protected String getJavaSignature(ProcedureDef pDef){
+    	
+    	StringBuffer sb = new StringBuffer();
+    	if(pDef instanceof MemberDef){
+    		MemberDef mDef = (MemberDef)pDef;
+    		String containerStr = mDef.container().get().toString().replace('.', '/');
+    		sb.append(containerStr).append('.');
+    	}
+    	else{
+    		//closure type is not well supported yet
+    	}
+
+    	//process signature
+    	String sig = pDef.signature();
+		int b1Index = sig.indexOf('(');
+		int b2Index = sig.indexOf(')');
+    	//method name
+    	sb.append(sig.substring(0, b1Index)).append('(');
+    	
+    	
+    	String formalTypes[] = sig.substring(b1Index+1, b2Index).split(",");
+    	for(String fStr : formalTypes){
+    		String ftStr = fStr.trim(); 
+    		if(ftStr.length() == 0){
+    			continue;
+    		}
+    		sb.append(type2JavaSignature(ftStr));
+    	}
+		sb.append(')');
+		
+    	//process return types
+		if(pDef instanceof FunctionDef){
+			FunctionDef fDef = (FunctionDef)pDef;
+			String rStr = fDef.returnType().get().toString();
+			if(rStr == null || rStr.length() == 0 || rStr.equalsIgnoreCase("void") ){
+				sb.append('V');
+			}
+			else{
+				sb.append('L').append(rStr.replace('.', '/')).append(';');
+			}
+		}
+		return sb.toString();
+    }
     
+    /**
+     * Input format: n:x10.lang.Int args:x10.array.Array[x10.lang.String]{self.rank==1}
+     * or no name, just type
+     * @param type
+     * @return Lx10/lang/Int;
+     */
+    protected String type2JavaSignature(String typeStr){
+    	int sIndex = Math.max(0, typeStr.indexOf(':') + 1);
+    	
+    	//search template '['
+    	int tIndex = typeStr.indexOf('[');
+    	tIndex = tIndex > 0 ? tIndex : Integer.MAX_VALUE;
+    	//search constraint '{'
+    	int cIndex = typeStr.indexOf('{');
+    	cIndex = cIndex > 0 ? cIndex : Integer.MAX_VALUE;
+    	int eIndex = Math.min(typeStr.length(), Math.min(tIndex, cIndex));
+
+    	StringBuffer sb = new StringBuffer();
+    	sb.append('L').append(typeStr.substring(sIndex, eIndex).replace('.', '/')).append(';');
+    	return sb.toString();    	
+    }
     
     
     
@@ -180,7 +257,7 @@ public class WSCallGraph {
      * Mark all possible methods as target methods.
      * Start from those contains concurrent constructs, and do DFS search to mark.
      */
-    public void doDFSMark(){
+    public void doDFSMark(){    	
         for(WSCallGraphNode node : initialParallelMethods){
             doDFSMark(node);
         }
@@ -216,6 +293,13 @@ public class WSCallGraph {
     public boolean isParallel(ProcedureDef m) {
         WSCallGraphNode n = def2NodeMap.get(m);
         if(n == null){
+        	if(m instanceof MemberDef){
+        		Type type = ((MemberDef)m).container().get();
+        		if(type.toString().startsWith("x10.")){
+        			return false; //not report x10 pacakges;
+        		}
+        	}
+        	
             System.out.println("[WS_WARNING]ProcedureDef:" + m + " was not added to call graph. Suppose it is not a parallel procedure.");
             return false;
         }

@@ -28,12 +28,12 @@ public class RuntimeType<T> implements Type<T> {
         this.base = c;
     }
     
-    public RuntimeType(Class<?> c, Variance... variances) {
+    public RuntimeType(Class<?> c, Variance[] variances) {
         this.base = c;
         this.variances = variances;
     }
 
-    public RuntimeType(Class<?>c, Type<?>[] parents) {
+    public RuntimeType(Class<?> c, Type<?>[] parents) {
         this.base = c;
         this.parents = parents;
     }
@@ -42,6 +42,18 @@ public class RuntimeType<T> implements Type<T> {
         this.base = c;
         this.variances = variances;
         this.parents = parents;
+    }
+
+    public Class<?> getJavaClass() {
+        return base;
+    }
+    
+    public Variance[] getVariances() {
+        return variances;
+    }
+    
+    public Type<?>[] getParents() {
+        return parents;
     }
     
     public String toString() {
@@ -71,20 +83,21 @@ public class RuntimeType<T> implements Type<T> {
         }
         if (o instanceof ParameterizedType) {
             ParameterizedType<?> pt = (ParameterizedType<?>) o;
-            if (pt.getRuntimeType().isSuperType(pt.getParams(), (RuntimeType<?>) this, null)) {
+            if (pt.getRuntimeType().isSuperType(pt.getParams(), this, null)) {
                 return true;
             }
         }
         return false;
     }
 
-    public List<Type<?>> getTypeParameters() {
-        return null;
-    }
+//    public List<Type<?>> getTypeParameters() {
+//        return null;
+//    }
 
-    public Type<T> reinstantiate(List<Type<?>> parms) {
-        return this;
-    }
+    // never called
+//    public Type<T> reinstantiate(List<Type<?>> parms) {
+//        return this;
+//    }
 
     public boolean instanceof$(Object o) {
         if (o == null) {return false;}
@@ -285,10 +298,6 @@ public class RuntimeType<T> implements Type<T> {
         else {
             return false;
         }
-    }
-    
-    public Class<?> getJavaClass() {
-        return base;
     }
     
     public Object makeArray(int length) {

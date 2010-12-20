@@ -85,8 +85,31 @@ public class JavaCaster extends ContextVisitor {
         n = typeConstraintsCast(parent, old, n);
         n = railAccessCast(parent, n);
         n = covReturnCast(parent, n);
+        n = stringReturnCast(parent, n);
         if (X10PrettyPrinterVisitor.isSelfDispatch) {
             n = typeParamCast(parent, n);
+        }
+        return n;
+    }
+    
+    private Node stringReturnCast(Node parent, Node n) throws SemanticException {
+        if (n instanceof Return) {
+            Return return1 = (Return) n;
+            if (return1.expr() == null) {
+                return n;
+            }
+            CodeDef cd = context.currentCode();
+            if (cd instanceof FunctionDef) {
+                FunctionDef fd = (FunctionDef) cd;
+                Type expectedReturnType = ((FunctionInstance<?>) fd.asInstance()).returnType();
+                if (expectedReturnType.typeEquals(return1.expr().type(), context)) {
+                    return n;
+                }
+                Type rt = X10TypeMixin.baseType(return1.expr().type());
+                if (rt.typeEquals(xts.String(), context) && !expectedReturnType.typeEquals(xts.String(), context)) {
+                    return return1.expr(cast(return1.expr(), expectedReturnType));  
+                }
+            }
         }
         return n;
     }
@@ -113,7 +136,7 @@ public class JavaCaster extends ContextVisitor {
                     List<Variance> variances = ct.x10Def().variances();
                     for (Variance v : variances) {
                         if (v != ParameterType.Variance.INVARIANT) {
-                            return return1.expr(cast(return1.expr(), expectedReturnType));  
+                            return return1.expr(cast(return1.expr(), expectedReturnType));
                         }
                     }
                 }

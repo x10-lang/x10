@@ -26,8 +26,8 @@ import harness.x10Test;
 public class SameSignatureMethod_MustFailCompile extends x10Test { 
 
 class Test(i: int, j:int) {
-		 def tester(k:int(0))=true;
-		 def tester(l:int(0)) = l; // ERR ERR todo: we should get a single error here
+		 def tester(k:int(0))=true; // ERR
+		 def tester(l:int(0)) = l; // ERR ShouldNotBeERR todo: we should get a single error here
 		 //Semantic Error: tester(l: x10.lang.Int{self==0}): x10.lang.Int{self==0, l==0} in SameSignatureMethod_MustFailCompile.Test cannot override tester(k: x10.lang.Int{self==0}): x10.lang.Boolean{self==true} in SameSignatureMethod_MustFailCompile.Test; attempting to use incompatible return type.
 	 	 //Expected Type: x10.lang.Boolean{self==true}
 	 	 //Found Type: x10.lang.Int{self==0, l==0}

@@ -13,7 +13,7 @@ import harness.x10Test;
 
 public class MissingReturn_MustFailCompile extends x10Test {
 
-	def foo(): boolean = {
+	def foo(): boolean = { // ERR
 	}
 
 	public def run(): boolean = {

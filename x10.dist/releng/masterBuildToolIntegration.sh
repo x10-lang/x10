@@ -38,6 +38,7 @@ linuxPowerHost=""
 aixPowerHost=""
 
 hosts="$macX86Host $linuxX86_64Host $linuxX86Host $cygwinHost $linuxPowerHost $aixPowerHost"
+platforms="macosx linux-x86 linux-x86_64 cygwin"
 
 noClean=""
 userID="$USER"
@@ -84,7 +85,7 @@ while [ $# != 0 ]; do
         ;;
 
     --show-platforms)
-        echo "macosx linux-x86 linux-x86_64 cygwin"
+        echo "$platforms"
         exit 0
         ;;
 
@@ -181,14 +182,20 @@ do
     if [[ $rc == 0 && -z "$noTransfer" ]]; then
         echo "Transferring file from $host to localhost..."
         scp "${userID}@$host:$remoteTmpDir/x10/x10.dist/x10-tib*.tgz" .
+
         echo "Transferring from localhost to orquesta..."
         scp x10-tib_*.tgz ${userID}@orquesta.watson.ibm.com:$tarballDest/$rev
+
 	echo "Transfer complete."
+
 	echo -n "Setting tarball permissions..."
 	ssh ${userID}@orquesta.watson.ibm.com "chmod go+r $tarballDest/$rev/*.tgz"
 	echo "done."
+
         rm x10-tib_*.tgz
         #ssh $host rm -rf $remoteTmpDir
     fi ) > ${logFile} 2>&1 &
 done
 wait
+
+ssh ${userID}@orquesta.watson.ibm.com ls -l $tarballDest/$rev

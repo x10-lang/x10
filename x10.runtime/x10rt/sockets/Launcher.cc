@@ -22,7 +22,6 @@
 #include <stdarg.h>
 #include <alloca.h>
 #include <arpa/inet.h>
-#include <time.h>
 #include <sched.h>
 #include <errno.h>
 
@@ -324,6 +323,13 @@ void Launcher::handleRequestsLoop(bool onlyCheckForNewConnections)
 		if (select(fd_max+1, &infds, NULL, &efds, &timeout) < 0)
 			break; // select error.  This can happen when we're in the middle of shutdown
 
+		if (_dieAt > 0)
+		{
+			time_t now = time(NULL);
+			if (now >= _dieAt)
+				break;
+		}
+
 		/* listener socket (new connections) */
 		if (_listenSocket >= 0)
 		{
@@ -398,8 +404,13 @@ void Launcher::handleRequestsLoop(bool onlyCheckForNewConnections)
 			kill(_pidlst[i], SIGTERM);
 		}
 	}
-	if (_pidlst[_numchildren] != -1)
-		waitpid(_pidlst[_numchildren], NULL, 0); // wait for the local runtime
+
+	while ((_myproc==0 || _myproc==0xFFFFFFFF) && _returncode == (int)0xDEADBEEF)
+	{
+		int status;
+		if (waitpid(_pidlst[_numchildren], &status, WNOHANG) == _pidlst[_numchildren])
+			_returncode = WEXITSTATUS(status);
+	}
 
 	// shut down any connections if they still exist
 	handleDeadParent();
@@ -881,9 +892,20 @@ void Launcher::cb_sighandler_cld(int signo)
 				fprintf(stderr, "Launcher %d: SIGCHLD from child launcher for place %d (pid=%d), status=%d\n", _singleton->_myproc, i+_singleton->_firstchildproc, pid, WEXITSTATUS(status));
 			#endif
 
-			return;
+			break;
 		}
 	}
+	// limit our lifetime to a few seconds, to allow any children to shut down on their own. Then kill em' all.
+	if (_singleton->_dieAt == 0)
+		_singleton->_dieAt = 2+time(NULL);
+}
+
+void Launcher::cb_sighandler_term(int signo)
+{
+	#ifdef DEBUG
+		fprintf(stderr, "Launcher %d: got a SIGTERM\n", _singleton->_myproc);
+	#endif
+	_singleton->_dieAt = 1; // die now.
 }
 
 
@@ -907,7 +929,7 @@ void Launcher::startSSHclient(uint32_t id, char* masterPort, char* remotehost)
 	"X10_TRACE_INIT", "X10_TRACE_X10RT", "X10_TRACE_NET", "X10_TRACE_SER", "X10_NTHREADS",
 	"X10RT_CUDA_DMA_SLICE", "X10RT_EMULATE_REMOTE_OP", "X10RT_EMULATE_COLLECTIVES",
 	"X10RT_MPI_THREAD_MULTIPLE", "X10_STATIC_THREADS", "X10_NO_STEALS", "X10RT_ACCELS",
-	X10RT_NOYIELD, X10LAUNCHER_DEBUG};
+	X10RT_NOYIELD, X10LAUNCHER_DEBUG, X10_HOSTLIST, X10_NPLACES};
 	for (unsigned i=0; i<(sizeof envVariables)/sizeof(char*); i++)
 	{
 		char* ev = getenv(envVariables[i]);
@@ -921,20 +943,10 @@ void Launcher::startSSHclient(uint32_t id, char* masterPort, char* remotehost)
 		}
 	}
 
-	// add on our own environment variables
 	if (_hostfname != '\0')
 	{
 		argv[++z] = (char*) alloca(strlen(_hostfname)+32);
 		sprintf(argv[z], X10_HOSTFILE"=%s", _hostfname);
-	}
-	else
-	{
-		char* hostlist = getenv(X10_HOSTLIST);
-		if (hostlist != NULL)
-		{
-			argv[++z] = (char*) alloca(strlen(hostlist)+32);
-			sprintf(argv[z], X10_HOSTLIST"=%s", hostlist);
-		}
 	}
 	argv[++z] = (char*) alloca(256);
 	sprintf(argv[z], X10LAUNCHER_SSH"=%s", _ssh_command);
@@ -942,8 +954,6 @@ void Launcher::startSSHclient(uint32_t id, char* masterPort, char* remotehost)
 	sprintf(argv[z], X10LAUNCHER_PARENT"=%s", masterPort);
 	argv[++z] = (char*) alloca(100);
 	sprintf(argv[z], X10_PLACE"=%d", id);
-	argv[++z] = (char*) alloca(100);
-	sprintf(argv[z], X10_NPLACES"=%d", _nplaces);
 	argv[++z] = (char*) alloca(1024);
 	sprintf(argv[z], X10LAUNCHER_CWD"=%s", getenv(X10LAUNCHER_CWD));
 	argv[++z] = cmd;

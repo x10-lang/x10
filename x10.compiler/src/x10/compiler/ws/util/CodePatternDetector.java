@@ -264,7 +264,7 @@ public class CodePatternDetector {
 
         if(expr instanceof Call){
             Call aCall = (Call)expr;
-            if(wts.isTargetProcedure(aCall.methodInstance().def())
+            if(wts.isTargetCallSite(aCall)
                     && concurrentCallNum == 1){ //only this call is concurrent call
                 return Pattern.Call;
             }
@@ -277,7 +277,7 @@ public class CodePatternDetector {
             Expr rightExpr = assign.right();
             if(rightExpr instanceof Call){
                 Call aCall = (Call)rightExpr;
-                if(wts.isTargetProcedure(aCall.methodInstance().def())
+                if(wts.isTargetCallSite(aCall)
                         && concurrentCallNum == 1){ //only this call is concurrent call
                     return Pattern.AssignCall;
                 }

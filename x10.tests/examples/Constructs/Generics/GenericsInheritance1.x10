@@ -17,8 +17,9 @@ import harness.x10Test;
  *
  *     class I<T> { T m(); }
  *     class C { public int m() { return 0; } }
- *     class D
- *         extends C implements I<Integer> { }
+ *     class D extends C implements I<Integer>
+ *     {
+ *     }
  *
  * The problem is that, to implement I<Integer>, D needs to have:
  *
@@ -30,8 +31,7 @@ import harness.x10Test;
  *
  *     class I<T> { T m$(); }
  *     class C { public int m() { return 0; } }
- *     class D
- *         extends C implements I<Integer>
+ *     class D extends C implements I<Integer>
  *     {
  *         public Integer m$() { return this.m(); }
  *     }

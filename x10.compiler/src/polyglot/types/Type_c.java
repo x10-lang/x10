@@ -52,6 +52,7 @@ public abstract class Type_c extends TypeObject_c implements Type
     public boolean isArray() { return false; }
     
     public final boolean isNumeric() { return ts.isNumeric(this); }
+    public final boolean isUnsignedNumeric() { return ts.isUnsignedNumeric(this); }
     public final boolean isIntOrLess() { return ts.isIntOrLess(this); }
     public final boolean isLongOrLess() { return ts.isLongOrLess(this); }
     public final boolean isVoid() { return ts.isVoid(this); }

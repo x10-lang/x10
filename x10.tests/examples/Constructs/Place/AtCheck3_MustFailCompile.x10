@@ -24,7 +24,7 @@ public class AtCheck3_MustFailCompile extends x10Test {
 	    var x:AtCheck3_MustFailCompile =null;
         def m(b: T, d:T) {
 	       // at ( b.root) {
-	           val e = d.root().x;
+	           val e = d.root().x; // ERR
 	       // }
         }
 	}

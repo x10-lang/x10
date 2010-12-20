@@ -19,7 +19,7 @@ import harness.x10Test;
 public class NullToPrimitive_MustFailCompile extends x10Test {
 	 
 	public def run(): boolean = {
-		return !(null instanceof Int);
+		return !(null instanceof Int); // ERR
 	}
 	
 	public static def main(var args: Array[String](1)): void = {

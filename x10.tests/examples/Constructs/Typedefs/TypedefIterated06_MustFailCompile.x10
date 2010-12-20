@@ -25,7 +25,7 @@ public class TypedefIterated06_MustFailCompile extends TypedefTest {
 
     public def run(): boolean = {
 
-        type A = A[int];
+        type A = A[int]; // ERR
         type A[T] = A;
 
         return result;

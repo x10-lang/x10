@@ -137,7 +137,7 @@ public abstract class Expr_c extends Term_c implements Expr
      */
     public void printSubExpr(Expr expr, boolean associative,
                              CodeWriter w, PrettyPrinter pp) {
-        if (! associative && precedence().equals(expr.precedence()) ||
+        if (! associative && precedence().equalsPrecedence(expr.precedence()) ||
 	    precedence().isTighter(expr.precedence())) {
     		w.write("(");
     		printBlock(expr, w, pp);

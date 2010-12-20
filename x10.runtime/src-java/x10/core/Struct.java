@@ -13,6 +13,7 @@ package x10.core;
 
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
+import x10.rtt.Types;
 
 // Base class for all X10 structs
 public abstract class Struct implements Any {
@@ -28,4 +29,10 @@ public abstract class Struct implements Any {
     public static final RuntimeType<Struct> _RTT = new RuntimeType<Struct>(Struct.class);
     public RuntimeType<?> getRTT() {return _RTT;}
     public Type<?> getParam(int i) {return null;}
+
+    @Override
+    public java.lang.String toString() {
+        return Types.typeName(this) + "@" + Integer.toHexString(System.identityHashCode(this));
+    }
+
 }

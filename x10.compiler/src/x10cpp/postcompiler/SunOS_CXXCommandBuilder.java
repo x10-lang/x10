@@ -25,8 +25,6 @@ public class SunOS_CXXCommandBuilder extends CXXCommandBuilder {
 
     protected void addPreArgs(ArrayList<String> cxxCmd) {
         super.addPreArgs(cxxCmd);
-        cxxCmd.add("-Wno-long-long");
-        cxxCmd.add("-Wno-unused-parameter");
     }
 
     protected void addPostArgs(ArrayList<String> cxxCmd) {

@@ -164,6 +164,7 @@
     type
     val
     var
+    void
     when
     while
 %End
@@ -458,6 +459,11 @@
               | v a r
         /.$BeginAction
                 $setResult($_var);
+          $EndAction
+        ./
+              | v o i d
+        /.$BeginAction
+                $setResult($_void);
           $EndAction
         ./
               | w h e n

@@ -31,7 +31,7 @@ public class GenericInference1_MustFailCompile extends GenericTest {
     class Z extends X {static name = "Z";};
 
     def m[T](){T<:X} =
-        T.name; // ERR: Cannot access static field of a type parameter
+        T.name; // ShouldBeErr: Cannot access static field of a type parameter
 
     public def run(): boolean = {
 

@@ -28,7 +28,7 @@ public class TypedefConstraint2b_MustFailCompile extends TypedefTest {
     public def run(): boolean = {
         
         type B[T]{T<:Y} = FOO[T];
-        b1:B[X] = new FOO[X]();
+        val b1:B[X]; // ERR
         //check("b1.name", b1.name, "X");
 
         return result;

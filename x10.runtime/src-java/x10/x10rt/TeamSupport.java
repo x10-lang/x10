@@ -49,7 +49,7 @@ public class TeamSupport {
 
 	private static FinishState activityCreationBookkeeping() {
 		FinishState fs = x10.lang.Runtime.activity().finishState();
-		fs.notifySubActivitySpawn(x10.lang.Runtime.here());
+		fs.notifySubActivitySpawn(x10.lang.Runtime.home());
 		fs.notifyActivityCreation();
 		return fs;
 	}

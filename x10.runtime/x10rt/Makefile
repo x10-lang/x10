@@ -17,6 +17,7 @@ TAR             ?= tar
 GZIP            ?= gzip
 
 override CXXFLAGS += -Iinclude -Icommon ${JNI_INCLUDES}
+override CXXFLAGS += ${CXX_WARNING_FLAGS}
 
 # these are used only for building tests
 override LDFLAGS         += -L"$(X10_HOME)"/x10.runtime/x10rt/lib -lpthread

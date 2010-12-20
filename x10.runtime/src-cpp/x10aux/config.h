@@ -55,9 +55,15 @@
 #ifndef NO_ASSERTIONS
 #define NO_ASSERTIONS
 #endif//NO_ASSERTIONS
-#endif
+#ifndef NDEBUG
+#define NDEBUG
+#endif//NDEBUG
+#ifndef NO_TRACING
+#define NO_TRACING
+#endif//NO_TRACING
+#endif//NO_CHECKS
 
-#ifndef NDEBUG 
+#ifndef NO_TRACING
 #ifndef TRACE_ENV_VAR
 #define TRACE_ENV_VAR
 #endif//TRACE_ENV_VAR

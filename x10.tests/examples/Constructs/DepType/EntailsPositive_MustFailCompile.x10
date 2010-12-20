@@ -10,6 +10,9 @@
  */
 
 import harness.x10Test;
+import x10.compiler.*; // @Uncounted @NonEscaping @NoThisAccess
+import x10.compiler.tests.*; // err markers
+import x10.util.*;
 
 /**
  * The language now specifies more aggressive type-inference than when this test was originally written.
@@ -26,7 +29,7 @@ public class EntailsPositive_MustFailCompile(i:int, j:int) extends x10Test {
 
 	public def this(ii:int, jj:int) { property(ii,jj);}
 	public def run():boolean  {
-	    val x:EntailsPositive_MustFailCompile{self.i==1}  =  new EntailsPositive_MustFailCompile(one(),2);
+	    @ShouldBeErr val x:EntailsPositive_MustFailCompile{self.i==1}  =  new EntailsPositive_MustFailCompile(one(),2);
 	    return true;
 	}
 	def one():Int = 1;

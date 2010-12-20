@@ -287,14 +287,19 @@ public class LocalClassRemover extends ContextVisitor {
 	    // Check if extending a class or an interface.
 	    TypeNode superClass = neu.objectType();
 	    List<TypeNode> interfaces = Collections.<TypeNode>emptyList();
+	    ConstructorInstance ci = neu.constructorInstance();
 
-	    Type supertype = neu.objectType().type();
-	    if (supertype instanceof ClassType) {
-		ClassType s = (ClassType) supertype;
-		if (s.flags().isInterface()) {
-		    superClass = defaultSuperType(pos);
-		    interfaces = Collections.singletonList(neu.objectType());
-		}
+	    ClassType supertype = neu.objectType().type().toClass();
+	    if (supertype != null && supertype.flags().isInterface()) {
+	        superClass = defaultSuperType(pos);
+	        supertype = superClass.type().toClass();
+	        interfaces = Collections.singletonList(neu.objectType());
+	        assert (neu.arguments().isEmpty());
+	        try {
+	            ci = ts.findConstructor(supertype, ts.ConstructorMatcher(supertype, Collections.<Type>emptyList(), context()));
+	        } catch (SemanticException e) {
+	            throw new InternalCompilerError("Default constructor not found in "+supertype, neu.position(), e);
+	        }
 	    }
 
 	    Flags oldFlags = neu.anonType().flags();
@@ -311,7 +316,7 @@ public class LocalClassRemover extends ContextVisitor {
 
 	    cd = cd.classDef(type);
 
-	    ConstructorDecl td = addConstructor(cd, neu);
+	    ConstructorDecl td = addConstructor(cd, neu, ci);
 
 	    // Add the CI to the class.
 	    type.addConstructor(td.constructorDef());
@@ -335,7 +340,8 @@ public class LocalClassRemover extends ContextVisitor {
 
 	    cd = rewriteLocalClass(cd, (List<FieldDef>) hashGet(newFields, cd.classDef(), Collections.<FieldDef>emptyList()));
 	    hashAdd(orphans, context.currentClassDef(), cd);
-	    neu = neu.objectType(nf.CanonicalTypeNode(pos, computeConstructedType(type, context().currentCode()))).body(null);
+	    neu = adjustObjectType(neu, computeConstructedType(type, context().currentCode()));
+	    neu = neu.body(null);
 	    neu = (New) rewriteConstructorCalls(neu, cd.classDef(), (List<FieldDef>) hashGet(newFields, cd.classDef(), Collections.<FieldDef>emptyList()));
 	    return neu;
 	}
@@ -356,6 +362,10 @@ public class LocalClassRemover extends ContextVisitor {
 	}
 
 	return n;
+    }
+
+    protected New adjustObjectType(New neu, ClassType ct) {
+        return neu.objectType(nf.CanonicalTypeNode(neu.objectType().position(), ct));
     }
 
     protected ConstructorInstance computeConstructorInstance(ConstructorDef cd) {
@@ -386,7 +396,7 @@ public class LocalClassRemover extends ContextVisitor {
     }
 
     // Create a new constructor for an anonymous class.
-    ConstructorDecl addConstructor(ClassDecl cd, New neu) {
+    ConstructorDecl addConstructor(ClassDecl cd, New neu, ConstructorInstance superCI) {
 	// Build the list of formal parameters and list of arguments for the super call.
 	List<Formal> formals = new ArrayList<Formal>();
 	List<Expr> args = new ArrayList<Expr>();
@@ -415,7 +425,7 @@ public class LocalClassRemover extends ContextVisitor {
 
 	// Create the super call.
 	ConstructorCall cc = nf.SuperCall(pos, args);
-	cc = cc.constructorInstance(neu.constructorInstance());
+	cc = cc.constructorInstance(superCI);
 	cc = cc.qualifier(adjustQualifier(neu.qualifier()));
 
 	List<Stmt> statements = new ArrayList<Stmt>();

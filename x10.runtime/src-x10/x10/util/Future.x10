@@ -70,12 +70,7 @@ public class Future[+T] implements ()=>T {
     @Pinned private def forceLocal():T {
     	 latch.await();
          if (exception.length() > 0) {
-             val e = exception(0);
-             if (e instanceof Error)
-                 throw e as Error;
-             if (e instanceof RuntimeException)
-                 throw e as RuntimeException;
-             assert false;
+             throw exception(0);
          }
          return result(0);
     }

@@ -3,6 +3,7 @@
 #include <cassert>
 #include <new>
 #include <algorithm>
+#include <cfloat>
 
 #include <pthread.h>
 
@@ -713,9 +714,59 @@ void x10rt_emu_alltoall (x10rt_team team, x10rt_place role,
 
 namespace {
 
-    template<class T> static T zero (void) { return 0; }
+    // help avoid warnings about functions not returning when they call abort()
+    template<class T> T abortv (void) { abort(); return T(); }
 
-    template<> x10rt_dbl_s32 zero<x10rt_dbl_s32> (void) { x10rt_dbl_s32 z = {0,0}; return z; }
+    template<class T> T zero (void) { return 0; }
+    template<class T> T one (void) { return 1; }
+    // only min/max need be defined for x10rt_dbl_s32
+    template<> x10rt_dbl_s32 zero<x10rt_dbl_s32> (void) { abort(); }
+    template<> x10rt_dbl_s32 one<x10rt_dbl_s32> (void) { abort(); }
+
+    template<class T> T min (void) { return 0; } // cover unsigned cases
+    template<> int8_t   min<int8_t>   (void) { return (int8_t)0x80; }
+    template<> int16_t  min<int16_t>  (void) { return (int16_t)0x8000; }
+    template<> int32_t  min<int32_t>  (void) { return (int32_t)0x80000000; }
+    template<> int64_t  min<int64_t>  (void) { return (int64_t)0x8000000000000000ULL; }
+    template<> double   min<double>   (void) { return -DBL_MAX; }
+    template<> float    min<float>    (void) { return -FLT_MAX; }
+
+    template<class T> T max (void) { T::error(); } // specialised
+    template<> uint8_t  max<uint8_t>  (void) { return 0xFF; }
+    template<> int8_t   max<int8_t>   (void) { return 0x7F; }
+    template<> int16_t  max<int16_t>  (void) { return 0x7FFF; }
+    template<> uint16_t max<uint16_t> (void) { return 0xFFFF; }
+    template<> int32_t  max<int32_t>  (void) { return 0x7FFFFFFF; }
+    template<> uint32_t max<uint32_t> (void) { return 0xFFFFFFFF; }
+    template<> int64_t  max<int64_t>  (void) { return 0x7FFFFFFFFFFFFFFFULL; }
+    template<> uint64_t max<uint64_t> (void) { return 0xFFFFFFFFFFFFFFFFULL; }
+    template<> double   max<double>   (void) { return DBL_MAX; }
+    template<> float    max<float>    (void) { return FLT_MAX; }
+
+    // these guys return max for the s32 part because they should always
+    // return the lowest index in the case of equivalent values
+    template<> x10rt_dbl_s32 min<x10rt_dbl_s32> (void) {
+        x10rt_dbl_s32 r = {min<double>(), max<int32_t>()};
+        return r;
+    }
+    template<> x10rt_dbl_s32 max<x10rt_dbl_s32> (void) {
+        x10rt_dbl_s32 r = {max<double>(), max<int32_t>()};
+        return r;
+    }
+
+    // value which when added to a reduction does not affect the result
+
+    // should never hit this, check specialisations are working
+    template<class T, x10rt_red_op_type op> struct ident{ static T _ (void) { T::error()(); } };
+    template<class T> struct ident<T,X10RT_RED_OP_ADD> { static T _ (void) { return zero<T>(); } };
+    template<class T> struct ident<T,X10RT_RED_OP_MUL> { static T _ (void) { return one<T>(); } };
+    template<class T> struct ident<T,X10RT_RED_OP_AND> { static T _ (void) { return one<T>(); } };
+    template<class T> struct ident<T,X10RT_RED_OP_OR>  { static T _ (void) { return zero<T>(); } };
+    template<class T> struct ident<T,X10RT_RED_OP_XOR> { static T _ (void) { return zero<T>(); } };
+    template<class T> struct ident<T,X10RT_RED_OP_MAX> { static T _ (void) { return min<T>(); } };
+    template<class T> struct ident<T,X10RT_RED_OP_MIN> { static T _ (void) { return max<T>(); } };
+
+    // actual reduction ops
 
     // should never hit this, check specialisations are working
     template<class T, x10rt_red_op_type op> struct reduce { static T _ (const T &a, const T &b)
@@ -725,8 +776,6 @@ namespace {
     { return a + b; } };
     template<class T> struct reduce<T,X10RT_RED_OP_MUL> { static T _ (const T &a, const T &b)
     { return a * b; } };
-    template<class T> struct reduce<T,X10RT_RED_OP_DIV> { static T _ (const T &a, const T &b)
-    { return a / b; } };
     template<class T> struct reduce<T,X10RT_RED_OP_AND> { static T _ (const T &a, const T &b)
     { return a & b; } };
     template<class T> struct reduce<T,X10RT_RED_OP_OR>  { static T _ (const T &a, const T &b)
@@ -741,8 +790,7 @@ namespace {
     static float bitwise_err (void)
     {
         fprintf(stderr, "X10RT: Cannot do bitwise arithmetic on floating point values.\n");
-        abort();
-        return 0.0f;
+        return abortv<float>();
     }
     // special cases for floats, we just return 0 as they are not valid to call anyway
     template<> struct reduce<float,X10RT_RED_OP_AND>
@@ -761,14 +809,11 @@ namespace {
     static x10rt_dbl_s32 arith_err (void)
     {
         fprintf(stderr, "X10RT: Cannot do arithmetic on paired values.\n");
-        abort();
-        return zero<x10rt_dbl_s32>();
+        return abortv<x10rt_dbl_s32>();
     }
     template<> struct reduce<x10rt_dbl_s32,X10RT_RED_OP_ADD>
     { static x10rt_dbl_s32 _ (const x10rt_dbl_s32 &, const x10rt_dbl_s32 &) {return arith_err();} };
     template<> struct reduce<x10rt_dbl_s32,X10RT_RED_OP_MUL>
-    { static x10rt_dbl_s32 _ (const x10rt_dbl_s32 &, const x10rt_dbl_s32 &) {return arith_err();} };
-    template<> struct reduce<x10rt_dbl_s32,X10RT_RED_OP_DIV>
     { static x10rt_dbl_s32 _ (const x10rt_dbl_s32 &, const x10rt_dbl_s32 &) {return arith_err();} };
     template<> struct reduce<x10rt_dbl_s32,X10RT_RED_OP_AND>
     { static x10rt_dbl_s32 _ (const x10rt_dbl_s32 &, const x10rt_dbl_s32 &) {return arith_err();} };
@@ -778,12 +823,16 @@ namespace {
     { static x10rt_dbl_s32 _ (const x10rt_dbl_s32 &, const x10rt_dbl_s32 &) {return arith_err();} };
     template<> struct reduce<x10rt_dbl_s32,X10RT_RED_OP_MAX> {
         static x10rt_dbl_s32 _ (const x10rt_dbl_s32 &a, const x10rt_dbl_s32 &b) {
-            return a.val>=b.val?a:b;
+            if (a.val<b.val) return b;
+            else if (a.val>b.val) return a;
+            else return a.idx<=b.idx ? a : b;
         }
     };
     template<> struct reduce<x10rt_dbl_s32,X10RT_RED_OP_MIN> {
         static x10rt_dbl_s32 _ (const x10rt_dbl_s32 &a, const x10rt_dbl_s32 &b) {
-            return a.val<=b.val?a:b;
+            if (a.val<b.val) return a;
+            else if (a.val>b.val) return b;
+            else return a.idx<=b.idx ? a : b;
         }
     };
 
@@ -799,7 +848,7 @@ namespace {
 
         for (size_t i=0 ; i<m.allreduce.count ; ++i) {
             T &dest = static_cast<T*>(m.allreduce.dbuf)[i];
-            dest = zero<T>();
+            dest = ident<T,op>::_();
             for (x10rt_place j=0 ; j<t.memberc ; ++j) {
                 dest = reduce<T,op>::_(dest,tmp[i+j*m.allreduce.count]);
             }
@@ -854,7 +903,6 @@ namespace {
             case x: allreduce2<x,dtype>(team,role,sbuf,dbuf,count,ch,arg); return
             BORING_MACRO(X10RT_RED_OP_ADD);
             BORING_MACRO(X10RT_RED_OP_MUL);
-            BORING_MACRO(X10RT_RED_OP_DIV);
             BORING_MACRO(X10RT_RED_OP_AND);
             BORING_MACRO(X10RT_RED_OP_OR);
             BORING_MACRO(X10RT_RED_OP_XOR);

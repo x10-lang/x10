@@ -19,8 +19,9 @@ import harness.x10Test;
  */
 public class CallMethodTest_MustFailCompile extends x10Test {
 
-    public def run(): boolean = { 
-        val r:Region{rank==3} = Region.makeRectangular([1,1], [10,10]);
+    public def run(): boolean = {
+        val r3:Region{rank==3} = Region.makeRectangular([1,1], [10,10]); // ERR
+        val r2:Region{rank==2} = Region.makeRectangular([1,1], [10,10]);
         return true;
     }
 

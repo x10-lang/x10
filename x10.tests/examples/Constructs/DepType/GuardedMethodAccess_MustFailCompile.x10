@@ -40,7 +40,7 @@ public class GuardedMethodAccess_MustFailCompile extends x10Test {
 		
 	public def run(): boolean = {
 		var t: Test = new Test(5, 6);
-		t.v = t.key() + 1; // should fail typecheck. 
+		t.v = t.key() + 1; // ERR should fail typecheck. 
 	   return true;
 	}  
 	

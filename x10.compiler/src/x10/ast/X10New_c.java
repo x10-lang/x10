@@ -18,6 +18,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import polyglot.ast.AmbTypeNode;
+import polyglot.ast.CanonicalTypeNode;
 import polyglot.ast.ClassBody;
 import polyglot.ast.Expr;
 import polyglot.ast.New;
@@ -275,7 +276,24 @@ public class X10New_c extends New_c implements X10New {
         q = q.type(outer);
         return qualifier(q);
     }
-    
+
+    protected Name getName(TypeNode tn) {
+        if (tn instanceof CanonicalTypeNode) {
+            if (tn.type().isClass()) {
+                return tn.type().toClass().name();
+            } else {
+                return null;
+            }
+        }
+        if (tn instanceof AmbTypeNode) {
+            return ((AmbTypeNode) tn).name().id();
+        }
+        if (tn instanceof AmbDepTypeNode) {
+            return getName(((AmbDepTypeNode) tn).base());
+        }
+        return null;
+    }
+
     public New_c typeCheckObjectType(TypeChecker childtc) throws SemanticException {
         NodeFactory nf = (NodeFactory) childtc.nodeFactory();
         TypeSystem ts = (TypeSystem) childtc.typeSystem();
@@ -293,6 +311,12 @@ public class X10New_c extends New_c implements X10New {
         List<TypeNode> typeArguments = n.typeArguments;
 
         typeArguments = n.visitList(typeArguments, childtc);
+        qualifier = (Expr) n.visitChild(qualifier, childtc);
+
+        if (!(tn instanceof CanonicalTypeNode)) {
+        Name name = getName(tn);
+
+        Type t;
 
         if (qualifier == null) {
             if (typeArguments.size() > 0) {
@@ -305,85 +329,64 @@ public class X10New_c extends New_c implements X10New {
 
             tn = (TypeNode) n.visitChild(tn, childtc);
 
-            Type t = tn.type();
-            t = ts.expandMacros(t);
-
-            CConstraint xc = X10TypeMixin.xclause(t);
-            t = X10TypeMixin.baseType(t);
-
-            if (!(t instanceof X10ClassType)) {
-                QName name = QName.make(((AmbTypeNode) n.tn).name().id().toString());
-                t = ((X10TypeSystem_c) ts).createFakeClass(name, null);
-                tn = nf.CanonicalTypeNode(tn.position(), t);
-//                throw new SemanticException("Cannot instantiate type " + t + ".");
-            }
-
-            X10ClassType ct = (X10ClassType) t;
-
-            if ((ct.isMember()&& !ct.flags().isStatic())) {
-                final X10New_c newC = (X10New_c) n.objectType(tn);
-                New k = newC.findQualifier(childtc, ct);
-                tn = k.objectType();
-                qualifier = (Expr) k.visitChild(k.qualifier(), childtc);
-            }
-            t = X10TypeMixin.xclause(ct, xc);
-
-            ((Ref<Type>) tn.typeRef()).update(t);
+            t = tn.type();
         }
         else {
-            qualifier = (Expr) n.visitChild(qualifier, childtc);
 
             if (!(tn instanceof AmbTypeNode) || ((AmbTypeNode) tn).prefix() != null) {
                 throw new SemanticException("Only simply-named member classes may be instantiated by a qualified new expression.", tn.position());
             }
 
-            // We have to disambiguate the type node as if it were a member of
-            // the
-            // static type, outer, of the qualifier. For Java this is simple:
-            // type
-            // nested type is just a name and we
-            // use that name to lookup a member of the outer class. For some
-            // extensions (e.g., PolyJ), the type node may be more complex than
-            // just a name. We'll just punt here and let the extensions handle
-            // this complexity.
-
-            Name name = ((AmbTypeNode) tn).name().id();
-            assert name != null;
-
             if (!qualifier.type().isClass()) {
                 throw new SemanticException("Cannot instantiate member class of non-class type.", n.position());
             }
 
-            Type t = ts.findMemberType(X10TypeMixin.baseType(qualifier.type()), name, c);
-            t = ts.expandMacros(t);
-
-            CConstraint xc = X10TypeMixin.xclause(t);
-            t = X10TypeMixin.baseType(t);
-
-            if (!(t instanceof X10ClassType)) {
-                throw new SemanticException("Cannot instantiate type " + t + ".", n.position());
-            }
-
-            X10ClassType ct = (X10ClassType) t;
-
-            if (typeArguments.size() > 0) {
-                List<Type> typeArgs = new ArrayList<Type>(typeArguments.size());
-
-                for (TypeNode tan : typeArguments) {
-                    typeArgs.add(tan.type());
-                }
-
-                if (typeArgs.size() != ct.x10Def().typeParameters().size()) {
-                    throw new SemanticException("Cannot instantiate type " + ct + "; incorrect number of type arguments.", n.position());
-                }
-
-                ct = ct.typeArguments(typeArgs);
-            }
-
-            t = X10TypeMixin.xclause(ct, xc);
-
-            ((Ref<Type>) tn.typeRef()).update(t);
             tn = nf.CanonicalTypeNode(tn.position(), tn.typeRef());
+
+            // We have to disambiguate the type node as if it were a member of
+            // the static type, outer, of the qualifier.
+
+            t = ts.findMemberType(X10TypeMixin.baseType(qualifier.type()), name, c);
+        }
+        t = ts.expandMacros(t);
+
+        CConstraint xc = X10TypeMixin.xclause(t);
+        t = X10TypeMixin.baseType(t);
+
+        if (!(t instanceof X10ClassType)) {
+            if (name == null)
+                name = Name.makeFresh();
+            QName outer = qualifier == null ? null : qualifier.type().toClass().fullName();
+            QName qname = QName.make(outer, name);
+            t = ((X10TypeSystem_c) ts).createFakeClass(qname, new SemanticException("Cannot instantiate type " + t + "."));
+        }
+
+        X10ClassType ct = (X10ClassType) t;
+
+        if (qualifier == null && ct.isMember() && !ct.flags().isStatic()) {
+            final X10New_c newC = (X10New_c) n.objectType(tn);
+            New k = newC.findQualifier(childtc, ct);
+            tn = k.objectType();
+            qualifier = (Expr) k.visitChild(k.qualifier(), childtc);
+        }
+
+        if (false && typeArguments.size() > 0) {
+            List<Type> typeArgs = new ArrayList<Type>(typeArguments.size());
+
+            for (TypeNode tan : typeArguments) {
+                typeArgs.add(tan.type());
+            }
+
+            if (typeArgs.size() != ct.x10Def().typeParameters().size()) {
+                throw new SemanticException("Cannot instantiate type " + ct + "; incorrect number of type arguments.", n.position());
+            }
+
+            ct = ct.typeArguments(typeArgs);
+        }
+
+        t = X10TypeMixin.xclause(ct, xc);
+
+        ((Ref<Type>) tn.typeRef()).update(t);
         }
 
         n = (X10New_c) n.reconstruct(qualifier, tn, arguments, body);
@@ -579,11 +582,14 @@ public class X10New_c extends New_c implements X10New {
                 if (anonType != null) {
                     c = c.pushClass(anonType, anonType.asType());
                 }
-                ci = xts.findConstructor(targetType, xts.ConstructorMatcher(targetType, argTypes, c));
+                List<Type> typeArgs = ct.typeArguments();
+                if (typeArgs == null) {
+                    typeArgs = Collections.<Type>emptyList();
+                }
+                ci = xts.findConstructor(targetType, xts.ConstructorMatcher(targetType, typeArgs, argTypes, c));
             }
             else {
-                ConstructorDef dci = xts.defaultConstructor(n.position(), 
-                        Types.<ClassType> ref(ct));
+                ConstructorDef dci = xts.defaultConstructor(n.position(), Types.<ClassType> ref(ct));
                 ci = (X10ConstructorInstance) dci.asInstance();
             }
 

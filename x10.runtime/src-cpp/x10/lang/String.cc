@@ -51,7 +51,7 @@ x10aux::ref<String>
 String::_make(const char *content, bool steal) {
     x10aux::ref<String> this_ = new (x10aux::alloc<String>()) String();
     size_t len = strlen(content);
-    if (!steal) content = strdup(content);
+    if (!steal) content = string_utils::strdup(content);
     this_->_constructor(content,len);
     return this_;
 }
@@ -239,17 +239,17 @@ ref<String> String::substring(x10_int start, x10_int end) {
     return String::Steal(str);
 }
 
-static ref<Rail<ref<String> > > split_all_chars(String* str) {
+static ref<x10::array::Array<ref<String> > > split_all_chars(String* str) {
     size_t sz = (size_t)str->length();
-    Rail<ref<String> > *rail = alloc_rail<ref<String>,Rail<ref<String> > > (sz);
+    ref<x10::array::Array<ref<String> > > array = x10::array::Array<ref<String> >::_make(sz);
     for (size_t i = 0; i < sz; ++i) {
-        rail->raw()[i] = str->substring(i, i+1);
+        array->set(str->substring(i, i+1), i);
     }
-    return rail;
+    return array;
 }
 
 // FIXME: this does not treat pat as a regex
-ref<Rail<ref<String> > > String::split(ref<String> pat) {
+ref<x10::array::Array<ref<String> > > String::split(ref<String> pat) {
     nullCheck(pat);
     int l = pat->length();
     if (l == 0) // if splitting on an empty string, just return the chars
@@ -259,16 +259,16 @@ ref<Rail<ref<String> > > String::split(ref<String> pat) {
     while ((i = indexOf(pat, i+l)) != -1) {
         sz++;
     }
-    Rail<ref<String> > *rail = alloc_rail<ref<String>,Rail<ref<String> > > (sz);
+    ref<x10::array::Array<ref<String> > > array = x10::array::Array<ref <String> >::_make(sz);
     int c = 0;
-    int o = 0; // now build the rail
+    int o = 0; // now fill in the array
     while ((i = indexOf(pat, o)) != -1) {
-        rail->raw()[c++] = substring(o, i);
+        array->set(substring(o, i), c++);
         o = i+l;
     }
-    rail->raw()[c++] = substring(o);
+    array->set(substring(o), c++);
     assert (c == sz);
-    return rail;
+    return array;
 }
 
 x10_char String::charAt(x10_int i) {
@@ -277,20 +277,20 @@ x10_char String::charAt(x10_int i) {
 }
 
 
-ref<Rail<x10_char> > String::chars() {
+ref<x10::array::Array<x10_char> > String::chars() {
     x10_int sz = length();
-    Rail<x10_char> *rail = alloc_rail<x10_char,Rail<x10_char> > (sz);
+    ref<x10::array::Array<x10_char> > array = x10::array::Array<x10_char>::_make(sz);
     for (int i = 0; i < sz; ++i)
-        rail->raw()[i] = (x10_char) FMGL(content)[i]; // avoid bounds check
-    return rail;
+        array->set((x10_char) FMGL(content)[i], i);
+    return array;
 }
 
-ref<Rail<x10_byte> > String::bytes() {
+ref<x10::array::Array<x10_byte> > String::bytes() {
     x10_int sz = length();
-    Rail<x10_byte> *rail = alloc_rail<x10_byte,Rail<x10_byte> > (sz);
+    ref<x10::array::Array<x10_byte> > array = x10::array::Array<x10_byte>::_make(sz);
     for (int i = 0; i < sz; ++i)
-        rail->raw()[i] = FMGL(content)[i]; // avoid bounds check
-    return rail;
+        array->set(FMGL(content)[i], i); 
+    return array;
 }
 
 void String::_formatHelper(std::ostringstream &ss, char* fmt, ref<Any> p) {
@@ -336,7 +336,7 @@ ref<String> String::format(ref<String> format, ref<x10::array::Array<ref<Any> > 
     nullCheck(format);
     nullCheck(parms);
     //size_t len = format->FMGL(content_length);
-    char* orig = const_cast<char*>(format->c_str());
+    char* orig = string_utils::strdup(format->c_str());
     char* fmt = orig;
     char* next = NULL;
     for (x10_int i = 0; fmt != NULL; ++i, fmt = next) {
@@ -353,6 +353,7 @@ ref<String> String::format(ref<String> format, ref<x10::array::Array<ref<Any> > 
         if (next != NULL)
             *next = '%';
     }
+    dealloc(orig);
     return String::Lit(ss.str().c_str());
 }
 
@@ -503,9 +504,16 @@ x10aux::itable_entry String::_itables[3] = {
     x10aux::itable_entry(NULL,  (void*)x10aux::getRTT<String>())
 };
 
+x10aux::RuntimeType String::rtt;
 
-
-
-RTT_CC_DECLS1(String, "x10.lang.String", RuntimeType::class_kind, Object)
+void String::_initRTT() {
+    if (rtt.initStageOne(&rtt)) return;
+    const x10aux::RuntimeType* parents[3] =
+        {Object::getRTT(),
+         Fun_0_1<x10_int, x10_char>::getRTT(),
+         Comparable<String>::getRTT() };
+    
+    rtt.initStageTwo("x10.lang.String", RuntimeType::class_kind, 3, parents, 0, NULL, NULL);
+}    
 
 // vim:tabstop=4:shiftwidth=4:expandtab

@@ -15,6 +15,8 @@ import polyglot.main.Report;
 import polyglot.types.reflect.ClassFile;
 import polyglot.types.reflect.ClassFileLazyClassInitializer;
 import polyglot.util.*;
+import x10.types.X10TypeMixin;
+import x10.types.X10ClassDef_c;
 
 /**
  * TypeSystem_c
@@ -476,43 +478,34 @@ public abstract class TypeSystem_c implements TypeSystem
     }
 
     public void checkCycles(Type goal) throws SemanticException {
-	checkCycles(goal, goal);
+	checkCycles(X10TypeMixin.getDef(goal), X10TypeMixin.getDef(goal));
     }
 
-    protected void checkCycles(Type curr, Type goal) throws SemanticException {
-	assert_(curr);
-	assert_(goal);
+    protected void checkCycles(X10ClassDef_c curr, X10ClassDef_c goal) throws SemanticException {
+        assert_(curr);
+        assert_(goal);
 
-	if (curr == null) {
-	    return;
-	}
+        if (curr == null) {
+            return;
+        }
+        final Ref<? extends Type> superRef = curr.superType();
+        X10ClassDef_c superType = superRef==null ? null : X10TypeMixin.getDef(superRef.get());
 
-	if (curr instanceof ObjectType) {
-	    ObjectType ot = (ObjectType) curr;
-	    Type superType = null;
+        if (goal == superType) {
+        throw new SemanticException("Circular inheritance involving " + goal,curr.position());
+        }
 
-	    if (ot.superClass() != null) {
-		superType = ot.superClass();
-	    }
+        checkCycles(superType, goal);
 
-	    if (goal == superType) {
-		throw new SemanticException("Circular inheritance involving " + goal,curr.position());
-	    }
-
-	    checkCycles(superType, goal);
-
-	    for (Type si : ot.interfaces()) {
-		if (si == goal) {
-		    throw new SemanticException("Circular inheritance involving " + goal,curr.position());
-		}
-
-		checkCycles(si, goal);
-	    }
-	}
-
-	if (curr.isClass()) {
-	    checkCycles(curr.toClass().outer(), goal);
-	}
+        for (Ref<? extends Type> siType : curr.interfaces()) {
+            X10ClassDef_c si = X10TypeMixin.getDef(siType.get());
+            if (si == goal) {
+                throw new SemanticException("Circular inheritance involving " + goal,curr.position());
+            }
+            checkCycles(si, goal);
+        }
+        final Ref<? extends ClassDef> outerRef = curr.outer();
+        if (outerRef!=null) checkCycles((X10ClassDef_c) outerRef.get(), goal);
     }
 
     ////
@@ -532,6 +525,10 @@ public abstract class TypeSystem_c implements TypeSystem
 
     public boolean isNumeric(Type t) {
 	return t.isLongOrLess() || t.isFloat() || t.isDouble();
+    }
+
+    public boolean isUnsignedNumeric(Type t) {
+        return false; // No such thing in Java type system
     }
 
     public boolean isIntOrLess(Type t) {
@@ -1423,7 +1420,7 @@ public abstract class TypeSystem_c implements TypeSystem
 	return env(context).implemented(mi);
     }
 
-    protected List<MethodInstance> implemented(MethodInstance mi, StructType st, Context context) {
+    public List<MethodInstance> implemented(MethodInstance mi, StructType st, Context context) {
 	return env(context).implemented(mi, st);
     }
 
@@ -1537,8 +1534,9 @@ public abstract class TypeSystem_c implements TypeSystem
 	return new PrimitiveType_c(this, name);
     }
 
+    public static final Name voidName = Name.make("void");
     protected final NullType NULL_         = createNull();
-    protected final PrimitiveType VOID_    = createPrimitive(Name.make("void"));
+    protected final PrimitiveType VOID_    = createPrimitive(voidName);
     protected final PrimitiveType BOOLEAN_ = createPrimitive(Name.make("boolean"));
     protected final PrimitiveType CHAR_    = createPrimitive(Name.make("char"));
     protected final PrimitiveType BYTE_    = createPrimitive(Name.make("byte"));

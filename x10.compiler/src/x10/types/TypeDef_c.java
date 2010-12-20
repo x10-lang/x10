@@ -28,6 +28,7 @@ import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.util.CollectionUtil;
+import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
 import x10.constraint.XTerms;
@@ -65,6 +66,12 @@ public class TypeDef_c extends MemberDef_c implements TypeDef {
 	public Ref<? extends Type> offerType() {
 		return null;
 	}
+
+	public boolean inferReturnType() { return false; }
+	public void inferReturnType(boolean r) {
+	    throw new InternalCompilerError("Attempting to infer return type on a typedef", position());
+	}
+
 	// BEGIN ANNOTATION MIXIN
 	List<Ref<? extends Type>> annotations;
 

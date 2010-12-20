@@ -25,7 +25,7 @@ public class Generics2 extends x10Test {
 
 	public def run(): boolean = {
 	  val b: String = new Get[String]("").get();
-	  return b == "";
+	  return b.equals("");
 	}
 
 	public static def main(var args: Array[String](1)): void = {

@@ -32,7 +32,7 @@ public class SamePropertyAncestor_MustFailCompile extends x10Test {
 		}
 	}
 	
-	class Test2(i: int) extends Test {  // ERR
+	class Test2(i: int) extends Test {  // ERR ERR ([Semantic Error: i(): x10.lang.Int in SamePropertyAncestor_MustFailCompile.Test2 cannot override i(): x10.lang.Int in SamePropertyAncestor_MustFailCompile.Test; overridden method is final, Semantic Error: Class SamePropertyAncestor_MustFailCompile.Test2 cannot override property i of superclass SamePropertyAncestor_MustFailCompile.Test.])
 		 
 		def this(i:int):Test2 = {
 		    super(i,i);

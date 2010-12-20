@@ -34,8 +34,12 @@ public class FutureTest4_MustFailCompile extends x10Test {
 		var s: int=0;
 		for ([i] in 0..N-1) {
 			s += i;
-			//=== >compiler error: i, s not final
-			x += Future.make[int](() => at(A.dist([i, s%N] as Point))  A(i, s%N) ).force();
+			//=== >compiler error: s not final  (i is final!)
+			x += Future.make[int](() => at(A.dist([i,
+			        s // ERR: Local variable "s" is accessed from an inner class or a closure, and must be declared final.
+			        %N] as Point))  A(i,
+			        s // ERR: Local variable "s" is accessed from an inner class or a closure, and must be declared final.
+			        %N) ).force();
 		}
 		x10.io.Console.OUT.println("x = "+x);
 		if (x != 252) return false;

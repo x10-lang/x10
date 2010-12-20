@@ -18,9 +18,17 @@ import harness.x10Test;
  **/
 public class AssignmentIntegerLitteralToConstrainedShort_MustFailCompile extends x10Test {
 
+	public def run2() = {
+		val constraint = 0;
+		var i: short{self == constraint} = 0;
+    }
+	public def run3() = {
+		val constraint:short{self==0s} = 0s;
+		var i: short{self == constraint} = 0s;
+    }
 	public def run(): boolean = {
 		val constraint: short = 0;
-		var i: short{self == constraint} = 0; // should fail because constraint: short, not short{self==0}
+		var i: short{self == constraint} = 0; // ERR: should fail because constraint: short, not short{self==0}
 		return false;
 	}
 

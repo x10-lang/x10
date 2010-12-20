@@ -67,11 +67,6 @@ class Activity {
     private var finishState:FinishState;
 
     /**
-     * safe to run pending jobs while waiting for a finish (temporary)
-     */
-    private val safe:Boolean;
-
-    /**
      * The user-specified code for this activity.
      */
     private val body:()=>void;
@@ -80,7 +75,7 @@ class Activity {
      * The mapping from registered clocks to phases for this activity.
      * Lazily created.
      */
-    private var clockPhases:ClockPhases;
+    var clockPhases:ClockPhases;
 
     /**
      * Depth of enclosong atomic blocks
@@ -95,16 +90,8 @@ class Activity {
     /**
      * Create activity.
      */
-    def this(body:()=>void, finishState:FinishState, safe:Boolean) {
-        this.finishState = finishState;
-        this.safe = safe;
-        finishState.notifyActivityCreation();
-        this.body = body;
-    }
-
     def this(body:()=>void, finishState:FinishState) {
         this.finishState = finishState;
-        this.safe = true;
         finishState.notifyActivityCreation();
         this.body = body;
     }
@@ -113,7 +100,7 @@ class Activity {
      * Create clocked activity.
      */
     def this(body:()=>void, finishState:FinishState, clockPhases:ClockPhases) {
-        this(body, finishState, false);
+        this(body, finishState);
         this.clockPhases = clockPhases;
     }
 
@@ -139,8 +126,6 @@ class Activity {
         finishState = f;
         return old;
     }
-
-    def safe():Boolean = safe && (null == clockPhases);
 
     // about atomic blocks
 

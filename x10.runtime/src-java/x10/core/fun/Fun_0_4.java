@@ -20,11 +20,13 @@ public interface Fun_0_4<T1,T2,T3,T4,U> extends Fun {
     
     public static final RuntimeType<Fun_0_4<?,?,?,?,?>> _RTT = new RuntimeType<Fun_0_4<?,?,?,?,?>>(
         Fun_0_4.class,
-        Variance.CONTRAVARIANT,
-        Variance.CONTRAVARIANT,
-        Variance.CONTRAVARIANT,
-        Variance.CONTRAVARIANT,
-        Variance.COVARIANT
+        new RuntimeType.Variance[] {
+            Variance.CONTRAVARIANT,
+            Variance.CONTRAVARIANT,
+            Variance.CONTRAVARIANT,
+            Variance.CONTRAVARIANT,
+            Variance.COVARIANT
+        }
     ) {
         @Override
         public String typeName(Object o) {

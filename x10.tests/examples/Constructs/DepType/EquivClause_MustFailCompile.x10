@@ -18,7 +18,7 @@ import harness.x10Test;
  */
 public class EquivClause_MustFailCompile extends x10Test {
     var i: int{self==1} = 1;
-    var j: int{self==0} = i;
+    var j: int{self==0} = i; // ERR
 
 	public def run(): boolean = {
 	   

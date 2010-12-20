@@ -6,7 +6,7 @@ import x10.compiler.CUDA;
 import x10.compiler.CUDADirectParams;
 
 public class CUDA3DFD {
-    public static def init_data(data:Array[Float]{rail}, dimx:Int, dimy:Int, dimz:Int)
+    public static def init_data(data:Array[Float](1){rail}, dimx:Int, dimy:Int, dimz:Int)
     {
         var off:Int = 0;
         for(var iz:Int=0; iz<dimz; iz++)
@@ -17,7 +17,7 @@ public class CUDA3DFD {
                 }
     }
 
-    public static def random_data(data:Array[Float]{rail}, dimx:Int, dimy:Int, dimz:Int, lower_bound:Int, upper_bound:Int)
+    public static def random_data(data:Array[Float](1){rail}, dimx:Int, dimy:Int, dimz:Int, lower_bound:Int, upper_bound:Int)
     {
         val rnd = new Random(0);
 
@@ -32,10 +32,10 @@ public class CUDA3DFD {
     }
 
     // note that this CPU implemenation is extremely naive and slow, NOT to be used for performance comparisons
-    public static def reference_3D(output:Array[Float]{rail}, input:Array[Float]{rail}, coeff:Array[Float]{rail}, dimx:Int, dimy:Int, dimz:Int)
+    public static def reference_3D(output:Array[Float](1){rail}, input:Array[Float](1){rail}, coeff:Array[Float](1){rail}, dimx:Int, dimy:Int, dimz:Int)
     { reference_3D(output, input, coeff, dimx, dimy, dimz, 4); }
     
-    public static def reference_3D(output:Array[Float]{rail}, input:Array[Float]{rail}, coeff:Array[Float]{rail}, dimx:Int, dimy:Int, dimz:Int, radius:Int)
+    public static def reference_3D(output:Array[Float](1){rail}, input:Array[Float](1){rail}, coeff:Array[Float](1){rail}, dimx:Int, dimy:Int, dimz:Int, radius:Int)
     {
         val dimxy = dimx*dimy;
 
@@ -67,13 +67,13 @@ public class CUDA3DFD {
         }
     }
 
-    public static def within_epsilon(output:Array[Float]{rail}, reference:Array[Float]{rail}, dimx:Int, dimy:Int, dimz:Int)
+    public static def within_epsilon(output:Array[Float](1){rail}, reference:Array[Float](1){rail}, dimx:Int, dimy:Int, dimz:Int)
     { return within_epsilon(output, reference, dimx, dimy, dimz, 4); }
-    public static def within_epsilon(output:Array[Float]{rail}, reference:Array[Float]{rail}, dimx:Int, dimy:Int, dimz:Int, radius:Int)
+    public static def within_epsilon(output:Array[Float](1){rail}, reference:Array[Float](1){rail}, dimx:Int, dimy:Int, dimz:Int, radius:Int)
     { return within_epsilon(output, reference, dimx, dimy, dimz, radius, -1); }
-    public static def within_epsilon(output:Array[Float]{rail}, reference:Array[Float]{rail}, dimx:Int, dimy:Int, dimz:Int, radius:Int, zadjust:Int)
+    public static def within_epsilon(output:Array[Float](1){rail}, reference:Array[Float](1){rail}, dimx:Int, dimy:Int, dimz:Int, radius:Int, zadjust:Int)
     { return within_epsilon(output, reference, dimx, dimy, dimz, radius, zadjust, 0.0001f); }
-    public static def within_epsilon(output:Array[Float]{rail}, reference:Array[Float]{rail}, dimx:Int, dimy:Int, dimz:Int, radius:Int, zadjust:Int, delta:Float )
+    public static def within_epsilon(output:Array[Float](1){rail}, reference:Array[Float](1){rail}, dimx:Int, dimy:Int, dimz:Int, radius:Int, zadjust:Int, delta:Float )
     {
         var retval:Boolean = true;
 
@@ -108,7 +108,7 @@ public class CUDA3DFD {
     }
 
 
-    public static def main (args : Array[String]{rail}) {
+    public static def main (args : Array[String](1){rail}) {
 
         //cudaDeviceProp properties;
 

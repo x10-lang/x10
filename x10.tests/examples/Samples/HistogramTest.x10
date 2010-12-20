@@ -14,8 +14,7 @@ import harness.x10Test;
 public class HistogramTest extends x10Test {
     public def run():boolean {
          val args = new Array[String](0);
-         Histogram.main(args);
-         return true;
+         return Histogram.compute(10000, 100);
     }
 
     public static def main(args:Array[String](1)) {

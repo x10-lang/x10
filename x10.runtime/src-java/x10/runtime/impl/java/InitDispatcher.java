@@ -66,7 +66,7 @@ public class InitDispatcher {
 
     public static int addInitializer(String className, String fieldName) {
         if (fieldId < 0) {
-            System.err.println("Adding initializer too late!");
+            System.err.println("Adding initializer too late! : " + className + "." + fieldName);
             System.exit(-1);
         }
 
@@ -117,11 +117,10 @@ public class InitDispatcher {
             }
         };
 
-        for (int place = 1; place < x10.lang.Place.getInitialized$MAX_PLACES(); place++) {
+        for (int place = 1; place < Runtime.MAX_PLACES; place++) {
             // call x10rt API to invoke the closure at specified place
             Runtime.runClosureAt(place, body);
         }
-
     }
 
     private static java.io.ByteArrayOutputStream serialize(Object object) {

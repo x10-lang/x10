@@ -11,7 +11,6 @@ import java.util.List;
 
 import polyglot.frontend.Job;
 import polyglot.frontend.Source;
-import polyglot.util.Enum;
 import polyglot.util.Position;
 
 /**
@@ -30,17 +29,25 @@ public interface ClassDef extends MemberDef
     public void inStaticContext(boolean inStaticContext);
     public boolean inStaticContext();
     
-    public static class Kind extends Enum {
-        private static final long serialVersionUID = 2700062381999037549L;
-        public Kind(String name) {
-            super(name);
+    public static enum Kind {
+        TOP_LEVEL("top-level"),
+        MEMBER("member"),
+        LOCAL("local"),
+        ANONYMOUS("anonymous");
+
+        public final String name;
+        private Kind(String name) {
+            this.name = name;
         }
+        @Override public String toString() {
+            return name;
+        }                  
     }
 
-    public static final Kind TOP_LEVEL = new Kind("top-level");
-    public static final Kind MEMBER = new Kind("member");
-    public static final Kind LOCAL = new Kind("local");
-    public static final Kind ANONYMOUS = new Kind("anonymous");
+    public static final Kind TOP_LEVEL = Kind.TOP_LEVEL;
+    public static final Kind MEMBER = Kind.MEMBER;
+    public static final Kind LOCAL = Kind.LOCAL;
+    public static final Kind ANONYMOUS = Kind.ANONYMOUS;
 
     /** Get the class's kind. */
     Kind kind();

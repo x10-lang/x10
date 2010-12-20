@@ -27,7 +27,7 @@ public class ClosureEnclosingScope3 extends ClosureTest {
         val a = 2;
         class D {
             val a = 4;
-            val sum = (()=>(ClosureEnclosingScope3.this.a
+            def sum() = (()=>(ClosureEnclosingScope3.this.a
             		+C.this.a
             		+D.this.a
             		+a))();
@@ -36,7 +36,7 @@ public class ClosureEnclosingScope3 extends ClosureTest {
 
     public def run(): boolean = {
         
-        check("new C().new D().sum", new C().new D().sum, 11);
+        check("new C().new D().sum", new C().new D().sum(), 11);
 
         return result;
     }

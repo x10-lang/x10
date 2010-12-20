@@ -11,10 +11,14 @@
 
 package x10.ast;
 
+import x10.types.AtDef;
+
 /**
  * @author vj Jan 5, 2005
  * @author igor Jan 19, 2006
  */
 public interface AtEach extends X10ClockedLoop {
+    AtDef atDef();
+    AtEach atDef(AtDef ci);
 }
 

@@ -14,22 +14,22 @@
 
 #include <x10aux/ref.h>
 
-namespace x10 { namespace util { namespace concurrent { namespace atomic { class AtomicInteger; }}}}
+namespace x10 { namespace util { namespace concurrent { class AtomicInteger; }}}
 
 namespace x10aux {
                 
     class atomic_int_funs {
     public:
 
-        static x10_boolean compareAndSet(x10aux::ref<x10::util::concurrent::atomic::AtomicInteger> obj,
+        static x10_boolean compareAndSet(x10aux::ref<x10::util::concurrent::AtomicInteger> obj,
                                          x10_int expect, x10_int update);
 
-        static x10_boolean weakCompareAndSet(x10aux::ref<x10::util::concurrent::atomic::AtomicInteger> obj,
+        static x10_boolean weakCompareAndSet(x10aux::ref<x10::util::concurrent::AtomicInteger> obj,
                                              x10_int expect, x10_int update);
 
-        static x10_int getAndAdd(x10aux::ref<x10::util::concurrent::atomic::AtomicInteger> obj, x10_int delta);
+        static x10_int getAndAdd(x10aux::ref<x10::util::concurrent::AtomicInteger> obj, x10_int delta);
 
-        static x10_int addAndGet(x10aux::ref<x10::util::concurrent::atomic::AtomicInteger> obj, x10_int delta);
+        static x10_int addAndGet(x10aux::ref<x10::util::concurrent::AtomicInteger> obj, x10_int delta);
     };
 }
         

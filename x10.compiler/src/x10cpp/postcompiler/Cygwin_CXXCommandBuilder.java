@@ -29,13 +29,8 @@ public class Cygwin_CXXCommandBuilder extends CXXCommandBuilder {
 
     protected void addPreArgs(ArrayList<String> cxxCmd) {
         super.addPreArgs(cxxCmd);
-        cxxCmd.add("-Wno-long-long");
-        cxxCmd.add("-Wno-unused-parameter");
         cxxCmd.add("-msse2");
         cxxCmd.add("-mfpmath=sse");
     }
 
-    protected void addPostArgs(ArrayList<String> cxxCmd) {
-        super.addPostArgs(cxxCmd);
-    }
 }

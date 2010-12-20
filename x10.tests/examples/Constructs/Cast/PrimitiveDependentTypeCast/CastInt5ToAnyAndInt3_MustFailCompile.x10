@@ -21,7 +21,7 @@ import harness.x10Test;
 
    public def run() {
       try {
-         val i = mth() as Int(3);
+         val i = mth() as Int(3); // ERR
       } catch(e: ClassCastException) {
          return true;
       }

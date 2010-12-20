@@ -45,6 +45,12 @@ public abstract class RailFactory {
     }
 
 //    public static <T> Rail<T> makeRailFromJavaArray(Object value) {
+//        if (value instanceof byte[]) {
+//            return new Rail<T>((Type) Types.BYTE, ((byte[]) value).length, value);
+//        }
+//        if (value instanceof short[]) {
+//            return new Rail<T>((Type) Types.SHORT, ((short[]) value).length, value);
+//        }
 //        if (value instanceof int[]) {
 //            return new Rail<T>((Type) Types.INT, ((int[]) value).length, value);
 //        }
@@ -57,12 +63,6 @@ public abstract class RailFactory {
 //        if (value instanceof double[]) {
 //            return new Rail<T>((Type) Types.DOUBLE, ((double[]) value).length, value);
 //        }
-//        if (value instanceof byte[]) {
-//            return new Rail<T>((Type) Types.BYTE, ((byte[]) value).length, value);
-//        }
-//        if (value instanceof short[]) {
-//            return new Rail<T>((Type) Types.SHORT, ((short[]) value).length, value);
-//        }
 //        if (value instanceof char[]) {
 //            return new Rail<T>((Type) Types.CHAR, ((char[]) value).length, value);
 //        }
@@ -70,10 +70,21 @@ public abstract class RailFactory {
 //            return new Rail<T>((Type) Types.BOOLEAN, ((boolean[]) value).length, value);
 //        }
 //        if (value instanceof String[]) {
-//            return new Rail<T>(new RuntimeType(String.class), ((String[]) value).length, value);
+//            return new Rail<T>((Type) Types.STRING, ((String[]) value).length, value);
+//        }
+//        // subtype of RefI should have _RTT field 
+//        Class<?> componentType = value.getClass().getComponentType();
+//        if (x10.core.RefI.class.isAssignableFrom(componentType)) {
+//            try {
+//                RuntimeType _RTT = (RuntimeType) componentType.getDeclaredField("_RTT").get(null);
+//                return new Rail<T>(_RTT, ((Object[]) value).length, value);
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//                throw ThrowableUtilities.getCorrespondingX10Exception(e);
+//            }
 //        }
 //        // cannot get correct RTT info. from array
-//        return new Rail<T>(new RuntimeType(value.getClass().getComponentType()), ((Object[]) value).length, value);
+//        return new Rail<T>(new RuntimeType(componentType), ((Object[]) value).length, value);
 //    }
 
     public static <T> x10.array.Array<T> makeArrayFromJavaArray(Type type, Object value) {

@@ -10,7 +10,7 @@
  */
 
 import harness.x10Test;
-import x10.util.concurrent.atomic.AtomicBoolean;
+import x10.util.concurrent.AtomicBoolean;
 
 /**
  * Simple test cases for AtomicBoolean API functions.

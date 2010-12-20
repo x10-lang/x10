@@ -16,7 +16,7 @@ import harness.x10Test;
  */
 public class IntLitDepType_MustFailCompile extends x10Test {
 	public def run(): boolean = {
-		var f: int{self==1} = 2;
+		var f: int{self==1} = 2; // ERR
 		return true;
 	}
 

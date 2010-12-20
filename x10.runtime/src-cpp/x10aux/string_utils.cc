@@ -23,6 +23,10 @@ using namespace x10::array;
 using namespace x10::lang;
 using namespace x10aux;
 
+#ifdef __CYGWIN__
+extern "C" char *strdup (const char *);
+#endif
+
 ref<Array<ref<String> > >x10aux::convert_args(int ac, char **av) {
     assert(ac>=1);
     x10_int x10_argc = ac  - 1;
@@ -34,15 +38,6 @@ ref<Array<ref<String> > >x10aux::convert_args(int ac, char **av) {
     return arr;
 }
 
-ref<String> x10aux::vrc_to_string(ref<Rail<x10_char> > v) {
-    nullCheck(v);
-    char *str = alloc<char>(v->FMGL(length)+1);
-    for (int i = 0; i < v->FMGL(length); ++i)
-        str[i] = (*v)[i].v;
-    str[v->FMGL(length)] = '\0';
-    return String::Steal(str);
-}
-
 ref<String> x10aux::string_utils::lit(const char* s) {
     return String::Lit(s);
 }
@@ -50,5 +45,21 @@ ref<String> x10aux::string_utils::lit(const char* s) {
 const char* x10aux::string_utils::cstr(ref<String> s) {
     return s->c_str();
 }
+
+char * x10aux::string_utils::strdup(const char* old) {
+#ifdef X10_USE_BDWGC
+    int len = strlen(old);
+    char *ans = x10aux::alloc<char>(len+1);
+    memcpy(ans, old, len);
+    ans[len] = 0;
+    return ans;
+#else
+    return ::strdup(old);
+#endif
+}
+
+
+
+
 
 // vim:tabstop=4:shiftwidth=4:expandtab

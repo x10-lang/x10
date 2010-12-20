@@ -21,11 +21,9 @@
 #include <x10/lang/Fun_0_1.h>
 #include <x10/lang/Comparable.h>
 
-#ifdef __CYGWIN__
-extern "C" char *strdup (const char *);
-#endif
 namespace x10 {
-
+    namespace array { template<class T> class Array; }
+    
     namespace lang {
 
         template<class T> class Rail;
@@ -58,6 +56,9 @@ namespace x10 {
                 this->FMGL(content) = content;
                 this->FMGL(content_length) = content_length;
                 return this;
+            }
+            static x10aux::ref<String> _make() {
+                return Lit("");
             }
             static x10aux::ref<String> _make(x10aux::ref<String> s);
             static x10aux::ref<String> _make(x10aux::ref<Rail<x10_char> > rail,
@@ -113,16 +114,16 @@ namespace x10 {
                 return substring(start, this->length());
             }
 
-            x10aux::ref<Rail<x10aux::ref<String> > > split(x10aux::ref<String> pat);
+            x10aux::ref<x10::array::Array<x10aux::ref<String> > > split(x10aux::ref<String> pat);
 
             // Forwarding method needed so that String can be used in Generic contexts (T <: (nat)=>char)
             x10_char apply(x10_int i) { return charAt(i); }
             
             x10_char charAt(x10_int i);
 
-            x10aux::ref<Rail<x10_char> > chars();
+            x10aux::ref<x10::array::Array<x10_char> > chars();
 
-            x10aux::ref<Rail<x10_byte> > bytes();
+            x10aux::ref<x10::array::Array<x10_byte> > bytes();
 
             static const x10aux::serialization_id_t _serialization_id;
 
@@ -157,7 +158,9 @@ namespace x10 {
 
             String () : FMGL(content)(NULL) { }
             virtual ~String () {
+                #ifndef X10_USE_BDWGC
                 x10aux::dealloc(FMGL(content));
+                #endif
             }
         };
 

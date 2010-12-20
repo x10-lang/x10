@@ -39,17 +39,14 @@ endif
 
 CXXFLAGS += -g
 
-#avoid specifying -NDEBUG twice
 ifdef OPTIMIZE
-  USE_NDEBUG := -DNDEBUG -DNO_PLACE_CHECKS
+  CXXFLAGS += -DNO_TRACING
   X10CPPFLAGS += -optimize
 endif
 ifdef NO_CHECKS
-  USE_NDEBUG := -DNDEBUG
   CXXFLAGS += -DNO_CHECKS
   X10CPPFLAGS += -NO_CHECKS
 endif
-CXXFLAGS += $(USE_NDEBUG)
 
 ifdef USE_BFD
   CXXFLAGS += -DUSE_BFD
@@ -102,7 +99,9 @@ else
     ifdef OPTIMIZE
       override CXXFLAGS += -O2 -finline-functions
     endif
-    override CXXFLAGS += -ansi -pedantic -Wall -Wextra -Wno-long-long -Wno-unused-parameter
+    ifndef CXX_NO_WARNINGS
+      CXX_WARNING_FLAGS = -ansi -pedantic -Wall -Wextra -Wno-long-long -Wno-unused-parameter
+    endif
   endif
   ifdef USE_XLC
     # have to override CXX, but let user specify CUSTOM_XLC if they

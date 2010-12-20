@@ -27,17 +27,17 @@ public class ClosureEnclosingScope6 extends ClosureTest {
         def a() = 2;
         class D {
             @NonEscaping final def a() = 4;
-            val sum = (()=>(
-				ClosureEnclosingScope6.this.a // DYNAMIC_CHECK
+            def sum() = (()=>(
+				ClosureEnclosingScope6.this.a
 				+
-					C.this.a()+  // DYNAMIC_CHECK
+					C.this.a()+
 					D.this.a()+a()))();
         }
     }
 
     public def run(): boolean = {
         
-        check("new C().new D().sum", new C().new D().sum, 11);
+        check("new C().new D().sum", new C().new D().sum(), 11);
 
         return result;
     }

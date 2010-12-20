@@ -23,7 +23,7 @@ public class InheritedProperty_MustFailCompile extends x10Test {
     }
     
     // fail here
-    class Tester  /*(l:int)*/ implements Test {
+    class Tester  /*(l:int)*/ implements Test { // ERR: InheritedProperty_MustFailCompile.Tester should be declared abstract; it does not define l(): x10.lang.Int, which is declared in InheritedProperty_MustFailCompile.Test
       public def this(arg:int):Tester {  }
       public def put()=0;
     }

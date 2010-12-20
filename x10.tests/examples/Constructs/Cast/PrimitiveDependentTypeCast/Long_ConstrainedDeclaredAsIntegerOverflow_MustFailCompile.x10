@@ -23,7 +23,7 @@ public class Long_ConstrainedDeclaredAsIntegerOverflow_MustFailCompile extends x
 	 public def run(): boolean = {
 		try {
 			// This value cannot fit in an integer, so the compiler must flag an error.
-			var l2: long{self==2147493647} = overIntMax as long{self==2147493647};
+			var l2: long{self==2147493647} = overIntMax as long{self==2147493647}; // ERR: Int literal 2147493647 is out of range.
 		} catch (var e: ClassCastException) {
 			return true;
 		}

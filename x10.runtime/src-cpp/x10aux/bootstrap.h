@@ -148,6 +148,7 @@ namespace x10aux {
                 x10aux::ref<BootStrapClosure>(new (x10aux::alloc<x10::lang::VoidFun_0_0>(sizeof(x10aux::BootStrapClosure)))
                                               x10aux::BootStrapClosure(T::main,args));
 
+            x10aux::DeserializationDispatcher::registerHandlers();
             Runtime::start(init_closure, main_closure); // use XRX
             //init_closure->apply(); // bypass XRX
             //main_closure->apply(); // bypass XRX

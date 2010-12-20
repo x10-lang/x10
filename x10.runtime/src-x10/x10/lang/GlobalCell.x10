@@ -63,7 +63,7 @@ public class GlobalCell[T] {
      * @param x the given value
      * @return a new Cell with the given value stored in it.
      */
-    public static def make[T](x:T)= (new GlobalCell[T](new Cell[T](x)));
+    public static def make[T](x:T)= (new GlobalCell[T](x));
 
 
     /**

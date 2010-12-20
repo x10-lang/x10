@@ -20,7 +20,7 @@ import harness.x10Test;
 
 	public def run(): boolean = {
 		var obj:x10.lang.Object = null as Object; // ok in 1.7
-		var v:x10.lang.Complex = null as Complex; // not allowed in 2.0 
+		var v:x10.lang.Complex = null as Complex; // ERR not allowed in 2.0 
 		return false;
 	}
 

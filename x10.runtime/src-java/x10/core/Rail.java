@@ -147,15 +147,17 @@ public final class Rail<T> extends Ref implements AnyRail<T>, x10.lang.Settable<
 //		return zero;
 //    }
     
-    public String toString() {
+    public java.lang.String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("[");
-        for (int i = 0; i < length; i++) {
+        sb.append("Rail(");
+        int sz = Math.min(length, 10);
+        for (int i = 0; i < sz; i++) {
             if (i > 0)
-                sb.append(", ");
+                sb.append(",");
             sb.append(apply$G(i));
         }
-        sb.append("]");
+        if (sz < length) sb.append("...(omitted " + (length - sz) + " elements)");
+        sb.append(")");
         return sb.toString();
     }
 
@@ -217,7 +219,7 @@ public final class Rail<T> extends Ref implements AnyRail<T>, x10.lang.Settable<
         }
     ) {
         @Override
-        public String typeName() {
+        public java.lang.String typeName() {
             return "x10.lang.Rail";
         }
     };

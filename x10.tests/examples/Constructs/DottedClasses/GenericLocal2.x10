@@ -18,9 +18,9 @@ import harness.x10Test;
 public class GenericLocal2 extends x10Test {
 
 	public class Hello[X] {
-		def m[X]() {
+		def m[Y]() {
 			class Local[A]{}
-			return new Local[X]();
+			return new Local[Y]();
 		}
 
 	}

@@ -9,11 +9,14 @@ package polyglot.util;
 
 import java.io.*;
 import java.util.StringTokenizer;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A <code>StdErrorQueue</code> handles outputing error messages.
+ * We buffer the error messages because future phases might delete errors (e.g., see ErrChecker)
  */
-public class StdErrorQueue extends AbstractErrorQueue
+public class StdErrorQueue extends SilentErrorQueue
 {
     private PrintStream err;
 
@@ -22,7 +25,7 @@ public class StdErrorQueue extends AbstractErrorQueue
 	this.err = err;
     }
 
-    public void displayError(ErrorInfo e) {
+    private void println(ErrorInfo e) {
 	String message = e.getErrorKind() != ErrorInfo.DEBUG
 		       ? e.getMessage()
 		       : e.getErrorString() + " -- " + e.getMessage();
@@ -128,11 +131,12 @@ public class StdErrorQueue extends AbstractErrorQueue
 	    showError(position);
 	}
     }
-    
+
+    ArrayList<String> tooManyErrorsMsgs = new ArrayList<String>();
     protected void tooManyErrors(ErrorInfo lastError) {
         Position position = lastError.getPosition();
         String prefix = position != null ? (position.file() + ": ") : "";
-        err.println(prefix + "Too many errors.  Aborting compilation.");        
+        tooManyErrorsMsgs.add(prefix + "Too many errors.  Aborting compilation.");
     }
 
     protected Reader reader(Position pos) throws IOException {
@@ -243,12 +247,23 @@ public class StdErrorQueue extends AbstractErrorQueue
     }
     
     public void flush() {
-	if (! flushed) {
-            if (errorCount() > 0) {
-                err.println(errorCount() + " error" +
-                            (errorCount() > 1 ? "s." : "."));
+	    if (! flushed) {
+            final List<ErrorInfo> errList = getErrors();
+            int count = 0;
+            for (ErrorInfo info : errList) {
+                println(info);
+                if (info.getErrorKind() != ErrorInfo.WARNING &&
+                        info.getErrorKind() != ErrorInfo.DEBUG) {
+                    count++;
+                }
             }
-	}
+            for (String msg : tooManyErrorsMsgs)
+                err.println(msg);
+            if (count > 0) {
+                err.println(count + " error" +
+                            (count > 1 ? "s." : "."));
+            }
+        }
         super.flush();
     }
 }

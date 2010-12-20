@@ -34,7 +34,7 @@ public class Variance3_MustFailCompile extends x10Test {
                 sa.set(b);
                 sb.set(b);
 
-                val sx: Set[B] = sa; // contravariance; error
+                val sx: Set[B] = sa; // ERR: contravariance
                 sx.set(b);
 
                 val sy: Set[B] = sb;

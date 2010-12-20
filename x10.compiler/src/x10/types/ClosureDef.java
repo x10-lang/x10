@@ -34,7 +34,7 @@ import x10.types.constraints.XConstrainedTerm;
  * @author vj
  *
  */
-public interface ClosureDef extends FunctionDef, X10Def, X10ProcedureDef {
+public interface ClosureDef extends FunctionDef, X10Def, X10ProcedureDef, EnvironmentCapture {
     
     ClosureInstance asInstance();
     public FunctionType asType();
@@ -44,9 +44,6 @@ public interface ClosureDef extends FunctionDef, X10Def, X10ProcedureDef {
      * @return
      */
     public ClosureDef position(Position pos);
-    /** Set a flag indicating we should infer the return type. */
-    boolean inferReturnType();
-    void inferReturnType(boolean r);
 
     Ref<? extends CodeInstance<?>> methodContainer();
     void setMethodContainer(Ref<? extends CodeInstance<?>> mi);
@@ -56,9 +53,6 @@ public interface ClosureDef extends FunctionDef, X10Def, X10ProcedureDef {
     
     //List<ParameterType> typeParameters();
     void setTypeParameters(List<ParameterType> typeParameters);
-    
-    List<VarInstance<? extends VarDef>> capturedEnvironment();
-    void addCapturedVariable(VarInstance<? extends VarDef> vi);
     
     boolean staticContext();
     void setStaticContext(boolean v);

@@ -23,10 +23,10 @@ int main (int argc, char ** argv)
 	if (argc < 2 || strcmp(argv[1], "-help")==0)
 	{
 		fprintf(stderr, "Usage: X10Launcher [-np NUM_OF_PLACES] [-hostlist HOST1,HOST2,ETC] [-hostfile FILENAME] COMMAND_TO_LAUNCH [ARG1 ARG2 ...]\n");
-		fprintf(stderr, "    You can set the environment variable \"X10LAUNCHER_NPROCS\" or use -np to specify the number of places to run\n");
-		fprintf(stderr, "    Set the environment variable \"X10LAUNCHER_HOSTFILE\" or use -hostfile to specify a file containing what machines to run on\n");
-		fprintf(stderr, "    Set the environment variable \"X10LAUNCHER_HOSTLIST\" or use -hostlist if you don't want to use a file\n");
-		fprintf(stderr, "    Specify the executable to run after the above aguments.  Any arguments after this will be passed to that program.\n");
+		fprintf(stderr, "    You can set the environment variable \""X10_NPLACES"\" or use -np to specify the number of places to run\n");
+		fprintf(stderr, "    Set the environment variable \""X10_HOSTFILE"\" or use -hostfile to specify a file containing what machines to run on\n");
+		fprintf(stderr, "    Set the environment variable \""X10_HOSTLIST"\" or use -hostlist if you don't want to use a file\n");
+		fprintf(stderr, "    Specify the executable to run after the above arguments.  Any arguments after this will be passed to that program.\n");
 
 		return 1;
 	}

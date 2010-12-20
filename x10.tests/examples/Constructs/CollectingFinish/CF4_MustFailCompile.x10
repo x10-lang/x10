@@ -22,7 +22,7 @@ public class CF4_MustFailCompile extends x10Test {
      	public  def apply(a:Int,b:Int)=a+b;
     }
     def m():void offers Int(6) {
-    	offer 5;
+    	offer 5; // ERR
     }
 	public def run() {
 
