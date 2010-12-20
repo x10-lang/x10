@@ -16,12 +16,20 @@
 #include <x10aux/throw.h>
 
 #include <x10/lang/ClassCastException.h>
+#include <x10/lang/String.h>
 
 using namespace x10aux;
 using namespace x10::lang;
 
-void x10aux::throwClassCastException() {
-    throwException<x10::lang::ClassCastException>();
+void x10aux::throwClassCastException(const char *msg_) {
+    x10aux::ref<String> msg = String::Lit(msg_);
+    throwException(x10::lang::ClassCastException::_make(msg));
+}
+
+void x10aux::throwClassCastException(const RuntimeType *from, const RuntimeType *to) {
+    (void) from; // must match java which does not have 'from' to put in the message
+    x10aux::ref<String> msg = String::Steal(x10aux::alloc_printf("%s", to->name()));
+    throwException(x10::lang::ClassCastException::_make(msg));
 }
 
 // vim:tabstop=4:shiftwidth=4:expandtab

@@ -11,22 +11,23 @@
 
 package x10.ast;
 
-import java.util.List;
-
 import polyglot.ast.CompoundStmt;
-import polyglot.ast.Expr;
 import polyglot.ast.Stmt;
+import x10.types.AsyncDef;
 
-/** The node constructed for the X10 construct async (P) {S}.
- * @author Christian Grothoff
+/**
+ * The node constructed for the X10 construct async {S}.
  */
 public interface Async extends CompoundStmt,  Clocked {
-    
+
     /** Set the Async's body */
     Async body(Stmt body);
 
     /** Get the body of the Async. */
     Stmt body();
-    
+
     boolean clocked();
+
+    AsyncDef asyncDef();
+    Async asyncDef(AsyncDef ci);
 }

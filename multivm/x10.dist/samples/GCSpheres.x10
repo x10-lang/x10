@@ -59,7 +59,7 @@ class GCSpheres {
     }
 
 
-    public static def main (Array[String]) {
+    public static def compute():Boolean {
 
         val reps = 7500;
 
@@ -105,13 +105,17 @@ class GCSpheres {
         val time_taken = System.nanoTime() - time_start;
         Console.OUT.println("Total time: "+time_taken/1E9);
 
-        val expected = 109332;
-        if (counter != expected) {
+        val expected = 107695;
+        val ok = counter == expected;
+        if (!ok) {
             Console.ERR.println("number of intersections: "+counter
                                 +" (expected "+expected+")");
-            at (Place.FIRST_PLACE) System.setExitCode(1);
-            return;
         }
+        return ok;
+    }
+
+    public static def main (Array[String]) {
+        compute();
     }
 
 }

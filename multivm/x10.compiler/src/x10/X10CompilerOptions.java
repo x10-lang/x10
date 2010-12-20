@@ -21,12 +21,15 @@ import x10.config.OptionError;
 
 public class X10CompilerOptions extends polyglot.main.Options {
 
+    public String executable_path = null;
+
 	public X10CompilerOptions(ExtensionInfo extension) {
 		super(extension);
 		serialize_type_info = false; // turn off type info serialization for X10
 		assertions = true; // turn on assertion generation for X10
 	}
 
+	@Override
 	protected int parseCommand(String args[], int index, Set<String> source) 
 		throws UsageError, Main.TerminationException
 	{
@@ -36,6 +39,11 @@ public class X10CompilerOptions extends polyglot.main.Options {
 		if (args[i].equals("-noassert")) {
 			assertions = false;
 			return ++i;
+		}
+		if (args[i].equals("-o")) {
+		    ++i;
+		    executable_path = args[i];
+		    return ++i;
 		}
 
 		try {
@@ -60,9 +68,11 @@ public class X10CompilerOptions extends polyglot.main.Options {
 	/**
 	 * Print usage information
 	 */
+	@Override
 	public void usage(PrintStream out) {
 		super.usage(out);
 		usageForFlag(out, "-noassert", "turn off assertion generation");
+		usageForFlag(out, "-o <path>", "set generated executable path (for the post-compiler)");
 		String[][] options = Configuration.options();
 		for (int i = 0; i < options.length; i++) {
 			String[] optinfo = options[i];

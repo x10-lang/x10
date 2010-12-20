@@ -146,12 +146,6 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop {
 
 	/** Type check the statement. */
 	public Node typeCheck(ContextVisitor tc) {
-		X10Loop_c n = (X10Loop_c) typeCheckNode(tc);
-		return n;
-	}
-	
-	
-	public Node typeCheckNode(ContextVisitor tc) {
 		NodeFactory nf = tc.nodeFactory();
 		TypeSystem ts = (TypeSystem) tc.typeSystem();
 		Type domainType = domainTypeRef.get();
@@ -177,32 +171,36 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop {
 
 		if (ts.isSubtype(formalType, ts.Point(), tc.context())) {
 		    try {
-		        Expr newDomain = Converter.attemptCoercion(tc, domain, ts.Region());
-		        if (newDomain != null && newDomain != domain)
+		        Type Region = ts.Region();
+		        Region = X10TypeMixin.addRank(Region, X10TypeMixin.rank(formalType, tc.context()));
+		        Expr newDomain = Converter.attemptCoercion(tc, domain, Region);
+		        if (newDomain != null && newDomain != domain) {
+		            domainTypeRef = Types.lazyRef(null);
 		            return this.domain(newDomain).del().typeCheck(tc);
+		        }
 		    }
 		    catch (SemanticException e) {
 		    }
 		    try {
-		        Expr newDomain = Converter.attemptCoercion(tc, domain, ts.Dist());
-		        if (newDomain != null && newDomain != domain)
+		        Type Dist = ts.Dist();
+		        Dist = X10TypeMixin.addRank(Dist, X10TypeMixin.rank(formalType, tc.context()));
+		        Expr newDomain = Converter.attemptCoercion(tc, domain, Dist);
+		        if (newDomain != null && newDomain != domain) {
+		            domainTypeRef = Types.lazyRef(null);
 		            return this.domain(newDomain).del().typeCheck(tc);
+		        }
 		    }
 		    catch (SemanticException e) {
 		    }
 		}
 		
-		try {
-			// The expected type is Iterable[Foo]. The constraints on domainType dont matter
-			// for this failure, so strip them.
-		    throw new SemanticException("Loop domain is not of expected type." 
-		    		+ "\n\t Expected type: Iterable[" + formalType + "]" 
-		    		+ "\n\t Actual type: " + X10TypeMixin.baseType(domainType), position());
-		}
-		catch (SemanticException e) {
-		    tc.errorQueue().enqueue(ErrorInfo.SEMANTIC_ERROR, "ERROR: " + e.getMessage(), position());
-		    return this;
-		}
+		// The expected type is Iterable[Foo].  The constraints on domainType do matter
+		// for this failure, so don't strip them.
+		Errors.issue(tc.job(),
+		        new SemanticException("Loop domain is not of expected type." 
+		                + "\n\t Expected type: Iterable[" + formalType + "]" 
+		                + "\n\t Actual type: " + domainType, position()));
+		return this;
 	}
 
 	/* (non-Javadoc)

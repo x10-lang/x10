@@ -11,7 +11,6 @@ import java.util.*;
 
 import polyglot.main.Report;
 import polyglot.util.*;
-import polyglot.util.Enum;
 
 /**
  * This class maintains a context for looking up named variables, types,
@@ -28,18 +27,27 @@ public abstract class Context_c implements Context
     protected Context outer;
     protected TypeSystem ts;
 
-    public static class Kind extends Enum {
-        private static final long serialVersionUID = 711415714966041239L;
-        public Kind(String name) {
-            super(name);
+    public static enum Kind {
+        BLOCK("block"),
+        CLASS("class"),
+        CODE("code"),
+        OUTER("outer"),
+        SOURCE("source");
+
+        public final String name;
+        private Kind(String name) {
+            this.name = name;
         }
+        @Override public String toString() {
+            return name;
+        }               
     }
     
-    public static final Kind BLOCK = new Kind("block");
-    public static final Kind CLASS = new Kind("class");
-    public static final Kind CODE = new Kind("code");
-    public static final Kind OUTER = new Kind("outer");
-    public static final Kind SOURCE = new Kind("source");
+    public static final Kind BLOCK = Kind.BLOCK;
+    public static final Kind CLASS = Kind.CLASS;
+    public static final Kind CODE = Kind.CODE;
+    public static final Kind OUTER = Kind.OUTER;
+    public static final Kind SOURCE = Kind.SOURCE;
     
     public Context_c(TypeSystem ts) {
         this.ts = ts;
@@ -70,6 +78,7 @@ public abstract class Context_c implements Context
         Context_c c = (Context_c) this.copy();
         c.types = types != null ? new HashMap<Name, Named>(types) : null;
         c.vars = vars != null ? new HashMap<Name, VarInstance<?>>(vars) : null;
+        c.outer = outer != null ? outer.freeze() : null;
         return c;
     }
 

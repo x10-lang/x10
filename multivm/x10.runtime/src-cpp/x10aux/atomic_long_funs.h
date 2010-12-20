@@ -14,21 +14,21 @@
 
 #include <x10aux/ref.h>
 
-namespace x10 { namespace util { namespace concurrent { namespace atomic { class AtomicLong; }}}}
+namespace x10 { namespace util { namespace concurrent { class AtomicLong; }}}
 
 namespace x10aux {
                 
     class atomic_long_funs {
     public:
-        static x10_boolean compareAndSet(x10aux::ref<x10::util::concurrent::atomic::AtomicLong> obj,
+        static x10_boolean compareAndSet(x10aux::ref<x10::util::concurrent::AtomicLong> obj,
                                          x10_long expect, x10_long update);
 
-        static x10_boolean weakCompareAndSet(x10aux::ref<x10::util::concurrent::atomic::AtomicLong> obj,
+        static x10_boolean weakCompareAndSet(x10aux::ref<x10::util::concurrent::AtomicLong> obj,
                                              x10_long expect, x10_long update);
 
-        static x10_long getAndAdd(x10aux::ref<x10::util::concurrent::atomic::AtomicLong> obj, x10_long delta);
+        static x10_long getAndAdd(x10aux::ref<x10::util::concurrent::AtomicLong> obj, x10_long delta);
 	
-        static x10_long addAndGet(x10aux::ref<x10::util::concurrent::atomic::AtomicLong> obj, x10_long delta);
+        static x10_long addAndGet(x10aux::ref<x10::util::concurrent::AtomicLong> obj, x10_long delta);
     };
 }
         

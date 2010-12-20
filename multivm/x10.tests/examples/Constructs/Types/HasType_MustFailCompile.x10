@@ -19,7 +19,7 @@ import harness.x10Test;
 public class HasType_MustFailCompile extends x10Test {
 
 	public def run(): boolean = {
-		val x <: Boolean = 1; // should succeed
+		val x <: Boolean = 1; // ERR
 		return true;
 	}
 

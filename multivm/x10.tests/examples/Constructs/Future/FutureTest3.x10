@@ -80,7 +80,7 @@ public class FutureTest3 extends x10Test {
 		gotException = false;
 		try {
 			r2 = Future.make( () => { return A(OUTOFRANGE) += 1; } ) .force();
-		} catch (var e: ArrayIndexOutOfBoundsException) {
+		} catch (var e: Throwable) {
 			gotException = true;
 		}
 		x10.io.Console.OUT.println("2");

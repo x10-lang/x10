@@ -11,8 +11,7 @@
 
 package x10.compiler;
 
-import x10.lang.annotations.ExpressionAnnotation;
-import x10.lang.annotations.StatementAnnotation;
+import x10.lang.annotations.*;
 
 /** An annotation that requests the compiler to embed an object inside another object
  * must be used *exactly* as the following for now:
@@ -25,4 +24,4 @@ import x10.lang.annotations.StatementAnnotation;
  * EXPERIMENTAL
  * @author Olivier Tardieu
  */
-public interface Embed extends StatementAnnotation,ExpressionAnnotation { }
+public interface Embed extends FieldAnnotation, StatementAnnotation,ExpressionAnnotation { }

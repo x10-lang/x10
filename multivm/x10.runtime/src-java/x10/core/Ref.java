@@ -13,6 +13,7 @@ package x10.core;
 
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
+import x10.rtt.Types;
 
 
 // Base class of all X10 ref objects -- should be generated, but we need this class to get Box to compile.
@@ -25,10 +26,16 @@ public class Ref implements RefI {
 
     public static RuntimeType<Ref> _RTT = new RuntimeType<Ref>(Ref.class) {
         @Override
-        public String typeName() {
+        public java.lang.String typeName() {
             return "x10.lang.Object";
         }
     };
     public RuntimeType<?> getRTT() {return _RTT;}
     public Type<?> getParam(int i) {return null;}
+
+    @Override
+    public java.lang.String toString() {
+        return Types.typeName(this) + "@" + Integer.toHexString(System.identityHashCode(this));
+    }
+
 }

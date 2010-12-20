@@ -162,7 +162,7 @@ int backtrace(void** trace, size_t max_size) {
         }
         if (sz >= max_size)
             break;
-        trace[sz++] = strdup(s);
+        trace[sz++] = ::strdup(s);
     }
     fclose(pf);
     close(p[0]);
@@ -211,7 +211,7 @@ void extract_frame (const char *start, char * &filename, char * &symbol, size_t 
 
     if (lparen==NULL || plus==NULL || x==NULL) {
         filename = NULL;
-        symbol = strdup(start);
+        symbol = ::strdup(start);
         addr = 0;
         return;
     }
@@ -251,7 +251,7 @@ void extract_frame (const char *start, char * &filename, char * &symbol, size_t 
 
     if (space==NULL || plus==NULL || x==NULL) {
         filename = NULL;
-        symbol = strdup(start);
+        symbol = ::strdup(start);
         addr = 0;
         return;
     }
@@ -418,8 +418,9 @@ void Throwable::printStackTrace() {
 void Throwable::printStackTrace(x10aux::ref<x10::io::Printer> printer) {
     printer->println(toString());
     x10aux::ref<Rail<x10aux::ref<String> > > trace = this->getStackTrace();
+    x10aux::ref<x10::lang::String> atStr = x10::lang::String::Lit("\tat ");
     for (int i=0 ; i<trace->FMGL(length) ; ++i) { 
-        printer->print(x10::lang::String::Lit("\tat "));
+        printer->print(atStr);
         printer->println((*trace)[i]);
     }
 }

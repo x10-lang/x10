@@ -13,7 +13,9 @@ package x10.visit;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import polyglot.ast.Call;
 import polyglot.ast.Expr;
@@ -23,14 +25,24 @@ import polyglot.ast.Formal;
 import polyglot.ast.Local;
 import polyglot.ast.LocalDecl;
 import polyglot.ast.New;
+import polyglot.ast.Node;
 import polyglot.ast.Special;
+import polyglot.ast.Term;
 import polyglot.ast.TypeNode;
+import polyglot.types.ClassType;
+import polyglot.types.CodeDef;
+import polyglot.types.CodeInstance;
 import polyglot.types.LocalDef;
 import polyglot.types.Ref;
 import polyglot.types.Type;
 import polyglot.types.Types;
+import polyglot.types.VarDef;
 import polyglot.types.VarInstance;
 import x10.ast.AssignPropertyCall;
+import x10.ast.Async;
+import x10.ast.AtEach;
+import x10.ast.AtStmt;
+import x10.ast.AtStmt_c;
 import x10.ast.Closure;
 import x10.ast.ClosureCall;
 import x10.ast.DepParameterExpr;
@@ -38,7 +50,13 @@ import x10.ast.SettableAssign;
 import x10.ast.TypeParamNode;
 import x10.ast.X10ConstructorCall;
 import x10.ast.X10Formal;
+import x10.extension.X10Ext_c;
+import x10.types.AsyncDef;
+import x10.types.AtDef;
 import x10.types.ClosureDef;
+import x10.types.ClosureDef_c;
+import x10.types.ClosureInstance;
+import x10.types.EnvironmentCapture;
 import x10.types.ParameterType;
 import x10.types.X10ConstructorInstance;
 import x10.types.X10FieldInstance;
@@ -46,6 +64,7 @@ import x10.types.X10LocalDef;
 import x10.types.X10LocalInstance;
 import x10.types.X10MethodInstance;
 import polyglot.types.TypeSystem;
+import polyglot.visit.ContextVisitor;
 
 /**
  * A {@link NodeTransformer} that transforms the types stored
@@ -82,6 +101,21 @@ public class TypeTransformer extends NodeTransformer {
         return ci;
     }
 
+    protected ClosureInstance transformClosureInstance(ClosureInstance ci) {
+        return ci;
+    }
+    
+    protected final CodeInstance<?> transformCodeInstance(CodeInstance<?> ci) {
+        if (ci instanceof X10MethodInstance) {
+            return transformMethodInstance((X10MethodInstance) ci);
+        } else if (ci instanceof X10ConstructorInstance) {
+            return transformConstructorInstance((X10ConstructorInstance) ci);
+        } else if (ci instanceof ClosureInstance) {
+            return transformClosureInstance((ClosureInstance) ci);
+        }
+        return ci;
+    }
+
     protected final List<Type> transformTypeList(List<Type> l) {
         List<Type> res = l;
         List<Type> acc = new ArrayList<Type>();
@@ -93,6 +127,24 @@ public class TypeTransformer extends NodeTransformer {
             }
         }
         return res;
+    }
+
+    @Override
+    public Node transform(Node n, Node old, ContextVisitor v) {
+        n = super.transform(n, old, v);
+        if (n instanceof Term) {
+            X10Ext_c ext = (X10Ext_c) n.ext();
+            Set<LocalDef> initVals = ext.initVals;
+            if (initVals != null) {
+                ext = (X10Ext_c) ext.copy();
+                ext.initVals = new HashSet<LocalDef>();
+                for (LocalDef ld : initVals) {
+                    ext.initVals.add(getLocal((X10LocalDef) ld));
+                }
+                n = n.ext(ext);
+            }
+        }
+        return n;
     }
 
     @Override
@@ -199,6 +251,7 @@ public class TypeTransformer extends NodeTransformer {
 
     @Override
     protected Closure transform(Closure d, Closure old) {
+        ClosureDef cd = d.closureDef();
         boolean sigChanged = d.returnType() != old.returnType();
         List<Formal> params = d.formals();
         List<Formal> oldParams = old.formals();
@@ -207,7 +260,6 @@ public class TypeTransformer extends NodeTransformer {
         }
         sigChanged |= d.guard() != old.guard();
         if (sigChanged) {
-            ClosureDef cd = d.closureDef();
             DepParameterExpr g = d.guard();
             List<Ref<? extends Type>> argTypes = new ArrayList<Ref<? extends Type>>();
             List<LocalDef> formalNames = new ArrayList<LocalDef>();
@@ -216,29 +268,22 @@ public class TypeTransformer extends NodeTransformer {
                 argTypes.add(p.type().typeRef());
                 formalNames.add(p.localDef());
             }
-            TypeSystem xts = (TypeSystem) visitor().typeSystem();
-            ClosureDef icd = xts.closureDef(cd.position(), cd.typeContainer(), cd.methodContainer(),
-                                            d.returnType().typeRef(),
-                                            argTypes, cd.thisDef(), formalNames,
-                                            g == null ? null : g.valueConstraint(),
-                                            null);
-            for (VarInstance<?> vi : cd.capturedEnvironment()) {
-                if (vi instanceof X10LocalInstance) {
-                    X10LocalInstance li = (X10LocalInstance) vi;
-                    X10LocalDef ld = getLocal(li.x10Def());
-                    if (li.x10Def() != ld) {
-                        li = transformLocalInstance(((X10LocalInstance) ld.asInstance()));
-                    }
-                    icd.addCapturedVariable(li);
-                } else
-                if (vi instanceof X10FieldInstance) {
-                    X10FieldInstance fi = transformFieldInstance((X10FieldInstance) vi);
-                    icd.addCapturedVariable(fi);
-                }
-            }
-            return d.closureDef(icd);
+            TypeSystem xts = visitor().typeSystem();
+            ClosureDef icd = (ClosureDef) cd.copy();
+            icd.setReturnType(d.returnType().typeRef());
+            icd.setFormalTypes(argTypes);
+            icd.setFormalNames(formalNames);
+            icd.setGuard(g == null ? null : g.valueConstraint());
+            cd = icd;
         }
-        return d;
+        List<VarInstance<? extends VarDef>> ce = transformCapturedEnvironment(cd.capturedEnvironment());
+        if (cd.capturedEnvironment() != ce) {
+            if (cd == d.closureDef()) {
+                cd = (ClosureDef) cd.copy();
+            }
+            cd.setCapturedEnvironment(ce);
+        }
+        return d.closureDef(cd);
     }
 
     @Override
@@ -273,12 +318,74 @@ public class TypeTransformer extends NodeTransformer {
     }
 
     @Override
+    protected AtStmt transform(AtStmt d, AtStmt old) {
+        AtDef ad = d.atDef();
+        List<VarInstance<? extends VarDef>> ce = transformCapturedEnvironment(ad.capturedEnvironment());
+        if (ad.capturedEnvironment() != ce) {
+            AtDef iad = (AtDef) ad.copy();
+            iad.setCapturedEnvironment(ce);
+            return d.atDef(iad);
+        }
+        return d;
+    }
+
+    @Override
+    protected AtEach transform(AtEach a, AtEach old) {
+        AtDef ad = a.atDef();
+        List<VarInstance<? extends VarDef>> ce = transformCapturedEnvironment(ad.capturedEnvironment());
+        if (ad.capturedEnvironment() != ce) {
+            AtDef iad = (AtDef) ad.copy();
+            iad.setCapturedEnvironment(ce);
+            return a.atDef(iad);
+        }
+        return a;
+    }
+    
+    @Override
+    protected Async transform(Async a, Async old) {
+        AsyncDef ad = a.asyncDef();
+        List<VarInstance<? extends VarDef>> ce = transformCapturedEnvironment(ad.capturedEnvironment());
+        if (ad.capturedEnvironment() != ce) {
+            AsyncDef iad = (AsyncDef) ad.copy();
+            iad.setCapturedEnvironment(ce);
+            return a.asyncDef(iad);
+        }
+        return a;
+    }
+
+    private List<VarInstance<? extends VarDef>> transformCapturedEnvironment(List<VarInstance<? extends VarDef>> ce) {
+        List<VarInstance<? extends VarDef>> ice = new ArrayList<VarInstance<? extends VarDef>>();
+        List<VarInstance<? extends VarDef>> res = ce;
+        for (VarInstance<?> vi : ce) {
+            if (vi instanceof X10LocalInstance) {
+                X10LocalInstance li = (X10LocalInstance) vi;
+                X10LocalDef ld = getLocal(li.x10Def());
+                if (li.x10Def() != ld) {
+                    li = transformLocalInstance(((X10LocalInstance) ld.asInstance()));
+                    res = ice;
+                }
+                ClosureDef_c.addCapturedVariable(ice, li);
+            } else if (vi instanceof X10FieldInstance) {
+                X10FieldInstance fi = transformFieldInstance((X10FieldInstance) vi);
+                if (fi != vi) {
+                    res = ice;
+                }
+                ClosureDef_c.addCapturedVariable(ice, fi);
+            } else {
+                ClosureDef_c.addCapturedVariable(ice, vi);
+            }
+        }
+        return res;
+    }
+
+    @Override
     protected LocalDecl transform(LocalDecl d, LocalDecl old) {
         boolean sigChanged = d.type() != old.type(); // conservative compare detects changes in substructure
         if (sigChanged) {
             X10LocalDef ld = (X10LocalDef) d.localDef();
-            TypeSystem xts = (TypeSystem) visitor().typeSystem();
+            TypeSystem xts = visitor().typeSystem();
             X10LocalDef ild = xts.localDef(ld.position(), ld.flags(), d.type().typeRef(), ld.name());
+            if (ld.isAsyncInit()) ild.setAsyncInit(); // FIXME: we should really be using copy()
             mapLocal(ld, ild);
             return d.localDef(ild);
         }
@@ -290,8 +397,9 @@ public class TypeTransformer extends NodeTransformer {
         boolean sigChanged = f.type() != old.type(); // conservative compare detects changes in substructure
         if (sigChanged) {
             X10LocalDef ld = f.localDef();
-            TypeSystem xts = (TypeSystem) visitor().typeSystem();
+            TypeSystem xts = visitor().typeSystem();
             X10LocalDef ild = xts.localDef(ld.position(), ld.flags(), f.type().typeRef(), ld.name());
+            if (ld.isAsyncInit()) ild.setAsyncInit(); // FIXME: we should really be using copy()
             mapLocal(ld, ild);
             return f.localDef(ild);
         }

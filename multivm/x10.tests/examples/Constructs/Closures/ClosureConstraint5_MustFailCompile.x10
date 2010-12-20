@@ -23,9 +23,9 @@ public class ClosureConstraint5_MustFailCompile extends ClosureTest {
 
     public def run(): boolean = {
         
-        val g = (x:int,y:int){x==1 && y==-1} => x+y;
+        val g = (x:int,y:int){x==1 && y==-1} => x+y;  // ShouldNotBeERR
 
-        g(1,1); // fails compilation
+        g(1,1); // ShouldBeErr    fails compilation
 
         return result;
     }

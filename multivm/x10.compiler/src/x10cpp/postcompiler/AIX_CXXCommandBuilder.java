@@ -24,7 +24,7 @@ public class AIX_CXXCommandBuilder extends CXXCommandBuilder {
 
     protected void addPreArgs(ArrayList<String> cxxCmd) {
         super.addPreArgs(cxxCmd);
-        
+
         if (USE_XLC) {
             cxxCmd.add("-qrtti=all"); // AIX specific.
             if (USE_32BIT) {
@@ -32,16 +32,14 @@ public class AIX_CXXCommandBuilder extends CXXCommandBuilder {
             }
             cxxCmd.add("-brtl"); // AIX specific.
         } else {
-            cxxCmd.add("-Wno-long-long");
-            cxxCmd.add("-Wno-unused-parameter");
             cxxCmd.add("-maix64"); // Assume 64-bit
             cxxCmd.add("-Wl,-brtl");
-        }     
+        }
     }
 
     protected void addPostArgs(ArrayList<String> cxxCmd) {
         super.addPostArgs(cxxCmd);
-        
+
         if (USE_XLC) {
             cxxCmd.add("-bbigtoc");
             cxxCmd.add("-lptools_ptr");

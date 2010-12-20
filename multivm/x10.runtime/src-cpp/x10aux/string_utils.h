@@ -30,15 +30,13 @@ namespace x10aux {
 
     ref<x10::array::Array<ref<x10::lang::String> > > convert_args(int ac, char **av);
 
-    // Used by x10/util/StringBuilder.x10
-    ref<x10::lang::String> vrc_to_string(x10aux::ref<x10::lang::Rail<x10_char> > v);
-
     namespace string_utils {
 
         ref<x10::lang::String> lit(const char*);
 
         const char* cstr(ref<x10::lang::String>);
 
+        char *strdup(const char*);
     }
 
     /*

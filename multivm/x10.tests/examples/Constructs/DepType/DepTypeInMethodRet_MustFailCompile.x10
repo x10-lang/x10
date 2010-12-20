@@ -10,6 +10,9 @@
  */
 
 import harness.x10Test;
+import x10.compiler.*; // @Uncounted @NonEscaping @NoThisAccess
+import x10.compiler.tests.*; // err markers
+import x10.util.*;
 
 /**
  * Cannot return a value of type boolean from a method whose return type is boolean(:self==true).
@@ -18,7 +21,7 @@ import harness.x10Test;
  */
 public class DepTypeInMethodRet_MustFailCompile extends x10Test {
     
-   public def m(var t: boolean): boolean(true) = t;
+    @ShouldBeErr public def m(var t: boolean): boolean(true) = t; 
 	public def run()=m(false);
 	public static def main(var args: Array[String](1)): void = {
 		new DepTypeInMethodRet_MustFailCompile().execute();

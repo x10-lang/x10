@@ -48,6 +48,9 @@ public class SemanticException extends Exception {
 		this.position = position;
     }
 
+    public void setPosition(Position p) {
+    	position = p;
+    }
     public Position position() {
     	return position;
     }

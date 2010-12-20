@@ -22,7 +22,7 @@ public class AtAndAt_MustFailCompile extends x10Test {
 	var x:int = 10;
 	at (here.next()) {
 	    at (here.next()) {
-                x = 20;
+                x = 20; // ERR: Local variable "x" is accessed at a different place, and must be declared final.
             }
         }
 	return x == 20;

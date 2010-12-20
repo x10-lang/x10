@@ -36,13 +36,16 @@ import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
 import polyglot.frontend.Job;
+import polyglot.types.Context;
 import polyglot.types.LocalDef;
+import polyglot.types.LocalInstance;
 import polyglot.types.MethodInstance;
 import polyglot.types.Name;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
+import polyglot.types.VarInstance;
 import polyglot.util.CollectionUtil;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
@@ -62,7 +65,10 @@ import x10.ast.X10Special;
 import x10.ast.X10Unary_c;
 import x10.constraint.XFailure;
 import x10.constraint.XVar;
+import x10.types.EnvironmentCapture;
+import x10.types.ThisDef;
 import x10.types.X10ConstructorInstance;
+import x10.types.X10MemberDef;
 import x10.types.X10MethodInstance;
 import x10.types.X10TypeMixin;
 import x10.types.checker.Converter;
@@ -254,6 +260,38 @@ public class Desugarer extends ContextVisitor {
     private static Closure closure(Position pos, Type retType, List<Formal> parms, Block body, ContextVisitor v) {
         Synthesizer synth = new Synthesizer(v.nodeFactory(), v.typeSystem());
         return synth.makeClosure(pos, retType, parms, body, v.context());
+    }
+
+    public static class ClosureCaptureVisitor extends NodeVisitor {
+        private final Context context;
+        private final EnvironmentCapture cd;
+        public ClosureCaptureVisitor(Context context, EnvironmentCapture cd) {
+            this.context = context;
+            this.cd = cd;
+        }
+        @Override
+        public Node leave(Node old, Node n, NodeVisitor v) {
+            if (n instanceof Local) {
+                LocalInstance li = ((Local) n).localInstance();
+                VarInstance<?> o = context.findVariableSilent(li.name());
+                if (li == o || (o != null && li.def() == o.def())) {
+                    cd.addCapturedVariable(li);
+                }
+            } else if (n instanceof Field) {
+                if (((Field) n).target() instanceof X10Special) {
+                    cd.addCapturedVariable(((Field) n).fieldInstance());
+                }
+            } else if (n instanceof X10Special) {
+                X10MemberDef code = (X10MemberDef) context.currentCode();
+                ThisDef thisDef = code.thisDef();
+                if (null == thisDef) {
+                    throw new InternalCompilerError(n.position(), "ClosureCaptureVisitor.leave: thisDef is null for containing code " +code);
+                }
+                assert (thisDef != null);
+                cd.addCapturedVariable(thisDef.asInstance());
+            }
+            return n;
+        }
     }
 
     private Expr visitAssign(Assign n) {
@@ -511,6 +549,9 @@ public class Desugarer extends ContextVisitor {
         Stmt check = nf.If(pos, cond, throwCCE);
         Block body = nf.Block(pos, check, nf.Return(pos, xl));
         Closure c = closure(pos, ot, Collections.singletonList(x), body);
+        c.visit(new ClosureCaptureVisitor(this.context(), c.closureDef()));
+        //if (!c.closureDef().capturedEnvironment().isEmpty())
+        //    System.out.println(c+" at "+c.position()+" captures "+c.closureDef().capturedEnvironment());
         Expr cast = nf.X10Cast(pos, tn, e, Converter.ConversionType.CHECKED).type(t);
         X10MethodInstance ci = c.closureDef().asType().applyMethod();
         return nf.ClosureCall(pos, c, Collections.singletonList(cast)).closureInstance(ci).type(ot);
@@ -538,6 +579,9 @@ public class Desugarer extends ContextVisitor {
         Expr rval = nf.Binary(pos, iof, Binary.COND_AND, cond).type(ts.Boolean());
         Block body = nf.Block(pos, nf.Return(pos, rval));
         Closure c = closure(pos, ts.Boolean(), Collections.singletonList(x), body);
+        c.visit(new ClosureCaptureVisitor(this.context(), c.closureDef()));
+        //if (!c.closureDef().capturedEnvironment().isEmpty())
+        //    System.out.println(c+" at "+c.position()+" captures "+c.closureDef().capturedEnvironment());
         X10MethodInstance ci = c.closureDef().asType().applyMethod();
         return nf.ClosureCall(pos, c, Collections.singletonList(e)).closureInstance(ci).type(ts.Boolean());
     }

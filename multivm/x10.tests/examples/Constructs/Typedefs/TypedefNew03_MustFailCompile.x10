@@ -37,7 +37,7 @@ public class TypedefNew03_MustFailCompile extends TypedefTest {
         type T1 = A{self.k==1};
 
         // not allowed - T has value parameter
-        val t = new T(0);
+        val t = new T(0); // ERR ERR  [Semantic Error: Could not find type "T"., Semantic Error: No valid constructor found for T(x10.lang.Int{self==0}).]
 
         return result;
     }

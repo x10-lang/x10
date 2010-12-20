@@ -31,13 +31,6 @@ import x10.constraint.XTerms;
 import x10.constraint.XVar;
 import x10.types.constraints.TypeConstraint;
 
-/**
- * An X10ConstructorInstance_c varies from a ConstructorInstance_c only in that it
- * maintains a returnType. If an explicit returnType is not declared in the constructor
- * then the returnType is simply a noClause variant of the container.
- * @author vj
- *
- */
 public class X10FieldDef_c extends FieldDef_c implements X10FieldDef {
     private static final long serialVersionUID = 6359052056959695361L;
 

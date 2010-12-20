@@ -22,7 +22,7 @@ public class FieldAccessTest_MustFailCompile extends x10Test {
 	 * It should return nullable Object.
 	 * The problem is that this incorrect program causes the compiler to loop.
 	 */
-	public def n(): FieldAccessTest_MustFailCompile = n;
+	public def n(): FieldAccessTest_MustFailCompile = n; // ERR
 
 	public def run()  = true;
 

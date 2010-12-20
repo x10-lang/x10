@@ -532,11 +532,6 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 		    throw new Errors.AmbiguousCall(mi, structCall.constructorInstance(), position());
 		}
 
-		if (cc != null) {
-		    // We have both a method call and a closure call.  Spec section 8.2.
-		    throw new Errors.AmbiguousCall(mi, cc, position());
-		}
-
 		// if the target is null, and thus implicit, find the target using the context
 		Receiver target = this.target() == null ? computeReceiver(tc, mi) : this.target();
 

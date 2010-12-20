@@ -23,19 +23,30 @@ public class TypeCheckReturnTypeGoal extends TypeCheckFragmentGoal<Type> {
 	private static final long serialVersionUID = -7110597916418023302L;
 
 	public TypeCheckReturnTypeGoal(Node parent, Node n, TypeChecker v, LazyRef<Type> r) {
-	    super(parent, n, v, r, true);
+	    this(parent, new Node[0], n, v, r);
 	}
 
 	public TypeCheckReturnTypeGoal(Node parent, Node[] prereqs, Node n, TypeChecker v, LazyRef<Type> r) {
-	    super(parent, prereqs, n, v, r, true);
+	    this(parent, prereqs, n, v, r, v.typeSystem().Void());
 	}
+
+	public TypeCheckReturnTypeGoal(Node parent, Node n, TypeChecker v, LazyRef<Type> r, Type defaultValue) {
+	    this(parent, new Node[0], n, v, r, defaultValue);
+	}
+
+	public TypeCheckReturnTypeGoal(Node parent, Node[] prereqs, Node n, TypeChecker v, LazyRef<Type> r, Type defaultValue) {
+	    super(parent, prereqs, n, v, r, true);
+	    this.defaultValue = defaultValue;
+	}
+
+	protected final Type defaultValue;
 
 	@Override
 	protected Type defaultRecursiveValue() {
 	    // To preserve current behavior.
 	    // TODO Yoav: we should report an error
 	    //v().errorQueue().enqueue(ErrorInfo.SEMANTIC_ERROR, "Could not infer type; possible recursive function invocation.", n().position());
-	    return v().typeSystem().Void();
+	    return defaultValue;
 	}
 
 	@Override

@@ -30,8 +30,8 @@ public class WSCallGraphNode {
 
     protected WSCallGraph callGraph;
     protected ProcedureDef methodDef;
-    protected boolean containsConcurrent;
-    protected boolean parallel;
+    protected boolean containsConcurrent; //contains concurrent constructs
+    protected boolean parallel; //contains concurrent, or directly/indirectly call concurrent methods
     protected boolean callgraphBuild;
     protected List<WSCallGraphNode> callFrom;
     protected List<WSCallGraphNode> callTo;

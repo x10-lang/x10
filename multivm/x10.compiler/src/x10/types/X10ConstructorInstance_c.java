@@ -229,7 +229,7 @@ public class X10ConstructorInstance_c extends ConstructorInstance_c implements X
     }
 
     public String toString() {
-	    String s = designator() + " " + X10Flags.toX10Flags(flags()).prettyPrint() + container() + "." + signature();
+	    String s = designator() + " " + X10Flags.toX10Flags(flags()).prettyPrint() + signature();
 
 	
 	    return s;
@@ -237,6 +237,8 @@ public class X10ConstructorInstance_c extends ConstructorInstance_c implements X
     
     public String signature() {
         StringBuilder sb = new StringBuilder();
+        sb.append(container().toString());
+        sb.append(".");
         sb.append("this");
         // [IP] Constructors don't have type parameters, they inherit them from the container.
         //List<String> params = new ArrayList<String>();

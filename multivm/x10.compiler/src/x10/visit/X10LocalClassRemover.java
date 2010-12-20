@@ -24,6 +24,7 @@ import polyglot.ast.NodeFactory;
 import polyglot.ast.TypeNode;
 import polyglot.frontend.Job;
 import polyglot.types.ClassDef;
+import polyglot.types.ClassType;
 import polyglot.types.CodeDef;
 import polyglot.types.ConstructorDef;
 import polyglot.types.Context;
@@ -46,6 +47,8 @@ import x10.ast.TypeParamNode;
 import x10.ast.X10ClassDecl;
 import x10.ast.X10MethodDecl;
 import x10.ast.X10New;
+import x10.types.AsyncDef;
+import x10.types.AtDef;
 import x10.types.ParameterType;
 import x10.types.TypeParamSubst;
 import x10.types.X10ClassDef;
@@ -94,6 +97,7 @@ public class X10LocalClassRemover extends LocalClassRemover {
                         X10MethodDef md = (X10MethodDef) context().currentCode();
                         if (ta == null) {
                             ta = new ArrayList<Type>();
+                            nta = new ArrayList<TypeNode>();
                         } else if (!md.typeParameters().isEmpty()) {
                             ta = new ArrayList<Type>(ta);
                             nta = new ArrayList<TypeNode>(nta);
@@ -155,6 +159,22 @@ public class X10LocalClassRemover extends LocalClassRemover {
             res = decl.returnType(decl.returnType().typeRef(Types.ref(subst.reinstantiate(rt))));
         }
         return res;
+    }
+
+    @Override
+    protected New adjustObjectType(New neu, ClassType ct) {
+        X10New r = (X10New) super.adjustObjectType(neu, ct);
+        assert (r.body() != null);
+        Position pos = r.objectType().position();
+        List<Type> ta = ((X10ClassType) ct).typeArguments();
+        List<TypeNode> typeArgs = new ArrayList<TypeNode>();
+        if (ta != null) {
+            for (Type t : ta) {
+                typeArgs.add(nf.CanonicalTypeNode(pos, t));
+            }
+        }
+        r = r.typeArguments(typeArgs);
+        return r;
     }
 
     @Override
@@ -264,7 +284,7 @@ public class X10LocalClassRemover extends LocalClassRemover {
             CodeDef curr = c.currentCode();
             if (curr == ci) return true;
             // Allow closures, asyncs
-            if (curr instanceof MethodDef && ((MethodDef) curr).name().equals(Name.make(X10TypeSystem_c.DUMMY_AT_ASYNC+"$")))
+            if (curr instanceof AsyncDef || curr instanceof AtDef)
                 ;
             else {
                 // FIX:XTENLANG-1159

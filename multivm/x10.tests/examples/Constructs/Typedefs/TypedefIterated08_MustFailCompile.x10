@@ -26,7 +26,7 @@ public class TypedefIterated08_MustFailCompile extends TypedefTest {
     public def run(): boolean = {
 
         class C[X] {}
-        type F[X]= C[F[X]];
+        type F[X]= C[F[X]]; // ERR
 
         return result;
     }

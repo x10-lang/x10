@@ -1,4 +1,4 @@
-/*
+/* yoav
  *  This file is part of the X10 project (http://x10-lang.org).
  *
  *  This file is licensed to You under the Eclipse Public License (EPL);
@@ -23,7 +23,7 @@ public class ConInstance1Arg extends x10Test {
 	def n(i:Int) {
 		val a = new A(i);
 		// This call will compile only if -strictCalls is not set.
-		m(a); // DYNAMIC_CHECK  ; with -STATIC_CALLS we get an ERR
+		m(a); // ERR
 	}
 	
 	public def run(): boolean {

@@ -18,7 +18,7 @@ public class Int1ToInt0_MustFailCompile extends x10Test {
 	public def run(): boolean = {
 		var zero: int{self==0} = 0;
 		var one: int{self==1} = 1;
-		one = zero as int{self==1};
+		one = zero as int{self==1}; // ERR: Cannot cast expression to type.
 		return true;
 	}
 

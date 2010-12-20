@@ -43,6 +43,8 @@ case "$UNAME" in
 esac
 
 distdir=$workdir/x10
+projectList="x10.common x10.compiler x10.constraints x10.dist x10.runtime x10.tests x10.wala"
+MAX_RETRIES=5
 
 if [ ! -z "$CLEAN" ]; then
     echo
@@ -56,7 +58,7 @@ if [ ! -z "$CLEAN" ]; then
 
         echo
         echo Getting X10 source distribution...
-	projectsToDo="x10.common x10.compiler x10.constraints x10.dist x10.runtime x10.tests"
+	projectsToDo="$projectList"
 	count=1
 	while [ -n "$projectsToDo" ]; do
 	    failedProjects=""
@@ -71,7 +73,7 @@ if [ ! -z "$CLEAN" ]; then
 	    let count++
 	    projectsToDo="$failedProjects"
 	    if [ -n "$projectsToDo" ]; then
-		if [ $count -le 5 ]; then
+		if [ $count -le $MAX_RETRIES ]; then
 		    echo "Errors retrieving $projectsToDo; initiating retry $count of 5..."
 		else
 		    echo "Reached retry limit; aborting source retrieval."

@@ -23,7 +23,8 @@ import harness.x10Test;
 public class DimCheckN4_MustFailCompile extends x10Test {
 
     def m(d: Dist(2)): void = {
-        val a1 = DistArray.make[int](d, (p[i,j,k]: Point(3)): int => { return i; });
+        val a1 = DistArray.make[int](d, (p[i,j,k]: Point(3)): int => { return i; }); // ERR (dimension mismatch)
+        val a2 = DistArray.make[int](d, (p[i,j,k]: Point(2)): int => { return i; });
     }
 
     public def run(): boolean = {

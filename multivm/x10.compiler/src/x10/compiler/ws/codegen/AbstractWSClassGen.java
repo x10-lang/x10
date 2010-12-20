@@ -736,7 +736,7 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
     }
     
     /**
-     * This one is used for async frames
+     * This one is direct call and assign call transformation
      * Transform a call to fast/resume/back path 
      * This callee is a concurrent method
      */
@@ -752,11 +752,11 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
             transCodes.addSecond(xnf.Eval(compilerPos, pcAssgn));   
         }
         catch(polyglot.types.NoMemberException e){
-            //Just ignore the pc assign statement
+            //Just ignore the pc assign statement if there is no pc field in the frame
         }
         
         //replace local access with field access
-        //FIXME: async frame's local decl specifica processing
+        //FIXME: async frame's local decl specific processing
         Call aCall = (Call) this.replaceLocalVarRefWithFieldAccess(call, declaredLocals); 
         
         //find out the wrapper method

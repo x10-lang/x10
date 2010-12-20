@@ -62,6 +62,7 @@ import x10.constraint.XVar;
 import x10.constraint.XTerms;
 import x10.errors.Errors;
 import x10.types.ClosureDef;
+import x10.types.EnvironmentCapture;
 import x10.types.ThisDef;
 import x10.types.X10ClassDef;
 import polyglot.types.Context;
@@ -85,13 +86,13 @@ import x10.visit.X10TypeChecker;
  */
 public class Closure_c extends Expr_c implements Closure {
 	//  List<TypeParamNode> typeParameters;
-	List<Formal> formals;
-	TypeNode returnType;
-	Block body;
-	MethodInstance container;
-	ClosureDef closureDef;
-	ClassType typeContainer;
-	DepParameterExpr guard;
+	protected List<Formal> formals;
+	protected TypeNode returnType;
+	protected Block body;
+	protected MethodInstance container;
+	protected ClosureDef closureDef;
+	protected ClassType typeContainer;
+	protected DepParameterExpr guard;
 
 	private static final Collection<String> TOPICS = 
 		CollectionUtil.list(Report.types, Report.context);
@@ -100,8 +101,8 @@ public class Closure_c extends Expr_c implements Closure {
 		super(pos);
 	}
 
-	TypeNode hasType;
-	TypeNode offerType;
+	protected TypeNode hasType;
+	protected TypeNode offerType;
 	public Closure_c(NodeFactory nf, Position pos,  List<Formal> formals, 
 			TypeNode returnType, DepParameterExpr guard,  TypeNode offerType, Block body) {
 		super(pos);
@@ -413,16 +414,10 @@ public class Closure_c extends Expr_c implements Closure {
 
 		// Create an anonymous subclass of the closure type.
 		ClosureDef def = n.closureDef;
-		if (!def.capturedEnvironment().isEmpty()) {
-		    //System.out.println(this.position() + ": " + this + " captures "+def.capturedEnvironment());
-		    // Propagate the captured variables to the parent closure (if any)
-		    for (VarInstance<? extends VarDef> vi : def.capturedEnvironment()) {
-		        Context o = c;
-		        while (o.currentCode() == def)
-		            o = o.pop().popToCode();
-		        o.recordCapturedVariable(vi);
-		    }
-		}
+		//if (!def.capturedEnvironment().isEmpty()) {
+		//    System.out.println(this.position() + ": " + this + " captures "+def.capturedEnvironment());
+		//}
+		propagateCapturedEnvironment(c, def);
 		ClassDef cd = ClosureSynthesizer.closureAnonymousClassDef(xts, def);
 		n = (Closure_c) n.type(cd.asType());
 		if (hasType != null) {
@@ -434,6 +429,16 @@ public class Closure_c extends Expr_c implements Closure {
 			}
 		}
 		return n;
+	}
+
+	// Propagate the captured variables to the parent closure (if any)
+	public static void propagateCapturedEnvironment(Context c, EnvironmentCapture def) {
+		for (VarInstance<? extends VarDef> vi : def.capturedEnvironment()) {
+		    Context o = c;
+		    while (o.currentCode() == def)
+		        o = o.pop().popToCode();
+		    o.recordCapturedVariable(vi);
+		}
 	}
 
 	@Override

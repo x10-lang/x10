@@ -16,7 +16,7 @@ import x10.compiler.*;
 import x10.util.HashMap;
 import x10.util.Pair;
 import x10.util.Stack;
-import x10.util.concurrent.atomic.AtomicInteger;
+import x10.util.concurrent.AtomicInteger;
 import x10.io.CustomSerialization;
 import x10.io.SerialData;
 
@@ -25,7 +25,8 @@ abstract class FinishState {
     abstract def notifyActivityCreation():void;
     abstract def notifyActivityTermination():void;
     abstract def pushException(t:Throwable):void;
-    abstract def waitForFinish(safe:Boolean):void;
+    abstract def waitForFinish():void;
+    abstract def simpleLatch():SimpleLatch;
 
     static def deref[T](root:GlobalRef[FinishState]) = (root as GlobalRef[FinishState]{home==here})() as T;
 
@@ -48,13 +49,14 @@ abstract class FinishState {
             exceptions.push(t);
             latch.unlock();
         }
-        public def waitForFinish(safe:Boolean) {
+        public def waitForFinish() {
             notifyActivityTermination();
-            if (!Runtime.NO_STEALS && safe) Runtime.worker().join(latch);
+            if (!Runtime.NO_STEALS) Runtime.worker().join(latch);
             latch.await();
             val t = MultipleExceptions.make(exceptions);
             if (null != t) throw t;
         }
+        public def simpleLatch() = latch;
     }
 
     // a finish without nested remote asyncs in remote asyncs
@@ -91,13 +93,14 @@ abstract class FinishState {
             exceptions.push(t);
             latch.unlock();
         }
-        public def waitForFinish(safe:Boolean) {
+        public def waitForFinish() {
             notifyActivityTermination();
-            if (!Runtime.NO_STEALS && safe) Runtime.worker().join(latch);
+            if (!Runtime.NO_STEALS) Runtime.worker().join(latch);
             latch.await();
             val t = MultipleExceptions.make(exceptions);
             if (null != t) throw t;
         }
+        public def simpleLatch() = latch;
     }
 
     static class RemoteFinishSPMD extends RemoteFinishSkeleton {
@@ -167,12 +170,13 @@ abstract class FinishState {
         public def pushException(t:Throwable):void {
             exception = t;
         }
-        public def waitForFinish(safe:Boolean):void {
-            if (!Runtime.NO_STEALS && safe) Runtime.worker().join(latch);
+        public def waitForFinish():void {
+            if (!Runtime.NO_STEALS) Runtime.worker().join(latch);
             latch.await();
             val t = MultipleExceptions.make(exception);
             if (null != t) throw t;
         }
+        public def simpleLatch() = latch;
     }
 
     static class RemoteFinishAsync extends RemoteFinishSkeleton {
@@ -231,7 +235,8 @@ abstract class FinishState {
             Runtime.println("Uncaught exception in uncounted activity");
             t.printStackTrace();
         }
-        public final def waitForFinish(safe:Boolean) { assert false; }
+        public final def waitForFinish() { assert false; }
+        public def simpleLatch():SimpleLatch = null;
     }
     
     static UNCOUNTED_FINISH = new UncountedFinish();
@@ -277,7 +282,8 @@ abstract class FinishState {
             xxxx = root;
         }
         def ref() = xxxx;
-        public def waitForFinish(safe:Boolean) { assert false; }
+        public def waitForFinish() { assert false; }
+        public def simpleLatch():SimpleLatch = null;
     }
 
     // the top of the finish hierarchy
@@ -296,7 +302,8 @@ abstract class FinishState {
         public def notifyActivityCreation() { me.notifyActivityCreation(); }
         public def notifyActivityTermination() { me.notifyActivityTermination(); }
         public def pushException(t:Throwable) { me.pushException(t); }
-        public def waitForFinish(safe:Boolean) { me.waitForFinish(safe); }
+        public def waitForFinish() { me.waitForFinish(); }
+        public def simpleLatch() = me.simpleLatch();
     }
 
     // the default finish implementation
@@ -318,7 +325,8 @@ abstract class FinishState {
             if (ref.home.id == Runtime.hereInt()) {
                 me = (ref as GlobalRef[FinishState]{home==here})();
             } else {
-                me = Runtime.runtime().finishStates.apply(ref, ()=>new RemoteFinish(ref));
+                val _ref = ref;
+                me = Runtime.runtime().finishStates.apply(ref, ()=>new RemoteFinish(_ref));
             }
         }
     }
@@ -376,9 +384,9 @@ abstract class FinishState {
             process(t);
             latch.unlock();
         }
-        public def waitForFinish(safe:Boolean):void {
+        public def waitForFinish():void {
             notifyActivityTermination();
-            if (!Runtime.NO_STEALS && safe) Runtime.worker().join(latch);
+            if (!Runtime.NO_STEALS) Runtime.worker().join(latch);
             latch.await();
             if (null != counts) {
                 val root = ref();
@@ -444,6 +452,8 @@ abstract class FinishState {
             process(rail);
             latch.unlock();
         }
+
+        public def simpleLatch() = latch;
     }
 
     static class RemoteFinish extends RemoteFinishSkeleton {
@@ -580,12 +590,13 @@ abstract class FinishState {
             if (ref.home.id == Runtime.hereInt()) {
                 me = (ref as GlobalRef[FinishState]{home==here})();
             } else {
-                me = Runtime.runtime().finishStates.apply(ref, ()=>new RemoteCollectingFinish[T](ref, tmpReducer));
+                val _ref = ref;
+                me = Runtime.runtime().finishStates.apply(ref, ()=>new RemoteCollectingFinish[T](_ref, tmpReducer));
             }
         }
         public def serialize():SerialData = new SerialData(reducer, super.serialize());
         public def accept(t:T, id:Int) { (me as CollectingFinishState[T]).accept(t, id); }
-        public def waitForFinishExpr(safe:Boolean) = (me as RootCollectingFinish[T]).waitForFinishExpr(safe);
+        public def waitForFinishExpr() = (me as RootCollectingFinish[T]).waitForFinishExpr();
     }
 
     static class RootCollectingFinish[T] extends RootFinish implements CollectingFinishState[T] {
@@ -609,8 +620,8 @@ abstract class FinishState {
             process(rail);
             latch.unlock();
         }
-        final public def waitForFinishExpr(safe:Boolean):T {
-            waitForFinish(safe);
+        final public def waitForFinishExpr():T {
+            waitForFinish();
             sr.placeMerge();
             val result = sr.result();
             sr.reset();

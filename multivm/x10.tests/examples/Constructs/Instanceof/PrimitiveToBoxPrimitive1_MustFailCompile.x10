@@ -10,6 +10,7 @@
  */
 
 import harness.x10Test;
+import x10.util.Box;
 
 /**
  * Purpose: Checks both literal is directly converted to its Boxed representation
@@ -18,7 +19,12 @@ import harness.x10Test;
  **/
 public class PrimitiveToBoxPrimitive1_MustFailCompile extends x10Test {
 	 
-	public def run()=3 instanceof Box[int];
+	public def run()=
+	    3 instanceof Box[int]; // ERR: Left operand of instanceof must be castable to right type.
+    def test() {
+        val y = 3 instanceof Box[int]; // ERR: Left operand of instanceof must be castable to right type.
+        val x = 3 as Box[int]; // 3 is not castable to Box[Int], but it is coercible to it.
+    }
 	
 	public static def main(var args: Array[String](1)): void = {
 		new PrimitiveToBoxPrimitive1_MustFailCompile().execute();

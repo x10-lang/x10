@@ -24,15 +24,57 @@ import harness.x10Test;
 public class AtThisIntoAtHere1_MustFailCompile extends x10Test {
 	 class Test {
 	    	private val x:GlobalRef[Test]  = GlobalRef[Test](this);
-	        private val y:GlobalRef[Test]{self.home==x.home}  = GlobalRef[Test](this);
+	        private val y:GlobalRef[Test]{self.home==x.home}  = GlobalRef[Test](this); // ShouldNotBeERR
 
-	     def n() { 
+	     def n() {
 	    	 val p = Place.place(1);
 	    	 at (x) {
-	    		
+
 	    		 at (p)
 	    		  // this is not ok because of the place shift.
-	    		    y();
+	    		    y(); // ERR
+	    	 }
+	     }
+	    }
+	  class Test2 {
+	    	private val x:GlobalRef[Test2]{self.home==here}  = GlobalRef[Test2](this);
+	        private val y:GlobalRef[Test2]{self.home==here}  = GlobalRef[Test2](this);
+
+	     def n() {
+	    	 val p = Place.place(1);
+	    	 at (x) {
+
+	    		 at (p)
+	    		  // this is not ok because of the place shift.
+	    		    y(); // ShouldBeErr
+	    	 }
+	     }
+	    }
+	  class Test3 {
+	    	private val x  = GlobalRef[Test3](this);
+	        private val y  = GlobalRef[Test3](this);
+
+	     def n() {
+	    	 val p = Place.place(1);
+	    	 at (x) {
+
+	    		 at (p)
+	    		  // this is not ok because of the place shift.
+	    		    y(); // ERR
+	    	 }
+	     }
+	    }
+	    class Test4 {
+	    	private val x  = GlobalRef(this);
+	        private val y  = GlobalRef(this);
+
+	     def n() {
+	    	 val p = Place.place(1);
+	    	 at (x) {
+
+	    		 at (p)
+	    		  // this is not ok because of the place shift.
+	    		    y(); // ERR
 	    	 }
 	     }
 	    }

@@ -16,7 +16,7 @@ import harness.x10Test;
  */
 public class CharLitDepType_MustFailCompile extends x10Test {
 	public def run(): boolean = {
-		var f: Char{self == 'b'} = 'a';
+		var f: Char{self == 'b'} = 'a'; // ERR
 		return true;
 	}
 

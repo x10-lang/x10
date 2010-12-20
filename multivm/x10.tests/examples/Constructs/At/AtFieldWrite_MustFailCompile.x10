@@ -29,7 +29,7 @@ public class AtFieldWrite_MustFailCompile extends x10Test {
 	    	
 	    	// The right way to try to assign to the transient t field of the original object is to use
 	    	// root to access it. 
-		    root().t = newT; 
+		    root().t = newT; // ERR: Semantic Error: Method or static constructor not found for given call.	 Call: root() 
 		    // THe correct pattern should be at (root) root().t = (newT.root as {root.home==here})();
 	    }
         return true;

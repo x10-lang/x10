@@ -165,6 +165,11 @@ public interface Type extends Qualifier
      * Return true if double, float, long, int, short, byte, or char.
      */
     boolean isNumeric();
+    
+    /**
+     * Return true if ulong, uint, ushort, or ubyte.
+     */
+    boolean isUnsignedNumeric();
 
     /**
      * Return true if a reference type.

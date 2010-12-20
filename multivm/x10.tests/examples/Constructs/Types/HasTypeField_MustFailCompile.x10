@@ -17,7 +17,7 @@ import harness.x10Test;
  * @author vj
  */
 public class HasTypeField_MustFailCompile extends x10Test {
-	val x <: Boolean = 1;
+	val x <: Boolean = 1; // ERR
 	
 	public def run()=true;
 

@@ -16,7 +16,8 @@ import harness.x10Test;
  */
 public class DoubleLitDepType_MustFailCompile extends x10Test {
 	public def run(): boolean = {
-		var f: double{self==1.2D} = 1.3D;
+		var f: double{self==1.2D} = 1.3D; // ERR
+		var f2: double{self==1.2D} = 1.2D;
 		return true;
 	}
 

@@ -14,6 +14,8 @@ import polyglot.types.*;
 import polyglot.types.Package;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
+import x10.extension.X10Ext;
+import x10.ast.X10CanonicalTypeNode;
 
 /**
  * Utility class which is used to disambiguate ambiguous
@@ -302,22 +304,24 @@ public class Disamb_c implements Disamb
     }
 
     protected Node makeTypeNode(Type t) {
-	if (amb instanceof TypeNode) {
-	    TypeNode tn = (TypeNode) amb;
-	    if (tn.typeRef() instanceof LazyRef<?>) {
-		LazyRef<Type> sym = (LazyRef<Type>) tn.typeRef();
-		sym.update(t);
+        CanonicalTypeNode res = null;
+	    if (amb instanceof TypeNode) {
+            TypeNode tn = (TypeNode) amb;
+            if (tn.typeRef() instanceof LazyRef<?>) {
+                LazyRef<Type> sym = (LazyRef<Type>) tn.typeRef();
+                sym.update(t);
 
-		// Reset the resolver goal to one that can run when the ref is deserialized.
-		Goal resolver = v.job().extensionInfo().scheduler().LookupGlobalType(sym);
-		resolver.update(Goal.Status.SUCCESS);
-		sym.setResolver(resolver);
+                // Reset the resolver goal to one that can run when the ref is deserialized.
+                Goal resolver = v.job().extensionInfo().scheduler().LookupGlobalType(sym);
+                resolver.update(Goal.Status.SUCCESS);
+                sym.setResolver(resolver);
 
-		return nf.CanonicalTypeNode(pos, sym);
-	    }
-	}
-
-	return nf.CanonicalTypeNode(pos, t);
+                res = nf.CanonicalTypeNode(pos, sym);
+	        }
+        }
+        if (res==null) res = nf.CanonicalTypeNode(pos, t);
+        final Node node = res.ext((X10Ext) amb.ext().copy());
+        return node;
     }
     
     public String toString() {

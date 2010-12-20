@@ -53,6 +53,12 @@ public final class PlaceLocalHandle<T> implements java.io.Serializable {
 	  id = nextId();
   }
 
+  // TODO haszero
+  // zero value constructor
+  public PlaceLocalHandle(x10.rtt.Type<T> T, java.lang.System[] dummy$0) {
+      this(T);
+  }
+
   public T apply$G() {
 	  if (!initialized) {
 		  synchronized(data) {
@@ -69,4 +75,10 @@ public final class PlaceLocalHandle<T> implements java.io.Serializable {
 		  assert old == null : "Set called on already initialized local object";
 	  }
   }
+
+  @Override
+  public String toString() {
+      return "PlaceLocalHandle(" + this.id + ")";
+  }
+
 }

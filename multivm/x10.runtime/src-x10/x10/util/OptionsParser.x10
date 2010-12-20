@@ -80,7 +80,7 @@ public final class OptionsParser {
         if (!map.containsKey(key)) return d;
         val v = map.getOrElse(key, "???");
         try {
-            return UByte.parseUByte(v);
+            return UByte.parse(v);
         } catch (e:NumberFormatException) {
             throw new Err("Expected UByte, got: \""+v+"\"");
         }
@@ -90,7 +90,7 @@ public final class OptionsParser {
         if (!map.containsKey(key)) return d;
         val v = map.getOrElse(key, "???");
         try {
-            return Byte.parseByte(v);
+            return Byte.parse(v);
         } catch (e:NumberFormatException) {
             throw new Err("Expected Byte, got: \""+v+"\"");
         }
@@ -100,7 +100,7 @@ public final class OptionsParser {
         if (!map.containsKey(key)) return d;
         val v = map.getOrElse(key, "???");
         try {
-            return UShort.parseUShort(v);
+            return UShort.parse(v);
         } catch (e:NumberFormatException) {
             throw new Err("Expected UShort, got: \""+v+"\"");
         }
@@ -110,7 +110,7 @@ public final class OptionsParser {
         if (!map.containsKey(key)) return d;
         val v = map.getOrElse(key, "???");
         try {
-            return Short.parseShort(v);
+            return Short.parse(v);
         } catch (e:NumberFormatException) {
             throw new Err("Expected Short, got: \""+v+"\"");
         }
@@ -120,7 +120,7 @@ public final class OptionsParser {
         if (!map.containsKey(key)) return d;
         val v = map.getOrElse(key, "???");
         try {
-            return UInt.parseUInt(v);
+            return UInt.parse(v);
         } catch (e:NumberFormatException) {
             throw new Err("Expected UInt, got: \""+v+"\"");
         }
@@ -130,7 +130,7 @@ public final class OptionsParser {
         if (!map.containsKey(key)) return d;
         val v = map.getOrElse(key, "???");
         try {
-            return Int.parseInt(v);
+            return Int.parse(v);
         } catch (e:NumberFormatException) {
             throw new Err("Expected Long, got: \""+v+"\"");
         }
@@ -140,7 +140,7 @@ public final class OptionsParser {
         if (!map.containsKey(key)) return d;
         val v = map.getOrElse(key, "???");
         try {
-            return ULong.parseULong(v);
+            return ULong.parse(v);
         } catch (e:NumberFormatException) {
             throw new Err("Expected ULong, got: \""+v+"\"");
         }
@@ -150,7 +150,7 @@ public final class OptionsParser {
         if (!map.containsKey(key)) return d;
         val v = map.getOrElse(key, "???");
         try {
-            return Long.parseLong(v);
+            return Long.parse(v);
         } catch (e:NumberFormatException) {
             throw new Err("Expected Int, got: \""+v+"\"");
         }
@@ -161,7 +161,7 @@ public final class OptionsParser {
         if (!map.containsKey(key)) return d;
         val v = map.getOrElse(key, "???");
         try {
-            return Double.parseDouble(v);
+            return Double.parse(v);
         } catch (e:NumberFormatException) {
             throw new Err("Expected Double, got: \""+v+"\"");
         }
@@ -170,7 +170,7 @@ public final class OptionsParser {
         if (!map.containsKey(key)) return d;
         val v = map.getOrElse(key, "???");
         try {
-            return Float.parseFloat(v);
+            return Float.parse(v);
         } catch (e:NumberFormatException) {
             throw new Err("Expected Float, got: \""+v+"\"");
         }

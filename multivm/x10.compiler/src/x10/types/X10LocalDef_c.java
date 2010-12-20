@@ -28,13 +28,6 @@ import polyglot.util.TypedList;
 import x10.constraint.XTerm;
 import x10.types.constraints.TypeConstraint;
 
-/**
- * An X10ConstructorInstance_c varies from a ConstructorInstance_c only in that it
- * maintains a returnType. If an explicit returnType is not declared in the constructor
- * then the returnType is simply a noClause variant of the container.
- * @author vj
- *
- */
 public class X10LocalDef_c extends LocalDef_c implements X10LocalDef {
     private static final long serialVersionUID = 1790685273653374213L;
 

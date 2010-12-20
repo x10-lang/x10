@@ -43,13 +43,6 @@ import x10.constraint.XVar;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
 
-/**
- * An X10ConstructorInstance_c varies from a ConstructorInstance_c only in that it
- * maintains a returnType. If an explicit returnType is not declared in the constructor
- * then the returnType is simply a noClause variant of the container.
- * @author vj
- *
- */
 public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
     private static final long serialVersionUID = -9049001281152283179L;
 

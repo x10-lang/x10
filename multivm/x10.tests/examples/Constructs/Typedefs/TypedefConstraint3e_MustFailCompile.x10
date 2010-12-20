@@ -21,7 +21,7 @@ class TypedefConstraint3e_MustFailCompile extends TypedefTest {
 
         type T(x:int){x==1} = int;
         val zero = 0;
-        var a:T(zero);
+        var a:T(zero); // ERR
 
         return result;
     }

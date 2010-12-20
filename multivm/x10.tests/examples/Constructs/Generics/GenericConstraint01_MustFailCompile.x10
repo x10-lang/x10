@@ -22,7 +22,7 @@ public class GenericConstraint01_MustFailCompile extends GenericTest {
     class X {};
     class Y {};
 
-    var a:A[X,Y];
+    var a:A[X,Y]; // ERR: Type GenericConstraint01_MustFailCompile.A[GenericConstraint01_MustFailCompile.X, GenericConstraint01_MustFailCompile.Y] is inconsistent.
 
     public def run(): boolean = {
         return result;

@@ -99,6 +99,8 @@ public class SharedVarsMethods {
     public static final String CLOSURE_TYPE = "x10::lang::Closure";
 
     static final String VIM_MODELINE = "vim:tabstop=4:shiftwidth=4:expandtab";
+    
+    static final String ASYNC_INIT_VALS_KEY = "AYSNC_LOCAL_INITS";
 
     public static final String CPP_NATIVE_STRING = "c++";
     public static final String CUDA_NATIVE_STRING = "cuda";

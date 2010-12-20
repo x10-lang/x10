@@ -33,8 +33,8 @@ public final class Configuration extends x10.config.Configuration {
      */
     public static final ConfigurationError LOAD_ERROR;
 
-    public static String MAIN_CLASS = null;
-    private static final String MAIN_CLASS_desc = "The class whose main() will be invoked";
+    public static String MAIN_STUB_NAME = "xxx_main_xxx";
+    private static final String MAIN_STUB_NAME_desc = "The name for the main invocation stub file";
 
     public static boolean VIM_MODELINE = true;
     private static final String VIM_MODELINE_desc = "Generate a modeline (formatting instructions) for VIm";

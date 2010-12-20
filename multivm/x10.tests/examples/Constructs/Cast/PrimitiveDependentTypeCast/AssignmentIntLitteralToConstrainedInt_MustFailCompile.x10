@@ -21,7 +21,7 @@ public class AssignmentIntLitteralToConstrainedInt_MustFailCompile extends x10Te
 	public def run(): boolean = {
 		
 		try { 
-         val j = 1 as Int(0);
+         val j = 1 as Int(0); // ERR
 		}catch (e: Throwable) {
 			return false;
 		}

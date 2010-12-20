@@ -27,7 +27,7 @@ class BangAcrossPlaces2_MustFailCompile  extends x10Test {
 	def m(z:GlobalRef[C]{self.home==here}) {
 		at (here.next()) {
 			// this should generate an error.
-			val y = z.x();
+			val y = z.x(); // ERR
 		}
 	}
     public def run() = true;

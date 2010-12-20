@@ -13,6 +13,7 @@ package x10.core;
 
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
+import x10.rtt.Types;
 
 public class Throwable extends java.lang.RuntimeException implements RefI {
 
@@ -20,7 +21,7 @@ public class Throwable extends java.lang.RuntimeException implements RefI {
         super();
     }
 
-    public Throwable(String message) {
+    public Throwable(java.lang.String message) {
         super(message);
     }
 
@@ -28,7 +29,7 @@ public class Throwable extends java.lang.RuntimeException implements RefI {
         super(cause);
     }
 
-    public Throwable(String message, java.lang.Throwable cause) {
+    public Throwable(java.lang.String message, java.lang.Throwable cause) {
         super(message, cause);
     }
 
@@ -37,7 +38,7 @@ public class Throwable extends java.lang.RuntimeException implements RefI {
         super();
     }
 
-    public Throwable(Object out$, String message) {
+    public Throwable(Object out$, java.lang.String message) {
         super(message);
     }
 
@@ -45,7 +46,7 @@ public class Throwable extends java.lang.RuntimeException implements RefI {
         super(cause);
     }
 
-    public Throwable(Object out$, String message, java.lang.Throwable cause) {
+    public Throwable(Object out$, java.lang.String message, java.lang.Throwable cause) {
         super(message, cause);
     }
 
@@ -54,7 +55,7 @@ public class Throwable extends java.lang.RuntimeException implements RefI {
         new Type[] { x10.rtt.Types.OBJECT }
     ) {
         @Override
-        public String typeName() {
+        public java.lang.String typeName() {
             return "x10.lang.Throwable";
         }
     };
@@ -63,6 +64,11 @@ public class Throwable extends java.lang.RuntimeException implements RefI {
     }
     public Type<?> getParam(int i) {
         return null;
+    }
+
+    @Override
+    public java.lang.String toString() {
+        return Types.typeName(this) + ": " + this.getMessage();
     }
 
 }

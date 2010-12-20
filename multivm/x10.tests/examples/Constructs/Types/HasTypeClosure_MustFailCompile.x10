@@ -21,7 +21,7 @@ public class HasTypeClosure_MustFailCompile extends x10Test {
 	def m(x:Int{self==1}) = x;
 	public def run(): boolean = {
 		val x = (y:Int)<: Int => y;
-		val z <:Int(0) = x(1);
+		val z <:Int(0) = x(1); // ERR
 		return true;
 	}
 

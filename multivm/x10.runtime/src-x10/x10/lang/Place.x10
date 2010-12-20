@@ -25,11 +25,11 @@ public final struct Place(id: Int)  {
 
     @Native("java", "x10.runtime.impl.java.Runtime.MAX_PLACES")
     @Native("c++", "x10aux::num_places")
-    public static ALL_PLACES = 4;
+    public static ALL_PLACES:Int = 4;
 
     @Native("java", "x10.runtime.impl.java.Runtime.MAX_PLACES")
     @Native("c++", "x10aux::num_hosts")
-    public static MAX_PLACES = 4;
+    public static MAX_PLACES:Int = 4;
 
     /**
      * Find number of children under a place.
@@ -37,25 +37,25 @@ public final struct Place(id: Int)  {
      * For accelerators, it returns 0.
      */
     @Native("c++", "x10aux::num_children(#1)")
-    public static def numChildren(id:Int) = 0;
+    public static def numChildren(id:Int):Int = 0;
 
     /**
      * Returns whether a place is a host.
      */
     @Native("c++", "x10aux::is_host(#1)")
-    public static def isHost(id:Int) = true;
+    public static def isHost(id:Int):Boolean = true;
 
     /**
      * Returns whether a place is an SPE of a Cell CPU.
      */
     @Native("c++", "x10aux::is_spe(#1)")
-    public static def isSPE(id:Int) = false;
+    public static def isSPE(id:Int):Boolean = false;
 
     /**
      * Returns whether a place is a CUDA GPU.
      */
     @Native("c++", "x10aux::is_cuda(#1)")
-    public static def isCUDA(id:Int) = false;
+    public static def isCUDA(id:Int):Boolean = false;
 
     /**
      * Find parent of a place.
@@ -63,7 +63,7 @@ public final struct Place(id: Int)  {
      * For accelerators, it is the host of the accelerator.
      */
     @Native("c++", "x10aux::parent(#1)")
-    public static def parent(id:Int) = id;
+    public static def parent(id:Int):Int = id;
 
     /**
      * Iterate over the children of a place.
@@ -129,7 +129,7 @@ public final struct Place(id: Int)  {
         return childIndex(id);
     }
 
-    public def toString() = "(Place " + this.id + ")";
+    public def toString() = "Place(" + this.id + ")";
     public def equals(p:Place) = p.id==this.id;
     public def equals(p:Any) = p instanceof Place && (p as Place).id==this.id;
     public def hashCode()=id;

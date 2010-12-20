@@ -167,10 +167,20 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
 	 */
 	public static final int INIT_THREADS = Integer.getInteger("x10.INIT_THREADS", java.lang.Runtime.getRuntime().availableProcessors());
 
+    /**
+     * The maximal size of the thread pool
+     */
+    public static final int MAX_THREADS = Integer.getInteger("x10.MAX_THREADS", 1000);
+
 	/**
 	 * Whether or not to start more threads while blocking
 	 */
 	public static final boolean STATIC_THREADS = Boolean.getBoolean("x10.STATIC_THREADS");
+
+    /**
+     * Trace serialization
+     */
+    public static final boolean TRACE_SER = Boolean.getBoolean("x10.TRACE_SER");
 
     /**
      * Synchronously executes body at place(id)
@@ -192,9 +202,22 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
     public static <T> T deepCopy(T body) {
         try {
             // copy body
+            long startTime = 0L;
+            if (TRACE_SER) {
+                startTime = System.nanoTime();
+            }
             java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
-            new java.io.ObjectOutputStream(baos).writeObject(body);
-            body = (T) new java.io.ObjectInputStream(new java.io.ByteArrayInputStream(baos.toByteArray())).readObject();
+            java.io.ObjectOutputStream oos = new java.io.ObjectOutputStream(baos);
+            oos.writeObject(body);
+            oos.close();
+            byte[] ba = baos.toByteArray();
+            if (TRACE_SER) {
+                long endTime = System.nanoTime();
+                System.out.println("Serializer: serialized " + ba.length + " bytes in " + (endTime - startTime) / 1000 + " microsecs.");
+            }
+            java.io.ObjectInputStream ois = new java.io.ObjectInputStream(new java.io.ByteArrayInputStream(ba)); 
+            body = (T) ois.readObject();
+            ois.close();
         } catch (java.io.IOException e) {
             x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
             xe.printStackTrace();

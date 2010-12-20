@@ -7,8 +7,6 @@
 
 package polyglot.types;
 
-import polyglot.util.Enum;
-
 /**
  * A <code>PrimitiveType</code> represents a type which may not be directly 
  * coerced to java.lang.Object (under the standard Java type system).    

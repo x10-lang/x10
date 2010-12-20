@@ -104,13 +104,15 @@ public class PlaceChecker {
 	 * with the indexical constant "here" can still be tracked through the fake field "this.here".
 	 * For instance this lets us infer that the following is place safe
 	 * class C {
-	 *   val root = GlobalRef[C](this); 
+	 *   private val root = GlobalRef[C](this); 
 	 *   // this records the type of root as GlobalRef[C]{self.home == C#this.here} .. note C#this.here is a fake field.
 	 *   }
 	 *   val x = (new C()).root; 
 	 *   // this computes the type of new C() as C{this.here == _place269}, where _place269 is a constant standing for "here"
 	 *   // so it computes the type of (new C()).root as GlobalRef[C]{self.home == _place269}.
 	 *   x(); // now this is legal because _place269 is the current place, hence the guard x.home == here is satisfied.
+     *
+     * todo: Yoav notes that the implementation is broken, see XTENLANG-1905.
 	 *   
 	 *   Note that the user cannot specify any constraint in the X10 source program to refer to this fake field.
 	 *   This field is purely an internal contrivance of the type system to enable us to reuse the machinery 

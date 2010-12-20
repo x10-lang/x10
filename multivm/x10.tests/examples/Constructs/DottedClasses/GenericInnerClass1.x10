@@ -1,4 +1,4 @@
- /*
+/*
  *  This file is part of the X10 project (http://x10-lang.org).
  *
  *  This file is licensed to You under the Eclipse Public License (EPL);
@@ -9,15 +9,15 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-// A simple test case of an inner class which refers to its outer class's 
-// generic type parameter.
-
 import x10.util.*;
 import harness.x10Test;
 
+// A simple test case of an inner class which refers to its outer class's 
+// generic type parameter.
+
 public class GenericInnerClass1[X] extends x10Test {
   public static def main(Array[String](1)){
-     val p = new GenericInnerClass1();
+     val p = new GenericInnerClass1[Int]();
      p.execute();
   }
  

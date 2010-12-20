@@ -21,10 +21,10 @@ public class UninitializedPointBinding_MustFailCompile extends x10Test {
 
     public def run(): boolean = {
 
-        var p[i,j]: Point;
+        var p[i,j]: Point; // ERR ERR ERR todo: better error message: Cannot infer variable type; variable i has no initializer.     Cannot infer type of a mutable (non-val) variable.  Cannot infer variable type; variable j has no initializer.
         p = [1,2];
 
-        return (i == 1 && j == 2);
+        return (i == 1 && j == 2); // ERR ERR: "i" may not have been initialized "j" may not have been initialized
     }
 
     public static def main(args: Array[String](1)): void = {

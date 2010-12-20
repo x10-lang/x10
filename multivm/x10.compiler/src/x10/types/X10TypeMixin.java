@@ -79,120 +79,103 @@ import x10.types.matcher.Matcher;
  * @author nystrom
  */
 public class X10TypeMixin {
-    
 
-	public static X10FieldInstance getProperty(Type t, Name propName) {
-	    TypeSystem xts = (TypeSystem) t.typeSystem();
-		    try {
-		        Context c = xts.emptyContext();
-			    X10FieldInstance fi = (X10FieldInstance) xts.findField(t, xts.FieldMatcher(t, propName, c));
-			    if (fi != null && fi.isProperty()) {
-				    return fi;
-			    }
-		    }
-		    catch (SemanticException e) {
-			    // ignore
-		    }
+    public static X10FieldInstance getProperty(Type t, Name propName) {
+        TypeSystem xts = t.typeSystem();
+        try {
+            Context c = xts.emptyContext();
+            X10FieldInstance fi = xts.findField(t, xts.FieldMatcher(t, propName, c));
+            if (fi != null && fi.isProperty()) {
+                return fi;
+            }
+        }
+        catch (SemanticException e) {
+            // ignore
+        }
         return null;
     }
-	/**
-	 * Return the type Array[type]{self.region.rank==1, self.size==size}.
-	 * @param type
-	 * @param pos
-	 * @return
-	 */
-	public static Type makeArrayRailOf(Type type, int size, Position pos) {
-		TypeSystem ts = (TypeSystem) type.typeSystem();
-		Type r = ts.Array();
-		Type t = (X10ClassType) X10TypeMixin.instantiate(r, type);
-		CConstraint c = new CConstraint();
-		FieldInstance sizeField = ((X10ClassType) t).fieldNamed(Name.make("size"));
-		if (sizeField == null)
-			throw new InternalCompilerError("Could not find size field of " + t, pos);
 
-		FieldInstance regionField = ((X10ClassType) t).fieldNamed(Name.make("region"));
-		if (regionField == null)
-			throw new InternalCompilerError("Could not find region field of " + t, pos);
-
-		FieldInstance rankField = ((X10ClassType) ts.Region()).fieldNamed(Name.make("rank"));
-		if (rankField == null)
-			throw new InternalCompilerError("Could not find rank field of " + ts.Region(), pos);
-
-		FieldInstance rectField = ((X10ClassType) ts.Region()).fieldNamed(Name.make("rect"));
-		if (rectField == null)
-			throw new InternalCompilerError("Could not find rect field of " + ts.Region(), pos);
-
-		FieldInstance zeroBasedField = ((X10ClassType) ts.Region()).fieldNamed(Name.make("zeroBased"));
-		if (zeroBasedField == null)
-			throw new InternalCompilerError("Could not find zeroBased field of " + ts.Region(), pos);
-
-		try {
-
-			XVar selfSize = ts.xtypeTranslator().trans(c, c.self(), sizeField);
-			XLit sizeLiteral = ts.xtypeTranslator().trans(size);
-			c.addBinding(selfSize, sizeLiteral);
-
-			XVar selfRegion = ts.xtypeTranslator().trans(c, c.self(), regionField);
-			XVar selfRegionRank = ts.xtypeTranslator().trans(c, selfRegion, rankField);
-			XLit rankLiteral = XTerms.makeLit(1);
-			c.addBinding(selfRegionRank, rankLiteral);
-
-			XVar selfRegionRect = ts.xtypeTranslator().trans(c, selfRegion, rectField);
-			XLit trueLiteral = XTerms.makeLit(true);
-			c.addBinding(selfRegionRect, trueLiteral);
-
-			XVar selfRegionZeroBased = ts.xtypeTranslator().trans(c, selfRegion, zeroBasedField);
-			c.addBinding(selfRegionZeroBased, trueLiteral);
-
-			//c.toString();
-			t = X10TypeMixin.xclause(t, c);
-
-		} catch (XFailure z) {
-			throw new InternalCompilerError("Could not create Array[T]{self.region.rank==1,self.size==size}");
-		}
-		return t;
-	}
+    public static X10MethodInstance getPropertyMethod(Type t, Name propName) {
+        TypeSystem xts = t.typeSystem();
+        try {
+            Context c = xts.emptyContext();
+            X10MethodInstance mi = xts.findMethod(t, xts.MethodMatcher(t, propName, Collections.<Type>emptyList(), c));
+            if (mi != null && mi.flags().isProperty()) {
+                return mi;
+            }
+        }
+        catch (SemanticException e) {
+            // ignore
+        }
+        return null;
+    }
+    
     /**
-     * Return the type Array[type]{self.region.rank==1,self.region.rect==true,self.region.zeroBased==true}.
+     * Return the type Array[type]{self.rail==true,self.size==size}.
+     * @param type
+     * @param pos
+     * @return
+     */
+    public static Type makeArrayRailOf(Type type, int size, Position pos) {
+        Type t = makeArrayRailOf(type, pos);
+        assert (t.isClass());
+        TypeSystem ts = type.typeSystem();
+        CConstraint c = X10TypeMixin.xclause(t);
+        FieldInstance sizeField = t.toClass().fieldNamed(Name.make("size"));
+        if (sizeField == null)
+            throw new InternalCompilerError("Could not find size field of " + t, pos);
+        try {
+            XVar selfSize = ts.xtypeTranslator().trans(c, c.self(), sizeField);
+            XLit sizeLiteral = ts.xtypeTranslator().trans(size);
+            c.addBinding(selfSize, sizeLiteral);
+            return X10TypeMixin.xclause(t, c);
+        } catch (XFailure z) {
+            throw new InternalCompilerError("Could not create Array[T]{self.rail==true,self.size==size}");
+        } catch (InternalCompilerError z) {
+            throw new InternalCompilerError("Could not create Array[T]{self.rail==true,self.size==size}");
+        }
+    }
+    /**
+     * Return the type Array[type]{self.rank==1,self.rect==true,self.zeroBased==true,self.rail==true}.
      * @param type
      * @param pos
      * @return
      */
     public static Type makeArrayRailOf(Type type, Position pos) {
-        TypeSystem ts = (TypeSystem) type.typeSystem();
-        Type r = ts.Array();
-        Type t = (X10ClassType) X10TypeMixin.instantiate(r, type);
+        TypeSystem ts = type.typeSystem();
+        X10ClassType r = ts.Array();
+        X10ClassType t = X10TypeMixin.instantiate(r, type);
         CConstraint c = new CConstraint();
-        FieldInstance regionField = ((X10ClassType) t).fieldNamed(Name.make("region"));
+        FieldInstance regionField = t.fieldNamed(Name.make("region"));
         if (regionField == null)
             throw new InternalCompilerError("Could not find region field of " + t, pos);
-        FieldInstance rankField = ((X10ClassType) ts.Region()).fieldNamed(Name.make("rank"));
+        FieldInstance rankField = t.fieldNamed(Name.make("rank"));
         if (rankField == null)
-            throw new InternalCompilerError("Could not find rank field of " + ts.Region(), pos);
-        FieldInstance rectField = ((X10ClassType) ts.Region()).fieldNamed(Name.make("rect"));
+            throw new InternalCompilerError("Could not find rank field of " + t, pos);
+        FieldInstance rectField = t.fieldNamed(Name.make("rect"));
         if (rectField == null)
-            throw new InternalCompilerError("Could not find rectField field of " + ts.Region(), pos);
-        FieldInstance zeroBasedField = ((X10ClassType) ts.Region()).fieldNamed(Name.make("zeroBased"));
+            throw new InternalCompilerError("Could not find rect field of " + t, pos);
+        FieldInstance zeroBasedField = t.fieldNamed(Name.make("zeroBased"));
         if (zeroBasedField == null)
-            throw new InternalCompilerError("Could not find zeroBased field of " + ts.Region(), pos);
+            throw new InternalCompilerError("Could not find zeroBased field of " + t, pos);
+        FieldInstance railField = t.fieldNamed(Name.make("rail"));
+        if (railField == null)
+            throw new InternalCompilerError("Could not find rail field of " + t, pos);
         try {
-
-            XVar selfRegion = ts.xtypeTranslator().trans(c, c.self(), regionField);
-            XVar selfRegionRank = ts.xtypeTranslator().trans(c, selfRegion, rankField);
-            XVar selfRegionRect = ts.xtypeTranslator().trans(c, selfRegion, rectField);
-            XVar selfRegionZeroBased = ts.xtypeTranslator().trans(c, selfRegion, zeroBasedField);
+            XVar selfRank = ts.xtypeTranslator().trans(c, c.self(), rankField);
+            XVar selfRect = ts.xtypeTranslator().trans(c, c.self(), rectField);
+            XVar selfZeroBased = ts.xtypeTranslator().trans(c, c.self(), zeroBasedField);
+            XVar selfRail = ts.xtypeTranslator().trans(c, c.self(), railField);
 
             XLit rankLiteral = XTerms.makeLit(1);
-            c.addBinding(selfRegionRank, rankLiteral);
-            c.addBinding(selfRegionRect, XTerms.TRUE);
-            c.addBinding(selfRegionZeroBased, XTerms.TRUE);
-            c.toString();
-            t = X10TypeMixin.xclause(t, c);
-
+            c.addBinding(selfRank, rankLiteral);
+            c.addBinding(selfRect, XTerms.TRUE);
+            c.addBinding(selfZeroBased, XTerms.TRUE);
+            c.addBinding(selfRail, XTerms.TRUE);
+            return X10TypeMixin.xclause(t, c);
         } catch (XFailure z) {
-            throw new InternalCompilerError("Could not create Array[T]{self.region.rank==1,self.region.rect==true,self.region.zeroBased==true}");
+            throw new InternalCompilerError("Could not create Array[T]{self.rank==1,self.rect==true,self.zeroBased==true,self.rail==true}");
         }
-        return t;
     }
     public static Type typeArg(Type t, int i) {
         if (t instanceof X10ParsedClassType) {
@@ -201,7 +184,7 @@ public class X10TypeMixin {
         } 
         return typeArg(X10TypeMixin.baseType(t), i);
     }
-    public static Type instantiate(Type t, Type... typeArg) {
+    public static X10ParsedClassType instantiate(Type t, Type... typeArg) {
 	if (t instanceof X10ParsedClassType) {
 	    X10ParsedClassType ct = (X10ParsedClassType) t;
 	    return ct.typeArguments(Arrays.asList(typeArg));
@@ -211,7 +194,7 @@ public class X10TypeMixin {
 	}
     }
     
-    public static Type instantiate(Type t, Ref<? extends Type> typeArg) {
+    public static X10ParsedClassType instantiate(Type t, Ref<? extends Type> typeArg) {
 	// TODO: should not deref now, since could be called by class loader
 	return instantiate(t, Types.get(typeArg));
     }
@@ -409,12 +392,12 @@ public class X10TypeMixin {
 	        ConstrainedType ct = (ConstrainedType) t;
 	        return erasedType(baseType(Types.get(ct.baseType())));
 	    }
-	    if (t instanceof ConstrainedType) {
-	        ConstrainedType ct = (ConstrainedType) t;
-	        return erasedType(baseType(Types.get(ct.baseType())));
-	    }
 	    return t;
 	}
+    public static X10ClassDef_c getDef(Type t) {
+        if (t==null) return null;
+        return (X10ClassDef_c) ((X10ParsedClassType_c)baseType(t)).def();
+    }
 	
     public static Type stripConstraints(Type t) {
         TypeSystem ts = (TypeSystem) t.typeSystem();
@@ -941,6 +924,9 @@ public class X10TypeMixin {
 	public static XTerm makeZeroBased(Type t) {
 		return makeProperty(t, "zeroBased");
 	}
+    public static XTerm makeRail(Type t) {
+        return makeProperty(t, "rail");
+    }
 	 
 	public static XTerm makeProperty(Type t, String propStr) {
 		Name propName = Name.make(propStr);
@@ -963,22 +949,25 @@ public class X10TypeMixin {
 	}
 	public static XTerm find(Type t, Name propName) {
 	    XTerm val = findProperty(t, propName);
-	    
+
 	    if (val == null) {
-		    CConstraint c = realX(t);
-		    if (c != null) {
-			    // build the synthetic term.
-			    XTerm var = selfVar(c);
-			    if (var !=null) {
-				    X10FieldInstance fi = getProperty(t, propName);
-				    if (fi != null) {
-					    
-						    TypeSystem xts = (TypeSystem) t.typeSystem();
-						    val = xts.xtypeTranslator().trans(c, var, fi);
-					    
-				    }
-			    }
-		    }
+	        TypeSystem xts = (TypeSystem) t.typeSystem();
+	        CConstraint c = realX(t);
+	        if (c != null) {
+	            // build the synthetic term.
+	            XTerm var = selfVar(c);
+	            if (var !=null) {
+	                X10FieldInstance fi = getProperty(t, propName);
+	                if (fi != null) {
+	                    val = xts.xtypeTranslator().trans(c, var, fi);
+	                } else {
+	                    X10MethodInstance mi = getPropertyMethod(t, propName);
+	                    if (mi != null) {
+	                        val = xts.xtypeTranslator().trans(c, var, mi, mi.rightType());
+	                    }
+	                }
+	            }
+	        }
 	    }
 	    return val;
 	}
@@ -1009,10 +998,15 @@ public class X10TypeMixin {
 
 		// TODO: check dist.region.p and region.p
 
-		FieldInstance fi = getProperty(t, propName);
+		X10FieldInstance fi = getProperty(t, propName);
 		if (fi != null)
 			return c.bindingForSelfField(XTerms.makeName(fi.def()));
 
+		X10MethodInstance mi = getPropertyMethod(t, propName);
+		if (mi != null) {
+		    return c.bindingForSelfField(XTerms.makeName(mi.def()));
+		}
+		
 		return null;
 	}
 
@@ -1020,6 +1014,7 @@ public class X10TypeMixin {
 	    TypeSystem xts = (TypeSystem) t.typeSystem();
 	    return findOrSynthesize(t, Name.make("rank"));
 	}
+
 	/**
 	 * Add the constraint self.rank==x to t unless
 	 * that causes an inconsistency.
@@ -1028,39 +1023,48 @@ public class X10TypeMixin {
 	 * @return
 	 */
 	public static Type addRank(Type t, int x) {
+	    return addRank(t, XTerms.makeLit(new Integer(x)));
+	}
+
+	/**
+	 * Add the constraint self.rank==x to t unless
+	 * that causes an inconsistency.
+	 * @param t
+	 * @param x
+	 * @return
+	 */
+	public static Type addRank(Type t, XTerm x) {
 	    TypeSystem xts = (TypeSystem) t.typeSystem();
 	    XTerm xt = findOrSynthesize(t, Name.make("rank"));
 	    try {
-	    t = addBinding(t, xt, XTerms.makeLit(new Integer(x)));
-	    return t;
+	        t = addBinding(t, xt, x);
 	    } catch (XFailure f) {
-	    	return t; // without the binding added.
+	        // without the binding added.
 	    }
-	 
+	    return t;
 	}
+
 	public static Type addRect(Type t) {
 	    TypeSystem xts = (TypeSystem) t.typeSystem();
 	    XTerm xt = findOrSynthesize(t, Name.make("rect"));
 	    try {
-	    t = addBinding(t, xt, XTerms.TRUE);
-	    return t;
+	        t = addBinding(t, xt, XTerms.TRUE);
 	    } catch (XFailure f) {
-	    	return t; // without the binding added.
+	    	// without the binding added.
 	    }
-	 
+	    return t;
 	}
+
 	public static Type addZeroBased(Type t) {
 	    TypeSystem xts = (TypeSystem) t.typeSystem();
 	    XTerm xt = findOrSynthesize(t, Name.make("zeroBased"));
 	    try {
-	    t = addBinding(t, xt, XTerms.TRUE);
-	    return t;
+	        t = addBinding(t, xt, XTerms.TRUE);
 	    } catch (XFailure f) {
-	    	return t; // without the binding added.
+	    	// without the binding added.
 	    }
-	 
+	    return t;
 	}
-	
 
 	public static Type railBaseType(Type t) {
 	    t = baseType(t);
@@ -1212,7 +1216,7 @@ public class X10TypeMixin {
     }
     // this is an under-approximation (it is always safe to return false, i.e., the user will just get more errors). In the future we will improve the precision so more types will have zero.
     public static boolean isHaszero(Type t, Context xc) {
-        TypeSystem ts = xc.typeSystem();
+        X10TypeSystem_c ts = (X10TypeSystem_c) xc.typeSystem();
         XLit zeroLit = null;  // see Lit_c.constantValue() in its decendants
         if (t.isBoolean()) {
             zeroLit = XTerms.FALSE;
@@ -1273,20 +1277,35 @@ public class X10TypeMixin {
             // e.g., Complex and Complex{re!=3.0} haszero,
             // Complex{re!=0.0} and Complex{re==3.0} doesn't haszero
 
-            { // do we have an classInvariant? todo: class invariant are not treated correctly: X10ClassDecl_c.classInvariant is fine, but  X10ClassDef_c.classInvariant is wrong
-                final Type base = baseType(t);
-                if (!(base instanceof X10ParsedClassType_c)) return false;
-                X10ParsedClassType_c xlass = (X10ParsedClassType_c) base;
-                final ClassDef def = xlass.def();
-                if (!(def instanceof X10ClassDef_c)) return false;
-                X10ClassDef_c x10ClassDef = (X10ClassDef_c) def;
-                final Ref<CConstraint> ref = x10ClassDef.classInvariant();
-                if (ref!=null && ref.get().constraints().size()>0) return false; // the struct has a class invariant (so the zero value might not satisfy it)
-            }
-            
+            final Type base = baseType(t);
+            if (!(base instanceof X10ParsedClassType_c)) return false;
+            X10ParsedClassType_c xlass = (X10ParsedClassType_c) base;
+            final ClassDef def = xlass.def();
+            if (!(def instanceof X10ClassDef_c)) return false;
+            X10ClassDef_c x10ClassDef = (X10ClassDef_c) def;
+
+            // do we have an classInvariant? todo: class invariant are not treated correctly: X10ClassDecl_c.classInvariant is fine, but  X10ClassDef_c.classInvariant is wrong
+            final Ref<CConstraint> ref = x10ClassDef.classInvariant();
+            if (ref!=null && ref.get().constraints().size()>0) return false; // the struct has a class invariant (so the zero value might not satisfy it)
+
+            // We use ts.structHaszero to prevent infinite recursion such as in the case of:
+            // struct U(u:U) {}
+            final Boolean res = ts.structHaszero.get(x10ClassDef);
+            if (res!=null) return res;
+            // it is true for type-checking: S[S[Int]]
+            // struct S[T] {T haszero} {val t:T = Zero.get[T](); }
+            ts.structHaszero.put(x10ClassDef,Boolean.TRUE);
+
             // make sure all the fields and properties haszero
-            for (FieldInstance field : structType.fields())
-                if (!isHaszero(field.type(),xc)) return false;
+            for (FieldInstance field : structType.fields()) {
+                if (field.flags().isStatic()) {
+                    continue;
+                }
+                if (!isHaszero(field.type(),xc)) {
+                    ts.structHaszero.put(x10ClassDef,Boolean.FALSE);
+                    return false;
+                }
+            }
             return true;
         }
         if (zeroLit==null) return false;

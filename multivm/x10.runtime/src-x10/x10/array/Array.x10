@@ -53,11 +53,11 @@ import x10.util.IndexedMemoryChunk;
  * @see Region
  * @see DistArray
  */
-public final class Array[T](
+public final class Array[T] (
     /**
      * The region of this array.
      */
-    region:Region{self != null, self.rank==this.rank},
+    region:Region{self != null,self.rank==this.rank,self.rect==this.rect,self.zeroBased==this.zeroBased,self.rail==this.rail},
 
     /**
      * The rank of this array.
@@ -84,8 +84,8 @@ public final class Array[T](
      * Will always be equal to region.size(), but cached here to make it available as a property.
      */
      size:Int
-)  implements (Point(region.rank))=>T,
-              Iterable[Point(region.rank)] {
+) implements (Point(region.rank))=>T,
+           Iterable[Point(region.rank)] {
 
     /**
      * The backing storage for the array's elements
@@ -121,9 +121,8 @@ public final class Array[T](
      *
      * @param reg The region over which to construct the array.
      */
-    public def this(reg:Region) {T haszero} :Array[T]{self.region==reg, self.rank==reg.rank, 
-                                                      self.rect==reg.rect, self.zeroBased==reg.zeroBased,
-                                                      self.rail==reg.rail} {
+    public def this(reg:Region) {T haszero}
+    {
         property(reg, reg.rank, reg.rect, reg.zeroBased, reg.rail, reg.size());
 
         layout = RectLayout(reg);
@@ -139,9 +138,8 @@ public final class Array[T](
      * @param reg The region over which to construct the array.
      * @param init The function to use to initialize the array.
      */    
-    public def this(reg:Region, init:(Point(reg.rank))=>T):Array[T]{self.region==reg, self.rank==reg.rank, 
-                                                                    self.rect==reg.rect, self.zeroBased==reg.zeroBased,
-                                                                    self.rail==reg.rail}{
+    public def this(reg:Region, init:(Point(reg.rank))=>T)
+    {
         property(reg, reg.rank, reg.rect, reg.zeroBased, reg.rail, reg.size());
 
         layout = RectLayout(reg);
@@ -161,9 +159,8 @@ public final class Array[T](
      * @param reg The region over which to construct the array.
      * @param init The function to use to initialize the array.
      */    
-    public def this(reg:Region, init:T):Array[T]{self.region==reg, self.rank==reg.rank, 
-                                                 self.rect==reg.rect, self.zeroBased==reg.zeroBased,
-                                                 self.rail==reg.rail} {
+    public def this(reg:Region, init:T)
+    {
         property(reg, reg.rank, reg.rect, reg.zeroBased, reg.rail, reg.size());
 
         layout = RectLayout(reg);
@@ -186,9 +183,8 @@ public final class Array[T](
     /**
      * Construct Array over the region 0..size-1 whose elements are zero-initialized.
      */
-    public def this(size:int) {T haszero} :Array[T]{self.rank==1, self.rect, 
-                                                    self.zeroBased, self.rail, 
-                                                    self.size==size} {
+    public def this(size:int) {T haszero}
+    {
         property(0..size-1, 1, true, true, true, size);
 
         layout = RectLayout(0, size-1);
@@ -204,9 +200,8 @@ public final class Array[T](
      * @param reg The region over which to construct the array.
      * @param init The function to use to initialize the array.
      */    
-    public def this(size:int, init:(int)=>T):Array[T]{self.rank==1, self.rect, 
-                                                      self.zeroBased, self.rail, 
-                                                      self.size==size} {
+    public def this(size:int, init:(int)=>T)
+    {
         property(0..size-1, 1, true, true, true, size);
 
         layout = RectLayout(0, size-1);
@@ -226,9 +221,8 @@ public final class Array[T](
      * @param reg The region over which to construct the array.
      * @param init The function to use to initialize the array.
      */    
-    public def this(size:int, init:T):Array[T]{self.rank==1, self.rect, 
-                                               self.zeroBased, self.rail, 
-                                               self.size==size} {
+    public def this(size:int, init:T)
+    {
         property(0..size-1, 1, true, true, true, size);
 
         layout = RectLayout(0, size-1);
@@ -246,9 +240,8 @@ public final class Array[T](
      *
      * @param init The array to copy.
      */    
-    public def this(init:Array[T]):Array[T]{self.region==init.region, self.rank==init.rank,
-                                            self.rect==init.rect, self.zeroBased==init.zeroBased, 
-                                            self.rail==init.rail, self.size==init.size} {
+    public def this(init:Array[T])
+    {
         property(init.region, init.rank, init.rect, init.zeroBased, init.rail, init.size);
         layout = RectLayout(region);
         val n = layout.size();
@@ -262,11 +255,32 @@ public final class Array[T](
      *
      * @param init The remote array to copy.
      */    
-    public def this(init:RemoteArray[T]{init.home==here}):Array[T]{self.region==init.region, self.size==init.size} {
+    public def this(init:RemoteArray[T]{init.home==here})
+    {
         this(init.array());
     }
 
-
+    /**
+     * Return the string representation of this array.
+     * 
+     * @return the string representation of this array.
+     */
+    public def toString(): String {
+    	if (rail) {
+    		val sb = new x10.util.StringBuilder();
+    		sb.add("[");
+    		val sz = Math.min(size, 10);
+    		for (var i:Int = 0; i < sz; ++i) {
+    			if (i > 0) sb.add(",");
+    			sb.add("" + raw.apply(i));
+    		}
+    		if (sz < size) sb.add("...(omitted " + (size - sz) + " elements)");
+    		sb.add("]");
+    		return sb.toString();
+    	} else {
+    		return "Array(" + region + ")";
+    	}
+    }
 
     /**
      * Return an iterator over the points in the region of this array.

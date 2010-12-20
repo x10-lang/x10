@@ -36,10 +36,10 @@ struct S2 extends struct S1 {
 }
 */
 
-public class Struct2Call_MustFailCompile extends x10Test  {
+public class StructCall2_MustFailCompile extends x10Test  {
 	
 	public def run():boolean {
-		  val a: S1 = S1(1, 3, "You looked like you were loathing the simple cobweb.");
+		  val a: S1 = S1(1, 3, "You looked like you were loathing the simple cobweb."); // ERR: Method or static constructor not found for given call.
           return true;
 	}
 	public static def main(var args: Array[String](1)): void = {

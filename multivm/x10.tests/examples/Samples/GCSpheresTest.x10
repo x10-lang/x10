@@ -13,9 +13,7 @@ import harness.x10Test;
 
 public class GCSpheresTest extends x10Test {
     public def run():boolean {
-         val args = new Array[String](0);
-         GCSpheres.main(args);
-         return true;
+         return GCSpheres.compute();
     }
 
     public static def main(args:Array[String](1)) {

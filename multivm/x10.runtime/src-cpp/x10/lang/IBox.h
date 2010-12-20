@@ -19,27 +19,31 @@ namespace x10 {
 
         template <class T> inline x10aux::itable_entry* getITablesForIBox(T value) { return value->_getIBoxITables(); } 
 
-        // TODO: As soon as we change the basic numeric types to implement interfaces
-        //       other than Any at the X10 level, we will have to change this code to
-        //       return to the itables for IBox that we handwrite for the primitives.
-        //       As long as the only interface that is implemented by the C++ built-in primitives
-        //       is Any, we don't actually need the itables at runtime because the methods of
-        //       Any are all implemented via @Native annotations that go to templatized functions
-        //       in x10aux.  We do need these stub methods as specializations of the general getITablesForIBox
-        //       template so that when IBox<x10_int> etc are instantiated, we don't try to call
-        //       _getIBoxITables() on a C++ primitive type.
-        inline x10aux::itable_entry *getITablesForIBox(x10_boolean) { assert(false); return NULL; }
-        inline x10aux::itable_entry *getITablesForIBox(x10_byte) { assert(false); return NULL; }
-        inline x10aux::itable_entry *getITablesForIBox(x10_ubyte) { assert(false); return NULL; }
-        inline x10aux::itable_entry *getITablesForIBox(x10_char) { assert(false); return NULL; }
-        inline x10aux::itable_entry *getITablesForIBox(x10_short) { assert(false); return NULL; }
-        inline x10aux::itable_entry *getITablesForIBox(x10_ushort) { assert(false); return NULL; }
-        inline x10aux::itable_entry *getITablesForIBox(x10_int) { assert(false); return NULL; }
-        inline x10aux::itable_entry *getITablesForIBox(x10_uint) { assert(false); return NULL; }
-        inline x10aux::itable_entry *getITablesForIBox(x10_long) { assert(false); return NULL; }
-        inline x10aux::itable_entry *getITablesForIBox(x10_ulong) { assert(false); return NULL; }
-        inline x10aux::itable_entry *getITablesForIBox(x10_float) { assert(false); return NULL; }
-        inline x10aux::itable_entry *getITablesForIBox(x10_double) { assert(false); return NULL; }
+        extern x10aux::itable_entry itable_Boolean[3];
+        extern x10aux::itable_entry itable_Byte[3];
+        extern x10aux::itable_entry itable_UByte[3];
+        extern x10aux::itable_entry itable_Char[3];
+        extern x10aux::itable_entry itable_Short[3];
+        extern x10aux::itable_entry itable_UShort[3];
+        extern x10aux::itable_entry itable_Int[3];
+        extern x10aux::itable_entry itable_UInt[3];
+        extern x10aux::itable_entry itable_Long[3];
+        extern x10aux::itable_entry itable_ULong[3];
+        extern x10aux::itable_entry itable_Float[3];
+        extern x10aux::itable_entry itable_Double[3];
+        
+        inline x10aux::itable_entry *getITablesForIBox(x10_boolean) { return itable_Boolean; }
+        inline x10aux::itable_entry *getITablesForIBox(x10_byte) { return itable_Byte; }
+        inline x10aux::itable_entry *getITablesForIBox(x10_ubyte) { return itable_UByte; }
+        inline x10aux::itable_entry *getITablesForIBox(x10_char) { return itable_Char; }
+        inline x10aux::itable_entry *getITablesForIBox(x10_short) { return itable_Short; }
+        inline x10aux::itable_entry *getITablesForIBox(x10_ushort) { return itable_UShort; }
+        inline x10aux::itable_entry *getITablesForIBox(x10_int) { return itable_Int; }
+        inline x10aux::itable_entry *getITablesForIBox(x10_uint) { return itable_UInt; }
+        inline x10aux::itable_entry *getITablesForIBox(x10_long) { return itable_Long; }
+        inline x10aux::itable_entry *getITablesForIBox(x10_ulong) { return itable_ULong; }
+        inline x10aux::itable_entry *getITablesForIBox(x10_float) { return itable_Float; }
+        inline x10aux::itable_entry *getITablesForIBox(x10_double) { return itable_Double; }
 
         template<class T> x10aux::itable_entry* IBox<T>::_getITables() { return getITablesForIBox(value); } 
 

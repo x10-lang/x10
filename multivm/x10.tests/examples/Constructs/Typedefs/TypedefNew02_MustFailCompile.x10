@@ -37,7 +37,7 @@ public class TypedefNew02_MustFailCompile extends TypedefTest {
         type T1 = A{self.k==1};
 
         // not allowed - T has value parameter
-        val t = new T();
+        val t = new T(); // ERR ERR todo: better err message
 
         return result;
     }

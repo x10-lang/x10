@@ -11,23 +11,25 @@
 
 package x10.ast;
 
-import java.util.List;
-
 import polyglot.ast.CompoundStmt;
-import polyglot.ast.Expr;
 import polyglot.ast.Stmt;
+import x10.types.AtDef;
 
-/** The node constructed for the X10 construct at (P) {S}.
- * @author Christian Grothoff
+/**
+ * The node constructed for the X10 construct at (P) {S}.
  */
 public interface AtStmt extends CompoundStmt, RemoteActivityInvocation {
-    
-    /** Set the Async's body */
+
+    /** Set the At's body */
     AtStmt body(Stmt body);
 
-    /** Get the body of the Async. */
+    /** Get the body of the At. */
     Stmt body();
 
     /** Is the target place the place of the lexically enclosing finish (if any) */
     boolean isFinishPlace();
+
+    AtDef atDef();
+
+    AtStmt atDef(AtDef ci);
 }

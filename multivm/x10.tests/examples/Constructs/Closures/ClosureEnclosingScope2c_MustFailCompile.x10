@@ -10,6 +10,8 @@
  */
 
 import harness.x10Test;
+import x10.compiler.*; // @Uncounted @NonEscaping @NoThisAccess
+import x10.compiler.tests.*; // err markers
 
 
 /**
@@ -31,12 +33,11 @@ public class ClosureEnclosingScope2c_MustFailCompile extends ClosureTest {
         class C {
             def foo(): void {
               var c:int = 1;
-              (()=>a+b+c)();
+              (()=>a+b+
+                @ERR c)
+                ();
             }
         }
-
-        check("new C().foo()", new C().foo(), 3);
-
 
         return result;
     }

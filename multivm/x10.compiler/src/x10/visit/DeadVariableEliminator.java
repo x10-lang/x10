@@ -132,7 +132,7 @@ public class DeadVariableEliminator extends ContextVisitor {
         } else if (n instanceof Local) {
             state.recordUse((Local) n);
         } else if (n instanceof LocalAssign && ((LocalAssign) n).operator() == Assign.ASSIGN) {
-            state.recodeStore((LocalAssign) n);
+ //         state.recodeStore((LocalAssign) n);  // TODO: handle dead assignments
         }
         return super.enterCall(parent, n);
     }
@@ -158,7 +158,7 @@ public class DeadVariableEliminator extends ContextVisitor {
         private final Set<LocalDef>                   formals  = new HashSet<LocalDef>();                   // defs that are formal params
         private final Map<LocalDef, LocalDecl>        declMap  = new HashMap<LocalDef, LocalDecl>();        // the declaration of a def
         private final Map<LocalDef, Set<Local>>       useMap   = new HashMap<LocalDef, Set<Local>>();       // the uses of a def
-        private final Map<LocalDef, Set<LocalAssign>> storeMap = new HashMap<LocalDef, Set<LocalAssign>>(); // the pure stores of a def
+ //     private final Map<LocalDef, Set<LocalAssign>> storeMap = new HashMap<LocalDef, Set<LocalAssign>>(); // the pure stores of a def
 
         /**
          * 
@@ -167,7 +167,7 @@ public class DeadVariableEliminator extends ContextVisitor {
             formals.clear();
             declMap.clear();
             useMap.clear();
-            storeMap.clear();
+  //        storeMap.clear();
         }
 
         /**
@@ -178,10 +178,10 @@ public class DeadVariableEliminator extends ContextVisitor {
             declMap.put(def, decl);
             if (null == useMap.get(def)) {
                 useMap.put(def, new HashSet<Local>());
-            }
+            }/*
             if (null == storeMap.get(def)) {
                 storeMap.put(def, new HashSet<LocalAssign>());
-            }
+            }*/
         }
 
         /**
@@ -207,7 +207,7 @@ public class DeadVariableEliminator extends ContextVisitor {
 
         /**
          * @param assign
-         */
+         *//*
         public void recodeStore(LocalAssign assign) {
             LocalDef def = assign.local().localInstance().def();
             Set<LocalAssign> stores = storeMap.get(def);
@@ -216,7 +216,7 @@ public class DeadVariableEliminator extends ContextVisitor {
                 storeMap.put(def, stores);
             }
             stores.add(assign);
-        }
+        }*/
 
         public Map<Node, Node> makeReplacementMap() {
             Set<LocalDecl> dead = new HashSet<LocalDecl>();
@@ -233,10 +233,10 @@ public class DeadVariableEliminator extends ContextVisitor {
                 } else {
                     map.put(decl, xnf.Empty(decl.position()));
                     dead.addAll(ignoreUses(init));
-                }
+                } /* TODO handle dead assignments
                 for (LocalAssign assign : storeMap.get(decl.localDef())) {
                     map.put(assign, assign.right().type(assign.type()));
-                }
+                } */
             }
             
             return map;
@@ -249,9 +249,10 @@ public class DeadVariableEliminator extends ContextVisitor {
         private boolean isDead(LocalDef def) {
             Set<Local> uses = useMap.get(def);
             if (uses.isEmpty()) return true;
-            if (true) return false; // TODO: remove dead LocalAssign's
-            Set<LocalAssign> stores = storeMap.get(def);
-            return uses.size() == stores.size();
+  //        if (true) 
+                return false; // TODO: remove dead LocalAssign's
+  //        Set<LocalAssign> stores = storeMap.get(def);
+  //        return uses.size() == stores.size();
         }
 
         /**
@@ -273,7 +274,9 @@ public class DeadVariableEliminator extends ContextVisitor {
             Set<LocalDecl> dead = new HashSet<LocalDecl>();
             for (Local use : uses(init)) {
                 LocalDef def = use.localInstance().def();
-                useMap.get(def).remove(use);
+                Set<Local> uses = useMap.get(def);
+                if (null != uses)
+                    uses.remove(use);
                 if (isDead(def)) {
                     dead.add(declMap.get(def));
                 }

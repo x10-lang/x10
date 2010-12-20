@@ -46,9 +46,19 @@ import x10.util.Box;
     @Native("c++", "x10aux::no_steals()")
     public static NO_STEALS = false;
 
+    /**
+     * The initial number of worker threads
+     */
     @Native("java", "x10.runtime.impl.java.Runtime.INIT_THREADS")
     @Native("c++", "x10aux::num_threads()")
     public static INIT_THREADS = 1;
+
+    /**
+     * An upper bound on the number of worker threads
+     */
+    @Native("java", "x10.runtime.impl.java.Runtime.MAX_THREADS")
+    @Native("c++", "x10aux::max_threads()")
+    public static MAX_WORKERS = 1000;
 
     @Native("java", "x10.runtime.impl.java.Runtime.STATIC_THREADS")
     @Native("c++", "x10aux::static_threads()")
@@ -101,12 +111,6 @@ import x10.util.Box;
     @Native("c++", "x10aux::event_probe()")
     @Native("java","x10.runtime.impl.java.Runtime.eventProbe()")
     static def event_probe():void {}
-
-    /**
-     * Register x10rt handlers.
-     */
-    @Native("c++", "x10aux::DeserializationDispatcher::registerHandlers()")
-    static def registerHandlers() {}
 
     // Accessors for native performance counters
 
@@ -264,8 +268,25 @@ import x10.util.Box;
         // run activities while waiting on finish
         def join(latch:SimpleLatch):void {
             val tmp = activity; // save current activity
-            while (loop(latch, false));
+            while (loop2(latch));
             activity = tmp; // restore current activity
+        }
+
+        // inner loop to help j9 jit
+        @TempNoInline_1
+        private def loop2(latch:SimpleLatch):Boolean {
+            @TempNoInline_1
+            for (var i:Int = 0; i < BOUND; i++) {
+                if (latch()) return false;
+                activity = poll();
+                if (activity == null) return false;
+                if (activity.finishState().simpleLatch() != latch) {
+                    push(activity);
+                    return false;
+                }
+                runAtLocal(activity.home, activity.run.());
+            }
+            return true;
         }
 
         // inner loop to help j9 jit
@@ -369,7 +390,7 @@ import x10.util.Box;
                 // allocate and start a new worker
                 val i = size++;
                 lock.unlock();
-                assert (i < MAX_WORKERS);
+//                assert (i < MAX_WORKERS);
                 if (i >= MAX_WORKERS) {
                     println("TOO MANY THREADS... ABORTING");
                     System.exit(1);
@@ -405,7 +426,7 @@ import x10.util.Box;
             var next:Int = random.nextInt(size);
             for (;;) {
                 event_probe();
-                if (null != workers(next)) { // avoid race with increase method
+                if (next < MAX_WORKERS && null != workers(next)) { // avoid race with increase method
                     activity = workers(next).steal();
                 }
                 if (null != activity || latch()) return activity;
@@ -461,11 +482,6 @@ import x10.util.Box;
     public static def workerId():Int = worker().workerId;
 
     /**
-     * An upper bound on the number of workers
-     */
-    public static MAX_WORKERS = 1000;
-
-    /**
      * Return the number of workers currently in the pool
      * (can increase, cannot decrease)
      */
@@ -480,13 +496,13 @@ import x10.util.Box;
      * Return the current place
      */
     @Native("c++", "x10::lang::Place_methods::_make(x10aux::here)")
-    public static def here():Place = Thread.currentThread().home();
+    public static def home():Place = Thread.currentThread().home();
 
     /**
      * Return the id of the current place
      */
     @Native("c++", "x10aux::here")
-    public static def hereInt():int = here().id;
+    public static def hereInt():int = here.id;
 
     /**
      * The amount of unscheduled activities currently available to this worker thread.
@@ -514,13 +530,10 @@ import x10.util.Box;
                 }
             }
 
-            // initialize x10rt
-            registerHandlers();
-
             if (hereInt() == 0) {
                 val rootFinish = new FinishState.Finish(runtime().pool.latch);
                 // in place 0 schedule the execution of the static initializers fby main activity
-                execute(new Activity(()=>{finish init(); body();}, rootFinish, true));
+                execute(new Activity(()=>{finish init(); body();}, rootFinish));
 
                 // wait for thread pool to die
                 // (happens when main activity terminates)
@@ -534,7 +547,7 @@ import x10.util.Box;
                 }
 
                 // we need to call waitForFinish here to see the exceptions thrown by main if any
-                rootFinish.waitForFinish(false);
+                rootFinish.waitForFinish();
             } else {
                 // wait for thread pool to die
                 // (happens when a kill signal is received from place 0)
@@ -582,18 +595,10 @@ import x10.util.Box;
         
         val state = a.finishState();
         state.notifySubActivitySpawn(place);
-        val ok = a.safe();
         if (place.id == hereInt()) {
-            execute(new Activity(deepCopy(body), state, ok));
+            execute(new Activity(deepCopy(body), state));
         } else {
-            if (ok) {
-                runAsyncAt(place.id, body, state); // optimized case
-            } else {
-                var closure:()=>void;
-                closure = ()=> @x10.compiler.RemoteInvocation { execute(new Activity(body, state, false)); };
-                runClosureCopyAt(place.id, closure);
-                dealloc(closure);
-            }
+            runAsyncAt(place.id, body, state); // optimized case
         }
         dealloc(body);
     }
@@ -619,7 +624,7 @@ import x10.util.Box;
         
         val state = a.finishState();
         state.notifySubActivitySpawn(here);
-        execute(new Activity(body, state, a.safe()));
+        execute(new Activity(body, state));
     }
 
 	public static def runFinish(body:()=>void):void {
@@ -634,11 +639,10 @@ import x10.util.Box;
         val a = activity();
         a.ensureNotInAtomic();
         
-        val ok = a.safe();
         if (place.id == hereInt()) {
-            execute(new Activity(deepCopy(body), FinishState.UNCOUNTED_FINISH, ok));
+            execute(new Activity(deepCopy(body), FinishState.UNCOUNTED_FINISH));
         } else {
-            val closure = ()=> @x10.compiler.RemoteInvocation { execute(new Activity(body, FinishState.UNCOUNTED_FINISH, ok)); };
+            val closure = ()=> @x10.compiler.RemoteInvocation { execute(new Activity(body, FinishState.UNCOUNTED_FINISH)); };
             runClosureCopyAt(place.id, closure);
             dealloc(closure);
         }
@@ -653,7 +657,7 @@ import x10.util.Box;
         val a = activity();
         a.ensureNotInAtomic();
         
-        execute(new Activity(body, new FinishState.UncountedFinish(), a.safe()));
+        execute(new Activity(body, new FinishState.UncountedFinish()));
     }
 
     /**
@@ -665,6 +669,7 @@ import x10.util.Box;
             throw new UnsupportedOperationException("Cannot deserialize "+typeName());
         }
         var e:Throwable = null;
+        var clockPhases:Activity.ClockPhases = null;
     }
 
     /**
@@ -672,26 +677,35 @@ import x10.util.Box;
      */
     public static def runAt(place:Place, body:()=>void):void {
         Runtime.ensureNotInAtomic();
+        if (place.id == hereInt()) {
+            deepCopy(body)();
+            return;
+        }
         @StackAllocate val me = @StackAllocate new RemoteControl();
         val box = GlobalRef(me);
+        val clockPhases = activity().clockPhases;
         async at(place) {
+            activity().clockPhases = clockPhases;
             try {
                 body();
                 async at(box.home) {
                     val me2 = box();
+                    me2.clockPhases = clockPhases;
                     me2.release();
                 }
             } catch (e:Throwable) {
                 async at(box.home) {
                     val me2 = box();
                     me2.e = e;
+                    me2.clockPhases = clockPhases;
                     me2.release();
                 }
             }
+            activity().clockPhases = null;
         }
-        if (!NO_STEALS && activity().safe()) worker().join(me);
         me.await();
         dealloc(body);
+        activity().clockPhases = me.clockPhases;
         if (null != me.e) {
             throw me.e;
         }
@@ -712,27 +726,36 @@ import x10.util.Box;
      * Eval at expression
      */
     public static def evalAt[T](place:Place, eval:()=>T):T {
+        Runtime.ensureNotInAtomic();
+        if (place.id == hereInt()) {
+            return deepCopy(eval)();
+        }
         @StackAllocate val me = @StackAllocate new Remote[T]();
         val box = GlobalRef(me);
+        val clockPhases = activity().clockPhases;
         async at(place) {
+            activity().clockPhases = clockPhases;
             try {
                 val result = eval();
                 async at(box.home) {
                     val me2 = box();
                     me2.t = result;
+                    me2.clockPhases = clockPhases;
                     me2.release();
                 }
             } catch (e:Throwable) {
                 async at(box.home) {
                     val me2 = box();
                     me2.e = e;
+                    me2.clockPhases = clockPhases;
                     me2.release();
                 }
             }
+            activity().clockPhases = null;
         }
-        if (!NO_STEALS && activity().safe()) worker().join(me);
         me.await();
         dealloc(eval);
+        activity().clockPhases = me.clockPhases;
         if (null != me.e) {
             throw me.e;
         }
@@ -843,7 +866,7 @@ import x10.util.Box;
     public static def stopFinish(f:FinishState):void {
         val a = activity();
         val finishState = a.swapFinish(f);
-        finishState.waitForFinish(a.safe());
+        finishState.waitForFinish();
     }
 
     /**
@@ -865,7 +888,7 @@ import x10.util.Box;
 
     public static def stopCollectingFinish[T](f:FinishState):T {
         val state = activity().swapFinish(f);
-        return (state as FinishState.CollectingFinish[T]).waitForFinishExpr(true);
+        return (state as FinishState.CollectingFinish[T]).waitForFinishExpr();
     }
 
     // submit an activity to the pool
