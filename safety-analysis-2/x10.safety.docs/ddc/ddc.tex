@@ -191,13 +191,13 @@ model and $D^2C$ is an instance.
 Any application written in this model will guarantee to give 
 the same output for a given input
 and will never deadlock. 
-It is important to note that we do not gaurantee termination.
+It is important to note that we do not guarantee termination.
 We do not try to solve the halting problem here - our model is applicable
 only for terminating programs.
 
 
 We start by discussing our model in~\secref{model} and a few examples in~\secref{examples}. 
-We then provide a  proof of correcness (determinism and deadlock-freedom) in~\secref{proof}. 
+We then provide a  proof of correctness (determinism and deadlock-freedom) in~\secref{proof}. 
 We provide a basic implementation of the runtime in~\secref{implementation}. 
 We then evaluate our model by experimenting on a set of examples in~\secref{experimental}. 
 We compare our work with related work in~\secref{related} and finally conclude with future work in~\secref{conclusions}.
@@ -327,7 +327,7 @@ main() {
   /* x is 4 */
 }
 \end{lstlisting}
-\caption{Muliple offers in a single phase}
+\caption{Multiple offers in a single phase}
 \label{fig:ddc-multiple}
 \end{figure}
 
@@ -343,7 +343,7 @@ The programming model is deterministic because writes to a particular variable
 are made visible only in the next phase. Also, the model is deadlock-free: a task $A$ waiting on another task $B$ at the \emph{next} statement will eventually
 proceed, because task $B$ at some point will call \emph{next} or terminate.
 
-A phase is either separted by two $next$s or separated
+A phase is either separated by two $next$s or separated
 by the creation of the clocked variable and a $next$.
 If no values are offered in a given phase, then the value from
 the previous phase is maintained.
@@ -356,7 +356,7 @@ the previous phase is maintained. If there is just one offer, then the following
 \section{Examples in $D^2C$}
 \label{sec:examples}
 We illustrate our model with a few examples: 
-histogram, pipeline and mergesort
+histogram, pipeline and merge-sort
 
 \subsection{Histogram}
 The program in~\figref{histogram} calculated the frequencies
@@ -448,15 +448,15 @@ main() {
 \subsection{Merge Sort}
 \label{sec:mergesort}
 
-The mergesort (\figref{mergesort}) is a classic example of red-black computation
+The merge-sort (\figref{mergesort}) is a classic example of red-black computation
 but in place.
 At every stage, the merging task reads from the current phase
 and offers the new (merged) values to the next phase, does
 eliminating the need of two explicit arrays.
 
-The $sort$ function spawns two $sort$ functions on the subarrays
+The $sort$ function spawns two $sort$ functions on the sub-arrays
 and waits for them to finish at the $next$ statement.
-The $merge$ function takes the two subarrays and merges them.
+The $merge$ function takes the two sub-arrays and merges them.
 The merged values are offered to the next phase. 
 After executing  the $merge$ function, the executing task
  returns to its parent function ($sort$) and terminates
@@ -482,7 +482,7 @@ void sort (clocked int a[], const int start, const int end)  {
         	
     spawn clocked(a) sort (a, fStart, fEnd); /* Sort first half */ 
     sort (a, sStart, sEnd); /* Sort second half */ 
-    next; /* Wait for the subarrays to be sorted */ /*@\label{line:next1}@*/;
+    next; /* Wait for the sub-arrays to be sorted */ /*@\label{line:next1}@*/;
     merge(a, fStart, fEnd, sStart, sEnd);
 }
     
@@ -515,7 +515,7 @@ main {
      clocked int a[N]; 
      /* Initialize a below */
      ..
-     next; /* Move the intialized values to the next phase */ 
+     next; /* Move the initialized values to the next phase */ 
      sort(a, 0, N - 1);
      next; /* Move the offered sorted array to the next phase */
      print (a) ; 
@@ -550,8 +550,8 @@ all tasks that share variable $x$  but an already spawned $t_j$.
 This implies that $t_i$ is not aware that $t_j$ has been spawned.
 Since $t_j$ uses variable $x$, $t_j$'s parent $t_p$ should
 also use variable $x$.  $t_p$ is aware that $t_j$ has already spawned because
-it is $t_j$'s immediate parent. Therefore $t_p$ will synchornize with $t_j$ thereafter. 
-When $t_i$ synchonizes with $t_p$'s $next$, $t_p$ will synchronize with $t_j$, 
+it is $t_j$'s immediate parent. Therefore $t_p$ will synchronize with $t_j$ thereafter. 
+When $t_i$ synchronizes with $t_p$'s $next$, $t_p$ will synchronize with $t_j$, 
 forcing $t_i$ to synchronize with $t_j$, and therefore  contradicting the statement that $t_i$ will
 miss $t_j$. This follows from the fact that a $spawn$ can happen in serial with a $next$ statement
 and not concurrently with it.  Secondly, parent should also clock  $x$ if it spawns a child 
@@ -595,7 +595,7 @@ statement.
 We implemented our model in the X10 programming language \cite{charles2005x10}.
 X10 is a parallel, distributed object-oriented language. 
 To a Java-like sequential 
-quential core it adds constructs for concurrency and distribution through the 
+  core it adds constructs for concurrency and distribution through the 
 concepts of activities and places. An activity is a unit of work, like a task in 
 Cilk; a place is a logical entity that contains both activities and data objects.
 X10 uses the Cilk model of task parallelism and a task scheduler similar to that
@@ -620,7 +620,7 @@ We ensure determinism by duplicating states. The amount of memory is independent
 of tasks or the interleavings, but is only twice of the original program.
 
 
-Everytime a value is written to a shared variable, a lock is obtained. This was a major
+Every time a value is written to a shared variable, a lock is obtained. This was a major
 bottleneck in many of our benchmarks. To overcome this problem, we maintained a copy
 of the shared variable for every thread created in the program. Since every thread
 has its own copy, a lock is not necessary. At the $next$ statement, we reduce
@@ -649,20 +649,20 @@ die has a 4~MB of shared L2 cache shared between the two cores.
 
 We tested our model with real applications.
 ~\figref{output}
-shows the results. We measured the determinstic implementation of the applciations
+shows the results. We measured the deterministic implementation of the applications
 with the original implementation. A bar with value below 1 indicates that the deterministic
-verion ran slower than the orignial version. 
+version ran slower than the original version. 
 
 Each of the applications created
 4 threads.
-The AllReduce Example is a parallel tree based implementation of reduction.
+The All-Reduce Example is a parallel tree based implementation of reduction.
 The Pipeline example passes data through a number of intermediate stages; at each
 stage the data is processed and passed on to the next stage. Convolve is an
 application of the Pipeline program.
 
 The N-Queens Problem finds the number of ways in which N queens can be placed
 on an N*N chessboard such that none of them attack each other. The MontiPi application
-finds the value of $\pi$ using MonteCarlo simulation. The K-Means program partitions
+finds the value of $\pi$ using Monte-Carlo simulation. The K-Means program partitions
 n data points into k clusters concurrently.
 
 The Histogram program sorts an array into buckets based on the elements of the array.
@@ -670,8 +670,8 @@ The Merge Sort program sorts an array of integers.
 The Prefix example operates on an array and the resulting array is obtained from the sum
 of the elements in the original array up to its index.
 
-The SOR, IDEA, RayTrace, LUFact, SparseMatMul and Series programs are JGF benchmarks.
-The Raytracer benchmarks renders an image of sixty spheres. It has data dependent
+The SOR, IDEA, Ray-Trace, Lu-Fact, SparseMatMul and Series programs are JGF benchmarks.
+The Ray-tracer benchmarks renders an image of sixty spheres. It has data dependent
 array access.
 
 The SOR example performs Jacobi successive relaxation
@@ -679,7 +679,7 @@ on a grid; it continuously updates a location of the grid based on the location'
 neighbors.
 The Stencil program is the  1-D version of the SOR.
 
-The LUFact application transforms an N*N matrix into upper triangular form. The Series benchmark
+The Lu-Fact application transforms an N*N matrix into upper triangular form. The Series benchmark
 computes the first N coefficients of the function $f(x) = (x+1)^x$. The IDEA benchmark
 performs International Data Encryption algorithm  (IDEA) encryption and decryption on an array
 of bytes.
@@ -713,13 +713,13 @@ is the real bottleneck of our model, we created a shared variable.
 Each task updates calls $next$ 500 times, and between every two $next$s, it
 updates the shared variable. This  forces
 each task to synchronize with every other task 500 times.
-All tasks do exactly ther same job. \figref{next} shows the output.
+All tasks do exactly the same job. \figref{next} shows the output.
 The x-axis represents the number of tasks and the y-axis is the time.
 
 In a perfect scalable system, if we add a new task to the system, then we 
 expect the  speed to remain the same (assuming the number of tasks is  
  equal to the number of cores). Our system is not perfectly scalable,
-as expected, therefore we see a curve rather than a horizantal line for both
+as expected, therefore we see a curve rather than a horizontal line for both
 the C++ and Java versions in \figref{next}.
 
 
@@ -740,29 +740,86 @@ In this section, we review some of the related work
 and compare them with ours.
  
 \subsection{Determinizing Tools} 
- 
-There are a number of tools that provide determinism. For example, 
-in the absence of data races, Kendo~\cite{olszewski2009kendo} ensures 
-a deterministic order of all lock acquisitions for a given program input. 
-However, if we have the sequence \emph{lock(A); lock (B)} by one thread 
-and \emph{lock(B); lock(A)} by another thread, the deterministic ordering 
-of locks could still lead to a deadlock. 
- 
-The DMP~\cite{devietti2009dmp} tool uses a deterministic token that is passed around all threads.  It completely works at runtime and there is a considerable performance penalty. 
- 
-Burmin and Sen~\cite{Burnim2009asserting} provide a framework for checking determinism for 
-multithreaded programs. Their tool does not  
- guarantee determinism because it is a testing tool 
-that checks the execution trace  with previously executed 
-traces to see if the values match. 
+
+A number of tools provide determinism. For example, Kendo is a purely
+software system that deterministically multi-threads concurrent 
+applications.  Kendo~\cite{olszewski2009kendo} ensures a deterministic
+order of all lock acquisitions for a given program input.
+
+Kendo comes with three shortcomings. It operates completely at runtime,
+and there is considerable performance penalty. Secondly, if
+we have the sequence \emph{lock(A); lock (B)} in one thread and
+\emph{lock(B); lock(A)} in another thread, a deterministic ordering of
+locks may still deadlock. Thirdly, the tool operates only when
+shared data is protected by locks.
+
+Software Transactional Memory (STM)~\cite{shavit1995software}
+  is an alternative to locks: a thread completes modifications to 
+shared memory without regard for what other threads might be doing. At the end of the transaction,
+it validates and commits if the validation was successful, otherwise it rolls back and re-executes
+the transaction. STM mechanisms avoid races but do not solve the non-determinism problem.
+
+Berger's Grace\cite{berger2009grace} is a run-time tool
+that is based on STM. 
+If there is a conflict during commit, the threads are committed in
+a particular sequential order (determined by the order
+The problem with Grace is that it incurs a lot of run-time
+overhead. This dissertation  partially solves this overhead problem
+by addressing the issue at compile-time and
+thereby reducing a considerable amount of run-time overhead.
+
+
+
+Like Grace, Determinator\cite{aviram2010efficient} is another tool
+that allows parallel processes to execute as long as they do not share 
+resources. If they do share resources and the accesses are unsafe, then
+the operating throws an exception (a page fault). 
+
+Cored-Det~\cite{bergan2010coreDet}, based on DMP~\cite{devietti2009dmp} 
+uses a deterministic token that is passed
+among all threads.  A thread to modify a shared variable must first
+wait for the token and for all threads to block on that
+token. DMP is hardware based. 
+Although, deadlocks may be avoided, we believe this setting is
+non-distributed because it forces all threads to synchronize and
+therefore leads to a considerable performance penalty. In the $D^2C$ 
+setting, only threads that share a particular channel must synchronize
+on that channel; other threads can run independently.
+
+ Deterministic replay systems~\cite{choi1998deterministic,altekar2009odr} facilitate debugging of concurrent programs to produce
+repeatable behavior. They are based on record/replay systems. The system
+replays a specific behavior (such as thread interleaving) of a concurrent
+program based on records. The primary purpose of replay systems 
+is debugging; they do not guarantee determinism. 
+They incur a high runtime overhead and are input dependent.
+For every new input, a new set of records is generally maintained.
+
+Like replay systems, Burmin and Sen~\cite{Burnim2009asserting} provide a framework for
+checking determinism for multi-threaded programs. Their tool does not
+introduce deadlocks, but their tool does not guarantee determinism
+because it is merely a testing tool that checks the execution trace
+with previously executed traces to see if the values match. Our
+goal is to guarantee determinism at compile time -- given a program,
+it will generate the same output for a given input.
+
 
 \subsection{Programming Models} 
+synchronous programming languages like Esterel are completely deterministic. An Esterel program 
+executes in clock steps and the outputs are conceptually synchronous with its inputs. 
+It is a finite state language that is easy to verify formally. An Esterel program is susceptible 
+to causalities. Causalities are similar to deadlocks, but can be easily detected at compile-time. 
+The problem with synchronous models is that they do not perform well. To out knowledge, 
+most Esterel compilers generate sequential code and there are hardly any compilers that generate 
+concurrent code off Esterel. 
+
  
 SHIM~\cite{edwards2005shim2,tardieu2006scheduling-independent} is also
 a deterministic concurrent programming language, but the improper use
 of its constructs leads to problems such as deadlocks i.e., a SHIM program
 may be susceptible to deadlocks. Any program written in our model is always
-deadlock-free.
+deadlock-free. Secondly, SHIM allows only a single task to write at any phase;
+we allow multiply writes.
+
  
 Apart from SHIM, there are  a few programming models and languages 
 that provide explicit determinism. StreamIt~\cite{thies2001streamit}, for 
@@ -771,34 +828,44 @@ has simple static verification techniques for deadlock and buffer-overflow.
 However, StreamIt is a strict subset of SHIM and StreamIt's design 
 limits it to a small class of streaming applications. 
  
-Synchronous programming languages like Esterel are completely deterministic. An Esterel program 
-executes in clock steps and the outputs are conceptually synchronous with its inputs. 
-It is a finite state language that is easy to verify formally. An Esterel program is susceptible 
-to causalities. Causalities are similar to deadlocks, but can be easily detected at compile-time. 
-The problem with synchronous models is that they do not perform well. To out knowledge, 
-most Esterel compilers generate sequential code and there are hardly any compilers that generate 
-concurrent code off Esterel. 
- 
-\subsection{Type Systems} 
+
+
+In contrast, 
+Cilk~\cite{blumofe1995cilk} is a non-deterministic language that it covers a larger
+class of applications. It is C based
+and the programmer must explicitly ask for parallelism using 
+the \emph{spawn} and the \emph{sync} constructs. 
+Cilk is definitely more
+expressive than $D^2C$.
+However, Cilk allows data races. 
+\figref{non-det}, for example,
+is a non-deterministic concurrent program in Cilk. 
+Explicit techniques~\cite{cheng1998detecting} are
+required for checking data races in Cilk programs.  
+
+X10~\cite{charles2005x10,saraswat2007x10} is another  language
+that adopts the Cilk model. X10 is non-deterministic - but we
+were able to modify the compiler and runtime with a very few
+changes to incorporate our model in it.
+
+The reduction operator  in $D^2C$  model is very similar
+to map-reduce. However, are a few differences. We can have multiple
+phases of map-reduce in $D^2C$. We have used map-reduce as one
+of the means to obtain determinism. Secondly, not always
+do we require an operator in $D^2C$. The $D^2C$ model is 
+also applicable for applications with single writes.
+
+\subsection{Type Systems and Verifiers} 
  
 Finally, type and effect systems like DPJ~\cite{bocchino2009type} 
  have been designed for deterministic parallel programming to see if
 memory locations overlap. Our technique is more explicit. 
 In general, type systems require the programmer to manually annotate the program. Our model can also be implemented using annotations in existing
 programming languages - we in fact annotated the X10 programming language.
- 
-\subsection{Software Transactional Memory} 
-Software Transactional Memory (STM)~\cite{shavit1995software} 
-  is an alternative to locks: a thread completes modifications to  
-shared memory without regard for what other threads might be doing. At the end of the transaction, 
-it validates and commits if the validation was successful, otherwise it rolls back and re-executes 
-the transaction. There are a couple of differences between STM and $D^2C$.
-There is no rollback in our runtime system. Secondly,
- STM mechanisms avoid races but do not solve the non-determinism problem. 
- 
-Tools such as Grace~\cite{berger2009grace} use principles similar to STM, and impose 
-an order in which transactions have to be committed. Grace solves the determinism problem 
-but it incurs a lot of run-time overhead. Coredet~\cite{bergan2010coredet} is also similar but it does some compiler optimizations. 
+
+Martin Vechev's tool \cite{vechev2011automatic}
+finds determinacy bugs in loops that run parallel bodies. It analyzes
+array references and indices to ensure that there are no read-write and 
 
 
 
@@ -831,7 +898,7 @@ like to improve our model by incorporating intelligent
 static analysis to reduce runtime overhead.
 
 
-We have implmented our model as annotations in an existing
+We have implemented our model as annotations in an existing
 programming language, X10.
 We also wish to explore the possibilities of implementing such a model
 as a library.

@@ -1,3 +1,27 @@
+@STRING{ecoop =  {Proceedings of the European Conference on Object-Oriented
+		 Programming (ECOOP)}},
+@STRING{lfp =    {Proceedings of the ACM Symposium on LISP and Functional
+		 Programming (LFP)}},
+@STRING{ipl =    {Information Processing Letters}}
+@STRING{isc =    {Proceedings of the Information Security Conference (ISC)}},
+@STRING{isss =   {Proceedings of the International Symposium on System
+		 Synthesis (ISSS)}},
+@STRING{fpt = {Proceedings of the International Conference on
+                  Field-Programmable Technology (FPT)}},
+@STRING{ancs = {Proceedings of the Symposium on Architecture for
+                  Networking and Communication Systems (ANCS)}},
+@STRING{sigcomm = {Proceedings of the Conference on Applications,
+		 technologies, architectures, and protocols for computer
+		 communication (SIGCOMM)}},
+@STRING{infocom = {Proceedings of the International Conference on
+                  Computer Communications (INFOCOM)}}
+@STRING{charme =  {Proceedings of Correct Hardware Design and Verification
+ 		   Methods (CHARME)}}
+@STRING{jfp  =    {Journal of Functional Programming}}
+@STRING{icfp =    {Proceedings of the International Conference on
+                  Functional Programming (ICFP)}},
+@STRING{pact =    {Proceedings of the International Conference on
+                  Parallel Architectures and Compilation Techniques (PACT)}},
 @STRING{tvt =     {IEEE Transactions on Vehicular Technology}},
 @STRING{trr =     {Transportation Research Record: Journal of the
                   Transportation Research Board}}
@@ -1216,7 +1240,7 @@
   institution =	 {Princeton University},
   year =	 1992,
   number =	 {CS-TR-363-92},
-  month =	 {mar},
+  month =	 mar,
   annote =	 {Cited by rugina2000recursion. Argues that unrolling
 		 recursion like this is helpful because it reduces the amount
 		 of stack space required and the management thereof in
@@ -1374,10 +1398,11 @@
 @InProceedings{arvind2004high,
   author =	 {Arvind and R.S. Nikhil and D.L. Rosenband and N. Dave},
   title =	 {High-level synthesis: an essential ingredient for designing
-		 complex ASICs},
-  booktitle =	 {Computer Aided Design, 2004. ICCAD-2004. IEEE/ACM
-		 International Conference on, Vol., Iss., 7-11 Nov. 2004},
-  year =	 {2004},
+		 complex {ASICs}},
+  booktitle =	 iccad,
+  address =      iccad_a,
+  month =        nov,
+  year =	 2004,
   pages =	 {775--782}
 }
 
@@ -2166,8 +2191,7 @@
   author =	 {Anindya Basu and Greg Morrisett and Thorsten {von Eicken}},
   title =	 {Promela++: A Language for Correct and Efficient Protocol
 		 Construction},
-  booktitle =	 {Proceedings of INFOCOM, The Conference on Computer
-		 Communications},
+  booktitle =	 infocom,
   year =	 1998,
   address =	 {San Francisco, California},
   month =	 mar,
@@ -3810,8 +3834,7 @@
 @InProceedings{bierman2005essence,
   author =	 {Gavin M. Bierman and Erik Meijer and Wolfram Schulte},
   title =	 {The essence of data access in {C}$\omega$},
-  booktitle =	 {Proceedings of the European Conference on Object-Oriented
-		 Programming (ECOOP)},
+  booktitle =	 ecoop,
   year =	 2005,
   series =	 lncs,
   volume =	 3586,
@@ -3908,8 +3931,7 @@
   author =	 {Per Bjesse and Koen Claessen and Mary Sheeran and Satnam
 		 Singh},
   title =	 {{Lava:} {Hardware} Design in {Haskell}},
-  booktitle =	 {Proceedings of the Third ACM SIGPLAN International
-		 Conference on Functional Programming (ICFP)},
+  booktitle =	 icfp,
   year =	 1998,
   pages =	 {174--184},
   address =	 {Baltimore, Maryland},
@@ -4361,7 +4383,7 @@
 @Article{bourdoncle1992abstract,
   author =	 {Fran\c{c}ois Bourdoncle},
   title =	 {Abstract Interpretation by Dynamic Partitioning},
-  journal =	 {Journal of Functional Programming},
+  journal =	 jfp,
   year =	 1992,
   volume =	 2,
   number =	 4,
@@ -4622,9 +4644,7 @@
 @InProceedings{braun1995protocol,
   author =	 {Torsten Braun and Cristophe Diot},
   title =	 {Protocol Implementation Using Integrated Layer Processing},
-  booktitle =	 {Proceedings of the Conference on Applications,
-		 technologies, architectures, and protocols for computer
-		 communication (SIGCOMM)},
+  booktitle =	 sigcomm,
   year =	 1995,
   pages =	 {151--161},
   address =	 {Cambridge, Massachusetts},
@@ -4941,8 +4961,7 @@
 		 Reichardt},
   title =	 {Synchronization detection for multi-process hierarchical
 		 synthesis},
-  booktitle =	 {Proceedings of the 11th International Symposium on System
-		 Synthesis (ISSS)},
+  booktitle =	 isss,
   year =	 1998,
   pages =	 {105--110},
   address =	 {Hsinchu, Taiwan},
@@ -5136,7 +5155,7 @@
 @Book{brown1948principles,
   author =	 {Gordon Stanley Brown and Donald P. Campbell},
   title =	 {Principles of Servomechanisms},
-  publisher =	 {John Wiley},
+  publisher =	 jw,
   year =	 1948,
   annote =	 {Cited by lewis1992applied as an early control theory
 		 text.}
@@ -7279,7 +7298,7 @@
 @Book{chestnut1951servomechanisms,
   author =	 {Harold Chestnut and Robert W. Mayer},
   title =	 {Servomechanisms and Regulating System Design},
-  publisher =	 {Wiley},
+  publisher =	 jw,
   year =	 1951,
   volume =	 1,
   note =	 {Volume 2 in 1955},
@@ -7396,7 +7415,9 @@
   year =	 2007,
   pages =	 {249--261},
   address =	 {Chicago, Illinois},
-  month =	 dec
+  month =	 dec,
+  annote =       {Full computer system simulation on FPGAs (e.g., boot
+                  Linux)}
 }
 
 @InProceedings{cho1994state,
@@ -7676,8 +7697,7 @@
 @InProceedings{claessen2001design,
   author =	 {Koen Claessen and Mary Sheeran and Satnam Singh},
   title =	 {The Design and Verification of a Sorter Core},
-  booktitle =	 {Proceedings of Correct Hardware Design and Verification
-		 Methods (CHARME)},
+  booktitle =	 charme,
   year =	 2001,
   series =	 lncs,
   volume =	 2114,
@@ -7928,7 +7948,7 @@
 		 Rajan and Thomas Reps and Subash Shankar and Tim
 		 Teitelbaum},
   title =	 {Program Slicing of Hardware Description Languages},
-  booktitle =	 {Proceedings of CHARME '99},
+  booktitle =	 charme,
   year =	 1999,
   address =	 {Bad Herrenalb, Germany},
   month =	 sep,
@@ -9696,8 +9716,7 @@
   author =	 {Jeffrey Dean and David Grove and Craig Chambers},
   title =	 {Optimization of Object-Oriented Programs Using Static Class
 		 Hierarchy Analysis},
-  booktitle =	 {ECOOP '95: Proceedings of the 9th European Conference on
-		 Object -Oriented Programming},
+  booktitle =	 ecoop,
   year =	 1995,
   pages =	 {77--101},
   address =	 {London, UK},
@@ -10155,6 +10174,8 @@
   pages =	 {85-96},
   publisher =	 {ACM},
   crossref =	 {conf/asplos/2009},
+  url =		 {http://dblp.uni-trier.de/db/conf/asplos/asplos2009.html#DeviettiLCO09}
+		 ,
   ee =		 {http://doi.acm.org/10.1145/1508244.1508255},
   isbn =	 {978-1-60558-406-5},
   date =	 {2009-03-24}
@@ -10707,7 +10728,7 @@
 		 Symposium},
   year =	 2006,
   address =	 {Rhodes Island, Greece},
-  month =	 {apr},
+  month =	 apr,
   annote =	 {Part of the StreamIt project at MIT. The MPEG2 source is
 		 available.}
 }
@@ -10808,10 +10829,10 @@
   author =	 {Peter Eades and Xuemin Lin and W. F. Smyth},
   title =	 {A Fast and Effective Heuristic for the Feedback Arc Set
 		 Problem},
-  journal =	 {Information Processing Letters},
-  year =	 {1993},
-  volume =	 {47},
-  number =	 {6},
+  journal =	 ipl,
+  year =	 1993,
+  volume =	 47,
+  number =	 6,
   pages =	 {319--323},
   month =	 oct,
   annote =	 {A good, short paper. The algorithm is simple and greedy:
@@ -11663,8 +11684,7 @@
 		 Zehra Sura and Amy Wang and Tao Zhang and Peng Zhao and
 		 Michael Gschwind},
   title =	 {Optimizing Compiler for the {CELL} Processor},
-  booktitle =	 {Proceedings of Parallel Architectures and Compilation
-		 Techniques (PACT)},
+  booktitle =	 pact,
   year =	 2005,
   pages =	 {161--172},
   address =	 {Saint Louis, Missouri},
@@ -12145,10 +12165,10 @@
   author =	 {\'{U}lfar Erlingsson and Mukki Krishnamoorthy and T. V.
 		 Raman},
   title =	 {Efficient multiway radix search trees},
-  journal =	 {Information Processing Letters},
-  year =	 {1996},
-  volume =	 {60},
-  number =	 {3},
+  journal =	 ipl,
+  year =	 1996,
+  volume =	 60,
+  number =	 3,
   pages =	 {115--120},
   month =	 nov,
   annote =	 {Clever ways to synthesize ``case'' statements}
@@ -14320,7 +14340,7 @@
   author =	 {Clemens Gr\"opl and Hans J\"urgen Pr\"omel and Anand
 		 Srivastav},
   title =	 {On the Evolution of the Worst-Case {OBDD} Size},
-  journal =	 {Information Processing Letters},
+  journal =	 ipl,
   year =	 2001,
   volume =	 77,
   number =	 1,
@@ -16432,8 +16452,26 @@
   number =	 2,
   pages =	 {98--107},
   month =	 apr,
+  doi = {10.1093/comjnl/32.2.98},
   annote =	 {Mary Sheeran pointed this out to me while at Dagstuhl. "His
-		 most widely cited paper."}
+		 most widely cited paper."  Satnam mentioned this as
+                  well.  Part of a special issue on lazy functional programming.
+
+                 Central idea is promoting modularity: higher-order
+                  functions and lazy evaluation make it easier to
+                  modularize things.
+
+                  Written with Miranda syntax.  (Miranda was the first
+                  commercial functional language: lazy; list comprehensions.  Haskell was
+                  inspired by it.)
+
+                  Uses reduce (List.fold_left, etc.) as a compelling
+                  example: polymorphism plus higher-order functions
+                  lead to better abstractions.
+
+                  Lazy evaluation as a way to isolate control from
+                  operations.  Basically, a way to talk about infinite
+                  things (more convenient), then stop them.}
 }
 
 @InProceedings{huizing1988modelling,
@@ -17793,7 +17831,7 @@
 		 Programming},
   booktitle =	 {Information Processing 74: Proceedings of IFIP Congress
 		 74},
-  year =	 {1974},
+  year =	 1974,
   pages =	 {471--475},
   address =	 {Stockholm, Sweden},
   month =	 aug,
@@ -18034,7 +18072,7 @@
   author =	 {U. J. Kapasi and S. Rixner and W. J. Dally and B. Khailany
 		 and J. H. Ahn and P. Mattson and J. D. Owens},
   title =	 {Programmable Stream Processors},
-  journal =	 {Computer},
+  journal =	 computer,
   year =	 2003,
   volume =	 36,
   number =	 8,
@@ -19098,13 +19136,19 @@
 }
 
 @InProceedings{knight2007compilation,
-  author =	 {T. J. Knight and J. Y. Park and M. Ren and M. Houston and
-		 M. Erez and K. Fatahalian and A. Aiken and W. J. Dally and
-		 P. Hanrahan},
+  author =	 {Timothy J. Knight and Ji Young Park and Manman Ren
+                  and Mike Houston and Mattan Erez and Kayvon
+                  Fatahalian and Alex Aiken and William J. Dally and
+                  Pat Hanrahan},
   title =	 {Compilation for explicitly managed memory hierarchies},
   booktitle =	 ppopp,
   year =	 2007,
-  pages =	 {226--236}
+  pages =	 {226--236},
+  address =      {San Jose, California},
+  month =        mar,
+  doi =          {http://dx.doi.org/10.1145/1229428.1229477},
+  annote =       {Starts with a memory hierarchy model and a very
+                  abstract program model, then works on compiling it.}
 }
 
 @Article{knuth1984literate,
@@ -19274,9 +19318,7 @@
 @InProceedings{kohout2003hardware,
   author =	 {Paul Kohout and Brinda Ganesh and Bruce Jacob},
   title =	 {Hardware Support for Real-Time Operating Systems},
-  booktitle =	 {Proceedings of the First International Conference on
-		 Hardware/Software Codesign and System Synthesis
-		 (CODES+ISSS)},
+  booktitle =	 codesisss,
   year =	 2003,
   address =	 {Newport Beach, California},
   month =	 oct,
@@ -19354,7 +19396,7 @@
   title =	 {``Trust Engineering:'' From Requirements to System Design
 		 and Maintenance --- A Working National Lottery System
 		 Experience},
-  booktitle =	 {Proceedings of Information Security (ISC)},
+  booktitle =	 isc,
   year =	 2005,
   series =	 lncs,
   volume =	 3650,
@@ -20029,7 +20071,7 @@
 @Book{kuo2002automatic,
   author =	 {Benjamin C. Kuo and Farid Golnaraghi},
   title =	 {Automatic Control Systems},
-  publisher =	 {Wiley},
+  publisher =	 jw,
   year =	 2002,
   edition =	 {Eighth},
   annote =	 {I used the sixth edition at Caltech. Basic introduction to
@@ -20427,7 +20469,7 @@
 @Article{lassez1982fixed,
   author =	 {J.-L. Lassez and V. L. Nguyen and E. A. Sonnenberg},
   title =	 {Fixed point theorems and semantics: A folk tale},
-  journal =	 {Information Processing Letters},
+  journal =	 ipl,
   year =	 1982,
   volume =	 14,
   number =	 3,
@@ -21210,7 +21252,7 @@
 @Article{lehman2003software,
   author =	 {Meir M. Lehman and Juan F. Ramil},
   title =	 {Software evolution---Background, theory, practice},
-  journal =	 {Information Processing Letters},
+  journal =	 ipl,
   year =	 2003,
   volume =	 88,
   number =	 {1--2},
@@ -22983,8 +23025,7 @@
   author =	 {Jo\~ao P. Marques-Silva},
   title =	 {Improvements to the Implementation of Interpolant-Based
 		 Model Checking},
-  booktitle =	 {Conference on Correct Hardware Design and Verification
-		 Methods (CHARME)},
+  booktitle =	 charme,
   year =	 2005,
   pages =	 {367--370},
   address =	 {Saarbr\"ucken, Germany},
@@ -24774,7 +24815,7 @@
 @Book{myers2004art,
   author =	 {G. Myers},
   title =	 {The Art of Software Testing, 2nd Edition},
-  publisher =	 {John Wiley and Sons},
+  publisher =	 jw,
   year =	 2004,
   key =		 {Myers2004},
   oldkey =	 {testing1},
@@ -26147,9 +26188,7 @@
 @InProceedings{paul2003programmers,
   author =	 {JoAnn M. Paul},
   title =	 {Programmers' views of {SoCs}},
-  booktitle =	 {Proceedings of the 1st IEEE/ACM/IFIP international
-		 conference on Hardware/software codesign & system synthesis
-		 (CODES+ISSS)},
+  booktitle =	 codesisss,
   year =	 2003,
   pages =	 {156--181},
   address =	 {Newport Beach, California},
@@ -27755,7 +27794,7 @@
   author =	 {Richard M. Reis},
   title =	 {Tomorrow's Professor: Preparing for Careers in Science and
 		 Engineering},
-  publisher =	 {Wiley/IEEE Computer Society},
+  publisher =	 jw,
   year =	 1997,
   annote =	 {Good introduction to being a faculty member.}
 }
@@ -28001,8 +28040,7 @@
 		 Brucek Khailany and Abelardo L/'opez-Lagunas and Peter R.
 		 Mattson and John D. Owens},
   title =	 {A Bandwidth-efficient Architecture for Media Processing},
-  booktitle =	 {Proceedings of the International Symposium on
-		 Microarchitecture (MICRO-31)},
+  booktitle =	 micro,
   year =	 1998,
   pages =	 {3--13},
   address =	 {Dallas, Texas},
@@ -28010,7 +28048,7 @@
   annote =	 {Ken Shepard showed me this.
 		 
 		 It's essentially a really big chip for doing graphics
-		 processing and similar applications (there motivation
+		 processing and similar applications (their motivating
 		 example is a triangle rendering pipe). It's based on a
 		 single stream model, so the buffering is linear and
 		 straightforward. Their systems consist of multiple ALUs,
@@ -28348,9 +28386,10 @@
 @InProceedings{rudell1996tutorial,
   author =	 {Richard Rudell},
   title =	 {Tutorial: Design of a Logic Synthesis System},
-  booktitle =	 {Proceedings of the 33rd Design Automation Conference},
-  year =	 {1996},
-  address =	 {Las Vegas, Nevada},
+  booktitle =	 dac96,
+  year =	 1996,
+  address =	 dac96a,
+  pages =        {191--196},
   month =	 jun
 }
 
@@ -29667,8 +29706,7 @@
 @InProceedings{sheeran1984mufp,
   author =	 {Mary Sheeran},
   title =	 {{$\mu$FP}, An Algebraic {VLSI} Design Language},
-  booktitle =	 {Proceedings of the ACM Symposium on LISP and Functional
-		 Programming},
+  booktitle =	 lfp,
   year =	 1984,
   pages =	 {104--112},
   address =	 {Austin, Texas},
@@ -31836,10 +31874,10 @@
   author =	 {Robert E. Tarjan},
   title =	 {An Improved Algorithm for Hierarchical Clustering Using
 		 Strong Components},
-  journal =	 {Information Processing Letters},
-  year =	 {1983},
-  volume =	 {17},
-  number =	 {1},
+  journal =	 ipl,
+  year =	 1983,
+  volume =	 17,
+  number =	 1,
   pages =	 {37--41},
   month =	 jul
 }
@@ -32330,7 +32368,7 @@
 @Book{timbie1919essentials,
   author =	 {William Henry Timbie and Henry Harold Higbie},
   title =	 {Essentials of Alternating Currents},
-  publisher =	 {John Wiley \& Sons, Inc.},
+  publisher =	 jw,
   year =	 1919,
   address =	 {New York},
   annote =	 {http://onlinebooks.library.upenn.edu/webbin/book/browse?type=lccn&key=TK
@@ -33278,8 +33316,7 @@
 		 and Bill Lin},
   title =	 {Derivation of Formal Representations from Process-Based
 		 Specification and Implementation Models},
-  booktitle =	 {Proceedings of the Tenth International Symposium on System
-		 Synthesis (ISSS)},
+  booktitle =	 isss,
   year =	 1997,
   pages =	 {16--23},
   address =	 {Antwerp, Belgium},
@@ -36724,8 +36761,7 @@ deadlines.}
   author = 	 {Gordon Brebner},
   title = 	 {Packets Everywhere: The Great Opportunity for Field
                   Programmable Technology},
-  booktitle = {Proceedings of the International Conference on
-                  Field-Programmable Technology (FPT)},
+  booktitle = fpt,
   pages = 	 {1--10},
   year = 	 2009,
   address = 	 {Sydney, Australia},
@@ -36803,6 +36839,1199 @@ deadlines.}
  address = 	{New York, NY, USA},
  }
 
+@InProceedings{vasudevan2010determinism,
+  author = 	 {Nalini Vasudevan and Stephen A. Edwards},
+  title = 	 {Determinism Should Ensure Deadlock-Freedom},
+  booktitle = {Proceedings of the 2nd USENIX Workshop on Hot Topics
+                  in Parallelism (HotPar)},
+  OPTpages = 	 {FIXME},
+  year = 	 2010,
+  address = 	 {Berkeley, California},
+  month = 	 jun,
+  annote = 	 {Nalini's idea, really.  A poster and short paper.}
+}
+
+@InProceedings{keppel2009transmeta,
+  author = 	 {David Keppel},
+  title = 	 {Transmeta Crusoe Hardware, Software, and Development},
+  booktitle = {Proceedings of the 2nd Workshop on Architectural and
+                  Microarchitectural Support for Binary Translation
+                  (AMAS-BT)},
+  year = 	 2009,
+  address = 	 {Austin, Texas},
+  month = 	 jun,
+  annote = 	 {Martha and I plan to submit a paper to this workshop.}
+}
+
+@InProceedings{skaletsky2010dynamic,
+  author = 	 {Alex Skaletsky and Tevi Devor and Nadav Chachmon and
+                  Robert Cohn and Kim Hazelwood and Vladimir
+                  Vladimirov and Moshe Bach},
+  title = 	 {Dynamic Program Analysis of {Microsoft} {Windows} Applications},
+  booktitle = {Proceedings of the International Symposium on
+                  Performance Analysis of Software and Systems
+                  (ISPASS)},
+  pages = 	 {2--12},
+  year = 	 2010,
+  address = 	 {White Plains, New York},
+  month = 	 mar,
+  annote = 	 {Recommended by Martha.  PIN on Windows}
+}
+
+@inproceedings{luk2005pin,
+    author =     {Chi-Keung Luk and Robert Cohn and Robert Muth and
+                  Harish Patil and Artur Klauser and Geoff Lowney and
+                  Steven Wallace and Vijay Janapa Reddi and Kim
+                  Hazelwood},
+    title =      {Pin: Building Customized Program Analysis Tools with Dynamic Instrumentation},
+    booktitle =  pldi,
+    address =    {Chicago, Illinois},
+    pages =      {190--200},
+    month =      jun,
+    year =       {2005},
+    annote =     {A canonical reference for the Pin dynamic binary instrumenter?}
+}
+
+@INPROCEEDINGS{clause2007dytan,
+    author = {James Clause and Wanchun Li and Ro Orso},
+    title = {Dytan: A Generic Dynamic Taint Analysis Framework},
+    booktitle = {Proceedings of the International Symposium on
+                  Software Testing and Analysis (ISSTA)},
+    year = {2007},
+    address = {London, England},
+    month = jul,
+    pages = {196--206},
+    annote = {Uses Pin to do taint analysis}
+}
+
+@INPROCEEDINGS{olszewski2007judostm,
+    author = {Marek Olszewski and Jeremy Cutler and J. Gregory Steffan},
+    title = {{JudoSTM}: A Dynamic Binary-Rewriting Approach to
+                  Software Transactional Memory},
+    booktitle = pact,
+    address = {Brasov, Romania},
+    pages = {365--375},
+    month = sep,
+    year = 2007,
+    annote = {Uses their Judo (which is JIT-like binary instrumenter
+                  like Pin) for STM.  Similar ideas: watch and track
+                  the memory operations.  Hash tables for reads and
+                  writes.  Points out that stack operations rarely
+                  need to be tracked.  Dynamically inserts code that
+                  checks memory contents looking for conflicts with
+                  other procedures, then "commit" code that actually
+                  writes data to memory (a bunch of constant moves!)  Crazy.},
+}
+
+@InProceedings{nethercote2007how,
+  author = 	 {Nicholas Nethercote and Julian Seward},
+  title = 	 {How to Shadow Every Byte of Memory Used by a Program},
+  booktitle = {Proceedings of the 3rd international conference on
+                  Virtual Execution Environments (VEE)},
+  pages = 	 {65--74},
+  year = 	 2007,
+  address = 	 {San Diego, California},
+  month = 	 jun,
+  annote = 	 {Something like Pin but not quite}
+}
+
+@article{nethercote2003redux,
+author = "Nicholas Nethercote and Alan Mycroft",
+title = "Redux: A Dynamic Dataflow Tracer",
+journal = "Electronic Notes in Theoretical Computer Science",
+volume = 89,
+number = 2,
+pages = "149--170",
+year = 2003,
+note = "RV '2003, Run-time Verification (Satellite Workshop of CAV '03)",
+issn = "1571-0661",
+doi = "DOI: 10.1016/S1571-0661(04)81047-8",
+url =
+                  "http://www.sciencedirect.com/science/article/B75H1-4DDWKTJ-PN/2/c52b80355187c6fb842f5b2f2ac32b8e",
+annote = {Very aggressive data behavior extraction -- registers, not
+                  just memory.  Part of the binary instrumentation
+                  work with Martha.}
+}
+
+@InProceedings{asano2007in-place,
+  author = 	 {Tetsuo Asano and Shinnya Bitou and Mitsuo Motoki
+                  and Nobuaki Usui},
+  title = 	 {In-Place Algorithm for Image Rotation},
+  booktitle = {Proceedings of the Interational Symposium on
+                  Algorithms and Computation (ISAAC)},
+  pages = 	 {704--715},
+  year = 	 2007,
+  volume = 	 4835,
+  series = 	 lncs,
+  address = 	 {Sendai, Japan},
+  month = 	 dec,
+  note = 	 {For rotating scanned images in-place by a few degrees}}
+
+@InProceedings{vasudevan2010simple,
+  author =       {Nalini Vasudevan  and Kedar Namjoshi and Stephen A. Edwards
+},
+  title =        {Simple and Fast Biased Locks},
+  booktitle =	 pact,
+  address =      {Vienna, Austria},
+  pages =        {65--74},
+  url = {http://www.pactconf.org/},
+  doi =          {http://dx.doi.org/10.1145/1854273.1854287},
+  month =	 sep,
+  year =         2010,
+}
+
+@ARTICLE{vasudevan2010buffer,
+author=		{Nalini Vasudevan and Stephen A. Edwards},
+title=		{Buffer Sharing in Rendezvous Programs},
+journal=	transcad,
+year=		2010,
+month=		oct,
+volume=		29,
+number=		10,
+pages=		{1471--1480},
+doi=		{10.1109/TCAD.2010.2052840},
+url=		{http://dx.doi.org/10.1109/TCAD.2010.2052840},
+ISSN=		{0278-0070}
+}
+
+
+@Book{barendregt1984lambda,
+  author = 	 {Hendrik Pieter Barendregt},
+  title = 	 {The Lambda Calculus: Its Syntax and Semantics},
+  publisher = 	 nh,
+  year = 	 1984,
+  volume = 	 103,
+  series = 	 {Studies in Logic and the Foundations of Mathematics},
+  edition = 	 {Revised},
+  isbn =         0444875085,
+  annote = 	 {Recommended by Simon Peyton-Jones as a much-too-big
+                  reference on the Lambda calculus.  Can be found on
+                  Wikipedia's Lambda Calculus page.
+                  Out of print.
+     
+                  ftp://ftp.cs.ru.nl/pub/CompMath.Found/lambda.pdf}
+}
+
+@InProceedings{augustsson2008strongly,
+  author = 	 {Lennart Augustsson},
+  title = 	 {Strongly Typed Domain Specific Embedded Languages},
+  booktitle = {QCon},
+  year = 	 2008,
+  address = 	 {San Francisco, California},
+  month = 	 nov,
+  note = 	 {Presentation},
+  url =          {http://qconsf.com/sf2008/file?path=/qcon-sanfran-2008/slides//LennartAugustsson_strongly_typed.pdf},
+  annote = 	 {Nice description on how to use Haskell's type system
+                  to build robust embedded languages}
+}
+
+@InProceedings{lee2009gpu,
+  author = 	 {Sean Lee and Manuel M. T. Chakravarty and Vinod Grover and Gabriele Keller},
+  title = 	 {{GPU} Kernels as Data-Parallel Array Computations in {Haskell}}, 
+  booktitle = {Workshop on Exploiting Parallelism using GPUs and other Hardware-Assisted Methods (EPAHM)},
+  year = 	 2009,
+  address = 	 {Seattle, Washington},
+  month = 	 mar,
+  url = {http://www.cse.unsw.edu.au/~chak/papers/gpugen.pdf},
+  annote = 	 {Recommended by Satnam}
+}
+
+@InProceedings{mainland2010nikola,
+  author = 	 {Geoffrey Mainland and Greg Morrisett},
+  title = 	 {{Nikola}: Embedding Compiled {GPU} Functions in {Haskell}},
+  booktitle = {Proceedings of the ACM SIGPLAN Symposium on Haskell},
+  year = 	 2010,
+  address = 	 {Baltimore, Maryland},
+  month = 	 sep,
+  url =          {http://www.eecs.harvard.edu/~mainland/projects/nikola/},  
+  annote = 	 {Suggested by Satnam.  Nice discussion of shallow
+                  vs. deep embeddings of domain-specific languages
+                  (they do a deep one)}
+}
+
+@Book{jones1987implementation,
+  author = 	 {Simon Peyton Jones},
+  title = 	 {The Implementation of Functional Programming Languages},
+  publisher = 	 ph,
+  year = 	 1987,
+  url =          {http://research.microsoft.com/en-us/um/people/simonpj/papers/slpj-book-1987/},
+  annote = 	 {Very lengthy book on the topic.}
+}
+
+@InProceedings{naylor2010reduceron,
+  author = 	 {Matthew Naylor and Colin Runciman},
+  title = 	 {The {Reduceron} Reconfigured},
+  booktitle =    icfp,
+  year = 	 2010,
+  address = 	 {Baltimore, Maryland},
+  month = 	 sep,
+  annote = 	 {Graph reduction in hardware.
+
+                  Disappointing results (still slower than a P4), but
+                  interesting.  At least split memory into many
+                  regions:  program, heap, reduction stack, update
+                  stack, case-table stack, and copy space, each with
+                  wide ports and other tricks.
+
+                  Makes unfortunate, unrealistic assumptions about
+                  memory latency: assumes everything's on chip with
+                  single-cycle latency.
+
+                  "Simple two-space stop-and-copy garbage collector"
+                  [Jones and Lins 1996: Algorithms for Automatic
+                  Dynamic Memory Management, Wiley 1996.]
+
+                  Uses "template instantiation" instead of the
+                  "G-machine" of Peyton Jones 1987.}
+}
+
+@Article{douence1998systematic,
+  author = 	 {R\'emi Douence and Pascal Fradet},
+  title = 	 {A systematic study of functional language implementations},
+  journal = 	 toplas,
+  year = 	 1998,
+  volume = 	 20,
+  number = 	 2,
+  pages = 	 {344--387},
+  month = 	 mar,
+  annote = 	 {Mentions jones1992implementing.
+
+                  Describes all functional language implementations as
+                  a series of transformations between a sequence of
+                  intermediate languages that include sequencing,
+                  stacks, heap acces, and so forth.
+
+                  Very sophisticated mathematically.  More technical
+                  than practical.  Does not appear to answer questions
+                  about specific compilers.}
+}
+
+@Book{jones1992implementing,
+  author = 	 {Simon Peyton Jones and David Lester},
+  title = 	 {Implementing Functional Languages: A tutorial},
+  publisher = 	 ph,
+  year = 	 1992,
+  url =          {http://research.microsoft.com/en-us/um/people/simonpj/papers/pj-lester-book/student.pdf.gz},
+  annote = 	 {Out-of-print.  Template instantiation, the
+                  G-machine, TIM: the three instruction machine,
+                  parallel G-machine, Lambda lifting.
+
+                  Focuses on non-strict languages.}
+}
+
+@Article{jones1992implementing-lazy,
+  author = 	 {Simon Peyton Jones},
+  title = 	 {Implementing lazy functional languages on stock
+                  hardware: the Spineless Tagless {G-machine}},
+  journal = 	 jfp,
+  year = 	 1992,
+  volume = 	 2,
+  number = 	 2,
+  pages = 	 {127--202},
+  month = 	 apr,
+  annote = 	 {Describes the low-level language that GHC uses (STG) and how it
+                  is translated into an imperative language.}
+}
+
+@Book{okasaki1999purely,
+  author = 	 {Chris Okasaki},
+  title = 	 {Purely Functional Data Structures},
+  publisher = 	 cup,
+  year = 	 1999,
+  annote = 	 {He was at Columbia just before I was}
+}
+
+@InProceedings{anderson1990compilation,
+  author = 	 {Steven Anderson and Paul Hudak},
+  title = 	 {Compilation of {Haskell} array comprehensions for
+                  scientific computing},
+  booktitle = pldi,
+  pages = 	 {137--149},
+  year = 	 1990,
+  address = 	 {White Plains, New York},
+  month = 	 jun,
+  annote = 	 {FIXME}
+}
+
+@Article{launchbury1995state,
+  author = 	 {John Launchbury and Simon L. Peyton Jones},
+  title = 	 {State in {Haskell}},
+  journal = 	 {Lisp and Symbolic Computation},
+  year = 	 1995,
+  volume = 	 8,
+  number = 	 4,
+  pages = 	 {293--341},
+  month = 	 dec,
+  annote = 	 {Part of the trick about arrays in Haskell.  How to describe
+                  mutable objects and a terribly clever trick to use the
+                  type system to make sure things don't escape.
+                  Builds a monad.
+
+                  Underlying implementation uses state-modifying primitives
+                  that are encapsulated in higher-level things in Haskell.
+                  One allocates an array, another maps a list into it, the
+                  last renders it immutable.  So immutable arrays are actually
+                  built on mutable ones that use monads to ensure safety.}
+}
+
+@InProceedings{gill1993short,
+  author = 	 {Andrew Gill and John Launchbury and Simon L. Peyton Jones},
+  title = 	 {A Short Cut to Deforestation},
+  booktitle = {Proceedings of Functional Programming Languages and
+                  Computer Architecture (FPCA)},
+  pages = 	 {223--232},
+  year = 	 1993,
+  address = 	 {Copenhagen, Denmark},
+  month = 	 jun,
+  annote = 	 {Another part of the trick about arrays in Haskell.
+                  This is how to compile away intermediate lists.
+
+                  Basic idea is to look for list producer-consumer pairs and
+                  then interleave their code to avoid creating intermediate
+                  elements (CONS cells).  Explicitly mentions how list
+                  comprehensions are connected to initialize arrays.
+
+                  Seems to have problems with zip, which consumes two lists in
+                  parallel.}
+}
+
+@Book{osullivan2009real,
+  author = 	 {Bryan O'Sullivan and Don Stewart and John Goerzen},
+  title = 	 {Real World {Haskell}},
+  publisher = 	 ora,
+  year = 	 2009,
+  url =          {http://book.realworldhaskell.org/},
+  annote = 	 {Recommended by Satnam.  Nice profiling and optimization chapter.}
+}
+
+@InProceedings{kennedy2007compiling,
+  author = 	 {Andrew Kennedy},
+  title = 	 {Compiling with continuations, continued},
+  booktitle = icfp,
+  pages = 	 {177--190},
+  year = 	 2007,
+  address = 	 {Freiburg, Germany},
+  organization = oct,
+  annote = 	 {At MSR Cambridge.  His compiler uses a restricted
+                  form of CPS, which he advocates because inlining
+                  preserves the form.  He isn't doing full lambda
+                  lifting, preferring instead to keep free variables
+                  around and use the activation records accordingly.
+
+                  "Continuations are named and mandatory (just as
+                  every intermediate value is named, so is every
+                  control point), are second-class (they're not
+                  general lambdas), can represent basic blocks and
+                  loops, can be shared (typically, through common
+                  continuations of branches), represent exceptional
+                  control flow (using double-barrelled CPS), and are
+                  typeable (but can be used in untyped form too)."
+
+                  letval x = V in K  binds a value to x.  Function application
+                  is only done on variables, so literals are bound like this.
+
+                  let x = #i y in K  selects the ith component of y
+                  and binds it to to x.
+
+                  letcont k x = K in L  introduces the local continuation k
+                  that can be used within L.
+
+                  Discusses "contification," in which calling a continuation
+                  can be reduced to a simple jump.  This occurs, say,
+                  when control flow joins at the end of an if
+                  statement.  "Functions can be contified when they
+                  always return to the same place."
+
+                  
+                  }
+}
+
+@Article{flanagan2004essence,
+  author = 	 {Cormac Flanagan and Amr Sabry and Bruce F. Duba and
+                  Matthias Felleisen},
+  title = 	 {The Essence of Compiling with Continuations},
+  journal = 	 {ACM SIGPLAN Notices},
+  year = 	 2004,
+  volume = 	 39,
+  number = 	 4,
+  pages = 	 {502--514},
+  month = 	 apr,
+  note = 	 {Retrospective; Best of PLDI 1979--1999 special issue},
+  annote = 	 {Mentioned in kennedy2007compiling.  How A-normal
+                  form compares to continuating passing style (CPS)}
+}
+
+@Article{sagiv2002parametric,
+  author = 	 {Mooly Sagiv and Thomas Reps and Reinhard Wilhelm},
+  title = 	 {Parametric shape analysis via 3-valued logic},
+  journal = 	 toplas,
+  year = 	 2002,
+  volume = 	 24,
+  number = 	 3,
+  pages = 	 {217--298},
+  month = 	 may,
+  annote = 	 {"Shape analysis concerns the problem of determining
+                  shape invariants for programs that perform
+                  destructive updating on dynamically allocated
+                  storage."}
+}
+
+@Article{hannan1998type-based,
+  author = 	 {John Hannan},
+  title = 	 {A type-based escape analysis for functional languages},
+  journal = 	 jfp,
+  year = 	 1998,
+  volume = 	 8,
+  number = 	 3,
+  pages = 	 {239--273},
+  month = 	 may,
+  annote = 	 {"we believe that implementations can profit from an
+                  analysis that detects cases in which stack
+                  allocation of a variable is safe"  "We develop a
+                  static analysis via a type system to perform an
+                  escape analysis in which the type of an expression
+                  indicates which variable bindings can safely be
+                  allocated on a stack"
+
+	          Distiguishs himself from banerjee1994stackability
+                  in that they allow a mixture of stacked and
+                  heap-allocated variables in the same program.
+
+                  Target language distinguishes variables that can be
+                  stacked from those that cannot be as well as
+                  function application in which argument bindings do
+                  not escape their scopes.
+
+                  Very detailed deduction rules (with vague
+                  explanation) for figuring this out.  Done in an
+                  abstract mathematical setting, not obviously
+                  possible in the setting of, say, Haskell's types.
+
+                  I had hoped this might give some insight into how
+                  variables that *behave* in a stack-like manner could
+                  be identified, but I think it's far enough removed
+                  to not be very interesting.
+                  }
+}
+
+@InProceedings{banerjee1994stackability,
+  author = 	 {Anindya Banerjee and David A. Schmidt},
+  title = 	 {Stackability in the simply-typed call-by-value
+                  lambda calculus},
+  booktitle = sas,
+  pages = 	 {131--146},
+  year = 	 1994,
+  volume = 	 864,
+  series = 	 lncs,
+  address = 	 {Namur, Belgium},
+  month = 	 sep,
+  annote = 	 {A 1998 version in scp?  Appear to be looking for a
+                  language that can be executed completely on a stack
+                  (i.e., no heap necessary), not what variables can be
+                  stacked in a heap setting.
+
+                  His criterion is that at every point in an
+                  evaluation tree, the current environment is a
+                  superset of an ancestor.}
+}
+
+@InProceedings{coutts2007stream,
+  author = 	 {Duncan Coutts and Roman Leshchinskiy and Don Stewart},
+  title = 	 {Stream fusion: from lists to streams to nothing at all},
+  booktitle = icfp,
+  pages = 	 {315--326},
+  year = 	 2007,
+  address = 	 {Freiburg, Germany},
+  month = 	 oct,
+  url =          {http://www.cse.unsw.edu.au/~dons/streams.html},
+  annote = 	 {Suggested by Simon Peyton-Jones
+
+                  For streams, they just define a Stream type, stream
+                  and unstream operations, and define
+
+                  map f = unstream . map f . stream
+
+                  Very, very nice abstraction of a pipeline: data type
+                  is either Done, Skip, or Yield.  Then there's an
+                  easy way to optimize: (stream . unstream) can be
+                  optimized away.  Skip is useful for handling
+                  multi-rate streams (update state, but don't generate
+                  a result).  Almost exactly what you'd do in hardware
+                  (valid data, bubble, or an end-of-stream condition).
+
+                  Their stream transformers look like little state
+                  machines: usually tail-recursive calls to update
+                  state and pass input streams to output streams.
+
+                  Beautiful paper, and well-written.  Looks like it
+                  would be an excellent way to describe things in
+                  hardware and generate decent code from it.
+                    }
+}
+
+@InProceedings{hogen1992automatic,
+  author = 	 {Guido Hogen and Andrea Kindler and Rita Loogen},
+  title = 	 {Automatic parallelization of lazy functional programs},
+  booktitle = esop,
+  pages = 	 {254--268},
+  year = 	 1992,
+  volume = 	 582,
+  series = 	 lncs,
+  address = 	 {Rennes, France},
+  month = 	 feb,
+  publisher = sv,
+  annote = 	 {Uses strictness analysis as part of the compilation
+                  process  (lambda lifting, strictness analysis,
+                  letpar-based intermediate representation)  Targets
+                  an IR like that in loogen1989distributed.}
+}
+
+@InProceedings{loogen1989distributed,
+  author = 	 {Rita Loogen and Herbert Kuchen and Klaus Indermark
+                  and Werner Damm},
+  title = 	 {Distributed implementation of programmed graph reduction},
+  booktitle = {Proceedings of Parallel Architectures and Languages
+                  Europe (PARLE)},
+  pages = 	 {136--157},
+  year = 	 1989,
+  volume = 	 365,
+  series = 	 lncs,
+  address = 	 {Eindhoven, The Netherlands},
+  month = 	 jun,
+  url =          {http://dx.doi.org/10.1007/3540512845_37},
+  annote = 	 {referenced by hogen1992automatic
+
+                  PAM -- parallel abstract machine.  Implemented it on
+                  OCCAM/Transputer system.
+
+                  The usual functional basic (combinators, structured
+                  data types, case for pattern matching) and explicit
+                  parallelism with "letpar."
+
+                  "Parallel subtasks always correspond to combinator
+                  applications," i.e., you only call functions in
+                  parallel, not perform arithmetic.
+
+                  Their PAM consists of a bunch of processing elemencts
+                  running in parallel connected through some sort of
+                  message passing system.  Each processing element
+                  consists of a communications processor and the
+                  actual graph reducer.  Idea is that the
+                  communication processor receives and sends messages
+                  while the graph reducer acts on those messages.
+
+                  Basically, you send a function call request to an
+                  element.  It eventually returns a result message.
+
+                  The status of each task is a tuple that includes an
+                  instruction pointer and a "pending count," which is
+                  the number of results for which a spended task is
+                  waiting.
+
+                  }
+}
+
+@InProceedings{mycroft2000flash,
+  author = 	 {Alan Mycroft and Richard W. Sharp},
+  title = 	 {The {FLaSH} Project: Resource-aware Synthesis of
+                  Declarative Specifications},
+  booktitle = iwls,
+  year = 	 2000,
+  address = 	 {Dana Point, California},
+  month = 	 may,
+  annote = 	 {Mentioned by Alan.  Basically, they rail first
+                  against inlining every function (e.g., ELLA's
+                  semantics) and instead say every call accesses an arbiter
+                  that controls access to the shared (function) resource.   They
+                  have additional machinery to see when a clever arbiter is
+                  not necessary due to sequential constraints that ensure
+                  one one call site may ever be active at once.}
+}
+
+@InProceedings{mycroft2001hardware,
+  author = 	 {Alan Mycroft and Richard W. Sharp},
+  title = 	 {Hardware Synthesis using {SAFL} and Application to
+                  Processor Design},
+  booktitle = charme,
+  pages = 	 {13--39},
+  year = 	 2001,
+  number = 	 2144,
+  series = 	 lncs,
+  address = 	 {Livingston, Scotland},
+  month = 	 sep,
+  annote = 	 {Mentioned by Alan}
+}
+
+@Article{jones2001expressive,
+  author = 	 {Neil D. Jones},
+  title = 	 {The expressive power of higher-order types or, life
+                  without {CONS}},
+  journal = 	 jfp,
+  year = 	 2001,
+  volume = 	 11,
+  number = 	 1,
+  pages = 	 {55-94},
+  month = 	 jan,
+  doi =          {10.1017/S0956796800003889},
+  annote = 	 {Mentioned in one of Mycroft's papers.  Theoretical
+                  complexity results.}
+}
+
+@InProceedings{wadler1990linear,
+  author = 	 {Phil Wadler},
+  title = 	 {Linear Types Can Change the World!},
+  booktitle = {Proceedings of IFIP TC 2 Working Conference on
+                  Programming Concepts and Methods},
+  year = 	 1990,
+  editor = 	 {M. Broy and C. Jones},
+  address = 	 {Sea of Galiee, Isreal},
+  month = 	 apr,
+  publisher = nh,
+  annote = 	 {Linear types correspond to state that can't be
+                  duplicated or destroyed accidentally.}
+}
+
+@InProceedings{marlow2010seq,
+  author = 	 {Simon Marlow and Patrick Maier and Hans-Wolfgang
+                  Loidl and Mustafa K Aswad and Phil Trinder},
+  title = 	 {Seq no more: Better Strategies for {Parallel} {Haskell}},
+  booktitle = {Proceedings of the Haskell Symposium},
+  year = 	 2010,
+  address = 	 {Baltimore, Maryland},
+  month = 	 sep,
+  annote = 	 {Accepted?  Satnam & Simon recommended this as a good
+                  reference on parallel strategies.
+
+                  Haskell's lazy nature makes it possible for these strategies
+                  control to what degree expressions are evaluated and in
+                  what order.  This is how they've cast the "parallelism in
+                  Haskell" problem: how to control evaluation order and
+                  avoiding space leaks.
+
+                  Problem is that "throwing the expression to the winds" makes
+                  it unclear what to garbage collect.
+
+                  So they introduce a new mecahnism in which expressions
+                  are kept around for evaluation.
+
+                  type Strategy a = a -> Eval a
+
+                  There's a really interesting idea here: how to separate
+                  an evaluation strategy from the function.  Functional things
+                  like map, etc. are a step in this direction in a sequential
+                  setting; this is a proposal for one in a parallel setting.
+
+                  Have a "rolling buffer" strategy that evaluates n
+                  things in parallel.  Generates a list whose elements
+                  have this property.
+
+                  x `par` y is implemented by just putting a thunk for
+                  x on the "can be evaluated" heap
+
+                  x `pseq` y is just "case x of _ -> y," which forces
+                  the (lazy) evaluation of x before starting the
+                  evaluation of y.
+                  }
+}
+
+@InProceedings{williamson1996synthesis,
+  author = 	 {Michael C. Williamson and Edward A. Lee},
+  title = 	 {Synthesis of parallel hardware implementations from
+                  synchronous dataflow graph specifications},
+  booktitle = {Proceedings of the Asilomar Conference
+		 on Signals, Systems \& Computers},
+  pages = 	 {1340--1343 vol.\ 2},
+  year = 	 1996,
+  address = 	 {Pacific Grove, California},
+  month = 	 nov,
+  annote = 	 {Mike's stuff that eventually turned into his thesis.
+                  Specifically deals with multirate SDF.  Rather
+                  vague.  Seems to construct a static schedule then
+                  execute it.  Places registers between blocks and
+                  schedules their loading.}
+}
+
+@Article{jung2002efficient,
+  author = 	 {Hyunuk Jung and Kangnyoung Lee and Soonhoi Ha},
+  title = 	 {Efficient hardware controller synthesis for
+                  synchronous dataflow graph in system level design},
+  journal = 	 transvlsi,
+  year = 	 2002,
+  volume = 	 10,
+  number = 	 4,
+  pages = 	 {423--428},
+  month = 	 aug,
+  annote = 	 {Cites williamson1996synthesis.  Doesn't seem to be
+                  cited by anybody else.  Mentions the GRAPE stuff
+                  from Lauwereins et al.  Central trick in their work
+                  is to use counters for part of the control mechanism
+                  but also allow handshaking signals.  Not clear that
+                  they handle all graph structures.}  
+}
+
+@Article{janneck2009synthesizing,
+  author = 	 {J\"orn W. Janneck and Ian D. Miller and David
+                  B. Parlour and Ghislain Roquier and Matthieu Wipliez
+                  Micka\"el Raulet},
+  title = 	 {Synthesizing Hardware from Dataflow Programs:
+		  An {MPEG-4} Simple Profile Decoder Case Study},
+  journal = 	 {Journal of Signal Processing Systems},
+  year = 	 2009,
+  doi =          {10.1007/s11265-009-0397-5},
+  month = 	 jul,
+  note = 	 {Online},
+  annote = 	 {Translating his Cal actor language into hardware on
+                  FPGAs.  Starting from the functional description,
+                  they instantiate everything, propagate constants,
+                  then try to statically schedule as much as they can,
+                  then optimize memory access by looking at
+                  parallelism, etc. (trying to use multi-port
+                  memories), then pipeline and retime things.
+
+                  Doesn't include main details about all of this;
+                  mostly about what they did in the MPEG decoder system.}
+}
+
+@InProceedings{boulytchev2001empirical,
+  author = 	 {Dmitry Boulytchev and Dmitry Lomov},
+  title = 	 {An Empirical Study of Retargetable Compilers},
+  booktitle = {Perspectives of System Informatics},
+  pages = 	 {238--335},
+  year = 	 2001,
+  volume = 	 2244,
+  series = 	 lncs,
+  address = 	 {Akademgorodok, Novosibirsk, Russia},
+  month = 	 jul,
+  annote = 	 {Found randomly.  Unimpressive, but useful bibliography?}
+}
+
+@InProceedings{leupers1997retargetable,
+  author = 	 {Rainer Leupers and Peter Marwedel},
+  title = 	 {Retargetable Generation of Code Selectors from {HDL}
+                  Processor Models},
+  booktitle = {Proceedings of the European Design and Test
+                  Conference (ED\&TC)},
+  pages = 	 {140--144},
+  year = 	 1997,
+  address = 	 {Paris, France},
+  month = 	 mar,
+  annote = 	 {Cited by boulytchev2001empirical.  Nice
+                  bibliography, although rather old.}
+}
+
+@Misc{nilsson2000porting,
+  author = 	 {Hans-Peter Nilsson},
+  title = 	 {Porting {GCC} for Dunces},
+  howpublished = {Online: http://ftp.axis.se/pub/users/hp/pgccfd/},
+  month = 	 may,
+  year = 	 2000,
+  annote = 	 {Was a Master's thesis, but got the FSF stamp of approval.}
+}
+
+@InProceedings{azizi2010energy-performance,
+  author = 	 {Omid Azizi and Aqeel Mahesri and Benjamin C. Lee and
+                  Sanjay J. Patel and Mark Horowitz},
+  title = 	 {Energy-performance tradeoffs in processor
+                  architecture and circuit design: a marginal cost
+                  analysis},
+  booktitle = {Proceedings of the International Symposium on
+                  Computer Architecture (ISCA)},
+  pages = 	 {26--36},
+  year = 	 2010,
+  address = 	 {Saint-Malo, France},
+  month = 	 jun,
+  annote =       {Martha mentioned this for our TSIP proposal},
+}
+
+@InProceedings{tuck2004deterministic,
+  author = 	 {Nathan Tuck and Timothy Sherwood and Brad Calder and
+                  George Varghese},
+  title = 	 {Deterministic memory-efficient string matching
+                  algorithms for intrusion detection},
+  booktitle = infocom,
+  pages = 	 {2628--2639},
+  year = 	 2004,
+  volume = 	 4,
+  address = 	 {Hong Kong, China},
+  month = 	 nov,
+  doi =          {http://dx.doi.org/10.1109/INFCOM.2004.1354682},
+  annote = 	 {From Jia: DPI stuff.  Talks about Snort and better
+                  data structures for the search tree (variations on
+                  Aho-Corasick)}
+}
+
+@InProceedings{sidhu2001fast,
+  author = 	 {Reetinder Sidhu and Viktor K. Prasanna},
+  title = 	 {Fast Regular Expression Matching using {FPGAs}},
+  booktitle = fccm,
+  pages = 	 {227--238},
+  year = 	 2001,
+  address = 	 {Rohnert Park, California},
+  month = 	 apr,
+  doi =          {10.1109/FPGM.2001.184266},
+  annote = 	 {From Jia: DPI stuff.  NFAs directly in hardware.
+                  Very FPGA-specific.}
+}
+
+@Article{dharmapurikar2004deep,
+author = {Sarang Dharmapurikar and Praveen Krishnamurthy and Todd
+                  S. Sproull and John W. Lockwood},
+title = {Deep Packet Inspection using Parallel Bloom Filters},   
+  journal = 	 ieeemicro,
+  year = 	 2004,
+  volume = 	 24,
+  number = 	 1,
+  pages = 	 {52--61},
+  month = 	 {January/February},
+  doi =          {http://doi.ieeecomputersociety.org/10.1109/MM.2004.1268997},
+  annote = 	 {From Jia: DPI stuff.  Multiple hash functions
+                  applied to strings.  Nice parallel algorithm.}
+}
+
+@InProceedings{sourdis2004pre-decoded,
+  author = 	 {Ioannis Sourdis and Dionisios Pnevmatikatos},
+  title = 	 {Pre-decoded {CAMs} for efficient and high-speed
+                  {NIDS} pattern matching},
+  booktitle = fccm,
+  pages = 	 {258--267},
+  year = 	 2004,
+  address = 	 {Napa, California},
+  month = 	 apr,
+  doi =          {http://dx.doi.org/10.1109/FCCM.2004.46},
+  annote = 	 {From Jia: DPI stuff.  Explicit comparators on FPGAs.
+                  Using Xilinx 16-bit shift registers (implemented
+                  using the lookup tables; probably the FPGA's loading
+                  mechanism).  Interesting, provocative use of FPGA hardware.}
+}
+
+@InProceedings{tan2005high,
+  author = 	 {Lin Tan and Timothy Sherwood},
+  title = 	 {A High Throughput String Matching Architecture for
+                  Intrusion Detection and Prevention},
+  booktitle = isca,
+  pages = 	 {112--122},
+  year = 	 2005,
+  address = 	 {Madison, Wisconsin},
+  month = 	 jun,
+  doi = {10.1109/ISCA.2005.5},
+  annote = 	 {From Jia: DPI stuff.  Partitioning Aho-Corasick into
+                  multiple, parallel state machines.  Nicely written paper.}
+}
+
+@InProceedings{kumar2006algorithms,
+  author = 	 {Sailesh Kumar and Sarang Dharmapurikar and Fang Yu
+                  and Patrick Crowley and Jonathan S. Turner},
+  title = 	 {Algorithms to accelerate multiple regular
+                  expressions matching for deep packet inspection},
+  booktitle =  sigcomm,
+  pages = 	 {339--350},
+  year = 	 2006,
+  address = 	 {Pisa, Italy},
+  month = 	 sep,
+  doi =          {http://doi.acm.org/10.1145/1159913.1159952},
+  annote = 	 {From Jia: DPI stuff.  Uses "Delayed input DFAs"
+                  Basically, if you don't match a transition, follow a
+                  default arc to another state and then try again.
+                  Not FPGA-specific, but relevant.}
+}
+
+@InProceedings{kumar2007curing,
+  author = 	 {Sailesh Kumar and Balakrishnan Chandrasekaran and
+                  Jonathan S. Turner and George Varghese},
+  title = 	 {Curing regular expressions matching algorithms from
+                  insomnia, amnesia, and acalculia},
+  booktitle = ancs,
+  pages = 	 {155--164},
+  year = 	 2007,
+  address = 	 {Orlando, Florida},
+  month = 	 dec,
+  doi =          {http://doi.acm.org/10.1145/1323548.1323574},
+  annote = 	 {From Jia: DPI stuff.  Proposes something richer than
+                  a DFA.  Adds some form of history and counting.}
+}
+
+@InProceedings{becchi2007memory-efficient,
+  author = 	 {Michela Becchi and Srihari Cadambi},
+  title = 	 {Memory-efficient regular expression search using
+                  state merging},
+  booktitle = infocom,
+  pages = 	 {1064--1072},
+  year = 	 2007,
+  address = 	 {Anchorage, Alaska},
+  month = 	 may,
+  doi =          {http://dx.doi.org/10.1109/INFCOM.2007.128},
+  annote = 	 {From Jia: DPI stuff.  Merging states to compact
+                  DFAs, but not in the usual way.  Adds much more
+                  complex transition labels.  Also does bitmaps, etc.}
+}
+
+@InProceedings{smith2008deflating,
+  author = 	 {Randy Smith and Cristian Estan and Somesh Jha and
+                  Shijin Kong},
+  title = 	 {Deflating the big bang: Fast and scalable deep
+                  packet inspection with extended finite automata},
+  booktitle = sigcomm,
+  pages = 	 {207--218},
+  year = 	 2008,
+  address = 	 {Seattle, Washington},
+  doi =          {http://doi.acm.org/10.1145/1402958.1402983},
+  annote = 	 {From Jia: DPI stuff.  Adding extra variables, then
+                  simplifying the logic to mantain them.}
+}
+
+@InProceedings{song2008memory,
+  author = 	 {Tian Song and Wei Zhang and Dongsheng Wang and Yibo Xue},
+  title = 	 {A Memory Efficient Multiple Pattern Matching
+                  Architecture for Network Security},
+  booktitle = infocom,
+  pages = 	 {673--681},
+  year = 	 2008,
+  address = 	 {Phoenix, Arizona},
+  month = 	 apr,
+  annote = 	 {From Jia: DPI stuff.  "Cached deterministic finite
+                  automata"  Another way of introducing extra
+                  variables that are updates as the DFA is traversed.}
+}
+
+@Article{baeza-yates1992new,
+  author = 	 {Ricardo Baeza-Yates and Gaston H. Gonnet},
+  title = 	 {A new approach to text searching},
+  journal = 	 cacm,
+  year = 	 1992,
+  volume = 	 35,
+  number = 	 10,
+  pages = 	 {74--82},
+  month = 	 oct,
+  doi =          {http://doi.acm.org/10.1145/135239.135243},
+  annote = 	 {From Jia: DPI stuff.  Shift-and-add algorithm; a
+                  sort of hash function.  Accommodates don't-care
+                  characters, too.  Cute little algorithm.}
+}
+
+@inproceedings{kiyokuni2002lock,
+ author = {Kawachiya, Kiyokuni and Koseki, Akira and Onodera, Tamiya},
+ title = {Lock reservation: Java locks can mostly do without atomic operations},
+ booktitle = {OOPSLA '02: Proceedings of the 17th ACM SIGPLAN conference on Object-oriented programming, systems, languages, and applications},
+ year = {2002},
+ isbn = {1-58113-471-1},
+ pages = {130--141},
+ location = {Seattle, Washington, USA},
+ doi = {http://doi.acm.org/10.1145/582419.582433},
+ publisher = {ACM},
+ address = {New York, NY, USA},
+ }
+
+@inproceedings{onodera2004lock,
+  author    = {Tamiya Onodera and
+               Kiyokuni Kawachiya and
+               Akira Koseki},
+  title     = {Lock Reservation for {Java} Reconsidered},
+  booktitle = ecoop,
+  year      = {2004},
+  pages     = {559-583},
+  ee        = {http://springerlink.metapress.com/openurl.asp?genre=article{\&}issn=0302-9743{\&}volume=3086{\&}spage=559},
+  bibsource = {DBLP, http://dblp.uni-trier.de}
+}
+
+@article{holzmann1997model,
+    author = "Gerard J. Holzmann",
+    title = "The Model Checker {SPIN}",
+    journal = "Software Engineering",
+    volume = "23",
+    number = "5",
+    pages = "279-295",
+    year = "1997",
+    url = "citeseer.ist.psu.edu/holzmann97model.html" 
+}
+
+@article{russell2006eliminating,
+ author = {Russell, Kenneth and Detlefs, David},
+ title = {Eliminating synchronization-related atomic operations with biased locking and bulk rebiasing},
+ journal = {SIGPLAN Not.},
+ volume = {41},
+ number = {10},
+ year = {2006},
+ issn = {0362-1340},
+ pages = {263--272},
+ doi = {http://doi.acm.org/10.1145/1167515.1167496},
+ publisher = {ACM},
+ address = {New York, NY, USA},
+ }
+
+@inproceedings{bacon1998thin,
+ author = {Bacon, David F. and Konuru, Ravi and Murthy, Chet and Serrano, Mauricio},
+ title = {Thin locks: featherweight synchronization for Java},
+ booktitle = {PLDI '98: Proceedings of the ACM SIGPLAN 1998 conference on Programming language design and implementation},
+ year = {1998},
+ isbn = {0-89791-987-4},
+ pages = {258--268},
+ location = {Montreal, Quebec, Canada},
+ doi = {http://doi.acm.org/10.1145/277650.277734},
+ publisher = {ACM},
+ address = {New York, NY, USA},
+ }
+
+@article{bacon2004thin,
+ author = {Bacon, David F. and Konuru, Ravi and Murthy, Chet and Serrano, Mauricio J.},
+ title = {Thin locks: featherweight Synchronization for Java},
+ journal = {SIGPLAN Not.},
+ volume = {39},
+ number = {4},
+ year = {2004},
+ issn = {0362-1340},
+ pages = {583--595},
+ doi = {http://doi.acm.org/10.1145/989393.989452},
+ publisher = {ACM},
+ address = {New York, NY, USA},
+ }
+
+@Misc{bacon2000method,
+ author = {David Bacon and Stephen Fink},
+ title =  {Method and Apparatus to Provide Concurrency Control Over Objects Without Atomic Operations on Non-Shared Objects},
+ howpublished = {US Patent Docket No. YO999-614},
+ mon = {August},
+ year = {2000},
+}
+
+@article{mellor-crummey1991algorithms,
+ author = {Mellor-Crummey, John M. and Scott, Michael L.},
+ title = {Algorithms for scalable synchronization on shared-memory multiprocessors},
+ journal = {ACM Trans. Comput. Syst.},
+ volume = {9},
+ number = {1},
+ year = {1991},
+ issn = {0734-2071},
+ pages = {21--65},
+ doi = {http://doi.acm.org/10.1145/103727.103729},
+ publisher = {ACM},
+ address = {New York, NY, USA},
+ }
+
+@article{lamport1987fast,
+ author = {Lamport, Leslie},
+ title = {A fast mutual exclusion algorithm},
+ journal = {ACM Trans. Comput. Syst.},
+ volume = {5},
+ number = {1},
+ year = {1987},
+ issn = {0734-2071},
+ pages = {1--11},
+ doi = {http://doi.acm.org/10.1145/7351.7352},
+ publisher = {ACM},
+ address = {New York, NY, USA},
+ }
+
+@article{peterson1981myths,
+author = {G. L. Peterson},
+title = {Myths About the Mutual Exclusion Problem},
+journal = {IPL 12(3)},
+year = {1981},
+pages = {115--116}
+}
+
+@article{dekker,
+ author = {Dijkstra, Edsger W.},
+ title = {Cooperating sequential processes},
+ year = {1965},
+ journal = {Technological University, Eindhoven, The Netherlands, September 1965. Reprinted in Programming Languages, F. Genuys, Ed., Academic Press, New York, 1968, 43-112}, 
+}
+
+
+@Misc{intelmanual,
+    title = {{Intel IA-32 Architecture Software Developer's Manual, vol. 3A}},
+    year = {2009},
+    annote = {\texttt{http://www.intel.com/products/processor/manuals/}}
+}
+
+@inproceedings{1995woosplash,
+ author = {Woo, Steven Cameron and Ohara, Moriyoshi and Torrie, Evan and Singh, Jaswinder Pal and Gupta, Anoop},
+ title = {The {SPLASH-2} programs: characterization and methodological considerations},
+ booktitle = {ISCA '95: Proceedings of the 22nd Annual International Symposium on Computer architecture},
+ year = {1995},
+ isbn = {0-89791-698-0},
+ pages = {24--36},
+ location = {S. Margherita Ligure, Italy},
+ doi = {http://doi.acm.org/10.1145/223982.223990},
+ publisher = {ACM},
+ address = {New York, NY, USA},
+ }
+
+@inproceedings{burckhardt2007checkfence,
+ author = {Burckhardt, Sebastian and Alur, Rajeev and Martin, Milo M. K.},
+ title = {CheckFence: checking consistency of concurrent data types on relaxed memory models},
+ booktitle = {PLDI '07: Proceedings of the 2007 ACM SIGPLAN conference on Programming language design and implementation},
+ year = {2007},
+ isbn = {978-1-59593-633-2},
+ pages = {12--21},
+ location = {San Diego, California, USA},
+ doi = {http://doi.acm.org/10.1145/1250734.1250737},
+ publisher = {ACM},
+ address = {New York, NY, USA},
+ }
+
+@TechReport{dice-asymmetric-dekker-2001,
+  author = 		 {Dave Dice and Hui Huang and Mingyao Yang},   
+  title = 		 {Asymmetric Dekker Synchronization},
+  institution =  {Sun Microsystems},
+  note = {http://home.comcast.net/~pjbishop/Dave},
+  year = 		 2001}
+
+
+
+@TechReport{dice-moir-scherer-2006,
+  author = 		 {Dave Dice and Mark Moir and William Scherer},
+  title = 		 {Quickly Reacquirable Locks},
+  institution =  {Sun Microsystems},
+  note = 	 {http://home.comcast.net/~pjbishop/Dave},
+  year = 		 2003}
+
+@Article{aho1975efficient,
+  author = 	 {Alfred V. Aho and Margaret J. Corasick},
+  title = 	 {Efficient string matching: an aid to bibliographic search},
+  journal = 	 cacm,
+  year = 	 1975,
+  volume = 	 18,
+  number = 	 6,
+  pages = 	 {333--340},
+  month = 	 jun,
+  annote = 	 {Aho-Corasick algorithm for pattern matching;
+                  well-known.  Build an FSM that walks forward through
+                  the text.  Main trick: limited "backtracking": when
+                  a non-matching character is encoutered, don't always
+                  return to the initial state.}
+}
+
+@Book{jurafsky2008speech,
+  author = 	 {Daniel Jurafsky and James H. Martin},
+  title = 	 {Speech and Language Processing},
+  publisher = 	 ph,
+  year = 	 2008,
+  edition = 	 {Second},
+  annote = 	 {Used by Kathy and others in NLP classes.}
+}
+
+@Book{koopman1989stack,
+  author = 	 {Phil Koopman},
+  title = 	 {Stack Computers: The New Wave},
+  publisher = 	 {Halsted Press},
+  year = 	 1989,
+  annote =       {Read years ago at Caltech while working on the FORTH chip},
+  url =          {http://www.ece.cmu.edu/~koopman/stack_computers/index.html},
+}
+
+@Article{patterson2010trouble,
+  author = 	 {David Patterson},
+  title = 	 {The Trouble with Multi-core},
+  journal = 	 {IEEE Spectrum},
+  year = 	 2010,
+  volume = 	 47,
+  number = 	 7,
+  pages = 	 {28--32,52--53},
+  month = 	 jul,
+  annote = 	 {Nice story on how the architecture community gave up
+                  and gave us unprogrammable multicore processors.}
+}
+
 @inproceedings{olivier2006uts,
   author    = {Stephen Olivier and
                Jun Huan and
@@ -36820,30 +38049,1224 @@ deadlines.}
   bibsource = {DBLP, http://dblp.uni-trier.de}
 }
 
-@inproceedings{bergan2010coredet,
- author = {Bergan, Tom and Anderson, Owen and Devietti, Joseph and Ceze, Luis and Grossman, Dan},
- title = {CoreDet: a compiler and runtime system for deterministic multithreaded execution},
- booktitle = {ASPLOS '10: Proceedings of the fifteenth edition of ASPLOS on Architectural support for programming languages and operating systems},
- year = {2010},
- isbn = {978-1-60558-839-1},
- pages = {53--64},
- location = {Pittsburgh, Pennsylvania, USA},
- doi = {http://doi.acm.org/10.1145/1736020.1736029},
+
+@Article{adl-tabatabai1998fast,
+  author = 	 {Ali-Reza Adl-Tabatabai and Micha\l{} Cierniak and
+                  Guei-Yuan Lueh and Vishesh M. Parikh and James M. Stichnoth},
+  title = 	 {Fast, effective code generation in a just-in-time
+                  {Java} compiler},
+  journal = 	 {SIGPLAN Notices},
+  year = 	 1998,
+  volume = 	 33,
+  number = 	 5,
+  pages = 	 {280--290},
+  month = 	 may,
+  annote = 	 {JIT stuff.  Intel's JIT compiler for Java.  Shipped
+                  with VTune for Java 2.5.  Nice discussion of
+                  architecture, but only comparisons with other JITs.}
+}
+
+@Article{reinholtz2000java,
+  author = 	 {Kirk Reinholtz},
+  title = 	 {Java will be faster than {C++}},
+  journal = 	 {SIGPLAN Notices},
+  year = 	 2000,
+  volume = 	 35,
+  number = 	 2,
+  pages = 	 {25--28},
+  month = 	 feb,
+  annote = 	 {Arguing for fast JITs because of the availability of
+                  dynamic information.  No bibliography!  Not cited much.}
+}
+
+@InProceedings{bull2001benchmarking,
+  author = 	 {J. M. Bull and L. A. Smith and L. Pottage and R. Freeman},
+  title = 	 {Benchmarking {Java} against {C} and {Fortran} for
+                  scientific applications},
+  booktitle = {Proceedings of the Java Grande Conferece},
+  pages = 	 {97--105},
+  year = 	 2001,
+  address = 	 {Palo Alto, California},
+  month = 	 jun,
+  annote = 	 {Quite a range of numbers, but pretty small overall:
+                  1.2 - 5, with most in the 1.5 - 2 range.  All micro
+                  scientific benchmarks (FFT, LU decomposition,
+                  etc.).  Well-cited.}
+}
+
+@TechReport{fitzgerald1999marmot,
+  author = 	 {Robert Fitzgerald and Todd B. Knoblock and Erik Ruf
+                  and Bjarne Steensgaard and and David Tarditi},
+  title = 	 {{Marmot}: An Optimizing Compiler for {Java}},
+  institution =  {Microsoft Research},
+  year = 	 1999,
+  number = 	 {MSR--TR--99--33},
+  address = 	 {Redmond, Washington},
+  month = 	 jun,
+  annote = 	 {Ahead-of-time compiler for Java, compared to C++
+                  compiler, JIT, etc.  Does not implement dynamic
+                  class loading.
+
+                  "The C++ versions are 1.03 to 1.38 times the speed
+                  of the Marmot versions with a median of 1.13"
+
+                  Comparison with the MS JVM (JIT) -- ranges from 10%
+                  (1/10th the speed) to 80% (20% slower)}
+}
+
+@Article{dasilva2005experimental,
+  author = 	 {Anderson Faustino {da Silva} and Vitor Santos Costa},
+  title = 	 {An Experimental Evaluation of {JAVA} {JIT} Technology},
+  journal = 	 {Jornal of Universal Computer Science},
+  year = 	 2005,
+  volume = 	 11,
+  number = 	 7,
+  pages = 	 {1291--1309},
+  month = 	 jul,
+  doi =          {http://dx.doi.org/10.3217/jucs-011-07-1291},
+  annote = 	 {Questionable journal, but suggests Sun's HotSpot
+                  generates code of comparable speed as gcj.}
+}
+
+@InProceedings{duval2005writing,
+  author = 	 {Philip Duval and Josef Wilgen},
+  title = 	 {Writing {TINE} Servers in {Java}},
+  booktitle = {Proceedings of the International Workshop on
+                  Personal Computer and Particle Accelator Controls (PCaPAC)},
+  year = 	 2005,
+  address = 	 {Hayama, Japan},
+  month = 	 mar,
+  url =          {http://conference.kek.jp/pcapac2005/},
+  annote = 	 {Questionable: a paper at a workshop, but JVM vs gcj}
+}
+
+@InProceedings{dennis1997parallel,
+  author = 	 {Jack B. Dennis},
+  title = 	 {A parallel program execution model supporting modular software construction},
+  booktitle = {Proceedings of the Third Working Conference on
+                  Massively Parallel Programming Models (MPPM)},
+  pages = 	 {50--60},
+  year = 	 1997,
+  address = 	 {London, UK},
+  month = 	 nov,
+  doi = {http://dx.doi.org/10.1109/MPPM.1997.715961},
+  annote = 	 {Part of the Fresh Breeze project.
+
+                  http://csg.csail.mit.edu/Users/dennis/csg-dennis.htm
+                  On his webpage, "Recognizing that the functional
+                  programming style provides a medium for expressing
+                  parallelism without violating principles of modular
+                  software construction, the group has focused on
+                  computer architecture concepts and principles that
+                  offer the ability to execute efficiently programs
+                  expressed in the functional style."
+          
+                  Employs simultaneous multithreading (Eggers et al.,
+                  ISCA 1995), a 64-bit global shared address space,
+                  and no memory update; cycle-free heap to get rid of
+                  cache coherence problems.
+
+
+
+                 }
+}
+
+@INPROCEEDINGS{dennis2008fresh,
+author={Jack B. Dennis},
+booktitle= ipdps,
+title={The {Fresh Breeze} project: A multi-core chip supporting
+                  composable parallel programming},
+year=2008,
+month=apr,
+address = {Miami, Florida},
+pages={1--5},
+doi={10.1109/IPDPS.2008.4536391},
+ISSN={1530-2075},
+annote = {Part of the Fresh Breeze project.}
+}
+
+@InProceedings{papadopoulos1990monsoon,
+  author = 	 {Gregory M. Papadopoulos and David E. Culler},
+  title = 	 {Monsoon: an explicit token-store architecture},
+  booktitle = isca,
+  pages = 	 {82--91},
+  year = 	 1990,
+  address = 	 {Seattle, Washington},
+  month = 	 jun,
+  doi = {http://doi.acm.org/10.1145/325164.325117},
+  annote = 	 {Monsoon}
+}
+
+@InProceedings{dennis1998general,
+  author = 	 {Jack B. Dennis},
+  title = 	 {General Parallel Computation can be Performed with a
+                  Cycle-Free Heap},
+  booktitle = pact,
+  pages = 	 {96--103},
+  year = 	 1998,
+  address = 	 {Paris, France},
+  month = 	 oct,
+  doi =          {http://dx.doi.org/10.1109/PACT.1998.727177},
+  annote = 	 {Part of the Fresh Breeze work}
+}
+
+@Article{dennis2003fresh,
+  author = 	 {Jack B. Dennis},
+  title = 	 {{Fresh Breeze}: a multiprocessor chip architecture
+                  guided by modular programming principles},
+  journal = 	 {ACM SIGARCH Computer Architecture News},
+  year = 	 2003,
+  volume = 	 31,
+  number = 	 1,
+  pages = 	 {7--15},
+  month = 	 mar,
+  annote = 	 {Part of the Fresh Breeze project.}
+}
+
+@Article{denning2010resurgence,
+  author = 	 {Peter J. Denning and Jack B. Dennis},
+  title = 	 {The Resurgence of Parallelism},
+  journal = 	 cacm,
+  year = 	 2010,
+  volume = 	 53,
+  number = 	 6,
+  pages = 	 {30--32},
+  month = 	 jun,
+  doi =          {10.1145/1743546.1743560},
+  annote = 	 {Fantastic summary of how things have gone in
+                  parallelism.  Starts with the Burroughs B5000 (a
+                  stack-based processor), talks
+                  about how assembly-style minicomputer, then
+                  microcomputers, essentially took over the mainframe
+                  world, leaving parallelism on the side.  Arvind's Monsoon
+                  project was based on Haskel; Lawrence Livermore
+                  worked with Sisal, derived from Val.
+
+                  Distinguishes determinate computation (in the Kahn
+                  sense) from deterministic, in which tasks would be
+                  performed in the same order.  SHIM's central point
+                  is determinacy, not determinism.
+
+                  Argues for write-once memory to solve the cache
+                  coherence problem.
+
+                  Nice old bibliography.
+                  },
+}
+
+@InProceedings{mishra2006tartan,
+  author = 	 {Mahim Mishra and Timothy J. Callahan and Tiberiu
+                  Chelcea and Girish Venkataramani and Mihai Budiu and
+                  Seth C. Goldstein},
+  title = 	 {Tartan: Evaluating Spatial Computation for Whole
+                  Program Execution},
+  booktitle = asplos,
+  pages = 	 {163--174},
+  year = 	 2006,
+  address = 	 {San Jose, California},
+  month = 	 oct,
+  annote = 	 {Part of Seth's Phoenix project.  Cites their 2004
+                  ASPLOS paper on Spatial Computing.
+
+                  Architecture consisting of a general-purpose
+                  processor and a reconfigurable fabric communicating
+                  through a shared L1 D-cache backed by L2 and main
+                  memory.
+
+                  Lots of experiments on a simulator.
+
+                  Extensive bibliography.}
+}
+
+@InProceedings{budiu2004spatial,
+  author = 	 {Mihai Budiu and Girish Venkataramani and Tiberiu
+                  Chelcea and Seth Copen Goldstein},
+  title = 	 {Spatial Computation},
+  booktitle = asplos,
+  pages = 	 {14--26},
+  year = 	 2004,
+  address = 	 {Boston, Massachusetts},
+  month = 	 oct,
+  annote = 	 {Part of Seth's Phoenix project.
+
+                  There's a large, complicated network for streaming
+                  memory requests to and from the memory system, but
+                  they essentially assume a large, monolithic memory
+                  hierarchy.}
+}
+
+@InProceedings{venkataramani2005hls,
+  author = 	 {Girish Venkataramani and Tiberiu Chelcea and Seth Copen Goldstein},
+  title = 	 {{HLS} Support for Unconstrained Memory Accesses},
+  booktitle = iwls,
+  year = 	 2005,
+  address = 	 {Lake Arrowhead, California},
+  month = 	 jun,
+  annote = 	 {Part of Seth's Phoenix project.  Starts from C,
+                  guarantees something like sequential memory
+                  consistency.  Objective is to avoid having to do
+                  completely static disambiguation, assuming that
+                  pointer analysis can't do the job completely.
+
+                  Nice, relevant related work section, e.g., on Memory
+                  size estimation and mapping.
+
+                  P. G. Kjeldsberg, F. Catthoor, et al. Storage
+                  requirement estimation for optimized design of data
+                  intensive applications. ACM
+                  Trans. Des. Autom. Electron. Syst., 9(2):133-158,
+                  2004.
+
+                  S. Y. Ohm, F. J. Kurdahi, et al. A comprehensive
+                  estimation technique for high-level synthesis. In
+                  ISSS '95: Proceedings of the 8th international
+                  symposium on System synthesis, pages 122-127. ACM
+                  Press, 1995
+
+                  I. M. Verbauwhede, C. J. Scheers, et al. Memory
+                  estimation for high level synthesis. In DAC '94:
+                  Proceedings of the 31st annual conference on Design
+                  automation, pages 143-148. ACM Press, 1994.
+
+                 Y. Zhao and S. Malik. Exact memory size estimation
+                  for array computations without loop unrolling. In
+                  DAC '99: Proceedings of the 36th ACM/IEEE conference
+                  on Design automation, pages 811-816. ACM Press,
+                  1999.}
+}
+
+@Article{venkataramani2006hardware,
+  author = 	 {Girish Venkataramani and Tobias Bjerregaard and
+                  Tiberiu Chelcea and Seth Copen Goldstein},
+  title = 	 {Hardware Compilation of Application-Specific Memory Access Interconnect},
+  journal = 	 transcad,
+  year = 	 2006,
+  volume = 	 25,
+  number = 	 5,
+  pages = 	 {756--771},
+  month = 	 may,
+  annote = 	 {Part of Seth's Phoenix project}
+}
+
+@Article{kjeldsberg2004storage,
+  author = 	 {Per Gunnar Kjeldsberg and Francky Catthoor and Einar
+                  J. Aas},
+  title = 	 {Storage requirement estimation for optimized design
+                  of data intensive applications},
+  journal = 	 todaes,
+  year = 	 2004,
+  volume = 	 9,
+  number = 	 2,
+  pages = 	 {133--158},
+  month = 	 apr,
+  annote = 	 {Cited by Goldstein et al.  ACM won't let me download
+                  it!}
+}
+
+@InProceedings{thomas2007domain,
+  author = 	 {David B. Thomas and Wayne Luk},
+  title = 	 {A Domain Specific Language for Reconfigurable
+                  Path-based {Monte} {Carlo} Simulations},
+  booktitle = fpt,
+  pages = 	 {97--104},
+  year = 	 2007,
+  address = 	 {Kitakyushu, Japan},
+  month = 	 dec,
+  annote = 	 {Satnam found this: Describes Contessa, a hardware
+                  synthesis language that generates deeply pipelined
+                  Monte Carlo simulator.}
+}
+
+@Article{sklyarov2004fpga,
+  author = 	 {Valery Sklyarov},
+  title = 	 {{FPGA}-based implementation of recursive algorithms},
+  journal = 	 {Microprocessors and Microsystems},
+  year = 	 2004,
+  volume = 	 28,
+  number = 	 {5--6},
+  pages = 	 {197--211},
+  month = 	 aug,
+  doi =          {http://dx.doi.org/10.1016/j.micpro.2004.03.008},
+  annote = 	 {Satnam found this.}
+}
+
+@InProceedings{ferizis2006mapping,
+  author = 	 {George Ferizis and Hossam El Gindy},
+  title = 	 {Mapping Recursive Functions to Reconfigurable Hardware},
+  booktitle = fpl,
+  pages = 	 {1--6},
+  year = 	 2006,
+  address = 	 {Madrid, Spain},
+  month = 	 aug,
+  doi =          {http://dx.doi.org/10.1109/FPL.2006.311226},
+  annote = 	 {Satnam found this.  Unrolling recursive functions on
+                  an FPGA without using a stack.}
+}
+
+@InProceedings{ohm1995comprehensive,
+  author = 	 {Seong Y. Ohm and Fadi J. Kurdahi and Nikil Dutt and Min Xu},
+  title = 	 {A comprehensive estimation technique for high-level synthesis},
+  booktitle = isss,
+  pages = 	 {122--127},
+  year = 	 1995,
+  address = 	 {Cannes, France},
+  doi =          {http://dx.doi.org/10.1145/224486.224528},
+  annote = 	 {Referenced}
+}
+
+@InProceedings{verbauwhede1995memory,
+  author = 	 {Ingrid M. Verbauwhede and Chris J. Scheers and Jan M. Rabaey},
+  title = 	 {Memory Estimation for High Level Synthesis},
+  booktitle = dac95,
+  pages = 	 {143--148},
+  year = 	 1995,
+  address = 	 dac95a,
+  month = 	 jun,
+  doi =          {http://dx.doi.org/10.1109/DAC.1994.204087},
+  annote = 	 {For DSP algorithms only}
+}
+
+@InProceedings{zhao1999exact,
+  author = 	 {Yinh Zhao and Sharad Malik},
+  title = 	 {Exact memory size estimation for array computations
+                  without loop unrolling},
+  booktitle = dac99,
+  pages = 	 {811--816},
+  year = 	 1999,
+  address = 	 dac99a,
+  month = 	 jun,
+  annote = 	 {Exact estimation?}
+}
+
+@Misc{dubey2005platform,
+  author = 	 {Pradeep Dubey},
+  title = 	 {A Platform 2015 Workload Model: Recognition, Mining
+                  and Synthesis Moves Computers to the Era of Tera},
+  howpublished = {Intel White Paper},
+  month =        feb,
+  year = 	 2005,
+  note = 	 {Online \\ ftp://download.intel.com/technology/computing/archinnov/platform2015/download/RMS.pdf},
+  annote = 	 {Recognition, Mining, and Synthesis}
+}
+
+@InProceedings{vasudevan2010d2c,
+  author =       {Nalini Vasudevan and Stephen A. Edwards and Julian Dolby 
+		  and Vijay Saraswat
+},
+  title =        {$D^2$C: Deterministic, Deadlock-free Concurrency},
+  booktitle =	 {High Performance Computing - Student Research Symposium},
+  month =	 dec,
+  year =         2010,
+}
+
+@Article{dennis1994machines,
+  author = 	 {Jack B. Dennis},
+  title = 	 {Machines and models for parallel computing},
+  journal = 	 {International Journal of Parallel Programming},
+  year = 	 1994,
+  volume = 	 22,
+  number = 	 1,
+  pages = 	 {47--77},
+  doi =          {10.1007/BF02577792},
+  month = 	 feb,
+  annote = 	 {Another of the Fresh Breeze things, sort of.
+
+                  "fails to answer the two fundamental issues of
+                  memory latency and synchronization"
+
+                 A broad argument for the utility of parallel
+                  computers.  Mentions Monsoon, Sisal,}
+}
+
+@InCollection{dennis1995stream,
+  author = 	 {Jack B. Dennis},
+  title = 	 {Stream data types for signal processing},
+  booktitle = 	 {Advances in Dataflow Architecture and Multithreading},
+  publisher = {IEEE Computer Society},
+  year = 	 1995,
+  editor = 	 {J.-L. Gaudiot and L. Bic},
+  note = 	 {Also MIT Computation Structures Group Memo 362, October
+                  27, 1994},
+  annote = 	 {Sisal, mostly.  Nice examples written in a
+                  functional, recursive style.  Might be interesting
+                  to look at how this could be expressed in hardware.
+                  Fresh Breeze stuff.}
+}
+
+@Article{balfour2008energy,
+  author = 	 {James Balfour and William J. Dally and David
+                  Black-Schaffer and Vishal Parikh and JongSoo Park},
+  title = 	 {An Energy-Efficient Processor Architecture for Embedded Systems},
+  journal = 	 {IEEE Computer Architecture Letters},
+  year = 	 2008,
+  volume = 	 7,
+  number = 	 1,
+  pages = 	 {29--32},
+  month = 	 {January-June},
+  annote = 	 {Martha's find.  A processor that has a
+                  software-managed instruction cache and elaborate
+                  data delivery system.
+
+                  "Energy consumption in modern processors is
+                  dominated by the supplying of instructions and data
+                  to functional units."}
+}
+
+@Article{dally2008efficient,
+  author = 	 {William J. Dally and James Balfour and David
+                  Black-Shaffer and James Chen and R. Curtis Harting
+                  and Vishal Parikh and Jongsoo Park and David Sheffield},
+  title = 	 {Efficient Embedded Computing},
+  journal = 	 computer,
+  year = 	 2008,
+  number = 7,
+  volume = 41,
+  pages = 	 {27--32},
+  month = 	 jul,
+  doi = {10.1109/MC.2008.224},
+  annote = 	 {From Martha: breakdown of where power is consumed
+                  in processors.  
+                  },
+abstract = {Hardwired ASICs - 50X more efficient than programmable processors - sacrifice programmability to meet the efficiency requirements of demanding embedded systems. Programmable processors use energy mostly to supply instructions and data to the arithmetic units, and several techniques can reduce instruction- and data-supply energy costs. Using these techniques in the Stanford ELM processor closes the gap with ASICs to within 3X.},
+}
+
+@InCollection{turner2006churchs,
+  author = 	 {David A. Turner},
+  title = 	 {Church's Thesis and Functional Programming},
+  booktitle = 	 {Church's Thesis after 70 Years},
+  pages = 	 {515--544},
+  publisher = {Ontos Verlag},
+  year = 	 2006,
+  editor = 	 {Adam Olszewski and Jan Wolenski and Robert Janusz},
+  annote = 	 {Found randomly.  Turner did Miranda.
+
+                  Nice discussion of the lambda calculus, Church
+                  numerals, various combinators, including the Y due
+                  to Curry.  Discusses types, which actually preclude
+                  the Y combinator (can't apply yourself to yourself).
+
+                  Typed lambda calculus usually introduces an explicit
+                  fixed point combinator.
+
+                  Discusses Miranda: points out there isn't an
+                  explicit lambda, fixed points are derived by
+                  noticing call graphs, and it was derived from SASL.
+
+                  Pretty nice summary article.  Credits Strachy with
+                  "Syntactic Sugar."  Nice history.
+
+                  The lambda calculus looks like it should be a
+                  set-theoretic model, but fixed points, and their
+                  absence, causes a problem.  Scott's domain theory,
+                  which adds an explicit bottom, solves the problem. }
+}
+
+@Article{turner2004total,
+  author = 	 {David A. Turner},
+  title = 	 {Total Functional Programming},
+  journal = 	 {Journal of Universal Computer Science},
+  year = 	 2004,
+  volume = 	 10,
+  number = 	 7,
+  pages = 	 {751--768},
+  month = 	 jul,
+  annote = 	 {Avoiding non-terminating programs.  Distinguishes
+                  between finite data and potentially infinite
+                  "codata."
+
+                 loop n = 1 + loop n   <= Should be illegal, but type
+                  checks in most language.  Wants total functional
+                  programming, not partial functional programming.
+
+                  Presence of bottom screws everything up, e.g.,
+                  e - e = 0 is false (e may not terminate).
+
+                  Very interesting: only allow recursion in pattern
+                  matching meaning you can only recurse over (finite)
+                  data structures.  The compiler can also understand
+                  that n-1 is less than n, allowing simple recursion
+                  on the integers.
+
+                  Very nice line of reasoning.}
+}
+
+@Article{larson2009erlang,
+  author = 	 {Jim Larson},
+  title = 	 {Erlang for concurrent programming},
+  journal = 	 cacm,
+  year = 	 2009,
+  volume = 	 52,
+  number = 	 3,
+  pages = 	 {48--56},
+  month = 	 mar,
+  doi = {http://dx.doi.org/10.1145/1467247.1467263},
+  annote = 	 {Off Wikipedia functional language page.
+
+                  Dynamically typed functional language.  List
+                  comprehensions like Haskell et al.
+
+                  Ada-like processes that respond to events.
+                  "pid ! message" syntax for sending messages.
+
+                  Primitives fairly low-level, but higher-order
+                  functions make it possible to express a standard
+                  client-server pattern.}
+}
+
+@Book{nikil2001implicit,
+  author = 	 {Rishiyur S. Nikil and Arvind},
+  title = 	 {Implicit Parallel Programming in {pH}},
+  publisher = 	 mk,
+  year = 	 2001,
+  annote = 	 {Parallel Haskell}
+}
+
+@InCollection{edwards2010compiling,
+  author = 	 {Stephen A. Edwards and Nalini Vasudevan},
+  title = 	 {Compiling {SHIM}},
+  booktitle = 	 {Synthesis of Embedded Software: Frameworks and
+                  Methodologies for Correctness by Construction},
+  pages = 	 {121--146},
+  publisher = {Springer},
+  year = 	 2010,
+  editor = 	 {Sandeep K. Shukla and Jean-Pierre Talpin},
+  chapter = 	 4,
+  url =          {http://dx.doi.org/10.1007/978-1-4419-6400-7_4},
+  doi =          {10.1007/978-1-4419-6400-7_4},
+  annote = 	 {Work with Nalini; a bit like edwards2009concurrency,
+                  but more technical}
+}
+
+@InProceedings{kim2010computation,
+  author = 	 {Martha A. Kim and Stephen A. Edwards},
+  title = 	 {Computation vs. Memory Systems: Pinning Down
+                  Accelerator Bottlenecks},
+  booktitle = {Proceedings of the Workshop on Architectural and
+                  Microarchitectural Support for Binary Translation (AMAS-BT)},
+  FIXMEpages = 	 {FIXME},
+  year = 	 2010,
+  address = 	 {Saint-Malo, France},
+  month = 	 jun,
+  url =          {http://amas-bt.cs.virginia.edu/},
+  annote = 	 {Martha and my work on accelerator measurements.
+                  Should be in an LNCS volume at some point.}
+}
+
+@InProceedings{aviram2010efficient,
+  author = 	 {Amittai Aviram and Shu-Chun Weng and Sen Hu and Bryan Ford},
+  title = 	 {Efficient System-Enforced Deterministic Parallelism},
+  booktitle = osdi,
+  pages = 	 {193--206},
+  year = 	 2010,
+  address = 	 {Vancouver, BC, Canada},
+  month = 	 oct,
+  annote = 	 {Won an OSDI best paper award: basically dynamically
+                  applying the SHIM read/write policy for fork/join
+                  variable behavior using page tables, etc.  Really
+                  nice idea, especially for managing arrays in
+                  parallel when the dependencies can't be calculated
+                  statically.  Part of a deterministic parallelism
+                  session!}
+}
+
+@InProceedings{chen2009hardware-assisted,
+  author = 	 {Yu-Yuan Chen and Ruby B. Lee},
+  title = 	 {Hardware-Assisted Application-Level Access Control},
+  booktitle =    isc,
+  year = 	 2009,
+  address = 	 {Pisa, Italy},
+  month = 	 sep,
+  annote = 	 {Ruby Lee pointed me to this.  Splitting vi into
+                  trusted and untrusted pieces.  Basically, there's a
+                  region of memory that can be made trusted (secured
+                  when it leaves the chip; checked when it's entered)
+                  and user-level programs can be put in there and
+                  operate on secure data.},
+  abstract = {Applications typically rely on the operating system to
+                  en- force access control policies such as MAC, DAC,
+                  or other policies. However, in the face of a
+                  compromised operating system, such protection
+                  mechanisms may be ineffective. Since
+                  security-sensitive applications are most motivated
+                  to maintain access control to their secret or
+                  sensitive in- formation, and have no control over
+                  the operating system, it is desirable to provide
+                  mechanisms to enable applications to protect
+                  information with application-specific policies, in
+                  spite of a compromised operating system. In this
+                  paper, we enable application-level access control
+                  and information sharing with direct hardware support
+                  and protection, bypassing the de- pendency on the
+                  operating system. We analyze an
+                  originator-controlled information sharing policy
+                  (ORCON), where the content creator specifies who has
+                  access to the file created and maintains this
+                  control after the fie has been distributed. We show
+                  that this policy can be enforced by the
+                  software-hardware mechanisms provided by the Secret
+                  Protection (SP) architecture, where a Trusted
+                  Software Module (TSM) is directly protected by SP's
+                  hardware features. We develop a proof-of-concept
+                  text editor application which contains such a
+                  TSM. This TSM can imple- ment many different
+                  policies, not just the originator-controlled policy
+                  that we have defined. We also propose a general
+                  methodology for trust- partitioning an application
+                  into security-critical and non-critical parts.}
+}
+
+@Book{chapman2008using,
+  author = 	 {Barabara Chapman and Gabriele Jost and Ruud {van der Pas}},
+  title = 	 {Using {OpenMP}},
+  publisher = 	 mit,
+  year = 	 2008,
+  annote = 	 {OpenMP and motivations therefore.}
+}
+
+@inproceedings{cheng1998detecting,
+ author = 	{Cheng, Guang-Ien and Feng, Mingdong and Leiserson, Charles E. and Randall, Keith H. and Stark, Andrew F.},
+ title = 	{Detecting data races in Cilk programs that use locks},
+ booktitle = 	{Proceedings of the tenth annual ACM symposium on Parallel algorithms and architectures},
+ series = 	{SPAA '98},
+ year = 	{1998},
+ isbn = 	{0-89791-989-0},
+ location = 	{Puerto Vallarta, Mexico},
+ pages = 	{298--309},
+ numpages = 	{12},
+ url = 		{http://doi.acm.org/10.1145/277651.277696},
+ doi = 		{http://doi.acm.org/10.1145/277651.277696},
+ acmid = 	{277696},
+ publisher = 	{ACM},
+ address = 	{New York, NY, USA},
+ keywords = 	{Cilk, algorithm, data race, debugging, multithreading, parallel programming, race detection},
+}
+
+
+@InProceedings{vasudevan2010d2c,
+  author =       {Nalini Vasudevan and Stephen A. Edwards and Julian Dolby 
+		  and Vijay Saraswat},
+  title =        {$D^2$C: Deterministic, Deadlock-free Concurrency},
+  booktitle =	 {High Performance Computing - Student Research Symposium},
+  month =	 dec,
+  year =         2010,
+}
+
+@article{bergan2010coreDet,
+ author = 	{Bergan, Tom and Anderson, Owen and Devietti, Joseph and Ceze, Luis and Grossman, Dan},
+ title =	 {CoreDet: a compiler and runtime system for deterministic multithreaded execution},
+ journal =	 {SIGARCH Comput. Archit. News},
+ volume =	 {38},
+ issue =	 {1},
+ month =	 {March},
+ year =		 {2010},
+ issn =		 {0163-5964},
+ pages =	 {53--64},
+ numpages =	 {12},
+ url =		 {http://doi.acm.org/10.1145/1735970.1736029},
+ doi =		 {http://doi.acm.org/10.1145/1735970.1736029},
+ acmid =	 {1736029},
+ publisher =	 {ACM},
+ address =	 {New York, NY, USA},
+ keywords =	 {compilers, determinism, multicore, multithreading},
+}
+
+@InProceedings{borkar2007thousand,
+  author = 	 {Shekhar Borkar},
+  title = 	 {Thousand Core Chips---A Technology Perspective},
+  booktitle = dac07,
+  pages = 	 {746--749},
+  year = 	 2007,
+  address = 	 dac07a,
+  month = 	 jun,
+  annote = 	 {Mention's Pollack's Rule: Performance grows as the
+                  square root of complexity.}
+}
+
+@Article{backus1978programming,
+  author = 	 {John Backus},
+  title = 	 {Can Programming Be Liberated from the von {Neumann}
+                  Style?  A Functional Style and Its Algebra of Programs},
+  journal = 	 cacm,
+  year = 	 1978,
+  volume = 	 21,
+  number = 	 8,
+  pages = 	 {613--641},
+  note = 	 aug,
+  annote = 	 {Arguments for functional programming; a variant of
+                  his Turing award lecture.}
+}
+
+@Book{iverson1962programming,
+  author = 	 {Kenneth E. Iverson},
+  title = 	 {A Programming Language},
+  publisher = 	 jw,
+  year = 	 1962,
+  annote = 	 {The book on APL}
+}
+
+@Book{mattson2005patterns,
+  author = 	 {Timothy G. Mattson and Beverly A. Sanders and Berna
+                  L. Massingill},
+  title = 	 {Patterns for Parallel Programming},
+  publisher = 	 aw,
+  year = 	 2005,
+  annote = 	 {Some neat ideas.  My favorite: Algorithm structures
+
+                  Task-division
+                    Task Parallelism
+                    Divide-and-conquer
+
+                 Data decomposition
+                    Geometric decomposition
+                    Recursion (and speculation?)
+
+                 Data flow decomposition
+                    Pipeline
+                    Event-driven}
+}
+
+@InProceedings{collins2010recursion-driven,
+  author = 	 {Rebecca L. Collins and Bharadwaj Vellore and Luca
+                  P. Carloni},
+  title = 	 {Recursion-Driven Parallel Code Generation for
+                  Multi-Core Platforms},
+  booktitle = date,
+  pages = 	 {190--195},
+  year = 	 2010,
+  address = 	 {Dresden, Germany},
+  month = 	 mar,
+  annote = 	 {Huckleberry}
+}
+
+@InProceedings{miranda2010erbium,
+  author = 	 {Cupertino Miranda and	Antoniu Pop and	Philippe
+                  Dumont and Albert Cohen and Marc Duranton},
+  title = 	 {Erbium: a deterministic, concurrent intermediate
+                  representation to map data-flow tasks to scalable,
+                  persistent streaming processes},
+  booktitle = cases,
+  pages = 	 {11--20},
+  year = 	 2010,
+  address = 	 {Scottsdale, Arizona},
+  month = 	 oct,
+  annote = 	 {Erbium is a neat datastructure/runtime system for
+                  streams.  Kind of Kahn-like, but a bit more flexible.}
+}
+
+@Article{regehr2005eliminating,
+  author = 	 {John Regehr and Alastair Reid and Kirk Webb},
+  title = 	 {Eliminating stack overflow by abstract interpretation},
+  journal = 	 tecs,
+  year = 	 2005,
+  volume = 	 4,
+  number = 	 4,
+  pages = 	 {751--778},
+  month = 	 nov,
+  annote = 	 {Stack size}
+}
+
+@Book{zwolinski2004digital,
+  author = 	 {Mark Zwolinski},
+  title = 	 {Digital System Design with {VHDL}},
+  publisher = 	 ph,
+  year = 	 2004,
+  edition = 	 {Second},
+  annote = 	 {A nice book on using VHDL for logic synthesis}
+}
+
+@Book{coussy2008high-level,
+  editor = 	 {Philippe Coussy and Adam Morawiec},
+  title = 	 {High-Level Synthesis: From Algorithm to Digital Circuit},
+  publisher = 	 sv,
+  year = 	 2008,
+  doi =  {10.1007/978-1-4020-8588-8},
+  annote = 	 {Edited collection from all the big players.  Interesting.}
+}
+
+@InCollection{gupta2008high-level,
+  author = 	 {Rajesh Gupta and Forrest Brewer},
+  title = 	 {High-Level Synthesis: A Retrospective},
+  booktitle = 	 {High-Level Synthesis: From Algorithm to Digital Circuit},
+  pages = 	 {13--28},
+  publisher = sv,
+  year = 	 2008,
+  annote = 	 {History of their work}
+}
+
+@InProceedings{devietti2008hardbound,
+  author = 	 {Joe Devietti and Colin Blundell and Milo M. K. Martin
+                  and Steve Zdancewic},
+  title = 	 {{HardBound}: Architectural Support for Spatial
+                  Safety of the {C} Programming Language},
+  booktitle = asplos,
+  pages = 	 {103--114},
+  year = 	 2008,
+  address = 	 {Seattle, Washington},
+  month = 	 mar,
+  annote = 	 {Saw him present this: basic idea is to keep a hash
+                  table with object bound information for pointer
+                  values, then track those values in shadow
+                  registers.  Basically, pointers become augmented
+                  with bound information, but the hardware makes this
+                  (almost completely) transparent.}
+}
+
+@Article{huffman1952method,
+  author = 	 {David A. Huffman},
+  title = 	 {A Method for the Construction of Minumum-Redundancy Codes},
+  journal = 	 {Proceedings of the I.R.E.},
+  year = 	 1952,
+  volume = 	 40,
+  number = 	 9,
+  pages = 	 {1098--1101},
+  month = 	 sep,
+  annote = 	 {The original publication on Huffman codes}
+}
+
+@Article{chung1997efficient,
+  author = 	 {Kuo-Liang Chung},
+  title = 	 {Efficient {Huffman} Decoding},
+  journal = 	 ipl,
+  year = 	 1997,
+  volume = 	 61,
+  number = 	 2,
+  pages = 	 {97--99},
+  month = 	 jan,
+  doi =          {http://dx.doi.org/10.1016/S0020-0190(96)00204-9},
+  annote = 	 {Found at random.  Arrange the tree as a series of
+                  pointers in memory.  Not very interesting, and very
+                  non-parallel.}
+}
+
+@InProceedings{wadler1984listlessness,
+  author = 	 {Philip Wadler},
+  title = 	 {Listlessness is better than laziness: Lazy
+                  evaluation and garbage collection at compile-time},
+  booktitle = lfp,
+  pages = 	 {45--52},
+  year = 	 1984,
+  address = 	 {Austin, Texas},
+  month = 	 aug,
+  doi =          {http://dx.doi.org/10.1145/800055.802020},
+  annote = 	 {A classic, according to Satnam}
+}
+
+@Article{jones2002secrets,
+  author = 	 {Simon Peyton Jones and Simon Marlow},
+  title = 	 {Secrets of the {Glasgow} {Haskell} {Compiler} inliner},
+  journal = 	 jfp,
+  year = 	 2002,
+  volume = 	 12,
+  pages = 	 {393--434},
+  month = 	 sep,
+  annote = 	 {A lot of what's going inside the GHC}
+}
+
+@Article{klein2000skeleton,
+   author = {Shmuel T. Klein},
+   title = {Skeleton Trees for the Efficient Decoding of {Huffman}
+                  Encoded Texts},
+   journal = {Information Retrieval},
+   publisher = sv,
+   issn = {1386-4564},
+   pages = {7--23},
+   volume = 3,
+   issue = 1,
+   doi = {http://dx.doi.org/10.1023/A:1009910017828},
+   year = 2000,
+   annote = {Focus seems more on what it takes to reduce the size of
+                  the representation of the tree.  Points out there
+                  are different ways to assign the codewords and still
+                  achieve the same compression ratio.  Interesting
+                  ideas about looking for complete subtrees},
+}
+
+@inproceedings{choueka1985efficient,
+ author = {Y. Choueka and S. T. Klein and Y. Perl},
+ title = {Efficient variants of {Huffman} codes in high level languages},
+ booktitle = {Proceedings of the 8th annual international ACM SIGIR conference on Research and development in information retrieval},
+ series = {SIGIR '85},
+ year = 1985,
+ isbn = {0-89791-159-8},
+ location = {Montreal, Quebec, Canada},
+ pages = {122--130},
+ numpages = 9,
+ url = {http://doi.acm.org/10.1145/253495.342777},
+ doi = {http://doi.acm.org/10.1145/253495.342777},
+ acmid = 342777,
  publisher = {ACM},
  address = {New York, NY, USA},
- }
+ annote = {Worried about bit-level operations; uses tables instead.
+                  Sort of a byte-packed version of Huffman to ensure
+                  alignment, not true Huffman.} 
+} 
 
-@article{aleen2009commutativity,
+@Article{sieminski1988fast,
+  author = 	 {Andrzej Siemi\'nski},
+  title = 	 {Fast decoding of the {Huffman} codes },
+  journal = 	 ipl,
+  year = 	 1988,
+  volume = 	 26,
+  number = 	 5,
+  pages = 	 {237--241},
+  month = 	 jan,
+  annote = 	 {Again, using tables.}
+}
+
+@inproceedings{hanson1995vhdl,
+ author = {Donald F. Hanson},
+ title = {A {VHDL} conversion tool for logic equations with embedded
+                  {D} latches},
+ booktitle = {Proceedings of the Workshop on Computer Architecture
+                  Education (WCAE)},
+ series = {WCAE-1 '95},
+ year = 1995,
+ articleno = 8,
+ url = {http://doi.acm.org/10.1145/1275143.1275151},
+ doi = {http://doi.acm.org/10.1145/1275143.1275151},
+ acmid = 1275151,
+ publisher = {ACM},
+ address = {New York, NY, USA},
+ annote = {Contains a 6502 block diagram and details about
+                  reverse-engineering it.  Hanson has done a lot of
+                  reverse engineering stuff on the 6502.},
+}
+
+@Article{hanson1981improved,
+  author = 	 {Donald F. Hanson},
+  title = 	 {An Improved Model for a Microcomputer
+                  Component---The 6520 {PIA}},
+  journal = 	 ieeemicro,
+  year = 	 1981,
+  volume = 	 1,
+  number = 	 4,
+  pages = 	 {17--25},
+  month = 	 nov,
+  annote = 	 {6502-related stuff.  Detailed discussion of how to
+                  model the chip.  Nice block diagrams.}
+}
+
+@InProceedings{putnam2009performance,
+  author = 	 {Andrew Putnam and Susan Eggers and Dave Bennett and
+                  Eric Dellinger and Jeff Mason and Henry Styles and
+                  Prasanna Sundararajan and Ralph Wittig},
+  title = 	 {Performance and power of cache-based reconfigurable
+                  computing},
+  booktitle = isca,
+  pages = 	 {395--405},
+  year = 	 2009,
+  address = 	 {Austin, Texas},
+  month = 	 jun,
+  doi = {http://dx.doi.org/10.1145/1555754.1555804},
+  annote = 	 {Martha mentioned this.  Xilinx's CHiMPS compiler:
+                  multiple caches for C programs.}
+}
+
+@InProceedings{huang2008liquid,
+  author = 	 {Shan Shan Huang and Amir Hormati and David F. Bacon
+                  and Rodric Rabbah},
+  title = 	 {{Liquid} {Metal}: Object-Oriented Programming Across
+                  the Hardware/Software Boundary},
+  booktitle = ecoop,
+  pages = 	 {76--103},
+  year = 	 2008,
+  volume = 	 5142,
+  series = 	 lncs,
+  address = 	 {Paphos, Cyprus},
+  month = 	 jul,
+  annote = 	 {Describes their Lime language, an extension of Java
+                  designed for compiling (JITing) to FPGAs.
+
+                  Disciplined enums designed to be represented in just
+                  a few bits; can be used in for loops, array indexes.
+
+                  Takes DES as an example.
+
+                  Uses SDF as an intermediate representation for the
+                  hardware stuff.
+
+                  Useful bibliography on C-to-hardware stuff.}
+}
+
+@InProceedings{auerbach2010lime,
+  author = 	 {Joshua Auerbach and David F. Bacon and Perry Cheng
+                  and Rodric Rabbah},
+  title = 	 {{Lime}: a {Java}-Compatible and Synthesizable
+                  Language for Heterogeneous Architectures},
+  booktitle = oopsla,
+  pages = 	 {89--108},
+  year = 	 2010,
+  address = 	 {Reno, Nevada},
+  month = 	 oct,
+  doi =          {http://dx.doi.org/10.1145/1869459.1869469},
+  annote = 	 {Part of the Liquid Metal project at IBM.  More about
+                  the language.}
+}
+
+@InProceedings{kulkarni2007optimistic,
+  author = 	 {Milind Kulkarni and Keshav Pingali and Bruce Walter
+                  and Ganesh Ramanarayanan and Kavita Bala and L. Paul Chew},
+  title = 	 {Optimistic Parallelism Requires Abstractions},
+  booktitle = pldi,
+  pages = 	 {211--222},
+  year = 	 2007,
+  address = 	 {San Diego, California},
+  month = 	 jun,
+  doi = {http://dx.doi.org/10.1145/1250734.1250759},
+  annote =       {Going after things other than embarassingly parallel
+                  applications}
+}
+
+@InProceedings{shao1994unrolling,
+  author = 	 {Zhong Shao and John H. Reppy and Andrew W. Appel},
+  title = 	 {Unrolling lists},
+  booktitle = lfp,
+  pages = 	 {185--195},
+  year = 	 1994,
+  address = 	 {Orlando, Florida},
+  month = 	 jun,
+  doi =          {http://dx.doi.org/10.1145/182409.182453},
+  annote = 	 {Like my data structure unrolling idea, but just for
+                  lists.  Did in in SML/NJ.}
+}
+
+@InProceedings{hall1994using,
+  author = 	 {Cordelia V. Hall},
+  title = 	 {Using {Hidley}-{Milner} Type Inference to Optimise
+                  List Representation},
+  booktitle = lfp,
+  pages = 	 {162--172},
+  year = 	 1994,
+  address = 	 {Orlando, Florida},
+  month = 	 jun,
+  annote = 	 {Like my data structure unrolling idea.  More general
+                  than shao1994unrolling}
+}
+
+@InProceedings{bailey1997electronic,
+  author = 	 {Donald Bailey and Andrew Norman and Giovanni Moretti},
+  title = 	 {Electronic Schematic Recognition},
+  booktitle = {Proceedings of the 4th Electronics New Zealand
+                  Conference (ENZCON)},
+  pages = 	 {147--151},
+  year = 	 1997,
+  address = 	 {Auckland, New Zealand},
+  month = 	 sep,
+  url =          {http://sprg.massey.ac.nz/Proj_applications.html},
+  annote = 	 {Converting scanned images of schematics into
+                  netlists.  A complement to the Visual6502 stuff?}
+}
+
+@InProceedings{kulkarni2009lonestar,
+  author = 	 {Milind Kulkarni and Martin Burstcher and C\u{a}lin
+                  Ca\c{s}caval and Keshav Pingali},
+  title =  	 {Lonestar: A suite of parallel irregular programs},
+  booktitle = {Proceedings of the International Symposium on
+                  Performance Analysis of Systems and
+                  Software (ISPASS) },
+  pages = 	 {65--76},
+  year = 	 2009,
+  address = 	 {Boston, Massachusetts},
+  month = 	 apr,
+  annote = 	 {Part of the Galois stuff from Pingali et al.}
+}
+
+@InProceedings{cook2009finding,
+  author = 	 {Byron Cook and Ashutosh Gupta and Stephen Magill and
+                  Andrey Rybalchenko and Ji\v{r}\'i \v{S}im\v{s}a and
+                  Satnam Singh and Viktor Vafeiadis},
+  title = 	 {Finding heap-bounds for hardware synthesis},
+  booktitle = fmcad,
+  pages = 	 {205--212},
+  year = 	 2009,
+  address = 	 {Austin, TX},
+  month = 	 nov,
+  annote = 	 {Satnam et al. working on hardware stuff.  Looking
+                  for symbolic bound information.  Very relevant.}
+}
+
+@InProceedings{gill2006loop,
+  author = 	 {Gennette Gill and John Hansen and Montek Singh},
+  title = 	 {Loop Pipelining For High-Throughput Stream
+                  Computation Using Self-Timed Rings},
+  booktitle = iccad,
+  year = 	 2006,
+  address = 	 iccad_a,
+  month = 	 nov,
+  annote = 	 {Nifty asynchronous pipelining.  Idea is to pipeline
+                  loops so that multiple input values may be going
+                  around them simultaneously, increasing overall
+                  throughput when a function is called multiple times.}
+}
+
+@InProceedings{aiken1988perfect,
+  author = 	 {Alexander Aiken and Alexandru Nicolau},
+  title = 	 {Perfect pipelining: A new loop parallelization technique},
+  booktitle = esop,
+  pages = 	 {221--235},
+  year = 	 1988,
+  volume = 	 300,
+  series = 	 lncs,
+  address = 	 {Nancy, France},
+  month = 	 mar,
+  doi =          {10.1007/3-540-19027-9_15},
+  annote = 	 {Cited by gill2006loop.  Looks a lot like software
+                  pipelining: making tight loops that actually perform
+                  part of the work of multiple iterations each time.}
+}
+
+@InProceedings{lam1988software,
+  author = 	 {Monica S. Lam},
+  title = 	 {Software pipelining: An effective scheduling
+                  technique for {VLIW} machines},
+  booktitle = pldi,
+  pages = 	 {318--328},
+  year = 	 1988,
+  address = 	 {Atlanta, Georgia},
+  month = 	 jun,
+  annote = 	 {The fundamental paper on software pipelining}
+}
+
+@inProceedings{vechev2011automatic,
+   author = 	{Vechev, Martin and Yahav, Eran and Raman, Raghavan and Sarkar, Vivek},
+   title = 	{Automatic Verification of Determinism for Structured Parallel Programs},
+   booktitle = 	{Static Analysis},
+   series = 	{Lecture Notes in Computer Science},
+   editor = 	{Cousot, Radhia and Martel, Matthieu},
+   publisher = 	{Springer Berlin / Heidelberg},
+   isbn =	 {},
+   pages = 	{455-471},
+   volume = 	{6337},
+   year = 	{2011}
+}
+
+@inProceedings{aviram2010efficient,
+  author    = 		{Amittai Aviram and
+               		Shu-Chun Weng and
+               		Sen Hu and
+              	 	Bryan Ford},
+  title     =	 	{Efficient System-Enforced Deterministic Parallelism},
+  booktitle   =  	osdi,
+  year      = 		{2010},
+  ee        = 		{http://arxiv.org/abs/1005.3450},
+  bibsource = 		{DBLP, http://dblp.uni-trier.de}
+}
+
+@inproceedings{aleen2009commutativity,
  author = {Aleen, Farhana and Clark, Nathan},
  title = {Commutativity analysis for software parallelization: letting program transformations see the big picture},
- journal = {SIGPLAN Not.},
- volume = {44},
- number = {3},
+ booktitle = {Proceeding of the 14th international conference on Architectural support for programming languages and operating systems},
+ series = {ASPLOS '09},
  year = {2009},
- issn = {0362-1340},
+ isbn = {978-1-60558-406-5},
+ location = {Washington, DC, USA},
  pages = {241--252},
- doi = {http://doi.acm.org/10.1145/1508284.1508273},
+ numpages = {12},
+ url = {http://doi.acm.org/10.1145/1508244.1508273},
+ doi = {http://doi.acm.org/10.1145/1508244.1508273},
+ acmid = {1508273},
  publisher = {ACM},
  address = {New York, NY, USA},
- }
+ keywords = {automatic software parallelization, commutative functions, random interpretation},
+} 
 
