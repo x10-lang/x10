@@ -22,6 +22,12 @@ import x10.util.Random;
 import x10.util.Stack;
 import x10.util.Box;
 /**
+ * XRX invocation protocol:
+ * - Native runtime invokes new Runtime.Worker(0). Returns Worker instance worker0.
+ * - Native runtime starts worker0 thread.
+ * - Native runtime invokes Runtime.start(...) from worker0 (Thread.currentThread() == worker0).
+ * - Runtime.start(...) returns when application code execution has completed.
+ * 
  * @author tardieu
  */
 @Pinned public final class Runtime {
@@ -226,14 +232,8 @@ import x10.util.Box;
         //Worker Id for CollectingFinish
         val workerId:Int;
 
-        def this(main:()=>void) {
-            super(main, "thread-main");
-            workerId = 0;
-            random = new Random(0);
-        }
-
         def this(workerId:Int) {
-            super(()=>runtime().pool.workers(workerId)(), "thread-" + workerId);
+            super("thread-" + workerId);
             this.workerId = workerId;
             random = new Random(workerId + (workerId << 8) + (workerId << 16) + (workerId << 24));
         }
@@ -254,7 +254,7 @@ import x10.util.Box;
         def push(activity:Activity):void = queue.push(activity);
 
         // run pending activities
-        def apply():void {
+        public def apply():void {
             val latch = runtime().pool.latch;
             try {
                 while (loop(latch));

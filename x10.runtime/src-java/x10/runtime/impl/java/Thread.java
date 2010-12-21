@@ -30,9 +30,11 @@ public class Thread extends java.lang.Thread {
 	}
 
 	private Place home;    // the current place
+	
+	public x10.core.fun.VoidFun_0_0 body;
 
-    public Thread(final x10.core.fun.VoidFun_0_0 body, String name) {
-        super(new Runnable() { public void run() { body.apply(); } }, name);
+    public Thread(String name) {
+        super(name);
         if (!(java.lang.Thread.currentThread() instanceof Thread)) {
             home = Place.place(0);
         } else {
@@ -40,7 +42,17 @@ public class Thread extends java.lang.Thread {
         }
     }
 
-	/**
+    public void run() {
+        if (null != body) {
+            body.apply();
+        } else {
+            apply();
+        }
+    }
+
+    public void apply() {}
+
+    /**
 	 * Update thread place (called by native runtime only)
 	 */
 	void home(int home) {
