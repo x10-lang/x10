@@ -257,7 +257,7 @@ import x10.util.Box;
         def apply():void {
             val latch = runtime().pool.latch;
             try {
-                while (loop(latch, true));
+                while (loop(latch));
             } catch (t:Throwable) {
                 println("Uncaught exception in worker thread");
                 t.printStackTrace();
@@ -292,13 +292,13 @@ import x10.util.Box;
 
         // inner loop to help j9 jit
         @TempNoInline_1
-        private def loop(latch:SimpleLatch, block:Boolean):Boolean {
+        private def loop(latch:SimpleLatch):Boolean {
             @TempNoInline_1
             for (var i:Int = 0; i < BOUND; i++) {
                 if (latch()) return false;
                 activity = poll();
                 if (activity == null) {
-                    activity = runtime().pool.scan(random, latch, block);
+                    activity = runtime().pool.scan(random, latch);
                     if (activity == null) return false;
                 }
                 runAtLocal(activity.home, activity.run.());
@@ -391,7 +391,6 @@ import x10.util.Box;
                 // allocate and start a new worker
                 val i = size++;
                 lock.unlock();
-//                assert (i < MAX_WORKERS);
                 if (i >= MAX_WORKERS) {
                     println("TOO MANY THREADS... ABORTING");
                     System.exit(1);
@@ -422,7 +421,7 @@ import x10.util.Box;
         }
 
         // scan workers for activity to steal
-        def scan(random:Random, latch:SimpleLatch, block:Boolean):Activity {
+        def scan(random:Random, latch:SimpleLatch):Activity {
             var activity:Activity = null;
             var next:Int = random.nextInt(size);
             for (;;) {
@@ -432,12 +431,8 @@ import x10.util.Box;
                 }
                 if (null != activity || latch()) return activity;
                 if (semaphore.available() < 0) {
-                    if (block) {
-                        semaphore.release();
-                        semaphore.acquire();
-                    } else {
-                        return activity;
-                    }
+                    semaphore.release();
+                    semaphore.acquire();
                 }
                 if (++next == size) next = 0;
             }
