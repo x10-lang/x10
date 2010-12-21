@@ -61,6 +61,7 @@ import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.InitializerDef;
 import polyglot.types.LocalDef;
+import polyglot.types.LocalInstance;
 import polyglot.types.MethodDef;
 import polyglot.types.MethodInstance;
 import polyglot.types.Name;
@@ -379,14 +380,7 @@ public class StaticInitializer extends ContextVisitor {
                     X10MethodInstance mi = (X10MethodInstance) call.methodInstance();
                     if (mi.container().isClass() && mi.flags().isStatic() && !mi.flags().isNative() && !call.target().type().isNumeric()) {
                         // found reference to static method
-                        if (mi.name().toString().startsWith(initializerPrefix)) {
-                            // already converted to getInitialized$
-                            found.set(true);
-                        } else {
-                            X10MethodDecl mdecl = getMethodDeclaration(mi);
-                            if (mdecl != null && checkProcedureBody(mdecl.body(), 0))
-                                found.set(true);
-                        }
+                        found.set(true);
                      }
                 }
                 if (n instanceof X10Field_c) {
@@ -907,13 +901,14 @@ public class StaticInitializer extends ContextVisitor {
     }
 
     private Expr genBroadcastField(Position pos, Expr fieldVar, Expr fieldId, FieldDecl fdPLH) {
-        Id id = xnf.Id(pos, Name.make("broadcastStaticField"));
+        Id id = xnf.Id(pos, Name.make((fdPLH == null) ?
+                "broadcastStaticField" : "broadcastStaticFieldSingleVM"));
 
         // create MethodDef
         List<Ref<? extends Type>> argTypes = new ArrayList<Ref<? extends Type>>();
         argTypes.add(Types.ref(xts.Object()));
         argTypes.add(Types.ref(xts.Int()));
-        Type returnType = xts.Void();
+        Type returnType = (fdPLH == null) ? xts.Void() : PlaceLocalHandle();
         MethodDef md = xts.methodDef(pos, Types.ref(InitDispatcher()), 
                                      Flags.NONE, Types.ref(returnType), id.id(), argTypes);
         MethodInstance mi = xts.createMethodInstance(pos, Types.ref(md));
