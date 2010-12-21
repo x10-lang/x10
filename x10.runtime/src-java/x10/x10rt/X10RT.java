@@ -49,8 +49,8 @@ public class X10RT {
 
       x10rt_init(0, null);
 
-      MessageHandlers.initializeMessageHandlers();
-      TeamSupport.initializeTeamSupport();
+      MessageHandlers.initialize();
+      TeamSupport.initialize();
 
       here = x10rt_here();
       numPlaces = x10rt_nplaces();

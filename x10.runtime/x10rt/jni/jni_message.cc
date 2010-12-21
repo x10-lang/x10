@@ -92,14 +92,14 @@ JNIEXPORT void JNICALL Java_x10_x10rt_MessageHandlers_runClosureAtSendImpl(JNIEn
 
 /*
  * Class:     x10_x10rt_MessageHandlers
- * Method:    initializeMessageHandlers
+ * Method:    initialize
  * Signature: ()V
  *
  * NOTE: At the Java level this is a synchronized method,
  *       therefore we can freely update the backing C data
  *       structures without additional locking in the native level.
  */
-JNIEXPORT void JNICALL Java_x10_x10rt_MessageHandlers_initializeMessageHandlers(JNIEnv *env, jclass klazz) {
+JNIEXPORT void JNICALL Java_x10_x10rt_MessageHandlers_initialize(JNIEnv *env, jclass klazz) {
 
 #if DEBUG
 	printf("jni_message.cc: MessageHandlers_initializeMessageHandlers\n");
