@@ -382,7 +382,7 @@ public class JavaCaster extends ContextVisitor {
     }
 
     private Expr cast(Expr n, Type toType) throws SemanticException {
-        Expr e = xnf.X10Cast(n.position(), xnf.CanonicalTypeNode(n.position(), toType), n);
+        Expr e = xnf.X10Cast(n.position(), xnf.CanonicalTypeNode(n.position(), X10TypeMixin.baseType(toType)), n);
         return (Expr) e.del().disambiguate(this).typeCheck(this).checkConstants(this);
     }
 }
