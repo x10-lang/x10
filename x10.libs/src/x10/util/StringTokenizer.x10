@@ -18,7 +18,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  This file is derived StringTokenizer.java in the Apache Harmony Project, 
+ *  This file is derived from StringTokenizer.java in the Apache Harmony Project, 
  *  r991881.
  *
  */
