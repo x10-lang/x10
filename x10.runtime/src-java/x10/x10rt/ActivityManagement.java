@@ -13,9 +13,9 @@ package x10.x10rt;
 
 import x10.lang.FinishState;
 
-class ActivityManagement {
+public class ActivityManagement {
     
-    static FinishState activityCreationBookkeeping() {
+    public static FinishState activityCreationBookkeeping() {
         FinishState fs = x10.lang.Runtime.activity().finishState();
         fs.notifySubActivitySpawn(x10.lang.Runtime.home());
         fs.notifyActivityCreation();
@@ -23,7 +23,7 @@ class ActivityManagement {
     }
 
     // Invoked from native code.
-    static void activityTerminationBookkeeping(FinishState fs) {
+    public static void activityTerminationBookkeeping(FinishState fs) {
         fs.notifyActivityTermination();
     }
 }

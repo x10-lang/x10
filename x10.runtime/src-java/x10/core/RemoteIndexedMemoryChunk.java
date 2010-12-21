@@ -20,7 +20,7 @@ public final class RemoteIndexedMemoryChunk<T> extends x10.core.Struct {
     private static final java.util.ArrayList<Object> objects = new java.util.ArrayList<Object>(); // all referenced objects in this place
 
     public final int length;
-    private final int id; // place local id of referenced object
+    public final int id; // place local id of referenced object
     public final Type<T> type;
     public final Place home;
 
@@ -43,6 +43,12 @@ public final class RemoteIndexedMemoryChunk<T> extends x10.core.Struct {
         this.id = size;
     }
 
+    public static Object getValue(int id) {
+        synchronized (objects) {
+            return objects.get(id);
+        }
+    }
+    
     public static <T> RemoteIndexedMemoryChunk<T> wrap(IndexedMemoryChunk<T> chunk) {
         return new RemoteIndexedMemoryChunk<T>(chunk.type, chunk.length, chunk.value);
     }
