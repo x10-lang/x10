@@ -46,6 +46,7 @@ import polyglot.ast.Unary;
 import polyglot.frontend.Job;
 import polyglot.main.Report;
 import polyglot.types.ClassType;
+import polyglot.types.CodeInstance;
 import polyglot.types.Context;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
@@ -97,6 +98,8 @@ import x10.constraint.XVar;
 import x10.emitter.Emitter;
 import x10.extension.X10Ext;
 import x10.extension.X10Ext_c;
+import x10.types.AsyncInstance;
+import x10.types.AtInstance;
 import x10.types.ClosureDef;
 import x10.types.ConstrainedType;
 import x10.types.X10ClassType;
@@ -374,11 +377,22 @@ public class Lowerer extends ContextVisitor {
         return result;
     }
 
+    private static CodeInstance<?> findEnclosingCode(CodeInstance<?> ci) {
+        if (ci instanceof AsyncInstance) {
+            return findEnclosingCode(((AsyncInstance) ci).methodContainer());
+        } else if (ci instanceof AtInstance) {
+            return findEnclosingCode(((AtInstance) ci).methodContainer());
+        }
+        return ci;
+    }
+
     private Stmt atStmt(Position pos, Stmt body, Expr place,
             List<VarInstance<? extends VarDef>> env) throws SemanticException {
         place = getPlace(pos, place);
         Closure closure = synth.makeClosure(body.position(), ts.Void(), synth.toBlock(body), context());
         closure.closureDef().setCapturedEnvironment(env);
+        CodeInstance<?> mi = findEnclosingCode(Types.get(closure.closureDef().methodContainer()));
+        closure.closureDef().setMethodContainer(Types.ref(mi));
         Stmt result = nf.Eval(pos,
         		synth.makeStaticCall(pos, ts.Runtime(), RUN_AT,
         				Arrays.asList(new Expr[] { place, closure }), ts.Void(),
@@ -600,6 +614,8 @@ public class Lowerer extends ContextVisitor {
         Closure closure = synth.makeClosure(body.position(), ts.Void(),
                 synth.toBlock(body), context(), annotations);
         closure.closureDef().setCapturedEnvironment(env);
+        CodeInstance<?> mi = findEnclosingCode(Types.get(closure.closureDef().methodContainer()));
+        closure.closureDef().setMethodContainer(Types.ref(mi));
         exprs.add(closure);
         types.add(closure.closureDef().asType());
         Stmt result = nf.Eval(pos,
@@ -626,6 +642,8 @@ public class Lowerer extends ContextVisitor {
     private Stmt makeUncountedAsyncBody(Position pos, List<Expr> exprs, List<Type> types, Stmt body,
             List<VarInstance<? extends VarDef>> env) throws SemanticException {
         Closure closure = synth.makeClosure(body.position(), ts.Void(), synth.toBlock(body), context());
+        CodeInstance<?> mi = findEnclosingCode(Types.get(closure.closureDef().methodContainer()));
+        closure.closureDef().setMethodContainer(Types.ref(mi));
         closure.closureDef().setCapturedEnvironment(env);
         exprs.add(closure);
         types.add(closure.closureDef().asType());

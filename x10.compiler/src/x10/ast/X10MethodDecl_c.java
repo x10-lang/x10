@@ -177,7 +177,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 		return this;
 	}
 
-	protected MethodDef createMethodDef(TypeSystem ts, ClassDef ct, Flags flags) {
+	protected X10MethodDef createMethodDef(TypeSystem ts, ClassDef ct, Flags flags) {
 		X10MethodDef mi = (X10MethodDef) ((TypeSystem) ts).methodDef(position(), Types.ref(ct.asType()), flags, returnType.typeRef(), name.id(),
 				Collections.<Ref<? extends Type>>emptyList(), 
 				offerType == null ? null : offerType.typeRef());
@@ -189,9 +189,43 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 
 	@Override
 	public Node buildTypesOverride(TypeBuilder tb) {
-		X10MethodDecl_c n = (X10MethodDecl_c) super.buildTypesOverride(tb);
+		// Have to inline super.buildTypesOverride(tb) to make sure the body
+		// is visited after the appropriate information is set up
+		TypeSystem ts = tb.typeSystem();
 
-		X10MethodDef mi = (X10MethodDef) n.methodDef();
+		ClassDef ct = tb.currentClass();
+		assert ct != null;
+
+		Flags flags = this.flags.flags();
+
+		if (ct.flags().isInterface()) {
+		    flags = flags.Public().Abstract();
+		}
+
+		X10MethodDecl_c n = this;
+
+		X10MethodDef mi = createMethodDef(ts, ct, flags);
+		ct.addMethod(mi);
+
+		TypeBuilder tbChk = tb.pushCode(mi);
+
+		final TypeBuilder tbx = tb;
+		final MethodDef mix = mi;
+
+		n = (X10MethodDecl_c) n.visitSignature(new NodeVisitor() {
+		    public Node override(Node n) {
+		        return X10MethodDecl_c.this.visitChild(n, tbx.pushCode(mix));
+		    }
+		});
+
+		List<Ref<? extends Type>> formalTypes = new ArrayList<Ref<? extends Type>>(n.formals().size());
+		for (Formal f1 : n.formals()) {
+		    formalTypes.add(f1.type().typeRef());
+		}
+
+
+		mi.setReturnType(n.returnType().typeRef());
+		mi.setFormalTypes(formalTypes);
 
 		n = (X10MethodDecl_c) X10Del_c.visitAnnotations(n, tb);
 
@@ -230,7 +264,6 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 			Errors.issue(tb.job(),
 			             new SemanticException("Cannot infer method return type; method has no body.", position()));
 			NodeFactory nf = tb.nodeFactory();
-			TypeSystem ts = tb.typeSystem();
 			Position rtpos = n.returnType().position();
 			n = (X10MethodDecl_c) n.returnType(nf.CanonicalTypeNode(rtpos, ts.unknownType(rtpos)));
 		}
@@ -253,8 +286,11 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 			n = (X10MethodDecl_c) n.flags(n.flags().flags(xf));
 		}
 
+		Block body = (Block) n.visitChild(n.body, tbChk);
 
-		return n;
+		n = (X10MethodDecl_c) n.body(body);
+
+		return n.methodDef(mi);
 	}
 
 	@Override
