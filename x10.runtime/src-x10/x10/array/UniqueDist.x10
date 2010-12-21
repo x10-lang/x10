@@ -48,13 +48,13 @@ class UniqueDist extends Dist(1){rect} {
         }
     }
 
-    public def apply(p:Place):Region(rank) = get(p);
+    public operator this(p:Place):Region(rank) = get(p);
 
-    public def apply(pt:Point(rank)):Place {
+    public operator this(pt:Point(rank)):Place {
 	return Place.place(pt(0));
     }
 
-    public def apply(i0:int){rank==1} {
+    public operator this(i0:int){rank==1} {
 	return Place.place(i0);
     }
 

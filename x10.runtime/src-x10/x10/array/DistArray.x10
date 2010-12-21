@@ -130,7 +130,7 @@ public class DistArray[T] (
     final protected def layout() = localHandle().layout;
 
 
-    public final def apply(pt: Point(rank)): T {
+    public final operator this(pt: Point(rank)): T {
         if (CompilerFlags.checkBounds() && !region.contains(pt)) {
             raiseBoundsError(pt);
         }
@@ -143,9 +143,9 @@ public class DistArray[T] (
     /**
      * @deprecated
      */
-    public final def get(pt: Point(rank)): T = apply(pt);
+    public final def get(pt: Point(rank)): T = this(pt);
 
-    final public def apply(i0: int){rank==1}: T {
+    final public operator this(i0: int){rank==1}: T {
         if (CompilerFlags.checkBounds() && !region.contains(i0)) {
             raiseBoundsError(i0);
         }
@@ -155,7 +155,7 @@ public class DistArray[T] (
         return raw()(layout().offset(i0));
     }
 
-    final public def apply(i0: int, i1: int){rank==2}: T {
+    final public operator this(i0: int, i1: int){rank==2}: T {
         if (CompilerFlags.checkBounds() && !region.contains(i0, i1)) {
             raiseBoundsError(i0, i1);
         }
@@ -165,7 +165,7 @@ public class DistArray[T] (
         return raw()(layout().offset(i0,i1));
     }
 
-    final public def apply(i0: int, i1: int, i2: int){rank==3}: T {
+    final public operator this(i0: int, i1: int, i2: int){rank==3}: T {
         if (CompilerFlags.checkBounds() && !region.contains(i0, i1, i2)) {
             raiseBoundsError(i0, i1, i2);
         }
@@ -175,7 +175,7 @@ public class DistArray[T] (
         return raw()(layout().offset(i0,i1,i2));
     }
 
-    final public def apply(i0: int, i1: int, i2: int, i3: int){rank==4}: T {
+    final public operator this(i0: int, i1: int, i2: int, i3: int){rank==4}: T {
         if (CompilerFlags.checkBounds() && !region.contains(i0, i1, i2, i3)) {
             raiseBoundsError(i0, i1, i2, i3);
         }

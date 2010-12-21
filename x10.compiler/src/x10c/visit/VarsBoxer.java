@@ -51,6 +51,7 @@ import x10.ast.AtStmt;
 import x10.ast.X10Binary_c;
 import x10.ast.X10CanonicalTypeNode;
 import x10.ast.X10Unary_c;
+import x10.ast.ClosureCall;
 import x10.types.X10ConstructorInstance;
 import x10.types.X10LocalDef;
 import x10.types.X10ParsedClassType;
@@ -390,7 +391,7 @@ public class VarsBoxer extends ContextVisitor {
     }
 
     private Call createGetCall(final Position pos, LocalInstance lilocal, LocalInstance libox) {
-        Name mname = Name.make("apply");
+        Name mname = ClosureCall.APPLY;
         
         X10ParsedClassType grt = createGlobalRefType(lilocal);
         

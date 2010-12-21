@@ -79,11 +79,11 @@ public class CUDAMatMul {
                         do
                         {
                             next;
-                            //@Unroll(4) for ([i] in 0..4-1) bs(inx*17+iny+4*i) = B.apply(B_idx + (4*i)*ldb);
-                            { val i=0 ; bs(inx*17+iny+4*i) = B.apply(B_idx + (4*i)*ldb); }
-                            { val i=1 ; bs(inx*17+iny+4*i) = B.apply(B_idx + (4*i)*ldb); }
-                            { val i=2 ; bs(inx*17+iny+4*i) = B.apply(B_idx + (4*i)*ldb); }
-                            { val i=3 ; bs(inx*17+iny+4*i) = B.apply(B_idx + (4*i)*ldb); }
+                            //@Unroll(4) for ([i] in 0..4-1) bs(inx*17+iny+4*i) = B(B_idx + (4*i)*ldb);
+                            { val i=0 ; bs(inx*17+iny+4*i) = B(B_idx + (4*i)*ldb); }
+                            { val i=1 ; bs(inx*17+iny+4*i) = B(B_idx + (4*i)*ldb); }
+                            { val i=2 ; bs(inx*17+iny+4*i) = B(B_idx + (4*i)*ldb); }
+                            { val i=3 ; bs(inx*17+iny+4*i) = B(B_idx + (4*i)*ldb); }
                             next;
 
                             

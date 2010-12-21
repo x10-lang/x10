@@ -64,11 +64,11 @@ public class RemoteArray[T](home:Place, region:Region, size:Int) {} {
     public def set(v:T, p:Point{self.rank==this.rank}) {here==home} = array().set(v,p);
 
     @Native("cuda", "(#0).raw[#1]")
-    public def apply(i:Int) {here==home, rank==1} = array()(i);
+    public operator this(i:Int) {here==home, rank==1} = array()(i);
 
-    public def apply(p:Point{self.rank==this.rank}) {here==home} = array()(p);
+    public operator this(p:Point{self.rank==this.rank}) {here==home} = array()(p);
 
-    public def apply() {here==home} = array();
+    public operator this() {here==home} = array();
 
     public def hashCode() = array.hashCode();
 }
@@ -97,9 +97,9 @@ public class RemoteArray[T](region:Region, size:Int, array:GlobalRef[Array[T]{se
 
     public def set(v:T, p:Point{self.rank==this.rank}) {here==array.home} = array().set(v,p);
 
-    public def apply(i:Int) {here==array.home, rank==1} = array()(i);
+    public operator this(i:Int) {here==array.home, rank==1} = array()(i);
 
-    public def apply(p:Point{self.rank==this.rank}) {here==array.home} = array()(p);
+    public operator this(p:Point{self.rank==this.rank}) {here==array.home} = array()(p);
 
     public def hashCode() = array.hashCode();
 }

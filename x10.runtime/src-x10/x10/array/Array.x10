@@ -272,7 +272,7 @@ public final class Array[T] (
     		val sz = Math.min(size, 10);
     		for (var i:Int = 0; i < sz; ++i) {
     			if (i > 0) sb.add(",");
-    			sb.add("" + raw.apply(i));
+    			sb.add("" + raw(i));
     		}
     		if (sz < size) sb.add("...(omitted " + (size - sz) + " elements)");
     		sb.add("]");
@@ -330,7 +330,7 @@ public final class Array[T] (
         def this() {
                 property(Array.this.size);
         }
-        public def apply(i:Int)=array(i);
+        public operator this(i:Int)=array(i);
     }
 
     /**
@@ -340,11 +340,11 @@ public final class Array[T] (
      * 
      * @param i0 the given index in the first dimension
      * @return the element of this array corresponding to the given index.
-     * @see #apply(Point)
+     * @see #operator(Point)
      * @see #set(T, Int)
      */
     @Native("cuda", "(#0).raw[#1]")
-    public @Header @Inline def apply(i0:int){rank==1}:T {
+    public @Header @Inline operator this(i0:int){rank==1}:T {
         if (rail) {
             // Bounds checking by backing IndexedMemoryChunk is sufficient
             return raw(i0);
@@ -364,10 +364,10 @@ public final class Array[T] (
      * @param i0 the given index in the first dimension
      * @param i1 the given index in the second dimension
      * @return the element of this array corresponding to the given pair of indices.
-     * @see #apply(Point)
+     * @see #operator(Point)
      * @see #set(T, Int, Int)
      */
-    public @Header @Inline def apply(i0:int, i1:int){rank==2}:T {
+    public @Header @Inline operator this(i0:int, i1:int){rank==2}:T {
         if (CompilerFlags.checkBounds() && !region.contains(i0, i1)) {
             raiseBoundsError(i0, i1);
         }
@@ -383,10 +383,10 @@ public final class Array[T] (
      * @param i1 the given index in the second dimension
      * @param i2 the given index in the third dimension
      * @return the element of this array corresponding to the given triple of indices.
-     * @see #apply(Point)
+     * @see #operator(Point)
      * @see #set(T, Int, Int, Int)
      */
-    public @Header @Inline def apply(i0:int, i1:int, i2:int){rank==3}:T {
+    public @Header @Inline operator this(i0:int, i1:int, i2:int){rank==3}:T {
         if (CompilerFlags.checkBounds() && !region.contains(i0, i1, i2)) {
             raiseBoundsError(i0, i1, i2);
         }
@@ -403,10 +403,10 @@ public final class Array[T] (
      * @param i2 the given index in the third dimension
      * @param i3 the given index in the fourth dimension
      * @return the element of this array corresponding to the given quartet of indices.
-     * @see #apply(Point)
+     * @see #operator(Point)
      * @see #set(T, Int, Int, Int, Int)
      */
-    public @Header @Inline def apply(i0:int, i1:int, i2:int, i3:int){rank==4}:T {
+    public @Header @Inline operator this(i0:int, i1:int, i2:int, i3:int){rank==4}:T {
         if (CompilerFlags.checkBounds() && !region.contains(i0, i1, i2, i3)) {
             raiseBoundsError(i0, i1, i2, i3);
         }
@@ -419,10 +419,10 @@ public final class Array[T] (
      * 
      * @param pt the given point
      * @return the element of this array corresponding to the given point.
-     * @see #apply(Int)
+     * @see #operator(Int)
      * @see #set(T, Point)
      */
-    public @Header @Inline def apply(pt:Point{self.rank==this.rank}):T {
+    public @Header @Inline operator this(pt:Point{self.rank==this.rank}):T {
         if (CompilerFlags.checkBounds() && !region.contains(pt)) {
             raiseBoundsError(pt);
         }
@@ -439,7 +439,7 @@ public final class Array[T] (
      * @param v the given value
      * @param i0 the given index in the first dimension
      * @return the new value of the element of this array corresponding to the given index.
-     * @see #apply(Int)
+     * @see #operator(Int)
      * @see #set(T, Point)
      */
     @Native("cuda", "(#0).raw[#2] = (#1)")
@@ -466,7 +466,7 @@ public final class Array[T] (
      * @param i0 the given index in the first dimension
      * @param i1 the given index in the second dimension
      * @return the new value of the element of this array corresponding to the given pair of indices.
-     * @see #apply(Int, Int)
+     * @see #operator(Int, Int)
      * @see #set(T, Point)
      */
     public @Header @Inline def set(v:T, i0:int, i1:int){rank==2}:T {
@@ -488,7 +488,7 @@ public final class Array[T] (
      * @param i1 the given index in the second dimension
      * @param i2 the given index in the third dimension
      * @return the new value of the element of this array corresponding to the given triple of indices.
-     * @see #apply(Int, Int, Int)
+     * @see #operator(Int, Int, Int)
      * @see #set(T, Point)
      */
     public @Header @Inline def set(v:T, i0:int, i1:int, i2:int){rank==3}:T {
@@ -511,7 +511,7 @@ public final class Array[T] (
      * @param i2 the given index in the third dimension
      * @param i3 the given index in the fourth dimension
      * @return the new value of the element of this array corresponding to the given quartet of indices.
-     * @see #apply(Int, Int, Int, Int)
+     * @see #operator(Int, Int, Int, Int)
      * @see #set(T, Point)
      */
     public @Header @Inline def set(v:T, i0:int, i1:int, i2:int, i3:int){rank==4}:T {
@@ -530,7 +530,7 @@ public final class Array[T] (
      * @param v the given value
      * @param pt the given point
      * @return the new value of the element of this array corresponding to the given point.
-     * @see #apply(Point)
+     * @see #operator(Point)
      * @see #set(T, Int)
      */
     public @Header @Inline def set(v:T, p:Point{self.rank==this.rank}):T {
@@ -576,7 +576,7 @@ public final class Array[T] (
      * @see #scan((U,T)=>U,U)
      */
     public def map[U](op:(T)=>U):Array[U](region) {
-        return new Array[U](region, (p:Point(this.rank))=>op(apply(p)));
+        return new Array[U](region, (p:Point(this.rank))=>op(this(p)));
     }
 
 
@@ -604,7 +604,7 @@ public final class Array[T] (
             }   
         } else {
             for (p in region) {
-                dst(p) = op(apply(p));
+                dst(p) = op(this(p));
             }
         }
         return dst;
@@ -624,7 +624,7 @@ public final class Array[T] (
      * @see #scan((U,T)=>U,U)
      */
     public def map[S,U](src:Array[U](this.region), op:(T,U)=>S):Array[S](region) {
-        return new Array[S](region, (p:Point(this.rank))=>op(apply(p), src(p)));
+        return new Array[S](region, (p:Point(this.rank))=>op(this(p), src(p)));
     }
 
 
@@ -652,7 +652,7 @@ public final class Array[T] (
             }   
         } else {
             for (p in region) {
-                dst(p) = op(apply(p), src(p));
+                dst(p) = op(this(p), src(p));
             }
         }
         return dst;
@@ -684,7 +684,7 @@ public final class Array[T] (
             }          
         } else {
             for (p in region) {
-                accum = op(accum, apply(p));
+                accum = op(accum, this(p));
             }
         }
         return accum;
@@ -725,7 +725,7 @@ public final class Array[T] (
     public def scan[U](dst:Array[U](region), op:(U,T)=>U, unit:U): Array[U](region) {
         var accum:U = unit;
         for (p in region) {
-            accum = op(accum, apply(p));
+            accum = op(accum, this(p));
             dst(p) = accum;
         }
         return dst;

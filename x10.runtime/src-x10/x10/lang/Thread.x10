@@ -43,7 +43,7 @@ class Thread {
 
     public native def home():Place;
 
-    public native def apply():void;
+    public native operator this():void;
 }
 
 // vim:shiftwidth=4:tabstop=4:expandtab

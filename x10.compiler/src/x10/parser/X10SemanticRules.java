@@ -3239,7 +3239,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
                 MethodBody);
         FlagsNode flags = md.flags();
         if (flags.flags().isStatic()) {
-            syntaxError("Apply operator cannot be static.", md.position());
+            syntaxError("operator() cannot be static.", md.position());
             md = md.flags(flags.flags(flags.flags().clearStatic()));
         }
         md = (MethodDecl) ((X10Ext) md.ext()).annotations(extractAnnotations(modifiers));

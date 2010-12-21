@@ -41,7 +41,7 @@ public final struct PlaceLocalHandle[T]{T <: Object} {
     /**
      * @return the object mapped to the handle at the current place
      */
-    public native def apply():T;
+    public native operator this():T;
 
     // Only to be used by make method and Runtime class
     native def set(newVal:T):void;

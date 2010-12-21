@@ -25,7 +25,7 @@ import harness.x10Test;
 
    public static operator (c : Int) as Poly = new Poly([c]);
 
-   public def apply(x:Int) {
+   public operator this(x:Int) {
      val d = this.degree();
      var s : Int = this.a(d);
      for( [i] in 1 .. this.degree() ) {

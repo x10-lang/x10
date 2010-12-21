@@ -73,7 +73,7 @@ public class ArrayList[T] extends AbstractCollection[T] implements List[T] {
         return v;
     }
             
-    public def apply(i: int) = a(i);
+    public operator this(i: int) = a(i);
 
     public def get(i: int): T = a(i);
 

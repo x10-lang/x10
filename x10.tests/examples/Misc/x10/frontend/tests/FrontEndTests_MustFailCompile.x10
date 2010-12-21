@@ -1543,7 +1543,7 @@ class EscapingCtorTest(p:EscapingCtorTest) {
 	}
 	final operator this+(that:EscapingCtorTest):EscapingCtorTest = null;
 	final operator (that:EscapingCtorTest)*this:EscapingCtorTest = null;
-	@NonEscaping final def apply(that:EscapingCtorTest):EscapingCtorTest = null;
+	@NonEscaping final operator this(that:EscapingCtorTest):EscapingCtorTest = null;
 
 	@NonEscaping final def m() {
 		g();
@@ -2513,8 +2513,8 @@ class C3 implements XXX,YYY {
 	}
 }
 class C implements (Any)=>Int {
-	public def apply(Any):Int = 1;
-	public def apply(String):String="";
+	public operator this(Any):Int = 1;
+	public operator this(String):String="";
 
 	def test(c:C) {
 		val x:Int = c(1);
@@ -2524,8 +2524,8 @@ class C implements (Any)=>Int {
 	}	
 }
 class D[T] implements (T)=>Int {
-	public def apply(T):Int = 1;
-	public def apply(String):String="";
+	public operator this(T):Int = 1;
+	public operator this(String):String="";
 
 	def test(c:D[Any]) {
 		val x:Int = c(1);
@@ -2535,8 +2535,8 @@ class D[T] implements (T)=>Int {
 	}	
 }
 class C2 implements (Any)=>Int, (String)=>String {
-	public def apply(Any):Int = 1;
-	public def apply(String):String="";
+	public operator this(Any):Int = 1;
+	public operator this(String):String="";
 
 	def test(c:C2) {
 		val x:Int = c(1);
@@ -4069,4 +4069,96 @@ class CircularityTestsWithInheritanceInterfacesAndStructs { // see XTENLANG-2187
 	interface Comparable[T](i:T) {}
 	class Foo(i:Foo) implements Comparable[Foo] {}
 	@ERR class Foo2(i:Comparable[Foo2]) implements Comparable[Foo2] {}
+}
+
+class ConformanceChecks { // see XTENLANG-989
+	interface A {
+	   def m(i:Int){i==3}:void;
+	}
+	class IntDataPoint implements A {
+	   @ShouldBeErr public def m(i:Int){i==4}:void {}
+	}
+}
+
+class TestThisAndInheritanceInConstraints {
+	class A {
+		def m(b1:A, var b2:A{A.this==b1}) {}
+	}
+	class B extends A {
+		def m(b1:A, var b2:A{B.this==b1}) {}
+	}
+	class C extends A {
+		@ShouldBeErr def m(b1:A, var b2:A{C.this==b2}) {}
+	}
+}
+
+class TestConstraintsAndProperties(i:Int, j:Int) {
+	def test1(var x1:TestConstraintsAndProperties{self.i==1}, var x2:TestConstraintsAndProperties{self.i==2}) {
+		x1 = @ERR x2;
+	}
+	def test2(var x1:TestConstraintsAndProperties{this.i==1}, var x2:TestConstraintsAndProperties{this.i==2}) {
+		x1 = @ERR x2;
+	}
+	def test3(var x1:TestConstraintsAndProperties{this.i==1}, var x2:TestConstraintsAndProperties{this.j==2}) {
+		x1 = @ShouldBeErr x2;
+	}
+}
+
+class TestFieldsInConstraints { // see XTENLANG-989
+	class A {
+	 public val i:Int = 2;
+	 public val k = 2;
+	}
+	class B extends A {
+	 public val k = 3;
+	 class C {
+	  public val k = 4;
+	  public property j() = B.this.i;
+	  // all these refer to the same field A.i
+	  def m1(var x1:C{C.this.j()==1}, var x2:C{B.this.i==1}, var x3:C{B.super.i==1}) {
+		x1 = x2;
+		x1 = x3;
+		x2 = x1;
+		x2 = x3;
+		x1 = x2;
+		x1 = x3;
+	  }
+	  // check field resolution
+	  def testResolution() {
+		  val Ak:Int{self==2} = B.super.k;
+		  val Bk:Int{self==3} = B.this.k;
+		  val Ck:Int{self==4} = C.this.k;
+		  
+		  @ERR val Ak2:Int{self==5} = B.super.k; // todo: Found type: x10.lang.Int{self==2, B#this.k==2}  ???
+		  @ERR val Bk2:Int{self==5} = B.this.k; // ok: Found type: x10.lang.Int{self==3, B#this.k==3}
+		  @ERR val Ck2:Int{self==5} = C.this.k; // ok: Found type: x10.lang.Int{self==4, B.C#this.k==4}
+	  }
+	  // all these refer to different fields "k"
+	  def m2(var x1:C{C.this.k==1}, var x2:C{B.this.k==1}, var x3:C{B.super.k==1}) {
+		x1 = @ShouldBeErr x2;
+		x1 = @ShouldBeErr x3;
+		x2 = @ShouldBeErr x1;
+		x2 = @ShouldBeErr x3;
+		x1 = @ShouldBeErr x2;
+		x1 = @ShouldBeErr x3;
+	  }
+	  // in fact, even if we use different literals (1,2,3), we still don't get an error!
+	  def m3(var x1:C{C.this.k==1}, var x2:C{B.this.k==2}, var x3:C{B.super.k==3}) {
+		x1 = @ShouldBeErr x2;
+		x1 = @ShouldBeErr x3;
+		x2 = @ShouldBeErr x1;
+		x2 = @ShouldBeErr x3;
+		x1 = @ShouldBeErr x2;
+		x1 = @ShouldBeErr x3;
+	  }
+	 }
+	}
+}
+
+class PropertyFieldResolution {
+	interface A(i:Int) {}
+	class B(i:Int{self==0})  implements A {
+		val k1:Int{self==0} = this.i;
+		@ERR val k2:Int{self==1} = this.i;
+	}
 }

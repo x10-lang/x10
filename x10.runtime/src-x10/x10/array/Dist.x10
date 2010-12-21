@@ -312,7 +312,7 @@ public abstract class Dist(
      * @param p the given place
      * @return the region that this distribution maps to p.
      */
-   public def apply(p:Place):Region(rank) = get(p);
+   public operator this(p:Place):Region(rank) = get(p);
 
 
 
@@ -326,7 +326,7 @@ public abstract class Dist(
      * @param pt the given point
      * @return the place that this distribution maps pt to.
      */
-    abstract public def apply(pt:Point(rank)):Place;
+    abstract public operator this(pt:Point(rank)):Place;
 
     /**
      * Return the place which this distribution maps the specified index to.
@@ -335,9 +335,9 @@ public abstract class Dist(
      *
      * @param i0 the given index in the first dimension
      * @return the place that this distribution maps the given index to.
-     * @see #apply(Point)
+     * @see #operator(Point)
      */
-    public def apply(i0:int){rank==1}:Place = apply(Point.make(i0));
+    public operator this(i0:int){rank==1}:Place = this(Point.make(i0));
 
     /**
      * Return the place which this distribution maps the specified pair of indices to.
@@ -347,9 +347,9 @@ public abstract class Dist(
      * @param i0 the given index in the first dimension
      * @param i1 the given index in the second dimension
      * @return the place that this distribution maps the given pair of indices to.
-     * @see #apply(Point)
+     * @see #operator(Point)
      */
-    public def apply(i0:int, i1:int){rank==2}:Place = apply(Point.make(i0, i1));
+    public operator this(i0:int, i1:int){rank==2}:Place = this(Point.make(i0, i1));
 
     /**
      * Return the place which this distribution maps the specified triple of indices to.
@@ -360,9 +360,9 @@ public abstract class Dist(
      * @param i1 the given index in the second dimension
      * @param i2 the given index in the third dimension
      * @return the place that this distribution maps the given triple of indices to.
-     * @see #apply(Point)
+     * @see #operator(Point)
      */
-    public def apply(i0:int, i1:int, i2:int){rank==3}:Place = apply(Point.make(i0, i1, i2));
+    public operator this(i0:int, i1:int, i2:int){rank==3}:Place = this(Point.make(i0, i1, i2));
 
     /**
      * Return the place which this distribution maps the specified quartet of indices to.
@@ -374,9 +374,9 @@ public abstract class Dist(
      * @param i2 the given index in the third dimension
      * @param i3 the given index in the fourth dimension
      * @return the place that this distribution maps the given quartet of indices to.
-     * @see #apply(Point)
+     * @see #operator(Point)
      */
-    public def apply(i0:int, i1:int, i2:int, i3:int){rank==4}:Place = apply(Point.make(i0,i1,i2,i3));
+    public operator this(i0:int, i1:int, i2:int, i3:int){rank==4}:Place = this(Point.make(i0,i1,i2,i3));
 
 
     //

@@ -112,7 +112,7 @@ public class BaseDist extends Dist /*implements Map[Place,Region]*/ {
     // mapping points to places
     //
 
-    public def apply(pt:Point(rank)):Place {
+    public operator this(pt:Point(rank)):Place {
         for (var i:int=0; i<regionMap.size; i++) {
             if (regionMap(i).contains(pt)) {
                 return Place.place(i);

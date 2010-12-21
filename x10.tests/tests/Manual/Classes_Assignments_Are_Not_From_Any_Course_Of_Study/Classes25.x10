@@ -17,9 +17,9 @@ import harness.x10Test;
 // file Classes line 1741
 class Oddvec {
   var v : Array[Int](1) = new Array[Int](3, (Int)=>0);
-  public def apply() = "(" + v(0) + "," + v(1) + "," + v(2) + ")";
-  public def apply(i:Int) = v(i);
-  public def apply(i:Int, j:Int) = [v(i),v(j)];
+  public operator this() = "(" + v(0) + "," + v(1) + "," + v(2) + ")";
+  public operator this(i:Int) = v(i);
+  public operator this(i:Int, j:Int) = [v(i),v(j)];
   public def set(newval:Int, i:Int) = {v(i) = newval;}
   public def set(newval:Int, i:Int, j:Int) = {
        v(i) = newval; v(j) = newval+1;}

@@ -57,5 +57,5 @@ import x10.io.SerialData;
         unlock();
     }
 
-    public def apply():Int = value;
+    public operator this():Int = value;
 }

@@ -254,7 +254,7 @@ import x10.util.Box;
         def push(activity:Activity):void = queue.push(activity);
 
         // run pending activities
-        public def apply():void {
+        public operator this():void {
             val latch = runtime().pool.latch;
             try {
                 while (loop(latch));
@@ -370,7 +370,7 @@ import x10.util.Box;
             this.workers = workers;
         }
 
-        def apply():void {
+        operator this():void {
             val s = size;
             for (var i:Int = 1; i<s; i++) {
                 workers(i).start();

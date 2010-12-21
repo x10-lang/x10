@@ -156,17 +156,17 @@ public final class BlockBlockWorldDist extends Dist {
         }
     }
 
-    public def apply(pt:Point(rank)):Place {
+    public operator this(pt:Point(rank)):Place {
         if (CompilerFlags.checkBounds() && !region.contains(pt)) raiseBoundsError(pt);
             return mapIndexToPlace(pt(axis0), pt(axis1));
     }
 
-    public def apply(i0:int){rank==1}:Place {
+    public operator this(i0:int){rank==1}:Place {
         // block,block dist only supported for rank>=2
-        throw new UnsupportedOperationException("apply(i0:int)");
+        throw new UnsupportedOperationException("operator(i0:int)");
     }
 
-    public def apply(i0:int, i1:int){rank==2}:Place {
+    public operator this(i0:int, i1:int){rank==2}:Place {
         if (CompilerFlags.checkBounds() && !region.contains(i0, i1)) raiseBoundsError(i0,i1);
         switch(axis0) {
             case 0: return mapIndexToPlace(i0,i1);
@@ -175,7 +175,7 @@ public final class BlockBlockWorldDist extends Dist {
         }
     }
 
-    public def apply(i0:int, i1:int, i2:int){rank==3}:Place {
+    public operator this(i0:int, i1:int, i2:int){rank==3}:Place {
         if (CompilerFlags.checkBounds() && !region.contains(i0, i1, i2)) raiseBoundsError(i0,i1,i2);
         switch(axis0) {
             case 0: switch(axis1) {
@@ -203,7 +203,7 @@ public final class BlockBlockWorldDist extends Dist {
         }
     }
 
-    public def apply(i0:int, i1:int, i2:int, i3:int){rank==4}:Place {
+    public operator this(i0:int, i1:int, i2:int, i3:int){rank==4}:Place {
         val pt = Point.make(i0, i1, i2, i3);
         if (CompilerFlags.checkBounds() && !region.contains(pt)) raiseBoundsError(pt);
             return mapIndexToPlace(pt(axis0), pt(axis1));

@@ -43,5 +43,5 @@ import x10.compiler.Pinned;
             }
     }
 
-    public def apply():Int = value;
+    public operator this():Int = value;
 }

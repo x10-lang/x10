@@ -119,17 +119,17 @@ final class BlockWorldDist extends Dist {
         }
     }
 
-    public def apply(pt:Point(rank)):Place {
+    public operator this(pt:Point(rank)):Place {
 	if (CompilerFlags.checkBounds() && !region.contains(pt)) raiseBoundsError(pt);
         return mapIndexToPlace(pt(axis));
     }
 
-    public def apply(i0:int){rank==1}:Place {
+    public operator this(i0:int){rank==1}:Place {
 	if (CompilerFlags.checkBounds() && !region.contains(i0)) raiseBoundsError(i0);
 	return mapIndexToPlace(i0);
     }
 
-    public def apply(i0:int, i1:int){rank==2}:Place {
+    public operator this(i0:int, i1:int){rank==2}:Place {
 	if (CompilerFlags.checkBounds() && !region.contains(i0, i1)) raiseBoundsError(i0,i1);
 	switch(axis) {
 	    case 0: return mapIndexToPlace(i0);
@@ -138,7 +138,7 @@ final class BlockWorldDist extends Dist {
         }
     }
 
-    public def apply(i0:int, i1:int, i2:int){rank==3}:Place {
+    public operator this(i0:int, i1:int, i2:int){rank==3}:Place {
 	if (CompilerFlags.checkBounds() && !region.contains(i0, i1, i2)) raiseBoundsError(i0,i1,i2);
 	switch(axis) {
 	    case 0: return mapIndexToPlace(i0);
@@ -148,7 +148,7 @@ final class BlockWorldDist extends Dist {
         }
     }
 
-    public def apply(i0:int, i1:int, i2:int, i3:int){rank==4}:Place {
+    public operator this(i0:int, i1:int, i2:int, i3:int){rank==4}:Place {
 	if (CompilerFlags.checkBounds() && !region.contains(i0, i1, i2, i3)) raiseBoundsError(i0,i1,i2,i3);
 	switch(axis) {
 	    case 0: return mapIndexToPlace(i0);

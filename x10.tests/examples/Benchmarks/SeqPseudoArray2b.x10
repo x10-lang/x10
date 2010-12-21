@@ -51,7 +51,7 @@ public class SeqPseudoArray2b extends Benchmark {
             raw(i0*m1+i1) = v;
         }
         
-        final public def apply(i0:int, i1: int) {
+        final public operator this(i0:int, i1: int) {
             return raw(i0*m1+i1);
         }
     }

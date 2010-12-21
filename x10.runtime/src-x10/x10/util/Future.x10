@@ -58,7 +58,7 @@ public class Future[T] implements ()=>T { // Future can't be covariant [+T]  bec
      * Return true if this activity has completed.
      */
     public def forced():boolean = at (root) root().latch();
-    public def apply():T = force();
+    public operator this():T = force();
 
     /**
      * Wait for the completion of this activity and return the computed value.

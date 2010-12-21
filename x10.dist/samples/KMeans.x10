@@ -45,7 +45,7 @@ public class KMeans(myDim:Int) {
            vec = new Array[Float](this.dim, init);
            count = 0;
         }
-        public def apply(i:Int) = vec(i);
+        public operator this(i:Int) = vec(i);
         def makeZero() {
             for ([i] in 0..dim-1) 
                 vec(i) =0.0F;

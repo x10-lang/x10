@@ -25,7 +25,7 @@ import harness.x10Test;
 
    public static operator (c : Int) as UglyPoly = new UglyPoly([c]);
 
-   public def apply(x:Int) {
+   public operator this(x:Int) {
      val d = this.degree();
      var s : Int = this.a(d);
      for( [i] in 1 .. this.degree() ) {
@@ -121,8 +121,8 @@ import harness.x10Test;
      val v <: UglyPoly = t.mult(u).minus(1);
      for( [i] in -3 .. 3) {
        x10.io.Console.OUT.println(
-         "" + i + "	X:" + X.apply(i) + "	t:" + t.apply(i)
-          + "	u:" + u.apply(i) + "	v:" + v.apply(i)
+         "" + i + "	X:" + X(i) + "	t:" + t(i)
+          + "	u:" + u(i) + "	v:" + v(i)
          );
      }
   }

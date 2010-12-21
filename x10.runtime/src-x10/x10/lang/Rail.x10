@@ -171,7 +171,7 @@ public final class Rail[T](length: Int)
     @Native("java", "(#0).apply$G(#1)")
     @Native("c++", "(#0)->apply(#1)")
     @Native("cuda", "(#0)[#1]")
-    public native def apply(i: Int): T;
+    public native operator this(i: Int): T;
 
     /**
      * Operator that allows assignment of Rail elements by index.

@@ -40,13 +40,13 @@ final class WrappedDistRegionRestricted extends Dist {
         return base.get(p).intersection(filter);
     }
 
-    public def apply(p:Place):Region(rank) {
+    public operator this(p:Place):Region(rank) {
         return get(p);
     }
 
-    public def apply(pt:Point(rank)):Place {
+    public operator this(pt:Point(rank)):Place {
         if (filter.contains(pt)) {
-            return base.apply(pt);
+            return base(pt);
         } else {
             throw new ArrayIndexOutOfBoundsException("point " + pt + " not contained in distribution");
         }

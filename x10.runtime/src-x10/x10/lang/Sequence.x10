@@ -30,5 +30,5 @@ import x10.compiler.Native;
  */
 public interface Sequence[+T](size:int) extends (Int)=> T, Iterable[T] {
     @Native("cuda", "(#0).raw[#1]")
-    public def apply (Int) : T;
+    public operator this(Int) : T;
 }

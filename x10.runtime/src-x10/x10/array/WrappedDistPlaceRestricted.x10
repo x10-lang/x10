@@ -43,8 +43,8 @@ final class WrappedDistPlaceRestricted extends Dist {
         }
     }
 
-    public def apply(pt:Point(rank)):Place {
-	val bp = base.apply(pt);
+    public operator this(pt:Point(rank)):Place {
+	val bp = base(pt);
 	if (bp.equals(filter)) {
 	    return bp;
         } else {

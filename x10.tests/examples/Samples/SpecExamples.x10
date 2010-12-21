@@ -147,6 +147,6 @@ class PropertyMethodExample(x:Int, y:Int) {
 	property is(z:Int) = x==z && y==z;
 	def example( a : PropertyMethodExample{eq()}, b : PropertyMethodExample{is(3)} ) {}
 }
-class Oddvec { // ShouldBeErr?  no corresponding apply method defined.
+class Oddvec { // ShouldBeErr?  no corresponding operator() defined.
 public def set(newval:Int, i:Int) = {}
 }
