@@ -41,7 +41,7 @@ public class FutureTest5 extends x10Test {
 	private def testUp_(val del: boolean): boolean = {
 		atomic fut = null;
 		async {
-			val t1 = Future.make( () => 42 );
+			val t1 = Future.make[Int]( () => 42 );
 			atomic fut = t1 as Box[Future[Int]];
 			if (del)
 				System.sleep(500);
@@ -71,7 +71,7 @@ public class FutureTest5 extends x10Test {
 	private def testSibling_(val del: boolean): boolean = {
 		atomic fut = null;
 		async {
-			val t1= Future.make( () => 42 );
+			val t1= Future.make[Int]( () => 42 );
 			atomic fut = t1 as Box[Future[Int]];
 			if (del)
 				System.sleep(500);

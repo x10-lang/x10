@@ -38,7 +38,7 @@ public class X10FieldMatcher extends TypeSystem_c.FieldMatcher {
         super(container, name, context);
         this.contextKnowsReceiver = p;
     }
-   
+
 
     @Override
     public FieldInstance instantiate(FieldInstance mi) throws SemanticException {

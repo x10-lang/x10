@@ -17,6 +17,9 @@ import polyglot.types.reflect.ClassFileLazyClassInitializer;
 import polyglot.util.*;
 import x10.types.X10TypeMixin;
 import x10.types.X10ClassDef_c;
+import x10.types.X10ClassDef;
+import x10.types.X10ParsedClassType;
+import x10.types.matcher.X10FieldMatcher;
 
 /**
  * TypeSystem_c
@@ -639,6 +642,8 @@ public abstract class TypeSystem_c implements TypeSystem
      * returned may be empty.
      */
     public Set<FieldInstance> findFields(Type container, TypeSystem_c.FieldMatcher matcher) {
+        if (!matcher.visit(container)) return Collections.<FieldInstance>emptySet();
+        
 	Name name = matcher.name();
 
 	Context context = matcher.context();
@@ -730,7 +735,7 @@ public abstract class TypeSystem_c implements TypeSystem
 	return false;
     }
 
-    public static class ConstructorMatcher implements Matcher<ConstructorInstance> {
+    public static class ConstructorMatcher extends BaseMatcher<ConstructorInstance> {
 	protected Type container;
 	protected List<Type> argTypes;
 	protected Context context;
@@ -782,7 +787,7 @@ public abstract class TypeSystem_c implements TypeSystem
 	}
     }
 
-    public static class MethodMatcher implements Copy, Matcher<MethodInstance> {
+    public static class MethodMatcher extends BaseMatcher<MethodInstance> implements Copy {
 	protected Type container;
 	protected Name name;
 	protected List<Type> argTypes;
@@ -853,7 +858,7 @@ public abstract class TypeSystem_c implements TypeSystem
 	}
     }
 
-    public static class FieldMatcher implements Copy, Matcher<FieldInstance> {
+    public static class FieldMatcher extends BaseMatcher<FieldInstance> implements Copy {
 	protected Type container;
 	protected Name name;
 	protected Context context;
@@ -911,7 +916,20 @@ public abstract class TypeSystem_c implements TypeSystem
 	}
     }
 
-    public static class MemberTypeMatcher implements Matcher<Named> {
+
+    // To prevent infinite recursion due to searching the field in the superclass/superinterface
+    // e.g., class Q extends Q{i==1} {}
+    public static abstract class BaseMatcher<T> implements Matcher<T> {
+        private HashSet<Type> visitedDefs;
+        public boolean visit(Type t) {
+            if (visitedDefs==null) visitedDefs = new HashSet<Type>();
+            final Type p = X10TypeMixin.baseType(t);
+            if (visitedDefs.contains(p)) return false;
+            visitedDefs.add(p);
+            return true;
+        }
+    }
+    public static class MemberTypeMatcher extends BaseMatcher<Named> {
 	protected Type container;
 	protected Name name;
 	protected Context context;
@@ -958,7 +976,7 @@ public abstract class TypeSystem_c implements TypeSystem
 	return new TypeMatcher(name);
     }
 
-    public static class TypeMatcher implements Matcher<Named> {
+    public static class TypeMatcher extends BaseMatcher<Named> {
 	protected Name name;
 
 	protected TypeMatcher(Name name) {

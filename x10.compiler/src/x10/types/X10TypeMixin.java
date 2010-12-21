@@ -364,6 +364,12 @@ public class X10TypeMixin {
             checkVariance(base,variance,errs,pos);
 
     }
+	public static X10ParsedClassType_c myBaseType(Type t) {
+        Type basetype = baseType(t);
+        // it can be a ParameterType
+        if (basetype instanceof X10ParsedClassType_c) return (X10ParsedClassType_c) basetype;
+        return null;
+    }
 	public static Type baseType(Type t) {
 	    if (t instanceof AnnotatedType) {
 	        AnnotatedType at = (AnnotatedType) t;
@@ -379,7 +385,7 @@ public class X10TypeMixin {
 	    }
 	    return t;
 	}
-	public static Type erasedType(Type t) {
+	public static Type erasedType(Type t) { // todo: delete this method! it is equivalent to baseType
 	    if (t instanceof AnnotatedType) {
 	        AnnotatedType at = (AnnotatedType) t;
 	        return erasedType(at.baseType());

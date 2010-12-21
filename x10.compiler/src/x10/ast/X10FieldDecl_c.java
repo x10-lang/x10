@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.HashSet;
 
 import polyglot.ast.Expr;
 import polyglot.ast.FieldDecl_c;
@@ -73,7 +74,11 @@ import x10.types.X10TypeSystem_c;
 
 import x10.types.X10TypeMixin;
 import x10.types.X10FieldDef_c;
+import x10.types.X10ParsedClassType;
+import x10.types.X10ParsedClassType_c;
+import x10.types.X10ClassDef_c;
 import polyglot.types.TypeSystem;
+import polyglot.types.FieldInstance;
 import x10.types.checker.Checker;
 import x10.types.checker.Converter;
 import x10.types.checker.PlaceChecker;
@@ -472,16 +477,80 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 	    		xc = (Context) n.enterChildScope(n.init, tc.context());
 	    		ContextVisitor childtc = tc.context(xc);
 	    		Expr newInit = Converter.attemptCoercion(childtc, n.init, oldType); // use the oldType. The type of n.init may have "here".
-	    		if (newInit != null)
-	    			return n.init(newInit);
-	    		Errors.issue(tc.job(),
+	    		if (newInit == null)
+	    		    Errors.issue(tc.job(),
 	    		             new Errors.FieldInitTypeWrong(n.init, type, n.init.position()),
 	    		             this);
+                else
+                    n = n.init(newInit);
 	    	}
 
             X10TypeMixin.checkVariance(n.type(), f.isFinal() ? ParameterType.Variance.COVARIANT : ParameterType.Variance.INVARIANT,tc.job());
+
+            // check cycles in struct declaration that will cause a field of infinite size, e.g.,
+            // struct Z(@ERR u:Z) {}
+            // struct Box[T](t:T) { }
+            // struct InfiniteSize(@ERR x:Box[Box[InfiniteSize]]) {}
+            final StructType containerType = fieldDef.container().get();
+            X10ClassDef_c goalDef = X10TypeMixin.getDef(containerType);
+            if (ts.isStruct(containerType)) {
+                HashSet<X10ClassDef_c> otherStructsUsed = new HashSet<X10ClassDef_c>();
+                ArrayList<X10ParsedClassType> toExamine = new ArrayList<X10ParsedClassType>();
+                final X10ParsedClassType_c goal = X10TypeMixin.myBaseType(type);
+                if (goal!=null) {
+                    toExamine.add(goal);
+                    boolean isFirstTime = true;
+                    while (toExamine.size()>0) {
+                        final X10ParsedClassType curr = toExamine.remove(toExamine.size() - 1);
+                        if (!isFirstTime && X10TypeMixin.getDef(curr)==goalDef) {
+                            Errors.issue(tc.job(),new SemanticException("Circularity in the usage of structs will cause this field to have infinite size. Use a class instead of a struct.",position),this);
+                            break;
+                        }
+                        isFirstTime = false;
+
+                        if (!ts.isStruct(curr)) continue;
+                        X10ClassDef_c def = X10TypeMixin.getDef(curr);
+                        if (otherStructsUsed.contains(def)) {
+                            continue;
+                        }
+                        otherStructsUsed.add(def);
+                        toExamine.addAll(getAllTypeArgs(curr));
+                        for (FieldDef fi : def.fields()) {
+                            if (fi.flags().isStatic()) continue;
+                            X10ParsedClassType fiType = X10TypeMixin.myBaseType(fi.type().get());
+                            if (fiType!=null) {
+                                toExamine.add(fiType);
+                                toExamine.addAll(getAllTypeArgs(fiType));
+                            }
+                        }
+
+
+                    }
+                }
+            }
+            
 	    	return n;
 	    }
+        public ArrayList<X10ParsedClassType> getAllTypeArgs(X10ParsedClassType curr) {
+            final List<Type> typeArgs = curr.typeArguments();
+            ArrayList<X10ParsedClassType> res = new ArrayList<X10ParsedClassType>();
+            if (typeArgs!=null) {
+                // consider: struct InfiniteSize(x:Box[Box[InfiniteSize]]) {}
+                // if I just add Box[InfiniteSize] to toExamine, then when I pop it and check "if (otherStructsUsed.contains(def))" then I'll ignore it.
+                // therefore I must also add InfiniteSize (i.e., all the type args found recursively in the type.)
+                ArrayList<Type> toExamineArgs = new ArrayList<Type>(typeArgs);
+                while (toExamineArgs.size()>0) {
+                    Type ta = toExamineArgs.remove(toExamineArgs.size()-1);
+                    final X10ParsedClassType_c baseTa = X10TypeMixin.myBaseType(ta);
+                    if (baseTa!=null) {
+                        res.add(baseTa);
+                        List<Type> typeArgs2 = baseTa.typeArguments();
+                        if (typeArgs2!=null) toExamineArgs.addAll(typeArgs2);
+                    }
+                }
+            }
+            return res;
+        }
 
 	    public Type childExpectedType(Expr child, AscriptionVisitor av) {
 	        if (child == init) {

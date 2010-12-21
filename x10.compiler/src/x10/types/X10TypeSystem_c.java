@@ -411,7 +411,7 @@ public class X10TypeSystem_c extends TypeSystem_c {
     	return false;
     }
 
-    public static class FilteringMatcher<T, U extends T> implements Matcher<U> {
+    public static class FilteringMatcher<T, U extends T> extends BaseMatcher<U> {
         private Matcher<T> matcher;
         private Class<U> filter;
         public FilteringMatcher(Matcher<T> matcher, Class<U> filter) {

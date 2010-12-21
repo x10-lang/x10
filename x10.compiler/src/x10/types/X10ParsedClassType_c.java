@@ -76,9 +76,14 @@ implements X10ParsedClassType
     private void calcSuperTypes() {
         cacheDirectSupertypes = new HashSet<X10ParsedClassType_c>();
         final Type superClass_ = superClass();
-        if (superClass_ !=null) cacheDirectSupertypes.add((X10ParsedClassType_c)X10TypeMixin.baseType(superClass_));
-        for (Type tn : interfaces())
-            cacheDirectSupertypes.add((X10ParsedClassType_c)X10TypeMixin.baseType(tn));
+        if (superClass_ !=null) {
+            final X10ParsedClassType_c superBase = X10TypeMixin.myBaseType(superClass_);
+            if (superBase!=null) cacheDirectSupertypes.add(superBase);
+        }
+        for (Type tn : interfaces()) {
+            final X10ParsedClassType_c superInterfaceBase = X10TypeMixin.myBaseType(tn);
+            if (superInterfaceBase!=null) cacheDirectSupertypes.add(superInterfaceBase);
+        }
         
         cacheAllSupertypes = new HashSet<X10ParsedClassType_c>(cacheDirectSupertypes);
         for (X10ParsedClassType_c t : cacheDirectSupertypes)

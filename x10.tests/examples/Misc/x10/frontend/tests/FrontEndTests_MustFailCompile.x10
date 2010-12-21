@@ -3659,28 +3659,6 @@ class XTENLANG_2142 implements CustomSerialization { // ShouldBeErr: missing cto
 }
 
 
-class TestCircularStructs { // see XTENLANG-2187 
-	static struct Z(u:Z) {} // ShouldBeErr
-	static struct W {
-		val u:W; // ShouldBeErr
-		def this(u:W) { this.u = u; }
-	}
-	
-	static struct Cycle1(u:Cycle2) {} 
-	static struct Cycle2(u:Cycle1) {} // ShouldBeErr
-
-	// see XTENLANG-2144 that was closed
-	//TestStructStaticConstant
-    static struct S {
-        static val ONE = S();
-    }
-	@ShouldBeErr static struct U(u:U) {} 
-
-
-    public static def main(Array[String]{rail}) {
-        val x1 = new Array[S](2);
-    }
-}
 class TestComparableAndArithmetic {
   def compare[T](x:T,y:T) { T <: Comparable[T] } = x.compareTo(y);
   def add[T](x:T,y:T) { T <: Arithmetic[T] } = x+y;
@@ -3949,4 +3927,146 @@ class MethodCollisionTests { // see also \x10.tests\examples\Constructs\Interfac
 			@ERR public def clone():A[T]=null;
 		}
 	}
+}
+
+class CachingResolverAssertionFailed { // see XTENLANG-2254
+	static class Z {}
+	// todo: @ShouldBeErr static struct Z {}
+}
+
+
+
+class TestCircularStructs { // see XTENLANG-2187 
+	@ERR static struct Z(u:Z) {} 
+	static struct W {
+		@ERR val u:W; 
+		def this(u:W) { this.u = u; }
+	}
+	
+	@ERR static struct Cycle1(u:Cycle2) {} 
+	@ERR static struct Cycle2(u:Cycle1) {} 
+
+	// see XTENLANG-2144 that was closed
+	//TestStructStaticConstant
+    static struct S {
+        static val ONE = S();
+    }
+	@ERR static struct U(u:U) {} 
+
+
+    public static def main(Array[String]{rail}) {
+        val x1 = new Array[S](2);
+    }
+}
+class CircularityTestsWithInheritanceInterfacesAndStructs { // see XTENLANG-2187
+	@ERR static struct Z(u:Z) {}
+	static struct Z2 {
+		static val z2:Z2 = Z2();
+	}
+
+	static struct Complex(i:Int,j:Int) {}
+
+	static struct Generic[T] {
+		val t:T;
+		def this(t:T) { this.t = t; }
+	}
+	static class GenClassUsage {
+		var x:Generic[GenClassUsage];
+	}
+	static struct GenStructUsage {
+		@ERR val x:Generic[GenStructUsage];
+		def this(x:Generic[GenStructUsage]) { this.x = x; }
+	}
+	static struct GenStructUsage2[T] {
+		val x:Generic[T];
+		def this(x:Generic[T]) { this.x = x; }
+	}
+	@ERR static struct GenStructUsage3 implements GenStructUsage2[GenStructUsage3] {}
+	static struct GenStructUsage4 {
+		@ERR val x:GenStructUsage2[GenStructUsage2[GenStructUsage4]];
+		def this(x:GenStructUsage2[GenStructUsage2[GenStructUsage4]]) { this.x = x; }
+	}
+	static struct IgnoreGeneric[T] {}
+	@ERR static struct GenStructUsage44(x:IgnoreGeneric[IgnoreGeneric[GenStructUsage44]]) {} // far todo: even though the generic is "ignored" (there is no field of that type), I still report an error. We could do another analysis that checks which type parameters are actually used by fields and only handle such type parameters.
+	static struct GenStructUsage5 {
+		val x:GenStructUsage2[GenStructUsage2[GenStructUsage2[Generic[Int]]]];
+		def this(x:GenStructUsage2[GenStructUsage2[GenStructUsage2[Generic[Int]]]]) { this.x = x; }
+	}
+
+	
+	static struct Box[T](b:T) {}
+	@ERR static struct GA[T](a:Box[GB[T]]) {}
+	@ERR static struct GB[T](a:Box[GA[T]]) {}
+
+	static struct Infinite[T] {
+		@ERR val t:Infinite[Infinite[T]];
+		def this(t:Infinite[Infinite[T]]) {
+			this.t = t;
+		}
+	}
+	@ERR static struct Infinite2[T](t:Infinite2[T]) {}
+	static struct GenStructUsage6 {
+		val x:Infinite[Int];
+		def this(x:Infinite[Int]) { this.x = x; }
+	}
+
+	static struct A1 {
+		val b:B1;
+		def this(b:B1) { this.b = b; }
+	}
+	static class B1 {
+		val a:A1;
+		def this(a:A1) { this.a = a; }
+	}
+	static struct A2 {
+		@ERR val b:B2;
+		def this(b:B2) { this.b = b; }
+	}
+	static struct B2 {
+		@ERR val a:A2;
+		def this(a:A2) { this.a = a; }
+	}
+
+	static struct X {	
+		val inner:Inner;
+		def this(a:Inner) { this.inner = a; }
+		class Inner {}
+	}
+	static class X2 {	
+		class Inner extends X2 {}
+	}
+
+
+	property i() = 5;
+	@ERR class R extends R {i()==5} {}
+	@ERR class R1 {i()==3} {}
+	@ERR class R2 {@ERR i()==3} extends R2 {}
+	class R3 {}
+	@ERR @ERR class R4 extends R3 {@ERR i()==3} {}
+	
+	@ERR static class W extends W {}
+	static val i=3;
+	@ERR static class P extends Q{i==3} {}
+	static class Q extends P{i==3} {}
+
+	@ERR static class S[T] extends S[S[T]] {}
+	
+	@ERR static class A[T] extends B[A[T]] {}
+	static class B[T] extends A[B[T]] {}
+
+	@ERR static class E[T] extends T {} // Cannot extend type T; not a class.
+
+
+	// circularity in interfaces
+	@ERR interface I1 extends I2 {}
+	interface I2 extends I1 {}
+
+	@ERR interface I3 extends I3 {}
+	@ERR interface I4[T] extends I4[I4[T]] {}
+	@ERR interface I5(i:Int) extends I5{self.i==1} {}
+	interface I6(i:I6) {}
+
+	interface Comparable[T](i:T) {}
+	class Foo(i:Foo) implements Comparable[Foo] {}
+	@ERR class Foo2(i:Comparable[Foo2]) implements Comparable[Foo2] {}
 }

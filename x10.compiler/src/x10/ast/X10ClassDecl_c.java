@@ -662,9 +662,6 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     	    }
     	}
 
-        // check cycles in a struct declaration, e.g., struct Z(u:Z) {}
-        //todo
-
     	n = (X10ClassDecl_c) n.typeCheckProperties(parent, tc, childtc);
     	n = (X10ClassDecl_c) n.typeCheckClassInvariant(parent, tc, childtc);
     	n = (X10ClassDecl_c) n.typeCheckBody(parent, tc, childtc);
@@ -707,6 +704,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         }
         n = (X10ClassDecl_c) n.interfaces(newInterfaces);
 
+        if (false) { // todo: this code is useless! it only adds to the lists, without doing any checks!
         // Check for duplicate interfaces
         List<X10ClassType> supers = new ArrayList<X10ClassType>();
         LinkedList<Type> worklist = new LinkedList<Type>();
@@ -721,6 +719,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
                 worklist.add(ot.superClass());
                 worklist.addAll(ot.interfaces());
             }
+        }
         }
         
         // Check for instance type definitions -- these are not supported.

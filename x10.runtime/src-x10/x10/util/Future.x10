@@ -24,7 +24,7 @@ import x10.compiler.Global;
  *
  *
  */
-public class Future[+T] implements ()=>T {
+public class Future[T] implements ()=>T { // Future can't be covariant [+T]  because of: result = new GrowableRail[T]();
 	private val root = GlobalRef[Future[T]](this);
     /**
      * Latch for signaling and wait

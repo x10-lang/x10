@@ -576,12 +576,19 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         Set<Type> visitedTypes = new HashSet<Type>();
 
         LinkedList<Type> typeQueue = new LinkedList<Type>();
+        HashSet<Type> preventInfiniteRecursion = new HashSet<Type>(); // e.g., class CircularityTests { property i() = 5; class R extends R {i()==5} {} }
 
         // Get the upper bound of the container.
         typeQueue.addAll(upperBounds(container, true));
 
         while (! typeQueue.isEmpty()) {
             Type t = typeQueue.removeFirst();
+            
+            { // preventing infinite recursion
+                Type baseType = X10TypeMixin.baseType(t);
+                if (preventInfiniteRecursion.contains(baseType)) continue;
+                preventInfiniteRecursion.add(baseType);
+            }
 
             if (t instanceof X10ParsedClassType) {
                 X10ParsedClassType type = (X10ParsedClassType) t;
@@ -646,8 +653,9 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
             if (t instanceof ObjectType) {
                 ObjectType ot = (ObjectType) t;
 
-                if (ot.superClass() != null) {
-                    typeQueue.addLast(ot.superClass());
+                final Type superClass = ot.superClass();
+                if (superClass != null) {
+                    typeQueue.addLast(superClass);
                 }
 
                 typeQueue.addAll(ot.interfaces());
