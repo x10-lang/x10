@@ -50,5 +50,5 @@ public class MessageHandlers {
     	}
     }
     
-    static native void initializeMessageHandlers();
+    static native void initialize();
 }

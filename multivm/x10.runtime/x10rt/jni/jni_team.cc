@@ -365,19 +365,24 @@ JNIEXPORT void JNICALL Java_x10_x10rt_TeamSupport_nativeDelImpl(JNIEnv *env, jcl
 
 /*
  * Class:     x10_x10rt_TeamSupport
- * Method:    initializeTeamSupport
+ * Method:    initialize
  * Signature: ()V
  */
-JNIEXPORT void JNICALL Java_x10_x10rt_TeamSupport_initializeTeamSupport(JNIEnv *env, jclass klazz) {
-    /* Get a hold of TeamSupport.activityTerminationBookkeeping and stash away its invoke information */
-    jmethodID terminateId = env->GetStaticMethodID(klazz, "activityTerminationBookkeeping", "(Lx10/lang/FinishState;)V");
-    if (NULL == terminateId) {
-        fprintf(stderr, "Unable to resolve methodID for TeamSupport.activityTerminationBookkeeping");
+JNIEXPORT void JNICALL Java_x10_x10rt_TeamSupport_initialize(JNIEnv *env, jclass klazz) {
+    /* Get a hold of ActivityManagement.activityTerminationBookkeeping and stash away its invoke information */
+    jclass amClass = env->FindClass("Lx10/x10rt/ActivityManagement;");
+    if (NULL == amClass) {
+        fprintf(stderr, "Unable to find class x10.x10rt.ActivityManagement");
         abort();
     }
-    jclass globalClass = (jclass)env->NewGlobalRef(klazz);
+    jmethodID terminateId = env->GetStaticMethodID(amClass, "activityTerminationBookkeeping", "(Lx10/lang/FinishState;)V");
+    if (NULL == terminateId) {
+        fprintf(stderr, "Unable to resolve methodID for ActivityManagement.activityTerminationBookkeeping");
+        abort();
+    }
+    jclass globalClass = (jclass)env->NewGlobalRef(amClass);
     if (NULL == globalClass) {
-        fprintf(stderr, "OOM while attempting to allocate global reference for TeamSupport class\n");
+        fprintf(stderr, "OOM while attempting to allocate global reference for ActivityManagement class\n");
         abort();
     }        
     activityTerminationFunc.targetClass  = globalClass;

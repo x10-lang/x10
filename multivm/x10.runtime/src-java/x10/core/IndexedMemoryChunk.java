@@ -12,6 +12,7 @@
 package x10.core;
 
 import x10.core.fun.VoidFun_0_0;
+import x10.lang.UnsupportedOperationException;
 import x10.rtt.RuntimeType;
 import x10.rtt.RuntimeType.Variance;
 import x10.rtt.Type;
@@ -66,27 +67,27 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct {
     public static <T> void asyncCopy(IndexedMemoryChunk<T> src, int srcIndex, 
                                      RemoteIndexedMemoryChunk<T> dst, int dstIndex,
                                      int numElems) {
-        System.arraycopy(src.value, srcIndex, dst.value, dstIndex, numElems);
+        throw new UnsupportedOperationException("asyncCopy not implemented for multivm");
     }
 
     public static <T> void asyncCopy(IndexedMemoryChunk<T> src, int srcIndex, 
                                      RemoteIndexedMemoryChunk<T> dst, int dstIndex,
                                      int numElems, VoidFun_0_0 notifier) {
-        System.arraycopy(src.value, srcIndex, dst.value, dstIndex, numElems);
-        notifier.apply();
+        throw new UnsupportedOperationException("asyncCopy not implemented for multivm");
+        // notifier.apply();
     }
 
     public static <T> void asyncCopy(RemoteIndexedMemoryChunk<T> src, int srcIndex, 
                                      IndexedMemoryChunk<T> dst, int dstIndex,
                                      int numElems) {
-        System.arraycopy(src.value, srcIndex, dst.value, dstIndex, numElems);
+        throw new UnsupportedOperationException("asyncCopy not implemented for multivm");
     }
 
     public static <T> void asyncCopy(RemoteIndexedMemoryChunk<T> src, int srcIndex, 
                                      IndexedMemoryChunk<T> dst, int dstIndex,
                                      int numElems, VoidFun_0_0 notifier) {
-        System.arraycopy(src.value, srcIndex, dst.value, dstIndex, numElems);
-        notifier.apply();
+        throw new UnsupportedOperationException("asyncCopy not implemented for multivm");
+        // notifier.apply();
     }
 
     public static <T> void copy(IndexedMemoryChunk<T> src, int srcIndex, 

@@ -46,18 +46,6 @@ public class TeamSupport {
         }
         return typeCode;
     }
-
-	private static FinishState activityCreationBookkeeping() {
-		FinishState fs = x10.lang.Runtime.activity().finishState();
-		fs.notifySubActivitySpawn(x10.lang.Runtime.home());
-		fs.notifyActivityCreation();
-		return fs;
-	}
-
-	// Invoked from native code.
-	private static void activityTerminationBookkeeping(FinishState fs) {
-		fs.notifyActivityTermination();
-	}
 	
 	public static void nativeMake(IndexedMemoryChunk<Place> places, int count, IndexedMemoryChunk<Integer> result) {
 	    Place[] np = (Place[])places.getBackingArray();
@@ -67,7 +55,7 @@ public class TeamSupport {
 	    }
 	    int[] nr = result.getIntArray();
 
-	    FinishState fs = activityCreationBookkeeping();
+	    FinishState fs = ActivityManagement.activityCreationBookkeeping();
 
 		nativeMakeImpl(int_places, count, nr, fs);
 	}
@@ -78,7 +66,7 @@ public class TeamSupport {
 	}
 	
 	public static void nativeBarrier(int id, int role) {
-	    FinishState fs = activityCreationBookkeeping();
+	    FinishState fs = ActivityManagement.activityCreationBookkeeping();
 	    
 	    nativeBarrierImpl(id, role, fs);
 	}
@@ -109,7 +97,7 @@ public class TeamSupport {
         int typeCode = getTypeCode(src);
         assert getTypeCode(dst) == typeCode : "Incompatible src and dst arrays";
         
-        FinishState fs = activityCreationBookkeeping();
+        FinishState fs = ActivityManagement.activityCreationBookkeeping();
 
         nativeAllReduceImpl(id, role, srcRaw, src_off, dstRaw, dst_off, count, op, typeCode, fs);
     }
@@ -132,7 +120,7 @@ public class TeamSupport {
     }
     
     public static void nativeDel(int id, int role) {
-        FinishState fs = activityCreationBookkeeping();
+        FinishState fs = ActivityManagement.activityCreationBookkeeping();
         
         nativeDelImpl(id, role, fs);
     }
@@ -149,5 +137,5 @@ public class TeamSupport {
 
 	private static native void nativeDelImpl(int id, int role, FinishState fs);
 	
-	static synchronized native void initializeTeamSupport();
+	static native void initialize();
 }
