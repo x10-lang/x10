@@ -118,7 +118,7 @@ public final class ParameterizedType<T> implements Type<T>{
         return str;
     }
 
-    // called from RTT.typeName(Object) of static inner class which is translated from closure
+    // called from RuntimeType.typeName(Object) of static inner class compiled from closure
     public final String typeNameForFun() {
         String str = "(";
         int i;

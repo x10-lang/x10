@@ -2624,9 +2624,9 @@ public class Emitter {
 
 	public void generateRTTInstance(X10ClassDef def) {
 	    // for static inner classes that are compiled from closures
-	    boolean isStaticInnerClassForClosure = def.name().toString().startsWith(ClosureRemover.STATIC_INNER_CLASS_BASE_NAME);
+	    boolean isStaticFunType = def.name().toString().startsWith(ClosureRemover.STATIC_INNER_CLASS_BASE_NAME);
 	    boolean isVoidFun = false;
-	    if (isStaticInnerClassForClosure) {
+	    if (isStaticFunType) {
 	        // Note: assume that the first interface in this X10ClassDef is a function type
 	        Type type = def.interfaces().get(0).get();
             assert type instanceof FunctionType;
@@ -2637,13 +2637,13 @@ public class Emitter {
         w.write("<");
         printType(def.asType(), X10PrettyPrinterVisitor.BOX_PRIMITIVES | X10PrettyPrinterVisitor.NO_QUALIFIER);
         w.write(">");
-        if (isStaticInnerClassForClosure) {
+        if (isStaticFunType) {
             // Option for closures
 //            w.write(" _RTT = new x10.rtt.RuntimeType");
             if (isVoidFun) {
-                w.write(" _RTT = new x10.rtt.StaticInnerClassVoidFunType");
+                w.write(" _RTT = new x10.rtt.StaticVoidFunType");
             } else {
-                w.write(" _RTT = new x10.rtt.StaticInnerClassFunType");
+                w.write(" _RTT = new x10.rtt.StaticFunType");
             }
         } else {
             // Option for non-closures
@@ -2655,7 +2655,7 @@ public class Emitter {
         w.write(">");
         w.write("(");
         w.newline();
-        if (!isStaticInnerClassForClosure) {
+        if (!isStaticFunType) {
             // Option for non-closures
             w.write("\"" + def.asType() + "\", ");
         }
@@ -2701,7 +2701,7 @@ public class Emitter {
         w.write(")");
 
         // override methods of RuntimeType as needed
-        if (isStaticInnerClassForClosure) {
+        if (isStaticFunType) {
             // Option for closures
             /*
             // for static inner classes that are compiled from closures

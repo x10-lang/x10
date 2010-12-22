@@ -12,29 +12,29 @@
 package x10.rtt;
 
 // for static inner classes that are compiled from closures
-public class StaticInnerClassVoidFunType<T> extends RuntimeType<T> {
+public class StaticFunType<T> extends RuntimeType<T> {
     
-    public StaticInnerClassVoidFunType(Class<?> c) {
+    public StaticFunType(Class<?> c) {
         super(c);
     }
     
-    public StaticInnerClassVoidFunType(Class<?> c, Variance[] variances) {
+    public StaticFunType(Class<?> c, Variance[] variances) {
         super(c, variances);
     }
 
-    public StaticInnerClassVoidFunType(Class<?> c, Type<?>[] parents) {
+    public StaticFunType(Class<?> c, Type<?>[] parents) {
         super(c, parents);
     }
     
-    public StaticInnerClassVoidFunType(Class<?> c, Variance[] variances, Type<?>[] parents) {
+    public StaticFunType(Class<?> c, Variance[] variances, Type<?>[] parents) {
         super(c, variances, parents);
     }
 
     @Override
     public String typeName(Object o) {
         // Note: assume that the first parent in this RuntimeType is the parameterized type which corresponds to the function type
-        assert o instanceof x10.core.fun.VoidFun;
-        return ((x10.rtt.ParameterizedType<?>) getParents()[0]).typeNameForVoidFun();
+        assert o instanceof x10.core.fun.Fun;
+        return ((x10.rtt.ParameterizedType<?>) getParents()[0]).typeNameForFun();
     }
 
 }
