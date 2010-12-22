@@ -260,33 +260,6 @@ public class BaseDist extends Dist /*implements Map[Place,Region]*/ {
     }
 */
 
-    //
-    // basic info
-    //
-
-    // XXX should allow places to be in any order??
-    protected static def isUnique(places: Sequence[Place]): boolean {
-    	val size = places.size();
-        if (size!=Place.MAX_PLACES)
-            return false;
-        for (var i: int = 0; i<size; i++) {
-            if (places(i).id!=i)
-                return false;
-        }
-        return true;
-    }
-
-    protected static def isConstant(places: Sequence[Place]): boolean {
-        for (p in places)
-            if (p!=places(0))
-                return false;
-        return true;
-    }
-
-    protected static def onePlace(places: Sequence[Place]): Place {
-        return places.size==0? here : places(0);
-    }
-
     public def equals(thatObj:Any): boolean {
 	if (!(thatObj instanceof Dist)) return false;
         val that:Dist = thatObj as Dist;
@@ -315,7 +288,7 @@ public class BaseDist extends Dist /*implements Map[Place,Region]*/ {
     }
     public def this(r: Region, ps: Sequence[Place], rs: Sequence[Region(r.rank)]): BaseDist{self.region==r} {
 
-        super(r, isUnique(ps), isConstant(ps), onePlace(ps));
+        super(r);
 
         // remove empty regions
         val rr = new ArrayList[Region(r.rank)]();

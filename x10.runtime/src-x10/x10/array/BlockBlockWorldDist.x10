@@ -50,7 +50,7 @@ public final class BlockBlockWorldDist extends Dist {
 
 
     public def this(r:Region, axis0:int, axis1:int):BlockBlockWorldDist{this.region==r} {
-        super(r, false /* TODO: don't just assume this, check */, Place.MAX_PLACES==1, Place.place(0));
+        super(r);
         this.axis0 = axis0;
         this.axis1 = axis1;
     }

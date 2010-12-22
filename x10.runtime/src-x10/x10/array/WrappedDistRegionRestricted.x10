@@ -20,7 +20,7 @@ final class WrappedDistRegionRestricted extends Dist {
     val filter:Region{self.rank==this.rank};
 
     def this(d:Dist, r:Region{rank==d.rank}):WrappedDistRegionRestricted{this.rank==d.rank} {
-        super(d.region.intersection(r), d.unique, d.constant, d.onePlace);
+        super(d.region.intersection(r));
 	base = d as Dist{self.rank==this.rank}; // cast should not be needed
         filter = r as Region(rank); // cast should not be needed
     }

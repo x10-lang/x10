@@ -27,51 +27,16 @@ public abstract class Dist(
     /**
      * The region this distribution is defined over.
      */
-    region:Region,
-
-    /**
-     * Is this distribution "unique" (at most one point per place)?
-     */
-    unique:Boolean,
-
-    /**
-     * Is this distribution "constant" (all points map to the same place)?
-     */
-    constant:boolean,
-
-    /**
-     * If this distribution is "constant", the place all points map to (or null).
-     */
-    onePlace:Place
+    region:Region
 ) implements
     (Point(region.rank))=>Place
     // (Place)=>Region XTENLANG-60
     , Iterable[Point(region.rank)]
 {
-
     /**
      * The rank of this distribution.
      */
     property rank:Int = region.rank;
-
-    /**
-     * Is this distribution defined over a rectangular region?
-     */
-    property rect:boolean = region.rect;
-
-    /**
-     * Is this distribution's region zero-based?
-     */
-
-    property zeroBased:boolean = region.zeroBased;
-
-    /**
-     * Is this distribution's region a "rail" (one-dimensional contiguous zero-based)?
-     */
-    property rail:boolean = region.rail;
-
-    // XTENLANG-50: workaround requires explicit return type decls here
-    // XTENLANG-4: workaround requires BaseDist methods to be named differently from these methods
 
     //
     // factories - place is all applicable places
@@ -84,7 +49,7 @@ public abstract class Dist(
      *
      * @return a "unique" distribution over all places.
      */
-    public static def makeUnique():Dist(1){rect,unique} {
+    public static def makeUnique():Dist(1) {
         return UNIQUE;        
     }
     // Cache pre-allocated UniqueDist to optimize makeUnique calls.
@@ -97,7 +62,6 @@ public abstract class Dist(
      * @param r the given region
      * @return a "constant" distribution over r.
      */
-    // TODO: [IP] return Dist(r){constant&&onePlace==here}
     public static def makeConstant(r:Region):Dist(r) = BaseDist.makeConstant1(r);
 
     /**
@@ -691,12 +655,9 @@ public abstract class Dist(
      * Construct a distribution over the specified region.
      *
      * @param region the given region
-     * @param unique whether to construct a "unique" distribution
-     * @param constant whether to construct a "constant" distribution
-     * @param onePlace the place all points map to (if "constant") or null
      */
-    protected def this(region:Region, unique:boolean, constant:boolean, onePlace:Place) {
-        property(region, unique, constant, onePlace);
+    protected def this(region:Region) {
+        property(region);
     }
 
     protected static @NoInline @NoReturn def raiseBoundsError(i0:int) {

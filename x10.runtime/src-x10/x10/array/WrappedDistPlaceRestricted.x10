@@ -20,7 +20,7 @@ final class WrappedDistPlaceRestricted extends Dist {
     val filter:Place;
 
     def this(d:Dist, p:Place):WrappedDistPlaceRestricted{this.rank==d.rank} {
-        super(d.get(p), false, true, p);
+        super(d.get(p));
 	base = d as Dist{self.rank==this.rank}; // cast should not be needed
         filter = p;
     }

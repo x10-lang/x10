@@ -16,9 +16,9 @@ import x10.compiler.CompilerFlags;
 /**
  * This class is an highly optimized implementation for a
  * the "unique" distribution that maps the region [0..Place.MAX_PLACES-1]
- * such that for every place this.get(p) == [p..p].<p>
+ * such that for every place <code>this.get(p) == [p..p].</code><p>
  */
-class UniqueDist extends Dist(1){rect} {
+class UniqueDist extends Dist(1) {
    
     /**
      * Cached restricted region for the current place.
@@ -26,8 +26,8 @@ class UniqueDist extends Dist(1){rect} {
     private transient var regionForHere:Region(this.rank);
 
 
-    def this():UniqueDist{self.rank==1,self.rect,self.unique} {
-	super(0..Place.MAX_PLACES-1, true, false, Place(0));
+    def this():UniqueDist{self.rank==1} {
+	super(0..Place.MAX_PLACES-1);
     }
 
 
