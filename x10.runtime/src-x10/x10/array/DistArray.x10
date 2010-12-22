@@ -22,8 +22,26 @@ import x10.compiler.Incomplete;
 import x10.util.IndexedMemoryChunk;
 
 /**
- * This class represents an array with raw chunk in each place,
- * initialized at its place of access via a PlaceLocalHandle.
+ * <p>A distributed array (DistArray) defines a mapping from {@link Point}s to data 
+ * values of some type T. The Points in the DistArray's domain are defined by
+ * specifying a {@link Region} over which the Array is defined.  Attempting to access 
+ * a data value at a Point not included in the Array's Region will result in a 
+ * {@link ArrayIndexOutOfBoundsException} being raised. The array's distribution ({@link Dist})
+ * defines a mapping for the Points in the DistArray's region to Places. This defines
+ * the Place where the data element for each Point is actually stored. Attempting to access
+ * a data element from any other place will result in a {@link BadPlaceException} being
+ * raised.</p>
+ *
+ * <p>The closely related class {@link Array} is used to define 
+ * non-distributed arrays where the data values for the Points in the 
+ * array's domain are all stored in a single place.  Although it is possible to
+ * use a DistArray to store data in only a single place by creating a "constant distribution",
+ * an Array will significantly outperform a DistArray with a constant distribution.</p>
+ *
+ * @see Point
+ * @see Region
+ * @see Dist
+ * @see Array
  */
 public class DistArray[T] (
     /**
@@ -34,18 +52,8 @@ public class DistArray[T] (
              Iterable[Point(dist.region.rank)]
 {
 
-    private static class LocalState[T] {
-        val layout:RectLayout;
-        val raw:IndexedMemoryChunk[T];
 
-        def this(l:RectLayout, r:IndexedMemoryChunk[T]) {
-            layout = l;
-            raw = r;
-        }
-    };
-
-
-   //
+    //
     // properties
     //
 
@@ -91,8 +99,27 @@ public class DistArray[T] (
      */
     public property onePlace: Place = dist.onePlace;
 
+    // Need a wrapper class because PlaceLocalHandle can only be used to wrap objects.
+    protected static class LocalState[T](data:IndexedMemoryChunk[T]) {
+      public def this(c:IndexedMemoryChunk[T]) { property(c); }
+    }
+    protected val localHandle:PlaceLocalHandle[LocalState[T]];
+    protected transient var cachedRawValid:boolean;
+    protected transient var cachedRaw:IndexedMemoryChunk[T];
+    
+    /**
+     * Get the raw backing storage in the current place. 
+     * On critical path, so cache it.
+     */
+    protected final def raw():IndexedMemoryChunk[T] {
+        if (!cachedRawValid) {
+            cachedRaw = localHandle().data;
+            x10.util.concurrent.Fences.storeStoreBarrier();
+	    cachedRawValid = true;
+        }
+        return cachedRaw;
+    }
 
- 
 
     //
     // factories for dist arrays 
@@ -124,151 +151,118 @@ public class DistArray[T] (
 
 
 
-
-    private val localHandle:PlaceLocalHandle[LocalState[T]];
-    final protected def raw():IndexedMemoryChunk[T] = localHandle().raw;
-    final protected def layout() = localHandle().layout;
-
-
-    public final operator this(pt: Point(rank)): T {
+    public final operator this(pt:Point(rank)): T {
         if (CompilerFlags.checkBounds() && !region.contains(pt)) {
             raiseBoundsError(pt);
         }
-        if (CompilerFlags.checkPlace() && dist(pt) != here) {
-            raisePlaceError(pt);
-        }
-        return raw()(layout().offset(pt));
+        val offset = dist.offset(pt);
+        return raw()(offset);
     }
 
-    /**
-     * @deprecated
-     */
-    public final def get(pt: Point(rank)): T = this(pt);
 
-    final public operator this(i0: int){rank==1}: T {
+    final public operator this(i0:int){rank==1}: T {
         if (CompilerFlags.checkBounds() && !region.contains(i0)) {
             raiseBoundsError(i0);
         }
-        if (CompilerFlags.checkPlace() && dist(i0) != here) {
-            raisePlaceError(i0);
-        }
-        return raw()(layout().offset(i0));
+	val offset = dist.offset(i0);
+        return raw()(i0);
     }
 
-    final public operator this(i0: int, i1: int){rank==2}: T {
+    final public operator this(i0:int, i1:int){rank==2}: T {
         if (CompilerFlags.checkBounds() && !region.contains(i0, i1)) {
             raiseBoundsError(i0, i1);
         }
-        if (CompilerFlags.checkPlace() && dist(i0, i1) != here) {
-            raisePlaceError(i0,i1);
-        }
-        return raw()(layout().offset(i0,i1));
+        val offset = dist.offset(i0, i1);
+        return raw()(offset);
     }
 
-    final public operator this(i0: int, i1: int, i2: int){rank==3}: T {
+    final public operator this(i0:int, i1:int, i2:int){rank==3}: T {
         if (CompilerFlags.checkBounds() && !region.contains(i0, i1, i2)) {
             raiseBoundsError(i0, i1, i2);
         }
-        if (CompilerFlags.checkPlace() && dist(i0,i1,i2) != here) {
-            raisePlaceError(i0,i1,i2);
-        }
-        return raw()(layout().offset(i0,i1,i2));
+        val offset = dist.offset(i0, i1, i2);
+        return raw()(offset);
     }
 
-    final public operator this(i0: int, i1: int, i2: int, i3: int){rank==4}: T {
+    final public operator this(i0:int, i1:int, i2:int, i3:int){rank==4}: T {
         if (CompilerFlags.checkBounds() && !region.contains(i0, i1, i2, i3)) {
             raiseBoundsError(i0, i1, i2, i3);
         }
-        if (CompilerFlags.checkPlace() && dist(i0,i1,i2,i3) != here) {
-            raisePlaceError(i0,i1,i2,i3);
-        }
-        return raw()(layout().offset(i0,i1,i2,i3));
+	val offset = dist.offset(i0, i1, i2, i3);
+        return raw()(offset);
     }
 
 
     // XXXX settable order
-    public final def set(v: T, pt: Point(rank)): T {
+    public final def set(v:T, pt:Point(rank)): T {
         if (CompilerFlags.checkBounds() && !region.contains(pt)) {
             raiseBoundsError(pt);
         }
-        if (CompilerFlags.checkPlace() && dist(pt) != here) {
-            raisePlaceError(pt);
-        }
-        val r = raw();
-        r(layout().offset(pt)) = v;
+        val offset = dist.offset(pt);
+        raw()(offset) = v;
         return v;
     }
 
-    final public def set(v: T, i0: int){rank==1}: T {
+    final public def set(v:T, i0:int){rank==1}: T {
         if (CompilerFlags.checkBounds() && !region.contains(i0)) {
             raiseBoundsError(i0);
         }
-        if (CompilerFlags.checkPlace() && dist(i0) != here) {
-            raisePlaceError(i0);
-        }
-        raw()(layout().offset(i0)) = v;
+        val offset = dist.offset(i0);
+        raw()(offset) = v;
         return v;
     }
 
-    final public def set(v: T, i0: int, i1: int){rank==2}: T {
+    final public def set(v:T, i0:int, i1:int){rank==2}: T {
         if (CompilerFlags.checkBounds() && !region.contains(i0, i1)) {
             raiseBoundsError(i0, i1);
         }
-        if (CompilerFlags.checkPlace() && dist(i0,i1) != here) {
-            raisePlaceError(i0,i1);
-        }
-        raw()(layout().offset(i0,i1)) = v;
+        val offset = dist.offset(i0, i1);
+        raw()(offset) = v;
         return v;
     }
 
-    final public def set(v: T, i0: int, i1: int, i2: int){rank==3}: T {
+    final public def set(v:T, i0:int, i1:int, i2:int){rank==3}: T {
         if (CompilerFlags.checkBounds() && !region.contains(i0, i1, i2)) {
             raiseBoundsError(i0, i1, i2);
         }
-        if (CompilerFlags.checkPlace() && dist(i0,i1,i2) != here) {
-            raisePlaceError(i0,i1,i2);
-        }
-        raw()(layout().offset(i0,i1,i2)) = v;
+        val offset = dist.offset(i0,i1,i2);
+        raw()(offset) = v;
         return v;
     }
 
-    final public def set(v: T, i0: int, i1: int, i2: int, i3: int){rank==4}: T {
+    final public def set(v:T, i0:int, i1:int, i2:int, i3:int){rank==4}: T {
         if (CompilerFlags.checkBounds() && !region.contains(i0, i1, i2, i3)) {
             raiseBoundsError(i0, i1, i2, i3);
         }
-        if (CompilerFlags.checkPlace() && dist(i0,i1,i2,i3) != here) {
-            raisePlaceError(i0,i1,i2,i3);
-        }
-        raw()(layout().offset(i0,i1,i2,i3)) = v;
+        val offset = dist.offset(i0,i1,i2,i3);
+        raw()(offset) = v;
         return v;
     }
 
-    def this(dist: Dist, init: (Point(dist.rank))=>T): DistArray[T]{self.dist==dist} {
+
+    def this(dist:Dist, init: (Point(dist.rank))=>T): DistArray[T]{self.dist==dist} {
         property(dist);
 
         val plsInit:()=>LocalState[T] = () => {
+            val localRaw = IndexedMemoryChunk.allocate[T](dist.maxOffset()+1);
             val region = dist.get(here);
-            val localLayout = RectLayout(region);
-            val localRaw = IndexedMemoryChunk.allocate[T](localLayout.size());
 
-            for (pt  in region) {
-               localRaw(localLayout.offset(pt)) = init(pt as Point(dist.rank));
+            for (pt in region) {
+               localRaw(dist.offset(pt)) = init(pt as Point(dist.rank));
             }
 
-            return new LocalState[T](localLayout, localRaw);
+            return new LocalState(localRaw);
         };
 
         localHandle = PlaceLocalHandle.make[LocalState[T]](dist, plsInit);
     }
+
     def this(dist: Dist) {T haszero} : DistArray[T]{self.dist==dist} {
         property(dist);
 
         val plsInit:()=>LocalState[T] = () => {
-            val region = dist.get(here);
-            val localLayout = RectLayout(region);
-            val localRaw = IndexedMemoryChunk.allocate[T](localLayout.size(), true);
-
-	    return new LocalState[T](localLayout, localRaw);
+            val localRaw = IndexedMemoryChunk.allocate[T](dist.maxOffset()+1);
+	    return new LocalState(localRaw);
         };
 
         localHandle = PlaceLocalHandle.make[LocalState[T]](dist, plsInit);
@@ -285,8 +279,7 @@ public class DistArray[T] (
 
     def this(a: DistArray[T], d: Dist):DistArray[T]{self.dist==d} {
     	property(d);
-    	localHandle = PlaceLocalHandle.make[LocalState[T]](d,
-    			() => a.localHandle());
+    	localHandle = PlaceLocalHandle.make[LocalState[T]](d, ()=>a.localHandle());
     }
 
 
@@ -348,10 +341,6 @@ public class DistArray[T] (
         return result;
     }            
 
-    @Incomplete public def scan(op:(T,T)=>T, unit:T): DistArray[T](dist) {
-        throw new UnsupportedOperationException();
-    }
-
 
     //
     // ops
@@ -375,37 +364,20 @@ public class DistArray[T] (
     public def iterator(): Iterator[Point(rank)] = region.iterator() as Iterator[Point(rank)];
 
 
-    private @NoInline @NoReturn def raiseBoundsError(i0:int) {
+    protected @NoInline @NoReturn def raiseBoundsError(i0:int) {
         throw new ArrayIndexOutOfBoundsException("point (" + i0 + ") not contained in array");
     }    
-    private @NoInline @NoReturn def raiseBoundsError(i0:int, i1:int) {
+    protected @NoInline @NoReturn def raiseBoundsError(i0:int, i1:int) {
         throw new ArrayIndexOutOfBoundsException("point (" + i0 + ", "+i1+") not contained in array");
     }    
-    private @NoInline @NoReturn def raiseBoundsError(i0:int, i1:int, i2:int) {
+    protected @NoInline @NoReturn def raiseBoundsError(i0:int, i1:int, i2:int) {
         throw new ArrayIndexOutOfBoundsException("point (" + i0 + ", "+i1+", "+i2+") not contained in array");
     }    
-    private @NoInline @NoReturn def raiseBoundsError(i0:int, i1:int, i2:int, i3:int) {
+    protected @NoInline @NoReturn def raiseBoundsError(i0:int, i1:int, i2:int, i3:int) {
         throw new ArrayIndexOutOfBoundsException("point (" + i0 + ", "+i1+", "+i2+", "+i3+") not contained in array");
     }    
-    private @NoInline @NoReturn def raiseBoundsError(pt:Point(rank)) {
+    protected @NoInline @NoReturn def raiseBoundsError(pt:Point(rank)) {
         throw new ArrayIndexOutOfBoundsException("point " + pt + " not contained in array");
-    }    
-
-
-    private @NoInline @NoReturn def raisePlaceError(i0:int) {
-        throw new BadPlaceException("point (" + i0 + ") not defined at " + here);
-    }    
-    private @NoInline @NoReturn def raisePlaceError(i0:int, i1:int) {
-        throw new BadPlaceException("point (" + i0 + ", "+i1+") not defined at " + here);
-    }    
-    private @NoInline @NoReturn def raisePlaceError(i0:int, i1:int, i2:int) {
-        throw new BadPlaceException("point (" + i0 + ", "+i1+", "+i2+") not defined at " + here);
-    }    
-    private @NoInline @NoReturn def raisePlaceError(i0:int, i1:int, i2:int, i3:int) {
-        throw new BadPlaceException("point (" + i0 + ", "+i1+", "+i2+", "+i3+") not defined at " + here);
-    }    
-    private @NoInline @NoReturn def raisePlaceError(pt:Point(rank)) {
-        throw new BadPlaceException("point " + pt + " not defined at " + here);
     }    
 }
 

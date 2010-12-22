@@ -14,7 +14,9 @@ package x10.array;
 import x10.util.ArrayList;
 import x10.util.GrowableRail;
 import x10.util.Set;
+
 import x10.compiler.Incomplete;
+import x10.compiler.CompilerFlags;
 
 /**
  * The BaseDist class is the base of the hierarchy of classes that
@@ -120,6 +122,22 @@ public class BaseDist extends Dist /*implements Map[Place,Region]*/ {
         }
 	raiseBoundsError(pt);
 	return here; // UNREACHABLE, but front-end doesn't understand @NoReturn
+    }
+
+
+    // This is horrifically inefficient, just like the rest of this class!!!
+    public def offset(pt:Point(rank)) {
+        val r = get(here);
+        if (CompilerFlags.checkPlace() && !r.contains(pt)) raisePlaceError(pt);
+        val localLayout = RectLayout(r);
+        return localLayout.offset(pt);
+    }
+
+    // This is horrifically inefficient, just like the rest of this class!!!
+    public def maxOffset() {
+        val r = get(here);
+        val localLayout = RectLayout(r);
+        return localLayout.size();
     }
 
     //

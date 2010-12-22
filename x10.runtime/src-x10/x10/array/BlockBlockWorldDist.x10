@@ -150,7 +150,7 @@ public final class BlockBlockWorldDist extends Dist {
             if (regionForHere == null) {
                 regionForHere = blockBlockRegionForPlace(here);
             }
-	        return regionForHere;
+            return regionForHere;
         } else {
             return blockBlockRegionForPlace(p);
         }
@@ -209,6 +209,23 @@ public final class BlockBlockWorldDist extends Dist {
             return mapIndexToPlace(pt(axis0), pt(axis1));
     }
 
+    // FIXME: Make this efficient
+    public def offset(pt:Point(rank)):int {
+        val r = get(here);
+        if (CompilerFlags.checkPlace() && !r.contains(pt)) raisePlaceError(pt);
+        val localLayout = RectLayout(r);
+        return localLayout.offset(pt);
+    }
+
+    // FIXME: Override offset for 1..3 ints to avoid useless Point creation in superclass method
+
+    // FIXME:  Make this efficient
+    public def maxOffset() {
+        val r = get(here);
+        val localLayout = RectLayout(r);
+        return localLayout.size();
+    }
+        
     public def restriction(r:Region(rank)):Dist(rank) {
         return new WrappedDistRegionRestricted(this, r) as Dist(rank); // TODO: cast should not be needed
     }

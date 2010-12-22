@@ -379,6 +379,93 @@ public abstract class Dist(
     public operator this(i0:int, i1:int, i2:int, i3:int){rank==4}:Place = this(Point.make(i0,i1,i2,i3));
 
 
+
+    /**
+     * Return the offset in linearized place-local storage of the given point.
+     * Throw a BadPlaceException if the given point is not mapped to 
+     * the current place.  Primarily intended to be used by the DistArray implementation,
+     * but may be useful for other data structures as well that need to associate 
+     * Points in a Distribution with a dense, zero-based numbering.
+     *
+     * @param pt the given point
+     * @return the storage offset assigned to pt by this distribution
+     */
+    abstract public def offset(pt:Point(rank)):int;
+
+    /**
+     * Return the offset in linearized place-local storage of the point [i0]
+     * Throw a BadPlaceException if the given point is not mapped to 
+     * the current place.  Primarily intended to be used by the DistArray implementation,
+     * but may be useful for other data structures as well that need to associate 
+     * Points in a Distribution with a dense, zero-based numbering.
+     *
+     * Only applies to one-dimensional distributions.
+     *
+     * @param i0 the given index in the first dimension
+     * @return the storage offset assigned to [i0] by this distribution
+     * @see #offset(Point)
+     */
+    public def offset(i0:int){rank==1}:int = offset(Point.make(i0));
+
+    /**
+     * Return the offset in linearized place-local storage of the point [i0,i1].
+     * Throw a BadPlaceException if the given point is not mapped to 
+     * the current place.  Primarily intended to be used by the DistArray implementation,
+     * but may be useful for other data structures as well that need to associate 
+     * Points in a Distribution with a dense, zero-based numbering.
+     *
+     * Only applies to two-dimensional distributions.
+     *
+     * @param i0 the given index in the first dimension
+     * @param i1 the given index in the second dimension
+     * @return the storage offset assigned to [i0,i1] by this distribution
+     * @see #offset(Point)
+     */
+    public def offset(i0:int, i1:int){rank==2}:int = offset(Point.make(i0, i1));
+
+    /**
+     * Return the offset in linearized place-local storage of the point [i0,i1,i2].
+     * Throw a BadPlaceException if the given point is not mapped to 
+     * the current place.  Primarily intended to be used by the DistArray implementation,
+     * but may be useful for other data structures as well that need to associate 
+     * Points in a Distribution with a dense, zero-based numbering.
+     *
+     * Only applies to three-dimensional distributions.
+     *
+     * @param i0 the given index in the first dimension
+     * @param i1 the given index in the second dimension
+     * @param i2 the given index in the third dimension
+     * @return the storage offset assigned to [i0,i1,i2] by this distribution
+     * @see #offset(Point)
+     */
+    public def offset(i0:int, i1:int, i2:int){rank==3}:int = offset(Point.make(i0, i1, i2));
+
+    /**
+     * Return the offset in linearized place-local storage of the point [i0,i1,i2,i3].
+     * Throw a BadPlaceException if the given point is not mapped to 
+     * the current place.  Primarily intended to be used by the DistArray implementation,
+     * but may be useful for other data structures as well that need to associate 
+     * Points in a Distribution with a dense, zero-based numbering.
+     *
+     * Only applies to four-dimensional distributions.
+     *
+     * @param i0 the given index in the first dimension
+     * @param i1 the given index in the second dimension
+     * @param i2 the given index in the third dimension
+     * @param i3 the given index in the fourth dimension
+     * @return the storage offset assigned to [i0,i1,i2,i3] by this distribution
+     * @see #offset(Point)
+     */
+    public def offset(i0:int, i1:int, i2:int, i3:int){rank==4}:int = offset(Point.make(i0,i1,i2,i3));
+
+    /**
+     * @return the maximum value returned by the offset method for
+     *         the current place for any possible argument Point
+     * @see #offset(Point)
+     */
+    public abstract def maxOffset():int;
+
+
     //
     //
     //
@@ -628,7 +715,21 @@ public abstract class Dist(
         throw new ArrayIndexOutOfBoundsException("point " + pt + " not contained in distribution");
     }    
 
-
+    protected static @NoInline @NoReturn def raisePlaceError(i0:int) {
+        throw new BadPlaceException("point (" + i0 + ") not defined at " + here);
+    }    
+    protected static @NoInline @NoReturn def raisePlaceError(i0:int, i1:int) {
+        throw new BadPlaceException("point (" + i0 + ", "+i1+") not defined at " + here);
+    }    
+    protected static @NoInline @NoReturn def raisePlaceError(i0:int, i1:int, i2:int) {
+        throw new BadPlaceException("point (" + i0 + ", "+i1+", "+i2+") not defined at " + here);
+    }    
+    protected static @NoInline @NoReturn def raisePlaceError(i0:int, i1:int, i2:int, i3:int) {
+        throw new BadPlaceException("point (" + i0 + ", "+i1+", "+i2+", "+i3+") not defined at " + here);
+    }    
+    protected static @NoInline @NoReturn def raisePlaceError(pt:Point) {
+        throw new BadPlaceException("point " + pt + " not defined at " + here);
+    }    
 }
 
 // vim:shiftwidth=4:tabstop=4:expandtab

@@ -52,6 +52,16 @@ final class WrappedDistRegionRestricted extends Dist {
         }
     }
 
+    public def offset(pt:Point(rank)):int {
+        if (filter.contains(pt)) {
+            return base.offset(pt);
+        } else {
+            throw new ArrayIndexOutOfBoundsException("point " + pt + " not contained in distribution");
+        }
+    }
+
+    public def maxOffset():int = base.maxOffset();
+
     public def restriction(r:Region(rank)):Dist(rank) {
         return new WrappedDistRegionRestricted(base, filter.intersection(r)) as Dist(rank); // TODO cast should not be needed
     }

@@ -11,6 +11,8 @@
 
 package x10.array;
 
+import x10.compiler.CompilerFlags;
+
 /**
  * This class is an highly optimized implementation for a
  * the "unique" distribution that maps the region [0..Place.MAX_PLACES-1]
@@ -57,6 +59,13 @@ class UniqueDist extends Dist(1){rect} {
     public operator this(i0:int){rank==1} {
 	return Place.place(i0);
     }
+
+    public def offset(pt:Point(rank)):int {
+        if (CompilerFlags.checkPlace() && pt(0) != here.id) raisePlaceError(pt);
+        return 0;
+    }
+
+    public def maxOffset():int = 0;
 
     public def restriction(r:Region(rank)):Dist(rank) {
 	return new WrappedDistRegionRestricted(this, r) as Dist(rank); // TODO: cast should not be needed
