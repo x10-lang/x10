@@ -19,8 +19,8 @@ import x10.util.ArrayList;
  * index-to-place mapping for conformance with spec.
  *
  * The dist block(R, Q) distributes the elements of R (in
- * order) over the set of places Q in blocks as follows. Let p equal
- * |R| div N and q equal |R| mod N, where N is the size of Q. The first
+ * order) over the set of places Q in blocks along one axis as follows
+ * Let p equal |R.axis| div N and q equal |R.axis| mod N, where N is the size of Q. The first
  * q places get successive blocks of size (p + 1) and the remaining
  * places get blocks of size p.
  *
@@ -35,6 +35,7 @@ public class BlockDistWithPlaceGroup extends x10Test {
     public static L = 5;
 
     public def run(): boolean = {
+        var passed:Boolean = true;
         for ([tries] in 1..COUNT) {
             val lb1: int = ranInt(-L, L);
             val lb2: int = ranInt(-L, L);
@@ -42,19 +43,25 @@ public class BlockDistWithPlaceGroup extends x10Test {
             val ub2: int = ranInt(lb2, L);
             val R = (lb1..ub1) * (lb2..ub2);
             val totalPoints = (ub1-lb1+1)*(ub2-lb2+1);
+            val axisPoints = ub1-lb1+1;
             val placeGroup = createRandPlaceGroup();
             val np = placeGroup.numPlaces();
 
             val DBlock = Dist.makeBlock(R, 0, placeGroup);
-            val p: int = totalPoints/np;
-            val q: int = totalPoints%np;
+            val p:int = axisPoints/np;
+            val q:int = axisPoints%np;
             var offsWithinPlace: int = 0;
             var pn: int = 0;
-            Console.OUT.println("np = " + np + " lb1 = "+lb1+" ub1 = "+ub1+" lb2 = "+lb2+" ub2 = "+ub2+" totalPoints = "+totalPoints+" p = "+p+" q = "+q);
 
-            for (val [i,j]: Point(2) in R) {
-                Console.OUT.println("placeNum = "+placeGroup(pn)+" offsWithinPlace = "+offsWithinPlace+" i = "+i+" j = "+j+" DBlock[i,j] = "+DBlock(i,j).id);
-                chk(DBlock(i, j).equals(placeGroup(pn)));
+            for ([i] in lb1..ub1) {
+                for ([j] in lb2..ub2) {
+	            if (!DBlock(i, j).equals(placeGroup(pn))) {
+                        Console.OUT.println("FAIL: ");
+                        Console.OUT.println("\tap = " + axisPoints + " lb1 = "+lb1+" ub1 = "+ub1+" lb2 = "+lb2+" ub2 = "+ub2+" totalPoints = "+totalPoints+" p = "+p+" q = "+q);
+                        Console.OUT.println("\tplaceNum = "+placeGroup(pn)+" offsWithinPlace = "+offsWithinPlace+" i = "+i+" j = "+j+" DBlock[i,j] = "+DBlock(i,j).id);
+                        passed = false;
+                    }
+                }
                 offsWithinPlace++;
                 if (offsWithinPlace == (p + (pn < q ? 1 : 0))) {
                     //time to go to next place
@@ -63,7 +70,7 @@ public class BlockDistWithPlaceGroup extends x10Test {
                 }
             }
         }
-        return true;
+        return passed;
     }
 
     /**
