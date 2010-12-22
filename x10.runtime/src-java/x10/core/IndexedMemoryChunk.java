@@ -139,6 +139,8 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct {
     public double[] getDoubleArray() { return (double[]) value; }
     public Object[] getObjectArray() { return (Object[]) value; }
 
+    // this is broken
+    /*
     public Object[] getBoxedArray() {
         if (value instanceof boolean[]) {
             boolean[] a = (boolean[]) value;
@@ -182,5 +184,6 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct {
         }
         return (Object[]) value;
     }
+    */
 
 }
