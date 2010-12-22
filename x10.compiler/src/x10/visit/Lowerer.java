@@ -1083,6 +1083,10 @@ public class Lowerer extends ContextVisitor {
         Formal pFormal = nf.Formal(pos, nf.FlagsNode(pos, ts.Final()),
                 nf.CanonicalTypeNode(pos, pType), nf.Id(pos, pTmp)).localDef(pDef);
         List<VarInstance<? extends VarDef>> env1 = new ArrayList<VarInstance<? extends VarDef>>(env);
+        env1.remove(formal.localDef().asInstance());
+        for (int i = 0; i < formal.localInstances().length; i++) {
+            env1.remove(formal.localInstances()[i].asInstance());
+        }
         env1.add(lDef.asInstance());
         Stmt body1 = async(bpos, inner, a.clocks(),
                 nf.Local(bpos, nf.Id(bpos, pTmp)).localInstance(pDef.asInstance()).type(pType),
