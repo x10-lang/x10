@@ -108,6 +108,7 @@ import x10.visit.ChangePositionVisitor;
 import x10.visit.X10PrettyPrinterVisitor;
 import x10.visit.X10Translator;
 import x10c.types.BackingArrayType;
+import x10c.visit.ClosureRemover;
 
 public class Emitter {
 
@@ -2688,9 +2689,29 @@ public class Emitter {
         }
         w.newline();
         w.write(") {");
-        w.write("public String typeName() {");
-        w.write("return \"" + def.asType() + "\";");
-        w.write("}");
+
+        // override methods of RuntimeType as needed
+
+        // for static inner classes that are compiled from closures
+        if (def.name().toString().startsWith(ClosureRemover.STATIC_INNER_CLASS_BASE_NAME)) {
+            // Note: assume that the first interface in this X10ClassDef is a function type
+            Type type = def.interfaces().get(0).get();
+            assert type instanceof FunctionType;
+            boolean isVoidFun = ((FunctionType) type).returnType().isVoid();
+            // Note: assume that the first parent in this RuntimeType is the parameterized type which corresponds to the above function type
+            w.write("public String typeName(Object o) {");
+            if (isVoidFun) {
+                w.write("return ((x10.rtt.ParameterizedType<?>) getParents()[0]).typeNameForVoidFun();");
+            } else {
+                w.write("return ((x10.rtt.ParameterizedType<?>) getParents()[0]).typeNameForFun();");
+            }
+            w.write("}");
+        } else {
+            w.write("public String typeName() {");
+            w.write("return \"" + def.asType() + "\";");
+            w.write("}");
+        }
+
         w.write("};");
         w.newline();
         
