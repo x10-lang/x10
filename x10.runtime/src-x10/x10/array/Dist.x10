@@ -169,7 +169,7 @@ public abstract class Dist(
         if (pg.equals(PlaceGroup.WORLD)) {
             return makeUnique();
         } else {
-            throw new UnsupportedOperationException(); // short term while eliminating BaseDist
+            return new UniqueDist(pg);
         }
     }
 
@@ -539,12 +539,24 @@ public abstract class Dist(
 
     /**
      * Return true iff that is a distribution and both distributions are defined
-     * over the same regions, and map every point in that region to the same place.
+     * over equal regions and place groups, and map every point in said region to 
+     * the same place.
      *
      * @param that the given distribution
      * @return true if that is equal to this distribution.
      */
-    abstract public def equals(that:Any):boolean;
+    public def equals(thatObj:Any):boolean {
+        if (this == thatObj) return true;
+        if (!(thatObj instanceof Dist)) return false;
+        val that = thatObj as Dist;
+	if (rank != that.rank) return false;
+	if (!region.equals(that.region)) return false;
+	val pg = places();
+        for (p in pg) {
+            if (!get(p).equals(that.get(p))) return false;
+        }
+        return true;
+    }
 
     //
     // other geometric ops

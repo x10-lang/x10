@@ -28,6 +28,12 @@ package x10.array;
 public abstract class PlaceGroup implements Sequence[Place] {
 
   /**
+   * A PlaceGroup that represents exactly Place.places().
+   * All places, in order of increasing Place.id.
+   */
+  public static val WORLD = new WorldPlaceGroup();
+
+  /**
    * The size of the PlaceGroup is equal to the value returned by numPlaces()
    */
   public final def size():int = numPlaces();
@@ -78,10 +84,27 @@ public abstract class PlaceGroup implements Sequence[Place] {
   public abstract def indexOf(id:int):int;
 
   /**
-   * A PlaceGroup that represents exactly Place.places().
-   * All places, in order of increasing Place.id.
+   * Return the Place with ordinal number i in the place group
+   *
+   * @param i the ordinal number of the desired place
+   * @return the ith place in the place group
    */
-  public static val WORLD = new WorldPlaceGroup();
+  public abstract operator this(i:int):Place;
+
+
+  /**
+   * Two place groups are equal iff the contain the same places
+   */
+  public def equals(thatObj:Any):Boolean {
+    if (this == thatObj) return true;
+    if (!(thatObj instanceof PlaceGroup)) return false;
+    val that = thatObj as PlaceGroup;
+    if (numPlaces() != that.numPlaces()) return false;
+    for (var i:int=0; i<numPlaces(); i++) {
+      if (!this(i).equals(that(i))) return false;
+    }
+    return true;
+  }
 
   private static class WorldPlaceGroup extends PlaceGroup {
     public operator this(i:int):Place = Place.place(i);
@@ -89,6 +112,10 @@ public abstract class PlaceGroup implements Sequence[Place] {
     public def numPlaces() = Place.numPlaces();
     public def contains(id:int) = id >= 0 && id < Place.numPlaces();
     public def indexOf(id:int) = contains(id) ? id : -1;
+    public def equals(thatObj:Any):Boolean {
+      return (thatObj instanceof WorldPlaceGroup) ? true : super.equals(thatObj);
+    }
+    public def hashCode() = Place.numPlaces().hashCode();
   }  
 }
  
