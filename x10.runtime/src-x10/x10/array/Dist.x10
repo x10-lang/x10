@@ -11,7 +11,6 @@
 
 package x10.array;
 
-import x10.util.Set;
 import x10.compiler.NoInline;
 import x10.compiler.NoReturn;
 
@@ -62,7 +61,9 @@ public abstract class Dist(
      * @param r the given region
      * @return a "constant" distribution over r.
      */
-    public static def makeConstant(r:Region):Dist(r) = BaseDist.makeConstant1(r);
+    public static def makeConstant(r:Region):Dist(r) {
+        return new ConstantDist(r, here);
+    }
 
     /**
      * Create a distribution over the specified region that maps
@@ -82,10 +83,8 @@ public abstract class Dist(
      * @param r the given region
      * @param axis the dimension to cycle over
      * @return a "cyclic" distribution over r.
-     
-    public static def makeCyclic(r:Region, axis:int):Dist(r)
-        = BaseDist.makeBlockCyclic1(r, axis, 1);
-*/
+     */     
+    public static def makeCyclic(r:Region, axis:int):Dist(r) = makeBlockCyclic(r, axis, 1);
     
     /**
      * Create a distribution over the specified region that varies in
@@ -95,9 +94,7 @@ public abstract class Dist(
      * @param r the given region
      * @return a "cyclic" distribution over r, cycling over the zeroth axis.
      
-    public static def makeCyclic(r:Region):Dist(r)
-        = BaseDist.makeBlockCyclic1(r, 0, 1);
-*/
+    public static def makeCyclic(r:Region):Dist(r) = makeBlockCyclic(r, 0, 1);
     
     /**
      * Create a distribution over the specified region that varies in
@@ -155,35 +152,26 @@ public abstract class Dist(
      * @param axis the dimension to block over
      * @param blockSize the size of the block
      * @return a "block-cyclic" distribution over r.
-     
-    public static def makeBlockCyclic(r:Region, axis:int, blockSize:int):Dist(r)
-        = BaseDist.makeBlockCyclic1(r, axis, blockSize);
-*/
-    //
-    // factories - place is a parameter
-    //
+     */
+    public static def makeBlockCyclic(r:Region, axis:int, blockSize:int):Dist(r) {
+        throw new UnsupportedOperationException(); // short term while eliminating BaseDist
+    }
 
     /**
      * Create a distribution over a rank-1 region that maps every
-     * point in the region to a place in ps, and which maps some
+     * point in the region to a place in pg, and which maps some
      * point in the region to every place in ps.
      *
-     * @param ps the rail of places
+     * @param pg the set of places
      * @return a "unique" distribution over the places in ps
      */
-    public static def makeUnique(ps:Sequence[Place]):Dist(1)
-        = BaseDist.makeUnique1(ps);
-
-    /**
-     * Create a distribution over a rank-1 region that maps every
-     * point in the region to a place in ps, and which maps some
-     * point in the region to every place in ps.
-     *
-     * @param ps the set of places
-     * @return a "unique" distribution over the places in ps
-     */
-    public static def makeUnique(ps:Set[Place]):Dist(1)
-        = BaseDist.makeUnique1(ps);
+    public static def makeUnique(pg:PlaceGroup):Dist(1) {
+        if (pg.equals(PlaceGroup.WORLD)) {
+            return makeUnique();
+        } else {
+            throw new UnsupportedOperationException(); // short term while eliminating BaseDist
+        }
+    }
 
     /**
      * Create a distribution over the specified region that maps
@@ -193,8 +181,9 @@ public abstract class Dist(
      * @param p the given place
      * @return a "constant" distribution over r that maps to p.
      */
-    public static def makeConstant(r:Region, p:Place):Dist(r)
-        = BaseDist.makeConstant1(r, p);
+    public static def makeConstant(r:Region, p:Place):Dist(r) {
+        return new ConstantDist(r, p);
+    }
 
     /**
      * Create a distribution over the specified region that varies in
@@ -203,12 +192,13 @@ public abstract class Dist(
      *
      * @param r the given region
      * @param axis the dimension to cycle over
-     * @param ps the set of places
+     * @param pg the PlaceGroup over which to distribute the region
      * @return a "cyclic" distribution over r, cycling over the places in ps.
-    
-    public static def makeCyclic(r:Region, axis:int, ps:Set[Place]):Dist(r)
-        = BaseDist.makeCyclic1(r, axis, ps);
- */
+     */
+    public static def makeCyclic(r:Region, axis:int, pg:PlaceGroup):Dist(r) {
+        throw new UnsupportedOperationException(); // short term while eliminating BaseDist
+    }
+
     /**
      * Create a distribution over the specified region that varies in
      * place only along the specified axis. It divides the coordinates
@@ -217,11 +207,12 @@ public abstract class Dist(
      *
      * @param r the given region
      * @param axis the dimension to block over
-     * @param ps the set of places
+     * @param pg the PlaceGroup over which to distribute the region
      * @return a "block" distribution over r, blocking over the places in ps.
      */
-    public static def makeBlock(r:Region, axis:int, ps:Set[Place]):Dist(r)
-        = BaseDist.makeBlock1(r, axis, ps);
+    public static def makeBlock(r:Region, axis:int, pg:PlaceGroup):Dist(r) {
+        throw new UnsupportedOperationException(); // short term while eliminating BaseDist
+    }
 
     /**
      * Create a distribution over the specified region that varies in
@@ -232,22 +223,21 @@ public abstract class Dist(
      * @param r the given region
      * @param axis the dimension to block over
      * @param blockSize the size of the block
-     * @param ps the set of places
+     * @param pg the PlaceGroup over which to distribute the region
      * @return a "block-cyclic" distribution over r, cycling over the places in ps.
-   
-    public static def makeBlockCyclic(r:Region, axis:int, blockSize:int, ps:Set[Place])
-        = BaseDist.makeBlockCyclic1(r, axis, blockSize, ps);
-  */
+     */
+    public static def makeBlockCyclic(r:Region, axis:int, blockSize:int, pg:PlaceGroup) {
+        throw new UnsupportedOperationException(); // short term while eliminating BaseDist
+     }
 
     //
     // mapping places to regions
     //
 
     /**
-     * @return an object that implements Iterable[Place] that can be used to
-     *         iterate over the set of Places that this distribution maps some point to.
+     * The PlaceGroup over which the distribuiton is defined
      */
-    abstract public def places():Sequence[Place];
+    abstract public def places():PlaceGroup;
 
     /**
      * How many places are included in the distribution?

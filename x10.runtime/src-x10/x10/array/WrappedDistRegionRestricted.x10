@@ -25,7 +25,7 @@ final class WrappedDistRegionRestricted extends Dist {
         filter = r as Region(rank); // cast should not be needed
     }
 
-    public def places():Sequence[Place] {
+    public def places():PlaceGroup {
         return base.places();
     }
 

@@ -137,7 +137,7 @@ public final class BlockBlockWorldDist extends Dist {
     }
 
 
-    public def places():Sequence[Place]=Place.places();
+    public def places():PlaceGroup = PlaceGroup.WORLD;
 
     public def numPlaces():int = Place.MAX_PLACES;
 

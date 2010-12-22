@@ -25,9 +25,7 @@ final class WrappedDistPlaceRestricted extends Dist {
         filter = p;
     }
 
-    public def places():Sequence[Place] {
-        return new Array[Place](1, (int)=>filter).sequence();
-    }
+    public def places():PlaceGroup = new SparsePlaceGroup(filter);
 
     public def numPlaces() = 1;
 
