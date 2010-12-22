@@ -14,16 +14,9 @@ package x10.array;
 import x10.compiler.CompilerFlags;
 
 /**
- * This class is an optimized implementation for a
- * Block,Block distribution that maps points in its region
- * in a 2D blocked fashion to all the places (the world).<p>
+ * <p>A BlockBlock distribution maps points in its region
+ * in a 2D blocked fashion to the places in its PlaceGroup</p>
  *
- * Since it includes all Places, it doesn't need to maintain an 
- * explicit Place set of the places it is defined over.
- * Since it is a simple Block,Block distribution, it doesn't
- * need very much information to compute the Region that is mapped 
- * to a given place from the overall Region.<p>
- * 
  * It caches the region for the current place as a transient field.
  * This makes the initial access to this information somewhat slow,
  * but optimizes the wire-transfer size of the Dist object. 
@@ -31,7 +24,12 @@ import x10.compiler.CompilerFlags;
  * are frequently serialized and usually the restriction operation is 
  * applied to get the Region for here, not for other places.
  */
-public final class BlockBlockWorldDist extends Dist {
+final class BlockBlockDist extends Dist {
+
+    /**
+     * The place group for this distribution
+     */
+    private val pg:PlaceGroup;
    
     /**
      * The first axis along which the region is distributed
@@ -49,16 +47,21 @@ public final class BlockBlockWorldDist extends Dist {
     private transient var regionForHere:Region(this.rank);
 
 
-    public def this(r:Region, axis0:int, axis1:int) {
+    public def this(r:Region, axis0:int, axis1:int, pg:PlaceGroup) {
         super(r);
         this.axis0 = axis0;
         this.axis1 = axis1;
+        this.pg = pg;
     }
 
 
     /**
      * The key algorithm for this class.
      * Compute the region for the given place by doing region algebra.
+     *
+     * Assumption: Caller has done error checking to ensure that place is 
+     *   actually a member of pg.
+     *
      * TODO: Create an optimized fast-path for RectRegion.
      */
     private def blockBlockRegionForPlace(place:Place):Region{self.rank==this.rank} {
@@ -71,7 +74,7 @@ public final class BlockBlockWorldDist extends Dist {
         val size1 = (max1 - min1 + 1);
         val sizeFirst = (axis1 > axis0) ? size0 : size1;
         val sizeSecond = (axis1 > axis0) ? size1 : size0;
-        val P = Math.min(Place.MAX_PLACES, size0 * size1);
+        val P = Math.min(pg.numPlaces(), size0 * size1);
         val divisions0 = Math.min(size0, Math.pow2(Math.ceil((Math.log(P as Double) / Math.log(2.0)) / 2.0) as Int));
         val divisions1 = Math.min(size1, Math.ceil((P as Double) / divisions0) as Int);
         val divisionsFirst = (axis1 > axis0) ? divisions0 : divisions1;
@@ -84,7 +87,7 @@ public final class BlockBlockWorldDist extends Dist {
         val minSecond = (axis1 > axis0) ? min1 : min0;
         val maxSecond = (axis1 > axis0) ? max1 : max0;
 
-        val i = place.id;
+        val i = pg.indexOf(place);
 
         val beforeAxes = (axis1 > axis0) ? Region.makeFull(axis0) : Region.makeFull(axis1);
         val betweenAxes = (axis1 > axis0) ? Region.makeFull(axis1-axis0-1) : Region.makeFull(axis0-axis1-1);
@@ -102,7 +105,7 @@ public final class BlockBlockWorldDist extends Dist {
     }
 
     /**
-     * Given an index into the "axis dimension" determine which place it 
+     * Given an index into the "axis dimensions" determine which place it 
      * is mapped to.
      * Assumption: Caller has done error checking to ensure that index is 
      *   actually within the bounds of the axis dimension.
@@ -115,7 +118,7 @@ public final class BlockBlockWorldDist extends Dist {
         val max1 = b.max(axis1);
         val size0 = (max0 - min0 + 1);
         val size1 = (max1 - min1 + 1);
-        val P = Math.min(Place.MAX_PLACES, size0 * size1);
+        val P = Math.min(pg.numPlaces(), size0 * size1);
         val divisions0 = Math.min(size0, Math.pow2(Math.ceil((Math.log(P as Double) / Math.log(2.0)) / 2.0) as Int));
         val divisions1 = Math.min(size1, Math.ceil((P as Double) / divisions0) as Int);
         val numBlocks = divisions0 * divisions1;
@@ -130,19 +133,19 @@ public final class BlockBlockWorldDist extends Dist {
         //Console.OUT.println("blockIndex = " + blockIndex);
 
         if (blockIndex <= leftOver * 2) {
-            return Place.place((blockIndex / 2) as Int);
+            return pg((blockIndex / 2) as Int);
         } else {
-            return Place.place(blockIndex - leftOver);
+            return pg(blockIndex - leftOver);
         }
     }
 
 
-    public def places():PlaceGroup = PlaceGroup.WORLD;
+    public def places():PlaceGroup = pg;
 
-    public def numPlaces():int = Place.MAX_PLACES;
+    public def numPlaces():int = pg.numPlaces();
 
     public def regions():Sequence[Region(rank)] {
-        return new Array[Region(rank)](Place.MAX_PLACES, (i:int)=>blockBlockRegionForPlace(Place.place(i))).sequence();
+        return new Array[Region(rank)](pg.numPlaces(), (i:int)=>blockBlockRegionForPlace(pg(i))).sequence();
     }
 
     public def get(p:Place):Region(rank) {
@@ -239,8 +242,8 @@ public final class BlockBlockWorldDist extends Dist {
 
 
     public def equals(thatObj:Any):boolean {
-        if (!(thatObj instanceof BlockBlockWorldDist)) return false;
-        val that = thatObj as BlockBlockWorldDist;
+        if (!(thatObj instanceof BlockBlockDist)) return false;
+        val that = thatObj as BlockBlockDist;
         return this.axis0.equals(that.axis0) && this.axis1.equals(that.axis1) && this.region.equals(that.region);
     }
 }

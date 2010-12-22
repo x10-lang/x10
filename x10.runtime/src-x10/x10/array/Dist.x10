@@ -126,7 +126,7 @@ public abstract class Dist(
      * @return a "block,block" distribution over r.
      */
     public static def makeBlockBlock(r:Region, axis0:int, axis1:int):Dist(r) {
-        return new BlockBlockWorldDist(r, axis0, axis1) as Dist(r); // TODO cast should not be needed.
+        return new BlockBlockDist(r, axis0, axis1, PlaceGroup.WORLD) as Dist(r); // TODO: should not need this cast
     }
 
     /**
