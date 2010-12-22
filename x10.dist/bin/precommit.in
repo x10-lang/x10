@@ -53,16 +53,20 @@ if [ -z "$1" -o "$1" = "java" ]; then
 
 echo "Compiling PreCommit.x10 with x10c"
 
+# create temp dir for classes
+rm -rf "${TMP_DIR}.tmp"
+mkdir -p "${TMP_DIR}.tmp"
+
 cd "$ROOT/x10.tests/examples/Misc"
 
 nice "$ROOT/x10.dist/bin/x10c" -O \
  -sourcepath "$ROOT/x10.dist/samples/tutorial" \
  -sourcepath "$ROOT/x10.tests/examples/x10lib" \
--d "$TMP_DIR" PreCommit.x10 || testFailed
+-d "${TMP_DIR}.tmp" -o "$TMP_DIR/PreCommit.jar" PreCommit.x10 || testFailed
 
 echo "Running"
 
-"$ROOT/x10.dist/bin/x10" -classpath "$TMP_DIR" PreCommit || testFailed
+"$ROOT/x10.dist/bin/x10" -classpath "$TMP_DIR/PreCommit.jar" PreCommit || testFailed
 
 fi
 
