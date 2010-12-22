@@ -52,12 +52,10 @@ public class DistArray[T] (
              Iterable[Point(dist.region.rank)]
 {
 
-
     //
-    // properties
+    // property methods that forward to dist and dist.region
     //
 
-    // region via dist
     /**
      * The region this array is defined over.
      */
@@ -68,48 +66,20 @@ public class DistArray[T] (
      */
     public property rank: int = dist.rank;
 
-    /**
-     * Is this array defined over a rectangular region?
-     */
-    public property rect: boolean = dist.rect;
-
-    /**
-     * Is this array's region zero-based?
-     */
-    public property zeroBased: boolean = dist.zeroBased;
-
-    // dist
-    /**
-     * Is this array's region a "rail" (one-dimensional contiguous zero-based)?
-     */
-    public property rail: boolean = dist.rail;
-
-    /**
-     * Is this array's distribution "unique" (at most one point per place)?
-     */
-    public property unique: boolean = dist.unique;
-
-    /**
-     * Is this array's distribution "constant" (all points map to the same place)?
-     */
-    public property constant: boolean = dist.constant;
-
-    /**
-     * If this array's distribution is "constant", the place all points map to (or null).
-     */
-    public property onePlace: Place = dist.onePlace;
-
-    // Need a wrapper class because PlaceLocalHandle can only be used to wrap objects.
+    // Need a trivial wrapper class because PlaceLocalHandle[T] requires that T <: Object
     protected static class LocalState[T](data:IndexedMemoryChunk[T]) {
       public def this(c:IndexedMemoryChunk[T]) { property(c); }
     }
+    /** The place-local backing storage for the DistArray */
     protected val localHandle:PlaceLocalHandle[LocalState[T]];
+    /** Can the backing storage be obtained from cachedRaw? */
     protected transient var cachedRawValid:boolean;
+    /** Cached pointer to the backing storage */
     protected transient var cachedRaw:IndexedMemoryChunk[T];
     
     /**
-     * Get the raw backing storage in the current place. 
-     * On critical path, so cache it.
+     * Method to acquire a pointer to the backing storage for the 
+     * array's data in the current place.
      */
     protected final def raw():IndexedMemoryChunk[T] {
         if (!cachedRawValid) {
@@ -121,126 +91,16 @@ public class DistArray[T] (
     }
 
 
-    //
-    // factories for dist arrays 
-    //
-
     /**
-     * Create a mutable array over the given distribution and default initial values for elements.
+     * Create a zero-initialized distributed array over the argument distribution.
      *
-     * @param T the element type
      * @param dist the given distribution
-     * @return a mutable array with the given distribution.
-     * @see #make[T](Region)
-     * @see #make[T](Dist, (Point)=>T)
+     * @return the newly created DistArray
      */
-    public static def make[T](dist: Dist) {T haszero} = new DistArray[T](dist);
+    public static def make[T](dist:Dist) {T haszero} = new DistArray[T](dist);
 
-    /**
-     * Create a mutable array over the given distribution.
-     * Executes the given initializer function for each element of the array.
-     *
-     * @param T the element type
-     * @param dist the given distribution
-     * @param init the initializer function
-     * @return a mutable array with the given distribution.
-     * @see #make[T](Dist)
-     * @see #make[T](Region, (Point)=>T)
-     */
-    public static def make[T](dist: Dist, init: (Point(dist.rank))=>T)= new DistArray[T](dist, init);
-
-
-
-    public final operator this(pt:Point(rank)): T {
-        if (CompilerFlags.checkBounds() && !region.contains(pt)) {
-            raiseBoundsError(pt);
-        }
-        val offset = dist.offset(pt);
-        return raw()(offset);
-    }
-
-
-    final public operator this(i0:int){rank==1}: T {
-        if (CompilerFlags.checkBounds() && !region.contains(i0)) {
-            raiseBoundsError(i0);
-        }
-	val offset = dist.offset(i0);
-        return raw()(i0);
-    }
-
-    final public operator this(i0:int, i1:int){rank==2}: T {
-        if (CompilerFlags.checkBounds() && !region.contains(i0, i1)) {
-            raiseBoundsError(i0, i1);
-        }
-        val offset = dist.offset(i0, i1);
-        return raw()(offset);
-    }
-
-    final public operator this(i0:int, i1:int, i2:int){rank==3}: T {
-        if (CompilerFlags.checkBounds() && !region.contains(i0, i1, i2)) {
-            raiseBoundsError(i0, i1, i2);
-        }
-        val offset = dist.offset(i0, i1, i2);
-        return raw()(offset);
-    }
-
-    final public operator this(i0:int, i1:int, i2:int, i3:int){rank==4}: T {
-        if (CompilerFlags.checkBounds() && !region.contains(i0, i1, i2, i3)) {
-            raiseBoundsError(i0, i1, i2, i3);
-        }
-	val offset = dist.offset(i0, i1, i2, i3);
-        return raw()(offset);
-    }
-
-
-    // XXXX settable order
-    public final def set(v:T, pt:Point(rank)): T {
-        if (CompilerFlags.checkBounds() && !region.contains(pt)) {
-            raiseBoundsError(pt);
-        }
-        val offset = dist.offset(pt);
-        raw()(offset) = v;
-        return v;
-    }
-
-    final public def set(v:T, i0:int){rank==1}: T {
-        if (CompilerFlags.checkBounds() && !region.contains(i0)) {
-            raiseBoundsError(i0);
-        }
-        val offset = dist.offset(i0);
-        raw()(offset) = v;
-        return v;
-    }
-
-    final public def set(v:T, i0:int, i1:int){rank==2}: T {
-        if (CompilerFlags.checkBounds() && !region.contains(i0, i1)) {
-            raiseBoundsError(i0, i1);
-        }
-        val offset = dist.offset(i0, i1);
-        raw()(offset) = v;
-        return v;
-    }
-
-    final public def set(v:T, i0:int, i1:int, i2:int){rank==3}: T {
-        if (CompilerFlags.checkBounds() && !region.contains(i0, i1, i2)) {
-            raiseBoundsError(i0, i1, i2);
-        }
-        val offset = dist.offset(i0,i1,i2);
-        raw()(offset) = v;
-        return v;
-    }
-
-    final public def set(v:T, i0:int, i1:int, i2:int, i3:int){rank==4}: T {
-        if (CompilerFlags.checkBounds() && !region.contains(i0, i1, i2, i3)) {
-            raiseBoundsError(i0, i1, i2, i3);
-        }
-        val offset = dist.offset(i0,i1,i2,i3);
-        raw()(offset) = v;
-        return v;
-    }
-
-
-    def this(dist:Dist, init: (Point(dist.rank))=>T): DistArray[T]{self.dist==dist} {
+    // TODO: consider making this constructor public
+    def this(dist:Dist, init:(Point(dist.rank))=>T):DistArray[T]{self.dist==dist} {
         property(dist);
 
         val plsInit:()=>LocalState[T] = () => {
@@ -257,6 +117,21 @@ public class DistArray[T] (
         localHandle = PlaceLocalHandle.make[LocalState[T]](dist, plsInit);
     }
 
+
+
+    /**
+     * Create a distributed array over the argument distribution whose elements
+     * are initialized by executing the given initializer function for each 
+     * element of the array in the place where the argument Point is mapped.
+     *
+     * @param dist the given distribution
+     * @param init the initializer function
+     * @return the newly created DistArray
+     * @see #make[T](Dist)
+     */
+    public static def make[T](dist:Dist, init:(Point(dist.rank))=>T)= new DistArray[T](dist, init);
+
+    // TODO: consider making this constructor public
     def this(dist: Dist) {T haszero} : DistArray[T]{self.dist==dist} {
         property(dist);
 
@@ -266,6 +141,64 @@ public class DistArray[T] (
         };
 
         localHandle = PlaceLocalHandle.make[LocalState[T]](dist, plsInit);
+    }
+
+
+    public final operator this(pt:Point(rank)): T {
+        val offset = dist.offset(pt);
+        return raw()(offset);
+    }
+
+
+    final public operator this(i0:int){rank==1}: T {
+	val offset = dist.offset(i0);
+        return raw()(i0);
+    }
+
+    final public operator this(i0:int, i1:int){rank==2}: T {
+        val offset = dist.offset(i0, i1);
+        return raw()(offset);
+    }
+
+    final public operator this(i0:int, i1:int, i2:int){rank==3}: T {
+        val offset = dist.offset(i0, i1, i2);
+        return raw()(offset);
+    }
+
+    final public operator this(i0:int, i1:int, i2:int, i3:int){rank==4}: T {
+	val offset = dist.offset(i0, i1, i2, i3);
+        return raw()(offset);
+    }
+
+
+    public final def set(v:T, pt:Point(rank)): T {
+        val offset = dist.offset(pt);
+        raw()(offset) = v;
+        return v;
+    }
+
+    final public def set(v:T, i0:int){rank==1}: T {
+        val offset = dist.offset(i0);
+        raw()(offset) = v;
+        return v;
+    }
+
+    final public def set(v:T, i0:int, i1:int){rank==2}: T {
+        val offset = dist.offset(i0, i1);
+        raw()(offset) = v;
+        return v;
+    }
+
+    final public def set(v:T, i0:int, i1:int, i2:int){rank==3}: T {
+        val offset = dist.offset(i0,i1,i2);
+        raw()(offset) = v;
+        return v;
+    }
+
+    final public def set(v:T, i0:int, i1:int, i2:int, i3:int){rank==4}: T {
+        val offset = dist.offset(i0,i1,i2,i3);
+        raw()(offset) = v;
+        return v;
     }
 
 
@@ -362,23 +295,6 @@ public class DistArray[T] (
      * @see x10.lang.Iterable[T]#iterator()
      */
     public def iterator(): Iterator[Point(rank)] = region.iterator() as Iterator[Point(rank)];
-
-
-    protected @NoInline @NoReturn def raiseBoundsError(i0:int) {
-        throw new ArrayIndexOutOfBoundsException("point (" + i0 + ") not contained in array");
-    }    
-    protected @NoInline @NoReturn def raiseBoundsError(i0:int, i1:int) {
-        throw new ArrayIndexOutOfBoundsException("point (" + i0 + ", "+i1+") not contained in array");
-    }    
-    protected @NoInline @NoReturn def raiseBoundsError(i0:int, i1:int, i2:int) {
-        throw new ArrayIndexOutOfBoundsException("point (" + i0 + ", "+i1+", "+i2+") not contained in array");
-    }    
-    protected @NoInline @NoReturn def raiseBoundsError(i0:int, i1:int, i2:int, i3:int) {
-        throw new ArrayIndexOutOfBoundsException("point (" + i0 + ", "+i1+", "+i2+", "+i3+") not contained in array");
-    }    
-    protected @NoInline @NoReturn def raiseBoundsError(pt:Point(rank)) {
-        throw new ArrayIndexOutOfBoundsException("point " + pt + " not contained in array");
-    }    
 }
 
 // vim:tabstop=4:shiftwidth=4:expandtab

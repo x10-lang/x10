@@ -127,6 +127,9 @@ public class BaseDist extends Dist /*implements Map[Place,Region]*/ {
 
     // This is horrifically inefficient, just like the rest of this class!!!
     public def offset(pt:Point(rank)) {
+        if (CompilerFlags.checkBounds() && !region.contains(pt)) {
+            raiseBoundsError(pt);
+        }
         val r = get(here);
         if (CompilerFlags.checkPlace() && !r.contains(pt)) raisePlaceError(pt);
         val localLayout = RectLayout(r);

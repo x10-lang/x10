@@ -211,6 +211,9 @@ public final class BlockBlockWorldDist extends Dist {
 
     // FIXME: Make this efficient
     public def offset(pt:Point(rank)):int {
+        if (CompilerFlags.checkBounds() && !region.contains(pt)) {
+            raiseBoundsError(pt);
+        }
         val r = get(here);
         if (CompilerFlags.checkPlace() && !r.contains(pt)) raisePlaceError(pt);
         val localLayout = RectLayout(r);

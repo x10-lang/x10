@@ -61,6 +61,9 @@ class UniqueDist extends Dist(1){rect} {
     }
 
     public def offset(pt:Point(rank)):int {
+        if (CompilerFlags.checkBounds() && !(pt(0) >= 0 && pt(0) < numPlaces())) {
+            raiseBoundsError(pt);
+        }
         if (CompilerFlags.checkPlace() && pt(0) != here.id) raisePlaceError(pt);
         return 0;
     }
