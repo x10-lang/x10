@@ -26,7 +26,7 @@ class UniqueDist extends Dist(1) {
     private transient var regionForHere:Region(this.rank);
 
 
-    def this():UniqueDist{self.rank==1} {
+    def this() {
 	super(0..Place.MAX_PLACES-1);
     }
 
