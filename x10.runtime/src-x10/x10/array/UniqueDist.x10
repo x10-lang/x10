@@ -23,12 +23,12 @@ import x10.compiler.CompilerFlags;
  * is PlaceGroup.WORLD, then each Place p will be assigned
  * the region p.id..p.id.
  */
-class UniqueDist extends Dist(1) {
+final class UniqueDist extends Dist(1) {
 
    /**
     * The place group for this distribution
     */
-   val pg:PlaceGroup;
+   private val pg:PlaceGroup;
    
     /**
      * Cached restricted region for the current place.

@@ -106,9 +106,7 @@ public abstract class Dist(
      * @param axis the dimension to block over
      * @return a "block" distribution over r.
      */
-    public static def makeBlock(r:Region, axis:int):Dist(r) {
-        return new BlockWorldDist(r, axis) as Dist(r); // TODO cast should not be needed.
-    }
+    public static def makeBlock(r:Region, axis:int):Dist(r) = makeBlock(r, axis, PlaceGroup.WORLD);
 
     /**
      * Creates a block, block distribution across all places.
@@ -140,7 +138,7 @@ public abstract class Dist(
      * @param r the given region
      * @return a "block" distribution over r, blocked over the zeroth axis.
      */
-    public static def makeBlock(r:Region) = makeBlock(r, 0);
+    public static def makeBlock(r:Region) = makeBlock(r, 0, PlaceGroup.WORLD);
 
     /**
      * Create a distribution over the specified region that varies in
@@ -202,8 +200,8 @@ public abstract class Dist(
     /**
      * Create a distribution over the specified region that varies in
      * place only along the specified axis. It divides the coordinates
-     * along that axis into ps.length blocks, and assigns successive
-     * blocks to successive places in ps.
+     * along that axis into pg.numPlaces() blocks, and assigns successive
+     * blocks to successive places in pg.
      *
      * @param r the given region
      * @param axis the dimension to block over
@@ -211,7 +209,7 @@ public abstract class Dist(
      * @return a "block" distribution over r, blocking over the places in ps.
      */
     public static def makeBlock(r:Region, axis:int, pg:PlaceGroup):Dist(r) {
-        throw new UnsupportedOperationException(); // short term while eliminating BaseDist
+        return new BlockDist(r, axis, pg) as Dist(r); // TODO: cast should not be needed
     }
 
     /**
