@@ -81,9 +81,15 @@ public class X10Field_c extends Field_c {
 		super(pos, target, name);
 	}
 
+	@Override
+	public X10FieldInstance fieldInstance() {
+	    return (X10FieldInstance) super.fieldInstance();
+	}
+
 	public X10Field_c reconstruct(Receiver target, Id name) {
 	    return (X10Field_c) super.reconstruct(target, name);
 	}
+
 	public Node typeCheck(ContextVisitor tc) {
 		Node n;
 		try {
@@ -207,12 +213,12 @@ public class X10Field_c extends Field_c {
 		final Context c = (Context) tc.context(); 
 		Type tType = target != null ? target.type() : c.currentClass();
 
+		Position pos = position();
 		if (target instanceof TypeNode) {
 			Type t = ((TypeNode) target).type();
 			t = X10TypeMixin.baseType(t);
 			if (t instanceof ParameterType) {
-				throw new Errors.CannotAccessStaticFieldOfTypeParameter(t, 
-						position());
+				throw new Errors.CannotAccessStaticFieldOfTypeParameter(t, pos);
 			}
 		}
 
@@ -237,7 +243,7 @@ public class X10Field_c extends Field_c {
 						}
 					}
 
-					throw new SemanticException("Cannot access field " + name + " of " + tCt+ " in class declaration header; the field may be a member of a superclass.",position());
+					throw new SemanticException("Cannot access field " + name + " of " + tCt+ " in class declaration header; the field may be a member of a superclass.", pos);
 				}
 			}
 		}
@@ -247,8 +253,6 @@ public class X10Field_c extends Field_c {
 
         if (fi.error() != null) {
             if (target instanceof Expr) {
-                Position pos = position();
-
                 // Now try 0-ary property methods.
                 try {
                     X10MethodInstance mi = ts.findMethod(target.type(), ts.MethodMatcher(target.type(), name.id(), Collections.<Type>emptyList(), c));
@@ -298,8 +302,8 @@ public class X10Field_c extends Field_c {
 		X10Field_c result = (X10Field_c)fieldInstance(fi).type(retType);
 		result.checkConsistency(c);
 
-		checkFieldAccessesInDepClausesAreFinal(result, tc);
-		checkClockedFieldAccessesAreInClockedMethods(result,tc);
+		checkFieldAccessesInDepClausesAreFinal(pos, target, fi, tc);
+		checkClockedFieldAccessesAreInClockedMethods(pos, fi, tc);
 		// Not needed in the orthogonal locality proposal.
 		// result = PlaceChecker.makeFieldAccessLocalIfNecessary(result, tc);
 
@@ -309,40 +313,36 @@ public class X10Field_c extends Field_c {
 
 	/**
 	 * Check that if this field is a clocked field, it is being accessed from within a clocked method.
-	 * @param result
+	 * @param fi
 	 * @param tc
 	 * @throws SemanticException
 	 */
-	protected void checkClockedFieldAccessesAreInClockedMethods(X10Field_c result, ContextVisitor tc) 
-	throws SemanticException {
-		//		 Check that field accesses in dep clauses refer to final fields.
-		Context xtc = (Context) tc.context();
-		if (X10Flags.toX10Flags(result.flags()).isClocked() 
-				&& ! ((Context) tc.context()).isClocked()) {
-			throw new Errors.IllegalClockedAccess(this, position());
+	protected static void checkClockedFieldAccessesAreInClockedMethods(Position pos,
+	        X10FieldInstance fi, ContextVisitor tc) throws SemanticException {
+		// Check that field accesses in dep clauses refer to final fields.
+		Context xtc = tc.context();
+		if (X10Flags.toX10Flags(fi.flags()).isClocked() && !xtc.isClocked()) {
+			throw new Errors.IllegalClockedAccess(fi, pos);
 		}
 	}
 
 	private static final boolean ENABLE_PLACE_TYPES = true;
 
-	protected void checkFieldAccessesInDepClausesAreFinal(X10Field_c result, ContextVisitor tc) 
-	throws SemanticException {
-		//		 Check that field accesses in dep clauses refer to final fields.
-		Context xtc = (Context) tc.context();
+	protected static void checkFieldAccessesInDepClausesAreFinal(Position pos, Receiver target,
+	        X10FieldInstance fi, ContextVisitor tc) throws SemanticException {
+		// Check that field accesses in dep clauses refer to final fields.
+		Context xtc = tc.context();
 		if (xtc.inDepType()) {
-			FieldInstance fi = result.fieldInstance();
 			if (! fi.flags().contains(Flags.FINAL))
-				throw new Errors.DependentClauseErrorFieldMustBeFinal(this, 
-						position());
+				throw new Errors.DependentClauseErrorFieldMustBeFinal(fi, pos);
 			if ((target instanceof X10Special) &&
 					((X10Special)target).kind()==X10Special.SELF) {
 				// The fieldInstance must be a property.
 				//Report.report(1, "X10Field_c checking " + fi  + " is a property. ");
 				// The following is going to look for property propertyNames$
 				// and may throw a MissingDependencyException asking for the field to be set.
-				if (! (fi instanceof X10FieldInstance && ((X10FieldInstance) fi).isProperty()))
-					throw new Errors.DependentClauseErrorSelfMayAccessOnlyProperties(fi,
-							result.position());
+				if (!fi.isProperty())
+					throw new Errors.DependentClauseErrorSelfMayAccessOnlyProperties(fi, pos);
 			}
 		}
 	}

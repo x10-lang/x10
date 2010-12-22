@@ -492,17 +492,21 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
     	// Add the type params and formals to the context.
     	nn.visitList(nn.typeParameters(),childtc1);
     	nn.visitList(nn.formals(),childtc1);
-    	(( Context ) childtc1.context()).setVarWhoseTypeIsBeingElaborated(null);
-    	final TypeNode r = (TypeNode) nn.visitChild(nn.returnType(), childtc1);
+    	childtc1.context().setVarWhoseTypeIsBeingElaborated(null);
+    	TypeNode r = (TypeNode) nn.visitChild(nn.returnType(), childtc1);
     	Ref<? extends Type> ref = r.typeRef();
     	Type type = Types.get(ref);
-        nn = (X10ConstructorDecl) nn.returnType(r);
-        ((Ref<Type>) nnci.returnType()).update(r.type());
-        
-        
-       // Report.report(1, "X10MethodDecl_c: typeoverride mi= " + nn.methodInstance());
+    	X10ClassType container =  (X10ClassType) X10TypeMixin.instantiateTypeParametersExplicitly(tc.context().currentClass());
+    	if (! tc.typeSystem().isSubtype(type, container, tc.context())) {
+    	    Errors.issue(tc.job(),
+    	            new Errors.ConstructorReturnTypeNotSubtypeOfContainer(type, container, position()));
+    	    r = tc.nodeFactory().CanonicalTypeNode(r.position(), container);
+    	}
+    	nn = (X10ConstructorDecl) nn.returnType(r);
+    	((Ref<Type>) nnci.returnType()).update(r.type());
 
-    
+        //Report.report(1, "X10MethodDecl_c: typeoverride mi= " + nn.methodInstance());
+
        	// Step III. Check the body. 
        	// We must do it with the correct mi -- the return type will be
        	// checked by return e; statements in the body.
@@ -524,7 +528,7 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
         {
             if (hasType != null) {
                 final TypeNode h = (TypeNode) nn.visitChild(((X10ConstructorDecl_c) nn).hasType, childtc1);
-                Type hasType = PlaceChecker.ReplaceHereByPlaceTerm(h.type(), ( Context ) childtc1.context());
+                Type hasType = PlaceChecker.ReplaceHereByPlaceTerm(h.type(), childtc1.context());
                 nn = (X10ConstructorDecl) ((X10ConstructorDecl_c) nn).hasType(h);
                 if (! tc.typeSystem().isSubtype(nnci.returnType().get(), hasType,tc.context())) {
                     Errors.issue(tc.job(),

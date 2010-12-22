@@ -55,6 +55,7 @@ import x10.constraint.XTerm;
 import x10.types.MacroType;
 import x10.types.ParameterType;
 import x10.types.X10ClassDef;
+import x10.types.X10ClassType;
 import x10.types.X10FieldInstance;
 import x10.types.X10ProcedureInstance;
 import x10.types.checker.Converter;
@@ -282,15 +283,15 @@ public class Errors {
 	}
 	public static class DependentClauseErrorFieldMustBeFinal extends EqualByTypeAndPosException implements DepTypeException {
 		private static final long serialVersionUID = 8737323529719693415L;
-		public DependentClauseErrorFieldMustBeFinal(Field f,Position pos) {
+		public DependentClauseErrorFieldMustBeFinal(X10FieldInstance fi, Position pos) {
 			super("Only val fields are permitted in constraints."
-					+ "\n\t Field: " + f, pos);
+					+ "\n\t Field: " + fi, pos);
 		}
 	}
 
 	public static class DependentClauseErrorSelfMayAccessOnlyProperties extends EqualByTypeAndPosException implements DepTypeException {
 		private static final long serialVersionUID = 8019315512496243771L;
-		public DependentClauseErrorSelfMayAccessOnlyProperties(FieldInstance fi,Position pos) {
+		public DependentClauseErrorSelfMayAccessOnlyProperties(FieldInstance fi, Position pos) {
 			super("Only properties may be prefixed with self in a constraint."
 					+ "\n\t Field: " + fi.name()
 					+ "\n\t Container: " + fi.container(), pos);
@@ -489,6 +490,16 @@ public class Errors {
 		}
 	}
 
+	public static class ConstructorReturnTypeNotSubtypeOfContainer extends EqualByTypeAndPosException {
+	    private static final long serialVersionUID = 8107418837802223220L;
+	    public ConstructorReturnTypeNotSubtypeOfContainer(Type retType, X10ClassType container, Position pos) {
+	        super("Constructor return type is not a subtype of the containing class"
+	                + "\n\t Type: " + retType
+	                + "\n\t Container: " + container,
+	                pos);
+	    }
+	}
+
 	public static class ConstructorReturnTypeNotEntailed extends EqualByTypeAndPosException {
 		private static final long serialVersionUID = -4705861378590877043L;
 		public ConstructorReturnTypeNotEntailed(CConstraint known, CConstraint ret,  Position pos) {
@@ -498,6 +509,7 @@ public class Errors {
 					pos);
 		}
 	}
+
 	public static class InconsistentInvariant extends EqualByTypeAndPosException {
 	    private static final long serialVersionUID = 243905319528026232L;
 	    public InconsistentInvariant(X10ClassDef cd,  Position pos) {
@@ -688,9 +700,9 @@ public class Errors {
 	    }
 	}
 	public static class IllegalClockedAccess extends EqualByTypeAndPosException {
-		private static final long serialVersionUID = -5824261892277076305L;
-		public IllegalClockedAccess(Field field,  Position pos) {
-	        super(field + " must be accessed in a clocked context.", pos);
+	    private static final long serialVersionUID = -5824261892277076305L;
+	    public IllegalClockedAccess(X10FieldInstance fi, Position pos) {
+	        super(fi + " must be accessed in a clocked context.", pos);
 	    }
 	}
 	public static class CannotReturnExpr extends EqualByTypeAndPosException {
