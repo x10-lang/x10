@@ -63,6 +63,8 @@ namespace x10 {
             static x10aux::ref<String> _make(x10aux::ref<String> s);
             static x10aux::ref<String> _make(x10aux::ref<Rail<x10_char> > rail,
                                              x10_int start, x10_int length);
+            static x10aux::ref<String> _make(x10aux::ref<x10::array::Array<x10_byte> > array,
+                                             x10_int start, x10_int length);
             static x10aux::ref<String> _make(x10aux::ref<x10::array::Array<x10_char> > array,
                                              x10_int start, x10_int length);
 

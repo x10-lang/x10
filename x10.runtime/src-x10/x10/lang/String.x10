@@ -41,6 +41,11 @@ public final class String implements (Int) => Char/*TODO, (Range) => String*//*T
      */
     public native def this(String): String;
 
+    /**
+     * Construct a String from an Array[Byte].
+     */
+    @Native("java", "new java.lang.String((#1).raw().getByteArray(),#2,#3)")
+    public native def this(r:Array[Byte], offset:Int, length:Int): String;
 
     /**
      * Construct a String from an Array[Char].

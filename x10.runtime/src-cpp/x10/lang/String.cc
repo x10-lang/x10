@@ -80,6 +80,21 @@ String::_make(x10aux::ref<Rail<x10_char> > rail, x10_int start, x10_int length) 
 }
 
 x10aux::ref<String>
+String::_make(x10aux::ref<x10::array::Array<x10_byte> > array, x10_int start, x10_int length) {
+    x10aux::ref<String> this_ = new (x10aux::alloc<String>()) String();
+    nullCheck(array);
+    x10_int i = 0;
+    char *content= x10aux::alloc<char>(length+1);
+    for (i=0; i<length; i++) {
+        content[i] = (char)(array->raw()[start + i]);
+    }
+    content[i] = '\0';
+
+    this_->_constructor(content, i);
+    return this_;
+}
+
+x10aux::ref<String>
 String::_make(x10aux::ref<x10::array::Array<x10_char> > array, x10_int start, x10_int length) {
     x10aux::ref<String> this_ = new (x10aux::alloc<String>()) String();
     nullCheck(array);
