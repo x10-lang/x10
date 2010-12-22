@@ -2623,32 +2623,42 @@ public class Emitter {
 	}
 
 	public void generateRTTInstance(X10ClassDef def) {
+	    // for static inner classes that are compiled from closures
+	    boolean isStaticInnerClassForClosure = def.name().toString().startsWith(ClosureRemover.STATIC_INNER_CLASS_BASE_NAME);
+	    boolean isVoidFun = false;
+	    if (isStaticInnerClassForClosure) {
+	        // Note: assume that the first interface in this X10ClassDef is a function type
+	        Type type = def.interfaces().get(0).get();
+            assert type instanceof FunctionType;
+            isVoidFun = ((FunctionType) type).returnType().isVoid();
+	    }
 
-//	    boolean isUnsignedType = isUnsignedClassType(def.asType());
-//        String unsignedClassName = null;
-//
-//	    if (isUnsignedType) {
-//            unsignedClassName = def.asType().name().toString();
-//	    }
-	    
-//        if (isUnsignedType) {
-//            w.write("public static final x10.rtt."+unsignedClassName+"Type");
-//        } else {
-            w.write("public static final x10.rtt.RuntimeType");
-//        }
+	    w.write("public static final x10.rtt.RuntimeType");
         w.write("<");
         printType(def.asType(), X10PrettyPrinterVisitor.BOX_PRIMITIVES | X10PrettyPrinterVisitor.NO_QUALIFIER);
         w.write(">");
-//        if (isUnsignedType) {
-//            w.write(" _RTT = new x10.rtt."+unsignedClassName+"Type");
-//        } else {
-            w.write(" _RTT = new x10.rtt.RuntimeType");            
-//        }
+        if (isStaticInnerClassForClosure) {
+            // Option for closures
+//            w.write(" _RTT = new x10.rtt.RuntimeType");
+            if (isVoidFun) {
+                w.write(" _RTT = new x10.rtt.StaticInnerClassVoidFunType");
+            } else {
+                w.write(" _RTT = new x10.rtt.StaticInnerClassFunType");
+            }
+        } else {
+            // Option for non-closures
+//            w.write(" _RTT = new x10.rtt.RuntimeType");
+            w.write(" _RTT = new x10.rtt.NamedType");
+        }
         w.write("<");
         printType(def.asType(), X10PrettyPrinterVisitor.BOX_PRIMITIVES | X10PrettyPrinterVisitor.NO_QUALIFIER);
         w.write(">");
         w.write("(");
         w.newline();
+        if (!isStaticInnerClassForClosure) {
+            // Option for non-closures
+            w.write("\"" + def.asType() + "\", ");
+        }
         w.write("/* base class */");
         printType(def.asType(), X10PrettyPrinterVisitor.BOX_PRIMITIVES | X10PrettyPrinterVisitor.NO_QUALIFIER);
         w.write(".class");
@@ -2688,16 +2698,15 @@ public class Emitter {
             w.write("}");
         }
         w.newline();
-        w.write(") {");
+        w.write(")");
 
         // override methods of RuntimeType as needed
+        if (isStaticInnerClassForClosure) {
+            // Option for closures
+            /*
+            // for static inner classes that are compiled from closures
+            w.write("{");
 
-        // for static inner classes that are compiled from closures
-        if (def.name().toString().startsWith(ClosureRemover.STATIC_INNER_CLASS_BASE_NAME)) {
-            // Note: assume that the first interface in this X10ClassDef is a function type
-            Type type = def.interfaces().get(0).get();
-            assert type instanceof FunctionType;
-            boolean isVoidFun = ((FunctionType) type).returnType().isVoid();
             // Note: assume that the first parent in this RuntimeType is the parameterized type which corresponds to the above function type
             w.write("public String typeName(Object o) {");
             if (isVoidFun) {
@@ -2706,21 +2715,27 @@ public class Emitter {
                 w.write("return ((x10.rtt.ParameterizedType<?>) getParents()[0]).typeNameForFun();");
             }
             w.write("}");
+            
+            w.write("}");
+            */
         } else {
+            // Option for non-closures
+            /*
+            w.write("{");
+
             w.write("public String typeName() {");
             w.write("return \"" + def.asType() + "\";");
             w.write("}");
+
+            w.write("}");
+            */
         }
 
-        w.write("};");
+        w.write(";");
         w.newline();
         
         if (!def.flags().isInterface()) {
-//            if (isUnsignedType) {
-//                w.write("public x10.rtt."+unsignedClassName+"Type<"+unsignedClassName+"> getRTT() {");
-//            } else {
-                w.write("public x10.rtt.RuntimeType<?> getRTT() {");
-//            }
+            w.write("public x10.rtt.RuntimeType<?> getRTT() {");
             w.write("return _RTT;");
             w.write("}");
             w.newline();
