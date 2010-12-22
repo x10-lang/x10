@@ -19,7 +19,7 @@ class XTENLANG_217 extends x10Test {
 
     static class A {
         operator this(i:int): double {throw new RuntimeException();} // FIXME: XTENLANG-1443
-        def set(v:double, i:int) {}
+        operator this(i:int)=(v:double) {}
     }
     
     val a = new A();

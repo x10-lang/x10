@@ -75,7 +75,7 @@ public class AllReduce extends x10Test {
 
         success &= (reducedSuccess == 1);
 
-        if (!success) at (res.home) res()() = false;
+        if (!success) at (res.home) res().set(false);
 
     }
 

@@ -171,31 +171,31 @@ public class DistArray[T] (
     }
 
 
-    public final def set(v:T, pt:Point(rank)): T {
+    public final operator this(pt: Point(rank))=(v: T): T {
         val offset = dist.offset(pt);
         raw()(offset) = v;
         return v;
     }
 
-    final public def set(v:T, i0:int){rank==1}: T {
+    final public operator this(i0: int)=(v: T){rank==1}: T {
         val offset = dist.offset(i0);
         raw()(offset) = v;
         return v;
     }
 
-    final public def set(v:T, i0:int, i1:int){rank==2}: T {
+    final public operator this(i0: int, i1: int)=(v: T){rank==2}: T {
         val offset = dist.offset(i0, i1);
         raw()(offset) = v;
         return v;
     }
 
-    final public def set(v:T, i0:int, i1:int, i2:int){rank==3}: T {
+    final public operator this(i0: int, i1: int, i2: int)=(v: T){rank==3}: T {
         val offset = dist.offset(i0,i1,i2);
         raw()(offset) = v;
         return v;
     }
 
-    final public def set(v:T, i0:int, i1:int, i2:int, i3:int){rank==4}: T {
+    final public operator this(i0: int, i1: int, i2: int, i3: int)=(v: T){rank==4}: T {
         val offset = dist.offset(i0,i1,i2,i3);
         raw()(offset) = v;
         return v;

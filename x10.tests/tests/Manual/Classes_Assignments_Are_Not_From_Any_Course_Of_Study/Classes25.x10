@@ -20,8 +20,8 @@ class Oddvec {
   public operator this() = "(" + v(0) + "," + v(1) + "," + v(2) + ")";
   public operator this(i:Int) = v(i);
   public operator this(i:Int, j:Int) = [v(i),v(j)];
-  public def set(newval:Int, i:Int) = {v(i) = newval;}
-  public def set(newval:Int, i:Int, j:Int) = {
+  public operator this(i:Int)=(newval:Int) = {v(i) = newval;}
+  public operator this(i:Int, j:Int)=(newval:Int) = {
        v(i) = newval; v(j) = newval+1;}
   // ...
   public static def main(argv:Rail[String]):void {

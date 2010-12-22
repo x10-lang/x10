@@ -407,6 +407,7 @@ public final class RectRegion extends Region{rect} {
     private class RectRegionScanner implements Region.Scanner {
     	var axis:Int=0;
         def this(){}
+
         public def set(axis:int, position: int) {
         	// ???
         }

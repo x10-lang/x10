@@ -23,6 +23,11 @@ import x10.parser.AutoGenSentences;
 
 public class RunTestSuite {
     // todo: C:\cygwin\home\Yoav\intellij\sourceforge\x10.dist\samples\tutorial\HeatTransfer_v1.x10:47,46-57 causes: (Warning) Reached threshold when checking constraints. If type-checking fails
+
+    public static boolean VERBOSE = System.getenv("VERBOSE")!=null;
+    private static void println(String s) {
+        if (VERBOSE) System.out.println(s);
+    }
     // I have 3 kind of markers:
     // "// ... ERR"  - marks an error or warning
     // "// ... ShouldNotBeERR" - the compiler reports an error, but it shouldn't
@@ -39,7 +44,7 @@ public class RunTestSuite {
     //_MustFailTimeout means that when running the file it will have an infinite loop
     private static final String[] EXCLUDE_FILES_WITH_SUFFIX = {
             "NonX10Constructs_MustFailCompile.x10",
-            //"_MustFailCompile.x10",
+            "_MustFailCompile.x10",
     };
     private static final String[] EXCLUDE_DIRS = {
             "WorkStealing", // Have duplicated class from the Samples directory such as ArraySumTest.x10
@@ -129,7 +134,7 @@ public class RunTestSuite {
                 assert dir.isDirectory() : "The first command line argument must be the directory of x10.tests, and you passed: "+dir;
                 int before = files.size();
                 recurse(dir,files);
-                if (before==files.size()) System.out.println("Warning: Didn't find any .x10 files to compile in any subdirectory of "+dir);
+                if (before==files.size()) println("Warning: Didn't find any .x10 files to compile in any subdirectory of "+dir);
             }
         }
         ArrayList<FileSummary> summaries = new ArrayList<FileSummary>();
@@ -174,7 +179,7 @@ public class RunTestSuite {
         } catch (Main.TerminationException e) {
             // If we had errors (and we should because we compile _MustFailCompile) then we will get a non-zero exitCode
         }
-        System.out.println("Compiler running time="+(System.currentTimeMillis()-start));
+        println("Compiler running time="+(System.currentTimeMillis()-start));
         final ArrayList<ErrorInfo> res = (ArrayList<ErrorInfo>) errQueue.getErrors();
         assert res.size()<MAX_ERR_QUEUE : "We passed the maximum number of errors!";
         return res;
@@ -248,7 +253,7 @@ public class RunTestSuite {
         String[] newArgs = allArgs.toArray(new String[allArgs.size()+2]);
         newArgs[newArgs.length-2] = STATIC_CALLS ? "-STATIC_CALLS" : "-VERBOSE_CALLS";
         newArgs[newArgs.length-1] = !STATIC_CALLS ? "-STATIC_CALLS=false" : "-VERBOSE_CALLS=false";
-        System.out.println("Running: "+ fileNames);
+        println("Running: "+ fileNames);
         ArrayList<ErrorInfo> errors = runCompiler(newArgs);
         // remove GOOD_ERR_MARKERS  and EXPECTED_ERR_MARKERS
         for (Iterator<ErrorInfo> it = errors.iterator(); it.hasNext(); ) {

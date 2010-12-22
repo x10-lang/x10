@@ -18,7 +18,7 @@ import x10.io.StringWriter;
 abstract class Row(cols:Int) implements (Int)=>int {
 
     public abstract operator this(i:Int): int;
-    public abstract def set(v:int, i:Int): int;
+    public abstract operator this(i:Int)=(v:int): int;
 
     protected def this(cols:Int) = property(cols);
 

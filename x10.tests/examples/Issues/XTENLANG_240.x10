@@ -19,7 +19,7 @@ class XTENLANG_240 extends x10Test {
 
     
     class A {
-        final def set(v:double, i0: int) {}
+        final operator this(i0: int)=(v:double) {}
         final public operator this(i0:int) = 0;
     }
         

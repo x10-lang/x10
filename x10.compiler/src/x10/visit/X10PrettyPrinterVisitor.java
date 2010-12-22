@@ -3121,7 +3121,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 					setTypeArgs.add(tn.type());
 				}
 				try {
-					setter = ts.findMethod(target.type(), ts.MethodMatcher(t, Name.make("set"), setTypeArgs, setArgTypes, tr.context()));
+					setter = ts.findMethod(target.type(), ts.MethodMatcher(t, SettableAssign.SET, setTypeArgs, setArgTypes, tr.context()));
 				}
 				catch (SemanticException e) {
 				}

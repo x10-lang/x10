@@ -19,7 +19,7 @@ class XTENLANG_106 extends x10Test {
 
     class A[T] {
         public operator this(i0:int):T {throw new RuntimeException();} // FIXME: XTENLANG-1443
-        public def set(v:T, i0:int) {}
+        public operator this(i0:int)=(v:T) {}
     }
     
     def foo(a:A[double]) {

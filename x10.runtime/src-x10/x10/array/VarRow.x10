@@ -28,5 +28,5 @@ final class VarRow extends Row {
     def row() = row as Rail[int];
     public operator this(i:Int) = row()(i);
 
-    public def set(v:int, i:Int) = (row()(i) = v);
+    public operator this(i:Int)=(v:int) = (row()(i) = v);
 }

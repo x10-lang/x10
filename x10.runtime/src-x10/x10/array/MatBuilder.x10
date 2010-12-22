@@ -40,7 +40,7 @@ public class MatBuilder {
 
     public operator this(i:int, j:int) = mat(i)(j);
 
-    public def set(v:int, i:int, j:int) {
+    public operator this(i:int, j:int)=(v:int) {
         need(i+1);
         mat(i)(j) = v;
     }

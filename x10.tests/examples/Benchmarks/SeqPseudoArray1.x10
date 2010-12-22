@@ -40,7 +40,7 @@ public class SeqPseudoArray1 extends Benchmark {
             this.raw = Rail.make[double](m0*m1);
         }
         
-        final def set(v:double, i0: int, i1: int) {
+        final operator this(i0: int, i1: int)=(v:double) {
             raw(i0*m1+i1) = v;
         }
         

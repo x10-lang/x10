@@ -177,7 +177,7 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
    	}
 	
 	X10MethodInstance mi;
-	X10MethodInstance ami;
+	X10MethodInstance ami; // the apply method is searched even for SettableAssign if the operator is not "=", e.g., a(1) += 2; If it is just assignment, then ami will be null, e.g., a(1)=2;
 	
 	public X10MethodInstance methodInstance() {
 	    return mi;
@@ -213,12 +213,12 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 	    final Context context = tc.context();
 
 	    List<MethodInstance> methods = ts.findAcceptableMethods(targetType,
-	            new DumbMethodMatcher(targetType, Name.make("set"), typeArgs, argTypes, context));
+	            new DumbMethodMatcher(targetType, SettableAssign.SET, typeArgs, argTypes, context));
 
 	    Pair<MethodInstance,List<Expr>> p = Converter.<MethodDef,MethodInstance>tryImplicitConversions(n, tc,
 	            targetType, methods, new X10New_c.MatcherMaker<MethodInstance>() {
 	        public Matcher<MethodInstance> matcher(Type ct, List<Type> typeArgs, List<Type> argTypes) {
-	            return ts.MethodMatcher(ct, Name.make("set"), typeArgs, argTypes, context);
+	            return ts.MethodMatcher(ct, SettableAssign.SET, typeArgs, argTypes, context);
 	        }
 	    });
 
@@ -271,13 +271,16 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 
 		// First try to find the method without implicit conversions.
 		ami = Checker.findAppropriateMethod(tc, array.type(), ClosureCall.APPLY, typeArgs, actualTypes);
-		if (ami.error() != null) {
-		    Type bt = X10TypeMixin.baseType(array.type());
-		    boolean arrayP = xts.isX10Array(bt) || xts.isX10DistArray(bt);
-		    Errors.issue(tc.job(), new Errors.CannotAssignToElement(leftToString(), arrayP, right, X10TypeMixin.arrayElementType(array.type()), position(), ami.error()));
-		}
+
+
 
 		if (op != Assign.ASSIGN) {
+            if (ami.error() != null) { // it's an error only if op is not =, e.g., a(1)+=1;
+                Type bt = X10TypeMixin.baseType(array.type());
+                boolean arrayP = xts.isX10Array(bt) || xts.isX10DistArray(bt);
+                Errors.issue(tc.job(), new Errors.CannotAssignToElement(leftToString(), arrayP, right, X10TypeMixin.arrayElementType(array.type()), position(), ami.error()));
+            }
+            // First try to find the method without implicit conversions.
 		    X10Call_c left = (X10Call_c) nf.X10Call(position(), array, nf.Id(position(),
 		            ClosureCall.APPLY), Collections.<TypeNode>emptyList(),
 		            index).methodInstance(ami).type(ami.returnType());

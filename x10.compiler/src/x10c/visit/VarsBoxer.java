@@ -52,6 +52,7 @@ import x10.ast.X10Binary_c;
 import x10.ast.X10CanonicalTypeNode;
 import x10.ast.X10Unary_c;
 import x10.ast.ClosureCall;
+import x10.ast.SettableAssign;
 import x10.types.X10ConstructorInstance;
 import x10.types.X10LocalDef;
 import x10.types.X10ParsedClassType;
@@ -403,7 +404,7 @@ public class VarsBoxer extends ContextVisitor {
     }
     
     private Call createSetCall(final Position pos, LocalInstance lilocal, LocalInstance libox, Expr arg) {
-        Name mname = Name.make("set");
+        Name mname = SettableAssign.SET;
         
         List<Ref<? extends Type>> argTypes = new ArrayList<Ref<? extends Type>>();
         argTypes.add(Types.ref(arg.type()));

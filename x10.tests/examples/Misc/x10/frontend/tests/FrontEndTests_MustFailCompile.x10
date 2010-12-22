@@ -4162,3 +4162,14 @@ class PropertyFieldResolution {
 		@ERR val k2:Int{self==1} = this.i;
 	}
 }
+class SettableAssignWithoutApply {
+    operator this(i:Int)=(v: Int): void {}
+	def m() {
+        this(1) = 2;
+        this(1) += @ERR @ERR 2;
+	}
+	def testSettableAssign(b:DistArray[Int], p:Point(b.rank)) {
+		b(p)+=1;
+		b(p)++;
+	}
+}

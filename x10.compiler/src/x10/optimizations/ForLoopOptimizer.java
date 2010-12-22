@@ -64,6 +64,7 @@ import x10.ast.StmtSeq;
 import x10.ast.X10Call;
 import x10.ast.X10Cast;
 import x10.ast.X10Formal;
+import x10.ast.SettableAssign;
 import x10.constraint.XFailure;
 import x10.constraint.XTerm;
 import x10.types.X10FieldInstance;
@@ -97,7 +98,7 @@ public class ForLoopOptimizer extends ContextVisitor {
     private static final Name RANK     = Name.make("rank");
     private static final Name MIN      = Name.make("min");
     private static final Name MAX      = Name.make("max");
-    private static final Name SET      = Name.make("set");
+    private static final Name SET      = SettableAssign.SET;
 
     private final TypeSystem xts;
     private AltSynthesizer   syn;

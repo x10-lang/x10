@@ -443,7 +443,7 @@ public final class Array[T] (
      * @see #set(T, Point)
      */
     @Native("cuda", "(#0).raw[#2] = (#1)")
-    public @Header @Inline def set(v:T, i0:int){rank==1}:T {
+    public @Header @Inline operator this(i0:int)=(v:T){rank==1}:T {
         if (rail) {
             // Bounds checking by backing IndexedMemoryChunk is sufficient
             raw(i0) = v;
@@ -469,7 +469,7 @@ public final class Array[T] (
      * @see #operator(Int, Int)
      * @see #set(T, Point)
      */
-    public @Header @Inline def set(v:T, i0:int, i1:int){rank==2}:T {
+    public @Header @Inline operator this(i0:int,i1:int)=(v:T){rank==2}:T {
         if (CompilerFlags.checkBounds() && !region.contains(i0, i1)) {
             raiseBoundsError(i0, i1);
         }
@@ -491,7 +491,7 @@ public final class Array[T] (
      * @see #operator(Int, Int, Int)
      * @see #set(T, Point)
      */
-    public @Header @Inline def set(v:T, i0:int, i1:int, i2:int){rank==3}:T {
+    public @Header @Inline operator this(i0:int, i1:int, i2:int)=(v:T){rank==3}:T {
         if (CompilerFlags.checkBounds() && !region.contains(i0, i1, i2)) {
             raiseBoundsError(i0, i1, i2);
         }
@@ -514,7 +514,7 @@ public final class Array[T] (
      * @see #operator(Int, Int, Int, Int)
      * @see #set(T, Point)
      */
-    public @Header @Inline def set(v:T, i0:int, i1:int, i2:int, i3:int){rank==4}:T {
+    public @Header @Inline operator this( i0:int, i1:int, i2:int, i3:int)=(v:T){rank==4}:T {
         if (CompilerFlags.checkBounds() && !region.contains(i0, i1, i2, i3)) {
             raiseBoundsError(i0, i1, i2, i3);
         }
@@ -533,7 +533,7 @@ public final class Array[T] (
      * @see #operator(Point)
      * @see #set(T, Int)
      */
-    public @Header @Inline def set(v:T, p:Point{self.rank==this.rank}):T {
+    public @Header @Inline operator this(p:Point{self.rank==this.rank})=(v:T):T {
         if (CompilerFlags.checkBounds() && !region.contains(p)) {
             raiseBoundsError(p);
         }

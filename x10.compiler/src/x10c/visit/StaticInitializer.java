@@ -96,6 +96,7 @@ import x10.ast.X10MethodDecl;
 import x10.ast.X10New_c;
 import x10.ast.X10NodeFactory_c;
 import x10.ast.X10SourceFile_c;
+import x10.ast.SettableAssign;
 import x10.constraint.XTerm;
 import x10.constraint.XTermKind;
 import x10.types.constraints.CConstraint;
@@ -884,7 +885,7 @@ public class StaticInitializer extends ContextVisitor {
 
     private Expr genStatusSet(Position pos, TypeNode receiver, FieldDef fdCond) {
         Expr ai = xnf.Field(pos, receiver, xnf.Id(pos, fdCond.name())).fieldInstance(fdCond.asInstance());
-        Id name = xnf.Id(pos, Name.make("set"));
+        Id name = xnf.Id(pos, SettableAssign.SET);
 
         List<Ref<? extends Type>> argTypes = new ArrayList<Ref<? extends Type>>();
         argTypes.add(Types.ref(xts.Int()));

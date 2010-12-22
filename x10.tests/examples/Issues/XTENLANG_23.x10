@@ -20,22 +20,22 @@ class XTENLANG_23 extends x10Test {
     class P {}
     
     interface S[A,B] {
-        def set(A,B): void;
+        operator this(B)=(A): void;
     }
     
     abstract class AA[T] implements S[T,P] {
-        public abstract def set(T, P): void;
-        public abstract def set(T, int): void;
+        public abstract operator this(P)=(T): void;
+        public abstract operator this(int)=(T): void;
     }
     
     abstract class BA[T] extends AA[T] implements S[T,P] {
-        public final def set(T, P):void = {}
+        public final operator this(P)=(T):void = {}
     }
     
     abstract class VA[T] extends BA[T] {}
     
     final class A1[T] extends VA[T] {
-        final public def set(T, int): void {}
+        final public operator this(int)=(T): void {}
     }
 
     public def run(): boolean {
