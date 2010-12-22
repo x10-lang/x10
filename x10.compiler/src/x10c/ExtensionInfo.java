@@ -78,10 +78,12 @@ public class ExtensionInfo extends x10.ExtensionInfo {
                 }
                 if (g == CodeGenerated(job)) {
                     goals.add(JavaCodeGenStart(job));
-//                    goals.add(ClosuresToStaticMethods(job));
+                    // TODO reenable XTENLANG-2061 (comment out the following)
+                    goals.add(ClosuresToStaticMethods(job));
                     goals.add(StaticInitializer(job));
                     goals.add(AsyncInitializer(job));
-                    goals.add(ClosureRemoved(job));
+                    // TODO reenable XTENLANG-2061 (uncomment the following)
+//                    goals.add(ClosureRemoved(job));
                     goals.add(RailInLoopOptimizer(job));
                     goals.add(CastsRemoved(job));
                     goals.add(JavaCaster(job));
