@@ -2429,7 +2429,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			} else {
 				n.print(n.expr(), sw, tr);
 			}
-			sw.write(":");
+			sw.write(": ;"); // Add gratituous ; to avoid post-compiler failure if case is last one in switch and is empty.
 		}
 		sw.newline();
 	}
