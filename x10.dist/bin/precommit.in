@@ -4,7 +4,7 @@ testFailed() {
   echo ""
   echo ""
   echo "FAILURE!!!"
-  exit $rc  
+  exit $rc
 }
 
 echo "Running precommit tests for X10"
@@ -14,18 +14,25 @@ ROOT="$TOP/.."
 echo "Rebuilding X10"
 
 cd "$ROOT/x10.dist"
-nice ant "$@" squeakyclean dist || testFailed
+#nice ant "$@" squeakyclean dist || testFailed
+if [ -n "$1" ]; then
+  nice ant squeakyclean dist-$1 || testFailed
+else
+  nice ant squeakyclean dist || testFailed
+fi
 
 echo "Making temp dir"
-if [ -z "$TMP_DIR" ] ; then
-    export TMP_DIR=/tmp/precommit-$USER
+if [ -z "$TMP_DIR" ]; then
+  export TMP_DIR=/tmp/precommit-$USER
 fi
 if [[ "$UNAME" = CYGWIN* ]]; then TMP_DIR="$(cygpath -am "$TMP_DIR")"; fi
 
 rm -rf "$TMP_DIR"
 mkdir -p "$TMP_DIR"
 
-echo "Testing "
+echo "Testing"
+
+if [ -z "$1" -o "$1" = "cpp" ]; then
 
 echo "Compiling PreCommit.x10 with x10c++"
 
@@ -40,7 +47,13 @@ echo "Running"
 
 X10_NPLACES=2 X10_HOSTLIST=localhost "$TMP_DIR/PreCommit" || testFailed
 
+fi
+
+if [ -z "$1" -o "$1" = "java" ]; then
+
 echo "Compiling PreCommit.x10 with x10c"
+
+cd "$ROOT/x10.tests/examples/Misc"
 
 nice "$ROOT/x10.dist/bin/x10c" -O \
  -sourcepath "$ROOT/x10.dist/samples/tutorial" \
@@ -48,10 +61,11 @@ nice "$ROOT/x10.dist/bin/x10c" -O \
 -d "$TMP_DIR" PreCommit.x10 || testFailed
 
 echo "Running"
+
 "$ROOT/x10.dist/bin/x10" -classpath "$TMP_DIR" PreCommit || testFailed
+
+fi
 
 echo ""
 echo ""
 echo "SUCCESS"
-
-
