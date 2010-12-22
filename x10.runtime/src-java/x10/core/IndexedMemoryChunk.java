@@ -21,6 +21,11 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct {
     public final Object value;
     public final Type<T> type;
 
+    public IndexedMemoryChunk(Type<T> type) {
+        this.length = 0;
+        this.type = type;
+        this.value = null;
+    }
     public IndexedMemoryChunk(Type<T> type, int length, Object value) {
         this.length = length;
         this.type = type;
