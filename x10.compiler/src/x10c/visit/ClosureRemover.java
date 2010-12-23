@@ -83,7 +83,7 @@ import x10.types.constraints.TypeConstraint;
 
 public class ClosureRemover extends ContextVisitor {
     
-    public static final String STATIC_INNER_CLASS_BASE_NAME = "Closure";
+    public static final String STATIC_INNER_CLASS_BASE_NAME = "$Closure$";
     private static final String STATIC_METHOD_BASE_NAME = "__$closure$apply$__";
     private static final Name OUTER_NAME = Name.make("out$$");
     
