@@ -117,14 +117,76 @@ public final class RectRegion extends Region{rect} {
     public def isEmpty() = size == 0;
 
     public def indexOf(pt:Point) {
-	if (pt.rank != rank) return -1;
+	if (!contains(pt)) return -1;
         var offset: int = pt(0) - min(0);
         for (var i:int=1; i<rank; i++) {
-            val delta_i = max(i) - min(i) + 1;
-            offset = offset*delta_i + pt(i) - min(i);
+            val min_i = min(i);
+            val max_i = max(i);
+            val pt_i = pt(i);
+            val delta_i = max_i - min_i + 1;
+            offset = offset*delta_i + pt_i - min_i;
         }
         return offset;
     }
+
+    public def indexOf(i0:int):int {
+        if (zeroBased) {
+	    if (rank != 1 || !containsInternal(i0)) return -1;
+            return i0;
+        } else { 
+	    if (rank != 1 || !containsInternal(i0)) return -1;
+            return i0 - min0;
+        }
+    }
+
+    public def indexOf(i0:int, i1:int):int {
+        if (zeroBased) {
+	    if (rank != 2 || !containsInternal(i0,i1)) return -1;
+            var offset:int = i0;
+            offset = offset*(max1 + 1) + i1;
+            return offset;
+        } else { 
+	    if (rank != 2 || !containsInternal(i0,i1)) return -1;
+            var offset:int = i0 - min0;
+            offset = offset*(max1 - min1 + 1) + i1 - min1;
+            return offset;
+        }
+    }
+
+    public def indexOf(i0:int, i1:int, i2:int):int {
+        if (zeroBased) {
+	    if (rank != 3 || !containsInternal(i0,i1,i2)) return -1;
+            var offset:int = i0;
+            offset = offset*(max1 + 1) + i1;
+            offset = offset*(max2 + 1) + i2;
+            return offset;
+        } else { 
+	    if (rank != 3 || !containsInternal(i0,i1,i2)) return -1;
+            var offset:int = i0 - min0;
+            offset = offset*(max1 - min1 + 1) + i1 - min1;
+            offset = offset*(max2 - min2 + 1) + i2 - min2;
+            return offset;
+        }
+    }
+
+    public def indexOf(i0:int, i1:int, i2:int, i3:int):int {
+        if (zeroBased) {
+	    if (rank != 4 || !containsInternal(i0,i1,i2,i3)) return -1;
+            var offset:int = i0;
+            offset = offset*(max1 + 1) + i1;
+            offset = offset*(max2 + 1) + i2;
+            offset = offset*(max3 + 1) + i3;
+            return offset;
+        } else { 
+	    if (rank != 4 || !containsInternal(i0,i1,i2,i3)) return -1;
+            var offset:int = i0 - min0;
+            offset = offset*(max1 - min1 + 1) + i1 - min1;
+            offset = offset*(max2 - min2 + 1) + i2 - min2;
+            offset = offset*(max3 - min3 + 1) + i3 - min3;
+            return offset;
+        }
+    }
+
 
     public def min(i:int):int {
         if (i<0 || i>=rank) throw new ArrayIndexOutOfBoundsException("min: "+i+" is not a valid rank for "+this);
@@ -188,11 +250,16 @@ public final class RectRegion extends Region{rect} {
 	return true;
     }
 
-    public def contains(i0:int){rank==1}:boolean {
+    public def contains(i0:int){rank==1}:boolean = containsInternal(i0);
+    public def contains(i0:int, i1:int){rank==2}:boolean = containsInternal(i0,i1);
+    public def contains(i0:int, i1:int, i2:int){rank==3}:boolean = containsInternal(i0,i1,i2);
+    public def contains(i0:int, i1:int, i2:int, i3:int){rank==4}:boolean = containsInternal(i0,i1,i2,3);
+
+    private def containsInternal(i0:int):boolean {
         return i0>=min0 && i0<=max0;
     }
 
-    public def contains(i0:int, i1:int){rank==2}:boolean { 
+    private def containsInternal(i0:int, i1:int):boolean { 
         if (CompilerFlags.useUnsigned() && zeroBased) {
             return ((i0 as UInt) <= (max0 as UInt)) &&
                    ((i1 as UInt) <= (max1 as UInt));
@@ -202,7 +269,7 @@ public final class RectRegion extends Region{rect} {
         }
     }
 
-    public def contains(i0:int, i1:int, i2:int){rank==3}:boolean {
+    private def containsInternal(i0:int, i1:int, i2:int):boolean {
         if (CompilerFlags.useUnsigned() && zeroBased) {
             return ((i0 as UInt) <= (max0 as UInt)) &&
                    ((i1 as UInt) <= (max1 as UInt)) &&
@@ -214,7 +281,7 @@ public final class RectRegion extends Region{rect} {
         }
     }
 
-    public def contains(i0:int, i1:int, i2:int, i3:int){rank==4}:boolean {
+    private def containsInternal(i0:int, i1:int, i2:int, i3:int):boolean {
         if (CompilerFlags.useUnsigned() && zeroBased) {
             return ((i0 as UInt) <= (max0 as UInt)) &&
                    ((i1 as UInt) <= (max1 as UInt)) &&

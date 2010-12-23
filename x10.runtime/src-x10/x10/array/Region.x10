@@ -229,6 +229,11 @@ public abstract class Region(
      * raw() method of Array or DistArray.
      */
     public abstract def indexOf(Point):Int;
+    
+    public def indexOf(i0:int) = indexOf(Point.make(i0));
+    public def indexOf(i0:int, i1:int) = indexOf(Point.make(i0, i1));
+    public def indexOf(i0:int, i1:int, i2:int) = indexOf(Point.make(i0,i1,i2));
+    public def indexOf(i0:int, i1:int, i2:int, i3:int) = indexOf(Point.make(i0,i1,i2,i3));
 
 
     //
