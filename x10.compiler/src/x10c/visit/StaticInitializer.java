@@ -509,7 +509,7 @@ public class StaticInitializer extends ContextVisitor {
             ast = ast.visit(new X10TypeChecker(job, ts, nf, job.nodeMemo()).begin());
         if (ast == null)
             return null;
-        if (((X10Ext)ast.ext()).subtreeValid())
+        if (!((X10Ext)ast.ext()).subtreeValid())
             return null;
 
         ast = ast.visit(new Desugarer(job, ts, nf).begin());
