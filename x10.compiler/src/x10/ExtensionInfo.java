@@ -1025,6 +1025,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            }
            public int initialErrorCount() { return initialErrorCount; }
            public void initialErrorCount(int count) { initialErrorCount = count; }
+           public void setReportedErrors(boolean flag) { reportedErrors = flag; }
        }
        
        @Override

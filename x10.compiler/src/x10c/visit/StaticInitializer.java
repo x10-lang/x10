@@ -99,6 +99,7 @@ import x10.ast.X10SourceFile_c;
 import x10.ast.SettableAssign;
 import x10.constraint.XTerm;
 import x10.constraint.XTermKind;
+import x10.extension.X10Ext;
 import x10.types.constraints.CConstraint;
 import x10.types.ConstrainedType;
 import x10.types.ParameterType;
@@ -507,6 +508,8 @@ public class StaticInitializer extends ContextVisitor {
         if (!((X10SourceFile_c) ast).hasBeenTypeChecked())
             ast = ast.visit(new X10TypeChecker(job, ts, nf, job.nodeMemo()).begin());
         if (ast == null)
+            return null;
+        if (((X10Ext)ast.ext()).subtreeValid())
             return null;
 
         ast = ast.visit(new Desugarer(job, ts, nf).begin());

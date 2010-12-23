@@ -47,6 +47,7 @@ import polyglot.util.CodedErrorInfo;
 import polyglot.util.ErrorInfo;
 import polyglot.util.Position;
 import x10.ExtensionInfo;
+import x10.ExtensionInfo.X10Scheduler.X10Job;
 import x10.ast.DepParameterExpr;
 import x10.ast.SemanticError;
 import x10.ast.X10ClassDecl;
@@ -78,6 +79,7 @@ public class Errors {
 	public static void issue(Job job, SemanticException e, Node n) {
 		ExtensionInfo ei = (ExtensionInfo) job.extensionInfo();
 		issue(ei, e, getPosition(n));
+		((X10Job) job).setReportedErrors(true);
 	}
 	public static void issue(ExtensionInfo extInfo, SemanticException e, Position p) {
 		if (e.getCause() == null && e.position() == null && p != null)
