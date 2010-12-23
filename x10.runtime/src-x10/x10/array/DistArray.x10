@@ -152,7 +152,7 @@ public class DistArray[T] (
 
     final public operator this(i0:int){rank==1}: T {
 	val offset = dist.offset(i0);
-        return raw()(i0);
+        return raw()(offset);
     }
 
     final public operator this(i0:int, i1:int){rank==2}: T {
