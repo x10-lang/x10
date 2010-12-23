@@ -1532,29 +1532,29 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
                 PackageName,
                 Identifier));
     }
-    // Production: RelationalExpression ::= RelationalExpression '<' RangeExpression
-    void rule_RelationalExpression3(Object _RelationalExpression, Object _RangeExpression) {
+    // Production: RelationalExpression ::= RelationalExpression '<' ShiftExpression
+    void rule_RelationalExpression3(Object _RelationalExpression, Object _ShiftExpression) {
         Expr RelationalExpression = (Expr) _RelationalExpression;
-        Expr RangeExpression = (Expr) _RangeExpression;
-        setResult(nf.Binary(pos(), RelationalExpression, Binary.LT, RangeExpression));
+        Expr ShiftExpression = (Expr) _ShiftExpression;
+        setResult(nf.Binary(pos(), RelationalExpression, Binary.LT, ShiftExpression));
     }
-    // Production: RelationalExpression ::= RelationalExpression '>' RangeExpression
-    void rule_RelationalExpression4(Object _RelationalExpression, Object _RangeExpression) {
+    // Production: RelationalExpression ::= RelationalExpression '>' ShiftExpression
+    void rule_RelationalExpression4(Object _RelationalExpression, Object _ShiftExpression) {
         Expr RelationalExpression = (Expr) _RelationalExpression;
-        Expr RangeExpression = (Expr) _RangeExpression;
-        setResult(nf.Binary(pos(), RelationalExpression, Binary.GT, RangeExpression));
+        Expr ShiftExpression = (Expr) _ShiftExpression;
+        setResult(nf.Binary(pos(), RelationalExpression, Binary.GT, ShiftExpression));
     }
-    // Production: RelationalExpression ::= RelationalExpression '<=' RangeExpression
-    void rule_RelationalExpression5(Object _RelationalExpression, Object _RangeExpression) {
+    // Production: RelationalExpression ::= RelationalExpression '<=' ShiftExpression
+    void rule_RelationalExpression5(Object _RelationalExpression, Object _ShiftExpression) {
         Expr RelationalExpression = (Expr) _RelationalExpression;
-        Expr RangeExpression = (Expr) _RangeExpression;
-        setResult(nf.Binary(pos(), RelationalExpression, Binary.LE, RangeExpression));
+        Expr ShiftExpression = (Expr) _ShiftExpression;
+        setResult(nf.Binary(pos(), RelationalExpression, Binary.LE, ShiftExpression));
     }
-    // Production: RelationalExpression ::= RelationalExpression '>=' RangeExpression
-    void rule_RelationalExpression6(Object _RelationalExpression, Object _RangeExpression) {
+    // Production: RelationalExpression ::= RelationalExpression '>=' ShiftExpression
+    void rule_RelationalExpression6(Object _RelationalExpression, Object _ShiftExpression) {
         Expr RelationalExpression = (Expr) _RelationalExpression;
-        Expr RangeExpression = (Expr) _RangeExpression;
-        setResult(nf.Binary(pos(), RelationalExpression, Binary.GE, RangeExpression));
+        Expr ShiftExpression = (Expr) _ShiftExpression;
+        setResult(nf.Binary(pos(), RelationalExpression, Binary.GE, ShiftExpression));
     }
     // Production: RelationalExpression ::= RelationalExpression instanceof Type
     void rule_RelationalExpression7(Object _RelationalExpression, Object _Type) {
@@ -1566,7 +1566,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
     void rule_RelationalExpression8(Object _RelationalExpression, Object _ShiftExpression) {
         Expr RelationalExpression = (Expr) _RelationalExpression;
         Expr ShiftExpression = (Expr) _ShiftExpression;
-        setResult(nf.Contains(pos(), RelationalExpression, ShiftExpression));
+        setResult(nf.Binary(pos(), RelationalExpression, Binary.IN, ShiftExpression));
     }
     // Production: BlockStatement ::= ClassDeclaration
     void rule_BlockStatement1(Object _ClassDeclaration) {
@@ -1650,23 +1650,23 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         b = (Block) ((X10Ext) b.ext()).annotations(Annotationsopt);
         setResult(b.position(pos()));
     }
-    // Production: MultiplicativeExpression ::= MultiplicativeExpression '*' UnaryExpression
-    void rule_MultiplicativeExpression1(Object _MultiplicativeExpression, Object _UnaryExpression) {
+    // Production: MultiplicativeExpression ::= MultiplicativeExpression '*' RangeExpression
+    void rule_MultiplicativeExpression1(Object _MultiplicativeExpression, Object _RangeExpression) {
         Expr MultiplicativeExpression = (Expr) _MultiplicativeExpression;
-        Expr UnaryExpression = (Expr) _UnaryExpression;
-        setResult(nf.Binary(pos(), MultiplicativeExpression, Binary.MUL, UnaryExpression));
+        Expr RangeExpression = (Expr) _RangeExpression;
+        setResult(nf.Binary(pos(), MultiplicativeExpression, Binary.MUL, RangeExpression));
     }
-    // Production: MultiplicativeExpression ::= MultiplicativeExpression '/' UnaryExpression
-    void rule_MultiplicativeExpression2(Object _MultiplicativeExpression, Object _UnaryExpression) {
+    // Production: MultiplicativeExpression ::= MultiplicativeExpression '/' RangeExpression
+    void rule_MultiplicativeExpression2(Object _MultiplicativeExpression, Object _RangeExpression) {
         Expr MultiplicativeExpression = (Expr) _MultiplicativeExpression;
-        Expr UnaryExpression = (Expr) _UnaryExpression;
-        setResult(nf.Binary(pos(), MultiplicativeExpression, Binary.DIV, UnaryExpression));
+        Expr RangeExpression = (Expr) _RangeExpression;
+        setResult(nf.Binary(pos(), MultiplicativeExpression, Binary.DIV, RangeExpression));
     }
-    // Production: MultiplicativeExpression ::= MultiplicativeExpression '%' UnaryExpression
-    void rule_MultiplicativeExpression3(Object _MultiplicativeExpression, Object _UnaryExpression) {
+    // Production: MultiplicativeExpression ::= MultiplicativeExpression '%' RangeExpression
+    void rule_MultiplicativeExpression3(Object _MultiplicativeExpression, Object _RangeExpression) {
         Expr MultiplicativeExpression = (Expr) _MultiplicativeExpression;
-        Expr UnaryExpression = (Expr) _UnaryExpression;
-        setResult(nf.Binary(pos(), MultiplicativeExpression, Binary.MOD, UnaryExpression));
+        Expr RangeExpression = (Expr) _RangeExpression;
+        setResult(nf.Binary(pos(), MultiplicativeExpression, Binary.MOD, RangeExpression));
     }
     // Production: TryStatement ::= try Block Catches
     void rule_TryStatement0(Object _Block, Object _Catches) {
@@ -2045,6 +2045,18 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
     void rule_BinOp18() {
         setResult(Binary.NE);
     }
+    // Production: BinOp ::= '..'
+    void rule_BinOp19() {
+        setResult(Binary.DOT_DOT);
+    }
+    // Production: BinOp ::= '->'
+    void rule_BinOp20() {
+        setResult(Binary.ARROW);
+    }
+    // Production: BinOp ::= 'in'
+    void rule_BinOp21() {
+        setResult(Binary.IN);
+    }
     // Production: EqualityExpression ::= EqualityExpression '==' RelationalExpression
     void rule_EqualityExpression1(Object _EqualityExpression, Object _RelationalExpression) {
         Expr EqualityExpression = (Expr) _EqualityExpression;
@@ -2148,11 +2160,11 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         ParsedName TypeName = (ParsedName) _TypeName;
         setResult(nf.Import(pos(getLeftSpan(), getRightSpan()), Import.CLASS, QName.make(TypeName.toString())));
     }
-    // Production: RangeExpression ::= ShiftExpression '..' ShiftExpression
+    // Production: RangeExpression ::= RangeExpression '..' UnaryExpression
     void rule_RangeExpression1(Object _expr1, Object _expr2) {
         Expr expr1 = (Expr) _expr1;
         Expr expr2 = (Expr) _expr2;
-        Expr regionCall = nf.RegionMaker(pos(), expr1, expr2);
+        Expr regionCall = nf.Binary(pos(), expr1, Binary.DOT_DOT, expr2);
         setResult(regionCall);
     }
     // Production: DepNamedType ::= SimpleNamedType DepParameters
@@ -3382,11 +3394,11 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         Expr PostfixExpression = (Expr) _PostfixExpression;
         setResult(nf.Unary(pos(), PostfixExpression, Unary.POST_DEC));
     }
-    // Production: AssignmentExpression ::= Expression '->' Expression
-    void rule_AssignmentExpression0(Object _expr1, Object _expr2) {
+    // Production: ShiftExpression ::= ShiftExpression '->' AdditiveExpression
+    void rule_ShiftExpression4(Object _expr1, Object _expr2) {
         Expr expr1 = (Expr) _expr1;
         Expr expr2 = (Expr) _expr2;
-        Expr call = nf.ConstantDistMaker(pos(), expr1, expr2);
+        Expr call = nf.Binary(pos(), expr1, Binary.ARROW, expr2);
         setResult(call);
     }
     // Production: ExplicitConstructorInvocation ::= this TypeArgumentsopt '(' ArgumentListopt ')' ';'

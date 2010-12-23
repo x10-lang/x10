@@ -184,6 +184,9 @@ public class Emitter {
 		map.put(Name.make("operator!"), Name.make("$not"));
 		map.put(Name.make("operator=="), Name.make("$equalsequals"));
 		map.put(Name.make("operator!="), Name.make("$ne"));
+		map.put(Name.makeUnchecked("operator.."), Name.make("$range"));
+		map.put(Name.makeUnchecked("operator->"), Name.make("$arrow"));
+		map.put(Name.makeUnchecked("operator in"), Name.make("$in"));
 		map.put(Name.make("inverse_operator+"), Name.make("$inv_plus"));
 		map.put(Name.make("inverse_operator-"), Name.make("$inv_minus"));
 		map.put(Name.make("inverse_operator*"), Name.make("$inv_times"));
@@ -205,6 +208,9 @@ public class Emitter {
 		map.put(Name.make("inverse_operator!"), Name.make("$inv_not"));
 		map.put(Name.make("inverse_operator=="), Name.make("$inv_equalsequals"));
 		map.put(Name.make("inverse_operator!="), Name.make("$inv_ne"));
+		map.put(Name.makeUnchecked("inverse_operator.."), Name.make("$inv_range"));
+		map.put(Name.makeUnchecked("inverse_operator->"), Name.make("$inv_arrow"));
+		map.put(Name.makeUnchecked("inverse_operator in"), Name.make("$inv_in"));
 
 		Name o = map.get(n);
 		if (o != null)

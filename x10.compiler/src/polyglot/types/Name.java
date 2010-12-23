@@ -36,7 +36,10 @@ public class Name  implements Serializable {
     
     public static Name make(String name) {
 	assert StringUtil.isNameShort(name);
+	return makeUnchecked(name);
+    }
 
+    public static Name makeUnchecked(String name) {
 	synchronized (internCache) {
 	    Name n = internCache.get(name);
 

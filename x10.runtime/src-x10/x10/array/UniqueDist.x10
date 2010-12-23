@@ -14,7 +14,7 @@ package x10.array;
 import x10.compiler.CompilerFlags;
 
 /**
- * A distribution that maps the region 0..numPlaces()-1
+ * A distribution that maps the region 0..(numPlaces()-1)
  * to the members of its PlaceGroup such that for 
  * every Place p the region returned by get is 
  * the single point region that matches the indexOf
@@ -40,7 +40,7 @@ final class UniqueDist extends Dist(1) {
      * @param g the place group
      */
     def this(g:PlaceGroup) {
-        super(0..g.numPlaces()-1);
+        super(0..(g.numPlaces()-1));
         pg = g;
     }
 
@@ -56,7 +56,7 @@ final class UniqueDist extends Dist(1) {
     public def numPlaces():int = pg.numPlaces();
 
     public def regions():Sequence[Region(rank)] {
-	return	new Array[Region(rank)](pg.numPlaces(), (i:int)=>((i..i) as Region(rank))).sequence();
+	return new Array[Region(rank)](pg.numPlaces(), (i:int)=>((i..i) as Region(rank))).sequence();
     }
 
     public def get(p:Place):Region(rank) {

@@ -220,11 +220,14 @@ public class X10Binary_c extends Binary_c implements X10Binary {
         methodNameMap.put(GT, "operator>");
         methodNameMap.put(LE, "operator<=");
         methodNameMap.put(GE, "operator>=");
+        methodNameMap.put(DOT_DOT, "operator..");
+        methodNameMap.put(ARROW, "operator->");
+        methodNameMap.put(IN, "operator in");
 
         String methodName = methodNameMap.get(op);
         if (methodName == null)
             return null;
-        return Name.make(methodName);
+        return Name.makeUnchecked(methodName);
     }
 
     public static final String INVERSE_OPERATOR_PREFIX = "inverse_";
@@ -232,7 +235,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
         Name n = binaryMethodName(op);
         if (n == null)
             return null;
-        return Name.make(INVERSE_OPERATOR_PREFIX + n.toString());
+        return Name.makeUnchecked(INVERSE_OPERATOR_PREFIX + n.toString());
     }
 
     public static boolean isInv(Name name) {
@@ -433,13 +436,12 @@ public class X10Binary_c extends Binary_c implements X10Binary {
         return this.type(xts.unknownType(position()));
     }
 
-    public static Type computeReturnTypeForRegionMult(Expr left, Expr right, Context context) {
+    public static Type adjustReturnTypeForRegionMult(Expr left, Expr right, Type type, Context context) {
     	TypeSystem ts = (TypeSystem) context.typeSystem();
     	Type ltype = left.type();
     	Type rtype = right.type();
     	XTerm lrank = X10TypeMixin.rank(ltype, context);
     	XTerm rrank = X10TypeMixin.rank(rtype, context);
-    	Type type = ts.Region();
     	if (lrank instanceof XLit && rrank instanceof XLit) {
     		int xr = (Integer) ((XLit) lrank).val();
     		int yr = (Integer) ((XLit) rrank).val();
@@ -452,6 +454,18 @@ public class X10Binary_c extends Binary_c implements X10Binary {
     		type = X10TypeMixin.addZeroBased(type);
     	}
     	return type;
+    }
+    public static Type adjustReturnTypeForIntRange(Expr left, Expr right, Type type, Context context) {
+        TypeSystem ts = (TypeSystem) context.typeSystem();
+        Type ltype = left.type();
+        Type rtype = right.type();
+        if (X10TypeMixin.entails(ltype, X10TypeMixin.self(ltype), ts.ZERO())) {
+            if (!ts.isUnknown(type)) {
+                type = X10TypeMixin.addTerm(type, X10TypeMixin.makeZeroBased(type));
+                type = X10TypeMixin.addTerm(type, X10TypeMixin.makeRail(type));
+            }
+        }
+        return type;
     }
     public static X10Call_c typeCheckCall(ContextVisitor tc, X10Call_c call) {
         List<Type> typeArgs = new ArrayList<Type>(call.typeArguments().size());
@@ -698,14 +712,24 @@ public class X10Binary_c extends Binary_c implements X10Binary {
         Type rbase = X10TypeMixin.baseType(n.right().type());
         Context context = (Context) tc.context();
 
-        // Add support for patching up the return type of Region's operator*.
+        // Add support for patching up the return type of Region's operator*().
         // The rank of the result is a+b, if the rank of the left arg is a and of the right arg is b,
         // and a and b are literals. Further the result is rect if both args are rect.
-        if (mi.name().toString().equals("operator*") && xts.typeEquals(xts.Region(), lbase, context)
+        if (op == Binary.MUL && xts.typeEquals(xts.Region(), lbase, context)
         		&& xts.typeEquals(xts.Region(), rbase, context)) {
-        	Type type = computeReturnTypeForRegionMult(left, right, context);
-        	mi = mi.returnType(type);
-        	result = (X10Call_c) result.methodInstance(mi).type(type);
+            Type type = result.type();
+            type = adjustReturnTypeForRegionMult(left, right, type, context);
+            mi = mi.returnType(type);
+            result = (X10Call_c) result.methodInstance(mi).type(type);
+        }
+        // Add support for patching up the return type of Int's operator..(),
+        // The result is zeroBased if the left arg is 0.
+        if (op == Binary.DOT_DOT && xts.typeEquals(xts.Int(), lbase, context)
+                && xts.typeEquals(xts.Int(), rbase, context)) {
+            Type type = result.type();
+            type = adjustReturnTypeForIntRange(left, right, type, context);
+            mi = mi.returnType(type);
+            result = (X10Call_c) result.methodInstance(mi).type(type);
         }
         }
         try {

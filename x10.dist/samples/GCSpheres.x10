@@ -94,7 +94,7 @@ class GCSpheres {
 
             val pos = new Vector3(x,y,z);
 
-            for ([i]:Point in 0..spheres.size-1) {
+            for ([i]:Point in 0..(spheres.size-1)) {
                 if (spheres(i).intersects(pos)) {
                     counter++;
                 }

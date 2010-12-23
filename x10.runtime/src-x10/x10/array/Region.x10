@@ -98,7 +98,7 @@ public abstract class Region(
 	   if (minArg.size != maxArg.size) throw new IllegalArgumentException("min and max not equal size ("+minArg.size+" != "+maxArg.size+")");
     	   val rank = minArg.size;
            val pmb = new PolyMatBuilder(rank); 
-           for ([i] in 0..rank-1) {
+           for ([i] in 0..(rank-1)) {
         	   // add -1*x(i) + minArg(i) <= 0, i.e. x(i) >= minArg(i)
         	   val r = new PolyRow(Point.make(rank, (j:Int) => i==j ? -1 : 0), minArg(i));
         	   pmb.add(r);
@@ -452,5 +452,20 @@ public abstract class Region(
         :Region{self.rank==r, self.rect==t, self.zeroBased==z} {
         property(r, t, z, (r == 1) && t && z);
     }
+
+    /**
+     * Constructs a distribution over this region that maps
+     * every point in the region to the specified place.
+     * @param p the given place
+     * @return a "constant" distribution over this region that maps to p.
+     */
+    public operator this -> (p:Place) = Dist.makeConstant(this, p);
+
+    /**
+     * Returns true if this region contains a given point.
+     * @param p the given point
+     * @return true if p is in this region.
+     */
+    public operator (p:Point) in this = this.contains(p);
 }
 

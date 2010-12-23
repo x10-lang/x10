@@ -42,7 +42,7 @@ public final class SparsePlaceGroup extends PlaceGroup {
    */
   public def this(ps:Sequence[Place]) {
     places = new Array[Place](ps.size(), (i:int)=>ps(i));
-    for ([i] in 1..places.size-1) {
+    for ([i] in 1..(places.size-1)) {
         if (places(i).id <= places(i-1).id) {
             throw new IllegalArgumentException("Argument sequence was not sorted");
         }

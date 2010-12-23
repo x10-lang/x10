@@ -59,7 +59,7 @@ public class QSort {
       val r = new x10.util.Random();
       val data = new Array[int](N, (int)=>r.nextInt(9999));
       qsort(data, 0, N-1);
-      for ([i] in 0..N-1) {
+      for ([i] in 0..(N-1)) {
           Console.OUT.print(data(i)); 
           if (i%10 == 9) {
 	      Console.OUT.println();

@@ -181,11 +181,11 @@ public final class Array[T] (
     }
 
     /**
-     * Construct Array over the region 0..size-1 whose elements are zero-initialized.
+     * Construct Array over the region 0..(size-1) whose elements are zero-initialized.
      */
     public def this(size:int) {T haszero}
     {
-        property(0..size-1, 1, true, true, true, size);
+        property(0..(size-1), 1, true, true, true, size);
 
         layout = RectLayout(0, size-1);
         val n = layout.size();
@@ -194,7 +194,7 @@ public final class Array[T] (
 
 
     /**
-     * Construct Array over the region 0..size-1 whose
+     * Construct Array over the region 0..(size-1) whose
      * values are initialized as specified by the init function.
      *
      * @param reg The region over which to construct the array.
@@ -202,12 +202,12 @@ public final class Array[T] (
      */    
     public def this(size:int, init:(int)=>T)
     {
-        property(0..size-1, 1, true, true, true, size);
+        property(0..(size-1), 1, true, true, true, size);
 
         layout = RectLayout(0, size-1);
         val n = layout.size();
         val r  = IndexedMemoryChunk.allocate[T](n);
-        for ([i] in 0..size-1) {
+        for ([i] in 0..(size-1)) {
             r(i)= init(i);
         }
         raw = r;
@@ -215,7 +215,7 @@ public final class Array[T] (
 
 
     /**
-     * Construct Array over the region 0..size-1 whose
+     * Construct Array over the region 0..(size-1) whose
      * values are initialized to be init
      *
      * @param reg The region over which to construct the array.
@@ -223,12 +223,12 @@ public final class Array[T] (
      */    
     public def this(size:int, init:T)
     {
-        property(0..size-1, 1, true, true, true, size);
+        property(0..(size-1), 1, true, true, true, size);
 
         layout = RectLayout(0, size-1);
         val n = layout.size();
         val r  = IndexedMemoryChunk.allocate[T](n);
-        for ([i] in 0..size-1) {
+        for ([i] in 0..(size-1)) {
             r(i)= init;
         }
         raw = r;

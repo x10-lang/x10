@@ -108,8 +108,8 @@ public class CUDAKernelTest {
 
         finish async at (p) @CUDA @CUDADirectParams {
             val ccache = arr1.sequence();
-            finish for ([block] in 0..blocks-1) async {
-                clocked finish for ([thread] in 0..threads-1) clocked async {
+            finish for ([block] in 0..(blocks-1)) async {
+                clocked finish for ([thread] in 0..(threads-1)) clocked async {
                     remote(threads*block + thread) = ccache(thread);
                 }
             }
