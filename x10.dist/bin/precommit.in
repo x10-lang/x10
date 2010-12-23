@@ -14,12 +14,10 @@ ROOT="$TOP/.."
 echo "Rebuilding X10"
 
 cd "$ROOT/x10.dist"
-#nice ant "$@" squeakyclean dist || testFailed
-if [ -n "$1" ]; then
-  nice ant squeakyclean dist-$1 || testFailed
-else
-  nice ant squeakyclean dist || testFailed
-fi
+target=dist
+[ "$1" = "cpp" -o "$1" = "-cpp" -o "$1" = "-c++" ] && target=dist-cpp && shift
+[ "$1" = "java" -o "$1" = "-java" ] && target=dist-java && shift
+nice ant "$@" squeakyclean $target || testFailed
 
 echo "Making temp dir"
 if [ -z "$TMP_DIR" ]; then
@@ -32,7 +30,7 @@ mkdir -p "$TMP_DIR"
 
 echo "Testing"
 
-if [ -z "$1" -o "$1" = "cpp" ]; then
+if [ "$target" != "dist-java" ]; then
 
 echo "Compiling PreCommit.x10 with x10c++"
 
@@ -49,7 +47,7 @@ X10_NPLACES=2 X10_HOSTLIST=localhost "$TMP_DIR/PreCommit" || testFailed
 
 fi
 
-if [ -z "$1" -o "$1" = "java" ]; then
+if [ "$target" != "dist-cpp" ]; then
 
 echo "Compiling PreCommit.x10 with x10c"
 
