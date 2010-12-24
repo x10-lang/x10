@@ -79,10 +79,46 @@ public class X10Binary_c extends Binary_c implements X10Binary {
         invert = false;
     }
 
+    // FIXME: need to figure out if the implementation is pure (can't assume that for user-overloadable operators)
+    protected static boolean isPureOperation(Type left, Operator op, Type right) {
+        switch (op) {
+        case ADD:
+        case SUB:
+        case MUL:
+            return true;
+        case DIV:
+        case MOD:
+            return false; // division/modulus can throw an exception, thus is not pure
+        case EQ:
+        case NE:
+        case GT:
+        case LT:
+        case GE:
+        case LE:
+            return true;
+        case SHL:
+        case SHR:
+        case USHR:
+            return true;
+        case BIT_AND:
+        case BIT_OR:
+        case BIT_XOR:
+            return true;
+        case COND_AND:
+        case COND_OR:
+            return true;
+        case ARROW:
+        case DOT_DOT:
+        case IN:
+            return false;
+        }
+        return false;
+    }
+
 	public boolean isConstant() {
-		if (super.isConstant())
+		if (super.isConstant() && isPureOperation(left.type(), op, right.type()))
 			return true;
-		// [IP] An optimization: an object of a non-nullable type and "null"
+		// FIXME [IP] An optimization: an object of a non-nullable type and "null"
 		// can never be equal.
 		Type lt = left.type();
 		Type rt = right.type();
