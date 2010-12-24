@@ -10,7 +10,7 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-//LIMITATION: closure type params
+//LIMITATION: closure type params are not supported (so this file doesn't even parse!)
 
 import harness.x10Test;
 

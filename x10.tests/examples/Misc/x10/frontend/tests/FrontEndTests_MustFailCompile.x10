@@ -4237,3 +4237,13 @@ class ShaddowingTypeParametersTests[T, T2,T3] {
 		}
 	}
 }
+
+class YetAnotherConstraintBugWithFieldPropogation {
+	def test1() {
+		val region = (1..1)*(1..1);
+		val i: Iterator[Point{self.rank==2}] = region.iterator();
+	}
+	def test2() {
+		val i: Iterator[Point{self.rank==2}] = ((1..1)*(1..1)).iterator(); // ShouldNotBeERR: Cannot assign expression to target.	 Expression: ((1 .. 1) * (1 .. 1)).iterator()	 Expected type: x10.lang.Iterator[x10.array.Point{self.rank==2}]	 Found type: x10.lang.Iterator[x10.array.Point{self.rank==2, self.rect==true}]
+	}
+}
