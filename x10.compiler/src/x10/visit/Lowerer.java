@@ -436,16 +436,21 @@ public class Lowerer extends ContextVisitor {
         Position pos = a.position();
         X10Ext ext = (X10Ext) a.ext();
         List<X10ClassType> refs = Emitter.annotationsNamed(ts, a, REF);
+        List<VarInstance<? extends VarDef>> env = a.asyncDef().capturedEnvironment();
+        if (a.clocked()) {
+            env = new ArrayList<VarInstance<? extends VarDef>>(env);
+            env.add(clockStack.peek().localInstance());
+        }
         if (isUncountedAsync(ts, a)) {
         	if (old instanceof Async)
-            	 return uncountedAsync(pos, a.body(), a.asyncDef().capturedEnvironment());
+            	 return uncountedAsync(pos, a.body(), env);
         }
         if (old instanceof Async)
-            return async(pos, a.body(), clocks, refs, a.asyncDef().capturedEnvironment());
+            return async(pos, a.body(), clocks, refs, env);
         Stmt specializedAsync = specializeAsync(a, null, a.body());
         if (specializedAsync != null)
             return specializedAsync;
-        return async(pos, a.body(), clocks, refs, a.asyncDef().capturedEnvironment());
+        return async(pos, a.body(), clocks, refs, env);
     }
     // Begin asyncs
     // rewrite @Uncounted async S, with special translation for @Uncounted async at (p) S.
@@ -453,13 +458,18 @@ public class Lowerer extends ContextVisitor {
     	List<Expr> clocks = clocks(a.clocked(), a.clocks());
         Position pos = a.position();
         List<X10ClassType> refs = Emitter.annotationsNamed(ts, a, REF);
+        List<VarInstance<? extends VarDef>> env = a.asyncDef().capturedEnvironment();
+        if (a.clocked()) {
+            env = new ArrayList<VarInstance<? extends VarDef>>(env);
+            env.add(clockStack.peek().localInstance());
+        }
         if (isUncountedAsync(ts, a)) {
-            return uncountedAsync(pos, body, place, a.asyncDef().capturedEnvironment());
+            return uncountedAsync(pos, body, place, env);
         }
         Stmt specializedAsync = specializeAsync(a, place, body);
         if (specializedAsync != null)
             return specializedAsync;
-        return async(pos, body, clocks, place, refs, a.asyncDef().capturedEnvironment());
+        return async(pos, body, clocks, place, refs, env);
     }
 
     // TODO: add more rules from SPMDcppCodeGenerator
