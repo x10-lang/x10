@@ -18,6 +18,8 @@ plus test harness.  It should compile and execute fine.  It currently does not.
 
 import x10.util.*;
 import harness.x10Test;
+import x10.compiler.*; // @Uncounted @NonEscaping @NoThisAccess
+import x10.compiler.tests.*; // err markers
 
 public class StructObscuringExample extends x10Test {
   public static def main(Array[String](1)){
@@ -32,14 +34,14 @@ public class StructObscuringExample extends x10Test {
 }
 
 
-struct eg {
+struct eg { // ShouldNotBeERR
    static def ow()= 1;
-   static struct Bite {
+   static struct Bite { // ShouldNotBeERR ShouldNotBeERR
       def ow() = 2;
    }
    def example() {
        val eg = Bite();
        assert eg.ow() == 2;
-       assert eg.eg.ow() == 1;
+       assert eg.eg.ow() == 1; // ShouldNotBeERR
      }
 }

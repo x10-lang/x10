@@ -4173,3 +4173,67 @@ class SettableAssignWithoutApply {
 		b(p)++;
 	}
 }
+
+
+
+
+
+class TestTypeParamShaddowing {
+class E[F] {F <: String } { //1
+ def test(f:F):String = f; // making sure "F" refers to the type parameter
+
+ @ERR val f1 = new F(1); // in Java: unexpected type. found: type parameter F.  required: class
+ class F { //2
+    @ShouldBeErr val ff = new F(1); // in Java: unexpected type. found: type parameter F.  required: class
+    def this(i:Int) {}
+ }
+ @ERR val f2 = new F(1); // in Java: unexpected type. found: type parameter F.  required: class
+ // you can choose the class over the type parameter by using the outer class as a qualifier
+ def disambiguate() {
+	 val f3 = this.new F(1);
+	 val f4 = new E.F(1);
+ }
+}
+}
+class ShaddowingTypeParametersTests[T, T2,T3] {
+	@ShouldBeErr def m1[T](t:T) {}
+	static def m2[T](t:T) {}
+	@ShouldBeErr static struct T {}
+	@ShouldBeErr static class T2 {}
+    @ShouldBeErr public static type T3 = Int;
+
+	class A {}
+	class B[A] {}
+
+	class C {
+		class D[C] {}
+	}
+
+	class E[F] {
+		@ShouldBeErr class F {}
+	}
+
+	class G[U] {
+		@ShouldBeErr class I[U] {}
+	}
+
+	class J {
+		@ShouldBeErr class J2[T] {}
+		@ShouldBeErr def m[T](t:T) {}
+	}
+
+	def q[U]() {
+		{
+			@ShouldBeErr class U {}
+		}
+		{
+			@ShouldBeErr class A[U] {}
+		}
+		{
+			class K[U2] {
+				@ShouldBeErr def m1[U]() {}
+				@ShouldBeErr def m2[U2]() {}
+			}
+		}
+	}
+}

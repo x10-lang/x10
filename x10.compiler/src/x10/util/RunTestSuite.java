@@ -24,9 +24,9 @@ import x10.parser.AutoGenSentences;
 public class RunTestSuite {
     // todo: C:\cygwin\home\Yoav\intellij\sourceforge\x10.dist\samples\tutorial\HeatTransfer_v1.x10:47,46-57 causes: (Warning) Reached threshold when checking constraints. If type-checking fails
 
-    public static boolean VERBOSE = System.getenv("VERBOSE")!=null;
+    public static boolean QUIET = System.getenv("QUIET")!=null;
     private static void println(String s) {
-        if (VERBOSE) System.out.println(s);
+        if (!QUIET) System.out.println(s);
     }
     // I have 3 kind of markers:
     // "// ... ERR"  - marks an error or warning
@@ -44,7 +44,7 @@ public class RunTestSuite {
     //_MustFailTimeout means that when running the file it will have an infinite loop
     private static final String[] EXCLUDE_FILES_WITH_SUFFIX = {
             "NonX10Constructs_MustFailCompile.x10",
-            "_MustFailCompile.x10",
+            //"_MustFailCompile.x10",
     };
     private static final String[] EXCLUDE_DIRS = {
             "WorkStealing", // Have duplicated class from the Samples directory such as ArraySumTest.x10
