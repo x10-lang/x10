@@ -131,6 +131,9 @@ public class TypeParamSubst {
 	}
 
 	private static boolean canReferToParams(X10ClassType t) {
+		// FIXME: to fix XTENLANG-2055, this should be false for null typeargs,
+		// but constructor and method def containers are not instantiated.
+		// TODO: (t.typeArguments() != null && t.typeArguments().size() != 0)
 		if (t.typeArguments() == null || t.typeArguments().size() != 0) {
 			return true;
 		}

@@ -514,9 +514,9 @@ public class CConstraint extends XConstraint  implements ThisVar {
 		if (t == null)
 			return null;
 		if (depth > MAX_DEPTH) {
-//			System.err.println("(Warning) Reached threshold when checking constraints. If type-checking fails "
-//					+ "\n please insert a dynamic cast."
-//					+ "\n\t Term: "+ t);
+			//System.err.println("(Warning) Reached threshold when checking constraints. If type-checking fails "
+			//		+ "\n please insert a dynamic cast."
+			//		+ "\n\t Term: "+ t);
 			return new CConstraint();
 		}
 		CConstraint r = m.get(t);
@@ -555,7 +555,7 @@ public class CConstraint extends XConstraint  implements ThisVar {
 				ci = X10TypeMixin.realX(ty);
 				XVar v = ((X10ClassDef) Types.get(fi.container()).toClass().def()).thisVar();
 				ci = ci.substitute(target, v); // xts.xtypeTranslator().transThisWithoutTypeConstraint());
-                ci = ci.substitute(f, ci.self());
+				ci = ci.substitute(f, ci.self());
 				r = new CConstraint();
 				r.addIn(ci);
 				

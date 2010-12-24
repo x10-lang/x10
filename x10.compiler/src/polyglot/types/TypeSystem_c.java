@@ -1106,11 +1106,11 @@ public abstract class TypeSystem_c implements TypeSystem
 	Comparator<T> msc = mostSpecificComparator(container, matcher, context);
 	ArrayList<T> acceptable2 = new ArrayList<T>(acceptable); // make into array list to sort
 
-	Collections.<T>sort(acceptable, msc);
+	Collections.<T>sort(acceptable2, msc);
 
-	List<T> maximal = new ArrayList<T>(acceptable.size());
+	List<T> maximal = new ArrayList<T>(acceptable2.size());
 
-	Iterator<T> i = acceptable.iterator();
+	Iterator<T> i = acceptable2.iterator();
 
 	T first = i.next();
 	maximal.add(first);
