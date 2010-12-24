@@ -4,6 +4,9 @@
 
 include ../Make.rules
 
+FIND ?= find
+XARGS ?= xargs
+
 INCLUDE_DIRS += -I. -I../x10rt/include
 
 BDWGC_PROPERTIES=bdwgc_off.properties
@@ -57,7 +60,7 @@ export ARFLAGS
 #
 # The sort is a workaround for XTENLANG-676.  The order in which files are listed on the x10c++ commandline
 # appears to affect the results of typechecking.  By sorting, we force a deterministic order of files.
-XRXFILES  = $(shell find ../src-x10 -name .svn -prune -o -name '*.x10' -print | sort )
+XRXFILES  = $(shell $(FIND) ../src-x10 -name .svn -prune -o -name '*.x10' -print | sort )
 
 #enable asserts, do not look in jar for x10 files
 X10CPPFLAGS += -J-Xmx1024M -J-ea -rtdev -commandlineonly
@@ -71,7 +74,7 @@ X10CPPFLAGS += -J-Xmx1024M -J-ea -rtdev -commandlineonly
 # i.e. a make clean is needed.
 SPACE = $(EMPTY) $(EMPTY)
 gen/all-cpp-generated: $(XRXFILES) $(subst $(SPACE),\$(SPACE),$(INSTDIR))/lib/x10c.jar
-	@echo "Regenerating XRX cc/h/inc files"
+	@echo "Regenerating XRX cc/h files"
 	mkdir -p gen
 	"$(INSTDIR)"/bin/x10c++ -c $(X10CPPFLAGS) -sourcepath ../src-x10 -d ../src-cpp/gen \
 	    $(if $(filter %.jar,$?),$(XRXFILES),$?);
@@ -80,9 +83,9 @@ gen/all-cpp-generated: $(XRXFILES) $(subst $(SPACE),\$(SPACE),$(INSTDIR))/lib/x1
 # $(XRX_MANIFEST) is a list of all .cc files (relative to the ./gen dir) that
 # should be included in the $(XRX_ARCHIVE).
 $(XRX_MANIFEST): gen/all-cpp-generated
-	(cd gen && find * -name \*.cc -print) > $@
+	(cd gen && $(FIND) * -name \*.cc -print) > $@
 	@#prune .svn dirs (they probably don't contain *.x10 files so this is just an optimisation)
-	(cd ../src-x10 && find * -name .svn -prune -o -name '*.x10' -print) >> $@
+	(cd ../src-x10 && $(FIND) * -name .svn -prune -o -name '*.x10' -print) >> $@
 	echo x10.jar >> $@ # FIXME: hard-coded JAR name
 
 
@@ -205,13 +208,13 @@ endif
 install: $(XRCPP_ARCHIVE) $(XRX_ARCHIVE)
 	@echo "Installing into $(INSTDIR)"
 	@mkdir -p "$(INSTDIR)"/include "$(INSTDIR)"/lib
-	@(cd gen && find . -name \*.h | tar cf - $(INC_FLAG)) | (cd "$(INSTDIR)"/include && tar xf -)
-	@(cd gen && find . -name \*.struct_h | tar cf - $(INC_FLAG)) | (cd "$(INSTDIR)"/include && tar xf -)
-	@(cd gen && find . -name \*.inc | tar cf - $(INC_FLAG)) | (cd "$(INSTDIR)"/include && tar xf -)
-	@find x10 -name \*.h | tar cf - $(INC_FLAG) | (cd "$(INSTDIR)"/include && tar xf -)
-	@find x10 -name \*.struct_h | tar cf - $(INC_FLAG) | (cd "$(INSTDIR)"/include && tar xf -)
-	@find x10aux -name \*.h | tar cf - $(INC_FLAG) | (cd "$(INSTDIR)"/include && tar xf -)
-	@find x10aux -name \*.cuh | tar cf - $(INC_FLAG) | (cd "$(INSTDIR)"/include && tar xf -)
+	@(cd gen && $(FIND) . -name \*.h | tar cf - $(INC_FLAG)) | (cd "$(INSTDIR)"/include && tar xf -)
+	@(cd gen && $(FIND) . -name \*.struct_h | tar cf - $(INC_FLAG)) | (cd "$(INSTDIR)"/include && tar xf -)
+	@(cd gen && $(FIND) . -name \*.inc | tar cf - $(INC_FLAG)) | (cd "$(INSTDIR)"/include && tar xf -)
+	@$(FIND) x10 -name \*.h | tar cf - $(INC_FLAG) | (cd "$(INSTDIR)"/include && tar xf -)
+	@$(FIND) x10 -name \*.struct_h | tar cf - $(INC_FLAG) | (cd "$(INSTDIR)"/include && tar xf -)
+	@$(FIND) x10aux -name \*.h | tar cf - $(INC_FLAG) | (cd "$(INSTDIR)"/include && tar xf -)
+	@$(FIND) x10aux -name \*.cuh | tar cf - $(INC_FLAG) | (cd "$(INSTDIR)"/include && tar xf -)
 	@cp -p x10rt.h "$(INSTDIR)"/include
 	@cp -p $(XRX_ARCHIVE) "$(INSTDIR)"/lib
 	@cp -p $(XRX_MANIFEST) "$(INSTDIR)"/lib
@@ -244,12 +247,12 @@ install: $(XRCPP_ARCHIVE) $(XRX_ARCHIVE)
 
 depend:
 	touch depend.mk
-	find . -name gen -prune -o \( -name '*.cc' -o -name '*.h' \) -print0 | xargs -r0 makedepend -I $(INCLUDE_DIRS) -fdepend.mk 
+	$(FIND) . -name gen -prune -o \( -name '*.cc' -o -name '*.h' \) -print0 | $(XARGS) -r0 makedepend -I $(INCLUDE_DIRS) -fdepend.mk 
 
 
 #nuke only object code
 cleanobj:
-	find . \( -name '*.h.gch' -o -name '*.o' -o -name '*.rpo' \) -print0 | xargs -0 -t $(RM) -r
+	$(FIND) . \( -name '*.h.gch' -o -name '*.o' -o -name '*.rpo' \) -print0 | $(XARGS) -0 -t $(RM) -r
 
 #nuke everything
 cleangen:
@@ -258,7 +261,7 @@ cleangen:
 clean: cleanobj cleangen
 
 squeakyclean: clean
-	find . \( -name '*~' -o -name '*.bak' \) -print0 | xargs -r0 -t $(RM)
+	$(FIND) . \( -name '*~' -o -name '*.bak' \) -print0 | $(XARGS) -r0 -t $(RM)
 
 
 .PHONY: depend clean cleanobj cleangen squeakyclean
