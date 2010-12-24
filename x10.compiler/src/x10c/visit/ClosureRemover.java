@@ -202,7 +202,7 @@ public class ClosureRemover extends ContextVisitor {
     
                         nmembers.add(mdcl.methodDef(md));
                         
-                        X10Call x10call = (X10Call) xnf.Call(n.position(), xnf.CanonicalTypeNode(n.position(), ct), xnf.Id(n.position(), name), arguments).methodInstance(md.asInstance()).type(ct);
+                        X10Call x10call = (X10Call) xnf.Call(n.position(), xnf.CanonicalTypeNode(n.position(), ct), xnf.Id(n.position(), name), arguments).methodInstance(md.asInstance()).type(cl.returnType().type());
                         x10call = x10call.typeArguments(tns);
                         return x10call;
                     }                      
