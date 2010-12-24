@@ -21,7 +21,9 @@ public class FlattenInitFor extends x10Test {
     val a: DistArray[int](2);
 
     public def this(): FlattenInitFor = {
-        a = DistArray.make[int](1..10*1..10->here, ([i,j]: Point): int => i);
+        val reg = 1..10*1..10;
+        val d = reg->here;
+        a = DistArray.make[int](d, ([i,j]: Point): int => i);
     }
     
     public def run(): boolean = {

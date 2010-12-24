@@ -81,6 +81,10 @@ public class Errors {
 		issue(ei, e, getPosition(n));
 		((X10Job) job).setReportedErrors(true);
 	}
+
+	public static void issue(polyglot.frontend.ExtensionInfo extInfo, SemanticException e, Position p) {
+        issue((ExtensionInfo)extInfo,e,p);
+    }
 	public static void issue(ExtensionInfo extInfo, SemanticException e, Position p) {
 		if (e.getCause() == null && e.position() == null && p != null)
 			e = new SemanticException(e.getMessage(), p);

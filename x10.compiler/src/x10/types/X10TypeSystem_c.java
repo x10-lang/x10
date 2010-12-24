@@ -102,6 +102,7 @@ import x10.types.matcher.X10MethodMatcher;
 import x10.types.matcher.X10TypeMatcher;
 import x10.util.ClosureSynthesizer;
 import x10.visit.X10TypeBuilder;
+import x10.errors.Errors;
 
 /**
  * A TypeSystem implementation for X10.
@@ -1700,7 +1701,7 @@ public class X10TypeSystem_c extends TypeSystem_c {
     }
     private Type expandMacros(Type t, int depth) {
     	if (depth > EXPAND_MACROS_DEPTH) {
-    		System.err.println("Reached max macro expansion depth with " + t + " (at " + t.position());
+            Errors.issue(t.typeSystem().extensionInfo(),new SemanticException("Reached max macro expansion depth with " + t),t.position());
     		return unknownType(Position.COMPILER_GENERATED); // bottom
     	}
         if (t instanceof AnnotatedType)

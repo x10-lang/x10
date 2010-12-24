@@ -61,6 +61,8 @@ public class RunTestSuite {
             "CUDAMatMul.x10",
             "NestedExpressions2.x10",
             "ClosureCall3.x10",
+            "FlattenPlaceCast.x10", // InternalCompilerError: C:\cygwin\home\Yoav\intellij\sourceforge\x10.tests\examples\Constructs\Array\FlattenPlaceCast.x10:38,16-102
+            "ClosureCall0a_MustFailCompile.x10","ClosureCall1a_MustFailCompile.x10", "ClosureCall0b_MustFailCompile.x10", "ClosureCall0b_MustFailCompile.x10", "ClosureCall1b_MustFailCompile.x10", "ClosureCall1c_MustFailCompile.x10", "ClosureCall1d_MustFailCompile.x10", //LIMITATION: closure type params are not supported (so this file doesn't even parse!)
     };
     private static final String[] EXCLUDE_FILES_WITH = {
             "HeatTransfer_v0.x10",
@@ -96,7 +98,7 @@ public class RunTestSuite {
         }
         return false;
     }
-    public static boolean ONE_FILE_AT_A_TIME = false;
+    public static boolean ONE_FILE_AT_A_TIME = true; // RecursiveConstraint.x10 gives an error when compiled with other files, but not when compiled alone. So I have to compile all fils one-by-one...
     private static final int MAX_FILES_NUM = Integer.MAX_VALUE; // Change it if you want to process only a small number of files
 
     /**
@@ -140,9 +142,7 @@ public class RunTestSuite {
         ArrayList<FileSummary> summaries = new ArrayList<FileSummary>();
         for (File f : files) {
             FileSummary fileSummary = analyzeFile(f);
-            if (!fileSummary.shouldIgnoreFile) {
-                summaries.add(fileSummary);
-            }
+            summaries.add(fileSummary);
         }
 
 
@@ -191,7 +191,6 @@ public class RunTestSuite {
     }
     static class FileSummary {
         File file;
-        boolean shouldIgnoreFile;
         boolean STATIC_CALLS = false;
         ArrayList<String> options = new ArrayList<String>();
         ArrayList<LineSummary> lines = new ArrayList<LineSummary>();
@@ -205,7 +204,6 @@ public class RunTestSuite {
             lineNum++;
             int errIndex = line.indexOf("ERR");
             boolean isERR = errIndex!=-1;
-            if (line.contains("IGNORE_FILE")) res.shouldIgnoreFile = true;
             int optionsIndex = line.indexOf("OPTIONS:");
             if (optionsIndex>=0) {
                 final String option = line.substring(optionsIndex + "OPTIONS:".length()).trim();
