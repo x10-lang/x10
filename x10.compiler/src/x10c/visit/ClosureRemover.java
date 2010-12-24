@@ -13,12 +13,13 @@ package x10c.visit;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import polyglot.ast.Assign;
 import polyglot.ast.Block;
 import polyglot.ast.CanonicalTypeNode;
-import polyglot.ast.Cast;
 import polyglot.ast.ClassBody;
 import polyglot.ast.ClassDecl;
 import polyglot.ast.ClassMember;
@@ -30,6 +31,7 @@ import polyglot.ast.Formal;
 import polyglot.ast.Id;
 import polyglot.ast.Local;
 import polyglot.ast.MethodDecl;
+import polyglot.ast.NamedVariable;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.Receiver;
@@ -60,7 +62,6 @@ import x10.ast.Closure;
 import x10.ast.ClosureCall;
 import x10.ast.TypeParamNode;
 import x10.ast.X10Call;
-import x10.ast.X10CanonicalTypeNode;
 import x10.ast.X10ClassDecl;
 import x10.ast.X10ConstructorDecl;
 import x10.ast.X10Formal;
@@ -141,9 +142,11 @@ public class ClosureRemover extends ContextVisitor {
 //                        System.out.println(n.position() + " " + name + " " + cl);
 //                        System.out.println(capturedEnv);
                         
-                        // TODO
-                        if (capturedEnv.size() > 0) return n;
+                        final List<NamedVariable> capturedVarsExThis = new ArrayList<NamedVariable>();
+                        Map<String, X10LocalDef> nameToLocalDef = new HashMap<String, X10LocalDef>();
                         
+                        Block body = rewriteClosureBody(cl.body(), capturedEnv, capturedVarsExThis, nameToLocalDef, cl.formals());
+
                         List<Ref<? extends Type>> argTypes = new ArrayList<Ref<? extends Type>>(cl.formals().size());
                         for (Formal f : cl.formals()) {
                             Type t = f.type().type();
@@ -153,29 +156,29 @@ public class ClosureRemover extends ContextVisitor {
                         List<Expr> arguments = new ArrayList<Expr>(cc.arguments());
                         List<Formal> formals = new ArrayList<Formal>(cl.formals());
                         
-                        // FIXME
-//                        for (VarInstance<? extends VarDef> vi : capturedEnv) {
-//                            arguments.add(createExpr(pos, vi));// field
-//                            argTypes.add(Types.ref(vi.type()));
-//                            
-//                            Name name2;
-//                            if (vi instanceof ThisInstance) {
-//                                name2 = OUTER_NAME;
-//                            }
-//                            else {
-//                                name2 = vi.name();
-//                            }
-//                            
-//                            X10LocalDef li;
-//                            if (vi instanceof LocalInstance) {
-//                                li = (X10LocalDef) vi.def();
-//                            }
-//                            else {
-//                                li = xts.localDef(pos, Flags.FINAL, Types.ref(vi.type()), name2);
-//                            }
-//                            formals.add(xnf.Formal(pos, xnf.FlagsNode(pos, Flags.FINAL), xnf.CanonicalTypeNode(pos, Types.ref(vi.type())), xnf.Id(pos, name2)).localDef(li));
-//                        }
+                        for (VarInstance<? extends VarDef> vi : capturedEnv) {
+                            if (vi instanceof ThisInstance) {
+                                arguments.add(xnf.Special(pos, Kind.THIS).type(vi.type()));
+                                argTypes.add(Types.ref(vi.type()));
+                                
+                                X10LocalDef li = xts.localDef(pos, Flags.FINAL, Types.ref(vi.type()), OUTER_NAME);
+                                formals.add(xnf.Formal(pos, xnf.FlagsNode(pos, Flags.FINAL), xnf.CanonicalTypeNode(pos, Types.ref(vi.type())), xnf.Id(pos, OUTER_NAME)).localDef(li));
+                            }
+                        }
                         
+                        for (NamedVariable vn : capturedVarsExThis) {
+                            Name name2 = vn.name().id();
+                            X10LocalDef li;
+                            if (vn instanceof Local) {
+                                li = (X10LocalDef) vn.varInstance().def();
+                            }
+                            else {
+                                li = nameToLocalDef.get(name2.toString());
+                            }
+                            arguments.add(vn);
+                            argTypes.add(Types.ref(vn.type()));
+                            formals.add(xnf.Formal(pos, xnf.FlagsNode(pos, Flags.FINAL), xnf.CanonicalTypeNode(pos, Types.ref(vn.type())), xnf.Id(pos, vn.name().id())).localDef(li));
+                        }
                         
                         List<ParameterType> rts = new ArrayList<ParameterType>();
                         List<TypeNode> tns = new ArrayList<TypeNode>();
@@ -193,36 +196,6 @@ public class ClosureRemover extends ContextVisitor {
     
                         X10MethodDef md = (X10MethodDef) xts.methodDef(pos, Types.ref(ct), flags, cl.returnType().typeRef(), name, argTypes);
                         md.setTypeParameters(rts);
-    
-                        // FIXME
-                        // rewrite body
-                        // this.a(Field) => a(Local)
-                        // xxx.a(Field) => a(Local)
-                        // this(Special) => out$(Local) 
-                        Block body = (Block) cl.body().visit(
-                            new ContextVisitor(job,ts,nf){
-                                @Override
-                                protected Node leaveCall(Node parent, Node old, Node n, NodeVisitor v)
-                                        throws SemanticException {
-                                    if (n instanceof Special && !(parent instanceof Field)) {
-                                        Special special = (Special)n;
-                                        if (special.kind() == Special.THIS) {
-                                            X10LocalDef li = xts.localDef(pos, Flags.FINAL, Types.ref(special.type()), OUTER_NAME);
-                                            return ((Local) xnf.Local(pos, xnf.Id(pos, OUTER_NAME)).type(special.type())).localInstance(li.asInstance());
-                                        }
-                                    }
-                                    if (n instanceof Field) {
-                                        Field f = (Field) n;
-                                        Receiver target2 = f.target();
-                                        if ((target2 instanceof Special) && ((Special) target2).kind() == Kind.THIS) {
-                                            X10LocalDef li = xts.localDef(pos, f.flags(), Types.ref(f.type()), f.name().id());
-                                            return ((Local) xnf.Local(pos, f.name()).type(f.type())).localInstance(li.asInstance());
-                                        }
-                                    }
-                                    return n;
-                                }
-                            }.context(context)
-                        );
                         
                         X10MethodDecl mdcl = xnf.MethodDecl(pos, xnf.FlagsNode(pos, flags), cl.returnType(), xnf.Id(pos, name), formals,  body);
                         mdcl = mdcl.typeParameters(tps);
@@ -236,19 +209,74 @@ public class ClosureRemover extends ContextVisitor {
                 }
                 return n;
             }
+            
+            private Block rewriteClosureBody(Block closureBody,final List<VarInstance<? extends VarDef>> capturedEnv, final List<NamedVariable> capturedVarsExThis, final Map<String, X10LocalDef> nameToLocalDef, final List<Formal> formals) {
+                final Position pos = Position.COMPILER_GENERATED;
+                return (Block) closureBody.visit(new ContextVisitor(job, ts, nf){
+                    public Node override(Node parent, Node n) {
+                        if (n instanceof Closure) {
+                            return n;
+                        }
+                        return null;
+                    };
+                    
+                    protected Node leaveCall(Node parent, Node old, Node n, NodeVisitor v) throws SemanticException {
+                        if (n instanceof Field) {
+                            Field field = (Field) n;
+                            for (VarInstance<? extends VarDef> var : capturedEnv) {
+                                // because of coming not the same VarInstance
+                                if (var.def().equals(field.fieldInstance().def())) {
+                                    Receiver target = field.target();
+                                    if (target instanceof Local) {
+                                        for (Formal formal : formals) {
+                                            if (formal.name() != null && ((Local) target).name().id().equals(formal.name().id())) {
+                                                return n;
+                                            }
+                                        }
+                                    }
+                                    
+                                    X10LocalDef li;
+                                    if (!contains(capturedVarsExThis, var.def())) {
+                                        capturedVarsExThis.add(field);
+                                        li = xts.localDef(pos, Flags.FINAL, Types.ref(var.type()), var.name());
+                                        nameToLocalDef.put(var.name().toString(), li);
+                                    } else {
+                                        li = nameToLocalDef.get(var.name().toString());
+                                    }
+                                    return xnf.Local(pos, xnf.Id(pos, var.name())).localInstance(li.asInstance()).type(var.type());
+                                }
+                            }
+                            return n;
+                        }
+                        if (n instanceof Local) {
+                            Local local = (Local) n;
+                            for (VarInstance<? extends VarDef> var : capturedEnv) {
+                                if (var.def().equals(local.localInstance().def())) {
+                                    if (!contains(capturedVarsExThis, var.def())) {
+                                        capturedVarsExThis.add(local);
+                                        return n;
+                                    }
+                                }
+                            }                                
+                            return n;
+                        }
+                        
+                        if (n instanceof Special) {
+                            Special special = (Special) n;
+                            if (special.kind() == Special.THIS && !(parent instanceof Field)) {
+                                X10LocalDef li = xts.localDef(pos, Flags.FINAL, Types.ref(special.type()), OUTER_NAME);
+                                return ((Local) xnf.Local(pos, xnf.Id(pos, OUTER_NAME)).type(special.type())).localInstance(li.asInstance());
+                            }
+                        }
+                        return n;
+                    };
+                }.context(context));
+            }
         }.context(context);
     }
 
     private ContextVisitor createClosureToStaticInnerClassVisitor(final X10ClassDef def,final List<ClassMember> nmembers) {
         return new ContextVisitor(job, ts, nf) {
-            
-            public Node override(Node parent, Node n) {
-                if (n instanceof ClassDecl) {
-                    return n;
-                }
-                return null;
-            };
-            
             @Override
             public Node leaveCall(Node parent, Node old, Node n, NodeVisitor v) throws SemanticException {
                 
@@ -259,7 +287,7 @@ public class ClosureRemover extends ContextVisitor {
                     final Position pos = Position.COMPILER_GENERATED;
                     X10Flags privateStatic = Flags.PRIVATE.Static();
                     
-                    List<VarInstance<? extends VarDef>> capturedEnv = cld.capturedEnvironment();
+                    final List<VarInstance<? extends VarDef>> capturedEnv = cld.capturedEnvironment();
                     
                     Block closureBody = (Block) cl.body();
                     
@@ -314,10 +342,6 @@ public class ClosureRemover extends ContextVisitor {
                     closureMethodDef.setThisDef(staticInnerClassDef.thisDef());
                     
                     staticInnerClassDef.setMethods(Collections.singletonList(closureMethodDef));
-                    
-                    // rewrite closure method body
-                    closureBody = rewriteClosureBody(closureBody, staticInnerClassDef);
-                    
                     // create class decl
                     List<TypeNode> interfaces = Collections.<TypeNode>singletonList(xnf.X10CanonicalTypeNode(pos, cld.asType()));
                     X10ClassDecl staticInnerClassDecl = (X10ClassDecl) xnf.ClassDecl(pos, xnf.FlagsNode(pos, privateStatic), staticInnerClassName, xnf.X10CanonicalTypeNode(pos, xts.Object()), interfaces, xnf.ClassBody(pos, Collections.<ClassMember>emptyList()));
@@ -329,6 +353,12 @@ public class ClosureRemover extends ContextVisitor {
                     
                     staticInnerClassDecl = staticInnerClassDecl.typeParameters(tpns);
                     
+                    final List<NamedVariable> capturedVarsExThis = new ArrayList<NamedVariable>();
+                    Map<String, X10LocalDef> nameToLocalDef = new HashMap<String, X10LocalDef>();
+                    
+                    // rewrite closure method body
+                    closureBody = rewriteClosureBody(closureBody, staticInnerClassDef, capturedEnv, capturedVarsExThis, nameToLocalDef, cl.formals());
+                    
                     MethodDecl mdcl = xnf.MethodDecl(pos, xnf.FlagsNode(pos, Flags.PUBLIC), xnf.CanonicalTypeNode(pos, X10TypeMixin.baseType(cl.returnType().type())), xnf.Id(pos, ClosureCall.APPLY), cl.formals(), closureBody).methodDef(closureMethodDef);
                     mdcl = (MethodDecl) mdcl.body(closureBody);
                     mdcl = (MethodDecl) mdcl.typeCheck(this);
@@ -337,7 +367,7 @@ public class ClosureRemover extends ContextVisitor {
                     
                     staticInnerClassDecl = staticInnerClassDecl.body(body);
                     
-                    //add constructor
+                    // add constructor
                     List<ClassMember> cm = new ArrayList<ClassMember>(staticInnerClassDecl.body().members());
                     
                     List<Formal> formals = new ArrayList<Formal>(capturedEnv.size());
@@ -345,35 +375,48 @@ public class ClosureRemover extends ContextVisitor {
                     List<Expr> args = new ArrayList<Expr>(capturedEnv.size());
                     Block body2 = xnf.Block(pos);
                     
-                    // TODO can optimize only to capture final fields without capturing "this"
                     for (VarInstance<? extends VarDef> vi : capturedEnv) {
-                        if (vi instanceof FieldInstance) continue;
-                        Name name;
                         if (vi instanceof ThisInstance) {
-                            name = OUTER_NAME;
-                        } else {
-                            name = vi.name();
+                            Name name = OUTER_NAME;
+                            
+                            X10LocalDef li = xts.localDef(pos, Flags.FINAL, Types.ref(vi.type()), name);
+                            X10Formal formal = xnf.Formal(pos, xnf.FlagsNode(pos, Flags.FINAL), xnf.X10CanonicalTypeNode(pos, X10TypeMixin.baseType(vi.type())), xnf.Id(pos, name)).localDef(li);
+                            formals.add(formal);
+                            argTypes.add(vi.def().type());
+                            args.add(createExpr(pos, vi));
+                            
+                            X10FieldDef fi = xts.fieldDef(pos, Types.ref(staticInnerClassDef.asType()), Flags.FINAL.Private(), Types.ref(vi.type()), name);
+                            staticInnerClassDef.addField(fi);
+                            
+                            FieldDecl fdcl = xnf.FieldDecl(pos, xnf.FlagsNode(pos, Flags.FINAL.Private()), xnf.X10CanonicalTypeNode(pos, vi.type()), xnf.Id(pos, name));
+                            cm.add(fdcl.fieldDef(fi));
+                            
+                            FieldAssign fa = xnf.FieldAssign(pos, xnf.Special(pos, Kind.THIS).type(staticInnerClassDef.asType()), xnf.Id(pos, name), Assign.ASSIGN, xnf.Local(pos, xnf.Id(pos, name)).localInstance(li.asInstance()).type(vi.type())).fieldInstance(fi.asInstance());
+                            body2 = body2.append(xnf.Eval(pos, fa));
                         }
-                        
+                    }
+                    
+                    for (NamedVariable vn : capturedVarsExThis) {
+                        Name name = vn.name().id();
                         X10LocalDef li;
-                        if (vi instanceof LocalInstance) {
-                            li = (X10LocalDef) vi.def();
+                        if (vn instanceof Local) {
+                            li = (X10LocalDef) vn.varInstance().def();
                         }
                         else {
-                            li = xts.localDef(pos, Flags.FINAL, Types.ref(vi.type()), name);
+                            li = nameToLocalDef.get(name.toString());
                         }
-                        X10Formal formal = xnf.Formal(pos, xnf.FlagsNode(pos, Flags.FINAL), xnf.X10CanonicalTypeNode(pos, X10TypeMixin.baseType(vi.type())), xnf.Id(pos, name)).localDef(li);
+                        X10Formal formal = xnf.Formal(pos, xnf.FlagsNode(pos, Flags.FINAL), xnf.X10CanonicalTypeNode(pos, X10TypeMixin.baseType(vn.type())), xnf.Id(pos, name)).localDef(li);
                         formals.add(formal);
-                        argTypes.add(vi.def().type());
-                        args.add(createExpr(pos, vi));
+                        argTypes.add(vn.varInstance().def().type());
+                        args.add(vn);
                         
-                        X10FieldDef fi = xts.fieldDef(pos, Types.ref(staticInnerClassDef.asType()), Flags.FINAL.Private(), Types.ref(vi.type()), name);
+                        X10FieldDef fi = xts.fieldDef(pos, Types.ref(staticInnerClassDef.asType()), Flags.FINAL.Private(), Types.ref(vn.type()), name);
                         staticInnerClassDef.addField(fi);
 
-                        FieldDecl fdcl = xnf.FieldDecl(pos, xnf.FlagsNode(pos, Flags.FINAL.Private()), xnf.X10CanonicalTypeNode(pos, vi.type()), xnf.Id(pos, name));
+                        FieldDecl fdcl = xnf.FieldDecl(pos, xnf.FlagsNode(pos, Flags.FINAL.Private()), xnf.X10CanonicalTypeNode(pos, vn.type()), xnf.Id(pos, name));
                         cm.add(fdcl.fieldDef(fi));
                         
-                        FieldAssign fa = xnf.FieldAssign(pos, xnf.Special(pos, Kind.THIS).type(staticInnerClassDef.asType()), xnf.Id(pos, name), Assign.ASSIGN, xnf.Local(pos, xnf.Id(pos, name)).localInstance(li.asInstance()).type(vi.type())).fieldInstance(fi.asInstance());
+                        FieldAssign fa = xnf.FieldAssign(pos, xnf.Special(pos, Kind.THIS).type(staticInnerClassDef.asType()), xnf.Id(pos, name), Assign.ASSIGN, xnf.Local(pos, xnf.Id(pos, name)).localInstance(li.asInstance()).type(vn.type())).fieldInstance(fi.asInstance());
                         body2 = body2.append(xnf.Eval(pos, fa));
                     }
                     
@@ -399,24 +442,62 @@ public class ClosureRemover extends ContextVisitor {
                     ClassBody cb = staticInnerClassDecl.body();
                     nmembers.add((ClassMember) staticInnerClassDecl.body(cb.members(cm)).typeCheck(this));
                     
-                    return xnf.New(pos, xnf.CanonicalTypeNode(pos, Types.ref(staticInnerClassType)), args).constructorInstance(consd.asInstance()).type(cl.type()).typeCheck(this);
+                    // TODO
+//                    return xnf.New(pos, xnf.CanonicalTypeNode(pos, Types.ref(staticInnerClassType)), args).constructorInstance(consd.asInstance()).type(cl.type()).typeCheck(this);
+                    return xnf.New(pos, xnf.CanonicalTypeNode(pos, Types.ref(staticInnerClassType)), args).constructorInstance(consd.asInstance()).type(cl.type());
                 }
                 return n;
             }
 
             private Block rewriteClosureBody(Block closureBody,
-                                             final X10ClassDef staticInnerClassDef) {
+                                             final X10ClassDef staticInnerClassDef, final List<VarInstance<? extends VarDef>> capturedEnv, final List<NamedVariable> capturedVarsExThis, final Map<String, X10LocalDef> nameToLocalDef, final List<Formal> formals) {
                 final Position pos = Position.COMPILER_GENERATED;
                 return (Block) closureBody.visit(new ContextVisitor(job, ts, nf){
                     protected Node leaveCall(Node parent, Node old, Node n, NodeVisitor v) throws SemanticException {
                         if (n instanceof Field) {
-                            return ((Field) n).targetImplicit(false);
+                            Field field = (Field) n;
+                            for (VarInstance<? extends VarDef> var : capturedEnv) {
+                                // because of coming not the same VarInstance
+                                if (var.def().equals(field.fieldInstance().def())) {
+                                    Receiver target = field.target();
+                                    if (target instanceof Local) {
+                                        for (Formal formal : formals) {
+                                            if (formal.name() != null && ((Local) target).name().id().equals(formal.name().id())) {
+                                                return n;
+                                            }
+                                        }
+                                    }
+                                    
+                                    X10LocalDef li;
+                                    if (!contains(capturedVarsExThis, var.def())) {
+                                        capturedVarsExThis.add(field);
+                                        li = xts.localDef(pos, Flags.FINAL, Types.ref(var.type()), var.name());
+                                        nameToLocalDef.put(var.name().toString(), li);
+                                    } else {
+                                        li = nameToLocalDef.get(var.name().toString());
+                                    }
+                                    return xnf.Local(pos, xnf.Id(pos, var.name())).localInstance(li.asInstance()).type(var.type());
+                                }
+                            }
+                            return n;
+                        }
+                        if (n instanceof Local) {
+                            Local local = (Local) n;
+                            for (VarInstance<? extends VarDef> var : capturedEnv) {
+                                if (var.def().equals(local.localInstance().def())) {
+                                    if (!contains(capturedVarsExThis, var.def())) {
+                                        capturedVarsExThis.add(local);
+                                        return n;
+                                    }
+                                }
+                            }                                
+                            return n;
                         }
                         
                         // this => out$
                         if (n instanceof Special) {
                             Special special = (Special) n;
-                            if (special.kind() == Special.THIS) {
+                            if (special.kind() == Special.THIS && !(parent instanceof Field)) {
                                 Type type = X10TypeMixin.baseType(special.type());
                                 X10FieldDef fi = xts.fieldDef(pos, Types.ref(staticInnerClassDef.asType()), Flags.PRIVATE.Final(), Types.ref(type), OUTER_NAME);
                                 Special thiz = (Special) xnf.Special(pos, Kind.THIS).type(staticInnerClassDef.asType());
@@ -430,6 +511,15 @@ public class ClosureRemover extends ContextVisitor {
         }.context(context);
     }
 
+    private static boolean contains(List<NamedVariable> capturedVars, VarDef def) {
+        for (NamedVariable nv : capturedVars) {
+            if (nv.varInstance().def().equals(def)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
     private List<ParameterType> getCurrentCodeParameterType(Context context) {
         X10CodeDef codeDef = (X10CodeDef) context.currentCode();
         if (!(codeDef instanceof ClosureDef)) {
