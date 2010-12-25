@@ -1018,7 +1018,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 				        w.allowBreak(0);
 				    }
 				    alreadyPrintedTypes.add(tn.type());
-	                boolean isJavaNative = isJavaNative((X10ClassType) tn.type());
+	                boolean isJavaNative = isJavaNative((X10ClassType) X10TypeMixin.baseType(tn.type()));
 				    er.printType(tn.type(), (isSelfDispatch && !isJavaNative ? 0 : PRINT_TYPE_PARAMS) | BOX_PRIMITIVES | NO_VARIANCE);
 				}
 			}
@@ -1494,8 +1494,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		}
     }
 
-    private boolean isJavaNative(X10ClassType type) {
-        X10ClassDef cd = type.x10Def();
+    private boolean isJavaNative(Type type) {
+    	X10ClassType type1  = (X10ClassType) X10TypeMixin.baseType(type);
+        X10ClassDef cd = type1.x10Def();
         String pat = er.getJavaRep(cd);
         if (pat != null && pat.startsWith("java.")) {
             return true;
@@ -1927,7 +1928,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     		X10ClassType ct = (X10ClassType) mi.container();
     		
     		List<Type> ta = ct.typeArguments();
-    		boolean isJavaNative = isJavaNative((X10ClassType) n.objectType().type());
+    		boolean isJavaNative = isJavaNative(n.objectType().type());
             if (ta != null && ta.size() > 0 && !isJavaNative) {
     		    for (Iterator<Type> i = ta.iterator(); i.hasNext(); ) {
     		        final Type at = i.next();
@@ -2659,7 +2660,10 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
 		/* TODO: case: for (point p:D) -- discuss with vj */
 		/* handled cases: exploded syntax like: for (point p[i,j]:D) and for (point [i,j]:D) */
-		if (Configuration.LOOP_OPTIMIZATIONS && form.hasExplodedVars() && (ts.isSubtype(f.domain().type(), ts.Region(), context) || ts.isSubtype(f.domain().type(), ts.Dist(), context)) && X10TypeMixin.isRect(f.domain().type(), context)) {
+		if (Configuration.LOOP_OPTIMIZATIONS && form.hasExplodedVars() 
+				&& (ts.isSubtype(f.domain().type(), ts.Region(), context) 
+						|| ts.isSubtype(f.domain().type(), ts.Dist(), context)) 
+				&& X10TypeMixin.isRect(X10TypeMixin.toConstrainedType(f.domain().type()), context)) {
 			String regVar = getId().toString();
 			List<Name> idxs = new ArrayList<Name>();
 			List<Name> lims = new ArrayList<Name>();

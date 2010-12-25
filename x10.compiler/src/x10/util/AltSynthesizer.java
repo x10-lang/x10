@@ -66,6 +66,7 @@ import x10.ast.X10Formal;
 import x10.ast.SettableAssign;
 import x10.constraint.XFailure;
 import x10.constraint.XTerm;
+import x10.types.ConstrainedType;
 import x10.types.X10FieldInstance;
 import x10.types.X10LocalDef;
 import x10.types.X10MethodInstance;
@@ -876,9 +877,12 @@ public class AltSynthesizer extends ContextVisitor {
      * TODO: move into Synthesizer
      */
     public static Type addPropertyConstraint(Type type, Name name, XTerm value) throws XFailure {
-        XTerm property = X10TypeMixin.findOrSynthesize(type, name);
+    	// Need to ensure that the argument to find or synthesize is a constrained type
+    	// since the property may refer to the type's self variable.
+    	ConstrainedType type1 = X10TypeMixin.toConstrainedType(type);
+        XTerm property = X10TypeMixin.findOrSynthesize(type1, name);
         if (null == property) return null;
-        return X10TypeMixin.addBinding(type, property, value);
+        return X10TypeMixin.addBinding(type1, property, value);
     }
 
     /**

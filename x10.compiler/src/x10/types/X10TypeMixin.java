@@ -228,6 +228,14 @@ public class X10TypeMixin {
         
         return new TypeConstraint();
     }
+    /**
+     * Returns the real constraint for the type t -- the specified constraint (if any), and
+     * the root clause associated with the base type. 
+     * If t has a constraint clause (is a ConstrainedType) then the returned constraint will have the same 
+     * self var as t's clause.
+     * @param t
+     * @return
+     */
     public static CConstraint realX(Type t) {
 	if (t instanceof ParameterType) {
 	    return new CConstraint();
@@ -425,12 +433,12 @@ public class X10TypeMixin {
 	public static Type xclause(Type t, CConstraint c) {
 		if (t == null)
 			return null;
-		if (c == null || c.valid()) {
-			return baseType(t);
+		if (c == null /*|| c.valid()*/) {
+			return t;
 		}
 		return xclause(Types.ref(t), Types.ref(c));
 	}
-	public static Type constrainedType(Type base, CConstraint c) {
+	public static ConstrainedType constrainedType(Type base, CConstraint c) {
 		return new ConstrainedType_c((TypeSystem) base.typeSystem(), base.position(), Types.ref(base),
 				Types.ref(c));
 	}
@@ -559,13 +567,13 @@ public class X10TypeMixin {
 	        }
 	        return type;
 	}
+	
     public static Type addBinding(Type t, XTerm t1, XConstrainedTerm t2) {
      	assert (! (t instanceof UnknownType));
         try {
-            CConstraint c = xclause(t);
-            c = c == null ? new CConstraint() :c.copy();
+            CConstraint c = new CConstraint();
             c.addBinding(t1, t2);
-            return xclause(X10TypeMixin.baseType(t), c);
+            return xclause(t, c);
         }
         catch (XFailure f) {
             throw new InternalCompilerError("Cannot bind " + t1 + " to " + t2 + ".", f);
@@ -641,9 +649,8 @@ public class X10TypeMixin {
     	}
     }
 
-    public static XVar selfVar(Type thisType) {
-	    CConstraint c = xclause(thisType); // Should this be realX(thisType) ???  - Bowen
-	    return selfVar(c);
+    public static XVar selfVar(ConstrainedType thisType) {
+    	return selfVar(thisType.constraint().get());
     }
 
     public static XVar selfVar(CConstraint c) {
@@ -869,7 +876,7 @@ public class X10TypeMixin {
 		  }
 
 	 
-	protected static boolean amIProperty(Type t, Name propName, Context context) {
+	protected static boolean amIProperty(ConstrainedType t, Name propName, Context context) {
 	    TypeSystem xts = (TypeSystem) t.typeSystem();
 	    CConstraint r = realX(t);
 	
@@ -905,36 +912,36 @@ public class X10TypeMixin {
 	    }
 	}
 
-	public static boolean isRect(Type t, Context context) {
+	public static boolean isRect(ConstrainedType t, Context context) {
 	    return amIProperty(t, Name.make("rect"), context);
 	}
 
-	public static XTerm onePlace(Type t) {
+	public static XTerm onePlace(ConstrainedType t) {
 	    return find(t, Name.make("onePlace"));
 	}
 
-	public static boolean isZeroBased(Type t, Context context) {
+	public static boolean isZeroBased(ConstrainedType t, Context context) {
 	return amIProperty(t, Name.make("zeroBased"), context);
 	}
 
-	public static XTerm distribution(Type t) {
+	public static XTerm distribution(ConstrainedType t) {
 	return findProperty(t, Name.make("dist"));
 	}
 
-	public static XTerm region(Type t) {
+	public static XTerm region(ConstrainedType t) {
 	return findProperty(t, Name.make("region"));
 	}
-	public static XTerm zeroBased(Type t) {
+	public static XTerm zeroBased(ConstrainedType t) {
 		return findProperty(t, Name.make("zeroBased"));
 	}
-	public static XTerm makeZeroBased(Type t) {
+	public static XTerm makeZeroBased(ConstrainedType t) {
 		return makeProperty(t, "zeroBased");
 	}
-    public static XTerm makeRail(Type t) {
+    public static XTerm makeRail(ConstrainedType t) {
         return makeProperty(t, "rail");
     }
 	 
-	public static XTerm makeProperty(Type t, String propStr) {
+	public static XTerm makeProperty(ConstrainedType t, String propStr) {
 		Name propName = Name.make(propStr);
 		  CConstraint c = realX(t);
 		    if (c != null) {
@@ -953,15 +960,24 @@ public class X10TypeMixin {
 		return null;
 		
 	}
-	public static XTerm find(Type t, Name propName) {
+	/**
+	 * Ensure that t is ConstrainedType, so it has a self. The term returned may 
+	 * contain self sas receiver.
+	 * @param t
+	 * @param propName
+	 * @return
+	 */
+	public static XTerm find(ConstrainedType t, Name propName) {
 	    XTerm val = findProperty(t, propName);
 
 	    if (val == null) {
 	        TypeSystem xts = (TypeSystem) t.typeSystem();
 	        CConstraint c = realX(t);
+	     
 	        if (c != null) {
 	            // build the synthetic term.
-	            XTerm var = selfVar(c);
+	        	
+	            XTerm var = selfVar(t);
 	            if (var !=null) {
 	                X10FieldInstance fi = getProperty(t, propName);
 	                if (fi != null) {
@@ -978,30 +994,44 @@ public class X10TypeMixin {
 	    return val;
 	}
 
-	
-	public static boolean isRankOne(Type t, Context context) {
+	/**
+	 * Does t imply {self.rank==1}?
+	 */
+	public static boolean isRankOne(ConstrainedType t, Context context) {
 	    TypeSystem xts = (TypeSystem) t.typeSystem();
 	    return xts.ONE().equals(X10TypeMixin.rank(t, context));
 	}
 
-	public static boolean isRankTwo(Type t, Context context) {
+	/**
+	 * Does t imply {self.rank==2}?
+	 */
+	public static boolean isRankTwo(ConstrainedType t, Context context) {
 	        TypeSystem xts = (TypeSystem) t.typeSystem();
 	        return xts.TWO().equals(X10TypeMixin.rank(t, context));
 	}
 
-	public static boolean isRankThree(Type t, Context context) {
+	/**
+	 * Does t imply {self.rank==3}?
+	 */
+	public static boolean isRankThree(ConstrainedType t, Context context) {
 	    TypeSystem xts = (TypeSystem) t.typeSystem();
 	    return xts.THREE().equals(X10TypeMixin.rank(t, context));
 	}
 	
+	/**
+	 * Does t imply {self!=null}?
+	 */
 	public static boolean isNonNull(Type t) {
 		return disEntails(t, self(t), XTerms.NULL);
 	}
 
-	static XTerm findProperty(Type t, Name propName) {
+	/** Find the term t, if any, such that t entails {self.propName==t}.
+	 * 
+	 */
+	static XTerm findProperty(ConstrainedType t, Name propName) {
 		CConstraint c = realX(t);
 		if (c == null) return null;
-
+		
 		// TODO: check dist.region.p and region.p
 
 		X10FieldInstance fi = getProperty(t, propName);
@@ -1016,7 +1046,10 @@ public class X10TypeMixin {
 		return null;
 	}
 
-	public static XTerm rank(Type t, Context context) {
+	/**
+	 * Return self.rank, where self is the selfvar for t.
+	 */
+	public static XTerm rank(ConstrainedType t, Context context) {
 	    TypeSystem xts = (TypeSystem) t.typeSystem();
 	    return findOrSynthesize(t, Name.make("rank"));
 	}
@@ -1039,66 +1072,84 @@ public class X10TypeMixin {
 	 * @param x
 	 * @return
 	 */
-	public static Type addRank(Type t, XTerm x) {
+	public static ConstrainedType addRank(Type t, XTerm x) {
 	    TypeSystem xts = (TypeSystem) t.typeSystem();
-	    XTerm xt = findOrSynthesize(t, Name.make("rank"));
+		// Need to ensure that the argument to find or synthesize is a constrained type
+    	// since the property may refer to the type's self variable.
+	    ConstrainedType result = toConstrainedType(t);
+	    XTerm xt = findOrSynthesize(result, Name.make("rank"));
 	    try {
-	        t = addBinding(t, xt, x);
+	        result = (ConstrainedType) addBinding(result, xt, x);
 	    } catch (XFailure f) {
 	        // without the binding added.
 	    }
-	    return t;
+	    return result;
 	}
 
-	public static Type addRect(Type t) {
+	public static ConstrainedType addRect(Type t) {
 	    TypeSystem xts = (TypeSystem) t.typeSystem();
-	    XTerm xt = findOrSynthesize(t, Name.make("rect"));
+		// Need to ensure that the argument to find or synthesize is a constrained type
+    	// since the property may refer to the type's self variable.
+	    ConstrainedType result = toConstrainedType(t);
+	    XTerm xt = findOrSynthesize(result, Name.make("rect"));
 	    try {
-	        t = addBinding(t, xt, XTerms.TRUE);
+	        t = addBinding(result, xt, XTerms.TRUE);
 	    } catch (XFailure f) {
 	    	// without the binding added.
 	    }
-	    return t;
+	    return result;
+	}
+	public static ConstrainedType toConstrainedType(Type t) {
+		ConstrainedType result;
+		if (t instanceof ConstrainedType) {
+			result=(ConstrainedType) t;
+		} else {
+			result = constrainedType(t, new CConstraint());
+		}
+		return result;
 	}
 
-	public static Type addZeroBased(Type t) {
+	public static ConstrainedType addZeroBased(Type t) {
 	    TypeSystem xts = (TypeSystem) t.typeSystem();
-	    XTerm xt = findOrSynthesize(t, Name.make("zeroBased"));
+		// Need to ensure that the argument to find or synthesize is a constrained type
+    	// since the property may refer to the type's self variable.
+	    ConstrainedType result = toConstrainedType(t);
+	    XTerm xt = findOrSynthesize(result, Name.make("zeroBased"));
 	    try {
-	        t = addBinding(t, xt, XTerms.TRUE);
+	        result = (ConstrainedType) addBinding(result, xt, XTerms.TRUE);
 	    } catch (XFailure f) {
 	    	// without the binding added.
 	    }
-	    return t;
+	    return result;
 	}
 
 	public static Type railBaseType(Type t) {
-	    t = baseType(t);
-	    if (t instanceof X10ClassType) {
-		X10ClassType ct = (X10ClassType) t;
-		TypeSystem ts = (TypeSystem) t.typeSystem();
-		ClassType a = (ClassType) ts.Rail();
-		if (ct.def() == a.def())
-		    return ct.typeArguments().get(0);
-		else
-		    arrayBaseType(ct.superClass());
-	    }
-	    return null;
+		t = baseType(t);
+		if (t instanceof X10ClassType) {
+			X10ClassType ct = (X10ClassType) t;
+			TypeSystem ts = (TypeSystem) t.typeSystem();
+			ClassType a = (ClassType) ts.Rail();
+			if (ct.def() == a.def())
+				return ct.typeArguments().get(0);
+			else
+				arrayBaseType(ct.superClass());
+		}
+		return null;
 	}
 
 	public static Type arrayBaseType(Type t) {
-	    t = baseType(t);
-	    if (t instanceof X10ClassType) {
-		X10ClassType ct = (X10ClassType) t;
-		TypeSystem ts = (TypeSystem) t.typeSystem();
-		ClassType a = (ClassType) ts.Array();
-		ClassType da = (ClassType) ts.Array();
-		if (ct.def() == a.def() || ct.def() == da.def())
-		    return ct.typeArguments().get(0);
-		else
-		    arrayBaseType(ct.superClass());
-	    }
-	    return null;
+		t = baseType(t);
+		if (t instanceof X10ClassType) {
+			X10ClassType ct = (X10ClassType) t;
+			TypeSystem ts = (TypeSystem) t.typeSystem();
+			ClassType a = (ClassType) ts.Array();
+			ClassType da = (ClassType) ts.Array();
+			if (ct.def() == a.def() || ct.def() == da.def())
+				return ct.typeArguments().get(0);
+			else
+				arrayBaseType(ct.superClass());
+		}
+		return null;
 	}
 
 	public static boolean isX10Array(Type t) {
@@ -1126,7 +1177,7 @@ public class X10TypeMixin {
 	}
 
 
-	public static XTerm findOrSynthesize(Type t, Name propName) {
+	public static XTerm findOrSynthesize(ConstrainedType t, Name propName) {
 	    return find(t, propName);
 	}
 

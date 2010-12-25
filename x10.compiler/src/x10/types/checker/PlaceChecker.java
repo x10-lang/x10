@@ -39,6 +39,7 @@ import x10.errors.Errors.PlaceTypeErrorMethodShouldBeLocalOrGlobal;
 import x10.types.ClosureType_c;
 import x10.types.X10ClassDef;
 import polyglot.types.Context;
+import x10.types.ConstrainedType;
 import x10.types.X10FieldInstance;
 import x10.types.X10Flags;
 import x10.types.X10MethodInstance;
@@ -171,21 +172,23 @@ public class PlaceChecker {
 	public static Type AddIsHereClause(Type type, Context cxt) {
 		if (X10TypeMixin.isX10Struct(type))
 			return type;
-		XVar selfVar = X10TypeMixin.selfVar(type);
-		if (selfVar == null) {
+		ConstrainedType type1 = X10TypeMixin.toConstrainedType(type);
+		XVar selfVar = X10TypeMixin.selfVar(type1);
+		assert selfVar != null;
+		/*if (selfVar == null) {
 		    selfVar = XTerms.makeEQV("self");
 		    try {
 		        type = X10TypeMixin.setSelfVar(type, selfVar);
 		    } catch (SemanticException e) {
 		        throw new InternalCompilerError("Cannot set self var for type "+type, e);
 		    }
-		}
+		}*/
 		XTerm locVar = homeVar(selfVar, (TypeSystem) cxt.typeSystem());
 		try {
 			
 			XConstrainedTerm pt = (((Context) cxt).currentPlaceTerm());
 			if (locVar != null && pt != null)
-			    type = X10TypeMixin.addBinding(type, locVar, pt.term()); // here());// here, not pt); // pt, not PlaceChecker.here()
+			    type = X10TypeMixin.addBinding(type1, locVar, pt.term()); // here());// here, not pt); // pt, not PlaceChecker.here()
 		} catch (XFailure z) {
 			// caller responsibility to ensure that this could be consistently added.
 		}

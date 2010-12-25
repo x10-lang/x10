@@ -151,7 +151,10 @@ public class ConstrainedType_c extends ReferenceType_c implements ConstrainedTyp
 	
 	protected CConstraint realXClause;
 	protected SemanticException realClauseInvalid;
-	
+	/**
+	Returns the real clause for this constrained type. The self variable for the returned constraint 
+	is the same as the self variable for the depclause.
+	 */
 	public CConstraint getRealXClause() { 
 		if (realXClause == null) {
 			realXClause = realX();
@@ -170,6 +173,11 @@ public class ConstrainedType_c extends ReferenceType_c implements ConstrainedTyp
 			assert rootClause != null;
 
 		CConstraint depClause = X10TypeMixin.xclause(this);
+		if (depClause==null) {
+				depClause = new CConstraint();
+				depClause.setThisVar(rootClause.thisVar());
+		}
+		
 
 		try {
 			X10TypeMixin.getThisVar(rootClause, depClause);
@@ -184,17 +192,14 @@ public class ConstrainedType_c extends ReferenceType_c implements ConstrainedTyp
 		if (depClause == null) 
 			return rootClause;
 
-		CConstraint realClause = rootClause.copy();
-
 		try {
-			realClause.addIn(depClause);
-			realClause.setThisVar(CConstraint.getThisVar(rootClause, depClause));
+			depClause.addIn(rootClause);
 		}
 		catch (XFailure f) {
-			realClause.setInconsistent();
+			depClause.setInconsistent();
 		}
 	
-		return realClause;
+		return depClause;
 
 	}
 	

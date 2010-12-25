@@ -67,6 +67,7 @@ import x10.ast.X10Formal;
 import x10.ast.SettableAssign;
 import x10.constraint.XFailure;
 import x10.constraint.XTerm;
+import x10.types.ConstrainedType;
 import x10.types.X10FieldInstance;
 import x10.types.X10MethodInstance;
 import x10.types.X10TypeMixin;
@@ -235,7 +236,8 @@ public class ForLoopOptimizer extends ContextVisitor {
         Context      context    = (Context) context();
         List<Formal> formalVars = formal.vars();
         boolean      named      = !formal.isUnnamed();
-        boolean      isRect     = X10TypeMixin.isRect(domain.type(), context);
+        ConstrainedType domainType = X10TypeMixin.toConstrainedType(domain.type());
+        boolean      isRect     = X10TypeMixin.isRect(domainType, context);
         Integer      domainRank = (Integer) getPropertyConstantValue(domain, RANK);
         int          rank       = (null != domainRank) ? (int) domainRank :
                                   (null != formalVars) ? formalVars.size() : 
@@ -284,7 +286,7 @@ public class ForLoopOptimizer extends ContextVisitor {
         }
 
         // transform rectangular regions of known rank 
-        if (xts.isRegion(domain.type()) && isRect && rank > 0) {
+        if (xts.isRegion(domainType) && isRect && rank > 0) {
             assert xts.isPoint(formal.declType());
             if (VERBOSE) System.out.println("  rectangular region, rank=" +rank+ " point=" +formal);
             
@@ -384,7 +386,7 @@ public class ForLoopOptimizer extends ContextVisitor {
             return result;
         }
 
-        assert (xts.isSubtype(domain.type(), xts.Iterable(xts.Any()), context)); 
+        assert (xts.isSubtype(domainType, xts.Iterable(xts.Any()), context)); 
         Name iterName        = named ? Name.makeFresh(formal.name().id()) : Name.makeFresh();
         Expr iterInit        = syn.createInstanceCall(pos, domain, ITERATOR);
         LocalDecl iterLDecl  = syn.createLocalDecl(pos, Flags.FINAL, iterName, iterInit);
@@ -518,9 +520,12 @@ public class ForLoopOptimizer extends ContextVisitor {
      * TODO: move into Synthesizer
      */
     public static Type addPropertyConstraint(Type type, Name name, XTerm value) throws XFailure {
-    	XTerm property = X10TypeMixin.findOrSynthesize(type, name);
+    	// Must ensure that arg to findOrSynthesize is a constrained type
+    	// since the synthesized property may need to refer to self.
+    	ConstrainedType type1 = X10TypeMixin.toConstrainedType(type);
+    	XTerm property = X10TypeMixin.findOrSynthesize(type1, name);
     	if (null == property) return null;
-    	return X10TypeMixin.addBinding(type, property, value);
+    	return X10TypeMixin.addBinding(type1, property, value);
     }
 
     /**

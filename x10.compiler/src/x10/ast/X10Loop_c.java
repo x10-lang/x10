@@ -53,6 +53,7 @@ import x10.constraint.XVar;
 import x10.errors.Errors;
 import x10.types.X10ClassType;
 import polyglot.types.Context;
+import x10.types.ConstrainedType;
 import x10.types.X10FieldInstance;
 import x10.types.X10LocalDef;
 import x10.types.X10MethodInstance;
@@ -153,7 +154,7 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop {
 			// aha, in this case the type inferencer did not run, since an explicit type was givem.
 			domainType = domain.type();
 		}
-		Type formalType = formal.declType();
+		ConstrainedType formalType = X10TypeMixin.toConstrainedType(formal.declType());
 		Type Iterable = ts.Iterable(formalType);
 		assert domainType != null 
 		: "formal=" + formal + " domain = " + domain + " position = " + position();
