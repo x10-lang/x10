@@ -423,23 +423,8 @@ public class X10New_c extends New_c implements X10New {
         }
     }
 
+    @Override
     public Node typeCheck(ContextVisitor tc) {
-        try {
-            return typeCheck1(tc);
-        } catch (SemanticException e) {
-            Errors.issue(tc.job(), e, this);
-            X10TypeSystem_c ts = (X10TypeSystem_c) tc.typeSystem();
-            List<Type> argTypes = new ArrayList<Type>(this.arguments.size());
-            for (Expr a : this.arguments) {
-                argTypes.add(a.type());
-            }
-            X10ClassType ct = (X10ClassType) X10TypeMixin.baseType(tn.type());
-            X10ConstructorInstance ci = ts.createFakeConstructor(ct, Flags.PUBLIC, argTypes, e);
-            Type rt = ci.returnType();
-            return (X10New_c) constructorInstance(ci).type(rt);
-        }
-    }
-    public Node typeCheck1(ContextVisitor tc) throws SemanticException {
         final TypeSystem xts = (TypeSystem) tc.typeSystem();
 
         // ///////////////////////////////////////////////////////////////////
@@ -449,6 +434,8 @@ public class X10New_c extends New_c implements X10New {
         // [IP] The type arguments are retained for later use.
         //assert (this.typeArguments().size() == 0) : position().toString();
 
+        SemanticException error = null;
+
         List<Type> argTypes = new ArrayList<Type>(this.arguments.size());
         for (Expr e : this.arguments) {
         	//Type argType = PlaceChecker.ReplaceHereByPlaceTerm((Type) e.type(), (X10Context) tc.context());
@@ -456,8 +443,20 @@ public class X10New_c extends New_c implements X10New {
         	argTypes.add(argType);
         }
 
-        typeCheckFlags(tc);
-        typeCheckNested(tc);
+        Position pos = position();
+
+        try {
+            typeCheckFlags(tc);
+        } catch (SemanticException e) {
+            Errors.issue(tc.job(), e, this);
+            if (error == null) { error = e; }
+        }
+        try {
+            typeCheckNested(tc);
+        } catch (SemanticException e) {
+            Errors.issue(tc.job(), e, this);
+            if (error == null) { error = e; }
+        }
 
         X10New_c result = this;
 
@@ -471,7 +470,9 @@ public class X10New_c extends New_c implements X10New {
         ci = (X10ConstructorInstance) p.fst();
         args = p.snd();
         if (ci.error() != null) {
-            throw ci.error();
+            Errors.issue(tc.job(), ci.error(), this);
+        } else if (error != null) {
+            ci = ci.error(error);
         }
 
         X10ParsedClassType container = (X10ParsedClassType) ci.container();
@@ -487,21 +488,34 @@ public class X10New_c extends New_c implements X10New {
         Type tp1 = X10TypeMixin.instantiateTypeParametersExplicitly(tp);
         Type t1 = X10TypeMixin.instantiateTypeParametersExplicitly(t);
         
-        if (!ts.isSubtype(tp1, t1, context)) {
-            throw new SemanticException("Constructor return type " + tp + " is not a subtype of " + t + ".", result.position());
-        }
         if (ts.hasUnknown(tp1)) {
-            throw new SemanticException("Inconsistent constructor return type", result.position());
+            SemanticException e = new SemanticException("Inconsistent constructor return type", pos);
+            Errors.issue(tc.job(), e, this);
+            if (ci.error() == null) {
+                ci = ci.error(e);
+            }
+        }
+        if (!ts.hasUnknown(tp) && !ts.isSubtype(tp1, t1, context)) {
+            SemanticException e = new SemanticException("Constructor return type " + tp + " is not a subtype of " + t + ".", pos);
+            Errors.issue(tc.job(), e, this);
+            if (ci.error() == null) {
+                ci = ci.error(e);
+            }
         }
 
         // Copy the method instance so we can modify it.
         //tp = ((X10Type) tp).setFlags(X10Flags.ROOTED);
-        ci = (X10ConstructorInstance) ci.returnType(tp);
+        ci = ci.returnType(tp);
         ci = result.adjustCI(ci, tc);
+
+        try {
+            checkWhereClause(ci, pos, context);
+        } catch (SemanticException e) {
+            if (ci.error() == null) { ci = ci.error(e); }
+        }
+
         result = (X10New_c) result.constructorInstance(ci);
         result = (X10New_c) result.arguments(args);
-
-        result.checkWhereClause(context);
 
         Type type = ci.returnType();
         if (result.body() != null) {
@@ -621,13 +635,12 @@ public class X10New_c extends New_c implements X10New {
         return xts.findConstructors(targetType, xts.ConstructorMatcher(targetType, actualTypes, context));
     }
 
-    private void checkWhereClause(Context context) throws SemanticException {
-        X10ConstructorInstance ci = (X10ConstructorInstance) constructorInstance();
+    private static void checkWhereClause(X10ConstructorInstance ci, Position pos, Context context) throws SemanticException {
         if (ci != null) {
             CConstraint guard = ci.guard();
             TypeConstraint tguard = ci.typeGuard();
             if ((guard != null && !guard.consistent()) || (tguard != null && !tguard.consistent(context))) {
-                throw new SemanticException("Constructor guard not satisfied by caller.", position());
+                throw new SemanticException("Constructor guard not satisfied by caller.", pos);
             }
         }
     }
@@ -640,7 +653,7 @@ public class X10New_c extends New_c implements X10New {
      * 
      * Also add the self.home==here clause.
      */
-    private X10ConstructorInstance adjustCI(X10ConstructorInstance xci, ContextVisitor tc) throws SemanticException {
+    private X10ConstructorInstance adjustCI(X10ConstructorInstance xci, ContextVisitor tc) {
         if (xci == null)
             return (X10ConstructorInstance) this.ci;
         Type type = xci.returnType();

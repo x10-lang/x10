@@ -90,19 +90,6 @@ public class X10Field_c extends Field_c {
 	    return (X10Field_c) super.reconstruct(target, name);
 	}
 
-	public Node typeCheck(ContextVisitor tc) {
-		Node n;
-		try {
-		    n = typeCheck1(tc);		    
-		} catch (SemanticException e) {
-		    Errors.issue(tc.job(), e, this);
-		    Type tType = target != null ? target.type() : tc.context().currentClass();
-		    X10FieldInstance fi = findAppropriateField(tc, tType, name.id(), target instanceof TypeNode, e);
-		    n = (X10Field_c)fieldInstance(fi).type(fi.type());
-		}
-		return n;
-	}
-
     public static X10FieldInstance findAppropriateField(ContextVisitor tc,
             Type targetType, Name name, boolean isStatic, boolean receiverInContext) {
         TypeSystem ts = (TypeSystem) tc.typeSystem();
@@ -207,18 +194,22 @@ public class X10Field_c extends Field_c {
         return isInterfaceProperty;
     }
 	
-    public Node typeCheck1(ContextVisitor tc) throws SemanticException {
+    @Override
+    public Node typeCheck(ContextVisitor tc) {
 		final TypeSystem ts = (TypeSystem) tc.typeSystem();
 		final NodeFactory nf = (NodeFactory) tc.nodeFactory();
 		final Context c = (Context) tc.context(); 
 		Type tType = target != null ? target.type() : c.currentClass();
 
+		SemanticException error = null;
+
 		Position pos = position();
 		if (target instanceof TypeNode) {
-			Type t = ((TypeNode) target).type();
-			t = X10TypeMixin.baseType(t);
+			Type t = X10TypeMixin.baseType(tType);
 			if (t instanceof ParameterType) {
-				throw new Errors.CannotAccessStaticFieldOfTypeParameter(t, pos);
+				SemanticException e = new Errors.CannotAccessStaticFieldOfTypeParameter(t, pos);
+				if (error == null) { error = e; }
+				Errors.issue(tc.job(), e);
 			}
 		}
 
@@ -231,7 +222,11 @@ public class X10Field_c extends Field_c {
 					for (FieldDef fd : tCt.x10Def().properties()) {
 						if (fd.name().equals(name.id())) {
 							X10FieldInstance fi = (X10FieldInstance) fd.asInstance();
-							fi = (X10FieldInstance) ts.FieldMatcher(tType, name.id(), c).instantiate(fi);
+							try {
+							    fi = (X10FieldInstance) ts.FieldMatcher(tType, name.id(), c).instantiate(fi);
+							}
+							catch (SemanticException e) {
+							}
 							if (fi != null) {
 								// Found!
 								X10Field_c result = this;
@@ -243,7 +238,9 @@ public class X10Field_c extends Field_c {
 						}
 					}
 
-					throw new SemanticException("Cannot access field " + name + " of " + tCt+ " in class declaration header; the field may be a member of a superclass.", pos);
+					SemanticException e = new SemanticException("Cannot access field " + name + " of " + tCt+ " in class declaration header; the field may be a member of a superclass.", pos);
+					if (error == null) { error = e; }
+					Errors.issue(tc.job(), e);
 				}
 			}
 		}
@@ -271,7 +268,11 @@ public class X10Field_c extends Field_c {
                 catch (SemanticException ex) {
                 }
             }
-            throw fi.error();
+            Errors.issue(tc.job(), fi.error(), this);
+        }
+
+        if (fi.error() == null && error != null) {
+            fi = fi.error(error);
         }
 
         if (target() instanceof X10Special) {
@@ -300,10 +301,21 @@ public class X10Field_c extends Field_c {
 //			fi = fi.type(retType);
 //		}
 		X10Field_c result = (X10Field_c)fieldInstance(fi).type(retType);
-		result.checkConsistency(c);
+		if (fi.error() == null) {
+		    result.checkConsistency(c);
+		}
 
-		checkFieldAccessesInDepClausesAreFinal(pos, target, fi, tc);
-		checkClockedFieldAccessesAreInClockedMethods(pos, fi, tc);
+		try {
+		    checkFieldAccessesInDepClausesAreFinal(pos, target, fi, tc);
+		} catch (SemanticException e) {
+		    Errors.issue(tc.job(), e);
+		}
+		try {
+		    checkClockedFieldAccessesAreInClockedMethods(pos, fi, tc);
+		} catch (SemanticException e) {
+		    Errors.issue(tc.job(), e);
+		}
+
 		// Not needed in the orthogonal locality proposal.
 		// result = PlaceChecker.makeFieldAccessLocalIfNecessary(result, tc);
 

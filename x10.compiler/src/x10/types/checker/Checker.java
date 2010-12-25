@@ -337,7 +337,7 @@ public class Checker {
 		}
 		return type;
 	}
-	public static Type fieldRightType(Type type, X10MemberDef fi, Receiver target, Context c) throws SemanticException {
+	public static Type fieldRightType(Type type, X10MemberDef fi, Receiver target, Context c) {
 		CConstraint x = X10TypeMixin.xclause(type);
 		if (x == null || fi.thisVar() == null || !(target instanceof Expr))
 			return type;

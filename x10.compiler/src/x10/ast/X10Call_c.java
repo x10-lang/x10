@@ -257,12 +257,10 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
             if (ci.error() != null)
                 return null;
 
-            try {
-                neu = (X10New_c) neu.typeCheck1(tc);
+            neu = (X10New_c) neu.typeCheck(tc);
+            ci = neu.constructorInstance();
+            if (ci.error() == null)
                 return neu;
-            } catch (SemanticException cause) {
-                Errors.issue(tc.job(),cause);
-            }
         }
         return null;
     }
