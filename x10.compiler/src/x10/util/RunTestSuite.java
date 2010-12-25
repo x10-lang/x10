@@ -22,17 +22,18 @@ import x10.types.X10TypeMixin;
 import x10.parser.AutoGenSentences;
 
 public class RunTestSuite {
-    // todo: C:\cygwin\home\Yoav\intellij\sourceforge\x10.dist\samples\tutorial\HeatTransfer_v1.x10:47,46-57 causes: (Warning) Reached threshold when checking constraints. If type-checking fails
-
     public static boolean QUIET = System.getenv("QUIET")!=null;
     private static void println(String s) {
         if (!QUIET) System.out.println(s);
     }
-    // I have 3 kind of markers:
+    // I have 5 kind of markers:
     // "// ... ERR"  - marks an error or warning
     // "// ... ShouldNotBeERR" - the compiler reports an error, but it shouldn't
     // ShouldBeErr - the compiler doesn't report an error, but it should
-    // We always run with -VERBOSE_CALLS.
+    // "COMPILER_CRASHES" - the compiler currently crashes on this file
+    // "SHOULD_NOT_PARSE" - the compiler should report parsing and lexing errors on this file
+    
+    // We always add the compiler flag -VERBOSE_CALLS.
 
     // some _MustFailCompile in the test suite cause compiler crashes
     // files with ERR markers must end with _MustFailCompile, and these are compiled by themselves
@@ -49,25 +50,15 @@ public class RunTestSuite {
     private static final String[] EXCLUDE_DIRS = {
             "WorkStealing", // Have duplicated class from the Samples directory such as ArraySumTest.x10
             "AutoGen", // it takes too long to compile these files
-            "Manual",
+            "Manual", // todo: code for the X10 manual/spec
     };
     private static final String[] EXCLUDE_FILES = {
-            "NOT_WORKING","SSCA2","FT-alltoall","FT-global",
-            "FieldNamedValTest_MustFailCompile.x10", "VariableNamedValTest_MustFailCompile.x10", // they have a lot of parsing errors
-            "GenericLocal4_MustFailCompile.x10", // it causes the compiler to crash
-            "TypedefNew11_MustFailCompile.x10", // it causes the compiler to crash
-            "TypedefBasic2.x10", //C:\cygwin\home\Yoav\intellij\sourceforge\x10.tests\examples\Constructs\Typedefs\TypedefBasic2.x10:37,13-31
-            "CUDA3DFD.x10", //C:\cygwin\home\Yoav\intellij\sourceforge\x10.dist\samples\CUDA\CUDA3DFD.x10:194,17-289,17
-            "CUDAMatMul.x10",
-            "NestedExpressions2.x10",
-            "ClosureCall3.x10",
-            "FlattenPlaceCast.x10", // InternalCompilerError: C:\cygwin\home\Yoav\intellij\sourceforge\x10.tests\examples\Constructs\Array\FlattenPlaceCast.x10:38,16-102
-            "ClosureCall0a_MustFailCompile.x10","ClosureCall1a_MustFailCompile.x10", "ClosureCall0b_MustFailCompile.x10", "ClosureCall0b_MustFailCompile.x10", "ClosureCall1b_MustFailCompile.x10", "ClosureCall1c_MustFailCompile.x10", "ClosureCall1d_MustFailCompile.x10", //LIMITATION: closure type params are not supported (so this file doesn't even parse!)
+            "NOT_WORKING","SSCA2","FT-alltoall","FT-global", // to exclude some benchmarks: https://x10.svn.sourceforge.net/svnroot/x10/benchmarks/trunk
+
+            //LIMITATION: closure type params are not supported (so this file doesn't even parse!)
+            "ClosureCall0a_MustFailCompile.x10","ClosureCall1a_MustFailCompile.x10", "ClosureCall0b_MustFailCompile.x10", "ClosureCall0b_MustFailCompile.x10", "ClosureCall1b_MustFailCompile.x10", "ClosureCall1c_MustFailCompile.x10", "ClosureCall1d_MustFailCompile.x10",
     };
     private static final String[] EXCLUDE_FILES_WITH = {
-            "HeatTransfer_v0.x10",
-            "TypedefOverloading",
-            "PlaceCheckArray.x10",
     };
     private static final String[] INCLUDE_ONLY_FILES_WITH = {
             //"_MustFailCompile.x10",
@@ -172,13 +163,25 @@ public class RunTestSuite {
         return res;
     }
     public static ArrayList<ErrorInfo> runCompiler(String[] newArgs) {
+        return runCompiler(newArgs,false);
+    }
+    public static ArrayList<ErrorInfo> runCompiler(String[] newArgs, boolean COMPILER_CRASHES) {
         SilentErrorQueue errQueue = new SilentErrorQueue(MAX_ERR_QUEUE,"TestSuiteErrQueue");
         long start = System.currentTimeMillis();
+        Throwable err = null;
         try {
             new polyglot.main.Main().start(newArgs,errQueue);
         } catch (Main.TerminationException e) {
             // If we had errors (and we should because we compile _MustFailCompile) then we will get a non-zero exitCode
+        } catch (Throwable e) {
+            err = e;
         }
+        if (COMPILER_CRASHES) {
+            if (err==null) System.err.println("We expected the compiler to crash, but it didn't :) Remove the 'COMPILER_CRASHES' marker from file "+newArgs[0]);
+        } else {
+            if (err!=null) err.printStackTrace();
+        }
+
         println("Compiler running time="+(System.currentTimeMillis()-start));
         final ArrayList<ErrorInfo> res = (ArrayList<ErrorInfo>) errQueue.getErrors();
         assert res.size()<MAX_ERR_QUEUE : "We passed the maximum number of errors!";
@@ -192,6 +195,8 @@ public class RunTestSuite {
     static class FileSummary {
         File file;
         boolean STATIC_CALLS = false;
+        boolean COMPILER_CRASHES;
+        boolean SHOULD_NOT_PARSE;
         ArrayList<String> options = new ArrayList<String>();
         ArrayList<LineSummary> lines = new ArrayList<LineSummary>();
     }
@@ -204,6 +209,8 @@ public class RunTestSuite {
             lineNum++;
             int errIndex = line.indexOf("ERR");
             boolean isERR = errIndex!=-1;
+            if (line.contains("COMPILER_CRASHES")) res.COMPILER_CRASHES = true;
+            if (line.contains("SHOULD_NOT_PARSE")) res.SHOULD_NOT_PARSE = true;
             int optionsIndex = line.indexOf("OPTIONS:");
             if (optionsIndex>=0) {
                 final String option = line.substring(optionsIndex + "OPTIONS:".length()).trim();
@@ -252,12 +259,14 @@ public class RunTestSuite {
         newArgs[newArgs.length-2] = STATIC_CALLS ? "-STATIC_CALLS" : "-VERBOSE_CALLS";
         newArgs[newArgs.length-1] = !STATIC_CALLS ? "-STATIC_CALLS=false" : "-VERBOSE_CALLS=false";
         println("Running: "+ fileNames);
-        ArrayList<ErrorInfo> errors = runCompiler(newArgs);
+        final FileSummary firstSummary = summaries.get(0);
+        ArrayList<ErrorInfo> errors = runCompiler(newArgs, firstSummary.COMPILER_CRASHES);
         // remove GOOD_ERR_MARKERS  and EXPECTED_ERR_MARKERS
         for (Iterator<ErrorInfo> it = errors.iterator(); it.hasNext(); ) {
             ErrorInfo info = it.next();
             final int kind = info.getErrorKind();
-            if (kind==ErrorInfo.GOOD_ERR_MARKERS || kind==ErrorInfo.EXPECTED_ERR_MARKERS)
+            if ((kind==ErrorInfo.GOOD_ERR_MARKERS || kind==ErrorInfo.EXPECTED_ERR_MARKERS) ||
+                (firstSummary.SHOULD_NOT_PARSE && (kind==ErrorInfo.LEXICAL_ERROR || kind==ErrorInfo.SYNTAX_ERROR)))
                 it.remove();
         }
 

@@ -4282,3 +4282,26 @@ class TestSetAndApplyOperators {
 		val i3:Int{self==4} = sa(2) += 5; // ERR
 	}
 }
+
+class ArrayAndRegionTests {
+	def test(a1:Array[Int](0..10), r:Region{zeroBased, rect, rank==1}, a2:Array[Int](r), a3:Array[Int]{zeroBased, rect, rank==1}) {
+		val reg:Region{zeroBased, rect, rank==1} = 0..10;
+		val arr1:Array[Int]{zeroBased, rect, rank==1} = new Array[Int](0..10,0);
+		val arr2:Array[Int]{zeroBased, rect, rank==1} = new Array[Int](reg,0);
+		val arr3:Array[Int]{region.zeroBased, region.rect, region.rank==1} = new Array[Int](reg,0);
+		val arr4:Array[Int](reg) = null;
+		m1(a1);  // ShouldNotBeERR
+		m1(a2);
+		m1(a3);
+		m1(arr3);
+		m1(arr4);
+
+		m2(a1); // ShouldNotBeERR
+		m2(a2);
+		m2(a3);
+		m2(arr3);
+		m2(arr4);
+	}
+	def m1(Array[Int]{zeroBased, rect, rank==1}) {}
+	def m2(Array[Int]{region.zeroBased, region.rect, region.rank==1}) {}
+}
