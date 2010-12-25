@@ -1356,10 +1356,7 @@ class TestFieldInitForwardRef {
 //	  * Primitive structs (Short,UShort,Byte,UByte, Int, Long, ULong, UInt, Float, Double, Boolean, Char)
 //    * user defined structs without a constraint and without a class invariant where all fields haszero.
 class SimpleUserDefinedStructTest {	
-	static struct S {
-	  val x:Int = 4;
-	  val y:Int = 0;
-	}
+	static struct S(x:Int, y:Int) {}
 	static struct S2 {
 		val x:Int = 1;
 	}
@@ -1389,7 +1386,7 @@ class SimpleUserDefinedStructTest {
 	  var z3:S6; // ERR
 	  var z4:S7;
 
-	  var s6:S{y==0};  // ERR (any constrained user-defined struct, doesn't haszero. because of a bug in ConstrainedType_c.fields())
+	  var s6:S{self.y==0};  // ERR (any constrained user-defined struct, doesn't haszero. because of a bug in ConstrainedType_c.fields())
 	}
 	def main(Array[String]) {
 		Console.OUT.println( Zero.get[S5[S5[Int]]]().t.t );
@@ -4042,7 +4039,7 @@ class CircularityTestsWithInheritanceInterfacesAndStructs { // see XTENLANG-2187
 	@ERR class R1 {i()==3} {}
 	@ERR class R2 {@ERR i()==3} extends R2 {}
 	class R3 {}
-	@ERR @ERR class R4 extends R3 {@ERR i()==3} {}
+	@ERR @ERR @ERR class R4 extends R3 {@ERR i()==3} {}
 	
 	@ERR static class W extends W {}
 	static val i=3;
@@ -4244,6 +4241,44 @@ class YetAnotherConstraintBugWithFieldPropogation {
 		val i: Iterator[Point{self.rank==2}] = region.iterator();
 	}
 	def test2() {
-		val i: Iterator[Point{self.rank==2}] = ((1..1)*(1..1)).iterator(); // ShouldNotBeERR: Cannot assign expression to target.	 Expression: ((1 .. 1) * (1 .. 1)).iterator()	 Expected type: x10.lang.Iterator[x10.array.Point{self.rank==2}]	 Found type: x10.lang.Iterator[x10.array.Point{self.rank==2, self.rect==true}]
+		val i: Iterator[Point{self.rank==2}] = ((1..1)*(1..1)).iterator(); // was XTENLANG-2275
+	}
+}
+class CyclicTypeDefs {	
+	static type B = B; // ERR
+	static type X = Y; // 
+	static type Y = Z; // ERR
+	static type Z = X; // ERR ERR
+}
+class XTENLANG_2277 {	
+	def m(a:Rail[Int]) {
+		val x:Int{self==2} = a(0)+=2; // ShouldBeErr
+	}
+}
+
+class TestSetAndApplyOperators {
+	static class OnlySet {
+		operator this(i:Int) = 0;
+	}
+	static class OnlyApply {
+		operator this(i:Int)=(v:Int) = 1;
+	}
+	static class BothSetApply {
+		operator this(i:Int) = 2;
+		operator this(i:Int)=(v:Int):Int{self==v} = v;
+	}
+	def test(s:OnlySet, a:OnlyApply, sa:BothSetApply) {
+		s(2);
+		a(2); // ERR
+		sa(2);
+		s(2) = 3; // ERR
+		a(2) = 3; 
+		sa(2) = 3; 
+		s(2) += 3; // ERR
+		a(2) += 3; // ERR ERR
+		sa(2) += 5; 
+		val i1:Int{self==5} = sa(2) = 5; 
+		val i2:Int{self==5} = sa(2) += 5; // ShouldBeErr (XTENLANG_2277)
+		val i3:Int{self==4} = sa(2) += 5; // ERR
 	}
 }

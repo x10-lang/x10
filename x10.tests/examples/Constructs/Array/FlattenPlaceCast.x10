@@ -20,11 +20,8 @@ public class FlattenPlaceCast extends x10Test {
     val d: DistArray[Place](1);
 
     public def this() {
-
-        val r1 = 1..10*1..10;
-        a = DistArray.make[Test](r1 -> here, (Point)=>new Test());
-        val r2 = 1..10;
-        d = DistArray.make[Place](r2 -> here, (Point)=>here);
+        a = DistArray.make[Test](1..10*1..10 -> here, (Point)=>new Test());
+        d = DistArray.make[Place](1..10 -> here, (Point)=>here);
     }
    
     static class Test {

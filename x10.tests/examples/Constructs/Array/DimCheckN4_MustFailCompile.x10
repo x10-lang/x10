@@ -28,9 +28,7 @@ public class DimCheckN4_MustFailCompile extends x10Test {
     }
 
     public def run(): boolean = {
-        val reg = (0..2)*(0..3);
-        val d  = reg -> here;
-        m(d);
+        m((0..2)*(0..3) -> here);
         return true;
     }
 

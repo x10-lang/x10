@@ -26,9 +26,7 @@ public class FlattenFutureCall extends x10Test {
     val a: DistArray[int](2);
 
     public def this(): FlattenFutureCall = {
-        val reg = 1..10*1..10;
-        val d = reg->here;
-        a = DistArray.make[int](d, ([i,j]: Point): int => i+j);
+        a = DistArray.make[int](1..10*1..10->here, ([i,j]: Point): int => i+j);
     }
     
     public def run(): boolean = {

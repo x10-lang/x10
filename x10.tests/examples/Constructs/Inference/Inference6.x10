@@ -21,7 +21,7 @@ public class Inference6 extends x10Test {
         def m[T](x: Array[T](1)) = x(0);
 
 	public def run(): boolean = {
-                val x = m([1]);
+                val x = m([1]);  // ShouldNotBeERR:  Method m[T](x: x10.array.Array[T]{self.rank==1}): T{x.rank==1} in Inference6{self==Inference6#this} cannot be called with arguments (x10.array.Array[x10.lang.Int]{self.rank==1, self.rect==true, self.zeroBased==true, self.rail==true, self.size==1}); Cannot infer type for type parameter T.
                 val y: int = x;
 		return y == 1;
 	}
