@@ -57,7 +57,7 @@ public class CUDAMatMul {
             assert (k%16) == 0 && k > 0 : "unsupported shared dimension in ourSgemm( 'N', 'N', ... )";
             //sgemmNN<<<grid, threads>>>( A, lda, B, ldb, C, ldc, k, alpha, beta );
             finish async at (gpu) @CUDA @CUDADirectParams {
-                finish for ([block] in 0..(m*n/64/16)-1) async {
+                finish for ([block] in 0..((m*n/64/16)-1)) async {
                     val bs = new Array[Float](16*17, 0);
                     clocked finish for ([thread] in 0..63) clocked async {
                         val inx = thread % 16;
