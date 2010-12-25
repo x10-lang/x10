@@ -68,6 +68,7 @@ import polyglot.visit.NodeVisitor;
 import x10.ast.ForLoop;
 import x10.ast.RegionMaker;
 import x10.ast.Tuple;
+import x10.ast.X10Binary_c;
 import x10.ast.X10Formal;
 
 import x10.constraint.XEquals;
@@ -360,6 +361,15 @@ public class LoopUnroller extends ContextVisitor {
                 fLoopParams.fMinSymbolic= intLit(1);
                 fLoopParams.fMax= getConstantValueOf(size);
                 fLoopParams.fMaxSymbolic= size;
+                fLoopParams.fStride= 1;
+            } else if (mi.container().isInt() && mi.name().equals(X10Binary_c.binaryMethodName(X10Binary_c.DOT_DOT))) {
+                Expr low, hi;
+                low= args.get(0);
+                hi= args.get(1);
+                fLoopParams.fMin= getConstantValueOf(low);
+                fLoopParams.fMinSymbolic= low;
+                fLoopParams.fMax= getConstantValueOf(hi);
+                fLoopParams.fMaxSymbolic= hi;
                 fLoopParams.fStride= 1;
             } else {
                 return fatalStatus("Don't understand iteration domain: " + call);
