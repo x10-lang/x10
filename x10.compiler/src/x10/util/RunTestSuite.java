@@ -26,6 +26,12 @@ public class RunTestSuite {
     private static void println(String s) {
         if (!QUIET) System.out.println(s);
     }
+    private static int EXIT_CODE = 0;                      
+    private static void err(String s) {
+        EXIT_CODE = 1;
+        System.err.println(s);
+    }
+
     // I have 5 kind of markers:
     // "// ... ERR"  - marks an error or warning
     // "// ... ShouldNotBeERR" - the compiler reports an error, but it shouldn't
@@ -137,24 +143,23 @@ public class RunTestSuite {
         }
 
 
-        boolean hadErrors = false;
         if (ONE_FILE_AT_A_TIME) {
             for (FileSummary f : summaries) {
-                hadErrors |= compileFiles(Arrays.asList(f),remainingArgs);
+                compileFiles(Arrays.asList(f),remainingArgs);
             }
         } else {
             // We need to compile _MustFailCompile and files with ERR separately (because they behave differently when compiled with other files)
             ArrayList<FileSummary> shouldCompile = new ArrayList<FileSummary>();
             for (FileSummary f : summaries) {
                 if (f.lines.size()>0 || f.file.getName().endsWith("_MustFailCompile.x10"))
-                    hadErrors |= compileFiles(Arrays.asList(f),remainingArgs);
+                    compileFiles(Arrays.asList(f),remainingArgs);
                 else
                     shouldCompile.add(f);
             }
             if (shouldCompile.size()>0)
-                hadErrors |= compileFiles(shouldCompile,remainingArgs);
+                compileFiles(shouldCompile,remainingArgs);
         }
-        if (hadErrors) System.exit(1);
+        System.exit(EXIT_CODE);
     }
     private static int count(String s, String sub) {
         final int len = sub.length();
@@ -177,9 +182,12 @@ public class RunTestSuite {
             err = e;
         }
         if (COMPILER_CRASHES) {
-            if (err==null) System.err.println("We expected the compiler to crash, but it didn't :) Remove the 'COMPILER_CRASHES' marker from file "+newArgs[0]);
+            if (err==null) err("We expected the compiler to crash, but it didn't :) Remove the 'COMPILER_CRASHES' marker from file "+newArgs[0]);
         } else {
-            if (err!=null) err.printStackTrace();
+            if (err!=null) {
+                err("Compiler crashed for args="+Arrays.toString(newArgs)+" with exception:");
+                err.printStackTrace();
+            }
         }
 
         println("Compiler running time="+(System.currentTimeMillis()-start));
@@ -227,7 +235,7 @@ public class RunTestSuite {
         }
         return res;
     }
-    private static boolean compileFiles(List<FileSummary> summaries, List<String> args) throws IOException {
+    private static void compileFiles(List<FileSummary> summaries, List<String> args) throws IOException {
         // replace \ with /
         ArrayList<String> fileNames = new ArrayList<String>(summaries.size());
         for (FileSummary f : summaries) {
@@ -272,7 +280,6 @@ public class RunTestSuite {
 
         // Now checking the errors reported are correct and match ERR markers
         // 1. find all ERR markers that don't have a corresponding error
-        boolean hadErrors = false; // all fine
         for (FileSummary fileSummary : summaries) {
             File file = fileSummary.file;
             for (LineSummary lineSummary : fileSummary.lines) {
@@ -294,8 +301,7 @@ public class RunTestSuite {
                     }
                 }
                 if (expectedErrCount!=foundErrCount) {
-                    hadErrors = true;
-                    System.err.println("File "+file+" has "+expectedErrCount+" ERR markers on line "+lineNum+", but the compiler reported "+ foundErrCount+" errors on that line! errorsFound=\n"+errorsFound);
+                    err("File "+file+" has "+expectedErrCount+" ERR markers on line "+lineNum+", but the compiler reported "+ foundErrCount+" errors on that line! errorsFound=\n"+errorsFound);
                 }
             }
         }
@@ -306,20 +312,17 @@ public class RunTestSuite {
         for (ErrorInfo err : errors)
             if (err.getErrorKind()==ErrorInfo.WARNING) {
                 if (!err.getMessage().startsWith(X10TypeMixin.MORE_SEPCIFIC_WARNING)) { // ignore those warning messages
-                    hadErrors = true;
-                    System.err.println("Got a warning in position: "+err.getPosition()+"\nMessage: "+err+"\n");
+                    err("Got a warning in position: "+err.getPosition()+"\nMessage: "+err+"\n");
                 }
                 warningCount++;
             }
         if (errors.size()>warningCount) {
-            hadErrors = true;
-            System.err.println("\nThe following errors did not have a matching ERR marker:\n\n");
+            err("\nThe following errors did not have a matching ERR marker:\n\n");
             for (ErrorInfo err : errors)
                 if (err.getErrorKind()!=ErrorInfo.WARNING)
-                    System.err.println("Position:\n"+err.getPosition()+"\nMessage: "+err+"\n");
+                    err("Position:\n"+err.getPosition()+"\nMessage: "+err+"\n");
         }
         // todo: check that for each file (without errors) we generated a *.class file, and load them and run their main method (except for the ones with _MustFailTimeout)
-        return hadErrors;
     }
     private static void recurse(File dir, ArrayList<File> files) {
         if (files.size()>=MAX_FILES_NUM) return;
