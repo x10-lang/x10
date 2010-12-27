@@ -24,7 +24,7 @@ import harness.x10Test;
 }
  static def checkery() {
 xs: List[Int] = new ArrayList[Int]();
-x: Int = find((x: Int) => x>0, xs, 0);
+x: Int = find((x: Int) => x>0, xs, 0);  // ShouldNotBeERR
 }}
 
 class Hook {

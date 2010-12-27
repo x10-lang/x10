@@ -17,7 +17,7 @@ import harness.x10Test;
 // file Expressions line 222
  class Callsome {static val closure = () => 1; static def method () = 2; static val methodEvaluated = Callsome.method();
   static def closure () = 3;
-  // ERROR: static errory = Callsome.closure();
+  // error: static errory = Callsome.closure();
  }
 
 class Hook {

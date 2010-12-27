@@ -19,7 +19,7 @@ import harness.x10Test;
 class Deal {
   public def make() {}
 }
-public class Stimulus {
+class StimulusMethods {
   private def taxCut() = true;
   protected def benefits() = true;
   public def jobCreation() = true;

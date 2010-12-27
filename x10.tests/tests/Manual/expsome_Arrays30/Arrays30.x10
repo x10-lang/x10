@@ -17,7 +17,7 @@ import harness.x10Test;
 // file Arrays line 432
 
 class Arrays30TestExp{
-  def check(Q:Sequence[Place])  = Dist.makeUnique(Q);  }
+  def check(Q:Sequence[Place])  = Dist.makeUnique(Q);  } // ShouldNotBeERR
 
 class Hook {
    def run():Boolean = true;
