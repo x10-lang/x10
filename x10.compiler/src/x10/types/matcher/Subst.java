@@ -19,6 +19,7 @@ import polyglot.types.NullType;
 import polyglot.types.SemanticException;
 import polyglot.types.StructType;
 import polyglot.types.Type;
+import polyglot.types.Types;
 import polyglot.types.UnknownType;
 import x10.constraint.XFailure;
 import x10.constraint.XLocal;
@@ -210,14 +211,13 @@ public class Subst {
 
     public static Type subst(Type t, XTerm[] y, XVar[] x, Type[] Y, ParameterType[] X) throws SemanticException {
         if (t instanceof ConstrainedType) {
-            Type ct = t;
-            Type base = X10TypeMixin.baseType(ct);
-            CConstraint c = X10TypeMixin.xclause(ct);
-            Type newBase = subst(base, y, x, Y, X);
-            // if (x instanceof XSelf) {
-            // return X10TypeMixin.xclause(newBase, c);
-            // }
-            return X10TypeMixin.xclause(newBase, subst(c, y, x, Y, X));
+            ConstrainedType ct = (ConstrainedType) t;
+            Type base = Types.get(ct.baseType()); // do not call X10TypeMixin.baseType(ct); that will strip constraints in ct
+            base = subst(base, y, x, Y, X);
+            CConstraint c = Types.get(ct.constraint());
+            c =  subst(c, y, x, Y, X);
+           
+            return X10TypeMixin.xclause(base, c);
         }
         if (t instanceof ParameterType) {
             for (int i = 0; i < X.length; i++) {
