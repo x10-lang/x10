@@ -204,7 +204,8 @@ public class TypeConstraint implements Copy, Serializable {
 		
 	}
 
-	public static <PI extends X10ProcedureInstance<?>> Type[] inferTypeArguments(PI me, Type thisType, List<Type> actuals, List<Type> formals, 
+	public static <PI extends X10ProcedureInstance<?>> Type[] inferTypeArguments(PI me, 
+			Type thisType, List<Type> actuals, List<Type> formals, 
 			List<Type> typeFormals, Context context) throws SemanticException {
 	    TypeSystem xts = (TypeSystem) thisType.typeSystem();
 	
@@ -265,11 +266,7 @@ public class TypeConstraint implements Copy, Serializable {
 	        // in other constraints and don't want to conflate them if
 	        // realX returns the same constraint twice.
 	        final CConstraint yc = X10TypeMixin.realX(ytype).copy();
-	
-	        XVar xi;
-	        XVar yi;
-	
-	        yi = X10TypeMixin.selfVar(yc);
+	        XVar yi = X10TypeMixin.selfVar(yc);
 	
 	        if (yi == null) {
 	            // This must mean that yi was not final, hence it cannot occur in 
@@ -277,14 +274,12 @@ public class TypeConstraint implements Copy, Serializable {
 	            yi = XTerms.makeUQV(); // xts.xtypeTranslator().genEQV(ytype, false);
 	        }
 	
-	        try {
-	            tenv.addTypeParameterBindings(xtype, ytype, false);
-	        }
-	        catch (XFailure f) {
-	        }
+	      
+	        tenv.addTypeParameterBindings(xtype, ytype, false);
+	    
 	
 	       // CConstraint xc = X10TypeMixin.realX(xtype).copy();
-	        xi = xts.xtypeTranslator().trans(me.formalNames().get(i), xtype);
+	        XVar xi = xts.xtypeTranslator().trans(me.formalNames().get(i), xtype);
 	
 	        x[i] = xi;
 	        y[i] = yi;
@@ -330,35 +325,24 @@ public class TypeConstraint implements Copy, Serializable {
      *  corresponding actual type <code>ytype</code>, we generate a set of type constraints thus:
      *  
      *  <ul>
-     *  <li> Normalize <code>xtype</code>, returning immediately if <code>xtype</code> is <code>null</code>, else replacing <code>xtype</code> with its
-     *  method definition if it is a macro, and removing the constraint if it is a <code>ConstrainedType</code>. It is
-     *  legitimate to strip the constraint, because the type constraint <code>S <: X{c}</code> or <code>S == X{c}</code> can be solved by
-     *  either <code>X==S</code> or <code>X==S{c}</code>.
+     *  <li> Replace <code>xtype</code> with <code> baseType(xtype)</code>. It is legitimate to strip the constraint, 
+     *  because the type constraint <code>S <: X{c}</code> or <code>S == X{c}</code> can be solved by
+     *  either <code>X==S</code> or <code>X==S{c}</code>. We choose to solve it with <code>S</code>.
+     *  <li> Do nothing and return if <code>xtype</code> is <code>null</code>. 
      *  <li>If <code>xtype</code> is a class type, we call the helper <code>addTypeParameterBindings 
      *  (X10ClassType xtype, Type ytype, boolean isEqual)</code>. This will case on <code>ytype</code>.
      *  <li> If <code>xtype</code> is a <code>ParameterType</code>, <code>X</code>, then generate the 
-     *  constraint <code>ytype <: X </code> (if <code>isEqual</code>), 
-     *  else <code>ytype == X</code>.
+     *  constraint <code>ytype <: X </code> (if <code>isEqual</code>), else <code>ytype == X</code>.
      *  </ul>
      *  <p>
      * @param xtype -- the formal type
      * @param ytype -- the actual type
      * @throws XFailure
      */
-    void addTypeParameterBindings(Type xtype, Type ytype, boolean isEqual) throws XFailure {
-    	while (true) {
-    		if (xtype == null)
-    			return;
-    		if (xtype instanceof MacroType) {
-    			xtype = ((MacroType) xtype).definedType();
-    			continue;
-    		}
-    		if (xtype instanceof ConstrainedType) {
-    			xtype = X10TypeMixin.baseType(xtype);
-    			continue;
-    		}
-    		break;
-    	}
+    void addTypeParameterBindings(Type xtype, Type ytype, boolean isEqual)  {
+    	xtype = X10TypeMixin.baseType(xtype);
+    	  if (xtype == null)
+          	return;
     	if (xtype instanceof ParameterType) {
     		// do not strip constraints from ytype
     		addTerm(new SubtypeConstraint(ytype, xtype, isEqual)); 
@@ -371,42 +355,28 @@ public class TypeConstraint implements Copy, Serializable {
     }
     /**
      * This method is called only by <code>addTypeParameterBindings(xtype: Type, ytype: Type, boolean)</code>, once
-     * xtype is determined to be an <code>X10ClassType</code>.  Method returns immediately without adding any constraint if
-     * ytype is null. Otherwise, replace <code>ytype</code> with its definition if it is a macro, 
-     * and with a base type <code>S</code> if it is a <code>ConstrainedType</code>, <code>S{c}</code>. The 
-     * constraint <code>{c}</code> can be ignored because we are trying
-     * to generate type constraints from <code>S{c} <: XClass</code>, and <code>{c}</code> does not play a role here. 
+     * xtype is determined to be an <code>X10ClassType</code>.  Replace <code>ytype</code> with 
+     * <code>baseType(ytype)</code>. The constraint <code>{c}</code> can be ignored because we are trying
+     * to generate type constraints from <code>S{c} <: XClass</code>, and <code>{c}</code> does not play a role. 
      * The only type constraints that will be generated will involve type-parameters occurring inside parameters of 
      * <code>XClass</code>.
-     * 
-     * 
      * <p>
-     * This leaves <code>xtype</code> and <code>ytype</code> as classes. Now compare the corresponding definitions. 
+     * This leaves <code>xtype</code> and <code>ytype</code> as class types. Now compare the corresponding definitions. 
      * If they are the same then determine if the types have parameters. Recursively generate constraints from the 
      * corresponding pairs of parameters, depending on whether that position is invariant, covariant or contravariant.
      * 
-     * <p> Otherwise (the definitions are not the same), repeat the process, replacing <code>ytype</code> with its superclass
-     * and with the interfaces it implements.
+     * <p> Otherwise (the definitions are not the same), repeat the process, replacing <code>ytype</code> successively 
+     * with its super type and with the interfaces it implements.
      *
-     * @param xtype -- The formal type (may contain type parameters)
+     * @param xtype -- The formal type (may contain type parameters).
      * @param ytype
      * @param isEqual
      * @throws XFailure
      */
-    private void addTypeParameterBindings(X10ClassType xtype, Type ytype, boolean isEqual) throws XFailure {
-        while (true) {
-        	if (ytype == null)
-        		return;
-        	if (ytype instanceof MacroType) {
-        		ytype = ((MacroType) ytype).definedType();
-        		continue;
-        	}
-        	if (ytype instanceof ConstrainedType) {
-        		ytype = X10TypeMixin.baseType(ytype);
-        		continue;
-        	}
-        	break;
-        }
+    private void addTypeParameterBindings(X10ClassType xtype, Type ytype, boolean isEqual)  {
+    	ytype = X10TypeMixin.baseType(ytype);
+    	if (ytype == null)
+    		return;
         if (ytype instanceof X10ClassType) {
         	X10ClassDef xcd = xtype.x10Def();
             X10ClassType yct = (X10ClassType) ytype;
@@ -554,7 +524,7 @@ public class TypeConstraint implements Copy, Serializable {
 	{
 	    TypeSystem xts = (TypeSystem) me.typeSystem();
 
-	    for (int i = 0; i < Y.length; i++) {
+	   Outer: for (int i = 0; i < Y.length; i++) {
 	        Type Yi = Y[i];
 
 	        List<Type> equal = new ArrayList<Type>();
@@ -568,8 +538,8 @@ public class TypeConstraint implements Copy, Serializable {
 	            Type m = worklist.get(j);
 	            for (SubtypeConstraint term : tenv.terms()) {
 	                SubtypeConstraint eq = term;
-	                // vj: Why?
-                    if (term.isHaszero()) 
+	              
+                    if (term.isHaszero()) // haszero constraints do not participate in type inference
                     	continue;
 	                Type sub = eq.subtype();
 	                Type sup = eq.supertype();
@@ -643,7 +613,7 @@ public class TypeConstraint implements Copy, Serializable {
 	        	if (valid)  {
 	        		Y[i] = t;
 	        	}
-	        	continue;
+	        	continue Outer; // We have found a solution for Y[i]
 	        }
 	        Type upperBound = null;
 	       

@@ -378,20 +378,29 @@ public class X10TypeMixin {
         if (basetype instanceof X10ParsedClassType_c) return (X10ParsedClassType_c) basetype;
         return null;
     }
+	/**
+	 * Return t after repeatedly stripping it of its annotation if it is an AnnotatedType, of its
+	 * constraint if it is a ConstrainedType, and replacing it with its definition, if it is a MacroType.
+	 * @param t
+	 * @return the base type, guaranteed not to be a MacroType, AnnotatedType or ConstrainedType.
+	 */
 	public static Type baseType(Type t) {
-	    if (t instanceof AnnotatedType) {
-	        AnnotatedType at = (AnnotatedType) t;
-	        return baseType(at.baseType());
-	    }
-	    if (t instanceof MacroType) {
-	        MacroType mt = (MacroType) t;
-	        return baseType(mt.definedType());
-	    }
-	    if (t instanceof ConstrainedType) {
-	        ConstrainedType ct = (ConstrainedType) t;
-	        return baseType(Types.get(ct.baseType()));
-	    }
-	    return t;
+		while (true) {
+			if (t instanceof AnnotatedType) {
+				t = ((AnnotatedType) t).baseType();
+				continue;
+			}
+			if (t instanceof MacroType ) {
+				t = ((MacroType) t).definedType();
+				continue;
+			}
+			if (t instanceof ConstrainedType) {
+				t = Types.get(((ConstrainedType) t).baseType());
+				continue;
+			}
+			break;
+		}
+		return t;
 	}
 	public static Type erasedType(Type t) { // todo: delete this method! it is equivalent to baseType
 	    if (t instanceof AnnotatedType) {
@@ -962,7 +971,7 @@ public class X10TypeMixin {
 	}
 	/**
 	 * Ensure that t is ConstrainedType, so it has a self. The term returned may 
-	 * contain self sas receiver.
+	 * contain self as receiver.
 	 * @param t
 	 * @param propName
 	 * @return
