@@ -17,7 +17,7 @@ import harness.x10Test;
 // file ObjectInitialization line 317
 class C {
   val a = 3;
-  // val closure = () => a*10; // error: 'this' or 'super' cannot escape via a closure during construction.
+  // val closure = () => a*10; // ERROR: 'this' or 'super' cannot escape via a closure during construction.
 }
 
 class Hook {
