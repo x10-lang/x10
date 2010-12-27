@@ -260,23 +260,29 @@ public class RunTestSuite {
         }
         boolean STATIC_CALLS = summaries.size()>1 ? true : summaries.get(0).STATIC_CALLS; // all the files without ERR markers are done in my batch, using STATIC_CALLS (cause they shouldn't have any errors)
         // adding the directories of the files to -sourcepath (in case they refer to other files that are not compiled, e.g., if we decide to compile the files one by one)
+        // I'm also adding parent folders to support packages (see T3.x10)
         HashSet<String> directories = new HashSet<String>();
         for (String f : fileNames) {
-            final int index = f.lastIndexOf('/');
-            assert index>0 : f;
-            directories.add(f.substring(0, index));
+            int index = -1;
+            while ((index = f.indexOf('/',index+1))!=-1) {
+                directories.add(f.substring(0, index));
+            }
+
         }
         String dirs = "";
         for (String dir : directories)
             dirs += ";"+dir;
         int argsNum = args.size();
+        boolean foundSourcePath = false;
         for (int i=1; i<argsNum; i++) {
             final String arg = args.get(i);
-            if (arg.contains("/x10.runtime/src-x10;")) {
+            if (arg.contains("/x10.runtime/src-x10")) {
                 args.set(i,arg+dirs);
+                foundSourcePath = true;
                 break;
             }
         }
+        assert foundSourcePath : "You must use an argument -sourcepath that includes '/x10.runtime/src-x10'";
         // Now running polyglot
         List<String> allArgs = new ArrayList<String>(fileNames);
         allArgs.addAll(args);
