@@ -52,7 +52,6 @@ import x10.ast.X10ConstructorDecl;
 import x10.ast.X10FieldDecl;
 import x10.ast.X10MethodDecl;
 import x10.ast.X10New;
-import x10.types.AnnotatedType;
 import x10.types.ConstrainedType;
 import x10.types.ParameterType;
 import x10.types.X10ClassDef;
@@ -541,13 +540,13 @@ public class X10InnerClassRemover extends InnerClassRemover {
             Type newBaseType = propagateTypeArgumentsToInnermostType(baseType);
             if (newBaseType != baseType)
                 t = ct.baseType(Types.ref(newBaseType));
-        } else if (t instanceof AnnotatedType) {
+        }/* else if (t instanceof AnnotatedType) {
             AnnotatedType at = (AnnotatedType) t;
             Type baseType = at.baseType();
             Type newBaseType = propagateTypeArgumentsToInnermostType(baseType);
             if (newBaseType != baseType)
                 t = at.baseType(newBaseType);
-        }
+        }*/
         return t;
     }
 

@@ -29,7 +29,7 @@ public class UnknownType extends Type_c {
 		throw new InternalCompilerError("Cannot translate an unknown type.");
 	    }
 
-	    public String toString() {
+	    public String typeToString() {
 		return "<unknown>";
 	    }
 	    public ClassType toClass() {

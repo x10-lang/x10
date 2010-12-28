@@ -7,8 +7,12 @@
 
 package polyglot.types;
 
+import java.util.List;
+
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;
+import polyglot.util.TypedList;
+
 
 /**
  * Abstract implementation of a <code>Type</code>.  This implements most of
@@ -18,7 +22,7 @@ import polyglot.util.Position;
 public abstract class Type_c extends TypeObject_c implements Type
 {
     private static final long serialVersionUID = -876728129439491724L;
-
+    List<Type> annotations;
     /** Used for deserializing types. */
     protected Type_c() { }
     
@@ -32,6 +36,14 @@ public abstract class Type_c extends TypeObject_c implements Type
         super(ts, pos);
     }
 
+    public List<Type> annotations() {
+    	return annotations;
+    }
+    public Type annotations(List<Type> annotations) {
+    	Type_c result = (Type_c) copy();
+    	result.annotations= TypedList.copyAndCheck(annotations, Type.class, true);
+    	return result;
+    }
     /**
      * Return a string into which to translate the type.
      * @param c A resolver in which to lookup this type to determine if
@@ -186,9 +198,38 @@ public abstract class Type_c extends TypeObject_c implements Type
      * It is suggested, but not required, that it be an
      * easily human readable representation, and thus useful
      * in error messages and generated output.
+     * 
      */
-    public abstract String toString();
+  
+    public String toString() {
+    	if (annotations != null) {
+        StringBuilder sb = new StringBuilder();
+        
+        for (Type ct : annotations) {
+            sb.append("@");
+            sb.append(ct);
+            sb.append(" ");
+        }
+        sb.append(typeToString());
+        return sb.toString();
+    	}
+    	return typeToString();
+    }
 
+    /**
+     * Yields a string representing this type.  The string
+     * should be consistent with equality.  That is,
+     * if this.equals(anotherType), then it should be
+     * that this.toString().equals(anotherType.toString()).
+     *
+     * The string does not have to be a legal Java identifier.
+     * It is suggested, but not required, that it be an
+     * easily human readable representation, and thus useful
+     * in error messages and generated output.
+     * 
+     */
+    abstract public String typeToString();
+    
     public void print(CodeWriter w) {
 	w.write(toString());
     }

@@ -41,6 +41,8 @@ import polyglot.types.LazyRef_c;
 import polyglot.types.MemberInstance;
 import polyglot.types.MethodInstance;
 import polyglot.types.Name;
+import polyglot.types.NullType;
+import polyglot.types.PrimitiveType;
 import polyglot.types.ProcedureInstance;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
@@ -289,10 +291,10 @@ public class X10TypeMixin {
      * @return
      */
 	public static CConstraint xclause(Type t) {
-	        if (t instanceof AnnotatedType) {
+	        /*if (t instanceof AnnotatedType) {
 	            AnnotatedType at = (AnnotatedType) t;
 	            return xclause(at.baseType());
-	        }
+	        }*/
 	        if (t instanceof MacroType) {
 	                MacroType mt = (MacroType) t;
 	                return xclause(mt.definedType());
@@ -308,25 +310,34 @@ public class X10TypeMixin {
 		return null;
 	}
 	
-	
+	/**
+	 * Is t an X10 struct?
+	 * @param t
+	 * @return
+	 */
+	public static boolean isX10Struct(Type t) {
+		t = baseType(t);
+		if (t instanceof X10ClassType) {
+			return ((X10ClassType) t).isX10Struct();
+		}
+		return false;
+	}
 	/**
 	 * If x is a class type, return struct x. Else return x.
 	 * @param x
 	 * @return
 	 */
 	public static Type makeX10Struct(Type t) {
-		if (! (t instanceof X10Struct))
-			return t;
-    	X10Struct type = (X10Struct) t; 
-    	return type.makeX10Struct();
-		
+		if (t instanceof X10ClassType) 
+			return ((X10ClassType) t).makeX10Struct();
+		return t;
 	}
 	
 	public static Type processFlags(Flags f, Type x) {
 	    if (f==null)
 	        return x;
 	    if (f.isStruct()) {
-	        x = ((X10Struct) x).makeX10Struct();
+	        x = makeX10Struct(x);
 	    }
 	    return x;
 	}
@@ -360,10 +371,10 @@ public class X10TypeMixin {
         } else if (t instanceof ConstrainedType_c) {
 	        ConstrainedType ct = (ConstrainedType) t;
             base = Types.get(ct.baseType());
-        } else if (t instanceof AnnotatedType_c) {
+        } /*else if (t instanceof AnnotatedType_c) {
 	        AnnotatedType_c at = (AnnotatedType_c) t;
             base = at.baseType();
-        } else if (t instanceof MacroType_c) {
+        }*/ else if (t instanceof MacroType_c) {
 	        MacroType mt = (MacroType) t;
             base = mt.definedType();
         }
@@ -378,35 +389,20 @@ public class X10TypeMixin {
         return null;
     }
 	public static Type baseType(Type t) {
-	    if (t instanceof AnnotatedType) {
-	        AnnotatedType at = (AnnotatedType) t;
-	        return baseType(at.baseType());
-	    }
-	    if (t instanceof MacroType) {
-	        MacroType mt = (MacroType) t;
-	        return baseType(mt.definedType());
-	    }
-	    if (t instanceof ConstrainedType) {
-	        ConstrainedType ct = (ConstrainedType) t;
-	        return baseType(Types.get(ct.baseType()));
-	    }
-	    return t;
-	}
-	public static Type erasedType(Type t) { // todo: delete this method! it is equivalent to baseType
-	    if (t instanceof AnnotatedType) {
-	        AnnotatedType at = (AnnotatedType) t;
-	        return erasedType(at.baseType());
-	    }
-	    if (t instanceof MacroType) {
-	        MacroType mt = (MacroType) t;
-	        return erasedType(mt.definedType());
-	    }
-	    if (t instanceof ConstrainedType) {
-	        ConstrainedType ct = (ConstrainedType) t;
-	        return erasedType(baseType(Types.get(ct.baseType())));
+		while (true) {
+			if (t instanceof MacroType) {
+				t = ((MacroType) t).definedType();
+				continue;
+			}
+			if (t instanceof ConstrainedType) {
+				t = Types.get(((ConstrainedType) t).baseType());
+				continue;
+			}
+			break;
 	    }
 	    return t;
 	}
+	
     public static X10ClassDef_c getDef(Type t) {
         if (t==null) return null;
         return (X10ClassDef_c) ((X10ParsedClassType_c)baseType(t)).def();
@@ -516,10 +512,10 @@ public class X10TypeMixin {
 
     public static boolean isConstrained(Type t) {
     	
-	        if (t instanceof AnnotatedType) {
+	        /*if (t instanceof AnnotatedType) {
 	            AnnotatedType at = (AnnotatedType) t;
 	            return isConstrained(at.baseType());
-	        }
+	        }*/
 	        if (t instanceof MacroType) {
 	                MacroType mt = (MacroType) t;
 	                return isConstrained(mt.definedType());
@@ -529,14 +525,9 @@ public class X10TypeMixin {
 		}
 		return false;
     }
-    public static boolean isX10Struct(Type t) {
-    	if (! (t instanceof X10Struct))
-    		return false;
-    	return ((X10Struct) t).isX10Struct();
-    }
-
+  
     public static boolean isClass(Type t) {
-	    return ! isX10Struct(t);
+	    return (t instanceof X10ClassType);
     }
 
     public static Type superClass(Type t) {
@@ -632,10 +623,10 @@ public class X10TypeMixin {
         return c.consistent();
     }
     public static void setInconsistent(Type t) {
-    	if (t instanceof AnnotatedType) {
+    	/*if (t instanceof AnnotatedType) {
     		AnnotatedType at = (AnnotatedType) t;
     		setInconsistent(at.baseType());
-    	}
+    	}*/
     	if (t instanceof MacroType) {
     		MacroType mt = (MacroType) t;
     		setInconsistent(mt.definedType());
@@ -735,10 +726,10 @@ public class X10TypeMixin {
     	return isConstrained(t);
     }
 
-    public static X10PrimitiveType promote(Unary.Operator op, X10PrimitiveType t) throws SemanticException {
+    public static Type promote(Unary.Operator op, PrimitiveType t) throws SemanticException {
         TypeSystem ts = (TypeSystem) t.typeSystem();
-        X10PrimitiveType pt = (X10PrimitiveType) ts.promote(t);
-        return (X10PrimitiveType) xclause(X10TypeMixin.baseType(pt), 
+        Type pt =  ts.promote(t);
+        return  xclause(X10TypeMixin.baseType(pt), 
         		promoteClause(ts, op, xclause(t)));
     }
 
@@ -749,10 +740,10 @@ public class X10TypeMixin {
         return ts.xtypeTranslator().unaryOp(op, c);
     }
 
-    public static X10PrimitiveType promote(Binary.Operator op, X10PrimitiveType t1, X10PrimitiveType t2) throws SemanticException {
+    public static Type promote(Binary.Operator op, PrimitiveType t1, PrimitiveType t2) throws SemanticException {
         TypeSystem ts = (TypeSystem) t1.typeSystem();
-        X10PrimitiveType pt = (X10PrimitiveType) ts.promote(t1, t2);
-        return (X10PrimitiveType) xclause(X10TypeMixin.baseType(pt), 
+        Type pt =  ts.promote(t1, t2);
+        return  xclause(X10TypeMixin.baseType(pt), 
         		promoteClause(ts, op, xclause(t1), xclause(t2)));
     }
 
@@ -1827,14 +1818,14 @@ public class X10TypeMixin {
 	}
 
 	public static Type instantiateTypeParametersExplicitly(Type t) {
-		if (t instanceof AnnotatedType) {
+		/*if (t instanceof AnnotatedType) {
 			AnnotatedType at = (AnnotatedType) t;
 			Type bt = at.baseType();
 			Type ibt = instantiateTypeParametersExplicitly(bt);
 			if (ibt != bt)
 			    return at.baseType(ibt);
 			return at;
-		} else
+		} else*/
 		if (t instanceof ConstrainedType) {
 			ConstrainedType ct = (ConstrainedType) t;
 			Type bt = Types.get(ct.baseType());

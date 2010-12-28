@@ -29,7 +29,7 @@ import polyglot.types.Type;
  * @author vj
  *
  */
-public interface X10ClassType extends ClassType, X10Struct, X10Use<X10ClassDef> {
+public interface X10ClassType extends ClassType,  X10Use<X10ClassDef> {
 
 	/** Property initializers, used in annotations. */
 	List<Expr> propertyInitializers();
@@ -66,4 +66,18 @@ public interface X10ClassType extends ClassType, X10Struct, X10Use<X10ClassDef> 
 	X10ClassType container(StructType container);
 
 	X10ClassType error(SemanticException e);
+	
+    /**
+     * Return true if this type object represents an X10 struct.
+     * @return
+     */
+    boolean isX10Struct();
+    
+    /**
+     * Return a type object that is the same as this except that it will
+     * return true to an isX10Struct() query.
+     * @return
+     */
+    Type makeX10Struct();
+
 }

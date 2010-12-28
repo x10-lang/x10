@@ -111,7 +111,7 @@ public class ConstrainedType_c extends ReferenceType_c implements ConstrainedTyp
 	*/
 
 	
-	public X10Struct makeX10Struct() {
+	public Type makeX10Struct() {
 		Type t = Types.get(baseType);
 		assert t!=null;
 		if (X10TypeMixin.isX10Struct(t))
@@ -228,7 +228,7 @@ public class ConstrainedType_c extends ReferenceType_c implements ConstrainedTyp
 	}*/
 
 	@Override
-	public String toString() {
+	public String typeToString() {
         Type type = baseType.getCached();
         String typeName = type.toString();
         if (type instanceof ClosureType_c)

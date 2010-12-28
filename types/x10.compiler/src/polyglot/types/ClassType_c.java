@@ -227,7 +227,7 @@ public abstract class ClassType_c extends ReferenceType_c implements ClassType
         }
     }
 
-    public String toString() {
+    public String typeToString() {
         if (isTopLevel()) {
             if (package_() != null) {
                 return package_() + "." + name();

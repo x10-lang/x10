@@ -102,7 +102,7 @@ public class ArrayType_c extends ReferenceType_c implements ArrayType
         return 1 + (base().isArray() ? base().toArray().dims() : 0);
     }
 
-    public String toString() {
+    public String typeToString() {
         return base.toString() + "[]";
     }
 
@@ -168,5 +168,11 @@ public class ArrayType_c extends ReferenceType_c implements ArrayType
             return ts.equals((TypeObject) base(), (TypeObject) a.base());
         }
 	return false;
+    }
+    public boolean isX10Struct() {
+    	return false;
+    }
+    public Type makeX10Struct() {
+    	throw new InternalCompilerError("Should not have been called. Cannot make an Unknown type a struct.");
     }
 }

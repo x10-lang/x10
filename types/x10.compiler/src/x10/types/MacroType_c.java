@@ -93,10 +93,6 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 		return (MacroType) super.flags(flags);
 	}
 
-	public boolean isX10Struct() {
-		return ((TypeSystem) typeSystem()).isStructType(this);
-	}
-	
 	public Type setFlags(Flags xf) {
 		MacroType_c c = (MacroType_c) this.copy();
 		if (c.flags == null)
@@ -294,7 +290,7 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 	    return "type";
 	}
 	
-	public String toString() {
+	public String typeToString() {
 	    StringBuilder sb = new StringBuilder();
 	    sb.append(signature());
 	    if (definedType != null && definedType.known()) {
