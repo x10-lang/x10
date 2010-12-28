@@ -3023,6 +3023,7 @@ public class X10toCAstTranslator implements TranslatorToCAst {
             }
         }
 
+        // FIXME: workaround for XTENLANG-2278.  Remove when the WALA bridge is updated.
         @Override
         public CAstNode visit(Binary b, WalkContext context) {
             Binary.Operator op = b.operator();
