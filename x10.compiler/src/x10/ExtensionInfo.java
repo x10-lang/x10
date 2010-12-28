@@ -433,6 +433,8 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 
            if (!x10.Configuration.ONLY_TYPE_CHECKING) {
 
+           goals.add(Desugarer(job));
+
            Goal walaBarrier = null;
            if (x10.Configuration.WALA || x10.Configuration.WALADEBUG || x10.Configuration.FINISH_ASYNCS) {
                try{
@@ -462,8 +464,6 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                    e.printStackTrace();
                }
            }
-           
-           goals.add(Desugarer(job));
            
            goals.add(X10Casted(job));
            goals.add(MoveFieldInitializers(job));

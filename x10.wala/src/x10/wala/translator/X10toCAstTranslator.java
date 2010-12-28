@@ -127,6 +127,7 @@ import x10.ast.ParExpr;
 import x10.ast.Range;
 import x10.ast.Region;
 import x10.ast.SettableAssign;
+import x10.ast.StmtSeq;
 import x10.ast.Tuple;
 import x10.ast.TypeDecl;
 import x10.ast.When;
@@ -1066,6 +1067,17 @@ public class X10toCAstTranslator implements TranslatorToCAst {
         }
         return makeNode(wc, fFactory, b, CAstNode.LOCAL_SCOPE, makeNode(wc, fFactory, b, CAstNode.BLOCK_STMT, stmtNodes));
       }
+
+      public CAstNode visit(StmtSeq seq, WalkContext wc) {
+          CAstNode[] stmtNodes = new CAstNode[seq.statements().size()];
+
+          int idx = 0;
+          for (Iterator iter = seq.statements().iterator(); iter.hasNext(); idx++) {
+            Stmt s = (Stmt) iter.next();
+            stmtNodes[idx] = walkNodes(s, wc);
+          }
+          return makeNode(wc, fFactory, seq, CAstNode.BLOCK_STMT, stmtNodes);
+        }
 
       public CAstNode visit(SwitchBlock sb, WalkContext wc) {
         CAstNode[] stmtNodes = new CAstNode[sb.statements().size()];
@@ -3228,7 +3240,7 @@ public class X10toCAstTranslator implements TranslatorToCAst {
         public CAstNode visit(Call c, WalkContext wc) {
 	    MethodInstance methodInstance= c.methodInstance();
 	    StructType methodOwner= methodInstance.container();
-
+/*
 	    //PORT1.7 Array accesses are now represented as ordinary method calls
 	    if (methodOwner instanceof ClassType) {
 	        ClassType classType = (ClassType) methodOwner;
@@ -3269,6 +3281,7 @@ public class X10toCAstTranslator implements TranslatorToCAst {
 	            return makeNode(wc, c, X10CastNode.FORCE, walkNodes(c.target(), wc), fFactory.makeConstant(typeRef));
 	        }
 	    }
+*/
 	    return super.visit(c, wc);
 	}
 
