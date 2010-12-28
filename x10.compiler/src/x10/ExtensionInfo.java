@@ -434,7 +434,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            if (!x10.Configuration.ONLY_TYPE_CHECKING) {
 
            Goal walaBarrier = null;
-           if (x10.Configuration.WALA || x10.Configuration.FINISH_ASYNCS) {
+           if (x10.Configuration.WALA || x10.Configuration.WALADEBUG || x10.Configuration.FINISH_ASYNCS) {
                try{
                    ClassLoader cl = Thread.currentThread().getContextClassLoader();
                    Class<?> c = cl.loadClass("x10.wala.translator.X102IRGoal");
@@ -448,9 +448,10 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                    if(x10.Configuration.FINISH_ASYNCS){
                        Method buildCallTableMethod = c.getMethod("analyze");
                        walaBarrier = IRBarrier(ir, buildCallTableMethod);
+                   } else if(x10.Configuration.WALADEBUG){
+                       Method printCallGraph = c.getMethod("printCallGraph");
+                       walaBarrier = IRBarrier(ir, printCallGraph);
                    } else {
-                       //Method printCallGraph = c.getMethod("printCallGraph");
-                       //barrier = IRBarrier(ir, printCallGraph);
                        Method wsAnalyzeCallGraph = c.getMethod("wsAnalyzeCallGraph");
                        walaBarrier = IRBarrier(ir, wsAnalyzeCallGraph);
                    }
@@ -612,6 +613,13 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                public boolean runTask() {
                    if (Configuration.FINISH_ASYNCS) {
 //                   calltable = X10Scheduler.<HashMap<CallTableKey, LinkedList<CallTableVal>>>invokeGeneric(method);
+                   } else if (Configuration.WALADEBUG) {
+                       try {
+                           method.invoke(null);
+                       } catch (IllegalArgumentException e) {
+                       } catch (IllegalAccessException e) {
+                       } catch (InvocationTargetException e) {
+                       }
                    } else {
                 	   //This path is only for WALA call graph analysis for Work-Stealing
                        try {
