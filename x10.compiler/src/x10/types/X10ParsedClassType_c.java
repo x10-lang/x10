@@ -450,7 +450,7 @@ implements X10ParsedClassType
 	    
 	public boolean isX10Struct() { 	return flags().isStruct(); }
 
-    public X10Struct makeX10Struct() {
+    public Type makeX10Struct() {
     	if (isX10Struct())
     		return this;
     	X10ParsedClassType_c c = (X10ParsedClassType_c) copy();

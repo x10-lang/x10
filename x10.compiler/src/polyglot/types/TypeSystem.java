@@ -23,7 +23,6 @@ import polyglot.visit.ContextVisitor;
 import x10.constraint.XLit;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
-import x10.types.AnnotatedType;
 import x10.types.AsyncDef;
 import x10.types.AtDef;
 import x10.types.ClosureDef;
@@ -818,7 +817,7 @@ public interface TypeSystem {
      */
     void addAnnotation(X10Def o, Type annoType, boolean replace);
 
-    AnnotatedType AnnotatedType(Position pos, Type baseType, List<Type> annotations);
+    Type AnnotatedType(Position pos, Type baseType, List<Type> annotations);
 
     X10MethodInstance findImplementingMethod(ClassType ct, MethodInstance jmi, boolean includeAbstract, Context context);
 

@@ -165,7 +165,14 @@ public class ParsedClassType_c extends ClassType_c implements ParsedClassType
                                                     new DerefTransform<Type>());
     }
 
-    public String toString() {
-        return super.toString();
+    // May be overridden by subclasses.
+    public boolean isX10Struct() {
+    	return false;
     }
+    public Type makeX10Struct() {
+    	throw new InternalCompilerError("Should not have been called. Cannot make an Unknown type a struct.");
+    }
+   // public String typeToString() {
+   //     return super.typeToString();
+   // }
 }

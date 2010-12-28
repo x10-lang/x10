@@ -48,7 +48,6 @@ import x10.constraint.XFailure;
 import x10.constraint.XVar;
 import x10.errors.Errors;
 import x10.extension.X10Del_c;
-import x10.types.AnnotatedType;
 import x10.types.ConstrainedType;
 import x10.types.MacroType;
 import x10.types.ParameterType;
@@ -358,10 +357,6 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 		checkCycles(ct.superClass());
 		for (Type t : ct.interfaces())
 		    checkCycles(t);
-	    }
-	    if (type instanceof AnnotatedType) {
-		AnnotatedType ct = (AnnotatedType) type;
-		checkCycles(ct.baseType());
 	    }
 	}
 

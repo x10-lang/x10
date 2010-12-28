@@ -17,7 +17,7 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import x10.types.constraints.CConstraint;
 
-public interface ConstrainedType extends ObjectType, X10NamedType, X10Struct, X10ThisVar {
+public interface ConstrainedType extends ObjectType, X10NamedType, X10ThisVar {
 	Ref<? extends Type> baseType();
 	ConstrainedType baseType(Ref<? extends Type> baseType);
 	

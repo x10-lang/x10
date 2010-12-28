@@ -14,7 +14,7 @@ package polyglot.types;
  * This class should never be instantiated directly. Instead, you should
  * use the <code>TypeSystem.get*</code> methods.
  */
-public interface PrimitiveType extends ValueType, Named
+public interface PrimitiveType extends Type, Named
 {
     /**
      * A string representing the type used to box this primitive.

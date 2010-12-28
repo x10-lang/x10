@@ -8,12 +8,13 @@
 package polyglot.types;
 
 import polyglot.util.CodeWriter;
+import x10.types.Annotated;
 
 /**
  * A <code>Type</code> is the base type of all classes which represent
  * types.
  */
-public interface Type extends Qualifier
+public interface Type extends Qualifier, Annotated
 {
     public void equals(Type t);
     
@@ -206,6 +207,7 @@ public interface Type extends Qualifier
      * the same type system.
      */
     boolean isComparable(Type t);
+    
 
     /**
      * Yields a string representing this type.  The string

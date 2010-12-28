@@ -19,6 +19,7 @@ import polyglot.types.QName;
 import polyglot.types.Ref;
 import polyglot.types.Resolver;
 import polyglot.types.Name;
+import polyglot.types.Type;
 import polyglot.types.TypeObject;
 import polyglot.types.Type_c;
 import polyglot.types.TypeSystem;
@@ -57,7 +58,7 @@ public class ParameterType_c extends Type_c implements ParameterType {
 	}
 
 	@Override
-	public String toString() {
+	public String typeToString() {
 	    return name.toString();
 	}
 
@@ -66,9 +67,6 @@ public class ParameterType_c extends Type_c implements ParameterType {
 		return name.toString();
 	}
 
-	public boolean isSafe() {
-		return false;
-	}
 	
 	@Override
 	public boolean equalsImpl(TypeObject t) {

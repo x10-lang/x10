@@ -32,7 +32,7 @@ public class PrimitiveType_c extends Type_c implements PrimitiveType
 	    return true;
     }
 
-    public String toString() {
+    public String typeToString() {
 	return name.toString();
     }
 
@@ -73,9 +73,15 @@ public class PrimitiveType_c extends Type_c implements PrimitiveType
 	    return toString();
 	}
 	
-	public boolean isX10Struct() { return true;}
 	/* All primitive types are structs. */
 
+	public boolean isX10Struct() { 
+		return true;
+		}
+	
+	public Type makeX10Struct() {
+		return this;
+	}
 	Flags flags = Flags.NONE;
 	public Flags flags() {
 		return flags;

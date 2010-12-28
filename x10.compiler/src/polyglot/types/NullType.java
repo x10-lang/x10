@@ -28,7 +28,7 @@ public class NullType extends Type_c implements Type
 	throw new InternalCompilerError("Cannot translate a null type.");
     }
 
-    public String toString() {
+    public String typeToString() {
 	return "type(null)";
     }
     
@@ -39,10 +39,8 @@ public class NullType extends Type_c implements Type
     public int hashCode() {
 	return 6060842;
     }
-
     public boolean isNull() { return true; }
     public NullType toNull() { return this; }
-    public boolean isX10Struct() { return false; }
     public boolean equalsNoFlag(Type t2) { return this == t2; }
     public boolean permitsNull() { return true;}
 }

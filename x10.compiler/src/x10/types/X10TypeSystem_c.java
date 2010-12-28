@@ -281,8 +281,9 @@ public class X10TypeSystem_c extends TypeSystem_c {
         return null;
     }
 
-    public AnnotatedType AnnotatedType(Position pos, Type baseType, List<Type> annotations) {
-        return new AnnotatedType_c(this, pos, baseType, annotations);
+    public Type AnnotatedType(Position pos, Type baseType, List<Type> annotations) {
+    	baseType = baseType.annotations(annotations);
+        return baseType;
     }
 
     public boolean equalsStruct(Type l, Type r) {
@@ -598,7 +599,7 @@ public class X10TypeSystem_c extends TypeSystem_c {
                 }
             }
         }
-        if (t instanceof AnnotatedType) {
+        /*if (t instanceof AnnotatedType) {
             if (hasUnknownType(X10TypeMixin.baseType(t))) {
                 unknownTypeMap.put(t, true);
                 return true;
@@ -611,7 +612,7 @@ public class X10TypeSystem_c extends TypeSystem_c {
                     return true;
                 }
             }
-        }
+        }*/
         if (t instanceof ConstrainedType) {
             if (hasUnknownType(X10TypeMixin.baseType(t))) {
                 unknownTypeMap.put(t, true);
@@ -1632,8 +1633,9 @@ public class X10TypeSystem_c extends TypeSystem_c {
             Errors.issue(t.typeSystem().extensionInfo(),new SemanticException("Reached max macro expansion depth with " + t),t.position());
     		return unknownType(Position.COMPILER_GENERATED); // bottom
     	}
-        if (t instanceof AnnotatedType)
+        /*if (t instanceof AnnotatedType)
             return expandMacros(((AnnotatedType) t).baseType(), depth+1);
+            */
         if (t instanceof MacroType)
             return expandMacros(((MacroType) t).definedType(), depth+1);
         if (t instanceof ConstrainedType) {
