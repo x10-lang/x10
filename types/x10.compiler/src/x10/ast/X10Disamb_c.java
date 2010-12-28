@@ -49,7 +49,7 @@ import x10.types.ClosureDef;
 import x10.types.X10ClassType;
 import polyglot.types.Context;
 import x10.types.X10FieldInstance;
-import x10.types.X10Flags;
+
 import x10.types.X10MethodInstance;
 import x10.types.X10NamedType;
 import x10.types.X10TypeMixin;
@@ -137,7 +137,7 @@ public class X10Disamb_c extends Disamb_c {
 	    		// Now try 0-ary property methods.
 	    		try {
 	    		    X10MethodInstance mi = ts.findMethod(t, ts.MethodMatcher(t, this.name.id(), Collections.<Type>emptyList(), c));
-	    		    if (X10Flags.toX10Flags(mi.flags()).isProperty()) {
+	    		    if (mi.flags().isProperty()) {
 	    		        Call call = nf.Call(pos, makeMissingPropertyTarget(mi, t), this.name);
 	    		        call = call.methodInstance(mi);
 	    		        Type ftype = Checker.rightType(mi.rightType(), mi.x10Def(), call.target(), c);
@@ -182,7 +182,7 @@ public class X10Disamb_c extends Disamb_c {
     		// Now try 0-ary property methods.
     		try {
     		    X10MethodInstance mi = (X10MethodInstance) c.findMethod(ts.MethodMatcher(null, name.id(), Collections.<Type>emptyList(), c));
-    		    if (X10Flags.toX10Flags(mi.flags()).isProperty()) {
+    		    if (mi.flags().isProperty()) {
     			Call call = nf.Call(pos, makeMissingMethodTarget(mi), this.name);
     			call = call.methodInstance(mi);
                         Type ftype = Checker.rightType(mi.rightType(), mi.x10Def(), call.target(), c);
@@ -287,7 +287,7 @@ public class X10Disamb_c extends Disamb_c {
 		    // Now try 0-ary property methods.
 		    try {
 			X10MethodInstance mi = (X10MethodInstance) ts.findMethod(e.type(), ts.MethodMatcher(e.type(), name.id(), Collections.<Type>emptyList(), c));
-			if (X10Flags.toX10Flags(mi.flags()).isProperty()) {
+			if (mi.flags().isProperty()) {
 			    Call call = nf.Call(pos, e, this.name);
 			    call = call.methodInstance(mi);
 			    Type ftype = Checker.rightType(mi.rightType(), mi.x10Def(), call.target(), c);

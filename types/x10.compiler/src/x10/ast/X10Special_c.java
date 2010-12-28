@@ -31,7 +31,7 @@ import x10.types.ConstrainedType;
 import x10.types.X10ConstructorDef;
 import polyglot.types.Context;
 import x10.types.ThisDef;
-import x10.types.X10Flags;
+
 import x10.types.X10MemberDef;
 import x10.types.X10MethodDef;
 import x10.types.X10ParsedClassType;

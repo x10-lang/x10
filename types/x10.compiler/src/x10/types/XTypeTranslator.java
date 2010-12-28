@@ -124,7 +124,7 @@ public class XTypeTranslator {
 	}
 	
 	public XTerm trans(CConstraint c, XTerm target, MethodInstance fi, Type t) {
-	    assert X10Flags.toX10Flags(fi.flags()).isProperty() && fi.formalTypes().size() == 0;
+	    assert fi.flags().isProperty() && fi.formalTypes().size() == 0;
 	    XTerm v;
 	    XName field = XTerms.makeName(fi.def(), Types.get(fi.def().container()) + "#" + fi.name().toString() + "()");
 	    if (target instanceof XVar) {
@@ -497,7 +497,7 @@ public class XTypeTranslator {
 	private XTerm trans(CConstraint c, Call t, Context xc) {
 		X10MethodInstance xmi = (X10MethodInstance) t.methodInstance();
 		Flags f = xmi.flags();
-		if (X10Flags.toX10Flags(f).isProperty()) {
+		if (f.isProperty()) {
 			XTerm r = trans(c, t.target(), xc);
 			if (r == null)
 				return null;

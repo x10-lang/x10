@@ -61,7 +61,7 @@ import x10.types.X10ConstructorDef;
 import x10.types.X10ConstructorInstance;
 import x10.types.X10FieldDef;
 import x10.types.X10FieldInstance;
-import x10.types.X10Flags;
+
 import x10.types.X10MethodDef;
 import x10.types.X10MethodInstance;
 import x10.types.X10ParsedClassType;
@@ -572,8 +572,8 @@ public class X10InnerClassRemover extends InnerClassRemover {
     protected FieldDef boxThis(ClassType currClass, ClassType outerClass) {
         outerClass = (ClassType) fixType(outerClass);
         FieldDef fi = super.boxThis(currClass, outerClass);
-        if (!(fi.flags() instanceof X10Flags))
-            fi.setFlags(X10Flags.toX10Flags(fi.flags()));
+        //if (!(fi.flags() instanceof X10Flags))
+        //    fi.setFlags(X10Flags.toX10Flags(fi.flags()));
         return fi;
     }
 }

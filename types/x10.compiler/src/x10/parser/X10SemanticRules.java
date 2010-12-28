@@ -87,7 +87,6 @@ import polyglot.lex.Operator;
 import polyglot.lex.StringLiteral;
 import polyglot.parse.VarDeclarator;
 import polyglot.types.Flags;
-import x10.types.X10Flags;
 import x10.types.checker.Converter;
 import x10.errors.Errors;
 import polyglot.util.CollectionUtil;
@@ -302,7 +301,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         public int flag() { return flag; }
         public Flags flags() {
             if (flag == ABSTRACT)     return Flags.ABSTRACT;
-            if (flag == ATOMIC)       return X10Flags.ATOMIC;
+            if (flag == ATOMIC)       return Flags.ATOMIC;
             //  if (flag == EXTERN)       return X10Flags.EXTERN;
             if (flag == FINAL)        return Flags.FINAL;
             // if (flag == GLOBAL)       return X10Flags.GLOBAL;
@@ -310,13 +309,13 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
             if (flag == NATIVE)       return Flags.NATIVE;
             //if (flag == NON_BLOCKING) return X10Flags.NON_BLOCKING;
             if (flag == PRIVATE)      return Flags.PRIVATE;
-            if (flag == PROPERTY)     return X10Flags.PROPERTY;
+            if (flag == PROPERTY)     return Flags.PROPERTY;
             if (flag == PROTECTED)    return Flags.PROTECTED;
             if (flag == PUBLIC)       return Flags.PUBLIC;
             //if (flag == SAFE)         return X10Flags.SAFE;
             //if (flag == SEQUENTIAL)   return X10Flags.SEQUENTIAL;
-            if (flag == CLOCKED)       return X10Flags.CLOCKED;
-            if (flag == TRANSIENT)    return X10Flags.TRANSIENT;
+            if (flag == CLOCKED)       return Flags.CLOCKED;
+            if (flag == TRANSIENT)    return Flags.TRANSIENT;
             if (flag == STATIC)       return Flags.STATIC;
             assert(false);
             return null;
@@ -498,13 +497,13 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
 
     private List<Node> checkClassModifiers(List<Modifier> modifiers) {
         return (modifiers.size() == 0
-                ? Collections.<Node>singletonList(nf.FlagsNode(JPGPosition.COMPILER_GENERATED, X10Flags.toX10Flags(Flags.NONE)))
+                ? Collections.<Node>singletonList(nf.FlagsNode(JPGPosition.COMPILER_GENERATED, Flags.NONE))
                 : checkModifiers("class", modifiers, FlagModifier.classModifiers));
     }
 
     private List<Node> checkTypeDefModifiers(List<Modifier> modifiers) {
         return (modifiers.size() == 0
-                ? Collections.<Node>singletonList(nf.FlagsNode(JPGPosition.COMPILER_GENERATED, X10Flags.toX10Flags(Flags.NONE)))
+                ? Collections.<Node>singletonList(nf.FlagsNode(JPGPosition.COMPILER_GENERATED, Flags.NONE))
                 : checkModifiers("typedef", modifiers, FlagModifier.typeDefModifiers));
     }
 
@@ -744,18 +743,13 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
 
     private FlagsNode extractFlags(List<? extends Node> l) {
         Position pos = null;
-        X10Flags xf = X10Flags.toX10Flags(Flags.NONE);
+        Flags xf = Flags.NONE;
         for (Node n : l) {
             if (n instanceof FlagsNode) {
                 FlagsNode fn = (FlagsNode) n;
                 pos = pos == null ? fn.position() : new JPGPosition(pos, fn.position());
                 Flags f = fn.flags();
-                if (f instanceof X10Flags) {
-                    xf = xf.set((X10Flags) f);
-                }
-                else {
-                    xf = X10Flags.toX10Flags(xf.set(f));
-                }
+                xf = xf.set(f);
             }
         }
         return nf.FlagsNode(pos == null ? JPGPosition.COMPILER_GENERATED : pos, xf);
@@ -3583,7 +3577,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         Block MethodBody = (Block) _MethodBody;
         List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
         MethodDecl md = nf.X10MethodDecl(pos(),
-                extractFlags(modifiers, X10Flags.PROPERTY),
+                extractFlags(modifiers, Flags.PROPERTY),
                 HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
                 Identifier,
                 TypeParametersopt,
@@ -3603,7 +3597,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         Block MethodBody = (Block) _MethodBody;
         List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
         MethodDecl md = nf.X10MethodDecl(pos(),
-                extractFlags(modifiers, X10Flags.PROPERTY),
+                extractFlags(modifiers, Flags.PROPERTY),
                 HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
                 Identifier,
                 Collections.<TypeParamNode>emptyList(),
@@ -3825,7 +3819,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         List<PropertyDecl> props = Propertiesopt;
         DepParameterExpr ci = WhereClauseopt;
         ClassDecl cd = nf.X10ClassDecl(pos(getLeftSpan(), getRightSpan()),
-                extractFlags(modifiers, X10Flags.STRUCT), Identifier,
+                extractFlags(modifiers, Flags.STRUCT), Identifier,
                 TypeParametersopt, props, ci, null, Interfacesopt, ClassBody);
         cd = (ClassDecl) ((X10Ext) cd.ext()).annotations(extractAnnotations(modifiers));
         setResult(cd);

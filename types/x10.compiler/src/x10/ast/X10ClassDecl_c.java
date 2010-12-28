@@ -83,7 +83,7 @@ import x10.types.X10ClassDef_c;
 import x10.types.X10ClassType;
 import polyglot.types.Context;
 import x10.types.X10FieldInstance;
-import x10.types.X10Flags;
+
 import x10.types.X10LocalDef;
 import x10.types.X10MethodDef;
 import x10.types.X10MethodInstance;
@@ -207,7 +207,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         else if (flags().flags().isInterface()) {
         	thisType.superType(null);
         }
-        else if (superClass == null && X10Flags.toX10Flags(flags().flags()).isStruct()) {
+        else if (superClass == null && flags().flags().isStruct()) {
         	/* final LazyRef<Type> Struct = Types.lazyRef(null);
      		Struct.setResolver(new Runnable() {
      			public void run() {
@@ -235,7 +235,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     	final TypeSystem xts = (TypeSystem) ts;
 
     	// For every struct and interface, add the implicit Any interface.
-    	X10Flags flags = X10Flags.toX10Flags(flags().flags());
+    	Flags flags =  flags().flags();
     	if (flags.isStruct()
     			|| (flags.isInterface() && ! name.toString().equals("Any"))
     			|| xts.isParameterType(thisType.asType())) {
@@ -414,7 +414,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
             def.addTypeParameter(tpn.type(), tpn.variance());
         }
 
-        if (X10Flags.toX10Flags(flags().flags()).isStruct())
+        if (flags().flags().isStruct())
             n = x10.util.Struct.addStructMethods(tb,n);
 
         return n;
@@ -748,7 +748,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         
     	n = (X10ClassDecl_c) n.adjustAbstractMethods(oldtc);
     	
-    	if (X10Flags.toX10Flags(flags().flags()).isStruct()) {
+    	if (flags().flags().isStruct()) {
     		if (n.classDef().isInnerClass() && ! flags().flags().isStatic()) {
     			Errors.issue(tc.job(), new Errors.StructMustBeStatic(n));
     		}

@@ -52,7 +52,7 @@ import x10.types.X10ClassDef;
 import x10.types.X10ClassDef_c;
 import x10.types.X10ClassType;
 import polyglot.types.Context;
-import x10.types.X10Flags;
+
 import x10.types.X10MethodDef;
 import polyglot.types.TypeSystem;
 import x10.types.X10TypeSystem_c;

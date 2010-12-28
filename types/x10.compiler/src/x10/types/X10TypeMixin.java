@@ -323,10 +323,9 @@ public class X10TypeMixin {
 	}
 	
 	public static Type processFlags(Flags f, Type x) {
-	    if (f==null || !(f instanceof X10Flags))
+	    if (f==null)
 	        return x;
-	    X10Flags xf = (X10Flags) f;
-	    if (xf.isStruct()) {
+	    if (f.isStruct()) {
 	        x = ((X10Struct) x).makeX10Struct();
 	    }
 	    return x;
@@ -556,7 +555,7 @@ public class X10TypeMixin {
       
     }
 	public static Type instantiateSelf(XTerm t, Type type) {
-	 	assert (! (t instanceof UnknownType));
+	 	//assert (! (t instanceof UnknownType));
 		 CConstraint c = xclause(type);
 	        if (! ((c==null) || c.valid())) {
 	        	CConstraint env = c = c.copy().instantiateSelf(t);

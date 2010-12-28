@@ -33,7 +33,7 @@ import polyglot.visit.TypeChecker;
 import x10.ast.X10Loop.LoopKind;
 import x10.errors.Errors;
 import polyglot.types.Context;
-import x10.types.X10Flags;
+
 import x10.types.X10MethodInstance;
 import polyglot.types.TypeSystem;
 import x10.types.checker.Checker;
@@ -85,7 +85,7 @@ public class ForLoop_c extends X10Loop_c implements ForLoop {
 	    Expr domain = result.domain();
 	    mi = Checker.findAppropriateMethod(tc, domain.type(), ITERATOR, Collections.<Type>emptyList(), Collections.<Type>emptyList());
 	    assert (mi != null);
-	    domain = (Expr) PlaceChecker.makeReceiverLocalIfNecessary(tc, domain, X10Flags.toX10Flags(mi.flags()));
+	    domain = (Expr) PlaceChecker.makeReceiverLocalIfNecessary(tc, domain, mi.flags());
 	    if (domain != null) {
 	        if (domain != result.domain()) result = result.domain(domain);
 	    } else if (!xts.isUnknown(result.domain().type())) {

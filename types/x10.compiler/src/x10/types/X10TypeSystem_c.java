@@ -56,6 +56,7 @@ import polyglot.types.NullType;
 import polyglot.types.ObjectType;
 import polyglot.types.ParsedClassType;
 import polyglot.types.PrimitiveType;
+import polyglot.types.PrimitiveType_c;
 import polyglot.types.ProcedureDef;
 import polyglot.types.ProcedureInstance;
 import polyglot.types.QName;
@@ -515,7 +516,7 @@ public class X10TypeSystem_c extends TypeSystem_c {
         return (X10ClassDef) unknownClassDef;
     }
 
-    X10UnknownType_c unknownType;
+    UnknownType unknownType;
 
     @Override
     public X10ClassType load(String name) {
@@ -757,12 +758,6 @@ public class X10TypeSystem_c extends TypeSystem_c {
         return ((X10LocalInstance) ld.asInstance()).error(error);
     }
 
-    @Override
-    public UnknownType unknownType(Position pos) {
-        if (unknownType == null)
-            unknownType = new X10UnknownType_c(this);
-        return unknownType;
-    }
 
   /*  private X10ParsedClassType boxType_;
 
@@ -962,124 +957,74 @@ public class X10TypeSystem_c extends TypeSystem_c {
         return new X10Context_c(this);
     }
 
-    @Override
-    public X10Flags Abstract() {
-        return X10Flags.toX10Flags(super.Abstract());
-    }
+    
 
     @Override
-    public X10Flags Final() {
-        return X10Flags.toX10Flags(super.Final());
-    }
-
-    @Override
-    public X10Flags Interface() {
-        return X10Flags.toX10Flags(super.Interface());
-    }
-
-    @Override
-    public X10Flags Native() {
-        return X10Flags.toX10Flags(super.Native());
-    }
-
-    @Override
-    public X10Flags NoFlags() {
-        return X10Flags.toX10Flags(super.NoFlags());
-    }
-
-    @Override
-    public X10Flags Private() {
-        return X10Flags.toX10Flags(super.Private());
-    }
-
-    @Override
-    public X10Flags Protected() {
-        return X10Flags.toX10Flags(super.Protected());
-    }
-
-    @Override
-    public X10Flags Public() {
-        return X10Flags.toX10Flags(super.Public());
-    }
-
-    @Override
-    public X10Flags Static() {
-        return X10Flags.toX10Flags(super.Static());
-    }
-
-
-    @Override
-    public X10Flags Transient() {
-        return X10Flags.toX10Flags(super.Transient());
-    }
-
-
-    @Override
-    public X10Flags legalInitializerFlags() {
+    public Flags legalInitializerFlags() {
         return Static();
     }
 
     /** All flags allowed for a method. */
     @Override
-    public X10Flags legalMethodFlags() {
-        X10Flags x = legalAccessFlags().Abstract().Static().Final().Native();
+    public Flags legalMethodFlags() {
+        Flags x = legalAccessFlags().Abstract().Static().Final().Native();
         x = x.Clocked().Property().Pure().Atomic();
         return x;
 
     }
 
     @Override
-    public X10Flags legalAbstractMethodFlags() {
-        X10Flags x = legalAccessFlags().clearPrivate().Abstract();
+    public Flags legalAbstractMethodFlags() {
+        Flags x = legalAccessFlags().clearPrivate().Abstract();
         x = x.Clocked().Property().Pure().Atomic();
         return x;
     }
 
     /** All flags allowed for a top-level class. */
     @Override
-    public X10Flags legalTopLevelClassFlags() {
+    public Flags legalTopLevelClassFlags() {
         return legalAccessFlags().clearPrivate().Abstract().Final().Interface().Clocked().Struct();
     }
 
-    protected final X10Flags X10_TOP_LEVEL_CLASS_FLAGS = (X10Flags) legalTopLevelClassFlags();
+    protected final Flags X10_TOP_LEVEL_CLASS_FLAGS =  legalTopLevelClassFlags();
 
     /** All flags allowed for an interface. */
     @Override
-    public X10Flags legalInterfaceFlags() {
+    public Flags legalInterfaceFlags() {
         return legalAccessFlags().Abstract().Interface().Static().Clocked();
     }
 
-    protected final X10Flags X10_INTERFACE_FLAGS = (X10Flags) legalInterfaceFlags();
+    protected final Flags X10_INTERFACE_FLAGS = legalInterfaceFlags();
 
     /** All flags allowed for a member class. */
     @Override
-    public X10Flags legalMemberClassFlags() {
+    public Flags legalMemberClassFlags() {
         return legalAccessFlags().Static().Abstract().Final().Interface().Clocked().Struct();
     }
 
-    protected final X10Flags X10_MEMBER_CLASS_FLAGS = (X10Flags) legalMemberClassFlags();
+    protected final Flags X10_MEMBER_CLASS_FLAGS =  legalMemberClassFlags();
 
     /** All flags allowed for a local class. */
     @Override
-    public X10Flags legalLocalClassFlags() {
+    public Flags legalLocalClassFlags() {
         return Abstract().Final().Interface().Struct();
     }
 
-    protected final X10Flags X10_LOCAL_CLASS_FLAGS = (X10Flags) legalLocalClassFlags();
+    protected final Flags X10_LOCAL_CLASS_FLAGS =  legalLocalClassFlags();
 
     @Override
-    public X10Flags legalLocalFlags() {
+    public Flags legalLocalFlags() {
         return Final().Clocked();
     }
 
-    protected final X10Flags X10_LOCAL_VARIABLE_FLAGS = (X10Flags) legalLocalFlags();
+    protected final Flags X10_LOCAL_VARIABLE_FLAGS =  legalLocalFlags();
 
     @Override
-    public X10Flags legalFieldFlags() {
+    public Flags legalFieldFlags() {
         return legalAccessFlags().Static().Final().Transient().Property().Clocked();
     }
 
-    protected final X10Flags X10_FIELD_VARIABLE_FLAGS = (X10Flags) legalFieldFlags();
+    protected final Flags X10_FIELD_VARIABLE_FLAGS = legalFieldFlags();
 
     @Override
     public X10MethodDef methodDef(Position pos, Ref<? extends StructType> container, Flags flags,
@@ -1177,9 +1122,6 @@ public class X10TypeSystem_c extends TypeSystem_c {
         return (FunctionType) ct.typeArguments(typeArgs);
     }
 
-    protected X10NullType createNull() {
-        return new X10NullType_c(this);
-    }
 
     // User-defined structs and do they have zero (haszero)
     // This is not just a cache: we use this map to prevent infinite recursion such as in the case of:
@@ -1190,22 +1132,8 @@ public class X10TypeSystem_c extends TypeSystem_c {
 
     private static final String WRAPPER_PACKAGE = "x10.compilergenerated";
 
-    @Override
-    public X10PrimitiveType createPrimitive(Name name) {
-        return new X10PrimitiveType_c(this, name);
-    }
-
-    // protected final PrimitiveType UBYTE_ = createPrimitive("ubyte");
-    // protected final PrimitiveType USHORT_ = createPrimitive("ushort");
-    // protected final PrimitiveType UINT_ = createPrimitive("uint");
-    // protected final PrimitiveType ULONG_ = createPrimitive("ulong");
-    //
-    // public Type UByte() { return UBYTE_; }
-    // public Type UShort() { return USHORT_; }
-    // public Type UInt() { return UINT_; }
-    // public Type ULong() { return ULONG_; }
-
-    static class Void extends X10PrimitiveType_c {
+    // vj: remove in fsvor of super-class's Void.
+    static class Void extends PrimitiveType_c {
         private static final long serialVersionUID = -1026975473924276266L;
 
         public Void(TypeSystem ts) {
@@ -1636,8 +1564,8 @@ public class X10TypeSystem_c extends TypeSystem_c {
     // instantiating
     // non-static types requires a "this" qualifier expression.
     // [IP] FIXME: why does the above matter when we supply the bits?
-    public X10Flags flagsForBits(int bits) {
-        X10Flags sf = X10Flags.toX10Flags(super.flagsForBits(bits));
+    public Flags flagsForBits(int bits) {
+        Flags sf = super.flagsForBits(bits);
         if (sf.isInterface())
             return sf.Static();
         return sf;
@@ -2022,19 +1950,15 @@ public class X10TypeSystem_c extends TypeSystem_c {
         return NULL;
     }
 
-    /** All possible <i>access</i> flags. */
-    @Override
-    public X10Flags legalAccessFlags() {
-        return X10Flags.toX10Flags(super.legalAccessFlags());
-    }
+
 
     /** All flags allowed for a constructor. */
     @Override
-    public X10Flags legalConstructorFlags() {
+    public Flags legalConstructorFlags() {
         return legalAccessFlags().Native(); // allow native
     }
 
-    protected final X10Flags X10_METHOD_FLAGS = legalMethodFlags();
+    protected final Flags X10_METHOD_FLAGS = legalMethodFlags();
 
     @Override
     public void checkMethodFlags(Flags f) throws SemanticException {

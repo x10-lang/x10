@@ -67,7 +67,7 @@ import x10.types.ParameterType;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import polyglot.types.Context;
-import x10.types.X10Flags;
+
 import x10.types.X10MemberDef;
 import x10.types.X10MethodInstance;
 import x10.types.X10ProcedureInstance;
@@ -262,7 +262,7 @@ public class Checker {
 		XTypeTranslator xt = ((TypeSystem) type.typeSystem()).xtypeTranslator();
 		Flags f = xmi.flags();
 		XTerm body = null;
-		if (X10Flags.toX10Flags(f).isProperty()) {
+		if (f.isProperty()) {
 			CConstraint cs = new CConstraint();
 			XTerm r = xt.trans( cs,t.target(), xc);
 			if (r == null)

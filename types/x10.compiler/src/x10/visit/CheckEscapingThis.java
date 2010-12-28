@@ -11,6 +11,7 @@ import polyglot.visit.InitChecker;
 import polyglot.visit.DataFlow.Item;
 import polyglot.visit.FlowGraph.EdgeKey;
 import polyglot.frontend.Job;
+import polyglot.types.Flags;
 import polyglot.types.Type;
 import polyglot.types.FieldDef;
 import polyglot.types.MethodInstance;
@@ -26,7 +27,6 @@ import polyglot.types.Context;
 import polyglot.types.ProcedureDef_c;
 import x10.ast.*;
 import x10.types.X10TypeMixin;
-import x10.types.X10Flags;
 import polyglot.types.TypeSystem;
 import polyglot.types.VarDef;
 import polyglot.types.LocalDef;
@@ -327,7 +327,7 @@ public class CheckEscapingThis extends NodeVisitor
     }
     private boolean isPrivateOrFinal(ProcedureDef def) {
         if (isXlassFinal) return true;
-        final X10Flags flags = X10Flags.toX10Flags(((ProcedureDef_c)def).flags());
+        final Flags flags = ((ProcedureDef_c)def).flags();
         return flags.isPrivate() || flags.isFinal();
     }
 

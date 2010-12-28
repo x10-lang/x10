@@ -105,7 +105,7 @@ import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10ConstructorDef;
 import polyglot.types.Context;
-import x10.types.X10Flags;
+
 import x10.types.X10MemberDef;
 import x10.types.X10MethodDef;
 import x10.types.X10MethodInstance;
@@ -268,7 +268,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 			n = (X10MethodDecl_c) n.returnType(nf.CanonicalTypeNode(rtpos, ts.unknownType(rtpos)));
 		}
 
-		X10Flags xf = X10Flags.toX10Flags(mi.flags());
+		Flags xf = mi.flags();
 		if (xf.isProperty()) {
 			final LazyRef<XTerm> bodyRef = Types.lazyRef(null);
 			bodyRef.setResolver(new SetResolverGoal(tb.job()).intern(tb.job().extensionInfo().scheduler()));
@@ -278,9 +278,9 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 		// property implies public, final
 		if (xf.isProperty()) {
 			if (xf.isAbstract())  //todo: Yoav thinks we should not have abstract property methods (all property methods, even in interfaces, should have a body so they can be expanded)
-				xf = X10Flags.toX10Flags(xf.Public());
+				xf = xf.Public();
 			else
-				xf = X10Flags.toX10Flags(xf.Public().Final());
+				xf = xf.Public().Final();
 
 			mi.setFlags(xf);
 			n = (X10MethodDecl_c) n.flags(n.flags().flags(xf));
@@ -481,9 +481,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 	}
 
 	@Override
-	protected void checkFlags(ContextVisitor tc, Flags flags) {
-		X10Flags xf = X10Flags.toX10Flags(flags);
-
+	protected void checkFlags(ContextVisitor tc, Flags xf) {
 		// Set the native flag if incomplete or extern so super.checkFlags doesn't complain.
 		super.checkFlags(tc, xf);
 
@@ -503,12 +501,12 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 		NodeFactory nf = tc.nodeFactory();
 		TypeSystem ts = (TypeSystem) tc.typeSystem();
 		if (((TypeSystem) tc.typeSystem()).isStructType(mi.container().get())) {
-			Flags xf = X10Flags.toX10Flags(mi.flags()).Final();
+			Flags xf = mi.flags().Final();
 			mi.setFlags(xf);
 			n = (X10MethodDecl_c) n.flags(n.flags().flags(xf));
 		}
 
-		X10Flags xf = X10Flags.toX10Flags(mi.flags());
+		Flags xf = mi.flags();
 
 		//if (xf.isProperty() && body == null) {
 		//    Errors.issue(tc.job(),
@@ -637,7 +635,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 		MethodDef mi = this.methodDef();
 		TypeSystem xts = (TypeSystem) tc.typeSystem();
 
-		if (X10Flags.toX10Flags(mi.flags()).isProperty()) {
+		if (mi.flags().isProperty()) {
 			X10MethodInstance xmi = (X10MethodInstance) mi.asInstance();
 			if (xmi.guard() != null && ! xmi.guard().valid())
 				Errors.issue(tc.job(),

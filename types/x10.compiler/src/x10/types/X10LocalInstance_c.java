@@ -113,7 +113,7 @@ public class X10LocalInstance_c extends LocalInstance_c implements X10LocalInsta
     }
 
     public String toString() {
-        String s = "local " + X10Flags.toX10Flags(flags()).prettyPrint() + name() + ": " + safeType();
+        String s = "local " + flags().prettyPrint() + name() + ": " + safeType();
         return s;
     }
 

@@ -54,7 +54,7 @@ import x10.types.ParameterType;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import polyglot.types.Context;
-import x10.types.X10Flags;
+
 import x10.types.X10ParsedClassType;
 import x10.types.XTypeTranslator;
 
@@ -94,7 +94,7 @@ public class X10CanonicalTypeNode_c extends CanonicalTypeNode_c implements X10Ca
 	t = ts.expandMacros(t);
 	Type xt =  t;
 	if (flags != null) {
-		xt = X10TypeMixin.processFlags(X10Flags.toX10Flags(flags), xt);
+		xt = X10TypeMixin.processFlags(flags, xt);
 		flags = null;
 	}
 	((Ref<Type>) type).update(xt);
