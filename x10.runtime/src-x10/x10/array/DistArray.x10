@@ -136,7 +136,7 @@ public class DistArray[T] (
         property(dist);
 
         val plsInit:()=>LocalState[T] = () => {
-            val localRaw = IndexedMemoryChunk.allocate[T](dist.maxOffset()+1);
+            val localRaw = IndexedMemoryChunk.allocate[T](dist.maxOffset()+1, true);
 	    return new LocalState(localRaw);
         };
 
