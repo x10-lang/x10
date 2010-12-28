@@ -16,7 +16,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import polyglot.types.ArrayType;
+import polyglot.types.JavaArrayType;
 import polyglot.types.Context;
 import polyglot.types.DerefTransform;
 import polyglot.types.ErrorRef_c;
@@ -35,7 +35,7 @@ import polyglot.types.PrimitiveType;
 import polyglot.types.ProcedureInstance;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
-import polyglot.types.StructType;
+import polyglot.types.ContainerType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
@@ -76,8 +76,8 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
 
     public static class NoClauseVariant implements Transformation<Type, Type> {
         public Type transform(Type o) {
-            if (o instanceof ArrayType) {
-                ArrayType at = (ArrayType) o;
+            if (o instanceof JavaArrayType) {
+                JavaArrayType at = (JavaArrayType) o;
                 return at.base(Types.ref(transform(at.base())));
             }
             if (o instanceof ConstrainedType) {
@@ -129,7 +129,7 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
     }
   
     @Override
-    public X10MethodInstance container(StructType container) {
+    public X10MethodInstance container(ContainerType container) {
         if (container == this.container) return this;
         return (X10MethodInstance) super.container(container);
     }
@@ -251,7 +251,7 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
     }
 
     public boolean isPropertyGetter() {
-        StructType container = this.container();
+        ContainerType container = this.container();
         assert container instanceof X10ParsedClassType;
         if (!formalTypes.isEmpty()) return false;
         for (FieldInstance fi : container.fields()) {

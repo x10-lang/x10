@@ -54,9 +54,9 @@ public class TypeEnv_c implements TypeEnv {
 	if (type1 == null || type2 == null)
 	    return false;
 
-	if (type1 instanceof ArrayType && type2 instanceof ArrayType) {
-	    ArrayType at1 = (ArrayType) type1;
-	    ArrayType at2 = (ArrayType) type2;
+	if (type1 instanceof JavaArrayType && type2 instanceof JavaArrayType) {
+	    JavaArrayType at1 = (JavaArrayType) type1;
+	    JavaArrayType at2 = (JavaArrayType) type2;
 	    return typeEquals(at1.base(), at2.base());
 	}
 
@@ -95,9 +95,9 @@ public class TypeEnv_c implements TypeEnv {
 	    return false;
 	}
 
-	if (fromType instanceof ArrayType && toType instanceof ArrayType) {
-	    ArrayType fromAT = (ArrayType) fromType;
-	    ArrayType toAT = (ArrayType) toType;
+	if (fromType instanceof JavaArrayType && toType instanceof JavaArrayType) {
+	    JavaArrayType fromAT = (JavaArrayType) fromType;
+	    JavaArrayType toAT = (JavaArrayType) toType;
 
 	    Type fromBase = fromAT.base();
 	    Type toBase = toAT.base();
@@ -116,14 +116,14 @@ public class TypeEnv_c implements TypeEnv {
 	    return ts.isCastValid(fromBase, toBase, context);
 	}
 
-	if (fromType instanceof ArrayType && toType instanceof ReferenceType) {
+	if (fromType instanceof JavaArrayType && toType instanceof ObjectType) {
 	    // Ancestor is not an array, but child is. Check if the array
 	    // is a subtype of the ancestor. This happens when ancestor
 	    // is java.lang.Object.
 	    return ts.isSubtype(fromType, toType, context);
 	}
 
-	if (fromType instanceof ClassType && toType instanceof ArrayType) {
+	if (fromType instanceof ClassType && toType instanceof JavaArrayType) {
 	    // From type is not an array, but to type is. Check if the array
 	    // is a subtype of the from type. This happens when from type
 	    // is java.lang.Object.
@@ -174,7 +174,7 @@ public class TypeEnv_c implements TypeEnv {
 	    }
 	}
 
-	if (fromType instanceof ReferenceType) {
+	if (fromType instanceof ObjectType) {
 	    if (!toType.isReference())
 		return false;
 	    return ts.isSubtype(fromType, toType, context) || ts.isSubtype(toType, fromType, context);
@@ -250,10 +250,10 @@ public class TypeEnv_c implements TypeEnv {
 	    return false;
 	}
 
-	if (fromType instanceof ArrayType && toType instanceof ArrayType) {
-	    ArrayType fromAT = (ArrayType) fromType;
+	if (fromType instanceof JavaArrayType && toType instanceof JavaArrayType) {
+	    JavaArrayType fromAT = (JavaArrayType) fromType;
 	    Type fromBase = fromAT.base();
-	    ArrayType toAT = (ArrayType) toType;
+	    JavaArrayType toAT = (JavaArrayType) toType;
 	    Type toBase = toAT.base();
 	    if (fromBase.isPrimitive() || toBase.isPrimitive()) {
 		return ts.typeEquals(fromBase, toBase, context);
@@ -267,7 +267,7 @@ public class TypeEnv_c implements TypeEnv {
 	    return toType.isNull() || toType.isReference();
 	}
 
-	if (fromType instanceof ReferenceType) {
+	if (fromType instanceof ObjectType) {
 	    // This handles classes and also coercions from Array to Object
 	    return ts.isSubtype(fromType, toType, context);
 	}
@@ -586,7 +586,7 @@ public class TypeEnv_c implements TypeEnv {
 
     /** Return true if t overrides mi */
     public boolean hasMethod(Type t, MethodInstance mi) {
-	return t instanceof StructType && ((StructType) t).hasMethod(mi, context);
+	return t instanceof ContainerType && ((ContainerType) t).hasMethod(mi, context);
     }
 
     /** Return true if t overrides mi */
@@ -596,18 +596,18 @@ public class TypeEnv_c implements TypeEnv {
 
     public List<MethodInstance> overrides(MethodInstance mi) {
 	List<MethodInstance> l = new ArrayList<MethodInstance>();
-	StructType rt = mi.container();
+	ContainerType rt = mi.container();
 
 	while (rt != null) {
 	    // add any method with the same name and formalTypes from rt
 	    l.addAll(rt.methods(mi.name(), mi.formalTypes(), context));
 
-	    StructType sup = null;
+	    ContainerType sup = null;
 
 	    if (rt instanceof ObjectType) {
 		ObjectType ot = (ObjectType) rt;
-		if (ot.superClass() instanceof StructType) {
-		    sup = (StructType) ot.superClass();
+		if (ot.superClass() instanceof ContainerType) {
+		    sup = (ContainerType) ot.superClass();
 		}
 	    }
 
@@ -622,7 +622,7 @@ public class TypeEnv_c implements TypeEnv {
 	return implemented(mi, mi.container());
     }
 
-    public List<MethodInstance> implemented(MethodInstance mi, StructType st) {
+    public List<MethodInstance> implemented(MethodInstance mi, ContainerType st) {
 	if (st == null) {
 	    return Collections.<MethodInstance> emptyList();
 	}
@@ -635,14 +635,14 @@ public class TypeEnv_c implements TypeEnv {
 
 	    Type superType = rt.superClass();
 
-	    if (superType instanceof StructType) {
-		l.addAll(implemented(mi, (StructType) superType));
+	    if (superType instanceof ContainerType) {
+		l.addAll(implemented(mi, (ContainerType) superType));
 	    }
 
 	    List<Type> ints = rt.interfaces();
 	    for (Type t : ints) {
-		if (t instanceof StructType) {
-		    StructType rt2 = (StructType) t;
+		if (t instanceof ContainerType) {
+		    ContainerType rt2 = (ContainerType) t;
 		    l.addAll(implemented(mi, rt2));
 		}
 	    }
@@ -673,8 +673,8 @@ public class TypeEnv_c implements TypeEnv {
 	// superInterfaces
 	for (Iterator<Type> i = superInterfaces.iterator(); i.hasNext();) {
 	    Type it = i.next();
-	    if (it instanceof StructType) {
-		StructType rt = (StructType) it;
+	    if (it instanceof ContainerType) {
+		ContainerType rt = (ContainerType) it;
 		for (Iterator<MethodInstance> j = rt.methods().iterator(); j.hasNext();) {
 		    MethodInstance mi = j.next();
 		    if (!mi.flags().isAbstract()) {

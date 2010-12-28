@@ -37,7 +37,7 @@ import polyglot.types.Flags;
 import polyglot.types.LocalDef;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
-import polyglot.types.StructType;
+import polyglot.types.ContainerType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
@@ -173,8 +173,8 @@ public class X10InnerClassRemover extends InnerClassRemover {
             //if (newThrowTypes != throwTypes) {
             //    ci = (X10ConstructorInstance) ci.throwTypes(newThrowTypes);
             //}
-            StructType container = ci.container();
-            StructType newContainer = (StructType) transformType(container);
+            ContainerType container = ci.container();
+            ContainerType newContainer = (ContainerType) transformType(container);
             if (newContainer != container) {
                 ci = (X10ConstructorInstance) ci.container(newContainer);
             }
@@ -208,8 +208,8 @@ public class X10InnerClassRemover extends InnerClassRemover {
             //if (newThrowTypes != throwTypes) {
             //    mi = (X10MethodInstance) mi.throwTypes(newThrowTypes);
             //}
-            StructType container = mi.container();
-            StructType newContainer = (StructType) transformType(container);
+            ContainerType container = mi.container();
+            ContainerType newContainer = (ContainerType) transformType(container);
             if (newContainer != container) {
                 mi = (X10MethodInstance) mi.container(newContainer);
             }
@@ -233,8 +233,8 @@ public class X10InnerClassRemover extends InnerClassRemover {
             if (newType != type) {
                 fi = (X10FieldInstance) fi.type(newType);
             }
-            StructType container = fi.container();
-            StructType newContainer = (StructType) transformType(container);
+            ContainerType container = fi.container();
+            ContainerType newContainer = (ContainerType) transformType(container);
             if (newContainer != container) {
                 fi = (X10FieldInstance) fi.container(newContainer);
             }

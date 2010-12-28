@@ -19,7 +19,7 @@ import polyglot.types.FieldInstance;
 import polyglot.types.Matcher;
 import polyglot.types.Named;
 import polyglot.types.SemanticException;
-import polyglot.types.StructType;
+import polyglot.types.ContainerType;
 import polyglot.types.Type;
 
 /** The representative of ClassType in the X10 type hierarchy. 
@@ -63,7 +63,7 @@ public interface X10ClassType extends ClassType,  X10Use<X10ClassDef> {
 	boolean isJavaType();
 
 	X10ClassType container();
-	X10ClassType container(StructType container);
+	X10ClassType container(ContainerType container);
 
 	X10ClassType error(SemanticException e);
 	

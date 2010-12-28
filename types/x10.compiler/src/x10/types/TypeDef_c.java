@@ -23,7 +23,7 @@ import polyglot.types.Name;
 import polyglot.types.Package;
 import polyglot.types.QName;
 import polyglot.types.Ref;
-import polyglot.types.StructType;
+import polyglot.types.ContainerType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;

@@ -154,7 +154,7 @@ public interface TypeSystem {
      * @param argTypes The method's formal parameter types.
      * @param excTypes The method's exception throw types.
      */
-    MethodDef methodDef(Position pos, Ref<? extends StructType> container,
+    MethodDef methodDef(Position pos, Ref<? extends ContainerType> container,
                                   Flags flags, Ref<? extends Type> returnType, Name name,
                                   List<Ref<? extends Type>> argTypes);
 
@@ -598,7 +598,7 @@ public interface TypeSystem {
     /**
      * Translate an array type.
      */
-    String translateArray(Resolver c, ArrayType t);
+    String translateArray(Resolver c, JavaArrayType t);
 
     /**
      * Translate a top-level class type.
@@ -990,17 +990,17 @@ public interface TypeSystem {
             List<Ref<? extends Type>> argTypes, ThisDef thisDef, List<LocalDef> formalNames, Ref<CConstraint> guard,
             Ref<TypeConstraint> typeGuard, Ref<? extends Type> offerType);
 
-    X10MethodDef methodDef(Position pos, Ref<? extends StructType> container,
+    X10MethodDef methodDef(Position pos, Ref<? extends ContainerType> container,
             Flags flags, Ref<? extends Type> returnType, Name name,
             List<Ref<? extends Type>> argTypes,  Ref<? extends Type> offerType);
 
-    X10MethodDef methodDef(Position pos, Ref<? extends StructType> container, Flags flags, Ref<? extends Type> returnType, Name name,
+    X10MethodDef methodDef(Position pos, Ref<? extends ContainerType> container, Flags flags, Ref<? extends Type> returnType, Name name,
             List<ParameterType> typeParams, List<Ref<? extends Type>> argTypes, ThisDef thisDef, List<LocalDef> formalNames,
             Ref<CConstraint> guard, Ref<TypeConstraint> typeGuard, Ref<? extends Type> offerType, Ref<XTerm> body);
 
-    X10FieldDef fieldDef(Position pos, Ref<? extends StructType> container, Flags flags, Ref<? extends Type> type, Name name);
+    X10FieldDef fieldDef(Position pos, Ref<? extends ContainerType> container, Flags flags, Ref<? extends Type> type, Name name);
 
-    X10FieldDef fieldDef(Position pos, Ref<? extends StructType> container, Flags flags, Ref<? extends Type> type, Name name,
+    X10FieldDef fieldDef(Position pos, Ref<? extends ContainerType> container, Flags flags, Ref<? extends Type> type, Name name,
             ThisDef thisDef);
 
     X10LocalDef localDef(Position pos, Flags flags, Ref<? extends Type> type, Name name);

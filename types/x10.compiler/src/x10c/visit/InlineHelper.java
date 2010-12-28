@@ -42,7 +42,7 @@ import polyglot.types.Name;
 import polyglot.types.QName;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
-import polyglot.types.StructType;
+import polyglot.types.ContainerType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
@@ -330,7 +330,7 @@ public class InlineHelper extends ContextVisitor {
                         formals.add(X10TypeMixin.baseType(target.type()));
                     }
                 }
-                StructType container = mi.container();
+                ContainerType container = mi.container();
                 X10MethodDef md = (X10MethodDef) xts.methodDef(pos, Types.ref(container), mi.flags().clearNative().clearPrivate().Static(), 
                                                                Types.ref(mi.returnType()), id.id(), getRefList(formals));
                 List<ParameterType> rts = new ArrayList<ParameterType>();

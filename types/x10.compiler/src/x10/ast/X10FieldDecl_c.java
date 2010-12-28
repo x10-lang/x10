@@ -42,7 +42,7 @@ import polyglot.types.Name;
 import polyglot.types.QName;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
-import polyglot.types.StructType;
+import polyglot.types.ContainerType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
@@ -207,7 +207,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
         }
         
         FieldDef fi = fieldDef();
-        StructType ref = fi.container().get();
+        ContainerType ref = fi.container().get();
 
         TypeSystem xts = (TypeSystem) ref.typeSystem();
         Context context = (Context) tc.context();
@@ -490,7 +490,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
             // struct Z(@ERR u:Z) {}
             // struct Box[T](t:T) { }
             // struct InfiniteSize(@ERR x:Box[Box[InfiniteSize]]) {}
-            final StructType containerType = fieldDef.container().get();
+            final ContainerType containerType = fieldDef.container().get();
             X10ClassDef_c goalDef = X10TypeMixin.getDef(containerType);
             if (ts.isStruct(containerType)) {
                 HashSet<X10ClassDef_c> otherStructsUsed = new HashSet<X10ClassDef_c>();

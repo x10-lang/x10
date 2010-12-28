@@ -13,7 +13,7 @@ import polyglot.util.InternalCompilerError;
  * A <code>NullType</code> represents the type of the Java <code>null</code>
  * literal.
  */
-public class NullType extends Type_c implements Type 
+public class NullType extends Type_c  
 {
 	private static final long serialVersionUID = 7144927187351231117L;
 

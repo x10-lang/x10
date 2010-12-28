@@ -56,13 +56,13 @@ import polyglot.types.NullType;
 import polyglot.types.ObjectType;
 import polyglot.types.ParsedClassType;
 import polyglot.types.PrimitiveType;
-import polyglot.types.PrimitiveType_c;
+
 import polyglot.types.ProcedureDef;
 import polyglot.types.ProcedureInstance;
 import polyglot.types.QName;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
-import polyglot.types.StructType;
+import polyglot.types.ContainerType;
 import polyglot.types.TopLevelResolver;
 import polyglot.types.Type;
 import polyglot.types.TypeObject;
@@ -147,7 +147,7 @@ public class X10TypeSystem_c extends TypeSystem_c {
         return new X10InitializerDef_c(this, pos, container, flags, thisVar);
     }
 
-    public List<MethodInstance> methods(StructType t, Name name, List<Type> typeParams, List<Type> argTypes, XVar thisVar, Context context) {
+    public List<MethodInstance> methods(ContainerType t, Name name, List<Type> typeParams, List<Type> argTypes, XVar thisVar, Context context) {
         List<MethodInstance> l = new ArrayList<MethodInstance>();
         for (Iterator<MethodInstance> i = t.methodsNamed(name).iterator(); i.hasNext();) {
             X10MethodInstance mi = (X10MethodInstance) i.next();
@@ -242,7 +242,7 @@ public class X10TypeSystem_c extends TypeSystem_c {
 
         mi = new X10TypeEnv_c(context).fixThis((X10MethodInstance) mi, y, x);
 
-        StructType curr = ct;
+        ContainerType curr = ct;
         while (curr != null) {
             List<MethodInstance> possible = methods(curr, mi.name(), mi.typeParameters(), mi.formalTypes(), thisVar, context);
             for (Iterator<MethodInstance> k = possible.iterator(); k.hasNext();) {
@@ -267,8 +267,8 @@ public class X10TypeSystem_c extends TypeSystem_c {
 
             if (curr instanceof ObjectType) {
                 ObjectType ot = (ObjectType) curr;
-                if (ot.superClass() instanceof StructType) {
-                    curr = (StructType) ot.superClass();
+                if (ot.superClass() instanceof ContainerType) {
+                    curr = (ContainerType) ot.superClass();
                 }
                 else {
                     curr = null;
@@ -720,7 +720,7 @@ public class X10TypeSystem_c extends TypeSystem_c {
         List<ParameterType> typeParams = new ArrayList<ParameterType>();
         i = 0;
         for (Type r : typeArgs) {
-            typeParams.add(new ParameterType_c(this, pos, Name.make("T"+(++i)), Types.ref(md)));
+            typeParams.add(new ParameterType(this, pos, Name.make("T"+(++i)), Types.ref(md)));
         }
         md.setTypeParameters(typeParams);
         return ((X10MethodInstance) md.asInstance()).error(error);
@@ -1028,13 +1028,13 @@ public class X10TypeSystem_c extends TypeSystem_c {
     protected final Flags X10_FIELD_VARIABLE_FLAGS = legalFieldFlags();
 
     @Override
-    public X10MethodDef methodDef(Position pos, Ref<? extends StructType> container, Flags flags,
+    public X10MethodDef methodDef(Position pos, Ref<? extends ContainerType> container, Flags flags,
     		Ref<? extends Type> returnType, Name name,
             List<Ref<? extends Type>> argTypes) {
     	return methodDef(pos, container, flags, returnType, name, argTypes, null);
     }
 
-    public X10MethodDef methodDef(Position pos, Ref<? extends StructType> container,
+    public X10MethodDef methodDef(Position pos, Ref<? extends ContainerType> container,
             Flags flags, Ref<? extends Type> returnType, Name name,
             List<Ref<? extends Type>> argTypes,  Ref<? extends Type> offerType)
     {
@@ -1045,7 +1045,7 @@ public class X10TypeSystem_c extends TypeSystem_c {
                 thisDef, dummyLocalDefs(argTypes), null, null, offerType, null);
     }
 
-    public X10MethodDef methodDef(Position pos, Ref<? extends StructType> container,
+    public X10MethodDef methodDef(Position pos, Ref<? extends ContainerType> container,
     		Flags flags, Ref<? extends Type> returnType, Name name,
             List<ParameterType> typeParams, List<Ref<? extends Type>> argTypes,
             ThisDef thisDef, List<LocalDef> formalNames,
@@ -1134,7 +1134,7 @@ public class X10TypeSystem_c extends TypeSystem_c {
     private static final String WRAPPER_PACKAGE = "x10.compilergenerated";
 
     // vj: remove in fsvor of super-class's Void.
-    static class Void extends PrimitiveType_c {
+    static class Void extends PrimitiveType {
         private static final long serialVersionUID = -1026975473924276266L;
 
         public Void(TypeSystem ts) {
@@ -1572,7 +1572,7 @@ public class X10TypeSystem_c extends TypeSystem_c {
         return sf;
     }
 
-    public X10FieldDef fieldDef(Position pos, Ref<? extends StructType> container, Flags flags, Ref<? extends Type> type, Name name) {
+    public X10FieldDef fieldDef(Position pos, Ref<? extends ContainerType> container, Flags flags, Ref<? extends Type> type, Name name) {
         assert_(container);
         assert_(type);
 
@@ -1581,7 +1581,7 @@ public class X10TypeSystem_c extends TypeSystem_c {
         return fieldDef(pos, container, flags, type, name, thisDef);
     }
 
-    public X10FieldDef fieldDef(Position pos, Ref<? extends StructType> container, Flags flags, Ref<? extends Type> type, Name name, ThisDef thisDef) {
+    public X10FieldDef fieldDef(Position pos, Ref<? extends ContainerType> container, Flags flags, Ref<? extends Type> type, Name name, ThisDef thisDef) {
         assert_(container);
         assert_(type);
         return new X10FieldDef_c(this, pos, container, flags, type, name, thisDef);

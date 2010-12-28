@@ -23,10 +23,10 @@ import polyglot.types.MethodInstance;
 import polyglot.types.Name;
 import polyglot.types.QName;
 import polyglot.types.Ref;
-import polyglot.types.ReferenceType;
+
 import polyglot.types.SemanticException;
 import polyglot.types.Name;
-import polyglot.types.StructType;
+import polyglot.types.ContainerType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
@@ -54,7 +54,7 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
     Ref<? extends Type> offerType;
 
     public X10MethodDef_c(TypeSystem ts, Position pos,
-            Ref<? extends StructType> container,
+            Ref<? extends ContainerType> container,
             Flags flags, 
             Ref<? extends Type> returnType,
             Name name,

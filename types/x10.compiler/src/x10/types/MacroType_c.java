@@ -31,7 +31,7 @@ import polyglot.types.Ref;
 import polyglot.types.Resolver;
 import polyglot.types.SemanticException;
 import polyglot.types.Name;
-import polyglot.types.StructType;
+import polyglot.types.ContainerType;
 import polyglot.types.Type;
 import polyglot.types.TypeObject;
 import polyglot.types.TypeSystem;
@@ -84,7 +84,7 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 	}
 
 	@Override
-	public MacroType container(StructType container) {
+	public MacroType container(ContainerType container) {
 		return (MacroType) super.container(container);
 	}
 	
@@ -303,7 +303,7 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 	public String signature() {
 	    StringBuffer sb = new StringBuffer();
 	    TypeDef d = def.getCached();
-	    Ref<? extends StructType> cont = d.container();
+	    Ref<? extends ContainerType> cont = d.container();
 	    if (cont != null) {
 		Type t = cont.getCached();
 		if (t != null) {
@@ -352,8 +352,8 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 	@Override
 	public List<FieldInstance> fields() {
 		Type base = definedType();
-		if (base instanceof StructType) {
-			return ((StructType) base).fields();
+		if (base instanceof ContainerType) {
+			return ((ContainerType) base).fields();
 		}
 		return Collections.emptyList();
 	}
@@ -370,8 +370,8 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 	@Override
 	public List<MethodInstance> methods() {
 		Type base = definedType();
-		if (base instanceof StructType) {
-			return ((StructType) base).methods();
+		if (base instanceof ContainerType) {
+			return ((ContainerType) base).methods();
 		}
 		return Collections.emptyList();
 	}

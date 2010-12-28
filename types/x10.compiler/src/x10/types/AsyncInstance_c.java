@@ -15,7 +15,7 @@ import polyglot.types.ClassType;
 import polyglot.types.CodeInstance;
 import polyglot.types.Flags;
 import polyglot.types.Ref;
-import polyglot.types.StructType;
+import polyglot.types.ContainerType;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.util.Position;
@@ -41,7 +41,7 @@ public class AsyncInstance_c extends X10MethodInstance_c implements AsyncInstanc
     public ClassType container() {
         return (ClassType) super.container();
     }
-    public AsyncInstance container(StructType t) {
+    public AsyncInstance container(ContainerType t) {
         return (AsyncInstance) super.container(t);
     }
 

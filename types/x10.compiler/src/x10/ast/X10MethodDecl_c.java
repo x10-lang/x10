@@ -68,7 +68,7 @@ import polyglot.types.QName;
 import polyglot.types.Ref;
 import polyglot.types.Ref_c;
 import polyglot.types.SemanticException;
-import polyglot.types.StructType;
+import polyglot.types.ContainerType;
 import polyglot.types.Type;
 import polyglot.types.TypeObject;
 import polyglot.types.TypeSystem;
@@ -98,7 +98,7 @@ import x10.extension.X10Del;
 import x10.extension.X10Del_c;
 import x10.extension.X10Ext;
 import x10.types.ConstrainedType;
-import x10.types.ConstrainedType_c;
+
 import x10.types.MacroType;
 import x10.types.ParameterType;
 import x10.types.X10ClassDef;
@@ -571,7 +571,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
         final Name nameId = n.name.id();
         if (nameId==Converter.implicit_operator_as || nameId==Converter.operator_as) {
             final X10MethodDef methodDef = n.methodDef();
-            final StructType container = methodDef.container().get();
+            final ContainerType container = methodDef.container().get();
             final Type returnT = X10TypeMixin.baseType(methodDef.returnType().get());
             final List<Ref<? extends Type>> formals = methodDef.formalTypes();
             assert formals.size()==1 : "Currently it is a parsing error if the number of formals for an implicit or explicit 'as' operator is different than 1! formals="+formals;

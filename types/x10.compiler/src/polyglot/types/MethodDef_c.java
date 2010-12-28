@@ -28,7 +28,7 @@ public class MethodDef_c extends ProcedureDef_c implements MethodDef
     protected MethodDef_c() { }
 
     public MethodDef_c(TypeSystem ts, Position pos,
-	 		    Ref<? extends StructType> container,
+	 		    Ref<? extends ContainerType> container,
 	                    Flags flags, Ref<? extends Type> returnType, Name name,
 			    List<Ref<? extends Type>> formalTypes) {
         super(ts, pos, container, flags, formalTypes);

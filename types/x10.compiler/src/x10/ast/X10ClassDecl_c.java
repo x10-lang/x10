@@ -54,7 +54,7 @@ import polyglot.types.Named;
 import polyglot.types.ObjectType;
 import polyglot.types.QName;
 import polyglot.types.Ref;
-import polyglot.types.ReferenceType;
+
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
@@ -706,7 +706,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
 
         if (false) { // todo: this code is useless! it only adds to the lists, without doing any checks!
         // Check for duplicate interfaces
-        List<X10ClassType> supers = new ArrayList<X10ClassType>();
+       /* List<X10ClassType> supers = new ArrayList<X10ClassType>();
         LinkedList<Type> worklist = new LinkedList<Type>();
         worklist.add(type.asType());
         while (! worklist.isEmpty()) {
@@ -719,7 +719,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
                 worklist.add(ot.superClass());
                 worklist.addAll(ot.interfaces());
             }
-        }
+        }*/
         }
         
         // Check for instance type definitions -- these are not supported.
@@ -789,7 +789,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         if (! t.isClass() || t.toClass().flags().isInterface()) {
             throw new SemanticException("Cannot extend type " + t + "; not a class.", superClass != null ? superClass.position() : position());
         }
-        xts.checkCycles((ReferenceType) t);
+        xts.checkCycles((ObjectType) t);
     }
 
     protected void checkSuperinterface(TypeSystem xts, Ref<? extends Type> tref) throws SemanticException {
@@ -803,7 +803,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
             String s = type.flags().isInterface() ? "extend" : "implement";
             throw new SemanticException("Cannot " + s + " type " + t + "; not an interface.", position());
         }
-        xts.checkCycles((ReferenceType) t);
+        xts.checkCycles((ObjectType) t);
     }
 
     protected List<TypeNode> followDefs(List<TypeNode> tns) {

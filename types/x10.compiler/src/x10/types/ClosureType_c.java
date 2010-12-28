@@ -36,7 +36,7 @@ import polyglot.types.Package;
 import polyglot.types.Ref;
 import polyglot.types.Resolver;
 import polyglot.types.Name;
-import polyglot.types.StructType;
+import polyglot.types.ContainerType;
 import polyglot.types.Type;
 import polyglot.types.TypeObject;
 import polyglot.types.Types;

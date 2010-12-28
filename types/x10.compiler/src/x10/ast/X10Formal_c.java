@@ -55,7 +55,7 @@ import polyglot.visit.TypeCheckPreparer;
 import polyglot.visit.TypeChecker;
 import x10.errors.Errors;
 import x10.extension.X10Del;
-import x10.types.ConstrainedType_c;
+
 import x10.types.FunctionType;
 import polyglot.types.Context;
 import x10.types.X10LocalDef;

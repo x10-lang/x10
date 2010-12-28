@@ -26,7 +26,7 @@ public abstract class ProcedureDef_c extends MemberDef_c implements ProcedureDef
     protected ProcedureDef_c() { }
 
     public ProcedureDef_c(TypeSystem ts, Position pos,
-            Ref<? extends StructType> container,
+            Ref<? extends ContainerType> container,
 			       Flags flags, List<Ref<? extends Type>> formalTypes) {
         super(ts, pos, container, flags);
         this.formalTypes = TypedList.copyAndCheck(formalTypes, Ref.class, true);

@@ -14,7 +14,7 @@ package x10.query;
 import polyglot.ast.Call;
 import polyglot.ast.Field;
 import polyglot.ast.Unary;
-import polyglot.types.ArrayType;
+import polyglot.types.JavaArrayType;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import x10.Configuration;

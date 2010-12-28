@@ -14,7 +14,7 @@ import polyglot.util.*;
 /**
  * An <code>ArrayType</code> represents an array of base java types.
  */
-public class ArrayType_c extends ReferenceType_c implements ArrayType
+public class JavaArrayType_c extends ReferenceType_c implements JavaArrayType
 {
     private static final long serialVersionUID = 5957743833621743101L;
 
@@ -24,9 +24,9 @@ public class ArrayType_c extends ReferenceType_c implements ArrayType
     protected List<Ref<? extends Type>> interfaces;
 
     /** Used for deserializing types. */
-    protected ArrayType_c() { }
+    protected JavaArrayType_c() { }
 
-    public ArrayType_c(TypeSystem ts, Position pos, Ref<? extends Type> base) {
+    public JavaArrayType_c(TypeSystem ts, Position pos, Ref<? extends Type> base) {
 	super(ts, pos);
 	this.base = base;
 
@@ -41,7 +41,7 @@ public class ArrayType_c extends ReferenceType_c implements ArrayType
 
             // Add method public Object clone()
             MethodDef mi = ts.methodDef(position(),
-                                        Types.<ArrayType_c>ref(this),
+                                        Types.<JavaArrayType_c>ref(this),
                                         ts.Public(),
                                         Types.<Type>ref(ts.Object()),
                                         Name.make("clone"),
@@ -54,7 +54,7 @@ public class ArrayType_c extends ReferenceType_c implements ArrayType
 
             // Add field public final int length
             FieldDef fi = ts.fieldDef(position(),
-                                        Types.<ArrayType_c>ref(this),
+                                        Types.<JavaArrayType_c>ref(this),
                                         ts.Public().Final(),
                                         Types.ref(ts.Int()),
                                         Name.make("length"));
@@ -77,14 +77,14 @@ public class ArrayType_c extends ReferenceType_c implements ArrayType
     }
 
     /** Set the base type of the array. */
-    public ArrayType base(Type base) {
+    public JavaArrayType base(Type base) {
         return base(Types.ref(base));
     }
     
-    public ArrayType base(Ref<? extends Type> base) {
+    public JavaArrayType base(Ref<? extends Type> base) {
         if (base == this.base)
             return this;
-	ArrayType_c n = (ArrayType_c) copy();
+	JavaArrayType_c n = (JavaArrayType_c) copy();
 	n.base = base;
 	return n;
     }
@@ -117,7 +117,7 @@ public class ArrayType_c extends ReferenceType_c implements ArrayType
     }
     
     public boolean isArray() { return true; }
-    public ArrayType toArray() { return this; }
+    public JavaArrayType toArray() { return this; }
 
     /** Get the methods implemented by the array type. */
     public List<MethodInstance> methods() {
@@ -163,8 +163,8 @@ public class ArrayType_c extends ReferenceType_c implements ArrayType
     }
 
     public boolean equalsImpl(TypeObject t) {
-        if (t instanceof ArrayType) {
-            ArrayType a = (ArrayType) t;
+        if (t instanceof JavaArrayType) {
+            JavaArrayType a = (JavaArrayType) t;
             return ts.equals((TypeObject) base(), (TypeObject) a.base());
         }
 	return false;

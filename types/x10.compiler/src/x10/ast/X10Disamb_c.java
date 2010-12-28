@@ -51,7 +51,7 @@ import polyglot.types.Context;
 import x10.types.X10FieldInstance;
 
 import x10.types.X10MethodInstance;
-import x10.types.X10NamedType;
+
 import x10.types.X10TypeMixin;
 import polyglot.types.TypeSystem;
 import polyglot.types.TypeSystem_c;
@@ -73,7 +73,7 @@ public class X10Disamb_c extends Disamb_c {
 	    TypeSystem ts = (TypeSystem) this.ts;
 	    
 	    if (c.inDepType()) {
-	    	X10NamedType t = c.currentDepType();
+	    	Type t = c.currentDepType();
 	    	
 	    	if (exprOK()) {
 	    		// First try local variables.

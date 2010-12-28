@@ -15,11 +15,12 @@ import java.util.List;
 
 import polyglot.types.Def;
 import polyglot.types.MemberInstance;
+import polyglot.types.Named;
 import polyglot.types.ObjectType;
 import polyglot.types.Ref;
-import polyglot.types.ReferenceType;
+
 import polyglot.types.Name;
-import polyglot.types.StructType;
+import polyglot.types.ContainerType;
 import polyglot.types.Type;
 import x10.constraint.XConstraint;
 import x10.constraint.XVar;
@@ -39,7 +40,7 @@ import x10.types.constraints.CConstraint;
  *     nlist[int](7) == nlist[T](x: Int){T==int,x==7} == List{ElementType==T,length==x,T==int,x==7}
  *
  */
-public interface ParametrizedType extends X10NamedType, ReferenceType, StructType, ObjectType {
+public interface ParametrizedType extends Named,  ObjectType {
 	Name name();
 
 	List<Type> typeParameters();

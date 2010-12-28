@@ -14,15 +14,15 @@ public class MethodInstance_c extends FunctionInstance_c<MethodDef> implements M
     
     protected Name name;
     protected Flags flags;
-    protected StructType container;
+    protected ContainerType container;
     
-    public MethodInstance container(StructType container) {
+    public MethodInstance container(ContainerType container) {
         MethodInstance_c p = (MethodInstance_c) copy();
         p.container = container;
         return p;
     }
 
-    public StructType container() {
+    public ContainerType container() {
         if (this.container == null) {
             return Types.get(def().container());
         }

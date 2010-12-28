@@ -24,7 +24,7 @@ import x10.constraint.XVar;
 import x10.types.ConstrainedType;
 import x10.types.MacroType;
 import x10.types.ParameterType;
-import x10.types.ParameterType_c;
+
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import polyglot.types.Context;
@@ -241,7 +241,7 @@ public class TypeConstraint implements Copy, Serializable {
 	    for (int i = 0; i < typeFormals.size(); i++) {
 	        Type xtype = typeFormals.get(i);
 	        xtype = xts.expandMacros(xtype);
-	        Type ytype = new ParameterType_c(xts, me.position(), Name.makeFresh(), Types.ref((X10ProcedureDef) me.def()));
+	        Type ytype = new ParameterType(xts, me.position(), Name.makeFresh(), Types.ref((X10ProcedureDef) me.def()));
 	
 	        // TODO: should enforce this statically
 	        if (! (xtype instanceof ParameterType))

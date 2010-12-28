@@ -19,9 +19,9 @@ import polyglot.types.FieldInstance_c;
 import polyglot.types.Flags;
 import polyglot.types.Named;
 import polyglot.types.Ref;
-import polyglot.types.ReferenceType;
+
 import polyglot.types.SemanticException;
-import polyglot.types.StructType;
+import polyglot.types.ContainerType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
@@ -81,7 +81,7 @@ public class X10FieldInstance_c extends FieldInstance_c implements X10FieldInsta
     }
     
     @Override
-    public X10FieldInstance container(StructType container) {
+    public X10FieldInstance container(ContainerType container) {
         if (container == this.container) return this;
         return (X10FieldInstance) super.container(container);
     }

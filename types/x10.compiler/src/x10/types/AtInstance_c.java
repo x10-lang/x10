@@ -15,7 +15,7 @@ import polyglot.types.ClassType;
 import polyglot.types.CodeInstance;
 import polyglot.types.Flags;
 import polyglot.types.Ref;
-import polyglot.types.StructType;
+import polyglot.types.ContainerType;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.util.Position;
@@ -41,7 +41,7 @@ public class AtInstance_c extends X10MethodInstance_c implements AtInstance {
     public ClassType container() {
         return (ClassType) super.container();
     }
-    public AtInstance container(StructType t) {
+    public AtInstance container(ContainerType t) {
         return (AtInstance) super.container(t);
     }
 
