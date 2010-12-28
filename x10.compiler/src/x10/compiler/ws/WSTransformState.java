@@ -41,6 +41,8 @@ import x10.ast.X10MethodDecl;
 import x10.compiler.ws.util.WSCallGraph;
 import x10.compiler.ws.util.WSCallGraphNode;
 import x10.compiler.ws.util.WSTransformationContent;
+import x10.compiler.ws.util.WSTransformationContent.CallSiteType;
+import x10.compiler.ws.util.WSTransformationContent.MethodType;
 import polyglot.types.Context;
 import polyglot.types.TypeSystem;
 import x10.types.checker.PlaceChecker;
@@ -193,18 +195,23 @@ public class WSTransformState {
     }
 
     
-    public boolean isTargetCallSite(Call call){
+    public boolean isConcurrentCallSite(Call call){	
+    	return getCallSiteType(call) == CallSiteType.CONCURRENT_CALL;
+    }
+    
+    public CallSiteType getCallSiteType(Call call){
     	if(transTarget != null){ //by wala
-    		return transTarget.isTargetCallSite(call);
+    		return transTarget.getCallSiteType(call);
     	}
-    	else{ //by call graph
-    		return callGraph.isParallel(call.methodInstance().def());
+    	else{ //by call graph, only has concurrent or normal
+    		return callGraph.isParallel(call.methodInstance().def()) ? 
+    				CallSiteType.CONCURRENT_CALL : CallSiteType.NORMAL;
     	}
     }
     
-    public boolean isTargetMethod(CodeBlock codeBlock){
+    public MethodType getMethodType(CodeBlock codeBlock){
     	if(transTarget != null){ //by wala
-    		return transTarget.isTargetMethod(codeBlock);
+    		return transTarget.getMethodType(codeBlock);
     	}
     	else{
     		ProcedureDef procedureDef;
@@ -217,7 +224,7 @@ public class WSTransformState {
     		else{ //it should be a closure
     			procedureDef = ((Closure)codeBlock).closureDef();
     		}
-    		return callGraph.isParallel(procedureDef);
+    		return callGraph.isParallel(procedureDef) ? MethodType.BODYDEF_TRANSFORMATION : MethodType.NORMAL;
     	}
     }
 }
