@@ -71,7 +71,7 @@ public abstract class ClassType_c extends ReferenceType_c implements ClassType
     public abstract Name name();
 
     /** Get the container class if a member class. */
-    public StructType container() {
+    public ContainerType container() {
         if (! isMember())
             throw new InternalCompilerError("Non-member class " + this + " cannot have container classes.");
         if (outer() == null)

@@ -478,7 +478,7 @@ public class New_c extends Expr_c implements New
 
     public Type childExpectedType(Expr child, AscriptionVisitor av) {
         if (child == qualifier) {
-            StructType t = ci.container();
+            ContainerType t = ci.container();
                      
             if (t.isClass() && t.toClass().isMember()) {
                 t = t.toClass().container();

@@ -21,7 +21,7 @@ import polyglot.ast.Node;
 import polyglot.ast.Stmt;
 import polyglot.types.Name;
 import polyglot.types.SemanticException;
-import polyglot.types.StructType;
+import polyglot.types.ContainerType;
 import polyglot.types.Type;
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;

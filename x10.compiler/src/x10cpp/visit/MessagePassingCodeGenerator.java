@@ -198,7 +198,7 @@ import x10.extension.X10Ext_c;
 import x10.types.ClosureDef;
 import x10.types.ClosureInstance;
 import x10.types.ParameterType;
-import x10.types.ParameterType_c;
+
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10ConstructorInstance;
@@ -1600,7 +1600,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				HashMap<Type, Type> typeMap = new HashMap<Type, Type>();
 				for (Type t : typeParameters) {
 					assert (t instanceof ParameterType);
-					Type dummy = new ParameterType_c(xts, t.position(), Name.makeFresh("T"), null);
+					Type dummy = new ParameterType(xts, t.position(), Name.makeFresh("T"), null);
 					newTypeParameters.add(dummy);
 					typeMap.put(t, dummy);
 				}

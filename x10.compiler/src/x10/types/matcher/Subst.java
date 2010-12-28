@@ -17,7 +17,7 @@ import java.util.List;
 import polyglot.types.LocalInstance;
 import polyglot.types.NullType;
 import polyglot.types.SemanticException;
-import polyglot.types.StructType;
+import polyglot.types.ContainerType;
 import polyglot.types.Type;
 import polyglot.types.Types;
 import polyglot.types.UnknownType;
@@ -355,7 +355,7 @@ public class Subst {
     public static X10FieldInstance subst(X10FieldInstance fi, XTerm[] y, XVar[] x) throws SemanticException {
         Type ft = subst(fi.type(), y, x);
         Type rt = subst(fi.rightType(), y, x);
-        StructType ct = (StructType) subst(fi.container(), y, x);
+        ContainerType ct = (ContainerType) subst(fi.container(), y, x);
         return (X10FieldInstance) fi.type(ft, rt).container(ct);
     }
 
@@ -390,7 +390,7 @@ public class Subst {
         if (newFormalTypes != formalTypes) {
             ci = ci.formalTypes(newFormalTypes);
         }
-        StructType ct = (StructType) subst(ci.container(), y, x);
+        ContainerType ct = (ContainerType) subst(ci.container(), y, x);
         if (ct != ci.container()) {
             ci =  (X10ConstructorInstance) ci.container(ct);
         }
@@ -419,7 +419,7 @@ public class Subst {
         if (newFormalTypes != formalTypes) {
             mi = mi.formalTypes(newFormalTypes);
         }
-        StructType ct = (StructType) subst(mi.container(), y, x);
+        ContainerType ct = (ContainerType) subst(mi.container(), y, x);
         if (ct != mi.container()) {
             mi =  (X10MethodInstance) mi.container(ct);
         }

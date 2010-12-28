@@ -103,7 +103,7 @@ public abstract class Type_c extends TypeObject_c implements Type
     }
 
     /** Returns a non-null iff isReference() returns true. */
-    public ReferenceType toReference() {
+    public ObjectType toReference() {
 	return null;
     }
 
@@ -113,7 +113,7 @@ public abstract class Type_c extends TypeObject_c implements Type
     }
 
     /** Returns a non-null iff isArray() returns true. */
-    public ArrayType toArray() {
+    public JavaArrayType toArray() {
 	return null;
     }
 

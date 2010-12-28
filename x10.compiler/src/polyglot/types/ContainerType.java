@@ -2,7 +2,12 @@ package polyglot.types;
 
 import java.util.List;
 
-public interface StructType extends Type {
+/**
+ * A container type is an X10 class or interface or struct type. It contains members such
+ * as other types, fields, methods. (Used to be called StructType in Polyglot.)
+ *
+ */
+public interface ContainerType extends Type {
 
     /**
      * Return a list of a all the type's members.

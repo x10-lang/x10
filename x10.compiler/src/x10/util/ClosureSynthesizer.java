@@ -46,7 +46,7 @@ import x10.types.ClosureInstance;
 import x10.types.ClosureType_c;
 import x10.types.FunctionType;
 import x10.types.ParameterType;
-import x10.types.ParameterType_c;
+
 import x10.types.ThisDef;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassDef_c;
@@ -286,12 +286,12 @@ public class ClosureSynthesizer {
         final List<Ref<? extends Type>> argTypes = new ArrayList<Ref<? extends Type>>();
 
         for (int i = 0; i < numTypeParams; i++) {
-            ParameterType t = new ParameterType_c(xts, pos, Name.make("X" + i), Types.ref(cd));
+            ParameterType t = new ParameterType(xts, pos, Name.make("X" + i), Types.ref(cd));
             typeParams.add(t);
         }
 
         for (int i = 0; i < numValueParams; i++) {
-            ParameterType t = new ParameterType_c(xts, pos, Name.make("Z" + (i + 1)), Types.ref(cd));
+            ParameterType t = new ParameterType(xts, pos, Name.make("Z" + (i + 1)), Types.ref(cd));
             argTypes.add(Types.ref(t));
             cd.addTypeParameter(t, ParameterType.Variance.CONTRAVARIANT);
         }
@@ -301,7 +301,7 @@ public class ClosureSynthesizer {
         Type rt = null;
 
         if (!isVoid) {
-            ParameterType returnType = new ParameterType_c(xts, pos, Name.make("U"), Types.ref(cd));
+            ParameterType returnType = new ParameterType(xts, pos, Name.make("U"), Types.ref(cd));
             cd.addTypeParameter(returnType, ParameterType.Variance.COVARIANT);
             rt = returnType;
         }

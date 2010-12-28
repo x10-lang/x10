@@ -31,7 +31,7 @@ import polyglot.types.TypeSystem;
 import polyglot.types.VarDef;
 import polyglot.types.LocalDef;
 import polyglot.types.ClassType;
-import polyglot.types.StructType;
+import polyglot.types.ContainerType;
 import x10.types.X10FieldDef;
 import x10.types.X10ParsedClassType_c;
 import x10.types.X10ProcedureDef;

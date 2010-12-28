@@ -30,7 +30,7 @@ import polyglot.types.Named;
 import polyglot.types.ParsedClassType_c;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
-import polyglot.types.StructType;
+import polyglot.types.ContainerType;
 import polyglot.types.Type;
 import polyglot.types.TypeObject;
 import polyglot.types.TypeSystem;
@@ -250,7 +250,7 @@ implements X10ParsedClassType
         return (X10ClassType) super.container();
     }
 
-    public X10ParsedClassType container(StructType container) {
+    public X10ParsedClassType container(ContainerType container) {
         return (X10ParsedClassType) super.container(container);
     }
 

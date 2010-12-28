@@ -23,7 +23,6 @@ import polyglot.visit.Translator;
 import polyglot.visit.TypeChecker;
 import x10.extension.X10Del_c;
 import x10.extension.X10Ext;
-import x10.types.X10NamedType;
 import polyglot.types.TypeSystem;
 import x10.visit.X10DelegatingVisitor;
 import x10.visit.X10PrettyPrinterVisitor;

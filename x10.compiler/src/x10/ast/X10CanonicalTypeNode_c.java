@@ -49,7 +49,7 @@ import x10.extension.X10Del;
 import x10.types.ClosureDef;
 import x10.types.ClosureType_c;
 import x10.types.ConstrainedType;
-import x10.types.ConstrainedType_c;
+
 import x10.types.ParameterType;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
@@ -312,8 +312,8 @@ public class X10CanonicalTypeNode_c extends CanonicalTypeNode_c implements X10Ca
                     w.end();
                 }
             }
-            if (extras && type.get() instanceof ConstrainedType_c) {
-                ((ConstrainedType_c) type.get()).printConstraint(w);
+            if (extras && type.get() instanceof ConstrainedType) {
+                ((ConstrainedType) type.get()).printConstraint(w);
             }
        }
       }

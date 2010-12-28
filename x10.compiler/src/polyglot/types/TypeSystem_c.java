@@ -295,7 +295,7 @@ public abstract class TypeSystem_c implements TypeSystem
     }
 
     public MethodDef methodDef(Position pos,
-	    Ref<? extends StructType> container, Flags flags,
+	    Ref<? extends ContainerType> container, Flags flags,
 	    Ref<? extends Type> returnType, Name name,
 	    List<Ref<? extends Type>> argTypes) {
 
@@ -654,8 +654,8 @@ public abstract class TypeSystem_c implements TypeSystem
 	    "\" within a null container type.");
 	}
 
-	if (container instanceof StructType) {
-	    FieldInstance fi = ((StructType) container).fieldNamed(name);
+	if (container instanceof ContainerType) {
+	    FieldInstance fi = ((ContainerType) container).fieldNamed(name);
 	    if (fi != null) {
 		try {
 		    fi = matcher.instantiate(fi);
@@ -672,14 +672,14 @@ public abstract class TypeSystem_c implements TypeSystem
 
 	if (container instanceof ObjectType) {
 	    ObjectType ot = (ObjectType) container;
-	    if (ot.superClass() != null && ot.superClass() instanceof StructType) {
-		Set<FieldInstance> superFields = findFields((StructType) ot.superClass(), matcher);
+	    if (ot.superClass() != null && ot.superClass() instanceof ContainerType) {
+		Set<FieldInstance> superFields = findFields((ContainerType) ot.superClass(), matcher);
 		fields.addAll(superFields);
 	    }
 
 	    for (Type it : ot.interfaces()) {
-		if (it instanceof StructType) {
-		    Set<FieldInstance> superFields = findFields((StructType) it, matcher);
+		if (it instanceof ContainerType) {
+		    Set<FieldInstance> superFields = findFields((ContainerType) it, matcher);
 		    fields.addAll(superFields);
 		}
 	    }
@@ -709,23 +709,23 @@ public abstract class TypeSystem_c implements TypeSystem
 	    "\" within a null container type.");
 	}
 
-	if (container instanceof StructType) {
-	    if (! ((StructType) container).methodsNamed(name).isEmpty()) {
+	if (container instanceof ContainerType) {
+	    if (! ((ContainerType) container).methodsNamed(name).isEmpty()) {
 		return true;
 	    }
 	}
 
 	if (container instanceof ObjectType) {
 	    ObjectType ot = (ObjectType) container;
-	    if (ot.superClass() != null && ot.superClass() instanceof StructType) {
-		if (hasMethodNamed((StructType) ot.superClass(), name)) {
+	    if (ot.superClass() != null && ot.superClass() instanceof ContainerType) {
+		if (hasMethodNamed((ContainerType) ot.superClass(), name)) {
 		    return true;
 		}
 	    }
 
 	    for (Type it : ot.interfaces()) {
-		if (it instanceof StructType) {
-		    if (hasMethodNamed((StructType) it, name)) {
+		if (it instanceof ContainerType) {
+		    if (hasMethodNamed((ContainerType) it, name)) {
 			return true;
 		    }
 		}
@@ -1254,8 +1254,8 @@ public abstract class TypeSystem_c implements TypeSystem
 	    while (! typeQueue.isEmpty()) {
 		Type t = typeQueue.removeFirst();
 
-		if (t instanceof StructType) {
-		    StructType type = (StructType) t;
+		if (t instanceof ContainerType) {
+		    ContainerType type = (ContainerType) t;
 
 		    for (Type s : visitedTypes) {
 			if (typeEquals(type, s, context))
@@ -1438,7 +1438,7 @@ public abstract class TypeSystem_c implements TypeSystem
 	return env(context).implemented(mi);
     }
 
-    public List<MethodInstance> implemented(MethodInstance mi, StructType st, Context context) {
+    public List<MethodInstance> implemented(MethodInstance mi, ContainerType st, Context context) {
 	return env(context).implemented(mi, st);
     }
 
@@ -1549,7 +1549,7 @@ public abstract class TypeSystem_c implements TypeSystem
     }
 
     protected PrimitiveType createPrimitive(Name name) {
-	return new PrimitiveType_c(this, name);
+	return new PrimitiveType(this, name);
     }
 
     public static final Name voidName = Name.make("void");
@@ -1698,8 +1698,8 @@ public abstract class TypeSystem_c implements TypeSystem
     /**
      * Factory method for ArrayTypes.
      */
-    protected ArrayType arrayType(Position pos, Ref<? extends Type> type) {
-	ArrayType t = (ArrayType) arrayTypeCache.get(type);
+    protected JavaArrayType arrayType(Position pos, Ref<? extends Type> type) {
+	JavaArrayType t = (JavaArrayType) arrayTypeCache.get(type);
 	if (t == null) {
 	    t = createArrayType(pos, type);
 	    arrayTypeCache.put(type, t);
@@ -1707,8 +1707,8 @@ public abstract class TypeSystem_c implements TypeSystem
 	return t;
     }
 
-    protected ArrayType createArrayType(Position pos, Ref<? extends Type> type) {
-	return new ArrayType_c(this, pos, type);
+    protected JavaArrayType createArrayType(Position pos, Ref<? extends Type> type) {
+	return new JavaArrayType_c(this, pos, type);
     }
 
     public Type arrayOf(Ref<? extends Type> type, int dims) {
@@ -1810,7 +1810,7 @@ public abstract class TypeSystem_c implements TypeSystem
 	return p.translate(c);
     }
 
-    public String translateArray(Resolver c, ArrayType t) {
+    public String translateArray(Resolver c, JavaArrayType t) {
 	return t.translate(c);
     }
 

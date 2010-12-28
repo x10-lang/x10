@@ -355,8 +355,8 @@ public class X10Context_c extends Context_c {
 		return v;
 	}
 
-	public X10NamedType currentDepType() {
-		return (X10NamedType) Types.get(depType);
+	public Type currentDepType() {
+		return  Types.get(depType);
 	}
 
 	public Ref<? extends Type> depTypeRef() {

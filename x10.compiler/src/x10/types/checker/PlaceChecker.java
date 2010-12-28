@@ -16,7 +16,7 @@ import polyglot.types.MethodDef;
 import polyglot.types.MethodInstance;
 import polyglot.types.Name;
 import polyglot.types.SemanticException;
-import polyglot.types.StructType;
+import polyglot.types.ContainerType;
 import polyglot.types.Type;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
@@ -94,7 +94,7 @@ public class PlaceChecker {
 		return homeVar(((Context) xc).thisVar(), (TypeSystem) xc.typeSystem());
 	}
 	static FieldInstance GlobalRefHome(TypeSystem xts) {
-		return ((StructType) xts.GlobalRef()).fieldNamed(xts.homeName());
+		return ((ContainerType) xts.GlobalRef()).fieldNamed(xts.homeName());
 	}
 	/**
 	 * The key  move in adapting the 2.0 place checking system to 2.1 is to continue

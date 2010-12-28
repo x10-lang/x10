@@ -14,16 +14,17 @@ import polyglot.types.SemanticException;
 import polyglot.types.QName;
 import polyglot.ast.Expr;
 import polyglot.visit.Translator;
-import polyglot.types.ArrayType;
+import polyglot.types.JavaArrayType;
 import polyglot.types.ClassType;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.LocalInstance;
 import polyglot.types.MethodInstance;
 import polyglot.types.Name;
+import polyglot.types.ObjectType;
 import polyglot.types.Package;
 import polyglot.types.ParsedClassType;
-import polyglot.types.ReferenceType;
+
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
@@ -136,7 +137,7 @@ public class SharedVarsMethods {
 		((X10ParsedClassType) distribution.type()).isConstantDist();
 	}
 	*/
-	static final ArrayList<ReferenceType> knownSafeClasses = new ArrayList<ReferenceType>();
+	static final ArrayList<ObjectType> knownSafeClasses = new ArrayList<ObjectType>();
 	static final ArrayList<X10MethodInstance> knownSafeMethods = new ArrayList<X10MethodInstance>();
 	static final ArrayList<FieldInstance> knownSafeFields = new ArrayList<FieldInstance>();
 	static void populateKnownSafeEntries(Translator tr){
@@ -148,17 +149,17 @@ public class SharedVarsMethods {
 		TypeSystem ts = (TypeSystem) tr.typeSystem();
 		if (knownSafeClasses.size() == 0) {
 			try {
-				ReferenceType j_l_Math = (ReferenceType) ts.forName(QName.make("java.lang.Math"));
+				ObjectType j_l_Math = (ObjectType) ts.forName(QName.make("java.lang.Math"));
 				knownSafeClasses.add(j_l_Math);
-				ReferenceType j_i_DIS = (ReferenceType) ts.forName(QName.make("java.io.DataInputStream"));
+				ObjectType j_i_DIS = (ObjectType) ts.forName(QName.make("java.io.DataInputStream"));
 				knownSafeClasses.add(j_i_DIS);
-				ReferenceType j_i_FIS = (ReferenceType) ts.forName(QName.make("java.io.FileInputStream"));
+				ObjectType j_i_FIS = (ObjectType) ts.forName(QName.make("java.io.FileInputStream"));
 				knownSafeClasses.add(j_i_DIS);
-				ReferenceType j_i_BAOS = (ReferenceType) ts.forName(QName.make("java.io.ByteArrayOutputStream"));
+				ObjectType j_i_BAOS = (ObjectType) ts.forName(QName.make("java.io.ByteArrayOutputStream"));
 				knownSafeClasses.add(j_i_BAOS);
-				ReferenceType j_i_PS = (ReferenceType) ts.forName(QName.make("java.io.PrintStream"));
+				ObjectType j_i_PS = (ObjectType) ts.forName(QName.make("java.io.PrintStream"));
 				knownSafeClasses.add(j_i_PS);
-				ReferenceType j_u_R = (ReferenceType) ts.forName(QName.make("java.util.Random"));
+				ObjectType j_u_R = (ObjectType) ts.forName(QName.make("java.util.Random"));
 				knownSafeClasses.add(j_u_R);
 			} catch (SemanticException e) { assert (false); }
 		}
@@ -190,7 +191,7 @@ public class SharedVarsMethods {
 				knownSafeMethods.add(ts.findMethod(x_l_dist, ts.MethodMatcher(x_l_dist, Name.make("restriction"), Arrays.asList(X_L_P), context)));
 				knownSafeFields.add(ts.findField(x_l_dist, ts.FieldMatcher(x_l_dist, Name.make("factory"), context)));
 				knownSafeFields.add(ts.findField(x_l_dist, ts.FieldMatcher(x_l_dist, Name.make("UNIQUE"), context)));
-				ReferenceType x_l_dist_factory = (ReferenceType) ts.forName(QName.make("x10.lang.dist.factory"));
+				ObjectType x_l_dist_factory = (ObjectType) ts.forName(QName.make("x10.lang.dist.factory"));
 				Type[] X_L_R = { x_l_region };
 				knownSafeMethods.add(ts.findMethod(x_l_dist, ts.MethodMatcher(x_l_dist_factory, Name.make("block"), Arrays.asList(X_L_R), context)));
 			} catch (SemanticException e) { assert (false); }

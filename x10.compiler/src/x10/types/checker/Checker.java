@@ -510,6 +510,9 @@ public class Checker {
 	        error = new SemanticException(); // null message
 	    if (!targetType.isClass()) {
 	        Name tName = targetType instanceof Named ? ((Named) targetType).name() : Name.make(targetType.toString()); 
+	        if (tName == null) {
+	        	tName = Name.make(targetType.toString());
+	        }
 	        targetType = xts.createFakeClass(QName.make(null, tName), new SemanticException("Target type is not a class: "+targetType));
 	    }
 	    mi = xts.createFakeMethod(targetType.toClass(), Flags.PUBLIC.Static(), name, typeArgs, actualTypes, error);

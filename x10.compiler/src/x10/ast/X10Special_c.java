@@ -112,7 +112,7 @@ public class X10Special_c extends Special_c implements X10Special {
             if (c.currentDepType() == null)
                 if (code instanceof X10ConstructorDef) {
                     X10ConstructorDef cd = (X10ConstructorDef) code;
-                    Type returnType =  cd.returnType().get();
+                    Type returnType =  (Type) cd.returnType().get();
                     returnType =  ts.expandMacros(returnType);
                     t = returnType;
                 }

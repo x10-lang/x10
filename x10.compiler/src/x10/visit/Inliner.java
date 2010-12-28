@@ -55,7 +55,7 @@ import polyglot.types.Name;
 import polyglot.types.QName;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
-import polyglot.types.StructType;
+import polyglot.types.ContainerType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
@@ -814,8 +814,8 @@ public class Inliner extends ContextVisitor {
      * @return the definition of the X10 Class containing md
      */
     private X10ClassDef getContainer(X10MethodDef candidate) {
-        Ref<? extends StructType> containerRef = candidate.container();
-        StructType containerType = Types.get(containerRef);
+        Ref<? extends ContainerType> containerRef = candidate.container();
+        ContainerType containerType = Types.get(containerRef);
         Type containerBase = X10TypeMixin.baseType(containerType);
         assert (containerBase instanceof X10ClassType);
         X10ClassDef container = ((X10ClassType) containerBase).x10Def();

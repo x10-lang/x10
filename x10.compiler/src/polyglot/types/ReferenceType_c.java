@@ -16,7 +16,7 @@ import polyglot.util.Position;
  * a type on which contains methods and fields and is a subtype of
  * Object.
  */
-public abstract class ReferenceType_c extends Type_c implements ReferenceType
+public abstract class ReferenceType_c extends Type_c implements ObjectType
 {
     private static final long serialVersionUID = 145029430265768256L;
 
@@ -33,7 +33,7 @@ public abstract class ReferenceType_c extends Type_c implements ReferenceType
     }
 
     public boolean isReference() { return true; }
-    public ReferenceType toReference() { return this; }
+    public ObjectType toReference() { return this; }
 
     /** Get a list of all the type's MemberInstances. */
     public List<MemberInstance<?>> members() {

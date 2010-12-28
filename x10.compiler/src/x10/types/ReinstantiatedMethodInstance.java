@@ -73,7 +73,7 @@ final class ReinstantiatedMethodInstance extends X10MethodInstance_c {
 	}
 
 	@Override
-	public StructType container() {
+	public ContainerType container() {
 		if (container == null)
 			return this.typeParamSubst.reinstantiate(fi.container());
 		return container;

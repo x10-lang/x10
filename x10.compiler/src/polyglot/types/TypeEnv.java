@@ -103,7 +103,7 @@ public interface TypeEnv extends Copy {
 
     public List<MethodInstance> overrides(MethodInstance mi);
     public List<MethodInstance> implemented(MethodInstance mi);
-    public List<MethodInstance> implemented(MethodInstance mi, StructType st);
+    public List<MethodInstance> implemented(MethodInstance mi, ContainerType st);
 
     public boolean canOverride(MethodInstance mi, MethodInstance mj);
 

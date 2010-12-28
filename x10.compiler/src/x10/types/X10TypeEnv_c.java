@@ -41,7 +41,7 @@ import polyglot.types.ProcedureInstance;
 import polyglot.types.ProcedureInstance_c;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
-import polyglot.types.StructType;
+import polyglot.types.ContainerType;
 import polyglot.types.Type;
 import polyglot.types.TypeEnv_c;
 import polyglot.types.TypeSystem_c;
@@ -113,8 +113,8 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         // check each abstract method of the classes and interfaces in superInterfaces
         for (Iterator<Type> i = superInterfaces.iterator(); i.hasNext(); ) {
             Type it = i.next();
-            if (it instanceof StructType) {
-                StructType rt = (StructType) it;
+            if (it instanceof ContainerType) {
+                ContainerType rt = (ContainerType) it;
                 for (Iterator<MethodInstance> j = rt.methods().iterator(); j.hasNext(); ) {
                     MethodInstance mi = j.next();
                     if (!mi.flags().isAbstract()) {
@@ -1656,7 +1656,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     public List<MethodInstance> overrides(MethodInstance jmi) {
         X10MethodInstance mi = (X10MethodInstance) jmi;
         List<MethodInstance> l = new ArrayList<MethodInstance>();
-        StructType rt = mi.container();
+        ContainerType rt = mi.container();
 
         XVar thisVar = mi.x10Def().thisVar();
         if (thisVar == null)
@@ -1675,12 +1675,12 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
             // add any method with the same name and formalTypes from rt
             l.addAll(ts.methods(rt, mi.name(), mi.typeParameters(), mi.formalTypes(), thisVar, context));
 
-            StructType sup = null;
+            ContainerType sup = null;
 
             if (rt instanceof ObjectType) {
                 ObjectType ot = (ObjectType) rt;
-                if (ot.superClass() instanceof StructType) {
-                    sup = (StructType) ot.superClass();
+                if (ot.superClass() instanceof ContainerType) {
+                    sup = (ContainerType) ot.superClass();
                 }
             }
 
@@ -1698,7 +1698,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         return implemented(mi, mi.container(), thisVar);
     }
 
-    protected List<MethodInstance> implemented(MethodInstance jmi, StructType st, XVar thisVar) {
+    protected List<MethodInstance> implemented(MethodInstance jmi, ContainerType st, XVar thisVar) {
         X10MethodInstance  mi = (X10MethodInstance) jmi;
         if (st == null) {
             return Collections.<MethodInstance>emptyList();
@@ -1722,14 +1722,14 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
             Type superType = rt.superClass();
 
-            if (superType instanceof StructType) {
-                l.addAll(implemented(mi, (StructType) superType, thisVar)); 
+            if (superType instanceof ContainerType) {
+                l.addAll(implemented(mi, (ContainerType) superType, thisVar)); 
             }
 
             List<Type> ints = rt.interfaces();
             for (Type t : ints) {
-                if (t instanceof StructType) {
-                    StructType rt2 = (StructType) t;
+                if (t instanceof ContainerType) {
+                    ContainerType rt2 = (ContainerType) t;
                     l.addAll(implemented(mi, rt2, thisVar));
                 }
             }

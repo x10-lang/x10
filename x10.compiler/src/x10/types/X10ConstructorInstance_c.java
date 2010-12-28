@@ -30,9 +30,9 @@ import polyglot.types.MethodDef;
 import polyglot.types.MethodInstance;
 import polyglot.types.ProcedureInstance;
 import polyglot.types.Ref;
-import polyglot.types.ReferenceType;
+
 import polyglot.types.SemanticException;
-import polyglot.types.StructType;
+import polyglot.types.ContainerType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
@@ -128,7 +128,7 @@ public class X10ConstructorInstance_c extends ConstructorInstance_c implements X
     }
 
     @Override
-    public X10ConstructorInstance container(StructType container) {
+    public X10ConstructorInstance container(ContainerType container) {
         if (container == this.container) return this;
         return (X10ConstructorInstance) super.container(container);
     }

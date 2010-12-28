@@ -61,7 +61,7 @@ import polyglot.types.NoClassException;
 import polyglot.types.QName;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
-import polyglot.types.StructType;
+import polyglot.types.ContainerType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
@@ -91,7 +91,7 @@ import x10.Configuration;
 import x10.config.ConfigurationError;
 import x10.config.OptionError;
 import x10.extension.X10Ext;
-import x10.types.ConstrainedType_c;
+import x10.types.ConstrainedType;
 import x10.types.FunctionType;
 import x10.types.MacroType;
 import x10.types.ParameterType;
@@ -1781,7 +1781,7 @@ public class Emitter {
 	        .translateJava()
 	    );
         
-	    StructType st = def.container().get();
+	    ContainerType st = def.container().get();
 	    
 	    if (def instanceof X10MethodDef) {
 	        List<ParameterType> tps = ((X10MethodDef) def).typeParameters();
@@ -1890,7 +1890,7 @@ public class Emitter {
 	    TypeSystem xts = (TypeSystem) tr.typeSystem();
 	    
 	    boolean isInterface2 = false;
-	    StructType st2 = impl.container();
+	    ContainerType st2 = impl.container();
 	    Type bst = X10TypeMixin.baseType(st2);
         if (st2 instanceof X10ClassType) {
 	        if (xts.isInterfaceType(bst) || (xts.isFunctionType(bst) && ((X10ClassType) bst).isAnonymous())) {
@@ -2437,11 +2437,11 @@ public class Emitter {
             Type actual = e.type();
 
             Type expectedBase = expected;
-            if (expectedBase instanceof ConstrainedType_c) {
-                expectedBase = ((ConstrainedType_c) expectedBase).baseType().get();
+            if (expectedBase instanceof ConstrainedType) {
+                expectedBase = ((ConstrainedType) expectedBase).baseType().get();
             }
-            if (actual instanceof ConstrainedType_c) {
-                actual = ((ConstrainedType_c) actual).baseType().get();
+            if (actual instanceof ConstrainedType) {
+                actual = ((ConstrainedType) actual).baseType().get();
             }
             CastExpander expander = new CastExpander(w, this, e);
             if (actual.isNull() || e.isConstant() && !(expectedBase instanceof ParameterType) && !(actual instanceof ParameterType)) {
@@ -2460,7 +2460,7 @@ public class Emitter {
                 } else {
 
                     //when the type of e has parameters, cast to actual boxed primitive. 
-                    if (!isNoArgumentType(e) || expected instanceof ConstrainedType_c) {
+                    if (!isNoArgumentType(e) || expected instanceof ConstrainedType) {
                         expander = expander.castTo(actual, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
                         expander = expander.castTo(actual).castTo(expectedBase).castTo(expectedBase, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
                         expander.expand(tr);
@@ -2473,7 +2473,7 @@ public class Emitter {
                 }
             }
             else {
-                if (actual.typeEquals(expected, tr.context()) && !(expected instanceof ConstrainedType_c) && !(expectedBase instanceof ParameterType) && !(actual instanceof ParameterType)) {
+                if (actual.typeEquals(expected, tr.context()) && !(expected instanceof ConstrainedType) && !(expectedBase instanceof ParameterType) && !(actual instanceof ParameterType)) {
                     prettyPrint(e, tr);
                 }
                 else {
@@ -2919,8 +2919,8 @@ public class Emitter {
             if (superType0Ref != null) {
                 Type superType0 = superType0Ref.get();
                 X10ClassType superType;
-                if (superType0 instanceof ConstrainedType_c) {
-                    superType = (X10ClassType) ((ConstrainedType_c) superType0).baseType().get();
+                if (superType0 instanceof ConstrainedType) {
+                    superType = (X10ClassType) ((ConstrainedType) superType0).baseType().get();
                 } else {
                     superType = (X10ClassType) superType0;
                 }
@@ -3017,8 +3017,8 @@ public class Emitter {
         for (polyglot.types.FieldDef field : def.fields()) {
             if (field.flags().isStatic()) continue;
             Type type = field.type().get();
-            if (type instanceof ConstrainedType_c) {
-                type = ((ConstrainedType_c) type).baseType().get();
+            if (type instanceof ConstrainedType) {
+                type = ((ConstrainedType) type).baseType().get();
             }
             String lhs = "this." + field.name().toString() + " = ";
             String zero = null;
@@ -3183,7 +3183,7 @@ public class Emitter {
                 if (implemented.def().equals(myMethod.def())) continue;
                 
                 // only interface
-                StructType st = implemented.def().container().get();
+                ContainerType st = implemented.def().container().get();
                 if (st instanceof X10ClassType) {
                     if (!((X10ClassType) st).flags().isInterface()) {
                         continue;

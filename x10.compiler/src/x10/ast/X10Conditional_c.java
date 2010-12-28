@@ -39,7 +39,6 @@ import polyglot.visit.ContextVisitor;
 import x10.constraint.XConstraint;
 import x10.errors.Errors;
 import polyglot.types.Context;
-import x10.types.X10NamedType;
 
 import x10.types.X10TypeMixin;
 import polyglot.types.TypeSystem;

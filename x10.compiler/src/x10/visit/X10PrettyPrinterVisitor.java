@@ -78,7 +78,7 @@ import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
 import polyglot.ast.Unary_c;
 import polyglot.frontend.Source;
-import polyglot.types.ArrayType;
+import polyglot.types.JavaArrayType;
 import polyglot.types.ClassDef;
 import polyglot.types.ConstructorDef;
 import polyglot.types.Context;
@@ -93,7 +93,7 @@ import polyglot.types.Name;
 import polyglot.types.QName;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
-import polyglot.types.StructType;
+import polyglot.types.ContainerType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
@@ -172,7 +172,7 @@ import x10.types.FunctionType;
 import x10.types.ParameterType;
 import x10.types.ParameterType.Variance;
 import x10.types.constraints.SubtypeConstraint;
-import x10.types.ConstrainedType_c;
+
 import x10.types.X10ClassDef;
 import x10.types.X10ClassDef_c;
 import x10.types.X10ClassType;
@@ -814,9 +814,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         // 3) any struct type (including primitive structs) that has any constraint (e.g. Int{self != 0})
         // 4) any user-defined struct that does not have zero value
         
-        if (type instanceof ConstrainedType_c) {
-            ConstrainedType_c constrainedType = (ConstrainedType_c) type; 
-            type = ((ConstrainedType_c) type).baseType().get();
+        if (type instanceof ConstrainedType) {
+            ConstrainedType constrainedType = (ConstrainedType) type; 
+            type = constrainedType.baseType().get();
 
             if (xts.isParameterType(type)) {
                 // parameter type T
@@ -1156,7 +1156,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     // if it isn't set id or don't have an annotation, return -1
     private int getConstructorId(X10ConstructorDef condef) {
         if (!hasConstructorIdAnnotation(condef)) {
-            StructType st = condef.container().get();
+            ContainerType st = condef.container().get();
             if (st instanceof X10ClassType) {
                 X10ClassDef def = (X10ClassDef) ((X10ClassType) st).def();
                 setConstructorIds(def);
@@ -1593,7 +1593,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     		}
     		
     		boolean fromInterface = false;
-    		StructType st = mi.def().container().get();
+    		ContainerType st = mi.def().container().get();
     		Type bst = X10TypeMixin.baseType(st);
     		if (bst instanceof X10ClassType) {
     		    if (xts.isInterfaceType(bst) || (xts.isFunctionType(bst) && ((X10ClassType) bst).isAnonymous())) {
@@ -3337,7 +3337,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             // TODO:CAST
             w.write("(");
             w.write("(");
-            ArrayType arrayType = (ArrayType) n.type();
+            JavaArrayType arrayType = (JavaArrayType) n.type();
             er.printType(arrayType.base(), 0);
             w.write("[]");
             w.write(")");
@@ -3374,7 +3374,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
         public void visit(X10CBackingArrayNewArray_c n) {
             w.write("new ");
-            er.printType(((ArrayType)n.type()).base(), 0);
+            er.printType(((JavaArrayType)n.type()).base(), 0);
             for (Expr dim : n.dims()) {
                 w.write("[");
                 er.prettyPrint(dim, tr);

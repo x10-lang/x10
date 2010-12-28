@@ -34,7 +34,6 @@ import polyglot.visit.PrettyPrinter;
 import polyglot.visit.ReachChecker;
 import x10.types.ClosureDef;
 import polyglot.types.Context;
-import x10.types.X10NamedType;
 import x10.types.X10TypeMixin;
 import polyglot.types.TypeSystem;
 

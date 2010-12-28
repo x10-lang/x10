@@ -48,7 +48,7 @@ public interface Type extends Qualifier, Annotated
     /**
      * Cast the type to a reference type, or null.
      */
-    ReferenceType toReference();
+    ObjectType toReference();
 
     /**
      * Cast the type to a primitive type, or null.
@@ -58,7 +58,7 @@ public interface Type extends Qualifier, Annotated
     /**
      * Cast the type to an array type, or null.
      */
-    ArrayType toArray();
+    JavaArrayType toArray();
 
     /**
      * Return true if this type is equivalent to t.

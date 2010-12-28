@@ -48,7 +48,7 @@ import x10.errors.Errors;
 import x10.extension.X10Del;
 import x10.extension.X10Del_c;
 import x10.extension.X10Ext;
-import x10.types.ConstrainedType_c;
+
 import x10.types.X10ClassType;
 import polyglot.types.Context;
 import x10.types.X10FieldDef;

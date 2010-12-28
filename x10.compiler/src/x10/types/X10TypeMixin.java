@@ -52,7 +52,7 @@ import polyglot.types.Types;
 import polyglot.types.UnknownType;
 import polyglot.types.QName;
 import polyglot.types.FieldDef;
-import polyglot.types.StructType;
+import polyglot.types.ContainerType;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.ErrorInfo;
@@ -368,7 +368,7 @@ public class X10TypeMixin {
                 ParameterType.Variance var = variances.get(i);
                 checkVariance(arg, variance.mult(var), errs, pos);
             }
-        } else if (t instanceof ConstrainedType_c) {
+        } else if (t instanceof ConstrainedType) {
 	        ConstrainedType ct = (ConstrainedType) t;
             base = Types.get(ct.baseType());
         } /*else if (t instanceof AnnotatedType_c) {
@@ -434,7 +434,7 @@ public class X10TypeMixin {
 		return xclause(Types.ref(t), Types.ref(c));
 	}
 	public static ConstrainedType constrainedType(Type base, CConstraint c) {
-		return new ConstrainedType_c((TypeSystem) base.typeSystem(), base.position(), Types.ref(base),
+		return new ConstrainedType((TypeSystem) base.typeSystem(), base.position(), Types.ref(base),
 				Types.ref(c));
 	}
 	// vj: 08/11/09 -- have to recursively walk the 
@@ -456,7 +456,7 @@ public class X10TypeMixin {
 	            return tx;
 	        
 	        if (oldc == null) {
-	            return new ConstrainedType_c(ts, tx.position(), t, c);
+	            return new ConstrainedType(ts, tx.position(), t, c);
 	        }
 	        else {
 	            newc = newc.copy();
@@ -467,7 +467,7 @@ public class X10TypeMixin {
 	                newc.setInconsistent();
 	            }
 	            assert tx != null;
-	            return new ConstrainedType_c(ts, tx.position(), Types.ref(X10TypeMixin.baseType(tx)), Types.ref(newc));
+	            return new ConstrainedType(ts, tx.position(), Types.ref(X10TypeMixin.baseType(tx)), Types.ref(newc));
 	        }
 	    }
 	    
@@ -507,7 +507,7 @@ public class X10TypeMixin {
 
 	    Type tx = t.getCached();
 	    assert tx != null;
-	    return new ConstrainedType_c((TypeSystem) tx.typeSystem(), tx.position(), t.known()? t: tref, cref);
+	    return new ConstrainedType((TypeSystem) tx.typeSystem(), tx.position(), t.known()? t: tref, cref);
 	}
 
     public static boolean isConstrained(Type t) {
@@ -1312,8 +1312,8 @@ public class X10TypeMixin {
                 }
             }
         } else if (isX10Struct(t)) {
-            if (!(t instanceof StructType)) return false;
-            StructType structType = (StructType) t;
+            if (!(t instanceof ContainerType)) return false;
+            ContainerType structType = (ContainerType) t;
             // user-defined structs (such as Complex) can have zero iff
             // 1) They do not have a class invariant
             // 2) all their fields have zero

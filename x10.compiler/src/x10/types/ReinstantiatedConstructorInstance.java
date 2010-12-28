@@ -6,7 +6,7 @@ package x10.types;
 import java.util.List;
 
 import polyglot.types.Ref;
-import polyglot.types.StructType;
+import polyglot.types.ContainerType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.util.Position;
@@ -62,7 +62,7 @@ final class ReinstantiatedConstructorInstance extends X10ConstructorInstance_c {
 	}
 
 	@Override
-	public StructType container() {
+	public ContainerType container() {
 		if (container == null)
 			return this.typeParamSubst.reinstantiate(fi.container());
 		return container;

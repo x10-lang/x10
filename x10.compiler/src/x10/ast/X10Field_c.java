@@ -35,7 +35,7 @@ import polyglot.types.Name;
 import polyglot.types.Named;
 import polyglot.types.QName;
 import polyglot.types.SemanticException;
-import polyglot.types.StructType;
+import polyglot.types.ContainerType;
 import polyglot.types.Type;
 import polyglot.util.ErrorInfo;
 import polyglot.util.Position;
@@ -160,6 +160,9 @@ public class X10Field_c extends Field_c {
 	        e = new SemanticException(); // null message
 	    if (!targetType.isClass()) {
 	        Name tName = targetType instanceof Named ? ((Named) targetType).name() : Name.make(targetType.toString()); 
+	        if (tName == null) {
+	        	tName = Name.make(targetType.toString());
+	        }
 	        targetType = xts.createFakeClass(QName.make(null, tName), new SemanticException("Target type is not a class: "+targetType));
 	    }
 	    fi = xts.createFakeField(targetType.toClass(), flags, name, e);
