@@ -99,6 +99,7 @@ import polyglot.types.InitializerInstance;
 import polyglot.types.LocalDef;
 import polyglot.types.MemberDef;
 import polyglot.types.MethodInstance;
+import polyglot.types.Name;
 import polyglot.types.Named;
 import polyglot.types.ObjectType;
 import polyglot.types.ProcedureInstance;
@@ -3009,6 +3010,45 @@ public class X10toCAstTranslator implements TranslatorToCAst {
               return makeNode(mc, fFactory, cd, CAstNode.BLOCK_STMT, new CAstNode[0]);
             }
             return super.visit(cd, mc);
+        }
+
+        private MethodInstance findMethod(Type container, String name, Type arg1, Type arg2) {
+            List<Type> argTypes = new ArrayList<Type>();
+            argTypes.add(arg1);
+            argTypes.add(arg2);
+            try {
+                return fTypeSystem.findMethod(container, fTypeSystem.MethodMatcher(container, Name.make(name), argTypes, fTypeSystem.emptyContext()));
+            } catch (SemanticException e) {
+                return null;
+            }
+        }
+
+        @Override
+        public CAstNode visit(Binary b, WalkContext context) {
+            Binary.Operator op = b.operator();
+            Expr left = b.left();
+            Expr right = b.right();
+            if (op == Binary.Operator.DOT_DOT) {
+                Assertions.productionAssertion(left.type().isInt() && right.type().isInt(), "Operator .. on ("+left.type()+","+right.type()+")");
+                Call mr = fNodeFactory.RegionMaker(b.position(), left, right);
+                Type rgn = fTypeSystem.Region();
+                MethodInstance mi = findMethod(rgn, "makeRectangular", fTypeSystem.Int(), fTypeSystem.Int());
+                mr = mr.methodInstance(mi);
+                mr = (Call) mr.type(mi.returnType());
+                return visit(mr, context);
+            } else if (op == Binary.Operator.ARROW) {
+                Assertions.productionAssertion(fTypeSystem.isRegion(left.type()) && fTypeSystem.isPlace(right.type()), "Operator -> on ("+left.type()+","+right.type()+")");
+                Call mc = fNodeFactory.ConstantDistMaker(b.position(), left, right);
+                Type dst = fTypeSystem.Dist();
+                MethodInstance mi = findMethod(dst, "makeConstant", fTypeSystem.Region(), fTypeSystem.Place());
+                mc = mc.methodInstance(mi);
+                mc = (Call) mc.type(mi.returnType());
+                return visit(mc, context);
+            } else if (op == Binary.Operator.IN) {
+                Assertions.UNREACHABLE("Operator 'in' encountered");
+                return null;
+            }
+            return super.visit(b, context);
         }
 
         public CAstNode visit(Async a, WalkContext context) {
