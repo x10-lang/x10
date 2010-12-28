@@ -504,7 +504,7 @@ public class Emitter {
 		}
 
 		for (Type itf : interfaces) {
-			X10ClassType itf_ = (X10ClassType) itf;
+			X10ClassType itf_ = (X10ClassType) X10TypeMixin.baseType(itf);
 			// same thing again for interfaces
 			MethodInstance superMeth = getOverridingMethod(xts,itf_,from,context);
 			if (superMeth != null) {
