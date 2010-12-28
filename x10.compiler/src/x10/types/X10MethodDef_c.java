@@ -232,7 +232,7 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
     }
     
 	public String toString() {
-		String s = designator() + " " + X10Flags.toX10Flags(flags()).prettyPrint() + container() + "." + 
+		String s = designator() + " " + flags().prettyPrint() + container() + "." + 
 		signature() + (guard() != null ? guard() : "") 
 		+ ": " + returnType();
 

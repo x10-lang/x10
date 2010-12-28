@@ -229,7 +229,7 @@ public class X10ConstructorInstance_c extends ConstructorInstance_c implements X
     }
 
     public String toString() {
-	    String s = designator() + " " + X10Flags.toX10Flags(flags()).prettyPrint() + signature();
+	    String s = designator() + " " + flags().prettyPrint() + signature();
 
 	
 	    return s;

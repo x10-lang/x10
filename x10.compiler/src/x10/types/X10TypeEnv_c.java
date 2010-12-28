@@ -26,6 +26,7 @@ import polyglot.types.ClassType;
 import polyglot.types.ConstructorInstance;
 import polyglot.types.Context;
 import polyglot.types.DerefTransform;
+import polyglot.types.Flags;
 import polyglot.types.LazyRef;
 import polyglot.types.LazyRef_c;
 import polyglot.types.LocalInstance;
@@ -369,10 +370,10 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
                 else
                     throw new InternalCompilerError(t + " must have either a superclass or a single superinterface.");
             }
-            if (X10Flags.toX10Flags(ct.flags()).isInterface())
+            if (ct.flags().isInterface())
                 return Kind.INTERFACE;
 
-            if (X10Flags.toX10Flags(ct.flags()).isStruct())
+            if (ct.flags().isStruct())
                 return Kind.STRUCT;
             else
                 return Kind.OBJECT;
@@ -1872,8 +1873,8 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
             throw new SemanticException(mi.signature() + " in " + mi.container() +" cannot override " +mj.signature() + " in " + mj.container() +"; method guard is not entailed.",mi.position());
         }
 
-        X10Flags miF = X10Flags.toX10Flags(mi.flags());
-        X10Flags mjF = X10Flags.toX10Flags(mj.flags());
+        Flags miF = mi.flags();
+        Flags mjF = mj.flags();
 
         // Report.report(1, "X10MethodInstance_c: " + this + " canOverrideImpl " + mj);
         if (! miF.hasAllAnnotationsOf(mjF)) {

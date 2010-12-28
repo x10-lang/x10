@@ -41,7 +41,7 @@ import x10.types.X10ClassDef;
 import polyglot.types.Context;
 import x10.types.ConstrainedType;
 import x10.types.X10FieldInstance;
-import x10.types.X10Flags;
+
 import x10.types.X10MethodInstance;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem_c;
@@ -327,7 +327,7 @@ public class PlaceChecker {
 	
 	}
 	public static Context pushHereTerm(InitializerDef id, Context cxt) {
-		X10Flags flags = X10Flags.toX10Flags(id.flags());
+		Flags flags = id.flags();
 		
 		// A static initializer executes at place 0.
 		if (flags.isStatic()) 
@@ -342,7 +342,7 @@ public class PlaceChecker {
 		return pushHereIsThisHome(cxt);
 	}
 	public static Context pushHereTerm(FieldDef fd, Context c) {
-		X10Flags flags = X10Flags.toX10Flags(fd.flags());
+		Flags flags = fd.flags();
 		if (flags.isStatic()) 
 			return c.pushPlace(firstPlace((TypeSystem) fd.typeSystem()));
 		if (X10TypeMixin.isX10Struct(fd.container().get())) 
@@ -363,8 +363,7 @@ public class PlaceChecker {
 	}
 	
 	public static XTerm methodPT(Flags flags, ClassDef ct) {
-		X10Flags xflags = X10Flags.toX10Flags(flags);
-		boolean isGlobal = xflags.isStatic() || X10TypeMixin.isX10Struct(ct.asType());
+		boolean isGlobal = flags.isStatic() || X10TypeMixin.isX10Struct(ct.asType());
 		return (isGlobal) ? 
 				makePlace() :
 					homeVar(((X10ClassDef) ct).thisVar(), (TypeSystem) ct.typeSystem());
@@ -377,7 +376,7 @@ public class PlaceChecker {
 	 * @return
 	 */
 	static boolean isGlobalCode(MethodDef md) {
-		X10Flags flags = X10Flags.toX10Flags(md.flags());
+		Flags flags = md.flags();
 		boolean isGlobal =  flags.isStatic() || X10TypeMixin.isX10Struct(md.container().get());
 		return isGlobal;
 	}
@@ -503,7 +502,7 @@ public class PlaceChecker {
 		return false;
 	}*/
 
-    public static Receiver makeReceiverLocalIfNecessary(ContextVisitor tc, Receiver target, X10Flags flags) {
+    public static Receiver makeReceiverLocalIfNecessary(ContextVisitor tc, Receiver target, Flags flags) {
         /*if (isTargetPlaceSafe(tc, target, flags)) return target;  // nothing to do
         if (Configuration.STATIC_CALLS) return null;              // nothing we can do
         if (((X10Context) tc.context()).currentPlaceTerm() == null)
@@ -520,7 +519,7 @@ public class PlaceChecker {
 
     public static X10Call makeReceiverLocalIfNecessary(X10Call n, ContextVisitor tc) throws SemanticException {
         Receiver res =
-            makeReceiverLocalIfNecessary(tc, n.target(), X10Flags.toX10Flags(n.methodInstance().flags()));
+            makeReceiverLocalIfNecessary(tc, n.target(), n.methodInstance().flags());
         if (res != null) {
             if (res != n.target()) n = (X10Call) n.target(res).targetImplicit(false);
             return n;
@@ -538,7 +537,7 @@ public class PlaceChecker {
     
     public static X10Field_c makeFieldAccessLocalIfNecessary(X10Field_c n, ContextVisitor tc) throws SemanticException {
         Receiver res =
-            makeReceiverLocalIfNecessary(tc, n.target(), X10Flags.toX10Flags(n.fieldInstance().flags()));
+            makeReceiverLocalIfNecessary(tc, n.target(), n.fieldInstance().flags());
         if (res != null) {
             if (res != n.target()) n = (X10Field_c) n.target(res).targetImplicit(false);
             return n;

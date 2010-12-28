@@ -52,7 +52,7 @@ import x10.types.ConstrainedType_c;
 import x10.types.X10ClassType;
 import polyglot.types.Context;
 import x10.types.X10FieldDef;
-import x10.types.X10Flags;
+
 import x10.types.X10LocalDef;
 import x10.types.X10ParsedClassType_c;
 import x10.types.X10TypeMixin;

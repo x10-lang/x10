@@ -98,7 +98,7 @@ import x10.types.ParameterType;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10Def;
-import x10.types.X10Flags;
+
 import x10.types.X10MethodDef;
 import x10.types.X10MethodInstance;
 import x10.types.X10ParsedClassType_c;
@@ -1777,7 +1777,7 @@ public class Emitter {
 
 	    w.begin(0);
 	    w.write(flags.clearAbstract().clearProtected().Public()
-	        .clear(X10Flags.NATIVE)
+	        .clear(Flags.NATIVE)
 	        .translateJava()
 	    );
         
@@ -1991,7 +1991,7 @@ public class Emitter {
     
     	    w.begin(0);
     	    w.write(flags.clearAbstract()
-    	        .clear(X10Flags.NATIVE)
+    	        .clear(Flags.NATIVE)
     	        .translateJava()
     	    );
     
@@ -3331,7 +3331,7 @@ public class Emitter {
 
         w.begin(0);
         w.write(flags.clearAbstract()
-            .clear(X10Flags.NATIVE)
+            .clear(Flags.NATIVE)
             .translateJava()
         );
         

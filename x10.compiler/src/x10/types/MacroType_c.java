@@ -97,18 +97,17 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 		return ((TypeSystem) typeSystem()).isStructType(this);
 	}
 	
-	public Type setFlags(Flags f) {
-		X10Flags xf = X10Flags.toX10Flags(f);
+	public Type setFlags(Flags xf) {
 		MacroType_c c = (MacroType_c) this.copy();
 		if (c.flags == null)
-			c.flags = X10Flags.toX10Flags(Flags.NONE);
-		c.flags = (xf.isStruct()) ? X10Flags.toX10Flags(c.flags).Struct() : c.flags;
+			c.flags = Flags.NONE;
+		c.flags = (xf.isStruct()) ? c.flags.Struct() : c.flags;
 		return c;
 	}
 	public Type clearFlags(Flags f) {
 		MacroType_c c = (MacroType_c) this.copy();
 		if (c.flags == null)
-			c.flags = X10Flags.toX10Flags(Flags.NONE);
+			c.flags = Flags.NONE;
 		c.flags = c.flags.clear(f);
 		return c;
 	}

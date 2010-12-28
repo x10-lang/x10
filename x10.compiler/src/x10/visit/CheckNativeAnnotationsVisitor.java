@@ -35,7 +35,6 @@ import x10.ast.X10MethodDecl;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10Def;
-import x10.types.X10Flags;
 import x10.types.X10MethodDef;
 import x10.types.X10TypeMixin;
 import polyglot.types.TypeSystem;
@@ -201,7 +200,7 @@ public class CheckNativeAnnotationsVisitor extends ContextVisitor {
                 X10MethodDecl md = (X10MethodDecl) n;
                 X10MethodDef def = (X10MethodDef) md.methodDef();
                 // HACK: ignore unary property methods -- there could be a native annotation on the property
-                if (X10Flags.toX10Flags(def.flags()).isProperty() && def.formalTypes().size() == 0)
+                if (def.flags().isProperty() && def.formalTypes().size() == 0)
                     ;
                 else if (md.name().toString().equals("typeName"))  // special case this synthetic method
                 	;

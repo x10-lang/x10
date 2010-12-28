@@ -37,7 +37,7 @@ import x10.extension.X10Del;
 import x10.types.ParameterType;
 import x10.types.X10ConstructorDef;
 import polyglot.types.Context;
-import x10.types.X10Flags;
+
 import polyglot.types.TypeSystem;
 
 /**

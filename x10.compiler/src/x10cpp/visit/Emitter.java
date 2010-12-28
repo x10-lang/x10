@@ -75,7 +75,7 @@ import x10.types.ParameterType;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10ConstructorDef;
-import x10.types.X10Flags;
+
 import x10.types.X10LocalDef;
 import x10.types.X10MethodDef;
 import x10.types.X10MethodInstance;

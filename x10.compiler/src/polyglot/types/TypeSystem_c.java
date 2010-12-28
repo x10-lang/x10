@@ -1545,7 +1545,7 @@ public abstract class TypeSystem_c implements TypeSystem
     public Type ArithmeticException()  { return load("java.lang.ArithmeticException"); }
 
     protected NullType createNull() {
-	return new NullType_c(this);
+	return new NullType(this);
     }
 
     protected PrimitiveType createPrimitive(Name name) {
@@ -1610,7 +1610,7 @@ public abstract class TypeSystem_c implements TypeSystem
 
     protected ClassDef unknownClassDef = null;
 
-    protected UnknownType unknownType = new UnknownType_c(this);
+    protected UnknownType unknownType = new UnknownType(this);
     protected UnknownPackage unknownPackage = new UnknownPackage_c(this);
     protected UnknownQualifier unknownQualifier = new UnknownQualifier_c(this);
 

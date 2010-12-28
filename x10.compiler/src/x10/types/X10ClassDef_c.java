@@ -343,7 +343,7 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
     	return new LazyRef_c<TypeConstraint>(X10TypeMixin.parameterBounds(asType()));
     }
     public boolean isStruct() {
-    	return X10Flags.toX10Flags(flags()).isStruct();
+    	return flags().isStruct();
     }
     // This is overridden by the synthetic Fun_** classes created in X10TypeSystem_c.
     public boolean isFunction() {
@@ -386,10 +386,10 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
      * In the current X10 implementation closure types are final anonymous classes.
      */
     @Override
-    public X10Flags flags() {
+    public Flags flags() {
        if (kind() == ANONYMOUS)
-            return X10Flags.toX10Flags(Flags.FINAL);
-        return X10Flags.toX10Flags(flags);
+            return Flags.FINAL;
+        return flags;
     }
 
     public X10ClassType asType() {

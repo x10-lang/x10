@@ -91,7 +91,7 @@ import x10.types.X10ClassType;
 import polyglot.types.Context;
 import x10.types.X10Def;
 import x10.types.X10FieldInstance;
-import x10.types.X10Flags;
+
 import x10.types.X10MethodDef;
 import x10.types.X10MethodInstance;
 import x10.types.X10TypeMixin;
@@ -960,12 +960,12 @@ public class Synthesizer {
         }
 
         // constructor
-        X10ConstructorDecl xd = (X10ConstructorDecl) xnf.ConstructorDecl(p, xnf.FlagsNode(p, X10Flags.PRIVATE), cDecl
+        X10ConstructorDecl xd = (X10ConstructorDecl) xnf.ConstructorDecl(p, xnf.FlagsNode(p, Flags.PRIVATE), cDecl
                 .name(), fList,  block);
         xd.typeParameters(cDecl.typeParameters());
         xd.returnType(xnf.CanonicalTypeNode(p, cDef.asType()));
 
-        ConstructorDef xDef = xts.constructorDef(p, Types.ref(cDef.asType()), X10Flags.PRIVATE, ftList);
+        ConstructorDef xDef = xts.constructorDef(p, Types.ref(cDef.asType()), Flags.PRIVATE, ftList);
         return (X10ConstructorDecl) xd.constructorDef(xDef);
     }
 
@@ -1016,7 +1016,7 @@ public class Synthesizer {
              
         // constructor 
         X10ConstructorDecl xd = (X10ConstructorDecl) xnf.ConstructorDecl(p,
-                xnf.FlagsNode(p, X10Flags.PUBLIC),
+                xnf.FlagsNode(p, Flags.PUBLIC),
                 cDecl.name(),
                 fList,                              // formal types
                 block);
@@ -1025,7 +1025,7 @@ public class Synthesizer {
 
         ConstructorDef xDef = xts.constructorDef(p,
                 Types.ref(cDef.asType()),
-                X10Flags.PUBLIC,
+                Flags.PUBLIC,
                 frList                                         // formal types
                 );  // throw types
 
@@ -1337,7 +1337,7 @@ public class Synthesizer {
         
         //add default constructor
         X10ConstructorDecl xd = (X10ConstructorDecl) xnf.ConstructorDecl(p,
-                xnf.FlagsNode(p, X10Flags.PUBLIC),
+                xnf.FlagsNode(p, Flags.PUBLIC),
                 cDecl.name(),
                 Collections.<Formal>emptyList(),
                 xnf.Block(p));
@@ -1346,7 +1346,7 @@ public class Synthesizer {
 
         ConstructorDef xDef = xts.constructorDef(p,
                 Types.ref(cDef.asType()),
-                X10Flags.PRIVATE,
+                Flags.PRIVATE,
                 Collections.<Ref<? extends Type>>emptyList());
 
         List<ClassMember> cm = new ArrayList<ClassMember>();

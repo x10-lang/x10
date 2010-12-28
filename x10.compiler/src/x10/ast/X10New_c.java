@@ -62,7 +62,7 @@ import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10ConstructorInstance;
 import polyglot.types.Context;
-import x10.types.X10Flags;
+
 import x10.types.X10ParsedClassType;
 import x10.types.X10TypeMixin;
 import polyglot.types.TypeSystem;
@@ -180,7 +180,7 @@ public class X10New_c extends New_c implements X10New {
 
             TypeSystem ts = (TypeSystem) childtc.typeSystem();
 
-            X10Flags flags = X10Flags.toX10Flags(ct.get().toClass().flags());
+            Flags flags = ct.get().toClass().flags();
             if (!flags.isInterface()) {
                 anonType.superType(ct);
             }
@@ -419,7 +419,7 @@ public class X10New_c extends New_c implements X10New {
     protected void typeCheckFlags(ContextVisitor tc) throws SemanticException {
         super.typeCheckFlags(tc);
         ClassType ct = tn.type().toClass();
-        if (X10Flags.toX10Flags(ct.flags()).isStruct() && ! newOmitted) {
+        if (ct.flags().isStruct() && ! newOmitted) {
             throw new Errors.NewOfStructNotPermitted(this);
         }
     }

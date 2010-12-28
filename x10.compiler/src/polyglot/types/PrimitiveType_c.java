@@ -7,6 +7,9 @@
 
 package polyglot.types;
 
+import polyglot.util.CodeWriter;
+
+
 
 /**
  * An <code>PrimitiveType_c</code> represents a primitive type.
@@ -63,4 +66,32 @@ public class PrimitiveType_c extends Type_c implements PrimitiveType
     public QName fullName() {
             return QName.make(null, name());
     }
+	public void print(CodeWriter w) {
+		w.write(name().toString());
+	}
+	public String typeName() { 
+	    return toString();
+	}
+	
+	public boolean isX10Struct() { return true;}
+	/* All primitive types are structs. */
+
+	Flags flags = Flags.NONE;
+	public Flags flags() {
+		return flags;
+	}
+	// No flags can be added to primitives. They are struct and not rooted.
+	public Type setFlags(Flags flags) {
+		return this;
+	}
+	public Type clearFlags(Flags flags) {
+		PrimitiveType_c c = (PrimitiveType_c) copy();
+		if (c.flags != null) {
+			c.flags = c.flags.clear(flags);
+		}
+		return c;
+	}
+	 public boolean equalsNoFlag(Type t2) {
+			return this == t2;
+		}
 }

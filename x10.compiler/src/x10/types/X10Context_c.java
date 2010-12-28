@@ -332,7 +332,7 @@ public class X10Context_c extends Context_c {
     	X10CodeDef cd = currentCode();
     	if (cd instanceof X10MethodDef) {
     		X10MethodDef md = (X10MethodDef) cd;
-    		return X10Flags.toX10Flags(md.flags()).isClocked();
+    		return md.flags().isClocked();
     	}
     	return false;
     }

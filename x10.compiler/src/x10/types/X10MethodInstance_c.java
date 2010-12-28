@@ -22,6 +22,7 @@ import polyglot.types.DerefTransform;
 import polyglot.types.ErrorRef_c;
 import polyglot.types.FieldDef;
 import polyglot.types.FieldInstance;
+import polyglot.types.Flags;
 import polyglot.types.LocalDef;
 import polyglot.types.LocalInstance;
 import polyglot.types.MemberDef;
@@ -293,7 +294,7 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
     }
 
     public String toString() {
-        String s = designator() + " " + X10Flags.toX10Flags(flags()).prettyPrint() + containerString() + "." + signature();
+        String s = designator() + " " + flags().prettyPrint() + containerString() + "." + signature();
 
        
         if (body != null)
@@ -381,7 +382,7 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
             Type t = returnType();
 
             // If a property method, replace T with T{self==this}.
-            X10Flags flags = X10Flags.toX10Flags(flags());
+            Flags flags = flags();
 
             if (flags.isProperty() && formalTypes.size() == 0) {
                 if (xts.isUnknown(t)) {

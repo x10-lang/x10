@@ -51,7 +51,7 @@ import x10.types.ParametrizedType_c;
 import x10.types.X10ClassType;
 import polyglot.types.Context;
 import x10.types.X10FieldInstance;
-import x10.types.X10Flags;
+
 import x10.types.X10MethodInstance;
 import x10.types.X10TypeSystem_c;
 
@@ -173,7 +173,7 @@ public class X10Field_c extends Field_c {
     public static boolean isInterfaceProperty(Type targetType, FieldInstance fi) {
         boolean isInterfaceProperty = false;
 
-        if (X10Flags.toX10Flags(fi.flags()).isProperty()) {
+        if (fi.flags().isProperty()) {
             // check if the target is interface
             Type baseType = targetType;
             while (baseType instanceof ConstrainedType) {
@@ -253,7 +253,7 @@ public class X10Field_c extends Field_c {
                 // Now try 0-ary property methods.
                 try {
                     X10MethodInstance mi = ts.findMethod(target.type(), ts.MethodMatcher(target.type(), name.id(), Collections.<Type>emptyList(), c));
-                    if (X10Flags.toX10Flags(mi.flags()).isProperty()) {
+                    if (mi.flags().isProperty()) {
                         Call call = nf.Call(pos, target, this.name);
                         call = call.methodInstance(mi);
                         Type nt =  c.inDepType() ? 
@@ -333,7 +333,7 @@ public class X10Field_c extends Field_c {
 	        X10FieldInstance fi, ContextVisitor tc) throws SemanticException {
 		// Check that field accesses in dep clauses refer to final fields.
 		Context xtc = tc.context();
-		if (X10Flags.toX10Flags(fi.flags()).isClocked() && !xtc.isClocked()) {
+		if (fi.flags().isClocked() && !xtc.isClocked()) {
 			throw new Errors.IllegalClockedAccess(fi, pos);
 		}
 	}

@@ -208,7 +208,7 @@ public class TypeDef_c extends MemberDef_c implements TypeDef {
 	}
 
 	public String toString() {
-            String s = "type " + X10Flags.toX10Flags(flags()).prettyPrint() + (container() == null ? "" : container() + ".") + signature() + (guard() != null ? guard() : "") + " = " + definedType();
+            String s = "type " + flags().prettyPrint() + (container() == null ? "" : container() + ".") + signature() + (guard() != null ? guard() : "") + " = " + definedType();
             return s;
 	}
 

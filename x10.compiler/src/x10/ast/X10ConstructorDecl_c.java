@@ -67,7 +67,6 @@ import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10ConstructorDef;
 import polyglot.types.Context;
-import x10.types.X10Flags;
 import x10.types.X10MemberDef;
 import x10.types.X10ParsedClassType;
 import x10.types.X10ProcedureDef;

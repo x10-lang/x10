@@ -37,7 +37,7 @@ import x10.constraint.XTerm;
 import x10.constraint.XConstraint;
 import x10.errors.Errors;
 import polyglot.types.Context;
-import x10.types.X10Flags;
+
 import x10.types.X10LocalInstance;
 import x10.types.X10ProcedureDef;
 import x10.types.X10TypeMixin;

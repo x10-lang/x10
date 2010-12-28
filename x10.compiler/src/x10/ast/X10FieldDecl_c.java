@@ -68,7 +68,7 @@ import x10.types.X10ClassType;
 import polyglot.types.Context;
 import x10.types.X10Def;
 import x10.types.X10FieldDef;
-import x10.types.X10Flags;
+
 import x10.types.X10InitializerDef;
 import x10.types.X10TypeSystem_c;
 
@@ -212,7 +212,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
         TypeSystem xts = (TypeSystem) ref.typeSystem();
         Context context = (Context) tc.context();
         if (X10TypeMixin.isX10Struct(ref) && !isMutable(xts, ref)) {
-            X10Flags x10flags = X10Flags.toX10Flags(fi.flags());
+            Flags x10flags = fi.flags();
             if (! x10flags.isFinal()) 
                 Errors.issue(tc.job(),
                         new SemanticException("Illegal " + fi +  "; structs cannot have var fields.",position()));
@@ -261,10 +261,9 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
         }
     }
 
-    protected FieldDef createFieldDef(TypeSystem ts, ClassDef ct, Flags flags) {
-    	X10Flags xFlags = X10Flags.toX10Flags(flags);
+    protected FieldDef createFieldDef(TypeSystem ts, ClassDef ct, Flags xFlags) {
     	
-    	X10FieldDef fi = (X10FieldDef) ts.fieldDef(position(), Types.ref(ct.asType()), flags, type.typeRef(), name.id());
+    	X10FieldDef fi = (X10FieldDef) ts.fieldDef(position(), Types.ref(ct.asType()), xFlags, type.typeRef(), name.id());
     	fi.setThisDef(((X10ClassDef) ct).thisDef());
 
     	return fi;
@@ -415,7 +414,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 	    	Type type =  typeNode.type();
 	    	Type oldType = (Type)type.copy();
 	    	Context xc = (Context) enterChildScope(type(), tc.context());
-	    	X10Flags f = X10Flags.toX10Flags(flags.flags());
+	    	Flags f = flags.flags();
 	    	
 	    	try {
                 X10TypeMixin.checkMissingParameters(typeNode);

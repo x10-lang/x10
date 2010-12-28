@@ -60,7 +60,7 @@ import x10.ast.X10Loop;
 import x10.ast.X10Special;
 import x10.types.ParameterType;
 import x10.types.X10ClassType;
-import x10.types.X10Flags;
+
 import x10.types.X10LocalDef;
 import x10.types.X10ParsedClassType_c;
 import x10.types.X10TypeMixin;

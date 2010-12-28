@@ -190,7 +190,6 @@ implements X10ParsedClassType
     }
  
 	public Type setFlags(Flags f) {
-		X10Flags xf = X10Flags.toX10Flags(f);
 		X10ParsedClassType_c c = (X10ParsedClassType_c) this.copy();
 		c.flags = flags().set(f);
 		/*if  (xf.isRooted() || xf.isStruct()) {
@@ -428,10 +427,10 @@ implements X10ParsedClassType
 	
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
-		if (flags() != null) {
+		/*if (flags() != null) {
 			X10Flags f = X10Flags.toX10Flags(flags());
 
-		}
+		}*/
 		//	sb.append(flags().toString()).append(" ");
 
 		String sup = super.toString();
@@ -449,13 +448,13 @@ implements X10ParsedClassType
 		return sb.toString();
 	}
 	    
-	public boolean isX10Struct() { 	return X10Flags.toX10Flags(flags()).isStruct(); }
+	public boolean isX10Struct() { 	return flags().isStruct(); }
 
     public X10Struct makeX10Struct() {
     	if (isX10Struct())
     		return this;
     	X10ParsedClassType_c c = (X10ParsedClassType_c) copy();
-    	c.setFlags(X10Flags.toX10Flags(flags()).Struct());
+    	c.setFlags(flags().Struct());
     	return c;
     	
     }

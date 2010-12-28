@@ -46,7 +46,7 @@ import x10.extension.X10Del_c;
 import x10.types.MacroType;
 import x10.types.X10ClassType;
 import polyglot.types.Context;
-import x10.types.X10Flags;
+
 import x10.types.X10ParsedClassType;
 import x10.types.X10TypeMixin;
 import polyglot.types.TypeSystem;

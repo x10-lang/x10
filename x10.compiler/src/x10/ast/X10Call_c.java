@@ -55,7 +55,7 @@ import x10.types.X10ClassType;
 import x10.types.X10ConstructorInstance;
 import polyglot.types.Context;
 import x10.types.X10FieldInstance;
-import x10.types.X10Flags;
+
 import x10.types.X10LocalInstance;
 import x10.types.X10MethodInstance;
 import x10.types.X10ParsedClassType;

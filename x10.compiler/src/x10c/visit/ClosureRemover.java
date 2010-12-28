@@ -75,7 +75,6 @@ import x10.types.X10CodeDef;
 import x10.types.X10ConstructorDef;
 import x10.types.X10FieldDef;
 import x10.types.X10FieldInstance;
-import x10.types.X10Flags;
 import x10.types.X10LocalDef;
 import x10.types.X10LocalInstance;
 import x10.types.X10MethodDef;
@@ -285,7 +284,7 @@ public class ClosureRemover extends ContextVisitor {
                     Closure cl = (Closure) n;
                     ClosureDef cld = cl.closureDef();
                     final Position pos = Position.COMPILER_GENERATED;
-                    X10Flags privateStatic = Flags.PRIVATE.Static();
+                    Flags privateStatic = Flags.PRIVATE.Static();
                     
                     final List<VarInstance<? extends VarDef>> capturedEnv = cld.capturedEnvironment();
                     
@@ -420,7 +419,7 @@ public class ClosureRemover extends ContextVisitor {
                         body2 = body2.append(xnf.Eval(pos, fa));
                     }
                     
-                    X10ConstructorDecl consdcl = (X10ConstructorDecl) xnf.ConstructorDecl(pos, xnf.FlagsNode(pos, X10Flags.PRIVATE), staticInnerClassDecl.name(), formals, body2);
+                    X10ConstructorDecl consdcl = (X10ConstructorDecl) xnf.ConstructorDecl(pos, xnf.FlagsNode(pos, Flags.PRIVATE), staticInnerClassDecl.name(), formals, body2);
                     consdcl.typeParameters(staticInnerClassDecl.typeParameters());
                     CanonicalTypeNode typeNode = xnf.CanonicalTypeNode(pos, staticInnerClassDef.asType());
                     consdcl.returnType(typeNode);
@@ -430,7 +429,7 @@ public class ClosureRemover extends ContextVisitor {
                     
                     X10ConstructorDef consd = (X10ConstructorDef) xts.constructorDef(pos,
                                                               Types.ref(staticInnerClassType),
-                                                              X10Flags.PRIVATE,
+                                                              Flags.PRIVATE,
                                                               argTypes);
                     
                     cm.add((ClassMember) consdcl.constructorDef(consd).typeCheck(this));

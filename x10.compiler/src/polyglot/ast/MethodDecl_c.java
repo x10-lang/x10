@@ -15,7 +15,6 @@ import polyglot.types.*;
 import polyglot.util.*;
 import polyglot.visit.*;
 import x10.errors.Errors;
-import x10.types.X10Flags;
 
 /**
  * A method declaration.
