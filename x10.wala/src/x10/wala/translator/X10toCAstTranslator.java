@@ -3012,12 +3012,12 @@ public class X10toCAstTranslator implements TranslatorToCAst {
             return super.visit(cd, mc);
         }
 
-        private MethodInstance findMethod(Type container, String name, Type arg1, Type arg2) {
+        private MethodInstance findMethod(Type container, Name name, Type arg1, Type arg2) {
             List<Type> argTypes = new ArrayList<Type>();
             argTypes.add(arg1);
             argTypes.add(arg2);
             try {
-                return fTypeSystem.findMethod(container, fTypeSystem.MethodMatcher(container, Name.make(name), argTypes, fTypeSystem.emptyContext()));
+                return fTypeSystem.findMethod(container, fTypeSystem.MethodMatcher(container, name, argTypes, fTypeSystem.emptyContext()));
             } catch (SemanticException e) {
                 return null;
             }
@@ -3029,19 +3029,26 @@ public class X10toCAstTranslator implements TranslatorToCAst {
             Binary.Operator op = b.operator();
             Expr left = b.left();
             Expr right = b.right();
+            Position pos = b.position();
+            Type Region = fTypeSystem.Region();
             if (op == Binary.Operator.DOT_DOT) {
                 Assertions.productionAssertion(left.type().isInt() && right.type().isInt(), "Operator .. on ("+left.type()+","+right.type()+")");
-                Call mr = fNodeFactory.RegionMaker(b.position(), left, right);
-                Type rgn = fTypeSystem.Region();
-                MethodInstance mi = findMethod(rgn, "makeRectangular", fTypeSystem.Int(), fTypeSystem.Int());
+                Name makeRectangular = Name.make("makeRectangular");
+                Call mr = fNodeFactory.Call(pos, fNodeFactory.CanonicalTypeNode(pos, Region),
+                        fNodeFactory.Id(pos, makeRectangular), left, right);
+                Type Int = fTypeSystem.Int();
+                MethodInstance mi = findMethod(Region, makeRectangular, Int, Int);
                 mr = mr.methodInstance(mi);
                 mr = (Call) mr.type(mi.returnType());
                 return visit(mr, context);
             } else if (op == Binary.Operator.ARROW) {
                 Assertions.productionAssertion(fTypeSystem.isRegion(left.type()) && fTypeSystem.isPlace(right.type()), "Operator -> on ("+left.type()+","+right.type()+")");
-                Call mc = fNodeFactory.ConstantDistMaker(b.position(), left, right);
-                Type dst = fTypeSystem.Dist();
-                MethodInstance mi = findMethod(dst, "makeConstant", fTypeSystem.Region(), fTypeSystem.Place());
+                Type Dist = fTypeSystem.Dist();
+                Name makeConstant = Name.make("makeConstant");
+                Call mc = fNodeFactory.Call(pos, fNodeFactory.CanonicalTypeNode(pos, Dist),
+                        fNodeFactory.Id(pos, makeConstant), left, right);
+                Type Place = fTypeSystem.Place();
+                MethodInstance mi = findMethod(Dist, makeConstant, Region, Place);
                 mc = mc.methodInstance(mi);
                 mc = (Call) mc.type(mi.returnType());
                 return visit(mc, context);
