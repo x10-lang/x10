@@ -396,9 +396,8 @@ public class VarsBoxer extends ContextVisitor {
 
     private LocalDecl createDeclForPrivatization(final Position pos, EnvironmentCapture ec, LocalInstance li) {
         LocalDecl ldecl = xnf.LocalDecl(pos, xnf.FlagsNode(pos, li.flags()), xnf.X10CanonicalTypeNode(pos, li.type()), xnf.Id(pos, li.name()));
+        ldecl = ldecl.localDef(li.def());
         X10LocalDef boxld = getBoxLocalDef(pos, li);
-        ldecl = ldecl.localDef(boxld);
-        
         LocalInstance boxli = boxld.asInstance();
         
         List<VarInstance<? extends VarDef>> newEnv = new ArrayList<VarInstance<? extends VarDef>>();
