@@ -185,7 +185,7 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
 				    {
 					    Type type = Types.get(superType());
 					    if (type != null) {
-						CConstraint rs = X10TypeMixin.realX(type);
+						CConstraint rs = Types.realX(type);
 						if (rs != null) {
 							if (rs.thisVar() != null)
 								rs = rs.substitute(oldThis, (XVar) rs.thisVar());
@@ -197,7 +197,7 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
 				    // Add in constraints from the interfaces.
 				    for (Iterator<Ref<? extends Type>> i = interfaces().iterator(); i.hasNext(); ) {
 					    Ref<? extends Type> it = (Ref<? extends Type>) i.next();
-					    CConstraint rs = X10TypeMixin.realX(it.get());
+					    CConstraint rs = Types.realX(it.get());
 					    // no need to change self, and no occurrence of this is possible in 
 					    // a type's base constraint.
 					    if (rs != null) {
@@ -210,7 +210,7 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
 				    for (X10FieldDef fi : properties) {
 					    Type type = fi.asInstance().type();   // ### check for recursive call here
 					    XVar fiThis = fi.thisVar();
-					    CConstraint rs = X10TypeMixin.realX(type);
+					    CConstraint rs = Types.realX(type);
 					    if (rs != null) {
 						    // Given: C(:c) f
 						    // Add in: c[self.f/self,self/this]
@@ -340,7 +340,7 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
     	typeMembers.add(t);
     }
     public Ref<TypeConstraint> typeGuard() {
-    	return new LazyRef_c<TypeConstraint>(X10TypeMixin.parameterBounds(asType()));
+    	return new LazyRef_c<TypeConstraint>(Types.parameterBounds(asType()));
     }
     public boolean isStruct() {
     	return flags().isStruct();

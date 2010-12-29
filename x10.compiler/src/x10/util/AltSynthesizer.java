@@ -70,7 +70,6 @@ import x10.types.ConstrainedType;
 import x10.types.X10FieldInstance;
 import x10.types.X10LocalDef;
 import x10.types.X10MethodInstance;
-import x10.types.X10TypeMixin;
 import x10.types.checker.Converter;
 import x10.types.constraints.CConstraint;
 import x10.visit.ConstantPropagator;
@@ -580,7 +579,7 @@ public class AltSynthesizer extends ContextVisitor {
      */
     public Field createFieldRef(Position pos, Expr receiver, Name name) {
         final Type type = receiver.type();
-        X10FieldInstance fi = X10TypeMixin.getProperty(type, name);
+        X10FieldInstance fi = Types.getProperty(type, name);
         if (null == fi) {
             fi = (X10FieldInstance) type.toClass().fieldNamed(name);
         }
@@ -602,8 +601,8 @@ public class AltSynthesizer extends ContextVisitor {
         Field f       = nf.Field(pos, receiver, nf.Id(pos, fi.name())).fieldInstance(fi);
         Type type     = fi.rightType();
         // propagate self binding (if any)
-        CConstraint c = X10TypeMixin.realX(receiver.type());
-        XTerm term    = X10TypeMixin.selfVarBinding(c);  // the RHS of {self==x} in c
+        CConstraint c = Types.realX(receiver.type());
+        XTerm term    = Types.selfVarBinding(c);  // the RHS of {self==x} in c
         if (term != null) {
             type = addSelfConstraint(type, ts.xtypeTranslator().trans(c, term, fi));
             assert (null != type);
@@ -860,7 +859,7 @@ public class AltSynthesizer extends ContextVisitor {
      * TODO: move into ASTQuery
      */
     public Object getPropertyConstantValue(Expr expr, Name name) {
-        X10FieldInstance propertyFI = X10TypeMixin.getProperty(expr.type(), name);
+        X10FieldInstance propertyFI = Types.getProperty(expr.type(), name);
         if (null == propertyFI) return null;
         Expr propertyExpr = createFieldRef(expr.position(), expr, propertyFI);
         if (null == propertyExpr) return null;
@@ -879,10 +878,10 @@ public class AltSynthesizer extends ContextVisitor {
     public static Type addPropertyConstraint(Type type, Name name, XTerm value) throws XFailure {
     	// Need to ensure that the argument to find or synthesize is a constrained type
     	// since the property may refer to the type's self variable.
-    	ConstrainedType type1 = X10TypeMixin.toConstrainedType(type);
-        XTerm property = X10TypeMixin.findOrSynthesize(type1, name);
+    	ConstrainedType type1 = Types.toConstrainedType(type);
+        XTerm property = type1.findOrSynthesize(name);
         if (null == property) return null;
-        return X10TypeMixin.addBinding(type1, property, value);
+        return Types.addBinding(type1, property, value);
     }
 
     /**
@@ -909,7 +908,7 @@ public class AltSynthesizer extends ContextVisitor {
      */
     public static Type addSelfConstraint(Type type, XTerm value) {
         try {
-            return X10TypeMixin.addSelfBinding(type, value);
+            return Types.addSelfBinding(type, value);
         } catch (XFailure e) {
             return null;
         }

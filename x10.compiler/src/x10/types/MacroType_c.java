@@ -237,7 +237,7 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 			return Types.get(def().definedType());
 		Ref<? extends Type> dt = definedType;
 		definedType = Types.ref(typeSystem().unknownType(position())); // guard against recursion
-		Type t = X10TypeMixin.processFlags(flags(), Types.get(dt));
+		Type t = Types.processFlags(flags(), Types.get(dt));
 		definedType = dt;
 		return t;
 	}
@@ -396,7 +396,7 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 	
 
 	public boolean moreSpecific(Type ct, ProcedureInstance<TypeDef> p, Context context) {
-	    return X10TypeMixin.moreSpecificImpl(ct, this, p, context);
+	    return Types.moreSpecificImpl(ct, this, p, context);
 	}
 	
 	public Type returnType() {

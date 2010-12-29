@@ -34,6 +34,7 @@ import polyglot.types.ContainerType;
 import polyglot.types.Type;
 import polyglot.types.TypeObject;
 import polyglot.types.TypeSystem;
+import polyglot.types.Types;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.Transformation;
@@ -77,11 +78,11 @@ implements X10ParsedClassType
         cacheDirectSupertypes = new HashSet<X10ParsedClassType_c>();
         final Type superClass_ = superClass();
         if (superClass_ !=null) {
-            final X10ParsedClassType_c superBase = X10TypeMixin.myBaseType(superClass_);
+            final X10ParsedClassType_c superBase = Types.myBaseType(superClass_);
             if (superBase!=null) cacheDirectSupertypes.add(superBase);
         }
         for (Type tn : interfaces()) {
-            final X10ParsedClassType_c superInterfaceBase = X10TypeMixin.myBaseType(tn);
+            final X10ParsedClassType_c superInterfaceBase = Types.myBaseType(tn);
             if (superInterfaceBase!=null) cacheDirectSupertypes.add(superInterfaceBase);
         }
         
@@ -269,7 +270,7 @@ implements X10ParsedClassType
 	@Override
 	public Type superClass() {
 	    Type sup = super.superClass();
-	    Type base = X10TypeMixin.baseType(sup);
+	    Type base = Types.baseType(sup);
 	    if (base instanceof X10ClassType) {
 	        XVar supVar = ((X10ClassType) base).x10Def().thisVar();
 	        XVar thisVar = x10Def().thisVar();
@@ -288,7 +289,7 @@ implements X10ParsedClassType
 	    List<Type> interfaces = super.interfaces();
 	    List<Type> newInterfaces = new ArrayList<Type>(interfaces.size());
 	    for (Type sup : interfaces) {
-	        Type base = X10TypeMixin.baseType(sup);
+	        Type base = Types.baseType(sup);
 	        if (base instanceof X10ClassType) {
 	            XVar supVar = ((X10ClassType) base).x10Def().thisVar();
 	            XVar thisVar = x10Def().thisVar();
@@ -386,7 +387,7 @@ implements X10ParsedClassType
 	    } else {
 	        n.typeArguments = TypedList.copyAndCheck(typeArgs, Type.class, false);
 	        try {
-	            n.thisVar = X10TypeMixin.getThisVar(typeArgs);
+	            n.thisVar = Types.getThisVar(typeArgs);
 	        } catch (XFailure z) {
 	            throw new InternalCompilerError(z.toString() + " for type " + this);
 	        }
@@ -425,7 +426,7 @@ implements X10ParsedClassType
 	    return null;
 	}
 	
-	public String toString() {
+	public String typeToString() {
 		StringBuffer sb = new StringBuffer();
 		/*if (flags() != null) {
 			X10Flags f = X10Flags.toX10Flags(flags());
@@ -478,7 +479,7 @@ implements X10ParsedClassType
 		if (xClause == null) {
 			xClause = new CConstraint();
 			try {
-			xClause.setThisVar(X10TypeMixin.getThisVar(typeArguments()));
+			xClause.setThisVar(Types.getThisVar(typeArguments()));
 			} catch (XFailure f) {
 				xClause.setInconsistent();
 			}

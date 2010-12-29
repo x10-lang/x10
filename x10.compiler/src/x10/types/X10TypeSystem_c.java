@@ -55,7 +55,7 @@ import polyglot.types.NoMemberException;
 import polyglot.types.NullType;
 import polyglot.types.ObjectType;
 import polyglot.types.ParsedClassType;
-import polyglot.types.PrimitiveType;
+import polyglot.types.JavaPrimitiveType;
 
 import polyglot.types.ProcedureDef;
 import polyglot.types.ProcedureInstance;
@@ -120,7 +120,7 @@ public class X10TypeSystem_c extends TypeSystem_c {
     }
 
     public ClassDef classDefOf(Type t) {
-        t = X10TypeMixin.baseType(t);
+        t = Types.baseType(t);
         if (t instanceof ClassType)
             return ((ClassType) t).def();
         return null;
@@ -209,7 +209,7 @@ public class X10TypeSystem_c extends TypeSystem_c {
         }
         public boolean isTrue(Type o, Type p) {
             TypeSystem ts = context.typeSystem();
-            return ts.typeEquals(X10TypeMixin.baseType(o), X10TypeMixin.baseType(p), context);
+            return ts.typeEquals(Types.baseType(o), Types.baseType(p), context);
         }
     }
 
@@ -450,7 +450,7 @@ public class X10TypeSystem_c extends TypeSystem_c {
         	Collection<Type> reduced = Collections.<Type>emptyList();
         	Collection<MacroType> max2 = Collections.<MacroType>emptyList();
         	for (MacroType mt : maximal) {
-        		Type expanded = X10TypeMixin.baseType(mt);
+        		Type expanded = Types.baseType(mt);
         		if (! reduced.contains(expanded)) {
         			reduced.add(expanded);
         			max2.add(mt);
@@ -550,7 +550,7 @@ public class X10TypeSystem_c extends TypeSystem_c {
     }
 
     public boolean isUnknown(Type t) {
-        return X10TypeMixin.baseType(t) instanceof UnknownType;
+        return Types.baseType(t) instanceof UnknownType;
     }
 
     // Temporary hack:
@@ -614,12 +614,12 @@ public class X10TypeSystem_c extends TypeSystem_c {
             }
         }*/
         if (t instanceof ConstrainedType) {
-            if (hasUnknownType(X10TypeMixin.baseType(t))) {
+            if (hasUnknownType(Types.baseType(t))) {
                 unknownTypeMap.put(t, true);
                 return true;
             }
             ConstrainedType ct = (ConstrainedType) t;
-            for (XTerm x : X10TypeMixin.xclause(ct).constraints()) {
+            for (XTerm x : Types.xclause(ct).constraints()) {
                 if (hasUnknown(x)) {
                     unknownTypeMap.put(t, true);
                     return true;
@@ -805,7 +805,7 @@ public class X10TypeSystem_c extends TypeSystem_c {
     }
 
     public boolean isFunctionType(Type t) {
-    	t = X10TypeMixin.baseType(t);
+    	t = Types.baseType(t);
     	if (! (t instanceof X10ClassType)) {
     		return false;
     	}
@@ -820,7 +820,7 @@ public class X10TypeSystem_c extends TypeSystem_c {
     	return false;
     }
     public boolean isExactlyFunctionType(Type t) {
-    	t = X10TypeMixin.baseType(t);
+    	t = Types.baseType(t);
     	if (! (t instanceof X10ClassType)) {
     		return false;
     	}
@@ -833,7 +833,7 @@ public class X10TypeSystem_c extends TypeSystem_c {
     }*/
 
     public boolean isInterfaceType(Type t) {
-        t = X10TypeMixin.baseType(t);
+        t = Types.baseType(t);
         if (t instanceof ClassType)
             if (((ClassType) t).flags().isInterface())
                 return true;
@@ -849,7 +849,7 @@ public class X10TypeSystem_c extends TypeSystem_c {
     }
 
     public boolean isParameterType(Type t) {
-        t = X10TypeMixin.baseType(t);
+        t = Types.baseType(t);
         return t instanceof ParameterType;
     }
 
@@ -871,7 +871,7 @@ public class X10TypeSystem_c extends TypeSystem_c {
     public Type arrayOf(Position pos, Ref<? extends Type> type) {
         // Should be called only by the Java class file loader.
         Type r = Rail();
-        return X10TypeMixin.instantiate(r, type);
+        return Types.instantiate(r, type);
     }
 
     public X10ClassDef createClassDef(Source fromSource) {
@@ -938,12 +938,12 @@ public class X10TypeSystem_c extends TypeSystem_c {
 		}
 
 		if (checkSuperClasses && c.superClass() != null) {
-			allImplementedInterfaces((X10ClassType)X10TypeMixin.baseType(c.superClass()),
+			allImplementedInterfaces((X10ClassType)Types.baseType(c.superClass()),
 					checkSuperClasses, l);
 		}
 
 		for (Type parent : c.interfaces()) {
-			allImplementedInterfaces((X10ClassType)X10TypeMixin.baseType(parent),
+			allImplementedInterfaces((X10ClassType)Types.baseType(parent),
 					checkSuperClasses, l);
 		}
 	}
@@ -1076,7 +1076,7 @@ public class X10TypeSystem_c extends TypeSystem_c {
     public Type futureOf(Position pos, Ref<? extends Type> base) {
         if (futureType_ == null)
             futureType_ = (X10ParsedClassType) load("x10.lang.Future");
-        return X10TypeMixin.instantiate(futureType_, base);
+        return Types.instantiate(futureType_, base);
     }
 
     // TODO: [IP] this should be a special CodeInstance instead
@@ -1133,35 +1133,18 @@ public class X10TypeSystem_c extends TypeSystem_c {
 
     private static final String WRAPPER_PACKAGE = "x10.compilergenerated";
 
-    // vj: remove in fsvor of super-class's Void.
-    static class Void extends PrimitiveType {
-        private static final long serialVersionUID = -1026975473924276266L;
-
-        public Void(TypeSystem ts) {
-            super(ts, Name.make("void"));
-        }
-
-        public QName fullName() {
-            return QName.make("void");
-        }
-
-        public String toString() {
-            return fullName().toString();
-        }
-    }
+   
 
     // The only primitive left.
-    Type VOID_;
+    Type VOID_ = new VoidType(this);
 
     public Type Void() {
-        if (VOID_ == null)
-            VOID_ = new Void(this);
         return VOID_;
     }
 
     public boolean isVoid(Type t) {
         return t != null &&
-                X10TypeMixin.baseType( // in case someone writes:  void{i==1}
+                Types.baseType( // in case someone writes:  void{i==1}
                         expandMacros(t)).equals((Object) Void());
     } // do not use typeEquals
 
@@ -1430,11 +1413,11 @@ public class X10TypeSystem_c extends TypeSystem_c {
     	return nativeType_;
     }
     public X10ClassType Iterable(Type index) {
-        return X10TypeMixin.instantiate(Iterable(), index);
+        return Types.instantiate(Iterable(), index);
     }
 
     public X10ClassType Iterator(Type index) {
-        return X10TypeMixin.instantiate(Iterator(), index);
+        return Types.instantiate(Iterator(), index);
     }
 
 
@@ -1645,7 +1628,7 @@ public class X10TypeSystem_c extends TypeSystem_c {
             if (base == ebase)
                 return t;
             CConstraint c = ct.constraint().get();
-            return X10TypeMixin.xclause(ebase, c);
+            return Types.xclause(ebase, c);
         }
         return t;
     }
@@ -1696,8 +1679,8 @@ public class X10TypeSystem_c extends TypeSystem_c {
     }
 
     protected boolean isX10BaseSubtype(Type me, Type sup, Context context) {
-        Type xme = X10TypeMixin.baseType(me);
-        Type xsup = X10TypeMixin.baseType(sup);
+        Type xme = Types.baseType(me);
+        Type xsup = Types.baseType(sup);
         return isSubtype(xme, xsup, context);
     }
 
@@ -1707,7 +1690,7 @@ public class X10TypeSystem_c extends TypeSystem_c {
 
     public boolean isRailOf(Type t, Type p) {
         if (!isRail(t)) return false;
-        List<Type> ta = ((X10ClassType)X10TypeMixin.baseType(t)).typeArguments();
+        List<Type> ta = ((X10ClassType)Types.baseType(t)).typeArguments();
         assert (ta.size() == 1);
         return ta.get(0).typeEquals(p, createContext());
     }
@@ -1718,7 +1701,7 @@ public class X10TypeSystem_c extends TypeSystem_c {
 
     public boolean isArrayOf(Type t, Type p) {
         if (!isArray(t)) return false;
-        List<Type> ta = ((X10ClassType)X10TypeMixin.baseType(t)).typeArguments();
+        List<Type> ta = ((X10ClassType)Types.baseType(t)).typeArguments();
         assert (ta.size() == 1);
         return ta.get(0).typeEquals(p, createContext());
     }
@@ -1729,17 +1712,17 @@ public class X10TypeSystem_c extends TypeSystem_c {
 
     public boolean isRemoteArrayOf(Type t, Type p) {
         if (!isRemoteArray(t)) return false;
-        List<Type> ta = ((X10ClassType)X10TypeMixin.baseType(t)).typeArguments();
+        List<Type> ta = ((X10ClassType)Types.baseType(t)).typeArguments();
         assert (ta.size() == 1);
         Type array_type = ta.get(0);
-        List<Type> ta2 = ((X10ClassType)X10TypeMixin.baseType(array_type)).typeArguments();
+        List<Type> ta2 = ((X10ClassType)Types.baseType(array_type)).typeArguments();
         assert (ta2.size() == 1);
         return ta2.get(0).typeEquals(p, createContext());
     }
 
     public boolean hasSameClassDef(Type t1, Type t2) {
-        Type b1 = X10TypeMixin.baseType(t1);
-        Type b2 = X10TypeMixin.baseType(t2);
+        Type b1 = Types.baseType(t1);
+        Type b2 = Types.baseType(t2);
         if (b1 instanceof ClassType && b2 instanceof ClassType) {
             X10ClassType ct1 = (X10ClassType) b1;
             X10ClassType ct2 = (X10ClassType) b2;
@@ -1749,15 +1732,15 @@ public class X10TypeSystem_c extends TypeSystem_c {
     }
 
     public X10ClassType Rail(Type arg) {
-        return X10TypeMixin.instantiate(Rail(), arg);
+        return Types.instantiate(Rail(), arg);
     }
 
     public X10ClassType Array(Type arg) {
-        return X10TypeMixin.instantiate(Array(), arg);
+        return Types.instantiate(Array(), arg);
     }
 
     public X10ClassType Settable(Type domain, Type range) {
-        return X10TypeMixin.instantiate(Settable(), domain, range);
+        return Types.instantiate(Settable(), domain, range);
     }
 
     public boolean isSettable(Type me) {
@@ -1795,7 +1778,7 @@ public class X10TypeSystem_c extends TypeSystem_c {
     }
 
     public boolean isStruct(Type me) {
-        return X10TypeMixin.isX10Struct(me);
+        return Types.isX10Struct(me);
             //typeEquals(me, Struct(), emptyContext());
     }
 
@@ -1867,8 +1850,8 @@ public class X10TypeSystem_c extends TypeSystem_c {
 
     public boolean entailsClause(Type me, Type other, Context context) {
         try {
-            CConstraint c1 = X10TypeMixin.realX(me);
-            CConstraint c2 = X10TypeMixin.xclause(other);
+            CConstraint c1 = Types.realX(me);
+            CConstraint c2 = Types.xclause(other);
             return entailsClause(c1, c2, context, null);
         }
         catch (InternalCompilerError e) {
@@ -2082,13 +2065,13 @@ public class X10TypeSystem_c extends TypeSystem_c {
     @Override
     public Type promote(Type t) throws SemanticException {
         Type pt = promote2(t);
-        return X10TypeMixin.baseType(pt);
+        return Types.baseType(pt);
     }
 
     @Override
     public Type promote(Type t1, Type t2) throws SemanticException {
         Type pt = promote2(t1, t2);
-        return X10TypeMixin.baseType(pt);
+        return Types.baseType(pt);
     }
 
     @Override
@@ -2105,7 +2088,7 @@ public class X10TypeSystem_c extends TypeSystem_c {
             return true;
         if (type1 == null || type2 == null)
             return false;
-        return typeEquals(X10TypeMixin.baseType(type1), X10TypeMixin.baseType(type2), context);
+        return typeEquals(Types.baseType(type1), Types.baseType(type2), context);
     }
 
     public boolean typeDeepBaseEquals(Type type1, Type type2, Context context) {
@@ -2115,7 +2098,7 @@ public class X10TypeSystem_c extends TypeSystem_c {
             return true;
         if (type1 == null || type2 == null)
             return false;
-        return typeEquals(X10TypeMixin.stripConstraints(type1), X10TypeMixin.stripConstraints(type2), context);
+        return typeEquals(Types.stripConstraints(type1), Types.stripConstraints(type2), context);
     }
 
     public X10LocalDef localDef(Position pos, Flags flags, Ref<? extends Type> type, Name name) {
@@ -2198,7 +2181,7 @@ public class X10TypeSystem_c extends TypeSystem_c {
 
         if (replace) {
             for (Ref<? extends Type> at : o.defAnnotations()) {
-                if (!at.get().isSubtype(X10TypeMixin.baseType(annoType), emptyContext())) {
+                if (!at.get().isSubtype(Types.baseType(annoType), emptyContext())) {
                     newATs.add(at);
                 }
             }
@@ -2219,20 +2202,20 @@ public class X10TypeSystem_c extends TypeSystem_c {
     }
 
     public Type performBinaryOperation(Type t, Type l, Type r, Binary.Operator op) {
-        CConstraint cl = X10TypeMixin.realX(l);
-        CConstraint cr = X10TypeMixin.realX(r);
+        CConstraint cl = Types.realX(l);
+        CConstraint cr = Types.realX(r);
         TypeSystem xts = (TypeSystem) t.typeSystem();
         CConstraint c = xts.xtypeTranslator().binaryOp(op, cl, cr);
-        return X10TypeMixin.xclause(X10TypeMixin.baseType(t), c);
+        return Types.xclause(Types.baseType(t), c);
     }
 
     public Type performUnaryOperation(Type t, Type a, polyglot.ast.Unary.Operator op) {
-        CConstraint ca = X10TypeMixin.realX(a);
+        CConstraint ca = Types.realX(a);
         TypeSystem xts = (TypeSystem) t.typeSystem();
         CConstraint c = xts.xtypeTranslator().unaryOp(op, ca);
         if (c == null)
             return t;
-        return X10TypeMixin.xclause(X10TypeMixin.baseType(t), c);
+        return Types.xclause(Types.baseType(t), c);
     }
 
     /**
@@ -2364,7 +2347,7 @@ public class X10TypeSystem_c extends TypeSystem_c {
 
     public boolean hasMethodNamed(Type container, Name name) {
         if (container != null)
-            container = X10TypeMixin.baseType(container);
+            container = Types.baseType(container);
 
         // HACK: use the def rather than the type to avoid gratuitous
         // reinstantiation of methods.
@@ -2502,8 +2485,8 @@ public class X10TypeSystem_c extends TypeSystem_c {
 			Type t = tn.type();
 			t = ts.expandMacros(t);
 
-			CConstraint xc = X10TypeMixin.xclause(t);
-			t = X10TypeMixin.baseType(t);
+			CConstraint xc = Types.xclause(t);
+			t = Types.baseType(t);
 
 			if (!(ts.isStructType(t))) { // bail
 				throw new SemanticException();

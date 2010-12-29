@@ -15,12 +15,12 @@ import polyglot.ast.CharLit_c;
 import polyglot.ast.Node;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
+import polyglot.types.Types;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import x10.constraint.XFailure;
 import x10.constraint.XTerm;
 import polyglot.types.Context;
-import x10.types.X10TypeMixin;
 import polyglot.types.TypeSystem;
 import x10.types.XTypeTranslator;
 import x10.types.constraints.CConstraint;
@@ -52,7 +52,7 @@ public class X10CharLit_c extends CharLit_c {
 			  }
 			  catch (XFailure e) {
 			  }
-			  Type newType = X10TypeMixin.xclause(charType, c);
+			  Type newType = Types.xclause(charType, c);
 	    return type(newType);
 	  }
 }

@@ -27,20 +27,22 @@ import x10.constraint.XVar;
 import x10.types.constraints.CConstraint;
 
 /**
- * Generalization of path types and typedef'd types.
- *
- * Path types:
- *     x.T == T(x:C)
+ * Types with type and value parameters. The only such types in X10 are typdef calls.
+ * 
  *
  * Typedefs:
  *     type Int(x: Int) = Int{self==x};
- *     Int(4) == Int(x: Int){x==4} == Int{self==x,x==4}
- *
  *     type nlist[T](x: Int) = List[T]{length==x};
- *     nlist[int](7) == nlist[T](x: Int){T==int,x==7} == List{ElementType==T,length==x,T==int,x==7}
+ * 
+ * Typedef calls:
+ *     Int(4) == Int{self==x} with 4 substituted for x
+ *            == Int{self == 4}
+ *     nlist[int](7) 
+ *            == List{T}{length==x} with int substituted for T and 7 for x
+ *            == List[int]{length==7}
  *
  */
-public interface ParametrizedType extends Named,  ObjectType {
+public interface ParametrizedType extends Named,  Type {
 	Name name();
 
 	List<Type> typeParameters();

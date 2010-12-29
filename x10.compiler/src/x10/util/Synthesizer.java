@@ -94,7 +94,6 @@ import x10.types.X10FieldInstance;
 
 import x10.types.X10MethodDef;
 import x10.types.X10MethodInstance;
-import x10.types.X10TypeMixin;
 import polyglot.types.TypeSystem;
 import x10.types.X10TypeSystem_c;
 import x10.types.X10LocalDef;
@@ -202,7 +201,7 @@ public class Synthesizer {
 	}
 
 	public static XTerm makeProperty(Type type, XVar receiver, String name) {
-	    X10FieldInstance fi = X10TypeMixin.getProperty(type, Name.make(name));
+	    X10FieldInstance fi = Types.getProperty(type, Name.make(name));
 	    if (fi == null)
 	        return null;
 	    XName field = XTerms.makeName(fi.def(), Types.get(fi.def().container()) + "#" + fi.name().toString());
@@ -223,18 +222,18 @@ public class Synthesizer {
 
 	public Type addRectConstraint(Type type, XVar receiver) {
 	    XTerm v = makeRectTerm(receiver);
-	    return X10TypeMixin.addTerm(type, v);
+	    return Types.addTerm(type, v);
 	}
 
 	public Type addRectConstraintToSelf(Type type) {
-	    XVar receiver = X10TypeMixin.self(type);
+	    XVar receiver = Types.self(type);
 	    if (receiver == null) {
 	        CConstraint c = new CConstraint();
-	        type = X10TypeMixin.xclause(type, c);
+	        type = Types.xclause(type, c);
 	        receiver = c.self();
 	    }
 	    XTerm v = makeRectTerm(receiver);
-	    return X10TypeMixin.addTerm(type, v);
+	    return Types.addTerm(type, v);
 	}
 
 	/*
@@ -759,7 +758,7 @@ public class Synthesizer {
 		XTerm id = makeProperty(xts.Int(), c.self(), "id");
 		try {
 			c.addBinding(id, XTerms.makeLit(0));
-			Type type = X10TypeMixin.xclause(xts.Place(), c);
+			Type type = Types.xclause(xts.Place(), c);
 			return makeStaticField(Position.COMPILER_GENERATED, xts.Place(),
 					Name.make("FIRST_PLACE"), type, (Context) xts.emptyContext());
 		} catch (XFailure z) {
@@ -798,7 +797,7 @@ public class Synthesizer {
 		Type t = (Type) xts.systemResolver().find(qName);
 		List<Type> ts = def.annotationsMatching(t);
 		for (Type at : ts) {
-			Type bt = X10TypeMixin.baseType(at);
+			Type bt = Types.baseType(at);
 			if (bt instanceof X10ClassType) {
 				X10ClassType act = (X10ClassType) bt;
 				return act.propertyInitializers().size();
@@ -818,7 +817,7 @@ public class Synthesizer {
 		Type t = (Type) xts.systemResolver().find(qName);
 		List<Type> ts = def.annotationsMatching(t);
 		for (Type at : ts) {
-			Type bt = X10TypeMixin.baseType(at);
+			Type bt = Types.baseType(at);
 			if (bt instanceof X10ClassType) {
 				X10ClassType act = (X10ClassType) bt; 
 				if (index < act.propertyInitializers().size()) {
@@ -1373,11 +1372,11 @@ public class Synthesizer {
     	TypeSystem ts = ((TypeSystem) tc.typeSystem());
     	
     	type = PlaceChecker.ReplacePlaceTermByHere(type, tc.context());
-		CConstraint c = X10TypeMixin.xclause(type);
+		CConstraint c = Types.xclause(type);
 		
 		if (c == null || c.valid())
 			return nf.X10CanonicalTypeNode(pos, type);
-		Type base = X10TypeMixin.baseType(type);
+		Type base = Types.baseType(type);
 		String typeName = base.toString();
 		List<Type> types = Collections.<Type>emptyList();
 		List<TypeNode> typeArgs = Collections.<TypeNode>emptyList();
@@ -1416,7 +1415,7 @@ public class Synthesizer {
     // we need to extract from a constraint all the locals and fields of "this" and check they are definitely assigned.
     public static java.util.Set<VarDef> getLocals(TypeNode n) {
         java.util.Set<VarDef> res = new java.util.HashSet<VarDef>();
-        CConstraint c = X10TypeMixin.xclause(n.type());
+        CConstraint c = Types.xclause(n.type());
         if (c == null || c.valid()) {
             // nothing to check
             return res;

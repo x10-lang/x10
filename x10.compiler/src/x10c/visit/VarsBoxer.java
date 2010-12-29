@@ -60,7 +60,6 @@ import x10.types.EnvironmentCapture;
 import x10.types.X10ConstructorInstance;
 import x10.types.X10LocalDef;
 import x10.types.X10ParsedClassType;
-import x10.types.X10TypeMixin;
 import x10.types.checker.Converter;
 
 public class VarsBoxer extends ContextVisitor {
@@ -221,7 +220,7 @@ public class VarsBoxer extends ContextVisitor {
 
     // copied from Desugarer
     private Expr getLiteral(Position pos, Type type, long val) throws SemanticException {
-        type = X10TypeMixin.baseType(type);
+        type = Types.baseType(type);
         Expr lit = null;
         if (xts.isIntOrLess(type)) {
             lit = xnf.IntLit(pos, IntLit.INT, val);

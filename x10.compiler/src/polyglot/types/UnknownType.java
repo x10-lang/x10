@@ -12,7 +12,7 @@ import x10.types.X10TypeSystem_c;
 
 /**
  * An unknown type.  This is used as a place-holder until types are
- * disambiguated.
+ * disambiguated, or as a fake type when recovering from errors.
  */
 public class UnknownType extends Type_c {
 	   private static final long serialVersionUID = 2713953048091574093L;
@@ -29,6 +29,13 @@ public class UnknownType extends Type_c {
 		throw new InternalCompilerError("Cannot translate an unknown type.");
 	    }
 
+	    /**
+	     * In X10, the UnknownType is presumed to be a class type. This is used primarily
+	     * in error recovery.
+	     */
+	    public boolean isClass() {
+	    	return true;
+	    }
 	    public String typeToString() {
 		return "<unknown>";
 	    }

@@ -57,7 +57,7 @@ public abstract class Type_c extends TypeObject_c implements Type
     public Package toPackage() { return null; }
 
     /* To be filled in by subtypes. */
-    public boolean isPrimitive() { return false; }
+    public boolean isJavaPrimitive() { return false; }
     public boolean isReference() { return false; } 
     public boolean isNull() { return false; }
     public boolean isClass() { return false; }
@@ -108,7 +108,7 @@ public abstract class Type_c extends TypeObject_c implements Type
     }
 
     /** Returns a non-null iff isPrimitive() returns true. */
-    public PrimitiveType toPrimitive() {
+    public JavaPrimitiveType toPrimitive() {
 	return null;
     }
 
@@ -189,29 +189,25 @@ public abstract class Type_c extends TypeObject_c implements Type
     }
 
     /**
-     * Yields a string representing this type.  The string
-     * should be consistent with equality.  That is,
-     * if this.equals(anotherType), then it should be
-     * that this.toString().equals(anotherType.toString()).
-     *
-     * The string does not have to be a legal Java identifier.
-     * It is suggested, but not required, that it be an
-     * easily human readable representation, and thus useful
-     * in error messages and generated output.
+     * Yields a string representing this type.  The string is that obtained
+     * by calling typeToString(), with the annotations (if any) appended.
+     * 
+     * <p> Subclasses should implement typeToString() to provide a representation
+     * of the underlying type.
      * 
      */
   
-    public String toString() {
+    public final String toString() {
     	if (annotations != null) {
-        StringBuilder sb = new StringBuilder();
-        
-        for (Type ct : annotations) {
-            sb.append("@");
-            sb.append(ct);
-            sb.append(" ");
-        }
-        sb.append(typeToString());
-        return sb.toString();
+    		StringBuilder sb = new StringBuilder();
+    		sb.append(typeToString());
+    		for (Type ct : annotations) {
+    			sb.append("@");
+    			sb.append(ct);
+    			sb.append(" ");
+    		}
+
+    		return sb.toString();
     	}
     	return typeToString();
     }

@@ -54,7 +54,6 @@ import x10.types.X10ClassDef;
 import polyglot.types.Context;
 import x10.types.X10FieldDef;
 import x10.types.X10LocalDef;
-import x10.types.X10TypeMixin;
 import polyglot.types.TypeSystem;
 import x10.types.checker.PlaceChecker;
 
@@ -589,7 +588,7 @@ public class CConstraint extends XConstraint  implements ThisVar {
 			if (ld != null) {
 				Type ty = Types.get(ld.type());
 				ty = PlaceChecker.ReplaceHereByPlaceTerm(ty, ld.placeTerm());
-				CConstraint ci = X10TypeMixin.realX(ty);
+				CConstraint ci = Types.realX(ty);
 				ci = ci.substitute(v, ci.self());
 				r = new CConstraint();
 				r.addIn(ci);
@@ -611,7 +610,7 @@ public class CConstraint extends XConstraint  implements ThisVar {
 
 			if (fi != null) {
 				Type ty = Types.get(fi.type());
-				ci = X10TypeMixin.realX(ty);
+				ci = Types.realX(ty);
 				XVar v = ((X10ClassDef) Types.get(fi.container()).toClass().def()).thisVar();
 				ci = ci.substitute(target, v); // xts.xtypeTranslator().transThisWithoutTypeConstraint());
 				ci = ci.substitute(f, ci.self());

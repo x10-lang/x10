@@ -71,7 +71,6 @@ import polyglot.types.Context;
 import x10.types.X10MemberDef;
 import x10.types.X10MethodInstance;
 import x10.types.X10ProcedureInstance;
-import x10.types.X10TypeMixin;
 import polyglot.types.TypeSystem;
 import x10.types.X10TypeSystem_c;
 import x10.types.XTypeTranslator;
@@ -234,7 +233,7 @@ public class Checker {
 	}
 
 	public static Type rightType(Type t, X10MemberDef fi, Receiver target, Context c) {
-		CConstraint x = X10TypeMixin.xclause(t);
+		CConstraint x = Types.xclause(t);
 		if (x==null || fi.thisVar()==null || (! (target instanceof Expr)))
 			return t;
 		XVar receiver = null;
@@ -305,7 +304,7 @@ public class Checker {
 			body = XTerms.makeAtom(XTerms.makeName(xmi, xmi.name().toString()), terms);
 			}
 		} 
-		CConstraint x = X10TypeMixin.xclause(type);
+		CConstraint x = Types.xclause(type);
 		X10MemberDef fi = (X10MemberDef) t.methodInstance().def();
 		Receiver target = t.target();
 		if (x == null || fi.thisVar() == null || !(target instanceof Expr))
@@ -313,17 +312,17 @@ public class Checker {
 	
 		x = x.copy();
 		try {
-			XVar receiver = X10TypeMixin.selfVarBinding(target.type());
+			XVar receiver = Types.selfVarBinding(target.type());
 			XVar root = null;
 			if (receiver == null) {
 				receiver = root = XTerms.makeUQV();
 			}
 			// Need to add the target's constraints in here because the target may not
 			// be a variable. hence the type information wont be in the context.
-			CConstraint ttc = X10TypeMixin.xclause(target.type());
+			CConstraint ttc = Types.xclause(target.type());
 			ttc = ttc == null ? new CConstraint() : ttc.copy();
 			ttc = ttc.substitute(receiver, ttc.self());
-			if (! X10TypeMixin.contextKnowsType(target))
+			if (! Types.contextKnowsType(target))
 				x.addIn(ttc);
 			if (body != null)
 				x.addSelfBinding(body);
@@ -331,39 +330,39 @@ public class Checker {
 			if (root != null) {
 				x = x.project(root);
 			}
-			type = X10TypeMixin.addConstraint(X10TypeMixin.baseType(type), x);
+			type = Types.addConstraint(Types.baseType(type), x);
 		} catch (XFailure z) {
-			X10TypeMixin.setInconsistent(type);
+			Types.setInconsistent(type);
 		}
 		return type;
 	}
 	public static Type fieldRightType(Type type, X10MemberDef fi, Receiver target, Context c) {
-		CConstraint x = X10TypeMixin.xclause(type);
+		CConstraint x = Types.xclause(type);
 		if (x == null || fi.thisVar() == null || !(target instanceof Expr))
 			return type;
 		// Need to add the target's constraints in here because the target may not
 		// be a variable. hence the type information wont be in the context.
-		CConstraint xc = X10TypeMixin.xclause(target.type());
+		CConstraint xc = Types.xclause(target.type());
 		if (xc == null || xc.valid())
 			return type;
 		xc = xc.copy();
 		x = x.copy();
 		try {
-			XVar receiver = X10TypeMixin.selfVarBinding(target.type());
+			XVar receiver = Types.selfVarBinding(target.type());
 			XVar root = null;
 			if (receiver == null) {
 				receiver = root = XTerms.makeUQV();
 			}
 			xc = xc.substitute(receiver, xc.self());
-			if (! X10TypeMixin.contextKnowsType(target))
+			if (! Types.contextKnowsType(target))
 				x.addIn(xc);
 			x=x.substitute(receiver, fi.thisVar());
 			if (root != null) {
 				x = x.project(root);
 			}
-			type = X10TypeMixin.addConstraint(X10TypeMixin.baseType(type), x);
+			type = Types.addConstraint(Types.baseType(type), x);
 		} catch (XFailure z) {
-			X10TypeMixin.setInconsistent(type);
+			Types.setInconsistent(type);
 		}
 		return type;
 	}
@@ -413,7 +412,7 @@ public class Checker {
 	                rt = xmi.returnType();
 	            } else if (!xts.typeEquals(rt, xmi.returnType(), context)) {
 	                if (xts.typeBaseEquals(rt, xmi.returnType(), context)) {
-	                    rt = X10TypeMixin.baseType(rt);
+	                    rt = Types.baseType(rt);
 	                } else {
 	                    rt = null;
 	                    break;
@@ -496,7 +495,7 @@ public class Checker {
 	                rt = xmi.returnType();
 	            } else if (!xts.typeEquals(rt, xmi.returnType(), context)) {
 	                if (xts.typeBaseEquals(rt, xmi.returnType(), context)) {
-	                    rt = X10TypeMixin.baseType(rt);
+	                    rt = Types.baseType(rt);
 	                } else {
 	                    rt = null;
 	                    break;
@@ -549,7 +548,7 @@ public class Checker {
 	        }
 	
 	        if (thisVar != null)
-	            t = X10TypeMixin.setSelfVar(t, thisVar);
+	            t = Types.setSelfVar(t, thisVar);
 	
 	        // Found a class that has a method of the right name.
 	        // Now need to check if the method is of the correct type.

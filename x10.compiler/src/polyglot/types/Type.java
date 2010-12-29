@@ -53,7 +53,7 @@ public interface Type extends Qualifier, Annotated
     /**
      * Cast the type to a primitive type, or null.
      */
-    PrimitiveType toPrimitive();
+    JavaPrimitiveType toPrimitive();
 
     /**
      * Cast the type to an array type, or null.
@@ -105,7 +105,7 @@ public interface Type extends Qualifier, Annotated
     /**
      * Return true if a primitive type.
      */
-    boolean isPrimitive();
+    boolean isJavaPrimitive();
 
     /**
      * Return true if void.

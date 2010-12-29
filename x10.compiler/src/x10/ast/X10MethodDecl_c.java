@@ -113,7 +113,6 @@ import x10.types.X10ParsedClassType_c;
 import x10.types.X10ProcedureDef;
 import x10.types.X10TypeEnv_c;
 
-import x10.types.X10TypeMixin;
 import polyglot.types.TypeSystem;
 import x10.types.XTypeTranslator;
 import x10.types.X10Context_c;
@@ -551,7 +550,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 		}
 
 		try {
-		    X10TypeMixin.checkMissingParameters(n.returnType());
+		    Types.checkMissingParameters(n.returnType());
 		} catch (SemanticException e) {
 		    Errors.issue(tc.job(), e, n.returnType());
 		}
@@ -561,9 +560,9 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
             // formals are always in contravariant positions, while return type in covariant position (ctors are ignored)
             for (Formal f : n.formals) {
                 final TypeNode fType = f.type();
-                X10TypeMixin.checkVariance(fType, ParameterType.Variance.CONTRAVARIANT,tc.job());
+                Types.checkVariance(fType, ParameterType.Variance.CONTRAVARIANT,tc.job());
             }
-            X10TypeMixin.checkVariance(n.returnType, ParameterType.Variance.COVARIANT,tc.job());
+            Types.checkVariance(n.returnType, ParameterType.Variance.COVARIANT,tc.job());
         }
 
         // check subtype restriction on implicit and explicit operator as:
@@ -572,10 +571,10 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
         if (nameId==Converter.implicit_operator_as || nameId==Converter.operator_as) {
             final X10MethodDef methodDef = n.methodDef();
             final ContainerType container = methodDef.container().get();
-            final Type returnT = X10TypeMixin.baseType(methodDef.returnType().get());
+            final Type returnT = Types.baseType(methodDef.returnType().get());
             final List<Ref<? extends Type>> formals = methodDef.formalTypes();
             assert formals.size()==1 : "Currently it is a parsing error if the number of formals for an implicit or explicit 'as' operator is different than 1! formals="+formals;
-            final Type argumentT = X10TypeMixin.baseType(formals.get(0).get());
+            final Type argumentT = Types.baseType(formals.get(0).get());
             // I compare ClassDef due to this example:
             //class B[U] {
             //    public static operator[T](x:T):B[T] = null;
@@ -713,7 +712,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 				if (n instanceof TypeNode) {
 					TypeNode tn = (TypeNode) n;
 					Type t = tn.type();
-					t = X10TypeMixin.baseType(t);
+					t = Types.baseType(t);
 					if (t instanceof X10ClassType) {
 						X10ClassType ct = (X10ClassType) t;
 						if (! hasSameScope(ct, mem.memberDef())) {
@@ -747,7 +746,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 				}
 				else {
 					Type t = Types.get(def.container());
-					t = X10TypeMixin.baseType(t);
+					t = Types.baseType(t);
 					if (t instanceof ClassType) {
 						ClassType ct = (ClassType) t;
 						Flags outerFlags = getSignatureFlags(ct.def());
@@ -806,7 +805,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 					MemberDef md = (MemberDef) def;
 					Type container = Types.get(md.container());
 					if (container != null) {
-						container = X10TypeMixin.baseType(container);
+						container = Types.baseType(container);
 						if (container instanceof ClassType) {
 							return ((ClassType) container).def();
 						}
@@ -940,7 +939,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 
 						// Fold the formal's constraint into the guard.
 						XVar var = xts.xtypeTranslator().trans(n.localDef().asInstance());
-						CConstraint dep = X10TypeMixin.xclause(newType);
+						CConstraint dep = Types.xclause(newType);
 						if (dep != null) {
 							dep = dep.copy();
 							dep = dep.substitute(var, c.self());
@@ -960,7 +959,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 				// Fold this's constraint (the class invariant) into the guard.
 				{
 					Type t =  tc.context().currentClass();
-					CConstraint dep = X10TypeMixin.xclause(t);
+					CConstraint dep = Types.xclause(t);
 					if (c != null && dep != null) {
 						XVar thisVar = methodDef().thisVar();
 						if (thisVar != null)

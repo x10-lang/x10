@@ -72,7 +72,6 @@ import x10.types.X10FieldDef;
 import x10.types.X10InitializerDef;
 import x10.types.X10TypeSystem_c;
 
-import x10.types.X10TypeMixin;
 import x10.types.X10FieldDef_c;
 import x10.types.X10ParsedClassType;
 import x10.types.X10ParsedClassType_c;
@@ -211,7 +210,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 
         TypeSystem xts = (TypeSystem) ref.typeSystem();
         Context context = (Context) tc.context();
-        if (X10TypeMixin.isX10Struct(ref) && !isMutable(xts, ref)) {
+        if (Types.isX10Struct(ref) && !isMutable(xts, ref)) {
             Flags x10flags = fi.flags();
             if (! x10flags.isFinal()) 
                 Errors.issue(tc.job(),
@@ -417,7 +416,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 	    	Flags f = flags.flags();
 	    	
 	    	try {
-                X10TypeMixin.checkMissingParameters(typeNode);
+                Types.checkMissingParameters(typeNode);
 	    	} catch (SemanticException e) {
 	    	    Errors.issue(tc.job(), e, this);
 	    	}
@@ -435,7 +434,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 	    	}
 
 
-	    	if (X10TypeMixin.isX10Struct(fieldDef().container().get()) &&
+	    	if (Types.isX10Struct(fieldDef().container().get()) &&
 	    			!isMutable(ts, fieldDef().container().get()) &&
 	    			! f.isFinal())
 	    	{
@@ -454,12 +453,12 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 
 	    	// Add an initializer to uninitialized var field unless field is annotated @Uninitialized.
             final X10FieldDef fieldDef = (X10FieldDef) n.fieldDef();
-            final boolean needsInit = !f.isFinal() && noInit && !X10TypeMixin.isUninitializedField(fieldDef, ts);
-            final boolean isTransient = f.isTransient() && !X10TypeMixin.isSuppressTransientErrorField(fieldDef,ts);
+            final boolean needsInit = !f.isFinal() && noInit && !Types.isUninitializedField(fieldDef, ts);
+            final boolean isTransient = f.isTransient() && !Types.isSuppressTransientErrorField(fieldDef,ts);
             if (needsInit || isTransient) {
-                final boolean hasZero = X10TypeMixin.isHaszero(type, xc);
+                final boolean hasZero = Types.isHaszero(type, xc);
                 // creating an init.
-	    		Expr e = X10TypeMixin.getZeroVal(typeNode,position().markCompilerGenerated(),tc);
+	    		Expr e = Types.getZeroVal(typeNode,position().markCompilerGenerated(),tc);
                 if (needsInit) {
                     if (e != null) {
                         n = (X10FieldDecl_c) n.init(e);
@@ -484,31 +483,31 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
                     n = n.init(newInit);
 	    	}
 
-            X10TypeMixin.checkVariance(n.type(), f.isFinal() ? ParameterType.Variance.COVARIANT : ParameterType.Variance.INVARIANT,tc.job());
+            Types.checkVariance(n.type(), f.isFinal() ? ParameterType.Variance.COVARIANT : ParameterType.Variance.INVARIANT,tc.job());
 
             // check cycles in struct declaration that will cause a field of infinite size, e.g.,
             // struct Z(@ERR u:Z) {}
             // struct Box[T](t:T) { }
             // struct InfiniteSize(@ERR x:Box[Box[InfiniteSize]]) {}
             final ContainerType containerType = fieldDef.container().get();
-            X10ClassDef_c goalDef = X10TypeMixin.getDef(containerType);
+            X10ClassDef_c goalDef = Types.getDef(containerType);
             if (ts.isStruct(containerType)) {
                 HashSet<X10ClassDef_c> otherStructsUsed = new HashSet<X10ClassDef_c>();
                 ArrayList<X10ParsedClassType> toExamine = new ArrayList<X10ParsedClassType>();
-                final X10ParsedClassType_c goal = X10TypeMixin.myBaseType(type);
+                final X10ParsedClassType_c goal = Types.myBaseType(type);
                 if (goal!=null) {
                     toExamine.add(goal);
                     boolean isFirstTime = true;
                     while (toExamine.size()>0) {
                         final X10ParsedClassType curr = toExamine.remove(toExamine.size() - 1);
-                        if (!isFirstTime && X10TypeMixin.getDef(curr)==goalDef) {
+                        if (!isFirstTime && Types.getDef(curr)==goalDef) {
                             Errors.issue(tc.job(),new SemanticException("Circularity in the usage of structs will cause this field to have infinite size. Use a class instead of a struct.",position),this);
                             break;
                         }
                         isFirstTime = false;
 
                         if (!ts.isStruct(curr)) continue;
-                        X10ClassDef_c def = X10TypeMixin.getDef(curr);
+                        X10ClassDef_c def = Types.getDef(curr);
                         if (otherStructsUsed.contains(def)) {
                             continue;
                         }
@@ -516,7 +515,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
                         toExamine.addAll(getAllTypeArgs(curr));
                         for (FieldDef fi : def.fields()) {
                             if (fi.flags().isStatic()) continue;
-                            X10ParsedClassType fiType = X10TypeMixin.myBaseType(fi.type().get());
+                            X10ParsedClassType fiType = Types.myBaseType(fi.type().get());
                             if (fiType!=null) {
                                 toExamine.add(fiType);
                                 toExamine.addAll(getAllTypeArgs(fiType));
@@ -540,7 +539,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
                 ArrayList<Type> toExamineArgs = new ArrayList<Type>(typeArgs);
                 while (toExamineArgs.size()>0) {
                     Type ta = toExamineArgs.remove(toExamineArgs.size()-1);
-                    final X10ParsedClassType_c baseTa = X10TypeMixin.myBaseType(ta);
+                    final X10ParsedClassType_c baseTa = Types.myBaseType(ta);
                     if (baseTa!=null) {
                         res.add(baseTa);
                         List<Type> typeArgs2 = baseTa.typeArguments();

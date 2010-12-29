@@ -109,7 +109,7 @@ public class X10FieldInstance_c extends FieldInstance_c implements X10FieldInsta
                     rightType = t;
                 }
                 else {
-                    CConstraint rc = X10TypeMixin.xclause(t);
+                    CConstraint rc = Types.xclause(t);
                     if (rc == null)
                         rc = new CConstraint();
 
@@ -136,7 +136,7 @@ public class X10FieldInstance_c extends FieldInstance_c implements X10FieldInsta
                         	c.setThisVar((XVar) receiver);
                         }
 
-                        rightType = X10TypeMixin.xclause(X10TypeMixin.baseType(t), c);
+                        rightType = Types.xclause(Types.baseType(t), c);
                     }
                     catch (XFailure f) {
                         throw new InternalCompilerError("Could not add self binding: " + f.getMessage(), f);
@@ -170,7 +170,7 @@ public class X10FieldInstance_c extends FieldInstance_c implements X10FieldInsta
     }
     public String containerString() {
 	Type container = container();
-	container = X10TypeMixin.baseType(container);
+	container = Types.baseType(container);
 	if (container instanceof FunctionType) {
 	    return "(" + container.toString() + ")";
 	}

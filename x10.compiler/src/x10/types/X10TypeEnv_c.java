@@ -124,7 +124,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
                     MethodInstance mj = ts.findImplementingMethod(ct, mi, context);
                     if (mj == null) {
-                    	if (X10TypeMixin.isX10Struct(ct)) {
+                    	if (Types.isX10Struct(ct)) {
                     		// Ignore checking requirement if the method is equals(Any), and ct is a struct.
                     		if (mi.name().toString().equals("equals")) {
                     			List<Type> argTypes = mi.formalTypes();
@@ -357,7 +357,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     
     public Kind kind(Type t) {
         Context  c = (Context) this.context;
-        t = X10TypeMixin.baseType(t);
+        t = Types.baseType(t);
         if (t instanceof FunctionType)
             return Kind.INTERFACE;
         if (t instanceof ClassType) {
@@ -411,7 +411,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
             Type w = worklist.removeFirst();
         
             // Expand macros, remove constraints
-            Type expanded = X10TypeMixin.baseType(w);
+            Type expanded = Types.baseType(w);
         
             if (visited.contains(expanded)) {
                 continue;
@@ -512,7 +512,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 //            }
         
             // Expand macros
-            Type expanded = X10TypeMixin.baseType(w);
+            Type expanded = Types.baseType(w);
             if (expanded instanceof ParameterType) {
                 ParameterType pt = (ParameterType) expanded;
                 X10Def def = (X10Def) Types.get(pt.def());
@@ -586,7 +586,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
             Type t = typeQueue.removeFirst();
             
             { // preventing infinite recursion
-                Type baseType = X10TypeMixin.baseType(t);
+                Type baseType = Types.baseType(t);
                 if (preventInfiniteRecursion.contains(baseType)) continue;
                 preventInfiniteRecursion.add(baseType);
             }
@@ -715,13 +715,13 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     	Context xcontext = (Context) context;
 
     	{
-    		boolean isStruct1 = X10TypeMixin.isX10Struct(t1);
-    		boolean isStruct2 = X10TypeMixin.isX10Struct(t2);
+    		boolean isStruct1 = Types.isX10Struct(t1);
+    		boolean isStruct2 = Types.isX10Struct(t2);
 
 
     		if (isStruct2) {
     			// t1 must be a struct, and the bases must be the same.
-    			if (! (isStruct1 && ts.typeEquals(X10TypeMixin.baseType(t1), X10TypeMixin.baseType(t2),
+    			if (! (isStruct1 && ts.typeEquals(Types.baseType(t1), Types.baseType(t2),
     					xcontext)))
     				return false;
 
@@ -739,7 +739,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
 
     	if (t1.isNull())
-    		return X10TypeMixin.permitsNull(t2);
+    		return Types.permitsNull(t2);
     	
 
     	if (t2.isNull()) 
@@ -795,18 +795,18 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     			}
     		}
     	}
-    	Type baseType1 = X10TypeMixin.baseType(t1);
+    	Type baseType1 = Types.baseType(t1);
     	
     	if (typeEquals(baseType1,t2))
     		return true;
     	
-    	Type baseType2 = X10TypeMixin.baseType(t2);
-    	CConstraint c1 = X10TypeMixin.realX(t1);
+    	Type baseType2 = Types.baseType(t2);
+    	CConstraint c1 = Types.realX(t1);
     	if (c1!= null && x != null) {
     		c1 = c1.instantiateSelf(x);
     	}
     	
-    	CConstraint c2 = X10TypeMixin.xclause(t2);  // NOTE: xclause, not realX (you want "c2" to have as few constraints as possible).
+    	CConstraint c2 = Types.xclause(t2);  // NOTE: xclause, not realX (you want "c2" to have as few constraints as possible).
     
     	if (c2 != null && c2.valid()) { 
     		c2 = null; 
@@ -829,8 +829,8 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     		if (x == null) {
     			x =  XTerms.makeFreshLocal(); // Why not EQV?
     		}
-    		t2 = X10TypeMixin.instantiateSelf(x, t2);
-    		c2 = X10TypeMixin.xclause(t2);
+    		t2 = Types.instantiateSelf(x, t2);
+    		c2 = Types.xclause(t2);
     		if (c2 != null && c2.valid())
     			c2 = null;
     		if (c1 != null)
@@ -1034,14 +1034,14 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
             }
         }
 
-        Type baseType1 = X10TypeMixin.baseType(t1);
-        Type baseType2 = X10TypeMixin.baseType(t2);
+        Type baseType1 = Types.baseType(t1);
+        Type baseType2 = Types.baseType(t2);
 
         // We must take the realX because if I have a definition:
         // class A(i:Int) {i==1} {}
         // then the types A and A{self.i==1} are equal!
-        CConstraint c1 = X10TypeMixin.realX(t1);
-        CConstraint c2 = X10TypeMixin.realX(t2);
+        CConstraint c1 = Types.realX(t1);
+        CConstraint c2 = Types.realX(t2);
 
         if (c1 != null && c1.valid()) { c1 = null; t1 = baseType1; }
         if (c2 != null && c2.valid()) { c2 = null; t2 = baseType2; }
@@ -1134,7 +1134,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
       //  	return true;
         
         if (fromType instanceof NullType) {
-            return toType.isNull() ||  X10TypeMixin.permitsNull(toType);
+            return toType.isNull() ||  Types.permitsNull(toType);
           
         }
 
@@ -1143,10 +1143,10 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         //		    return true;
         //		}
 
-        Type t1 = X10TypeMixin.baseType(fromType);
-        Type t2 = X10TypeMixin.baseType(toType);
-        CConstraint c1 = X10TypeMixin.realX(fromType);
-        CConstraint c2 = X10TypeMixin.realX(toType);
+        Type t1 = Types.baseType(fromType);
+        Type t2 = Types.baseType(toType);
+        CConstraint c1 = Types.realX(fromType);
+        CConstraint c2 = Types.realX(toType);
 
 
         Type baseType1 = t1;
@@ -1222,10 +1222,10 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     
     /** Return true if there is a conversion from fromType to toType.  Returns false if the two types are not both value types. */
     public boolean isPrimitiveConversionValid(Type fromType, Type toType) {
-        Type baseType1 = X10TypeMixin.baseType(fromType);
-        CConstraint c1 = X10TypeMixin.realX(fromType);
-        Type baseType2 = X10TypeMixin.baseType(toType);
-        CConstraint c2 = X10TypeMixin.realX(toType);
+        Type baseType1 = Types.baseType(fromType);
+        CConstraint c1 = Types.realX(fromType);
+        Type baseType2 = Types.baseType(toType);
+        CConstraint c2 = Types.realX(toType);
 
         if (c1 != null && c1.valid()) { c1 = null; }
         if (c2 != null && c2.valid()) { c2 = null; }
@@ -1243,7 +1243,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
         // Allow assignment if the fromType's value can be represented as a toType
         if (c1 != null && ts.isNumeric(baseType1) && ts. isNumeric(baseType2)) {
-            XVar self = X10TypeMixin.selfVar(c1);
+            XVar self = Types.selfVar(c1);
             if (self instanceof XLit) {
                 Object val = ((XLit) self).val();
                 if (numericConversionValid(baseType2, baseType1, val)) {
@@ -1307,7 +1307,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
                 return false;
             }
     
-            Type base = X10TypeMixin.baseType(toType);
+            Type base = Types.baseType(toType);
             
             boolean fits = false;
             
@@ -1396,7 +1396,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
             try {
                 CConstraint c = new CConstraint();
                 c.addSelfBinding(val);
-                return entails(c, X10TypeMixin.realX(toType));
+                return entails(c, Types.realX(toType));
             }
             catch (XFailure f) {
                 // Adding binding makes real clause inconsistent.
@@ -1419,8 +1419,8 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     }
 
     protected boolean isX10BaseSubtype(Type me, Type sup) {
-        Type xme = X10TypeMixin.baseType(me);
-        Type xsup = X10TypeMixin.baseType(sup);
+        Type xme = Types.baseType(me);
+        Type xsup = Types.baseType(sup);
         return isSubtype(xme, xsup);
     }
 
@@ -1443,8 +1443,8 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
      */
     public boolean entailsClause(Type me, Type other) {
         try {
-            CConstraint c1 = X10TypeMixin.realX(me);
-            CConstraint c2 = X10TypeMixin.xclause(other);
+            CConstraint c1 = Types.realX(me);
+            CConstraint c2 = Types.xclause(other);
             return entails(c1, c2);
         }
         catch (InternalCompilerError e) {
@@ -1463,31 +1463,31 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         Type t;
         if (type1.isNull() || type2.isNull()) {
             t = type1.isNull() ? type2 : type1;
-            if (X10TypeMixin.permitsNull(t)) return t;
+            if (Types.permitsNull(t)) return t;
             // Maybe there is a constraint {self!=null} that we can remove from "t", and then null will be allowed.
             // e.g., true ? null : new Test()
             //      	 T1: type(null)
      	    //      	 T2: Test{self.home==here, self!=null}
             // The lub should be:  Test{self.home==here}
 
-            CConstraint ct = X10TypeMixin.realX(t);
-            Type baseType = X10TypeMixin.baseType(t);
-            if (!X10TypeMixin.permitsNull(baseType))
+            CConstraint ct = Types.realX(t);
+            Type baseType = Types.baseType(t);
+            if (!Types.permitsNull(baseType))
                 throw new SemanticException("No least common ancestor found for types \"" + type1 +
     								"\" and \"" + type2 + "\", because one is null and the other cannot contain null.");
             // we need to keep all the constraints except the one that says the type is not null
-            final Type res = X10TypeMixin.addConstraint(baseType, X10TypeMixin.allowNull(ct));
-            assert X10TypeMixin.permitsNull(res);
+            final Type res = Types.addConstraint(baseType, Types.allowNull(ct));
+            assert Types.permitsNull(res);
             return res;
         } else {
-            t = leastCommonAncestorBase(X10TypeMixin.baseType(type1),
-    			X10TypeMixin.baseType(type2));
+            t = leastCommonAncestorBase(Types.baseType(type1),
+    			Types.baseType(type2));
         }
     	
-    	CConstraint c1 = X10TypeMixin.realX(type1), c2 = X10TypeMixin.realX(type2);
+    	CConstraint c1 = Types.realX(type1), c2 = Types.realX(type2);
     	CConstraint c = c1.leastUpperBound(c2);
     	if (! c.valid())
-    		t = X10TypeMixin.addConstraint(t, c);
+    		t = Types.addConstraint(t, c);
     	return t;
     	
     }
@@ -1556,7 +1556,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
     	// Since they are not equal, and one is not a subtype of another
     	// and one of them is a struct, the lub has to be Any.
-    	if (X10TypeMixin.isX10Struct(type1) || X10TypeMixin.isX10Struct(type2)) {
+    	if (Types.isX10Struct(type1) || Types.isX10Struct(type2)) {
     		return ts.Any();
     	}
     	// Now neither is a struct. Neither is null.
@@ -1586,7 +1586,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     public boolean typeBaseEquals(Type type1, Type type2) {
         if (type1 == type2) return true;
         if (type1 == null || type2 == null) return false;
-        return typeEquals(X10TypeMixin.baseType(type1), X10TypeMixin.baseType(type2));
+        return typeEquals(Types.baseType(type1), Types.baseType(type2));
     }
 
     /* (non-Javadoc)
@@ -1595,7 +1595,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     public boolean typeDeepBaseEquals(Type type1, Type type2) {
         if (type1 == type2) return true;
         if (type1 == null || type2 == null) return false;
-        return typeEquals(X10TypeMixin.stripConstraints(type1), X10TypeMixin.stripConstraints(type2));
+        return typeEquals(Types.stripConstraints(type1), Types.stripConstraints(type2));
     }
     /* (non-Javadoc)
      * @see x10.types.X10TypeEnv#equalTypeParameters(java.util.List, java.util.List)
@@ -2008,7 +2008,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 	              newRetType = PlaceChecker.ReplaceHereByPlaceTerm(newRetType, (Context) context);
 	                final boolean isStatic =  zmj.flags().isStatic();
 	                // add in this.home=here clause.
-	                if (! isStatic  && ! X10TypeMixin.isX10Struct(mi.container())) {
+	                if (! isStatic  && ! Types.isX10Struct(mi.container())) {
 	                	try {
 	                		if ( y.length > 0 && y[0] instanceof XEQV)
 	                		newRetType = Subst.addIn(newRetType, PlaceChecker.ThisHomeEqualsHere(y[0], ts));

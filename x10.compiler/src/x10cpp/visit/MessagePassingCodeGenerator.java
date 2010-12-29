@@ -209,7 +209,6 @@ import x10.types.X10LocalDef;
 import x10.types.X10MethodDef;
 import x10.types.X10MethodInstance;
 import x10.types.X10ParsedClassType_c;
-import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem_c;
 import x10.types.X10TypeSystem_c.BaseTypeEquals;
 import x10.types.checker.Converter;
@@ -1063,7 +1062,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		        }
 		    }
         }
-        X10ClassType superClass = (X10ClassType) X10TypeMixin.baseType(def.asType().superClass());
+        X10ClassType superClass = (X10ClassType) Types.baseType(def.asType().superClass());
         if (superClass != null) {
             for (Name mname : getMethodNames(n.body().members())) {
                 List<MethodInstance> overriddenOverloads = getOROLMeths(mname, superClass);
@@ -1114,7 +1113,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         }
 
         // no need to look in interfaces because they only contain abstract methods
-        X10ClassType superClass = (X10ClassType) X10TypeMixin.baseType(c.superClass());
+        X10ClassType superClass = (X10ClassType) Types.baseType(c.superClass());
         if (superClass!=null) {
             List<MethodInstance> moreMeths = getOROLMeths(name, superClass, shadowed);
             meths.addAll(moreMeths);
@@ -1164,7 +1163,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
     public void visit(ClassBody_c n) {
         X10CPPContext_c context = (X10CPPContext_c) tr.context();
         X10ClassType currentClass = (X10ClassType) context.currentClass();
-        X10ClassType superClass = (X10ClassType) X10TypeMixin.baseType(currentClass.superClass());
+        X10ClassType superClass = (X10ClassType) Types.baseType(currentClass.superClass());
         TypeSystem xts = (TypeSystem) tr.typeSystem();
 
         if (currentClass.flags().isInterface()) {
@@ -1484,7 +1483,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			h.write(maybeVirtual+"x10aux::itable_entry* _getITables() { return _itables; }"); h.newline(); h.forceNewline();
 			int itableNum = 0;
 			for (Type interfaceType : allInterfaces) {
-				ITable itable = context.getITable((X10ClassType) X10TypeMixin.baseType(interfaceType));
+				ITable itable = context.getITable((X10ClassType) Types.baseType(interfaceType));
 				itable.emitITableDecl(currentClass, itableNum, emitter, h);
 				itableNum += 1;
 				h.forceNewline();
@@ -1493,7 +1492,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			/* ITables initialization */
 			itableNum = 0;
 			for (Type interfaceType : allInterfaces) {
-				ITable itable = context.getITable((X10ClassType) X10TypeMixin.baseType(interfaceType));
+				ITable itable = context.getITable((X10ClassType) Types.baseType(interfaceType));
 				itable.emitITableInitialization(currentClass, itableNum, this, h, sw);
 				itableNum += 1;
 			}
@@ -1538,7 +1537,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	        /* ITables initialization */
 	        int itableNum = 0;
 	        for (Type interfaceType : allInterfaces) {
-	            ITable itable = context.getITable((X10ClassType) X10TypeMixin.baseType(interfaceType));
+	            ITable itable = context.getITable((X10ClassType) Types.baseType(interfaceType));
 	            itable.emitITableInitialization(currentClass, itableNum, this, h, sw);
 	            itableNum += 1;
 	        }
@@ -1608,13 +1607,13 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				if (newTypeParameters.isEmpty()) {
 					h.write(maybeVirtual);
 				}
-				emitter.printType(replaceType(X10TypeMixin.baseType(dropzone.returnType()), typeMap), h);
+				emitter.printType(replaceType(Types.baseType(dropzone.returnType()), typeMap), h);
 				h.write(" "+mangled_method_name(mname.toString())+"(");
 				h.begin(0);
 				int counter = 0;
 				for (Type formal : formals) {
 					h.write(counter == 0 ? "" : ", ");
-					emitter.printType(replaceType(X10TypeMixin.baseType(formal), typeMap), h);
+					emitter.printType(replaceType(Types.baseType(formal), typeMap), h);
 					h.write(" p"+counter++);
 				}
 				h.end();
@@ -1631,14 +1630,14 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 				emitter.printTemplateSignature(cd.typeParameters(), sw);
 				emitter.printTemplateSignature(newTypeParameters, sw);
-				emitter.printType(replaceType(X10TypeMixin.baseType(dropzone.returnType()), typeMap), sw);
+				emitter.printType(replaceType(Types.baseType(dropzone.returnType()), typeMap), sw);
 				sw.write(" " + Emitter.translateType(currentClass, false) +
 						"::" + mangled_method_name(mname.toString()) + "(");
 				sw.begin(0);
 				counter = 0;
 				for (Type formal : formals) {
 					sw.write(counter == 0 ? "" : ", ");
-					emitter.printType(replaceType(X10TypeMixin.baseType(formal), typeMap), sw);
+					emitter.printType(replaceType(Types.baseType(formal), typeMap), sw);
 					sw.write(" p"+counter++);
 				}
 				sw.end();
@@ -2328,7 +2327,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         for (int i = 0; i < aSize; i++) {
             Expr arg = arguments.get(i);
             FieldInstance fi = definedProperties.get(i);
-            if (X10TypeMixin.isX10Struct(ctx.currentClass())) {
+            if (Types.isX10Struct(ctx.currentClass())) {
                 sw.write("this_->");
             }
             sw.write(mangled_field_name(fi.name().toString()));
@@ -2932,7 +2931,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	        return ((X10Special_c) e).qualifier() != null;
 	    if (e instanceof X10Cast_c)
 	        return needsNullCheck(((X10Cast_c) e).expr());
-	    return !X10TypeMixin.isNonNull(e.type());
+	    return !Types.isNonNull(e.type());
 	}
 
 	public void visit(X10Call_c n) {
@@ -3252,7 +3251,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				sw.end();
 				return;
 			} else {
-			    boolean needsNullCheck = !X10TypeMixin.isX10Struct(t) && needsNullCheck(target);
+			    boolean needsNullCheck = !Types.isX10Struct(t) && needsNullCheck(target);
 				boolean assoc = !(target instanceof New_c || target instanceof Binary_c);
 				if (needsNullCheck) sw.write("x10aux::nullCheck(");
 				n.printSubExpr((Expr) target, assoc, sw, tr);
@@ -3474,11 +3473,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			if (tn instanceof X10CanonicalTypeNode) {
 				X10CanonicalTypeNode xtn = (X10CanonicalTypeNode) tn;
 
-                Type t = X10TypeMixin.baseType(xtn.type());
-                Type f = X10TypeMixin.baseType(c.expr().type());
+                Type t = Types.baseType(xtn.type());
+                Type f = Types.baseType(c.expr().type());
 
-                Type t_ = X10TypeMixin.stripConstraints(t);
-                Type f_ = X10TypeMixin.stripConstraints(f);
+                Type t_ = Types.stripConstraints(t);
+                Type f_ = Types.stripConstraints(f);
 
                 X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
                 Context context = (Context) tr.context();
@@ -3737,7 +3736,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		Type dType = domain.type();
 		if (Configuration.LOOP_OPTIMIZATIONS &&
 		        form.hasExplodedVars() && form.isUnnamed() && xts.isPoint(form.type().type()) &&
-		        (X10TypeMixin.isRect(X10TypeMixin.toConstrainedType(dType), context)) &&
+		        (Types.toConstrainedType(dType).isRect(context)) &&
 		        (xts.isX10Array(dType) || xts.isX10DistArray(dType) || xts.isDistribution(dType) || xts.isRegion(dType)))
 		{
 		    // TODO: move this to the Desugarer
@@ -3860,7 +3859,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		                                          Collections.<Type>emptyList(), context));
 		    assert (mi != null);
 		    assert (mi.returnType().isClass());
-		    List<Type> typeArgs = ((X10ClassType)X10TypeMixin.baseType(mi.returnType())).typeArguments();
+		    List<Type> typeArgs = ((X10ClassType)Types.baseType(mi.returnType())).typeArguments();
 		    assert (typeArgs != null && typeArgs.size() == 1);
 		    itType = typeArgs.get(0);
 		} catch (SemanticException e) {
@@ -3994,7 +3993,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             sw.write(SAVED_THIS);
             context.saveEnvVariableInfo(THIS);
         } else {
-            if (X10TypeMixin.isX10Struct(n.type())) {
+            if (Types.isX10Struct(n.type())) {
                 sw.write("this_");
             } else {
                 if (n.kind().equals(X10Special_c.THIS)) {
@@ -4277,7 +4276,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                 name = mangled_non_method_name(name);
             else if (((X10CPPContext_c)c.pop()).isInsideClosure())  // FIXME: hack
                 name = SAVED_THIS;
-            else if (X10TypeMixin.isX10Struct(var.type())) // FIXME: duplication from visit(X10Special_c)
+            else if (Types.isX10Struct(var.type())) // FIXME: duplication from visit(X10Special_c)
                 name = "this_";
             if (refs.contains(var)) {
                 sw.write("&("+name+")");
@@ -4919,7 +4918,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    Context context = tr.context();
 
 		// Handles Array initializer.
-		Type T = X10TypeMixin.getParameterType(c.type(), 0);		
+		Type T = Types.getParameterType(c.type(), 0);		
 		String type = Emitter.translateType(c.type());
 		String tmp = getId();
 		// [DC] this cast is needed to ensure everything has a ref type

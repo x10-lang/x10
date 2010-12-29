@@ -146,7 +146,7 @@ public class Cast_c extends Expr_c implements Cast
     }
     
     public boolean isConstant() {
-	return expr.isConstant() && castType.type().isPrimitive();
+	return expr.isConstant() && castType.type().isJavaPrimitive();
     }
     
     public Object constantValue() {

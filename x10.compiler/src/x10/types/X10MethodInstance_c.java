@@ -31,7 +31,7 @@ import polyglot.types.MethodInstance;
 import polyglot.types.MethodInstance_c;
 import polyglot.types.Name;
 import polyglot.types.Named;
-import polyglot.types.PrimitiveType;
+import polyglot.types.JavaPrimitiveType;
 import polyglot.types.ProcedureInstance;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
@@ -71,7 +71,7 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
 
     @Override
     public boolean moreSpecific(Type container, ProcedureInstance<MethodDef> p, Context context) {
-        return X10TypeMixin.moreSpecificImpl(container, this, p, context);
+        return Types.moreSpecificImpl(container, this, p, context);
     }
 
     public static class NoClauseVariant implements Transformation<Type, Type> {
@@ -230,7 +230,7 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
     }
 
     public static void buildSubst(Type t, List<XVar> ys, List<XVar> xs, XVar thisVar) {
-        Type container = X10TypeMixin.baseType(t);
+        Type container = Types.baseType(t);
         if (container instanceof X10ClassType) {
             X10ClassDef cd = ((X10ClassType) container).x10Def();
             XVar cdThisVar = cd.thisVar();
@@ -282,7 +282,7 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
 
     public String containerString() {
         Type container = container();
-        container = X10TypeMixin.baseType(container);
+        container = Types.baseType(container);
         if (container instanceof FunctionType) {
             return "(" + container.toString() + ")";
         }
@@ -389,7 +389,7 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
                     rightType = t;
                 }
                 else {
-                    CConstraint rc = X10TypeMixin.xclause(t);
+                    CConstraint rc = Types.xclause(t);
                     if (rc == null)
                         rc = new CConstraint();
 
@@ -421,7 +421,7 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
                         if (! flags.isStatic()) {
                         	c.setThisVar((XVar) receiver);
                         }
-                        rightType = X10TypeMixin.xclause(X10TypeMixin.baseType(t), c);
+                        rightType = Types.xclause(Types.baseType(t), c);
                     }
                     catch (XFailure f) {
                         throw new InternalCompilerError("Could not add self binding: " + f.getMessage(), f);

@@ -51,7 +51,6 @@ import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.errors.Errors;
 import x10.types.X10MethodInstance;
-import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem_c;
 import x10.types.checker.Checker;
 import x10.types.checker.Converter;
@@ -342,8 +341,8 @@ public class X10Binary_c extends Binary_c implements X10Binary {
         TypeSystem xts = (TypeSystem) tc.typeSystem();
         Context context = (Context) tc.context();
 
-        Type lbase = X10TypeMixin.baseType(left.type());
-        Type rbase = X10TypeMixin.baseType(right.type());
+        Type lbase = Types.baseType(left.type());
+        Type rbase = Types.baseType(right.type());
         if (xts.hasUnknown(lbase) || xts.hasUnknown(rbase))
         	return this.type(xts.unknownType(position()));
         
@@ -510,7 +509,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
             Expr newFirst = Converter.attemptCoercion(
                     false, // I do not want to report any warnings if coercion failed
                     tc, first,
-                    X10TypeMixin.baseType(second.type())); // I use baseType because the constraints are irrelevant for resolution (and it can cause an error if the constraint contain "place23423423")
+                    Types.baseType(second.type())); // I use baseType because the constraints are irrelevant for resolution (and it can cause an error if the constraint contain "place23423423")
             if (newFirst!=first && newFirst!=null) {
                 return searchInstance1(methodName,pos,tc,newFirst,second);
             }
@@ -670,7 +669,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
                     rtset = true;
                 } else if (rt != null && !xts.typeEquals(rt, xmi.returnType(), tc.context())) {
                     if (xts.typeBaseEquals(rt, xmi.returnType(), tc.context())) {
-                        rt = X10TypeMixin.baseType(rt);
+                        rt = Types.baseType(rt);
                     } else {
                         rt = null;
                     }
@@ -680,7 +679,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
                     ctset = true;
                 } else if (ct != null && !xts.typeEquals(ct, xmi.container(), tc.context())) {
                     if (xts.typeBaseEquals(ct, xmi.container(), tc.context())) {
-                        ct = X10TypeMixin.baseType(ct).toClass();
+                        ct = Types.baseType(ct).toClass();
                     } else {
                         ct = null;
                     }
@@ -697,8 +696,8 @@ public class X10Binary_c extends Binary_c implements X10Binary {
         } 
         {
         X10MethodInstance mi = result.methodInstance();
-        Type lbase = X10TypeMixin.baseType(n.left().type());
-        Type rbase = X10TypeMixin.baseType(n.right().type());
+        Type lbase = Types.baseType(n.left().type());
+        Type rbase = Types.baseType(n.right().type());
         Context context = (Context) tc.context();
 
         // Add support for patching up the return type of Region's operator*().
@@ -738,7 +737,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
      * t is a parameter type or an unknown type.
      */
     public static ClassDef def(Type t) {
-        Type base = X10TypeMixin.baseType(t);
+        Type base = Types.baseType(t);
         if (base instanceof ClassType)
             return ((ClassType) base).def();
         return null;

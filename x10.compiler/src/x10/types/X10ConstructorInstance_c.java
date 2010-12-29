@@ -72,7 +72,7 @@ public class X10ConstructorInstance_c extends ConstructorInstance_c implements X
     
     @Override
     public boolean moreSpecific(Type ct, ProcedureInstance<ConstructorDef> p, Context context) {
-        return X10TypeMixin.moreSpecificImpl(ct, this, p, context);
+        return Types.moreSpecificImpl(ct, this, p, context);
     }
 
     public X10ConstructorDef x10Def() {
@@ -94,7 +94,7 @@ public class X10ConstructorInstance_c extends ConstructorInstance_c implements X
     /* (non-Javadoc)
      * @see x10.types.X10ConstructorInstance#depClause()
      */
-    public CConstraint constraint() { return X10TypeMixin.realX(returnType()); }
+    public CConstraint constraint() { return Types.realX(returnType()); }
 
     public Ref<? extends Type> returnType;
     

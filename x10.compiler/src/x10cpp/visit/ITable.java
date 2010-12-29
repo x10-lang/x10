@@ -24,13 +24,13 @@ import polyglot.ast.Expr;
 import polyglot.types.Context;
 import polyglot.types.MethodInstance;
 import polyglot.types.Type;
+import polyglot.types.Types;
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10MethodDef;
 import x10.types.X10MethodInstance;
-import x10.types.X10TypeMixin;
 import polyglot.types.TypeSystem;
 import x10.types.X10TypeSystem_c;
 import x10cpp.types.X10CPPContext_c;
@@ -312,8 +312,8 @@ public final class ITable {
 			Iterator<Type> i1 = m1Formals.iterator();
 			Iterator<Type> i2 = m2Formals.iterator();
 			while (i1.hasNext()) {
-				Type f1 = X10TypeMixin.baseType(i1.next());
-				Type f2 = X10TypeMixin.baseType(i2.next());
+				Type f1 = Types.baseType(i1.next());
+				Type f2 = Types.baseType(i2.next());
 				int fcompare = f1.toString().compareTo(f2.toString());
 				if (fcompare != 0) return fcompare;
 			}

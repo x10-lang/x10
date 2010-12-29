@@ -89,7 +89,6 @@ import x10.types.X10MethodDef;
 import x10.types.X10MethodInstance;
 import x10.types.X10ParsedClassType;
 
-import x10.types.X10TypeMixin;
 import polyglot.types.TypeSystem;
 import x10.types.X10TypeSystem_c;
 import x10.types.constraints.CConstraint;
@@ -463,7 +462,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         			}
         			if (nn.superClass != null) {
         				Type t = nn.superClass.type();
-        				CConstraint tc = X10TypeMixin.xclause(t);
+        				CConstraint tc = Types.xclause(t);
         				if (tc != null) {
         					x.addIn(tc);
         					if (! tc.consistent()) {
@@ -473,7 +472,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         			}
         			for (TypeNode tn : nn.interfaces) {
         				Type t = tn.type();
-        				CConstraint tc = X10TypeMixin.xclause(t);
+        				CConstraint tc = Types.xclause(t);
         				if (tc != null) {
         					x.addIn(tc);
         					if (! tc.consistent()) {
@@ -673,7 +672,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         
         if (type.superType() != null) {
         	if (!((X10ClassDef) type).isStruct()) {
-        		if ((X10TypeMixin.isX10Struct(type.superType().get()))) {
+        		if ((Types.isX10Struct(type.superType().get()))) {
         			Errors.issue(tc.job(),
         			             new Errors.ClassMustHaveClassSupertype(type.superType(),
         			                                                      type,
@@ -756,9 +755,9 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     	}
 
         // a superclass/interface is a covariant position (+)
-        if (n.superClass!=null) X10TypeMixin.checkVariance(n.superClass, ParameterType.Variance.COVARIANT,tc.job());
+        if (n.superClass!=null) Types.checkVariance(n.superClass, ParameterType.Variance.COVARIANT,tc.job());
         for (TypeNode typeNode : n.interfaces)
-            X10TypeMixin.checkVariance(typeNode, ParameterType.Variance.COVARIANT,tc.job());
+            Types.checkVariance(typeNode, ParameterType.Variance.COVARIANT,tc.job());
     	return n;
     }
     

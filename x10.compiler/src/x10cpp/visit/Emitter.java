@@ -79,7 +79,6 @@ import x10.types.X10ConstructorDef;
 import x10.types.X10LocalDef;
 import x10.types.X10MethodDef;
 import x10.types.X10MethodInstance;
-import x10.types.X10TypeMixin;
 import polyglot.types.TypeSystem;
 import x10.types.X10TypeSystem_c;
 import x10.types.X10TypeSystem_c.BaseTypeEquals;
@@ -259,7 +258,7 @@ public class Emitter {
 		// TODO: handle closures
 //		if (((X10TypeSystem) type.typeSystem()).isClosure(type))
 //			return translateType(((X10Type) type).toClosure().base(), asRef);
-		type = X10TypeMixin.baseType(type);
+		type = Types.baseType(type);
 		String name = null;
 		// TODO
 //		if (type instanceof ClosureType) {
@@ -491,7 +490,7 @@ public class Emitter {
 		Context context = tr.context();
 
 		X10ClassType classType = (X10ClassType) from.container();
-		X10ClassType superClass = (X10ClassType) X10TypeMixin.baseType(classType.superClass());
+		X10ClassType superClass = (X10ClassType) Types.baseType(classType.superClass());
 		List<Type> interfaces = classType.interfaces();
 		Type returnType = null;
 
@@ -642,7 +641,7 @@ public class Emitter {
 		h.write(" ");
 		TypeSystem xts = (TypeSystem) tr.typeSystem();
 		Type param_type = n.type().type();
-		param_type = X10TypeMixin.baseType(param_type);
+		param_type = Types.baseType(param_type);
 		if (param_type instanceof X10ClassType) {
 			X10ClassType c = (X10ClassType)param_type;
 			if (c.isX10Struct()) {

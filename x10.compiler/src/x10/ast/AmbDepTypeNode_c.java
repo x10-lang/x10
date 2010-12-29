@@ -42,7 +42,6 @@ import x10.extension.X10Del;
 import x10.extension.X10Del_c;
 import x10.types.X10ClassType;
 import polyglot.types.Context;
-import x10.types.X10TypeMixin;
 import polyglot.types.TypeSystem;
 import x10.types.X10TypeSystem_c;
 import x10.types.constraints.CConstraint;
@@ -143,9 +142,9 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode, AddF
         DepParameterExpr constr = (DepParameterExpr) visitChild(dep, childtc);
         
         CConstraint c = Types.get(constr.valueConstraint());
-        t = X10TypeMixin.xclause(t, c);
+        t = Types.xclause(t, c);
         if (flags != null) {
-        	t = X10TypeMixin.processFlags(flags, t);
+        	t = Types.processFlags(flags, t);
         	flags = null;
         }
 

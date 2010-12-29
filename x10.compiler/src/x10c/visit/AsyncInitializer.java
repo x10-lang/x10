@@ -46,7 +46,6 @@ import x10.extension.X10Ext_c;
 import x10.types.X10ClassType;
 import x10.types.X10LocalDef;
 import x10.types.X10MethodInstance;
-import x10.types.X10TypeMixin;
 import x10c.ast.BackingArrayAccess;
 import x10c.ast.BackingArrayAccessAssign;
 import x10c.ast.BackingArrayNewArray;
@@ -248,7 +247,7 @@ public class AsyncInitializer extends ContextVisitor {
             public Node leave(Node parent, Node old, Node n, NodeVisitor v) {
                 if (n instanceof X10LocalAssign_c) {
                     X10LocalAssign_c la = (X10LocalAssign_c) n;
-                    Type type = X10TypeMixin.baseType(la.type());
+                    Type type = Types.baseType(la.type());
                     Expr left = la.left();
 
                     if (!(left instanceof Local)) {
@@ -275,7 +274,7 @@ public class AsyncInitializer extends ContextVisitor {
                     if (initVal == null)
                         return n;
 
-                    Type type = X10TypeMixin.baseType(((X10Local_c) n).type());
+                    Type type = Types.baseType(((X10Local_c) n).type());
 
                     Id id = getBoxId(initVal);
                     LocalDef ldef = xts.localDef(n.position(), xts.Final(), Types.ref(type), id.id());

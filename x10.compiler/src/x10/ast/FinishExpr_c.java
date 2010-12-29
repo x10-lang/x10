@@ -14,6 +14,7 @@ import polyglot.types.Context;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
+import polyglot.types.Types;
 import polyglot.util.CollectionUtil;
 import polyglot.util.Position;
 import polyglot.visit.AscriptionVisitor;
@@ -26,7 +27,6 @@ import x10.extension.X10Del;
 import x10.extension.X10Ext;
 import x10.types.ClosureDef;
 import polyglot.types.Context;
-import x10.types.X10TypeMixin;
 import polyglot.types.TypeSystem;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.XConstrainedTerm;
@@ -79,7 +79,7 @@ public class FinishExpr_c extends Expr_c implements FinishExpr {
 	    }
 	    // Check that reducer is a Reducer, throwing an exception if not.
 	    Expr e = (Expr) visitChild(reducer, v);
-	    Type r = X10TypeMixin.reducerType(e.type());
+	    Type r = Types.reducerType(e.type());
 	    if (r == null) {
 	        Errors.issue(tc.job(), new Errors.IsNotReducible(e, e.position()), this);
 	        r = ts.unknownType(e.position());
@@ -110,7 +110,7 @@ public class FinishExpr_c extends Expr_c implements FinishExpr {
 		if (child == body) {
 		// Push T, not Reducible[T].
 			Type type = reducer.type();
-			type = X10TypeMixin.reducerType(type);
+			type = Types.reducerType(type);
 			if (type != null) {
 				xc = (Context) xc.pushCollectingFinishScope(type);
 			}

@@ -60,7 +60,6 @@ import x10.types.X10ClassType;
 import x10.types.X10FieldDef;
 
 import x10.types.X10MethodDef;
-import x10.types.X10TypeMixin;
 import polyglot.types.TypeSystem;
 
 /**
@@ -117,7 +116,7 @@ public class NativeClassVisitor extends ContextVisitor {
     }
 
     protected String getPropertyInit(Type at, int index) throws SemanticException {
-        at = X10TypeMixin.baseType(at);
+        at = Types.baseType(at);
         if (at instanceof X10ClassType) {
             X10ClassType act = (X10ClassType) at;
             if (index < act.propertyInitializers().size()) {

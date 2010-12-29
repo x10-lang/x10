@@ -36,6 +36,7 @@ import polyglot.types.QName;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
+import polyglot.types.Types;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
@@ -46,7 +47,6 @@ import x10.constraint.XTerm;
 import x10.constraint.XVar;
 import x10.extension.X10Ext;
 import x10.optimizations.ForLoopOptimizer;
-import x10.types.X10TypeMixin;
 import x10.types.checker.Converter;
 import x10.types.constraints.CConstraint;
 import x10.util.AltSynthesizer;
@@ -170,7 +170,7 @@ public class ConstantPropagator extends ContextVisitor {
         	if (f.target() instanceof Expr) {
         		Expr target = (Expr) f.target();
         		Type t = target.type();
-        		CConstraint c = X10TypeMixin.xclause(t);
+        		CConstraint c = Types.xclause(t);
         		if (c != null) {
         			XTerm val = c.bindingForSelfField(f);
         			if (val instanceof XLit) {
@@ -182,7 +182,7 @@ public class ConstantPropagator extends ContextVisitor {
         }
 
         Type t = e.type();
-        CConstraint c = X10TypeMixin.xclause(t);
+        CConstraint c = Types.xclause(t);
         if (c != null) {
             XVar r = c.self();
             if (r instanceof XLit) {
@@ -218,7 +218,7 @@ public class ConstantPropagator extends ContextVisitor {
                 if (isNative(target))
                     return false;
                 Type t = target.type();
-                CConstraint c = X10TypeMixin.xclause(t);
+                CConstraint c = Types.xclause(t);
                 if (c != null) {
                 	XTerm val = c.bindingForSelfField(f);
                 	if (val instanceof XLit) {
@@ -228,7 +228,7 @@ public class ConstantPropagator extends ContextVisitor {
             }
         }
 
-        CConstraint c = X10TypeMixin.xclause(type);
+        CConstraint c = Types.xclause(type);
         if (c != null) {
             XVar r = c.self();
             if (r instanceof XLit) {

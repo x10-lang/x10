@@ -21,13 +21,13 @@ import polyglot.ast.Receiver;
 import polyglot.ast.TypeNode;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
+import polyglot.types.Types;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.TypeChecker;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
 import x10.types.ConstrainedType;
-import x10.types.X10TypeMixin;
 import polyglot.types.TypeSystem;
 
 /**
@@ -53,12 +53,12 @@ public class RegionMaker_c extends X10Call_c implements RegionMaker {
 		Expr left = (Expr) n.arguments.get(0);
 		Type type = n.type();
 		Type lType = left.type();
-		if (X10TypeMixin.entails(lType, X10TypeMixin.self(lType), xts.ZERO())) {
+		if (Types.entails(lType, Types.self(lType), xts.ZERO())) {
 		    if (!xts.isUnknown(type)) {
-		    	ConstrainedType result = X10TypeMixin.toConstrainedType(type);
-		        XVar self = X10TypeMixin.self(result);
-		        result = (ConstrainedType) X10TypeMixin.addTerm(result, X10TypeMixin.makeZeroBased(result));
-		        result = (ConstrainedType) X10TypeMixin.addTerm(result, X10TypeMixin.makeRail(result));
+		    	ConstrainedType result = Types.toConstrainedType(type);
+		        XVar self = Types.self(result);
+		        result = (ConstrainedType) Types.addTerm(result, result.makeZeroBased());
+		        result = (ConstrainedType) Types.addTerm(result, result.makeRail());
 		        n= (RegionMaker_c) n.type(result);
 		    }
 		}

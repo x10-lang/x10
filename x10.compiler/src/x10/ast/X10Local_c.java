@@ -40,7 +40,6 @@ import polyglot.types.Context;
 
 import x10.types.X10LocalInstance;
 import x10.types.X10ProcedureDef;
-import x10.types.X10TypeMixin;
 import polyglot.types.TypeSystem;
 import x10.types.X10TypeSystem_c;
 import x10.types.X10Context_c;
@@ -148,7 +147,7 @@ public class X10Local_c extends Local_c {
       			    // Add the guard into the constraint for this type. 
         			Type t = result.type();
 
-        			CConstraint dep = X10TypeMixin.xclause(t);
+        			CConstraint dep = Types.xclause(t);
         			if (dep == null) dep = new CConstraint();
         			else dep = dep.copy();
 //        			XTerm resultTerm = xts.xtypeTranslator().trans(result);
@@ -159,7 +158,7 @@ public class X10Local_c extends Local_c {
         			    throw new SemanticException(e.getMessage(), position());
         			}
         			
-        			t = X10TypeMixin.xclause(X10TypeMixin.baseType(t), dep);
+        			t = Types.xclause(Types.baseType(t), dep);
         			
 					return result.type(t);
 				}

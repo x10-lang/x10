@@ -35,7 +35,6 @@ import x10.types.X10FieldInstance;
 import x10.types.X10LocalInstance;
 import x10.types.X10MethodInstance;
 import x10.types.X10ParsedClassType;
-import x10.types.X10TypeMixin;
 import polyglot.types.TypeSystem;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
@@ -75,7 +74,7 @@ public class Subst {
         if (t instanceof UnknownType)
             return t;
         if (t instanceof ParameterType) {
-            return X10TypeMixin.xclause(t, in);
+            return Types.xclause(t, in);
         }
         if (ts.isVoid(t)) {
             return t;
@@ -91,8 +90,8 @@ public class Subst {
             }
             return ct.typeArguments(newArgs);
         }
-        Type base = X10TypeMixin.baseType(t);
-        CConstraint c = X10TypeMixin.xclause(t);
+        Type base = Types.baseType(t);
+        CConstraint c = Types.xclause(t);
         if (t==base)
             assert t != base;
 
@@ -102,7 +101,7 @@ public class Subst {
             c = c.copy().addIn(in);
         }
 
-        return X10TypeMixin.xclause(base, c);
+        return Types.xclause(base, c);
     }
 
     public static Type project(Type t, XVar v) {
@@ -136,8 +135,8 @@ public class Subst {
             return ct.typeArguments(newArgs);
         }
 
-        Type base = X10TypeMixin.baseType(t);
-        CConstraint c = X10TypeMixin.xclause(t);
+        Type base = Types.baseType(t);
+        CConstraint c = Types.xclause(t);
         if (t == base) 
             assert t != base;
         base = project(base, v);
@@ -146,7 +145,7 @@ public class Subst {
             c = c.copy().project(v);
         }
 
-        return X10TypeMixin.xclause(base, c);
+        return Types.xclause(base, c);
     }
 
     /**
@@ -174,8 +173,8 @@ public class Subst {
 
         t = ts.expandMacros(t);
 
-        Type base = X10TypeMixin.baseType(t);
-        CConstraint c = X10TypeMixin.xclause(t);
+        Type base = Types.baseType(t);
+        CConstraint c = Types.xclause(t);
 
 
         if (t instanceof X10ParsedClassType) {
@@ -202,7 +201,7 @@ public class Subst {
                     throw new SemanticException("Cannot instantiate formal parameters on actuals.");
                 }
 
-                return X10TypeMixin.xclause(base, c);
+                return Types.xclause(base, c);
             }
 
 
@@ -217,7 +216,7 @@ public class Subst {
             CConstraint c = Types.get(ct.constraint());
             c =  subst(c, y, x, Y, X);
            
-            return X10TypeMixin.xclause(base, c);
+            return Types.xclause(base, c);
         }
         if (t instanceof ParameterType) {
             for (int i = 0; i < X.length; i++) {

@@ -18,10 +18,10 @@ import polyglot.ast.TypeNode;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
+import polyglot.types.Types;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import x10.errors.Errors;
-import x10.types.X10TypeMixin;
 import polyglot.types.TypeSystem;
 
 /**
@@ -54,7 +54,7 @@ public class X10Instanceof_c extends Instanceof_c implements X10Instanceof, X10C
         }
 
         try {
-            X10TypeMixin.checkMissingParameters(toTypeNode);
+            Types.checkMissingParameters(toTypeNode);
         } catch (SemanticException e) {
             Errors.issue(tc.job(), e, this);
         }
