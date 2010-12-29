@@ -49,7 +49,6 @@ import x10.types.X10ConstructorDef;
 import polyglot.types.Context;
 import x10.types.X10FieldInstance;
 import x10.types.X10ParsedClassType;
-import x10.types.X10TypeMixin;
 import polyglot.types.TypeSystem;
 import x10.types.XTypeTranslator;
 import x10.types.X10Context_c;
@@ -199,7 +198,7 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 		TypeSystem xts = (TypeSystem) tc.typeSystem();
 		// First check that the base types are correct.
 		for (int i=0; i < args.size() && i < props.size(); ++i) {
-			if (!xts.isSubtype(X10TypeMixin.baseType(args.get(i).type()), X10TypeMixin.baseType(props.get(i).type()))) {
+			if (!xts.isSubtype(Types.baseType(args.get(i).type()), Types.baseType(props.get(i).type()))) {
 				Errors.issue(tc.job(),
 				        new SemanticException("The type " + args.get(i).type() + " of the initializer for property " + props.get(i) + " is not a subtype of the property type " + props.get(i).type(), pos));
 			}
@@ -219,7 +218,7 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 
 		Type returnType = Types.getCached(thisConstructor.returnType());
 
-		CConstraint result = X10TypeMixin.xclause(returnType);
+		CConstraint result = Types.xclause(returnType);
 
 		if (result != null && result.valid())
 			result = null;   // FIXME: the code below that infers the return type of a ctor is buggy, since it infers "this". see XTENLANG-1770
@@ -239,7 +238,7 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 					XVar prop = (XVar) ts.xtypeTranslator().trans(known, known.self(), fii);
 
 					// Add in the real clause of the initializer with [self.prop/self]
-					CConstraint c = X10TypeMixin.realX(initType);
+					CConstraint c = Types.realX(initType);
 					if (c != null)
 						known.addIn(c.substitute(prop, c.self()));
 
@@ -249,7 +248,7 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 				}
 
 				// Set the return type of the enclosing constructor to be this inferred type.
-				Type inferredResultType = X10TypeMixin.addConstraint(X10TypeMixin.baseType(returnType), known);
+				Type inferredResultType = Types.addConstraint(Types.baseType(returnType), known);
 				Ref <? extends Type> r = thisConstructor.returnType();
 				((Ref<Type>) r).update(inferredResultType);
 				// bind this==self; sup clause may constrain this.

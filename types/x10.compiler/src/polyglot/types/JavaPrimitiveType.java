@@ -19,19 +19,19 @@ import polyglot.util.CodeWriter;
 
 
 /**
- * An <code>PrimitiveType</code> represents a primitive type.This class should never be instantiated directly. Instead, you should
+ * An <code>JavaPrimitiveType</code> represents a primitive type in Java.This class should never be instantiated directly. Instead, you should
  * use the <code>TypeSystem.get*</code> methods.
  */
-public class PrimitiveType extends Type_c 
+public class JavaPrimitiveType extends Type_c 
 {
     private static final long serialVersionUID = -7376343049945580290L;
 
     protected Name name;
 
     /** Used for deserializing types. */
-    protected PrimitiveType() { }
+    protected JavaPrimitiveType() { }
 
-    public PrimitiveType(TypeSystem ts, Name name) {
+    public JavaPrimitiveType(TypeSystem ts, Name name) {
             super(ts);
             this.name = name;
     }
@@ -48,16 +48,16 @@ public class PrimitiveType extends Type_c
 	return name.toString();
     }
 
-    public boolean isPrimitive() { return true; }
-    public PrimitiveType toPrimitive() { return this; }
+    public boolean isJavaPrimitive() { return true; }
+    public JavaPrimitiveType toPrimitive() { return this; }
 
     public int hashCode() {
 	return name.hashCode();
     }
 
     public boolean equalsImpl(TypeObject t) {
-        if (t instanceof PrimitiveType) {
-            PrimitiveType p = (PrimitiveType) t;
+        if (t instanceof JavaPrimitiveType) {
+            JavaPrimitiveType p = (JavaPrimitiveType) t;
             return name.equals(p.name());
         }
         return false;

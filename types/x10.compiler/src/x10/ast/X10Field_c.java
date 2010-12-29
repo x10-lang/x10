@@ -37,6 +37,7 @@ import polyglot.types.QName;
 import polyglot.types.SemanticException;
 import polyglot.types.ContainerType;
 import polyglot.types.Type;
+import polyglot.types.Types;
 import polyglot.util.ErrorInfo;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
@@ -55,7 +56,6 @@ import x10.types.X10FieldInstance;
 import x10.types.X10MethodInstance;
 import x10.types.X10TypeSystem_c;
 
-import x10.types.X10TypeMixin;
 import polyglot.types.TypeSystem;
 import x10.types.checker.Checker;
 import x10.types.checker.PlaceChecker;
@@ -132,7 +132,7 @@ public class X10Field_c extends Field_c {
 	            rt = xfi.type();
 	        } else if (!xts.typeEquals(rt, xfi.type(), context)) {
 	            if (xts.typeBaseEquals(rt, xfi.type(), context)) {
-	                rt = X10TypeMixin.baseType(rt);
+	                rt = Types.baseType(rt);
 	            } else {
 	                rt = null;
 	                break;
@@ -146,7 +146,7 @@ public class X10Field_c extends Field_c {
 	            ct = xfi.container();
 	        } else if (!xts.typeEquals(ct, xfi.container(), context)) {
 	            if (xts.typeBaseEquals(ct, xfi.container(), context)) {
-	                ct = X10TypeMixin.baseType(ct);
+	                ct = Types.baseType(ct);
 	            } else {
 	                ct = null;
 	                break;
@@ -208,7 +208,7 @@ public class X10Field_c extends Field_c {
 
 		Position pos = position();
 		if (target instanceof TypeNode) {
-			Type t = X10TypeMixin.baseType(tType);
+			Type t = Types.baseType(tType);
 			if (t instanceof ParameterType) {
 				SemanticException e = new Errors.CannotAccessStaticFieldOfTypeParameter(t, pos);
 				if (error == null) { error = e; }
@@ -217,7 +217,7 @@ public class X10Field_c extends Field_c {
 		}
 
 		if (c.inSuperTypeDeclaration()) {
-			Type tBase = X10TypeMixin.baseType(tType);
+			Type tBase = Types.baseType(tType);
 			if (tBase instanceof X10ClassType) {
 				X10ClassType tCt = (X10ClassType) tBase;
 				if (tCt.def() == c.supertypeDeclarationType()) {
@@ -249,7 +249,7 @@ public class X10Field_c extends Field_c {
 		}
 
 		X10FieldInstance fi = findAppropriateField(tc, tType, name.id(),
-		        target instanceof TypeNode, X10TypeMixin.contextKnowsType(target));
+		        target instanceof TypeNode, Types.contextKnowsType(target));
 
         if (fi.error() != null) {
             if (target instanceof Expr) {

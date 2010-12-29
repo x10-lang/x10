@@ -107,7 +107,6 @@ import x10.types.X10LocalInstance;
 import x10.types.X10MethodDef;
 import x10.types.X10MethodInstance;
 import x10.types.X10ParsedClassType;
-import x10.types.X10TypeMixin;
 import x10.types.checker.Converter;
 import x10.types.matcher.Subst;
 import x10.util.AltSynthesizer;
@@ -816,7 +815,7 @@ public class Inliner extends ContextVisitor {
     private X10ClassDef getContainer(X10MethodDef candidate) {
         Ref<? extends ContainerType> containerRef = candidate.container();
         ContainerType containerType = Types.get(containerRef);
-        Type containerBase = X10TypeMixin.baseType(containerType);
+        Type containerBase = Types.baseType(containerType);
         assert (containerBase instanceof X10ClassType);
         X10ClassDef container = ((X10ClassType) containerBase).x10Def();
         return container;
@@ -1358,7 +1357,7 @@ public class Inliner extends ContextVisitor {
     private void tieLocalDef(LocalDef d, LocalDef o) {
         Type type = Types.get(d.type());
         try {
-            type = X10TypeMixin.addSelfBinding(type, XTerms.makeLocal(XTerms.makeName(o, o.name().toString())));
+            type = Types.addSelfBinding(type, XTerms.makeLocal(XTerms.makeName(o, o.name().toString())));
         } catch (XFailure e) {
         }
         ((Ref<Type>) d.type()).update(type);

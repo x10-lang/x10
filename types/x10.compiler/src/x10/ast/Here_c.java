@@ -19,6 +19,7 @@ import polyglot.ast.Expr_c;
 import polyglot.types.Resolver;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
+import polyglot.types.Types;
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 import polyglot.visit.CFGBuilder;
@@ -30,7 +31,6 @@ import x10.constraint.XTerm;
 import x10.constraint.XVar;
 import x10.errors.Errors;
 import polyglot.types.Context;
-import x10.types.X10TypeMixin;
 import polyglot.types.TypeSystem;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint;
@@ -89,7 +89,7 @@ public class Here_c extends Expr_c
 				Errors.issue(tc.job(),
 				        new SemanticException("Constraint on here is inconsistent; " + e.getMessage(), position()));
 			}
-			tt = X10TypeMixin.xclause(X10TypeMixin.baseType(tt), cc);
+			tt = Types.xclause(Types.baseType(tt), cc);
 		}
 		
 		return type(tt);

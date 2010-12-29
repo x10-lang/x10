@@ -65,7 +65,6 @@ import x10.types.X10MethodDef;
 import x10.types.X10MethodInstance;
 import x10.types.X10ParsedClassType;
 import x10.types.X10ProcedureDef;
-import x10.types.X10TypeMixin;
 import x10.types.ParameterType.Variance;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
@@ -462,13 +461,13 @@ public class X10InnerClassRemover extends InnerClassRemover {
             }
             def.flags(def.flags().Static());
         }
-        t = X10TypeMixin.instantiateTypeParametersExplicitly(t);
+        t = Types.instantiateTypeParametersExplicitly(t);
         CConstraint constraint = t instanceof ConstrainedType ? ((ConstrainedType) t).getRealXClause() : null;
         t = propagateTypeArgumentsToInnermostType(t);
         if (constraint != null) {
             CConstraint newConstraint = fixConstraint(constraint);
             if (newConstraint != constraint)
-                t = X10TypeMixin.xclause(t, newConstraint);
+                t = Types.xclause(t, newConstraint);
         }
         return t;
     }

@@ -169,7 +169,7 @@ public class X10Context_c extends Context_c {
 		 // fold in the real clause of the base type
 		 Type selfType = this.currentDepType();
 		 if (selfType != null) {
-			 CConstraint selfConstraint = X10TypeMixin.realX(selfType);
+			 CConstraint selfConstraint = Types.realX(selfType);
 			 if (selfConstraint != null) {
 				 r.addIn(selfConstraint.instantiateSelf(r.self()));
 			 }
@@ -457,7 +457,7 @@ public class X10Context_c extends Context_c {
 	            }
 
 	            if (thisVar != null)
-	                t = X10TypeMixin.setSelfVar(t, thisVar);
+	                t = Types.setSelfVar(t, thisVar);
 
 	            // Found a class that has a method of the right name.
 	            // Now need to check if the method is of the correct type.

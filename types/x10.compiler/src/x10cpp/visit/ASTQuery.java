@@ -47,6 +47,7 @@ import polyglot.types.QName;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
+import polyglot.types.Types;
 import polyglot.util.ErrorInfo;
 import polyglot.util.InternalCompilerError;
 import polyglot.visit.InnerClassRemover;
@@ -61,7 +62,6 @@ import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10MethodDef;
 import x10.types.X10MethodInstance;
-import x10.types.X10TypeMixin;
 import polyglot.types.TypeSystem;
 import x10.types.X10TypeSystem_c;
 import x10.util.HierarchyUtils;
@@ -310,7 +310,7 @@ public class ASTQuery {
 	}
 
 	public static void assertNumberOfInitializers(Type at, int len) {
-	    at = X10TypeMixin.baseType(at);
+	    at = Types.baseType(at);
 	    if (at instanceof X10ClassType) {
 	        X10ClassType act = (X10ClassType) at;
 	        assert len == act.propertyInitializers().size();
@@ -327,7 +327,7 @@ public class ASTQuery {
 	}
 
 	public static Object getPropertyInit(Type at, int index) {
-	    at = X10TypeMixin.baseType(at);
+	    at = Types.baseType(at);
 	    if (at instanceof X10ClassType) {
 	        X10ClassType act = (X10ClassType) at;
 	        if (index < act.propertyInitializers().size()) {

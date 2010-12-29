@@ -52,7 +52,6 @@ import x10.types.X10FieldInstance;
 
 import x10.types.X10MethodInstance;
 
-import x10.types.X10TypeMixin;
 import polyglot.types.TypeSystem;
 import polyglot.types.TypeSystem_c;
 import x10.types.checker.Checker;
@@ -252,7 +251,7 @@ public class X10Disamb_c extends Disamb_c {
 		// If in a class header, don't search the supertypes of this class.
 		if (xc.inSuperTypeDeclaration()) {
 		    Type tType = t;
-		    Type tBase = X10TypeMixin.baseType(tType);
+		    Type tBase = Types.baseType(tType);
 		    if (tBase instanceof X10ClassType) {
 			X10ClassType tCt = (X10ClassType) tBase;
 			    

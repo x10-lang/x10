@@ -57,7 +57,6 @@ import polyglot.types.Context;
 import x10.types.X10MethodDef;
 import x10.types.X10MethodInstance;
 import x10.types.X10ProcedureDef;
-import x10.types.X10TypeMixin;
 import polyglot.types.TypeSystem;
 import x10.types.X10TypeSystem_c;
 import x10.types.constraints.TypeConstraint;
@@ -196,7 +195,7 @@ public class X10ClassBody_c extends ClassBody_c {
             Type t1 = Types.get(p1.formalTypes().get(i));
             
             // Erase types and expand formals.
-            t1 = X10TypeMixin.baseType(t1);
+            t1 = Types.baseType(t1);
             
             // Parameters conflict with everything
             if (t1 instanceof ParameterType)
@@ -272,7 +271,7 @@ public class X10ClassBody_c extends ClassBody_c {
 
             for (Ref<? extends Type> tref : type.memberClasses()) {
                 Type t = Types.get(tref);
-                t = X10TypeMixin.baseType(t);
+                t = Types.baseType(t);
                 if (t instanceof ClassType) {
                     ClassType ct = (ClassType) t;
                     if (ct.name().equals(mi.name())) {

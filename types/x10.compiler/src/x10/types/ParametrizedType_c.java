@@ -87,10 +87,6 @@ public abstract class ParametrizedType_c extends ReferenceType_c implements Para
 		return t;
 	}
 
-	public boolean isSafe() {
-		return true;
-	}
-
 	@Override
 	public abstract String translate(Resolver c);
 

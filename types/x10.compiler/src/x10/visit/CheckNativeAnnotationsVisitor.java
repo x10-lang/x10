@@ -26,6 +26,7 @@ import polyglot.types.QName;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
+import polyglot.types.Types;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.ast.X10ClassDecl;
@@ -36,7 +37,6 @@ import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10Def;
 import x10.types.X10MethodDef;
-import x10.types.X10TypeMixin;
 import polyglot.types.TypeSystem;
 
 /**
@@ -82,7 +82,7 @@ public class CheckNativeAnnotationsVisitor extends ContextVisitor {
     }
 
     String getPropertyInit(Type at, int index) throws SemanticException {
-        at = X10TypeMixin.baseType(at);
+        at = Types.baseType(at);
         if (at instanceof X10ClassType) {
             X10ClassType act = (X10ClassType) at;
             if (index < act.propertyInitializers().size()) {
@@ -99,7 +99,7 @@ public class CheckNativeAnnotationsVisitor extends ContextVisitor {
     }
 
     void assertNumberOfInitializers(Type at, int len) {
-        at = X10TypeMixin.baseType(at);
+        at = Types.baseType(at);
         if (at instanceof X10ClassType) {
             X10ClassType act = (X10ClassType) at;
             assert len == act.propertyInitializers().size();
@@ -171,7 +171,7 @@ public class CheckNativeAnnotationsVisitor extends ContextVisitor {
                 {
                     Type t = cd.asType().superClass();
                     if (t != null) {
-                        X10ClassType ct = (X10ClassType) X10TypeMixin.baseType(t);
+                        X10ClassType ct = (X10ClassType) Types.baseType(t);
                         X10ClassDef sd = ct.x10Def();
                         Map<String, String> map = getNativeRep(sd);
                         if (!map.containsKey(theLanguage)) {

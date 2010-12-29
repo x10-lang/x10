@@ -210,7 +210,7 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
     
     public static boolean hasVar(Type type, XVar var) {
 	    if (type instanceof ConstrainedType) {
-		    XConstraint rc = X10TypeMixin.realX(type);
+		    XConstraint rc = Types.realX(type);
 		    if (rc != null && rc.hasVar(var))
 			    return true;
 		    ConstrainedType ct = (ConstrainedType) type;

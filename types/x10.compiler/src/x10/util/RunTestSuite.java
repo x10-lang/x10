@@ -1,6 +1,7 @@
 package x10.util;
 
 import polyglot.frontend.Globals;
+import polyglot.types.Types;
 import polyglot.util.ErrorQueue;
 import polyglot.util.SilentErrorQueue;
 import polyglot.util.Position;
@@ -18,7 +19,6 @@ import java.util.List;
 import java.util.HashSet;
 import java.util.Iterator;
 
-import x10.types.X10TypeMixin;
 import x10.parser.AutoGenSentences;
 
 public class RunTestSuite {
@@ -311,7 +311,7 @@ public class RunTestSuite {
         int warningCount = 0;
         for (ErrorInfo err : errors)
             if (err.getErrorKind()==ErrorInfo.WARNING) {
-                if (!err.getMessage().startsWith(X10TypeMixin.MORE_SEPCIFIC_WARNING)) { // ignore those warning messages
+                if (!err.getMessage().startsWith(Types.MORE_SPECIFIC_WARNING)) { // ignore those warning messages
                     err("Got a warning in position: "+err.getPosition()+"\nMessage: "+err+"\n");
                 }
                 warningCount++;

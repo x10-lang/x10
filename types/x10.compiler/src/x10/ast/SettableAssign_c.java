@@ -62,7 +62,6 @@ import polyglot.visit.TypeChecker;
 import x10.errors.Errors;
 import x10.types.X10ClassDef;
 import x10.types.X10MethodInstance;
-import x10.types.X10TypeMixin;
 import polyglot.types.TypeSystem;
 import x10.types.X10TypeSystem_c;
 import x10.types.checker.Checker;
@@ -258,9 +257,9 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 		        if (mi.error() instanceof Errors.CannotGenerateCast) {
 		            throw new InternalCompilerError("Unexpected cast error", mi.error());
 		        }
-		        Type bt = X10TypeMixin.baseType(array.type());
+		        Type bt = Types.baseType(array.type());
 		        boolean arrayP = xts.isX10Array(bt) || xts.isX10DistArray(bt);
-		        Errors.issue(tc.job(), new Errors.CannotAssignToElement(leftToString(), arrayP, right, X10TypeMixin.arrayElementType(array.type()), position(), mi.error()));
+		        Errors.issue(tc.job(), new Errors.CannotAssignToElement(leftToString(), arrayP, right, Types.arrayElementType(array.type()), position(), mi.error()));
 		    }
 		}
 
@@ -276,9 +275,9 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 
 		if (op != Assign.ASSIGN) {
             if (ami.error() != null) { // it's an error only if op is not =, e.g., a(1)+=1;
-                Type bt = X10TypeMixin.baseType(array.type());
+                Type bt = Types.baseType(array.type());
                 boolean arrayP = xts.isX10Array(bt) || xts.isX10DistArray(bt);
-                Errors.issue(tc.job(), new Errors.CannotAssignToElement(leftToString(), arrayP, right, X10TypeMixin.arrayElementType(array.type()), position(), ami.error()));
+                Errors.issue(tc.job(), new Errors.CannotAssignToElement(leftToString(), arrayP, right, Types.arrayElementType(array.type()), position(), ami.error()));
             }
             // First try to find the method without implicit conversions.
 		    X10Call_c left = (X10Call_c) nf.X10Call(position(), array, nf.Id(position(),
@@ -288,10 +287,10 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 		    X10Call c = X10Binary_c.desugarBinaryOp(n, tc);
 		    X10MethodInstance cmi = (X10MethodInstance) c.methodInstance();
 		    if (cmi.error() != null) {
-		        Type bt = X10TypeMixin.baseType(array.type());
+		        Type bt = Types.baseType(array.type());
 		        boolean arrayP = xts.isX10Array(bt) || xts.isX10DistArray(bt);
 		        Errors.issue(tc.job(),
-		                new Errors.CannotPerformAssignmentOperation(leftToString(), arrayP, op.toString(), right, X10TypeMixin.arrayElementType(array.type()), position(), cmi.error()));
+		                new Errors.CannotPerformAssignmentOperation(leftToString(), arrayP, op.toString(), right, Types.arrayElementType(array.type()), position(), cmi.error()));
 		    }
 		}
 

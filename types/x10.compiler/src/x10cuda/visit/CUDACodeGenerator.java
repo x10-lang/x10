@@ -133,7 +133,6 @@ import x10.extension.X10Ext;
 import x10.types.ConstrainedType;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
-import x10.types.X10TypeMixin;
 import polyglot.types.TypeSystem;
 import x10.types.X10TypeSystem_c;
 import x10.types.constraints.CConstraint;
@@ -154,6 +153,7 @@ import polyglot.types.Name;
 import polyglot.types.QName;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
+import polyglot.types.Types;
 import polyglot.types.VarInstance;
 import polyglot.util.ErrorInfo;
 import polyglot.util.ErrorQueue;
@@ -778,7 +778,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 		if (!(n.type() instanceof ConstrainedType)) return null;
 		ConstrainedType ct = (ConstrainedType) n.type();
 		CConstraint cc = ct.getRealXClause();
-		XVar local_self = X10TypeMixin.selfVarBinding(cc);
+		XVar local_self = Types.selfVarBinding(cc);
 		if (local_self==null) return null;
 		if (local_self instanceof XLit) return "/*"+n+":"+n.type()+"*/"+local_self.toString();
 		// resolve to another variable, keep going

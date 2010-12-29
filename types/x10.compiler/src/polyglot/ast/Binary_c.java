@@ -476,7 +476,7 @@ public class Binary_c extends Expr_c implements Binary
 	printSubExpr(left, true, w, tr);
 	w.write(" ");
 	w.write(op.toString());
-	w.allowBreak(type() == null || type().isPrimitive() ? 2 : 0, " ");
+	w.allowBreak(type() == null || type().isJavaPrimitive() ? 2 : 0, " ");
 	printSubExpr(right, false, w, tr);
     }
 

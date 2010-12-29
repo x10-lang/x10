@@ -106,7 +106,6 @@ import x10.types.X10ClassType;
 import x10.types.X10ConstructorInstance;
 import x10.types.X10MethodInstance;
 import x10.types.X10ParsedClassType;
-import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem_c;
 import x10.types.checker.Converter;
 import x10.types.checker.PlaceChecker;
@@ -246,7 +245,7 @@ public class Lowerer extends ContextVisitor {
     		if (atStm==null)
     			return null;
     		Expr place = atStm.place(); 
-    		if (ts.hasSameClassDef(X10TypeMixin.baseType(place.type()), ts.GlobalRef())) {
+    		if (ts.hasSameClassDef(Types.baseType(place.type()), ts.GlobalRef())) {
     			try {
     				place = synth.makeFieldAccess(async.position(),place, ts.homeName(), context());
     			} catch (SemanticException e) {
@@ -581,7 +580,7 @@ public class Lowerer extends ContextVisitor {
         }
         if (clocks.size() == 0)
         	return async(pos, body, place, annotations, env);
-        Type clockRailType = X10TypeMixin.makeArrayRailOf(ts.Clock(), pos);
+        Type clockRailType = Types.makeArrayRailOf(ts.Clock(), pos);
         Tuple clockRail = (Tuple) nf.Tuple(pos, clocks).type(clockRailType);
 
         return makeAsyncBody(pos, new ArrayList<Expr>(Arrays.asList(new Expr[] { place, clockRail })),
@@ -602,7 +601,7 @@ public class Lowerer extends ContextVisitor {
             List<VarInstance<? extends VarDef>> env) throws SemanticException {
         if (clocks.size() == 0)
         	return async(pos, body, annotations, env);
-        Type clockRailType = X10TypeMixin.makeArrayRailOf(ts.Clock(), pos);
+        Type clockRailType = Types.makeArrayRailOf(ts.Clock(), pos);
         Tuple clockRail = (Tuple) nf.Tuple(pos, clocks).type(clockRailType);
         return makeAsyncBody(pos, new ArrayList<Expr>(Arrays.asList(new Expr[] { clockRail })),
                              new ArrayList<Type>(Arrays.asList(new Type[] { clockRailType})), body,
@@ -696,11 +695,11 @@ public class Lowerer extends ContextVisitor {
     }
 
     protected Expr getLiteral(Position pos, Type type, boolean val) {
-        type = X10TypeMixin.baseType(type);
+        type = Types.baseType(type);
         if (ts.isBoolean(type)) {
             Type t = ts.Boolean();
             try {
-                t = X10TypeMixin.addSelfBinding(t, val ? ts.TRUE() : ts.FALSE());
+                t = Types.addSelfBinding(t, val ? ts.TRUE() : ts.FALSE());
             } catch (XFailure e) { }
             return nf.BooleanLit(pos, val).type(t);
         } else
@@ -916,12 +915,12 @@ public class Lowerer extends ContextVisitor {
         Type reducerType = reducer.type();
         if (reducerType instanceof ConstrainedType) {
     		ConstrainedType ct = (ConstrainedType) reducerType;
-    		reducerType = X10TypeMixin.baseType(Types.get(ct.baseType()));
+    		reducerType = Types.baseType(Types.get(ct.baseType()));
         }
 
         // reducerType is "Reducible[T]", and reducerTarget is "T"
         // Parse out T
-        Type reducerTarget = X10TypeMixin.reducerType(reducerType);
+        Type reducerTarget = Types.reducerType(reducerType);
         assert reducerTarget!=null;
         
         Call myCall = synth.makeStaticCall(pos, ts.Runtime(), START_COLLECTING_FINISH, Collections.<TypeNode>singletonList(nf.CanonicalTypeNode(pos, reducerTarget)), Collections.singletonList(reducer), ts.Void(), Collections.singletonList(reducerType), context());
@@ -984,7 +983,7 @@ public class Lowerer extends ContextVisitor {
             Type reducerType = reducer.type();
             if (reducerType instanceof ConstrainedType) {
                 ConstrainedType ct = (ConstrainedType) reducerType;
-                reducerType = X10TypeMixin.baseType(Types.get(ct.baseType()));
+                reducerType = Types.baseType(Types.get(ct.baseType()));
             }
             X10ParsedClassType reducerTypeWithGenericType = null;
             Type thisType = reducerType;

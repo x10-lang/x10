@@ -157,7 +157,7 @@ public class XTypeTranslator {
 		XName field = XTerms.makeName(fi.def(), fi.name().toString());
 		if (fi.flags().isStatic()) {
 		    Type container = Types.get(fi.def().container());
-		    container = X10TypeMixin.baseType(container);
+		    container = Types.baseType(container);
 		    if (container instanceof X10ClassType) {
 		        target  = XTerms.makeLit(((X10ClassType) container).fullName());
 		    }
@@ -200,7 +200,7 @@ public class XTypeTranslator {
 		else {
 		    TypeNode tn = t.qualifier();
 		    if (tn != null) {
-		        Type q = X10TypeMixin.baseType(tn.type());
+		        Type q = Types.baseType(tn.type());
 		        if (q instanceof X10ClassType) {
 		            X10ClassType ct = (X10ClassType) q;
 		            while (xc != null) {
@@ -322,7 +322,7 @@ public class XTypeTranslator {
 	    }
 
 	    public boolean hasVar(XVar v) {
-	    return X10TypeMixin.hasVar(type(), v);
+	    return Types.hasVar(type(), v);
 	    }
 
 	    public XTerm subst(XTerm y, XVar x, boolean propagate) {
@@ -417,14 +417,14 @@ public class XTypeTranslator {
 
 	    // Determine if their types force them to be equal or disequal.
 
-	    CConstraint c1 = X10TypeMixin.xclause(r1.type()).copy();
+	    CConstraint c1 = Types.xclause(r1.type()).copy();
 	    XVar x = XTerms.makeUQV();
 	    try {
 	        c1.addSelfBinding(x);
 	    } catch (XFailure z) {
 	        throw new InternalCompilerError("Unexpected failure", z); // can't happen
 	    }
-	    CConstraint c2 = X10TypeMixin.xclause(x, r2.type()).copy();
+	    CConstraint c2 = Types.xclause(x, r2.type()).copy();
 	    if (rb.operator()== Binary.EQ) {
 	        try {
 	            if (! c1.addIn(c2).consistent())
@@ -556,7 +556,7 @@ public class XTypeTranslator {
 			return v;
 		}
 		Type type = t.type();
-		return X10TypeMixin.selfVarBinding(type); // maybe null.
+		return Types.selfVarBinding(type); // maybe null.
 	    //throw new SemanticException("Cannot translate call |" + t + "| into a constraint; it must be a property method call.");
 	}
 

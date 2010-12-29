@@ -15,7 +15,6 @@ import polyglot.main.Report;
 import polyglot.types.reflect.ClassFile;
 import polyglot.types.reflect.ClassFileLazyClassInitializer;
 import polyglot.util.*;
-import x10.types.X10TypeMixin;
 import x10.types.X10ClassDef_c;
 import x10.types.X10ClassDef;
 import x10.types.X10ParsedClassType;
@@ -481,7 +480,7 @@ public abstract class TypeSystem_c implements TypeSystem
     }
 
     public void checkCycles(Type goal) throws SemanticException {
-	checkCycles(X10TypeMixin.getDef(goal), X10TypeMixin.getDef(goal));
+	checkCycles(Types.getDef(goal), Types.getDef(goal));
     }
 
     protected void checkCycles(X10ClassDef_c curr, X10ClassDef_c goal) throws SemanticException {
@@ -492,7 +491,7 @@ public abstract class TypeSystem_c implements TypeSystem
             return;
         }
         final Ref<? extends Type> superRef = curr.superType();
-        X10ClassDef_c superType = superRef==null ? null : X10TypeMixin.getDef(superRef.get());
+        X10ClassDef_c superType = superRef==null ? null : Types.getDef(superRef.get());
 
         if (goal == superType) {
         throw new SemanticException("Circular inheritance involving " + goal,curr.position());
@@ -501,7 +500,7 @@ public abstract class TypeSystem_c implements TypeSystem
         checkCycles(superType, goal);
 
         for (Ref<? extends Type> siType : curr.interfaces()) {
-            X10ClassDef_c si = X10TypeMixin.getDef(siType.get());
+            X10ClassDef_c si = Types.getDef(siType.get());
             if (si == goal) {
                 throw new SemanticException("Circular inheritance involving " + goal,curr.position());
             }
@@ -923,7 +922,7 @@ public abstract class TypeSystem_c implements TypeSystem
         private HashSet<Type> visitedDefs;
         public boolean visit(Type t) {
             if (visitedDefs==null) visitedDefs = new HashSet<Type>();
-            final Type p = X10TypeMixin.baseType(t);
+            final Type p = Types.baseType(t);
             if (visitedDefs.contains(p)) return false;
             visitedDefs.add(p);
             return true;
@@ -1548,21 +1547,21 @@ public abstract class TypeSystem_c implements TypeSystem
 	return new NullType(this);
     }
 
-    protected PrimitiveType createPrimitive(Name name) {
-	return new PrimitiveType(this, name);
+    protected JavaPrimitiveType createPrimitive(Name name) {
+	return new JavaPrimitiveType(this, name);
     }
 
     public static final Name voidName = Name.make("void");
     protected final NullType NULL_         = createNull();
-    protected final PrimitiveType VOID_    = createPrimitive(voidName);
-    protected final PrimitiveType BOOLEAN_ = createPrimitive(Name.make("boolean"));
-    protected final PrimitiveType CHAR_    = createPrimitive(Name.make("char"));
-    protected final PrimitiveType BYTE_    = createPrimitive(Name.make("byte"));
-    protected final PrimitiveType SHORT_   = createPrimitive(Name.make("short"));
-    protected final PrimitiveType INT_     = createPrimitive(Name.make("int"));
-    protected final PrimitiveType LONG_    = createPrimitive(Name.make("long"));
-    protected final PrimitiveType FLOAT_   = createPrimitive(Name.make("float"));
-    protected final PrimitiveType DOUBLE_  = createPrimitive(Name.make("double"));
+    protected final JavaPrimitiveType VOID_    = createPrimitive(voidName);
+    protected final JavaPrimitiveType BOOLEAN_ = createPrimitive(Name.make("boolean"));
+    protected final JavaPrimitiveType CHAR_    = createPrimitive(Name.make("char"));
+    protected final JavaPrimitiveType BYTE_    = createPrimitive(Name.make("byte"));
+    protected final JavaPrimitiveType SHORT_   = createPrimitive(Name.make("short"));
+    protected final JavaPrimitiveType INT_     = createPrimitive(Name.make("int"));
+    protected final JavaPrimitiveType LONG_    = createPrimitive(Name.make("long"));
+    protected final JavaPrimitiveType FLOAT_   = createPrimitive(Name.make("float"));
+    protected final JavaPrimitiveType DOUBLE_  = createPrimitive(Name.make("double"));
 
     public Object placeHolder(TypeObject o) {
 	return placeHolder(o, Collections.<TypeObject>emptySet());
@@ -1818,7 +1817,7 @@ public abstract class TypeSystem_c implements TypeSystem
 	return t.translate(c);
     }
 
-    public String translatePrimitive(Resolver c, PrimitiveType t) {
+    public String translatePrimitive(Resolver c, JavaPrimitiveType t) {
 	return t.translate(c);
     }
 

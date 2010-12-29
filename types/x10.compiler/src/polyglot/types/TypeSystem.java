@@ -593,7 +593,7 @@ public interface TypeSystem {
     /**
      * Translate a primitive type.
      */
-    String translatePrimitive(Resolver c, PrimitiveType t);
+    String translatePrimitive(Resolver c, JavaPrimitiveType t);
 
     /**
      * Translate an array type.

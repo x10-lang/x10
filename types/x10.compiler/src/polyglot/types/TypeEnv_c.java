@@ -85,7 +85,7 @@ public class TypeEnv_c implements TypeEnv {
 	    return toType.isNull() || toType.isReference();
 	}
 
-	if (fromType.isPrimitive() && toType.isPrimitive()) {
+	if (fromType.isJavaPrimitive() && toType.isJavaPrimitive()) {
 	    if (fromType.isVoid() || toType.isVoid())
 		return false;
 	    if (ts.typeEquals(fromType, toType, context))
@@ -102,9 +102,9 @@ public class TypeEnv_c implements TypeEnv {
 	    Type fromBase = fromAT.base();
 	    Type toBase = toAT.base();
 
-	    if (fromBase.isPrimitive())
+	    if (fromBase.isJavaPrimitive())
 		return ts.typeEquals(toBase, fromBase, context);
-	    if (toBase.isPrimitive())
+	    if (toBase.isJavaPrimitive())
 		return false;
 
 	    if (fromBase.isNull())
@@ -195,7 +195,7 @@ public class TypeEnv_c implements TypeEnv {
      * 
      */
     public boolean isImplicitCastValid(Type fromType, Type toType) {
-	if (fromType.isPrimitive() && toType.isPrimitive()) {
+	if (fromType.isJavaPrimitive() && toType.isJavaPrimitive()) {
 	    if (toType.isVoid())
 		return false;
 	    if (fromType.isVoid())
@@ -255,7 +255,7 @@ public class TypeEnv_c implements TypeEnv {
 	    Type fromBase = fromAT.base();
 	    JavaArrayType toAT = (JavaArrayType) toType;
 	    Type toBase = toAT.base();
-	    if (fromBase.isPrimitive() || toBase.isPrimitive()) {
+	    if (fromBase.isJavaPrimitive() || toBase.isJavaPrimitive()) {
 		return ts.typeEquals(fromBase, toBase, context);
 	    }
 	    else {

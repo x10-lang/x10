@@ -42,7 +42,6 @@ import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import x10.errors.Errors;
 import x10.types.X10MethodInstance;
-import x10.types.X10TypeMixin;
 import polyglot.types.TypeSystem;
 import x10.types.X10TypeSystem_c;
 import x10.types.checker.Checker;
@@ -352,7 +351,7 @@ public class X10Unary_c extends Unary_c {
                     rtset = true;
                 } else if (rt != null && !xts.typeEquals(rt, xmi.returnType(), tc.context())) {
                     if (xts.typeBaseEquals(rt, xmi.returnType(), tc.context())) {
-                        rt = X10TypeMixin.baseType(rt);
+                        rt = Types.baseType(rt);
                     } else {
                         rt = null;
                     }
@@ -362,7 +361,7 @@ public class X10Unary_c extends Unary_c {
                     ctset = true;
                 } else if (ct != null && !xts.typeEquals(ct, xmi.container(), tc.context())) {
                     if (xts.typeBaseEquals(ct, xmi.container(), tc.context())) {
-                        ct = X10TypeMixin.baseType(ct).toClass();
+                        ct = Types.baseType(ct).toClass();
                     } else {
                         ct = null;
                     }

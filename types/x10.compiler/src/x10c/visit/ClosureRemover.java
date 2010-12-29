@@ -78,7 +78,6 @@ import x10.types.X10FieldInstance;
 import x10.types.X10LocalDef;
 import x10.types.X10LocalInstance;
 import x10.types.X10MethodDef;
-import x10.types.X10TypeMixin;
 import x10.types.constraints.TypeConstraint;
 
 public class ClosureRemover extends ContextVisitor {
@@ -358,7 +357,7 @@ public class ClosureRemover extends ContextVisitor {
                     // rewrite closure method body
                     closureBody = rewriteClosureBody(closureBody, staticInnerClassDef, capturedEnv, capturedVarsExThis, nameToLocalDef, cl.formals());
                     
-                    MethodDecl mdcl = xnf.MethodDecl(pos, xnf.FlagsNode(pos, Flags.PUBLIC), xnf.CanonicalTypeNode(pos, X10TypeMixin.baseType(cl.returnType().type())), xnf.Id(pos, ClosureCall.APPLY), cl.formals(), closureBody).methodDef(closureMethodDef);
+                    MethodDecl mdcl = xnf.MethodDecl(pos, xnf.FlagsNode(pos, Flags.PUBLIC), xnf.CanonicalTypeNode(pos, Types.baseType(cl.returnType().type())), xnf.Id(pos, ClosureCall.APPLY), cl.formals(), closureBody).methodDef(closureMethodDef);
                     mdcl = (MethodDecl) mdcl.body(closureBody);
                     mdcl = (MethodDecl) mdcl.typeCheck(this);
 
@@ -379,7 +378,7 @@ public class ClosureRemover extends ContextVisitor {
                             Name name = OUTER_NAME;
                             
                             X10LocalDef li = xts.localDef(pos, Flags.FINAL, Types.ref(vi.type()), name);
-                            X10Formal formal = xnf.Formal(pos, xnf.FlagsNode(pos, Flags.FINAL), xnf.X10CanonicalTypeNode(pos, X10TypeMixin.baseType(vi.type())), xnf.Id(pos, name)).localDef(li);
+                            X10Formal formal = xnf.Formal(pos, xnf.FlagsNode(pos, Flags.FINAL), xnf.X10CanonicalTypeNode(pos, Types.baseType(vi.type())), xnf.Id(pos, name)).localDef(li);
                             formals.add(formal);
                             argTypes.add(vi.def().type());
                             args.add(createExpr(pos, vi));
@@ -404,7 +403,7 @@ public class ClosureRemover extends ContextVisitor {
                         else {
                             li = nameToLocalDef.get(name.toString());
                         }
-                        X10Formal formal = xnf.Formal(pos, xnf.FlagsNode(pos, Flags.FINAL), xnf.X10CanonicalTypeNode(pos, X10TypeMixin.baseType(vn.type())), xnf.Id(pos, name)).localDef(li);
+                        X10Formal formal = xnf.Formal(pos, xnf.FlagsNode(pos, Flags.FINAL), xnf.X10CanonicalTypeNode(pos, Types.baseType(vn.type())), xnf.Id(pos, name)).localDef(li);
                         formals.add(formal);
                         argTypes.add(vn.varInstance().def().type());
                         args.add(vn);
@@ -497,7 +496,7 @@ public class ClosureRemover extends ContextVisitor {
                         if (n instanceof Special) {
                             Special special = (Special) n;
                             if (special.kind() == Special.THIS && !(parent instanceof Field)) {
-                                Type type = X10TypeMixin.baseType(special.type());
+                                Type type = Types.baseType(special.type());
                                 X10FieldDef fi = xts.fieldDef(pos, Types.ref(staticInnerClassDef.asType()), Flags.PRIVATE.Final(), Types.ref(type), OUTER_NAME);
                                 Special thiz = (Special) xnf.Special(pos, Kind.THIS).type(staticInnerClassDef.asType());
                                 return xnf.Field(pos, thiz, xnf.Id(pos, OUTER_NAME)).fieldInstance(fi.asInstance()).type(type);

@@ -66,7 +66,6 @@ import x10.types.X10ClassType;
 import polyglot.types.Context;
 import x10.types.X10Def;
 import x10.types.X10ParsedClassType;
-import x10.types.X10TypeMixin;
 import polyglot.types.TypeSystem;
 import x10.types.X10TypeSystem_c;
 import x10.types.X10Use;
@@ -375,7 +374,7 @@ public class AmbMacroTypeNode_c extends AmbTypeNode_c implements AmbMacroTypeNod
             }
         }
         if (n.flags != null) {
-        	t = X10TypeMixin.processFlags(n.flags, t);
+        	t = Types.processFlags(n.flags, t);
         	n.flags = null;
         }
 

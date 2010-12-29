@@ -33,7 +33,7 @@ public class ParameterType extends Type_c implements Named {
         private Variance(int sign) {
             this.sign = sign;
         }
-        Variance mult(Variance v) {
+        public Variance mult(Variance v) {
             // like multiplying two numbers:
             // INVARIANT is 0
             // CONTRAVARIANT is -1

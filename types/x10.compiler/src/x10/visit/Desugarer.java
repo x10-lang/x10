@@ -70,7 +70,6 @@ import x10.types.ThisDef;
 import x10.types.X10ConstructorInstance;
 import x10.types.X10MemberDef;
 import x10.types.X10MethodInstance;
-import x10.types.X10TypeMixin;
 import x10.types.checker.Converter;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
@@ -143,7 +142,7 @@ public class Desugarer extends ContextVisitor {
     }
 
     private Expr getLiteral(Position pos, Type type, long val) {
-        type = X10TypeMixin.baseType(type);
+        type = Types.baseType(type);
         Expr lit = null;
         if (ts.isIntOrLess(type)) {
             lit = nf.IntLit(pos, IntLit.INT, val);
@@ -484,7 +483,7 @@ public class Desugarer extends ContextVisitor {
     private DepParameterExpr getClause(TypeNode tn) {
         Type t = tn.type();
         if (tn instanceof X10CanonicalTypeNode) {
-            CConstraint c = X10TypeMixin.xclause(t);
+            CConstraint c = Types.xclause(t);
             if (c == null || c.valid())
                 return null;
             XConstrainedTerm here = context().currentPlaceTerm();
@@ -504,7 +503,7 @@ public class Desugarer extends ContextVisitor {
         Type t = tn.type();
         if (tn instanceof X10CanonicalTypeNode) {
             X10CanonicalTypeNode ctn = (X10CanonicalTypeNode) tn;
-            Type baseType = X10TypeMixin.baseType(t);
+            Type baseType = Types.baseType(t);
             if (baseType != t) {
                 return ctn.typeRef(Types.ref(baseType));
             }

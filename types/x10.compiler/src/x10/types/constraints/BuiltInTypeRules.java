@@ -4,13 +4,13 @@ import polyglot.ast.Expr;
 import polyglot.types.Context;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
+import polyglot.types.Types;
 import x10.constraint.XFailure;
 import x10.constraint.XLit;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
 import x10.types.ConstrainedType;
-import x10.types.X10TypeMixin;
 
 /**
  * Because the constraint system cannot handle conditional constraints, we build in a few special 
@@ -42,12 +42,12 @@ public class BuiltInTypeRules {
 	public static Type adjustReturnTypeForIntRange(Expr left, Expr right, Type type, Context context) {
 	    TypeSystem ts = (TypeSystem) context.typeSystem();
 	    Type ltype = left.type();
-	    XTerm selfTerm = X10TypeMixin.selfBinding(ltype);
+	    XTerm selfTerm = Types.selfBinding(ltype);
 	    if (selfTerm != null && selfTerm.equals(ts.ZERO())) {
 	        if (!ts.isUnknown(type)) {
-	        	ConstrainedType result = X10TypeMixin.toConstrainedType(type);
-	            result = (ConstrainedType) X10TypeMixin.addTerm(type, X10TypeMixin.makeZeroBased(result));
-	            result = (ConstrainedType) X10TypeMixin.addTerm(type, X10TypeMixin.makeRail(result));
+	        	ConstrainedType result = Types.toConstrainedType(type);
+	            result = (ConstrainedType) Types.addTerm(type, result.makeZeroBased());
+	            result = (ConstrainedType) Types.addTerm(type, result.makeRail());
 	            return result;
 	        }
 	    }
@@ -69,27 +69,27 @@ public class BuiltInTypeRules {
 	 * @param context
 	 * @return
 	 */
-	public static Type adjustReturnTypeForRegionMult(Expr left, Expr right, Type type, Context context) {
+	public static ConstrainedType adjustReturnTypeForRegionMult(Expr left, Expr right, Type type, Context context) {
 		TypeSystem ts = (TypeSystem) context.typeSystem();
-		ConstrainedType ltype = X10TypeMixin.toConstrainedType(left.type());
-		ConstrainedType rtype = X10TypeMixin.toConstrainedType(right.type());
-		XTerm lrank = X10TypeMixin.rank(ltype, context);
-		XTerm rrank = X10TypeMixin.rank(rtype, context);
-		type = X10TypeMixin.toConstrainedType(type);
-		XVar selfVar = X10TypeMixin.selfVar((ConstrainedType) type);
+		ConstrainedType ltype = Types.toConstrainedType(left.type());
+		ConstrainedType rtype = Types.toConstrainedType(right.type());
+		XTerm lrank = ltype.rank(context);
+		XTerm rrank = rtype.rank(context);
+		ConstrainedType ct = Types.toConstrainedType(type);
+		XVar selfVar = ct.selfVar();
 		if (lrank instanceof XLit && rrank instanceof XLit) {
 			int xr = (Integer) ((XLit) lrank).val();
 			int yr = (Integer) ((XLit) rrank).val();
-			type = X10TypeMixin.addRank(type, xr+yr);
+			ct = ct.addRank( xr+yr);
 		}
-		if (X10TypeMixin.isRect(ltype, context) && X10TypeMixin.isRect(rtype, context)) {
-			type = X10TypeMixin.addRect(type);
+		if (ltype.isRect(context) && rtype.isRect(context)) {
+			ct = ct.addRect();
 		}
-		if (X10TypeMixin.isZeroBased(ltype, context) && X10TypeMixin.isZeroBased(rtype, context)) {
-			type = X10TypeMixin.addZeroBased(type);
+		if (ltype.isZeroBased(context) && rtype.isZeroBased(context)) {
+			ct = ct.addZeroBased();
 		}
-		assert selfVar == X10TypeMixin.selfVar((ConstrainedType) type);
-		return type;
+		assert selfVar == ct.selfVar();
+		return ct;
 	}
 	/**
 	 * 
@@ -106,16 +106,16 @@ public class BuiltInTypeRules {
 		// support for all operators.
 		if (l.isBoolean() && r.isBoolean()) {
 
-			XTerm xt = X10TypeMixin.selfBinding(l);
+			XTerm xt = Types.selfBinding(l);
 			if (xt != null) {
-				XTerm yt = X10TypeMixin.selfBinding(r);
+				XTerm yt = Types.selfBinding(r);
 				if (yt != null) {
 
 					try {
-						result = X10TypeMixin.addSelfBinding(result, 
+						result = Types.addSelfBinding(result, 
 								XTerms.makeAnd(xt, yt));
 					} catch (XFailure z) {
-						X10TypeMixin.setInconsistent(result);
+						Types.setInconsistent(result);
 					}
 				}
 			}

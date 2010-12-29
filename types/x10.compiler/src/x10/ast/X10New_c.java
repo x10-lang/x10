@@ -64,7 +64,6 @@ import x10.types.X10ConstructorInstance;
 import polyglot.types.Context;
 
 import x10.types.X10ParsedClassType;
-import x10.types.X10TypeMixin;
 import polyglot.types.TypeSystem;
 import x10.types.X10TypeSystem_c;
 import x10.types.checker.Converter;
@@ -347,12 +346,12 @@ public class X10New_c extends New_c implements X10New {
             // We have to disambiguate the type node as if it were a member of
             // the static type, outer, of the qualifier.
 
-            t = ts.findMemberType(X10TypeMixin.baseType(qualifier.type()), name, c);
+            t = ts.findMemberType(Types.baseType(qualifier.type()), name, c);
         }
         t = ts.expandMacros(t);
 
-        CConstraint xc = X10TypeMixin.xclause(t);
-        t = X10TypeMixin.baseType(t);
+        CConstraint xc = Types.xclause(t);
+        t = Types.baseType(t);
 
         if (!(t instanceof X10ClassType)) {
             if (name == null)
@@ -385,7 +384,7 @@ public class X10New_c extends New_c implements X10New {
             ct = ct.typeArguments(typeArgs);
         }
 
-        t = X10TypeMixin.xclause(ct, xc);
+        t = Types.xclause(ct, xc);
 
         ((Ref<Type>) tn.typeRef()).update(t);
         }
@@ -461,7 +460,7 @@ public class X10New_c extends New_c implements X10New {
         X10New_c result = this;
 
         Type t = result.objectType().type();
-        X10ClassType ct = (X10ClassType) X10TypeMixin.baseType(t);
+        X10ClassType ct = (X10ClassType) Types.baseType(t);
 
         X10ConstructorInstance ci;
         List<Expr> args;
@@ -485,8 +484,8 @@ public class X10New_c extends New_c implements X10New {
         Type tp = ci.returnType();
         final Context context = tc.context();
         tp = PlaceChecker.ReplaceHereByPlaceTerm(tp, context);
-        Type tp1 = X10TypeMixin.instantiateTypeParametersExplicitly(tp);
-        Type t1 = X10TypeMixin.instantiateTypeParametersExplicitly(t);
+        Type tp1 = Types.instantiateTypeParametersExplicitly(tp);
+        Type t1 = Types.instantiateTypeParametersExplicitly(t);
         
         if (ts.hasUnknown(tp1)) {
             SemanticException e = new SemanticException("Inconsistent constructor return type", pos);
@@ -523,7 +522,7 @@ public class X10New_c extends New_c implements X10New {
             // to be based on anonType rather than on the supertype.
             ClassDef anonTypeDef = result.anonType();
             Type anonType = anonTypeDef.asType();
-            type = X10TypeMixin.xclause(X10TypeMixin.baseType(anonType), X10TypeMixin.xclause(type));
+            type = Types.xclause(Types.baseType(anonType), Types.xclause(type));
           
         }
 
@@ -568,7 +567,7 @@ public class X10New_c extends New_c implements X10New {
                     rt = xci.returnType();
                 } else if (!xts.typeEquals(rt, xci.returnType(), context)) {
                     if (xts.typeBaseEquals(rt, xci.returnType(), context)) {
-                        rt = X10TypeMixin.baseType(rt);
+                        rt = Types.baseType(rt);
                     } else {
                         rt = null;
                         break;
@@ -666,10 +665,10 @@ public class X10New_c extends New_c implements X10New {
 	// is tracked in the type through a fake field "here".
 	// This field does not exist at runtime in the object -- but that does not
 	// prevent the compiler from imagining that it exists.
-	ConstrainedType type1 = X10TypeMixin.toConstrainedType(type);
+	ConstrainedType type1 = Types.toConstrainedType(type);
 	type1 = (ConstrainedType) PlaceChecker.AddIsHereClause(type1, tc.context());
 	// Add self != null
-	type1 = (ConstrainedType) X10TypeMixin.addDisBinding(type1, X10TypeMixin.selfVar(type1), XTerms.NULL);
+	type1 = (ConstrainedType) Types.addDisBinding(type1, Types.selfVar(type1), XTerms.NULL);
         xci = (X10ConstructorInstance) xci.returnType(type1);
         return xci;
         

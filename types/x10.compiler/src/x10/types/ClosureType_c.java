@@ -92,7 +92,7 @@ public class ClosureType_c extends X10ParsedClassType_c implements FunctionType 
 
     
     @Override
-    public String toString() {
+    public String typeToString() {
         X10MethodInstance mi = applyMethod();
         StringBuilder sb = new StringBuilder();
         List<LocalInstance> formals = mi.formalNames();
