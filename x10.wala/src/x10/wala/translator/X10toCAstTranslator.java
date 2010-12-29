@@ -3097,11 +3097,11 @@ public class X10toCAstTranslator implements TranslatorToCAst {
 		    makeNode(context, X10CastNode.FINISH_EXIT, f.body().position().endOf()));
 	}
 
-	private CAstNode walkRegionIterator(X10Loop loop, final CAstNode bodyNode, WalkContext context) {
-	    return walkRegionIterator(loop.formal(), bodyNode, walkNodes(loop.domain(), context), loop.position(), context);
+	private CAstNode walkIterator(X10Loop loop, final CAstNode bodyNode, WalkContext context) {
+	    return walkIterator(loop.formal(), bodyNode, walkNodes(loop.domain(), context), loop.position(), context);
 	}
 
-	private CAstNode walkRegionIterator(Formal formal, final CAstNode bodyNode, CAstNode domainNode, polyglot.util.Position bodyPos, WalkContext wc) {
+	private CAstNode walkIterator(Formal formal, final CAstNode bodyNode, CAstNode domainNode, polyglot.util.Position bodyPos, WalkContext wc) {
 	    X10Formal x10Formal= (X10Formal) formal;
 	    LocalDef[] vars = x10Formal.localInstances();
 	    CAstNode[] bodyStmts = new CAstNode[vars.length + 1]; // var decls + bodyNode
@@ -3161,7 +3161,7 @@ public class X10toCAstTranslator implements TranslatorToCAst {
 			makeNode(wc, a.domain(), CAstNode.DECL_STMT, 
 			  fFactory.makeConstant(new CAstSymbolImpl("dist temp", true)),
 			  dist),
-			walkRegionIterator(a.formal(), bodyNode, fFactory.makeNode(CAstNode.VAR, fFactory.makeConstant("dist temp")), a.body().position(), wc)));
+			walkIterator(a.formal(), bodyNode, fFactory.makeNode(CAstNode.VAR, fFactory.makeConstant("dist temp")), a.body().position(), wc)));
 	}
 
 	public CAstNode visit(Future f, WalkContext wc) {
@@ -3456,7 +3456,7 @@ public class X10toCAstTranslator implements TranslatorToCAst {
 //					makeNode(wc, fFactory, formal1, CAstNode.VAR, fFactory.makeConstant(formal1.name())))));
 //
 //		CAstNode loopBody=
-//			walkRegionIterator(formal1, arrayElemInit,
+//			walkIterator(formal1, arrayElemInit,
 //					makeNode(wc, dist, CAstNode.VAR, fFactory.makeConstant(distTempName)), closure.position(), wc);
 //
 //		return makeNode(wc, closure, CAstNode.BLOCK_EXPR, // NEED CAstNode.LOCAL_SCOPE or make "array temp" names unique
@@ -3521,7 +3521,7 @@ public class X10toCAstTranslator implements TranslatorToCAst {
 
 	    return makeNode(context, f, CAstNode.BLOCK_STMT,
 	    		walkNodes(breakTarget, context),
-	    		walkRegionIterator(f, 
+	    		walkIterator(f, 
 	    				makeNode(context, f, CAstNode.BLOCK_STMT,
 	    						walkNodes(f.body(), lc),
 	    						walkNodes(continueTarget, lc)),

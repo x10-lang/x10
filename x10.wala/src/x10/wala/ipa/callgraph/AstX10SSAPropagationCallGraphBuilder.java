@@ -8,9 +8,9 @@ import x10.wala.ssa.FinishInstruction;
 import x10.wala.ssa.HereInstruction;
 import x10.wala.ssa.NextInstruction;
 import x10.wala.ssa.PlaceOfPointInstruction;
-import x10.wala.ssa.RegionIterHasNextInstruction;
-import x10.wala.ssa.RegionIterInitInstruction;
-import x10.wala.ssa.RegionIterNextInstruction;
+import x10.wala.ssa.IterHasNextInstruction;
+import x10.wala.ssa.IterInitInstruction;
+import x10.wala.ssa.IterNextInstruction;
 import x10.wala.ssa.TupleInstruction;
 
 import com.ibm.wala.analysis.typeInference.TypeInference;
@@ -68,15 +68,15 @@ public class AstX10SSAPropagationCallGraphBuilder extends AstJavaSSAPropagationC
 	    Assertions.UNREACHABLE("Query of interestingness of value number for Finish???");
 	}
 
-	public void visitRegionIterInit(RegionIterInitInstruction instruction) {
+	public void visitIterInit(IterInitInstruction instruction) {
 	    Assertions.productionAssertion(instruction.getUse(0) == vn, "regionIterInit instruction has bogus use/def info?");
 	    bingo= true;
 	}
 
-	public void visitRegionIterHasNext(RegionIterHasNextInstruction instruction) {
+	public void visitIterHasNext(IterHasNextInstruction instruction) {
 	}
 
-	public void visitRegionIterNext(RegionIterNextInstruction instruction) {
+	public void visitIterNext(IterNextInstruction instruction) {
 	    Assertions.productionAssertion(instruction.getUse(0) == vn, "regionIterNext instruction has bogus use/def info?");
 	    bingo= true;
 	}
@@ -123,15 +123,15 @@ public class AstX10SSAPropagationCallGraphBuilder extends AstJavaSSAPropagationC
 	    // NOOP
 	}
 	
-	public void visitRegionIterInit(RegionIterInitInstruction instruction) {
+	public void visitIterInit(IterInitInstruction instruction) {
 	    // TODO model data flow for future/force
 	}
 
-	public void visitRegionIterHasNext(RegionIterHasNextInstruction instruction) {
+	public void visitIterHasNext(IterHasNextInstruction instruction) {
 	    // NOOP: no flow through this kind of instruction
 	}
 
-	public void visitRegionIterNext(RegionIterNextInstruction instruction) {
+	public void visitIterNext(IterNextInstruction instruction) {
 	    // TODO model data flow for future/force
 	}
 

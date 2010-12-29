@@ -23,16 +23,17 @@ public class X10LanguageImpl extends LanguageImpl implements BytecodeLanguage {
   
   public static X10LanguageImpl X10Lang = new X10LanguageImpl();
 
-  public static TypeReference X10LangObject = TypeReference.findOrCreate(X10SourceLoaderImpl.X10SourceLoader, "Lx10/lang/Object");
+  public static TypeReference X10LangObject =
+    TypeReference.findOrCreate(X10SourceLoaderImpl.X10SourceLoader, "Lx10/lang/Object");
 
-  public final static TypeReference x10LangPoint =
-    TypeReference.findOrCreate(X10SourceLoaderImpl.X10SourceLoader, "Lx10/lang/point");
+  public final static TypeReference x10ArrayPoint =
+    TypeReference.findOrCreate(X10SourceLoaderImpl.X10SourceLoader, "Lx10/array/Point");
 
   public final static TypeReference x10LangPlace =
-    TypeReference.findOrCreate(X10SourceLoaderImpl.X10SourceLoader, "Lx10/lang/place");
+    TypeReference.findOrCreate(X10SourceLoaderImpl.X10SourceLoader, "Lx10/lang/Place");
 
-  public final static TypeReference x10LangRail =
-    TypeReference.findOrCreate(X10SourceLoaderImpl.X10SourceLoader, "Lx10/lang/Rail");
+  public final static TypeReference x10ArrayArray =
+    TypeReference.findOrCreate(X10SourceLoaderImpl.X10SourceLoader, "Lx10/array/Array");
 
   public Atom getName() {
     return X10SourceLoaderImpl.X10;

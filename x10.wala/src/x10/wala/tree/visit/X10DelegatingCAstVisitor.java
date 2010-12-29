@@ -147,24 +147,24 @@ public abstract class X10DelegatingCAstVisitor extends DelegatingCAstVisitor {
 		break;
 	    }
 	    case X10CastNode.ITER_INIT: {
-		if (visitor.visitRegionIterInit(n, context, visitor))
+		if (visitor.visitIterInit(n, context, visitor))
 		    break;
 		visitor.visit(n.getChild(0), context, visitor);
-		visitor.leaveRegionIterInit(n, context, visitor);
+		visitor.leaveIterInit(n, context, visitor);
 		break;
 	    }
 	    case X10CastNode.ITER_HASNEXT: {
-		if (visitor.visitRegionIterHasNext(n, context, visitor))
+		if (visitor.visitIterHasNext(n, context, visitor))
 		    break;
 		visitor.visit(n.getChild(0), context, visitor);
-		visitor.leaveRegionIterHasNext(n, context, visitor);
+		visitor.leaveIterHasNext(n, context, visitor);
 		break;
 	    }
 	    case X10CastNode.ITER_NEXT: {
-		if (visitor.visitRegionIterNext(n, context, visitor))
+		if (visitor.visitIterNext(n, context, visitor))
 		    break;
 		visitor.visit(n.getChild(0), context, visitor);
-		visitor.leaveRegionIterNext(n, context, visitor);
+		visitor.leaveIterNext(n, context, visitor);
 		break;
 	    }
 	    case X10CastNode.HERE: {
@@ -301,39 +301,39 @@ public abstract class X10DelegatingCAstVisitor extends DelegatingCAstVisitor {
      * @param c a visitor-specific context
      * @return true if no further processing is needed
      */
-    protected boolean visitRegionIterInit(CAstNode n, Context c, CAstVisitor visitor) { return visitor.visitNode(n, c, visitor); }
+    protected boolean visitIterInit(CAstNode n, Context c, CAstVisitor visitor) { return visitor.visitNode(n, c, visitor); }
     /**
      * Leave an Async node.
      * @param n the node to process
      * @param c a visitor-specific context
      */
-    protected void leaveRegionIterInit(CAstNode n, Context c, CAstVisitor visitor) { visitor.leaveNode(n, c, visitor); }
+    protected void leaveIterInit(CAstNode n, Context c, CAstVisitor visitor) { visitor.leaveNode(n, c, visitor); }
     /**
      * Visit an Async node.
      * @param n the node to process
      * @param c a visitor-specific context
      * @return true if no further processing is needed
      */
-    protected boolean visitRegionIterHasNext(CAstNode n, Context c, CAstVisitor visitor) { return visitor.visitNode(n, c, visitor); }
+    protected boolean visitIterHasNext(CAstNode n, Context c, CAstVisitor visitor) { return visitor.visitNode(n, c, visitor); }
     /**
      * Leave an Async node.
      * @param n the node to process
      * @param c a visitor-specific context
      */
-    protected void leaveRegionIterHasNext(CAstNode n, Context c, CAstVisitor visitor) { visitor.leaveNode(n, c, visitor); }
+    protected void leaveIterHasNext(CAstNode n, Context c, CAstVisitor visitor) { visitor.leaveNode(n, c, visitor); }
     /**
      * Visit an Async node.
      * @param n the node to process
      * @param c a visitor-specific context
      * @return true if no further processing is needed
      */
-    protected boolean visitRegionIterNext(CAstNode n, Context c, CAstVisitor visitor) { return visitor.visitNode(n, c, visitor); }
+    protected boolean visitIterNext(CAstNode n, Context c, CAstVisitor visitor) { return visitor.visitNode(n, c, visitor); }
     /**
      * Leave an Async node.
      * @param n the node to process
      * @param c a visitor-specific context
      */
-    protected void leaveRegionIterNext(CAstNode n, Context c, CAstVisitor visitor) { visitor.leaveNode(n, c, visitor); }
+    protected void leaveIterNext(CAstNode n, Context c, CAstVisitor visitor) { visitor.leaveNode(n, c, visitor); }
     /**
      * Visit an Async node.
      * @param n the node to process

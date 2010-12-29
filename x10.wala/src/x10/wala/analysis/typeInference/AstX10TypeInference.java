@@ -8,9 +8,9 @@ import x10.wala.ssa.FinishInstruction;
 import x10.wala.ssa.HereInstruction;
 import x10.wala.ssa.NextInstruction;
 import x10.wala.ssa.PlaceOfPointInstruction;
-import x10.wala.ssa.RegionIterHasNextInstruction;
-import x10.wala.ssa.RegionIterInitInstruction;
-import x10.wala.ssa.RegionIterNextInstruction;
+import x10.wala.ssa.IterHasNextInstruction;
+import x10.wala.ssa.IterInitInstruction;
+import x10.wala.ssa.IterNextInstruction;
 import x10.wala.ssa.TupleInstruction;
 
 import com.ibm.wala.analysis.typeInference.ConeType;
@@ -39,10 +39,10 @@ public class AstX10TypeInference extends AstJavaTypeInference {
 	}
 	
 	public void visitNext(NextInstruction instruction) {
-	    Assertions.UNREACHABLE("Type operator requested for X10 finish instruction");
+	    Assertions.UNREACHABLE("Type operator requested for X10 next instruction");
 	}
 
-	public void visitRegionIterInit(RegionIterInitInstruction instruction) {
+	public void visitIterInit(IterInitInstruction instruction) {
 	    // Pretend that this instruction produces a value of type "java.lang.Object".
 	    // It produces a region iterator, for which we have no type a priori.
 	    TypeReference type= TypeReference.JavaLangObject;
@@ -51,14 +51,14 @@ public class AstX10TypeInference extends AstJavaTypeInference {
 	    result= new DeclaredTypeOperator(new ConeType(klass));
 	}
 
-	public void visitRegionIterHasNext(RegionIterHasNextInstruction instruction) {
+	public void visitIterHasNext(IterHasNextInstruction instruction) {
 	    // NOOP
 	    result= null;
 	}
 
-	public void visitRegionIterNext(RegionIterNextInstruction instruction) {
+	public void visitIterNext(IterNextInstruction instruction) {
 	    // This instruction always produces a value of type "x10.lang.point".
-	    TypeReference type= X10LanguageImpl.x10LangPoint;
+	    TypeReference type= X10LanguageImpl.x10ArrayPoint;
 	    IClass klass= cha.lookupClass(type);
 
 	    result= new DeclaredTypeOperator(new PointType(klass));
@@ -80,7 +80,7 @@ public class AstX10TypeInference extends AstJavaTypeInference {
 
  	public void visitTuple(TupleInstruction tupleInstruction) {
  	    // This instruction always produces a value of type "x10.lang.Rail".
- 	    TypeReference type= X10LanguageImpl.x10LangRail;
+ 	    TypeReference type= X10LanguageImpl.x10ArrayArray;
  	    IClass klass= cha.lookupClass(type);
  	    result = new DeclaredTypeOperator(new ConeType(klass));
  	}

@@ -15,9 +15,9 @@ import x10.wala.ssa.FinishInstruction;
 import x10.wala.ssa.HereInstruction;
 import x10.wala.ssa.NextInstruction;
 import x10.wala.ssa.PlaceOfPointInstruction;
-import x10.wala.ssa.RegionIterHasNextInstruction;
-import x10.wala.ssa.RegionIterInitInstruction;
-import x10.wala.ssa.RegionIterNextInstruction;
+import x10.wala.ssa.IterHasNextInstruction;
+import x10.wala.ssa.IterInitInstruction;
+import x10.wala.ssa.IterNextInstruction;
 import x10.wala.ssa.TupleInstruction;
 import x10.wala.tree.X10CAstEntity;
 
@@ -196,16 +196,16 @@ public class X10SourceLoaderImpl extends JavaSourceLoaderImpl {
         return new PlaceOfPointInstruction(hasNextValue, regionIter);
       }
 
-      public RegionIterHasNextInstruction RegionIterHasNext(int hasNextValue, int regionIter) {
-        return new RegionIterHasNextInstruction(hasNextValue, regionIter);
+      public IterHasNextInstruction IterHasNext(int hasNextValue, int regionIter) {
+        return new IterHasNextInstruction(hasNextValue, regionIter);
       }
 
-      public RegionIterInitInstruction RegionIterInit(int iterVal, int regionVal) {
-        return new RegionIterInitInstruction(iterVal, regionVal);
+      public IterInitInstruction IterInit(int iterVal, int regionVal) {
+        return new IterInitInstruction(iterVal, regionVal);
       }
 
-      public RegionIterNextInstruction RegionIterNext(int nextValue, int regionIter) {
-        return new RegionIterNextInstruction(nextValue, regionIter);
+      public IterNextInstruction IterNext(int nextValue, int regionIter) {
+        return new IterNextInstruction(nextValue, regionIter);
       }
 
       public TupleInstruction Tuple(int retValue, int[] slotValues) {

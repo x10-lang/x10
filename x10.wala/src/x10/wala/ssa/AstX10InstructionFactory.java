@@ -15,9 +15,9 @@ public interface AstX10InstructionFactory extends AstJavaInstructionFactory {
 	NextInstruction Next();
 	HereInstruction Here(int retValue);
 	PlaceOfPointInstruction PlaceOfPoint(int hasNextValue, int regionIter);
-	RegionIterHasNextInstruction RegionIterHasNext(int hasNextValue, int regionIter);
-	RegionIterInitInstruction RegionIterInit(int iterVal, int regionVal);
-	RegionIterNextInstruction RegionIterNext(int nextValue, int regionIter);
+	IterHasNextInstruction IterHasNext(int hasNextValue, int regionIter);
+	IterInitInstruction IterInit(int iterVal, int regionVal);
+	IterNextInstruction IterNext(int nextValue, int regionIter);
 	TupleInstruction Tuple(int retValue, int[] slotValues);
 	AtStmtInstruction AtStmt(boolean isEnter);
 }

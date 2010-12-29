@@ -230,28 +230,28 @@ public class X10CAst2IRTranslator extends X10DelegatingCAstVisitor /* implements
         return true;
     }
     
-    protected boolean visitRegionIterInit(CAstNode n, Context c, CAstVisitor visitor) { /* empty */ return false; }
-    protected void leaveRegionIterInit(CAstNode n, Context c, CAstVisitor visitor) {
+    protected boolean visitIterInit(CAstNode n, Context c, CAstVisitor visitor) { /* empty */ return false; }
+    protected void leaveIterInit(CAstNode n, Context c, CAstVisitor visitor) {
         WalkContext context = (WalkContext)c;
         int targetValue = translator.getValue(n.getChild(0));
         int retValue = context.currentScope().allocateTempValue();
-        context.cfg().addInstruction(insts.RegionIterInit(retValue, targetValue));
+        context.cfg().addInstruction(insts.IterInit(retValue, targetValue));
         translator.setValue(n, retValue);
     }
-    protected boolean visitRegionIterHasNext(CAstNode n, Context c, CAstVisitor visitor) { /* empty */ return false; }
-    protected void leaveRegionIterHasNext(CAstNode n, Context c, CAstVisitor visitor) {
+    protected boolean visitIterHasNext(CAstNode n, Context c, CAstVisitor visitor) { /* empty */ return false; }
+    protected void leaveIterHasNext(CAstNode n, Context c, CAstVisitor visitor) {
         WalkContext context = (WalkContext)c;
         int targetValue = translator.getValue(n.getChild(0));
         int retValue = context.currentScope().allocateTempValue();
-        context.cfg().addInstruction(insts.RegionIterHasNext(retValue, targetValue));
+        context.cfg().addInstruction(insts.IterHasNext(retValue, targetValue));
         translator.setValue(n, retValue);
     }
-    protected boolean visitRegionIterNext(CAstNode n, Context c, CAstVisitor visitor) { /* empty */ return false; }
-    protected void leaveRegionIterNext(CAstNode n, Context c, CAstVisitor visitor) {
+    protected boolean visitIterNext(CAstNode n, Context c, CAstVisitor visitor) { /* empty */ return false; }
+    protected void leaveIterNext(CAstNode n, Context c, CAstVisitor visitor) {
         WalkContext context = (WalkContext)c;
         int targetValue = translator.getValue(n.getChild(0));
         int retValue = context.currentScope().allocateTempValue();
-        context.cfg().addInstruction(insts.RegionIterNext(retValue, targetValue));
+        context.cfg().addInstruction(insts.IterNext(retValue, targetValue));
         translator.setValue(n, retValue);
     }
     protected boolean visitHere(CAstNode n, Context c, CAstVisitor visitor) { /* empty */ return false; }
