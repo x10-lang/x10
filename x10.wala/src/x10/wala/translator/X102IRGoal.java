@@ -81,7 +81,7 @@ public class X102IRGoal extends SourceGoal_c {
     
 	private static CallGraph buildCallGraph(){
     	try {
-            engine.consolidateClassHierarchy();
+            engine.buildClassHierarchy();
             List<Entrypoint> entrypoints = new ArrayList<Entrypoint>();
             for (Iterator it = mainClasses.iterator(); it.hasNext();) {
                 String mainClass = (String) it.next();

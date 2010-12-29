@@ -51,7 +51,7 @@ public class X10SourceAnalysisEngine {
         return new X10ZeroXCFABuilderFactory().make(options, cache, cha).makeCallGraph(options, null);
     }
 
-    public void consolidateClassHierarchy() {
+    public void buildClassHierarchy() {
         try {
             cha.consolidate();
         } catch (ClassHierarchyException e) {
