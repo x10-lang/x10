@@ -9,7 +9,6 @@ import x10.wala.ssa.AstX10InstructionVisitor;
 import x10.wala.ssa.AtStmtInstruction;
 import x10.wala.ssa.AtomicInstruction;
 import x10.wala.ssa.FinishInstruction;
-import x10.wala.ssa.ForceInstruction;
 import x10.wala.ssa.HereInstruction;
 import x10.wala.ssa.NextInstruction;
 import x10.wala.ssa.PlaceOfPointInstruction;
@@ -45,23 +44,6 @@ public class AstX10TypeInference extends AstJavaTypeInference {
 	
 	public void visitNext(NextInstruction instruction) {
 	    Assertions.UNREACHABLE("Type operator requested for X10 finish instruction");
-	}
-
-	public void visitForce(ForceInstruction instruction) {
-	    TypeReference type= instruction.getValueType();
-
-	    if (type.isReferenceType()) {
-		IClass klass= cha.lookupClass(type);
-		if (klass == null) {
-		    // a type that cannot be loaded.
-		    // be pessimistic
-		    result= new DeclaredTypeOperator(BOTTOM);
-		} else {
-		    result= new DeclaredTypeOperator(new ConeType(klass));
-		}
-	    } else {
-		result= null;
-	    }
 	}
 
 	public void visitRegionIterInit(RegionIterInitInstruction instruction) {

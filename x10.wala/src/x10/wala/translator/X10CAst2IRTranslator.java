@@ -230,14 +230,6 @@ public class X10CAst2IRTranslator extends X10DelegatingCAstVisitor implements Ar
         return true;
     }
     
-    protected boolean visitForce(CAstNode n, Context c, CAstVisitor visitor) { /* empty */ return false; }
-    protected void leaveForce(CAstNode n, Context c, CAstVisitor visitor) {
-        WalkContext context = (WalkContext)c;
-        int targetValue = translator.getValue(n.getChild(0));
-        int retValue = context.currentScope().allocateTempValue();
-        context.cfg().addInstruction(insts.Force(retValue, targetValue, (TypeReference) n.getChild(1).getValue()));
-        translator.setValue(n, retValue);
-    }
     protected boolean visitRegionIterInit(CAstNode n, Context c, CAstVisitor visitor) { /* empty */ return false; }
     protected void leaveRegionIterInit(CAstNode n, Context c, CAstVisitor visitor) {
         WalkContext context = (WalkContext)c;

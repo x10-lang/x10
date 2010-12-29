@@ -12,7 +12,6 @@ import x10.wala.ssa.AsyncInvokeInstruction;
 import x10.wala.ssa.AtStmtInstruction;
 import x10.wala.ssa.AtomicInstruction;
 import x10.wala.ssa.FinishInstruction;
-import x10.wala.ssa.ForceInstruction;
 import x10.wala.ssa.HereInstruction;
 import x10.wala.ssa.NextInstruction;
 import x10.wala.ssa.PlaceOfPointInstruction;
@@ -203,10 +202,6 @@ public class X10LanguageImpl extends LanguageImpl implements BytecodeLanguage {
     public NextInstruction Next() {
         return new NextInstruction();
       }
-
-    public ForceInstruction Force(int retValue, int targetValue, TypeReference valueType) {
-      return new ForceInstruction(retValue, targetValue, valueType);
-    }
 
     public HereInstruction Here(int retValue) {
       return new HereInstruction(retValue);

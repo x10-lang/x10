@@ -13,7 +13,6 @@ public interface AstX10InstructionFactory extends AstJavaInstructionFactory {
 	AtomicInstruction Atomic(boolean isEnter);
 	FinishInstruction Finish(boolean isEnter);
 	NextInstruction Next();
-	ForceInstruction Force(int retValue, int targetValue, TypeReference valueType);
 	HereInstruction Here(int retValue);
 	PlaceOfPointInstruction PlaceOfPoint(int hasNextValue, int regionIter);
 	RegionIterHasNextInstruction RegionIterHasNext(int hasNextValue, int regionIter);

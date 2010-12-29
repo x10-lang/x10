@@ -9,7 +9,6 @@ import x10.wala.ssa.AstX10InstructionVisitor;
 import x10.wala.ssa.AtStmtInstruction;
 import x10.wala.ssa.AtomicInstruction;
 import x10.wala.ssa.FinishInstruction;
-import x10.wala.ssa.ForceInstruction;
 import x10.wala.ssa.HereInstruction;
 import x10.wala.ssa.NextInstruction;
 import x10.wala.ssa.PlaceOfPointInstruction;
@@ -71,11 +70,6 @@ public class AstX10SSAPropagationCallGraphBuilder extends AstJavaSSAPropagationC
 	
 	public void visitNext(NextInstruction instruction) {
 	    Assertions.UNREACHABLE("Query of interestingness of value number for Finish???");
-	}
-
-	public void visitForce(ForceInstruction instruction) {
-	    Assertions.productionAssertion(instruction.getUse(0) == vn, "force instruction has bogus use/def info?");
-	    bingo= true;
 	}
 
 	public void visitRegionIterInit(RegionIterInitInstruction instruction) {
@@ -157,10 +151,6 @@ public class AstX10SSAPropagationCallGraphBuilder extends AstJavaSSAPropagationC
 	    // NOOP
 	}
 	
-	public void visitForce(ForceInstruction instruction) {
-	    // TODO model data flow for future/force
-	}
-
 	public void visitRegionIterInit(RegionIterInitInstruction instruction) {
 	    // TODO model data flow for future/force
 	}

@@ -9,7 +9,6 @@ public interface AstX10InstructionVisitor extends AstJavaInstructionVisitor {
     void visitAtomic(AtomicInstruction instruction);
     void visitFinish(FinishInstruction instruction);
     void visitNext(NextInstruction instruction);
-    void visitForce(ForceInstruction instruction);
     void visitRegionIterInit(RegionIterInitInstruction instruction);
     void visitRegionIterHasNext(RegionIterHasNextInstruction instruction);
     void visitRegionIterNext(RegionIterNextInstruction instruction);
