@@ -22,6 +22,7 @@ import polyglot.ast.Formal;
 import polyglot.ast.MethodDecl;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
+import polyglot.frontend.Goal;
 import polyglot.frontend.Job;
 import polyglot.main.Report;
 import polyglot.types.ClassDef;
@@ -38,6 +39,8 @@ import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
+import x10.ExtensionInfo.X10Scheduler;
+import x10.ExtensionInfo.X10Scheduler.ValidatingVisitorGoal;
 import x10.ast.Async;
 import x10.ast.AtEach;
 import x10.ast.Closure;
@@ -63,6 +66,8 @@ import polyglot.util.Position;
 import x10.types.checker.PlaceChecker;
 import x10.util.Synthesizer;
 import x10.util.synthesizer.MethodSynth;
+import x10.visit.Desugarer;
+import x10.visit.X10InnerClassRemover;
 import x10.visit.X10PrettyPrinterVisitor;
 
 
@@ -227,8 +232,31 @@ public class WSCodeGenerator extends ContextVisitor {
                     System.out.println();
                     System.out.println("[WS_INFO] Add new methods and nested classes to class: " + n);
                 }
-                cDecl = Synthesizer.addNestedClasses(cDecl, classes);
-                cDecl = Synthesizer.addMethods(cDecl, getMethodDecls(cDef));
+                List<X10MethodDecl> methods = getMethodDecls(cDef);
+                
+                //do final processing, run desugarer and inner class remover again
+                //get the right desuguar
+                X10Scheduler scheduler = (X10Scheduler) ts.extensionInfo().scheduler();
+                ValidatingVisitorGoal goal = (ValidatingVisitorGoal) scheduler.Desugarer(job);
+                Desugarer desugarer = (Desugarer) goal.visitor().begin();
+                
+                X10InnerClassRemover innerclassRemover = (X10InnerClassRemover) new X10InnerClassRemover(job, ts, nf).begin();
+                
+                List<X10ClassDecl> newClasses = new ArrayList<X10ClassDecl>();
+                for(X10ClassDecl c: classes){
+                	c = (X10ClassDecl) c.visit(desugarer);
+                	c = (X10ClassDecl) c.visit(innerclassRemover);
+                	newClasses.add(c);
+                }
+                List<X10MethodDecl> newMethods = new ArrayList<X10MethodDecl>();
+                for(X10MethodDecl m : methods){
+                	m = (X10MethodDecl)m.visit(desugarer);
+                	m = (X10MethodDecl)m.visit(innerclassRemover);
+                	newMethods.add(m);
+                }
+                
+                cDecl = Synthesizer.addNestedClasses(cDecl, newClasses);
+                cDecl = Synthesizer.addMethods(cDecl, newMethods);
                 return cDecl;
             }
         }
