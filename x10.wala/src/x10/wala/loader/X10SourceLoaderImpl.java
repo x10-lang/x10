@@ -7,8 +7,25 @@ import java.util.List;
 import java.util.Set;
 
 import x10.wala.classLoader.X10LanguageImpl;
+import x10.wala.ssa.ArrayLoadByIndexInstruction;
+import x10.wala.ssa.ArrayLoadByPointInstruction;
+import x10.wala.ssa.ArrayStoreByIndexInstruction;
+import x10.wala.ssa.ArrayStoreByPointInstruction;
+import x10.wala.ssa.AstX10InstructionFactory;
+import x10.wala.ssa.AsyncInvokeInstruction;
+import x10.wala.ssa.AtStmtInstruction;
+import x10.wala.ssa.AtomicInstruction;
+import x10.wala.ssa.FinishInstruction;
+import x10.wala.ssa.HereInstruction;
+import x10.wala.ssa.NextInstruction;
+import x10.wala.ssa.PlaceOfPointInstruction;
+import x10.wala.ssa.RegionIterHasNextInstruction;
+import x10.wala.ssa.RegionIterInitInstruction;
+import x10.wala.ssa.RegionIterNextInstruction;
+import x10.wala.ssa.TupleInstruction;
 import x10.wala.tree.X10CAstEntity;
 
+import com.ibm.wala.cast.ir.ssa.AstLexicalAccess.Access;
 import com.ibm.wala.cast.ir.translator.AstTranslator.AstLexicalInformation;
 import com.ibm.wala.cast.java.ipa.callgraph.JavaSourceAnalysisScope;
 import com.ibm.wala.cast.java.loader.JavaSourceLoaderImpl;
@@ -19,6 +36,7 @@ import com.ibm.wala.cast.tree.CAstSourcePositionMap;
 import com.ibm.wala.cast.tree.CAstType;
 import com.ibm.wala.cast.tree.CAstSourcePositionMap.Position;
 import com.ibm.wala.cfg.AbstractCFG;
+import com.ibm.wala.classLoader.CallSiteReference;
 import com.ibm.wala.classLoader.IClass;
 import com.ibm.wala.classLoader.IClassLoader;
 import com.ibm.wala.classLoader.Language;
@@ -89,10 +107,6 @@ public class X10SourceLoaderImpl extends JavaSourceLoaderImpl {
       return "X10 Source Loader (classes " + loadedClasses.values() + ")";
     }
     
-    public X10LanguageImpl.InstructionFactory getInstructionFactory() {
-    	return X10LanguageImpl.X10Lang.instructionFactory();
-    }
-    
     public IClass defineType(CAstEntity type, String typeName, CAstEntity owner) {
       final Collection<TypeName> superTypeNames = new ArrayList<TypeName>();
       for (final Object superType : type.getType().getSupertypes()) {
@@ -147,5 +161,87 @@ public class X10SourceLoaderImpl extends JavaSourceLoaderImpl {
       return new SourceModuleTranslator() {
         public void loadAllSources(Set s) {}
       };
+    }
+
+
+    public static class InstructionFactory extends JavaSourceLoaderImpl.InstructionFactory implements AstX10InstructionFactory {
+
+      public ArrayLoadByIndexInstruction ArrayLoadByIndex(int result, int arrayRef, int[] dims, TypeReference declaredType) {
+        return new ArrayLoadByIndexInstruction(result, arrayRef, dims, declaredType);
+      }
+
+      public ArrayLoadByPointInstruction ArrayLoadByPoint(int result, int arrayRef, int pointIndex, TypeReference declaredType) {
+        return new ArrayLoadByPointInstruction(result, arrayRef, pointIndex, declaredType);
+      }
+
+      public ArrayStoreByIndexInstruction ArrayStoreByIndex(int arrayRef, int[] indices, int value, TypeReference declaredType) {
+        return new ArrayStoreByIndexInstruction(arrayRef, indices, value, declaredType);
+      }
+
+      public ArrayStoreByPointInstruction ArrayStoreByPoint(int arrayRef, int pointIndex, int value,
+                                                               TypeReference declaredType) {
+        return new ArrayStoreByPointInstruction(arrayRef, pointIndex, value, declaredType);
+      }
+
+      public AsyncInvokeInstruction AsyncInvoke(int result, int[] params, int exception, CallSiteReference site,
+                                                int[] clocks) {
+        return new AsyncInvokeInstruction(result, params, exception, site, clocks);
+      }
+
+      public AsyncInvokeInstruction AsyncInvoke(int[] params, int exception, CallSiteReference site, int[] clocks) {
+        return new AsyncInvokeInstruction(params, exception, site, clocks);
+      }
+
+      public AsyncInvokeInstruction AsyncInvoke(int[] results, int[] params, int exception, Access[] lexicalReads,
+                                                Access[] lexicalWrites, CallSiteReference csr) {
+        return new AsyncInvokeInstruction(results, params, exception, lexicalReads, lexicalWrites, csr);
+      }
+
+      public AtomicInstruction Atomic(boolean isEnter) {
+        return new AtomicInstruction(isEnter);
+      }
+
+      public FinishInstruction Finish(boolean isEnter) {
+        return new FinishInstruction(isEnter);
+      }
+      
+      public NextInstruction Next() {
+          return new NextInstruction();
+        }
+
+      public HereInstruction Here(int retValue) {
+        return new HereInstruction(retValue);
+      }
+
+      public PlaceOfPointInstruction PlaceOfPoint(int hasNextValue, int regionIter) {
+        return new PlaceOfPointInstruction(hasNextValue, regionIter);
+      }
+
+      public RegionIterHasNextInstruction RegionIterHasNext(int hasNextValue, int regionIter) {
+        return new RegionIterHasNextInstruction(hasNextValue, regionIter);
+      }
+
+      public RegionIterInitInstruction RegionIterInit(int iterVal, int regionVal) {
+        return new RegionIterInitInstruction(iterVal, regionVal);
+      }
+
+      public RegionIterNextInstruction RegionIterNext(int nextValue, int regionIter) {
+        return new RegionIterNextInstruction(nextValue, regionIter);
+      }
+
+      public TupleInstruction Tuple(int retValue, int[] slotValues) {
+        return new TupleInstruction(retValue, slotValues);
+      }
+      
+      public AtStmtInstruction AtStmt(final boolean isEnter) {
+        return new AtStmtInstruction(isEnter);
+      }
+      
+    }
+
+    private static final InstructionFactory insts = new InstructionFactory();
+
+    public InstructionFactory getInstructionFactory() {
+        return insts;
     }
 }
