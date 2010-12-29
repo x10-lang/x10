@@ -26,6 +26,13 @@ public class X10LanguageImpl extends LanguageImpl implements BytecodeLanguage {
   public static TypeReference X10LangObject =
     TypeReference.findOrCreate(X10SourceLoaderImpl.X10SourceLoader, "Lx10/lang/Object");
 
+  public static TypeReference X10LangAny =
+      TypeReference.findOrCreate(X10SourceLoaderImpl.X10SourceLoader, "Lx10/lang/Any");
+
+
+  public static TypeReference X10LangIterator =
+      TypeReference.findOrCreate(X10SourceLoaderImpl.X10SourceLoader, "Lx10/lang/Iterator");
+
   public final static TypeReference x10ArrayPoint =
     TypeReference.findOrCreate(X10SourceLoaderImpl.X10SourceLoader, "Lx10/array/Point");
 
