@@ -1090,6 +1090,18 @@ public class X10ClassHierarchy implements IClassHierarchy {
     return result.isPrimitiveType() ? null : lookupClass(result);
   }
 
+
+  /**
+   * @return a ClassHierarchy object representing the analysis scope
+   * @throws ClassHierarchyException
+   */
+  public static X10ClassHierarchy make(AnalysisScope scope) throws ClassHierarchyException {
+    if (scope == null) {
+      throw new IllegalArgumentException("null scope");
+    }
+    return make(scope, new ClassLoaderFactoryImpl(scope.getExclusions()));
+  }
+
   public static X10ClassHierarchy make(AnalysisScope scope, ClassLoaderFactory factory) throws ClassHierarchyException {
     if (scope == null) {
       throw new IllegalArgumentException("null scope");

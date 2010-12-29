@@ -2,13 +2,11 @@ package x10.wala.client;
 
 import java.io.IOException;
 
-import x10.wala.classLoader.X10ClassLoaderFactoryImpl;
 import x10.wala.client.impl.X10ZeroXCFABuilderFactory;
 import x10.wala.ipa.callgraph.X10SourceAnalysisScope;
 import x10.wala.ipa.cha.X10ClassHierarchy;
 
 import com.ibm.wala.cast.ir.ssa.AstIRFactory;
-import com.ibm.wala.classLoader.ClassLoaderFactory;
 import com.ibm.wala.ipa.callgraph.AnalysisCache;
 import com.ibm.wala.ipa.callgraph.AnalysisOptions;
 import com.ibm.wala.ipa.callgraph.AnalysisScope;
@@ -34,8 +32,7 @@ public class X10SourceAnalysisEngine {
 
     public X10SourceAnalysisEngine() {
         try {
-            AnalysisScope scope = new X10SourceAnalysisScope();
-            cha = X10ClassHierarchy.make(scope, new X10ClassLoaderFactoryImpl(scope.getExclusions()));
+            cha = X10ClassHierarchy.make(new X10SourceAnalysisScope());
         } catch (ClassHierarchyException e) {
             System.err.println("Class Hierarchy construction failed");
         }
