@@ -13,7 +13,7 @@ import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.InitializerDef;
 import polyglot.types.MethodDef;
-import polyglot.types.MethodInstance;
+
 import polyglot.types.Name;
 import polyglot.types.SemanticException;
 import polyglot.types.ContainerType;
@@ -43,7 +43,7 @@ import polyglot.types.Context;
 import x10.types.ConstrainedType;
 import x10.types.X10FieldInstance;
 
-import x10.types.X10MethodInstance;
+import x10.types.MethodInstance;
 import x10.types.X10TypeSystem_c;
 import polyglot.types.TypeSystem;
 import x10.types.XTypeTranslator;

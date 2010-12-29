@@ -69,7 +69,7 @@ import x10.constraint.XFailure;
 import x10.constraint.XTerm;
 import x10.types.ConstrainedType;
 import x10.types.X10FieldInstance;
-import x10.types.X10MethodInstance;
+import x10.types.MethodInstance;
 import x10.types.X10TypeSystem_c;
 import x10.types.checker.Converter;
 import x10.types.constraints.CConstraint;

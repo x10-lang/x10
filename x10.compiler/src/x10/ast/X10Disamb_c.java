@@ -31,7 +31,6 @@ import polyglot.types.FieldDef;
 import polyglot.types.FieldInstance;
 import polyglot.types.LocalInstance;
 import polyglot.types.MemberInstance;
-import polyglot.types.MethodInstance;
 import polyglot.types.Named;
 import polyglot.types.NoClassException;
 import polyglot.types.Package;
@@ -50,7 +49,7 @@ import x10.types.X10ClassType;
 import polyglot.types.Context;
 import x10.types.X10FieldInstance;
 
-import x10.types.X10MethodInstance;
+import x10.types.MethodInstance;
 
 import polyglot.types.TypeSystem;
 import polyglot.types.TypeSystem_c;
@@ -135,7 +134,7 @@ public class X10Disamb_c extends Disamb_c {
 
 	    		// Now try 0-ary property methods.
 	    		try {
-	    		    X10MethodInstance mi = ts.findMethod(t, ts.MethodMatcher(t, this.name.id(), Collections.<Type>emptyList(), c));
+	    		    MethodInstance mi = ts.findMethod(t, ts.MethodMatcher(t, this.name.id(), Collections.<Type>emptyList(), c));
 	    		    if (mi.flags().isProperty()) {
 	    		        Call call = nf.Call(pos, makeMissingPropertyTarget(mi, t), this.name);
 	    		        call = call.methodInstance(mi);
@@ -180,7 +179,7 @@ public class X10Disamb_c extends Disamb_c {
     		
     		// Now try 0-ary property methods.
     		try {
-    		    X10MethodInstance mi = (X10MethodInstance) c.findMethod(ts.MethodMatcher(null, name.id(), Collections.<Type>emptyList(), c));
+    		    MethodInstance mi =  c.findMethod(ts.MethodMatcher(null, name.id(), Collections.<Type>emptyList(), c));
     		    if (mi.flags().isProperty()) {
     			Call call = nf.Call(pos, makeMissingMethodTarget(mi), this.name);
     			call = call.methodInstance(mi);
@@ -285,7 +284,7 @@ public class X10Disamb_c extends Disamb_c {
 		    }
 		    // Now try 0-ary property methods.
 		    try {
-			X10MethodInstance mi = (X10MethodInstance) ts.findMethod(e.type(), ts.MethodMatcher(e.type(), name.id(), Collections.<Type>emptyList(), c));
+			MethodInstance mi = (MethodInstance) ts.findMethod(e.type(), ts.MethodMatcher(e.type(), name.id(), Collections.<Type>emptyList(), c));
 			if (mi.flags().isProperty()) {
 			    Call call = nf.Call(pos, e, this.name);
 			    call = call.methodInstance(mi);

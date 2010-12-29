@@ -69,7 +69,7 @@ import x10.constraint.XTerm;
 import x10.types.ConstrainedType;
 import x10.types.X10FieldInstance;
 import x10.types.X10LocalDef;
-import x10.types.X10MethodInstance;
+import x10.types.MethodInstance;
 import x10.types.checker.Converter;
 import x10.types.constraints.CConstraint;
 import x10.visit.ConstantPropagator;
@@ -622,7 +622,7 @@ public class AltSynthesizer extends ContextVisitor {
      * TODO: move to Synthesizer
      */
     public X10Call createStaticCall(Position pos, Type container, Name name, Expr... args) {
-        X10MethodInstance mi = createMethodInstance(container, name, args);
+        MethodInstance mi = createMethodInstance(container, name, args);
         if (null == mi) return null;
         return createStaticCall(pos, mi, args);
     }
@@ -641,7 +641,7 @@ public class AltSynthesizer extends ContextVisitor {
      * TODO: move to Synthesizer
      */
     public X10Call createStaticCall(Position pos, Type container, Name name, List<Type> typeArgs, Expr... args) {
-        X10MethodInstance mi = createMethodInstance(container, name, typeArgs, args);
+        MethodInstance mi = createMethodInstance(container, name, typeArgs, args);
         if (null == mi) return null;
         return createStaticCall(pos, mi, args);
     }
@@ -656,7 +656,7 @@ public class AltSynthesizer extends ContextVisitor {
      * @return the synthesized Call to the specified method taking the prescribed arguments
      * TODO: move to Synthesizer
      */
-    public X10Call createStaticCall(Position pos, X10MethodInstance mi, Expr... args) {
+    public X10Call createStaticCall(Position pos, MethodInstance mi, Expr... args) {
         List<Type> typeParams = mi.typeParameters();
         List<TypeNode> typeParamNodes = new ArrayList<TypeNode>();
         for (Type t : typeParams) {
@@ -681,7 +681,7 @@ public class AltSynthesizer extends ContextVisitor {
      * TODO: move to Synthesizer
      */
     public X10Call createInstanceCall(Position pos, Expr receiver, Name name, Expr... args) {
-        X10MethodInstance mi = createMethodInstance(receiver, name, args);
+        MethodInstance mi = createMethodInstance(receiver, name, args);
         if (null == mi) return null;
         return createInstanceCall(pos, receiver, mi, args);
     }
@@ -700,7 +700,7 @@ public class AltSynthesizer extends ContextVisitor {
      * TODO: move to Synthesizer 
      */
     public X10Call createInstanceCall(Position pos, Expr receiver, Name name, List<Type> typeArgs, Expr... args) {
-        X10MethodInstance mi = createMethodInstance(receiver, name, typeArgs, args);
+        MethodInstance mi = createMethodInstance(receiver, name, typeArgs, args);
         if (null == mi) return null;
         return createInstanceCall(pos, receiver, mi, args);
     }
@@ -717,7 +717,7 @@ public class AltSynthesizer extends ContextVisitor {
      * or null if no such method
      * TODO: move to Synthesizer 
      */
-    public X10Call createInstanceCall(Position pos, Expr receiver, X10MethodInstance mi, Expr... args) {
+    public X10Call createInstanceCall(Position pos, Expr receiver, MethodInstance mi, Expr... args) {
         List<Type> typeParams = mi.typeParameters();
         List<TypeNode> typeParamNodes = new ArrayList<TypeNode>();
         for (Type t : typeParams) {
@@ -743,7 +743,7 @@ public class AltSynthesizer extends ContextVisitor {
      * @throws InternalCompilerError if the required method instance cannot be created
      * TODO: move to a type system helper class
      */
-    public X10MethodInstance createMethodInstance(Type container, Name name, List<Type> typeArgs, Expr... args) {
+    public MethodInstance createMethodInstance(Type container, Name name, List<Type> typeArgs, Expr... args) {
         List<Type> argTypes = getExprTypes(args);
         return createMethodInstance(container, name, typeArgs, argTypes);
     }
@@ -755,7 +755,7 @@ public class AltSynthesizer extends ContextVisitor {
      * @param argTypes
      * @return
      */
-    public X10MethodInstance createMethodInstance(Type container, Name name, List<Type> typeArgs, List<Type> argTypes) {
+    public MethodInstance createMethodInstance(Type container, Name name, List<Type> typeArgs, List<Type> argTypes) {
         return createMethodInstance(container, name, typeArgs, argTypes, context());
     }
 
@@ -768,7 +768,7 @@ public class AltSynthesizer extends ContextVisitor {
      * @param context
      * @return
      */
-    public X10MethodInstance createMethodInstance(Type container, Name name, List<Type> typeArgs, List<Type> argTypes, Context context) {
+    public MethodInstance createMethodInstance(Type container, Name name, List<Type> typeArgs, List<Type> argTypes, Context context) {
         try {
             return ts.findMethod(container, ts.MethodMatcher(container, name, typeArgs, argTypes, context));
         } catch (SemanticException e) {
@@ -786,7 +786,7 @@ public class AltSynthesizer extends ContextVisitor {
      * throws InternalCompilerError if the required method instance cannot be created
      * TODO: move to a type system helper class
      */
-    public X10MethodInstance createMethodInstance(Type container, Name name, Expr... args) {
+    public MethodInstance createMethodInstance(Type container, Name name, Expr... args) {
         List<Type> argTypes = getExprTypes(args);
         try {
             return ts.findMethod(container, ts.MethodMatcher(container, name, argTypes, context()) );
@@ -806,7 +806,7 @@ public class AltSynthesizer extends ContextVisitor {
      * @throws InternalCompilerError if the required method instance cannot be created
      * TODO: move to a type system helper class
      */
-    public X10MethodInstance createMethodInstance(Expr receiver, Name name, List<Type> typeArgs, Expr... args) {
+    public MethodInstance createMethodInstance(Expr receiver, Name name, List<Type> typeArgs, Expr... args) {
         return createMethodInstance(receiver.type(), name, typeArgs, args);
     }
 
@@ -820,7 +820,7 @@ public class AltSynthesizer extends ContextVisitor {
      * throws InternalCompilerError if the required method instance cannot be created
      * TODO: move to a type system helper class
      */
-    public X10MethodInstance createMethodInstance(Expr receiver, Name name, Expr... args) {
+    public MethodInstance createMethodInstance(Expr receiver, Name name, Expr... args) {
         return createMethodInstance(receiver.type(), name, args);
     }
 

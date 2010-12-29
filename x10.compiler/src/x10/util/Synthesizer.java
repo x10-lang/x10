@@ -54,7 +54,6 @@ import polyglot.types.Flags;
 import polyglot.types.LocalDef;
 import polyglot.types.LocalInstance;
 import polyglot.types.MethodDef;
-import polyglot.types.MethodInstance;
 import polyglot.types.Name;
 import polyglot.types.QName;
 import polyglot.types.Ref;
@@ -93,7 +92,7 @@ import x10.types.X10Def;
 import x10.types.X10FieldInstance;
 
 import x10.types.X10MethodDef;
-import x10.types.X10MethodInstance;
+import x10.types.MethodInstance;
 import polyglot.types.TypeSystem;
 import x10.types.X10TypeSystem_c;
 import x10.types.X10LocalDef;
@@ -429,9 +428,9 @@ public class Synthesizer {
 	        assert (lhs instanceof X10Call);
 	        X10Call call = (X10Call) lhs;
 	        Receiver target = call.target();
-	        X10MethodInstance ami = call.methodInstance();
+	        MethodInstance ami = call.methodInstance();
 	        List<Type> argTypes = CollectionUtil.append(Collections.singletonList(ami.returnType()), ami.formalTypes());
-	        X10MethodInstance smi = xts.findMethod(target.type(),
+	        MethodInstance smi = xts.findMethod(target.type(),
 	                xts.MethodMatcher(target.type(), SettableAssign.SET, argTypes, xc));
 	        a = ((SettableAssign) a).methodInstance(smi);
 	        a = ((SettableAssign) a).applyMethodInstance(ami);

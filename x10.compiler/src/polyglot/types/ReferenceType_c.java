@@ -10,6 +10,7 @@ package polyglot.types;
 import java.util.*;
 
 import polyglot.util.Position;
+import x10.types.MethodInstance;
 
 /**
  * A <code>ReferenceType</code> represents a reference type --
@@ -92,8 +93,7 @@ public abstract class ReferenceType_c extends Type_c implements ObjectType
     public List<MethodInstance> methodsNamed(Name name) {
         List<MethodInstance> l = new ArrayList<MethodInstance>();
 
-        for (Iterator<MethodInstance> i = methods().iterator(); i.hasNext(); ) {
-            MethodInstance mi = (MethodInstance) i.next();
+        for (MethodInstance mi : methods()) {
             if (mi.name().equals(name)) {
                 l.add(mi);
             }
@@ -105,13 +105,11 @@ public abstract class ReferenceType_c extends Type_c implements ObjectType
     public List<MethodInstance> methods(Name name, List<Type> argTypes, Context context) {
         List<MethodInstance> l = new ArrayList<MethodInstance>();
 
-        for (Iterator<MethodInstance> i = methodsNamed(name).iterator(); i.hasNext(); ) {
-            MethodInstance mi = (MethodInstance) i.next();
+        for (MethodInstance mi : methodsNamed(name)) {
             if (mi.hasFormals(argTypes, context)) {
                 l.add(mi);
             }
         }
-
         return l;
     }
 }

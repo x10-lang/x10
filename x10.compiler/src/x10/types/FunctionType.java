@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import polyglot.types.LocalInstance;
-import polyglot.types.MethodInstance;
+
 import polyglot.types.Ref;
 import polyglot.types.Type;
 import x10.constraint.XConstraint;
@@ -31,7 +31,7 @@ public interface FunctionType extends X10ParsedClassType {
 //    ClosureInstance closureInstance();
 //    ClosureType closureInstance(ClosureInstance ci);
     
-    X10MethodInstance applyMethod();
+    MethodInstance applyMethod();
 
     /**
      * @return the type of value returned by an invocation of the closure. cannot be void.

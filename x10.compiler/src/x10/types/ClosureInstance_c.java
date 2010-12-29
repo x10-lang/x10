@@ -33,7 +33,7 @@ import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.Transformation;
 import polyglot.util.TransformingList;
-import x10.types.X10MethodInstance_c.NoClauseVariant;
+import x10.types.MethodInstance_c.NoClauseVariant;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
 

@@ -34,7 +34,7 @@ import x10.ast.X10Loop.LoopKind;
 import x10.errors.Errors;
 import polyglot.types.Context;
 
-import x10.types.X10MethodInstance;
+import x10.types.MethodInstance;
 import polyglot.types.TypeSystem;
 import x10.types.checker.Checker;
 import x10.types.checker.PlaceChecker;
@@ -81,7 +81,7 @@ public class ForLoop_c extends X10Loop_c implements ForLoop {
 	    X10Loop result = (X10Loop) super.typeCheck(tc);
 	    TypeSystem xts = (TypeSystem) tc.typeSystem();
 	    // TODO: generate a cast if STATIC_CALLS is off
-	    X10MethodInstance mi = null;
+	    MethodInstance mi = null;
 	    Expr domain = result.domain();
 	    mi = Checker.findAppropriateMethod(tc, domain.type(), ITERATOR, Collections.<Type>emptyList(), Collections.<Type>emptyList());
 	    assert (mi != null);

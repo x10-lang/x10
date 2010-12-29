@@ -31,7 +31,7 @@ import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
 import polyglot.visit.Translator;
 import x10.errors.Errors;
-import x10.types.X10MethodInstance;
+import x10.types.MethodInstance;
 import polyglot.types.TypeSystem;
 import x10.types.checker.Checker;
 
@@ -119,7 +119,7 @@ public class Contains_c extends Expr_c implements Contains {
 		List<Type> args = Collections.singletonList(itemType);
 		Context context = tc.context();
 		ClassDef curr = context.currentClassDef();
-		X10MethodInstance mi = Checker.findAppropriateMethod(tc, collType, CONTAINS, Collections.<Type>emptyList(), args);
+		MethodInstance mi = Checker.findAppropriateMethod(tc, collType, CONTAINS, Collections.<Type>emptyList(), args);
 
 /*
 		if (itemType.isImplicitCastValid(ts.Point()) && collType.isImplicitCastValid(ts.Region()))

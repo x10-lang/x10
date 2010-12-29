@@ -61,7 +61,6 @@ import polyglot.types.LocalDef;
 import polyglot.types.MemberDef;
 import polyglot.types.MemberInstance;
 import polyglot.types.MethodDef;
-import polyglot.types.MethodInstance;
 import polyglot.types.Name;
 import polyglot.types.Package;
 import polyglot.types.QName;
@@ -108,7 +107,7 @@ import polyglot.types.Context;
 
 import x10.types.X10MemberDef;
 import x10.types.X10MethodDef;
-import x10.types.X10MethodInstance;
+import x10.types.MethodInstance;
 import x10.types.X10ParsedClassType_c;
 import x10.types.X10ProcedureDef;
 import x10.types.X10TypeEnv_c;
@@ -635,7 +634,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 		TypeSystem xts = (TypeSystem) tc.typeSystem();
 
 		if (mi.flags().isProperty()) {
-			X10MethodInstance xmi = (X10MethodInstance) mi.asInstance();
+			MethodInstance xmi = (MethodInstance) mi.asInstance();
 			if (xmi.guard() != null && ! xmi.guard().valid())
 				Errors.issue(tc.job(),
 				        new SemanticException("A property method cannot have a guard.", guard != null ? guard.position() : position()));

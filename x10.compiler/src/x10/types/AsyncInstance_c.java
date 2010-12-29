@@ -20,7 +20,7 @@ import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.util.Position;
 
-public class AsyncInstance_c extends X10MethodInstance_c implements AsyncInstance {
+public class AsyncInstance_c extends MethodInstance_c implements AsyncInstance {
     private static final long serialVersionUID = 8978058925652253461L;
 
     public AsyncInstance_c(TypeSystem ts, Position pos, Ref<? extends AsyncDef> def) {

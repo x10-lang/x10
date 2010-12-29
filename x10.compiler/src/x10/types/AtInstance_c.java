@@ -20,7 +20,7 @@ import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.util.Position;
 
-public class AtInstance_c extends X10MethodInstance_c implements AtInstance {
+public class AtInstance_c extends MethodInstance_c implements AtInstance {
     private static final long serialVersionUID = 107893706880034330L;
 
     public AtInstance_c(TypeSystem ts, Position pos, Ref<? extends AtDef> def) {

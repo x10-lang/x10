@@ -33,7 +33,7 @@ import polyglot.types.Flags;
 import polyglot.types.LocalDef;
 import polyglot.types.Matcher;
 import polyglot.types.MethodDef;
-import polyglot.types.MethodInstance;
+
 import polyglot.types.Name;
 import polyglot.types.Named;
 import polyglot.types.ProcedureDef;
@@ -69,7 +69,7 @@ import x10.types.X10ClassType;
 import polyglot.types.Context;
 
 import x10.types.X10MemberDef;
-import x10.types.X10MethodInstance;
+import x10.types.MethodInstance;
 import x10.types.X10ProcedureInstance;
 import polyglot.types.TypeSystem;
 import x10.types.X10TypeSystem_c;
@@ -141,7 +141,7 @@ public class Checker {
 	        Binary bin = (Binary) nf.Binary(n.position(), n.left(), bop, right);
 	        Call c = X10Binary_c.desugarBinaryOp(bin, tc);
 	        if (c != null) {
-	            X10MethodInstance mi = (X10MethodInstance) c.methodInstance();
+	            MethodInstance mi = (MethodInstance) c.methodInstance();
 	            if (mi.error() != null)
 	                Errors.issue(tc.job(), mi.error(), n);
 	            t = c.type();
@@ -257,7 +257,7 @@ public class Checker {
 
 	public static Type expandCall(Type type, Call t,  Context c) throws SemanticException {
 		Context xc = (Context) c;
-		X10MethodInstance xmi = (X10MethodInstance) t.methodInstance();
+		MethodInstance xmi = (MethodInstance) t.methodInstance();
 		XTypeTranslator xt = ((TypeSystem) type.typeSystem()).xtypeTranslator();
 		Flags f = xmi.flags();
 		XTerm body = null;
@@ -379,10 +379,10 @@ public class Checker {
 	 * @param actualTypes
 	 * @return
 	 */
-	public static X10MethodInstance findAppropriateMethod(ContextVisitor tc, Type targetType,
+	public static MethodInstance findAppropriateMethod(ContextVisitor tc, Type targetType,
 	        Name name, List<Type> typeArgs, List<Type> actualTypes)
 	{
-	    X10MethodInstance mi;
+	    MethodInstance mi;
 	    X10TypeSystem_c xts = (X10TypeSystem_c) tc.typeSystem();
 	    Context context = tc.context();
 	    boolean haveUnknown = xts.hasUnknown(targetType);
@@ -398,7 +398,7 @@ public class Checker {
 	        }
 	    }
 	    // If not returned yet, fake the method instance.
-	    Collection<X10MethodInstance> mis = null;
+	    Collection<MethodInstance> mis = null;
 	    try {
 	        mis = xts.findMethods(targetType, xts.MethodMatcher(targetType, name, typeArgs, actualTypes, context));
 	    } catch (SemanticException e) {
@@ -407,7 +407,7 @@ public class Checker {
 	    // See if all matches have the same return type, and save that to avoid losing information.
 	    Type rt = null;
 	    if (mis != null) {
-	        for (X10MethodInstance xmi : mis) {
+	        for (MethodInstance xmi : mis) {
 	            if (rt == null) {
 	                rt = xmi.returnType();
 	            } else if (!xts.typeEquals(rt, xmi.returnType(), context)) {
@@ -467,7 +467,7 @@ public class Checker {
 	 */
 	public static Pair<MethodInstance,List<Expr>> findMethod(ContextVisitor tc, X10ProcedureCall n,
 	        Type targetType, Name name, List<Type> typeArgs, List<Type> actualTypes) {
-	    X10MethodInstance mi;
+	    MethodInstance mi;
 	    X10TypeSystem_c xts = (X10TypeSystem_c) tc.typeSystem();
 	    Context context = (Context) tc.context();
 	    boolean haveUnknown = xts.hasUnknown(targetType);
@@ -481,7 +481,7 @@ public class Checker {
 	        error = e;
 	    }
 	    // If not returned yet, fake the method instance.
-	    Collection<X10MethodInstance> mis = null;
+	    Collection<MethodInstance> mis = null;
 	    try {
 	        mis = Checker.findMethods(tc, targetType, name, typeArgs, actualTypes);
 	    } catch (SemanticException e) {
@@ -490,7 +490,7 @@ public class Checker {
 	    // See if all matches have the same return type, and save that to avoid losing information.
 	    Type rt = null;
 	    if (mis != null) {
-	        for (X10MethodInstance xmi : mis) {
+	        for (MethodInstance xmi : mis) {
 	            if (rt == null) {
 	                rt = xmi.returnType();
 	            } else if (!xts.typeEquals(rt, xmi.returnType(), context)) {
@@ -523,7 +523,7 @@ public class Checker {
 	        X10ProcedureCall n, Type targetType, Name name, List<Type> typeArgs,
 			List<Type> argTypes, boolean requireStatic) throws SemanticException {
 	
-	    X10MethodInstance mi = null;
+	    MethodInstance mi = null;
 	    TypeSystem xts = (TypeSystem) tc.typeSystem();
 	    if (targetType != null) {
 	        mi = xts.findMethod(targetType, xts.MethodMatcher(targetType, name, typeArgs, argTypes, xc));
@@ -582,7 +582,7 @@ public class Checker {
 	    throw new Errors.MethodOrStaticConstructorNotFound(matcher, n.position());
 	}
 
-	public static Collection<X10MethodInstance> findMethods(ContextVisitor tc, Type targetType, Name name, List<Type> typeArgs,
+	public static Collection<MethodInstance> findMethods(ContextVisitor tc, Type targetType, Name name, List<Type> typeArgs,
 	        List<Type> actualTypes) throws SemanticException {
 	    X10TypeSystem_c xts = (X10TypeSystem_c) tc.typeSystem();
 	    Context context = (Context) tc.context();

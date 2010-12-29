@@ -60,7 +60,7 @@ import x10.types.FunctionType;
 import polyglot.types.Context;
 import x10.types.X10LocalDef;
 import x10.types.X10LocalInstance;
-import x10.types.X10MethodInstance;
+import x10.types.MethodInstance;
 import x10.types.X10ParsedClassType_c;
 
 import x10.types.X10TypeMixin;
@@ -208,7 +208,7 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 
 	                    try {
 	                        // Find the most-specific function type.
-	                        X10MethodInstance mi = ts.findMethod(containerType, 
+	                        MethodInstance mi = ts.findMethod(containerType, 
 	                                ts.MethodMatcher(containerType, ClosureCall.APPLY, 
 	                                        Collections.<Type>emptyList(), actualTypes, context));
 	                        indexType = mi.returnType();

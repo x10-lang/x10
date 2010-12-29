@@ -23,7 +23,7 @@ import polyglot.types.Flags;
 import polyglot.types.LocalDef;
 import polyglot.types.LocalInstance;
 import polyglot.types.MemberInstance;
-import polyglot.types.MethodInstance;
+
 import polyglot.types.ObjectType;
 import polyglot.types.Package;
 import polyglot.types.ProcedureInstance;

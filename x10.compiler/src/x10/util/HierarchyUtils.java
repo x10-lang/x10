@@ -18,12 +18,12 @@ import java.util.Set;
 import polyglot.types.ClassType;
 import polyglot.types.Context;
 import polyglot.types.Flags;
-import polyglot.types.MethodInstance;
+
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import x10.types.X10ClassType;
 import x10.types.X10MethodDef;
-import x10.types.X10MethodInstance;
+import x10.types.MethodInstance;
 
 public class HierarchyUtils {
 
@@ -107,7 +107,7 @@ public class HierarchyUtils {
 	    return isMainMethod(md.asInstance(), context);
 	}
 
-	public static boolean isMainMethod(X10MethodInstance mi, Context context) {
+	public static boolean isMainMethod(MethodInstance mi, Context context) {
 	    final TypeSystem ts = mi.typeSystem();
 	    X10ClassType container = (X10ClassType) mi.container();
 	    boolean result =

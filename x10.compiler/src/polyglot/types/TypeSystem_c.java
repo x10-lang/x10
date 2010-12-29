@@ -10,15 +10,29 @@ package polyglot.types;
 import java.lang.reflect.Modifier;
 import java.util.*;
 
+import polyglot.ast.Id;
+import polyglot.ast.NodeFactory;
+import polyglot.ast.TypeNode;
 import polyglot.frontend.*;
 import polyglot.main.Report;
 import polyglot.types.reflect.ClassFile;
 import polyglot.types.reflect.ClassFileLazyClassInitializer;
 import polyglot.util.*;
+import polyglot.visit.ContextVisitor;
+import polyglot.visit.TypeBuilder;
+import x10.parser.X10ParsedName;
 import x10.types.X10ClassDef_c;
 import x10.types.X10ClassDef;
+import x10.types.X10ClassType;
+import x10.types.X10ConstructorInstance;
+import x10.types.X10FieldInstance;
+import x10.types.MethodInstance;
 import x10.types.X10ParsedClassType;
+import x10.types.constraints.CConstraint;
+import x10.types.matcher.X10ConstructorMatcher;
 import x10.types.matcher.X10FieldMatcher;
+import x10.types.matcher.X10MethodMatcher;
+import x10.visit.X10TypeBuilder;
 
 /**
  * TypeSystem_c
@@ -631,6 +645,9 @@ public abstract class TypeSystem_c implements TypeSystem
 	return env(context).isSubtype(t1, t2);
     }
 
+    public boolean isSubtype(Type t1, Type t2) {
+        return isSubtype(t1, t2, emptyContext());
+    }
     ////
     // Functions for type membership.
     ////
@@ -700,41 +717,61 @@ public abstract class TypeSystem_c implements TypeSystem
      * into container, checking if the methods are accessible from the
      * body of currClass
      */
+    
     public boolean hasMethodNamed(Type container, Name name) {
-	assert_(container);
+    	if (container != null)
+    		container = Types.baseType(container);
 
-	if (container == null) {
-	    throw new InternalCompilerError("Cannot access method \"" + name +
-	    "\" within a null container type.");
-	}
+    	// HACK: use the def rather than the type to avoid gratuitous
+    	// reinstantiation of methods.
+    	if (container instanceof ClassType) {
+    		ClassType ct = (ClassType) container;
+    		for (MethodDef md : ct.def().methods()) {
+    			if (md.name().equals(name))
+    				return true;
+    		}
+    		Type superType = Types.get(ct.def().superType());
+    		if (superType != null && hasMethodNamed(superType, name))
+    			return true;
+    		for (Ref<? extends Type> tref : ct.def().interfaces()) {
+    			Type ti = Types.get(tref);
+    			if (ti != null && hasMethodNamed(ti, name))
+    				return true;
+    		}
+    	}
 
-	if (container instanceof ContainerType) {
-	    if (! ((ContainerType) container).methodsNamed(name).isEmpty()) {
-		return true;
-	    }
-	}
+    	if (container == null) {
+    		throw new InternalCompilerError("Cannot access method \"" + name +
+    		"\" within a null container type.");
+    	}
 
-	if (container instanceof ObjectType) {
-	    ObjectType ot = (ObjectType) container;
-	    if (ot.superClass() != null && ot.superClass() instanceof ContainerType) {
-		if (hasMethodNamed((ContainerType) ot.superClass(), name)) {
-		    return true;
-		}
-	    }
+    	if (container instanceof ContainerType) {
+    		if (! ((ContainerType) container).methodsNamed(name).isEmpty()) {
+    			return true;
+    		}
+    	}
 
-	    for (Type it : ot.interfaces()) {
-		if (it instanceof ContainerType) {
-		    if (hasMethodNamed((ContainerType) it, name)) {
-			return true;
-		    }
-		}
-	    }
-	}
+    	if (container instanceof ObjectType) {
+    		ObjectType ot = (ObjectType) container;
+    		if (ot.superClass() != null && ot.superClass() instanceof ContainerType) {
+    			if (hasMethodNamed((ContainerType) ot.superClass(), name)) {
+    				return true;
+    			}
+    		}
 
-	return false;
+    		for (Type it : ot.interfaces()) {
+    			if (it instanceof ContainerType) {
+    				if (hasMethodNamed((ContainerType) it, name)) {
+    					return true;
+    				}
+    			}
+    		}
+    	}
+
+    	return false;
     }
 
-    public static class ConstructorMatcher extends BaseMatcher<ConstructorInstance> {
+    public static abstract class ConstructorMatcher extends BaseMatcher<ConstructorInstance> {
 	protected Type container;
 	protected List<Type> argTypes;
 	protected Context context;
@@ -786,7 +823,7 @@ public abstract class TypeSystem_c implements TypeSystem
 	}
     }
 
-    public static class MethodMatcher extends BaseMatcher<MethodInstance> implements Copy {
+    public abstract static class MethodMatcher extends BaseMatcher<MethodInstance> implements Copy {
 	protected Type container;
 	protected Name name;
 	protected List<Type> argTypes;
@@ -857,7 +894,7 @@ public abstract class TypeSystem_c implements TypeSystem
 	}
     }
 
-    public static class FieldMatcher extends BaseMatcher<FieldInstance> implements Copy {
+    public abstract static class FieldMatcher extends BaseMatcher<FieldInstance> implements Copy {
 	protected Type container;
 	protected Name name;
 	protected Context context;
@@ -1008,17 +1045,7 @@ public abstract class TypeSystem_c implements TypeSystem
 	}
     }
 
-    public MethodMatcher MethodMatcher(Type container, Name name, List<Type> argTypes, Context context) {
-	return new MethodMatcher(container, name, argTypes, context);
-    }
 
-    public ConstructorMatcher ConstructorMatcher(Type container, List<Type> argTypes, Context context) {
-	return new ConstructorMatcher(container, argTypes, context);
-    }
-
-    public FieldMatcher FieldMatcher(Type container, Name name, Context context) {
-	return new FieldMatcher(container, name, context);
-    }
 
     public MethodInstance SUPER_findMethod(Type container, MethodMatcher matcher)
     throws SemanticException {
@@ -1043,7 +1070,7 @@ public abstract class TypeSystem_c implements TypeSystem
 	if (maximal.size() > 1) {
 	    StringBuffer sb = new StringBuffer();
 	    for (Iterator<MethodInstance> i = maximal.iterator(); i.hasNext();) {
-		MethodInstance ma = (MethodInstance) i.next();
+		MethodInstance ma =  i.next();
 		sb.append(ma.container());
 		sb.append(".");
 		sb.append(ma.signature());
@@ -1219,12 +1246,24 @@ public abstract class TypeSystem_c implements TypeSystem
 	    return 0;
 	}
     }
+    
+    public List<MethodInstance> findAcceptableMethods(Type container, MethodMatcher matcher) throws SemanticException {
 
+        List<MethodInstance> candidates = new ArrayList<MethodInstance>();
+
+        List<Type> types = env(matcher.context()).upperBounds(container, true);
+        for (Type t : types) {
+            List<MethodInstance> ms = superFindAcceptableMethods(t, matcher);
+            candidates.addAll(ms);
+        }
+
+        return candidates;
+    }
     /**
      * Populates the list acceptable with those MethodInstances which are
      * Applicable and Accessible as defined by JLS 15.11.2.1
      */
-    public List<MethodInstance> findAcceptableMethods(Type container, MethodMatcher matcher)
+    private List<MethodInstance> superFindAcceptableMethods(Type container, MethodMatcher matcher)
     throws SemanticException {
 
 	assert_(container);
@@ -1341,14 +1380,17 @@ public abstract class TypeSystem_c implements TypeSystem
 		// remove any method in acceptable that are overridden by an
 		// unacceptable
 		// method.
-		for (Iterator<MethodInstance> i = unacceptable.iterator(); i.hasNext();) {
-		    MethodInstance mi = i.next();
+		for (MethodInstance mi : unacceptable) {
 		    acceptable.removeAll(mi.overrides(context));
 		}
 	}
 
 	if (acceptable.size() == 0) {
 	    if (error == null) {
+	        if (matcher.toString().contains("equals")) {
+	            System.out.println("Golden!");
+	        }
+	            
 	    	  throw new NoMemberException(NoMemberException.METHOD,
                       "No valid method call found for call in given type."
 	+ "\n\t Call: " + matcher.signature()
@@ -1420,7 +1462,77 @@ public abstract class TypeSystem_c implements TypeSystem
 	return env(context).hasMethod(t, mi);
     }
 
+    public X10ConstructorInstance findConstructor(Type container, polyglot.types.TypeSystem_c.ConstructorMatcher matcher) throws SemanticException {
+        return (X10ConstructorInstance) SUPER_findConstructor(container, matcher);
+    }
 
+
+    public Collection<X10ConstructorInstance> findConstructors(Type container, polyglot.types.TypeSystem_c.ConstructorMatcher matcher) throws SemanticException {
+        assert_(container);
+        Context context = matcher.context();
+        List<ConstructorInstance> acceptable = findAcceptableConstructors(container, matcher);
+        if (acceptable.size() == 0) {
+            throw new NoMemberException(NoMemberException.CONSTRUCTOR,
+                                        "No valid constructor found for " + matcher.signature() + ").");
+        }
+        Collection<ConstructorInstance> maximal = findMostSpecificProcedures(acceptable, matcher, context);
+        Collection<X10ConstructorInstance> result = new ArrayList<X10ConstructorInstance>();
+        for (ConstructorInstance mi : maximal) {
+            result.add((X10ConstructorInstance) mi);
+        }
+        return result;
+    }
+
+    public MethodInstance findMethod(Type container, MethodMatcher matcher) throws SemanticException {
+        return (MethodInstance) SUPER_findMethod(container, matcher);
+    }
+    
+    public Collection<MethodInstance> findMethods(Type container, MethodMatcher matcher) throws SemanticException {
+        assert_(container);
+        Context context = matcher.context();
+        List<MethodInstance> acceptable = findAcceptableMethods(container, matcher);
+        if (acceptable.size() == 0) {
+              throw new NoMemberException(NoMemberException.METHOD,
+                      "No valid method call found for call in given type."
+                      + "\n\t Call: " + matcher.signature()
+                      + "\n\t Type: " + container);
+        }
+        Collection<MethodInstance> maximal =
+            findMostSpecificProcedures(acceptable, (Matcher<MethodInstance>) matcher, context);
+        Collection<MethodInstance> result = new ArrayList<MethodInstance>();
+        for (MethodInstance mi : maximal) {
+            result.add(mi);
+        }
+        return result;
+    }
+
+
+    public X10MethodMatcher MethodMatcher(Type container, Name name, List<Type> argTypes, Context context) {
+        return new X10MethodMatcher(container, name, argTypes, context);
+    }
+
+    public X10MethodMatcher MethodMatcher(Type container, Name name, List<Type> typeArgs, List<Type> argTypes, Context context) {
+        return new X10MethodMatcher(container, name, typeArgs, argTypes, context);
+    }
+
+    public X10ConstructorMatcher ConstructorMatcher(Type container, List<Type> argTypes, Context context) {
+        return new X10ConstructorMatcher(container, argTypes, context);
+    }
+
+    public X10ConstructorMatcher ConstructorMatcher(Type container, List<Type> typeArgs, List<Type> argTypes, Context context) {
+        return new X10ConstructorMatcher(container, typeArgs, argTypes, context);
+    }
+
+    public X10FieldMatcher FieldMatcher(Type container, Name name, Context context) {
+    	//container = X10TypeMixin.ensureSelfBound( container);
+        return new X10FieldMatcher(container, name, context);
+    }
+
+    public X10FieldMatcher FieldMatcher(Type container, boolean contextKnowsReceiver, Name name, Context context) {
+    	//container = X10TypeMixin.ensureSelfBound( container);
+        return new X10FieldMatcher(container, contextKnowsReceiver, name, context);
+    }
+    
 
     /** Return true if t overrides mi */
     public boolean hasFormals(ProcedureInstance<? extends ProcedureDef> pi, List<Type> formalTypes, Context context) {
@@ -2101,11 +2213,17 @@ public abstract class TypeSystem_c implements TypeSystem
 		    // any superclasses it may have.
 		}
 	    }
+	    // A work-around for the current transient state of the system in which
+	 	   // Object is an interface.
+	 	   if (isStructType(t)) {
+	 		   superInterfaces.remove(Object());
+	 	   }
 
 	    return superInterfaces;
 	}
 	return Collections.<Type>emptyList();
     }
+   
 
     /**
      * Assert that <code>ct</code> implements all abstract methods required;
@@ -2160,8 +2278,128 @@ public abstract class TypeSystem_c implements TypeSystem
         return Arrays.toString(res);
     }
 
+    Name homeName = Name.make("home");
+    public Name homeName() { return homeName;}
+    
     public String toString() {
 	return StringUtil.getShortNameComponent(getClass().getName()) + " created at " + creationTime;
     }
 
+    /* Not used.
+    public void existsStructWithName(Id name, ContextVisitor tc) throws SemanticException {
+   	  NodeFactory nf = (NodeFactory) tc.nodeFactory();
+  			TypeSystem ts = (TypeSystem) tc.typeSystem();
+  			Context c = tc.context();
+  			TypeBuilder tb = new X10TypeBuilder(tc.job(),  ts, nf);
+  			// First, try to determine if there in fact a struct in scope with the given name.
+  			TypeNode otn = new X10ParsedName(nf, ts, Position.COMPILER_GENERATED, name).toType();//
+  			//	nf.AmbDepTypeNode(position(), null, name(), typeArguments, Collections.EMPTY_LIST, null);
+
+  			TypeNode tn = (TypeNode) otn.visit(tb);
+
+  			// First ensure that there is a type associated with tn.
+  			tn = (TypeNode) tn.disambiguate(tc);
+
+  			// ok, if we made it this far, then there is a type. Check that it is a struct.
+  			Type t = tn.type();
+  			t = ts.expandMacros(t);
+
+  			CConstraint xc = Types.xclause(t);
+  			t = Types.baseType(t);
+
+  			if (!(ts.isStructType(t))) { // bail
+  				throw new SemanticException();
+  			}
+       }
+       */
+    
+    private boolean isIn(Collection<FieldInstance> newFields, FieldInstance fi) {
+        for (FieldInstance fi2 : newFields)
+            if (fi.def()==fi2.def()) return true;
+        return false;
+   }
+    public X10FieldInstance findField(Type container, TypeSystem_c.FieldMatcher matcher)
+	throws SemanticException {
+
+
+		Context context = matcher.context();
+
+		Collection<FieldInstance> fields = findFields(container, matcher);
+
+		if (fields.size() >= 2) {
+            // if the field is defined in a class, then it will appear only once in "fields".
+            // if it is defined in an interface (then it is either a "static val" or a property such as home), then it may appear multiple times in "fields", so we need to filter duplicates.
+            // e.g.,
+//            interface I1 { static val a = 1;}
+//            interface I2 extends I1 {}
+//            interface I3 extends I1 {}
+//            interface I4 extends I2,I3 {}
+//            class Example implements I4 {
+//              def example() = a;
+//              def m(a:Example{self.home.home.home==here}) = 1;
+//            }
+			Collection<FieldInstance> newFields = new HashSet<FieldInstance>();
+			for (FieldInstance fi : fields) {
+				if ((fi.flags().isStatic())){
+                    if (!isIn(newFields,fi))
+                            newFields.add(fi);
+					continue;
+				}
+
+				if (! (fi.container().toClass().flags().isInterface())){
+					newFields.add(fi);
+				}
+
+
+			}
+			fields = newFields;
+		}
+		if (fields.size() == 0) {
+		    throw new NoMemberException(NoMemberException.FIELD,
+		                                "Field " + matcher.signature() +
+		                                " not found in type \"" +
+		                                container + "\".");
+		}
+
+		Iterator<FieldInstance> i = fields.iterator();
+		X10FieldInstance fi = (X10FieldInstance) i.next();
+
+		if (i.hasNext()) {
+		    FieldInstance fi2 = i.next();
+
+		    throw new SemanticException("Field " + matcher.signature() +
+		                                " is ambiguous; it is defined in both " +
+		                                fi.container() + " and " +
+		                                fi2.container() + ".");
+		}
+
+		if (context != null && ! isAccessible(fi, context)) {
+		    throw new SemanticException("Cannot access " + fi + ".");
+		}
+
+		return fi;
+
+   }
+    // Returns the number of bytes required to represent the type, or null if unknown (e.g. involves an address somehow)
+    // Note for rails this returns the size of 1 element, this will have to be scaled
+    // by the number of elements to get the true figure.
+    public Long size(Type t) {
+        if (t.isFloat()) return 4l;
+        if (t.isDouble()) return 8l;
+        if (t.isChar()) return 2l;
+        if (t.isByte()) return 1l;
+        if (t.isShort()) return 2l;
+        if (t.isInt()) return 4l;
+        if (t.isLong()) return 8l;
+        if (isRail(t)) {
+            X10ClassType ctyp = (X10ClassType)t;
+            assert ctyp.typeArguments().size() == 1;
+            return size(ctyp.typeArguments().get(0));
+        }
+        return null;
+    }
+    
+
+
+   
 }

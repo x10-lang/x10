@@ -37,7 +37,6 @@ import polyglot.types.Context;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
 import polyglot.types.MethodDef;
-import polyglot.types.MethodInstance;
 import polyglot.types.Name;
 import polyglot.types.QName;
 import polyglot.types.Ref;
@@ -57,7 +56,7 @@ import x10.types.ParameterType;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10MethodDef;
-import x10.types.X10MethodInstance;
+import x10.types.MethodInstance;
 import x10.types.X10ParsedClassType;
 import polyglot.types.TypeSystem;
 
@@ -308,12 +307,12 @@ public class InlineHelper extends ContextVisitor {
         if (n instanceof X10Call && x10.Configuration.INLINE_METHODS) {
             X10Call call = (X10Call) n;
             Receiver target = call.target();
-            X10MethodInstance mi = call.methodInstance();
+            MethodInstance mi = call.methodInstance();
             if (mi.flags().isPrivate() && !isSameDef(mi.container(), context.currentClass(),context) && !isSameTopLevel(mi.container(), context.currentClass(), context)) {
                 Id id = xnf.Id(pos, makePrivateBridgeName(call.name()));
                 List<Type> typeArgs;
-                if (mi instanceof X10MethodInstance) {
-                    typeArgs = ((X10MethodInstance) mi).typeParameters();
+                if (mi instanceof MethodInstance) {
+                    typeArgs = ((MethodInstance) mi).typeParameters();
                 } else {
                     typeArgs = Collections.<Type>emptyList();
                 }
@@ -351,16 +350,16 @@ public class InlineHelper extends ContextVisitor {
                 }
                 md.setTypeParameters(rts);
 
-                X10MethodInstance nmi = (X10MethodInstance) md.asInstance();
+                MethodInstance nmi = (MethodInstance) md.asInstance();
                 Type tt = Types.baseType(target.type());
                 List<Type> tas = new ArrayList<Type>();
-                if (mi instanceof X10MethodInstance) {
-                    tas.addAll(((X10MethodInstance) mi).typeParameters());
+                if (mi instanceof MethodInstance) {
+                    tas.addAll(((MethodInstance) mi).typeParameters());
                 }
                 if (!mi.flags().isStatic() && tt instanceof X10ParsedClassType) {
                     tas.addAll(((X10ParsedClassType) tt).x10Def().typeParameters());
                 }
-                nmi = (X10MethodInstance) nmi.typeParameters(tas);
+                nmi = (MethodInstance) nmi.typeParameters(tas);
 
                 if (mi.flags().isStatic()) {
                     return (X10Call) xnf.Call(pos, target, id, call.arguments()).methodInstance(nmi).type(nmi.returnType());

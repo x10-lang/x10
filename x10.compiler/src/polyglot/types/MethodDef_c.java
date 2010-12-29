@@ -12,6 +12,7 @@ import java.util.List;
 import polyglot.main.Report;
 import polyglot.util.CollectionUtil;
 import polyglot.util.Position;
+import x10.types.MethodInstance;
 
 /**
  * A <code>MethodInstance</code> represents the type information for a Java

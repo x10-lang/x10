@@ -33,7 +33,7 @@ import x10.types.X10ClassType;
 import x10.types.X10ConstructorInstance;
 import x10.types.X10FieldInstance;
 import x10.types.X10LocalInstance;
-import x10.types.X10MethodInstance;
+import x10.types.MethodInstance;
 import x10.types.X10ParsedClassType;
 import polyglot.types.TypeSystem;
 import x10.types.constraints.CConstraint;
@@ -407,7 +407,7 @@ public class Subst {
      * @return
      * @throws SemanticException 
      */
-    public static X10MethodInstance subst(X10MethodInstance mi, XTerm[] y, XVar[] x) throws SemanticException {
+    public static MethodInstance subst(MethodInstance mi, XTerm[] y, XVar[] x) throws SemanticException {
         Type returnType = mi.returnType();
         Type newReturnType = subst(returnType, y, x);
         if (newReturnType != returnType) {
@@ -420,12 +420,12 @@ public class Subst {
         }
         ContainerType ct = (ContainerType) subst(mi.container(), y, x);
         if (ct != mi.container()) {
-            mi =  (X10MethodInstance) mi.container(ct);
+            mi =  (MethodInstance) mi.container(ct);
         }
         return mi;
     }
 
-    public static X10MethodInstance subst(X10MethodInstance mi, XTerm y, XVar x) throws SemanticException {
+    public static MethodInstance subst(MethodInstance mi, XTerm y, XVar x) throws SemanticException {
         return subst(mi, new XTerm[] { y }, new XVar[] { x });
     }
 

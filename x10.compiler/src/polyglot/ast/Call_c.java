@@ -10,9 +10,32 @@ package polyglot.ast;
 
 import java.util.*;
 
-import polyglot.types.*;
-import polyglot.util.*;
-import polyglot.visit.*;
+import polyglot.types.ClassType;
+import polyglot.types.Context;
+import polyglot.types.ErrorRef_c;
+import polyglot.types.MethodDef;
+import polyglot.types.ProcedureInstance;
+import polyglot.types.ProcedureDef;
+import polyglot.types.SemanticException;
+import polyglot.types.Type;
+import polyglot.types.TypeSystem;
+import polyglot.types.Types;
+import polyglot.util.CodeWriter;
+import polyglot.util.CollectionUtil;
+import polyglot.util.InternalCompilerError;
+import polyglot.util.Position;
+import polyglot.util.TypedList;
+import polyglot.visit.AscriptionVisitor;
+import polyglot.visit.CFGBuilder;
+import polyglot.visit.ContextVisitor;
+import polyglot.visit.ExceptionChecker;
+import polyglot.visit.NodeVisitor;
+import polyglot.visit.PrettyPrinter;
+import polyglot.visit.TypeBuilder;
+
+import x10.types.MethodInstance;
+
+
 
 /**
  * A <code>Call</code> is an immutable representation of a Java

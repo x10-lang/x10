@@ -30,8 +30,8 @@ import polyglot.types.Flags;
 import polyglot.types.LazyRef;
 import polyglot.types.LazyRef_c;
 import polyglot.types.LocalInstance;
-import polyglot.types.MethodInstance;
 import polyglot.types.Name;
+import polyglot.types.Named;
 import polyglot.types.NoClassException;
 import polyglot.types.NoMemberException;
 import polyglot.types.NullType;
@@ -70,6 +70,7 @@ import x10.types.constraints.SubtypeConstraint;
 import x10.types.constraints.TypeConstraint;
 import x10.types.matcher.Matcher;
 import x10.types.matcher.Subst;
+import polyglot.types.Type;
 
 /**
  * A TypeSystem implementation for X10.
@@ -111,12 +112,10 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         List<Type> superInterfaces = ts.abstractSuperInterfaces(ct);
 
         // check each abstract method of the classes and interfaces in superInterfaces
-        for (Iterator<Type> i = superInterfaces.iterator(); i.hasNext(); ) {
-            Type it = i.next();
+        for (Type it : superInterfaces) {
             if (it instanceof ContainerType) {
                 ContainerType rt = (ContainerType) it;
-                for (Iterator<MethodInstance> j = rt.methods().iterator(); j.hasNext(); ) {
-                    MethodInstance mi = j.next();
+                for (MethodInstance mi : rt.methods()) {
                     if (!mi.flags().isAbstract()) {
                         // the method isn't abstract, so ct doesn't have to implement it.
                         continue;
@@ -191,18 +190,15 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     }
 
     
-    public void checkOverride(ClassType ct, MethodInstance mi0, MethodInstance mj0) throws SemanticException {
-    	 X10MethodInstance mi = (X10MethodInstance) mi0;
-         X10MethodInstance mj = (X10MethodInstance) mj0;
-
+    public void checkOverride(ClassType ct, MethodInstance mi, MethodInstance mj) throws SemanticException {
          XVar thisVar =  XTerms.makeUQV(XTerms.makeFreshName("this")); // XTerms.makeLocal(XTerms.makeFreshName("this"));
 
          List<XVar> ys = new ArrayList<XVar>(2);
          List<XVar> xs = new ArrayList<XVar>(2);
 
-         X10MethodInstance_c.buildSubst(ct, ys, xs, thisVar);
-         X10MethodInstance_c.buildSubst(mi, ys, xs, thisVar);
-         X10MethodInstance_c.buildSubst(mj, ys, xs, thisVar);
+         MethodInstance_c.buildSubst(ct, ys, xs, thisVar);
+         MethodInstance_c.buildSubst(mi, ys, xs, thisVar);
+         MethodInstance_c.buildSubst(mj, ys, xs, thisVar);
          final XVar[] y = ys.toArray(new XVar[ys.size()]);
          final XVar[] x = xs.toArray(new XVar[ys.size()]);
 
@@ -541,7 +537,12 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         // FIXME: check for ambiguities
         for (Type t : upperBounds(container, true)) {
             try {
-                return super.findMemberType(t, name);
+                Named n = ts.classContextResolver(container, context)
+                .find(ts.MemberTypeMatcher(container, name, context));
+
+                if (n instanceof ClassType) {
+                    return (ClassType) n;
+                }
             }
             catch (SemanticException e) {
             }
@@ -1653,8 +1654,9 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         return ((ProcedureInstance_c<?>) pi).hasFormals(formalTypes, context);
     }
 
+    @Override
     public List<MethodInstance> overrides(MethodInstance jmi) {
-        X10MethodInstance mi = (X10MethodInstance) jmi;
+        MethodInstance mi = (MethodInstance) jmi;
         List<MethodInstance> l = new ArrayList<MethodInstance>();
         ContainerType rt = mi.container();
 
@@ -1664,8 +1666,8 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
         List<XVar> ys = new ArrayList<XVar>(2);
         List<XVar> xs = new ArrayList<XVar>(2);
-        X10MethodInstance_c.buildSubst(mi, ys, xs, thisVar);
-        X10MethodInstance_c.buildSubst(rt, ys, xs, thisVar);
+        MethodInstance_c.buildSubst(mi, ys, xs, thisVar);
+        MethodInstance_c.buildSubst(rt, ys, xs, thisVar);
         final XVar[] y = ys.toArray(new XVar[ys.size()]);
         final XVar[] x = xs.toArray(new XVar[ys.size()]);
 
@@ -1690,8 +1692,9 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         return l;
     }
 
+    @Override
     public List<MethodInstance> implemented(MethodInstance jmi) {
-        X10MethodInstance mi = (X10MethodInstance) jmi;
+        MethodInstance mi = (MethodInstance) jmi;
         XVar thisVar = mi.x10Def().thisVar();
         if (thisVar == null)
             thisVar = XTerms.makeLocal(XTerms.makeFreshName("this"));
@@ -1699,19 +1702,19 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     }
 
     protected List<MethodInstance> implemented(MethodInstance jmi, ContainerType st, XVar thisVar) {
-        X10MethodInstance  mi = (X10MethodInstance) jmi;
+        MethodInstance  mi = (MethodInstance) jmi;
         if (st == null) {
             return Collections.<MethodInstance>emptyList();
         }
 
         List<XVar> ys = new ArrayList<XVar>(2);
         List<XVar> xs = new ArrayList<XVar>(2);
-        X10MethodInstance_c.buildSubst((X10MethodInstance) mi, ys, xs, thisVar);
-        X10MethodInstance_c.buildSubst(st, ys, xs, thisVar);
+        MethodInstance_c.buildSubst((MethodInstance) mi, ys, xs, thisVar);
+        MethodInstance_c.buildSubst(st, ys, xs, thisVar);
         final XVar[] y = ys.toArray(new XVar[ys.size()]);
         final XVar[] x = xs.toArray(new XVar[ys.size()]);
 
-        mi = fixThis((X10MethodInstance) mi, y, x);
+        mi = fixThis((MethodInstance) mi, y, x);
 
 
         List<MethodInstance> l = new LinkedList<MethodInstance>();
@@ -1748,18 +1751,25 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     }
 
     // FIXME: unify with TypeEnv_c.checkOverride()
-    private void superCheckOverride(X10MethodInstance mi, X10MethodInstance mj, boolean allowCovariantReturn) throws SemanticException {
+    private void superCheckOverride(MethodInstance mi, MethodInstance mj, boolean allowCovariantReturn) throws SemanticException {
         if (mi == mj)
             return;
 
         if (!mi.name().equals(mj.name())) {
-            throw new SemanticException(mi.signature() + " in " + mi.container() +" cannot override " +mj.signature() + " in " + mj.container() + "; method names are not equal",mi.position());
+            throw new SemanticException(mi.signature() + " in " + mi.container() 
+                                        +" cannot override " 
+                                        +mj.signature() + " in " + mj.container() 
+                                        + "; method names are not equal",mi.position());
         }
         if (mi.formalNames().size() != mj.formalNames().size()) {
-            throw new SemanticException(mi.signature() + " in " + mi.container() + " cannot override " +  mj.signature() + " in " + mj.container() +"; different number of arguments",mi.position());
+            throw new SemanticException(mi.signature() + " in " + mi.container() 
+                                        + " cannot override " + mj.signature() + " in " + mj.container() 
+                                        +"; different number of arguments",mi.position());
         }
         if (mi.typeParameters().size() != mj.typeParameters().size()) {
-            throw new SemanticException(mi.signature() + " in " + mi.container() +" cannot override " +mj.signature() + " in " + mj.container() + "; different number of type parameters",mi.position());
+            throw new SemanticException(mi.signature() + " in " + mi.container() 
+                                        +" cannot override " + mj.signature() + " in " + mj.container()
+                                        + "; different number of type parameters",mi.position());
         }
 
         List<LocalInstance> miFormals = mi.formalNames();
@@ -1787,7 +1797,9 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         }
 
         if (!allEqual) {
-            throw new SemanticException(mi.signature() + " in " + mi.container() + " cannot override " +mj.signature() + " in " + mj.container() +"; incompatible parameter types",mi.position());
+            throw new SemanticException(mi.signature() + " in " + mi.container() + " cannot override " 
+                                        +mj.signature() + " in " + mj.container() 
+                                        +"; incompatible parameter types",mi.position());
         }
 
         Type miRet = Subst.subst(mi.returnType(), newSymbols, miSymbols);
@@ -1824,13 +1836,15 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         }
     }
 
+    @Override
     public void checkOverride(MethodInstance r, MethodInstance other) throws SemanticException {
         checkOverride(r, other, true);
     }
 
+    @Override
     public void checkOverride(MethodInstance r, MethodInstance other, boolean allowCovariantReturn) throws SemanticException {
-        X10MethodInstance mi = (X10MethodInstance) r;
-        X10MethodInstance mj = (X10MethodInstance) other;
+        MethodInstance mi = (MethodInstance) r;
+        MethodInstance mj = (MethodInstance) other;
 
         String fullNameWithThis = mi.x10Def().thisVar().toString();
         XName thisName = new XNameWrapper<Object>(new Object(), fullNameWithThis);
@@ -1840,8 +1854,8 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         List<XVar> ys = new ArrayList<XVar>(2);
         List<XVar> xs = new ArrayList<XVar>(2);
 
-        X10MethodInstance_c.buildSubst(mi, ys, xs, thisVar);
-        X10MethodInstance_c.buildSubst(mj, ys, xs, thisVar);
+        MethodInstance_c.buildSubst(mi, ys, xs, thisVar);
+        MethodInstance_c.buildSubst(mj, ys, xs, thisVar);
         final XVar[] y = ys.toArray(new XVar[ys.size()]);
         final XVar[] x = xs.toArray(new XVar[ys.size()]);
 
@@ -1887,10 +1901,8 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     /**
      * Returns true iff <m1> is the same method as <m2>
      */
-    public boolean isSameMethod(MethodInstance m1, MethodInstance m2) {
-        X10MethodInstance mi = (X10MethodInstance) m1;
-        X10MethodInstance mj = (X10MethodInstance) m2;
-
+    @Override
+    public boolean isSameMethod(MethodInstance mi, MethodInstance mj) {
         if (mi.name().equals(mj.name())) {
             String fullNameWithThis = mi.x10Def().thisVar().toString();
             XName thisName = new XNameWrapper<Object>(new Object(), fullNameWithThis);
@@ -1899,15 +1911,15 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
             List<XVar> ys = new ArrayList<XVar>(2);
             List<XVar> xs = new ArrayList<XVar>(2);
 
-            X10MethodInstance_c.buildSubst(mi, ys, xs, thisVar);
-            X10MethodInstance_c.buildSubst(mj, ys, xs, thisVar);
+            MethodInstance_c.buildSubst(mi, ys, xs, thisVar);
+            MethodInstance_c.buildSubst(mj, ys, xs, thisVar);
             final XVar[] y = ys.toArray(new XVar[ys.size()]);
             final XVar[] x = xs.toArray(new XVar[ys.size()]);
 
             mi = fixThis(mi, y, x);
             mj = fixThis(mj, y, x);
 
-            return ((X10MethodInstance) m1).hasFormals(mj.formalTypes(), context);
+            return mi.hasFormals(mj.formalTypes(), context);
         }
         return false;
     }
@@ -1926,7 +1938,6 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
      * @param matcher
      *            TODO
      */
-    @Override
     public List<ConstructorInstance> findAcceptableConstructors(Type container, ConstructorMatcher matcher) throws SemanticException {
 	SemanticException error = null;
 
@@ -1994,12 +2005,12 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 	return acceptable;
     }
 
-	public  X10MethodInstance fixThis(final X10MethodInstance mi, final XVar[] y, final XVar[] x) {
-	    X10MethodInstance mj = mi;
+	public  MethodInstance fixThis(final MethodInstance mi, final XVar[] y, final XVar[] x) {
+	    MethodInstance mj = mi;
 	
 	    final TypeSystem ts = (TypeSystem) mi.typeSystem();
 	
-	    final X10MethodInstance zmj = mj;
+	    final MethodInstance zmj = mj;
 	    final LazyRef<Type> tref = new LazyRef_c<Type>(null);
 	    tref.setResolver(new Runnable() { 
 	        public void run() {
@@ -2026,7 +2037,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 	        }
 	    });
 	
-	    mj = (X10MethodInstance) ((MethodInstance) mj).returnTypeRef(tref);
+	    mj =  (MethodInstance) mj.returnTypeRef(tref);
 	
 	    List<Type> newFormals = new ArrayList<Type>();
 	
@@ -2041,12 +2052,12 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 	        }
 	    }
 	
-	    mj = (X10MethodInstance) mj.formalTypes(newFormals);
+	    mj = (MethodInstance) mj.formalTypes(newFormals);
 	
 	    if (mj.guard() != null) {
 	        try {
 	            CConstraint newGuard = mj.guard().substitute(y, x);
-	            mj = (X10MethodInstance) mj.guard(newGuard);
+	            mj = (MethodInstance) mj.guard(newGuard);
 	        }
 	        catch (XFailure e) {
 	        }
@@ -2055,7 +2066,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 	        TypeConstraint newGuard = mj.typeGuard();
 	        for (int i = 0; i < x.length; i++)
 	            newGuard = newGuard.subst(y[i], x[i]);
-	        mj = (X10MethodInstance) mj.typeGuard(newGuard);
+	        mj = (MethodInstance) mj.typeGuard(newGuard);
 	    }
 	
 	    return mj;

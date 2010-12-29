@@ -63,7 +63,7 @@ import polyglot.types.InitializerDef;
 import polyglot.types.LocalDef;
 import polyglot.types.LocalInstance;
 import polyglot.types.MethodDef;
-import polyglot.types.MethodInstance;
+
 import polyglot.types.Name;
 import polyglot.types.ObjectType;
 import polyglot.types.Package;
@@ -109,7 +109,7 @@ import x10.types.X10ConstructorDef;
 import x10.types.X10ConstructorInstance;
 
 import x10.types.X10MethodDef;
-import x10.types.X10MethodInstance;
+import x10.types.MethodInstance;
 import x10.types.X10ProcedureDef;
 import x10.types.X10TypeSystem_c;
 import x10.visit.Desugarer;
@@ -379,7 +379,7 @@ public class StaticInitializer extends ContextVisitor {
             public Node leave(Node parent, Node old, Node n, NodeVisitor v) {
                 if (n instanceof X10Call_c) {
                     X10Call call = (X10Call)n;
-                    X10MethodInstance mi = (X10MethodInstance) call.methodInstance();
+                    MethodInstance mi =  call.methodInstance();
                     if (mi.container().isClass() && mi.flags().isStatic() && !mi.flags().isNative() && !call.target().type().isNumeric()) {
                         // found reference to static method
                         found.set(true);
@@ -442,7 +442,7 @@ public class StaticInitializer extends ContextVisitor {
         return (X10ConstructorDecl)getProcedureDeclaration(cd, container);
     }
 
-    private X10MethodDecl getMethodDeclaration(X10MethodInstance mi) {
+    private X10MethodDecl getMethodDeclaration(MethodInstance mi) {
         X10MethodDef md = mi.x10Def();
         // get container and declaration for method
         X10ClassType containerBase = (X10ClassType) Types.get(md.container());
@@ -530,7 +530,7 @@ public class StaticInitializer extends ContextVisitor {
                         return null;
 
                     X10Call call = (X10Call)n;
-                    X10MethodInstance mi = (X10MethodInstance) call.methodInstance();
+                    MethodInstance mi = call.methodInstance();
                     if (mi.container().isClass()) {
                         // found reference to special initializer method
                         X10MethodDecl mdecl = getMethodDeclaration(mi);

@@ -24,7 +24,7 @@ import polyglot.frontend.Globals;
 import polyglot.types.Context;
 import polyglot.types.LazyRef_c;
 import polyglot.types.LocalInstance;
-import polyglot.types.MethodInstance;
+
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.Types;
@@ -40,7 +40,7 @@ import x10.errors.Errors;
 import x10.errors.Errors.InvalidParameter;
 import x10.types.ParameterType;
 import polyglot.types.Context;
-import x10.types.X10MethodInstance;
+import x10.types.MethodInstance;
 import x10.types.X10ProcedureDef;
 import x10.types.X10ProcedureInstance;
 import polyglot.types.TypeSystem;

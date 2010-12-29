@@ -20,7 +20,7 @@ import polyglot.types.DerefTransform;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.MemberDef;
-import polyglot.types.MethodInstance;
+
 import polyglot.types.Named;
 import polyglot.types.QName;
 import polyglot.types.Ref;

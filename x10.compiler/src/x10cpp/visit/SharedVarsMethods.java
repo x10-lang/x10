@@ -19,7 +19,7 @@ import polyglot.types.ClassType;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.LocalInstance;
-import polyglot.types.MethodInstance;
+
 import polyglot.types.Name;
 import polyglot.types.ObjectType;
 import polyglot.types.Package;
@@ -31,7 +31,7 @@ import polyglot.types.TypeSystem;
 import polyglot.types.VarInstance;
 import x10.ast.ConstantDistMaker_c;
 import x10.types.X10ClassType;
-import x10.types.X10MethodInstance;
+import x10.types.MethodInstance;
 import x10.types.X10ParsedClassType;
 import polyglot.types.TypeSystem;
 import x10.types.X10TypeSystem_c;
@@ -138,7 +138,7 @@ public class SharedVarsMethods {
 	}
 	*/
 	static final ArrayList<ObjectType> knownSafeClasses = new ArrayList<ObjectType>();
-	static final ArrayList<X10MethodInstance> knownSafeMethods = new ArrayList<X10MethodInstance>();
+	static final ArrayList<MethodInstance> knownSafeMethods = new ArrayList<MethodInstance>();
 	static final ArrayList<FieldInstance> knownSafeFields = new ArrayList<FieldInstance>();
 	static void populateKnownSafeEntries(Translator tr){
 		populateKnownSafeClasses(tr);
@@ -198,7 +198,7 @@ public class SharedVarsMethods {
 		}
 	}	
 	
-	static final ArrayList<X10MethodInstance> knownInlinableMethods = new ArrayList<X10MethodInstance>();
+	static final ArrayList<MethodInstance> knownInlinableMethods = new ArrayList<MethodInstance>();
 
 	static void populateIninableMethodsIfEmpty(Translator tr) {
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();

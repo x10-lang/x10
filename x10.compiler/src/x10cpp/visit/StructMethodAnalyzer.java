@@ -26,7 +26,7 @@ import polyglot.ast.NullLit;
 import polyglot.ast.NumLit;
 import polyglot.ast.Return;
 import polyglot.frontend.Job;
-import polyglot.types.MethodInstance;
+
 import polyglot.types.SemanticException;
 import polyglot.types.ContainerType;
 import polyglot.types.Type;
@@ -52,7 +52,7 @@ import x10.ast.X10MethodDecl_c;
 import x10.ast.X10New_c;
 import x10.ast.X10Special_c;
 import x10.types.X10ClassType;
-import x10.types.X10MethodInstance;
+import x10.types.MethodInstance;
 import polyglot.types.TypeSystem;
 import x10.util.Synthesizer;
 

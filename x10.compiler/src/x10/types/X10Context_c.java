@@ -62,7 +62,7 @@ import polyglot.types.ImportTable;
 import polyglot.types.LocalDef;
 import polyglot.types.LocalInstance;
 import polyglot.types.MethodDef;
-import polyglot.types.MethodInstance;
+
 import polyglot.types.Name;
 import polyglot.types.Named;
 import polyglot.types.Ref;
@@ -426,7 +426,7 @@ public class X10Context_c extends Context_c {
 	     * Looks up a method with name "name" and arguments compatible with
 	     * "argTypes".
 	     */
-	    public X10MethodInstance superFindMethod(TypeSystem_c.MethodMatcher matcher) throws SemanticException {
+	    public MethodInstance superFindMethod(TypeSystem_c.MethodMatcher matcher) throws SemanticException {
 	        if (Report.should_report(TOPICS, 3))
 	          Report.report(3, "find-method " + matcher.signature() + " in " + this);
 
@@ -475,8 +475,8 @@ public class X10Context_c extends Context_c {
 	 * Looks up a method with name "name" and arguments compatible with
 	 * "argTypes".
 	 */
-	public X10MethodInstance findMethod(TypeSystem_c.MethodMatcher matcher) throws SemanticException {
-		X10MethodInstance result = depType == null ? superFindMethod(matcher) : pop().findMethod(matcher);
+	public MethodInstance findMethod(TypeSystem_c.MethodMatcher matcher) throws SemanticException {
+		MethodInstance result = depType == null ? superFindMethod(matcher) : pop().findMethod(matcher);
 		return result;
 	}
 

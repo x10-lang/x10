@@ -49,7 +49,7 @@ import polyglot.types.ClassType;
 import polyglot.types.Context;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
-import polyglot.types.MethodInstance;
+
 import polyglot.types.Name;
 import polyglot.types.QName;
 import polyglot.types.Ref;
@@ -78,7 +78,7 @@ import x10.types.X10ConstructorDef;
 
 import x10.types.X10LocalDef;
 import x10.types.X10MethodDef;
-import x10.types.X10MethodInstance;
+import x10.types.MethodInstance;
 import polyglot.types.TypeSystem;
 import x10.types.X10TypeSystem_c;
 import x10.types.X10TypeSystem_c.BaseTypeEquals;
@@ -409,7 +409,7 @@ public class Emitter {
 		}
 	}
 
-	void printTemplateInstantiation(X10MethodInstance mi, CodeWriter w) {
+	void printTemplateInstantiation(MethodInstance mi, CodeWriter w) {
 		if (mi.typeParameters().size() == 0)
 			return;
 		w.write("<");
@@ -438,13 +438,14 @@ public class Emitter {
 		return b.toString();
 	}
 
-	static MethodInstance getOverridingMethod(TypeSystem xts, ClassType localClass, MethodInstance mi, Context context) {
+	static MethodInstance getOverridingMethod(TypeSystem xts, ClassType localClass, 
+	                                             MethodInstance mi, Context context) {
 	    try {
-	        List<Type> params = ((X10MethodInstance) mi).typeParameters();
-	        List<MethodInstance> overrides = xts.findAcceptableMethods(localClass, xts.MethodMatcher(localClass, mi.name(), ((X10MethodInstance) mi).typeParameters(), mi.formalTypes(), context));
+	        List<Type> params = ((MethodInstance) mi).typeParameters();
+	        List<MethodInstance> overrides = xts.findAcceptableMethods(localClass, xts.MethodMatcher(localClass, mi.name(), ((MethodInstance) mi).typeParameters(), mi.formalTypes(), context));
 	        for (MethodInstance smi : overrides) {
 	            if (CollectionUtil.allElementwise(mi.formalTypes(), smi.formalTypes(), new BaseTypeEquals(context))) {
-	                List<Type> sparams = ((X10MethodInstance) smi).typeParameters();
+	                List<Type> sparams =  smi.typeParameters();
 	                if (params == null && sparams == null)
 	                    return smi;
 	                if (params != null && params.equals(sparams))
@@ -533,7 +534,7 @@ public class Emitter {
 	                 boolean qualify, boolean inlineDirective) {
 		Flags flags = n.flags().flags();
 		X10MethodDef def = (X10MethodDef) n.methodDef();
-		X10MethodInstance mi = (X10MethodInstance) def.asInstance();
+		MethodInstance mi = (MethodInstance) def.asInstance();
 		X10ClassType container = (X10ClassType) mi.container();
 		boolean isStruct = container.isX10Struct();
 

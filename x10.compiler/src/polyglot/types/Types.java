@@ -51,7 +51,7 @@ import x10.types.X10ConstructorInstance;
 import x10.types.X10Def;
 import x10.types.X10FieldDef;
 import x10.types.X10FieldInstance;
-import x10.types.X10MethodInstance;
+import x10.types.MethodInstance;
 import x10.types.X10ParsedClassType;
 import x10.types.X10ParsedClassType_c;
 import x10.types.X10ProcedureDef;
@@ -1298,16 +1298,16 @@ public class Types {
 		TypeSystem ts = (TypeSystem) context.typeSystem();
 	    
 	    	try {
-	    		if (xp2 instanceof X10MethodInstance) {
+	    		if (xp2 instanceof MethodInstance) {
 	    			// Both xp1 and xp2 should be X10MethodInstance's 
-	    			X10MethodInstance xmi2 = (X10MethodInstance) xp2;
-	    			X10MethodInstance origMI2 = (X10MethodInstance) xmi2.origMI();
+	    			MethodInstance xmi2 = (MethodInstance) xp2;
+	    			MethodInstance origMI2 = (MethodInstance) xmi2.origMI();
 	    			assert origMI2 != null;
 	    			
-	    			if (! (xp1 instanceof X10MethodInstance))
+	    			if (! (xp1 instanceof MethodInstance))
 	    				return false;
-	    			X10MethodInstance xmi1 = (X10MethodInstance) xp1;
-	    			X10MethodInstance origMI1 = (X10MethodInstance)xmi1.origMI();
+	    			MethodInstance xmi1 = (MethodInstance) xp1;
+	    			MethodInstance origMI1 = (MethodInstance)xmi1.origMI();
 	    			assert origMI1 != null;
 	    			
 	    			// Now determine that a call can be made to thisMI2 using the
@@ -1570,11 +1570,11 @@ public class Types {
 	    return null;
 	}
 	
-	public static X10MethodInstance getPropertyMethod(Type t, Name propName) {
+	public static MethodInstance getPropertyMethod(Type t, Name propName) {
 	    TypeSystem xts = t.typeSystem();
 	    try {
 	        Context c = xts.emptyContext();
-	        X10MethodInstance mi = xts.findMethod(t, xts.MethodMatcher(t, propName, Collections.<Type>emptyList(), c));
+	        MethodInstance mi = xts.findMethod(t, xts.MethodMatcher(t, propName, Collections.<Type>emptyList(), c));
 	        if (mi != null && mi.flags().isProperty()) {
 	            return mi;
 	        }

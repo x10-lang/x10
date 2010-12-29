@@ -48,7 +48,7 @@ import polyglot.types.Flags;
 import polyglot.types.LazyRef;
 import polyglot.types.LazyRef_c;
 import polyglot.types.LocalDef;
-import polyglot.types.MethodInstance;
+
 import polyglot.types.Name;
 import polyglot.types.Named;
 import polyglot.types.ObjectType;
@@ -86,7 +86,7 @@ import x10.types.X10FieldInstance;
 
 import x10.types.X10LocalDef;
 import x10.types.X10MethodDef;
-import x10.types.X10MethodInstance;
+import x10.types.MethodInstance;
 import x10.types.X10ParsedClassType;
 
 import polyglot.types.TypeSystem;
@@ -550,24 +550,24 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     	NodeFactory xnf = (NodeFactory) tc.nodeFactory();
     	X10ClassType targetType = (X10ClassType) n.classDef().asType();
     	List<X10ClassType> interfaces = xts.allImplementedInterfaces(targetType, false);
-    	LinkedList<X10MethodInstance> candidates = new LinkedList<X10MethodInstance>();
+    	LinkedList<MethodInstance> candidates = new LinkedList<MethodInstance>();
 
     	for (X10ClassType intface : interfaces) {
     	    List<MethodInstance> oldMethods = intface.methods();
     	    for (MethodInstance mi : oldMethods) {
-    	        X10MethodInstance mj = xts.findImplementingMethod(targetType, mi, true, tc.context());
+    	        MethodInstance mj = xts.findImplementingMethod(targetType, mi, true, tc.context());
 
     	        if (mj == null) { // This method is not already defined for this class
-    	            candidates.add((X10MethodInstance) mi);
+    	            candidates.add(mi);
     	        }
     	    }
     	} // interfaces
     	// Remove overridden methods -- happens with covariant return types.
-    	List<X10MethodInstance> results = new LinkedList<X10MethodInstance>(); 
+    	List<MethodInstance> results = new LinkedList<MethodInstance>(); 
     	Context context = xts.createContext();
     	OUTER: while (! candidates.isEmpty()) {
-    	    X10MethodInstance mi = candidates.removeFirst();
-    	    for (X10MethodInstance other : candidates) {
+    	    MethodInstance mi = candidates.removeFirst();
+    	    for (MethodInstance other : candidates) {
     	        if (other.canOverride(mi, context))
     	            continue OUTER;
     	    }
@@ -575,7 +575,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
 
     	}
     	Synthesizer synth = new Synthesizer(xnf, xts);
-    	for (X10MethodInstance mi : results) {
+    	for (MethodInstance mi : results) {
     	    Id name = xnf.Id(CG, mi.name());
     	    TypeParamSubst subst = ((X10ParsedClassType) mi.container()).subst();
     	    List<LocalDef> formalNames = new ArrayList<LocalDef>();

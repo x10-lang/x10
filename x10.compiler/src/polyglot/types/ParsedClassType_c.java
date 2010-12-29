@@ -11,6 +11,7 @@ import java.util.*;
 
 import polyglot.frontend.*;
 import polyglot.util.*;
+import x10.types.MethodInstance;
 
 /**
  * ParsedClassType

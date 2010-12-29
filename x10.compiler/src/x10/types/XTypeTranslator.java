@@ -34,7 +34,6 @@ import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
 import polyglot.types.LocalInstance;
-import polyglot.types.MethodInstance;
 import polyglot.types.Name;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
@@ -495,7 +494,7 @@ public class XTypeTranslator {
 	}
 	
 	private XTerm trans(CConstraint c, Call t, Context xc) {
-		X10MethodInstance xmi = (X10MethodInstance) t.methodInstance();
+		MethodInstance xmi = (MethodInstance) t.methodInstance();
 		Flags f = xmi.flags();
 		if (f.isProperty()) {
 			XTerm r = trans(c, t.target(), xc);

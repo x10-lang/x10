@@ -39,7 +39,7 @@ import polyglot.types.ConstructorDef;
 import polyglot.types.Flags;
 import polyglot.types.FieldDef;
 import polyglot.types.LocalDef;
-import polyglot.types.MethodInstance;
+
 import polyglot.types.Name;
 import polyglot.types.QName;
 import polyglot.types.SemanticException;
