@@ -3084,7 +3084,7 @@ public class X10toCAstTranslator implements TranslatorToCAst {
 	    // FUNCTION_EXPR will translate to a type wrapping the single method with the given body
 	    args[args.length-1] = makeNode(context, a.body(), CAstNode.FUNCTION_EXPR, fFactory.makeConstant(bodyEntity));
 
-	    CAstNode asyncNode= makeNode(context, a, X10CastNode.ASYNC_INVOKE, args);
+	    CAstNode asyncNode= makeNode(context, a, X10CastNode.ASYNC, args);
 	    context.addScopedEntity(asyncNode, bodyEntity);
 	    return asyncNode;
 	}
@@ -3118,13 +3118,13 @@ public class X10toCAstTranslator implements TranslatorToCAst {
 	    return makeNode(wc, bodyPos, CAstNode.LOCAL_SCOPE,
 		makeNode(wc, bodyPos, CAstNode.BLOCK_STMT,
 		    makeNode(wc, formal, CAstNode.DECL_STMT, fFactory.makeConstant(new CAstSymbolImpl("iter tmp", false)),
-			    makeNode(wc, formal, X10CastNode.REGION_ITER_INIT, domainNode)),
+			    makeNode(wc, formal, X10CastNode.ITER_INIT, domainNode)),
 		    makeNode(wc, bodyPos, CAstNode.LOOP,
-			makeNode(wc, formal, X10CastNode.REGION_ITER_HASNEXT,
+			makeNode(wc, formal, X10CastNode.ITER_HASNEXT,
 				makeNode(wc, formal, CAstNode.VAR, fFactory.makeConstant("iter tmp"))),
 			makeNode(wc, bodyPos, CAstNode.BLOCK_STMT,
 			    makeNode(wc, formal, CAstNode.DECL_STMT, walkNodes(formal, wc),
-				makeNode(wc, formal, X10CastNode.REGION_ITER_NEXT, makeNode(wc, formal, CAstNode.VAR, fFactory.makeConstant("iter tmp")))),
+				makeNode(wc, formal, X10CastNode.ITER_NEXT, makeNode(wc, formal, CAstNode.VAR, fFactory.makeConstant("iter tmp")))),
 			    bodyStmts))));
 	}
 
@@ -3136,7 +3136,7 @@ public class X10toCAstTranslator implements TranslatorToCAst {
 	    CAstNode dist;
 
 	    if (type.isArray())
-		dist= makeNode(wc, domain, X10CastNode.ARRAY_DISTRIBUTION, walkNodes(domain, wc));
+		dist= makeNode(wc, domain, X10CastNode.DIST, walkNodes(domain, wc));
 	    else
 		dist= walkNodes(domain, wc);
 
@@ -3153,7 +3153,7 @@ public class X10toCAstTranslator implements TranslatorToCAst {
 	    // FUNCTION_EXPR will translate to a type wrapping the single method with the given body
 	    args[ args.length - 1] = makeNode(wc, a.body(), CAstNode.FUNCTION_EXPR, fFactory.makeConstant(bodyEntity));
 
-	    final CAstNode bodyNode= makeNode(wc, a, X10CastNode.ASYNC_INVOKE, args);
+	    final CAstNode bodyNode= makeNode(wc, a, X10CastNode.ASYNC, args);
 
 	    wc.addScopedEntity(bodyNode, bodyEntity);
 	    return makeNode(wc, a, CAstNode.LOCAL_SCOPE,
@@ -3166,7 +3166,7 @@ public class X10toCAstTranslator implements TranslatorToCAst {
 
 	public CAstNode visit(Future f, WalkContext wc) {
 	    CAstEntity bodyEntity= walkAsyncEntity(f, f.body(), wc);
-	    CAstNode bodyNode= makeNode(wc, f, X10CastNode.ASYNC_INVOKE,
+	    CAstNode bodyNode= makeNode(wc, f, X10CastNode.ASYNC,
 		    walkNodes(f.place(), wc),
 		    // FUNCTION_EXPR will translate to a type wrapping the single method with the given body
 		    makeNode(wc, f.body(), CAstNode.FUNCTION_EXPR, fFactory.makeConstant(bodyEntity)));
@@ -3185,7 +3185,7 @@ public class X10toCAstTranslator implements TranslatorToCAst {
 	    for(Expr child: t.arguments()) {
 	        children[idx++] = walkNodes(child, wc);
 	    }
-	    return makeNode(wc, fFactory, t, X10CastNode.TUPLE_EXPR, children);
+	    return makeNode(wc, fFactory, t, X10CastNode.TUPLE, children);
 	}
 
 	public CAstNode visit(SettableAssign n, WalkContext wc) {

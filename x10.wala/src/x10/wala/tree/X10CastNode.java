@@ -18,7 +18,7 @@ public interface X10CastNode extends CAstNode {
      * N.B. To obtain the returned type for a 'future', ask the CAstEntity for its type,
      * which should be a CAstType.Function, and examine its return type.
      */
-    public static final int ASYNC_INVOKE = SUB_LANGUAGE_BASE;
+    public static final int ASYNC = SUB_LANGUAGE_BASE;
 
     /**
      * Kind constant for a CAstNode representing an X10 'ateach' statement.<br>
@@ -48,16 +48,6 @@ public interface X10CastNode extends CAstNode {
      * </ol>
      */
     public static final int ATOMIC_EXIT = SUB_LANGUAGE_BASE + 3;
-
-    /**
-     * Kind constant for a CAstNode representing an X10 'clocked' statement.<br>
-     * Children:
-     * <ol>
-     * <li>CAstNode.BLOCK representing the body of the 
-     * <li>1 or more CAstNode.EXPR's of type 'clock'...
-     * </ol>
-     */
-    public static final int CLOCKED = SUB_LANGUAGE_BASE + 5;
 
     /**
      * Kind constant for a CAstNode representing the start of an X10 'finish' statement.<br>
@@ -92,7 +82,7 @@ public interface X10CastNode extends CAstNode {
      * <li>CAstNode.EXPR representing the receiver (the region being iterated over)
      * </ol>
      */
-    public static final int REGION_ITER_INIT = SUB_LANGUAGE_BASE + 17;
+    public static final int ITER_INIT = SUB_LANGUAGE_BASE + 17;
 
     /**
      * Kind constant for a CAstNode representing a test for whether an X10 region iteration
@@ -102,7 +92,7 @@ public interface X10CastNode extends CAstNode {
      * <li>CAstNode.EXPR representing the receiver (the region iterator)
      * </ol>
      */
-    public static final int REGION_ITER_HASNEXT = SUB_LANGUAGE_BASE + 18;
+    public static final int ITER_HASNEXT = SUB_LANGUAGE_BASE + 18;
 
     /**
      * Kind constant for a CAstNode representing the accessor for the next element of an
@@ -112,7 +102,7 @@ public interface X10CastNode extends CAstNode {
      * <li>CAstNode.EXPR representing the receiver (the region iterator)
      * </ol>
      */
-    public static final int REGION_ITER_NEXT = SUB_LANGUAGE_BASE + 19;
+    public static final int ITER_NEXT = SUB_LANGUAGE_BASE + 19;
 
     /**
      * Kind constant for a CAstNode representing the accessor for the distribution of an
@@ -122,7 +112,7 @@ public interface X10CastNode extends CAstNode {
      * <li>CAstNode.EXPR representing the receiver array
      * </ol>
      */
-    public static final int ARRAY_DISTRIBUTION = SUB_LANGUAGE_BASE + 20;
+    public static final int DIST = SUB_LANGUAGE_BASE + 20;
 
     /**
      * Kind constant for a CAstNode representing the accessor for the place at which a given point
@@ -133,7 +123,7 @@ public interface X10CastNode extends CAstNode {
      *   <li>CAstNode.EXPR representing the point
      * </ol>
      */
-    public static final int PLACE_OF_POINT= SUB_LANGUAGE_BASE + 21;
+    public static final int PLACE_OF_POINT = SUB_LANGUAGE_BASE + 21;
 
     /**
      * Kind constant for a CAstNode representing an array reference where the index is given as an
@@ -156,7 +146,7 @@ public interface X10CastNode extends CAstNode {
      *   <li>...
      * </ol>
      */
-    public static final int TUPLE_EXPR = SUB_LANGUAGE_BASE + 23;
+    public static final int TUPLE = SUB_LANGUAGE_BASE + 23;
 
     /**
      * Kind constant for a CAstNode representing the beginning of an "at (P) {S}" statement.

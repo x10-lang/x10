@@ -113,7 +113,7 @@ public abstract class X10DelegatingCAstVisitor extends DelegatingCAstVisitor {
     protected boolean doVisit(CAstNode n, Context context, CAstVisitor visitor_) {
 	X10DelegatingCAstVisitor visitor = (X10DelegatingCAstVisitor)visitor_;
 	switch (n.getKind()) {
-	    case X10CastNode.ASYNC_INVOKE: {
+	    case X10CastNode.ASYNC: {
 		if (visitor.visitAsyncInvoke(n, context, visitor))
 		    break;
 		for(int i = 0; i < n.getChildCount(); i++) {
@@ -146,21 +146,21 @@ public abstract class X10DelegatingCAstVisitor extends DelegatingCAstVisitor {
 		visitor.leaveFinishExit(n, context, visitor);
 		break;
 	    }
-	    case X10CastNode.REGION_ITER_INIT: {
+	    case X10CastNode.ITER_INIT: {
 		if (visitor.visitRegionIterInit(n, context, visitor))
 		    break;
 		visitor.visit(n.getChild(0), context, visitor);
 		visitor.leaveRegionIterInit(n, context, visitor);
 		break;
 	    }
-	    case X10CastNode.REGION_ITER_HASNEXT: {
+	    case X10CastNode.ITER_HASNEXT: {
 		if (visitor.visitRegionIterHasNext(n, context, visitor))
 		    break;
 		visitor.visit(n.getChild(0), context, visitor);
 		visitor.leaveRegionIterHasNext(n, context, visitor);
 		break;
 	    }
-	    case X10CastNode.REGION_ITER_NEXT: {
+	    case X10CastNode.ITER_NEXT: {
 		if (visitor.visitRegionIterNext(n, context, visitor))
 		    break;
 		visitor.visit(n.getChild(0), context, visitor);
@@ -193,7 +193,7 @@ public abstract class X10DelegatingCAstVisitor extends DelegatingCAstVisitor {
 	        visitor.leavePlaceOfPoint(n, context, visitor);
 	        break;
 	    }
-	    case X10CastNode.TUPLE_EXPR: {
+	    case X10CastNode.TUPLE: {
 	        if (visitor.visitTupleExpr(n, context, visitor))
 	            break;
                 // n.getChild(0) is a TypeReference for the tuple element type...
