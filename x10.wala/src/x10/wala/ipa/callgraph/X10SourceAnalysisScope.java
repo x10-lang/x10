@@ -7,6 +7,8 @@ import com.ibm.wala.ipa.callgraph.AnalysisScope;
 import com.ibm.wala.types.ClassLoaderReference;
 import com.ibm.wala.util.strings.Atom;
 
+import java.util.*;
+
 import x10.wala.classLoader.X10LanguageImpl;
 import x10.wala.loader.X10SourceLoaderImpl;
 
