@@ -34,29 +34,7 @@ public class X102IRGoal extends SourceGoal_c {
 
     private static X10IdentityMapper mapper = new X10IdentityMapper(X10LOADER);
     
-    private static X10SourceAnalysisEngine engine = new X10SourceAnalysisEngine() {
-        {
-            try {
-            	if(Report.should_report("verbose", 1))
-        			Report.report(5,"building analysis scope ...");
-                
-            	buildAnalysisScope();
-            } catch (Throwable t) {}
-            
-            if(Report.should_report("verbose", 1))
-    			Report.report(5,"initializing class hierarchy ...");
-            
-            X10ClassHierarchy cha = initClassHierarchy();
-            setClassHierarchy(cha);
-            
-            if(Report.should_report("verbose", 1))
-    			Report.report(5,"translating AST to IR ...");
-        }
-        
-        public String getExclusionsFile() {
-            return null;
-        }
-    };
+    private static X10SourceAnalysisEngine engine = new X10SourceAnalysisEngine();
 
     private static final List mainClasses = new ArrayList();
     
