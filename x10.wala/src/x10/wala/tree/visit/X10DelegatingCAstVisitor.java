@@ -146,13 +146,6 @@ public abstract class X10DelegatingCAstVisitor extends DelegatingCAstVisitor {
 		visitor.leaveFinishExit(n, context, visitor);
 		break;
 	    }
-	    case X10CastNode.FORCE: {
-		if (visitor.visitForce(n, context, visitor))
-		    break;
-		visitor.visit(n.getChild(0), context, visitor);
-		visitor.leaveForce(n, context, visitor);
-		break;
-	    }
 	    case X10CastNode.REGION_ITER_INIT: {
 		if (visitor.visitRegionIterInit(n, context, visitor))
 		    break;
