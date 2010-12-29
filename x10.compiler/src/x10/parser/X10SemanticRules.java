@@ -3052,9 +3052,10 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
                     MethodBody);
         }
         else {
+            Position bodyStart = MethodBody == null ? pos().endOf() : MethodBody.position().startOf();
             pd = nf.X10MethodDecl(pos(),
                     extractFlags(modifiers),
-                    HasResultTypeopt == null ? nf.UnknownTypeNode(MethodBody.position().startOf().markCompilerGenerated()) : HasResultTypeopt,
+                    HasResultTypeopt == null ? nf.UnknownTypeNode(bodyStart.markCompilerGenerated()) : HasResultTypeopt,
                     Identifier,
                     TypeParametersopt,
                     FormalParameters,
@@ -3082,9 +3083,10 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
             syntaxError("Cannot override binary operator '"+BinOp+"'.", pos());
             opName = Name.make("invalid operator");
         }
+        Position bodyStart = MethodBody == null ? pos().endOf() : MethodBody.position().startOf();
         MethodDecl md = nf.X10MethodDecl(pos(),
                 extractFlags(modifiers),
-                HasResultTypeopt == null ? nf.UnknownTypeNode(MethodBody.position().startOf().markCompilerGenerated()) : HasResultTypeopt,
+                HasResultTypeopt == null ? nf.UnknownTypeNode(bodyStart.markCompilerGenerated()) : HasResultTypeopt,
                 nf.Id(pos(getRhsFirstTokenIndex(7)), opName),
                 TypeParametersopt,
                 Arrays.<Formal>asList(fp1, fp2),
@@ -3115,9 +3117,10 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
             syntaxError("Cannot override unary operator '"+PrefixOp+"'.", pos());
             opName = Name.make("invalid operator");
         }
+        Position bodyStart = MethodBody == null ? pos().endOf() : MethodBody.position().startOf();
         MethodDecl md = nf.X10MethodDecl(pos(),
                 extractFlags(modifiers),
-                HasResultTypeopt == null ? nf.UnknownTypeNode(MethodBody.position().startOf().markCompilerGenerated()) : HasResultTypeopt,
+                HasResultTypeopt == null ? nf.UnknownTypeNode(bodyStart.markCompilerGenerated()) : HasResultTypeopt,
                 nf.Id(pos(getRhsFirstTokenIndex(4)), opName),
                 TypeParametersopt,
                 Collections.<Formal>singletonList(fp2),
@@ -3148,9 +3151,10 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
             syntaxError("Cannot override binary operator '"+BinOp+"'.", pos());
             opName = Name.make("invalid operator");
         }
+        Position bodyStart = MethodBody == null ? pos().endOf() : MethodBody.position().startOf();
         MethodDecl md = nf.X10MethodDecl(pos(),
                 extractFlags(modifiers),
-                HasResultTypeopt == null ? nf.UnknownTypeNode(MethodBody.position().startOf().markCompilerGenerated()) : HasResultTypeopt,
+                HasResultTypeopt == null ? nf.UnknownTypeNode(bodyStart.markCompilerGenerated()) : HasResultTypeopt,
                 nf.Id(pos(getRhsFirstTokenIndex(5)), opName),
                 TypeParametersopt,
                 Collections.<Formal>singletonList(fp2),
@@ -3181,9 +3185,10 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
             syntaxError("Cannot override binary operator '"+BinOp+"'.", pos());
             opName = Name.make("invalid operator");
         }
+        Position bodyStart = MethodBody == null ? pos().endOf() : MethodBody.position().startOf();
         MethodDecl md = nf.X10MethodDecl(pos(),
                 extractFlags(modifiers),
-                HasResultTypeopt == null ? nf.UnknownTypeNode(MethodBody.position().startOf().markCompilerGenerated()) : HasResultTypeopt,
+                HasResultTypeopt == null ? nf.UnknownTypeNode(bodyStart.markCompilerGenerated()) : HasResultTypeopt,
                 nf.Id(pos(getRhsFirstTokenIndex(7)), opName),
                 TypeParametersopt,
                 Collections.<Formal>singletonList(fp1),
@@ -3213,9 +3218,10 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
             syntaxError("Cannot override unary operator '"+PrefixOp+"'.", pos());
             opName = Name.make("invalid operator");
         }
+        Position bodyStart = MethodBody == null ? pos().endOf() : MethodBody.position().startOf();
         MethodDecl md = nf.X10MethodDecl(pos(),
                 extractFlags(modifiers),
-                HasResultTypeopt == null ? nf.UnknownTypeNode(MethodBody.position().startOf().markCompilerGenerated()) : HasResultTypeopt,
+                HasResultTypeopt == null ? nf.UnknownTypeNode(bodyStart.markCompilerGenerated()) : HasResultTypeopt,
                 nf.Id(pos(getRhsFirstTokenIndex(4)), opName),
                 TypeParametersopt,
                 Collections.<Formal>emptyList(),
@@ -3240,9 +3246,10 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         TypeNode Offersopt = (TypeNode) _Offersopt;
         Block MethodBody = (Block) _MethodBody;
         List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
+        Position bodyStart = MethodBody == null ? pos().endOf() : MethodBody.position().startOf();
         MethodDecl md = nf.X10MethodDecl(pos(),
                 extractFlags(modifiers),
-                HasResultTypeopt == null ? nf.UnknownTypeNode(MethodBody.position().startOf().markCompilerGenerated()) : HasResultTypeopt,
+                HasResultTypeopt == null ? nf.UnknownTypeNode(bodyStart.markCompilerGenerated()) : HasResultTypeopt,
                 nf.Id(pos(), ClosureCall.APPLY),
                 TypeParametersopt,
                 FormalParameters,
@@ -3268,9 +3275,10 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         TypeNode Offersopt = (TypeNode) _Offersopt;
         Block MethodBody = (Block) _MethodBody;
         List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
+        Position bodyStart = MethodBody == null ? pos().endOf() : MethodBody.position().startOf();
         MethodDecl md = nf.X10MethodDecl(pos(),
                 extractFlags(modifiers),
-                HasResultTypeopt == null ? nf.UnknownTypeNode(MethodBody.position().startOf().markCompilerGenerated()) : HasResultTypeopt,
+                HasResultTypeopt == null ? nf.UnknownTypeNode(bodyStart.markCompilerGenerated()) : HasResultTypeopt,
                 nf.Id(pos(), SettableAssign.SET),
                 TypeParametersopt,
                 CollectionUtil.append(Collections.singletonList(fp2), FormalParameters),
@@ -3322,9 +3330,10 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         TypeNode Offersopt = (TypeNode) _Offersopt;
         Block MethodBody = (Block) _MethodBody;
         List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
+        Position bodyStart = MethodBody == null ? pos().endOf() : MethodBody.position().startOf();
         MethodDecl md = nf.X10MethodDecl(pos(),
                 extractFlags(modifiers),
-                HasResultTypeopt == null ? nf.UnknownTypeNode(MethodBody.position().startOf().markCompilerGenerated()) : HasResultTypeopt,
+                HasResultTypeopt == null ? nf.UnknownTypeNode(bodyStart.markCompilerGenerated()) : HasResultTypeopt,
                 nf.Id(pos(), Converter.operator_as),
                 TypeParametersopt,
                 Collections.<Formal>singletonList(fp1),
@@ -3349,9 +3358,10 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         TypeNode Offersopt = (TypeNode) _Offersopt;
         Block MethodBody = (Block) _MethodBody;
         List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
+        Position bodyStart = MethodBody == null ? pos().endOf() : MethodBody.position().startOf();
         MethodDecl md = nf.X10MethodDecl(pos(),
                 extractFlags(modifiers),
-                HasResultTypeopt == null ? nf.UnknownTypeNode(MethodBody.position().startOf().markCompilerGenerated()) : HasResultTypeopt,
+                HasResultTypeopt == null ? nf.UnknownTypeNode(bodyStart.markCompilerGenerated()) : HasResultTypeopt,
                 nf.Id(pos(), Converter.implicit_operator_as),
                 TypeParametersopt,
                 Collections.<Formal>singletonList(fp1),
