@@ -18,10 +18,6 @@ public interface AstX10InstructionFactory extends AstJavaInstructionFactory {
 	RegionIterHasNextInstruction RegionIterHasNext(int hasNextValue, int regionIter);
 	RegionIterInitInstruction RegionIterInit(int iterVal, int regionVal);
 	RegionIterNextInstruction RegionIterNext(int nextValue, int regionIter);
-	ArrayLoadByIndexInstruction ArrayLoadByIndex(int result, int arrayRef, int dims[], TypeReference declaredType);
-	ArrayLoadByPointInstruction ArrayLoadByPoint(int result, int arrayRef, int pointIndex, TypeReference declaredType);
-	ArrayStoreByIndexInstruction ArrayStoreByIndex(int arrayRef, int[] indices, int value, TypeReference declaredType);
-	ArrayStoreByPointInstruction ArrayStoreByPoint(int arrayRef, int pointIndex, int value, TypeReference declaredType);
 	TupleInstruction Tuple(int retValue, int[] slotValues);
 	AtStmtInstruction AtStmt(boolean isEnter);
 }

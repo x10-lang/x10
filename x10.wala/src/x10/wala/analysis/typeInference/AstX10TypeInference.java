@@ -1,10 +1,6 @@
 package x10.wala.analysis.typeInference;
 
 import x10.wala.classLoader.X10LanguageImpl;
-import x10.wala.ssa.ArrayLoadByIndexInstruction;
-import x10.wala.ssa.ArrayLoadByPointInstruction;
-import x10.wala.ssa.ArrayStoreByIndexInstruction;
-import x10.wala.ssa.ArrayStoreByPointInstruction;
 import x10.wala.ssa.AstX10InstructionVisitor;
 import x10.wala.ssa.AtStmtInstruction;
 import x10.wala.ssa.AtomicInstruction;
@@ -76,28 +72,6 @@ public class AstX10TypeInference extends AstJavaTypeInference {
 	    result= new DeclaredTypeOperator(new ConeType(klass));
 	}
 
-	public void visitArrayLoadByIndex(ArrayLoadByIndexInstruction instruction) {
-	    TypeReference type = instruction.getDeclaredType();
-	    IClass klass= cha.lookupClass(type);
-
-	    result = new DeclaredTypeOperator(new ConeType(klass));
-	}
-
-	public void visitArrayLoadByPoint(ArrayLoadByPointInstruction instruction) {
-	    TypeReference type = instruction.getDeclaredType();
-	    IClass klass= cha.lookupClass(type);
-
-	    result = new DeclaredTypeOperator(new ConeType(klass));
-	}
-
-	public void visitArrayStoreByIndex(ArrayStoreByIndexInstruction instruction) {
-	    result = null; // ??? is this correct ???
-	}
-
-	public void visitArrayStoreByPoint(ArrayStoreByPointInstruction instruction) {
-	    result = null; // ??? is this correct ???
-	}
-	
  	public void visitPlaceOfPoint(PlaceOfPointInstruction instruction) {
         TypeReference placeType= X10LanguageImpl.x10LangPlace;
         IClass placeClass = cha.lookupClass(placeType);

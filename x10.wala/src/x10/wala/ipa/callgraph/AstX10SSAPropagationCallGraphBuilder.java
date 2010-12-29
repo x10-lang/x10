@@ -1,10 +1,6 @@
 package x10.wala.ipa.callgraph;
 
 import x10.wala.analysis.typeInference.AstX10TypeInference;
-import x10.wala.ssa.ArrayLoadByIndexInstruction;
-import x10.wala.ssa.ArrayLoadByPointInstruction;
-import x10.wala.ssa.ArrayStoreByIndexInstruction;
-import x10.wala.ssa.ArrayStoreByPointInstruction;
 import x10.wala.ssa.AstX10InstructionVisitor;
 import x10.wala.ssa.AtStmtInstruction;
 import x10.wala.ssa.AtomicInstruction;
@@ -88,30 +84,6 @@ public class AstX10SSAPropagationCallGraphBuilder extends AstJavaSSAPropagationC
 	public void visitHere(HereInstruction instruction) {
 	    Assertions.UNREACHABLE("Query of interestingness of value number for Here???");
 	}
-
-	public void visitArrayLoadByIndex(ArrayLoadByIndexInstruction instruction) {
-	    if (!instruction.typeIsPrimitive() && instruction.getArrayRef() == vn) {
-		bingo= true;
-	    }
-	}
-
-	public void visitArrayLoadByPoint(ArrayLoadByPointInstruction instruction) {
-	    if (!instruction.typeIsPrimitive() && instruction.getArrayRef() == vn) {
-		bingo= true;
-	    }
-	}
-
-	public void visitArrayStoreByIndex(ArrayStoreByIndexInstruction instruction) {
-	    if (!instruction.typeIsPrimitive() && (instruction.getArrayRef() == vn || instruction.getStoreValue() == vn)) {
-		bingo= true;
-	    }
-	}
-
-	public void visitArrayStoreByPoint(ArrayStoreByPointInstruction instruction) {
-	    if (!instruction.typeIsPrimitive() && (instruction.getArrayRef() == vn || instruction.getStoreValue() == vn)) {
-	    	bingo = true;
-	    }
-	}
 	    
 	public void visitPlaceOfPoint(PlaceOfPointInstruction instruction) {
 		// not interesting for now	
@@ -165,38 +137,6 @@ public class AstX10SSAPropagationCallGraphBuilder extends AstJavaSSAPropagationC
 
 	public void visitHere(HereInstruction instruction) {
 	    // TODO model data flow for here
-	}
-
-	public void visitArrayLoadByIndex(ArrayLoadByIndexInstruction instruction) {
-	    // skip arrays of primitive type
-	    if (instruction.typeIsPrimitive()) {
-		return;
-	    }
-	    doVisitArrayLoad(instruction.getDef(), instruction.getArrayRef());
-	}
-
-	public void visitArrayLoadByPoint(ArrayLoadByPointInstruction instruction) {
-	    // skip arrays of primitive type
-	    if (instruction.typeIsPrimitive()) {
-		return;
-	    }
-	    doVisitArrayLoad(instruction.getDef(), instruction.getArrayRef());
-	}
-
-	public void visitArrayStoreByIndex(ArrayStoreByIndexInstruction instruction) {
-	    // skip arrays of primitive type
-	    if (instruction.typeIsPrimitive()) {
-		return;
-	    }
-	    doVisitArrayStore(instruction.getArrayRef(), instruction.getStoreValue());
-	}
-
-	public void visitArrayStoreByPoint(ArrayStoreByPointInstruction instruction) {
-	    // skip arrays of primitive type
-	    if (instruction.typeIsPrimitive()) {
-		return;
-	    }
-	    doVisitArrayStore(instruction.getArrayRef(), instruction.getStoreValue());
 	}
 
 	public void visitPlaceOfPoint(PlaceOfPointInstruction instruction) {

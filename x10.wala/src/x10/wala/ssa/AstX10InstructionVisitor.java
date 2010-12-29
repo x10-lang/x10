@@ -14,10 +14,6 @@ public interface AstX10InstructionVisitor extends AstJavaInstructionVisitor {
     void visitRegionIterNext(RegionIterNextInstruction instruction);
     void visitHere(HereInstruction instruction);
     void visitPlaceOfPoint(PlaceOfPointInstruction instruction);
-    void visitArrayLoadByPoint(ArrayLoadByPointInstruction instruction);
-    void visitArrayStoreByPoint(ArrayStoreByPointInstruction instruction);
-    void visitArrayStoreByIndex(ArrayStoreByIndexInstruction instruction);
-    void visitArrayLoadByIndex(ArrayLoadByIndexInstruction instruction);
     void visitTuple(TupleInstruction newTupleInstruction);
     void visitAtStmt(AtStmtInstruction atStmtInstruction);
 }

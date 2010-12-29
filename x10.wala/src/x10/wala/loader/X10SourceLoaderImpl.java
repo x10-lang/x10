@@ -7,10 +7,6 @@ import java.util.List;
 import java.util.Set;
 
 import x10.wala.classLoader.X10LanguageImpl;
-import x10.wala.ssa.ArrayLoadByIndexInstruction;
-import x10.wala.ssa.ArrayLoadByPointInstruction;
-import x10.wala.ssa.ArrayStoreByIndexInstruction;
-import x10.wala.ssa.ArrayStoreByPointInstruction;
 import x10.wala.ssa.AstX10InstructionFactory;
 import x10.wala.ssa.AsyncInvokeInstruction;
 import x10.wala.ssa.AtStmtInstruction;
@@ -165,23 +161,6 @@ public class X10SourceLoaderImpl extends JavaSourceLoaderImpl {
 
 
     public static class InstructionFactory extends JavaSourceLoaderImpl.InstructionFactory implements AstX10InstructionFactory {
-
-      public ArrayLoadByIndexInstruction ArrayLoadByIndex(int result, int arrayRef, int[] dims, TypeReference declaredType) {
-        return new ArrayLoadByIndexInstruction(result, arrayRef, dims, declaredType);
-      }
-
-      public ArrayLoadByPointInstruction ArrayLoadByPoint(int result, int arrayRef, int pointIndex, TypeReference declaredType) {
-        return new ArrayLoadByPointInstruction(result, arrayRef, pointIndex, declaredType);
-      }
-
-      public ArrayStoreByIndexInstruction ArrayStoreByIndex(int arrayRef, int[] indices, int value, TypeReference declaredType) {
-        return new ArrayStoreByIndexInstruction(arrayRef, indices, value, declaredType);
-      }
-
-      public ArrayStoreByPointInstruction ArrayStoreByPoint(int arrayRef, int pointIndex, int value,
-                                                               TypeReference declaredType) {
-        return new ArrayStoreByPointInstruction(arrayRef, pointIndex, value, declaredType);
-      }
 
       public AsyncInvokeInstruction AsyncInvoke(int result, int[] params, int exception, CallSiteReference site,
                                                 int[] clocks) {

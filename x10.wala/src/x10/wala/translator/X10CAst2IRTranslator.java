@@ -32,7 +32,7 @@ import com.ibm.wala.types.TypeReference;
 import com.ibm.wala.util.debug.Assertions;
 import com.ibm.wala.util.strings.Atom;
 
-public class X10CAst2IRTranslator extends X10DelegatingCAstVisitor implements ArrayOpHandler {
+public class X10CAst2IRTranslator extends X10DelegatingCAstVisitor /* implements ArrayOpHandler */ {
 	private static class X10JavaCAst2IRTranslator extends JavaCAst2IRTranslator {
 		private X10JavaCAst2IRTranslator(CAstEntity sourceFileEntity, JavaSourceLoaderImpl loader) {
 			super(sourceFileEntity, loader);
@@ -63,7 +63,7 @@ public class X10CAst2IRTranslator extends X10DelegatingCAstVisitor implements Ar
     private X10CAst2IRTranslator(X10JavaCAst2IRTranslator translator) {
         super(translator);
         this.translator = translator;
-        this.translator.setArrayOpHandler(this);
+//        this.translator.setArrayOpHandler(this);
         this.insts = (AstX10InstructionFactory) translator.loader().getInstructionFactory();
     }
 
@@ -340,7 +340,7 @@ public class X10CAst2IRTranslator extends X10DelegatingCAstVisitor implements Ar
         return arrayRefNode.getChildCount() > 3 || // if there are multiple indices, it's not by point
             arrayRefNode.getKind() == X10CastNode.ARRAY_REF_BY_POINT;
     }
-
+/*
     public void doArrayRead(WalkContext context, int result, int arrayValue, CAstNode arrayRefNode, int[] dimValues) {
         TypeReference arrayTypeRef= (TypeReference) arrayRefNode.getChild(1).getValue();
 
@@ -365,7 +365,7 @@ public class X10CAst2IRTranslator extends X10DelegatingCAstVisitor implements Ar
             context.cfg().addInstruction(
                     insts.ArrayStoreByIndex(arrayValue, dimValues, rval, arrayTypeRef));
     }
-
+*/
     @Override
     protected boolean doVisitAssignNodes(CAstNode n, Context context, CAstNode v, CAstNode a, CAstVisitor visitor) {
         int NT = a.getKind();
