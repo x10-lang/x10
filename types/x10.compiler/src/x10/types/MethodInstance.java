@@ -1,17 +1,52 @@
-package polyglot.types;
+/*
+ *  This file is part of the X10 project (http://x10-lang.org).
+ *
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ *  (C) Copyright IBM Corporation 2006-2010.
+ */
+
+package x10.types;
 
 import java.util.List;
 
-public interface MethodInstance extends FunctionInstance<MethodDef>, MemberInstance<MethodDef>, Use<MethodDef> {
+import polyglot.types.Context;
+import polyglot.types.FunctionInstance;
+import polyglot.types.MemberInstance;
+import polyglot.types.MethodDef;
+
+import polyglot.types.Name;
+import polyglot.types.Ref;
+import polyglot.types.SemanticException;
+import polyglot.types.Type;
+import polyglot.types.Use;
+import x10.constraint.XTerm;
+
+/**
+ * @author vj
+ *
+ */
+public interface MethodInstance 
+   extends FunctionInstance<MethodDef>, 
+           MemberInstance<MethodDef>, 
+           Use<MethodDef>,
+           X10ProcedureInstance<MethodDef>, 
+           X10Use<X10MethodDef> 
+{
+    MethodInstance error(SemanticException e);
+    MethodInstance name(Name name);
+    MethodInstance returnType(Type returnType);
+    MethodInstance formalTypes(List<Type> formalTypes);
+    MethodInstance throwTypes(List<Type> throwTypes);
     /**
      * The method's name.
      */
     Name name();
 
-    MethodInstance name(Name name);
-    MethodInstance returnType(Type returnType);
-    MethodInstance formalTypes(List<Type> formalTypes);
-    MethodInstance throwTypes(List<Type> throwTypes);
+  
     
     /**
      * Get the list of methods this method (potentially) overrides, in order
@@ -52,8 +87,15 @@ public interface MethodInstance extends FunctionInstance<MethodDef>, MemberInsta
      */
     boolean isSameMethod(MethodInstance mi, Context context);
 
-    public MethodInstance returnTypeRef(Ref<? extends Type> returnType);
+    MethodInstance returnTypeRef(Ref<? extends Type> returnType);
     
     void setOrigMI(MethodInstance orig);
     MethodInstance origMI();
+    
+
+    /** Type to use in a RHS context rather than the return type. */
+    Type rightType();
+
+    XTerm body();
+    MethodInstance body(XTerm body);
 }

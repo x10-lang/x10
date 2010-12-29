@@ -5,6 +5,7 @@ import java.util.*;
 import polyglot.frontend.Globals;
 import polyglot.main.Report;
 import polyglot.types.TypeSystem_c.ConstructorMatcher;
+import x10.types.MethodInstance;
 
 /**
  * Typing environment.
@@ -12,7 +13,7 @@ import polyglot.types.TypeSystem_c.ConstructorMatcher;
  * For a given typing rule Gamma |- Phi, this is Gamma. Phi is a method of
  * TypeEnv.
  */
-public class TypeEnv_c implements TypeEnv {
+public abstract class TypeEnv_c implements TypeEnv {
     protected Context context; // the actual context. Eliminate this and merge
     // with Context.
     protected TypeSystem ts;
@@ -747,13 +748,19 @@ public class TypeEnv_c implements TypeEnv {
 	    return;
 
 	if (!(mi.name().equals(mj.name()) && mi.hasFormals(mj.formalTypes(), context))) {
-	    throw new SemanticException(mi.signature() + " in " + mi.container() + " cannot override " + mj.signature() + " in " + mj.container()+ "; incompatible " + "parameter types", mi.position());
+	    throw new SemanticException(mi.signature() 
+	                                + " in " + mi.container() + " cannot override " + mj.signature() 
+	                                + " in " + mj.container()+ "; incompatible " + "parameter types", mi.position());
 	}
 
 	if (allowCovariantReturn ? !isSubtype(mi.returnType(), mj.returnType()) : !typeEquals(mi.returnType(), mj.returnType())) {
 	    if (Report.should_report(Report.types, 3))
 		Report.report(3, "return type " + mi.returnType() + " != " + mj.returnType());
-	    throw new SemanticException(mi.signature() + " in " + mi.container() + " cannot override " + mj.signature() + " in " + mj.container()+ "; attempting to use incompatible " + "return type\n" + "found: " + mi.returnType() + "\n" + "required: " + mj.returnType(),mi.position());
+	    throw new SemanticException(mi.signature() 
+	                                + " in " + mi.container() + " cannot override " + mj.signature() 
+	                                + " in " + mj.container()+ "; attempting to use incompatible return type." 
+	                                + "\n\tFound: " + mi.returnType() 
+	                                + "\n\tExpected: " + mj.returnType(),mi.position());
 	}
 
 /*	if (!ts.throwsSubset(mi, mj)) {
@@ -767,7 +774,10 @@ public class TypeEnv_c implements TypeEnv {
 	if (mi.flags().moreRestrictiveThan(mj.flags())) {
 	    if (Report.should_report(Report.types, 3))
 		Report.report(3, mi.flags() + " more restrictive than " + mj.flags());
-	    throw new SemanticException(mi.signature() + " in " + mi.container() + " cannot override " + mj.signature() + " in " + mj.container()+ "; attempting to assign weaker " + "access privileges", mi.position());
+	    throw new SemanticException(mi.signature() 
+	                                + " in " + mi.container() + " cannot override " + mj.signature() 
+	                                + " in " + mj.container()+ "; attempting to assign weaker " 
+	                                + "access privileges", mi.position());
 	}
 
 	if (mi.flags().isStatic() != mj.flags().isStatic()) {
@@ -798,6 +808,7 @@ public class TypeEnv_c implements TypeEnv {
     }
 
     public Type findMemberType(Type container, Name name) throws SemanticException {
+        assert false;
 	Named n = ts.classContextResolver(container, context).find(ts.MemberTypeMatcher(container, name, context));
 
 	if (n instanceof ClassType) {
@@ -807,72 +818,6 @@ public class TypeEnv_c implements TypeEnv {
 	throw new NoClassException(name.toString(), container);
     }
 
-    /**
-     * Populates the list acceptable with those MethodInstances which are
-     * Applicable and Accessible as defined by JLS 15.11.2.1
-     * 
-     * @param container
-     *            TODO
-     * @param matcher
-     *            TODO
-     */
-    public List<ConstructorInstance> findAcceptableConstructors(Type container, ConstructorMatcher matcher) throws SemanticException {
-	assert false; // should be overridden by X10TypeEnv_c.findAcceptableConstructors.
-    	SemanticException error = null;
-
-	List<ConstructorInstance> acceptable = new ArrayList<ConstructorInstance>();
-
-	if (Report.should_report(Report.types, 2))
-	    Report.report(2, "Searching type " + container + " for constructor " + matcher.signature());
-
-	if (!(container instanceof ClassType)) {
-	    return Collections.<ConstructorInstance>emptyList();
-	}
-
-	for (ConstructorInstance ci : ((ClassType) container).constructors()) {
-	    if (Report.should_report(Report.types, 3))
-		Report.report(3, "Trying " + ci);
-
-	    try {
-		ci = matcher.instantiate(ci);
-
-		if (ci == null) {
-		    continue;
-		}
-
-		if (isAccessible(ci)) {
-		    if (Report.should_report(Report.types, 3))
-			Report.report(3, "->acceptable: " + ci);
-		    acceptable.add(ci);
-		}
-		else {
-		    if (error == null) {
-			error = new NoMemberException(NoMemberException.CONSTRUCTOR, "Constructor " + ci.signature() + " is inaccessible.");
-		    }
-		}
-
-		continue;
-	    }
-	    catch (SemanticException e) {
-		// Treat any instantiation errors as call invalid errors.
-	    }
-
-	    if (error == null) {
-		error = new NoMemberException(NoMemberException.CONSTRUCTOR, "Constructor " + ci.signature() + " cannot be invoked with arguments "
-			+ matcher.argumentString() + ".");
-
-	    }
-	}
-
-	if (acceptable.size() == 0) {
-	    if (error == null) {
-		error = new NoMemberException(NoMemberException.CONSTRUCTOR, "No valid constructor found for " + container + matcher.signature() + ".");
-	    }
-
-	    throw error;
-	}
-
-	return acceptable;
-    }
-
+  
+   
 }

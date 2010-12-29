@@ -61,7 +61,7 @@ import x10.extension.X10Ext;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10MethodDef;
-import x10.types.X10MethodInstance;
+import x10.types.MethodInstance;
 import polyglot.types.TypeSystem;
 import x10.types.X10TypeSystem_c;
 import x10.util.HierarchyUtils;
@@ -195,7 +195,7 @@ public class ASTQuery {
 		return true;
 	}
 
-	static final ArrayList<X10MethodInstance> knownAsyncArrayCopyMethods = new ArrayList<X10MethodInstance>();
+	static final ArrayList<MethodInstance> knownAsyncArrayCopyMethods = new ArrayList<MethodInstance>();
 
 	/* -- SPMD compilation --
 	boolean isAsyncArrayCopy(Call_c n) {
@@ -221,7 +221,7 @@ public class ASTQuery {
 	*/
 
 
-	static final ArrayList<X10MethodInstance> knownArrayCopyMethods = new ArrayList<X10MethodInstance>();
+	static final ArrayList<MethodInstance> knownArrayCopyMethods = new ArrayList<MethodInstance>();
 
 	boolean isAsyncArrayCopy(Async_c n) {
 		TypeSystem ts = (TypeSystem) tr.typeSystem();

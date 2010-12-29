@@ -38,7 +38,6 @@ import polyglot.ast.TypeNode;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.MethodDef;
-import polyglot.types.MethodInstance;
 import polyglot.types.Name;
 import polyglot.types.ProcedureDef;
 import polyglot.types.SemanticException;
@@ -55,6 +54,7 @@ import x10.ast.PlacedClosure;
 import x10.ast.StmtSeq;
 import x10.ast.When;
 import x10.compiler.ws.WSTransformState;
+import x10.types.MethodInstance;
 import polyglot.types.Context;
 import polyglot.types.TypeSystem;
 

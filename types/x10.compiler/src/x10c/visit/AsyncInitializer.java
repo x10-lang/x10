@@ -45,7 +45,7 @@ import x10.ast.X10Local_c;
 import x10.extension.X10Ext_c;
 import x10.types.X10ClassType;
 import x10.types.X10LocalDef;
-import x10.types.X10MethodInstance;
+import x10.types.MethodInstance;
 import x10c.ast.BackingArrayAccess;
 import x10c.ast.BackingArrayAccessAssign;
 import x10c.ast.BackingArrayNewArray;
@@ -72,7 +72,7 @@ public class AsyncInitializer extends ContextVisitor {
         return (collectAsyncVarsToBox(n) != null);
     }
     private boolean isAsyncBlock(X10Call n) {
-        X10MethodInstance mi = (X10MethodInstance) n.methodInstance();
+        MethodInstance mi = (MethodInstance) n.methodInstance();
         if (mi.container().isClass() && ((X10ClassType) mi.container().toClass()).
                 fullName().toString().equals("x10.lang.Runtime")) {
             if (mi.signature().startsWith("runAsync"))
@@ -85,7 +85,7 @@ public class AsyncInitializer extends ContextVisitor {
     protected NodeVisitor enterCall(Node parent, Node n) throws SemanticException {
         if (n instanceof X10Call) {
             X10Call call = (X10Call)n;
-            X10MethodInstance mi = (X10MethodInstance) call.methodInstance();
+            MethodInstance mi = (MethodInstance) call.methodInstance();
             if (mi.container().isClass() && ((X10ClassType) mi.container().toClass()).
                     fullName().toString().equals("x10.lang.Runtime")) {
                 // adjust nest level counter of finish block
@@ -455,7 +455,7 @@ public class AsyncInitializer extends ContextVisitor {
                     }
                     if (e.expr() instanceof X10Call) {
                         X10Call call = (X10Call)(e.expr());
-                        X10MethodInstance mi = (X10MethodInstance) call.methodInstance();
+                        MethodInstance mi = (MethodInstance) call.methodInstance();
                         if (mi.container().isClass() && ((X10ClassType) mi.container().toClass()).
                                 fullName().toString().equals("x10.lang.Runtime")) {
                             if (mi.signature().startsWith("stopFinish")) {

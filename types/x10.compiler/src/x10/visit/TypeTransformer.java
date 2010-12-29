@@ -62,7 +62,7 @@ import x10.types.X10ConstructorInstance;
 import x10.types.X10FieldInstance;
 import x10.types.X10LocalDef;
 import x10.types.X10LocalInstance;
-import x10.types.X10MethodInstance;
+import x10.types.MethodInstance;
 import polyglot.types.TypeSystem;
 import polyglot.visit.ContextVisitor;
 
@@ -93,7 +93,7 @@ public class TypeTransformer extends NodeTransformer {
         return fi;
     }
 
-    protected X10MethodInstance transformMethodInstance(X10MethodInstance mi) {
+    protected MethodInstance transformMethodInstance(MethodInstance mi) {
         return mi;
     }
 
@@ -106,8 +106,8 @@ public class TypeTransformer extends NodeTransformer {
     }
     
     protected final CodeInstance<?> transformCodeInstance(CodeInstance<?> ci) {
-        if (ci instanceof X10MethodInstance) {
-            return transformMethodInstance((X10MethodInstance) ci);
+        if (ci instanceof MethodInstance) {
+            return transformMethodInstance((MethodInstance) ci);
         } else if (ci instanceof X10ConstructorInstance) {
             return transformConstructorInstance((X10ConstructorInstance) ci);
         } else if (ci instanceof ClosureInstance) {
@@ -205,7 +205,7 @@ public class TypeTransformer extends NodeTransformer {
 
     @Override
     protected Call transform(Call c, Call old) {
-        X10MethodInstance mi = transformMethodInstance((X10MethodInstance) c.methodInstance());
+        MethodInstance mi = transformMethodInstance((MethodInstance) c.methodInstance());
         if (c.methodInstance() != mi) {
             return c.methodInstance(mi);
         }
@@ -223,7 +223,7 @@ public class TypeTransformer extends NodeTransformer {
 
     @Override
     protected ClosureCall transform(ClosureCall c, ClosureCall old) {
-        X10MethodInstance ci = transformMethodInstance(c.closureInstance());
+        MethodInstance ci = transformMethodInstance(c.closureInstance());
         if (c.closureInstance() != ci) {
             return c.closureInstance(ci);
         }
@@ -232,8 +232,8 @@ public class TypeTransformer extends NodeTransformer {
 
     @Override
     protected SettableAssign transform(SettableAssign a, SettableAssign old) {
-        X10MethodInstance mi = transformMethodInstance(a.methodInstance());
-        X10MethodInstance ami = transformMethodInstance(a.applyMethodInstance());
+        MethodInstance mi = transformMethodInstance(a.methodInstance());
+        MethodInstance ami = transformMethodInstance(a.applyMethodInstance());
         if (a.methodInstance() != mi || a.applyMethodInstance() != ami) {
             return a.methodInstance(mi).applyMethodInstance(ami);
         }

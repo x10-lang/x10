@@ -55,7 +55,7 @@ import polyglot.types.Def;
 import polyglot.types.Flags;
 import polyglot.types.MemberInstance;
 import polyglot.types.MethodDef;
-import polyglot.types.MethodInstance;
+
 import polyglot.types.Name;
 import polyglot.types.NoClassException;
 import polyglot.types.QName;
@@ -100,7 +100,7 @@ import x10.types.X10ClassType;
 import x10.types.X10Def;
 
 import x10.types.X10MethodDef;
-import x10.types.X10MethodInstance;
+import x10.types.MethodInstance;
 import x10.types.X10ParsedClassType_c;
 import x10.types.checker.Converter;
 import x10.visit.ChangePositionVisitor;
@@ -857,7 +857,7 @@ public class Emitter {
 		}
 
 		for (MethodInstance mi : methods) {
-			generateDispatcher((X10MethodInstance) mi,
+			generateDispatcher((MethodInstance) mi,
 					methodUsesClassParameter(mi.def()));
 		}
 	}
@@ -889,7 +889,7 @@ public class Emitter {
 		}
 	}
 
-	private void generateDispatcher(X10MethodInstance md, boolean usesClassParam) {
+	private void generateDispatcher(MethodInstance md, boolean usesClassParam) {
 		TypeSystem ts = (TypeSystem) tr.typeSystem();
 
 		Flags flags = md.flags();
@@ -1915,8 +1915,8 @@ public class Emitter {
 	    
 	    boolean first2 = true;
 	    MethodInstance dmi = def.asInstance();
-	    if (dmi instanceof X10MethodInstance) {
-	        X10MethodInstance x10mi = (X10MethodInstance) dmi;
+	    if (dmi instanceof MethodInstance) {
+	        MethodInstance x10mi = (MethodInstance) dmi;
 	        for (Iterator<Type> i = x10mi.typeParameters().iterator(); i.hasNext(); ) {
 	            final Type at = i.next();
 	            first2 = false;
@@ -3174,7 +3174,8 @@ public class Emitter {
         X10ClassType ct = (X10ClassType) cd.asType();
         
         List<MethodInstance> methods = ct.methods();
-        Map<MethodInstance, List<MethodInstance>> dispatcherToMyMethods = new HashMap<MethodInstance,List<MethodInstance>>();
+        Map<MethodInstance, List<MethodInstance>> dispatcherToMyMethods 
+        = new HashMap<MethodInstance,List<MethodInstance>>();
         for (MethodInstance myMethod : methods) {
             List<MethodInstance> implementeds = myMethod.implemented(tr.context());
             List<MethodInstance> targets = new ArrayList<MethodInstance>();
@@ -3460,7 +3461,7 @@ public class Emitter {
             w.write("(");
 
             boolean first2 = true;
-            X10MethodInstance x10mi = (X10MethodInstance) mi;
+            MethodInstance x10mi = (MethodInstance) mi;
             assert (x10mi.typeParameters().size() == x10def.typeParameters().size());
             for (Type t : x10def.typeParameters()) {
                 if (!first2) {
@@ -3661,7 +3662,7 @@ public class Emitter {
         Receiver target = c.target();
         Type t = target.type();
     
-        X10MethodInstance mi = (X10MethodInstance) c.methodInstance();
+        MethodInstance mi = (MethodInstance) c.methodInstance();
         String pat = getJavaImplForDef(mi.x10Def());
     	if (pat != null) {
     	    boolean cast = xts.isParameterType(t) || X10PrettyPrinterVisitor.hasParams(t);

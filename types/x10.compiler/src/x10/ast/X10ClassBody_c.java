@@ -39,7 +39,6 @@ import polyglot.ast.MethodDecl;
 import polyglot.ast.MethodDecl_c;
 import polyglot.ast.Formal_c;
 import polyglot.types.ClassType_c;
-import polyglot.types.MethodInstance;
 import polyglot.util.TypedList;
 import polyglot.visit.ContextVisitor;
 import polyglot.ast.ClassBody_c;
@@ -55,7 +54,7 @@ import x10.types.X10ConstructorDef;
 import polyglot.types.Context;
 
 import x10.types.X10MethodDef;
-import x10.types.X10MethodInstance;
+import x10.types.MethodInstance;
 import x10.types.X10ProcedureDef;
 import polyglot.types.TypeSystem;
 import x10.types.X10TypeSystem_c;
@@ -112,22 +111,20 @@ public class X10ClassBody_c extends ClassBody_c {
         // * mk and ml have compatible signatures
         // * mk and ml are parameterized
         for (int i = 0; i < l.size(); i++) {
-            X10MethodInstance mi = (X10MethodInstance) l.get(i);
+            MethodInstance mi = (MethodInstance) l.get(i);
 
             for (int j = i + 1; j < l.size(); j++) {
-                X10MethodInstance mj = (X10MethodInstance) l.get(j);
+                MethodInstance mj = (MethodInstance) l.get(j);
                 if (mi.def() == mj.def())
                     continue;
 
                 if (! mi.name().equals(mj.name()))
                     continue;
 
-                for (MethodInstance mik : mi.implemented(tc.context())) {
-                    X10MethodInstance mk = (X10MethodInstance) mik;
+                for (MethodInstance mk : mi.implemented(tc.context())) {
                     if (mk.def() == mi.def()) continue;
 
-                    for (MethodInstance mjl : mj.implemented(tc.context())) {
-                        X10MethodInstance ml = (X10MethodInstance) mjl;
+                    for (MethodInstance ml : mj.implemented(tc.context())) {
                         if (ml.def() == mj.def()) continue;
                         if (ml.def() == mk.def()) continue;
 

@@ -19,7 +19,7 @@ import polyglot.ast.TypeNode;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
 import polyglot.types.MethodDef_c;
-import polyglot.types.MethodInstance;
+
 import polyglot.types.Name;
 import polyglot.types.QName;
 import polyglot.types.Ref;
@@ -201,11 +201,11 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
     }
 
     @Override
-    public X10MethodInstance asInstance() {
+    public MethodInstance asInstance() {
         if (asInstance == null) {
-            asInstance = new X10MethodInstance_c(ts, position(), Types.<X10MethodDef>ref(this));
+            asInstance = new MethodInstance_c(ts, position(), Types.<X10MethodDef>ref(this));
         }
-        return (X10MethodInstance) asInstance;
+        return (MethodInstance) asInstance;
     }
     
     public static boolean hasVar(Type type, XVar var) {

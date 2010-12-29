@@ -56,7 +56,7 @@ import polyglot.types.Context;
 import x10.types.ConstrainedType;
 import x10.types.X10FieldInstance;
 import x10.types.X10LocalDef;
-import x10.types.X10MethodInstance;
+import x10.types.MethodInstance;
 
 import x10.types.X10TypeEnv;
 import x10.types.X10TypeEnv_c;

@@ -30,7 +30,7 @@ import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.Types;
-import polyglot.types.MethodInstance;
+
 import polyglot.util.Position;
 import x10.ast.AnnotationNode;
 import x10.ast.Closure;
@@ -46,6 +46,7 @@ import x10.types.ClosureInstance;
 import x10.types.ClosureType_c;
 import x10.types.FunctionType;
 import x10.types.ParameterType;
+import x10.types.MethodInstance;
 
 import x10.types.ThisDef;
 import x10.types.X10ClassDef;

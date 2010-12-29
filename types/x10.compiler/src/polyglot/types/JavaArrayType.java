@@ -7,6 +7,8 @@
 
 package polyglot.types;
 
+import x10.types.MethodInstance;
+
 /**
  * An <code>ArrayType</code> represents an array of other types.
  */

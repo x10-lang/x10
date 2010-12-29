@@ -14,12 +14,12 @@ package x10.types.matcher;
 import java.util.List;
 
 import polyglot.types.Context;
-import polyglot.types.MethodInstance;
+
 import polyglot.types.Name;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.Context;
-import x10.types.X10MethodInstance;
+import x10.types.MethodInstance;
 
 /** A method matcher that only checks name and arity. */
 public class DumbMethodMatcher extends X10MethodMatcher {
@@ -28,10 +28,7 @@ public class DumbMethodMatcher extends X10MethodMatcher {
     }
 
     @Override
-    public MethodInstance instantiate(MethodInstance mi) throws SemanticException {
-        if (mi instanceof X10MethodInstance) {
-            X10MethodInstance xmi = (X10MethodInstance) mi;
-
+    public MethodInstance instantiate(MethodInstance xmi) throws SemanticException {
             if (!xmi.name().equals(name))
                 return null;
             if (xmi.formalTypes().size() != argTypes.size())
@@ -53,10 +50,9 @@ public class DumbMethodMatcher extends X10MethodMatcher {
             // typeArgs = Arrays.asList(Y);
             // }
             if (typeArgs.size() == xmi.typeParameters().size()) {
-                X10MethodInstance newXmi = Matcher.instantiate((Context) context, xmi, c, typeArgs, argTypes);
+                MethodInstance newXmi = Matcher.instantiate((Context) context, xmi, c, typeArgs, argTypes);
                 return newXmi;
             }
-        }
         return null;
     }
 }

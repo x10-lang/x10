@@ -62,7 +62,7 @@ import x10.types.X10FieldDef;
 import x10.types.X10FieldInstance;
 
 import x10.types.X10MethodDef;
-import x10.types.X10MethodInstance;
+import x10.types.MethodInstance;
 import x10.types.X10ParsedClassType;
 import x10.types.X10ProcedureDef;
 import x10.types.ParameterType.Variance;
@@ -191,16 +191,16 @@ public class X10InnerClassRemover extends InnerClassRemover {
         }
 
         @Override
-        protected X10MethodInstance transformMethodInstance(X10MethodInstance mi) {
+        protected MethodInstance transformMethodInstance(MethodInstance mi) {
             Type returnType = mi.returnType();
             Type newReturnType = transformType(returnType);
             if (newReturnType != returnType) {
-                mi = (X10MethodInstance) mi.returnType(newReturnType);
+                mi = (MethodInstance) mi.returnType(newReturnType);
             }
             List<Type> formalTypes = mi.formalTypes();
             List<Type> newFormalTypes = transformTypeList(formalTypes);
             if (newFormalTypes != formalTypes) {
-                mi = (X10MethodInstance) mi.formalTypes(newFormalTypes);
+                mi = (MethodInstance) mi.formalTypes(newFormalTypes);
             }
             //List<Type> throwTypes = mi.throwTypes();
             //List<Type> newThrowTypes = transformTypeList(throwTypes);
@@ -210,17 +210,17 @@ public class X10InnerClassRemover extends InnerClassRemover {
             ContainerType container = mi.container();
             ContainerType newContainer = (ContainerType) transformType(container);
             if (newContainer != container) {
-                mi = (X10MethodInstance) mi.container(newContainer);
+                mi = (MethodInstance) mi.container(newContainer);
             }
             CConstraint guard = mi.guard();
             CConstraint newGuard = transformConstraint(guard);
             if (newGuard != guard) {
-                mi = (X10MethodInstance) mi.guard(newGuard);
+                mi = (MethodInstance) mi.guard(newGuard);
             }
             TypeConstraint typeGuard = mi.typeGuard();
             TypeConstraint newTypeGuard = transformTypeConstraint(typeGuard);
             if (newTypeGuard != typeGuard) {
-                mi = (X10MethodInstance) mi.typeGuard(newTypeGuard);
+                mi = (MethodInstance) mi.typeGuard(newTypeGuard);
             }
             return mi;
         }

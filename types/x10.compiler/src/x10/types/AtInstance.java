@@ -29,7 +29,7 @@ import polyglot.types.Type;
  * <code>Context</code>.
  * @author rfuhrer
  */
-public interface AtInstance extends X10MethodInstance {
+public interface AtInstance extends MethodInstance {
     AtDef def();
     CodeInstance<?> methodContainer();
     ClassType typeContainer();

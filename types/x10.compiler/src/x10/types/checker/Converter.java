@@ -37,7 +37,7 @@ import polyglot.types.Context;
 import polyglot.types.Def;
 import polyglot.types.Matcher;
 import polyglot.types.MemberInstance;
-import polyglot.types.MethodInstance;
+
 import polyglot.types.Name;
 import polyglot.types.NoMemberException;
 import polyglot.types.ObjectType;
@@ -70,6 +70,7 @@ import x10.errors.Warnings;
 import x10.types.ParameterType;
 import x10.types.TypeParamSubst;
 import x10.types.X10ClassType;
+import x10.types.MethodInstance;
 import polyglot.types.Context;
 import x10.types.X10ParsedClassType_c;
 import x10.types.X10ProcedureDef;

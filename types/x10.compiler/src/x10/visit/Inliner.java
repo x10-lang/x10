@@ -50,7 +50,6 @@ import polyglot.types.Flags;
 import polyglot.types.FunctionDef;
 import polyglot.types.LocalDef;
 import polyglot.types.LocalInstance;
-import polyglot.types.MethodInstance;
 import polyglot.types.Name;
 import polyglot.types.QName;
 import polyglot.types.Ref;
@@ -105,7 +104,7 @@ import x10.types.X10FieldInstance;
 import x10.types.X10LocalDef;
 import x10.types.X10LocalInstance;
 import x10.types.X10MethodDef;
-import x10.types.X10MethodInstance;
+import x10.types.MethodInstance;
 import x10.types.X10ParsedClassType;
 import x10.types.checker.Converter;
 import x10.types.matcher.Subst;
@@ -590,7 +589,7 @@ public class Inliner extends ContextVisitor {
             }
 
             @Override
-            protected X10MethodInstance transformMethodInstance(X10MethodInstance mi) {
+            protected MethodInstance transformMethodInstance(MethodInstance mi) {
                 // TODO: [IP] We don't change method instances yet, but would have to for local classes
                 return super.transformMethodInstance(mi);
             }
@@ -1041,7 +1040,7 @@ public class Inliner extends ContextVisitor {
         return result;
     }
 
-    private LocalDecl createThisFormal(X10MethodInstance mi, LocalDecl init) {
+    private LocalDecl createThisFormal(MethodInstance mi, LocalDecl init) {
         if (mi.flags().isStatic())
             return null;
         TypeParamSubst typeMap = makeTypeMap(mi);
@@ -1063,7 +1062,7 @@ public class Inliner extends ContextVisitor {
     private CodeBlock instantiate(final CodeBlock code, X10ProcedureCall call) {
         try {
             debug("Instantiate " + code, call);
-            TypeParamSubst typeMap = makeTypeMap((X10MethodInstance) call.procedureInstance());
+            TypeParamSubst typeMap = makeTypeMap((MethodInstance) call.procedureInstance());
             InliningTypeTransformer transformer = new InliningTypeTransformer(typeMap);
             ContextVisitor visitor = new NodeTransformingVisitor(job, ts, nf, transformer).context(context());
             CodeBlock visitedDecl = (CodeBlock) code.visit(visitor);
@@ -1136,7 +1135,7 @@ public class Inliner extends ContextVisitor {
         }
 
         @Override
-        protected X10MethodInstance transformMethodInstance(X10MethodInstance mi) {
+        protected MethodInstance transformMethodInstance(MethodInstance mi) {
             Pair<XLocal[], XLocal[]> p = getLocalSubstitution();
             XLocal[] X = p.fst();
             XLocal[] Y = p.snd();
@@ -1279,7 +1278,7 @@ public class Inliner extends ContextVisitor {
      * @param decl
      * @return
      */
-    private TypeParamSubst makeTypeMap(X10MethodInstance method) {
+    private TypeParamSubst makeTypeMap(MethodInstance method) {
         List<Type> typeArgs = new ArrayList<Type>();
         List<ParameterType> typeParms = new ArrayList<ParameterType>();
         typeArgs.addAll(method.typeParameters());

@@ -12,6 +12,7 @@ import java.util.*;
 import polyglot.frontend.Globals;
 import polyglot.frontend.Job;
 import polyglot.util.*;
+import x10.types.MethodInstance;
 
 /**
  * A <code>ClassType</code> represents a class -- either loaded from a

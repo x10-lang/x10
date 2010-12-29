@@ -27,7 +27,7 @@ import polyglot.types.JavaArrayType;
 import polyglot.types.ClassType;
 import polyglot.types.FieldInstance;
 import polyglot.types.LazyRef_c;
-import polyglot.types.MethodInstance;
+
 import polyglot.types.Name;
 import polyglot.types.Named;
 import polyglot.types.NullType;
@@ -489,7 +489,7 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, Name
 			if (fi != null)
 				return c.bindingForSelfField(XTerms.makeName(fi.def()));
 		
-			X10MethodInstance mi = Types.getPropertyMethod(this, propName);
+			MethodInstance mi = Types.getPropertyMethod(this, propName);
 			if (mi != null) {
 			    return c.bindingForSelfField(XTerms.makeName(mi.def()));
 			}
@@ -519,7 +519,7 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, Name
 		                if (fi != null) {
 		                    val = xts.xtypeTranslator().trans(c, var, fi);
 		                } else {
-		                    X10MethodInstance mi = Types.getPropertyMethod(this, propName);
+		                    MethodInstance mi = Types.getPropertyMethod(this, propName);
 		                    if (mi != null) {
 		                        val = xts.xtypeTranslator().trans(c, var, mi, mi.rightType());
 		                    }
@@ -760,7 +760,7 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, Name
 			    else {
 			        // try self.p()
 			            try {
-			                X10MethodInstance mi = xts.findMethod(this, xts.MethodMatcher(this, propName, Collections.<Type>emptyList(), xts.emptyContext()));
+			                MethodInstance mi = xts.findMethod(this, xts.MethodMatcher(this, propName, Collections.<Type>emptyList(), xts.emptyContext()));
 			                XTerm body = mi.body();
 			                CConstraint c = new CConstraint();
 			                body = body.subst(c.self(), mi.x10Def().thisVar());

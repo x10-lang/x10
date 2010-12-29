@@ -5,6 +5,7 @@ import java.util.List;
 import polyglot.types.TypeSystem_c.ConstructorMatcher;
 import polyglot.util.Copy;
 import polyglot.types.Package;
+import x10.types.MethodInstance;
 
 public interface TypeEnv extends Copy {
 

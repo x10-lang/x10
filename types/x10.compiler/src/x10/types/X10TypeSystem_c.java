@@ -47,7 +47,6 @@ import polyglot.types.LocalDef;
 import polyglot.types.LocalInstance;
 import polyglot.types.Matcher;
 import polyglot.types.MethodDef;
-import polyglot.types.MethodInstance;
 import polyglot.types.Name;
 import polyglot.types.Named;
 import polyglot.types.NoClassException;
@@ -149,17 +148,15 @@ public class X10TypeSystem_c extends TypeSystem_c {
 
     public List<MethodInstance> methods(ContainerType t, Name name, List<Type> typeParams, List<Type> argTypes, XVar thisVar, Context context) {
         List<MethodInstance> l = new ArrayList<MethodInstance>();
-        for (Iterator<MethodInstance> i = t.methodsNamed(name).iterator(); i.hasNext();) {
-            X10MethodInstance mi = (X10MethodInstance) i.next();
-
+        for (MethodInstance mi : t.methodsNamed(name)) {
             List<XVar> ys = new ArrayList<XVar>(2);
             List<XVar> xs = new ArrayList<XVar>(2);
 
-            X10MethodInstance_c.buildSubst((X10MethodInstance) mi, ys, xs, thisVar);
+            MethodInstance_c.buildSubst(mi, ys, xs, thisVar);
             final XVar[] y = ys.toArray(new XVar[ys.size()]);
             final XVar[] x = xs.toArray(new XVar[ys.size()]);
 
-            mi = new X10TypeEnv_c(context).fixThis((X10MethodInstance) mi, y, x);
+            mi = new X10TypeEnv_c(context).fixThis((MethodInstance) mi, y, x);
 
             if (mi.typeParameters().size() != typeParams.size()) {
                 continue;
@@ -228,33 +225,34 @@ public class X10TypeSystem_c extends TypeSystem_c {
         env(context).checkOverride(ct, mi0, mj0);
     }
 
-    public X10MethodInstance findImplementingMethod(ClassType ct, MethodInstance jmi, boolean includeAbstract, Context context) {
-        X10MethodInstance mi = (X10MethodInstance) jmi;
+
+    public MethodInstance findImplementingMethod(ClassType ct, MethodInstance mi, boolean includeAbstract, Context context) {
 
         XVar thisVar = ((X10ClassDef) ct.def()).thisVar(); // XTerms.makeLocal(XTerms.makeFreshName("this"));
 
         List<XVar> ys = new ArrayList<XVar>(2);
         List<XVar> xs = new ArrayList<XVar>(2);
-        X10MethodInstance_c.buildSubst((X10MethodInstance) mi, ys, xs, thisVar);
-        X10MethodInstance_c.buildSubst(ct, ys, xs, thisVar);
+        MethodInstance_c.buildSubst(mi, ys, xs, thisVar);
+        MethodInstance_c.buildSubst(ct, ys, xs, thisVar);
         final XVar[] y = ys.toArray(new XVar[ys.size()]);
         final XVar[] x = xs.toArray(new XVar[ys.size()]);
 
-        mi = new X10TypeEnv_c(context).fixThis((X10MethodInstance) mi, y, x);
+        mi = new X10TypeEnv_c(context).fixThis( mi, y, x);
 
         ContainerType curr = ct;
         while (curr != null) {
             List<MethodInstance> possible = methods(curr, mi.name(), mi.typeParameters(), mi.formalTypes(), thisVar, context);
-            for (Iterator<MethodInstance> k = possible.iterator(); k.hasNext();) {
-                MethodInstance mj = k.next();
-                if ((includeAbstract || !mj.flags().isAbstract()) && ((isAccessible(mi, context) && isAccessible(mj, context)) || isAccessible(mi, context))) {
+            for (MethodInstance mj : possible) {
+                if ((includeAbstract || !mj.flags().isAbstract()) 
+                        && ((isAccessible(mi, context) && isAccessible(mj, context)) 
+                                || isAccessible(mi, context))) {
                     // The method mj may be a suitable implementation of mi.
                     // mj is not abstract, and either mj's container
                     // can access mi (thus mj can really override mi), or
                     // mi and mj are both accessible from ct (e.g.,
                     // mi is declared in an interface that ct implements,
                     // and mj is defined in a superclass of ct).
-                    return (X10MethodInstance) mj;
+                    return mj;
                 }
             }
             if (curr.typeEquals(mi.container(), context)) {
@@ -697,13 +695,13 @@ public class X10TypeSystem_c extends TypeSystem_c {
         return ((X10FieldInstance) fd.asInstance()).error(error);
     }
 
-    public X10MethodInstance createFakeMethod(QName containerName, Flags flags, Name name, List<Type> typeArgs, List<Type> argTypes, SemanticException error) {
+    public MethodInstance createFakeMethod(QName containerName, Flags flags, Name name, List<Type> typeArgs, List<Type> argTypes, SemanticException error) {
         return createFakeMethod(typeForNameSilent(containerName), flags, name, typeArgs, argTypes, error);
     }
-    public X10MethodInstance createFakeMethod(Name name, List<Type> typeArgs, List<Type> argTypes, SemanticException error) {
+    public MethodInstance createFakeMethod(Name name, List<Type> typeArgs, List<Type> argTypes, SemanticException error) {
         return createFakeMethod(unknownClassDef().asType(), Flags.PUBLIC.Static(), name, typeArgs, argTypes, error);
     }
-    public X10MethodInstance createFakeMethod(ClassType container, Flags flags, Name name, List<Type> typeArgs, List<Type> argTypes, SemanticException error) {
+    public MethodInstance createFakeMethod(ClassType container, Flags flags, Name name, List<Type> typeArgs, List<Type> argTypes, SemanticException error) {
         Position pos = Position.compilerGenerated(container == null ? null : container.position());
         Type returnType = unknownType(pos);
         List<Ref<? extends Type>> args = new ArrayList<Ref<? extends Type>>();
@@ -723,7 +721,7 @@ public class X10TypeSystem_c extends TypeSystem_c {
             typeParams.add(new ParameterType(this, pos, Name.make("T"+(++i)), Types.ref(md)));
         }
         md.setTypeParameters(typeParams);
-        return ((X10MethodInstance) md.asInstance()).error(error);
+        return md.asInstance().error(error);
     }
 
     public X10ConstructorInstance createFakeConstructor(QName containerName, Flags flags, List<Type> typeArgs, List<Type> argTypes, SemanticException error) {
@@ -886,8 +884,8 @@ public class X10TypeSystem_c extends TypeSystem_c {
         return new X10ConstructorInstance_c(this, pos, (Ref<? extends X10ConstructorDef>) def);
     }
 
-    public X10MethodInstance createMethodInstance(Position pos, Ref<? extends MethodDef> def) {
-        return new X10MethodInstance_c(this, pos, (Ref<? extends X10MethodDef>) def);
+    public MethodInstance createMethodInstance(Position pos, Ref<? extends MethodDef> def) {
+        return new MethodInstance_c(this, pos, (Ref<? extends X10MethodDef>) def);
     }
 
     public X10FieldInstance createFieldInstance(Position pos, Ref<? extends FieldDef> def) {
@@ -2261,237 +2259,7 @@ public class X10TypeSystem_c extends TypeSystem_c {
         return new X10TypeEnv_c(context == null ? emptyContext() : context);
     }
 
-    @Override
-    public List<MethodInstance> findAcceptableMethods(Type container, MethodMatcher matcher) throws SemanticException {
-
-        X10MethodMatcher m = (X10MethodMatcher) matcher;
-
-        List<MethodInstance> candidates = new ArrayList<MethodInstance>();
-
-        List<Type> types = env(matcher.context()).upperBounds(container, true);
-        for (Type t : types) {
-            List<MethodInstance> ms = super.findAcceptableMethods(t, matcher);
-            candidates.addAll(ms);
-        }
-
-        return candidates;
-    }
-
-    public X10MethodInstance findMethod(Type container, MethodMatcher matcher) throws SemanticException {
-        return (X10MethodInstance) SUPER_findMethod(container, matcher);
-    }
-
-    public Collection<X10MethodInstance> findMethods(Type container, MethodMatcher matcher) throws SemanticException {
-        assert_(container);
-        Context context = matcher.context();
-        List<MethodInstance> acceptable = findAcceptableMethods(container, matcher);
-        if (acceptable.size() == 0) {
-        	  throw new NoMemberException(NoMemberException.METHOD,
-                      "No valid method call found for call in given type."
-        	          + "\n\t Call: " + matcher.signature()
-        	          + "\n\t Type: " + container);
-        }
-        Collection<MethodInstance> maximal =
-            findMostSpecificProcedures(acceptable, (Matcher<MethodInstance>) matcher, context);
-        Collection<X10MethodInstance> result = new ArrayList<X10MethodInstance>();
-        for (MethodInstance mi : maximal) {
-            result.add((X10MethodInstance) mi);
-        }
-        return result;
-    }
-
-    public X10ConstructorInstance findConstructor(Type container, polyglot.types.TypeSystem_c.ConstructorMatcher matcher) throws SemanticException {
-        return (X10ConstructorInstance) SUPER_findConstructor(container, matcher);
-    }
-
-    public Collection<X10ConstructorInstance> findConstructors(Type container, polyglot.types.TypeSystem_c.ConstructorMatcher matcher) throws SemanticException {
-        assert_(container);
-        Context context = matcher.context();
-        List<ConstructorInstance> acceptable = findAcceptableConstructors(container, matcher);
-        if (acceptable.size() == 0) {
-            throw new NoMemberException(NoMemberException.CONSTRUCTOR,
-                                        "No valid constructor found for " + matcher.signature() + ").");
-        }
-        Collection<ConstructorInstance> maximal = findMostSpecificProcedures(acceptable, matcher, context);
-        Collection<X10ConstructorInstance> result = new ArrayList<X10ConstructorInstance>();
-        for (ConstructorInstance mi : maximal) {
-            result.add((X10ConstructorInstance) mi);
-        }
-        return result;
-    }
-
-    public X10MethodMatcher MethodMatcher(Type container, Name name, List<Type> argTypes, Context context) {
-        return new X10MethodMatcher(container, name, argTypes, context);
-    }
-
-    public X10MethodMatcher MethodMatcher(Type container, Name name, List<Type> typeArgs, List<Type> argTypes, Context context) {
-        return new X10MethodMatcher(container, name, typeArgs, argTypes, context);
-    }
-
-    public X10ConstructorMatcher ConstructorMatcher(Type container, List<Type> argTypes, Context context) {
-        return new X10ConstructorMatcher(container, argTypes, context);
-    }
-
-    public X10ConstructorMatcher ConstructorMatcher(Type container, List<Type> typeArgs, List<Type> argTypes, Context context) {
-        return new X10ConstructorMatcher(container, typeArgs, argTypes, context);
-    }
-
-    public X10FieldMatcher FieldMatcher(Type container, Name name, Context context) {
-    	//container = X10TypeMixin.ensureSelfBound( container);
-        return new X10FieldMatcher(container, name, context);
-    }
-    public X10FieldMatcher FieldMatcher(Type container, boolean contextKnowsReceiver, Name name, Context context) {
-    	//container = X10TypeMixin.ensureSelfBound( container);
-        return new X10FieldMatcher(container, contextKnowsReceiver, name, context);
-    }
-
-    public boolean hasMethodNamed(Type container, Name name) {
-        if (container != null)
-            container = Types.baseType(container);
-
-        // HACK: use the def rather than the type to avoid gratuitous
-        // reinstantiation of methods.
-        if (container instanceof ClassType) {
-            ClassType ct = (ClassType) container;
-            for (MethodDef md : ct.def().methods()) {
-                if (md.name().equals(name))
-                    return true;
-            }
-            Type superType = Types.get(ct.def().superType());
-            if (superType != null && hasMethodNamed(superType, name))
-                return true;
-            for (Ref<? extends Type> tref : ct.def().interfaces()) {
-                Type ti = Types.get(tref);
-                if (ti != null && hasMethodNamed(ti, name))
-                    return true;
-            }
-        }
-
-        return super.hasMethodNamed(container, name);
-    }
-
-    public boolean isSubtype(Type t1, Type t2, Context context) {
-        return env(context).isSubtype(t1, t2);
-    }
-    public boolean isSubtype(Type t1, Type t2) {
-        return isSubtype(t1, t2, emptyContext());
-    }
-
-
-    // Returns the number of bytes required to represent the type, or null if unknown (e.g. involves an address somehow)
-    // Note for rails this returns the size of 1 element, this will have to be scaled
-    // by the number of elements to get the true figure.
-    public Long size(Type t) {
-        if (t.isFloat()) return 4l;
-        if (t.isDouble()) return 8l;
-        if (t.isChar()) return 2l;
-        if (t.isByte()) return 1l;
-        if (t.isShort()) return 2l;
-        if (t.isInt()) return 4l;
-        if (t.isLong()) return 8l;
-        if (isRail(t)) {
-            X10ClassType ctyp = (X10ClassType)t;
-            assert ctyp.typeArguments().size() == 1;
-            return size(ctyp.typeArguments().get(0));
-        }
-        return null;
-    }
-
-
-
-
-   private boolean isIn(Collection<FieldInstance> newFields, FieldInstance fi) {
-        for (FieldInstance fi2 : newFields)
-            if (fi.def()==fi2.def()) return true;
-        return false;
-   }
-   public X10FieldInstance findField(Type container, TypeSystem_c.FieldMatcher matcher)
-	throws SemanticException {
-
-
-		Context context = matcher.context();
-
-		Collection<FieldInstance> fields = findFields(container, matcher);
-
-		if (fields.size() >= 2) {
-            // if the field is defined in a class, then it will appear only once in "fields".
-            // if it is defined in an interface (then it is either a "static val" or a property such as home), then it may appear multiple times in "fields", so we need to filter duplicates.
-            // e.g.,
-//            interface I1 { static val a = 1;}
-//            interface I2 extends I1 {}
-//            interface I3 extends I1 {}
-//            interface I4 extends I2,I3 {}
-//            class Example implements I4 {
-//              def example() = a;
-//              def m(a:Example{self.home.home.home==here}) = 1;
-//            }
-			Collection<FieldInstance> newFields = new HashSet<FieldInstance>();
-			for (FieldInstance fi : fields) {
-				if ((fi.flags().isStatic())){
-                    if (!isIn(newFields,fi))
-                            newFields.add(fi);
-					continue;
-				}
-
-				if (! (fi.container().toClass().flags().isInterface())){
-					newFields.add(fi);
-				}
-
-
-			}
-			fields = newFields;
-		}
-		if (fields.size() == 0) {
-		    throw new NoMemberException(NoMemberException.FIELD,
-		                                "Field " + matcher.signature() +
-		                                " not found in type \"" +
-		                                container + "\".");
-		}
-
-		Iterator<FieldInstance> i = fields.iterator();
-		X10FieldInstance fi = (X10FieldInstance) i.next();
-
-		if (i.hasNext()) {
-		    FieldInstance fi2 = i.next();
-
-		    throw new SemanticException("Field " + matcher.signature() +
-		                                " is ambiguous; it is defined in both " +
-		                                fi.container() + " and " +
-		                                fi2.container() + ".");
-		}
-
-		if (context != null && ! isAccessible(fi, context)) {
-		    throw new SemanticException("Cannot access " + fi + ".");
-		}
-
-		return fi;
-
-   }
-   public void existsStructWithName(Id name, ContextVisitor tc) throws SemanticException {
- 	  NodeFactory nf = (NodeFactory) tc.nodeFactory();
-			TypeSystem ts = (TypeSystem) tc.typeSystem();
-			Context c = tc.context();
-			TypeBuilder tb = new X10TypeBuilder(tc.job(),  ts, nf);
-			// First, try to determine if there in fact a struct in scope with the given name.
-			TypeNode otn = new X10ParsedName(nf, ts, Position.COMPILER_GENERATED, name).toType();//
-			//	nf.AmbDepTypeNode(position(), null, name(), typeArguments, Collections.EMPTY_LIST, null);
-
-			TypeNode tn = (TypeNode) otn.visit(tb);
-
-			// First ensure that there is a type associated with tn.
-			tn = (TypeNode) tn.disambiguate(tc);
-
-			// ok, if we made it this far, then there is a type. Check that it is a struct.
-			Type t = tn.type();
-			t = ts.expandMacros(t);
-
-			CConstraint xc = Types.xclause(t);
-			t = Types.baseType(t);
-
-			if (!(ts.isStructType(t))) { // bail
-				throw new SemanticException();
-			}
-     }
+ /* @Override
    public  List<Type> abstractSuperInterfaces(Type t) {
 	   List<Type> result = super.abstractSuperInterfaces(t);
 	   // A work-around for the current transient state of the system in which
@@ -2501,7 +2269,6 @@ public class X10TypeSystem_c extends TypeSystem_c {
 	   }
 	   return result;
    }
-
-   Name homeName = Name.make("home");
-   public Name homeName() { return homeName;}
+*/
+  
 }

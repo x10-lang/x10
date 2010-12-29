@@ -29,7 +29,7 @@ import polyglot.types.Type;
  * <code>Context</code>.
  * @author rfuhrer
  */
-public interface AsyncInstance extends X10MethodInstance {
+public interface AsyncInstance extends MethodInstance {
     AsyncDef def();
     CodeInstance<?> methodContainer();
     ClassType typeContainer();

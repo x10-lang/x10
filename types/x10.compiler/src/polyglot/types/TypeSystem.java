@@ -44,7 +44,7 @@ import x10.types.X10FieldInstance;
 import x10.types.X10LocalDef;
 import x10.types.X10LocalInstance;
 import x10.types.X10MethodDef;
-import x10.types.X10MethodInstance;
+import x10.types.MethodInstance;
 import x10.types.X10ParsedClassType;
 import x10.types.X10TypeEnv;
 import x10.types.XTypeTranslator;
@@ -819,7 +819,7 @@ public interface TypeSystem {
 
     Type AnnotatedType(Position pos, Type baseType, List<Type> annotations);
 
-    X10MethodInstance findImplementingMethod(ClassType ct, MethodInstance jmi, boolean includeAbstract, Context context);
+    MethodInstance findImplementingMethod(ClassType ct, MethodInstance mi, boolean includeAbstract, Context context);
 
     Type boxOf(Position p, Ref<? extends Type> t);
 
@@ -855,14 +855,14 @@ public interface TypeSystem {
      * @exception SemanticException
      *                    if the method cannot be found or is inaccessible.
      */
-    X10MethodInstance findMethod(Type container, MethodMatcher matcher) throws SemanticException;
+    MethodInstance findMethod(Type container, MethodMatcher matcher) throws SemanticException;
 
     /**
      * Find matching methods.
      *
      * @exception SemanticException if no matching method can be found.
      */
-    Collection<X10MethodInstance> findMethods(Type container, MethodMatcher matcher) throws SemanticException;
+    Collection<MethodInstance> findMethods(Type container, MethodMatcher matcher) throws SemanticException;
 
     /**
      * Find a constructor. We need to pass the class from which the constructor
@@ -885,7 +885,7 @@ public interface TypeSystem {
 
     X10ParsedClassType createClassType(Position pos, Ref<? extends ClassDef> def);
     X10ConstructorInstance createConstructorInstance(Position pos, Ref<? extends ConstructorDef> def);
-    X10MethodInstance createMethodInstance(Position pos, Ref<? extends MethodDef> def);
+    MethodInstance createMethodInstance(Position pos, Ref<? extends MethodDef> def);
     X10FieldInstance createFieldInstance(Position pos, Ref<? extends FieldDef> def);
     X10LocalInstance createLocalInstance(Position pos, Ref<? extends LocalDef> def);
 

@@ -14,7 +14,6 @@ import polyglot.frontend.Job;
 import polyglot.types.Flags;
 import polyglot.types.Type;
 import polyglot.types.FieldDef;
-import polyglot.types.MethodInstance;
 import polyglot.types.MethodDef;
 import polyglot.types.FieldInstance;
 import polyglot.types.ProcedureDef;
@@ -33,6 +32,8 @@ import polyglot.types.LocalDef;
 import polyglot.types.ClassType;
 import polyglot.types.ContainerType;
 import x10.types.X10FieldDef;
+
+import x10.types.MethodInstance;
 import x10.types.X10ParsedClassType_c;
 import x10.types.X10ProcedureDef;
 import x10.types.X10MethodDef;

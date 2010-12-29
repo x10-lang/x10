@@ -87,8 +87,7 @@ import polyglot.types.Flags;
 import polyglot.types.LocalDef;
 import polyglot.types.LocalInstance;
 import polyglot.types.MethodDef;
-import polyglot.types.MethodInstance;
-import polyglot.types.MethodInstance_c;
+
 import polyglot.types.Name;
 import polyglot.types.QName;
 import polyglot.types.Ref;
@@ -180,7 +179,8 @@ import x10.types.X10ConstructorDef;
 import x10.types.X10ConstructorInstance;
 import x10.types.X10FieldInstance;
 import x10.types.X10MethodDef;
-import x10.types.X10MethodInstance;
+import x10.types.MethodInstance;
+import x10.types.MethodInstance_c;
 import x10.types.X10ParsedClassType_c;
 import x10.util.HierarchyUtils;
 import x10c.ast.X10CBackingArrayAccessAssign_c;
@@ -601,7 +601,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			return;
 		}
 
-		X10MethodInstance mi = (X10MethodInstance) n.methodDef().asInstance();
+		MethodInstance mi = (MethodInstance) n.methodDef().asInstance();
 		er.generateMethodDecl(n, false);
 	}
 
@@ -609,7 +609,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         return HierarchyUtils.isMainMethod(md, tr.context());
     }
 
-    private boolean isMainMethod(X10MethodInstance mi) {
+    private boolean isMainMethod(MethodInstance mi) {
         return HierarchyUtils.isMainMethod(mi, tr.context());
     }
     
@@ -1512,7 +1512,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     	        return;
     	    }
     	    
-    	    X10MethodInstance mi = c.methodInstance();
+    	    MethodInstance mi = c.methodInstance();
     		Receiver target = c.target();
     		
     		// Check for properties accessed using method syntax.  They may have @Native annotations too.
@@ -1778,7 +1778,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
 		TypeSystem xts = (TypeSystem) targetType.typeSystem();
 
-		X10MethodInstance mi = c.closureInstance();
+		MethodInstance mi = c.closureInstance();
 
 		Expr expr = target;
 		if (target instanceof ParExpr) {
@@ -2897,7 +2897,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			nativeop = true;
 		}
 
-		X10MethodInstance mi = (X10MethodInstance) n.methodInstance();
+		MethodInstance mi = (MethodInstance) n.methodInstance();
 		boolean superUsesClassParameter = ! mi.flags().isStatic() ; // && overridesMethodThatUsesClassParameter(mi);
 
 		if (n.operator() == Assign.ASSIGN) {
@@ -3090,7 +3090,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			Expr target = null;
 			List<Expr> args = null;
 			List<TypeNode> typeArgs = null;
-			X10MethodInstance mi = null;
+			MethodInstance mi = null;
 
 			// Handle a(i)++ and a.apply(i)++
 			if (expr instanceof ClosureCall) {
@@ -3106,7 +3106,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 					target = (Expr) e.target();
 					args = e.arguments();
 					typeArgs = e.typeArguments();
-					mi = (X10MethodInstance) e.methodInstance();
+					mi = (MethodInstance) e.methodInstance();
 				}
 			}
 

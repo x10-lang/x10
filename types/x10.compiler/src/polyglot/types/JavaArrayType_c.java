@@ -10,6 +10,7 @@ package polyglot.types;
 import java.util.*;
 
 import polyglot.util.*;
+import x10.types.MethodInstance;
 
 /**
  * An <code>ArrayType</code> represents an array of base java types.

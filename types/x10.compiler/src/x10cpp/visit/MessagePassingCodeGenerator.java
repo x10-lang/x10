@@ -130,7 +130,6 @@ import polyglot.types.InitializerInstance;
 import polyglot.types.LocalDef;
 import polyglot.types.LocalInstance;
 import polyglot.types.MethodDef;
-import polyglot.types.MethodInstance;
 import polyglot.types.Name;
 import polyglot.types.QName;
 import polyglot.types.SemanticException;
@@ -207,7 +206,7 @@ import x10.types.X10FieldDef;
 import x10.types.X10FieldInstance;
 import x10.types.X10LocalDef;
 import x10.types.X10MethodDef;
-import x10.types.X10MethodInstance;
+import x10.types.MethodInstance;
 import x10.types.X10ParsedClassType_c;
 import x10.types.X10TypeSystem_c;
 import x10.types.X10TypeSystem_c.BaseTypeEquals;
@@ -1583,8 +1582,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			// (but doesn't because c++ doesn't work that way)
 			List<MethodInstance> overriddenOverloads = getOROLMeths(mname,superClass);
 			// for each one...
-			for (MethodInstance dropzone_ : overriddenOverloads) {
-				X10MethodInstance dropzone = (X10MethodInstance) dropzone_;
+			for (MethodInstance dropzone : overriddenOverloads) {
 				List<Type> formals = dropzone.formalTypes();
 				// do we have a matching method? (i.e. one the x10 programmer has written)
 				if (methodsNoConstraints(currentClass, mname, formals, context).size() > 0) continue;
@@ -1738,7 +1736,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		if (query.isMainMethod(def)) {
 		    ((X10CPPJobExt) tr.job().ext()).addMainMethod(def);
 		}
-		X10MethodInstance mi = def.asInstance();
+		MethodInstance mi = def.asInstance();
 		X10ClassType container = (X10ClassType) mi.container();
 		ClassifiedStream h = sw.header();
 		if ((container.x10Def().typeParameters().size() != 0) && flags.isStatic()) {
@@ -2938,7 +2936,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
 
 		X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
-		X10MethodInstance mi = (X10MethodInstance) n.methodInstance();
+		MethodInstance mi = (MethodInstance) n.methodInstance();
 		Receiver target = n.target();
 		Type t = target.type();
 		
@@ -3143,7 +3141,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	}
 
 	private void invokeInterface(Node_c n, Expr target, List<Expr> args, String dispType, Type contType,
-	                             X10MethodInstance mi, boolean needsNullCheck)
+	                             MethodInstance mi, boolean needsNullCheck)
 	{
 	    X10CPPContext_c context = (X10CPPContext_c) tr.context();
 	    X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
@@ -3164,7 +3162,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    sw.write(")");
 	}
 
-	private void printCallActuals(Node_c n, X10CPPContext_c context, X10TypeSystem_c xts, X10MethodInstance mi,
+	private void printCallActuals(Node_c n, X10CPPContext_c context, X10TypeSystem_c xts, MethodInstance mi,
 	                              List<Expr> args)
 	{
 		int counter;
@@ -3850,7 +3848,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		}
 
 		Type itType = null;
-		X10MethodInstance mi = null;
+		MethodInstance mi = null;
 		assert (dType.isClass());
 		X10ClassType domainType = (X10ClassType)dType.toClass();
 		try {
@@ -4025,8 +4023,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         List<Type> freeTypeParams = new ArrayList<Type>();
         while (ci instanceof ClosureInstance)
             ci = ((ClosureDef) ci.def()).methodContainer().get();
-        if (ci instanceof X10MethodInstance) {
-            X10MethodInstance xmi = (X10MethodInstance) ci;
+        if (ci instanceof MethodInstance) {
+            MethodInstance xmi = (MethodInstance) ci;
             // in X10, static methods do not inherit the template params of their classes
             if (!xmi.flags().isStatic())
                 freeTypeParams.addAll(hostClassDef.typeParameters());
@@ -4588,7 +4586,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	public void visit(ClosureCall_c c) {
 		Expr target = c.target();
 
-		X10MethodInstance mi = c.closureInstance();
+		MethodInstance mi = c.closureInstance();
 		TypeSystem xts = (TypeSystem) tr.typeSystem();
 		NodeFactory nf = (NodeFactory) tr.nodeFactory();
 		List<Expr> args = new ArrayList<Expr>();
@@ -4631,7 +4629,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		    }
 		    
 		    if (t.isClass() && t.toClass().flags().isInterface()) {
-		        X10MethodInstance ami = null;
+		        MethodInstance ami = null;
 		        try {
 		            List<Type> actualTypes = new ArrayList<Type>();
 		            for (Expr a : c.arguments()) {

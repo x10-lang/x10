@@ -25,7 +25,7 @@ import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.Matcher;
 import polyglot.types.MemberInstance;
-import polyglot.types.MethodInstance;
+
 import polyglot.types.Named;
 import polyglot.types.ParsedClassType_c;
 import polyglot.types.Ref;
@@ -434,7 +434,7 @@ implements X10ParsedClassType
 		}*/
 		//	sb.append(flags().toString()).append(" ");
 
-		String sup = super.toString();
+		String sup = super.typeToString();
 		sb.append(sup);
 
 		if (propertyInitializers != null) {

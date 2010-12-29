@@ -2,6 +2,8 @@ package polyglot.types;
 
 import java.util.List;
 
+import x10.types.MethodInstance;
+
 /**
  * A container type is an X10 class or interface or struct type. It contains members such
  * as other types, fields, methods. (Used to be called StructType in Polyglot.)

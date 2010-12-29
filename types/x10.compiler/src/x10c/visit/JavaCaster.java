@@ -50,7 +50,7 @@ import x10.emitter.Emitter;
 import x10.types.ParameterType;
 import x10.types.ParameterType.Variance;
 import x10.types.X10ClassType;
-import x10.types.X10MethodInstance;
+import x10.types.MethodInstance;
 import x10.types.X10ParsedClassType_c;
 import polyglot.types.TypeSystem;
 import x10.types.constraints.SubtypeConstraint;
@@ -149,7 +149,7 @@ public class JavaCaster extends ContextVisitor {
         if (n instanceof X10Call && !(parent instanceof Eval)) {
             X10Call call = (X10Call) n;
             Receiver target = call.target();
-            X10MethodInstance mi = call.methodInstance();
+            MethodInstance mi = call.methodInstance();
             if (!(target instanceof TypeNode) && !xts.isRail(target.type())) {
                 Type bt = Types.baseType(target.type());
                 X10ClassType ct = null;
@@ -173,7 +173,7 @@ public class JavaCaster extends ContextVisitor {
         if (n instanceof ClosureCall && !(parent instanceof Eval)) {
             ClosureCall call = (ClosureCall) n;
             Receiver target = call.target();
-            X10MethodInstance mi = call.closureInstance();
+            MethodInstance mi = call.closureInstance();
             if (!(target instanceof TypeNode) && !xts.isRail(target.type())) {
                 Type bt = Types.baseType(target.type());
                 if (bt instanceof X10ClassType) {
@@ -194,7 +194,7 @@ public class JavaCaster extends ContextVisitor {
         return n;
     }
 
-    private boolean isDispatch(Type bt, X10MethodInstance mi) {
+    private boolean isDispatch(Type bt, MethodInstance mi) {
         boolean isDispatch = false;
         if (((X10ClassType) bt).flags().isInterface()) {
             List<Ref<? extends Type>> formalTypes = mi.def().formalTypes();
