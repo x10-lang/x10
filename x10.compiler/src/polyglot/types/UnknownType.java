@@ -8,7 +8,7 @@
 package polyglot.types;
 
 import polyglot.util.InternalCompilerError;
-import x10.types.X10TypeSystem_c;
+
 
 /**
  * An unknown type.  This is used as a place-holder until types are
@@ -40,6 +40,6 @@ public class UnknownType extends Type_c {
 		return "<unknown>";
 	    }
 	    public ClassType toClass() {
-		    return ((X10TypeSystem_c)ts).createFakeClass(QName.make("<unknown>"), new SemanticException("Unknown class"));
+		    return ts.createFakeClass(QName.make("<unknown>"), new SemanticException("Unknown class"));
 		}
 }

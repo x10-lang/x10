@@ -50,7 +50,6 @@ import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.errors.Errors;
 import x10.types.MethodInstance;
-import x10.types.X10TypeSystem_c;
 import x10.types.checker.Checker;
 import x10.types.checker.Converter;
 import x10.types.checker.PlaceChecker;
@@ -581,7 +580,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
             return fake;
         }
 
-        X10TypeSystem_c xts = (X10TypeSystem_c) tc.typeSystem();
+        TypeSystem xts = tc.typeSystem();
 
         List<X10Call_c> best = new ArrayList<X10Call_c>();
         X10Binary_c.Conversion bestConversion = X10Binary_c.Conversion.UNKNOWN;

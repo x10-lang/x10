@@ -62,8 +62,8 @@ import x10.constraint.XTerms;
 import x10.constraint.XVar;
 import x10.errors.Errors;
 import x10.types.ParameterType.Variance;
-import x10.types.X10TypeSystem_c.Bound;
-import x10.types.X10TypeSystem_c.Kind;
+import polyglot.types.TypeSystem_c.Bound;
+import polyglot.types.TypeSystem_c.Kind;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.SubtypeConstraint;
@@ -82,14 +82,12 @@ import polyglot.types.Type;
 public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     public X10TypeEnv_c(Context c) {
         super(c);
-        this.ts = (X10TypeSystem_c) super.ts;
     }
 
     public X10TypeEnv_c copy() {
         return (X10TypeEnv_c) super.copy();
     }
 
-    X10TypeSystem_c ts;
 
     public static final Name ANONYMOUS = Name.make("<anonymous>");
 
@@ -1101,7 +1099,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
             if (ta2 == null) ta2 = Collections.<Type>emptyList();
             if (ta1.size() == 0 && ta2.size() == 0)
                 return true;
-            if (! CollectionUtil.allElementwise(ta1, ta2, new X10TypeSystem_c.TypeEquals(context))) {
+            if (! CollectionUtil.allElementwise(ta1, ta2, new TypeSystem_c.TypeEquals(context))) {
                 return false;
             }
             return true;
@@ -1412,7 +1410,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     }
 
     protected boolean typeListEquals(List<Type> l1, List<Type> l2) {
-        return CollectionUtil.<Type>allElementwise(l1, l2, new X10TypeSystem_c.TypeEquals(context));
+        return CollectionUtil.<Type>allElementwise(l1, l2, new TypeSystem_c.TypeEquals(context));
     }
 
     protected boolean listEquals(List<XVar> l1, List<XVar> l2) {

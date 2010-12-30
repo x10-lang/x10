@@ -69,6 +69,7 @@ import polyglot.types.QName;
 import polyglot.types.SemanticException;
 import polyglot.types.TopLevelResolver;
 import polyglot.types.TypeSystem;
+import polyglot.types.TypeSystem_c;
 import polyglot.util.ErrorInfo;
 import polyglot.util.ErrorQueue;
 import polyglot.util.InternalCompilerError;
@@ -100,7 +101,7 @@ import x10.plugin.LoadPlugins;
 import x10.plugin.RegisterPlugins;
 import x10.types.X10SourceClassResolver;
 import polyglot.types.TypeSystem;
-import x10.types.X10TypeSystem_c;
+
 import x10.visit.CheckNativeAnnotationsVisitor;
 import x10.visit.Lowerer;
 import x10.visit.Desugarer;
@@ -363,7 +364,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     }
 
     protected TypeSystem createTypeSystem() {
-        return new X10TypeSystem_c();
+        return new TypeSystem_c();
     }
 
 

@@ -90,7 +90,6 @@ import x10.types.MethodInstance;
 import x10.types.X10ParsedClassType;
 
 import polyglot.types.TypeSystem;
-import x10.types.X10TypeSystem_c;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
 import x10.util.Synthesizer;
@@ -546,7 +545,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     		return n;
     	
     	Position CG = Position.compilerGenerated(body().position());
-    	X10TypeSystem_c xts = (X10TypeSystem_c) tc.typeSystem();
+    	TypeSystem xts =  tc.typeSystem();
     	NodeFactory xnf = (NodeFactory) tc.nodeFactory();
     	X10ClassType targetType = (X10ClassType) n.classDef().asType();
     	List<X10ClassType> interfaces = xts.allImplementedInterfaces(targetType, false);
@@ -635,7 +634,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     	ContextVisitor oldtc = (ContextVisitor) tc.copy();
     	
     	n = (X10ClassDecl_c) n.typeCheckSupers(tc, childtc);
-    	X10TypeSystem_c xts = (X10TypeSystem_c) tc.typeSystem();
+    	TypeSystem xts = tc.typeSystem();
     	if (superClass != null) {
     	    Ref<? extends Type> stref = superClass.typeRef();
     	    try {

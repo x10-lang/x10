@@ -56,7 +56,6 @@ import polyglot.types.Context;
 
 import x10.types.X10MethodDef;
 import polyglot.types.TypeSystem;
-import x10.types.X10TypeSystem_c;
 import x10.types.constraints.CConstraint;
 import x10.extension.X10Ext;
 
@@ -76,7 +75,7 @@ public class ClosureSynthesizer {
 	 * @param context
 	 * @return
 	 */
-	public static Closure makeClosure(X10TypeSystem_c xts, NodeFactory xnf, Position pos, Type retType, 
+	public static Closure makeClosure(TypeSystem xts, NodeFactory xnf, Position pos, Type retType, 
 			List<Formal> parms, Block body,
 			 Context context, List<X10ClassType> annotations) {
 	        List<Ref<? extends Type>> fTypes = new ArrayList<Ref<? extends Type>>();
@@ -111,7 +110,7 @@ public class ClosureSynthesizer {
 	                xnf.CanonicalTypeNode(pos, retType),
 	                 body)
 	                .closureDef(cDef)
-	                .type(closureAnonymousClassDef((X10TypeSystem_c) xts, cDef).asType());
+	                .type(closureAnonymousClassDef( xts, cDef).asType());
             if (null != annotations && !annotations.isEmpty()) {
                 List<AnnotationNode> ans = new ArrayList<AnnotationNode>();
                 for (Type at : annotations) {
@@ -128,7 +127,7 @@ public class ClosureSynthesizer {
 	 * @param def
 	 * @return
 	 */
-	public static X10ClassDef closureAnonymousClassDef(final X10TypeSystem_c xts, final ClosureDef def) {
+	public static X10ClassDef closureAnonymousClassDef(final TypeSystem xts, final ClosureDef def) {
         
         final Position pos = def.position();
 
@@ -203,7 +202,7 @@ public class ClosureSynthesizer {
 
         return cd;
     }
-	  public static X10ClassDef closureBaseInterfaceDef(final X10TypeSystem_c xts, final int numTypeParams, final int numValueParams, 
+	  public static X10ClassDef closureBaseInterfaceDef(final TypeSystem xts, final int numTypeParams, final int numValueParams, 
 	    		final boolean isVoid) {
 	    	return ClosureSynthesizer.closureBaseInterfaceDef(xts, numTypeParams, numValueParams, isVoid, null, null);
 	    }
@@ -229,7 +228,7 @@ public class ClosureSynthesizer {
      * @param guard
      * @return
      */
-    public static X10ClassDef closureBaseInterfaceDef(final X10TypeSystem_c xts, final int numTypeParams, 
+    public static X10ClassDef closureBaseInterfaceDef(final TypeSystem xts, final int numTypeParams, 
     		final int numValueParams, 
     		final boolean isVoid, 
     		List<LocalDef> formalNames1,

@@ -57,7 +57,7 @@ import x10.types.X10CodeDef;
 import x10.types.X10ConstructorInstance;
 import x10.types.X10Context_c;
 import x10.types.X10MethodDef;
-import x10.types.X10TypeSystem_c;
+
 import polyglot.types.TypeSystem;
 
 public class X10LocalClassRemover extends LocalClassRemover {

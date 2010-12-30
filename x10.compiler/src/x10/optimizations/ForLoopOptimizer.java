@@ -70,7 +70,7 @@ import x10.constraint.XTerm;
 import x10.types.ConstrainedType;
 import x10.types.X10FieldInstance;
 import x10.types.MethodInstance;
-import x10.types.X10TypeSystem_c;
+
 import x10.types.checker.Converter;
 import x10.types.constraints.CConstraint;
 import x10.util.AltSynthesizer;
@@ -218,7 +218,7 @@ public class ForLoopOptimizer extends ContextVisitor {
         }
 
         // if domain <: Distribution, transform to Region
-        if (((X10TypeSystem_c) xts).isDistribution(domain.type())) {
+        if (xts.isDistribution(domain.type())) {
             if (VERBOSE) System.out.println("  domain is Dist, transforming to Region");
             domain = syn.createFieldRef(pos, domain, REGION);
             assert (null != domain);

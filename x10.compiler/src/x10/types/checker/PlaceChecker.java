@@ -44,7 +44,7 @@ import x10.types.ConstrainedType;
 import x10.types.X10FieldInstance;
 
 import x10.types.MethodInstance;
-import x10.types.X10TypeSystem_c;
+
 import polyglot.types.TypeSystem;
 import x10.types.XTypeTranslator;
 import x10.types.constraints.CConstraint;

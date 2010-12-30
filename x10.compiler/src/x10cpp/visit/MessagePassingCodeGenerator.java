@@ -208,8 +208,8 @@ import x10.types.X10LocalDef;
 import x10.types.X10MethodDef;
 import x10.types.MethodInstance;
 import x10.types.X10ParsedClassType_c;
-import x10.types.X10TypeSystem_c;
-import x10.types.X10TypeSystem_c.BaseTypeEquals;
+
+import polyglot.types.TypeSystem_c.BaseTypeEquals;
 import x10.types.checker.Converter;
 
 import x10.visit.StaticNestedClassRemover;
@@ -527,7 +527,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	            FieldDecl_c dec = (FieldDecl_c) member;
 	            X10CPPContext_c context = (X10CPPContext_c) tr.context();
 	            ((X10CPPTranslator)tr).setContext(dec.enterScope(context)); // FIXME
-	            X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
+	            TypeSystem xts =  tr.typeSystem();
 	            VarInstance<?> ti = xts.localDef(Position.COMPILER_GENERATED, Flags.FINAL,
 	                    Types.ref(currentClass), Name.make(THIS)).asInstance();
 	            context.addVariable(ti);
@@ -641,7 +641,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
     void processClass(X10ClassDecl_c n) {
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
 		X10ClassDef def = (X10ClassDef) n.classDef();
-        X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
+        TypeSystem xts =  tr.typeSystem();
         boolean isStruct = xts.isStructType(def.asType());
         X10Ext ext = (X10Ext) n.ext();
 
@@ -1701,7 +1701,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 
     public static void processMain(X10ClassType container, CodeWriter sw) {
-        X10TypeSystem_c xts = (X10TypeSystem_c) container.typeSystem();
+        TypeSystem xts = container.typeSystem();
         if (container.isClass())
             container = getStaticMemberContainer(container.x10Def());
         String typeString = xts.isStructType(container) ?
@@ -1727,7 +1727,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		// TODO: if method overrides another method with generic
 		// types, check if C++ does the right thing.
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
-		X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
+		TypeSystem xts =  tr.typeSystem();
 		Flags flags = dec.flags().flags();
 		if (flags.isNative())
 			return;
@@ -2213,7 +2213,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    String init = mangled_field_name(name+STATIC_FIELD_INITIALIZER_SUFFIX);
 	    String deserializer = mangled_field_name(name+STATIC_FIELD_DESERIALIZER_SUFFIX);
 	    String id = mangled_field_name(name+STATIC_FIELD_BROADCASTID_SUFFIX);
-	    X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
+	    TypeSystem xts = tr.typeSystem();
 	    ClassifiedStream h = sw.header();
 	    sw.pushCurrentStream(h);
 	    if (!globalInit) {
@@ -2475,7 +2475,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    boolean unsigned_op = false;
 	    String opString = asgn.operator().toString();
 	    NodeFactory nf = tr.nodeFactory();
-	    X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
+	    TypeSystem xts = tr.typeSystem();
 
 	    // TODO
 //	    // Boolean short-circuiting operators are ok
@@ -2544,7 +2544,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		if (e == null) {
 			sw.write("return;");
 		} else {
-			X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
+			TypeSystem xts = tr.typeSystem();
 			Context context = tr.context();
 			sw.write("return ");
 			assert (context.currentCode() instanceof FunctionDef);
@@ -2935,7 +2935,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	public void visit(X10Call_c n) {
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
 
-		X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
+		TypeSystem xts =  tr.typeSystem();
 		MethodInstance mi = (MethodInstance) n.methodInstance();
 		Receiver target = n.target();
 		Type t = target.type();
@@ -3144,7 +3144,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	                             MethodInstance mi, boolean needsNullCheck)
 	{
 	    X10CPPContext_c context = (X10CPPContext_c) tr.context();
-	    X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
+	    TypeSystem xts = tr.typeSystem();
 	    Type rt = mi.returnType();
 	    assert (target != null); // has to be explicit target.
 	    assert (contType instanceof X10ClassType); // have to dispatch to an interface type.
@@ -3162,7 +3162,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    sw.write(")");
 	}
 
-	private void printCallActuals(Node_c n, X10CPPContext_c context, X10TypeSystem_c xts, MethodInstance mi,
+	private void printCallActuals(Node_c n, X10CPPContext_c context, TypeSystem xts, MethodInstance mi,
 	                              List<Expr> args)
 	{
 		int counter;
@@ -3420,7 +3420,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	}
 
 	public void visit(StringLit_c n) {
-        X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
+        TypeSystem xts = tr.typeSystem();
 
         boolean nativeString = false;
         try {
@@ -3477,7 +3477,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                 Type t_ = Types.stripConstraints(t);
                 Type f_ = Types.stripConstraints(f);
 
-                X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
+                TypeSystem xts = tr.typeSystem();
                 Context context = (Context) tr.context();
 
                 if (xts.typeEquals(f_, t_, context)) {
@@ -3574,7 +3574,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 	public void visit(Try_c n) {
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
-		X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
+		TypeSystem xts =  tr.typeSystem();
 		
         X10Ext_c ext = (X10Ext_c) n.ext();
         if (ext.initVals != null) {
@@ -3729,7 +3729,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 		X10Formal form = (X10Formal) n.formal();
 
-		X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
+		TypeSystem xts = tr.typeSystem();
 		Expr domain = n.domain();
 		Type dType = domain.type();
 		if (Configuration.LOOP_OPTIMIZATIONS &&
@@ -4018,7 +4018,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         CodeInstance<?> ci = closureDef.methodContainer().get();
         X10ClassType hostClassType = (X10ClassType) closureDef.typeContainer().get();
         X10ClassDef hostClassDef = hostClassType.x10Def();
-        X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
+        TypeSystem xts = tr.typeSystem();
 
         List<Type> freeTypeParams = new ArrayList<Type>();
         while (ci instanceof ClosureInstance)
@@ -4385,7 +4385,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
     };
 
     protected void generateClosureDeserializationIdDef(ClassifiedStream defn_s, String cnamet, List<Type> freeTypeParams, String hostClassName, Block block, int kind) {
-        X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
+        TypeSystem xts =  tr.typeSystem();
         boolean in_template_closure = freeTypeParams.size()>0;
         if (in_template_closure)
             emitter.printTemplateSignature(freeTypeParams, defn_s);
@@ -4419,7 +4419,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	            this.label = null;
 	        } else {
 	            this.closure = closure.closureDef();
-	            TypeSystem xts = (TypeSystem) tr.typeSystem();
+	            TypeSystem xts = tr.typeSystem();
 	            final ClosureDef cd = closure.closureDef();
 	            Name rn = Name.make(getId());
 	            Type rt = cd.asInstance().returnType();
@@ -4808,7 +4808,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		String opString = n.operator().toString();
 
 		// Boolean short-circuiting operators are ok
-		X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
+		TypeSystem xts = tr.typeSystem();
 		assert (opString.equals("&&") || opString.equals("||"))
 		    : "visiting "+n.getClass()+" at "+n.position()+": "+n;
 
@@ -4912,7 +4912,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	}
 
 	public void visit(Tuple_c c) {
-	    X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
+	    TypeSystem xts =  tr.typeSystem();
 	    Context context = tr.context();
 
 		// Handles Array initializer.

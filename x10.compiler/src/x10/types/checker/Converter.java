@@ -76,7 +76,7 @@ import x10.types.X10ParsedClassType_c;
 import x10.types.X10ProcedureDef;
 import x10.types.X10ProcedureInstance;
 import polyglot.types.TypeSystem;
-import x10.types.X10TypeSystem_c;
+
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
 import x10.util.Synthesizer;
@@ -440,7 +440,7 @@ public class Converter {
 	}
 
 	public static Expr checkCast(X10Cast cast, ContextVisitor tc) throws SemanticException {
-		X10TypeSystem_c ts = (X10TypeSystem_c) tc.typeSystem();
+		TypeSystem ts =  tc.typeSystem();
 		Type toType = cast.castType().type();
 		Type fromType = cast.expr().type();
 		NodeFactory nf = (NodeFactory) tc.nodeFactory();

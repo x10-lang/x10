@@ -20,7 +20,6 @@ import x10.types.X10FieldInstance;
 import x10.types.X10LocalInstance;
 import x10.types.MethodInstance;
 
-import x10.types.X10TypeSystem_c;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
 import x10.types.constraints.XConstrainedTerm;
@@ -208,7 +207,7 @@ public interface Context extends Resolver, Copy
     /**
      * Looks up a method in the current scope.
      */
-    MethodInstance findMethod(X10TypeSystem_c.MethodMatcher matcher) throws SemanticException;
+    MethodInstance findMethod(TypeSystem_c.MethodMatcher matcher) throws SemanticException;
 
     /** Looks up a local variable in the current scope. */
     X10LocalInstance findLocal(Name name) throws SemanticException;

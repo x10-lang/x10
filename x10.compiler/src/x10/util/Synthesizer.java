@@ -94,7 +94,6 @@ import x10.types.X10FieldInstance;
 import x10.types.X10MethodDef;
 import x10.types.MethodInstance;
 import polyglot.types.TypeSystem;
-import x10.types.X10TypeSystem_c;
 import x10.types.X10LocalDef;
 import x10.types.X10FieldDef;
 import x10.types.checker.PlaceChecker;
@@ -723,11 +722,11 @@ public class Synthesizer {
 	 * @return
 	 */
 	public Closure makeClosure(Position pos, Type retType, List<Formal> parms, Block body, Context context) {
-		return ClosureSynthesizer.makeClosure((X10TypeSystem_c) xts, xnf, pos, retType, parms, body, context, null);
+		return ClosureSynthesizer.makeClosure( xts, xnf, pos, retType, parms, body, context, null);
 	}
 	
     public Closure makeClosure(Position pos, Type retType, List<Formal> parms, Block body, Context context, List<X10ClassType> annotations) {
-        return ClosureSynthesizer.makeClosure((X10TypeSystem_c) xts, xnf, pos, retType, parms, body, context, annotations);
+        return ClosureSynthesizer.makeClosure( xts, xnf, pos, retType, parms, body, context, annotations);
     }
     
 	/**

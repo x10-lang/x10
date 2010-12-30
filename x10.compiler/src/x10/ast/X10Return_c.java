@@ -40,7 +40,7 @@ import polyglot.types.Context;
 import x10.types.X10MethodDef;
 import x10.types.X10ProcedureDef;
 import polyglot.types.TypeSystem;
-import x10.types.X10TypeSystem_c;
+
 import x10.types.X10Context_c;
 import x10.types.checker.Converter;
 import x10.types.checker.PlaceChecker;

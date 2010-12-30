@@ -63,7 +63,7 @@ import x10.types.X10ClassType;
 import x10.types.X10MethodDef;
 import x10.types.MethodInstance;
 import polyglot.types.TypeSystem;
-import x10.types.X10TypeSystem_c;
+
 import x10.util.HierarchyUtils;
 import x10cpp.Configuration;
 import x10cpp.types.X10CPPContext_c;
@@ -164,7 +164,7 @@ public class ASTQuery {
 		if (!(f.target() instanceof X10CanonicalTypeNode_c))
 			return false;
 		X10CanonicalTypeNode_c t = (X10CanonicalTypeNode_c) f.target();
-		X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
+		TypeSystem xts = tr.typeSystem();
 		if (!xts.isDistribution(t.type()) || !f.name().equals("factory"))
 			return false;
 		// TODO: detect other distribution constructors

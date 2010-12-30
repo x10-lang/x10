@@ -54,7 +54,7 @@ import polyglot.types.Context;
 import x10.types.X10FieldInstance;
 
 import x10.types.MethodInstance;
-import x10.types.X10TypeSystem_c;
+
 
 import polyglot.types.TypeSystem;
 import x10.types.checker.Checker;
@@ -120,7 +120,7 @@ public class X10Field_c extends Field_c {
 	        Name name, boolean isStatic, SemanticException e)
 	{
 	    X10FieldInstance fi;
-	    X10TypeSystem_c xts = (X10TypeSystem_c) tc.typeSystem();
+	    TypeSystem xts =  tc.typeSystem();
 	    Context context = tc.context();
 	    boolean haveUnknown = xts.hasUnknown(targetType);
 	    Set<FieldInstance> fis = xts.findFields(targetType, xts.FieldMatcher(targetType, name, context));

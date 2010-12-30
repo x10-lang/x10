@@ -80,8 +80,7 @@ import x10.types.X10LocalDef;
 import x10.types.X10MethodDef;
 import x10.types.MethodInstance;
 import polyglot.types.TypeSystem;
-import x10.types.X10TypeSystem_c;
-import x10.types.X10TypeSystem_c.BaseTypeEquals;
+import polyglot.types.TypeSystem_c.BaseTypeEquals;
 import x10.visit.StaticNestedClassRemover;
 import x10.util.ClassifiedStream;
 import x10.util.StreamWrapper;
@@ -250,7 +249,7 @@ public class Emitter {
 	 */
 	public static String translateType(Type type, boolean asRef) {
 		assert (type != null);
-		X10TypeSystem_c xts = (X10TypeSystem_c) type.typeSystem();
+		TypeSystem xts = type.typeSystem();
 		type = xts.expandMacros(type);
 		if (type.isVoid()) {
 			return "void";
@@ -667,7 +666,7 @@ public class Emitter {
 	}
 
 	void printRTTDefn(X10ClassType ct, CodeWriter h) {
-	    X10TypeSystem_c xts = (X10TypeSystem_c) ct.typeSystem();
+	    TypeSystem xts =   ct.typeSystem();
 	    X10ClassDef cd = ct.x10Def();
 	    String x10name = fullName(ct).toString().replace('$','.');
 	    int numParents = 0;
@@ -967,7 +966,7 @@ public class Emitter {
 
     void generateClassSerializationMethods(ClassType type, StreamWrapper sw) {
         X10ClassType ct = (X10ClassType) type.toClass();
-        X10TypeSystem_c ts = (X10TypeSystem_c) type.typeSystem();
+        TypeSystem ts =  type.typeSystem();
         X10CPPContext_c context = (X10CPPContext_c) tr.context();
         Type parent = type.superClass();
         boolean customSerialization = type.isSubtype(ts.CustomSerialization(), context);

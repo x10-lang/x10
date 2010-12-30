@@ -67,7 +67,7 @@ import polyglot.types.Context;
 import x10.types.X10Def;
 import x10.types.X10ParsedClassType;
 import polyglot.types.TypeSystem;
-import x10.types.X10TypeSystem_c;
+
 import x10.types.X10Use;
 import x10.visit.X10TypeChecker;
 import x10.visit.ChangePositionVisitor;
@@ -284,7 +284,7 @@ public class AmbMacroTypeNode_c extends AmbTypeNode_c implements AmbMacroTypeNod
     }
     
     public Node typeCheckOverride(Node parent, ContextVisitor tc) {
-        X10TypeSystem_c ts = (X10TypeSystem_c) tc.typeSystem();
+        TypeSystem ts =  tc.typeSystem();
         NodeFactory nf = (NodeFactory) tc.nodeFactory();
         
         AmbMacroTypeNode_c n = this;
