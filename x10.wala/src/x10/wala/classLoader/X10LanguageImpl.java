@@ -1,6 +1,7 @@
 package x10.wala.classLoader;
 
 import java.util.Collection;
+import java.util.Collections;
 
 import x10.wala.loader.X10SourceLoaderImpl;
 
@@ -20,34 +21,32 @@ import com.ibm.wala.util.shrike.ShrikeUtil;
 import com.ibm.wala.util.strings.Atom;
 
 public class X10LanguageImpl extends LanguageImpl implements BytecodeLanguage {
-  
+  // FIXME: unsigned primitives, String, exceptions, Any vs Object
+
   public static X10LanguageImpl X10Lang = new X10LanguageImpl();
-
-  public static TypeReference X10LangObject =
-    TypeReference.findOrCreate(X10SourceLoaderImpl.X10SourceLoader, "Lx10/lang/Object");
-
-  public static TypeReference X10LangAny =
-      TypeReference.findOrCreate(X10SourceLoaderImpl.X10SourceLoader, "Lx10/lang/Any");
-
-
-  public static TypeReference X10LangIterator =
-      TypeReference.findOrCreate(X10SourceLoaderImpl.X10SourceLoader, "Lx10/lang/Iterator");
-
-  public final static TypeReference x10ArrayPoint =
-    TypeReference.findOrCreate(X10SourceLoaderImpl.X10SourceLoader, "Lx10/array/Point");
-
-  public final static TypeReference x10LangPlace =
-    TypeReference.findOrCreate(X10SourceLoaderImpl.X10SourceLoader, "Lx10/lang/Place");
-
-  public final static TypeReference x10ArrayArray =
-    TypeReference.findOrCreate(X10SourceLoaderImpl.X10SourceLoader, "Lx10/array/Array");
 
   public Atom getName() {
     return X10SourceLoaderImpl.X10;
   }
 
+  public TypeReference getAnyType() {
+    return TypeReference.findOrCreate(X10SourceLoaderImpl.X10SourceLoader, TypeName.findOrCreate("Lx10/lang/Any"));
+  }
+
+  public TypeReference getIteratorType() {
+    return TypeReference.findOrCreate(X10SourceLoaderImpl.X10SourceLoader, TypeName.findOrCreate("Lx10/lang/Iterator"));
+  }
+
+  public TypeReference getPlaceType() {
+    return TypeReference.findOrCreate(X10SourceLoaderImpl.X10SourceLoader, TypeName.findOrCreate("Lx10/lang/Place"));
+  }
+
+  public TypeReference getArrayType() {
+    return TypeReference.findOrCreate(X10SourceLoaderImpl.X10SourceLoader, TypeName.findOrCreate("Lx10/array/Array"));
+  }
+
   public TypeReference getRootType() {
-    return X10LangObject;
+    return TypeReference.findOrCreate(X10SourceLoaderImpl.X10SourceLoader, TypeName.findOrCreate("Lx10/lang/Object"));
   }
 
   public TypeReference getThrowableType() {
@@ -63,7 +62,7 @@ public class X10LanguageImpl extends LanguageImpl implements BytecodeLanguage {
   }
 
   public TypeReference[] getArrayInterfaces() {
-    return Language.JAVA.getArrayInterfaces();
+    return new TypeReference[0];
   }
 
   public TypeName lookupPrimitiveType(String name) {
@@ -71,20 +70,17 @@ public class X10LanguageImpl extends LanguageImpl implements BytecodeLanguage {
   }
 
   public Collection<TypeReference> getImplicitExceptionTypes(IInstruction pei) {
-    return Language.JAVA.getImplicitExceptionTypes(pei);
+     // return Language.JAVA.getImplicitExceptionTypes(pei);
+    return Collections.<TypeReference>emptyList();
   }
 
   public Collection<TypeReference> inferInvokeExceptions(MethodReference target, IClassHierarchy cha) throws InvalidClassFileException {
-    return Language.JAVA.inferInvokeExceptions(target, cha);
+    // return Language.JAVA.inferInvokeExceptions(target, cha);
+    return Collections.<TypeReference>emptyList();
   }
 
   public Object getMetadataToken(Object value) {
-    if (value instanceof ClassToken) {
-      return ShrikeUtil.makeTypeReference(X10SourceLoaderImpl.X10SourceLoader, ((ClassToken) value).getTypeName());
-    } else {
-      assert value instanceof TypeReference;
-      return value;
-    }
+      throw new UnsupportedOperationException("X10 does not permit meta data");
   }
 
   public boolean isDoubleType(TypeReference type) {
@@ -116,11 +112,11 @@ public class X10LanguageImpl extends LanguageImpl implements BytecodeLanguage {
   }
 
   public TypeReference getMetadataType() {
-    return Language.JAVA.getMetadataType();
+    throw new UnsupportedOperationException("X10 does not permit meta data");
   }
 
   public TypeReference getPointerType(final TypeReference pointee) {
-    return Language.JAVA.getPointerType(pointee);
+    throw new UnsupportedOperationException("X10 does not permit explicit pointers");
   }
 
   public PrimitiveType getPrimitive(final TypeReference reference) {
