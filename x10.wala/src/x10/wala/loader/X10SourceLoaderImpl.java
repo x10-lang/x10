@@ -5,14 +5,19 @@ import java.util.Set;
 
 import x10.wala.classLoader.X10LanguageImpl;
 
+import com.ibm.wala.cast.ir.translator.AstTranslator.AstLexicalInformation;
+import com.ibm.wala.cast.ir.translator.AstTranslator.WalkContext;
 import com.ibm.wala.cast.java.loader.JavaSourceLoaderImpl;
 import com.ibm.wala.cast.java.translator.SourceModuleTranslator;
+import com.ibm.wala.cast.loader.AstMethod.DebuggingInformation;
 import com.ibm.wala.cast.tree.CAstEntity;
 import com.ibm.wala.cast.tree.CAstSourcePositionMap;
+import com.ibm.wala.cfg.AbstractCFG;
 import com.ibm.wala.classLoader.IClassLoader;
 import com.ibm.wala.classLoader.Language;
 import com.ibm.wala.ipa.callgraph.impl.SetOfClasses;
 import com.ibm.wala.ipa.cha.IClassHierarchy;
+import com.ibm.wala.ssa.SymbolTable;
 import com.ibm.wala.types.ClassLoaderReference;
 import com.ibm.wala.types.TypeReference;
 import com.ibm.wala.util.strings.Atom;
@@ -39,17 +44,26 @@ public class X10SourceLoaderImpl extends JavaSourceLoaderImpl {
         return X10LanguageImpl.X10Lang;
     }
 
-    public void defineAsync(CAstEntity fn, TypeReference asyncRef, CAstSourcePositionMap.Position fileName) {
-        X10AsyncObject asyncType = new X10AsyncObject(asyncRef, X10LanguageImpl.X10Lang.getAnyType(), this, fileName, cha);
-        fTypeMap.put(fn, asyncType);
-        loadedClasses.put(asyncType.getName(), asyncType);
+    public void defineAsync(CAstEntity fn, TypeReference asyncRef, CAstSourcePositionMap.Position fileName,
+            WalkContext definingContext, AbstractCFG cfg, SymbolTable symtab, boolean hasCatchBlock,
+            TypeReference[][] caughtTypes, boolean hasMonitorOp, AstLexicalInformation lexicalInfo,
+            DebuggingInformation debugInfo) {
+        X10AsyncObject asyncObject = new X10AsyncObject(asyncRef, this, fileName, cha);
+        asyncObject.setCodeBody(new ConcreteJavaMethod(fn, asyncObject, cfg, symtab, hasCatchBlock, caughtTypes, hasMonitorOp,
+                lexicalInfo, debugInfo));
+        fTypeMap.put(fn, asyncObject);
+        loadedClasses.put(asyncObject.getName(), asyncObject);
     }
 
-    public void defineClosure(CAstEntity fn, TypeReference closureRef, CAstSourcePositionMap.Position fileName) {
-        X10ClosureObject closureType = new X10ClosureObject(closureRef, X10LanguageImpl.X10Lang.getAnyType(), this, fileName,
-                cha);
-        fTypeMap.put(fn, closureType);
-        loadedClasses.put(closureType.getName(), closureType);
+    public void defineClosure(CAstEntity fn, TypeReference closureRef, CAstSourcePositionMap.Position fileName,
+            WalkContext definingContext, AbstractCFG cfg, SymbolTable symtab, boolean hasCatchBlock,
+            TypeReference[][] caughtTypes, boolean hasMonitorOp, AstLexicalInformation lexicalInfo,
+            DebuggingInformation debugInfo) {
+        X10ClosureObject closureObject = new X10ClosureObject(closureRef, this, fileName, cha);
+        closureObject.setCodeBody(new ConcreteJavaMethod(fn, closureObject, cfg, symtab, hasCatchBlock, caughtTypes,
+                hasMonitorOp, lexicalInfo, debugInfo));
+        fTypeMap.put(fn, closureObject);
+        loadedClasses.put(closureObject.getName(), closureObject);
     }
 
     public String toString() {

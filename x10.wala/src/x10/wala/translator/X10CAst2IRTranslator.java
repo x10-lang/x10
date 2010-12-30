@@ -3,11 +3,7 @@
  */
 package x10.wala.translator;
 
-import java.util.Map;
-
 import x10.wala.classLoader.AsyncCallSiteReference;
-import x10.wala.loader.X10AsyncObject;
-import x10.wala.loader.X10ClosureObject;
 import x10.wala.loader.X10SourceLoaderImpl;
 import x10.wala.ssa.AstX10InstructionFactory;
 import x10.wala.translator.X10toCAstTranslator.AsyncEntity;
@@ -17,13 +13,9 @@ import x10.wala.tree.X10CAstEntity;
 import x10.wala.tree.X10CastNode;
 import x10.wala.tree.visit.X10DelegatingCAstVisitor;
 
-import com.ibm.wala.cast.ir.translator.ArrayOpHandler;
-
 import com.ibm.wala.cast.ir.translator.AstTranslator;
-import com.ibm.wala.cast.ir.translator.AstTranslator.AstLexicalInformation;
 import com.ibm.wala.cast.ir.translator.AstTranslator.WalkContext;
 import com.ibm.wala.cast.java.loader.JavaSourceLoaderImpl;
-import com.ibm.wala.cast.java.loader.JavaSourceLoaderImpl.ConcreteJavaMethod;
 import com.ibm.wala.cast.java.translator.JavaCAst2IRTranslator;
 import com.ibm.wala.cast.java.types.JavaPrimitiveTypeMap;
 import com.ibm.wala.cast.loader.AstMethod.DebuggingInformation;
@@ -32,7 +24,6 @@ import com.ibm.wala.cast.tree.CAstNode;
 import com.ibm.wala.cast.tree.CAstType;
 import com.ibm.wala.cast.tree.visit.CAstVisitor;
 import com.ibm.wala.cfg.AbstractCFG;
-import com.ibm.wala.classLoader.IClass;
 import com.ibm.wala.classLoader.NewSiteReference;
 import com.ibm.wala.ssa.SymbolTable;
 import com.ibm.wala.types.Descriptor;
@@ -44,8 +35,10 @@ import com.ibm.wala.util.strings.Atom;
 
 public class X10CAst2IRTranslator extends X10DelegatingCAstVisitor /* implements ArrayOpHandler */ {
 	private static class X10JavaCAst2IRTranslator extends JavaCAst2IRTranslator {
+	    protected final X10SourceLoaderImpl x10Loader;
 		private X10JavaCAst2IRTranslator(CAstEntity sourceFileEntity, JavaSourceLoaderImpl loader) {
 			super(sourceFileEntity, loader);
+			x10Loader = (X10SourceLoaderImpl) loader;
 		}
 
 		/* (non-Javadoc)
@@ -58,33 +51,32 @@ public class X10CAst2IRTranslator extends X10DelegatingCAstVisitor /* implements
 		protected int doLexicallyScopedRead(CAstNode node, WalkContext context, String name) {
 			return super.doLexicallyScopedRead(node, context, name);
 		}
-		
-	    @Override
-	    protected void defineFunction(CAstEntity n,
-	                  WalkContext definingContext,
-	                  AbstractCFG cfg,
-	                  SymbolTable symtab,
-	                  boolean hasCatchBlock,
-	                  TypeReference[][] catchTypes,
-	                  boolean hasMonitorOp,
-	                  AstLexicalInformation lexicalInfo,
-	                  DebuggingInformation debugInfo) {
-            Map<CAstEntity, IClass> fTypeMap = ((X10SourceLoaderImpl) loader).fTypeMap;
-	        if (n.getKind() == X10CAstEntity.ASYNC_BODY) {
-	            X10AsyncObject asyncObject = (X10AsyncObject) fTypeMap.get(n);
 
-	            asyncObject.setCodeBody(((X10SourceLoaderImpl) loader).new ConcreteJavaMethod(n, asyncObject, cfg, symtab, hasCatchBlock, catchTypes,
-	                    hasMonitorOp, lexicalInfo, debugInfo));
-	        } else if (n.getKind() == X10CAstEntity.CLOSURE_BODY) {
-	            X10ClosureObject closureObject = (X10ClosureObject) fTypeMap.get(n);
+        @Override
+        protected void defineFunction(CAstEntity n,
+                      WalkContext definingContext,
+                      AbstractCFG cfg,
+                      SymbolTable symtab,
+                      boolean hasCatchBlock,
+                      TypeReference[][] catchTypes,
+                      boolean hasMonitorOp,
+                      AstLexicalInformation lexicalInfo,
+                      DebuggingInformation debugInfo) {
+            if (n.getKind() == X10CAstEntity.ASYNC_BODY) {
+                x10Loader.defineAsync(n,
+                        asyncTypeReference(x10Loader, n),
+                        n.getPosition(), definingContext, cfg, symtab, hasCatchBlock, catchTypes,
+                        hasMonitorOp, lexicalInfo, debugInfo);
+            } else if (n.getKind() == X10CAstEntity.CLOSURE_BODY) {
+                x10Loader.defineClosure(n,
+                        closureTypeReference(x10Loader, n),
+                        n.getPosition(), definingContext, cfg, symtab, hasCatchBlock, catchTypes,
+                        hasMonitorOp, lexicalInfo, debugInfo);
+            } else
+                super.defineFunction(n, definingContext, cfg, symtab, hasCatchBlock, catchTypes, hasMonitorOp, lexicalInfo, debugInfo);
+        }
+    }
 
-	            closureObject.setCodeBody(((X10SourceLoaderImpl) loader).new  ConcreteJavaMethod(n, closureObject, cfg, symtab, hasCatchBlock, catchTypes,
-	                    hasMonitorOp, lexicalInfo, debugInfo));
-	        } else
-	            super.defineFunction(n, definingContext, cfg, symtab, hasCatchBlock, catchTypes, hasMonitorOp, lexicalInfo, debugInfo);
-	    }
-	}
-	
     public X10CAst2IRTranslator(CAstEntity sourceFileEntity, X10SourceLoaderImpl loader) {
         this(new X10JavaCAst2IRTranslator(sourceFileEntity, loader));
     }
@@ -98,16 +90,6 @@ public class X10CAst2IRTranslator extends X10DelegatingCAstVisitor /* implements
         this.translator = translator;
 //        this.translator.setArrayOpHandler(this);
         this.insts = (AstX10InstructionFactory) translator.loader().getInstructionFactory();
-    }
-
-    protected boolean visitFunctionExpr(CAstNode n, Context c, CAstVisitor visitor) {
-        CAstEntity fn= (CAstEntity) n.getChild(0).getValue();
-
-        if (fn.getKind() == X10CAstEntity.ASYNC_BODY)
-            declareAsync(fn, (WalkContext) c);
-        else if (fn.getKind() == X10CAstEntity.CLOSURE_BODY)
-            declareClosure(fn, (WalkContext) c);
-        return false;
     }
 
     protected void leaveFunctionExpr(CAstNode n, Context c, CAstVisitor visitor) {
@@ -141,12 +123,6 @@ public class X10CAst2IRTranslator extends X10DelegatingCAstVisitor /* implements
                 NewSiteReference.make(context.cfg().getCurrentInstruction(), asyncRef)));
     }
 
-    private void declareAsync(CAstEntity fn, WalkContext context) {
-        TypeReference asyncRef= asyncTypeReference(fn);
-
-        ((X10SourceLoaderImpl) translator.loader()).defineAsync(fn, asyncRef, fn.getPosition());
-    }
-
     private int processClosureExpr(CAstNode n, Context c) {
         WalkContext context= (WalkContext) c;
         CAstEntity fn= (CAstEntity) n.getChild(0).getValue();
@@ -163,14 +139,12 @@ public class X10CAst2IRTranslator extends X10DelegatingCAstVisitor /* implements
                 NewSiteReference.make(context.cfg().getCurrentInstruction(), closureRef)));
     }
 
-    private void declareClosure(CAstEntity fn, WalkContext context) {
-        TypeReference asyncRef= closureTypeReference(fn);
-
-        ((X10SourceLoaderImpl) translator.loader()).defineClosure(fn, asyncRef, fn.getPosition());
+    private static TypeReference asyncTypeReference(JavaSourceLoaderImpl loader, CAstEntity fn) {
+        return TypeReference.findOrCreate(loader.getReference(), "LA" + fn.getName());
     }
 
     private TypeReference asyncTypeReference(CAstEntity fn) {
-        return TypeReference.findOrCreate(translator.loader().getReference(), "LA" + fn.getName());
+        return asyncTypeReference(translator.loader(), fn);
     }
 
     public MethodReference asyncEntityToMethodReference(CAstEntity asyncEntity) {
@@ -191,7 +165,6 @@ public class X10CAst2IRTranslator extends X10DelegatingCAstVisitor /* implements
 
     protected boolean visitAsyncBodyEntity(CAstEntity n, Context context, Context codeContext, CAstVisitor visitor) {
         translator.initFunctionEntity(n, (WalkContext)context, (WalkContext)codeContext);
-        ((X10SourceLoaderImpl) translator.loader()).defineAsync(n, asyncTypeReference(n), n.getPosition());
         return false;
     }
     protected void leaveAsyncBodyEntity(CAstEntity n, Context context, Context codeContext, CAstVisitor visitor) {
@@ -222,13 +195,16 @@ public class X10CAst2IRTranslator extends X10DelegatingCAstVisitor /* implements
         }
     }
 
+    private static TypeReference closureTypeReference(JavaSourceLoaderImpl loader, CAstEntity fn) {
+        return TypeReference.findOrCreate(loader.getReference(), "Lclosure" + fn.getPosition());
+    }
+
     private TypeReference closureTypeReference(CAstEntity fn) {
-        return TypeReference.findOrCreate(translator.loader().getReference(), "Lclosure" + fn.getPosition());
+        return closureTypeReference(translator.loader(), fn);
     }
 
     protected boolean visitClosureBodyEntity(CAstEntity n, Context context, Context codeContext, CAstVisitor visitor) {
         translator.initFunctionEntity(n, (WalkContext)context, (WalkContext)codeContext);
-        ((X10SourceLoaderImpl) translator.loader()).defineClosure(n, closureTypeReference(n), n.getPosition());
         return false;
     }
     protected void leaveClosureBodyEntity(CAstEntity n, Context context, Context codeContext, CAstVisitor visitor) {
