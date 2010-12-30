@@ -302,14 +302,14 @@ public class X10toCAstTranslator implements TranslatorToCAst {
     }
 
     protected class JavaTranslatingVisitorImpl {
-      public CAstNode visit(MethodDecl m, MethodContext mc) {
+      public CAstNode visit(MethodDecl m, WalkContext mc) {
         if (m.body() == null || m.body().statements().size() == 0)
           return makeNode(mc, fFactory, m, CAstNode.RETURN);
         else
           return walkNodes(m.body(), mc);
       }
 
-      public CAstNode visit(ConstructorDecl cd, MethodContext mc) {
+      public CAstNode visit(ConstructorDecl cd, WalkContext mc) {
         // Needs to examine the initializers in the ClassContext
         // and glue that code into the right place relative to the
         // constructor method body ("wherever that may turn out to be").
@@ -379,7 +379,7 @@ public class X10toCAstTranslator implements TranslatorToCAst {
         return null;
       }
 
-      public CAstNode visit(FieldDecl f, MethodContext ctorContext) {
+      public CAstNode visit(FieldDecl f, WalkContext ctorContext) {
         // Generate CAST node for the initializer (init())
         // Type targetType = f.memberInstance().container();
         // Type fieldType = f.type().type();
@@ -1942,38 +1942,6 @@ public class X10toCAstTranslator implements TranslatorToCAst {
       }
     }
 
-    public interface WalkContext {
-      void addScopedEntity(CAstNode node, CAstEntity e);
-
-      CAstControlFlowRecorder cfg();
-
-      CAstSourcePositionRecorder pos();
-
-      CAstNodeTypeMapRecorder getNodeTypeMap();
-
-      Collection<Pair<Type, Object>> getCatchTargets(Type label);
-
-      Node getContinueFor(String label);
-
-      Node getBreakFor(String label);
-
-      Node getFinally();
-
-      CodeInstance getEnclosingMethod();
-
-      Type getEnclosingType();
-
-      CAstTypeDictionary getTypeDictionary();
-
-      List<ClassMember> getStaticInitializers();
-
-      List<ClassMember> getInitializers();
-
-      Map<Node, String> getLabelMap();
-
-      boolean needLVal();
-    }
-
     protected static class DelegatingContext implements WalkContext {
       private final WalkContext parent;
 
@@ -3017,7 +2985,7 @@ public class X10toCAstTranslator implements TranslatorToCAst {
 
     class X10TranslatingVisitorImpl extends JavaTranslatingVisitorImpl implements X10TranslatorVisitor {
         @Override
-        public CAstNode visit(ConstructorDecl cd, MethodContext mc) {
+        public CAstNode visit(ConstructorDecl cd, WalkContext mc) {
             if (cd.body() == null) { // PORT1.7 Body can be null
               return makeNode(mc, fFactory, cd, CAstNode.BLOCK_STMT, new CAstNode[0]);
             }

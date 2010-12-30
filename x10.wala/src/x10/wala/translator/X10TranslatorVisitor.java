@@ -60,7 +60,6 @@ import polyglot.ast.Unary;
 import polyglot.ast.While;
 import x10.ast.AssignPropertyCall;
 import x10.ast.Async;
-import x10.ast.AtEach;
 import x10.ast.AtStmt;
 import x10.ast.Atomic;
 import x10.ast.Clocked;
@@ -80,8 +79,6 @@ import x10.ast.StmtSeq;
 import x10.ast.Tuple;
 import x10.ast.When;
 import x10.ast.X10Formal;
-import x10.wala.translator.X10toCAstTranslator.MethodContext;
-import x10.wala.translator.X10toCAstTranslator.WalkContext;
 
 import com.ibm.wala.cast.tree.CAstNode;
 
@@ -91,10 +88,9 @@ import com.ibm.wala.cast.tree.CAstNode;
  * @author rfuhrer
  */
 public interface X10TranslatorVisitor {
-    CAstNode visit(MethodDecl m, MethodContext context);
-    CAstNode visit(ConstructorDecl cd, MethodContext cc);
-    CAstNode visit(FieldDecl f, MethodContext mc); // yes, a MethodContext; we process FieldDecl's only to add their initializers to
-                                                   // each constructor
+    CAstNode visit(MethodDecl m, WalkContext wc);
+    CAstNode visit(ConstructorDecl cd, WalkContext wc);
+    CAstNode visit(FieldDecl f, WalkContext wc);
     CAstNode visit(Import i, WalkContext wc);
     CAstNode visit(PackageNode p, WalkContext wc);
     CAstNode visit(CanonicalTypeNode ctn, WalkContext wc);
