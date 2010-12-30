@@ -21,6 +21,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
@@ -454,7 +455,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                        Method printCallGraph = c.getMethod("printCallGraph");
                        walaBarrier = IRBarrier(ir, printCallGraph);
                    } else {
-                       Method wsAnalyzeCallGraph = c.getMethod("wsAnalyzeCallGraph");
+                       Method wsAnalyzeCallGraph = c.getMethod("wsAnalyzeCallGraph", Collection.class);
                        walaBarrier = IRBarrier(ir, wsAnalyzeCallGraph);
                    }
                    goals.add(walaBarrier);
@@ -623,7 +624,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                    } else {
                 	   //This path is only for WALA call graph analysis for Work-Stealing
                        try {
-                           WSTransformationContent transTarget = (WSTransformationContent) method.invoke(null);
+                           WSTransformationContent transTarget = (WSTransformationContent) method.invoke(null, jobs());
                            //now use this one to construct WSTransformationState
                            TypeSystem ts  = extInfo.typeSystem();
                            NodeFactory nf = extInfo.nodeFactory();
