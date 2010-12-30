@@ -12,22 +12,22 @@
 import harness.x10Test;
 
 /**
- * A struct constructor cannot be invoked with new.
+ * A struct constructor can be invoked with new.
  * @author vj
  */
-public class NewForStruct_MustFailCompile  extends x10Test {
+public class NewForStruct extends x10Test {
+
+    static struct Metajamjirrox {
+        val a : Int;
+        def this(b : Int) { a = b; }
+    }
 
     public def run() {
-        val m : Metajamjirrox  = new Metajamjirrox(1);    // ERR use Metajamjirrox(1);  instead
+        val m : Metajamjirrox  = new Metajamjirrox(1);
     	return true;
     }
 
     public static def main(Array[String](1))  {
-	new NewForStruct_MustFailCompile().execute();
+	new NewForStruct().execute();
     }
-}
-
-struct Metajamjirrox {
-  val a : Int;
-  def this(b : Int) { a = b; }
 }
