@@ -7,14 +7,13 @@ import com.ibm.wala.ssa.SSAInstruction;
 import com.ibm.wala.types.TypeReference;
 
 public interface AstX10InstructionFactory extends AstJavaInstructionFactory {
-	AsyncInvokeInstruction AsyncInvoke(int result, int[] params, int exception, CallSiteReference site, int[] clocks);
-	AsyncInvokeInstruction AsyncInvoke(int[] params, int exception, CallSiteReference site, int[] clocks);
-	AsyncInvokeInstruction AsyncInvoke(int[] results, int[] params, int exception, Access[] lexicalReads, Access[] lexicalWrites, CallSiteReference csr);
+	AsyncInstruction AsyncInvoke(int result, int[] params, int exception, CallSiteReference site, int[] clocks);
+	AsyncInstruction AsyncInvoke(int[] params, int exception, CallSiteReference site, int[] clocks);
+	AsyncInstruction AsyncInvoke(int[] results, int[] params, int exception, Access[] lexicalReads, Access[] lexicalWrites, CallSiteReference csr);
 	AtomicInstruction Atomic(boolean isEnter);
 	FinishInstruction Finish(boolean isEnter);
 	NextInstruction Next();
 	HereInstruction Here(int retValue);
-	PlaceOfPointInstruction PlaceOfPoint(int hasNextValue, int regionIter);
 	IterHasNextInstruction IterHasNext(int hasNextValue, int regionIter);
 	IterInitInstruction IterInit(int iterVal, int regionVal);
 	IterNextInstruction IterNext(int nextValue, int regionIter);

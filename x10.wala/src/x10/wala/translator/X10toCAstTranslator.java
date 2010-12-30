@@ -3128,42 +3128,6 @@ public class X10toCAstTranslator implements TranslatorToCAst {
 			    bodyStmts))));
 	}
 
-	public CAstNode visit(AtEach a, WalkContext wc) {
-	    CAstEntity bodyEntity= walkAsyncEntity(a, a.body(), wc);
-
-	    Expr domain= a.domain();
-	    Type type= domain.type();
-	    CAstNode dist;
-
-	    if (type.isArray())
-		dist= makeNode(wc, domain, X10CastNode.DIST, walkNodes(domain, wc));
-	    else
-		dist= walkNodes(domain, wc);
-
-	    List clocks = a.clocks();
-	    
-	    CAstNode args[] = new CAstNode[ clocks.size() + 2 ];
-	    
-	    args[0] = makeNode(wc, a.domain(), X10CastNode.PLACE_OF_POINT, makeNode(wc, a.domain(), CAstNode.VAR, fFactory.makeConstant("dist temp")), walkNodes(a.formal(), wc));
-
-	    for(int i = 0; i < clocks.size(); i++) {
-	    	args[i+1] = walkNodes((Node)clocks.get(i), wc);
-	    }
-
-	    // FUNCTION_EXPR will translate to a type wrapping the single method with the given body
-	    args[ args.length - 1] = makeNode(wc, a.body(), CAstNode.FUNCTION_EXPR, fFactory.makeConstant(bodyEntity));
-
-	    final CAstNode bodyNode= makeNode(wc, a, X10CastNode.ASYNC, args);
-
-	    wc.addScopedEntity(bodyNode, bodyEntity);
-	    return makeNode(wc, a, CAstNode.LOCAL_SCOPE,
-		makeNode(wc, a, CAstNode.BLOCK_STMT,
-			makeNode(wc, a.domain(), CAstNode.DECL_STMT, 
-			  fFactory.makeConstant(new CAstSymbolImpl("dist temp", true)),
-			  dist),
-			walkIterator(a.formal(), bodyNode, fFactory.makeNode(CAstNode.VAR, fFactory.makeConstant("dist temp")), a.body().position(), wc)));
-	}
-
 	public CAstNode visit(Future f, WalkContext wc) {
 	    CAstEntity bodyEntity= walkAsyncEntity(f, f.body(), wc);
 	    CAstNode bodyNode= makeNode(wc, f, X10CastNode.ASYNC,

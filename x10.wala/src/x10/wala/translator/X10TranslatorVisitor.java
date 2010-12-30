@@ -150,7 +150,6 @@ public interface X10TranslatorVisitor {
     CAstNode visit(Formal f, WalkContext wc); // may not see these (might be handled by parent)
     CAstNode visit(Async a, WalkContext context);
     CAstNode visit(AssignPropertyCall a, WalkContext context);
-    CAstNode visit(AtEach a, WalkContext context);
     CAstNode visit(Atomic a, WalkContext context);
     CAstNode visit(AtStmt atStmt, WalkContext context);
     CAstNode visit(Clocked c, WalkContext context);

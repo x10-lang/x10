@@ -7,21 +7,21 @@ import com.ibm.wala.ssa.SSAInstruction;
 import com.ibm.wala.ssa.SSAInstructionFactory;
 import com.ibm.wala.ssa.SymbolTable;
 
-public class AsyncInvokeInstruction extends AstJavaInvokeInstruction {
+public class AsyncInstruction extends AstJavaInvokeInstruction {
     private int clocks[];
     //FIXME: a hack to get whether placeExpr is HERE
     
-    public AsyncInvokeInstruction(int result, int[] params, int exception, CallSiteReference site, int[] clocks) {
+    public AsyncInstruction(int result, int[] params, int exception, CallSiteReference site, int[] clocks) {
 	super(result, params, exception, site);
 	  this.clocks = clocks;
     }
 
-    public AsyncInvokeInstruction(int[] params, int exception, CallSiteReference site, int[] clocks) {
+    public AsyncInstruction(int[] params, int exception, CallSiteReference site, int[] clocks) {
 	super(params, exception, site);
 	  this.clocks = clocks;
     }
 
-    public AsyncInvokeInstruction(int[] results, int[] params, int exception, Access[] lexicalReads, Access[] lexicalWrites, CallSiteReference csr) {
+    public AsyncInstruction(int[] results, int[] params, int exception, Access[] lexicalReads, Access[] lexicalWrites, CallSiteReference csr) {
 	super(results, params, exception, csr, lexicalReads, lexicalWrites);
     }
 
@@ -37,7 +37,7 @@ public class AsyncInvokeInstruction extends AstJavaInvokeInstruction {
 	// Use super to copy all lexical uses/defs; there should be one slot left
 	// at the end for our place expr, and the rest are the clock expressions,
     // if any    		
-	AsyncInvokeInstruction copy = (AsyncInvokeInstruction) super.copyForSSA(insts, defs, uses);
+	AsyncInstruction copy = (AsyncInstruction) super.copyForSSA(insts, defs, uses);
 
 	if (clocks != null) {
 		copy.clocks = new int[ clocks.length ];

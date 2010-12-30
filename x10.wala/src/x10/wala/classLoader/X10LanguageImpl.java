@@ -5,7 +5,7 @@ import java.util.Collections;
 
 import x10.wala.loader.X10SourceLoaderImpl;
 import x10.wala.ssa.AstX10InstructionFactory;
-import x10.wala.ssa.AsyncInvokeInstruction;
+import x10.wala.ssa.AsyncInstruction;
 import x10.wala.ssa.AtStmtInstruction;
 import x10.wala.ssa.AtomicInstruction;
 import x10.wala.ssa.FinishInstruction;
@@ -14,7 +14,6 @@ import x10.wala.ssa.IterHasNextInstruction;
 import x10.wala.ssa.IterInitInstruction;
 import x10.wala.ssa.IterNextInstruction;
 import x10.wala.ssa.NextInstruction;
-import x10.wala.ssa.PlaceOfPointInstruction;
 import x10.wala.ssa.TupleInstruction;
 
 import com.ibm.wala.analysis.typeInference.PrimitiveType;
@@ -149,18 +148,18 @@ public class X10LanguageImpl extends LanguageImpl implements BytecodeLanguage {
 
   public static class InstructionFactory extends JavaSourceLoaderImpl.InstructionFactory implements AstX10InstructionFactory {
 
-    public AsyncInvokeInstruction AsyncInvoke(int result, int[] params, int exception, CallSiteReference site,
+    public AsyncInstruction AsyncInvoke(int result, int[] params, int exception, CallSiteReference site,
                                               int[] clocks) {
-      return new AsyncInvokeInstruction(result, params, exception, site, clocks);
+      return new AsyncInstruction(result, params, exception, site, clocks);
     }
 
-    public AsyncInvokeInstruction AsyncInvoke(int[] params, int exception, CallSiteReference site, int[] clocks) {
-      return new AsyncInvokeInstruction(params, exception, site, clocks);
+    public AsyncInstruction AsyncInvoke(int[] params, int exception, CallSiteReference site, int[] clocks) {
+      return new AsyncInstruction(params, exception, site, clocks);
     }
 
-    public AsyncInvokeInstruction AsyncInvoke(int[] results, int[] params, int exception, Access[] lexicalReads,
+    public AsyncInstruction AsyncInvoke(int[] results, int[] params, int exception, Access[] lexicalReads,
                                               Access[] lexicalWrites, CallSiteReference csr) {
-      return new AsyncInvokeInstruction(results, params, exception, lexicalReads, lexicalWrites, csr);
+      return new AsyncInstruction(results, params, exception, lexicalReads, lexicalWrites, csr);
     }
 
     public AtomicInstruction Atomic(boolean isEnter) {
@@ -177,10 +176,6 @@ public class X10LanguageImpl extends LanguageImpl implements BytecodeLanguage {
 
     public HereInstruction Here(int retValue) {
       return new HereInstruction(retValue);
-    }
-
-    public PlaceOfPointInstruction PlaceOfPoint(int hasNextValue, int regionIter) {
-      return new PlaceOfPointInstruction(hasNextValue, regionIter);
     }
 
     public IterHasNextInstruction IterHasNext(int hasNextValue, int regionIter) {

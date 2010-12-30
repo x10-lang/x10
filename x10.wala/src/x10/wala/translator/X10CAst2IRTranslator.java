@@ -262,15 +262,6 @@ public class X10CAst2IRTranslator extends X10DelegatingCAstVisitor /* implements
         translator.setValue(n, retValue);
     }
 
-    protected boolean visitPlaceOfPoint(CAstNode n, Context c, CAstVisitor visitor) { /* empty */ return false; }
-    protected void leavePlaceOfPoint(CAstNode n, Context c, CAstVisitor visitor) {
-        WalkContext context = (WalkContext)c;
-        int retValue = context.currentScope().allocateTempValue();
-        int targetValue = translator.getValue(n.getChild(0));
-        context.cfg().addInstruction(insts.PlaceOfPoint(retValue, targetValue));
-        translator.setValue(n, retValue);
-    }
-
     protected void leaveThis(CAstNode n, Context c, CAstVisitor visitor) {
     	WalkContext context = (WalkContext)c;
     	CAstEntity entity = context.top();

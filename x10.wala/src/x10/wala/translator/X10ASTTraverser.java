@@ -90,8 +90,6 @@ public class X10ASTTraverser {
       return xtv.visit((Async) n, wc);
     if (n instanceof AssignPropertyCall)
         return xtv.visit((AssignPropertyCall) n, wc);
-    else if (n instanceof AtEach)
-      return xtv.visit((AtEach) n, wc);
     else if (n instanceof Atomic)
       return xtv.visit((Atomic) n, wc);
     else if (n instanceof AtStmt)
