@@ -36,9 +36,9 @@ public class X10SourceLoaderImpl extends JavaSourceLoaderImpl {
 
     public static ClassLoaderReference X10SourceLoader = new ClassLoaderReference(X10SourceLoaderName, X10, null);
 
-    public X10SourceLoaderImpl(ClassLoaderReference loaderRef, IClassLoader parent, SetOfClasses exclusions,
-                               IClassHierarchy cha) throws IOException {
-	super(loaderRef, parent, exclusions, cha);
+    public X10SourceLoaderImpl(ClassLoaderReference loaderRef, IClassLoader parent, SetOfClasses exclusions, IClassHierarchy cha)
+            throws IOException {
+        super(loaderRef, parent, exclusions, cha);
     }
 
     @Override
@@ -52,95 +52,98 @@ public class X10SourceLoaderImpl extends JavaSourceLoaderImpl {
     }
 
     public void defineAsync(CAstEntity fn, TypeReference asyncRef, CAstSourcePositionMap.Position fileName) {
-	X10AsyncObject asyncType= new X10AsyncObject(asyncRef, TypeReference.JavaLangObject, this, fileName, cha);
-	fTypeMap.put(fn, asyncType);
-	loadedClasses.put(asyncType.getName(), asyncType);
+        X10AsyncObject asyncType = new X10AsyncObject(asyncRef, X10LanguageImpl.X10Lang.getAnyType(), this, fileName, cha);
+        fTypeMap.put(fn, asyncType);
+        loadedClasses.put(asyncType.getName(), asyncType);
     }
 
     public void defineClosure(CAstEntity fn, TypeReference closureRef, CAstSourcePositionMap.Position fileName) {
-	X10ClosureObject closureType= new X10ClosureObject(closureRef, TypeReference.JavaLangObject, this, fileName, cha);
-	fTypeMap.put(fn, closureType);
-	loadedClasses.put(closureType.getName(), closureType);
+        X10ClosureObject closureType = new X10ClosureObject(closureRef, X10LanguageImpl.X10Lang.getAnyType(), this, fileName,
+                cha);
+        fTypeMap.put(fn, closureType);
+        loadedClasses.put(closureType.getName(), closureType);
     }
 
     /**
-     * Ideally we'd want to create some sort of IMethod to represent the async from
-     * within X10Cast2IRTranslatingVisitor, but sadly that doesn't have a defineFunction()
-     * method (since it doesn't actually inherit AstTranslator). So we create the
-     * IMethod here inside the loader, where we can actually trap defineFunction().
-     * Gack.
+     * Ideally we'd want to create some sort of IMethod to represent the async
+     * from within X10Cast2IRTranslatingVisitor, but sadly that doesn't have a
+     * defineFunction() method (since it doesn't actually inherit
+     * AstTranslator). So we create the IMethod here inside the loader, where we
+     * can actually trap defineFunction(). Gack.
      */
-    public void defineFunction(CAstEntity n, IClass owner, AbstractCFG cfg, SymbolTable symtab, boolean hasCatchBlock, TypeReference[][] catchTypes, boolean hasMonitorOp, AstLexicalInformation lexicalInfo, DebuggingInformation debugInfo) {
-	if (n.getKind() == X10CAstEntity.ASYNC_BODY) {
-	    X10AsyncObject asyncObject= (X10AsyncObject) fTypeMap.get(n);
+    @Override
+    public void defineFunction(CAstEntity n, IClass owner, AbstractCFG cfg, SymbolTable symtab, boolean hasCatchBlock,
+            TypeReference[][] catchTypes, boolean hasMonitorOp, AstLexicalInformation lexicalInfo,
+            DebuggingInformation debugInfo) {
+        if (n.getKind() == X10CAstEntity.ASYNC_BODY) {
+            X10AsyncObject asyncObject = (X10AsyncObject) fTypeMap.get(n);
 
-	    asyncObject.setCodeBody(new ConcreteJavaMethod(n, asyncObject, cfg, symtab, hasCatchBlock, catchTypes, hasMonitorOp, lexicalInfo, debugInfo));
-	} else if (n.getKind() == X10CAstEntity.CLOSURE_BODY) {
-	    X10ClosureObject closureObject= (X10ClosureObject) fTypeMap.get(n);
+            asyncObject.setCodeBody(new ConcreteJavaMethod(n, asyncObject, cfg, symtab, hasCatchBlock, catchTypes,
+                    hasMonitorOp, lexicalInfo, debugInfo));
+        } else if (n.getKind() == X10CAstEntity.CLOSURE_BODY) {
+            X10ClosureObject closureObject = (X10ClosureObject) fTypeMap.get(n);
 
-	    closureObject.setCodeBody(new ConcreteJavaMethod(n, closureObject, cfg, symtab, hasCatchBlock, catchTypes, hasMonitorOp, lexicalInfo, debugInfo));
-	} else
-	    super.defineFunction(n, owner, cfg, symtab, hasCatchBlock, catchTypes, hasMonitorOp, lexicalInfo, debugInfo);
+            closureObject.setCodeBody(new ConcreteJavaMethod(n, closureObject, cfg, symtab, hasCatchBlock, catchTypes,
+                    hasMonitorOp, lexicalInfo, debugInfo));
+        } else
+            super.defineFunction(n, owner, cfg, symtab, hasCatchBlock, catchTypes, hasMonitorOp, lexicalInfo, debugInfo);
     }
 
     public String toString() {
-      return "X10 Source Loader (classes " + loadedClasses.values() + ")";
+        return "X10 Source Loader (classes " + loadedClasses.values() + ")";
     }
-    
+
+    @Override
     public IClass defineType(CAstEntity type, String typeName, CAstEntity owner) {
-      final Collection<TypeName> superTypeNames = new ArrayList<TypeName>();
-      for (final Object superType : type.getType().getSupertypes()) {
-        superTypeNames.add(TypeName.string2TypeName(((CAstType) superType).getName()));
-      }
-
-      final X10Class x10Class = new X10Class(typeName, type.getPosition(), type.getQualifiers(), this,
-                                             (owner != null) ? (JavaClass) fTypeMap.get(owner) : (JavaClass) null,
-                                             superTypeNames);
-
-      fTypeMap.put(type, x10Class);
-      loadedClasses.put(x10Class.getName(), x10Class);
-
-      return x10Class;
+        final Collection<TypeName> superTypeNames = new ArrayList<TypeName>();
+        for (final Object superType : type.getType().getSupertypes()) {
+            superTypeNames.add(TypeName.string2TypeName(((CAstType) superType).getName()));
+        }
+        final X10Class x10Class = new X10Class(typeName, superTypeNames, type.getPosition(), type.getQualifiers(), this,
+                (owner != null) ? (JavaClass) fTypeMap.get(owner) : (JavaClass) null);
+        fTypeMap.put(type, x10Class);
+        loadedClasses.put(x10Class.getName(), x10Class);
+        return x10Class;
     }
-    
+
     private final class X10Class extends JavaClass {
 
-      public X10Class(final String typeName, final Position position, final Collection qualifiers, 
-                      final JavaSourceLoaderImpl loader, final IClass enclosingClass, 
-                      final Collection<TypeName> superTypeNames) {
-        super(typeName, superTypeNames, position, qualifiers, loader, enclosingClass);
-      }
-      
-      @Override
-      public IClass getSuperclass() {
-        for (final Object superTypeName : superTypeNames) {
-          final IClass domoType = lookupClass((TypeName) superTypeName);
-          if (domoType != null && ! domoType.isInterface()) {
-            return domoType;
-          }
+        public X10Class(final String typeName, final Collection<TypeName> superTypeNames, final Position position,
+                final Collection qualifiers, final JavaSourceLoaderImpl loader, final IClass enclosingClass) {
+            super(typeName, superTypeNames, position, qualifiers, loader, enclosingClass);
         }
-        return null;
-      }
 
-      @Override
-      public Collection<IClass> getDirectInterfaces() {
-        final List<IClass> result = new ArrayList<IClass>();
-        for (final Object superTypeName : superTypeNames) {
-          final IClass domoType = lookupClass((TypeName) superTypeName);
-          if (domoType != null && domoType.isInterface()) {
-            result.add(domoType);
-          }
+        @Override
+        public IClass getSuperclass() {
+            for (final Object superTypeName : superTypeNames) {
+                final IClass domoType = lookupClass((TypeName) superTypeName);
+                if (domoType != null && !domoType.isInterface()) {
+                    return domoType;
+                }
+            }
+            return null;
         }
-        return result;
-      }
-            
+
+        @Override
+        public Collection<IClass> getDirectInterfaces() {
+            final List<IClass> result = new ArrayList<IClass>();
+            for (final Object superTypeName : superTypeNames) {
+                final IClass domoType = lookupClass((TypeName) superTypeName);
+                if (domoType != null && domoType.isInterface()) {
+                    result.add(domoType);
+                }
+            }
+            return result;
+        }
+
     }
-    
+
     @Override
     protected SourceModuleTranslator getTranslator() {
-      return new SourceModuleTranslator() {
-        public void loadAllSources(Set s) {}
-      };
+        return new SourceModuleTranslator() {
+            public void loadAllSources(Set s) {
+            }
+        };
     }
 
     @Override
