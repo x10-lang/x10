@@ -28,6 +28,7 @@ import polyglot.ast.NodeFactory;
 import polyglot.ast.TypeNode;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
+import polyglot.types.CodeDef;
 import polyglot.types.ConstructorDef;
 import polyglot.types.ConstructorInstance;
 import polyglot.types.Context;
@@ -57,10 +58,12 @@ import x10.extension.X10Del;
 import x10.extension.X10Del_c;
 import x10.extension.X10Ext;
 import x10.types.ConstrainedType;
+import x10.types.ThisDef;
 import x10.types.TypeParamSubst;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10ConstructorInstance;
+import x10.types.X10MemberDef;
 import polyglot.types.Context;
 import x10.types.X10Flags;
 import x10.types.X10ParsedClassType;
@@ -167,8 +170,13 @@ public class X10New_c extends New_c implements X10New {
     }
 
     @Override
-    protected New_c typeCheckHeader(TypeChecker childtc) throws SemanticException {
-        X10New_c n = (X10New_c) super.typeCheckHeader(childtc);
+    protected X10New_c typeCheckHeader(TypeChecker childtc) {
+        X10New_c n;
+        try {
+            n = (X10New_c) super.typeCheckHeader(childtc);
+        } catch (SemanticException e) {
+            throw new InternalCompilerError("Unexpected exception when typechecking "+this, e);
+        }
         List<TypeNode> typeArguments = visitList(n.typeArguments(), childtc);
         n = (X10New_c) n.typeArguments(typeArguments);
 
@@ -201,8 +209,13 @@ public class X10New_c extends New_c implements X10New {
     }
 
     @Override
-    public Node typeCheckOverride(Node parent, ContextVisitor tc) throws SemanticException {
-        Node n = super.typeCheckOverride(parent, tc);
+    public Node typeCheckOverride(Node parent, ContextVisitor tc) {
+        Node n;
+        try {
+            n = super.typeCheckOverride(parent, tc);
+        } catch (SemanticException e) {
+            throw new InternalCompilerError("Unexpected exception when compiling "+this, e);
+        }
         NodeVisitor childtc = tc.enter(parent, n);
         List<AnnotationNode> oldAnnotations = ((X10Ext) ext()).annotations();
         if (oldAnnotations == null || oldAnnotations.isEmpty()) {
@@ -220,7 +233,7 @@ public class X10New_c extends New_c implements X10New {
      * @param ct
      * @throws SemanticException
      */
-    protected New findQualifier(TypeChecker ar, ClassType ct) throws SemanticException {
+    protected X10New findQualifier(TypeChecker ar, ClassType ct) {
         // If we're instantiating a non-static member class, add a "this"
         // qualifier.
         NodeFactory nf = ar.nodeFactory();
@@ -259,7 +272,9 @@ public class X10New_c extends New_c implements X10New {
         }
         
         if (outer == null) {
-            throw new SemanticException("Could not find non-static member class \"" + name + "\".", position());
+            Errors.issue(ar.job(),
+                    new SemanticException("Could not find non-static member class \"" + name + "\".", position()));
+            outer = c.currentClass();
         }
         
         // Create the qualifier.
@@ -270,8 +285,7 @@ public class X10New_c extends New_c implements X10New {
             q = nf.This(cg);
         }
         else {
-            q = nf.This(cg,
-                        nf.CanonicalTypeNode(cg, outer));
+            q = nf.This(cg, nf.CanonicalTypeNode(cg, outer));
         }
         
         q = q.type(outer);
@@ -295,9 +309,9 @@ public class X10New_c extends New_c implements X10New {
         return null;
     }
 
-    public New_c typeCheckObjectType(TypeChecker childtc) throws SemanticException {
+    public X10New_c typeCheckObjectType(TypeChecker childtc) {
         NodeFactory nf = (NodeFactory) childtc.nodeFactory();
-        TypeSystem ts = (TypeSystem) childtc.typeSystem();
+        X10TypeSystem_c ts = (X10TypeSystem_c) childtc.typeSystem();
         Context c = childtc.context();
 
         X10New_c n = this;
@@ -335,11 +349,13 @@ public class X10New_c extends New_c implements X10New {
         else {
 
             if (!(tn instanceof AmbTypeNode) || ((AmbTypeNode) tn).prefix() != null) {
-                throw new SemanticException("Only simply-named member classes may be instantiated by a qualified new expression.", tn.position());
+                Errors.issue(childtc.job(),
+                        new SemanticException("Only simply-named member classes may be instantiated by a qualified new expression.", tn.position()));
             }
 
             if (!qualifier.type().isClass()) {
-                throw new SemanticException("Cannot instantiate member class of non-class type.", n.position());
+                Errors.issue(childtc.job(),
+                        new SemanticException("Cannot instantiate member class of non-class type.", n.position()));
             }
 
             tn = nf.CanonicalTypeNode(tn.position(), tn.typeRef());
@@ -347,7 +363,14 @@ public class X10New_c extends New_c implements X10New {
             // We have to disambiguate the type node as if it were a member of
             // the static type, outer, of the qualifier.
 
-            t = ts.findMemberType(X10TypeMixin.baseType(qualifier.type()), name, c);
+            try {
+                t = ts.findMemberType(X10TypeMixin.baseType(qualifier.type()), name, c);
+            } catch (SemanticException e) {
+                t = ts.unknownType(tn.position());
+                if (!qualifier.type().isClass()) {
+                    qualifier = null; // will fake it
+                }
+            }
         }
         t = ts.expandMacros(t);
 
@@ -359,14 +382,14 @@ public class X10New_c extends New_c implements X10New {
                 name = Name.makeFresh();
             QName outer = qualifier == null ? null : qualifier.type().toClass().fullName();
             QName qname = QName.make(outer, name);
-            t = ((X10TypeSystem_c) ts).createFakeClass(qname, new SemanticException("Cannot instantiate type " + t + "."));
+            t = ts.createFakeClass(qname, new SemanticException("Cannot instantiate type " + tn.type() + "."));
         }
 
         X10ClassType ct = (X10ClassType) t;
 
         if (qualifier == null && ct.isMember() && !ct.flags().isStatic()) {
             final X10New_c newC = (X10New_c) n.objectType(tn);
-            New k = newC.findQualifier(childtc, ct);
+            X10New k = newC.findQualifier(childtc, ct);
             tn = k.objectType();
             qualifier = (Expr) k.visitChild(k.qualifier(), childtc);
         }
@@ -379,7 +402,9 @@ public class X10New_c extends New_c implements X10New {
             }
 
             if (typeArgs.size() != ct.x10Def().typeParameters().size()) {
-                throw new SemanticException("Cannot instantiate type " + ct + "; incorrect number of type arguments.", n.position());
+                Errors.issue(childtc.job(),
+                        new SemanticException("Cannot instantiate type " + ct + "; incorrect number of type arguments.", n.position()));
+                // TODO: fake missing args or delete extra args
             }
 
             ct = ct.typeArguments(typeArgs);
@@ -414,14 +439,6 @@ public class X10New_c extends New_c implements X10New {
                 return ts.ConstructorMatcher(ct, argTypes, context);
             }
         });
-    }
-
-    protected void typeCheckFlags(ContextVisitor tc) throws SemanticException {
-        super.typeCheckFlags(tc);
-        ClassType ct = tn.type().toClass();
-        if (X10Flags.toX10Flags(ct.flags()).isStruct() && ! newOmitted) {
-            throw new Errors.NewOfStructNotPermitted(this);
-        }
     }
 
     public Node typeCheck(ContextVisitor tc) {
@@ -524,7 +541,19 @@ public class X10New_c extends New_c implements X10New {
             ClassDef anonTypeDef = result.anonType();
             Type anonType = anonTypeDef.asType();
             type = X10TypeMixin.xclause(X10TypeMixin.baseType(anonType), X10TypeMixin.xclause(type));
-          
+
+            // Capture "this" for anonymous classes in a non-static context
+            if (!context.inStaticContext()) {
+                CodeDef code = context.currentCode();
+                if (code instanceof X10MemberDef) {
+                    ThisDef thisDef = ((X10MemberDef) code).thisDef();
+                    if (null == thisDef) {
+                        throw new InternalCompilerError(position(), "X10New_c.typeCheck: thisDef is null for containing code " +code);
+                    }
+                    assert (thisDef != null);
+                    context.recordCapturedVariable(thisDef.asInstance());
+                }
+            }
         }
 
         result = (X10New_c) result.type(type);
