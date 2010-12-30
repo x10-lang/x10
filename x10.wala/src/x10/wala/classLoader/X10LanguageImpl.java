@@ -4,20 +4,32 @@ import java.util.Collection;
 import java.util.Collections;
 
 import x10.wala.loader.X10SourceLoaderImpl;
+import x10.wala.ssa.AstX10InstructionFactory;
+import x10.wala.ssa.AsyncInvokeInstruction;
+import x10.wala.ssa.AtStmtInstruction;
+import x10.wala.ssa.AtomicInstruction;
+import x10.wala.ssa.FinishInstruction;
+import x10.wala.ssa.HereInstruction;
+import x10.wala.ssa.IterHasNextInstruction;
+import x10.wala.ssa.IterInitInstruction;
+import x10.wala.ssa.IterNextInstruction;
+import x10.wala.ssa.NextInstruction;
+import x10.wala.ssa.PlaceOfPointInstruction;
+import x10.wala.ssa.TupleInstruction;
 
 import com.ibm.wala.analysis.typeInference.PrimitiveType;
+import com.ibm.wala.cast.ir.ssa.AstLexicalAccess.Access;
+import com.ibm.wala.cast.java.loader.JavaSourceLoaderImpl;
 import com.ibm.wala.classLoader.BytecodeLanguage;
+import com.ibm.wala.classLoader.CallSiteReference;
 import com.ibm.wala.classLoader.Language;
 import com.ibm.wala.classLoader.LanguageImpl;
 import com.ibm.wala.ipa.cha.IClassHierarchy;
 import com.ibm.wala.shrikeBT.IInstruction;
-import com.ibm.wala.shrikeBT.ConstantInstruction.ClassToken;
 import com.ibm.wala.shrikeCT.InvalidClassFileException;
-import com.ibm.wala.ssa.SSAInstructionFactory;
 import com.ibm.wala.types.MethodReference;
 import com.ibm.wala.types.TypeName;
 import com.ibm.wala.types.TypeReference;
-import com.ibm.wala.util.shrike.ShrikeUtil;
 import com.ibm.wala.util.strings.Atom;
 
 public class X10LanguageImpl extends LanguageImpl implements BytecodeLanguage {
@@ -107,10 +119,6 @@ public class X10LanguageImpl extends LanguageImpl implements BytecodeLanguage {
     return Language.JAVA.isStringType(type);
   }
 
-  public SSAInstructionFactory instructionFactory() {
-    return Language.JAVA.instructionFactory();
-  }
-
   public TypeReference getMetadataType() {
     throw new UnsupportedOperationException("X10 does not permit meta data");
   }
@@ -137,5 +145,68 @@ public class X10LanguageImpl extends LanguageImpl implements BytecodeLanguage {
 
   public boolean isVoidType(TypeReference type) {
     return Language.JAVA.isVoidType(type);
+  }
+
+  public static class InstructionFactory extends JavaSourceLoaderImpl.InstructionFactory implements AstX10InstructionFactory {
+
+    public AsyncInvokeInstruction AsyncInvoke(int result, int[] params, int exception, CallSiteReference site,
+                                              int[] clocks) {
+      return new AsyncInvokeInstruction(result, params, exception, site, clocks);
+    }
+
+    public AsyncInvokeInstruction AsyncInvoke(int[] params, int exception, CallSiteReference site, int[] clocks) {
+      return new AsyncInvokeInstruction(params, exception, site, clocks);
+    }
+
+    public AsyncInvokeInstruction AsyncInvoke(int[] results, int[] params, int exception, Access[] lexicalReads,
+                                              Access[] lexicalWrites, CallSiteReference csr) {
+      return new AsyncInvokeInstruction(results, params, exception, lexicalReads, lexicalWrites, csr);
+    }
+
+    public AtomicInstruction Atomic(boolean isEnter) {
+      return new AtomicInstruction(isEnter);
+    }
+
+    public FinishInstruction Finish(boolean isEnter) {
+      return new FinishInstruction(isEnter);
+    }
+    
+    public NextInstruction Next() {
+        return new NextInstruction();
+      }
+
+    public HereInstruction Here(int retValue) {
+      return new HereInstruction(retValue);
+    }
+
+    public PlaceOfPointInstruction PlaceOfPoint(int hasNextValue, int regionIter) {
+      return new PlaceOfPointInstruction(hasNextValue, regionIter);
+    }
+
+    public IterHasNextInstruction IterHasNext(int hasNextValue, int regionIter) {
+      return new IterHasNextInstruction(hasNextValue, regionIter);
+    }
+
+    public IterInitInstruction IterInit(int iterVal, int regionVal) {
+      return new IterInitInstruction(iterVal, regionVal);
+    }
+
+    public IterNextInstruction IterNext(int nextValue, int regionIter) {
+      return new IterNextInstruction(nextValue, regionIter);
+    }
+
+    public TupleInstruction Tuple(int retValue, int[] slotValues) {
+      return new TupleInstruction(retValue, slotValues);
+    }
+    
+    public AtStmtInstruction AtStmt(final boolean isEnter) {
+      return new AtStmtInstruction(isEnter);
+    }
+  }
+
+  private static final InstructionFactory insts = new InstructionFactory();
+
+  public InstructionFactory instructionFactory() {
+      return insts;
   }
 }

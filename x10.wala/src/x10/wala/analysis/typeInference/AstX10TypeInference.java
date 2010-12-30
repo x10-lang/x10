@@ -15,10 +15,8 @@ import x10.wala.ssa.TupleInstruction;
 
 import com.ibm.wala.analysis.typeInference.ConeType;
 import com.ibm.wala.analysis.typeInference.JavaPrimitiveType;
-import com.ibm.wala.analysis.typeInference.PointType;
 import com.ibm.wala.cast.java.analysis.typeInference.AstJavaTypeInference;
 import com.ibm.wala.classLoader.IClass;
-import com.ibm.wala.classLoader.Language;
 import com.ibm.wala.ipa.cha.IClassHierarchy;
 import com.ibm.wala.ssa.IR;
 import com.ibm.wala.types.TypeReference;

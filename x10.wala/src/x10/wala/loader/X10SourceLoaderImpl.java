@@ -7,23 +7,9 @@ import java.util.List;
 import java.util.Set;
 
 import x10.wala.classLoader.X10LanguageImpl;
-import x10.wala.ssa.AstX10InstructionFactory;
-import x10.wala.ssa.AsyncInvokeInstruction;
-import x10.wala.ssa.AtStmtInstruction;
-import x10.wala.ssa.AtomicInstruction;
-import x10.wala.ssa.FinishInstruction;
-import x10.wala.ssa.HereInstruction;
-import x10.wala.ssa.NextInstruction;
-import x10.wala.ssa.PlaceOfPointInstruction;
-import x10.wala.ssa.IterHasNextInstruction;
-import x10.wala.ssa.IterInitInstruction;
-import x10.wala.ssa.IterNextInstruction;
-import x10.wala.ssa.TupleInstruction;
 import x10.wala.tree.X10CAstEntity;
 
-import com.ibm.wala.cast.ir.ssa.AstLexicalAccess.Access;
 import com.ibm.wala.cast.ir.translator.AstTranslator.AstLexicalInformation;
-import com.ibm.wala.cast.java.ipa.callgraph.JavaSourceAnalysisScope;
 import com.ibm.wala.cast.java.loader.JavaSourceLoaderImpl;
 import com.ibm.wala.cast.java.translator.SourceModuleTranslator;
 import com.ibm.wala.cast.loader.AstMethod.DebuggingInformation;
@@ -32,11 +18,9 @@ import com.ibm.wala.cast.tree.CAstSourcePositionMap;
 import com.ibm.wala.cast.tree.CAstType;
 import com.ibm.wala.cast.tree.CAstSourcePositionMap.Position;
 import com.ibm.wala.cfg.AbstractCFG;
-import com.ibm.wala.classLoader.CallSiteReference;
 import com.ibm.wala.classLoader.IClass;
 import com.ibm.wala.classLoader.IClassLoader;
 import com.ibm.wala.classLoader.Language;
-import com.ibm.wala.ipa.callgraph.AnalysisScope;
 import com.ibm.wala.ipa.callgraph.impl.SetOfClasses;
 import com.ibm.wala.ipa.cha.IClassHierarchy;
 import com.ibm.wala.ssa.SymbolTable;
@@ -159,68 +143,8 @@ public class X10SourceLoaderImpl extends JavaSourceLoaderImpl {
       };
     }
 
-
-    public static class InstructionFactory extends JavaSourceLoaderImpl.InstructionFactory implements AstX10InstructionFactory {
-
-      public AsyncInvokeInstruction AsyncInvoke(int result, int[] params, int exception, CallSiteReference site,
-                                                int[] clocks) {
-        return new AsyncInvokeInstruction(result, params, exception, site, clocks);
-      }
-
-      public AsyncInvokeInstruction AsyncInvoke(int[] params, int exception, CallSiteReference site, int[] clocks) {
-        return new AsyncInvokeInstruction(params, exception, site, clocks);
-      }
-
-      public AsyncInvokeInstruction AsyncInvoke(int[] results, int[] params, int exception, Access[] lexicalReads,
-                                                Access[] lexicalWrites, CallSiteReference csr) {
-        return new AsyncInvokeInstruction(results, params, exception, lexicalReads, lexicalWrites, csr);
-      }
-
-      public AtomicInstruction Atomic(boolean isEnter) {
-        return new AtomicInstruction(isEnter);
-      }
-
-      public FinishInstruction Finish(boolean isEnter) {
-        return new FinishInstruction(isEnter);
-      }
-      
-      public NextInstruction Next() {
-          return new NextInstruction();
-        }
-
-      public HereInstruction Here(int retValue) {
-        return new HereInstruction(retValue);
-      }
-
-      public PlaceOfPointInstruction PlaceOfPoint(int hasNextValue, int regionIter) {
-        return new PlaceOfPointInstruction(hasNextValue, regionIter);
-      }
-
-      public IterHasNextInstruction IterHasNext(int hasNextValue, int regionIter) {
-        return new IterHasNextInstruction(hasNextValue, regionIter);
-      }
-
-      public IterInitInstruction IterInit(int iterVal, int regionVal) {
-        return new IterInitInstruction(iterVal, regionVal);
-      }
-
-      public IterNextInstruction IterNext(int nextValue, int regionIter) {
-        return new IterNextInstruction(nextValue, regionIter);
-      }
-
-      public TupleInstruction Tuple(int retValue, int[] slotValues) {
-        return new TupleInstruction(retValue, slotValues);
-      }
-      
-      public AtStmtInstruction AtStmt(final boolean isEnter) {
-        return new AtStmtInstruction(isEnter);
-      }
-      
-    }
-
-    private static final InstructionFactory insts = new InstructionFactory();
-
+    @Override
     public InstructionFactory getInstructionFactory() {
-        return insts;
+        return X10LanguageImpl.X10Lang.instructionFactory();
     }
 }
