@@ -41,7 +41,6 @@ import polyglot.types.Context;
 import x10.types.X10LocalInstance;
 import x10.types.X10ProcedureDef;
 import polyglot.types.TypeSystem;
-import x10.types.X10TypeSystem_c;
 import x10.types.X10Context_c;
 import x10.types.X10LocalDef_c;
 import x10.types.constraints.CConstraint;
@@ -179,7 +178,7 @@ public class X10Local_c extends Local_c {
             error = e;
         }
         // If not returned yet, fake the local instance.
-        X10TypeSystem_c xts = (X10TypeSystem_c) tc.typeSystem();
+        TypeSystem xts =  tc.typeSystem();
         X10LocalInstance li = xts.createFakeLocal(name, error);
         return li;
     }

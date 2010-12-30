@@ -43,7 +43,6 @@ import x10.ast.X10Loop_c;
 import x10.ast.X10New_c;
 import x10.extension.X10Ext;
 import x10.types.X10ClassType;
-import x10.types.X10TypeSystem_c;
 import x10cpp.visit.Emitter;
 import x10cuda.ast.CUDAKernel;
 import x10cuda.types.CUDAData;
@@ -63,8 +62,8 @@ public class CUDAPatternMatcher extends NodeVisitor {
 		this.nf = nf;
 	}
 
-	private X10TypeSystem_c xts() {
-		return (X10TypeSystem_c)ts;
+	private TypeSystem xts() {
+		return ts;
 	}
 
 	// Type from name

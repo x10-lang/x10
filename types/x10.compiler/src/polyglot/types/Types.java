@@ -57,7 +57,6 @@ import x10.types.X10ParsedClassType_c;
 import x10.types.X10ProcedureDef;
 import x10.types.X10ProcedureInstance;
 import x10.types.X10ThisVar;
-import x10.types.X10TypeSystem_c;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.SubtypeConstraint;
 import x10.types.constraints.TypeConstraint;
@@ -532,7 +531,7 @@ public class Types {
 
 	// this is an under-approximation (it is always safe to return false, i.e., the user will just get more errors). In the future we will improve the precision so more types will have zero.
 	public static boolean isHaszero(Type t, Context xc) {
-	    X10TypeSystem_c ts = (X10TypeSystem_c) xc.typeSystem();
+	    TypeSystem ts = xc.typeSystem();
 	    XLit zeroLit = null;  // see Lit_c.constantValue() in its decendants
 	    if (t.isBoolean()) {
 	        zeroLit = XTerms.FALSE;
@@ -606,11 +605,11 @@ public class Types {
 	
 	        // We use ts.structHaszero to prevent infinite recursion such as in the case of:
 	        // struct U(u:U) {}
-	        final Boolean res = ts.structHaszero.get(x10ClassDef);
+	        final Boolean res = ts.structHaszero(x10ClassDef);
 	        if (res!=null) return res;
 	        // it is true for type-checking: S[S[Int]]
 	        // struct S[T] {T haszero} {val t:T = Zero.get[T](); }
-	        ts.structHaszero.put(x10ClassDef,Boolean.TRUE);
+	        ts.structHaszero().put(x10ClassDef,Boolean.TRUE);
 	
 	        // make sure all the fields and properties haszero
 	        for (FieldInstance field : structType.fields()) {
@@ -618,7 +617,7 @@ public class Types {
 	                continue;
 	            }
 	            if (!isHaszero(field.type(),xc)) {
-	                ts.structHaszero.put(x10ClassDef,Boolean.FALSE);
+	                ts.structHaszero().put(x10ClassDef,Boolean.FALSE);
 	                return false;
 	            }
 	        }

@@ -31,7 +31,7 @@ import x10.types.X10ClassType;
 import x10.types.X10MethodDef;
 import x10.types.MethodInstance;
 import polyglot.types.TypeSystem;
-import x10.types.X10TypeSystem_c;
+
 import x10cpp.types.X10CPPContext_c;
 
 /**

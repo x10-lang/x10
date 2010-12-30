@@ -63,7 +63,7 @@ import x10.errors.Errors;
 import x10.types.X10ClassDef;
 import x10.types.MethodInstance;
 import polyglot.types.TypeSystem;
-import x10.types.X10TypeSystem_c;
+
 import x10.types.checker.Checker;
 import x10.types.checker.Converter;
 import x10.types.matcher.DumbMethodMatcher;

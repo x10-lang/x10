@@ -134,7 +134,6 @@ import x10.types.ConstrainedType;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import polyglot.types.TypeSystem;
-import x10.types.X10TypeSystem_c;
 import x10.types.constraints.CConstraint;
 import x10cpp.X10CPPCompilerOptions;
 import x10cpp.postcompiler.CXXCommandBuilder;
@@ -190,8 +189,8 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 		return (X10CUDAContext_c) tr.context();
 	}
 
-	private X10TypeSystem_c xts() {
-		return (X10TypeSystem_c) tr.typeSystem();
+	private TypeSystem xts() {
+		return  tr.typeSystem();
 	}
 
 	// defer to CUDAContext.cudaStream()
@@ -467,7 +466,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 			
 			assert kind==1;
 
-			X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
+			TypeSystem xts = tr.typeSystem();
 			boolean in_template_closure = freeTypeParams.size() > 0;
 			if (in_template_closure)
 				emitter.printTemplateSignature(freeTypeParams, defn_s);

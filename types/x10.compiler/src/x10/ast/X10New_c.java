@@ -65,7 +65,7 @@ import polyglot.types.Context;
 
 import x10.types.X10ParsedClassType;
 import polyglot.types.TypeSystem;
-import x10.types.X10TypeSystem_c;
+
 import x10.types.checker.Converter;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
@@ -358,7 +358,7 @@ public class X10New_c extends New_c implements X10New {
                 name = Name.makeFresh();
             QName outer = qualifier == null ? null : qualifier.type().toClass().fullName();
             QName qname = QName.make(outer, name);
-            t = ((X10TypeSystem_c) ts).createFakeClass(qname, new SemanticException("Cannot instantiate type " + t + "."));
+            t = ts.createFakeClass(qname, new SemanticException("Cannot instantiate type " + t + "."));
         }
 
         X10ClassType ct = (X10ClassType) t;
@@ -540,7 +540,7 @@ public class X10New_c extends New_c implements X10New {
     public static Pair<ConstructorInstance,List<Expr>> findConstructor(ContextVisitor tc, X10ProcedureCall n,
             Type targetType, List<Type> actualTypes, ClassDef anonType) {
         X10ConstructorInstance ci;
-        X10TypeSystem_c xts = (X10TypeSystem_c) tc.typeSystem();
+        TypeSystem xts = tc.typeSystem();
         Context context = (Context) tc.context();
         boolean haveUnknown = xts.hasUnknown(targetType);
         for (Type t : actualTypes) {
@@ -625,7 +625,7 @@ public class X10New_c extends New_c implements X10New {
 
     private static Collection<X10ConstructorInstance> findConstructors(ContextVisitor tc, Type targetType,
             List<Type> actualTypes) throws SemanticException {
-        X10TypeSystem_c xts = (X10TypeSystem_c) tc.typeSystem();
+        TypeSystem xts = tc.typeSystem();
         Context context = (Context) tc.context();
         if (targetType == null) {
             // TODO

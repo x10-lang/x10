@@ -72,7 +72,7 @@ import x10.types.X10MemberDef;
 import x10.types.MethodInstance;
 import x10.types.X10ProcedureInstance;
 import polyglot.types.TypeSystem;
-import x10.types.X10TypeSystem_c;
+
 import x10.types.XTypeTranslator;
 import x10.types.constraints.CConstraint;
 import x10.types.matcher.DumbMethodMatcher;
@@ -383,7 +383,7 @@ public class Checker {
 	        Name name, List<Type> typeArgs, List<Type> actualTypes)
 	{
 	    MethodInstance mi;
-	    X10TypeSystem_c xts = (X10TypeSystem_c) tc.typeSystem();
+	    TypeSystem xts =  tc.typeSystem();
 	    Context context = tc.context();
 	    boolean haveUnknown = xts.hasUnknown(targetType);
 	    for (Type t : actualTypes) {
@@ -468,7 +468,7 @@ public class Checker {
 	public static Pair<MethodInstance,List<Expr>> findMethod(ContextVisitor tc, X10ProcedureCall n,
 	        Type targetType, Name name, List<Type> typeArgs, List<Type> actualTypes) {
 	    MethodInstance mi;
-	    X10TypeSystem_c xts = (X10TypeSystem_c) tc.typeSystem();
+	     TypeSystem xts =  tc.typeSystem();
 	    Context context = (Context) tc.context();
 	    boolean haveUnknown = xts.hasUnknown(targetType);
 	    for (Type t : actualTypes) {
@@ -584,7 +584,7 @@ public class Checker {
 
 	public static Collection<MethodInstance> findMethods(ContextVisitor tc, Type targetType, Name name, List<Type> typeArgs,
 	        List<Type> actualTypes) throws SemanticException {
-	    X10TypeSystem_c xts = (X10TypeSystem_c) tc.typeSystem();
+	    TypeSystem xts = tc.typeSystem();
 	    Context context = (Context) tc.context();
 	    if (targetType == null) {
 	        // TODO

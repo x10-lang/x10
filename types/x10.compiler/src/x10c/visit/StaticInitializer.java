@@ -111,7 +111,6 @@ import x10.types.X10ConstructorInstance;
 import x10.types.X10MethodDef;
 import x10.types.MethodInstance;
 import x10.types.X10ProcedureDef;
-import x10.types.X10TypeSystem_c;
 import x10.visit.Desugarer;
 import x10.visit.X10TypeChecker;
 import x10c.ast.BackingArray;

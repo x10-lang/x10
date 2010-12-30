@@ -60,7 +60,6 @@ import x10.types.X10LocalInstance;
 import x10.types.MethodInstance;
 import x10.types.X10ParsedClassType;
 import polyglot.types.TypeSystem;
-import x10.types.X10TypeSystem_c;
 import x10.types.checker.Checker;
 import x10.types.checker.PlaceChecker;
 import x10.visit.X10TypeChecker;
@@ -326,7 +325,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 	        n = typeCheck1(tc);
 	    } catch (SemanticException e) {
 	        Errors.issue(tc.job(), e, this);
-	        X10TypeSystem_c ts = (X10TypeSystem_c) tc.typeSystem();
+	        TypeSystem ts = tc.typeSystem();
 	        List<Type> typeArgs = new ArrayList<Type>(this.typeArguments.size());
 	        for (TypeNode tn : this.typeArguments) {
 	            typeArgs.add(tn.type());

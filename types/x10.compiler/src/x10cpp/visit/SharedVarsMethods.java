@@ -34,7 +34,7 @@ import x10.types.X10ClassType;
 import x10.types.MethodInstance;
 import x10.types.X10ParsedClassType;
 import polyglot.types.TypeSystem;
-import x10.types.X10TypeSystem_c;
+
 import x10cpp.types.X10CPPContext_c;
 
 import java.util.Arrays;
@@ -166,7 +166,7 @@ public class SharedVarsMethods {
 	}	
 	static void populateKnownSafeMethodsAndFields(Translator tr){
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
-		X10TypeSystem_c ts = (X10TypeSystem_c) tr.typeSystem();
+		TypeSystem ts =  tr.typeSystem();
 		if (knownSafeMethods.size() == 0 && knownSafeFields.size() == 0) {
 			try {
 //				Type[] II = { ts.Int(), ts.Int() };
@@ -202,7 +202,7 @@ public class SharedVarsMethods {
 
 	static void populateIninableMethodsIfEmpty(Translator tr) {
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
-		X10TypeSystem_c ts = (X10TypeSystem_c) tr.typeSystem();
+		TypeSystem ts =   tr.typeSystem();
 		if (knownInlinableMethods.size() == 0) {
 			try {
 				Type x_l_Runtime = (Type) ts.forName(QName.make("x10.lang.Runtime"));

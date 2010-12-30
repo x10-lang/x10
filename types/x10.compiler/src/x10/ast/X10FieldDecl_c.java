@@ -70,7 +70,7 @@ import x10.types.X10Def;
 import x10.types.X10FieldDef;
 
 import x10.types.X10InitializerDef;
-import x10.types.X10TypeSystem_c;
+
 
 import x10.types.X10FieldDef_c;
 import x10.types.X10ParsedClassType;
@@ -606,7 +606,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 	    }
 
 	    public Node checkConstants(ContextVisitor tc) throws SemanticException {
-	    	Type native_annotation_type = (Type)((X10TypeSystem_c)tc.typeSystem()).systemResolver().find(QName.make("x10.compiler.Native"));
+	    	Type native_annotation_type = (Type)(tc.typeSystem()).systemResolver().find(QName.make("x10.compiler.Native"));
 			if (!((X10Ext)ext).annotationMatching(native_annotation_type).isEmpty()) {
 				fi.setNotConstant();
 				return this;

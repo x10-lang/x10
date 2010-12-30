@@ -11,9 +11,6 @@
 
 package x10.util;
 
-import java.util.HashSet;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.*;
 
 import polyglot.ast.*;
@@ -24,6 +21,7 @@ import polyglot.types.Name;
 import polyglot.types.QName;
 import polyglot.types.Ref;
 import polyglot.types.Type;
+import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.util.Position;
 import polyglot.visit.TypeBuilder;
@@ -56,7 +54,7 @@ public class Struct {
     }
 
     public static X10ClassDecl_c addStructMethods(TypeBuilder tb, X10ClassDecl_c n) {
-        final X10TypeSystem_c xts = (X10TypeSystem_c) tb.typeSystem();
+        final TypeSystem xts =  tb.typeSystem();
         final X10ClassDef cd = (X10ClassDef) n.classDef();
         X10ParsedClassType ct = (X10ParsedClassType) cd.asType();
 

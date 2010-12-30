@@ -105,7 +105,7 @@ import x10.types.X10ClassType;
 import x10.types.X10ConstructorInstance;
 import x10.types.MethodInstance;
 import x10.types.X10ParsedClassType;
-import x10.types.X10TypeSystem_c;
+
 import x10.types.checker.Converter;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
@@ -363,7 +363,7 @@ public class Lowerer extends ContextVisitor {
         ClosureDef cDef = c.closureDef().position(bPos);
         Expr closure = nf.Closure(c, bPos)
             .closureDef(cDef)
-        	.type(ClosureSynthesizer.closureAnonymousClassDef((X10TypeSystem_c) ts, cDef).asType());
+        	.type(ClosureSynthesizer.closureAnonymousClassDef( ts, cDef).asType());
         List<Expr> args = new ArrayList<Expr>(Arrays.asList(new Expr[] { place, closure }));
         List<Type> mArgs = new ArrayList<Type>(Arrays.asList(new Type[] {
             ts.Place(), cDef.asType()

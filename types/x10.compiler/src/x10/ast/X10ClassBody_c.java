@@ -57,7 +57,6 @@ import x10.types.X10MethodDef;
 import x10.types.MethodInstance;
 import x10.types.X10ProcedureDef;
 import polyglot.types.TypeSystem;
-import x10.types.X10TypeSystem_c;
 import x10.types.constraints.TypeConstraint;
 import x10.types.constraints.XConstrainedTerm;
 

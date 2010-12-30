@@ -69,7 +69,6 @@ import polyglot.types.Context;
 import x10.types.X10MemberDef;
 import x10.types.X10TypeMixin;
 import polyglot.types.TypeSystem;
-import x10.types.X10TypeSystem_c;
 import x10.types.checker.PlaceChecker;
 import x10.types.checker.VarChecker;
 import x10.util.ClosureSynthesizer;
@@ -385,7 +384,7 @@ public class Closure_c extends Expr_c implements Closure {
 
 	@Override
 	public Node typeCheck(ContextVisitor tc) {
-		X10TypeSystem_c xts = (X10TypeSystem_c) tc.typeSystem();
+		TypeSystem xts = tc.typeSystem();
 
 		Context c = tc.context();
 		Closure_c n = this;

@@ -34,6 +34,7 @@ import x10.types.ThisDef;
 import x10.types.ThisInstance;
 import x10.types.TypeDefMatcher;
 import x10.types.X10ClassDef;
+import x10.types.X10ClassDef_c;
 import x10.types.X10ClassType;
 import x10.types.X10ConstructorDef;
 import x10.types.X10ConstructorInstance;
@@ -844,7 +845,7 @@ public interface TypeSystem {
      *
      * @exception SemanticException if no matching field can be found.
      */
-    Set<FieldInstance> findFields(Type container, FieldMatcher matcher) throws SemanticException;
+    Set<FieldInstance> findFields(Type container, FieldMatcher matcher);
 
     /**
      * Find a method. We need to pass the class from which the method is being
@@ -905,7 +906,8 @@ public interface TypeSystem {
      * by the type.
      */
     List<X10ClassType> allImplementedInterfaces(X10ClassType type);
-
+    List<X10ClassType> allImplementedInterfaces(X10ClassType c, boolean checkSuperClasses);
+    
     X10ClassType Place(); // needed for here, async (p) S, future (p) e, etc
 
     X10ClassType Point(); // needed for destructuring assignment
@@ -1211,4 +1213,26 @@ public interface TypeSystem {
 
     boolean isUnknown(Type t);
     boolean hasUnknown(Type t);
+    X10LocalInstance createFakeLocal(Name name, SemanticException error);
+    X10ClassType createFakeClass(QName fullName, SemanticException error);
+    
+    Context createContext();
+    
+    X10ConstructorInstance createFakeConstructor(ClassType container, Flags flags, List<Type> argTypes, 
+                                                 SemanticException error);
+    X10ConstructorInstance createFakeConstructor(QName containerName, Flags flags, List<Type> typeArgs, 
+                                                 List<Type> argTypes, SemanticException error);
+    X10FieldInstance createFakeField(ClassType container, Flags flags, Name name, SemanticException error);
+    MethodInstance createFakeMethod(Name name, List<Type> typeArgs, List<Type> argTypes, SemanticException error);
+    MethodInstance createFakeMethod(ClassType container, Flags flags, Name name, List<Type> typeArgs, List<Type> argTypes, 
+                                    SemanticException error);
+    List<LocalDef> dummyLocalDefs(List<Ref<? extends Type>> types);
+    List<MethodInstance> methods(ContainerType t, Name name, List<Type> typeParams, List<Type> argTypes, 
+                                 XVar thisVar, Context context);
+    boolean equalsStruct(Type a, Type b);
+    X10ClassType AtomicInteger();
+    boolean isRemoteArray(Type t);
+    Boolean structHaszero(X10ClassDef z);
+    HashMap<X10ClassDef_c, Boolean> structHaszero();
+    X10ClassType AtomicBoolean();
 }
