@@ -19,29 +19,24 @@ import polyglot.ast.Call;
 import polyglot.ast.ConstructorDecl;
 import polyglot.ast.Expr;
 import polyglot.ast.Formal;
-import polyglot.ast.MethodDecl;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
-import polyglot.frontend.Goal;
 import polyglot.frontend.Job;
 import polyglot.main.Report;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
-import polyglot.types.ConstructorDef;
+import polyglot.types.Context;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
-import polyglot.types.MethodDef;
 import polyglot.types.Name;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
+import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
-import x10.ExtensionInfo.X10Scheduler;
-import x10.ExtensionInfo.X10Scheduler.ValidatingVisitorGoal;
-import x10.ast.Async;
 import x10.ast.AtEach;
 import x10.ast.Closure;
 import x10.ast.Here;
@@ -51,24 +46,14 @@ import x10.ast.RemoteActivityInvocation;
 import x10.ast.X10Call;
 import x10.ast.X10ClassDecl;
 import x10.ast.X10MethodDecl;
-import x10.compiler.ws.codegen.AbstractWSClassGen;
 import x10.compiler.ws.codegen.WSMethodFrameClassGen;
-import x10.compiler.ws.util.WSCallGraph;
-import x10.compiler.ws.util.WSCallGraphNode;
 import x10.compiler.ws.util.WSCodeGenUtility;
 import x10.compiler.ws.util.WSTransformationContent;
 import x10.compiler.ws.util.WSTransformationContent.MethodType;
-import x10.types.ClosureDef;
 import x10.types.X10MethodDef;
-import polyglot.types.Context;
-import polyglot.types.TypeSystem;
-import polyglot.util.Position;
-import x10.types.checker.PlaceChecker;
 import x10.util.Synthesizer;
-import x10.util.synthesizer.MethodSynth;
 import x10.visit.Desugarer;
 import x10.visit.X10InnerClassRemover;
-import x10.visit.X10PrettyPrinterVisitor;
 
 
 /**
@@ -183,6 +168,7 @@ public class WSCodeGenerator extends ContextVisitor {
 
         // transform methods
         if(n instanceof X10MethodDecl) {
+        	
             X10MethodDecl mDecl = (X10MethodDecl)n;
             X10MethodDef mDef = mDecl.methodDef();
             
@@ -234,29 +220,29 @@ public class WSCodeGenerator extends ContextVisitor {
                 }
                 List<X10MethodDecl> methods = getMethodDecls(cDef);
                 
+                cDecl = Synthesizer.addNestedClasses(cDecl, classes);
+                cDecl = Synthesizer.addMethods(cDecl, methods);
+                
+                //Here we need use desugarer and inner class remover to visit the class again.
                 //do final processing, run desugarer and inner class remover again
                 //get the right desuguar
-                X10Scheduler scheduler = (X10Scheduler) ts.extensionInfo().scheduler();
-                ValidatingVisitorGoal goal = (ValidatingVisitorGoal) scheduler.Desugarer(job);
-                Desugarer desugarer = (Desugarer) goal.visitor().begin();
-                
-                X10InnerClassRemover innerclassRemover = (X10InnerClassRemover) new X10InnerClassRemover(job, ts, nf).begin();
-                
-                List<X10ClassDecl> newClasses = new ArrayList<X10ClassDecl>();
-                for(X10ClassDecl c: classes){
-                	c = (X10ClassDecl) c.visit(desugarer);
-                	c = (X10ClassDecl) c.visit(innerclassRemover);
-                	newClasses.add(c);
+                Desugarer desugarer;
+                if(wts.getTheLanguage().equals("java")){
+                	desugarer = new x10c.visit.Desugarer(job, ts, nf);
                 }
-                List<X10MethodDecl> newMethods = new ArrayList<X10MethodDecl>();
-                for(X10MethodDecl m : methods){
-                	m = (X10MethodDecl)m.visit(desugarer);
-                	m = (X10MethodDecl)m.visit(innerclassRemover);
-                	newMethods.add(m);
+                else{
+                	desugarer = new x10.visit.Desugarer(job, ts, nf);
                 }
+                desugarer.begin();
+                desugarer.context(context()); //copy current context
                 
-                cDecl = Synthesizer.addNestedClasses(cDecl, newClasses);
-                cDecl = Synthesizer.addMethods(cDecl, newMethods);
+                X10InnerClassRemover innerclassRemover = new X10InnerClassRemover(job, ts, nf);
+                innerclassRemover.begin();
+                innerclassRemover.context(context()); //copy current context
+                
+                cDecl = (X10ClassDecl) cDecl.visit(desugarer);
+                cDecl = (X10ClassDecl) cDecl.visit(innerclassRemover);
+                
                 return cDecl;
             }
         }
