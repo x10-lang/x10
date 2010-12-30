@@ -64,31 +64,6 @@ public class X10SourceLoaderImpl extends JavaSourceLoaderImpl {
         loadedClasses.put(closureType.getName(), closureType);
     }
 
-    /**
-     * Ideally we'd want to create some sort of IMethod to represent the async
-     * from within X10Cast2IRTranslatingVisitor, but sadly that doesn't have a
-     * defineFunction() method (since it doesn't actually inherit
-     * AstTranslator). So we create the IMethod here inside the loader, where we
-     * can actually trap defineFunction(). Gack.
-     */
-    @Override
-    public void defineFunction(CAstEntity n, IClass owner, AbstractCFG cfg, SymbolTable symtab, boolean hasCatchBlock,
-            TypeReference[][] catchTypes, boolean hasMonitorOp, AstLexicalInformation lexicalInfo,
-            DebuggingInformation debugInfo) {
-        if (n.getKind() == X10CAstEntity.ASYNC_BODY) {
-            X10AsyncObject asyncObject = (X10AsyncObject) fTypeMap.get(n);
-
-            asyncObject.setCodeBody(new ConcreteJavaMethod(n, asyncObject, cfg, symtab, hasCatchBlock, catchTypes,
-                    hasMonitorOp, lexicalInfo, debugInfo));
-        } else if (n.getKind() == X10CAstEntity.CLOSURE_BODY) {
-            X10ClosureObject closureObject = (X10ClosureObject) fTypeMap.get(n);
-
-            closureObject.setCodeBody(new ConcreteJavaMethod(n, closureObject, cfg, symtab, hasCatchBlock, catchTypes,
-                    hasMonitorOp, lexicalInfo, debugInfo));
-        } else
-            super.defineFunction(n, owner, cfg, symtab, hasCatchBlock, catchTypes, hasMonitorOp, lexicalInfo, debugInfo);
-    }
-
     public String toString() {
         return "X10 Source Loader (classes " + loadedClasses.values() + ")";
     }

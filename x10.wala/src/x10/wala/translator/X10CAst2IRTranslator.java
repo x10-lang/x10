@@ -3,7 +3,11 @@
  */
 package x10.wala.translator;
 
+import java.util.Map;
+
 import x10.wala.classLoader.AsyncCallSiteReference;
+import x10.wala.loader.X10AsyncObject;
+import x10.wala.loader.X10ClosureObject;
 import x10.wala.loader.X10SourceLoaderImpl;
 import x10.wala.ssa.AstX10InstructionFactory;
 import x10.wala.translator.X10toCAstTranslator.AsyncEntity;
@@ -16,15 +20,21 @@ import x10.wala.tree.visit.X10DelegatingCAstVisitor;
 import com.ibm.wala.cast.ir.translator.ArrayOpHandler;
 
 import com.ibm.wala.cast.ir.translator.AstTranslator;
+import com.ibm.wala.cast.ir.translator.AstTranslator.AstLexicalInformation;
 import com.ibm.wala.cast.ir.translator.AstTranslator.WalkContext;
 import com.ibm.wala.cast.java.loader.JavaSourceLoaderImpl;
+import com.ibm.wala.cast.java.loader.JavaSourceLoaderImpl.ConcreteJavaMethod;
 import com.ibm.wala.cast.java.translator.JavaCAst2IRTranslator;
 import com.ibm.wala.cast.java.types.JavaPrimitiveTypeMap;
+import com.ibm.wala.cast.loader.AstMethod.DebuggingInformation;
 import com.ibm.wala.cast.tree.CAstEntity;
 import com.ibm.wala.cast.tree.CAstNode;
 import com.ibm.wala.cast.tree.CAstType;
 import com.ibm.wala.cast.tree.visit.CAstVisitor;
+import com.ibm.wala.cfg.AbstractCFG;
+import com.ibm.wala.classLoader.IClass;
 import com.ibm.wala.classLoader.NewSiteReference;
+import com.ibm.wala.ssa.SymbolTable;
 import com.ibm.wala.types.Descriptor;
 import com.ibm.wala.types.MethodReference;
 import com.ibm.wala.types.TypeName;
@@ -49,7 +59,30 @@ public class X10CAst2IRTranslator extends X10DelegatingCAstVisitor /* implements
 			return super.doLexicallyScopedRead(node, context, name);
 		}
 		
-		
+	    @Override
+	    protected void defineFunction(CAstEntity n,
+	                  WalkContext definingContext,
+	                  AbstractCFG cfg,
+	                  SymbolTable symtab,
+	                  boolean hasCatchBlock,
+	                  TypeReference[][] catchTypes,
+	                  boolean hasMonitorOp,
+	                  AstLexicalInformation lexicalInfo,
+	                  DebuggingInformation debugInfo) {
+            Map<CAstEntity, IClass> fTypeMap = ((X10SourceLoaderImpl) loader).fTypeMap;
+	        if (n.getKind() == X10CAstEntity.ASYNC_BODY) {
+	            X10AsyncObject asyncObject = (X10AsyncObject) fTypeMap.get(n);
+
+	            asyncObject.setCodeBody(((X10SourceLoaderImpl) loader).new ConcreteJavaMethod(n, asyncObject, cfg, symtab, hasCatchBlock, catchTypes,
+	                    hasMonitorOp, lexicalInfo, debugInfo));
+	        } else if (n.getKind() == X10CAstEntity.CLOSURE_BODY) {
+	            X10ClosureObject closureObject = (X10ClosureObject) fTypeMap.get(n);
+
+	            closureObject.setCodeBody(((X10SourceLoaderImpl) loader).new  ConcreteJavaMethod(n, closureObject, cfg, symtab, hasCatchBlock, catchTypes,
+	                    hasMonitorOp, lexicalInfo, debugInfo));
+	        } else
+	            super.defineFunction(n, definingContext, cfg, symtab, hasCatchBlock, catchTypes, hasMonitorOp, lexicalInfo, debugInfo);
+	    }
 	}
 	
     public X10CAst2IRTranslator(CAstEntity sourceFileEntity, X10SourceLoaderImpl loader) {
