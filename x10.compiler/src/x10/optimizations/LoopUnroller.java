@@ -65,7 +65,6 @@ import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.ast.ForLoop;
-import x10.ast.RegionMaker;
 import x10.ast.Tuple;
 import x10.ast.X10Binary_c;
 import x10.ast.X10Formal;
@@ -328,11 +327,17 @@ public class LoopUnroller extends ContextVisitor {
                 Expr regionTuple= args.get(0);
                 List<Expr> dimensionArgs= ((Tuple) regionTuple).arguments();
                 Expr low, hi;
-                if (dimensionArgs.get(0) instanceof RegionMaker) {
-                    RegionMaker regionMaker= (RegionMaker) dimensionArgs.get(0);
+                if (dimensionArgs.get(0) instanceof Call) {
+                    Call c= (Call) dimensionArgs.get(0);
 
-                    low= regionMaker.arguments().get(0);
-                    hi= regionMaker.arguments().get(1);
+                    MethodInstance cmi = c.methodInstance();
+                    if (cmi.container().isInt() && cmi.name().equals(X10Binary_c.binaryMethodName(X10Binary_c.DOT_DOT))) {
+                        low= c.arguments().get(0);
+                        hi= c.arguments().get(1);
+                    } else {
+                        low= null;
+                        hi= null;
+                    }
                 } else {
                     low= null;
                     hi= null;

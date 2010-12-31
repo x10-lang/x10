@@ -186,13 +186,6 @@ public abstract class X10DelegatingCAstVisitor extends DelegatingCAstVisitor {
 		visitor.leaveArrayRef(n, context, visitor);
 		break;
 	    }
-	    case X10CastNode.PLACE_OF_POINT: {
-	        if (visitor.visitPlaceOfPoint(n, context, visitor))
-	            break;
-	        visitor.visit(n.getChild(0), context, visitor); // the point expr
-	        visitor.leavePlaceOfPoint(n, context, visitor);
-	        break;
-	    }
 	    case X10CastNode.TUPLE: {
 	        if (visitor.visitTupleExpr(n, context, visitor))
 	            break;

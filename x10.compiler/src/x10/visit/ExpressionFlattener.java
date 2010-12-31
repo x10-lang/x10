@@ -77,7 +77,6 @@ import x10.ast.Closure;
 import x10.ast.ClosureCall;
 import x10.ast.Finish;
 import x10.ast.ForLoop;
-import x10.ast.Future;
 import x10.ast.HasZeroTest;
 import x10.ast.Here;
 import x10.ast.Next;
@@ -285,7 +284,6 @@ public final class ExpressionFlattener extends ContextVisitor {
         else if (expr instanceof Cast)           return flattenCast((Cast) expr);
         else if (expr instanceof Instanceof)     return flattenInstanceof((Instanceof) expr);
         else if (expr instanceof AtExpr)         return flattenAtExpr((AtExpr) expr);
-        else if (expr instanceof Future)         return flattenFuture((Future) expr);
         else if (expr instanceof SubtypeTest)    return flattenSubtypeTest((SubtypeTest) expr);
         else if (expr instanceof HasZeroTest)    return expr;
         else if (expr instanceof ClosureCall)    return flattenClosureCall((ClosureCall) expr);
@@ -496,22 +494,6 @@ public final class ExpressionFlattener extends ContextVisitor {
         List<Stmt> stmts = new ArrayList<Stmt>();
         return toFlatExpr(expr.position(), stmts, (Expr) flattenRemoteActivityInvocation(expr, stmts));
     }
-
-    /**
-     * Flatten a Future expression.
-     * (Only the Place needs to be flattened; the body is already flat.)
-     * <pre>
-     * future (({s1; e1})) {S; ({s2; e2})}  ->  ({s1; val t1 = e1; future (t1) {S; s2; e2} }) 
-     * </pre>
-     * 
-     * @param expr the future expression to be flattened
-     * @return a flat expression equivalent to expr
-     */
-    private Expr flattenFuture(Future expr) {
-        List<Stmt> stmts = new ArrayList<Stmt>();
-        return toFlatExpr(expr.position(), stmts, (Expr) flattenRemoteActivityInvocation(expr, stmts));
-    }
-
 
     /**
      * Flatten a sub-type test.  This is a no-op.

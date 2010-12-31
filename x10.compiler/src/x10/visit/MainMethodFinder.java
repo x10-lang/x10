@@ -58,7 +58,6 @@ import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 
 import x10.types.X10MethodDef;
-import x10.types.X10TypeMixin;
 import x10.util.HierarchyUtils;
 import polyglot.types.TypeSystem;
 

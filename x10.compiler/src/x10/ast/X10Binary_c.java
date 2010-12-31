@@ -64,8 +64,6 @@ import x10.types.constraints.BuiltInTypeRules;
  */
 public class X10Binary_c extends Binary_c implements X10Binary {
 
-    boolean invert;
-
     /**
      * @param pos
      * @param left
@@ -75,6 +73,32 @@ public class X10Binary_c extends Binary_c implements X10Binary {
     public X10Binary_c(Position pos, Expr left, Operator op, Expr right) {
         super(pos, left, op, right);
         invert = false;
+    }
+
+    private boolean invert;
+
+    public boolean invert() {
+        return invert;
+    }
+
+    public X10Binary_c invert(boolean invert) {
+        if (invert == this.invert) return this; 
+        X10Binary_c n = (X10Binary_c) copy();
+        n.invert = invert;
+        return n;
+    }
+
+    private MethodInstance mi;
+
+    public MethodInstance methodInstance() {
+        return mi;
+    }
+
+    public X10Binary_c methodInstance(MethodInstance mi) {
+        if (mi == this.mi) return this;
+        X10Binary_c n = (X10Binary_c) copy();
+        n.mi = mi;
+        return n;
     }
 
     // FIXME: need to figure out if the implementation is pure (can't assume that for user-overloadable operators)
@@ -358,14 +382,14 @@ public class X10Binary_c extends Binary_c implements X10Binary {
                         if (e == left)
                             return this.type(xts.Boolean());
                         if (e != null)
-                            return Converter.check(left(e), tc);
+                            return Converter.check(this.left(e), tc);
                     }
                     if (rv != null && xts.numericConversionValid(lbase, rbase, rv, context)) {
                         Expr e = Converter.attemptCoercion(tc, right, lbase);
                         if (e == right)
                             return this.type(xts.Boolean());
                         if (e != null)
-                            return Converter.check(right(e), tc);
+                            return Converter.check(this.right(e), tc);
                     }
                 } catch (SemanticException e) { } // FIXME
             }
@@ -388,7 +412,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
                 Expr el = Converter.attemptCoercion(tc, left, promoted);
                 Expr er = Converter.attemptCoercion(tc, right, promoted);
                 if (el != null && er != null && (el != left || er != right))
-                	return Converter.check(left(el).right(er), tc);
+                	return Converter.check(this.left(el).right(er), tc);
                 } catch (SemanticException e) { } // FIXME
             }
         }
@@ -409,27 +433,29 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 
             Errors.issue(tc.job(),
                     new SemanticException("Operator must have operands of comparable type; the types " + lbase + " and " + rbase + " do not share any values.",position()));
-            return type(xts.Boolean());
+            return this.type(xts.Boolean());
         }
 
-        Call c = desugarBinaryOp(this, tc);
+        X10Call c = desugarBinaryOp(this, tc);
 
         if (c != null) {
-            MethodInstance mi = (MethodInstance) c.methodInstance();
+            MethodInstance mi = c.methodInstance();
             if (mi.error() != null) {
                 Errors.issue(tc.job(), mi.error(), this);
             }
-            
+
+            X10Binary_c result = (X10Binary_c) this.methodInstance(mi).type(c.type());
+
             // rebuild the binary using the call's arguments.  We'll actually use the call node after desugaring.
             if (mi.flags().isStatic()) {
-                return this.left(c.arguments().get(0)).right(c.arguments().get(1)).type(c.type());
+                return result.left(c.arguments().get(0)).right(c.arguments().get(1));
             }
             else if (!c.name().id().equals(invBinaryMethodName(this.operator()))) {
                 assert (c.name().id().equals(binaryMethodName(this.operator())));
-                return this.left((Expr) c.target()).right(c.arguments().get(0)).type(c.type());
+                return result.left((Expr) c.target()).right(c.arguments().get(0));
             }
             else {
-                return this.left(c.arguments().get(0)).right((Expr) c.target()).type(c.type());
+                return result.invert(true).left(c.arguments().get(0)).right((Expr) c.target());
             }
         }
         
@@ -440,9 +466,9 @@ public class X10Binary_c extends Binary_c implements X10Binary {
             if (op == COND_OR || op == COND_AND) {
             	Type result = xts.Boolean();
             	if (op == COND_OR)
-            		return type(xts.Boolean());
+            		return this.type(xts.Boolean());
                 if (l.isBoolean() && r.isBoolean()) {
-                	return type(BuiltInTypeRules.adjustReturnTypeForConjunction(l,r, context));
+                	return this.type(BuiltInTypeRules.adjustReturnTypeForConjunction(l,r, context));
                 }
             }
 
@@ -493,7 +519,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
         // Check if there is a method with the appropriate name and type with the left operand as receiver.
         X10Call_c n2 = (X10Call_c) nf.X10Call(pos, first, nf.Id(pos, methodName), Collections.<TypeNode>emptyList(), Collections.singletonList(second));
         n2 = typeCheckCall(tc, n2);
-        MethodInstance mi2 = (MethodInstance) n2.methodInstance();
+        MethodInstance mi2 = n2.methodInstance();
         if (mi2.error() == null && !mi2.def().flags().isStatic())
             return n2;
         return null;
@@ -550,7 +576,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
             // Check if there is a static method of the left type with the appropriate name and type.   
             X10Call_c n4 = (X10Call_c) nf.X10Call(pos, nf.CanonicalTypeNode(pos, Types.ref(l)), nf.Id(pos, methodName), Collections.<TypeNode>emptyList(), CollectionUtil.list(left, right));
             n4 = typeCheckCall(tc, n4);
-            MethodInstance mi4 = (MethodInstance) n4.methodInstance();
+            MethodInstance mi4 = n4.methodInstance();
             if (mi4.error() == null && mi4.def().flags().isStatic())
                 static_left = n4;
         }
@@ -559,7 +585,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
             // Check if there is a static method of the right type with the appropriate name and type.   
             X10Call_c n3 = (X10Call_c) nf.X10Call(pos, nf.CanonicalTypeNode(pos, Types.ref(r)), nf.Id(pos, methodName), Collections.<TypeNode>emptyList(), CollectionUtil.list(left, right));
             n3 = typeCheckCall(tc, n3);
-            MethodInstance mi3 = (MethodInstance) n3.methodInstance();
+            MethodInstance mi3 = n3.methodInstance();
             if (mi3.error() == null && mi3.def().flags().isStatic())
                 static_right = n3;
         }
@@ -721,7 +747,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
         try {
             result = (X10Call_c) PlaceChecker.makeReceiverLocalIfNecessary(result, tc);
         } catch (SemanticException e) {
-            MethodInstance mi = (MethodInstance) result.methodInstance();
+            MethodInstance mi = result.methodInstance();
             if (mi.error() == null)
                 result = (X10Call_c) result.methodInstance(mi.error(e));
         }
@@ -777,16 +803,6 @@ public class X10Binary_c extends Binary_c implements X10Binary {
         }
 
         return e;
-    }
-
-    public boolean invert() {
-        return invert;
-    }
-
-    public X10Binary_c invert(boolean invert) {
-        X10Binary_c n = (X10Binary_c) copy();
-        n.invert = invert;
-        return n;
     }
 }
 

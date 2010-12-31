@@ -29,7 +29,6 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.VarInstance;
-import x10.ast.ConstantDistMaker_c;
 import x10.types.X10ClassType;
 import x10.types.MethodInstance;
 import x10.types.X10ParsedClassType;

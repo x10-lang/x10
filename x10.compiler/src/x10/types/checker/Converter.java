@@ -53,7 +53,6 @@ import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import x10.Configuration;
 import x10.ExtensionInfo;
-import x10.ast.SemanticError;
 import x10.ast.X10CanonicalTypeNode;
 import x10.ast.X10CanonicalTypeNode_c;
 import x10.ast.X10Cast;
@@ -463,7 +462,7 @@ public class Converter {
 		        try {
 		        toType = Types.addSelfBinding((Type) toType.copy(), sv);
 		        } catch (XFailure f) {
-		            throw new SemanticError("Inconsistent type: " + toType + " {self==" + sv+"}", cast.position());
+		            throw new SemanticException("Inconsistent type: " + toType + " {self==" + sv+"}", cast.position());
 		        }
 
 		    X10Cast n =  cast.conversionType(ConversionType.SUBTYPE);
@@ -486,7 +485,7 @@ public class Converter {
 				    try {
 				        toType = Types.addSelfBinding((Type) toType.copy(), sv);
 				    } catch (XFailure f) {
-				        throw new SemanticError("Inconsistent type: " + toType + " {self==" + sv+"}", cast.position());
+				        throw new SemanticException("Inconsistent type: " + toType + " {self==" + sv+"}", cast.position());
 				    }
 				return n.type(toType);
 			}
@@ -604,7 +603,7 @@ public class Converter {
 						try {
 							toType = Types.addSelfBinding((Type) toType.copy(), sv);
 						} catch (XFailure f) {
-							throw new SemanticError("Inconsistent type: " + toType + " {self==" + sv+"}", cast.position());
+							throw new SemanticException("Inconsistent type: " + toType + " {self==" + sv+"}", cast.position());
 						}
 						return n.type(toType);
 				}

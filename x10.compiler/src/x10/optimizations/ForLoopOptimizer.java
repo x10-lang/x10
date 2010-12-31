@@ -58,9 +58,9 @@ import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.ast.ClosureCall;
 import x10.ast.ForLoop;
-import x10.ast.RegionMaker;
 import x10.ast.StmtExpr;
 import x10.ast.StmtSeq;
+import x10.ast.X10Binary_c;
 import x10.ast.X10Call;
 import x10.ast.X10Cast;
 import x10.ast.X10Formal;
@@ -248,8 +248,9 @@ public class ForLoopOptimizer extends ContextVisitor {
         //     val min=e1; val max=e2; for(var z:Int=min; z<=max; z++){ val p=Point.make(z); val i=z; S }
         // TODO inline (min and max), scalar replace Region object and its constituent Arrays then delete this code
         //
-        if (1 == rank && domain instanceof RegionMaker) {
-            List<Expr> args = ((RegionMaker) loop.domain()).arguments();
+        if (1 == rank && domain instanceof Call && ((Call)domain).target().type().isInt() &&
+                ((Call)domain).name().equals(X10Binary_c.binaryMethodName(Binary.DOT_DOT))) {
+            List<Expr> args = ((Call) loop.domain()).arguments();
             assert (args.size() == 2);
             Expr low = args.get(0);
             Expr high = args.get(1);

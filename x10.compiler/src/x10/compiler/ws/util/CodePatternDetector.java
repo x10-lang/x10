@@ -43,7 +43,6 @@ import x10.ast.Async;
 import x10.ast.Finish;
 import x10.ast.FinishExpr;
 import x10.ast.ForLoop;
-import x10.ast.Future;
 import x10.ast.When;
 import x10.compiler.ws.WSTransformState;
 import polyglot.types.Context;

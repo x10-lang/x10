@@ -13,7 +13,6 @@ public interface AstX10InstructionVisitor extends AstJavaInstructionVisitor {
     void visitIterHasNext(IterHasNextInstruction instruction);
     void visitIterNext(IterNextInstruction instruction);
     void visitHere(HereInstruction instruction);
-    void visitPlaceOfPoint(PlaceOfPointInstruction instruction);
     void visitTuple(TupleInstruction newTupleInstruction);
     void visitAtStmt(AtStmtInstruction atStmtInstruction);
 }

@@ -23,7 +23,6 @@ import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
 import x10.errors.Errors;
 import polyglot.types.Context;
-import x10.types.X10TypeMixin;
 import x10.visit.X10TypeChecker;
 
 /**

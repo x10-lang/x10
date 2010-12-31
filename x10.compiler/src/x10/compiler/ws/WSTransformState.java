@@ -89,6 +89,7 @@ public class WSTransformState {
     public final ClassType uninitializedType; //annotation type
     public final Boolean realloc; // whether or not to generate code for frame migration
 
+    private String theLanguage; //c++ or java path
     private WSCallGraph callGraph;
     private WSTransformationContent transTarget;
     
@@ -166,6 +167,7 @@ public class WSTransformState {
      * @param theLanguage
      */
     protected WSTransformState(TypeSystem xts, String theLanguage){
+    	this.theLanguage = theLanguage;
         if (theLanguage.equals("c++")) {
             frameType = xts.load("x10.compiler.ws.Frame");
             finishFrameType = xts.load("x10.compiler.ws.FinishFrame");
@@ -194,8 +196,16 @@ public class WSTransformState {
         uninitializedType = xts.load("x10.compiler.Uninitialized");
     }
 
-    
-    public boolean isConcurrentCallSite(Call call){	
+
+    /**
+     * Get the backend used
+     * @return "c++" or "java"
+     */
+    public String getTheLanguage() {
+		return theLanguage;
+	}
+
+	public boolean isConcurrentCallSite(Call call){	
     	return getCallSiteType(call) == CallSiteType.CONCURRENT_CALL;
     }
     

@@ -19,7 +19,7 @@ import polyglot.util.Position;
 /** Visitor which performs type checking on the AST. */
 public class TypeChecker extends ContextVisitor
 {
-    Map<Node,Node> memo;
+    protected Map<Node,Node> memo;
 	
     public TypeChecker(Job job, TypeSystem ts, NodeFactory nf, Map<Node,Node> memo) {
         super(job, ts, nf);
@@ -28,7 +28,6 @@ public class TypeChecker extends ContextVisitor
     
     public Node override(Node parent, Node n) {
     	Node n_ = memo.get(n);
-    	n_ = null;
 		if (n_ != null) {
 	        this.addDecls(n_);
 			return n_;
@@ -41,8 +40,8 @@ public class TypeChecker extends ContextVisitor
             Node m = n.del().typeCheckOverride(parent, this);
             
             if (m != null) {
-            	memo.put(n, m);
-            	memo.put(m, m);
+//            	memo.put(n, m);
+//            	memo.put(m, m);
             }
             
             return m;
@@ -107,9 +106,9 @@ public class TypeChecker extends ContextVisitor
         m = m.del().checkConstants(tc);
 
         // Record the new node in the memo table.
-        memo.put(old, m);
-        memo.put(n, m);
-        memo.put(m, m);
+//        memo.put(old, m);
+//        memo.put(n, m);
+//        memo.put(m, m);
 
         return m;
     }   

@@ -7,29 +7,14 @@ import com.ibm.wala.cast.tree.CAstNode;
 
 public interface X10CastNode extends CAstNode {
     /**
-     * Kind constant for a CAstNode representing the invocation of an X10 'async'
-     * body or 'future' body. In the former case, the body happens to be a statement,
-     * while in the latter, the body is always an expression.<br>
+     * Kind constant for a CAstNode representing the invocation of an X10 'async' body.<br>
      * Children:
      * <ol>
      * <li>CAstNode.EXPR of type 'Place' indicating where the computation is to occur
      * <li>CAstNode.Constant containing the CAstEntity representing the body
      * </ol>
-     * N.B. To obtain the returned type for a 'future', ask the CAstEntity for its type,
-     * which should be a CAstType.Function, and examine its return type.
      */
     public static final int ASYNC = SUB_LANGUAGE_BASE;
-
-    /**
-     * Kind constant for a CAstNode representing an X10 'ateach' statement.<br>
-     * Children:
-     * <ol>
-     * <li>CAstNode.CONSTANT whose value is a <em>BINDING STRUCTURE</em> for the induction variables
-     * <li>CAstNode.EXPR of type 'Distribution' representing the domain of the induction
-     * <li>CAstNode.BLOCK representing the body
-     * </ol>
-     */
-    public static final int ATEACH = SUB_LANGUAGE_BASE + 1;
 
     /**
      * Kind constant for a CAstNode representing the beginning of an X10 'atomic' statement.<br>
@@ -103,27 +88,6 @@ public interface X10CastNode extends CAstNode {
      * </ol>
      */
     public static final int ITER_NEXT = SUB_LANGUAGE_BASE + 19;
-
-    /**
-     * Kind constant for a CAstNode representing the accessor for the distribution of an
-     * X10 array-typed expression.<br>
-     * Children:
-     * <ol>
-     * <li>CAstNode.EXPR representing the receiver array
-     * </ol>
-     */
-    public static final int DIST = SUB_LANGUAGE_BASE + 20;
-
-    /**
-     * Kind constant for a CAstNode representing the accessor for the place at which a given point
-     * resides in a given distribution.<br>
-     * Children:
-     * <ol>
-     *   <li>CAstNode.EXPR representing the array
-     *   <li>CAstNode.EXPR representing the point
-     * </ol>
-     */
-    public static final int PLACE_OF_POINT = SUB_LANGUAGE_BASE + 21;
 
     /**
      * Kind constant for a CAstNode representing an array reference where the index is given as an

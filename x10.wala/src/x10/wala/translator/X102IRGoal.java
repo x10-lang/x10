@@ -1,13 +1,20 @@
 package x10.wala.translator;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import polyglot.ast.ClassDecl;
+import polyglot.ast.MethodDecl;
+import polyglot.ast.Node;
+import polyglot.ast.SourceFile;
+import polyglot.ast.TopLevelDecl;
 import polyglot.frontend.ExtensionInfo;
 import polyglot.frontend.Job;
 import polyglot.frontend.SourceGoal_c;
 import polyglot.main.Report;
+import polyglot.visit.NodeVisitor;
 import x10.compiler.ws.util.WSTransformationContent;
 import x10.wala.client.X10SourceAnalysisEngine;
 import x10.wala.ipa.cha.X10ClassHierarchy;
@@ -74,8 +81,47 @@ public class X102IRGoal extends SourceGoal_c {
     }
     
     // A simple method to analyze the call graph and identify transformation taret;
-    public static WSTransformationContent wsAnalyzeCallGraph() {
-    	WSTransformationContent targets = new X10WSCallGraphAnalyzer(buildCallGraph()).simpleAnalyze();
+    public static WSTransformationContent wsAnalyzeCallGraph(Collection<Job> jobs) {
+    	final WSTransformationContent targets = new X10WSCallGraphAnalyzer(buildCallGraph()).simpleAnalyze();
+    	
+    	NodeVisitor deadCodeFinderVisitor = new NodeVisitor(){
+            public Node leave(Node old, Node n, NodeVisitor v) {
+                if(n instanceof MethodDecl
+                       // || n instanceof ConstructorDecl
+                       // || (n instanceof Closure && !(n instanceof PlacedClosure))
+                   ){           //Note, PlacedClosure are not treated as normal closure, not build node
+                    targets.checkAndMarkDeadMethodDef((MethodDecl)n);                  
+                }
+                return n;
+            }
+        };
+    	
+    	//it is still in all barrier, so we can visit all the ast, and mark the dead defs
+        for(Job job : jobs){
+            if(job == null){
+                System.err.println("[WALA_WS_ERR] Mark Dead Method: Find one job is empty!");
+                continue;
+            }
+            Node node = job.ast();
+            if(node != null && node instanceof SourceFile){
+                for(TopLevelDecl tld : ((SourceFile)node).decls()){
+                    if(tld instanceof ClassDecl){
+                    	//visit the class decl
+                    	tld.visit(deadCodeFinderVisitor);                  	
+                    }
+                }
+            }
+            else{
+                if(node == null){
+                    System.err.println("[WALA_WS_ERR] Mark Dead Method: AST node == null for job: " + job.source().toString());
+                    continue;
+                }
+                if(! (node instanceof SourceFile)){
+                    System.err.println("[WALA_WS_ERR] Mark Dead Method:  AST node is not SourceFile for job: " + job.source().toString());
+                    continue;
+                } 
+            }
+        }
     	return targets;
     }
     

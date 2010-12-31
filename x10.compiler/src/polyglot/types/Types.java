@@ -28,7 +28,6 @@ import polyglot.visit.ContextVisitor;
 import x10.ast.HasZeroTest;
 import x10.ast.Here;
 import x10.ast.ParExpr;
-import x10.ast.SemanticError;
 import x10.ast.SubtypeTest;
 import x10.constraint.XFailure;
 import x10.constraint.XLit;

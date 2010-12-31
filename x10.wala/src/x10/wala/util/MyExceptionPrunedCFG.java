@@ -3,7 +3,7 @@ package x10.wala.util;
 
 import java.util.Iterator;
 
-import x10.wala.ssa.AsyncInvokeInstruction;
+import x10.wala.ssa.AsyncInstruction;
 
 import com.ibm.wala.cast.java.ssa.AstJavaInvokeInstruction;
 import com.ibm.wala.cfg.ControlFlowGraph;
@@ -43,7 +43,7 @@ public class MyExceptionPrunedCFG {
 	while(allSrc.hasNext()){
 	    I inst = allSrc.next();
 	    if(inst instanceof AstJavaInvokeInstruction ||
-	       inst instanceof AsyncInvokeInstruction){
+	       inst instanceof AsyncInstruction){
 		hasMethodInvoke = true;
 	    }else{
 		hasMethodInvoke = false;
