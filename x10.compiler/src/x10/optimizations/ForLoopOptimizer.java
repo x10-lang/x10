@@ -58,7 +58,6 @@ import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.ast.ClosureCall;
 import x10.ast.ForLoop;
-import x10.ast.RegionMaker;
 import x10.ast.StmtExpr;
 import x10.ast.StmtSeq;
 import x10.ast.X10Binary_c;

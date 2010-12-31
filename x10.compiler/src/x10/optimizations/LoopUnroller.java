@@ -66,7 +66,6 @@ import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.ast.ForLoop;
-import x10.ast.RegionMaker;
 import x10.ast.Tuple;
 import x10.ast.X10Binary_c;
 import x10.ast.X10Formal;

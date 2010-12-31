@@ -1,6 +1,3 @@
-/**
- * 
- */
 /*
  *  This file is part of the X10 project (http://x10-lang.org).
  *
@@ -36,6 +33,7 @@ import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
+import polyglot.types.UpcastTransform;
 import polyglot.util.CollectionUtil;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
@@ -171,9 +169,9 @@ public class X10ConstructorInstance_c extends ConstructorInstance_c implements X
     }
     
     public List<Type> typeParameters() {
-        return Collections.emptyList();
+        return Collections.<Type>emptyList();
 // [IP] TODO
-//        return ((X10ParsedClassType) this.container()).typeArguments();
+//        return new TransformingList<ParameterType, Type>(((X10ParsedClassType) this.container()).x10Def().typeParameters(), new UpcastTransform<Type, ParameterType>());
     }
 
     public X10ConstructorInstance typeParameters(List<Type> typeParameters) {

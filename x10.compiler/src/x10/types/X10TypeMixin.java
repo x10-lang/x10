@@ -58,7 +58,6 @@ import polyglot.visit.ContextVisitor;
 import polyglot.frontend.Job;
 import x10.ast.Here;
 import x10.ast.ParExpr;
-import x10.ast.SemanticError;
 import x10.ast.SubtypeTest;
 import x10.ast.HasZeroTest;
 import x10.constraint.XFailure;
@@ -794,11 +793,11 @@ public class X10TypeMixin {
 	
 	/**
 	 * Returns the var that is thisvar of all the terms in {t1,t2} that have a thisvar.
-	 * If none do, return null. Else throw a SemanticError.
+	 * If none do, return null. Else throw an XFailure.
 	 * @param t1
 	 * @param t2
 	 * @return
-	 * @throws SemanticError
+	 * @throws XFailure
 	 */
 	public static XVar getThisVar(Type t1, Type t2) throws XFailure {
 		XVar thisVar = t1 == null ? null : ((X10ThisVar) t1).thisVar();

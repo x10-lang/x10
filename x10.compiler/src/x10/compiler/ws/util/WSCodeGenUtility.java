@@ -53,7 +53,6 @@ import x10.ast.Async;
 import x10.ast.Closure;
 import x10.ast.ClosureCall;
 import x10.ast.Finish;
-import x10.ast.Future;
 import x10.ast.PlacedClosure;
 import x10.ast.StmtSeq;
 import x10.ast.When;
@@ -402,7 +401,7 @@ public class WSCodeGenUtility {
      * The assign is the assign, but the call is just the return part of the future
      * @param s
      * @return Pair<Assign, Call> pair. If null, not such an expression
-     */
+     * /
     static public Pair<Assign, Call> identifyAssignByAsyncCall(Stmt s, Context context){
         TypeSystem xts = (TypeSystem) context.typeSystem();
         Pair<Assign, Call> result = null;
@@ -441,6 +440,7 @@ public class WSCodeGenUtility {
         }
         return result;
     }
+    */
     
     
     /**

@@ -42,7 +42,6 @@ import polyglot.types.Types;
 import polyglot.types.TypeSystem;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
-import x10.ast.Contains;
 import x10.ast.Here;
 import x10.ast.ParExpr;
 import x10.ast.SubtypeTest;
@@ -465,6 +464,9 @@ public class XTypeTranslator {
 	    		|| (t.operator() == Binary.BIT_AND && ts.isImplicitCastValid(t.type(), ts.Boolean(), xc))) {
 	        v = XTerms.makeAnd(lt, rt);
 	    }
+	    else if (t.operator() == Binary.IN) {
+	        v = XTerms.makeAtom(XTerms.makeName(t.operator()), lt, rt);
+	    }
 	    else  {
 	        v = XTerms.makeAtom(XTerms.makeName(t.operator()), lt, rt);
 	        return null;
@@ -482,16 +484,6 @@ public class XTypeTranslator {
 	        terms.add(v);
 	    }
 	    return XTerms.makeAtom(XTerms.makeName("tuple"), terms);
-	}
-	
-	private XTerm trans(CConstraint c, Contains t, Context xc) {
-	    Expr left = t.item();
-	    Expr right = t.collection();
-	    boolean containsAll = t.isSubsetTest();
-	    if (containsAll)
-	        return XTerms.makeAtom(XTerms.makeName("subset"), trans(c, left, xc), trans(c, right, xc));
-	    else
-	        return XTerms.makeAtom(XTerms.makeName("in"), trans(c, left, xc), trans(c, right, xc));
 	}
 	
 	private XTerm trans(CConstraint c, Call t, Context xc) {
@@ -611,8 +603,6 @@ public class XTypeTranslator {
 		}
 		if (term instanceof Binary)
 			return trans(c, (Binary) term, xc);
-		if (term instanceof Contains)
-		    return trans(c, (Contains) term, xc);
 		if (term instanceof TypeNode)
 		    return trans(c, (TypeNode) term);
 		if (term instanceof ParExpr)

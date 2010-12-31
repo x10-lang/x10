@@ -99,7 +99,6 @@ import x10.ast.ForLoop;
 import x10.ast.ForLoop_c;
 import x10.ast.ParExpr_c;
 import x10.ast.PropertyDecl_c;
-import x10.ast.RegionMaker;
 import x10.ast.StmtSeq;
 import x10.ast.SubtypeTest_c;
 import x10.ast.Tuple_c;
