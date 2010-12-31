@@ -13,4 +13,6 @@ import polyglot.types.Name;
 public interface Id extends Node {
     Name id();
     Id id(Name id);
+    void equals(String id);
+    void equals(Name id);
 }

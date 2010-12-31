@@ -250,7 +250,7 @@ public class ForLoopOptimizer extends ContextVisitor {
         // TODO inline (min and max), scalar replace Region object and its constituent Arrays then delete this code
         //
         if (1 == rank && domain instanceof Call && ((Call)domain).target().type().isInt() &&
-                ((Call)domain).name().equals(X10Binary_c.binaryMethodName(Binary.DOT_DOT))) {
+                ((Call)domain).name().id().equals(X10Binary_c.binaryMethodName(Binary.DOT_DOT))) {
             List<Expr> args = ((Call) loop.domain()).arguments();
             assert (args.size() == 2);
             Expr low = args.get(0);

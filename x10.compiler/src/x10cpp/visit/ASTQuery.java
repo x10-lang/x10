@@ -134,67 +134,6 @@ public class ASTQuery {
 		return null;
 	}
 
-	boolean isClockMaker(Call_c n) {
-		if (n.isTargetImplicit())
-			return false;
-		Receiver target = n.target();
-		if (!(target instanceof Field_c))
-			return false;
-		Field_c f = (Field_c) target;
-		if (!(f.target() instanceof X10CanonicalTypeNode_c))
-			return false;
-		X10CanonicalTypeNode_c t = (X10CanonicalTypeNode_c) f.target();
-		TypeSystem xts = (TypeSystem) tr.typeSystem();
-		if (!xts.isClock(t.type()) || !f.name().equals("factory"))
-			return false;
-		if (n.arguments().size() != 0)
-			return false;
-		if (!n.name().equals("clock"))
-			return false;
-		return true;
-	}
-
-	boolean isBlockDistMaker(Call_c n) {
-		if (n.isTargetImplicit())
-			return false;
-		Receiver target = n.target();
-		if (!(target instanceof Field_c))
-			return false;
-		Field_c f = (Field_c) target;
-		if (!(f.target() instanceof X10CanonicalTypeNode_c))
-			return false;
-		X10CanonicalTypeNode_c t = (X10CanonicalTypeNode_c) f.target();
-		X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
-		if (!xts.isDistribution(t.type()) || !f.name().equals("factory"))
-			return false;
-		// TODO: detect other distribution constructors
-		if (n.arguments().size() != 1)
-			return false;
-		if (!n.name().equals("block"))
-			return false;
-		return true;
-	}
-
-	boolean isPointMaker(Call_c n) {
-		if (n.isTargetImplicit())
-			return false;
-		Receiver target = n.target();
-		if (!(target instanceof Field_c))
-			return false;
-		Field_c f = (Field_c) target;
-		if (!(f.target() instanceof X10CanonicalTypeNode_c))
-			return false;
-		X10CanonicalTypeNode_c t = (X10CanonicalTypeNode_c) f.target();
-		TypeSystem xts = (TypeSystem) tr.typeSystem();
-		if (!xts.isPoint(t.type()) || !f.name().equals("factory"))
-			return false;
-		if (n.arguments().size() < 1)
-			return false;
-		if (!n.name().equals("point"))
-			return false;
-		return true;
-	}
-
 	static final ArrayList<X10MethodInstance> knownAsyncArrayCopyMethods = new ArrayList<X10MethodInstance>();
 
 	/* -- SPMD compilation --
