@@ -18,7 +18,7 @@ import com.ibm.wala.ipa.summaries.BypassMethodTargetSelector;
 import com.ibm.wala.ipa.summaries.XMLMethodSummaryReader;
 
 public class X10ZeroXCFABuilderFactory {
-    public CallGraphBuilder make(AnalysisOptions options, AnalysisCache cache, IClassHierarchy cha, AnalysisScope scope, boolean keepPointsTo) {
+    public CallGraphBuilder make(AnalysisOptions options, AnalysisCache cache, IClassHierarchy cha) {
         Util.addDefaultSelectors(options, cha);
 //        Util.addDefaultBypassLogic(options, scope, Util.class.getClassLoader(), cha);
         return new AstX10ZeroXCFABuilder(cha, options, cache, null, null, ZeroXInstanceKeys.ALLOCATIONS);

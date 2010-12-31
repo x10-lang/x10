@@ -71,6 +71,7 @@ import x10.ast.LocalTypeDef;
 import x10.ast.Next;
 import x10.ast.ParExpr;
 import x10.ast.SettableAssign;
+import x10.ast.StmtSeq;
 import x10.ast.Tuple;
 import x10.ast.When;
 import x10.ast.X10Formal;
@@ -195,6 +196,8 @@ public class X10ASTTraverser {
         return xtv.visit((Branch) n, wc);
       } else if (n instanceof SwitchBlock) { // must test for this one before Block
         return xtv.visit((SwitchBlock) n, wc);
+      } else if (n instanceof StmtSeq) { // must test for this one before Block
+          return xtv.visit((StmtSeq) n, wc);
       } else if (n instanceof Block) { // must test for this one before Block
         return xtv.visit((Block) n, wc);
       } else if (n instanceof Catch) {
