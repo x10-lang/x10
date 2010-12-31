@@ -76,6 +76,7 @@ import x10.ast.ParExpr;
 import x10.ast.Range;
 import x10.ast.Region;
 import x10.ast.SettableAssign;
+import x10.ast.StmtSeq;
 import x10.ast.Tuple;
 import x10.ast.When;
 import x10.ast.X10Formal;
@@ -129,6 +130,7 @@ public interface X10TranslatorVisitor {
     CAstNode visit(Branch b, WalkContext wc);
     CAstNode visit(Block b, WalkContext wc);
     CAstNode visit(SwitchBlock sb, WalkContext wc);
+    CAstNode visit(StmtSeq sb, WalkContext wc);
     CAstNode visit(Catch c, WalkContext wc);
     CAstNode visit(If i, WalkContext wc);
     CAstNode visit(Labeled l, WalkContext wc);

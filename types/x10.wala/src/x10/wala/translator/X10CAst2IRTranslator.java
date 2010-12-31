@@ -32,7 +32,7 @@ import com.ibm.wala.types.TypeReference;
 import com.ibm.wala.util.debug.Assertions;
 import com.ibm.wala.util.strings.Atom;
 
-public class X10CAst2IRTranslator extends X10DelegatingCAstVisitor implements ArrayOpHandler {
+public class X10CAst2IRTranslator extends X10DelegatingCAstVisitor /* implements ArrayOpHandler */ {
 	private static class X10JavaCAst2IRTranslator extends JavaCAst2IRTranslator {
 		private X10JavaCAst2IRTranslator(CAstEntity sourceFileEntity, JavaSourceLoaderImpl loader) {
 			super(sourceFileEntity, loader);
@@ -63,7 +63,7 @@ public class X10CAst2IRTranslator extends X10DelegatingCAstVisitor implements Ar
     private X10CAst2IRTranslator(X10JavaCAst2IRTranslator translator) {
         super(translator);
         this.translator = translator;
-        this.translator.setArrayOpHandler(this);
+//        this.translator.setArrayOpHandler(this);
         this.insts = (AstX10InstructionFactory) translator.loader().getInstructionFactory();
     }
 
@@ -230,36 +230,28 @@ public class X10CAst2IRTranslator extends X10DelegatingCAstVisitor implements Ar
         return true;
     }
     
-    protected boolean visitForce(CAstNode n, Context c, CAstVisitor visitor) { /* empty */ return false; }
-    protected void leaveForce(CAstNode n, Context c, CAstVisitor visitor) {
+    protected boolean visitIterInit(CAstNode n, Context c, CAstVisitor visitor) { /* empty */ return false; }
+    protected void leaveIterInit(CAstNode n, Context c, CAstVisitor visitor) {
         WalkContext context = (WalkContext)c;
         int targetValue = translator.getValue(n.getChild(0));
         int retValue = context.currentScope().allocateTempValue();
-        context.cfg().addInstruction(insts.Force(retValue, targetValue, (TypeReference) n.getChild(1).getValue()));
+        context.cfg().addInstruction(insts.IterInit(retValue, targetValue));
         translator.setValue(n, retValue);
     }
-    protected boolean visitRegionIterInit(CAstNode n, Context c, CAstVisitor visitor) { /* empty */ return false; }
-    protected void leaveRegionIterInit(CAstNode n, Context c, CAstVisitor visitor) {
+    protected boolean visitIterHasNext(CAstNode n, Context c, CAstVisitor visitor) { /* empty */ return false; }
+    protected void leaveIterHasNext(CAstNode n, Context c, CAstVisitor visitor) {
         WalkContext context = (WalkContext)c;
         int targetValue = translator.getValue(n.getChild(0));
         int retValue = context.currentScope().allocateTempValue();
-        context.cfg().addInstruction(insts.RegionIterInit(retValue, targetValue));
+        context.cfg().addInstruction(insts.IterHasNext(retValue, targetValue));
         translator.setValue(n, retValue);
     }
-    protected boolean visitRegionIterHasNext(CAstNode n, Context c, CAstVisitor visitor) { /* empty */ return false; }
-    protected void leaveRegionIterHasNext(CAstNode n, Context c, CAstVisitor visitor) {
+    protected boolean visitIterNext(CAstNode n, Context c, CAstVisitor visitor) { /* empty */ return false; }
+    protected void leaveIterNext(CAstNode n, Context c, CAstVisitor visitor) {
         WalkContext context = (WalkContext)c;
         int targetValue = translator.getValue(n.getChild(0));
         int retValue = context.currentScope().allocateTempValue();
-        context.cfg().addInstruction(insts.RegionIterHasNext(retValue, targetValue));
-        translator.setValue(n, retValue);
-    }
-    protected boolean visitRegionIterNext(CAstNode n, Context c, CAstVisitor visitor) { /* empty */ return false; }
-    protected void leaveRegionIterNext(CAstNode n, Context c, CAstVisitor visitor) {
-        WalkContext context = (WalkContext)c;
-        int targetValue = translator.getValue(n.getChild(0));
-        int retValue = context.currentScope().allocateTempValue();
-        context.cfg().addInstruction(insts.RegionIterNext(retValue, targetValue));
+        context.cfg().addInstruction(insts.IterNext(retValue, targetValue));
         translator.setValue(n, retValue);
     }
     protected boolean visitHere(CAstNode n, Context c, CAstVisitor visitor) { /* empty */ return false; }
@@ -348,7 +340,7 @@ public class X10CAst2IRTranslator extends X10DelegatingCAstVisitor implements Ar
         return arrayRefNode.getChildCount() > 3 || // if there are multiple indices, it's not by point
             arrayRefNode.getKind() == X10CastNode.ARRAY_REF_BY_POINT;
     }
-
+/*
     public void doArrayRead(WalkContext context, int result, int arrayValue, CAstNode arrayRefNode, int[] dimValues) {
         TypeReference arrayTypeRef= (TypeReference) arrayRefNode.getChild(1).getValue();
 
@@ -373,7 +365,7 @@ public class X10CAst2IRTranslator extends X10DelegatingCAstVisitor implements Ar
             context.cfg().addInstruction(
                     insts.ArrayStoreByIndex(arrayValue, dimValues, rval, arrayTypeRef));
     }
-
+*/
     @Override
     protected boolean doVisitAssignNodes(CAstNode n, Context context, CAstNode v, CAstNode a, CAstVisitor visitor) {
         int NT = a.getKind();

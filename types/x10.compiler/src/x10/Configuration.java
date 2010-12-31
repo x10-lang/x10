@@ -100,6 +100,9 @@ public final class Configuration extends x10.config.Configuration {
     public static boolean WALA = false;
     private static final String WALA_desc = "Produce WALA IR from X10 sources";
 
+    public static boolean WALADEBUG = false;
+    private static final String WALADEBUG_desc = "Produce WALA call graph from X10 sources";
+
     public static boolean VERBOSE_CALLS = false;
     private static final String VERBOSE_CALLS_desc = "Print details of casts introduced for dynamically-checked calls.";
 

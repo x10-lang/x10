@@ -129,6 +129,7 @@ import x10.ast.ParExpr;
 import x10.ast.Range;
 import x10.ast.Region;
 import x10.ast.SettableAssign;
+import x10.ast.StmtSeq;
 import x10.ast.Tuple;
 import x10.ast.TypeDecl;
 import x10.ast.When;
@@ -1070,6 +1071,17 @@ public class X10toCAstTranslator implements TranslatorToCAst {
         }
         return makeNode(wc, fFactory, b, CAstNode.LOCAL_SCOPE, makeNode(wc, fFactory, b, CAstNode.BLOCK_STMT, stmtNodes));
       }
+
+      public CAstNode visit(StmtSeq seq, WalkContext wc) {
+          CAstNode[] stmtNodes = new CAstNode[seq.statements().size()];
+
+          int idx = 0;
+          for (Iterator iter = seq.statements().iterator(); iter.hasNext(); idx++) {
+            Stmt s = (Stmt) iter.next();
+            stmtNodes[idx] = walkNodes(s, wc);
+          }
+          return makeNode(wc, fFactory, seq, CAstNode.BLOCK_STMT, stmtNodes);
+        }
 
       public CAstNode visit(SwitchBlock sb, WalkContext wc) {
         CAstNode[] stmtNodes = new CAstNode[sb.statements().size()];
@@ -3016,12 +3028,12 @@ public class X10toCAstTranslator implements TranslatorToCAst {
             return super.visit(cd, mc);
         }
 
-        private MethodInstance findMethod(Type container, String name, Type arg1, Type arg2) {
+        private MethodInstance findMethod(Type container, Name name, Type arg1, Type arg2) {
             List<Type> argTypes = new ArrayList<Type>();
             argTypes.add(arg1);
             argTypes.add(arg2);
             try {
-                return fTypeSystem.findMethod(container, fTypeSystem.MethodMatcher(container, Name.make(name), argTypes, fTypeSystem.emptyContext()));
+                return fTypeSystem.findMethod(container, fTypeSystem.MethodMatcher(container, name, argTypes, fTypeSystem.emptyContext()));
             } catch (SemanticException e) {
                 return null;
             }
@@ -3033,19 +3045,26 @@ public class X10toCAstTranslator implements TranslatorToCAst {
             Binary.Operator op = b.operator();
             Expr left = b.left();
             Expr right = b.right();
+            Position pos = b.position();
+            Type Region = fTypeSystem.Region();
             if (op == Binary.Operator.DOT_DOT) {
                 Assertions.productionAssertion(left.type().isInt() && right.type().isInt(), "Operator .. on ("+left.type()+","+right.type()+")");
-                Call mr = fNodeFactory.RegionMaker(b.position(), left, right);
-                Type rgn = fTypeSystem.Region();
-                MethodInstance mi = findMethod(rgn, "makeRectangular", fTypeSystem.Int(), fTypeSystem.Int());
+                Name makeRectangular = Name.make("makeRectangular");
+                Call mr = fNodeFactory.Call(pos, fNodeFactory.CanonicalTypeNode(pos, Region),
+                        fNodeFactory.Id(pos, makeRectangular), left, right);
+                Type Int = fTypeSystem.Int();
+                MethodInstance mi = findMethod(Region, makeRectangular, Int, Int);
                 mr = mr.methodInstance(mi);
                 mr = (Call) mr.type(mi.returnType());
                 return visit(mr, context);
             } else if (op == Binary.Operator.ARROW) {
                 Assertions.productionAssertion(fTypeSystem.isRegion(left.type()) && fTypeSystem.isPlace(right.type()), "Operator -> on ("+left.type()+","+right.type()+")");
-                Call mc = fNodeFactory.ConstantDistMaker(b.position(), left, right);
-                Type dst = fTypeSystem.Dist();
-                MethodInstance mi = findMethod(dst, "makeConstant", fTypeSystem.Region(), fTypeSystem.Place());
+                Type Dist = fTypeSystem.Dist();
+                Name makeConstant = Name.make("makeConstant");
+                Call mc = fNodeFactory.Call(pos, fNodeFactory.CanonicalTypeNode(pos, Dist),
+                        fNodeFactory.Id(pos, makeConstant), left, right);
+                Type Place = fTypeSystem.Place();
+                MethodInstance mi = findMethod(Dist, makeConstant, Region, Place);
                 mc = mc.methodInstance(mi);
                 mc = (Call) mc.type(mi.returnType());
                 return visit(mc, context);
@@ -3069,7 +3088,7 @@ public class X10toCAstTranslator implements TranslatorToCAst {
 	    // FUNCTION_EXPR will translate to a type wrapping the single method with the given body
 	    args[args.length-1] = makeNode(context, a.body(), CAstNode.FUNCTION_EXPR, fFactory.makeConstant(bodyEntity));
 
-	    CAstNode asyncNode= makeNode(context, a, X10CastNode.ASYNC_INVOKE, args);
+	    CAstNode asyncNode= makeNode(context, a, X10CastNode.ASYNC, args);
 	    context.addScopedEntity(asyncNode, bodyEntity);
 	    return asyncNode;
 	}
@@ -3082,11 +3101,11 @@ public class X10toCAstTranslator implements TranslatorToCAst {
 		    makeNode(context, X10CastNode.FINISH_EXIT, f.body().position().endOf()));
 	}
 
-	private CAstNode walkRegionIterator(X10Loop loop, final CAstNode bodyNode, WalkContext context) {
-	    return walkRegionIterator(loop.formal(), bodyNode, walkNodes(loop.domain(), context), loop.position(), context);
+	private CAstNode walkIterator(X10Loop loop, final CAstNode bodyNode, WalkContext context) {
+	    return walkIterator(loop.formal(), bodyNode, walkNodes(loop.domain(), context), loop.position(), context);
 	}
 
-	private CAstNode walkRegionIterator(Formal formal, final CAstNode bodyNode, CAstNode domainNode, polyglot.util.Position bodyPos, WalkContext wc) {
+	private CAstNode walkIterator(Formal formal, final CAstNode bodyNode, CAstNode domainNode, polyglot.util.Position bodyPos, WalkContext wc) {
 	    X10Formal x10Formal= (X10Formal) formal;
 	    LocalDef[] vars = x10Formal.localInstances();
 	    CAstNode[] bodyStmts = new CAstNode[vars.length + 1]; // var decls + bodyNode
@@ -3103,13 +3122,13 @@ public class X10toCAstTranslator implements TranslatorToCAst {
 	    return makeNode(wc, bodyPos, CAstNode.LOCAL_SCOPE,
 		makeNode(wc, bodyPos, CAstNode.BLOCK_STMT,
 		    makeNode(wc, formal, CAstNode.DECL_STMT, fFactory.makeConstant(new CAstSymbolImpl("iter tmp", false)),
-			    makeNode(wc, formal, X10CastNode.REGION_ITER_INIT, domainNode)),
+			    makeNode(wc, formal, X10CastNode.ITER_INIT, domainNode)),
 		    makeNode(wc, bodyPos, CAstNode.LOOP,
-			makeNode(wc, formal, X10CastNode.REGION_ITER_HASNEXT,
+			makeNode(wc, formal, X10CastNode.ITER_HASNEXT,
 				makeNode(wc, formal, CAstNode.VAR, fFactory.makeConstant("iter tmp"))),
 			makeNode(wc, bodyPos, CAstNode.BLOCK_STMT,
 			    makeNode(wc, formal, CAstNode.DECL_STMT, walkNodes(formal, wc),
-				makeNode(wc, formal, X10CastNode.REGION_ITER_NEXT, makeNode(wc, formal, CAstNode.VAR, fFactory.makeConstant("iter tmp")))),
+				makeNode(wc, formal, X10CastNode.ITER_NEXT, makeNode(wc, formal, CAstNode.VAR, fFactory.makeConstant("iter tmp")))),
 			    bodyStmts))));
 	}
 
@@ -3121,7 +3140,7 @@ public class X10toCAstTranslator implements TranslatorToCAst {
 	    CAstNode dist;
 
 	    if (type.isArray())
-		dist= makeNode(wc, domain, X10CastNode.ARRAY_DISTRIBUTION, walkNodes(domain, wc));
+		dist= makeNode(wc, domain, X10CastNode.DIST, walkNodes(domain, wc));
 	    else
 		dist= walkNodes(domain, wc);
 
@@ -3138,7 +3157,7 @@ public class X10toCAstTranslator implements TranslatorToCAst {
 	    // FUNCTION_EXPR will translate to a type wrapping the single method with the given body
 	    args[ args.length - 1] = makeNode(wc, a.body(), CAstNode.FUNCTION_EXPR, fFactory.makeConstant(bodyEntity));
 
-	    final CAstNode bodyNode= makeNode(wc, a, X10CastNode.ASYNC_INVOKE, args);
+	    final CAstNode bodyNode= makeNode(wc, a, X10CastNode.ASYNC, args);
 
 	    wc.addScopedEntity(bodyNode, bodyEntity);
 	    return makeNode(wc, a, CAstNode.LOCAL_SCOPE,
@@ -3146,12 +3165,12 @@ public class X10toCAstTranslator implements TranslatorToCAst {
 			makeNode(wc, a.domain(), CAstNode.DECL_STMT, 
 			  fFactory.makeConstant(new CAstSymbolImpl("dist temp", true)),
 			  dist),
-			walkRegionIterator(a.formal(), bodyNode, fFactory.makeNode(CAstNode.VAR, fFactory.makeConstant("dist temp")), a.body().position(), wc)));
+			walkIterator(a.formal(), bodyNode, fFactory.makeNode(CAstNode.VAR, fFactory.makeConstant("dist temp")), a.body().position(), wc)));
 	}
 
 	public CAstNode visit(Future f, WalkContext wc) {
 	    CAstEntity bodyEntity= walkAsyncEntity(f, f.body(), wc);
-	    CAstNode bodyNode= makeNode(wc, f, X10CastNode.ASYNC_INVOKE,
+	    CAstNode bodyNode= makeNode(wc, f, X10CastNode.ASYNC,
 		    walkNodes(f.place(), wc),
 		    // FUNCTION_EXPR will translate to a type wrapping the single method with the given body
 		    makeNode(wc, f.body(), CAstNode.FUNCTION_EXPR, fFactory.makeConstant(bodyEntity)));
@@ -3170,7 +3189,7 @@ public class X10toCAstTranslator implements TranslatorToCAst {
 	    for(Expr child: t.arguments()) {
 	        children[idx++] = walkNodes(child, wc);
 	    }
-	    return makeNode(wc, fFactory, t, X10CastNode.TUPLE_EXPR, children);
+	    return makeNode(wc, fFactory, t, X10CastNode.TUPLE, children);
 	}
 
 	public CAstNode visit(SettableAssign n, WalkContext wc) {
@@ -3225,7 +3244,7 @@ public class X10toCAstTranslator implements TranslatorToCAst {
         public CAstNode visit(Call c, WalkContext wc) {
 	    x10.types.MethodInstance methodInstance= c.methodInstance();
 	    ContainerType methodOwner= methodInstance.container();
-
+/*
 	    //PORT1.7 Array accesses are now represented as ordinary method calls
 	    if (methodOwner instanceof ClassType) {
 	        ClassType classType = (ClassType) methodOwner;
@@ -3266,6 +3285,7 @@ public class X10toCAstTranslator implements TranslatorToCAst {
 	            return makeNode(wc, c, X10CastNode.FORCE, walkNodes(c.target(), wc), fFactory.makeConstant(typeRef));
 	        }
 	    }
+*/
 	    return super.visit(c, wc);
 	}
 
@@ -3440,7 +3460,7 @@ public class X10toCAstTranslator implements TranslatorToCAst {
 //					makeNode(wc, fFactory, formal1, CAstNode.VAR, fFactory.makeConstant(formal1.name())))));
 //
 //		CAstNode loopBody=
-//			walkRegionIterator(formal1, arrayElemInit,
+//			walkIterator(formal1, arrayElemInit,
 //					makeNode(wc, dist, CAstNode.VAR, fFactory.makeConstant(distTempName)), closure.position(), wc);
 //
 //		return makeNode(wc, closure, CAstNode.BLOCK_EXPR, // NEED CAstNode.LOCAL_SCOPE or make "array temp" names unique
@@ -3505,7 +3525,7 @@ public class X10toCAstTranslator implements TranslatorToCAst {
 
 	    return makeNode(context, f, CAstNode.BLOCK_STMT,
 	    		walkNodes(breakTarget, context),
-	    		walkRegionIterator(f, 
+	    		walkIterator(f, 
 	    				makeNode(context, f, CAstNode.BLOCK_STMT,
 	    						walkNodes(f.body(), lc),
 	    						walkNodes(continueTarget, lc)),
