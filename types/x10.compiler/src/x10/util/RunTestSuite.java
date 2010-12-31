@@ -21,6 +21,41 @@ import java.util.Iterator;
 
 import x10.parser.AutoGenSentences;
 
+/**
+ * This program reads a bunch of x10 files and runs the front end on them,
+ * then it extracts information (line numbers) from error messages, and we compare these errors with error markers in the file
+ * and verify that all errors are expected.
+ *
+ * You run RunTestSuite exactly like you would run the compiler (with the same flags)
+ * except that instead a list of *.x10 files,
+ * the first argument for RunTestSuite is a directory (or comma-separated list of directories) from which we collect all *.x10 files.
+ *
+ * We have 5 kinds of error markers:
+ * ERR  - marks an error or warning
+ * ShouldNotBeERR - the compiler reports an error, but it shouldn't
+ * ShouldBeErr - the compiler doesn't report an error, but it should
+ * COMPILER_CRASHES - the compiler currently crashes on this file
+ * SHOULD_NOT_PARSE - the compiler should report parsing and lexing errors on this file
+ *
+ * The first 3 markers (ERR, ShouldNotBeERR, ShouldBeErr) can come in the form of annotations (@ERR)
+ * or in the form of comments (// ERR)
+ * The last two (COMPILER_CRASHES,SHOULD_NOT_PARSE) must be a comment.
+ *
+ * Annotations are checked by a compiler phase called ErrChecker.
+ * The problem with annotations currently are:
+ * 1) You can't put annotations on statement expressions, i.e.,
+ * @ERR i=3;
+ * doesn't parse
+ * However, you can write:
+ * @ERR {i=3;}
+ * 2) ErrChecker goal is not reached sometimes (if a previous goal failed).
+ *
+ * In the future I plan to use only annotations and run ErrChecker here instead of inside the compiler.
+ *
+ * There is also an OPTIONS marker:
+ * OPTIONS: -STATIC_CALLS
+ * If no OPTIONS is specified, we run with VERBOSE_CALLS.
+ */
 public class RunTestSuite {
     public static boolean QUIET = System.getenv("QUIET")!=null;
     private static void println(String s) {
@@ -32,37 +67,16 @@ public class RunTestSuite {
         System.err.println(s);
     }
 
-    // I have 5 kind of markers:
-    // "// ... ERR"  - marks an error or warning
-    // "// ... ShouldNotBeERR" - the compiler reports an error, but it shouldn't
-    // ShouldBeErr - the compiler doesn't report an error, but it should
-    // "COMPILER_CRASHES" - the compiler currently crashes on this file
-    // "SHOULD_NOT_PARSE" - the compiler should report parsing and lexing errors on this file
-    
-    // We always add the compiler flag -VERBOSE_CALLS.
-
-    // some _MustFailCompile in the test suite cause compiler crashes
-    // files with ERR markers must end with _MustFailCompile, and these are compiled by themselves
-    // the rest of the files shouldn't have any errors, therefore we should proceed for these to code generation phase
-    // (and in the future even run the resulting code)
-
     //_MustFailCompile means the compilation should fail.
-    // Inside those files we should have "//.*ERR" markers that we use to test the position of the errors is correct.
     //_MustFailTimeout means that when running the file it will have an infinite loop
     private static final String[] EXCLUDE_FILES_WITH_SUFFIX = {
-            "NonX10Constructs_MustFailCompile.x10",
             //"_MustFailCompile.x10",
     };
     private static final String[] EXCLUDE_DIRS = {
-            "WorkStealing", // Have duplicated class from the Samples directory such as ArraySumTest.x10
             "AutoGen", // it takes too long to compile these files
-            "Manual", // todo: code for the X10 manual/spec
     };
     private static final String[] EXCLUDE_FILES = {
-            "NOT_WORKING","SSCA2","FT-alltoall","FT-global", // to exclude some benchmarks: https://x10.svn.sourceforge.net/svnroot/x10/benchmarks/trunk
-
-            //LIMITATION: closure type params are not supported (so this file doesn't even parse!)
-            "ClosureCall0a_MustFailCompile.x10","ClosureCall1a_MustFailCompile.x10", "ClosureCall0b_MustFailCompile.x10", "ClosureCall0b_MustFailCompile.x10", "ClosureCall1b_MustFailCompile.x10", "ClosureCall1c_MustFailCompile.x10", "ClosureCall1d_MustFailCompile.x10",
+            "NOT_WORKING", // to exclude some benchmarks: https://x10.svn.sourceforge.net/svnroot/x10/benchmarks/trunk
     };
     private static final String[] EXCLUDE_FILES_WITH = {
     };
@@ -215,8 +229,6 @@ public class RunTestSuite {
         int lineNum = 0;
         for (String line : lines) {
             lineNum++;
-            int errIndex = line.indexOf("ERR");
-            boolean isERR = errIndex!=-1;
             if (line.contains("COMPILER_CRASHES")) res.COMPILER_CRASHES = true;
             if (line.contains("SHOULD_NOT_PARSE")) res.SHOULD_NOT_PARSE = true;
             int optionsIndex = line.indexOf("OPTIONS:");
@@ -225,12 +237,17 @@ public class RunTestSuite {
                 res.options.add(option);
                 if (option.equals("-STATIC_CALLS")) res.STATIC_CALLS = true;
             }
+            line = line.trim();
             int commentIndex = line.indexOf("//");
-            if (isERR && commentIndex!=-1 && commentIndex<errIndex) { 
-                LineSummary lineSummary = new LineSummary();
-                lineSummary.lineNo = lineNum;
-                lineSummary.errCount = count(line,"ERR");
-                res.lines.add(lineSummary);
+            if (commentIndex>0) { // if the line contains just a comment, then we ignore it.
+                int errIndex = line.indexOf("ERR");
+                boolean isERR = errIndex!=-1;
+                if (isERR && commentIndex<errIndex) {
+                    LineSummary lineSummary = new LineSummary();
+                    lineSummary.lineNo = lineNum;
+                    lineSummary.errCount = count(line,"ERR");
+                    res.lines.add(lineSummary);
+                }
             }
         }
         return res;
@@ -243,23 +260,29 @@ public class RunTestSuite {
         }
         boolean STATIC_CALLS = summaries.size()>1 ? true : summaries.get(0).STATIC_CALLS; // all the files without ERR markers are done in my batch, using STATIC_CALLS (cause they shouldn't have any errors)
         // adding the directories of the files to -sourcepath (in case they refer to other files that are not compiled, e.g., if we decide to compile the files one by one)
+        // I'm also adding parent folders to support packages (see T3.x10)
         HashSet<String> directories = new HashSet<String>();
         for (String f : fileNames) {
-            final int index = f.lastIndexOf('/');
-            assert index>0 : f;
-            directories.add(f.substring(0, index));
+            int index = -1;
+            while ((index = f.indexOf('/',index+1))!=-1) {
+                directories.add(f.substring(0, index));
+            }
+
         }
         String dirs = "";
         for (String dir : directories)
             dirs += ";"+dir;
         int argsNum = args.size();
+        boolean foundSourcePath = false;
         for (int i=1; i<argsNum; i++) {
             final String arg = args.get(i);
-            if (arg.contains("/x10.runtime/src-x10;")) {
+            if (arg.contains("/x10.runtime/src-x10")) {
                 args.set(i,arg+dirs);
+                foundSourcePath = true;
                 break;
             }
         }
+        assert foundSourcePath : "You must use an argument -sourcepath that includes '/x10.runtime/src-x10'";
         // Now running polyglot
         List<String> allArgs = new ArrayList<String>(fileNames);
         allArgs.addAll(args);

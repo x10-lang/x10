@@ -132,7 +132,7 @@ public class ArrayCopy2 extends x10Test {
             val A = DistArray.make[int](D);
             val B = DistArray.make[int](E, (p[i,j,k,l]: Point) => { val x = ((i*N+j)*N+k)*N+l; x*x+1 });
             arrayCopy(A, B);
-            arrayEqual(A, B);  // ShouldNotBeERR: Method arrayEqual[T](A: x10.array.DistArray[T], B: x10.array.DistArray[T]{self.dist.region.rank==A.dist.region.rank}): void in ArrayCopy2{self==ArrayCopy2#this} cannot be called with arguments (x10.array.DistArray[x10.lang.Int]{self==A, A.dist==D, A!=null}, x10.array.DistArray[x10.lang.Int]{self==B, B.dist==E, B!=null}); Cannot infer type for type parameter T.
+            arrayEqual(A, B);  
         }
         return true;
     }
