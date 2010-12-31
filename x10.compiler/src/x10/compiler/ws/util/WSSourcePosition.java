@@ -108,5 +108,18 @@ public class WSSourcePosition{
 		sb.append(getEndLine()).append(':').append(getEndColumn());
 		return sb.toString();
 	}
+	
+	/**
+	 * @return only line number/column number, no url
+	 */
+	public String toShortString() {
+		//format: url,L12:10 ~ L12:84
+		StringBuffer sb = new StringBuffer();
+		sb.append("L");
+		sb.append(getStartLine()).append(':').append(getStartColumn());
+		sb.append(" ~ L");
+		sb.append(getEndLine()).append(':').append(getEndColumn());
+		return sb.toString();
+	}
 
 }

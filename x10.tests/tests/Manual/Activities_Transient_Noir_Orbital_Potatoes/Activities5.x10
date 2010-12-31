@@ -18,7 +18,7 @@ import harness.x10Test;
 class Trans {
    val a : Int = 1;
    transient val b : Int = 2;
-   //error: transient val c : Int{c != 0} = 3;
+   //ERROR: transient val c : Int{c != 0} = 3;
    def example() {
      assert(a == 1 && b == 2);
      at(here) {

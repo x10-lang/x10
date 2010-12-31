@@ -152,7 +152,7 @@ public class KMeansCUDA {
                                                 // Pythagoras (in 4 dimensions)
                                                 var dist : Float = 0;
                                                 for ([d] in 0..3) { 
-                                                    val tmp = gpu_points(p+d*num_local_points_stride) // ShouldNotBeERR: Semantic Error: No valid method call found for call in given type.	 Call: operator-(x10.array.Array[x10.lang.Float]{gpu_points.array.home==gpu, gpu_points.home==gpu, gpu_points.region.rank==1}, x10.lang.Float)	 Type: x10.array.Array[x10.lang.Float]{gpu_points.array.home==gpu, gpu_points.home==gpu, gpu_points.region.rank==1}
+                                                    val tmp = gpu_points(p+d*num_local_points_stride) 
                                                               - clustercache(k*4+d);
                                                     dist += tmp * tmp;
                                                 }
