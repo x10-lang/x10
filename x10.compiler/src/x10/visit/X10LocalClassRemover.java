@@ -18,6 +18,8 @@ import polyglot.ast.ClassBody;
 import polyglot.ast.ClassDecl;
 import polyglot.ast.ConstructorCall;
 import polyglot.ast.Expr;
+import polyglot.ast.Field;
+import polyglot.ast.Local;
 import polyglot.ast.New;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
@@ -36,9 +38,12 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
+import polyglot.types.VarDef;
+import polyglot.types.VarInstance;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.SubtypeSet;
+import polyglot.visit.ContextVisitor;
 import polyglot.visit.InnerClassRemover;
 import polyglot.visit.LocalClassRemover;
 import polyglot.visit.NodeVisitor;
@@ -49,6 +54,7 @@ import x10.ast.X10MethodDecl;
 import x10.ast.X10New;
 import x10.types.AsyncDef;
 import x10.types.AtDef;
+import x10.types.EnvironmentCapture;
 import x10.types.ParameterType;
 import x10.types.TypeParamSubst;
 import x10.types.X10ClassDef;
@@ -275,6 +281,34 @@ public class X10LocalClassRemover extends LocalClassRemover {
         return (X10ClassDecl) cd.visit(new NodeTransformingVisitor(job, ts, nf, new TypeParamSubstTransformer(subst)).context(context));
     }
 
+    protected NodeVisitor localBoxer() {
+        return new X10LocalBoxer().context(context().freeze());
+    }
+
+    protected class X10LocalBoxer extends LocalBoxer {
+        public X10LocalBoxer() {
+        }
+
+        @Override
+        protected Node leaveCall(Node old, Node n, NodeVisitor v) {
+            Node r = super.leaveCall(old, n, v);
+            if (n instanceof Local && r instanceof Field) {
+                Local l = (Local) n;
+                Field f = (Field) r;
+                Context c = context.findEnclosingCapturingScope();
+                if (c != null) {
+                    EnvironmentCapture ec = (EnvironmentCapture) c.currentCode();
+                    List<VarInstance<? extends VarDef>> env =
+                        new ArrayList<VarInstance<? extends VarDef>>(ec.capturedEnvironment());
+                    env.remove(l.localInstance());
+                    env.add(f.fieldInstance());
+                    ec.setCapturedEnvironment(env);
+                }
+            }
+            return r;
+        }
+    }
+    
     @Override
     protected boolean isLocal(Context c, Name name) {
         X10Context_c xcon = (X10Context_c)c;
@@ -296,6 +330,7 @@ public class X10LocalClassRemover extends LocalClassRemover {
         return xcon.isValInScopeInClass(name);
     }
     
+    @Override
     protected Node rewriteConstructorCalls(Node s, final ClassDef ct, final List<FieldDef> fields) {
         Node r = s.visit(new X10ConstructorCallRewriter(fields, ct));
         return r;

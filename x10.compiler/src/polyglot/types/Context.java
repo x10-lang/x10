@@ -309,4 +309,9 @@ public interface Context extends Resolver, Copy
      * Return the enclosing code context (or this if the current context is a code context).
      */
     Context popToCode();
+
+    /**
+     * Return the enclosing code context that can capture variables (null if none).
+     */
+    Context findEnclosingCapturingScope();
 }

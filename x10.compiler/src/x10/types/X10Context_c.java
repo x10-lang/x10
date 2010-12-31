@@ -860,7 +860,7 @@ public class X10Context_c extends Context_c {
 	        ((EnvironmentCapture) c.currentCode()).addCapturedVariable(vi);
 	}
 
-	private Context findEnclosingCapturingScope() {
+	public Context findEnclosingCapturingScope() {
 	    Context c = popToCode();
 	    while (c != null && !(c.currentCode() instanceof EnvironmentCapture)) {
 	        c = c.pop().popToCode();
