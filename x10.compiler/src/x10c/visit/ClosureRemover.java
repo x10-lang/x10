@@ -411,7 +411,7 @@ public class ClosureRemover extends ContextVisitor {
                         argTypes.add(vn.varInstance().def().type());
                         args.add(vn);
                         
-                        X10Flags ff = Flags.FINAL.Private();
+                        Flags ff = Flags.FINAL.Private();
                         if (vn.flags().isTransient()) {
                             ff = ff.Transient();
                         }
