@@ -63,7 +63,6 @@ import x10.types.X10LocalInstance;
 import x10.types.MethodInstance;
 import x10.types.X10ParsedClassType_c;
 
-import x10.types.X10TypeMixin;
 import polyglot.types.TypeSystem;
 import x10.types.ParameterType;
 import x10.types.checker.PlaceChecker;

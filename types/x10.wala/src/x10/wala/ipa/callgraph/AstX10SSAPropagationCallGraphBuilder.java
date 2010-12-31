@@ -7,7 +7,6 @@ import x10.wala.ssa.AtomicInstruction;
 import x10.wala.ssa.FinishInstruction;
 import x10.wala.ssa.HereInstruction;
 import x10.wala.ssa.NextInstruction;
-import x10.wala.ssa.PlaceOfPointInstruction;
 import x10.wala.ssa.IterHasNextInstruction;
 import x10.wala.ssa.IterInitInstruction;
 import x10.wala.ssa.IterNextInstruction;
@@ -84,10 +83,6 @@ public class AstX10SSAPropagationCallGraphBuilder extends AstJavaSSAPropagationC
 	public void visitHere(HereInstruction instruction) {
 	    Assertions.UNREACHABLE("Query of interestingness of value number for Here???");
 	}
-	    
-	public void visitPlaceOfPoint(PlaceOfPointInstruction instruction) {
-		// not interesting for now	
-	}
 
 	public void visitTuple(TupleInstruction instruction) {
             Assertions.productionAssertion(instruction.getUse(0) == vn, "newTuple instruction has bogus use/def info?");
@@ -137,10 +132,6 @@ public class AstX10SSAPropagationCallGraphBuilder extends AstJavaSSAPropagationC
 
 	public void visitHere(HereInstruction instruction) {
 	    // TODO model data flow for here
-	}
-
-	public void visitPlaceOfPoint(PlaceOfPointInstruction instruction) {
-		// not interesting for now	
 	}
 
 	public void visitTuple(TupleInstruction tupleInstruction) {

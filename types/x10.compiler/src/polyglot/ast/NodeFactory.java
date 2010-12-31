@@ -23,12 +23,9 @@ import x10.ast.AtStmt;
 import x10.ast.Atomic;
 import x10.ast.Closure;
 import x10.ast.ClosureCall;
-import x10.ast.ConstantDistMaker;
-import x10.ast.Contains;
 import x10.ast.DepParameterExpr;
 import x10.ast.Finish;
 import x10.ast.FinishExpr;
-import x10.ast.Future;
 import x10.ast.HasZeroTest;
 import x10.ast.Here;
 import x10.ast.LocalTypeDef;
@@ -36,7 +33,6 @@ import x10.ast.Next;
 import x10.ast.Offer;
 import x10.ast.ParExpr;
 import x10.ast.PropertyDecl;
-import x10.ast.RegionMaker;
 import x10.ast.Resume;
 import x10.ast.SettableAssign;
 import x10.ast.StmtExpr;
@@ -302,7 +298,6 @@ public interface NodeFactory
             TypeNode returnType,  TypeNode offersType);
     HasZeroTest HasZeroTest(Position pos, TypeNode sub);
     SubtypeTest SubtypeTest(Position pos, TypeNode sub, TypeNode sup, boolean equals);
-    Contains Contains(Position pos, Expr item, Expr collection);
     TypeDecl TypeDecl(Position pos, FlagsNode flags, Id name, List<TypeParamNode> typeParameters, List<Formal> formals, DepParameterExpr guard, TypeNode type);
 
     X10Call X10Call(Position pos, Receiver target, Id name, List<TypeNode> typeArgs, List<Expr> args);
@@ -311,7 +306,6 @@ public interface NodeFactory
     Async Async(Position pos, List<Expr> clocks, Stmt body);
     Async Async(Position pos, Stmt body, boolean clocked);
     Atomic Atomic(Position pos, Expr place, Stmt body);
-    Future Future(Position pos, Expr place, TypeNode returnType, Block body);
     Here Here(Position pos);
 
     /**
@@ -367,8 +361,6 @@ public interface NodeFactory
     
     StmtExpr StmtExpr(Position pos, List<Stmt> statements, Expr result);
     StmtSeq StmtSeq(Position pos, List<Stmt> statements);
-    ConstantDistMaker ConstantDistMaker(Position pos, Expr left, Expr right);
-    RegionMaker RegionMaker(Position pos, Expr left, Expr right);
     AssignPropertyCall AssignPropertyCall(Position pos, List<TypeNode> typeArgs, List<Expr> argList);
 
     Closure Closure(Position pos,  List<Formal> formals, DepParameterExpr guard, TypeNode returnType, 

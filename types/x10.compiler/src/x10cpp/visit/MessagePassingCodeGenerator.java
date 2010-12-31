@@ -159,17 +159,14 @@ import x10.ast.Closure;
 import x10.ast.ClosureCall;
 import x10.ast.ClosureCall_c;
 import x10.ast.Closure_c;
-import x10.ast.ConstantDistMaker_c;
 import x10.ast.Finish_c;
 import x10.ast.ForLoop_c;
-import x10.ast.Future_c;
 import x10.ast.Here_c;
 import x10.ast.LocalTypeDef_c;
 import x10.ast.Next_c;
 import x10.ast.ParExpr_c;
 import x10.ast.PropertyDecl;
 import x10.ast.PropertyDecl_c;
-import x10.ast.RegionMaker_c;
 import x10.ast.SettableAssign_c;
 import x10.ast.StmtExpr_c;
 import x10.ast.StmtSeq_c;
@@ -3185,14 +3182,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		}
 	}
 
-	public void visit(RegionMaker_c n) {
-		super.visit(n);
-	}
-
-	public void visit(ConstantDistMaker_c n) {
-        super.visit(n);
-	}
-
 
 	public void visit(Field_c n) {
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
@@ -3672,12 +3661,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	 * FIXME: do proper region constant propagation.
 	 */
 	private boolean isLiteralRegion(Expr domain) {
-	    if (domain instanceof RegionMaker_c) {
-	        return true;
-	    }
-	    if (domain instanceof ConstantDistMaker_c) {
-	        return isLiteralRegion(((ConstantDistMaker_c) domain).arguments().get(0));
-	    }
 	    if (domain instanceof X10Field_c) {
 	        X10Field_c df = (X10Field_c) domain;
 	        if (df.name().toString().equals("region") && df.target() instanceof Expr)
@@ -3696,18 +3679,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	 * array of 2 expressions, or null if the domain is not a constant.
 	 */
 	private Expr[] getLimits(Expr domain, int dim) {
-	    if (domain instanceof RegionMaker_c) {
-	        RegionMaker_c rm = (RegionMaker_c) domain;
-	        if (dim != 0) throw new InternalCompilerError("Attempting to get dimension "+dim+" of a 1-dim region");
-	        List<Expr> args = rm.arguments();
-	        return new Expr[] { args.get(0), args.get(1) };
-	    }
-	    if (domain instanceof ConstantDistMaker_c) {
-	        ConstantDistMaker_c cdm = (ConstantDistMaker_c) domain;
-	        Expr rgn = cdm.arguments().get(0);
-	        assert (isLiteralRegion(rgn));
-	        return getLimits(rgn, dim);
-	    }
 	    if (domain instanceof X10Field_c) {
 	        X10Field_c df = (X10Field_c) domain;
 	        if (df.name().toString().equals("region") && df.target() instanceof Expr) {
@@ -4956,10 +4927,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	public void visit(When_c n) {
         assert (false) : ("When should have been desugared earlier");
 	}
-
-    public void visit(Future_c n) {
-        assert (false) : ("Future should have been desugared earlier");
-    }
 
     public void visit(AtStmt_c n) {
         assert (false) : ("At statements are deprecated");

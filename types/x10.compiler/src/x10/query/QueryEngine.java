@@ -22,7 +22,7 @@ import x10.ExtensionInfo;
 import x10.ast.SettableAssign;
 import x10.types.X10ClassType;
 import polyglot.types.Context;
-import x10.types.X10TypeMixin;
+
 import polyglot.types.TypeSystem;
 
 /**

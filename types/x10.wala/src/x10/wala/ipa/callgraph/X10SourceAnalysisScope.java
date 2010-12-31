@@ -1,11 +1,9 @@
 package x10.wala.ipa.callgraph;
 
-import com.ibm.wala.classLoader.Language;
-import com.ibm.wala.classLoader.Module;
-import com.ibm.wala.classLoader.SourceDirectoryTreeModule;
+import com.ibm.wala.classLoader.IClass;
 import com.ibm.wala.ipa.callgraph.AnalysisScope;
-import com.ibm.wala.types.ClassLoaderReference;
-import com.ibm.wala.util.strings.Atom;
+import com.ibm.wala.ipa.callgraph.impl.SetOfClasses;
+import com.ibm.wala.types.TypeReference;
 
 import java.util.*;
 
@@ -17,5 +15,22 @@ public class X10SourceAnalysisScope extends AnalysisScope {
         super(Collections.singleton(X10LanguageImpl.X10Lang));
         loadersByName.put(X10SourceLoaderImpl.X10SourceLoader.getName(), X10SourceLoaderImpl.X10SourceLoader);
         setLoaderImpl(X10SourceLoaderImpl.X10SourceLoader, "x10.wala.loader.X10SourceLoaderImpl");
+
+        this.setExclusions(new SetOfClasses() {
+
+            @Override
+             public boolean contains(String klassName) {
+                return klassName.matches("x10/lang/(Void)?Fun_.*");
+            }
+
+            @Override
+            public boolean contains(TypeReference klass) {
+                return contains(klass.getName().toString().substring(1));
+            }
+
+            @Override
+            public void add(IClass klass) {
+            }
+        });
     }
 }

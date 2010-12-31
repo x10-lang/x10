@@ -18,6 +18,7 @@ import java.util.Set;
 
 import polyglot.main.Report;
 import x10.compiler.ws.util.WSTransformationContent;
+import x10.compiler.ws.util.WSTransformationContent.MethodAttribute;
 import x10.wala.classLoader.AsyncCallSiteReference;
 
 import com.ibm.wala.cast.loader.AstMethod;
@@ -162,17 +163,19 @@ public class X10WSCallGraphAnalyzer {
 						continue;
 					}
 					Position mPos = ((AstMethod)m).getSourcePosition();
-					boolean added = result.addImpactedMethod(mPos.getURL().toString().substring(5), 
+					MethodAttribute ma = result.addImpactedMethod(mPos.getURL().toString().substring(5), 
 							mPos.getFirstLine(), mPos.getFirstCol(),
 							mPos.getLastLine(), mPos.getLastCol(), "[x]"+ m);
 					
 					//Now check the node's call sites
-					if(!added){
-						continue; //the node is a concurrent method or has been added
+					if(ma == null){
+						continue; //the node is a concurrent method or has been added before
+						//no need further processing
 					}
 					//get the call graph node, if null, dead node, ignore
 					CGNode node = callGraph.getNode(m, Everywhere.EVERYWHERE);
-					if(node == null){
+					if(node == null){ //the method is in dead code, mark it as dead code
+						ma.setDead(true);
 						continue; //the method has never been called in the app.
 					}
 					

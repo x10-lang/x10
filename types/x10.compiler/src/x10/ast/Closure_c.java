@@ -67,7 +67,6 @@ import x10.types.X10ClassDef;
 import x10.types.MethodInstance;
 import polyglot.types.Context;
 import x10.types.X10MemberDef;
-import x10.types.X10TypeMixin;
 import polyglot.types.TypeSystem;
 import x10.types.checker.PlaceChecker;
 import x10.types.checker.VarChecker;

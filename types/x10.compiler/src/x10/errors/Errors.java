@@ -48,7 +48,6 @@ import polyglot.util.Position;
 import x10.ExtensionInfo;
 import x10.ExtensionInfo.X10Scheduler.X10Job;
 import x10.ast.DepParameterExpr;
-import x10.ast.SemanticError;
 import x10.ast.X10ClassDecl;
 import x10.ast.X10FieldDecl;
 import x10.constraint.XTerm;

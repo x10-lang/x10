@@ -17,7 +17,6 @@ import polyglot.visit.*;
 import x10.errors.Errors;
 import x10.types.MethodInstance;
 import x10.types.X10ParsedClassType_c;
-import x10.types.X10TypeMixin;
 
 /**
  * A <code>ClassDecl</code> is the definition of a class, abstract class,

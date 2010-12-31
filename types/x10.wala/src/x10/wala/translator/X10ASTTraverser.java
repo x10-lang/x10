@@ -58,14 +58,12 @@ import polyglot.ast.Unary;
 import polyglot.ast.While;
 import x10.ast.AssignPropertyCall;
 import x10.ast.Async;
-import x10.ast.AtEach;
 import x10.ast.AtStmt;
 import x10.ast.Atomic;
 import x10.ast.Closure;
 import x10.ast.ClosureCall;
 import x10.ast.Finish;
 import x10.ast.ForLoop;
-import x10.ast.Future;
 import x10.ast.Here;
 import x10.ast.LocalTypeDef;
 import x10.ast.Next;
@@ -75,8 +73,6 @@ import x10.ast.StmtSeq;
 import x10.ast.Tuple;
 import x10.ast.When;
 import x10.ast.X10Formal;
-import x10.wala.translator.X10toCAstTranslator.MethodContext;
-import x10.wala.translator.X10toCAstTranslator.WalkContext;
 
 import com.ibm.wala.cast.tree.CAstNode;
 import com.ibm.wala.util.debug.Assertions;
@@ -90,8 +86,6 @@ public class X10ASTTraverser {
       return xtv.visit((Async) n, wc);
     if (n instanceof AssignPropertyCall)
         return xtv.visit((AssignPropertyCall) n, wc);
-    else if (n instanceof AtEach)
-      return xtv.visit((AtEach) n, wc);
     else if (n instanceof Atomic)
       return xtv.visit((Atomic) n, wc);
     else if (n instanceof AtStmt)
@@ -104,8 +98,6 @@ public class X10ASTTraverser {
       return xtv.visit((Finish) n, wc);
     else if (n instanceof ForLoop)
       return xtv.visit((ForLoop) n, wc);
-    else if (n instanceof Future)
-      return xtv.visit((Future) n, wc);
     else if (n instanceof Here)
       return xtv.visit((Here) n, wc);
     else if (n instanceof Next)
@@ -123,11 +115,11 @@ public class X10ASTTraverser {
     else if (n instanceof LocalTypeDef)
       return xtv.visit((LocalTypeDef) n, wc);
     else if (n instanceof MethodDecl) {
-        return xtv.visit((MethodDecl) n, (MethodContext) wc);
+        return xtv.visit((MethodDecl) n, wc);
       } else if (n instanceof ConstructorDecl) {
-        return xtv.visit((ConstructorDecl) n, (MethodContext) wc);
+        return xtv.visit((ConstructorDecl) n, wc);
       } else if (n instanceof FieldDecl) {
-        return xtv.visit((FieldDecl) n, (MethodContext) wc);
+        return xtv.visit((FieldDecl) n, wc);
       } else if (n instanceof Import) {
         return xtv.visit((Import) n, wc);
       } else if (n instanceof PackageNode) {

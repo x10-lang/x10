@@ -60,6 +60,7 @@ public class Finish_c extends Stmt_c implements Finish {
 	
     /** Set the body of the statement. */
     public Finish body(Stmt body) {
+	if (body == this.body) return this;
 	Finish_c n = (Finish_c) copy();
 	n.body = body;
 	return n;
@@ -100,6 +101,7 @@ public class Finish_c extends Stmt_c implements Finish {
     /** Visit the children of the statement. */
     public Node visitChildren( NodeVisitor v ) {
 	Stmt body = (Stmt) visitChild(this.body, v);
+	// TODO: reconstruct
 	return body(body);
     }
 

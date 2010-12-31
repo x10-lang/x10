@@ -11,14 +11,18 @@
 package x10.compiler.ws.util;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.TreeMap;
 
 import polyglot.ast.Block;
 import polyglot.ast.Call;
 import polyglot.ast.CodeBlock;
+import polyglot.ast.ConstructorDecl;
 import polyglot.ast.MethodDecl;
+import polyglot.types.MethodDef;
 import polyglot.util.Position;
+import x10.ast.Closure;
 
 /**
  * @author Haichuan
@@ -27,6 +31,8 @@ import polyglot.util.Position;
  * and all call sites
  * 
  * Right now, we only use WSSourcePosition as precise match
+ * And we only support basic method decl. no constructor and closure support now
+ * 
  * 
  * Note, it is not thread safe. The thread safe is ensured by polyglot scheduler
  */
@@ -44,12 +50,21 @@ public class WSTransformationContent {
 	public class MethodAttribute {
 		protected String desc;
 		protected MethodType type;
+		protected boolean isDead; //the node is in dead code;
 		
 		public MethodAttribute(String desc, MethodType type){
 			this.desc = desc;
 			this.type = type;
 		}
 		
+		public boolean isDead() {
+			return isDead;
+		}
+
+		public void setDead(boolean isDead) {
+			this.isDead = isDead;
+		}
+
 		public MethodType getType() {
 			return type;
 		}
@@ -59,7 +74,14 @@ public class WSTransformationContent {
 		}
 		
 		public String toString(){
-			return getDesc() + " : " + type;
+			StringBuffer sb = new StringBuffer();
+			sb.append(getDesc());
+			sb.append(" : ");
+			sb.append(type);
+			if(isDead){
+				sb.append("[Dead]");
+			}
+			return sb.toString();
 		}
 	}
 	
@@ -97,10 +119,18 @@ public class WSTransformationContent {
 	//             (src url  ->      ( call inst's pos, debug info)
 	protected TreeMap<String, HashMap<WSSourcePosition, CallSiteAttribute>> callSiteMap;
 	
+	//Record all dead methods's def. These methods are not in call graph.
+	//So we cannot get their call sites directly.
+	//The content will be populated by a special barrier pass.
+	//In the pass, all methoddecl will be checked, if they are dead method decl (by source code line number)
+	//add the def in the set
+	//Then in the transformation pass, we check the call's method def', if it is in the deadMethoDefs, return matched call.
+	protected HashSet<MethodDef> deadMethodDefs;
 	
 	public WSTransformationContent(){
 		conMethodMap = new TreeMap<String, HashMap<WSSourcePosition, MethodAttribute>>();
 		callSiteMap = new TreeMap<String, HashMap<WSSourcePosition, CallSiteAttribute>>();
+		deadMethodDefs = new HashSet<MethodDef>();
 	}
 	
 	public void addConcurrentMethod(String url, int startLine, int startColumn, int endLine, int endColumn, String info){
@@ -126,9 +156,9 @@ public class WSTransformationContent {
 	 * @param endLine
 	 * @param endColumn
 	 * @param info
-	 * @return true if the node is a def only transformation node
+	 * @return the added method attributes if the node is a def only transformation node
 	 */
-	public boolean addImpactedMethod(String url, int startLine, int startColumn, int endLine, int endColumn, String info){
+	public MethodAttribute addImpactedMethod(String url, int startLine, int startColumn, int endLine, int endColumn, String info){
 		WSSourcePosition wsPosition = new WSSourcePosition(url, startLine, startColumn, endLine, endColumn);
 		
 		HashMap<WSSourcePosition, MethodAttribute> innerMap;
@@ -140,13 +170,13 @@ public class WSTransformationContent {
 			conMethodMap.put(url, innerMap);
 		}
 		
-		//check whether this node has been added
+		//check whether this node has been added. If not added, add it, and return it
 		if(!innerMap.containsKey(wsPosition)){
 			MethodAttribute ma = new MethodAttribute(info, MethodType.DEFONLY_TRANSFORMATION);
 			innerMap.put(wsPosition, ma);
-			return true;
+			return ma;
 		}
-		return false;
+		return null;
 	}
 	
 	
@@ -190,11 +220,12 @@ public class WSTransformationContent {
 	
 	
 	/**
-	 * The input should be MethodDecl, ConstructorDecl, or Closure
-	 * @param codeBlock
-	 * @return whether the node is concurrent method
+	 * Input a code block, return the method attribute
+	 * If it is null. Not found. 
+	 * @param codeBlock method decl or interface
+	 * @return the found method attribute object. If not found, null
 	 */
-	public MethodType getMethodType(CodeBlock codeBlock){
+	protected MethodAttribute getMethodAttribute(CodeBlock codeBlock){
 		Block methodBody = codeBlock.body();
 		Position pos;
 		if(methodBody != null){
@@ -202,7 +233,6 @@ public class WSTransformationContent {
 		}
 		else{ //a interface
 			pos = codeBlock.position();
-			System.out.println("[WS_INFO]Found one interface/abstract method:" + codeBlock);
 		}
 		WSSourcePosition wsPos = new WSSourcePosition(pos);
 		//DEBUG 
@@ -213,10 +243,35 @@ public class WSTransformationContent {
 			if(innerMap.containsKey(wsPos)){
 				//DEBUG
 				//System.out.println(" Concurrent method info:" + innerMap.get(wsPos));
-				return innerMap.get(wsPos).getType();
+				return innerMap.get(wsPos);
 			}
 		}
+		return null;
+	}
+	
+	/**
+	 * The input should be MethodDecl, ConstructorDecl, or Closure
+	 * @param codeBlock
+	 * @return whether the node is concurrent method
+	 */
+	public MethodType getMethodType(CodeBlock codeBlock){
+		MethodAttribute ma = getMethodAttribute(codeBlock);
+
+		if(ma != null){
+			return ma.getType();
+		}
 		return MethodType.NORMAL;
+	}
+	
+	public void checkAndMarkDeadMethodDef(CodeBlock codeBlock){
+		MethodAttribute ma = getMethodAttribute(codeBlock);
+		
+		if(ma != null && ma.isDead()){
+			//locate the method def from the code block
+			if(codeBlock instanceof MethodDecl){
+				deadMethodDefs.add(((MethodDecl)codeBlock).methodDef());
+			}			
+		}
 	}
 	
 	public CallSiteType getCallSiteType(Call call){
@@ -232,6 +287,11 @@ public class WSTransformationContent {
 				//System.out.println(" Concurrent call site info:" + innerMap.get(wsPos));
 				return innerMap.get(wsPos).getType();
 			}
+		}
+		//And check the dead method def
+		MethodDef mDef = call.methodInstance().def();
+		if(deadMethodDefs.contains(mDef)){
+			return CallSiteType.MATCHED_CALL;
 		}
 		return CallSiteType.NORMAL;
 	}
