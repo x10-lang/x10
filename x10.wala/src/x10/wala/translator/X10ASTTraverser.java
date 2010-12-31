@@ -64,7 +64,6 @@ import x10.ast.Closure;
 import x10.ast.ClosureCall;
 import x10.ast.Finish;
 import x10.ast.ForLoop;
-import x10.ast.Future;
 import x10.ast.Here;
 import x10.ast.LocalTypeDef;
 import x10.ast.Next;
@@ -99,8 +98,6 @@ public class X10ASTTraverser {
       return xtv.visit((Finish) n, wc);
     else if (n instanceof ForLoop)
       return xtv.visit((ForLoop) n, wc);
-    else if (n instanceof Future)
-      return xtv.visit((Future) n, wc);
     else if (n instanceof Here)
       return xtv.visit((Here) n, wc);
     else if (n instanceof Next)
