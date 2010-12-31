@@ -49,7 +49,6 @@ import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
-import polyglot.types.ConstructorDef;
 import polyglot.types.Context;
 import polyglot.types.Def;
 import polyglot.types.Flags;
@@ -71,6 +70,7 @@ import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.StringUtil;
 import polyglot.visit.Translator;
+import x10.Configuration;
 import x10.ast.ClosureCall;
 import x10.ast.Closure_c;
 import x10.ast.DepParameterExpr;
@@ -87,7 +87,6 @@ import x10.ast.X10ConstructorDecl;
 import x10.ast.X10MethodDecl_c;
 import x10.ast.X10NodeFactory_c;
 import x10.ast.X10Return_c;
-import x10.Configuration;
 import x10.config.ConfigurationError;
 import x10.config.OptionError;
 import x10.extension.X10Ext;
@@ -101,6 +100,7 @@ import x10.types.X10Def;
 
 import x10.types.X10MethodDef;
 import x10.types.MethodInstance;
+import x10.types.X10NullType;
 import x10.types.X10ParsedClassType_c;
 import x10.types.checker.Converter;
 import x10.visit.ChangePositionVisitor;
@@ -3154,6 +3154,9 @@ public class Emitter {
             } else {
                 new RuntimeTypeExpander(this, x10Type).expand(tr);
             }
+        }
+        else if (type instanceof X10NullType) {
+            w.write("x10.rtt.Types.OBJECT");
         }
     }
     

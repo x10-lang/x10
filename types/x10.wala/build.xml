@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="x10.wala" default="jar" basedir=".">
+<project name="x10.wala" default="dist" basedir=".">
     <property name="x10.home" value="${basedir}/.."/>
     <property name="x10.dist.location" location="${x10.home}/x10.dist"/>
     <property name="x10.compiler.location" location="${x10.home}/x10.compiler"/>
@@ -32,6 +32,12 @@
     <target name="clean">
         <delete dir="${build}" failonerror="false"/>
     </target>
+	<target name="dist" depends="jar">
+        <mkdir dir="${lib}"/>
+        <copy todir="${lib}">
+            <fileset dir="${build}" includes="${jar}"/>
+        </copy>
+	</target>
     <target name="jar" depends="build">
         <jar jarfile="${build}/${jar}">
             <fileset refid="classes"/>
