@@ -180,8 +180,8 @@ public class SystemResolver extends CachingResolver implements TopLevelResolver 
             }
         }
 
-        if (q instanceof Type && packageExists(name)) {
-            throw new SemanticException("Type \"" + name +"\" clashes with package of the same name.", q.position());
+        if (false && q instanceof Type && packageExists(QName.make(null,name.name()))) {
+            throw new SemanticException("Type \"" + name.name() +"\" clashes with package of the same name.", q.position()); // todo: see XTENLANG-2289
         }
     }
 

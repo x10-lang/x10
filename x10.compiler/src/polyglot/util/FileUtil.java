@@ -10,7 +10,9 @@ public class FileUtil {
     	if (! file.exists()) {
     		return false;
     	}
-        if (file.getParentFile().equals(dir)) {
+        final File parentFile = file.getParentFile();
+        if (parentFile==null) return false;
+        if (parentFile.equals(dir)) {
             File[] ls = dir.listFiles();
             for (File f : ls) {
                 if (f.getName().equals(file.getName())) {
@@ -20,8 +22,8 @@ public class FileUtil {
             return false;
         }
         else {
-            return checkNameFromRoot(dir, file.getParentFile()) &&
-                checkNameFromRoot(file.getParentFile(), file);
+            return checkNameFromRoot(dir, parentFile) &&
+                checkNameFromRoot(parentFile, file);
         }
     }
 

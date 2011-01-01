@@ -5,8 +5,6 @@ import x10.util.CUDAUtilities;
 import x10.compiler.CUDA;
 import x10.compiler.CUDADirectParams;
 
-// COMPILER_CRASHES: the compiler now crashes on this file (in Emitter for the java backend)
-
 public class CUDA3DFD {
     public static def init_data(data:Array[Float](1){rail}, dimx:Int, dimy:Int, dimz:Int)
     {

@@ -1,5 +1,6 @@
 package x10.util;
 
+import polyglot.frontend.Compiler;
 import polyglot.frontend.Globals;
 import polyglot.types.Types;
 import polyglot.util.ErrorQueue;
@@ -10,13 +11,12 @@ import polyglot.main.Report;
 import polyglot.main.Main;
 
 import java.io.File;
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.HashSet;
+import java.util.HashMap;
 import java.util.Iterator;
 
 import x10.parser.AutoGenSentences;
@@ -61,7 +61,7 @@ public class RunTestSuite {
     private static void println(String s) {
         if (!QUIET) System.out.println(s);
     }
-    private static int EXIT_CODE = 0;                      
+    private static int EXIT_CODE = 0;
     private static void err(String s) {
         EXIT_CODE = 1;
         System.err.println(s);
@@ -74,6 +74,8 @@ public class RunTestSuite {
     };
     private static final String[] EXCLUDE_DIRS = {
             "AutoGen", // it takes too long to compile these files
+            "LangSpec", // many duplicate package-protected classes
+            "WorkStealing", // duplicate classes for testing work-stealing, e.g., WorkStealing\Construct\Generics1.x10
     };
     private static final String[] EXCLUDE_FILES = {
             "NOT_WORKING", // to exclude some benchmarks: https://x10.svn.sourceforge.net/svnroot/x10/benchmarks/trunk
@@ -109,7 +111,6 @@ public class RunTestSuite {
         }
         return false;
     }
-    public static boolean ONE_FILE_AT_A_TIME = true; // RecursiveConstraint.x10 gives an error when compiled with other files, but not when compiled alone. So I have to compile all fils one-by-one...
     private static final int MAX_FILES_NUM = Integer.MAX_VALUE; // Change it if you want to process only a small number of files
 
     /**
@@ -151,27 +152,44 @@ public class RunTestSuite {
             }
         }
         ArrayList<FileSummary> summaries = new ArrayList<FileSummary>();
+        HashMap<String,File> fileName2File = new HashMap<String, File>();
         for (File f : files) {
             FileSummary fileSummary = analyzeFile(f);
             summaries.add(fileSummary);
+
+            String name = f.getName();
+            if (fileName2File.containsKey(name))
+                println("Warning: Found two files with the same name in different directories. This maybe confusing and might cause problems in the classpath.\n\tfile1="+fileName2File.get(name)+"\n\tfile2="+f);
+            fileName2File.put(name,f);
         }
 
 
-        if (ONE_FILE_AT_A_TIME) {
-            for (FileSummary f : summaries) {
-                compileFiles(Arrays.asList(f),remainingArgs);
+        // adding the directories of the files to -sourcepath (in case they refer to other files that are not compiled, e.g., if we decide to compile the files one by one)
+        // I'm also adding parent folders to support packages (see T3.x10)
+        HashSet<String> directories = new HashSet<String>();
+        for (FileSummary f : summaries) {
+            int index = -1;
+            while ((index = f.fileName.indexOf('/',index+1))!=-1) {
+                directories.add(f.fileName.substring(0, index));
             }
-        } else {
-            // We need to compile _MustFailCompile and files with ERR separately (because they behave differently when compiled with other files)
-            ArrayList<FileSummary> shouldCompile = new ArrayList<FileSummary>();
-            for (FileSummary f : summaries) {
-                if (f.lines.size()>0 || f.file.getName().endsWith("_MustFailCompile.x10"))
-                    compileFiles(Arrays.asList(f),remainingArgs);
-                else
-                    shouldCompile.add(f);
+        }
+        String dirs = "";
+        for (String dir : directories)
+            dirs += ";"+dir;
+        int argsNum = remainingArgs.size();
+        boolean foundSourcePath = false;
+        for (int i=1; i<argsNum; i++) {
+            final String arg = remainingArgs.get(i);
+            if (arg.contains("/x10.runtime/src-x10")) {
+                remainingArgs.set(i,arg+dirs);
+                foundSourcePath = true;
+                break;
             }
-            if (shouldCompile.size()>0)
-                compileFiles(shouldCompile,remainingArgs);
+        }
+        assert foundSourcePath : "You must use an argument -sourcepath that includes '/x10.runtime/src-x10'";
+
+        for (FileSummary f : summaries) {
+            compileFile(f,remainingArgs);
         }
         System.exit(EXIT_CODE);
     }
@@ -184,14 +202,19 @@ public class RunTestSuite {
     public static ArrayList<ErrorInfo> runCompiler(String[] newArgs) {
         return runCompiler(newArgs,false);
     }
+
+    private static SilentErrorQueue errQueue = new SilentErrorQueue(MAX_ERR_QUEUE,"TestSuiteErrQueue");
+    private static Main MAIN = new Main();
+    private static Compiler COMPILER;
     public static ArrayList<ErrorInfo> runCompiler(String[] newArgs, boolean COMPILER_CRASHES) {
-        SilentErrorQueue errQueue = new SilentErrorQueue(MAX_ERR_QUEUE,"TestSuiteErrQueue");
+        errQueue.getErrors().clear();
+        HashSet<String> sources = new HashSet<String>();
+        final Compiler comp = MAIN.getCompiler(newArgs, null, errQueue, sources);
+        if (COMPILER==null) COMPILER = comp;
         long start = System.currentTimeMillis();
         Throwable err = null;
         try {
-            new polyglot.main.Main().start(newArgs,errQueue);
-        } catch (Main.TerminationException e) {
-            // If we had errors (and we should because we compile _MustFailCompile) then we will get a non-zero exitCode
+            COMPILER.compileFiles(sources);
         } catch (Throwable e) {
             err = e;
         }
@@ -209,13 +232,19 @@ public class RunTestSuite {
         assert res.size()<MAX_ERR_QUEUE : "We passed the maximum number of errors!";
         return res;
     }
+
     static class LineSummary {
         int lineNo;
         int errCount;
         // todo: add todo, ShouldNotBeERR, ShouldBeErr statistics.
     }
     static class FileSummary {
-        File file;
+        final File file;
+        final String fileName;
+        FileSummary(File f) {
+            file = f;
+            fileName = f.getAbsolutePath().replace('\\','/');
+        }
         boolean STATIC_CALLS = false;
         boolean COMPILER_CRASHES;
         boolean SHOULD_NOT_PARSE;
@@ -223,8 +252,7 @@ public class RunTestSuite {
         ArrayList<LineSummary> lines = new ArrayList<LineSummary>();
     }
     private static FileSummary analyzeFile(File file) throws IOException {
-        FileSummary res = new FileSummary();
-        res.file = file;
+        FileSummary res = new FileSummary(file);
         final ArrayList<String> lines = AutoGenSentences.readFile(file);
         int lineNum = 0;
         for (String line : lines) {
@@ -252,60 +280,34 @@ public class RunTestSuite {
         }
         return res;
     }
-    private static void compileFiles(List<FileSummary> summaries, List<String> args) throws IOException {
-        // replace \ with /
-        ArrayList<String> fileNames = new ArrayList<String>(summaries.size());
-        for (FileSummary f : summaries) {
-            fileNames.add(f.file.getAbsolutePath().replace('\\','/'));
-        }
-        boolean STATIC_CALLS = summaries.size()>1 ? true : summaries.get(0).STATIC_CALLS; // all the files without ERR markers are done in my batch, using STATIC_CALLS (cause they shouldn't have any errors)
-        // adding the directories of the files to -sourcepath (in case they refer to other files that are not compiled, e.g., if we decide to compile the files one by one)
-        // I'm also adding parent folders to support packages (see T3.x10)
-        HashSet<String> directories = new HashSet<String>();
-        for (String f : fileNames) {
-            int index = -1;
-            while ((index = f.indexOf('/',index+1))!=-1) {
-                directories.add(f.substring(0, index));
-            }
+    private static void compileFile(FileSummary summary, List<String> args) throws IOException {
 
-        }
-        String dirs = "";
-        for (String dir : directories)
-            dirs += ";"+dir;
-        int argsNum = args.size();
-        boolean foundSourcePath = false;
-        for (int i=1; i<argsNum; i++) {
-            final String arg = args.get(i);
-            if (arg.contains("/x10.runtime/src-x10")) {
-                args.set(i,arg+dirs);
-                foundSourcePath = true;
-                break;
-            }
-        }
-        assert foundSourcePath : "You must use an argument -sourcepath that includes '/x10.runtime/src-x10'";
+
+        boolean STATIC_CALLS = summary.STATIC_CALLS; // all the files without ERR markers are done in my batch, using STATIC_CALLS (cause they shouldn't have any errors)
+
+
         // Now running polyglot
-        List<String> allArgs = new ArrayList<String>(fileNames);
+        List<String> allArgs = new ArrayList<String>();
+        allArgs.add(summary.fileName);
         allArgs.addAll(args);
         String[] newArgs = allArgs.toArray(new String[allArgs.size()+2]);
         newArgs[newArgs.length-2] = STATIC_CALLS ? "-STATIC_CALLS" : "-VERBOSE_CALLS";
         newArgs[newArgs.length-1] = !STATIC_CALLS ? "-STATIC_CALLS=false" : "-VERBOSE_CALLS=false";
-        println("Running: "+ fileNames);
-        final FileSummary firstSummary = summaries.get(0);
-        ArrayList<ErrorInfo> errors = runCompiler(newArgs, firstSummary.COMPILER_CRASHES);
+        println("Running: "+ summary.fileName);
+        ArrayList<ErrorInfo> errors = runCompiler(newArgs, summary.COMPILER_CRASHES);
         // remove GOOD_ERR_MARKERS  and EXPECTED_ERR_MARKERS
         for (Iterator<ErrorInfo> it = errors.iterator(); it.hasNext(); ) {
             ErrorInfo info = it.next();
             final int kind = info.getErrorKind();
             if ((kind==ErrorInfo.GOOD_ERR_MARKERS || kind==ErrorInfo.EXPECTED_ERR_MARKERS) ||
-                (firstSummary.SHOULD_NOT_PARSE && (kind==ErrorInfo.LEXICAL_ERROR || kind==ErrorInfo.SYNTAX_ERROR)))
+                (summary.SHOULD_NOT_PARSE && (kind==ErrorInfo.LEXICAL_ERROR || kind==ErrorInfo.SYNTAX_ERROR)))
                 it.remove();
         }
 
         // Now checking the errors reported are correct and match ERR markers
         // 1. find all ERR markers that don't have a corresponding error
-        for (FileSummary fileSummary : summaries) {
-            File file = fileSummary.file;
-            for (LineSummary lineSummary : fileSummary.lines) {
+            File file = summary.file;
+            for (LineSummary lineSummary : summary.lines) {
                 // try to find the matching error
                 int expectedErrCount = lineSummary.errCount;
                 int lineNum = lineSummary.lineNo;
@@ -323,11 +325,12 @@ public class RunTestSuite {
                         foundErrCount++;
                     }
                 }
-                if (expectedErrCount!=foundErrCount) {
+                if (expectedErrCount!=foundErrCount &&
+                        // we try to have at most 1 or 2 errors in a line.
+                        (expectedErrCount<3 || foundErrCount<3)) { // if the compiler reports more than 3 errors, and we marked more than 3, then it's too many errors on one line and it marks the fact the compiler went crazy and issues too many wrong errors.
                     err("File "+file+" has "+expectedErrCount+" ERR markers on line "+lineNum+", but the compiler reported "+ foundErrCount+" errors on that line! errorsFound=\n"+errorsFound);
                 }
             }
-        }
 
         // 2. report all the remaining errors that didn't have a matching ERR marker
         // first report warnings

@@ -96,6 +96,10 @@ public abstract class Scheduler {
     public Collection<Job> commandLineJobs() {
         return this.commandLineJobs;
     }
+
+    public void clearAll() {
+        setFailed(false);
+    }
     
     public void setCommandLineJobs(Collection<Job> c) {
         this.commandLineJobs = Collections.unmodifiableCollection(c);

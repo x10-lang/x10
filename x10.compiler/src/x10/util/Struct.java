@@ -12,6 +12,9 @@
 package x10.util;
 
 import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.ArrayList;
 
 import polyglot.ast.*;
 import polyglot.types.Flags;

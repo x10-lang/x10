@@ -382,7 +382,14 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 		   super(extInfo);
 	   }
 
-       protected List<Goal> validateOnlyGoals(Job job) {
+        @Override
+        public void clearAll() {
+            super.clearAll();
+            internCache.clear();
+            PrintWeakCallsCount = null;
+        }
+
+        protected List<Goal> validateOnlyGoals(Job job) {
            List<Goal> goals = new ArrayList<Goal>();
            addValidateOnlyGoals(job, goals);
            return goals;

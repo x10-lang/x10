@@ -82,14 +82,12 @@ public class Main
       start(argv, null, eq);
   }
 
-  public void start(String[] argv, ExtensionInfo ext, ErrorQueue eq) throws TerminationException {
-      source = new LinkedHashSet<String>();
-      
+  public Compiler getCompiler(String[] argv, ExtensionInfo ext, ErrorQueue eq, Set<String> source) {
       List<String> args = explodeOptions(argv);
       if (ext == null) {
           ext = getExtensionInfo(args);
       }
-      
+
       Options options = ext.getOptions();
 
       try {
@@ -113,6 +111,11 @@ public class Main
 
       Compiler compiler = new Compiler(ext, eq);
       Globals.initialize(compiler);
+      return compiler;
+  }
+  public void start(String[] argv, ExtensionInfo ext, ErrorQueue eq) throws TerminationException {
+      source = new LinkedHashSet<String>();
+      Compiler compiler = getCompiler(argv,ext, eq,source);
 
       long time0 = System.currentTimeMillis();
 

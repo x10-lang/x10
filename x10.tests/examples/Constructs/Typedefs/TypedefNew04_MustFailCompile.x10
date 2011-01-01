@@ -32,12 +32,12 @@ public class TypedefNew04_MustFailCompile extends TypedefTest {
             def this(i:int):A{self.k==i} = property(i);
         }
         
-        type T(i:int) = A{self.k==i};
+        type TVALUE(i:int) = A{self.k==i};
         type T0 = A{self.k==0};
         type T1 = A{self.k==1};
 
-        // not allowed - T has value parameter
-        val t = new T(0,2); // ERR ERR [Semantic Error: Could not find type "T"., Semantic Error: No valid constructor found for T(x10.lang.Int{self==0}, x10.lang.Int{self==2}).]
+        // not allowed - TVALUE has value parameter
+        val t = new TVALUE(0,2); // ERR ERR  [Semantic Error: Could not find type "TVALUE"., Semantic Error: No valid constructor found for T(x10.lang.Int{self==0}, x10.lang.Int{self==2}).]
 
         return result;
     }

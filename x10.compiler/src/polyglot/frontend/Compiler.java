@@ -153,10 +153,12 @@ public class Compiler
 	try {
 	    try {
                 Scheduler scheduler = sourceExtension().scheduler();
+                scheduler.clearAll(); // to clear the fail flag of the scheduler
                 List<Job> jobs = new ArrayList<Job>();
 
                 // Create a job for each source file.
                 for (Source source : sources) {
+                    if (scheduler.sourceHasJob(source)) continue; // in case we invoke compile again and we already compiled this source
                     // Add a new SourceJob for the given source. If a Job for the source
                     // already exists, then we will be given the existing job.
                     Job job = scheduler.addJob(source);
