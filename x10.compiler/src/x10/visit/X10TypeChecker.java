@@ -57,10 +57,7 @@ public class X10TypeChecker extends TypeChecker {
 		super(job, ts, nf, memo);
 		this.extensionInfo = (x10.ExtensionInfo) job.extensionInfo();
 		this.memo = memo;
-		this.isFragmentChecker = isFragmentChecker;
 	}
-	boolean isFragmentChecker = false;
-	public boolean isFragmentChecker() { return isFragmentChecker;}
 	
 	private x10.ExtensionInfo extensionInfo;
 	
