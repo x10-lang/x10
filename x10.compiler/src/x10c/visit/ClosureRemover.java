@@ -75,11 +75,9 @@ import x10.types.X10CodeDef;
 import x10.types.X10ConstructorDef;
 import x10.types.X10FieldDef;
 import x10.types.X10FieldInstance;
-import x10.types.X10Flags;
 import x10.types.X10LocalDef;
 import x10.types.X10LocalInstance;
 import x10.types.X10MethodDef;
-import x10.types.X10TypeMixin;
 import x10.types.constraints.TypeConstraint;
 
 public class ClosureRemover extends ContextVisitor {
@@ -288,7 +286,7 @@ public class ClosureRemover extends ContextVisitor {
                     Closure cl = (Closure) n;
                     ClosureDef cld = cl.closureDef();
                     final Position pos = Position.COMPILER_GENERATED;
-                    X10Flags privateStatic = Flags.PRIVATE.Static();
+                    Flags privateStatic = Flags.PRIVATE.Static();
                     
                     final List<VarInstance<? extends VarDef>> capturedEnv = cld.capturedEnvironment();
                     
@@ -362,7 +360,7 @@ public class ClosureRemover extends ContextVisitor {
                     // rewrite closure method body
                     closureBody = rewriteClosureBody(closureBody, staticInnerClassDef, capturedEnv, capturedVarsExThis, nameToLocalDef, cl.formals());
                     
-                    MethodDecl mdcl = xnf.MethodDecl(pos, xnf.FlagsNode(pos, Flags.PUBLIC), xnf.CanonicalTypeNode(pos, X10TypeMixin.baseType(cl.returnType().type())), xnf.Id(pos, ClosureCall.APPLY), cl.formals(), closureBody).methodDef(closureMethodDef);
+                    MethodDecl mdcl = xnf.MethodDecl(pos, xnf.FlagsNode(pos, Flags.PUBLIC), xnf.CanonicalTypeNode(pos, Types.baseType(cl.returnType().type())), xnf.Id(pos, ClosureCall.APPLY), cl.formals(), closureBody).methodDef(closureMethodDef);
                     mdcl = (MethodDecl) mdcl.body(closureBody);
                     mdcl = (MethodDecl) mdcl.typeCheck(this);
 
@@ -383,7 +381,7 @@ public class ClosureRemover extends ContextVisitor {
                             Name name = OUTER_NAME;
                             
                             X10LocalDef li = xts.localDef(pos, Flags.FINAL, Types.ref(vi.type()), name);
-                            X10Formal formal = xnf.Formal(pos, xnf.FlagsNode(pos, Flags.FINAL), xnf.X10CanonicalTypeNode(pos, X10TypeMixin.baseType(vi.type())), xnf.Id(pos, name)).localDef(li);
+                            X10Formal formal = xnf.Formal(pos, xnf.FlagsNode(pos, Flags.FINAL), xnf.X10CanonicalTypeNode(pos, Types.baseType(vi.type())), xnf.Id(pos, name)).localDef(li);
                             formals.add(formal);
                             argTypes.add(vi.def().type());
                             args.add(createExpr(pos, vi));
@@ -408,12 +406,12 @@ public class ClosureRemover extends ContextVisitor {
                         else {
                             li = nameToLocalDef.get(name.toString());
                         }
-                        X10Formal formal = xnf.Formal(pos, xnf.FlagsNode(pos, Flags.FINAL), xnf.X10CanonicalTypeNode(pos, X10TypeMixin.baseType(vn.type())), xnf.Id(pos, name)).localDef(li);
+                        X10Formal formal = xnf.Formal(pos, xnf.FlagsNode(pos, Flags.FINAL), xnf.X10CanonicalTypeNode(pos, Types.baseType(vn.type())), xnf.Id(pos, name)).localDef(li);
                         formals.add(formal);
                         argTypes.add(vn.varInstance().def().type());
                         args.add(vn);
                         
-                        X10Flags ff = Flags.FINAL.Private();
+                        Flags ff = Flags.FINAL.Private();
                         if (vn.flags().isTransient()) {
                             ff = ff.Transient();
                         }
@@ -427,7 +425,7 @@ public class ClosureRemover extends ContextVisitor {
                         body2 = body2.append(xnf.Eval(pos, fa));
                     }
                     
-                    X10ConstructorDecl consdcl = (X10ConstructorDecl) xnf.ConstructorDecl(pos, xnf.FlagsNode(pos, X10Flags.PRIVATE), staticInnerClassDecl.name(), formals, body2);
+                    X10ConstructorDecl consdcl = (X10ConstructorDecl) xnf.ConstructorDecl(pos, xnf.FlagsNode(pos, Flags.PRIVATE), staticInnerClassDecl.name(), formals, body2);
                     consdcl.typeParameters(staticInnerClassDecl.typeParameters());
                     CanonicalTypeNode typeNode = xnf.CanonicalTypeNode(pos, staticInnerClassDef.asType());
                     consdcl.returnType(typeNode);
@@ -437,7 +435,7 @@ public class ClosureRemover extends ContextVisitor {
                     
                     X10ConstructorDef consd = (X10ConstructorDef) xts.constructorDef(pos,
                                                               Types.ref(staticInnerClassType),
-                                                              X10Flags.PRIVATE,
+                                                              Flags.PRIVATE,
                                                               argTypes);
                     
                     cm.add((ClassMember) consdcl.constructorDef(consd).typeCheck(this));
@@ -510,7 +508,7 @@ public class ClosureRemover extends ContextVisitor {
                         if (n instanceof Special) {
                             Special special = (Special) n;
                             if (special.kind() == Special.THIS) {
-                                Type type = X10TypeMixin.baseType(special.type());
+                                Type type = Types.baseType(special.type());
                                 X10FieldDef fi = xts.fieldDef(pos, Types.ref(staticInnerClassDef.asType()), Flags.PRIVATE.Final(), Types.ref(type), OUTER_NAME);
                                 Special thiz = (Special) xnf.Special(pos, Kind.THIS).type(staticInnerClassDef.asType());
                                 return xnf.Field(pos, thiz, xnf.Id(pos, OUTER_NAME)).fieldInstance(fi.asInstance()).type(type);

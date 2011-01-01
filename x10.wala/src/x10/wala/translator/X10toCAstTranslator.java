@@ -87,10 +87,11 @@ import polyglot.ast.Unary;
 import polyglot.ast.While;
 import polyglot.ast.Binary.Operator;
 import polyglot.ast.ConstructorCall.Kind;
-import polyglot.types.ArrayType;
+
 import polyglot.types.ClassType;
 import polyglot.types.CodeInstance;
 import polyglot.types.ConstructorInstance;
+import polyglot.types.ContainerType;
 import polyglot.types.Context;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
@@ -98,14 +99,15 @@ import polyglot.types.InitializerDef;
 import polyglot.types.InitializerInstance;
 import polyglot.types.LocalDef;
 import polyglot.types.MemberDef;
-import polyglot.types.MethodInstance;
+import polyglot.types.JavaArrayType;
+
 import polyglot.types.Name;
 import polyglot.types.Named;
 import polyglot.types.ObjectType;
 import polyglot.types.ProcedureInstance;
 import polyglot.types.QName;
 import polyglot.types.SemanticException;
-import polyglot.types.StructType;
+
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
@@ -132,6 +134,8 @@ import x10.ast.When_c;
 import x10.ast.X10Formal;
 import x10.ast.X10Loop;
 import x10.types.FunctionType;
+import x10.types.MethodInstance;
+import x10.types.MethodInstance_c;
 import x10.types.ParametrizedType;
 import x10.wala.tree.X10CAstEntity;
 import x10.wala.tree.X10CastNode;
@@ -428,7 +432,7 @@ public class X10toCAstTranslator implements TranslatorToCAst {
        * visit(ArrayInit,WalkContext,Type) should be instead.
        */
       public CAstNode visit(ArrayInit ai, WalkContext wc) {
-        if (((ArrayType) ai.type()).base().isNull()) {
+        if (((JavaArrayType) ai.type()).base().isNull()) {
           Assertions.productionAssertion(false, "bad type " + ai.type() + " for " + ai + " at " + ai.position());
         }
 
@@ -441,7 +445,7 @@ public class X10toCAstTranslator implements TranslatorToCAst {
         for (Iterator iter = ai.elements().iterator(); iter.hasNext(); idx++) {
           Expr element = (Expr) iter.next();
           if ( element instanceof ArrayInit ) {
-            eltNodes[idx] = visit((ArrayInit)element, wc, ((ArrayType)ai.type()).base());
+            eltNodes[idx] = visit((ArrayInit)element, wc, ((JavaArrayType)ai.type()).base());
           } else {
             eltNodes[idx] = walkNodes(element, wc);
           }
@@ -468,7 +472,7 @@ public class X10toCAstTranslator implements TranslatorToCAst {
         for (Iterator iter = ai.elements().iterator(); iter.hasNext(); idx++) {
           Expr element = (Expr) iter.next();
           if (element instanceof ArrayInit) {
-            eltNodes[idx] = visit((ArrayInit) element, wc, ((ArrayType) t).base());
+            eltNodes[idx] = visit((ArrayInit) element, wc, ((JavaArrayType) t).base());
           } else {
             eltNodes[idx] = walkNodes(element, wc);
           }
@@ -572,7 +576,7 @@ public class X10toCAstTranslator implements TranslatorToCAst {
         else {
       Type leftType = left.type();
       Type rightType = right.type();
-      if (leftType.isPrimitive() && rightType.isPrimitive()) {
+      if (leftType.isJavaPrimitive() && rightType.isJavaPrimitive()) {
         CAstNode leftNode = walkNodes(left, wc);
         CAstNode rightNode = walkNodes(right, wc);
         
@@ -640,7 +644,7 @@ public class X10toCAstTranslator implements TranslatorToCAst {
       public CAstNode visit(Call c, WalkContext wc) {
         MethodInstance methodInstance = c.methodInstance();
         boolean isStatic = methodInstance.flags().isStatic();
-        StructType methodOwner = methodInstance.container();
+        ContainerType methodOwner = methodInstance.container();
 
         if (methodOwner.isArray()) {
           List realOne = methodInstance.overrides(fTypeSystem.emptyContext());
@@ -701,7 +705,7 @@ public class X10toCAstTranslator implements TranslatorToCAst {
 
       public CAstNode visit(ConstructorCall cc, WalkContext wc) {
         ConstructorInstance ctorInstance = cc.constructorInstance();
-        StructType methodOwner = ctorInstance.container();
+        ContainerType methodOwner = ctorInstance.container();
         Assertions.productionAssertion(methodOwner.isClass());
         MethodReference methodRef = fIdentityMapper.getMethodRef(ctorInstance);
 
@@ -874,7 +878,7 @@ public class X10toCAstTranslator implements TranslatorToCAst {
         if (ai != null) {
           return visit(ai, wc, newType);
         } else {
-          ArrayType arrayType = (ArrayType) newType;
+          JavaArrayType arrayType = (JavaArrayType) newType;
           TypeReference arrayTypeRef = fIdentityMapper.getTypeRef(arrayType);
 
           List/* <Expr> */dims = na.dims();
@@ -3170,8 +3174,8 @@ public class X10toCAstTranslator implements TranslatorToCAst {
         }
         
         public CAstNode visit(Call c, WalkContext wc) {
-	    MethodInstance methodInstance= c.methodInstance();
-	    StructType methodOwner= methodInstance.container();
+	    x10.types.MethodInstance methodInstance= c.methodInstance();
+	    ContainerType methodOwner= methodInstance.container();
 /*
 	    //PORT1.7 Array accesses are now represented as ordinary method calls
 	    if (methodOwner instanceof ClassType) {

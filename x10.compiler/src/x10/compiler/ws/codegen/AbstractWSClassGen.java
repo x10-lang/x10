@@ -50,7 +50,7 @@ import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
 import polyglot.types.MethodDef;
-import polyglot.types.MethodInstance;
+
 import polyglot.types.Name;
 import polyglot.types.QName;
 import polyglot.types.Ref;
@@ -78,6 +78,7 @@ import x10.compiler.ws.util.TransCodes;
 import x10.compiler.ws.util.WSCodeGenUtility;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
+import x10.types.MethodInstance;
 import polyglot.types.Context;
 import x10.types.X10LocalDef;
 import x10.types.X10MethodDef;
@@ -1201,9 +1202,9 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
         
         //new method instance with original properties
         MethodInstance mi = methodDef.asInstance();
-        mi = mi.formalTypes(argTypes);
+        mi = (MethodInstance) mi.formalTypes(argTypes);
         mi = mi.returnType(aCall.methodInstance().returnType());
-        mi = (MethodInstance) mi.container(aCall.methodInstance().container());
+        mi =  (MethodInstance) mi.container(aCall.methodInstance().container());
         
         //build new call
         aCall = (X10Call) aCall.methodInstance(mi);

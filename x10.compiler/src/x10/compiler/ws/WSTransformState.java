@@ -30,7 +30,7 @@ import polyglot.frontend.Job;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.MethodDef;
-import polyglot.types.MethodInstance;
+
 import polyglot.types.ProcedureDef;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;

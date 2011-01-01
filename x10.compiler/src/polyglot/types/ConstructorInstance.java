@@ -4,7 +4,7 @@ import java.util.List;
 
 
 public interface ConstructorInstance extends ProcedureInstance<ConstructorDef>, MemberInstance<ConstructorDef> {
-    ConstructorInstance container(StructType container);
+    ConstructorInstance container(ContainerType container);
     ConstructorInstance formalTypes(List<Type> formalTypes);
     ConstructorInstance throwTypes(List<Type> throwTypes);
     void setOrigMI(ConstructorInstance orig);

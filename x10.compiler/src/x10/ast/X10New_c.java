@@ -65,11 +65,10 @@ import x10.types.X10ClassType;
 import x10.types.X10ConstructorInstance;
 import x10.types.X10MemberDef;
 import polyglot.types.Context;
-import x10.types.X10Flags;
+
 import x10.types.X10ParsedClassType;
-import x10.types.X10TypeMixin;
 import polyglot.types.TypeSystem;
-import x10.types.X10TypeSystem_c;
+
 import x10.types.checker.Converter;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
@@ -188,7 +187,7 @@ public class X10New_c extends New_c implements X10New {
 
             TypeSystem ts = (TypeSystem) childtc.typeSystem();
 
-            X10Flags flags = X10Flags.toX10Flags(ct.get().toClass().flags());
+            Flags flags = ct.get().toClass().flags();
             if (!flags.isInterface()) {
                 anonType.superType(ct);
             }
@@ -311,7 +310,7 @@ public class X10New_c extends New_c implements X10New {
 
     public X10New_c typeCheckObjectType(TypeChecker childtc) {
         NodeFactory nf = (NodeFactory) childtc.nodeFactory();
-        X10TypeSystem_c ts = (X10TypeSystem_c) childtc.typeSystem();
+        TypeSystem ts = childtc.typeSystem();
         Context c = childtc.context();
 
         X10New_c n = this;
@@ -364,7 +363,7 @@ public class X10New_c extends New_c implements X10New {
             // the static type, outer, of the qualifier.
 
             try {
-                t = ts.findMemberType(X10TypeMixin.baseType(qualifier.type()), name, c);
+                t = ts.findMemberType(Types.baseType(qualifier.type()), name, c);
             } catch (SemanticException e) {
                 t = ts.unknownType(tn.position());
                 if (!qualifier.type().isClass()) {
@@ -374,8 +373,8 @@ public class X10New_c extends New_c implements X10New {
         }
         t = ts.expandMacros(t);
 
-        CConstraint xc = X10TypeMixin.xclause(t);
-        t = X10TypeMixin.baseType(t);
+        CConstraint xc = Types.xclause(t);
+        t = Types.baseType(t);
 
         if (!(t instanceof X10ClassType)) {
             if (name == null)
@@ -410,7 +409,7 @@ public class X10New_c extends New_c implements X10New {
             ct = ct.typeArguments(typeArgs);
         }
 
-        t = X10TypeMixin.xclause(ct, xc);
+        t = Types.xclause(ct, xc);
 
         ((Ref<Type>) tn.typeRef()).update(t);
         }
@@ -478,7 +477,7 @@ public class X10New_c extends New_c implements X10New {
         X10New_c result = this;
 
         Type t = result.objectType().type();
-        X10ClassType ct = (X10ClassType) X10TypeMixin.baseType(t);
+        X10ClassType ct = (X10ClassType) Types.baseType(t);
 
         X10ConstructorInstance ci;
         List<Expr> args;
@@ -502,8 +501,8 @@ public class X10New_c extends New_c implements X10New {
         Type tp = ci.returnType();
         final Context context = tc.context();
         tp = PlaceChecker.ReplaceHereByPlaceTerm(tp, context);
-        Type tp1 = X10TypeMixin.instantiateTypeParametersExplicitly(tp);
-        Type t1 = X10TypeMixin.instantiateTypeParametersExplicitly(t);
+        Type tp1 = Types.instantiateTypeParametersExplicitly(tp);
+        Type t1 = Types.instantiateTypeParametersExplicitly(t);
         
         if (ts.hasUnknown(tp1)) {
             SemanticException e = new SemanticException("Inconsistent constructor return type", pos);
@@ -540,7 +539,7 @@ public class X10New_c extends New_c implements X10New {
             // to be based on anonType rather than on the supertype.
             ClassDef anonTypeDef = result.anonType();
             Type anonType = anonTypeDef.asType();
-            type = X10TypeMixin.xclause(X10TypeMixin.baseType(anonType), X10TypeMixin.xclause(type));
+            type = Types.xclause(Types.baseType(anonType), Types.xclause(type));
 
             // Capture "this" for anonymous classes in a non-static context
             if (!context.inStaticContext()) {
@@ -570,7 +569,7 @@ public class X10New_c extends New_c implements X10New {
     public static Pair<ConstructorInstance,List<Expr>> findConstructor(ContextVisitor tc, X10ProcedureCall n,
             Type targetType, List<Type> actualTypes, ClassDef anonType) {
         X10ConstructorInstance ci;
-        X10TypeSystem_c xts = (X10TypeSystem_c) tc.typeSystem();
+        TypeSystem xts = tc.typeSystem();
         Context context = (Context) tc.context();
         boolean haveUnknown = xts.hasUnknown(targetType);
         for (Type t : actualTypes) {
@@ -597,7 +596,7 @@ public class X10New_c extends New_c implements X10New {
                     rt = xci.returnType();
                 } else if (!xts.typeEquals(rt, xci.returnType(), context)) {
                     if (xts.typeBaseEquals(rt, xci.returnType(), context)) {
-                        rt = X10TypeMixin.baseType(rt);
+                        rt = Types.baseType(rt);
                     } else {
                         rt = null;
                         break;
@@ -655,7 +654,7 @@ public class X10New_c extends New_c implements X10New {
 
     private static Collection<X10ConstructorInstance> findConstructors(ContextVisitor tc, Type targetType,
             List<Type> actualTypes) throws SemanticException {
-        X10TypeSystem_c xts = (X10TypeSystem_c) tc.typeSystem();
+        TypeSystem xts = tc.typeSystem();
         Context context = (Context) tc.context();
         if (targetType == null) {
             // TODO
@@ -695,10 +694,10 @@ public class X10New_c extends New_c implements X10New {
 	// is tracked in the type through a fake field "here".
 	// This field does not exist at runtime in the object -- but that does not
 	// prevent the compiler from imagining that it exists.
-	ConstrainedType type1 = X10TypeMixin.toConstrainedType(type);
+	ConstrainedType type1 = Types.toConstrainedType(type);
 	type1 = (ConstrainedType) PlaceChecker.AddIsHereClause(type1, tc.context());
 	// Add self != null
-	type1 = (ConstrainedType) X10TypeMixin.addDisBinding(type1, X10TypeMixin.selfVar(type1), XTerms.NULL);
+	type1 = (ConstrainedType) Types.addDisBinding(type1, Types.selfVar(type1), XTerms.NULL);
         xci = (X10ConstructorInstance) xci.returnType(type1);
         return xci;
         

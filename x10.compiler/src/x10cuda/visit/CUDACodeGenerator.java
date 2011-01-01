@@ -130,9 +130,7 @@ import x10.extension.X10Ext;
 import x10.types.ConstrainedType;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
-import x10.types.X10TypeMixin;
 import polyglot.types.TypeSystem;
-import x10.types.X10TypeSystem_c;
 import x10.types.constraints.CConstraint;
 import x10cpp.X10CPPCompilerOptions;
 import x10cpp.postcompiler.CXXCommandBuilder;
@@ -151,6 +149,7 @@ import polyglot.types.Name;
 import polyglot.types.QName;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
+import polyglot.types.Types;
 import polyglot.types.VarInstance;
 import polyglot.util.ErrorInfo;
 import polyglot.util.ErrorQueue;
@@ -187,8 +186,8 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 		return (X10CUDAContext_c) tr.context();
 	}
 
-	private X10TypeSystem_c xts() {
-		return (X10TypeSystem_c) tr.typeSystem();
+	private TypeSystem xts() {
+		return  tr.typeSystem();
 	}
 
 	// defer to CUDAContext.cudaStream()
@@ -464,7 +463,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 			
 			assert kind==1;
 
-			X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
+			TypeSystem xts = tr.typeSystem();
 			boolean in_template_closure = freeTypeParams.size() > 0;
 			if (in_template_closure)
 				emitter.printTemplateSignature(freeTypeParams, defn_s);
@@ -775,7 +774,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 		if (!(n.type() instanceof ConstrainedType)) return null;
 		ConstrainedType ct = (ConstrainedType) n.type();
 		CConstraint cc = ct.getRealXClause();
-		XVar local_self = X10TypeMixin.selfVarBinding(cc);
+		XVar local_self = Types.selfVarBinding(cc);
 		if (local_self==null) return null;
 		if (local_self instanceof XLit) return "/*"+n+":"+n.type()+"*/"+local_self.toString();
 		// resolve to another variable, keep going

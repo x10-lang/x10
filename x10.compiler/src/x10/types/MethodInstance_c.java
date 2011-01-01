@@ -16,25 +16,26 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import polyglot.types.ArrayType;
+import polyglot.types.FunctionInstance_c;
+import polyglot.types.JavaArrayType;
 import polyglot.types.Context;
 import polyglot.types.DerefTransform;
 import polyglot.types.ErrorRef_c;
 import polyglot.types.FieldDef;
 import polyglot.types.FieldInstance;
+import polyglot.types.Flags;
 import polyglot.types.LocalDef;
 import polyglot.types.LocalInstance;
 import polyglot.types.MemberDef;
 import polyglot.types.MethodDef;
-import polyglot.types.MethodInstance;
-import polyglot.types.MethodInstance_c;
+
 import polyglot.types.Name;
 import polyglot.types.Named;
-import polyglot.types.PrimitiveType;
+import polyglot.types.JavaPrimitiveType;
 import polyglot.types.ProcedureInstance;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
-import polyglot.types.StructType;
+import polyglot.types.ContainerType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
@@ -54,6 +55,7 @@ import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
 import x10.types.matcher.Matcher;
+import x10.types.MethodInstance;
 
 /**
  * A representation of a MethodInstance.  
@@ -61,22 +63,67 @@ import x10.types.matcher.Matcher;
  * @author vj
  *
  */
-public class X10MethodInstance_c extends MethodInstance_c implements X10MethodInstance {
-    private static final long serialVersionUID = -2510860168293880632L;
+public class MethodInstance_c extends FunctionInstance_c<MethodDef> implements MethodInstance {
+    private static final long serialVersionUID = 3883485772306553465L;
 
-    public X10MethodInstance_c(TypeSystem ts, Position pos, Ref<? extends X10MethodDef> def) {
+    public MethodInstance_c(TypeSystem ts, Position pos, Ref<? extends X10MethodDef> def) {
         super(ts, pos, def);
     }
 
+    protected Name name;
+    protected Flags flags;
+    protected ContainerType container;
+    
+    public MethodInstance container(ContainerType container) {
+        if (container == this.container)
+            return this;
+        MethodInstance_c p = (MethodInstance_c) copy();
+        p.container = container;
+        return p;
+    }
+
+    public ContainerType container() {
+        if (this.container == null) {
+            return Types.get(def().container());
+        }
+        return this.container;
+    }
+    
+    public MethodInstance flags(Flags flags) {
+        MethodInstance_c p = (MethodInstance_c) copy();
+        p.flags = flags;
+        return p;
+    }
+    
+    public Flags flags() {
+        if (this.flags == null) { 
+            return def().flags();
+        }
+        return this.flags;
+    }
+    
+    public MethodInstance name(Name name) {
+        MethodInstance_c p = (MethodInstance_c) copy();
+        p.name = name;
+        return p;
+    }
+
+    public Name name() {
+        if (this.name == null) { 
+            return def().name();
+        }
+        return this.name;
+    }
+    
     @Override
     public boolean moreSpecific(Type container, ProcedureInstance<MethodDef> p, Context context) {
-        return X10TypeMixin.moreSpecificImpl(container, this, p, context);
+        return Types.moreSpecificImpl(container, this, p, context);
     }
 
     public static class NoClauseVariant implements Transformation<Type, Type> {
         public Type transform(Type o) {
-            if (o instanceof ArrayType) {
-                ArrayType at = (ArrayType) o;
+            if (o instanceof JavaArrayType) {
+                JavaArrayType at = (JavaArrayType) o;
                 return at.base(Types.ref(transform(at.base())));
             }
             if (o instanceof ConstrainedType) {
@@ -92,13 +139,14 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
     }
 
     @Override
-    public X10MethodInstance returnType(Type returnType) {
-        return (X10MethodInstance) super.returnType(returnType);
+    public MethodInstance returnType(Type returnType) {
+        return (MethodInstance) super.returnType(returnType);
     }
     @Override
-    public X10MethodInstance returnTypeRef(Ref<? extends Type> returnType) {
-        if (returnType == this.returnType) return this;
-        return (X10MethodInstance) super.returnTypeRef(returnType);
+    public MethodInstance returnTypeRef(Ref<? extends Type> returnType) {
+        if (returnType == this.returnType) 
+            return this;
+        return (MethodInstance) super.returnTypeRef(returnType);
     }
 
     public List<Type> annotations() {
@@ -116,9 +164,9 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
         return body;
     }
 
-    public X10MethodInstance body(XTerm body) {
+    public MethodInstance body(XTerm body) {
         if (body == this.body) return this;
-        X10MethodInstance_c n = (X10MethodInstance_c) copy();
+        MethodInstance_c n = (MethodInstance_c) copy();
         n.body = body;
         return n;
     }
@@ -127,11 +175,7 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
     	return x10Def().offerType();
     }
   
-    @Override
-    public X10MethodInstance container(StructType container) {
-        if (container == this.container) return this;
-        return (X10MethodInstance) super.container(container);
-    }
+   
 
     /** Constraint on formal parameters. */
     protected CConstraint guard;
@@ -140,9 +184,9 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
             return Types.get(x10Def().guard());
         return guard;
     }
-    public X10MethodInstance guard(CConstraint s) {
+    public MethodInstance guard(CConstraint s) {
         if (s == this.guard) return this;
-        X10MethodInstance_c n = (X10MethodInstance_c) copy();
+        MethodInstance_c n = (MethodInstance_c) copy();
         n.guard = s; 
         return n;
     }
@@ -154,9 +198,9 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
             return Types.get(x10Def().typeGuard());
         return typeGuard;
     }
-    public X10MethodInstance typeGuard(TypeConstraint s) {
+    public MethodInstance typeGuard(TypeConstraint s) {
         if (s == this.typeGuard) return this;
-        X10MethodInstance_c n = (X10MethodInstance_c) copy();
+        MethodInstance_c n = (MethodInstance_c) copy();
         n.typeGuard = s; 
         return n;
     }
@@ -171,9 +215,9 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
         return typeParameters;
     }
 
-    public X10MethodInstance typeParameters(List<Type> typeParameters) {
+    public MethodInstance typeParameters(List<Type> typeParameters) {
         if (typeParameters == this.typeParameters) return this;
-        X10MethodInstance_c n = (X10MethodInstance_c) copy();
+        MethodInstance_c n = (MethodInstance_c) copy();
         n.typeParameters = typeParameters;
         return n;
     }
@@ -193,16 +237,17 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
         return formalNames;
     }
 
-    public X10MethodInstance formalNames(List<LocalInstance> formalNames) {
+    public MethodInstance formalNames(List<LocalInstance> formalNames) {
         if (formalNames == this.formalNames) return this;
-        X10MethodInstance_c n = (X10MethodInstance_c) copy();
+        MethodInstance_c n = (MethodInstance_c) copy();
         n.formalNames = formalNames;
         return n;
     }
 
-    public X10MethodInstance formalTypes(List<Type> formalTypes) {
-        if (formalTypes == this.formalTypes) return this;
-        return (X10MethodInstance) super.formalTypes(formalTypes);
+    public MethodInstance formalTypes(List<Type> formalTypes) {
+        if (formalTypes == this.formalTypes) 
+            return this;
+        return (MethodInstance) super.formalTypes(formalTypes);
     }
 
     private SemanticException error;
@@ -211,14 +256,14 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
         return error;
     }
 
-    public X10MethodInstance error(SemanticException e) {
+    public MethodInstance error(SemanticException e) {
         if (e == this.error) return this;
-        X10MethodInstance_c n = (X10MethodInstance_c) copy();
+        MethodInstance_c n = (MethodInstance_c) copy();
         n.error = e;
         return n;
     }
 
-    public static void buildSubst(X10MethodInstance mi, List<XVar> ys, List<XVar> xs, XVar thisVar) {
+    public static void buildSubst(MethodInstance mi, List<XVar> ys, List<XVar> xs, XVar thisVar) {
     	XVar mdThisVar = mi.x10Def().thisVar();
         if (mdThisVar != null && mdThisVar != thisVar && ! xs.contains(mdThisVar)) {
             ys.add(thisVar);
@@ -229,7 +274,7 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
     }
 
     public static void buildSubst(Type t, List<XVar> ys, List<XVar> xs, XVar thisVar) {
-        Type container = X10TypeMixin.baseType(t);
+        Type container = Types.baseType(t);
         if (container instanceof X10ClassType) {
             X10ClassDef cd = ((X10ClassType) container).x10Def();
             XVar cdThisVar = cd.thisVar();
@@ -250,7 +295,7 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
     }
 
     public boolean isPropertyGetter() {
-        StructType container = this.container();
+        ContainerType container = this.container();
         assert container instanceof X10ParsedClassType;
         if (!formalTypes.isEmpty()) return false;
         for (FieldInstance fi : container.fields()) {
@@ -281,7 +326,7 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
 
     public String containerString() {
         Type container = container();
-        container = X10TypeMixin.baseType(container);
+        container = Types.baseType(container);
         if (container instanceof FunctionType) {
             return "(" + container.toString() + ")";
         }
@@ -293,7 +338,7 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
     }
 
     public String toString() {
-        String s = designator() + " " + X10Flags.toX10Flags(flags()).prettyPrint() + containerString() + "." + signature();
+        String s = designator() + " " + flags().prettyPrint() + containerString() + "." + signature();
 
        
         if (body != null)
@@ -368,8 +413,20 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
         }
         return sb.toString();
     }
+    
+    public MethodInstance throwTypes(List<Type> throwTypes) {
+        return (MethodInstance) super.throwTypes(throwTypes);
+    }
+    
+    /** Returns true iff <this> is the same method as <m> */
+    public final boolean isSameMethod(MethodInstance m, Context context) {
+    return ts.isSameMethod((MethodInstance) this, m, context);
+    }
 
-
+    public final List<MethodInstance> overrides(Context context) {
+    return ts.overrides((MethodInstance) this, context);
+    }
+    
   
 
     Type rightType;
@@ -381,14 +438,14 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
             Type t = returnType();
 
             // If a property method, replace T with T{self==this}.
-            X10Flags flags = X10Flags.toX10Flags(flags());
+            Flags flags = flags();
 
             if (flags.isProperty() && formalTypes.size() == 0) {
                 if (xts.isUnknown(t)) {
                     rightType = t;
                 }
                 else {
-                    CConstraint rc = X10TypeMixin.xclause(t);
+                    CConstraint rc = Types.xclause(t);
                     if (rc == null)
                         rc = new CConstraint();
 
@@ -420,7 +477,7 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
                         if (! flags.isStatic()) {
                         	c.setThisVar((XVar) receiver);
                         }
-                        rightType = X10TypeMixin.xclause(X10TypeMixin.baseType(t), c);
+                        rightType = Types.xclause(Types.baseType(t), c);
                     }
                     catch (XFailure f) {
                         throw new InternalCompilerError("Could not add self binding: " + f.getMessage(), f);
@@ -445,5 +502,27 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
 
     public boolean isValid() {
         return !(def instanceof ErrorRef_c<?>);
+    }
+    
+    /**
+     * Leave this method in for historic reasons, to make sure that extensions
+     * modify their code correctly.
+     */
+    public final boolean canOverride(MethodInstance mj, Context context) {
+    return ts.canOverride((MethodInstance) this, mj, context);
+    }
+
+    public final void checkOverride(MethodInstance mj, Context context) throws SemanticException {
+    ts.checkOverride((MethodInstance) this, mj, context);
+    }
+
+    public final List<MethodInstance> implemented(Context context) {
+        return ts.implemented((MethodInstance) this, context);
+    }
+    
+    protected MethodInstance origMI;
+    public MethodInstance origMI() { return origMI;}
+    public void setOrigMI(MethodInstance origMI) {
+        this.origMI = origMI;
     }
 }

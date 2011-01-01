@@ -48,13 +48,13 @@ import polyglot.types.Flags;
 import polyglot.types.LazyRef;
 import polyglot.types.LazyRef_c;
 import polyglot.types.LocalDef;
-import polyglot.types.MethodInstance;
+
 import polyglot.types.Name;
 import polyglot.types.Named;
 import polyglot.types.ObjectType;
 import polyglot.types.QName;
 import polyglot.types.Ref;
-import polyglot.types.ReferenceType;
+
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
@@ -83,15 +83,13 @@ import x10.types.X10ClassDef_c;
 import x10.types.X10ClassType;
 import polyglot.types.Context;
 import x10.types.X10FieldInstance;
-import x10.types.X10Flags;
+
 import x10.types.X10LocalDef;
 import x10.types.X10MethodDef;
-import x10.types.X10MethodInstance;
+import x10.types.MethodInstance;
 import x10.types.X10ParsedClassType;
 
-import x10.types.X10TypeMixin;
 import polyglot.types.TypeSystem;
-import x10.types.X10TypeSystem_c;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
 import x10.util.Synthesizer;
@@ -207,7 +205,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         else if (flags().flags().isInterface()) {
         	thisType.superType(null);
         }
-        else if (superClass == null && X10Flags.toX10Flags(flags().flags()).isStruct()) {
+        else if (superClass == null && flags().flags().isStruct()) {
         	/* final LazyRef<Type> Struct = Types.lazyRef(null);
      		Struct.setResolver(new Runnable() {
      			public void run() {
@@ -235,7 +233,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     	final TypeSystem xts = (TypeSystem) ts;
 
     	// For every struct and interface, add the implicit Any interface.
-    	X10Flags flags = X10Flags.toX10Flags(flags().flags());
+    	Flags flags =  flags().flags();
     	if (flags.isStruct()
     			|| (flags.isInterface() && ! name.toString().equals("Any"))
     			|| xts.isParameterType(thisType.asType())) {
@@ -414,7 +412,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
             def.addTypeParameter(tpn.type(), tpn.variance());
         }
 
-        if (X10Flags.toX10Flags(flags().flags()).isStruct())
+        if (flags().flags().isStruct())
             n = x10.util.Struct.addStructMethods(tb,n);
 
         return n;
@@ -463,7 +461,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         			}
         			if (nn.superClass != null) {
         				Type t = nn.superClass.type();
-        				CConstraint tc = X10TypeMixin.xclause(t);
+        				CConstraint tc = Types.xclause(t);
         				if (tc != null) {
         					x.addIn(tc);
         					if (! tc.consistent()) {
@@ -473,7 +471,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         			}
         			for (TypeNode tn : nn.interfaces) {
         				Type t = tn.type();
-        				CConstraint tc = X10TypeMixin.xclause(t);
+        				CConstraint tc = Types.xclause(t);
         				if (tc != null) {
         					x.addIn(tc);
         					if (! tc.consistent()) {
@@ -547,28 +545,28 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     		return n;
     	
     	Position CG = Position.compilerGenerated(body().position());
-    	X10TypeSystem_c xts = (X10TypeSystem_c) tc.typeSystem();
+    	TypeSystem xts =  tc.typeSystem();
     	NodeFactory xnf = (NodeFactory) tc.nodeFactory();
     	X10ClassType targetType = (X10ClassType) n.classDef().asType();
     	List<X10ClassType> interfaces = xts.allImplementedInterfaces(targetType, false);
-    	LinkedList<X10MethodInstance> candidates = new LinkedList<X10MethodInstance>();
+    	LinkedList<MethodInstance> candidates = new LinkedList<MethodInstance>();
 
     	for (X10ClassType intface : interfaces) {
     	    List<MethodInstance> oldMethods = intface.methods();
     	    for (MethodInstance mi : oldMethods) {
-    	        X10MethodInstance mj = xts.findImplementingMethod(targetType, mi, true, tc.context());
+    	        MethodInstance mj = xts.findImplementingMethod(targetType, mi, true, tc.context());
 
     	        if (mj == null) { // This method is not already defined for this class
-    	            candidates.add((X10MethodInstance) mi);
+    	            candidates.add(mi);
     	        }
     	    }
     	} // interfaces
     	// Remove overridden methods -- happens with covariant return types.
-    	List<X10MethodInstance> results = new LinkedList<X10MethodInstance>(); 
+    	List<MethodInstance> results = new LinkedList<MethodInstance>(); 
     	Context context = xts.createContext();
     	OUTER: while (! candidates.isEmpty()) {
-    	    X10MethodInstance mi = candidates.removeFirst();
-    	    for (X10MethodInstance other : candidates) {
+    	    MethodInstance mi = candidates.removeFirst();
+    	    for (MethodInstance other : candidates) {
     	        if (other.canOverride(mi, context))
     	            continue OUTER;
     	    }
@@ -576,7 +574,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
 
     	}
     	Synthesizer synth = new Synthesizer(xnf, xts);
-    	for (X10MethodInstance mi : results) {
+    	for (MethodInstance mi : results) {
     	    Id name = xnf.Id(CG, mi.name());
     	    TypeParamSubst subst = ((X10ParsedClassType) mi.container()).subst();
     	    List<LocalDef> formalNames = new ArrayList<LocalDef>();
@@ -636,7 +634,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     	ContextVisitor oldtc = (ContextVisitor) tc.copy();
     	
     	n = (X10ClassDecl_c) n.typeCheckSupers(tc, childtc);
-    	X10TypeSystem_c xts = (X10TypeSystem_c) tc.typeSystem();
+    	TypeSystem xts = tc.typeSystem();
     	if (superClass != null) {
     	    Ref<? extends Type> stref = superClass.typeRef();
     	    try {
@@ -673,7 +671,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         
         if (type.superType() != null) {
         	if (!((X10ClassDef) type).isStruct()) {
-        		if ((X10TypeMixin.isX10Struct(type.superType().get()))) {
+        		if ((Types.isX10Struct(type.superType().get()))) {
         			Errors.issue(tc.job(),
         			             new Errors.ClassMustHaveClassSupertype(type.superType(),
         			                                                      type,
@@ -706,7 +704,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
 
         if (false) { // todo: this code is useless! it only adds to the lists, without doing any checks!
         // Check for duplicate interfaces
-        List<X10ClassType> supers = new ArrayList<X10ClassType>();
+       /* List<X10ClassType> supers = new ArrayList<X10ClassType>();
         LinkedList<Type> worklist = new LinkedList<Type>();
         worklist.add(type.asType());
         while (! worklist.isEmpty()) {
@@ -719,7 +717,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
                 worklist.add(ot.superClass());
                 worklist.addAll(ot.interfaces());
             }
-        }
+        }*/
         }
         
         // Check for instance type definitions -- these are not supported.
@@ -748,7 +746,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         
     	n = (X10ClassDecl_c) n.adjustAbstractMethods(oldtc);
     	
-    	if (X10Flags.toX10Flags(flags().flags()).isStruct()) {
+    	if (flags().flags().isStruct()) {
     		if (n.classDef().isInnerClass() && ! flags().flags().isStatic()) {
     			Errors.issue(tc.job(), new Errors.StructMustBeStatic(n));
     		}
@@ -756,9 +754,9 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     	}
 
         // a superclass/interface is a covariant position (+)
-        if (n.superClass!=null) X10TypeMixin.checkVariance(n.superClass, ParameterType.Variance.COVARIANT,tc.job());
+        if (n.superClass!=null) Types.checkVariance(n.superClass, ParameterType.Variance.COVARIANT,tc.job());
         for (TypeNode typeNode : n.interfaces)
-            X10TypeMixin.checkVariance(typeNode, ParameterType.Variance.COVARIANT,tc.job());
+            Types.checkVariance(typeNode, ParameterType.Variance.COVARIANT,tc.job());
     	return n;
     }
     
@@ -789,7 +787,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         if (! t.isClass() || t.toClass().flags().isInterface()) {
             throw new SemanticException("Cannot extend type " + t + "; not a class.", superClass != null ? superClass.position() : position());
         }
-        xts.checkCycles((ReferenceType) t);
+        xts.checkCycles((ObjectType) t);
     }
 
     protected void checkSuperinterface(TypeSystem xts, Ref<? extends Type> tref) throws SemanticException {
@@ -803,7 +801,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
             String s = type.flags().isInterface() ? "extend" : "implement";
             throw new SemanticException("Cannot " + s + " type " + t + "; not an interface.", position());
         }
-        xts.checkCycles((ReferenceType) t);
+        xts.checkCycles((ObjectType) t);
     }
 
     protected List<TypeNode> followDefs(List<TypeNode> tns) {

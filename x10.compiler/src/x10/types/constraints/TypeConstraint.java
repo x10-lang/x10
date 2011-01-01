@@ -24,19 +24,18 @@ import x10.constraint.XVar;
 import x10.types.ConstrainedType;
 import x10.types.MacroType;
 import x10.types.ParameterType;
-import x10.types.ParameterType_c;
+
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import polyglot.types.Context;
 import x10.types.X10ProcedureDef;
 import x10.types.X10ProcedureInstance;
-import x10.types.X10TypeMixin;
 import x10.types.X10Context_c;
 import x10.types.TypeParamSubst;
 import polyglot.types.TypeSystem;
 import x10.types.ParameterType.Variance;
 import polyglot.types.Name;
-import polyglot.types.PrimitiveType;
+import polyglot.types.JavaPrimitiveType;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.Types;
@@ -73,8 +72,8 @@ public class TypeConstraint implements Copy, Serializable {
      */
     public boolean unify(Type t1, Type t2, TypeSystem xts) {
     	final Context emptyContext = (Context) t1.typeSystem().emptyContext();
-    	t1 = X10TypeMixin.stripConstraints(t1);
-    	t2 = X10TypeMixin.stripConstraints(t2);   	
+    	t1 = Types.stripConstraints(t1);
+    	t2 = Types.stripConstraints(t2);   	
     	if (xts.typeEquals(t1, t2, emptyContext /*dummy*/))
             return true;
     	if ((t1 instanceof ParameterType) || (t2 instanceof ParameterType)) {
@@ -158,7 +157,7 @@ public class TypeConstraint implements Copy, Serializable {
                     return false;
                 }
             } else if (t.isHaszero()) {
-                if (!X10TypeMixin.isHaszero(t.subtype(),context))
+                if (!Types.isHaszero(t.subtype(),context))
                     return false;
             }
         }
@@ -212,11 +211,11 @@ public class TypeConstraint implements Copy, Serializable {
 	    TypeConstraint tenv = new TypeConstraint();
 	    CConstraint env = new CConstraint();
 	
-	    ConstrainedType thisType1 = X10TypeMixin.toConstrainedType(thisType);
-	    XVar ythis = thisType instanceof ConstrainedType ? X10TypeMixin.selfVar((ConstrainedType) thisType) : null;
+	    ConstrainedType thisType1 = Types.toConstrainedType(thisType);
+	    XVar ythis = thisType instanceof ConstrainedType ? Types.selfVar((ConstrainedType) thisType) : null;
 	
 	    if (ythis == null) {
-	        CConstraint c = X10TypeMixin.xclause(thisType);
+	        CConstraint c = Types.xclause(thisType);
 	        c = (c == null) ? new CConstraint() : c.copy();
 	
 	        try {
@@ -228,7 +227,7 @@ public class TypeConstraint implements Copy, Serializable {
 	            throw new SemanticException(e.getMessage(), me.position());
 	        }
 	
-	        thisType = X10TypeMixin.xclause(X10TypeMixin.baseType(thisType), c);
+	        thisType = Types.xclause(Types.baseType(thisType), c);
 	    }
 	
 	    assert actuals.size() == formals.size();
@@ -242,7 +241,7 @@ public class TypeConstraint implements Copy, Serializable {
 	    for (int i = 0; i < typeFormals.size(); i++) {
 	        Type xtype = typeFormals.get(i);
 	        xtype = xts.expandMacros(xtype);
-	        Type ytype = new ParameterType_c(xts, me.position(), Name.makeFresh(), Types.ref((X10ProcedureDef) me.def()));
+	        Type ytype = new ParameterType(xts, me.position(), Name.makeFresh(), Types.ref((X10ProcedureDef) me.def()));
 	
 	        // TODO: should enforce this statically
 	        if (! (xtype instanceof ParameterType))
@@ -265,8 +264,8 @@ public class TypeConstraint implements Copy, Serializable {
 	        // Be sure to copy the constraints since we use the self vars
 	        // in other constraints and don't want to conflate them if
 	        // realX returns the same constraint twice.
-	        final CConstraint yc = X10TypeMixin.realX(ytype).copy();
-	        XVar yi = X10TypeMixin.selfVar(yc);
+	        final CConstraint yc = Types.realX(ytype).copy();
+	        XVar yi = Types.selfVar(yc);
 	
 	        if (yi == null) {
 	            // This must mean that yi was not final, hence it cannot occur in 
@@ -340,7 +339,7 @@ public class TypeConstraint implements Copy, Serializable {
      * @throws XFailure
      */
     void addTypeParameterBindings(Type xtype, Type ytype, boolean isEqual)  {
-    	xtype = X10TypeMixin.baseType(xtype);
+    	xtype = Types.baseType(xtype);
     	  if (xtype == null)
           	return;
     	if (xtype instanceof ParameterType) {
@@ -374,7 +373,7 @@ public class TypeConstraint implements Copy, Serializable {
      * @throws XFailure
      */
     private void addTypeParameterBindings(X10ClassType xtype, Type ytype, boolean isEqual)  {
-    	ytype = X10TypeMixin.baseType(ytype);
+    	ytype = Types.baseType(ytype);
     	if (ytype == null)
     		return;
         if (ytype instanceof X10ClassType) {
@@ -413,6 +412,9 @@ public class TypeConstraint implements Copy, Serializable {
                     addTypeParameterBindings(xtype, t, isEqual);
                 }
             }
+        }
+        if (ytype instanceof ParameterType) { // can happen because of contravariance
+        	addTerm(new SubtypeConstraint(xtype, ytype, isEqual)); 
         }
     }
 
@@ -622,7 +624,7 @@ public class TypeConstraint implements Copy, Serializable {
 	                if (upperBound == null)
 	                    upperBound = t;
 	                else
-	                    upperBound = X10TypeMixin.meetTypes(xts, upperBound, t, context);
+	                    upperBound = Types.meetTypes(xts, upperBound, t, context);
 	            }
 	        }
 	        if (upperBound != null) {

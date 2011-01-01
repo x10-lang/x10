@@ -69,9 +69,8 @@ import x10.constraint.XFailure;
 import x10.constraint.XTerm;
 import x10.types.ConstrainedType;
 import x10.types.X10FieldInstance;
-import x10.types.X10MethodInstance;
-import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem_c;
+import x10.types.MethodInstance;
+
 import x10.types.checker.Converter;
 import x10.types.constraints.CConstraint;
 import x10.util.AltSynthesizer;
@@ -219,7 +218,7 @@ public class ForLoopOptimizer extends ContextVisitor {
         }
 
         // if domain <: Distribution, transform to Region
-        if (((X10TypeSystem_c) xts).isDistribution(domain.type())) {
+        if (xts.isDistribution(domain.type())) {
             if (VERBOSE) System.out.println("  domain is Dist, transforming to Region");
             domain = syn.createFieldRef(pos, domain, REGION);
             assert (null != domain);
@@ -236,8 +235,8 @@ public class ForLoopOptimizer extends ContextVisitor {
         Context      context    = (Context) context();
         List<Formal> formalVars = formal.vars();
         boolean      named      = !formal.isUnnamed();
-        ConstrainedType domainType = X10TypeMixin.toConstrainedType(domain.type());
-        boolean      isRect     = X10TypeMixin.isRect(domainType, context);
+        ConstrainedType domainType = Types.toConstrainedType(domain.type());
+        boolean      isRect     = domainType.isRect(context);
         Integer      domainRank = (Integer) getPropertyConstantValue(domain, RANK);
         int          rank       = (null != domainRank) ? (int) domainRank :
                                   (null != formalVars) ? formalVars.size() : 
@@ -504,7 +503,7 @@ public class ForLoopOptimizer extends ContextVisitor {
      * TODO: move into ASTQuery
      */
     public Object getPropertyConstantValue(Expr expr, Name name) {
-        X10FieldInstance propertyFI = X10TypeMixin.getProperty(expr.type(), name);
+        X10FieldInstance propertyFI = Types.getProperty(expr.type(), name);
         if (null == propertyFI) return null;
         Expr propertyExpr = syn.createFieldRef(expr.position(), expr, propertyFI);
         if (null == propertyExpr) return null;
@@ -523,10 +522,10 @@ public class ForLoopOptimizer extends ContextVisitor {
     public static Type addPropertyConstraint(Type type, Name name, XTerm value) throws XFailure {
     	// Must ensure that arg to findOrSynthesize is a constrained type
     	// since the synthesized property may need to refer to self.
-    	ConstrainedType type1 = X10TypeMixin.toConstrainedType(type);
-    	XTerm property = X10TypeMixin.findOrSynthesize(type1, name);
+    	ConstrainedType type1 = Types.toConstrainedType(type);
+    	XTerm property = type1.findOrSynthesize(name);
     	if (null == property) return null;
-    	return X10TypeMixin.addBinding(type1, property, value);
+    	return Types.addBinding(type1, property, value);
     }
 
     /**
@@ -553,7 +552,7 @@ public class ForLoopOptimizer extends ContextVisitor {
      */
     public static Type addSelfConstraint(Type type, XTerm value) {
         try {
-            return X10TypeMixin.addSelfBinding(type, value);
+            return Types.addSelfBinding(type, value);
         } catch (XFailure e) {
             return null;
         }

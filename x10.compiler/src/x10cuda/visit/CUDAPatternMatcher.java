@@ -42,9 +42,8 @@ import x10.ast.X10Loop;
 import x10.ast.X10Loop_c;
 import x10.ast.X10New_c;
 import x10.extension.X10Ext;
+import x10.types.MethodInstance;
 import x10.types.X10ClassType;
-import x10.types.X10MethodInstance;
-import x10.types.X10TypeSystem_c;
 import x10cpp.visit.Emitter;
 import x10cuda.ast.CUDAKernel;
 import x10cuda.types.CUDAData;
@@ -64,8 +63,8 @@ public class CUDAPatternMatcher extends NodeVisitor {
 		this.nf = nf;
 	}
 
-	private X10TypeSystem_c xts() {
-		return (X10TypeSystem_c)ts;
+	private TypeSystem xts() {
+		return ts;
 	}
 
 	// Type from name
@@ -180,7 +179,7 @@ public class CUDAPatternMatcher extends NodeVisitor {
 		X10Binary region = (X10Binary) domain;
 		complainIfNot(region.operator() == X10Binary.DOT_DOT,
 				"An iteration over a region literal of the form 0..", domain);
-		X10MethodInstance mi = region.methodInstance();
+		MethodInstance mi = region.methodInstance();
 		ClassType target_type = mi.container().toClass();
 		complainIfNot(target_type.isInt(),
 				"An iteration over a region literal of the form 0..", domain);

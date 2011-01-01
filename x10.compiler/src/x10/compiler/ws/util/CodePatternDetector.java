@@ -34,7 +34,7 @@ import polyglot.ast.Term;
 import polyglot.ast.Try;
 import polyglot.ast.While;
 import polyglot.types.MethodDef;
-import polyglot.types.MethodInstance;
+
 import polyglot.types.Name;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;

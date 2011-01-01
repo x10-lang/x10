@@ -25,11 +25,11 @@ import polyglot.frontend.Job;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
+import polyglot.types.Types;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.ast.ClosureCall;
 import x10.types.X10ClassType;
-import x10.types.X10TypeMixin;
 import polyglot.types.TypeSystem;
 import x10.types.checker.Converter;
 
@@ -132,7 +132,7 @@ public class X10Caster extends ContextVisitor {
             TypeSystem ts = (TypeSystem) this.typeSystem();
             Expr e1 = (Expr) n;
             Type fromType = e1.type();
-            Type fromBase = X10TypeMixin.baseType(fromType);
+            Type fromBase = Types.baseType(fromType);
             if (fromBase instanceof X10ClassType) {
                 X10ClassType ct = (X10ClassType) fromBase;
                 if (ct.isAnonymous()) {

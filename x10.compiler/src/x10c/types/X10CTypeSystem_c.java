@@ -14,12 +14,13 @@ package x10c.types;
 import polyglot.types.Context;
 import polyglot.types.Ref;
 import polyglot.types.Type;
+import polyglot.types.TypeSystem_c;
 import polyglot.util.Position;
 import polyglot.types.Context;
 import polyglot.types.TypeSystem;
-import x10.types.X10TypeSystem_c;
 
-public class X10CTypeSystem_c extends X10TypeSystem_c implements TypeSystem {
+
+public class X10CTypeSystem_c extends TypeSystem_c implements TypeSystem {
 
     public Context emptyContext() {
         return new X10CContext_c(this);

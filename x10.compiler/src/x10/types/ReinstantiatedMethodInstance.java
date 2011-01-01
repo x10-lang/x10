@@ -10,14 +10,14 @@ import polyglot.util.Position;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
 
-final class ReinstantiatedMethodInstance extends X10MethodInstance_c {
+final class ReinstantiatedMethodInstance extends MethodInstance_c {
 	private static final long serialVersionUID = -1235025903277125182L;
 
 	private final TypeParamSubst typeParamSubst;
-	private final X10MethodInstance fi;
+	private final MethodInstance fi;
 
 	ReinstantiatedMethodInstance(TypeParamSubst typeParamSubst, TypeSystem ts, Position pos,
-			Ref<? extends X10MethodDef> def, X10MethodInstance fi) {
+			Ref<? extends X10MethodDef> def, MethodInstance fi) {
 		super(ts, pos, def);
 		this.typeParamSubst = typeParamSubst;
 		this.fi = fi;
@@ -73,7 +73,7 @@ final class ReinstantiatedMethodInstance extends X10MethodInstance_c {
 	}
 
 	@Override
-	public StructType container() {
+	public ContainerType container() {
 		if (container == null)
 			return this.typeParamSubst.reinstantiate(fi.container());
 		return container;

@@ -89,7 +89,6 @@ import x10.ast.X10ClassDecl;
 import x10.extension.X10Ext;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
-import x10.types.X10TypeSystem_c;
 import x10.util.ClassifiedStream;
 import x10.util.StreamWrapper;
 import x10.util.WriterStreams;
@@ -293,7 +292,7 @@ public class X10CPPTranslator extends Translator {
 
 			X10CPPContext_c c = (X10CPPContext_c) context;
 			X10CPPCompilerOptions opts = (X10CPPCompilerOptions) job.extensionInfo().getOptions();
-	        X10TypeSystem_c xts = (X10TypeSystem_c) typeSystem();
+	        TypeSystem xts =   typeSystem();
 
 			if (x10.Configuration.DEBUG)
 				c.addData(FILE_TO_LINE_NUMBER_MAP, new HashMap<String, LineNumberMap>());

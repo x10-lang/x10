@@ -15,7 +15,7 @@ import java.util.List;
 
 import polyglot.types.MethodDef;
 import polyglot.types.Ref;
-import polyglot.types.ReferenceType;
+
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import x10.constraint.XTerm;
@@ -31,5 +31,5 @@ public interface X10MethodDef extends MethodDef, X10ProcedureDef {
     List<ParameterType> typeParameters();
     void setTypeParameters(List<ParameterType> typeParameters);
 
-    X10MethodInstance asInstance();
+    MethodInstance asInstance();
 }

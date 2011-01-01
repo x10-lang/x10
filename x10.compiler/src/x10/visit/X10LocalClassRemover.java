@@ -63,8 +63,7 @@ import x10.types.X10CodeDef;
 import x10.types.X10ConstructorInstance;
 import x10.types.X10Context_c;
 import x10.types.X10MethodDef;
-import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem_c;
+
 import polyglot.types.TypeSystem;
 
 public class X10LocalClassRemover extends LocalClassRemover {
@@ -93,7 +92,7 @@ public class X10LocalClassRemover extends LocalClassRemover {
                 X10ClassType container = (X10ClassType) Types.get(nci.container());
                 
                 if (container.def() == theLocalClass) {
-                    X10ClassType type = (X10ClassType) X10TypeMixin.baseType(neu.objectType().type());
+                    X10ClassType type = (X10ClassType) Types.baseType(neu.objectType().type());
                     List<Type> ta = type.typeArguments();
                     List<TypeNode> nta = neu.typeArguments();
                     assert (ta == null || ta.size() == nta.size());
@@ -151,7 +150,7 @@ public class X10LocalClassRemover extends LocalClassRemover {
             Type rt = decl.returnType().type();
             if (!rt.isClass())
                 return decl;
-            X10ClassType type = (X10ClassType) X10TypeMixin.baseType(rt.toClass());
+            X10ClassType type = (X10ClassType) Types.baseType(rt.toClass());
             List<Type> ta = type.typeArguments();
             List<ParameterType> params = type.x10Def().typeParameters();
             if (!params.isEmpty() && (ta == null || ta.size() != params.size())) {

@@ -7,10 +7,12 @@
 
 package polyglot.types;
 
+import x10.types.MethodInstance;
+
 /**
  * An <code>ArrayType</code> represents an array of other types.
  */
-public interface ArrayType extends ObjectType 
+public interface JavaArrayType extends ObjectType 
 {
     /**
      * Base type of the array.
@@ -21,7 +23,7 @@ public interface ArrayType extends ObjectType
     /**
      * Set the base type of the array, returning a new type.
      */
-    ArrayType base(Ref<? extends Type> base);
+    JavaArrayType base(Ref<? extends Type> base);
 
     /**
      * The ultimate base of the array.  Guaranteed not to be an array type.

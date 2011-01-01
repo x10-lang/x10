@@ -54,7 +54,6 @@ import polyglot.types.FieldDef;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
 import polyglot.types.LocalInstance;
-import polyglot.types.MethodInstance;
 import polyglot.types.Name;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
@@ -80,7 +79,8 @@ import x10.constraint.XNameWrapper;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
 import x10.types.ConstrainedType;
-import x10.types.X10Flags;
+import x10.types.MethodInstance;
+
 import polyglot.types.TypeSystem;
 import x10.types.constraints.CConstraint;
 import x10.visit.Desugarer;
@@ -539,7 +539,7 @@ public class LoopUnroller extends ContextVisitor {
     }
 
     private FlagsNode valueFlag() {
-        return xnf.FlagsNode(PCG, X10Flags.VALUE);
+        return xnf.FlagsNode(PCG, Flags.VALUE);
     }
 
     private FlagsNode noFlags() {

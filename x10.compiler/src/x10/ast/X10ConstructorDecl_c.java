@@ -36,7 +36,7 @@ import polyglot.types.Name;
 import polyglot.types.QName;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
-import polyglot.types.StructType;
+import polyglot.types.ContainerType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
@@ -67,12 +67,10 @@ import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10ConstructorDef;
 import polyglot.types.Context;
-import x10.types.X10Flags;
 import x10.types.X10MemberDef;
 import x10.types.X10ParsedClassType;
 import x10.types.X10ProcedureDef;
 
-import x10.types.X10TypeMixin;
 import x10.types.X10Context_c;
 import polyglot.types.TypeSystem;
 import x10.types.checker.PlaceChecker;
@@ -225,7 +223,7 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
         // Enable return type inference for this constructor declaration.
         if (rtn == null) {
             Type rType = currentClass.asType();
-            rType = X10TypeMixin.instantiateTypeParametersExplicitly(rType);
+            rType = Types.instantiateTypeParametersExplicitly(rType);
             if (ci.derivedReturnType()) {
                 ci.inferReturnType(true);
                 rtn = nf.CanonicalTypeNode(n.position(), Types.lazyRef(rType));
@@ -428,7 +426,7 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
 
             				// Fold the formal's constraint into the guard.
             				XVar var = xts.xtypeTranslator().trans(n.localDef().asInstance());
-            				CConstraint dep = X10TypeMixin.xclause(newType);
+            				CConstraint dep = Types.xclause(newType);
             				if (dep != null) {
             				    dep = dep.copy();
             				    dep = dep.substitute(var, c.self());
@@ -448,7 +446,7 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
             		// Fold this's constraint (the class invariant) into the guard.
             		{
             			Type t =  tc.context().currentClass();
-            			CConstraint dep = X10TypeMixin.xclause(t);
+            			CConstraint dep = Types.xclause(t);
             			if (c != null && dep != null) {
             				XVar thisVar = constructorDef().thisVar();
             				if (thisVar != null)
@@ -496,7 +494,7 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
     	TypeNode r = (TypeNode) nn.visitChild(nn.returnType(), childtc1);
     	Ref<? extends Type> ref = r.typeRef();
     	Type type = Types.get(ref);
-    	X10ClassType container =  (X10ClassType) X10TypeMixin.instantiateTypeParametersExplicitly(tc.context().currentClass());
+    	X10ClassType container =  (X10ClassType) Types.instantiateTypeParametersExplicitly(tc.context().currentClass());
     	if (! tc.typeSystem().isSubtype(type, container, tc.context())) {
     	    Errors.issue(tc.job(),
     	            new Errors.ConstructorReturnTypeNotSubtypeOfContainer(type, container, position()));
@@ -573,13 +571,13 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
         TypeSystem ts = (TypeSystem) tc.typeSystem();
         
         Type retTypeBase =  n.returnType().type();
-        retTypeBase = X10TypeMixin.baseType(retTypeBase);
-        retTypeBase = X10TypeMixin.instantiateTypeParametersExplicitly(retTypeBase);
+        retTypeBase = Types.baseType(retTypeBase);
+        retTypeBase = Types.instantiateTypeParametersExplicitly(retTypeBase);
         
         X10ConstructorDef nnci = (X10ConstructorDef) n.constructorDef();
         // Type clazz = ((X10Type) nnci.asInstance().container()).setFlags(X10Flags.ROOTED);
         Type clazz = nnci.asInstance().container();
-        clazz = X10TypeMixin.instantiateTypeParametersExplicitly(clazz);
+        clazz = Types.instantiateTypeParametersExplicitly(clazz);
         if (! ts.typeEquals(retTypeBase, clazz, tc.context())) {
             Errors.issue(tc.job(),
                     new SemanticException("The return type of the constructor (" + retTypeBase + ") must be derived from the type of the class (" + clazz + ") on which the constructor is defined.",    n.position()));

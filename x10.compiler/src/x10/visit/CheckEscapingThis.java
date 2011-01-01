@@ -11,9 +11,9 @@ import polyglot.visit.InitChecker;
 import polyglot.visit.DataFlow.Item;
 import polyglot.visit.FlowGraph.EdgeKey;
 import polyglot.frontend.Job;
+import polyglot.types.Flags;
 import polyglot.types.Type;
 import polyglot.types.FieldDef;
-import polyglot.types.MethodInstance;
 import polyglot.types.MethodDef;
 import polyglot.types.FieldInstance;
 import polyglot.types.ProcedureDef;
@@ -24,15 +24,16 @@ import polyglot.types.SemanticException;
 import polyglot.types.Name;
 import polyglot.types.Context;
 import polyglot.types.ProcedureDef_c;
+import polyglot.types.Types;
 import x10.ast.*;
-import x10.types.X10TypeMixin;
-import x10.types.X10Flags;
 import polyglot.types.TypeSystem;
 import polyglot.types.VarDef;
 import polyglot.types.LocalDef;
 import polyglot.types.ClassType;
-import polyglot.types.StructType;
+import polyglot.types.ContainerType;
 import x10.types.X10FieldDef;
+
+import x10.types.MethodInstance;
 import x10.types.X10ParsedClassType_c;
 import x10.types.X10ProcedureDef;
 import x10.types.X10MethodDef;
@@ -264,7 +265,7 @@ public class CheckEscapingThis extends NodeVisitor
             if (isCtor()) {
                 for (FieldDef f : fields) {
                     // a VAR marked with @Uninitialized is not tracked
-                    if (!finalResult.initStatus.get(f).isSeqWrite() && !X10TypeMixin.isUninitializedField((X10FieldDef)f,(TypeSystem)ts)) {
+                    if (!finalResult.initStatus.get(f).isSeqWrite() && !Types.isUninitializedField((X10FieldDef)f,(TypeSystem)ts)) {
                         final Position pos = currDecl.position();
                         // could be an auto-generated ctor
                         wasError = true;
@@ -275,7 +276,7 @@ public class CheckEscapingThis extends NodeVisitor
             } else {
                 MethodInfo oldInfo = allMethods.get(procDef);
                 assert oldInfo!=null : currDecl;
-                assert !X10TypeMixin.isNoThisAccess((X10ProcedureDef)procDef,(TypeSystem)ts);
+                assert !Types.isNoThisAccess((X10ProcedureDef)procDef,(TypeSystem)ts);
 
 
                 MethodInfo newInfo = new MethodInfo();
@@ -309,7 +310,7 @@ public class CheckEscapingThis extends NodeVisitor
     }
     private MethodInfo getInfo(X10Call call) {
         final X10MethodDef def = (X10MethodDef) call.methodInstance().def();
-        if (isTargetThis(call) && findMethod(call)!=null && !X10TypeMixin.isNoThisAccess(def,ts)) {
+        if (isTargetThis(call) && findMethod(call)!=null && !Types.isNoThisAccess(def,ts)) {
             final MethodInfo info = allMethods.get(def);
             assert info!=null;
             return info;
@@ -327,7 +328,7 @@ public class CheckEscapingThis extends NodeVisitor
     }
     private boolean isPrivateOrFinal(ProcedureDef def) {
         if (isXlassFinal) return true;
-        final X10Flags flags = X10Flags.toX10Flags(((ProcedureDef_c)def).flags());
+        final Flags flags = ((ProcedureDef_c)def).flags();
         return flags.isPrivate() || flags.isFinal();
     }
 
@@ -380,7 +381,7 @@ public class CheckEscapingThis extends NodeVisitor
             if (!canUseThis() && n instanceof X10Call) {
                 final X10Call call = (X10Call) n;
                 if (isTargetThis(call)) {
-                    if (X10TypeMixin.isNoThisAccess((X10MethodDef)call.methodInstance().def(),ts)) {
+                    if (Types.isNoThisAccess((X10MethodDef)call.methodInstance().def(),ts)) {
                         // && X10TypeMixin.getNonEscapingReadsFrom((X10MethodDef)call.methodInstance().def(),ts)==null) { // @NonEscaping methods cannot write to any fields
                         // even though we use "this.call(...)", this is legal
                         // because the call doesn't read nor write to "this"
@@ -498,7 +499,7 @@ public class CheckEscapingThis extends NodeVisitor
         propertyRepresentative = hasProperties ? props.get(0).fieldDef() : null;
         if (hasProperties) fields.add(propertyRepresentative); // adding one property representative (for our data flow, to make sure it property(...) is always called
         isXlassFinal = xlass.flags().flags().isFinal();
-        this.xlassType = X10TypeMixin.baseType(xlass.classDef().asType());
+        this.xlassType = Types.baseType(xlass.classDef().asType());
         // calculate the set of all fields (including inherited fields)
         calcFields();
         MinMaxInitCount notInited = MinMaxInitCount.build(false, false,false);
@@ -604,8 +605,8 @@ public class CheckEscapingThis extends NodeVisitor
 
                 if (def instanceof X10MethodDef) {
                     X10MethodDef x10def = (X10MethodDef) def;
-                    boolean isNoThisAccess = X10TypeMixin.isNoThisAccess(x10def,ts);
-                    boolean isNonEscaping = X10TypeMixin.isNonEscaping(x10def,ts);
+                    boolean isNoThisAccess = Types.isNoThisAccess(x10def,ts);
+                    boolean isNonEscaping = Types.isNonEscaping(x10def,ts);
 
                     // if we overrode a method with @NoThisAccess, then we must be annotated with @NoThisAccess
                     // (NonEscaping is private/final, so cannot be overriden)
@@ -616,7 +617,7 @@ public class CheckEscapingThis extends NodeVisitor
                         for (MethodInstance overriddenMI : overriddenMethods) {
                             MethodDef overriddenDef = overriddenMI.def();
                             if (overriddenDef==def) continue; // me
-                            boolean overriddenIsNoThisAccess = X10TypeMixin.isNoThisAccess((X10MethodDef)overriddenDef,ts);
+                            boolean overriddenIsNoThisAccess = Types.isNoThisAccess((X10MethodDef)overriddenDef,ts);
                             if (overriddenIsNoThisAccess) {
                                 reportError("You must annotate "+proc+" with @NoThisAccess because it overrides a method annotated with that.", proc.position());
                                 break; // one such error msg is enough
@@ -770,13 +771,13 @@ public class CheckEscapingThis extends NodeVisitor
             final MethodInstance methodInstance = call.methodInstance();
             final X10ProcedureDef procDef = (X10ProcedureDef) methodInstance.def();
             if (isThis(call.target())) {
-                boolean hasNoThisAccess = X10TypeMixin.isNoThisAccess(procDef,ts);
+                boolean hasNoThisAccess = Types.isNoThisAccess(procDef,ts);
                 if (isProperty(procDef) || hasNoThisAccess) {
                     // property-method calls and calls to @NoThisAccess are ok
                 } else {
                     // the method must be final or private (or @NoThisAccess)
                     final Position callPos = call.position();
-                    boolean isNonEscaping = X10TypeMixin.isNonEscaping(procDef,ts);
+                    boolean isNonEscaping = Types.isNonEscaping(procDef,ts);
                     X10MethodDecl_c method = findMethod(call);
                     if (method==null) {
                         // in the future: we could infer nonescaping from the superclass. The problem is that it is hard to understand the error messages that result from such inference
@@ -841,7 +842,7 @@ public class CheckEscapingThis extends NodeVisitor
     private boolean isThis(Node n) {
         if (n==null || !(n instanceof Special)) return false;
         final Special special = (Special) n;
-        final Type tt = X10TypeMixin.baseType(special.type());
+        final Type tt = Types.baseType(special.type());
         if (!tt.isClass()) return false;
         ClassType type = tt.toClass();
 
@@ -854,7 +855,7 @@ public class CheckEscapingThis extends NodeVisitor
             if (type.def()==classType.def()) return true;
             final Type superClass = classType.superClass();
             if (superClass==null) return false;
-            thisClass = X10TypeMixin.baseType(superClass);
+            thisClass = Types.baseType(superClass);
         }
         return false;
     }

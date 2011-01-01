@@ -61,14 +61,13 @@ import polyglot.types.LocalDef;
 import polyglot.types.MemberDef;
 import polyglot.types.MemberInstance;
 import polyglot.types.MethodDef;
-import polyglot.types.MethodInstance;
 import polyglot.types.Name;
 import polyglot.types.Package;
 import polyglot.types.QName;
 import polyglot.types.Ref;
 import polyglot.types.Ref_c;
 import polyglot.types.SemanticException;
-import polyglot.types.StructType;
+import polyglot.types.ContainerType;
 import polyglot.types.Type;
 import polyglot.types.TypeObject;
 import polyglot.types.TypeSystem;
@@ -98,22 +97,21 @@ import x10.extension.X10Del;
 import x10.extension.X10Del_c;
 import x10.extension.X10Ext;
 import x10.types.ConstrainedType;
-import x10.types.ConstrainedType_c;
+
 import x10.types.MacroType;
 import x10.types.ParameterType;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10ConstructorDef;
 import polyglot.types.Context;
-import x10.types.X10Flags;
+
 import x10.types.X10MemberDef;
 import x10.types.X10MethodDef;
-import x10.types.X10MethodInstance;
+import x10.types.MethodInstance;
 import x10.types.X10ParsedClassType_c;
 import x10.types.X10ProcedureDef;
 import x10.types.X10TypeEnv_c;
 
-import x10.types.X10TypeMixin;
 import polyglot.types.TypeSystem;
 import x10.types.XTypeTranslator;
 import x10.types.X10Context_c;
@@ -268,7 +266,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 			n = (X10MethodDecl_c) n.returnType(nf.CanonicalTypeNode(rtpos, ts.unknownType(rtpos)));
 		}
 
-		X10Flags xf = X10Flags.toX10Flags(mi.flags());
+		Flags xf = mi.flags();
 		if (xf.isProperty()) {
 			final LazyRef<XTerm> bodyRef = Types.lazyRef(null);
 			bodyRef.setResolver(new SetResolverGoal(tb.job()).intern(tb.job().extensionInfo().scheduler()));
@@ -278,9 +276,9 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 		// property implies public, final
 		if (xf.isProperty()) {
 			if (xf.isAbstract())  //todo: Yoav thinks we should not have abstract property methods (all property methods, even in interfaces, should have a body so they can be expanded)
-				xf = X10Flags.toX10Flags(xf.Public());
+				xf = xf.Public();
 			else
-				xf = X10Flags.toX10Flags(xf.Public().Final());
+				xf = xf.Public().Final();
 
 			mi.setFlags(xf);
 			n = (X10MethodDecl_c) n.flags(n.flags().flags(xf));
@@ -481,9 +479,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 	}
 
 	@Override
-	protected void checkFlags(ContextVisitor tc, Flags flags) {
-		X10Flags xf = X10Flags.toX10Flags(flags);
-
+	protected void checkFlags(ContextVisitor tc, Flags xf) {
 		// Set the native flag if incomplete or extern so super.checkFlags doesn't complain.
 		super.checkFlags(tc, xf);
 
@@ -503,12 +499,12 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 		NodeFactory nf = tc.nodeFactory();
 		TypeSystem ts = (TypeSystem) tc.typeSystem();
 		if (((TypeSystem) tc.typeSystem()).isStructType(mi.container().get())) {
-			Flags xf = X10Flags.toX10Flags(mi.flags()).Final();
+			Flags xf = mi.flags().Final();
 			mi.setFlags(xf);
 			n = (X10MethodDecl_c) n.flags(n.flags().flags(xf));
 		}
 
-		X10Flags xf = X10Flags.toX10Flags(mi.flags());
+		Flags xf = mi.flags();
 
 		//if (xf.isProperty() && body == null) {
 		//    Errors.issue(tc.job(),
@@ -553,7 +549,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 		}
 
 		try {
-		    X10TypeMixin.checkMissingParameters(n.returnType());
+		    Types.checkMissingParameters(n.returnType());
 		} catch (SemanticException e) {
 		    Errors.issue(tc.job(), e, n.returnType());
 		}
@@ -563,9 +559,9 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
             // formals are always in contravariant positions, while return type in covariant position (ctors are ignored)
             for (Formal f : n.formals) {
                 final TypeNode fType = f.type();
-                X10TypeMixin.checkVariance(fType, ParameterType.Variance.CONTRAVARIANT,tc.job());
+                Types.checkVariance(fType, ParameterType.Variance.CONTRAVARIANT,tc.job());
             }
-            X10TypeMixin.checkVariance(n.returnType, ParameterType.Variance.COVARIANT,tc.job());
+            Types.checkVariance(n.returnType, ParameterType.Variance.COVARIANT,tc.job());
         }
 
         // check subtype restriction on implicit and explicit operator as:
@@ -573,11 +569,11 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
         final Name nameId = n.name.id();
         if (nameId==Converter.implicit_operator_as || nameId==Converter.operator_as) {
             final X10MethodDef methodDef = n.methodDef();
-            final StructType container = methodDef.container().get();
-            final Type returnT = X10TypeMixin.baseType(methodDef.returnType().get());
+            final ContainerType container = methodDef.container().get();
+            final Type returnT = Types.baseType(methodDef.returnType().get());
             final List<Ref<? extends Type>> formals = methodDef.formalTypes();
             assert formals.size()==1 : "Currently it is a parsing error if the number of formals for an implicit or explicit 'as' operator is different than 1! formals="+formals;
-            final Type argumentT = X10TypeMixin.baseType(formals.get(0).get());
+            final Type argumentT = Types.baseType(formals.get(0).get());
             // I compare ClassDef due to this example:
             //class B[U] {
             //    public static operator[T](x:T):B[T] = null;
@@ -637,8 +633,8 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 		MethodDef mi = this.methodDef();
 		TypeSystem xts = (TypeSystem) tc.typeSystem();
 
-		if (X10Flags.toX10Flags(mi.flags()).isProperty()) {
-			X10MethodInstance xmi = (X10MethodInstance) mi.asInstance();
+		if (mi.flags().isProperty()) {
+			MethodInstance xmi = (MethodInstance) mi.asInstance();
 			if (xmi.guard() != null && ! xmi.guard().valid())
 				Errors.issue(tc.job(),
 				        new SemanticException("A property method cannot have a guard.", guard != null ? guard.position() : position()));
@@ -715,7 +711,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 				if (n instanceof TypeNode) {
 					TypeNode tn = (TypeNode) n;
 					Type t = tn.type();
-					t = X10TypeMixin.baseType(t);
+					t = Types.baseType(t);
 					if (t instanceof X10ClassType) {
 						X10ClassType ct = (X10ClassType) t;
 						if (! hasSameScope(ct, mem.memberDef())) {
@@ -749,7 +745,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 				}
 				else {
 					Type t = Types.get(def.container());
-					t = X10TypeMixin.baseType(t);
+					t = Types.baseType(t);
 					if (t instanceof ClassType) {
 						ClassType ct = (ClassType) t;
 						Flags outerFlags = getSignatureFlags(ct.def());
@@ -808,7 +804,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 					MemberDef md = (MemberDef) def;
 					Type container = Types.get(md.container());
 					if (container != null) {
-						container = X10TypeMixin.baseType(container);
+						container = Types.baseType(container);
 						if (container instanceof ClassType) {
 							return ((ClassType) container).def();
 						}
@@ -942,7 +938,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 
 						// Fold the formal's constraint into the guard.
 						XVar var = xts.xtypeTranslator().trans(n.localDef().asInstance());
-						CConstraint dep = X10TypeMixin.xclause(newType);
+						CConstraint dep = Types.xclause(newType);
 						if (dep != null) {
 							dep = dep.copy();
 							dep = dep.substitute(var, c.self());
@@ -962,7 +958,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 				// Fold this's constraint (the class invariant) into the guard.
 				{
 					Type t =  tc.context().currentClass();
-					CConstraint dep = X10TypeMixin.xclause(t);
+					CConstraint dep = Types.xclause(t);
 					if (c != null && dep != null) {
 						XVar thisVar = methodDef().thisVar();
 						if (thisVar != null)

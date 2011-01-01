@@ -39,7 +39,6 @@ import polyglot.frontend.Job;
 import polyglot.types.Context;
 import polyglot.types.LocalDef;
 import polyglot.types.LocalInstance;
-import polyglot.types.MethodInstance;
 import polyglot.types.Name;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
@@ -69,8 +68,7 @@ import x10.types.EnvironmentCapture;
 import x10.types.ThisDef;
 import x10.types.X10ConstructorInstance;
 import x10.types.X10MemberDef;
-import x10.types.X10MethodInstance;
-import x10.types.X10TypeMixin;
+import x10.types.MethodInstance;
 import x10.types.checker.Converter;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
@@ -133,7 +131,7 @@ public class Desugarer extends ContextVisitor {
     public static Expr desugarBinary(Binary n, ContextVisitor v) {
         Call c = X10Binary_c.desugarBinaryOp(n, v);
         if (c != null) {
-            X10MethodInstance mi = (X10MethodInstance) c.methodInstance();
+            MethodInstance mi = (MethodInstance) c.methodInstance();
             if (mi.error() != null)
                 throw new InternalCompilerError("Unexpected exception when desugaring "+n, n.position(), mi.error());
             return c;
@@ -143,7 +141,7 @@ public class Desugarer extends ContextVisitor {
     }
 
     private Expr getLiteral(Position pos, Type type, long val) {
-        type = X10TypeMixin.baseType(type);
+        type = Types.baseType(type);
         Expr lit = null;
         if (ts.isIntOrLess(type)) {
             lit = nf.IntLit(pos, IntLit.INT, val);
@@ -215,7 +213,7 @@ public class Desugarer extends ContextVisitor {
     public static Expr desugarUnary(Unary n, ContextVisitor v) {
         Call c = X10Unary_c.desugarUnaryOp(n, v);
         if (c != null) {
-            X10MethodInstance mi = (X10MethodInstance) c.methodInstance();
+            MethodInstance mi = (MethodInstance) c.methodInstance();
             if (mi.error() != null)
                 throw new InternalCompilerError("Unexpected exception when desugaring "+n, n.position(), mi.error());
             return c;
@@ -371,7 +369,7 @@ public class Desugarer extends ContextVisitor {
         Expr res = assign(pos, lhs, Assign.ASSIGN, val, v);
         Block body = nf.Block(pos, nf.Return(pos, res));
         Closure c = closure(pos, R, parms, body, v);
-        X10MethodInstance ci = c.closureDef().asType().applyMethod();
+        MethodInstance ci = c.closureDef().asType().applyMethod();
         List<Expr> args = new ArrayList<Expr>();
         args.add(0, e);
         args.add(right);
@@ -448,7 +446,7 @@ public class Desugarer extends ContextVisitor {
         Block block = nf.Block(pos, r, nf.Eval(pos, res),
                 nf.Return(pos, nf.Local(pos, nf.Id(pos, rn)).localInstance(rDef.asInstance()).type(rType)));
         Closure c = closure(pos, rType, parms, block, v);
-        X10MethodInstance ci = c.closureDef().asType().applyMethod();
+        MethodInstance ci = c.closureDef().asType().applyMethod();
         args.add(0, a);
         args.add(n.right());
         return nf.ClosureCall(pos, c, args).closureInstance(ci).type(rType);
@@ -484,7 +482,7 @@ public class Desugarer extends ContextVisitor {
     private DepParameterExpr getClause(TypeNode tn) {
         Type t = tn.type();
         if (tn instanceof X10CanonicalTypeNode) {
-            CConstraint c = X10TypeMixin.xclause(t);
+            CConstraint c = Types.xclause(t);
             if (c == null || c.valid())
                 return null;
             XConstrainedTerm here = context().currentPlaceTerm();
@@ -504,7 +502,7 @@ public class Desugarer extends ContextVisitor {
         Type t = tn.type();
         if (tn instanceof X10CanonicalTypeNode) {
             X10CanonicalTypeNode ctn = (X10CanonicalTypeNode) tn;
-            Type baseType = X10TypeMixin.baseType(t);
+            Type baseType = Types.baseType(t);
             if (baseType != t) {
                 return ctn.typeRef(Types.ref(baseType));
             }
@@ -553,7 +551,7 @@ public class Desugarer extends ContextVisitor {
         //if (!c.closureDef().capturedEnvironment().isEmpty())
         //    System.out.println(c+" at "+c.position()+" captures "+c.closureDef().capturedEnvironment());
         Expr cast = nf.X10Cast(pos, tn, e, Converter.ConversionType.CHECKED).type(t);
-        X10MethodInstance ci = c.closureDef().asType().applyMethod();
+        MethodInstance ci = c.closureDef().asType().applyMethod();
         return nf.ClosureCall(pos, c, Collections.singletonList(cast)).closureInstance(ci).type(ot);
     }
 
@@ -582,7 +580,7 @@ public class Desugarer extends ContextVisitor {
         c.visit(new ClosureCaptureVisitor(this.context(), c.closureDef()));
         //if (!c.closureDef().capturedEnvironment().isEmpty())
         //    System.out.println(c+" at "+c.position()+" captures "+c.closureDef().capturedEnvironment());
-        X10MethodInstance ci = c.closureDef().asType().applyMethod();
+        MethodInstance ci = c.closureDef().asType().applyMethod();
         return nf.ClosureCall(pos, c, Collections.singletonList(e)).closureInstance(ci).type(ts.Boolean());
     }
 

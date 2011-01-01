@@ -13,7 +13,8 @@ package x10.ast;
 
 import polyglot.ast.Binary;
 import polyglot.ast.Expr;
-import x10.types.X10MethodInstance;
+import x10.types.MethodInstance;
+
 
 /**
  * An immutable representation of a binary operation.
@@ -22,6 +23,6 @@ import x10.types.X10MethodInstance;
 public interface X10Binary extends Binary {
     boolean invert();
     X10Binary invert(boolean invert);
-    X10MethodInstance methodInstance();
-    X10Binary methodInstance(X10MethodInstance mi);
+    MethodInstance methodInstance();
+    X10Binary methodInstance(MethodInstance mi);
 }

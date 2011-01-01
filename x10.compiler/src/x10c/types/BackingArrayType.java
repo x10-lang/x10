@@ -11,13 +11,13 @@
 
 package x10c.types;
 
-import polyglot.types.ArrayType_c;
+import polyglot.types.JavaArrayType_c;
 import polyglot.types.Ref;
 import polyglot.types.Type;
 import polyglot.util.Position;
 import polyglot.types.TypeSystem;
 
-public class BackingArrayType extends ArrayType_c {
+public class BackingArrayType extends JavaArrayType_c {
     private static final long serialVersionUID = 1504080841867595349L;
     public BackingArrayType(TypeSystem xts, Position position, Ref<? extends Type> ref) {
         super(xts, position, ref);

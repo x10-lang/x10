@@ -59,7 +59,7 @@ public class FwdReferenceChecker extends ContextVisitor
                 //
                 
                 ClassType currentClass = context().currentClass();
-                StructType fContainer = f.fieldInstance().container();
+                ContainerType fContainer = f.fieldInstance().container();
 
                 if (f.fieldInstance().flags().isStatic() &&
                     currentClass.typeEquals(fContainer, context) &&

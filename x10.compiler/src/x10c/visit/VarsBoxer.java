@@ -35,7 +35,7 @@ import polyglot.types.Context;
 import polyglot.types.Flags;
 import polyglot.types.LocalInstance;
 import polyglot.types.MethodDef;
-import polyglot.types.MethodInstance;
+
 import polyglot.types.Name;
 import polyglot.types.QName;
 import polyglot.types.Ref;
@@ -59,8 +59,8 @@ import x10.ast.X10Unary_c;
 import x10.types.EnvironmentCapture;
 import x10.types.X10ConstructorInstance;
 import x10.types.X10LocalDef;
+import x10.types.MethodInstance;
 import x10.types.X10ParsedClassType;
-import x10.types.X10TypeMixin;
 import x10.types.checker.Converter;
 
 public class VarsBoxer extends ContextVisitor {
@@ -224,7 +224,7 @@ public class VarsBoxer extends ContextVisitor {
 
     // copied from Desugarer
     private Expr getLiteral(Position pos, Type type, long val) throws SemanticException {
-        type = X10TypeMixin.baseType(type);
+        type = Types.baseType(type);
         Expr lit = null;
         if (xts.isIntOrLess(type)) {
             lit = xnf.IntLit(pos, IntLit.INT, val);

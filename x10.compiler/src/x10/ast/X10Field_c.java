@@ -35,8 +35,9 @@ import polyglot.types.Name;
 import polyglot.types.Named;
 import polyglot.types.QName;
 import polyglot.types.SemanticException;
-import polyglot.types.StructType;
+import polyglot.types.ContainerType;
 import polyglot.types.Type;
+import polyglot.types.Types;
 import polyglot.util.ErrorInfo;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
@@ -51,11 +52,10 @@ import x10.types.ParametrizedType_c;
 import x10.types.X10ClassType;
 import polyglot.types.Context;
 import x10.types.X10FieldInstance;
-import x10.types.X10Flags;
-import x10.types.X10MethodInstance;
-import x10.types.X10TypeSystem_c;
 
-import x10.types.X10TypeMixin;
+import x10.types.MethodInstance;
+
+
 import polyglot.types.TypeSystem;
 import x10.types.checker.Checker;
 import x10.types.checker.PlaceChecker;
@@ -120,7 +120,7 @@ public class X10Field_c extends Field_c {
 	        Name name, boolean isStatic, SemanticException e)
 	{
 	    X10FieldInstance fi;
-	    X10TypeSystem_c xts = (X10TypeSystem_c) tc.typeSystem();
+	    TypeSystem xts =  tc.typeSystem();
 	    Context context = tc.context();
 	    boolean haveUnknown = xts.hasUnknown(targetType);
 	    Set<FieldInstance> fis = xts.findFields(targetType, xts.FieldMatcher(targetType, name, context));
@@ -132,7 +132,7 @@ public class X10Field_c extends Field_c {
 	            rt = xfi.type();
 	        } else if (!xts.typeEquals(rt, xfi.type(), context)) {
 	            if (xts.typeBaseEquals(rt, xfi.type(), context)) {
-	                rt = X10TypeMixin.baseType(rt);
+	                rt = Types.baseType(rt);
 	            } else {
 	                rt = null;
 	                break;
@@ -146,7 +146,7 @@ public class X10Field_c extends Field_c {
 	            ct = xfi.container();
 	        } else if (!xts.typeEquals(ct, xfi.container(), context)) {
 	            if (xts.typeBaseEquals(ct, xfi.container(), context)) {
-	                ct = X10TypeMixin.baseType(ct);
+	                ct = Types.baseType(ct);
 	            } else {
 	                ct = null;
 	                break;
@@ -160,6 +160,9 @@ public class X10Field_c extends Field_c {
 	        e = new SemanticException(); // null message
 	    if (!targetType.isClass()) {
 	        Name tName = targetType instanceof Named ? ((Named) targetType).name() : Name.make(targetType.toString()); 
+	        if (tName == null) {
+	        	tName = Name.make(targetType.toString());
+	        }
 	        targetType = xts.createFakeClass(QName.make(null, tName), new SemanticException("Target type is not a class: "+targetType));
 	    }
 	    fi = xts.createFakeField(targetType.toClass(), flags, name, e);
@@ -173,7 +176,7 @@ public class X10Field_c extends Field_c {
     public static boolean isInterfaceProperty(Type targetType, FieldInstance fi) {
         boolean isInterfaceProperty = false;
 
-        if (X10Flags.toX10Flags(fi.flags()).isProperty()) {
+        if (fi.flags().isProperty()) {
             // check if the target is interface
             Type baseType = targetType;
             while (baseType instanceof ConstrainedType) {
@@ -205,7 +208,7 @@ public class X10Field_c extends Field_c {
 
 		Position pos = position();
 		if (target instanceof TypeNode) {
-			Type t = X10TypeMixin.baseType(tType);
+			Type t = Types.baseType(tType);
 			if (t instanceof ParameterType) {
 				SemanticException e = new Errors.CannotAccessStaticFieldOfTypeParameter(t, pos);
 				if (error == null) { error = e; }
@@ -214,7 +217,7 @@ public class X10Field_c extends Field_c {
 		}
 
 		if (c.inSuperTypeDeclaration()) {
-			Type tBase = X10TypeMixin.baseType(tType);
+			Type tBase = Types.baseType(tType);
 			if (tBase instanceof X10ClassType) {
 				X10ClassType tCt = (X10ClassType) tBase;
 				if (tCt.def() == c.supertypeDeclarationType()) {
@@ -246,14 +249,14 @@ public class X10Field_c extends Field_c {
 		}
 
 		X10FieldInstance fi = findAppropriateField(tc, tType, name.id(),
-		        target instanceof TypeNode, X10TypeMixin.contextKnowsType(target));
+		        target instanceof TypeNode, Types.contextKnowsType(target));
 
         if (fi.error() != null) {
             if (target instanceof Expr) {
                 // Now try 0-ary property methods.
                 try {
-                    X10MethodInstance mi = ts.findMethod(target.type(), ts.MethodMatcher(target.type(), name.id(), Collections.<Type>emptyList(), c));
-                    if (X10Flags.toX10Flags(mi.flags()).isProperty()) {
+                    MethodInstance mi = ts.findMethod(target.type(), ts.MethodMatcher(target.type(), name.id(), Collections.<Type>emptyList(), c));
+                    if (mi.flags().isProperty()) {
                         Call call = nf.Call(pos, target, this.name);
                         call = call.methodInstance(mi);
                         Type nt =  c.inDepType() ? 
@@ -333,7 +336,7 @@ public class X10Field_c extends Field_c {
 	        X10FieldInstance fi, ContextVisitor tc) throws SemanticException {
 		// Check that field accesses in dep clauses refer to final fields.
 		Context xtc = tc.context();
-		if (X10Flags.toX10Flags(fi.flags()).isClocked() && !xtc.isClocked()) {
+		if (fi.flags().isClocked() && !xtc.isClocked()) {
 			throw new Errors.IllegalClockedAccess(fi, pos);
 		}
 	}
