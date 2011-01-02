@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 import x10.parser.AutoGenSentences;
+import x10.Configuration;
 
 /**
  * This program reads a bunch of x10 files and runs the front end on them,
@@ -57,6 +58,7 @@ import x10.parser.AutoGenSentences;
  * If no OPTIONS is specified, we run with VERBOSE_CALLS.
  */
 public class RunTestSuite {
+    public static boolean SEPARATE_COMPILER = System.getenv("SEPARATE_COMPILER")==null || System.getenv("SEPARATE_COMPILER").equals("true");
     public static boolean QUIET = System.getenv("QUIET")!=null;
     private static void println(String s) {
         if (!QUIET) System.out.println(s);
@@ -74,7 +76,6 @@ public class RunTestSuite {
     };
     private static final String[] EXCLUDE_DIRS = {
             "AutoGen", // it takes too long to compile these files
-            "LangSpec", // many duplicate package-protected classes
             "WorkStealing", // duplicate classes for testing work-stealing, e.g., WorkStealing\Construct\Generics1.x10
     };
     private static final String[] EXCLUDE_FILES = {
@@ -134,6 +135,8 @@ public class RunTestSuite {
             if (s.contains("STATIC_CALLS") || s.contains("VERBOSE_CALLS"))
                 throw new RuntimeException("You should run the test suite without -VERBOSE_CALLS or -STATIC_CALLS");
         }
+        if (SEPARATE_COMPILER)
+            println("Running each file with a separate (new) compiler object, so it's less efficient but more stable.");
 
 
         final String dirName = args[0];
@@ -210,7 +213,8 @@ public class RunTestSuite {
         errQueue.getErrors().clear();
         HashSet<String> sources = new HashSet<String>();
         final Compiler comp = MAIN.getCompiler(newArgs, null, errQueue, sources);
-        if (COMPILER==null) COMPILER = comp;
+        if (SEPARATE_COMPILER || COMPILER==null)
+            COMPILER = comp;
         long start = System.currentTimeMillis();
         Throwable err = null;
         try {
@@ -263,7 +267,8 @@ public class RunTestSuite {
             if (optionsIndex>=0) {
                 final String option = line.substring(optionsIndex + "OPTIONS:".length()).trim();
                 res.options.add(option);
-                if (option.equals("-STATIC_CALLS")) res.STATIC_CALLS = true;
+                if (option.equals("-STATIC_CALLS"))
+                    res.STATIC_CALLS = true;
             }
             line = line.trim();
             int commentIndex = line.indexOf("//");
@@ -293,6 +298,8 @@ public class RunTestSuite {
         String[] newArgs = allArgs.toArray(new String[allArgs.size()+2]);
         newArgs[newArgs.length-2] = STATIC_CALLS ? "-STATIC_CALLS" : "-VERBOSE_CALLS";
         newArgs[newArgs.length-1] = !STATIC_CALLS ? "-STATIC_CALLS=false" : "-VERBOSE_CALLS=false";
+        Configuration.STATIC_CALLS = STATIC_CALLS;
+        Configuration.VERBOSE_CALLS = !STATIC_CALLS;
         println("Running: "+ summary.fileName);
         ArrayList<ErrorInfo> errors = runCompiler(newArgs, summary.COMPILER_CRASHES);
         // remove GOOD_ERR_MARKERS  and EXPECTED_ERR_MARKERS
