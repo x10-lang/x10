@@ -22,7 +22,7 @@ public class CF3 extends x10Test {
      	public   operator this(a:Int,b:Int)=a+b;
     }
     def m() offers Int {
-    	offer 6;
+    	offer 6; // ShouldNotBeERR
     }
 	public def run() {
 

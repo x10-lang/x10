@@ -12,7 +12,6 @@ import polyglot.main.Report;
 import polyglot.types.SemanticException;
 import x10.ast.AnnotationNode_c;
 import x10.ast.X10Formal_c;
-import x10.errors.X10ErrorInfo;
 
 public class PositionInvariantChecker extends NodeVisitor
 {
@@ -43,7 +42,7 @@ public class PositionInvariantChecker extends NodeVisitor
                 (" nPos=")+(n.position())+
                 (" n=")+(n).toString();
         	}
-            job.compiler().errorQueue().enqueue(X10ErrorInfo.INVARIANT_VIOLATION_KIND,msg,n.position());
+            job.compiler().errorQueue().enqueue(ErrorInfo.INVARIANT_VIOLATION_KIND,msg,n.position());
         } else {
             n.del().visitChildren(this); // if there is an error, I don't recurse to the children
         }

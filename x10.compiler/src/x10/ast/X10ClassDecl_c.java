@@ -334,6 +334,8 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     	//    	       return child.del().enterScope(xc); 
     	//    	   }
 
+        assert child==this.body; // see the previous if statement
+        // todo: this whole next if is therefore stupid and meaningless...
     	if (child == this.body || child == this.properties || (this.properties != null && this.properties.contains(child))) {
     		X10ClassDef_c type = (X10ClassDef_c) this.type;
     		xc = (Context) xc.pushClass(type, type.asType());
@@ -345,7 +347,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
                if (v != null) {
             	   Ref<TypeConstraint> tc = v.typeConstraint();
             	   if (tc != null) {
-            		    xc.setCurrentTypeConstraint(tc);
+            		    xc.setCurrentTypeConstraint(tc); // todo: what about setCurrentConstraint ?
             	   }
                }
     		 

@@ -77,6 +77,7 @@ public class RunTestSuite {
     private static final String[] EXCLUDE_DIRS = {
             "AutoGen", // it takes too long to compile these files
             "WorkStealing", // duplicate classes for testing work-stealing, e.g., WorkStealing\Construct\Generics1.x10
+            "LangSpec"
     };
     private static final String[] EXCLUDE_FILES = {
             "NOT_WORKING", // to exclude some benchmarks: https://x10.svn.sourceforge.net/svnroot/x10/benchmarks/trunk
@@ -191,9 +192,11 @@ public class RunTestSuite {
         }
         assert foundSourcePath : "You must use an argument -sourcepath that includes '/x10.runtime/src-x10'";
 
+        long start = System.currentTimeMillis();
         for (FileSummary f : summaries) {
             compileFile(f,remainingArgs);
         }
+        println("Total running time to compile all files="+(System.currentTimeMillis()-start));
         System.exit(EXIT_CODE);
     }
     private static int count(String s, String sub) {

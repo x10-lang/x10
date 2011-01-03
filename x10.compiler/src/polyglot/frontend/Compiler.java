@@ -153,7 +153,13 @@ public class Compiler
 	try {
 	    try {
                 Scheduler scheduler = sourceExtension().scheduler();
+
+                // clearing state
+                final x10.ExtensionInfo x10ext = (x10.ExtensionInfo) extensionInfo;
+                x10ext.warningSet().clear(); // again, to clear caching of warnings (to prevent duplicates)
+                x10ext.errorSet().clear();
                 scheduler.clearAll(); // to clear the fail flag of the scheduler
+
                 List<Job> jobs = new ArrayList<Job>();
 
                 // Create a job for each source file.

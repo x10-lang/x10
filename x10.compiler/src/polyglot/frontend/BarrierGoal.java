@@ -12,7 +12,21 @@ public abstract class BarrierGoal extends AbstractGoal_c {
         assert jobs != null;
         this.jobs = jobs;
     }
-    
+
+    @Override
+    public int hashCode() {
+        return name.hashCode()^jobs.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+		if (o instanceof BarrierGoal) {
+			BarrierGoal g = (BarrierGoal) o;
+			return name().equals(g.name()) && jobs.equals(g.jobs);
+		}
+		return false;
+    }
+
     public BarrierGoal(Collection<Job> jobs) {
         super();
         assert jobs != null;

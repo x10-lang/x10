@@ -230,7 +230,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
         return false;
     }
 
-    static class WarningComparator implements Comparator<ErrorInfo> {
+    static class WarningComparator implements Comparator<ErrorInfo> { // todo: why Warnings are ordered differently than exceptions? (see ExceptionComparator)
         public int compare(ErrorInfo a, ErrorInfo b) {
             Position pa = a.getPosition();
             Position pb = b.getPosition();
@@ -261,6 +261,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
         return warnings;
     }
 
+    // todo: can't we merge warning and exceptions into a single object (ErrorInfo?)
     static class ExceptionComparator implements Comparator<SemanticException> {
         public int compare(SemanticException a, SemanticException b) {
             int r = (a.getClass().toString().compareToIgnoreCase(b.getClass().toString()));
@@ -278,6 +279,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                 return -1;
             if (pb == null)
                 return 1;
+            // todo: what about path & file ? (we should first order by file, right?)
             if (pa.line() < pb.line())
                 return -1;
             if (pb.line() < pa.line())
@@ -385,7 +387,6 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
         @Override
         public void clearAll() {
             super.clearAll();
-            internCache.clear();
             PrintWeakCallsCount = null;
         }
 
@@ -442,10 +443,12 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 
            if (!x10.Configuration.ONLY_TYPE_CHECKING) {
 
-           goals.add(Desugarer(job));
+           final Goal desugarerGoal = Desugarer(job);
+           goals.add(desugarerGoal);
 
            Goal walaBarrier = null;
-           if (x10.Configuration.WALA || x10.Configuration.WALADEBUG || x10.Configuration.FINISH_ASYNCS) {
+           final Goal typeCheckBarrierGoal = TypeCheckBarrier();
+               if (x10.Configuration.WALA || x10.Configuration.WALADEBUG || x10.Configuration.FINISH_ASYNCS) {
                try{
                    ClassLoader cl = Thread.currentThread().getContextClassLoader();
                    Class<?> c = cl.loadClass("x10.wala.translator.X102IRGoal");
@@ -454,7 +457,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                    Goal ir = ((Goal) con.newInstance(job)).intern(this);
                    goals.add(ir);
                    Goal finder = MainMethodFinder(job, hasMain);
-                   finder.addPrereq(TypeCheckBarrier());
+                   finder.addPrereq(typeCheckBarrierGoal);
                    ir.addPrereq(finder);
                    if(x10.Configuration.FINISH_ASYNCS){
                        Method buildCallTableMethod = c.getMethod("analyze");
@@ -478,12 +481,14 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            goals.add(MoveFieldInitializers(job));
            goals.add(X10Expanded(job));
            goals.add(X10RewriteAtomicMethods(job));
-           
-           goals.add(NativeClassVisitor(job));
-           
-           goals.add(InnerClassRemover(job)); // TODO: move even earlier
-           InnerClassRemover(job).addPrereq(NativeClassVisitor(job));
-           InnerClassRemover(job).addPrereq(TypeCheckBarrier());
+
+           final Goal nativeClassVisitorGoal = NativeClassVisitor(job);
+           goals.add(nativeClassVisitorGoal);
+
+           final Goal innerClassRemoverGoal = InnerClassRemover(job);
+           goals.add(innerClassRemoverGoal); // TODO: move even earlier
+           innerClassRemoverGoal.addPrereq(nativeClassVisitorGoal);
+           innerClassRemoverGoal.addPrereq(typeCheckBarrierGoal);
 
            goals.add(Serialized(job));
            if (x10.Configuration.WORK_STEALING) {
@@ -503,19 +508,21 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            goals.add(Preoptimization(job));
            goals.addAll(Optimizer.goals(this, job));
            goals.add(Postoptimization(job));
-           
-           goals.add(Lowerer(job));
-           goals.add(CodeGenerated(job));
+
+           final Goal lowererGoal = Lowerer(job);
+           goals.add(lowererGoal);
+           final Goal codeGeneratedGoal = CodeGenerated(job);
+           goals.add(codeGeneratedGoal);
            
            // the barrier will handle prereqs on its own
-           Desugarer(job).addPrereq(TypeCheckBarrier());
-           CodeGenerated(job).addPrereq(CodeGenBarrier());
-           Lowerer(job).addPrereq(TypeCheckBarrier());
-           CodeGenerated(job).addPrereq(Lowerer(job));
+           desugarerGoal.addPrereq(typeCheckBarrierGoal);
+           codeGeneratedGoal.addPrereq(CodeGenBarrier());
+           lowererGoal.addPrereq(typeCheckBarrierGoal);
+           codeGeneratedGoal.addPrereq(lowererGoal);
            List<Goal> optimizations = Optimizer.goals(this, job);
            for (Goal goal : optimizations) {
-               goal.addPrereq(TypeCheckBarrier());
-               CodeGenerated(job).addPrereq(goal);
+               goal.addPrereq(typeCheckBarrierGoal);
+               codeGeneratedGoal.addPrereq(goal);
            }
 
            }
