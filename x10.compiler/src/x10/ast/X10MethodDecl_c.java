@@ -407,13 +407,17 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 
 		// Ensure that the place constraint is set appropriately when
 		// entering the body of the method, the return type and the throw type.
-
-
 		if (child == body || child == returnType || child == hasType || child == offerType || child == guard
 				|| (formals != null && formals.contains(child))) {
-			if (placeTerm != null)
-				c = ((Context) c).pushPlace( XConstrainedTerm.make(placeTerm));
-			else c = PlaceChecker.pushHereTerm(methodDef(), (Context) c);
+			if (placeTerm != null) {
+				c = c.pushPlace(XConstrainedTerm.make(placeTerm));
+			} else {
+			    c = PlaceChecker.pushHereTerm(methodDef(), c);
+			}
+		}
+
+		if (child == body && offerType != null && offerType.typeRef().known()) {
+		    c = c.pushCollectingFinishScope(offerType.type());
 		}
 
 		// Add the method guard into the environment.
@@ -472,7 +476,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 				final LazyRef<Type> r = (LazyRef<Type>) tn.typeRef();
 				TypeChecker tc = new X10TypeChecker(v.job(), v.typeSystem(), v.nodeFactory(), v.getMemo(), true);
 				tc = (TypeChecker) tc.context(tcp.context().freeze());
-				r.setResolver(new TypeCheckReturnTypeGoal(this, new Node[] { guard() }, body(), tc, r));
+				r.setResolver(new TypeCheckReturnTypeGoal(this, new Node[] { guard(), offerType() }, body(), tc, r));
 			}
 		}
 		return super.setResolverOverride(parent, v);
