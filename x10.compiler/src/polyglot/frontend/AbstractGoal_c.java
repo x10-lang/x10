@@ -11,7 +11,7 @@ public abstract class AbstractGoal_c extends LazyRef_c<Goal.Status> implements G
 	private static final long serialVersionUID = 39827248332800427L;
 
 	String name;
-	public List<Goal> prereqs;
+	private List<Goal> prereqs;
 	protected Scheduler scheduler = null;
 
 	public final Goal intern(Scheduler scheduler) {
@@ -20,14 +20,11 @@ public abstract class AbstractGoal_c extends LazyRef_c<Goal.Status> implements G
 	}
 
 	protected AbstractGoal_c() {
-		super(Status.NEW);
-		this.name = StringUtil.getShortNameComponent(getClass().getName().replace('$', '.'));
-		setResolver(this);
+        this(null);
 	}
-
 	protected AbstractGoal_c(String name) {
 		super(Status.NEW);
-		this.name = name;
+		this.name = name==null ? StringUtil.getShortNameComponent(getClass().getName().replace('$', '.')) : name;
 		setResolver(this);
 	}
 

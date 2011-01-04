@@ -77,7 +77,7 @@ public abstract class Scheduler {
      */
     protected Map<Source, Option<Job>> jobs;
     
-    protected Collection<Job> commandLineJobs;
+    protected Collection<Job> commandLineJobs = Collections.emptyList();
     
     /** True if any pass has failed. */
     protected boolean failed;
@@ -97,7 +97,9 @@ public abstract class Scheduler {
         return this.commandLineJobs;
     }
 
-    public void clearAll() {
+    public Collection<Source> sources;
+    public void clearAll(Collection<Source> sources) {
+        this.sources = sources;
         setFailed(false);
     }
     

@@ -385,8 +385,8 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 	   }
 
         @Override
-        public void clearAll() {
-            super.clearAll();
+        public void clearAll(Collection<Source> sources) {
+            super.clearAll(sources);
             PrintWeakCallsCount = null;
         }
 

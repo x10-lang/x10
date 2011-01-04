@@ -6,16 +6,16 @@ public abstract class AllBarrierGoal extends AbstractGoal_c {
     private static final long serialVersionUID = 7313267162257728279L;
 
     protected Scheduler scheduler;
-    private List<Goal> prereqs = null; // this is not just a cache! we use it for equality and hashCode, and when the compiler is set with different commandLineJobs, then this set shouldn't change
-    
+    protected final Collection<Source> sources; // used to determine equality
+
     public AllBarrierGoal(Scheduler scheduler) {
-        super();
-        this.scheduler = scheduler;
+        this(null, scheduler);
     }
     
     public AllBarrierGoal(String name, Scheduler scheduler) {
         super(name);
         this.scheduler = scheduler;
+        sources = scheduler.sources;
     }
 
     @Override
@@ -23,8 +23,7 @@ public abstract class AllBarrierGoal extends AbstractGoal_c {
 		if (o instanceof AllBarrierGoal) {
 			AllBarrierGoal g = (AllBarrierGoal) o;
 			return name().equals(g.name()) && (
-                    prereqs==g.prereqs || // either both are null, or both are non-null and equal
-                    (prereqs!=null && g.prereqs!=null && prereqs.equals(g.prereqs)));
+                    sources.equals(g.sources));
 		}
 		return false;
 
@@ -32,14 +31,12 @@ public abstract class AllBarrierGoal extends AbstractGoal_c {
 
     @Override
     public int hashCode() {
-        return name.hashCode() ^ (prereqs==null ? 0 : prereqs.hashCode());
+        return name.hashCode() ^ sources.hashCode();
     }
 
     public abstract Goal prereqForJob(Job job);
     
     public List<Goal> prereqs() {
-        if (prereqs!=null) return prereqs;
-
         List<Goal> l = new ArrayList<Goal>();
         for (Job job : scheduler.jobs()) {
             Goal g = prereqForJob(job);
@@ -47,8 +44,7 @@ public abstract class AllBarrierGoal extends AbstractGoal_c {
 		l.add(g);
         }
         l.addAll(super.prereqs());
-        prereqs = Collections.unmodifiableList(l);
-        return prereqs;
+        return Collections.unmodifiableList(l);
     }
     
     public boolean runTask() {
