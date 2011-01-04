@@ -409,8 +409,13 @@ void Launcher::handleRequestsLoop(bool onlyCheckForNewConnections)
 	{
 		int status;
 		if (waitpid(_pidlst[_numchildren], &status, WNOHANG) == _pidlst[_numchildren])
+		{
+			if (WEXITSTATUS(status) != 0)
+				fprintf(stderr, "Launcher %d: non-zero return code from local runtime (pid=%d), status=%d (previous stored status=%d)\n", _myproc, _pidlst[_numchildren], WEXITSTATUS(status), WEXITSTATUS(_returncode));
 			_returncode = WEXITSTATUS(status);
+		}
 	}
+	// we shouldn't have to worry about zombies, because when we exit, init will take out any zombies for us.  Skipping the wait for them lets us exit sooner.
 
 	// shut down any connections if they still exist
 	handleDeadParent();
@@ -879,6 +884,8 @@ void Launcher::cb_sighandler_cld(int signo)
 				#ifdef DEBUG
 					fprintf(stderr, "Launcher %d: SIGCHLD from runtime (pid=%d), status=%d\n", _singleton->_myproc, pid, WEXITSTATUS(status));
 				#endif
+				if (WEXITSTATUS(status) != 0)
+					fprintf(stderr, "Launcher %d: non-zero return code from local runtime (pid=%d), status=%d (previous stored status=%d)\n", _singleton->_myproc, pid, WEXITSTATUS(status), WEXITSTATUS(_singleton->_returncode));
 				_singleton->_returncode = WEXITSTATUS(status);
 				if (_singleton->_runtimePort)
 				{
