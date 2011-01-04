@@ -21,6 +21,7 @@ import polyglot.types.TypeSystem;
 import x10.types.ConstrainedType;
 import x10.types.MacroType;
 import x10.types.ParameterType;
+import x10.types.VoidType;
 import x10.types.X10ClassType;
 import x10.wala.translator.X10toCAstTranslator.PolyglotJavaParametricType;
 import x10.wala.translator.X10toCAstTranslator.PolyglotJavaType;
@@ -95,6 +96,8 @@ public class X10TypeDictionary extends CAstTypeDictionaryImpl {
             type = fTranslator.new PolyglotJavaType((ClassType) astType, this, fTypeSystem);
           else if (polyglotType.isJavaPrimitive()) {
             type = JavaPrimitiveTypeMap.lookupType(((JavaPrimitiveType) polyglotType).name().toString());
+          } else if (polyglotType instanceof VoidType) {
+              type = JavaPrimitiveTypeMap.VoidType;
           } else if (polyglotType.isArray()) {
             type = new PolyglotJavaArrayType((JavaArrayType) polyglotType);
           } else

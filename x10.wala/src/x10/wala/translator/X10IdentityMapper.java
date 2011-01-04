@@ -26,6 +26,7 @@ import polyglot.util.Position;
 import x10.types.ConstrainedType;
 import x10.types.MacroType;
 import x10.types.ParameterType;
+import x10.types.VoidType;
 import x10.types.X10ClassType;
 
 import com.ibm.wala.cast.java.types.JavaPrimitiveTypeMap;
@@ -203,6 +204,8 @@ class X10IdentityMapper {
         JavaPrimitiveType ptype= (JavaPrimitiveType) type;
 
         return JavaPrimitiveTypeMap.getShortName(ptype.name().toString());
+      } else if (type instanceof VoidType) {
+            return JavaPrimitiveTypeMap.VoidType.getName();
       } else if (type.isArray()) {
         JavaArrayType atype= (JavaArrayType) type;
         return "[" + typeToTypeID(atype.base());
