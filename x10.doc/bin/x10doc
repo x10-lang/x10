@@ -31,11 +31,12 @@ export X10SOURCES=$TOP/../x10.runtime/src-x10
 #     X10="$(cd "$TOP/$X10REL" && pwd)"
 # fi
 
+echo $TOP
 
+[ -z "$TOOLSJAR" ] && export TOOLSJAR="$TOP${FILE_SEP}..${FILE_SEP}..${FILE_SEP}..${FILE_SEP}Program*${FILE_SEP}IBM${FILE_SEP}Java60${FILE_SEP}lib/tools.jar"
 
-[ -z "$TOOLSJAR" ] && export TOOLSJAR="$JAVA_HOME/lib/tools.jar"
-
-
+echo $FILE_SEP
+echo $TOOLSJAR
 export CP_OVERRIDE="${TOP}${FILE_SEP}lib${FILE_SEP}x10c.jar${PATH_SEP}${TOP}${FILE_SEP}classes${PATH_SEP}${TOOLSJAR}${PATH_SEP}"
 export DEXT="x10doc.ExtensionInfo"
 
