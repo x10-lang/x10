@@ -75,9 +75,7 @@ public class RunTestSuite {
             //"_MustFailCompile.x10",
     };
     private static final String[] EXCLUDE_DIRS = {
-            "AutoGen", // it takes too long to compile these files
-            "WorkStealing", // duplicate classes for testing work-stealing, e.g., WorkStealing\Construct\Generics1.x10
-            "LangSpec"
+            "AutoGen" // it takes too long to compile these files
     };
     private static final String[] EXCLUDE_FILES = {
             "NOT_WORKING", // to exclude some benchmarks: https://x10.svn.sourceforge.net/svnroot/x10/benchmarks/trunk
