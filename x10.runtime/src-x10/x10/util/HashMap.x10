@@ -87,7 +87,7 @@ import x10.io.SerialData;
         return k.hashCode() * 17;
     }
     
-    public def apply(k: K): Box[V] = get(k);
+    public operator this(k: K): Box[V] = get(k);
     
     public def get(k: K): Box[V] {
         val e = getEntry(k);

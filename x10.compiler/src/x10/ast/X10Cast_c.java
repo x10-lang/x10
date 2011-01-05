@@ -35,7 +35,6 @@ import polyglot.visit.ContextVisitor;
 import x10.errors.Errors;
 import x10.types.ParameterType;
 import x10.types.X10ClassType;
-import x10.types.X10TypeMixin;
 import polyglot.types.TypeSystem;
 import x10.types.checker.Converter;
 import x10.types.checker.Converter.ConversionType;
@@ -89,7 +88,7 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
     public Node typeCheck(ContextVisitor tc) {
         if (castType() != null) {
             try {
-                X10TypeMixin.checkMissingParameters(castType());
+                Types.checkMissingParameters(castType());
             } catch (SemanticException e) {
                 Errors.issue(tc.job(), e, this);
             }

@@ -1,4 +1,4 @@
-// Yoav added: IGNORE_FILE
+
 /*
  *  This file is part of the X10 project (http://x10-lang.org).
  *
@@ -11,9 +11,12 @@
  */
 
 import harness.x10Test;
+import x10.compiler.*; // @Uncounted @NonEscaping @NoThisAccess
+import x10.compiler.tests.*; // err markers
 	
 public class RefA_MustFailCompile(f0: RefB{self.f2.f1==this.f1}, f1:int) extends x10Test {
-	public def this(f0_: RefB{self.f2.f1==f1}, f1_: int) { 
+	@ERR public def this(f0_: RefB{self.f2.f1==f1}, // This or super cannot be used (implicitly or explicitly) in a constructor formal type.
+	        f1_: int) {
 		// should give an error the type of an arg to a constructor
 		// cannot reference this -- there is no this to refer to!!
 		// And indeed it gives that error:

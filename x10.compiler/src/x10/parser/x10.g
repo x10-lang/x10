@@ -1126,10 +1126,6 @@
 --          $EndJava
 --        ./
 
-    AssignmentExpression ::= Expression$expr1 '->' Expression$expr2
-        /.$BeginJava
-			r.rule_AssignmentExpression0(expr1,expr2);
-        $EndJava./
     ClosureExpression ::= FormalParameters WhereClauseopt HasResultTypeopt  Offersopt => ClosureBody
         /.$BeginJava
 			r.rule_ClosureExpression0(FormalParameters,WhereClauseopt,HasResultTypeopt,Offersopt,ClosureBody);
@@ -2518,18 +2514,24 @@
 			r.rule_UnaryExpressionNotPlusMinus2(UnaryExpression);
         $EndJava./
     
-    MultiplicativeExpression ::= UnaryExpression
-                               | MultiplicativeExpression * UnaryExpression
+    RangeExpression ::= UnaryExpression
+                      | RangeExpression$expr1 .. UnaryExpression$expr2
         /.$BeginJava
-			r.rule_MultiplicativeExpression1(MultiplicativeExpression,UnaryExpression);
+			r.rule_RangeExpression1(expr1,expr2);
         $EndJava./
-                               | MultiplicativeExpression / UnaryExpression
+    
+    MultiplicativeExpression ::= RangeExpression
+                               | MultiplicativeExpression * RangeExpression
         /.$BeginJava
-			r.rule_MultiplicativeExpression2(MultiplicativeExpression,UnaryExpression);
+			r.rule_MultiplicativeExpression1(MultiplicativeExpression,RangeExpression);
         $EndJava./
-                               | MultiplicativeExpression '%' UnaryExpression
+                               | MultiplicativeExpression / RangeExpression
         /.$BeginJava
-			r.rule_MultiplicativeExpression3(MultiplicativeExpression,UnaryExpression);
+			r.rule_MultiplicativeExpression2(MultiplicativeExpression,RangeExpression);
+        $EndJava./
+                               | MultiplicativeExpression '%' RangeExpression
+        /.$BeginJava
+			r.rule_MultiplicativeExpression3(MultiplicativeExpression,RangeExpression);
         $EndJava./
     
     AdditiveExpression ::= MultiplicativeExpression
@@ -2555,31 +2557,29 @@
         /.$BeginJava
 			r.rule_ShiftExpression3(ShiftExpression,AdditiveExpression);
         $EndJava./
-    
-    RangeExpression ::= ShiftExpression
-                      | ShiftExpression$expr1 .. ShiftExpression$expr2
+                      | ShiftExpression$expr1 '->' AdditiveExpression$expr2
         /.$BeginJava
-			r.rule_RangeExpression1(expr1,expr2);
+			r.rule_ShiftExpression4(expr1,expr2);
         $EndJava./
     
-    RelationalExpression ::= RangeExpression
+    RelationalExpression ::= ShiftExpression
                            | HasZeroConstraint
                            | SubtypeConstraint
-                           | RelationalExpression < RangeExpression
+                           | RelationalExpression < ShiftExpression
         /.$BeginJava
-			r.rule_RelationalExpression3(RelationalExpression,RangeExpression);
+			r.rule_RelationalExpression3(RelationalExpression,ShiftExpression);
         $EndJava./
-                           | RelationalExpression > RangeExpression
+                           | RelationalExpression > ShiftExpression
         /.$BeginJava
-			r.rule_RelationalExpression4(RelationalExpression,RangeExpression);
+			r.rule_RelationalExpression4(RelationalExpression,ShiftExpression);
         $EndJava./
-                           | RelationalExpression <= RangeExpression
+                           | RelationalExpression <= ShiftExpression
         /.$BeginJava
-			r.rule_RelationalExpression5(RelationalExpression,RangeExpression);
+			r.rule_RelationalExpression5(RelationalExpression,ShiftExpression);
         $EndJava./
-                           | RelationalExpression >= RangeExpression
+                           | RelationalExpression >= ShiftExpression
         /.$BeginJava
-			r.rule_RelationalExpression6(RelationalExpression,RangeExpression);
+			r.rule_RelationalExpression6(RelationalExpression,ShiftExpression);
         $EndJava./
                            | RelationalExpression instanceof Type
         /.$BeginJava
@@ -2815,6 +2815,19 @@
       | !=
         /.$BeginJava
 			r.rule_BinOp18();
+        $EndJava./
+        
+      | '..'
+        /.$BeginJava
+			r.rule_BinOp19();
+        $EndJava./
+      | '->'
+        /.$BeginJava
+			r.rule_BinOp20();
+        $EndJava./
+      | 'in'
+        /.$BeginJava
+			r.rule_BinOp21();
         $EndJava./
             
     --

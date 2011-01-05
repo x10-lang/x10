@@ -19,14 +19,14 @@ import polyglot.ast.TypeNode;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
 import polyglot.types.MethodDef_c;
-import polyglot.types.MethodInstance;
+
 import polyglot.types.Name;
 import polyglot.types.QName;
 import polyglot.types.Ref;
-import polyglot.types.ReferenceType;
+
 import polyglot.types.SemanticException;
 import polyglot.types.Name;
-import polyglot.types.StructType;
+import polyglot.types.ContainerType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
@@ -54,7 +54,7 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
     Ref<? extends Type> offerType;
 
     public X10MethodDef_c(TypeSystem ts, Position pos,
-            Ref<? extends StructType> container,
+            Ref<? extends ContainerType> container,
             Flags flags, 
             Ref<? extends Type> returnType,
             Name name,
@@ -201,16 +201,16 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
     }
 
     @Override
-    public X10MethodInstance asInstance() {
+    public MethodInstance asInstance() {
         if (asInstance == null) {
-            asInstance = new X10MethodInstance_c(ts, position(), Types.<X10MethodDef>ref(this));
+            asInstance = new MethodInstance_c(ts, position(), Types.<X10MethodDef>ref(this));
         }
-        return (X10MethodInstance) asInstance;
+        return (MethodInstance) asInstance;
     }
     
     public static boolean hasVar(Type type, XVar var) {
 	    if (type instanceof ConstrainedType) {
-		    XConstraint rc = X10TypeMixin.realX(type);
+		    XConstraint rc = Types.realX(type);
 		    if (rc != null && rc.hasVar(var))
 			    return true;
 		    ConstrainedType ct = (ConstrainedType) type;
@@ -232,7 +232,7 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
     }
     
 	public String toString() {
-		String s = designator() + " " + X10Flags.toX10Flags(flags()).prettyPrint() + container() + "." + 
+		String s = designator() + " " + flags().prettyPrint() + container() + "." + 
 		signature() + (guard() != null ? guard() : "") 
 		+ ": " + returnType();
 

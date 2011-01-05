@@ -11,6 +11,10 @@
 
 import harness.x10Test;
 
+// COMPILER_CRASHES: the compiler now crashes on this file.
+//java.lang.AssertionError: TypedefOverloading08_MustFailCompile.A->TypedefOverloading08_MustFailCompile.A x10.types.X10ParsedClassType_c is already in the cache; cannot replace with TypedefOverloading08_MustFailCompile.A x10.types.MacroType_c
+//	at polyglot.types.CachingResolver.install(CachingResolver.java:147)
+
 /**
  *
  * It is illegal for a package, class, or interface to contain a type

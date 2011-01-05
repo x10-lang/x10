@@ -23,7 +23,6 @@ import polyglot.visit.ContextVisitor;
 import x10.constraint.XLit;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
-import x10.types.AnnotatedType;
 import x10.types.AsyncDef;
 import x10.types.AtDef;
 import x10.types.ClosureDef;
@@ -35,6 +34,7 @@ import x10.types.ThisDef;
 import x10.types.ThisInstance;
 import x10.types.TypeDefMatcher;
 import x10.types.X10ClassDef;
+import x10.types.X10ClassDef_c;
 import x10.types.X10ClassType;
 import x10.types.X10ConstructorDef;
 import x10.types.X10ConstructorInstance;
@@ -45,7 +45,7 @@ import x10.types.X10FieldInstance;
 import x10.types.X10LocalDef;
 import x10.types.X10LocalInstance;
 import x10.types.X10MethodDef;
-import x10.types.X10MethodInstance;
+import x10.types.MethodInstance;
 import x10.types.X10ParsedClassType;
 import x10.types.X10TypeEnv;
 import x10.types.XTypeTranslator;
@@ -155,7 +155,7 @@ public interface TypeSystem {
      * @param argTypes The method's formal parameter types.
      * @param excTypes The method's exception throw types.
      */
-    MethodDef methodDef(Position pos, Ref<? extends StructType> container,
+    MethodDef methodDef(Position pos, Ref<? extends ContainerType> container,
                                   Flags flags, Ref<? extends Type> returnType, Name name,
                                   List<Ref<? extends Type>> argTypes);
 
@@ -594,12 +594,12 @@ public interface TypeSystem {
     /**
      * Translate a primitive type.
      */
-    String translatePrimitive(Resolver c, PrimitiveType t);
+    String translatePrimitive(Resolver c, JavaPrimitiveType t);
 
     /**
      * Translate an array type.
      */
-    String translateArray(Resolver c, ArrayType t);
+    String translateArray(Resolver c, JavaArrayType t);
 
     /**
      * Translate a top-level class type.
@@ -818,9 +818,9 @@ public interface TypeSystem {
      */
     void addAnnotation(X10Def o, Type annoType, boolean replace);
 
-    AnnotatedType AnnotatedType(Position pos, Type baseType, List<Type> annotations);
+    Type AnnotatedType(Position pos, Type baseType, List<Type> annotations);
 
-    X10MethodInstance findImplementingMethod(ClassType ct, MethodInstance jmi, boolean includeAbstract, Context context);
+    MethodInstance findImplementingMethod(ClassType ct, MethodInstance mi, boolean includeAbstract, Context context);
 
     Type boxOf(Position p, Ref<? extends Type> t);
 
@@ -845,7 +845,7 @@ public interface TypeSystem {
      *
      * @exception SemanticException if no matching field can be found.
      */
-    Set<FieldInstance> findFields(Type container, FieldMatcher matcher) throws SemanticException;
+    Set<FieldInstance> findFields(Type container, FieldMatcher matcher);
 
     /**
      * Find a method. We need to pass the class from which the method is being
@@ -856,14 +856,14 @@ public interface TypeSystem {
      * @exception SemanticException
      *                    if the method cannot be found or is inaccessible.
      */
-    X10MethodInstance findMethod(Type container, MethodMatcher matcher) throws SemanticException;
+    MethodInstance findMethod(Type container, MethodMatcher matcher) throws SemanticException;
 
     /**
      * Find matching methods.
      *
      * @exception SemanticException if no matching method can be found.
      */
-    Collection<X10MethodInstance> findMethods(Type container, MethodMatcher matcher) throws SemanticException;
+    Collection<MethodInstance> findMethods(Type container, MethodMatcher matcher) throws SemanticException;
 
     /**
      * Find a constructor. We need to pass the class from which the constructor
@@ -886,7 +886,7 @@ public interface TypeSystem {
 
     X10ParsedClassType createClassType(Position pos, Ref<? extends ClassDef> def);
     X10ConstructorInstance createConstructorInstance(Position pos, Ref<? extends ConstructorDef> def);
-    X10MethodInstance createMethodInstance(Position pos, Ref<? extends MethodDef> def);
+    MethodInstance createMethodInstance(Position pos, Ref<? extends MethodDef> def);
     X10FieldInstance createFieldInstance(Position pos, Ref<? extends FieldDef> def);
     X10LocalInstance createLocalInstance(Position pos, Ref<? extends LocalDef> def);
 
@@ -906,7 +906,8 @@ public interface TypeSystem {
      * by the type.
      */
     List<X10ClassType> allImplementedInterfaces(X10ClassType type);
-
+    List<X10ClassType> allImplementedInterfaces(X10ClassType c, boolean checkSuperClasses);
+    
     X10ClassType Place(); // needed for here, async (p) S, future (p) e, etc
 
     X10ClassType Point(); // needed for destructuring assignment
@@ -991,17 +992,17 @@ public interface TypeSystem {
             List<Ref<? extends Type>> argTypes, ThisDef thisDef, List<LocalDef> formalNames, Ref<CConstraint> guard,
             Ref<TypeConstraint> typeGuard, Ref<? extends Type> offerType);
 
-    X10MethodDef methodDef(Position pos, Ref<? extends StructType> container,
+    X10MethodDef methodDef(Position pos, Ref<? extends ContainerType> container,
             Flags flags, Ref<? extends Type> returnType, Name name,
             List<Ref<? extends Type>> argTypes,  Ref<? extends Type> offerType);
 
-    X10MethodDef methodDef(Position pos, Ref<? extends StructType> container, Flags flags, Ref<? extends Type> returnType, Name name,
+    X10MethodDef methodDef(Position pos, Ref<? extends ContainerType> container, Flags flags, Ref<? extends Type> returnType, Name name,
             List<ParameterType> typeParams, List<Ref<? extends Type>> argTypes, ThisDef thisDef, List<LocalDef> formalNames,
             Ref<CConstraint> guard, Ref<TypeConstraint> typeGuard, Ref<? extends Type> offerType, Ref<XTerm> body);
 
-    X10FieldDef fieldDef(Position pos, Ref<? extends StructType> container, Flags flags, Ref<? extends Type> type, Name name);
+    X10FieldDef fieldDef(Position pos, Ref<? extends ContainerType> container, Flags flags, Ref<? extends Type> type, Name name);
 
-    X10FieldDef fieldDef(Position pos, Ref<? extends StructType> container, Flags flags, Ref<? extends Type> type, Name name,
+    X10FieldDef fieldDef(Position pos, Ref<? extends ContainerType> container, Flags flags, Ref<? extends Type> type, Name name,
             ThisDef thisDef);
 
     X10LocalDef localDef(Position pos, Flags flags, Ref<? extends Type> type, Name name);
@@ -1212,4 +1213,26 @@ public interface TypeSystem {
 
     boolean isUnknown(Type t);
     boolean hasUnknown(Type t);
+    X10LocalInstance createFakeLocal(Name name, SemanticException error);
+    X10ClassType createFakeClass(QName fullName, SemanticException error);
+    
+    Context createContext();
+    
+    X10ConstructorInstance createFakeConstructor(ClassType container, Flags flags, List<Type> argTypes, 
+                                                 SemanticException error);
+    X10ConstructorInstance createFakeConstructor(QName containerName, Flags flags, List<Type> typeArgs, 
+                                                 List<Type> argTypes, SemanticException error);
+    X10FieldInstance createFakeField(ClassType container, Flags flags, Name name, SemanticException error);
+    MethodInstance createFakeMethod(Name name, List<Type> typeArgs, List<Type> argTypes, SemanticException error);
+    MethodInstance createFakeMethod(ClassType container, Flags flags, Name name, List<Type> typeArgs, List<Type> argTypes, 
+                                    SemanticException error);
+    List<LocalDef> dummyLocalDefs(List<Ref<? extends Type>> types);
+    List<MethodInstance> methods(ContainerType t, Name name, List<Type> typeParams, List<Type> argTypes, 
+                                 XVar thisVar, Context context);
+    boolean equalsStruct(Type a, Type b);
+    X10ClassType AtomicInteger();
+    boolean isRemoteArray(Type t);
+    Boolean structHaszero(X10ClassDef z);
+    HashMap<X10ClassDef_c, Boolean> structHaszero();
+    X10ClassType AtomicBoolean();
 }

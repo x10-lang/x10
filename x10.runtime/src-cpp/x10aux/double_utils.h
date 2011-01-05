@@ -33,7 +33,7 @@ namespace x10aux {
         static x10_long toLongBits(x10_double value);
         static x10_long toRawLongBits(x10_double value);
         static x10_double fromLongBits(x10_long value);
-        static x10_boolean compareTo(x10_double v1, x10_double v2) {
+        static x10_int compareTo(x10_double v1, x10_double v2) {
             return v1 == v2 ? 0 : (v1 < v2 ? -1 : 1);
         }
     };

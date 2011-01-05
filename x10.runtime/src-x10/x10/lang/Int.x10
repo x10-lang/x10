@@ -521,4 +521,15 @@ public struct Int implements Comparable[Int] /*TODO implements Arithmetic[Int], 
     @Native("java", "x10.rtt.Equality.compareTo(#0, #1)")
     @Native("c++", "x10aux::int_utils::compareTo(#0, #1)")
     public native def compareTo(x:Int):Int;
+
+    /**
+     * Constructs a range (contiguous one-dimensional region) from
+     * the lower bound to the upper bound, inclusive.
+     * @param lower the lower bound
+     * @param upper the upper bound
+     * @return a range from lower to upper, inclusive.
+     */
+    @Native("java", "x10.array.Region.makeRectangular(#1, #2)")
+    @Native("c++", "x10::array::Region::makeRectangular(#1, #2)")
+    public native static operator (x:Int) .. (y:Int): Region{rect&&rank==1};
 }

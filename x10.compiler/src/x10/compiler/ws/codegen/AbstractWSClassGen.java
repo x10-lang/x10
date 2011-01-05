@@ -50,7 +50,7 @@ import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
 import polyglot.types.MethodDef;
-import polyglot.types.MethodInstance;
+
 import polyglot.types.Name;
 import polyglot.types.QName;
 import polyglot.types.Ref;
@@ -78,6 +78,7 @@ import x10.compiler.ws.util.TransCodes;
 import x10.compiler.ws.util.WSCodeGenUtility;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
+import x10.types.MethodInstance;
 import polyglot.types.Context;
 import x10.types.X10LocalDef;
 import x10.types.X10MethodDef;
@@ -763,25 +764,7 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
         MethodDef methodDef = aCall.methodInstance().def();
 //        MethodSynth fastSlowMethodPair = wts.getFastAndSlowMethod(methodDef);
         
-        X10ClassType containerClassType = (X10ClassType) methodDef.container().get();
-        X10ClassDef containerClassDef = containerClassType.x10Def();
-
-        //all formals
-        List<Ref<? extends Type>> formalTypes = new ArrayList<Ref<? extends Type>>();
-        formalTypes.add(Types.ref(wts.workerType));
-        formalTypes.add(Types.ref(wts.frameType));
-        formalTypes.add(Types.ref(wts.finishFrameType));
-        for(Ref<? extends Type> f : methodDef.formalTypes()){
-            formalTypes.add(f); //all formals are added in
-        }
-        
-        X10MethodDef mDef = (X10MethodDef) xts.methodDef(compilerPos, 
-                Types.ref(containerClassDef.asType()),                
-                methodDef.flags(), 
-                methodDef.returnType(), 
-                Name.make(WSCodeGenUtility.getMethodFastPathName(methodDef)), 
-                formalTypes);
-        mDef.setFormalNames(new ArrayList<LocalDef>()); // FIXME
+        X10MethodDef mDef = WSCodeGenUtility.createWSCallMethodDef(methodDef, wts);
 
         //preparing the references for invocation the call
         Expr parentRef = genUpcastCall(getClassType(), wts.frameType, getThisRef());
@@ -807,7 +790,7 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
             newArgs.add(parentRef);
             newArgs.add(ffRef);
             
-            X10Call fastMCall = this.replaceMethodCallWithWSMethodCall((X10Call) aCall, mDef, newArgs);
+            X10Call fastMCall = WSCodeGenUtility.replaceMethodCallWithWSMethodCall(xnf,(X10Call) aCall, mDef, newArgs);
             transCodes.addFirst(xnf.Eval(aCall.position(), fastMCall));
         }
         { // resume
@@ -817,7 +800,7 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
             newArgs.add(parentRef);
             newArgs.add(ffRef);
             
-            X10Call slowMCall = this.replaceMethodCallWithWSMethodCall((X10Call) aCall, mDef, newArgs);
+            X10Call slowMCall = WSCodeGenUtility.replaceMethodCallWithWSMethodCall(xnf, (X10Call) aCall, mDef, newArgs);
             transCodes.addSecond(xnf.Eval(aCall.position(), slowMCall));
         }
         { // back              
@@ -1219,9 +1202,9 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
         
         //new method instance with original properties
         MethodInstance mi = methodDef.asInstance();
-        mi = mi.formalTypes(argTypes);
+        mi = (MethodInstance) mi.formalTypes(argTypes);
         mi = mi.returnType(aCall.methodInstance().returnType());
-        mi = (MethodInstance) mi.container(aCall.methodInstance().container());
+        mi =  (MethodInstance) mi.container(aCall.methodInstance().container());
         
         //build new call
         aCall = (X10Call) aCall.methodInstance(mi);

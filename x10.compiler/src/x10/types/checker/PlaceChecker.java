@@ -13,11 +13,12 @@ import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.InitializerDef;
 import polyglot.types.MethodDef;
-import polyglot.types.MethodInstance;
+
 import polyglot.types.Name;
 import polyglot.types.SemanticException;
-import polyglot.types.StructType;
+import polyglot.types.ContainerType;
 import polyglot.types.Type;
+import polyglot.types.Types;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
@@ -39,11 +40,11 @@ import x10.errors.Errors.PlaceTypeErrorMethodShouldBeLocalOrGlobal;
 import x10.types.ClosureType_c;
 import x10.types.X10ClassDef;
 import polyglot.types.Context;
+import x10.types.ConstrainedType;
 import x10.types.X10FieldInstance;
-import x10.types.X10Flags;
-import x10.types.X10MethodInstance;
-import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem_c;
+
+import x10.types.MethodInstance;
+
 import polyglot.types.TypeSystem;
 import x10.types.XTypeTranslator;
 import x10.types.constraints.CConstraint;
@@ -93,7 +94,7 @@ public class PlaceChecker {
 		return homeVar(((Context) xc).thisVar(), (TypeSystem) xc.typeSystem());
 	}
 	static FieldInstance GlobalRefHome(TypeSystem xts) {
-		return ((StructType) xts.GlobalRef()).fieldNamed(xts.homeName());
+		return ((ContainerType) xts.GlobalRef()).fieldNamed(xts.homeName());
 	}
 	/**
 	 * The key  move in adapting the 2.0 place checking system to 2.1 is to continue
@@ -131,7 +132,7 @@ public class PlaceChecker {
 	
 	public static XTerm placeTerm(Type t) {
     	TypeSystem xts = (TypeSystem) t.typeSystem();
-    	CConstraint cc = X10TypeMixin.xclause(t);
+    	CConstraint cc = Types.xclause(t);
     	return cc==null ? null : cc.bindingForSelfField(GlobalRefHome(xts));
     }
 	/**
@@ -169,23 +170,25 @@ public class PlaceChecker {
 	 * @return
 	 */
 	public static Type AddIsHereClause(Type type, Context cxt) {
-		if (X10TypeMixin.isX10Struct(type))
+		if (Types.isX10Struct(type))
 			return type;
-		XVar selfVar = X10TypeMixin.selfVar(type);
-		if (selfVar == null) {
+		ConstrainedType type1 = Types.toConstrainedType(type);
+		XVar selfVar = Types.selfVar(type1);
+		assert selfVar != null;
+		/*if (selfVar == null) {
 		    selfVar = XTerms.makeEQV("self");
 		    try {
 		        type = X10TypeMixin.setSelfVar(type, selfVar);
 		    } catch (SemanticException e) {
 		        throw new InternalCompilerError("Cannot set self var for type "+type, e);
 		    }
-		}
+		}*/
 		XTerm locVar = homeVar(selfVar, (TypeSystem) cxt.typeSystem());
 		try {
 			
 			XConstrainedTerm pt = (((Context) cxt).currentPlaceTerm());
 			if (locVar != null && pt != null)
-			    type = X10TypeMixin.addBinding(type, locVar, pt.term()); // here());// here, not pt); // pt, not PlaceChecker.here()
+			    type = Types.addBinding(type1, locVar, pt.term()); // here());// here, not pt); // pt, not PlaceChecker.here()
 		} catch (XFailure z) {
 			// caller responsibility to ensure that this could be consistently added.
 		}
@@ -324,7 +327,7 @@ public class PlaceChecker {
 	
 	}
 	public static Context pushHereTerm(InitializerDef id, Context cxt) {
-		X10Flags flags = X10Flags.toX10Flags(id.flags());
+		Flags flags = id.flags();
 		
 		// A static initializer executes at place 0.
 		if (flags.isStatic()) 
@@ -332,17 +335,17 @@ public class PlaceChecker {
 		
 		// A struct instance initializer, executes at the current place, 
 		// but we have no way of referring to it, hence we assume it is some new unknown place.
-		if (X10TypeMixin.isX10Struct(id.container().get())) 
+		if (Types.isX10Struct(id.container().get())) 
 			return 	cxt.pushPlace(XConstrainedTerm.make(makePlace()));
 		
 		// An instance initializer, executes at this.home
 		return pushHereIsThisHome(cxt);
 	}
 	public static Context pushHereTerm(FieldDef fd, Context c) {
-		X10Flags flags = X10Flags.toX10Flags(fd.flags());
+		Flags flags = fd.flags();
 		if (flags.isStatic()) 
 			return c.pushPlace(firstPlace((TypeSystem) fd.typeSystem()));
-		if (X10TypeMixin.isX10Struct(fd.container().get())) 
+		if (Types.isX10Struct(fd.container().get())) 
 			return 	c.pushPlace(XConstrainedTerm.make(makePlace()));
 		TypeSystem xts = (TypeSystem) c.typeSystem();
 		Context xc = (Context) c;
@@ -351,7 +354,7 @@ public class PlaceChecker {
 		// bypass GlobalRef to avoid infinite recursion (pushPlace will again look for GlobalRef.home..)
 		// This means that the types in GlobalRef cannot reference here.
 		if (cd != null)
-			if ( ! xts.hasSameClassDef(X10TypeMixin.baseType(cd.asType()), xts.GlobalRef())) {
+			if ( ! xts.hasSameClassDef(Types.baseType(cd.asType()), xts.GlobalRef())) {
 				XTerm h =  homeVar(xc.thisVar(),xts);
 				 if (h != null)  // null for structs.
 					return((Context) c).pushPlace(XConstrainedTerm.make(h));
@@ -360,8 +363,7 @@ public class PlaceChecker {
 	}
 	
 	public static XTerm methodPT(Flags flags, ClassDef ct) {
-		X10Flags xflags = X10Flags.toX10Flags(flags);
-		boolean isGlobal = xflags.isStatic() || X10TypeMixin.isX10Struct(ct.asType());
+		boolean isGlobal = flags.isStatic() || Types.isX10Struct(ct.asType());
 		return (isGlobal) ? 
 				makePlace() :
 					homeVar(((X10ClassDef) ct).thisVar(), (TypeSystem) ct.typeSystem());
@@ -374,8 +376,8 @@ public class PlaceChecker {
 	 * @return
 	 */
 	static boolean isGlobalCode(MethodDef md) {
-		X10Flags flags = X10Flags.toX10Flags(md.flags());
-		boolean isGlobal =  flags.isStatic() || X10TypeMixin.isX10Struct(md.container().get());
+		Flags flags = md.flags();
+		boolean isGlobal =  flags.isStatic() || Types.isX10Struct(md.container().get());
 		return isGlobal;
 	}
 	
@@ -500,7 +502,7 @@ public class PlaceChecker {
 		return false;
 	}*/
 
-    public static Receiver makeReceiverLocalIfNecessary(ContextVisitor tc, Receiver target, X10Flags flags) {
+    public static Receiver makeReceiverLocalIfNecessary(ContextVisitor tc, Receiver target, Flags flags) {
         /*if (isTargetPlaceSafe(tc, target, flags)) return target;  // nothing to do
         if (Configuration.STATIC_CALLS) return null;              // nothing we can do
         if (((X10Context) tc.context()).currentPlaceTerm() == null)
@@ -517,7 +519,7 @@ public class PlaceChecker {
 
     public static X10Call makeReceiverLocalIfNecessary(X10Call n, ContextVisitor tc) throws SemanticException {
         Receiver res =
-            makeReceiverLocalIfNecessary(tc, n.target(), X10Flags.toX10Flags(n.methodInstance().flags()));
+            makeReceiverLocalIfNecessary(tc, n.target(), n.methodInstance().flags());
         if (res != null) {
             if (res != n.target()) n = (X10Call) n.target(res).targetImplicit(false);
             return n;
@@ -535,7 +537,7 @@ public class PlaceChecker {
     
     public static X10Field_c makeFieldAccessLocalIfNecessary(X10Field_c n, ContextVisitor tc) throws SemanticException {
         Receiver res =
-            makeReceiverLocalIfNecessary(tc, n.target(), X10Flags.toX10Flags(n.fieldInstance().flags()));
+            makeReceiverLocalIfNecessary(tc, n.target(), n.fieldInstance().flags());
         if (res != null) {
             if (res != n.target()) n = (X10Field_c) n.target(res).targetImplicit(false);
             return n;
@@ -606,13 +608,13 @@ public class PlaceChecker {
 	    	if (place instanceof Field) {
 				Field fp = (Field) place;
 				FieldInstance fi = fp.fieldInstance();
-				if ((ts.hasSameClassDef(X10TypeMixin.baseType(fi.container()), ts.GlobalRef())) &&
+				if ((ts.hasSameClassDef(Types.baseType(fi.container()), ts.GlobalRef())) &&
 						fi.name().equals(ts.homeName())) {
 					place = (Expr) fp.target();
 				}
 			}
 	 		Type placeType = place.type();
-			CConstraint d = X10TypeMixin.xclause(placeType);
+			CConstraint d = Types.xclause(placeType);
 			d = (d==null) ? new CConstraint() : d.copy();
 			CConstraint pc = null;
 			XTerm term = null;
@@ -631,7 +633,7 @@ public class PlaceChecker {
 							term + " and constraint " + d + ".");
 				}
 	    	} else {
-	    		boolean placeIsRef = ts.hasSameClassDef(X10TypeMixin.baseType(placeType), ts.GlobalRef());
+	    		boolean placeIsRef = ts.hasSameClassDef(Types.baseType(placeType), ts.GlobalRef());
 	    		if (placeIsRef) {
 	    			XTerm src = ts.xtypeTranslator().trans(pc, place, xc);
 	    			if (src == null) {

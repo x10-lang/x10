@@ -15,6 +15,7 @@ import polyglot.types.*;
 import polyglot.util.*;
 import polyglot.visit.*;
 import x10.errors.Errors;
+import x10.types.MethodInstance;
 
 /**
  * A <code>ClassBody</code> represents the body of a class or interface

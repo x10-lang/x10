@@ -10,6 +10,7 @@
  */
 
 import harness.x10Test;
+// SHOULD_NOT_PARSE: this file is not supposed to parse correctly.
 
 /**
  * Testing that a local variable named val is rejected.

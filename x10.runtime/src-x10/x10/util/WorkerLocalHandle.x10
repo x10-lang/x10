@@ -23,11 +23,11 @@ public class WorkerLocalHandle[T] implements ()=>T,(T)=>void {
         store = PlaceLocalHandle.make[Array[T](1){rail}](Dist.makeUnique(), ()=>new Array[T](Runtime.MAX_WORKERS, t));
     }
 
-    public def apply():T {
+    public operator this():T {
         return store()(Runtime.workerId());
     }
 
-    public def apply(t:T):void {
+    public operator this(t:T):void {
         store()(Runtime.workerId()) = t;
     }
 }

@@ -26,9 +26,9 @@ import polyglot.ast.NullLit;
 import polyglot.ast.NumLit;
 import polyglot.ast.Return;
 import polyglot.frontend.Job;
-import polyglot.types.MethodInstance;
+
 import polyglot.types.SemanticException;
-import polyglot.types.StructType;
+import polyglot.types.ContainerType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.visit.ContextVisitor;
@@ -52,7 +52,7 @@ import x10.ast.X10MethodDecl_c;
 import x10.ast.X10New_c;
 import x10.ast.X10Special_c;
 import x10.types.X10ClassType;
-import x10.types.X10MethodInstance;
+import x10.types.MethodInstance;
 import polyglot.types.TypeSystem;
 import x10.util.Synthesizer;
 
@@ -117,7 +117,7 @@ public class StructMethodAnalyzer extends ContextVisitor {
         // We can allow calls to the same class as we are analyzing and to the trivial x10.lang.Struct 
         // constructor.  Any other constructor call will require us to set canBeInlined to false.
         if (n instanceof X10ConstructorCall_c) {
-            StructType container = ((X10ConstructorCall_c)n).constructorInstance().container();
+            ContainerType container = ((X10ConstructorCall_c)n).constructorInstance().container();
             if (!(xts.typeBaseEquals(container, myContainer, context))) { //xts.typeBaseEquals(container, xts.Struct(), context) ||
                 canGoInHeaderStream[0] = false;
             }
@@ -167,7 +167,7 @@ public class StructMethodAnalyzer extends ContextVisitor {
         
         // Only allow calls to methods of the current container and to methods of built-in numeric types.
         if (n instanceof X10Call_c) {
-            StructType methodType = ((X10Call_c)n).methodInstance().container();
+            ContainerType methodType = ((X10Call_c)n).methodInstance().container();
             if (!(xts.typeBaseEquals(methodType, myContainer, context) || isBuiltInNumeric(methodType))) {
                 canGoInHeaderStream[0] = false;
             }

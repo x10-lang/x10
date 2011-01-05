@@ -21,7 +21,7 @@ public class EmptyType_MustFailCompile extends x10Test {
 
 	
 	class C(a:boolean) {
-		val x:C{true&&false} = new C(true); // ERR
+		val x:C{true&&false} = new C(true); // ERR ERR
 	}
 		
     public def run() = true;

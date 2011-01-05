@@ -26,6 +26,7 @@ import polyglot.types.FieldInstance;
 import polyglot.types.Name;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
+import polyglot.types.Types;
 import polyglot.util.CodeWriter;
 import polyglot.util.CollectionUtil;
 import polyglot.util.InternalCompilerError;
@@ -42,7 +43,6 @@ import x10.constraint.XLit;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
 import x10.types.X10ClassType;
-import x10.types.X10TypeMixin;
 import x10.types.checker.Converter;
 import polyglot.types.TypeSystem;
 import x10.types.constraints.CConstraint;
@@ -127,7 +127,7 @@ public class Tuple_c extends Expr_c implements Tuple {
             return child.type();
         }
         
-        Type base = X10TypeMixin.getParameterType(t, 0);
+        Type base = Types.getParameterType(t, 0);
 
         for (Expr e : elements) {
             if (e == child) {
@@ -171,7 +171,7 @@ public class Tuple_c extends Expr_c implements Tuple {
             type = null;
 
             for (Expr e : elements) {
-                Type eType = X10TypeMixin.baseType(e.type());
+                Type eType = Types.baseType(e.type());
                 if (type == null) {
                     type = eType;
                 }
@@ -203,7 +203,7 @@ public class Tuple_c extends Expr_c implements Tuple {
 	        }
             me = this.reconstruct(indexType,newChildren);
         }
-	    Type resultType = X10TypeMixin.makeArrayRailOf(type, elements.size(), position());
+	    Type resultType = Types.makeArrayRailOf(type, elements.size(), position());
 	    return me.type(resultType);
 	}
 

@@ -57,5 +57,5 @@ import x10.compiler.Pinned;
     /**
      * Check the latch state without blocking
      */
-    public def apply():boolean = state;
+    public operator this():boolean = state;
 }

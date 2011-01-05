@@ -21,9 +21,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.NullProgressMonitor;
-
 import com.ibm.wala.classLoader.ArrayClass;
 import com.ibm.wala.classLoader.ClassLoaderFactory;
 import com.ibm.wala.classLoader.ClassLoaderFactoryImpl;
@@ -66,12 +63,6 @@ import com.ibm.wala.util.warnings.Warnings;
 public class X10ClassHierarchy implements IClassHierarchy {
 
   private static final boolean DEBUG = false;
-
-  /**
-   * Languages that contribute classes to the set represented in this hierarchy. The languages may for example be related by
-   * inheritance (e.g. X10 derives from Java, and shares a common type hierarchy rooted at java.lang.Object).
-   */
-  private final Set<Language> languages = HashSetFactory.make();
 
   /**
    * For each {@link IClass} c in this class hierarchy, this map maps c.getReference() to the {@link Node}
@@ -169,18 +160,8 @@ public class X10ClassHierarchy implements IClassHierarchy {
     return result;
   }
 
-  private X10ClassHierarchy(AnalysisScope scope, ClassLoaderFactory factory, Language language, IProgressMonitor progressMonitor)
+  private X10ClassHierarchy(AnalysisScope scope, ClassLoaderFactory factory, Collection<Language> languages)
       throws ClassHierarchyException, IllegalArgumentException {
-    this(scope, factory, Collections.singleton(language), progressMonitor);
-  }
-
-  private X10ClassHierarchy(AnalysisScope scope, ClassLoaderFactory factory, IProgressMonitor progressMonitor)
-      throws ClassHierarchyException, IllegalArgumentException {
-    this(scope, factory, scope.getLanguages(), progressMonitor);
-  }
-
-  private X10ClassHierarchy(AnalysisScope scope, ClassLoaderFactory factory, Collection<Language> languages,
-      IProgressMonitor progressMonitor) throws ClassHierarchyException, IllegalArgumentException {
     // now is a good time to clear the warnings globally.
     // TODO: think of a better way to guard against warning leaks.
     Warnings.clear();
@@ -193,13 +174,7 @@ public class X10ClassHierarchy implements IClassHierarchy {
     }
     this.scope = scope;
     this.factory = factory;
-    Set<Atom> langNames = HashSetFactory.make();
     for (Language lang : languages) {
-      this.languages.add(lang);
-      this.languages.addAll(lang.getDerivedLanguages());
-      langNames.add(lang.getName());
-    }
-    for (Language lang : this.languages) {
       if (lang.getRootType() != null && lang.getRootType() != this.rootTypeRef) {
         if (this.rootTypeRef != null) {
           throw new IllegalArgumentException("AnalysisScope must have only 1 root type: " + lang.getRootType() + ", " + rootTypeRef);
@@ -211,55 +186,24 @@ public class X10ClassHierarchy implements IClassHierarchy {
     try {
       int numLoaders = 0;
       for (ClassLoaderReference ref : scope.getLoaders()) {
-        if (langNames.contains(ref.getLanguage())) {
           numLoaders++;
-        }
       }
 
       loaders = new IClassLoader[numLoaders];
       int idx = 0;
 
-      if (progressMonitor != null) {
-        progressMonitor.beginTask("Build Class Hierarchy", numLoaders);
-      }
       for (ClassLoaderReference ref : scope.getLoaders()) {
-        if (progressMonitor != null) {
-          if (progressMonitor.isCanceled()) {
-            throw new CancelCHAConstructionException();
-          }
-        }
-
-        if (langNames.contains(ref.getLanguage())) {
           IClassLoader icl = factory.getLoader(ref, this, scope);
           loaders[idx++] = icl;
-
-          if (progressMonitor != null) {
-            progressMonitor.worked(1);
-          }
-        }
       }
-
-      for (IClassLoader icl : loaders) {
-        addAllClasses(icl, progressMonitor);
-
-        if (progressMonitor != null) {
-          progressMonitor.worked(1);
-        }
-      }
-
     } catch (IOException e) {
       throw new ClassHierarchyException("factory.getLoader failed " + e);
-    } finally {
-      if (progressMonitor != null) {
-        progressMonitor.done(); // In case an exception is thrown.
-      }
     }
   }
 
-
   public void consolidate() throws ClassHierarchyException {
     for (IClassLoader icl : loaders) {
-      addAllClasses(icl, null);
+      addAllClasses(icl);
     }
     if (root == null) {
       throw new ClassHierarchyException("failed to load root " + rootTypeRef + " of class hierarchy");
@@ -273,17 +217,12 @@ public class X10ClassHierarchy implements IClassHierarchy {
   /**
    * Add all classes in a class loader to the hierarchy.
    */
-  private void addAllClasses(IClassLoader loader, IProgressMonitor progressMonitor) throws CancelCHAConstructionException {
+  private void addAllClasses(IClassLoader loader) throws CancelCHAConstructionException {
     if (DEBUG) {
       System.err.println(("Add all classes from loader " + loader));
     }
     Collection<IClass> toRemove = HashSetFactory.make();
     for (Iterator<IClass> it = loader.iterateAllClasses(); it.hasNext();) {
-      if (progressMonitor != null) {
-        if (progressMonitor.isCanceled()) {
-          throw new CancelCHAConstructionException();
-        }
-      }
       IClass klass = it.next();
       boolean added = addClass(klass);
       if (!added) {
@@ -1151,6 +1090,7 @@ public class X10ClassHierarchy implements IClassHierarchy {
     return result.isPrimitiveType() ? null : lookupClass(result);
   }
 
+
   /**
    * @return a ClassHierarchy object representing the analysis scope
    * @throws ClassHierarchyException
@@ -1162,16 +1102,6 @@ public class X10ClassHierarchy implements IClassHierarchy {
     return make(scope, new ClassLoaderFactoryImpl(scope.getExclusions()));
   }
 
-  /**
-   * temporarily marking this internal to avoid infinite sleep with randomly chosen IProgressMonitor.
-   */
-  public static X10ClassHierarchy make(AnalysisScope scope, IProgressMonitor monitor) throws ClassHierarchyException {
-    if (scope == null) {
-      throw new IllegalArgumentException("null scope");
-    }
-    return make(scope, new ClassLoaderFactoryImpl(scope.getExclusions()), monitor);
-  }
-
   public static X10ClassHierarchy make(AnalysisScope scope, ClassLoaderFactory factory) throws ClassHierarchyException {
     if (scope == null) {
       throw new IllegalArgumentException("null scope");
@@ -1179,36 +1109,7 @@ public class X10ClassHierarchy implements IClassHierarchy {
     if (factory == null) {
       throw new IllegalArgumentException("null factory");
     }
-    return new X10ClassHierarchy(scope, factory, new NullProgressMonitor());
-  }
-
-  /**
-   * temporarily marking this internal to avoid infinite sleep with randomly chosen IProgressMonitor.
-   */
-  public static X10ClassHierarchy make(AnalysisScope scope, ClassLoaderFactory factory, IProgressMonitor monitor)
-      throws ClassHierarchyException {
-    return new X10ClassHierarchy(scope, factory, monitor);
-  }
-
-  public static X10ClassHierarchy make(AnalysisScope scope, ClassLoaderFactory factory, Set<Language> languages)
-      throws ClassHierarchyException {
-    return new X10ClassHierarchy(scope, factory, languages, new NullProgressMonitor());
-  }
-
-  public static X10ClassHierarchy make(AnalysisScope scope, ClassLoaderFactory factory, Language language)
-      throws ClassHierarchyException {
-    return new X10ClassHierarchy(scope, factory, language, new NullProgressMonitor());
-  }
-
-  /**
-   * temporarily marking this internal to avoid infinite sleep with randomly chosen IProgressMonitor. TODO: nanny for testgen
-   */
-  public static X10ClassHierarchy make(AnalysisScope scope, ClassLoaderFactory factory, Language language, IProgressMonitor monitor)
-      throws ClassHierarchyException {
-    if (factory == null) {
-      throw new IllegalArgumentException("null factory");
-    }
-    return new X10ClassHierarchy(scope, factory, language, monitor);
+    return new X10ClassHierarchy(scope, factory, scope.getLanguages());
   }
 
   public IClass getRootClass() {

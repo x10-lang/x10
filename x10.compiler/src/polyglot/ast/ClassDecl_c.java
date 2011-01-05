@@ -15,8 +15,9 @@ import polyglot.types.*;
 import polyglot.util.*;
 import polyglot.visit.*;
 import x10.errors.Errors;
+import x10.types.MethodInstance;
 import x10.types.X10ParsedClassType_c;
-import x10.types.X10TypeMixin;
+
 
 /**
  * A <code>ClassDecl</code> is the definition of a class, abstract class,
@@ -266,7 +267,7 @@ public class ClassDecl_c extends Term_c implements ClassDecl
             if (! t.isClass() || t.toClass().flags().isInterface()) {
                 throw new SemanticException("Cannot extend type " +t + "; not a class.",superClass != null ? superClass.position() : position());
             }
-            ts.checkCycles((ReferenceType) t);
+            ts.checkCycles((ObjectType) t);
         }
 
         for (Ref<? extends Type> tref : type.interfaces()) {
@@ -276,7 +277,7 @@ public class ClassDecl_c extends Term_c implements ClassDecl
                 String s = type.flags().isInterface() ? "extend" : "implement";
                 throw new SemanticException("Cannot " + s + " type " + t + "; not an interface.",position());
             }
-            ts.checkCycles((ReferenceType) t);
+            ts.checkCycles((ObjectType) t);
         }
     }
 
@@ -544,7 +545,7 @@ public class ClassDecl_c extends Term_c implements ClassDecl
                     X10ParsedClassType_c it2 = directSuperTypes.get(i2);
                     if (ts.isAny(it2)) continue;
                     for (MethodInstance mi : methods1) {
-                        final List<MethodInstance> implementedBy = ((TypeSystem_c) ts).implemented(mi, (StructType) it2, context);
+                        final List<MethodInstance> implementedBy = ((TypeSystem_c) ts).implemented(mi, (ContainerType) it2, context);
                         for (MethodInstance mj : implementedBy) {
                             if (mi==mj) continue;
                             try {

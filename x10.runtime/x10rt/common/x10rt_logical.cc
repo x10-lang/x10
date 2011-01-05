@@ -182,11 +182,7 @@ namespace {
         x10rt_emu_coll_init(counter);
         sleep(1);
         has_remote_op = getenv("X10RT_EMULATE_REMOTE_OP")==NULL && 0!=x10rt_net_supports(X10RT_OPT_REMOTE_OP);
-	#ifdef __bgp__
-        has_collectives = true;
-        #else
         has_collectives = getenv("X10RT_EMULATE_COLLECTIVES")==NULL && 0!=x10rt_net_supports(X10RT_OPT_COLLECTIVES);
-        #endif
         g.nhosts = x10rt_net_nhosts();
 
         x10rt_place num_local_spes = 0;

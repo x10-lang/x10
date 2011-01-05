@@ -70,7 +70,7 @@ public struct IndexedMemoryChunk[T] {
      */
     @Native("java", "(#0).apply$G(#1)")
     @Native("c++", "(#0)->apply(#1)")
-    public native def apply(index:int):T;
+    public native operator this(index:int):T;
 
 
     /**
@@ -81,7 +81,7 @@ public struct IndexedMemoryChunk[T] {
      */
     @Native("java", "(#0).apply$G((int)(#1))")
     @Native("c++", "(#0)->apply(#1)")
-    public native def apply(index:long):T;
+    public native operator this(index:long):T;
 
 
     /**
@@ -93,7 +93,7 @@ public struct IndexedMemoryChunk[T] {
      */
     @Native("java", "(#0).set(#1, #2)")
     @Native("c++", "(#0)->set(#1, #2)")
-    public native def set(value:T, index:int):void;
+    public native operator this(index:int)=(value:T):void;
 
 
     /**
@@ -105,7 +105,7 @@ public struct IndexedMemoryChunk[T] {
      */
     @Native("java", "(#0).set(#1, (int)(#2))")
     @Native("c++", "(#0)->set(#1, #2)")
-    public native def set(value:T, index:long):void;
+    public native operator this(index:long)=(value:T):void;
 
 
     /**

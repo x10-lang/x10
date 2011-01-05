@@ -30,7 +30,7 @@ import polyglot.frontend.Job;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.MethodDef;
-import polyglot.types.MethodInstance;
+
 import polyglot.types.ProcedureDef;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
@@ -41,6 +41,8 @@ import x10.ast.X10MethodDecl;
 import x10.compiler.ws.util.WSCallGraph;
 import x10.compiler.ws.util.WSCallGraphNode;
 import x10.compiler.ws.util.WSTransformationContent;
+import x10.compiler.ws.util.WSTransformationContent.CallSiteType;
+import x10.compiler.ws.util.WSTransformationContent.MethodType;
 import polyglot.types.Context;
 import polyglot.types.TypeSystem;
 import x10.types.checker.PlaceChecker;
@@ -87,6 +89,7 @@ public class WSTransformState {
     public final ClassType uninitializedType; //annotation type
     public final Boolean realloc; // whether or not to generate code for frame migration
 
+    private String theLanguage; //c++ or java path
     private WSCallGraph callGraph;
     private WSTransformationContent transTarget;
     
@@ -164,6 +167,7 @@ public class WSTransformState {
      * @param theLanguage
      */
     protected WSTransformState(TypeSystem xts, String theLanguage){
+    	this.theLanguage = theLanguage;
         if (theLanguage.equals("c++")) {
             frameType = xts.load("x10.compiler.ws.Frame");
             finishFrameType = xts.load("x10.compiler.ws.FinishFrame");
@@ -192,19 +196,32 @@ public class WSTransformState {
         uninitializedType = xts.load("x10.compiler.Uninitialized");
     }
 
+
+    /**
+     * Get the backend used
+     * @return "c++" or "java"
+     */
+    public String getTheLanguage() {
+		return theLanguage;
+	}
+
+	public boolean isConcurrentCallSite(Call call){	
+    	return getCallSiteType(call) == CallSiteType.CONCURRENT_CALL;
+    }
     
-    public boolean isTargetCallSite(Call call){
+    public CallSiteType getCallSiteType(Call call){
     	if(transTarget != null){ //by wala
-    		return transTarget.isTargetCallSite(call);
+    		return transTarget.getCallSiteType(call);
     	}
-    	else{ //by call graph
-    		return callGraph.isParallel(call.methodInstance().def());
+    	else{ //by call graph, only has concurrent or normal
+    		return callGraph.isParallel(call.methodInstance().def()) ? 
+    				CallSiteType.CONCURRENT_CALL : CallSiteType.NORMAL;
     	}
     }
     
-    public boolean isTargetMethod(CodeBlock codeBlock){
+    public MethodType getMethodType(CodeBlock codeBlock){
     	if(transTarget != null){ //by wala
-    		return transTarget.isTargetMethod(codeBlock);
+    		return transTarget.getMethodType(codeBlock);
     	}
     	else{
     		ProcedureDef procedureDef;
@@ -217,7 +234,7 @@ public class WSTransformState {
     		else{ //it should be a closure
     			procedureDef = ((Closure)codeBlock).closureDef();
     		}
-    		return callGraph.isParallel(procedureDef);
+    		return callGraph.isParallel(procedureDef) ? MethodType.BODYDEF_TRANSFORMATION : MethodType.NORMAL;
     	}
     }
 }

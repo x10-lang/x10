@@ -49,16 +49,15 @@ import x10.extension.X10Del;
 import x10.types.ClosureDef;
 import x10.types.ClosureType_c;
 import x10.types.ConstrainedType;
-import x10.types.ConstrainedType_c;
+
 import x10.types.ParameterType;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import polyglot.types.Context;
-import x10.types.X10Flags;
+
 import x10.types.X10ParsedClassType;
 import x10.types.XTypeTranslator;
 
-import x10.types.X10TypeMixin;
 import polyglot.types.TypeSystem;
 import x10.types.constraints.CConstraint;
 import x10.visit.X10TypeChecker;
@@ -94,7 +93,7 @@ public class X10CanonicalTypeNode_c extends CanonicalTypeNode_c implements X10Ca
 	t = ts.expandMacros(t);
 	Type xt =  t;
 	if (flags != null) {
-		xt = X10TypeMixin.processFlags(X10Flags.toX10Flags(flags), xt);
+		xt = Types.processFlags(flags, xt);
 		flags = null;
 	}
 	((Ref<Type>) type).update(xt);
@@ -175,7 +174,7 @@ public class X10CanonicalTypeNode_c extends CanonicalTypeNode_c implements X10Ca
     public Node conformanceCheck(ContextVisitor tc) {
         Type t = type();
         
-        XConstraint c = X10TypeMixin.realX(t);
+        XConstraint c = Types.realX(t);
         
         if (! c.consistent()) {
             Errors.issue(tc.job(),
@@ -218,11 +217,11 @@ public class X10CanonicalTypeNode_c extends CanonicalTypeNode_c implements X10Ca
         // But that is not true for a static method, e.g., Array.make(...)
         // so instead we do this check in all other places (e.g., field access, method definitions, new calls, etc)
         // But I can check it if there are typeArguments.
-        if (typeArgNum > 0) X10TypeMixin.checkMissingParameters(t,pos);
+        if (typeArgNum > 0) Types.checkMissingParameters(t,pos);
         
 	    for (int j = 0; j < typeArgNum; j++) {
 	        Type actualType = typeArgs.get(j);
-	        X10TypeMixin.checkMissingParameters(actualType,pos);
+	        Types.checkMissingParameters(actualType,pos);
             
 	        ParameterType correspondingParam = typeParam.get(j);
 	        if (actualType.isVoid()) {
@@ -291,9 +290,10 @@ public class X10CanonicalTypeNode_c extends CanonicalTypeNode_c implements X10Ca
             w.write("<unknown-type>");
         } else {
             type.get().print(w);
-            if (extras && X10TypeMixin.baseType(type.get()) instanceof X10ParsedClassType
-                    && !(X10TypeMixin.baseType(type.get()) instanceof ClosureType_c)) {
-                List<Type> typeArguments = ((X10ParsedClassType) X10TypeMixin.baseType(type.get())).typeArguments();
+            final X10ParsedClassType baseType = Types.myBaseType(type.get());
+            if (extras && baseType!=null
+                    && !(baseType instanceof ClosureType_c)) {
+                List<Type> typeArguments = baseType.typeArguments();
                 if (typeArguments != null && typeArguments.size() > 0) {
                     w.write("[");
                     w.allowBreak(2, 2, "", 0); // miser mode
@@ -311,8 +311,8 @@ public class X10CanonicalTypeNode_c extends CanonicalTypeNode_c implements X10Ca
                     w.end();
                 }
             }
-            if (extras && type.get() instanceof ConstrainedType_c) {
-                ((ConstrainedType_c) type.get()).printConstraint(w);
+            if (extras && type.get() instanceof ConstrainedType) {
+                ((ConstrainedType) type.get()).printConstraint(w);
             }
        }
       }

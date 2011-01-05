@@ -5,6 +5,7 @@ import java.util.List;
 import polyglot.types.TypeSystem_c.ConstructorMatcher;
 import polyglot.util.Copy;
 import polyglot.types.Package;
+import x10.types.MethodInstance;
 
 public interface TypeEnv extends Copy {
 
@@ -103,7 +104,7 @@ public interface TypeEnv extends Copy {
 
     public List<MethodInstance> overrides(MethodInstance mi);
     public List<MethodInstance> implemented(MethodInstance mi);
-    public List<MethodInstance> implemented(MethodInstance mi, StructType st);
+    public List<MethodInstance> implemented(MethodInstance mi, ContainerType st);
 
     public boolean canOverride(MethodInstance mi, MethodInstance mj);
 

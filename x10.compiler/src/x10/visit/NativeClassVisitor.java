@@ -39,7 +39,6 @@ import polyglot.types.ConstructorDef;
 import polyglot.types.Flags;
 import polyglot.types.FieldDef;
 import polyglot.types.LocalDef;
-import polyglot.types.MethodInstance;
 import polyglot.types.Name;
 import polyglot.types.QName;
 import polyglot.types.SemanticException;
@@ -58,9 +57,9 @@ import x10.types.X10ConstructorDef;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10FieldDef;
-import x10.types.X10Flags;
+import x10.types.MethodInstance;
+
 import x10.types.X10MethodDef;
-import x10.types.X10TypeMixin;
 import polyglot.types.TypeSystem;
 
 /**
@@ -117,7 +116,7 @@ public class NativeClassVisitor extends ContextVisitor {
     }
 
     protected String getPropertyInit(Type at, int index) throws SemanticException {
-        at = X10TypeMixin.baseType(at);
+        at = Types.baseType(at);
         if (at instanceof X10ClassType) {
             X10ClassType act = (X10ClassType) at;
             if (index < act.propertyInitializers().size()) {
@@ -132,8 +131,8 @@ public class NativeClassVisitor extends ContextVisitor {
         return null;
     }
 
-    protected static X10Flags clearNative(Flags flags) {
-        return X10Flags.toX10Flags(flags).clear(Flags.NATIVE);
+    protected static Flags clearNative(Flags flags) {
+        return flags.clear(Flags.NATIVE);
     }
 
     protected Node leaveCall(Node parent, Node old, Node n, NodeVisitor v) throws SemanticException {
@@ -162,9 +161,9 @@ public class NativeClassVisitor extends ContextVisitor {
         fake.kind(ClassDef.TOP_LEVEL);
         fake.setFromEncodedClassFile();
         if (cdef.isStruct()) {
-            fake.setFlags(X10Flags.STRUCT);
+            fake.setFlags(Flags.STRUCT);
         } else {
-            fake.setFlags(X10Flags.NONE);
+            fake.setFlags(Flags.NONE);
         }
         fake.setPackage(Types.ref(ts.packageForName(QName.make(getNativeClassPackage(cdef)))));
 
@@ -184,7 +183,7 @@ public class NativeClassVisitor extends ContextVisitor {
         Id fid = xnf.Id(p, fname);
         ClassType ftype = fake.asType();
         CanonicalTypeNode ftnode = xnf.CanonicalTypeNode(p, ftype);
-        Flags fflags = X10Flags.PRIVATE.Final();
+        Flags fflags = Flags.PRIVATE.Final();
         X10FieldDef fdef = xts.fieldDef(p, Types.ref(cdef.asType()), fflags, Types.ref(ftype), fname);
         fdef.setDefAnnotations(Collections.<Ref<? extends Type>>singletonList(Types.ref(embed)));
         FieldDecl fdecl = xnf.FieldDecl(p, xnf.FlagsNode(p, fflags), ftnode, fid).fieldDef(fdef);
@@ -200,10 +199,10 @@ public class NativeClassVisitor extends ContextVisitor {
         ConstructorInstance xinst;
         {
             Name id0 = Name.make("id0");
-            LocalDef ldef = xts.localDef(p, X10Flags.FINAL, Types.ref(ftype), id0);
+            LocalDef ldef = xts.localDef(p, Flags.FINAL, Types.ref(ftype), id0);
             Expr init = xnf.Local(p, xnf.Id(p, id0)).localInstance(ldef.asInstance()).type(ftype);
             Expr assign = xnf.FieldAssign(p, special, fid, Assign.ASSIGN, init).fieldInstance(fdef.asInstance()).type(ftype);
-            Formal f = xnf.Formal(p, xnf.FlagsNode(p, X10Flags.FINAL), ftnode, xnf.Id(p, id0)).localDef(ldef);
+            Formal f = xnf.Formal(p, xnf.FlagsNode(p, Flags.FINAL), ftnode, xnf.Id(p, id0)).localDef(ldef);
 
             ArrayList<Stmt> ctorBlock = new ArrayList<Stmt>();
             // super constructor def (noarg)
@@ -216,7 +215,7 @@ public class NativeClassVisitor extends ContextVisitor {
             ctorBlock.add(xnf.Eval(p, assign));
 
             X10ConstructorDecl xd = (X10ConstructorDecl) xnf.ConstructorDecl(p,
-                    xnf.FlagsNode(p, X10Flags.PRIVATE),
+                    xnf.FlagsNode(p, Flags.PRIVATE),
                     cdecl.name(),
                     Collections.<Formal>singletonList(f),
                     xnf.Block(p,ctorBlock));
@@ -225,7 +224,7 @@ public class NativeClassVisitor extends ContextVisitor {
 
             ConstructorDef xdef = xts.constructorDef(p,
                     Types.ref(cdef.asType()),
-                    X10Flags.PRIVATE,
+                    Flags.PRIVATE,
                     Collections.<Ref<? extends Type>>singletonList(Types.ref(ftype))
                   );
 
@@ -261,7 +260,7 @@ public class NativeClassVisitor extends ContextVisitor {
 
                 // reuse x10 method instance for delegate method but make it global to avoid place check
                 MethodInstance minst = mdef.asInstance();
-                minst = (MethodInstance) minst.flags(((X10Flags) minst.flags()));
+                minst = (MethodInstance) minst.flags(((Flags) minst.flags()));
                 minst = (MethodInstance) minst.container(ftype);
 
                 // call delegate

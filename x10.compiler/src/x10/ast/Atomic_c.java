@@ -30,7 +30,6 @@ import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
 import polyglot.types.Context;
-import x10.types.X10NamedType;
 import polyglot.types.TypeSystem;
 
 /**

@@ -17,6 +17,7 @@ import polyglot.types.Name;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem_c;
+import polyglot.types.Types;
 import polyglot.util.InternalCompilerError;
 import x10.constraint.XFailure;
 import x10.constraint.XVar;
@@ -25,7 +26,6 @@ import x10.constraint.XVar;
 import x10.types.ParameterType;
 import polyglot.types.Context;
 import x10.types.X10FieldInstance;
-import x10.types.X10TypeMixin;
 import polyglot.types.TypeSystem;
 import x10.types.constraints.CConstraint;
 
@@ -38,7 +38,7 @@ public class X10FieldMatcher extends TypeSystem_c.FieldMatcher {
         super(container, name, context);
         this.contextKnowsReceiver = p;
     }
-   
+
 
     @Override
     public FieldInstance instantiate(FieldInstance mi) throws SemanticException {
@@ -53,7 +53,7 @@ public class X10FieldMatcher extends TypeSystem_c.FieldMatcher {
         // in the container, and the type of the container.
         // The task is to transfer constraints from the target to the field.
         Type ct = container != null ? container : fi.container();
-        CConstraint c = X10TypeMixin.xclause(ct);
+        CConstraint c = Types.xclause(ct);
         
         // Let v be the symbolic name for the target. If there is none, we make one up.
         // Let t = T{tc}, and ct = U{c}. 
@@ -61,7 +61,7 @@ public class X10FieldMatcher extends TypeSystem_c.FieldMatcher {
         // t = T{exists vv. (tc,this==vv),ct[vv/self]}
         // If c does have a selfVarBinding, v, then we want to set t to
         // t = T{exists v. (tc, this=v, ct)}
-        XVar v = X10TypeMixin.selfVarBinding(ct);
+        XVar v = Types.selfVarBinding(ct);
         XVar vv = null;
         if (v == null) {
         	v = vv =XTerms.makeUQV();
@@ -73,11 +73,11 @@ public class X10FieldMatcher extends TypeSystem_c.FieldMatcher {
         	c = c.copy().instantiateSelf(v);*/
 
         { // Update t 
-        	CConstraint tc = X10TypeMixin.realX(t).copy();
+        	CConstraint tc = Types.realX(t).copy();
         	try {
         		if (! contextKnowsReceiver)
         			tc.addIn(v, c);
-        		t = X10TypeMixin.constrainedType(X10TypeMixin.baseType(t), tc);
+        		t = Types.constrainedType(Types.baseType(t), tc);
         		t = Subst.subst(t, 
         				new XVar[] {v},
         				new XVar[] {oldThis},
@@ -94,11 +94,11 @@ public class X10FieldMatcher extends TypeSystem_c.FieldMatcher {
         }
 
         { // Update rt
-        	CConstraint tc = X10TypeMixin.realX(rt).copy();
+        	CConstraint tc = Types.realX(rt).copy();
         	try {
         		if (! contextKnowsReceiver)
         			tc.addIn(v, c);
-        		rt = X10TypeMixin.constrainedType(X10TypeMixin.baseType(rt), tc);
+        		rt = Types.constrainedType(Types.baseType(rt), tc);
         		XVar w = XTerms.makeEQV();
         		rt = Subst.subst(rt, 
         				(v != null ? new XVar[] {v} : new XVar[] { w, w}),

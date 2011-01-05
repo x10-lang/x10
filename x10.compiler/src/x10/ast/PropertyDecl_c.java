@@ -51,7 +51,7 @@ public class PropertyDecl_c extends X10FieldDecl_c  implements PropertyDecl {
         fi.setProperty();
         
         // Set the property flag.
-        fi.setFlags(X10Flags.toX10Flags(flags.flags()).Property());
+        fi.setFlags(flags.flags().Property());
         return n.flags(flags.flags(fi.flags()));
     }
     
@@ -94,7 +94,7 @@ public class PropertyDecl_c extends X10FieldDecl_c  implements PropertyDecl {
     protected MethodDecl getter(NodeFactory nf) {
         TypeSystem ts = (TypeSystem) nf.extensionInfo().typeSystem();
         Position pos = getCompilerGenPos();
-        Flags flags = X10Flags.PROPERTY.Public().Final();
+        Flags flags = Flags.PROPERTY.Public().Final();
         List<Formal> formals = Collections.<Formal>emptyList();
         List<TypeNode> throwTypes = Collections.<TypeNode>emptyList();
         Expr e = nf.Field(pos, nf.This(pos), name);
@@ -114,7 +114,7 @@ public class PropertyDecl_c extends X10FieldDecl_c  implements PropertyDecl {
      * <RAJ> 
      */
     protected MethodDecl abstractGetter(NodeFactory nf) {
-      MethodDecl abstractGetter = nf.MethodDecl(getCompilerGenPos(), nf.FlagsNode(getCompilerGenPos(), X10Flags.PROPERTY.Public().Abstract()), type, name, 
+      MethodDecl abstractGetter = nf.MethodDecl(getCompilerGenPos(), nf.FlagsNode(getCompilerGenPos(), Flags.PROPERTY.Public().Abstract()), type, name, 
                               Collections.<Formal>emptyList(), null);
       return abstractGetter;
     }

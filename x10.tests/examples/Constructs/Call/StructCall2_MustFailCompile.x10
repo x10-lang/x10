@@ -11,10 +11,13 @@
 
 import harness.x10Test;
 
+
+public class StructCall2_MustFailCompile extends x10Test  {
+
 /**
  * Checking that constructor calls check for number of args.
  */
-struct S1 {
+static struct S1 {
   val x:int;
   val y:int;
 
@@ -23,21 +26,19 @@ struct S1 {
   public final def sum() = x + y;
 }
 
-/* Prior code -- which did not compile in v2.0 -- 
+/* Prior code -- which did not compile in v2.0 --
 
-struct S2 extends struct S1 {
+static struct S2 extends struct S1 {
   val z:int;
   public def this(a:int, b:int, c:int) {
     super(a, b);
     z =c;
   }
-  
+
   public final def sum2() = sum() + z;
 }
 */
 
-public class StructCall2_MustFailCompile extends x10Test  {
-	
 	public def run():boolean {
 		  val a: S1 = S1(1, 3, "You looked like you were loathing the simple cobweb."); // ERR: Method or static constructor not found for given call.
           return true;

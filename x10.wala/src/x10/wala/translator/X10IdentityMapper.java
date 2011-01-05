@@ -6,17 +6,19 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import polyglot.types.ArrayType;
+
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.CodeInstance;
 import polyglot.types.ConstructorInstance;
 import polyglot.types.FieldInstance;
 import polyglot.types.InitializerInstance;
+import polyglot.types.JavaArrayType;
+import polyglot.types.JavaPrimitiveType;
 import polyglot.types.MemberDef;
 import polyglot.types.MethodDef;
-import polyglot.types.MethodInstance;
-import polyglot.types.PrimitiveType;
+import x10.types.MethodInstance;
+
 import polyglot.types.ProcedureInstance;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
@@ -24,6 +26,7 @@ import polyglot.util.Position;
 import x10.types.ConstrainedType;
 import x10.types.MacroType;
 import x10.types.ParameterType;
+import x10.types.VoidType;
 import x10.types.X10ClassType;
 
 import com.ibm.wala.cast.java.types.JavaPrimitiveTypeMap;
@@ -197,12 +200,14 @@ class X10IdentityMapper {
      * (i.e. a bytecode-compliant type name).
      */
     public String SUPER_typeToTypeID(Type type) {
-      if (type.isPrimitive()) {
-        PrimitiveType ptype= (PrimitiveType) type;
+      if (type.isJavaPrimitive()) {
+        JavaPrimitiveType ptype= (JavaPrimitiveType) type;
 
         return JavaPrimitiveTypeMap.getShortName(ptype.name().toString());
+      } else if (type instanceof VoidType) {
+            return JavaPrimitiveTypeMap.VoidType.getName();
       } else if (type.isArray()) {
-        ArrayType atype= (ArrayType) type;
+        JavaArrayType atype= (JavaArrayType) type;
         return "[" + typeToTypeID(atype.base());
       } else if (type.isNull()) {
         Assertions.UNREACHABLE("typeToTypeID() encountered a null type!");
@@ -293,8 +298,8 @@ class X10IdentityMapper {
             MacroType macroType = (MacroType) type;
             return typeToTypeID(macroType.definedType());
         }
-        if (type.isPrimitive()) {
-            String className = ((PrimitiveType) type).fullName().toString();
+        if (type.isJavaPrimitive()) {
+            String className = ((JavaPrimitiveType) type).fullName().toString();
             if (sTypeTranslationMap.containsKey(className)) {
                 return JavaPrimitiveTypeMap.getShortName(sTypeTranslationMap.get(className));
             }

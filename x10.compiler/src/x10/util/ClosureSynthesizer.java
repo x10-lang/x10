@@ -30,7 +30,7 @@ import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.Types;
-import polyglot.types.MethodInstance;
+
 import polyglot.util.Position;
 import x10.ast.AnnotationNode;
 import x10.ast.Closure;
@@ -46,16 +46,16 @@ import x10.types.ClosureInstance;
 import x10.types.ClosureType_c;
 import x10.types.FunctionType;
 import x10.types.ParameterType;
-import x10.types.ParameterType_c;
+import x10.types.MethodInstance;
+
 import x10.types.ThisDef;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassDef_c;
 import x10.types.X10ClassType;
 import polyglot.types.Context;
-import x10.types.X10Flags;
+
 import x10.types.X10MethodDef;
 import polyglot.types.TypeSystem;
-import x10.types.X10TypeSystem_c;
 import x10.types.constraints.CConstraint;
 import x10.extension.X10Ext;
 
@@ -75,7 +75,7 @@ public class ClosureSynthesizer {
 	 * @param context
 	 * @return
 	 */
-	public static Closure makeClosure(X10TypeSystem_c xts, NodeFactory xnf, Position pos, Type retType, 
+	public static Closure makeClosure(TypeSystem xts, NodeFactory xnf, Position pos, Type retType, 
 			List<Formal> parms, Block body,
 			 Context context, List<X10ClassType> annotations) {
 	        List<Ref<? extends Type>> fTypes = new ArrayList<Ref<? extends Type>>();
@@ -110,7 +110,7 @@ public class ClosureSynthesizer {
 	                xnf.CanonicalTypeNode(pos, retType),
 	                 body)
 	                .closureDef(cDef)
-	                .type(closureAnonymousClassDef((X10TypeSystem_c) xts, cDef).asType());
+	                .type(closureAnonymousClassDef( xts, cDef).asType());
             if (null != annotations && !annotations.isEmpty()) {
                 List<AnnotationNode> ans = new ArrayList<AnnotationNode>();
                 for (Type at : annotations) {
@@ -127,7 +127,7 @@ public class ClosureSynthesizer {
 	 * @param def
 	 * @return
 	 */
-	public static X10ClassDef closureAnonymousClassDef(final X10TypeSystem_c xts, final ClosureDef def) {
+	public static X10ClassDef closureAnonymousClassDef(final TypeSystem xts, final ClosureDef def) {
         
         final Position pos = def.position();
 
@@ -202,7 +202,7 @@ public class ClosureSynthesizer {
 
         return cd;
     }
-	  public static X10ClassDef closureBaseInterfaceDef(final X10TypeSystem_c xts, final int numTypeParams, final int numValueParams, 
+	  public static X10ClassDef closureBaseInterfaceDef(final TypeSystem xts, final int numTypeParams, final int numValueParams, 
 	    		final boolean isVoid) {
 	    	return ClosureSynthesizer.closureBaseInterfaceDef(xts, numTypeParams, numValueParams, isVoid, null, null);
 	    }
@@ -228,7 +228,7 @@ public class ClosureSynthesizer {
      * @param guard
      * @return
      */
-    public static X10ClassDef closureBaseInterfaceDef(final X10TypeSystem_c xts, final int numTypeParams, 
+    public static X10ClassDef closureBaseInterfaceDef(final TypeSystem xts, final int numTypeParams, 
     		final int numValueParams, 
     		final boolean isVoid, 
     		List<LocalDef> formalNames1,
@@ -286,12 +286,12 @@ public class ClosureSynthesizer {
         final List<Ref<? extends Type>> argTypes = new ArrayList<Ref<? extends Type>>();
 
         for (int i = 0; i < numTypeParams; i++) {
-            ParameterType t = new ParameterType_c(xts, pos, Name.make("X" + i), Types.ref(cd));
+            ParameterType t = new ParameterType(xts, pos, Name.make("X" + i), Types.ref(cd));
             typeParams.add(t);
         }
 
         for (int i = 0; i < numValueParams; i++) {
-            ParameterType t = new ParameterType_c(xts, pos, Name.make("Z" + (i + 1)), Types.ref(cd));
+            ParameterType t = new ParameterType(xts, pos, Name.make("Z" + (i + 1)), Types.ref(cd));
             argTypes.add(Types.ref(t));
             cd.addTypeParameter(t, ParameterType.Variance.CONTRAVARIANT);
         }
@@ -301,7 +301,7 @@ public class ClosureSynthesizer {
         Type rt = null;
 
         if (!isVoid) {
-            ParameterType returnType = new ParameterType_c(xts, pos, Name.make("U"), Types.ref(cd));
+            ParameterType returnType = new ParameterType(xts, pos, Name.make("U"), Types.ref(cd));
             cd.addTypeParameter(returnType, ParameterType.Variance.COVARIANT);
             rt = returnType;
         }

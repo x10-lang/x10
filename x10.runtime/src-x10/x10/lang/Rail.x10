@@ -171,7 +171,7 @@ public final class Rail[T](length: Int)
     @Native("java", "(#0).apply$G(#1)")
     @Native("c++", "(#0)->apply(#1)")
     @Native("cuda", "(#0)[#1]")
-    public native def apply(i: Int): T;
+    public native operator this(i: Int): T;
 
     /**
      * Operator that allows assignment of Rail elements by index.
@@ -183,7 +183,7 @@ public final class Rail[T](length: Int)
     @Native("java", "(#0).set$G(#1, #2)")
     @Native("c++", "(#0)->set(#1, #2)")
     @Native("cuda", "(#0)[#2] = #1") // FIXME: evaluation order
-    public native def set(v: T, i: Int): T;
+    public native operator this(i: Int)=(v: T): T;
 
     /**
      * Get an iterator over this Rail.

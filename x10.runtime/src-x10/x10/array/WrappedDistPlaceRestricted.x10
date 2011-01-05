@@ -20,14 +20,12 @@ final class WrappedDistPlaceRestricted extends Dist {
     val filter:Place;
 
     def this(d:Dist, p:Place):WrappedDistPlaceRestricted{this.rank==d.rank} {
-        super(d.get(p), false, true, p);
+        super(d.get(p));
 	base = d as Dist{self.rank==this.rank}; // cast should not be needed
         filter = p;
     }
 
-    public def places():Sequence[Place] {
-        return new Array[Place](1, (int)=>filter).sequence();
-    }
+    public def places():PlaceGroup = new SparsePlaceGroup(filter);
 
     public def numPlaces() = 1;
 
@@ -43,14 +41,24 @@ final class WrappedDistPlaceRestricted extends Dist {
         }
     }
 
-    public def apply(pt:Point(rank)):Place {
-	val bp = base.apply(pt);
+    public operator this(pt:Point(rank)):Place {
+	val bp = base(pt);
 	if (bp.equals(filter)) {
 	    return bp;
         } else {
             throw new ArrayIndexOutOfBoundsException("point " + pt + " not contained in distribution");
         }
     }
+
+    public def offset(pt:Point(rank)):int {
+        if (here == filter) {
+            return base.offset(pt);
+       } else {
+            throw new ArrayIndexOutOfBoundsException("point " + pt + " not contained in distribution");
+        }
+    }
+
+    public def maxOffset():int = base.maxOffset();
 
     public def restriction(r:Region(rank)):Dist(rank) {
         return new WrappedDistRegionRestricted(this, r) as Dist(rank); // TODO cast should not be needed

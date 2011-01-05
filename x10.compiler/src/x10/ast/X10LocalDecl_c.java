@@ -34,6 +34,7 @@ import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
+import polyglot.types.Types;
 import polyglot.util.CodeWriter;
 import polyglot.util.CollectionUtil;
 import polyglot.util.Position;
@@ -48,14 +49,13 @@ import x10.errors.Errors;
 import x10.extension.X10Del;
 import x10.extension.X10Del_c;
 import x10.extension.X10Ext;
-import x10.types.ConstrainedType_c;
+
 import x10.types.X10ClassType;
 import polyglot.types.Context;
 import x10.types.X10FieldDef;
-import x10.types.X10Flags;
+
 import x10.types.X10LocalDef;
 import x10.types.X10ParsedClassType_c;
-import x10.types.X10TypeMixin;
 import polyglot.types.TypeSystem;
 import x10.types.checker.Converter;
 import x10.types.checker.PlaceChecker;
@@ -214,7 +214,7 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
         Type type = typeNode.type();
 
         try {
-            X10TypeMixin.checkMissingParameters(typeNode);
+            Types.checkMissingParameters(typeNode);
         } catch (SemanticException e) {
             Errors.issue(tc.job(), e, this);
         }

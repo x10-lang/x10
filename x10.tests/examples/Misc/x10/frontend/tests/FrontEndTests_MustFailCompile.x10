@@ -1356,10 +1356,7 @@ class TestFieldInitForwardRef {
 //	  * Primitive structs (Short,UShort,Byte,UByte, Int, Long, ULong, UInt, Float, Double, Boolean, Char)
 //    * user defined structs without a constraint and without a class invariant where all fields haszero.
 class SimpleUserDefinedStructTest {	
-	static struct S {
-	  val x:Int = 4;
-	  val y:Int = 0;
-	}
+	static struct S(x:Int, y:Int) {}
 	static struct S2 {
 		val x:Int = 1;
 	}
@@ -1389,7 +1386,7 @@ class SimpleUserDefinedStructTest {
 	  var z3:S6; // ERR
 	  var z4:S7;
 
-	  var s6:S{y==0};  // ERR (any constrained user-defined struct, doesn't haszero. because of a bug in ConstrainedType_c.fields())
+	  var s6:S{self.y==0};  // ERR (any constrained user-defined struct, doesn't haszero. because of a bug in ConstrainedType_c.fields())
 	}
 	def main(Array[String]) {
 		Console.OUT.println( Zero.get[S5[S5[Int]]]().t.t );
@@ -1543,7 +1540,7 @@ class EscapingCtorTest(p:EscapingCtorTest) {
 	}
 	final operator this+(that:EscapingCtorTest):EscapingCtorTest = null;
 	final operator (that:EscapingCtorTest)*this:EscapingCtorTest = null;
-	@NonEscaping final def apply(that:EscapingCtorTest):EscapingCtorTest = null;
+	@NonEscaping final operator this(that:EscapingCtorTest):EscapingCtorTest = null;
 
 	@NonEscaping final def m() {
 		g();
@@ -2513,8 +2510,8 @@ class C3 implements XXX,YYY {
 	}
 }
 class C implements (Any)=>Int {
-	public def apply(Any):Int = 1;
-	public def apply(String):String="";
+	public operator this(Any):Int = 1;
+	public operator this(String):String="";
 
 	def test(c:C) {
 		val x:Int = c(1);
@@ -2524,8 +2521,8 @@ class C implements (Any)=>Int {
 	}	
 }
 class D[T] implements (T)=>Int {
-	public def apply(T):Int = 1;
-	public def apply(String):String="";
+	public operator this(T):Int = 1;
+	public operator this(String):String="";
 
 	def test(c:D[Any]) {
 		val x:Int = c(1);
@@ -2535,8 +2532,8 @@ class D[T] implements (T)=>Int {
 	}	
 }
 class C2 implements (Any)=>Int, (String)=>String {
-	public def apply(Any):Int = 1;
-	public def apply(String):String="";
+	public operator this(Any):Int = 1;
+	public operator this(String):String="";
 
 	def test(c:C2) {
 		val x:Int = c(1);
@@ -3659,28 +3656,6 @@ class XTENLANG_2142 implements CustomSerialization { // ShouldBeErr: missing cto
 }
 
 
-class TestCircularStructs { // see XTENLANG-2187 
-	static struct Z(u:Z) {} // ShouldBeErr
-	static struct W {
-		val u:W; // ShouldBeErr
-		def this(u:W) { this.u = u; }
-	}
-	
-	static struct Cycle1(u:Cycle2) {} 
-	static struct Cycle2(u:Cycle1) {} // ShouldBeErr
-
-	// see XTENLANG-2144 that was closed
-	//TestStructStaticConstant
-    static struct S {
-        static val ONE = S();
-    }
-	@ShouldBeErr static struct U(u:U) {} 
-
-
-    public static def main(Array[String]{rail}) {
-        val x1 = new Array[S](2);
-    }
-}
 class TestComparableAndArithmetic {
   def compare[T](x:T,y:T) { T <: Comparable[T] } = x.compareTo(y);
   def add[T](x:T,y:T) { T <: Arithmetic[T] } = x+y;
@@ -3949,4 +3924,384 @@ class MethodCollisionTests { // see also \x10.tests\examples\Constructs\Interfac
 			@ERR public def clone():A[T]=null;
 		}
 	}
+}
+
+class CachingResolverAssertionFailed { // see XTENLANG-2254
+	static class Z {}
+	// todo: @ShouldBeErr static struct Z {}
+}
+
+
+
+class TestCircularStructs { // see XTENLANG-2187 
+	@ERR static struct Z(u:Z) {} 
+	static struct W {
+		@ERR val u:W; 
+		def this(u:W) { this.u = u; }
+	}
+	
+	@ERR static struct Cycle1(u:Cycle2) {} 
+	@ERR static struct Cycle2(u:Cycle1) {} 
+
+	// see XTENLANG-2144 that was closed
+	//TestStructStaticConstant
+    static struct S {
+        static val ONE = S();
+    }
+	@ERR static struct U(u:U) {} 
+
+
+    public static def main(Array[String]{rail}) {
+        val x1 = new Array[S](2);
+    }
+}
+class CircularityTestsWithInheritanceInterfacesAndStructs { // see XTENLANG-2187
+	@ERR static struct Z(u:Z) {}
+	static struct Z2 {
+		static val z2:Z2 = Z2();
+	}
+
+	static struct Complex(i:Int,j:Int) {}
+
+	static struct Generic[T] {
+		val t:T;
+		def this(t:T) { this.t = t; }
+	}
+	static class GenClassUsage {
+		var x:Generic[GenClassUsage];
+	}
+	static struct GenStructUsage {
+		@ERR val x:Generic[GenStructUsage];
+		def this(x:Generic[GenStructUsage]) { this.x = x; }
+	}
+	static struct GenStructUsage2[T] {
+		val x:Generic[T];
+		def this(x:Generic[T]) { this.x = x; }
+	}
+	@ERR static struct GenStructUsage3 implements GenStructUsage2[GenStructUsage3] {}
+	static struct GenStructUsage4 {
+		@ERR val x:GenStructUsage2[GenStructUsage2[GenStructUsage4]];
+		def this(x:GenStructUsage2[GenStructUsage2[GenStructUsage4]]) { this.x = x; }
+	}
+	static struct IgnoreGeneric[T] {}
+	@ERR static struct GenStructUsage44(x:IgnoreGeneric[IgnoreGeneric[GenStructUsage44]]) {} // far todo: even though the generic is "ignored" (there is no field of that type), I still report an error. We could do another analysis that checks which type parameters are actually used by fields and only handle such type parameters.
+	static struct GenStructUsage5 {
+		val x:GenStructUsage2[GenStructUsage2[GenStructUsage2[Generic[Int]]]];
+		def this(x:GenStructUsage2[GenStructUsage2[GenStructUsage2[Generic[Int]]]]) { this.x = x; }
+	}
+
+	
+	static struct Box[T](b:T) {}
+	@ERR static struct GA[T](a:Box[GB[T]]) {}
+	@ERR static struct GB[T](a:Box[GA[T]]) {}
+
+	static struct Infinite[T] {
+		@ERR val t:Infinite[Infinite[T]];
+		def this(t:Infinite[Infinite[T]]) {
+			this.t = t;
+		}
+	}
+	@ERR static struct Infinite2[T](t:Infinite2[T]) {}
+	static struct GenStructUsage6 {
+		val x:Infinite[Int];
+		def this(x:Infinite[Int]) { this.x = x; }
+	}
+
+	static struct A1 {
+		val b:B1;
+		def this(b:B1) { this.b = b; }
+	}
+	static class B1 {
+		val a:A1;
+		def this(a:A1) { this.a = a; }
+	}
+	static struct A2 {
+		@ERR val b:B2;
+		def this(b:B2) { this.b = b; }
+	}
+	static struct B2 {
+		@ERR val a:A2;
+		def this(a:A2) { this.a = a; }
+	}
+
+	static struct X {	
+		val inner:Inner;
+		def this(a:Inner) { this.inner = a; }
+		class Inner {}
+	}
+	static class X2 {	
+		class Inner extends X2 {}
+	}
+
+
+	property i() = 5;
+	@ERR class R extends R {i()==5} {}
+	@ERR class R1 {i()==3} {}
+	@ERR class R2 {@ERR i()==3} extends R2 {}
+	class R3 {}
+	@ERR @ERR @ERR class R4 extends R3 {@ERR i()==3} {}
+	
+	@ERR static class W extends W {}
+	static val i=3;
+	@ERR static class P extends Q{i==3} {}
+	static class Q extends P{i==3} {}
+
+	@ERR static class S[T] extends S[S[T]] {}
+	
+	@ERR static class A[T] extends B[A[T]] {}
+	static class B[T] extends A[B[T]] {}
+
+	@ERR static class E[T] extends T {} // Cannot extend type T; not a class.
+
+
+	// circularity in interfaces
+	@ERR interface I1 extends I2 {}
+	interface I2 extends I1 {}
+
+	@ERR interface I3 extends I3 {}
+	@ERR interface I4[T] extends I4[I4[T]] {}
+	@ERR interface I5(i:Int) extends I5{self.i==1} {}
+	interface I6(i:I6) {}
+
+	interface Comparable[T](i:T) {}
+	class Foo(i:Foo) implements Comparable[Foo] {}
+	@ERR class Foo2(i:Comparable[Foo2]) implements Comparable[Foo2] {}
+}
+
+class ConformanceChecks { // see XTENLANG-989
+	interface A {
+	   def m(i:Int){i==3}:void;
+	}
+	class IntDataPoint implements A {
+	   @ShouldBeErr public def m(i:Int){i==4}:void {}
+	}
+}
+
+class TestThisAndInheritanceInConstraints {
+	class A {
+		def m(b1:A, var b2:A{A.this==b1}) {}
+	}
+	class B extends A {
+		def m(b1:A, var b2:A{B.this==b1}) {}
+	}
+	class C extends A {
+		@ShouldBeErr def m(b1:A, var b2:A{C.this==b2}) {}
+	}
+}
+
+class TestConstraintsAndProperties(i:Int, j:Int) {
+	def test1(var x1:TestConstraintsAndProperties{self.i==1}, var x2:TestConstraintsAndProperties{self.i==2}) {
+		x1 = @ERR x2;
+	}
+	def test2(var x1:TestConstraintsAndProperties{this.i==1}, var x2:TestConstraintsAndProperties{this.i==2}) {
+		x1 = @ERR x2;
+	}
+	def test3(var x1:TestConstraintsAndProperties{this.i==1}, var x2:TestConstraintsAndProperties{this.j==2}) {
+		x1 = @ShouldBeErr x2;
+	}
+}
+
+class TestFieldsInConstraints { // see XTENLANG-989
+	class A {
+	 public val i:Int = 2;
+	 public val k = 2;
+	}
+	class B extends A {
+	 public val k = 3;
+	 class C {
+	  public val k = 4;
+	  public property j() = B.this.i;
+	  // all these refer to the same field A.i
+	  def m1(var x1:C{C.this.j()==1}, var x2:C{B.this.i==1}, var x3:C{B.super.i==1}) {
+		x1 = x2;
+		x1 = x3;
+		x2 = x1;
+		x2 = x3;
+		x1 = x2;
+		x1 = x3;
+	  }
+	  // check field resolution
+	  def testResolution() {
+		  val Ak:Int{self==2} = B.super.k;
+		  val Bk:Int{self==3} = B.this.k;
+		  val Ck:Int{self==4} = C.this.k;
+		  
+		  @ERR val Ak2:Int{self==5} = B.super.k; // todo: Found type: x10.lang.Int{self==2, B#this.k==2}  ???
+		  @ERR val Bk2:Int{self==5} = B.this.k; // ok: Found type: x10.lang.Int{self==3, B#this.k==3}
+		  @ERR val Ck2:Int{self==5} = C.this.k; // ok: Found type: x10.lang.Int{self==4, B.C#this.k==4}
+	  }
+	  // all these refer to different fields "k"
+	  def m2(var x1:C{C.this.k==1}, var x2:C{B.this.k==1}, var x3:C{B.super.k==1}) {
+		x1 = @ShouldBeErr x2;
+		x1 = @ShouldBeErr x3;
+		x2 = @ShouldBeErr x1;
+		x2 = @ShouldBeErr x3;
+		x1 = @ShouldBeErr x2;
+		x1 = @ShouldBeErr x3;
+	  }
+	  // in fact, even if we use different literals (1,2,3), we still don't get an error!
+	  def m3(var x1:C{C.this.k==1}, var x2:C{B.this.k==2}, var x3:C{B.super.k==3}) {
+		x1 = @ShouldBeErr x2;
+		x1 = @ShouldBeErr x3;
+		x2 = @ShouldBeErr x1;
+		x2 = @ShouldBeErr x3;
+		x1 = @ShouldBeErr x2;
+		x1 = @ShouldBeErr x3;
+	  }
+	 }
+	}
+}
+
+class PropertyFieldResolution {
+	interface A(i:Int) {}
+	class B(i:Int{self==0})  implements A {
+		val k1:Int{self==0} = this.i;
+		@ERR val k2:Int{self==1} = this.i;
+	}
+}
+class SettableAssignWithoutApply {
+    operator this(i:Int)=(v: Int): void {}
+	def m() {
+        this(1) = 2;
+        this(1) += @ERR @ERR 2;
+	}
+	def testSettableAssign(b:DistArray[Int], p:Point(b.rank)) {
+		b(p)+=1;
+		b(p)++;
+	}
+}
+
+
+
+
+
+class TestTypeParamShaddowing {
+class E[F] {F <: String } { //1
+ def test(f:F):String = f; // making sure "F" refers to the type parameter
+
+ @ERR val f1 = new F(1); // in Java: unexpected type. found: type parameter F.  required: class
+ class F { //2
+    @ShouldBeErr val ff = new F(1); // in Java: unexpected type. found: type parameter F.  required: class
+    def this(i:Int) {}
+ }
+ @ERR val f2 = new F(1); // in Java: unexpected type. found: type parameter F.  required: class
+ // you can choose the class over the type parameter by using the outer class as a qualifier
+ def disambiguate() {
+	 val f3 = this.new F(1);
+	 val f4 = new E.F(1);
+ }
+}
+}
+class ShaddowingTypeParametersTests[T, T2,T3] {
+	@ShouldBeErr def m1[T](t:T) {}
+	static def m2[T](t:T) {}
+	@ShouldBeErr static struct T {}
+	@ShouldBeErr static class T2 {}
+    @ShouldBeErr public static type T3 = Int;
+
+	class A {}
+	class B[A] {}
+
+	class C {
+		class D[C] {}
+	}
+
+	class E[F] {
+		@ShouldBeErr class F {}
+	}
+
+	class G[U] {
+		@ShouldBeErr class I[U] {}
+	}
+
+	class J {
+		@ShouldBeErr class J2[T] {}
+		@ShouldBeErr def m[T](t:T) {}
+	}
+
+	def q[U]() {
+		{
+			@ShouldBeErr class U {}
+		}
+		{
+			@ShouldBeErr class A[U] {}
+		}
+		{
+			class K[U2] {
+				@ShouldBeErr def m1[U]() {}
+				@ShouldBeErr def m2[U2]() {}
+			}
+		}
+	}
+}
+
+class YetAnotherConstraintBugWithFieldPropogation {
+	def test1() {
+		val region = (1..1)*(1..1);
+		val i: Iterator[Point{self.rank==2}] = region.iterator();
+	}
+	def test2() {
+		val i: Iterator[Point{self.rank==2}] = ((1..1)*(1..1)).iterator(); // was XTENLANG-2275
+	}
+}
+class CyclicTypeDefs {	
+	static type B = B; // ERR
+	static type X = Y; // 
+	static type Y = Z; // ERR
+	static type Z = X; // ERR ERR
+}
+class XTENLANG_2277 {	
+	def m(a:Rail[Int]) {
+		val x:Int{self==2} = a(0)+=2; // ShouldBeErr
+	}
+}
+
+class TestSetAndApplyOperators {
+	static class OnlySet {
+		operator this(i:Int) = 0;
+	}
+	static class OnlyApply {
+		operator this(i:Int)=(v:Int) = 1;
+	}
+	static class BothSetApply {
+		operator this(i:Int) = 2;
+		operator this(i:Int)=(v:Int):Int{self==v} = v;
+	}
+	def test(s:OnlySet, a:OnlyApply, sa:BothSetApply) {
+		s(2);
+		a(2); // ERR
+		sa(2);
+		s(2) = 3; // ERR
+		a(2) = 3; 
+		sa(2) = 3; 
+		s(2) += 3; // ERR
+		a(2) += 3; // ERR ERR
+		sa(2) += 5; 
+		val i1:Int{self==5} = sa(2) = 5; 
+		val i2:Int{self==5} = sa(2) += 5; // ShouldBeErr (XTENLANG_2277)
+		val i3:Int{self==4} = sa(2) += 5; // ERR
+	}
+}
+
+class ArrayAndRegionTests {
+	def test(a1:Array[Int](0..10), r:Region{zeroBased, rect, rank==1}, a2:Array[Int](r), a3:Array[Int]{zeroBased, rect, rank==1}) {
+		val reg:Region{zeroBased, rect, rank==1} = 0..10;
+		val arr1:Array[Int]{zeroBased, rect, rank==1} = new Array[Int](0..10,0);
+		val arr2:Array[Int]{zeroBased, rect, rank==1} = new Array[Int](reg,0);
+		val arr3:Array[Int]{region.zeroBased, region.rect, region.rank==1} = new Array[Int](reg,0);
+		val arr4:Array[Int](reg) = null;
+		m1(a1);  // ShouldNotBeERR
+		m1(a2);
+		m1(a3);
+		m1(arr3);
+		m1(arr4);
+
+		m2(a1); // ShouldNotBeERR
+		m2(a2);
+		m2(a3);
+		m2(arr3);
+		m2(arr4);
+	}
+	def m1(Array[Int]{zeroBased, rect, rank==1}) {}
+	def m2(Array[Int]{region.zeroBased, region.rect, region.rank==1}) {}
 }

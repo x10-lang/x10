@@ -30,7 +30,7 @@ public class NestedExpressions2 extends x10Test {
 		def n() {
 			val x = new C(true);
 			val y = new C(true);
-			@ShouldBeErr val z: C{self.a==(y.a&&x.a)} = and(x,y); // todo: this is an error only with -STATIC_CALLS (with DYNAMIC_CALLS works)
+			val z: C{self.a==(y.a&&x.a)} = and(x,y); 
 		}
 	}
     public def run() = true;

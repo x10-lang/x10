@@ -22,7 +22,7 @@ import polyglot.types.Flags;
 import polyglot.types.Name;
 import polyglot.types.QName;
 import polyglot.types.Ref;
-import polyglot.types.StructType;
+import polyglot.types.ContainerType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.util.Position;
@@ -37,7 +37,7 @@ public class X10FieldDef_c extends FieldDef_c implements X10FieldDef {
     boolean isProperty;
     
     public X10FieldDef_c(TypeSystem ts, Position pos,
-            Ref<? extends StructType> container,
+            Ref<? extends ContainerType> container,
             Flags flags, 
             Ref<? extends Type> type,
             Name name, ThisDef thisDef) {

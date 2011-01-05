@@ -1,4 +1,4 @@
-// Yoav added: IGNORE_FILE
+
 /*
  *  This file is part of the X10 project (http://x10-lang.org).
  *
@@ -21,8 +21,8 @@ import harness.x10Test;
  * @author vj 10/10
  */
 public class RecursiveTypeDefs_MustFailCompile extends x10Test {
-	static type foo = fum;
-	static type fum = foo;
+	static type foo = fum;  // ERR: Reached max macro expansion depth with RecursiveTypeDefs_MustFailCompile.foo 
+	static type fum = foo;  // ERR: Could not compute type.
 
 	public def run()=true;
 

@@ -5,6 +5,7 @@ import java.util.*;
 import polyglot.frontend.Globals;
 import polyglot.main.Report;
 import polyglot.types.TypeSystem_c.ConstructorMatcher;
+import x10.types.MethodInstance;
 
 /**
  * Typing environment.
@@ -12,7 +13,7 @@ import polyglot.types.TypeSystem_c.ConstructorMatcher;
  * For a given typing rule Gamma |- Phi, this is Gamma. Phi is a method of
  * TypeEnv.
  */
-public class TypeEnv_c implements TypeEnv {
+public abstract class TypeEnv_c implements TypeEnv {
     protected Context context; // the actual context. Eliminate this and merge
     // with Context.
     protected TypeSystem ts;
@@ -54,9 +55,9 @@ public class TypeEnv_c implements TypeEnv {
 	if (type1 == null || type2 == null)
 	    return false;
 
-	if (type1 instanceof ArrayType && type2 instanceof ArrayType) {
-	    ArrayType at1 = (ArrayType) type1;
-	    ArrayType at2 = (ArrayType) type2;
+	if (type1 instanceof JavaArrayType && type2 instanceof JavaArrayType) {
+	    JavaArrayType at1 = (JavaArrayType) type1;
+	    JavaArrayType at2 = (JavaArrayType) type2;
 	    return typeEquals(at1.base(), at2.base());
 	}
 
@@ -85,7 +86,7 @@ public class TypeEnv_c implements TypeEnv {
 	    return toType.isNull() || toType.isReference();
 	}
 
-	if (fromType.isPrimitive() && toType.isPrimitive()) {
+	if (fromType.isJavaPrimitive() && toType.isJavaPrimitive()) {
 	    if (fromType.isVoid() || toType.isVoid())
 		return false;
 	    if (ts.typeEquals(fromType, toType, context))
@@ -95,16 +96,16 @@ public class TypeEnv_c implements TypeEnv {
 	    return false;
 	}
 
-	if (fromType instanceof ArrayType && toType instanceof ArrayType) {
-	    ArrayType fromAT = (ArrayType) fromType;
-	    ArrayType toAT = (ArrayType) toType;
+	if (fromType instanceof JavaArrayType && toType instanceof JavaArrayType) {
+	    JavaArrayType fromAT = (JavaArrayType) fromType;
+	    JavaArrayType toAT = (JavaArrayType) toType;
 
 	    Type fromBase = fromAT.base();
 	    Type toBase = toAT.base();
 
-	    if (fromBase.isPrimitive())
+	    if (fromBase.isJavaPrimitive())
 		return ts.typeEquals(toBase, fromBase, context);
-	    if (toBase.isPrimitive())
+	    if (toBase.isJavaPrimitive())
 		return false;
 
 	    if (fromBase.isNull())
@@ -116,14 +117,14 @@ public class TypeEnv_c implements TypeEnv {
 	    return ts.isCastValid(fromBase, toBase, context);
 	}
 
-	if (fromType instanceof ArrayType && toType instanceof ReferenceType) {
+	if (fromType instanceof JavaArrayType && toType instanceof ObjectType) {
 	    // Ancestor is not an array, but child is. Check if the array
 	    // is a subtype of the ancestor. This happens when ancestor
 	    // is java.lang.Object.
 	    return ts.isSubtype(fromType, toType, context);
 	}
 
-	if (fromType instanceof ClassType && toType instanceof ArrayType) {
+	if (fromType instanceof ClassType && toType instanceof JavaArrayType) {
 	    // From type is not an array, but to type is. Check if the array
 	    // is a subtype of the from type. This happens when from type
 	    // is java.lang.Object.
@@ -174,7 +175,7 @@ public class TypeEnv_c implements TypeEnv {
 	    }
 	}
 
-	if (fromType instanceof ReferenceType) {
+	if (fromType instanceof ObjectType) {
 	    if (!toType.isReference())
 		return false;
 	    return ts.isSubtype(fromType, toType, context) || ts.isSubtype(toType, fromType, context);
@@ -195,7 +196,7 @@ public class TypeEnv_c implements TypeEnv {
      * 
      */
     public boolean isImplicitCastValid(Type fromType, Type toType) {
-	if (fromType.isPrimitive() && toType.isPrimitive()) {
+	if (fromType.isJavaPrimitive() && toType.isJavaPrimitive()) {
 	    if (toType.isVoid())
 		return false;
 	    if (fromType.isVoid())
@@ -250,12 +251,12 @@ public class TypeEnv_c implements TypeEnv {
 	    return false;
 	}
 
-	if (fromType instanceof ArrayType && toType instanceof ArrayType) {
-	    ArrayType fromAT = (ArrayType) fromType;
+	if (fromType instanceof JavaArrayType && toType instanceof JavaArrayType) {
+	    JavaArrayType fromAT = (JavaArrayType) fromType;
 	    Type fromBase = fromAT.base();
-	    ArrayType toAT = (ArrayType) toType;
+	    JavaArrayType toAT = (JavaArrayType) toType;
 	    Type toBase = toAT.base();
-	    if (fromBase.isPrimitive() || toBase.isPrimitive()) {
+	    if (fromBase.isJavaPrimitive() || toBase.isJavaPrimitive()) {
 		return ts.typeEquals(fromBase, toBase, context);
 	    }
 	    else {
@@ -267,7 +268,7 @@ public class TypeEnv_c implements TypeEnv {
 	    return toType.isNull() || toType.isReference();
 	}
 
-	if (fromType instanceof ReferenceType) {
+	if (fromType instanceof ObjectType) {
 	    // This handles classes and also coercions from Array to Object
 	    return ts.isSubtype(fromType, toType, context);
 	}
@@ -586,7 +587,7 @@ public class TypeEnv_c implements TypeEnv {
 
     /** Return true if t overrides mi */
     public boolean hasMethod(Type t, MethodInstance mi) {
-	return t instanceof StructType && ((StructType) t).hasMethod(mi, context);
+	return t instanceof ContainerType && ((ContainerType) t).hasMethod(mi, context);
     }
 
     /** Return true if t overrides mi */
@@ -596,18 +597,18 @@ public class TypeEnv_c implements TypeEnv {
 
     public List<MethodInstance> overrides(MethodInstance mi) {
 	List<MethodInstance> l = new ArrayList<MethodInstance>();
-	StructType rt = mi.container();
+	ContainerType rt = mi.container();
 
 	while (rt != null) {
 	    // add any method with the same name and formalTypes from rt
 	    l.addAll(rt.methods(mi.name(), mi.formalTypes(), context));
 
-	    StructType sup = null;
+	    ContainerType sup = null;
 
 	    if (rt instanceof ObjectType) {
 		ObjectType ot = (ObjectType) rt;
-		if (ot.superClass() instanceof StructType) {
-		    sup = (StructType) ot.superClass();
+		if (ot.superClass() instanceof ContainerType) {
+		    sup = (ContainerType) ot.superClass();
 		}
 	    }
 
@@ -622,7 +623,7 @@ public class TypeEnv_c implements TypeEnv {
 	return implemented(mi, mi.container());
     }
 
-    public List<MethodInstance> implemented(MethodInstance mi, StructType st) {
+    public List<MethodInstance> implemented(MethodInstance mi, ContainerType st) {
 	if (st == null) {
 	    return Collections.<MethodInstance> emptyList();
 	}
@@ -635,14 +636,14 @@ public class TypeEnv_c implements TypeEnv {
 
 	    Type superType = rt.superClass();
 
-	    if (superType instanceof StructType) {
-		l.addAll(implemented(mi, (StructType) superType));
+	    if (superType instanceof ContainerType) {
+		l.addAll(implemented(mi, (ContainerType) superType));
 	    }
 
 	    List<Type> ints = rt.interfaces();
 	    for (Type t : ints) {
-		if (t instanceof StructType) {
-		    StructType rt2 = (StructType) t;
+		if (t instanceof ContainerType) {
+		    ContainerType rt2 = (ContainerType) t;
 		    l.addAll(implemented(mi, rt2));
 		}
 	    }
@@ -673,8 +674,8 @@ public class TypeEnv_c implements TypeEnv {
 	// superInterfaces
 	for (Iterator<Type> i = superInterfaces.iterator(); i.hasNext();) {
 	    Type it = i.next();
-	    if (it instanceof StructType) {
-		StructType rt = (StructType) it;
+	    if (it instanceof ContainerType) {
+		ContainerType rt = (ContainerType) it;
 		for (Iterator<MethodInstance> j = rt.methods().iterator(); j.hasNext();) {
 		    MethodInstance mi = j.next();
 		    if (!mi.flags().isAbstract()) {
@@ -747,13 +748,19 @@ public class TypeEnv_c implements TypeEnv {
 	    return;
 
 	if (!(mi.name().equals(mj.name()) && mi.hasFormals(mj.formalTypes(), context))) {
-	    throw new SemanticException(mi.signature() + " in " + mi.container() + " cannot override " + mj.signature() + " in " + mj.container()+ "; incompatible " + "parameter types", mi.position());
+	    throw new SemanticException(mi.signature() 
+	                                + " in " + mi.container() + " cannot override " + mj.signature() 
+	                                + " in " + mj.container()+ "; incompatible " + "parameter types", mi.position());
 	}
 
 	if (allowCovariantReturn ? !isSubtype(mi.returnType(), mj.returnType()) : !typeEquals(mi.returnType(), mj.returnType())) {
 	    if (Report.should_report(Report.types, 3))
 		Report.report(3, "return type " + mi.returnType() + " != " + mj.returnType());
-	    throw new SemanticException(mi.signature() + " in " + mi.container() + " cannot override " + mj.signature() + " in " + mj.container()+ "; attempting to use incompatible " + "return type\n" + "found: " + mi.returnType() + "\n" + "required: " + mj.returnType(),mi.position());
+	    throw new SemanticException(mi.signature() 
+	                                + " in " + mi.container() + " cannot override " + mj.signature() 
+	                                + " in " + mj.container()+ "; attempting to use incompatible return type." 
+	                                + "\n\tFound: " + mi.returnType() 
+	                                + "\n\tExpected: " + mj.returnType(),mi.position());
 	}
 
 /*	if (!ts.throwsSubset(mi, mj)) {
@@ -767,7 +774,10 @@ public class TypeEnv_c implements TypeEnv {
 	if (mi.flags().moreRestrictiveThan(mj.flags())) {
 	    if (Report.should_report(Report.types, 3))
 		Report.report(3, mi.flags() + " more restrictive than " + mj.flags());
-	    throw new SemanticException(mi.signature() + " in " + mi.container() + " cannot override " + mj.signature() + " in " + mj.container()+ "; attempting to assign weaker " + "access privileges", mi.position());
+	    throw new SemanticException(mi.signature() 
+	                                + " in " + mi.container() + " cannot override " + mj.signature() 
+	                                + " in " + mj.container()+ "; attempting to assign weaker " 
+	                                + "access privileges", mi.position());
 	}
 
 	if (mi.flags().isStatic() != mj.flags().isStatic()) {
@@ -798,6 +808,7 @@ public class TypeEnv_c implements TypeEnv {
     }
 
     public Type findMemberType(Type container, Name name) throws SemanticException {
+        assert false;
 	Named n = ts.classContextResolver(container, context).find(ts.MemberTypeMatcher(container, name, context));
 
 	if (n instanceof ClassType) {
@@ -807,72 +818,6 @@ public class TypeEnv_c implements TypeEnv {
 	throw new NoClassException(name.toString(), container);
     }
 
-    /**
-     * Populates the list acceptable with those MethodInstances which are
-     * Applicable and Accessible as defined by JLS 15.11.2.1
-     * 
-     * @param container
-     *            TODO
-     * @param matcher
-     *            TODO
-     */
-    public List<ConstructorInstance> findAcceptableConstructors(Type container, ConstructorMatcher matcher) throws SemanticException {
-	assert false; // should be overridden by X10TypeEnv_c.findAcceptableConstructors.
-    	SemanticException error = null;
-
-	List<ConstructorInstance> acceptable = new ArrayList<ConstructorInstance>();
-
-	if (Report.should_report(Report.types, 2))
-	    Report.report(2, "Searching type " + container + " for constructor " + matcher.signature());
-
-	if (!(container instanceof ClassType)) {
-	    return Collections.<ConstructorInstance>emptyList();
-	}
-
-	for (ConstructorInstance ci : ((ClassType) container).constructors()) {
-	    if (Report.should_report(Report.types, 3))
-		Report.report(3, "Trying " + ci);
-
-	    try {
-		ci = matcher.instantiate(ci);
-
-		if (ci == null) {
-		    continue;
-		}
-
-		if (isAccessible(ci)) {
-		    if (Report.should_report(Report.types, 3))
-			Report.report(3, "->acceptable: " + ci);
-		    acceptable.add(ci);
-		}
-		else {
-		    if (error == null) {
-			error = new NoMemberException(NoMemberException.CONSTRUCTOR, "Constructor " + ci.signature() + " is inaccessible.");
-		    }
-		}
-
-		continue;
-	    }
-	    catch (SemanticException e) {
-		// Treat any instantiation errors as call invalid errors.
-	    }
-
-	    if (error == null) {
-		error = new NoMemberException(NoMemberException.CONSTRUCTOR, "Constructor " + ci.signature() + " cannot be invoked with arguments "
-			+ matcher.argumentString() + ".");
-
-	    }
-	}
-
-	if (acceptable.size() == 0) {
-	    if (error == null) {
-		error = new NoMemberException(NoMemberException.CONSTRUCTOR, "No valid constructor found for " + container + matcher.signature() + ".");
-	    }
-
-	    throw error;
-	}
-
-	return acceptable;
-    }
-
+  
+   
 }

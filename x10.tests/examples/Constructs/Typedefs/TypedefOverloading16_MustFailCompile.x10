@@ -23,7 +23,7 @@ import harness.x10Test;
 public class TypedefOverloading16_MustFailCompile extends TypedefTest {
 
     static type A(i:int) = int;
-    static type A(j:int) = int;
+    static type A(j:int) = int; // ERR
 
     public def run(): boolean = {
 

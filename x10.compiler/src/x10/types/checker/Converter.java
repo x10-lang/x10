@@ -37,7 +37,7 @@ import polyglot.types.Context;
 import polyglot.types.Def;
 import polyglot.types.Matcher;
 import polyglot.types.MemberInstance;
-import polyglot.types.MethodInstance;
+
 import polyglot.types.Name;
 import polyglot.types.NoMemberException;
 import polyglot.types.ObjectType;
@@ -46,13 +46,13 @@ import polyglot.types.ProcedureInstance;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
+import polyglot.types.Types;
 import polyglot.util.ErrorInfo;
 import polyglot.util.Pair;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import x10.Configuration;
 import x10.ExtensionInfo;
-import x10.ast.SemanticError;
 import x10.ast.X10CanonicalTypeNode;
 import x10.ast.X10CanonicalTypeNode_c;
 import x10.ast.X10Cast;
@@ -69,13 +69,13 @@ import x10.errors.Warnings;
 import x10.types.ParameterType;
 import x10.types.TypeParamSubst;
 import x10.types.X10ClassType;
+import x10.types.MethodInstance;
 import polyglot.types.Context;
 import x10.types.X10ParsedClassType_c;
 import x10.types.X10ProcedureDef;
 import x10.types.X10ProcedureInstance;
-import x10.types.X10TypeMixin;
 import polyglot.types.TypeSystem;
-import x10.types.X10TypeSystem_c;
+
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
 import x10.util.Synthesizer;
@@ -131,7 +131,7 @@ public class Converter {
 		if (result instanceof X10Cast && ((X10Cast) result).conversionType()==ConversionType.CHECKED) {
 			// OK that succeeded. Now ensure that there is a depexpr created for the check.
 
-			CConstraint cn = X10TypeMixin.xclause(toType);
+			CConstraint cn = Types.xclause(toType);
 			if (cn.hasPlaceTerm()) {
 				// Failed to translate the constraint
 				// For now the only possibility is the constraint refers
@@ -164,7 +164,7 @@ public class Converter {
 	private static Expr typeCheckCast(X10Cast cast, ContextVisitor tc) {
 	    if (cast.castType() != null) {
 	        try {
-	            X10TypeMixin.checkMissingParameters(cast.castType());
+	            Types.checkMissingParameters(cast.castType());
 	        } catch (SemanticException e) {
 	            return null;
 	        }
@@ -259,7 +259,7 @@ public class Converter {
 				PI raw = (PI) smi.def().asInstance();
 				if (smi instanceof MemberInstance<?>) {
 					Type container = ((MemberInstance<?>) smi).container();
-					Type base = X10TypeMixin.baseType(container);
+					Type base = Types.baseType(container);
 					if (base instanceof X10ClassType) {
 						X10ParsedClassType_c ct = (X10ParsedClassType_c) base;
 						raw = ct.subst().reinstantiate(raw);
@@ -363,7 +363,7 @@ public class Converter {
 				}
 				else if (changed) {
 					X10ClassType ct2 = ct.typeArguments(accum);
-					Type newFrom = X10TypeMixin.xclause(X10TypeMixin.baseType(ct2), X10TypeMixin.xclause(fromType));
+					Type newFrom = Types.xclause(Types.baseType(ct2), Types.xclause(fromType));
 					if (fromType.typeEquals(newFrom, context)) {
 						assert false;
 					}
@@ -383,7 +383,7 @@ public class Converter {
 			}
 
 			void addSuperTypes(List<Type> l, Type t) {
-				Type b = X10TypeMixin.baseType(t);
+				Type b = Types.baseType(t);
 				if (! b.typeSystem().typeEquals(b, t, context)) {
 					l.add(b);
 				}
@@ -405,7 +405,7 @@ public class Converter {
 
 		// If the fromType has a covariant parameter,
 		// try supertypes of the corresponding argument type.
-		Type baseFrom = X10TypeMixin.baseType(fromType);
+		Type baseFrom = Types.baseType(fromType);
 
 		if (baseFrom instanceof X10ClassType) {
 			X10ClassType ct = (X10ClassType) baseFrom;
@@ -439,7 +439,7 @@ public class Converter {
 	}
 
 	public static Expr checkCast(X10Cast cast, ContextVisitor tc) throws SemanticException {
-		X10TypeSystem_c ts = (X10TypeSystem_c) tc.typeSystem();
+		TypeSystem ts =  tc.typeSystem();
 		Type toType = cast.castType().type();
 		Type fromType = cast.expr().type();
 		NodeFactory nf = (NodeFactory) tc.nodeFactory();
@@ -457,22 +457,22 @@ public class Converter {
 		if (ts.isSubtype(fromType, toType, context)) {
 		    // Add the clause self==x if the fromType's self binding is x,
 		    // since for these casts we know the result is identical to expr.
-		    XTerm sv = X10TypeMixin.selfBinding(fromType);
+		    XTerm sv = Types.selfBinding(fromType);
 		    if (sv != null) 
 		        try {
-		        toType = X10TypeMixin.addSelfBinding((Type) toType.copy(), sv);
+		        toType = Types.addSelfBinding((Type) toType.copy(), sv);
 		        } catch (XFailure f) {
-		            throw new SemanticError("Inconsistent type: " + toType + " {self==" + sv+"}", cast.position());
+		            throw new SemanticException("Inconsistent type: " + toType + " {self==" + sv+"}", cast.position());
 		        }
 
 		    X10Cast n =  cast.conversionType(ConversionType.SUBTYPE);
 		    return n.type(toType);
 		}
 
-		Type baseFrom = X10TypeMixin.baseType(fromType);
-		Type baseTo = X10TypeMixin.baseType(toType);
-		XConstraint cFrom = X10TypeMixin.xclause(fromType);
-		XConstraint cTo = X10TypeMixin.xclause(toType);
+		Type baseFrom = Types.baseType(fromType);
+		Type baseTo = Types.baseType(toType);
+		XConstraint cFrom = Types.xclause(fromType);
+		XConstraint cTo = Types.xclause(toType);
 
 		if (cast.conversionType() != ConversionType.UNKNOWN_IMPLICIT_CONVERSION 
 				&& cast.conversionType() != ConversionType.CALL_CONVERSION) {
@@ -480,12 +480,12 @@ public class Converter {
 					&& ! ts.isParameterType(toType) 
 					&& ts.isCastValid(fromType, toType, context)) {
 				X10Cast n = cast.conversionType(ConversionType.CHECKED); 
-				XTerm sv = X10TypeMixin.selfBinding(fromType);
+				XTerm sv = Types.selfBinding(fromType);
 				if (sv != null) 
 				    try {
-				        toType = X10TypeMixin.addSelfBinding((Type) toType.copy(), sv);
+				        toType = Types.addSelfBinding((Type) toType.copy(), sv);
 				    } catch (XFailure f) {
-				        throw new SemanticError("Inconsistent type: " + toType + " {self==" + sv+"}", cast.position());
+				        throw new SemanticException("Inconsistent type: " + toType + " {self==" + sv+"}", cast.position());
 				    }
 				return n.type(toType);
 			}
@@ -505,9 +505,9 @@ public class Converter {
 					mi = ts.findMethod(toType, ts.MethodMatcher(toType, Converter.operator_as, 
 							Collections.singletonList(fromType), context));
 					Type miType = mi.returnType();
-					Type baseMiType = X10TypeMixin.baseType(miType);
+					Type baseMiType = Types.baseType(miType);
 					if (mi.flags().isStatic() && baseMiType.isSubtype(baseTo, context)
-							&& X10TypeMixin.areConsistent(miType, toType)) {
+							&& Types.areConsistent(miType, toType)) {
 						converter = mi;
 						// Do the conversion.
 						c = nf.Call(p, nf.CanonicalTypeNode(p, toType), nf.Id(p, mi.name()), e);
@@ -526,9 +526,9 @@ public class Converter {
 							Collections.singletonList(fromType), context));
 					
 					Type miType = mi.returnType();
-					Type baseMiType = X10TypeMixin.baseType(miType);
+					Type baseMiType = Types.baseType(miType);
 					if (mi.flags().isStatic() && baseMiType.isSubtype(baseTo, context)
-							&& X10TypeMixin.areConsistent(miType, toType)) {
+							&& Types.areConsistent(miType, toType)) {
 						converter = mi;
 						// Do the conversion.
 						c = nf.Call(p, nf.CanonicalTypeNode(p, toType), nf.Id(p, mi.name()), e);
@@ -541,9 +541,9 @@ public class Converter {
 						mi = ts.findMethod(fromType, ts.MethodMatcher(fromType, Converter.implicit_operator_as, 
 								Collections.singletonList(fromType), context));
 						Type miType = mi.returnType();
-						Type baseMiType = X10TypeMixin.baseType(miType);
+						Type baseMiType = Types.baseType(miType);
 						if (mi.flags().isStatic() && baseMiType.isSubtype(baseTo, context)
-								&& X10TypeMixin.areConsistent(miType, toType)) {
+								&& Types.areConsistent(miType, toType)) {
 							converter = mi;
 							c = nf.Call(p, nf.CanonicalTypeNode(p, fromType), nf.Id(p, mi.name()), e);
 							c = c.methodInstance(mi);
@@ -593,17 +593,17 @@ public class Converter {
 	    }
 
 		// Added 03/28/10 to support new call conversion semantics.
-		if (ts.isSubtype(X10TypeMixin.baseType(fromType), X10TypeMixin.baseType(toType), context))
+		if (ts.isSubtype(Types.baseType(fromType), Types.baseType(toType), context))
 			if (! Configuration.STATIC_CALLS)
 				if (cast.conversionType() == ConversionType.CALL_CONVERSION 
 						&& ts.isCastValid(fromType, toType, context)) {
 					X10Cast n = cast.conversionType(ConversionType.CHECKED); 
-					XVar sv = X10TypeMixin.selfVarBinding(fromType); // FIXME: Vijay, can this be an XTerm?  -Bowen
+					XVar sv = Types.selfVarBinding(fromType); // FIXME: Vijay, can this be an XTerm?  -Bowen
 					if (sv != null)
 						try {
-							toType = X10TypeMixin.addSelfBinding((Type) toType.copy(), sv);
+							toType = Types.addSelfBinding((Type) toType.copy(), sv);
 						} catch (XFailure f) {
-							throw new SemanticError("Inconsistent type: " + toType + " {self==" + sv+"}", cast.position());
+							throw new SemanticException("Inconsistent type: " + toType + " {self==" + sv+"}", cast.position());
 						}
 						return n.type(toType);
 				}

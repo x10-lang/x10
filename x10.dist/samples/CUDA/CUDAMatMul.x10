@@ -11,15 +11,15 @@ public class CUDAMatMul {
     static def fill (A:Array[Float](1){rail}, n:Int, maxi:Int)
     {
         val r = new Random();
-        for([j] in 0..n-1)
+        for([j] in 0..(n-1))
             A(j) = (r.nextInt(maxi*2) - maxi) / (maxi + 1.0f);
     }
 
     static def diff (m:Int, n:Int, A:Array[Float](1){rail}, lda:Int, B:Array[Float](1){rail}, ldb:Int )
     {
         var err:Float = 0;
-        for([j] in 0..n-1)
-            for([i] in 0..m-1)
+        for([j] in 0..(n-1))
+            for([i] in 0..(m-1))
                 err = Math.max( err, Math.abs( A(i+j*lda) - B(i+j*ldb) ) );
         return err;
     }
@@ -57,7 +57,7 @@ public class CUDAMatMul {
             assert (k%16) == 0 && k > 0 : "unsupported shared dimension in ourSgemm( 'N', 'N', ... )";
             //sgemmNN<<<grid, threads>>>( A, lda, B, ldb, C, ldc, k, alpha, beta );
             finish async at (gpu) @CUDA @CUDADirectParams {
-                finish for ([block] in 0..(m*n/64/16)-1) async {
+                finish for ([block] in 0..((m*n/64/16)-1)) async {
                     val bs = new Array[Float](16*17, 0);
                     clocked finish for ([thread] in 0..63) clocked async {
                         val inx = thread % 16;
@@ -79,11 +79,11 @@ public class CUDAMatMul {
                         do
                         {
                             next;
-                            //@Unroll(4) for ([i] in 0..4-1) bs(inx*17+iny+4*i) = B.apply(B_idx + (4*i)*ldb);
-                            { val i=0 ; bs(inx*17+iny+4*i) = B.apply(B_idx + (4*i)*ldb); }
-                            { val i=1 ; bs(inx*17+iny+4*i) = B.apply(B_idx + (4*i)*ldb); }
-                            { val i=2 ; bs(inx*17+iny+4*i) = B.apply(B_idx + (4*i)*ldb); }
-                            { val i=3 ; bs(inx*17+iny+4*i) = B.apply(B_idx + (4*i)*ldb); }
+                            //@Unroll(4) for ([i] in 0..4-1) bs(inx*17+iny+4*i) = B(B_idx + (4*i)*ldb);
+                            { val i=0 ; bs(inx*17+iny+4*i) = B(B_idx + (4*i)*ldb); }
+                            { val i=1 ; bs(inx*17+iny+4*i) = B(B_idx + (4*i)*ldb); }
+                            { val i=2 ; bs(inx*17+iny+4*i) = B(B_idx + (4*i)*ldb); }
+                            { val i=3 ; bs(inx*17+iny+4*i) = B(B_idx + (4*i)*ldb); }
                             next;
 
                             
@@ -485,7 +485,7 @@ public class CUDAMatMul {
                 //
                 var start_time : Long = System.currentTimeMillis();
                 val iters = 10;
-                finish for ([iter] in 0..iters-1) {
+                finish for ([iter] in 0..(iters-1)) {
                     ourSgemm(gpu, transa, transb, m, n, k, alpha, dA, lda, dB, ldb, beta, dC, ldc );
                 }
                 val elapsed_time = (System.currentTimeMillis() - start_time)/1E3/iters;

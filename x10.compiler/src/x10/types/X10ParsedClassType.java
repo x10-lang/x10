@@ -14,9 +14,10 @@ package x10.types;
 import java.util.List;
 
 import polyglot.types.Flags;
+import polyglot.types.Named;
 import polyglot.types.ParsedClassType;
 import polyglot.types.SemanticException;
-import polyglot.types.StructType;
+import polyglot.types.ContainerType;
 import polyglot.types.Type;
 import x10.constraint.XConstraint;
 import x10.types.constraints.CConstraint;
@@ -26,7 +27,7 @@ import x10.types.constraints.CConstraint;
  *
  *
  */
-public interface X10ParsedClassType extends ParsedClassType, X10ClassType, X10NamedType, X10ThisVar {
+public interface X10ParsedClassType extends ParsedClassType, X10ClassType, Named, X10ThisVar {
 
     CConstraint getXClause();
     TypeParamSubst subst();
@@ -36,5 +37,5 @@ public interface X10ParsedClassType extends ParsedClassType, X10ClassType, X10Na
 
     X10ParsedClassType error(SemanticException e);
     X10ParsedClassType typeArguments(List<Type> typeArgs);
-    X10ParsedClassType container(StructType container);
+    X10ParsedClassType container(ContainerType container);
 }

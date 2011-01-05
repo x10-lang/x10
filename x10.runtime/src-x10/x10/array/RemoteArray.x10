@@ -59,16 +59,21 @@ public class RemoteArray[T](home:Place, region:Region, size:Int) {} {
     }
 
     @Native("cuda", "(#0).raw[#2] = (#1)")
-    public def set(v:T, i:Int) {here==home, rank==1} = array().set(v,i);
+    public operator this(i:Int)=(v:T) {here==home, rank==1} = array()(i)=v;
 
-    public def set(v:T, p:Point{self.rank==this.rank}) {here==home} = array().set(v,p);
+    public operator this(p:Point{self.rank==this.rank})=(v:T) {here==home} = {
+        // todo: constraint bug! Cause: Method apply(i0: x10.lang.Int){x10.array.Array#this.rank==1}[]: T{x10.array.RemoteArray#this.array.home==x10.array.RemoteArray#this.home} in x10.array.Array[T{x10.array.RemoteArray#this.array.home==x10.array.RemoteArray#this.home}]{self.region==x10.array.RemoteArray#this.region, self.size==x10.array.RemoteArray#this.size, x10.array.RemoteArray#this.array.home==x10.array.RemoteArray#this.home} cannot be called with arguments (x10.array.Point{self.rank==arg4094461.rank}); Call invalid; calling environment does not entail the method guard.
+        // return array()(p)=v;
+        val arr = array();
+        return arr(p)=v;
+    }
 
     @Native("cuda", "(#0).raw[#1]")
-    public def apply(i:Int) {here==home, rank==1} = array()(i);
+    public operator this(i:Int) {here==home, rank==1} = array()(i);
 
-    public def apply(p:Point{self.rank==this.rank}) {here==home} = array()(p);
+    public operator this(p:Point{self.rank==this.rank}) {here==home} = array()(p);
 
-    public def apply() {here==home} = array();
+    public operator this() {here==home} = array();
 
     public def hashCode() = array.hashCode();
 }
@@ -93,13 +98,13 @@ public class RemoteArray[T](region:Region, size:Int, array:GlobalRef[Array[T]{se
         return oRA.array.equals(array);
     }
 
-    public def set(v:T, i:Int) {here==array.home, rank==1} = array().set(v,i);
+    public operator this(i:Int)=(v:T) {here==array.home, rank==1} = array()(i)=v;
 
-    public def set(v:T, p:Point{self.rank==this.rank}) {here==array.home} = array().set(v,p);
+    public operator this(p:Point{self.rank==this.rank})=(v:T) {here==array.home} = array()(p)=v;
 
-    public def apply(i:Int) {here==array.home, rank==1} = array()(i);
+    public operator this(i:Int) {here==array.home, rank==1} = array()(i);
 
-    public def apply(p:Point{self.rank==this.rank}) {here==array.home} = array()(p);
+    public operator this(p:Point{self.rank==this.rank}) {here==array.home} = array()(p);
 
     public def hashCode() = array.hashCode();
 }

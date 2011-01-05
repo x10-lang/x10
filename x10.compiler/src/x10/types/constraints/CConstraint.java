@@ -54,14 +54,14 @@ import x10.types.X10ClassDef;
 import polyglot.types.Context;
 import x10.types.X10FieldDef;
 import x10.types.X10LocalDef;
-import x10.types.X10TypeMixin;
 import polyglot.types.TypeSystem;
 import x10.types.checker.PlaceChecker;
 
 /**
- * The compiler's notion of a constraint.
+ * The compiler's notion of a constraint. A CConstraint is an XConstraint, together with machinery to track two
+ * special variables of interest to the compiler for this constraint, namely the self variable and the this variable.
  * 
- * It keeps track of this and self variables. Further, the 
+ * 
  * 
  * @author vj
  *
@@ -69,6 +69,7 @@ import x10.types.checker.PlaceChecker;
 public class CConstraint extends XConstraint  implements ThisVar {
 
 	public static final String SELF_VAR_PREFIX="self";
+	
 	/** Variable to use for self in the constraint. */
 	XVar self;
 
@@ -90,6 +91,10 @@ public class CConstraint extends XConstraint  implements ThisVar {
 		return self;
 	}
 
+	/**
+	 * Return what, if anything, self is bound to in the current constraint.
+	 * @return
+	 */
 	public XVar selfVarBinding() {
 		return  bindingForVar(self());
 	}
@@ -111,6 +116,8 @@ public class CConstraint extends XConstraint  implements ThisVar {
 	 * that contains the same equalities (if any) as the current one.
 	 * vj: 08/12/09
 	 * Copying also the consistency, and validity status, and thisVar and self.
+	 * It is critical that the selfVar for the constraint's copy is the same
+	 * as the selfVar for the original constraint.
 	 */
 	public CConstraint copy() {
 		CConstraint c = new CConstraint();
@@ -160,41 +167,92 @@ public class CConstraint extends XConstraint  implements ThisVar {
 
 	
 
+	/**
+	 * Add the binding selfVar == var to this constraint, possibly
+	 * modifying it in place.
+	 * @param var
+	 * @throws XFailure
+	 */
 	public void addSelfBinding(XTerm var) throws XFailure {
 		addBinding(self(), var);
 	}
+	/**
+	 * Add the binding selfVar == var to this constraint, possibly
+	 * modifying it in place.
+	 * @param var
+	 * @throws XFailure
+	 */
 	public void addSelfBinding(XConstrainedTerm var) throws XFailure {
 		addBinding(self(), var);
 	}
 
+	/**
+	 * Add the binding thisVar == term to this constraint, possibly
+	 * modifying it in place.
+	 * @param var
+	 * @throws XFailure
+	 */
 	public void addThisBinding(XTerm term) throws XFailure {
 		addBinding(thisVar(), term);
 	}
 
+	/**
+	 * Set thisVar to var (if var is non-null). To be used extremely carefully. Does not change
+	 * terms in the constraint. So there should not be terms referring to the old thisVar.
+	 * @param var
+	 */
 	public void setThisVar(XVar var) {
 		if (var == null) return;
 		thisVar = var;
 	}
 
+	/**
+	 * Add the binding s=t.term(), and add in the constraints of t into this. This constraint
+	 * is possibly modified in place.
+	 * @param s
+	 * @param t
+	 * @throws XFailure
+	 */
 	public void addBinding(XTerm s, XConstrainedTerm t) throws XFailure {
 		addBinding(s, t.term());
 		addIn(s, t.constraint());
 
 	}
+	/**
+	 * Add the binding s=t to this. This constraint is possibly modified in place.
+	 * @param s
+	 * @param t
+	 * @throws XFailure
+	 */
 	public void addBinding(XConstrainedTerm s, XTerm t) throws XFailure {
 		addBinding(t,s);
 	}
+	/**
+	 * Add the binding s.term()=t.term() to this, and add in s.constraint() and t.constraint(). 
+	 * This constraint is possibly modified in place.
+	 * @param s
+	 * @param t
+	 * @throws XFailure
+	 */
 	public void addBinding(XConstrainedTerm s, XConstrainedTerm t) throws XFailure {
 		addBinding(s.term(), t.term());
 		addIn(s.term(), s.constraint());
 		addIn(t.term(), t.constraint());
 	}
-	// Redeclare with the right return type
+	
+	/**
+	 * Substitute y for x in this, returning a new constraint.
+	 * // Redeclare with the right return type
+	 */
 	@Override
 	public CConstraint substitute(XTerm y, XVar x) throws XFailure {
 		return substitute(new XTerm[] { y }, new XVar[] { x });
 	}
-	// Redeclare with the right return type
+	
+	/**
+	 * Substitute ys for xs in this, returning a new constraint.
+	 * // Redeclare with the right return type
+	 */
 	@Override
 	public CConstraint substitute(XTerm[] ys, XVar[] xs, boolean propagate) throws XFailure {
 		return substitute(ys, xs);
@@ -248,8 +306,8 @@ public class CConstraint extends XConstraint  implements ThisVar {
 		//		if (last == null) return this; 	// x does not occur in this
 
 		CConstraint result = new CConstraint();
-
-		for (XTerm term : constraints()) {
+		List<XTerm> terms = constraints();
+		for (XTerm term : terms) {
 			XTerm t = term;
 
 			// if term is y==x.f, the subst will produce y==y.f, which is a cycle--bad!
@@ -514,9 +572,9 @@ public class CConstraint extends XConstraint  implements ThisVar {
 		if (t == null)
 			return null;
 		if (depth > MAX_DEPTH) {
-//			System.err.println("(Warning) Reached threshold when checking constraints. If type-checking fails "
-//					+ "\n please insert a dynamic cast."
-//					+ "\n\t Term: "+ t);
+			//System.err.println("(Warning) Reached threshold when checking constraints. If type-checking fails "
+			//		+ "\n please insert a dynamic cast."
+			//		+ "\n\t Term: "+ t);
 			return new CConstraint();
 		}
 		CConstraint r = m.get(t);
@@ -530,7 +588,7 @@ public class CConstraint extends XConstraint  implements ThisVar {
 			if (ld != null) {
 				Type ty = Types.get(ld.type());
 				ty = PlaceChecker.ReplaceHereByPlaceTerm(ty, ld.placeTerm());
-				CConstraint ci = X10TypeMixin.realX(ty);
+				CConstraint ci = Types.realX(ty);
 				ci = ci.substitute(v, ci.self());
 				r = new CConstraint();
 				r.addIn(ci);
@@ -552,10 +610,10 @@ public class CConstraint extends XConstraint  implements ThisVar {
 
 			if (fi != null) {
 				Type ty = Types.get(fi.type());
-				ci = X10TypeMixin.realX(ty);
+				ci = Types.realX(ty);
 				XVar v = ((X10ClassDef) Types.get(fi.container()).toClass().def()).thisVar();
 				ci = ci.substitute(target, v); // xts.xtypeTranslator().transThisWithoutTypeConstraint());
-                ci = ci.substitute(f, ci.self());
+				ci = ci.substitute(f, ci.self());
 				r = new CConstraint();
 				r.addIn(ci);
 				

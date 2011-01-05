@@ -23,7 +23,7 @@ import polyglot.types.Name;
 import polyglot.types.Package;
 import polyglot.types.QName;
 import polyglot.types.Ref;
-import polyglot.types.StructType;
+import polyglot.types.ContainerType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
@@ -208,7 +208,7 @@ public class TypeDef_c extends MemberDef_c implements TypeDef {
 	}
 
 	public String toString() {
-            String s = "type " + X10Flags.toX10Flags(flags()).prettyPrint() + (container() == null ? "" : container() + ".") + signature() + (guard() != null ? guard() : "") + " = " + definedType();
+            String s = "type " + flags().prettyPrint() + (container() == null ? "" : container() + ".") + signature() + (guard() != null ? guard() : "") + " = " + definedType();
             return s;
 	}
 

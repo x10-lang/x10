@@ -37,12 +37,10 @@ import x10.constraint.XTerm;
 import x10.constraint.XConstraint;
 import x10.errors.Errors;
 import polyglot.types.Context;
-import x10.types.X10Flags;
+
 import x10.types.X10LocalInstance;
 import x10.types.X10ProcedureDef;
-import x10.types.X10TypeMixin;
 import polyglot.types.TypeSystem;
-import x10.types.X10TypeSystem_c;
 import x10.types.X10Context_c;
 import x10.types.X10LocalDef_c;
 import x10.types.constraints.CConstraint;
@@ -118,7 +116,7 @@ public class X10Local_c extends Local_c {
 			if (context.inDepType()) {
 				li = result.localInstance();
 				if (! (li.def().equals(dli)) && ! li.flags().isFinal()) {
-					throw new SemanticError("A var local variable " + liName
+					throw new SemanticException("A var local variable " + liName
 							+ " is not allowed in a constraint.", 
 							position());
 				}
@@ -148,7 +146,7 @@ public class X10Local_c extends Local_c {
       			    // Add the guard into the constraint for this type. 
         			Type t = result.type();
 
-        			CConstraint dep = X10TypeMixin.xclause(t);
+        			CConstraint dep = Types.xclause(t);
         			if (dep == null) dep = new CConstraint();
         			else dep = dep.copy();
 //        			XTerm resultTerm = xts.xtypeTranslator().trans(result);
@@ -159,7 +157,7 @@ public class X10Local_c extends Local_c {
         			    throw new SemanticException(e.getMessage(), position());
         			}
         			
-        			t = X10TypeMixin.xclause(X10TypeMixin.baseType(t), dep);
+        			t = Types.xclause(Types.baseType(t), dep);
         			
 					return result.type(t);
 				}
@@ -180,7 +178,7 @@ public class X10Local_c extends Local_c {
             error = e;
         }
         // If not returned yet, fake the local instance.
-        X10TypeSystem_c xts = (X10TypeSystem_c) tc.typeSystem();
+        TypeSystem xts =  tc.typeSystem();
         X10LocalInstance li = xts.createFakeLocal(name, error);
         return li;
     }

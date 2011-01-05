@@ -49,7 +49,7 @@ import polyglot.types.ClassType;
 import polyglot.types.Context;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
-import polyglot.types.MethodInstance;
+
 import polyglot.types.Name;
 import polyglot.types.QName;
 import polyglot.types.Ref;
@@ -75,14 +75,12 @@ import x10.types.ParameterType;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10ConstructorDef;
-import x10.types.X10Flags;
+
 import x10.types.X10LocalDef;
 import x10.types.X10MethodDef;
-import x10.types.X10MethodInstance;
-import x10.types.X10TypeMixin;
+import x10.types.MethodInstance;
 import polyglot.types.TypeSystem;
-import x10.types.X10TypeSystem_c;
-import x10.types.X10TypeSystem_c.BaseTypeEquals;
+import polyglot.types.TypeSystem_c.BaseTypeEquals;
 import x10.visit.StaticNestedClassRemover;
 import x10.util.ClassifiedStream;
 import x10.util.StreamWrapper;
@@ -251,7 +249,7 @@ public class Emitter {
 	 */
 	public static String translateType(Type type, boolean asRef) {
 		assert (type != null);
-		X10TypeSystem_c xts = (X10TypeSystem_c) type.typeSystem();
+		TypeSystem xts = type.typeSystem();
 		type = xts.expandMacros(type);
 		if (type.isVoid()) {
 			return "void";
@@ -259,7 +257,7 @@ public class Emitter {
 		// TODO: handle closures
 //		if (((X10TypeSystem) type.typeSystem()).isClosure(type))
 //			return translateType(((X10Type) type).toClosure().base(), asRef);
-		type = X10TypeMixin.baseType(type);
+		type = Types.baseType(type);
 		String name = null;
 		// TODO
 //		if (type instanceof ClosureType) {
@@ -410,7 +408,7 @@ public class Emitter {
 		}
 	}
 
-	void printTemplateInstantiation(X10MethodInstance mi, CodeWriter w) {
+	void printTemplateInstantiation(MethodInstance mi, CodeWriter w) {
 		if (mi.typeParameters().size() == 0)
 			return;
 		w.write("<");
@@ -439,13 +437,14 @@ public class Emitter {
 		return b.toString();
 	}
 
-	static MethodInstance getOverridingMethod(TypeSystem xts, ClassType localClass, MethodInstance mi, Context context) {
+	static MethodInstance getOverridingMethod(TypeSystem xts, ClassType localClass, 
+	                                             MethodInstance mi, Context context) {
 	    try {
-	        List<Type> params = ((X10MethodInstance) mi).typeParameters();
-	        List<MethodInstance> overrides = xts.findAcceptableMethods(localClass, xts.MethodMatcher(localClass, mi.name(), ((X10MethodInstance) mi).typeParameters(), mi.formalTypes(), context));
+	        List<Type> params = ((MethodInstance) mi).typeParameters();
+	        List<MethodInstance> overrides = xts.findAcceptableMethods(localClass, xts.MethodMatcher(localClass, mi.name(), ((MethodInstance) mi).typeParameters(), mi.formalTypes(), context));
 	        for (MethodInstance smi : overrides) {
 	            if (CollectionUtil.allElementwise(mi.formalTypes(), smi.formalTypes(), new BaseTypeEquals(context))) {
-	                List<Type> sparams = ((X10MethodInstance) smi).typeParameters();
+	                List<Type> sparams =  smi.typeParameters();
 	                if (params == null && sparams == null)
 	                    return smi;
 	                if (params != null && params.equals(sparams))
@@ -491,7 +490,7 @@ public class Emitter {
 		Context context = tr.context();
 
 		X10ClassType classType = (X10ClassType) from.container();
-		X10ClassType superClass = (X10ClassType) X10TypeMixin.baseType(classType.superClass());
+		X10ClassType superClass = (X10ClassType) Types.baseType(classType.superClass());
 		List<Type> interfaces = classType.interfaces();
 		Type returnType = null;
 
@@ -504,7 +503,7 @@ public class Emitter {
 		}
 
 		for (Type itf : interfaces) {
-			X10ClassType itf_ = (X10ClassType) itf;
+			X10ClassType itf_ = (X10ClassType) Types.baseType(itf);
 			// same thing again for interfaces
 			MethodInstance superMeth = getOverridingMethod(xts,itf_,from,context);
 			if (superMeth != null) {
@@ -534,7 +533,7 @@ public class Emitter {
 	                 boolean qualify, boolean inlineDirective) {
 		Flags flags = n.flags().flags();
 		X10MethodDef def = (X10MethodDef) n.methodDef();
-		X10MethodInstance mi = (X10MethodInstance) def.asInstance();
+		MethodInstance mi = (MethodInstance) def.asInstance();
 		X10ClassType container = (X10ClassType) mi.container();
 		boolean isStruct = container.isX10Struct();
 
@@ -642,7 +641,7 @@ public class Emitter {
 		h.write(" ");
 		TypeSystem xts = (TypeSystem) tr.typeSystem();
 		Type param_type = n.type().type();
-		param_type = X10TypeMixin.baseType(param_type);
+		param_type = Types.baseType(param_type);
 		if (param_type instanceof X10ClassType) {
 			X10ClassType c = (X10ClassType)param_type;
 			if (c.isX10Struct()) {
@@ -667,7 +666,7 @@ public class Emitter {
 	}
 
 	void printRTTDefn(X10ClassType ct, CodeWriter h) {
-	    X10TypeSystem_c xts = (X10TypeSystem_c) ct.typeSystem();
+	    TypeSystem xts =   ct.typeSystem();
 	    X10ClassDef cd = ct.x10Def();
 	    String x10name = fullName(ct).toString().replace('$','.');
 	    int numParents = 0;
@@ -967,7 +966,7 @@ public class Emitter {
 
     void generateClassSerializationMethods(ClassType type, StreamWrapper sw) {
         X10ClassType ct = (X10ClassType) type.toClass();
-        X10TypeSystem_c ts = (X10TypeSystem_c) type.typeSystem();
+        TypeSystem ts =  type.typeSystem();
         X10CPPContext_c context = (X10CPPContext_c) tr.context();
         Type parent = type.superClass();
         boolean customSerialization = type.isSubtype(ts.CustomSerialization(), context);
@@ -1054,7 +1053,7 @@ public class Emitter {
             h.write("public: template<class __T> static ");
             h.write(make_ref("__T")+" "+DESERIALIZER_METHOD+"("+DESERIALIZATION_BUFFER+"& buf);");
             h.newline(); h.forceNewline();
-            sw.pushCurrentStream(context.templateFunctions);
+            sw.pushCurrentStream(context.genericFunctions);
             printTemplateSignature(ct.x10Def().typeParameters(), sw);
             sw.write("template<class __T> ");
             sw.write(make_ref("__T")+" "+klass+"::"+DESERIALIZER_METHOD+"("+DESERIALIZATION_BUFFER+"& buf) {");

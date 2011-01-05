@@ -39,7 +39,7 @@ import polyglot.types.ConstructorDef;
 import polyglot.types.Flags;
 import polyglot.types.FieldDef;
 import polyglot.types.LocalDef;
-import polyglot.types.MethodInstance;
+
 import polyglot.types.Name;
 import polyglot.types.QName;
 import polyglot.types.SemanticException;
@@ -56,9 +56,8 @@ import x10.types.X10Def;
 import x10.types.X10ConstructorDef;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
-import x10.types.X10Flags;
+
 import x10.types.X10MethodDef;
-import x10.types.X10TypeMixin;
 import x10.util.HierarchyUtils;
 import polyglot.types.TypeSystem;
 

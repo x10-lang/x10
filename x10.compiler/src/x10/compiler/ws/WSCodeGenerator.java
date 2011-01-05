@@ -15,42 +15,45 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
+import polyglot.ast.Call;
 import polyglot.ast.ConstructorDecl;
 import polyglot.ast.Expr;
-import polyglot.ast.MethodDecl;
+import polyglot.ast.Formal;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.frontend.Job;
 import polyglot.main.Report;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
-import polyglot.types.ConstructorDef;
+import polyglot.types.Context;
+import polyglot.types.Flags;
+import polyglot.types.LocalDef;
+import polyglot.types.Name;
+import polyglot.types.Ref;
 import polyglot.types.SemanticException;
+import polyglot.types.Type;
 import polyglot.types.TypeSystem;
+import polyglot.types.Types;
+import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
-import x10.ast.Async;
 import x10.ast.AtEach;
 import x10.ast.Closure;
 import x10.ast.Here;
 import x10.ast.Offer;
 import x10.ast.PlacedClosure;
 import x10.ast.RemoteActivityInvocation;
+import x10.ast.X10Call;
 import x10.ast.X10ClassDecl;
 import x10.ast.X10MethodDecl;
-import x10.compiler.ws.codegen.AbstractWSClassGen;
 import x10.compiler.ws.codegen.WSMethodFrameClassGen;
-import x10.compiler.ws.util.WSCallGraph;
-import x10.compiler.ws.util.WSCallGraphNode;
+import x10.compiler.ws.util.WSCodeGenUtility;
 import x10.compiler.ws.util.WSTransformationContent;
-import x10.types.ClosureDef;
+import x10.compiler.ws.util.WSTransformationContent.MethodType;
 import x10.types.X10MethodDef;
-import polyglot.types.Context;
-import polyglot.types.TypeSystem;
-import x10.types.checker.PlaceChecker;
 import x10.util.Synthesizer;
-import x10.util.synthesizer.MethodSynth;
-import x10.visit.X10PrettyPrinterVisitor;
+import x10.visit.Desugarer;
+import x10.visit.X10InnerClassRemover;
 
 
 /**
@@ -121,7 +124,7 @@ public class WSCodeGenerator extends ContextVisitor {
         // reject unsupported patterns
         if(n instanceof ConstructorDecl){
             ConstructorDecl cDecl = (ConstructorDecl)n;
-            if(wts.isTargetMethod(cDecl)){
+            if(wts.getMethodType(cDecl) != MethodType.NORMAL){
                 throw new SemanticException("Work Stealing doesn't support concurrent constructor: " + cDecl, n.position());
             }
         }
@@ -134,7 +137,7 @@ public class WSCodeGenerator extends ContextVisitor {
         if(n instanceof Closure && !(n instanceof PlacedClosure)){
             //match with WSCallGraph, not handle PlacedClosure
             Closure closure = (Closure)n;           
-            if(wts.isTargetMethod(closure)){
+            if(wts.getMethodType(closure) != MethodType.NORMAL){
                 throw new SemanticException("Work Stealing doesn't support concurrent closure: " + closure, n.position());
             }
         }
@@ -144,20 +147,41 @@ public class WSCodeGenerator extends ContextVisitor {
         if(n instanceof Offer){
             throw new SemanticException("Work Stealing doesn't support collecting finish: " + n,n.position());
         }
+        
+        // transform call site
+        if(n instanceof Call){
+        	Call call = (Call)n;
+        	switch(wts.getCallSiteType(call)){
+        	case MATCHED_CALL: //change the target
+        		//two steps, create a new method def, and change the call
+        		X10MethodDef mDef = WSCodeGenUtility.createWSCallMethodDef(call.methodInstance().def(), wts);
+        		List<Expr> newArgs = new ArrayList<Expr>();
+        		newArgs.add(nf.NullLit(Position.COMPILER_GENERATED).type(wts.workerType));
+        		newArgs.add(nf.NullLit(Position.COMPILER_GENERATED).type(wts.frameType));
+        		newArgs.add(nf.NullLit(Position.COMPILER_GENERATED).type(wts.finishFrameType));
+        		return WSCodeGenUtility.replaceMethodCallWithWSMethodCall(nf, (X10Call) call, mDef, newArgs);
+        	case CONCURRENT_CALL:  //do nothing, leave the transformation in method decl transformation
+        	case NORMAL:
+        	default:
+        	}
+        }
 
         // transform methods
         if(n instanceof X10MethodDecl) {
+        	
             X10MethodDecl mDecl = (X10MethodDecl)n;
             X10MethodDef mDef = mDecl.methodDef();
-            if(wts.isTargetMethod(mDecl)){
+            
+            switch(wts.getMethodType(mDecl)){
+            case BODYDEF_TRANSFORMATION:
+            	//traditional transform
                 if(debugLevel > 3){
                     System.out.println("[WS_INFO] Start transforming target method: " + mDef.name());
                 }
-                
                 Job job = ((ClassType) mDef.container().get()).def().job();
                 WSMethodFrameClassGen mFrame = new WSMethodFrameClassGen(job, (NodeFactory) nf, (Context) context, mDef, mDecl, wts);
                 try{
-                n = mFrame.transform();
+                    n = mFrame.transform();
                 }
                 catch(SemanticException e){
                     System.err.println("==========>" + e.getMessage());
@@ -169,8 +193,15 @@ public class WSCodeGenerator extends ContextVisitor {
                 if(debugLevel > 3){
                     System.out.println(mFrame.getFrameStructureDesc(4));
                 }
+                break;
+            case DEFONLY_TRANSFORMATION:
+            	//only change the method's interface
+            	n = changeMethodDefOnly(mDecl);
+            	break;
+            case NORMAL:
+            default:
             }
-            return n;
+        	return n;
         }
 
         // transform classes
@@ -187,8 +218,31 @@ public class WSCodeGenerator extends ContextVisitor {
                     System.out.println();
                     System.out.println("[WS_INFO] Add new methods and nested classes to class: " + n);
                 }
+                List<X10MethodDecl> methods = getMethodDecls(cDef);
+                
                 cDecl = Synthesizer.addNestedClasses(cDecl, classes);
-                cDecl = Synthesizer.addMethods(cDecl, getMethodDecls(cDef));
+                cDecl = Synthesizer.addMethods(cDecl, methods);
+                
+                //Here we need use desugarer and inner class remover to visit the class again.
+                //do final processing, run desugarer and inner class remover again
+                //get the right desuguar
+                Desugarer desugarer;
+                if(wts.getTheLanguage().equals("java")){
+                	desugarer = new x10c.visit.Desugarer(job, ts, nf);
+                }
+                else{
+                	desugarer = new x10.visit.Desugarer(job, ts, nf);
+                }
+                desugarer.begin();
+                desugarer.context(context()); //copy current context
+                
+                X10InnerClassRemover innerclassRemover = new X10InnerClassRemover(job, ts, nf);
+                innerclassRemover.begin();
+                innerclassRemover.context(context()); //copy current context
+                
+                cDecl = (X10ClassDecl) cDecl.visit(desugarer);
+                cDecl = (X10ClassDecl) cDecl.visit(innerclassRemover);
+                
                 return cDecl;
             }
         }
@@ -218,4 +272,75 @@ public class WSCodeGenerator extends ContextVisitor {
         }
         return cDecls;
     }
+    
+    
+    /**
+     * Transform a method, add worker/upframe/parent frame/ as formals.
+     * But no any other changes. Just for those methods that need match the WS interface change
+     * @param methodDecl
+     * @return
+     */
+    protected X10MethodDecl changeMethodDefOnly(X10MethodDecl methodDecl){
+    	//need change the def's formals definition and decl's formals
+    	//three new formals, worker/upframe/finishframe
+    	Position pos = Position.COMPILER_GENERATED;
+    	
+    	Name workerName = Name.make("worker");
+        LocalDef workerLDef = ts.localDef(pos, Flags.FINAL, Types.ref(wts.workerType), workerName);
+        Formal workerF = nf.Formal(pos,
+                              nf.FlagsNode(pos, Flags.FINAL), 
+                              nf.CanonicalTypeNode(pos, wts.workerType), 
+                              nf.Id(pos, workerName)).localDef(workerLDef);
+
+    	Name upName = Name.make("up");
+        LocalDef upLDef = ts.localDef(pos, Flags.FINAL, Types.ref(wts.frameType), upName);
+        Formal upF = nf.Formal(pos,
+                              nf.FlagsNode(pos, Flags.FINAL), 
+                              nf.CanonicalTypeNode(pos, wts.frameType), 
+                              nf.Id(pos, upName)).localDef(upLDef);
+    	
+    	Name ffName = Name.make("ff");
+        LocalDef ffLDef = ts.localDef(pos, Flags.FINAL, Types.ref(wts.finishFrameType), ffName);
+        Formal ffF = nf.Formal(pos,
+                              nf.FlagsNode(pos, Flags.FINAL), 
+                              nf.CanonicalTypeNode(pos, wts.finishFrameType), 
+                              nf.Id(pos, ffName)).localDef(ffLDef);
+        
+        
+        //now change the def
+        X10MethodDef methodDef = methodDecl.methodDef();
+        ArrayList<LocalDef> formalNames = new ArrayList<LocalDef>();
+        ArrayList<Ref<? extends Type>> formalRefs = 
+            new  ArrayList<Ref<? extends Type>>();
+        ArrayList<Formal> formals = new ArrayList<Formal>();
+        
+        formalNames.add(workerLDef);
+        formalRefs.add(workerF.type().typeRef());
+        formals.add(workerF);
+
+        formalNames.add(upLDef);
+        formalRefs.add(upF.type().typeRef());
+        formals.add(upF);
+        
+        formalNames.add(ffLDef);
+        formalRefs.add(ffF.type().typeRef());
+        formals.add(ffF);
+        
+        formalNames.addAll(methodDef.formalNames());
+        formalRefs.addAll(methodDef.formalTypes());
+        formals.addAll(methodDecl.formals());
+        
+        methodDef.setFormalNames(formalNames);
+        methodDef.setFormalTypes(formalRefs);
+        methodDecl = methodDecl.formals(formals);
+        
+        //finally change the name;
+        Name name = Name.make(WSCodeGenUtility.getMethodFastPathName(methodDef));
+        methodDef.setName(name);
+        methodDecl = methodDecl.name(nf.Id(pos, name));
+        
+    	return methodDecl;
+    }
+    
+    
 }

@@ -1,4 +1,4 @@
-// Yoav added: IGNORE_FILE
+
 /*
  *  This file is part of the X10 project (http://x10-lang.org).
  *
@@ -34,7 +34,7 @@ public class ReferenceConsistencyCheck(R: Region{rank==2, zeroBased, rect},
 	public static def main(Array[String](1)) = {
 //		set up a test problem
 		val size=10;
-		val R:Region{rank==2&&zeroBased&&rect} = (0..size-1)*(0..size-1);
+		val R:Region{rank==2&&zeroBased&&rect} = 0..(size-1)*0..(size-1);
 		val D:Dist{region==R} = Dist.makeBlock(R);
 		val A:DistArray[double]{dist==D} = 
 			   DistArray.make[double](D, ([i,j]:Point) => 

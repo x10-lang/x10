@@ -99,7 +99,7 @@ public class AsyncDef_c extends X10MethodDef_c implements AsyncDef {
     }
 
     public String designator() {
-        return "at";
+        return "async";
     }
 
     public String toString() {

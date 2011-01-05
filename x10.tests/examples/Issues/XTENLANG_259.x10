@@ -17,8 +17,8 @@ import harness.x10Test;
 
 public class XTENLANG_259 extends x10Test implements (int)=>int {
 
-    public def apply(i:int) = 0;
-    public def set(v:int, i:int) {}
+    public operator this(i:int) = 0;
+    public operator this(i:int)=(v:int) {}
         
     public def run() {
         this(0) = this(0) + 1;

@@ -87,7 +87,6 @@ import polyglot.lex.Operator;
 import polyglot.lex.StringLiteral;
 import polyglot.parse.VarDeclarator;
 import polyglot.types.Flags;
-import x10.types.X10Flags;
 import x10.types.checker.Converter;
 import x10.errors.Errors;
 import polyglot.util.CollectionUtil;
@@ -302,7 +301,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         public int flag() { return flag; }
         public Flags flags() {
             if (flag == ABSTRACT)     return Flags.ABSTRACT;
-            if (flag == ATOMIC)       return X10Flags.ATOMIC;
+            if (flag == ATOMIC)       return Flags.ATOMIC;
             //  if (flag == EXTERN)       return X10Flags.EXTERN;
             if (flag == FINAL)        return Flags.FINAL;
             // if (flag == GLOBAL)       return X10Flags.GLOBAL;
@@ -310,13 +309,13 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
             if (flag == NATIVE)       return Flags.NATIVE;
             //if (flag == NON_BLOCKING) return X10Flags.NON_BLOCKING;
             if (flag == PRIVATE)      return Flags.PRIVATE;
-            if (flag == PROPERTY)     return X10Flags.PROPERTY;
+            if (flag == PROPERTY)     return Flags.PROPERTY;
             if (flag == PROTECTED)    return Flags.PROTECTED;
             if (flag == PUBLIC)       return Flags.PUBLIC;
             //if (flag == SAFE)         return X10Flags.SAFE;
             //if (flag == SEQUENTIAL)   return X10Flags.SEQUENTIAL;
-            if (flag == CLOCKED)       return X10Flags.CLOCKED;
-            if (flag == TRANSIENT)    return X10Flags.TRANSIENT;
+            if (flag == CLOCKED)       return Flags.CLOCKED;
+            if (flag == TRANSIENT)    return Flags.TRANSIENT;
             if (flag == STATIC)       return Flags.STATIC;
             assert(false);
             return null;
@@ -498,13 +497,13 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
 
     private List<Node> checkClassModifiers(List<Modifier> modifiers) {
         return (modifiers.size() == 0
-                ? Collections.<Node>singletonList(nf.FlagsNode(JPGPosition.COMPILER_GENERATED, X10Flags.toX10Flags(Flags.NONE)))
+                ? Collections.<Node>singletonList(nf.FlagsNode(JPGPosition.COMPILER_GENERATED, Flags.NONE))
                 : checkModifiers("class", modifiers, FlagModifier.classModifiers));
     }
 
     private List<Node> checkTypeDefModifiers(List<Modifier> modifiers) {
         return (modifiers.size() == 0
-                ? Collections.<Node>singletonList(nf.FlagsNode(JPGPosition.COMPILER_GENERATED, X10Flags.toX10Flags(Flags.NONE)))
+                ? Collections.<Node>singletonList(nf.FlagsNode(JPGPosition.COMPILER_GENERATED, Flags.NONE))
                 : checkModifiers("typedef", modifiers, FlagModifier.typeDefModifiers));
     }
 
@@ -744,18 +743,13 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
 
     private FlagsNode extractFlags(List<? extends Node> l) {
         Position pos = null;
-        X10Flags xf = X10Flags.toX10Flags(Flags.NONE);
+        Flags xf = Flags.NONE;
         for (Node n : l) {
             if (n instanceof FlagsNode) {
                 FlagsNode fn = (FlagsNode) n;
                 pos = pos == null ? fn.position() : new JPGPosition(pos, fn.position());
                 Flags f = fn.flags();
-                if (f instanceof X10Flags) {
-                    xf = xf.set((X10Flags) f);
-                }
-                else {
-                    xf = X10Flags.toX10Flags(xf.set(f));
-                }
+                xf = xf.set(f);
             }
         }
         return nf.FlagsNode(pos == null ? JPGPosition.COMPILER_GENERATED : pos, xf);
@@ -1532,29 +1526,29 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
                 PackageName,
                 Identifier));
     }
-    // Production: RelationalExpression ::= RelationalExpression '<' RangeExpression
-    void rule_RelationalExpression3(Object _RelationalExpression, Object _RangeExpression) {
+    // Production: RelationalExpression ::= RelationalExpression '<' ShiftExpression
+    void rule_RelationalExpression3(Object _RelationalExpression, Object _ShiftExpression) {
         Expr RelationalExpression = (Expr) _RelationalExpression;
-        Expr RangeExpression = (Expr) _RangeExpression;
-        setResult(nf.Binary(pos(), RelationalExpression, Binary.LT, RangeExpression));
+        Expr ShiftExpression = (Expr) _ShiftExpression;
+        setResult(nf.Binary(pos(), RelationalExpression, Binary.LT, ShiftExpression));
     }
-    // Production: RelationalExpression ::= RelationalExpression '>' RangeExpression
-    void rule_RelationalExpression4(Object _RelationalExpression, Object _RangeExpression) {
+    // Production: RelationalExpression ::= RelationalExpression '>' ShiftExpression
+    void rule_RelationalExpression4(Object _RelationalExpression, Object _ShiftExpression) {
         Expr RelationalExpression = (Expr) _RelationalExpression;
-        Expr RangeExpression = (Expr) _RangeExpression;
-        setResult(nf.Binary(pos(), RelationalExpression, Binary.GT, RangeExpression));
+        Expr ShiftExpression = (Expr) _ShiftExpression;
+        setResult(nf.Binary(pos(), RelationalExpression, Binary.GT, ShiftExpression));
     }
-    // Production: RelationalExpression ::= RelationalExpression '<=' RangeExpression
-    void rule_RelationalExpression5(Object _RelationalExpression, Object _RangeExpression) {
+    // Production: RelationalExpression ::= RelationalExpression '<=' ShiftExpression
+    void rule_RelationalExpression5(Object _RelationalExpression, Object _ShiftExpression) {
         Expr RelationalExpression = (Expr) _RelationalExpression;
-        Expr RangeExpression = (Expr) _RangeExpression;
-        setResult(nf.Binary(pos(), RelationalExpression, Binary.LE, RangeExpression));
+        Expr ShiftExpression = (Expr) _ShiftExpression;
+        setResult(nf.Binary(pos(), RelationalExpression, Binary.LE, ShiftExpression));
     }
-    // Production: RelationalExpression ::= RelationalExpression '>=' RangeExpression
-    void rule_RelationalExpression6(Object _RelationalExpression, Object _RangeExpression) {
+    // Production: RelationalExpression ::= RelationalExpression '>=' ShiftExpression
+    void rule_RelationalExpression6(Object _RelationalExpression, Object _ShiftExpression) {
         Expr RelationalExpression = (Expr) _RelationalExpression;
-        Expr RangeExpression = (Expr) _RangeExpression;
-        setResult(nf.Binary(pos(), RelationalExpression, Binary.GE, RangeExpression));
+        Expr ShiftExpression = (Expr) _ShiftExpression;
+        setResult(nf.Binary(pos(), RelationalExpression, Binary.GE, ShiftExpression));
     }
     // Production: RelationalExpression ::= RelationalExpression instanceof Type
     void rule_RelationalExpression7(Object _RelationalExpression, Object _Type) {
@@ -1566,7 +1560,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
     void rule_RelationalExpression8(Object _RelationalExpression, Object _ShiftExpression) {
         Expr RelationalExpression = (Expr) _RelationalExpression;
         Expr ShiftExpression = (Expr) _ShiftExpression;
-        setResult(nf.Contains(pos(), RelationalExpression, ShiftExpression));
+        setResult(nf.Binary(pos(), RelationalExpression, Binary.IN, ShiftExpression));
     }
     // Production: BlockStatement ::= ClassDeclaration
     void rule_BlockStatement1(Object _ClassDeclaration) {
@@ -1650,23 +1644,23 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         b = (Block) ((X10Ext) b.ext()).annotations(Annotationsopt);
         setResult(b.position(pos()));
     }
-    // Production: MultiplicativeExpression ::= MultiplicativeExpression '*' UnaryExpression
-    void rule_MultiplicativeExpression1(Object _MultiplicativeExpression, Object _UnaryExpression) {
+    // Production: MultiplicativeExpression ::= MultiplicativeExpression '*' RangeExpression
+    void rule_MultiplicativeExpression1(Object _MultiplicativeExpression, Object _RangeExpression) {
         Expr MultiplicativeExpression = (Expr) _MultiplicativeExpression;
-        Expr UnaryExpression = (Expr) _UnaryExpression;
-        setResult(nf.Binary(pos(), MultiplicativeExpression, Binary.MUL, UnaryExpression));
+        Expr RangeExpression = (Expr) _RangeExpression;
+        setResult(nf.Binary(pos(), MultiplicativeExpression, Binary.MUL, RangeExpression));
     }
-    // Production: MultiplicativeExpression ::= MultiplicativeExpression '/' UnaryExpression
-    void rule_MultiplicativeExpression2(Object _MultiplicativeExpression, Object _UnaryExpression) {
+    // Production: MultiplicativeExpression ::= MultiplicativeExpression '/' RangeExpression
+    void rule_MultiplicativeExpression2(Object _MultiplicativeExpression, Object _RangeExpression) {
         Expr MultiplicativeExpression = (Expr) _MultiplicativeExpression;
-        Expr UnaryExpression = (Expr) _UnaryExpression;
-        setResult(nf.Binary(pos(), MultiplicativeExpression, Binary.DIV, UnaryExpression));
+        Expr RangeExpression = (Expr) _RangeExpression;
+        setResult(nf.Binary(pos(), MultiplicativeExpression, Binary.DIV, RangeExpression));
     }
-    // Production: MultiplicativeExpression ::= MultiplicativeExpression '%' UnaryExpression
-    void rule_MultiplicativeExpression3(Object _MultiplicativeExpression, Object _UnaryExpression) {
+    // Production: MultiplicativeExpression ::= MultiplicativeExpression '%' RangeExpression
+    void rule_MultiplicativeExpression3(Object _MultiplicativeExpression, Object _RangeExpression) {
         Expr MultiplicativeExpression = (Expr) _MultiplicativeExpression;
-        Expr UnaryExpression = (Expr) _UnaryExpression;
-        setResult(nf.Binary(pos(), MultiplicativeExpression, Binary.MOD, UnaryExpression));
+        Expr RangeExpression = (Expr) _RangeExpression;
+        setResult(nf.Binary(pos(), MultiplicativeExpression, Binary.MOD, RangeExpression));
     }
     // Production: TryStatement ::= try Block Catches
     void rule_TryStatement0(Object _Block, Object _Catches) {
@@ -2045,6 +2039,18 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
     void rule_BinOp18() {
         setResult(Binary.NE);
     }
+    // Production: BinOp ::= '..'
+    void rule_BinOp19() {
+        setResult(Binary.DOT_DOT);
+    }
+    // Production: BinOp ::= '->'
+    void rule_BinOp20() {
+        setResult(Binary.ARROW);
+    }
+    // Production: BinOp ::= 'in'
+    void rule_BinOp21() {
+        setResult(Binary.IN);
+    }
     // Production: EqualityExpression ::= EqualityExpression '==' RelationalExpression
     void rule_EqualityExpression1(Object _EqualityExpression, Object _RelationalExpression) {
         Expr EqualityExpression = (Expr) _EqualityExpression;
@@ -2148,11 +2154,11 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         ParsedName TypeName = (ParsedName) _TypeName;
         setResult(nf.Import(pos(getLeftSpan(), getRightSpan()), Import.CLASS, QName.make(TypeName.toString())));
     }
-    // Production: RangeExpression ::= ShiftExpression '..' ShiftExpression
+    // Production: RangeExpression ::= RangeExpression '..' UnaryExpression
     void rule_RangeExpression1(Object _expr1, Object _expr2) {
         Expr expr1 = (Expr) _expr1;
         Expr expr2 = (Expr) _expr2;
-        Expr regionCall = nf.RegionMaker(pos(), expr1, expr2);
+        Expr regionCall = nf.Binary(pos(), expr1, Binary.DOT_DOT, expr2);
         setResult(regionCall);
     }
     // Production: DepNamedType ::= SimpleNamedType DepParameters
@@ -3040,9 +3046,10 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
                     MethodBody);
         }
         else {
+            Position bodyStart = MethodBody == null ? pos().endOf() : MethodBody.position().startOf();
             pd = nf.X10MethodDecl(pos(),
                     extractFlags(modifiers),
-                    HasResultTypeopt == null ? nf.UnknownTypeNode(MethodBody.position().startOf().markCompilerGenerated()) : HasResultTypeopt,
+                    HasResultTypeopt == null ? nf.UnknownTypeNode(bodyStart.markCompilerGenerated()) : HasResultTypeopt,
                     Identifier,
                     TypeParametersopt,
                     FormalParameters,
@@ -3070,9 +3077,10 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
             syntaxError("Cannot override binary operator '"+BinOp+"'.", pos());
             opName = Name.make("invalid operator");
         }
+        Position bodyStart = MethodBody == null ? pos().endOf() : MethodBody.position().startOf();
         MethodDecl md = nf.X10MethodDecl(pos(),
                 extractFlags(modifiers),
-                HasResultTypeopt == null ? nf.UnknownTypeNode(MethodBody.position().startOf().markCompilerGenerated()) : HasResultTypeopt,
+                HasResultTypeopt == null ? nf.UnknownTypeNode(bodyStart.markCompilerGenerated()) : HasResultTypeopt,
                 nf.Id(pos(getRhsFirstTokenIndex(7)), opName),
                 TypeParametersopt,
                 Arrays.<Formal>asList(fp1, fp2),
@@ -3103,9 +3111,10 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
             syntaxError("Cannot override unary operator '"+PrefixOp+"'.", pos());
             opName = Name.make("invalid operator");
         }
+        Position bodyStart = MethodBody == null ? pos().endOf() : MethodBody.position().startOf();
         MethodDecl md = nf.X10MethodDecl(pos(),
                 extractFlags(modifiers),
-                HasResultTypeopt == null ? nf.UnknownTypeNode(MethodBody.position().startOf().markCompilerGenerated()) : HasResultTypeopt,
+                HasResultTypeopt == null ? nf.UnknownTypeNode(bodyStart.markCompilerGenerated()) : HasResultTypeopt,
                 nf.Id(pos(getRhsFirstTokenIndex(4)), opName),
                 TypeParametersopt,
                 Collections.<Formal>singletonList(fp2),
@@ -3136,9 +3145,10 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
             syntaxError("Cannot override binary operator '"+BinOp+"'.", pos());
             opName = Name.make("invalid operator");
         }
+        Position bodyStart = MethodBody == null ? pos().endOf() : MethodBody.position().startOf();
         MethodDecl md = nf.X10MethodDecl(pos(),
                 extractFlags(modifiers),
-                HasResultTypeopt == null ? nf.UnknownTypeNode(MethodBody.position().startOf().markCompilerGenerated()) : HasResultTypeopt,
+                HasResultTypeopt == null ? nf.UnknownTypeNode(bodyStart.markCompilerGenerated()) : HasResultTypeopt,
                 nf.Id(pos(getRhsFirstTokenIndex(5)), opName),
                 TypeParametersopt,
                 Collections.<Formal>singletonList(fp2),
@@ -3169,9 +3179,10 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
             syntaxError("Cannot override binary operator '"+BinOp+"'.", pos());
             opName = Name.make("invalid operator");
         }
+        Position bodyStart = MethodBody == null ? pos().endOf() : MethodBody.position().startOf();
         MethodDecl md = nf.X10MethodDecl(pos(),
                 extractFlags(modifiers),
-                HasResultTypeopt == null ? nf.UnknownTypeNode(MethodBody.position().startOf().markCompilerGenerated()) : HasResultTypeopt,
+                HasResultTypeopt == null ? nf.UnknownTypeNode(bodyStart.markCompilerGenerated()) : HasResultTypeopt,
                 nf.Id(pos(getRhsFirstTokenIndex(7)), opName),
                 TypeParametersopt,
                 Collections.<Formal>singletonList(fp1),
@@ -3201,9 +3212,10 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
             syntaxError("Cannot override unary operator '"+PrefixOp+"'.", pos());
             opName = Name.make("invalid operator");
         }
+        Position bodyStart = MethodBody == null ? pos().endOf() : MethodBody.position().startOf();
         MethodDecl md = nf.X10MethodDecl(pos(),
                 extractFlags(modifiers),
-                HasResultTypeopt == null ? nf.UnknownTypeNode(MethodBody.position().startOf().markCompilerGenerated()) : HasResultTypeopt,
+                HasResultTypeopt == null ? nf.UnknownTypeNode(bodyStart.markCompilerGenerated()) : HasResultTypeopt,
                 nf.Id(pos(getRhsFirstTokenIndex(4)), opName),
                 TypeParametersopt,
                 Collections.<Formal>emptyList(),
@@ -3228,9 +3240,10 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         TypeNode Offersopt = (TypeNode) _Offersopt;
         Block MethodBody = (Block) _MethodBody;
         List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
+        Position bodyStart = MethodBody == null ? pos().endOf() : MethodBody.position().startOf();
         MethodDecl md = nf.X10MethodDecl(pos(),
                 extractFlags(modifiers),
-                HasResultTypeopt == null ? nf.UnknownTypeNode(MethodBody.position().startOf().markCompilerGenerated()) : HasResultTypeopt,
+                HasResultTypeopt == null ? nf.UnknownTypeNode(bodyStart.markCompilerGenerated()) : HasResultTypeopt,
                 nf.Id(pos(), ClosureCall.APPLY),
                 TypeParametersopt,
                 FormalParameters,
@@ -3239,7 +3252,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
                 MethodBody);
         FlagsNode flags = md.flags();
         if (flags.flags().isStatic()) {
-            syntaxError("Apply operator cannot be static.", md.position());
+            syntaxError("operator() cannot be static.", md.position());
             md = md.flags(flags.flags(flags.flags().clearStatic()));
         }
         md = (MethodDecl) ((X10Ext) md.ext()).annotations(extractAnnotations(modifiers));
@@ -3256,9 +3269,10 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         TypeNode Offersopt = (TypeNode) _Offersopt;
         Block MethodBody = (Block) _MethodBody;
         List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
+        Position bodyStart = MethodBody == null ? pos().endOf() : MethodBody.position().startOf();
         MethodDecl md = nf.X10MethodDecl(pos(),
                 extractFlags(modifiers),
-                HasResultTypeopt == null ? nf.UnknownTypeNode(MethodBody.position().startOf().markCompilerGenerated()) : HasResultTypeopt,
+                HasResultTypeopt == null ? nf.UnknownTypeNode(bodyStart.markCompilerGenerated()) : HasResultTypeopt,
                 nf.Id(pos(), SettableAssign.SET),
                 TypeParametersopt,
                 CollectionUtil.append(Collections.singletonList(fp2), FormalParameters),
@@ -3310,9 +3324,10 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         TypeNode Offersopt = (TypeNode) _Offersopt;
         Block MethodBody = (Block) _MethodBody;
         List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
+        Position bodyStart = MethodBody == null ? pos().endOf() : MethodBody.position().startOf();
         MethodDecl md = nf.X10MethodDecl(pos(),
                 extractFlags(modifiers),
-                HasResultTypeopt == null ? nf.UnknownTypeNode(MethodBody.position().startOf().markCompilerGenerated()) : HasResultTypeopt,
+                HasResultTypeopt == null ? nf.UnknownTypeNode(bodyStart.markCompilerGenerated()) : HasResultTypeopt,
                 nf.Id(pos(), Converter.operator_as),
                 TypeParametersopt,
                 Collections.<Formal>singletonList(fp1),
@@ -3337,9 +3352,10 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         TypeNode Offersopt = (TypeNode) _Offersopt;
         Block MethodBody = (Block) _MethodBody;
         List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
+        Position bodyStart = MethodBody == null ? pos().endOf() : MethodBody.position().startOf();
         MethodDecl md = nf.X10MethodDecl(pos(),
                 extractFlags(modifiers),
-                HasResultTypeopt == null ? nf.UnknownTypeNode(MethodBody.position().startOf().markCompilerGenerated()) : HasResultTypeopt,
+                HasResultTypeopt == null ? nf.UnknownTypeNode(bodyStart.markCompilerGenerated()) : HasResultTypeopt,
                 nf.Id(pos(), Converter.implicit_operator_as),
                 TypeParametersopt,
                 Collections.<Formal>singletonList(fp1),
@@ -3382,11 +3398,11 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         Expr PostfixExpression = (Expr) _PostfixExpression;
         setResult(nf.Unary(pos(), PostfixExpression, Unary.POST_DEC));
     }
-    // Production: AssignmentExpression ::= Expression '->' Expression
-    void rule_AssignmentExpression0(Object _expr1, Object _expr2) {
+    // Production: ShiftExpression ::= ShiftExpression '->' AdditiveExpression
+    void rule_ShiftExpression4(Object _expr1, Object _expr2) {
         Expr expr1 = (Expr) _expr1;
         Expr expr2 = (Expr) _expr2;
-        Expr call = nf.ConstantDistMaker(pos(), expr1, expr2);
+        Expr call = nf.Binary(pos(), expr1, Binary.ARROW, expr2);
         setResult(call);
     }
     // Production: ExplicitConstructorInvocation ::= this TypeArgumentsopt '(' ArgumentListopt ')' ';'
@@ -3571,7 +3587,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         Block MethodBody = (Block) _MethodBody;
         List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
         MethodDecl md = nf.X10MethodDecl(pos(),
-                extractFlags(modifiers, X10Flags.PROPERTY),
+                extractFlags(modifiers, Flags.PROPERTY),
                 HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
                 Identifier,
                 TypeParametersopt,
@@ -3591,7 +3607,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         Block MethodBody = (Block) _MethodBody;
         List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
         MethodDecl md = nf.X10MethodDecl(pos(),
-                extractFlags(modifiers, X10Flags.PROPERTY),
+                extractFlags(modifiers, Flags.PROPERTY),
                 HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
                 Identifier,
                 Collections.<TypeParamNode>emptyList(),
@@ -3813,7 +3829,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         List<PropertyDecl> props = Propertiesopt;
         DepParameterExpr ci = WhereClauseopt;
         ClassDecl cd = nf.X10ClassDecl(pos(getLeftSpan(), getRightSpan()),
-                extractFlags(modifiers, X10Flags.STRUCT), Identifier,
+                extractFlags(modifiers, Flags.STRUCT), Identifier,
                 TypeParametersopt, props, ci, null, Interfacesopt, ClassBody);
         cd = (ClassDecl) ((X10Ext) cd.ext()).annotations(extractAnnotations(modifiers));
         setResult(cd);

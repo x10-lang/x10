@@ -27,11 +27,11 @@ public interface MemberDef extends Def
     /**
      * Return the member's containing type.
      */
-    Ref<? extends StructType> container();
+    Ref<? extends ContainerType> container();
     
     /**
      * Destructively set the member's container.
      * @param container
      */
-    void setContainer(Ref<? extends StructType> container);
+    void setContainer(Ref<? extends ContainerType> container);
 }

@@ -46,11 +46,11 @@ import polyglot.ast.Unary;
 import polyglot.frontend.Job;
 import polyglot.main.Report;
 import polyglot.types.ClassType;
+import polyglot.types.CodeInstance;
 import polyglot.types.Context;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
-import polyglot.types.MethodInstance;
 import polyglot.types.Name;
 import polyglot.types.QName;
 import polyglot.types.Ref;
@@ -97,14 +97,15 @@ import x10.constraint.XVar;
 import x10.emitter.Emitter;
 import x10.extension.X10Ext;
 import x10.extension.X10Ext_c;
+import x10.types.AsyncInstance;
+import x10.types.AtInstance;
 import x10.types.ClosureDef;
 import x10.types.ConstrainedType;
 import x10.types.X10ClassType;
 import x10.types.X10ConstructorInstance;
-import x10.types.X10MethodInstance;
+import x10.types.MethodInstance;
 import x10.types.X10ParsedClassType;
-import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem_c;
+
 import x10.types.checker.Converter;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
@@ -243,7 +244,7 @@ public class Lowerer extends ContextVisitor {
     		if (atStm==null)
     			return null;
     		Expr place = atStm.place(); 
-    		if (ts.hasSameClassDef(X10TypeMixin.baseType(place.type()), ts.GlobalRef())) {
+    		if (ts.hasSameClassDef(Types.baseType(place.type()), ts.GlobalRef())) {
     			try {
     				place = synth.makeFieldAccess(async.position(),place, ts.homeName(), context());
     			} catch (SemanticException e) {
@@ -362,7 +363,7 @@ public class Lowerer extends ContextVisitor {
         ClosureDef cDef = c.closureDef().position(bPos);
         Expr closure = nf.Closure(c, bPos)
             .closureDef(cDef)
-        	.type(ClosureSynthesizer.closureAnonymousClassDef((X10TypeSystem_c) ts, cDef).asType());
+        	.type(ClosureSynthesizer.closureAnonymousClassDef( ts, cDef).asType());
         List<Expr> args = new ArrayList<Expr>(Arrays.asList(new Expr[] { place, closure }));
         List<Type> mArgs = new ArrayList<Type>(Arrays.asList(new Type[] {
             ts.Place(), cDef.asType()
@@ -374,11 +375,22 @@ public class Lowerer extends ContextVisitor {
         return result;
     }
 
+    private static CodeInstance<?> findEnclosingCode(CodeInstance<?> ci) {
+        if (ci instanceof AsyncInstance) {
+            return findEnclosingCode(((AsyncInstance) ci).methodContainer());
+        } else if (ci instanceof AtInstance) {
+            return findEnclosingCode(((AtInstance) ci).methodContainer());
+        }
+        return ci;
+    }
+
     private Stmt atStmt(Position pos, Stmt body, Expr place,
             List<VarInstance<? extends VarDef>> env) throws SemanticException {
         place = getPlace(pos, place);
         Closure closure = synth.makeClosure(body.position(), ts.Void(), synth.toBlock(body), context());
         closure.closureDef().setCapturedEnvironment(env);
+        CodeInstance<?> mi = findEnclosingCode(Types.get(closure.closureDef().methodContainer()));
+        closure.closureDef().setMethodContainer(Types.ref(mi));
         Stmt result = nf.Eval(pos,
         		synth.makeStaticCall(pos, ts.Runtime(), RUN_AT,
         				Arrays.asList(new Expr[] { place, closure }), ts.Void(),
@@ -422,16 +434,21 @@ public class Lowerer extends ContextVisitor {
         Position pos = a.position();
         X10Ext ext = (X10Ext) a.ext();
         List<X10ClassType> refs = Emitter.annotationsNamed(ts, a, REF);
+        List<VarInstance<? extends VarDef>> env = a.asyncDef().capturedEnvironment();
+        if (a.clocked()) {
+            env = new ArrayList<VarInstance<? extends VarDef>>(env);
+            env.add(clockStack.peek().localInstance());
+        }
         if (isUncountedAsync(ts, a)) {
         	if (old instanceof Async)
-            	 return uncountedAsync(pos, a.body(), a.asyncDef().capturedEnvironment());
+            	 return uncountedAsync(pos, a.body(), env);
         }
         if (old instanceof Async)
-            return async(pos, a.body(), clocks, refs, a.asyncDef().capturedEnvironment());
+            return async(pos, a.body(), clocks, refs, env);
         Stmt specializedAsync = specializeAsync(a, null, a.body());
         if (specializedAsync != null)
             return specializedAsync;
-        return async(pos, a.body(), clocks, refs, a.asyncDef().capturedEnvironment());
+        return async(pos, a.body(), clocks, refs, env);
     }
     // Begin asyncs
     // rewrite @Uncounted async S, with special translation for @Uncounted async at (p) S.
@@ -439,13 +456,18 @@ public class Lowerer extends ContextVisitor {
     	List<Expr> clocks = clocks(a.clocked(), a.clocks());
         Position pos = a.position();
         List<X10ClassType> refs = Emitter.annotationsNamed(ts, a, REF);
+        List<VarInstance<? extends VarDef>> env = a.asyncDef().capturedEnvironment();
+        if (a.clocked()) {
+            env = new ArrayList<VarInstance<? extends VarDef>>(env);
+            env.add(clockStack.peek().localInstance());
+        }
         if (isUncountedAsync(ts, a)) {
-            return uncountedAsync(pos, body, place, a.asyncDef().capturedEnvironment());
+            return uncountedAsync(pos, body, place, env);
         }
         Stmt specializedAsync = specializeAsync(a, place, body);
         if (specializedAsync != null)
             return specializedAsync;
-        return async(pos, body, clocks, place, refs, a.asyncDef().capturedEnvironment());
+        return async(pos, body, clocks, place, refs, env);
     }
 
     // TODO: add more rules from SPMDcppCodeGenerator
@@ -557,7 +579,7 @@ public class Lowerer extends ContextVisitor {
         }
         if (clocks.size() == 0)
         	return async(pos, body, place, annotations, env);
-        Type clockRailType = X10TypeMixin.makeArrayRailOf(ts.Clock(), pos);
+        Type clockRailType = Types.makeArrayRailOf(ts.Clock(), pos);
         Tuple clockRail = (Tuple) nf.Tuple(pos, clocks).type(clockRailType);
 
         return makeAsyncBody(pos, new ArrayList<Expr>(Arrays.asList(new Expr[] { place, clockRail })),
@@ -578,7 +600,7 @@ public class Lowerer extends ContextVisitor {
             List<VarInstance<? extends VarDef>> env) throws SemanticException {
         if (clocks.size() == 0)
         	return async(pos, body, annotations, env);
-        Type clockRailType = X10TypeMixin.makeArrayRailOf(ts.Clock(), pos);
+        Type clockRailType = Types.makeArrayRailOf(ts.Clock(), pos);
         Tuple clockRail = (Tuple) nf.Tuple(pos, clocks).type(clockRailType);
         return makeAsyncBody(pos, new ArrayList<Expr>(Arrays.asList(new Expr[] { clockRail })),
                              new ArrayList<Type>(Arrays.asList(new Type[] { clockRailType})), body,
@@ -600,6 +622,8 @@ public class Lowerer extends ContextVisitor {
         Closure closure = synth.makeClosure(body.position(), ts.Void(),
                 synth.toBlock(body), context(), annotations);
         closure.closureDef().setCapturedEnvironment(env);
+        CodeInstance<?> mi = findEnclosingCode(Types.get(closure.closureDef().methodContainer()));
+        closure.closureDef().setMethodContainer(Types.ref(mi));
         exprs.add(closure);
         types.add(closure.closureDef().asType());
         Stmt result = nf.Eval(pos,
@@ -626,6 +650,8 @@ public class Lowerer extends ContextVisitor {
     private Stmt makeUncountedAsyncBody(Position pos, List<Expr> exprs, List<Type> types, Stmt body,
             List<VarInstance<? extends VarDef>> env) throws SemanticException {
         Closure closure = synth.makeClosure(body.position(), ts.Void(), synth.toBlock(body), context());
+        CodeInstance<?> mi = findEnclosingCode(Types.get(closure.closureDef().methodContainer()));
+        closure.closureDef().setMethodContainer(Types.ref(mi));
         closure.closureDef().setCapturedEnvironment(env);
         exprs.add(closure);
         types.add(closure.closureDef().asType());
@@ -668,11 +694,11 @@ public class Lowerer extends ContextVisitor {
     }
 
     protected Expr getLiteral(Position pos, Type type, boolean val) {
-        type = X10TypeMixin.baseType(type);
+        type = Types.baseType(type);
         if (ts.isBoolean(type)) {
             Type t = ts.Boolean();
             try {
-                t = X10TypeMixin.addSelfBinding(t, val ? ts.TRUE() : ts.FALSE());
+                t = Types.addSelfBinding(t, val ? ts.TRUE() : ts.FALSE());
             } catch (XFailure e) { }
             return nf.BooleanLit(pos, val).type(t);
         } else
@@ -888,12 +914,12 @@ public class Lowerer extends ContextVisitor {
         Type reducerType = reducer.type();
         if (reducerType instanceof ConstrainedType) {
     		ConstrainedType ct = (ConstrainedType) reducerType;
-    		reducerType = X10TypeMixin.baseType(Types.get(ct.baseType()));
+    		reducerType = Types.baseType(Types.get(ct.baseType()));
         }
 
         // reducerType is "Reducible[T]", and reducerTarget is "T"
         // Parse out T
-        Type reducerTarget = X10TypeMixin.reducerType(reducerType);
+        Type reducerTarget = Types.reducerType(reducerType);
         assert reducerTarget!=null;
         
         Call myCall = synth.makeStaticCall(pos, ts.Runtime(), START_COLLECTING_FINISH, Collections.<TypeNode>singletonList(nf.CanonicalTypeNode(pos, reducerTarget)), Collections.singletonList(reducer), ts.Void(), Collections.singletonList(reducerType), context());
@@ -956,7 +982,7 @@ public class Lowerer extends ContextVisitor {
             Type reducerType = reducer.type();
             if (reducerType instanceof ConstrainedType) {
                 ConstrainedType ct = (ConstrainedType) reducerType;
-                reducerType = X10TypeMixin.baseType(Types.get(ct.baseType()));
+                reducerType = Types.baseType(Types.get(ct.baseType()));
             }
             X10ParsedClassType reducerTypeWithGenericType = null;
             Type thisType = reducerType;
@@ -1065,6 +1091,10 @@ public class Lowerer extends ContextVisitor {
         Formal pFormal = nf.Formal(pos, nf.FlagsNode(pos, ts.Final()),
                 nf.CanonicalTypeNode(pos, pType), nf.Id(pos, pTmp)).localDef(pDef);
         List<VarInstance<? extends VarDef>> env1 = new ArrayList<VarInstance<? extends VarDef>>(env);
+        env1.remove(formal.localDef().asInstance());
+        for (int i = 0; i < formal.localInstances().length; i++) {
+            env1.remove(formal.localInstances()[i].asInstance());
+        }
         env1.add(lDef.asInstance());
         Stmt body1 = async(bpos, inner, a.clocks(),
                 nf.Local(bpos, nf.Id(bpos, pTmp)).localInstance(pDef.asInstance()).type(pType),

@@ -13,9 +13,10 @@ package x10cuda.types;
 
 import polyglot.types.Context;
 import polyglot.types.Context;
-import x10.types.X10TypeSystem_c;
+import polyglot.types.TypeSystem_c;
 
-public class X10CUDATypeSystem_c extends X10TypeSystem_c {
+
+public class X10CUDATypeSystem_c extends TypeSystem_c {
 	public Context emptyContext() {
 		return new X10CUDAContext_c(this);
 	}
