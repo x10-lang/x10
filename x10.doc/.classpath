@@ -3,7 +3,5 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/x10.compiler"/>
-	<classpathentry kind="lib" path="C:/Program Files/IBM/Java60/lib/tools.jar"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>
