@@ -405,29 +405,40 @@ void Launcher::handleRequestsLoop(bool onlyCheckForNewConnections)
 		}
 	}
 
+	// save the return code for place 0.
 	while ((_myproc==0 || _myproc==0xFFFFFFFF) && _returncode == (int)0xDEADBEEF)
 	{
 		int status;
 		if (waitpid(_pidlst[_numchildren], &status, WNOHANG) == _pidlst[_numchildren])
+		{
+			if (WEXITSTATUS(status) != 0)
+				fprintf(stderr, "Launcher %d: non-zero return code from local runtime (pid=%d), status=%d (previous stored status=%d)\n", _myproc, _pidlst[_numchildren], WEXITSTATUS(status), WEXITSTATUS(_returncode));
 			_returncode = WEXITSTATUS(status);
+			_pidlst[_numchildren] = -1;
+		}
 	}
+	// we shouldn't have to worry about zombies, because when we exit, init will take out any zombies for us.  Skipping the wait for them lets us exit sooner.
 
 	// shut down any connections if they still exist
 	handleDeadParent();
 
-	// take out any zombies
-	for (uint32_t i = 0; i <= _numchildren; i++)
+	// wait for and clean up any zombie launchers
+	for (uint32_t i = 0; i < _numchildren; i++)
 	{
 		if (_pidlst[i] != -1)
 		{
 			// these were all sent a SIGTERM up above, and should be dead by now
-			if (waitpid(_pidlst[i], NULL, WNOHANG) != _pidlst[i])
-			{
-				kill(_pidlst[i], SIGKILL);
-				waitpid(_pidlst[i], NULL, 0);
-			}
+			waitpid(_pidlst[i], NULL, 0);
 			_pidlst[i] = -1;
 		}
+	}
+	
+	// take out the local runtime, if it's still kicking
+	if (_pidlst[_numchildren] != -1)
+	{
+		kill(_pidlst[_numchildren], SIGKILL);
+		waitpid(_pidlst[_numchildren], NULL, 0);
+		_pidlst[_numchildren] = -1;
 	}
 
 	// free up allocated memory (not really needed, since we're about to exit)
@@ -894,6 +905,8 @@ void Launcher::cb_sighandler_cld(int signo)
 				#ifdef DEBUG
 					fprintf(stderr, "Launcher %d: SIGCHLD from runtime (pid=%d), status=%d\n", _singleton->_myproc, pid, WEXITSTATUS(status));
 				#endif
+				if (WEXITSTATUS(status) != 0)
+					fprintf(stderr, "Launcher %d: non-zero return code from local runtime (pid=%d), status=%d (previous stored status=%d)\n", _singleton->_myproc, pid, WEXITSTATUS(status), WEXITSTATUS(_singleton->_returncode));
 				_singleton->_returncode = WEXITSTATUS(status);
 				if (_singleton->_runtimePort)
 				{

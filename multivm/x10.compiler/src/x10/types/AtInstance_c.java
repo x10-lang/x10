@@ -15,12 +15,12 @@ import polyglot.types.ClassType;
 import polyglot.types.CodeInstance;
 import polyglot.types.Flags;
 import polyglot.types.Ref;
-import polyglot.types.StructType;
+import polyglot.types.ContainerType;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.util.Position;
 
-public class AtInstance_c extends X10MethodInstance_c implements AtInstance {
+public class AtInstance_c extends MethodInstance_c implements AtInstance {
     private static final long serialVersionUID = 107893706880034330L;
 
     public AtInstance_c(TypeSystem ts, Position pos, Ref<? extends AtDef> def) {
@@ -41,7 +41,7 @@ public class AtInstance_c extends X10MethodInstance_c implements AtInstance {
     public ClassType container() {
         return (ClassType) super.container();
     }
-    public AtInstance container(StructType t) {
+    public AtInstance container(ContainerType t) {
         return (AtInstance) super.container(t);
     }
 

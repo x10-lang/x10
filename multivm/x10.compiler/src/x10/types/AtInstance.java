@@ -15,7 +15,7 @@ import polyglot.types.ClassType;
 import polyglot.types.CodeInstance;
 import polyglot.types.Flags;
 import polyglot.types.Ref;
-import polyglot.types.StructType;
+import polyglot.types.ContainerType;
 import polyglot.types.Type;
 
 /**
@@ -29,11 +29,11 @@ import polyglot.types.Type;
  * <code>Context</code>.
  * @author rfuhrer
  */
-public interface AtInstance extends X10MethodInstance {
+public interface AtInstance extends MethodInstance {
     AtDef def();
     CodeInstance<?> methodContainer();
     ClassType typeContainer();
     AtInstance flags(Flags f);
     ClassType container();
-    AtInstance container(StructType t);
+    AtInstance container(ContainerType t);
 }

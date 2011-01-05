@@ -22,6 +22,12 @@ import x10.util.Random;
 import x10.util.Stack;
 import x10.util.Box;
 /**
+ * XRX invocation protocol:
+ * - Native runtime invokes new Runtime.Worker(0). Returns Worker instance worker0.
+ * - Native runtime starts worker0 thread.
+ * - Native runtime invokes Runtime.start(...) from worker0 (Thread.currentThread() == worker0).
+ * - Runtime.start(...) returns when application code execution has completed.
+ * 
  * @author tardieu
  */
 @Pinned public final class Runtime {
@@ -190,13 +196,12 @@ import x10.util.Box;
             lock.unlock();
         }
 
-        def acquire():void {
+        def acquire(worker:Worker):void {
             lock.lock();
-            val thread = worker();
             while (permits <= 0) {
                 val s = size;
-                threads(size++) = thread;
-                while (threads(s) == thread) {
+                threads(size++) = worker;
+                while (threads(s) == worker) {
                     lock.unlock();
                     Worker.park();
                     lock.lock();
@@ -204,6 +209,13 @@ import x10.util.Box;
             }
             --permits;
             lock.unlock();
+        }
+
+        def yield(worker:Worker):void {
+            if (permits < 0) {
+                release(1);
+                acquire(worker);
+            }
         }
 
         def available():Int = permits;
@@ -225,14 +237,10 @@ import x10.util.Box;
         //Worker Id for CollectingFinish
         val workerId:Int;
 
-        def this(main:()=>void) {
-            super(main, "thread-main");
-            workerId = 0;
-            random = new Random(0);
-        }
+        var pool:Pool;
 
         def this(workerId:Int) {
-            super(()=>runtime().pool.workers(workerId)(), "thread-" + workerId);
+            super("thread-" + workerId);
             this.workerId = workerId;
             random = new Random(workerId + (workerId << 8) + (workerId << 16) + (workerId << 24));
         }
@@ -244,7 +252,7 @@ import x10.util.Box;
         def activity() = activity;
 
         // poll activity from the bottom of the deque
-        private def poll() = queue.poll() as Activity;
+        def poll() = queue.poll() as Activity;
 
         // steal activity from the top of the deque
         def steal() = queue.steal() as Activity;
@@ -253,15 +261,45 @@ import x10.util.Box;
         def push(activity:Activity):void = queue.push(activity);
 
         // run pending activities
-        def apply():void {
-            val latch = runtime().pool.latch;
+        public operator this():void {
             try {
-                while (loop(latch, true));
+                while (loop());
             } catch (t:Throwable) {
                 println("Uncaught exception in worker thread");
                 t.printStackTrace();
             } finally {
-                runtime().pool.release();
+                pool.release();
+            }
+        }
+
+        // inner loop to help j9 jit
+        @TempNoInline_1
+        private def loop():Boolean {
+            @TempNoInline_1
+            for (var i:Int = 0; i < BOUND; i++) {
+                activity = poll();
+                if (activity == null) {
+                    activity = pool.scan(random, this);
+                    if (activity == null) return false;
+                }
+                runAtLocal(activity.home, activity.run.());
+            }
+            return true;
+        }
+
+        @TempNoInline_1
+        def probe():void {
+            @TempNoInline_1
+            // process all queued activities
+            val tmp = activity; // save current activity
+            event_probe();
+            for (;;) {
+                activity = poll();
+                if (activity == null) {
+                    activity = tmp; // restore current activity
+                    return;
+                }
+                runAtLocal(activity.home, activity.run.());
             }
         }
 
@@ -289,38 +327,6 @@ import x10.util.Box;
             return true;
         }
 
-        // inner loop to help j9 jit
-        @TempNoInline_1
-        private def loop(latch:SimpleLatch, block:Boolean):Boolean {
-            @TempNoInline_1
-            for (var i:Int = 0; i < BOUND; i++) {
-                if (latch()) return false;
-                activity = poll();
-                if (activity == null) {
-                    activity = runtime().pool.scan(random, latch, block);
-                    if (activity == null) return false;
-                }
-                runAtLocal(activity.home, activity.run.());
-            }
-            return true;
-        }
-
-        @TempNoInline_1
-        def probe():void {
-            @TempNoInline_1
-            // process all queued activities
-            val tmp = activity; // save current activity
-            event_probe();
-            while (true) {
-                activity = poll();
-                if (activity == null) {
-                    activity = tmp; // restore current activity
-                    return;
-                }
-                runAtLocal(activity.home, activity.run.());
-            }
-        }
-
         // park current worker
         public static def park() {
             if (!STATIC_THREADS) {
@@ -345,7 +351,7 @@ import x10.util.Box;
 
         private var spares:Int = 0; // the number of spare workers in the pool
 
-        private var dead:Int = 0;
+        private var dead:Int = 0; // the number of dead workers in the pool
 
         private val lock = new Lock();
 
@@ -369,11 +375,13 @@ import x10.util.Box;
             this.workers = workers;
         }
 
-        def apply():void {
+        operator this():void {
             val s = size;
             for (var i:Int = 1; i<s; i++) {
+                workers(i).pool = this;
                 workers(i).start();
             }
+            workers(0).pool = this;
             workers(0)();
             while (size > dead) Worker.park();
         }
@@ -390,12 +398,12 @@ import x10.util.Box;
                 // allocate and start a new worker
                 val i = size++;
                 lock.unlock();
-//                assert (i < MAX_WORKERS);
                 if (i >= MAX_WORKERS) {
                     println("TOO MANY THREADS... ABORTING");
                     System.exit(1);
                 }
                 val worker = new Worker(i);
+                worker.pool = this;
                 workers(i) = worker;
                 worker.start();
             }
@@ -420,23 +428,21 @@ import x10.util.Box;
             lock.unlock();
         }
 
-        // scan workers for activity to steal
-        def scan(random:Random, latch:SimpleLatch, block:Boolean):Activity {
+        // scan workers and network for pending activities
+        def scan(random:Random, worker:Worker):Activity {
             var activity:Activity = null;
             var next:Int = random.nextInt(size);
             for (;;) {
+                if (null != activity || latch()) return activity;
+                // go to sleep if too many threads are running
+                semaphore.yield(worker);
+                // try network
                 event_probe();
+                activity = worker.poll();
+                if (null != activity || latch()) return activity;
+                // try random worker
                 if (next < MAX_WORKERS && null != workers(next)) { // avoid race with increase method
                     activity = workers(next).steal();
-                }
-                if (null != activity || latch()) return activity;
-                if (semaphore.available() < 0) {
-                    if (block) {
-                        semaphore.release();
-                        semaphore.acquire();
-                    } else {
-                        return activity;
-                    }
                 }
                 if (++next == size) next = 0;
             }
@@ -531,7 +537,7 @@ import x10.util.Box;
             }
 
             if (hereInt() == 0) {
-                val rootFinish = new FinishState.Finish(runtime().pool.latch);
+                val rootFinish = new FinishState.Finish(pool.latch);
                 // in place 0 schedule the execution of the static initializers fby main activity
                 execute(new Activity(()=>{finish init(); body();}, rootFinish));
 

@@ -21,7 +21,7 @@ public class QuickSortTest {
     	var a:int = 0;
         var b:int;
         var ok:boolean = true;
-        for ([j] in 0..N-1) {
+        for ([j] in 0..(N-1)) {
             b = data(j);
             ok &= (a <= b);
             a = b;

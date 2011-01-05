@@ -30,7 +30,7 @@ import polyglot.types.MemberDef;
 import polyglot.types.Package;
 import polyglot.types.ProcedureDef;
 import polyglot.types.Ref;
-import polyglot.types.StructType;
+import polyglot.types.ContainerType;
 import polyglot.types.Type;
 import polyglot.visit.NodeVisitor;
 import x10.ast.Closure;

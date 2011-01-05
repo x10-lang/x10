@@ -34,7 +34,7 @@ import polyglot.ast.Term;
 import polyglot.ast.Try;
 import polyglot.ast.While;
 import polyglot.types.MethodDef;
-import polyglot.types.MethodInstance;
+
 import polyglot.types.Name;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
@@ -43,7 +43,6 @@ import x10.ast.Async;
 import x10.ast.Finish;
 import x10.ast.FinishExpr;
 import x10.ast.ForLoop;
-import x10.ast.Future;
 import x10.ast.When;
 import x10.compiler.ws.WSTransformState;
 import polyglot.types.Context;
@@ -264,7 +263,7 @@ public class CodePatternDetector {
 
         if(expr instanceof Call){
             Call aCall = (Call)expr;
-            if(wts.isTargetCallSite(aCall)
+            if(wts.isConcurrentCallSite(aCall)
                     && concurrentCallNum == 1){ //only this call is concurrent call
                 return Pattern.Call;
             }
@@ -277,7 +276,7 @@ public class CodePatternDetector {
             Expr rightExpr = assign.right();
             if(rightExpr instanceof Call){
                 Call aCall = (Call)rightExpr;
-                if(wts.isTargetCallSite(aCall)
+                if(wts.isConcurrentCallSite(aCall)
                         && concurrentCallNum == 1){ //only this call is concurrent call
                     return Pattern.AssignCall;
                 }

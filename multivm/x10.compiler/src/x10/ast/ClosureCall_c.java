@@ -26,7 +26,7 @@ import polyglot.ast.TypeNode;
 import polyglot.types.ErrorRef_c;
 import polyglot.types.Matcher;
 import polyglot.types.MethodDef;
-import polyglot.types.MethodInstance;
+
 import polyglot.types.ProcedureDef;
 import polyglot.types.ProcedureInstance;
 import polyglot.types.SemanticException;
@@ -44,7 +44,7 @@ import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeBuilder;
 import x10.errors.Errors;
 import x10.types.FunctionType;
-import x10.types.X10MethodInstance;
+import x10.types.MethodInstance;
 import polyglot.types.TypeSystem;
 import x10.types.checker.Checker;
 import x10.types.checker.Converter;
@@ -55,7 +55,7 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
 	protected Expr target;
 	protected List<Expr> arguments;
 
-	protected X10MethodInstance ci;
+	protected MethodInstance ci;
 
 	public ClosureCall_c(Position pos, Expr target, List<Expr> arguments) {
 		super(pos);
@@ -108,12 +108,12 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
 	}
 
 	/** Get the method instance of the call. */
-	public X10MethodInstance closureInstance() {
+	public MethodInstance closureInstance() {
 		return this.ci;
 	}
 
 	/** Set the method instance of the call. */
-	public ClosureCall closureInstance(X10MethodInstance ci) {
+	public ClosureCall closureInstance(MethodInstance ci) {
 		if (ci == this.ci)
 			return this;
 		ClosureCall_c n = (ClosureCall_c) copy();
@@ -126,7 +126,7 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
 	}
 
 	public ClosureCall procedureInstance(ProcedureInstance<? extends ProcedureDef> pi) {
-		return closureInstance((X10MethodInstance) pi);
+		return closureInstance((MethodInstance) pi);
 	}
 
 	/** Get the actual arguments of the call. */
@@ -186,7 +186,7 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
 
 		TypeSystem ts = (TypeSystem) tb.typeSystem();
 
-		X10MethodInstance mi = (X10MethodInstance) ts.createMethodInstance(position(), 
+		MethodInstance mi = (MethodInstance) ts.createMethodInstance(position(), 
 				new ErrorRef_c<MethodDef>(ts, position(), 
 						"Cannot get MethodDef before type-checking closure call."));
 		return n.closureInstance(mi);
@@ -203,13 +203,13 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
 		}
 
 		// First try to find the method without implicit conversions.
-		X10MethodInstance mi = Checker.findAppropriateMethod(tc, targetType, APPLY, typeArgs, actualTypes);
+		MethodInstance mi = Checker.findAppropriateMethod(tc, targetType, APPLY, typeArgs, actualTypes);
 		List<Expr> args = this.arguments;
 		if (mi.error() != null) {
 			// Now, try to find the method with implicit conversions, making them explicit.
 			try {
 				Pair<MethodInstance,List<Expr>> p = Checker.tryImplicitConversions(this, tc, targetType, APPLY, typeArgs, actualTypes);
-				mi = (X10MethodInstance) p.fst();
+				mi = p.fst();
 				args = p.snd();
 			}
 			catch (SemanticException e) {

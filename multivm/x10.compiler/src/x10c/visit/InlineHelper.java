@@ -37,12 +37,11 @@ import polyglot.types.Context;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
 import polyglot.types.MethodDef;
-import polyglot.types.MethodInstance;
 import polyglot.types.Name;
 import polyglot.types.QName;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
-import polyglot.types.StructType;
+import polyglot.types.ContainerType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
@@ -57,9 +56,8 @@ import x10.types.ParameterType;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10MethodDef;
-import x10.types.X10MethodInstance;
+import x10.types.MethodInstance;
 import x10.types.X10ParsedClassType;
-import x10.types.X10TypeMixin;
 import polyglot.types.TypeSystem;
 
 public class InlineHelper extends ContextVisitor {
@@ -196,7 +194,7 @@ public class InlineHelper extends ContextVisitor {
                         }
                         List<Formal> formals = new ArrayList<Formal>(mdcl.formals());
                         Type ct = cd.asType();
-                        ct = X10TypeMixin.instantiateTypeParametersExplicitly(ct);
+                        ct = Types.instantiateTypeParametersExplicitly(ct);
                         LocalDef ldef = xts.localDef(pos, Flags.FINAL, Types.ref(ct), cd.name());
                         if (!mdcl.flags().flags().isStatic()) {
                             formals.add(xnf.Formal(pos, xnf.FlagsNode(pos, Flags.FINAL), xnf.X10CanonicalTypeNode(pos, ct), xnf.Id(pos, cd.name())).localDef(ldef));
@@ -309,12 +307,12 @@ public class InlineHelper extends ContextVisitor {
         if (n instanceof X10Call && x10.Configuration.INLINE_METHODS) {
             X10Call call = (X10Call) n;
             Receiver target = call.target();
-            X10MethodInstance mi = call.methodInstance();
+            MethodInstance mi = call.methodInstance();
             if (mi.flags().isPrivate() && !isSameDef(mi.container(), context.currentClass(),context) && !isSameTopLevel(mi.container(), context.currentClass(), context)) {
                 Id id = xnf.Id(pos, makePrivateBridgeName(call.name()));
                 List<Type> typeArgs;
-                if (mi instanceof X10MethodInstance) {
-                    typeArgs = ((X10MethodInstance) mi).typeParameters();
+                if (mi instanceof MethodInstance) {
+                    typeArgs = ((MethodInstance) mi).typeParameters();
                 } else {
                     typeArgs = Collections.<Type>emptyList();
                 }
@@ -322,15 +320,15 @@ public class InlineHelper extends ContextVisitor {
                 List<Type> formals = new ArrayList<Type>(mi.formalTypes());
                 if (!mi.flags().isStatic()) {
                     arguments.add((Expr) target); 
-                    Type type = X10TypeMixin.baseType(target.type());
+                    Type type = Types.baseType(target.type());
                     if (type instanceof X10ClassType) {
-                        formals.add(X10TypeMixin.baseType(((X10ClassType) type).def().asType()));
+                        formals.add(Types.baseType(((X10ClassType) type).def().asType()));
                     }
                     else {
-                        formals.add(X10TypeMixin.baseType(target.type()));
+                        formals.add(Types.baseType(target.type()));
                     }
                 }
-                StructType container = mi.container();
+                ContainerType container = mi.container();
                 X10MethodDef md = (X10MethodDef) xts.methodDef(pos, Types.ref(container), mi.flags().clearNative().clearPrivate().Static(), 
                                                                Types.ref(mi.returnType()), id.id(), getRefList(formals));
                 List<ParameterType> rts = new ArrayList<ParameterType>();
@@ -352,16 +350,16 @@ public class InlineHelper extends ContextVisitor {
                 }
                 md.setTypeParameters(rts);
 
-                X10MethodInstance nmi = (X10MethodInstance) md.asInstance();
-                Type tt = X10TypeMixin.baseType(target.type());
+                MethodInstance nmi = (MethodInstance) md.asInstance();
+                Type tt = Types.baseType(target.type());
                 List<Type> tas = new ArrayList<Type>();
-                if (mi instanceof X10MethodInstance) {
-                    tas.addAll(((X10MethodInstance) mi).typeParameters());
+                if (mi instanceof MethodInstance) {
+                    tas.addAll(((MethodInstance) mi).typeParameters());
                 }
                 if (!mi.flags().isStatic() && tt instanceof X10ParsedClassType) {
                     tas.addAll(((X10ParsedClassType) tt).x10Def().typeParameters());
                 }
-                nmi = (X10MethodInstance) nmi.typeParameters(tas);
+                nmi = (MethodInstance) nmi.typeParameters(tas);
 
                 if (mi.flags().isStatic()) {
                     return (X10Call) xnf.Call(pos, target, id, call.arguments()).methodInstance(nmi).type(nmi.returnType());
@@ -396,8 +394,8 @@ public class InlineHelper extends ContextVisitor {
     
     private static boolean isSameTopLevel(Type t1, Type t2, Context context) {
         if (t1 instanceof X10ClassType && t2 instanceof X10ClassType) {
-            t1 = X10TypeMixin.baseType(t1);
-            t2 = X10TypeMixin.baseType(t2);
+            t1 = Types.baseType(t1);
+            t2 = Types.baseType(t2);
             return isSameDef(getTopLevel((X10ClassType) t1), getTopLevel((X10ClassType) t2), context);
         }
         return false;

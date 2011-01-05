@@ -29,9 +29,9 @@ public class ValRow extends Row {
         row = new Array[int](cols, init);
     }
     
-    public def apply(i:Int) = row(i);
+    public operator this(i:Int) = row(i);
     
-    public def set(v:int, i:Int):int {
+    public operator this(i:Int)=(v:int):int {
         throw new IllegalOperationException("ValRow.set");
     }
 }

@@ -175,11 +175,11 @@ public class WSSwitchClassGen extends WSRegularFrameClassGen {
         backBodySynth.addStmt(backSwitchSynth);
         
         //need final process closure issues
-        fastBodySynth.addCodeProcessingJob(new ClosureDefReinstantiator(xts,
+        fastBodySynth.addCodeProcessingJob(new ClosureDefReinstantiator(xts, xct,
                                                                         this.getClassDef(),
                                                                         fastMSynth.getDef()));
         
-        resumeBodySynth.addCodeProcessingJob(new ClosureDefReinstantiator(xts,
+        resumeBodySynth.addCodeProcessingJob(new ClosureDefReinstantiator(xts, xct,
                                                                         this.getClassDef(),
                                                                         resumeMSynth.getDef()));
         //add all references

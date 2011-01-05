@@ -194,6 +194,8 @@ else
       ifndef DEFAULT_X10RT_LIB
         DEFAULT_X10RT_LIB = sockets
       endif
+      FIND ?= /usr/bin/find
+      XARGS ?= /usr/bin/xargs
     else
     ifeq ($(shell uname -s),Darwin)
       export X10RT_PLATFORM=$(shell echo | gcc -E -dM - | grep -q x86_64 && echo darwin64 || echo darwin)

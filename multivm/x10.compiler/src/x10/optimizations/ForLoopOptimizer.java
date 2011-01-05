@@ -58,18 +58,19 @@ import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.ast.ClosureCall;
 import x10.ast.ForLoop;
-import x10.ast.RegionMaker;
 import x10.ast.StmtExpr;
 import x10.ast.StmtSeq;
+import x10.ast.X10Binary_c;
 import x10.ast.X10Call;
 import x10.ast.X10Cast;
 import x10.ast.X10Formal;
+import x10.ast.SettableAssign;
 import x10.constraint.XFailure;
 import x10.constraint.XTerm;
+import x10.types.ConstrainedType;
 import x10.types.X10FieldInstance;
-import x10.types.X10MethodInstance;
-import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem_c;
+import x10.types.MethodInstance;
+
 import x10.types.checker.Converter;
 import x10.types.constraints.CConstraint;
 import x10.util.AltSynthesizer;
@@ -97,7 +98,7 @@ public class ForLoopOptimizer extends ContextVisitor {
     private static final Name RANK     = Name.make("rank");
     private static final Name MIN      = Name.make("min");
     private static final Name MAX      = Name.make("max");
-    private static final Name SET      = Name.make("set");
+    private static final Name SET      = SettableAssign.SET;
 
     private final TypeSystem xts;
     private AltSynthesizer   syn;
@@ -217,7 +218,7 @@ public class ForLoopOptimizer extends ContextVisitor {
         }
 
         // if domain <: Distribution, transform to Region
-        if (((X10TypeSystem_c) xts).isDistribution(domain.type())) {
+        if (xts.isDistribution(domain.type())) {
             if (VERBOSE) System.out.println("  domain is Dist, transforming to Region");
             domain = syn.createFieldRef(pos, domain, REGION);
             assert (null != domain);
@@ -234,7 +235,8 @@ public class ForLoopOptimizer extends ContextVisitor {
         Context      context    = (Context) context();
         List<Formal> formalVars = formal.vars();
         boolean      named      = !formal.isUnnamed();
-        boolean      isRect     = X10TypeMixin.isRect(domain.type(), context);
+        ConstrainedType domainType = Types.toConstrainedType(domain.type());
+        boolean      isRect     = domainType.isRect(context);
         Integer      domainRank = (Integer) getPropertyConstantValue(domain, RANK);
         int          rank       = (null != domainRank) ? (int) domainRank :
                                   (null != formalVars) ? formalVars.size() : 
@@ -246,8 +248,9 @@ public class ForLoopOptimizer extends ContextVisitor {
         //     val min=e1; val max=e2; for(var z:Int=min; z<=max; z++){ val p=Point.make(z); val i=z; S }
         // TODO inline (min and max), scalar replace Region object and its constituent Arrays then delete this code
         //
-        if (1 == rank && domain instanceof RegionMaker) {
-            List<Expr> args = ((RegionMaker) loop.domain()).arguments();
+        if (1 == rank && domain instanceof Call && ((Call)domain).target().type().isInt() &&
+                ((Call)domain).name().id().equals(X10Binary_c.binaryMethodName(Binary.DOT_DOT))) {
+            List<Expr> args = ((Call) loop.domain()).arguments();
             assert (args.size() == 2);
             Expr low = args.get(0);
             Expr high = args.get(1);
@@ -283,7 +286,7 @@ public class ForLoopOptimizer extends ContextVisitor {
         }
 
         // transform rectangular regions of known rank 
-        if (xts.isRegion(domain.type()) && isRect && rank > 0) {
+        if (xts.isRegion(domainType) && isRect && rank > 0) {
             assert xts.isPoint(formal.declType());
             if (VERBOSE) System.out.println("  rectangular region, rank=" +rank+ " point=" +formal);
             
@@ -383,7 +386,7 @@ public class ForLoopOptimizer extends ContextVisitor {
             return result;
         }
 
-        assert (xts.isSubtype(domain.type(), xts.Iterable(xts.Any()), context)); 
+        assert (xts.isSubtype(domainType, xts.Iterable(xts.Any()), context)); 
         Name iterName        = named ? Name.makeFresh(formal.name().id()) : Name.makeFresh();
         Expr iterInit        = syn.createInstanceCall(pos, domain, ITERATOR);
         LocalDecl iterLDecl  = syn.createLocalDecl(pos, Flags.FINAL, iterName, iterInit);
@@ -500,7 +503,7 @@ public class ForLoopOptimizer extends ContextVisitor {
      * TODO: move into ASTQuery
      */
     public Object getPropertyConstantValue(Expr expr, Name name) {
-        X10FieldInstance propertyFI = X10TypeMixin.getProperty(expr.type(), name);
+        X10FieldInstance propertyFI = Types.getProperty(expr.type(), name);
         if (null == propertyFI) return null;
         Expr propertyExpr = syn.createFieldRef(expr.position(), expr, propertyFI);
         if (null == propertyExpr) return null;
@@ -517,9 +520,12 @@ public class ForLoopOptimizer extends ContextVisitor {
      * TODO: move into Synthesizer
      */
     public static Type addPropertyConstraint(Type type, Name name, XTerm value) throws XFailure {
-    	XTerm property = X10TypeMixin.findOrSynthesize(type, name);
+    	// Must ensure that arg to findOrSynthesize is a constrained type
+    	// since the synthesized property may need to refer to self.
+    	ConstrainedType type1 = Types.toConstrainedType(type);
+    	XTerm property = type1.findOrSynthesize(name);
     	if (null == property) return null;
-    	return X10TypeMixin.addBinding(type, property, value);
+    	return Types.addBinding(type1, property, value);
     }
 
     /**
@@ -546,7 +552,7 @@ public class ForLoopOptimizer extends ContextVisitor {
      */
     public static Type addSelfConstraint(Type type, XTerm value) {
         try {
-            return X10TypeMixin.addSelfBinding(type, value);
+            return Types.addSelfBinding(type, value);
         } catch (XFailure e) {
             return null;
         }

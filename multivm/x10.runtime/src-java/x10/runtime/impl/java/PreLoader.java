@@ -46,10 +46,7 @@ public class PreLoader {
 	private static boolean isSystemClass(Class<?> c) {
 	    // TODO exclude x10 classes to support executable jar
 	    boolean isSystemClass = c.getClassLoader() == bootstrap;
-//	    boolean isSystemClass = c.getClassLoader() == bootstrap && !c.getName().startsWith("x10");
-//	    boolean isSystemClass = c.getClassLoader() == bootstrap && !c.getName().startsWith("x10") && !x10.core.Any.class.isAssignableFrom(c)/*inner classes don't implement Any*/;
-//	    boolean isSystemClass = c.getClassLoader() == bootstrap && !c.getName().startsWith("x10") && !(x10.core.Any.class.isAssignableFrom(c)/*inner classes don't implement Any*/ || x10.runtime.impl.java.Runtime.class.isAssignableFrom(c)/*for Application$Main*/);
-//	    System.out.println(c.getName() + (isSystemClass ? " IS " : " is NOT ") + "a system class");
+//	    System.out.println("isSystemClass: " + c.getName() + (isSystemClass ? " IS " : " is NOT ") + "a system class");
 	    return isSystemClass;
 	}
 	/**

@@ -16,7 +16,7 @@ public class KMeansDist {
 
     static val DIM=2, CLUSTERS=4, POINTS=2000, ITERATIONS=50;
 
-    static val points_region = (0..POINTS-1)*(0..DIM-1);
+    static val points_region = 0..(POINTS-1)*0..(DIM-1);
 
     public static def main (Array[String]) {
         val rnd = PlaceLocalHandle.make[Random](Dist.makeUnique(), () => new Random(0));

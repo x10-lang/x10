@@ -60,10 +60,9 @@ import x10.ast.X10Loop;
 import x10.ast.X10Special;
 import x10.types.ParameterType;
 import x10.types.X10ClassType;
-import x10.types.X10Flags;
+
 import x10.types.X10LocalDef;
 import x10.types.X10ParsedClassType_c;
-import x10.types.X10TypeMixin;
 import polyglot.types.TypeSystem;
 import x10.visit.X10PrettyPrinterVisitor;
 import x10c.ast.BackingArray;
@@ -144,7 +143,7 @@ public class RailInLoopOptimizer extends ContextVisitor {
                 @Override
                 public Node leave(Node parent, Node old, Node n, NodeVisitor v) {
                     if (n instanceof LocalAssign) {
-                        if (xts.Int().typeEquals(X10TypeMixin.baseType(((LocalAssign) n).leftType()), context)) {
+                        if (xts.Int().typeEquals(Types.baseType(((LocalAssign) n).leftType()), context)) {
                             ignores.add(((LocalAssign) n).local().name().toString());
                         }
                     }
@@ -277,11 +276,11 @@ public class RailInLoopOptimizer extends ContextVisitor {
                                 }
                             }
 
-                            X10ClassType ct = (X10ClassType) X10TypeMixin.baseType(target.type());
+                            X10ClassType ct = (X10ClassType) Types.baseType(target.type());
                             List<Type> typeArguments = ct.typeArguments();
                             if (typeArguments == null)
                                 typeArguments = new ArrayList<Type>(ct.x10Def().typeParameters());
-                            Type type = X10TypeMixin.baseType(typeArguments.get(0));
+                            Type type = Types.baseType(typeArguments.get(0));
                             if (!contains) {
                                 id = xnf.Id(pos, Name.makeFresh(target.toString().replace(".", "$").replaceAll("[\\[\\]]", "_").replaceAll(", ","_") + "$value"));
                                 BackingArray ba = xnf.BackingArray(pos, id, createArrayType(type), (Expr) target);
@@ -297,7 +296,7 @@ public class RailInLoopOptimizer extends ContextVisitor {
                         }
                     }
                     if (n instanceof SettableAssign_c) {
-                        Type type = X10TypeMixin.baseType(((SettableAssign_c) n).type());
+                        Type type = Types.baseType(((SettableAssign_c) n).type());
                         Expr array = ((SettableAssign_c) n).array();
                         if (isOptimizationTarget(array.type())) {
                             if (((SettableAssign_c) n).index().size() > 1) {
@@ -397,7 +396,7 @@ public class RailInLoopOptimizer extends ContextVisitor {
                     if (n instanceof Eval) {
                         if (((Eval) n).expr() instanceof LocalAssign) {
                             LocalAssign la = (LocalAssign) ((Eval) n).expr();
-                            Type type = X10TypeMixin.baseType(la.type());
+                            Type type = Types.baseType(la.type());
                             Local local = la.local();
                             if (xts.isRail(type) || isIMC(type)) {
                                 boolean contains = false;
@@ -426,7 +425,7 @@ public class RailInLoopOptimizer extends ContextVisitor {
                                 }
                                 List<Stmt> stmts = new ArrayList<Stmt>();
                                 stmts.add((Stmt) n);
-                                Type pt = X10TypeMixin.baseType(((X10ClassType) type).typeArguments().get(0));
+                                Type pt = Types.baseType(((X10ClassType) type).typeArguments().get(0));
                                 Expr expr;
                                 Type arrayType = createArrayType(pt);
                                 LocalDef ldef = getLocalDef(arrayType, id.id());
@@ -463,7 +462,7 @@ public class RailInLoopOptimizer extends ContextVisitor {
             List<Stmt> statements = new ArrayList<Stmt>();
             statements.addAll(moves);
             for (Pair<BackingArray, Boolean> pair : targetAndIsFinals) {
-                Type type = X10TypeMixin.baseType(pair.fst().container().type());
+                Type type = Types.baseType(pair.fst().container().type());
                 if (type instanceof X10ClassType) {
                     Type pt = ((X10ClassType) type).typeArguments().get(0);
                     X10CanonicalTypeNode tn = xnf.X10CanonicalTypeNode(n.position(), pair.fst().type());
@@ -495,12 +494,12 @@ public class RailInLoopOptimizer extends ContextVisitor {
     }
 
     private boolean isIMC(Type type) {
-        Type tbase = X10TypeMixin.baseType(type);
+        Type tbase = Types.baseType(type);
         return tbase instanceof X10ParsedClassType_c && ((X10ParsedClassType_c) tbase).def().asType().typeEquals(imc, context);
     };
 
     private boolean isOptimizationTarget(Type ttype) {
-        ttype = X10TypeMixin.baseType(ttype);
+        ttype = Types.baseType(ttype);
         if (!xts.isRail(ttype) && !isIMC(ttype))
             return false;
         if (!X10PrettyPrinterVisitor.hasParams(ttype))

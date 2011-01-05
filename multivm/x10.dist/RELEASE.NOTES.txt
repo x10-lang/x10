@@ -2,6 +2,15 @@ Release 2.1.1
 
 This release includes both the C++ and Java backends and runtimes.
 
+Method names "apply(I)" and "set(v,I)" are no longer special.  They
+have been replaced by "operator this(I)" and "operator this(I)=(v)"
+(note the change in parameter order).
+
+"..", "->", and "in" are now all user-overloadable operators.
+The precedence of ".." has been bumped up to be tighter than that of
+"*", so 0..10*0..10 now works, but 0..N-1 does not.
+All code must be updated to use 0..(N-1) instead.
+
 To support more effective optimization, a change was made to 
 x10.array.Array and x10.array.Region to define rail as a standalone
 property instead of as a conjunction of rank==1,zeroBased,rect.

@@ -22,17 +22,16 @@ import java.util.List;
 
 import polyglot.ast.Expr;
 import polyglot.types.Context;
-import polyglot.types.MethodInstance;
 import polyglot.types.Type;
+import polyglot.types.Types;
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10MethodDef;
-import x10.types.X10MethodInstance;
-import x10.types.X10TypeMixin;
+import x10.types.MethodInstance;
 import polyglot.types.TypeSystem;
-import x10.types.X10TypeSystem_c;
+
 import x10cpp.types.X10CPPContext_c;
 
 /**
@@ -145,7 +144,7 @@ public final class ITable {
 	}
 
 	public void emitFunctionPointerDecl(CodeWriter cw, Emitter emitter, MethodInstance meth, String memberPtr, boolean includeName) {
-		X10MethodInstance mi = (X10MethodInstance) meth;
+		MethodInstance mi = (MethodInstance) meth;
 		X10MethodDef md = mi.x10Def();
 		Type rootReturnType = emitter.findRootMethodReturnType(md, null, mi);
 		String returnType = Emitter.translateType(rootReturnType, true);
@@ -223,7 +222,7 @@ public final class ITable {
                     assert implMeths.size() == 1 : "Can't be more than 1 matching method; how on earth did this typecheck???";
                     MethodInstance implMeth = implMeths.iterator().next();
                     
-                    String pat = cg.getCppImplForDef(((X10MethodInstance)implMeth).x10Def());
+                    String pat = cg.getCppImplForDef(implMeth.x10Def());
                     if (pat != null) {
                         X10ClassType ct = (X10ClassType) implMeth.container().toClass();
                         List<Type> typeArguments = ct.typeArguments();
@@ -235,7 +234,7 @@ public final class ITable {
                         for (Type f : meth.formalTypes()) {
                             args.add("arg"+(argNum++));
                         }
-                        cg.emitNativeAnnotation(pat, ((X10MethodInstance)implMeth).typeParameters(), recvArg, args, typeArguments);
+                        cg.emitNativeAnnotation(pat, implMeth.typeParameters(), recvArg, args, typeArguments);
                     } else {
                         sw.write(Emitter.structMethodClass(cls, true, true)+"::"+Emitter.mangled_method_name(meth.name().toString())+"("+recvArg);
                         for (int j=0; j<meth.formalTypes().size(); j++) {
@@ -312,8 +311,8 @@ public final class ITable {
 			Iterator<Type> i1 = m1Formals.iterator();
 			Iterator<Type> i2 = m2Formals.iterator();
 			while (i1.hasNext()) {
-				Type f1 = X10TypeMixin.baseType(i1.next());
-				Type f2 = X10TypeMixin.baseType(i2.next());
+				Type f1 = Types.baseType(i1.next());
+				Type f2 = Types.baseType(i2.next());
 				int fcompare = f1.toString().compareTo(f2.toString());
 				if (fcompare != 0) return fcompare;
 			}

@@ -40,7 +40,7 @@ public class Stencil1D extends x10Test {
        val blocks = block(1..N, P);
        for (; delta > epsilon; iters++) {
           delta = 0;
-          finish for ([p]:Point(1) in 0..P-1) async {
+          finish for ([p]:Point(1) in 0..(P-1)) async {
              val myDelta  = step(A, blocks(p));
              atomic  delta= Math.max(delta, myDelta);
           }
@@ -54,7 +54,7 @@ public class Stencil1D extends x10Test {
         val baseSize = count/P, extra = count - baseSize*P;
         Rail.make[Region(1)](P, (i:int):Region(1) => {
           val start = low+i*baseSize+ (i < extra? i:extra);
-          start..start+baseSize+(i < extra?0:-1)
+          start..(start+baseSize+(i < extra?0:-1))
         })
     }
 

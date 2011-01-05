@@ -38,6 +38,7 @@ import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
+import polyglot.types.Types;
 import polyglot.util.InternalCompilerError;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
@@ -49,9 +50,8 @@ import x10.emitter.Emitter;
 import x10.types.ParameterType;
 import x10.types.ParameterType.Variance;
 import x10.types.X10ClassType;
-import x10.types.X10MethodInstance;
+import x10.types.MethodInstance;
 import x10.types.X10ParsedClassType_c;
-import x10.types.X10TypeMixin;
 import polyglot.types.TypeSystem;
 import x10.types.constraints.SubtypeConstraint;
 import x10.visit.X10PrettyPrinterVisitor;
@@ -105,7 +105,7 @@ public class JavaCaster extends ContextVisitor {
                 if (expectedReturnType.typeEquals(return1.expr().type(), context)) {
                     return n;
                 }
-                Type rt = X10TypeMixin.baseType(return1.expr().type());
+                Type rt = Types.baseType(return1.expr().type());
                 if (rt.typeEquals(xts.String(), context) && !expectedReturnType.typeEquals(xts.String(), context)) {
                     return return1.expr(cast(return1.expr(), expectedReturnType));  
                 }
@@ -127,7 +127,7 @@ public class JavaCaster extends ContextVisitor {
                 if (expectedReturnType.typeEquals(return1.expr().type(), context)) {
                     return n;
                 }
-                Type rt = X10TypeMixin.baseType(return1.expr().type());
+                Type rt = Types.baseType(return1.expr().type());
                 if (rt instanceof X10ClassType) {
                     X10ClassType ct = (X10ClassType) rt;
                     if (!ct.hasParams()) {
@@ -149,14 +149,14 @@ public class JavaCaster extends ContextVisitor {
         if (n instanceof X10Call && !(parent instanceof Eval)) {
             X10Call call = (X10Call) n;
             Receiver target = call.target();
-            X10MethodInstance mi = call.methodInstance();
+            MethodInstance mi = call.methodInstance();
             if (!(target instanceof TypeNode) && !xts.isRail(target.type())) {
-                Type bt = X10TypeMixin.baseType(target.type());
+                Type bt = Types.baseType(target.type());
                 X10ClassType ct = null;
                 if (bt instanceof X10ClassType) {
                     ct = (X10ClassType) bt;
                 } else if (xts.isParameterType(bt)) {
-                    ct = (X10ClassType) X10TypeMixin.baseType(mi.container());
+                    ct = (X10ClassType) Types.baseType(mi.container());
                 }
                 if (ct != null && (ct.typeArguments() != null && ct.typeArguments().size() > 0)) {
                     if (isDispatch(ct, mi)) {
@@ -173,9 +173,9 @@ public class JavaCaster extends ContextVisitor {
         if (n instanceof ClosureCall && !(parent instanceof Eval)) {
             ClosureCall call = (ClosureCall) n;
             Receiver target = call.target();
-            X10MethodInstance mi = call.closureInstance();
+            MethodInstance mi = call.closureInstance();
             if (!(target instanceof TypeNode) && !xts.isRail(target.type())) {
-                Type bt = X10TypeMixin.baseType(target.type());
+                Type bt = Types.baseType(target.type());
                 if (bt instanceof X10ClassType) {
                     X10ClassType ct = (X10ClassType) bt;
                     if (ct.typeArguments() != null && ct.typeArguments().size() > 0) {
@@ -194,7 +194,7 @@ public class JavaCaster extends ContextVisitor {
         return n;
     }
 
-    private boolean isDispatch(Type bt, X10MethodInstance mi) {
+    private boolean isDispatch(Type bt, MethodInstance mi) {
         boolean isDispatch = false;
         if (((X10ClassType) bt).flags().isInterface()) {
             List<Ref<? extends Type>> formalTypes = mi.def().formalTypes();
@@ -228,7 +228,7 @@ public class JavaCaster extends ContextVisitor {
     }
 
     private boolean isIMC(Type type) {
-        Type tbase = X10TypeMixin.baseType(type);
+        Type tbase = Types.baseType(type);
         return tbase instanceof X10ParsedClassType_c && ((X10ParsedClassType_c) tbase).def().asType().typeEquals(imc, context);
     }
 
@@ -269,7 +269,7 @@ public class JavaCaster extends ContextVisitor {
             List<SubtypeConstraint> terms = ((X10ClassType) context.currentClass()).x10Def().typeBounds().get().terms();
             for (SubtypeConstraint sc : terms) {
                 if (sc.isHaszero()) continue;
-                if (sc.subtype().typeEquals(X10TypeMixin.baseType(e.type()), context) && sc.subtype() instanceof ParameterType) {
+                if (sc.subtype().typeEquals(Types.baseType(e.type()), context) && sc.subtype() instanceof ParameterType) {
                     superType = sc.supertype();
                 }
             }
@@ -382,7 +382,7 @@ public class JavaCaster extends ContextVisitor {
     }
 
     private Expr cast(Expr n, Type toType) throws SemanticException {
-        Expr e = xnf.X10Cast(n.position(), xnf.CanonicalTypeNode(n.position(), toType), n);
+        Expr e = xnf.X10Cast(n.position(), xnf.CanonicalTypeNode(n.position(), Types.baseType(toType)), n);
         return (Expr) e.del().disambiguate(this).typeCheck(this).checkConstants(this);
     }
 }

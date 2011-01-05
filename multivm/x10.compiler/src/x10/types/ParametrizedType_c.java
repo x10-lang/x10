@@ -20,15 +20,15 @@ import polyglot.types.DerefTransform;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.MemberDef;
-import polyglot.types.MethodInstance;
+
 import polyglot.types.Named;
 import polyglot.types.QName;
 import polyglot.types.Ref;
-import polyglot.types.ReferenceType;
+
 import polyglot.types.ReferenceType_c;
 import polyglot.types.Resolver;
 import polyglot.types.Name;
-import polyglot.types.StructType;
+import polyglot.types.ContainerType;
 import polyglot.types.Type;
 import polyglot.types.TypeObject;
 import polyglot.types.TypeSystem;
@@ -47,7 +47,7 @@ import x10.constraint.XVar;
 public abstract class ParametrizedType_c extends ReferenceType_c implements ParametrizedType {
 	private static final long serialVersionUID = 7637749680707950061L;
 
-	StructType container;
+	ContainerType container;
 	Flags flags;
 	Name name;
 
@@ -55,13 +55,13 @@ public abstract class ParametrizedType_c extends ReferenceType_c implements Para
 		super(ts, pos);
 	}
 	
-	public ParametrizedType container(StructType container) {
+	public ParametrizedType container(ContainerType container) {
 		ParametrizedType_c t = (ParametrizedType_c) copy();
 		t.container = container;
 		return t;
 	}
 
-	public StructType container() {
+	public ContainerType container() {
 		if (this.container == null) {
 			this.container = Types.get(def().container());
 		}
@@ -85,10 +85,6 @@ public abstract class ParametrizedType_c extends ReferenceType_c implements Para
 		ParametrizedType_c t = (ParametrizedType_c) copy();
 		t.name = name;
 		return t;
-	}
-
-	public boolean isSafe() {
-		return true;
 	}
 
 	@Override

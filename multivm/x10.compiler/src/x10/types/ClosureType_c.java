@@ -30,13 +30,13 @@ import polyglot.types.LocalInstance;
 import polyglot.types.Matcher;
 import polyglot.types.MethodAsTypeTransform;
 import polyglot.types.MethodDef;
-import polyglot.types.MethodInstance;
+
 import polyglot.types.Named;
 import polyglot.types.Package;
 import polyglot.types.Ref;
 import polyglot.types.Resolver;
 import polyglot.types.Name;
-import polyglot.types.StructType;
+import polyglot.types.ContainerType;
 import polyglot.types.Type;
 import polyglot.types.TypeObject;
 import polyglot.types.Types;
@@ -66,8 +66,8 @@ public class ClosureType_c extends X10ParsedClassType_c implements FunctionType 
 	super(ts, pos, Types.ref(def));
     }
     
-    public X10MethodInstance applyMethod() {
-        return (X10MethodInstance) methods().get(0);
+    public MethodInstance applyMethod() {
+        return (MethodInstance) methods().get(0);
     }
     
     public Type returnType() {
@@ -92,8 +92,8 @@ public class ClosureType_c extends X10ParsedClassType_c implements FunctionType 
 
     
     @Override
-    public String toString() {
-        X10MethodInstance mi = applyMethod();
+    public String typeToString() {
+        MethodInstance mi = applyMethod();
         StringBuilder sb = new StringBuilder();
         List<LocalInstance> formals = mi.formalNames();
         for (int i=0; i < formals.size(); ++i) {

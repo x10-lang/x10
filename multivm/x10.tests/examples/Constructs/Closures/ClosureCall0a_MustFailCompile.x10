@@ -1,4 +1,4 @@
-// Yoav added: IGNORE_FILE
+
 /*
  *  This file is part of the X10 project (http://x10-lang.org).
  *
@@ -13,6 +13,8 @@
 import harness.x10Test;
 
 
+//LIMITATION: closure type params
+// SHOULD_NOT_PARSE: closures with type parameters are not supported in the current X10 syntax.
 /**
  * Closures are no longer permitted to take type parameters.
  */

@@ -15,7 +15,7 @@ import polyglot.types.*;
 import polyglot.util.*;
 import polyglot.visit.*;
 import x10.errors.Errors;
-import x10.types.X10Flags;
+import x10.types.MethodInstance;
 
 /**
  * A method declaration.
@@ -309,13 +309,10 @@ public class MethodDecl_c extends Term_c implements MethodDecl
         TypeSystem ts = tc.typeSystem();
 
         MethodInstance mi = this.mi.asInstance();
-        for (Iterator<MethodInstance> j = mi.implemented(tc.context()).iterator(); j.hasNext(); ) {
-            MethodInstance mj = (MethodInstance) j.next();
-
+        for (MethodInstance mj : mi.implemented(tc.context()) ){
             if (! ts.isAccessible(mj, tc.context())) {
                 continue;
             }
-
             try {
                 ts.checkOverride(mi, mj, tc.context());
             } catch (SemanticException e) {

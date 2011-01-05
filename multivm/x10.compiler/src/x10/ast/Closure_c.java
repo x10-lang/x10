@@ -37,7 +37,6 @@ import polyglot.types.FieldDef;
 import polyglot.types.Flags;
 import polyglot.types.LazyRef;
 import polyglot.types.LocalDef;
-import polyglot.types.MethodInstance;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
@@ -65,11 +64,10 @@ import x10.types.ClosureDef;
 import x10.types.EnvironmentCapture;
 import x10.types.ThisDef;
 import x10.types.X10ClassDef;
+import x10.types.MethodInstance;
 import polyglot.types.Context;
 import x10.types.X10MemberDef;
-import x10.types.X10TypeMixin;
 import polyglot.types.TypeSystem;
-import x10.types.X10TypeSystem_c;
 import x10.types.checker.PlaceChecker;
 import x10.types.checker.VarChecker;
 import x10.util.ClosureSynthesizer;
@@ -360,6 +358,10 @@ public class Closure_c extends Expr_c implements Closure {
 			}
 		}
 
+		if (child == body && offerType != null && offerType.typeRef().known()) {
+		    c = c.pushCollectingFinishScope(offerType.type());
+		}
+
 		return super.enterChildScope(child, c);
 	}
 
@@ -385,7 +387,7 @@ public class Closure_c extends Expr_c implements Closure {
 
 	@Override
 	public Node typeCheck(ContextVisitor tc) {
-		X10TypeSystem_c xts = (X10TypeSystem_c) tc.typeSystem();
+		TypeSystem xts = tc.typeSystem();
 
 		Context c = tc.context();
 		Closure_c n = this;

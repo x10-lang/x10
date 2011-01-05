@@ -18,7 +18,7 @@ struct S[T] implements (Int,Int)=>T {
     data = array;
   }
 
-  public def apply(i:Int, j:Int) = data(i, j);
+  public operator this(i:Int, j:Int) = data(i, j);
 }
 
 public class StructGenericInterfaceTest extends x10Test {

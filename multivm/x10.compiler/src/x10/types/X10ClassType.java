@@ -19,7 +19,7 @@ import polyglot.types.FieldInstance;
 import polyglot.types.Matcher;
 import polyglot.types.Named;
 import polyglot.types.SemanticException;
-import polyglot.types.StructType;
+import polyglot.types.ContainerType;
 import polyglot.types.Type;
 
 /** The representative of ClassType in the X10 type hierarchy. 
@@ -29,7 +29,7 @@ import polyglot.types.Type;
  * @author vj
  *
  */
-public interface X10ClassType extends ClassType, X10Struct, X10Use<X10ClassDef> {
+public interface X10ClassType extends ClassType,  X10Use<X10ClassDef> {
 
 	/** Property initializers, used in annotations. */
 	List<Expr> propertyInitializers();
@@ -63,7 +63,21 @@ public interface X10ClassType extends ClassType, X10Struct, X10Use<X10ClassDef> 
 	boolean isJavaType();
 
 	X10ClassType container();
-	X10ClassType container(StructType container);
+	X10ClassType container(ContainerType container);
 
 	X10ClassType error(SemanticException e);
+	
+    /**
+     * Return true if this type object represents an X10 struct.
+     * @return
+     */
+    boolean isX10Struct();
+    
+    /**
+     * Return a type object that is the same as this except that it will
+     * return true to an isX10Struct() query.
+     * @return
+     */
+    Type makeX10Struct();
+
 }

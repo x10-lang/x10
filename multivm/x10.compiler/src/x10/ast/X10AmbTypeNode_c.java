@@ -46,11 +46,9 @@ import x10.extension.X10Del_c;
 import x10.types.MacroType;
 import x10.types.X10ClassType;
 import polyglot.types.Context;
-import x10.types.X10Flags;
+
 import x10.types.X10ParsedClassType;
-import x10.types.X10TypeMixin;
 import polyglot.types.TypeSystem;
-import x10.types.X10TypeSystem_c;
 import x10.visit.X10TypeChecker;
 
 /**
@@ -111,7 +109,7 @@ public class X10AmbTypeNode_c extends AmbTypeNode_c implements X10AmbTypeNode, A
       Position pos = position();
       ContextVisitor tc = ar;
     
-      X10TypeSystem_c ts = (X10TypeSystem_c) tc.typeSystem();
+      TypeSystem ts =  tc.typeSystem();
       NodeFactory nf = (NodeFactory) tc.nodeFactory();
     
       try {
@@ -223,7 +221,7 @@ public class X10AmbTypeNode_c extends AmbTypeNode_c implements X10AmbTypeNode, A
 	  if (f != null) {
 		  LazyRef<Type> sym = (LazyRef<Type>) result.typeRef();
 		  Type t =  Types.get(sym);
-		  t = X10TypeMixin.processFlags(f, t);
+		  t = Types.processFlags(f, t);
 	      sym.update(t);
 	  }
       return AmbDepTypeNode_c.postprocess(result, n, childtc);

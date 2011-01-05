@@ -89,7 +89,6 @@ import x10.ast.X10ClassDecl;
 import x10.extension.X10Ext;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
-import x10.types.X10TypeSystem_c;
 import x10.util.ClassifiedStream;
 import x10.util.StreamWrapper;
 import x10.util.WriterStreams;
@@ -293,7 +292,7 @@ public class X10CPPTranslator extends Translator {
 
 			X10CPPContext_c c = (X10CPPContext_c) context;
 			X10CPPCompilerOptions opts = (X10CPPCompilerOptions) job.extensionInfo().getOptions();
-	        X10TypeSystem_c xts = (X10TypeSystem_c) typeSystem();
+	        TypeSystem xts =   typeSystem();
 
 			if (x10.Configuration.DEBUG)
 				c.addData(FILE_TO_LINE_NUMBER_MAP, new HashMap<String, LineNumberMap>());
@@ -343,18 +342,14 @@ public class X10CPPTranslator extends Translator {
 				String className = cd.classDef().name().toString();
 				WriterStreams wstreams = new WriterStreams(className, pkg, job, tf);
 				StreamWrapper sw = new StreamWrapper(wstreams, outputWidth);
-				// [DC] TODO: This hack is to ensure the .inc is always generated.
-				sw.getNewStream(StreamWrapper.Closures, true);
 				// [IP] FIXME: This hack is to ensure the .cc is always generated.
 				sw.getNewStream(StreamWrapper.CC, true);
                 // [DC] TODO: This hack is to ensure the .h is always generated.
                 sw.getNewStream(StreamWrapper.Header, true);
 
-				String closures = wstreams.getStreamName(StreamWrapper.Closures);
 				String cc = wstreams.getStreamName(StreamWrapper.CC);
 				String header = wstreams.getStreamName(StreamWrapper.Header);
 
-				outputFiles.add(closures);
 				outputFiles.add(cc);
 				outputFiles.add(header);
 				opts.compilationUnits().add(cc);
@@ -362,7 +357,6 @@ public class X10CPPTranslator extends Translator {
 				if (x10.Configuration.DEBUG) {
 					HashMap<String, LineNumberMap> fileToLineNumberMap =
 					    c.<HashMap<String, LineNumberMap>>getData(FILE_TO_LINE_NUMBER_MAP);
-					fileToLineNumberMap.put(closures, new LineNumberMap());
 					fileToLineNumberMap.put(cc, new LineNumberMap());
 					fileToLineNumberMap.put(header, new LineNumberMap());
 				}

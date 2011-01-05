@@ -37,12 +37,14 @@ import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
+import polyglot.types.LocalDef;
 import polyglot.types.MethodDef;
-import polyglot.types.MethodInstance;
 import polyglot.types.Name;
 import polyglot.types.ProcedureDef;
+import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
+import polyglot.types.Types;
 import polyglot.util.Pair;
 import polyglot.util.Position;
 import polyglot.visit.NodeVisitor;
@@ -50,11 +52,15 @@ import x10.ast.Async;
 import x10.ast.Closure;
 import x10.ast.ClosureCall;
 import x10.ast.Finish;
-import x10.ast.Future;
 import x10.ast.PlacedClosure;
 import x10.ast.StmtSeq;
 import x10.ast.When;
+import x10.ast.X10Call;
 import x10.compiler.ws.WSTransformState;
+import x10.types.MethodInstance;
+import x10.types.X10ClassDef;
+import x10.types.X10ClassType;
+import x10.types.X10MethodDef;
 import polyglot.types.Context;
 import polyglot.types.TypeSystem;
 
@@ -314,15 +320,78 @@ public class WSCodeGenUtility {
         return result;
     }
     
-    static public boolean needAsContinuationFrame(Block block, Context xct){
+    
+    /**
+     * Transform original call's def to ws call's def
+     * e.g. foo(abc:int) -> foo_F(w:Worker, up:Frame, abc:int);
+     * @param methodDef original method def
+     * @param wts WSTransformState
+     * @return
+     */
+    static public X10MethodDef createWSCallMethodDef(MethodDef methodDef, WSTransformState wts){
+    	
+        X10ClassType containerClassType = (X10ClassType) methodDef.container().get();
+        X10ClassDef containerClassDef = containerClassType.x10Def();
         
-        for(Stmt s : block.statements()){
-            if(s instanceof Async
-            || identifyAssignByAsyncCall(s, xct) != null ){
-                return true;
-            }
+        List<Ref<? extends Type>> formalTypes = new ArrayList<Ref<? extends Type>>();
+        formalTypes.add(Types.ref(wts.workerType));
+        formalTypes.add(Types.ref(wts.frameType));
+        formalTypes.add(Types.ref(wts.finishFrameType));
+        for(Ref<? extends Type> f : methodDef.formalTypes()){
+            formalTypes.add(f); //all formals are added in
         }
-        return false;
+        
+        TypeSystem xts = methodDef.typeSystem();
+        
+        X10MethodDef mDef = (X10MethodDef) xts.methodDef(methodDef.position(), 
+                Types.ref(containerClassDef.asType()),                
+                methodDef.flags(), 
+                methodDef.returnType(), 
+                Name.make(WSCodeGenUtility.getMethodFastPathName(methodDef)), 
+                formalTypes);
+        mDef.setFormalNames(new ArrayList<LocalDef>()); // FIXME
+    	return mDef;
+    }
+    
+    /**
+     * 
+     * Replace original call, e.g. fib(n) with generated WS call
+     *  --> fib_fast(worker, this, this, 1, n);
+     * The newArgs are worker/this/this/1
+     * @param xnf node factory
+     * @param aCall Original call
+     * @param methodDef the new methodDef
+     * @param newArgTypes additional arguments's types
+     * @param newArgs additional arguments, including worker/frame/upframe
+     * @return new method call
+     */
+    public static X10Call replaceMethodCallWithWSMethodCall(NodeFactory xnf, X10Call aCall, X10MethodDef methodDef, 
+                                                  List<Expr> newArgs){
+    	
+        //for arguments & new method instance's formal types
+        ArrayList<Expr> args = new ArrayList<Expr>(newArgs);
+        args.addAll(aCall.arguments());
+        ArrayList<Type> argTypes = new ArrayList<Type>();
+        for(Expr e : newArgs){
+        	argTypes.add(e.type());
+        }
+        argTypes.addAll(aCall.methodInstance().formalTypes());
+        
+        //for the name
+        Name name = methodDef.name(); //new name
+        
+        //new method instance with original properties
+        MethodInstance mi = methodDef.asInstance();
+        mi = mi.formalTypes(argTypes);
+        mi = mi.returnType(aCall.methodInstance().returnType());
+        mi = (MethodInstance) mi.container(aCall.methodInstance().container());
+        
+        //build new call
+        aCall = (X10Call) aCall.methodInstance(mi);
+        aCall = (X10Call) aCall.name(xnf.Id(aCall.name().position(), name));
+        aCall = (X10Call) aCall.arguments(args);
+        aCall.type(methodDef.returnType().get());
+        return aCall;
     }
     
     
@@ -332,7 +401,7 @@ public class WSCodeGenUtility {
      * The assign is the assign, but the call is just the return part of the future
      * @param s
      * @return Pair<Assign, Call> pair. If null, not such an expression
-     */
+     * /
     static public Pair<Assign, Call> identifyAssignByAsyncCall(Stmt s, Context context){
         TypeSystem xts = (TypeSystem) context.typeSystem();
         Pair<Assign, Call> result = null;
@@ -371,6 +440,7 @@ public class WSCodeGenUtility {
         }
         return result;
     }
+    */
     
     
     /**
@@ -610,7 +680,7 @@ public class WSCodeGenUtility {
 
                 if((wsState != null)){
                     Call aCall = (Call)n;
-                    if(wsState.isTargetCallSite(aCall)){
+                    if(wsState.isConcurrentCallSite(aCall)){
                         complexCallNum++;
                     }
                 }

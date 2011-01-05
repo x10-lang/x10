@@ -35,8 +35,9 @@ import polyglot.types.Name;
 import polyglot.types.Named;
 import polyglot.types.QName;
 import polyglot.types.SemanticException;
-import polyglot.types.StructType;
+import polyglot.types.ContainerType;
 import polyglot.types.Type;
+import polyglot.types.Types;
 import polyglot.util.ErrorInfo;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
@@ -51,11 +52,10 @@ import x10.types.ParametrizedType_c;
 import x10.types.X10ClassType;
 import polyglot.types.Context;
 import x10.types.X10FieldInstance;
-import x10.types.X10Flags;
-import x10.types.X10MethodInstance;
-import x10.types.X10TypeSystem_c;
 
-import x10.types.X10TypeMixin;
+import x10.types.MethodInstance;
+
+
 import polyglot.types.TypeSystem;
 import x10.types.checker.Checker;
 import x10.types.checker.PlaceChecker;
@@ -81,20 +81,13 @@ public class X10Field_c extends Field_c {
 		super(pos, target, name);
 	}
 
+	@Override
+	public X10FieldInstance fieldInstance() {
+	    return (X10FieldInstance) super.fieldInstance();
+	}
+
 	public X10Field_c reconstruct(Receiver target, Id name) {
 	    return (X10Field_c) super.reconstruct(target, name);
-	}
-	public Node typeCheck(ContextVisitor tc) {
-		Node n;
-		try {
-		    n = typeCheck1(tc);		    
-		} catch (SemanticException e) {
-		    Errors.issue(tc.job(), e, this);
-		    Type tType = target != null ? target.type() : tc.context().currentClass();
-		    X10FieldInstance fi = findAppropriateField(tc, tType, name.id(), target instanceof TypeNode, e);
-		    n = (X10Field_c)fieldInstance(fi).type(fi.type());
-		}
-		return n;
 	}
 
     public static X10FieldInstance findAppropriateField(ContextVisitor tc,
@@ -127,7 +120,7 @@ public class X10Field_c extends Field_c {
 	        Name name, boolean isStatic, SemanticException e)
 	{
 	    X10FieldInstance fi;
-	    X10TypeSystem_c xts = (X10TypeSystem_c) tc.typeSystem();
+	    TypeSystem xts =  tc.typeSystem();
 	    Context context = tc.context();
 	    boolean haveUnknown = xts.hasUnknown(targetType);
 	    Set<FieldInstance> fis = xts.findFields(targetType, xts.FieldMatcher(targetType, name, context));
@@ -139,7 +132,7 @@ public class X10Field_c extends Field_c {
 	            rt = xfi.type();
 	        } else if (!xts.typeEquals(rt, xfi.type(), context)) {
 	            if (xts.typeBaseEquals(rt, xfi.type(), context)) {
-	                rt = X10TypeMixin.baseType(rt);
+	                rt = Types.baseType(rt);
 	            } else {
 	                rt = null;
 	                break;
@@ -153,7 +146,7 @@ public class X10Field_c extends Field_c {
 	            ct = xfi.container();
 	        } else if (!xts.typeEquals(ct, xfi.container(), context)) {
 	            if (xts.typeBaseEquals(ct, xfi.container(), context)) {
-	                ct = X10TypeMixin.baseType(ct);
+	                ct = Types.baseType(ct);
 	            } else {
 	                ct = null;
 	                break;
@@ -167,6 +160,9 @@ public class X10Field_c extends Field_c {
 	        e = new SemanticException(); // null message
 	    if (!targetType.isClass()) {
 	        Name tName = targetType instanceof Named ? ((Named) targetType).name() : Name.make(targetType.toString()); 
+	        if (tName == null) {
+	        	tName = Name.make(targetType.toString());
+	        }
 	        targetType = xts.createFakeClass(QName.make(null, tName), new SemanticException("Target type is not a class: "+targetType));
 	    }
 	    fi = xts.createFakeField(targetType.toClass(), flags, name, e);
@@ -180,7 +176,7 @@ public class X10Field_c extends Field_c {
     public static boolean isInterfaceProperty(Type targetType, FieldInstance fi) {
         boolean isInterfaceProperty = false;
 
-        if (X10Flags.toX10Flags(fi.flags()).isProperty()) {
+        if (fi.flags().isProperty()) {
             // check if the target is interface
             Type baseType = targetType;
             while (baseType instanceof ConstrainedType) {
@@ -201,23 +197,27 @@ public class X10Field_c extends Field_c {
         return isInterfaceProperty;
     }
 	
-    public Node typeCheck1(ContextVisitor tc) throws SemanticException {
+    @Override
+    public Node typeCheck(ContextVisitor tc) {
 		final TypeSystem ts = (TypeSystem) tc.typeSystem();
 		final NodeFactory nf = (NodeFactory) tc.nodeFactory();
 		final Context c = (Context) tc.context(); 
 		Type tType = target != null ? target.type() : c.currentClass();
 
+		SemanticException error = null;
+
+		Position pos = position();
 		if (target instanceof TypeNode) {
-			Type t = ((TypeNode) target).type();
-			t = X10TypeMixin.baseType(t);
+			Type t = Types.baseType(tType);
 			if (t instanceof ParameterType) {
-				throw new Errors.CannotAccessStaticFieldOfTypeParameter(t, 
-						position());
+				SemanticException e = new Errors.CannotAccessStaticFieldOfTypeParameter(t, pos);
+				if (error == null) { error = e; }
+				Errors.issue(tc.job(), e);
 			}
 		}
 
 		if (c.inSuperTypeDeclaration()) {
-			Type tBase = X10TypeMixin.baseType(tType);
+			Type tBase = Types.baseType(tType);
 			if (tBase instanceof X10ClassType) {
 				X10ClassType tCt = (X10ClassType) tBase;
 				if (tCt.def() == c.supertypeDeclarationType()) {
@@ -225,7 +225,11 @@ public class X10Field_c extends Field_c {
 					for (FieldDef fd : tCt.x10Def().properties()) {
 						if (fd.name().equals(name.id())) {
 							X10FieldInstance fi = (X10FieldInstance) fd.asInstance();
-							fi = (X10FieldInstance) ts.FieldMatcher(tType, name.id(), c).instantiate(fi);
+							try {
+							    fi = (X10FieldInstance) ts.FieldMatcher(tType, name.id(), c).instantiate(fi);
+							}
+							catch (SemanticException e) {
+							}
 							if (fi != null) {
 								// Found!
 								X10Field_c result = this;
@@ -237,22 +241,22 @@ public class X10Field_c extends Field_c {
 						}
 					}
 
-					throw new SemanticException("Cannot access field " + name + " of " + tCt+ " in class declaration header; the field may be a member of a superclass.",position());
+					SemanticException e = new SemanticException("Cannot access field " + name + " of " + tCt+ " in class declaration header; the field may be a member of a superclass.", pos);
+					if (error == null) { error = e; }
+					Errors.issue(tc.job(), e);
 				}
 			}
 		}
 
 		X10FieldInstance fi = findAppropriateField(tc, tType, name.id(),
-		        target instanceof TypeNode, X10TypeMixin.contextKnowsType(target));
+		        target instanceof TypeNode, Types.contextKnowsType(target));
 
         if (fi.error() != null) {
             if (target instanceof Expr) {
-                Position pos = position();
-
                 // Now try 0-ary property methods.
                 try {
-                    X10MethodInstance mi = ts.findMethod(target.type(), ts.MethodMatcher(target.type(), name.id(), Collections.<Type>emptyList(), c));
-                    if (X10Flags.toX10Flags(mi.flags()).isProperty()) {
+                    MethodInstance mi = ts.findMethod(target.type(), ts.MethodMatcher(target.type(), name.id(), Collections.<Type>emptyList(), c));
+                    if (mi.flags().isProperty()) {
                         Call call = nf.Call(pos, target, this.name);
                         call = call.methodInstance(mi);
                         Type nt =  c.inDepType() ? 
@@ -267,7 +271,11 @@ public class X10Field_c extends Field_c {
                 catch (SemanticException ex) {
                 }
             }
-            throw fi.error();
+            Errors.issue(tc.job(), fi.error(), this);
+        }
+
+        if (fi.error() == null && error != null) {
+            fi = fi.error(error);
         }
 
         if (target() instanceof X10Special) {
@@ -296,10 +304,21 @@ public class X10Field_c extends Field_c {
 //			fi = fi.type(retType);
 //		}
 		X10Field_c result = (X10Field_c)fieldInstance(fi).type(retType);
-		result.checkConsistency(c);
+		if (fi.error() == null) {
+		    result.checkConsistency(c);
+		}
 
-		checkFieldAccessesInDepClausesAreFinal(result, tc);
-		checkClockedFieldAccessesAreInClockedMethods(result,tc);
+		try {
+		    checkFieldAccessesInDepClausesAreFinal(pos, target, fi, tc);
+		} catch (SemanticException e) {
+		    Errors.issue(tc.job(), e);
+		}
+		try {
+		    checkClockedFieldAccessesAreInClockedMethods(pos, fi, tc);
+		} catch (SemanticException e) {
+		    Errors.issue(tc.job(), e);
+		}
+
 		// Not needed in the orthogonal locality proposal.
 		// result = PlaceChecker.makeFieldAccessLocalIfNecessary(result, tc);
 
@@ -309,40 +328,36 @@ public class X10Field_c extends Field_c {
 
 	/**
 	 * Check that if this field is a clocked field, it is being accessed from within a clocked method.
-	 * @param result
+	 * @param fi
 	 * @param tc
 	 * @throws SemanticException
 	 */
-	protected void checkClockedFieldAccessesAreInClockedMethods(X10Field_c result, ContextVisitor tc) 
-	throws SemanticException {
-		//		 Check that field accesses in dep clauses refer to final fields.
-		Context xtc = (Context) tc.context();
-		if (X10Flags.toX10Flags(result.flags()).isClocked() 
-				&& ! ((Context) tc.context()).isClocked()) {
-			throw new Errors.IllegalClockedAccess(this, position());
+	protected static void checkClockedFieldAccessesAreInClockedMethods(Position pos,
+	        X10FieldInstance fi, ContextVisitor tc) throws SemanticException {
+		// Check that field accesses in dep clauses refer to final fields.
+		Context xtc = tc.context();
+		if (fi.flags().isClocked() && !xtc.isClocked()) {
+			throw new Errors.IllegalClockedAccess(fi, pos);
 		}
 	}
 
 	private static final boolean ENABLE_PLACE_TYPES = true;
 
-	protected void checkFieldAccessesInDepClausesAreFinal(X10Field_c result, ContextVisitor tc) 
-	throws SemanticException {
-		//		 Check that field accesses in dep clauses refer to final fields.
-		Context xtc = (Context) tc.context();
+	protected static void checkFieldAccessesInDepClausesAreFinal(Position pos, Receiver target,
+	        X10FieldInstance fi, ContextVisitor tc) throws SemanticException {
+		// Check that field accesses in dep clauses refer to final fields.
+		Context xtc = tc.context();
 		if (xtc.inDepType()) {
-			FieldInstance fi = result.fieldInstance();
 			if (! fi.flags().contains(Flags.FINAL))
-				throw new Errors.DependentClauseErrorFieldMustBeFinal(this, 
-						position());
+				throw new Errors.DependentClauseErrorFieldMustBeFinal(fi, pos);
 			if ((target instanceof X10Special) &&
 					((X10Special)target).kind()==X10Special.SELF) {
 				// The fieldInstance must be a property.
 				//Report.report(1, "X10Field_c checking " + fi  + " is a property. ");
 				// The following is going to look for property propertyNames$
 				// and may throw a MissingDependencyException asking for the field to be set.
-				if (! (fi instanceof X10FieldInstance && ((X10FieldInstance) fi).isProperty()))
-					throw new Errors.DependentClauseErrorSelfMayAccessOnlyProperties(fi,
-							result.position());
+				if (!fi.isProperty())
+					throw new Errors.DependentClauseErrorSelfMayAccessOnlyProperties(fi, pos);
 			}
 		}
 	}

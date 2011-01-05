@@ -17,7 +17,7 @@ import polyglot.ast.Expr;
 import polyglot.ast.ProcedureCall;
 import polyglot.ast.TypeNode;
 import polyglot.types.Name;
-import x10.types.X10MethodInstance;
+import x10.types.MethodInstance;
 
 public interface ClosureCall extends Expr, X10ProcedureCall {
 
@@ -49,8 +49,8 @@ public interface ClosureCall extends Expr, X10ProcedureCall {
  //   ClosureCall typeArgs(List<TypeNode> typeArgs);
 
     /** Get the method instance of the call. */
-    public X10MethodInstance closureInstance();
+    public MethodInstance closureInstance();
 
     /** Set the method instance of the call. */
-    public ClosureCall closureInstance(X10MethodInstance ci);
+    public ClosureCall closureInstance(MethodInstance ci);
 }

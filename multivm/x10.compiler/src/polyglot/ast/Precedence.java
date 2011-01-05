@@ -40,6 +40,8 @@ public enum Precedence {
     BIT_XOR     ("^", 100),
     /** The precedence of bitwise OR (<code>|<code>) expressions. */
     BIT_OR      ("|", 110),
+    /** The precedence of IN (<code>in<code>) expressions. */
+    IN          ("in", 115),
     /** The precedence of conditional AND (<code>&&<code>) expressions. */
     COND_AND    ("&&", 120),
     /** The precedence of conditional OR (<code>||<code>) expressions. */

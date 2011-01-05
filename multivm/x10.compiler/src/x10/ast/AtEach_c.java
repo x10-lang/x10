@@ -95,10 +95,6 @@ public class AtEach_c extends X10ClockedLoop_c implements AtEach, Clocked {
 	    return n;
 	}
 
-	public Expr getDomain(Expr d) {
-		return new Field_c(position(), d, new Id_c(position(), Name.make("dist")));
-	}
-
 	XConstrainedTerm placeTerm;
 
 	@Override

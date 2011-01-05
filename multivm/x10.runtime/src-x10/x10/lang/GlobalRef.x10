@@ -43,7 +43,7 @@ public struct GlobalRef[+T](
     */
    @Native("java", "(#0).apply$G()")
    @Native("c++", "(#0)->apply()")
-   public native def apply(){here == this.home}:T; 
+   public native operator this(){here == this.home}:T;
 
    /*
     * @Native methods from Any because the handwritten C++ code doesn't 100% match 

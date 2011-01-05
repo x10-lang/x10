@@ -21,7 +21,7 @@ import x10.compiler.NativeRep;
 @NativeRep("java", "x10.runtime.impl.java.Thread", null, null)
 @NativeRep("c++", "x10aux::ref<x10::lang::Thread>", "x10::lang::Thread", null)
 class Thread {
-    public native def this(()=>void, String);
+    public native def this(String);
 
     public static native def currentThread():Thread;
 
@@ -42,6 +42,8 @@ class Thread {
     public native def name(name:String):void;
 
     public native def home():Place;
+
+    public native operator this():void;
 }
 
 // vim:shiftwidth=4:tabstop=4:expandtab

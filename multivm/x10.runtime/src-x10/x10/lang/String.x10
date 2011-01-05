@@ -41,6 +41,11 @@ public final class String implements (Int) => Char/*TODO, (Range) => String*//*T
      */
     public native def this(String): String;
 
+    /**
+     * Construct a String from an Array[Byte].
+     */
+    @Native("java", "new java.lang.String((#1).raw().getByteArray(),#2,#3)")
+    public native def this(r:Array[Byte], offset:Int, length:Int): String;
 
     /**
      * Construct a String from an Array[Char].
@@ -118,14 +123,14 @@ public final class String implements (Int) => Char/*TODO, (Range) => String*//*T
      */
     @Native("java", "(#0).charAt(#1)")
     @Native("c++", "(#0)->charAt(#1)")
-    public native def apply(index: Int): Char;
+    public native operator this(index: Int): Char;
 
     /**
      * Returns the Char at the specified index in this String.
      * An index ranges from 0 to length()-1.
      * @param index the index of the Char
      * @return the Char at the specified (0-based) index of this String.
-     * @see #apply(Int)
+     * @see #operator(Int)
      */
     @Native("java", "(#0).charAt(#1)")
     @Native("c++", "(#0)->charAt(#1)")

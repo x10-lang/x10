@@ -2,7 +2,6 @@ package x10cuda.visit;
 
 import java.util.List;
 
-import polyglot.ast.Binary;
 import polyglot.ast.Block;
 import polyglot.ast.Block_c;
 import polyglot.ast.Call;
@@ -22,6 +21,7 @@ import polyglot.ast.Term;
 import polyglot.ast.Try;
 import polyglot.ast.TypeNode;
 import polyglot.frontend.Job;
+import polyglot.types.ClassType;
 import polyglot.types.Name;
 import polyglot.types.QName;
 import polyglot.types.SemanticException;
@@ -34,7 +34,7 @@ import x10.ast.Async;
 import x10.ast.AtStmt;
 import x10.ast.Closure;
 import x10.ast.Finish;
-import x10.ast.RegionMaker;
+import x10.ast.X10Binary;
 import x10.ast.X10Call;
 import x10.ast.X10Call_c;
 import x10.ast.X10Formal;
@@ -42,8 +42,8 @@ import x10.ast.X10Loop;
 import x10.ast.X10Loop_c;
 import x10.ast.X10New_c;
 import x10.extension.X10Ext;
+import x10.types.MethodInstance;
 import x10.types.X10ClassType;
-import x10.types.X10TypeSystem_c;
 import x10cpp.visit.Emitter;
 import x10cuda.ast.CUDAKernel;
 import x10cuda.types.CUDAData;
@@ -63,8 +63,8 @@ public class CUDAPatternMatcher extends NodeVisitor {
 		this.nf = nf;
 	}
 
-	private X10TypeSystem_c xts() {
-		return (X10TypeSystem_c)ts;
+	private TypeSystem xts() {
+		return ts;
 	}
 
 	// Type from name
@@ -174,21 +174,17 @@ public class CUDAPatternMatcher extends NodeVisitor {
 				"A 1 dimensional iteration", loop_formal);
 		r.var = loop_x10_formal.vars().get(0);
 		Expr domain = loop.domain();
-		complainIfNot(domain instanceof RegionMaker,
+		complainIfNot(domain instanceof X10Binary,
 				"An iteration over a region literal of the form 0..", domain);
-		RegionMaker region = (RegionMaker) domain;
-		complainIfNot(region.name().toString().equals("makeRectangular"),
+		X10Binary region = (X10Binary) domain;
+		complainIfNot(region.operator() == X10Binary.DOT_DOT,
 				"An iteration over a region literal of the form 0..", domain);
-		Receiver target = region.target();
-		complainIfNot(target instanceof CanonicalTypeNode,
-				"An iteration over a region literal of the form 0..", target);
-		CanonicalTypeNode target_type_node = (CanonicalTypeNode) target;
-		complainIfNot(target_type_node.nameString().equals("Region"),
-				"An iteration over a region literal of the form 0..", target);
-		complainIfNot(region.arguments().size() == 2,
-				"An iteration over a region literal of the form 0..", region);
-		Expr from_ = region.arguments().get(0);
-		Expr to_ = region.arguments().get(1);
+		MethodInstance mi = region.methodInstance();
+		ClassType target_type = mi.container().toClass();
+		complainIfNot(target_type.isInt(),
+				"An iteration over a region literal of the form 0..", domain);
+		Expr from_ = region.left();
+		Expr to_ = region.right();
 		complainIfNot(from_ instanceof IntLit,
 				"An iteration over a region literal of the form 0..", from_);
 		IntLit from = (IntLit) from_;

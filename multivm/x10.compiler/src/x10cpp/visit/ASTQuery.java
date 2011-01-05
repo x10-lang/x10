@@ -47,6 +47,7 @@ import polyglot.types.QName;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
+import polyglot.types.Types;
 import polyglot.util.ErrorInfo;
 import polyglot.util.InternalCompilerError;
 import polyglot.visit.InnerClassRemover;
@@ -60,10 +61,9 @@ import x10.extension.X10Ext;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10MethodDef;
-import x10.types.X10MethodInstance;
-import x10.types.X10TypeMixin;
+import x10.types.MethodInstance;
 import polyglot.types.TypeSystem;
-import x10.types.X10TypeSystem_c;
+
 import x10.util.HierarchyUtils;
 import x10cpp.Configuration;
 import x10cpp.types.X10CPPContext_c;
@@ -134,68 +134,7 @@ public class ASTQuery {
 		return null;
 	}
 
-	boolean isClockMaker(Call_c n) {
-		if (n.isTargetImplicit())
-			return false;
-		Receiver target = n.target();
-		if (!(target instanceof Field_c))
-			return false;
-		Field_c f = (Field_c) target;
-		if (!(f.target() instanceof X10CanonicalTypeNode_c))
-			return false;
-		X10CanonicalTypeNode_c t = (X10CanonicalTypeNode_c) f.target();
-		TypeSystem xts = (TypeSystem) tr.typeSystem();
-		if (!xts.isClock(t.type()) || !f.name().equals("factory"))
-			return false;
-		if (n.arguments().size() != 0)
-			return false;
-		if (!n.name().equals("clock"))
-			return false;
-		return true;
-	}
-
-	boolean isBlockDistMaker(Call_c n) {
-		if (n.isTargetImplicit())
-			return false;
-		Receiver target = n.target();
-		if (!(target instanceof Field_c))
-			return false;
-		Field_c f = (Field_c) target;
-		if (!(f.target() instanceof X10CanonicalTypeNode_c))
-			return false;
-		X10CanonicalTypeNode_c t = (X10CanonicalTypeNode_c) f.target();
-		X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
-		if (!xts.isDistribution(t.type()) || !f.name().equals("factory"))
-			return false;
-		// TODO: detect other distribution constructors
-		if (n.arguments().size() != 1)
-			return false;
-		if (!n.name().equals("block"))
-			return false;
-		return true;
-	}
-
-	boolean isPointMaker(Call_c n) {
-		if (n.isTargetImplicit())
-			return false;
-		Receiver target = n.target();
-		if (!(target instanceof Field_c))
-			return false;
-		Field_c f = (Field_c) target;
-		if (!(f.target() instanceof X10CanonicalTypeNode_c))
-			return false;
-		X10CanonicalTypeNode_c t = (X10CanonicalTypeNode_c) f.target();
-		TypeSystem xts = (TypeSystem) tr.typeSystem();
-		if (!xts.isPoint(t.type()) || !f.name().equals("factory"))
-			return false;
-		if (n.arguments().size() < 1)
-			return false;
-		if (!n.name().equals("point"))
-			return false;
-		return true;
-	}
-
-	static final ArrayList<X10MethodInstance> knownAsyncArrayCopyMethods = new ArrayList<X10MethodInstance>();
+	static final ArrayList<MethodInstance> knownAsyncArrayCopyMethods = new ArrayList<MethodInstance>();
 
 	/* -- SPMD compilation --
 	boolean isAsyncArrayCopy(Call_c n) {
@@ -221,7 +160,7 @@ public class ASTQuery {
 	*/
 
 
-	static final ArrayList<X10MethodInstance> knownArrayCopyMethods = new ArrayList<X10MethodInstance>();
+	static final ArrayList<MethodInstance> knownArrayCopyMethods = new ArrayList<MethodInstance>();
 
 	boolean isAsyncArrayCopy(Async_c n) {
 		TypeSystem ts = (TypeSystem) tr.typeSystem();
@@ -310,7 +249,7 @@ public class ASTQuery {
 	}
 
 	public static void assertNumberOfInitializers(Type at, int len) {
-	    at = X10TypeMixin.baseType(at);
+	    at = Types.baseType(at);
 	    if (at instanceof X10ClassType) {
 	        X10ClassType act = (X10ClassType) at;
 	        assert len == act.propertyInitializers().size();
@@ -327,7 +266,7 @@ public class ASTQuery {
 	}
 
 	public static Object getPropertyInit(Type at, int index) {
-	    at = X10TypeMixin.baseType(at);
+	    at = Types.baseType(at);
 	    if (at instanceof X10ClassType) {
 	        X10ClassType act = (X10ClassType) at;
 	        if (index < act.propertyInitializers().size()) {

@@ -25,7 +25,7 @@ public class CF7 extends x10Test{
 
     public static class TotalsReducer1 implements Reducible[Totals2] {
         public  def zero() = new Totals2(0,0);
-        public  def apply(a:Totals2 ,other:Totals2 ) = new Totals2(a.left+other.left,a.right+other.right);
+        public  operator this(a:Totals2 ,other:Totals2 ) = new Totals2(a.left+other.left,a.right+other.right);
         public def this() {super();};
     }
     public static class Totals2 {
@@ -40,7 +40,7 @@ public class CF7 extends x10Test{
             val numThreads = 8;
             val iteration = 100;
             val result = finish(b) {
-                for ([p] in 0..numThreads-1) async {
+                for ([p] in 0..(numThreads-1)) async {
                       var case_ :Totals2 =new  Totals2(1,2);
                       for (var i:Int = 0; i < iteration; i++)
                       offer case_;

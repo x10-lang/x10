@@ -21,6 +21,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
@@ -69,6 +70,7 @@ import polyglot.types.QName;
 import polyglot.types.SemanticException;
 import polyglot.types.TopLevelResolver;
 import polyglot.types.TypeSystem;
+import polyglot.types.TypeSystem_c;
 import polyglot.util.ErrorInfo;
 import polyglot.util.ErrorQueue;
 import polyglot.util.InternalCompilerError;
@@ -100,7 +102,7 @@ import x10.plugin.LoadPlugins;
 import x10.plugin.RegisterPlugins;
 import x10.types.X10SourceClassResolver;
 import polyglot.types.TypeSystem;
-import x10.types.X10TypeSystem_c;
+
 import x10.visit.CheckNativeAnnotationsVisitor;
 import x10.visit.Lowerer;
 import x10.visit.Desugarer;
@@ -228,7 +230,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
         return false;
     }
 
-    static class WarningComparator implements Comparator<ErrorInfo> {
+    static class WarningComparator implements Comparator<ErrorInfo> { // todo: why Warnings are ordered differently than exceptions? (see ExceptionComparator)
         public int compare(ErrorInfo a, ErrorInfo b) {
             Position pa = a.getPosition();
             Position pb = b.getPosition();
@@ -259,6 +261,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
         return warnings;
     }
 
+    // todo: can't we merge warning and exceptions into a single object (ErrorInfo?)
     static class ExceptionComparator implements Comparator<SemanticException> {
         public int compare(SemanticException a, SemanticException b) {
             int r = (a.getClass().toString().compareToIgnoreCase(b.getClass().toString()));
@@ -276,6 +279,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                 return -1;
             if (pb == null)
                 return 1;
+            // todo: what about path & file ? (we should first order by file, right?)
             if (pa.line() < pb.line())
                 return -1;
             if (pb.line() < pa.line())
@@ -363,7 +367,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     }
 
     protected TypeSystem createTypeSystem() {
-        return new X10TypeSystem_c();
+        return new TypeSystem_c();
     }
 
 
@@ -380,7 +384,13 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 		   super(extInfo);
 	   }
 
-       protected List<Goal> validateOnlyGoals(Job job) {
+        @Override
+        public void clearAll(Collection<Source> sources) {
+            super.clearAll(sources);
+            PrintWeakCallsCount = null;
+        }
+
+        protected List<Goal> validateOnlyGoals(Job job) {
            List<Goal> goals = new ArrayList<Goal>();
            addValidateOnlyGoals(job, goals);
            return goals;
@@ -433,8 +443,12 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 
            if (!x10.Configuration.ONLY_TYPE_CHECKING) {
 
+           final Goal desugarerGoal = Desugarer(job);
+           goals.add(desugarerGoal);
+
            Goal walaBarrier = null;
-           if (x10.Configuration.WALA || x10.Configuration.FINISH_ASYNCS) {
+           final Goal typeCheckBarrierGoal = TypeCheckBarrier();
+               if (x10.Configuration.WALA || x10.Configuration.WALADEBUG || x10.Configuration.FINISH_ASYNCS) {
                try{
                    ClassLoader cl = Thread.currentThread().getContextClassLoader();
                    Class<?> c = cl.loadClass("x10.wala.translator.X102IRGoal");
@@ -443,15 +457,16 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                    Goal ir = ((Goal) con.newInstance(job)).intern(this);
                    goals.add(ir);
                    Goal finder = MainMethodFinder(job, hasMain);
-                   finder.addPrereq(TypeCheckBarrier());
+                   finder.addPrereq(typeCheckBarrierGoal);
                    ir.addPrereq(finder);
                    if(x10.Configuration.FINISH_ASYNCS){
                        Method buildCallTableMethod = c.getMethod("analyze");
                        walaBarrier = IRBarrier(ir, buildCallTableMethod);
+                   } else if(x10.Configuration.WALADEBUG){
+                       Method printCallGraph = c.getMethod("printCallGraph");
+                       walaBarrier = IRBarrier(ir, printCallGraph);
                    } else {
-                       //Method printCallGraph = c.getMethod("printCallGraph");
-                       //barrier = IRBarrier(ir, printCallGraph);
-                       Method wsAnalyzeCallGraph = c.getMethod("wsAnalyzeCallGraph");
+                       Method wsAnalyzeCallGraph = c.getMethod("wsAnalyzeCallGraph", Collection.class);
                        walaBarrier = IRBarrier(ir, wsAnalyzeCallGraph);
                    }
                    goals.add(walaBarrier);
@@ -462,18 +477,18 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                }
            }
            
-           goals.add(Desugarer(job));
-           
            goals.add(X10Casted(job));
            goals.add(MoveFieldInitializers(job));
            goals.add(X10Expanded(job));
            goals.add(X10RewriteAtomicMethods(job));
-           
-           goals.add(NativeClassVisitor(job));
-           
-           goals.add(InnerClassRemover(job)); // TODO: move even earlier
-           InnerClassRemover(job).addPrereq(NativeClassVisitor(job));
-           InnerClassRemover(job).addPrereq(TypeCheckBarrier());
+
+           final Goal nativeClassVisitorGoal = NativeClassVisitor(job);
+           goals.add(nativeClassVisitorGoal);
+
+           final Goal innerClassRemoverGoal = InnerClassRemover(job);
+           goals.add(innerClassRemoverGoal); // TODO: move even earlier
+           innerClassRemoverGoal.addPrereq(nativeClassVisitorGoal);
+           innerClassRemoverGoal.addPrereq(typeCheckBarrierGoal);
 
            goals.add(Serialized(job));
            if (x10.Configuration.WORK_STEALING) {
@@ -493,19 +508,21 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            goals.add(Preoptimization(job));
            goals.addAll(Optimizer.goals(this, job));
            goals.add(Postoptimization(job));
-           
-           goals.add(Lowerer(job));
-           goals.add(CodeGenerated(job));
+
+           final Goal lowererGoal = Lowerer(job);
+           goals.add(lowererGoal);
+           final Goal codeGeneratedGoal = CodeGenerated(job);
+           goals.add(codeGeneratedGoal);
            
            // the barrier will handle prereqs on its own
-           Desugarer(job).addPrereq(TypeCheckBarrier());
-           CodeGenerated(job).addPrereq(CodeGenBarrier());
-           Lowerer(job).addPrereq(TypeCheckBarrier());
-           CodeGenerated(job).addPrereq(Lowerer(job));
+           desugarerGoal.addPrereq(typeCheckBarrierGoal);
+           codeGeneratedGoal.addPrereq(CodeGenBarrier());
+           lowererGoal.addPrereq(typeCheckBarrierGoal);
+           codeGeneratedGoal.addPrereq(lowererGoal);
            List<Goal> optimizations = Optimizer.goals(this, job);
            for (Goal goal : optimizations) {
-               goal.addPrereq(TypeCheckBarrier());
-               CodeGenerated(job).addPrereq(goal);
+               goal.addPrereq(typeCheckBarrierGoal);
+               codeGeneratedGoal.addPrereq(goal);
            }
 
            }
@@ -612,10 +629,17 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                public boolean runTask() {
                    if (Configuration.FINISH_ASYNCS) {
 //                   calltable = X10Scheduler.<HashMap<CallTableKey, LinkedList<CallTableVal>>>invokeGeneric(method);
+                   } else if (Configuration.WALADEBUG) {
+                       try {
+                           method.invoke(null);
+                       } catch (IllegalArgumentException e) {
+                       } catch (IllegalAccessException e) {
+                       } catch (InvocationTargetException e) {
+                       }
                    } else {
                 	   //This path is only for WALA call graph analysis for Work-Stealing
                        try {
-                           WSTransformationContent transTarget = (WSTransformationContent) method.invoke(null);
+                           WSTransformationContent transTarget = (WSTransformationContent) method.invoke(null, jobs());
                            //now use this one to construct WSTransformationState
                            TypeSystem ts  = extInfo.typeSystem();
                            NodeFactory nf = extInfo.nodeFactory();
@@ -1025,6 +1049,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            }
            public int initialErrorCount() { return initialErrorCount; }
            public void initialErrorCount(int count) { initialErrorCount = count; }
+           public void setReportedErrors(boolean flag) { reportedErrors = flag; }
        }
        
        @Override

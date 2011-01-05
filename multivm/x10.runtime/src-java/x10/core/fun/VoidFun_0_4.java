@@ -14,11 +14,12 @@ package x10.core.fun;
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
 import x10.rtt.RuntimeType.Variance;
+import x10.rtt.VoidFunType;
 
 public interface VoidFun_0_4<T1,T2,T3,T4> extends VoidFun {
     Object apply(T1 o1, Type t1, T2 o2, Type t2, T3 o3, Type t3, T4 o4, Type t4);
 
-    public static final RuntimeType<VoidFun_0_4<?,?,?,?>> _RTT = new RuntimeType<VoidFun_0_4<?,?,?,?>>(
+    public static final RuntimeType<VoidFun_0_4<?,?,?,?>> _RTT = new VoidFunType<VoidFun_0_4<?,?,?,?>>(
         VoidFun_0_4.class,
         new RuntimeType.Variance[] {
             Variance.CONTRAVARIANT,
@@ -26,10 +27,5 @@ public interface VoidFun_0_4<T1,T2,T3,T4> extends VoidFun {
             Variance.CONTRAVARIANT,
             Variance.CONTRAVARIANT
         }
-    ) {
-        @Override
-        public String typeName(Object o) {
-            return typeNameForVoidFun(o);
-        }
-    };
+    );
 }

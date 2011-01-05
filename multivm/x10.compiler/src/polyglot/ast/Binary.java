@@ -33,7 +33,10 @@ public interface Binary extends Expr
         BIT_XOR ("^", Precedence.BIT_XOR),
         SHL     ("<<", Precedence.SHIFT),
         SHR     (">>", Precedence.SHIFT),
-        USHR    (">>>", Precedence.SHIFT);
+        USHR    (">>>", Precedence.SHIFT),
+        DOT_DOT ("..", Precedence.CAST),
+        ARROW   ("->", Precedence.SHIFT),
+        IN      ("in", Precedence.IN);
 
 	    protected final Precedence prec;
         public final String name;
@@ -74,7 +77,10 @@ public interface Binary extends Expr
     public static final Operator BIT_XOR = Operator.BIT_XOR;
     public static final Operator SHL = Operator.SHL;
     public static final Operator SHR = Operator.SHR;
-    public static final Operator USHR = Operator.USHR; 
+    public static final Operator USHR = Operator.USHR;
+    public static final Operator DOT_DOT = Operator.DOT_DOT;
+    public static final Operator ARROW = Operator.ARROW;
+    public static final Operator IN = Operator.IN;
 
 
     /**

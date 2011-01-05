@@ -44,7 +44,6 @@ import x10.errors.Errors;
 import x10.types.X10ConstructorDef;
 import x10.types.X10ConstructorInstance;
 
-import x10.types.X10TypeMixin;
 import polyglot.types.TypeSystem;
 import x10.types.checker.Converter;
 import x10.types.constraints.CConstraint;
@@ -146,7 +145,7 @@ public class X10ConstructorCall_c extends ConstructorCall_c implements X10Constr
 	        if (kind == SUPER && superType == null) {
 	        	// this can happen for structs, and for Object
 	        	Type type =  context.currentClass();
-	        	if (X10TypeMixin.isX10Struct(type)
+	        	if (Types.isX10Struct(type)
 	        			|| ts.typeEquals(type, ts.Object(), tc.context())) {
 	        		// the super() call inserted by the parser needs to be thrown out
 	        		NodeFactory nf = (NodeFactory) tc.nodeFactory();
@@ -276,7 +275,7 @@ public class X10ConstructorCall_c extends ConstructorCall_c implements X10Constr
 	        } else {
 	            // The constructor *within which this super call happens*.
 	            X10ConstructorDef thisConstructor = (X10ConstructorDef) ctx.currentCode();
-	            CConstraint c = X10TypeMixin.realX(ci.returnType());
+	            CConstraint c = Types.realX(ci.returnType());
 	            thisConstructor.setSupClause(Types.ref(c));
 	        }
 	    }

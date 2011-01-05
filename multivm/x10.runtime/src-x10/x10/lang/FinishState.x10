@@ -247,7 +247,7 @@ abstract class FinishState {
         @Embed private val lock = @Embed new Lock();
 
         // find or make the local finish for the finish ref
-        public def apply(root:GlobalRef[FinishState], factory:()=>FinishState):FinishState{
+        public operator this(root:GlobalRef[FinishState], factory:()=>FinishState):FinishState{
             lock.lock();
             var f:FinishState = map.getOrElse(root, null);
             if (null != f) {
@@ -326,7 +326,7 @@ abstract class FinishState {
                 me = (ref as GlobalRef[FinishState]{home==here})();
             } else {
                 val _ref = ref;
-                me = Runtime.runtime().finishStates.apply(ref, ()=>new RemoteFinish(_ref));
+                me = Runtime.runtime().finishStates(ref, ()=>new RemoteFinish(_ref));
             }
         }
     }
@@ -591,7 +591,7 @@ abstract class FinishState {
                 me = (ref as GlobalRef[FinishState]{home==here})();
             } else {
                 val _ref = ref;
-                me = Runtime.runtime().finishStates.apply(ref, ()=>new RemoteCollectingFinish[T](_ref, tmpReducer));
+                me = Runtime.runtime().finishStates(ref, ()=>new RemoteCollectingFinish[T](_ref, tmpReducer));
             }
         }
         public def serialize():SerialData = new SerialData(reducer, super.serialize());

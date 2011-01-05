@@ -104,7 +104,6 @@ public final class ParameterizedType<T> implements Type<T>{
     }
 
     public final String toString() {
-        //return rtt.toString();
         return typeName();
     }
 
@@ -116,6 +115,31 @@ public final class ParameterizedType<T> implements Type<T>{
             str += params[i].typeName();
         }
         str += "]";
+        return str;
+    }
+
+    // called from RuntimeType.typeName(Object) of static inner class compiled from closure
+    public final String typeNameForFun() {
+        String str = "(";
+        int i;
+        for (i = 0; i < params.length - 1; i++) {
+            if (i != 0) str += ",";
+            str += params[i].typeName();
+        }
+        str += ")=>";
+        str += params[i].typeName();
+        return str;
+    }
+
+    public final String typeNameForVoidFun() {
+        String str = "(";
+        if (params != null && params.length > 0) {
+            for (int i = 0; i < params.length; i++) {
+                if (i != 0) str += ",";
+                str += params[i].typeName();
+            }
+        }
+        str += ")=>void";
         return str;
     }
     

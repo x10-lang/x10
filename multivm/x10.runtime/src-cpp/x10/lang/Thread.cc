@@ -70,8 +70,7 @@ x10::lang::Thread::thread_start_routine(void *arg)
     // this thread is now running
     tp->__thread_running = true;
 
-    ref<Reference> taskBody = nullCheck(tp->__taskBody);
-    VoidFun_0_0::apply(taskBody);
+    tp->apply();
 
     // finished running
     tp->__thread_running = false;
@@ -82,8 +81,8 @@ x10::lang::Thread::thread_start_routine(void *arg)
 
 
 ref<Thread>
-Thread::_make(ref<x10::lang::VoidFun_0_0> task, ref<x10::lang::String> name) {
-    return (new (alloc<Thread>()) Thread())->_constructor(task,name);
+Thread::_make(ref<x10::lang::String> name) {
+    return (new (alloc<Thread>()) Thread())->_constructor(name);
 }
 
 const serialization_id_t Thread::_serialization_id =
@@ -92,7 +91,7 @@ const serialization_id_t Thread::_serialization_id =
 
 // Helper method to initialize a Thread object.
 void
-Thread::thread_init(ref<VoidFun_0_0> task, const ref<String> name)
+Thread::thread_init(const ref<String> name)
 {
     __xrxDPrStart();
     // increment the overall thread count
@@ -107,8 +106,6 @@ Thread::thread_init(ref<VoidFun_0_0> task, const ref<String> name)
 
 	__current_worker = X10_NULL;
     __thread_name = String::_make(name);
-    __taskBody = task;
-
 
     // create start condition object with default attributes
     // ??check the return code for ENOMEM/EAGAIN??
@@ -165,8 +162,8 @@ Thread::thread_init(ref<VoidFun_0_0> task, const ref<String> name)
     //int suspendstate = PTHREAD_CREATE_SUSPENDED_NP;
     //pthread_attr_setsuspendstate_np(&__xthread_attr, suspendstate);
 
-    // create a new execution thread ??in suspended state??
-    if (!__taskBody.isNull()) {
+    if (__thread_id != 1) {
+        // default: create a new execution thread
         int err = pthread_create(&__xthread, &__xthread_attr,
                              thread_start_routine, (void *)this);
         if (err) {
@@ -174,6 +171,8 @@ Thread::thread_init(ref<VoidFun_0_0> task, const ref<String> name)
             ::abort();
         }
     } else {
+        // hack: if this is the first worker thread ever created (in bootstrap.h)
+        // then take over the current thread instead of creating a new one
         pthread_setspecific(__thread_mapper, this);
         __thread_running = true;
     }
@@ -484,6 +483,10 @@ void
 Thread::name(ref<String> name)
 {
     __thread_name = name;
+}
+
+void Thread::apply()
+{
 }
 
 void Thread::_serialize_body(serialization_buffer &buf) {

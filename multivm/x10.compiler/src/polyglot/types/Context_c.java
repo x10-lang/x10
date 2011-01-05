@@ -11,6 +11,7 @@ import java.util.*;
 
 import polyglot.main.Report;
 import polyglot.util.*;
+import x10.types.MethodInstance;
 
 /**
  * This class maintains a context for looking up named variables, types,

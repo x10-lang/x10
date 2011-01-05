@@ -39,9 +39,8 @@ import x10.types.X10ClassType;
 import polyglot.types.Context;
 import x10.types.X10MethodDef;
 import x10.types.X10ProcedureDef;
-import x10.types.X10TypeMixin;
 import polyglot.types.TypeSystem;
-import x10.types.X10TypeSystem_c;
+
 import x10.types.X10Context_c;
 import x10.types.checker.Converter;
 import x10.types.checker.PlaceChecker;
@@ -57,14 +56,14 @@ public class X10Return_c extends Return_c {
 	}
 	
 	public static Type removeLocals(Context ctx, Type t, CodeDef thisCode) {
-	    Type b = X10TypeMixin.baseType(t);
+	    Type b = Types.baseType(t);
 	    if (b != t)
 	        b = removeLocals(ctx, b, thisCode);
-	    CConstraint c = X10TypeMixin.xclause(t);
+	    CConstraint c = Types.xclause(t);
 	    if (c == null)
 	        return b;
 	    c = removeLocals(ctx, c, thisCode);
-	    return X10TypeMixin.xclause(b, c);
+	    return Types.xclause(b, c);
 	}
 	
 	public static CConstraint removeLocals(Context ctx, CConstraint c, CodeDef thisCode) {

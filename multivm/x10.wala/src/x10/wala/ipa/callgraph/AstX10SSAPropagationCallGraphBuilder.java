@@ -1,21 +1,15 @@
 package x10.wala.ipa.callgraph;
 
 import x10.wala.analysis.typeInference.AstX10TypeInference;
-import x10.wala.ssa.ArrayLoadByIndexInstruction;
-import x10.wala.ssa.ArrayLoadByPointInstruction;
-import x10.wala.ssa.ArrayStoreByIndexInstruction;
-import x10.wala.ssa.ArrayStoreByPointInstruction;
 import x10.wala.ssa.AstX10InstructionVisitor;
 import x10.wala.ssa.AtStmtInstruction;
 import x10.wala.ssa.AtomicInstruction;
 import x10.wala.ssa.FinishInstruction;
-import x10.wala.ssa.ForceInstruction;
 import x10.wala.ssa.HereInstruction;
 import x10.wala.ssa.NextInstruction;
-import x10.wala.ssa.PlaceOfPointInstruction;
-import x10.wala.ssa.RegionIterHasNextInstruction;
-import x10.wala.ssa.RegionIterInitInstruction;
-import x10.wala.ssa.RegionIterNextInstruction;
+import x10.wala.ssa.IterHasNextInstruction;
+import x10.wala.ssa.IterInitInstruction;
+import x10.wala.ssa.IterNextInstruction;
 import x10.wala.ssa.TupleInstruction;
 
 import com.ibm.wala.analysis.typeInference.TypeInference;
@@ -73,54 +67,21 @@ public class AstX10SSAPropagationCallGraphBuilder extends AstJavaSSAPropagationC
 	    Assertions.UNREACHABLE("Query of interestingness of value number for Finish???");
 	}
 
-	public void visitForce(ForceInstruction instruction) {
-	    Assertions.productionAssertion(instruction.getUse(0) == vn, "force instruction has bogus use/def info?");
-	    bingo= true;
-	}
-
-	public void visitRegionIterInit(RegionIterInitInstruction instruction) {
+	public void visitIterInit(IterInitInstruction instruction) {
 	    Assertions.productionAssertion(instruction.getUse(0) == vn, "regionIterInit instruction has bogus use/def info?");
 	    bingo= true;
 	}
 
-	public void visitRegionIterHasNext(RegionIterHasNextInstruction instruction) {
+	public void visitIterHasNext(IterHasNextInstruction instruction) {
 	}
 
-	public void visitRegionIterNext(RegionIterNextInstruction instruction) {
+	public void visitIterNext(IterNextInstruction instruction) {
 	    Assertions.productionAssertion(instruction.getUse(0) == vn, "regionIterNext instruction has bogus use/def info?");
 	    bingo= true;
 	}
 
 	public void visitHere(HereInstruction instruction) {
 	    Assertions.UNREACHABLE("Query of interestingness of value number for Here???");
-	}
-
-	public void visitArrayLoadByIndex(ArrayLoadByIndexInstruction instruction) {
-	    if (!instruction.typeIsPrimitive() && instruction.getArrayRef() == vn) {
-		bingo= true;
-	    }
-	}
-
-	public void visitArrayLoadByPoint(ArrayLoadByPointInstruction instruction) {
-	    if (!instruction.typeIsPrimitive() && instruction.getArrayRef() == vn) {
-		bingo= true;
-	    }
-	}
-
-	public void visitArrayStoreByIndex(ArrayStoreByIndexInstruction instruction) {
-	    if (!instruction.typeIsPrimitive() && (instruction.getArrayRef() == vn || instruction.getStoreValue() == vn)) {
-		bingo= true;
-	    }
-	}
-
-	public void visitArrayStoreByPoint(ArrayStoreByPointInstruction instruction) {
-	    if (!instruction.typeIsPrimitive() && (instruction.getArrayRef() == vn || instruction.getStoreValue() == vn)) {
-	    	bingo = true;
-	    }
-	}
-	    
-	public void visitPlaceOfPoint(PlaceOfPointInstruction instruction) {
-		// not interesting for now	
 	}
 
 	public void visitTuple(TupleInstruction instruction) {
@@ -157,60 +118,20 @@ public class AstX10SSAPropagationCallGraphBuilder extends AstJavaSSAPropagationC
 	    // NOOP
 	}
 	
-	public void visitForce(ForceInstruction instruction) {
+	public void visitIterInit(IterInitInstruction instruction) {
 	    // TODO model data flow for future/force
 	}
 
-	public void visitRegionIterInit(RegionIterInitInstruction instruction) {
-	    // TODO model data flow for future/force
-	}
-
-	public void visitRegionIterHasNext(RegionIterHasNextInstruction instruction) {
+	public void visitIterHasNext(IterHasNextInstruction instruction) {
 	    // NOOP: no flow through this kind of instruction
 	}
 
-	public void visitRegionIterNext(RegionIterNextInstruction instruction) {
+	public void visitIterNext(IterNextInstruction instruction) {
 	    // TODO model data flow for future/force
 	}
 
 	public void visitHere(HereInstruction instruction) {
 	    // TODO model data flow for here
-	}
-
-	public void visitArrayLoadByIndex(ArrayLoadByIndexInstruction instruction) {
-	    // skip arrays of primitive type
-	    if (instruction.typeIsPrimitive()) {
-		return;
-	    }
-	    doVisitArrayLoad(instruction.getDef(), instruction.getArrayRef());
-	}
-
-	public void visitArrayLoadByPoint(ArrayLoadByPointInstruction instruction) {
-	    // skip arrays of primitive type
-	    if (instruction.typeIsPrimitive()) {
-		return;
-	    }
-	    doVisitArrayLoad(instruction.getDef(), instruction.getArrayRef());
-	}
-
-	public void visitArrayStoreByIndex(ArrayStoreByIndexInstruction instruction) {
-	    // skip arrays of primitive type
-	    if (instruction.typeIsPrimitive()) {
-		return;
-	    }
-	    doVisitArrayStore(instruction.getArrayRef(), instruction.getStoreValue());
-	}
-
-	public void visitArrayStoreByPoint(ArrayStoreByPointInstruction instruction) {
-	    // skip arrays of primitive type
-	    if (instruction.typeIsPrimitive()) {
-		return;
-	    }
-	    doVisitArrayStore(instruction.getArrayRef(), instruction.getStoreValue());
-	}
-
-	public void visitPlaceOfPoint(PlaceOfPointInstruction instruction) {
-		// not interesting for now	
 	}
 
 	public void visitTuple(TupleInstruction tupleInstruction) {

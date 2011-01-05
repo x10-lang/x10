@@ -42,9 +42,7 @@ import x10.extension.X10Del;
 import x10.extension.X10Del_c;
 import x10.types.X10ClassType;
 import polyglot.types.Context;
-import x10.types.X10TypeMixin;
 import polyglot.types.TypeSystem;
-import x10.types.X10TypeSystem_c;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
 import x10.visit.X10TypeChecker;
@@ -121,7 +119,7 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode, AddF
     	}
     }
     public Node typeCheckOverride(Node parent, ContextVisitor tc) {
-        X10TypeSystem_c ts = (X10TypeSystem_c) tc.typeSystem();
+        TypeSystem ts =  tc.typeSystem();
         NodeFactory nf = (NodeFactory) tc.nodeFactory();
 
         LazyRef<Type> sym = (LazyRef<Type>) this.type;
@@ -143,9 +141,9 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode, AddF
         DepParameterExpr constr = (DepParameterExpr) visitChild(dep, childtc);
         
         CConstraint c = Types.get(constr.valueConstraint());
-        t = X10TypeMixin.xclause(t, c);
+        t = Types.xclause(t, c);
         if (flags != null) {
-        	t = X10TypeMixin.processFlags(flags, t);
+        	t = Types.processFlags(flags, t);
         	flags = null;
         }
 

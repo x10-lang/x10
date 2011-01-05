@@ -131,7 +131,7 @@ public class When_c extends Stmt_c implements CompoundStmt, When {
 	}
 
 	@Override
-	public Node typeCheck(ContextVisitor tc) throws SemanticException {
+	public Node typeCheck(ContextVisitor tc) {
 	    if (!expr().type().isBoolean()) {
 	        Errors.issue(tc.job(), new SemanticException("The type of the argument of a 'when' statement must be Boolean", position()));
 	    }

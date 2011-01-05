@@ -8,6 +8,8 @@
 
 package polyglot.types;
 
+import x10.types.MethodInstance;
+
 
 /**
  * A <code>MethodInstance</code> represents the type information for a Java

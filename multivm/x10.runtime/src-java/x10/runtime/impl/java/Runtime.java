@@ -52,7 +52,8 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
 		});
 
 		// start and join main x10 thread in place 0
-		x10.lang.Runtime.Worker worker = new x10.lang.Runtime.Worker(this);
+		x10.lang.Runtime.Worker worker = new x10.lang.Runtime.Worker(0);
+		worker.body = this;
 		worker.start();
 		try { worker.join(); } catch (InterruptedException e) {}
 

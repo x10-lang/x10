@@ -25,9 +25,9 @@ public class CUDAUtilities {
      * <code>
      * async at (gpu) {
      *     val threads = CUDAUtilities.autoThreads(), blocks = CUDAUtilities.autoBlocks();
-     *     for ((block) in 0..blocks-1) {
+     *     for ((block) in 0..(blocks-1)) {
      *         ...
-     *         for ((thread) in 0..threads-1) async { ... }
+     *         for ((thread) in 0..(threads-1)) async { ... }
      *     }
      * }
      * </code>
@@ -48,7 +48,7 @@ public class CUDAUtilities {
 
     private static def makeCUDAArray[T] (gpu:Place, numElements:Int, init:IndexedMemoryChunk[T])
       : RemoteArray[T]{self.home==gpu, self.rank()==1} {
-        val reg = 0 .. numElements-1;
+        val reg = 0 .. (numElements-1);
         @Native("c++",
             "x10_ulong addr = x10aux::remote_alloc(gpu.FMGL(id), ((size_t)numElements)*sizeof(FMGL(T)));\n"+
             "RemoteIndexedMemoryChunk<FMGL(T)> rimc(addr, numElements, gpu);\n"+
@@ -73,7 +73,7 @@ public class CUDAUtilities {
     {
         if (place.isCUDA()) {
             val chunk = IndexedMemoryChunk.allocate[T](numElements);
-            for ([i] in 0..numElements-1) chunk(i) = init;
+            for ([i] in 0..(numElements-1)) chunk(i) = init;
             return makeCUDAArray(place, numElements, chunk);
         } else {
             return at (place) new RemoteArray(new Array[T](numElements, init));
@@ -85,7 +85,7 @@ public class CUDAUtilities {
     {
         if (place.isCUDA()) {
             val chunk = IndexedMemoryChunk.allocate[T](numElements);
-            for ([i] in 0..numElements-1) chunk(i) = init(i);
+            for ([i] in 0..(numElements-1)) chunk(i) = init(i);
             return makeCUDAArray(place, numElements, chunk);
         } else {
             return at (place) new RemoteArray(new Array[T](numElements, (p:Int)=>init(p)));

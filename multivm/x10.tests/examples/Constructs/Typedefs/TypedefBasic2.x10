@@ -11,6 +11,8 @@
 
 import harness.x10Test;
 
+// COMPILER_CRASHES: the compiler now crashes on this file.
+
 /**
  * Basic typdefs and type equivalence.
  *

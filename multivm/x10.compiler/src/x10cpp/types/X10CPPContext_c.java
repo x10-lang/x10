@@ -146,8 +146,10 @@ public class X10CPPContext_c extends x10.types.X10Context_c implements Context {
 
     public boolean hasInits = false;
     
-    public ClassifiedStream templateFunctions = null;
+    public ClassifiedStream genericFunctions = null;
+    public ClassifiedStream genericFunctionClosures = null;
     public ClassifiedStream structHeader = null;
+    public ClassifiedStream closures = null;
 
 	public ArrayList<VarInstance<?>> variables = new ArrayList<VarInstance<?>>();
 

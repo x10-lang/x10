@@ -15,6 +15,7 @@ import polyglot.ast.Node;
 import polyglot.ast.StringLit_c;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
+import polyglot.types.Types;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 
@@ -22,7 +23,6 @@ import x10.constraint.XFailure;
 import x10.constraint.XTerm;
 import polyglot.types.Context;
 
-import x10.types.X10TypeMixin;
 import polyglot.types.TypeSystem;
 import x10.types.XTypeTranslator;
 import x10.types.constraints.CConstraint;
@@ -51,7 +51,7 @@ public class X10StringLit_c extends StringLit_c {
 		}
 		catch (XFailure e) {
 		}
-		Type newType = X10TypeMixin.xclause(Type, c);
+		Type newType = Types.xclause(Type, c);
 		return type(newType);
 	}
 

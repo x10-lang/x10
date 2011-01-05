@@ -41,7 +41,7 @@ import x10.extension.X10Del;
 import x10.types.X10ClassDef;
 import polyglot.types.Context;
 import x10.types.ParameterType;
-import x10.types.X10Flags;
+
 import x10.types.X10MethodDef;
 import polyglot.types.TypeSystem;
 import x10.types.checker.PlaceChecker;

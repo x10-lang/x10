@@ -50,7 +50,7 @@ public abstract class Scheduler {
     protected ExtensionInfo extInfo;
 
     /** map used for interning goals. */
-    protected Map<Goal,Goal> internCache = new HashMap<Goal,Goal>();
+    protected Map<Goal,Goal> internCache = new HashMap<Goal,Goal>(); // note that is not a cache in the sense that if you clear it the correctness of the compiler is compromised.
     
     // TODO: remove this, we only need to intern the goal status, not the goal itself.
     // Actually, the lazy ref to the goal status is the goal.  The run() method is the resolver for the lazy ref.
@@ -77,7 +77,7 @@ public abstract class Scheduler {
      */
     protected Map<Source, Option<Job>> jobs;
     
-    protected Collection<Job> commandLineJobs;
+    protected Collection<Job> commandLineJobs = Collections.emptyList();
     
     /** True if any pass has failed. */
     protected boolean failed;
@@ -95,6 +95,12 @@ public abstract class Scheduler {
     
     public Collection<Job> commandLineJobs() {
         return this.commandLineJobs;
+    }
+
+    public Collection<Source> sources;
+    public void clearAll(Collection<Source> sources) {
+        this.sources = sources;
+        setFailed(false);
     }
     
     public void setCommandLineJobs(Collection<Job> c) {

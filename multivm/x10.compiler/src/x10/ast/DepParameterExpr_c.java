@@ -40,7 +40,6 @@ import polyglot.visit.TypeCheckPreparer;
 import polyglot.visit.TypeChecker;
 import x10.errors.Errors;
 import polyglot.types.Context;
-import x10.types.X10TypeMixin;
 import polyglot.types.TypeSystem;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
@@ -215,7 +214,7 @@ public class DepParameterExpr_c extends Node_c implements DepParameterExpr {
 
             if (! t.isBoolean())
                 Errors.issue(tc.job(),
-                        new SemanticError("The type of the constraint "+ e + " must be boolean, not " + t + ".", position()));
+                        new SemanticException("The type of the constraint "+ e + " must be boolean, not " + t + ".", position()));
 
             if (e instanceof Binary) {
                 Binary b = (Binary) e;
@@ -228,7 +227,7 @@ public class DepParameterExpr_c extends Node_c implements DepParameterExpr {
 
             NodeFactory nf = tc.nodeFactory();
             
-            if (X10TypeMixin.isTypeConstraintExpression(e)) {
+            if (Types.isTypeConstraintExpression(e)) {
                 if (types == null)
                     types = e;
                 else

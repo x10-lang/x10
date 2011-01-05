@@ -15,6 +15,7 @@ import polyglot.main.Report;
 import polyglot.main.Version;
 import polyglot.types.*;
 import polyglot.util.*;
+import x10.types.X10ParsedClassType_c;
 
 /**
  * Visitor which serializes class objects and adds a field to the class
@@ -123,11 +124,11 @@ public class ClassSerializer extends NodeVisitor
 
             Position pos = Position.COMPILER_GENERATED;
 
-	    fi = ts.fieldDef(pos, Types.ref(new ParsedClassType_c(cd)),
+	    fi = ts.fieldDef(pos, Types.ref(new X10ParsedClassType_c(cd)),
                                   flags, Types.ref(ts.String()),
                                   Name.make("jlc$CompilerVersion$" + suffix));
             fi.setConstantValue(version);
-            ii = ts.initializerDef(pos, Types.ref(new ParsedClassType_c(cd)), Flags.STATIC);
+            ii = ts.initializerDef(pos, Types.ref(new X10ParsedClassType_c(cd)), Flags.STATIC);
 	    f = nf.FieldDecl(fi.position(), nf.FlagsNode(fi.position(), fi.flags()),
 		             nf.CanonicalTypeNode(fi.position(), fi.type()),
                              nf.Id(fi.position(), fi.name()),
@@ -140,11 +141,11 @@ public class ClassSerializer extends NodeVisitor
 	    /* Add the date of the last source file modification. */
 	    long time = date.getTime();
 
-	    fi = ts.fieldDef(pos, Types.ref(new ParsedClassType_c(cd)),
+	    fi = ts.fieldDef(pos, Types.ref(new X10ParsedClassType_c(cd)),
                                   flags, Types.ref(ts.Long()),
                                   Name.make("jlc$SourceLastModified$" + suffix));
             fi.setConstantValue(new Long(time));
-            ii = ts.initializerDef(pos, Types.ref(new ParsedClassType_c(cd)), Flags.STATIC);
+            ii = ts.initializerDef(pos, Types.ref(new X10ParsedClassType_c(cd)), Flags.STATIC);
 	    f = nf.FieldDecl(fi.position(), nf.FlagsNode(fi.position(), fi.flags()),
 		             nf.CanonicalTypeNode(fi.position(), fi.type()),
                              nf.Id(fi.position(), fi.name()),
@@ -167,11 +168,11 @@ public class ClassSerializer extends NodeVisitor
                 // add an additional suffix to distinguish fields.
                 String additionalFieldSuffix = numberETIFields==0?"":("$" + numberETIFields);
                 String encoded = encodedTypeInfo.substring(etiStart, etiEnd);
-                fi = ts.fieldDef(pos, Types.ref(new ParsedClassType_c(cd)),
+                fi = ts.fieldDef(pos, Types.ref(new X10ParsedClassType_c(cd)),
                                       flags, Types.ref(ts.String()),
                                       Name.make("jlc$ClassType$" + suffix + additionalFieldSuffix));
                 fi.setConstantValue(encoded);
-                ii = ts.initializerDef(pos, Types.ref(new ParsedClassType_c(cd)), Flags.STATIC);
+                ii = ts.initializerDef(pos, Types.ref(new X10ParsedClassType_c(cd)), Flags.STATIC);
 
                 f = nf.FieldDecl(fi.position(), nf.FlagsNode(fi.position(), fi.flags()),
                                  nf.CanonicalTypeNode(fi.position(), fi.type()),

@@ -11,6 +11,7 @@
 
 package x10.core.fun;
 
+import x10.rtt.FunType;
 import x10.rtt.RuntimeType;
 import x10.rtt.RuntimeType.Variance;
 import x10.rtt.Type;
@@ -18,7 +19,7 @@ import x10.rtt.Type;
 public interface Fun_0_5<T1,T2,T3,T4,T5,U> extends Fun {
     U apply(T1 o1, Type t1, T2 o2, Type t2, T3 o3, Type t3, T4 o4, Type t4, T5 o5, Type t5);
     
-    public static final RuntimeType<Fun_0_5<?,?,?,?,?,?>> _RTT = new RuntimeType<Fun_0_5<?,?,?,?,?,?>>(
+    public static final RuntimeType<Fun_0_5<?,?,?,?,?,?>> _RTT = new FunType<Fun_0_5<?,?,?,?,?,?>>(
         Fun_0_5.class,
         new RuntimeType.Variance[] {
             Variance.CONTRAVARIANT,
@@ -28,10 +29,5 @@ public interface Fun_0_5<T1,T2,T3,T4,T5,U> extends Fun {
             Variance.CONTRAVARIANT,
             Variance.COVARIANT
         }
-    ) {
-        @Override
-        public String typeName(Object o) {
-            return typeNameForFun(o);
-        }
-    };
+    );
 }
