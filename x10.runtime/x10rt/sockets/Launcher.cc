@@ -415,10 +415,24 @@ void Launcher::handleRequestsLoop(bool onlyCheckForNewConnections)
 			_returncode = WEXITSTATUS(status);
 		}
 	}
-	// we shouldn't have to worry about zombies, because when we exit, init will take out any zombies for us.  Skipping the wait for them lets us exit sooner.
 
 	// shut down any connections if they still exist
 	handleDeadParent();
+
+	// take out any zombies
+	for (uint32_t i = 0; i <= _numchildren; i++)
+	{
+		if (_pidlst[i] != -1)
+		{
+			// these were all sent a SIGTERM up above, and should be dead by now
+			if (waitpid(_pidlst[i], NULL, WNOHANG) != _pidlst[i])
+			{
+				kill(_pidlst[i], SIGKILL);
+				waitpid(_pidlst[i], NULL, 0);
+			}
+			_pidlst[i] = -1;
+		}
+	}
 
 	// free up allocated memory (not really needed, since we're about to exit)
 	free(_hostlist);
