@@ -358,6 +358,10 @@ public class Closure_c extends Expr_c implements Closure {
 			}
 		}
 
+		if (child == body && offerType != null && offerType.typeRef().known()) {
+		    c = c.pushCollectingFinishScope(offerType.type());
+		}
+
 		return super.enterChildScope(child, c);
 	}
 
