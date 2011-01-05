@@ -38,7 +38,6 @@ struct x10rtCallback
 
 struct x10rt_pami_header
 {
-	pami_endpoint_t origin;
 	x10rt_msg_type type;
     void *data_ptr; // pointer is valid only at the origin
     uint32_t data_len;
@@ -162,7 +161,7 @@ static void local_get_dispatch (
 	#ifdef DEBUG
 		fprintf(stderr, "Place %lu processing GET message %i\n", state.myPlaceId, mp.type);
 		fprintf (stderr, ">> 'send' dispatch function.  cookie = %p (_done: %zu), header_size = %zu, pipe_size = %zu, recv = %p\n", cookie, *value, header_size, pipe_size, recv);
-		fprintf (stderr, "   'send' dispatch function.  header->origin = 0x%08x, header->dst = %p\n", header->origin, header->data_ptr);
+		fprintf (stderr, "   'send' dispatch function.  origin = 0x%08x, header->dst = %p\n", origin, header->data_ptr);
 	#endif
 
 	finderCallback fcb = state.callBackTable[mp.type].finder;
@@ -170,12 +169,13 @@ static void local_get_dispatch (
 	if (src == NULL)
 		error("invalid buffer provided for the source of a GET");
 
+	volatile unsigned put_active = 1;
 	pami_put_simple_t parameters;
 	memset(&parameters, 0, sizeof (parameters));
-	parameters.rma.dest    = header->origin;
+	parameters.rma.dest    = origin;
 	parameters.rma.hints   = state.standardHints;
 	parameters.rma.bytes   = header->data_len;
-	parameters.rma.cookie  = cookie;
+	parameters.rma.cookie  = (void *) &put_active;
 	parameters.rma.done_fn = cookie_decrement;
 	parameters.addr.local  = src;
 	parameters.addr.remote = header->data_ptr;
@@ -183,7 +183,7 @@ static void local_get_dispatch (
 		error("Error sending data for GET response");
 	fprintf (stderr, "<< 'send' dispatch function.\n");
 
-	while (cookie)
+	while (put_active)
 		PAMI_Context_advance(state.context[0], 100);
 
 	notifierCallback ncb = state.callBackTable[mp.type].notifier;
@@ -226,7 +226,7 @@ static void local_put_dispatch (
 	#ifdef DEBUG
 		fprintf(stderr, "Place %lu processing PUT message %i\n", state.myPlaceId, mp.type);
 		fprintf (stderr, ">> 'put' dispatch function.  cookie = %p (value: %zu), header_size = %zu, pipe_size = %zu, recv = %p\n", cookie, *value, header_size, pipe_size, recv);
-		fprintf (stderr, "   'put' dispatch function.  rts->origin = 0x%08x, rts->bytes = %zu, rts->source = %p\n", header->origin, header->data_len, header->data_ptr);
+		fprintf (stderr, "   'put' dispatch function.  origin = 0x%08x, rts->bytes = %zu, rts->source = %p\n", origin, header->data_len, header->data_ptr);
 	#endif
 
 	finderCallback fcb = state.callBackTable[mp.type].finder;
@@ -234,11 +234,12 @@ static void local_put_dispatch (
 	if (dest == NULL)
 		error("invalid buffer provided for a PUT");
 
+	volatile unsigned get_active = 1;
 	pami_get_simple_t parameters;
-	parameters.rma.dest    = header->origin;
+	parameters.rma.dest    = origin;
 	parameters.rma.hints   = state.standardHints;
 	parameters.rma.bytes   = header->data_len;
-	parameters.rma.cookie  = cookie;
+	parameters.rma.cookie  = (void *) &get_active;
 	parameters.rma.done_fn = cookie_decrement;
 	parameters.addr.local  = dest;
 	parameters.addr.remote = header->data_ptr;
@@ -246,7 +247,7 @@ static void local_put_dispatch (
 		error("Error sending data for PUT response");
 	fprintf (stderr, "<< 'put' dispatch function.\n");
 
-	while (cookie)
+	while (get_active)
 		PAMI_Context_advance(state.context[0], 100);
 
 	notifierCallback ncb = state.callBackTable[mp.type].notifier;
@@ -445,9 +446,6 @@ void x10rt_net_send_put (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
 		fprintf(stderr, "Preparing to send a PUT message from place %lu to %lu\n", state.myPlaceId, p->dest_place);
 	#endif
 
-	if ((status = PAMI_Endpoint_create(state.client, state.myPlaceId, 0, &header.origin)) != PAMI_SUCCESS)
-		error("Unable to create an origin endpoint for sending a PUT message from %u to %u: %i\n", state.myPlaceId, p->dest_place, status);
-
 	if ((status = PAMI_Endpoint_create(state.client, p->dest_place, 0, &target)) != PAMI_SUCCESS)
 		error("Unable to create a target endpoint for sending a PUT message from %u to %u: %i\n", state.myPlaceId, p->dest_place, status);
 
@@ -494,8 +492,6 @@ void x10rt_net_send_get (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
 	#ifdef DEBUG
 		fprintf(stderr, "Preparing to send a GET message from place %lu to %lu\n", state.myPlaceId, p->dest_place);
 	#endif
-	if ((status = PAMI_Endpoint_create(state.client, state.myPlaceId, 0, &header.origin)) != PAMI_SUCCESS)
-		error("Unable to create an origin endpoint for sending a GET message from %u to %u: %i\n", state.myPlaceId, p->dest_place, status);
 
 	if ((status = PAMI_Endpoint_create(state.client, p->dest_place, 0, &target)) != PAMI_SUCCESS)
 		error("Unable to create a target endpoint for sending a GET message from %u to %u: %i\n", state.myPlaceId, p->dest_place, status);
@@ -559,10 +555,10 @@ void x10rt_net_probe()
 //			error("Unable to unlock context");
 		sched_yield();
 	}
-#ifdef DEBUG
-	else if (status == PAMI_SUCCESS)
-		fprintf(stderr, "Place %lu finished advancing a context\n", state.myPlaceId);
-#endif
+//#ifdef DEBUG
+//	else if (status == PAMI_SUCCESS)
+//		fprintf(stderr, "Place %lu finished advancing a context\n", state.myPlaceId);
+//#endif
 //	else if ((status = PAMI_Context_unlock(state.context[0])) != PAMI_SUCCESS)
 //		error("Unable to unlock context");
 }
