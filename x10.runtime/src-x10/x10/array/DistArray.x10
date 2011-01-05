@@ -100,6 +100,31 @@ public class DistArray[T] (
     public static def make[T](dist:Dist) {T haszero} = new DistArray[T](dist);
 
     // TODO: consider making this constructor public
+    def this(dist: Dist) {T haszero} : DistArray[T]{self.dist==dist} {
+        property(dist);
+
+        val plsInit:()=>LocalState[T] = () => {
+            val localRaw = IndexedMemoryChunk.allocate[T](dist.maxOffset()+1, true);
+	    return new LocalState(localRaw);
+        };
+
+        localHandle = PlaceLocalHandle.make[LocalState[T]](dist, plsInit);
+    }
+
+
+    /**
+     * Create a distributed array over the argument distribution whose elements
+     * are initialized by executing the given initializer function for each 
+     * element of the array in the place where the argument Point is mapped.
+     *
+     * @param dist the given distribution
+     * @param init the initializer function
+     * @return the newly created DistArray
+     * @see #make[T](Dist)
+     */
+    public static def make[T](dist:Dist, init:(Point(dist.rank))=>T)= new DistArray[T](dist, init);
+
+    // TODO: consider making this constructor public
     def this(dist:Dist, init:(Point(dist.rank))=>T):DistArray[T]{self.dist==dist} {
         property(dist);
 
@@ -117,31 +142,6 @@ public class DistArray[T] (
         localHandle = PlaceLocalHandle.make[LocalState[T]](dist, plsInit);
     }
 
-
-
-    /**
-     * Create a distributed array over the argument distribution whose elements
-     * are initialized by executing the given initializer function for each 
-     * element of the array in the place where the argument Point is mapped.
-     *
-     * @param dist the given distribution
-     * @param init the initializer function
-     * @return the newly created DistArray
-     * @see #make[T](Dist)
-     */
-    public static def make[T](dist:Dist, init:(Point(dist.rank))=>T)= new DistArray[T](dist, init);
-
-    // TODO: consider making this constructor public
-    def this(dist: Dist) {T haszero} : DistArray[T]{self.dist==dist} {
-        property(dist);
-
-        val plsInit:()=>LocalState[T] = () => {
-            val localRaw = IndexedMemoryChunk.allocate[T](dist.maxOffset()+1, true);
-	    return new LocalState(localRaw);
-        };
-
-        localHandle = PlaceLocalHandle.make[LocalState[T]](dist, plsInit);
-    }
 
 
     public final operator this(pt:Point(rank)): T {
