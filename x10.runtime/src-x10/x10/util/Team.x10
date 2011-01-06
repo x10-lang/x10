@@ -68,7 +68,7 @@ public struct Team {
     public def size () : Int = nativeSize(id);
 
     private static def nativeSize (id:Int) : Int {
-    	@Native("java", "return x10.core.ThrowableUtilities.<java.lang.Integer> UnsupportedOperationException(\"x10.util.Team.nativeSize(Int):Int\");")
+    	@Native("java", "return x10.core.ThrowableUtilities.UnsupportedOperationExceptionInt(\"x10.util.Team.nativeSize(Int):Int\");")
         @Native("c++", "return (x10_int)x10rt_team_sz(id);") { return -1; }
     }
 
