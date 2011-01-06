@@ -34,7 +34,7 @@ public class StaticFunType<T> extends RuntimeType<T> {
     public String typeName(Object o) {
         // Note: assume that the first parent in this RuntimeType is the parameterized type which corresponds to the function type
         assert o instanceof x10.core.fun.Fun;
-        return ((x10.rtt.ParameterizedType<?>) getParents()[0]).typeNameForFun();
+        return ((x10.rtt.ParameterizedType<?>) getParents()[0]).typeNameForFun(o);
     }
 
 }
