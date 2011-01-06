@@ -3370,6 +3370,18 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         }
 
         public void visit(X10CBackingArrayNewArray_c n) {
+            Type base = ((JavaArrayType) n.type()).base();
+            if (base instanceof ParameterType) {
+                w.write("(");
+                er.printType(n.type(), 0);
+                w.write(")");
+                w.write(" ");
+                new RuntimeTypeExpander(er, base).expand();
+                w.write(".makeArray(");
+                w.write(n.dims().get(0).toString());
+                w.write(")");
+                return;
+            }
             w.write("new ");
             er.printType(((JavaArrayType)n.type()).base(), 0);
             for (Expr dim : n.dims()) {
