@@ -54,7 +54,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
 	 * Body of main x10 thread
 	 */
 	public void apply() {
-		try { Class.forName("x10.lang.Place"); } catch (ClassNotFoundException e) { }
+//		try { Class.forName("x10.lang.Place"); } catch (ClassNotFoundException e) { }
 
 		// preload classes by default
 		if (!Boolean.getBoolean("x10.NO_PRELOAD_CLASSES")) {
@@ -115,6 +115,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
             });
         } catch (java.lang.Throwable t) {
             t.printStackTrace();
+            setExitCode(1);
         }
 	}
 
