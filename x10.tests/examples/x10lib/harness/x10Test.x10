@@ -151,12 +151,7 @@ abstract public class x10Test {
 
         public final def equals[T](a:T, b:T):Boolean {
           if (a == b) return true;
-          if (T <: Object) {
-             val aa = a as Object;
-             val bb = b as Object;
-             if (aa == null || bb == null) return false;
-          }
-          //if (a == null || b == null) return false;
+          if ((a as Any) == null || (b as Any) == null) return false;
           return a.equals(b);
         }
 
