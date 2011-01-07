@@ -26,11 +26,11 @@ public class XTENLANG_2297 extends x10Test {
     }
     
     public static def main(Array[String](1)) {
-        new XTENLANG_2290().execute();
+        new XTENLANG_2297().execute();
     }
 }
 
-public class clogua {
+class clogua {
   public static def main(argv:Array[String](1)) {
     val n = 3;
 // : (x:Int){x != n} => Int  
