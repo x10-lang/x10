@@ -24,16 +24,10 @@ import x10.config.OptionError;
  */
 public final class Configuration extends x10.config.Configuration {
 
-    /**
-     * The error received when attempting to load the configuration from
-     * the specified resource, or null if successful.
-     */
-    public static final ConfigurationError LOAD_ERROR;
-
-    public static String MAIN_STUB_NAME = "xxx_main_xxx";
+    public String MAIN_STUB_NAME = "xxx_main_xxx";
     private static final String MAIN_STUB_NAME_desc = "The name for the main invocation stub file";
 
-    public static boolean VIM_MODELINE = true;
+    public boolean VIM_MODELINE = true;
     private static final String VIM_MODELINE_desc = "Generate a modeline (formatting instructions) for VIm";
 
 	/**
@@ -46,11 +40,11 @@ public final class Configuration extends x10.config.Configuration {
 	 * @throws ConfigurationError if there was a problem processing the argument
 	 */
 	public void parseArgument(String arg) throws OptionError, ConfigurationError {
-		parseArgument(Configuration.class, arg);
+		parseArgument(this, Configuration.class, arg);
 	}
 
 	public Object get(String key) throws ConfigurationError, OptionError {
-	    return get(Configuration.class, key);
+	    return get(this, Configuration.class, key);
 	}
 
 	/**
@@ -60,17 +54,12 @@ public final class Configuration extends x10.config.Configuration {
 		return options(Configuration.class);
 	}
 
-	static {
-		String cfg = getConfigurationResource();
-		ConfigurationError loadError = null;
-		try {
-			readConfiguration(Configuration.class, cfg);
-		} catch (ConfigurationError err) {
-			System.err.println("Failed to read configuration file " + cfg + ": " + err);
-			System.err.println("Using defaults");
-			loadError = err;
-		}
-		LOAD_ERROR = loadError;
+	public Configuration() {
+	    super(Configuration.class);
+	}
+	
+	public Configuration(String cfg) {
+	    super(Configuration.class, cfg);
 	}
 }
 
