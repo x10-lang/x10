@@ -81,7 +81,7 @@ class AAA extends AA{
 class AAAA extends AAA{
 	
 	public def foo(){
-		//set(-1);
+		set(-1); //dead code, need transform, too
 	}
 	
     public def set(v:int):int{

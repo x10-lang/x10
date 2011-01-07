@@ -10,34 +10,35 @@
  */
 
 /*
- * Test closure with concurrent method call. Cannot pass WS Compile.
+ * Test closure with concurrent construct.
+ * Closure is in the class.
  */
-public class ConcurrentClosure2_MustFailCompile {
+public class ConcurrentClosure4 {
 	
 	var value:int;
 	
 	public def this(){
 	}
 	
-	public def foo(i:int):int{
+	val f = (i:int) => {
 		var result:int = 0;
 		finish {
 			async result = i;
 		}
 		return result;
-	}
+	};
 	
 	public def run():boolean {
-		val f:(int)=>int = (i:int) => foo(i);
-
-		value = f(1);
 		
-		Console.OUT.println("ConcurrentClosure2: value = " + value);
-		return true;
+		val result = f(1);
+		value = result;
+		
+		Console.OUT.println("ConcurrentClosure4: value = " + value);
+		return value == 1;
 	}
 	
 	public static def main(Array[String](1)) {
-        val r = new ConcurrentClosure2_MustFailCompile().run();
+        val r = new ConcurrentClosure4().run();
         if(r){
              x10.io.Console.OUT.println("++++++Test succeeded.");
         }
