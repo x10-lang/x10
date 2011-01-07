@@ -2660,7 +2660,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	}
 
 	public void visit(StmtExpr_c n) {
-	    if (!Configuration.ALLOW_STATEMENT_EXPRESSIONS) {
+	    X10CPPCompilerOptions opts = (X10CPPCompilerOptions) tr.job().extensionInfo().getOptions();
+	    if (!opts.x10_config.ALLOW_STATEMENT_EXPRESSIONS) {
 	        tr.job().compiler().errorQueue().enqueue(ErrorInfo.SEMANTIC_ERROR,
 	                "Statement expression node encountered, but statement expressions are disabled: ", n.position());
 	    }
@@ -3703,7 +3704,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		TypeSystem xts = tr.typeSystem();
 		Expr domain = n.domain();
 		Type dType = domain.type();
-		if (Configuration.LOOP_OPTIMIZATIONS &&
+		X10CPPCompilerOptions opts = (X10CPPCompilerOptions) tr.job().extensionInfo().getOptions();
+		if (opts.x10_config.LOOP_OPTIMIZATIONS &&
 		        form.hasExplodedVars() && form.isUnnamed() && xts.isPoint(form.type().type()) &&
 		        (Types.toConstrainedType(dType).isRect(context)) &&
 		        (xts.isX10Array(dType) || xts.isX10DistArray(dType) || xts.isDistribution(dType) || xts.isRegion(dType)))
@@ -4451,7 +4453,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	}
 
 	private boolean inlineClosureCall(ClosureCall_c c, Closure_c closure, List<Expr> args) {
-	    if (!Configuration.ALLOW_STATEMENT_EXPRESSIONS)
+	    X10CPPCompilerOptions opts = (X10CPPCompilerOptions) tr.job().extensionInfo().getOptions();
+	    if (!opts.x10_config.ALLOW_STATEMENT_EXPRESSIONS)
 	        return false;   // Closure inlining disabled
 
 	    // Ensure that the last statement of the body is the only return in the closure
@@ -4915,7 +4918,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		    sw.writeln(", "+(count++)+");");
 		}
 		sw.write(tmp);
-		if (!Configuration.ALLOW_STATEMENT_EXPRESSIONS) {
+		X10CPPCompilerOptions opts = (X10CPPCompilerOptions) tr.job().extensionInfo().getOptions();
+		if (!opts.x10_config.ALLOW_STATEMENT_EXPRESSIONS) {
 		    // FIXME: HACK around a compiler bug in GCC 4.1
 		    sw.write(".operator->()");
 		}

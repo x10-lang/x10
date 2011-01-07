@@ -51,6 +51,7 @@ import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.Configuration;
+import x10.X10CompilerOptions;
 import x10.ast.Closure;
 import x10.ast.DepParameterExpr;
 import x10.ast.ParExpr;
@@ -519,7 +520,8 @@ public class Desugarer extends ContextVisitor {
         Type ot = tn.type();
         DepParameterExpr depClause = getClause(tn);
         tn = stripClause(tn);
-        if (depClause == null || Configuration.NO_CHECKS)
+        X10CompilerOptions opts = (X10CompilerOptions) job.extensionInfo().getOptions();
+        if (depClause == null || opts.x10_config.NO_CHECKS)
             return n.castType(tn);
         Name xn = getTmp();
         Type t = tn.type(); // the base type of the cast

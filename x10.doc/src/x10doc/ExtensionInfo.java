@@ -36,6 +36,7 @@ public class ExtensionInfo extends x10.ExtensionInfo {
 			super(extInfo);
 		}
 
+		@Override
 		public ExtensionInfo extensionInfo() {
 			return (ExtensionInfo) this.extInfo;
 		}

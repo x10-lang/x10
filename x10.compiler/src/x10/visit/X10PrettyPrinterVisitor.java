@@ -107,6 +107,7 @@ import polyglot.visit.InnerClassRemover;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.Translator;
 import x10.Configuration;
+import x10.X10CompilerOptions;
 import x10.ast.AssignPropertyCall_c;
 import x10.ast.Async_c;
 import x10.ast.AtEach_c;
@@ -1042,7 +1043,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		if (subtypeOfCustomSerializer(def)) {
             er.generateCustomSerializer(def, n);
         } else {
-            if (!def.flags().isInterface() && !x10.Configuration.NO_TRACES) {
+            X10CompilerOptions opts = (X10CompilerOptions) tr.job().extensionInfo().getOptions();
+            if (!def.flags().isInterface() && !opts.x10_config.NO_TRACES) {
                 // override to trace serialization
                 w.write("private void writeObject(java.io.ObjectOutputStream oos) throws java.io.IOException { ");
                 w.write("if (x10.runtime.impl.java.Runtime.TRACE_SER) { ");
@@ -2657,7 +2659,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
 		/* TODO: case: for (point p:D) -- discuss with vj */
 		/* handled cases: exploded syntax like: for (point p[i,j]:D) and for (point [i,j]:D) */
-		if (Configuration.LOOP_OPTIMIZATIONS && form.hasExplodedVars() 
+		X10CompilerOptions opts = (X10CompilerOptions) tr.job().extensionInfo().getOptions();
+		if (opts.x10_config.LOOP_OPTIMIZATIONS && form.hasExplodedVars() 
 				&& (ts.isSubtype(f.domain().type(), ts.Region(), context) 
 						|| ts.isSubtype(f.domain().type(), ts.Dist(), context)) 
 				&& Types.toConstrainedType(f.domain().type()).isRect(context)) {

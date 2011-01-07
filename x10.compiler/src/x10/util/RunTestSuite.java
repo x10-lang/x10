@@ -1,7 +1,6 @@
 package x10.util;
 
 import polyglot.frontend.Compiler;
-import polyglot.frontend.Globals;
 import polyglot.types.Types;
 import polyglot.util.ErrorQueue;
 import polyglot.util.SilentErrorQueue;
@@ -21,6 +20,7 @@ import java.util.Iterator;
 
 import x10.parser.AutoGenSentences;
 import x10.Configuration;
+import x10.X10CompilerOptions;
 
 /**
  * This program reads a bunch of x10 files and runs the front end on them,
@@ -200,22 +200,25 @@ public class RunTestSuite {
     private static int count(String s, String sub) {
         final int len = sub.length();
         int index=-len, res=0;
-        while ((index=s.indexOf(sub,index+ len))>=0) res++;
+        while ((index=s.indexOf(sub,index+len))>=0) res++;
         return res;
     }
     public static ArrayList<ErrorInfo> runCompiler(String[] newArgs) {
-        return runCompiler(newArgs,false);
+        return runCompiler(newArgs,false,false);
     }
 
     private static SilentErrorQueue errQueue = new SilentErrorQueue(MAX_ERR_QUEUE,"TestSuiteErrQueue");
     private static Main MAIN = new Main();
     private static Compiler COMPILER;
-    public static ArrayList<ErrorInfo> runCompiler(String[] newArgs, boolean COMPILER_CRASHES) {
+    public static ArrayList<ErrorInfo> runCompiler(String[] newArgs, boolean COMPILER_CRASHES, boolean STATIC_CALLS) {
         errQueue.getErrors().clear();
         HashSet<String> sources = new HashSet<String>();
         final Compiler comp = MAIN.getCompiler(newArgs, null, errQueue, sources);
         if (SEPARATE_COMPILER || COMPILER==null)
             COMPILER = comp;
+        X10CompilerOptions opts = (X10CompilerOptions) COMPILER.sourceExtension().getOptions();
+        opts.x10_config.STATIC_CALLS = STATIC_CALLS;
+        opts.x10_config.VERBOSE_CALLS = !STATIC_CALLS;
         long start = System.currentTimeMillis();
         Throwable err = null;
         try {
@@ -288,9 +291,7 @@ public class RunTestSuite {
     }
     private static void compileFile(FileSummary summary, List<String> args) throws IOException {
 
-
         boolean STATIC_CALLS = summary.STATIC_CALLS; // all the files without ERR markers are done in my batch, using STATIC_CALLS (cause they shouldn't have any errors)
-
 
         // Now running polyglot
         List<String> allArgs = new ArrayList<String>();
@@ -298,11 +299,9 @@ public class RunTestSuite {
         allArgs.addAll(args);
         String[] newArgs = allArgs.toArray(new String[allArgs.size()+2]);
         newArgs[newArgs.length-2] = STATIC_CALLS ? "-STATIC_CALLS" : "-VERBOSE_CALLS";
-        newArgs[newArgs.length-1] = !STATIC_CALLS ? "-STATIC_CALLS=false" : "-VERBOSE_CALLS=false";
-        Configuration.STATIC_CALLS = STATIC_CALLS;
-        Configuration.VERBOSE_CALLS = !STATIC_CALLS;
+        newArgs[newArgs.length-1] = STATIC_CALLS ? "-VERBOSE_CALLS=false" : "-STATIC_CALLS=false";
         println("Running: "+ summary.fileName);
-        ArrayList<ErrorInfo> errors = runCompiler(newArgs, summary.COMPILER_CRASHES);
+        ArrayList<ErrorInfo> errors = runCompiler(newArgs, summary.COMPILER_CRASHES, STATIC_CALLS);
         // remove GOOD_ERR_MARKERS  and EXPECTED_ERR_MARKERS
         for (Iterator<ErrorInfo> it = errors.iterator(); it.hasNext(); ) {
             ErrorInfo info = it.next();

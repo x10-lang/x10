@@ -148,7 +148,7 @@ public class CXXCommandBuilder {
         cxxCmd.add("-I"+options.output_directory);
         cxxCmd.add("-I.");
 
-        if (x10.Configuration.OPTIMIZE) {
+        if (options.x10_config.OPTIMIZE) {
             cxxCmd.add(USE_XLC ? "-O3" : "-O2");
             cxxCmd.add(USE_XLC ? "-qinline" : "-finline-functions");
             cxxCmd.add("-DNO_TRACING");
@@ -174,7 +174,7 @@ public class CXXCommandBuilder {
             // cxxCmd.add("-Wreturn-type");         // Do warn about non-void functions with no return
         }
 
-        if (x10.Configuration.NO_CHECKS) {
+        if (options.x10_config.NO_CHECKS) {
             cxxCmd.add("-DNO_CHECKS");
         }
 
@@ -206,8 +206,8 @@ public class CXXCommandBuilder {
         File exe = null;
         if (options.executable_path != null) {
             exe = new File(options.executable_path);
-        } else if (Configuration.MAIN_CLASS != null) {
-            exe = new File(options.output_directory, Configuration.MAIN_CLASS);
+        } else if (options.x10_config.MAIN_CLASS != null) {
+            exe = new File(options.output_directory, options.x10_config.MAIN_CLASS);
         } else {
             return;
         }
@@ -249,7 +249,7 @@ public class CXXCommandBuilder {
 
         HashSet<String> exclude = new HashSet<String>();
         try {
-            String manifest = x10.Configuration.MANIFEST;
+            String manifest = options.x10_config.MANIFEST;
             if (manifest == null) {
                 for (int i = 0; i < MANIFEST_LOCATIONS.length; i++) {
                     File x10lang_m = new File(MANIFEST_LOCATIONS[i]+"/"+MANIFEST);

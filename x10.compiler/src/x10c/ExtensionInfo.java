@@ -58,13 +58,22 @@ public class ExtensionInfo extends x10.ExtensionInfo {
     }
 
     @Override
-    protected Options createOptions() {
+    protected X10CCompilerOptions createOptions() {
         return new X10CCompilerOptions(this);
+    }
+
+    public X10CCompilerOptions getOptions() {
+        return (X10CCompilerOptions) super.getOptions();
     }
 
     public static class X10CScheduler extends X10Scheduler {
         public X10CScheduler(ExtensionInfo extInfo) {
             super(extInfo);
+        }
+
+        @Override
+        public ExtensionInfo extensionInfo() {
+            return (ExtensionInfo) this.extInfo;
         }
 
         @Override

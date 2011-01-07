@@ -71,6 +71,7 @@ import polyglot.util.Position;
 import polyglot.util.StringUtil;
 import polyglot.visit.Translator;
 import x10.Configuration;
+import x10.X10CompilerOptions;
 import x10.ast.ClosureCall;
 import x10.ast.Closure_c;
 import x10.ast.DepParameterExpr;
@@ -398,8 +399,8 @@ public class Emitter {
 		dumpRegex("internal", components, tr, regex);
 	}
 
-	public void dumpRegex(String id, Object[] components, Translator tr,
-			String regex) {
+	public void dumpRegex(String id, Object[] components, Translator tr, String regex) {
+		X10CompilerOptions opts = (X10CompilerOptions) tr.job().extensionInfo().getOptions();
 		for (int i = 0; i < components.length; i++) {
 			assert !(components[i] instanceof Object[]);
 		}
@@ -438,7 +439,7 @@ public class Emitter {
 			    String optionName = regex.substring(pos + 1, endpos);
 			    Object optionValue = null;
 			    try {
-			        optionValue = Configuration.get(Configuration.class, optionName);
+			        optionValue = opts.x10_config.get(optionName);
 			    } catch (ConfigurationError e) {
 			        throw new InternalCompilerError("Unable to read `" + optionName + "` in template '" + id + "'", e);
 			    } catch (OptionError e) {
@@ -2850,19 +2851,20 @@ public class Emitter {
     }
 
 	public void generateCustomSerializer(X10ClassDef def, X10ClassDecl_c n) {
+	    X10CompilerOptions opts = (X10CompilerOptions) tr.job().extensionInfo().getOptions();
 	    String fieldName = "__serialdata";
 	    w.write("// custom serializer");
 	    w.newline();
         w.write("private transient x10.io.SerialData " + fieldName + ";");
         w.newline();
         w.write("private Object writeReplace() { ");
-        if (!x10.Configuration.NO_TRACES) {
+        if (!opts.x10_config.NO_TRACES) {
             w.write("if (x10.runtime.impl.java.Runtime.TRACE_SER) { ");
             w.write("java.lang.System.out.println(\"Serializer: serialize() of \" + this + \" calling\"); ");
             w.write("} ");
         }
         w.write(fieldName + " = serialize(); ");
-        if (!x10.Configuration.NO_TRACES) {
+        if (!opts.x10_config.NO_TRACES) {
             w.write("if (x10.runtime.impl.java.Runtime.TRACE_SER) { ");
             w.write("java.lang.System.out.println(\"Serializer: serialize() of \" + this + \" returned \" + " + fieldName + "); ");
             w.write("} ");

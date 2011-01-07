@@ -78,6 +78,7 @@ import polyglot.util.Pair;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
+import x10.X10CompilerOptions;
 import x10.ast.Closure;
 import x10.ast.ClosureCall;
 import x10.ast.ParExpr;
@@ -204,7 +205,8 @@ public class StaticInitializer extends ContextVisitor {
             MethodDecl md = null; 
             if (fieldInfo.right != null) {
                 FieldDecl fdPLH = null;
-                if (!x10.Configuration.MULTI_NODE) {
+                X10CompilerOptions opts = (X10CompilerOptions) job.extensionInfo().getOptions();
+                if (!opts.x10_config.MULTI_NODE) {
                     // create PlaceLocalHandle for SingleVM MultiPlace support
                     fdPLH = makeFieldVar4PLH(CG, fName, classDef);
                     classDef.addField(fdPLH.fieldDef());
@@ -398,10 +400,11 @@ public class StaticInitializer extends ContextVisitor {
                     X10ConstructorInstance ci = neu.constructorInstance();
                     // get declaration of constructor
                     X10ConstructorDecl cdecl = getConstructorDeclaration(ci);
+                    X10CompilerOptions opts = (X10CompilerOptions) job.extensionInfo().getOptions();
                     if (cdecl != null && checkProcedureBody(cdecl.body(), 0))
                         // constructor include static field references to be replaced
                         found.set(true);
-                    else if (!x10.Configuration.MULTI_NODE && checkMultiplexRequiredSingleVM(ci)) {
+                    else if (!opts.x10_config.MULTI_NODE && checkMultiplexRequiredSingleVM(ci)) {
                         found.set(true);
                     }
                 }

@@ -20,10 +20,7 @@ import x10.config.OptionError;
  * configure the compiler, for example in order to tune performance
  * of the generated code.
  *
- * @see x10.runtime.util.Configuration
- *
- * @author Christian Grothoff
- * @author Igor Peshansky
+ * @see x10.config.Configuration
  */
 public final class Configuration extends x10.config.Configuration {
 
@@ -48,16 +45,18 @@ public final class Configuration extends x10.config.Configuration {
 	 * @throws OptionError if the argument is not recognized
 	 * @throws ConfigurationError if there was a problem processing the argument
 	 */
-	public static void parseArgument(String arg)
-		throws OptionError, ConfigurationError
-	{
+	public void parseArgument(String arg) throws OptionError, ConfigurationError {
 		parseArgument(Configuration.class, arg);
+	}
+
+	public Object get(String key) throws ConfigurationError, OptionError {
+	    return get(Configuration.class, key);
 	}
 
 	/**
 	 * Return an array of (option,description) pairs.
 	 */
-	public static String[][] options() {
+	public String[][] options() {
 		return options(Configuration.class);
 	}
 
