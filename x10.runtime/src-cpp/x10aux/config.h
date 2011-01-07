@@ -29,7 +29,6 @@
  *   TRACE_REF         - trace reference operations
  *   TRACE_CAST        - trace casts
  *   TRACE_ENV_VAR     - turn on support for the tracing variables listed below
- *   REF_STRIP_TYPE    - experimental option: erase the exact content type in references
  *
  * Note, tracing is not actually enabled unless the following environment variables are defined:
  *   X10_TRACE_ALLOC       - trace allocation operations
