@@ -390,39 +390,23 @@ void Launcher::handleRequestsLoop(bool onlyCheckForNewConnections)
 	/* --------------------------------------------- */
 	//cleanup:
 
-	#ifdef DEBUG
-		fprintf(stderr, "Launcher %u: killing sub-processes\n", _myproc);
-	#endif
-
-	for (uint32_t i = 0; i <= _numchildren; i++)
-	{
-		if (_pidlst[i] != -1)
-		{
-			#ifdef DEBUG
-				fprintf(stderr, "Launcher %u: killing pid=%d\n", _myproc, _pidlst[i]);
-			#endif
-			kill(_pidlst[i], SIGTERM);
-		}
-	}
-
 	// save the return code for place 0.
-	while ((_myproc==0 || _myproc==0xFFFFFFFF) && _returncode == (int)0xDEADBEEF)
+	while ((_myproc==0 || _myproc==0xFFFFFFFF) && _pidlst[_numchildren] != -1)
 	{
-		int status;
-		if (waitpid(_pidlst[_numchildren], &status, WNOHANG) == _pidlst[_numchildren])
+	    int status;
+ 		if (waitpid(_pidlst[_numchildren], &status, WNOHANG) == _pidlst[_numchildren])
 		{
-			if (WEXITSTATUS(status) != 0)
-				fprintf(stderr, "Launcher %d: non-zero return code from local runtime (pid=%d), status=%d (previous stored status=%d)\n", _myproc, _pidlst[_numchildren], WEXITSTATUS(status), WEXITSTATUS(_returncode));
-			_returncode = WEXITSTATUS(status);
 			_pidlst[_numchildren] = -1;
+			if (WEXITSTATUS(status) != 0)
+				fprintf(stderr, "Launcher %d: Non-zero return code from local runtime (pid=%d), status=%d (previous stored status=%d)\n", _myproc, _pidlst[_numchildren], WEXITSTATUS(status), WEXITSTATUS(_returncode));
+			_returncode = WEXITSTATUS(status);
 		}
 	}
-	// we shouldn't have to worry about zombies, because when we exit, init will take out any zombies for us.  Skipping the wait for them lets us exit sooner.
 
 	// shut down any connections if they still exist
 	handleDeadParent();
 
-	// wait for and clean up any zombie launchers
+	// wait for and clean up any leftover launchers (prevent zombies)
 	for (uint32_t i = 0; i < _numchildren; i++)
 	{
 		if (_pidlst[i] != -1)
@@ -432,7 +416,7 @@ void Launcher::handleRequestsLoop(bool onlyCheckForNewConnections)
 			_pidlst[i] = -1;
 		}
 	}
-	
+
 	// take out the local runtime, if it's still kicking
 	if (_pidlst[_numchildren] != -1)
 	{
@@ -933,6 +917,16 @@ void Launcher::cb_sighandler_term(int signo)
 	#ifdef DEBUG
 		fprintf(stderr, "Launcher %d: got a SIGTERM\n", _singleton->_myproc);
 	#endif
+	for (uint32_t i = 0; i <= _singleton->_numchildren; i++)
+	{
+		if (_singleton->_pidlst[i] != -1)
+		{
+			#ifdef DEBUG
+				fprintf(stderr, "Launcher %u: killing pid=%d\n", _singleton->_myproc, _singleton->_pidlst[i]);
+			#endif
+			kill(_singleton->_pidlst[i], SIGTERM);
+		}
+	}
 	_singleton->_dieAt = 1; // die now.
 }
 
