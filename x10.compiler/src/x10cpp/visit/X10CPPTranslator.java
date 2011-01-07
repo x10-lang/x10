@@ -150,7 +150,7 @@ public class X10CPPTranslator extends Translator {
 	    return outputLine - 1;
 	}
 
-	private static final String FILE_TO_LINE_NUMBER_MAP = "FileToLineNumberMap";
+	static final String FILE_TO_LINE_NUMBER_MAP = "FileToLineNumberMap";
 
 	public void print(Node parent, Node n, CodeWriter w_) {
 		if (w_ == null)
