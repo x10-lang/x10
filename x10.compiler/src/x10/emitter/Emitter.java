@@ -934,7 +934,7 @@ public class Emitter {
 			Type pt = p;
 			assert pt instanceof ParameterType;
 			Name name = ((ParameterType) pt).name();
-                        w.write(mangleToJava(name));
+			w.write(mangleToJava(name));
 		}
 
 		List<Expander> dispatchArgs = new ArrayList<Expander>();
@@ -3486,13 +3486,15 @@ public class Emitter {
                 if (def.formalTypes().get(i).get() instanceof ParameterType) {
                     Type bf = Types.baseType(f);
                     if (f.isBoolean() || f.isNumeric()) {
+                        // TODO:CAST
                         w.write("(");
                         printType(f, 0);
                         w.write(")");
                         w.write("(");
                         printType(f, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
                         w.write(")");
-                    } else if (!(bf instanceof ParameterType && ((ParameterType) bf).def().get() instanceof MethodDef)) {
+                    } else if (!isMethodParameter(bf, mi, tr.context())) {
+                        // TODO:CAST
                         w.write("(");
                         printType(f, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
                         w.write(")");
@@ -3518,6 +3520,18 @@ public class Emitter {
         
         w.write("}");
         w.newline();
+    }
+
+    private static boolean isMethodParameter(Type bf, MethodInstance mi, Context context) {
+        if (bf instanceof ParameterType) {
+            Def def = ((ParameterType) bf).def().get();
+            if (def instanceof MethodDef) {
+                if (((MethodDef) def).container().get().typeEquals(mi.container(), context)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     public boolean printInlinedCode(X10Call_c c) {
