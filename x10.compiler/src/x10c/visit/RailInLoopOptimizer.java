@@ -292,7 +292,7 @@ public class RailInLoopOptimizer extends ContextVisitor {
                                 return xnf.BackingArrayAccess(pos, xnf.Local(pos, id).localInstance(ldef.asInstance()).type(target.type()), index, type);
                             }
                             LocalDef ldef = getLocalDef(type, id.id());
-                            return xnf.BackingArrayAccessAssign(pos, xnf.Local(pos, id).localInstance(ldef.asInstance()), index, Assign.ASSIGN, elem).type(type);
+                            return xnf.BackingArrayAccessAssign(pos, xnf.Local(pos, id).localInstance(ldef.asInstance()).type(type), index, Assign.ASSIGN, elem).type(type);
                         }
                     }
                     if (n instanceof SettableAssign_c) {
@@ -345,7 +345,7 @@ public class RailInLoopOptimizer extends ContextVisitor {
                                 ba = xnf.BackingArray(n.position(), id, createArrayType(type), array);
                             }
                             LocalDef ldef = getLocalDef(type, id.id());
-                            return xnf.BackingArrayAccessAssign(n.position(), xnf.Local(n.position(), id).localInstance(ldef.asInstance()), ((SettableAssign_c) n).index().get(0), ((SettableAssign_c) n).operator(), ((SettableAssign_c) n).right()).type(type);
+                            return xnf.BackingArrayAccessAssign(n.position(), xnf.Local(n.position(), id).localInstance(ldef.asInstance()).type(type), ((SettableAssign_c) n).index().get(0), ((SettableAssign_c) n).operator(), ((SettableAssign_c) n).right()).type(type);
                         }
                     }
                     // rail = Rail.make(10) -> rail = Rail.make(10); railvaluexxx = (int[]) rail.value;
