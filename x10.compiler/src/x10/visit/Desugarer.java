@@ -177,6 +177,18 @@ public class Desugarer extends ContextVisitor {
         return lit;
     }
 
+    protected Expr getLiteral(Position pos, Type type, boolean val) {
+        type = Types.baseType(type);
+        if (ts.isBoolean(type)) {
+            Type t = ts.Boolean();
+            try {
+                t = Types.addSelfBinding(t, val ? ts.TRUE() : ts.FALSE());
+            } catch (XFailure e) { }
+            return nf.BooleanLit(pos, val).type(t);
+        } else
+            throw new InternalCompilerError(pos, "Unknown literal type: "+type);
+    }
+
     // ++x -> x+=1 or --x -> x-=1
     private Expr unaryPre(Position pos, Unary.Operator op, Expr e) {
         Type ret = e.type();
@@ -458,6 +470,9 @@ public class Desugarer extends ContextVisitor {
      * Any occurrence of "self" in the list of clauses is replaced by self.
      */
     private Expr conjunction(Position pos, List<Expr> clauses, Expr self) {
+        if (clauses.isEmpty()) { // FIXME: HACK: need to ensure that source expressions are preserved
+            return getLiteral(pos, ts.Boolean(), true);
+        }
         assert clauses.size() > 0;
         Substitution<Expr> subst = new Substitution<Expr>(Expr.class, Collections.singletonList(self)) {
             protected Expr subst(Expr n) {
