@@ -23,39 +23,109 @@ import x10.Configuration;
 import x10.X10CompilerOptions;
 
 /**
- * This program reads a bunch of x10 files and runs the front end on them,
- * then it extracts information (line numbers) from error messages, and we compare these errors with error markers in the file
- * and verify that all errors are expected.
+ * This program is intended to be used to determine if on a given test
+ * suite there is a difference between errors produced by one version
+ * of the X10 compiler and another. This
+ * program is intended to help in situations in which the first
+ * version of the compiler does not completely pass the tests,
+ * producing some errors or failing instead. The compiler writer can
+ * add various <em>markers</em> into the source code for the tests
+ * specifying whether an error is expected on this line or not,
+ * whether the compiler should not parse a given line, whether the
+ * compiler crashes on a given file etc. This program then checks the
+ * errors it gets against these markers and emits an error only if the
+ * error it receives is not accounted for by the markers.
+
+ * <p> Here is how this program is typically used. A version of the
+ * compiler is considered stable if <code>RunTestSuite</code> runs on
+ * a given test suite without producing errors. Note: This does not
+ * mean that the compiler successfully handles the given tests -- just
+ * that the errors/crashes it produces have been accounted for by appropriate
+ * markers in the source code for the tests.
+ * Now make some changes to the compiler and run
+ * <code>RunTestSuite</code> again. If it produces errors, then you
+ * know that your code changes have caused new errors to arise. Fix
+ * your code so that <code>RunTestSuite</code> reports no errors. Now
+ * you know that your code is producing exactly the same errors as the
+ * stable version of the compiler.
+
+ *<p> Again, this does not mean that your new compiler has no errors,
+ *just that it has no <em>new</em> errors. At some point you need to
+ *go and fix the existing errors, and remove the corresponding markers
+ *from the <code>*.x10</code> files.
+
+ * <p> In more detail, this program reads a bunch of x10 files and
+ * runs the front end on them, taps the <code>ErrorQueue</code>, 
+ * extracts line number information from error messages, and
+ * compares these errors with error markers in the file and verify
+ * that all errors are expected.
  *
- * You run RunTestSuite exactly like you would run the compiler (with the same flags)
- * except that instead a list of *.x10 files,
- * the first argument for RunTestSuite is a directory (or comma-separated list of directories) from which we collect all *.x10 files.
+ * <p> <code>RunTestSuite</code> accepts all the flags that the X10
+ * compiler accepts (and uses them in the same way) except that
+ * instead of accepting a list of <code>*.x10</code> files, it
+ * requires a directory (or comma-separated list of directories) to be
+ * provided as the first argument.  From these directories it collects
+ * all <code>*.x10</code> files.
  *
- * We have 5 kinds of error markers:
- * ERR  - marks an error or warning
- * ShouldNotBeERR - the compiler reports an error, but it shouldn't
- * ShouldBeErr - the compiler doesn't report an error, but it should
- * COMPILER_CRASHES - the compiler currently crashes on this file
- * SHOULD_NOT_PARSE - the compiler should report parsing and lexing errors on this file
+ * <p>The environment flag <code>SEPARATE_COMPILER</code> can be set
+ * to <code>false<code> to force <code>RunTestSuite</code> to use the same
+ * compiler object for multiple tests. In general this runs the tests
+ * much faster, but is still a bit brittle (may yield errors when
+ * compiling each test with a separate compiler object would not).
+ * 
+ * <p> The environment flag <code>QUIET</code> can be set to
+ * <code>true</code> to run in quiet mode. In this mode various
+ * warnings and helpful messages are not printed out.
+
+ * <p> Five kinds of error markers can be inserted in <code>*.x10</code> files:
+ * <ul>
+ *  <li><code>ERR</code>  - marks an error or warning
+ * <li><code>ShouldNotBeERR<code> - the compiler reports an error, but
+ * it shouldn't
+ * <li><code>ShouldBeErr</code> - the compiler doesn't report an
+ * error, but it should
+ * <li><code>COMPILER_CRASHES</code> - the compiler currently crashes
+ * on this file
+ * <li><code>SHOULD_NOT_PARSE</code> - the compiler should report
+ * parsing and lexing errors on this file
+ * </ul> 
+ * <p> Multiple markers (even of the same kind) may appear on the
+ * same line. Thus if a line is marked with <code>ShouldNotBeErr
+ * ShouldNotBeErr</code>, the test runner complains if the compiler
+ * does not produce two errors on this line.
+
+ * <p>The first 3 markers (<code>ERR, ShouldNotBeERR, ShouldBeErr</code>)
+ * can come in the form of annotations (<code>@ERR</code>) or in the
+ * form of comments (<code>// ERR</code>) The last two
+ * (<code>COMPILER_CRASHES,SHOULD_NOT_PARSE</code>) must be a comment.
  *
- * The first 3 markers (ERR, ShouldNotBeERR, ShouldBeErr) can come in the form of annotations (@ERR)
- * or in the form of comments (// ERR)
- * The last two (COMPILER_CRASHES,SHOULD_NOT_PARSE) must be a comment.
- *
- * Annotations are checked by a compiler phase called ErrChecker.
- * The problem with annotations currently are:
- * 1) You can't put annotations on statement expressions, i.e.,
- * @ERR i=3;
+ * <p> Annotations are checked by a compiler phase called
+ * <code>ErrChecker</code>.  
+
+ * <p> The problem with annotations currently
+ * are: 
+ * <ol>
+   <li>You can't put annotations on statement expressions, i.e.,
+ * <code> @ERR i=3;</code>
  * doesn't parse
  * However, you can write:
- * @ERR {i=3;}
- * 2) ErrChecker goal is not reached sometimes (if a previous goal failed).
+ * <code>@ERR {i=3;}</code>
  *
- * In the future I plan to use only annotations and run ErrChecker here instead of inside the compiler.
+ * <li><code>ErrChecker</code> goal is not reached sometimes (if a
+ * previous goal failed).  </ol> 
+
+ * In the future I plan to use only annotations and run
+ * <code>ErrChecker</code> directly in the test runner instead of
+ * inside the compiler.
  *
- * There is also an OPTIONS marker:
- * OPTIONS: -STATIC_CALLS
- * If no OPTIONS is specified, we run with VERBOSE_CALLS.
+ * TODO for the documentation:
+ * <ul>
+ * <li> Document how <code>-STATIC_CALLS</code> and <code>-VERBOSE_CALLS</code> are handled.
+
+ * <li> Document the role of various exclusion paths. How is the user
+ * of the test suite supposed to specify this information? (Should not
+ * be by changing code.)
+</ul>
  */
 public class RunTestSuite {
     public static boolean SEPARATE_COMPILER = System.getenv("SEPARATE_COMPILER")==null || System.getenv("SEPARATE_COMPILER").equals("true");
