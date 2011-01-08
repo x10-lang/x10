@@ -337,7 +337,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		h.write(voidTemplateInstantiation(cd.typeParameters().size()));
 		if (!cd.isStruct() && cd.superType() != null) {
 		    h.write(" : public ");
-		    X10ClassDef sdef = ((X10ClassType) cd.superType().get()).x10Def();
+		    X10ClassDef sdef = ((X10ClassType) Types.baseType(cd.superType().get())).x10Def();
 		    h.write(Emitter.translateType(getStaticMemberContainer(sdef), false));
 		}
 		h.allowBreak(0, " ");
@@ -508,7 +508,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	        if (member instanceof FieldDecl_c) {
 	            FieldDecl_c dec = (FieldDecl_c) member;
 	            if (dec.flags().flags().isStatic()) {
-	                X10ClassType container = (X10ClassType)dec.fieldDef().asInstance().container();
+	                X10ClassType container = (X10ClassType)Types.baseType(dec.fieldDef().asInstance().container());
 	                if (((X10ClassDef)container.def()).typeParameters().size() != 0)
 	                    continue;
 	                if (isGlobalInit(dec))
@@ -923,7 +923,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             sh.end();
             sh.newline(0);
             sh.writeln("};");
-            emitter.printRTTDefn((X10ClassType) def.asType(), sw);
+            emitter.printRTTDefn((X10ClassType) Types.baseType(def.asType()), sw);
             extractGenericStaticDecls(def, sh, false);
         }
         h.end();
