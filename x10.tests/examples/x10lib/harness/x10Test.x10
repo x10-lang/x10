@@ -98,6 +98,22 @@ abstract public class x10Test {
 		+ actual);
     }
 
+    public final def nearEnough(a:Double, b:Double) {
+        if (a.isNaN()) return b.isNaN();
+        if (b.isNaN()) return false;
+        return Math.abs(a-b) < 1e-14;
+    }
+
+    public final def nearEnough(a:Float, b:Float) {
+        if (a.isNaN()) return b.isNaN();
+        if (b.isNaN()) return false;
+        return Math.abs(a-b) < 1e-5;
+    }
+
+    public final def nearEnough(a:Complex, b:Complex) {
+        return nearEnough(a.re, b.re) && nearEnough(a.im, b.im);
+    }
+
 
     protected static def println(s:String) = x10.io.Console.OUT.println(s);
 
