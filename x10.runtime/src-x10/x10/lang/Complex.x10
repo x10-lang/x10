@@ -158,12 +158,7 @@ public struct Complex /*TODO implements Arithmetic[Complex]*/ {
     /**
      * @return the conjugate of this complex number.
      */
-    public def conjugate():Complex {
-        if (isNaN()) {
-            return Complex.NaN;
-        }
-        return Complex(re, -im);
-    }
+    public def conjugate():Complex = Complex(re, -im);
 
     /**
      * @return this complex number.

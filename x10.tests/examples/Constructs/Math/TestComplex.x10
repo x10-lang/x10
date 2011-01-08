@@ -24,6 +24,7 @@ class TestComplex extends x10Test {
 
         val b = a.conjugate();
         chk (b.conjugate() == a);
+        chk (Complex.NaN.conjugate().isNaN());
 
         val c = Complex(1.0, 4.0);
         chk (a + c - c == a, "a + c - c = a");
