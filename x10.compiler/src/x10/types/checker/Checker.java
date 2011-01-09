@@ -255,22 +255,24 @@ public class Checker {
 		return t;
 	}
 
+	// FIXME: [IP] why isn't this called for direct property method invocations, but only for those without parens?
 	public static Type expandCall(Type type, Call t,  Context c) throws SemanticException {
 		Context xc = (Context) c;
 		MethodInstance xmi = (MethodInstance) t.methodInstance();
+		Receiver target = t.target();
 		XTypeTranslator xt = ((TypeSystem) type.typeSystem()).xtypeTranslator();
 		Flags f = xmi.flags();
 		XTerm body = null;
 		if (f.isProperty()) {
 			CConstraint cs = new CConstraint();
-			XTerm r = xt.trans( cs,t.target(), xc);
+			XTerm r = xt.trans(cs, target, xc);
 			if (r == null)
-				return null;
+				return rightType(type, xmi.x10Def(), target, c);
 			// FIXME: should just return the atom, and add atom==body to the real clause of the class
 			// FIXME: fold in class's real clause constraints on parameters into real clause of type parameters
 			body = xmi.body();
 			if (body != null) {
-				if (xmi.x10Def().thisVar() != null && t.target() instanceof Expr) {
+				if (xmi.x10Def().thisVar() != null && target instanceof Expr) {
 					//XName This = XTerms.makeName(new Object(), Types.get(xmi.def().container()) + "#this");
 					//body = body.subst(r, XTerms.makeLocal(This));
 					body = body.subst(r, xmi.x10Def().thisVar());
@@ -303,10 +305,9 @@ public class Checker {
 			}
 			body = XTerms.makeAtom(XTerms.makeName(xmi, xmi.name().toString()), terms);
 			}
-		} 
+		}
 		CConstraint x = Types.xclause(type);
 		X10MemberDef fi = (X10MemberDef) t.methodInstance().def();
-		Receiver target = t.target();
 		if (x == null || fi.thisVar() == null || !(target instanceof Expr))
 			return type;
 	
