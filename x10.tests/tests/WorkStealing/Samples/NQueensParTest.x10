@@ -9,7 +9,6 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-
 public class NQueensParTest{
     public def run():boolean {
          val args = new Array[String](0);

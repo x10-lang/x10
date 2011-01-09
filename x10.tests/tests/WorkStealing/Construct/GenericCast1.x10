@@ -29,7 +29,7 @@ public class GenericCast1 {
         }
 
     }
-	
+
 	var flag: boolean = false;
 
 	public def run() {
@@ -46,11 +46,9 @@ public class GenericCast1 {
 	}
 
 	public static def main(Array[String](1)) {
-        val r = new GenericCast1().run();
-        if(r){
-             x10.io.Console.OUT.println("++++++Test succeeded.");
-        }
+	    val r = new GenericCast1().run();
+	    if (r) {
+		 x10.io.Console.OUT.println("++++++Test succeeded.");
+	    }
 	}
-	
-	
 }

@@ -29,8 +29,8 @@ public class InterfaceMethod1 {
 	public def run() {
 		var passed:boolean = true;
 		
-	    val a:ITest = new A();
-	    val r = a.set(1);
+		val a:ITest = new A();
+		val r = a.set(1);
 		passed &= (r == 1);
 		Console.OUT.println("r  = " + r);
 		
@@ -38,13 +38,11 @@ public class InterfaceMethod1 {
 	}
 
 	public static def main(Array[String](1)) {
-        val r = new InterfaceMethod1().run();
-        if(r){
-             x10.io.Console.OUT.println("++++++Test succeeded.");
-        }
+	    val r = new InterfaceMethod1().run();
+	    if (r) {
+	        x10.io.Console.OUT.println("++++++Test succeeded.");
+	    }
 	}
-	
-	
 }
 
 interface ITest{

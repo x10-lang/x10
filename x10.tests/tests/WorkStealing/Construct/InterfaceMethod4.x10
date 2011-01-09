@@ -14,7 +14,6 @@
  */
 public class InterfaceMethod4 {
 
-	
 	def getITest():ITest{
 		return new AAA();
 	}
@@ -22,8 +21,8 @@ public class InterfaceMethod4 {
 	public def run() {
 		var passed:boolean = true;
 		
-	    val a:ITest = getITest();
-	    val r = a.set(2);
+		val a:ITest = getITest();
+		val r = a.set(2);
 		passed &= (r == 2);
 		Console.OUT.println("r  = " + r);
 		
@@ -31,15 +30,13 @@ public class InterfaceMethod4 {
 	}
 
 	public static def main(Array[String](1)) {
-        val r = new InterfaceMethod4().run();
-        if(r){
-             x10.io.Console.OUT.println("++++++Test succeeded.");
-        }
-        
-        val x = new B().set(1);
+	    val r = new InterfaceMethod4().run();
+	    if (r) {
+	        x10.io.Console.OUT.println("++++++Test succeeded.");
+	    }
+
+	    val x = new B().set(1);
 	}
-	
-	
 }
 
 interface ITest{
@@ -47,27 +44,27 @@ interface ITest{
 }
 
 class A implements ITest{
-	
+
     public def set(v:int):int{
     	return -1;
     }
 }
 
 class B implements ITest{
-	
+
     public def set(v:int):int{
     	return -1;
     }
 }
 
 class AA extends A{
-	
+
     public def set(v:int):int{
         val value:int;
-	    finish{
-		    async value = v;
-	    }
-	    return value;
+        finish {
+            async value = v;
+        }
+        return value;
     }
 }
 
@@ -79,7 +76,7 @@ class AAA extends AA{
 }
 
 class AAAA extends AAA{
-	
+
 	public def foo(){
 		set(-1); //dead code, need transform, too
 	}
@@ -90,7 +87,7 @@ class AAAA extends AAA{
 }
 
 class AB extends A{
-	
+
     public def set(v:int):int{
     	return -1;
     }

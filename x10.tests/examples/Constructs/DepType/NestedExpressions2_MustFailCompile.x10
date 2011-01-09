@@ -1,5 +1,4 @@
 /*
-
  *  This file is part of the X10 project (http://x10-lang.org).
  *
  *  This file is licensed to You under the Eclipse Public License (EPL);
@@ -15,11 +14,10 @@ import harness.x10Test;
 //OPTIONS: -STATIC_CALLS
 
 /**
-* Checking that the type-checker can correctly handle boolean expressions as the values
-* boolean properties. Check that an expression of type C(x.a&&y.a) can
-* be assigned to a variable of type C{self.a==(y.a&&x.a)}.
+ * Checking that the type-checker can correctly handle boolean expressions as the values
+ * boolean properties. Check that an expression of type C(x.a&&y.a) can
+ * be assigned to a variable of type C{self.a==(y.a&&x.a)}.
  */
-	
 public class NestedExpressions2_MustFailCompile extends x10Test {
 	class C(a:boolean) {
 		static type C(b:boolean) = C{self.a==b};

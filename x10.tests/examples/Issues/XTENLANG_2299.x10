@@ -14,7 +14,6 @@ import harness.x10Test;
 /**
  * @author makinoy 1/2011
  */
-
 class XTENLANG_2299 extends x10Test {
 
   def test[T](t0:T) {
