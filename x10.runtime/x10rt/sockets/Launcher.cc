@@ -391,15 +391,16 @@ void Launcher::handleRequestsLoop(bool onlyCheckForNewConnections)
 	//cleanup:
 
 	// save the return code for place 0.
+	int exitcode = _returncode; // exitcode is here to cover up any issues with using a static variable for the exit code, which may happen on Windows (and AIX?).
 	while ((_myproc==0 || _myproc==0xFFFFFFFF) && _pidlst[_numchildren] != -1)
 	{
 	    int status;
  		if (waitpid(_pidlst[_numchildren], &status, WNOHANG) == _pidlst[_numchildren])
 		{
-			_pidlst[_numchildren] = -1;
 			if (WEXITSTATUS(status) != 0)
-				fprintf(stderr, "Launcher %d: Non-zero return code from local runtime (pid=%d), status=%d (previous stored status=%d)\n", _myproc, _pidlst[_numchildren], WEXITSTATUS(status), WEXITSTATUS(_returncode));
-			_returncode = WEXITSTATUS(status);
+				fprintf(stderr, "Launcher %d: Non-zero return code from local runtime (pid=%d), status=%d (previous stored status=%d)\n", _myproc, _pidlst[_numchildren], WEXITSTATUS(status), WEXITSTATUS(exitcode));
+			_pidlst[_numchildren] = -1;
+			exitcode = WEXITSTATUS(status);
 		}
 	}
 
@@ -411,7 +412,6 @@ void Launcher::handleRequestsLoop(bool onlyCheckForNewConnections)
 	{
 		if (_pidlst[i] != -1)
 		{
-			// these were all sent a SIGTERM up above, and should be dead by now
 			waitpid(_pidlst[i], NULL, 0);
 			_pidlst[i] = -1;
 		}
@@ -431,7 +431,7 @@ void Launcher::handleRequestsLoop(bool onlyCheckForNewConnections)
 	#ifdef DEBUG
 		fprintf(stderr, "Launcher %u: cleanup complete.  Goodbye!\n", _myproc);
 	#endif
-	exit(_returncode);
+	exit(exitcode);
 }
 
 /* *********************************************************************** */
