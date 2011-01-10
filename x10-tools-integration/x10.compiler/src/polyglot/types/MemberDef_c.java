@@ -16,26 +16,26 @@ public abstract class MemberDef_c extends Def_c implements MemberDef
 {
     private static final long serialVersionUID = 3410658974280570706L;
 
-    protected Ref<? extends StructType> container;
+    protected Ref<? extends ContainerType> container;
     protected Flags flags;
 
     /** Used for deserializing types. */
     protected MemberDef_c() { }
 
-    public MemberDef_c(TypeSystem ts, Position pos, Ref<? extends StructType> container, Flags flags) {
+    public MemberDef_c(TypeSystem ts, Position pos, Ref<? extends ContainerType> container, Flags flags) {
         super(ts, pos);
         this.container = container;
         this.flags = flags;
     }
 
-    final public Ref<? extends StructType> container() {
+    final public Ref<? extends ContainerType> container() {
         return container;
     }
     
     /**
      * @param container The container to set.
      */
-    final public void setContainer(Ref<? extends StructType> container) {
+    final public void setContainer(Ref<? extends ContainerType> container) {
         this.container = container;
     }
 

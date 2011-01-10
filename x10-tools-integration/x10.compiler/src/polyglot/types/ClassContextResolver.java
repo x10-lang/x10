@@ -154,7 +154,7 @@ public class ClassContextResolver extends AbstractAccessControlResolver {
         
         if (type.superClass() != null) {
             Type sup = type.superClass();
-            if (sup instanceof ClassType) {
+            if (sup instanceof ClassType && matcher.visit(sup)) {
                 Resolver r = ts.classContextResolver((ClassType) sup, context);
                 try {
                     Named n = r.find(matcher);
@@ -167,7 +167,7 @@ public class ClassContextResolver extends AbstractAccessControlResolver {
         
         for (Iterator<Type> i = type.interfaces().iterator(); i.hasNext(); ) {
             Type sup = (Type) i.next();
-            if (sup instanceof ClassType) {
+            if (sup instanceof ClassType && matcher.visit(sup)) {
                 Resolver r = ts.classContextResolver((ClassType) sup, context);
                 try {
                     Named n = r.find(matcher);

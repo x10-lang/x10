@@ -21,6 +21,7 @@ public class ErrorInfo
   public static final int GOOD_ERR_MARKERS        = 8;  // A line was marked with @ERR, and the compiler indeed report an error there.
   public static final int EXPECTED_ERR_MARKERS    = 9;  // A line was marked with @ShouldNotBeERR, and the compiler indeed report an error there, or @ShouldBeErr and the compiler didn't report an error there
   public static final int FIX_ERR_MARKERS    = 10; // You need to fix the err markers: @ShouldBeErr->@ERR, @ERR->@ShouldBeErr, or @ShouldNotBeERR->removed. (e.g., a line was marked with @ShouldBeErr, and the compiler indeed reported an error there)
+  public static final int INVARIANT_VIOLATION_KIND = 11;
 
   protected static String[] errorStrings = {
     "Warning",
@@ -33,7 +34,8 @@ public class ErrorInfo
     "Debug",
     "Goog @ERR marker",
     "Expected @ShouldNotBeERR or @ShouldBeErr",
-    "Fix error marker"
+    "Fix error marker",
+    "AST invariant violation",
   };
 
   protected int kind;

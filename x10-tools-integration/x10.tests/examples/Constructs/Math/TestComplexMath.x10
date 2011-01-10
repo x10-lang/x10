@@ -22,7 +22,7 @@ class TestComplexMath extends x10Test {
         val z = Complex(0.5, 2.0);
 
         // a^z = e^(z ln a)
-        chk(Math.pow(a, z) == Math.exp(z * Math.log(a)));
+        chk(nearEnough(Math.pow(a, z), Math.exp(z * Math.log(a))));
 
         val sinZ = Math.sin(z);
         val cosZ = Math.cos(z);
@@ -59,17 +59,6 @@ class TestComplexMath extends x10Test {
         chk(nearEnough(Math.sinh(a + z), Math.sinh(a) * Math.cosh(z) + Math.cosh(a) * Math.sinh(z)));
 
         return true;
-    }
-
-    /**
-     * Returns true if a and b are near-enough equal.
-     * This sort of check is necessary because complex identities
-     * implemented in cartesian form in double precision are usually
-     * inaccurate in the last digit. 
-     */
-    private static def nearEnough(a : Complex, b : Complex) {
-        return ((a.re as Float) == (b.re as Float) 
-             && (a.im as Float) == (b.im as Float));
     }
 
     public static def main(Array[String](1)) {

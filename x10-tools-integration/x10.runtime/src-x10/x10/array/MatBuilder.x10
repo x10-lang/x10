@@ -38,9 +38,9 @@ public class MatBuilder {
         mat.add(new VarRow(cols, a));
     }
 
-    public def apply(i:int, j:int) = mat(i)(j);
+    public operator this(i:int, j:int) = mat(i)(j);
 
-    public def set(v:int, i:int, j:int) {
+    public operator this(i:int, j:int)=(v:int) {
         need(i+1);
         mat(i)(j) = v;
     }

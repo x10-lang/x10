@@ -1,4 +1,4 @@
-// Yoav added: IGNORE_FILE
+
 /*
  *  This file is part of the X10 project (http://x10-lang.org).
  *
@@ -41,7 +41,7 @@ public class HeatTransfer_v3 {
     static val epsilon = 1.0e-5;
     static val P = 2;
 
-    static val BigD = Dist.makeBlock(new Array[Region(1){self.rect}][0..n+1, 0..n+1], 0);
+    static val BigD = Dist.makeBlock(new Array[Region(1){self.rect}][0..(n+1), 0..(n+1)], 0);
     static val D = BigD | (1..n)*(1..n);
     static val LastRow = (0..0)*(1..n);
     static val A = DistArray.make[Double](BigD,(p:Point)=>{ LastRow.contains(p) ? 1.0 : 0.0 });
@@ -73,7 +73,7 @@ public class HeatTransfer_v3 {
         do {
             finish ateach (z in D_Base) {
                 val blocks = blockIt(D | here, P);
-                for ([q] in 0..P-1) async {
+                for ([q] in 0..(P-1)) async {
                     for (p in blocks(q)) {
                         Temp(p) = stencil_1(p);
                     }

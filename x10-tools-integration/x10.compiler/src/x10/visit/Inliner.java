@@ -41,7 +41,6 @@ import polyglot.ast.Special;
 import polyglot.ast.Stmt;
 import polyglot.ast.Throw;
 import polyglot.ast.TypeNode;
-import polyglot.frontend.ExtensionInfo;
 import polyglot.frontend.Goal;
 import polyglot.frontend.Job;
 import polyglot.types.Context;
@@ -50,12 +49,11 @@ import polyglot.types.Flags;
 import polyglot.types.FunctionDef;
 import polyglot.types.LocalDef;
 import polyglot.types.LocalInstance;
-import polyglot.types.MethodInstance;
 import polyglot.types.Name;
 import polyglot.types.QName;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
-import polyglot.types.StructType;
+import polyglot.types.ContainerType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
@@ -70,6 +68,8 @@ import polyglot.visit.AlphaRenamer;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.Configuration;
+import x10.ExtensionInfo;
+import x10.X10CompilerOptions;
 import x10.ast.Closure;
 import x10.ast.ClosureCall;
 import x10.ast.DepParameterExpr;
@@ -105,9 +105,8 @@ import x10.types.X10FieldInstance;
 import x10.types.X10LocalDef;
 import x10.types.X10LocalInstance;
 import x10.types.X10MethodDef;
-import x10.types.X10MethodInstance;
+import x10.types.MethodInstance;
 import x10.types.X10ParsedClassType;
-import x10.types.X10TypeMixin;
 import x10.types.checker.Converter;
 import x10.types.matcher.Subst;
 import x10.util.AltSynthesizer;
@@ -129,10 +128,10 @@ import x10.util.AltSynthesizer;
 @SuppressWarnings("unchecked")
 public class Inliner extends ContextVisitor {
 
-    private final boolean INLINE_CONSTANTS = Configuration.INLINE_CONSTANTS;
-    private final boolean INLINE_METHODS   = Configuration.INLINE_METHODS;
-    private final boolean INLINE_CLOSURES  = Configuration.INLINE_CLOSURES && x10.Configuration.ALLOW_STATEMENT_EXPRESSIONS;
-    private final boolean INLINE_IMPLICIT  = Configuration.INLINE_METHODS_IMPLICIT;
+    private final boolean INLINE_CONSTANTS;
+    private final boolean INLINE_METHODS;
+    private final boolean INLINE_CLOSURES;
+    private final boolean INLINE_IMPLICIT;
     
     private static final boolean DEBUG = false;
 //  private static final boolean DEBUG = true;
@@ -169,6 +168,11 @@ public class Inliner extends ContextVisitor {
         // syn = new Synthesizer(xnf, xts);
         syn = new AltSynthesizer(job, ts, nf);
         ice = new InlineCostEstimator(xts, xnf);
+        X10CompilerOptions opts = (X10CompilerOptions) job.extensionInfo().getOptions();
+        INLINE_CONSTANTS = opts.x10_config.INLINE_CONSTANTS;
+        INLINE_METHODS   = opts.x10_config.INLINE_METHODS;
+        INLINE_CLOSURES  = opts.x10_config.INLINE_CLOSURES && opts.x10_config.ALLOW_STATEMENT_EXPRESSIONS;
+        INLINE_IMPLICIT  = opts.x10_config.INLINE_METHODS_IMPLICIT;
     }
 
     /**
@@ -237,7 +241,7 @@ public class Inliner extends ContextVisitor {
 
     @Override
     public NodeVisitor begin() {
-        if (!x10.optimizations.Optimizer.INLINING()) {
+        if (!x10.optimizations.Optimizer.INLINING((ExtensionInfo) job.extensionInfo())) {
             throw new InternalCompilerError("INLINING should not be being performed!");
         }
         recursionDepth[0] = INITIAL_RECURSION_DEPTH;
@@ -360,7 +364,8 @@ public class Inliner extends ContextVisitor {
             String name = (String) arg.constantValue();
             Boolean negate = name.startsWith("!"); // hack to allow @CompileTimeConstant("!NO_CHECKS")
             if (negate) name = name.substring(1);
-            Object value = Configuration.get(Configuration.class, name);
+            X10CompilerOptions opts = (X10CompilerOptions) job.extensionInfo().getOptions();
+            Object value = opts.x10_config.get(name);
             if (negate) 
                 value = (Boolean) value ? false : true;
             Expr literal = new ConstantPropagator(job, xts, xnf).toExpr(value, call.position());
@@ -591,7 +596,7 @@ public class Inliner extends ContextVisitor {
             }
 
             @Override
-            protected X10MethodInstance transformMethodInstance(X10MethodInstance mi) {
+            protected MethodInstance transformMethodInstance(MethodInstance mi) {
                 // TODO: [IP] We don't change method instances yet, but would have to for local classes
                 return super.transformMethodInstance(mi);
             }
@@ -783,7 +788,7 @@ public class Inliner extends ContextVisitor {
      * @return the backend's identity String for this compilation
      */ // TODO refactor so that the backends and I get there identity strings from the same place (move into ExtensionInfo
     private String getBackend() {
-        ExtensionInfo extensionInfo = xts.extensionInfo();
+        ExtensionInfo extensionInfo = (ExtensionInfo) xts.extensionInfo();
         if (extensionInfo instanceof x10c.ExtensionInfo)
             return "\"java\"";
         if (extensionInfo instanceof x10cpp.ExtensionInfo)
@@ -814,9 +819,9 @@ public class Inliner extends ContextVisitor {
      * @return the definition of the X10 Class containing md
      */
     private X10ClassDef getContainer(X10MethodDef candidate) {
-        Ref<? extends StructType> containerRef = candidate.container();
-        StructType containerType = Types.get(containerRef);
-        Type containerBase = X10TypeMixin.baseType(containerType);
+        Ref<? extends ContainerType> containerRef = candidate.container();
+        ContainerType containerType = Types.get(containerRef);
+        Type containerBase = Types.baseType(containerType);
         assert (containerBase instanceof X10ClassType);
         X10ClassDef container = ((X10ClassType) containerBase).x10Def();
         return container;
@@ -1042,7 +1047,7 @@ public class Inliner extends ContextVisitor {
         return result;
     }
 
-    private LocalDecl createThisFormal(X10MethodInstance mi, LocalDecl init) {
+    private LocalDecl createThisFormal(MethodInstance mi, LocalDecl init) {
         if (mi.flags().isStatic())
             return null;
         TypeParamSubst typeMap = makeTypeMap(mi);
@@ -1064,7 +1069,7 @@ public class Inliner extends ContextVisitor {
     private CodeBlock instantiate(final CodeBlock code, X10ProcedureCall call) {
         try {
             debug("Instantiate " + code, call);
-            TypeParamSubst typeMap = makeTypeMap((X10MethodInstance) call.procedureInstance());
+            TypeParamSubst typeMap = makeTypeMap((MethodInstance) call.procedureInstance());
             InliningTypeTransformer transformer = new InliningTypeTransformer(typeMap);
             ContextVisitor visitor = new NodeTransformingVisitor(job, ts, nf, transformer).context(context());
             CodeBlock visitedDecl = (CodeBlock) code.visit(visitor);
@@ -1137,7 +1142,7 @@ public class Inliner extends ContextVisitor {
         }
 
         @Override
-        protected X10MethodInstance transformMethodInstance(X10MethodInstance mi) {
+        protected MethodInstance transformMethodInstance(MethodInstance mi) {
             Pair<XLocal[], XLocal[]> p = getLocalSubstitution();
             XLocal[] X = p.fst();
             XLocal[] Y = p.snd();
@@ -1280,7 +1285,7 @@ public class Inliner extends ContextVisitor {
      * @param decl
      * @return
      */
-    private TypeParamSubst makeTypeMap(X10MethodInstance method) {
+    private TypeParamSubst makeTypeMap(MethodInstance method) {
         List<Type> typeArgs = new ArrayList<Type>();
         List<ParameterType> typeParms = new ArrayList<ParameterType>();
         typeArgs.addAll(method.typeParameters());
@@ -1358,7 +1363,7 @@ public class Inliner extends ContextVisitor {
     private void tieLocalDef(LocalDef d, LocalDef o) {
         Type type = Types.get(d.type());
         try {
-            type = X10TypeMixin.addSelfBinding(type, XTerms.makeLocal(XTerms.makeName(o, o.name().toString())));
+            type = Types.addSelfBinding(type, XTerms.makeLocal(XTerms.makeName(o, o.name().toString())));
         } catch (XFailure e) {
         }
         ((Ref<Type>) d.type()).update(type);

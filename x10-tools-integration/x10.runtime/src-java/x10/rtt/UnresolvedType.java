@@ -51,7 +51,7 @@ public final class UnresolvedType implements Type {
     }
 
     public final String typeName() {
-        throw new UnsupportedOperationException();
+        return toString();
     }
 
 }

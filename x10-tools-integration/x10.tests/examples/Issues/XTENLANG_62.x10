@@ -18,12 +18,12 @@ import harness.x10Test;
 class XTENLANG_62 extends x10Test {
 
     class A[T] {
-        public def apply(i0:int): T {throw new RuntimeException();} // FIXME: XTENLANG-1443
-        public def set(v:T, i0: int) {}
+        public operator this(i0:int): T {throw new RuntimeException();} // FIXME: XTENLANG-1443
+        public operator this(i0: int)=(v:T) {}
     }
     
     def foo(a:A[double]) {
-        //a.set(0.0, 0); // this works
+        //a(0.0, 0); // this works
         a(0) = 0.0; // this doesn't
     }
 

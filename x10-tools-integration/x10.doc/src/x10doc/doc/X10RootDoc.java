@@ -15,6 +15,7 @@ import polyglot.types.FieldDef;
 import polyglot.types.MethodDef;
 import polyglot.types.Package;
 import polyglot.types.Ref;
+import polyglot.types.Types;
 import x10.types.ConstrainedType;
 import x10.types.FunctionType;
 import x10.types.ParameterType;
@@ -25,7 +26,6 @@ import x10.types.X10Def;
 import x10.types.X10FieldDef;
 import x10.types.X10MethodDef;
 import x10.types.X10ParsedClassType;
-import x10.types.X10TypeMixin;
 import polyglot.types.TypeSystem;
 import x10.util.HierarchyUtils;
 
@@ -207,14 +207,14 @@ public class X10RootDoc extends X10Doc implements RootDoc {
 	public Type getType(polyglot.types.Type t, X10TypeVariable[] methodTypeVars) {
 		if (t == null) return null;
 		// System.out.println("X10RootDoc.getType(" + t +"): t.getClass() = " + t.getClass());
-		if (t.isPrimitive()) {
+		if (t.isVoid()) {
 			// System.out.println("Primitive X10Type returned.");
 			return getPrimitiveType(t);
 		}
 		TypeSystem ts = (TypeSystem) t.typeSystem();
 		if (ts.isParameterType(t)) {
 			// TODO: get the constraints
-			ParameterType p = (ParameterType) X10TypeMixin.baseType(t);
+			ParameterType p = (ParameterType) Types.baseType(t);
 			// class, interface, method, or constructor that defines the type parameter
 			X10Def owner = (X10Def) p.def().get(); 
 			if (owner instanceof X10ClassDef) {
@@ -282,7 +282,7 @@ public class X10RootDoc extends X10Doc implements RootDoc {
 			return getUnspecClass(classDef);
 		}
 		else if (t instanceof ConstrainedType) {
-			polyglot.types.Type base = X10TypeMixin.baseType(t);
+			polyglot.types.Type base = Types.baseType(t);
 			if (base instanceof X10ParsedClassType) {
 				List<polyglot.types.Type> typeArguments = ((X10ParsedClassType)base).typeArguments();
 				if (typeArguments != null && typeArguments.size() > 0) {

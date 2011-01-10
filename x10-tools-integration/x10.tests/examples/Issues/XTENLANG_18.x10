@@ -18,13 +18,13 @@ import harness.x10Test;
 class XTENLANG_18 extends x10Test {
 
     public class C implements (int)=>int {
-        public def apply(i:int) = 0;
+        public operator this(i:int) = 0;
     }
 
     class P {}
     
     class I implements (P)=>int {
-        public def apply(P): int { throw new RuntimeException(); }
+        public operator this(P): int { throw new RuntimeException(); }
     }
 
     public def run(): boolean {

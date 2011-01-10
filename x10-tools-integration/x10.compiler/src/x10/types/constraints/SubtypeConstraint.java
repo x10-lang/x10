@@ -24,6 +24,12 @@ import x10.constraint.XTerm;
 import x10.types.matcher.Subst;
 import x10.types.TypeParamSubst;
 
+/**
+ * A representation of a subtype constraint, S <: T or S == T.
+ * 
+ * TODO: Separate out implementation of haszero T constraint.
+ *
+ */
 public class SubtypeConstraint implements Copy, Serializable {
 	private static final long serialVersionUID = 4026637095619421750L;
 

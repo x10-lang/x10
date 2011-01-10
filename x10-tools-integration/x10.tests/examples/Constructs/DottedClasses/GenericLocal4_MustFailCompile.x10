@@ -10,6 +10,7 @@
  */
 
 import harness.x10Test;
+// COMPILER_CRASHES: the compiler now crashes on this file.
 
 /**
  * Simple test that generic local classes can compile.

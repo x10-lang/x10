@@ -8,34 +8,63 @@
 
 package polyglot.ast;
 
-import polyglot.util.Enum;
-
 /**
  * Constants defining the precedence of an expression.  Lower
  * values denote higher precedence (i.e., tighter binding).
  */
-public class Precedence extends Enum {
-    private static final long serialVersionUID = 2930131912223765591L;
+public enum Precedence {
+
+    /** The precedence of a literal */
+    LITERAL     ("literal", 0),
+    /** The precedence of a unary expression. */
+    UNARY       ("unary", 10),
+    /** The precedence of a cast expression. */
+    CAST        ("cast", 10),
+    /** The precedence of a <code>*</code>, <code>/</code>, or <code>%</code> expression. */
+    MUL         ("*", 20),
+    /** The precedence of a <code>+</code> when applied to Strings.  This is of higher precedence than <code>+</code> applied to numbers. */
+    STRING_ADD  ("string+", 30),
+    /** The precedence of a <code>+</code> when applied to numbers, and the precedence of <code>-</code>. */
+    ADD         ("+", 40),
+    /** The precedence of the shift expressions <code>&lt,&lt,</code>, <code>&gt,&gt,</code>, and <code>&gt,&gt,&gt,</code>. */
+    SHIFT       ("<<", 50),
+    /** The precedence of the relational expressions <code>&lt,</code>, <code>&gt,</code>, <code>&lt,=</code>, and <code>&gt,=</code>. */
+    RELATIONAL  ("<", 60),
+    /** The precedence of <code>instanceof</code> expressions. */
+    INSTANCEOF  ("isa", 70),
+    /** The precedence of equality operators.  That is, precedence of <code>==</code> and <code>!=</code> expressions. */
+    EQUAL       ("==", 80),
+    /** The precedence of bitwise AND (<code>&amp,<code>) expressions. */
+    BIT_AND     ("&", 90),
+    /** The precedence of bitwise XOR (<code>^<code>) expressions. */
+    BIT_XOR     ("^", 100),
+    /** The precedence of bitwise OR (<code>|<code>) expressions. */
+    BIT_OR      ("|", 110),
+    /** The precedence of IN (<code>in<code>) expressions. */
+    IN          ("in", 115),
+    /** The precedence of conditional AND (<code>&&<code>) expressions. */
+    COND_AND    ("&&", 120),
+    /** The precedence of conditional OR (<code>||<code>) expressions. */
+    COND_OR     ("||", 130),
+    /** The precedence of ternary conditional expressions. */
+    CONDITIONAL ("?:", 140),
+    /** The precedence of assignment expressions. */
+    ASSIGN      ("=", 150),
+    /** The precedence of all other expressions. This has the lowest precedence to ensure the expression is parenthesized on output. */
+    UNKNOWN     ("unknown", 999);
 
     private int value;
+    public final String name;
 
-    public Precedence(String name, int value) {
-	super("prec_" + name);
+    private Precedence(String name, int value) {
 	assert(value >= 0);
 	this.value = value;
+        this.name = name;
     }
 
-    public int hashCode() {
-        return value;
-    }
 
     /** Returns true if this and p have the same precedence. */
-    public boolean equals(Object o) {
-        return o instanceof Precedence && equals((Precedence) o);
-    }
-
-    /** Returns true if this and p have the same precedence. */
-    public boolean equals(Precedence p) {
+    public boolean equalsPrecedence(Precedence p) {
 	return value == p.value;
     }
 
@@ -43,41 +72,4 @@ public class Precedence extends Enum {
     public boolean isTighter(Precedence p) {
 	return value < p.value;
     }
-
-    /** The precedence of a literal */
-    public static final Precedence LITERAL     = new Precedence("literal", 0);
-    /** The precedence of a unary expression. */
-    public static final Precedence UNARY       = new Precedence("unary", 10);
-    /** The precedence of a cast expression. */
-    public static final Precedence CAST        = new Precedence("cast", 10);
-    /** The precedence of a <code>*</code>, <code>/</code>, or <code>%</code> expression. */
-    public static final Precedence MUL         = new Precedence("*", 20);
-    /** The precedence of a <code>+</code> when applied to Strings.  This is of higher precedence than <code>+</code> applied to numbers. */
-    public static final Precedence STRING_ADD  = new Precedence("string+", 30);
-    /** The precedence of a <code>+</code> when applied to numbers, and the precedence of <code>-</code>. */
-    public static final Precedence ADD         = new Precedence("+", 40);
-    /** The precedence of the shift expressions <code>&lt;&lt;</code>, <code>&gt;&gt;</code>, and <code>&gt;&gt;&gt;</code>. */
-    public static final Precedence SHIFT       = new Precedence("<<", 50);
-    /** The precedence of the relational expressions <code>&lt;</code>, <code>&gt;</code>, <code>&lt;=</code>, and <code>&gt;=</code>. */
-    public static final Precedence RELATIONAL  = new Precedence("<", 60);
-    /** The precedence of <code>instanceof</code> expressions. */
-    public static final Precedence INSTANCEOF  = new Precedence("isa", 70);
-    /** The precedence of equality operators.  That is, precedence of <code>==</code> and <code>!=</code> expressions. */
-    public static final Precedence EQUAL       = new Precedence("==", 80);
-    /** The precedence of bitwise AND (<code>&amp;<code>) expressions. */
-    public static final Precedence BIT_AND     = new Precedence("&", 90);
-    /** The precedence of bitwise XOR (<code>^<code>) expressions. */
-    public static final Precedence BIT_XOR     = new Precedence("^", 100);
-    /** The precedence of bitwise OR (<code>|<code>) expressions. */
-    public static final Precedence BIT_OR      = new Precedence("|", 110);
-    /** The precedence of conditional AND (<code>&&<code>) expressions. */
-    public static final Precedence COND_AND    = new Precedence("&&", 120);
-    /** The precedence of conditional OR (<code>||<code>) expressions. */
-    public static final Precedence COND_OR     = new Precedence("||", 130);
-    /** The precedence of ternary conditional expressions. */
-    public static final Precedence CONDITIONAL = new Precedence("?:", 140);
-    /** The precedence of assignment expressions. */
-    public static final Precedence ASSIGN      = new Precedence("=", 150);
-    /** The precedence of all other expressions. This has the lowest precedence to ensure the expression is parenthesized on output. */
-    public static final Precedence UNKNOWN     = new Precedence("unknown", 999);
 }

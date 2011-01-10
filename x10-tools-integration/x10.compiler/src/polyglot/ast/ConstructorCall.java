@@ -10,7 +10,6 @@ package polyglot.ast;
 import java.util.List;
 
 import polyglot.types.ConstructorInstance;
-import polyglot.util.Enum;
 
 /**
  * A <code>ConstructorCall</code> represents a direct call to a constructor.
@@ -19,13 +18,20 @@ import polyglot.util.Enum;
 public interface ConstructorCall extends Stmt, ProcedureCall
 {
     /** Constructor call kind: either "super" or "this". */
-    public static class Kind extends Enum {
-        private static final long serialVersionUID = -6862343120050782664L;
-        public Kind(String name) { super(name); }
+    public static enum Kind {
+        SUPER("super"), THIS("this");
+
+        public final String name;
+        private Kind(String name) {
+            this.name = name;
+        }
+        @Override public String toString() {
+            return name;
+        }
     }
 
-    public static final Kind SUPER = new Kind("super");
-    public static final Kind THIS    = new Kind("this");
+    public static final Kind SUPER = Kind.SUPER;
+    public static final Kind THIS  = Kind.THIS;
 
     /** The qualifier of the call, possibly null. */
     Expr qualifier();

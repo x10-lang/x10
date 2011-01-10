@@ -14,7 +14,6 @@
  */
 public class OverrideMethod3 {
 
-	
 	def getA(flag:double){
 	    val a:A;
         if(flag > 0.5){

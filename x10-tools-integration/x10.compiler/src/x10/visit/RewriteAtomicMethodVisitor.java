@@ -21,6 +21,7 @@ import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.Stmt;
 import polyglot.frontend.Job;
+import polyglot.types.Flags;
 import polyglot.types.SemanticException;
 import polyglot.types.TypeSystem;
 import polyglot.util.Position;
@@ -28,7 +29,7 @@ import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.ast.Atomic;
 import x10.ast.X10MethodDecl;
-import x10.types.X10Flags;
+
 import polyglot.types.TypeSystem;
 
 public class RewriteAtomicMethodVisitor extends ContextVisitor {
@@ -47,7 +48,7 @@ public class RewriteAtomicMethodVisitor extends ContextVisitor {
 
 		if (n instanceof X10MethodDecl) {
 			X10MethodDecl md = (X10MethodDecl) n;
-			X10Flags flags = X10Flags.toX10Flags(md.flags().flags());
+			Flags flags = md.flags().flags();
 			if (flags.isAtomic()) {
 				Block b = md.body();
 				NodeFactory nf = (NodeFactory) this.nf;

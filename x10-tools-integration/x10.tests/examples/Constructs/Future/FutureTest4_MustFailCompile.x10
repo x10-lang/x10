@@ -28,16 +28,16 @@ public class FutureTest4_MustFailCompile extends x10Test {
 	 * testing free variables in future expression
 	 */
 	public def run(): boolean = {
-		val A = DistArray.make[int](Dist.makeBlock((0..N-1)*(0..N-1)), 
+		val A = DistArray.make[int](Dist.makeBlock((0..(N-1))*(0..(N-1))),
 		  ([i,j]: Point): int =>  N*i+j);
 		var x: int=0;
 		var s: int=0;
-		for ([i] in 0..N-1) {
+		for ([i] in 0..(N-1)) {
 			s += i;
 			//=== >compiler error: s not final  (i is final!)
 			x += Future.make[int](() => at(A.dist([i,
 			        s // ERR: Local variable "s" is accessed from an inner class or a closure, and must be declared final.
-			        %N] as Point))  A(i,
+			        %N] as Point(A.rank)))  A(i,
 			        s // ERR: Local variable "s" is accessed from an inner class or a closure, and must be declared final.
 			        %N) ).force();
 		}
@@ -45,11 +45,11 @@ public class FutureTest4_MustFailCompile extends x10Test {
 		if (x != 252) return false;
 		x = 0;
 		s = 0;
-		for ([i]  in 0..N-1) {
+		for ([i]  in 0..(N-1)) {
 			s += i;
 			val I: int = i; val S: int = s;
 				// no compiler error
-				x += Future.make[int](() => at(A.dist([I, S%N] as Point)) A(I, S%N) ).force();
+				x += Future.make[int](() => at(A.dist([I, S%N] as Point(A.rank))) A(I, S%N) ).force();
 			
 		}
 		x10.io.Console.OUT.println("x = "+x);

@@ -12,12 +12,12 @@ import polyglot.types.SemanticException;
 import polyglot.types.TypeSystem;
 import polyglot.types.Type;
 import polyglot.types.Context;
+import polyglot.types.Types;
 import polyglot.util.*;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.PrettyPrinter;
 import x10.errors.Errors;
 import x10.types.constraints.CConstraint;
-import x10.types.X10TypeMixin;
 import x10.constraint.XTerm;
 import x10.constraint.XFailure;
 
@@ -129,7 +129,7 @@ public class IntLit_c extends NumLit_c implements IntLit
         }
         catch (XFailure e) {
         }
-        Type newType = X10TypeMixin.xclause(Type, c);
+        Type newType = Types.xclause(Type, c);
         return type(newType);
     }
 

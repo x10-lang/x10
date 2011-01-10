@@ -14,12 +14,6 @@ import com.ibm.wala.util.debug.Assertions;
 public class X10ClosureObject extends AstFunctionClass {
     private final IClassHierarchy cha;
 
-    public X10ClosureObject(TypeReference reference, TypeReference superReference, IClassLoader loader,
-	    CAstSourcePositionMap.Position fileName, IClassHierarchy cha) {
-	super(reference, superReference, loader, fileName);
-	this.cha= cha;
-    }
-
     public X10ClosureObject(TypeReference reference, IClassLoader loader, CAstSourcePositionMap.Position fileName,
 	    IClassHierarchy cha) {
 	super(reference, loader, fileName);

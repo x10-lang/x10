@@ -37,8 +37,7 @@ import polyglot.visit.ReachChecker;
 import x10.constraint.XTerm;
 import x10.types.ClosureDef;
 import polyglot.types.Context;
-import x10.types.X10NamedType;
-import x10.types.X10TypeMixin;
+
 import polyglot.types.TypeSystem;
 import x10.types.checker.PlaceChecker;
 

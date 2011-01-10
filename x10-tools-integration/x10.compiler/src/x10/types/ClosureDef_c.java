@@ -209,7 +209,7 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
     }
 
     public void setMethodContainer(Ref<? extends CodeInstance<?>> container) {
-        methodContainer= container;
+        methodContainer = container;
     }
 
     public Ref<? extends Type> returnType() {
@@ -237,6 +237,10 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
          return Collections.unmodifiableList(capturedEnvironment);
      }
 
+     public void setCapturedEnvironment(List<VarInstance<? extends VarDef>> env) {
+         capturedEnvironment = TypedList.<VarInstance<? extends VarDef>>copy(env, VarInstance.class, false);
+     }
+     
      private static boolean containsDef(List<VarInstance<? extends VarDef>> l, VarInstance<? extends VarDef> v) {
          for (VarInstance<? extends VarDef> e : l) {
              if (e == v)
@@ -247,13 +251,16 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
          return false;
      }
 
-     public void addCapturedVariable(VarInstance<? extends VarDef> vi) {
-         List<VarInstance<? extends VarDef>> capturedEnvironment = this.capturedEnvironment;
+     public static void addCapturedVariable(List<VarInstance<? extends VarDef>> capturedEnvironment, VarInstance<? extends VarDef> vi) {
          if (!containsDef(capturedEnvironment, vi)) {
              capturedEnvironment.add(vi);
              //if (vi instanceof ThisInstance)
              //    System.err.println("Closure at "+position()+" captures this");
          }
+     }
+
+     public void addCapturedVariable(VarInstance<? extends VarDef> vi) {
+         addCapturedVariable(this.capturedEnvironment, vi);
      }
 
      private boolean isStatic;

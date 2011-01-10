@@ -51,7 +51,7 @@ public class ClockTest17_MustFailTimeout extends x10Test {
 		val x = new X();
 		// f0 does not transmit clocks to subactivity
 		val f0  = new foo() {
-			public def apply(): void = {
+			public operator this(): void = {
 				async {
 					x10.io.Console.OUT.println("hello from finish async S");
 				}
@@ -59,7 +59,7 @@ public class ClockTest17_MustFailTimeout extends x10Test {
 		};
 		// f1 transmits clocks to subactivity
 		val f1  = new foo() {
-			public def apply(): void = {
+			public operator this(): void = {
 				/*Activity A1*/
 				async clocked(c0) {
 					x10.io.Console.OUT.println("#1 before next");
@@ -101,7 +101,7 @@ public class ClockTest17_MustFailTimeout extends x10Test {
 	static class Y {
 		static def test(var f: foo): void = {
 			finish {
-				f.apply(); // it is hard to determine f does an async clocked(c) S
+				f(); // it is hard to determine f does an async clocked(c) S
 			}
 		}
 	}
@@ -113,12 +113,12 @@ public class ClockTest17_MustFailTimeout extends x10Test {
 	 *
 	 * // values of free final variables of S1 are also captured in f1
 	 *
-	 * f1.apply(); // invoke S1 indirectly using its captured
+	 * f1(); // invoke S1 indirectly using its captured
 	 *
 	 * // free variables
 	 */
 	static interface foo {
-		 def apply(): void;
+		 operator this(): void;
 	}
 
 	/**

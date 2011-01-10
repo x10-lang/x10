@@ -14,8 +14,6 @@
  */
 public class OverrideMethod2 {
 
-	
-	
 	public def run() {
 		val random = new x10.util.Random();
 		

@@ -6,6 +6,7 @@ import java.util.List;
 
 import polyglot.types.ClassType;
 import polyglot.types.FieldDef;
+import polyglot.types.Types;
 
 import x10.constraint.XConstraint;
 import x10.constraint.XEQV;
@@ -20,7 +21,6 @@ import x10.constraint.XVar;
 import x10.types.ConstrainedType;
 import x10.types.FunctionType;
 import x10.types.X10ClassType;
-import x10.types.X10TypeMixin;
 
 import com.sun.javadoc.ClassDoc;
 import com.sun.javadoc.ParameterizedType;
@@ -40,9 +40,9 @@ public class X10ParameterizedType extends X10Type implements ParameterizedType {
 
 		this.depType = depType;
 		rootDoc = X10RootDoc.getRootDoc();
-		classDoc = rootDoc.getUnspecClass(((X10ClassType)X10TypeMixin.baseType(t)).x10Def());
+		classDoc = rootDoc.getUnspecClass(((X10ClassType)Types.baseType(t)).x10Def());
 
-		polyglot.types.Type b = (depType ? (X10TypeMixin.baseType(t)) : t);
+		polyglot.types.Type b = (depType ? (Types.baseType(t)) : t);
 		// polyglot.types.Type b = (depType ? ((polyglot.types.Type) X10TypeMixin.baseType(t)) : t);
 		List<polyglot.types.Type> args = ((X10ClassType)b).typeArguments();
 		if (args != null) {
@@ -75,7 +75,7 @@ public class X10ParameterizedType extends X10Type implements ParameterizedType {
 		super(t);
 		this.depType = true;
 		X10RootDoc rootDoc = X10RootDoc.getRootDoc();
-		classDoc = rootDoc.getUnspecClass(((X10ClassType)X10TypeMixin.baseType(t)).x10Def());
+		classDoc = rootDoc.getUnspecClass(((X10ClassType)Types.baseType(t)).x10Def());
 
 		// the following may need to be changed, e.g., if the superclass of a ConstrainedType ct is the super class
 		// obtained below with the constraints of ct; similar argument for interfaceTypes
@@ -175,7 +175,7 @@ public class X10ParameterizedType extends X10Type implements ParameterizedType {
 	}
 	
 	public String descriptor() {
-		XConstraint xc = X10TypeMixin.xclause(pType);
+		XConstraint xc = Types.xclause(pType);
 		List<XTerm> terms = xc.constraints();
 		String result = "  {";
 		boolean first = true;

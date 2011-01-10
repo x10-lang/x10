@@ -112,8 +112,8 @@ public class ArrayCopy2 extends x10Test {
      */
     public def run(): boolean = {
 
-        val R:Region(4) = (0..N-1)*(0..N-1)*(0..N-1)*(0..N-1);
-        val TestDists = (0..dist2.N_DIST_TYPES-1)*(0..dist2.N_DIST_TYPES-1);
+        val R:Region(4) = 0..(N-1)*0..(N-1)*0..(N-1)*0..(N-1);
+        val TestDists = 0..(dist2.N_DIST_TYPES-1)*0..(dist2.N_DIST_TYPES-1);
 
         for (distP[dX,dY]:Point(2) in TestDists) {
             val D= dist2.getDist(dX, R);
@@ -132,7 +132,7 @@ public class ArrayCopy2 extends x10Test {
             val A = DistArray.make[int](D);
             val B = DistArray.make[int](E, (p[i,j,k,l]: Point) => { val x = ((i*N+j)*N+k)*N+l; x*x+1 });
             arrayCopy(A, B);
-            arrayEqual(A, B);
+            arrayEqual(A, B);  
         }
         return true;
     }

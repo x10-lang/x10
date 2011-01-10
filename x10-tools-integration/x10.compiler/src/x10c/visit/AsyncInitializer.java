@@ -31,9 +31,11 @@ import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.types.VarDef;
+import polyglot.types.VarInstance;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
+import x10.ast.Closure;
 import x10.ast.Closure_c;
 import x10.ast.X10Call;
 import x10.ast.X10Call_c;
@@ -45,12 +47,12 @@ import x10.ast.X10Local_c;
 import x10.extension.X10Ext_c;
 import x10.types.X10ClassType;
 import x10.types.X10LocalDef;
-import x10.types.X10MethodInstance;
-import x10.types.X10TypeMixin;
+import x10.types.MethodInstance;
 import x10c.ast.BackingArrayAccess;
 import x10c.ast.BackingArrayAccessAssign;
 import x10c.ast.BackingArrayNewArray;
 import x10c.ast.X10CNodeFactory_c;
+import x10c.types.BackingArrayType;
 import x10c.types.X10CTypeSystem_c;
 
 public class AsyncInitializer extends ContextVisitor {
@@ -73,7 +75,7 @@ public class AsyncInitializer extends ContextVisitor {
         return (collectAsyncVarsToBox(n) != null);
     }
     private boolean isAsyncBlock(X10Call n) {
-        X10MethodInstance mi = (X10MethodInstance) n.methodInstance();
+        MethodInstance mi = (MethodInstance) n.methodInstance();
         if (mi.container().isClass() && ((X10ClassType) mi.container().toClass()).
                 fullName().toString().equals("x10.lang.Runtime")) {
             if (mi.signature().startsWith("runAsync"))
@@ -86,7 +88,7 @@ public class AsyncInitializer extends ContextVisitor {
     protected NodeVisitor enterCall(Node parent, Node n) throws SemanticException {
         if (n instanceof X10Call) {
             X10Call call = (X10Call)n;
-            X10MethodInstance mi = (X10MethodInstance) call.methodInstance();
+            MethodInstance mi = (MethodInstance) call.methodInstance();
             if (mi.container().isClass() && ((X10ClassType) mi.container().toClass()).
                     fullName().toString().equals("x10.lang.Runtime")) {
                 // adjust nest level counter of finish block
@@ -244,11 +246,12 @@ public class AsyncInitializer extends ContextVisitor {
     private Try replaceVariables(Try tcfBlock, final Set<LocalDef> asyncInitVal) {
         // box async init vals
         tcfBlock = (Try)tcfBlock.visit(new NodeVisitor() {
+            private final Map<Name, X10LocalDef> nameToBoxDef = new HashMap<Name, X10LocalDef>();
             @Override
             public Node leave(Node parent, Node old, Node n, NodeVisitor v) {
                 if (n instanceof X10LocalAssign_c) {
                     X10LocalAssign_c la = (X10LocalAssign_c) n;
-                    Type type = X10TypeMixin.baseType(la.type());
+                    Type type = Types.baseType(la.type());
                     Expr left = la.left();
 
                     if (!(left instanceof Local)) {
@@ -261,9 +264,10 @@ public class AsyncInitializer extends ContextVisitor {
 
                     // initialization to boxed variable
                     Id id = getBoxId(initVal);
-                    LocalDef ldef = xts.localDef(n.position(), xts.Final(), Types.ref(type), id.id());
+                    BackingArrayType arrayType = xts.createBackingArray(n.position(), Types.ref(type));
+                    LocalDef ldef = getBoxLocalDef(n, arrayType, initVal, id);
                     IntLit idx0 = xnf.IntLit(n.position(), IntLit.INT, 0);
-                    return xnf.BackingArrayAccessAssign(n.position(), xnf.Local(n.position(), id).localInstance(ldef.asInstance()),
+                    return xnf.BackingArrayAccessAssign(n.position(), xnf.Local(n.position(), id).localInstance(ldef.asInstance()).type(arrayType),
                                  idx0, la.operator(), la.right()).type(type);
                 }
                 if (n instanceof X10Local_c) {
@@ -275,15 +279,42 @@ public class AsyncInitializer extends ContextVisitor {
                     if (initVal == null)
                         return n;
 
-                    Type type = X10TypeMixin.baseType(((X10Local_c) n).type());
+                    Type type = Types.baseType(((X10Local_c) n).type());
 
                     Id id = getBoxId(initVal);
-                    LocalDef ldef = xts.localDef(n.position(), xts.Final(), Types.ref(type), id.id());
+                    BackingArrayType arrayType = xts.createBackingArray(n.position(), Types.ref(type));
+                    LocalDef ldef = getBoxLocalDef(n, arrayType, initVal, id);
                     IntLit idx0 = xnf.IntLit(n.position(), IntLit.INT, 0);
-                    return xnf.BackingArrayAccess(n.position(), xnf.Local(n.position(), id).localInstance(ldef.asInstance()), idx0, type);
+                    return xnf.BackingArrayAccess(n.position(), xnf.Local(n.position(), id).localInstance(ldef.asInstance()).type(arrayType), idx0, type);
+                }
+                if (n instanceof Closure) {
+                    Closure closure = (Closure) n;
+                    List<VarInstance<? extends VarDef>> newCaps = new ArrayList<VarInstance<? extends VarDef>>();
+                    List<VarInstance<? extends VarDef>> caps = closure.closureDef().capturedEnvironment();
+                    for (VarInstance<? extends VarDef> vi : caps) {
+                        if (nameToBoxDef.containsKey(vi.def().name())) {
+                            newCaps.add(nameToBoxDef.get(vi.def().name()).asInstance());
+                        }
+                        else {
+                            newCaps.add(vi);
+                        }
+                    }
+                    closure.closureDef().setCapturedEnvironment(newCaps);
                 }
                 return n;
-            };
+            }
+
+            private X10LocalDef getBoxLocalDef(Node n, Type type, VarDef initVal, Id id) {
+                X10LocalDef ldef;
+                if (nameToBoxDef.containsKey(initVal.name())) {
+                    ldef = nameToBoxDef.get(initVal.name());
+                } else {
+                    ldef = xts.localDef(n.position(), xts.Final(), Types.ref(type), id.id());
+                    nameToBoxDef.put(initVal.name(), ldef);
+                }
+                return ldef;
+            }
+
         });
         // tcfBlock.dump(System.err);
         return tcfBlock;
@@ -456,7 +487,7 @@ public class AsyncInitializer extends ContextVisitor {
                     }
                     if (e.expr() instanceof X10Call) {
                         X10Call call = (X10Call)(e.expr());
-                        X10MethodInstance mi = (X10MethodInstance) call.methodInstance();
+                        MethodInstance mi = (MethodInstance) call.methodInstance();
                         if (mi.container().isClass() && ((X10ClassType) mi.container().toClass()).
                                 fullName().toString().equals("x10.lang.Runtime")) {
                             if (mi.signature().startsWith("stopFinish")) {
@@ -594,7 +625,7 @@ public class AsyncInitializer extends ContextVisitor {
         Local right = (Local) xnf.Local(n.position(), xnf.Id(n.position(), name)).localInstance(ldef.asInstance()).type(type);
 
         IntLit idx0 = xnf.IntLit(n.position(), IntLit.INT, 0);
-        Expr baa = xnf.BackingArrayAccessAssign(n.position(), xnf.Local(n.position(), id).localInstance(ldef.asInstance()),
+        Expr baa = xnf.BackingArrayAccessAssign(n.position(), xnf.Local(n.position(), id).localInstance(ldef.asInstance()).type(arrayType),
                                                 idx0, Assign.ASSIGN, right).type(type);
         // returning a pair of statements
         List<Stmt> stmts = new ArrayList<Stmt>();
@@ -611,7 +642,7 @@ public class AsyncInitializer extends ContextVisitor {
         Id id = getBoxId(initVal);
         LocalDef rdef = xts.localDef(n.position(), xts.Final(), Types.ref(type), id.id());
         IntLit idx0 = xnf.IntLit(n.position(), IntLit.INT, 0);
-        BackingArrayAccess right = xnf.BackingArrayAccess(n.position(), xnf.Local(n.position(), id).localInstance(rdef.asInstance()),
+        BackingArrayAccess right = xnf.BackingArrayAccess(n.position(), xnf.Local(n.position(), id).localInstance(rdef.asInstance()).type(type),
                                                           idx0, type);
         // left-hand side (original final var)
         LocalDef ldef = xts.localDef(n.position(), xts.Final(), Types.ref(type), name);

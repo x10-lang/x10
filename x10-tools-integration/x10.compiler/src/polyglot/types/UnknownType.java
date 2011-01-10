@@ -7,9 +7,39 @@
 
 package polyglot.types;
 
+import polyglot.util.InternalCompilerError;
+
+
 /**
  * An unknown type.  This is used as a place-holder until types are
- * disambiguated.
+ * disambiguated, or as a fake type when recovering from errors.
  */
-public interface UnknownType extends Type {
+public class UnknownType extends Type_c {
+	   private static final long serialVersionUID = 2713953048091574093L;
+
+	    /** Used for deserializing types. */
+	    protected UnknownType() { }
+	    
+	    /** Creates a new type in the given a TypeSystem. */
+	    public UnknownType(TypeSystem ts) {
+	        super(ts);
+	    }
+
+	    public String translate(Resolver c) {
+		throw new InternalCompilerError("Cannot translate an unknown type.");
+	    }
+
+	    /**
+	     * In X10, the UnknownType is presumed to be a class type. This is used primarily
+	     * in error recovery.
+	     */
+	    public boolean isClass() {
+	    	return true;
+	    }
+	    public String typeToString() {
+		return "<unknown>";
+	    }
+	    public ClassType toClass() {
+		    return ts.createFakeClass(QName.make("<unknown>"), new SemanticException("Unknown class"));
+		}
 }

@@ -24,9 +24,10 @@ import polyglot.frontend.Globals;
 import polyglot.types.Context;
 import polyglot.types.LazyRef_c;
 import polyglot.types.LocalInstance;
-import polyglot.types.MethodInstance;
+
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
+import polyglot.types.Types;
 import polyglot.util.Position;
 import x10.ast.ClosureCall;
 import x10.constraint.XEQV;
@@ -39,10 +40,9 @@ import x10.errors.Errors;
 import x10.errors.Errors.InvalidParameter;
 import x10.types.ParameterType;
 import polyglot.types.Context;
-import x10.types.X10MethodInstance;
+import x10.types.MethodInstance;
 import x10.types.X10ProcedureDef;
 import x10.types.X10ProcedureInstance;
-import x10.types.X10TypeMixin;
 import polyglot.types.TypeSystem;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
@@ -124,24 +124,24 @@ public class Matcher {
 		}
 		final List<LocalInstance> formalNames = me.formalNames();
 		final List<Type> typeFormals = me.typeParameters();
-		final boolean isStatic = X10TypeMixin.isStatic(me);
+		final boolean isStatic = Types.isStatic(me);
 		if (actuals.size() != formals.size())
 	            throw new SemanticException("Call not valid; incorrect number of actual arguments.", me.position());
 
 		if (typeActuals.size() != typeFormals.size())
 	            throw new SemanticException("Call not valid; incorrect number of actual type arguments.", me.position());
 
-		formals = X10TypeMixin.expandTypes(formals, xts);
+		formals = Types.expandTypes(formals, xts);
 
-		actuals = X10TypeMixin.expandTypes(actuals, xts);
+		actuals = Types.expandTypes(actuals, xts);
 
 		Type thisType = thisTypeArray[0];
 
 		final XVar ythiseqv =  ys[0] = getSymbol(thisType);
 		if (! isStatic) {
-	        	XVar st = X10TypeMixin.selfVarBinding(thisType);
+	        	XVar st = Types.selfVarBinding(thisType);
 	        	hasSymbol[0] = st != null; // if true, a UQV was not generated.
-	        	thisTypeArray[0] = thisType = X10TypeMixin.instantiateSelf(ythiseqv, thisType);
+	        	thisTypeArray[0] = thisType = Types.instantiateSelf(ythiseqv, thisType);
 		}
 
 		// useful for uniformity. Note some of the formal parameters may not have names.
@@ -194,7 +194,7 @@ public class Matcher {
 		final XTerm[] y2eqv = isStatic ? ySymbols  : new XTerm[ySymbols.length+2];
 		if (! isStatic) {
 	        	x2[0] = xthis;
-	        	x2[1] = X10TypeMixin.thisVar(xthis, thisType);
+	        	x2[1] = Types.thisVar(xthis, thisType);
 	        	System.arraycopy(x, 0, x2, 2, x.length);
 
 	        	y2eqv[0] = ythiseqv;
@@ -258,7 +258,7 @@ public class Matcher {
 	        		List<Type> newFormals = new ArrayList<Type>();
 	        		CConstraint env = null; 
 	        		if (! isStatic) {
-	        			env = X10TypeMixin.xclause(thisType);
+	        			env = Types.xclause(thisType);
 	        			if (env != null && ythiseqv != null && ! ((env == null) || env.valid())) {
 	        				env = env.copy().instantiateSelf(ythiseqv);
 	        			}
@@ -370,7 +370,7 @@ public class Matcher {
 	
 		CConstraint env = null; 
 		if (! isStatic) {
-			env = X10TypeMixin.xclause(thisType);
+			env = Types.xclause(thisType);
 			if (env != null && ythis != null && ! ((env == null) || env.valid()))
 				env = env.copy().instantiateSelf(ythis);
 		}
@@ -380,7 +380,7 @@ public class Matcher {
 	    for (int i = 0; i < actuals.size(); i++) { // update Gamma
 	    	
 	    		Type ytype = actuals.get(i);
-	    		final CConstraint yc = X10TypeMixin.realX(ytype);
+	    		final CConstraint yc = Types.realX(ytype);
 	    		try {
 	    			if (! ((yc == null) || yc.valid())){
 	    				env.addIn(y[i], yc);
@@ -399,7 +399,7 @@ public class Matcher {
 	
 		CConstraint env = null; 
 		if (! isStatic) {
-			env = X10TypeMixin.xclause(thisType);
+			env = Types.xclause(thisType);
 			if (env != null && ythis != null && ! ((env == null) || env.valid()))
 				env = env.copy().instantiateSelf(ythis);
 		}
@@ -409,7 +409,7 @@ public class Matcher {
 	    for (int i = 0; i < actuals.size(); i++) { // update Gamma
 	    	if (! hasSymbol[i+1]) {
 	    		Type ytype = actuals.get(i);
-	    		final CConstraint yc = X10TypeMixin.realX(ytype);
+	    		final CConstraint yc = Types.realX(ytype);
 	    		try {
 	    			if (! ((yc == null) || yc.valid())){
 	    				env.addIn(y[i], yc);
@@ -426,7 +426,7 @@ public class Matcher {
     	return getSymbol(type, "arg");
     }
     private static XVar getSymbol(Type type, String prefix) {
-    	  XVar symbol = X10TypeMixin.selfVarBinding(type);
+    	  XVar symbol = Types.selfVarBinding(type);
           if (symbol == null) {
         	  symbol = XTerms.makeLocal(XTerms.makeFreshName("arg"));
               // symbol = XTerms.makeUQV(XTerms.makeFreshName(prefix));
@@ -435,7 +435,7 @@ public class Matcher {
     }
     static void hasSymbolicNames(boolean[] hasSymbol, int start, List<Type> actuals) {
       for (int i = 0; i < actuals.size(); i++) {
-    	  XVar symbol = X10TypeMixin.selfVarBinding(actuals.get(i));
+    	  XVar symbol = Types.selfVarBinding(actuals.get(i));
            hasSymbol[i+start] = symbol != null;
       }
     }
@@ -468,7 +468,7 @@ public class Matcher {
 			boolean isStatic)
 	throws SemanticException {
 		for (int i=0; i < formals.size(); ++i) {
-			CConstraint formalC = X10TypeMixin.xclause(formals.get(i));
+			CConstraint formalC = Types.xclause(formals.get(i));
 			if (formalC != null) {
 				try {
 					formalC = formalC.substitute(y, x);
@@ -476,7 +476,7 @@ public class Matcher {
 					// formalC = formalC.instantiateSelf(y[i]);
 					if ((! isStatic) && xthis != null)
 						formalC = formalC.substitute(ythis, xthis);
-					formals.set(i, X10TypeMixin.constrainedType(X10TypeMixin.baseType(formals.get(i)), 
+					formals.set(i, Types.constrainedType(Types.baseType(formals.get(i)), 
 							formalC));
 				} catch (XFailure z) {
 					throw new SemanticException("Call invalid; calling environment is inconsistent.");

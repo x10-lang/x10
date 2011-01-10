@@ -30,7 +30,7 @@ import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeBuilder;
 import x10.types.ParameterType;
-import x10.types.ParameterType_c;
+
 import polyglot.types.Context;
 import x10.types.X10Context_c;
 import x10.types.X10TypeEnv_c;
@@ -87,7 +87,7 @@ public class TypeParamNode_c extends Term_c implements TypeParamNode {
 //	            throw new SemanticException("Type parameter cannot occur outside method, constructor, closure, or type definition.", position());
 //	        }
 	        
-	        ParameterType t = new ParameterType_c(xts, position(), name.id(), Types.ref(def));
+	        ParameterType t = new ParameterType(xts, position(), name.id(), Types.ref(def));
 	        return type(t);
 	}
 

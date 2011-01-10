@@ -22,8 +22,8 @@ class XTENLANG_111 extends x10Test {
     }
     
     static class A {
-        def apply(p:P): int { throw new RuntimeException(); } // FIXME: XTENLANG-1443
-        def set(e:int, p:P): void { throw new RuntimeException(); }
+        operator this(p:P): int { throw new RuntimeException(); } // FIXME: XTENLANG-1443
+        operator this(p:P)=(e:int): void { throw new RuntimeException(); }
     }
         
     def foo(a:A) {

@@ -18,13 +18,14 @@ import polyglot.ast.NodeFactory;
 import polyglot.ast.Receiver;
 import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
-import polyglot.types.MethodInstance;
+
 import polyglot.types.Name;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.util.Position;
 import polyglot.types.Context;
 import polyglot.types.TypeSystem;
+import x10.types.MethodInstance;
 
 /**
  * A simple synthesizer to create a instance call.
@@ -95,8 +96,9 @@ public class InstanceCallSynth extends AbstractStateSynth implements IStmtSynth,
             typeArgs.add(t.type());
         }
 
-        MethodInstance mi = xts.findMethod(methodLocationType, xts.MethodMatcher(methodLocationType, methodName, typeArgs,
-                                                                              argTypes, xct));
+        MethodInstance mi = xts.findMethod(methodLocationType, 
+                                              xts.MethodMatcher(methodLocationType, methodName, typeArgs,
+                                                                argTypes, xct));
 
         //handle return type
         if(returnType == null){ //not set

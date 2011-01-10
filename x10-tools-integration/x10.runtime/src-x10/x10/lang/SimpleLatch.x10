@@ -57,5 +57,5 @@ import x10.io.SerialData;
         unlock();
     }
 
-    public def apply():Boolean = state;
+    public operator this():Boolean = state;
 }

@@ -23,7 +23,7 @@ public class ConInstance2Arg extends x10Test {
 	def n(i:Int) {
 		val a = new A(i);
 		// This call will compile only if -strictCalls is not set.
-		m(a, i); // ERR
+		m(a, i); // ERR: Warning: Expression 'a' was cast to type ConInstance2Arg.A{self.i==2}.
 	}
 	
 	public def run(): boolean {

@@ -23,7 +23,7 @@ public abstract class Mat[T](rows:Int, cols:Int){T <: Row}
         this.mat = mat;
     }
 
-    public def apply(i:Int) = mat(i);
+    public operator this(i:Int) = mat(i);
 
     public def iterator() = mat.values().iterator();
 

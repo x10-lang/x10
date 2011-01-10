@@ -39,9 +39,7 @@ import polyglot.visit.ContextVisitor;
 import x10.constraint.XConstraint;
 import x10.errors.Errors;
 import polyglot.types.Context;
-import x10.types.X10NamedType;
 
-import x10.types.X10TypeMixin;
 import polyglot.types.TypeSystem;
 import x10.types.checker.Converter;
 
@@ -84,7 +82,7 @@ public class X10Conditional_c extends Conditional_c implements X10Conditional {
             return type(t1);
 
         if (ts.typeBaseEquals(t1, t2, context)) {
-            return type(X10TypeMixin.baseType(t1));
+            return type(Types.baseType(t1));
         }
 
         // Otherwise, if the second and third operands have numeric type, then
@@ -143,8 +141,8 @@ public class X10Conditional_c extends Conditional_c implements X10Conditional {
         // If one of the second and third operands is of the null type and the
         // type of the other is a reference type, then the type of the
         // conditional expression is that reference type.
-        if (t1.isNull() && X10TypeMixin.permitsNull(t2)) return type(t2);
-        if (t2.isNull() && X10TypeMixin.permitsNull(t1)) return type(t1);
+        if (t1.isNull() && Types.permitsNull(t2)) return type(t2);
+        if (t2.isNull() && Types.permitsNull(t1)) return type(t1);
 
         // If the second and third operands are of different reference types,
         // then it must be possible to convert one of the types to the other

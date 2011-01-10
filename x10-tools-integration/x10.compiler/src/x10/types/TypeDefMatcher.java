@@ -19,9 +19,10 @@ import polyglot.types.Name;
 import polyglot.types.Named;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
+import polyglot.types.TypeSystem_c;
 import polyglot.util.CollectionUtil;
 
-public class TypeDefMatcher implements Matcher<Named> {
+public class TypeDefMatcher extends TypeSystem_c.BaseMatcher<Named> {
     Type container;
     Name name;
     List<Type> typeArgs;

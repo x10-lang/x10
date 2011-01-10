@@ -31,7 +31,6 @@ import polyglot.types.FieldDef;
 import polyglot.types.FieldInstance;
 import polyglot.types.LocalInstance;
 import polyglot.types.MemberInstance;
-import polyglot.types.MethodInstance;
 import polyglot.types.Named;
 import polyglot.types.NoClassException;
 import polyglot.types.Package;
@@ -49,10 +48,9 @@ import x10.types.ClosureDef;
 import x10.types.X10ClassType;
 import polyglot.types.Context;
 import x10.types.X10FieldInstance;
-import x10.types.X10Flags;
-import x10.types.X10MethodInstance;
-import x10.types.X10NamedType;
-import x10.types.X10TypeMixin;
+
+import x10.types.MethodInstance;
+
 import polyglot.types.TypeSystem;
 import polyglot.types.TypeSystem_c;
 import x10.types.checker.Checker;
@@ -73,7 +71,7 @@ public class X10Disamb_c extends Disamb_c {
 	    TypeSystem ts = (TypeSystem) this.ts;
 	    
 	    if (c.inDepType()) {
-	    	X10NamedType t = c.currentDepType();
+	    	Type t = c.currentDepType();
 	    	
 	    	if (exprOK()) {
 	    		// First try local variables.
@@ -136,8 +134,8 @@ public class X10Disamb_c extends Disamb_c {
 
 	    		// Now try 0-ary property methods.
 	    		try {
-	    		    X10MethodInstance mi = ts.findMethod(t, ts.MethodMatcher(t, this.name.id(), Collections.<Type>emptyList(), c));
-	    		    if (X10Flags.toX10Flags(mi.flags()).isProperty()) {
+	    		    MethodInstance mi = ts.findMethod(t, ts.MethodMatcher(t, this.name.id(), Collections.<Type>emptyList(), c));
+	    		    if (mi.flags().isProperty()) {
 	    		        Call call = nf.Call(pos, makeMissingPropertyTarget(mi, t), this.name);
 	    		        call = call.methodInstance(mi);
 	    		        Type ftype = Checker.rightType(mi.rightType(), mi.x10Def(), call.target(), c);
@@ -181,8 +179,8 @@ public class X10Disamb_c extends Disamb_c {
     		
     		// Now try 0-ary property methods.
     		try {
-    		    X10MethodInstance mi = (X10MethodInstance) c.findMethod(ts.MethodMatcher(null, name.id(), Collections.<Type>emptyList(), c));
-    		    if (X10Flags.toX10Flags(mi.flags()).isProperty()) {
+    		    MethodInstance mi =  c.findMethod(ts.MethodMatcher(null, name.id(), Collections.<Type>emptyList(), c));
+    		    if (mi.flags().isProperty()) {
     			Call call = nf.Call(pos, makeMissingMethodTarget(mi), this.name);
     			call = call.methodInstance(mi);
                         Type ftype = Checker.rightType(mi.rightType(), mi.x10Def(), call.target(), c);
@@ -252,7 +250,7 @@ public class X10Disamb_c extends Disamb_c {
 		// If in a class header, don't search the supertypes of this class.
 		if (xc.inSuperTypeDeclaration()) {
 		    Type tType = t;
-		    Type tBase = X10TypeMixin.baseType(tType);
+		    Type tBase = Types.baseType(tType);
 		    if (tBase instanceof X10ClassType) {
 			X10ClassType tCt = (X10ClassType) tBase;
 			    
@@ -286,8 +284,8 @@ public class X10Disamb_c extends Disamb_c {
 		    }
 		    // Now try 0-ary property methods.
 		    try {
-			X10MethodInstance mi = (X10MethodInstance) ts.findMethod(e.type(), ts.MethodMatcher(e.type(), name.id(), Collections.<Type>emptyList(), c));
-			if (X10Flags.toX10Flags(mi.flags()).isProperty()) {
+			MethodInstance mi = (MethodInstance) ts.findMethod(e.type(), ts.MethodMatcher(e.type(), name.id(), Collections.<Type>emptyList(), c));
+			if (mi.flags().isProperty()) {
 			    Call call = nf.Call(pos, e, this.name);
 			    call = call.methodInstance(mi);
 			    Type ftype = Checker.rightType(mi.rightType(), mi.x10Def(), call.target(), c);

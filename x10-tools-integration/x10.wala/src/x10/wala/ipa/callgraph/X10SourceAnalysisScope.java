@@ -1,24 +1,36 @@
 package x10.wala.ipa.callgraph;
 
-import com.ibm.wala.cast.java.ipa.callgraph.JavaSourceAnalysisScope;
-import com.ibm.wala.classLoader.Language;
-import com.ibm.wala.types.ClassLoaderReference;
+import com.ibm.wala.classLoader.IClass;
+import com.ibm.wala.ipa.callgraph.AnalysisScope;
+import com.ibm.wala.ipa.callgraph.impl.SetOfClasses;
+import com.ibm.wala.types.TypeReference;
 
 import java.util.*;
 
 import x10.wala.classLoader.X10LanguageImpl;
 import x10.wala.loader.X10SourceLoaderImpl;
 
-public class X10SourceAnalysisScope extends JavaSourceAnalysisScope {
-    private static final Set<Language> languages = new HashSet<Language>(2);
-
-    static {
-        languages.add(X10LanguageImpl.X10Lang);
-    }
-
+public class X10SourceAnalysisScope extends AnalysisScope {
     public X10SourceAnalysisScope() {
-        super(languages);
-        loadersByName.put(X10SourceLoaderImpl.X10SourceLoaderName, X10SourceLoaderImpl.X10SourceLoader);
+        super(Collections.singleton(X10LanguageImpl.X10Lang));
+        loadersByName.put(X10SourceLoaderImpl.X10SourceLoader.getName(), X10SourceLoaderImpl.X10SourceLoader);
         setLoaderImpl(X10SourceLoaderImpl.X10SourceLoader, "x10.wala.loader.X10SourceLoaderImpl");
+
+        this.setExclusions(new SetOfClasses() {
+
+            @Override
+             public boolean contains(String klassName) {
+                return klassName.matches("x10/lang/(Void)?Fun_.*");
+            }
+
+            @Override
+            public boolean contains(TypeReference klass) {
+                return contains(klass.getName().toString().substring(1));
+            }
+
+            @Override
+            public void add(IClass klass) {
+            }
+        });
     }
 }

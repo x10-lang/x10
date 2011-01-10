@@ -13,18 +13,19 @@ import x10.wala.tree.X10CAstEntity;
 import x10.wala.tree.X10CastNode;
 import x10.wala.tree.visit.X10DelegatingCAstVisitor;
 
-import com.ibm.wala.cast.ir.translator.ArrayOpHandler;
-
 import com.ibm.wala.cast.ir.translator.AstTranslator;
 import com.ibm.wala.cast.ir.translator.AstTranslator.WalkContext;
 import com.ibm.wala.cast.java.loader.JavaSourceLoaderImpl;
 import com.ibm.wala.cast.java.translator.JavaCAst2IRTranslator;
 import com.ibm.wala.cast.java.types.JavaPrimitiveTypeMap;
+import com.ibm.wala.cast.loader.AstMethod.DebuggingInformation;
 import com.ibm.wala.cast.tree.CAstEntity;
 import com.ibm.wala.cast.tree.CAstNode;
 import com.ibm.wala.cast.tree.CAstType;
 import com.ibm.wala.cast.tree.visit.CAstVisitor;
+import com.ibm.wala.cfg.AbstractCFG;
 import com.ibm.wala.classLoader.NewSiteReference;
+import com.ibm.wala.ssa.SymbolTable;
 import com.ibm.wala.types.Descriptor;
 import com.ibm.wala.types.MethodReference;
 import com.ibm.wala.types.TypeName;
@@ -32,10 +33,12 @@ import com.ibm.wala.types.TypeReference;
 import com.ibm.wala.util.debug.Assertions;
 import com.ibm.wala.util.strings.Atom;
 
-public class X10CAst2IRTranslator extends X10DelegatingCAstVisitor implements ArrayOpHandler {
+public class X10CAst2IRTranslator extends X10DelegatingCAstVisitor /* implements ArrayOpHandler */ {
 	private static class X10JavaCAst2IRTranslator extends JavaCAst2IRTranslator {
+	    protected final X10SourceLoaderImpl x10Loader;
 		private X10JavaCAst2IRTranslator(CAstEntity sourceFileEntity, JavaSourceLoaderImpl loader) {
 			super(sourceFileEntity, loader);
+			x10Loader = (X10SourceLoaderImpl) loader;
 		}
 
 		/* (non-Javadoc)
@@ -48,10 +51,32 @@ public class X10CAst2IRTranslator extends X10DelegatingCAstVisitor implements Ar
 		protected int doLexicallyScopedRead(CAstNode node, WalkContext context, String name) {
 			return super.doLexicallyScopedRead(node, context, name);
 		}
-		
-		
-	}
-	
+
+        @Override
+        protected void defineFunction(CAstEntity n,
+                      WalkContext definingContext,
+                      AbstractCFG cfg,
+                      SymbolTable symtab,
+                      boolean hasCatchBlock,
+                      TypeReference[][] catchTypes,
+                      boolean hasMonitorOp,
+                      AstLexicalInformation lexicalInfo,
+                      DebuggingInformation debugInfo) {
+            if (n.getKind() == X10CAstEntity.ASYNC_BODY) {
+                x10Loader.defineAsync(n,
+                        asyncTypeReference(x10Loader, n),
+                        n.getPosition(), definingContext, cfg, symtab, hasCatchBlock, catchTypes,
+                        hasMonitorOp, lexicalInfo, debugInfo);
+            } else if (n.getKind() == X10CAstEntity.CLOSURE_BODY) {
+                x10Loader.defineClosure(n,
+                        closureTypeReference(x10Loader, n),
+                        n.getPosition(), definingContext, cfg, symtab, hasCatchBlock, catchTypes,
+                        hasMonitorOp, lexicalInfo, debugInfo);
+            } else
+                super.defineFunction(n, definingContext, cfg, symtab, hasCatchBlock, catchTypes, hasMonitorOp, lexicalInfo, debugInfo);
+        }
+    }
+
     public X10CAst2IRTranslator(CAstEntity sourceFileEntity, X10SourceLoaderImpl loader) {
         this(new X10JavaCAst2IRTranslator(sourceFileEntity, loader));
     }
@@ -63,18 +88,8 @@ public class X10CAst2IRTranslator extends X10DelegatingCAstVisitor implements Ar
     private X10CAst2IRTranslator(X10JavaCAst2IRTranslator translator) {
         super(translator);
         this.translator = translator;
-        this.translator.setArrayOpHandler(this);
+//        this.translator.setArrayOpHandler(this);
         this.insts = (AstX10InstructionFactory) translator.loader().getInstructionFactory();
-    }
-
-    protected boolean visitFunctionExpr(CAstNode n, Context c, CAstVisitor visitor) {
-        CAstEntity fn= (CAstEntity) n.getChild(0).getValue();
-
-        if (fn.getKind() == X10CAstEntity.ASYNC_BODY)
-            declareAsync(fn, (WalkContext) c);
-        else if (fn.getKind() == X10CAstEntity.CLOSURE_BODY)
-            declareClosure(fn, (WalkContext) c);
-        return false;
     }
 
     protected void leaveFunctionExpr(CAstNode n, Context c, CAstVisitor visitor) {
@@ -108,12 +123,6 @@ public class X10CAst2IRTranslator extends X10DelegatingCAstVisitor implements Ar
                 NewSiteReference.make(context.cfg().getCurrentInstruction(), asyncRef)));
     }
 
-    private void declareAsync(CAstEntity fn, WalkContext context) {
-        TypeReference asyncRef= asyncTypeReference(fn);
-
-        ((X10SourceLoaderImpl) translator.loader()).defineAsync(fn, asyncRef, fn.getPosition());
-    }
-
     private int processClosureExpr(CAstNode n, Context c) {
         WalkContext context= (WalkContext) c;
         CAstEntity fn= (CAstEntity) n.getChild(0).getValue();
@@ -130,14 +139,12 @@ public class X10CAst2IRTranslator extends X10DelegatingCAstVisitor implements Ar
                 NewSiteReference.make(context.cfg().getCurrentInstruction(), closureRef)));
     }
 
-    private void declareClosure(CAstEntity fn, WalkContext context) {
-        TypeReference asyncRef= closureTypeReference(fn);
-
-        ((X10SourceLoaderImpl) translator.loader()).defineClosure(fn, asyncRef, fn.getPosition());
+    private static TypeReference asyncTypeReference(JavaSourceLoaderImpl loader, CAstEntity fn) {
+        return TypeReference.findOrCreate(loader.getReference(), "LA" + fn.getName());
     }
 
     private TypeReference asyncTypeReference(CAstEntity fn) {
-        return TypeReference.findOrCreate(translator.loader().getReference(), "LA" + fn.getName());
+        return asyncTypeReference(translator.loader(), fn);
     }
 
     public MethodReference asyncEntityToMethodReference(CAstEntity asyncEntity) {
@@ -158,7 +165,6 @@ public class X10CAst2IRTranslator extends X10DelegatingCAstVisitor implements Ar
 
     protected boolean visitAsyncBodyEntity(CAstEntity n, Context context, Context codeContext, CAstVisitor visitor) {
         translator.initFunctionEntity(n, (WalkContext)context, (WalkContext)codeContext);
-        ((X10SourceLoaderImpl) translator.loader()).defineAsync(n, asyncTypeReference(n), n.getPosition());
         return false;
     }
     protected void leaveAsyncBodyEntity(CAstEntity n, Context context, Context codeContext, CAstVisitor visitor) {
@@ -189,13 +195,16 @@ public class X10CAst2IRTranslator extends X10DelegatingCAstVisitor implements Ar
         }
     }
 
+    private static TypeReference closureTypeReference(JavaSourceLoaderImpl loader, CAstEntity fn) {
+        return TypeReference.findOrCreate(loader.getReference(), "Lclosure" + fn.getPosition());
+    }
+
     private TypeReference closureTypeReference(CAstEntity fn) {
-        return TypeReference.findOrCreate(translator.loader().getReference(), "Lclosure" + fn.getPosition());
+        return closureTypeReference(translator.loader(), fn);
     }
 
     protected boolean visitClosureBodyEntity(CAstEntity n, Context context, Context codeContext, CAstVisitor visitor) {
         translator.initFunctionEntity(n, (WalkContext)context, (WalkContext)codeContext);
-        ((X10SourceLoaderImpl) translator.loader()).defineClosure(n, closureTypeReference(n), n.getPosition());
         return false;
     }
     protected void leaveClosureBodyEntity(CAstEntity n, Context context, Context codeContext, CAstVisitor visitor) {
@@ -230,36 +239,28 @@ public class X10CAst2IRTranslator extends X10DelegatingCAstVisitor implements Ar
         return true;
     }
     
-    protected boolean visitForce(CAstNode n, Context c, CAstVisitor visitor) { /* empty */ return false; }
-    protected void leaveForce(CAstNode n, Context c, CAstVisitor visitor) {
+    protected boolean visitIterInit(CAstNode n, Context c, CAstVisitor visitor) { /* empty */ return false; }
+    protected void leaveIterInit(CAstNode n, Context c, CAstVisitor visitor) {
         WalkContext context = (WalkContext)c;
         int targetValue = translator.getValue(n.getChild(0));
         int retValue = context.currentScope().allocateTempValue();
-        context.cfg().addInstruction(insts.Force(retValue, targetValue, (TypeReference) n.getChild(1).getValue()));
+        context.cfg().addInstruction(insts.IterInit(retValue, targetValue));
         translator.setValue(n, retValue);
     }
-    protected boolean visitRegionIterInit(CAstNode n, Context c, CAstVisitor visitor) { /* empty */ return false; }
-    protected void leaveRegionIterInit(CAstNode n, Context c, CAstVisitor visitor) {
+    protected boolean visitIterHasNext(CAstNode n, Context c, CAstVisitor visitor) { /* empty */ return false; }
+    protected void leaveIterHasNext(CAstNode n, Context c, CAstVisitor visitor) {
         WalkContext context = (WalkContext)c;
         int targetValue = translator.getValue(n.getChild(0));
         int retValue = context.currentScope().allocateTempValue();
-        context.cfg().addInstruction(insts.RegionIterInit(retValue, targetValue));
+        context.cfg().addInstruction(insts.IterHasNext(retValue, targetValue));
         translator.setValue(n, retValue);
     }
-    protected boolean visitRegionIterHasNext(CAstNode n, Context c, CAstVisitor visitor) { /* empty */ return false; }
-    protected void leaveRegionIterHasNext(CAstNode n, Context c, CAstVisitor visitor) {
+    protected boolean visitIterNext(CAstNode n, Context c, CAstVisitor visitor) { /* empty */ return false; }
+    protected void leaveIterNext(CAstNode n, Context c, CAstVisitor visitor) {
         WalkContext context = (WalkContext)c;
         int targetValue = translator.getValue(n.getChild(0));
         int retValue = context.currentScope().allocateTempValue();
-        context.cfg().addInstruction(insts.RegionIterHasNext(retValue, targetValue));
-        translator.setValue(n, retValue);
-    }
-    protected boolean visitRegionIterNext(CAstNode n, Context c, CAstVisitor visitor) { /* empty */ return false; }
-    protected void leaveRegionIterNext(CAstNode n, Context c, CAstVisitor visitor) {
-        WalkContext context = (WalkContext)c;
-        int targetValue = translator.getValue(n.getChild(0));
-        int retValue = context.currentScope().allocateTempValue();
-        context.cfg().addInstruction(insts.RegionIterNext(retValue, targetValue));
+        context.cfg().addInstruction(insts.IterNext(retValue, targetValue));
         translator.setValue(n, retValue);
     }
     protected boolean visitHere(CAstNode n, Context c, CAstVisitor visitor) { /* empty */ return false; }
@@ -267,15 +268,6 @@ public class X10CAst2IRTranslator extends X10DelegatingCAstVisitor implements Ar
         WalkContext context = (WalkContext)c;
         int retValue = context.currentScope().allocateTempValue();
         context.cfg().addInstruction(insts.Here(retValue));
-        translator.setValue(n, retValue);
-    }
-
-    protected boolean visitPlaceOfPoint(CAstNode n, Context c, CAstVisitor visitor) { /* empty */ return false; }
-    protected void leavePlaceOfPoint(CAstNode n, Context c, CAstVisitor visitor) {
-        WalkContext context = (WalkContext)c;
-        int retValue = context.currentScope().allocateTempValue();
-        int targetValue = translator.getValue(n.getChild(0));
-        context.cfg().addInstruction(insts.PlaceOfPoint(retValue, targetValue));
         translator.setValue(n, retValue);
     }
 
@@ -348,7 +340,7 @@ public class X10CAst2IRTranslator extends X10DelegatingCAstVisitor implements Ar
         return arrayRefNode.getChildCount() > 3 || // if there are multiple indices, it's not by point
             arrayRefNode.getKind() == X10CastNode.ARRAY_REF_BY_POINT;
     }
-
+/*
     public void doArrayRead(WalkContext context, int result, int arrayValue, CAstNode arrayRefNode, int[] dimValues) {
         TypeReference arrayTypeRef= (TypeReference) arrayRefNode.getChild(1).getValue();
 
@@ -373,7 +365,7 @@ public class X10CAst2IRTranslator extends X10DelegatingCAstVisitor implements Ar
             context.cfg().addInstruction(
                     insts.ArrayStoreByIndex(arrayValue, dimValues, rval, arrayTypeRef));
     }
-
+*/
     @Override
     protected boolean doVisitAssignNodes(CAstNode n, Context context, CAstNode v, CAstNode a, CAstVisitor visitor) {
         int NT = a.getKind();

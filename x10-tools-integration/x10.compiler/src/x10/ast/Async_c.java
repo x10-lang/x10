@@ -11,29 +11,29 @@
 
 package x10.ast;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ArrayList;
-import java.util.Set;
 
 import polyglot.ast.Expr;
-import polyglot.ast.Formal;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.Stmt;
 import polyglot.ast.Stmt_c;
 import polyglot.ast.Term;
 import polyglot.main.Report;
+import polyglot.types.CodeDef;
 import polyglot.types.Context;
-import polyglot.types.Ref;
+import polyglot.types.Def;
+import polyglot.types.FieldDef;
+import polyglot.types.Flags;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
-import polyglot.types.VarDef_c;
-import polyglot.types.VarDef;
+import polyglot.types.TypeSystem;
+import polyglot.types.Types;
 import polyglot.util.CodeWriter;
 import polyglot.util.CollectionUtil;
-import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.AscriptionVisitor;
 import polyglot.visit.CFGBuilder;
@@ -42,18 +42,13 @@ import polyglot.visit.FlowGraph;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
 import polyglot.visit.PruningVisitor;
-import x10.constraint.XConstraint;
-import x10.constraint.XFailure;
-import x10.constraint.XTerm;
-import x10.constraint.XTerms;
+import polyglot.visit.TypeBuilder;
 import x10.errors.Errors;
-import x10.types.ParameterType;
-import polyglot.types.Context;
+import x10.types.AsyncDef;
+import x10.types.X10ClassDef;
+import x10.types.X10Context_c;
+import x10.types.X10MemberDef;
 import x10.types.X10MethodDef;
-import polyglot.types.TypeSystem;
-import x10.types.checker.PlaceChecker;
-import x10.types.constraints.CConstraint;
-import x10.types.constraints.XConstrainedTerm;
 
 /**
  * Created on Oct 5, 2004
@@ -64,15 +59,17 @@ import x10.types.constraints.XConstrainedTerm;
  */
 
 public class Async_c extends Stmt_c implements Async {
-	public Stmt body;
+	protected Stmt body;
 	protected List<Expr> clocks;
 	protected boolean clocked; // should be equal to (clocks != null && clocks.size() > 0)
+	protected AsyncDef asyncDef;
 
 	public Async_c(Position pos, List<Expr> clocks, Stmt body) {
 		super(pos);
 		this.clocks = clocks;
 		this.body = body;
 	}
+
 	public Async_c(Position pos, Stmt body, boolean clocked) {
 		super(pos);
 		this.clocked = true;
@@ -113,8 +110,17 @@ public class Async_c extends Stmt_c implements Async {
 		n.body = body;
 		return n;
 	}
-	
 
+	public AsyncDef asyncDef() {
+	    return this.asyncDef;
+	}
+
+	public Async asyncDef(AsyncDef ci) {
+	    if (ci == this.asyncDef) return this;
+	    Async_c n = (Async_c) copy();
+	    n.asyncDef = ci;
+	    return n;
+	}
 
 	/** Reconstruct the statement. */
 	protected Async reconstruct(List<Expr> clocks, Stmt body) {
@@ -127,7 +133,6 @@ public class Async_c extends Stmt_c implements Async {
 		return this;
 	}
 
-
 	/** Visit the children of the statement. */
 	public Node visitChildren(NodeVisitor v) {
 		List<Expr> clocks = visitList(this.clocks, v);
@@ -135,8 +140,44 @@ public class Async_c extends Stmt_c implements Async {
 		return reconstruct(clocks, body);
 	}
 
-	
-	
+	@Override
+	public Node buildTypesOverride(TypeBuilder tb) {
+	    TypeSystem ts = (TypeSystem) tb.typeSystem();
+
+	    X10ClassDef ct = (X10ClassDef) tb.currentClass();
+	    assert ct != null;
+
+	    Def def = tb.def();
+
+	    if (def instanceof FieldDef) {
+	        // FIXME: is this possible?
+	        FieldDef fd = (FieldDef) def;
+	        def = fd.initializer();
+	    }
+
+	    if (!(def instanceof CodeDef)) {
+	        Errors.issue(tb.job(), new SemanticException("Async cannot occur outside code body.", position()));
+	        // Fake it
+	        def = ts.initializerDef(position(), Types.ref(ct.asType()), Flags.STATIC);
+	    }
+
+	    CodeDef code = (CodeDef) def;
+
+	    AsyncDef mi = (AsyncDef) AtStmt_c.createDummyAsync(position(), ts, ct.asType(), code, code.staticContext(), true);
+
+	    // Unlike methods and constructors, do not create new goals for resolving the signature and body separately;
+	    // since closures don't have names, we'll never have to resolve the signature.  Just push the code context.
+	    TypeBuilder tb2 = tb.pushCode(mi);
+
+	    Async_c n = (Async_c) this.del().visitChildren(tb2);
+
+	    if (code instanceof X10MemberDef) {
+	        assert mi.thisDef() == ((X10MemberDef) code).thisDef();
+	    }
+
+	    return n.asyncDef(mi);
+	}
+
 	@Override
 	public Node typeCheckOverride(Node parent, ContextVisitor tc) {
 	    TypeSystem ts = (TypeSystem) tc.typeSystem();
@@ -160,7 +201,9 @@ public class Async_c extends Stmt_c implements Async {
 	    if (Report.should_report(TOPICS, 5))
 	        Report.report(5, "enter async scope");
 	    if (child == this.body) {
-	        return AtStmt_c.createDummyAsync(c, true);
+	        c = c.pushCode(asyncDef);
+	        ((X10Context_c)c).x10Kind = X10Context_c.X10Kind.Async;
+	        return c;
 	    }
 	    return c;
 	}
@@ -169,18 +212,24 @@ public class Async_c extends Stmt_c implements Async {
 		TypeSystem ts = (TypeSystem) tc.typeSystem();
 		NodeFactory nf = (NodeFactory) tc.nodeFactory();
 
-		Context c = (Context) tc.context();
+		Context c = tc.context();
 		if (clocked() && ! c.inClockedFinishScope())
 			Errors.issue(tc.job(),
 			        new SemanticException("clocked async must be invoked inside a statically enclosing clocked finish.", position()));
-			
-        for (Expr e : clocks()) {
-            Type t = e.type();
-            if (!t.isSubtype(ts.Clock(), tc.context())) {
-                Errors.issue(tc.job(),
-                        new SemanticException("Type \"" + t + "\" must be x10.lang.clock.", e.position()));
-            }
-        }
+
+		for (Expr e : clocks()) {
+		    Type t = e.type();
+		    if (!t.isSubtype(ts.Clock(), tc.context())) {
+			Errors.issue(tc.job(),
+				new SemanticException("Type \"" + t + "\" must be x10.lang.clock.", e.position()));
+		    }
+		}
+
+		AsyncDef def = this.asyncDef();
+		//if (!def.capturedEnvironment().isEmpty()) {
+		//    System.out.println(this.position() + ": " + this + " captures "+def.capturedEnvironment());
+		//}
+		Closure_c.propagateCapturedEnvironment(c, def);
 
 		return this;
 	}

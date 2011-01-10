@@ -1,6 +1,7 @@
 package x10.util;
 
-import polyglot.frontend.Globals;
+import polyglot.frontend.Compiler;
+import polyglot.types.Types;
 import polyglot.util.ErrorQueue;
 import polyglot.util.SilentErrorQueue;
 import polyglot.util.Position;
@@ -9,56 +10,147 @@ import polyglot.main.Report;
 import polyglot.main.Main;
 
 import java.io.File;
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.HashSet;
+import java.util.HashMap;
 import java.util.Iterator;
 
-import x10.types.X10TypeMixin;
 import x10.parser.AutoGenSentences;
+import x10.Configuration;
+import x10.X10CompilerOptions;
 
+/**
+ * This program is intended to be used to determine if on a given test
+ * suite there is a difference between errors produced by one version
+ * of the X10 compiler and another. This
+ * program is intended to help in situations in which the first
+ * version of the compiler does not completely pass the tests,
+ * producing some errors or failing instead. The compiler writer can
+ * add various <em>markers</em> into the source code for the tests
+ * specifying whether an error is expected on this line or not,
+ * whether the compiler should not parse a given line, whether the
+ * compiler crashes on a given file etc. This program then checks the
+ * errors it gets against these markers and emits an error only if the
+ * error it receives is not accounted for by the markers.
+
+ * <p> Here is how this program is typically used. A version of the
+ * compiler is considered stable if <code>RunTestSuite</code> runs on
+ * a given test suite without producing errors. Note: This does not
+ * mean that the compiler successfully handles the given tests -- just
+ * that the errors/crashes it produces have been accounted for by appropriate
+ * markers in the source code for the tests.
+ * Now make some changes to the compiler and run
+ * <code>RunTestSuite</code> again. If it produces errors, then you
+ * know that your code changes have caused new errors to arise. Fix
+ * your code so that <code>RunTestSuite</code> reports no errors. Now
+ * you know that your code is producing exactly the same errors as the
+ * stable version of the compiler.
+
+ *<p> Again, this does not mean that your new compiler has no errors,
+ *just that it has no <em>new</em> errors. At some point you need to
+ *go and fix the existing errors, and remove the corresponding markers
+ *from the <code>*.x10</code> files.
+
+ * <p> In more detail, this program reads a bunch of x10 files and
+ * runs the front end on them, taps the <code>ErrorQueue</code>, 
+ * extracts line number information from error messages, and
+ * compares these errors with error markers in the file and verify
+ * that all errors are expected.
+ *
+ * <p> <code>RunTestSuite</code> accepts all the flags that the X10
+ * compiler accepts (and uses them in the same way) except that
+ * instead of accepting a list of <code>*.x10</code> files, it
+ * requires a directory (or comma-separated list of directories) to be
+ * provided as the first argument.  From these directories it collects
+ * all <code>*.x10</code> files.
+ *
+ * <p>The environment flag <code>SEPARATE_COMPILER</code> can be set
+ * to <code>false<code> to force <code>RunTestSuite</code> to use the same
+ * compiler object for multiple tests. In general this runs the tests
+ * much faster, but is still a bit brittle (may yield errors when
+ * compiling each test with a separate compiler object would not).
+ * 
+ * <p> The environment flag <code>QUIET</code> can be set to
+ * <code>true</code> to run in quiet mode. In this mode various
+ * warnings and helpful messages are not printed out.
+
+ * <p> Five kinds of error markers can be inserted in <code>*.x10</code> files:
+ * <ul>
+ *  <li><code>ERR</code>  - marks an error or warning
+ * <li><code>ShouldNotBeERR<code> - the compiler reports an error, but
+ * it shouldn't
+ * <li><code>ShouldBeErr</code> - the compiler doesn't report an
+ * error, but it should
+ * <li><code>COMPILER_CRASHES</code> - the compiler currently crashes
+ * on this file
+ * <li><code>SHOULD_NOT_PARSE</code> - the compiler should report
+ * parsing and lexing errors on this file
+ * </ul> 
+ * <p> Multiple markers (even of the same kind) may appear on the
+ * same line. Thus if a line is marked with <code>ShouldNotBeErr
+ * ShouldNotBeErr</code>, the test runner complains if the compiler
+ * does not produce two errors on this line.
+
+ * <p>The first 3 markers (<code>ERR, ShouldNotBeERR, ShouldBeErr</code>)
+ * can come in the form of annotations (<code>@ERR</code>) or in the
+ * form of comments (<code>// ERR</code>) The last two
+ * (<code>COMPILER_CRASHES,SHOULD_NOT_PARSE</code>) must be a comment.
+ *
+ * <p> Annotations are checked by a compiler phase called
+ * <code>ErrChecker</code>.  
+
+ * <p> The problem with annotations currently
+ * are: 
+ * <ol>
+   <li>You can't put annotations on statement expressions, i.e.,
+ * <code> @ERR i=3;</code>
+ * doesn't parse
+ * However, you can write:
+ * <code>@ERR {i=3;}</code>
+ *
+ * <li><code>ErrChecker</code> goal is not reached sometimes (if a
+ * previous goal failed).  </ol> 
+
+ * In the future I plan to use only annotations and run
+ * <code>ErrChecker</code> directly in the test runner instead of
+ * inside the compiler.
+ *
+ * TODO for the documentation:
+ * <ul>
+ * <li> Document how <code>-STATIC_CALLS</code> and <code>-VERBOSE_CALLS</code> are handled.
+
+ * <li> Document the role of various exclusion paths. How is the user
+ * of the test suite supposed to specify this information? (Should not
+ * be by changing code.)
+</ul>
+ */
 public class RunTestSuite {
-    // todo: C:\cygwin\home\Yoav\intellij\sourceforge\x10.dist\samples\tutorial\HeatTransfer_v1.x10:47,46-57 causes: (Warning) Reached threshold when checking constraints. If type-checking fails
-    // I have 3 kind of markers:
-    // "// ... ERR"  - marks an error or warning
-    // "// ... ShouldNotBeERR" - the compiler reports an error, but it shouldn't
-    // ShouldBeErr - the compiler doesn't report an error, but it should
-    // We always run with -VERBOSE_CALLS.
-
-    // some _MustFailCompile in the test suite cause compiler crashes
-    // files with ERR markers must end with _MustFailCompile, and these are compiled by themselves
-    // the rest of the files shouldn't have any errors, therefore we should proceed for these to code generation phase
-    // (and in the future even run the resulting code)
+    public static boolean SEPARATE_COMPILER = System.getenv("SEPARATE_COMPILER")==null || System.getenv("SEPARATE_COMPILER").equals("true");
+    public static boolean QUIET = System.getenv("QUIET")!=null;
+    private static void println(String s) {
+        if (!QUIET) System.out.println(s);
+    }
+    private static int EXIT_CODE = 0;
+    private static void err(String s) {
+        EXIT_CODE = 1;
+        System.err.println(s);
+    }
 
     //_MustFailCompile means the compilation should fail.
-    // Inside those files we should have "//.*ERR" markers that we use to test the position of the errors is correct.
     //_MustFailTimeout means that when running the file it will have an infinite loop
     private static final String[] EXCLUDE_FILES_WITH_SUFFIX = {
-            "NonX10Constructs_MustFailCompile.x10",
             //"_MustFailCompile.x10",
     };
     private static final String[] EXCLUDE_DIRS = {
-            "WorkStealing", // Have duplicated class from the Samples directory such as ArraySumTest.x10
-            "AutoGen", // it takes too long to compile these files
-            "Manual",
+            "AutoGen" // it takes too long to compile these files
     };
     private static final String[] EXCLUDE_FILES = {
-            "NOT_WORKING","SSCA2","FT-alltoall","FT-global",
-            "FieldNamedValTest_MustFailCompile.x10", "VariableNamedValTest_MustFailCompile.x10", // they have a lot of parsing errors
-            "GenericLocal4_MustFailCompile.x10", // it causes the compiler to crash
-            "TypedefNew11_MustFailCompile.x10", // it causes the compiler to crash
-            "TypedefBasic2.x10", //C:\cygwin\home\Yoav\intellij\sourceforge\x10.tests\examples\Constructs\Typedefs\TypedefBasic2.x10:37,13-31
-            "CUDA3DFD.x10", //C:\cygwin\home\Yoav\intellij\sourceforge\x10.dist\samples\CUDA\CUDA3DFD.x10:194,17-289,17
-            "CUDAMatMul.x10",
+            "NOT_WORKING", // to exclude some benchmarks: https://x10.svn.sourceforge.net/svnroot/x10/benchmarks/trunk
     };
     private static final String[] EXCLUDE_FILES_WITH = {
-            "HeatTransfer_v0.x10",
-            "TypedefOverloading",
-            "PlaceCheckArray.x10",
     };
     private static final String[] INCLUDE_ONLY_FILES_WITH = {
             //"_MustFailCompile.x10",
@@ -89,7 +181,6 @@ public class RunTestSuite {
         }
         return false;
     }
-    public static boolean ONE_FILE_AT_A_TIME = false;
     private static final int MAX_FILES_NUM = Integer.MAX_VALUE; // Change it if you want to process only a small number of files
 
     /**
@@ -113,6 +204,8 @@ public class RunTestSuite {
             if (s.contains("STATIC_CALLS") || s.contains("VERBOSE_CALLS"))
                 throw new RuntimeException("You should run the test suite without -VERBOSE_CALLS or -STATIC_CALLS");
         }
+        if (SEPARATE_COMPILER)
+            println("Running each file with a separate (new) compiler object, so it's less efficient but more stable.");
 
 
         final String dirName = args[0];
@@ -127,134 +220,171 @@ public class RunTestSuite {
                 assert dir.isDirectory() : "The first command line argument must be the directory of x10.tests, and you passed: "+dir;
                 int before = files.size();
                 recurse(dir,files);
-                if (before==files.size()) System.out.println("Warning: Didn't find any .x10 files to compile in any subdirectory of "+dir);
+                if (before==files.size()) println("Warning: Didn't find any .x10 files to compile in any subdirectory of "+dir);
             }
         }
         ArrayList<FileSummary> summaries = new ArrayList<FileSummary>();
+        HashMap<String,File> fileName2File = new HashMap<String, File>();
         for (File f : files) {
             FileSummary fileSummary = analyzeFile(f);
-            if (!fileSummary.shouldIgnoreFile) {
-                summaries.add(fileSummary);
-            }
+            summaries.add(fileSummary);
+
+            String name = f.getName();
+            if (fileName2File.containsKey(name))
+                println("Warning: Found two files with the same name in different directories. This maybe confusing and might cause problems in the classpath.\n\tfile1="+fileName2File.get(name)+"\n\tfile2="+f);
+            fileName2File.put(name,f);
         }
 
-        if (ONE_FILE_AT_A_TIME) {
-            for (FileSummary f : summaries) {
-                compileFiles(Arrays.asList(f),remainingArgs);
+
+        // adding the directories of the files to -sourcepath (in case they refer to other files that are not compiled, e.g., if we decide to compile the files one by one)
+        // I'm also adding parent folders to support packages (see T3.x10)
+        HashSet<String> directories = new HashSet<String>();
+        for (FileSummary f : summaries) {
+            int index = -1;
+            while ((index = f.fileName.indexOf('/',index+1))!=-1) {
+                directories.add(f.fileName.substring(0, index));
             }
-        } else {
-            // We need to compile _MustFailCompile and files with ERR separately (because they behave differently when compiled with other files)
-            ArrayList<FileSummary> shouldCompile = new ArrayList<FileSummary>();
-            for (FileSummary f : summaries) {
-                if (f.lines.size()>0 || f.file.getName().endsWith("_MustFailCompile.x10"))
-                    compileFiles(Arrays.asList(f),remainingArgs);
-                else
-                    shouldCompile.add(f);
-            }
-            if (shouldCompile.size()>0)
-                compileFiles(shouldCompile,remainingArgs);
         }
+        String dirs = "";
+        for (String dir : directories)
+            dirs += ";"+dir;
+        int argsNum = remainingArgs.size();
+        boolean foundSourcePath = false;
+        for (int i=1; i<argsNum; i++) {
+            final String arg = remainingArgs.get(i);
+            if (arg.contains("/x10.runtime/src-x10")) {
+                remainingArgs.set(i,arg+dirs);
+                foundSourcePath = true;
+                break;
+            }
+        }
+        assert foundSourcePath : "You must use an argument -sourcepath that includes '/x10.runtime/src-x10'";
+
+        long start = System.currentTimeMillis();
+        for (FileSummary f : summaries) {
+            compileFile(f,remainingArgs);
+        }
+        println("Total running time to compile all files="+(System.currentTimeMillis()-start));
+        System.exit(EXIT_CODE);
     }
     private static int count(String s, String sub) {
         final int len = sub.length();
         int index=-len, res=0;
-        while ((index=s.indexOf(sub,index+ len))>=0) res++;
+        while ((index=s.indexOf(sub,index+len))>=0) res++;
         return res;
     }
     public static ArrayList<ErrorInfo> runCompiler(String[] newArgs) {
-        SilentErrorQueue errQueue = new SilentErrorQueue(MAX_ERR_QUEUE,"TestSuiteErrQueue");
+        return runCompiler(newArgs,false,false);
+    }
+
+    private static SilentErrorQueue errQueue = new SilentErrorQueue(MAX_ERR_QUEUE,"TestSuiteErrQueue");
+    private static Main MAIN = new Main();
+    private static Compiler COMPILER;
+    public static ArrayList<ErrorInfo> runCompiler(String[] newArgs, boolean COMPILER_CRASHES, boolean STATIC_CALLS) {
+        errQueue.getErrors().clear();
+        HashSet<String> sources = new HashSet<String>();
+        final Compiler comp = MAIN.getCompiler(newArgs, null, errQueue, sources);
+        if (SEPARATE_COMPILER || COMPILER==null)
+            COMPILER = comp;
+        X10CompilerOptions opts = (X10CompilerOptions) COMPILER.sourceExtension().getOptions();
+        opts.x10_config.STATIC_CALLS = STATIC_CALLS;
+        opts.x10_config.VERBOSE_CALLS = !STATIC_CALLS;
+        long start = System.currentTimeMillis();
+        Throwable err = null;
         try {
-            new polyglot.main.Main().start(newArgs,errQueue);
-        } catch (Main.TerminationException e) {
-            // If we had errors (and we should because we compile _MustFailCompile) then we will get a non-zero exitCode
+            COMPILER.compileFiles(sources);
+        } catch (Throwable e) {
+            err = e;
         }
+        if (COMPILER_CRASHES) {
+            if (err==null) err("We expected the compiler to crash, but it didn't :) Remove the 'COMPILER_CRASHES' marker from file "+newArgs[0]);
+        } else {
+            if (err!=null) {
+                err("Compiler crashed for args="+Arrays.toString(newArgs)+" with exception:");
+                err.printStackTrace();
+            }
+        }
+
+        println("Compiler running time="+(System.currentTimeMillis()-start));
         final ArrayList<ErrorInfo> res = (ArrayList<ErrorInfo>) errQueue.getErrors();
         assert res.size()<MAX_ERR_QUEUE : "We passed the maximum number of errors!";
         return res;
     }
+
     static class LineSummary {
         int lineNo;
         int errCount;
         // todo: add todo, ShouldNotBeERR, ShouldBeErr statistics.
     }
     static class FileSummary {
-        File file;
-        boolean shouldIgnoreFile;
+        final File file;
+        final String fileName;
+        FileSummary(File f) {
+            file = f;
+            fileName = f.getAbsolutePath().replace('\\','/');
+        }
         boolean STATIC_CALLS = false;
+        boolean COMPILER_CRASHES;
+        boolean SHOULD_NOT_PARSE;
         ArrayList<String> options = new ArrayList<String>();
         ArrayList<LineSummary> lines = new ArrayList<LineSummary>();
     }
     private static FileSummary analyzeFile(File file) throws IOException {
-        FileSummary res = new FileSummary();
-        res.file = file;
+        FileSummary res = new FileSummary(file);
         final ArrayList<String> lines = AutoGenSentences.readFile(file);
         int lineNum = 0;
         for (String line : lines) {
             lineNum++;
-            int errIndex = line.indexOf("ERR");
-            boolean isERR = errIndex!=-1;
-            if (line.contains("IGNORE_FILE")) res.shouldIgnoreFile = true;
+            if (line.contains("COMPILER_CRASHES")) res.COMPILER_CRASHES = true;
+            if (line.contains("SHOULD_NOT_PARSE")) res.SHOULD_NOT_PARSE = true;
             int optionsIndex = line.indexOf("OPTIONS:");
             if (optionsIndex>=0) {
                 final String option = line.substring(optionsIndex + "OPTIONS:".length()).trim();
                 res.options.add(option);
-                if (option.equals("-STATIC_CALLS")) res.STATIC_CALLS = true;
+                if (option.equals("-STATIC_CALLS"))
+                    res.STATIC_CALLS = true;
             }
+            line = line.trim();
             int commentIndex = line.indexOf("//");
-            if (isERR && commentIndex!=-1 && commentIndex<errIndex) { 
-                LineSummary lineSummary = new LineSummary();
-                lineSummary.lineNo = lineNum;
-                lineSummary.errCount = count(line,"ERR");
-                res.lines.add(lineSummary);
+            if (commentIndex>0) { // if the line contains just a comment, then we ignore it.
+                int errIndex = line.indexOf("ERR");
+                boolean isERR = errIndex!=-1;
+                if (isERR && commentIndex<errIndex) {
+                    LineSummary lineSummary = new LineSummary();
+                    lineSummary.lineNo = lineNum;
+                    lineSummary.errCount = count(line,"ERR");
+                    res.lines.add(lineSummary);
+                }
             }
         }
         return res;
     }
-    private static void compileFiles(List<FileSummary> summaries, List<String> args) throws IOException {
-        // replace \ with /
-        ArrayList<String> fileNames = new ArrayList<String>(summaries.size());
-        for (FileSummary f : summaries) {
-            fileNames.add(f.file.getAbsolutePath().replace('\\','/'));
-        }
-        boolean STATIC_CALLS = summaries.size()>1 ? true : summaries.get(0).STATIC_CALLS; // all the files without ERR markers are done in my batch, using STATIC_CALLS (cause they shouldn't have any errors)
-        // adding the directories of the files to -sourcepath (in case they refer to other files that are not compiled, e.g., if we decide to compile the files one by one)
-        HashSet<String> directories = new HashSet<String>();
-        for (String f : fileNames) {
-            final int index = f.lastIndexOf('/');
-            assert index>0 : f;
-            directories.add(f.substring(0, index));
-        }
-        String dirs = "";
-        for (String dir : directories)
-            dirs += ";"+dir;
-        int argsNum = args.size();
-        for (int i=1; i<argsNum; i++) {
-            final String arg = args.get(i);
-            if (arg.contains("/x10.runtime/src-x10;")) {
-                args.set(i,arg+dirs);
-                break;
-            }
-        }
+    private static void compileFile(FileSummary summary, List<String> args) throws IOException {
+
+        boolean STATIC_CALLS = summary.STATIC_CALLS; // all the files without ERR markers are done in my batch, using STATIC_CALLS (cause they shouldn't have any errors)
+
         // Now running polyglot
-        List<String> allArgs = new ArrayList<String>(fileNames);
+        List<String> allArgs = new ArrayList<String>();
+        allArgs.add(summary.fileName);
         allArgs.addAll(args);
-        String[] newArgs = allArgs.toArray(new String[allArgs.size()+1]);
-        newArgs[newArgs.length-1] = STATIC_CALLS ? "-STATIC_CALLS" : "-VERBOSE_CALLS";
-        System.out.println("Running: "+ fileNames);
-        ArrayList<ErrorInfo> errors = runCompiler(newArgs);
+        String[] newArgs = allArgs.toArray(new String[allArgs.size()+2]);
+        newArgs[newArgs.length-2] = STATIC_CALLS ? "-STATIC_CALLS" : "-VERBOSE_CALLS";
+        newArgs[newArgs.length-1] = STATIC_CALLS ? "-VERBOSE_CALLS=false" : "-STATIC_CALLS=false";
+        println("Running: "+ summary.fileName);
+        ArrayList<ErrorInfo> errors = runCompiler(newArgs, summary.COMPILER_CRASHES, STATIC_CALLS);
         // remove GOOD_ERR_MARKERS  and EXPECTED_ERR_MARKERS
         for (Iterator<ErrorInfo> it = errors.iterator(); it.hasNext(); ) {
             ErrorInfo info = it.next();
             final int kind = info.getErrorKind();
-            if (kind==ErrorInfo.GOOD_ERR_MARKERS || kind==ErrorInfo.EXPECTED_ERR_MARKERS)
+            if ((kind==ErrorInfo.GOOD_ERR_MARKERS || kind==ErrorInfo.EXPECTED_ERR_MARKERS) ||
+                (summary.SHOULD_NOT_PARSE && (kind==ErrorInfo.LEXICAL_ERROR || kind==ErrorInfo.SYNTAX_ERROR)))
                 it.remove();
         }
 
         // Now checking the errors reported are correct and match ERR markers
         // 1. find all ERR markers that don't have a corresponding error
-        for (FileSummary fileSummary : summaries) {
-            File file = fileSummary.file;
-            for (LineSummary lineSummary : fileSummary.lines) {
+            File file = summary.file;
+            for (LineSummary lineSummary : summary.lines) {
                 // try to find the matching error
                 int expectedErrCount = lineSummary.errCount;
                 int lineNum = lineSummary.lineNo;
@@ -272,25 +402,28 @@ public class RunTestSuite {
                         foundErrCount++;
                     }
                 }
-                if (expectedErrCount!=foundErrCount)
-                    System.err.println("File "+file+" has "+expectedErrCount+" ERR markers on line "+lineNum+", but the compiler reported "+ foundErrCount+" errors on that line! errorsFound=\n"+errorsFound);
+                if (expectedErrCount!=foundErrCount &&
+                        // we try to have at most 1 or 2 errors in a line.
+                        (expectedErrCount<3 || foundErrCount<3)) { // if the compiler reports more than 3 errors, and we marked more than 3, then it's too many errors on one line and it marks the fact the compiler went crazy and issues too many wrong errors.
+                    err("File "+file+" has "+expectedErrCount+" ERR markers on line "+lineNum+", but the compiler reported "+ foundErrCount+" errors on that line! errorsFound=\n"+errorsFound);
+                }
             }
-        }
 
         // 2. report all the remaining errors that didn't have a matching ERR marker
         // first report warnings
         int warningCount = 0;
         for (ErrorInfo err : errors)
             if (err.getErrorKind()==ErrorInfo.WARNING) {
-                if (!err.getMessage().startsWith(X10TypeMixin.MORE_SEPCIFIC_WARNING)) // ignore those warning messages
-                    System.err.println("Got a warning in position: "+err.getPosition()+"\nMessage: "+err+"\n");
+                if (!err.getMessage().startsWith(Types.MORE_SPECIFIC_WARNING)) { // ignore those warning messages
+                    err("Got a warning in position: "+err.getPosition()+"\nMessage: "+err+"\n");
+                }
                 warningCount++;
             }
         if (errors.size()>warningCount) {
-            System.err.println("\nThe following errors did not have a matching ERR marker:\n\n");
+            err("\nThe following errors did not have a matching ERR marker:\n\n");
             for (ErrorInfo err : errors)
                 if (err.getErrorKind()!=ErrorInfo.WARNING)
-                    System.err.println("Position:\n"+err.getPosition()+"\nMessage: "+err+"\n");
+                    err("Position:\n"+err.getPosition()+"\nMessage: "+err+"\n");
         }
         // todo: check that for each file (without errors) we generated a *.class file, and load them and run their main method (except for the ones with _MustFailTimeout)
     }

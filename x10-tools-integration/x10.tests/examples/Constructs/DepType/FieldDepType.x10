@@ -23,7 +23,7 @@ public class FieldDepType extends x10Test {
 	def m(a: Array[double]{rank==1&&rect&&zeroBased}): void = {
 	}
 	public def run(): boolean = {
-		m(f);
+		m(f as Array[Double]{zeroBased, rect, rank==1});
 		return f(0)==10.0D;
 	}
 	public static def main(Array[String](1)): void = {

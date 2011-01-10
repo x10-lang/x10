@@ -30,7 +30,7 @@ public class ClockTest18 extends x10Test {
 		        val  x = new X();
 		        // f0 does not transmit clocks to subactivity
 		        val  f0:foo = new foo() {
-			        public def apply(): void = {
+			        public operator this(): void = {
 				        /* Activity A3 */
 				        async {
 					        x10.io.Console.OUT.println("#A3: hello from A3");
@@ -39,7 +39,7 @@ public class ClockTest18 extends x10Test {
 		         };
 		        // f1 transmits clock c0 to subactivity
 		        val f1:foo  = new foo() {
-			        public def apply(): void = {
+			        public operator this(): void = {
 				         /*Activity A2*/
 				         async clocked(c0) {
 					        x10.io.Console.OUT.println("#A2 before resume");
@@ -80,7 +80,7 @@ public class ClockTest18 extends x10Test {
 	 */
 	static class Y {
 		static def test(f: foo): void = {
-			f.apply(); // it is hard to determine what f does at compile time
+			f(); // it is hard to determine what f does at compile time
 		}
 	}
 
@@ -91,12 +91,12 @@ public class ClockTest18 extends x10Test {
 	 *
 	 * // values of free final variables of S1 are also captured in f1
 	 *
-	 * f1.apply(); // invoke S1 indirectly using its captured
+	 * f1(); // invoke S1 indirectly using its captured
 	 *
 	 * // free variables
 	 */
 	static interface foo {
-		public  def apply(): void;
+		public  operator this(): void;
 	}
 
 	/**

@@ -10,6 +10,9 @@
  */
 
 import harness.x10Test;
+import x10.compiler.*; // @Uncounted @NonEscaping @NoThisAccess
+import x10.compiler.tests.*; // err markers
+import x10.util.*;
 
 
 /**
@@ -20,13 +23,8 @@ import harness.x10Test;
 public class ClosureCall3 extends ClosureTest {
 
     public def run(): boolean = {
-        val y = (x:Int)=> x; // todo: we should infer type (x:Int)=>Int{self==x},
-		// but closures have a bug:
-		//Semantic Error: Cannot assign expression to target.
-		//	 Expression:  (val x: x10.lang.Int){}: x10.lang.Int{self==x} => { return x; }
-		//	 Type: (a1:x10.lang.Int)=> x10.lang.Int{self==x}
-		//	 Expected type: (a1:x10.lang.Int)=> x10.lang.Int{self==x}
-        val z :Int(1) = y(1);  // ERR todo: this is an error only with -STATIC_CALLS (with DYNAMIC_CALLS there is no warning!)
+        val y = (x:Int)=> x;
+        val z :Int(1) = y(1);
         return result;
     }
 

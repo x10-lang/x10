@@ -47,7 +47,7 @@ public class NQueensDist {
         val baseSize = count/P, extra = count - baseSize*P;
         new Array[Region(1){rect}](P, (i:int):Region(1){rect} => {
             val start = low+i*baseSize+ (i < extra? i:extra);
-            start..start+baseSize+(i < extra?0:-1)
+            start..(start+baseSize+(i < extra?0:-1))
         })
     }
 
@@ -62,7 +62,7 @@ public class NQueensDist {
         }
         def safe(j: int) {
             val n = q.size;
-            for ([k] in 0..n-1) {
+            for ([k] in 0..(n-1)) {
                 if (j == q(k) || Math.abs(n-k) == Math.abs(j-q(k)))
                     return false;
             }
@@ -83,11 +83,11 @@ public class NQueensDist {
                 return;
             }
             if (q.size == 0) {
-                val R = block(0..N-1, P);
+                val R = block(0..(N-1), P);
                 ateach ([q] in Dist.makeUnique())
                    // copy of this made across the at divide
                   search(R(q));
-            } else search(0..N-1);
+            } else search(0..(N-1));
         }
     }
 

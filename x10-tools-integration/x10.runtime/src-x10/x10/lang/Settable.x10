@@ -15,5 +15,5 @@ import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
 public interface Settable[-I,V] {
-    def set(v: V, i: I): V;
+    operator this(i: I)=(v: V): V;
 }

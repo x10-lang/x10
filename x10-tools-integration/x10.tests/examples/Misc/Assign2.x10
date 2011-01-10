@@ -20,7 +20,7 @@ public class Assign2 extends x10Test {
 	public def run(): boolean = {
                 val a = Rail.make[String](5, (int)=>"hi");
                 var i:Settable[int,String] = a;
-                i.set("bye", 1);
+                i(1) = "bye";
 
                 return true;
 	}

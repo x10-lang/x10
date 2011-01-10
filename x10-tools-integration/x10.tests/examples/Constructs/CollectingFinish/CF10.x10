@@ -25,7 +25,7 @@ public class CF10 extends x10Test{
         public def zero() : Object {
            return "";
         }
-        public def apply(a:Object, b:Object):Object {
+        public operator this(a:Object, b:Object):Object {
            return "[" + a + "," + b + "]";
         }
     }

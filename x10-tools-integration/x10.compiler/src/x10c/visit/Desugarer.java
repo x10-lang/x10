@@ -31,7 +31,7 @@ import x10.ast.SettableAssign;
 import x10.ast.SettableAssign_c;
 import x10.ast.X10Call;
 import x10.ast.X10Unary_c;
-import x10.types.X10MethodInstance;
+import x10.types.MethodInstance;
 import polyglot.types.TypeSystem;
 import x10.types.checker.Converter;
 

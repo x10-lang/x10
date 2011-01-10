@@ -27,7 +27,8 @@ import x10.compiler.Pinned;
     }
 
     private var value:Int = 0;
-
+    // todo SettableAssign: uncomment operator()= in the next line after we change it's name from set to $set
+    //public operator this()=(i:Int):void { set(i); }
     public def set(i:Int):void {
         lock();
         value = i;
@@ -43,5 +44,5 @@ import x10.compiler.Pinned;
             }
     }
 
-    public def apply():Int = value;
+    public operator this():Int = value;
 }

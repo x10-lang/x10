@@ -17,7 +17,7 @@ import x10.types.TypeParamSubst;
 import x10.types.X10ConstructorInstance;
 import x10.types.X10FieldInstance;
 import x10.types.X10LocalInstance;
-import x10.types.X10MethodInstance;
+import x10.types.MethodInstance;
 
 /**
  * A {@link TypeTransformer} that transforms types by applying
@@ -56,7 +56,7 @@ public class TypeParamSubstTransformer extends TypeTransformer {
     }
 
     @Override
-    protected X10MethodInstance transformMethodInstance(X10MethodInstance mi) {
+    protected MethodInstance transformMethodInstance(MethodInstance mi) {
         return super.transformMethodInstance(subst.reinstantiate(mi));
     }
 

@@ -11,23 +11,796 @@
 
 package x10.types;
 
+import polyglot.types.Named;
 import polyglot.types.ObjectType;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import x10.types.constraints.CConstraint;
+import x10.types.constraints.XConstrainedTerm;
 
-public interface ConstrainedType extends ObjectType, X10NamedType, X10Struct, X10ThisVar {
-	Ref<? extends Type> baseType();
-	ConstrainedType baseType(Ref<? extends Type> baseType);
-	
-	Ref<CConstraint> constraint();
-	ConstrainedType constraint(Ref<CConstraint> constraint);
-	
-	CConstraint getRealXClause();
-	
-	void checkRealClause() throws SemanticException;
-	
-	
-	//void ensureSelfBound();
-}
+import java.util.Collections;
+import java.util.List;
+
+import polyglot.types.Context;
+import polyglot.types.JavaArrayType;
+import polyglot.types.ClassType;
+import polyglot.types.FieldInstance;
+import polyglot.types.LazyRef_c;
+
+import polyglot.types.Name;
+import polyglot.types.Named;
+import polyglot.types.NullType;
+import polyglot.types.ObjectType;
+import polyglot.types.JavaPrimitiveType;
+import polyglot.types.QName;
+import polyglot.types.Ref;
+import polyglot.types.ReferenceType_c;
+import polyglot.types.Resolver;
+import polyglot.types.SemanticException;
+import polyglot.types.ContainerType;
+import polyglot.types.Type;
+import polyglot.types.Types;
+import polyglot.types.TypeSystem;
+import polyglot.types.UnknownType;
+import polyglot.util.CodeWriter;
+import polyglot.util.InternalCompilerError;
+import polyglot.util.Position;
+import polyglot.util.Transformation;
+import polyglot.util.TransformingList;
+import x10.constraint.XFailure;
+import x10.constraint.XTerm;
+import x10.constraint.XTerms;
+import x10.constraint.XVar;
+import x10.types.constraints.CConstraint;
+
+
+/**
+ * 09/11/09
+ * A ConstrainedType_c represents the type T{c}. It has a basetype (of type Ref<? extends Type>)
+ * and a constraint (of type Ref<CConstraint>).
+ * 
+ * @author njnystrom
+ * @author vj
+ *
+ */
+public class ConstrainedType extends ReferenceType_c implements ObjectType, Named, X10ThisVar {
+
+		private static final long serialVersionUID = -3797674072640450629L;
+
+		private Ref<CConstraint> constraint;
+		private Ref<? extends Type> baseType;
+
+		public ConstrainedType(TypeSystem ts, Position pos, 
+				Ref<? extends Type> baseType, Ref<CConstraint> constraint) {
+			super(ts, pos);
+			assert ts != null;
+			this.baseType = baseType;
+			// todo: we currently use UnknownType as an InvalidType
+			//if ((baseType.known() && baseType.getCached() instanceof UnknownType))
+			//	throw new InternalCompilerError("Base type must be known.");
+				
+			
+			//assert  :
+			//	" baseType is " + baseType;
+			this.constraint = constraint;
+		}
+
+		public boolean isGloballyAccessible() {
+		    return false;
+		}
+		
+		@Override 
+		public ConstrainedType copy() {
+			ConstrainedType result = (ConstrainedType) super.copy();
+			result.constraint = Types.ref(constraint.get().copy());
+			result.baseType = (Ref<? extends Type>) Types.ref((Type) baseType.get().copy());
+			return result;
+		}
+		/**
+		 * Check that the basetype and constraint agree on thisVar.
+		 */
+		public XVar thisVar() {
+			if (realXClause == null)
+				realXClause = realX();
+			if (! realXClause.consistent())
+				return null;
+			return realXClause.thisVar();
+		}
+		
+		public Ref<? extends Type> baseType() {
+			return baseType;
+		}
+		
+		/*public X10Type clearFlags(Flags f) {
+			ConstrainedType_c c = (ConstrainedType_c) this.copy();
+			X10Type t = (X10Type) Types.get(c.baseType);
+			if (t==null)
+				throw new InternalCompilerError("Cannot remove flags " + f + " from null type.");
+			t = t.clearFlags(f);
+			c.baseType = Types.ref(t);
+		//	((Ref<Type>)c.baseType).update(t);
+			return c;
+		}
+		*/
+
+		
+		public Type makeX10Struct() {
+			Type t = Types.get(baseType);
+			assert t!=null;
+			if (Types.isX10Struct(t))
+				return this;
+			ConstrainedType c = (ConstrainedType) this.copy();
+			c.baseType = Types.ref(Types.makeX10Struct(t));
+			return c;
+
+		}
+
+		/*
+		public Flags flags() {
+			X10Type t = (X10Type) Types.get(this.baseType);
+			assert t != null : "Cannot get flags on null type.";
+			if (t==null)
+				throw new InternalCompilerError("Cannot get flags on null type.");
+			return t.flags();
+		}
+		*/
+		public ConstrainedType baseType(Ref<? extends Type> baseType) {
+			if (baseType == this.baseType) return this;
+			ConstrainedType n = (ConstrainedType) copy();
+			n.baseType = baseType;
+			return n;
+		}
+		
+		public Ref<CConstraint> constraint() {
+			return constraint;
+		}
+		
+		public ConstrainedType constraint(Ref<CConstraint> constraint) {
+			if (constraint == this.constraint) return this;
+			ConstrainedType n = (ConstrainedType) copy();
+			n.constraint = constraint;
+			return n;
+		}
+		
+		protected CConstraint realXClause;
+		protected SemanticException realClauseInvalid;
+		/**
+		Returns the real clause for this constrained type. The self variable for the returned constraint 
+		is the same as the self variable for the depclause.
+		 */
+		public CConstraint getRealXClause() { 
+			if (realXClause == null) {
+				realXClause = realX();
+			}
+			return realXClause; 
+		}
+		/*public void setRealXClause(CConstraint c, SemanticException error) {
+			this.realXClause = c;
+			this.realClauseInvalid = error;
+		}*/
+		
+		protected CConstraint realX() {
+			// Now get the root clause and join it with the dep clause.
+			CConstraint rootClause = Types.realX(Types.get(this.baseType()));
+			if (rootClause == null)
+				assert rootClause != null;
+
+			CConstraint depClause = Types.xclause(this);
+			if (depClause==null) {
+					depClause = new CConstraint();
+					depClause.setThisVar(rootClause.thisVar());
+			}
+			
+
+			try {
+				Types.getThisVar(rootClause, depClause);
+			} catch (XFailure z) {
+				try {
+					rootClause = rootClause.copy().addIn(depClause);
+				} catch (XFailure z1) {
+				}
+				rootClause.setInconsistent();
+				return rootClause;
+			}
+			if (depClause == null) 
+				return rootClause;
+
+			try {
+				depClause.addIn(rootClause);
+			}
+			catch (XFailure f) {
+				depClause.setInconsistent();
+			}
+		
+			return depClause;
+
+		}
+		
+		public void checkRealClause() throws SemanticException {
+			// Force real clause to be computed.
+			if (realXClause == null)
+				realXClause = realX();
+			if (! realXClause.consistent()) {
+				if (realClauseInvalid != null) {
+					realClauseInvalid = new SemanticException(this 
+							+ " has an inconsistent real clause " + realXClause);
+
+				}
+				throw realClauseInvalid;
+			}
+		}
+		
+		@Override
+		public String translate(Resolver c) {
+			return baseType().get().translate(c);
+		}
+		
+
+		/*public boolean isSafe() {
+			return ((X10Type) baseType.get()).isSafe();
+		}*/
+
+		@Override
+		public String typeToString() {
+	        Type type = baseType.getCached();
+	        String typeName = type.toString();
+	        if (type instanceof ClosureType_c)
+	            typeName = "("+typeName+")";
+	        return typeName + constraintString();
+		}
+		
+		private String constraintString() {
+			StringBuilder sb = new StringBuilder();
+			Type base = baseType.getCached();
+			CConstraint c = constraint.getCached();
+			if (c != null && ! c.valid()) {
+				sb.append(c);
+			}
+			return sb.toString();
+		}
+
+		// vj 08/11/09
+		// todo: For each FieldInstance fi of baseType, need to return a new FieldInstance fi' obtained
+		// by adding this: this.constraint.
+		@Override
+		public List<FieldInstance> fields() {
+			Type base = baseType.get();
+			if (base instanceof ContainerType) {
+				final List<FieldInstance> fis = ((ContainerType) base).fields();
+				return fis;
+			}
+			return Collections.emptyList();
+		}
+		
+	/*	public void ensureSelfBound() {
+			assert constraint != null;
+			XVar self = X10TypeMixin.selfVarBinding(this);
+			if (self == null) {
+				self = XTerms.makeUQV();
+				CConstraint c = constraint.get();
+				try {
+				c.addSelfBinding(self);
+				} catch (XFailure z) {
+					System.out.println("failure " + z);
+				}
+				constraint.update(c);
+			}
+		}
+	*/
+		// vj: Revised substantially 08/11/09
+		
+		@Override
+		public List<Type> interfaces() {
+			final Type base = baseType.get();
+			if (! (base instanceof ObjectType))
+				return Collections.emptyList();
+
+			List<Type> l = ((ObjectType) base).interfaces();
+			CConstraint c = constraint.get();
+			// Get or make a name tt for self.
+			XTerm t = c.bindingForVar(c.self());
+			if (t == null) {
+				t = XTerms.makeEQV();
+				
+			}
+			final XTerm tt = t;
+
+			return new TransformingList<Type, Type>(l, new Transformation<Type, Type>() {
+				public Type transform(Type o) {
+					TypeSystem xts = (TypeSystem) o.typeSystem();
+					CConstraint c2 = Types.xclause(o);
+					c2 = c2 != null ? c2.copy() : new CConstraint();
+					try {
+						if (c2.thisVar() != null)
+							c2.addBinding(c2.thisVar(), tt);
+						//c2.addSelfBinding(tt);
+						//  c2.substitute(tt, XTerms.)
+						return Types.xclause(o, c2);
+					}
+					catch (XFailure e) {
+					}
+					return o;
+				}
+			});
+		}
+
+		@Override
+		public List<MethodInstance> methods() {
+			Type base = baseType.get();
+			if (base instanceof ContainerType) {
+				return ((ContainerType) base).methods();
+			}
+			return Collections.emptyList();
+		}
+
+		@Override
+		public Type superClass() {
+			Type base = baseType.get();
+			if (base instanceof ObjectType) {
+			    Type o = ((ObjectType) base).superClass();
+			    if (o != null) {
+			    CConstraint c = constraint.get();
+			    final XTerm t = c.bindingForVar(c.self());
+			    if (t != null) {
+			        CConstraint c2 = Types.xclause(o);
+			        c2 = c2 != null ? c2.copy() : new CConstraint();
+			        try {
+			            TypeSystem xts = (TypeSystem) o.typeSystem();
+			            c2.addSelfBinding(t);
+			            return Types.xclause(o, c2);
+			        }
+			        catch (XFailure e) {
+			        }
+			    }
+			    }
+			    return o;
+			}
+			return null;
+		}
+
+		public QName fullName() {
+			Type base = baseType.get();
+			if (base instanceof Named) {
+				return ((Named) base).fullName();
+			}
+			return null;
+		}
+
+		public Name name() {
+			Type base = baseType.get();
+			if (base instanceof Named) {
+				return ((Named) base).name();
+			}
+			return null;
+		}
+		
+		@Override
+		public boolean isJavaPrimitive() {
+			Type base = baseType.get();
+			return base.isJavaPrimitive();
+		}
+		
+		
+		public boolean isX10Struct() {
+			return Types.isX10Struct(baseType.get());
+		}
+		
+
+		@Override
+		public boolean isClass() {
+			Type base = baseType.get();
+			return base.isClass();
+		}
+		@Override
+		public boolean isNull() {
+			Type base = baseType.get();
+			return base.isNull();
+		}
+		@Override
+		public boolean isArray() {
+			Type base = baseType.get();
+			return base.isArray();
+		}
+		@Override
+		public boolean isReference() {
+			Type base = baseType.get();
+			return base.isReference();
+		}
+		
+		@Override
+		public JavaPrimitiveType toPrimitive() {
+			Type base = baseType.get();
+			return base.toPrimitive();
+		}
+		
+		@Override
+		public ClassType toClass() {
+			Type base = baseType.get();
+			return base.toClass();
+		}
+		
+		@Override
+		public NullType toNull() {
+			Type base = baseType.get();
+			return base.toNull();
+		}
+
+		@Override
+		public JavaArrayType toArray() {
+			Type base = baseType.get();
+			return base.toArray();
+		}
+		
+		public void print(CodeWriter w) {
+			Type base = baseType.get();
+			base.print(w);
+		}
+		
+	    public void printConstraint(CodeWriter w) {
+	        Type base = baseType.getCached();
+	        CConstraint c = constraint.getCached();
+	    }
+		
+		public boolean equalsNoFlag(Type t2) {
+			return false;
+		}
+		// Methods below this have been moved from polyglot.type.Types
+		/**
+		 * Add the constraint self.rank==x to t unless
+		 * that causes an inconsistency.
+		 * @param t
+		 * @param x
+		 * @return
+		 */
+		public  ConstrainedType addRank(int x) {
+		    return addRank(XTerms.makeLit(new Integer(x)));
+		}
+		 /** Add the constraint self.rank==x to t unless
+		 * that causes an inconsistency.
+		 * @param t
+		 * @param x
+		 * @return
+		 */
+		public  ConstrainedType addRank(XTerm x) {
+		    TypeSystem xts = typeSystem();
+		    XTerm xt = findOrSynthesize(Name.make("rank"));
+		    try {
+		        return addBinding(xt, x);
+		    } catch (XFailure f) {
+		        // without the binding added.
+		    }
+		    return this;
+		}
+		
+		public XTerm findOrSynthesize(Name propName) {
+		    return find(propName);
+		}
+		/** Find the term t, if any, such that t entails {self.propName==t}.
+		 * 
+		 */
+		public  XTerm findProperty(Name propName) {
+			CConstraint c = Types.realX(this);
+			if (c == null) return null;
+			
+			// TODO: check dist.region.p and region.p
+		
+			X10FieldInstance fi = Types.getProperty(this, propName);
+			if (fi != null)
+				return c.bindingForSelfField(XTerms.makeName(fi.def()));
+		
+			MethodInstance mi = Types.getPropertyMethod(this, propName);
+			if (mi != null) {
+			    return c.bindingForSelfField(XTerms.makeName(mi.def()));
+			}
+			
+			return null;
+		}
+		/**
+		 * Ensure that t is ConstrainedType, so it has a self. The term returned may 
+		 * contain self sas receiver.
+		 * @param t
+		 * @param propName
+		 * @return
+		 */
+		public  XTerm find(Name propName) {
+		    XTerm val = findProperty(propName);
+		
+		    if (val == null) {
+		        TypeSystem xts = typeSystem();
+		        CConstraint c = Types.realX(this);
+		     
+		        if (c != null) {
+		            // build the synthetic term.
+		        	
+		            XTerm var = selfVar();
+		            if (var !=null) {
+		                X10FieldInstance fi = Types.getProperty(this, propName);
+		                if (fi != null) {
+		                    val = xts.xtypeTranslator().trans(c, var, fi);
+		                } else {
+		                    MethodInstance mi = Types.getPropertyMethod(this, propName);
+		                    if (mi != null) {
+		                        val = xts.xtypeTranslator().trans(c, var, mi, mi.rightType());
+		                    }
+		                }
+		            }
+		        }
+		    }
+		    return val;
+		}
+
+		public XVar selfVar() {
+			return Types.get(constraint()).self();
+		}
+		
+		
+		
+		public ConstrainedType addBinding(XTerm t1, XTerm t2) throws XFailure {
+		        CConstraint c = Types.xclause(this);
+		        c = c == null ? new CConstraint() :c.copy();
+		        c.addBinding(t1, t2);
+		        return (ConstrainedType) Types.xclause(Types.baseType(this), c);
+		
+		}
+
+		public ConstrainedType addBinding(XTerm t1, XConstrainedTerm t2) {
+		    try {
+		        CConstraint c = new CConstraint();
+		        c.addBinding(t1, t2);
+		        return (ConstrainedType) Types.xclause(this, c);
+		    }
+		    catch (XFailure f) {
+		        throw new InternalCompilerError("Cannot bind " + t1 + " to " + t2 + ".", f);
+		    }
+		}
+		public  ConstrainedType addSelfBinding(XTerm t1) throws XFailure {
+
+			CConstraint c = Types.xclause(this);
+			c = c == null ? new CConstraint() :c.copy();
+			c.addSelfBinding(t1);
+			return (ConstrainedType) Types.xclause(Types.baseType(this), c); 
+		}
+
+		public  ConstrainedType addDisBinding(Type t, XTerm t1, XTerm t2) {
+		 	assert (! (t instanceof UnknownType));
+		    try {
+		        CConstraint c = Types.xclause(t);
+		        c = c == null ? new CConstraint() :c.copy();
+		        c.addDisBinding(t1, t2);
+		        return (ConstrainedType) Types.xclause(Types.baseType(t), c);
+		    }
+		    catch (XFailure f) {
+		        throw new InternalCompilerError("Cannot bind " + t1 + " to " + t2 + ".", f);
+		    }
+		}
+
+		public ConstrainedType addConstraint(Type t, CConstraint xc) {
+		    try {
+		        CConstraint c = Types.tryAddingConstraint(t, xc);
+		        return xclause(Types.baseType(t), c);
+		    }
+		    catch (XFailure f) {
+		        throw new InternalCompilerError("X10TypeMixin: Cannot add " + xc + "to " + t + ".", f);
+		    }
+		}
+		
+		// vj: 08/11/09 -- have to recursively walk the 
+		// type parameters and add the constraint to them.
+		public static ConstrainedType xclause(final Ref<? extends Type> t, final Ref<CConstraint> c) {
+		    if (t == null) {
+		        return null;
+		    }
+		
+		    if (t.known() && c != null && c.known()) {
+		        Type tx = Types.get(t);
+		        TypeSystem ts = (TypeSystem) tx.typeSystem();
+		        tx = ts.expandMacros(tx);
+		
+		        CConstraint oldc = Types.xclause(tx);
+		        CConstraint newc = Types.get(c);
+		
+		        if (newc == null)
+		            return new ConstrainedType(ts, tx.position(), Types.ref(tx), Types.ref(new CConstraint()));
+		        
+		        if (oldc == null) {
+		            return new ConstrainedType(ts, tx.position(), t, c);
+		        }
+		        else {
+		            newc = newc.copy();
+		            try {
+		                newc.addIn(oldc);
+		            }
+		            catch (XFailure e) {
+		                newc.setInconsistent();
+		            }
+		            assert tx != null;
+		            return new ConstrainedType(ts, tx.position(), Types.ref(Types.baseType(tx)), Types.ref(newc));
+		        }
+		    }
+		    
+		    final LazyRef_c<Type> tref = new LazyRef_c<Type>(null);
+		    tref.setResolver(new Runnable() {
+		        public void run() {
+		            Type oldt = Types.baseType(Types.get(t));
+		            tref.update(oldt);
+		        }
+		    });
+		    
+		    final LazyRef_c<CConstraint> cref = new LazyRef_c<CConstraint>(null);
+		    cref.setResolver(new Runnable() { 
+		        public void run() {
+		            CConstraint oldc = Types.xclause(Types.get(t));
+		            if (oldc != null) {
+		                CConstraint newc = Types.get(c);
+		                if (newc != null) {
+		                    newc = newc.copy();
+		                    try {
+		                        newc.addIn(oldc);
+		                    }
+		                    catch (XFailure e) {
+		                        newc.setInconsistent();
+		                    }
+		                    cref.update(newc);
+		                }
+		                else {
+		                    cref.update(oldc);
+		                }
+		            }
+		            else {
+		                cref.update(oldc);
+		            }		                
+		        }
+		    });
+		
+		    Type tx = t.getCached();
+		    assert tx != null;
+		    return new ConstrainedType((TypeSystem) tx.typeSystem(), tx.position(), t.known()? t: tref, cref);
+		}
+		/**
+		 * Returns a copy of t's constraint, if it has one, null otherwise.
+		 * @param t
+		 * @return
+		 */
+		public  CConstraint xclause() {
+			return Types.get(constraint()).copy();
+		}
+		public static ConstrainedType xclause(Type t, CConstraint c) {
+			if (t == null)
+				return null;
+			if (c == null /*|| c.valid()*/) {
+				c = new CConstraint();
+			}
+			return xclause(Types.ref(t), Types.ref(c));
+		}
+		
+
+		public  ConstrainedType addRect() {
+		    ConstrainedType result=this;
+		    XTerm xt = findOrSynthesize(Name.make("rect"));
+		    if (xt != null)
+		    	try {
+		    		result = addBinding(xt, XTerms.TRUE);
+		    	} catch (XFailure f) {
+		    		// without the binding added.
+		    	}
+		    return result;
+		}
+		
+
+		public ConstrainedType addZeroBased() {
+		    ConstrainedType result = this;
+		    XTerm xt = findOrSynthesize(Name.make("zeroBased"));
+		    if (xt != null)
+		    	try {
+		    		result =  addBinding(xt, XTerms.TRUE);
+		    	} catch (XFailure f) {
+		    		// without the binding added.
+		    	}
+		    return result;
+		}
+		/**
+		 * Return self.rank, where self is the selfvar for t.
+		 */
+		public XTerm rank(Context context) {
+		    return findOrSynthesize(Name.make("rank"));
+		}
+		
+
+		public boolean isRect(Context context) {
+		    return amIProperty(Name.make("rect"), context);
+		}
+		
+		public XTerm onePlace(ConstrainedType t) {
+		    return find(Name.make("onePlace"));
+		}
+
+		public boolean isZeroBased(Context context) {
+			return amIProperty(Name.make("zeroBased"), context);
+		}
+		
+		/**
+		 * Does t imply {self.rank==1}?
+		 */
+		public boolean isRankOne(Context context) {
+		    return typeSystem().ONE().equals(rank(context));
+		}
+
+		/**
+		 * Does t imply {self.rank==2}?
+		 */
+		public boolean isRankTwo(Context context) {
+		        return typeSystem().TWO().equals(rank(context));
+		}
+
+		/**
+		 * Does t imply {self.rank==3}?
+		 */
+		public boolean isRankThree(Context context) {
+		    return typeSystem().THREE().equals(rank(context));
+		}
+		
+		 public  boolean amIProperty(Name propName, Context context) {
+			    TypeSystem xts = typeSystem();
+			    CConstraint r = realX();
+			
+			    // first try self.p
+			    X10FieldInstance fi = Types.getProperty(this, propName);
+			    if (fi != null) {
+				    try {
+					    CConstraint c = new CConstraint();
+					    XVar term = xts.xtypeTranslator().trans(c, c.self(), fi);
+					    c.addBinding(term, xts.xtypeTranslator().trans(true));
+			            return r.entails(c, context.constraintProjection(r, c));
+				    }
+				    catch (XFailure f) {
+					    return false;
+				    }
+			    }
+			    else {
+			        // try self.p()
+			            try {
+			                MethodInstance mi = xts.findMethod(this, xts.MethodMatcher(this, propName, Collections.<Type>emptyList(), xts.emptyContext()));
+			                XTerm body = mi.body();
+			                CConstraint c = new CConstraint();
+			                body = body.subst(c.self(), mi.x10Def().thisVar());
+			                c.addTerm(body);
+			                return r.entails(c, context.constraintProjection(r, c));
+			            }
+			            catch (XFailure f) {
+			                return false;
+			            }
+			            catch (SemanticException f) {
+			                return false;
+			            }
+			    }
+			}
+
+		 public XTerm makeProperty( String propStr) {
+			 Name propName = Name.make(propStr);
+			 CConstraint c = realX();
+			 if (c != null) {
+				 // build the synthetic term.
+				 XTerm var = selfVar();
+				 if (var !=null) {
+					 X10FieldInstance fi = Types.getProperty(this, propName);
+					 if (fi != null) {
+
+						 TypeSystem xts = typeSystem();
+						 XTerm val = xts.xtypeTranslator().trans(c, var, fi);
+						 return val;
+					 }
+				 }
+			 }
+			 return null;
+
+		 }
+		 public XTerm makeZeroBased() {
+			 return makeProperty("zeroBased");
+		 }
+
+		 public XTerm makeRail() {
+			 return makeProperty("rail");
+		 }
+
+	}

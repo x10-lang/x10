@@ -30,7 +30,9 @@ namespace x10aux {
      *  F stands for "from"
      */
     
-    extern void throwClassCastException() X10_PRAGMA_NORETURN;
+    extern void throwClassCastException(const RuntimeType *from, const RuntimeType *to) X10_PRAGMA_NORETURN;
+    extern void throwClassCastException(const char *msg) X10_PRAGMA_NORETURN;
+
     
     template<typename T, typename F> GPUSAFE T class_cast(F obj);
     template<typename T, typename F> GPUSAFE T class_cast(F obj, bool checked);
@@ -42,7 +44,7 @@ namespace x10aux {
             #ifndef NO_EXCEPTIONS
             _CAST_(from->name()<<" to "<<to->name());
             if (!from->subtypeOf(to)) {
-                throwClassCastException();
+                throwClassCastException(from, to);
             }
             #else
             (void) from; (void) to;
@@ -54,8 +56,16 @@ namespace x10aux {
 
     // ClassCastNotPrimitive
     template<class T, class F> struct ClassCastNotPrimitive { static GPUSAFE T _(F obj, bool checked) {
-        // If we get here, then we are doing a ref==>struct or struct==>ref, which is not allowed in X10 2.0.
-        throwClassCastException();
+
+        // [DC] can't make sense of the following comment, however this case
+        // would seem to catch the case where T and F are structs but are not
+        // in the 11 (or however many) primitive types that are caught earlier
+        // in the template specialisation.  The front end should prevent this
+        // from happening, so an internal (to the X10 team) debug message is
+        // appropriate.
+
+        // [DG] If we get here, then we are doing a ref==>struct or struct==>ref, which is not allowed in X10 2.0.
+        throwClassCastException("This should not happen, please file a bug");
         return NULL;
     } };
 
@@ -75,7 +85,7 @@ namespace x10aux {
                 #ifndef NO_EXCEPTIONS
                 _CAST_(from->name()<<" to "<<to->name());
                 if (!from->subtypeOf(to)) {
-                    throwClassCastException();
+                    throwClassCastException(from, to);
                 }
                 #else
                 (void) from; (void) to;
@@ -89,20 +99,20 @@ namespace x10aux {
     
     template<class T, class F> struct ClassCastNotPrimitive<T,ref<F> > {
         static GPUSAFE T _(ref<F> val, bool checked) {
+            const RuntimeType *to = getRTT<T>();
             _CAST_("Ref to struct cast "<<TYPENAME(F)<<" to "<<TYPENAME(T));
             if (val.isNull()) {
                 // NULL cannot be cast to a struct.
                 _CAST_("Special case: null cannot be cast to "<<TYPENAME(T));
-                throwClassCastException();
+                throwClassCastException(NULL, to);
             }
             if (checked) {
                 x10aux::ref<x10::lang::Reference> asRef = val;
                 const RuntimeType *from = asRef->_type();
-                const RuntimeType *to = getRTT<T>();
                 #ifndef NO_EXCEPTIONS
                 _CAST_(from->name()<<" to "<<to->name());
                 if (!from->subtypeOf(to)) {
-                    throwClassCastException();
+                    throwClassCastException(from, to);
                 }
                 #else
                 (void) from; (void) to;

@@ -62,7 +62,7 @@ import polyglot.types.ImportTable;
 import polyglot.types.LocalDef;
 import polyglot.types.LocalInstance;
 import polyglot.types.MethodDef;
-import polyglot.types.MethodInstance;
+
 import polyglot.types.Name;
 import polyglot.types.Named;
 import polyglot.types.Ref;
@@ -169,7 +169,7 @@ public class X10Context_c extends Context_c {
 		 // fold in the real clause of the base type
 		 Type selfType = this.currentDepType();
 		 if (selfType != null) {
-			 CConstraint selfConstraint = X10TypeMixin.realX(selfType);
+			 CConstraint selfConstraint = Types.realX(selfType);
 			 if (selfConstraint != null) {
 				 r.addIn(selfConstraint.instantiateSelf(r.self()));
 			 }
@@ -251,20 +251,18 @@ public class X10Context_c extends Context_c {
     	// check if you are in code.
     	Context cxt = this;
     	CodeDef cc = cxt.currentCode();
-    	if (cc != null) {
-    		if (cc instanceof X10MethodDef) {
-    			X10MethodDef md = (X10MethodDef) cc;
-    			while (md.name().toString().contains(X10TypeSystem_c.DUMMY_AT_ASYNC)) {
-    				cxt = cxt.pop();
-    				if (cxt == null)
-    					break;
-    				cc = cxt.currentCode();
-    				if (cc instanceof X10MethodDef)
-    					md = (X10MethodDef) cc;
-    			}
-    			if (md != null)
-    				return Types.get(md.offerType());
-    		}
+    	if (cc instanceof X10MethodDef) {
+    	    X10MethodDef md = (X10MethodDef) cc;
+    	    while (md instanceof AtDef || md instanceof AsyncDef) {
+    	        cxt = cxt.pop();
+    	        if (cxt == null)
+    	            break;
+    	        cc = cxt.currentCode();
+    	        if (cc instanceof X10MethodDef)
+    	            md = (X10MethodDef) cc;
+    	    }
+    	    if (md != null)
+    	        return Types.get(md.offerType());
     	}
     	return null;
     }
@@ -334,7 +332,7 @@ public class X10Context_c extends Context_c {
     	X10CodeDef cd = currentCode();
     	if (cd instanceof X10MethodDef) {
     		X10MethodDef md = (X10MethodDef) cd;
-    		return X10Flags.toX10Flags(md.flags()).isClocked();
+    		return md.flags().isClocked();
     	}
     	return false;
     }
@@ -357,8 +355,8 @@ public class X10Context_c extends Context_c {
 		return v;
 	}
 
-	public X10NamedType currentDepType() {
-		return (X10NamedType) Types.get(depType);
+	public Type currentDepType() {
+		return  Types.get(depType);
 	}
 
 	public Ref<? extends Type> depTypeRef() {
@@ -386,9 +384,7 @@ public class X10Context_c extends Context_c {
         return false;
     }
     public static boolean isDummyCode(CodeDef ci) {
-        return (ci != null)
-				&& (ci instanceof MethodDef)
-				&& ((MethodDef) ci).name().toString().equals(X10TypeSystem_c.DUMMY_AT_ASYNC);
+        return (ci instanceof AtDef || ci instanceof AsyncDef);
     }
     public boolean inAsyncScope() {
         return x10Kind== X10Kind.Async ? true :
@@ -430,7 +426,7 @@ public class X10Context_c extends Context_c {
 	     * Looks up a method with name "name" and arguments compatible with
 	     * "argTypes".
 	     */
-	    public X10MethodInstance superFindMethod(TypeSystem_c.MethodMatcher matcher) throws SemanticException {
+	    public MethodInstance superFindMethod(TypeSystem_c.MethodMatcher matcher) throws SemanticException {
 	        if (Report.should_report(TOPICS, 3))
 	          Report.report(3, "find-method " + matcher.signature() + " in " + this);
 
@@ -461,7 +457,7 @@ public class X10Context_c extends Context_c {
 	            }
 
 	            if (thisVar != null)
-	                t = X10TypeMixin.setSelfVar(t, thisVar);
+	                t = Types.setSelfVar(t, thisVar);
 
 	            // Found a class that has a method of the right name.
 	            // Now need to check if the method is of the correct type.
@@ -479,8 +475,8 @@ public class X10Context_c extends Context_c {
 	 * Looks up a method with name "name" and arguments compatible with
 	 * "argTypes".
 	 */
-	public X10MethodInstance findMethod(TypeSystem_c.MethodMatcher matcher) throws SemanticException {
-		X10MethodInstance result = depType == null ? superFindMethod(matcher) : pop().findMethod(matcher);
+	public MethodInstance findMethod(TypeSystem_c.MethodMatcher matcher) throws SemanticException {
+		MethodInstance result = depType == null ? superFindMethod(matcher) : pop().findMethod(matcher);
 		return result;
 	}
 
@@ -856,21 +852,21 @@ public class X10Context_c extends Context_c {
 	}
 
 	public void recordCapturedVariable(VarInstance<? extends VarDef> vi) {
-	    Context c = findEnclosingClosure();
+	    Context c = findEnclosingCapturingScope();
 	    if (c == null)
 	        return;
 	    VarInstance<?> o = c.pop().findVariableSilent(vi.name());
 	    if (vi == o || (o != null && vi.def() == o.def()))
-	        ((ClosureDef) c.currentCode()).addCapturedVariable(vi);
+	        ((EnvironmentCapture) c.currentCode()).addCapturedVariable(vi);
 	}
 
-	private Context findEnclosingClosure() {
+	public Context findEnclosingCapturingScope() {
 	    Context c = popToCode();
-	    while (c != null && !(c.currentCode() instanceof ClosureDef)) {
+	    while (c != null && !(c.currentCode() instanceof EnvironmentCapture)) {
 	        c = c.pop().popToCode();
 	    }
 	    assert (c == null || ((X10Context_c) c).isCode());
-	    if (c != null && c.currentCode() instanceof ClosureDef)
+	    if (c != null && c.currentCode() instanceof EnvironmentCapture)
 	        return c;
 	    return null;
 	}

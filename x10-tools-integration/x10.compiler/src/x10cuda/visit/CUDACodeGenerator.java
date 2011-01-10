@@ -95,13 +95,10 @@ import x10.ast.AssignPropertyCall_c;
 import x10.ast.Closure;
 import x10.ast.ClosureCall_c;
 import x10.ast.Closure_c;
-import x10.ast.ConstantDistMaker_c;
 import x10.ast.ForLoop;
 import x10.ast.ForLoop_c;
 import x10.ast.ParExpr_c;
 import x10.ast.PropertyDecl_c;
-import x10.ast.RegionMaker;
-import x10.ast.RegionMaker_c;
 import x10.ast.StmtSeq;
 import x10.ast.SubtypeTest_c;
 import x10.ast.Tuple_c;
@@ -133,9 +130,7 @@ import x10.extension.X10Ext;
 import x10.types.ConstrainedType;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
-import x10.types.X10TypeMixin;
 import polyglot.types.TypeSystem;
-import x10.types.X10TypeSystem_c;
 import x10.types.constraints.CConstraint;
 import x10cpp.X10CPPCompilerOptions;
 import x10cpp.postcompiler.CXXCommandBuilder;
@@ -154,6 +149,7 @@ import polyglot.types.Name;
 import polyglot.types.QName;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
+import polyglot.types.Types;
 import polyglot.types.VarInstance;
 import polyglot.util.ErrorInfo;
 import polyglot.util.ErrorQueue;
@@ -190,8 +186,8 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 		return (X10CUDAContext_c) tr.context();
 	}
 
-	private X10TypeSystem_c xts() {
-		return (X10TypeSystem_c) tr.typeSystem();
+	private TypeSystem xts() {
+		return  tr.typeSystem();
 	}
 
 	// defer to CUDAContext.cudaStream()
@@ -467,7 +463,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 			
 			assert kind==1;
 
-			X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
+			TypeSystem xts = tr.typeSystem();
 			boolean in_template_closure = freeTypeParams.size() > 0;
 			if (in_template_closure)
 				emitter.printTemplateSignature(freeTypeParams, defn_s);
@@ -702,41 +698,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 		super.visit(n);
 	}
 
-	@Override
-	public void visit(Assign_c asgn) {
-		// TODO Auto-generated method stub
-		super.visit(asgn);
-	}
 
-	@Override
-	public void visit(AssignPropertyCall_c n) {
-		// TODO Auto-generated method stub
-		super.visit(n);
-	}
-
-	@Override
-	public void visit(Binary_c n) {
-		// TODO Auto-generated method stub
-		super.visit(n);
-	}
-
-	@Override
-	public void visit(BooleanLit_c lit) {
-		// TODO Auto-generated method stub
-		super.visit(lit);
-	}
-
-	@Override
-	public void visit(Branch_c br) {
-		// TODO Auto-generated method stub
-		super.visit(br);
-	}
-
-	@Override
-	public void visit(Case_c n) {
-		// TODO Auto-generated method stub
-		super.visit(n);
-	}
 
 	@Override
 	public void visit(Catch_c n) {
@@ -746,100 +708,10 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 	}
 
 	@Override
-	public void visit(CharLit_c lit) {
-		// TODO Auto-generated method stub
-		super.visit(lit);
-	}
-
-	@Override
 	public void visit(ClosureCall_c n) {
 		complainIfNot2(!generatingKernel(),
 				"Closure calls not allowed in @CUDA code.", n, false);
 		super.visit(n);
-	}
-
-	@Override
-	public void visit(Conditional_c n) {
-		// TODO Auto-generated method stub
-		super.visit(n);
-	}
-
-	@Override
-	public void visit(Do_c n) {
-		// TODO Auto-generated method stub
-		super.visit(n);
-	}
-
-	@Override
-	public void visit(Empty_c n) {
-		// TODO Auto-generated method stub
-		super.visit(n);
-	}
-
-	@Override
-	public void visit(Eval_c n) {
-		// TODO Auto-generated method stub
-		super.visit(n);
-	}
-
-	@Override
-	public void visit(Field_c n) {
-		// TODO Auto-generated method stub
-		super.visit(n);
-	}
-
-	@Override
-	public void visit(FloatLit_c n) {
-		// TODO Auto-generated method stub
-		super.visit(n);
-	}
-
-	@Override
-	public void visit(For_c n) {
-		// TODO Auto-generated method stub
-		super.visit(n);
-	}
-
-	@Override
-	public void visit(ForLoop_c n) {
-		// TODO Auto-generated method stub
-		super.visit(n);
-	}
-
-	@Override
-	public void visit(Formal_c n) {
-		// TODO Auto-generated method stub
-		super.visit(n);
-	}
-
-	@Override
-	public void visit(Id_c n) {
-		// TODO Auto-generated method stub
-		super.visit(n);
-	}
-
-	@Override
-	public void visit(If_c n) {
-		// TODO Auto-generated method stub
-		super.visit(n);
-	}
-
-	@Override
-	public void visit(Initializer_c n) {
-		// TODO Auto-generated method stub
-		super.visit(n);
-	}
-
-	@Override
-	public void visit(IntLit_c n) {
-		// TODO Auto-generated method stub
-		super.visit(n);
-	}
-
-	@Override
-	public void visit(Labeled_c label) {
-		// TODO Auto-generated method stub
-		super.visit(label);
 	}
 
 	@Override
@@ -902,7 +774,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 		if (!(n.type() instanceof ConstrainedType)) return null;
 		ConstrainedType ct = (ConstrainedType) n.type();
 		CConstraint cc = ct.getRealXClause();
-		XVar local_self = X10TypeMixin.selfVarBinding(cc);
+		XVar local_self = Types.selfVarBinding(cc);
 		if (local_self==null) return null;
 		if (local_self instanceof XLit) return "/*"+n+":"+n.type()+"*/"+local_self.toString();
 		// resolve to another variable, keep going
@@ -916,42 +788,6 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 		if (closed_self==null) return null;
 		if (closed_self instanceof XLit) return "/*"+n+":"+n.type()+"*/"+closed_self.toString();
 		return null;
-	}
-
-	@Override
-	public void visit(NullLit_c n) {
-		// TODO Auto-generated method stub
-		super.visit(n);
-	}
-
-	@Override
-	public void visit(Return_c ret) {
-		// TODO Auto-generated method stub
-		super.visit(ret);
-	}
-
-	@Override
-	public void visit(StringLit_c n) {
-		// TODO Auto-generated method stub
-		super.visit(n);
-	}
-
-	@Override
-	public void visit(SubtypeTest_c n) {
-		// TODO Auto-generated method stub
-		super.visit(n);
-	}
-
-	@Override
-	public void visit(Switch_c n) {
-		// TODO Auto-generated method stub
-		super.visit(n);
-	}
-
-	@Override
-	public void visit(SwitchBlock_c n) {
-		// TODO Auto-generated method stub
-		super.visit(n);
 	}
 
 	@Override
@@ -969,57 +805,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 	}
 
 	@Override
-	public void visit(Tuple_c c) {
-		// TODO Auto-generated method stub
-		super.visit(c);
-	}
-
-	@Override
-	public void visit(TypeDecl_c n) {
-		// TODO Auto-generated method stub
-		super.visit(n);
-	}
-
-	@Override
-	public void visit(Unary_c n) {
-		// TODO Auto-generated method stub
-		super.visit(n);
-	}
-
-	@Override
-	public void visit(While_c n) {
-		// TODO Auto-generated method stub
-		super.visit(n);
-	}
-
-	@Override
-	public void visit(X10Binary_c n) {
-		// TODO Auto-generated method stub
-		super.visit(n);
-	}
-
-	@Override
-	public void visit(X10Call_c n) {
-		// In fact they are allowed, as long as they are implemented with
-		// @Native
-		super.visit(n);
-	}
-
-	@Override
-	public void visit(X10CanonicalTypeNode_c n) {
-		// TODO Auto-generated method stub
-		super.visit(n);
-	}
-
-	@Override
-	public void visit(X10Cast_c c) {
-		// TODO Auto-generated method stub
-		super.visit(c);
-	}
-
-	@Override
 	public void visit(X10ClassDecl_c n) {
-		// TODO Auto-generated method stub
 		boolean v = context().firstKernel();
 		context().firstKernel(true);
 		try {
@@ -1037,14 +823,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 	}
 
 	@Override
-	public void visit(X10Special_c n) {
-		// TODO Auto-generated method stub
-		super.visit(n);
-	}
-
-	@Override
 	public void visit(X10MethodDecl_c n) {
-		// TODO Auto-generated method stub
 		//n.prettyPrint(System.out);
 		//System.out.println();
 		X10MethodDecl_c n2 = (X10MethodDecl_c) n.visit(new ConstantPropagator(tr.job(), tr.typeSystem(), tr.nodeFactory()).context(context()));
@@ -1053,15 +832,8 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 		super.visit(n2);
 	}
 
-	@Override
-	public void visit(X10Unary_c n) {
-		// TODO Auto-generated method stub
-		super.visit(n);
-	}
-
 	public static boolean postCompile(X10CPPCompilerOptions options,
 			Compiler compiler, ErrorQueue eq) {
-		// TODO Auto-generated method stub
 		if (options.post_compiler != null && !options.output_stdout) {
 			Collection<String> compilationUnits = options.compilationUnits();
 			String[] nvccCmd = { "nvcc", "--cubin", "-Xptxas", "-v",

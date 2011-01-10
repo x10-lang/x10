@@ -2344,2023 +2344,2025 @@ public class X10Parser implements RuleAction
                     break;
             }
             //
-            // Rule 216:  AssignmentExpression ::= Expression$expr1 -> Expression$expr2
+            // Rule 216:  ClosureExpression ::= FormalParameters WhereClauseopt HasResultTypeopt Offersopt => ClosureBody
             //
             case 216: {
                //#line 1131 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 1129 "x10/parser/x10.g"
-                Object expr1 = (Object) getRhsSym(1);
-                //#line 1129 "x10/parser/x10.g"
-                Object expr2 = (Object) getRhsSym(3);
-                //#line 1131 "lpg.generator/templates/java/btParserTemplateF.gi"
-		r.rule_AssignmentExpression0(expr1,expr2);
-                    break;
-            }
-            //
-            // Rule 217:  ClosureExpression ::= FormalParameters WhereClauseopt HasResultTypeopt Offersopt => ClosureBody
-            //
-            case 217: {
-               //#line 1135 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1133 "x10/parser/x10.g"
                 Object FormalParameters = (Object) getRhsSym(1);
-                //#line 1133 "x10/parser/x10.g"
+                //#line 1129 "x10/parser/x10.g"
                 Object WhereClauseopt = (Object) getRhsSym(2);
-                //#line 1133 "x10/parser/x10.g"
+                //#line 1129 "x10/parser/x10.g"
                 Object HasResultTypeopt = (Object) getRhsSym(3);
-                //#line 1133 "x10/parser/x10.g"
+                //#line 1129 "x10/parser/x10.g"
                 Object Offersopt = (Object) getRhsSym(4);
-                //#line 1133 "x10/parser/x10.g"
+                //#line 1129 "x10/parser/x10.g"
                 Object ClosureBody = (Object) getRhsSym(6);
-                //#line 1135 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1131 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_ClosureExpression0(FormalParameters,WhereClauseopt,HasResultTypeopt,Offersopt,ClosureBody);
                     break;
             }
             //
-            // Rule 218:  LastExpression ::= Expression
+            // Rule 217:  LastExpression ::= Expression
             //
-            case 218: {
-               //#line 1140 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1138 "x10/parser/x10.g"
+            case 217: {
+               //#line 1136 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1134 "x10/parser/x10.g"
                 Object Expression = (Object) getRhsSym(1);
-                //#line 1140 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1136 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_LastExpression0(Expression);
                     break;
             }
             //
-            // Rule 219:  ClosureBody ::= ConditionalExpression
+            // Rule 218:  ClosureBody ::= ConditionalExpression
             //
-            case 219: {
-               //#line 1145 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1143 "x10/parser/x10.g"
+            case 218: {
+               //#line 1141 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1139 "x10/parser/x10.g"
                 Object ConditionalExpression = (Object) getRhsSym(1);
-                //#line 1145 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1141 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_ClosureBody0(ConditionalExpression);
                     break;
             }
             //
-            // Rule 220:  ClosureBody ::= Annotationsopt { BlockStatementsopt LastExpression }
+            // Rule 219:  ClosureBody ::= Annotationsopt { BlockStatementsopt LastExpression }
+            //
+            case 219: {
+               //#line 1145 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1143 "x10/parser/x10.g"
+                Object Annotationsopt = (Object) getRhsSym(1);
+                //#line 1143 "x10/parser/x10.g"
+                Object BlockStatementsopt = (Object) getRhsSym(3);
+                //#line 1143 "x10/parser/x10.g"
+                Object LastExpression = (Object) getRhsSym(4);
+                //#line 1145 "lpg.generator/templates/java/btParserTemplateF.gi"
+		r.rule_ClosureBody1(Annotationsopt,BlockStatementsopt,LastExpression);
+                    break;
+            }
+            //
+            // Rule 220:  ClosureBody ::= Annotationsopt Block
             //
             case 220: {
                //#line 1149 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 1147 "x10/parser/x10.g"
                 Object Annotationsopt = (Object) getRhsSym(1);
                 //#line 1147 "x10/parser/x10.g"
-                Object BlockStatementsopt = (Object) getRhsSym(3);
-                //#line 1147 "x10/parser/x10.g"
-                Object LastExpression = (Object) getRhsSym(4);
-                //#line 1149 "lpg.generator/templates/java/btParserTemplateF.gi"
-		r.rule_ClosureBody1(Annotationsopt,BlockStatementsopt,LastExpression);
-                    break;
-            }
-            //
-            // Rule 221:  ClosureBody ::= Annotationsopt Block
-            //
-            case 221: {
-               //#line 1153 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1151 "x10/parser/x10.g"
-                Object Annotationsopt = (Object) getRhsSym(1);
-                //#line 1151 "x10/parser/x10.g"
                 Object Block = (Object) getRhsSym(2);
-                //#line 1153 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1149 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_ClosureBody2(Annotationsopt,Block);
                     break;
             }
             //
-            // Rule 222:  AtExpression ::= at PlaceExpressionSingleList ClosureBody
+            // Rule 221:  AtExpression ::= at PlaceExpressionSingleList ClosureBody
             //
-            case 222: {
-               //#line 1159 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1157 "x10/parser/x10.g"
+            case 221: {
+               //#line 1155 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1153 "x10/parser/x10.g"
                 Object PlaceExpressionSingleList = (Object) getRhsSym(2);
-                //#line 1157 "x10/parser/x10.g"
+                //#line 1153 "x10/parser/x10.g"
                 Object ClosureBody = (Object) getRhsSym(3);
-                //#line 1159 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1155 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_AtExpression0(PlaceExpressionSingleList,ClosureBody);
                     break;
             }
             //
-            // Rule 223:  FinishExpression ::= finish ( Expression ) Block
+            // Rule 222:  FinishExpression ::= finish ( Expression ) Block
             //
-            case 223: {
-               //#line 1164 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1162 "x10/parser/x10.g"
+            case 222: {
+               //#line 1160 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1158 "x10/parser/x10.g"
                 Object Expression = (Object) getRhsSym(3);
-                //#line 1162 "x10/parser/x10.g"
+                //#line 1158 "x10/parser/x10.g"
                 Object Block = (Object) getRhsSym(5);
-                //#line 1164 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1160 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_FinishExpression0(Expression,Block);
                     break;
             }
             //
-            // Rule 224:  WhereClauseopt ::= $Empty
+            // Rule 223:  WhereClauseopt ::= $Empty
             //
-            case 224:
+            case 223:
                 setResult(null);
                 break;
 
             //
-            // Rule 226:  ClockedClauseopt ::= $Empty
+            // Rule 225:  ClockedClauseopt ::= $Empty
             //
-            case 226: {
-               //#line 1208 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 225: {
+               //#line 1204 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 1208 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1204 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_ClockedClauseopt0();
                     break;
             }
             //
-            // Rule 228:  TypeName ::= Identifier
+            // Rule 227:  TypeName ::= Identifier
             //
-            case 228: {
-               //#line 1219 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1217 "x10/parser/x10.g"
+            case 227: {
+               //#line 1215 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1213 "x10/parser/x10.g"
                 Object Identifier = (Object) getRhsSym(1);
-                //#line 1219 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1215 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_TypeName1(Identifier);
                     break;
             }
             //
-            // Rule 229:  TypeName ::= TypeName . Identifier
+            // Rule 228:  TypeName ::= TypeName . Identifier
             //
-            case 229: {
-               //#line 1223 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1221 "x10/parser/x10.g"
+            case 228: {
+               //#line 1219 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1217 "x10/parser/x10.g"
                 Object TypeName = (Object) getRhsSym(1);
-                //#line 1221 "x10/parser/x10.g"
+                //#line 1217 "x10/parser/x10.g"
                 Object Identifier = (Object) getRhsSym(3);
-                //#line 1223 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1219 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_TypeName2(TypeName,Identifier);
                     break;
             }
             //
-            // Rule 231:  TypeArguments ::= [ TypeArgumentList ]
+            // Rule 230:  TypeArguments ::= [ TypeArgumentList ]
             //
-            case 231: {
-               //#line 1230 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1228 "x10/parser/x10.g"
+            case 230: {
+               //#line 1226 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1224 "x10/parser/x10.g"
                 Object TypeArgumentList = (Object) getRhsSym(2);
-                //#line 1230 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1226 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_TypeArguments0(TypeArgumentList);
                     break;
             }
             //
-            // Rule 232:  TypeArgumentList ::= Type
+            // Rule 231:  TypeArgumentList ::= Type
             //
-            case 232: {
-               //#line 1236 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1234 "x10/parser/x10.g"
+            case 231: {
+               //#line 1232 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1230 "x10/parser/x10.g"
                 Object Type = (Object) getRhsSym(1);
-                //#line 1236 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1232 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_TypeArgumentList0(Type);
                     break;
             }
             //
-            // Rule 233:  TypeArgumentList ::= TypeArgumentList , Type
+            // Rule 232:  TypeArgumentList ::= TypeArgumentList , Type
             //
-            case 233: {
-               //#line 1240 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1238 "x10/parser/x10.g"
+            case 232: {
+               //#line 1236 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1234 "x10/parser/x10.g"
                 Object TypeArgumentList = (Object) getRhsSym(1);
-                //#line 1238 "x10/parser/x10.g"
+                //#line 1234 "x10/parser/x10.g"
                 Object Type = (Object) getRhsSym(3);
-                //#line 1240 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1236 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_TypeArgumentList1(TypeArgumentList,Type);
                     break;
             }
             //
-            // Rule 234:  PackageName ::= Identifier
+            // Rule 233:  PackageName ::= Identifier
             //
-            case 234: {
-               //#line 1249 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1247 "x10/parser/x10.g"
+            case 233: {
+               //#line 1245 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1243 "x10/parser/x10.g"
                 Object Identifier = (Object) getRhsSym(1);
-                //#line 1249 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1245 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_PackageName1(Identifier);
                     break;
             }
             //
-            // Rule 235:  PackageName ::= PackageName . Identifier
+            // Rule 234:  PackageName ::= PackageName . Identifier
             //
-            case 235: {
-               //#line 1253 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1251 "x10/parser/x10.g"
+            case 234: {
+               //#line 1249 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1247 "x10/parser/x10.g"
                 Object PackageName = (Object) getRhsSym(1);
-                //#line 1251 "x10/parser/x10.g"
+                //#line 1247 "x10/parser/x10.g"
                 Object Identifier = (Object) getRhsSym(3);
-                //#line 1253 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1249 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_PackageName2(PackageName,Identifier);
                     break;
             }
             //
-            // Rule 236:  ExpressionName ::= Identifier
+            // Rule 235:  ExpressionName ::= Identifier
             //
-            case 236: {
-               //#line 1264 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1262 "x10/parser/x10.g"
+            case 235: {
+               //#line 1260 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1258 "x10/parser/x10.g"
                 Object Identifier = (Object) getRhsSym(1);
-                //#line 1264 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1260 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_ExpressionName1(Identifier);
                     break;
             }
             //
-            // Rule 237:  ExpressionName ::= AmbiguousName . Identifier
+            // Rule 236:  ExpressionName ::= AmbiguousName . Identifier
             //
-            case 237: {
-               //#line 1268 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1266 "x10/parser/x10.g"
+            case 236: {
+               //#line 1264 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1262 "x10/parser/x10.g"
                 Object AmbiguousName = (Object) getRhsSym(1);
-                //#line 1266 "x10/parser/x10.g"
+                //#line 1262 "x10/parser/x10.g"
                 Object Identifier = (Object) getRhsSym(3);
-                //#line 1268 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1264 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_ExpressionName2(AmbiguousName,Identifier);
                     break;
             }
             //
-            // Rule 238:  MethodName ::= Identifier
+            // Rule 237:  MethodName ::= Identifier
             //
-            case 238: {
-               //#line 1273 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1271 "x10/parser/x10.g"
+            case 237: {
+               //#line 1269 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1267 "x10/parser/x10.g"
                 Object Identifier = (Object) getRhsSym(1);
-                //#line 1273 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1269 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_MethodName1(Identifier);
                     break;
             }
             //
-            // Rule 239:  MethodName ::= AmbiguousName . Identifier
+            // Rule 238:  MethodName ::= AmbiguousName . Identifier
             //
-            case 239: {
-               //#line 1277 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1275 "x10/parser/x10.g"
+            case 238: {
+               //#line 1273 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1271 "x10/parser/x10.g"
                 Object AmbiguousName = (Object) getRhsSym(1);
-                //#line 1275 "x10/parser/x10.g"
+                //#line 1271 "x10/parser/x10.g"
                 Object Identifier = (Object) getRhsSym(3);
-                //#line 1277 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1273 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_MethodName2(AmbiguousName,Identifier);
                     break;
             }
             //
-            // Rule 240:  PackageOrTypeName ::= Identifier
+            // Rule 239:  PackageOrTypeName ::= Identifier
             //
-            case 240: {
-               //#line 1282 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1280 "x10/parser/x10.g"
+            case 239: {
+               //#line 1278 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1276 "x10/parser/x10.g"
                 Object Identifier = (Object) getRhsSym(1);
-                //#line 1282 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1278 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_PackageOrTypeName1(Identifier);
                     break;
             }
             //
-            // Rule 241:  PackageOrTypeName ::= PackageOrTypeName . Identifier
+            // Rule 240:  PackageOrTypeName ::= PackageOrTypeName . Identifier
             //
-            case 241: {
-               //#line 1286 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1284 "x10/parser/x10.g"
+            case 240: {
+               //#line 1282 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1280 "x10/parser/x10.g"
                 Object PackageOrTypeName = (Object) getRhsSym(1);
-                //#line 1284 "x10/parser/x10.g"
+                //#line 1280 "x10/parser/x10.g"
                 Object Identifier = (Object) getRhsSym(3);
-                //#line 1286 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1282 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_PackageOrTypeName2(PackageOrTypeName,Identifier);
                     break;
             }
             //
-            // Rule 242:  AmbiguousName ::= Identifier
+            // Rule 241:  AmbiguousName ::= Identifier
             //
-            case 242: {
-               //#line 1291 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1289 "x10/parser/x10.g"
+            case 241: {
+               //#line 1287 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1285 "x10/parser/x10.g"
                 Object Identifier = (Object) getRhsSym(1);
-                //#line 1291 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1287 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_AmbiguousName1(Identifier);
                     break;
             }
             //
-            // Rule 243:  AmbiguousName ::= AmbiguousName . Identifier
+            // Rule 242:  AmbiguousName ::= AmbiguousName . Identifier
             //
-            case 243: {
-               //#line 1295 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1293 "x10/parser/x10.g"
+            case 242: {
+               //#line 1291 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1289 "x10/parser/x10.g"
                 Object AmbiguousName = (Object) getRhsSym(1);
-                //#line 1293 "x10/parser/x10.g"
+                //#line 1289 "x10/parser/x10.g"
                 Object Identifier = (Object) getRhsSym(3);
-                //#line 1295 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1291 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_AmbiguousName2(AmbiguousName,Identifier);
                     break;
             }
             //
-            // Rule 244:  CompilationUnit ::= PackageDeclarationopt TypeDeclarationsopt
+            // Rule 243:  CompilationUnit ::= PackageDeclarationopt TypeDeclarationsopt
+            //
+            case 243: {
+               //#line 1298 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1296 "x10/parser/x10.g"
+                Object PackageDeclarationopt = (Object) getRhsSym(1);
+                //#line 1296 "x10/parser/x10.g"
+                Object TypeDeclarationsopt = (Object) getRhsSym(2);
+                //#line 1298 "lpg.generator/templates/java/btParserTemplateF.gi"
+		r.rule_CompilationUnit0(PackageDeclarationopt,TypeDeclarationsopt);
+                    break;
+            }
+            //
+            // Rule 244:  CompilationUnit ::= PackageDeclarationopt ImportDeclarations TypeDeclarationsopt
             //
             case 244: {
                //#line 1302 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 1300 "x10/parser/x10.g"
                 Object PackageDeclarationopt = (Object) getRhsSym(1);
                 //#line 1300 "x10/parser/x10.g"
-                Object TypeDeclarationsopt = (Object) getRhsSym(2);
-                //#line 1302 "lpg.generator/templates/java/btParserTemplateF.gi"
-		r.rule_CompilationUnit0(PackageDeclarationopt,TypeDeclarationsopt);
-                    break;
-            }
-            //
-            // Rule 245:  CompilationUnit ::= PackageDeclarationopt ImportDeclarations TypeDeclarationsopt
-            //
-            case 245: {
-               //#line 1306 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1304 "x10/parser/x10.g"
-                Object PackageDeclarationopt = (Object) getRhsSym(1);
-                //#line 1304 "x10/parser/x10.g"
                 Object ImportDeclarations = (Object) getRhsSym(2);
-                //#line 1304 "x10/parser/x10.g"
+                //#line 1300 "x10/parser/x10.g"
                 Object TypeDeclarationsopt = (Object) getRhsSym(3);
-                //#line 1306 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1302 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_CompilationUnit1(PackageDeclarationopt,ImportDeclarations,TypeDeclarationsopt);
                     break;
             }
             //
-            // Rule 246:  CompilationUnit ::= ImportDeclarations PackageDeclaration$misplacedPackageDeclaration ImportDeclarationsopt$misplacedImportDeclarations TypeDeclarationsopt
+            // Rule 245:  CompilationUnit ::= ImportDeclarations PackageDeclaration$misplacedPackageDeclaration ImportDeclarationsopt$misplacedImportDeclarations TypeDeclarationsopt
             //
-            case 246: {
-               //#line 1310 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1308 "x10/parser/x10.g"
+            case 245: {
+               //#line 1306 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1304 "x10/parser/x10.g"
                 Object ImportDeclarations = (Object) getRhsSym(1);
-                //#line 1308 "x10/parser/x10.g"
+                //#line 1304 "x10/parser/x10.g"
                 Object misplacedPackageDeclaration = (Object) getRhsSym(2);
-                //#line 1308 "x10/parser/x10.g"
+                //#line 1304 "x10/parser/x10.g"
                 Object misplacedImportDeclarations = (Object) getRhsSym(3);
-                //#line 1308 "x10/parser/x10.g"
+                //#line 1304 "x10/parser/x10.g"
                 Object TypeDeclarationsopt = (Object) getRhsSym(4);
-                //#line 1310 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1306 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_CompilationUnit2(ImportDeclarations,misplacedPackageDeclaration,misplacedImportDeclarations,TypeDeclarationsopt);
                     break;
             }
             //
-            // Rule 247:  CompilationUnit ::= PackageDeclaration ImportDeclarations PackageDeclaration$misplacedPackageDeclaration ImportDeclarationsopt$misplacedImportDeclarations TypeDeclarationsopt
+            // Rule 246:  CompilationUnit ::= PackageDeclaration ImportDeclarations PackageDeclaration$misplacedPackageDeclaration ImportDeclarationsopt$misplacedImportDeclarations TypeDeclarationsopt
             //
-            case 247: {
-               //#line 1314 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1312 "x10/parser/x10.g"
+            case 246: {
+               //#line 1310 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1308 "x10/parser/x10.g"
                 Object PackageDeclaration = (Object) getRhsSym(1);
-                //#line 1312 "x10/parser/x10.g"
+                //#line 1308 "x10/parser/x10.g"
                 Object ImportDeclarations = (Object) getRhsSym(2);
-                //#line 1312 "x10/parser/x10.g"
+                //#line 1308 "x10/parser/x10.g"
                 Object misplacedPackageDeclaration = (Object) getRhsSym(3);
-                //#line 1312 "x10/parser/x10.g"
+                //#line 1308 "x10/parser/x10.g"
                 Object misplacedImportDeclarations = (Object) getRhsSym(4);
-                //#line 1312 "x10/parser/x10.g"
+                //#line 1308 "x10/parser/x10.g"
                 Object TypeDeclarationsopt = (Object) getRhsSym(5);
-                //#line 1314 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1310 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_CompilationUnit3(PackageDeclaration,ImportDeclarations,misplacedPackageDeclaration,misplacedImportDeclarations,TypeDeclarationsopt);
                     break;
             }
             //
-            // Rule 248:  ImportDeclarations ::= ImportDeclaration
+            // Rule 247:  ImportDeclarations ::= ImportDeclaration
             //
-            case 248: {
-               //#line 1319 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1317 "x10/parser/x10.g"
+            case 247: {
+               //#line 1315 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1313 "x10/parser/x10.g"
                 Object ImportDeclaration = (Object) getRhsSym(1);
-                //#line 1319 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1315 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_ImportDeclarations0(ImportDeclaration);
                     break;
             }
             //
-            // Rule 249:  ImportDeclarations ::= ImportDeclarations ImportDeclaration
+            // Rule 248:  ImportDeclarations ::= ImportDeclarations ImportDeclaration
             //
-            case 249: {
-               //#line 1323 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1321 "x10/parser/x10.g"
+            case 248: {
+               //#line 1319 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1317 "x10/parser/x10.g"
                 Object ImportDeclarations = (Object) getRhsSym(1);
-                //#line 1321 "x10/parser/x10.g"
+                //#line 1317 "x10/parser/x10.g"
                 Object ImportDeclaration = (Object) getRhsSym(2);
-                //#line 1323 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1319 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_ImportDeclarations1(ImportDeclarations,ImportDeclaration);
                     break;
             }
             //
-            // Rule 250:  TypeDeclarations ::= TypeDeclaration
+            // Rule 249:  TypeDeclarations ::= TypeDeclaration
             //
-            case 250: {
-               //#line 1328 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1326 "x10/parser/x10.g"
+            case 249: {
+               //#line 1324 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1322 "x10/parser/x10.g"
                 Object TypeDeclaration = (Object) getRhsSym(1);
-                //#line 1328 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1324 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_TypeDeclarations0(TypeDeclaration);
                     break;
             }
             //
-            // Rule 251:  TypeDeclarations ::= TypeDeclarations TypeDeclaration
+            // Rule 250:  TypeDeclarations ::= TypeDeclarations TypeDeclaration
             //
-            case 251: {
-               //#line 1332 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1330 "x10/parser/x10.g"
+            case 250: {
+               //#line 1328 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1326 "x10/parser/x10.g"
                 Object TypeDeclarations = (Object) getRhsSym(1);
-                //#line 1330 "x10/parser/x10.g"
+                //#line 1326 "x10/parser/x10.g"
                 Object TypeDeclaration = (Object) getRhsSym(2);
-                //#line 1332 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1328 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_TypeDeclarations1(TypeDeclarations,TypeDeclaration);
                     break;
             }
             //
-            // Rule 252:  PackageDeclaration ::= Annotationsopt package PackageName ;
+            // Rule 251:  PackageDeclaration ::= Annotationsopt package PackageName ;
             //
-            case 252: {
-               //#line 1337 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1335 "x10/parser/x10.g"
+            case 251: {
+               //#line 1333 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1331 "x10/parser/x10.g"
                 Object Annotationsopt = (Object) getRhsSym(1);
-                //#line 1335 "x10/parser/x10.g"
+                //#line 1331 "x10/parser/x10.g"
                 Object PackageName = (Object) getRhsSym(3);
-                //#line 1337 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1333 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_PackageDeclaration0(Annotationsopt,PackageName);
                     break;
             }
             //
-            // Rule 255:  SingleTypeImportDeclaration ::= import TypeName ;
+            // Rule 254:  SingleTypeImportDeclaration ::= import TypeName ;
             //
-            case 255: {
-               //#line 1348 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1346 "x10/parser/x10.g"
+            case 254: {
+               //#line 1344 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1342 "x10/parser/x10.g"
                 Object TypeName = (Object) getRhsSym(2);
-                //#line 1348 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1344 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_SingleTypeImportDeclaration0(TypeName);
                     break;
             }
             //
-            // Rule 256:  TypeImportOnDemandDeclaration ::= import PackageOrTypeName . * ;
+            // Rule 255:  TypeImportOnDemandDeclaration ::= import PackageOrTypeName . * ;
             //
-            case 256: {
-               //#line 1353 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1351 "x10/parser/x10.g"
+            case 255: {
+               //#line 1349 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1347 "x10/parser/x10.g"
                 Object PackageOrTypeName = (Object) getRhsSym(2);
-                //#line 1353 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1349 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_TypeImportOnDemandDeclaration0(PackageOrTypeName);
                     break;
             }
             //
-            // Rule 260:  TypeDeclaration ::= ;
+            // Rule 259:  TypeDeclaration ::= ;
             //
-            case 260: {
-               //#line 1367 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 259: {
+               //#line 1363 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 1367 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1363 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_TypeDeclaration3();
                     break;
             }
             //
-            // Rule 261:  Interfaces ::= implements InterfaceTypeList
+            // Rule 260:  Interfaces ::= implements InterfaceTypeList
             //
-            case 261: {
-               //#line 1483 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1481 "x10/parser/x10.g"
+            case 260: {
+               //#line 1479 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1477 "x10/parser/x10.g"
                 Object InterfaceTypeList = (Object) getRhsSym(2);
-                //#line 1483 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1479 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_Interfaces0(InterfaceTypeList);
                     break;
             }
             //
-            // Rule 262:  InterfaceTypeList ::= Type
+            // Rule 261:  InterfaceTypeList ::= Type
             //
-            case 262: {
-               //#line 1488 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1486 "x10/parser/x10.g"
+            case 261: {
+               //#line 1484 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1482 "x10/parser/x10.g"
                 Object Type = (Object) getRhsSym(1);
-                //#line 1488 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1484 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_InterfaceTypeList0(Type);
                     break;
             }
             //
-            // Rule 263:  InterfaceTypeList ::= InterfaceTypeList , Type
+            // Rule 262:  InterfaceTypeList ::= InterfaceTypeList , Type
             //
-            case 263: {
-               //#line 1492 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1490 "x10/parser/x10.g"
+            case 262: {
+               //#line 1488 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1486 "x10/parser/x10.g"
                 Object InterfaceTypeList = (Object) getRhsSym(1);
-                //#line 1490 "x10/parser/x10.g"
+                //#line 1486 "x10/parser/x10.g"
                 Object Type = (Object) getRhsSym(3);
-                //#line 1492 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1488 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_InterfaceTypeList1(InterfaceTypeList,Type);
                     break;
             }
             //
-            // Rule 264:  ClassBody ::= { ClassBodyDeclarationsopt }
+            // Rule 263:  ClassBody ::= { ClassBodyDeclarationsopt }
             //
-            case 264: {
-               //#line 1500 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1498 "x10/parser/x10.g"
+            case 263: {
+               //#line 1496 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1494 "x10/parser/x10.g"
                 Object ClassBodyDeclarationsopt = (Object) getRhsSym(2);
-                //#line 1500 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1496 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_ClassBody0(ClassBodyDeclarationsopt);
                     break;
             }
             //
-            // Rule 266:  ClassBodyDeclarations ::= ClassBodyDeclarations ClassBodyDeclaration
+            // Rule 265:  ClassBodyDeclarations ::= ClassBodyDeclarations ClassBodyDeclaration
             //
-            case 266: {
-               //#line 1506 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1504 "x10/parser/x10.g"
+            case 265: {
+               //#line 1502 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1500 "x10/parser/x10.g"
                 Object ClassBodyDeclarations = (Object) getRhsSym(1);
-                //#line 1504 "x10/parser/x10.g"
+                //#line 1500 "x10/parser/x10.g"
                 Object ClassBodyDeclaration = (Object) getRhsSym(2);
-                //#line 1506 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1502 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_ClassBodyDeclarations1(ClassBodyDeclarations,ClassBodyDeclaration);
                     break;
             }
             //
-            // Rule 268:  ClassBodyDeclaration ::= ConstructorDeclaration
+            // Rule 267:  ClassBodyDeclaration ::= ConstructorDeclaration
             //
-            case 268: {
-               //#line 1526 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1524 "x10/parser/x10.g"
+            case 267: {
+               //#line 1522 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1520 "x10/parser/x10.g"
                 Object ConstructorDeclaration = (Object) getRhsSym(1);
-                //#line 1526 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1522 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_ClassBodyDeclaration1(ConstructorDeclaration);
                     break;
             }
             //
-            // Rule 270:  ClassMemberDeclaration ::= MethodDeclaration
+            // Rule 269:  ClassMemberDeclaration ::= MethodDeclaration
             //
-            case 270: {
-               //#line 1532 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1530 "x10/parser/x10.g"
+            case 269: {
+               //#line 1528 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1526 "x10/parser/x10.g"
                 Object MethodDeclaration = (Object) getRhsSym(1);
-                //#line 1532 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1528 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_ClassMemberDeclaration1(MethodDeclaration);
                     break;
             }
             //
-            // Rule 271:  ClassMemberDeclaration ::= PropertyMethodDeclaration
+            // Rule 270:  ClassMemberDeclaration ::= PropertyMethodDeclaration
             //
-            case 271: {
-               //#line 1536 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1534 "x10/parser/x10.g"
+            case 270: {
+               //#line 1532 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1530 "x10/parser/x10.g"
                 Object PropertyMethodDeclaration = (Object) getRhsSym(1);
-                //#line 1536 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1532 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_ClassMemberDeclaration2(PropertyMethodDeclaration);
                     break;
             }
             //
-            // Rule 272:  ClassMemberDeclaration ::= TypeDefDeclaration
+            // Rule 271:  ClassMemberDeclaration ::= TypeDefDeclaration
             //
-            case 272: {
-               //#line 1540 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1538 "x10/parser/x10.g"
+            case 271: {
+               //#line 1536 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1534 "x10/parser/x10.g"
                 Object TypeDefDeclaration = (Object) getRhsSym(1);
-                //#line 1540 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1536 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_ClassMemberDeclaration3(TypeDefDeclaration);
                     break;
             }
             //
-            // Rule 273:  ClassMemberDeclaration ::= ClassDeclaration
+            // Rule 272:  ClassMemberDeclaration ::= ClassDeclaration
             //
-            case 273: {
-               //#line 1544 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1542 "x10/parser/x10.g"
+            case 272: {
+               //#line 1540 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1538 "x10/parser/x10.g"
                 Object ClassDeclaration = (Object) getRhsSym(1);
-                //#line 1544 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1540 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_ClassMemberDeclaration4(ClassDeclaration);
                     break;
             }
             //
-            // Rule 274:  ClassMemberDeclaration ::= InterfaceDeclaration
+            // Rule 273:  ClassMemberDeclaration ::= InterfaceDeclaration
             //
-            case 274: {
-               //#line 1548 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1546 "x10/parser/x10.g"
+            case 273: {
+               //#line 1544 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1542 "x10/parser/x10.g"
                 Object InterfaceDeclaration = (Object) getRhsSym(1);
-                //#line 1548 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1544 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_ClassMemberDeclaration5(InterfaceDeclaration);
                     break;
             }
             //
-            // Rule 275:  ClassMemberDeclaration ::= ;
+            // Rule 274:  ClassMemberDeclaration ::= ;
             //
-            case 275: {
-               //#line 1552 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 274: {
+               //#line 1548 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 1552 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1548 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_ClassMemberDeclaration6();
                     break;
             }
             //
-            // Rule 276:  FormalDeclarators ::= FormalDeclarator
+            // Rule 275:  FormalDeclarators ::= FormalDeclarator
             //
-            case 276: {
-               //#line 1557 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1555 "x10/parser/x10.g"
+            case 275: {
+               //#line 1553 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1551 "x10/parser/x10.g"
                 Object FormalDeclarator = (Object) getRhsSym(1);
-                //#line 1557 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1553 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_FormalDeclarators0(FormalDeclarator);
                     break;
             }
             //
-            // Rule 277:  FormalDeclarators ::= FormalDeclarators , FormalDeclarator
+            // Rule 276:  FormalDeclarators ::= FormalDeclarators , FormalDeclarator
             //
-            case 277: {
-               //#line 1561 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1559 "x10/parser/x10.g"
+            case 276: {
+               //#line 1557 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1555 "x10/parser/x10.g"
                 Object FormalDeclarators = (Object) getRhsSym(1);
-                //#line 1559 "x10/parser/x10.g"
+                //#line 1555 "x10/parser/x10.g"
                 Object FormalDeclarator = (Object) getRhsSym(3);
-                //#line 1561 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1557 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_FormalDeclarators1(FormalDeclarators,FormalDeclarator);
                     break;
             }
             //
-            // Rule 278:  FieldDeclarators ::= FieldDeclarator
+            // Rule 277:  FieldDeclarators ::= FieldDeclarator
             //
-            case 278: {
-               //#line 1567 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1565 "x10/parser/x10.g"
+            case 277: {
+               //#line 1563 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1561 "x10/parser/x10.g"
                 Object FieldDeclarator = (Object) getRhsSym(1);
-                //#line 1567 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1563 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_FieldDeclarators0(FieldDeclarator);
                     break;
             }
             //
-            // Rule 279:  FieldDeclarators ::= FieldDeclarators , FieldDeclarator
+            // Rule 278:  FieldDeclarators ::= FieldDeclarators , FieldDeclarator
             //
-            case 279: {
-               //#line 1571 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1569 "x10/parser/x10.g"
+            case 278: {
+               //#line 1567 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1565 "x10/parser/x10.g"
                 Object FieldDeclarators = (Object) getRhsSym(1);
-                //#line 1569 "x10/parser/x10.g"
+                //#line 1565 "x10/parser/x10.g"
                 Object FieldDeclarator = (Object) getRhsSym(3);
-                //#line 1571 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1567 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_FieldDeclarators1(FieldDeclarators,FieldDeclarator);
                     break;
             }
             //
-            // Rule 280:  VariableDeclaratorsWithType ::= VariableDeclaratorWithType
+            // Rule 279:  VariableDeclaratorsWithType ::= VariableDeclaratorWithType
             //
-            case 280: {
-               //#line 1577 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1575 "x10/parser/x10.g"
+            case 279: {
+               //#line 1573 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1571 "x10/parser/x10.g"
                 Object VariableDeclaratorWithType = (Object) getRhsSym(1);
-                //#line 1577 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1573 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_VariableDeclaratorsWithType0(VariableDeclaratorWithType);
                     break;
             }
             //
-            // Rule 281:  VariableDeclaratorsWithType ::= VariableDeclaratorsWithType , VariableDeclaratorWithType
+            // Rule 280:  VariableDeclaratorsWithType ::= VariableDeclaratorsWithType , VariableDeclaratorWithType
             //
-            case 281: {
-               //#line 1581 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1579 "x10/parser/x10.g"
+            case 280: {
+               //#line 1577 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1575 "x10/parser/x10.g"
                 Object VariableDeclaratorsWithType = (Object) getRhsSym(1);
-                //#line 1579 "x10/parser/x10.g"
+                //#line 1575 "x10/parser/x10.g"
                 Object VariableDeclaratorWithType = (Object) getRhsSym(3);
-                //#line 1581 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1577 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_VariableDeclaratorsWithType1(VariableDeclaratorsWithType,VariableDeclaratorWithType);
                     break;
             }
             //
-            // Rule 282:  VariableDeclarators ::= VariableDeclarator
+            // Rule 281:  VariableDeclarators ::= VariableDeclarator
             //
-            case 282: {
-               //#line 1586 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1584 "x10/parser/x10.g"
+            case 281: {
+               //#line 1582 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1580 "x10/parser/x10.g"
                 Object VariableDeclarator = (Object) getRhsSym(1);
-                //#line 1586 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1582 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_VariableDeclarators0(VariableDeclarator);
                     break;
             }
             //
-            // Rule 283:  VariableDeclarators ::= VariableDeclarators , VariableDeclarator
+            // Rule 282:  VariableDeclarators ::= VariableDeclarators , VariableDeclarator
             //
-            case 283: {
-               //#line 1590 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1588 "x10/parser/x10.g"
+            case 282: {
+               //#line 1586 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1584 "x10/parser/x10.g"
                 Object VariableDeclarators = (Object) getRhsSym(1);
-                //#line 1588 "x10/parser/x10.g"
+                //#line 1584 "x10/parser/x10.g"
                 Object VariableDeclarator = (Object) getRhsSym(3);
-                //#line 1590 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1586 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_VariableDeclarators1(VariableDeclarators,VariableDeclarator);
                     break;
             }
             //
-            // Rule 285:  ResultType ::= : Type
+            // Rule 284:  ResultType ::= : Type
+            //
+            case 284: {
+               //#line 1640 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1638 "x10/parser/x10.g"
+                Object Type = (Object) getRhsSym(2);
+                //#line 1640 "lpg.generator/templates/java/btParserTemplateF.gi"
+		r.rule_ResultType0(Type);
+                    break;
+            }
+            //
+            // Rule 285:  HasResultType ::= : Type
             //
             case 285: {
                //#line 1644 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 1642 "x10/parser/x10.g"
                 Object Type = (Object) getRhsSym(2);
                 //#line 1644 "lpg.generator/templates/java/btParserTemplateF.gi"
-		r.rule_ResultType0(Type);
+		r.rule_HasResultType0(Type);
                     break;
             }
             //
-            // Rule 286:  HasResultType ::= : Type
+            // Rule 286:  HasResultType ::= <: Type
             //
             case 286: {
                //#line 1648 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 1646 "x10/parser/x10.g"
                 Object Type = (Object) getRhsSym(2);
                 //#line 1648 "lpg.generator/templates/java/btParserTemplateF.gi"
-		r.rule_HasResultType0(Type);
-                    break;
-            }
-            //
-            // Rule 287:  HasResultType ::= <: Type
-            //
-            case 287: {
-               //#line 1652 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1650 "x10/parser/x10.g"
-                Object Type = (Object) getRhsSym(2);
-                //#line 1652 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_HasResultType1(Type);
                     break;
             }
             //
-            // Rule 288:  FormalParameterList ::= FormalParameter
+            // Rule 287:  FormalParameterList ::= FormalParameter
             //
-            case 288: {
-               //#line 1666 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1664 "x10/parser/x10.g"
+            case 287: {
+               //#line 1662 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1660 "x10/parser/x10.g"
                 Object FormalParameter = (Object) getRhsSym(1);
-                //#line 1666 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1662 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_FormalParameterList0(FormalParameter);
                     break;
             }
             //
-            // Rule 289:  FormalParameterList ::= FormalParameterList , FormalParameter
+            // Rule 288:  FormalParameterList ::= FormalParameterList , FormalParameter
             //
-            case 289: {
-               //#line 1670 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1668 "x10/parser/x10.g"
+            case 288: {
+               //#line 1666 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1664 "x10/parser/x10.g"
                 Object FormalParameterList = (Object) getRhsSym(1);
-                //#line 1668 "x10/parser/x10.g"
+                //#line 1664 "x10/parser/x10.g"
                 Object FormalParameter = (Object) getRhsSym(3);
-                //#line 1670 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1666 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_FormalParameterList1(FormalParameterList,FormalParameter);
                     break;
             }
             //
-            // Rule 290:  LoopIndexDeclarator ::= Identifier HasResultTypeopt
+            // Rule 289:  LoopIndexDeclarator ::= Identifier HasResultTypeopt
             //
-            case 290: {
-               //#line 1675 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1673 "x10/parser/x10.g"
+            case 289: {
+               //#line 1671 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1669 "x10/parser/x10.g"
                 Object Identifier = (Object) getRhsSym(1);
-                //#line 1673 "x10/parser/x10.g"
+                //#line 1669 "x10/parser/x10.g"
                 Object HasResultTypeopt = (Object) getRhsSym(2);
-                //#line 1675 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1671 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_LoopIndexDeclarator0(Identifier,HasResultTypeopt);
                     break;
             }
             //
-            // Rule 291:  LoopIndexDeclarator ::= [ IdentifierList ] HasResultTypeopt
+            // Rule 290:  LoopIndexDeclarator ::= [ IdentifierList ] HasResultTypeopt
             //
-            case 291: {
-               //#line 1679 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1677 "x10/parser/x10.g"
+            case 290: {
+               //#line 1675 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1673 "x10/parser/x10.g"
                 Object IdentifierList = (Object) getRhsSym(2);
-                //#line 1677 "x10/parser/x10.g"
+                //#line 1673 "x10/parser/x10.g"
                 Object HasResultTypeopt = (Object) getRhsSym(4);
-                //#line 1679 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1675 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_LoopIndexDeclarator1(IdentifierList,HasResultTypeopt);
                     break;
             }
             //
-            // Rule 292:  LoopIndexDeclarator ::= Identifier [ IdentifierList ] HasResultTypeopt
+            // Rule 291:  LoopIndexDeclarator ::= Identifier [ IdentifierList ] HasResultTypeopt
             //
-            case 292: {
-               //#line 1683 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1681 "x10/parser/x10.g"
+            case 291: {
+               //#line 1679 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1677 "x10/parser/x10.g"
                 Object Identifier = (Object) getRhsSym(1);
-                //#line 1681 "x10/parser/x10.g"
+                //#line 1677 "x10/parser/x10.g"
                 Object IdentifierList = (Object) getRhsSym(3);
-                //#line 1681 "x10/parser/x10.g"
+                //#line 1677 "x10/parser/x10.g"
                 Object HasResultTypeopt = (Object) getRhsSym(5);
-                //#line 1683 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1679 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_LoopIndexDeclarator2(Identifier,IdentifierList,HasResultTypeopt);
                     break;
             }
             //
-            // Rule 293:  LoopIndex ::= Modifiersopt LoopIndexDeclarator
+            // Rule 292:  LoopIndex ::= Modifiersopt LoopIndexDeclarator
+            //
+            case 292: {
+               //#line 1684 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1682 "x10/parser/x10.g"
+                Object Modifiersopt = (Object) getRhsSym(1);
+                //#line 1682 "x10/parser/x10.g"
+                Object LoopIndexDeclarator = (Object) getRhsSym(2);
+                //#line 1684 "lpg.generator/templates/java/btParserTemplateF.gi"
+		r.rule_LoopIndex0(Modifiersopt,LoopIndexDeclarator);
+                    break;
+            }
+            //
+            // Rule 293:  LoopIndex ::= Modifiersopt VarKeyword LoopIndexDeclarator
             //
             case 293: {
                //#line 1688 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 1686 "x10/parser/x10.g"
                 Object Modifiersopt = (Object) getRhsSym(1);
                 //#line 1686 "x10/parser/x10.g"
-                Object LoopIndexDeclarator = (Object) getRhsSym(2);
-                //#line 1688 "lpg.generator/templates/java/btParserTemplateF.gi"
-		r.rule_LoopIndex0(Modifiersopt,LoopIndexDeclarator);
-                    break;
-            }
-            //
-            // Rule 294:  LoopIndex ::= Modifiersopt VarKeyword LoopIndexDeclarator
-            //
-            case 294: {
-               //#line 1692 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1690 "x10/parser/x10.g"
-                Object Modifiersopt = (Object) getRhsSym(1);
-                //#line 1690 "x10/parser/x10.g"
                 Object VarKeyword = (Object) getRhsSym(2);
-                //#line 1690 "x10/parser/x10.g"
+                //#line 1686 "x10/parser/x10.g"
                 Object LoopIndexDeclarator = (Object) getRhsSym(3);
-                //#line 1692 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1688 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_LoopIndex1(Modifiersopt,VarKeyword,LoopIndexDeclarator);
                     break;
             }
             //
-            // Rule 295:  FormalParameter ::= Modifiersopt FormalDeclarator
+            // Rule 294:  FormalParameter ::= Modifiersopt FormalDeclarator
+            //
+            case 294: {
+               //#line 1693 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1691 "x10/parser/x10.g"
+                Object Modifiersopt = (Object) getRhsSym(1);
+                //#line 1691 "x10/parser/x10.g"
+                Object FormalDeclarator = (Object) getRhsSym(2);
+                //#line 1693 "lpg.generator/templates/java/btParserTemplateF.gi"
+		r.rule_FormalParameter0(Modifiersopt,FormalDeclarator);
+                    break;
+            }
+            //
+            // Rule 295:  FormalParameter ::= Modifiersopt VarKeyword FormalDeclarator
             //
             case 295: {
                //#line 1697 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 1695 "x10/parser/x10.g"
                 Object Modifiersopt = (Object) getRhsSym(1);
                 //#line 1695 "x10/parser/x10.g"
-                Object FormalDeclarator = (Object) getRhsSym(2);
-                //#line 1697 "lpg.generator/templates/java/btParserTemplateF.gi"
-		r.rule_FormalParameter0(Modifiersopt,FormalDeclarator);
-                    break;
-            }
-            //
-            // Rule 296:  FormalParameter ::= Modifiersopt VarKeyword FormalDeclarator
-            //
-            case 296: {
-               //#line 1701 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1699 "x10/parser/x10.g"
-                Object Modifiersopt = (Object) getRhsSym(1);
-                //#line 1699 "x10/parser/x10.g"
                 Object VarKeyword = (Object) getRhsSym(2);
-                //#line 1699 "x10/parser/x10.g"
+                //#line 1695 "x10/parser/x10.g"
                 Object FormalDeclarator = (Object) getRhsSym(3);
-                //#line 1701 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1697 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_FormalParameter1(Modifiersopt,VarKeyword,FormalDeclarator);
                     break;
             }
             //
-            // Rule 297:  FormalParameter ::= Type
+            // Rule 296:  FormalParameter ::= Type
             //
-            case 297: {
-               //#line 1705 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1703 "x10/parser/x10.g"
+            case 296: {
+               //#line 1701 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1699 "x10/parser/x10.g"
                 Object Type = (Object) getRhsSym(1);
-                //#line 1705 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1701 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_FormalParameter2(Type);
                     break;
             }
             //
-            // Rule 298:  Offers ::= offers Type
+            // Rule 297:  Offers ::= offers Type
             //
-            case 298: {
-               //#line 1843 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1841 "x10/parser/x10.g"
+            case 297: {
+               //#line 1839 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1837 "x10/parser/x10.g"
                 Object Type = (Object) getRhsSym(2);
-                //#line 1843 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1839 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_Offers0(Type);
                     break;
             }
             //
-            // Rule 299:  MethodBody ::= = LastExpression ;
+            // Rule 298:  MethodBody ::= = LastExpression ;
             //
-            case 299: {
-               //#line 1849 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1847 "x10/parser/x10.g"
+            case 298: {
+               //#line 1845 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1843 "x10/parser/x10.g"
                 Object LastExpression = (Object) getRhsSym(2);
-                //#line 1849 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1845 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_MethodBody0(LastExpression);
                     break;
             }
             //
-            // Rule 300:  MethodBody ::= = Annotationsopt { BlockStatementsopt LastExpression }
+            // Rule 299:  MethodBody ::= = Annotationsopt { BlockStatementsopt LastExpression }
+            //
+            case 299: {
+               //#line 1849 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1847 "x10/parser/x10.g"
+                Object Annotationsopt = (Object) getRhsSym(2);
+                //#line 1847 "x10/parser/x10.g"
+                Object BlockStatementsopt = (Object) getRhsSym(4);
+                //#line 1847 "x10/parser/x10.g"
+                Object LastExpression = (Object) getRhsSym(5);
+                //#line 1849 "lpg.generator/templates/java/btParserTemplateF.gi"
+		r.rule_MethodBody1(Annotationsopt,BlockStatementsopt,LastExpression);
+                    break;
+            }
+            //
+            // Rule 300:  MethodBody ::= = Annotationsopt Block
             //
             case 300: {
                //#line 1853 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 1851 "x10/parser/x10.g"
                 Object Annotationsopt = (Object) getRhsSym(2);
                 //#line 1851 "x10/parser/x10.g"
-                Object BlockStatementsopt = (Object) getRhsSym(4);
-                //#line 1851 "x10/parser/x10.g"
-                Object LastExpression = (Object) getRhsSym(5);
-                //#line 1853 "lpg.generator/templates/java/btParserTemplateF.gi"
-		r.rule_MethodBody1(Annotationsopt,BlockStatementsopt,LastExpression);
-                    break;
-            }
-            //
-            // Rule 301:  MethodBody ::= = Annotationsopt Block
-            //
-            case 301: {
-               //#line 1857 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1855 "x10/parser/x10.g"
-                Object Annotationsopt = (Object) getRhsSym(2);
-                //#line 1855 "x10/parser/x10.g"
                 Object Block = (Object) getRhsSym(3);
-                //#line 1857 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1853 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_MethodBody2(Annotationsopt,Block);
                     break;
             }
             //
-            // Rule 302:  MethodBody ::= Annotationsopt Block
+            // Rule 301:  MethodBody ::= Annotationsopt Block
             //
-            case 302: {
-               //#line 1861 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1859 "x10/parser/x10.g"
+            case 301: {
+               //#line 1857 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1855 "x10/parser/x10.g"
                 Object Annotationsopt = (Object) getRhsSym(1);
-                //#line 1859 "x10/parser/x10.g"
+                //#line 1855 "x10/parser/x10.g"
                 Object Block = (Object) getRhsSym(2);
-                //#line 1861 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1857 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_MethodBody3(Annotationsopt,Block);
                     break;
             }
             //
-            // Rule 303:  MethodBody ::= ;
+            // Rule 302:  MethodBody ::= ;
             //
-            case 303:
+            case 302:
                 setResult(null);
                 break;
 
             //
-            // Rule 304:  ConstructorBody ::= = ConstructorBlock
+            // Rule 303:  ConstructorBody ::= = ConstructorBlock
             //
-            case 304: {
-               //#line 1931 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1929 "x10/parser/x10.g"
+            case 303: {
+               //#line 1927 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1925 "x10/parser/x10.g"
                 Object ConstructorBlock = (Object) getRhsSym(2);
-                //#line 1931 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1927 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_ConstructorBody0(ConstructorBlock);
                     break;
             }
             //
-            // Rule 305:  ConstructorBody ::= ConstructorBlock
+            // Rule 304:  ConstructorBody ::= ConstructorBlock
             //
-            case 305: {
-               //#line 1935 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1933 "x10/parser/x10.g"
+            case 304: {
+               //#line 1931 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1929 "x10/parser/x10.g"
                 Object ConstructorBlock = (Object) getRhsSym(1);
-                //#line 1935 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1931 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_ConstructorBody1(ConstructorBlock);
                     break;
             }
             //
-            // Rule 306:  ConstructorBody ::= = ExplicitConstructorInvocation
+            // Rule 305:  ConstructorBody ::= = ExplicitConstructorInvocation
             //
-            case 306: {
-               //#line 1939 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1937 "x10/parser/x10.g"
+            case 305: {
+               //#line 1935 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1933 "x10/parser/x10.g"
                 Object ExplicitConstructorInvocation = (Object) getRhsSym(2);
-                //#line 1939 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1935 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_ConstructorBody2(ExplicitConstructorInvocation);
                     break;
             }
             //
-            // Rule 307:  ConstructorBody ::= = AssignPropertyCall
+            // Rule 306:  ConstructorBody ::= = AssignPropertyCall
             //
-            case 307: {
-               //#line 1943 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1941 "x10/parser/x10.g"
+            case 306: {
+               //#line 1939 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1937 "x10/parser/x10.g"
                 Object AssignPropertyCall = (Object) getRhsSym(2);
-                //#line 1943 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1939 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_ConstructorBody3(AssignPropertyCall);
                     break;
             }
             //
-            // Rule 308:  ConstructorBody ::= ;
+            // Rule 307:  ConstructorBody ::= ;
             //
-            case 308:
+            case 307:
                 setResult(null);
                 break;
 
             //
-            // Rule 309:  ConstructorBlock ::= { ExplicitConstructorInvocationopt BlockStatementsopt }
+            // Rule 308:  ConstructorBlock ::= { ExplicitConstructorInvocationopt BlockStatementsopt }
             //
-            case 309: {
-               //#line 1950 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1948 "x10/parser/x10.g"
+            case 308: {
+               //#line 1946 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1944 "x10/parser/x10.g"
                 Object ExplicitConstructorInvocationopt = (Object) getRhsSym(2);
-                //#line 1948 "x10/parser/x10.g"
+                //#line 1944 "x10/parser/x10.g"
                 Object BlockStatementsopt = (Object) getRhsSym(3);
-                //#line 1950 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1946 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_ConstructorBlock0(ExplicitConstructorInvocationopt,BlockStatementsopt);
                     break;
             }
             //
-            // Rule 310:  Arguments ::= ( ArgumentListopt )
+            // Rule 309:  Arguments ::= ( ArgumentListopt )
             //
-            case 310: {
-               //#line 1955 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1953 "x10/parser/x10.g"
+            case 309: {
+               //#line 1951 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1949 "x10/parser/x10.g"
                 Object ArgumentListopt = (Object) getRhsSym(2);
-                //#line 1955 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1951 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_Arguments0(ArgumentListopt);
                     break;
             }
             //
-            // Rule 312:  ExtendsInterfaces ::= extends Type
+            // Rule 311:  ExtendsInterfaces ::= extends Type
             //
-            case 312: {
-               //#line 2011 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2009 "x10/parser/x10.g"
+            case 311: {
+               //#line 2007 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2005 "x10/parser/x10.g"
                 Object Type = (Object) getRhsSym(2);
-                //#line 2011 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2007 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_ExtendsInterfaces0(Type);
                     break;
             }
             //
-            // Rule 313:  ExtendsInterfaces ::= ExtendsInterfaces , Type
+            // Rule 312:  ExtendsInterfaces ::= ExtendsInterfaces , Type
             //
-            case 313: {
-               //#line 2015 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2013 "x10/parser/x10.g"
+            case 312: {
+               //#line 2011 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2009 "x10/parser/x10.g"
                 Object ExtendsInterfaces = (Object) getRhsSym(1);
-                //#line 2013 "x10/parser/x10.g"
+                //#line 2009 "x10/parser/x10.g"
                 Object Type = (Object) getRhsSym(3);
-                //#line 2015 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2011 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_ExtendsInterfaces1(ExtendsInterfaces,Type);
                     break;
             }
             //
-            // Rule 314:  InterfaceBody ::= { InterfaceMemberDeclarationsopt }
+            // Rule 313:  InterfaceBody ::= { InterfaceMemberDeclarationsopt }
             //
-            case 314: {
-               //#line 2023 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2021 "x10/parser/x10.g"
+            case 313: {
+               //#line 2019 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2017 "x10/parser/x10.g"
                 Object InterfaceMemberDeclarationsopt = (Object) getRhsSym(2);
-                //#line 2023 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2019 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_InterfaceBody0(InterfaceMemberDeclarationsopt);
                     break;
             }
             //
-            // Rule 316:  InterfaceMemberDeclarations ::= InterfaceMemberDeclarations InterfaceMemberDeclaration
+            // Rule 315:  InterfaceMemberDeclarations ::= InterfaceMemberDeclarations InterfaceMemberDeclaration
             //
-            case 316: {
-               //#line 2029 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2027 "x10/parser/x10.g"
+            case 315: {
+               //#line 2025 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2023 "x10/parser/x10.g"
                 Object InterfaceMemberDeclarations = (Object) getRhsSym(1);
-                //#line 2027 "x10/parser/x10.g"
+                //#line 2023 "x10/parser/x10.g"
                 Object InterfaceMemberDeclaration = (Object) getRhsSym(2);
-                //#line 2029 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2025 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_InterfaceMemberDeclarations1(InterfaceMemberDeclarations,InterfaceMemberDeclaration);
                     break;
             }
             //
-            // Rule 317:  InterfaceMemberDeclaration ::= MethodDeclaration
+            // Rule 316:  InterfaceMemberDeclaration ::= MethodDeclaration
             //
-            case 317: {
-               //#line 2034 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2032 "x10/parser/x10.g"
+            case 316: {
+               //#line 2030 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2028 "x10/parser/x10.g"
                 Object MethodDeclaration = (Object) getRhsSym(1);
-                //#line 2034 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2030 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_InterfaceMemberDeclaration0(MethodDeclaration);
                     break;
             }
             //
-            // Rule 318:  InterfaceMemberDeclaration ::= PropertyMethodDeclaration
+            // Rule 317:  InterfaceMemberDeclaration ::= PropertyMethodDeclaration
             //
-            case 318: {
-               //#line 2038 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2036 "x10/parser/x10.g"
+            case 317: {
+               //#line 2034 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2032 "x10/parser/x10.g"
                 Object PropertyMethodDeclaration = (Object) getRhsSym(1);
-                //#line 2038 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2034 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_InterfaceMemberDeclaration1(PropertyMethodDeclaration);
                     break;
             }
             //
-            // Rule 319:  InterfaceMemberDeclaration ::= FieldDeclaration
+            // Rule 318:  InterfaceMemberDeclaration ::= FieldDeclaration
             //
-            case 319: {
-               //#line 2042 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2040 "x10/parser/x10.g"
+            case 318: {
+               //#line 2038 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2036 "x10/parser/x10.g"
                 Object FieldDeclaration = (Object) getRhsSym(1);
-                //#line 2042 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2038 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_InterfaceMemberDeclaration2(FieldDeclaration);
                     break;
             }
             //
-            // Rule 320:  InterfaceMemberDeclaration ::= ClassDeclaration
+            // Rule 319:  InterfaceMemberDeclaration ::= ClassDeclaration
             //
-            case 320: {
-               //#line 2046 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2044 "x10/parser/x10.g"
+            case 319: {
+               //#line 2042 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2040 "x10/parser/x10.g"
                 Object ClassDeclaration = (Object) getRhsSym(1);
-                //#line 2046 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2042 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_InterfaceMemberDeclaration3(ClassDeclaration);
                     break;
             }
             //
-            // Rule 321:  InterfaceMemberDeclaration ::= InterfaceDeclaration
+            // Rule 320:  InterfaceMemberDeclaration ::= InterfaceDeclaration
             //
-            case 321: {
-               //#line 2050 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2048 "x10/parser/x10.g"
+            case 320: {
+               //#line 2046 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2044 "x10/parser/x10.g"
                 Object InterfaceDeclaration = (Object) getRhsSym(1);
-                //#line 2050 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2046 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_InterfaceMemberDeclaration4(InterfaceDeclaration);
                     break;
             }
             //
-            // Rule 322:  InterfaceMemberDeclaration ::= TypeDefDeclaration
+            // Rule 321:  InterfaceMemberDeclaration ::= TypeDefDeclaration
             //
-            case 322: {
-               //#line 2054 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2052 "x10/parser/x10.g"
+            case 321: {
+               //#line 2050 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2048 "x10/parser/x10.g"
                 Object TypeDefDeclaration = (Object) getRhsSym(1);
-                //#line 2054 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2050 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_InterfaceMemberDeclaration5(TypeDefDeclaration);
                     break;
             }
             //
-            // Rule 323:  InterfaceMemberDeclaration ::= ;
+            // Rule 322:  InterfaceMemberDeclaration ::= ;
             //
-            case 323: {
-               //#line 2058 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 322: {
+               //#line 2054 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2058 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2054 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_InterfaceMemberDeclaration6();
                     break;
             }
             //
-            // Rule 324:  Annotations ::= Annotation
+            // Rule 323:  Annotations ::= Annotation
             //
-            case 324: {
-               //#line 2063 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2061 "x10/parser/x10.g"
+            case 323: {
+               //#line 2059 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2057 "x10/parser/x10.g"
                 Object Annotation = (Object) getRhsSym(1);
-                //#line 2063 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2059 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_Annotations0(Annotation);
                     break;
             }
             //
-            // Rule 325:  Annotations ::= Annotations Annotation
+            // Rule 324:  Annotations ::= Annotations Annotation
             //
-            case 325: {
-               //#line 2067 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2065 "x10/parser/x10.g"
+            case 324: {
+               //#line 2063 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2061 "x10/parser/x10.g"
                 Object Annotations = (Object) getRhsSym(1);
-                //#line 2065 "x10/parser/x10.g"
+                //#line 2061 "x10/parser/x10.g"
                 Object Annotation = (Object) getRhsSym(2);
-                //#line 2067 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2063 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_Annotations1(Annotations,Annotation);
                     break;
             }
             //
-            // Rule 326:  Annotation ::= @ NamedType
+            // Rule 325:  Annotation ::= @ NamedType
             //
-            case 326: {
-               //#line 2072 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2070 "x10/parser/x10.g"
+            case 325: {
+               //#line 2068 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2066 "x10/parser/x10.g"
                 Object NamedType = (Object) getRhsSym(2);
-                //#line 2072 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2068 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_Annotation0(NamedType);
                     break;
             }
             //
-            // Rule 327:  Identifier ::= IDENTIFIER$ident
+            // Rule 326:  Identifier ::= IDENTIFIER$ident
             //
-            case 327: {
-               //#line 2086 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2084 "x10/parser/x10.g"
+            case 326: {
+               //#line 2082 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2080 "x10/parser/x10.g"
                 IToken ident = (IToken) getRhsIToken(1);
-                //#line 2086 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2082 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_Identifier0();
                     break;
             }
             //
-            // Rule 328:  Block ::= { BlockStatementsopt }
+            // Rule 327:  Block ::= { BlockStatementsopt }
             //
-            case 328: {
-               //#line 2121 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2119 "x10/parser/x10.g"
+            case 327: {
+               //#line 2117 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2115 "x10/parser/x10.g"
                 Object BlockStatementsopt = (Object) getRhsSym(2);
-                //#line 2121 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2117 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_Block0(BlockStatementsopt);
                     break;
             }
             //
-            // Rule 329:  BlockStatements ::= BlockStatement
+            // Rule 328:  BlockStatements ::= BlockStatement
             //
-            case 329: {
-               //#line 2126 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2124 "x10/parser/x10.g"
+            case 328: {
+               //#line 2122 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2120 "x10/parser/x10.g"
                 Object BlockStatement = (Object) getRhsSym(1);
-                //#line 2126 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2122 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_BlockStatements0(BlockStatement);
                     break;
             }
             //
-            // Rule 330:  BlockStatements ::= BlockStatements BlockStatement
+            // Rule 329:  BlockStatements ::= BlockStatements BlockStatement
             //
-            case 330: {
-               //#line 2130 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2128 "x10/parser/x10.g"
+            case 329: {
+               //#line 2126 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2124 "x10/parser/x10.g"
                 Object BlockStatements = (Object) getRhsSym(1);
-                //#line 2128 "x10/parser/x10.g"
+                //#line 2124 "x10/parser/x10.g"
                 Object BlockStatement = (Object) getRhsSym(2);
-                //#line 2130 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2126 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_BlockStatements1(BlockStatements,BlockStatement);
                     break;
             }
             //
-            // Rule 332:  BlockStatement ::= ClassDeclaration
+            // Rule 331:  BlockStatement ::= ClassDeclaration
             //
-            case 332: {
-               //#line 2136 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2134 "x10/parser/x10.g"
+            case 331: {
+               //#line 2132 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2130 "x10/parser/x10.g"
                 Object ClassDeclaration = (Object) getRhsSym(1);
-                //#line 2136 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2132 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_BlockStatement1(ClassDeclaration);
                     break;
             }
             //
-            // Rule 333:  BlockStatement ::= TypeDefDeclaration
+            // Rule 332:  BlockStatement ::= TypeDefDeclaration
             //
-            case 333: {
-               //#line 2140 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2138 "x10/parser/x10.g"
+            case 332: {
+               //#line 2136 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2134 "x10/parser/x10.g"
                 Object TypeDefDeclaration = (Object) getRhsSym(1);
-                //#line 2140 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2136 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_BlockStatement2(TypeDefDeclaration);
                     break;
             }
             //
-            // Rule 334:  BlockStatement ::= Statement
+            // Rule 333:  BlockStatement ::= Statement
             //
-            case 334: {
-               //#line 2144 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2142 "x10/parser/x10.g"
+            case 333: {
+               //#line 2140 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2138 "x10/parser/x10.g"
                 Object Statement = (Object) getRhsSym(1);
-                //#line 2144 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2140 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_BlockStatement3(Statement);
                     break;
             }
             //
-            // Rule 335:  IdentifierList ::= Identifier
+            // Rule 334:  IdentifierList ::= Identifier
             //
-            case 335: {
-               //#line 2149 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2147 "x10/parser/x10.g"
+            case 334: {
+               //#line 2145 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2143 "x10/parser/x10.g"
                 Object Identifier = (Object) getRhsSym(1);
-                //#line 2149 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2145 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_IdentifierList0(Identifier);
                     break;
             }
             //
-            // Rule 336:  IdentifierList ::= IdentifierList , Identifier
+            // Rule 335:  IdentifierList ::= IdentifierList , Identifier
             //
-            case 336: {
-               //#line 2153 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2151 "x10/parser/x10.g"
+            case 335: {
+               //#line 2149 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2147 "x10/parser/x10.g"
                 Object IdentifierList = (Object) getRhsSym(1);
-                //#line 2151 "x10/parser/x10.g"
+                //#line 2147 "x10/parser/x10.g"
                 Object Identifier = (Object) getRhsSym(3);
-                //#line 2153 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2149 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_IdentifierList1(IdentifierList,Identifier);
                     break;
             }
             //
-            // Rule 337:  FormalDeclarator ::= Identifier ResultType
+            // Rule 336:  FormalDeclarator ::= Identifier ResultType
             //
-            case 337: {
-               //#line 2158 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2156 "x10/parser/x10.g"
+            case 336: {
+               //#line 2154 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2152 "x10/parser/x10.g"
                 Object Identifier = (Object) getRhsSym(1);
-                //#line 2156 "x10/parser/x10.g"
+                //#line 2152 "x10/parser/x10.g"
                 Object ResultType = (Object) getRhsSym(2);
-                //#line 2158 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2154 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_FormalDeclarator0(Identifier,ResultType);
                     break;
             }
             //
-            // Rule 338:  FormalDeclarator ::= [ IdentifierList ] ResultType
+            // Rule 337:  FormalDeclarator ::= [ IdentifierList ] ResultType
             //
-            case 338: {
-               //#line 2162 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2160 "x10/parser/x10.g"
+            case 337: {
+               //#line 2158 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2156 "x10/parser/x10.g"
                 Object IdentifierList = (Object) getRhsSym(2);
-                //#line 2160 "x10/parser/x10.g"
+                //#line 2156 "x10/parser/x10.g"
                 Object ResultType = (Object) getRhsSym(4);
-                //#line 2162 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2158 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_FormalDeclarator1(IdentifierList,ResultType);
                     break;
             }
             //
-            // Rule 339:  FormalDeclarator ::= Identifier [ IdentifierList ] ResultType
+            // Rule 338:  FormalDeclarator ::= Identifier [ IdentifierList ] ResultType
             //
-            case 339: {
-               //#line 2166 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2164 "x10/parser/x10.g"
+            case 338: {
+               //#line 2162 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2160 "x10/parser/x10.g"
                 Object Identifier = (Object) getRhsSym(1);
-                //#line 2164 "x10/parser/x10.g"
+                //#line 2160 "x10/parser/x10.g"
                 Object IdentifierList = (Object) getRhsSym(3);
-                //#line 2164 "x10/parser/x10.g"
+                //#line 2160 "x10/parser/x10.g"
                 Object ResultType = (Object) getRhsSym(5);
-                //#line 2166 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2162 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_FormalDeclarator2(Identifier,IdentifierList,ResultType);
                     break;
             }
             //
-            // Rule 340:  FieldDeclarator ::= Identifier HasResultType
+            // Rule 339:  FieldDeclarator ::= Identifier HasResultType
+            //
+            case 339: {
+               //#line 2167 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2165 "x10/parser/x10.g"
+                Object Identifier = (Object) getRhsSym(1);
+                //#line 2165 "x10/parser/x10.g"
+                Object HasResultType = (Object) getRhsSym(2);
+                //#line 2167 "lpg.generator/templates/java/btParserTemplateF.gi"
+		r.rule_FieldDeclarator0(Identifier,HasResultType);
+                    break;
+            }
+            //
+            // Rule 340:  FieldDeclarator ::= Identifier HasResultTypeopt = VariableInitializer
             //
             case 340: {
                //#line 2171 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2169 "x10/parser/x10.g"
                 Object Identifier = (Object) getRhsSym(1);
                 //#line 2169 "x10/parser/x10.g"
-                Object HasResultType = (Object) getRhsSym(2);
-                //#line 2171 "lpg.generator/templates/java/btParserTemplateF.gi"
-		r.rule_FieldDeclarator0(Identifier,HasResultType);
-                    break;
-            }
-            //
-            // Rule 341:  FieldDeclarator ::= Identifier HasResultTypeopt = VariableInitializer
-            //
-            case 341: {
-               //#line 2175 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2173 "x10/parser/x10.g"
-                Object Identifier = (Object) getRhsSym(1);
-                //#line 2173 "x10/parser/x10.g"
                 Object HasResultTypeopt = (Object) getRhsSym(2);
-                //#line 2173 "x10/parser/x10.g"
+                //#line 2169 "x10/parser/x10.g"
                 Object VariableInitializer = (Object) getRhsSym(4);
-                //#line 2175 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2171 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_FieldDeclarator1(Identifier,HasResultTypeopt,VariableInitializer);
                     break;
             }
             //
-            // Rule 342:  VariableDeclarator ::= Identifier HasResultTypeopt = VariableInitializer
+            // Rule 341:  VariableDeclarator ::= Identifier HasResultTypeopt = VariableInitializer
             //
-            case 342: {
-               //#line 2180 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2178 "x10/parser/x10.g"
+            case 341: {
+               //#line 2176 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2174 "x10/parser/x10.g"
                 Object Identifier = (Object) getRhsSym(1);
-                //#line 2178 "x10/parser/x10.g"
+                //#line 2174 "x10/parser/x10.g"
                 Object HasResultTypeopt = (Object) getRhsSym(2);
-                //#line 2178 "x10/parser/x10.g"
+                //#line 2174 "x10/parser/x10.g"
                 Object VariableInitializer = (Object) getRhsSym(4);
-                //#line 2180 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2176 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_VariableDeclarator0(Identifier,HasResultTypeopt,VariableInitializer);
                     break;
             }
             //
-            // Rule 343:  VariableDeclarator ::= [ IdentifierList ] HasResultTypeopt = VariableInitializer
+            // Rule 342:  VariableDeclarator ::= [ IdentifierList ] HasResultTypeopt = VariableInitializer
             //
-            case 343: {
-               //#line 2184 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2182 "x10/parser/x10.g"
+            case 342: {
+               //#line 2180 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2178 "x10/parser/x10.g"
                 Object IdentifierList = (Object) getRhsSym(2);
-                //#line 2182 "x10/parser/x10.g"
+                //#line 2178 "x10/parser/x10.g"
                 Object HasResultTypeopt = (Object) getRhsSym(4);
-                //#line 2182 "x10/parser/x10.g"
+                //#line 2178 "x10/parser/x10.g"
                 Object VariableInitializer = (Object) getRhsSym(6);
-                //#line 2184 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2180 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_VariableDeclarator1(IdentifierList,HasResultTypeopt,VariableInitializer);
                     break;
             }
             //
-            // Rule 344:  VariableDeclarator ::= Identifier [ IdentifierList ] HasResultTypeopt = VariableInitializer
+            // Rule 343:  VariableDeclarator ::= Identifier [ IdentifierList ] HasResultTypeopt = VariableInitializer
             //
-            case 344: {
-               //#line 2188 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2186 "x10/parser/x10.g"
+            case 343: {
+               //#line 2184 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2182 "x10/parser/x10.g"
                 Object Identifier = (Object) getRhsSym(1);
-                //#line 2186 "x10/parser/x10.g"
+                //#line 2182 "x10/parser/x10.g"
                 Object IdentifierList = (Object) getRhsSym(3);
-                //#line 2186 "x10/parser/x10.g"
+                //#line 2182 "x10/parser/x10.g"
                 Object HasResultTypeopt = (Object) getRhsSym(5);
-                //#line 2186 "x10/parser/x10.g"
+                //#line 2182 "x10/parser/x10.g"
                 Object VariableInitializer = (Object) getRhsSym(7);
-                //#line 2188 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2184 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_VariableDeclarator2(Identifier,IdentifierList,HasResultTypeopt,VariableInitializer);
                     break;
             }
             //
-            // Rule 345:  VariableDeclaratorWithType ::= Identifier HasResultType = VariableInitializer
+            // Rule 344:  VariableDeclaratorWithType ::= Identifier HasResultType = VariableInitializer
             //
-            case 345: {
-               //#line 2193 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2191 "x10/parser/x10.g"
+            case 344: {
+               //#line 2189 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2187 "x10/parser/x10.g"
                 Object Identifier = (Object) getRhsSym(1);
-                //#line 2191 "x10/parser/x10.g"
+                //#line 2187 "x10/parser/x10.g"
                 Object HasResultType = (Object) getRhsSym(2);
-                //#line 2191 "x10/parser/x10.g"
+                //#line 2187 "x10/parser/x10.g"
                 Object VariableInitializer = (Object) getRhsSym(4);
-                //#line 2193 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2189 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_VariableDeclaratorWithType0(Identifier,HasResultType,VariableInitializer);
                     break;
             }
             //
-            // Rule 346:  VariableDeclaratorWithType ::= [ IdentifierList ] HasResultType = VariableInitializer
+            // Rule 345:  VariableDeclaratorWithType ::= [ IdentifierList ] HasResultType = VariableInitializer
             //
-            case 346: {
-               //#line 2197 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2195 "x10/parser/x10.g"
+            case 345: {
+               //#line 2193 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2191 "x10/parser/x10.g"
                 Object IdentifierList = (Object) getRhsSym(2);
-                //#line 2195 "x10/parser/x10.g"
+                //#line 2191 "x10/parser/x10.g"
                 Object HasResultType = (Object) getRhsSym(4);
-                //#line 2195 "x10/parser/x10.g"
+                //#line 2191 "x10/parser/x10.g"
                 Object VariableInitializer = (Object) getRhsSym(6);
-                //#line 2197 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2193 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_VariableDeclaratorWithType1(IdentifierList,HasResultType,VariableInitializer);
                     break;
             }
             //
-            // Rule 347:  VariableDeclaratorWithType ::= Identifier [ IdentifierList ] HasResultType = VariableInitializer
+            // Rule 346:  VariableDeclaratorWithType ::= Identifier [ IdentifierList ] HasResultType = VariableInitializer
             //
-            case 347: {
-               //#line 2201 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2199 "x10/parser/x10.g"
+            case 346: {
+               //#line 2197 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2195 "x10/parser/x10.g"
                 Object Identifier = (Object) getRhsSym(1);
-                //#line 2199 "x10/parser/x10.g"
+                //#line 2195 "x10/parser/x10.g"
                 Object IdentifierList = (Object) getRhsSym(3);
-                //#line 2199 "x10/parser/x10.g"
+                //#line 2195 "x10/parser/x10.g"
                 Object HasResultType = (Object) getRhsSym(5);
-                //#line 2199 "x10/parser/x10.g"
+                //#line 2195 "x10/parser/x10.g"
                 Object VariableInitializer = (Object) getRhsSym(7);
-                //#line 2201 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2197 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_VariableDeclaratorWithType2(Identifier,IdentifierList,HasResultType,VariableInitializer);
                     break;
             }
             //
-            // Rule 349:  LocalVariableDeclaration ::= Modifiersopt VarKeyword VariableDeclarators
+            // Rule 348:  LocalVariableDeclaration ::= Modifiersopt VarKeyword VariableDeclarators
             //
-            case 349: {
-               //#line 2208 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2206 "x10/parser/x10.g"
+            case 348: {
+               //#line 2204 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2202 "x10/parser/x10.g"
                 Object Modifiersopt = (Object) getRhsSym(1);
-                //#line 2206 "x10/parser/x10.g"
+                //#line 2202 "x10/parser/x10.g"
                 Object VarKeyword = (Object) getRhsSym(2);
-                //#line 2206 "x10/parser/x10.g"
+                //#line 2202 "x10/parser/x10.g"
                 Object VariableDeclarators = (Object) getRhsSym(3);
-                //#line 2208 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2204 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_LocalVariableDeclaration0(Modifiersopt,VarKeyword,VariableDeclarators);
     
                     break;
             }
             //
-            // Rule 350:  LocalVariableDeclaration ::= Modifiersopt VariableDeclaratorsWithType
+            // Rule 349:  LocalVariableDeclaration ::= Modifiersopt VariableDeclaratorsWithType
             //
-            case 350: {
-               //#line 2213 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2211 "x10/parser/x10.g"
+            case 349: {
+               //#line 2209 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2207 "x10/parser/x10.g"
                 Object Modifiersopt = (Object) getRhsSym(1);
-                //#line 2211 "x10/parser/x10.g"
+                //#line 2207 "x10/parser/x10.g"
                 Object VariableDeclaratorsWithType = (Object) getRhsSym(2);
-                //#line 2213 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2209 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_LocalVariableDeclaration1(Modifiersopt,VariableDeclaratorsWithType);
     
                     break;
             }
             //
-            // Rule 351:  LocalVariableDeclaration ::= Modifiersopt VarKeyword FormalDeclarators
+            // Rule 350:  LocalVariableDeclaration ::= Modifiersopt VarKeyword FormalDeclarators
             //
-            case 351: {
-               //#line 2218 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2216 "x10/parser/x10.g"
+            case 350: {
+               //#line 2214 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2212 "x10/parser/x10.g"
                 Object Modifiersopt = (Object) getRhsSym(1);
-                //#line 2216 "x10/parser/x10.g"
+                //#line 2212 "x10/parser/x10.g"
                 Object VarKeyword = (Object) getRhsSym(2);
-                //#line 2216 "x10/parser/x10.g"
+                //#line 2212 "x10/parser/x10.g"
                 Object FormalDeclarators = (Object) getRhsSym(3);
-                //#line 2218 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2214 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_LocalVariableDeclaration2(Modifiersopt,VarKeyword,FormalDeclarators);
     
                     break;
             }
             //
-            // Rule 352:  Primary ::= here
+            // Rule 351:  Primary ::= here
             //
-            case 352: {
-               //#line 2229 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 351: {
+               //#line 2225 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2229 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2225 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_Primary0();
                     break;
             }
             //
-            // Rule 353:  Primary ::= [ ArgumentListopt ]
+            // Rule 352:  Primary ::= [ ArgumentListopt ]
             //
-            case 353: {
-               //#line 2233 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2231 "x10/parser/x10.g"
+            case 352: {
+               //#line 2229 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2227 "x10/parser/x10.g"
                 Object ArgumentListopt = (Object) getRhsSym(2);
-                //#line 2233 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2229 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_Primary1(ArgumentListopt);
                     break;
             }
             //
-            // Rule 355:  Primary ::= self
+            // Rule 354:  Primary ::= self
+            //
+            case 354: {
+               //#line 2235 "lpg.generator/templates/java/btParserTemplateF.gi"
+                
+                //#line 2235 "lpg.generator/templates/java/btParserTemplateF.gi"
+		r.rule_Primary3();
+                    break;
+            }
+            //
+            // Rule 355:  Primary ::= this
             //
             case 355: {
                //#line 2239 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 2239 "lpg.generator/templates/java/btParserTemplateF.gi"
-		r.rule_Primary3();
-                    break;
-            }
-            //
-            // Rule 356:  Primary ::= this
-            //
-            case 356: {
-               //#line 2243 "lpg.generator/templates/java/btParserTemplateF.gi"
-                
-                //#line 2243 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_Primary4();
                     break;
             }
             //
-            // Rule 357:  Primary ::= ClassName . this
+            // Rule 356:  Primary ::= ClassName . this
             //
-            case 357: {
-               //#line 2247 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2245 "x10/parser/x10.g"
+            case 356: {
+               //#line 2243 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2241 "x10/parser/x10.g"
                 Object ClassName = (Object) getRhsSym(1);
-                //#line 2247 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2243 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_Primary5(ClassName);
                     break;
             }
             //
-            // Rule 358:  Primary ::= ( Expression )
+            // Rule 357:  Primary ::= ( Expression )
             //
-            case 358: {
-               //#line 2251 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2249 "x10/parser/x10.g"
+            case 357: {
+               //#line 2247 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2245 "x10/parser/x10.g"
                 Object Expression = (Object) getRhsSym(2);
-                //#line 2251 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2247 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_Primary6(Expression);
                     break;
             }
             //
-            // Rule 364:  OperatorFunction ::= TypeName . +
+            // Rule 363:  OperatorFunction ::= TypeName . +
+            //
+            case 363: {
+               //#line 2257 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2255 "x10/parser/x10.g"
+                Object TypeName = (Object) getRhsSym(1);
+                //#line 2257 "lpg.generator/templates/java/btParserTemplateF.gi"
+		r.rule_OperatorFunction0(TypeName);
+                    break;
+            }
+            //
+            // Rule 364:  OperatorFunction ::= TypeName . -
             //
             case 364: {
                //#line 2261 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2259 "x10/parser/x10.g"
                 Object TypeName = (Object) getRhsSym(1);
                 //#line 2261 "lpg.generator/templates/java/btParserTemplateF.gi"
-		r.rule_OperatorFunction0(TypeName);
+		r.rule_OperatorFunction1(TypeName);
                     break;
             }
             //
-            // Rule 365:  OperatorFunction ::= TypeName . -
+            // Rule 365:  OperatorFunction ::= TypeName . *
             //
             case 365: {
                //#line 2265 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2263 "x10/parser/x10.g"
                 Object TypeName = (Object) getRhsSym(1);
                 //#line 2265 "lpg.generator/templates/java/btParserTemplateF.gi"
-		r.rule_OperatorFunction1(TypeName);
+		r.rule_OperatorFunction2(TypeName);
                     break;
             }
             //
-            // Rule 366:  OperatorFunction ::= TypeName . *
+            // Rule 366:  OperatorFunction ::= TypeName . /
             //
             case 366: {
                //#line 2269 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2267 "x10/parser/x10.g"
                 Object TypeName = (Object) getRhsSym(1);
                 //#line 2269 "lpg.generator/templates/java/btParserTemplateF.gi"
-		r.rule_OperatorFunction2(TypeName);
+		r.rule_OperatorFunction3(TypeName);
                     break;
             }
             //
-            // Rule 367:  OperatorFunction ::= TypeName . /
+            // Rule 367:  OperatorFunction ::= TypeName . %
             //
             case 367: {
                //#line 2273 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2271 "x10/parser/x10.g"
                 Object TypeName = (Object) getRhsSym(1);
                 //#line 2273 "lpg.generator/templates/java/btParserTemplateF.gi"
-		r.rule_OperatorFunction3(TypeName);
+		r.rule_OperatorFunction4(TypeName);
                     break;
             }
             //
-            // Rule 368:  OperatorFunction ::= TypeName . %
+            // Rule 368:  OperatorFunction ::= TypeName . &
             //
             case 368: {
                //#line 2277 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2275 "x10/parser/x10.g"
                 Object TypeName = (Object) getRhsSym(1);
                 //#line 2277 "lpg.generator/templates/java/btParserTemplateF.gi"
-		r.rule_OperatorFunction4(TypeName);
+		r.rule_OperatorFunction5(TypeName);
                     break;
             }
             //
-            // Rule 369:  OperatorFunction ::= TypeName . &
+            // Rule 369:  OperatorFunction ::= TypeName . |
             //
             case 369: {
                //#line 2281 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2279 "x10/parser/x10.g"
                 Object TypeName = (Object) getRhsSym(1);
                 //#line 2281 "lpg.generator/templates/java/btParserTemplateF.gi"
-		r.rule_OperatorFunction5(TypeName);
+		r.rule_OperatorFunction6(TypeName);
                     break;
             }
             //
-            // Rule 370:  OperatorFunction ::= TypeName . |
+            // Rule 370:  OperatorFunction ::= TypeName . ^
             //
             case 370: {
                //#line 2285 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2283 "x10/parser/x10.g"
                 Object TypeName = (Object) getRhsSym(1);
                 //#line 2285 "lpg.generator/templates/java/btParserTemplateF.gi"
-		r.rule_OperatorFunction6(TypeName);
+		r.rule_OperatorFunction7(TypeName);
                     break;
             }
             //
-            // Rule 371:  OperatorFunction ::= TypeName . ^
+            // Rule 371:  OperatorFunction ::= TypeName . <<
             //
             case 371: {
                //#line 2289 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2287 "x10/parser/x10.g"
                 Object TypeName = (Object) getRhsSym(1);
                 //#line 2289 "lpg.generator/templates/java/btParserTemplateF.gi"
-		r.rule_OperatorFunction7(TypeName);
+		r.rule_OperatorFunction8(TypeName);
                     break;
             }
             //
-            // Rule 372:  OperatorFunction ::= TypeName . <<
+            // Rule 372:  OperatorFunction ::= TypeName . >>
             //
             case 372: {
                //#line 2293 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2291 "x10/parser/x10.g"
                 Object TypeName = (Object) getRhsSym(1);
                 //#line 2293 "lpg.generator/templates/java/btParserTemplateF.gi"
-		r.rule_OperatorFunction8(TypeName);
+		r.rule_OperatorFunction9(TypeName);
                     break;
             }
             //
-            // Rule 373:  OperatorFunction ::= TypeName . >>
+            // Rule 373:  OperatorFunction ::= TypeName . >>>
             //
             case 373: {
                //#line 2297 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2295 "x10/parser/x10.g"
                 Object TypeName = (Object) getRhsSym(1);
                 //#line 2297 "lpg.generator/templates/java/btParserTemplateF.gi"
-		r.rule_OperatorFunction9(TypeName);
+		r.rule_OperatorFunction10(TypeName);
                     break;
             }
             //
-            // Rule 374:  OperatorFunction ::= TypeName . >>>
+            // Rule 374:  OperatorFunction ::= TypeName . <
             //
             case 374: {
                //#line 2301 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2299 "x10/parser/x10.g"
                 Object TypeName = (Object) getRhsSym(1);
                 //#line 2301 "lpg.generator/templates/java/btParserTemplateF.gi"
-		r.rule_OperatorFunction10(TypeName);
+		r.rule_OperatorFunction11(TypeName);
                     break;
             }
             //
-            // Rule 375:  OperatorFunction ::= TypeName . <
+            // Rule 375:  OperatorFunction ::= TypeName . <=
             //
             case 375: {
                //#line 2305 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2303 "x10/parser/x10.g"
                 Object TypeName = (Object) getRhsSym(1);
                 //#line 2305 "lpg.generator/templates/java/btParserTemplateF.gi"
-		r.rule_OperatorFunction11(TypeName);
+		r.rule_OperatorFunction12(TypeName);
                     break;
             }
             //
-            // Rule 376:  OperatorFunction ::= TypeName . <=
+            // Rule 376:  OperatorFunction ::= TypeName . >=
             //
             case 376: {
                //#line 2309 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2307 "x10/parser/x10.g"
                 Object TypeName = (Object) getRhsSym(1);
                 //#line 2309 "lpg.generator/templates/java/btParserTemplateF.gi"
-		r.rule_OperatorFunction12(TypeName);
+		r.rule_OperatorFunction13(TypeName);
                     break;
             }
             //
-            // Rule 377:  OperatorFunction ::= TypeName . >=
+            // Rule 377:  OperatorFunction ::= TypeName . >
             //
             case 377: {
                //#line 2313 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2311 "x10/parser/x10.g"
                 Object TypeName = (Object) getRhsSym(1);
                 //#line 2313 "lpg.generator/templates/java/btParserTemplateF.gi"
-		r.rule_OperatorFunction13(TypeName);
+		r.rule_OperatorFunction14(TypeName);
                     break;
             }
             //
-            // Rule 378:  OperatorFunction ::= TypeName . >
+            // Rule 378:  OperatorFunction ::= TypeName . ==
             //
             case 378: {
                //#line 2317 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2315 "x10/parser/x10.g"
                 Object TypeName = (Object) getRhsSym(1);
                 //#line 2317 "lpg.generator/templates/java/btParserTemplateF.gi"
-		r.rule_OperatorFunction14(TypeName);
+		r.rule_OperatorFunction15(TypeName);
                     break;
             }
             //
-            // Rule 379:  OperatorFunction ::= TypeName . ==
+            // Rule 379:  OperatorFunction ::= TypeName . !=
             //
             case 379: {
                //#line 2321 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2319 "x10/parser/x10.g"
                 Object TypeName = (Object) getRhsSym(1);
                 //#line 2321 "lpg.generator/templates/java/btParserTemplateF.gi"
-		r.rule_OperatorFunction15(TypeName);
-                    break;
-            }
-            //
-            // Rule 380:  OperatorFunction ::= TypeName . !=
-            //
-            case 380: {
-               //#line 2325 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2323 "x10/parser/x10.g"
-                Object TypeName = (Object) getRhsSym(1);
-                //#line 2325 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_OperatorFunction16(TypeName);
                     break;
             }
             //
-            // Rule 381:  Literal ::= IntegerLiteral$lit
+            // Rule 380:  Literal ::= IntegerLiteral$lit
+            //
+            case 380: {
+               //#line 2326 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2324 "x10/parser/x10.g"
+                IToken lit = (IToken) getRhsIToken(1);
+                //#line 2326 "lpg.generator/templates/java/btParserTemplateF.gi"
+		r.rule_Literal0();
+                    break;
+            }
+            //
+            // Rule 381:  Literal ::= LongLiteral$lit
             //
             case 381: {
                //#line 2330 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2328 "x10/parser/x10.g"
                 IToken lit = (IToken) getRhsIToken(1);
                 //#line 2330 "lpg.generator/templates/java/btParserTemplateF.gi"
-		r.rule_Literal0();
-                    break;
-            }
-            //
-            // Rule 382:  Literal ::= LongLiteral$lit
-            //
-            case 382: {
-               //#line 2334 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2332 "x10/parser/x10.g"
-                IToken lit = (IToken) getRhsIToken(1);
-                //#line 2334 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_Literal1();
                     break;
             }
             //
-            // Rule 383:  Literal ::= ByteLiteral
+            // Rule 382:  Literal ::= ByteLiteral
+            //
+            case 382: {
+               //#line 2334 "lpg.generator/templates/java/btParserTemplateF.gi"
+                
+                //#line 2334 "lpg.generator/templates/java/btParserTemplateF.gi"
+		r.rule_LiteralByte();
+                    break;
+            }
+            //
+            // Rule 383:  Literal ::= UnsignedByteLiteral
             //
             case 383: {
                //#line 2338 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 2338 "lpg.generator/templates/java/btParserTemplateF.gi"
-		r.rule_LiteralByte();
+		r.rule_LiteralUByte();
                     break;
             }
             //
-            // Rule 384:  Literal ::= UnsignedByteLiteral
+            // Rule 384:  Literal ::= ShortLiteral
             //
             case 384: {
                //#line 2342 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 2342 "lpg.generator/templates/java/btParserTemplateF.gi"
-		r.rule_LiteralUByte();
+		r.rule_LiteralShort();
                     break;
             }
             //
-            // Rule 385:  Literal ::= ShortLiteral
+            // Rule 385:  Literal ::= UnsignedShortLiteral
             //
             case 385: {
                //#line 2346 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 2346 "lpg.generator/templates/java/btParserTemplateF.gi"
-		r.rule_LiteralShort();
-                    break;
-            }
-            //
-            // Rule 386:  Literal ::= UnsignedShortLiteral
-            //
-            case 386: {
-               //#line 2350 "lpg.generator/templates/java/btParserTemplateF.gi"
-                
-                //#line 2350 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_LiteralUShort();
                     break;
             }
             //
-            // Rule 387:  Literal ::= UnsignedIntegerLiteral$lit
+            // Rule 386:  Literal ::= UnsignedIntegerLiteral$lit
+            //
+            case 386: {
+               //#line 2350 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2348 "x10/parser/x10.g"
+                IToken lit = (IToken) getRhsIToken(1);
+                //#line 2350 "lpg.generator/templates/java/btParserTemplateF.gi"
+		r.rule_Literal2();
+                    break;
+            }
+            //
+            // Rule 387:  Literal ::= UnsignedLongLiteral$lit
             //
             case 387: {
                //#line 2354 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2352 "x10/parser/x10.g"
                 IToken lit = (IToken) getRhsIToken(1);
                 //#line 2354 "lpg.generator/templates/java/btParserTemplateF.gi"
-		r.rule_Literal2();
+		r.rule_Literal3();
                     break;
             }
             //
-            // Rule 388:  Literal ::= UnsignedLongLiteral$lit
+            // Rule 388:  Literal ::= FloatingPointLiteral$lit
             //
             case 388: {
                //#line 2358 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2356 "x10/parser/x10.g"
                 IToken lit = (IToken) getRhsIToken(1);
                 //#line 2358 "lpg.generator/templates/java/btParserTemplateF.gi"
-		r.rule_Literal3();
+		r.rule_Literal4();
                     break;
             }
             //
-            // Rule 389:  Literal ::= FloatingPointLiteral$lit
+            // Rule 389:  Literal ::= DoubleLiteral$lit
             //
             case 389: {
                //#line 2362 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2360 "x10/parser/x10.g"
                 IToken lit = (IToken) getRhsIToken(1);
                 //#line 2362 "lpg.generator/templates/java/btParserTemplateF.gi"
-		r.rule_Literal4();
-                    break;
-            }
-            //
-            // Rule 390:  Literal ::= DoubleLiteral$lit
-            //
-            case 390: {
-               //#line 2366 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2364 "x10/parser/x10.g"
-                IToken lit = (IToken) getRhsIToken(1);
-                //#line 2366 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_Literal5();
                     break;
             }
             //
-            // Rule 391:  Literal ::= BooleanLiteral
+            // Rule 390:  Literal ::= BooleanLiteral
             //
-            case 391: {
-               //#line 2370 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2368 "x10/parser/x10.g"
+            case 390: {
+               //#line 2366 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2364 "x10/parser/x10.g"
                 Object BooleanLiteral = (Object) getRhsSym(1);
-                //#line 2370 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2366 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_Literal6(BooleanLiteral);
                     break;
             }
             //
-            // Rule 392:  Literal ::= CharacterLiteral$lit
+            // Rule 391:  Literal ::= CharacterLiteral$lit
             //
-            case 392: {
-               //#line 2374 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2372 "x10/parser/x10.g"
+            case 391: {
+               //#line 2370 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2368 "x10/parser/x10.g"
                 IToken lit = (IToken) getRhsIToken(1);
-                //#line 2374 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2370 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_Literal7();
                     break;
             }
             //
-            // Rule 393:  Literal ::= StringLiteral$str
+            // Rule 392:  Literal ::= StringLiteral$str
             //
-            case 393: {
-               //#line 2378 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2376 "x10/parser/x10.g"
+            case 392: {
+               //#line 2374 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2372 "x10/parser/x10.g"
                 IToken str = (IToken) getRhsIToken(1);
-                //#line 2378 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2374 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_Literal8();
                     break;
             }
             //
-            // Rule 394:  Literal ::= null
+            // Rule 393:  Literal ::= null
             //
-            case 394: {
-               //#line 2382 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 393: {
+               //#line 2378 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2382 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2378 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_Literal9();
                     break;
             }
             //
-            // Rule 395:  BooleanLiteral ::= true$trueLiteral
+            // Rule 394:  BooleanLiteral ::= true$trueLiteral
             //
-            case 395: {
-               //#line 2387 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2385 "x10/parser/x10.g"
+            case 394: {
+               //#line 2383 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2381 "x10/parser/x10.g"
                 IToken trueLiteral = (IToken) getRhsIToken(1);
-                //#line 2387 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2383 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_BooleanLiteral0();
                     break;
             }
             //
-            // Rule 396:  BooleanLiteral ::= false$falseLiteral
+            // Rule 395:  BooleanLiteral ::= false$falseLiteral
             //
-            case 396: {
-               //#line 2391 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2389 "x10/parser/x10.g"
+            case 395: {
+               //#line 2387 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2385 "x10/parser/x10.g"
                 IToken falseLiteral = (IToken) getRhsIToken(1);
-                //#line 2391 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2387 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_BooleanLiteral1();
                     break;
             }
             //
-            // Rule 397:  ArgumentList ::= Expression
+            // Rule 396:  ArgumentList ::= Expression
             //
-            case 397: {
-               //#line 2399 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2397 "x10/parser/x10.g"
+            case 396: {
+               //#line 2395 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2393 "x10/parser/x10.g"
                 Object Expression = (Object) getRhsSym(1);
-                //#line 2399 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2395 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_ArgumentList0(Expression);
                     break;
             }
             //
-            // Rule 398:  ArgumentList ::= ArgumentList , Expression
+            // Rule 397:  ArgumentList ::= ArgumentList , Expression
             //
-            case 398: {
-               //#line 2403 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2401 "x10/parser/x10.g"
+            case 397: {
+               //#line 2399 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2397 "x10/parser/x10.g"
                 Object ArgumentList = (Object) getRhsSym(1);
-                //#line 2401 "x10/parser/x10.g"
+                //#line 2397 "x10/parser/x10.g"
                 Object Expression = (Object) getRhsSym(3);
-                //#line 2403 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2399 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_ArgumentList1(ArgumentList,Expression);
                     break;
             }
             //
-            // Rule 399:  FieldAccess ::= Primary . Identifier
+            // Rule 398:  FieldAccess ::= Primary . Identifier
             //
-            case 399: {
-               //#line 2408 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2406 "x10/parser/x10.g"
+            case 398: {
+               //#line 2404 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2402 "x10/parser/x10.g"
                 Object Primary = (Object) getRhsSym(1);
-                //#line 2406 "x10/parser/x10.g"
+                //#line 2402 "x10/parser/x10.g"
                 Object Identifier = (Object) getRhsSym(3);
-                //#line 2408 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2404 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_FieldAccess3(Primary,Identifier);
                     break;
             }
             //
-            // Rule 400:  FieldAccess ::= super . Identifier
+            // Rule 399:  FieldAccess ::= super . Identifier
             //
-            case 400: {
-               //#line 2412 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2410 "x10/parser/x10.g"
+            case 399: {
+               //#line 2408 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2406 "x10/parser/x10.g"
                 Object Identifier = (Object) getRhsSym(3);
-                //#line 2412 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2408 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_FieldAccess4(Identifier);
                     break;
             }
             //
-            // Rule 401:  FieldAccess ::= ClassName . super$sup . Identifier
+            // Rule 400:  FieldAccess ::= ClassName . super$sup . Identifier
             //
-            case 401: {
-               //#line 2416 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2414 "x10/parser/x10.g"
+            case 400: {
+               //#line 2412 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2410 "x10/parser/x10.g"
                 Object ClassName = (Object) getRhsSym(1);
-                //#line 2414 "x10/parser/x10.g"
+                //#line 2410 "x10/parser/x10.g"
                 IToken sup = (IToken) getRhsIToken(3);
-                //#line 2414 "x10/parser/x10.g"
+                //#line 2410 "x10/parser/x10.g"
                 Object Identifier = (Object) getRhsSym(5);
-                //#line 2416 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2412 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_FieldAccess5(ClassName,Identifier);
                     break;
             }
             //
-            // Rule 402:  FieldAccess ::= Primary . class$c
+            // Rule 401:  FieldAccess ::= Primary . class$c
             //
-            case 402: {
-               //#line 2420 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2418 "x10/parser/x10.g"
+            case 401: {
+               //#line 2416 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2414 "x10/parser/x10.g"
                 Object Primary = (Object) getRhsSym(1);
-                //#line 2418 "x10/parser/x10.g"
+                //#line 2414 "x10/parser/x10.g"
                 IToken c = (IToken) getRhsIToken(3);
-                //#line 2420 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2416 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_FieldAccess6(Primary);
                     break;
             }
             //
-            // Rule 403:  FieldAccess ::= super . class$c
+            // Rule 402:  FieldAccess ::= super . class$c
             //
-            case 403: {
-               //#line 2424 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2422 "x10/parser/x10.g"
+            case 402: {
+               //#line 2420 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2418 "x10/parser/x10.g"
                 IToken c = (IToken) getRhsIToken(3);
-                //#line 2424 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2420 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_FieldAccess7();
                     break;
             }
             //
-            // Rule 404:  FieldAccess ::= ClassName . super$sup . class$c
+            // Rule 403:  FieldAccess ::= ClassName . super$sup . class$c
             //
-            case 404: {
-               //#line 2428 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2426 "x10/parser/x10.g"
+            case 403: {
+               //#line 2424 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2422 "x10/parser/x10.g"
                 Object ClassName = (Object) getRhsSym(1);
-                //#line 2426 "x10/parser/x10.g"
+                //#line 2422 "x10/parser/x10.g"
                 IToken sup = (IToken) getRhsIToken(3);
-                //#line 2426 "x10/parser/x10.g"
+                //#line 2422 "x10/parser/x10.g"
                 IToken c = (IToken) getRhsIToken(5);
-                //#line 2428 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2424 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_FieldAccess8(ClassName);
                     break;
             }
             //
-            // Rule 405:  MethodInvocation ::= MethodName TypeArgumentsopt ( ArgumentListopt )
+            // Rule 404:  MethodInvocation ::= MethodName TypeArgumentsopt ( ArgumentListopt )
             //
-            case 405: {
-               //#line 2433 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2431 "x10/parser/x10.g"
+            case 404: {
+               //#line 2429 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2427 "x10/parser/x10.g"
                 Object MethodName = (Object) getRhsSym(1);
-                //#line 2431 "x10/parser/x10.g"
+                //#line 2427 "x10/parser/x10.g"
                 Object TypeArgumentsopt = (Object) getRhsSym(2);
-                //#line 2431 "x10/parser/x10.g"
+                //#line 2427 "x10/parser/x10.g"
                 Object ArgumentListopt = (Object) getRhsSym(4);
-                //#line 2433 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2429 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_MethodInvocation3(MethodName,TypeArgumentsopt,ArgumentListopt);
                     break;
             }
             //
-            // Rule 406:  MethodInvocation ::= Primary . Identifier TypeArgumentsopt ( ArgumentListopt )
+            // Rule 405:  MethodInvocation ::= Primary . Identifier TypeArgumentsopt ( ArgumentListopt )
+            //
+            case 405: {
+               //#line 2433 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2431 "x10/parser/x10.g"
+                Object Primary = (Object) getRhsSym(1);
+                //#line 2431 "x10/parser/x10.g"
+                Object Identifier = (Object) getRhsSym(3);
+                //#line 2431 "x10/parser/x10.g"
+                Object TypeArgumentsopt = (Object) getRhsSym(4);
+                //#line 2431 "x10/parser/x10.g"
+                Object ArgumentListopt = (Object) getRhsSym(6);
+                //#line 2433 "lpg.generator/templates/java/btParserTemplateF.gi"
+		r.rule_MethodInvocation4(Primary,Identifier,TypeArgumentsopt,ArgumentListopt);
+                    break;
+            }
+            //
+            // Rule 406:  MethodInvocation ::= super . Identifier TypeArgumentsopt ( ArgumentListopt )
             //
             case 406: {
                //#line 2437 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2435 "x10/parser/x10.g"
-                Object Primary = (Object) getRhsSym(1);
                 //#line 2435 "x10/parser/x10.g"
                 Object Identifier = (Object) getRhsSym(3);
                 //#line 2435 "x10/parser/x10.g"
@@ -4368,323 +4370,321 @@ public class X10Parser implements RuleAction
                 //#line 2435 "x10/parser/x10.g"
                 Object ArgumentListopt = (Object) getRhsSym(6);
                 //#line 2437 "lpg.generator/templates/java/btParserTemplateF.gi"
-		r.rule_MethodInvocation4(Primary,Identifier,TypeArgumentsopt,ArgumentListopt);
-                    break;
-            }
-            //
-            // Rule 407:  MethodInvocation ::= super . Identifier TypeArgumentsopt ( ArgumentListopt )
-            //
-            case 407: {
-               //#line 2441 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2439 "x10/parser/x10.g"
-                Object Identifier = (Object) getRhsSym(3);
-                //#line 2439 "x10/parser/x10.g"
-                Object TypeArgumentsopt = (Object) getRhsSym(4);
-                //#line 2439 "x10/parser/x10.g"
-                Object ArgumentListopt = (Object) getRhsSym(6);
-                //#line 2441 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_MethodInvocation5(Identifier,TypeArgumentsopt,ArgumentListopt);
                     break;
             }
             //
-            // Rule 408:  MethodInvocation ::= ClassName . super$sup . Identifier TypeArgumentsopt ( ArgumentListopt )
+            // Rule 407:  MethodInvocation ::= ClassName . super$sup . Identifier TypeArgumentsopt ( ArgumentListopt )
             //
-            case 408: {
-               //#line 2445 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2443 "x10/parser/x10.g"
+            case 407: {
+               //#line 2441 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2439 "x10/parser/x10.g"
                 Object ClassName = (Object) getRhsSym(1);
-                //#line 2443 "x10/parser/x10.g"
+                //#line 2439 "x10/parser/x10.g"
                 IToken sup = (IToken) getRhsIToken(3);
-                //#line 2443 "x10/parser/x10.g"
+                //#line 2439 "x10/parser/x10.g"
                 Object Identifier = (Object) getRhsSym(5);
-                //#line 2443 "x10/parser/x10.g"
+                //#line 2439 "x10/parser/x10.g"
                 Object TypeArgumentsopt = (Object) getRhsSym(6);
-                //#line 2443 "x10/parser/x10.g"
+                //#line 2439 "x10/parser/x10.g"
                 Object ArgumentListopt = (Object) getRhsSym(8);
-                //#line 2445 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2441 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_MethodInvocation6(ClassName,Identifier,TypeArgumentsopt,ArgumentListopt);
                     break;
             }
             //
-            // Rule 409:  MethodInvocation ::= Primary TypeArgumentsopt ( ArgumentListopt )
+            // Rule 408:  MethodInvocation ::= Primary TypeArgumentsopt ( ArgumentListopt )
             //
-            case 409: {
-               //#line 2449 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2447 "x10/parser/x10.g"
+            case 408: {
+               //#line 2445 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2443 "x10/parser/x10.g"
                 Object Primary = (Object) getRhsSym(1);
-                //#line 2447 "x10/parser/x10.g"
+                //#line 2443 "x10/parser/x10.g"
                 Object TypeArgumentsopt = (Object) getRhsSym(2);
-                //#line 2447 "x10/parser/x10.g"
+                //#line 2443 "x10/parser/x10.g"
                 Object ArgumentListopt = (Object) getRhsSym(4);
-                //#line 2449 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2445 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_MethodInvocation7(Primary,TypeArgumentsopt,ArgumentListopt);
                     break;
             }
             //
-            // Rule 410:  MethodSelection ::= MethodName . ( FormalParameterListopt )
+            // Rule 409:  MethodSelection ::= MethodName . ( FormalParameterListopt )
             //
-            case 410: {
-               //#line 2454 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2452 "x10/parser/x10.g"
+            case 409: {
+               //#line 2450 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2448 "x10/parser/x10.g"
                 Object MethodName = (Object) getRhsSym(1);
-                //#line 2452 "x10/parser/x10.g"
+                //#line 2448 "x10/parser/x10.g"
                 Object FormalParameterListopt = (Object) getRhsSym(4);
-                //#line 2454 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2450 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_MethodSelection0(MethodName,FormalParameterListopt);
                     break;
             }
             //
-            // Rule 411:  MethodSelection ::= Primary . Identifier . ( FormalParameterListopt )
+            // Rule 410:  MethodSelection ::= Primary . Identifier . ( FormalParameterListopt )
+            //
+            case 410: {
+               //#line 2454 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2452 "x10/parser/x10.g"
+                Object Primary = (Object) getRhsSym(1);
+                //#line 2452 "x10/parser/x10.g"
+                Object Identifier = (Object) getRhsSym(3);
+                //#line 2452 "x10/parser/x10.g"
+                Object FormalParameterListopt = (Object) getRhsSym(6);
+                //#line 2454 "lpg.generator/templates/java/btParserTemplateF.gi"
+		r.rule_MethodSelection1(Primary,Identifier,FormalParameterListopt);
+                    break;
+            }
+            //
+            // Rule 411:  MethodSelection ::= super . Identifier . ( FormalParameterListopt )
             //
             case 411: {
                //#line 2458 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2456 "x10/parser/x10.g"
-                Object Primary = (Object) getRhsSym(1);
                 //#line 2456 "x10/parser/x10.g"
                 Object Identifier = (Object) getRhsSym(3);
                 //#line 2456 "x10/parser/x10.g"
                 Object FormalParameterListopt = (Object) getRhsSym(6);
                 //#line 2458 "lpg.generator/templates/java/btParserTemplateF.gi"
-		r.rule_MethodSelection1(Primary,Identifier,FormalParameterListopt);
-                    break;
-            }
-            //
-            // Rule 412:  MethodSelection ::= super . Identifier . ( FormalParameterListopt )
-            //
-            case 412: {
-               //#line 2462 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2460 "x10/parser/x10.g"
-                Object Identifier = (Object) getRhsSym(3);
-                //#line 2460 "x10/parser/x10.g"
-                Object FormalParameterListopt = (Object) getRhsSym(6);
-                //#line 2462 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_MethodSelection2(Identifier,FormalParameterListopt);
                     break;
             }
             //
-            // Rule 413:  MethodSelection ::= ClassName . super$sup . Identifier . ( FormalParameterListopt )
+            // Rule 412:  MethodSelection ::= ClassName . super$sup . Identifier . ( FormalParameterListopt )
             //
-            case 413: {
-               //#line 2466 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2464 "x10/parser/x10.g"
+            case 412: {
+               //#line 2462 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2460 "x10/parser/x10.g"
                 Object ClassName = (Object) getRhsSym(1);
-                //#line 2464 "x10/parser/x10.g"
+                //#line 2460 "x10/parser/x10.g"
                 IToken sup = (IToken) getRhsIToken(3);
-                //#line 2464 "x10/parser/x10.g"
+                //#line 2460 "x10/parser/x10.g"
                 Object Identifier = (Object) getRhsSym(5);
-                //#line 2464 "x10/parser/x10.g"
+                //#line 2460 "x10/parser/x10.g"
                 Object FormalParameterListopt = (Object) getRhsSym(8);
-                //#line 2466 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2462 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_MethodSelection3(ClassName,Identifier,FormalParameterListopt);
                     break;
             }
             //
-            // Rule 417:  PostIncrementExpression ::= PostfixExpression ++
+            // Rule 416:  PostIncrementExpression ::= PostfixExpression ++
             //
-            case 417: {
-               //#line 2475 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2473 "x10/parser/x10.g"
+            case 416: {
+               //#line 2471 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2469 "x10/parser/x10.g"
                 Object PostfixExpression = (Object) getRhsSym(1);
-                //#line 2475 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2471 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_PostIncrementExpression0(PostfixExpression);
                     break;
             }
             //
-            // Rule 418:  PostDecrementExpression ::= PostfixExpression --
+            // Rule 417:  PostDecrementExpression ::= PostfixExpression --
             //
-            case 418: {
-               //#line 2480 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2478 "x10/parser/x10.g"
+            case 417: {
+               //#line 2476 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2474 "x10/parser/x10.g"
                 Object PostfixExpression = (Object) getRhsSym(1);
-                //#line 2480 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2476 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_PostDecrementExpression0(PostfixExpression);
                     break;
             }
             //
-            // Rule 421:  UnannotatedUnaryExpression ::= + UnaryExpressionNotPlusMinus
+            // Rule 420:  UnannotatedUnaryExpression ::= + UnaryExpressionNotPlusMinus
+            //
+            case 420: {
+               //#line 2483 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2481 "x10/parser/x10.g"
+                Object UnaryExpressionNotPlusMinus = (Object) getRhsSym(2);
+                //#line 2483 "lpg.generator/templates/java/btParserTemplateF.gi"
+		r.rule_UnannotatedUnaryExpression2(UnaryExpressionNotPlusMinus);
+                    break;
+            }
+            //
+            // Rule 421:  UnannotatedUnaryExpression ::= - UnaryExpressionNotPlusMinus
             //
             case 421: {
                //#line 2487 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2485 "x10/parser/x10.g"
                 Object UnaryExpressionNotPlusMinus = (Object) getRhsSym(2);
                 //#line 2487 "lpg.generator/templates/java/btParserTemplateF.gi"
-		r.rule_UnannotatedUnaryExpression2(UnaryExpressionNotPlusMinus);
-                    break;
-            }
-            //
-            // Rule 422:  UnannotatedUnaryExpression ::= - UnaryExpressionNotPlusMinus
-            //
-            case 422: {
-               //#line 2491 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2489 "x10/parser/x10.g"
-                Object UnaryExpressionNotPlusMinus = (Object) getRhsSym(2);
-                //#line 2491 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_UnannotatedUnaryExpression3(UnaryExpressionNotPlusMinus);
                     break;
             }
             //
-            // Rule 425:  UnaryExpression ::= Annotations UnannotatedUnaryExpression
+            // Rule 424:  UnaryExpression ::= Annotations UnannotatedUnaryExpression
             //
-            case 425: {
-               //#line 2498 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2496 "x10/parser/x10.g"
+            case 424: {
+               //#line 2494 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2492 "x10/parser/x10.g"
                 Object Annotations = (Object) getRhsSym(1);
-                //#line 2496 "x10/parser/x10.g"
+                //#line 2492 "x10/parser/x10.g"
                 Object UnannotatedUnaryExpression = (Object) getRhsSym(2);
-                //#line 2498 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2494 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_UnaryExpression1(Annotations,UnannotatedUnaryExpression);
                     break;
             }
             //
-            // Rule 426:  PreIncrementExpression ::= ++ UnaryExpressionNotPlusMinus
+            // Rule 425:  PreIncrementExpression ::= ++ UnaryExpressionNotPlusMinus
             //
-            case 426: {
-               //#line 2503 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2501 "x10/parser/x10.g"
+            case 425: {
+               //#line 2499 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2497 "x10/parser/x10.g"
                 Object UnaryExpressionNotPlusMinus = (Object) getRhsSym(2);
-                //#line 2503 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2499 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_PreIncrementExpression0(UnaryExpressionNotPlusMinus);
                     break;
             }
             //
-            // Rule 427:  PreDecrementExpression ::= -- UnaryExpressionNotPlusMinus
+            // Rule 426:  PreDecrementExpression ::= -- UnaryExpressionNotPlusMinus
             //
-            case 427: {
-               //#line 2508 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2506 "x10/parser/x10.g"
+            case 426: {
+               //#line 2504 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2502 "x10/parser/x10.g"
                 Object UnaryExpressionNotPlusMinus = (Object) getRhsSym(2);
-                //#line 2508 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2504 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_PreDecrementExpression0(UnaryExpressionNotPlusMinus);
                     break;
             }
             //
-            // Rule 429:  UnaryExpressionNotPlusMinus ::= ~ UnaryExpression
+            // Rule 428:  UnaryExpressionNotPlusMinus ::= ~ UnaryExpression
+            //
+            case 428: {
+               //#line 2510 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2508 "x10/parser/x10.g"
+                Object UnaryExpression = (Object) getRhsSym(2);
+                //#line 2510 "lpg.generator/templates/java/btParserTemplateF.gi"
+		r.rule_UnaryExpressionNotPlusMinus1(UnaryExpression);
+                    break;
+            }
+            //
+            // Rule 429:  UnaryExpressionNotPlusMinus ::= ! UnaryExpression
             //
             case 429: {
                //#line 2514 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2512 "x10/parser/x10.g"
                 Object UnaryExpression = (Object) getRhsSym(2);
                 //#line 2514 "lpg.generator/templates/java/btParserTemplateF.gi"
-		r.rule_UnaryExpressionNotPlusMinus1(UnaryExpression);
-                    break;
-            }
-            //
-            // Rule 430:  UnaryExpressionNotPlusMinus ::= ! UnaryExpression
-            //
-            case 430: {
-               //#line 2518 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2516 "x10/parser/x10.g"
-                Object UnaryExpression = (Object) getRhsSym(2);
-                //#line 2518 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_UnaryExpressionNotPlusMinus2(UnaryExpression);
                     break;
             }
             //
-            // Rule 432:  MultiplicativeExpression ::= MultiplicativeExpression * UnaryExpression
+            // Rule 431:  RangeExpression ::= RangeExpression$expr1 .. UnaryExpression$expr2
             //
-            case 432: {
-               //#line 2524 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2522 "x10/parser/x10.g"
-                Object MultiplicativeExpression = (Object) getRhsSym(1);
-                //#line 2522 "x10/parser/x10.g"
-                Object UnaryExpression = (Object) getRhsSym(3);
-                //#line 2524 "lpg.generator/templates/java/btParserTemplateF.gi"
-		r.rule_MultiplicativeExpression1(MultiplicativeExpression,UnaryExpression);
+            case 431: {
+               //#line 2520 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2518 "x10/parser/x10.g"
+                Object expr1 = (Object) getRhsSym(1);
+                //#line 2518 "x10/parser/x10.g"
+                Object expr2 = (Object) getRhsSym(3);
+                //#line 2520 "lpg.generator/templates/java/btParserTemplateF.gi"
+		r.rule_RangeExpression1(expr1,expr2);
                     break;
             }
             //
-            // Rule 433:  MultiplicativeExpression ::= MultiplicativeExpression / UnaryExpression
+            // Rule 433:  MultiplicativeExpression ::= MultiplicativeExpression * RangeExpression
             //
             case 433: {
-               //#line 2528 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2526 "x10/parser/x10.g"
+               //#line 2526 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2524 "x10/parser/x10.g"
                 Object MultiplicativeExpression = (Object) getRhsSym(1);
-                //#line 2526 "x10/parser/x10.g"
-                Object UnaryExpression = (Object) getRhsSym(3);
-                //#line 2528 "lpg.generator/templates/java/btParserTemplateF.gi"
-		r.rule_MultiplicativeExpression2(MultiplicativeExpression,UnaryExpression);
+                //#line 2524 "x10/parser/x10.g"
+                Object RangeExpression = (Object) getRhsSym(3);
+                //#line 2526 "lpg.generator/templates/java/btParserTemplateF.gi"
+		r.rule_MultiplicativeExpression1(MultiplicativeExpression,RangeExpression);
                     break;
             }
             //
-            // Rule 434:  MultiplicativeExpression ::= MultiplicativeExpression % UnaryExpression
+            // Rule 434:  MultiplicativeExpression ::= MultiplicativeExpression / RangeExpression
             //
             case 434: {
-               //#line 2532 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2530 "x10/parser/x10.g"
+               //#line 2530 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2528 "x10/parser/x10.g"
                 Object MultiplicativeExpression = (Object) getRhsSym(1);
-                //#line 2530 "x10/parser/x10.g"
-                Object UnaryExpression = (Object) getRhsSym(3);
-                //#line 2532 "lpg.generator/templates/java/btParserTemplateF.gi"
-		r.rule_MultiplicativeExpression3(MultiplicativeExpression,UnaryExpression);
+                //#line 2528 "x10/parser/x10.g"
+                Object RangeExpression = (Object) getRhsSym(3);
+                //#line 2530 "lpg.generator/templates/java/btParserTemplateF.gi"
+		r.rule_MultiplicativeExpression2(MultiplicativeExpression,RangeExpression);
                     break;
             }
             //
-            // Rule 436:  AdditiveExpression ::= AdditiveExpression + MultiplicativeExpression
+            // Rule 435:  MultiplicativeExpression ::= MultiplicativeExpression % RangeExpression
             //
-            case 436: {
-               //#line 2538 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2536 "x10/parser/x10.g"
+            case 435: {
+               //#line 2534 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2532 "x10/parser/x10.g"
+                Object MultiplicativeExpression = (Object) getRhsSym(1);
+                //#line 2532 "x10/parser/x10.g"
+                Object RangeExpression = (Object) getRhsSym(3);
+                //#line 2534 "lpg.generator/templates/java/btParserTemplateF.gi"
+		r.rule_MultiplicativeExpression3(MultiplicativeExpression,RangeExpression);
+                    break;
+            }
+            //
+            // Rule 437:  AdditiveExpression ::= AdditiveExpression + MultiplicativeExpression
+            //
+            case 437: {
+               //#line 2540 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2538 "x10/parser/x10.g"
                 Object AdditiveExpression = (Object) getRhsSym(1);
-                //#line 2536 "x10/parser/x10.g"
+                //#line 2538 "x10/parser/x10.g"
                 Object MultiplicativeExpression = (Object) getRhsSym(3);
-                //#line 2538 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2540 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_AdditiveExpression1(AdditiveExpression,MultiplicativeExpression);
                     break;
             }
             //
-            // Rule 437:  AdditiveExpression ::= AdditiveExpression - MultiplicativeExpression
+            // Rule 438:  AdditiveExpression ::= AdditiveExpression - MultiplicativeExpression
             //
-            case 437: {
-               //#line 2542 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2540 "x10/parser/x10.g"
+            case 438: {
+               //#line 2544 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2542 "x10/parser/x10.g"
                 Object AdditiveExpression = (Object) getRhsSym(1);
-                //#line 2540 "x10/parser/x10.g"
+                //#line 2542 "x10/parser/x10.g"
                 Object MultiplicativeExpression = (Object) getRhsSym(3);
-                //#line 2542 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2544 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_AdditiveExpression2(AdditiveExpression,MultiplicativeExpression);
                     break;
             }
             //
-            // Rule 439:  ShiftExpression ::= ShiftExpression << AdditiveExpression
+            // Rule 440:  ShiftExpression ::= ShiftExpression << AdditiveExpression
             //
-            case 439: {
-               //#line 2548 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2546 "x10/parser/x10.g"
+            case 440: {
+               //#line 2550 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2548 "x10/parser/x10.g"
                 Object ShiftExpression = (Object) getRhsSym(1);
-                //#line 2546 "x10/parser/x10.g"
+                //#line 2548 "x10/parser/x10.g"
                 Object AdditiveExpression = (Object) getRhsSym(3);
-                //#line 2548 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2550 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_ShiftExpression1(ShiftExpression,AdditiveExpression);
                     break;
             }
             //
-            // Rule 440:  ShiftExpression ::= ShiftExpression >> AdditiveExpression
+            // Rule 441:  ShiftExpression ::= ShiftExpression >> AdditiveExpression
             //
-            case 440: {
-               //#line 2552 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2550 "x10/parser/x10.g"
+            case 441: {
+               //#line 2554 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2552 "x10/parser/x10.g"
                 Object ShiftExpression = (Object) getRhsSym(1);
-                //#line 2550 "x10/parser/x10.g"
+                //#line 2552 "x10/parser/x10.g"
                 Object AdditiveExpression = (Object) getRhsSym(3);
-                //#line 2552 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2554 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_ShiftExpression2(ShiftExpression,AdditiveExpression);
                     break;
             }
             //
-            // Rule 441:  ShiftExpression ::= ShiftExpression >>> AdditiveExpression
+            // Rule 442:  ShiftExpression ::= ShiftExpression >>> AdditiveExpression
             //
-            case 441: {
-               //#line 2556 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2554 "x10/parser/x10.g"
+            case 442: {
+               //#line 2558 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2556 "x10/parser/x10.g"
                 Object ShiftExpression = (Object) getRhsSym(1);
-                //#line 2554 "x10/parser/x10.g"
+                //#line 2556 "x10/parser/x10.g"
                 Object AdditiveExpression = (Object) getRhsSym(3);
-                //#line 2556 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2558 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_ShiftExpression3(ShiftExpression,AdditiveExpression);
                     break;
             }
             //
-            // Rule 443:  RangeExpression ::= ShiftExpression$expr1 .. ShiftExpression$expr2
+            // Rule 443:  ShiftExpression ::= ShiftExpression$expr1 -> AdditiveExpression$expr2
             //
             case 443: {
                //#line 2562 "lpg.generator/templates/java/btParserTemplateF.gi"
@@ -4693,59 +4693,59 @@ public class X10Parser implements RuleAction
                 //#line 2560 "x10/parser/x10.g"
                 Object expr2 = (Object) getRhsSym(3);
                 //#line 2562 "lpg.generator/templates/java/btParserTemplateF.gi"
-		r.rule_RangeExpression1(expr1,expr2);
+		r.rule_ShiftExpression4(expr1,expr2);
                     break;
             }
             //
-            // Rule 447:  RelationalExpression ::= RelationalExpression < RangeExpression
+            // Rule 447:  RelationalExpression ::= RelationalExpression < ShiftExpression
             //
             case 447: {
                //#line 2570 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2568 "x10/parser/x10.g"
                 Object RelationalExpression = (Object) getRhsSym(1);
                 //#line 2568 "x10/parser/x10.g"
-                Object RangeExpression = (Object) getRhsSym(3);
+                Object ShiftExpression = (Object) getRhsSym(3);
                 //#line 2570 "lpg.generator/templates/java/btParserTemplateF.gi"
-		r.rule_RelationalExpression3(RelationalExpression,RangeExpression);
+		r.rule_RelationalExpression3(RelationalExpression,ShiftExpression);
                     break;
             }
             //
-            // Rule 448:  RelationalExpression ::= RelationalExpression > RangeExpression
+            // Rule 448:  RelationalExpression ::= RelationalExpression > ShiftExpression
             //
             case 448: {
                //#line 2574 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2572 "x10/parser/x10.g"
                 Object RelationalExpression = (Object) getRhsSym(1);
                 //#line 2572 "x10/parser/x10.g"
-                Object RangeExpression = (Object) getRhsSym(3);
+                Object ShiftExpression = (Object) getRhsSym(3);
                 //#line 2574 "lpg.generator/templates/java/btParserTemplateF.gi"
-		r.rule_RelationalExpression4(RelationalExpression,RangeExpression);
+		r.rule_RelationalExpression4(RelationalExpression,ShiftExpression);
                     break;
             }
             //
-            // Rule 449:  RelationalExpression ::= RelationalExpression <= RangeExpression
+            // Rule 449:  RelationalExpression ::= RelationalExpression <= ShiftExpression
             //
             case 449: {
                //#line 2578 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2576 "x10/parser/x10.g"
                 Object RelationalExpression = (Object) getRhsSym(1);
                 //#line 2576 "x10/parser/x10.g"
-                Object RangeExpression = (Object) getRhsSym(3);
+                Object ShiftExpression = (Object) getRhsSym(3);
                 //#line 2578 "lpg.generator/templates/java/btParserTemplateF.gi"
-		r.rule_RelationalExpression5(RelationalExpression,RangeExpression);
+		r.rule_RelationalExpression5(RelationalExpression,ShiftExpression);
                     break;
             }
             //
-            // Rule 450:  RelationalExpression ::= RelationalExpression >= RangeExpression
+            // Rule 450:  RelationalExpression ::= RelationalExpression >= ShiftExpression
             //
             case 450: {
                //#line 2582 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2580 "x10/parser/x10.g"
                 Object RelationalExpression = (Object) getRhsSym(1);
                 //#line 2580 "x10/parser/x10.g"
-                Object RangeExpression = (Object) getRhsSym(3);
+                Object ShiftExpression = (Object) getRhsSym(3);
                 //#line 2582 "lpg.generator/templates/java/btParserTemplateF.gi"
-		r.rule_RelationalExpression6(RelationalExpression,RangeExpression);
+		r.rule_RelationalExpression6(RelationalExpression,ShiftExpression);
                     break;
             }
             //
@@ -5304,272 +5304,302 @@ public class X10Parser implements RuleAction
                     break;
             }
             //
-            // Rule 516:  Catchesopt ::= $Empty
+            // Rule 516:  BinOp ::= ..
             //
             case 516: {
-               //#line 2825 "lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 2822 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2825 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2822 "lpg.generator/templates/java/btParserTemplateF.gi"
+		r.rule_BinOp19();
+                    break;
+            }
+            //
+            // Rule 517:  BinOp ::= ->
+            //
+            case 517: {
+               //#line 2826 "lpg.generator/templates/java/btParserTemplateF.gi"
+                
+                //#line 2826 "lpg.generator/templates/java/btParserTemplateF.gi"
+		r.rule_BinOp20();
+                    break;
+            }
+            //
+            // Rule 518:  BinOp ::= in
+            //
+            case 518: {
+               //#line 2830 "lpg.generator/templates/java/btParserTemplateF.gi"
+                
+                //#line 2830 "lpg.generator/templates/java/btParserTemplateF.gi"
+		r.rule_BinOp21();
+                    break;
+            }
+            //
+            // Rule 519:  Catchesopt ::= $Empty
+            //
+            case 519: {
+               //#line 2838 "lpg.generator/templates/java/btParserTemplateF.gi"
+                
+                //#line 2838 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_Catchesopt0();
                     break;
             }
             //
-            // Rule 518:  Identifieropt ::= $Empty
+            // Rule 521:  Identifieropt ::= $Empty
             //
-            case 518:
+            case 521:
                 setResult(null);
                 break;
 
             //
-            // Rule 519:  Identifieropt ::= Identifier
+            // Rule 522:  Identifieropt ::= Identifier
             //
-            case 519: {
-               //#line 2833 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2831 "x10/parser/x10.g"
+            case 522: {
+               //#line 2846 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2844 "x10/parser/x10.g"
                 Object Identifier = (Object) getRhsSym(1);
-                //#line 2833 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2846 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_Identifieropt1(Identifier);
                     break;
             }
             //
-            // Rule 520:  ForUpdateopt ::= $Empty
+            // Rule 523:  ForUpdateopt ::= $Empty
             //
-            case 520: {
-               //#line 2838 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 523: {
+               //#line 2851 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2838 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2851 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_ForUpdateopt0();
                     break;
             }
             //
-            // Rule 522:  Expressionopt ::= $Empty
+            // Rule 525:  Expressionopt ::= $Empty
             //
-            case 522:
+            case 525:
                 setResult(null);
                 break;
 
             //
-            // Rule 524:  ForInitopt ::= $Empty
+            // Rule 527:  ForInitopt ::= $Empty
             //
-            case 524: {
-               //#line 2848 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 527: {
+               //#line 2861 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2848 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2861 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_ForInitopt0();
                     break;
             }
             //
-            // Rule 526:  SwitchLabelsopt ::= $Empty
+            // Rule 529:  SwitchLabelsopt ::= $Empty
             //
-            case 526: {
-               //#line 2854 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 529: {
+               //#line 2867 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2854 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2867 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_SwitchLabelsopt0();
                     break;
             }
             //
-            // Rule 528:  SwitchBlockStatementGroupsopt ::= $Empty
+            // Rule 531:  SwitchBlockStatementGroupsopt ::= $Empty
             //
-            case 528: {
-               //#line 2860 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 531: {
+               //#line 2873 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2860 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2873 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_SwitchBlockStatementGroupsopt0();
                     break;
             }
             //
-            // Rule 530:  InterfaceMemberDeclarationsopt ::= $Empty
+            // Rule 533:  InterfaceMemberDeclarationsopt ::= $Empty
             //
-            case 530: {
-               //#line 2883 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 533: {
+               //#line 2896 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2883 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2896 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_InterfaceMemberDeclarationsopt0();
                     break;
             }
             //
-            // Rule 532:  ExtendsInterfacesopt ::= $Empty
+            // Rule 535:  ExtendsInterfacesopt ::= $Empty
             //
-            case 532: {
-               //#line 2889 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 535: {
+               //#line 2902 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2889 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2902 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_ExtendsInterfacesopt0();
                     break;
             }
             //
-            // Rule 534:  ClassBodyopt ::= $Empty
+            // Rule 537:  ClassBodyopt ::= $Empty
             //
-            case 534:
+            case 537:
                 setResult(null);
                 break;
 
             //
-            // Rule 536:  ArgumentListopt ::= $Empty
+            // Rule 539:  ArgumentListopt ::= $Empty
             //
-            case 536: {
-               //#line 2919 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 539: {
+               //#line 2932 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2919 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2932 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_ArgumentListopt0();
                     break;
             }
             //
-            // Rule 538:  BlockStatementsopt ::= $Empty
+            // Rule 541:  BlockStatementsopt ::= $Empty
             //
-            case 538: {
-               //#line 2925 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 541: {
+               //#line 2938 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2925 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2938 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_BlockStatementsopt0();
                     break;
             }
             //
-            // Rule 540:  ExplicitConstructorInvocationopt ::= $Empty
+            // Rule 543:  ExplicitConstructorInvocationopt ::= $Empty
             //
-            case 540:
+            case 543:
                 setResult(null);
                 break;
 
             //
-            // Rule 542:  FormalParameterListopt ::= $Empty
+            // Rule 545:  FormalParameterListopt ::= $Empty
             //
-            case 542: {
-               //#line 2945 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 545: {
+               //#line 2958 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2945 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2958 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_FormalParameterListopt0();
                     break;
             }
             //
-            // Rule 544:  Offersopt ::= $Empty
+            // Rule 547:  Offersopt ::= $Empty
             //
-            case 544: {
-               //#line 2957 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 547: {
+               //#line 2970 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2957 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2970 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_Offersopt0();
                     break;
             }
             //
-            // Rule 546:  ClassBodyDeclarationsopt ::= $Empty
+            // Rule 549:  ClassBodyDeclarationsopt ::= $Empty
             //
-            case 546: {
-               //#line 2993 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 549: {
+               //#line 3006 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2993 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3006 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_ClassBodyDeclarationsopt0();
                     break;
             }
             //
-            // Rule 548:  Interfacesopt ::= $Empty
+            // Rule 551:  Interfacesopt ::= $Empty
             //
-            case 548: {
-               //#line 2999 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 551: {
+               //#line 3012 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2999 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3012 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_Interfacesopt0();
                     break;
             }
             //
-            // Rule 550:  Superopt ::= $Empty
+            // Rule 553:  Superopt ::= $Empty
             //
-            case 550:
+            case 553:
                 setResult(null);
                 break;
 
             //
-            // Rule 552:  TypeParametersopt ::= $Empty
+            // Rule 555:  TypeParametersopt ::= $Empty
             //
-            case 552: {
-               //#line 3009 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 555: {
+               //#line 3022 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3009 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3022 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_TypeParametersopt0();
                     break;
             }
             //
-            // Rule 554:  FormalParametersopt ::= $Empty
+            // Rule 557:  FormalParametersopt ::= $Empty
             //
-            case 554: {
-               //#line 3015 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 557: {
+               //#line 3028 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3015 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3028 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_FormalParametersopt0();
                     break;
             }
             //
-            // Rule 556:  Annotationsopt ::= $Empty
+            // Rule 559:  Annotationsopt ::= $Empty
             //
-            case 556: {
-               //#line 3021 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 559: {
+               //#line 3034 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3021 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3034 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_Annotationsopt0();
                     break;
             }
             //
-            // Rule 558:  TypeDeclarationsopt ::= $Empty
+            // Rule 561:  TypeDeclarationsopt ::= $Empty
             //
-            case 558: {
-               //#line 3027 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 561: {
+               //#line 3040 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3027 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3040 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_TypeDeclarationsopt0();
                     break;
             }
             //
-            // Rule 560:  ImportDeclarationsopt ::= $Empty
+            // Rule 563:  ImportDeclarationsopt ::= $Empty
             //
-            case 560: {
-               //#line 3033 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 563: {
+               //#line 3046 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3033 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3046 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_ImportDeclarationsopt0();
                     break;
             }
             //
-            // Rule 562:  PackageDeclarationopt ::= $Empty
+            // Rule 565:  PackageDeclarationopt ::= $Empty
             //
-            case 562:
+            case 565:
                 setResult(null);
                 break;
 
             //
-            // Rule 564:  HasResultTypeopt ::= $Empty
+            // Rule 567:  HasResultTypeopt ::= $Empty
             //
-            case 564:
+            case 567:
                 setResult(null);
                 break;
 
             //
-            // Rule 566:  TypeArgumentsopt ::= $Empty
+            // Rule 569:  TypeArgumentsopt ::= $Empty
             //
-            case 566: {
-               //#line 3053 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 569: {
+               //#line 3066 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3053 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3066 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_TypeArgumentsopt0();
                     break;
             }
             //
-            // Rule 568:  TypeParamsWithVarianceopt ::= $Empty
+            // Rule 571:  TypeParamsWithVarianceopt ::= $Empty
             //
-            case 568: {
-               //#line 3059 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 571: {
+               //#line 3072 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3059 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3072 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_TypeParamsWithVarianceopt0();
                     break;
             }
             //
-            // Rule 570:  Propertiesopt ::= $Empty
+            // Rule 573:  Propertiesopt ::= $Empty
             //
-            case 570: {
-               //#line 3065 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 573: {
+               //#line 3078 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3065 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3078 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_Propertiesopt0();
                     break;
             }

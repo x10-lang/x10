@@ -53,13 +53,13 @@ import x10.constraint.XVar;
 import x10.errors.Errors;
 import x10.types.X10ClassType;
 import polyglot.types.Context;
+import x10.types.ConstrainedType;
 import x10.types.X10FieldInstance;
 import x10.types.X10LocalDef;
-import x10.types.X10MethodInstance;
+import x10.types.MethodInstance;
 
 import x10.types.X10TypeEnv;
 import x10.types.X10TypeEnv_c;
-import x10.types.X10TypeMixin;
 import polyglot.types.TypeSystem;
 import x10.types.checker.Converter;
 import x10.types.constraints.CConstraint;
@@ -153,7 +153,7 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop {
 			// aha, in this case the type inferencer did not run, since an explicit type was givem.
 			domainType = domain.type();
 		}
-		Type formalType = formal.declType();
+		ConstrainedType formalType = Types.toConstrainedType(formal.declType());
 		Type Iterable = ts.Iterable(formalType);
 		assert domainType != null 
 		: "formal=" + formal + " domain = " + domain + " position = " + position();
@@ -171,8 +171,8 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop {
 
 		if (ts.isSubtype(formalType, ts.Point(), tc.context())) {
 		    try {
-		        Type Region = ts.Region();
-		        Region = X10TypeMixin.addRank(Region, X10TypeMixin.rank(formalType, tc.context()));
+		        ConstrainedType Region = Types.toConstrainedType(ts.Region());
+		        Region = Region.addRank(formalType.rank(tc.context()));
 		        Expr newDomain = Converter.attemptCoercion(tc, domain, Region);
 		        if (newDomain != null && newDomain != domain) {
 		            domainTypeRef = Types.lazyRef(null);
@@ -182,8 +182,8 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop {
 		    catch (SemanticException e) {
 		    }
 		    try {
-		        Type Dist = ts.Dist();
-		        Dist = X10TypeMixin.addRank(Dist, X10TypeMixin.rank(formalType, tc.context()));
+		        ConstrainedType Dist = Types.toConstrainedType(ts.Dist());
+		        Dist = Dist.addRank(formalType.rank(tc.context()));
 		        Expr newDomain = Converter.attemptCoercion(tc, domain, Dist);
 		        if (newDomain != null && newDomain != domain) {
 		            domainTypeRef = Types.lazyRef(null);
@@ -374,11 +374,11 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop {
 				// Now, infer index Type.
 				r.setResolver(new Runnable() { 
 					Type getIndexType(Type domainType) {
-						Type base = X10TypeMixin.baseType(domainType);
+						Type base = Types.baseType(domainType);
 
 						if (base instanceof X10ClassType) {
 							if (ts.hasSameClassDef(base, ts.Iterable())) {
-								return X10TypeMixin.getParameterType(base, 0);
+								return Types.getParameterType(base, 0);
 							}
 							else {
 								Type sup = ts.superClass(domainType);
@@ -406,12 +406,12 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop {
 
 							// Add a self.rank=n clause, if the formal
 							// has n components.
-							XVar self = X10TypeMixin.xclause(indexType).self();
+							XVar self = Types.xclause(indexType).self();
 							Synthesizer synth = new Synthesizer(nf, ts);
 							XTerm v = synth.makePointRankTerm((XVar) self);
 							XTerm rank = XTerms.makeLit(new Integer(length));
 							try {
-								indexType = X10TypeMixin.addBinding(indexType, v, rank);
+								indexType = Types.addBinding(indexType, v, rank);
 							} catch (XFailure z) {
 								throw new InternalCompilerError("Unexpected error: " + z);
 							}
@@ -423,10 +423,10 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop {
 						indexType = getIndexType(domainType);    
 						if (indexType == null) 
 						    return;
-						Type base = X10TypeMixin.baseType(domainType);
+						Type base = Types.baseType(domainType);
 						
 
-						XVar selfValue = X10TypeMixin.selfVarBinding(domainType);
+						XVar selfValue = Types.selfVarBinding(domainType);
 						boolean generated = false;
 						if (selfValue == null) {
 							selfValue = XTerms.makeUQV();
@@ -443,9 +443,9 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop {
 								
 								indexType = Subst.subst(indexType, selfValue, thisVar);
 								if (generated) {
-									CConstraint c = X10TypeMixin.xclause(domainType);
+									CConstraint c = Types.xclause(domainType);
 									c=c.substitute(selfValue, c.self());
-									indexType = X10TypeMixin.addConstraint(indexType, c);
+									indexType = Types.addConstraint(indexType, c);
 									indexType = Subst.subst(indexType, XTerms.makeEQV(), selfValue);
 								}
 								

@@ -21,7 +21,7 @@ import x10.compiler.tests.*; // err markers
 public class GenericsInheritance2_MustFailCompile extends x10Test {
         interface I[T] { def m(): T; }
         @ERR interface II extends I[Int], I[Float] {}
-        @ERR abstract class Q implements I[Int], I[Float] {} //[Semantic Error: m(): x10.lang.Int in GenericsInheritance2_MustFailCompile.I[x10.lang.Int] cannot override m(): x10.lang.Float in GenericsInheritance2_MustFailCompile.I[x10.lang.Float]; attempting to use incompatible return type.
+        @ERR @ERR @ERR @ERR @ERR @ERR abstract class Q implements I[Int], I[Float] {} // todo: too many duplicated messages! [Semantic Error: m(): x10.lang.Int in GenericsInheritance2_MustFailCompile.I[x10.lang.Int] cannot override m(): x10.lang.Float in GenericsInheritance2_MustFailCompile.I[x10.lang.Float]; attempting to use incompatible return type.
         @ERR @ERR class C implements I[Int], I[Float] { // todo: message can be better: GenericsInheritance2_MustFailCompile.C should be declared abstract; it does not define m(): x10.lang.Int, which is declared in GenericsInheritance2_MustFailCompile.I
                 /* conflict, also can't implement m anyway */
         }

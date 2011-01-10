@@ -43,10 +43,10 @@ namespace x10aux {
             return (value >> 31) | (((x10_uint)(-value)) >> 31);
         }
         static x10_int reverseBytes(x10_int value);
-        static x10_boolean compareTo(x10_int v1, x10_int v2) {
+        static x10_int compareTo(x10_int v1, x10_int v2) {
             return v1 == v2 ? 0 : (v1 < v2 ? -1 : 1);
         }
-        static x10_boolean compareTo(x10_uint v1, x10_uint v2) {
+        static x10_int compareTo(x10_uint v1, x10_uint v2) {
             return v1 == v2 ? 0 : (v1 < v2 ? -1 : 1);
         }
             

@@ -48,7 +48,6 @@ import x10.constraint.XFailure;
 import x10.constraint.XVar;
 import x10.errors.Errors;
 import x10.extension.X10Del_c;
-import x10.types.AnnotatedType;
 import x10.types.ConstrainedType;
 import x10.types.MacroType;
 import x10.types.ParameterType;
@@ -57,7 +56,6 @@ import x10.types.TypeDef_c;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10ParsedClassType;
-import x10.types.X10TypeMixin;
 import polyglot.types.TypeSystem;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint;
@@ -276,7 +274,7 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 		for (Formal f : n.formals()) {
 		    final Formal f2 = f;
 		    final LazyRef<CConstraint> cref = Types.<CConstraint>lazyRef(new CConstraint());
-		    Type t = X10TypeMixin.xclause(f.type().typeRef(), cref);
+		    ConstrainedType t = ConstrainedType.xclause(f.type().typeRef(), cref);
 		    cref.setResolver(new Runnable() {
 		        public void run() {
 		            CConstraint c = new CConstraint();
@@ -358,10 +356,6 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 		checkCycles(ct.superClass());
 		for (Type t : ct.interfaces())
 		    checkCycles(t);
-	    }
-	    if (type instanceof AnnotatedType) {
-		AnnotatedType ct = (AnnotatedType) type;
-		checkCycles(ct.baseType());
 	    }
 	}
 

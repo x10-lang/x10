@@ -30,11 +30,13 @@ import x10c.ast.X10CNodeFactory_c;
 import x10c.types.X10CTypeSystem_c;
 import x10c.visit.AsyncInitializer;
 import x10c.visit.CastRemover;
+import x10c.visit.ClosureRemover;
 import x10c.visit.ClosuresToStaticMethods;
 import x10c.visit.Desugarer;
 import x10c.visit.ExpressionFlattenerForAtExpr;
 import x10c.visit.InlineHelper;
 import x10c.visit.JavaCaster;
+import x10c.visit.RailInLoopOptimizer;
 import x10c.visit.StaticInitializer;
 import x10c.visit.RailInLoopOptimizer;
 import x10c.visit.VarsBoxer;
@@ -55,12 +57,23 @@ public class ExtensionInfo extends x10.ExtensionInfo {
         return new X10CTypeSystem_c();
     }
 
-//    public static boolean PREPARE_FOR_INLINING() { return x10.optimizations.Optimizer.INLINING(); }
-    public static final boolean PREPARE_FOR_INLINING = true;
+    @Override
+    protected X10CCompilerOptions createOptions() {
+        return new X10CCompilerOptions(this);
+    }
+
+    public X10CCompilerOptions getOptions() {
+        return (X10CCompilerOptions) super.getOptions();
+    }
 
     public static class X10CScheduler extends X10Scheduler {
         public X10CScheduler(ExtensionInfo extInfo) {
             super(extInfo);
+        }
+
+        @Override
+        public ExtensionInfo extensionInfo() {
+            return (ExtensionInfo) this.extInfo;
         }
 
         @Override
@@ -74,16 +87,14 @@ public class ExtensionInfo extends x10.ExtensionInfo {
                 }
                 if (g == CodeGenerated(job)) {
                     goals.add(JavaCodeGenStart(job));
-                    goals.add(ClosuresToStaticMethods(job));
-                    goals.add(CastsRemoved(job));
-                    goals.add(JavaCaster(job));
-                    goals.add(RailInLoopOptimizer(job));
-//                    newGoals.add(SharedBoxed(job));
+//                    goals.add(ClosuresToStaticMethods(job));
                     goals.add(StaticInitializer(job));
                     goals.add(AsyncInitializer(job));
-                    if (PREPARE_FOR_INLINING) {
-                        goals.add(InlineHelped(job));
-                    }
+                    goals.add(ClosureRemoved(job));
+                    goals.add(RailInLoopOptimizer(job));
+                    goals.add(CastsRemoved(job));
+                    goals.add(JavaCaster(job));
+                    goals.add(InlineHelped(job));
                 }
                 goals.add(g);
             }
@@ -91,10 +102,7 @@ public class ExtensionInfo extends x10.ExtensionInfo {
         }
 
         protected Goal codegenPrereq(Job job) {
-            if (PREPARE_FOR_INLINING) {
-                return InlineHelped(job);
-            }
-            return AsyncInitializer(job);
+            return InlineHelped(job);
         }
 
         @Override
@@ -127,6 +135,12 @@ public class ExtensionInfo extends x10.ExtensionInfo {
             TypeSystem ts = extInfo.typeSystem();
             NodeFactory nf = extInfo.nodeFactory();
             return new ValidatingVisitorGoal("ClosuresToStaticMethods", job, new ClosuresToStaticMethods(job, ts, nf)).intern(this);
+        }
+
+        public Goal ClosureRemoved(Job job) {
+            TypeSystem ts = extInfo.typeSystem();
+            NodeFactory nf = extInfo.nodeFactory();
+            return new ValidatingVisitorGoal("ClosureRemoved", job, new ClosureRemover(job, ts, nf)).intern(this);
         }
         
         private Goal RailInLoopOptimizer(Job job) {

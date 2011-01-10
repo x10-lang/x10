@@ -3,11 +3,11 @@
  */
 package x10.wala.loader;
 
-import com.ibm.wala.cast.tree.*;
 import com.ibm.wala.cast.loader.AstFunctionClass;
+import com.ibm.wala.cast.tree.CAstSourcePositionMap;
 import com.ibm.wala.classLoader.IClassLoader;
 import com.ibm.wala.classLoader.IMethod;
-import com.ibm.wala.ipa.cha.*;
+import com.ibm.wala.ipa.cha.IClassHierarchy;
 import com.ibm.wala.types.Selector;
 import com.ibm.wala.types.TypeReference;
 import com.ibm.wala.util.debug.Assertions;
@@ -23,11 +23,6 @@ public class X10AsyncObject extends AstFunctionClass {
     // for the method that this async pseudo-type contains. The name seems to contain the filename,
     // and the descriptor/signature is for a no-arg method returning either void (if a syntactic
     // async) or, if a syntactic future, the type produced by the future.
-    public X10AsyncObject(TypeReference reference, TypeReference superReference, IClassLoader loader, CAstSourcePositionMap.Position fileName, IClassHierarchy cha) {
-	super(reference, superReference, loader, fileName);
-	this.cha = cha;
-    }
-
     public X10AsyncObject(TypeReference reference, IClassLoader loader, CAstSourcePositionMap.Position fileName, IClassHierarchy cha) {
 	super(reference, loader, fileName);
 	this.cha = cha;

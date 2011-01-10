@@ -11,6 +11,7 @@ import java.util.*;
 
 import polyglot.frontend.*;
 import polyglot.util.*;
+import x10.types.MethodInstance;
 
 /**
  * ParsedClassType
@@ -18,8 +19,11 @@ import polyglot.util.*;
  * Overview: 
  * A ParsedClassType represents a information that has been parsed (but not
  * necessarily type checked) from a .java file.
+ * 
+ * Mark this abstract so that the class is not accidentally instantiated in the X10 compiler. 
+ * Ultimately  X10ParsedClassType_c and ParsedClassType_c will be merged.
  **/
-public class ParsedClassType_c extends ClassType_c implements ParsedClassType
+public abstract class ParsedClassType_c extends ClassType_c implements ParsedClassType
 {
     private static final long serialVersionUID = 8011708450784948917L;
 
@@ -28,9 +32,9 @@ public class ParsedClassType_c extends ClassType_c implements ParsedClassType
     }
     
     protected Flags flags;
-    protected StructType container;
+    protected ContainerType container;
     
-    public StructType container() {
+    public ContainerType container() {
         if (container == null) {
             return super.container();
         }
@@ -43,7 +47,7 @@ public class ParsedClassType_c extends ClassType_c implements ParsedClassType
         return t;
     }
     
-    public ClassType container(StructType container) {
+    public ClassType container(ContainerType container) {
         ParsedClassType_c t = (ParsedClassType_c) copy();
         t.container = container;
         return t;
@@ -165,7 +169,14 @@ public class ParsedClassType_c extends ClassType_c implements ParsedClassType
                                                     new DerefTransform<Type>());
     }
 
-    public String toString() {
-        return super.toString();
+    // May be overridden by subclasses.
+    public boolean isX10Struct() {
+    	return false;
     }
+    public Type makeX10Struct() {
+    	throw new InternalCompilerError("Should not have been called. Cannot make an Unknown type a struct.");
+    }
+   // public String typeToString() {
+   //     return super.typeToString();
+   // }
 }

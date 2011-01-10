@@ -10,15 +10,18 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
-import polyglot.types.ArrayType;
+
 import polyglot.types.ClassType;
+import polyglot.types.JavaArrayType;
+import polyglot.types.JavaPrimitiveType;
 import polyglot.types.ObjectType;
-import polyglot.types.PrimitiveType;
+
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import x10.types.ConstrainedType;
 import x10.types.MacroType;
 import x10.types.ParameterType;
+import x10.types.VoidType;
 import x10.types.X10ClassType;
 import x10.wala.translator.X10toCAstTranslator.PolyglotJavaParametricType;
 import x10.wala.translator.X10toCAstTranslator.PolyglotJavaType;
@@ -34,7 +37,7 @@ public class X10TypeDictionary extends CAstTypeDictionaryImpl {
 
         private final CAstType fEltCAstType;
 
-        private PolyglotJavaArrayType(ArrayType arrayType) {
+        private PolyglotJavaArrayType(JavaArrayType arrayType) {
           super();
           fEltPolyglotType = arrayType.base();
           fEltCAstType = getCAstTypeFor(fEltPolyglotType);
@@ -54,7 +57,7 @@ public class X10TypeDictionary extends CAstTypeDictionaryImpl {
 
         @SuppressWarnings("unchecked")
         public Collection getSupertypes() {
-          if (fEltPolyglotType.isPrimitive())
+          if (fEltPolyglotType.isJavaPrimitive())
             return Collections.singleton(getCAstTypeFor(fTypeSystem.Object()));
           Assertions.productionAssertion(fEltPolyglotType.isReference(), "Non-primitive, non-reference array element type!");
           ObjectType baseRefType = (ObjectType) fEltPolyglotType;
@@ -91,10 +94,12 @@ public class X10TypeDictionary extends CAstTypeDictionaryImpl {
 
           if (polyglotType.isClass())
             type = fTranslator.new PolyglotJavaType((ClassType) astType, this, fTypeSystem);
-          else if (polyglotType.isPrimitive()) {
-            type = JavaPrimitiveTypeMap.lookupType(((PrimitiveType) polyglotType).name().toString());
+          else if (polyglotType.isJavaPrimitive()) {
+            type = JavaPrimitiveTypeMap.lookupType(((JavaPrimitiveType) polyglotType).name().toString());
+          } else if (polyglotType instanceof VoidType) {
+              type = JavaPrimitiveTypeMap.VoidType;
           } else if (polyglotType.isArray()) {
-            type = new PolyglotJavaArrayType((ArrayType) polyglotType);
+            type = new PolyglotJavaArrayType((JavaArrayType) polyglotType);
           } else
             Assertions.UNREACHABLE("getCAstTypeFor() passed type that is not primitive, array, or class?");
           super.map(astType, type);
@@ -117,8 +122,8 @@ public class X10TypeDictionary extends CAstTypeDictionaryImpl {
             super.map(astType, result);
             return result;
         }
-        if (astType instanceof PrimitiveType) {
-            PrimitiveType primitiveType = (PrimitiveType) astType;
+        if (astType instanceof JavaPrimitiveType) {
+            JavaPrimitiveType primitiveType = (JavaPrimitiveType) astType;
             String javaPrimitiveName = X10IdentityMapper.getJavaPrimitiveTypeFor(primitiveType.fullName().toString());
             final CAstType castType = JavaPrimitiveTypeMap.lookupType(javaPrimitiveName);
             super.map(astType, castType);

@@ -79,7 +79,7 @@ public final class Point(rank:Int) implements (Int) => Int,
     /**
      * Returns the value of the ith coordinate.
      */
-    public def apply(i:Int):Int {
+    public operator this(i:Int):Int {
         if (i<0 || i>= rank) throw new ArrayIndexOutOfBoundsException("index "+i+" not contained in "+this);
         switch (i) {
             case 0: return c0;
@@ -93,7 +93,7 @@ public final class Point(rank:Int) implements (Int) => Int,
     /**
      * Returns the coordinates as a <code>(int)=>int</code>.
      */
-    public def coords():(int)=>int = (i:int)=> this.apply(i);
+    public def coords():(int)=>int = (i:int)=> this(i);
 
     /**
      * Constructs a Point from a Rail[int]
@@ -226,7 +226,7 @@ public final class Point(rank:Int) implements (Int) => Int,
      * {@link Comparable#compareTo}
      */
     public def compareTo(that:Point(rank)) {
-        return this == that ? 0 : this < that ? -1 : 1;
+        return this.equals(that) ? 0 : this < that ? -1 : 1;
     }
 
     /**

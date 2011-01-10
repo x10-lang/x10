@@ -16,7 +16,6 @@ import java.util.List;
 import polyglot.types.ClassType;
 import polyglot.types.CodeInstance;
 import polyglot.types.FunctionInstance;
-import polyglot.types.MethodInstance;
 import polyglot.types.Ref;
 import polyglot.types.Type;
 

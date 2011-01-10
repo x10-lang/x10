@@ -56,7 +56,6 @@ import polyglot.ast.SwitchBlock;
 import polyglot.ast.TopLevelDecl;
 import polyglot.ast.Try;
 
-
 import polyglot.frontend.Compiler;
 import polyglot.frontend.ExtensionInfo;
 import polyglot.frontend.Job;
@@ -89,7 +88,6 @@ import x10.ast.X10ClassDecl;
 import x10.extension.X10Ext;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
-import x10.types.X10TypeSystem_c;
 import x10.util.ClassifiedStream;
 import x10.util.StreamWrapper;
 import x10.util.WriterStreams;
@@ -152,7 +150,7 @@ public class X10CPPTranslator extends Translator {
 	    return outputLine - 1;
 	}
 
-	private static final String FILE_TO_LINE_NUMBER_MAP = "FileToLineNumberMap";
+	static final String FILE_TO_LINE_NUMBER_MAP = "FileToLineNumberMap";
 
 	public void print(Node parent, Node n, CodeWriter w_) {
 		if (w_ == null)
@@ -174,7 +172,8 @@ public class X10CPPTranslator extends Translator {
 			w.newline();
 		}
 		
-		if (x10.Configuration.DEBUG && n instanceof Stmt && !(n instanceof Assert) && !(n instanceof Block) && !(n instanceof Catch) && !(parent instanceof If))
+		X10CPPCompilerOptions opts = (X10CPPCompilerOptions) job.extensionInfo().getOptions();
+		if (opts.x10_config.DEBUG && n instanceof Stmt && !(n instanceof Assert) && !(n instanceof Block) && !(n instanceof Catch) && !(parent instanceof If))
 		{
 			w.write("_X10_STATEMENT_HOOK()");
 			if (!(parent instanceof For))
@@ -190,7 +189,7 @@ public class X10CPPTranslator extends Translator {
 
 		final int endLine = w.currentStream().getStreamLineNumber(); // for debug info
 
-		if (x10.Configuration.DEBUG && line > 0 &&
+		if (opts.x10_config.DEBUG && line > 0 &&
 		    ((n instanceof Stmt && !(n instanceof SwitchBlock) && !(n instanceof Catch)) ||
 		     (n instanceof ClassMember)))
 		{
@@ -293,9 +292,9 @@ public class X10CPPTranslator extends Translator {
 
 			X10CPPContext_c c = (X10CPPContext_c) context;
 			X10CPPCompilerOptions opts = (X10CPPCompilerOptions) job.extensionInfo().getOptions();
-	        X10TypeSystem_c xts = (X10TypeSystem_c) typeSystem();
+			TypeSystem xts = typeSystem();
 
-			if (x10.Configuration.DEBUG)
+			if (opts.x10_config.DEBUG)
 				c.addData(FILE_TO_LINE_NUMBER_MAP, new HashMap<String, LineNumberMap>());
 
 			// Use the class name to derive a default output file name.
@@ -343,33 +342,28 @@ public class X10CPPTranslator extends Translator {
 				String className = cd.classDef().name().toString();
 				WriterStreams wstreams = new WriterStreams(className, pkg, job, tf);
 				StreamWrapper sw = new StreamWrapper(wstreams, outputWidth);
-				// [DC] TODO: This hack is to ensure the .inc is always generated.
-				sw.getNewStream(StreamWrapper.Closures, true);
 				// [IP] FIXME: This hack is to ensure the .cc is always generated.
 				sw.getNewStream(StreamWrapper.CC, true);
                 // [DC] TODO: This hack is to ensure the .h is always generated.
                 sw.getNewStream(StreamWrapper.Header, true);
 
-				String closures = wstreams.getStreamName(StreamWrapper.Closures);
 				String cc = wstreams.getStreamName(StreamWrapper.CC);
 				String header = wstreams.getStreamName(StreamWrapper.Header);
 
-				outputFiles.add(closures);
 				outputFiles.add(cc);
 				outputFiles.add(header);
 				opts.compilationUnits().add(cc);
 				
-				if (x10.Configuration.DEBUG) {
+				if (opts.x10_config.DEBUG) {
 					HashMap<String, LineNumberMap> fileToLineNumberMap =
 					    c.<HashMap<String, LineNumberMap>>getData(FILE_TO_LINE_NUMBER_MAP);
-					fileToLineNumberMap.put(closures, new LineNumberMap());
 					fileToLineNumberMap.put(cc, new LineNumberMap());
 					fileToLineNumberMap.put(header, new LineNumberMap());
 				}
 				
 				translateTopLevelDecl(sw, sfn, decl);
 				
-				if (x10.Configuration.DEBUG) {
+				if (opts.x10_config.DEBUG) {
 					HashMap<String, LineNumberMap> fileToLineNumberMap =
 					    c.<HashMap<String, LineNumberMap>>getData(FILE_TO_LINE_NUMBER_MAP);
 //					sw.pushCurrentStream(sw.getNewStream(StreamWrapper.Closures, false));
@@ -477,7 +471,7 @@ public class X10CPPTranslator extends Translator {
 			Set<String> compilationUnits = new HashSet<String>(options.compilationUnits());
 
 			try {
-			    final File file = outputFile(options, null, Configuration.MAIN_STUB_NAME, "cc");
+			    final File file = outputFile(options, null, options.x10cpp_config.MAIN_STUB_NAME, "cc");
 			    ExtensionInfo ext = compiler.sourceExtension();
 			    SimpleCodeWriter sw = new SimpleCodeWriter(ext.targetFactory().outputWriter(file),
 			            compiler.outputWidth());
@@ -523,9 +517,10 @@ public class X10CPPTranslator extends Translator {
 	}
 
 	private static List<MethodDef> getMainMethods(Job job) {
+	    X10CPPCompilerOptions opts = (X10CPPCompilerOptions) job.extensionInfo().getOptions();
 	    X10CPPJobExt jobext = (X10CPPJobExt) job.ext();
-	    if (Configuration.MAIN_CLASS != null) {
-	        QName mainClass = QName.make(Configuration.MAIN_CLASS);
+	    if (opts.x10_config.MAIN_CLASS != null) {
+	        QName mainClass = QName.make(opts.x10_config.MAIN_CLASS);
 	        try {
 	            ClassType mct = (ClassType) job.extensionInfo().typeSystem().forName(mainClass);
 	            QName pkgName = mct.package_() == null ? null : mct.package_().fullName();

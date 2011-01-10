@@ -25,15 +25,16 @@ import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.Matcher;
 import polyglot.types.MemberInstance;
-import polyglot.types.MethodInstance;
+
 import polyglot.types.Named;
 import polyglot.types.ParsedClassType_c;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
-import polyglot.types.StructType;
+import polyglot.types.ContainerType;
 import polyglot.types.Type;
 import polyglot.types.TypeObject;
 import polyglot.types.TypeSystem;
+import polyglot.types.Types;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.Transformation;
@@ -76,9 +77,14 @@ implements X10ParsedClassType
     private void calcSuperTypes() {
         cacheDirectSupertypes = new HashSet<X10ParsedClassType_c>();
         final Type superClass_ = superClass();
-        if (superClass_ !=null) cacheDirectSupertypes.add((X10ParsedClassType_c)X10TypeMixin.baseType(superClass_));
-        for (Type tn : interfaces())
-            cacheDirectSupertypes.add((X10ParsedClassType_c)X10TypeMixin.baseType(tn));
+        if (superClass_ !=null) {
+            final X10ParsedClassType_c superBase = Types.myBaseType(superClass_);
+            if (superBase!=null) cacheDirectSupertypes.add(superBase);
+        }
+        for (Type tn : interfaces()) {
+            final X10ParsedClassType_c superInterfaceBase = Types.myBaseType(tn);
+            if (superInterfaceBase!=null) cacheDirectSupertypes.add(superInterfaceBase);
+        }
         
         cacheAllSupertypes = new HashSet<X10ParsedClassType_c>(cacheDirectSupertypes);
         for (X10ParsedClassType_c t : cacheDirectSupertypes)
@@ -185,7 +191,6 @@ implements X10ParsedClassType
     }
  
 	public Type setFlags(Flags f) {
-		X10Flags xf = X10Flags.toX10Flags(f);
 		X10ParsedClassType_c c = (X10ParsedClassType_c) this.copy();
 		c.flags = flags().set(f);
 		/*if  (xf.isRooted() || xf.isStruct()) {
@@ -246,7 +251,7 @@ implements X10ParsedClassType
         return (X10ClassType) super.container();
     }
 
-    public X10ParsedClassType container(StructType container) {
+    public X10ParsedClassType container(ContainerType container) {
         return (X10ParsedClassType) super.container(container);
     }
 
@@ -265,7 +270,7 @@ implements X10ParsedClassType
 	@Override
 	public Type superClass() {
 	    Type sup = super.superClass();
-	    Type base = X10TypeMixin.baseType(sup);
+	    Type base = Types.baseType(sup);
 	    if (base instanceof X10ClassType) {
 	        XVar supVar = ((X10ClassType) base).x10Def().thisVar();
 	        XVar thisVar = x10Def().thisVar();
@@ -284,7 +289,7 @@ implements X10ParsedClassType
 	    List<Type> interfaces = super.interfaces();
 	    List<Type> newInterfaces = new ArrayList<Type>(interfaces.size());
 	    for (Type sup : interfaces) {
-	        Type base = X10TypeMixin.baseType(sup);
+	        Type base = Types.baseType(sup);
 	        if (base instanceof X10ClassType) {
 	            XVar supVar = ((X10ClassType) base).x10Def().thisVar();
 	            XVar thisVar = x10Def().thisVar();
@@ -382,7 +387,7 @@ implements X10ParsedClassType
 	    } else {
 	        n.typeArguments = TypedList.copyAndCheck(typeArgs, Type.class, false);
 	        try {
-	            n.thisVar = X10TypeMixin.getThisVar(typeArgs);
+	            n.thisVar = Types.getThisVar(typeArgs);
 	        } catch (XFailure z) {
 	            throw new InternalCompilerError(z.toString() + " for type " + this);
 	        }
@@ -421,15 +426,15 @@ implements X10ParsedClassType
 	    return null;
 	}
 	
-	public String toString() {
+	public String typeToString() {
 		StringBuffer sb = new StringBuffer();
-		if (flags() != null) {
+		/*if (flags() != null) {
 			X10Flags f = X10Flags.toX10Flags(flags());
 
-		}
+		}*/
 		//	sb.append(flags().toString()).append(" ");
 
-		String sup = super.toString();
+		String sup = super.typeToString();
 		sb.append(sup);
 
 		if (propertyInitializers != null) {
@@ -444,13 +449,13 @@ implements X10ParsedClassType
 		return sb.toString();
 	}
 	    
-	public boolean isX10Struct() { 	return X10Flags.toX10Flags(flags()).isStruct(); }
+	public boolean isX10Struct() { 	return flags().isStruct(); }
 
-    public X10Struct makeX10Struct() {
+    public Type makeX10Struct() {
     	if (isX10Struct())
     		return this;
     	X10ParsedClassType_c c = (X10ParsedClassType_c) copy();
-    	c.setFlags(X10Flags.toX10Flags(flags()).Struct());
+    	c.setFlags(flags().Struct());
     	return c;
     	
     }
@@ -474,7 +479,7 @@ implements X10ParsedClassType
 		if (xClause == null) {
 			xClause = new CConstraint();
 			try {
-			xClause.setThisVar(X10TypeMixin.getThisVar(typeArguments()));
+			xClause.setThisVar(Types.getThisVar(typeArguments()));
 			} catch (XFailure f) {
 				xClause.setInconsistent();
 			}

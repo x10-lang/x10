@@ -1,4 +1,4 @@
-// Yoav added: IGNORE_FILE
+
 /*
  *  This file is part of the X10 project (http://x10-lang.org).
  *
@@ -35,7 +35,7 @@ static class Tree(home:Place) {
 	
 	def this(left:Tree{self.home==here},  right:Tree,  item:int){
 		property(here);
-		this.left = left;
+		this.left = left; // todo: the compiler reports this error only if we compile this file with all other non-erronous files: Cannot assign expression to target.	 Expression: left	 Expected type: RecursiveConstraint.Tree{self.home==RecursiveConstraint.Tree#this.home}	 Found type: RecursiveConstraint.Tree{self==left}
 		this.right = right;	
 		this.item = item;
 	}

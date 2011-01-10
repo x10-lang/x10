@@ -40,7 +40,7 @@ public class NQueensPar {
         val baseSize = count/P, extra = count - baseSize*P;
         new Array[Region(1)](P, (i:int):Region(1) => {
             val start = low+i*baseSize+ (i < extra? i:extra);
-            start..start+baseSize+(i < extra?0:-1)
+            start..(start+baseSize+(i < extra?0:-1))
         })
     }
 
@@ -59,7 +59,7 @@ public class NQueensPar {
 
         def safe(j: int) {
             val n = q.size();
-            for ([k] in 0..n-1) {
+            for ([k] in 0..(n-1)) {
                 if (j == q(k) || Math.abs(n-k) == Math.abs(j-q(k)))
                     return false;
             }
@@ -81,10 +81,10 @@ public class NQueensPar {
                 return;
             }
             if (q.size() == 0) {
-                val R = block(0..N-1, P);
-                for ([q] in 0..P-1) async
+                val R = block(0..(N-1), P);
+                for ([q] in 0..(P-1)) async
                   search(R(q));
-            } else search(0..N-1);
+            } else search(0..(N-1));
         }
     }
 

@@ -13,9 +13,9 @@
  * A simple Generic concurrent method
  */
 public class GenericMethod1 {
-	
-	var flag: boolean = false;
-	
+
+    var flag: boolean = false;
+
     def m[T](t:T) {
     	val v:T;
     	finish{

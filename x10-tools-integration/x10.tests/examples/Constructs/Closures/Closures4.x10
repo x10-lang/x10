@@ -18,7 +18,7 @@ import harness.x10Test;
  */
 public class Closures4 extends x10Test {
         static class C implements (int, int) => int {
-                public def apply(i: int, j: int):int = {
+                public operator this(i: int, j: int):int = {
                         return i+j;
                 }
         }

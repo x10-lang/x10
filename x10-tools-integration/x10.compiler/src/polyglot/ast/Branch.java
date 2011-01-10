@@ -7,8 +7,6 @@
 
 package polyglot.ast;
 
-import polyglot.util.Enum;
-
 /**
  * A <code>Branch</code> is an immutable representation of a branch
  * statment in Java (a break or continue).
@@ -16,13 +14,20 @@ import polyglot.util.Enum;
 public interface Branch extends Stmt
 {
     /** Branch kind: either break or continue. */
-    public static class Kind extends Enum {
-        private static final long serialVersionUID = 7666190675942868358L;
-        public Kind(String name) { super(name); }
+    public static enum Kind {
+        BREAK("break"), CONTINUE("continue");
+
+        public final String name;
+        private Kind(String name) {
+            this.name = name;
+        }
+        @Override public String toString() {
+            return name;
+        }
     }
 
-    public static final Kind BREAK    = new Kind("break");
-    public static final Kind CONTINUE = new Kind("continue");
+    public static final Kind BREAK    = Kind.BREAK;
+    public static final Kind CONTINUE = Kind.CONTINUE;
 
     /**
      * The kind of branch.

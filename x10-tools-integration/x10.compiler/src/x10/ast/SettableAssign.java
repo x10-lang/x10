@@ -19,12 +19,12 @@ import polyglot.types.ClassDef;
 import polyglot.types.Name;
 import polyglot.types.Type;
 import polyglot.util.TypedList;
-import x10.types.X10MethodInstance;
+import x10.types.MethodInstance;
 
 public interface SettableAssign extends Assign {
 
     /** The name of the method to use for settable assignment */
-    public static final Name SET = Name.make("set");
+    public static final Name SET = Name.make("set"); // todo SettableAssign: after changing this name, search for "todo SettableAssign", and uncomment all 
 
     /** Get the array of the expression. */
     public Expr array();
@@ -38,10 +38,10 @@ public interface SettableAssign extends Assign {
     /** Set the index of the expression. */
     public SettableAssign index(List<Expr> index) ;
 
-    public X10MethodInstance methodInstance();
-    SettableAssign methodInstance(X10MethodInstance mi);
+    public MethodInstance methodInstance();
+    SettableAssign methodInstance(MethodInstance mi);
 
-    public X10MethodInstance applyMethodInstance();
+    public MethodInstance applyMethodInstance();
 
-    public SettableAssign applyMethodInstance(X10MethodInstance ami);
+    public SettableAssign applyMethodInstance(MethodInstance ami);
 }

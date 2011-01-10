@@ -20,7 +20,7 @@ public class CF3Generic_MustFailCompile extends x10Test {
 
     static struct Reducer implements Reducible[Int] {
      	public  def zero()=0;
-     	public  def apply(a:Int,b:Int)=a+b;
+     	public  operator this(a:Int,b:Int)=a+b;
     }
     static class C[T] {
     	 def m(b:T) offers T {
