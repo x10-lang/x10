@@ -172,14 +172,9 @@ public class X10Field_c extends Field_c {
 	}
 	
     // XTENLANG-945
-    public static boolean isInheritedInterfaceProperty(Type targetType, FieldInstance fi) {
+    public static boolean isInterfaceProperty(FieldInstance fi) {
         if (fi.flags().isProperty()) {
-            // check if the target is interface
-            Flags tFlags = getFlags(Types.baseType(targetType));
-            if (tFlags != null && tFlags.isInterface()) {
-                return false;
-            }
-            // now check if the container is interface
+            // check if the container is interface
             Flags flags = getFlags(Types.baseType(fi.container()));
             if (flags != null) {
                 return flags.isInterface();
@@ -253,7 +248,7 @@ public class X10Field_c extends Field_c {
 		X10FieldInstance fi = findAppropriateField(tc, tType, name.id(),
 		        target instanceof TypeNode, Types.contextKnowsType(target));
 
-		if (fi.error() == null && isInheritedInterfaceProperty(target.type(), fi)) { // XTENLANG-945
+		if (fi.error() == null && !c.inDepType() && isInterfaceProperty(fi)) { // XTENLANG-945
 		    fi = fi.error(new SemanticException("Unable to find the implementing property method for interface property "+fi.name(), position()));
 		}
 
