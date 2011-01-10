@@ -14,13 +14,13 @@ package x10.types;
 import java.util.List;
 
 import polyglot.types.ClassType;
-import polyglot.types.MethodInstance;
+
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeEnv;
 import x10.constraint.XConstraint;
 import x10.constraint.XTerm;
-import x10.types.X10TypeSystem_c.Kind;
+import polyglot.types.TypeSystem_c.Kind;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
 

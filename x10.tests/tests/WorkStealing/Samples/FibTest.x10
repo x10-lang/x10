@@ -9,7 +9,6 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-
 public class FibTest {
     public def run():boolean {
         val res = Fib.fib(20);

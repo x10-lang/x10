@@ -32,6 +32,7 @@ import polyglot.util.InternalCompilerError;
 import polyglot.util.QuotedStringTokenizer;
 import x10.Configuration;
 import x10.ExtensionInfo;
+import x10.X10CompilerOptions;
 
 public class LoadPlugins extends AbstractGoal_c {
 	private static final long serialVersionUID = -7328993239190636933L;
@@ -44,7 +45,8 @@ public class LoadPlugins extends AbstractGoal_c {
 	}
 
 	public boolean runTask() {
-		String compilerPlugins = Configuration.PLUGINS;
+		X10CompilerOptions opts = (X10CompilerOptions) extInfo.getOptions();
+		String compilerPlugins = opts.x10_config.PLUGINS;
 
 		if (compilerPlugins != null && ! compilerPlugins.equals("")) {
 			loadPluginsFromConfigString(compilerPlugins);
@@ -202,10 +204,11 @@ public class LoadPlugins extends AbstractGoal_c {
 	private static void compilePlugin(ExtensionInfo extInfo, String sourceFile) {
 		ErrorQueue eq = extInfo.compiler().errorQueue();
 		
-		String javac = Configuration.PLUGIN_COMPILER;
+		X10CompilerOptions opts = (X10CompilerOptions) extInfo.getOptions();
+		String javac = opts.x10_config.PLUGIN_COMPILER;
 		
 		if (javac == null || javac.equals("")) {
-			javac = extInfo.getOptions().post_compiler;
+			javac = opts.post_compiler;
 		}
 		
 		if (javac != null) {
@@ -232,7 +235,7 @@ public class LoadPlugins extends AbstractGoal_c {
 				javacCmd[j++] = arg;
 			}
 			javacCmd[j++] = "-classpath";
-			javacCmd[j++] = extInfo.getOptions().constructPostCompilerClasspath();
+			javacCmd[j++] = opts.constructPostCompilerClasspath();
 			javacCmd[j++] = sourceFile;
 			
 			try {

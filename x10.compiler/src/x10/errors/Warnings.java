@@ -11,7 +11,7 @@ import x10.ExtensionInfo;
 public class Warnings {
 
 	public static ErrorInfo CastingExprToType(Expr e, Type t, Position p) {
-		return new ErrorInfo(ErrorInfo.WARNING, "Expression " + e + " cast to type " + t + ".", p);
+		return new ErrorInfo(ErrorInfo.WARNING, "Expression '" + e + "' was cast to type " + t + ".", p);
 	}
 
 	public static void issue(Job job, String message, Position pos) {

@@ -22,7 +22,8 @@
 #include <x10/lang/Comparable.h>
 
 namespace x10 {
-
+    namespace array { template<class T> class Array; }
+    
     namespace lang {
 
         template<class T> class Rail;
@@ -61,6 +62,8 @@ namespace x10 {
             }
             static x10aux::ref<String> _make(x10aux::ref<String> s);
             static x10aux::ref<String> _make(x10aux::ref<Rail<x10_char> > rail,
+                                             x10_int start, x10_int length);
+            static x10aux::ref<String> _make(x10aux::ref<x10::array::Array<x10_byte> > array,
                                              x10_int start, x10_int length);
             static x10aux::ref<String> _make(x10aux::ref<x10::array::Array<x10_char> > array,
                                              x10_int start, x10_int length);
@@ -113,16 +116,16 @@ namespace x10 {
                 return substring(start, this->length());
             }
 
-            x10aux::ref<Rail<x10aux::ref<String> > > split(x10aux::ref<String> pat);
+            x10aux::ref<x10::array::Array<x10aux::ref<String> > > split(x10aux::ref<String> pat);
 
             // Forwarding method needed so that String can be used in Generic contexts (T <: (nat)=>char)
             x10_char apply(x10_int i) { return charAt(i); }
             
             x10_char charAt(x10_int i);
 
-            x10aux::ref<Rail<x10_char> > chars();
+            x10aux::ref<x10::array::Array<x10_char> > chars();
 
-            x10aux::ref<Rail<x10_byte> > bytes();
+            x10aux::ref<x10::array::Array<x10_byte> > bytes();
 
             static const x10aux::serialization_id_t _serialization_id;
 

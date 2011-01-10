@@ -30,7 +30,6 @@ import polyglot.types.ClassDef;
 import polyglot.types.ConstructorInstance;
 import polyglot.types.FieldInstance;
 import polyglot.types.FunctionDef;
-import polyglot.types.MethodInstance;
 import polyglot.types.ProcedureDef;
 import polyglot.types.ProcedureInstance;
 import polyglot.types.Ref;
@@ -47,15 +46,17 @@ import polyglot.util.CodedErrorInfo;
 import polyglot.util.ErrorInfo;
 import polyglot.util.Position;
 import x10.ExtensionInfo;
+import x10.ExtensionInfo.X10Scheduler.X10Job;
 import x10.ast.DepParameterExpr;
-import x10.ast.SemanticError;
 import x10.ast.X10ClassDecl;
 import x10.ast.X10FieldDecl;
 import x10.constraint.XTerm;
 import x10.types.MacroType;
 import x10.types.ParameterType;
 import x10.types.X10ClassDef;
+import x10.types.X10ClassType;
 import x10.types.X10FieldInstance;
+import x10.types.MethodInstance;
 import x10.types.X10ProcedureInstance;
 import x10.types.checker.Converter;
 import x10.types.checker.Converter.ConversionType;
@@ -77,7 +78,12 @@ public class Errors {
 	public static void issue(Job job, SemanticException e, Node n) {
 		ExtensionInfo ei = (ExtensionInfo) job.extensionInfo();
 		issue(ei, e, getPosition(n));
+		((X10Job) job).setReportedErrors(true);
 	}
+
+	public static void issue(polyglot.frontend.ExtensionInfo extInfo, SemanticException e, Position p) {
+        issue((ExtensionInfo)extInfo,e,p);
+    }
 	public static void issue(ExtensionInfo extInfo, SemanticException e, Position p) {
 		if (e.getCause() == null && e.position() == null && p != null)
 			e = new SemanticException(e.getMessage(), p);
@@ -282,15 +288,15 @@ public class Errors {
 	}
 	public static class DependentClauseErrorFieldMustBeFinal extends EqualByTypeAndPosException implements DepTypeException {
 		private static final long serialVersionUID = 8737323529719693415L;
-		public DependentClauseErrorFieldMustBeFinal(Field f,Position pos) {
+		public DependentClauseErrorFieldMustBeFinal(X10FieldInstance fi, Position pos) {
 			super("Only val fields are permitted in constraints."
-					+ "\n\t Field: " + f, pos);
+					+ "\n\t Field: " + fi, pos);
 		}
 	}
 
 	public static class DependentClauseErrorSelfMayAccessOnlyProperties extends EqualByTypeAndPosException implements DepTypeException {
 		private static final long serialVersionUID = 8019315512496243771L;
-		public DependentClauseErrorSelfMayAccessOnlyProperties(FieldInstance fi,Position pos) {
+		public DependentClauseErrorSelfMayAccessOnlyProperties(FieldInstance fi, Position pos) {
 			super("Only properties may be prefixed with self in a constraint."
 					+ "\n\t Field: " + fi.name()
 					+ "\n\t Container: " + fi.container(), pos);
@@ -489,6 +495,16 @@ public class Errors {
 		}
 	}
 
+	public static class ConstructorReturnTypeNotSubtypeOfContainer extends EqualByTypeAndPosException {
+	    private static final long serialVersionUID = 8107418837802223220L;
+	    public ConstructorReturnTypeNotSubtypeOfContainer(Type retType, X10ClassType container, Position pos) {
+	        super("Constructor return type is not a subtype of the containing class"
+	                + "\n\t Type: " + retType
+	                + "\n\t Container: " + container,
+	                pos);
+	    }
+	}
+
 	public static class ConstructorReturnTypeNotEntailed extends EqualByTypeAndPosException {
 		private static final long serialVersionUID = -4705861378590877043L;
 		public ConstructorReturnTypeNotEntailed(CConstraint known, CConstraint ret,  Position pos) {
@@ -498,6 +514,7 @@ public class Errors {
 					pos);
 		}
 	}
+
 	public static class InconsistentInvariant extends EqualByTypeAndPosException {
 	    private static final long serialVersionUID = 243905319528026232L;
 	    public InconsistentInvariant(X10ClassDef cd,  Position pos) {
@@ -688,9 +705,9 @@ public class Errors {
 	    }
 	}
 	public static class IllegalClockedAccess extends EqualByTypeAndPosException {
-		private static final long serialVersionUID = -5824261892277076305L;
-		public IllegalClockedAccess(Field field,  Position pos) {
-	        super(field + " must be accessed in a clocked context.", pos);
+	    private static final long serialVersionUID = -5824261892277076305L;
+	    public IllegalClockedAccess(X10FieldInstance fi, Position pos) {
+	        super(fi + " must be accessed in a clocked context.", pos);
 	    }
 	}
 	public static class CannotReturnExpr extends EqualByTypeAndPosException {

@@ -60,7 +60,6 @@ import polyglot.ast.Unary;
 import polyglot.ast.While;
 import x10.ast.AssignPropertyCall;
 import x10.ast.Async;
-import x10.ast.AtEach;
 import x10.ast.AtStmt;
 import x10.ast.Atomic;
 import x10.ast.Clocked;
@@ -68,19 +67,15 @@ import x10.ast.Closure;
 import x10.ast.ClosureCall;
 import x10.ast.Finish;
 import x10.ast.ForLoop;
-import x10.ast.Future;
 import x10.ast.Here;
 import x10.ast.LocalTypeDef;
 import x10.ast.Next;
 import x10.ast.ParExpr;
-import x10.ast.Range;
-import x10.ast.Region;
 import x10.ast.SettableAssign;
+import x10.ast.StmtSeq;
 import x10.ast.Tuple;
 import x10.ast.When;
 import x10.ast.X10Formal;
-import x10.wala.translator.X10toCAstTranslator.MethodContext;
-import x10.wala.translator.X10toCAstTranslator.WalkContext;
 
 import com.ibm.wala.cast.tree.CAstNode;
 
@@ -90,10 +85,9 @@ import com.ibm.wala.cast.tree.CAstNode;
  * @author rfuhrer
  */
 public interface X10TranslatorVisitor {
-    CAstNode visit(MethodDecl m, MethodContext context);
-    CAstNode visit(ConstructorDecl cd, MethodContext cc);
-    CAstNode visit(FieldDecl f, MethodContext mc); // yes, a MethodContext; we process FieldDecl's only to add their initializers to
-                                                   // each constructor
+    CAstNode visit(MethodDecl m, WalkContext wc);
+    CAstNode visit(ConstructorDecl cd, WalkContext wc);
+    CAstNode visit(FieldDecl f, WalkContext wc);
     CAstNode visit(Import i, WalkContext wc);
     CAstNode visit(PackageNode p, WalkContext wc);
     CAstNode visit(CanonicalTypeNode ctn, WalkContext wc);
@@ -129,6 +123,7 @@ public interface X10TranslatorVisitor {
     CAstNode visit(Branch b, WalkContext wc);
     CAstNode visit(Block b, WalkContext wc);
     CAstNode visit(SwitchBlock sb, WalkContext wc);
+    CAstNode visit(StmtSeq sb, WalkContext wc);
     CAstNode visit(Catch c, WalkContext wc);
     CAstNode visit(If i, WalkContext wc);
     CAstNode visit(Labeled l, WalkContext wc);
@@ -148,7 +143,6 @@ public interface X10TranslatorVisitor {
     CAstNode visit(Formal f, WalkContext wc); // may not see these (might be handled by parent)
     CAstNode visit(Async a, WalkContext context);
     CAstNode visit(AssignPropertyCall a, WalkContext context);
-    CAstNode visit(AtEach a, WalkContext context);
     CAstNode visit(Atomic a, WalkContext context);
     CAstNode visit(AtStmt atStmt, WalkContext context);
     CAstNode visit(Clocked c, WalkContext context);
@@ -156,13 +150,10 @@ public interface X10TranslatorVisitor {
     CAstNode visit(ClosureCall closureCall, WalkContext context);
     CAstNode visit(Finish f, WalkContext context);
     CAstNode visit(ForLoop f, WalkContext context);
-    CAstNode visit(Future f, WalkContext context);
     CAstNode visit(Here h, WalkContext context);
     CAstNode visit(LocalTypeDef l, WalkContext context);
     CAstNode visit(Next n, WalkContext context);
     CAstNode visit(ParExpr expr, WalkContext wc);
-    CAstNode visit(Region r, WalkContext context);
-    CAstNode visit(Range r, WalkContext context);
     CAstNode visit(Tuple t, WalkContext context);
     CAstNode visit(When w, WalkContext context);
     CAstNode visit(X10Formal f, WalkContext context);

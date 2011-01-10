@@ -1,61 +1,59 @@
 package x10.wala.client;
 
 import java.io.IOException;
-import java.util.Set;
 
-import x10.wala.classLoader.X10ClassLoaderFactoryImpl;
 import x10.wala.client.impl.X10ZeroXCFABuilderFactory;
 import x10.wala.ipa.callgraph.X10SourceAnalysisScope;
 import x10.wala.ipa.cha.X10ClassHierarchy;
 
-import com.ibm.wala.cast.java.client.JavaSourceAnalysisEngine;
-import com.ibm.wala.classLoader.ClassLoaderFactory;
+import com.ibm.wala.cast.ir.ssa.AstIRFactory;
 import com.ibm.wala.ipa.callgraph.AnalysisCache;
 import com.ibm.wala.ipa.callgraph.AnalysisOptions;
 import com.ibm.wala.ipa.callgraph.AnalysisScope;
 import com.ibm.wala.ipa.callgraph.CallGraph;
 import com.ibm.wala.ipa.callgraph.CallGraphBuilder;
 import com.ibm.wala.ipa.callgraph.Entrypoint;
-import com.ibm.wala.ipa.callgraph.impl.SetOfClasses;
+import com.ibm.wala.ipa.callgraph.propagation.PointerAnalysis;
+import com.ibm.wala.ipa.cha.ClassHierarchy;
 import com.ibm.wala.ipa.cha.ClassHierarchyException;
-import com.ibm.wala.ipa.cha.IClassHierarchy;
+import com.ibm.wala.ssa.SSAOptions;
+import com.ibm.wala.ssa.SymbolTable;
 import com.ibm.wala.util.CancelException;
 
-public class X10SourceAnalysisEngine extends JavaSourceAnalysisEngine {
-    @Override
-    protected ClassLoaderFactory getClassLoaderFactory(SetOfClasses exclusions) {
-        return new X10ClassLoaderFactoryImpl(exclusions);
-    }
+public class X10SourceAnalysisEngine {
+    /**
+     * Governing class hierarchy
+     */
+    protected X10ClassHierarchy cha;
 
-    @Override
-    protected AnalysisScope makeSourceAnalysisScope() {
-        return new X10SourceAnalysisScope();
-    }
-
-    @Override
-    protected CallGraphBuilder getCallGraphBuilder(IClassHierarchy cha, AnalysisOptions options, AnalysisCache cache) {
-        return new X10ZeroXCFABuilderFactory().make(options, cache, cha, scope, false);
-    }
-
-    public CallGraph buildCallGraph(Iterable<Entrypoint> eps) throws IllegalArgumentException, CancelException, IOException {
-        AnalysisOptions options = getDefaultOptions(eps);
-        return buildCallGraph(getClassHierarchy(), options, true, null).makeCallGraph(options, null);
-    }
-
-    public X10ClassHierarchy initClassHierarchy() {
-        X10ClassHierarchy cha = null;
-        ClassLoaderFactory factory = getClassLoaderFactory(scope.getExclusions());
-        try {
-            cha = X10ClassHierarchy.make(getScope(), factory);
-        } catch (ClassHierarchyException e) {
-            System.err.println("Class Hierarchy construction failed");
-        }
+    public X10ClassHierarchy getClassHierarchy() {
         return cha;
     }
 
-    public void consolidateClassHierarchy() {
+    public X10SourceAnalysisEngine() {
         try {
-            ((X10ClassHierarchy) getClassHierarchy()).consolidate();
+            cha = X10ClassHierarchy.make(new X10SourceAnalysisScope());
+        } catch (ClassHierarchyException e) {
+            System.err.println("Class Hierarchy construction failed");
+        }
+    }
+
+    public CallGraph buildCallGraph(Iterable<Entrypoint> eps) throws IllegalArgumentException, CancelException, IOException {
+        AnalysisCache cache = new AnalysisCache(AstIRFactory.makeDefaultFactory());
+        AnalysisOptions options = new AnalysisOptions(cha.getScope(), eps);
+        SSAOptions ssaOptions = new SSAOptions();
+        ssaOptions.setDefaultValues(new SSAOptions.DefaultValues() {
+            public int getDefaultValue(SymbolTable symtab, int valueNumber) {
+                return symtab.getDefaultValue(valueNumber);
+            }
+        });
+        options.setSSAOptions(ssaOptions);
+        return new X10ZeroXCFABuilderFactory().make(options, cache, cha).makeCallGraph(options, null);
+    }
+
+    public void buildClassHierarchy() {
+        try {
+            cha.consolidate();
         } catch (ClassHierarchyException e) {
             System.err.println("Class Hierarchy construction failed");
         }

@@ -47,7 +47,7 @@ public class Printer extends FilterWriter {
         lock.lock();
         try {
             val b = s.bytes();
-            write(b, 0, b.length);
+            write(b, 0, b.size);
         }
         catch (e: IOException) {
             // should use a finally block here but until we fix XTENLANG-203 this is better

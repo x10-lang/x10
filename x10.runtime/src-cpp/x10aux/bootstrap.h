@@ -132,7 +132,7 @@ namespace x10aux {
 
             // Initialise enough state to make this 'main' thread look like a normal x10 thread
             // (e.g. make Thread::CurrentThread work properly).
-            x10::lang::Runtime__Worker::_make(X10_NULL);
+            x10::lang::Runtime__Worker::_make((x10_int)0);
             x10aux::initialize_xrx();
 
             args = x10aux::convert_args(ac, av);

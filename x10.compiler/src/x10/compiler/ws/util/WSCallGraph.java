@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import polyglot.ast.Call;
 import polyglot.ast.ClassDecl;
 import polyglot.ast.ConstructorDecl;
 import polyglot.ast.MethodDecl;
@@ -29,7 +30,7 @@ import polyglot.types.MemberDef;
 import polyglot.types.Package;
 import polyglot.types.ProcedureDef;
 import polyglot.types.Ref;
-import polyglot.types.StructType;
+import polyglot.types.ContainerType;
 import polyglot.types.Type;
 import polyglot.visit.NodeVisitor;
 import x10.ast.Closure;
@@ -95,46 +96,6 @@ public class WSCallGraph {
     
     static final int debugLevel = 0;
     
-    //Store WALA analysis result - Need refactoring
-    //        Map<className : Map<methodSig: methodType>  methodType == false: derived target
-    Map<String, Map<String, Boolean>> walaClass2MethodMap;
-    
-    public void setWALAResult(List<String> result){
-    	walaClass2MethodMap = new HashMap<String, Map<String, Boolean>>();
-    	for(String str : result){
-    		//format: [C]Fib.fib(Lx10/lang/Int;)Lx10/lang/Int;
-    		boolean type = str.charAt(1) == 'C'; 
-    		int dotIndex = str.lastIndexOf('.');
-    		String className = str.substring(3, dotIndex);
-    		String methodSig = str.substring(dotIndex + 1);
-    		
-    		//insert into the map;
-    		Map<String, Boolean> methodMap;
-    		if(walaClass2MethodMap.containsKey(className)){
-    			methodMap = walaClass2MethodMap.get(className);
-    		}
-    		else{
-    			methodMap = new HashMap<String, Boolean>();
-    			walaClass2MethodMap.put(className, methodMap);
-    		}
-    		methodMap.put(methodSig, type);
-    	}
-    	
-    	//final: show found result;
-    	if(Report.should_report("workstealing", 5)){
-    		Report.report(5, "Results set from WALA");
-    		for(String className : walaClass2MethodMap.keySet()){
-    			Report.report(5, "   Class: " + className);
-    			Map<String, Boolean> methodMap = walaClass2MethodMap.get(className);
-    			for(String methodSig : methodMap.keySet()){
-    				String typeStr = methodMap.get(methodSig) ? "[C]" : "[D]";
-    				Report.report(5, "     "+typeStr + methodSig);
-    			}
-    		}
-    	}
-    	
-    }
-    
     protected Map<ProcedureDef, WSCallGraphNode> def2NodeMap;
     
     //These methods has parallel constructs in them;
@@ -173,7 +134,7 @@ public class WSCallGraph {
                         || n instanceof ConstructorDecl
                         || (n instanceof Closure && !(n instanceof PlacedClosure))){
                     //Note, PlacedClosure are not treated as normal closure, not build node
-                    addProcedure((Term)n);
+                    addProcedure((Term)n);                    
                 }
                 return n;
             }
@@ -204,12 +165,6 @@ public class WSCallGraph {
 
         WSCallGraphNode node = findOrCreateNode(pDef);
         
-        if(walaClass2MethodMap != null){
-        	//use wala result to do mark
-        	markNodeFromWALAResult(node);
-        	return;
-        }
-        
         //otherwise depend on the current one
 
         if(!node.isCallgraphBuild()){ //prevent add one method again
@@ -229,35 +184,6 @@ public class WSCallGraph {
 //            }
         }
     }
-    
-    private void markNodeFromWALAResult(WSCallGraphNode node) {
-    	ProcedureDef pDef = node.getMethodDef();
-    	String fullSig = getJavaSignature(pDef);
-    	wsReport(5, "Input pDef Sig: " + pDef.signature());
-    	wsReport(5, "Output pDef Java Sig: " +fullSig);    	
-    	
-    	
-    	int dInd= fullSig.indexOf('.');
-    	if(dInd < 0){
-    		return; //no class name, should be closure. not support now
-    	}
-    	String className = fullSig.substring(0, dInd);
-    	String methedSig = fullSig.substring(dInd + 1);
-
-    	wsReport(5, "  Class: " +className);   
-    	wsReport(5, "  Method: " + methedSig);
-    	
-        if(walaClass2MethodMap.containsKey(className)){
-        	Map<String, Boolean> map = walaClass2MethodMap.get(className);
-        	if(map.containsKey(methedSig)){
-        		node.setParallel(true); //always parallel
-        		if(map.get(methedSig)){ //this method contains concurrent
-        			node.setContainsConcurrent(true);
-        			initialParallelMethods.add(node);
-        		}
-        	}	
-        }
-	}
 
 	protected String getJavaSignature(ProcedureDef pDef){
     	
@@ -331,12 +257,7 @@ public class WSCallGraph {
      * Mark all possible methods as target methods.
      * Start from those contains concurrent constructs, and do DFS search to mark.
      */
-    public void doDFSMark(){
-    	if(walaClass2MethodMap != null){
-    		//we use wala DFS result instead of the simple one
-    		return;
-    	}
-    	
+    public void doDFSMark(){    	
         for(WSCallGraphNode node : initialParallelMethods){
             doDFSMark(node);
         }

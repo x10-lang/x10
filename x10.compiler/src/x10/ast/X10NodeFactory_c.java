@@ -152,13 +152,6 @@ public class X10NodeFactory_c extends NodeFactory_c {
 		return n;
 	}
 	
-	public Contains Contains(Position pos, Expr item, Expr collection) {
-	    Contains n = new Contains_c(pos, item, collection);
-	    n = (Contains) n.ext(extFactory().extExpr());
-	    n = (Contains) n.del(delFactory().delExpr());
-	    return n;
-	}
-	
 	public X10MLSourceFile X10MLSourceFile(Position position, PackageNode packageName, List<Import> imports, List<TopLevelDecl> decls) {
 	    X10MLSourceFile n = new X10MLSourceFile_c(position, packageName, CollectionUtil.nonNullList(imports), CollectionUtil.nonNullList(decls));
 	    n = (X10MLSourceFile)n.ext(extFactory().extSourceFile());
@@ -242,19 +235,6 @@ public class X10NodeFactory_c extends NodeFactory_c {
 		return a;
 	}
 	
-	public Future Future(Position pos, Expr place, TypeNode returnType, Block body) {
-		return Future(pos, place, returnType, null, body);
-	}
-	
-	public Future Future(Position pos, Expr place, TypeNode returnType, TypeNode offerType, Block body) {
-		Future f = new Future_c(this, pos, place, returnType, offerType, body);
-		X10ExtFactory_c ext_fac = (X10ExtFactory_c) extFactory();
-		f = (Future) f.ext(ext_fac.extFutureImpl());
-        X10DelFactory_c del_fac = (X10DelFactory_c) delFactory();
-        f = (Future) f.del(del_fac.delFutureImpl());
-		return f;
-	}
-
 	public AtExpr AtExpr(Position pos, Expr place, TypeNode returnType, Block body) {
 		return AtExpr(pos, place, returnType, null, body);
 	}
@@ -347,18 +327,6 @@ public class X10NodeFactory_c extends NodeFactory_c {
 		return X10Call(pos, target, name, Collections.<TypeNode>emptyList(), args);
 	}
 	
-	public ConstantDistMaker ConstantDistMaker(Position pos, Expr e1, Expr e2) {
-		Receiver x10LangDistributionFactory = ReceiverFromQualifiedName(pos, QName.make("x10.array.Dist"));
-		List<Expr> l = new TypedList<Expr>(new LinkedList<Expr>(), Expr.class, false);
-		l.add(e1);
-		l.add(e2);
-		ConstantDistMaker n = new ConstantDistMaker_c(pos,
-				x10LangDistributionFactory,
-				Id(pos, Name.make("makeConstant")), l);
-		n = (ConstantDistMaker) n.ext(extFactory().extExpr());
-		return (ConstantDistMaker) n.del(delFactory().delExpr());
-	}
-
 	public X10New X10New(Position pos, boolean newOmitted, Expr qualifier, TypeNode objectType, List<TypeNode> typeArguments, List<Expr> arguments, ClassBody body) {
 		X10New n = new X10New_c(pos, newOmitted, qualifier, objectType, typeArguments, arguments, body);
 		n = (x10.ast.X10New) n.ext(extFactory().extNew());
@@ -654,22 +622,14 @@ public class X10NodeFactory_c extends NodeFactory_c {
 	}
 	// Place the consequent and the alternative in blocks to ease
 	// further rewrites of the AST.
+	// FIXME: early desugaring
 	public If If(Position pos, Expr cond, Stmt consequent, Stmt alternative) {
 		If n = new X10If_c(pos, cond, asBlock(consequent), asBlock(alternative));
 		n = (If)n.ext(extFactory().extIf());
 		n = (If)n.del(delFactory().delIf());
 		return n;
 	}
-	public RegionMaker RegionMaker(Position pos, Expr e1, Expr e2) {
-		List<Expr> l = new TypedList<Expr>(new LinkedList<Expr>(), Expr.class, false);
-		l.add(e1);
-		l.add(e2);
 
-		RegionMaker n = new RegionMaker_c(pos, TypeNodeFromQualifiedName(pos, QName.make("x10.array.Region")), Id(pos, "makeRectangular"), l);
-		n = (RegionMaker) n.ext(extFactory().extExpr());
-		n = (RegionMaker) n.del(delFactory().delExpr());
-		return n;
-	}
 	public Do Do(Position pos, Stmt body, Expr cond) {
 		Do n = new X10Do_c(pos, body, cond);
 		n = (Do)n.ext(extFactory().extDo());
@@ -682,13 +642,13 @@ public class X10NodeFactory_c extends NodeFactory_c {
 		n = (While)n.del(delFactory().delWhile());
 		return n;
 	}
+
 	public IntLit IntLit(Position pos, IntLit.Kind kind, long value) {
 		IntLit n = new IntLit_c(pos, kind, value);
 		n = (IntLit)n.ext(extFactory().extIntLit());
 		n = (IntLit)n.del(delFactory().delIntLit());
 		return n;
 	}
-
 	public StringLit StringLit(Position pos, String value) {
 		StringLit n = new X10StringLit_c(pos, value);
 		n = (StringLit)n.ext(extFactory().extStringLit());

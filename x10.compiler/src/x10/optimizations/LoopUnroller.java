@@ -54,7 +54,6 @@ import polyglot.types.FieldDef;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
 import polyglot.types.LocalInstance;
-import polyglot.types.MethodInstance;
 import polyglot.types.Name;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
@@ -66,8 +65,8 @@ import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.ast.ForLoop;
-import x10.ast.RegionMaker;
 import x10.ast.Tuple;
+import x10.ast.X10Binary_c;
 import x10.ast.X10Formal;
 
 import x10.constraint.XEquals;
@@ -80,7 +79,8 @@ import x10.constraint.XNameWrapper;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
 import x10.types.ConstrainedType;
-import x10.types.X10Flags;
+import x10.types.MethodInstance;
+
 import polyglot.types.TypeSystem;
 import x10.types.constraints.CConstraint;
 import x10.visit.Desugarer;
@@ -327,11 +327,17 @@ public class LoopUnroller extends ContextVisitor {
                 Expr regionTuple= args.get(0);
                 List<Expr> dimensionArgs= ((Tuple) regionTuple).arguments();
                 Expr low, hi;
-                if (dimensionArgs.get(0) instanceof RegionMaker) {
-                    RegionMaker regionMaker= (RegionMaker) dimensionArgs.get(0);
+                if (dimensionArgs.get(0) instanceof Call) {
+                    Call c= (Call) dimensionArgs.get(0);
 
-                    low= regionMaker.arguments().get(0);
-                    hi= regionMaker.arguments().get(1);
+                    MethodInstance cmi = c.methodInstance();
+                    if (cmi.container().isInt() && cmi.name().equals(X10Binary_c.binaryMethodName(X10Binary_c.DOT_DOT))) {
+                        low= c.arguments().get(0);
+                        hi= c.arguments().get(1);
+                    } else {
+                        low= null;
+                        hi= null;
+                    }
                 } else {
                     low= null;
                     hi= null;
@@ -360,6 +366,15 @@ public class LoopUnroller extends ContextVisitor {
                 fLoopParams.fMinSymbolic= intLit(1);
                 fLoopParams.fMax= getConstantValueOf(size);
                 fLoopParams.fMaxSymbolic= size;
+                fLoopParams.fStride= 1;
+            } else if (mi.container().isInt() && mi.name().equals(X10Binary_c.binaryMethodName(X10Binary_c.DOT_DOT))) {
+                Expr low, hi;
+                low= args.get(0);
+                hi= args.get(1);
+                fLoopParams.fMin= getConstantValueOf(low);
+                fLoopParams.fMinSymbolic= low;
+                fLoopParams.fMax= getConstantValueOf(hi);
+                fLoopParams.fMaxSymbolic= hi;
                 fLoopParams.fStride= 1;
             } else {
                 return fatalStatus("Don't understand iteration domain: " + call);
@@ -524,7 +539,7 @@ public class LoopUnroller extends ContextVisitor {
     }
 
     private FlagsNode valueFlag() {
-        return xnf.FlagsNode(PCG, X10Flags.VALUE);
+        return xnf.FlagsNode(PCG, Flags.VALUE);
     }
 
     private FlagsNode noFlags() {

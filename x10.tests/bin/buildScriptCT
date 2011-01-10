@@ -119,11 +119,11 @@ main() {
 	if [[ "$(uname -s)" == "AIX" ]]; then
 	    (cd $X10_DIST; ant dist);
 	elif [[ "$(uname -s)"  == "Linux" && "$(uname -m)" == "x86_64" ]]; then
-	    (cd $X10_DIST; ant dist);
+	    (cd $X10_DIST; ant -Doptimize=true dist);
 	elif [[ "$(uname -s)" == "SunOS" && "$(uname -p)" == "sparc" ]]; then
-	    (cd $X10_DIST; ant dist);
+	    (cd $X10_DIST; ant -Doptimize=true dist);
 	else
-	    (cd $X10_DIST; ant dist);
+	    (cd $X10_DIST; ant -Doptimize=true dist);
 	fi
 	
 	return $?

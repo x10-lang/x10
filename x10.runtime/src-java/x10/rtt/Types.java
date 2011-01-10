@@ -12,6 +12,7 @@
 package x10.rtt;
 
 import x10.core.Any;
+import x10.core.IndexedMemoryChunk;
 import x10.core.fun.Fun_0_1;
 
 
@@ -49,7 +50,12 @@ public class Types {
     }
 
     // create rtt of comparable before all types that implement comparable (e.g. int)
-    public static final RuntimeType<?> COMPARABLE = new RuntimeType(Comparable.class, RuntimeType.Variance.INVARIANT) {
+    public static final RuntimeType<?> COMPARABLE = new RuntimeType(
+        Comparable.class, 
+        new RuntimeType.Variance[] {
+            RuntimeType.Variance.INVARIANT
+        }
+    ) {
         @Override
         public String typeName() {
             return "x10.lang.Comparable";
@@ -193,55 +199,55 @@ public class Types {
     }
 
     public static boolean asboolean(Object typeParamOrAny) {
-        if (typeParamOrAny == null) {nullIsCastedToStruct();}
+        if (typeParamOrAny == null) {nullIsCastedToStruct("x10.lang.Boolean");}
         if (typeParamOrAny instanceof java.lang.Boolean) {return (java.lang.Boolean) typeParamOrAny;}
-        throw new ClassCastException();
+        throw new ClassCastException("x10.lang.Boolean");
     }
     
     public static byte asbyte(Object typeParamOrAny){
-        if (typeParamOrAny == null) {nullIsCastedToStruct();}
+        if (typeParamOrAny == null) {nullIsCastedToStruct("x10.lang.Byte");}
         if (typeParamOrAny instanceof java.lang.Number) {return((java.lang.Number) typeParamOrAny).byteValue();}
-        throw new ClassCastException();
+        throw new ClassCastException("x10.lang.Byte");
     }
     
     public static short asshort(Object typeParamOrAny){
-        if (typeParamOrAny == null) {nullIsCastedToStruct();}
+        if (typeParamOrAny == null) {nullIsCastedToStruct("x10.lang.Short");}
         if (typeParamOrAny instanceof java.lang.Number) {return((java.lang.Number) typeParamOrAny).shortValue();}
-        throw new ClassCastException();
+        throw new ClassCastException("x10.lang.Short");
     }
     
     public static int asint(Object typeParamOrAny){
-        if (typeParamOrAny == null) {nullIsCastedToStruct();}
+        if (typeParamOrAny == null) {nullIsCastedToStruct("x10.lang.Int");}
         if (typeParamOrAny instanceof java.lang.Number) {return((java.lang.Number) typeParamOrAny).intValue();}
-        throw new ClassCastException();
+        throw new ClassCastException("x10.lang.Int");
     }
 
     public static long aslong(Object typeParamOrAny){
-        if (typeParamOrAny == null) {nullIsCastedToStruct();}
+        if (typeParamOrAny == null) {nullIsCastedToStruct("x10.lang.Long");}
         if (typeParamOrAny instanceof java.lang.Number) {return((java.lang.Number) typeParamOrAny).longValue();}
-        throw new ClassCastException();
+        throw new ClassCastException("x10.lang.Long");
     }
 
     public static float asfloat(Object typeParamOrAny){
-        if (typeParamOrAny == null) {nullIsCastedToStruct();}
+        if (typeParamOrAny == null) {nullIsCastedToStruct("x10.lang.Float");}
         if (typeParamOrAny instanceof java.lang.Number) {return((java.lang.Number) typeParamOrAny).floatValue();}
-        throw new ClassCastException();
+        throw new ClassCastException("x10.lang.Float");
     }
 
     public static double asdouble(Object typeParamOrAny){
-        if (typeParamOrAny == null) {nullIsCastedToStruct();}
+        if (typeParamOrAny == null) {nullIsCastedToStruct("x10.lang.Double");}
         if (typeParamOrAny instanceof java.lang.Number) {return((java.lang.Number) typeParamOrAny).doubleValue();}
-        throw new ClassCastException();
+        throw new ClassCastException("x10.lang.Double");
     }
 
     public static char aschar(Object typeParamOrAny) {
-        if (typeParamOrAny == null) {nullIsCastedToStruct();}
+        if (typeParamOrAny == null) {nullIsCastedToStruct("x10.lang.Char");}
         if (typeParamOrAny instanceof java.lang.Character) {return (java.lang.Character) typeParamOrAny;}
-        throw new ClassCastException();
+        throw new ClassCastException("x10.lang.Char");
     }
 
     public static Object asStruct(Type<?> rtt, Object typeParamOrAny) {
-        if (typeParamOrAny == null) {nullIsCastedToStruct();}
+        if (typeParamOrAny == null) {nullIsCastedToStruct(rtt);}
 
         if (rtt == UBYTE) {
             if (UBYTE_CLASS.isInstance(typeParamOrAny)) { return typeParamOrAny;}
@@ -261,12 +267,12 @@ public class Types {
         else {
             return typeParamOrAny;
         }
-        throw new ClassCastException();
+        throw new ClassCastException(rtt.typeName());
     }
     
     // FIXME this should be replaced by virtual method for user defined conversion
     public static Object conversion(Type<?> rtt, Object primOrTypeParam) {
-        if (primOrTypeParam == null && isStructType(rtt)) {nullIsCastedToStruct();}
+        if (primOrTypeParam == null && isStructType(rtt)) {nullIsCastedToStruct(rtt);}
         
         if (rtt == BYTE) {
             if (primOrTypeParam instanceof java.lang.Byte) return primOrTypeParam;
@@ -309,7 +315,8 @@ public class Types {
         return primOrTypeParam;
     }
 
-    public static void nullIsCastedToStruct(){throw new java.lang.ClassCastException();}
+    public static void nullIsCastedToStruct(Type<?> rtt) {throw new java.lang.ClassCastException(rtt.typeName());}
+    public static void nullIsCastedToStruct(String msg){throw new java.lang.ClassCastException(msg);}
 
     public static boolean hasNaturalZero(Type<?> rtt) {
         if (rtt.isSubtype(OBJECT) ||
@@ -359,7 +366,8 @@ public class Types {
             if (rtt == DOUBLE) return DOUBLE_ZERO;
             if (rtt == CHAR) return CHAR_ZERO;
             if (rtt == BOOLEAN) return BOOLEAN_ZERO;
-//            if (isPrimitiveStructType(rtt)) return zeroValue(rtt.getJavaClass());
+            if (rtt == IndexedMemoryChunk._RTT) return new IndexedMemoryChunk(typeParams[0]);
+            //            if (isPrimitiveStructType(rtt)) return zeroValue(rtt.getJavaClass());
             // for user-defined structs, call zero value constructor
             try {
                 Class<?> c = rtt.getJavaClass();

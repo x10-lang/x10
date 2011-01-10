@@ -43,6 +43,12 @@ public class PreLoader {
 	private static final String TRUE = "true";
 	private static final Map<String, String> inited = new HashMap<String, String>();
 	private static final ClassLoader bootstrap = Object.class.getClassLoader();
+	private static boolean isSystemClass(Class<?> c) {
+	    // TODO exclude x10 classes to support executable jar
+	    boolean isSystemClass = c.getClassLoader() == bootstrap;
+//	    System.out.println("isSystemClass: " + c.getName() + (isSystemClass ? " IS " : " is NOT ") + "a system class");
+	    return isSystemClass;
+	}
 	/**
 	 * Recursively pre-load the given class and all the classes it statically
 	 * references.
@@ -58,7 +64,7 @@ public class PreLoader {
 	 * @param intern whether to intern string constants
 	 */
 	public static void preLoad(Class<?> c, boolean intern) {
-		if (c.getClassLoader() == bootstrap) return;
+		if (isSystemClass(c)) return;
 		preLoad(getClassFile(c), c, intern);
 	}
 	private static void preLoad(String name, Class<?> c) {
@@ -83,7 +89,7 @@ public class PreLoader {
 					// Skip arrays
 					if (nm.charAt(0) == '[') continue;
 					// Skip system classes
-					if (u.getClassLoader() == bootstrap) continue;
+					if (isSystemClass(u)) continue;
 					preLoad(toFileName(nm), c, intern);
 				} catch (ClassNotFoundException e) {
 //					System.err.println(i+": "+nm+" not found");

@@ -50,7 +50,7 @@ public abstract class Scheduler {
     protected ExtensionInfo extInfo;
 
     /** map used for interning goals. */
-    protected Map<Goal,Goal> internCache = new HashMap<Goal,Goal>();
+    protected Map<Goal,Goal> internCache = new HashMap<Goal,Goal>(); // note that is not a cache in the sense that if you clear it the correctness of the compiler is compromised.
     
     // TODO: remove this, we only need to intern the goal status, not the goal itself.
     // Actually, the lazy ref to the goal status is the goal.  The run() method is the resolver for the lazy ref.
@@ -77,7 +77,7 @@ public abstract class Scheduler {
      */
     protected Map<Source, Option<Job>> jobs;
     
-    protected Collection<Job> commandLineJobs;
+    protected Collection<Job> commandLineJobs = Collections.emptyList();
     
     /** True if any pass has failed. */
     protected boolean failed;
@@ -95,6 +95,12 @@ public abstract class Scheduler {
     
     public Collection<Job> commandLineJobs() {
         return this.commandLineJobs;
+    }
+
+    public Collection<Source> sources;
+    public void clearAll(Collection<Source> sources) {
+        this.sources = sources;
+        setFailed(false);
     }
     
     public void setCommandLineJobs(Collection<Job> c) {
@@ -318,7 +324,7 @@ public abstract class Scheduler {
             Goal oldGoal = currentGoal;
             currentGoal = goal;
             
-            long t = System.currentTimeMillis();
+            long t = System.nanoTime();
             String key = goal.toString();
 
             extInfo.getStats().accumulate(key + " attempts", 1);
@@ -345,8 +351,9 @@ public abstract class Scheduler {
                 }
             }
             finally {
-                t = System.currentTimeMillis() - t;
-                extInfo.getStats().accumulate(key, t);
+                t = System.nanoTime() - t;
+                extInfo.getStats().accumulate(key+" nanos", t);
+                extInfo.getStats().accumulate("Phase "+goal.name()+" nanos", t);
 
                 currentGoal = oldGoal;
                 

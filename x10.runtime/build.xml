@@ -501,6 +501,8 @@
             </if>
             <patch patchfile="${basedir}/src-cpp/bdwgc-patches/enableRTSignals.patch.txt"
                    dir="${bdwgc.dir}/src" strip="0" />
+            <patch patchfile="${basedir}/src-cpp/bdwgc-patches/pthread_support.patch.txt"
+                   dir="${bdwgc.dir}/src" strip="0" />
         </sequential>
     </target>
 

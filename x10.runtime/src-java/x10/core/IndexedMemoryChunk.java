@@ -21,6 +21,11 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct {
     public final Object value;
     public final Type<T> type;
 
+    public IndexedMemoryChunk(Type<T> type) {
+        this.length = 0;
+        this.type = type;
+        this.value = null;
+    }
     public IndexedMemoryChunk(Type<T> type, int length, Object value) {
         this.length = length;
         this.type = type;
@@ -102,7 +107,7 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct {
 
     public static final RuntimeType<IndexedMemoryChunk<?>> _RTT = new RuntimeType<IndexedMemoryChunk<?>>(
         IndexedMemoryChunk.class,
-        Variance.INVARIANT
+        new RuntimeType.Variance[] { Variance.INVARIANT }
     ) {
         @Override
         public java.lang.String typeName() {
@@ -134,6 +139,8 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct {
     public double[] getDoubleArray() { return (double[]) value; }
     public Object[] getObjectArray() { return (Object[]) value; }
 
+    // this is broken
+    /*
     public Object[] getBoxedArray() {
         if (value instanceof boolean[]) {
             boolean[] a = (boolean[]) value;
@@ -177,5 +184,6 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct {
         }
         return (Object[]) value;
     }
+    */
 
 }

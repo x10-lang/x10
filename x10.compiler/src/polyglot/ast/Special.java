@@ -7,8 +7,6 @@
 
 package polyglot.ast;
 
-import polyglot.util.Enum;
-
 /**
  * A <code>Special</code> is an immutable representation of a
  * reference to <code>this</code> or <code>super</code in Java.  This

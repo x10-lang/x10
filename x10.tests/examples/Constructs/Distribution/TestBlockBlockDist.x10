@@ -8,7 +8,7 @@ public class TestBlockBlockDist extends x10Test {
 	public def run(): Boolean = {
         // array region is 40 * 50 * 60
         val r = Region.makeRectangular(0, 39);
-        val gridRegion = r * (0..49) * (0..59);
+        val gridRegion = r * 0..49 * 0..59;
         val gridDist1 = Dist.makeBlockBlock(gridRegion, 0, 1);
         val placeCounts = Rail.make[Int](Place.MAX_PLACES);
 
@@ -18,7 +18,7 @@ public class TestBlockBlockDist extends x10Test {
             placeCounts(place.id)++;
         }
         var total : Int = 0;
-        for ([q] in 0..placeCounts.length-1) {
+        for ([q] in 0..(placeCounts.length-1)) {
             total += placeCounts(q);
         }
         chk(total == 40*50*60);

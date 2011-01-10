@@ -131,6 +131,9 @@ public class TypeParamSubst {
 	}
 
 	private static boolean canReferToParams(X10ClassType t) {
+		// FIXME: to fix XTENLANG-2055, this should be false for null typeargs,
+		// but constructor and method def containers are not instantiated.
+		// TODO: (t.typeArguments() != null && t.typeArguments().size() != 0)
 		if (t.typeArguments() == null || t.typeArguments().size() != 0) {
 			return true;
 		}
@@ -186,7 +189,7 @@ public class TypeParamSubst {
 		if (t instanceof Ref<?>) return (T) reinstantiateRef((Ref<?>) t);
 		if (t instanceof Type) return (T) reinstantiateType((Type) t);
 		if (t instanceof X10FieldInstance) return (T) reinstantiateFI((X10FieldInstance) t);
-		if (t instanceof X10MethodInstance) return (T) reinstantiateMI((X10MethodInstance) t);
+		if (t instanceof MethodInstance) return (T) reinstantiateMI((MethodInstance) t);
 		if (t instanceof X10ConstructorInstance) return (T) reinstantiateCI((X10ConstructorInstance) t);
 		if (t instanceof ClosureInstance) return (T) reinstantiateClosure((ClosureInstance) t);
 		if (t instanceof CConstraint) return (T) reinstantiateConstraint((CConstraint) t);
@@ -358,15 +361,15 @@ public class TypeParamSubst {
 		return new ReinstantiatedConstructorInstance(this, t.typeSystem(), t.position(), Types.ref(t.x10Def()), t);
 	}
 
-	private X10MethodInstance reinstantiateMI(X10MethodInstance t) {
+	private MethodInstance reinstantiateMI(MethodInstance t) {
 		if (eager) {
-		    X10MethodInstance mi = t;
-		    mi = (X10MethodInstance) mi.returnType(reinstantiate(mi.returnType()));
-		    mi = (X10MethodInstance) mi.formalTypes(reinstantiate(mi.formalTypes()));
+		    MethodInstance mi = t;
+		    mi = (MethodInstance) mi.returnType(reinstantiate(mi.returnType()));
+		    mi = (MethodInstance) mi.formalTypes(reinstantiate(mi.formalTypes()));
 		    //mi = (X10MethodInstance) mi.throwTypes(reinstantiate(mi.throwTypes()));
-		    mi = (X10MethodInstance) mi.container(reinstantiate(mi.container()));
-		    mi = (X10MethodInstance) mi.guard(reinstantiate(mi.guard()));
-		    mi = (X10MethodInstance) mi.typeGuard(reinstantiate(mi.typeGuard()));
+		    mi = (MethodInstance) mi.container(reinstantiate(mi.container()));
+		    mi = (MethodInstance) mi.guard(reinstantiate(mi.guard()));
+		    mi = (MethodInstance) mi.typeGuard(reinstantiate(mi.typeGuard()));
 		    return mi;
 		}
 		return new ReinstantiatedMethodInstance(this, t.typeSystem(), t.position(), Types.ref(t.x10Def()), t);

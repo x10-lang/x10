@@ -27,7 +27,7 @@ public class AllReduce extends x10Test {
             team.allreduce(role, src, 0, dst, 0, count, Team.ADD);
 
             val oracle_base = ((team.size()*team.size() + team.size())/2) as Float;
-            for ([i] in 0..count-1) {
+            for ([i] in 0..(count-1)) {
                 val oracle:float = oracle_base * i * i;
                 if (dst(i) != oracle) {
                     Console.OUT.printf("Team %d role %d received invalid sum %f at %d instead of %f\n",
@@ -41,7 +41,7 @@ public class AllReduce extends x10Test {
             team.allreduce(role, src, 0, dst, 0, count, Team.MAX);
 
             val oracle_base = (team.size()) as Float;
-            for ([i] in 0..count-1) {
+            for ([i] in 0..(count-1)) {
                 val oracle:float = oracle_base * i * i;
                 if (dst(i) != oracle) {
                     Console.OUT.printf("Team %d role %d received invalid max %f at %d instead of %f\n",
@@ -55,7 +55,7 @@ public class AllReduce extends x10Test {
             team.allreduce(role, src, 0, dst, 0, count, Team.MIN);
 
             val oracle_base = 1.0f;
-            for ([i] in 0..count-1) {
+            for ([i] in 0..(count-1)) {
                 val oracle:float = oracle_base * i * i;
                 if (dst(i) != oracle) {
                     Console.OUT.printf("Team %d role %d received invalid max %f at %d instead of %f\n",
@@ -75,7 +75,7 @@ public class AllReduce extends x10Test {
 
         success &= (reducedSuccess == 1);
 
-        if (!success) at (res.home) res()() = false;
+        if (!success) at (res.home) res().set(false);
 
     }
 

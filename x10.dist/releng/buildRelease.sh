@@ -92,9 +92,9 @@ echo "The distribution is now exported to the directory $workdir"
 if [[ -z "$SKIP_X10_BUILD" ]]; then
     echo "Building distribution"
     cd $distdir/x10.dist
-    ant -Doptimize=true -Dzip.version=$X10_VERSION testzip
-    ant -Doptimize=true -Dzip.version=$X10_VERSION srczip
-    ant -Doptimize=true -Dzip.version=$X10_VERSION zip
+    ant -Doptimize=true -Dtar.version=$X10_VERSION testtar
+    ant -Doptimize=true -Dtar.version=$X10_VERSION srctar
+    ant -Doptimize=true -Dtar.version=$X10_VERSION tar
     ant dist -Doptimize=true
     $distdir/x10.dist/releng/packageCPPRelease.sh -version $X10_VERSION -platform $X10_PLATFORM
     echo "Platform specific distribuiton tarball created"

@@ -18,9 +18,8 @@ import x10.types.X10ClassType;
 import x10.types.X10CodeDef;
 import x10.types.X10FieldInstance;
 import x10.types.X10LocalInstance;
-import x10.types.X10MethodInstance;
-import x10.types.X10NamedType;
-import x10.types.X10TypeSystem_c;
+import x10.types.MethodInstance;
+
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
 import x10.types.constraints.XConstrainedTerm;
@@ -208,7 +207,7 @@ public interface Context extends Resolver, Copy
     /**
      * Looks up a method in the current scope.
      */
-    X10MethodInstance findMethod(X10TypeSystem_c.MethodMatcher matcher) throws SemanticException;
+    MethodInstance findMethod(TypeSystem_c.MethodMatcher matcher) throws SemanticException;
 
     /** Looks up a local variable in the current scope. */
     X10LocalInstance findLocal(Name name) throws SemanticException;
@@ -256,7 +255,7 @@ public interface Context extends Resolver, Copy
     Context pushDepType(Ref<? extends Type> ref);
     
     /** Return the current deptype, null if there is none. */
-    X10NamedType currentDepType();
+    Type currentDepType();
     Ref<? extends Type> depTypeRef();
 
     /** Return whether innermost scope is a deptype scope. */
@@ -309,4 +308,9 @@ public interface Context extends Resolver, Copy
      * Return the enclosing code context (or this if the current context is a code context).
      */
     Context popToCode();
+
+    /**
+     * Return the enclosing code context that can capture variables (null if none).
+     */
+    Context findEnclosingCapturingScope();
 }

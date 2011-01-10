@@ -28,11 +28,10 @@
  * The following debugging macros are supported:
  *   TRACE_REF         - trace reference operations
  *   TRACE_CAST        - trace casts
+ *   TRACE_ALLOC       - trace allocation operations
  *   TRACE_ENV_VAR     - turn on support for the tracing variables listed below
- *   REF_STRIP_TYPE    - experimental option: erase the exact content type in references
  *
  * Note, tracing is not actually enabled unless the following environment variables are defined:
- *   X10_TRACE_ALLOC       - trace allocation operations
  *   X10_TRACE_INIT        - trace x10 class initialization
  *   X10_TRACE_X10RT       - trace x10rt invocations
  *   X10_TRACE_SER         - trace serialization operations
@@ -55,9 +54,15 @@
 #ifndef NO_ASSERTIONS
 #define NO_ASSERTIONS
 #endif//NO_ASSERTIONS
-#endif
+#ifndef NDEBUG
+#define NDEBUG
+#endif//NDEBUG
+#ifndef NO_TRACING
+#define NO_TRACING
+#endif//NO_TRACING
+#endif//NO_CHECKS
 
-#ifndef NDEBUG 
+#ifndef NO_TRACING
 #ifndef TRACE_ENV_VAR
 #define TRACE_ENV_VAR
 #endif//TRACE_ENV_VAR
@@ -139,7 +144,6 @@ namespace x10aux {
     void init_config_bools (void);
     extern bool use_ansi_colors_;
     extern bool disable_dealloc_;
-    extern bool trace_alloc_;
     extern bool trace_init_;
     extern bool trace_x10rt_;
     extern bool trace_ser_;
@@ -147,8 +151,6 @@ namespace x10aux {
 
     extern inline bool use_ansi_colors()
     { if (!init_config_bools_done) init_config_bools() ; return use_ansi_colors_; }
-    extern inline bool trace_alloc()
-    { if (!init_config_bools_done) init_config_bools() ; return trace_alloc_; }
     extern inline bool trace_init()
     { if (!init_config_bools_done) init_config_bools() ; return trace_init_; }
     extern inline bool trace_x10rt()
@@ -202,9 +204,9 @@ namespace x10aux {
 #define ANSI_SER ANSI_CYAN
 #define ANSI_X10RT ANSI_BLUE
 
-#if !defined(NO_IOSTREAM) && defined(TRACE_ENV_VAR)
+#if !defined(NO_IOSTREAM) && defined(TRACE_ALLOC)
 #include <stdio.h>
-#define _M_(x) _MAYBE_DEBUG_MSG(ANSI_ALLOC,"MM",x,::x10aux::trace_alloc())
+#define _M_(x) _DEBUG_MSG(ANSI_ALLOC,"MM",x)
 #else
 #define _M_(x)
 #endif

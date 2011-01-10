@@ -17,7 +17,7 @@ import polyglot.types.ConstructorDef;
 import polyglot.types.ConstructorInstance;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
-import polyglot.types.StructType;
+import polyglot.types.ContainerType;
 import polyglot.types.Type;
 import x10.constraint.XConstraint;
 

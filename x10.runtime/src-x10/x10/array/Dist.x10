@@ -11,7 +11,6 @@
 
 package x10.array;
 
-import x10.util.Set;
 import x10.compiler.NoInline;
 import x10.compiler.NoReturn;
 
@@ -27,51 +26,16 @@ public abstract class Dist(
     /**
      * The region this distribution is defined over.
      */
-    region:Region,
-
-    /**
-     * Is this distribution "unique" (at most one point per place)?
-     */
-    unique:Boolean,
-
-    /**
-     * Is this distribution "constant" (all points map to the same place)?
-     */
-    constant:boolean,
-
-    /**
-     * If this distribution is "constant", the place all points map to (or null).
-     */
-    onePlace:Place
+    region:Region
 ) implements
     (Point(region.rank))=>Place
     // (Place)=>Region XTENLANG-60
     , Iterable[Point(region.rank)]
 {
-
     /**
      * The rank of this distribution.
      */
     property rank:Int = region.rank;
-
-    /**
-     * Is this distribution defined over a rectangular region?
-     */
-    property rect:boolean = region.rect;
-
-    /**
-     * Is this distribution's region zero-based?
-     */
-
-    property zeroBased:boolean = region.zeroBased;
-
-    /**
-     * Is this distribution's region a "rail" (one-dimensional contiguous zero-based)?
-     */
-    property rail:boolean = region.rail;
-
-    // XTENLANG-50: workaround requires explicit return type decls here
-    // XTENLANG-4: workaround requires BaseDist methods to be named differently from these methods
 
     //
     // factories - place is all applicable places
@@ -84,7 +48,7 @@ public abstract class Dist(
      *
      * @return a "unique" distribution over all places.
      */
-    public static def makeUnique():Dist(1){rect,unique} {
+    public static def makeUnique():Dist(1) {
         return UNIQUE;        
     }
     // Cache pre-allocated UniqueDist to optimize makeUnique calls.
@@ -97,8 +61,9 @@ public abstract class Dist(
      * @param r the given region
      * @return a "constant" distribution over r.
      */
-    // TODO: [IP] return Dist(r){constant&&onePlace==here}
-    public static def makeConstant(r:Region):Dist(r) = BaseDist.makeConstant1(r);
+    public static def makeConstant(r:Region):Dist(r) {
+        return new ConstantDist(r, here);
+    }
 
     /**
      * Create a distribution over the specified region that maps
@@ -118,10 +83,8 @@ public abstract class Dist(
      * @param r the given region
      * @param axis the dimension to cycle over
      * @return a "cyclic" distribution over r.
-     
-    public static def makeCyclic(r:Region, axis:int):Dist(r)
-        = BaseDist.makeBlockCyclic1(r, axis, 1);
-*/
+     */     
+    public static def makeCyclic(r:Region, axis:int):Dist(r) = makeBlockCyclic(r, axis, 1);
     
     /**
      * Create a distribution over the specified region that varies in
@@ -131,9 +94,7 @@ public abstract class Dist(
      * @param r the given region
      * @return a "cyclic" distribution over r, cycling over the zeroth axis.
      
-    public static def makeCyclic(r:Region):Dist(r)
-        = BaseDist.makeBlockCyclic1(r, 0, 1);
-*/
+    public static def makeCyclic(r:Region):Dist(r) = makeBlockCyclic(r, 0, 1);
     
     /**
      * Create a distribution over the specified region that varies in
@@ -145,9 +106,7 @@ public abstract class Dist(
      * @param axis the dimension to block over
      * @return a "block" distribution over r.
      */
-    public static def makeBlock(r:Region, axis:int):Dist(r) {
-        return new BlockWorldDist(r, axis) as Dist(r); // TODO Should not need cast here!
-    }
+    public static def makeBlock(r:Region, axis:int):Dist(r) = makeBlock(r, axis, PlaceGroup.WORLD);
 
     /**
      * Creates a block, block distribution across all places.
@@ -167,7 +126,7 @@ public abstract class Dist(
      * @return a "block,block" distribution over r.
      */
     public static def makeBlockBlock(r:Region, axis0:int, axis1:int):Dist(r) {
-        return new BlockBlockWorldDist(r, axis0, axis1) as Dist(r); // TODO Should not need cast here!
+        return new BlockBlockDist(r, axis0, axis1, PlaceGroup.WORLD) as Dist(r); // TODO: should not need this cast
     }
 
     /**
@@ -179,7 +138,7 @@ public abstract class Dist(
      * @param r the given region
      * @return a "block" distribution over r, blocked over the zeroth axis.
      */
-    public static def makeBlock(r:Region) = makeBlock(r, 0);
+    public static def makeBlock(r:Region) = makeBlock(r, 0, PlaceGroup.WORLD);
 
     /**
      * Create a distribution over the specified region that varies in
@@ -191,35 +150,26 @@ public abstract class Dist(
      * @param axis the dimension to block over
      * @param blockSize the size of the block
      * @return a "block-cyclic" distribution over r.
-     
-    public static def makeBlockCyclic(r:Region, axis:int, blockSize:int):Dist(r)
-        = BaseDist.makeBlockCyclic1(r, axis, blockSize);
-*/
-    //
-    // factories - place is a parameter
-    //
+     */
+    public static def makeBlockCyclic(r:Region, axis:int, blockSize:int):Dist(r) {
+        throw new UnsupportedOperationException(); // short term while eliminating BaseDist
+    }
 
     /**
      * Create a distribution over a rank-1 region that maps every
-     * point in the region to a place in ps, and which maps some
+     * point in the region to a place in pg, and which maps some
      * point in the region to every place in ps.
      *
-     * @param ps the rail of places
+     * @param pg the set of places
      * @return a "unique" distribution over the places in ps
      */
-    public static def makeUnique(ps:Sequence[Place]):Dist(1)
-        = BaseDist.makeUnique1(ps);
-
-    /**
-     * Create a distribution over a rank-1 region that maps every
-     * point in the region to a place in ps, and which maps some
-     * point in the region to every place in ps.
-     *
-     * @param ps the set of places
-     * @return a "unique" distribution over the places in ps
-     */
-    public static def makeUnique(ps:Set[Place]):Dist(1)
-        = BaseDist.makeUnique1(ps);
+    public static def makeUnique(pg:PlaceGroup):Dist(1) {
+        if (pg.equals(PlaceGroup.WORLD)) {
+            return makeUnique();
+        } else {
+            return new UniqueDist(pg);
+        }
+    }
 
     /**
      * Create a distribution over the specified region that maps
@@ -229,8 +179,9 @@ public abstract class Dist(
      * @param p the given place
      * @return a "constant" distribution over r that maps to p.
      */
-    public static def makeConstant(r:Region, p:Place):Dist(r)
-        = BaseDist.makeConstant1(r, p);
+    public static def makeConstant(r:Region, p:Place):Dist(r) {
+        return new ConstantDist(r, p);
+    }
 
     /**
      * Create a distribution over the specified region that varies in
@@ -239,25 +190,27 @@ public abstract class Dist(
      *
      * @param r the given region
      * @param axis the dimension to cycle over
-     * @param ps the set of places
+     * @param pg the PlaceGroup over which to distribute the region
      * @return a "cyclic" distribution over r, cycling over the places in ps.
-    
-    public static def makeCyclic(r:Region, axis:int, ps:Set[Place]):Dist(r)
-        = BaseDist.makeCyclic1(r, axis, ps);
- */
+     */
+    public static def makeCyclic(r:Region, axis:int, pg:PlaceGroup):Dist(r) {
+        throw new UnsupportedOperationException(); // short term while eliminating BaseDist
+    }
+
     /**
      * Create a distribution over the specified region that varies in
      * place only along the specified axis. It divides the coordinates
-     * along that axis into ps.length blocks, and assigns successive
-     * blocks to successive places in ps.
+     * along that axis into pg.numPlaces() blocks, and assigns successive
+     * blocks to successive places in pg.
      *
      * @param r the given region
      * @param axis the dimension to block over
-     * @param ps the set of places
+     * @param pg the PlaceGroup over which to distribute the region
      * @return a "block" distribution over r, blocking over the places in ps.
      */
-    public static def makeBlock(r:Region, axis:int, ps:Set[Place]):Dist(r)
-        = BaseDist.makeBlock1(r, axis, ps);
+    public static def makeBlock(r:Region, axis:int, pg:PlaceGroup):Dist(r) {
+        return new BlockDist(r, axis, pg) as Dist(r); // TODO: cast should not be needed
+    }
 
     /**
      * Create a distribution over the specified region that varies in
@@ -268,22 +221,21 @@ public abstract class Dist(
      * @param r the given region
      * @param axis the dimension to block over
      * @param blockSize the size of the block
-     * @param ps the set of places
+     * @param pg the PlaceGroup over which to distribute the region
      * @return a "block-cyclic" distribution over r, cycling over the places in ps.
-   
-    public static def makeBlockCyclic(r:Region, axis:int, blockSize:int, ps:Set[Place])
-        = BaseDist.makeBlockCyclic1(r, axis, blockSize, ps);
-  */
+     */
+    public static def makeBlockCyclic(r:Region, axis:int, blockSize:int, pg:PlaceGroup) {
+        throw new UnsupportedOperationException(); // short term while eliminating BaseDist
+     }
 
     //
     // mapping places to regions
     //
 
     /**
-     * @return an object that implements Iterable[Place] that can be used to
-     *         iterate over the set of Places that this distribution maps some point to.
+     * The PlaceGroup over which the distribuiton is defined
      */
-    abstract public def places():Sequence[Place];
+    abstract public def places():PlaceGroup;
 
     /**
      * How many places are included in the distribution?
@@ -312,7 +264,7 @@ public abstract class Dist(
      * @param p the given place
      * @return the region that this distribution maps to p.
      */
-   public def apply(p:Place):Region(rank) = get(p);
+   public operator this(p:Place):Region(rank) = get(p);
 
 
 
@@ -326,7 +278,7 @@ public abstract class Dist(
      * @param pt the given point
      * @return the place that this distribution maps pt to.
      */
-    abstract public def apply(pt:Point(rank)):Place;
+    abstract public operator this(pt:Point(rank)):Place;
 
     /**
      * Return the place which this distribution maps the specified index to.
@@ -335,9 +287,9 @@ public abstract class Dist(
      *
      * @param i0 the given index in the first dimension
      * @return the place that this distribution maps the given index to.
-     * @see #apply(Point)
+     * @see #operator(Point)
      */
-    public def apply(i0:int){rank==1}:Place = apply(Point.make(i0));
+    public operator this(i0:int){rank==1}:Place = this(Point.make(i0));
 
     /**
      * Return the place which this distribution maps the specified pair of indices to.
@@ -347,9 +299,9 @@ public abstract class Dist(
      * @param i0 the given index in the first dimension
      * @param i1 the given index in the second dimension
      * @return the place that this distribution maps the given pair of indices to.
-     * @see #apply(Point)
+     * @see #operator(Point)
      */
-    public def apply(i0:int, i1:int){rank==2}:Place = apply(Point.make(i0, i1));
+    public operator this(i0:int, i1:int){rank==2}:Place = this(Point.make(i0, i1));
 
     /**
      * Return the place which this distribution maps the specified triple of indices to.
@@ -360,9 +312,9 @@ public abstract class Dist(
      * @param i1 the given index in the second dimension
      * @param i2 the given index in the third dimension
      * @return the place that this distribution maps the given triple of indices to.
-     * @see #apply(Point)
+     * @see #operator(Point)
      */
-    public def apply(i0:int, i1:int, i2:int){rank==3}:Place = apply(Point.make(i0, i1, i2));
+    public operator this(i0:int, i1:int, i2:int){rank==3}:Place = this(Point.make(i0, i1, i2));
 
     /**
      * Return the place which this distribution maps the specified quartet of indices to.
@@ -374,9 +326,96 @@ public abstract class Dist(
      * @param i2 the given index in the third dimension
      * @param i3 the given index in the fourth dimension
      * @return the place that this distribution maps the given quartet of indices to.
-     * @see #apply(Point)
+     * @see #operator(Point)
      */
-    public def apply(i0:int, i1:int, i2:int, i3:int){rank==4}:Place = apply(Point.make(i0,i1,i2,i3));
+    public operator this(i0:int, i1:int, i2:int, i3:int){rank==4}:Place = this(Point.make(i0,i1,i2,i3));
+
+
+
+    /**
+     * Return the offset in linearized place-local storage of the given point.
+     * Throw a BadPlaceException if the given point is not mapped to 
+     * the current place.  Primarily intended to be used by the DistArray implementation,
+     * but may be useful for other data structures as well that need to associate 
+     * Points in a Distribution with a dense, zero-based numbering.
+     *
+     * @param pt the given point
+     * @return the storage offset assigned to pt by this distribution
+     */
+    abstract public def offset(pt:Point(rank)):int;
+
+    /**
+     * Return the offset in linearized place-local storage of the point [i0]
+     * Throw a BadPlaceException if the given point is not mapped to 
+     * the current place.  Primarily intended to be used by the DistArray implementation,
+     * but may be useful for other data structures as well that need to associate 
+     * Points in a Distribution with a dense, zero-based numbering.
+     *
+     * Only applies to one-dimensional distributions.
+     *
+     * @param i0 the given index in the first dimension
+     * @return the storage offset assigned to [i0] by this distribution
+     * @see #offset(Point)
+     */
+    public def offset(i0:int){rank==1}:int = offset(Point.make(i0));
+
+    /**
+     * Return the offset in linearized place-local storage of the point [i0,i1].
+     * Throw a BadPlaceException if the given point is not mapped to 
+     * the current place.  Primarily intended to be used by the DistArray implementation,
+     * but may be useful for other data structures as well that need to associate 
+     * Points in a Distribution with a dense, zero-based numbering.
+     *
+     * Only applies to two-dimensional distributions.
+     *
+     * @param i0 the given index in the first dimension
+     * @param i1 the given index in the second dimension
+     * @return the storage offset assigned to [i0,i1] by this distribution
+     * @see #offset(Point)
+     */
+    public def offset(i0:int, i1:int){rank==2}:int = offset(Point.make(i0, i1));
+
+    /**
+     * Return the offset in linearized place-local storage of the point [i0,i1,i2].
+     * Throw a BadPlaceException if the given point is not mapped to 
+     * the current place.  Primarily intended to be used by the DistArray implementation,
+     * but may be useful for other data structures as well that need to associate 
+     * Points in a Distribution with a dense, zero-based numbering.
+     *
+     * Only applies to three-dimensional distributions.
+     *
+     * @param i0 the given index in the first dimension
+     * @param i1 the given index in the second dimension
+     * @param i2 the given index in the third dimension
+     * @return the storage offset assigned to [i0,i1,i2] by this distribution
+     * @see #offset(Point)
+     */
+    public def offset(i0:int, i1:int, i2:int){rank==3}:int = offset(Point.make(i0, i1, i2));
+
+    /**
+     * Return the offset in linearized place-local storage of the point [i0,i1,i2,i3].
+     * Throw a BadPlaceException if the given point is not mapped to 
+     * the current place.  Primarily intended to be used by the DistArray implementation,
+     * but may be useful for other data structures as well that need to associate 
+     * Points in a Distribution with a dense, zero-based numbering.
+     *
+     * Only applies to four-dimensional distributions.
+     *
+     * @param i0 the given index in the first dimension
+     * @param i1 the given index in the second dimension
+     * @param i2 the given index in the third dimension
+     * @param i3 the given index in the fourth dimension
+     * @return the storage offset assigned to [i0,i1,i2,i3] by this distribution
+     * @see #offset(Point)
+     */
+    public def offset(i0:int, i1:int, i2:int, i3:int){rank==4}:int = offset(Point.make(i0,i1,i2,i3));
+
+    /**
+     * @return the maximum value returned by the offset method for
+     *         the current place for any possible argument Point
+     * @see #offset(Point)
+     */
+    public abstract def maxOffset():int;
 
 
     //
@@ -498,12 +537,24 @@ public abstract class Dist(
 
     /**
      * Return true iff that is a distribution and both distributions are defined
-     * over the same regions, and map every point in that region to the same place.
+     * over equal regions and place groups, and map every point in said region to 
+     * the same place.
      *
      * @param that the given distribution
      * @return true if that is equal to this distribution.
      */
-    abstract public def equals(that:Any):boolean;
+    public def equals(thatObj:Any):boolean {
+        if (this == thatObj) return true;
+        if (!(thatObj instanceof Dist)) return false;
+        val that = thatObj as Dist;
+	if (rank != that.rank) return false;
+	if (!region.equals(that.region)) return false;
+	val pg = places();
+        for (p in pg) {
+            if (!get(p).equals(that.get(p))) return false;
+        }
+        return true;
+    }
 
     //
     // other geometric ops
@@ -604,12 +655,9 @@ public abstract class Dist(
      * Construct a distribution over the specified region.
      *
      * @param region the given region
-     * @param unique whether to construct a "unique" distribution
-     * @param constant whether to construct a "constant" distribution
-     * @param onePlace the place all points map to (if "constant") or null
      */
-    protected def this(region:Region, unique:boolean, constant:boolean, onePlace:Place) {
-        property(region, unique, constant, onePlace);
+    protected def this(region:Region) {
+        property(region);
     }
 
     protected static @NoInline @NoReturn def raiseBoundsError(i0:int) {
@@ -628,7 +676,21 @@ public abstract class Dist(
         throw new ArrayIndexOutOfBoundsException("point " + pt + " not contained in distribution");
     }    
 
-
+    protected static @NoInline @NoReturn def raisePlaceError(i0:int) {
+        throw new BadPlaceException("point (" + i0 + ") not defined at " + here);
+    }    
+    protected static @NoInline @NoReturn def raisePlaceError(i0:int, i1:int) {
+        throw new BadPlaceException("point (" + i0 + ", "+i1+") not defined at " + here);
+    }    
+    protected static @NoInline @NoReturn def raisePlaceError(i0:int, i1:int, i2:int) {
+        throw new BadPlaceException("point (" + i0 + ", "+i1+", "+i2+") not defined at " + here);
+    }    
+    protected static @NoInline @NoReturn def raisePlaceError(i0:int, i1:int, i2:int, i3:int) {
+        throw new BadPlaceException("point (" + i0 + ", "+i1+", "+i2+", "+i3+") not defined at " + here);
+    }    
+    protected static @NoInline @NoReturn def raisePlaceError(pt:Point) {
+        throw new BadPlaceException("point " + pt + " not defined at " + here);
+    }    
 }
 
 // vim:shiftwidth=4:tabstop=4:expandtab

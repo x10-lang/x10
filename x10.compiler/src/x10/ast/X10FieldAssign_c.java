@@ -35,9 +35,7 @@ import polyglot.types.Context;
 import polyglot.types.Flags;
 import polyglot.types.ConstructorDef;
 import x10.types.X10FieldInstance;
-import x10.types.X10Flags;
 
-import x10.types.X10TypeMixin;
 import x10.types.X10Context_c;
 import x10.types.checker.Checker;
 import x10.types.checker.PlaceChecker;

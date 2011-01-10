@@ -37,7 +37,7 @@ public class EncapsulatedArray2D extends x10Test {
     public def run(): boolean = {
 
         val size: int = 5;
-        val R = (0..size-1)*(0..size-1);
+        val R = 0..(size-1)*0..(size-1);
         val D  = Dist.makeBlock(R, 0); 
         
         val A = DistArray.make[Wrapper](D, (Point) => Wrapper(DistArray.make[double](R->here, (Point)=>0.0D)));

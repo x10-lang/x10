@@ -24,6 +24,9 @@ import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
 import polyglot.visit.ContextVisitor;
 import x10.ast.AssignPropertyCall;
+import x10.ast.Async;
+import x10.ast.AtEach;
+import x10.ast.AtStmt;
 import x10.ast.Closure;
 import x10.ast.ClosureCall;
 import x10.ast.SettableAssign;
@@ -158,6 +161,12 @@ public abstract class NodeTransformer {
             return transform((AssignPropertyCall) s, (AssignPropertyCall) old);
         } else if (s instanceof LocalDecl) {
             return transform((LocalDecl) s, (LocalDecl) old);
+        } else if (s instanceof Async) {
+            return transform((Async) s, (Async) old);
+        } else if (s instanceof AtStmt) {
+            return transform((AtStmt) s, (AtStmt) old);
+        } else if (s instanceof AtEach) {
+            return transform((AtEach) s, (AtEach) old);
         }
         return transform(s, old);
     }
@@ -182,6 +191,18 @@ public abstract class NodeTransformer {
         return (X10Formal) transformNode((Node) f, (Node) old);
     }
 
+    protected Async transform(Async c, Async old) {
+        return (Async) transform((Stmt) c, (Stmt) old);
+    }
+
+    protected AtStmt transform(AtStmt c, AtStmt old) {
+        return (AtStmt) transform((Stmt) c, (Stmt) old);
+    }
+
+    protected AtEach transform(AtEach c, AtEach old) {
+        return (AtEach) transform((Stmt) c, (Stmt) old);
+    }
+    
     protected X10ClassDecl transform(X10ClassDecl d, X10ClassDecl old) {
         return (X10ClassDecl) transformNode((Node) d, (Node) old);
     }

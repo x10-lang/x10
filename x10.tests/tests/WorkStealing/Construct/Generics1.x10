@@ -13,9 +13,9 @@
  * A simple Generic concurrent method
  */
 public class Generics1 {
-	
-	var flag: boolean = false;
-	
+
+    var flag: boolean = false;
+
     class A[T] {
     	var value1:T;
         var value2:T;
@@ -54,11 +54,9 @@ public class Generics1 {
 	}
 
 	public static def main(Array[String](1)) {
-        val r = new Generics1().run();
-        if(r){
-             x10.io.Console.OUT.println("++++++Test succeeded.");
-        }
+	    val r = new Generics1().run();
+	    if (r) {
+		 x10.io.Console.OUT.println("++++++Test succeeded.");
+	    }
 	}
-	
-	
 }

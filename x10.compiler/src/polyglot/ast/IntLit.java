@@ -7,9 +7,7 @@
 
 package polyglot.ast;
 
-import polyglot.util.Enum;
-
-/** 
+/**
  * An <code>IntLit</code> represents a literal in Java of an integer
  * type.
  */

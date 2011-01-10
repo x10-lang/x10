@@ -9,7 +9,6 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-
 public class When {
     public def run():boolean {
         val b = new BoxedWBoolean();

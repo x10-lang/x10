@@ -73,7 +73,7 @@ public class ClockTest16a extends x10Test {
 			}
 
 			val f0 = new foo() {
-				public def apply(): void = {
+				public operator this(): void = {
 					val cx: Clock = ca(x.zero());
 					async clocked(cx) { //clock use error
 						next;
@@ -82,7 +82,7 @@ public class ClockTest16a extends x10Test {
 			};
 
 			val f1  = new foo() {
-				public def apply(): void = {
+				public operator this(): void = {
 					val cx: Clock = ca(x.one());
 					async clocked(cx) { // no clock use error
 						next;
@@ -137,7 +137,7 @@ public class ClockTest16a extends x10Test {
 	static class Y {
 		static def test(val f: foo): void = {
 			{
-				f.apply(); // it is hard to determine f does an async clocked(c) S,
+				f(); // it is hard to determine f does an async clocked(c) S,
 				//where the current activity is not registered on c
 				next;
 			}
@@ -151,12 +151,12 @@ public class ClockTest16a extends x10Test {
 	 *
 	 * // values of free final variables of S1 are also captured in f1
 	 *
-	 * f1.apply(); // invoke S1 indirectly using its captured
+	 * f1(); // invoke S1 indirectly using its captured
 	 *
 	 * // free variables
 	 */
 	static interface foo {
-		public  def apply(): void;
+		public  operator this(): void;
 	}
 
 	/**

@@ -16,7 +16,7 @@ import x10.compiler.TempNoInline_3;
 public final class Box[+T](value: T) implements ()=> T {
     public def this(x: T) { property(x); }
 
-    public def apply()=value;
+    public operator this()=value;
     public def hashCode(): int = value.hashCode();
 
     public def toString(): String = value.toString();

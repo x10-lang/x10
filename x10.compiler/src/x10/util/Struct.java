@@ -11,10 +11,10 @@
 
 package x10.util;
 
-import java.util.HashSet;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.ArrayList;
 
 import polyglot.ast.*;
 import polyglot.types.Flags;
@@ -24,6 +24,7 @@ import polyglot.types.Name;
 import polyglot.types.QName;
 import polyglot.types.Ref;
 import polyglot.types.Type;
+import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.util.Position;
 import polyglot.visit.TypeBuilder;
@@ -56,7 +57,7 @@ public class Struct {
     }
 
     public static X10ClassDecl_c addStructMethods(TypeBuilder tb, X10ClassDecl_c n) {
-        final X10TypeSystem_c xts = (X10TypeSystem_c) tb.typeSystem();
+        final TypeSystem xts =  tb.typeSystem();
         final X10ClassDef cd = (X10ClassDef) n.classDef();
         X10ParsedClassType ct = (X10ParsedClassType) cd.asType();
 
@@ -165,7 +166,7 @@ public class Struct {
                 fields.add(field);
            }
 
-        final Flags flags = X10Flags.PUBLIC.Final();
+        final Flags flags = Flags.PUBLIC.Final();
         final NodeFactory nf = (NodeFactory)tb.nodeFactory();
         final TypeNode intTypeNode = nf.TypeNodeFromQualifiedName(pos,QName.make("x10.lang","Int"));
         final TypeNode boolTypeNode = nf.TypeNodeFromQualifiedName(pos,QName.make("x10.lang","Boolean"));
@@ -199,7 +200,7 @@ public class Struct {
         */
 
         {
-            X10Flags nativeFlags = Flags.PUBLIC.Native().Final();
+            Flags nativeFlags = Flags.PUBLIC.Native().Final();
             ArrayList<AnnotationNode> natives;
             Formal formal;
             // In the Java backend, some structs (like Int) are mapped to primitives (like int)

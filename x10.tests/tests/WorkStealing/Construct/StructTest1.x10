@@ -12,7 +12,6 @@
 /*
  * A simple struct's concurrent method
  */
-
 struct ST {
   val x:int;
   val y:int;

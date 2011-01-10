@@ -68,7 +68,7 @@ public struct Team {
     public def size () : Int = nativeSize(id);
 
     private static def nativeSize (id:Int) : Int {
-    	@Native("java", "return x10.core.ThrowableUtilities.<java.lang.Integer> UnsupportedOperationException(\"x10.util.Team.nativeSize(Int):Int\");")
+    	@Native("java", "return x10.core.ThrowableUtilities.UnsupportedOperationExceptionInt(\"x10.util.Team.nativeSize(Int):Int\");")
         @Native("c++", "return (x10_int)x10rt_team_sz(id);") { return -1; }
     }
 
@@ -331,6 +331,12 @@ public struct Team {
     	@Native("java", "x10.core.ThrowableUtilities.<java.lang.Object> UnsupportedOperationException(\"x10.util.Team.nativeDel(Int,Int):void\");")
         @Native("c++", "x10rt_team_del(id, role, x10aux::coll_handler, x10aux::coll_enter());") {}
     }
+
+    public def toString() = "Team(" + this.id + ")";
+    public def equals(that:Team) = that.id==this.id;
+    public def equals(that:Any) = that instanceof Team && (that as Team).id==this.id;
+    public def hashCode()=id;
+
 }
 
 // vim: shiftwidth=4:tabstop=4:expandtab

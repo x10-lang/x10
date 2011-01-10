@@ -16,6 +16,7 @@ import polyglot.main.Report;
 import polyglot.main.Version;
 import polyglot.types.reflect.*;
 import polyglot.util.*;
+import x10.types.MethodInstance;
 
 /**
  * Loads class information from class files, or serialized class infomation

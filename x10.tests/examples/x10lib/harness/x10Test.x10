@@ -98,6 +98,27 @@ abstract public class x10Test {
 		+ actual);
     }
 
+    public def nearEnough(a:Double, b:Double) {
+        if (a.isNaN()) return b.isNaN();
+        if (b.isNaN()) return false;
+        return Math.abs(a-b) < 1e-14;
+    }
+
+    public def nearEnough(a:Float, b:Float) {
+        if (a.isNaN()) return b.isNaN();
+        if (b.isNaN()) return false;
+        return Math.abs(a-b) < 1e-5;
+    }
+
+    /**
+     * Returns true if a and b are near-enough equal.
+     * This sort of check is necessary because complex identities
+     * implemented in cartesian form in double precision are usually
+     * inaccurate in the last digit. 
+     */
+    public def nearEnough(a:Complex, b:Complex) {
+        return nearEnough(a.re as Float, b.re as Float) && nearEnough(a.im as Float, b.im as Float);
+    }
 
     protected static def println(s:String) = x10.io.Console.OUT.println(s);
 
@@ -151,12 +172,7 @@ abstract public class x10Test {
 
         public final def equals[T](a:T, b:T):Boolean {
           if (a == b) return true;
-          if (T <: Object) {
-             val aa = a as Object;
-             val bb = b as Object;
-             if (aa == null || bb == null) return false;
-          }
-          //if (a == null || b == null) return false;
+          if ((a as Any) == null || (b as Any) == null) return false;
           return a.equals(b);
         }
 

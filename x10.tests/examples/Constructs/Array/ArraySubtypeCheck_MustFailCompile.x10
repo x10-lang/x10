@@ -10,6 +10,8 @@
  */
 
 import harness.x10Test;
+import x10.compiler.*; // @Uncounted @NonEscaping @NoThisAccess
+import x10.compiler.tests.*; // err markers
 
 /**
  */

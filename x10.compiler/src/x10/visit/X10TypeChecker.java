@@ -35,7 +35,6 @@ import x10.errors.Errors;
  */
 public class X10TypeChecker extends TypeChecker {
 
-	Map<Node,Node> memo;
 	/**
 	 * @param job
 	 * @param ts
@@ -58,16 +57,13 @@ public class X10TypeChecker extends TypeChecker {
 		super(job, ts, nf, memo);
 		this.extensionInfo = (x10.ExtensionInfo) job.extensionInfo();
 		this.memo = memo;
-		this.isFragmentChecker = isFragmentChecker;
 	}
-	boolean isFragmentChecker = false;
-	public boolean isFragmentChecker() { return isFragmentChecker;}
 	
 	private x10.ExtensionInfo extensionInfo;
 	
+	// TODO: record the top-level node in a memo only if typechecking a fragment
 	public Node override(Node parent, Node n) {
 	    Node n_ = memo.get(n);
-	    n_ = null;
 	    if (n_ != null) {
 	        this.addDecls(n_);
 	        return n_;
@@ -80,8 +76,8 @@ public class X10TypeChecker extends TypeChecker {
 	        Node m = n.del().typeCheckOverride(parent, this);
 
 	        if (m != null) {
-	            memo.put(n, m);
-	            memo.put(m, m);
+//	            memo.put(n, m);
+//	            memo.put(m, m);
 	        }
 
 	        return m;
@@ -113,9 +109,9 @@ public class X10TypeChecker extends TypeChecker {
 	        m = m.del().typeCheck(tc);
 	        m = m.del().checkConstants(tc);
 	        // Record the new node in the memo table.
-	        memo.put(old, m);
-	        memo.put(n, m);
-	        memo.put(m, m);
+//	        memo.put(old, m);
+//	        memo.put(n, m);
+//	        memo.put(m, m);
 	        return m;
 	    } catch (SemanticException z) {
 	        boolean newp = extensionInfo.errorSet().add(z);

@@ -20,18 +20,32 @@ import polyglot.ast.Id_c;
 import polyglot.ast.Node;
 import polyglot.ast.Stmt;
 import polyglot.ast.Field_c;
+import polyglot.types.CodeDef;
 import polyglot.types.Context;
+import polyglot.types.Def;
+import polyglot.types.FieldDef;
+import polyglot.types.Flags;
 import polyglot.types.Name;
+import polyglot.types.SemanticException;
+import polyglot.types.TypeSystem;
+import polyglot.types.Types;
 import polyglot.util.CodeWriter;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
+import polyglot.visit.ContextVisitor;
 import polyglot.visit.PrettyPrinter;
+import polyglot.visit.TypeBuilder;
 import x10.ast.X10Loop.LoopKind;
 
 import x10.constraint.XFailure;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
+import x10.errors.Errors;
 import polyglot.types.Context;
+import x10.types.AtDef;
+import x10.types.X10ClassDef;
+import x10.types.X10Context_c;
+import x10.types.X10MemberDef;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint;
@@ -43,6 +57,8 @@ import x10.types.constraints.XConstrainedTerm;
  * @author Christian Grothoff
  */
 public class AtEach_c extends X10ClockedLoop_c implements AtEach, Clocked {
+
+    protected AtDef atDef;
 
 	/**
 	 * @param pos
@@ -68,16 +84,71 @@ public class AtEach_c extends X10ClockedLoop_c implements AtEach, Clocked {
 		loopKind=LoopKind.ATEACH;
 	}
 
-	public Expr getDomain(Expr d) {
-		return new Field_c(position(), d, new Id_c(position(), Name.make("dist")));
+	public AtDef atDef() {
+	    return this.atDef;
+	}
+
+	public AtEach atDef(AtDef ci) {
+	    if (ci == this.atDef) return this;
+	    AtEach_c n = (AtEach_c) copy();
+	    n.atDef = ci;
+	    return n;
 	}
 
 	XConstrainedTerm placeTerm;
+
+	@Override
+	public Node buildTypesOverride(TypeBuilder tb) {
+	    TypeSystem ts = (TypeSystem) tb.typeSystem();
+
+	    X10ClassDef ct = (X10ClassDef) tb.currentClass();
+	    assert ct != null;
+
+	    Def def = tb.def();
+
+	    if (def instanceof FieldDef) {
+	        // FIXME: is this possible?
+	        FieldDef fd = (FieldDef) def;
+	        def = fd.initializer();
+	    }
+
+	    if (!(def instanceof CodeDef)) {
+	        Errors.issue(tb.job(),
+	                new SemanticException("At cannot occur outside code body.", position()));
+	        // Fake it
+	        def = ts.initializerDef(position(), Types.ref(ct.asType()), Flags.STATIC);
+	    }
+
+	    CodeDef code = (CodeDef) def;
+
+	    AtDef mi = (AtDef) AtStmt_c.createDummyAsync(position(), ts, ct.asType(), code, code.staticContext(), false);
+
+	    // Unlike methods and constructors, do not create new goals for resolving the signature and body separately;
+	    // since closures don't have names, we'll never have to resolve the signature.  Just push the code context.
+	    TypeBuilder tb2 = tb.pushCode(mi);
+
+	    AtEach_c n = (AtEach_c) this.del().visitChildren(tb2);
+	    try {
+	        n = (AtEach_c) n.del().buildTypes(tb2);
+	    } catch (SemanticException e) {
+	        throw new InternalCompilerError("Unexpected error while building types for an ateach statement", position(), e);
+	    }
+
+	    if (code instanceof X10MemberDef) {
+	        assert mi.thisDef() == ((X10MemberDef) code).thisDef();
+	    }
+
+	    return n.atDef(mi);
+	}
+
 	@Override
 	public Context enterChildScope(Node child, Context c) {
-		Context xc = (Context) super.enterChildScope(child, c);
-	
-		
+		if (child == this.body) {
+		    c = c.pushCode(atDef);
+		    ((X10Context_c)c).x10Kind = X10Context_c.X10Kind.At; // this is an at, not an async
+		}
+		Context xc = c;
+
 		try {
 			// FIXME: this creates a new place term; ideally, it should be the place associated with each
 			// point in the ateach distribution 
@@ -87,19 +158,27 @@ public class AtEach_c extends X10ClockedLoop_c implements AtEach, Clocked {
 				placeTerm = XConstrainedTerm.instantiate(d, term);
 			}
 
-            if (child == body)
-                xc = (Context) xc.pushPlace(placeTerm);
+			if (child == body)
+			    xc = (Context) xc.pushPlace(placeTerm);
 		} 
 		catch (XFailure z) {
 			throw new InternalCompilerError("Cannot construct placeTerm from  term  and constraint.");
 		}
-        return xc;
+		return xc;
 	}
 
 	@Override
-	protected Object clone() throws CloneNotSupportedException {
-		// TODO Auto-generated method stub
-		return super.clone();
+	public Node typeCheck(ContextVisitor tc) {
+	    AtEach_c n = (AtEach_c) super.typeCheck(tc);
+
+	    Context c = tc.context();
+	    AtDef def = n.atDef;
+	    //if (!def.capturedEnvironment().isEmpty()) {
+	    //    System.out.println(this.position() + ": " + this + " captures "+def.capturedEnvironment());
+	    //}
+	    Closure_c.propagateCapturedEnvironment(c, def);
+
+	    return n;
 	}
 
 	public String toString() {

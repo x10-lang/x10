@@ -41,7 +41,8 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
 		});
 
 		// start and join main x10 thread in place 0
-		x10.lang.Runtime.Worker worker = new x10.lang.Runtime.Worker(this);
+		x10.lang.Runtime.Worker worker = new x10.lang.Runtime.Worker(0);
+		worker.body = this;
 		worker.start();
 		try { worker.join(); } catch (InterruptedException e) {}
 
@@ -53,7 +54,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
 	 * Body of main x10 thread
 	 */
 	public void apply() {
-		try { Class.forName("x10.lang.Place"); } catch (ClassNotFoundException e) { }
+//		try { Class.forName("x10.lang.Place"); } catch (ClassNotFoundException e) { }
 
 		// preload classes by default
 		if (!Boolean.getBoolean("x10.NO_PRELOAD_CLASSES")) {
@@ -114,6 +115,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
             });
         } catch (java.lang.Throwable t) {
             t.printStackTrace();
+            setExitCode(1);
         }
 	}
 
@@ -155,6 +157,11 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
 	 * The number of threads to allocate in the thread pool
 	 */
 	public static final int INIT_THREADS = Integer.getInteger("x10.INIT_THREADS", java.lang.Runtime.getRuntime().availableProcessors());
+
+    /**
+     * The maximal size of the thread pool
+     */
+    public static final int MAX_THREADS = Integer.getInteger("x10.MAX_THREADS", 1000);
 
 	/**
 	 * Whether or not to start more threads while blocking

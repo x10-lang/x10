@@ -23,7 +23,7 @@ import polyglot.types.Flags;
 import polyglot.types.LocalDef;
 import polyglot.types.LocalInstance;
 import polyglot.types.MemberInstance;
-import polyglot.types.MethodInstance;
+
 import polyglot.types.ObjectType;
 import polyglot.types.Package;
 import polyglot.types.ProcedureInstance;
@@ -31,7 +31,7 @@ import polyglot.types.Ref;
 import polyglot.types.Resolver;
 import polyglot.types.SemanticException;
 import polyglot.types.Name;
-import polyglot.types.StructType;
+import polyglot.types.ContainerType;
 import polyglot.types.Type;
 import polyglot.types.TypeObject;
 import polyglot.types.TypeSystem;
@@ -84,7 +84,7 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 	}
 
 	@Override
-	public MacroType container(StructType container) {
+	public MacroType container(ContainerType container) {
 		return (MacroType) super.container(container);
 	}
 	
@@ -93,22 +93,17 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 		return (MacroType) super.flags(flags);
 	}
 
-	public boolean isX10Struct() {
-		return ((TypeSystem) typeSystem()).isStructType(this);
-	}
-	
-	public Type setFlags(Flags f) {
-		X10Flags xf = X10Flags.toX10Flags(f);
+	public Type setFlags(Flags xf) {
 		MacroType_c c = (MacroType_c) this.copy();
 		if (c.flags == null)
-			c.flags = X10Flags.toX10Flags(Flags.NONE);
-		c.flags = (xf.isStruct()) ? X10Flags.toX10Flags(c.flags).Struct() : c.flags;
+			c.flags = Flags.NONE;
+		c.flags = (xf.isStruct()) ? c.flags.Struct() : c.flags;
 		return c;
 	}
 	public Type clearFlags(Flags f) {
 		MacroType_c c = (MacroType_c) this.copy();
 		if (c.flags == null)
-			c.flags = X10Flags.toX10Flags(Flags.NONE);
+			c.flags = Flags.NONE;
 		c.flags = c.flags.clear(f);
 		return c;
 	}
@@ -242,7 +237,7 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 			return Types.get(def().definedType());
 		Ref<? extends Type> dt = definedType;
 		definedType = Types.ref(typeSystem().unknownType(position())); // guard against recursion
-		Type t = X10TypeMixin.processFlags(flags(), Types.get(dt));
+		Type t = Types.processFlags(flags(), Types.get(dt));
 		definedType = dt;
 		return t;
 	}
@@ -295,7 +290,7 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 	    return "type";
 	}
 	
-	public String toString() {
+	public String typeToString() {
 	    StringBuilder sb = new StringBuilder();
 	    sb.append(signature());
 	    if (definedType != null && definedType.known()) {
@@ -308,7 +303,7 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 	public String signature() {
 	    StringBuffer sb = new StringBuffer();
 	    TypeDef d = def.getCached();
-	    Ref<? extends StructType> cont = d.container();
+	    Ref<? extends ContainerType> cont = d.container();
 	    if (cont != null) {
 		Type t = cont.getCached();
 		if (t != null) {
@@ -357,8 +352,8 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 	@Override
 	public List<FieldInstance> fields() {
 		Type base = definedType();
-		if (base instanceof StructType) {
-			return ((StructType) base).fields();
+		if (base instanceof ContainerType) {
+			return ((ContainerType) base).fields();
 		}
 		return Collections.emptyList();
 	}
@@ -375,8 +370,8 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 	@Override
 	public List<MethodInstance> methods() {
 		Type base = definedType();
-		if (base instanceof StructType) {
-			return ((StructType) base).methods();
+		if (base instanceof ContainerType) {
+			return ((ContainerType) base).methods();
 		}
 		return Collections.emptyList();
 	}
@@ -401,7 +396,7 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 	
 
 	public boolean moreSpecific(Type ct, ProcedureInstance<TypeDef> p, Context context) {
-	    return X10TypeMixin.moreSpecificImpl(ct, this, p, context);
+	    return Types.moreSpecificImpl(ct, this, p, context);
 	}
 	
 	public Type returnType() {

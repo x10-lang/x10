@@ -37,7 +37,7 @@ import polyglot.types.Flags;
 import polyglot.types.LocalDef;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
-import polyglot.types.StructType;
+import polyglot.types.ContainerType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
@@ -52,7 +52,6 @@ import x10.ast.X10ConstructorDecl;
 import x10.ast.X10FieldDecl;
 import x10.ast.X10MethodDecl;
 import x10.ast.X10New;
-import x10.types.AnnotatedType;
 import x10.types.ConstrainedType;
 import x10.types.ParameterType;
 import x10.types.X10ClassDef;
@@ -61,12 +60,11 @@ import x10.types.X10ConstructorDef;
 import x10.types.X10ConstructorInstance;
 import x10.types.X10FieldDef;
 import x10.types.X10FieldInstance;
-import x10.types.X10Flags;
+
 import x10.types.X10MethodDef;
-import x10.types.X10MethodInstance;
+import x10.types.MethodInstance;
 import x10.types.X10ParsedClassType;
 import x10.types.X10ProcedureDef;
-import x10.types.X10TypeMixin;
 import x10.types.ParameterType.Variance;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
@@ -174,8 +172,8 @@ public class X10InnerClassRemover extends InnerClassRemover {
             //if (newThrowTypes != throwTypes) {
             //    ci = (X10ConstructorInstance) ci.throwTypes(newThrowTypes);
             //}
-            StructType container = ci.container();
-            StructType newContainer = (StructType) transformType(container);
+            ContainerType container = ci.container();
+            ContainerType newContainer = (ContainerType) transformType(container);
             if (newContainer != container) {
                 ci = (X10ConstructorInstance) ci.container(newContainer);
             }
@@ -193,36 +191,36 @@ public class X10InnerClassRemover extends InnerClassRemover {
         }
 
         @Override
-        protected X10MethodInstance transformMethodInstance(X10MethodInstance mi) {
+        protected MethodInstance transformMethodInstance(MethodInstance mi) {
             Type returnType = mi.returnType();
             Type newReturnType = transformType(returnType);
             if (newReturnType != returnType) {
-                mi = (X10MethodInstance) mi.returnType(newReturnType);
+                mi = (MethodInstance) mi.returnType(newReturnType);
             }
             List<Type> formalTypes = mi.formalTypes();
             List<Type> newFormalTypes = transformTypeList(formalTypes);
             if (newFormalTypes != formalTypes) {
-                mi = (X10MethodInstance) mi.formalTypes(newFormalTypes);
+                mi = (MethodInstance) mi.formalTypes(newFormalTypes);
             }
             //List<Type> throwTypes = mi.throwTypes();
             //List<Type> newThrowTypes = transformTypeList(throwTypes);
             //if (newThrowTypes != throwTypes) {
             //    mi = (X10MethodInstance) mi.throwTypes(newThrowTypes);
             //}
-            StructType container = mi.container();
-            StructType newContainer = (StructType) transformType(container);
+            ContainerType container = mi.container();
+            ContainerType newContainer = (ContainerType) transformType(container);
             if (newContainer != container) {
-                mi = (X10MethodInstance) mi.container(newContainer);
+                mi = (MethodInstance) mi.container(newContainer);
             }
             CConstraint guard = mi.guard();
             CConstraint newGuard = transformConstraint(guard);
             if (newGuard != guard) {
-                mi = (X10MethodInstance) mi.guard(newGuard);
+                mi = (MethodInstance) mi.guard(newGuard);
             }
             TypeConstraint typeGuard = mi.typeGuard();
             TypeConstraint newTypeGuard = transformTypeConstraint(typeGuard);
             if (newTypeGuard != typeGuard) {
-                mi = (X10MethodInstance) mi.typeGuard(newTypeGuard);
+                mi = (MethodInstance) mi.typeGuard(newTypeGuard);
             }
             return mi;
         }
@@ -234,8 +232,8 @@ public class X10InnerClassRemover extends InnerClassRemover {
             if (newType != type) {
                 fi = (X10FieldInstance) fi.type(newType);
             }
-            StructType container = fi.container();
-            StructType newContainer = (StructType) transformType(container);
+            ContainerType container = fi.container();
+            ContainerType newContainer = (ContainerType) transformType(container);
             if (newContainer != container) {
                 fi = (X10FieldInstance) fi.container(newContainer);
             }
@@ -463,13 +461,13 @@ public class X10InnerClassRemover extends InnerClassRemover {
             }
             def.flags(def.flags().Static());
         }
-        t = X10TypeMixin.instantiateTypeParametersExplicitly(t);
+        t = Types.instantiateTypeParametersExplicitly(t);
         CConstraint constraint = t instanceof ConstrainedType ? ((ConstrainedType) t).getRealXClause() : null;
         t = propagateTypeArgumentsToInnermostType(t);
         if (constraint != null) {
             CConstraint newConstraint = fixConstraint(constraint);
             if (newConstraint != constraint)
-                t = X10TypeMixin.xclause(t, newConstraint);
+                t = Types.xclause(t, newConstraint);
         }
         return t;
     }
@@ -541,13 +539,13 @@ public class X10InnerClassRemover extends InnerClassRemover {
             Type newBaseType = propagateTypeArgumentsToInnermostType(baseType);
             if (newBaseType != baseType)
                 t = ct.baseType(Types.ref(newBaseType));
-        } else if (t instanceof AnnotatedType) {
+        }/* else if (t instanceof AnnotatedType) {
             AnnotatedType at = (AnnotatedType) t;
             Type baseType = at.baseType();
             Type newBaseType = propagateTypeArgumentsToInnermostType(baseType);
             if (newBaseType != baseType)
                 t = at.baseType(newBaseType);
-        }
+        }*/
         return t;
     }
 
@@ -572,8 +570,8 @@ public class X10InnerClassRemover extends InnerClassRemover {
     protected FieldDef boxThis(ClassType currClass, ClassType outerClass) {
         outerClass = (ClassType) fixType(outerClass);
         FieldDef fi = super.boxThis(currClass, outerClass);
-        if (!(fi.flags() instanceof X10Flags))
-            fi.setFlags(X10Flags.toX10Flags(fi.flags()));
+        //if (!(fi.flags() instanceof X10Flags))
+        //    fi.setFlags(X10Flags.toX10Flags(fi.flags()));
         return fi;
     }
 }

@@ -63,12 +63,13 @@ import x10.ast.StmtSeq;
 import x10.ast.X10Call;
 import x10.ast.X10Cast;
 import x10.ast.X10Formal;
+import x10.ast.SettableAssign;
 import x10.constraint.XFailure;
 import x10.constraint.XTerm;
+import x10.types.ConstrainedType;
 import x10.types.X10FieldInstance;
 import x10.types.X10LocalDef;
-import x10.types.X10MethodInstance;
-import x10.types.X10TypeMixin;
+import x10.types.MethodInstance;
 import x10.types.checker.Converter;
 import x10.types.constraints.CConstraint;
 import x10.visit.ConstantPropagator;
@@ -91,7 +92,7 @@ public class AltSynthesizer extends ContextVisitor {
     private static final Name RANK     = Name.make("rank");
     private static final Name MIN      = Name.make("min");
     private static final Name MAX      = Name.make("max");
-    private static final Name SET      = Name.make("set");
+    private static final Name SET      = SettableAssign.SET;
 
     private final TypeSystem  ts;
     private final NodeFactory nf;
@@ -578,7 +579,7 @@ public class AltSynthesizer extends ContextVisitor {
      */
     public Field createFieldRef(Position pos, Expr receiver, Name name) {
         final Type type = receiver.type();
-        X10FieldInstance fi = X10TypeMixin.getProperty(type, name);
+        X10FieldInstance fi = Types.getProperty(type, name);
         if (null == fi) {
             fi = (X10FieldInstance) type.toClass().fieldNamed(name);
         }
@@ -600,8 +601,8 @@ public class AltSynthesizer extends ContextVisitor {
         Field f       = nf.Field(pos, receiver, nf.Id(pos, fi.name())).fieldInstance(fi);
         Type type     = fi.rightType();
         // propagate self binding (if any)
-        CConstraint c = X10TypeMixin.realX(receiver.type());
-        XTerm term    = X10TypeMixin.selfVarBinding(c);  // the RHS of {self==x} in c
+        CConstraint c = Types.realX(receiver.type());
+        XTerm term    = Types.selfVarBinding(c);  // the RHS of {self==x} in c
         if (term != null) {
             type = addSelfConstraint(type, ts.xtypeTranslator().trans(c, term, fi));
             assert (null != type);
@@ -621,7 +622,7 @@ public class AltSynthesizer extends ContextVisitor {
      * TODO: move to Synthesizer
      */
     public X10Call createStaticCall(Position pos, Type container, Name name, Expr... args) {
-        X10MethodInstance mi = createMethodInstance(container, name, args);
+        MethodInstance mi = createMethodInstance(container, name, args);
         if (null == mi) return null;
         return createStaticCall(pos, mi, args);
     }
@@ -640,7 +641,7 @@ public class AltSynthesizer extends ContextVisitor {
      * TODO: move to Synthesizer
      */
     public X10Call createStaticCall(Position pos, Type container, Name name, List<Type> typeArgs, Expr... args) {
-        X10MethodInstance mi = createMethodInstance(container, name, typeArgs, args);
+        MethodInstance mi = createMethodInstance(container, name, typeArgs, args);
         if (null == mi) return null;
         return createStaticCall(pos, mi, args);
     }
@@ -655,7 +656,7 @@ public class AltSynthesizer extends ContextVisitor {
      * @return the synthesized Call to the specified method taking the prescribed arguments
      * TODO: move to Synthesizer
      */
-    public X10Call createStaticCall(Position pos, X10MethodInstance mi, Expr... args) {
+    public X10Call createStaticCall(Position pos, MethodInstance mi, Expr... args) {
         List<Type> typeParams = mi.typeParameters();
         List<TypeNode> typeParamNodes = new ArrayList<TypeNode>();
         for (Type t : typeParams) {
@@ -680,7 +681,7 @@ public class AltSynthesizer extends ContextVisitor {
      * TODO: move to Synthesizer
      */
     public X10Call createInstanceCall(Position pos, Expr receiver, Name name, Expr... args) {
-        X10MethodInstance mi = createMethodInstance(receiver, name, args);
+        MethodInstance mi = createMethodInstance(receiver, name, args);
         if (null == mi) return null;
         return createInstanceCall(pos, receiver, mi, args);
     }
@@ -699,7 +700,7 @@ public class AltSynthesizer extends ContextVisitor {
      * TODO: move to Synthesizer 
      */
     public X10Call createInstanceCall(Position pos, Expr receiver, Name name, List<Type> typeArgs, Expr... args) {
-        X10MethodInstance mi = createMethodInstance(receiver, name, typeArgs, args);
+        MethodInstance mi = createMethodInstance(receiver, name, typeArgs, args);
         if (null == mi) return null;
         return createInstanceCall(pos, receiver, mi, args);
     }
@@ -716,7 +717,7 @@ public class AltSynthesizer extends ContextVisitor {
      * or null if no such method
      * TODO: move to Synthesizer 
      */
-    public X10Call createInstanceCall(Position pos, Expr receiver, X10MethodInstance mi, Expr... args) {
+    public X10Call createInstanceCall(Position pos, Expr receiver, MethodInstance mi, Expr... args) {
         List<Type> typeParams = mi.typeParameters();
         List<TypeNode> typeParamNodes = new ArrayList<TypeNode>();
         for (Type t : typeParams) {
@@ -742,7 +743,7 @@ public class AltSynthesizer extends ContextVisitor {
      * @throws InternalCompilerError if the required method instance cannot be created
      * TODO: move to a type system helper class
      */
-    public X10MethodInstance createMethodInstance(Type container, Name name, List<Type> typeArgs, Expr... args) {
+    public MethodInstance createMethodInstance(Type container, Name name, List<Type> typeArgs, Expr... args) {
         List<Type> argTypes = getExprTypes(args);
         return createMethodInstance(container, name, typeArgs, argTypes);
     }
@@ -754,7 +755,7 @@ public class AltSynthesizer extends ContextVisitor {
      * @param argTypes
      * @return
      */
-    public X10MethodInstance createMethodInstance(Type container, Name name, List<Type> typeArgs, List<Type> argTypes) {
+    public MethodInstance createMethodInstance(Type container, Name name, List<Type> typeArgs, List<Type> argTypes) {
         return createMethodInstance(container, name, typeArgs, argTypes, context());
     }
 
@@ -767,7 +768,7 @@ public class AltSynthesizer extends ContextVisitor {
      * @param context
      * @return
      */
-    public X10MethodInstance createMethodInstance(Type container, Name name, List<Type> typeArgs, List<Type> argTypes, Context context) {
+    public MethodInstance createMethodInstance(Type container, Name name, List<Type> typeArgs, List<Type> argTypes, Context context) {
         try {
             return ts.findMethod(container, ts.MethodMatcher(container, name, typeArgs, argTypes, context));
         } catch (SemanticException e) {
@@ -785,7 +786,7 @@ public class AltSynthesizer extends ContextVisitor {
      * throws InternalCompilerError if the required method instance cannot be created
      * TODO: move to a type system helper class
      */
-    public X10MethodInstance createMethodInstance(Type container, Name name, Expr... args) {
+    public MethodInstance createMethodInstance(Type container, Name name, Expr... args) {
         List<Type> argTypes = getExprTypes(args);
         try {
             return ts.findMethod(container, ts.MethodMatcher(container, name, argTypes, context()) );
@@ -805,7 +806,7 @@ public class AltSynthesizer extends ContextVisitor {
      * @throws InternalCompilerError if the required method instance cannot be created
      * TODO: move to a type system helper class
      */
-    public X10MethodInstance createMethodInstance(Expr receiver, Name name, List<Type> typeArgs, Expr... args) {
+    public MethodInstance createMethodInstance(Expr receiver, Name name, List<Type> typeArgs, Expr... args) {
         return createMethodInstance(receiver.type(), name, typeArgs, args);
     }
 
@@ -819,7 +820,7 @@ public class AltSynthesizer extends ContextVisitor {
      * throws InternalCompilerError if the required method instance cannot be created
      * TODO: move to a type system helper class
      */
-    public X10MethodInstance createMethodInstance(Expr receiver, Name name, Expr... args) {
+    public MethodInstance createMethodInstance(Expr receiver, Name name, Expr... args) {
         return createMethodInstance(receiver.type(), name, args);
     }
 
@@ -858,7 +859,7 @@ public class AltSynthesizer extends ContextVisitor {
      * TODO: move into ASTQuery
      */
     public Object getPropertyConstantValue(Expr expr, Name name) {
-        X10FieldInstance propertyFI = X10TypeMixin.getProperty(expr.type(), name);
+        X10FieldInstance propertyFI = Types.getProperty(expr.type(), name);
         if (null == propertyFI) return null;
         Expr propertyExpr = createFieldRef(expr.position(), expr, propertyFI);
         if (null == propertyExpr) return null;
@@ -875,9 +876,12 @@ public class AltSynthesizer extends ContextVisitor {
      * TODO: move into Synthesizer
      */
     public static Type addPropertyConstraint(Type type, Name name, XTerm value) throws XFailure {
-        XTerm property = X10TypeMixin.findOrSynthesize(type, name);
+    	// Need to ensure that the argument to find or synthesize is a constrained type
+    	// since the property may refer to the type's self variable.
+    	ConstrainedType type1 = Types.toConstrainedType(type);
+        XTerm property = type1.findOrSynthesize(name);
         if (null == property) return null;
-        return X10TypeMixin.addBinding(type, property, value);
+        return Types.addBinding(type1, property, value);
     }
 
     /**
@@ -904,7 +908,7 @@ public class AltSynthesizer extends ContextVisitor {
      */
     public static Type addSelfConstraint(Type type, XTerm value) {
         try {
-            return X10TypeMixin.addSelfBinding(type, value);
+            return Types.addSelfBinding(type, value);
         } catch (XFailure e) {
             return null;
         }

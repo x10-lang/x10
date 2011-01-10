@@ -13,9 +13,9 @@
  * A simple Generic concurrent method
  */
 public class GenericMethod2 {
-	
-	var flag: boolean = false;
-	
+
+    var flag: boolean = false;
+
     class A[U] {
         var value:U;
     

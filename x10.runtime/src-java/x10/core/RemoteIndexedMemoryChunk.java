@@ -42,7 +42,7 @@ public final class RemoteIndexedMemoryChunk<T> extends x10.core.Struct {
 
     public static final RuntimeType<RemoteIndexedMemoryChunk<?>> _RTT = new RuntimeType<RemoteIndexedMemoryChunk<?>>(
         RemoteIndexedMemoryChunk.class,
-        Variance.INVARIANT
+        new RuntimeType.Variance[] { Variance.INVARIANT }
     ) {
         @Override
         public java.lang.String typeName() {
@@ -76,6 +76,8 @@ public final class RemoteIndexedMemoryChunk<T> extends x10.core.Struct {
     public double[] getDoubleArray() { return (double[]) value; }
     public Object[] getObjectArray() { return (Object[]) value; }
 
+    // this is broken
+    /*
     public Object[] getBoxedArray() {
         if (value instanceof boolean[]) {
             boolean[] a = (boolean[]) value;
@@ -119,5 +121,6 @@ public final class RemoteIndexedMemoryChunk<T> extends x10.core.Struct {
         }
         return (Object[]) value;
     }
+    */
 
 }

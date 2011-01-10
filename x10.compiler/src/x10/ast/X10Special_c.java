@@ -31,13 +31,12 @@ import x10.types.ConstrainedType;
 import x10.types.X10ConstructorDef;
 import polyglot.types.Context;
 import x10.types.ThisDef;
-import x10.types.X10Flags;
+
 import x10.types.X10MemberDef;
 import x10.types.X10MethodDef;
 import x10.types.X10ParsedClassType;
 import x10.types.X10ProcedureDef;
 
-import x10.types.X10TypeMixin;
 import polyglot.types.TypeSystem;
 import x10.types.XTypeTranslator;
 import x10.types.checker.PlaceChecker;
@@ -76,7 +75,7 @@ public class X10Special_c extends Special_c implements X10Special {
             // The type of self should not include a dep clause; otherwise
             // self in C{c} could have type C{c}, causing an infinite regress
             // later in type checking.
-            tt = X10TypeMixin.baseType(tt);
+            tt = Types.baseType(tt);
 
             assert tt != null;
             return type(tt);
@@ -112,7 +111,7 @@ public class X10Special_c extends Special_c implements X10Special {
             if (c.currentDepType() == null)
                 if (code instanceof X10ConstructorDef) {
                     X10ConstructorDef cd = (X10ConstructorDef) code;
-                    Type returnType =  cd.returnType().get();
+                    Type returnType =  (Type) cd.returnType().get();
                     returnType =  ts.expandMacros(returnType);
                     t = returnType;
                 }
@@ -145,11 +144,11 @@ public class X10Special_c extends Special_c implements X10Special {
         TypeSystem xts = (TypeSystem) ts;
         assert (t.isClass());
         // Instantiate with the class's type arguments
-        t = X10TypeMixin.instantiateTypeParametersExplicitly(t);
+        t = Types.instantiateTypeParametersExplicitly(t);
 
         if (kind == THIS) {
-            Type tt = X10TypeMixin.baseType(t);
-            CConstraint cc = X10TypeMixin.xclause(t);
+            Type tt = Types.baseType(t);
+            CConstraint cc = Types.xclause(t);
             cc = cc == null ? new CConstraint() : cc.copy();
             try {
                 XVar var = (XVar) xts.xtypeTranslator().trans(cc, this, c);
@@ -163,14 +162,14 @@ public class X10Special_c extends Special_c implements X10Special {
                 Errors.issue(tc.job(),
                         new SemanticException("Constraint on this is inconsistent; " + e.getMessage(), position()));
             }
-            tt = X10TypeMixin.xclause(X10TypeMixin.baseType(tt), cc);
+            tt = Types.xclause(Types.baseType(tt), cc);
             
             result = (X10Special) type(tt);
         }
         else if (kind == SUPER) {
-            Type superClass =  X10TypeMixin.superClass(t);
-            Type tt = X10TypeMixin.baseType(superClass);
-            CConstraint cc = X10TypeMixin.xclause(superClass);
+            Type superClass =  Types.superClass(t);
+            Type tt = Types.baseType(superClass);
+            CConstraint cc = Types.xclause(superClass);
             cc = cc == null ? new CConstraint() : cc.copy();
             try {
                 XVar var = (XVar) xts.xtypeTranslator().trans(cc, this, c);
@@ -181,7 +180,7 @@ public class X10Special_c extends Special_c implements X10Special {
                 Errors.issue(tc.job(),
                         new SemanticException("Constraint on super is inconsistent; " + e.getMessage(), position()));
             }
-            tt = X10TypeMixin.xclause(X10TypeMixin.baseType(tt), cc);
+            tt = Types.xclause(Types.baseType(tt), cc);
             result = (X10Special) type(tt);
         }
        
@@ -192,14 +191,14 @@ public class X10Special_c extends Special_c implements X10Special {
             CConstraint guard = Types.get(pi.guard());
             if (guard != null) {
                 Type newType = result.type();
-                CConstraint dep = X10TypeMixin.xclause(newType).copy();
+                CConstraint dep = Types.xclause(newType).copy();
                 try {
                     dep.addIn(guard);
                 }
                 catch (XFailure e) {
                     Errors.issue(tc.job(), new SemanticException(e.getMessage(), position()));
                 }
-                newType = X10TypeMixin.xclause(X10TypeMixin.baseType(newType), dep);
+                newType = Types.xclause(Types.baseType(newType), dep);
                 return result.type(newType);
             }
         }

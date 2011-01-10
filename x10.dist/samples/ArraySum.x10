@@ -21,14 +21,14 @@ public class ArraySum {
     val data:Array[Int](1);
 
     public def this(n:Int) {
-	// Create an Array of rank 1 with n elements (0..n-1), all initialized to 1.
+	// Create an Array of rank 1 with n elements (0..(n-1)), all initialized to 1.
         data = new Array[Int](n, 1);
         sum = 0;
     }
 
     def sum(a:Array[Int](1), start:Int, last:Int) {
         var mySum: Int = 0;
-        for ([i] in start..last-1) { 
+        for ([i] in start..(last-1)) { 
         	mySum += a(i);
         }
         return mySum;
@@ -36,7 +36,7 @@ public class ArraySum {
 
     def sum(numThreads:Int) {
         val mySize = data.size()/numThreads;
-        finish for ([p] in 0..numThreads-1) async {
+        finish for ([p] in 0..(numThreads-1)) async {
             val mySum = sum(data, p*mySize, (p+1)*mySize);
             // Multiple activities will simultaneously update
             // this location -- so use an atomic operation.
@@ -54,7 +54,7 @@ public class ArraySum {
         val P = [1,2,4];
 
         //warmup loop
-        val R = 0..P.size-1;
+        val R = 0..(P.size-1);
         Console.OUT.println("Warming up.");
         for ([i] in R)
             a.sum(P(i));

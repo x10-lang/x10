@@ -16,10 +16,10 @@ import x10.compiler.Pinned;
 
 @Pinned 
 public class StringBuilder implements Builder[Object,String] {
-     val buf: RailBuilder[Char];
+     val buf: ArrayList[Char];
 
     public def this() {
-        buf = new RailBuilder[Char]();
+        buf = new ArrayList[Char]();
     }
 
     /**
@@ -75,12 +75,6 @@ public class StringBuilder implements Builder[Object,String] {
             val ch = s(i);
             buf.add(ch);
         }
-        // BROKEN code gen
-        /*
-        for (ch in s.chars()) {
-            buf.add(ch);
-        }
-        */
         return this;
     }
 
@@ -89,23 +83,26 @@ public class StringBuilder implements Builder[Object,String] {
         if (s.length() == 0)
             return this;
 
-        if (loc > buf.length()) { // treat it as append if postion is beyond the tail.
+        if (loc > buf.size()) { // treat it as append if postion is beyond the tail.
             return addString(s);
         }
 
         if (loc < 0)    // Ensure loc is a valid index.
             loc = 0;
-        buf.insert(loc, s.chars());
+
+        for (var i: int = 0; i < s.length(); i++) {
+            val ch = s(i);
+            buf(loc+i)= ch;
+        }
         return this;
     }
 
     public def length() {
-        return buf.length();
+        return buf.size();
     }
 
-    @Native("java", "new String(#1.getCharArray())")
-    @Native("c++", "x10aux::vrc_to_string(#1)")
-    private static native def makeString(Rail[Char]): String;
-
-    public def result() = makeString(buf.result());
+    public def result():String {
+        val array = buf.toArray();
+        return new String(array, 0, array.size);
+    }
 }

@@ -54,13 +54,11 @@ namespace x10 {
             RTT_H_DECLS_CLASS;
 
             // [constructors] Allocates a new Thread object.
-            static x10aux::ref<Thread> _make(x10aux::ref<x10::lang::VoidFun_0_0> task,
-                                             x10aux::ref<x10::lang::String> name);
+            static x10aux::ref<Thread> _make(x10aux::ref<x10::lang::String> name);
 
-            x10aux::ref<Thread> _constructor(x10aux::ref<x10::lang::VoidFun_0_0> task,
-                                             x10aux::ref<x10::lang::String> name) {
+            x10aux::ref<Thread> _constructor(x10aux::ref<x10::lang::String> name) {
                 this->x10::lang::Object::_constructor();
-                thread_init(task, name);
+                thread_init(name);
                 return this;
             }
 
@@ -199,10 +197,16 @@ namespace x10 {
             // Changes the name of this thread to be equal to the argument name.
             void name(const x10aux::ref<x10::lang::String> name);
 
+            /**
+             * This method does nothing and returns.
+             * Subclasses of Thread should override this method.
+             * This method is invoked when the thread is started.
+             */
+            virtual void apply();
+
         protected:
             // Helper method to initialize a Thread object.
-            void thread_init(x10aux::ref<x10::lang::VoidFun_0_0> task,
-                             const x10aux::ref<x10::lang::String> name);
+            void thread_init(const x10aux::ref<x10::lang::String> name);
             // Thread start routine.
             static void *thread_start_routine(void *arg);
             // Clean-up routine for sleep method call.
@@ -229,8 +233,6 @@ namespace x10 {
             long __thread_id;
             // thread name
             x10aux::ref<x10::lang::String> __thread_name;
-            // body to be run
-            x10aux::ref<x10::lang::VoidFun_0_0> __taskBody;
             // thread's pthread id
             // ??using __thread clashes with already existing identifier??
             pthread_t __xthread;

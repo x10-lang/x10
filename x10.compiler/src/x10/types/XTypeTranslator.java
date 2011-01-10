@@ -34,7 +34,6 @@ import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
 import polyglot.types.LocalInstance;
-import polyglot.types.MethodInstance;
 import polyglot.types.Name;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
@@ -42,7 +41,6 @@ import polyglot.types.Types;
 import polyglot.types.TypeSystem;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
-import x10.ast.Contains;
 import x10.ast.Here;
 import x10.ast.ParExpr;
 import x10.ast.SubtypeTest;
@@ -124,7 +122,7 @@ public class XTypeTranslator {
 	}
 	
 	public XTerm trans(CConstraint c, XTerm target, MethodInstance fi, Type t) {
-	    assert X10Flags.toX10Flags(fi.flags()).isProperty() && fi.formalTypes().size() == 0;
+	    assert fi.flags().isProperty() && fi.formalTypes().size() == 0;
 	    XTerm v;
 	    XName field = XTerms.makeName(fi.def(), Types.get(fi.def().container()) + "#" + fi.name().toString() + "()");
 	    if (target instanceof XVar) {
@@ -157,7 +155,7 @@ public class XTypeTranslator {
 		XName field = XTerms.makeName(fi.def(), fi.name().toString());
 		if (fi.flags().isStatic()) {
 		    Type container = Types.get(fi.def().container());
-		    container = X10TypeMixin.baseType(container);
+		    container = Types.baseType(container);
 		    if (container instanceof X10ClassType) {
 		        target  = XTerms.makeLit(((X10ClassType) container).fullName());
 		    }
@@ -200,7 +198,7 @@ public class XTypeTranslator {
 		else {
 		    TypeNode tn = t.qualifier();
 		    if (tn != null) {
-		        Type q = X10TypeMixin.baseType(tn.type());
+		        Type q = Types.baseType(tn.type());
 		        if (q instanceof X10ClassType) {
 		            X10ClassType ct = (X10ClassType) q;
 		            while (xc != null) {
@@ -322,7 +320,7 @@ public class XTypeTranslator {
 	    }
 
 	    public boolean hasVar(XVar v) {
-	    return X10TypeMixin.hasVar(type(), v);
+	    return Types.hasVar(type(), v);
 	    }
 
 	    public XTerm subst(XTerm y, XVar x, boolean propagate) {
@@ -417,14 +415,14 @@ public class XTypeTranslator {
 
 	    // Determine if their types force them to be equal or disequal.
 
-	    CConstraint c1 = X10TypeMixin.xclause(r1.type()).copy();
+	    CConstraint c1 = Types.xclause(r1.type()).copy();
 	    XVar x = XTerms.makeUQV();
 	    try {
 	        c1.addSelfBinding(x);
 	    } catch (XFailure z) {
 	        throw new InternalCompilerError("Unexpected failure", z); // can't happen
 	    }
-	    CConstraint c2 = X10TypeMixin.xclause(x, r2.type()).copy();
+	    CConstraint c2 = Types.xclause(x, r2.type()).copy();
 	    if (rb.operator()== Binary.EQ) {
 	        try {
 	            if (! c1.addIn(c2).consistent())
@@ -465,6 +463,9 @@ public class XTypeTranslator {
 	    		|| (t.operator() == Binary.BIT_AND && ts.isImplicitCastValid(t.type(), ts.Boolean(), xc))) {
 	        v = XTerms.makeAnd(lt, rt);
 	    }
+	    else if (t.operator() == Binary.IN) {
+	        v = XTerms.makeAtom(XTerms.makeName(t.operator()), lt, rt);
+	    }
 	    else  {
 	        v = XTerms.makeAtom(XTerms.makeName(t.operator()), lt, rt);
 	        return null;
@@ -484,20 +485,10 @@ public class XTypeTranslator {
 	    return XTerms.makeAtom(XTerms.makeName("tuple"), terms);
 	}
 	
-	private XTerm trans(CConstraint c, Contains t, Context xc) {
-	    Expr left = t.item();
-	    Expr right = t.collection();
-	    boolean containsAll = t.isSubsetTest();
-	    if (containsAll)
-	        return XTerms.makeAtom(XTerms.makeName("subset"), trans(c, left, xc), trans(c, right, xc));
-	    else
-	        return XTerms.makeAtom(XTerms.makeName("in"), trans(c, left, xc), trans(c, right, xc));
-	}
-	
 	private XTerm trans(CConstraint c, Call t, Context xc) {
-		X10MethodInstance xmi = (X10MethodInstance) t.methodInstance();
+		MethodInstance xmi = (MethodInstance) t.methodInstance();
 		Flags f = xmi.flags();
-		if (X10Flags.toX10Flags(f).isProperty()) {
+		if (f.isProperty()) {
 			XTerm r = trans(c, t.target(), xc);
 			if (r == null)
 				return null;
@@ -556,7 +547,7 @@ public class XTypeTranslator {
 			return v;
 		}
 		Type type = t.type();
-		return X10TypeMixin.selfVarBinding(type); // maybe null.
+		return Types.selfVarBinding(type); // maybe null.
 	    //throw new SemanticException("Cannot translate call |" + t + "| into a constraint; it must be a property method call.");
 	}
 
@@ -611,8 +602,6 @@ public class XTypeTranslator {
 		}
 		if (term instanceof Binary)
 			return trans(c, (Binary) term, xc);
-		if (term instanceof Contains)
-		    return trans(c, (Contains) term, xc);
 		if (term instanceof TypeNode)
 		    return trans(c, (TypeNode) term);
 		if (term instanceof ParExpr)

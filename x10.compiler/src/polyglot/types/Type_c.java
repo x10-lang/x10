@@ -7,8 +7,12 @@
 
 package polyglot.types;
 
+import java.util.List;
+
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;
+import polyglot.util.TypedList;
+
 
 /**
  * Abstract implementation of a <code>Type</code>.  This implements most of
@@ -18,7 +22,7 @@ import polyglot.util.Position;
 public abstract class Type_c extends TypeObject_c implements Type
 {
     private static final long serialVersionUID = -876728129439491724L;
-
+    List<Type> annotations;
     /** Used for deserializing types. */
     protected Type_c() { }
     
@@ -32,6 +36,14 @@ public abstract class Type_c extends TypeObject_c implements Type
         super(ts, pos);
     }
 
+    public List<Type> annotations() {
+    	return annotations;
+    }
+    public Type annotations(List<Type> annotations) {
+    	Type_c result = (Type_c) copy();
+    	result.annotations= TypedList.copyAndCheck(annotations, Type.class, true);
+    	return result;
+    }
     /**
      * Return a string into which to translate the type.
      * @param c A resolver in which to lookup this type to determine if
@@ -45,7 +57,7 @@ public abstract class Type_c extends TypeObject_c implements Type
     public Package toPackage() { return null; }
 
     /* To be filled in by subtypes. */
-    public boolean isPrimitive() { return false; }
+    public boolean isJavaPrimitive() { return false; }
     public boolean isReference() { return false; } 
     public boolean isNull() { return false; }
     public boolean isClass() { return false; }
@@ -91,17 +103,17 @@ public abstract class Type_c extends TypeObject_c implements Type
     }
 
     /** Returns a non-null iff isReference() returns true. */
-    public ReferenceType toReference() {
+    public ObjectType toReference() {
 	return null;
     }
 
     /** Returns a non-null iff isPrimitive() returns true. */
-    public PrimitiveType toPrimitive() {
+    public JavaPrimitiveType toPrimitive() {
 	return null;
     }
 
     /** Returns a non-null iff isArray() returns true. */
-    public ArrayType toArray() {
+    public JavaArrayType toArray() {
 	return null;
     }
 
@@ -177,6 +189,30 @@ public abstract class Type_c extends TypeObject_c implements Type
     }
 
     /**
+     * Yields a string representing this type.  The string is that obtained
+     * by calling typeToString(), with the annotations (if any) appended.
+     * 
+     * <p> Subclasses should implement typeToString() to provide a representation
+     * of the underlying type.
+     * 
+     */
+  
+    public final String toString() {
+    	if (annotations != null) {
+    		StringBuilder sb = new StringBuilder();
+    		sb.append(typeToString());
+    		for (Type ct : annotations) {
+    			sb.append("@");
+    			sb.append(ct);
+    			sb.append(" ");
+    		}
+
+    		return sb.toString();
+    	}
+    	return typeToString();
+    }
+
+    /**
      * Yields a string representing this type.  The string
      * should be consistent with equality.  That is,
      * if this.equals(anotherType), then it should be
@@ -186,9 +222,10 @@ public abstract class Type_c extends TypeObject_c implements Type
      * It is suggested, but not required, that it be an
      * easily human readable representation, and thus useful
      * in error messages and generated output.
+     * 
      */
-    public abstract String toString();
-
+    abstract public String typeToString();
+    
     public void print(CodeWriter w) {
 	w.write(toString());
     }

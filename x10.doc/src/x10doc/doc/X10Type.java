@@ -74,7 +74,7 @@ public class X10Type implements Type {
 	}
 
 	public boolean isPrimitive() {
-		return pType.isPrimitive();
+		return pType.isVoid();
 	}
 
 	public String qualifiedTypeName() {

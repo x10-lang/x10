@@ -26,7 +26,9 @@ namespace x10 {
          * 
          * The purpose of this class is to enable struct values to be boxed
          * when they are assigned/casts to variables of interface types.
-         * When that happens, all we need to provide is a 
+         * When that happens, we need to provide a subclass of Reference
+         * that contains the struct and redirects all interface methods to
+         * the appropriate methods of the struct.
          */
         template <class T> class IBox : public Reference {
         protected:

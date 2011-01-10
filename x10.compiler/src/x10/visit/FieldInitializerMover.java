@@ -55,7 +55,6 @@ import polyglot.visit.NodeVisitor;
 import x10.types.X10ClassType;
 import x10.types.X10ConstructorDef;
 import x10.types.X10Def;
-import x10.types.X10TypeMixin;
 import polyglot.types.TypeSystem;
 import x10.ast.X10ConstructorDecl;
 import x10.ast.X10MethodDecl_c;
