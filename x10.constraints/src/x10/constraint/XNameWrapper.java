@@ -20,7 +20,8 @@ package x10.constraint;
  * 
  * <p> Because <code>XName</code>'s are used by the constraint framework to identify
  * entities, either instances of the type <code>T</code> must be canonicalized, or 
- * <code>T</code> must implement <code>equals()</code> properly.
+ * <code>T</code> must implement <code>equals()</code> properly. Two XNameWrappers are equal
+ * if their contained types are equal. (The String s is not considered.)
  * 
  * @param <T> the type of entity being wrapped
  * @author njnystrom
