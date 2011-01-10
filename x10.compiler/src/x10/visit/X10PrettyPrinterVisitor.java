@@ -2818,12 +2818,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		    tr.print(n, n.name(), w);
 		    w.end();
 		}
-
-		// Fix XTENLANG-945 (Java backend only fix)
-	        // Change field access to method access
-	        if (X10Field_c.isInterfaceProperty(target.type(), fi)) {
-	            w.write("()");
-	        }
 	}
 
 	public void visit(IntLit_c n) {

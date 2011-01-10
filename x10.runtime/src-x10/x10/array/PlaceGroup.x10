@@ -36,7 +36,7 @@ public abstract class PlaceGroup implements Sequence[Place] {
   /**
    * The size of the PlaceGroup is equal to the value returned by numPlaces()
    */
-  public final def size():int = numPlaces();
+  public final property def size():int = numPlaces();
 
   /**
    * @return the number of Places in the PlaceGroup

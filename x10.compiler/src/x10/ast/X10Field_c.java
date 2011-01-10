@@ -46,7 +46,6 @@ import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
-import x10.types.ConstrainedType;
 import x10.types.ParameterType;
 import x10.types.ParametrizedType_c;
 import x10.types.X10ClassType;
@@ -172,29 +171,32 @@ public class X10Field_c extends Field_c {
 	    return fi;
 	}
 	
-    // Fix XTENLANG-945
-    public static boolean isInterfaceProperty(Type targetType, FieldInstance fi) {
-        boolean isInterfaceProperty = false;
-
+    // XTENLANG-945
+    public static boolean isInheritedInterfaceProperty(Type targetType, FieldInstance fi) {
         if (fi.flags().isProperty()) {
             // check if the target is interface
-            Type baseType = targetType;
-            while (baseType instanceof ConstrainedType) {
-                baseType = ((ConstrainedType) baseType).baseType().get();
+            Flags tFlags = getFlags(Types.baseType(targetType));
+            if (tFlags != null && tFlags.isInterface()) {
+                return false;
             }
-            Flags flags = null;
-            if (baseType instanceof ClassType) {
-                flags = ((ClassType) baseType).flags();
-            } else if (baseType instanceof ParametrizedType_c) {
-                // TODO add flags() to ParametrizedType and use it
-                flags = ((ParametrizedType_c) baseType).flags();
-            }
+            // now check if the container is interface
+            Flags flags = getFlags(Types.baseType(fi.container()));
             if (flags != null) {
-                isInterfaceProperty = flags.isInterface();
+                return flags.isInterface();
             }
         }
+        return false;
+    }
 
-        return isInterfaceProperty;
+    private static Flags getFlags(Type type) {
+        Flags flags = null;
+        if (type instanceof ClassType) {
+            return ((ClassType) type).flags();
+        } else if (type instanceof ParametrizedType_c) {
+            // TODO add flags() to ParametrizedType and use it
+            return ((ParametrizedType_c) type).flags();
+        }
+        return null;
     }
 	
     @Override
@@ -251,6 +253,10 @@ public class X10Field_c extends Field_c {
 		X10FieldInstance fi = findAppropriateField(tc, tType, name.id(),
 		        target instanceof TypeNode, Types.contextKnowsType(target));
 
+		if (fi.error() == null && isInheritedInterfaceProperty(target.type(), fi)) { // XTENLANG-945
+		    fi = fi.error(new SemanticException("Unable to find the implementing property method for interface property "+fi.name(), position()));
+		}
+
         if (fi.error() != null) {
             if (target instanceof Expr) {
                 // Now try 0-ary property methods.
@@ -281,11 +287,6 @@ public class X10Field_c extends Field_c {
         if (target() instanceof X10Special) {
             c.recordCapturedVariable(fi);
         }
-
-//		// Fix XTENLANG-945 (alternative common fix)
-//		if (isInterfaceProperty(tType, fi)) {
-//			throw new NoMemberException(NoMemberException.FIELD, "interface property access will be translated to property method call");
-//		}
 
 		Type type = c.inDepType()? Checker.rightType(fi.rightType(), fi.x10Def(), target, c) :
 			Checker.fieldRightType(fi.rightType(), fi.x10Def(), target, c);
