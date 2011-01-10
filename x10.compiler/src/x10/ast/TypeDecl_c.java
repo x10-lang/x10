@@ -279,7 +279,7 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 		        public void run() {
 		            CConstraint c = new CConstraint();
 		            try {
-		                c.addSelfBinding(ts.xtypeTranslator().trans(f2.localDef().asInstance()));
+		                c.addSelfBinding(ts.xtypeTranslator().translate(f2.localDef().asInstance()));
 		            }
 		            catch (XFailure e) {
 		            }

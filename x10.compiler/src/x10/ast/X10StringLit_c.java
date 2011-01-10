@@ -45,7 +45,7 @@ public class X10StringLit_c extends StringLit_c {
 		Type Type = xts.String();
 
 		CConstraint c = new CConstraint();
-		XTerm term = xts.xtypeTranslator().trans(c, this.type(Type), (Context) tc.context());
+		XTerm term = xts.xtypeTranslator().translate(c, this.type(Type), (Context) tc.context());
 		try {
 			c.addSelfBinding(term);
 		}

@@ -83,7 +83,7 @@ import x10.types.X10TypeEnv;
 import x10.types.X10TypeEnv_c;
 
 import x10.types.XTypeTranslator;
-import x10.types.XTypeTranslator.XTypeLit_c;
+import x10.types.XTypeTranslator.XTypeLit;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.SubtypeConstraint;
 import x10.types.constraints.TypeConstraint;
@@ -3474,7 +3474,7 @@ public class TypeSystem_c implements TypeSystem
 
     public XLit FALSE() {
         if (FALSE == null)
-            FALSE = xtypeTranslator().trans(false);
+            FALSE = XTypeTranslator.translate(false);
         return FALSE;
     }
 
@@ -3482,7 +3482,7 @@ public class TypeSystem_c implements TypeSystem
 
     public XLit TRUE() {
         if (TRUE == null)
-            TRUE = xtypeTranslator().trans(true);
+            TRUE = XTypeTranslator.translate(true);
         return TRUE;
     }
 
@@ -3490,7 +3490,7 @@ public class TypeSystem_c implements TypeSystem
 
     public XLit NEG_ONE() {
         if (NEG_ONE == null)
-            NEG_ONE = xtypeTranslator().trans(-1);
+            NEG_ONE = XTypeTranslator.translate(-1);
         return NEG_ONE;
     }
 
@@ -3498,7 +3498,7 @@ public class TypeSystem_c implements TypeSystem
 
     public XLit ZERO() {
         if (ZERO == null)
-            ZERO = xtypeTranslator().trans(0);
+            ZERO = XTypeTranslator.translate(0);
         return ZERO;
     }
 
@@ -3506,7 +3506,7 @@ public class TypeSystem_c implements TypeSystem
 
     public XLit ONE() {
         if (ONE == null)
-            ONE = xtypeTranslator().trans(1);
+            ONE = XTypeTranslator.translate(1);
         return ONE;
     }
 
@@ -3514,7 +3514,7 @@ public class TypeSystem_c implements TypeSystem
 
     public XLit TWO() {
         if (TWO == null)
-            TWO = xtypeTranslator().trans(2);
+            TWO = XTypeTranslator.translate(2);
         return TWO;
     }
 
@@ -3522,7 +3522,7 @@ public class TypeSystem_c implements TypeSystem
 
     public XLit THREE() {
         if (THREE == null)
-            THREE = xtypeTranslator().trans(3);
+            THREE = XTypeTranslator.translate(3);
         return THREE;
     }
 
@@ -3530,7 +3530,7 @@ public class TypeSystem_c implements TypeSystem
 
     public XLit NULL() {
         if (NULL == null)
-            NULL = xtypeTranslator().transNull();
+            NULL = XTypeTranslator.transNull();
         return NULL;
     }
     public boolean entails(CConstraint c1, CConstraint c2, Context context, Type selfType) {
@@ -4175,8 +4175,8 @@ public class TypeSystem_c implements TypeSystem
             if (hasUnknown(f.receiver()))
                 return true;
             return hasUnknown(f.field());
-        } else if (x instanceof XTypeLit_c) {
-            return hasUnknownType(((XTypeLit_c) x).type());
+        } else if (x instanceof XTypeLit) {
+            return hasUnknownType(((XTypeLit) x).type());
         } else if (x instanceof XEQV) {
             return false;
         } else if (x instanceof XLocal) {

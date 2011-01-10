@@ -46,7 +46,7 @@ public class X10BooleanLit_c extends BooleanLit_c {
 		  Type Boolean =  xts.Boolean();
 		 
 		  CConstraint c = new CConstraint();
-		  XTerm term = xts.xtypeTranslator().trans(c, this.type(Boolean), (Context) tc.context());
+		  XTerm term = xts.xtypeTranslator().translate(c, this.type(Boolean), (Context) tc.context());
 		  try {
 			  c.addSelfBinding(term);
 		  }

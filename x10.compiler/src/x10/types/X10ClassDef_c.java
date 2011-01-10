@@ -175,7 +175,7 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
 
 			    CConstraint result = new CConstraint();
 			    
-			    XVar oldThis = xts.xtypeTranslator().transThisWithoutTypeConstraint();
+			    XVar oldThis = xts.xtypeTranslator().translateThisWithoutTypeConstraint();
 			    
 			    try {
 				    // Add in constraints from the supertypes.  This is
@@ -214,7 +214,7 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
 					    if (rs != null) {
 						    // Given: C(:c) f
 						    // Add in: c[self.f/self,self/this]
-						    XTerm newSelf = xts.xtypeTranslator().trans(rs, rs.self(), fi.asInstance());
+						    XTerm newSelf = xts.xtypeTranslator().translate(rs.self(), fi.asInstance());
 						    CConstraint rs1 = rs.substitute(newSelf, rs.self());
 						    CConstraint rs2;
 						    if (fiThis != null)

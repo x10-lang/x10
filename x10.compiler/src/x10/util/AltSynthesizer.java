@@ -604,7 +604,7 @@ public class AltSynthesizer extends ContextVisitor {
         CConstraint c = Types.realX(receiver.type());
         XTerm term    = Types.selfVarBinding(c);  // the RHS of {self==x} in c
         if (term != null) {
-            type = addSelfConstraint(type, ts.xtypeTranslator().trans(c, term, fi));
+            type = addSelfConstraint(type, ts.xtypeTranslator().translate(term, fi));
             assert (null != type);
         }
         return (Field) f.type(type);
