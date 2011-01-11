@@ -251,6 +251,23 @@ namespace {
 
 }
 
+// functions that define the shape of a balanced binary tree
+
+// return role that acts as parent to a given role r
+static x10rt_place get_parent (x10rt_place r)
+{
+    return  (r - 1)/2;
+}
+
+// given role r and size sz, provide the number of children under r and their identities
+static x10rt_place get_children (x10rt_place r, x10rt_place sz, x10rt_place &left, x10rt_place &right)
+{
+    assert(r<sz);
+    left = r*2 + 1;
+    right = r*2 + 2;
+    return x10rt_place(left<sz) + x10rt_place(right<sz);
+}
+
 static void team_new_decrement_counter (int *counter, x10rt_completion_handler2 *ch,
                                         x10rt_team t, void *arg)
 {
@@ -671,12 +688,12 @@ static void alltoall_intermediate (void *arg)
 {
     MemberObj &m = *(static_cast<MemberObj*>(arg));
 
-    // do lots of bcasts then a barrier
+    // do lots of scatters then a barrier
     if (m.alltoall.counter > 0) {
         x10rt_place root = --m.alltoall.counter;
         char *dbuf = static_cast<char*>(m.alltoall.dbuf);
         size_t el=m.alltoall.el, count=m.alltoall.count;
-        // FIXME: would be good to avoid the extra barriers within the bcast
+        // FIXME: would be good to avoid the extra scatters within the bcast
         x10rt_emu_scatter(m.team, m.role, root,
                           m.alltoall.sbuf,
                           &dbuf[el*count*root],
