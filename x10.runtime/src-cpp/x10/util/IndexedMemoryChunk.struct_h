@@ -99,7 +99,7 @@ namespace x10 {
           private:
             template<class T> static IndexedMemoryChunk<T> allocInternal(size_t numElements,
                                                                          x10_int alignment,
-                                                                         x10_boolean pinned,
+                                                                         x10_boolean congruent,
                                                                          x10_boolean zeroed);
           public:
             static x10aux::RuntimeType rtt;
@@ -107,19 +107,19 @@ namespace x10 {
 
             template<class T> static IndexedMemoryChunk<T> allocate(x10_int numElements,
                                                                     x10_int alignment,
-                                                                    x10_boolean pinned,
+                                                                    x10_boolean congruent,
                                                                     x10_boolean zeroed) {
                 assert(numElements >=0);
-                return allocInternal<T>((size_t)numElements, alignment, pinned, zeroed);
+                return allocInternal<T>((size_t)numElements, alignment, congruent, zeroed);
             }
             
             template<class T> static IndexedMemoryChunk<T> allocate(x10_long numElements,
                                                                     x10_int alignment,
-                                                                    x10_boolean pinned,
+                                                                    x10_boolean congruent,
                                                                     x10_boolean zeroed) {
                 assert(numElements >= 0);
                 assert(((x10_long)((size_t)numElements)) == numElements); // check for alloc requests >31 bits on 32 bit system
-                return allocInternal<T>((size_t)numElements, alignment, pinned, zeroed);
+                return allocInternal<T>((size_t)numElements, alignment, congruent, zeroed);
             }
 
             template<class T> static void asyncCopy(x10::util::IndexedMemoryChunk<T> src, x10_int srcIndex,
@@ -146,10 +146,12 @@ namespace x10 {
                                                x10_int numElems);
         };
 
+        // avoid putting junk in the header, avoid putting junk in template code to save code size
+        void checkCongruentArgs (x10_boolean zeroed, x10_boolean containsPtrs);
 
         template<class T> IndexedMemoryChunk<T> IndexedMemoryChunk<void>::allocInternal(size_t numElements,
                                                                                         x10_int alignment,
-                                                                                        x10_boolean pinned, 
+                                                                                        x10_boolean congruent, 
                                                                                         x10_boolean zeroed) {
             assert((alignment & (alignment-1)) == 0);
             if (alignment < X10_MIN_INDEXEDMEMORYCHUNK_ALIGNMENT) {
@@ -158,9 +160,15 @@ namespace x10 {
 
             bool containsPtrs = x10aux::getRTT<T>()->containsPtrs;
             size_t size = alignment + numElements*sizeof(T);
-            T* allocMem = x10aux::alloc<T>(size, containsPtrs);
-            if (zeroed) {
-                memset(allocMem, 0, size);
+            T* allocMem;
+            if (congruent) {
+                checkCongruentArgs(zeroed,containsPtrs);
+                allocMem = x10aux::alloc<T>(size, containsPtrs);
+            } else {
+                allocMem = x10aux::alloc<T>(size, containsPtrs);
+                if (zeroed) {
+                    memset(allocMem, 0, size);
+                }
             }
             size_t alignDelta = alignment-1;
             size_t alignMask = ~alignDelta;

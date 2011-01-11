@@ -126,6 +126,17 @@ namespace x10 {
             ref<Reference> notif = buf.read<x10aux::ref<x10::lang::Reference> >();
             VoidFun_0_0::apply(notif);
         }
+
+        void checkCongruentArgs (x10_boolean zeroed, x10_boolean containsPtrs)
+        {
+                if (!zeroed) 
+                    throwException(x10::lang::IllegalArgumentException::_make(String::Lit("Congruent memory must be zeroed")));
+
+                if (containsPtrs) 
+                    throwException(x10::lang::IllegalArgumentException::_make(
+                        String::Lit("Congruent memory is not garbage collected thus cannot contain pointers")));
+        }
+
     }
 }
 
