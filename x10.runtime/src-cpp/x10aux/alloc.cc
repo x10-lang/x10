@@ -201,8 +201,10 @@ static void ensure_init_congruent (size_t req_size) {
         abort();
     }
 
+
     // check whether or not there are existing pages mapped, if there are, mmap will clobber them
     // so we must detect and abort
+    #ifdef __linux__
     FILE *f = fopen("/proc/self/maps","r");
     if (f==NULL) perror("fopening /proc/self/maps");
     bool eof = false;
@@ -233,6 +235,9 @@ static void ensure_init_congruent (size_t req_size) {
         free(lineptr);
     }
     fclose(f);
+    #else // __APPLE__
+    // TODO: work out how to do the same thing on bsd-based OS
+    #endif
 
     obj = mmap((void*)base_addr, size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_FIXED, -1, 0);
     if (obj==MAP_FAILED) { perror("Homogenous memory mmap"); abort(); }
