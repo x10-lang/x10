@@ -35,7 +35,7 @@ class clogua {
     val n = 3;
 // : (x:Int){x != n} => Int  
     val f 
-          = (x:Int){x != n} => (12/(n-x));
+          = (x:Int){x != n} => (12/(n-x)); // ShouldNotBeERR
     Console.OUT.println("f(5)=" + f(5));    
   }
 }
