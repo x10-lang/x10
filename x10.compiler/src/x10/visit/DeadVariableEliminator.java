@@ -247,8 +247,10 @@ public class DeadVariableEliminator extends ContextVisitor {
          * @return
          */
         private boolean isDead(LocalDef def) {
-            Set<Local> uses = useMap.get(def);
-            if (uses.isEmpty()) return true;
+            if (useMap.containsKey(def)) {
+                Set<Local> uses = useMap.get(def);
+                if (uses.isEmpty()) return true;
+            }
   //        if (true) 
                 return false; // TODO: remove dead LocalAssign's
   //        Set<LocalAssign> stores = storeMap.get(def);
