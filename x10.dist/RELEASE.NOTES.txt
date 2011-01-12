@@ -43,7 +43,7 @@ distinct constraints.
 Additionally, the following features described in the language
 manual do not currently work with the C++ backend and will be fixed in
 the subsequent releases:
-  - Garbage collection on AIX and BG/P
+  - Garbage collection on AIX
   - Non-final generic instance methods
   - Exception stack traces on Cygwin
 
