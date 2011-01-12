@@ -925,7 +925,7 @@ public class LineNumberMap extends StringTable {
 			    w.writeln("};");
 			    w.forceNewline();
         	}	    	
-		    w.writeln("static const struct _X10ClosureMap _X10ClosureMapList[] __attribute__((used)) "+debugDataSectionAttr+" = {");
+		    w.writeln("static const struct _X10ClosureMap _X10ClosureMapList[] __attribute__((used)) = {"); // inclusion of debugDataSectionAttr causes issues on Macos.  See XTENLANG-2318.
 		    for (String classname : closureMembers.keySet())
 	        	w.writeln("    { 100, "+offsets[closureMembers.get(classname).get(0)._cppClass]+", sizeof("+classname.replace(".", "::")+"), "+closureMembers.get(classname).size()+", 0, 0, 0, _X10"+classname.substring(classname.lastIndexOf('.')+1)+"Members },");	        
 		    w.writeln("};");
