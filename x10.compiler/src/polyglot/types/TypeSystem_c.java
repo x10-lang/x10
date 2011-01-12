@@ -238,10 +238,6 @@ public class TypeSystem_c implements TypeSystem
 	return loadedResolver;
     }
 
-    public ClassFileLazyClassInitializer classFileLazyClassInitializer(ClassFile clazz) {
-	return new ClassFileLazyClassInitializer(clazz, this);
-    }
-
     public ImportTable importTable(String sourceName, Ref<? extends Package> pkg) {
 	assert_(pkg);
 	return new ImportTable(this, pkg, sourceName);
