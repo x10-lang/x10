@@ -219,33 +219,7 @@ import x10cpp.X10CPPJobExt;
 import x10cpp.types.X10CPPContext_c;
 
 /**
- * Visitor on the AST nodes that for some X10 nodes triggers the template
- * based dumping mechanism (and for all others just defaults to the normal
- * pretty printing).
- *
- * A new code generator to generate message passing style code. [Krishna]
- *
- * @author Igor Peshansky
- * @author V. Krishna Nandivada
- * @author Pradeep Varma
- * @author vj
- * @author Dave Cunningham
- */
-
-/* Design:
- * Each place (excluding the place 0) starts of by running an async that
- * runs the "loop_main" that waits for any events from place 0.
- * Currently loop_main is an infinite loop, that does nothing, but waits for
- * the termination signal.
- * Place 0, runs the program main and sends the required communication
- * across, whenever it requires.
- *
- * All the final variables that are visible in the async are sent as
- * arguments.
- *
- * [TODO]
- * The code that is common to multiple files will go to the ".inc" file
- * [Krishna]
+ * Primary visitor for the C++ codegenerator.
  */
 public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 

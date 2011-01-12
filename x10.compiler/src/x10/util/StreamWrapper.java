@@ -41,18 +41,20 @@ public class StreamWrapper extends SimpleCodeWriter {
     public static final String Struct = "struct_h";
 
     // Desired API: getNewStream(class, pre/append), setCurrentStream, setHeader, setBody, header, body
-    // 2 streams - header and body
+    // 2 sets of streams - headers and primary file
     // Decouple stream class from stream destination file
-    private WriterStreams ws;
+    private final WriterStreams primaryFile;
+    private final WriterStreams headers;
     private ClassifiedStream cs; // current stream;
     private Stack<ClassifiedStream> csStack;
     private ClassifiedStream h; // header stream
     private ClassifiedStream w; // body stream
-    public StreamWrapper(WriterStreams ws, int width) throws IOException {
+    public StreamWrapper(WriterStreams pf, WriterStreams hf, int width) throws IOException {
         // we override all methods, so super methods will never be called.
         // hence it is ok to pass null to the super constructor.
         super(new ByteArrayOutputStream(), width);
-        this.ws = ws;
+        this.primaryFile = pf;
+        this.headers = hf; 
         this.csStack = new Stack<ClassifiedStream>();
     }
 
@@ -72,10 +74,18 @@ public class StreamWrapper extends SimpleCodeWriter {
     public void popCurrentStream() { this.cs = csStack.pop(); }
 
     public ClassifiedStream getNewStream(String sc, ClassifiedStream s, boolean prepend) {
-        return ws.getNewStream(sc, s, prepend);
+        if (sc.equals(CC)) {
+            return primaryFile.getNewStream(sc, s, prepend);
+        } else {
+            return headers.getNewStream(sc, s, prepend);
+        }
     }
     public ClassifiedStream getNewStream(String sc, boolean prepend) {
-        return ws.getNewStream(sc, prepend);
+        if (sc.equals(CC)) {
+            return primaryFile.getNewStream(sc, prepend);
+        } else {
+            return headers.getNewStream(sc, prepend);
+        }
     }
     public ClassifiedStream getNewStream(String sc) {
         return getNewStream(sc, true);
@@ -109,7 +119,11 @@ public class StreamWrapper extends SimpleCodeWriter {
     public void forceNewline(int n) { cs.forceNewline(n); }
 
     public String getStreamName(String ext) {
-        return ws.getStreamName(ext);
+        if (ext.equals(CC)) {
+            return primaryFile.getStreamName(ext);
+        } else {
+            return headers.getStreamName(ext);            
+        }
     }
 }
 // vim:tabstop=4:shiftwidth=4:expandtab

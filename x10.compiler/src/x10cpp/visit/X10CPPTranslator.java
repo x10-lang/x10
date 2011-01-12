@@ -297,7 +297,12 @@ public class X10CPPTranslator extends Translator {
 			if (opts.x10_config.DEBUG)
 				c.addData(FILE_TO_LINE_NUMBER_MAP, new HashMap<String, LineNumberMap>());
 
-			// Use the class name to derive a default output file name.
+			// Use the source file name as the basename for the output .cc file
+			String fname = sfn.source().name();
+			fname = fname.substring(0, fname.lastIndexOf(".x10"));
+			boolean generatedCode = false;
+            WriterStreams fstreams = new WriterStreams(fname, pkg, job, tf);
+
 			for (TopLevelDecl decl : sfn.decls()) {
 				if (!(decl instanceof X10ClassDecl))
 					continue;
@@ -339,25 +344,23 @@ public class X10CPPTranslator extends Translator {
 	        	if (getCppRep((X10ClassDef)cd.classDef()) != null) {
 					continue;
 				}
+	        	
+	        	generatedCode = true;
+	        	
+	        	// Use the name of the class to get the name of the header files.
 				String className = cd.classDef().name().toString();
 				WriterStreams wstreams = new WriterStreams(className, pkg, job, tf);
-				StreamWrapper sw = new StreamWrapper(wstreams, outputWidth);
-				// [IP] FIXME: This hack is to ensure the .cc is always generated.
-				sw.getNewStream(StreamWrapper.CC, true);
-                // [DC] TODO: This hack is to ensure the .h is always generated.
+				StreamWrapper sw = new StreamWrapper(fstreams, wstreams, outputWidth);
+				// [DC] TODO: This hack is to ensure the .h is always generated.
                 sw.getNewStream(StreamWrapper.Header, true);
 
-				String cc = wstreams.getStreamName(StreamWrapper.CC);
 				String header = wstreams.getStreamName(StreamWrapper.Header);
-
-				outputFiles.add(cc);
 				outputFiles.add(header);
-				opts.compilationUnits().add(cc);
 				
 				if (opts.x10_config.DEBUG) {
 					HashMap<String, LineNumberMap> fileToLineNumberMap =
 					    c.<HashMap<String, LineNumberMap>>getData(FILE_TO_LINE_NUMBER_MAP);
-					fileToLineNumberMap.put(cc, new LineNumberMap());
+					fileToLineNumberMap.put(fstreams.getStreamName(StreamWrapper.CC), new LineNumberMap());
 					fileToLineNumberMap.put(header, new LineNumberMap());
 				}
 				
@@ -382,6 +385,13 @@ public class X10CPPTranslator extends Translator {
 				
 				wstreams.commitStreams();
 			}
+			
+			if (generatedCode) {
+			    String cc = fstreams.getStreamName(StreamWrapper.CC);
+			    outputFiles.add(cc);
+                opts.compilationUnits().add(cc);
+                fstreams.commitStreams();
+			}			    
 
 			return true;
 		}
