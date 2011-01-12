@@ -93,7 +93,7 @@ public class WriterStreams {
      * @param ext
      * @return a new stream of type ext
      */
-    ClassifiedStream getNewStream(String ext) { return getNewStream(ext, true); }
+    public ClassifiedStream getNewStream(String ext) { return getNewStream(ext, true); }
 
     /**
      * Create and return a new stream of type ext, inserting it either at the beginning
@@ -103,7 +103,7 @@ public class WriterStreams {
      *                or append it (false)
      * @return a new stream of type ext
      */
-    ClassifiedStream getNewStream(String ext, boolean prepend) {
+    public ClassifiedStream getNewStream(String ext, boolean prepend) {
         ClassifiedStream cs = new ClassifiedStream(ext, job.compiler().outputWidth());
         if (prepend) {
             streams.add(0, cs);
@@ -121,7 +121,7 @@ public class WriterStreams {
      * @param prepend Whether to prepend the new stream (true) or append it (false)
      * @return a new stream of type ext
      */
-    ClassifiedStream getNewStream(String ext, ClassifiedStream s, boolean prepend) {
+    public ClassifiedStream getNewStream(String ext, ClassifiedStream s, boolean prepend) {
         ClassifiedStream cs = new ClassifiedStream(ext, job.compiler().outputWidth());
         int i = streams.indexOf(s);
         if (prepend) {

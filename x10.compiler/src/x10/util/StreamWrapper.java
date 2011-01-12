@@ -50,8 +50,6 @@ public class StreamWrapper extends SimpleCodeWriter {
     private ClassifiedStream h; // header stream
     private ClassifiedStream w; // body stream
     public StreamWrapper(WriterStreams pf, WriterStreams hf, int width) throws IOException {
-        // we override all methods, so super methods will never be called.
-        // hence it is ok to pass null to the super constructor.
         super(new ByteArrayOutputStream(), width);
         this.primaryFile = pf;
         this.headers = hf; 

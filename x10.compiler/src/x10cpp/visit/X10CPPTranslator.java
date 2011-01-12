@@ -303,6 +303,12 @@ public class X10CPPTranslator extends Translator {
 			boolean generatedCode = false;
             WriterStreams fstreams = new WriterStreams(fname, pkg, job, tf);
 
+            if (opts.x10_config.DEBUG) {
+                HashMap<String, LineNumberMap> fileToLineNumberMap =
+                    c.<HashMap<String, LineNumberMap>>getData(FILE_TO_LINE_NUMBER_MAP);
+                fileToLineNumberMap.put(fstreams.getStreamName(StreamWrapper.CC), new LineNumberMap());
+            }
+    
 			for (TopLevelDecl decl : sfn.decls()) {
 				if (!(decl instanceof X10ClassDecl))
 					continue;
@@ -344,44 +350,33 @@ public class X10CPPTranslator extends Translator {
 	        	if (getCppRep((X10ClassDef)cd.classDef()) != null) {
 					continue;
 				}
-	        	
-	        	generatedCode = true;
-	        	
+	      
+                generatedCode = true;
+                
 	        	// Use the name of the class to get the name of the header files.
 				String className = cd.classDef().name().toString();
 				WriterStreams wstreams = new WriterStreams(className, pkg, job, tf);
 				StreamWrapper sw = new StreamWrapper(fstreams, wstreams, outputWidth);
 				// [DC] TODO: This hack is to ensure the .h is always generated.
                 sw.getNewStream(StreamWrapper.Header, true);
-
 				String header = wstreams.getStreamName(StreamWrapper.Header);
 				outputFiles.add(header);
 				
 				if (opts.x10_config.DEBUG) {
 					HashMap<String, LineNumberMap> fileToLineNumberMap =
 					    c.<HashMap<String, LineNumberMap>>getData(FILE_TO_LINE_NUMBER_MAP);
-					fileToLineNumberMap.put(fstreams.getStreamName(StreamWrapper.CC), new LineNumberMap());
 					fileToLineNumberMap.put(header, new LineNumberMap());
 				}
 				
+                ClassifiedStream tmp = sw.getNewStream(StreamWrapper.CC, false);
+				tmp.writeln("/*************************************************/");
+                tmp.writeln("/* START of "+className+" */");
+                
 				translateTopLevelDecl(sw, sfn, decl);
-				
-				if (opts.x10_config.DEBUG) {
-					HashMap<String, LineNumberMap> fileToLineNumberMap =
-					    c.<HashMap<String, LineNumberMap>>getData(FILE_TO_LINE_NUMBER_MAP);
-//					sw.pushCurrentStream(sw.getNewStream(StreamWrapper.Closures, false));
-//					printLineNumberMap(sw, pkg, className, StreamWrapper.Closures, fileToLineNumberMap);
-//					sw.popCurrentStream();
-//					sw.pushCurrentStream(sw.getNewStream(StreamWrapper.CC, false));
-//					printLineNumberMap(sw, pkg, className, StreamWrapper.CC, fileToLineNumberMap);
-//					sw.popCurrentStream();
-//					sw.pushCurrentStream(sw.getNewStream(StreamWrapper.CC, false));
-//					printLineNumberMap(sw, pkg, className, StreamWrapper.Header, fileToLineNumberMap);
-//					sw.popCurrentStream();
-					sw.pushCurrentStream(sw.getNewStream(StreamWrapper.CC, false));
-					printLineNumberMapForCPPDebugger(sw, fileToLineNumberMap);
-					sw.popCurrentStream();
-				}
+
+                ClassifiedStream tmp2 = sw.getNewStream(StreamWrapper.CC, false);
+                tmp2.writeln("/* END of "+className+" */");
+                tmp2.writeln("/*************************************************/");
 				
 				wstreams.commitStreams();
 			}
@@ -390,6 +385,14 @@ public class X10CPPTranslator extends Translator {
 			    String cc = fstreams.getStreamName(StreamWrapper.CC);
 			    outputFiles.add(cc);
                 opts.compilationUnits().add(cc);
+                
+                if (opts.x10_config.DEBUG) {
+                    HashMap<String, LineNumberMap> fileToLineNumberMap =
+                        c.<HashMap<String, LineNumberMap>>getData(FILE_TO_LINE_NUMBER_MAP);
+                    ClassifiedStream debugStream = fstreams.getNewStream(StreamWrapper.CC, false);
+                    printLineNumberMapForCPPDebugger(debugStream, fstreams.getStreamName(StreamWrapper.CC), fileToLineNumberMap);
+                }
+               
                 fstreams.commitStreams();
 			}			    
 
@@ -402,9 +405,9 @@ public class X10CPPTranslator extends Translator {
 		}
 	}
 
-	private void printLineNumberMapForCPPDebugger(StreamWrapper sw, HashMap<String, LineNumberMap> fileToLineNumberMap) {
-	    final LineNumberMap map = fileToLineNumberMap.get(sw.getStreamName(StreamWrapper.CC));
-	    sw.currentStream().registerCommitListener(new ClassifiedStream.CommitListener() {
+	private void printLineNumberMapForCPPDebugger(ClassifiedStream stream, String streamName, HashMap<String, LineNumberMap> fileToLineNumberMap) {
+	    final LineNumberMap map = fileToLineNumberMap.get(streamName);
+	    stream.registerCommitListener(new ClassifiedStream.CommitListener() {
 	        public void run(ClassifiedStream s) {
 //	            if (map.isEmpty())
 //	                return;
