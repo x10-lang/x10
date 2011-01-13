@@ -10,6 +10,8 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
+package WorkStealing.Samples;
+
 public class HistogramTest {
      public def run():boolean {
           val args = new Array[String](2);

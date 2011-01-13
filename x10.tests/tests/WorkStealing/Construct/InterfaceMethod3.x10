@@ -9,15 +9,17 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
+package WorkStealing.Construct;
+
 /*
  * A method implements an interface, and the method contains concurrent
  */
 public class InterfaceMethod3 {
 
-	def getITest(flag:double):ITest{
-	    val r:ITest;
+	def getITest3(flag:double):ITest3{
+	    val r:ITest3;
 	    if (flag > 0.5) {
-	        r = new A();
+	        r = new A3();
 	    }
 	    else {
 	        r = new B();
@@ -30,7 +32,7 @@ public class InterfaceMethod3 {
 		var passed:boolean = true;
 		
 		val flag:double = random.nextDouble();
-		val a = getITest(flag);
+		val a = getITest3(flag);
 		val r = a.set(2);
 		if (flag > 0.5) {
 			passed &= (r == 2);
@@ -51,11 +53,11 @@ public class InterfaceMethod3 {
 	}
 }
 
-interface ITest{
+interface ITest3{
 	def set(v:int):int;
 }
 
-class A implements ITest{
+class A3 implements ITest3{
 
     public def set(v:int):int{
         val value:int;
@@ -66,7 +68,7 @@ class A implements ITest{
     }
 }
 
-class B implements ITest{
+class B implements ITest3{
 
     public def set(v:int):int{
     	return -1;
