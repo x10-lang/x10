@@ -1721,16 +1721,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		    sw.write("#ifndef "+guard+"_"+mi.name().toString()+"_"+mid); sw.newline();
 		    sw.write("#define "+guard+"_"+mi.name().toString()+"_"+mid); sw.newline();
 		}
-//        X10ClassType container = (X10ClassType) mi.container().toClass();
-//        // TODO: [IP] Add an extra apply to something that's both Settable and Indexable
-//        try {
-//        if (mi.name()==ClosureCall.APPLY &&
-//            xts.isImplicitCastValid(container, (Type) xts.forName(QName.make("x10.lang.Indexable"))) &&
-//            xts.isImplicitCastValid(container, (Type) xts.forName(QName.make("x10.lang.Settable"))))
-//        {
-//
-//        }
-//        } catch (SemanticException e) { assert (false) : ("Huh?  No Indexable or Settable?"); }
+
 		// we sometimes need to use a more general return type as c++ does not support covariant smartptr return types
 		Type ret_type = emitter.findRootMethodReturnType(def, dec.position(), mi);
 		String methodName = mi.name().toString();
@@ -4057,7 +4048,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         inc.write("virtual x10aux::itable_entry* _getITables() { return _itables; }"); inc.newline(); inc.forceNewline();
 
         inc.write("// closure body"); inc.newline();
-        inc.write(Emitter.translateType(retType, true)+" apply(");
+        inc.write(Emitter.translateType(retType, true)+" "+Emitter.mangled_method_name(ClosureCall.APPLY.toString())+"(");
         prefix = "";
         for (Formal formal : n.formals()) {
             inc.write(prefix);
@@ -4155,7 +4146,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         // (an overridden member function will not be called from the itable, which is very non-intuitive).
         // As soon as XTENLANG-467 is fixed, take out the explicit qualifications and let C++ member lookup do its job...
         defn_s.write((in_template_closure ? "typename ": "")+superType+(in_template_closure ? "::template itable ": "::itable")+chevrons(cnamet)+
-        			cnamet+"::_itable(&"+cnamet+"::apply, "+
+        			cnamet+"::_itable(&"+cnamet+"::"+Emitter.mangled_method_name(ClosureCall.APPLY.toString())+", "+
         			"&"+REFERENCE_TYPE+"::equals, &"+CLOSURE_TYPE+"::hashCode, &"
         			+cnamet+"::toString, &"+CLOSURE_TYPE+"::typeName);");
 
@@ -4552,11 +4543,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		    return;
 		}
 
-		// ClosureCall_c really means "call apply on me, and if I happen to be a closure literal understand that means invoking my body"
+		// ClosureCall_c really means "call operator() on me, and if I happen to be a closure literal understand that means invoking my body"
 		// So we have to handle 3 different cases: 
 		//    (a) closure literal that for some odd reason wasn't inlined (should not really happen...)
 		//    (b) a function type
-		//    (c) an class (anonymous or not) that has an apply operator
+		//    (c) an class (anonymous or not) that has an operator()
 		Type t = target.type();
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
 		boolean needsNullCheck = needsNullCheck(target);
@@ -4565,7 +4556,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		    context.setStackAllocateClosure(true);
 		    c.printSubExpr(target, sw, tr);
 		    context.setStackAllocateClosure(false);
-		    sw.write(".apply(");
+		    sw.write("."+Emitter.mangled_method_name(ClosureCall.APPLY.toString())+"(");
 		} else {
 		    if (t.isClass() && t.toClass().isAnonymous()) {
 		        ClassType tc = t.toClass();
@@ -4595,7 +4586,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		        if (needsNullCheck) sw.write("x10aux::nullCheck(");
 		        c.printSubExpr(target, sw, tr);
 		        if (needsNullCheck) sw.write(")");
-		        sw.write("->apply(");
+		        sw.write("->"+Emitter.mangled_method_name(ClosureCall.APPLY.toString())+"(");
 		    }
 		}
 

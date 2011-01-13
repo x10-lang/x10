@@ -53,14 +53,14 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct {
         for (int i = 0; i < sz; i++) {
             if (i > 0)
                 sb.append(",");
-            sb.append(apply$G(i));
+            sb.append($apply$G(i));
         }
         if (sz < length) sb.append("...(omitted " + (length - sz) + " elements)");
         sb.append(")");
         return sb.toString();
     }
 
-    public T apply$G(int i) {
+    public T $apply$G(int i) {
         return type.getArray(value, i);
     }
 
@@ -78,7 +78,7 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct {
                                      RemoteIndexedMemoryChunk<T> dst, int dstIndex,
                                      int numElems, VoidFun_0_0 notifier) {
         System.arraycopy(src.value, srcIndex, dst.value, dstIndex, numElems);
-        notifier.apply();
+        notifier.$apply();
     }
 
     public static <T> void asyncCopy(RemoteIndexedMemoryChunk<T> src, int srcIndex, 
@@ -91,7 +91,7 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct {
                                      IndexedMemoryChunk<T> dst, int dstIndex,
                                      int numElems, VoidFun_0_0 notifier) {
         System.arraycopy(src.value, srcIndex, dst.value, dstIndex, numElems);
-        notifier.apply();
+        notifier.$apply();
     }
 
     public static <T> void copy(IndexedMemoryChunk<T> src, int srcIndex, 

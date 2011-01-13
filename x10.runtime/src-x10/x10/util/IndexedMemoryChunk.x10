@@ -68,8 +68,8 @@ public struct IndexedMemoryChunk[T] {
      * @param i The index to retreive.
      * @return The value at that index.
      */
-    @Native("java", "(#0).apply$G(#1)")
-    @Native("c++", "(#0)->apply(#1)")
+    @Native("java", "(#0).$apply$G(#1)")
+    @Native("c++", "(#0)->__apply(#1)")
     public native operator this(index:int):T;
 
 
@@ -79,8 +79,8 @@ public struct IndexedMemoryChunk[T] {
      * @param i The index to retreive.
      * @return The value at that index.
      */
-    @Native("java", "(#0).apply$G((int)(#1))")
-    @Native("c++", "(#0)->apply(#1)")
+    @Native("java", "(#0).$apply$G((int)(#1))")
+    @Native("c++", "(#0)->__apply(#1)")
     public native operator this(index:long):T;
 
 
@@ -114,7 +114,7 @@ public struct IndexedMemoryChunk[T] {
      * @param i The index to retreive.
      * @return The value at that index.
      */
-    @Native("java", "(#0).apply$G(#1)")
+    @Native("java", "(#0).$apply$G(#1)")
     @Native("c++", "(#0)->apply_unsafe(#1)")
     public native def apply_unsafe(index:int):T;
 
@@ -125,7 +125,7 @@ public struct IndexedMemoryChunk[T] {
      * @param i The index to retreive.
      * @return The value at that index.
      */
-    @Native("java", "(#0).apply$G((int)(#1))")
+    @Native("java", "(#0).$apply$G((int)(#1))")
     @Native("c++", "(#0)->apply_unsafe(#1)")
     public native def apply_unsafe(index:long):T;
 

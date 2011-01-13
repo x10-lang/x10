@@ -53,7 +53,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
 	/**
 	 * Body of main x10 thread
 	 */
-	public void apply() {
+	public void $apply() {
 //		try { Class.forName("x10.lang.Place"); } catch (ClassNotFoundException e) { }
 
 		// preload classes by default
@@ -76,7 +76,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
             x10.lang.Runtime.start(
             // static init activity
             new x10.core.fun.VoidFun_0_0() {
-                public void apply() {
+                public void $apply() {
                     // execute X10-level static initialization
                     x10.runtime.impl.java.InitDispatcher.runInitializer();
                 }
@@ -91,7 +91,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
             },
             // body of main activity
             new x10.core.fun.VoidFun_0_0() {
-                public void apply() {
+                public void $apply() {
                     // catch and rethrow checked exceptions (closures cannot throw checked exceptions)
                     try {
                         // execute root x10 activity
@@ -181,7 +181,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
 		final int ret = thread.home().id;
 		thread.home(id); // update thread place
 		try {
-			body.apply();
+			body.$apply();
 		} finally {
 			thread.home(ret); // restore thread place
 		}

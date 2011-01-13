@@ -88,7 +88,7 @@ namespace x10 {
                 return (*this)[index] = v; 
             } 
 
-            GPUSAFE T apply(x10_int index) {
+            GPUSAFE T __apply(x10_int index) {
                 return operator[](index);
             }   
 
@@ -217,7 +217,7 @@ namespace x10 {
             x10aux::ref<x10::lang::Reference> initAsRef = init;
             typename Fun_0_1<x10_int,T>::template itable<x10::lang::Reference> *it = x10aux::findITable<Fun_0_1<x10_int,T> >(initAsRef->_getITables());
             for (x10_int i=0 ; i<length ; ++i) {
-                (*rail)[i] = (initAsRef.operator->()->*(it->apply))(i);
+                (*rail)[i] = (initAsRef.operator->()->*(it->__apply))(i);
             }
             return rail;
         }
@@ -254,7 +254,7 @@ namespace x10 {
             x10aux::ref<x10::lang::Reference> initAsRef = init;
             typename Fun_0_1<x10_int,T>::template itable<x10::lang::Reference> *it = x10aux::findITable<Fun_0_1<x10_int,T> >(initAsRef->_getITables());
             for (x10_int i=0 ; i<FMGL(length) ; ++i) {
-                (*this)[i] = (initAsRef.operator->()->*(it->apply))(i);
+                (*this)[i] = (initAsRef.operator->()->*(it->__apply))(i);
             }
         }
 

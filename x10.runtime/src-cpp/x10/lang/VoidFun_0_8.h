@@ -38,21 +38,21 @@ namespace x10 {
             static void _initRTT();
 
             template <class I> struct itable {
-                itable(void(I::*apply)(P1,P2,P3,P4,P5,P6,P7,P8),
+                itable(void(I::*__apply)(P1,P2,P3,P4,P5,P6,P7,P8),
                        x10_boolean (I::*equals)(x10aux::ref<x10::lang::Any>),
                        x10_int (I::*hashCode)(),
                        x10aux::ref<x10::lang::String> (I::*toString)(),
                        x10aux::ref<x10::lang::String> (I::*typeName)()
-                    ) : apply(apply), equals(equals), hashCode(hashCode), toString(toString), typeName(typeName) {}
-                void (I::*apply)(P1,P2,P3,P4,P5,P6,P7,P8);
+                    ) : __apply(__apply), equals(equals), hashCode(hashCode), toString(toString), typeName(typeName) {}
+                void (I::*__apply)(P1,P2,P3,P4,P5,P6,P7,P8);
                 x10_boolean (I::*equals)(x10aux::ref<x10::lang::Any>);
                 x10_int (I::*hashCode)();
                 x10aux::ref<x10::lang::String> (I::*toString)();
                 x10aux::ref<x10::lang::String> (I::*typeName)();
             };
 
-            static void apply(x10aux::ref<x10::lang::Reference> recv, P1 arg1, P2 arg2, P3 arg3, P4 arg4, P5 arg5, P6 arg6, P7 arg7, P8 arg8) {
-                return (recv.operator->()->*(x10aux::findITable<VoidFun_0_8<P1,P2,P3,P4,P5,P6,P7,P8> >(recv->_getITables())->apply))(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+            static void __apply(x10aux::ref<x10::lang::Reference> recv, P1 arg1, P2 arg2, P3 arg3, P4 arg4, P5 arg5, P6 arg6, P7 arg7, P8 arg8) {
+                return (recv.operator->()->*(x10aux::findITable<VoidFun_0_8<P1,P2,P3,P4,P5,P6,P7,P8> >(recv->_getITables())->__apply))(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
             }
             static x10_boolean equals(x10aux::ref<x10::lang::Reference> recv, x10aux::ref<x10::lang::Any> arg1) {
                 return (recv.operator->()->*(x10aux::findITable<VoidFun_0_8<P1,P2,P3,P4,P5,P6,P7,P8> >(recv->_getITables())->equals))(arg1);

@@ -84,7 +84,7 @@ public abstract class PlaceGroup implements Sequence[Place] {
   public abstract def indexOf(id:int):int;
 
   /**
-   * Return the Place with ordinal number i in the place group
+   * Return the Place with ordinal number <code>i</code> in the place group
    *
    * @param i the ordinal number of the desired place
    * @return the ith place in the place group
@@ -93,7 +93,7 @@ public abstract class PlaceGroup implements Sequence[Place] {
 
 
   /**
-   * Two place groups are equal iff the contain the same places
+   * Two place groups are equal iff they contain the same places
    */
   public def equals(thatObj:Any):Boolean {
     if (this == thatObj) return true;

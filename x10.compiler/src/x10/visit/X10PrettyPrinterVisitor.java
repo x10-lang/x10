@@ -1811,7 +1811,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		}
 
 		w.write(".");
-		w.write("apply");
+		w.write("$apply");
         if (isSelfDispatch && (!newClosure && !mi.returnType().isVoid() && mi.formalTypes().size() == 0)) {
             w.write(RETURN_PARAMETER_TYPE_SUFFIX);
 		}
@@ -2274,7 +2274,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		    else {
 		        ret.expand(tr2);
 		    }
-		    w.write(" apply");
+		    w.write(" $apply");
 		    if (!n.returnType().type().isVoid() && (!isSelfDispatch || (isSelfDispatch && n.formals().size() == 0))) {
 		        w.write(RETURN_PARAMETER_TYPE_SUFFIX);
 		    }
@@ -2294,7 +2294,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		    if (!n.returnType().type().isVoid()) {
 		        w.write("return ");
 		    }
-		    w.write("apply");
+		    w.write("$apply");
 		    if (Types.baseType(n.returnType().type()) instanceof ParameterType && (!isSelfDispatch || (isSelfDispatch && n.formals().size() == 0))) {
 		        w.write(RETURN_PARAMETER_TYPE_SUFFIX);
 		    }
@@ -2326,7 +2326,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		else {
 		    er.printType(n.returnType().type(), PRINT_TYPE_PARAMS);
 		}
-		w.write(" apply");
+		w.write(" $apply");
 		if (Types.baseType(n.returnType().type()) instanceof ParameterType && (!isSelfDispatch || (isSelfDispatch && n.formals().size() == 0))) {
 		    w.write(RETURN_PARAMETER_TYPE_SUFFIX);
 		}
@@ -2948,7 +2948,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			w.write(".set");
 			w.write("((");
 			tr.print(n, array, w);
-			w.write(").apply(");
+			w.write(").$apply(");
 			new Join(er, ", ", index).expand(tr);
 			w.write(")");
 			if (nativeop) {
@@ -3019,7 +3019,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			w.write("array.set");
 			w.write("(");
 
-			w.write(" array.apply(");
+			w.write(" array.$apply(");
 			{
 				int i = 0;
 				for (Expr e : index) {
@@ -3160,7 +3160,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 					er.dumpRegex("Native", components, tr, pat);
 				}
 				else {
-					w.write("target.apply(");
+					w.write("target.$apply(");
 					{int i = 0;
 					for (Expr e : args) {
 						if (i > 0) w.write(", ");

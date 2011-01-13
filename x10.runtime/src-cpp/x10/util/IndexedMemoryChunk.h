@@ -163,7 +163,7 @@ template<class T> void x10::util::IndexedMemoryChunk<T>::_serialize(x10::util::I
                                                                     x10aux::serialization_buffer& buf) {
     buf.write((this_->len));
     for (int i=0; i<this_->len; i++) {
-        buf.write(this_->apply(i));
+        buf.write(this_->__apply(i));
     }
 }
 

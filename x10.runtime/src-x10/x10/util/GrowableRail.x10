@@ -35,8 +35,8 @@ public final class GrowableRail[T] implements Indexable[Int,T], Settable[Int,T] 
     public native def insert(p:Int, items:Rail[T]): void;
 
     /** Get the Int element of the rail, failing unless 0 &lt;= Int &lt; length. */
-    @Native("java", "(#0).apply$G(#1)")
-    @Native("c++", "(#0)->apply(#1)")
+    @Native("java", "(#0).$apply$G(#1)")
+    @Native("c++", "(#0)->__apply(#1)")
     public native operator this(Int): T;
 
     /** Set the Int element of the rail, failing unless 0 &lt;= Int &lt; length. */
