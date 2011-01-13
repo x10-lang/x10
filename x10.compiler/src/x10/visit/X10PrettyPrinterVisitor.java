@@ -213,6 +213,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	public static final int NO_QUALIFIER = 8;
 
 	public static final String RETURN_PARAMETER_TYPE_SUFFIX = "$G";
+	// TODO XTENLANG-2312
+    public static final String MAIN_CLASS = "Main";
 
 	final public CodeWriter w;
 	final public Translator tr;
@@ -580,10 +582,10 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			}*/
 
 			// SYNOPSIS: main(#0) #3 #1    #0=args #1=body #2=class name 
-			String regex = "public static class Main extends x10.runtime.impl.java.Runtime {\n" +
+			String regex = "public static class " + MAIN_CLASS + " extends x10.runtime.impl.java.Runtime {\n" +
 			    "public static void main(java.lang.String[] args) {\n" +
 			        "// start native runtime\n" +
-			        "new Main().start(args);\n" +
+			        "new " + MAIN_CLASS + "().start(args);\n" +
 			    "}\n" +
 			    "\n" +
 			    "// called by native runtime inside main x10 thread\n" +
