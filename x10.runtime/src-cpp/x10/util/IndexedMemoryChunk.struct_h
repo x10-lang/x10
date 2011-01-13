@@ -67,7 +67,8 @@ namespace x10 {
             inline void set_unsafe(T val, x10_int index) { raw()[index] = val; }
             inline void set_unsafe(T val, x10_long index) { raw()[index] = val; }
 
-    
+            RemoteIndexedMemoryChunk<T> getCongruentSibling (x10::lang::Place p);
+
             x10::util::IndexedMemoryChunk<T>* operator->() { return this; }
         
             static void _serialize(x10::util::IndexedMemoryChunk<T> this_, x10aux::serialization_buffer& buf);
@@ -94,6 +95,11 @@ namespace x10 {
 
             x10aux::ref<x10::lang::String> typeName();
         };
+    }
+}
+
+namespace x10 {
+    namespace util { 
 
         template <> class IndexedMemoryChunk<void> {
           private:
@@ -159,12 +165,15 @@ namespace x10 {
             }
 
             bool containsPtrs = x10aux::getRTT<T>()->containsPtrs;
-            size_t size = alignment + numElements*sizeof(T);
             T* allocMem;
             if (congruent) {
+                // aligned on page boundaries, no point attempting to do better than that, we will just end up
+                // using more memory than we want
+                size_t size = numElements*sizeof(T);
                 checkCongruentArgs(zeroed,containsPtrs);
-                allocMem = x10aux::alloc<T>(size, containsPtrs);
+                allocMem = static_cast<T*>(x10aux::alloc_internal_congruent(size));
             } else {
+                size_t size = alignment + numElements*sizeof(T);
                 allocMem = x10aux::alloc<T>(size, containsPtrs);
                 if (zeroed) {
                     memset(allocMem, 0, size);
@@ -175,6 +184,7 @@ namespace x10 {
             size_t alignedMem = ((size_t)allocMem + alignDelta) & alignMask;
             return IndexedMemoryChunk<T>((T*)alignedMem, (x10_int)numElements);
         }
+
     }
 } 
 #endif // X10_UTIL_INDEXEDMEMORYCHUNK_STRUCT_H

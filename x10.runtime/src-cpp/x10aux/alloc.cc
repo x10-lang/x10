@@ -127,6 +127,29 @@ namespace {
     unsigned char *congruent_cursor;
     size_t congruent_sz;
 }
+
+// partial reimplemntation of glibc's getline
+static ssize_t mygetline (char **lineptr, size_t *sz, FILE *f)
+{
+    assert(*lineptr==NULL);
+    assert(lineptr!=NULL);
+    assert(sz!=NULL);
+    *sz = 0;
+    char tmp[10];
+    size_t bytesread;
+    do {
+        if (tmp!=fgets(tmp, sizeof(tmp), f)) return -1;
+        bytesread = strlen(tmp);
+        *lineptr = static_cast<char*>(::realloc(*lineptr, *sz+bytesread));
+        strncpy(*lineptr+*sz, tmp, bytesread);
+        *sz += bytesread;
+    } while (tmp[bytesread-1] != '\n');
+    
+    *lineptr = static_cast<char*>(::realloc(*lineptr, *sz+1));
+    (*lineptr)[*sz] = '\0';
+    *sz += 1;
+    return *sz;
+}
         
 static void ensure_init_congruent (size_t req_size) {
 
@@ -190,9 +213,9 @@ static void ensure_init_congruent (size_t req_size) {
 #define MAP_ANONYMOUS MAP_ANON
 #endif
 
-    char *base_addr_ = getenv(ENV_CONGRUENT_SIZE);
+    char *base_addr_ = getenv(ENV_CONGRUENT_BASE);
     // Default addresses based on some experimentation on 32 bit and 64 bit platforms.  Not very reliable.
-    size_t default_base_addr = sizeof(void*)==4 ? 0x40000000LL : 0x100000000000LL;
+    size_t default_base_addr = sizeof(void*)==4 ? 0x70000000LL : 0x100000000000LL;
     size_t base_addr = base_addr_!=NULL ? strtoull(base_addr_,NULL,0) : default_base_addr;
 
     // do not use PAGE_SIZE as the compile-time value may not reflect the machine the code runs on
@@ -212,7 +235,7 @@ static void ensure_init_congruent (size_t req_size) {
     while (!eof) {
         char *lineptr = NULL;
         size_t sz;
-        ssize_t r = getline(&lineptr,&sz,f);
+        ssize_t r = mygetline(&lineptr,&sz,f);
         eof = r == -1;
         if (!eof) {
             char *saveptr;
@@ -231,19 +254,18 @@ static void ensure_init_congruent (size_t req_size) {
                 fprintf(stderr, "Please specify alternative address range with environment variables "ENV_CONGRUENT_BASE" and "ENV_CONGRUENT_SIZE".\n");
                 abort();
             }
-            std::cout << std::hex << from << " - " << to << std::endl;
         }
-        free(lineptr);
+        ::free(lineptr);
     }
     fclose(f);
     #else // __APPLE__
-    // TODO: work out how to do the same thing on bsd-based OS
+    // apparently MAP_FIXED will fail on macosx if there is an existing mapping in the way
     #endif
 
-    obj = mmap((void*)base_addr, size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_FIXED, -1, 0);
+    obj = ::mmap((void*)base_addr, size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_FIXED, -1, 0);
     if (obj==MAP_FAILED) { perror("Homogenous memory mmap"); abort(); }
 
-    #if 1
+    #if 0
     unsigned char *obj2 = static_cast<unsigned char*>(obj);
     fprintf(stderr, "%p ... %p\n", obj, (void*)(size_t(obj)+size-1));
     // test: write + read

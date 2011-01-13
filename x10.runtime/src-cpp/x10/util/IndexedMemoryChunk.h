@@ -150,6 +150,13 @@ template<class T> void x10::util::IndexedMemoryChunk<void>::copy(x10::util::Inde
     x10aux::checkRailBounds(dstIndex+numElems-1, dst.len);
     IMC_copyBody(srcAddr, dstAddr, numBytes, src->data == dst->data);
 }
+
+
+template<class T>
+x10::util::RemoteIndexedMemoryChunk<T> x10::util::IndexedMemoryChunk<T>::getCongruentSibling (x10::lang::Place p)
+{
+    return RemoteIndexedMemoryChunk<T>(raw(), length(), p);
+}
     
 
 template<class T> void x10::util::IndexedMemoryChunk<T>::_serialize(x10::util::IndexedMemoryChunk<T> this_,
@@ -190,7 +197,7 @@ template<class T> x10_boolean x10::util::IndexedMemoryChunk<T>::_struct_equals(x
 }
 
 template<class T> x10aux::ref<x10::lang::String> x10::util::IndexedMemoryChunk<T>::toString() {
-    char* tmp = x10aux::alloc_printf("x10.util.IndexedMemoryChunk<%s>(%llx of %ll elements)", x10aux::getRTT<T>()->name(), data, len);
+    char* tmp = x10aux::alloc_printf("x10.util.IndexedMemoryChunk<%s>(%llx of %llx elements)", x10aux::getRTT<T>()->name(), data, (unsigned long long)len);
     return x10::lang::String::Steal(tmp);
 }
 
@@ -216,5 +223,6 @@ template<class T> void x10::util::IndexedMemoryChunk<T>::_initRTT() {
     const char *baseName = "x10.util.IndexedMemoryChunk";
     rtt.initStageTwo(baseName, x10aux::RuntimeType::struct_kind, 2, parents, 1, params, variances);
 }
+
 #endif // X10_UTIL_INDEXEDMEMORYCHUNK_H_IMPLEMENTATION
 #endif // __X10_UTIL_INDEXEDMEMORYCHUNK_H_NODEPS

@@ -65,6 +65,18 @@ namespace x10 {
             x10_int hashCode() { return (x10_int)data; }
 
             x10aux::ref<x10::lang::String> typeName();
+
+            void remoteAdd(x10_int idx, x10_ulong v)
+            { x10rt_remote_op(home->FMGL(id), (x10rt_remote_ptr)(size_t)&raw()[idx], X10RT_OP_ADD, v); }
+
+            void remoteAnd(x10_int idx, x10_ulong v)
+            { x10rt_remote_op(home->FMGL(id), (x10rt_remote_ptr)(size_t)&raw()[idx], X10RT_OP_AND, v); }
+
+            void remoteOr(x10_int idx, x10_ulong v)
+            { x10rt_remote_op(home->FMGL(id), (x10rt_remote_ptr)(size_t)&raw()[idx], X10RT_OP_OR, v); }
+
+            void remoteXor(x10_int idx, x10_ulong v)
+            { x10rt_remote_op(home->FMGL(id), (x10rt_remote_ptr)(size_t)&raw()[idx], X10RT_OP_XOR, v); }
         };
 
 
