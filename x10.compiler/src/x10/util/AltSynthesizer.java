@@ -76,7 +76,16 @@ import x10.visit.ConstantPropagator;
 import x10.visit.Desugarer;
 
 /**
+ * Helper methods for manufacturing AST Nodes on the fly.
+ * 
  * TODO: merge this class into x10.util.Synthesizer
+ * STEPS:
+ * 1) make every method that needs a context take one as a parameter
+ * 2) disinherit from ContextVisitor
+ * 3) move methods to Synthesizer
+ * 4) eliminate redundant methods (optional)
+ * 5) unify naming and calling conventions (optional)
+ * 6) delete AltSynthesizer
  * 
  * @author Bowen Alpern
  *
@@ -162,8 +171,8 @@ public class AltSynthesizer extends ContextVisitor {
      * TODO: move into Synthesizer
      */
     public LocalDecl createLocalDecl(Position pos, Flags flags, Name name, Expr init) {
-        if (init.type().isVoid()) {
-            System.err.println("ERROR: ForLoopOptimizer.createLocalDecl: creating void local assignment for " +init+ " at " +pos);
+        if (null == init.type() || init.type().isVoid()) {
+            throw new InternalCompilerError("trying to create a LocalDecl " +name+ " with init whose type is null or void, init=" +init, pos);
         }
         return createLocalDecl(pos, flags, name, init.type(), init);
     }
@@ -527,6 +536,7 @@ public class AltSynthesizer extends ContextVisitor {
      * @param source the right-hand-side of the assignment
      * @return the synthesized Assign expression: (target op source)
      * TODO: move into Synthesizer
+     * TODO: pass context parameter
      */
     public Assign createAssign(Position pos, Expr target, Operator op, Expr source) {
         try {
@@ -742,6 +752,7 @@ public class AltSynthesizer extends ContextVisitor {
      * @return the synthesized method instance for this method call
      * @throws InternalCompilerError if the required method instance cannot be created
      * TODO: move to a type system helper class
+     * TODO: add a context parameter
      */
     public MethodInstance createMethodInstance(Type container, Name name, List<Type> typeArgs, Expr... args) {
         List<Type> argTypes = getExprTypes(args);
@@ -754,6 +765,7 @@ public class AltSynthesizer extends ContextVisitor {
      * @param typeArgs
      * @param argTypes
      * @return
+     * TODO: eliminate this method (require caller to pass context parameter)
      */
     public MethodInstance createMethodInstance(Type container, Name name, List<Type> typeArgs, List<Type> argTypes) {
         return createMethodInstance(container, name, typeArgs, argTypes, context());
@@ -785,6 +797,7 @@ public class AltSynthesizer extends ContextVisitor {
      * @return the synthesized method instance for this method call
      * throws InternalCompilerError if the required method instance cannot be created
      * TODO: move to a type system helper class
+     * TODO: require a context parameter
      */
     public MethodInstance createMethodInstance(Type container, Name name, Expr... args) {
         List<Type> argTypes = getExprTypes(args);
@@ -805,6 +818,7 @@ public class AltSynthesizer extends ContextVisitor {
      * @return the synthesized method instance for this method call
      * @throws InternalCompilerError if the required method instance cannot be created
      * TODO: move to a type system helper class
+     * TODO: require a context parameter
      */
     public MethodInstance createMethodInstance(Expr receiver, Name name, List<Type> typeArgs, Expr... args) {
         return createMethodInstance(receiver.type(), name, typeArgs, args);
@@ -819,6 +833,7 @@ public class AltSynthesizer extends ContextVisitor {
      * @return the synthesized method instance for this method call
      * throws InternalCompilerError if the required method instance cannot be created
      * TODO: move to a type system helper class
+     * TODO: require a context parameter
      */
     public MethodInstance createMethodInstance(Expr receiver, Name name, Expr... args) {
         return createMethodInstance(receiver.type(), name, args);
