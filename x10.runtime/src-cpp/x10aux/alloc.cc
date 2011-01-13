@@ -263,7 +263,7 @@ static void ensure_init_congruent (size_t req_size) {
     #endif
 
     obj = ::mmap((void*)base_addr, size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_FIXED, -1, 0);
-    if (obj==MAP_FAILED) { perror("Homogenous memory mmap"); abort(); }
+    if (obj==MAP_FAILED) { perror("Congruent memory mmap"); abort(); }
 
     #if 0
     unsigned char *obj2 = static_cast<unsigned char*>(obj);
