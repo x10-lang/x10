@@ -2,6 +2,10 @@
 #include <cstdio>
 #include <cassert>
 #include <new>
+#if defined(__WIN32__) && defined(__STRICT_ANSI__)
+_CRTIMP int __cdecl __MINGW_NOTHROW     swprintf (wchar_t*, const wchar_t*, ...);
+_CRTIMP int __cdecl __MINGW_NOTHROW     vswprintf (wchar_t*, const wchar_t*, __VALIST);
+#endif
 #include <algorithm>
 #include <cfloat>
 

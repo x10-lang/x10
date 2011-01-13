@@ -5,8 +5,6 @@
 #include <cstdarg>
 #include <new>
 
-#include <pthread.h>
-
 #include <x10rt_types.h>
 #include <x10rt_internal.h>
 #include <x10rt_cuda.h>
