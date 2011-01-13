@@ -15,9 +15,9 @@ import polyglot.ast.Expr;
 import polyglot.visit.ContextVisitor;
 import x10.types.checker.Converter;
 
-public interface X10Cast extends Cast {
-    public Converter.ConversionType conversionType();
-    public X10Cast conversionType(Converter.ConversionType convert);
-    public X10Cast exprAndConversionType(Expr c, Converter.ConversionType checked);
+public abstract interface X10Cast extends Cast {
+    public abstract Converter.ConversionType conversionType();
+    public abstract X10Cast conversionType(Converter.ConversionType convert);
+    public abstract X10Cast exprAndConversionType(Expr c, Converter.ConversionType checked);
 
 }
