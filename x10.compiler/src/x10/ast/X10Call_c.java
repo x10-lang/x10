@@ -325,19 +325,16 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 		return n;
 	}
 
-	@Override
 	public X10Call target(Receiver target) {
         X10Call_c n = (X10Call_c) copy();
         n.target = target;
         return n;
 	}
-	@Override
 	public X10Call name(Id name)  {
         X10Call_c n = (X10Call_c) copy();
         n.name = name;
         return n;
 	}
-	@Override
 	public X10Call targetImplicit(boolean targetImplicit) {
         if (targetImplicit == this.targetImplicit) {
             return this;
@@ -346,19 +343,16 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
         n.targetImplicit = targetImplicit;
         return n;
 	}
-	@Override
 	public X10Call arguments(List<Expr> arguments) {
 		if (arguments == this.arguments) return this;
         X10Call_c n = (X10Call_c) copy();
         n.arguments = TypedList.copyAndCheck(arguments, Expr.class, true);
         return n;
 	}
-	@Override
 	public MethodInstance methodInstance() {
 	    return (MethodInstance) this.mi;
 	}
 	
-	@Override
 	public X10Call methodInstance(MethodInstance mi) {
         if (mi == this.mi) return this;
         X10Call_c n = (X10Call_c) copy();
