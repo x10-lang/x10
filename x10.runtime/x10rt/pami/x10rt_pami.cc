@@ -15,15 +15,14 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
-#include <unistd.h> // for sleep()
 #include <errno.h> // for the strerror function
 #include <sched.h> // for sched_yield()
 #include <x10rt_net.h>
 #include <pami.h>
 
-#define DEBUG 1
+//#define DEBUG 1
 
-enum MSGTYPE {STANDARD, PUT, GET, GET_COMPLETED};
+enum MSGTYPE {STANDARD=1, PUT, GET, GET_COMPLETED}; // PAMI doesn't send messages with type=0... it just silently eats them.
 //mechanisms for the callback functions used in the register and probe methods
 typedef void (*handlerCallback)(const x10rt_msg_params *);
 typedef void *(*finderCallback)(const x10rt_msg_params *, x10rt_copy_sz);
@@ -73,7 +72,7 @@ void error(const char* msg, ...)
 	fflush(stderr);
 	fflush(stdout);
 	sched_yield();
-	exit(1);
+	exit(7);
 }
 
 // used to signal that a communication completed ok
@@ -105,11 +104,10 @@ static void local_msg_dispatch (
 		error("non-immediate dispatch not yet implemented");
 
 	// else, all the data is available, and ready to process
-	#ifdef DEBUG
-		volatile size_t * value = (volatile size_t *) cookie;
-		fprintf(stderr, "(%zu) local_msg_dispatch() short recv:  cookie %p = %d\n", state.myPlaceId, cookie, *value);
-		sleep(1);
-	#endif
+//	#ifdef DEBUG
+//		volatile size_t * value = (volatile size_t *) cookie;
+//		fprintf(stderr, "(%zu) local_msg_dispatch() short recv:  cookie %p = %d\n", state.myPlaceId, cookie, *value);
+//	#endif
 
 	x10rt_msg_params mp;
 	mp.dest_place = state.myPlaceId;
@@ -123,9 +121,9 @@ static void local_msg_dispatch (
 	handlerCallback hcb = state.callBackTable[mp.type].handler;
 	hcb(&mp);
 
-	#ifdef DEBUG
-		fprintf(stderr, "(%lu) processed standard message type %i\n", state.myPlaceId, mp.type);
-	#endif
+//	#ifdef DEBUG
+//		fprintf(stderr, "(%lu) processed standard message type %i\n", state.myPlaceId, mp.type);
+//	#endif
 	state.recv_active = 1;
 }
 
@@ -146,10 +144,10 @@ static void local_put_dispatch (
 		error("non-immediate dispatch not yet implemented");
 
 	// else, all the data is available, and ready to process
-	#ifdef DEBUG
-		volatile size_t * value = (volatile size_t *) cookie;
-		fprintf(stderr, "(%zu) local_put_dispatch() short recv:  cookie %p = %d\n", state.myPlaceId, cookie, *value);
-	#endif
+//	#ifdef DEBUG
+//		volatile size_t * value = (volatile size_t *) cookie;
+//		fprintf(stderr, "(%zu) local_put_dispatch() short recv:  cookie %p = %d\n", state.myPlaceId, cookie, *value);
+//	#endif
 
 	x10rt_msg_params mp;
 	struct x10rt_pami_header * header = (struct x10rt_pami_header *) header_addr;
@@ -160,9 +158,8 @@ static void local_put_dispatch (
 
 	#ifdef DEBUG
 		fprintf(stderr, "Place %lu processing PUT message %i\n", state.myPlaceId, mp.type);
-		fprintf (stderr, ">> 'put' dispatch function.  cookie = %p (value: %zu), header_size = %zu, pipe_size = %zu, recv = %p\n", cookie, *value, header_size, pipe_size, recv);
-		fprintf (stderr, "   'put' dispatch function.  origin = 0x%08x, rts->bytes = %zu, rts->source = %p\n", origin, header->data_len, header->data_ptr);
-		sleep(1);
+//		fprintf (stderr, ">> 'put' dispatch function.  cookie = %p (value: %zu), header_size = %zu, pipe_size = %zu, recv = %p\n", cookie, *value, header_size, pipe_size, recv);
+//		fprintf (stderr, "   'put' dispatch function.  origin = 0x%08x, rts->bytes = %zu, rts->source = %p\n", origin, header->data_len, header->data_ptr);
 	#endif
 
 	finderCallback fcb = state.callBackTable[mp.type].finder;
@@ -192,9 +189,9 @@ static void local_put_dispatch (
 	notifierCallback ncb = state.callBackTable[mp.type].notifier;
 	ncb(&mp, header->data_len);
 
-	#ifdef DEBUG
-		fprintf(stderr, "(%lu) processed PUT message type %i\n", state.myPlaceId, mp.type);
-	#endif
+//	#ifdef DEBUG
+//		fprintf(stderr, "(%lu) processed PUT message type %i\n", state.myPlaceId, mp.type);
+//	#endif
 	state.recv_active = 1;
 }
 
@@ -215,10 +212,10 @@ static void local_get_dispatch (
 		error("non-immediate dispatch not yet implemented");
 
 	// else, all the data is available, and ready to process
-	#ifdef DEBUG
-		volatile size_t * value = (volatile size_t *) cookie;
-		fprintf(stderr, "(%zu) local_get_dispatch() short recv:  cookie %p = %d\n", state.myPlaceId, cookie, *value);
-	#endif
+//	#ifdef DEBUG
+//		volatile size_t * value = (volatile size_t *) cookie;
+//		fprintf(stderr, "(%zu) local_get_dispatch() short recv:  cookie %p = %d\n", state.myPlaceId, cookie, *value);
+//	#endif
 
 	x10rt_msg_params mp;
 	struct x10rt_pami_header * header = (struct x10rt_pami_header *) header_addr;
@@ -230,9 +227,8 @@ static void local_get_dispatch (
 	// issue a put to the originator
 	#ifdef DEBUG
 		fprintf(stderr, "Place %lu processing GET message %i\n", state.myPlaceId, mp.type);
-		fprintf (stderr, ">> 'send' dispatch function.  cookie = %p (_done: %zu), header_size = %zu, pipe_size = %zu, recv = %p\n", cookie, *value, header_size, pipe_size, recv);
-		fprintf (stderr, "   'send' dispatch function.  origin = 0x%08x, header->dst = %p\n", origin, header->data_ptr);
-		sleep(1);
+//		fprintf (stderr, ">> 'send' dispatch function.  cookie = %p (_done: %zu), header_size = %zu, pipe_size = %zu, recv = %p\n", cookie, *value, header_size, pipe_size, recv);
+//		fprintf (stderr, "   'send' dispatch function.  origin = 0x%08x, header->dst = %p\n", origin, header->data_ptr);
 	#endif
 
 	finderCallback fcb = state.callBackTable[mp.type].finder;
@@ -270,21 +266,21 @@ static void local_get_dispatch (
 	if ((status = PAMI_Send(state.context[0], &parameters)) != PAMI_SUCCESS)
 		error("Unable to send a message from %u to %u: %i\n", state.myPlaceId, origin, status);
 
-	#ifdef DEBUG
-		fprintf(stderr, "(%zu) PUT Before advance\n", state.myPlaceId);
-	#endif
+//	#ifdef DEBUG
+//		fprintf(stderr, "(%zu) PUT Before advance\n", state.myPlaceId);
+//	#endif
 
 	while (get_complete_active)
 		PAMI_Context_advance(state.context[0], 100);
-	#ifdef DEBUG
-		fprintf(stderr, "(%zu) PUT After advance\n", state.myPlaceId);
-	#endif
+//	#ifdef DEBUG
+//		fprintf(stderr, "(%zu) PUT After advance\n", state.myPlaceId);
+//	#endif
 
 	notifierCallback ncb = state.callBackTable[mp.type].notifier;
 	ncb(&mp, header->data_len);
-	#ifdef DEBUG
-		fprintf(stderr, "(%lu) processed GET message type %i\n", state.myPlaceId, mp.type);
-	#endif
+//	#ifdef DEBUG
+//		fprintf(stderr, "(%lu) processed GET message type %i\n", state.myPlaceId, mp.type);
+//	#endif
 	state.recv_active = 1;
 }
 
@@ -462,7 +458,6 @@ void x10rt_net_send_msg (x10rt_msg_params *p)
 	pami_result_t   status = PAMI_ERROR;
 	#ifdef DEBUG
 		fprintf(stderr, "Preparing to send a message from place %lu to %lu\n", state.myPlaceId, p->dest_place);
-		sleep(1);
 	#endif
 	if ((status = PAMI_Endpoint_create(state.client, p->dest_place, 0, &target)) != PAMI_SUCCESS)
 		error("Unable to create a target endpoint for sending a message from %u to %u: %i\n", state.myPlaceId, p->dest_place, status);
@@ -484,15 +479,15 @@ void x10rt_net_send_msg (x10rt_msg_params *p)
 	if ((status = PAMI_Send(state.context[0], &parameters)) != PAMI_SUCCESS)
 		error("Unable to send a message from %u to %u: %i\n", state.myPlaceId, p->dest_place, status);
 
-	#ifdef DEBUG
-		fprintf(stderr, "(%zu) send_once() Before advance\n", state.myPlaceId);
-	#endif
+//	#ifdef DEBUG
+//		fprintf(stderr, "(%zu) send_once() Before advance\n", state.myPlaceId);
+//	#endif
 
 	while (send_active) // send_active gets decremented by cookie_decrement
 		PAMI_Context_advance(state.context[0], 100);
-	#ifdef DEBUG
-		fprintf(stderr, "(%zu) send_once() After advance\n", state.myPlaceId);
-	#endif
+//	#ifdef DEBUG
+//		fprintf(stderr, "(%zu) send_once() After advance\n", state.myPlaceId);
+//	#endif
 }
 
 /** \see #x10rt_lgl_send_msg
@@ -506,7 +501,6 @@ void x10rt_net_send_put (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
 	pami_result_t   status = PAMI_ERROR;
 	#ifdef DEBUG
 		fprintf(stderr, "Preparing to send a PUT message from place %lu to %lu\n", state.myPlaceId, p->dest_place);
-		sleep(1);
 	#endif
 
 	if ((status = PAMI_Endpoint_create(state.client, p->dest_place, 0, &target)) != PAMI_SUCCESS)
@@ -534,15 +528,15 @@ void x10rt_net_send_put (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
 	if ((status = PAMI_Send(state.context[0], &parameters)) != PAMI_SUCCESS)
 		error("Unable to send a message from %u to %u: %i\n", state.myPlaceId, p->dest_place, status);
 
-	#ifdef DEBUG
-		fprintf(stderr, "(%zu) PUT Before advance\n", state.myPlaceId);
-	#endif
+//	#ifdef DEBUG
+//		fprintf(stderr, "(%zu) PUT Before advance\n", state.myPlaceId);
+//	#endif
 
 	while (put_active)
 		PAMI_Context_advance(state.context[0], 100);
-	#ifdef DEBUG
-		fprintf(stderr, "(%zu) PUT After advance\n", state.myPlaceId);
-	#endif
+//	#ifdef DEBUG
+//		fprintf(stderr, "(%zu) PUT After advance\n", state.myPlaceId);
+//	#endif
 }
 
 /** \see #x10rt_lgl_send_msg
@@ -557,7 +551,6 @@ void x10rt_net_send_get (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
 	pami_result_t   status = PAMI_ERROR;
 	#ifdef DEBUG
 		fprintf(stderr, "Preparing to send a GET message from place %lu to %lu\n", state.myPlaceId, p->dest_place);
-		sleep(1);
 	#endif
 
 	if ((status = PAMI_Endpoint_create(state.client, p->dest_place, 0, &target)) != PAMI_SUCCESS)
@@ -583,14 +576,14 @@ void x10rt_net_send_get (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
 	if ((status = PAMI_Send(state.context[0], &parameters)) != PAMI_SUCCESS)
 		error("Unable to send a message from %u to %u: %i\n", state.myPlaceId, p->dest_place, status);
 
-	#ifdef DEBUG
-		fprintf(stderr, "(%zu) GET Before advance\n", state.myPlaceId);
-	#endif
+//	#ifdef DEBUG
+//		fprintf(stderr, "(%zu) GET Before advance\n", state.myPlaceId);
+//	#endif
 	while (get_active)
 		PAMI_Context_advance(state.context[0], 100);
-	#ifdef DEBUG
-		fprintf(stderr, "(%zu) GET After advance\n", state.myPlaceId);
-	#endif
+//	#ifdef DEBUG
+//		fprintf(stderr, "(%zu) GET After advance\n", state.myPlaceId);
+//	#endif
 }
 
 /** Handle any oustanding message from the network by calling the registered callbacks.  \see #x10rt_lgl_probe
@@ -605,10 +598,9 @@ void x10rt_net_probe()
 //	if ((status = PAMI_Context_lock(state.context[0])) != PAMI_SUCCESS)
 //		error("Unable to lock context");
 
-	#ifdef DEBUG
-		fprintf(stderr, "Place %lu advancing context\n", state.myPlaceId);
-		sleep(1);
-	#endif
+//	#ifdef DEBUG
+//		fprintf(stderr, "Place %lu advancing context\n", state.myPlaceId);
+//	#endif
 /*	while (state.recv_active)
 		PAMI_Context_advance (state.context[0], 100);
 
@@ -620,25 +612,25 @@ void x10rt_net_probe()
 		status = PAMI_Context_advance(state.context[0], 100);
 		if (status == PAMI_EAGAIN)
 		{
-			#ifdef DEBUG
-				fprintf(stderr, "Place %lu found nothing to do\n", state.myPlaceId);
-			#endif
+//			#ifdef DEBUG
+//				fprintf(stderr, "Place %lu found nothing to do\n", state.myPlaceId);
+//			#endif
 //			if ((status = PAMI_Context_unlock(state.context[0])) != PAMI_SUCCESS)
 //				error("Unable to unlock context");
 			sched_yield();
 		}
-		#ifdef DEBUG
-		else if (status == PAMI_SUCCESS)
-			fprintf(stderr, "Place %lu finished advancing a context\n", state.myPlaceId);
-		#endif
+//		#ifdef DEBUG
+//		else if (status == PAMI_SUCCESS)
+//			fprintf(stderr, "Place %lu finished advancing a context\n", state.myPlaceId);
+//		#endif
 //		else if ((status = PAMI_Context_unlock(state.context[0])) != PAMI_SUCCESS)
 //			error("Unable to unlock context");
 	}
 	else
 	{
-		#ifdef DEBUG
-			fprintf(stderr, "Place %lu not advancing because receive is deactivated\n", state.myPlaceId);
-		#endif
+//		#ifdef DEBUG
+//			fprintf(stderr, "Place %lu not advancing because receive is deactivated\n", state.myPlaceId);
+//		#endif
 		sched_yield();
 	}
 }
@@ -649,14 +641,14 @@ void x10rt_net_finalize()
 {
 	pami_result_t status = PAMI_ERROR;
 
+	#ifdef DEBUG
+		fprintf(stderr, "Place %lu shutting down\n", state.myPlaceId);
+	#endif
 	if ((status = PAMI_Context_destroyv(&state.context[0], 1)) != PAMI_SUCCESS)
 		fprintf(stderr, "Error closing PAMI context: %i\n", status);
 
 	if ((status = PAMI_Client_destroy(&state.client)) != PAMI_SUCCESS)
 		fprintf(stderr, "Error closing PAMI client: %i\n", status);
-	#ifdef DEBUG
-		fprintf(stderr, "Place %lu shut down\n", state.myPlaceId);
-	#endif
 }
 
 int x10rt_net_supports (x10rt_opt o)
