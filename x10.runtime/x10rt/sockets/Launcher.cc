@@ -956,6 +956,11 @@ static char *alloc_env_assign(const char *var, const char *val)
     return alloc_printf("%s=${%s-'%s'}", var, var, val);
 }
 
+static char *alloc_env_always_assign(const char *var, const char *val)
+{
+    return alloc_printf("%s='%s'", var, val);
+}
+
 void Launcher::startSSHclient(uint32_t id, char* masterPort, char* remotehost)
 {
 	char * cmd = (char *) _realpath;
@@ -987,17 +992,23 @@ void Launcher::startSSHclient(uint32_t id, char* masterPort, char* remotehost)
         #ifdef DEBUG
             fprintf(stderr, "Launcher %u: copying environment variable %s=%s for child %u.\n", _myproc, var, val, id);
         #endif
-        argv[++z] = alloc_env_assign(var, val);
+        bool x10_var = false;
+        if (strncmp(var, "X10_", 4)==0) x10_var = true;
+        if (strncmp(var, "X10RT_", 6)==0) x10_var = true;
+        if (strncmp(var, "X10LAUNCHER_", 12)==0) x10_var = true;
+        argv[++z] = x10_var ? alloc_env_always_assign(var,val) : alloc_env_assign(var, val);
+        
 	}
 
 	if (_hostfname != '\0')
 	{
         argv[++z] = alloc_env_assign(X10_HOSTFILE, _hostfname);
 	}
-    argv[++z] = alloc_env_assign(X10LAUNCHER_SSH, _ssh_command);
-    argv[++z] = alloc_env_assign(X10LAUNCHER_PARENT, masterPort);
-    argv[++z] = alloc_env_assign(X10_PLACE, alloc_printf("%d",id));
+    argv[++z] = alloc_env_always_assign(X10LAUNCHER_SSH, _ssh_command);
+    argv[++z] = alloc_env_always_assign(X10LAUNCHER_PARENT, masterPort);
+    argv[++z] = alloc_env_always_assign(X10_PLACE, alloc_printf("%d",id));
 	argv[++z] = cmd;
+	//argv[++z] = "env";
 	for (int i = 1; i < _argc; i++)
 	{
 		if (strchr(_argv[i], '$') != NULL)
