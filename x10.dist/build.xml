@@ -663,7 +663,24 @@ WALA4_URL='${wala4.jar.url}'
     <target name="tars" depends="tar,srctar,testtar"/>
 
     <target name="update-host-fragment" description="Updates the x10.dist platform-specific fragment in this workspace">
-        <copy todir="../x10.dist.${env.X10_PLATFORM}.fragment">
+        <condition property="platform" value="win32"><os family="windows"/></condition>
+        <condition property="platform" value="linux"><os name="Linux"/></condition>
+        <condition property="platform" value="macosx"><os name="Mac OS X"/></condition>
+        <condition property="arch" value="x86" else="${os.arch}">
+            <or>
+                <!-- Work around Mac OS's Java reporting x86 as i386 -->
+                <equals arg1="${os.arch}" arg2="i386"/>
+                <!-- Treat amd64 as x86 -->
+                <equals arg1="${os.arch}" arg2="amd64"/>
+            	<and>
+            		<os name="Mac OS X"/>
+            		<os arch="x86_64"/>
+            	</and>
+            </or>
+        </condition>
+    	<property name="targetDir" value="../x10.dist.${platform}.${arch}.fragment"/>
+    	<echo message="Copying include and lib files to ${targetDir}..."/>
+        <copy todir="${targetDir}">
             <fileset dir="." includes="include/**,lib/**"/>
         </copy>
     </target>
