@@ -935,49 +935,65 @@ void Launcher::cb_sighandler_term(int signo)
 /*          start a new child                                              */
 /* *********************************************************************** */
 
+static char *alloc_printf(const char *fmt, ...)
+{
+    va_list args;
+    char try_buf[1];
+    va_start(args, fmt);
+    size_t sz = vsnprintf(try_buf, 0, fmt, args);
+    va_end(args);
+    char *r = (char*)malloc(sz+1);
+    va_start(args, fmt);
+    size_t s1 = vsnprintf(r, sz+1, fmt, args);
+    (void) s1;
+    assert (s1 == sz);
+    va_end(args);
+    return r;
+}
+
+static char *alloc_env_assign(const char *var, const char *val)
+{
+    return alloc_printf("%s=${%s:-%s}", var, var, val);
+}
+
 void Launcher::startSSHclient(uint32_t id, char* masterPort, char* remotehost)
 {
 	char * cmd = (char *) _realpath;
-	char ** argv = (char **) alloca (sizeof(char *) * (_argc+32));
+
+    // leak a bunch of memory, we're about to exec anyway and that will clean it up
+    // on all OS that we care about
+
+	// find out how many environment variables there are
+    extern char **environ;
+    unsigned environ_sz = 0;
+    while (environ[environ_sz]!=NULL) environ_sz++;
+
+	char ** argv = (char **) alloca (sizeof(char *) * (_argc+environ_sz+32));
 	int z = 0;
 	argv[z] = _ssh_command;
 	argv[++z] = remotehost;
-//	argv[++z] = (char *) "/usr/bin/env";
 
-	// deal with known runtime environment variables
-	const char* envVariables[] = {
-	"X10_ENABLE_ASSERTIONS", "X10_RXTX", "GC_PRINT_ADDRESS_MAP","X10_NO_ANSI_COLORS",
-	"X10RT_MPI_THREAD_MULTIPLE", "X10_DISABLE_DEALLOC", "X10_TRACE_ALLOC", "X10_TRACE_ALL",
-	"X10_TRACE_INIT", "X10_TRACE_X10RT", "X10_TRACE_NET", "X10_TRACE_SER", "X10_NTHREADS",
-	"X10RT_CUDA_DMA_SLICE", "X10RT_EMULATE_REMOTE_OP", "X10RT_EMULATE_COLLECTIVES",
-	"X10RT_MPI_THREAD_MULTIPLE", "X10_STATIC_THREADS", "X10_NO_STEALS", "X10RT_ACCELS",
-	X10RT_NOYIELD, X10LAUNCHER_DEBUG, X10_HOSTLIST, X10_NPLACES};
-	for (unsigned i=0; i<(sizeof envVariables)/sizeof(char*); i++)
-	{
-		char* ev = getenv(envVariables[i]);
-		if (ev != NULL)
-		{
-			#ifdef DEBUG
-				fprintf(stderr, "Launcher %u: copying environment variable %s=%s for child %u.\n", _myproc, envVariables[i], ev, id);
-			#endif
-			argv[++z] = (char*) alloca(32+sizeof(ev));
-			sprintf(argv[z], "%s=%s", envVariables[i], ev);
-		}
+    // deal with the environment variables
+    for (unsigned i=0 ; i<environ_sz ; ++i)
+    {
+        char *var = strdup(environ[i]);
+        *strchr(var,'=') = '\0';
+		char* val = getenv(var);
+        assert(val!=NULL);
+        #ifdef DEBUG
+            fprintf(stderr, "Launcher %u: copying environment variable %s=%s for child %u.\n", _myproc, var, val, id);
+        #endif
+        argv[++z] = alloc_env_assign(var, val);
 	}
 
 	if (_hostfname != '\0')
 	{
-		argv[++z] = (char*) alloca(strlen(_hostfname)+32);
-		sprintf(argv[z], X10_HOSTFILE"=%s", _hostfname);
+        argv[++z] = alloc_env_assign(X10_HOSTFILE, _hostfname);
 	}
-	argv[++z] = (char*) alloca(256);
-	sprintf(argv[z], X10LAUNCHER_SSH"=%s", _ssh_command);
-	argv[++z] = (char*) alloca(1024);
-	sprintf(argv[z], X10LAUNCHER_PARENT"=%s", masterPort);
-	argv[++z] = (char*) alloca(100);
-	sprintf(argv[z], X10_PLACE"=%d", id);
-	argv[++z] = (char*) alloca(1024);
-	sprintf(argv[z], X10LAUNCHER_CWD"=%s", getenv(X10LAUNCHER_CWD));
+    argv[++z] = alloc_env_assign(X10LAUNCHER_SSH, _ssh_command);
+    argv[++z] = alloc_env_assign(X10LAUNCHER_PARENT, masterPort);
+    argv[++z] = alloc_env_assign(X10_PLACE, alloc_printf("%d",id));
+    argv[++z] = alloc_env_assign(X10LAUNCHER_CWD, getenv(X10LAUNCHER_CWD));
 	argv[++z] = cmd;
 	for (int i = 1; i < _argc; i++)
 	{
