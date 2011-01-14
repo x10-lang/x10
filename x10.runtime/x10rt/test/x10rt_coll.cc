@@ -256,7 +256,7 @@ static void coll_test (x10rt_team team, x10rt_place role, x10rt_place per_place)
         float oracle_base = (x10rt_team_sz(team)*x10rt_team_sz(team) + x10rt_team_sz(team))/2;
         for (size_t i=0 ; i<count ; ++i) {
             float oracle = oracle_base * i * i;
-            if (fabs(dbuf[i] / oracle - 1)>0.0000001) {
+            if (fabs(dbuf[i] / oracle - 1)>0.00001) {
                 std::cout << team << ": role " << role
                           << " has received invalid sum at ["<<i<<"]:  " << dbuf[i]
                           << " (not " << oracle << ")" << std::endl;
