@@ -953,7 +953,7 @@ static char *alloc_printf(const char *fmt, ...)
 
 static char *alloc_env_assign(const char *var, const char *val)
 {
-    return alloc_printf("%s=${%s-%s}", var, var, val);
+    return alloc_printf("%s=${%s-'%s'}", var, var, val);
 }
 
 void Launcher::startSSHclient(uint32_t id, char* masterPort, char* remotehost)
@@ -978,6 +978,10 @@ void Launcher::startSSHclient(uint32_t id, char* masterPort, char* remotehost)
     {
         char *var = strdup(environ[i]);
         *strchr(var,'=') = '\0';
+        if (strcmp(var,X10_HOSTFILE)==0) continue;
+        if (strcmp(var,X10LAUNCHER_SSH)==0) continue;
+        if (strcmp(var,X10LAUNCHER_PARENT)==0) continue;
+        if (strcmp(var,X10_PLACE)==0) continue;
 		char* val = getenv(var);
         assert(val!=NULL);
         #ifdef DEBUG
@@ -993,7 +997,6 @@ void Launcher::startSSHclient(uint32_t id, char* masterPort, char* remotehost)
     argv[++z] = alloc_env_assign(X10LAUNCHER_SSH, _ssh_command);
     argv[++z] = alloc_env_assign(X10LAUNCHER_PARENT, masterPort);
     argv[++z] = alloc_env_assign(X10_PLACE, alloc_printf("%d",id));
-    argv[++z] = alloc_env_assign(X10LAUNCHER_CWD, getenv(X10LAUNCHER_CWD));
 	argv[++z] = cmd;
 	for (int i = 1; i < _argc; i++)
 	{
@@ -1014,9 +1017,9 @@ void Launcher::startSSHclient(uint32_t id, char* masterPort, char* remotehost)
 
 	#ifdef DEBUG
 		fprintf(stderr, "Launcher %u exec-ing SSH process to start up launcher %u on %s.\n", _myproc, id, remotehost);
-		//for (int i=0; i<z+_argc; i++)
-		//	fprintf (stderr, " %s ", argv[i]);
-		//fprintf (stderr, "\n");
+		for (int i=0; i<z+_argc; i++)
+			fprintf (stderr, " %s ", argv[i]);
+		fprintf (stderr, "\n");
 	#endif
 
 	z = execvp(argv[0], argv);
