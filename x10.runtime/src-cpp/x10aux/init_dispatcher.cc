@@ -68,8 +68,8 @@ class x10aux::InitClosure : public x10::lang::Closure
         }
 };
 
-x10::lang::VoidFun_0_0::itable<InitClosure> InitClosure::_itable(&InitClosure::__apply, 
-                                                                 &InitClosure::equals, &InitClosure::hashCode,
+x10::lang::VoidFun_0_0::itable<InitClosure> InitClosure::_itable(&InitClosure::equals, &InitClosure::hashCode,
+                                                                 &InitClosure::__apply,                                                                  
                                                                  &InitClosure::toString, &InitClosure::typeName);
 
 x10aux::itable_entry InitClosure::_itables[2] = {

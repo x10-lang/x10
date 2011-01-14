@@ -161,7 +161,7 @@ public class Emitter {
 		Map<Name,Name> map = new HashMap<Name,Name>();
 		map.put(Converter.operator_as, Name.make("$convert"));
 		map.put(Converter.implicit_operator_as, Name.make("$implicit_convert"));
-		map.put(SettableAssign.SET, Name.make("set"));
+		map.put(SettableAssign.SET, Name.make("$set"));
 		map.put(ClosureCall.APPLY, Name.make("$apply"));
 		map.put(Name.make("operator+"), Name.make("$plus"));
 		map.put(Name.make("operator-"), Name.make("$minus"));

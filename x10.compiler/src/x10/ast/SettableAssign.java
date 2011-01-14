@@ -24,7 +24,7 @@ import x10.types.MethodInstance;
 public interface SettableAssign extends Assign {
 
     /** The name of the method to use for settable assignment */
-    public static final Name SET = Name.make("set"); // todo SettableAssign: after changing this name, search for "todo SettableAssign", and uncomment all 
+    public static final Name SET = Name.make("operator()="); // todo SettableAssign: after changing this name, search for "todo SettableAssign", and uncomment all 
 
     /** Get the array of the expression. */
     public Expr array();

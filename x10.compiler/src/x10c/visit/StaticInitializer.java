@@ -890,7 +890,7 @@ public class StaticInitializer extends ContextVisitor {
 
     private Expr genStatusSet(Position pos, TypeNode receiver, FieldDef fdCond) {
         Expr ai = xnf.Field(pos, receiver, xnf.Id(pos, fdCond.name())).fieldInstance(fdCond.asInstance());
-        Id name = xnf.Id(pos, SettableAssign.SET);
+        Id name = xnf.Id(pos, Name.make("set")); // Intentionally not SettableAssign.SET because AtomicInteger is a NativeRep class
 
         List<Ref<? extends Type>> argTypes = new ArrayList<Ref<? extends Type>>();
         argTypes.add(Types.ref(xts.Int()));
