@@ -362,7 +362,7 @@ ref<String> String::format(ref<String> format, ref<x10::array::Array<ref<Any> > 
             ss << fmt;
             --i;
         } else {
-            const ref<Reference> p = parms->apply(i);
+            const ref<Reference> p = parms->__apply(i);
             _formatHelper(ss, fmt, p);
         }
         if (next != NULL)
@@ -506,7 +506,7 @@ void String::_deserialize_body(x10aux::deserialization_buffer &buf) {
     _S_("Deserialized string was: \""<<this<<"\"");
 }
 
-Fun_0_1<x10_int, x10_char>::itable<String> String::_itable_Fun_0_1(&String::apply, 
+Fun_0_1<x10_int, x10_char>::itable<String> String::_itable_Fun_0_1(&String::__apply, 
                                                                    &String::equals, &String::hashCode,
                                                                    &String::toString, &String::typeName);
 Comparable<ref<String> >::itable<String> String::_itable_Comparable(&String::compareTo,

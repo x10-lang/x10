@@ -452,7 +452,7 @@ public class MethodInstance_c extends FunctionInstance_c<MethodDef> implements M
                     XTerm receiver;
 
                     if (flags.isStatic()) {
-                        receiver = xts.xtypeTranslator().trans(container());
+                        receiver = xts.xtypeTranslator().translate(container());
                     }
                     else {
                         receiver = x10Def().thisVar();
@@ -468,7 +468,7 @@ public class MethodInstance_c extends FunctionInstance_c<MethodDef> implements M
 
                         // TODO: handle non-vars, like rail().body
                         if (self == null || ! (self instanceof XVar)) {
-                            self = xts.xtypeTranslator().trans(c, receiver, this, t);
+                            self = xts.xtypeTranslator().translate(receiver, this);
                         }
 
                         if (self != null) {

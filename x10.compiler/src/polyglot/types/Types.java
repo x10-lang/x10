@@ -57,6 +57,7 @@ import x10.types.X10ParsedClassType_c;
 import x10.types.X10ProcedureDef;
 import x10.types.X10ProcedureInstance;
 import x10.types.X10ThisVar;
+import x10.types.XTypeTranslator;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.SubtypeConstraint;
 import x10.types.constraints.TypeConstraint;
@@ -772,8 +773,8 @@ public class Types {
 	    if (sizeField == null)
 	        throw new InternalCompilerError("Could not find size field of " + t, pos);
 	    try {
-	        XVar selfSize = ts.xtypeTranslator().trans(c, c.self(), sizeField);
-	        XLit sizeLiteral = ts.xtypeTranslator().trans(size);
+	        XVar selfSize = ts.xtypeTranslator().translate(c.self(), sizeField);
+	        XLit sizeLiteral = XTypeTranslator.translate(size);
 	        c.addBinding(selfSize, sizeLiteral);
 	        return Types.xclause(t, c);
 	    } catch (XFailure z) {
@@ -810,10 +811,10 @@ public class Types {
 	    if (railField == null)
 	        throw new InternalCompilerError("Could not find rail field of " + t, pos);
 	    try {
-	        XVar selfRank = ts.xtypeTranslator().trans(c, c.self(), rankField);
-	        XVar selfRect = ts.xtypeTranslator().trans(c, c.self(), rectField);
-	        XVar selfZeroBased = ts.xtypeTranslator().trans(c, c.self(), zeroBasedField);
-	        XVar selfRail = ts.xtypeTranslator().trans(c, c.self(), railField);
+	        XVar selfRank = ts.xtypeTranslator().translate(c.self(), rankField);
+	        XVar selfRect = ts.xtypeTranslator().translate(c.self(), rectField);
+	        XVar selfZeroBased = ts.xtypeTranslator().translate(c.self(), zeroBasedField);
+	        XVar selfRail = ts.xtypeTranslator().translate(c.self(), railField);
 	
 	        XLit rankLiteral = XTerms.makeLit(1);
 	        c.addBinding(selfRank, rankLiteral);

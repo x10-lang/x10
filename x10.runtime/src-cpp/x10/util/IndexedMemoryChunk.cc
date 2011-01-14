@@ -37,7 +37,7 @@ namespace x10 {
         
         void IMC_notifyEnclosingFinish(deserialization_buffer& buf) {
             ref<x10::lang::FinishState> fs = buf.read<ref<x10::lang::FinishState> >();
-            ref<Runtime> rt = PlaceLocalHandle_methods<ref<Runtime> >::apply(Runtime::FMGL(runtime));
+            ref<Runtime> rt = PlaceLocalHandle_methods<ref<Runtime> >::__apply(Runtime::FMGL(runtime));
             // olivier says the incr should be just after the notifySubActivitySpawn
             fs->notifyActivityCreation();
             fs->notifyActivityTermination();
@@ -46,7 +46,7 @@ namespace x10 {
         void IMC_serialize_finish_state(place dst, serialization_buffer &buf) {
             // dst is the place where the finish update will occur, i.e. where the notifier runs
             dst = parent(dst);
-            ref<Runtime> rt = PlaceLocalHandle_methods<ref<Runtime> >::apply(Runtime::FMGL(runtime));
+            ref<Runtime> rt = PlaceLocalHandle_methods<ref<Runtime> >::__apply(Runtime::FMGL(runtime));
             ref<x10::lang::FinishState> fs = rt->activity()->finishState();
             fs->notifySubActivitySpawn(Place_methods::_make(dst));
             buf.write(fs);
@@ -61,7 +61,7 @@ namespace x10 {
                     memcpy(dstAddr, srcAddr, numBytes);
                 }                
                 if (!notif.isNull()) {
-                    VoidFun_0_0::apply(notif);
+                    VoidFun_0_0::__apply(notif);
                 }
             } else {
                 x10aux::place dst_place = dstPlace->FMGL(id);
@@ -86,7 +86,7 @@ namespace x10 {
                     memcpy(dstAddr, srcAddr, numBytes);
                 }
                 if (!notif.isNull()) {
-                    VoidFun_0_0::apply(notif);
+                    VoidFun_0_0::__apply(notif);
                 }
             } else {
                 x10aux::place src_place = srcPlace->FMGL(id);
@@ -124,8 +124,19 @@ namespace x10 {
         void IMC_uncounted_notifier(deserialization_buffer &buf, x10_int) {
             buf.read<x10_long>();  // Read and discard data used by IMC_copy_to_buffer_finder
             ref<Reference> notif = buf.read<x10aux::ref<x10::lang::Reference> >();
-            VoidFun_0_0::apply(notif);
+            VoidFun_0_0::__apply(notif);
         }
+
+        void checkCongruentArgs (x10_boolean zeroed, x10_boolean containsPtrs)
+        {
+                if (!zeroed) 
+                    throwException(x10::lang::IllegalArgumentException::_make(String::Lit("Congruent memory must be zeroed")));
+
+                if (containsPtrs) 
+                    throwException(x10::lang::IllegalArgumentException::_make(
+                        String::Lit("Congruent memory is not garbage collected thus cannot contain pointers")));
+        }
+
     }
 }
 

@@ -235,14 +235,14 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 					Expr initializer = args.get(i);
 					Type initType = initializer.type();
 					final FieldInstance fii = definedProperties.get(i);
-					XVar prop = (XVar) ts.xtypeTranslator().trans(known, known.self(), fii);
+					XVar prop = (XVar) ts.xtypeTranslator().translate(known.self(), fii);
 
 					// Add in the real clause of the initializer with [self.prop/self]
 					CConstraint c = Types.realX(initType);
 					if (c != null)
 						known.addIn(c.substitute(prop, c.self()));
 
-					XTerm initVar = ts.xtypeTranslator().trans(known, initializer, (Context) ctx);
+					XTerm initVar = ts.xtypeTranslator().translate(known, initializer, (Context) ctx);
 					if (initVar != null)
 						known.addBinding(prop, initVar);
 				}

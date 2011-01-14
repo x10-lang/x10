@@ -26,12 +26,17 @@
 #include <sys/ipc.h>
 #include <sys/shm.h>
 #include <sys/vminfo.h>
+#else
+#include <unistd.h>
+#include <sys/mman.h>
 #endif
+
 
 using namespace x10aux;
 
 #ifdef __CYGWIN__
 extern "C" int vsnprintf(char *, size_t, const char *, va_list); 
+extern "C" unsigned long long strtoull(const char *, char **, int);
 #endif
 
 void x10aux::reportOOM(size_t size) {
@@ -39,7 +44,8 @@ void x10aux::reportOOM(size_t size) {
 #ifndef NO_EXCEPTIONS
     throwException<x10::lang::OutOfMemoryError>();
 #else
-    assert(false && "Out of memory");
+    fprintf(stderr,"Out of memory\n");
+    abort();
 #endif
 }
 
@@ -112,7 +118,59 @@ size_t x10aux::heap_size() {
 #endif
 }
 
-void *x10aux::alloc_internal_pinned(size_t size) {
+
+#define ENV_CONGRUENT_BASE "X10_CONGRUENT_BASE"
+#define ENV_CONGRUENT_SIZE "X10_CONGRUENT_SIZE"
+namespace {
+    bool have_init_congruent = false;
+    unsigned char *congruent_base;
+    unsigned char *congruent_cursor;
+    size_t congruent_sz;
+}
+
+// partial reimplemntation of glibc's getline
+static ssize_t mygetline (char **lineptr, size_t *sz, FILE *f)
+{
+    assert(*lineptr==NULL);
+    assert(lineptr!=NULL);
+    assert(sz!=NULL);
+    *sz = 0;
+    char tmp[10];
+    size_t bytesread;
+    do {
+        if (tmp!=fgets(tmp, sizeof(tmp), f)) return -1;
+        bytesread = strlen(tmp);
+        *lineptr = static_cast<char*>(::realloc(*lineptr, *sz+bytesread));
+        strncpy(*lineptr+*sz, tmp, bytesread);
+        *sz += bytesread;
+    } while (tmp[bytesread-1] != '\n');
+    
+    *lineptr = static_cast<char*>(::realloc(*lineptr, *sz+1));
+    (*lineptr)[*sz] = '\0';
+    *sz += 1;
+    return *sz;
+}
+        
+static void ensure_init_congruent (size_t req_size) {
+
+    if (have_init_congruent) return;
+    have_init_congruent = true;
+
+    char *size_ = getenv(ENV_CONGRUENT_SIZE);
+    size_t size = size_!=NULL ? strtoull(size_,NULL,0) : 0;
+
+    // if it's the first allocation, may as well make it big enough -- further allocations will fail
+    if (size < req_size) size = req_size;
+
+    congruent_sz = size;
+
+    if (size==0) {
+        congruent_base = NULL;
+        congruent_cursor = NULL;
+        return;
+    }
+
+    // otherwise, we have some very system-specific work to do...
     void *obj;
 
 #ifdef _AIX
@@ -127,45 +185,145 @@ void *x10aux::alloc_internal_pinned(size_t size) {
         std::cerr << "Could not get 16M pages" << std::endl;
         abort();
     }
-    obj = shmat(shm_id,0,0);  // map memory
-    shmctl(shm_id, IPC_RMID, NULL); // no idea what this does
+    obj = shmat(shm_id,0,0);  // 'attach' the shared memory at any arbitrary address (seemingly, this is always the same)
+    shmctl(shm_id, IPC_RMID, NULL); // mark for destruction, will be deallocated when shmdt is called (for x10, never)
 
-    // pagesizes OK?
+    #if 0
+    // pagesizes OK? (validated at MS9B, comment back in to check)
     for (char *p = (char*)obj; p < ((char*)obj) + size;) {
         struct vm_page_info pginfo;
         pginfo.addr = (uint64_t) (size_t) p;
         vmgetinfo(&pginfo,VM_PAGE_INFO,sizeof(struct vm_page_info));
         if (pginfo.pagesize < PAGESIZE_64K) {
-            fprintf(stderr, "alloc_internal_pinned: Found a page smaller than 64K at %p of %p\n", p, obj);
+            fprintf(stderr, "alloc_internal_congruent: Found a page smaller than 64K at %p of %p\n", p, obj);
             abort();
         }
         if (pginfo.pagesize < PAGESIZE_16M) {
-            fprintf(stderr, "alloc_internal_pinned: Found a page smaller than 16M at %p of %p (not checking for any more)\n", p, obj);
+            fprintf(stderr, "alloc_internal_congruent: Found a page smaller than 16M at %p of %p (not checking for any more)\n", p, obj);
             break;
         }
         p += pginfo.pagesize;
     }
+    #endif
+
+#elif defined(__linux__) || defined(__APPLE__)
+
+// darwin doesn't have MAP_ANONYMOUS but it does have MAP_ANON which does the same thing
+#ifdef __APPLE__
+#define MAP_ANONYMOUS MAP_ANON
+#endif
+
+    char *base_addr_ = getenv(ENV_CONGRUENT_BASE);
+    // Default addresses based on some experimentation on 32 bit and 64 bit platforms.  Not very reliable.
+    size_t default_base_addr = sizeof(void*)==4 ? 0x70000000LL : 0x100000000000LL;
+    size_t base_addr = base_addr_!=NULL ? strtoull(base_addr_,NULL,0) : default_base_addr;
+
+    // do not use PAGE_SIZE as the compile-time value may not reflect the machine the code runs on
+    long page = sysconf(_SC_PAGESIZE); 
+    if (base_addr % page) {
+        fprintf(stderr, ENV_CONGRUENT_BASE" (%llx) is not a multiple of PAGE_SIZE (%llx)\n", (unsigned long long)base_addr, (unsigned long long)page);
+        abort();
+    }
+
+
+    // check whether or not there are existing pages mapped, if there are, mmap will clobber them
+    // so we must detect and abort
+    #ifdef __linux__
+    FILE *f = fopen("/proc/self/maps","r");
+    if (f==NULL) perror("fopening /proc/self/maps");
+    bool eof = false;
+    while (!eof) {
+        char *lineptr = NULL;
+        size_t sz;
+        ssize_t r = mygetline(&lineptr,&sz,f);
+        eof = r == -1;
+        if (!eof) {
+            char *saveptr;
+            const char *from_c = strtok_r(lineptr,"-",&saveptr);
+            if (from_c == NULL) { fprintf(stderr, "Formatting error in /proc/self/maps!\n"); abort(); }
+            size_t from = strtoull(from_c,NULL,16);
+            const char *to_c   = strtok_r(NULL," ",&saveptr);
+            if (to_c == NULL) { fprintf(stderr, "Formatting error in /proc/self/maps!!!\n"); abort(); }
+            size_t to = strtoull(to_c,NULL,16);
+            bool completely_before = base_addr+size <= from;
+            bool completely_after = base_addr >= to;
+            if (!(completely_before||completely_after)) {
+                fprintf(stderr, "Cannot map congruent memory at the address specified.\n");
+                fprintf(stderr, "Tried to map %llx-%llx but there was an existing map %llx-%llx.\n",
+                                (unsigned long long)base_addr, (unsigned long long)base_addr+size, (unsigned long long)from, (unsigned long long)to);
+                fprintf(stderr, "Please specify alternative address range with environment variables "ENV_CONGRUENT_BASE" and "ENV_CONGRUENT_SIZE".\n");
+                abort();
+            }
+        }
+        ::free(lineptr);
+    }
+    fclose(f);
+    #else // __APPLE__
+    // apparently MAP_FIXED will fail on macosx if there is an existing mapping in the way
+    #endif
+
+    obj = ::mmap((void*)base_addr, size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_FIXED, -1, 0);
+    if (obj==MAP_FAILED) { perror("Congruent memory mmap"); abort(); }
+
+    #if 0
+    unsigned char *obj2 = static_cast<unsigned char*>(obj);
+    fprintf(stderr, "%p ... %p\n", obj, (void*)(size_t(obj)+size-1));
+    // test: write + read
+    for (size_t i=0 ; i<size ; ++i) {
+            obj2[i] = 1 - (i&0xFF);
+    }
+
+    for (size_t i=0 ; i<size ; ++i) {
+            unsigned char oracle = 1-(i&0xFF);
+            if (obj2[i] != oracle) {
+                fprintf(stderr, "After populating array, %p[%llx] == %u (should be %u)\n", obj, (unsigned long long)i, obj2[i], oracle);
+                abort();
+            }
+    }
+    #endif
+
 
 #else
+
     if (x10rt_nplaces() == 1) {
         // Because there is only a single place, we can just fall back to malloc
         // Don't call x10rt_register_mem because on most transports, it is
         // unimplemented and unhelpfully returns 0 to indicate that.
-        return x10aux::alloc_internal(size, false);
+        obj = x10aux::alloc_internal(size, false);
     } else {
         // In a multi-place run, we have to return the same virtual address in all
         // places or the program won't work.  Getting here indicates that we can't
         // do that, so we must abort the program.
-        std::cerr << "alloc_internal_pinned not supported in multi-place executions on this platform\n";
+        std::cerr << "alloc_internal_congruent not supported in multi-place executions on this platform\n";
         std::cerr << "aborting execution\n";
         abort();
     }
+
 #endif
 
-    return (void*)x10rt_register_mem(obj, size);
+    congruent_base = static_cast<unsigned char*>(reinterpret_cast<void*>(x10rt_register_mem(obj, size)));
+    congruent_cursor = congruent_base;
+    
 }
 
-        
+void *x10aux::alloc_internal_congruent(size_t size) {
 
+    ensure_init_congruent(size);
 
+    if (congruent_cursor - congruent_base + size > congruent_sz) {
+        // run out of space
+        #ifndef NO_EXCEPTIONS
+        throwException<x10::lang::OutOfMemoryError>();
+        #else
+        fprintf(stderr, "Out of congruent memory, see "ENV_CONGRUENT_SIZE"\n");
+        abort();
+        #endif
+    }
 
+    void *r = congruent_cursor;
+    size_t alignment = 8;
+    // in case size is not a multiple of alignment
+    congruent_cursor += (size+alignment-1) / alignment * alignment;
+
+    return r;
+}

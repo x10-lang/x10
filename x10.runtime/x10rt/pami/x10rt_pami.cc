@@ -15,6 +15,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
+#include <unistd.h> // for sleep()
 #include <errno.h> // for the strerror function
 #include <sched.h> // for sched_yield()
 #include <x10rt_net.h>
@@ -22,12 +23,11 @@
 
 #define DEBUG 1
 
+enum MSGTYPE {STANDARD, PUT, GET, GET_COMPLETED};
 //mechanisms for the callback functions used in the register and probe methods
 typedef void (*handlerCallback)(const x10rt_msg_params *);
 typedef void *(*finderCallback)(const x10rt_msg_params *, x10rt_copy_sz);
 typedef void (*notifierCallback)(const x10rt_msg_params *, x10rt_copy_sz);
-
-enum MSGTYPE {UNKNOWN, STANDARD, PUT, GET};
 
 struct x10rtCallback
 {
@@ -39,8 +39,8 @@ struct x10rtCallback
 struct x10rt_pami_header
 {
 	x10rt_msg_type type;
-    void *data_ptr; // pointer is valid only at the origin
     uint32_t data_len;
+    void *data_ptr; // pointer is valid only at the origin.  Used in the GET message
 };
 
 struct x10PAMIState
@@ -108,6 +108,7 @@ static void local_msg_dispatch (
 	#ifdef DEBUG
 		volatile size_t * value = (volatile size_t *) cookie;
 		fprintf(stderr, "(%zu) local_msg_dispatch() short recv:  cookie %p = %d\n", state.myPlaceId, cookie, *value);
+		sleep(1);
 	#endif
 
 	x10rt_msg_params mp;
@@ -119,78 +120,13 @@ static void local_msg_dispatch (
 	#ifdef DEBUG
 		fprintf(stderr, "Place %lu processing standard message %i, len=%u\n", state.myPlaceId, mp.type, mp.len);
 	#endif
-
 	handlerCallback hcb = state.callBackTable[mp.type].handler;
 	hcb(&mp);
 
 	#ifdef DEBUG
 		fprintf(stderr, "(%lu) processed standard message type %i\n", state.myPlaceId, mp.type);
 	#endif
-}
-
-// PAMI handler for GET messages.
-static void local_get_dispatch (
-	    pami_context_t        context,      /**< IN: PAMI context */
-	    void               * cookie,       /**< IN: dispatch cookie */
-	    const void         * header_addr,  /**< IN: header address */
-	    size_t               header_size,  /**< IN: header size */
-	    const void         * pipe_addr,    /**< IN: address of PAMI pipe buffer */
-	    size_t               pipe_size,    /**< IN: size of PAMI pipe buffer */
-	    pami_endpoint_t      origin,
-	    pami_recv_t         * recv)        /**< OUT: receive message structure */
-{
-	pami_result_t status = PAMI_ERROR;
-
-	if (recv) // not all of the data is here yet, so we need to tell PAMI what to run when it's all here.
-		error("non-immediate dispatch not yet implemented");
-
-	// else, all the data is available, and ready to process
-	#ifdef DEBUG
-		volatile size_t * value = (volatile size_t *) cookie;
-		fprintf(stderr, "(%zu) local_get_dispatch() short recv:  cookie %p = %d\n", state.myPlaceId, cookie, *value);
-	#endif
-
-	x10rt_msg_params mp;
-	struct x10rt_pami_header * header = (struct x10rt_pami_header *) pipe_addr;
-	mp.dest_place = state.myPlaceId;
-	mp.type = header->type;
-	mp.msg = (void *)header_addr;
-	mp.len = header_size;
-
-	// issue a put to the originator
-	#ifdef DEBUG
-		fprintf(stderr, "Place %lu processing GET message %i\n", state.myPlaceId, mp.type);
-		fprintf (stderr, ">> 'send' dispatch function.  cookie = %p (_done: %zu), header_size = %zu, pipe_size = %zu, recv = %p\n", cookie, *value, header_size, pipe_size, recv);
-		fprintf (stderr, "   'send' dispatch function.  origin = 0x%08x, header->dst = %p\n", origin, header->data_ptr);
-	#endif
-
-	finderCallback fcb = state.callBackTable[mp.type].finder;
-	void* src = fcb(&mp, header->data_len);
-	if (src == NULL)
-		error("invalid buffer provided for the source of a GET");
-
-	volatile unsigned put_active = 1;
-	pami_put_simple_t parameters;
-	memset(&parameters, 0, sizeof (parameters));
-	parameters.rma.dest    = origin;
-	parameters.rma.hints   = state.standardHints;
-	parameters.rma.bytes   = header->data_len;
-	parameters.rma.cookie  = (void *) &put_active;
-	parameters.rma.done_fn = cookie_decrement;
-	parameters.addr.local  = src;
-	parameters.addr.remote = header->data_ptr;
-	if ((status = PAMI_Put (state.context[0], &parameters)) != PAMI_SUCCESS)
-		error("Error sending data for GET response");
-	fprintf (stderr, "<< 'send' dispatch function.\n");
-
-	while (put_active)
-		PAMI_Context_advance(state.context[0], 100);
-
-	notifierCallback ncb = state.callBackTable[mp.type].notifier;
-	ncb(&mp, header->data_len);
-	#ifdef DEBUG
-		fprintf(stderr, "(%lu) processed GET message type %i\n", state.myPlaceId, mp.type);
-	#endif
+	state.recv_active = 1;
 }
 
 // PAMI handler for PUT messages.
@@ -216,24 +152,24 @@ static void local_put_dispatch (
 	#endif
 
 	x10rt_msg_params mp;
-	struct x10rt_pami_header * header = (struct x10rt_pami_header *) pipe_addr;
+	struct x10rt_pami_header * header = (struct x10rt_pami_header *) header_addr;
 	mp.dest_place = state.myPlaceId;
 	mp.type = header->type;
-	mp.msg = (void *)header_addr;
-	mp.len = header_size;
+	mp.msg = (void*)(((char*)header_addr)+sizeof(struct x10rt_pami_header));
+	mp.len = header->data_len;
 
-	// issue a get to the originator
 	#ifdef DEBUG
 		fprintf(stderr, "Place %lu processing PUT message %i\n", state.myPlaceId, mp.type);
 		fprintf (stderr, ">> 'put' dispatch function.  cookie = %p (value: %zu), header_size = %zu, pipe_size = %zu, recv = %p\n", cookie, *value, header_size, pipe_size, recv);
 		fprintf (stderr, "   'put' dispatch function.  origin = 0x%08x, rts->bytes = %zu, rts->source = %p\n", origin, header->data_len, header->data_ptr);
+		sleep(1);
 	#endif
 
 	finderCallback fcb = state.callBackTable[mp.type].finder;
 	void* dest = fcb(&mp, header->data_len); // get the pointer to the destination location
 	if (dest == NULL)
 		error("invalid buffer provided for a PUT");
-
+/*
 	volatile unsigned get_active = 1;
 	pami_get_simple_t parameters;
 	parameters.rma.dest    = origin;
@@ -248,7 +184,10 @@ static void local_put_dispatch (
 	fprintf (stderr, "<< 'put' dispatch function.\n");
 
 	while (get_active)
-		PAMI_Context_advance(state.context[0], 100);
+		PAMI_Context_advance(state.context[0], 1);
+*/
+
+	memcpy(dest, pipe_addr, pipe_size);
 
 	notifierCallback ncb = state.callBackTable[mp.type].notifier;
 	ncb(&mp, header->data_len);
@@ -256,7 +195,124 @@ static void local_put_dispatch (
 	#ifdef DEBUG
 		fprintf(stderr, "(%lu) processed PUT message type %i\n", state.myPlaceId, mp.type);
 	#endif
+	state.recv_active = 1;
 }
+
+// PAMI handler for GET messages.
+static void local_get_dispatch (
+	    pami_context_t        context,      /**< IN: PAMI context */
+	    void               * cookie,       /**< IN: dispatch cookie */
+	    const void         * header_addr,  /**< IN: header address */
+	    size_t               header_size,  /**< IN: header size */
+	    const void         * pipe_addr,    /**< IN: address of PAMI pipe buffer */
+	    size_t               pipe_size,    /**< IN: size of PAMI pipe buffer */
+	    pami_endpoint_t      origin,
+	    pami_recv_t         * recv)        /**< OUT: receive message structure */
+{
+	pami_result_t status = PAMI_ERROR;
+
+	if (recv) // not all of the data is here yet, so we need to tell PAMI what to run when it's all here.
+		error("non-immediate dispatch not yet implemented");
+
+	// else, all the data is available, and ready to process
+	#ifdef DEBUG
+		volatile size_t * value = (volatile size_t *) cookie;
+		fprintf(stderr, "(%zu) local_get_dispatch() short recv:  cookie %p = %d\n", state.myPlaceId, cookie, *value);
+	#endif
+
+	x10rt_msg_params mp;
+	struct x10rt_pami_header * header = (struct x10rt_pami_header *) header_addr;
+	mp.dest_place = state.myPlaceId;
+	mp.type = header->type;
+	mp.msg = (void*)pipe_addr;
+	mp.len = pipe_size;
+
+	// issue a put to the originator
+	#ifdef DEBUG
+		fprintf(stderr, "Place %lu processing GET message %i\n", state.myPlaceId, mp.type);
+		fprintf (stderr, ">> 'send' dispatch function.  cookie = %p (_done: %zu), header_size = %zu, pipe_size = %zu, recv = %p\n", cookie, *value, header_size, pipe_size, recv);
+		fprintf (stderr, "   'send' dispatch function.  origin = 0x%08x, header->dst = %p\n", origin, header->data_ptr);
+		sleep(1);
+	#endif
+
+	finderCallback fcb = state.callBackTable[mp.type].finder;
+	void* src = fcb(&mp, header->data_len);
+	if (src == NULL)
+		error("invalid buffer provided for the source of a GET");
+/*
+	volatile unsigned put_active = 1;
+	pami_put_simple_t parameters;
+	memset(&parameters, 0, sizeof (parameters));
+	parameters.rma.dest    = origin;
+	parameters.rma.hints   = state.standardHints;
+	parameters.rma.bytes   = header->data_len;
+	parameters.rma.cookie  = (void *) &put_active;
+	parameters.rma.done_fn = cookie_decrement;
+	parameters.addr.local  = src;
+	parameters.addr.remote = header->data_ptr;
+	if ((status = PAMI_Put (state.context[0], &parameters)) != PAMI_SUCCESS)
+		error("Error sending data for GET response");
+	fprintf (stderr, "<< 'send' dispatch function.\n");
+*/
+
+	volatile unsigned get_complete_active = 2;
+	pami_send_t parameters;
+	parameters.send.dispatch        = GET_COMPLETED;
+	parameters.send.header.iov_base = &header->data_ptr;
+	parameters.send.header.iov_len  = sizeof(header->data_ptr);
+	parameters.send.data.iov_base   = src;
+	parameters.send.data.iov_len    = header->data_len;
+	parameters.send.dest 			= origin;
+	parameters.events.cookie        = (void *) &get_complete_active;
+	parameters.events.local_fn      = cookie_decrement;
+	parameters.events.remote_fn     = cookie_decrement;
+
+	if ((status = PAMI_Send(state.context[0], &parameters)) != PAMI_SUCCESS)
+		error("Unable to send a message from %u to %u: %i\n", state.myPlaceId, origin, status);
+
+	#ifdef DEBUG
+		fprintf(stderr, "(%zu) PUT Before advance\n", state.myPlaceId);
+	#endif
+
+	while (get_complete_active)
+		PAMI_Context_advance(state.context[0], 100);
+	#ifdef DEBUG
+		fprintf(stderr, "(%zu) PUT After advance\n", state.myPlaceId);
+	#endif
+
+	notifierCallback ncb = state.callBackTable[mp.type].notifier;
+	ncb(&mp, header->data_len);
+	#ifdef DEBUG
+		fprintf(stderr, "(%lu) processed GET message type %i\n", state.myPlaceId, mp.type);
+	#endif
+	state.recv_active = 1;
+}
+
+// PAMI handler for GET messages.
+static void local_get_complete_dispatch (
+	    pami_context_t        context,      /**< IN: PAMI context */
+	    void               * cookie,       /**< IN: dispatch cookie */
+	    const void         * header_addr,  /**< IN: header address */
+	    size_t               header_size,  /**< IN: header size */
+	    const void         * pipe_addr,    /**< IN: address of PAMI pipe buffer */
+	    size_t               pipe_size,    /**< IN: size of PAMI pipe buffer */
+	    pami_endpoint_t      origin,
+	    pami_recv_t         * recv)        /**< OUT: receive message structure */
+{
+	pami_result_t status = PAMI_ERROR;
+
+	if (recv) // not all of the data is here yet, so we need to tell PAMI what to run when it's all here.
+		error("non-immediate dispatch not yet implemented");
+
+	// else, all the data is available, and ready to process
+	#ifdef DEBUG
+		volatile size_t * value = (volatile size_t *) cookie;
+		fprintf(stderr, "(%zu) local_get_complete_dispatch() short recv:  cookie %p = %d\n", state.myPlaceId, cookie, *value);
+	#endif
+
+	memcpy((void*)header_addr, pipe_addr, pipe_size);
+}
+
 
 /** Initialize the X10RT API logical layer.
  *
@@ -305,14 +361,19 @@ void x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter)
 		error("Unable to register standard dispatch handler");
 
 	pami_dispatch_callback_function fn2;
-	fn2.p2p = local_get_dispatch;
-	if ((status = PAMI_Dispatch_set(state.context[0], GET, fn2, (void *) &state.recv_active, state.standardHints)) != PAMI_SUCCESS)
-		error("Unable to register get dispatch handler");
+	fn2.p2p = local_put_dispatch;
+	if ((status = PAMI_Dispatch_set(state.context[0], PUT, fn2, (void *) &state.recv_active, state.standardHints)) != PAMI_SUCCESS)
+		error("Unable to register put dispatch handler");
 
 	pami_dispatch_callback_function fn3;
-	fn3.p2p = local_put_dispatch;
-	if ((status = PAMI_Dispatch_set(state.context[0], PUT, fn3, (void *) &state.recv_active, state.standardHints)) != PAMI_SUCCESS)
-		error("Unable to register put dispatch handler");
+	fn3.p2p = local_get_dispatch;
+	if ((status = PAMI_Dispatch_set(state.context[0], GET, fn3, (void *) &state.recv_active, state.standardHints)) != PAMI_SUCCESS)
+		error("Unable to register get dispatch handler");
+
+	pami_dispatch_callback_function fn4;
+	fn4.p2p = local_get_complete_dispatch;
+	if ((status = PAMI_Dispatch_set(state.context[0], GET_COMPLETED, fn4, (void *) &state.recv_active, state.standardHints)) != PAMI_SUCCESS)
+		error("Unable to register get dispatch handler");
 }
 
 
@@ -401,6 +462,7 @@ void x10rt_net_send_msg (x10rt_msg_params *p)
 	pami_result_t   status = PAMI_ERROR;
 	#ifdef DEBUG
 		fprintf(stderr, "Preparing to send a message from place %lu to %lu\n", state.myPlaceId, p->dest_place);
+		sleep(1);
 	#endif
 	if ((status = PAMI_Endpoint_create(state.client, p->dest_place, 0, &target)) != PAMI_SUCCESS)
 		error("Unable to create a target endpoint for sending a message from %u to %u: %i\n", state.myPlaceId, p->dest_place, status);
@@ -425,6 +487,7 @@ void x10rt_net_send_msg (x10rt_msg_params *p)
 	#ifdef DEBUG
 		fprintf(stderr, "(%zu) send_once() Before advance\n", state.myPlaceId);
 	#endif
+
 	while (send_active) // send_active gets decremented by cookie_decrement
 		PAMI_Context_advance(state.context[0], 100);
 	#ifdef DEBUG
@@ -439,27 +502,30 @@ void x10rt_net_send_msg (x10rt_msg_params *p)
  */
 void x10rt_net_send_put (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
 {
-	struct x10rt_pami_header header;
 	pami_endpoint_t target;
 	pami_result_t   status = PAMI_ERROR;
 	#ifdef DEBUG
 		fprintf(stderr, "Preparing to send a PUT message from place %lu to %lu\n", state.myPlaceId, p->dest_place);
+		sleep(1);
 	#endif
 
 	if ((status = PAMI_Endpoint_create(state.client, p->dest_place, 0, &target)) != PAMI_SUCCESS)
 		error("Unable to create a target endpoint for sending a PUT message from %u to %u: %i\n", state.myPlaceId, p->dest_place, status);
 
-	header.type = p->type;
-	header.data_ptr = buf;
-	header.data_len = len;
+	char* buffer = (char*)alloca(sizeof(struct x10rt_pami_header) + p->len);
+	if (buffer == NULL) error("Unable to allocate a temporary buffer of size %d for PUT", p->len+sizeof(struct x10rt_pami_header));
+	struct x10rt_pami_header *header = (struct x10rt_pami_header *)buffer;
+	header->type = p->type;
+	header->data_len = p->len;
+	memcpy(buffer+sizeof(struct x10rt_pami_header), p->msg, p->len);
 
 	volatile unsigned put_active = 1;
 	pami_send_t parameters;
 	parameters.send.dispatch        = PUT;
-	parameters.send.header.iov_base = p->msg;
-	parameters.send.header.iov_len  = p->len;
-	parameters.send.data.iov_base   = &header;
-	parameters.send.data.iov_len    = sizeof(header);
+	parameters.send.header.iov_base = buffer;
+	parameters.send.header.iov_len  = sizeof(buffer);
+	parameters.send.data.iov_base   = buf;
+	parameters.send.data.iov_len    = len;
 	parameters.send.dest 			= target;
 	parameters.events.cookie        = (void *) &put_active;
 	parameters.events.local_fn      = cookie_decrement;
@@ -471,6 +537,7 @@ void x10rt_net_send_put (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
 	#ifdef DEBUG
 		fprintf(stderr, "(%zu) PUT Before advance\n", state.myPlaceId);
 	#endif
+
 	while (put_active)
 		PAMI_Context_advance(state.context[0], 100);
 	#ifdef DEBUG
@@ -486,31 +553,32 @@ void x10rt_net_send_put (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
 void x10rt_net_send_get (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
 {
 	// GET is implemented as a send msg, followed by a PUT
-	struct x10rt_pami_header header;
 	pami_endpoint_t target;
 	pami_result_t   status = PAMI_ERROR;
 	#ifdef DEBUG
 		fprintf(stderr, "Preparing to send a GET message from place %lu to %lu\n", state.myPlaceId, p->dest_place);
+		sleep(1);
 	#endif
 
 	if ((status = PAMI_Endpoint_create(state.client, p->dest_place, 0, &target)) != PAMI_SUCCESS)
 		error("Unable to create a target endpoint for sending a GET message from %u to %u: %i\n", state.myPlaceId, p->dest_place, status);
 
+	struct x10rt_pami_header header;
 	header.type = p->type;
-	header.data_ptr = buf;
 	header.data_len = len;
+	header.data_ptr = buf;
 
-	volatile unsigned get_active = 1;
+	volatile unsigned get_active = 2;
 	pami_send_t parameters;
 	parameters.send.dispatch        = GET;
-	parameters.send.header.iov_base = p->msg;
-	parameters.send.header.iov_len  = p->len;
-	parameters.send.data.iov_base   = &header;
-	parameters.send.data.iov_len    = sizeof(header);
+	parameters.send.header.iov_base = &header;
+	parameters.send.header.iov_len  = sizeof(header);
+	parameters.send.data.iov_base   = p->msg;
+	parameters.send.data.iov_len    = p->len;
 	parameters.send.dest 			= target;
 	parameters.events.cookie        = (void *) &get_active;
-	parameters.events.local_fn      = cookie_decrement;
-	parameters.events.remote_fn     = NULL;
+	parameters.events.local_fn      = cookie_decrement; // drop to 1 after send
+	parameters.events.remote_fn     = cookie_decrement; // drop to 0 after completed
 
 	if ((status = PAMI_Send(state.context[0], &parameters)) != PAMI_SUCCESS)
 		error("Unable to send a message from %u to %u: %i\n", state.myPlaceId, p->dest_place, status);
@@ -532,35 +600,47 @@ void x10rt_net_probe()
 //	#ifdef DEBUG
 //		fprintf(stderr, "Place %lu trying a probe\n", state.myPlaceId);
 //	#endif
-	pami_result_t status = PAMI_ERROR;
+//	pami_result_t status = PAMI_ERROR;
 	// TODO remove this lock when we move to endpoints, or when X10_NTHREADS=1
 //	if ((status = PAMI_Context_lock(state.context[0])) != PAMI_SUCCESS)
 //		error("Unable to lock context");
 
-//	#ifdef DEBUG
-//		fprintf(stderr, "Place %lu advancing context\n", state.myPlaceId);
-//	#endif
+	#ifdef DEBUG
+		fprintf(stderr, "Place %lu advancing context\n", state.myPlaceId);
+		sleep(1);
+	#endif
 /*	while (state.recv_active)
 		PAMI_Context_advance (state.context[0], 100);
 
 	state.recv_active = 1;
 */
-	status = PAMI_Context_advance(state.context[0], 1);
-	if (status == PAMI_EAGAIN)
+	if (state.recv_active)
 	{
-//		#ifdef DEBUG
-//			fprintf(stderr, "Place %lu found nothing to do\n", state.myPlaceId);
-//		#endif
-//		if ((status = PAMI_Context_unlock(state.context[0])) != PAMI_SUCCESS)
+		pami_result_t status = PAMI_ERROR;
+		status = PAMI_Context_advance(state.context[0], 100);
+		if (status == PAMI_EAGAIN)
+		{
+			#ifdef DEBUG
+				fprintf(stderr, "Place %lu found nothing to do\n", state.myPlaceId);
+			#endif
+//			if ((status = PAMI_Context_unlock(state.context[0])) != PAMI_SUCCESS)
+//				error("Unable to unlock context");
+			sched_yield();
+		}
+		#ifdef DEBUG
+		else if (status == PAMI_SUCCESS)
+			fprintf(stderr, "Place %lu finished advancing a context\n", state.myPlaceId);
+		#endif
+//		else if ((status = PAMI_Context_unlock(state.context[0])) != PAMI_SUCCESS)
 //			error("Unable to unlock context");
+	}
+	else
+	{
+		#ifdef DEBUG
+			fprintf(stderr, "Place %lu not advancing because receive is deactivated\n", state.myPlaceId);
+		#endif
 		sched_yield();
 	}
-//#ifdef DEBUG
-//	else if (status == PAMI_SUCCESS)
-//		fprintf(stderr, "Place %lu finished advancing a context\n", state.myPlaceId);
-//#endif
-//	else if ((status = PAMI_Context_unlock(state.context[0])) != PAMI_SUCCESS)
-//		error("Unable to unlock context");
 }
 
 /** Shut down the network layer.  \see #x10rt_lgl_finalize

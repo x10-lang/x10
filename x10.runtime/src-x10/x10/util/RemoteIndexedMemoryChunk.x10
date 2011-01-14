@@ -76,6 +76,31 @@ public struct RemoteIndexedMemoryChunk[T] {
     @Native("java", "(#0).hashCode()")
     @Native("c++", "(#0)->hash_code()")
     public native def  hashCode():Int;
+
+    @Native("java", "(#0).remoteAdd(#1,#2)")
+    @Native("c++", "(#0)->remoteAdd(#1,#2)")
+    public native def remoteAdd(idx:Int, v:ULong) : void;
+    @Native("java", "(#0).remoteAnd(#1,#2)")
+    @Native("c++", "(#0)->remoteAnd(#1,#2)")
+    public native def remoteAnd(idx:Int, v:ULong) : void;
+    @Native("java", "(#0).remoteOr(#1,#2)")
+    @Native("c++", "(#0)->remoteOr(#1,#2)")
+    public native def remoteOr(idx:Int, v:ULong) : void;
+    @Native("java", "(#0).remoteXor(#1,#2)")
+    @Native("c++", "(#0)->remoteXor(#1,#2)")
+    public native def remoteXor(idx:Int, v:ULong) : void;
+    @Native("java", "(#0).remoteAdd(#1,#2)")
+    @Native("c++", "(#0)->remoteAdd(#1,#2)")
+    public native def remoteAdd(idx:Int, v:Long) : void;
+    @Native("java", "(#0).remoteAnd(#1,#2)")
+    @Native("c++", "(#0)->remoteAnd(#1,#2)")
+    public native def remoteAnd(idx:Int, v:Long) : void;
+    @Native("java", "(#0).remoteOr(#1,#2)")
+    @Native("c++", "(#0)->remoteOr(#1,#2)")
+    public native def remoteOr(idx:Int, v:Long) : void;
+    @Native("java", "(#0).remoteXor(#1,#2)")
+    @Native("c++", "(#0)->remoteXor(#1,#2)")
+    public native def remoteXor(idx:Int, v:Long) : void;
 }
 
 // vim:shiftwidth=4:tabstop=4:expandtab

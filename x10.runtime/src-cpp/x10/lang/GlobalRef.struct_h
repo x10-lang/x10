@@ -29,7 +29,7 @@ namespace x10 {
             GlobalRef(x10aux::place p, x10_ulong obj = 0) : value(obj), location(p) { }
 	
             // we are assuming T is always of the form x10aux::ref<U> and use T::Type to get U
-            inline T apply() { return (typename T::Type*)(size_t)value; }
+            inline T __apply() { return (typename T::Type*)(size_t)value; }
 
             GlobalRef<T>* operator->() { return this; }
         

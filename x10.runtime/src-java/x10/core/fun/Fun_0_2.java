@@ -17,7 +17,7 @@ import x10.rtt.RuntimeType.Variance;
 import x10.rtt.Type;
 
 public interface Fun_0_2<T1,T2,U> extends Fun {
-    U apply(T1 o1, Type t1, T2 o2, Type t2);
+    U $apply(T1 o1, Type t1, T2 o2, Type t2);
     
     public static final RuntimeType<Fun_0_2<?,?,?>> _RTT = new FunType<Fun_0_2<?,?,?>>(
         Fun_0_2.class,

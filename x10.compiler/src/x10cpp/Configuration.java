@@ -51,7 +51,7 @@ public final class Configuration extends x10.config.Configuration {
 	 * Return an array of (option,description) pairs.
 	 */
 	public String[][] options() {
-		return options(Configuration.class);
+		return options(this, Configuration.class);
 	}
 
 	public Configuration() {

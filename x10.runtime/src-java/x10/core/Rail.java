@@ -62,7 +62,7 @@ public final class Rail<T> extends Ref implements AnyRail<T>, x10.lang.Settable<
 		}
 
 		public T next$G() {
-			return apply$G(i++);
+			return $apply$G(i++);
 		}
 	}
 
@@ -127,11 +127,11 @@ public final class Rail<T> extends Ref implements AnyRail<T>, x10.lang.Settable<
         return length;
     }
     
-    public T apply(Object i, Type t) {
-    	return apply$G((int)(Integer)i);
+    public T $apply(Object i, Type t) {
+    	return $apply$G((int)(Integer)i);
     }
 
-    public T apply$G(int i) {
+    public T $apply$G(int i) {
         return type.getArray(value, i);
     }
     
@@ -142,7 +142,7 @@ public final class Rail<T> extends Ref implements AnyRail<T>, x10.lang.Settable<
 //    public boolean isZero() {
 //    	boolean zero = true;
 //		for (int i = 0; i < length && zero; ++i) {
-//			zero &= apply$G(i) == type.zeroValue();
+//			zero &= $apply$G(i) == type.zeroValue();
 //		}
 //		return zero;
 //    }
@@ -154,7 +154,7 @@ public final class Rail<T> extends Ref implements AnyRail<T>, x10.lang.Settable<
         for (int i = 0; i < sz; i++) {
             if (i > 0)
                 sb.append(",");
-            sb.append(apply$G(i));
+            sb.append($apply$G(i));
         }
         if (sz < length) sb.append("...(omitted " + (length - sz) + " elements)");
         sb.append(")");
@@ -175,7 +175,7 @@ public final class Rail<T> extends Ref implements AnyRail<T>, x10.lang.Settable<
 
     public void reset(Fun_0_1<Integer,T> v) {
         for (int i=0; i<length; i++) {
-            set$G(v.apply(i, Types.INT), i);
+            set$G(v.$apply(i, Types.INT), i);
         }
     }
 

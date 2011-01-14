@@ -32,7 +32,7 @@ public final class GrowableRail<T> extends Ref implements x10.lang.Indexable<Int
         for (int i = 0; i < sz; i++) {
             if (i > 0)
                 sb.append(",");
-            sb.append(apply$G(i));
+            sb.append($apply$G(i));
         }
         if (sz < length) sb.append("...(omitted " + (length - sz) + " elements)");
         sb.append(")");
@@ -119,7 +119,7 @@ public final class GrowableRail<T> extends Ref implements x10.lang.Indexable<Int
         }
 
         public T next$G() {
-            return apply$G(i++);
+            return $apply$G(i++);
         }
     }
 
@@ -144,10 +144,10 @@ public final class GrowableRail<T> extends Ref implements x10.lang.Indexable<Int
         array = tmp;
     }
 
-    public T apply(Object i, Type t) {
-        return apply$G((int)(Integer)i);
+    public T $apply(Object i, Type t) {
+        return $apply$G((int)(Integer)i);
     }
-    public T apply$G(int i) {
+    public T $apply$G(int i) {
         /*
         assert i >= 0 : i + " < 0";
         assert i < length: i + " >= length==" + length;

@@ -68,7 +68,7 @@ namespace x10 {
             void add(T v);
             void insert(x10_int loc, x10aux::ref<x10::lang::Rail<T> > items);
 
-            T apply(x10_int i);
+            T __apply(x10_int i);
 
             void removeLast();
 
@@ -143,7 +143,7 @@ namespace x10 {
             _len = newLen;
         }
 
-        template<class T> inline T GrowableRail<T>::apply(x10_int i) {
+        template<class T> inline T GrowableRail<T>::__apply(x10_int i) {
             return (*_array)[i];
         }
 
@@ -253,7 +253,7 @@ namespace x10 {
             buf.write(this->_array->FMGL(length));
             // Only serialize the part of the backing Rail that actually contains data.
             for (int i=0; i<_len; i++) {
-                buf.write(this->_array->apply(i)); 
+                buf.write(this->_array->__apply(i)); 
             }                
         }
 

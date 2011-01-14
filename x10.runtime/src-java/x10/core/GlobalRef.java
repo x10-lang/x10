@@ -55,7 +55,7 @@ public final class GlobalRef<T> extends x10.core.Struct {
         this.id = size;
     }
 
-    final public T apply$G() {
+    final public T $apply$G() {
         synchronized (objects) {
             return (T) objects.get(this.id);
         }

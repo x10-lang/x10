@@ -8,7 +8,6 @@ Require-Bundle: x10.common,
  x10.constraints,
  lpg.runtime.java;bundle-version="2.0.18"
 Export-Package: polyglot.ast,
- polyglot.dispatch,
  polyglot.frontend,
  polyglot.lex,
  polyglot.main,

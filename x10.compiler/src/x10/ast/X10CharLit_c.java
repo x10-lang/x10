@@ -32,7 +32,7 @@ import x10.types.constraints.CConstraint;
  * @author vj
  *
  */
-public class X10CharLit_c extends CharLit_c {
+public class X10CharLit_c extends CharLit_c {  // todo: delete me!
 
 	/**
 	 * @param pos
@@ -41,18 +41,4 @@ public class X10CharLit_c extends CharLit_c {
 	public X10CharLit_c(Position pos, char value) {
 		super(pos, value);
 	}
-	public Node typeCheck(ContextVisitor tc) {
-		  TypeSystem xts = (TypeSystem) tc.typeSystem();
-		Type charType = xts.Char();
-			 
-			  CConstraint c = new CConstraint();
-			  XTerm term = xts.xtypeTranslator().trans(c, this.type(charType), (Context) tc.context());
-			  try {
-				  c.addSelfBinding(term);
-			  }
-			  catch (XFailure e) {
-			  }
-			  Type newType = Types.xclause(charType, c);
-	    return type(newType);
-	  }
 }

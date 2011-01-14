@@ -5,7 +5,9 @@
 
 #include <stdio.h>
 
+#ifndef __int64
 #define __int64 __int64_t
+#endif
 #include "x10_x10rt_ActiveMessage.h"
 
 #include <x10rt_front.h>
@@ -1002,7 +1004,7 @@ JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_sendRemote__IIF(JNIEnv *env,
     unsigned long numBytes = sizeof(jint) + sizeof(jfloat);
     MessageWriter writer(numBytes);
     writer.writeJInt(messageId);
-    writer.writeJInt(arg1);
+    writer.writeJFloat(arg1);
     
     x10rt_msg_params msg = {place, F_Handler, writer.buffer, numBytes};
     x10rt_send_msg(&msg);
