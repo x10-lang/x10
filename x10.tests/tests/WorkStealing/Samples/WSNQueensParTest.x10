@@ -9,9 +9,9 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-package WorkStealing.Samples;
+// package WorkStealing.Samples; - can't use NQueensPar because it doesn't have a package!
 
-public class NQueensParTest{
+public class WSNQueensParTest{
     public def run():boolean {
          val args = new Array[String](0);
          NQueensPar.main(args);
@@ -19,7 +19,7 @@ public class NQueensParTest{
     }
 
     public static def main(args:Array[String](1)) {
-        val r = new NQueensParTest().run();
+        val r = new WSNQueensParTest().run();
         if(r){
               x10.io.Console.OUT.println("++++++Test succeeded.");
         }

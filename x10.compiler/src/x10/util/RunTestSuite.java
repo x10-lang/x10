@@ -146,7 +146,8 @@ public class RunTestSuite {
     };
     private static final String[] EXCLUDE_DIRS = {
             "AutoGen", // it takes too long to compile these files
-            "NOT_WORKING", // to exclude some benchmarks: https://x10.svn.sourceforge.net/svnroot/x10/benchmarks/trunk            
+            "NOT_WORKING", // to exclude some benchmarks: https://x10.svn.sourceforge.net/svnroot/x10/benchmarks/trunk
+            //"WorkStealing", // I have sourcepath problems
     };
     private static final String[] EXCLUDE_FILES = {
             // LangSpec is auto-generated, so I can't fix those files to make a clean test suite
@@ -255,7 +256,9 @@ public class RunTestSuite {
         for (int i=1; i<argsNum; i++) {
             final String arg = remainingArgs.get(i);
             if (arg.contains("/x10.runtime/src-x10")) {
-                remainingArgs.set(i,arg+dirs);
+                final String sourcepath = arg + dirs;
+                remainingArgs.set(i, sourcepath);
+                println("sourcepath is: "+sourcepath);
                 foundSourcePath = true;
                 break;
             }
