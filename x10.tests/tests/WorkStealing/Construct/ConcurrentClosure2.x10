@@ -8,11 +8,12 @@
  *
  *  (C) Copyright IBM Corporation 2006-2010.
  */
-
+package WorkStealing.Construct;
 /*
- * Test closure with concurrent method call. Cannot pass WS Compile.
+ * Test closure with concurrent method call.
+ * Closure is in the method body, and the closure calls a parallel method.
  */
-public class ConcurrentClosure2_MustFailCompile {
+public class ConcurrentClosure2 {
 	
 	var value:int;
 	
@@ -37,7 +38,7 @@ public class ConcurrentClosure2_MustFailCompile {
 	}
 	
 	public static def main(Array[String](1)) {
-        val r = new ConcurrentClosure2_MustFailCompile().run();
+        val r = new ConcurrentClosure2().run();
         if(r){
              x10.io.Console.OUT.println("++++++Test succeeded.");
         }

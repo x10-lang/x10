@@ -873,8 +873,9 @@ void x10rt_net_remote_op (x10rt_place place, x10rt_remote_ptr victim, x10rt_op_t
 
 x10rt_remote_ptr x10rt_net_register_mem (void *ptr, size_t len)
 {
-	error("x10rt_net_register_mem not implemented");
-	return NULL;
+    // assume remote ops will be handled by regular x10rt_send_msg so
+    // no special work to do here
+    return (x10rt_remote_ptr)(size_t)ptr;
 }
 
 void x10rt_net_team_new (x10rt_place placec, x10rt_place *placev,

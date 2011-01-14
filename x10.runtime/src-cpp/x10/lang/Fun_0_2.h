@@ -33,21 +33,21 @@ namespace x10 {
             static void _initRTT();
 
             template <class I> struct itable {
-                itable(R(I::*apply)(P1,P2),
+                itable(R(I::*__apply)(P1,P2),
                        x10_boolean (I::*equals)(x10aux::ref<x10::lang::Any>),
                        x10_int (I::*hashCode)(),
                        x10aux::ref<x10::lang::String> (I::*toString)(),
                        x10aux::ref<x10::lang::String> (I::*typeName)()
-                    ) : apply(apply), equals(equals), hashCode(hashCode), toString(toString), typeName(typeName) {}
-                R (I::*apply)(P1,P2);
+                    ) : __apply(__apply), equals(equals), hashCode(hashCode), toString(toString), typeName(typeName) {}
+                R (I::*__apply)(P1,P2);
                 x10_boolean (I::*equals)(x10aux::ref<x10::lang::Any>);
                 x10_int (I::*hashCode)();
                 x10aux::ref<x10::lang::String> (I::*toString)();
                 x10aux::ref<x10::lang::String> (I::*typeName)();
             };
 
-            static R apply(x10aux::ref<x10::lang::Reference> recv, P1 arg1, P2 arg2) {
-                return (recv.operator->()->*(x10aux::findITable<Fun_0_2<P1, P2, R> >(recv->_getITables())->apply))(arg1, arg2);
+            static R __apply(x10aux::ref<x10::lang::Reference> recv, P1 arg1, P2 arg2) {
+                return (recv.operator->()->*(x10aux::findITable<Fun_0_2<P1, P2, R> >(recv->_getITables())->__apply))(arg1, arg2);
             }
             static x10_boolean equals(x10aux::ref<x10::lang::Reference> recv, x10aux::ref<x10::lang::Any> arg1) {
                 return (recv.operator->()->*(x10aux::findITable<Fun_0_2<P1, P2, R> >(recv->_getITables())->equals))(arg1);

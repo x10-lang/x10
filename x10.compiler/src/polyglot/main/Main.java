@@ -123,7 +123,7 @@ public class Main
           throw new TerminationException(1);
       }
 
-      if (Report.should_report(verbose, 1)) {
+      if (Report.should_report(verbose, 1) || Report.should_report(Report.time, 1)) {
           reportTime("Total time=" + (System.currentTimeMillis() - time0), 1);
       }
   }

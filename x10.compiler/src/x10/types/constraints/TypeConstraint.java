@@ -278,7 +278,7 @@ public class TypeConstraint implements Copy, Serializable {
 	    
 	
 	       // CConstraint xc = X10TypeMixin.realX(xtype).copy();
-	        XVar xi = xts.xtypeTranslator().trans(me.formalNames().get(i), xtype);
+	        XVar xi = xts.xtypeTranslator().translate(me.formalNames().get(i));
 	
 	        x[i] = xi;
 	        y[i] = yi;

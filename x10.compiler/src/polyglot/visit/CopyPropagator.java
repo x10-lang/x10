@@ -14,6 +14,7 @@ import polyglot.frontend.Job;
 import polyglot.main.Report;
 import polyglot.types.*;
 import polyglot.util.InternalCompilerError;
+import polyglot.visit.DataFlow.FlowGraphSource;
 import polyglot.visit.DataFlow.Item;
 import polyglot.visit.FlowGraph.EdgeKey;
 
@@ -313,11 +314,9 @@ public class CopyPropagator extends DataFlow {
 
     protected DataFlowItem flow(Item in, FlowGraph graph, Term t, boolean entry) {
 	DataFlowItem result = new DataFlowItem((DataFlowItem)in);
-    
     if (entry) {
         return result;
     }
-
 	if (t instanceof LocalAssign) {
 	    LocalAssign n = (LocalAssign)t;
 	    Assign.Operator op = n.operator();
@@ -354,15 +353,34 @@ public class CopyPropagator extends DataFlow {
 	    // with a value from a local variable.  We only care about
 	    // non-final local declarations because final locals have special
 	    // use in local classes.
-	    if (!n.flags().flags().isFinal() && n.init() instanceof Local) {
+	    if (n.init() instanceof Local) {
 		LocalDef from = ((Local)n.init()).localInstance().def();
 		result.add(from, to);
 	    }
+	}else if (t instanceof Eval_c){
+		Expr exp =((Eval_c) t).expr();
+		if (exp instanceof LocalAssign) {
+		    LocalAssign n = (LocalAssign)exp;
+		    Assign.Operator op = n.operator();
+		    Expr left = n.local();
+		    Expr right = n.right();
+		    if (left instanceof Local) {
+			LocalDef to = ((Local)left).localInstance().def();
+			result.kill(to);
+	            }
+	        } 
+	}else if (t instanceof Labeled){
+		Stmt l = ((Labeled)t).statement();
+                flow (result, graph, l, entry);
 	} else if (t instanceof Block) {
 	    // Kill locals that were declared in the block.
 	    Block n = (Block)t;
+	    //System.out.println(t+"\n");
 	    for (Stmt s : n.statements()) {
-		killDecl(result, s);
+	        if (s instanceof Labeled){
+	           flow (result, graph,s,entry);
+	        }
+	    	killDecl(result, s);
 	    }
 	} else if (t instanceof Loop) {
 	    if (t instanceof For) {
@@ -371,10 +389,25 @@ public class CopyPropagator extends DataFlow {
 		for (Stmt init : n.inits()) {
 		    killDecl(result, init);
 		}
+		    killDecl(result, ((Loop)t).body());
 	    }
-
 	    // Kill locals that were declared in the body.
-	    killDecl(result, ((Loop)t).body());
+	    else if (t instanceof While || t instanceof Do)
+	    {
+	    	Stmt m = ((Loop)t).body();
+                List<Stmt> st = null;
+                if (m instanceof Eval_c)
+                   flow(result, graph, m, entry);
+                else {
+	    	   st = ((Block_c)m).statements();
+	    	   for (Stmt s : st){
+	    	       if (s instanceof Labeled || s instanceof Loop || s instanceof Eval_c)
+	    		  flow(result, graph, s, entry);
+	               else 
+	    	          killDecl(result,s);
+	    	   } 
+               }
+	    }
 	} else if (t instanceof Catch) {
 	    // Kill catch's formal.
 	    result.kill(((Catch)t).formal().localDef());
@@ -383,8 +416,8 @@ public class CopyPropagator extends DataFlow {
 	    If n = (If)t;
 	    killDecl(result, n.consequent());
 	    killDecl(result, n.alternative());
-	}
-
+	}      
+	//System.out.println("RESULT: "+ result);
 	return result;
     }
 
@@ -406,9 +439,11 @@ public class CopyPropagator extends DataFlow {
     }
 
     public Node leaveCall(Node old, Node n, NodeVisitor v) {
-
+    	//FlowGraph x = currentFlowGraph();
+    	//dumpFlowGraph(currentFlowGraph(), currentFlowGraph().root);
 	if (n instanceof Local) {
 	    FlowGraph g = currentFlowGraph();
+	    
 	    if (g == null) return n;
 
 	    Local l = (Local)n;
@@ -437,7 +472,7 @@ public class CopyPropagator extends DataFlow {
 	    LocalAssign newAssign = (LocalAssign)n;
 	    return newAssign.local(oldAssign.local());
 	}
-
+    
 	return n;
     }
 }

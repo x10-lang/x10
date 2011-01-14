@@ -517,11 +517,11 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, Name
 		            if (var !=null) {
 		                X10FieldInstance fi = Types.getProperty(this, propName);
 		                if (fi != null) {
-		                    val = xts.xtypeTranslator().trans(c, var, fi);
+		                    val = xts.xtypeTranslator().translate(var, fi);
 		                } else {
 		                    MethodInstance mi = Types.getPropertyMethod(this, propName);
 		                    if (mi != null) {
-		                        val = xts.xtypeTranslator().trans(c, var, mi, mi.rightType());
+		                        val = xts.xtypeTranslator().translate(var, mi);
 		                    }
 		                }
 		            }
@@ -749,8 +749,8 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, Name
 			    if (fi != null) {
 				    try {
 					    CConstraint c = new CConstraint();
-					    XVar term = xts.xtypeTranslator().trans(c, c.self(), fi);
-					    c.addBinding(term, xts.xtypeTranslator().trans(true));
+					    XVar term = xts.xtypeTranslator().translate(c.self(), fi);
+					    c.addBinding(term, xts.xtypeTranslator().translate(true));
 			            return r.entails(c, context.constraintProjection(r, c));
 				    }
 				    catch (XFailure f) {
@@ -787,7 +787,7 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, Name
 					 if (fi != null) {
 
 						 TypeSystem xts = typeSystem();
-						 XTerm val = xts.xtypeTranslator().trans(c, var, fi);
+						 XTerm val = xts.xtypeTranslator().translate(var, fi);
 						 return val;
 					 }
 				 }

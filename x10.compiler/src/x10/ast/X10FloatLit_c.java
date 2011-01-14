@@ -49,7 +49,7 @@ public class X10FloatLit_c extends FloatLit_c {
 	    Type type = (kind == FLOAT ? xts.Float() : xts.Double());
 
 	    CConstraint c = new CConstraint();
-	    XTerm term = xts.xtypeTranslator().trans(c, this.type(type), (Context) tc.context());
+	    XTerm term = xts.xtypeTranslator().translate(c, this.type(type), (Context) tc.context());
 	    try {
 	        c.addSelfBinding(term);
 	    }

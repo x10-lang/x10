@@ -30,7 +30,7 @@ public interface AnyRail<T> extends x10.lang.Indexable<Integer,T>, x10.lang.Iter
 
     public int length();
     
-    public T apply$G(int i);
+    public T $apply$G(int i);
     
 //    public boolean isZero();
 }

@@ -58,10 +58,15 @@ import polyglot.types.TypeSystem;
 import x10.types.checker.PlaceChecker;
 
 /**
- * The compiler's notion of a constraint. A CConstraint is an XConstraint, together with machinery to track two
+ * The compiler's notion of a constraint. 
+ * 
+ * <p> A CConstraint is an XConstraint, together with machinery to track two
  * special variables of interest to the compiler for this constraint, namely the self variable and the this variable.
  * 
- * 
+ * <p>Further, the XTerms occurring in an XConstraint are created using static methods on 
+ * the class XTerms. In particular they carry type information in their internal XName. 
+ * This information is used to recursively materialize more constraints from the given 
+ * constraint. 
  * 
  * @author vj
  *

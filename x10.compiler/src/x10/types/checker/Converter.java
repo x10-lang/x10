@@ -53,6 +53,7 @@ import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import x10.Configuration;
 import x10.ExtensionInfo;
+import x10.X10CompilerOptions;
 import x10.ast.X10CanonicalTypeNode;
 import x10.ast.X10CanonicalTypeNode_c;
 import x10.ast.X10Cast;
@@ -112,7 +113,7 @@ public class Converter {
 	public static Expr attemptCoercion(ContextVisitor tc, Expr e, Type toType) {
 		return attemptCoercion(false, tc, e, toType);
 	}
-	public static Expr attemptCoercion(boolean dynamicCallp, ContextVisitor tc,  Expr e, Type toType) {
+	public static Expr attemptCoercion(boolean dynamicCallp, ContextVisitor tc, Expr e, Type toType) {
 		TypeSystem ts = (TypeSystem) tc.typeSystem();
 		Type t1 = e.type();
 		t1 = PlaceChecker.ReplaceHereByPlaceTerm(t1, (Context) tc.context());
@@ -147,10 +148,11 @@ public class Converter {
 				result = typeCheckCast(nf.X10Cast(e.position(), tn, e, ct), tc);
 			}
 			if (dynamicCallp) {
-				if (Configuration.STATIC_CALLS) {
+				X10CompilerOptions opts = (X10CompilerOptions) tc.job().extensionInfo().getOptions();
+				if (opts.x10_config.STATIC_CALLS) {
 					//throw new SemanticException("Expression " + e + " cannot be cast to type " + tn.type() + ".", e.position());
 					return null;
-				} else if (Configuration.VERBOSE_CALLS) {
+				} else if (opts.x10_config.VERBOSE_CALLS) {
 					Warnings.issue(tc.job(), Warnings.CastingExprToType(e, tn.type(), e.position()));
 				} else {
 					((ExtensionInfo) tc.job().extensionInfo()).incrWeakCallsCount();
@@ -439,6 +441,7 @@ public class Converter {
 	}
 
 	public static Expr checkCast(X10Cast cast, ContextVisitor tc) throws SemanticException {
+		X10CompilerOptions opts = (X10CompilerOptions) tc.job().extensionInfo().getOptions();
 		TypeSystem ts =  tc.typeSystem();
 		Type toType = cast.castType().type();
 		Type fromType = cast.expr().type();
@@ -446,7 +449,7 @@ public class Converter {
 		Context context = (Context) tc.context();
 
 		if (ts.isUnknown(toType)) {
-		    if (Configuration.CHECK_INVARIANTS)
+		    if (opts.x10_config.CHECK_INVARIANTS)
 			Errors.issue(tc.job(), new SemanticException("Complaining about UnknownType", cast.position()));
 		    return cast;
 		}
@@ -594,7 +597,7 @@ public class Converter {
 
 		// Added 03/28/10 to support new call conversion semantics.
 		if (ts.isSubtype(Types.baseType(fromType), Types.baseType(toType), context))
-			if (! Configuration.STATIC_CALLS)
+			if (!opts.x10_config.STATIC_CALLS)
 				if (cast.conversionType() == ConversionType.CALL_CONVERSION 
 						&& ts.isCastValid(fromType, toType, context)) {
 					X10Cast n = cast.conversionType(ConversionType.CHECKED); 

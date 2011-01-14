@@ -56,7 +56,6 @@ import polyglot.ast.SwitchBlock;
 import polyglot.ast.TopLevelDecl;
 import polyglot.ast.Try;
 
-
 import polyglot.frontend.Compiler;
 import polyglot.frontend.ExtensionInfo;
 import polyglot.frontend.Job;
@@ -151,7 +150,7 @@ public class X10CPPTranslator extends Translator {
 	    return outputLine - 1;
 	}
 
-	private static final String FILE_TO_LINE_NUMBER_MAP = "FileToLineNumberMap";
+	static final String FILE_TO_LINE_NUMBER_MAP = "FileToLineNumberMap";
 
 	public void print(Node parent, Node n, CodeWriter w_) {
 		if (w_ == null)
@@ -173,7 +172,8 @@ public class X10CPPTranslator extends Translator {
 			w.newline();
 		}
 		
-		if (x10.Configuration.DEBUG && n instanceof Stmt && !(n instanceof Assert) && !(n instanceof Block) && !(n instanceof Catch) && !(parent instanceof If))
+		X10CPPCompilerOptions opts = (X10CPPCompilerOptions) job.extensionInfo().getOptions();
+		if (opts.x10_config.DEBUG && n instanceof Stmt && !(n instanceof Assert) && !(n instanceof Block) && !(n instanceof Catch) && !(parent instanceof If))
 		{
 			w.write("_X10_STATEMENT_HOOK()");
 			if (!(parent instanceof For))
@@ -189,7 +189,7 @@ public class X10CPPTranslator extends Translator {
 
 		final int endLine = w.currentStream().getStreamLineNumber(); // for debug info
 
-		if (x10.Configuration.DEBUG && line > 0 &&
+		if (opts.x10_config.DEBUG && line > 0 &&
 		    ((n instanceof Stmt && !(n instanceof SwitchBlock) && !(n instanceof Catch)) ||
 		     (n instanceof ClassMember)))
 		{
@@ -292,12 +292,23 @@ public class X10CPPTranslator extends Translator {
 
 			X10CPPContext_c c = (X10CPPContext_c) context;
 			X10CPPCompilerOptions opts = (X10CPPCompilerOptions) job.extensionInfo().getOptions();
-	        TypeSystem xts =   typeSystem();
+			TypeSystem xts = typeSystem();
 
-			if (x10.Configuration.DEBUG)
+			if (opts.x10_config.DEBUG)
 				c.addData(FILE_TO_LINE_NUMBER_MAP, new HashMap<String, LineNumberMap>());
 
-			// Use the class name to derive a default output file name.
+			// Use the source file name as the basename for the output .cc file
+			String fname = sfn.source().name();
+			fname = fname.substring(0, fname.lastIndexOf(".x10"));
+			boolean generatedCode = false;
+            WriterStreams fstreams = new WriterStreams(fname, pkg, job, tf);
+
+            if (opts.x10_config.DEBUG) {
+                HashMap<String, LineNumberMap> fileToLineNumberMap =
+                    c.<HashMap<String, LineNumberMap>>getData(FILE_TO_LINE_NUMBER_MAP);
+                fileToLineNumberMap.put(fstreams.getStreamName(StreamWrapper.CC), new LineNumberMap());
+            }
+    
 			for (TopLevelDecl decl : sfn.decls()) {
 				if (!(decl instanceof X10ClassDecl))
 					continue;
@@ -339,49 +350,51 @@ public class X10CPPTranslator extends Translator {
 	        	if (getCppRep((X10ClassDef)cd.classDef()) != null) {
 					continue;
 				}
+	      
+                generatedCode = true;
+                
+	        	// Use the name of the class to get the name of the header files.
 				String className = cd.classDef().name().toString();
 				WriterStreams wstreams = new WriterStreams(className, pkg, job, tf);
-				StreamWrapper sw = new StreamWrapper(wstreams, outputWidth);
-				// [IP] FIXME: This hack is to ensure the .cc is always generated.
-				sw.getNewStream(StreamWrapper.CC, true);
-                // [DC] TODO: This hack is to ensure the .h is always generated.
+				StreamWrapper sw = new StreamWrapper(fstreams, wstreams, outputWidth);
+				// [DC] TODO: This hack is to ensure the .h is always generated.
                 sw.getNewStream(StreamWrapper.Header, true);
-
-				String cc = wstreams.getStreamName(StreamWrapper.CC);
 				String header = wstreams.getStreamName(StreamWrapper.Header);
-
-				outputFiles.add(cc);
 				outputFiles.add(header);
-				opts.compilationUnits().add(cc);
 				
-				if (x10.Configuration.DEBUG) {
+				if (opts.x10_config.DEBUG) {
 					HashMap<String, LineNumberMap> fileToLineNumberMap =
 					    c.<HashMap<String, LineNumberMap>>getData(FILE_TO_LINE_NUMBER_MAP);
-					fileToLineNumberMap.put(cc, new LineNumberMap());
 					fileToLineNumberMap.put(header, new LineNumberMap());
 				}
 				
+                ClassifiedStream tmp = sw.getNewStream(StreamWrapper.CC, false);
+				tmp.writeln("/*************************************************/");
+                tmp.writeln("/* START of "+className+" */");
+                
 				translateTopLevelDecl(sw, sfn, decl);
-				
-				if (x10.Configuration.DEBUG) {
-					HashMap<String, LineNumberMap> fileToLineNumberMap =
-					    c.<HashMap<String, LineNumberMap>>getData(FILE_TO_LINE_NUMBER_MAP);
-//					sw.pushCurrentStream(sw.getNewStream(StreamWrapper.Closures, false));
-//					printLineNumberMap(sw, pkg, className, StreamWrapper.Closures, fileToLineNumberMap);
-//					sw.popCurrentStream();
-//					sw.pushCurrentStream(sw.getNewStream(StreamWrapper.CC, false));
-//					printLineNumberMap(sw, pkg, className, StreamWrapper.CC, fileToLineNumberMap);
-//					sw.popCurrentStream();
-//					sw.pushCurrentStream(sw.getNewStream(StreamWrapper.CC, false));
-//					printLineNumberMap(sw, pkg, className, StreamWrapper.Header, fileToLineNumberMap);
-//					sw.popCurrentStream();
-					sw.pushCurrentStream(sw.getNewStream(StreamWrapper.CC, false));
-					printLineNumberMapForCPPDebugger(sw, fileToLineNumberMap);
-					sw.popCurrentStream();
-				}
+
+                ClassifiedStream tmp2 = sw.getNewStream(StreamWrapper.CC, false);
+                tmp2.writeln("/* END of "+className+" */");
+                tmp2.writeln("/*************************************************/");
 				
 				wstreams.commitStreams();
 			}
+			
+			if (generatedCode) {
+			    String cc = fstreams.getStreamName(StreamWrapper.CC);
+			    outputFiles.add(cc);
+                opts.compilationUnits().add(cc);
+                
+                if (opts.x10_config.DEBUG) {
+                    HashMap<String, LineNumberMap> fileToLineNumberMap =
+                        c.<HashMap<String, LineNumberMap>>getData(FILE_TO_LINE_NUMBER_MAP);
+                    ClassifiedStream debugStream = fstreams.getNewStream(StreamWrapper.CC, false);
+                    printLineNumberMapForCPPDebugger(debugStream, fstreams.getStreamName(StreamWrapper.CC), fileToLineNumberMap);
+                }
+               
+                fstreams.commitStreams();
+			}			    
 
 			return true;
 		}
@@ -392,9 +405,9 @@ public class X10CPPTranslator extends Translator {
 		}
 	}
 
-	private void printLineNumberMapForCPPDebugger(StreamWrapper sw, HashMap<String, LineNumberMap> fileToLineNumberMap) {
-	    final LineNumberMap map = fileToLineNumberMap.get(sw.getStreamName(StreamWrapper.CC));
-	    sw.currentStream().registerCommitListener(new ClassifiedStream.CommitListener() {
+	private void printLineNumberMapForCPPDebugger(ClassifiedStream stream, String streamName, HashMap<String, LineNumberMap> fileToLineNumberMap) {
+	    final LineNumberMap map = fileToLineNumberMap.get(streamName);
+	    stream.registerCommitListener(new ClassifiedStream.CommitListener() {
 	        public void run(ClassifiedStream s) {
 //	            if (map.isEmpty())
 //	                return;
@@ -471,7 +484,7 @@ public class X10CPPTranslator extends Translator {
 			Set<String> compilationUnits = new HashSet<String>(options.compilationUnits());
 
 			try {
-			    final File file = outputFile(options, null, Configuration.MAIN_STUB_NAME, "cc");
+			    final File file = outputFile(options, null, options.x10cpp_config.MAIN_STUB_NAME, "cc");
 			    ExtensionInfo ext = compiler.sourceExtension();
 			    SimpleCodeWriter sw = new SimpleCodeWriter(ext.targetFactory().outputWriter(file),
 			            compiler.outputWidth());
@@ -517,9 +530,10 @@ public class X10CPPTranslator extends Translator {
 	}
 
 	private static List<MethodDef> getMainMethods(Job job) {
+	    X10CPPCompilerOptions opts = (X10CPPCompilerOptions) job.extensionInfo().getOptions();
 	    X10CPPJobExt jobext = (X10CPPJobExt) job.ext();
-	    if (x10.Configuration.MAIN_CLASS != null) {
-	        QName mainClass = QName.make(x10.Configuration.MAIN_CLASS);
+	    if (opts.x10_config.MAIN_CLASS != null) {
+	        QName mainClass = QName.make(opts.x10_config.MAIN_CLASS);
 	        try {
 	            ClassType mct = (ClassType) job.extensionInfo().typeSystem().forName(mainClass);
 	            QName pkgName = mct.package_() == null ? null : mct.package_().fullName();

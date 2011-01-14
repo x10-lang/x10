@@ -79,7 +79,7 @@ public class X10Return_c extends Return_c {
 	                        if (li == fi)
 	                            continue LI;
 	                }
-	                XLocal l = ts.xtypeTranslator().trans(li.asInstance());
+	                XLocal l = ts.xtypeTranslator().translate(li.asInstance());
 	                XEQV x = XTerms.makeEQV();
 	                c = c.substitute(x, l);
 	            }

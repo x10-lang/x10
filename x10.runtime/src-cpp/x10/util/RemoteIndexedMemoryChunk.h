@@ -89,7 +89,7 @@ template<class T> x10_boolean x10::util::RemoteIndexedMemoryChunk<T>::_struct_eq
 }
 
 template<class T> x10aux::ref<x10::lang::String> x10::util::RemoteIndexedMemoryChunk<T>::toString() {
-    char* tmp = x10aux::alloc_printf("x10.util.RemoteIndexedMemoryChunk<%s>(%llx of %ll elements)", x10aux::getRTT<T>()->name(), data, len);
+    char* tmp = x10aux::alloc_printf("x10.util.RemoteIndexedMemoryChunk<%s>(%llx of %llx elements)", x10aux::getRTT<T>()->name(), data, (unsigned long long)len);
     return x10::lang::String::Steal(tmp);
 }
 

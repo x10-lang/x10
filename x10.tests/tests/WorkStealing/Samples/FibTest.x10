@@ -9,6 +9,7 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
+package WorkStealing.Samples;
 
 public class FibTest {
     public def run():boolean {

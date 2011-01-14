@@ -41,7 +41,6 @@ import polyglot.ast.Special;
 import polyglot.ast.Stmt;
 import polyglot.ast.Throw;
 import polyglot.ast.TypeNode;
-import polyglot.frontend.ExtensionInfo;
 import polyglot.frontend.Goal;
 import polyglot.frontend.Job;
 import polyglot.types.Context;
@@ -69,6 +68,8 @@ import polyglot.visit.AlphaRenamer;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.Configuration;
+import x10.ExtensionInfo;
+import x10.X10CompilerOptions;
 import x10.ast.Closure;
 import x10.ast.ClosureCall;
 import x10.ast.DepParameterExpr;
@@ -127,10 +128,10 @@ import x10.util.AltSynthesizer;
 @SuppressWarnings("unchecked")
 public class Inliner extends ContextVisitor {
 
-    private final boolean INLINE_CONSTANTS = Configuration.INLINE_CONSTANTS;
-    private final boolean INLINE_METHODS   = Configuration.INLINE_METHODS;
-    private final boolean INLINE_CLOSURES  = Configuration.INLINE_CLOSURES && x10.Configuration.ALLOW_STATEMENT_EXPRESSIONS;
-    private final boolean INLINE_IMPLICIT  = Configuration.INLINE_METHODS_IMPLICIT;
+    private final boolean INLINE_CONSTANTS;
+    private final boolean INLINE_METHODS;
+    private final boolean INLINE_CLOSURES;
+    private final boolean INLINE_IMPLICIT;
     
     private static final boolean DEBUG = false;
 //  private static final boolean DEBUG = true;
@@ -167,6 +168,11 @@ public class Inliner extends ContextVisitor {
         // syn = new Synthesizer(xnf, xts);
         syn = new AltSynthesizer(job, ts, nf);
         ice = new InlineCostEstimator(xts, xnf);
+        X10CompilerOptions opts = (X10CompilerOptions) job.extensionInfo().getOptions();
+        INLINE_CONSTANTS = opts.x10_config.INLINE_CONSTANTS;
+        INLINE_METHODS   = opts.x10_config.INLINE_METHODS;
+        INLINE_CLOSURES  = opts.x10_config.INLINE_CLOSURES && opts.x10_config.ALLOW_STATEMENT_EXPRESSIONS;
+        INLINE_IMPLICIT  = opts.x10_config.INLINE_METHODS_IMPLICIT;
     }
 
     /**
@@ -235,7 +241,7 @@ public class Inliner extends ContextVisitor {
 
     @Override
     public NodeVisitor begin() {
-        if (!x10.optimizations.Optimizer.INLINING()) {
+        if (!x10.optimizations.Optimizer.INLINING((ExtensionInfo) job.extensionInfo())) {
             throw new InternalCompilerError("INLINING should not be being performed!");
         }
         recursionDepth[0] = INITIAL_RECURSION_DEPTH;
@@ -358,7 +364,8 @@ public class Inliner extends ContextVisitor {
             String name = (String) arg.constantValue();
             Boolean negate = name.startsWith("!"); // hack to allow @CompileTimeConstant("!NO_CHECKS")
             if (negate) name = name.substring(1);
-            Object value = Configuration.get(Configuration.class, name);
+            X10CompilerOptions opts = (X10CompilerOptions) job.extensionInfo().getOptions();
+            Object value = opts.x10_config.get(name);
             if (negate) 
                 value = (Boolean) value ? false : true;
             Expr literal = new ConstantPropagator(job, xts, xnf).toExpr(value, call.position());
@@ -781,7 +788,7 @@ public class Inliner extends ContextVisitor {
      * @return the backend's identity String for this compilation
      */ // TODO refactor so that the backends and I get there identity strings from the same place (move into ExtensionInfo
     private String getBackend() {
-        ExtensionInfo extensionInfo = xts.extensionInfo();
+        ExtensionInfo extensionInfo = (ExtensionInfo) xts.extensionInfo();
         if (extensionInfo instanceof x10c.ExtensionInfo)
             return "\"java\"";
         if (extensionInfo instanceof x10cpp.ExtensionInfo)

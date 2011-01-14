@@ -294,9 +294,9 @@ public class LineNumberMap extends StringTable {
 	
 	private static ArrayList<Integer> arrayMap = new ArrayList<Integer>();
 	private static ArrayList<Integer> refMap = new ArrayList<Integer>();
-	private static ArrayList<Integer> closureMap = new ArrayList<Integer>();
 	private static ArrayList<LocalVariableMapInfo> localVariables;
 	private static Hashtable<String, ArrayList<MemberVariableMapInfo>> memberVariables;
+	private static Hashtable<String, ArrayList<MemberVariableMapInfo>> closureMembers;
 	
 	// the type numbers were provided by Steve Cooper in "x10dbg_types.h"
 	static int determineTypeId(String type)
@@ -408,6 +408,31 @@ public class LineNumberMap extends StringTable {
 		{
 			members = new ArrayList<LineNumberMap.MemberVariableMapInfo>();
 			memberVariables.put(containingClass, members);
+		}
+		
+		MemberVariableMapInfo v = new MemberVariableMapInfo();
+		v._x10type = determineTypeId(type);
+		if (v._x10type == 203)
+			v._x10typeIndex = determineSubtypeId(type, refMap);
+		else if (v._x10type == 200 || v._x10type == 202 || v._x10type == 204 || v._x10type == 207)
+			v._x10typeIndex = determineSubtypeId(type, arrayMap);
+		else 
+			v._x10typeIndex = -1;
+		v._x10memberName = stringId(name);
+		v._cppMemberName = stringId("x10__"+Emitter.mangled_non_method_name(name));
+		v._cppClass = stringId(containingClass);
+		members.add(v);
+	}
+	
+	public void addClosureMember(String name, String type, String containingClass)
+	{
+		if (closureMembers == null)
+			closureMembers = new Hashtable<String, ArrayList<LineNumberMap.MemberVariableMapInfo>>();
+		ArrayList<MemberVariableMapInfo> members = closureMembers.get(containingClass);
+		if (members == null)
+		{
+			members = new ArrayList<LineNumberMap.MemberVariableMapInfo>();
+			closureMembers.put(containingClass, members);
 		}
 		
 		MemberVariableMapInfo v = new MemberVariableMapInfo();
@@ -890,10 +915,19 @@ public class LineNumberMap extends StringTable {
         	w.forceNewline();
         }
         	    
-	    if (!closureMap.isEmpty())
+	    if (closureMembers != null)
 	    {
-		    w.writeln("static const struct _X10ClosureMap _X10ClosureMapList[] __attribute__((used)) "+debugDataSectionAttr+" = {");
-		    // TODO
+	    	for (String classname : closureMembers.keySet())
+        	{
+	    		w.writeln("static const struct _X10TypeMember _X10"+classname.substring(classname.lastIndexOf('.')+1)+"Members[] __attribute__((used)) "+debugDataSectionAttr+" = {");
+		        for (MemberVariableMapInfo v : closureMembers.get(classname))
+		        	w.writeln("    { "+v._x10type+", "+v._x10typeIndex+", "+offsets[v._x10memberName]+", "+offsets[v._cppMemberName]+", "+offsets[v._cppClass]+" }, // "+m.lookupString(v._x10memberName));
+			    w.writeln("};");
+			    w.forceNewline();
+        	}	    	
+		    w.writeln("static const struct _X10ClosureMap _X10ClosureMapList[] __attribute__((used)) = {"); // inclusion of debugDataSectionAttr causes issues on Macos.  See XTENLANG-2318.
+		    for (String classname : closureMembers.keySet())
+	        	w.writeln("    { 100, "+offsets[closureMembers.get(classname).get(0)._cppClass]+", sizeof("+classname.replace(".", "::")+"), "+closureMembers.get(classname).size()+", 0, 0, 0, _X10"+classname.substring(classname.lastIndexOf('.')+1)+"Members },");	        
 		    w.writeln("};");
 		    w.forceNewline();
 	    }
@@ -947,7 +981,7 @@ public class LineNumberMap extends StringTable {
         	w.writeln("sizeof(_X10ClassMapList),");
         else
         	w.writeln("0, // no class mappings");
-        if (!closureMap.isEmpty())        	
+        if (closureMembers != null)        	
         	w.writeln("sizeof(_X10ClosureMapList),");
         else
         	w.writeln("0,  // no closure mappings");
@@ -996,10 +1030,11 @@ public class LineNumberMap extends StringTable {
         }
         else
         	w.writeln("NULL,");
-        if (!closureMap.isEmpty())
+        if (closureMembers != null)
         {
-        	closureMap.clear();
         	w.writeln("_X10ClosureMapList,");
+        	closureMembers.clear();
+        	closureMembers = null;
         }
         else
         	w.writeln("NULL,");

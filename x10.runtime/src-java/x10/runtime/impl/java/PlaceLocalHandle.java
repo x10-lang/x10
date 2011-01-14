@@ -59,7 +59,7 @@ public final class PlaceLocalHandle<T> implements java.io.Serializable {
       this(T);
   }
 
-  public T apply$G() {
+  public T $apply$G() {
 	  if (!initialized) {
 		  synchronized(data) {
 			  myData = data.get(id);

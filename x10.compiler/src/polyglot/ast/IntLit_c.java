@@ -123,7 +123,7 @@ public class IntLit_c extends NumLit_c implements IntLit
             throw new InternalCompilerError("bad integer literal kind", position());
         }
         CConstraint c = new CConstraint();
-        XTerm term = xts.xtypeTranslator().trans(c, this.type(Type), (Context) tc.context());
+        XTerm term = xts.xtypeTranslator().translate(c, this.type(Type), (Context) tc.context());
         try {
             c.addSelfBinding(term);
         }

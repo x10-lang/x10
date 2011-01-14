@@ -151,7 +151,7 @@ public class X10Special_c extends Special_c implements X10Special {
             CConstraint cc = Types.xclause(t);
             cc = cc == null ? new CConstraint() : cc.copy();
             try {
-                XVar var = (XVar) xts.xtypeTranslator().trans(cc, this, c);
+                XVar var = (XVar) xts.xtypeTranslator().translate(cc, this, c);
                 if (var != null) {
                     cc.addSelfBinding(var);
                     cc.setThisVar(var);
@@ -172,7 +172,7 @@ public class X10Special_c extends Special_c implements X10Special {
             CConstraint cc = Types.xclause(superClass);
             cc = cc == null ? new CConstraint() : cc.copy();
             try {
-                XVar var = (XVar) xts.xtypeTranslator().trans(cc, this, c);
+                XVar var = (XVar) xts.xtypeTranslator().translate(cc, this, c);
                 cc.addSelfBinding(var);
                 //PlaceChecker.AddThisHomeEqualsPlaceTerm(cc, var, c);
             }

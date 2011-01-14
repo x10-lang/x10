@@ -38,7 +38,7 @@ public class InitDispatcher {
         for (final Method initializer : initializeMethods) {
             // System.out.println("runInitializer executes " + initializer.getName());
             x10.core.fun.VoidFun_0_0 body = new x10.core.fun.VoidFun_0_0() {
-                public void apply() {
+                public void $apply() {
                     // execute X10-level static initialization
                     try {
                         initializer.invoke(null, (Object[])null);
@@ -97,7 +97,7 @@ public class InitDispatcher {
         // serialize to bytearray
         final byte[] buf = serialize(fieldValue).toByteArray();
         x10.core.fun.VoidFun_0_0 body = new x10.core.fun.VoidFun_0_0() {
-            public void apply() {
+            public void $apply() {
                 // execute deserializer for fieldValue
                 try {
                     deserializeMethods.get(fieldId).invoke(null, buf);

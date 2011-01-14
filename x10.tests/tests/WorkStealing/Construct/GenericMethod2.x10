@@ -9,13 +9,15 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
+package WorkStealing.Construct;
+
 /*
  * A simple Generic concurrent method
  */
 public class GenericMethod2 {
-	
-	var flag: boolean = false;
-	
+
+    var flag: boolean = false;
+
     class A[U] {
         var value:U;
     

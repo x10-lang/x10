@@ -1,4 +1,4 @@
-Release 2.1.1
+Release 2.1.2 (future...)
 
 This release includes both the C++ and Java backends and runtimes.
 
@@ -11,25 +11,10 @@ The precedence of ".." has been bumped up to be tighter than that of
 "*", so 0..10*0..10 now works, but 0..N-1 does not.
 All code must be updated to use 0..(N-1) instead.
 
-To support more effective optimization, a change was made to 
-x10.array.Array and x10.array.Region to define rail as a standalone
-property instead of as a conjunction of rank==1,zeroBased,rect.
-If you have code that has type declarations of the form:
-  a:Array[T]{rail}
-you will need to add an explicit rank==1 by saying:
-  a:Array[T](1){rail}
-
-The typedef of Void to void was removed from the standard library and
-void is now defined to be a keyword instead of a type.  
-All code must be updated to replace all uses of Void with void.
-
-The custom serialization protocol was changed to use a distinguished
-type (x10.io.SerialData) instead of x10.lang.Any.
-
 Please consult the language specification for the details of
 these changes and for a list of additional changes.
 
-The following features described in the 2.1.1 language manual do not
+The following features described in the 2.1.2 language manual do not
 currently work and will be fixed in the subsequent releases:
   - Non-static type definitions as class or interface members
     (static type defs do work)
@@ -43,7 +28,7 @@ distinct constraints.
 Additionally, the following features described in the language
 manual do not currently work with the C++ backend and will be fixed in
 the subsequent releases:
-  - Garbage collection on AIX and BG/P
+  - Garbage collection on AIX
   - Non-final generic instance methods
   - Exception stack traces on Cygwin
 
@@ -51,186 +36,11 @@ The generated C++ code requires g++ 4.2 or better to be compiled;
 we do almost all of our testing against g++ 4.3.2.  On AIX, you
 may either use g++ 4.2 or better or xlC 10.1.0.4 or better.
 
-Below is a summary of JIRA issues addressed for the X10 2.1.1
+Below is a summary of JIRA issues addressed for the X10 2.1.2
 
-** New Features and Improvements
-    * [XTENLANG-313] - Specify the X10 grammar and implement it
-    * [XTENLANG-485] - Use unsigned types where appropriate in XRX
-    * [XTENLANG-799] - a(i) = b allowed via Settable[S,T], but a(i) += b isn't.
-    * [XTENLANG-805] - Update clock semantics and implementation
-    * [XTENLANG-806] - Clocks: New semantics for interaction between clocks and finish
-    * [XTENLANG-908] - Println should be atomic
-    * [XTENLANG-910] - Gamma and error functions in x10.lang.Math
-    * [XTENLANG-1008] - CUDA: implement clocks
-    * [XTENLANG-1027] - X10DT should provide a dialog to "Open Type" by name
-    * [XTENLANG-1028] - X10DT should provide an "Open Type in Hierarchy" dialog
-    * [XTENLANG-1066] - "Run/debug as X10 Application" is missing for C++ back-end
-    * [XTENLANG-1068] - Lightweight, multi-node/multi-process transport/launcher
-    * [XTENLANG-1195] - raw() method for GrowableRail
-    * [XTENLANG-1520] - Support block,block distribution
-    * [XTENLANG-1681] - ClockUseException mystery
-    * [XTENLANG-1707] - clarify differences between structs and classes
-    * [XTENLANG-1722] - document soft keywords in language spec
-    * [XTENLANG-1795] - Does X10 respect cases ?
-    * [XTENLANG-1798] - ateach in the language description
-    * [XTENLANG-2041] - Change x10.io.CustomSerialization prototcol to use distinguished class x10.io.SerialData (instead of Any)
-    * [XTENLANG-2043] - Java backend support for CustomSerialization
-    * [XTENLANG-2047] - Compiler should provide default deserialization constructors if none provided by the user
-    * [XTENLANG-2057] - Align hashCode function for built-in structs (int, long, etc) between C++ and Java backend
-    * [XTENLANG-2063] - Implement serialization trace mechanism in managed X10
-    * [XTENLANG-2068] - assert statement should throw something called AssertionError
-    * [XTENLANG-2093] - x10c++ should infer MAIN_CLASS from command-line
-    * [XTENLANG-2096] - Use x10.io.NotSerializableException instead of java.io.NotSerializableException
-    * [XTENLANG-2144] - Allow non-builtin structs to satisfy haszero
-    * [XTENLANG-2145] - Support the "force identifier" construct
-    * [XTENLANG-2197] - Improve serialization trace mechanisms
-
-** Tasks
-    * [XTENLANG-1154] - Confirm Bard's text about 'f instanceof (T)=>U'
-    * [XTENLANG-1230] - Put this explanation of place types in lang manual, FAQ, etc. 
-    * [XTENLANG-1470] - Check covariant/contravariant generic arguments to make sure they appear in the right positions
-
-** Bug
-    * [XTENLANG-203] - Correct implementation of finally blocks in C++
-    * [XTENLANG-235] - Nested class names have to be mangled in -MAIN_CLASS
-    * [XTENLANG-266] - Getter methods for properties are a hack
-    * [XTENLANG-448] - Occasional Error instantiating builder 'org.eclipse.imp.smapifier.SmapieBuilder' 
-    * [XTENLANG-476] - Problem with parsing single line if .. else
-    * [XTENLANG-531] - Correct implementation of X10 2.0 static initialization semantics in Java codegen/runtime
-    * [XTENLANG-602] - Tabbing fails: either it moves to the wrong place or not at all.
-    * [XTENLANG-638] - Covariant generics can inherit from contravariant generics, yeilding a hole in the type system.
-    * [XTENLANG-639] - Subtyping of generics doesn't work for initializers (or something)
-    * [XTENLANG-643] - Can't instanceof to a defined type
-    * [XTENLANG-660] - toString() cannot be called on all types (and it doesn't work consistently on all scalars)
-    * [XTENLANG-685] - 'this' in a type constraint in a property declaration is not very useful.
-    * [XTENLANG-686] - 'this' can appear in the type constraint of the return type of a constructor
-    * [XTENLANG-687] - 'this' can appear in a type constraint the body of a ctor, contra spec
-    * [XTENLANG-688] - 'this' can appear in a type constraint in the body of a ctor, contra spec.
-    * [XTENLANG-692] - Spec inconsistent on "def before use"
-    * [XTENLANG-723] - Common non-ambiguous reference flagged as ambiguous
-    * [XTENLANG-798] - Dejavalization needed in 13.8
-    * [XTENLANG-833] - Side effects in guards are not checked
-    * [XTENLANG-864] - Why is X10 looking for a type here?
-    * [XTENLANG-868] - Update discussion of distributions to match current array library APIs
-    * [XTENLANG-875] - 18.5.1 unclear
-    * [XTENLANG-931] - Incorrect exceptional behavior of integer division
-    * [XTENLANG-958] - super.field does not work in C++ backend
-    * [XTENLANG-1132] - Issue warning when user writes a type for a val declaration
-    * [XTENLANG-1137] - Do these distributions exist: arbitrary? Random?
-    * [XTENLANG-1140] - CompilerPlugin?  native?
-    * [XTENLANG-1177] - Dist variables exist!
-    * [XTENLANG-1233] - revisit ateach, unique distributions, teams, PLH
-    * [XTENLANG-1257] - C++ code generator does not find the main() if it is part of a struct
-    * [XTENLANG-1297] - Once println becomes atomic, fix the example at the start of the Clocks chapter
-    * [XTENLANG-1298] - Need devious test cases of resume
-    * [XTENLANG-1321] - Insidious constructor issue -- test case needed
-    * [XTENLANG-1334] - instanceof ValRail[Int{self != 0}] doesn't work.
-    * [XTENLANG-1432] - Suggestions for cleaning up pages 20 - 27 of the 2.0.4 language ref
-    * [XTENLANG-1519] - Bug in covariance testing of vars
-    * [XTENLANG-1530] - Runtime error message "ClassCastException" for missing method qualifier is misleading
-    * [XTENLANG-1540] - Int vs. int clarification
-    * [XTENLANG-1556] - Creating a project with its root directory holding the source (not the default: src) causes x10c++ backend failure
-    * [XTENLANG-1594] - Structs and classes are NOT easily interchangeable
-    * [XTENLANG-1600] - Assign_c.toString() requires thread-local Compiler ref to be valid?
-    * [XTENLANG-1670] - Region - Point
-    * [XTENLANG-1679] - WARNING (should be error, but method annotations in XRX are wrong)
-    * [XTENLANG-1684] - Language spec should be consistent with the compiler and specify static with type defs.
-    * [XTENLANG-1736] - Chapter 4 should describe struct types
-    * [XTENLANG-1741] - Neither the language spec nor the X10Doc specifies behavior  on arithmetic overflow
-    * [XTENLANG-1744] - Rename atomic directory
-    * [XTENLANG-1745] - Runtime.x10 uses keyword "await"
-    * [XTENLANG-1746] - Runtime.x10 uses keyword "here"
-    * [XTENLANG-1747] - keyword next used in XRS
-    * [XTENLANG-1748] - Runtime.x10 uses the keyword "offer"
-    * [XTENLANG-1749] - keyword "safe" used in XRX
-    * [XTENLANG-1877] - x10doc generation fails:  change in Scheduler?
-    * [XTENLANG-1890] - Cannot parse 1.equals(2)
-    * [XTENLANG-1933] - Static initialization is not implemented correctly on the Java backend
-    * [XTENLANG-1945] - Dividing by zero doesn't throw ArithmeticException 
-    * [XTENLANG-1949] - SVN checked out directories are not properly read by new X10 class wizard
-    * [XTENLANG-1951] - x10c++ produces non-compiling code when invoking an overloaded method of the superclass
-    * [XTENLANG-1952] - Java backend generates invalid code for return statement of covariant type
-    * [XTENLANG-1954] - Exception in thread "main" java.lang.NullPointerException 
-    * [XTENLANG-1956] - Evaluating subclass constraint causes exception in compiler
-    * [XTENLANG-1957] - Defining a generic local class causes compiler crash
-    * [XTENLANG-1959] - Int + String rejected by compiler
-    * [XTENLANG-1960] - Custom Serialization crashes x10c
-    * [XTENLANG-1961] - Java backend ignores x10.io.CustomSerialization if implemented by a superclass
-    * [XTENLANG-1963] - Overloading constructors that have a generic type in the formal type parameters
-    * [XTENLANG-1968] - Compiler exception on "Cannot get MethodDef before type-checking settable assign"
-    * [XTENLANG-1969] - Compiler NPE looking for a method
-    * [XTENLANG-1970] - NPE in generated Java code (for Array.raw() access with ULongs?)
-    * [XTENLANG-1971] - java.lang.IndexOutOfBoundsException in TypeChecker
-    * [XTENLANG-1972] - Not throw ClassCastException when null is casted to struct
-    * [XTENLANG-1973] - Wrong code generation for Java backend for closure with an at in its body.
-    * [XTENLANG-1983] - InternalCompilerError: Emitter.getIndex()
-    * [XTENLANG-1984] - constructor visibility problem
-    * [XTENLANG-1987] - Bad code generation for inlined private methods
-    * [XTENLANG-1988] - Remove unnecessary indirection for private method access from inner class
-    * [XTENLANG-1991] - primitives need to implement Comparable
-    * [XTENLANG-1996] - Cannot compile closure call in StatementExp if its return type isn't void
-    * [XTENLANG-1997] - java.lang.IndexOutOfBoundsException in InnerClassRemover
-    * [XTENLANG-2000] - X10 compiler produces expressions in statement contexts that the Java compiler will not allow
-    * [XTENLANG-2005] - Wrong code generation for Rail.apply() in StatementExp
-    * [XTENLANG-2006] - Javac (and ecj) fails to capture string literal
-    * [XTENLANG-2007] - Compiler crash when issuing an Error
-    * [XTENLANG-2008] - Can't build x10 with inlining turned on
-    * [XTENLANG-2024] - Can't flatten closure call for C++ backend
-    * [XTENLANG-2025] - Instantiating nested class inside of a main class with a generic type causes c++ errors
-    * [XTENLANG-2028] - property statement in nested class causes compiler exception
-    * [XTENLANG-2037] - clarification on PlaceExp
-    * [XTENLANG-2044] - describe disambiguation rule of methods vs function fields in spec
-    * [XTENLANG-2048] - Hangs during static initilazation phase with C++ backend
-    * [XTENLANG-2049] - Mismatch between generation of bridge calls and bridge methods in Java backend triggered by inlining
-    * [XTENLANG-2051] - C++ namespace compiler error
-    * [XTENLANG-2052] - Do coercions for "new Array[Double][3.1,4]" 
-    * [XTENLANG-2054] - ULong.MAX_VALUE causes C++ backend error
-    * [XTENLANG-2073] - static DistArray initialization doesn't work 
-    * [XTENLANG-2079] - Exception in thread "main" java.lang.NullPointerException
-    * [XTENLANG-2080] - Implementation of Arithmetic interface compiles with x10c++ and fails with x10c
-    * [XTENLANG-2082] - Illegal c++ source generated for use of Arithmetic interface
-    * [XTENLANG-2085] - private static operators do not compile on the java backend
-    * [XTENLANG-2090] - Each place should access separate copy of static field even places are collocated in a single VM
-    * [XTENLANG-2091] - X10DT create class wizard has old (Rail) main method signature
-    * [XTENLANG-2094] - x10c++: ld duplicate symbol _main
-    * [XTENLANG-2097] - NullPointerException in RectLayout.toString()
-    * [XTENLANG-2099] - Comply static initialization in Java backend with X10 semantics in both single-vm multi-place and multi-vm environments
-    * [XTENLANG-2100] - Incorrect serialization of repeated struct values whose static type is an interface
-    * [XTENLANG-2103] - compilation fails for Array[Boolean] as a function result
-    * [XTENLANG-2104] - Static field of interface is compiled to Java static method and static initializer, which causes Javac error
-    * [XTENLANG-2105] - clocks are not transferred to another place if "at (P)" does not immediately follow "async clocked (clocks)"
-    * [XTENLANG-2107] - What exception should be thrown for "123".charAt(4)?
-    * [XTENLANG-2109] - TreeMap compilation : Java backend
-    * [XTENLANG-2112] - Bad code generation for bridge methods
-    * [XTENLANG-2120] - Java backend doesn't create the correct default values in generics of primitive types.
-    * [XTENLANG-2122] - Invoking a static method via a generic parameter type bound produces C++ post-compiler errors
-    * [XTENLANG-2124] - Lost exception when exception crosses an "at boundary"
-    * [XTENLANG-2127] - ULong.toString(radix:Int) buggy in managed X10
-    * [XTENLANG-2129] - Unsigned long division is broken
-    * [XTENLANG-2131] - Update spec with the latest list of keywords
-    * [XTENLANG-2138] - WALA option triggers resolution failures for some methods and constructors with guards
-    * [XTENLANG-2139] - Inlining a method with a labeled loop causes post-compilation failure in the C++ backend
-    * [XTENLANG-2149] - Inconsistent bound checking for interface 
-    * [XTENLANG-2150] - Operator resolution problem for ULong division by Int
-    * [XTENLANG-2159] - Seg fault in x10::lang::Lock::unlock (SVN HEAD)
-    * [XTENLANG-2160] - GlobalRef's don't flatten
-    * [XTENLANG-2174] - Java backend doesn't create zero value for user-defined structs
-    * [XTENLANG-2177] - initial value for Team allReduce is wrong for AND, MIN, and MAX operations
-    * [XTENLANG-2178] - Build broken with -NO_CHECKS
-    * [XTENLANG-2182] - Unreliable propagation of exitcode in x10rt_sockets runtime
-    * [XTENLANG-2188] - Multiple generic bounds don't compile in Java
-    * [XTENLANG-2193] - Toggling block comments leaves extra spaces behind
-    * [XTENLANG-2195] - Desugaring of ++ loses constraint information, resulting in missed optimizations
-    * [XTENLANG-2206] - Java backend: instantiate anonymous class with 2 type parameters
-    * [XTENLANG-2213] - casting and constrained types
-    * [XTENLANG-2219] - Inconsistent toString() behavior in x10.lang.Throwable
-    * [XTENLANG-2220] - Make "void" a keyword
-    * [XTENLANG-2222] - Compilation error in processing switch statements in atomic methods.
-    * [XTENLANG-2228] - default String() constructor causes c++ compiler error
-    * [XTENLANG-2229] - Static initializer to handle static fields of interface correctly
 
 For the details of JIRA issues fixed in this release, see
-http://jira.codehaus.org/browse/XTENLANG/fixforversion/16497
+http://jira.codehaus.org/browse/XTENLANG/fixforversion/NUMBERHERE
 
 Please use the X10 JIRA to report bugs, after ensuring the problem is
 not already reported:

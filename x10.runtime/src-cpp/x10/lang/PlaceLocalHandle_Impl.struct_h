@@ -40,7 +40,7 @@ namespace x10 {
                 x10aux::place_local::registerData(FMGL(id), (void*)tmp);
             }
 
-            T apply() {
+            T __apply() {
                 if (!FMGL(cached)) {
                     T *tmp = (T*)(x10aux::place_local::lookupData(FMGL(id)));
                     FMGL(localStorage) = *tmp;
@@ -107,8 +107,8 @@ namespace x10 {
                 return result;
             }
 
-            static T apply(PlaceLocalHandle_Impl<T> this_) {
-                return this_.apply();
+            static T __apply(PlaceLocalHandle_Impl<T> this_) {
+                return this_.__apply();
             }
 
             static void set(PlaceLocalHandle_Impl<T> this_, T newVal) {

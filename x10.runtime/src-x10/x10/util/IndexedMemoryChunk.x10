@@ -47,7 +47,7 @@ public struct IndexedMemoryChunk[T] {
 
     @Native("java", "x10.core.IndexedMemoryChunk.<#2>allocate(#3, #4, #7)")
     @Native("c++", "x10::util::IndexedMemoryChunk<void>::allocate<#1 >(#4, #5, #6, #7)")
-    public static native def allocate[T](numElements:int, alignment:int, pinned:boolean, zeroed:boolean):IndexedMemoryChunk[T]{!zeroed || T haszero};
+    public static native def allocate[T](numElements:int, alignment:int, congruent:boolean, zeroed:boolean):IndexedMemoryChunk[T]{!zeroed || T haszero};
 
     @Native("java", "x10.core.IndexedMemoryChunk.<#2>allocate(#3, #4, false)")
     @Native("c++", "x10::util::IndexedMemoryChunk<void>::allocate<#1 >(#4, 8, false, false)")
@@ -59,7 +59,7 @@ public struct IndexedMemoryChunk[T] {
 
     @Native("java", "x10.core.IndexedMemoryChunk.<#2>allocate(#3, #4, #7)")
     @Native("c++", "x10::util::IndexedMemoryChunk<void>::allocate<#1 >(#4, #5, #6, #7)")
-    public static native def allocate[T](numElements:long, alignment:int, pinned:boolean, zeroed:boolean):IndexedMemoryChunk[T]{!zeroed || T haszero};
+    public static native def allocate[T](numElements:long, alignment:int, congruent:boolean, zeroed:boolean):IndexedMemoryChunk[T]{!zeroed || T haszero};
 
 
     /**
@@ -68,8 +68,8 @@ public struct IndexedMemoryChunk[T] {
      * @param i The index to retreive.
      * @return The value at that index.
      */
-    @Native("java", "(#0).apply$G(#1)")
-    @Native("c++", "(#0)->apply(#1)")
+    @Native("java", "(#0).$apply$G(#1)")
+    @Native("c++", "(#0)->__apply(#1)")
     public native operator this(index:int):T;
 
 
@@ -79,8 +79,8 @@ public struct IndexedMemoryChunk[T] {
      * @param i The index to retreive.
      * @return The value at that index.
      */
-    @Native("java", "(#0).apply$G((int)(#1))")
-    @Native("c++", "(#0)->apply(#1)")
+    @Native("java", "(#0).$apply$G((int)(#1))")
+    @Native("c++", "(#0)->__apply(#1)")
     public native operator this(index:long):T;
 
 
@@ -114,7 +114,7 @@ public struct IndexedMemoryChunk[T] {
      * @param i The index to retreive.
      * @return The value at that index.
      */
-    @Native("java", "(#0).apply$G(#1)")
+    @Native("java", "(#0).$apply$G(#1)")
     @Native("c++", "(#0)->apply_unsafe(#1)")
     public native def apply_unsafe(index:int):T;
 
@@ -125,7 +125,7 @@ public struct IndexedMemoryChunk[T] {
      * @param i The index to retreive.
      * @return The value at that index.
      */
-    @Native("java", "(#0).apply$G((int)(#1))")
+    @Native("java", "(#0).$apply$G((int)(#1))")
     @Native("c++", "(#0)->apply_unsafe(#1)")
     public native def apply_unsafe(index:long):T;
 
@@ -268,6 +268,10 @@ public struct IndexedMemoryChunk[T] {
     @Native("java", "(#0).hashCode()")
     @Native("c++", "(#0)->hash_code()")
     public native def  hashCode():Int;
+
+    @Native("java", "(#0).getCongruentSibling(#1)")
+    @Native("c++", "(#0)->getCongruentSibling(#1)")
+    public native def getCongruentSibling(Place):RemoteIndexedMemoryChunk[T];
 }
 
 // vim:shiftwidth=4:tabstop=4:expandtab

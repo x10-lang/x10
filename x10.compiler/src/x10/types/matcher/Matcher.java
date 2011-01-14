@@ -450,7 +450,7 @@ public class Matcher {
     throws SemanticException {
     	 XVar[] x = new XVar[formals.size()];
          for (int i = 0; i < formals.size(); i++) {
-             x[i]=xts.xtypeTranslator().trans(formalNames.get(i), formals.get(i));
+             x[i]=xts.xtypeTranslator().translate(formalNames.get(i));
              assert x[i] != null;
          }
          return x;

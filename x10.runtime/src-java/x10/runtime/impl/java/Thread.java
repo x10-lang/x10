@@ -45,13 +45,13 @@ public class Thread extends java.lang.Thread {
 
     public void run() {
         if (null != body) {
-            body.apply();
+            body.$apply();
         } else {
-            apply();
+            $apply();
         }
     }
 
-    public void apply() {}
+    public void $apply() {}
 
     /**
 	 * Return current place

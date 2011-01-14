@@ -219,33 +219,7 @@ import x10cpp.X10CPPJobExt;
 import x10cpp.types.X10CPPContext_c;
 
 /**
- * Visitor on the AST nodes that for some X10 nodes triggers the template
- * based dumping mechanism (and for all others just defaults to the normal
- * pretty printing).
- *
- * A new code generator to generate message passing style code. [Krishna]
- *
- * @author Igor Peshansky
- * @author V. Krishna Nandivada
- * @author Pradeep Varma
- * @author vj
- * @author Dave Cunningham
- */
-
-/* Design:
- * Each place (excluding the place 0) starts of by running an async that
- * runs the "loop_main" that waits for any events from place 0.
- * Currently loop_main is an infinite loop, that does nothing, but waits for
- * the termination signal.
- * Place 0, runs the program main and sends the required communication
- * across, whenever it requires.
- *
- * All the final variables that are visible in the async are sent as
- * arguments.
- *
- * [TODO]
- * The code that is common to multiple files will go to the ".inc" file
- * [Krishna]
+ * Primary visitor for the C++ codegenerator.
  */
 public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
@@ -337,7 +311,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		h.write(voidTemplateInstantiation(cd.typeParameters().size()));
 		if (!cd.isStruct() && cd.superType() != null) {
 		    h.write(" : public ");
-		    X10ClassDef sdef = ((X10ClassType) cd.superType().get()).x10Def();
+		    X10ClassDef sdef = ((X10ClassType) Types.baseType(cd.superType().get())).x10Def();
 		    h.write(Emitter.translateType(getStaticMemberContainer(sdef), false));
 		}
 		h.allowBreak(0, " ");
@@ -508,7 +482,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	        if (member instanceof FieldDecl_c) {
 	            FieldDecl_c dec = (FieldDecl_c) member;
 	            if (dec.flags().flags().isStatic()) {
-	                X10ClassType container = (X10ClassType)dec.fieldDef().asInstance().container();
+	                X10ClassType container = (X10ClassType)Types.baseType(dec.fieldDef().asInstance().container());
 	                if (((X10ClassDef)container.def()).typeParameters().size() != 0)
 	                    continue;
 	                if (isGlobalInit(dec))
@@ -923,7 +897,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             sh.end();
             sh.newline(0);
             sh.writeln("};");
-            emitter.printRTTDefn((X10ClassType) def.asType(), sw);
+            emitter.printRTTDefn((X10ClassType) Types.baseType(def.asType()), sw);
             extractGenericStaticDecls(def, sh, false);
         }
         h.end();
@@ -1747,16 +1721,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		    sw.write("#ifndef "+guard+"_"+mi.name().toString()+"_"+mid); sw.newline();
 		    sw.write("#define "+guard+"_"+mi.name().toString()+"_"+mid); sw.newline();
 		}
-//        X10ClassType container = (X10ClassType) mi.container().toClass();
-//        // TODO: [IP] Add an extra apply to something that's both Settable and Indexable
-//        try {
-//        if (mi.name()==ClosureCall.APPLY &&
-//            xts.isImplicitCastValid(container, (Type) xts.forName(QName.make("x10.lang.Indexable"))) &&
-//            xts.isImplicitCastValid(container, (Type) xts.forName(QName.make("x10.lang.Settable"))))
-//        {
-//
-//        }
-//        } catch (SemanticException e) { assert (false) : ("Huh?  No Indexable or Settable?"); }
+
 		// we sometimes need to use a more general return type as c++ does not support covariant smartptr return types
 		Type ret_type = emitter.findRootMethodReturnType(def, dec.position(), mi);
 		String methodName = mi.name().toString();
@@ -2660,7 +2625,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	}
 
 	public void visit(StmtExpr_c n) {
-	    if (!Configuration.ALLOW_STATEMENT_EXPRESSIONS) {
+	    X10CPPCompilerOptions opts = (X10CPPCompilerOptions) tr.job().extensionInfo().getOptions();
+	    if (!opts.x10_config.ALLOW_STATEMENT_EXPRESSIONS) {
 	        tr.job().compiler().errorQueue().enqueue(ErrorInfo.SEMANTIC_ERROR,
 	                "Statement expression node encountered, but statement expressions are disabled: ", n.position());
 	    }
@@ -3703,7 +3669,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		TypeSystem xts = tr.typeSystem();
 		Expr domain = n.domain();
 		Type dType = domain.type();
-		if (Configuration.LOOP_OPTIMIZATIONS &&
+		X10CPPCompilerOptions opts = (X10CPPCompilerOptions) tr.job().extensionInfo().getOptions();
+		if (opts.x10_config.LOOP_OPTIMIZATIONS &&
 		        form.hasExplodedVars() && form.isUnnamed() && xts.isPoint(form.type().type()) &&
 		        (Types.toConstrainedType(dType).isRect(context)) &&
 		        (xts.isX10Array(dType) || xts.isX10DistArray(dType) || xts.isDistribution(dType) || xts.isRegion(dType)))
@@ -4081,7 +4048,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         inc.write("virtual x10aux::itable_entry* _getITables() { return _itables; }"); inc.newline(); inc.forceNewline();
 
         inc.write("// closure body"); inc.newline();
-        inc.write(Emitter.translateType(retType, true)+" apply(");
+        inc.write(Emitter.translateType(retType, true)+" "+Emitter.mangled_method_name(ClosureCall.APPLY.toString())+"(");
         prefix = "";
         for (Formal formal : n.formals()) {
             inc.write(prefix);
@@ -4179,7 +4146,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         // (an overridden member function will not be called from the itable, which is very non-intuitive).
         // As soon as XTENLANG-467 is fixed, take out the explicit qualifications and let C++ member lookup do its job...
         defn_s.write((in_template_closure ? "typename ": "")+superType+(in_template_closure ? "::template itable ": "::itable")+chevrons(cnamet)+
-        			cnamet+"::_itable(&"+cnamet+"::apply, "+
+        			cnamet+"::_itable(&"+cnamet+"::"+Emitter.mangled_method_name(ClosureCall.APPLY.toString())+", "+
         			"&"+REFERENCE_TYPE+"::equals, &"+CLOSURE_TYPE+"::hashCode, &"
         			+cnamet+"::toString, &"+CLOSURE_TYPE+"::typeName);");
 
@@ -4451,7 +4418,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	}
 
 	private boolean inlineClosureCall(ClosureCall_c c, Closure_c closure, List<Expr> args) {
-	    if (!Configuration.ALLOW_STATEMENT_EXPRESSIONS)
+	    X10CPPCompilerOptions opts = (X10CPPCompilerOptions) tr.job().extensionInfo().getOptions();
+	    if (!opts.x10_config.ALLOW_STATEMENT_EXPRESSIONS)
 	        return false;   // Closure inlining disabled
 
 	    // Ensure that the last statement of the body is the only return in the closure
@@ -4575,11 +4543,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		    return;
 		}
 
-		// ClosureCall_c really means "call apply on me, and if I happen to be a closure literal understand that means invoking my body"
+		// ClosureCall_c really means "call operator() on me, and if I happen to be a closure literal understand that means invoking my body"
 		// So we have to handle 3 different cases: 
 		//    (a) closure literal that for some odd reason wasn't inlined (should not really happen...)
 		//    (b) a function type
-		//    (c) an class (anonymous or not) that has an apply operator
+		//    (c) an class (anonymous or not) that has an operator()
 		Type t = target.type();
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
 		boolean needsNullCheck = needsNullCheck(target);
@@ -4588,7 +4556,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		    context.setStackAllocateClosure(true);
 		    c.printSubExpr(target, sw, tr);
 		    context.setStackAllocateClosure(false);
-		    sw.write(".apply(");
+		    sw.write("."+Emitter.mangled_method_name(ClosureCall.APPLY.toString())+"(");
 		} else {
 		    if (t.isClass() && t.toClass().isAnonymous()) {
 		        ClassType tc = t.toClass();
@@ -4618,7 +4586,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		        if (needsNullCheck) sw.write("x10aux::nullCheck(");
 		        c.printSubExpr(target, sw, tr);
 		        if (needsNullCheck) sw.write(")");
-		        sw.write("->apply(");
+		        sw.write("->"+Emitter.mangled_method_name(ClosureCall.APPLY.toString())+"(");
 		    }
 		}
 
@@ -4915,7 +4883,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		    sw.writeln(", "+(count++)+");");
 		}
 		sw.write(tmp);
-		if (!Configuration.ALLOW_STATEMENT_EXPRESSIONS) {
+		X10CPPCompilerOptions opts = (X10CPPCompilerOptions) tr.job().extensionInfo().getOptions();
+		if (!opts.x10_config.ALLOW_STATEMENT_EXPRESSIONS) {
 		    // FIXME: HACK around a compiler bug in GCC 4.1
 		    sw.write(".operator->()");
 		}

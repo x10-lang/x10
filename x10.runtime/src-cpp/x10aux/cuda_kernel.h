@@ -21,7 +21,7 @@ namespace x10aux {
     template<class T> struct cuda_array {
         x10_int FMGL(size);
         T *raw;
-        T &apply (x10_int i) { return raw[i]; }
+        T &__apply (x10_int i) { return raw[i]; }
         T set (const T &v, x10_int i) { return raw[i] = v; }
     };
 

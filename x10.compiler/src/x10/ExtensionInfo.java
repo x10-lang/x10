@@ -127,6 +127,7 @@ import x10.visit.CheckEscapingThis;
 import x10.visit.AnnotationChecker;
 import x10.visit.ErrChecker;
 
+
 /**
  * Extension information for x10 extension.
  */
@@ -318,13 +319,14 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 
     protected void initTypeSystem() {
         try {
-            TopLevelResolver r = new X10SourceClassResolver(compiler, this, getOptions().constructFullClasspath(),
-                                                            getOptions().compile_command_line_only,
-                                                            getOptions().ignore_mod_times);
+            X10CompilerOptions opts = getOptions();
+            TopLevelResolver r = new X10SourceClassResolver(compiler, this, opts.constructFullClasspath(),
+                                                            opts.compile_command_line_only,
+                                                            opts.ignore_mod_times);
             // FIXME: [IP] HACK
-            if (Configuration.MANIFEST != null) {
+            if (opts.x10_config.MANIFEST != null) {
                 try {
-                    FileReader fr = new FileReader(Configuration.MANIFEST);
+                    FileReader fr = new FileReader(opts.x10_config.MANIFEST);
                     BufferedReader br = new BufferedReader(fr);
                     String file = "";
                     while ((file = br.readLine()) != null)
@@ -332,7 +334,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                             manifest.add(file);
                 } catch (IOException e) { }
             } else {
-                for (File f : getOptions().source_path) {
+                for (File f : opts.source_path) {
                     if (f.getName().endsWith("x10.jar")) {
                         try {
                             JarFile jf = new JarFile(f);
@@ -384,18 +386,23 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 		   super(extInfo);
 	   }
 
-        @Override
-        public void clearAll(Collection<Source> sources) {
-            super.clearAll(sources);
-            PrintWeakCallsCount = null;
-        }
+       public ExtensionInfo extensionInfo() {
+           return (ExtensionInfo) this.extInfo;
+       }
 
-        protected List<Goal> validateOnlyGoals(Job job) {
+       @Override
+       public void clearAll(Collection<Source> sources) {
+           super.clearAll(sources);
+           PrintWeakCallsCount = null;
+       }
+
+       protected List<Goal> validateOnlyGoals(Job job) {
            List<Goal> goals = new ArrayList<Goal>();
            addValidateOnlyGoals(job, goals);
            return goals;
        }
        private void addValidateOnlyGoals(Job job, List<Goal> goals) {
+           X10CompilerOptions opts = extensionInfo().getOptions();
            goals.add(Parsed(job));
            goals.add(ImportTableInitialized(job));
            goals.add(TypesInitialized(job));
@@ -428,7 +435,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 //           goals.add(CheckNativeAnnotations(job));
            goals.add(CheckEscapingThis(job));
            goals.add(AnnotationChecker(job));
-           if (Configuration.CHECK_ERR_MARKERS) goals.add(ErrChecker(job)); // must be the last phase that might add errors to the errorQueue
+           if (opts.x10_config.CHECK_ERR_MARKERS) goals.add(ErrChecker(job)); // must be the last phase that might add errors to the errorQueue
            goals.add(CheckASTForErrors(job));
 //           goals.add(TypeCheckBarrier());
 
@@ -436,19 +443,20 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            goals.add(End(job));
        }
        public List<Goal> goals(Job job) {
+           X10CompilerOptions opts = extensionInfo().getOptions();
            List<Goal> goals = new ArrayList<Goal>();
 
            addValidateOnlyGoals(job, goals);
            Goal endGoal = goals.remove(goals.size()-1);
 
-           if (!x10.Configuration.ONLY_TYPE_CHECKING) {
+           if (!opts.x10_config.ONLY_TYPE_CHECKING) {
 
            final Goal desugarerGoal = Desugarer(job);
            goals.add(desugarerGoal);
 
            Goal walaBarrier = null;
            final Goal typeCheckBarrierGoal = TypeCheckBarrier();
-               if (x10.Configuration.WALA || x10.Configuration.WALADEBUG || x10.Configuration.FINISH_ASYNCS) {
+               if (opts.x10_config.WALA || opts.x10_config.WALADEBUG || opts.x10_config.FINISH_ASYNCS) {
                try{
                    ClassLoader cl = Thread.currentThread().getContextClassLoader();
                    Class<?> c = cl.loadClass("x10.wala.translator.X102IRGoal");
@@ -459,10 +467,10 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                    Goal finder = MainMethodFinder(job, hasMain);
                    finder.addPrereq(typeCheckBarrierGoal);
                    ir.addPrereq(finder);
-                   if(x10.Configuration.FINISH_ASYNCS){
+                   if (opts.x10_config.FINISH_ASYNCS) {
                        Method buildCallTableMethod = c.getMethod("analyze");
                        walaBarrier = IRBarrier(ir, buildCallTableMethod);
-                   } else if(x10.Configuration.WALADEBUG){
+                   } else if(opts.x10_config.WALADEBUG) {
                        Method printCallGraph = c.getMethod("printCallGraph");
                        walaBarrier = IRBarrier(ir, printCallGraph);
                    } else {
@@ -491,7 +499,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            innerClassRemoverGoal.addPrereq(typeCheckBarrierGoal);
 
            goals.add(Serialized(job));
-           if (x10.Configuration.WORK_STEALING) {
+           if (opts.x10_config.WORK_STEALING) {
                Goal wsCodeGenGoal = WSCodeGenerator(job);
                goals.add(wsCodeGenGoal);
                if(walaBarrier != null){
@@ -529,7 +537,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 
            goals.add(endGoal);
 
-           if (x10.Configuration.CHECK_INVARIANTS) {
+           if (opts.x10_config.CHECK_INVARIANTS) {
                ArrayList<Goal> newGoals = new ArrayList<Goal>(goals.size()*2);
                boolean reachedTypeChecking = false;
                int ctr = 0;
@@ -594,8 +602,8 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            }
            public boolean runTask() {
                Compiler compiler = ext.compiler();
-
-               if ((! Configuration.VERBOSE_CALLS) && (! Configuration.STATIC_CALLS)) {
+               X10CompilerOptions opts = ext.getOptions();
+               if ((!opts.x10_config.VERBOSE_CALLS) && (!opts.x10_config.STATIC_CALLS)) {
                    int count = ext.weakCallsCount();
                    if (count > 0) {
                        compiler.errorQueue().enqueue(ErrorInfo.WARNING, count + " dynamically checked calls or field accesses, run with -VERBOSE_CALLS for more details.");
@@ -627,9 +635,10 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                    return goal;
                }
                public boolean runTask() {
-                   if (Configuration.FINISH_ASYNCS) {
+                   X10CompilerOptions opts = extensionInfo().getOptions();
+                   if (opts.x10_config.FINISH_ASYNCS) {
 //                   calltable = X10Scheduler.<HashMap<CallTableKey, LinkedList<CallTableVal>>>invokeGeneric(method);
-                   } else if (Configuration.WALADEBUG) {
+                   } else if (opts.x10_config.WALADEBUG) {
                        try {
                            method.invoke(null);
                        } catch (IllegalArgumentException e) {
@@ -894,8 +903,6 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            return new ForgivingVisitorGoal("ErrChecker", job, new ErrChecker(job)).intern(this);
        }
 
-
-
        public String nativeAnnotationLanguage() { return "java"; }
 
        public Goal CheckNativeAnnotations(Job job) {
@@ -1070,8 +1077,12 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
        }
     }
     
-    protected Options createOptions() {
+    protected X10CompilerOptions createOptions() {
     	return new X10CompilerOptions(this);
+    }
+    
+    public X10CompilerOptions getOptions() {
+        return (X10CompilerOptions) super.getOptions();
     }
     
     public Map<QName,CompilerPlugin> plugins() {

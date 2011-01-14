@@ -223,7 +223,7 @@ public class X10Translator extends Translator {
                     jarCmdList.add(X10CCompilerOptions.findJavaCommand("jar"));
                     
                     // create Main-Class attribute from main (= first) source name if MAIN_CLASS is not specified
-                    String main_class = Configuration.MAIN_CLASS;
+                    String main_class = options.x10_config.MAIN_CLASS;
                     if (main_class == null) {
                         String main_source = ((X10CCompilerOptions) options).main_source;
                         if (main_source != null) {

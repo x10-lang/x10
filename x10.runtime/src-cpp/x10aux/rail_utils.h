@@ -117,19 +117,6 @@ namespace x10aux {
         return rail;
     }
 
-    template<class T, class R> R* alloc_pinned_rail(x10_int length) {
-        bool containsPtrs = x10aux::getRTT<T>()->containsPtrs;
-        R* uninitialized_rail = x10aux::alloc<R>(sizeof(R), containsPtrs);
-        T* raw_data = (T*) x10aux::alloc_internal_pinned(length*sizeof(T));
-        R *rail = new (uninitialized_rail) R(length, (T*)raw_data);
-        _M_("In alloc_pinned_rail<"<<getRTT<T>()->name()
-                            <<","<<getRTT<R>()->name()<<">"
-            <<": rail = " << (void*)rail << "; length = " << length);
-
-        rail->x10::lang::Object::_constructor();
-        return rail;
-    }
-
     template<class T, class R> R* alloc_aligned_rail(x10_int length, x10_int alignment) {
         R* rail = alloc_rail_internal<T,R>(length, alignment);
         rail->x10::lang::Object::_constructor();

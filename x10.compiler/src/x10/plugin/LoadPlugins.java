@@ -14,6 +14,10 @@ package x10.plugin;
 import java.io.File;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.ArrayList;
 import java.util.StringTokenizer;
 
 import polyglot.ast.NodeFactory;
@@ -32,6 +36,7 @@ import polyglot.util.InternalCompilerError;
 import polyglot.util.QuotedStringTokenizer;
 import x10.Configuration;
 import x10.ExtensionInfo;
+import x10.X10CompilerOptions;
 
 public class LoadPlugins extends AbstractGoal_c {
 	private static final long serialVersionUID = -7328993239190636933L;
@@ -44,7 +49,8 @@ public class LoadPlugins extends AbstractGoal_c {
 	}
 
 	public boolean runTask() {
-		String compilerPlugins = Configuration.PLUGINS;
+		X10CompilerOptions opts = (X10CompilerOptions) extInfo.getOptions();
+		String compilerPlugins = opts.x10_config.PLUGINS;
 
 		if (compilerPlugins != null && ! compilerPlugins.equals("")) {
 			loadPluginsFromConfigString(compilerPlugins);
@@ -62,209 +68,61 @@ public class LoadPlugins extends AbstractGoal_c {
 		}
 	}
 
-	public static void loadPlugin(ExtensionInfo extInfo, QName pluginName) {
-		ErrorQueue eq = extInfo.compiler().errorQueue();
-		
-		File sourceFile = null;
-		
-		// First try to load the plugin from source.
-		// This is a bit of a hack.
-		// Create a dummy JL ExtensionInfo and SourceLoader.
-		polyglot.frontend.ExtensionInfo jlExtInfo = new ParserlessJLExtensionInfo() {
-			public Parser parser(Reader reader, FileSource source, ErrorQueue eq) {
-				throw new InternalCompilerError("Missing parser");
-			}
-			public String[] fileExtensions() {
-				return new String[] { "java" };
-			}
-			protected TypeSystem createTypeSystem() {
-				throw new InternalCompilerError("Missing type system");
-			}
-			protected NodeFactory createNodeFactory() {
-				throw new InternalCompilerError("Missing node factory.");
-			}
-		};
-		
-		SourceLoader sourceLoader = new SourceLoader(jlExtInfo, extInfo.getOptions().source_path);
-		Source s = sourceLoader.classSource(pluginName);
-		
-//		if (s != null) {
-//			System.out.println("found source " + sourceFile);
-//			sourceFile = new File(s.path());
-//			long sourceModTime = sourceFile.lastModified();
-//			
-//			// Now find the class file so we can compare modification types.
-//			long classModTime = getClassModTime(pluginName, extInfo.getOptions().classpath);
-//			
-//			// Compile the source file if it's newer than the class file.
-//			if (sourceModTime > classModTime) {
-//				eq.enqueue(ErrorInfo.WARNING, "Compiling " + pluginName + " in " + s.path());
-//				compilePlugin(extInfo, sourceFile);
-//			}
-//		}
-		
-		while (true) {
-			// Now load the plugin from the class file.
-			try {
-//				System.out.println("classpath = " + System.getProperty("java.class.path"));
-				Class<?> c = Class.forName(pluginName.toString());
-				Object o = c.newInstance();
-				if (o instanceof CompilerPlugin) {
-					// OK, it's a plugin!
-					CompilerPlugin plugin = (CompilerPlugin) o;
-					extInfo.addPlugin(pluginName, plugin);
-					return;
-				}
-				else {
-					if (s == null) {
-						eq.enqueue(ErrorInfo.WARNING, "Class " + pluginName + " does not implement CompilerPlugin.  Continuing.");
-						return;
-					}
-				}
-			}
-			catch (IllegalAccessException e) {
-				if (s == null) {
-					eq.enqueue(ErrorInfo.WARNING, "Plugin class " + pluginName + " could not be accessed.  Continuing without it.");
-					return;
-				}
-			}
-			catch (InstantiationException e) {
-				if (s == null) {
-					eq.enqueue(ErrorInfo.WARNING, "Plugin class " + pluginName + " could not be instantiated.  Continuing without it.");
-					return;
-				}
-			}
-			catch (ClassNotFoundException e) {
-				if (s == null) {
-					eq.enqueue(ErrorInfo.WARNING, "Plugin class " + pluginName + " not found.  Continuing without it.");
-					return;
-				}
-			}
-			
-			// Loading the class failed.  Try compiling the plugin from source.
-			if (s != null) {
-				eq.enqueue(ErrorInfo.WARNING, "Compiling " + pluginName + " in " + s.path());
-				compilePlugin(extInfo, s.path());
-				s = null;
-			}
-		}
-		
+	private static URL[] parseClassPath(String classpath) {
+	    StringTokenizer st = new StringTokenizer(classpath, File.pathSeparator);
+	    ArrayList<URL> cp = new ArrayList<URL>(st.countTokens());
+	    for (; st.hasMoreTokens(); ) {
+	        try {
+	            File f = new File(st.nextToken());
+	            if (f.exists()) {
+	                cp.add(f.toURL());
+	            }
+	        } catch (MalformedURLException e) { }
+	    }
+	    return cp.toArray(new URL[cp.size()]);
 	}
 
-//	private static long getClassModTime(String pluginName, String classpath) {
-//		StringTokenizer st = new StringTokenizer(classpath, File.pathSeparator);
-//		
-//		while (st.hasMoreTokens()) {
-//			String s = st.nextToken();
-//			
-//			File dir = new File(s);
-//			
-//			if (! dir.exists()) {
-//				continue;
-//			}
-//			
-//			try {
-//				ZipFile zip = null;
-//				
-//				if (dir.getName().endsWith(".jar")) {
-//					zip = new JarFile(dir);
-//				}
-//				else if (dir.getName().endsWith(".zip")) {
-//					zip = new ZipFile(dir);
-//				}
-//				
-//				if (zip != null) {
-//					String entryName = pluginName.replace('.', '/') + ".class";
-//					ZipEntry entry = zip.getEntry(entryName);
-//					if (entry != null) {
-//						return entry.getTime();
-//					}
-//				}
-//				else {
-//					String fileName = pluginName.replace('.', File.separatorChar) + ".class";
-//					File file = new File(dir, fileName);
-//					if (file.exists()) {
-//						return file.lastModified();
-//					}
-//				}
-//			}
-//			catch (FileNotFoundException e) {
-//				// ignore the exception.
-//			}
-//			catch (IOException e) {
-//				throw new InternalCompilerError(e);
-//			}
-//		}
-//		
-//		return 0;
-//	}
+	/**
+	 * Load a compiler plugin from the class file and register it with the given ExtensionInfo.
+	 * @param extInfo the extension info to register the plugin with
+	 * @param pluginName the name of the plugin to load
+	 * TODO: add a separate plugin classpath to the compiler options
+	 */
+	public static void loadPlugin(ExtensionInfo extInfo, QName pluginName) {
+	    loadPlugin(extInfo, pluginName, System.getProperty("java.class.path"));
+	}
 
-	private static void compilePlugin(ExtensionInfo extInfo, String sourceFile) {
+	/**
+	 * Load a compiler plugin from the class file and register it with the given ExtensionInfo.
+	 * @param extInfo the extension info to register the plugin with
+	 * @param pluginName the name of the plugin to load
+	 * @param classpath the classpath to use for looking up the plugin class
+	 */
+	public static void loadPlugin(ExtensionInfo extInfo, QName pluginName, String classpath) {
 		ErrorQueue eq = extInfo.compiler().errorQueue();
-		
-		String javac = Configuration.PLUGIN_COMPILER;
-		
-		if (javac == null || javac.equals("")) {
-			javac = extInfo.getOptions().post_compiler;
+
+		try {
+//			System.out.println("classpath = " + System.getProperty("java.class.path"));
+			ClassLoader cl = new URLClassLoader(parseClassPath(classpath), LoadPlugins.class.getClassLoader());
+			Class<?> c = Class.forName(pluginName.toString(), true, cl);
+			Object o = c.newInstance();
+			if (o instanceof CompilerPlugin) {
+				// OK, it's a plugin!
+				CompilerPlugin plugin = (CompilerPlugin) o;
+				extInfo.addPlugin(pluginName, plugin);
+			}
+			else {
+				eq.enqueue(ErrorInfo.WARNING, "Class " + pluginName + " does not implement CompilerPlugin.  Skipping.");
+			}
 		}
-		
-		if (javac != null) {
-			Runtime runtime = Runtime.getRuntime();
-			
-			QuotedStringTokenizer qst = new QuotedStringTokenizer(javac);
-			int pc_size = qst.countTokens();
-			String[] javacCmd = new String[pc_size+3];
-			int j = 0;
-			int source = -2;
-			for (int i = 0; i < pc_size; i++) {
-				String arg = qst.nextToken();
-				if (arg.equals("-source"))
-					source = i;
-				if (source+1 == i) {
-					if (arg.equals("1.0") ||
-							arg.equals("1.1") ||
-							arg.equals("1.2") ||
-							arg.equals("1.3") ||
-							arg.equals("1.4")) {
-						arg = "1.5";
-					}
-				}
-				javacCmd[j++] = arg;
-			}
-			javacCmd[j++] = "-classpath";
-			javacCmd[j++] = extInfo.getOptions().constructPostCompilerClasspath();
-			javacCmd[j++] = sourceFile;
-			
-			try {
-				Process proc = runtime.exec(javacCmd);
-				InputStreamReader err = new InputStreamReader(proc.getErrorStream());
-				
-				try {
-					char[] c = new char[72];
-					int len;
-					StringBuffer sb = new StringBuffer();
-					while((len = err.read(c)) > 0) {
-						sb.append(String.valueOf(c, 0, len));
-					}
-					
-					if (sb.length() != 0) {
-						eq.enqueue(ErrorInfo.WARNING, sb.toString());
-					}
-				}
-				finally {
-					err.close();
-				}
-				
-				proc.waitFor();
-				
-				if (proc.exitValue() > 0) {
-					eq.enqueue(ErrorInfo.WARNING,
-							"Non-zero return code: " + proc.exitValue());
-				}
-			}
-			catch(Exception e) {
-				eq.enqueue(ErrorInfo.WARNING, e.getMessage());
-			}
+		catch (IllegalAccessException e) {
+			eq.enqueue(ErrorInfo.WARNING, "Plugin class " + pluginName + " could not be accessed.  Skipping.");
+		}
+		catch (InstantiationException e) {
+			eq.enqueue(ErrorInfo.WARNING, "Plugin class " + pluginName + " could not be instantiated.  Skipping.");
+		}
+		catch (ClassNotFoundException e) {
+			eq.enqueue(ErrorInfo.WARNING, "Plugin class " + pluginName + " not found.  Skipping.");
 		}
 	}
 }

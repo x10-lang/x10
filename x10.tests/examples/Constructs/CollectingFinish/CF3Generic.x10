@@ -23,7 +23,7 @@ public class CF3Generic extends x10Test {
     }
     static class C[T] {
     	 def m(b:T) offers T {
-    	    	offer b; // ShouldNotBeERR
+    	    	offer b;
     	    }
         def m(a:Reducible[T], b:T):T {
       	  val x = finish(a) {

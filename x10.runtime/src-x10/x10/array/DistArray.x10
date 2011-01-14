@@ -143,6 +143,35 @@ public class DistArray[T] (
     }
 
 
+    /**
+     * Create a distributed array over the argument distribution whose elements
+     * are initialized to the given initial value.
+     *
+     * @param dist the given distribution
+     * @param init the initial value
+     * @return the newly created DistArray
+     * @see #make[T](Dist)
+     */
+    public static def make[T](dist:Dist, init:T)= new DistArray[T](dist, init);
+
+    // TODO: consider making this constructor public
+    def this(dist:Dist, init:T):DistArray[T]{self.dist==dist} {
+        property(dist);
+
+        val plsInit:()=>LocalState[T] = () => {
+            val localRaw = IndexedMemoryChunk.allocate[T](dist.maxOffset()+1);
+
+            for (var i:int = 0; i<localRaw.length(); i++) {
+                localRaw(i) = init;
+            }
+
+            return new LocalState(localRaw);
+        };
+
+        localHandle = PlaceLocalHandle.make[LocalState[T]](dist, plsInit);
+    }
+
+
 
     public final operator this(pt:Point(rank)): T {
         val offset = dist.offset(pt);

@@ -331,6 +331,12 @@ public struct Team {
         @Native("java", "x10.x10rt.TeamSupport.nativeDel(id, role);")
         @Native("c++", "x10rt_team_del(id, role, x10aux::coll_handler, x10aux::coll_enter());") {}
     }
+
+    public def toString() = "Team(" + this.id + ")";
+    public def equals(that:Team) = that.id==this.id;
+    public def equals(that:Any) = that instanceof Team && (that as Team).id==this.id;
+    public def hashCode()=id;
+
 }
 
 // vim: shiftwidth=4:tabstop=4:expandtab

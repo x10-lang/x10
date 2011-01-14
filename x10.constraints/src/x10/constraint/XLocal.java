@@ -16,7 +16,8 @@ import java.util.List;
 
 /**
  * The representation of a local variable reference in the constraint system.
- * The name of the local variable is supplied by an XName.
+ * The name of the local variable is supplied by an XName. Two XLocal's are equal
+ * if their contained XName's are equal.
  * 
  * @author vj
  * 

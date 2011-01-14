@@ -9,26 +9,26 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
+package WorkStealing.Construct;
+
 /*
  * A method implements an interface, and the method contains concurrent
  */
 public class OverrideMethod2 {
 
-	
-	
 	public def run() {
 		val random = new x10.util.Random();
 		
 		var passed:boolean = true;
 		
-	    val a:A;
+	    val a:AOverrideMethod2;
 
 	    val flag:double = random.nextDouble();
 	    if(flag > 0.5){
-	    	a = new AA();
+	    	a = new AAOverrideMethod2();
 	    }
 	    else{
-	    	a = new A();
+	    	a = new AOverrideMethod2();
 	    }
 	    
 	    val r:int = a.set(1);
@@ -51,13 +51,13 @@ public class OverrideMethod2 {
 
 }
 
-class A{
+class AOverrideMethod2{
     public def set(v:int):int{
 	    return -1;
     }
 }
 
-class AA extends A{
+class AAOverrideMethod2 extends AOverrideMethod2{
     public def set(v:int):int{
         val value:int;
 	    finish{

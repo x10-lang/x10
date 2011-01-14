@@ -107,6 +107,7 @@ import polyglot.visit.InnerClassRemover;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.Translator;
 import x10.Configuration;
+import x10.X10CompilerOptions;
 import x10.ast.AssignPropertyCall_c;
 import x10.ast.Async_c;
 import x10.ast.AtEach_c;
@@ -212,6 +213,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	public static final int NO_QUALIFIER = 8;
 
 	public static final String RETURN_PARAMETER_TYPE_SUFFIX = "$G";
+	// TODO XTENLANG-2312
+    public static final String MAIN_CLASS = "Main";
 
 	final public CodeWriter w;
 	final public Translator tr;
@@ -579,10 +582,10 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			}*/
 
 			// SYNOPSIS: main(#0) #3 #1    #0=args #1=body #2=class name 
-			String regex = "public static class Main extends x10.runtime.impl.java.Runtime {\n" +
+			String regex = "public static class " + MAIN_CLASS + " extends x10.runtime.impl.java.Runtime {\n" +
 			    "public static void main(java.lang.String[] args) {\n" +
 			        "// start native runtime\n" +
-			        "new Main().start(args);\n" +
+			        "new " + MAIN_CLASS + "().start(args);\n" +
 			    "}\n" +
 			    "\n" +
 			    "// called by native runtime inside main x10 thread\n" +
@@ -839,7 +842,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 // TODO
 //                if (type has {self != null} constraint) return false;
                 x10.types.constraints.CConstraint constraint = constrainedType.constraint().get();
-                Set<x10.constraint.XTerm> terms = constraint.terms();
+                Set<x10.constraint.XTerm> terms = constraint.rootTerms();
                 for (x10.constraint.XTerm term : terms) {
                     System.out.println(term);
                 }
@@ -1042,7 +1045,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		if (subtypeOfCustomSerializer(def)) {
             er.generateCustomSerializer(def, n);
         } else {
-            if (!def.flags().isInterface() && !x10.Configuration.NO_TRACES) {
+            X10CompilerOptions opts = (X10CompilerOptions) tr.job().extensionInfo().getOptions();
+            if (!def.flags().isInterface() && !opts.x10_config.NO_TRACES) {
                 // override to trace serialization
                 w.write("private void writeObject(java.io.ObjectOutputStream oos) throws java.io.IOException { ");
                 w.write("if (x10.runtime.impl.java.Runtime.TRACE_SER) { ");
@@ -1807,7 +1811,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		}
 
 		w.write(".");
-		w.write("apply");
+		w.write("$apply");
         if (isSelfDispatch && (!newClosure && !mi.returnType().isVoid() && mi.formalTypes().size() == 0)) {
             w.write(RETURN_PARAMETER_TYPE_SUFFIX);
 		}
@@ -2270,7 +2274,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		    else {
 		        ret.expand(tr2);
 		    }
-		    w.write(" apply");
+		    w.write(" $apply");
 		    if (!n.returnType().type().isVoid() && (!isSelfDispatch || (isSelfDispatch && n.formals().size() == 0))) {
 		        w.write(RETURN_PARAMETER_TYPE_SUFFIX);
 		    }
@@ -2290,7 +2294,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		    if (!n.returnType().type().isVoid()) {
 		        w.write("return ");
 		    }
-		    w.write("apply");
+		    w.write("$apply");
 		    if (Types.baseType(n.returnType().type()) instanceof ParameterType && (!isSelfDispatch || (isSelfDispatch && n.formals().size() == 0))) {
 		        w.write(RETURN_PARAMETER_TYPE_SUFFIX);
 		    }
@@ -2322,7 +2326,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		else {
 		    er.printType(n.returnType().type(), PRINT_TYPE_PARAMS);
 		}
-		w.write(" apply");
+		w.write(" $apply");
 		if (Types.baseType(n.returnType().type()) instanceof ParameterType && (!isSelfDispatch || (isSelfDispatch && n.formals().size() == 0))) {
 		    w.write(RETURN_PARAMETER_TYPE_SUFFIX);
 		}
@@ -2657,7 +2661,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
 		/* TODO: case: for (point p:D) -- discuss with vj */
 		/* handled cases: exploded syntax like: for (point p[i,j]:D) and for (point [i,j]:D) */
-		if (Configuration.LOOP_OPTIMIZATIONS && form.hasExplodedVars() 
+		X10CompilerOptions opts = (X10CompilerOptions) tr.job().extensionInfo().getOptions();
+		if (opts.x10_config.LOOP_OPTIMIZATIONS && form.hasExplodedVars() 
 				&& (ts.isSubtype(f.domain().type(), ts.Region(), context) 
 						|| ts.isSubtype(f.domain().type(), ts.Dist(), context)) 
 				&& Types.toConstrainedType(f.domain().type()).isRect(context)) {
@@ -2815,12 +2820,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		    tr.print(n, n.name(), w);
 		    w.end();
 		}
-
-		// Fix XTENLANG-945 (Java backend only fix)
-	        // Change field access to method access
-	        if (X10Field_c.isInterfaceProperty(target.type(), fi)) {
-	            w.write("()");
-	        }
 	}
 
 	public void visit(IntLit_c n) {
@@ -2949,7 +2948,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			w.write(".set");
 			w.write("((");
 			tr.print(n, array, w);
-			w.write(").apply(");
+			w.write(").$apply(");
 			new Join(er, ", ", index).expand(tr);
 			w.write(")");
 			if (nativeop) {
@@ -3020,7 +3019,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			w.write("array.set");
 			w.write("(");
 
-			w.write(" array.apply(");
+			w.write(" array.$apply(");
 			{
 				int i = 0;
 				for (Expr e : index) {
@@ -3161,7 +3160,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 					er.dumpRegex("Native", components, tr, pat);
 				}
 				else {
-					w.write("target.apply(");
+					w.write("target.$apply(");
 					{int i = 0;
 					for (Expr e : args) {
 						if (i > 0) w.write(", ");
@@ -3370,6 +3369,18 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         }
 
         public void visit(X10CBackingArrayNewArray_c n) {
+            Type base = ((JavaArrayType) n.type()).base();
+            if (base instanceof ParameterType) {
+                w.write("(");
+                er.printType(n.type(), 0);
+                w.write(")");
+                w.write(" ");
+                new RuntimeTypeExpander(er, base).expand();
+                w.write(".makeArray(");
+                w.write(n.dims().get(0).toString());
+                w.write(")");
+                return;
+            }
             w.write("new ");
             er.printType(((JavaArrayType)n.type()).base(), 0);
             for (Expr dim : n.dims()) {

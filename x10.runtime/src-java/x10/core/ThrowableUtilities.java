@@ -117,6 +117,14 @@ public class ThrowableUtilities {
         return null;
     }
 
+    public static int UnsupportedOperationExceptionInt(java.lang.String message) {
+        try {
+            throw Class.forName("x10.lang.UnsupportedOperationException").asSubclass(x10.core.Throwable.class).getConstructor(new Class[] { java.lang.String.class }).newInstance(new Object[] { message });
+        } catch (java.lang.Exception e) {
+        }
+        return 0;
+    }
+
     public static Rail<java.lang.String> getStackTrace(Throwable t) {
         StackTraceElement[] elements = t.getStackTrace();
         java.lang.String str[] = new java.lang.String[elements.length];

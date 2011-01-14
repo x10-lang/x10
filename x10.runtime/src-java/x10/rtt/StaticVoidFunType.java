@@ -34,7 +34,7 @@ public class StaticVoidFunType<T> extends RuntimeType<T> {
     public String typeName(Object o) {
         // Note: assume that the first parent in this RuntimeType is the parameterized type which corresponds to the function type
         assert o instanceof x10.core.fun.VoidFun;
-        return ((x10.rtt.ParameterizedType<?>) getParents()[0]).typeNameForVoidFun();
+        return ((x10.rtt.ParameterizedType<?>) getParents()[0]).typeNameForVoidFun(o);
     }
 
 }

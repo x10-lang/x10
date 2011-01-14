@@ -324,7 +324,7 @@ public abstract class Scheduler {
             Goal oldGoal = currentGoal;
             currentGoal = goal;
             
-            long t = System.currentTimeMillis();
+            long t = System.nanoTime();
             String key = goal.toString();
 
             extInfo.getStats().accumulate(key + " attempts", 1);
@@ -351,8 +351,9 @@ public abstract class Scheduler {
                 }
             }
             finally {
-                t = System.currentTimeMillis() - t;
-                extInfo.getStats().accumulate(key, t);
+                t = System.nanoTime() - t;
+                extInfo.getStats().accumulate(key+" nanos", t);
+                extInfo.getStats().accumulate("Phase "+goal.name()+" nanos", t);
 
                 currentGoal = oldGoal;
                 

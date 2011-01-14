@@ -8,35 +8,37 @@
  *
  *  (C) Copyright IBM Corporation 2006-2010.
  */
-
+package WorkStealing.Construct;
 /*
- * Test closure with concurrent construct. Cannot pass WS Compile.
+ * Test closure with concurrent construct.
+ * Closure is in the class.
  */
-public class ConcurrentClosure1_MustFailCompile {
+public class ConcurrentClosure4 {
 	
 	var value:int;
 	
 	public def this(){
 	}
 	
+	val f = (i:int) => {
+		var result:int = 0;
+		finish {
+			async result = i;
+		}
+		return result;
+	};
+	
 	public def run():boolean {
-		val f = (i:int) => {
-			var result:int = 0;
-			finish {
-				async result = i;
-			}
-			return result;
-		};
-
+		
 		val result = f(1);
 		value = result;
 		
-		Console.OUT.println("ConcurrentClosure1: value = " + value);
+		Console.OUT.println("ConcurrentClosure4: value = " + value);
 		return value == 1;
 	}
 	
 	public static def main(Array[String](1)) {
-        val r = new ConcurrentClosure1_MustFailCompile().run();
+        val r = new ConcurrentClosure4().run();
         if(r){
              x10.io.Console.OUT.println("++++++Test succeeded.");
         }

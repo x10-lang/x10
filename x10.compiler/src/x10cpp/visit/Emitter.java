@@ -30,6 +30,7 @@ import static x10cpp.visit.SharedVarsMethods.make_ref;
 import static x10cpp.visit.SharedVarsMethods.make_captured_lval;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
@@ -84,7 +85,10 @@ import polyglot.types.TypeSystem_c.BaseTypeEquals;
 import x10.visit.StaticNestedClassRemover;
 import x10.util.ClassifiedStream;
 import x10.util.StreamWrapper;
+import x10cpp.X10CPPCompilerOptions;
+import x10cpp.debug.LineNumberMap;
 import x10cpp.types.X10CPPContext_c;
+import x10cuda.types.X10CUDAContext_c;
 
 public class Emitter {
 
@@ -961,6 +965,18 @@ public class Emitter {
 			}
 			w.write(type + " " + name + ";");
 			w.newline();
+			
+			if (((X10CPPCompilerOptions)tr.job().extensionInfo().getOptions()).x10_config.DEBUG)
+			{
+				String key = ((StreamWrapper)w).getStreamName(StreamWrapper.CC);
+				HashMap<String, LineNumberMap> fileToLineNumberMap = c.<HashMap<String, LineNumberMap>>findData(X10CPPTranslator.FILE_TO_LINE_NUMBER_MAP);
+			    if (fileToLineNumberMap != null) 
+			    {
+			        final LineNumberMap lineNumberMap = fileToLineNumberMap.get(key);
+			        if (lineNumberMap != null) 
+			        	lineNumberMap.addClosureMember(name, t.toString(), ((X10CUDAContext_c)c).wrappingClosure());
+			    }
+			}
 		}
 	}
 
