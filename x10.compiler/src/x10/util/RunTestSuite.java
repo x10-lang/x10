@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.HashSet;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 
 import x10.parser.AutoGenSentences;
 import x10.Configuration;
@@ -72,10 +73,16 @@ import x10.X10CompilerOptions;
  * compiler object for multiple tests. In general this runs the tests
  * much faster, but is still a bit brittle (may yield errors when
  * compiling each test with a separate compiler object would not).
- * 
+ *
  * <p> The environment flag <code>QUIET</code> can be set to
  * <code>true</code> to run in quiet mode. In this mode various
  * warnings and helpful messages are not printed out.
+ *
+ * <p> The environment flag <code>SHOW_EXPECTED_ERRORS</code> prints all
+ * the errors (even the expected errors).
+ * This is useful if we want to diff the output of the compiler to make
+ * sure the error messages are exactly the same.
+ *
 
  * <p> Five kinds of error markers can be inserted in <code>*.x10</code> files:
  * <ul>
@@ -99,8 +106,8 @@ import x10.X10CompilerOptions;
  * form of comments (<code>// ERR</code>) The last two
  * (<code>COMPILER_CRASHES,SHOULD_NOT_PARSE</code>) must be a comment.
  *
- * <p> Annotations are checked by a compiler phase called
- * <code>ErrChecker</code>.  
+ * <p> Annotations are replaced with errors by a compiler phase called
+ * <code>ErrChecker</code> that happens immediately after parsing.
 
  * <p> The problem with annotations currently
  * are: 
@@ -111,25 +118,23 @@ import x10.X10CompilerOptions;
  * However, you can write:
  * <code>@ERR {i=3;}</code>
  *
- * <li><code>ErrChecker</code> goal is not reached sometimes (if a
- * previous goal failed).  </ol> 
-
- * In the future I plan to use only annotations and run
- * <code>ErrChecker</code> directly in the test runner instead of
- * inside the compiler.
  *
- * TODO for the documentation:
- * <ul>
- * <li> Document how <code>-STATIC_CALLS</code> and <code>-VERBOSE_CALLS</code> are handled.
+ * By default we run the compiler with VERBOSE_CALLS.
+ * If the file contains the line:
+//OPTIONS: -STATIC_CALLS
+ * then we run it with STATIC_CALLS.
 
- * <li> Document the role of various exclusion paths. How is the user
- * of the test suite supposed to specify this information? (Should not
- * be by changing code.)
+ * Some directories are permenantly excluded from the test suite
+ * (see EXCLUDE_DIRS and EXCLUDE_FILES fields)
+ * For example,  "AutoGen" direcotry contains really big files that takes a long time to compile,
+ * or LangSpec contains some problematic files I can't fix because they are auto-generated.
 </ul>
  */
 public class RunTestSuite {
     public static boolean SEPARATE_COMPILER = System.getenv("SEPARATE_COMPILER")==null || System.getenv("SEPARATE_COMPILER").equals("true");
-    public static boolean QUIET = System.getenv("QUIET")!=null;
+    public static boolean SHOW_EXPECTED_ERRORS = System.getenv("SHOW_EXPECTED_ERRORS")!=null;
+    public static boolean QUIET = !SHOW_EXPECTED_ERRORS && System.getenv("QUIET")!=null;
+
     private static void println(String s) {
         if (!QUIET) System.out.println(s);
     }
@@ -147,7 +152,6 @@ public class RunTestSuite {
     private static final String[] EXCLUDE_DIRS = {
             "AutoGen", // it takes too long to compile these files
             "NOT_WORKING", // to exclude some benchmarks: https://x10.svn.sourceforge.net/svnroot/x10/benchmarks/trunk
-            //"WorkStealing", // I have sourcepath problems
     };
     private static final String[] EXCLUDE_FILES = {
             // LangSpec is auto-generated, so I can't fix those files to make a clean test suite
@@ -235,13 +239,14 @@ public class RunTestSuite {
             String name = f.getName();
             if (fileName2File.containsKey(name))
                 println("Warning: Found two files with the same name in different directories. This maybe confusing and might cause problems in the classpath.\n\tfile1="+fileName2File.get(name)+"\n\tfile2="+f);
-            fileName2File.put(name,f);
+            else
+                fileName2File.put(name,f);
         }
 
 
         // adding the directories of the files to -sourcepath (in case they refer to other files that are not compiled, e.g., if we decide to compile the files one by one)
         // I'm also adding parent folders to support packages (see T3.x10)
-        HashSet<String> directories = new HashSet<String>();
+        LinkedHashSet<String> directories = new LinkedHashSet<String>();
         for (FileSummary f : summaries) {
             int index = -1;
             while ((index = f.fileName.indexOf('/',index+1))!=-1) {
@@ -287,7 +292,7 @@ public class RunTestSuite {
     private static Compiler COMPILER;
     public static ArrayList<ErrorInfo> runCompiler(String[] newArgs, boolean COMPILER_CRASHES, boolean STATIC_CALLS) {
         errQueue.getErrors().clear();
-        HashSet<String> sources = new HashSet<String>();
+        LinkedHashSet<String> sources = new LinkedHashSet<String>();
         final Compiler comp = MAIN.getCompiler(newArgs, null, errQueue, sources);
         if (SEPARATE_COMPILER || COMPILER==null)
             COMPILER = comp;
@@ -365,6 +370,7 @@ public class RunTestSuite {
         return res;
     }
     private static void compileFile(FileSummary summary, List<String> args) throws IOException {
+        File file = summary.file;
 
         boolean STATIC_CALLS = summary.STATIC_CALLS; // all the files without ERR markers are done in my batch, using STATIC_CALLS (cause they shouldn't have any errors)
 
@@ -377,18 +383,37 @@ public class RunTestSuite {
         newArgs[newArgs.length-1] = STATIC_CALLS ? "-VERBOSE_CALLS=false" : "-STATIC_CALLS=false";
         println("Running: "+ summary.fileName);
         ArrayList<ErrorInfo> errors = runCompiler(newArgs, summary.COMPILER_CRASHES, STATIC_CALLS);
-        // remove GOOD_ERR_MARKERS  and EXPECTED_ERR_MARKERS
+        // remove SHOULD_BE_ERR_MARKER and
+        // parsing errors (if SHOULD_NOT_PARSE)
+        // treating @ERR and @ShouldNotBeERR as if it were a comment (adding a LineSummary)
         for (Iterator<ErrorInfo> it = errors.iterator(); it.hasNext(); ) {
             ErrorInfo info = it.next();
             final int kind = info.getErrorKind();
-            if ((kind==ErrorInfo.GOOD_ERR_MARKERS || kind==ErrorInfo.EXPECTED_ERR_MARKERS) ||
+            if ((kind==ErrorInfo.SHOULD_BE_ERR_MARKER) ||
                 (summary.SHOULD_NOT_PARSE && (kind==ErrorInfo.LEXICAL_ERROR || kind==ErrorInfo.SYNTAX_ERROR)))
                 it.remove();
+
+            final Position position = info.getPosition();
+            if (kind==ErrorInfo.ERR_MARKER || kind==ErrorInfo.SHOULD_NOT_BE_ERR_MARKER) {
+                it.remove();
+                int lineNo = position.line();
+                LineSummary foundLine = null;
+                for (LineSummary lineSummary : summary.lines)
+                    if (lineNo==lineSummary.lineNo) {
+                        foundLine = lineSummary;
+                        break;
+                    }
+                if (foundLine==null) {
+                    foundLine = new LineSummary();
+                    foundLine.lineNo = lineNo;
+                    summary.lines.add(foundLine);
+                }
+                foundLine.errCount++;
+            }
         }
 
         // Now checking the errors reported are correct and match ERR markers
         // 1. find all ERR markers that don't have a corresponding error
-            File file = summary.file;
             for (LineSummary lineSummary : summary.lines) {
                 // try to find the matching error
                 int expectedErrCount = lineSummary.errCount;
@@ -401,9 +426,9 @@ public class RunTestSuite {
                     if (position!=null && new File(position.file()).equals(file) && position.line()==lineNum) {
                         // found it!
                         errorsFound.add(err);
-                        if (Report.should_report("TestSuite", 2))
-                            Report.report(2, "Found error: "+ err);
                         it.remove();
+                        if (SHOW_EXPECTED_ERRORS)
+                            println("Found error in position="+position+" err: "+ err);
                         foundErrCount++;
                     }
                 }
@@ -434,7 +459,10 @@ public class RunTestSuite {
     }
     private static void recurse(File dir, ArrayList<File> files) {
         if (files.size()>=MAX_FILES_NUM) return;
-        for (File f : dir.listFiles()) {
+        // sort the result, so the output is identical for diff purposes (see SHOW_EXPECTED_ERRORS)
+        final File[] filesInDir = dir.listFiles();
+        Arrays.sort(filesInDir);
+        for (File f : filesInDir) {
             String name = f.getName();
             final boolean isDir = f.isDirectory();
             if (!isDir && shouldIgnoreFile(name)) continue;

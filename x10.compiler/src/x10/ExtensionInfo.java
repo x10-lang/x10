@@ -404,6 +404,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
        private void addValidateOnlyGoals(Job job, List<Goal> goals) {
            X10CompilerOptions opts = extensionInfo().getOptions();
            goals.add(Parsed(job));
+           if (opts.x10_config.CHECK_ERR_MARKERS) goals.add(ErrChecker(job)); // must be the first phase after parsing because later phases might fail and stop type checking (it shouldn't happen, but it does)
            goals.add(ImportTableInitialized(job));
            goals.add(TypesInitialized(job));
 
@@ -435,7 +436,6 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 //           goals.add(CheckNativeAnnotations(job));
            goals.add(CheckEscapingThis(job));
            goals.add(AnnotationChecker(job));
-           if (opts.x10_config.CHECK_ERR_MARKERS) goals.add(ErrChecker(job)); // must be the last phase that might add errors to the errorQueue
            goals.add(CheckASTForErrors(job));
 //           goals.add(TypeCheckBarrier());
 
