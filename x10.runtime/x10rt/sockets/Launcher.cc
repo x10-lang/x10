@@ -953,7 +953,7 @@ static char *alloc_printf(const char *fmt, ...)
 
 static char *alloc_env_assign(const char *var, const char *val)
 {
-    return alloc_printf("%s=${%s:-%s}", var, var, val);
+    return alloc_printf("%s=${%s-%s}", var, var, val);
 }
 
 void Launcher::startSSHclient(uint32_t id, char* masterPort, char* remotehost)
