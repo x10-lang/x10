@@ -18,45 +18,21 @@
 #include <x10aux/config.h>
 #include <x10aux/alloc.h>
 #include <x10aux/RTT.h>
-#include <x10aux/network.h>
 
 namespace x10 { namespace lang { class NullType; } }
 
 namespace x10aux {
 
-    //#ifndef NO_IOSTREAM
-    //inline std::ostream &operator<<(std::ostream &o, const remote_ref &rr) {
-    //    return o << "rr("<<rr.addr<<"@"<<rr.loc<<")";
-    //}
-    //#endif
-
-    class __ref {
-        protected:
-        #ifndef REF_STRIP_TYPE
-        GPUSAFE __ref(void* = NULL) { }
-        #else
-        GPUSAFE __ref(void* val = NULL) : _val(val) { }
-        public: // [IP] temporary
-        void* _val;
-        #endif
-    };
-
-    #ifndef REF_STRIP_TYPE
-    #  define REF_INIT(v) __ref(), _val(v)
-    #else
-    #  define REF_INIT(v) __ref(v)
-    #endif
-
-    template<class T> class ref : public __ref {
-        public:
-        typedef T Type;
+    class __ref {}; // Provide common supertype for use in catch blocks
+    
+    template<class T> class ref :public __ref {
+    public:
+        T* _val;
+        typedef T Type; // typedef used in struct codegen, not here.
         static const x10aux::RuntimeType* getRTT() { return T::getRTT(); }
 
-        // Work around for an xlC ICE
-        //GPUSAFE ~ref() { }
-
         // Copy between refs of the same type
-        GPUSAFE ref(const ref<T>& _ref) : REF_INIT(_ref._val) {
+        GPUSAFE ref(const ref<T>& _ref) : _val(_ref._val) {
             _R_("Copying reference " << &_ref << "(" << _ref._val
                                      << ") of type " << TYPENAME(T)
                                      << " to " << this);
@@ -74,28 +50,27 @@ namespace x10aux {
         }
 
         // Declare a ref: no need for a NULL __ref
-        // The frontend should guarantee ref will not be accessed prior to initialization
+        // The frontend will guarantee ref will not be accessed prior to initialization
         GPUSAFE ref() {
-//            fprintf(stderr, "%s\n", TYPENAME(T));
         }
 
         // This is the big one -- turns a pointer into a ref
         // currently an implicit conversion
-        GPUSAFE ref(T* const val) : REF_INIT(val) {
+        GPUSAFE ref(T* const val) : _val(val) {
         }
 
         // Allow conversions between ref<S> and ref<T>.
         // Because we have no multiple inheritance, we can
-        // use a re-interpret cast here. 
-        // Bad casts should never happen, as the only places
-        // this operation is used are: class_cast (which is guarded by a check)
-        // and upcasts from x10 code all operator T are implicit conversions,
-        // this is no exception
+        // use a re-interpret cast here. Bad casts should
+        // never happen, as the only places this operation is used are:
+        //   class_cast (which is guarded by a check)
+        //   class_cast_unchecked (front-end ensures they are safe)
+        //   upcasts from x10 code
+        // all operator T are implicit conversions, this is no exception
 
         // Allow the construction of a ref<T> from a ref<S>
         template<class S> GPUSAFE ref(const ref<S>& _ref)
-            // (S*) cast needed when REF_STRIP_TYPE defined, otherwise harmless
-          : REF_INIT(reinterpret_cast<T*>((S*)_ref._val)) {
+          : _val(reinterpret_cast<T*>(_ref._val)) {
             _R_("Casting reference " << &_ref << "(" << _ref._val
                                      << ") of type " << TYPENAME(S)
                                      << " to type " << TYPENAME(T)
@@ -104,8 +79,7 @@ namespace x10aux {
 
         // Allow the assignment of a ref<S> to a ref<T>
         template<class S> GPUSAFE const ref<T> &operator=(const ref<S>& _ref) {
-            // (S*) cast needed when REF_STRIP_TYPE defined, otherwise harmless
-            _val = reinterpret_cast<T*>((S*)_ref._val);
+            _val = reinterpret_cast<T*>(_ref._val);
             _R_("Casting reference " << &_ref << "(" << _ref._val
                                      << ") of type " << TYPENAME(S)
                                      << " to type " << TYPENAME(T)
@@ -134,12 +108,6 @@ namespace x10aux {
         // trivial operations that compare the contents of the two refs
         bool operator==(const ref<T>& _ref) const { return _val == _ref._val; }
         bool operator!=(const ref<T>& _ref) const { return _val != _ref._val; }
-
-
-#ifndef REF_STRIP_TYPE
-        T* _val;
-#endif
-
     };
 
 #ifndef NO_IOSTREAM
@@ -168,34 +136,6 @@ namespace x10aux {
     }
 
     #define X10_NULL x10aux::ref<x10::lang::NullType>(NULL)
-    
-    template<class F, class T> bool operator!=(F f, T t) { return !(f == t); }
-    // comparison of a primitive with a ref
-    template<class T> bool operator==(x10_boolean b, const ref<T>& _ref) { return false; }
-    template<class T> bool operator==(x10_byte b, const ref<T>& _ref) { return false; }
-    template<class T> bool operator==(x10_char c, const ref<T>& _ref) { return false; }
-    template<class T> bool operator==(x10_short s, const ref<T>& _ref) { return false; }
-    template<class T> bool operator==(x10_int i, const ref<T>& _ref) { return false; }
-    template<class T> bool operator==(x10_long l, const ref<T>& _ref) { return false; }
-    template<class T> bool operator==(x10_float f, const ref<T>& _ref) { return false; }
-    template<class T> bool operator==(x10_double d, const ref<T>& _ref) { return false; }
-    template<class T> bool operator==(x10_ubyte b, const ref<T>& _ref) { return false; }
-    template<class T> bool operator==(x10_ushort s, const ref<T>& _ref) { return false; }
-    template<class T> bool operator==(x10_uint i, const ref<T>& _ref) { return false; }
-    template<class T> bool operator==(x10_ulong l, const ref<T>& _ref) { return false; }
-    // comparison of a ref with a primitive
-    template<class T> bool operator==(const ref<T>& _ref, x10_boolean b) { return false; }
-    template<class T> bool operator==(const ref<T>& _ref, x10_byte b) { return false; }
-    template<class T> bool operator==(const ref<T>& _ref, x10_char c) { return false; }
-    template<class T> bool operator==(const ref<T>& _ref, x10_short s) { return false; }
-    template<class T> bool operator==(const ref<T>& _ref, x10_int i) { return false; }
-    template<class T> bool operator==(const ref<T>& _ref, x10_long l) { return false; }
-    template<class T> bool operator==(const ref<T>& _ref, x10_float f) { return false; }
-    template<class T> bool operator==(const ref<T>& _ref, x10_double d) { return false; }
-    template<class T> bool operator==(const ref<T>& _ref, x10_ubyte b) { return false; }
-    template<class T> bool operator==(const ref<T>& _ref, x10_ushort s) { return false; }
-    template<class T> bool operator==(const ref<T>& _ref, x10_uint i) { return false; }
-    template<class T> bool operator==(const ref<T>& _ref, x10_ulong l) { return false; }
 
 } //namespace x10
 

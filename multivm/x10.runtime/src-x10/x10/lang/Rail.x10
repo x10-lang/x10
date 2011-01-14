@@ -168,8 +168,8 @@ public final class Rail[T](length: Int)
      * @param i The index to retreive.
      * @return The value at that index.
      */
-    @Native("java", "(#0).apply$G(#1)")
-    @Native("c++", "(#0)->apply(#1)")
+    @Native("java", "(#0).$apply$G(#1)")
+    @Native("c++", "(#0)->__apply(#1)")
     @Native("cuda", "(#0)[#1]")
     public native operator this(i: Int): T;
 

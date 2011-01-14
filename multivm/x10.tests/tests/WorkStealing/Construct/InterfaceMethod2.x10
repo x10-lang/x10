@@ -9,21 +9,22 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
+package WorkStealing.Construct;
+
 /*
  * A method implements an interface, and the method contains concurrent
  */
 public class InterfaceMethod2 {
 
-	
-	def getITest():ITest{
+	def getITest2():ITest2{
 		return new A();
 	}
 	
 	public def run() {
 		var passed:boolean = true;
 		
-	    val a:ITest = getITest();
-	    val r = a.set(2);
+		val a:ITest2 = getITest2();
+		val r = a.set(2);
 		passed &= (r == 2);
 		Console.OUT.println("r  = " + r);
 		
@@ -31,21 +32,19 @@ public class InterfaceMethod2 {
 	}
 
 	public static def main(Array[String](1)) {
-        val r = new InterfaceMethod2().run();
-        if(r){
-             x10.io.Console.OUT.println("++++++Test succeeded.");
-        }
+	    val r = new InterfaceMethod2().run();
+	    if (r) {
+	        x10.io.Console.OUT.println("++++++Test succeeded.");
+	    }
 	}
-	
-	
 }
 
-interface ITest{
+interface ITest2{
 	def set(v:int):int;
 }
 
-class A implements ITest{
-	
+class A implements ITest2{
+
     public def set(v:int):int{
         val value:int;
 	    finish{

@@ -9,13 +9,15 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
+package WorkStealing.Construct;
+
 /*
  * A simple Generic concurrent method, Generic object in current method.
  */
 public class Generics3 {
-	
-	var flag: boolean = false;
-	
+
+    var flag: boolean = false;
+
     class A[T] {
     	var value:T;
     
@@ -53,11 +55,9 @@ public class Generics3 {
 	}
 
 	public static def main(Array[String](1)) {
-        val r = new Generics3().run();
-        if(r){
-             x10.io.Console.OUT.println("++++++Test succeeded.");
-        }
+            val r = new Generics3().run();
+            if (r) {
+                x10.io.Console.OUT.println("++++++Test succeeded.");
+            }
 	}
-	
-	
 }

@@ -70,7 +70,7 @@ x10::lang::Thread::thread_start_routine(void *arg)
     // this thread is now running
     tp->__thread_running = true;
 
-    tp->apply();
+    tp->__apply();
 
     // finished running
     tp->__thread_running = false;
@@ -485,7 +485,7 @@ Thread::name(ref<String> name)
     __thread_name = name;
 }
 
-void Thread::apply()
+void Thread::__apply()
 {
 }
 

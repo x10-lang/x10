@@ -9,6 +9,8 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
+package WorkStealing.Construct;
+
 /*
  * Test constructor with concurrent procedure. Cannot pass WS Compile.
  */

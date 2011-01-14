@@ -453,7 +453,7 @@ public class X10Context_c extends Context_c {
 	            }
 	            else {
 	                //thisVar = xts.xtypeTranslator().transThis(currentClass);
-	                thisVar = xts.xtypeTranslator().transThisWithoutTypeConstraint();
+	                thisVar = xts.xtypeTranslator().translateThisWithoutTypeConstraint();
 	            }
 
 	            if (thisVar != null)

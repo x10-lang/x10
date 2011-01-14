@@ -54,7 +54,10 @@ namespace x10aux {
 
     void dealloc_internal (const void *obj_);
 
-    void *alloc_internal_pinned(size_t size);
+    // the sequence of calls to alloc_internal_congruent must be the same (in
+    // terms of size parameter) at all places for the pointers returned to be
+    // actually congruent (i.e. for all places to have the same addresses)
+    void *alloc_internal_congruent(size_t size);
     
 #ifdef X10_USE_BDWGC
 	extern bool gc_init_done;

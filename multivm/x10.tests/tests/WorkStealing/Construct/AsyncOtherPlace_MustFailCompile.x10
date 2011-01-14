@@ -1,4 +1,5 @@
 
+package WorkStealing.Construct;
 /*
  * Async in another place. Cannot pass WS compile
  */

@@ -59,14 +59,14 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct {
         for (int i = 0; i < sz; i++) {
             if (i > 0)
                 sb.append(",");
-            sb.append(apply$G(i));
+            sb.append($apply$G(i));
         }
         if (sz < length) sb.append("...(omitted " + (length - sz) + " elements)");
         sb.append(")");
         return sb.toString();
     }
 
-    public T apply$G(int i) {
+    public T $apply$G(int i) {
         return type.getArray(value, i);
     }
 
@@ -95,7 +95,7 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct {
             public RuntimeType<?> getRTT() { return VoidFun_0_0._RTT; }
             public Type<?> getParam(int i) { return null; }
             
-            public void apply() {
+            public void $apply() {
                 Object dstData = RemoteIndexedMemoryChunk.getValue(dstId);
                 System.arraycopy(srcData, 0, dstData, dstIndex, numElems);
             }
@@ -108,7 +108,7 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct {
                                      RemoteIndexedMemoryChunk<T> dst, int dstIndex,
                                      int numElems, VoidFun_0_0 notifier) {
         throw new UnsupportedOperationException("asyncCopy with notifier not implemented for multivm");
-        // notifier.apply();
+        // notifier.$apply();
     }
 
     public static <T> void asyncCopy(final RemoteIndexedMemoryChunk<T> src, final int srcIndex, 
@@ -123,7 +123,7 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct {
             public RuntimeType<?> getRTT() { return VoidFun_0_0._RTT; }
             public Type<?> getParam(int i) { return null; }
             
-            public void apply() {
+            public void $apply() {
                 // This body runs at src's home.  It accesses the data for src and then does
                 // another async back to dstWrapper's home to transfer the data.
                 Object srcData = RemoteIndexedMemoryChunk.getValue(srcId);
@@ -146,7 +146,7 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct {
                     public RuntimeType<?> getRTT() { return VoidFun_0_0._RTT; }
                     public Type<?> getParam(int i) { return null; }
                     
-                    public void apply() {
+                    public void $apply() {
                         // This body runs back at dst's home.  It does the actual assignment of values.
                         Object dstData = RemoteIndexedMemoryChunk.getValue(dstId);
                         System.arraycopy(srcData, 0, dstData, dstIndex, numElems);
@@ -164,7 +164,7 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct {
                                      IndexedMemoryChunk<T> dst, int dstIndex,
                                      int numElems, VoidFun_0_0 notifier) {
         throw new UnsupportedOperationException("asyncCopy with notifier not implemented for multivm");
-        // notifier.apply();
+        // notifier.$apply();
     }
 
     public static <T> void copy(IndexedMemoryChunk<T> src, int srcIndex, 

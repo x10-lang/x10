@@ -80,7 +80,13 @@ public class Stats
                 Object key = i.next();
                 Counts t = counts.get(key);
 
-                Report.report(1, format(key.toString(), Long.toString(t.count)));
+                String k = key.toString();
+                if (k.endsWith(" nanos")) {
+                    long millis = (long)(t.count / 1e6);
+                    Report.report(1, format(k.substring(0,k.length()-5)+" ms", Long.toString(millis)));
+                } else {
+                    Report.report(1, format(key.toString(), Long.toString(t.count)));
+                }
             }
         }
     }

@@ -119,7 +119,7 @@ namespace x10 {
             x10aux::ref<x10::array::Array<x10aux::ref<String> > > split(x10aux::ref<String> pat);
 
             // Forwarding method needed so that String can be used in Generic contexts (T <: (nat)=>char)
-            x10_char apply(x10_int i) { return charAt(i); }
+            x10_char __apply(x10_int i) { return charAt(i); }
             
             x10_char charAt(x10_int i);
 

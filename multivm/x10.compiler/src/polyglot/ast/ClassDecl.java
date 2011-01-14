@@ -11,6 +11,11 @@ import java.util.List;
 
 import polyglot.types.ClassDef;
 import polyglot.types.Flags;
+import x10.ast.DepParameterExpr;
+import x10.ast.PropertyDecl;
+import x10.ast.TypeParamNode;
+import x10.ast.X10ClassDecl;
+import x10.types.X10ClassDef;
 
 /**
  * A <code>ClassDecl</code> represents a top-level, member, or local class
@@ -18,15 +23,24 @@ import polyglot.types.Flags;
  */
 public interface ClassDecl extends Term, TopLevelDecl, ClassMember
 {
+	DepParameterExpr classInvariant();
+	X10ClassDecl classInvariant(DepParameterExpr classInvariant);
+	
+	List<TypeParamNode> typeParameters();
+	X10ClassDecl typeParameters(List<TypeParamNode> typeParameters);
+	
+	List<PropertyDecl> properties();
+	X10ClassDecl properties(List<PropertyDecl> ps);
+	
     /**
      * The type of the class declaration.
      */
-    ClassDef classDef();
+    X10ClassDef classDef();
 
     /**
      * Set the type of the class declaration.
      */
-    ClassDecl classDef(ClassDef type);
+    X10ClassDecl classDef(ClassDef type);
 
     /**
      * The class declaration's flags.
@@ -36,7 +50,7 @@ public interface ClassDecl extends Term, TopLevelDecl, ClassMember
     /**
      * Set the class declaration's flags.
      */
-    ClassDecl flags(FlagsNode flags);
+    X10ClassDecl flags(FlagsNode flags);
 
     /**
      * The class declaration's name.
@@ -46,7 +60,7 @@ public interface ClassDecl extends Term, TopLevelDecl, ClassMember
     /**
      * Set the class declaration's name.
      */
-    ClassDecl name(Id name);
+    X10ClassDecl name(Id name);
 
     /**
      * The class's super class.
@@ -56,7 +70,7 @@ public interface ClassDecl extends Term, TopLevelDecl, ClassMember
     /**
      * Set the class's super class.
      */
-    ClassDecl superClass(TypeNode superClass);
+    X10ClassDecl superClass(TypeNode superClass);
 
     /**
      * The class's interface list.
@@ -68,7 +82,7 @@ public interface ClassDecl extends Term, TopLevelDecl, ClassMember
      * Set the class's interface list.
      * @param interfaces A list of {@link polyglot.ast.TypeNode TypeNode}.
      */
-    ClassDecl interfaces(List<TypeNode> interfaces);
+    X10ClassDecl interfaces(List<TypeNode> interfaces);
 
     /**
      * The class's body.
@@ -78,5 +92,5 @@ public interface ClassDecl extends Term, TopLevelDecl, ClassMember
     /**
      * Set the class's body.
      */
-    ClassDecl body(ClassBody body);
+    X10ClassDecl body(ClassBody body);
 }

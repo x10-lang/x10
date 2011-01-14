@@ -40,7 +40,7 @@ public class MessageHandlers {
     		if (X10RT.VERBOSE) System.out.println("runClosureAtReceive: ObjectInputStream");
     		x10.core.fun.VoidFun_0_0 actObj = (x10.core.fun.VoidFun_0_0) objStream.readObject();
     		if (X10RT.VERBOSE) System.out.println("runClosureAtReceive: after cast");
-    		actObj.apply();
+    		actObj.$apply();
     		if (X10RT.VERBOSE) System.out.println("runClosureAtReceive: after apply");
     		objStream.close();
     		if (X10RT.VERBOSE) System.out.println("runClosureAtReceive is done !");

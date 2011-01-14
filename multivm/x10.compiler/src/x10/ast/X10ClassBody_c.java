@@ -14,33 +14,46 @@ package x10.ast;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import polyglot.main.Report;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.ConstructorDef;
 import polyglot.types.ConstructorInstance;
 import polyglot.types.Context;
+import polyglot.types.FieldDef;
 import polyglot.types.MethodDef;
 import polyglot.types.Named;
 import polyglot.types.ProcedureDef;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
+import polyglot.types.TypeObject;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.ListIterator;
 import java.util.List;
+
+import polyglot.util.CodeWriter;
+import polyglot.util.CollectionUtil;
 import polyglot.util.Position;
+import polyglot.ast.ClassBody;
 import polyglot.ast.ClassMember;
 import polyglot.ast.Formal;
 import polyglot.ast.Node;
 import polyglot.ast.MethodDecl;
 import polyglot.ast.MethodDecl_c;
 import polyglot.ast.Formal_c;
+import polyglot.ast.Term;
 import polyglot.types.ClassType_c;
 import polyglot.util.TypedList;
+import polyglot.visit.CFGBuilder;
 import polyglot.visit.ContextVisitor;
+import polyglot.visit.ExceptionChecker;
+import polyglot.visit.NodeVisitor;
+import polyglot.visit.PrettyPrinter;
 import polyglot.ast.ClassBody_c;
 import x10.constraint.XVar;
 import x10.errors.Errors;
@@ -61,14 +74,27 @@ import x10.types.constraints.TypeConstraint;
 import x10.types.constraints.XConstrainedTerm;
 
 public class X10ClassBody_c extends ClassBody_c {
+	
+    protected List<ClassMember> members;
+    
     public X10ClassBody_c(Position pos, java.util.List<ClassMember> members) {
         super(pos, members);
+        assert(members != null);
+        this.members = TypedList.copyAndCheck(members, ClassMember.class, true);
     }
 
     public Node conformanceCheck(ContextVisitor tc) {
         duplicateTypeDefCheck(tc);
         checkMethodCompatibility(tc);
-        return super.conformanceCheck(tc);
+        return conformanceCheckAux(tc);
+    }
+    
+    private Node conformanceCheckAux(ContextVisitor tc) {
+        duplicateFieldCheck(tc);
+        duplicateConstructorCheck(tc);
+        duplicateMethodCheck(tc);
+        duplicateMemberClassCheck(tc);
+        return this;
     }
     
     private void getInheritedVirtualMethods(X10ClassType ct, List<MethodInstance> methods) {
@@ -279,4 +305,141 @@ public class X10ClassBody_c extends ClassBody_c {
             }
         }
     }
+    
+    public List<ClassMember> members() {
+        return this.members;
+    }
+
+    public ClassBody members(List<ClassMember> members) {
+        X10ClassBody_c n = (X10ClassBody_c) copy();
+        n.members = TypedList.copyAndCheck(members, ClassMember.class, true);
+        return n;
+    }
+
+    public ClassBody addMember(ClassMember member) {
+        X10ClassBody_c n = (X10ClassBody_c) copy();
+        List<ClassMember> l = new ArrayList<ClassMember>(this.members.size() + 1);
+        l.addAll(this.members);
+        l.add(member);
+        n.members = TypedList.copyAndCheck(l, ClassMember.class, true);
+        return n;
+    }
+
+    protected ClassBody_c reconstruct(List<ClassMember> members) {
+        if (! CollectionUtil.<ClassMember>allEqual(members, this.members)) {
+            X10ClassBody_c n = (X10ClassBody_c) copy();
+            n.members = TypedList.copyAndCheck(members,
+                                               ClassMember.class, true);
+            return n;
+        }
+
+        return this;
+    }
+
+    public Node visitChildren(NodeVisitor v) {
+        List<ClassMember> members = visitList(this.members, v);
+        return reconstruct(members);
+    }
+
+    public Node disambiguate(ContextVisitor ar) throws SemanticException {
+        return this;
+    }
+
+    public String toString() {
+        return "{ ... }";
+    }
+
+    protected void duplicateFieldCheck(ContextVisitor tc) {
+        ClassDef type = tc.context().currentClassDef();
+
+        ArrayList<FieldDef> l = new ArrayList<FieldDef>(type.fields());
+
+        for (int i = 0; i < l.size(); i++) {
+            FieldDef fi = (FieldDef) l.get(i);
+
+            for (int j = i+1; j < l.size(); j++) {
+                FieldDef fj = (FieldDef) l.get(j);
+
+                if (fi.name().equals(fj.name())) {
+                    reportDuplicate(fj,tc);
+                }
+            }
+        }
+    }
+    
+    protected void duplicateMemberClassCheck(ContextVisitor tc) {
+        ClassDef type = tc.context().currentClassDef();
+
+        ArrayList<Ref<? extends Type>> l = new ArrayList<Ref<? extends Type>>(type.memberClasses());
+
+        for (int i = 0; i < l.size(); i++) {
+            Type mi = l.get(i).get();
+
+            for (int j = i+1; j < l.size(); j++) {
+                Type mj = l.get(j).get();
+
+                if (mi instanceof Named && mj instanceof Named) {
+                    if (((Named) mi).name().equals(((Named) mj).name())) {
+                        reportDuplicate(mj,tc);
+                    }
+                }
+            }
+        }
+    }
+    private void reportDuplicate(TypeObject def, ContextVisitor tc) {
+        new Errors.DuplicateMember(def).issue(tc.job());
+
+    }
+
+    protected boolean isSameMethod(TypeSystem ts,
+                                   MethodInstance mi, MethodInstance mj, Context context) {
+        return mi.isSameMethod(mj, context);
+    }
+    
+    public NodeVisitor exceptionCheckEnter(ExceptionChecker ec) throws SemanticException {
+        return ec.push();
+    }
+
+    public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
+        if (!members.isEmpty()) {
+            w.newline(4);
+            w.begin(0);
+	    ClassMember prev = null;
+
+            for (Iterator<ClassMember> i = members.iterator(); i.hasNext(); ) {
+                ClassMember member = i.next();
+		if ((member instanceof polyglot.ast.CodeDecl) ||
+		    (prev instanceof polyglot.ast.CodeDecl)) {
+			w.newline(0);
+		}
+		prev = member;
+                printBlock(member, w, tr);
+                if (i.hasNext()) {
+                    w.newline(0);
+                }
+            }
+
+            w.end();
+            w.newline(0);
+        }
+    }
+
+    /**
+     * Return the first (sub)term performed when evaluating this
+     * term.
+     */
+    public Term firstChild() {
+        // Do _not_ visit class members.
+        return null;
+    }
+
+    /**
+     * Visit this term in evaluation order.
+     */
+    public <S> List<S> acceptCFG(CFGBuilder v, List<S> succs) {
+        return succs;
+    }
+
+    private static final Collection<String> TOPICS = 
+                CollectionUtil.list(Report.types, Report.context);
 }

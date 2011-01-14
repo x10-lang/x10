@@ -662,7 +662,7 @@ public class X10NodeFactory_c extends NodeFactory_c {
 		return n;
 	}
 	public CharLit CharLit(Position pos, char value) {
-		CharLit n = new X10CharLit_c(pos, value);
+		CharLit n = new CharLit_c(pos, value);
 		n = (CharLit)n.ext(extFactory().extCharLit());
 		n = (CharLit)n.del(delFactory().delCharLit());
 		return n;

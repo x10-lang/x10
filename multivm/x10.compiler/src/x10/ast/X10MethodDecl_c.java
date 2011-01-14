@@ -525,7 +525,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 				if (s instanceof Return) {
 					Return r = (Return) s;
 					if (r.expr() != null) {
-						XTerm v = ts.xtypeTranslator().trans((CConstraint) null, r.expr(), (Context) tc.context());
+						XTerm v = ts.xtypeTranslator().translate((CConstraint) null, r.expr(), (Context) tc.context());
 						ok = true;
 						X10MethodDef mi = (X10MethodDef) this.mi;
 						if (mi.body() instanceof LazyRef<?>) {
@@ -941,7 +941,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 						Type newType =  ref.get();
 
 						// Fold the formal's constraint into the guard.
-						XVar var = xts.xtypeTranslator().trans(n.localDef().asInstance());
+						XVar var = xts.xtypeTranslator().translate(n.localDef().asInstance());
 						CConstraint dep = Types.xclause(newType);
 						if (dep != null) {
 							dep = dep.copy();

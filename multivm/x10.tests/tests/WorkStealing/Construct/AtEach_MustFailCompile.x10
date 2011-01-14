@@ -9,6 +9,8 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
+package WorkStealing.Construct;
+
 /*
  * Ateach statement. Cannot pass WS compile
  */

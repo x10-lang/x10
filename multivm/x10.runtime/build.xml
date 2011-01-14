@@ -78,7 +78,6 @@
     <condition property="bdwgc.enabled">
         <and>
             <isfalse value="${DISABLE_GC}" />
-            <isfalse value="${CROSS_COMPILE_BGP}" />
             <or>
                 <os family="unix" name="linux"/>
                 <os family="mac"/>
@@ -352,51 +351,62 @@
             <echo message="Installing BDWGC to ${bdwgc.platform.dir}"/>
             <if>
               <conditions>
-                <or>
-                  <os family="unix" name="linux" arch="ppc"/>
-                  <os family="unix" name="linux" arch="ppc32"/>
-                  <os family="unix" name="linux" arch="ppc64"/>
-                </or>
-              </conditions>
-              <sequential>
-                <exec executable="${bash.exe}" dir="${bdwgc.dir}/src" failonerror="true">
-                  <arg value="${bdwgc.dir}/src/configure" />
-                  <arg value="-enable-threads=posix" />
-                  <arg value="-enable-thread-local-alloc" />
-                  <arg value="--enable-large-config" />
-                  <arg value="--enable-sigrt-signals" />
-                  <arg value="--prefix=${bdwgc.platform.dir}/install" />
-                </exec>
-              </sequential>
-            </if>
-            <if>
-              <conditions>
-                <and>
                   <os family="unix" name="linux" />
-                  <not>
-                    <or>
-                      <os family="unix" name="linux" arch="ppc"/>
-                      <os family="unix" name="linux" arch="ppc32"/>
-                      <os family="unix" name="linux" arch="ppc64"/>
-                    </or>
-                  </not>
-                </and>
               </conditions>
-              <sequential>
-                <exec executable="${bash.exe}" dir="${bdwgc.dir}/src" failonerror="true">
-                  <arg value="${bdwgc.dir}/src/configure" />
-                  <arg value="-enable-threads=posix" />
-                  <arg value="-enable-thread-local-alloc" />
-                  <arg value="--enable-large-config" />
-                  <arg value="--prefix=${bdwgc.platform.dir}/install" />
-                </exec>
-              </sequential>
+              <then>
+                <if>
+                  <conditions>
+                    <istrue value="${CROSS_COMPILE_BGP}" />
+                  </conditions>
+                  <then>
+                    <exec executable="${bash.exe}" dir="${bdwgc.dir}/src" failonerror="true">
+                      <env key="CXX" value="/bgsys/drivers/ppcfloor/gnu-linux/bin/powerpc-bgp-linux-g++"/>
+                      <env key="CC" value="/bgsys/drivers/ppcfloor/gnu-linux/bin/powerpc-bgp-linux-gcc"/>
+                      <arg value="${bdwgc.dir}/src/configure" />
+                      <arg value="--host=powerpc-bgp-linux" />
+                      <arg value="-enable-threads=posix" />
+                      <arg value="--disable-shared" />
+                      <arg value="--prefix=${bdwgc.platform.dir}/install" />
+                    </exec>
+                  </then>
+                  <else>
+                    <if>
+                      <conditions>
+                        <or>
+                          <os arch="ppc"/>
+                          <os arch="ppc32"/>
+                          <os arch="ppc64"/>
+                        </or>
+                      </conditions>
+                      <then>
+                        <exec executable="${bash.exe}" dir="${bdwgc.dir}/src" failonerror="true">
+                          <arg value="${bdwgc.dir}/src/configure" />
+                          <arg value="-enable-threads=posix" />
+                          <arg value="-enable-thread-local-alloc" />
+                          <arg value="--enable-large-config" />
+                          <arg value="--enable-sigrt-signals" />
+                          <arg value="--prefix=${bdwgc.platform.dir}/install" />
+                        </exec>
+                      </then>
+                      <else>
+                        <exec executable="${bash.exe}" dir="${bdwgc.dir}/src" failonerror="true">
+                          <arg value="${bdwgc.dir}/src/configure" />
+                          <arg value="-enable-threads=posix" />
+                          <arg value="-enable-thread-local-alloc" />
+                          <arg value="--enable-large-config" />
+                          <arg value="--prefix=${bdwgc.platform.dir}/install" />
+                        </exec>
+                      </else>
+                    </if>
+                  </else>
+                </if>
+              </then>
             </if>
             <if>
               <conditions>
                 <os family="mac"/>
               </conditions>
-              <sequential>
+              <then>
                 <exec executable="${bash.exe}" dir="${bdwgc.dir}/src" failonerror="true">
                   <arg value="${bdwgc.dir}/src/configure" />
                   <arg value="-enable-threads=posix" />
@@ -408,13 +418,13 @@
                   <env key="CFLAGS" value="${darwin.32}${darwin.64}-D_XOPEN_SOURCE" />
                   <arg value="--prefix=${bdwgc.platform.dir}/install" />
                 </exec>
-              </sequential>
+              </then>
             </if>
             <if>
               <conditions>
                 <os family="unix" name="aix"/>
               </conditions>
-              <sequential>
+              <then>
                 <exec executable="${bash.exe}" dir="${bdwgc.dir}/src" failonerror="true">
                   <env key="OBJECT_MODE" value="32_64" />
                   <env key="CFLAGS" value="-Wa,-mppc64 -Wa,-a64 -maix64 -D__ppc64__" />
@@ -425,13 +435,13 @@
                   <!-- TODO: <arg value="-enable-thread-local-alloc" /> -->
                   <arg value="--prefix=${bdwgc.platform.dir}/install" />
                 </exec>
-              </sequential>
+              </then>
             </if>
             <if>
               <conditions>
                 <os family="windows"/>
               </conditions>
-              <sequential>
+              <then>
                 <exec executable="${bash.exe}" dir="${bdwgc.dir}/src" failonerror="true">
                   <arg value="${bdwgc.dir}/src/configure" />
                   <arg value="-enable-threads=posix" />
@@ -439,13 +449,13 @@
                   <arg value="--enable-large-config" />
                   <arg value="--prefix=${bdwgc.platform.dir}/install" />
                 </exec>
-              </sequential>
+              </then>
             </if>
             <if>
               <conditions>
                 <os family="unix" name="freebsd"/>
               </conditions>
-              <sequential>
+              <then>
                 <exec executable="${bash.exe}" dir="${bdwgc.dir}/src" failonerror="true">
                   <arg value="${bdwgc.dir}/src/configure" />
                   <arg value="-enable-threads=posix" />
@@ -453,7 +463,7 @@
                   <arg value="--enable-large-config" />
                   <arg value="--prefix=${bdwgc.platform.dir}/install" />
                 </exec>
-              </sequential>
+              </then>
             </if>
             <exec executable="${make.exe}" dir="${bdwgc.dir}/src" failonerror="true">
                 <env key="OBJECT_MODE" value="32_64" />
@@ -493,16 +503,18 @@
               <conditions>
                 <os family="unix" name="aix"/>
               </conditions>
-              <sequential>
+              <then>
                 <patch patchfile="${basedir}/src-cpp/bdwgc-patches/fixPPCHeaderFiles.patch.txt"
                        dir="${bdwgc.dir}/src" strip="0" />
                 <patch patchfile="${basedir}/src-cpp/bdwgc-patches/linkerHackConfigure.patch.txt"
                        dir="${bdwgc.dir}/src" strip="0" />
-              </sequential>
+              </then>
             </if>
             <patch patchfile="${basedir}/src-cpp/bdwgc-patches/enableRTSignals.patch.txt"
                    dir="${bdwgc.dir}/src" strip="0" />
             <patch patchfile="${basedir}/src-cpp/bdwgc-patches/pthread_support.patch.txt"
+                   dir="${bdwgc.dir}/src" strip="0" />
+            <patch patchfile="${basedir}/src-cpp/bdwgc-patches/bluegeneStackHeuristic.patch.txt"
                    dir="${bdwgc.dir}/src" strip="0" />
         </sequential>
     </target>

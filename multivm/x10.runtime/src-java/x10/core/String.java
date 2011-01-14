@@ -29,9 +29,9 @@ final public class String extends x10.core.Ref implements
         return obj instanceof x10.core.String ? ((x10.core.String) obj).$str : (java.lang.String) obj;
     }
 
-    // dispatcher for method abstract public (a1:Z1)=> U.apply(a1:Z1): U
-    public java.lang.Character apply(final java.lang.Integer a1, final x10.rtt.Type t1) {
-        return apply((int)(java.lang.Integer)a1);
+    // dispatcher for method abstract public (a1:Z1)=> U.$apply(a1:Z1): U
+    public java.lang.Character $apply(final java.lang.Integer a1, final x10.rtt.Type t1) {
+        return $apply((int)(java.lang.Integer)a1);
     }
     // dispatcher for method abstract public x10.lang.Comparable.compareTo(that:T): x10.lang.Int
     public java.lang.Object compareTo(final java.lang.Object a1, final x10.rtt.Type t1) {
@@ -94,7 +94,7 @@ final public class String extends x10.core.Ref implements
 //        return $str.length();
 //    }
 
-    public char apply(final int index) {
+    public char $apply(final int index) {
         return $str.charAt(index);
     }
 

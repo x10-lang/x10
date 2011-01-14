@@ -17,7 +17,8 @@ cd "$ROOT/x10.dist"
 target=dist
 [ "$1" = "cpp" -o "$1" = "-cpp" -o "$1" = "-c++" ] && target=dist-cpp && shift
 [ "$1" = "java" -o "$1" = "-java" ] && target=dist-java && shift
-nice ant "$@" squeakyclean $target || testFailed
+nice ant "$@" squeakyclean || testFailed
+nice ant "$@" $target || testFailed
 
 echo "Making temp dir"
 if [ -z "$TMP_DIR" ]; then

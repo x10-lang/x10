@@ -26,16 +26,16 @@ public class XTENLANG_2297 extends x10Test {
     }
     
     public static def main(Array[String](1)) {
-        new XTENLANG_2290().execute();
+        new XTENLANG_2297().execute();
     }
 }
 
-public class clogua {
+class clogua {
   public static def main(argv:Array[String](1)) {
     val n = 3;
 // : (x:Int){x != n} => Int  
     val f 
-          = (x:Int){x != n} => (12/(n-x));
+          = (x:Int){x != n} => (12/(n-x)); // ShouldNotBeERR
     Console.OUT.println("f(5)=" + f(5));    
   }
 }

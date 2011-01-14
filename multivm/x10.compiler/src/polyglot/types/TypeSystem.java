@@ -85,11 +85,6 @@ public interface TypeSystem {
      */
     TopLevelResolver loadedResolver();
 
-    /**
-     * Constructs a new ClassFileLazyClassInitializer for the given class file.
-     */
-    ClassFileLazyClassInitializer classFileLazyClassInitializer(ClassFile clazz);
-
     /** Create an import table for the source file.
      * @param sourceName Name of the source file to import into.  This is used
      * mainly for error messages and for debugging.

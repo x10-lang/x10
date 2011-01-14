@@ -51,6 +51,7 @@ import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.Configuration;
+import x10.X10CompilerOptions;
 import x10.ast.Closure;
 import x10.ast.DepParameterExpr;
 import x10.ast.ParExpr;
@@ -174,6 +175,18 @@ public class Desugarer extends ContextVisitor {
                     Converter.ConversionType.PRIMITIVE).type(type);
         }
         return lit;
+    }
+
+    protected Expr getLiteral(Position pos, Type type, boolean val) {
+        type = Types.baseType(type);
+        if (ts.isBoolean(type)) {
+            Type t = ts.Boolean();
+            try {
+                t = Types.addSelfBinding(t, val ? ts.TRUE() : ts.FALSE());
+            } catch (XFailure e) { }
+            return nf.BooleanLit(pos, val).type(t);
+        } else
+            throw new InternalCompilerError(pos, "Unknown literal type: "+type);
     }
 
     // ++x -> x+=1 or --x -> x-=1
@@ -457,6 +470,9 @@ public class Desugarer extends ContextVisitor {
      * Any occurrence of "self" in the list of clauses is replaced by self.
      */
     private Expr conjunction(Position pos, List<Expr> clauses, Expr self) {
+        if (clauses.isEmpty()) { // FIXME: HACK: need to ensure that source expressions are preserved
+            return getLiteral(pos, ts.Boolean(), true);
+        }
         assert clauses.size() > 0;
         Substitution<Expr> subst = new Substitution<Expr>(Expr.class, Collections.singletonList(self)) {
             protected Expr subst(Expr n) {
@@ -519,7 +535,8 @@ public class Desugarer extends ContextVisitor {
         Type ot = tn.type();
         DepParameterExpr depClause = getClause(tn);
         tn = stripClause(tn);
-        if (depClause == null || Configuration.NO_CHECKS)
+        X10CompilerOptions opts = (X10CompilerOptions) job.extensionInfo().getOptions();
+        if (depClause == null || opts.x10_config.NO_CHECKS)
             return n.castType(tn);
         Name xn = getTmp();
         Type t = tn.type(); // the base type of the cast

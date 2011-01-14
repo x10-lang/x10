@@ -88,7 +88,7 @@ public class X10LocalInstance_c extends LocalInstance_c implements X10LocalInsta
         	CConstraint c = Types.xclause(rightType);
         	c = c==null? new CConstraint() : c.copy();
 
-        	XLocal var = xts.xtypeTranslator().trans(this.type(rightType), rightType);
+        	XLocal var = xts.xtypeTranslator().translate(this.type(rightType));
         	c.addSelfBinding(var);
         	rightType = Types.xclause(Types.baseType(rightType), c);
 

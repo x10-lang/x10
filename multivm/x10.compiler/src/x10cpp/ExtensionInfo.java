@@ -40,6 +40,7 @@ import polyglot.visit.ContextVisitor;
 import polyglot.visit.PostCompiled;
 import polyglot.util.InternalCompilerError;
 import x10.Configuration;
+import x10.X10CompilerOptions;
 import x10.ExtensionInfo.X10Scheduler.ValidatingVisitorGoal;
 import x10.ast.X10NodeFactory_c;
 import x10.optimizations.Optimizer;
@@ -80,23 +81,24 @@ public class ExtensionInfo extends x10.ExtensionInfo {
 
 	@Override
     protected void initTypeSystem() {
+        X10CPPCompilerOptions opts = (X10CPPCompilerOptions) getOptions();
         // Inline from superclass, replacing SourceClassResolver
         try {
-            if (Configuration.MANIFEST == null) {
+            if (opts.x10_config.MANIFEST == null) {
                 String[] MANIFEST_LOCATIONS = CXXCommandBuilder.MANIFEST_LOCATIONS;
                 for (int i = 0; i < MANIFEST_LOCATIONS.length; i++) {
                     File x10lang_m = new File(MANIFEST_LOCATIONS[i]+"/"+CXXCommandBuilder.MANIFEST);
                     if (!x10lang_m.exists())
                         continue;
-                    Configuration.MANIFEST = x10lang_m.getPath();
+                    opts.x10_config.MANIFEST = x10lang_m.getPath();
                 }
             }
             // FIXME: [IP] HACK
             if (Report.should_report("manifest", 1))
-                Report.report(1, "Manifest is "+Configuration.MANIFEST);
-            if (Configuration.MANIFEST != null) {
+                Report.report(1, "Manifest is "+opts.x10_config.MANIFEST);
+            if (opts.x10_config.MANIFEST != null) {
                 try {
-                    FileReader fr = new FileReader(Configuration.MANIFEST);
+                    FileReader fr = new FileReader(opts.x10_config.MANIFEST);
                     BufferedReader br = new BufferedReader(fr);
                     String file = "";
                     while ((file = br.readLine()) != null)
@@ -142,6 +144,11 @@ public class ExtensionInfo extends x10.ExtensionInfo {
 		}
 
 		@Override
+		public ExtensionInfo extensionInfo() {
+		    return (ExtensionInfo) this.extInfo;
+		}
+
+		@Override
 		public String nativeAnnotationLanguage() { return "c++"; }
 
 		@Override
@@ -180,8 +187,12 @@ public class ExtensionInfo extends x10.ExtensionInfo {
 
 	// TODO: [IP] Override targetFactory() (rather, add createTargetFactory to polyglot)
 
-	protected Options createOptions() {
+	protected X10CPPCompilerOptions createOptions() {
 		return new X10CPPCompilerOptions(this);
+	}
+
+	public X10CPPCompilerOptions getOptions() {
+	    return (X10CPPCompilerOptions) super.getOptions();
 	}
 }
 // vim:tabstop=4:shiftwidth=4:expandtab

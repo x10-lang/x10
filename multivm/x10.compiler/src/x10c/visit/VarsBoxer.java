@@ -64,8 +64,8 @@ import x10.types.X10ParsedClassType;
 import x10.types.checker.Converter;
 
 public class VarsBoxer extends ContextVisitor {
-    private static final String POSTFIX_BOXED_VAR = "$boxed";
 
+    private static final String POSTFIX_BOXED_VAR = "$b";
     private static final QName GLOBAL_REF = QName.make("x10.lang.GlobalRef");
     
     private final TypeSystem xts;
@@ -100,7 +100,8 @@ public class VarsBoxer extends ContextVisitor {
             
             AtStmt atSt = (AtStmt) n;
             List<VarInstance<? extends VarDef>> caps = atSt.atDef().capturedEnvironment();
-            atSt = atSt.body((Stmt) atSt.body().visit(createAtVisitor(context2, privatizations, outerLocals, caps)));
+            atSt = atSt.body((Stmt) atSt.body().visit(createAtExtraNodeVisitor(context2, privatizations, caps, atSt.atDef())));
+            atSt = atSt.body((Stmt) atSt.body().visit(createAtOuterVarAccessVisitor(context2, outerLocals, caps)));
             
             if (outerLocals.size() > 0 || privatizations.size() > 0) {
                 List<Stmt> newBody = new ArrayList<Stmt>();
@@ -133,8 +134,9 @@ public class VarsBoxer extends ContextVisitor {
                 
                 List<VarInstance<? extends VarDef>> caps = atEx.closureDef().capturedEnvironment();
                 
-                atEx = (AtExpr) atEx.body((Block) atEx.body().visit(createAtVisitor(context2, privatizations, outerLocals, caps)));
-                
+                atEx = (AtExpr) atEx.body((Block) atEx.body().visit(createAtExtraNodeVisitor(context2, privatizations, caps, atEx.closureDef())));
+                atEx = (AtExpr) atEx.body((Block) atEx.body().visit(createAtOuterVarAccessVisitor(context2, outerLocals, caps)));
+
                 if (outerLocals.size() > 0 || privatizations.size() > 0) {
                     List<Stmt> newBody = new ArrayList<Stmt>();
                     
@@ -172,7 +174,7 @@ public class VarsBoxer extends ContextVisitor {
         return body;
     }
 
-    public ContextVisitor createAddWriteBackCallVisitor(Context context2) {
+    private ContextVisitor createAddWriteBackCallVisitor(Context context2) {
         return new ContextVisitor(job, ts, nf) {
             public Node override(Node parent, Node n) {
                 if (n instanceof AtStmt || n instanceof AtExpr) {
@@ -289,18 +291,63 @@ public class VarsBoxer extends ContextVisitor {
         return stmts1;
     }
 
-    private ContextVisitor createAtVisitor(Context context2, final List<LocalDecl> privatizations,
-                                          final List<Name> outerLocals, final List<VarInstance<? extends VarDef>> caps) {
+    private ContextVisitor createAtExtraNodeVisitor(Context context2, final List<LocalDecl> privatizations,
+                                          final List<VarInstance<? extends VarDef>> caps, final EnvironmentCapture ec) {
         return new ContextVisitor(job, ts, nf) {
             public Node override(Node parent, Node n) {
-                if (n instanceof AtStmt || n instanceof AtExpr) { // TODO async
+                if (n instanceof AtStmt || n instanceof AtExpr) {
                     return n;
                 }
                 return null;
             };
             
             public Node leaveCall(Node parent, Node old, Node n, NodeVisitor v) throws SemanticException {
-                // check access node to outer var 
+                // check privatization node and remove
+                if (n instanceof LocalDecl) {
+                    LocalDecl ldecl = (LocalDecl) n;
+                    LocalInstance li;
+                    try {
+                        li = context.findLocal(Name.make(ldecl.name().toString().replace(POSTFIX_BOXED_VAR, "")));
+                    } catch (SemanticException e) {
+                        return n;
+                    }
+                    if (containsCapturedEnv(caps, li)) {
+                        replaceCapturedEnv(Position.COMPILER_GENERATED, ec, li);
+                        privatizations.add(ldecl);
+                        return null;
+                    }
+                }
+                // check write back node and remove
+                if (n instanceof Eval) {
+                    Expr e = ((Eval) n).expr();
+                    if ((e instanceof LocalAssign) && (((LocalAssign) e).right() instanceof Call) ) {
+                        Call call = (Call) ((LocalAssign) e).right();
+                        Receiver receiver = call.target();
+                        if (receiver instanceof Local) {
+                            if (((Local) receiver).name().id().toString().endsWith(POSTFIX_BOXED_VAR)) {
+                                if (containsCapturedEnv(caps, ((LocalAssign) e).local().localInstance())) {
+                                    return null;
+                                }
+                            }
+                        }
+                    }
+                }
+                return n;
+            }
+        }.context(context2);
+    }
+
+    private ContextVisitor createAtOuterVarAccessVisitor(Context context2, final List<Name> outerLocals,
+                                          final List<VarInstance<? extends VarDef>> caps) {
+        return new ContextVisitor(job, ts, nf) {
+            public Node override(Node parent, Node n) {
+                if (n instanceof AtStmt || n instanceof AtExpr) {
+                    return n;
+                }
+                return null;
+            };
+            
+            public Node leaveCall(Node parent, Node old, Node n, NodeVisitor v) throws SemanticException {
                 if (n instanceof Local) {
                     Local local = (Local) n;
                     Name name = local.name().id();
@@ -319,35 +366,6 @@ public class VarsBoxer extends ContextVisitor {
                     }
                     if (containsCapturedEnv(caps, local.localInstance()) && !local.flags().isFinal() && !outerLocals.contains(name) && !name.toString().endsWith(POSTFIX_BOXED_VAR)) {
                         outerLocals.add(name);
-                    }
-                }
-                // check privatization node and remove
-                if (n instanceof LocalDecl) {
-                    LocalDecl ldecl = (LocalDecl) n;
-                    LocalInstance li;
-                    try {
-                        li = context.findLocal(Name.make(ldecl.name().toString().replace(POSTFIX_BOXED_VAR, "")));
-                    } catch (SemanticException e) {
-                        return n;
-                    }
-                    if (containsCapturedEnv(caps, li)) {
-                        privatizations.add(ldecl);
-                        return null;
-                    }
-                }
-                // check write back node and remove
-                if (n instanceof Eval) {
-                    Expr e = ((Eval) n).expr();
-                    if ((e instanceof LocalAssign) && (((LocalAssign) e).right() instanceof Call) ) {
-                        Call call = (Call) ((LocalAssign) e).right();
-                        Receiver receiver = call.target();
-                        if (receiver instanceof Local) {
-                            if (((Local) receiver).name().id().toString().endsWith(POSTFIX_BOXED_VAR)) {
-                                if (containsCapturedEnv(caps, ((LocalAssign) e).local().localInstance())) {
-                                    return null;
-                                }
-                            }
-                        }
                     }
                 }
                 return n;
@@ -407,20 +425,23 @@ public class VarsBoxer extends ContextVisitor {
         ldecl = ldecl.localDef(li.def());
         X10LocalDef boxld = getBoxLocalDef(pos, li);
         LocalInstance boxli = boxld.asInstance();
+        replaceCapturedEnv(pos, ec, li);
         
+        Call call = createGetCall(pos, li, boxli);
+        ldecl = ldecl.init(call);
+        return ldecl;
+    }
+    
+    private void replaceCapturedEnv(final Position pos, EnvironmentCapture ec, LocalInstance li) {
         List<VarInstance<? extends VarDef>> newEnv = new ArrayList<VarInstance<? extends VarDef>>();
         for (VarInstance<? extends VarDef> vi : ec.capturedEnvironment()) {
             if (vi.equals(li)) {
-                newEnv.add(boxli);
+                newEnv.add(getBoxLocalDef(pos, li).asInstance());
             } else {
                 newEnv.add(vi);
             }
         }
         ec.setCapturedEnvironment(newEnv);
-        
-        Call call = createGetCall(pos, li, boxli);
-        ldecl = ldecl.init(call);
-        return ldecl;
     }
 
     private Call createGetCall(final Position pos, LocalInstance lilocal, LocalInstance libox) {

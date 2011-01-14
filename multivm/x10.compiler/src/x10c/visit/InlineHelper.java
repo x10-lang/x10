@@ -48,6 +48,7 @@ import polyglot.types.Types;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
+import x10.X10CompilerOptions;
 import x10.ast.TypeParamNode;
 import x10.ast.X10Call;
 import x10.ast.X10MethodDecl;
@@ -304,7 +305,8 @@ public class InlineHelper extends ContextVisitor {
             return d;
         }
         // caller side
-        if (n instanceof X10Call && x10.Configuration.INLINE_METHODS) {
+        X10CompilerOptions opts = (X10CompilerOptions) job.extensionInfo().getOptions();
+        if (n instanceof X10Call && opts.x10_config.INLINE_METHODS) {
             X10Call call = (X10Call) n;
             Receiver target = call.target();
             MethodInstance mi = call.methodInstance();

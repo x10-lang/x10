@@ -3,6 +3,8 @@ package x10.rtt;
 import java.util.Arrays;
 import java.util.List;
 
+import x10.core.Any;
+
 
 public final class ParameterizedType<T> implements Type<T>{
 
@@ -107,6 +109,7 @@ public final class ParameterizedType<T> implements Type<T>{
         return typeName();
     }
 
+    // Note: this method does not resolve UnresolvedType at runtime
     public final String typeName() {
         String str = rtt.typeName();
         str += "[";
@@ -118,25 +121,53 @@ public final class ParameterizedType<T> implements Type<T>{
         return str;
     }
 
-    // called from RuntimeType.typeName(Object) of static inner class compiled from closure
-    public final String typeNameForFun() {
+    private static final String printType(Type<?> t, Object o) {
+        if (t instanceof UnresolvedType) {
+            int index = ((UnresolvedType) t).index;
+            if (index >= 0) {
+                t = ((Any) o).getParam(index);
+            } else {
+                t = ((Any) o).getRTT();
+            }
+        }
+        
+        if (t instanceof ParameterizedType) {
+            return ((ParameterizedType<?>) t).typeName(o);
+        } else {
+            return t.typeName();
+        }
+    }
+    
+    public final String typeName(Object o) {
+        String str = rtt.typeName();
+        str += "[";
+        for (int i = 0; i < params.length; i ++) {
+            if (i != 0) str += ",";
+            str += printType(params[i], o);
+        }
+        str += "]";
+        return str;
+    }
+
+    // called from Static{Void}FunType.typeName(Object)
+    public final String typeNameForFun(Object o) {
         String str = "(";
         int i;
         for (i = 0; i < params.length - 1; i++) {
             if (i != 0) str += ",";
-            str += params[i].typeName();
+            str += printType(params[i], o);
         }
         str += ")=>";
-        str += params[i].typeName();
+        str += printType(params[i], o);
         return str;
     }
 
-    public final String typeNameForVoidFun() {
+    public final String typeNameForVoidFun(Object o) {
         String str = "(";
         if (params != null && params.length > 0) {
             for (int i = 0; i < params.length; i++) {
                 if (i != 0) str += ",";
-                str += params[i].typeName();
+                str += printType(params[i], o);
             }
         }
         str += ")=>void";

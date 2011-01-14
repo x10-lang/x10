@@ -1,3 +1,6 @@
+# TODO XTENLANG-2312
+MAIN_CLASS='Main'
+
 help=""
 time=""
 verbose=""
@@ -28,9 +31,9 @@ while [ -n "$1" ]; do
         -J*) java_args="${java_args} '${1##-J}'";;
         -*=*) java_args="${java_args} -Dx10.${1##-}";;
         -*) java_args="${java_args} -Dx10.${1##-}=true";;
-#        *.x10) args="$args '${1%%.x10}\$Main'"; shift; args="$args $*"; break;;
+#        *.x10) args="$args '${1%%.x10}\$${MAIN_CLASS}'"; shift; args="$args $*"; break;;
         *.jar) args="$args -jar '$1'"; shift; args="$args $*"; break;;
-        *) args="$args '$1\$Main'"; shift; args="$args $*"; break;;
+        *) args="$args '$1\$${MAIN_CLASS}'"; shift; args="$args $*"; break;;
     esac
     shift
 done
@@ -38,7 +41,6 @@ done
 if [ -n "$help" -o -z "$args" ]; then
     cat << EOF
 Usage: x10 [options] <main-class> [arg0 arg1 ...]
-Usage: x10 [options] <jar-file>.jar [arg0 arg1 ...]
 where [options] includes:
     -t -time                 display execution time
     -v -verbose --verbose    print verbose debugging information
@@ -73,14 +75,12 @@ if [ -n "$extra_cp" ]; then
    classpath="$extra_cp${PATH_SEP}$classpath"
 fi
 
-# Note: user class path is not part of java.library.path
-#externpath="${classpath}${PATH_SEP}${LIB_DIR}${PATH_SEP}${TOP}${FILE_SEP}lib${FILE_SEP}${X10_PLATFORM}"
 externpath="${LIB_DIR}${PATH_SEP}${TOP}${FILE_SEP}lib${FILE_SEP}${X10_PLATFORM}"
 if [ -n "$extra_lib" ]; then
    externpath="$extra_lib${PATH_SEP}$externpath"
 fi
 
-# TODO adding x10 classes in bootstrap class path made static initialization failed. reverted for now.
+# TODO: executable jar
 # Note: use bootstrap class path instead of user class path to make it visible from jar file
 java_args="-Djava.library.path=\"$externpath\" -ea -classpath \"$classpath\" ${java_args}"
 #java_args="-Djava.library.path=\"$externpath\" -ea -Xbootclasspath/a:\"$classpath\" ${java_args}"
@@ -98,6 +98,10 @@ if [ -n "$X10_STATIC_THREADS" ]; then
 fi
 
 java_args="${java_args} ${defs}"
+
+# HACK: enforce normal compilation in preloading phase
+IBMJ9VM=`"$JAVA" -version 2>&1 | grep 'IBM J9 VM'`
+if [ -n "$IBMJ9VM" ]; then java_args="-Xjit:classLoadPhaseThreshold=10000 ${java_args}"; fi
 
 command="\"$JAVA\" $java_args $config $args"
 
