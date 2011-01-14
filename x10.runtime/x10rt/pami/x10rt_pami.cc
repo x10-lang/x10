@@ -15,6 +15,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
+#include <unistd.h> // sleep()
 #include <errno.h> // for the strerror function
 #include <sched.h> // for sched_yield()
 #include <x10rt_net.h>
@@ -39,7 +40,7 @@ struct x10rt_pami_header
 {
 	x10rt_msg_type type;
     uint32_t data_len;
-    void *data_ptr; // pointer is valid only at the origin.  Used in the GET message
+    void *data_ptr;
 };
 
 struct x10PAMIState
@@ -87,6 +88,26 @@ static void cookie_decrement (pami_context_t   context,
 	--*value;
 }
 
+static void std_msg_complete (pami_context_t   context,
+                       void          * cookie,
+                       pami_result_t    result)
+{
+	struct x10rt_pami_header *hdr = (struct x10rt_pami_header *)cookie;
+	x10rt_msg_params mp;
+	mp.dest_place = state.myPlaceId;
+	mp.type = hdr->type;
+	mp.len = hdr->data_len;
+	mp.msg = hdr->data_ptr;
+
+	#ifdef DEBUG
+		fprintf(stderr, "Place %lu processing delayed standard message %i, len=%u\n", state.myPlaceId, mp.type, mp.len);
+	#endif
+	handlerCallback hcb = state.callBackTable[mp.type].handler;
+	hcb(&mp);
+	free(hdr->data_ptr);
+}
+
+
 // PAMI handler for standard messages.
 static void local_msg_dispatch (
 	    pami_context_t        context,      /**< IN: PAMI context */
@@ -101,30 +122,39 @@ static void local_msg_dispatch (
 	pami_result_t status = PAMI_ERROR;
 
 	if (recv) // not all of the data is here yet, so we need to tell PAMI what to run when it's all here.
-		error("non-immediate dispatch not yet implemented");
+	{
+		struct x10rt_pami_header hdr;
+		hdr.data_ptr = malloc(pipe_size);
+		if (hdr.data_ptr == NULL)
+			error("Unable to allocate a msg_dispatch buffer of size %u", pipe_size);
+		hdr.data_len = pipe_size;
+		hdr.type = *((x10rt_msg_type*)header_addr);
 
-	// else, all the data is available, and ready to process
-//	#ifdef DEBUG
-//		volatile size_t * value = (volatile size_t *) cookie;
-//		fprintf(stderr, "(%zu) local_msg_dispatch() short recv:  cookie %p = %d\n", state.myPlaceId, cookie, *value);
-//	#endif
+		//fprintf(stderr, "Place %lu waiting on a partially delivered message %i, len=%u\n", state.myPlaceId, hdr.type, pipe_size);
 
-	x10rt_msg_params mp;
-	mp.dest_place = state.myPlaceId;
-	mp.type = *((x10rt_msg_type*)header_addr);
-	mp.msg = (void *)pipe_addr;
-	mp.len = pipe_size;
+		recv->local_fn = std_msg_complete;
+		recv->cookie   = (void *)&hdr;
+		recv->type     = PAMI_BYTE;
+		recv->addr     = hdr.data_ptr;
+		recv->offset   = 0;
+		//recv->data_fn  = PAMI_DATA_COPY;
+		state.recv_active = 1;
+	}
+	else
+	{	// all the data is available, and ready to process
+		x10rt_msg_params mp;
+		mp.dest_place = state.myPlaceId;
+		mp.type = *((x10rt_msg_type*)header_addr);
+		mp.len = pipe_size;
+		mp.msg = (void *)pipe_addr;
 
-	#ifdef DEBUG
-		fprintf(stderr, "Place %lu processing standard message %i, len=%u\n", state.myPlaceId, mp.type, mp.len);
-	#endif
-	handlerCallback hcb = state.callBackTable[mp.type].handler;
-	hcb(&mp);
-
-//	#ifdef DEBUG
-//		fprintf(stderr, "(%lu) processed standard message type %i\n", state.myPlaceId, mp.type);
-//	#endif
-	state.recv_active = 1;
+		#ifdef DEBUG
+			fprintf(stderr, "Place %lu processing standard message %i, len=%u\n", state.myPlaceId, mp.type, mp.len);
+		#endif
+		handlerCallback hcb = state.callBackTable[mp.type].handler;
+		hcb(&mp);
+		state.recv_active = 1;
+	}
 }
 
 // PAMI handler for PUT messages.
@@ -153,7 +183,7 @@ static void local_put_dispatch (
 	struct x10rt_pami_header * header = (struct x10rt_pami_header *) header_addr;
 	mp.dest_place = state.myPlaceId;
 	mp.type = header->type;
-	mp.msg = (void*)(((char*)header_addr)+sizeof(struct x10rt_pami_header));
+	mp.msg = (void*)(((uint8_t*)header_addr)+sizeof(struct x10rt_pami_header));
 	mp.len = header->data_len;
 
 	#ifdef DEBUG
@@ -506,7 +536,7 @@ void x10rt_net_send_put (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
 	if ((status = PAMI_Endpoint_create(state.client, p->dest_place, 0, &target)) != PAMI_SUCCESS)
 		error("Unable to create a target endpoint for sending a PUT message from %u to %u: %i\n", state.myPlaceId, p->dest_place, status);
 
-	char* buffer = (char*)alloca(sizeof(struct x10rt_pami_header) + p->len);
+	uint8_t* buffer = (uint8_t*)alloca(sizeof(struct x10rt_pami_header) + p->len);
 	if (buffer == NULL) error("Unable to allocate a temporary buffer of size %d for PUT", p->len+sizeof(struct x10rt_pami_header));
 	struct x10rt_pami_header *header = (struct x10rt_pami_header *)buffer;
 	header->type = p->type;
