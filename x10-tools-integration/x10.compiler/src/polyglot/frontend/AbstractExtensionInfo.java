@@ -167,10 +167,6 @@ public abstract class AbstractExtensionInfo implements ExtensionInfo {
         return getClass().getName();
     }
 
-    public ClassFile createClassFile(File classFileSource, byte[] code){
-        return new ClassFile(classFileSource, code, this);
-    }
-
     public FileSource createFileSource(File f, boolean user)
 	throws IOException
     {

@@ -224,7 +224,11 @@ void Launcher::initialize(int argc, char ** argv)
 	/* -------------------------------------------- */
 	/*  set up notification from dying processes    */
 	/* -------------------------------------------- */
+	// windows/cygwin seems to have problems with the return code saved in the SIGCHLD handler.
+	// better to just ignore them in realtime, and capture the necessary return codes at shutdown time.
+#ifndef __CYGWIN__
 	signal(SIGCHLD, Launcher::cb_sighandler_cld);
+#endif
 	signal(SIGTERM, Launcher::cb_sighandler_term);
 }
 

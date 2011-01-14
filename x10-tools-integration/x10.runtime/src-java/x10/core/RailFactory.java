@@ -102,47 +102,47 @@ public abstract class RailFactory {
         if (value instanceof int[]) {
             int[] typed_value = (int[]) value;
             for (int i = 0; i < typed_value.length; i++) {
-                typed_value[i] = (Integer) init.apply(i, Types.INT);
+                typed_value[i] = (Integer) init.$apply(i, Types.INT);
             }
         } else if (value instanceof long[]) {
             long[] typed_value = (long[]) value;
             for (int i = 0; i < typed_value.length; i++) {
-                typed_value[i] = (Long) init.apply(i, Types.INT);
+                typed_value[i] = (Long) init.$apply(i, Types.INT);
             }
         } else if (value instanceof float[]) {
             float[] typed_value = (float[]) value;
             for (int i = 0; i < typed_value.length; i++) {
-                typed_value[i] = (Float) init.apply(i, Types.INT);
+                typed_value[i] = (Float) init.$apply(i, Types.INT);
             }
         } else if (value instanceof double[]) {
             double[] typed_value = (double[]) value;
             for (int i = 0; i < typed_value.length; i++) {
-                typed_value[i] = (Double) init.apply(i, Types.INT);
+                typed_value[i] = (Double) init.$apply(i, Types.INT);
             }
         } else if (value instanceof byte[]) {
             byte[] typed_value = (byte[]) value;
             for (int i = 0; i < typed_value.length; i++) {
-                typed_value[i] = (Byte) init.apply(i, Types.INT);
+                typed_value[i] = (Byte) init.$apply(i, Types.INT);
             }
         } else if (value instanceof short[]) {
             short[] typed_value = (short[]) value;
             for (int i = 0; i < typed_value.length; i++) {
-                typed_value[i] = (Short) init.apply(i, Types.INT);
+                typed_value[i] = (Short) init.$apply(i, Types.INT);
             }
         } else if (value instanceof char[]) {
             char[] typed_value = (char[]) value;
             for (int i = 0; i < typed_value.length; i++) {
-                typed_value[i] = (Character) init.apply(i, Types.INT);
+                typed_value[i] = (Character) init.$apply(i, Types.INT);
             }
         } else if (value instanceof boolean[]) {
             boolean[] typed_value = (boolean[]) value;
             for (int i = 0; i < typed_value.length; i++) {
-                typed_value[i] = (Boolean) init.apply(i, Types.INT);
+                typed_value[i] = (Boolean) init.$apply(i, Types.INT);
             }
         } else {
             Object[] typed_value = (Object[]) value;
             for (int i = 0; i < typed_value.length; i++) {
-                typed_value[i] = init.apply(i, Types.INT);
+                typed_value[i] = init.$apply(i, Types.INT);
             }
         }
     }

@@ -42,7 +42,7 @@ class x10aux::InitClosure : public x10::lang::Closure
         virtual x10aux::itable_entry* _getITables() { return _itables; }
 
         // closure body
-        void apply () {
+        void __apply () {
             init();
         }
 
@@ -68,7 +68,7 @@ class x10aux::InitClosure : public x10::lang::Closure
         }
 };
 
-x10::lang::VoidFun_0_0::itable<InitClosure> InitClosure::_itable(&InitClosure::apply, 
+x10::lang::VoidFun_0_0::itable<InitClosure> InitClosure::_itable(&InitClosure::__apply, 
                                                                  &InitClosure::equals, &InitClosure::hashCode,
                                                                  &InitClosure::toString, &InitClosure::typeName);
 

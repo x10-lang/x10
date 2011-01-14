@@ -4305,3 +4305,10 @@ class ArrayAndRegionTests {
 	def m1(Array[Int]{zeroBased, rect, rank==1}) {}
 	def m2(Array[Int]{region.zeroBased, region.rect, region.rank==1}) {}
 }
+
+class PropertyFieldTest42 { // XTENLANG-945
+	interface I(a:Int) {}
+	class B {
+		def m(i:I) = i.a;
+	}
+}

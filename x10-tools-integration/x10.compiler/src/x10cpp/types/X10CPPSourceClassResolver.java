@@ -57,32 +57,25 @@ public class X10CPPSourceClassResolver extends X10SourceClassResolver {
         if (source == null)
             return null;
         
-        // DAVEG: Disabled because handleUpToDateTarget is unreliable in the presence of x10 source files 
-        //        containing multiple x10 classes.
-        //        Need to properly track the relationship between source files and generated C++ entities
-        //        for this to actually work reliably.
-        // SEE XTENLANG-2256.
-        if (false) {
-            String packageName = name.qualifier() != null ? name.qualifier().toString() : null;
-            final File cc = X10CPPTranslator.outputFile(ext.getOptions(), packageName, name.name().toString(), StreamWrapper.CC);
-            final File h = X10CPPTranslator.outputFile(ext.getOptions(), packageName, name.name().toString(), StreamWrapper.Header);
+        String packageName = name.qualifier() != null ? name.qualifier().toString() : null;
+        final File cc = X10CPPTranslator.outputFile(ext.getOptions(), packageName, name.name().toString(), StreamWrapper.CC);
+        final File h = X10CPPTranslator.outputFile(ext.getOptions(), packageName, name.name().toString(), StreamWrapper.Header);
 
-            if (cc.exists() && h.exists()) {
-                final File oldest = oldestFile(new File[] {cc,h});
-                return new Resource() {
-                    public File file() {
-                        return oldest;
-                    }
+        if (cc.exists() && h.exists()) {
+            final File oldest = oldestFile(new File[] {cc,h});
+            return new Resource() {
+                public File file() {
+                    return oldest;
+                }
 
-                    public InputStream getInputStream() throws IOException {
-                        throw new IOException();
-                    }
+                public InputStream getInputStream() throws IOException {
+                    throw new IOException();
+                }
 
-                    public String name() {
-                        return cc.getPath();
-                    }
-                };
-            }
+                public String name() {
+                    return cc.getPath();
+                }
+            };
         }
 
         nocache.add(name);

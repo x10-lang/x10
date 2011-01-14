@@ -11,6 +11,7 @@ import java.util.List;
 
 
 import x10.types.MethodInstance;
+import x10.ast.X10Call;
 
 /**
  * A <code>Call</code> is an immutable representation of a Java
@@ -28,7 +29,7 @@ public interface Call extends Expr, ProcedureCall
     /**
      * Set the call's target.
      */
-    Call target(Receiver target);
+    X10Call target(Receiver target);
     
     /**
      * The name of the method to call.
@@ -38,7 +39,7 @@ public interface Call extends Expr, ProcedureCall
     /**
      * Set the name of the method to call.
      */
-    Call name(Id name);
+    X10Call name(Id name);
 
     /**
      * Indicates if the target of this call is implicit, that 
@@ -50,7 +51,7 @@ public interface Call extends Expr, ProcedureCall
     /**
      * Set whether the target of this call is implicit.
      */
-    Call targetImplicit(boolean targetImplicit);
+    X10Call targetImplicit(boolean targetImplicit);
     
     /**
      * The call's actual arguments.
@@ -62,7 +63,7 @@ public interface Call extends Expr, ProcedureCall
      * Set the call's actual arguments.
      * @param arguments A list of {@link polyglot.ast.Expr Expr}.
      */
-    Call arguments(List<Expr> arguments);
+    X10Call arguments(List<Expr> arguments);
 
     /**
      * The type object of the method we are calling.  This is, generally, only
@@ -73,5 +74,8 @@ public interface Call extends Expr, ProcedureCall
     /**
      * Set the type object of the method we are calling.
      */
-    Call methodInstance(MethodInstance mi);
+    X10Call methodInstance(MethodInstance mi);
+
+
+	X10Call typeArguments(List<TypeNode> args);
 }

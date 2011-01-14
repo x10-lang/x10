@@ -41,8 +41,8 @@ public struct GlobalRef[+T](
     * Can only be invoked at the place at which the value was
     * created. Returns the object encapsulated in the value.
     */
-   @Native("java", "(#0).apply$G()")
-   @Native("c++", "(#0)->apply()")
+   @Native("java", "(#0).$apply$G()")
+   @Native("c++", "(#0)->__apply()")
    public native operator this(){here == this.home}:T;
 
    /*

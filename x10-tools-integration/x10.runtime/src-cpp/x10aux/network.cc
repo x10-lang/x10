@@ -307,7 +307,7 @@ static void receive_async (const x10rt_msg_params *p) {
             _X_("The deserialised general async was: "<<x10aux::safe_to_string(body));
             deserialized_bytes += buf.consumed()  ; asyncs_received++;
             if (body.isNull()) return;
-            VoidFun_0_0::apply(body);
+            VoidFun_0_0::__apply(body);
             x10aux::dealloc(body.operator->());
         } break;
         case x10aux::CLOSURE_KIND_SIMPLE_ASYNC: {
@@ -478,7 +478,7 @@ void x10aux::cuda_put (place gpu, x10_ulong addr, void *var, size_t sz)
 // teams
 
 void *x10aux::coll_enter() {
-    x10aux::ref<x10::lang::Runtime> rt = x10::lang::PlaceLocalHandle_methods<x10aux::ref<x10::lang::Runtime> >::apply(x10::lang::Runtime::FMGL(runtime));
+    x10aux::ref<x10::lang::Runtime> rt = x10::lang::PlaceLocalHandle_methods<x10aux::ref<x10::lang::Runtime> >::__apply(x10::lang::Runtime::FMGL(runtime));
     x10aux::ref<x10::lang::FinishState> fs = rt->activity()->finishState();
     fs->notifySubActivitySpawn(x10::lang::Place_methods::_make(x10aux::here));
     fs->notifyActivityCreation();

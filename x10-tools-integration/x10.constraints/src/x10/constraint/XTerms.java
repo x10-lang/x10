@@ -146,12 +146,12 @@ public class XTerms {
 	 * Make an XName with the given object and the given
 	 * string. 
 	 * @param <T>
-	 * @param name -- must be non-null
-	 * @param s  -- the string to be used to print this name
+	 * @param typeName -- the type of the entity, must be non-null
+	 * @param s  -- the string used to name the entity.
 	 * @return
 	 */
-	public static final <T> XName makeName(T name, String s) {
-		return new XNameWrapper<T>(name, s);
+	public static final <T> XName makeName(T typeName, String s) {
+		return new XNameWrapper<T>(typeName, s);
 	}
 	
 	/**

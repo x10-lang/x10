@@ -124,10 +124,10 @@ public class PlaceChecker {
 	 * @return
 	 */
 	static XTerm homeVar(XTerm target, TypeSystem xts)  {
-		return xts.xtypeTranslator().transFakeField(new CConstraint(), target, "$$here");
+		return xts.xtypeTranslator().translateFakeField(target, "$$here");
 	}
 	static XTerm globalRefHomeVar(XTerm target, TypeSystem xts)  {
-		return xts.xtypeTranslator().trans(new CConstraint(), target, GlobalRefHome(xts));
+		return xts.xtypeTranslator().translate(target, GlobalRefHome(xts));
 	}
 	
 	public static XTerm placeTerm(Type t) {
@@ -621,7 +621,7 @@ public class PlaceChecker {
 			XConstrainedTerm pt = null;
 	    	boolean placeIsPlace = ts.isImplicitCastValid(placeType, ts.Place(), xc);
 	    	if (placeIsPlace)  {
-	    		term = ts.xtypeTranslator().trans(pc, place, xc);
+	    		term = ts.xtypeTranslator().translate(pc, place, xc);
 	    		if (term == null) {
 	    			term = makePlace();
 	    		}
@@ -635,7 +635,7 @@ public class PlaceChecker {
 	    	} else {
 	    		boolean placeIsRef = ts.hasSameClassDef(Types.baseType(placeType), ts.GlobalRef());
 	    		if (placeIsRef) {
-	    			XTerm src = ts.xtypeTranslator().trans(pc, place, xc);
+	    			XTerm src = ts.xtypeTranslator().translate(pc, place, xc);
 	    			if (src == null) {
 	    				src = XTerms.makeUQV("_anon");
 	    			}

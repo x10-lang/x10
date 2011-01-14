@@ -9,6 +9,8 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
+package WorkStealing.Samples;
+
 public class IntegrateTest {
     public def run():boolean {
         val res = Integrate.computeArea(0, 64);

@@ -57,7 +57,7 @@ public class ClassFileLoader
     /**
      * Load a class from an input stream.
      */
-    ClassFile loadFromStream(File source, InputStream in, String name) throws IOException {
+    protected ClassFile loadFromStream(File source, InputStream in, String name) throws IOException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
 
         byte[] buf = new byte[4096];
@@ -73,11 +73,15 @@ public class ClassFileLoader
         try {
             if (Report.should_report(verbose, 3))
 		Report.report(3, "defining class " + name);
-            return extensionInfo.createClassFile(source, bytecode);
+            return createClassFile(source, bytecode);
         }
         catch (ClassFormatError e) {
             throw new IOException(e.getMessage());
         }
+    }
+
+    protected ClassFile createClassFile(File source, byte[] bytecode) {
+        return new ClassFile(source, bytecode, extensionInfo);
     }
 
     protected static Collection<String> verbose;

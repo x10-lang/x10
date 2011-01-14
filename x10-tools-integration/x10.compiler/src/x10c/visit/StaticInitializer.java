@@ -828,7 +828,7 @@ public class StaticInitializer extends ContextVisitor {
 
     private Expr genApplyPLH(Position pos, Receiver receiver, FieldDecl fdPLH, Type returnType,
                              List<Stmt> stmts) {
-        Name name = Name.make("apply$G");
+        Name name = Name.make("$apply$G");
 
         FieldInstance fi = fdPLH.fieldDef().asInstance();
         Expr target = xnf.Field(pos, receiver, fdPLH.name()).fieldInstance(fi).type(fdPLH.declType());

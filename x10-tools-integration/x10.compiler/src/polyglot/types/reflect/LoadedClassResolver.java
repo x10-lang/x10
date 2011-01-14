@@ -5,7 +5,7 @@
  * 
  */
 
-package polyglot.types;
+package polyglot.types.reflect;
 
 import java.io.File;
 import java.io.InvalidClassException;
@@ -14,7 +14,17 @@ import java.util.*;
 import polyglot.frontend.*;
 import polyglot.main.Report;
 import polyglot.main.Version;
-import polyglot.types.reflect.*;
+import polyglot.types.BadSerializationException;
+import polyglot.types.ClassType;
+import polyglot.types.ConstructorInstance;
+import polyglot.types.FieldInstance;
+import polyglot.types.Named;
+import polyglot.types.NoClassException;
+import polyglot.types.QName;
+import polyglot.types.SemanticException;
+import polyglot.types.TopLevelResolver;
+import polyglot.types.TypeObject;
+import polyglot.types.TypeSystem;
 import polyglot.util.*;
 import x10.types.MethodInstance;
 
@@ -130,7 +140,7 @@ public class LoadedClassResolver implements TopLevelResolver
     if (allowRawClasses) {
       if (Report.should_report(report_topics, 4))
 	Report.report(4, "Using raw class file for " + name);
-      result = ts.classFileLazyClassInitializer(clazz).type().asType();
+      result = new ClassFileLazyClassInitializer(clazz, ts).type().asType();
     }
     
     // Verify that the type we loaded has the right name.  This prevents,

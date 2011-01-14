@@ -47,7 +47,7 @@ namespace x10aux {
         virtual x10aux::itable_entry* _getITables() { return _itables; }
 
         // closure body
-        void apply () {
+        void __apply () {
             // Initialise the static fields of x10 classes.
             x10aux::InitDispatcher::runInitializers();
         }
@@ -86,7 +86,7 @@ namespace x10aux {
         virtual x10aux::itable_entry* _getITables() { return _itables; }
 
         // closure body
-        void apply () {
+        void __apply () {
             // Invoke the application main().
             main(args);
         }
@@ -150,8 +150,8 @@ namespace x10aux {
 
             x10aux::DeserializationDispatcher::registerHandlers();
             Runtime::start(init_closure, main_closure); // use XRX
-            //init_closure->apply(); // bypass XRX
-            //main_closure->apply(); // bypass XRX
+            //init_closure->__apply(); // bypass XRX
+            //main_closure->__apply(); // bypass XRX
             //sleep(3);
 
 #ifndef NO_EXCEPTIONS

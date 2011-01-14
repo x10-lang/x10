@@ -17,7 +17,7 @@ import x10.rtt.Type;
 import x10.rtt.VoidFunType;
 
 public interface VoidFun_0_3<T1,T2,T3> extends VoidFun {
-    Object apply(T1 o1, Type t1, T2 o2, Type t2, T3 o3, Type t3);
+    Object $apply(T1 o1, Type t1, T2 o2, Type t2, T3 o3, Type t3);
 
     public static final RuntimeType<VoidFun_0_3<?,?,?>> _RTT = new VoidFunType<VoidFun_0_3<?,?,?>>(
         VoidFun_0_3.class,

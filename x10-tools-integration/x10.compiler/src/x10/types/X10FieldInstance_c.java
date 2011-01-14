@@ -116,19 +116,19 @@ public class X10FieldInstance_c extends FieldInstance_c implements X10FieldInsta
                     XTerm receiver;
 
                     if (flags.isStatic()) {
-                        receiver = xts.xtypeTranslator().trans(container());
+                        receiver = xts.xtypeTranslator().translate(container());
                     }
                     else {
                         receiver = x10Def().thisVar();
                         assert receiver != null;
                     }
 
-                    try {
+                   try {
                         CConstraint c = rc.copy();
 
                         // ### pass in the type rather than letting XField call fi.type();
                         // otherwise, we'll get called recursively.
-                        XTerm self = xts.xtypeTranslator().trans(c, receiver, this, t);
+                        XTerm self = xts.xtypeTranslator().translate(receiver, this);
                         // Add {self = receiver.field} clause.
                         c.addSelfBinding(self);
                         if (receiver instanceof XVar) {
@@ -140,9 +140,6 @@ public class X10FieldInstance_c extends FieldInstance_c implements X10FieldInsta
                     }
                     catch (XFailure f) {
                         throw new InternalCompilerError("Could not add self binding: " + f.getMessage(), f);
-                    }
-                    catch (SemanticException f) {
-                        throw new InternalCompilerError(f);
                     }
                 }
             }

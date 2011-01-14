@@ -1,5 +1,5 @@
 /*
- *  This file is part of the Jikes RVM project (http://jikesrvm.org).
+ *  This file is derived from the Jikes RVM project (http://jikesrvm.org).
  *
  *  This file is licensed to You under the Eclipse Public License (EPL);
  *  You may not use this file except in compliance with the License. You
@@ -20,36 +20,47 @@ import org.apache.tools.ant.taskdefs.condition.ConditionBase;
 
 /**
  * The if task makes it easier to performs some tasks conditionally.
- * It contains a nested condition and associated sequential task.
+ * It contains a nested condition and associated then and else task.
  */
 public class IfTask
     extends Task {
-  private MacroDef macroDef;
+  private MacroDef thenMacro;
+  private MacroDef elseMacro;
   private ConditionSet conditions = new ConditionSet();
 
   public ConditionSet createConditions() { return conditions; }
 
-  public MacroDef.NestedSequential createSequential() {
-    macroDef = new MacroDef();
-    macroDef.setProject(getProject());
-    return macroDef.createSequential();
+  public MacroDef.NestedSequential createThen() {
+    if (thenMacro != null) throw new BuildException("Can only define one then.");
+    thenMacro = new MacroDef();
+    thenMacro.setProject(getProject());
+    return thenMacro.createSequential();
   }
+  
+  public MacroDef.NestedSequential createElse() {
+      if (elseMacro != null) throw new BuildException("Can only define one else.");
+      elseMacro = new MacroDef();
+      elseMacro.setProject(getProject());
+      return elseMacro.createSequential();
+    }
 
   public void execute() {
     validate();
-
-    if (conditions.getCondition().eval()) {
+    
+    MacroDef toExecute = conditions.getCondition().eval() ? thenMacro : elseMacro;
+    
+    if (toExecute != null) {
       final MacroInstance i = new MacroInstance();
       i.setProject(getProject());
       i.setOwningTarget(getOwningTarget());
-      i.setMacroDef(macroDef);
+      i.setMacroDef(toExecute);
       i.execute();
     }
   }
 
   private void validate() {
     if (!conditions.containsSingleCondition()) throw new BuildException("Must specify exactly one condition.");
-    if (null == macroDef) throw new BuildException("Must specify a sequential task to execute.");
+    if (null == thenMacro) throw new BuildException("Must specify a then clause for if to execute.");
   }
 
   public static class ConditionSet extends ConditionBase {

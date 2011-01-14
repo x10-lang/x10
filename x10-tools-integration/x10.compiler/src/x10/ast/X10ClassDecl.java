@@ -32,20 +32,5 @@ import x10.types.X10ClassDef;
 import polyglot.types.TypeSystem;
 
 public interface X10ClassDecl extends ClassDecl {
-	DepParameterExpr classInvariant();
-	X10ClassDecl classInvariant(DepParameterExpr classInvariant);
-	
-	List<TypeParamNode> typeParameters();
-	X10ClassDecl typeParameters(List<TypeParamNode> typeParameters);
-	
-	List<PropertyDecl> properties();
-	X10ClassDecl properties(List<PropertyDecl> ps);
-	
-	X10ClassDecl classDef(ClassDef type);
-	X10ClassDecl flags(FlagsNode flags);
-	X10ClassDecl name(Id name);
-	X10ClassDecl superClass(TypeNode superClass);
-	X10ClassDecl interfaces(List<TypeNode> interfaces);
-	X10ClassDecl body(ClassBody body);
-	X10ClassDef classDef();
+
 }

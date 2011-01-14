@@ -202,7 +202,7 @@ namespace x10 {
              * Subclasses of Thread should override this method.
              * This method is invoked when the thread is started.
              */
-            virtual void apply();
+            virtual void __apply();
 
         protected:
             // Helper method to initialize a Thread object.

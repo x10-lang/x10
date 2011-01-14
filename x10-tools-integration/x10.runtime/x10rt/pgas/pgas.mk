@@ -42,6 +42,9 @@ ifeq ($(X10RT_PLATFORM), aix_xlc)
   LAPI_LDFLAGS   += -Wl,-binitfini:poe_remote_main 
   LAPI_LDDEPS    := -L/usr/lpp/ppe.poe/lib -lmpi_r -lvtd_r -llapi_r -lpthread -lm
   LAPI_LDLIBS    += $(LAPI_LDDEPS)
+  PANE_LDFLAGS   += -Wl,-binitfini:poe_remote_main -L/usr/lpp/ppe.poe/lib
+  PANE_ARLIBS     = -llapi_r -lpthread -lm
+  PANE_LDLIBS    += -lmpi_r -lvtd_r $(PANE_ARLIBS)
   WPLATFORM      := aix_xlc
   PLATFORM_SUPPORTS_LAPI       := yes
   # PLATFORM_SUPPORTS_SOCKETS    := yes

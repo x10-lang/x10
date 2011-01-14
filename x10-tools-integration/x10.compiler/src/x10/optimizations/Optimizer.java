@@ -71,13 +71,8 @@ public class Optimizer {
         X10CompilerOptions opts = (X10CompilerOptions) extInfo.getOptions();
         List<Goal> goals = new ArrayList<Goal>();
         if (opts.x10_config.LOOP_OPTIMIZATIONS) {
-            if (opts.x10_config.EXPERIMENTAL) {
-                goals.add(ForLoopOptimizations());
-                goals.add(LoopUnrolling());
-            } else {
-                goals.add(LoopUnrolling());
-                goals.add(ForLoopOptimizations());
-            }
+            goals.add(LoopUnrolling());
+            goals.add(ForLoopOptimizations());
         }
         if (INLINING(extInfo)) {
             goals.add(Inliner());

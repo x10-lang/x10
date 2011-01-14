@@ -30,7 +30,7 @@ import polyglot.util.*;
  */
 public class ClassFile {
     protected Constant[] constants; // The constant pool
-    protected int modifiers;        // This class's modifer bit field
+    protected int modifiers;        // This class's modifier bit field
     protected int thisClass;              
     protected int superClass;             
     protected int[] interfaces;           

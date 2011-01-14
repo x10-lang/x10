@@ -170,10 +170,11 @@ public abstract class Configuration {
 	}
 
     /**
-     * Get a given field or component in a given class to the given value.
+     * Get a given field or component in a given class.
      * @param config the configuration object
      * @param cls the configuration class
      * @param key the field key
+     * @return the value of the given component
      * @throws OptionError if the argument is invalid
      * @throws ConfigurationError if there was a problem processing the argument
      */
@@ -310,11 +311,11 @@ public abstract class Configuration {
 	 * are private final String fields named OPTION_desc, where OPTION is the
 	 * corresponding option field.
 	 * TODO: Sort the options?
-	 *
+	 * @param config the configuration object
 	 * @param cls the configuration class
 	 * @return array of two-element String arrays
 	 */
-	protected static String[][] options(Class<? extends Configuration> cls) {
+	protected static String[][] options(Object config, Class<? extends Configuration> cls) {
 		Field[] flds = cls.getFields();
 		int num = 0;
 		for (int i = 0; i < flds.length; i++) {
@@ -350,7 +351,7 @@ public abstract class Configuration {
 			} catch (IllegalAccessException iae) {
 			}
 			try {
-				v = f.get(null);
+				v = f.get(config);
 			} catch (IllegalAccessException iae) {
 			}
 			if (!t.isPrimitive() && v != null)

@@ -9,6 +9,7 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
+package WorkStealing.Construct;
 
 //Test struct with generics
 

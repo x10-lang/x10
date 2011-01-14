@@ -8,7 +8,7 @@
  *
  *  (C) Copyright IBM Corporation 2006-2010.
  */
-
+package WorkStealing.Construct;
 /*
  * Test closure with concurrent construct as parameter.
  * Closure is used as a inializer

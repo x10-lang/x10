@@ -28,6 +28,9 @@ import polyglot.ast.Prefix;
 import polyglot.ast.Receiver;
 import polyglot.ast.Special;
 import polyglot.ast.TypeNode;
+import polyglot.ast.Precedence;
+import polyglot.ast.Call;
+import polyglot.ast.Term;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.ConstructorDef;
@@ -44,9 +47,14 @@ import polyglot.util.CollectionUtil;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Pair;
 import polyglot.util.Position;
+import polyglot.util.TypedList;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
+import polyglot.visit.TypeBuilder;
+import polyglot.visit.AscriptionVisitor;
+import polyglot.visit.CFGBuilder;
+import polyglot.visit.ExceptionChecker;
 import x10.constraint.XVar;
 import x10.errors.Errors;
 import x10.errors.Warnings;
@@ -60,6 +68,10 @@ import x10.types.X10LocalInstance;
 import x10.types.MethodInstance;
 import x10.types.X10ParsedClassType;
 import polyglot.types.TypeSystem;
+import polyglot.types.ProcedureDef;
+import polyglot.types.ProcedureInstance;
+import polyglot.types.MethodDef;
+import polyglot.types.ErrorRef_c;
 import x10.types.checker.Checker;
 import x10.types.checker.PlaceChecker;
 import x10.visit.X10TypeChecker;
@@ -70,12 +82,239 @@ import x10.visit.X10TypeChecker;
  * @author vj
  */
 public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
+    protected Receiver target;
+    protected Id name;
+    protected List<Expr> arguments;
+    protected MethodInstance mi;
+    protected boolean targetImplicit;
+
 	// TODO: implement Settable and decompose x.apply(i)
 	public X10Call_c(Position pos, Receiver target, Id name,
 			List<TypeNode> typeArguments, List<Expr> arguments) {
-		super(pos, target, name, arguments);
+		super(pos);
+        assert(name != null && arguments != null); // target may be null
+        this.target = target;
+        this.name = name;
+        this.arguments = TypedList.copyAndCheck(arguments, Expr.class, true);
+        this.targetImplicit = (target == null);
 		this.typeArguments = new ArrayList<TypeNode>(typeArguments);
 	}
+
+  /** Get the precedence of the call. */
+  public Precedence precedence() {
+    return Precedence.LITERAL;
+  }
+
+  /** Get the target object or type of the call. */
+  public Receiver target() {
+    return this.target;
+  }
+
+  /** Get the name of the call. */
+  public Id name() {
+      return this.name;
+  }
+
+  public MethodInstance procedureInstance() {
+      return methodInstance();
+  }
+
+  public Call procedureInstance(ProcedureInstance<? extends ProcedureDef> pi) {
+      return methodInstance((MethodInstance) pi);
+  }
+
+  public boolean isTargetImplicit() {
+      return this.targetImplicit;
+  }
+
+  /** Get the actual arguments of the call. */
+  public List<Expr> arguments() {
+    return this.arguments;
+  }
+
+  /** Reconstruct the call. */
+  protected X10Call_c reconstruct(Receiver target, Id name, List<Expr> arguments) {
+    if (target != this.target || name != this.name || ! CollectionUtil.allEqual(arguments,
+                                                         this.arguments)) {
+      X10Call_c n = (X10Call_c) copy();
+
+      // If the target changes, assume we want it to be an explicit target.
+      n.targetImplicit = n.targetImplicit && target == n.target;
+
+      n.target = target;
+      n.name = name;
+      n.arguments = TypedList.copyAndCheck(arguments, Expr.class, true);
+      return n;
+    }
+
+    return this;
+  }
+
+  public Node buildTypes(TypeBuilder tb) throws SemanticException {
+    Call_c n = (Call_c) super.buildTypes(tb);
+
+    TypeSystem ts = tb.typeSystem();
+
+    MethodInstance mi = ts.createMethodInstance(position(), new ErrorRef_c<MethodDef>(ts, position(), "Cannot get MethodDef before type-checking method invocation."));
+    return n.methodInstance(mi);
+  }
+
+  /**
+     * Typecheck the Call when the target is null. This method finds
+     * an appropriate target, and then type checks accordingly.
+     *
+     * @param argTypes list of <code>Type</code>s of the arguments
+     */
+    protected Node typeCheckNullTarget(ContextVisitor tc, List<Type> argTypes) throws SemanticException {
+        TypeSystem ts = tc.typeSystem();
+        NodeFactory nf = tc.nodeFactory();
+        Context c = tc.context();
+
+        // the target is null, and thus implicit
+        // let's find the target, using the context, and
+        // set the target appropriately, and then type check
+        // the result
+        MethodInstance mi = c.findMethod(ts.MethodMatcher(null, name.id(), argTypes, c));
+
+        Receiver r;
+        if (mi.flags().isStatic()) {
+            Type container = findContainer(ts, mi);
+            r = nf.CanonicalTypeNode(position().startOf(), container).typeRef(Types.ref(container));
+        } else {
+            // The method is non-static, so we must prepend with "this", but we
+            // need to determine if the "this" should be qualified.  Get the
+            // enclosing class which brought the method into scope.  This is
+            // different from mi.container().  mi.container() returns a super type
+            // of the class we want.
+            ClassType scope = c.findMethodScope(name.id());
+
+            if (! ts.typeEquals(scope, c.currentClass(), c)) {
+                r = (Special) nf.This(position().startOf(),
+                            nf.CanonicalTypeNode(position().startOf(), scope)).del().typeCheck(tc);
+            }
+            else {
+                r = (Special) nf.This(position().startOf()).del().typeCheck(tc);
+            }
+        }
+
+        // we call computeTypes on the reciever too.
+        Call_c call = (Call_c) this.targetImplicit(true).target(r);
+        call = (Call_c)call.methodInstance(mi).type(mi.returnType());
+//        call = (Call_c) call.methodInstance(mi);
+        return call;
+    }
+
+    /**
+     * Used to find the missing static target of a static method call.
+     * Should return the container of the method instance.
+     *
+     */
+    protected Type findContainer(TypeSystem ts, MethodInstance mi) {
+        return mi.container();
+    }
+
+  public Type childExpectedType(Expr child, AscriptionVisitor av)
+  {
+      if (child == target) {
+          return mi.container();
+      }
+
+      Iterator<Expr> i = this.arguments.iterator();
+      Iterator<Type> j = mi.formalTypes().iterator();
+
+      while (i.hasNext() && j.hasNext()) {
+          Expr e = (Expr) i.next();
+          Type t = (Type) j.next();
+
+          if (e == child) {
+              return t;
+          }
+      }
+
+      return child.type();
+  }
+
+  /** Dumps the AST. */
+  public void dump(CodeWriter w) {
+    super.dump(w);
+
+    w.allowBreak(4, " ");
+    w.begin(0);
+    w.write("(targetImplicit " + targetImplicit + ")");
+    w.end();
+
+    if ( mi != null ) {
+      w.allowBreak(4, " ");
+      w.begin(0);
+      w.write("(instance " + mi + ")");
+      w.end();
+    }
+
+    w.allowBreak(4, " ");
+    w.begin(0);
+    w.write("(name " + name + ")");
+    w.end();
+
+    w.allowBreak(4, " ");
+    w.begin(0);
+    w.write("(arguments " + arguments + ")");
+    w.end();
+  }
+
+  public Term firstChild() {
+      if (target instanceof Term) {
+          return (Term) target;
+      }
+      return listChild(arguments, null);
+  }
+
+  public <S> List<S> acceptCFG(CFGBuilder v, List<S> succs) {
+      if (target instanceof Term) {
+          Term t = (Term) target;
+
+          if (!arguments.isEmpty()) {
+              v.visitCFG(t, listChild(arguments, null), ENTRY);
+              v.visitCFGList(arguments, this, EXIT);
+          } else {
+              v.visitCFG(t, this, EXIT);
+          }
+      }
+
+      return succs;
+  }
+
+  /** Check exceptions thrown by the call. */
+  public Node exceptionCheck(ExceptionChecker ec) throws SemanticException {
+    if (mi == null) {
+      throw new InternalCompilerError(position(),
+                                      "Null method instance after type "
+                                      + "check.");
+    }
+
+    return super.exceptionCheck(ec);
+  }
+
+
+  // check that the implicit target setting is correct.
+  protected void checkConsistency(Context c) throws SemanticException {
+      if (targetImplicit) {
+          // the target is implicit. Check that the
+          // method found in the target type is the
+          // same as the method found in the context.
+
+          // as exception will be thrown if no appropriate method
+          // exists.
+          MethodInstance ctxtMI = c.findMethod(c.typeSystem().MethodMatcher(null, name.id(), mi.formalTypes(), c));
+
+          // cannot perform this check due to the context's findMethod returning a
+          // different method instance than the typeSystem in some situations
+//          if (!c.typeSystem().equals(ctxtMI, mi)) {
+//              throw new InternalCompilerError("Method call " + this + " has an " +
+//                   "implicit target, but the name " + name + " resolves to " +
+//                   ctxtMI + " in " + ctxtMI.container() + " instead of " + mi+ " in " + mi.container(), position());
+//          }
+      }
+  }
 
 	List<TypeNode> typeArguments;
 	public List<TypeNode> typeArguments() { return typeArguments; }
@@ -86,31 +325,39 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 		return n;
 	}
 
-	@Override
 	public X10Call target(Receiver target) {
-	    return (X10Call) super.target(target);
+        X10Call_c n = (X10Call_c) copy();
+        n.target = target;
+        return n;
 	}
-	@Override
-	public X10Call name(Id name) {
-	    return (X10Call) super.name(name);
+	public X10Call name(Id name)  {
+        X10Call_c n = (X10Call_c) copy();
+        n.name = name;
+        return n;
 	}
-	@Override
 	public X10Call targetImplicit(boolean targetImplicit) {
-	    return (X10Call) super.targetImplicit(targetImplicit);
+        if (targetImplicit == this.targetImplicit) {
+            return this;
+        }
+        X10Call_c n = (X10Call_c) copy();
+        n.targetImplicit = targetImplicit;
+        return n;
 	}
-	@Override
-	public X10Call arguments(List<Expr> args) {
-		if (args == this.arguments) return this;
-		return (X10Call) super.arguments(args);
+	public X10Call arguments(List<Expr> arguments) {
+		if (arguments == this.arguments) return this;
+        X10Call_c n = (X10Call_c) copy();
+        n.arguments = TypedList.copyAndCheck(arguments, Expr.class, true);
+        return n;
 	}
-	@Override
 	public MethodInstance methodInstance() {
-	    return (MethodInstance) super.methodInstance();
+	    return (MethodInstance) this.mi;
 	}
 	
-	@Override
 	public X10Call methodInstance(MethodInstance mi) {
-	    return (X10Call) super.methodInstance(mi);
+        if (mi == this.mi) return this;
+        X10Call_c n = (X10Call_c) copy();
+        n.mi = mi;
+        return n;
 	}
 	@Override
 	public Node visitChildren(NodeVisitor v) {
@@ -563,11 +810,6 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 		return methodCall;
 	}
 
-
-
-	private Node superTypeCheck(ContextVisitor tc) throws SemanticException {
-		return super.typeCheck(tc);
-	}
 
 	Object constantValue;
 	public Object constantValue() { return constantValue; }

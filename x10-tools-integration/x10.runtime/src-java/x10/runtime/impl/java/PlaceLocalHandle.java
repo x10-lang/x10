@@ -54,7 +54,7 @@ public final class PlaceLocalHandle<T> implements java.io.Serializable {
       this(T);
   }
 
-  public T apply$G() {
+  public T $apply$G() {
     int here = Thread.currentThread().home().id;
     Object data = objects[here];
     assert init_stat[here] : "At "+here+": get called on uninitialized local object";

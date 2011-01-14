@@ -13,6 +13,7 @@ package x10.constraint;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -98,8 +99,36 @@ public class XConstraint implements Cloneable {
      * Return the set of terms occuring in this constraint.
      * @return
      */
-    public Set<XTerm> terms() {
+    public Set<XTerm> rootTerms() {
     	return roots == null ? Collections.<XTerm> emptySet() : roots.keySet();
+    }
+    private void addTerm(XTerm term, Set<XVar> result) {
+        if (term==null)
+            return;
+        if (term instanceof XFormula) {
+            XFormula form = (XFormula) term;
+            for (XTerm arg : form.arguments())
+                addTerm(arg, result);
+            return;
+        } 
+        if (term instanceof XVar)
+            addVar((XVar) term, result);
+    }
+    private void addVar(XVar var, Set<XVar> result) {
+        if (var == null)
+            return;
+        result.add(var);
+        if (var instanceof XField) {
+            addVar(((XField)var).receiver(), result);
+        }
+    }
+    public Set<XVar> vars() {
+        List<XTerm> terms = constraints();
+        Set <XVar> result = new HashSet<XVar>();
+        for (XTerm term : terms) {
+           addTerm(term, result);
+        }
+        return result;   
     }
     /**
      * Copy this constraint logically; that is, create a new constraint
