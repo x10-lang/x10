@@ -66,7 +66,8 @@ static void recv_print(const x10rt_msg_params *p)
 static void coll_test (x10rt_team team, x10rt_place role, x10rt_place per_place)
 {
     int finished;
-    const int tests = 10000;
+    const int short_tests = 10000;
+    const int long_tests = 100;
     unsigned long long taken;
 
     if (getenv("NO_BARRIER")==NULL) {
@@ -97,14 +98,14 @@ static void coll_test (x10rt_team team, x10rt_place role, x10rt_place per_place)
         if (0==role) std::cout << team << ": barrier timing..." << std::endl;
         x10rt_barrier_b(team,role);
         taken = -nano_time();
-        for (int i=0 ; i<tests ; ++i) {
+        for (int i=0 ; i<short_tests ; ++i) {
             finished = 0;
             x10rt_barrier(team, role, x10rt_one_setter, &finished);
             while (!finished) { sched_yield(); x10rt_probe(); }
         }
         taken += nano_time();
         if (0==role) std::cout << team << ": barrier time:  "
-                               << ((double)taken)/tests/1000 << " μs" << std::endl;
+                               << ((double)taken)/short_tests/1000 << " μs" << std::endl;
     }
 
     if (getenv("NO_BCAST")==NULL) {
@@ -136,19 +137,19 @@ static void coll_test (x10rt_team team, x10rt_place role, x10rt_place per_place)
         if (0==role) std::cout << team << ": bcast timing test..." << std::endl;
         x10rt_barrier_b(team,role);
         taken = -nano_time();
-        for (int i=0 ; i<tests ; ++i) {
+        for (int i=0 ; i<long_tests ; ++i) {
             finished = 0;
             x10rt_bcast(team, role, root, sbuf, dbuf, el, count, x10rt_one_setter, &finished);
             while (!finished) { sched_yield(); x10rt_probe(); }
         }
         taken += nano_time();
         if (0==role) std::cout << team << ": bcast time:  "
-                               << ((double)taken)/tests/1000 << " μs" << std::endl;
+                               << ((double)taken)/long_tests/1000 << " μs" << std::endl;
     }
 
     if (getenv("NO_SCATTER")==NULL) {
         x10rt_place root = 43 % x10rt_team_sz(team);
-        size_t count = 123;
+        size_t count = 1234;
         typedef double test_t;
         test_t *sbuf = new test_t[count*x10rt_team_sz(team)];
         size_t el = sizeof(test_t);
@@ -180,18 +181,18 @@ static void coll_test (x10rt_team team, x10rt_place role, x10rt_place per_place)
         if (0==role) std::cout << team << ": scatter timing test..." << std::endl;
         x10rt_barrier_b(team,role);
         taken = -nano_time();
-        for (int i=0 ; i<tests ; ++i) {
+        for (int i=0 ; i<long_tests ; ++i) {
             finished = 0;
             x10rt_scatter(team, role, root, sbuf, dbuf, el, count, x10rt_one_setter, &finished);
             while (!finished) { sched_yield(); x10rt_probe(); }
         }
         taken += nano_time();
         if (0==role) std::cout << team << ": scatter time:  "
-                               << ((double)taken)/tests/1000 << " μs" << std::endl;
+                               << ((double)taken)/long_tests/1000 << " μs" << std::endl;
     }
 
     if (getenv("NO_ALLTOALL")==NULL) {
-        size_t count = 123;
+        size_t count = 1234;
         typedef double test_t;
         test_t *sbuf = new test_t[count*x10rt_team_sz(team)];
         size_t el = sizeof(test_t);
@@ -225,22 +226,22 @@ static void coll_test (x10rt_team team, x10rt_place role, x10rt_place per_place)
         if (0==role) std::cout << team << ": alltoall timing test..." << std::endl;
         x10rt_barrier_b(team,role);
         taken = -nano_time();
-        for (int i=0 ; i<tests ; ++i) {
+        for (int i=0 ; i<long_tests ; ++i) {
             finished = 0;
             x10rt_alltoall(team, role, sbuf, dbuf, el, count, x10rt_one_setter, &finished);
             while (!finished) { sched_yield(); x10rt_probe(); }
         }
         taken += nano_time();
         if (0==role) std::cout << team << ": alltoall time:  "
-                               << ((double)taken)/tests/1000 << " μs" << std::endl;
+                               << ((double)taken)/long_tests/1000 << " μs" << std::endl;
 
         delete [] sbuf;
         delete [] dbuf;
     }
 
     if (getenv("NO_ALLREDUCE")==NULL) {
-        float sbuf[113];
-        float dbuf[113];
+        float sbuf[1134];
+        float dbuf[1134];
         size_t count = sizeof(sbuf)/sizeof(*sbuf);
 
         for (size_t i=0 ; i<count ; ++i) sbuf[i] = float(role+1) * i * i;
@@ -266,7 +267,7 @@ static void coll_test (x10rt_team team, x10rt_place role, x10rt_place per_place)
         if (0==role) std::cout << team << ": allreduce timing test..." << std::endl;
         x10rt_barrier_b(team,role);
         taken = -nano_time();
-        for (int i=0 ; i<tests ; ++i) {
+        for (int i=0 ; i<long_tests ; ++i) {
             finished = 0;
             x10rt_allreduce(team, role, sbuf, dbuf, X10RT_RED_OP_ADD, X10RT_RED_TYPE_FLT, count,
                                 x10rt_one_setter, &finished);
@@ -274,7 +275,7 @@ static void coll_test (x10rt_team team, x10rt_place role, x10rt_place per_place)
         }
         taken += nano_time();
         if (0==role) std::cout << team << ": allreduce time:  "
-                               << ((double)taken)/tests/1000 << " μs" << std::endl;
+                               << ((double)taken)/long_tests/1000 << " μs" << std::endl;
     }
 
 }
@@ -289,6 +290,8 @@ static void spmd_test (x10rt_team team, x10rt_place role, x10rt_place per_place)
     }
 
     coll_test(team, role, per_place);
+
+    if (getenv("NO_ODDSEVENS")) return;
 
     if (0==role) std::cout << std::endl;
 
@@ -431,14 +434,14 @@ int main (int argc, char **argv)
 
     spmd_test(0, x10rt_here(), 1);
     
-    spmd_test(0, x10rt_here(), 1);
-    
-    if (0==x10rt_here()) {
-        apgas_test();
-        apgas_test();
-    } else {
-        time_to_quit = 2;
-        while (time_to_quit != 0) x10rt_probe();
+    if (getenv("NO_APGAS")==NULL) {
+        if (0==x10rt_here()) {
+            apgas_test();
+            apgas_test();
+        } else {
+            time_to_quit = 2;
+            while (time_to_quit != 0) x10rt_probe();
+        }
     }
 
     x10rt_finalize();
