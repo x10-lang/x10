@@ -86,10 +86,10 @@ public class X10ClassBody_c extends ClassBody_c {
     public Node conformanceCheck(ContextVisitor tc) {
         duplicateTypeDefCheck(tc);
         checkMethodCompatibility(tc);
-        return conformanceCheckAux(tc);
+        return superConformanceCheck(tc);
     }
     
-    private Node conformanceCheckAux(ContextVisitor tc) {
+    private Node superConformanceCheck(ContextVisitor tc) {
         duplicateFieldCheck(tc);
         duplicateConstructorCheck(tc);
         duplicateMethodCheck(tc);

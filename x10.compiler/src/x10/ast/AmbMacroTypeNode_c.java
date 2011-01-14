@@ -74,7 +74,7 @@ import x10.visit.ChangePositionVisitor;
 import x10.types.checker.VarChecker;
 
 
-public class AmbMacroTypeNode_c extends AmbTypeNode_c implements AmbMacroTypeNode, AddFlags {
+public class AmbMacroTypeNode_c extends X10AmbTypeNode_c implements AmbMacroTypeNode, AddFlags {
    
     protected List<TypeNode> typeArgs;
     protected List<Expr> args;

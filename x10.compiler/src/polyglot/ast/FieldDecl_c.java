@@ -21,7 +21,7 @@ import x10.errors.Errors;
  * A <code>FieldDecl</code> is an immutable representation of the declaration
  * of a field of a class.
  */
-public class FieldDecl_c extends Term_c implements FieldDecl {
+public abstract class FieldDecl_c extends Term_c implements FieldDecl {
     protected FlagsNode flags;
     protected TypeNode type;
     protected Id name;
@@ -221,10 +221,7 @@ public class FieldDecl_c extends Term_c implements FieldDecl {
 	return ii;
     }
 
-    protected FieldDef createFieldDef(TypeSystem ts, ClassDef ct, Flags flags) {
-	FieldDef fi = ts.fieldDef(position(), Types.ref(ct.asType()), flags, type.typeRef(), name.id());
-	return fi;
-    }
+    protected abstract FieldDef createFieldDef(TypeSystem ts, ClassDef ct, Flags flags);
 
     public Context enterScope(Context c) {
         if (ii != null) {
@@ -234,40 +231,7 @@ public class FieldDecl_c extends Term_c implements FieldDecl {
     }
     
     @Override
-    public void setResolver(final Node parent, TypeCheckPreparer v) {
-    	final FieldDef def = fieldDef();
-    	Ref<ConstantValue> rx = def.constantValueRef();
-    	if (rx instanceof LazyRef<?>) {
-    		LazyRef<ConstantValue> r = (LazyRef<ConstantValue>) rx;
-    		  TypeChecker tc0 = new TypeChecker(v.job(), v.typeSystem(), v.nodeFactory(), v.getMemo());
-    		  final TypeChecker tc = (TypeChecker) tc0.context(v.context().freeze());
-    		  final Node n = this;
-    		  r.setResolver(new AbstractGoal_c("ConstantValue") {
-    		      private static final long serialVersionUID = 3729582427435523873L;
-    		      { this.scheduler = tc.job().extensionInfo().scheduler(); }
-    		      public boolean runTask() {
-    		          if (state() == Goal.Status.RUNNING_RECURSIVE || state() == Goal.Status.RUNNING_WILL_FAIL) {
-    		              // The field is not constant if the initializer is recursive.
-    		              //
-    		              // But, we could be checking if the field is constant for another
-    		              // reference in the same file:
-    		              //
-    		              // m() { use x; }
-    		              // final int x = 1;
-    		              //
-    		              // So this is incorrect.  The goal below needs to be refined to only visit the initializer.
-    		              def.setNotConstant();
-    		          }
-    		          else {
-    		              Node m = parent.visitChild(n, tc);
-    		              tc.job().nodeMemo().put(n, m);
-    		              tc.job().nodeMemo().put(m, m);
-    		          }
-    		          return true;
-    		      }
-    		  });
-    	}
-    }
+    public abstract void setResolver(final Node parent, TypeCheckPreparer v);
 
     public Node checkConstants(ContextVisitor tc) throws SemanticException {
         if (init == null || ! init.isConstant() || ! fi.flags().isFinal()) {
@@ -294,25 +258,7 @@ public class FieldDecl_c extends Term_c implements FieldDecl {
         return n.checkConstants(tc);
     }
     
-    public Node typeCheck(ContextVisitor tc) throws SemanticException {
-	TypeSystem ts = tc.typeSystem();
-	
-	if (init != null && ! (init.type() instanceof UnknownType)) {
-	    if (init instanceof ArrayInit) {
-		((ArrayInit) init).typeCheckElements(tc, type.type());
-	    }
-	    else {
-		if (! ts.isImplicitCastValid(init.type(), type.type(), tc.context()) &&
-			! ts.typeEquals(init.type(), type.type(), tc.context()) &&
-			! ts.numericConversionValid(type.type(), init.constantValue(), tc.context())) {
-		    
-		    throw new SemanticException("The type of the variable initializer \"" + init.type() +"\" does not match that of the declaration \"" +type.type() + "\".",init.position());
-		}
-	    }
-	}
-	
-	return this;
-    }
+    public abstract Node typeCheck(ContextVisitor tc) throws SemanticException;
 
     public Node conformanceCheck(ContextVisitor tc) {
         TypeSystem ts = tc.typeSystem();
@@ -358,22 +304,7 @@ public class FieldDecl_c extends Term_c implements FieldDecl {
         return ec.push(new ExceptionChecker.CodeTypeReporter("A field initializer"));
     }
 
-    public Type childExpectedType(Expr child, AscriptionVisitor av) {
-        if (child == init) {
-            TypeSystem ts = av.typeSystem();
-
-            // If the RHS is an integral constant, we can relax the expected
-            // type to the type of the constant.
-            if (ts.numericConversionValid(type.type(), child.constantValue(), av.context())) {
-                return child.type();
-            }
-            else {
-                return type.type();
-            }
-        }
-
-        return child.type();
-    }
+    public abstract Type childExpectedType(Expr child, AscriptionVisitor av);
 
     public Term firstChild() {
         return type;
@@ -396,31 +327,7 @@ public class FieldDecl_c extends Term_c implements FieldDecl {
         (init != null ? " = " + init : "");
     }
 
-    public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
-        boolean isInterface = fi != null && fi.container() != null &&
-        fi.container().get().toClass().flags().isInterface();
-
-        Flags f = flags.flags();
-
-        if (isInterface) {
-            f = f.clearPublic();
-            f = f.clearStatic();
-            f = f.clearFinal();
-        }
-
-        w.write(f.translate());
-        print(type, w, tr);
-        w.allowBreak(2, 2, " ", 1);
-        tr.print(this, name, w);
-
-        if (init != null) {
-            w.write(" =");
-            w.allowBreak(2, " ");
-            print(init, w, tr);
-        }
-
-        w.write(";");
-    }
+    public abstract void prettyPrint(CodeWriter w, PrettyPrinter tr);
 
     public void dump(CodeWriter w) {
         super.dump(w);

@@ -12,15 +12,19 @@ import java.util.List;
 import polyglot.frontend.Job;
 import polyglot.frontend.Source;
 import polyglot.util.Position;
+import x10.types.ParameterType;
+import x10.types.TypeDef;
+import x10.types.X10ClassType;
+import x10.types.X10FieldDef;
+import x10.types.constraints.CConstraint;
+import x10.types.constraints.TypeConstraint;
 
 /**
  * A <code>ParsedClassType</code> represents a class loaded from a source file.
  * <code>ParsedClassType</code>s are mutable.
  */
 public interface ClassDef extends MemberDef
-{
-    ClassType asType();
-    
+{    
     Name name();
     QName fullName();
 
@@ -202,4 +206,44 @@ public interface ClassDef extends MemberDef
      * Set the class's kind.
      */
     void kind(Kind kind);
+    
+    /** Conjunction of the class invariant and property invariants. */
+	CConstraint getRootClause();
+    void setRootClause(Ref<CConstraint> c);
+    void checkRealClause() throws SemanticException;
+    
+    /** The class invariant. */
+    Ref<CConstraint> classInvariant();
+    void setClassInvariant(Ref<CConstraint> classInvariant);
+
+    Ref<TypeConstraint> typeBounds() ;
+    void setTypeBounds(Ref<TypeConstraint> c) ;
+
+    /** Properties defined in the class.  Subset of fields(). */
+    List<X10FieldDef> properties();
+    
+    List<ParameterType.Variance> variances();
+    List<ParameterType> typeParameters();
+    void addTypeParameter(ParameterType p, ParameterType.Variance v);
+    
+    /** Add a member type to the class. */
+    List<TypeDef> memberTypes();
+    
+    /** Add a member type to the class. */
+    void addMemberType(TypeDef t);
+    
+    /**
+     * Is this the class def for an X10 struct?
+     * @return
+     */
+    boolean isStruct();
+    /**
+     * Is this the class def for an X10 function?
+     */
+    boolean isFunction();
+    X10ClassType asType();
+    /**
+     * Does this class def have a custom deserialization constructor defined?
+     */
+    boolean hasDeserializationConstructor(Context context);
 }

@@ -40,20 +40,5 @@ public class X10BooleanLit_c extends BooleanLit_c {
 		super(pos, value);
 		
 	}
-	 /** Type check the expression. */
-	  public Node typeCheck(ContextVisitor tc) {
-	      TypeSystem xts = (TypeSystem) tc.typeSystem();
-		  Type Boolean =  xts.Boolean();
-		 
-		  CConstraint c = new CConstraint();
-		  XTerm term = xts.xtypeTranslator().translate(c, this.type(Boolean), (Context) tc.context());
-		  try {
-			  c.addSelfBinding(term);
-		  }
-		  catch (XFailure e) {
-		  }
 
-		  Type newType = Types.xclause(Boolean, c);
-		  return type(newType);
-	  }
 }

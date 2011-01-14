@@ -247,11 +247,11 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         	thisType.superType(superRef);
         }
         else {
-        	setSuperClassAux(ts, thisType);
+        	superSetSuperClass(ts, thisType);
         }
     }
     
-    private void setSuperClassAux(TypeSystem ts, ClassDef thisType) throws SemanticException {
+    private void superSetSuperClass(TypeSystem ts, ClassDef thisType) throws SemanticException {
         TypeNode superClass = this.superClass;
         
         QName objectName = ((ClassType) ts.Object()).fullName();
@@ -457,7 +457,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     
     @Override
     public X10ClassDecl_c preBuildTypes(TypeBuilder tb) throws SemanticException {
-        X10ClassDecl_c n = (X10ClassDecl_c) preBuildTypesAux(tb);
+        X10ClassDecl_c n = (X10ClassDecl_c) superPreBuildTypes(tb);
         
         final X10ClassDef def = (X10ClassDef) n.type;
         
@@ -500,7 +500,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         return n;
     }
     
-    private X10ClassDecl_c preBuildTypesAux(TypeBuilder tb) throws SemanticException {
+    private X10ClassDecl_c superPreBuildTypes(TypeBuilder tb) throws SemanticException {
         tb = tb.pushClass(position(), flags.flags(), name.id());
 
         ClassDef type = tb.currentClass();
@@ -963,7 +963,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     }
 
     public Node conformanceCheck(ContextVisitor tc) {
-    	X10ClassDecl_c result = (X10ClassDecl_c) conformanceCheckAux(tc);
+    	X10ClassDecl_c result = (X10ClassDecl_c) superConformanceCheck(tc);
     	Context context = (Context) tc.context();
     	
     	X10ClassDef cd = (X10ClassDef) classDef();
@@ -1028,7 +1028,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     	return result;
     }
     
-    private Node conformanceCheckAux(ContextVisitor tc) {
+    private Node superConformanceCheck(ContextVisitor tc) {
         TypeSystem ts = tc.typeSystem();
 
         ClassType type = this.type.asType();

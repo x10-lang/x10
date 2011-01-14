@@ -19,7 +19,7 @@ import x10.errors.Errors;
  * A <code>ConstructorDecl</code> is an immutable representation of a
  * constructor declaration as part of a class body.
  */
-public class ConstructorDecl_c extends Term_c implements ConstructorDecl
+public abstract class ConstructorDecl_c extends Term_c implements ConstructorDecl
 {
     protected FlagsNode flags;
     protected Id name;
@@ -183,11 +183,7 @@ public class ConstructorDecl_c extends Term_c implements ConstructorDecl
         return n.constructorDef(ci);
     }
 
-    protected ConstructorDef createConstructorDef(TypeSystem ts, ClassDef ct, Flags flags) {
-	ConstructorDef ci = ts.constructorDef(position(), Types.ref(ct.asType()), flags,
-                                              Collections.<Ref<? extends Type>>emptyList());
-	return ci;
-    }
+    protected abstract ConstructorDef createConstructorDef(TypeSystem ts, ClassDef ct, Flags flags);
 
     public Context enterScope(Context c) {
         return c.pushCode(ci);
@@ -258,50 +254,10 @@ public class ConstructorDecl_c extends Term_c implements ConstructorDecl
 	return this;
     }
 
-    public String toString() {
-        return flags.flags().translate() + name + "(...)";
-    }
+    public abstract String toString();
 
     /** Write the constructor to an output file. */
-    public void prettyPrintHeader(CodeWriter w, PrettyPrinter tr) {
-        w.begin(0);
-        
-        tr.print(this, flags, w);
-        tr.print(this, name, w);
-        w.write("(");
-
-        w.begin(0);
-
-        for (Iterator<Formal> i = formals.iterator(); i.hasNext(); ) {
-            Formal f = i.next();
-            print(f, w, tr);
-
-            if (i.hasNext()) {
-                w.write(",");
-                w.allowBreak(0, " ");
-            }
-        }
-
-        w.end();
-        w.write(")");
-/*
-        if (! throwTypes().isEmpty()) {
-            w.allowBreak(6);
-            w.write("throws ");
-
-            for (Iterator<TypeNode> i = throwTypes().iterator(); i.hasNext(); ) {
-                TypeNode tn = i.next();
-                print(tn, w, tr);
-
-                if (i.hasNext()) {
-                    w.write(",");
-                    w.allowBreak(4, " ");
-                }
-            }
-        }
-*/
-        w.end();
-    }
+    public abstract void prettyPrintHeader(CodeWriter w, PrettyPrinter tr);
 
     public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
         prettyPrintHeader(w, tr);
