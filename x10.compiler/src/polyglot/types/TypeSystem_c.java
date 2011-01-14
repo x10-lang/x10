@@ -60,7 +60,6 @@ import x10.types.X10FieldInstance_c;
 import x10.types.X10LocalDef_c;
 import x10.types.X10LocalInstance_c;
 import x10.types.X10MethodDef_c;
-import x10.types.X10NullType;
 import x10.types.VoidType;
 import x10.types.X10ClassDef_c;
 import x10.types.X10ClassDef;
@@ -2121,12 +2120,12 @@ public class TypeSystem_c implements TypeSystem
                         expandMacros(t)).equals((Object) Void());
     } // do not use typeEquals
 
-    X10NullType Null_ = createNull();
-    public X10NullType Null()         { 
+    NullType Null_ = createNull();
+    public NullType Null() { 
         return Null_; 
-        }
-    protected X10NullType createNull() {
-        return new X10NullType(this);
+    }
+    protected NullType createNull() {
+        return new NullType(this);
     }
     protected X10ClassType Boolean_;
 

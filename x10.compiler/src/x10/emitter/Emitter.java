@@ -57,6 +57,7 @@ import polyglot.types.MethodDef;
 
 import polyglot.types.Name;
 import polyglot.types.NoClassException;
+import polyglot.types.NullType;
 import polyglot.types.QName;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
@@ -101,7 +102,6 @@ import x10.types.X10Def;
 
 import x10.types.X10MethodDef;
 import x10.types.MethodInstance;
-import x10.types.X10NullType;
 import x10.types.X10ParsedClassType_c;
 import x10.types.checker.Converter;
 import x10.visit.ChangePositionVisitor;
@@ -3157,7 +3157,7 @@ public class Emitter {
                 new RuntimeTypeExpander(this, x10Type).expand(tr);
             }
         }
-        else if (type instanceof X10NullType) {
+        else if (type instanceof NullType) {
             w.write("x10.rtt.Types.OBJECT");
         }
     }
