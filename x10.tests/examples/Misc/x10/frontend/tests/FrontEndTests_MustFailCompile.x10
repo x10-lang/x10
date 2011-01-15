@@ -4312,3 +4312,15 @@ class PropertyFieldTest42 { // XTENLANG-945
 		def m(i:I) = i.a;
 	}
 }
+
+class MethodGuardEntailsOverriden {
+	class A(i:Int) {
+	  def m() {i==1} {}
+	  def m2() {i!=0} {}
+	}
+	class B extends A {
+	  def this() { super(3); }
+	  def m() {i!=0} {}
+	  @ShouldBeErr def m2() {i==1} {} // guard can only be made stronger. see XTENLANG-2325
+	} 
+}
