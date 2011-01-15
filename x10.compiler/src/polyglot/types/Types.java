@@ -21,6 +21,7 @@ import polyglot.ast.Unary;
 import polyglot.ast.Unary_c;
 import polyglot.ast.Variable;
 import polyglot.frontend.Job;
+import polyglot.main.Report;
 import polyglot.util.ErrorInfo;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
@@ -1206,21 +1207,23 @@ public class Types {
 	        return true;
 	    }
 	    // For now (10/10/10) we check using both styles and mark the cases in which results are different
-	    // as a diagnostic output for the compiler. 
+	    // as a diagnostic output for the compiler.
 	    boolean java = javaStyleMoreSpecificMethod(xp1, xp2, (Context) context, ct1, t1, t2,descends);
 	    boolean old = oldStyleMoreSpecificMethod(xp1, xp2, (Context) context, ts, ct1, t1, t2, descends);
-	    if (java != old) {
-	        String msg = Types.MORE_SPECIFIC_WARNING +
-	    			((java && ! old) ? "p1 is now more specific than p2; it was not in 2.0.6."
-	    					: "p1 is now not more specific than p2; it was in 2.0.6.")
-	    			+ "\n\t: p1: " + getOrigMI(xp1)
-	    			+ "\n\t: at " + xp1.position()
-	    			+ "\n\t: p2: " + getOrigMI(xp2)
-	    			+ "\n\t: at " + xp2.position()
-	    			+ "\n\t: t1 is  " + t1
-	    			+ "\n\t: t2 is " + t2;
-	       // new Error().printStackTrace();
-	        ts.extensionInfo().compiler().errorQueue().enqueue(ErrorInfo.WARNING,msg);
+	    if (Report.should_report("specificity", 1)) {
+	        if (java != old) {
+	            String msg = Types.MORE_SPECIFIC_WARNING +
+	            ((java && ! old) ? "p1 is now more specific than p2; it was not in 2.0.6."
+	                    : "p1 is now not more specific than p2; it was in 2.0.6.")
+	                    + "\n\t: p1: " + getOrigMI(xp1)
+	                    + "\n\t: at " + xp1.position()
+	                    + "\n\t: p2: " + getOrigMI(xp2)
+	                    + "\n\t: at " + xp2.position()
+	                    + "\n\t: t1 is  " + t1
+	                    + "\n\t: t2 is " + t2;
+	            //new Error().printStackTrace();
+	            Report.report(1, "Warning: "+msg);
+	        }
 	    }
 	    // Change this to return old to re-enable 2.0.6 style computation.
 	    return  java; 
