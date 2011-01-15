@@ -112,49 +112,43 @@ public class FinallyEliminator extends ContextVisitor {
         return res;
     }
 
-    @Override
-    public FinallyEliminator superEnter(Node parent, Node n) {
-        FinallyEliminator res = (FinallyEliminator) super.superEnter(parent, n);
-        if (res != this)
-            res.syn = (AltSynthesizer) syn.enter(parent, n);
-        return res;
-    }
-
     /* (non-Javadoc)
-     * @see polyglot.visit.ErrorHandlingVisitor#enterCall(polyglot.ast.Node)
+     * @see polyglot.visit.ErrorHandlingVisitor#enterCall(polyglot.ast.Node, polyglot.ast.Node)
      */
     @Override
-    protected NodeVisitor enterCall(Node n) throws SemanticException {
+    protected NodeVisitor enterCall(Node parent, Node n) {
+        FinallyEliminator res = this;
         if (n instanceof Closure) {
-            return ((ContextVisitor) new FinallyEliminator(job, ts, nodeFactory()).begin()).context(context());
+            res = (FinallyEliminator) ((ContextVisitor) new FinallyEliminator(job, ts, nodeFactory()).begin()).context(context());
+        } else {
+            Try t = tryWithFinally(n);
+            if (null == t) {
+                if (n instanceof MethodDecl)
+                    this.fes.returnType = ((MethodDecl) n).returnType();
+            } else {
+                TryVisitor tv = new TryVisitor(this, t.finallyBlock());
+                res = (TryVisitor) tv.context(context());
+            }
         }
-        Try t = tryWithFinally(n);
-        if (null == t) {
-            if (n instanceof MethodDecl)
-                this.fes.returnType = ((MethodDecl) n).returnType();
-            return this;
-        }
-        TryVisitor tv = new TryVisitor(this, t.finallyBlock());
-        tv = (TryVisitor) tv.begin();
-        tv = (TryVisitor) tv.context(context());
-        this.fes.childVisitor.push(tv);
-        return tv;
+        res.syn = (AltSynthesizer) syn.enter(parent, n);
+        return res;
     }
 
     /* (non-Javadoc)
      * @see polyglot.visit.ErrorHandlingVisitor#leaveCall(polyglot.ast.Node)
      */
     @Override
-    protected Node leaveCall(Node n) throws SemanticException {
+    protected Node leaveCall(Node parent, Node old, Node n, NodeVisitor v) {
         Try t = tryWithFinally(n);
         if (null == t) {
             if (n instanceof MethodDecl)
                 this.fes.returnType = null;
-            return super.leaveCall(n);
+            return n;
         }
-        if (this.fes.childVisitor.isEmpty())
-            throw new InternalCompilerError("Empty child visitor stack in FinallyEliminator", n.position());
-        Stmt stmt = rewriteTry(t, this.fes.childVisitor.pop().tvs);
+        if (!(v instanceof TryVisitor))
+            throw new InternalCompilerError("Bad child visitor in FinallyEliminator: "+v.getClass(), n.position());
+        TryVisitor tv = (TryVisitor) v;
+        Stmt stmt = rewriteTry(t, tv.tvs);
         return stmt;
     }
 
@@ -317,7 +311,7 @@ public class FinallyEliminator extends ContextVisitor {
          * @see x10.visit.FinallyEliminator#enterCall(polyglot.ast.Node)
          */
         @Override
-        protected NodeVisitor enterCall(Node n) throws SemanticException {
+        protected NodeVisitor enterCall(Node parent, Node n) {
             if (n == tvs.finallyBlock) 
                 return tvs.outerVisitor;
             if (n instanceof Labeled) {
@@ -330,7 +324,7 @@ public class FinallyEliminator extends ContextVisitor {
             if (n instanceof Loop || n instanceof Switch) {
                 tvs.loopNesting++;
             }
-            return super.enterCall(n);
+            return super.enterCall(parent, n);
         }
     
         /**
@@ -344,7 +338,7 @@ public class FinallyEliminator extends ContextVisitor {
          * @see x10.visit.FinallyEliminator#leaveCall(polyglot.ast.Node)
          */
         @Override
-        protected Node leaveCall(Node n) throws SemanticException {
+        protected Node leaveCall(Node parent, Node old, Node n, NodeVisitor v) {
             Position pos     = n.position();
             List<Stmt> stmts = new ArrayList<Stmt>();
             if (n instanceof Return) {
@@ -371,10 +365,10 @@ public class FinallyEliminator extends ContextVisitor {
             } else if (n instanceof Branch) {
                 Branch b     = (Branch) n;
                 Id id        = b.labelNode();
-                if (null == id && 0 < tvs.loopNesting) return super.leaveCall(n);
+                if (null == id && 0 < tvs.loopNesting) return super.leaveCall(parent, old, n, v);
                 Name name    = null != id   ? id.id()         : null;
                 String label = null != name ? name.toString() : null;
-                if (null != label && tvs.ignoreLabels.contains(label)) return super.leaveCall(n);
+                if (null != label && tvs.ignoreLabels.contains(label)) return super.leaveCall(parent, old, n, v);
                 StringLit lit = null != label ? syn.createStringLit(label) : null;
                 if (INLINE_FOR_BRANCH) {
                     stmts.add(replicate(pos, tvs.finallyBlock));
@@ -399,7 +393,7 @@ public class FinallyEliminator extends ContextVisitor {
             if (n instanceof Loop || n instanceof Switch) {
                 tvs.loopNesting++;
             }
-            return super.leaveCall(n);
+            return super.leaveCall(parent, old, n, v);
         }
 
         /**
@@ -417,7 +411,6 @@ public class FinallyEliminator extends ContextVisitor {
 
     class FinallyEliminatorState {
         private TypeNode returnType;
-        private Stack<TryVisitor> childVisitor = new Stack<TryVisitor>();
     }
 
     class TryVisitorState {

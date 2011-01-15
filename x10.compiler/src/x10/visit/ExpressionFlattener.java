@@ -139,23 +139,13 @@ public final class ExpressionFlattener extends ContextVisitor {
         return res;
     }
 
-    @Override
-    public NodeVisitor superEnter(Node parent, Node n) {
-        ExpressionFlattener res = (ExpressionFlattener) super.superEnter(parent, n);
-        if (res != this)
-            res.syn = (AltSynthesizer) syn.enter(parent, n);
-        return res;
-    }
-
-    /* (non-Javadoc)
-     * @see polyglot.visit.NodeVisitor#override(polyglot.ast.Node)
-     */
     /**
      * Don't visit nodes that cannot be flattened.
      * 
      * @param n the node to be visited (or not)
      * @return n if the node is NOT to be visited, otherwise null
      */
+    @Override
     public Node override(Node n) {
         if (n instanceof X10ClassDecl) {
             if (DEBUG) System.out.println("DEBUG: flattening: " +((X10ClassDecl) n).classDef()+ " (@" +((X10ClassDecl) n).position()+ ")");
@@ -206,8 +196,8 @@ public final class ExpressionFlattener extends ContextVisitor {
         return false;
     }
     
-    
-    protected NodeVisitor enterCall(Node parent, Node child) throws SemanticException {
+    @Override
+    protected NodeVisitor enterCall(Node parent, Node child) {
         if (parent instanceof Labeled && child instanceof Stmt) {
             labels.add((Labeled) parent);
             if (!(child instanceof Labeled)) {
@@ -216,17 +206,18 @@ public final class ExpressionFlattener extends ContextVisitor {
                 labels.clear();
             }
         }
-        return super.enterCall(parent, child);
+        syn = (AltSynthesizer) syn.enter(parent, child);
+        return this;
         
     }
-
 
     /* (non-Javadoc)
      * @see polyglot.visit.ErrorHandlingVisitor#leaveCall(polyglot.ast.Node, polyglot.ast.Node, polyglot.visit.NodeVisitor)
      * 
      * Flatten statements (Stmt) and expressions (Expr).
      */
-    public Node leaveCall(Node parent, Node old, Node n, NodeVisitor v) throws SemanticException {
+    @Override
+    public Node leaveCall(Node parent, Node old, Node n, NodeVisitor v) {
         if (n instanceof Labeled) 
             return flattenLabeled((Labeled) n);
         if (parent instanceof Labeled && n instanceof Stmt) {

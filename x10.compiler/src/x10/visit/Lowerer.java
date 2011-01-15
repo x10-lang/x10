@@ -281,7 +281,8 @@ public class Lowerer extends ContextVisitor {
     }
 
     //Collecting Finish Use : store reducer when enter finishR
-    public NodeVisitor superEnter(Node parent, Node n) {
+    @Override
+    protected NodeVisitor enterCall(Node parent, Node n) {
         if (n instanceof LocalDecl){
             LocalDecl f = (LocalDecl) n;
             if (f.init() instanceof FinishExpr) {
@@ -304,7 +305,7 @@ public class Lowerer extends ContextVisitor {
             }
         }
 
-        return super.superEnter(parent, n);
+        return this;
     }
 
     public Node leaveCall(Node old, Node n, NodeVisitor v) throws SemanticException {
