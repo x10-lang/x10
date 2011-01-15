@@ -10,6 +10,11 @@
  *
  *  This file was written by Ben Herta for IBM: bherta@us.ibm.com
  */
+
+#ifdef __CYGWIN__
+extern "C" char *strdup(const char *);
+#endif
+
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
