@@ -75,8 +75,6 @@ public class FinallyEliminator extends ContextVisitor {
     private static final Name EQUALS          = Name.make("equals");
     private static final QName FINALIZATION   = QName.make("x10.compiler.Finalization");
 
-    protected ClassType finalization;
-
     protected final TypeSystem ts;
     protected AltSynthesizer syn;
     protected final FinallyEliminatorState fes;
@@ -99,8 +97,6 @@ public class FinallyEliminator extends ContextVisitor {
     @Override
     public NodeVisitor begin() {
         syn = (AltSynthesizer) syn.begin();
-        if (null == finalization) 
-            finalization = ts.load("x10.compiler.Finalization");
         return super.begin();
     }
 
@@ -164,6 +160,14 @@ public class FinallyEliminator extends ContextVisitor {
         return null;
     }
 
+    private ClassType Finalization() {
+        try {
+            return (ClassType) ts.typeForName(FINALIZATION);
+        } catch (SemanticException e) {
+            throw new InternalCompilerError("Unable to load the Finalization class", e);
+        }
+    }
+
     /**
      * @param t
      * @param tv
@@ -179,7 +183,7 @@ public class FinallyEliminator extends ContextVisitor {
         Name name           = Name.makeFresh("throwable");
         Type throwableType  = ts.Throwable();
         LocalDecl throwDecl = syn.createLocalDecl(pos, Flags.NONE, name, throwableType, syn.createLiteral(pos, null));
-        Block tryBody       = syn.createBlock(pos, s, syn.createStaticCall(pos, finalization, PLAUSIBLE_THROW));
+        Block tryBody       = syn.createBlock(pos, s, syn.createStaticCall(pos, Finalization(), PLAUSIBLE_THROW));
         Formal f            = syn.createFormal(pos, throwableType);
         Stmt assignment     = syn.createAssignment(pos, syn.createLocal(pos, throwDecl), Assign.ASSIGN, syn.createLocal(pos, f));
         Block catchBody     = syn.createBlock(pos, assignment);
@@ -203,7 +207,8 @@ public class FinallyEliminator extends ContextVisitor {
     private Stmt handleAbnormalExit(Position pos, LocalDecl throwDecl, TryVisitorState tvs) {
         List<Stmt> stmts  = new ArrayList<Stmt>();
         // handle throw
-        Expr cond         = syn.createNotInstanceof(pos, syn.createLocal(pos, throwDecl), finalization);
+        ClassType Finalization = Finalization();
+        Expr cond         = syn.createNotInstanceof(pos, syn.createLocal(pos, throwDecl), Finalization);
         Stmt cons         = syn.createThrow(pos, syn.createLocal(pos, throwDecl));
         Stmt stmt         = syn.createIf(pos, cond, cons, null);
         stmts.add(stmt);
@@ -211,7 +216,7 @@ public class FinallyEliminator extends ContextVisitor {
         Name fin          = Name.makeFresh("fin");
         LocalDecl finDecl = null;
         if (tvs.hasReturn || tvs.hasBreak || tvs.hasContinue) {
-            Expr expr = syn.createUncheckedCast(pos, syn.createLocal(pos, throwDecl), finalization);
+            Expr expr = syn.createUncheckedCast(pos, syn.createLocal(pos, throwDecl), Finalization);
             finDecl = syn.createLocalDecl(pos, Flags.FINAL, fin, expr);
             stmts.add(finDecl);
         }
@@ -341,6 +346,7 @@ public class FinallyEliminator extends ContextVisitor {
         protected Node leaveCall(Node parent, Node old, Node n, NodeVisitor v) {
             Position pos     = n.position();
             List<Stmt> stmts = new ArrayList<Stmt>();
+            ClassType Finalization = Finalization();
             if (n instanceof Return) {
                 Return r = (Return) n;
                 if (INLINE_FOR_RETURN) {
@@ -357,9 +363,9 @@ public class FinallyEliminator extends ContextVisitor {
                 } else {
                     tvs.hasReturn = true;
                     if (null == r.expr()) {
-                        return syn.createEval(syn.createStaticCall(pos, finalization, THROW_RETURN));
+                        return syn.createEval(syn.createStaticCall(pos, Finalization, THROW_RETURN));
                     } else {
-                        return syn.createEval(syn.createStaticCall(pos, finalization, THROW_RETURN, r.expr()));
+                        return syn.createEval(syn.createStaticCall(pos, Finalization, THROW_RETURN, r.expr()));
                     }
                 }
             } else if (n instanceof Branch) {
@@ -379,14 +385,14 @@ public class FinallyEliminator extends ContextVisitor {
                         tvs.hasBreak = true;
                         if (null != label) tvs.breakLabels.add(label);
                         if (null == lit) 
-                            return syn.createEval(syn.createStaticCall(pos, finalization, THROW_BREAK));
-                        return syn.createEval(syn.createStaticCall(pos, finalization, THROW_BREAK, lit));
+                            return syn.createEval(syn.createStaticCall(pos, Finalization, THROW_BREAK));
+                        return syn.createEval(syn.createStaticCall(pos, Finalization, THROW_BREAK, lit));
                     } else {
                         tvs.hasContinue = true;
                         tvs.continueLabels.add(label);
                         if (null == lit) 
-                            return syn.createEval(syn.createStaticCall(pos, finalization, THROW_CONTINUE));
-                        return syn.createEval(syn.createStaticCall(pos, finalization, THROW_CONTINUE, lit));
+                            return syn.createEval(syn.createStaticCall(pos, Finalization, THROW_CONTINUE));
+                        return syn.createEval(syn.createStaticCall(pos, Finalization, THROW_CONTINUE, lit));
                     }
                 }
             }
