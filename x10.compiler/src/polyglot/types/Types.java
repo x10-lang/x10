@@ -1206,11 +1206,9 @@ public class Types {
 	    if (descends && ! ts.hasSameClassDef(t1, t2) && flags1.isStatic() && flags2.isStatic()) {
 	        return true;
 	    }
-	    // For now (10/10/10) we check using both styles and mark the cases in which results are different
-	    // as a diagnostic output for the compiler.
 	    boolean java = javaStyleMoreSpecificMethod(xp1, xp2, (Context) context, ct1, t1, t2,descends);
-	    boolean old = oldStyleMoreSpecificMethod(xp1, xp2, (Context) context, ts, ct1, t1, t2, descends);
 	    if (Report.should_report("specificity", 1)) {
+	        boolean old = oldStyleMoreSpecificMethod(xp1, xp2, (Context) context, ts, ct1, t1, t2, descends);
 	        if (java != old) {
 	            String msg = Types.MORE_SPECIFIC_WARNING +
 	            ((java && ! old) ? "p1 is now more specific than p2; it was not in 2.0.6."
