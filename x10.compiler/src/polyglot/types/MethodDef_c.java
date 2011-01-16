@@ -18,7 +18,7 @@ import x10.types.MethodInstance;
  * A <code>MethodInstance</code> represents the type information for a Java
  * method.
  */
-public class MethodDef_c extends ProcedureDef_c implements MethodDef
+public abstract class MethodDef_c extends ProcedureDef_c implements MethodDef
 {
     private static final long serialVersionUID = -4600875186109814395L;
 

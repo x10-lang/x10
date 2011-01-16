@@ -144,33 +144,6 @@ public class ClosureInstance_c extends FunctionInstance_c<ClosureDef> implements
         return (ClosureInstance) super.throwTypes(throwTypes);
     }
 
-    CConstraint guard;
-    
-    public CConstraint guard() {
-            if (guard == null)
-                    return Types.get(def().guard());
-            return guard;
-    }
-    
-    public ClosureInstance guard(CConstraint guard) {
-        ClosureInstance_c n = (ClosureInstance_c) copy();
-        n.guard = guard;
-        return n;
-    }
-
-    /** Constraint on type parameters. */
-    protected TypeConstraint typeGuard;
-    public TypeConstraint typeGuard() { 
-        if (typeGuard == null)
-            return Types.get(def().typeGuard());
-        return typeGuard;
-    }
-    public ClosureInstance typeGuard(TypeConstraint s) { 
-        ClosureInstance_c n = (ClosureInstance_c) copy();
-        n.typeGuard = s; 
-        return n;
-    }
-    
     public List<Type> typeParameters() {
         return Collections.emptyList();
     }

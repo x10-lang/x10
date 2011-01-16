@@ -4,7 +4,7 @@ import java.util.List;
 
 import polyglot.util.Position;
 
-public class ConstructorInstance_c extends ProcedureInstance_c<ConstructorDef> implements ConstructorInstance {
+public abstract class ConstructorInstance_c extends ProcedureInstance_c<ConstructorDef> implements ConstructorInstance {
     private static final long serialVersionUID = -702966148217075519L;
 
     public ConstructorInstance_c(TypeSystem ts, Position pos, Ref<? extends ConstructorDef> def) {

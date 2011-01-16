@@ -7,6 +7,10 @@
  */
 package polyglot.types;
 
+import x10.types.constraints.CConstraint;
+import x10.types.constraints.TypeConstraint;
+import x10.types.X10ProcedureInstance;
+
 import java.util.List;
 
 /**
@@ -55,4 +59,35 @@ public interface ProcedureInstance<T extends ProcedureDef> extends CodeInstance<
      * @param context TODO
      */
     boolean callValid(Type thisType, List<Type> actualTypes, Context context);
+
+
+    // Constructors, methods, and closures all have return types.
+    Type returnType();
+    ProcedureInstance<T> returnType(Type t);
+    Ref<? extends Type> returnTypeRef();
+    ProcedureInstance<T> returnTypeRef(Ref<? extends Type> t);
+
+    List<Type> typeParameters();
+    X10ProcedureInstance<T> typeParameters(List<Type> typeParameters);
+
+    List<LocalInstance> formalNames();
+    X10ProcedureInstance<T> formalNames(List<LocalInstance> formalNames);
+
+    /**
+     * Return the constraint on the formal parameters, if any.
+     * @return
+     */
+    CConstraint guard();
+    X10ProcedureInstance<T> guard(CConstraint guard);
+
+    /**
+     * Return the constraint on the type parameters, if any.
+     * @return
+     */
+    TypeConstraint typeGuard();
+    X10ProcedureInstance<T> typeGuard(TypeConstraint guard);
+
+    /** The type of offer statements permitted in the body.
+	 * May be null -- no offers are permitted.*/
+	Ref<? extends Type> offerType();
 }

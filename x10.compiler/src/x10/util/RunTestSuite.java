@@ -155,6 +155,7 @@ public class RunTestSuite {
     };
     private static final String[] EXCLUDE_FILES = {
             // LangSpec is auto-generated, so I can't fix those files to make a clean test suite
+            "Classes250.x10","Classes160.x10","Classes170.x10",
             "InnerClasses5p9v.x10","Packages5t5g.x10","Stimulus.x10","Statements51.x10", "ClassCtor30_MustFailCompile.x10", "ThisEscapingViaAt_MustFailCompile.x10",
     };
     private static final String[] EXCLUDE_FILES_WITH = {

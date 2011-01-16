@@ -129,36 +129,6 @@ public class X10ConstructorInstance_c extends ConstructorInstance_c implements X
         if (container == this.container) return this;
         return (X10ConstructorInstance) super.container(container);
     }
-
-    CConstraint guard;
-    
-    /** Constraint on formal parameters. */
-    public CConstraint guard() {
-        if (guard == null) 
-            return Types.get(x10Def().guard());
-        return guard;
-    }
-    public TypeConstraint typeGuard() {
-        if (typeGuard == null)
-            return Types.get(x10Def().typeGuard());
-        return typeGuard;
-    }
-
-    public X10ConstructorInstance guard(CConstraint c) {
-        if (c == this.guard) return this;
-        X10ConstructorInstance_c n = (X10ConstructorInstance_c) copy();
-        n.guard = c;
-        return n;
-    }
-
-    /** Constraint on type parameters. */
-    protected TypeConstraint typeGuard;
-    public X10ConstructorInstance typeGuard(TypeConstraint s) {
-        if (s == this.typeGuard) return this;
-        X10ConstructorInstance_c n = (X10ConstructorInstance_c) copy();
-        n.typeGuard = s; 
-        return n;
-    }
     
     
     @Override
