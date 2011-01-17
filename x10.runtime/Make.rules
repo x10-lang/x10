@@ -84,8 +84,6 @@ ifdef ENABLE_CROSS_COMPILE_BGP
   export X10_STATIC_LIB=1
   override CC =/bgsys/drivers/ppcfloor/gnu-linux/bin/powerpc-bgp-linux-gcc
   export X10RT_PLATFORM=bgp
-  # needed for gcc 4.1
-  X10CPPFLAGS += -ALLOW_STATEMENT_EXPRESSIONS=false
   ifdef OPTIMIZE
     override CXXFLAGS += -O2 -finline-functions
   endif
