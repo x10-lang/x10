@@ -18,6 +18,8 @@ import java.util.HashSet;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.lang.*;
+import java.lang.StringBuilder;
 
 import x10.parser.AutoGenSentences;
 import x10.Configuration;
@@ -139,9 +141,11 @@ public class RunTestSuite {
         if (!QUIET) System.out.println(s);
     }
     private static int EXIT_CODE = 0;
+    private static java.lang.StringBuilder ALL_ERRORS = new StringBuilder();
     private static void err(String s) {
         EXIT_CODE = 1;
         System.err.println(s);
+        ALL_ERRORS.append(s).append("n");
     }
 
     //_MustFailCompile means the compilation should fail.
@@ -276,6 +280,8 @@ public class RunTestSuite {
             compileFile(f,remainingArgs);
         }
         println("Total running time to compile all files="+(System.currentTimeMillis()-start));
+        if (EXIT_CODE!=0) println("Summary of all errors:\n\n"+ALL_ERRORS);
+        println("\n\n\n\n\n"+ (EXIT_CODE==0 ? "SUCCESS" : "FAILED") + "\n\n\n");
         System.exit(EXIT_CODE);
     }
     private static int count(String s, String sub) {

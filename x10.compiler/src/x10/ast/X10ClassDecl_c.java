@@ -1129,28 +1129,35 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
 
         // check that 2 super-interfaces (or a superclass and superinterface)
         // do not cause a method collision (see InterfaceMethodCollision_MustFailCompile.x10)
-        //interface A {		def m():void;	}
-        //interface B {		def m():Any;	}
+        //interface A {		def m():A;	}
+        //interface B {		def m():B;	}
         //abstract class B2 implements B {}
-        //@ERR interface C extends A,B {}
-        //@ERR abstract C2 extends B2 implements A {}
+        //@ERR interface C1 extends A,B {}
+        //interface C2 extends A,B { def m():C; }
+        //@ERR abstract C3 extends B2 implements A {}
         // (other kinds of method collisions are checked in MethodDecl_c.overrideMethodCheck)
-        // optimization: methods in Any cannot cause problems (such errors will be caught in MethodDecl_c)
+        // optimization: methods in Any&Object cannot cause problems (such errors will be caught in MethodDecl_c)
         if (interfaces.size()>=1) {
             final List<X10ParsedClassType_c> directSuperTypes = new ArrayList<X10ParsedClassType_c>(((X10ParsedClassType_c) type).directSuperTypes());
             int len = directSuperTypes.size();
             for (int i1=0; i1<len; i1++) {
                 X10ParsedClassType_c it1 = directSuperTypes.get(i1);
-                if (ts.isAny(it1)) continue;
+                // we can skip Any or Object
+                if (ts.isAny(it1) || ts.typeBaseEquals(ts.Object(), it1, context)) continue;
                 final List<MethodInstance> methods1 = it1.getAllMethods();
                 if (methods1.size()==0) continue;
                 for (int i2=i1+1; i2<len; i2++) {
                     X10ParsedClassType_c it2 = directSuperTypes.get(i2);
                     if (ts.isAny(it2)) continue;
                     for (MethodInstance mi : methods1) {
+                        // We need to skip methods defined by "type" because they were already checked against all previous methods, e.g., interface C2 extends A,B { def m():C; }
+                        if (!type.methods(mi.name(), mi.formalTypes(), context).isEmpty())
+                            continue;
+                        
                         final List<MethodInstance> implementedBy = ((TypeSystem_c) ts).implemented(mi, (ContainerType) it2, context);
                         for (MethodInstance mj : implementedBy) {
                             if (mi==mj) continue;
+                            // either mi can override mj, or the opposite.
                             try {
                                 // due to covariant return type, the first argument should be the one with return type who is a subtype of the second
                                 ts.checkOverride(mi, mj, context);

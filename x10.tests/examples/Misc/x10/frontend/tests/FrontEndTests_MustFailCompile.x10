@@ -3851,6 +3851,37 @@ class MethodCollisionTests { // see also \x10.tests\examples\Constructs\Interfac
 		@ERR @ERR static abstract class C3_1 extends B3 implements A2 {}
 		@ERR @ERR static abstract class C3_2 extends A3 implements B2 {}
 	}
+
+	interface A {}
+	interface A2 extends A {}
+	interface B[T] {
+		def a():B[T];
+		def a2():B[T];
+		def b():Object;
+		def c():A2;
+		def c2():A;
+		def c3():A;
+		def d():Any;
+		def e():void;
+		def f():void;
+	}
+	interface C[T] {
+		def a():C[T];
+		def a2():C[T];
+		def b():String;
+		def c():A;
+		def c2():A2;
+		def c3():Object;
+		def d():void;
+		def e():A;
+		def f():void;
+
+	}
+	// see XTENLANG-2332
+	@ERR @ERR @ERR @ERR interface D extends B[D], C[A] { // a2, c3, d, e
+		def a():D;
+	}
+
 	// covariant return tests
 	/*
 	This compiles fine in Java:
