@@ -32,6 +32,15 @@ public abstract class ProcedureInstance_c<T extends ProcedureDef> extends Use_c<
         return n;
     }
 
+    protected boolean checkGuardAtRuntime = false;
+    public boolean checkGuardAtRuntime() { return checkGuardAtRuntime; }
+    public ProcedureInstance_c checkGuardAtRuntime(boolean check) {
+        if (check==checkGuardAtRuntime) return this;
+        ProcedureInstance_c n = (ProcedureInstance_c) copy();
+        n.checkGuardAtRuntime = check;
+        return n;
+    }
+
     /** Constraint on type parameters. */
     protected TypeConstraint typeGuard;
     public TypeConstraint typeGuard() {

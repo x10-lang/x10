@@ -1,18 +1,51 @@
 package x10.errors;
 
 import polyglot.ast.Expr;
+import polyglot.ast.Node;
 import polyglot.frontend.Job;
 import polyglot.types.Type;
+import polyglot.types.ProcedureInstance;
 import polyglot.util.ErrorInfo;
 import polyglot.util.Position;
+import polyglot.visit.ContextVisitor;
 import x10.Configuration;
 import x10.ExtensionInfo;
+import x10.X10CompilerOptions;
+import x10.types.X10Use;
 
 public class Warnings {
 
 	public static ErrorInfo CastingExprToType(Expr e, Type t, Position p) {
 		return new ErrorInfo(ErrorInfo.WARNING, "Expression '" + e + "' was cast to type " + t + ".", p);
 	}
+    public static void checkErrorAndGuard(ContextVisitor tc, X10Use use, Node n) {
+        if (use.error() != null) {
+            Errors.issue(tc.job(), use.error(), n);
+        }
+        if (use instanceof ProcedureInstance)
+            wasGuardChecked(tc, (ProcedureInstance) use, n);        
+    }
+    public static void wasGuardChecked(ContextVisitor tc, ProcedureInstance pi, Node n) {
+        if (pi.checkGuardAtRuntime()) {
+            Warnings.dynamicCall(tc.job(),Warnings.CheckGuardAtRuntime(n.position()));
+        }
+    }
+	public static ErrorInfo CheckGuardAtRuntime(Position p) {                       
+		return new ErrorInfo(ErrorInfo.WARNING, "Generated a dynamic check for the method guard.", p);
+	}
+
+	public static boolean dynamicCall(Job job, ErrorInfo e) {
+        final ExtensionInfo extensionInfo = (ExtensionInfo) job.extensionInfo();
+        X10CompilerOptions opts = extensionInfo.getOptions();
+        if (opts.x10_config.STATIC_CALLS) {
+            return false;
+        } else if (opts.x10_config.VERBOSE_CALLS) {
+            Warnings.issue(job, e);
+        } else {
+            extensionInfo.incrWeakCallsCount();
+        }
+        return true;
+    }
 
 	public static void issue(Job job, String message, Position pos) {
 		issue(job, new ErrorInfo(ErrorInfo.WARNING, message, pos));

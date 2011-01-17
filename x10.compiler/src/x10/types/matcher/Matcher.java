@@ -50,6 +50,7 @@ import x10.types.constraints.CConstraint;
 import x10.types.constraints.SubtypeConstraint;
 import x10.types.constraints.TypeConstraint;
 import x10.types.constraints.XConstrainedTerm;
+import x10.X10CompilerOptions;
 
 
 /**
@@ -319,7 +320,11 @@ public class Matcher {
 		    CConstraint query = newMe.guard();
 		    try {
 		        if (! returnEnv.entails(query, context2.constraintProjection(returnEnv, query))) {
-		            throw new SemanticException("Call invalid; calling environment does not entail the method guard.");
+		            X10CompilerOptions opts = (X10CompilerOptions) context.typeSystem().extensionInfo().getOptions();
+                    if (!opts.x10_config.STATIC_CALLS)
+                        newMe = newMe.checkGuardAtRuntime(true);
+                    else
+		                throw new SemanticException("Call invalid; calling environment does not entail the method guard.");
 		        }
 		    } catch (XFailure z) {
 		        // Substitution introduces inconsistency.

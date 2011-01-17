@@ -148,14 +148,9 @@ public class Converter {
 				result = typeCheckCast(nf.X10Cast(e.position(), tn, e, ct), tc);
 			}
 			if (dynamicCallp) {
-				X10CompilerOptions opts = (X10CompilerOptions) tc.job().extensionInfo().getOptions();
-				if (opts.x10_config.STATIC_CALLS) {
+				if (!Warnings.dynamicCall(tc.job(),Warnings.CastingExprToType(e, tn.type(), e.position()))) {
 					//throw new SemanticException("Expression " + e + " cannot be cast to type " + tn.type() + ".", e.position());
 					return null;
-				} else if (opts.x10_config.VERBOSE_CALLS) {
-					Warnings.issue(tc.job(), Warnings.CastingExprToType(e, tn.type(), e.position()));
-				} else {
-					((ExtensionInfo) tc.job().extensionInfo()).incrWeakCallsCount();
 				}
 			}
 		}

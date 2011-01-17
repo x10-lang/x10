@@ -60,7 +60,9 @@ import x10.constraint.XLit;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.errors.Errors;
+import x10.errors.Warnings;
 import x10.types.MethodInstance;
+import x10.types.X10Use;
 import x10.types.checker.Checker;
 import x10.types.checker.Converter;
 import x10.types.checker.PlaceChecker;
@@ -609,9 +611,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 
         if (c != null) {
             MethodInstance mi = (MethodInstance) c.methodInstance();
-            if (mi.error() != null) {
-                Errors.issue(tc.job(), mi.error(), this);
-            }
+            Warnings.checkErrorAndGuard(tc,mi, this);
 
             X10Binary_c result = (X10Binary_c) this.methodInstance(mi).type(c.type());
 
@@ -677,6 +677,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
                 int i = 3;
             }
         }
+        Warnings.wasGuardChecked(tc,mi, call); // cannot use checkErrorAndGuard because mi.err() might not be null, but we won't report an error (see X10Unary_c.desugarUnaryOp :  n4 = X10Binary_c.typeCheckCall(tc, n4); ) 
         Type rt = Checker.rightType(mi.rightType(), mi.x10Def(), call.target(), tc.context());
         call = (X10Call_c) call.methodInstance(mi).type(rt);
         call = (X10Call_c) call.arguments(args);

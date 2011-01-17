@@ -59,6 +59,7 @@ import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
 import x10.errors.Errors;
+import x10.errors.Warnings;
 import x10.errors.Errors.CannotAssign;
 import x10.errors.Errors.MethodOrStaticConstructorNotFound;
 import x10.types.ConstrainedType;
@@ -142,8 +143,7 @@ public class Checker {
 	        Call c = X10Binary_c.desugarBinaryOp(bin, tc);
 	        if (c != null) {
 	            MethodInstance mi = (MethodInstance) c.methodInstance();
-	            if (mi.error() != null)
-	                Errors.issue(tc.job(), mi.error(), n);
+                Warnings.checkErrorAndGuard(tc,mi,n);
 	            t = c.type();
 	        } else {
 	            Errors.issue(tc.job(), new Errors.CannotAssign(right, t, n.position()));

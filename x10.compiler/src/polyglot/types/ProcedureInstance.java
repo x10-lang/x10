@@ -17,7 +17,7 @@ import java.util.List;
  * A <code>ProcedureInstance</code> contains the type information for a Java
  * procedure (either a method or a constructor).
  */
-public interface ProcedureInstance<T extends ProcedureDef> extends CodeInstance<T> {
+public interface ProcedureInstance<T extends ProcedureDef> extends CodeInstance<T> { // todo: it should extend X10Use<T>
     /**
      * List of formal parameter types.
      * @return A list of <code>Type</code>.
@@ -79,6 +79,14 @@ public interface ProcedureInstance<T extends ProcedureDef> extends CodeInstance<
      */
     CConstraint guard();
     X10ProcedureInstance<T> guard(CConstraint guard);
+
+    /**
+     * Should the guard be checked at runtime for this instance?
+     * Every method/ctor call with such an instance should generate code that checks the guard.
+     * @return true if we should check the guard.
+     */
+    boolean checkGuardAtRuntime();
+    X10ProcedureInstance<T> checkGuardAtRuntime(boolean check);
 
     /**
      * Return the constraint on the type parameters, if any.

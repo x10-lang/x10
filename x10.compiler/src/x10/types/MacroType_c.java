@@ -206,7 +206,8 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 	public MacroType newFormalTypes(List<Type> formalTypes) {
 	    return formalTypes(formalTypes);
 	}
-	
+
+    // todo: this guard&typeGuard is duplicated from ProcedureInstance_c
 	public CConstraint guard() {
 		if (guard == null)
 			return Types.get(def().guard());
@@ -218,6 +219,15 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 		t.guard = guard;
 		return (MacroType) t;
 	}
+
+    protected boolean checkGuardAtRuntime = false;
+    public boolean checkGuardAtRuntime() { return checkGuardAtRuntime; }
+    public MacroType_c checkGuardAtRuntime(boolean check) {
+        if (check==checkGuardAtRuntime) return this;
+        MacroType_c n = (MacroType_c) copy();
+        n.checkGuardAtRuntime = check;
+        return n;
+    }
 	
 	    /** Constraint on type parameters. */
 	    protected TypeConstraint typeGuard;

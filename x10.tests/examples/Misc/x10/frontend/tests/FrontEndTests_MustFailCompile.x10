@@ -4324,3 +4324,59 @@ class MethodGuardEntailsOverriden {
 	  @ShouldBeErr def m2() {i==1} {} // guard can only be made stronger. see XTENLANG-2325
 	} 
 }
+
+
+class TestOperatorsWithoutGuards {
+	public operator - this:Int = 1;
+	public operator this * (g:TestOperatorsWithoutGuards) = 2;
+	public operator this(i:Int) = 3;
+	public operator this(i:Int) = (j:Int) = 4;
+
+	def test(g1:TestOperatorsWithoutGuards, g2:TestOperatorsWithoutGuards) {
+		val a = -g1;
+		val b = g1*g2;
+		val c = g1(42);
+		val d = g1(42)=43;
+	}
+}
+class XTENLANG_2329(x:Int) { // see XTENLANG_2329, but here we check with VERBOSE_CALLS (unlike in XTENLANG_2329.x10 where we check with STATIC_CALLS)
+	public operator this * (g:XTENLANG_2329) {x==0} = 2;
+	public operator this(i:Int) {x==0} = 3;
+	public operator this(i:Int) = (j:Int) {x==0}  = 4;
+
+	def test(g1:XTENLANG_2329, g2:XTENLANG_2329) {
+		@ERR val b = g1*g2;
+		@ERR val c = g1(42);
+		@ERR val d = g1(42)=43;
+	}
+	
+	def closureTest(c: (i:Int) {i==0} => Int , k:Int ) {
+		@ShouldBeErr val a = c(k);
+	}
+}
+
+class DynamicGuardCheck {
+	class A {
+		def this(q:Int) {q==0} {}
+	}
+	class B extends A {
+		def m1(i:Int{self==0}) {}
+		def m2(i:Int) {i==0} {}
+		def this(i:Int, j:Int) {i==0} {
+			super(j); // ERR: with VERBOSE:	Warning: Generated a dynamic check for the method guard.
+		}
+		def this(i1:Int) {
+			this(i1,4); // ERR: with VERBOSE:	Warning: Generated a dynamic check for the method guard.
+		}
+
+		def test(q:Int) {
+			m1(q); // ERR: Warning: Expression 'q' was cast to type x10.lang.Int{self==0}.
+			m2(q); // ERR: with VERBOSE:	Warning: Generated a dynamic check for the method guard.		with STATIC_CALLS: Method m2(i: x10.lang.Int){i==0}[]: void in Hello{self==Hello#this} cannot be called with arguments (x10.lang.Int{self==q}); Call invalid; calling environment does not entail the method guard.
+			new B(q,q); // ERR: with VERBOSE:	Warning: Generated a dynamic check for the method guard.
+		}
+
+		def closureTest(c: (i:Int) {i==0} => Int , k:Int ) {
+			@ShouldBeErr { c(k); }
+		}
+	}
+}
