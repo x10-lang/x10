@@ -135,6 +135,7 @@ import x10.X10CompilerOptions;
 public class RunTestSuite {
     public static boolean SEPARATE_COMPILER = System.getenv("SEPARATE_COMPILER")==null || System.getenv("SEPARATE_COMPILER").equals("true");
     public static boolean SHOW_EXPECTED_ERRORS = System.getenv("SHOW_EXPECTED_ERRORS")!=null;
+    public static boolean SHOW_RUNTIMES = System.getenv("SHOW_RUNTIMES")!=null;
     public static boolean QUIET = !SHOW_EXPECTED_ERRORS && System.getenv("QUIET")!=null;
 
     private static void println(String s) {
@@ -279,7 +280,7 @@ public class RunTestSuite {
         for (FileSummary f : summaries) {
             compileFile(f,remainingArgs);
         }
-        println("Total running time to compile all files="+(System.currentTimeMillis()-start));
+        if (SHOW_RUNTIMES) println("Total running time to compile all files="+(System.currentTimeMillis()-start));
         if (EXIT_CODE!=0) println("Summary of all errors:\n\n"+ALL_ERRORS);
         println("\n\n\n\n\n"+ (EXIT_CODE==0 ? "SUCCESS" : "FAILED") + "\n\n\n");
         System.exit(EXIT_CODE);
@@ -322,7 +323,7 @@ public class RunTestSuite {
             }
         }
 
-        println("Compiler running time="+(System.currentTimeMillis()-start));
+        if (SHOW_RUNTIMES) println("Compiler running time="+(System.currentTimeMillis()-start));
         final ArrayList<ErrorInfo> res = (ArrayList<ErrorInfo>) errQueue.getErrors();
         assert res.size()<MAX_ERR_QUEUE : "We passed the maximum number of errors!";
         return res;
