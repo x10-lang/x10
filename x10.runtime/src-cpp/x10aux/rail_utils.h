@@ -82,7 +82,7 @@ namespace x10aux {
     }
 
 // platform-specific min rail alignment
-#ifdef _POWER
+#if defined(_POWER) || defined(__bgp__)
 #define X10_MIN_RAIL_ALIGNMENT 16
 #else
 #define X10_MIN_RAIL_ALIGNMENT ((x10_int)sizeof(x10_double))
