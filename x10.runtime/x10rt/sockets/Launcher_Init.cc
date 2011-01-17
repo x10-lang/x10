@@ -317,6 +317,6 @@ void Launcher::DIE(const char * msg, ...)
 	fprintf(stderr, "%s\n", buffer);
 	if (errno != 0)
 		fprintf(stderr, "%s\n", strerror(errno));
-	exit(1);
+	exit(9);
 }
 

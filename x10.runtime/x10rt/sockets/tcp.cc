@@ -220,7 +220,7 @@ void TCP::FATAL(const char * msg)
 {
 	fprintf(stderr, "FATAL Error %d : ", errno);
 	perror(msg);
-	exit(-1);
+	exit(8);
 }
 
 /* ****************************************************************** */
