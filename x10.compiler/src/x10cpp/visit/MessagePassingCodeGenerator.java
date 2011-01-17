@@ -616,6 +616,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         TypeSystem xts =  tr.typeSystem();
         boolean isStruct = xts.isStructType(def.asType());
         X10Ext ext = (X10Ext) n.ext();
+        X10CPPCompilerOptions opts = (X10CPPCompilerOptions) tr.job().extensionInfo().getOptions();
 
 		if (getCppRep(def) != null) {
 			// emit no c++ code as this is a native rep class
@@ -670,7 +671,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         h.forceNewline(0);
         // process annotations relating to additional h/c++ files
         try {
-            X10CPPCompilerOptions opts = (X10CPPCompilerOptions) tr.job().extensionInfo().getOptions();
             List<X10ClassType> as = ext.annotationMatching((Type) xts.systemResolver().find(QName.make("x10.compiler.NativeCPPInclude")));
             for (Type at : as) {
                 ASTQuery.assertNumberOfInitializers(at, 1);
@@ -779,7 +779,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		            Type fct = fi.type();
 		            if (!dupes.contains(fct)) {
 		                dupes.add(fct);
-		                if (!((X10FieldInstance) fi).annotationsMatching(xts.load("x10.compiler.Embed")).isEmpty()) {
+		                // TODO: workaround for bad interaction with Embed and expression flattening
+		                if (opts.x10_config.ALLOW_STATEMENT_EXPRESSIONS && !((X10FieldInstance) fi).annotationsMatching(xts.load("x10.compiler.Embed")).isEmpty()) {
 		                    ArrayList<ClassType> types = new ArrayList<ClassType>();
                             extractAllClassTypes(fct, types, dupes2);
                             for (ClassType t : types) {
@@ -2000,14 +2001,18 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         TypeSystem xts = context.typeSystem();
         
         boolean embed = false;
-        try {
-            Type annotation = (Type) xts.systemResolver().find(QName.make("x10.compiler.Embed"));
-            if (!((X10Ext) dec.ext()).annotationMatching(annotation).isEmpty()) {
-                embed = true;
-//                System.err.println("@StackAllocate " + dec);
+        // TODO: workaround for bad interaction with Embed and expression flattening
+        X10CPPCompilerOptions opts = (X10CPPCompilerOptions) tr.job().extensionInfo().getOptions();
+        if (opts.x10_config.ALLOW_STATEMENT_EXPRESSIONS) {
+            try {
+                Type annotation = (Type) xts.systemResolver().find(QName.make("x10.compiler.Embed"));
+                if (!((X10Ext) dec.ext()).annotationMatching(annotation).isEmpty()) {
+                    embed = true;
+                    //                System.err.println("@StackAllocate " + dec);
+                }
+            } catch (SemanticException e) { 
+                /* Ignore exception when looking for annotation */  
             }
-        } catch (SemanticException e) { 
-            /* Ignore exception when looking for annotation */  
         }
         
         if (embed) {
@@ -2480,12 +2485,16 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    if (unsigned_op)
 	        sw.write("(("+emitter.makeUnsignedType(rhs.type())+")");
 	    Boolean embed = false;
-        if (asgn instanceof FieldAssign) {
-            FieldInstance fi = ((FieldAssign) asgn).fieldInstance();
-            if (!((X10FieldInstance) fi).annotationsMatching(tr.typeSystem().load("x10.compiler.Embed")).isEmpty()) {
-                embed = true;
-            }
-        }
+        // TODO: workaround for bad interaction with Embed and expression flattening
+	    X10CPPCompilerOptions opts = (X10CPPCompilerOptions) tr.job().extensionInfo().getOptions();
+	    if (opts.x10_config.ALLOW_STATEMENT_EXPRESSIONS) { 
+	        if (asgn instanceof FieldAssign) {
+	            FieldInstance fi = ((FieldAssign) asgn).fieldInstance();
+	            if (!((X10FieldInstance) fi).annotationsMatching(tr.typeSystem().load("x10.compiler.Embed")).isEmpty()) {
+	                embed = true;
+	            }
+	        }
+	    }
         if (embed) {
             FieldInstance fi = ((FieldAssign) asgn).fieldInstance();
             context.setEmbeddedFieldName(embeddedName(fi.name()));
@@ -2538,14 +2547,18 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    TypeSystem xts = (TypeSystem)context.typeSystem();
 	    
         boolean stackAllocate = false;
-        try {
-            Type annotation = (Type) xts.systemResolver().find(QName.make("x10.compiler.StackAllocate"));
-            if (!((X10Ext) dec.ext()).annotationMatching(annotation).isEmpty()) {
-                stackAllocate = true;
-//                System.err.println("@StackAllocate " + dec);
+        // TODO: workaround for bad interaction with stackallocation and expression flattening
+        X10CPPCompilerOptions opts = (X10CPPCompilerOptions) tr.job().extensionInfo().getOptions();
+        if (opts.x10_config.ALLOW_STATEMENT_EXPRESSIONS) {
+            try {
+                Type annotation = (Type) xts.systemResolver().find(QName.make("x10.compiler.StackAllocate"));
+                if (!((X10Ext) dec.ext()).annotationMatching(annotation).isEmpty()) {
+                    stackAllocate = true;
+                    //                System.err.println("@StackAllocate " + dec);
+                }
+            } catch (SemanticException e) { 
+                /* Ignore exception when looking for annotation */  
             }
-        } catch (SemanticException e) { 
-            /* Ignore exception when looking for annotation */  
         }
         
         String tmpName = null;
@@ -3253,18 +3266,23 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         // the programmer asked us to and stack allocate the storage for the object.
         // If the programmer was incorrect about the lifetime of the object, then
         // the program will almost certainly crash in some unexpected way.
-		try {
-		    Type annotation = (Type) xts.systemResolver().find(QName.make("x10.compiler.StackAllocate"));
-		    if (!((X10Ext) n.ext()).annotationMatching(annotation).isEmpty()) {
-		        stackAllocate = true;
-//		        System.err.println("@StackAllocate " + n);
-		    }
-            Type annotation2 = (Type) xts.systemResolver().find(QName.make("x10.compiler.Embed"));
-            if (!((X10Ext) n.ext()).annotationMatching(annotation2).isEmpty()) {
-                embed = true;
-//              System.err.println("@StackAllocate " + n);
-            }
-		} catch (SemanticException e) {}
+
+        // TODO: workaround for bad interaction with Embed and expression flattening
+        X10CPPCompilerOptions opts = (X10CPPCompilerOptions) tr.job().extensionInfo().getOptions();
+        if (opts.x10_config.ALLOW_STATEMENT_EXPRESSIONS) {
+            try {
+                Type annotation = (Type) xts.systemResolver().find(QName.make("x10.compiler.StackAllocate"));
+                if (!((X10Ext) n.ext()).annotationMatching(annotation).isEmpty()) {
+                    stackAllocate = true;
+                    //		        System.err.println("@StackAllocate " + n);
+                }
+                Type annotation2 = (Type) xts.systemResolver().find(QName.make("x10.compiler.Embed"));
+                if (!((X10Ext) n.ext()).annotationMatching(annotation2).isEmpty()) {
+                    embed = true;
+                    //              System.err.println("@StackAllocate " + n);
+                }
+            } catch (SemanticException e) {}
+        }
 		
 		if (n.qualifier() != null)
 			throw new InternalCompilerError("Qualified new not supported");
