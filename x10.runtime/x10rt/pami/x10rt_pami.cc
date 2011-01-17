@@ -105,6 +105,7 @@ static void std_msg_complete (pami_context_t   context,
 	handlerCallback hcb = state.callBackTable[mp.type].handler;
 	hcb(&mp);
 	free(hdr->data_ptr);
+	free(hdr);
 }
 
 
@@ -123,21 +124,21 @@ static void local_msg_dispatch (
 
 	if (recv) // not all of the data is here yet, so we need to tell PAMI what to run when it's all here.
 	{
-		struct x10rt_pami_header hdr;
-		hdr.data_ptr = malloc(pipe_size);
-		if (hdr.data_ptr == NULL)
+		struct x10rt_pami_header *hdr = (struct x10rt_pami_header *)malloc(sizeof(struct x10rt_pami_header));
+		hdr->data_ptr = malloc(pipe_size);
+		if (hdr->data_ptr == NULL)
 			error("Unable to allocate a msg_dispatch buffer of size %u", pipe_size);
-		hdr.data_len = pipe_size;
-		hdr.type = *((x10rt_msg_type*)header_addr);
-
-		//fprintf(stderr, "Place %lu waiting on a partially delivered message %i, len=%u\n", state.myPlaceId, hdr.type, pipe_size);
-
+		hdr->data_len = pipe_size;
+		hdr->type = *((x10rt_msg_type*)header_addr);
+		#ifdef DEBUG
+			fprintf(stderr, "Place %lu waiting on a partially delivered message %i, len=%u\n", state.myPlaceId, hdr.type, pipe_size);
+		#endif
 		recv->local_fn = std_msg_complete;
-		recv->cookie   = (void *)&hdr;
+		recv->cookie   = (void *)hdr;
 		recv->type     = PAMI_BYTE;
-		recv->addr     = hdr.data_ptr;
+		recv->addr     = hdr->data_ptr;
 		recv->offset   = 0;
-		//recv->data_fn  = PAMI_DATA_COPY;
+		recv->data_fn  = PAMI_DATA_COPY;
 		state.recv_active = 1;
 	}
 	else
