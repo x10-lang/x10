@@ -285,8 +285,9 @@ public class RunTestSuite {
             compileFile(f,remainingArgs);
         }
         if (SHOW_RUNTIMES) println("Total running time to compile all files="+(System.currentTimeMillis()-start));
-        if (EXIT_CODE!=0) println("Summary of all errors:\n\n"+ALL_ERRORS);
-        println("\n\n\n\n\n"+ (EXIT_CODE==0 ? "SUCCESS" : "FAILED") + "\n\n\n");
+        
+        if (EXIT_CODE!=0) System.out.println("Summary of all errors:\n\n"+ALL_ERRORS);
+        System.out.println("\n\n\n\n\n"+ (EXIT_CODE==0 ? "SUCCESS" : "FAILED") + "\n\n\n");
         System.exit(EXIT_CODE);
     }
     private static int count(String s, String sub) {
