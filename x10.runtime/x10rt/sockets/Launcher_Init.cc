@@ -69,7 +69,7 @@ Launcher::Launcher()
 	_hostlist = NULL;
 	_runtimePort = NULL;
 	_myproc = 0xFFFFFFFF;
-	_returncode = 0xDEADBEEF;
+	_returncode = 0xFEEDC0DE;
 	_dieAt = 0;
 	_firstchildproc = 0;
 	_numchildren = 0;
