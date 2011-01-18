@@ -213,8 +213,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	public static final int NO_QUALIFIER = 8;
 
 	public static final String RETURN_PARAMETER_TYPE_SUFFIX = "$G";
-	// TODO XTENLANG-2312
-    public static final String MAIN_CLASS = "Main";
+    public static final String MAIN_CLASS = "$Main";
 
 	final public CodeWriter w;
 	final public Translator tr;
