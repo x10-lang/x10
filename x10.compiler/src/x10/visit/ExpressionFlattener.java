@@ -102,8 +102,9 @@ public final class ExpressionFlattener extends ContextVisitor {
 
     private static final boolean DEBUG = false;
 
-//  private static final boolean XTENLANG_2055 = false; // bug work around
-    private static final boolean XTENLANG_2055 = true; // bug work around
+    private static final boolean XTENLANG_2055 = true; // bug work around: don't flatten Marshall.x10
+    private static final boolean XTENLANG_2336 = true; // bug work around: don't flatten Runtime.x10
+    private static final boolean XTENLANG_2337 = true; // bug work around: don't flatten PolyScanner.x10
 
     private final TypeSystem xts;
     private AltSynthesizer syn; // move functionality to Synthesizer
@@ -171,7 +172,13 @@ public final class ExpressionFlattener extends ContextVisitor {
     public static boolean cannotFlatten(Node n) {
         if (n instanceof SourceFile){
             Source s = ((SourceFile) n).source();
-            if (XTENLANG_2055 && s.name().equals("Marshal.x10")) { // DEBUG: can't flatten Marshal
+            if (XTENLANG_2336 && s.name().equals("Runtime.x10")) { // BUG: cannot flatten Runtime
+                return true;
+            }
+            if (false && XTENLANG_2337 && s.name().equals("PolyScanner.x10")) { // BUG: cannot flatten PolyScanner
+                return true;
+            }
+            if (XTENLANG_2055 && s.name().equals("Marshal.x10")) { // BUG: can't flatten Marshal
                 return true; 
             }
         }
