@@ -39,9 +39,9 @@ namespace x10 {
                        x10aux::ref<x10::lang::String> (I::*toString)(),
                        x10aux::ref<x10::lang::String> (I::*typeName)()
                     ) : equals(equals), hashCode(hashCode), __apply(__apply), toString(toString), typeName(typeName) {}
-                R (I::*__apply)(P1,P2);
                 x10_boolean (I::*equals)(x10aux::ref<x10::lang::Any>);
                 x10_int (I::*hashCode)();
+                R (I::*__apply)(P1,P2);
                 x10aux::ref<x10::lang::String> (I::*toString)();
                 x10aux::ref<x10::lang::String> (I::*typeName)();
             };
