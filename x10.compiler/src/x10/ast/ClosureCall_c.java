@@ -32,7 +32,7 @@ import polyglot.types.ProcedureInstance;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.util.CodeWriter;
-import polyglot.util.CollectionUtil;
+import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import polyglot.util.Pair;
 import polyglot.util.Position;
 import polyglot.util.TypedList;

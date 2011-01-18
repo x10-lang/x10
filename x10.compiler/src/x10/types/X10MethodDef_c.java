@@ -31,7 +31,7 @@ import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.types.UnknownType;
-import polyglot.util.CollectionUtil;
+import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
 import x10.constraint.XConstraint;

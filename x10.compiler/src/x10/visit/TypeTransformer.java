@@ -65,6 +65,7 @@ import x10.types.X10LocalInstance;
 import x10.types.MethodInstance;
 import polyglot.types.TypeSystem;
 import polyglot.visit.ContextVisitor;
+import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 
 /**
  * A {@link NodeTransformer} that transforms the types stored
@@ -137,7 +138,7 @@ public class TypeTransformer extends NodeTransformer {
             Set<LocalDef> initVals = ext.initVals;
             if (initVals != null) {
                 ext = (X10Ext_c) ext.copy();
-                ext.initVals = new HashSet<LocalDef>();
+                ext.initVals = CollectionFactory.newHashSet();
                 for (LocalDef ld : initVals) {
                     ext.initVals.add(getLocal((X10LocalDef) ld));
                 }
@@ -414,7 +415,7 @@ public class TypeTransformer extends NodeTransformer {
             return o instanceof IdentityRefKey && ((IdentityRefKey)o).v == this.v;
         }
     }
-    private final HashMap<IdentityRefKey, Ref<?>> refs = new HashMap<IdentityRefKey, Ref<?>>();
+    private final HashMap<IdentityRefKey, Ref<?>> refs = CollectionFactory.newHashMap();
 
     @SuppressWarnings("unchecked")
     protected <T> Ref<T> remapRef(Ref<T> ref) {
@@ -427,7 +428,7 @@ public class TypeTransformer extends NodeTransformer {
         return remappedRef;
     }
 
-    protected final HashMap<X10LocalDef, X10LocalDef> vars = new HashMap<X10LocalDef, X10LocalDef>();
+    protected final HashMap<X10LocalDef, X10LocalDef> vars = CollectionFactory.newHashMap();
 
     protected void mapLocal(X10LocalDef def, X10LocalDef newDef) {
         vars.put(def, newDef);

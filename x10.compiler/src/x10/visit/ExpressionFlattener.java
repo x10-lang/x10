@@ -65,6 +65,7 @@ import polyglot.types.SemanticException;
 import polyglot.types.TypeSystem;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
+import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.ast.AssignPropertyCall;
@@ -111,7 +112,7 @@ public final class ExpressionFlattener extends ContextVisitor {
     private final SideEffectDetector sed;
     
     List<Labeled> labels = new ArrayList<Labeled>();
-    Map<Node, List<Labeled>> labelMap = new HashMap<Node, List<Labeled>>();
+    Map<Node, List<Labeled>> labelMap = CollectionFactory.newHashMap();
 
     /**
      * @param job the job to run

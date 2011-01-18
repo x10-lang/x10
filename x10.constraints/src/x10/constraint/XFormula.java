@@ -11,6 +11,8 @@
 
 package x10.constraint;
 
+import x10.util.CollectionFactory;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -120,7 +122,7 @@ public class XFormula extends XTerm {
 	        XPromise result = c.lookup(this);
 	        if (result != null) // this term has already been interned.
 	            return result;
-	        HashMap<XName, XPromise> fields = new HashMap<XName, XPromise>();
+	        HashMap<XName, XPromise> fields = CollectionFactory.newHashMap();
 	        for (int i = 0; i < arguments.size(); i++) {
 	            XTerm arg = arguments.get(i);
 	            if (arg == null) {

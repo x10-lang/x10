@@ -10,7 +10,7 @@ package polyglot.types;
 import java.util.List;
 
 import polyglot.main.Report;
-import polyglot.util.CollectionUtil;
+import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import polyglot.util.Position;
 import x10.types.MethodInstance;
 

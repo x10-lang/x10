@@ -13,6 +13,7 @@ import java.util.*;
 import polyglot.main.Report;
 import polyglot.types.TypeObject;
 import polyglot.types.TypeSystem;
+import x10.util.CollectionFactory;
 
 /** Output stream for writing type objects. */
 public class TypeOutputStream extends ObjectOutputStream
@@ -28,7 +29,7 @@ public class TypeOutputStream extends ObjectOutputStream
         
         this.ts = ts;
         this.roots = ts.getTypeEncoderRootSet(root);
-        this.placeHolders = new HashMap<Object, Object>();
+        this.placeHolders = CollectionFactory.newHashMap();
         
         if (Report.should_report(Report.serialize, 2)) {
             Report.report(2, "Began TypeOutputStream with roots: " + roots);

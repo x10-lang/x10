@@ -75,6 +75,7 @@ import polyglot.util.ErrorInfo;
 import polyglot.util.ErrorQueue;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
+import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import polyglot.visit.ConformanceChecker;
 import polyglot.visit.ConstructorCallChecker;
 import polyglot.visit.ContextVisitor;
@@ -143,7 +144,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 	public static final String XML_FILE_EXTENSION = "x10ml";
 	public static final String XML_FILE_DOT_EXTENSION = "." + XML_FILE_EXTENSION;
 
-//	private static HashMap<CallTableKey, LinkedList<CallTableVal>> calltable = new HashMap<CallTableKey, LinkedList<CallTableVal>>();
+//	private static HashMap<CallTableKey, LinkedList<CallTableVal>> calltable = CollectionFactory.newHashMap();
     public static String clock = "clock";
 
     static {
@@ -216,7 +217,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
         throw new IllegalStateException("Could not parse " + source.path());
     }
 
-    protected HashSet<String> manifest = new HashSet<String>();
+    protected HashSet<String> manifest = CollectionFactory.newHashSet();
     public boolean manifestContains(String path) {
         path = path.replace(File.separatorChar, '/');
         // FIXME: HACK! Try all prefixes
@@ -1094,7 +1095,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     
 	public void addPlugin(QName pluginName, CompilerPlugin plugin) {
 		if (plugins == null) {
-			plugins = new HashMap<QName,CompilerPlugin>();
+			plugins = CollectionFactory.newHashMap();
 		}
 		plugins.put(pluginName, plugin);
 	}

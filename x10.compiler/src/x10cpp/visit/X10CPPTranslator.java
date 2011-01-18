@@ -82,6 +82,7 @@ import polyglot.util.InternalCompilerError;
 import polyglot.util.SimpleCodeWriter;
 import polyglot.util.StdErrorQueue;
 import polyglot.util.StringUtil;
+import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import polyglot.visit.Translator;
 import x10.ast.ForLoop;
 import x10.ast.X10ClassDecl;
@@ -295,7 +296,7 @@ public class X10CPPTranslator extends Translator {
 			TypeSystem xts = typeSystem();
 
 			if (opts.x10_config.DEBUG)
-				c.addData(FILE_TO_LINE_NUMBER_MAP, new HashMap<String, LineNumberMap>());
+				c.addData(FILE_TO_LINE_NUMBER_MAP, CollectionFactory.newHashMap());
 
 			// Use the source file name as the basename for the output .cc file
 			String fname = sfn.source().name();
@@ -481,7 +482,7 @@ public class X10CPPTranslator extends Translator {
 
 		if (options.post_compiler != null && !options.output_stdout) {
 			// use set to avoid duplicates
-			Set<String> compilationUnits = new HashSet<String>(options.compilationUnits());
+			Set<String> compilationUnits = CollectionFactory.newHashSet(options.compilationUnits());
 
 			try {
 			    final File file = outputFile(options, null, options.x10cpp_config.MAIN_STUB_NAME, "cc");

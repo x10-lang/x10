@@ -35,6 +35,7 @@ import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.util.Position;
+import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.ast.AtEach;
@@ -93,8 +94,8 @@ public class WSCodeGenerator extends ContextVisitor {
      */
     public WSCodeGenerator(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf);
-        genMethodDecls = new HashSet<X10MethodDecl>();
-        genClassDecls = new HashSet<X10ClassDecl>();
+        genMethodDecls = CollectionFactory.newHashSet();
+        genClassDecls = CollectionFactory.newHashSet();
     }
 
     public static void setWALATransTarget(TypeSystem xts, NodeFactory xnf, String theLanguage, WSTransformationContent target){

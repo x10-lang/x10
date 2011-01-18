@@ -18,7 +18,7 @@ import java.util.List;
 import polyglot.ast.*;
 import polyglot.ast.Assign.Operator;
 import polyglot.types.*;
-import polyglot.util.CollectionUtil;
+import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
 import x10.ExtensionInfo;

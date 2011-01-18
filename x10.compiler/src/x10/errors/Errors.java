@@ -45,6 +45,7 @@ import polyglot.types.TypeSystem_c.MethodMatcher;
 import polyglot.util.CodedErrorInfo;
 import polyglot.util.ErrorInfo;
 import polyglot.util.Position;
+import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import x10.ExtensionInfo;
 import x10.ExtensionInfo.X10Scheduler.X10Job;
 import x10.ast.DepParameterExpr;
@@ -555,7 +556,7 @@ public class Errors {
 	              + "\n\t Call: "  + mm,
 	              pos);
 	        
-	        Map<String, Object> map = new HashMap<String, Object>();
+	        Map<String, Object> map = CollectionFactory.newHashMap();
 		    map.put(CodedErrorInfo.ERROR_CODE_KEY, 1002);
 		    map.put("METHOD", mm.name().toString());
 		    map.put("ARGUMENTS", mm.argumentString());

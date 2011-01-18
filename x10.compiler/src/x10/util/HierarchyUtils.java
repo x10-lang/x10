@@ -21,6 +21,7 @@ import polyglot.types.Flags;
 
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
+import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import x10.types.X10ClassType;
 import x10.types.X10MethodDef;
 import x10.types.MethodInstance;
@@ -45,7 +46,7 @@ public class HierarchyUtils {
 	}
 
 	public static Set<ClassType> getSuperClasses(ClassType startingClass) {
-		Set<ClassType> superTypes = new HashSet<ClassType>();
+		Set<ClassType> superTypes = CollectionFactory.newHashSet();
 		ClassType superType = (ClassType)startingClass.superClass();
 
 		while (superType != null) {
@@ -64,7 +65,7 @@ public class HierarchyUtils {
 	}
 	
 	public static Set<ClassType> getInterfaces(Set<ClassType> classes) {
-		Set<ClassType> interfaces = new HashSet<ClassType>();
+		Set<ClassType> interfaces = CollectionFactory.newHashSet();
 		for (ClassType ct : classes) {
 			addInterfaces(ct, interfaces);
 		}
@@ -77,7 +78,7 @@ public class HierarchyUtils {
 	}
 
 	public static Set<MethodInstance> getMethods(Set<ClassType> classes, Flags flags) {
-		Set<MethodInstance> methods = new HashSet<MethodInstance>();
+		Set<MethodInstance> methods = CollectionFactory.newHashSet();
 		for (ClassType ct : classes) {
 			for (MethodInstance mi : ct.methods()) {
 				if (mi.flags().contains(flags))
@@ -91,7 +92,7 @@ public class HierarchyUtils {
 	}
 
 	public static Set<MethodInstance> getImplementedMethods(Set<ClassType> classes) {
-		Set<MethodInstance> methods = new HashSet<MethodInstance>();
+		Set<MethodInstance> methods = CollectionFactory.newHashSet();
 		for (ClassType ct : classes) {
 			for (MethodInstance mi : ct.methods()) {
 				if (!mi.flags().isAbstract()) {

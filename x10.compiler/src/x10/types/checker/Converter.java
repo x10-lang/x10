@@ -50,6 +50,7 @@ import polyglot.types.Types;
 import polyglot.util.ErrorInfo;
 import polyglot.util.Pair;
 import polyglot.util.Position;
+import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import polyglot.visit.ContextVisitor;
 import x10.Configuration;
 import x10.ExtensionInfo;
@@ -201,7 +202,7 @@ public class Converter {
 		ClassDef currentClassDef = xc.currentClassDef();
 
 		List<PI> acceptable = new ArrayList<PI>();
-		Map<Def, List<Expr>> newArgs = new HashMap<Def, List<Expr>>();
+		Map<Def, List<Expr>> newArgs = CollectionFactory.newHashMap();
 
 		List<Type> typeArgs = new ArrayList<Type>(n.typeArguments().size());
 

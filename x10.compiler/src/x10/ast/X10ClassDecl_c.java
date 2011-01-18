@@ -65,7 +65,7 @@ import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.util.CodeWriter;
-import polyglot.util.CollectionUtil;
+import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
@@ -858,7 +858,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
       
         
         // fix for XTENLANG-978
-//        Map<X10ClassDef,X10ClassType> map = new HashMap<X10ClassDef, X10ClassType>();
+//        Map<X10ClassDef,X10ClassType> map = CollectionFactory.newHashMap();
 //        for (X10ClassType ct : supers) {
 //            X10ClassType t = map.get(ct.x10Def());
 //            if (t != null) {

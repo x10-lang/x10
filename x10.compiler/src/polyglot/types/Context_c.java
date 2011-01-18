@@ -12,6 +12,7 @@ import java.util.*;
 import polyglot.main.Report;
 import polyglot.util.*;
 import x10.types.MethodInstance;
+import x10.util.CollectionFactory;
 
 /**
  * This class maintains a context for looking up named variables, types,
@@ -77,8 +78,8 @@ public abstract class Context_c implements Context
     
     public Context freeze() {
         Context_c c = (Context_c) this.copy();
-        c.types = types != null ? new HashMap<Name, Named>(types) : null;
-        c.vars = vars != null ? new HashMap<Name, VarInstance<?>>(vars) : null;
+        c.types = types != null ? CollectionFactory.newHashMap(types) : null;
+        c.vars = vars != null ? CollectionFactory.newHashMap(vars) : null;
         c.outer = outer != null ? outer.freeze() : null;
         return c;
     }
@@ -504,7 +505,7 @@ public abstract class Context_c implements Context
     }
 
     public void addNamedToThisScope(Named type) {
-        if (types == null) types = new HashMap<Name, Named>();
+        if (types == null) types = CollectionFactory.newHashMap();
         types.put(type.name(), type);
     }
 
@@ -534,7 +535,7 @@ public abstract class Context_c implements Context
     }
 
     public void addVariableToThisScope(VarInstance<?> var) {
-        if (vars == null) vars = new HashMap<Name,VarInstance<?>>();
+        if (vars == null) vars = CollectionFactory.newHashMap();
         vars.put(var.name(), var);
     }
 

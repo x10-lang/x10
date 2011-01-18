@@ -140,7 +140,7 @@ public class AsyncElimination extends NodeVisitor {
      *  - does not allocate other objects / arrays
      **/
     private boolean isOptimizableExpr_(Expr e) {
-        final Set<Node> critical = new HashSet<Node>();
+        final Set<Node> critical = CollectionFactory.newHashSet();
         e.visit( new NodeVisitor() {
             public Node leave( Node old, Node n, NodeVisitor v) {
                 if ( n instanceof ProcedureCall ||

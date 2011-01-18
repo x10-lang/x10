@@ -66,7 +66,7 @@ import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.util.CodeWriter;
-import polyglot.util.CollectionUtil;
+import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.StringUtil;
@@ -116,7 +116,7 @@ public class Emitter {
 	Translator tr;
 	private final Type imcType;
         
-	private static final Set<String> JAVA_KEYWORDS = new HashSet<String>(
+	private static final Set<String> JAVA_KEYWORDS = CollectionFactory.newHashSet(
 	        Arrays.asList(new String[]{
 	                "abstract", "default",  "if",         "private",    "this",
 	                "boolean",  "do",       "implements", "protected",  "throw",
@@ -158,7 +158,7 @@ public class Emitter {
 	}
 
 	private static Name mangleIdentifier(Name n) {
-		Map<Name,Name> map = new HashMap<Name,Name>();
+		Map<Name,Name> map = CollectionFactory.newHashMap();
 		map.put(Converter.operator_as, Name.make("$convert"));
 		map.put(Converter.implicit_operator_as, Name.make("$implicit_convert"));
 		map.put(SettableAssign.SET, Name.make("$set"));
@@ -1055,7 +1055,7 @@ public class Emitter {
 
 	@Deprecated
 	public void generateRTTMethods(X10ClassDef def, boolean boxed) {
-		Set<ClassDef> visited = new HashSet<ClassDef>();
+		Set<ClassDef> visited = CollectionFactory.newHashSet();
 		visited.add(def);
 
 		// Generate RTTI methods, one for each parameter.
@@ -3180,7 +3180,7 @@ public class Emitter {
         
         List<MethodInstance> methods = ct.methods();
         Map<MethodInstance, List<MethodInstance>> dispatcherToMyMethods 
-        = new HashMap<MethodInstance,List<MethodInstance>>();
+        = CollectionFactory.newHashMap();
         for (MethodInstance myMethod : methods) {
             List<MethodInstance> implementeds = myMethod.implemented(tr.context());
             List<MethodInstance> targets = new ArrayList<MethodInstance>();

@@ -43,7 +43,7 @@ import polyglot.types.TypeSystem;
 import polyglot.types.UnknownType;
 import polyglot.types.ConstructorDef;
 import polyglot.util.CodeWriter;
-import polyglot.util.CollectionUtil;
+import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
 import polyglot.visit.ContextVisitor;

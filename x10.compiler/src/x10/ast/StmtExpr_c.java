@@ -30,7 +30,7 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.util.CodeWriter;
-import polyglot.util.CollectionUtil;
+import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
 import polyglot.visit.CFGBuilder;

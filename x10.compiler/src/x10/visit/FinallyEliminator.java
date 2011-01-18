@@ -48,6 +48,7 @@ import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
+import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.ast.Closure;
@@ -423,9 +424,9 @@ public class FinallyEliminator extends ContextVisitor {
     
         public FinallyEliminator outerVisitor;
         public Block             finallyBlock;
-        public Set<String>       breakLabels    = new HashSet<String>();
-        public Set<String>       continueLabels = new HashSet<String>();
-        public Set<String>       ignoreLabels   = new HashSet<String>();
+        public Set<String>       breakLabels    = CollectionFactory.newHashSet();
+        public Set<String>       continueLabels = CollectionFactory.newHashSet();
+        public Set<String>       ignoreLabels   = CollectionFactory.newHashSet();
         public boolean           hasReturn      = false;
         public boolean           hasBreak       = false;
         public boolean           hasContinue    = false;

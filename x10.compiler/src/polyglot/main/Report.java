@@ -19,12 +19,13 @@ import polyglot.util.ErrorInfo;
 import polyglot.util.ErrorQueue;
 import polyglot.util.Position;
 import polyglot.util.SimpleErrorQueue;
+import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 
 /** Class used for reporting debug messages. */
 public class Report {
   /** A collection of string names of topics which can be used with the
       -report command-line switch */
-  public final static Collection<String> topics = new HashSet<String>();
+  public final static Collection<String> topics = CollectionFactory.newHashSet();
 
   /** A collection of string names of topics which we should always check
       if we should report. */
@@ -34,7 +35,7 @@ public class Report {
    * The topics that the user has selected to report, mapped to the level
    * they want to report them to.
    */
-  protected final static Map<String, Integer> reportTopics = new HashMap<String, Integer>(); // Map[String, Integer]
+  protected final static Map<String, Integer> reportTopics = CollectionFactory.newHashMap(); // Map[String, Integer]
   
   /** Error queue to which to write messages. */
   protected static ErrorQueue eq;

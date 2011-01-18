@@ -16,6 +16,7 @@ import java.util.zip.ZipFile;
 import polyglot.main.Report;
 import polyglot.util.FileUtil;
 import polyglot.util.InternalCompilerError;
+import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 
 /**
  * We implement our own class loader.  All this pain is so
@@ -43,14 +44,14 @@ public class ResourceLoader
     /**
      * Cache File.canRead()
      */
-    protected Map<File, Boolean> dirCanRead = new HashMap<File, Boolean>();
+    protected Map<File, Boolean> dirCanRead = CollectionFactory.newHashMap();
 
     protected final static Object not_found = new Object();
 
     public ResourceLoader() {
-        this.zipCache = new HashMap<File, Object>();
-        this.dirContentsCache = new HashMap<File, Set<String>>();
-        this.dirCache = new HashSet<String>();
+        this.zipCache = CollectionFactory.newHashMap();
+        this.dirContentsCache = CollectionFactory.newHashMap();
+        this.dirCache = CollectionFactory.newHashSet();
     }
 
     private boolean canRead(File dir) {
@@ -209,7 +210,7 @@ public class ResourceLoader
 	}
         Set<String> dirContents = dirContentsCache.get(dir);
         if (dirContents == null) {
-            dirContents = new HashSet<String>();
+            dirContents = CollectionFactory.newHashSet();
             dirContentsCache.put(dir, dirContents);
             if (dir.exists() && dir.isDirectory()) {
                 String[] contents = dir.list();
@@ -248,7 +249,7 @@ public class ResourceLoader
     protected static Collection<String> verbose;
 
     static {
-        verbose = new HashSet<String>();
+        verbose = CollectionFactory.newHashSet();
         verbose.add("loader");
     }
 }

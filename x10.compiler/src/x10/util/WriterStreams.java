@@ -25,6 +25,7 @@ import polyglot.ast.SourceFile;
 import polyglot.frontend.Job;
 import polyglot.frontend.TargetFactory;
 import polyglot.util.SimpleCodeWriter;
+import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import x10cpp.visit.X10CPPTranslator;
 
 /**
@@ -74,7 +75,7 @@ public class WriterStreams {
                             new SimpleCodeWriter(targetFactory.outputWriter(file),
                                                  job.compiler().outputWidth()));
         }
-        Map<String, Integer> startLineOffsets = new HashMap<String, Integer>();
+        Map<String, Integer> startLineOffsets = CollectionFactory.newHashMap();
         for (ClassifiedStream s : streams) {
             int startLineOffset = startLineOffsets.containsKey(s.ext) ? startLineOffsets.get(s.ext) : 0;
             s.commit(codeWriters.get(s.ext), startLineOffset);

@@ -26,8 +26,8 @@ class Report {
 
     static class Entries {
 
-        HashMap<String,Collection<Entry>> map = new HashMap<String,Collection<Entry>>();
-        HashMap<String,Entry> shown = new HashMap<String,Entry>();
+        HashMap<String,Collection<Entry>> map = CollectionFactory.newHashMap();
+        HashMap<String,Entry> shown = CollectionFactory.newHashMap();
 
         private String key(String test, String lgc) {
             return test + "," + lgc;

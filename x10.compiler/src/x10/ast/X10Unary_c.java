@@ -38,6 +38,7 @@ import polyglot.types.Type;
 import polyglot.types.Types;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
+import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import polyglot.visit.ContextVisitor;
 import x10.errors.Errors;
 import x10.errors.Warnings;
@@ -384,7 +385,7 @@ public class X10Unary_c extends Unary_c {
     }
 
     public static Name unaryMethodName(Unary.Operator op) {
-        Map<Unary.Operator,String> methodNameMap = new HashMap<Unary.Operator, String>();
+        Map<Unary.Operator,String> methodNameMap = CollectionFactory.newHashMap();
         methodNameMap.put(NEG, "operator-");
         methodNameMap.put(POS, "operator+");
         methodNameMap.put(NOT, "operator!");

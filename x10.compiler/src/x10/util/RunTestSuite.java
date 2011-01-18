@@ -6,6 +6,7 @@ import polyglot.util.ErrorQueue;
 import polyglot.util.SilentErrorQueue;
 import polyglot.util.Position;
 import polyglot.util.ErrorInfo;
+import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import polyglot.main.Report;
 import polyglot.main.Main;
 
@@ -241,7 +242,7 @@ public class RunTestSuite {
             }
         }
         ArrayList<FileSummary> summaries = new ArrayList<FileSummary>();
-        HashMap<String,File> fileName2File = new HashMap<String, File>();
+        HashMap<String,File> fileName2File = CollectionFactory.newHashMap();
         for (File f : files) {
             FileSummary fileSummary = analyzeFile(f);
             summaries.add(fileSummary);

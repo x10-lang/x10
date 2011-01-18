@@ -50,7 +50,7 @@ import polyglot.types.TypeSystem;
 import polyglot.types.TypeSystem_c.ConstructorMatcher;
 import polyglot.types.TypeSystem_c.TypeEquals;
 import polyglot.util.CodedErrorInfo;
-import polyglot.util.CollectionUtil;
+import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.TransformingList;
 import x10.constraint.XEQV;
@@ -143,7 +143,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
                                     + mi.signature()
                                     + ", which is declared in "
                                     + rt.toClass().fullName(), ct.position());
-                            Map<String, Object> map = new HashMap<String, Object>();
+                            Map<String, Object> map = CollectionFactory.newHashMap();
                             map.put(CodedErrorInfo.ERROR_CODE_KEY, 1004);
                             Name name = ct.name();
                             if (name == null) {
@@ -339,7 +339,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         case LOWER:
             return lower;
         case EQUAL:
-            Set<Type> equals = new HashSet<Type>();
+            Set<Type> equals = CollectionFactory.newHashSet();
             equals.addAll(upper);
             equals.retainAll(lower);
             return new ArrayList<Type>(equals);
@@ -396,7 +396,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
     List<Type> typeBounds(Type t, Bound kind) {
         List<Type> result = new ArrayList<Type>();
-        Set<Type> visited = new HashSet<Type>();
+        Set<Type> visited = CollectionFactory.newHashSet();
         
         LinkedList<Type> worklist = new LinkedList<Type>();
         worklist.add(t);
@@ -482,7 +482,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
     List<Type> bounds(Type t, Bound kind, boolean  includeObject) {
         List<Type> result = new ArrayList<Type>();
-        Set<Type> visited = new HashSet<Type>();
+        Set<Type> visited = CollectionFactory.newHashSet();
         
         LinkedList<Type> worklist = new LinkedList<Type>();
         worklist.add(t);
@@ -573,10 +573,10 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         // the acceptable methods are not overridden by an unacceptable method.
         List<MacroType> unacceptable = new ArrayList<MacroType>();
 
-        Set<Type> visitedTypes = new HashSet<Type>();
+        Set<Type> visitedTypes = CollectionFactory.newHashSet();
 
         LinkedList<Type> typeQueue = new LinkedList<Type>();
-        HashSet<Type> preventInfiniteRecursion = new HashSet<Type>(); // e.g., class CircularityTests { property i() = 5; class R extends R {i()==5} {} }
+        HashSet<Type> preventInfiniteRecursion = CollectionFactory.newHashSet(); // e.g., class CircularityTests { property i() = 5; class R extends R {i()==5} {} }
 
         // Get the upper bound of the container.
         typeQueue.addAll(upperBounds(container, true));
@@ -1990,7 +1990,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 	if (acceptable.size() == 0) {
 	    if (error == null) {
 	    	error = new NoMemberException(NoMemberException.CONSTRUCTOR, "No valid constructor found for " + matcher.signature() + ".");
-	    	Map<String, Object> map = new HashMap<String, Object>();
+	    	Map<String, Object> map = CollectionFactory.newHashMap();
             map.put(CodedErrorInfo.ERROR_CODE_KEY, 1003);
             map.put("CONSTRUCTOR", matcher.name().toString());
             map.put("ARGUMENTS", matcher.argumentString());

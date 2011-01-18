@@ -30,6 +30,7 @@ import polyglot.types.Ref;
 import polyglot.types.Type;
 import polyglot.util.QuotedStringTokenizer;
 import polyglot.util.StringUtil;
+import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import x10.util.ClassifiedStream;
 import x10cpp.visit.Emitter;
 
@@ -206,8 +207,8 @@ public class LineNumberMap extends StringTable {
 
     private LineNumberMap(ArrayList<String> strings) {
     	super(strings);
-        this.map = new HashMap<Key, Entry>();
-        this.methods = new HashMap<MethodDescriptor, MethodDescriptor>();
+        this.map = CollectionFactory.newHashMap();
+        this.methods = CollectionFactory.newHashMap();
     }
 
     /**
@@ -795,7 +796,7 @@ public class LineNumberMap extends StringTable {
 		    // A list of the X10 method names.
 		    // Sorted by X10 method name.
 		    ArrayList<CPPMethodInfo> x10MethodList = new ArrayList<CPPMethodInfo>(m.methods.size());
-		    HashMap<Key, CPPMethodInfo> keyToMethod = new HashMap<Key, CPPMethodInfo>();
+		    HashMap<Key, CPPMethodInfo> keyToMethod = CollectionFactory.newHashMap();
 		    for (MethodDescriptor md : m.methods.keySet()) {
 		        MethodDescriptor sm = m.methods.get(md);
 		        final CPPMethodInfo cmi = m.new CPPMethodInfo(sm.container,        // _x10class

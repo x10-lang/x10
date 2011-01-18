@@ -37,6 +37,7 @@ import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.util.Position;
+import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.ast.Closure;
@@ -58,7 +59,7 @@ public class ClosuresToStaticMethods extends ContextVisitor {
 
     private final TypeSystem xts;
     private final NodeFactory xnf;
-    private final Map<CodeDef,List<ParameterType>> closureDefToTypePrams = new HashMap<CodeDef,List<ParameterType>>();
+    private final Map<CodeDef,List<ParameterType>> closureDefToTypePrams = CollectionFactory.newHashMap();
     
     public ClosuresToStaticMethods(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf);

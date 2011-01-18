@@ -11,6 +11,7 @@ import java.io.PrintStream;
 import java.util.*;
 
 import polyglot.frontend.ExtensionInfo;
+import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 
 /** 
  * This object encapsulates various polyglot options. 
@@ -49,13 +50,13 @@ public class Options {
     public boolean serialize_type_info = true;
   
     /** Dump the AST after the following passes? */
-    public Set<String> dump_ast = new HashSet<String>();
+    public Set<String> dump_ast = CollectionFactory.newHashSet();
   
     /** Pretty-print the AST after the following passes? */
-    public Set<String> print_ast = new HashSet<String>();
+    public Set<String> print_ast = CollectionFactory.newHashSet();
  
     /** Disable the following passes? */
-    public Set<String> disable_passes = new HashSet<String>();
+    public Set<String> disable_passes = CollectionFactory.newHashSet();
   
     /** keep output files */
     public boolean keep_output_files = true;

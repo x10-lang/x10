@@ -5,6 +5,7 @@ import java.util.HashMap;
 
 import polyglot.util.StringUtil;
 import polyglot.util.UniqueID;
+import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 
 public class Name  implements Serializable {
     private static final long serialVersionUID = -899548430558751316L;
@@ -17,7 +18,7 @@ public class Name  implements Serializable {
         this.hash = hash;
     }
 
-    static HashMap<String,Name> internCache = new HashMap<String,Name>();
+    static HashMap<String,Name> internCache = CollectionFactory.newHashMap();
     static int count = 0;
     
     public static Name makeFresh() {

@@ -24,6 +24,7 @@ import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.Stmt;
 import polyglot.visit.NodeVisitor;
+import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 
 /**
  * @author Haichuan
@@ -63,7 +64,7 @@ public class AddIndirectLocalDeclareVisitor extends NodeVisitor{
             LocalExprFinder lef = new LocalExprFinder();
             block.visit(lef);//no replacement, just detect
             
-            HashSet<Stmt> localDecls = new HashSet<Stmt>(); //we need use set to only add one time
+            HashSet<Stmt> localDecls = CollectionFactory.newHashSet(); //we need use set to only add one time
             for(Local local : lef.getLocalList()){
                 Stmt s = refToDeclMap.get(local);
                 if(s != null){

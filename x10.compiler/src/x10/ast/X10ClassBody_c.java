@@ -37,7 +37,7 @@ import java.util.ListIterator;
 import java.util.List;
 
 import polyglot.util.CodeWriter;
-import polyglot.util.CollectionUtil;
+import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import polyglot.util.Position;
 import polyglot.ast.ClassBody;
 import polyglot.ast.ClassMember;

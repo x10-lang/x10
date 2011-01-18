@@ -92,6 +92,7 @@ import x10.types.matcher.X10MemberTypeMatcher;
 import x10.types.matcher.X10MethodMatcher;
 import x10.types.matcher.X10TypeMatcher;
 import x10.util.ClosureSynthesizer;
+import x10.util.CollectionFactory;
 import x10.visit.X10TypeBuilder;
 
 
@@ -923,7 +924,7 @@ public class TypeSystem_c implements TypeSystem
     public Set<FieldInstance> findFields(Type container, TypeSystem_c.FieldMatcher matcher) {
         assert_(container);
 
-        Set<FieldInstance> candidates = new HashSet<FieldInstance>();
+        Set<FieldInstance> candidates = CollectionFactory.newHashSet();
 
         for (Type t : env(matcher.context()).upperBounds(container, true)) {
             Set<FieldInstance> fs = superFindFields(t, matcher);
@@ -959,7 +960,7 @@ public class TypeSystem_c implements TypeSystem
 	    }
 	}
 
-	Set<FieldInstance> fields = new HashSet<FieldInstance>();
+	Set<FieldInstance> fields = CollectionFactory.newHashSet();
 
 	if (container instanceof ObjectType) {
 	    ObjectType ot = (ObjectType) container;
@@ -1251,7 +1252,7 @@ public class TypeSystem_c implements TypeSystem
     public static abstract class BaseMatcher<T> implements Matcher<T> {
         private HashSet<Type> visitedDefs;
         public boolean visit(Type t) {
-            if (visitedDefs==null) visitedDefs = new HashSet<Type>();
+            if (visitedDefs==null) visitedDefs = CollectionFactory.newHashSet();
             final Type p = Types.baseType(t);
             if (visitedDefs.contains(p)) return false;
             visitedDefs.add(p);
@@ -1602,7 +1603,7 @@ public class TypeSystem_c implements TypeSystem
 	// the acceptable methods are not overridden by an unacceptable method.
 	List<MethodInstance> unacceptable = new ArrayList<MethodInstance>();
 
-	Set<Type> visitedTypes = new HashSet<Type>();
+	Set<Type> visitedTypes = CollectionFactory.newHashSet();
 
 	LinkedList<Type> typeQueue = new LinkedList<Type>();
 	typeQueue.addLast(container);
@@ -2649,7 +2650,7 @@ public class TypeSystem_c implements TypeSystem
 	return arrayOf(pos, Types.ref(type), dims);
     }
 
-    Map<Ref<? extends Type>,Type> arrayTypeCache = new HashMap<Ref<? extends Type>,Type>();
+    Map<Ref<? extends Type>,Type> arrayTypeCache = CollectionFactory.newHashMap();
 
     /**
      * Factory method for ArrayTypes.
@@ -3204,7 +3205,7 @@ public class TypeSystem_c implements TypeSystem
 //              def example() = a;
 //              def m(a:Example{self.home.home.home==here}) = 1;
 //            }
-			Collection<FieldInstance> newFields = new HashSet<FieldInstance>();
+			Collection<FieldInstance> newFields = CollectionFactory.newHashSet();
 			for (FieldInstance fi : fields) {
 				if ((fi.flags().isStatic())){
                     if (!isIn(newFields,fi))
@@ -4074,7 +4075,7 @@ public class TypeSystem_c implements TypeSystem
     // User-defined structs and do they have zero (haszero)
     // This is not just a cache: we use this map to prevent infinite recursion such as in the case of:
     // struct U(u:U) {}
-    public HashMap<X10ClassDef_c, Boolean> structHaszero = new HashMap<X10ClassDef_c, Boolean>();
+    public HashMap<X10ClassDef_c, Boolean> structHaszero = CollectionFactory.newHashMap();
     
     public Boolean structHaszero(X10ClassDef x) {
         return structHaszero.get(x);
@@ -4087,9 +4088,9 @@ public class TypeSystem_c implements TypeSystem
     //   use cache to break cycles checking for unknown type
     //   WARNING: this code is NOT reentrant
     //   FIXME: resolve cycles and remove this cache
-    private Map<Type, Boolean> unknownTypeMap = new HashMap<Type, Boolean>();
+    private Map<Type, Boolean> unknownTypeMap = CollectionFactory.newHashMap();
     public boolean hasUnknown(Type t) {
-        unknownTypeMap = new HashMap<Type, Boolean>();
+        unknownTypeMap = CollectionFactory.newHashMap();
         return hasUnknownType(t);
     }
 

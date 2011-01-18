@@ -89,7 +89,7 @@ import polyglot.parse.VarDeclarator;
 import polyglot.types.Flags;
 import x10.types.checker.Converter;
 import x10.errors.Errors;
-import polyglot.util.CollectionUtil;
+import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import polyglot.util.ErrorInfo;
 import polyglot.util.ErrorQueue;
 import polyglot.util.Position;
