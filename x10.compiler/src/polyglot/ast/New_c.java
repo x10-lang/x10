@@ -24,7 +24,7 @@ import x10.errors.Errors;
  * list of arguments to be passed to the constructor of the object and an
  * optional <code>ClassBody</code> used to support anonymous classes.
  */
-public class New_c extends Expr_c implements New
+public abstract class New_c extends Expr_c implements New
 {
     protected Expr qualifier;
     protected TypeNode tn;
@@ -138,13 +138,7 @@ public class New_c extends Expr_c implements New
     }
 
     /** Visit the children of the expression. */
-    public Node visitChildren(NodeVisitor v) {
-	Expr qualifier = (Expr) visitChild(this.qualifier, v);
-	TypeNode tn = (TypeNode) visitChild(this.tn, v);
-	List<Expr> arguments = visitList(this.arguments, v);
-	ClassBody body = (ClassBody) visitChild(this.body, v);
-	return reconstruct(qualifier, tn, arguments, body);
-    }
+    public abstract Node visitChildren(NodeVisitor v);
 
     public Context enterChildScope(Node child, Context c) {
         if (child == body && anonType != null && body != null) {
@@ -184,70 +178,7 @@ public class New_c extends Expr_c implements New
         return n.type(ts.unknownType(position()));
     }
     
-    public New_c typeCheckObjectType(TypeChecker childtc) throws SemanticException {
-        New_c n = this;
-        
-        TypeSystem ts = childtc.typeSystem();
-        NodeFactory nf = childtc.nodeFactory();
-        Context c = childtc.context();
-
-        Expr qualifier = n.qualifier;
-        TypeNode tn = n.tn;
-        List<Expr> arguments = n.arguments;
-        ClassBody body = n.body;
-        
-        if (qualifier == null) {
-            tn = (TypeNode) n.visitChild(tn, childtc);
-//            if (childtc.hasErrors()) throw new SemanticException();
-            
-            if (tn.type() instanceof UnknownType) {
-                throw new SemanticException();
-            }
-            
-            if (tn.type().isClass()) {
-                ClassType ct = tn.type().toClass();
-
-                if (ct.isMember() && ! ct.flags().isStatic()) {
-                    New k = n.findQualifier(childtc, ct);
-                    qualifier = (Expr) k.visitChild(k.qualifier(), childtc);
-                }
-            }
-            else {
-                throw new SemanticException("Cannot instantiate type " + tn.type() + ".");
-            }
-        }
-        else {
-            qualifier = (Expr) n.visitChild(n.qualifier(), childtc);
-            
-            if (tn instanceof AmbTypeNode && ((AmbTypeNode) tn).prefix() == null) {
-                // We have to disambiguate the type node as if it were a member of the
-                // static type, outer, of the qualifier.  For Java this is simple: type
-                // nested type is just a name and we
-                // use that name to lookup a member of the outer class.  For some
-                // extensions (e.g., PolyJ), the type node may be more complex than
-                // just a name.  We'll just punt here and let the extensions handle
-                // this complexity.
-
-        	Name name = ((AmbTypeNode) tn).name().id();
-                assert name != null;
-
-                if (! qualifier.type().isClass()) {
-                    throw new SemanticException("Cannot instantiate member class of non-class type.", n.position());
-                }
-                Type ct = ts.findMemberType(qualifier.type(), name, c);
-                ((Ref<Type>) tn.typeRef()).update(ct);
-                tn = nf.CanonicalTypeNode(n.objectType().position(), tn.typeRef());
-            }
-            else {
-                throw new SemanticException("Only simply-named member classes may be instantiated by a qualified new expression.",
-                        n.objectType().position());
-            }
-        }
-
-        n = n.reconstruct(qualifier, tn, arguments, body);
-
-        return n;
-    }
+    public abstract New_c typeCheckObjectType(TypeChecker childtc) throws SemanticException;
     
     @Override
     public Node typeCheckOverride(Node parent, ContextVisitor tc) throws SemanticException {
@@ -309,100 +240,9 @@ public class New_c extends Expr_c implements New
      * @param ct
      * @throws SemanticException
      */
-    protected New findQualifier(TypeChecker ar, ClassType ct) throws SemanticException {
-        // If we're instantiating a non-static member class, add a "this"
-        // qualifier.
-        NodeFactory nf = ar.nodeFactory();
-        TypeSystem ts = ar.typeSystem();
-        Context c = ar.context();
-
-        // Search for the outer class of the member.  The outer class is
-        // not just ct.outer(); it may be a subclass of ct.outer().
-        Type outer = null;
-        
-        Name name = ct.name();
-        ClassType t = c.currentClass();
-        
-        // We're in one scope too many.
-        if (t == anonType) {
-            t = t.outer();
-        }
-        
-        // Search all enclosing classes for the type.
-        while (t != null) {
-            try {
-                Type mt = ts.findMemberType(t, name, c);
-
-                if (mt instanceof ClassType) {
-                    ClassType cmt = (ClassType) mt;
-                    if (cmt.def() == ct.def()) {
-                        outer = t;
-                        break;
-                    }
-                }
-            }
-            catch (SemanticException e) {
-            }
-            
-            t = t.outer();
-        }
-        
-        if (outer == null) {
-            throw new SemanticException("Could not find non-static member class \"" + name + "\".", position());
-        }
-        
-        // Create the qualifier.
-        Expr q;
-
-        if (outer.typeEquals(c.currentClass(), ar.context())) {
-            q = nf.This(position().startOf());
-        }
-        else {
-            q = nf.This(position().startOf(),
-                        nf.CanonicalTypeNode(position(), outer));
-        }
-        
-        q = q.type(outer);
-        return qualifier(q);
-    }
+    protected abstract New findQualifier(TypeChecker ar, ClassType ct) throws SemanticException;
     
-    public Node typeCheck(ContextVisitor tc) throws SemanticException {
-        TypeSystem ts = tc.typeSystem();
-        
-        List<Type> argTypes = new ArrayList<Type>(arguments.size());
-        
-        for (Iterator<Expr> i = this.arguments.iterator(); i.hasNext(); ) {
-            Expr e = i.next();
-            argTypes.add(e.type());
-        }
-        
-        typeCheckFlags(tc);
-        typeCheckNested(tc);
-        
-        ClassType ct = tn.type().toClass();
-        ConstructorInstance ci;
-        
-        if (! ct.flags().isInterface()) {
-            Context c = tc.context();
-            if (anonType != null) {
-                c = c.pushClass(anonType, anonType.asType());
-            }
-            ci = ts.findConstructor(ct, ts.ConstructorMatcher(ct, argTypes, c));
-        }
-        else {
-            ConstructorDef dci = ts.defaultConstructor(this.position(), Types.<ClassType>ref(ct));
-            ci = dci.asInstance();
-        }
-        
-        New n = this.constructorInstance(ci);
-        
-        if (anonType != null) {
-            // The type of the new expression is the anonymous type, not the base type.
-            ct = anonType.asType();
-        }
-
-        return n.type(ct);
-    }
+    public abstract Node typeCheck(ContextVisitor tc) throws SemanticException;
 
     protected void typeCheckNested(ContextVisitor tc) throws SemanticException {
         if (qualifier != null) {
