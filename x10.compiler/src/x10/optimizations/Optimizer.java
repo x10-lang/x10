@@ -32,7 +32,7 @@ public class Optimizer {
 
     public static boolean INLINING(ExtensionInfo extInfo) {
         X10CompilerOptions opts = extInfo.getOptions();
-        if (!opts.x10_config.EXPERIMENTAL)    return false;
+        if (!opts.x10_config.OPTIMIZE)        return false;
         if (opts.x10_config.INLINE_CONSTANTS) return true;
         if (opts.x10_config.INLINE_METHODS)   return true;
         if (opts.x10_config.ALLOW_STATEMENT_EXPRESSIONS && opts.x10_config.INLINE_CLOSURES) return true;
