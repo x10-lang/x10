@@ -175,7 +175,7 @@ public final class ExpressionFlattener extends ContextVisitor {
             if (XTENLANG_2336 && s.name().equals("Runtime.x10")) { // BUG: cannot flatten Runtime
                 return true;
             }
-            if (false && XTENLANG_2337 && s.name().equals("PolyScanner.x10")) { // BUG: cannot flatten PolyScanner
+            if (XTENLANG_2337 && s.name().equals("PolyScanner.x10")) { // BUG: cannot flatten PolyScanner
                 return true;
             }
             if (XTENLANG_2055 && s.name().equals("Marshal.x10")) { // BUG: can't flatten Marshal
