@@ -133,10 +133,14 @@ import x10.X10CompilerOptions;
 </ul>
  */
 public class RunTestSuite {
-    public static boolean SEPARATE_COMPILER = System.getenv("SEPARATE_COMPILER")==null || System.getenv("SEPARATE_COMPILER").equals("true");
-    public static boolean SHOW_EXPECTED_ERRORS = System.getenv("SHOW_EXPECTED_ERRORS")!=null;
-    public static boolean SHOW_RUNTIMES = System.getenv("SHOW_RUNTIMES")!=null;
-    public static boolean QUIET = !SHOW_EXPECTED_ERRORS && System.getenv("QUIET")!=null;
+    public static boolean getEnvVariable(String name) {
+        final String val = System.getenv(name);
+        return val!=null && (val.equalsIgnoreCase("t") || val.equalsIgnoreCase("true"));
+    }
+    public static boolean SEPARATE_COMPILER = getEnvVariable("SEPARATE_COMPILER");
+    public static boolean SHOW_EXPECTED_ERRORS = getEnvVariable("SHOW_EXPECTED_ERRORS");
+    public static boolean SHOW_RUNTIMES = getEnvVariable("SHOW_RUNTIMES");
+    public static boolean QUIET = !SHOW_EXPECTED_ERRORS && getEnvVariable("QUIET");
 
     private static void println(String s) {
         if (!QUIET) System.out.println(s);
