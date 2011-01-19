@@ -400,9 +400,12 @@ public class RunTestSuite {
         // remove SHOULD_BE_ERR_MARKER and
         // parsing errors (if SHOULD_NOT_PARSE)
         // treating @ERR and @ShouldNotBeERR as if it were a comment (adding a LineSummary)
+        boolean didFailCompile = false;
         for (Iterator<ErrorInfo> it = errors.iterator(); it.hasNext(); ) {
             ErrorInfo info = it.next();
             final int kind = info.getErrorKind();
+            if (ErrorInfo.isErrorKind(kind)) didFailCompile = true;
+
             if ((kind==ErrorInfo.SHOULD_BE_ERR_MARKER) ||
                 (summary.SHOULD_NOT_PARSE && (kind==ErrorInfo.LEXICAL_ERROR || kind==ErrorInfo.SYNTAX_ERROR)))
                 it.remove();
@@ -424,6 +427,10 @@ public class RunTestSuite {
                 }
                 foundLine.errCount++;
             }
+        }
+
+        if (didFailCompile!=summary.fileName.endsWith("_MustFailCompile.x10")) {
+            println("WARNING: "+ summary.fileName+" "+(didFailCompile ? "FAILED":"SUCCESSFULLY")+" compiled, therefore it should "+(didFailCompile?"":"NOT ")+"end with _MustFailCompile.x10");
         }
 
         // Now checking the errors reported are correct and match ERR markers

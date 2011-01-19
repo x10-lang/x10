@@ -43,6 +43,7 @@ import polyglot.types.Context;
 import x10.types.MethodInstance;
 import x10.types.X10ProcedureDef;
 import x10.types.X10ProcedureInstance;
+import x10.types.MacroType;
 import polyglot.types.TypeSystem;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
@@ -321,7 +322,8 @@ public class Matcher {
 		    try {
 		        if (! returnEnv.entails(query, context2.constraintProjection(returnEnv, query))) {
 		            X10CompilerOptions opts = (X10CompilerOptions) context.typeSystem().extensionInfo().getOptions();
-                    if (!opts.x10_config.STATIC_CALLS)
+                    if (!opts.x10_config.STATIC_CALLS &&
+                            !(newMe instanceof MacroType)) // MacroType cannot have its guard checked at runtime
                         newMe = newMe.checkGuardAtRuntime(true);
                     else
 		                throw new SemanticException("Call invalid; calling environment does not entail the method guard.");

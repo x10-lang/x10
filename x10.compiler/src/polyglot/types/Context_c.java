@@ -478,6 +478,10 @@ public abstract class Context_c implements Context
         	    t = matcher.instantiate(t);
         	}
         	catch (SemanticException e) {
+                // todo: we might have this exception:
+                // SemanticException: Call invalid; calling environment does not entail the method guard.
+                // therefore we should report the error or store it.
+                // Because we ignore it, the error message for TypedefConstraint3c_MustFailCompile is horrible!
         	    t = null;
         	}
             }
