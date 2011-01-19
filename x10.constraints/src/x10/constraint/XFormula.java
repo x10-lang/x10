@@ -16,6 +16,7 @@ import x10.util.CollectionFactory;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A representation of an atomic formula op(t1,..., tn).
@@ -122,7 +123,7 @@ public class XFormula extends XTerm {
 	        XPromise result = c.lookup(this);
 	        if (result != null) // this term has already been interned.
 	            return result;
-	        HashMap<XName, XPromise> fields = CollectionFactory.newHashMap();
+	        Map<XName, XPromise> fields = CollectionFactory.newHashMap();
 	        for (int i = 0; i < arguments.size(); i++) {
 	            XTerm arg = arguments.get(i);
 	            if (arg == null) {

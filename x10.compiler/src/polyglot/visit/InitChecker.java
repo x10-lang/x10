@@ -394,7 +394,7 @@ public class InitChecker extends DataFlow
      * This class is immutable.
      */
     public static class BaseDataFlowItem<T extends VarDef> extends Item {
-        public final HashMap<T, MinMaxInitCount> initStatus = CollectionFactory.newHashMap(); // map of VarDef to MinMaxInitCount
+        public final Map<T, MinMaxInitCount> initStatus = CollectionFactory.newHashMap(); // map of VarDef to MinMaxInitCount
 
         public String toString() {
             return initStatus.toString();

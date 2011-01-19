@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 
 import polyglot.main.Options;
 import polyglot.util.ErrorInfo;
@@ -248,7 +249,7 @@ public class CXXCommandBuilder {
             addExecutablePath(cxxCmd);
         }
 
-        HashSet<String> exclude = CollectionFactory.newHashSet();
+        Set<String> exclude = CollectionFactory.newHashSet();
         try {
             String manifest = options.x10_config.MANIFEST;
             if (manifest == null) {

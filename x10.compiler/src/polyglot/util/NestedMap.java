@@ -157,7 +157,7 @@ public class NestedMap<K,V> extends AbstractMap<K,V> implements Map<K,V> {
     }
   }
  
-  private HashMap<K,V> myMap;
+  private Map<K,V> myMap;
   private int nShadowed;
   private Set<Map.Entry<K,V>> setView; // the set view of this.
   private Map<K,V> superMap;

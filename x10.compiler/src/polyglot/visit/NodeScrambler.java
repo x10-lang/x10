@@ -26,7 +26,7 @@ public class NodeScrambler extends NodeVisitor
 {
   public FirstPass fp;
 
-  protected HashMap<Node, LinkedList<Node>> pairs;
+  protected Map<Node, LinkedList<Node>> pairs;
   protected LinkedList<Node> nodes;
   protected LinkedList<Node> currentParents;
   protected long seed;

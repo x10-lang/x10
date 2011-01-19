@@ -17,6 +17,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.HashSet;
+import java.util.Set;
 
 import polyglot.ast.Expr;
 import polyglot.ast.FieldDecl_c;
@@ -492,7 +493,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
             final ContainerType containerType = fieldDef.container().get();
             X10ClassDef_c goalDef = Types.getDef(containerType);
             if (ts.isStruct(containerType)) {
-                HashSet<X10ClassDef_c> otherStructsUsed = CollectionFactory.newHashSet();
+                Set<X10ClassDef_c> otherStructsUsed = CollectionFactory.newHashSet();
                 ArrayList<X10ParsedClassType> toExamine = new ArrayList<X10ParsedClassType>();
                 final X10ParsedClassType_c goal = Types.myBaseType(type);
                 if (goal!=null) {

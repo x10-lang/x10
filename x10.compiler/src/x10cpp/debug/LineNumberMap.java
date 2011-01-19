@@ -21,6 +21,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
 import java.util.TreeSet;
+import java.util.Map;
 
 import polyglot.types.Context;
 import polyglot.types.MemberDef;
@@ -79,7 +80,7 @@ public class LineNumberMap extends StringTable {
         	return fileId + ":" + line;
         }
     }
-    private final HashMap<Key, Entry> map;
+    private final Map<Key, Entry> map;
     private static class MethodDescriptor {
         public final int returnType;
         public final int container;
@@ -197,7 +198,7 @@ public class LineNumberMap extends StringTable {
             return res.toString();
         }
     }
-    private final HashMap<MethodDescriptor, MethodDescriptor> methods;
+    private final Map<MethodDescriptor, MethodDescriptor> methods;
 
     /**
      */
@@ -809,7 +810,7 @@ public class LineNumberMap extends StringTable {
 		    // A list of the X10 method names.
 		    // Sorted by X10 method name.
 		    ArrayList<CPPMethodInfo> x10MethodList = new ArrayList<CPPMethodInfo>(m.methods.size());
-		    HashMap<Key, CPPMethodInfo> keyToMethod = CollectionFactory.newHashMap();
+		    Map<Key, CPPMethodInfo> keyToMethod = CollectionFactory.newHashMap();
 		    for (MethodDescriptor md : m.methods.keySet()) {
 		        MethodDescriptor sm = m.methods.get(md);
 		        final CPPMethodInfo cmi = m.new CPPMethodInfo(sm.container,        // _x10class

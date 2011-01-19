@@ -53,7 +53,7 @@ public class AdvLocalAccessToFieldAccessReplacer extends NodeVisitor {
     
     private boolean replaceError; //record weather there are some replacing errors;
     
-    protected HashSet<Name> localDeclaredVar; //all locals with these names will not be replaced
+    protected Set<Name> localDeclaredVar; //all locals with these names will not be replaced
      
     
     public AdvLocalAccessToFieldAccessReplacer(ILocalToFieldContainerMap refMap, Synthesizer synth, Context context,

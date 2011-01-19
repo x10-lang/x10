@@ -474,13 +474,13 @@ public class CConstraint extends XConstraint  implements ThisVar {
 	 * @param m
 	 * @throws XFailure
 	 */
-	public void addSigma(CConstraint c, HashMap<XTerm, CConstraint> m) throws XFailure {
+	public void addSigma(CConstraint c, Map<XTerm, CConstraint> m) throws XFailure {
 		if (c != null && ! c.valid()) {
 			addIn(c);
 			addIn(c.constraintProjection(m));
 		}
 	}
-	public void addSigma(XConstrainedTerm ct, HashMap<XTerm, CConstraint> m) throws XFailure {
+	public void addSigma(XConstrainedTerm ct, Map<XTerm, CConstraint> m) throws XFailure {
 		if (ct != null) {
 			addSigma(ct.xconstraint(), m);
 		}

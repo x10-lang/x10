@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.Map;
 
 import polyglot.ast.Assign;
 import polyglot.ast.Binary;
@@ -135,7 +136,7 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
 
     final protected Block codeBlock; // store all code block
 
-    final protected HashSet<Name> fieldNames; //store names of all fields in current frame
+    final protected Set<Name> fieldNames; //store names of all fields in current frame
     final protected String className; //used for child to query, and form child's name
     final protected ClassSynth classSynth; //stateful synthesizer for class gen
     final protected int frameDepth; //the depth to parent;
@@ -1243,16 +1244,16 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
     //Map relationship
     // (1..n)field --> (1)frame --> (1)frameRef
     // (1)frameRef will has only one local decl
-    protected HashMap<Name, AbstractWSClassGen> localToFieldFrameMap;
-    protected HashMap<AbstractWSClassGen, Expr> fieldFrameToRefMap;
-    protected HashMap<Expr, Stmt> refToDeclMap ;
+    protected Map<Name, AbstractWSClassGen> localToFieldFrameMap;
+    protected Map<AbstractWSClassGen, Expr> fieldFrameToRefMap;
+    protected Map<Expr, Stmt> refToDeclMap ;
     
         
     /**
      * Return the whole local expr to local decl map
      * @return
      */
-    public HashMap<Expr, Stmt> getRefToDeclMap(){
+    public Map<Expr, Stmt> getRefToDeclMap(){
         return refToDeclMap;
     }
 

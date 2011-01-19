@@ -1089,7 +1089,7 @@ public class Inliner extends ContextVisitor {
 
         // TODO: move this up to TypeTransformer
         private Pair<XLocal[], XLocal[]> getLocalSubstitution() {
-            HashMap<X10LocalDef, X10LocalDef> map = vars;
+            Map<X10LocalDef, X10LocalDef> map = vars;
             XLocal[] X = new XLocal[map.keySet().size()];
             XLocal[] Y = new XLocal[X.length];
             int i = 0;

@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.Map;
 
 import polyglot.ast.Call;
 import polyglot.ast.Expr;
@@ -415,7 +416,7 @@ public class TypeTransformer extends NodeTransformer {
             return o instanceof IdentityRefKey && ((IdentityRefKey)o).v == this.v;
         }
     }
-    private final HashMap<IdentityRefKey, Ref<?>> refs = CollectionFactory.newHashMap();
+    private final Map<IdentityRefKey, Ref<?>> refs = CollectionFactory.newHashMap();
 
     @SuppressWarnings("unchecked")
     protected <T> Ref<T> remapRef(Ref<T> ref) {
@@ -428,7 +429,7 @@ public class TypeTransformer extends NodeTransformer {
         return remappedRef;
     }
 
-    protected final HashMap<X10LocalDef, X10LocalDef> vars = CollectionFactory.newHashMap();
+    protected final Map<X10LocalDef, X10LocalDef> vars = CollectionFactory.newHashMap();
 
     protected void mapLocal(X10LocalDef def, X10LocalDef newDef) {
         vars.put(def, newDef);

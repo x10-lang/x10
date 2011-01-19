@@ -14,6 +14,7 @@ package x10cpp.debug;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.StringTokenizer;
+import java.util.Map;
 
 import polyglot.util.QuotedStringTokenizer;
 import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
@@ -28,7 +29,7 @@ public class ClosureVariableMap extends StringTable {
 
 	public static final String VARIABLE_NAME = "CVMAP";
 
-	private HashMap<String, Integer> map = CollectionFactory.newHashMap();
+	private Map<String, Integer> map = CollectionFactory.newHashMap();
 
 	/**
 	 * 

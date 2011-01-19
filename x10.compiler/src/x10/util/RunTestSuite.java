@@ -242,7 +242,7 @@ public class RunTestSuite {
             }
         }
         ArrayList<FileSummary> summaries = new ArrayList<FileSummary>();
-        HashMap<String,File> fileName2File = CollectionFactory.newHashMap();
+        java.util.Map<String,File> fileName2File = CollectionFactory.newHashMap();
         for (File f : files) {
             FileSummary fileSummary = analyzeFile(f);
             summaries.add(fileSummary);
@@ -430,7 +430,7 @@ public class RunTestSuite {
         }
 
         if (didFailCompile!=summary.fileName.endsWith("_MustFailCompile.x10")) {
-            println("WARNING: "+ summary.fileName+" "+(didFailCompile ? "FAILED":"SUCCESSFULLY")+" compiled, therefore it should "+(didFailCompile?"":"NOT ")+"end with _MustFailCompile.x10");
+            println("WARNING: "+ summary.fileName+" "+(didFailCompile ? "FAILED":"SUCCESSFULLY")+" compiled, therefore it should "+(didFailCompile?"":"NOT ")+"end with _MustFailCompile.x10. "+(summary.lines.isEmpty()?"":"It did have @ERR markers but they might match warnings."));
         }
 
         // Now checking the errors reported are correct and match ERR markers
