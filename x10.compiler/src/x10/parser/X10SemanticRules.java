@@ -104,6 +104,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
     public ParseTable getParseTable() { return p.getParseTable(); }
     public BacktrackingParser getParser() { return p.getParser(); }
     public X10Parser getX10Parser() { return p; }
+    public X10Lexer getX10Lexer() { return lexer; }
 
     //private Object setResult(Object o) { return o; } // todo: refactor it out
     private void setResult(Object object) { getParser().setSym1(object); }
@@ -137,6 +138,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
 
 
     private final X10Parser p;
+    private final X10Lexer lexer;
     private IPrsStream prsStream;
 
     private ErrorQueue eq;
@@ -153,8 +155,10 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         this.eq = q;
     }
 
-    public X10SemanticRules(ILexStream lexStream, TypeSystem t, NodeFactory n, FileSource source, ErrorQueue q)
+    public X10SemanticRules(X10Lexer lexer, TypeSystem t, NodeFactory n, FileSource source, ErrorQueue q)
     {
+        this.lexer = lexer;
+        ILexStream lexStream = this.lexer.getILexStream();
         p = new X10Parser(lexStream);
         p.r = this;
         initialize((TypeSystem) t,
