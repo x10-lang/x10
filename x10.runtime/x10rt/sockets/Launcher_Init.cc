@@ -10,6 +10,11 @@
  *
  *  This file was written by Ben Herta for IBM: bherta@us.ibm.com
  */
+
+#ifdef __CYGWIN__
+#undef __STRICT_ANSI__ // Strict ANSI mode is too strict in Cygwin
+#endif
+
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>

@@ -12,7 +12,7 @@
  */
 
 #ifdef __CYGWIN__
-extern "C" char *strdup(const char *);
+#undef __STRICT_ANSI__ // Strict ANSI mode is too strict in Cygwin
 #endif
 
 #include <stdlib.h>

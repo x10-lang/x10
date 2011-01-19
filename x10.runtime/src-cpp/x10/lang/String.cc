@@ -383,10 +383,6 @@ x10_boolean String::equals(ref<Any> p0) {
     return true;
 }
 
-#ifdef __CYGWIN__
-extern "C" int strncasecmp(const char *, const char *, size_t);
-#endif
-
 /* FIXME: Unicode support */
 x10_boolean String::equalsIgnoreCase(ref<String> s) {
     if (s.isNull()) return false;
