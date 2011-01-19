@@ -293,11 +293,18 @@ public class LineNumberMap extends StringTable {
 		int _cppClass; // Index of the C++ containing struct/class name in _X10strings
 	}
 	
+	private class ClosureMapInfo
+	{
+		int _x10startLine;     // First line number of X10 line range
+		int _x10endLine;       // Last line number of X10 line range
+		ArrayList<MemberVariableMapInfo> closureMembers;
+	}
+	
 	private static ArrayList<Integer> arrayMap = new ArrayList<Integer>();
 	private static ArrayList<Integer> refMap = new ArrayList<Integer>();
 	private static ArrayList<LocalVariableMapInfo> localVariables;
 	private static Hashtable<String, ArrayList<MemberVariableMapInfo>> memberVariables;
-	private static Hashtable<String, ArrayList<MemberVariableMapInfo>> closureMembers;
+	private static Hashtable<String, ClosureMapInfo> closureMembers;
 	
 	// the type numbers were provided by Steve Cooper in "x10dbg_types.h"
 	static int determineTypeId(String type)
@@ -345,6 +352,8 @@ public class LineNumberMap extends StringTable {
 			return 208;
 		if (type.startsWith("x10.array.Region"))
 			return 300;
+		if (type.contains("_closure_"))
+			return 100;
 		return 101; // generic class
 	}
 	
@@ -425,15 +434,19 @@ public class LineNumberMap extends StringTable {
 		members.add(v);
 	}
 	
-	public void addClosureMember(String name, String type, String containingClass)
+	public void addClosureMember(String name, String type, String containingClass, String file, int startLine, int endLine)
 	{
 		if (closureMembers == null)
-			closureMembers = new Hashtable<String, ArrayList<LineNumberMap.MemberVariableMapInfo>>();
-		ArrayList<MemberVariableMapInfo> members = closureMembers.get(containingClass);
-		if (members == null)
+			closureMembers = new Hashtable<String, ClosureMapInfo>();
+		ClosureMapInfo cm = closureMembers.get(containingClass);
+		if (cm == null)
 		{
-			members = new ArrayList<LineNumberMap.MemberVariableMapInfo>();
-			closureMembers.put(containingClass, members);
+			addLocalVariableMapping("this", containingClass, startLine, endLine, file, true);
+			cm = new ClosureMapInfo();			
+			cm.closureMembers = new ArrayList<LineNumberMap.MemberVariableMapInfo>();
+			cm._x10startLine = startLine;
+			cm._x10endLine = endLine;
+			closureMembers.put(containingClass, cm);
 		}
 		
 		MemberVariableMapInfo v = new MemberVariableMapInfo();
@@ -445,9 +458,9 @@ public class LineNumberMap extends StringTable {
 		else 
 			v._x10typeIndex = -1;
 		v._x10memberName = stringId(name);
-		v._cppMemberName = stringId("x10__"+Emitter.mangled_non_method_name(name));
+		v._cppMemberName = stringId(Emitter.mangled_non_method_name(name));
 		v._cppClass = stringId(containingClass);
-		members.add(v);
+		cm.closureMembers.add(v);
 	}
 
 	/**
@@ -920,15 +933,21 @@ public class LineNumberMap extends StringTable {
 	    {
 	    	for (String classname : closureMembers.keySet())
         	{
+	    		ClosureMapInfo cmi = closureMembers.get(classname);
 	    		w.writeln("static const struct _X10TypeMember _X10"+classname.substring(classname.lastIndexOf('.')+1)+"Members[] __attribute__((used)) "+debugDataSectionAttr+" = {");
-		        for (MemberVariableMapInfo v : closureMembers.get(classname))
+		        for (MemberVariableMapInfo v : cmi.closureMembers)
 		        	w.writeln("    { "+v._x10type+", "+v._x10typeIndex+", "+offsets[v._x10memberName]+", "+offsets[v._cppMemberName]+", "+offsets[v._cppClass]+" }, // "+m.lookupString(v._x10memberName));
 			    w.writeln("};");
 			    w.forceNewline();
         	}	    	
 		    w.writeln("static const struct _X10ClosureMap _X10ClosureMapList[] __attribute__((used)) = {"); // inclusion of debugDataSectionAttr causes issues on Macos.  See XTENLANG-2318.
+		    int index = 0;
 		    for (String classname : closureMembers.keySet())
-	        	w.writeln("    { 100, "+offsets[closureMembers.get(classname).get(0)._cppClass]+", sizeof("+classname.replace(".", "::")+"), "+closureMembers.get(classname).size()+", 0, 0, 0, _X10"+classname.substring(classname.lastIndexOf('.')+1)+"Members },");	        
+		    {
+		    	ClosureMapInfo cmi = closureMembers.get(classname);
+	        	w.writeln("    { 100, "+offsets[cmi.closureMembers.get(0)._cppClass]+", sizeof("+classname.replace(".", "::")+"), "+cmi.closureMembers.size()+", "+index+", "+cmi._x10startLine +", "+cmi._x10endLine+", _X10"+classname.substring(classname.lastIndexOf('.')+1)+"Members },");
+	        	index++;
+		    }
 		    w.writeln("};");
 		    w.forceNewline();
 	    }

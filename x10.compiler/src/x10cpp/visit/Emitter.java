@@ -974,7 +974,7 @@ public class Emitter {
 			    {
 			        final LineNumberMap lineNumberMap = fileToLineNumberMap.get(key);
 			        if (lineNumberMap != null) 
-			        	lineNumberMap.addClosureMember(name, t.toString(), ((X10CUDAContext_c)c).wrappingClosure());
+			        	lineNumberMap.addClosureMember(name, t.toString(), ((X10CUDAContext_c)c).wrappingClosure(), c.currentCode().position().file(), c.currentCode().position().line(), c.currentCode().position().endLine());
 			    }
 			}
 		}
