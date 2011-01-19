@@ -3,6 +3,7 @@ package x10.visit;
 import polyglot.ast.*;
 import polyglot.util.ErrorInfo;
 import polyglot.util.Position;
+import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.DataFlow;
 import polyglot.visit.FlowGraph;
@@ -455,9 +456,9 @@ public class CheckEscapingThis extends NodeVisitor
 
     // we gather info on every private/final/@NonEscaping method called during construction (@NoThisAccess do not access "this", so no need to analyze them)
     private static class MethodInfo {
-        private final Set<FieldDef> read = new HashSet<FieldDef>();
-        private final Set<FieldDef> write = new HashSet<FieldDef>();
-        private final Set<FieldDef> seqWrite = new HashSet<FieldDef>();
+        private final Set<FieldDef> read = CollectionFactory.newHashSet();
+        private final Set<FieldDef> write = CollectionFactory.newHashSet();
+        private final Set<FieldDef> seqWrite = CollectionFactory.newHashSet();
     }
     private final Job job;
     private final NodeFactory nf;
@@ -472,13 +473,13 @@ public class CheckEscapingThis extends NodeVisitor
     private final ArrayList<ProcedureDecl> dfsMethods = new ArrayList<ProcedureDecl>(); // to accelerate the fix-point alg
     // the set of all VAR and VAL fields (including one property representative), including those in the superclass because of super() call
     // (we need to check that VAL are read properly, and that VAR are written and read properly.)
-    private final HashSet<FieldDef> fields = new HashSet<FieldDef>();
-    private final HashSet<FieldDef> superFields = new HashSet<FieldDef>(); // after the "super()" call, these fields are initialized
+    private final HashSet<FieldDef> fields = CollectionFactory.newHashSet();
+    private final HashSet<FieldDef> superFields = CollectionFactory.newHashSet(); // after the "super()" call, these fields are initialized
     private final DataFlowItem INIT = new DataFlowItem();
     private final DataFlowItem CTOR_INIT = new DataFlowItem();
 
     private boolean wasChange = true, wasError = false; // for fixed point alg
-    private HashSet<FieldDef> globalRef = new HashSet<FieldDef>();// There is one exception to the "this cannot escape" rule:  val root = GlobalRef[...](this)
+    private HashSet<FieldDef> globalRef = CollectionFactory.newHashSet();// There is one exception to the "this cannot escape" rule:  val root = GlobalRef[...](this)
 
     private void checkGlobalRef(Node n) {
         // you cannot access a globalRef field via this  (but you can assign to them)

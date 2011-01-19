@@ -22,6 +22,7 @@ import polyglot.ast.ConstructorDecl;
 import polyglot.ast.MethodDecl;
 import polyglot.types.MethodDef;
 import polyglot.util.Position;
+import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import x10.ast.Closure;
 
 /**
@@ -130,7 +131,7 @@ public class WSTransformationContent {
 	public WSTransformationContent(){
 		conMethodMap = new TreeMap<String, HashMap<WSSourcePosition, MethodAttribute>>();
 		callSiteMap = new TreeMap<String, HashMap<WSSourcePosition, CallSiteAttribute>>();
-		deadMethodDefs = new HashSet<MethodDef>();
+		deadMethodDefs = CollectionFactory.newHashSet();
 	}
 	
 	public void addConcurrentMethod(String url, int startLine, int startColumn, int endLine, int endColumn, String info){
@@ -141,7 +142,7 @@ public class WSTransformationContent {
 			innerMap = conMethodMap.get(url);
 		}
 		else{
-			innerMap = new HashMap<WSSourcePosition, MethodAttribute>();
+			innerMap = CollectionFactory.newHashMap();
 			conMethodMap.put(url, innerMap);
 		}
 		
@@ -166,7 +167,7 @@ public class WSTransformationContent {
 			innerMap = conMethodMap.get(url);
 		}
 		else{
-			innerMap = new HashMap<WSSourcePosition, MethodAttribute>();
+			innerMap = CollectionFactory.newHashMap();
 			conMethodMap.put(url, innerMap);
 		}
 		
@@ -188,7 +189,7 @@ public class WSTransformationContent {
 			innerMap = callSiteMap.get(url);
 		}
 		else{
-			innerMap = new HashMap<WSSourcePosition, CallSiteAttribute>();
+			innerMap = CollectionFactory.newHashMap();
 			callSiteMap.put(url, innerMap);
 		}
 		
@@ -205,7 +206,7 @@ public class WSTransformationContent {
 			innerMap = callSiteMap.get(url);
 		}
 		else{
-			innerMap = new HashMap<WSSourcePosition, CallSiteAttribute>();
+			innerMap = CollectionFactory.newHashMap();
 			callSiteMap.put(url, innerMap);
 		}
 		

@@ -7,6 +7,8 @@
 
 package polyglot.util;
 
+import x10.util.CollectionFactory;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -29,7 +31,7 @@ public class WorkList {
    **/
   public WorkList() {
     pending = new LinkedList<Object>();
-    results = new HashMap<Object, Object>();
+    results = CollectionFactory.newHashMap();
     size = 0;
   }
 

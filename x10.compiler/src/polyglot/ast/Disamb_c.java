@@ -22,7 +22,7 @@ import x10.ast.X10CanonicalTypeNode;
  * Utility class which is used to disambiguate ambiguous
  * AST nodes (Expr, Type, Receiver, Qualifier, Prefix).
  */
-public class Disamb_c implements Disamb
+public abstract class Disamb_c implements Disamb
 {
     protected ContextVisitor v;
     protected Position pos;
@@ -173,51 +173,7 @@ public class Disamb_c implements Disamb
         return null;
     }
 
-    protected Node disambiguateNoPrefix() throws SemanticException {
-        if (exprOK()) {
-            // First try local variables and fields.
-            VarInstance<?> vi = c.findVariableSilent(name.id());
-            
-            if (vi != null) {
-                Node n = disambiguateVarInstance(vi);
-                if (n != null) return n;
-            }
-        }
-        
-        // no variable found. try types.
-        if (typeOK()) {
-            try {
-                Named n = c.find(ts.TypeMatcher(name.id()));
-                if (n instanceof Type) {
-                    Type type = (Type) n;
-                    return makeTypeNode(type);
-                }
-            } catch (NoClassException e) {
-                if (!name.id().toString().equals(e.getClassName())) {
-                    // hmm, something else must have gone wrong
-                    // rethrow the exception
-                    throw e;
-                }
-
-                // couldn't find a type named name. 
-                // It must be a package--ignore the exception.
-            }
-        }
-
-        // Must be a package then...
-        if (packageOK()) {
-            try {
-        	Package p = ts.packageForName(QName.make(null, name.id()));
-        	return nf.PackageNode(pos, Types.ref(p));
-            }
-            catch (SemanticException e) {
-            }
-            Package p = ts.createPackage(QName.make(null, name.id()));
-            return nf.PackageNode(pos, Types.ref(p));
-        }
-
-        return null;
-    }
+    protected abstract Node disambiguateNoPrefix() throws SemanticException;
 
     protected Node disambiguateVarInstance(VarInstance<?> vi) throws SemanticException {
         if (vi instanceof FieldInstance) {
@@ -231,59 +187,9 @@ public class Disamb_c implements Disamb
         return null;
     }
 
-    protected Receiver makeMissingFieldTarget(FieldInstance fi) throws SemanticException {
-	Receiver r;
-	
-	if (fi.flags().isStatic()) {
-	    r = nf.CanonicalTypeNode(pos.startOf(), fi.container());
-	} else {
-	    // The field is non-static, so we must prepend with
-	    // "this", but we need to determine if the "this"
-	    // should be qualified.  Get the enclosing class which
-	    // brought the field into scope.  This is different
-	    // from fi.container().  fi.container() returns a super
-	    // type of the class we want.
-	    ClassType scope = c.findFieldScope(name.id());
-	    assert scope != null;
-	    
-	    if (! ts.typeEquals(scope, c.currentClass(), c)) {
-		r = (Special) nf.This(pos.startOf(), nf.CanonicalTypeNode(pos.startOf(), scope)).del().typeCheck(v);
-	    }
-	    else {
-		r = (Special) nf.This(pos.startOf()).del().typeCheck(v);
-	    }
-	    
-	}
-	
-	return r;
-    }
+    protected abstract Receiver makeMissingFieldTarget(FieldInstance fi) throws SemanticException;
     
-    protected Receiver makeMissingMethodTarget(MethodInstance mi) throws SemanticException {
-        Receiver r;
-
-        if (mi.flags().isStatic()) {
-            r = nf.CanonicalTypeNode(pos.startOf(), mi.container());
-        } else {
-            // The field is non-static, so we must prepend with
-            // "this", but we need to determine if the "this"
-            // should be qualified.  Get the enclosing class which
-            // brought the field into scope.  This is different
-            // from fi.container().  fi.container() returns a super
-            // type of the class we want.
-            ClassType scope = c.findMethodScope(name.id());
-            assert scope != null;
-
-	    if (! ts.typeEquals(scope, c.currentClass(), c)) {
-		r = (Special) nf.This(pos.startOf(), nf.CanonicalTypeNode(pos.startOf(), scope)).del().typeCheck(v);
-	    }
-	    else {
-		r = (Special) nf.This(pos.startOf()).del().typeCheck(v);
-	    }
-            
-        }
-
-        return r;
-    }
+    protected abstract Receiver makeMissingMethodTarget(MethodInstance mi) throws SemanticException;
 
     protected boolean typeOK() {
         return ! (amb instanceof Expr) &&
@@ -325,7 +231,5 @@ public class Disamb_c implements Disamb
         return node;
     }
     
-    public String toString() {
-        return "Disamb(" + amb.getClass().getName() + ": " + amb + ")";
-    }
+    public abstract String toString();
 }

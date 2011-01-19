@@ -13,6 +13,8 @@
 
 package polyglot.util;
 
+import x10.util.CollectionFactory;
+
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.io.OutputStream;
@@ -516,13 +518,13 @@ abstract class Item
     /** Minimum lmargin-rhs width on second and following lines. 
      * A map from max levels to Integer(width). */
 
-    Map<MaxLevels, Integer> min_widths = new HashMap<MaxLevels, Integer>();
+    Map<MaxLevels, Integer> min_widths = CollectionFactory.newHashMap();
     
     /** Minimum lmargin-final offset */
-    Map<MaxLevels, Integer> min_indents = new HashMap<MaxLevels, Integer>();
+    Map<MaxLevels, Integer> min_indents = CollectionFactory.newHashMap();
 
     /** Minimum pos-rhs width (i.e., min width up to first break) */
-    Map<MaxLevels, Integer> min_pos_width = new HashMap<MaxLevels, Integer>();
+    Map<MaxLevels, Integer> min_pos_width = CollectionFactory.newHashMap();
     
     static int getMinWidth(Item it, MaxLevels m) {
 	if (it == null) return NO_WIDTH;
@@ -895,7 +897,7 @@ class BlockItem extends Item {
      * Map from maxlevels to either null or non-null, the latter if it can
      * contain breaks at those maxlevels.
      */
-    Map<MaxLevels, MaxLevels> containsBreaks = new HashMap<MaxLevels, MaxLevels>();
+    Map<MaxLevels, MaxLevels> containsBreaks = CollectionFactory.newHashMap();
     
     boolean selfContainsBreaks(MaxLevels m) {
 	if (containsBreaks.containsKey(m)) {

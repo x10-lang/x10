@@ -59,6 +59,7 @@ import polyglot.types.Type;
 import polyglot.types.Types;
 import polyglot.util.Pair;
 import polyglot.util.Position;
+import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import polyglot.visit.NodeVisitor;
 import x10.ast.AnnotationNode;
 import x10.ast.Async;
@@ -167,7 +168,7 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
         classSynth.setFlags(flags);
         classSynth.setOuter(outer);
         
-        fieldNames = new HashSet<Name>(); //used to store all other fields' names
+        fieldNames = CollectionFactory.newHashSet(); //used to store all other fields' names
         
         this.frameDepth = frameDepth;
         
@@ -1087,7 +1088,7 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
      * @return
      */
     protected Term replaceLocalVarRefWithFieldAccess(Term s){
-        return replaceLocalVarRefWithFieldAccess(s, new HashSet<Name>());
+        return replaceLocalVarRefWithFieldAccess(s, CollectionFactory.<Name>newHashSet());
     }
     
     /**
@@ -1411,9 +1412,9 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
      */
     public Expr getFieldContainerRef(Name fieldName, Type type) throws SemanticException{
         if(localToFieldFrameMap == null){ //first time initialize
-            localToFieldFrameMap = new HashMap<Name, AbstractWSClassGen>();
-            fieldFrameToRefMap = new HashMap<AbstractWSClassGen, Expr>();
-            refToDeclMap = new HashMap<Expr, Stmt>();
+            localToFieldFrameMap = CollectionFactory.newHashMap();
+            fieldFrameToRefMap = CollectionFactory.newHashMap();
+            refToDeclMap = CollectionFactory.newHashMap();
         }
         AbstractWSClassGen frame = localToFieldFrameMap.get(fieldName);     //use cache    
         if(frame != null){

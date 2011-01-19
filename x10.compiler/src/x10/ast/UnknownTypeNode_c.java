@@ -82,6 +82,6 @@ public class UnknownTypeNode_c extends TypeNode_c implements UnknownTypeNode {
 	}
 		
 	public String toString() {
-		return "(#" + hashCode() + ")_";
+		return "(#" + hashCode() + ")_"; // todo: using hashCode leads to non-determinism in the output of the compiler
 	}
 }

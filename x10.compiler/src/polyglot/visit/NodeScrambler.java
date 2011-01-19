@@ -12,6 +12,7 @@ import java.util.*;
 import polyglot.ast.*;
 import polyglot.frontend.Compiler;
 import polyglot.util.CodeWriter;
+import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 
 /**
  * The <code>NodeScrambler</code> is test case generator of sorts. Since it
@@ -46,7 +47,7 @@ public class NodeScrambler extends NodeVisitor
   {
     this.fp = new FirstPass();
     
-    this.pairs = new HashMap<Node, LinkedList<Node>>();
+    this.pairs = CollectionFactory.newHashMap();
     this.nodes = new LinkedList<Node>();
     this.currentParents = new LinkedList<Node>();
     this.cw = Compiler.createCodeWriter(System.err, 72);

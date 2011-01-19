@@ -65,6 +65,7 @@ import polyglot.types.SemanticException;
 import polyglot.types.TypeSystem;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
+import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.ast.AssignPropertyCall;
@@ -102,15 +103,16 @@ public final class ExpressionFlattener extends ContextVisitor {
 
     private static final boolean DEBUG = false;
 
-//  private static final boolean XTENLANG_2055 = false; // bug work around
-    private static final boolean XTENLANG_2055 = true; // bug work around
+    private static final boolean XTENLANG_2055 = true; // bug work around: don't flatten Marshall.x10
+    private static final boolean XTENLANG_2336 = true; // bug work around: don't flatten Runtime.x10
+    private static final boolean XTENLANG_2337 = true; // bug work around: don't flatten PolyScanner.x10
 
     private final TypeSystem xts;
     private AltSynthesizer syn; // move functionality to Synthesizer
     private final SideEffectDetector sed;
     
     List<Labeled> labels = new ArrayList<Labeled>();
-    Map<Node, List<Labeled>> labelMap = new HashMap<Node, List<Labeled>>();
+    Map<Node, List<Labeled>> labelMap = CollectionFactory.newHashMap();
 
     /**
      * @param job the job to run
@@ -139,23 +141,13 @@ public final class ExpressionFlattener extends ContextVisitor {
         return res;
     }
 
-    @Override
-    public NodeVisitor superEnter(Node parent, Node n) {
-        ExpressionFlattener res = (ExpressionFlattener) super.superEnter(parent, n);
-        if (res != this)
-            res.syn = (AltSynthesizer) syn.enter(parent, n);
-        return res;
-    }
-
-    /* (non-Javadoc)
-     * @see polyglot.visit.NodeVisitor#override(polyglot.ast.Node)
-     */
     /**
      * Don't visit nodes that cannot be flattened.
      * 
      * @param n the node to be visited (or not)
      * @return n if the node is NOT to be visited, otherwise null
      */
+    @Override
     public Node override(Node n) {
         if (n instanceof X10ClassDecl) {
             if (DEBUG) System.out.println("DEBUG: flattening: " +((X10ClassDecl) n).classDef()+ " (@" +((X10ClassDecl) n).position()+ ")");
@@ -181,7 +173,13 @@ public final class ExpressionFlattener extends ContextVisitor {
     public static boolean cannotFlatten(Node n) {
         if (n instanceof SourceFile){
             Source s = ((SourceFile) n).source();
-            if (XTENLANG_2055 && s.name().equals("Marshal.x10")) { // DEBUG: can't flatten Marshal
+            if (XTENLANG_2336 && s.name().equals("Runtime.x10")) { // BUG: cannot flatten Runtime
+                return true;
+            }
+            if (XTENLANG_2337 && s.name().equals("PolyScanner.x10")) { // BUG: cannot flatten PolyScanner
+                return true;
+            }
+            if (XTENLANG_2055 && s.name().equals("Marshal.x10")) { // BUG: can't flatten Marshal
                 return true; 
             }
         }
@@ -206,8 +204,8 @@ public final class ExpressionFlattener extends ContextVisitor {
         return false;
     }
     
-    
-    protected NodeVisitor enterCall(Node parent, Node child) throws SemanticException {
+    @Override
+    protected NodeVisitor enterCall(Node parent, Node child) {
         if (parent instanceof Labeled && child instanceof Stmt) {
             labels.add((Labeled) parent);
             if (!(child instanceof Labeled)) {
@@ -216,17 +214,18 @@ public final class ExpressionFlattener extends ContextVisitor {
                 labels.clear();
             }
         }
-        return super.enterCall(parent, child);
+        syn = (AltSynthesizer) syn.enter(parent, child);
+        return this;
         
     }
-
 
     /* (non-Javadoc)
      * @see polyglot.visit.ErrorHandlingVisitor#leaveCall(polyglot.ast.Node, polyglot.ast.Node, polyglot.visit.NodeVisitor)
      * 
      * Flatten statements (Stmt) and expressions (Expr).
      */
-    public Node leaveCall(Node parent, Node old, Node n, NodeVisitor v) throws SemanticException {
+    @Override
+    public Node leaveCall(Node parent, Node old, Node n, NodeVisitor v) {
         if (n instanceof Labeled) 
             return flattenLabeled((Labeled) n);
         if (parent instanceof Labeled && n instanceof Stmt) {

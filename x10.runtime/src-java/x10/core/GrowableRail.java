@@ -49,11 +49,11 @@ public final class GrowableRail<T> extends Ref implements x10.lang.Indexable<Int
         this.length = 0;
     }
 
-    public T set(T v, Type t1, Integer i, Type t2) {
-        return set$G(v, (int)i);
+    public T $set(T v, Type t1, Integer i, Type t2) {
+        return $set$G(v, (int)i);
     }
 
-    public T set$G(T v, int i) {
+    public T $set$G(T v, int i) {
         grow(i+1);
         /*
         assert i >= 0 : i + " < 0";
@@ -88,7 +88,7 @@ public final class GrowableRail<T> extends Ref implements x10.lang.Indexable<Int
 
     public void removeLast() {
         if (array instanceof Object[])
-            set$G(null, length-1);
+            $set$G(null, length-1);
         length--;
         shrink(length+1);
     }

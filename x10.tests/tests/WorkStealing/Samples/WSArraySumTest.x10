@@ -9,9 +9,9 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-package WorkStealing.Samples;
+// package WorkStealing.Samples; - can't use ArraySum because it doesn't have a package!
 
-public class ArraySumTest {
+public class WSArraySumTest {
     public def run():boolean {
          val args = new Array[String](0);
          ArraySum.main(args);
@@ -19,7 +19,7 @@ public class ArraySumTest {
     }
 
     public static def main(args:Array[String](1)) {
-        val r = new ArraySumTest().run();
+        val r = new WSArraySumTest().run();
         if(r){
              x10.io.Console.OUT.println("++++++Test succeeded.");
         }

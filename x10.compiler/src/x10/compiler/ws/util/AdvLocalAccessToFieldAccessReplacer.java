@@ -26,6 +26,7 @@ import polyglot.types.Name;
 import polyglot.types.SemanticException;
 import polyglot.visit.NodeVisitor;
 import polyglot.types.Context;
+import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import x10.util.Synthesizer;
 
 /**
@@ -60,7 +61,7 @@ public class AdvLocalAccessToFieldAccessReplacer extends NodeVisitor {
         this.refMap = refMap;
         this.synth = synth;
         this.context = context;
-        localDeclaredVar = new HashSet<Name>(declaredNames);
+        localDeclaredVar = CollectionFactory.newHashSet(declaredNames);
     }
 
     

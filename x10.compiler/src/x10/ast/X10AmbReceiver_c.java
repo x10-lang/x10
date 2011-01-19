@@ -28,16 +28,4 @@ public class X10AmbReceiver_c extends AmbReceiver_c {
     public X10AmbReceiver_c(Position pos, Prefix prefix, Id name) {
         super(pos, prefix, name);
     }
-
-    @Override
-    public Node disambiguate(ContextVisitor ar) {
-        try {
-            return super.disambiguate(ar);
-        } catch (SemanticException e) {
-            Errors.issue(ar.job(), e, this);
-            TypeSystem xts =  ar.typeSystem();
-            X10LocalInstance li = xts.createFakeLocal(name.id(), e);
-            return ar.nodeFactory().Local(position(), name).localInstance(li).type(li.type());
-        }
-    }
 }

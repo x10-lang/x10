@@ -16,6 +16,7 @@ import polyglot.types.*;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Pair;
 import polyglot.util.Position;
+import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import polyglot.visit.DataFlow.Item;
 import polyglot.visit.FlowGraph.EdgeKey;
 
@@ -42,16 +43,16 @@ public class DeadCodeEliminator extends DataFlow {
 	 * Constructor for creating an empty set.
 	 */
 	protected DataFlowItem() {
-	    this.liveVars = new HashSet<LocalDef>();
-	    this.liveDecls = new HashSet<LocalDef>();
+	    this.liveVars = CollectionFactory.newHashSet();
+	    this.liveDecls = CollectionFactory.newHashSet();
 	}
 
 	/**
 	 * Deep copy constructor.
 	 */
 	protected DataFlowItem(DataFlowItem dfi) {
-	    liveVars = new HashSet<LocalDef>(dfi.liveVars);
-	    liveDecls = new HashSet<LocalDef>(dfi.liveDecls);
+	    liveVars = CollectionFactory.newHashSet(dfi.liveVars);
+	    liveDecls = CollectionFactory.newHashSet(dfi.liveDecls);
 	}
 
 	public void add(LocalDef li) {
@@ -268,8 +269,8 @@ public class DeadCodeEliminator extends DataFlow {
      * Element 1 is the set of local instances USEd by the node.
      */
     protected Pair<Set<LocalDef>, Set<LocalDef>> getDefUse(Node n) {
-	final Set<LocalDef> def = new HashSet<LocalDef>();
-	final Set<LocalDef> use = new HashSet<LocalDef>();
+	final Set<LocalDef> def = CollectionFactory.newHashSet();
+	final Set<LocalDef> use = CollectionFactory.newHashSet();
 
 	if (n != null) {
 	    n.visit(createDefUseFinder(def, use));

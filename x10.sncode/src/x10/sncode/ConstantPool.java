@@ -22,7 +22,7 @@ import java.util.Map;
  */
 public final class ConstantPool implements SnConstants {
     /** Inverted CP. Map from objects to index into the CP. */
-    Map<Object, Integer> inverseMap = new HashMap<Object, Integer>(1);
+    Map<Object, Integer> inverseMap = CollectionFactory.newHashMap(1);
 
     /** List of new CP entries added since last clearing of the list. */
     List<Object> cpItems = new ArrayList<Object>(1);
@@ -31,7 +31,7 @@ public final class ConstantPool implements SnConstants {
      * Create a blank Sn editor with no members.
      */
     public ConstantPool() {
-        inverseMap = new HashMap<Object, Integer>();
+        inverseMap = CollectionFactory.newHashMap();
         cpItems = new ArrayList<Object>();
         cpItems.add(null);
     }

@@ -9,7 +9,7 @@
 #include <assert.h>
 
 // platform-specific min chunk alignment
-#ifdef _POWER
+#if defined(_POWER) || defined(__bgp__)
 #define X10_MIN_INDEXEDMEMORYCHUNK_ALIGNMENT 16
 #else
 #define X10_MIN_INDEXEDMEMORYCHUNK_ALIGNMENT ((x10_int)sizeof(x10_double))
@@ -52,11 +52,11 @@ namespace x10 {
                 return raw()[index]; 
             }
             
-            inline void set(T val, x10_int index) { 
+            inline void __set(T val, x10_int index) { 
                 x10aux::checkRailBounds(index, len);
                 raw()[index] = val; 
             }
-            inline void set(T val, x10_long index) { 
+            inline void __set(T val, x10_long index) { 
                 x10aux::checkRailBounds((x10_int)index, len);
                 raw()[index] = val; 
             }

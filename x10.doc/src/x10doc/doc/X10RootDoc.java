@@ -27,6 +27,7 @@ import x10.types.X10FieldDef;
 import x10.types.X10MethodDef;
 import x10.types.X10ParsedClassType;
 import polyglot.types.TypeSystem;
+import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import x10.util.HierarchyUtils;
 
 import com.sun.javadoc.ClassDoc;
@@ -87,11 +88,11 @@ public class X10RootDoc extends X10Doc implements RootDoc {
 
 	public X10RootDoc(String outputDir) {
 
-		this.specClasses = new HashMap<String, X10ClassDoc>();
-		this.specPackages = new HashMap<String, X10PackageDoc>();
-		this.otherClasses = new HashMap<String, X10ClassDoc>();
-		this.otherPackages = new HashMap<String, X10PackageDoc>();
-		this.primitiveTypes = new HashMap<String, X10Type>();
+		this.specClasses = CollectionFactory.newHashMap();
+		this.specPackages = CollectionFactory.newHashMap();
+		this.otherClasses = CollectionFactory.newHashMap();
+		this.otherPackages = CollectionFactory.newHashMap();
+		this.primitiveTypes = CollectionFactory.newHashMap();
 		this.outputDir = outputDir;
 		super.processComment("");
 	}

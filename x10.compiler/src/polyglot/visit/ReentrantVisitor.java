@@ -6,6 +6,7 @@ import java.util.Map;
 import polyglot.ast.Node;
 import polyglot.frontend.Job;
 import polyglot.util.InternalCompilerError;
+import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 
 public class ReentrantVisitor extends NodeVisitor {
     protected Job job;
@@ -13,7 +14,7 @@ public class ReentrantVisitor extends NodeVisitor {
     
     public ReentrantVisitor(Job job) {
         this.job = job;
-        this.newSubst = new HashMap<Node,Node>();
+        this.newSubst = CollectionFactory.newHashMap();
     }
 
     public Job job() {

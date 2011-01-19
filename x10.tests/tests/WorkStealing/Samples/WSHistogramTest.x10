@@ -10,9 +10,9 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-package WorkStealing.Samples;
+// package WorkStealing.Samples; - can't use Histogram because it doesn't have a package!
 
-public class HistogramTest {
+public class WSHistogramTest {
      public def run():boolean {
           val args = new Array[String](2);
           args(0) = "1000";
@@ -22,7 +22,7 @@ public class HistogramTest {
      }
 
      public static def main(args:Array[String](1)) {
-          val r = new HistogramTest().run();
+          val r = new WSHistogramTest().run();
           if(r){
                 x10.io.Console.OUT.println("++++++Test succeeded.");
           }

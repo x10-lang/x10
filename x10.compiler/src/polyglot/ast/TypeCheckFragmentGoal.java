@@ -9,7 +9,7 @@ import java.util.List;
 
 import polyglot.frontend.*;
 import polyglot.types.LazyRef;
-import polyglot.util.CollectionUtil;
+import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import polyglot.visit.TypeChecker;
 
 public class TypeCheckFragmentGoal<T> extends AbstractGoal_c implements SourceGoal{

@@ -45,7 +45,7 @@ import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.types.VarInstance;
-import polyglot.util.CollectionUtil;
+import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
@@ -96,16 +96,21 @@ public class Desugarer extends ContextVisitor {
         return Name.make("__desugarer__var__" + (count++) + "__");
     }
 
+    @Override
+    public Node override(Node parent, Node n) {
+        if (n instanceof Eval) {
+            Stmt s = adjustEval((Eval) n);
+            return visitEdgeNoOverride(parent, s);
+        }
+        return null;
+    }
+
+    @Override
     public Node leaveCall(Node old, Node n, NodeVisitor v) {
         if (n instanceof ParExpr)
             return visitParExpr((ParExpr) n);
         if (n instanceof Assign)
             return visitAssign((Assign) n);
-        if (n instanceof Eval)
-            return visitEval((Eval) n);
-        // We should be using interfaces (e.g., X10Binary, X10Unary) instead, but
-        // (a) there is no X10Unary, and (b) the method name functions are only
-        // available on concrete classes anyway.
         if (n instanceof Binary)
             return visitBinary((Binary) n);
         if (n instanceof Unary)
@@ -235,18 +240,16 @@ public class Desugarer extends ContextVisitor {
         return n;
     }
 
+    // This is called from override, so we just need to transform the statement, not desugar
     // x++; -> ++x; or x--; -> --x; (to avoid creating an extra closure)
-    private Stmt visitEval(Eval n) {
+    private Stmt adjustEval(Eval n) {
         Position pos = n.position();
         if (n.expr() instanceof Unary) {
             Unary e = (Unary) n.expr();
-            Position ePos = e.position();
             if (e.operator() == Unary.POST_DEC)
-                return nf.Eval(pos,
-                        visitUnary((Unary) nf.Unary(ePos, Unary.PRE_DEC, e.expr())));
+                return n.expr(e.operator(Unary.PRE_DEC));
             if (e.operator() == Unary.POST_INC)
-                return nf.Eval(pos,
-                        visitUnary((Unary) nf.Unary(ePos, Unary.PRE_INC, e.expr())));
+                return n.expr(e.operator(Unary.PRE_INC));
         }
         return n;
     }

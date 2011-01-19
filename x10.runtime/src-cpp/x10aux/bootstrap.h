@@ -30,9 +30,6 @@
 
 #include <stdio.h>
 
-#ifdef __CYGWIN__
-extern "C" int setlinebuf(FILE *);
-#endif
 namespace x10 { namespace array { template<class T> class Array; } }
 
 namespace x10aux {

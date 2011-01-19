@@ -10,8 +10,11 @@ package polyglot.ast;
 
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
+import polyglot.types.TypeSystem;
 import polyglot.util.Position;
 import polyglot.visit.*;
+import x10.errors.Errors;
+import x10.types.X10LocalInstance;
 
 /**
  * An <code>AmbReceiver</code> is an ambiguous AST node composed of
@@ -41,14 +44,15 @@ public class AmbReceiver_c extends AmbPrefix_c implements AmbReceiver
     }
 
     /** Disambiguate the receiver. */
-    public Node disambiguate(ContextVisitor ar) throws SemanticException {
-	Node n = super.disambiguate(ar);
-
-	if (n instanceof Receiver) {
-	    return n;
-	}
-
-	throw new SemanticException("Could not find type, field, or local variable \"" + (prefix == null ? name.toString() : prefix.toString() + "." + name.toString()) + "\".", position());
+    public Node disambiguate(ContextVisitor ar) {
+        try {
+            return super.disambiguate(ar);
+        } catch (SemanticException e) {
+            Errors.issue(ar.job(), e, this);
+            TypeSystem xts =  ar.typeSystem();
+            X10LocalInstance li = xts.createFakeLocal(name.id(), e);
+            return ar.nodeFactory().Local(position(), name).localInstance(li).type(li.type());
+        }
     }
     
 

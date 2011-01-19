@@ -76,6 +76,7 @@ import polyglot.types.Types;
 import polyglot.types.VarDef;
 import polyglot.util.Pair;
 import polyglot.util.Position;
+import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.X10CompilerOptions;
@@ -130,7 +131,7 @@ public class StaticInitializer extends ContextVisitor {
 
     // mapping static field and corresponding initializer method
     private Map<Pair<Type,Name>, StaticFieldInfo> staticFinalFields = 
-            new HashMap<Pair<Type,Name>, StaticFieldInfo>();
+            CollectionFactory.newHashMap();
 
     public StaticInitializer(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf);
@@ -890,7 +891,7 @@ public class StaticInitializer extends ContextVisitor {
 
     private Expr genStatusSet(Position pos, TypeNode receiver, FieldDef fdCond) {
         Expr ai = xnf.Field(pos, receiver, xnf.Id(pos, fdCond.name())).fieldInstance(fdCond.asInstance());
-        Id name = xnf.Id(pos, SettableAssign.SET);
+        Id name = xnf.Id(pos, Name.make("set")); // Intentionally not SettableAssign.SET because AtomicInteger is a NativeRep class
 
         List<Ref<? extends Type>> argTypes = new ArrayList<Ref<? extends Type>>();
         argTypes.add(Types.ref(xts.Int()));

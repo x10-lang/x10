@@ -20,7 +20,7 @@ import x10.compiler.CompilerFlags;
  */
 public final class RectRegion extends Region{rect} {
 
-    private val size:int;
+    private val size:int;           /* Will be < 0 iff the true size of the region is not expressible as an int */
     private val mins:Array[int](1); /* will be null if rank<5 */
     private val maxs:Array[int](1); /* will be null if rank<5 */
 
@@ -49,13 +49,17 @@ public final class RectRegion extends Region{rect} {
 
 	if (minArg.size != maxArg.size) throw new IllegalArgumentException("size of min and max args are not equal");
 
-        var s:int = 1;
+        var s:long = 1;
         for (var i:int = 0; i<minArg.size; i++) {
-	    var rs:int = maxArg(i) - minArg(i) + 1;
-	    if (rs < 0) rs = 0;
+	    var rs:long = (maxArg(i) as Long) - (minArg(i)) as Long + 1;
+            if (rs < 0) rs = 0;
             s *= rs;
         }
-        size = s;
+        if (s > Int.MAX_VALUE as Long) {
+            size = -1; // encode overflow
+        } else {
+            size = s as Int;
+        }
 
         if (minArg.size>0) {
             min0 = minArg(0);
@@ -110,7 +114,10 @@ public final class RectRegion extends Region{rect} {
         maxs = null;
     }
 
-    public def size() = size;
+    public def size():int {
+      if (size < 0) throw new UnboundedRegionException("size exceeds capacity of int");
+      return size;
+    }
 
     public def isConvex() = true;
 
