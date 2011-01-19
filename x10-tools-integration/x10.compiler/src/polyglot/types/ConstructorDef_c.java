@@ -10,14 +10,14 @@ package polyglot.types;
 import java.util.List;
 
 import polyglot.main.Report;
-import polyglot.util.CollectionUtil;
+import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import polyglot.util.Position;
 
 /**
  * A <code>ConstructorInstance</code> contains type information for a
  * constructor.
  */
-public class ConstructorDef_c extends ProcedureDef_c implements ConstructorDef
+public abstract class ConstructorDef_c extends ProcedureDef_c implements ConstructorDef
 {
     private static final long serialVersionUID = -6672601102313722506L;
 

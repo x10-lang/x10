@@ -64,6 +64,7 @@ import polyglot.util.Pair;
 import polyglot.util.Position;
 import polyglot.util.SilentErrorQueue;
 import polyglot.util.SubtypeSet;
+import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import polyglot.visit.AlphaRenamer;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
@@ -609,7 +610,7 @@ public class Inliner extends ContextVisitor {
         }
 
         protected TypeRewriter rewriter = new TypeRewriter();
-        protected Map<Name, LocalDef> localDefMap = new HashMap<Name, LocalDef>();
+        protected Map<Name, LocalDef> localDefMap = CollectionFactory.newHashMap();
 
         @Override
         public NodeVisitor enter(Node n) {
@@ -1690,11 +1691,11 @@ public class Inliner extends ContextVisitor {
     }
 
     private class InlinerCache {
-        private final Set<X10MethodDef> dontInline              = new HashSet<X10MethodDef>();
-        private final Map<X10MethodDef, X10MethodDecl> def2decl = new HashMap<X10MethodDef, X10MethodDecl>();
-        private final Set<Job> badJobs                          = new HashSet<Job>();
-        private final Set<String> badSources                    = new HashSet<String>();
-        private final Map<String, Node> astMap                  = new HashMap<String, Node>();
+        private final Set<X10MethodDef> dontInline              = CollectionFactory.newHashSet();
+        private final Map<X10MethodDef, X10MethodDecl> def2decl = CollectionFactory.newHashMap();
+        private final Set<Job> badJobs                          = CollectionFactory.newHashSet();
+        private final Set<String> badSources                    = CollectionFactory.newHashSet();
+        private final Map<String, Node> astMap                  = CollectionFactory.newHashMap();
 
         boolean uninlineable(X10MethodDef candidate) {
             return dontInline.contains(candidate);

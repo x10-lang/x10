@@ -23,17 +23,13 @@ using namespace x10::array;
 using namespace x10::lang;
 using namespace x10aux;
 
-#ifdef __CYGWIN__
-extern "C" char *strdup (const char *);
-#endif
-
 ref<Array<ref<String> > >x10aux::convert_args(int ac, char **av) {
     assert(ac>=1);
     x10_int x10_argc = ac  - 1;
     ref<Array<ref<String> > > arr(Array<ref<String> >::_make(x10_argc));
     for (int i = 1; i < ac; i++) {
         ref<String> val = String::Lit(av[i]);
-        arr->set(val, i-1);
+        arr->__set(val, i-1);
     }
     return arr;
 }

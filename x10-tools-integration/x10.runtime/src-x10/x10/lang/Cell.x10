@@ -67,8 +67,7 @@ public final class Cell[T] {
      * @param x the new value
      * @return the new value stored in the Cell.
      */
-    // todo SettableAssign: uncomment operator()= in the next line after we change it's name from set to $set
-    //public operator this()=(x:T) { set(x); }
+    public operator this()=(x:T) { set(x); }
     public def set(x:T) { value = x; return x; }
 
 

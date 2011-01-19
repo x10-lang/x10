@@ -21,6 +21,7 @@ import polyglot.main.Report;
 import polyglot.types.*;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Option;
+import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import polyglot.visit.PostCompiled;
 
 
@@ -50,7 +51,7 @@ public abstract class Scheduler {
     protected ExtensionInfo extInfo;
 
     /** map used for interning goals. */
-    protected Map<Goal,Goal> internCache = new HashMap<Goal,Goal>(); // note that is not a cache in the sense that if you clear it the correctness of the compiler is compromised.
+    protected Map<Goal,Goal> internCache = CollectionFactory.newHashMap(); // note that is not a cache in the sense that if you clear it the correctness of the compiler is compromised.
     
     // TODO: remove this, we only need to intern the goal status, not the goal itself.
     // Actually, the lazy ref to the goal status is the goal.  The run() method is the resolver for the lazy ref.

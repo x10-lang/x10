@@ -16,6 +16,8 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Set;
 
+import x10.util.CollectionFactory;
+
 class TypeDumper {
     static Set<Class<?>> dontExpand;
     static {
@@ -31,7 +33,7 @@ class TypeDumper {
 	    String.class,
 	};
 	dontExpand =
-	    new java.util.HashSet<Class<?>>(java.util.Arrays.asList(primitiveLike));
+	    CollectionFactory.newHashSet(java.util.Arrays.asList(primitiveLike));
     }
 
     TypeObject theType;
@@ -67,7 +69,7 @@ class TypeDumper {
     }
 
     public void dump(CodeWriter w) {
-	Map<Object, Object> cache = new java.util.HashMap<Object, Object>();
+	Map<Object, Object> cache = CollectionFactory.newHashMap();
 	cache.put(theType, theType);
 	w.write("Type "+rawName+ " {");
 	w.allowBreak(2);

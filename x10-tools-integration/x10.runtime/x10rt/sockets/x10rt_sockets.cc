@@ -20,6 +20,10 @@
  * The network is read/written directly.
  **********************************************************************************************/
 
+#ifdef __CYGWIN__
+#undef __STRICT_ANSI__ // Strict ANSI mode is too strict in Cygwin
+#endif
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>

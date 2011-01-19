@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.StringTokenizer;
 
 import polyglot.util.QuotedStringTokenizer;
+import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 
 /**
  * Map from captured variable name to type.
@@ -27,7 +28,7 @@ public class ClosureVariableMap extends StringTable {
 
 	public static final String VARIABLE_NAME = "CVMAP";
 
-	private HashMap<String, Integer> map = new HashMap<String, Integer>();
+	private HashMap<String, Integer> map = CollectionFactory.newHashMap();
 
 	/**
 	 * 

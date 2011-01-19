@@ -123,14 +123,6 @@ public class ForLoopOptimizer extends ContextVisitor {
         return res;
     }
 
-    @Override
-    public NodeVisitor superEnter(Node parent, Node n) {
-        ForLoopOptimizer res = (ForLoopOptimizer) super.superEnter(parent, n);
-        if (res != this)
-            res.syn = (AltSynthesizer) syn.enter(parent, n);
-        return res;
-    }
-
     private Name label = null;
     protected Name label() { return label; }
     protected ForLoopOptimizer label(Name label) {
@@ -140,18 +132,20 @@ public class ForLoopOptimizer extends ContextVisitor {
     }
 
     @Override
-    protected NodeVisitor enterCall(Node n) throws SemanticException {
+    protected NodeVisitor enterCall(Node parent, Node n) {
         // Set the label when seeing a Labeled; clear it for anything but a ForLoop
+        ForLoopOptimizer res = this;
         if (n instanceof Labeled) {
-            return label(((Labeled) n).labelNode().id());
-        } else if (n instanceof ForLoop) {
-            return this;
+            res = res.label(((Labeled) n).labelNode().id());
+        } else if (!(n instanceof ForLoop)) {
+            res = res.label(null);
         }
-        return label(null);
+        res.syn = (AltSynthesizer) syn.enter(parent, n);
+        return res;
     }
 
     @Override
-    public Node leaveCall(Node old, Node n, NodeVisitor v) throws SemanticException {
+    public Node leaveCall(Node old, Node n, NodeVisitor v) {
         if (n instanceof ForLoop)
             return visitForLoop((ForLoop) n);
         if (n instanceof Labeled) {
@@ -433,7 +427,7 @@ public class ForLoopOptimizer extends ContextVisitor {
              * @see polyglot.visit.ErrorHandlingVisitor#leaveCall(polyglot.ast.Node)
              */
             @Override
-            protected Node leaveCall(Node n) throws SemanticException {
+            protected Node leaveCall(Node n) {
                 if (n instanceof Call) {
                     X10Formal p = point;
                     LocalDecl r = rail;

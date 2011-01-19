@@ -21,7 +21,7 @@
 	import polyglot.types.SemanticException;
 	import polyglot.types.Type;
 	import polyglot.types.TypeSystem_c;
-	import polyglot.util.CollectionUtil;
+	import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 	import polyglot.types.Context;
 	import x10.types.MethodInstance;
 

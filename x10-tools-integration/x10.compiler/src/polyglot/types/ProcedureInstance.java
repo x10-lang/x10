@@ -7,13 +7,17 @@
  */
 package polyglot.types;
 
+import x10.types.constraints.CConstraint;
+import x10.types.constraints.TypeConstraint;
+import x10.types.X10ProcedureInstance;
+
 import java.util.List;
 
 /**
  * A <code>ProcedureInstance</code> contains the type information for a Java
  * procedure (either a method or a constructor).
  */
-public interface ProcedureInstance<T extends ProcedureDef> extends CodeInstance<T> {
+public interface ProcedureInstance<T extends ProcedureDef> extends CodeInstance<T> { // todo: it should extend X10Use<T>
     /**
      * List of formal parameter types.
      * @return A list of <code>Type</code>.
@@ -55,4 +59,43 @@ public interface ProcedureInstance<T extends ProcedureDef> extends CodeInstance<
      * @param context TODO
      */
     boolean callValid(Type thisType, List<Type> actualTypes, Context context);
+
+
+    // Constructors, methods, and closures all have return types.
+    Type returnType();
+    ProcedureInstance<T> returnType(Type t);
+    Ref<? extends Type> returnTypeRef();
+    ProcedureInstance<T> returnTypeRef(Ref<? extends Type> t);
+
+    List<Type> typeParameters();
+    X10ProcedureInstance<T> typeParameters(List<Type> typeParameters);
+
+    List<LocalInstance> formalNames();
+    X10ProcedureInstance<T> formalNames(List<LocalInstance> formalNames);
+
+    /**
+     * Return the constraint on the formal parameters, if any.
+     * @return
+     */
+    CConstraint guard();
+    X10ProcedureInstance<T> guard(CConstraint guard);
+
+    /**
+     * Should the guard be checked at runtime for this instance?
+     * Every method/ctor call with such an instance should generate code that checks the guard.
+     * @return true if we should check the guard.
+     */
+    boolean checkGuardAtRuntime();
+    X10ProcedureInstance<T> checkGuardAtRuntime(boolean check);
+
+    /**
+     * Return the constraint on the type parameters, if any.
+     * @return
+     */
+    TypeConstraint typeGuard();
+    X10ProcedureInstance<T> typeGuard(TypeConstraint guard);
+
+    /** The type of offer statements permitted in the body.
+	 * May be null -- no offers are permitted.*/
+	Ref<? extends Type> offerType();
 }

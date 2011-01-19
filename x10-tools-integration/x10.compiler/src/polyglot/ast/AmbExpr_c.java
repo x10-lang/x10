@@ -11,8 +11,11 @@ package polyglot.ast;
 import java.util.List;
 
 import polyglot.types.SemanticException;
+import polyglot.types.TypeSystem;
 import polyglot.util.*;
 import polyglot.visit.*;
+import x10.errors.Errors;
+import x10.types.X10LocalInstance;
 
 /**
  * An <code>AmbExpr</code> is an ambiguous AST node composed of a single
@@ -62,7 +65,18 @@ public class AmbExpr_c extends Expr_c implements AmbExpr
   }
 
   /** Disambiguate the expression. */
-  public Node disambiguate(ContextVisitor ar) throws SemanticException {
+  public Node disambiguate(ContextVisitor ar) {
+      try {
+          return superDisambiguate(ar);
+      } catch (SemanticException e) {
+          Errors.issue(ar.job(), e, this);
+          TypeSystem xts =  ar.typeSystem();
+          X10LocalInstance li = xts.createFakeLocal(name.id(), e);
+          return ar.nodeFactory().Local(position(), name).localInstance(li).type(li.type());
+      }
+  }
+  
+  private Node superDisambiguate(ContextVisitor ar) throws SemanticException {
     Position pos = position();
     Disamb disamb = ar.nodeFactory().disamb();
     Node n = disamb.disambiguate(this, ar, pos, null, name);

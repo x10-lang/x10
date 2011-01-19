@@ -73,7 +73,7 @@ public class DomReader {
 	}
 	
 	void buildTypeMap(X10Dom dom, Element e) {
-		typeMap = new HashMap<String,LazyTypeObject>();
+		typeMap = CollectionFactory.newHashMap();
 		for (org.w3c.dom.Node child = e.getFirstChild(); child != null; child = child.getNextSibling()) {
 			if (child instanceof org.w3c.dom.Text) {
 				continue;

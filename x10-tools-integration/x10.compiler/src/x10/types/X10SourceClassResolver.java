@@ -31,7 +31,7 @@ import polyglot.types.QName;
 import polyglot.types.SemanticException;
 import polyglot.types.TopLevelResolver;
 import polyglot.types.TypeSystem;
-import polyglot.util.CollectionUtil;
+import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import polyglot.util.InternalCompilerError;
 
 /**
@@ -68,7 +68,7 @@ public class X10SourceClassResolver implements TopLevelResolver {
 
         this.ts = (TypeSystem) ext.typeSystem();
         this.classpath = classpath;
-        this.nocache = new HashSet<QName>();
+        this.nocache = CollectionFactory.newHashSet();
 
         this.compiler = compiler;
         this.ext = ext;

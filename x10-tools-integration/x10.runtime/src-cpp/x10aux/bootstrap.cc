@@ -20,8 +20,8 @@ using namespace x10aux;
 
 x10_int x10aux::exitCode = 0;
 
-x10::lang::VoidFun_0_0::itable<StaticInitClosure> StaticInitClosure::_itable(&StaticInitClosure::__apply,
-                                                                             &StaticInitClosure::equals, &StaticInitClosure::hashCode,
+x10::lang::VoidFun_0_0::itable<StaticInitClosure> StaticInitClosure::_itable(&StaticInitClosure::equals, &StaticInitClosure::hashCode,
+                                                                             &StaticInitClosure::__apply,
                                                                              &StaticInitClosure::toString, &StaticInitClosure::typeName);
 
 x10aux::itable_entry StaticInitClosure::_itables[2] = {
@@ -29,8 +29,8 @@ x10aux::itable_entry StaticInitClosure::_itables[2] = {
     x10aux::itable_entry(NULL, NULL)
 };
 
-x10::lang::VoidFun_0_0::itable<BootStrapClosure> BootStrapClosure::_itable(&BootStrapClosure::__apply,
-                                                                           &BootStrapClosure::equals, &BootStrapClosure::hashCode,
+x10::lang::VoidFun_0_0::itable<BootStrapClosure> BootStrapClosure::_itable(&BootStrapClosure::equals, &BootStrapClosure::hashCode,
+                                                                           &BootStrapClosure::__apply,
                                                                            &BootStrapClosure::toString, &BootStrapClosure::typeName);
 
 x10aux::itable_entry BootStrapClosure::_itables[2] = {

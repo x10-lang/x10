@@ -15,6 +15,7 @@ import polyglot.frontend.Job;
 import polyglot.types.*;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
+import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import polyglot.visit.FlowGraph.EdgeKey;
 import x10.ast.Finish;
 import x10.ast.ParExpr;
@@ -167,7 +168,7 @@ public class InitChecker extends DataFlow
          * during the declaration of this class. We need to track this
          * in order to correctly populate <code>localsUsedInClassBodies</code>
          */
-        public Set<LocalDef> outerLocalsUsed = new HashSet<LocalDef>();
+        public Set<LocalDef> outerLocalsUsed = CollectionFactory.newHashSet();
 
         /**
          * Map from <code>ClassBody</code>s to <code>Set</code>s of
@@ -189,7 +190,7 @@ public class InitChecker extends DataFlow
          * their own initialization) or are locals declared in an enclosing
          * class.
          */
-        public Set<LocalDef> localDeclarations = new HashSet<LocalDef>();
+        public Set<LocalDef> localDeclarations = CollectionFactory.newHashSet();
     }
 
 
@@ -393,7 +394,7 @@ public class InitChecker extends DataFlow
      * This class is immutable.
      */
     public static class BaseDataFlowItem<T extends VarDef> extends Item {
-        public final HashMap<T, MinMaxInitCount> initStatus = new HashMap<T, MinMaxInitCount>(); // map of VarDef to MinMaxInitCount
+        public final HashMap<T, MinMaxInitCount> initStatus = CollectionFactory.newHashMap(); // map of VarDef to MinMaxInitCount
 
         public String toString() {
             return initStatus.toString();
@@ -614,7 +615,7 @@ public class InitChecker extends DataFlow
                 if (after==null) continue;
                 final Flags flags = v.flags();
                 if (!before.equals(after) && after.isOne() && flags !=null && flags.isFinal()) {
-                    if (ext.initVals ==null) ext.initVals = new HashSet<LocalDef>();
+                    if (ext.initVals ==null) ext.initVals = CollectionFactory.newHashSet();
                     ext.initVals.add(v);
                     break; // optimization, cause we already added "v"
                 }

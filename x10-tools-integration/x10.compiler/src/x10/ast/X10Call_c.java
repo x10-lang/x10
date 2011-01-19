@@ -31,6 +31,7 @@ import polyglot.ast.TypeNode;
 import polyglot.ast.Precedence;
 import polyglot.ast.Call;
 import polyglot.ast.Term;
+import polyglot.ast.ProcedureCall;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.ConstructorDef;
@@ -43,11 +44,12 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.Types;
 import polyglot.util.CodeWriter;
-import polyglot.util.CollectionUtil;
+import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Pair;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
+import polyglot.util.ErrorInfo;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
@@ -67,6 +69,7 @@ import x10.types.X10FieldInstance;
 import x10.types.X10LocalInstance;
 import x10.types.MethodInstance;
 import x10.types.X10ParsedClassType;
+import x10.types.X10Use;
 import polyglot.types.TypeSystem;
 import polyglot.types.ProcedureDef;
 import polyglot.types.ProcedureInstance;
@@ -75,6 +78,8 @@ import polyglot.types.ErrorRef_c;
 import x10.types.checker.Checker;
 import x10.types.checker.PlaceChecker;
 import x10.visit.X10TypeChecker;
+import x10.X10CompilerOptions;
+import x10.ExtensionInfo;
 
 /**
  * Representation of an X10 method call.
@@ -569,7 +574,14 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 	public Node typeCheck(ContextVisitor tc) {
 	    Node n;
 	    try {
+            if (mi != null && ((MethodInstance)mi).isValid()) // already typechecked
+                return this;
 	        n = typeCheck1(tc);
+            if (n instanceof ProcedureCall) {
+                ProcedureCall pc = (ProcedureCall) n;
+                ProcedureInstance pi = pc.procedureInstance();
+                Warnings.checkErrorAndGuard(tc, (X10Use)pi, n);
+            }
 	    } catch (SemanticException e) {
 	        Errors.issue(tc.job(), e, this);
 	        TypeSystem ts = tc.typeSystem();
@@ -590,13 +602,10 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 	    }
 	    return n;
 	}
-	public Node typeCheck1(ContextVisitor tc) throws SemanticException {
+	private Node typeCheck1(ContextVisitor tc) throws SemanticException {
 		NodeFactory xnf = (NodeFactory) tc.nodeFactory();
 		TypeSystem xts = (TypeSystem) tc.typeSystem();
 		Context c = (Context) tc.context();
-
-		if (mi != null && ((MethodInstance)mi).isValid()) // already typechecked
-		    return this;
 
 		Name name = this.name().id();
 

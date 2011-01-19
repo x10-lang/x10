@@ -14,6 +14,7 @@ import polyglot.types.LocalDef;
 import polyglot.types.Name;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.UniqueID;
+import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 
 /**
  * The <code>AlphaRenamer</code> runs over the AST and alpha-renames any local
@@ -42,12 +43,12 @@ public class AlphaRenamer extends NodeVisitor {
    **/
   public AlphaRenamer() {
     this.setStack = new Stack<Set<Name>>();
-    this.setStack.push( new HashSet<Name>() );
+    this.setStack.push( CollectionFactory.<Name>newHashSet() );
 
-    this.oldNamesMap = new HashMap<LocalDef, Name>();
-    this.renamingMap = new HashMap<Name,Name>();
-    this.labelMap = new HashMap<Name,Name>();
-    this.freshVars = new HashSet<Name>();
+    this.oldNamesMap = CollectionFactory.newHashMap();
+    this.renamingMap = CollectionFactory.newHashMap();
+    this.labelMap = CollectionFactory.newHashMap();
+    this.freshVars = CollectionFactory.newHashSet();
   }
 
   /** Map from local def to old names. */
@@ -60,7 +61,7 @@ public class AlphaRenamer extends NodeVisitor {
   public NodeVisitor enter( Node n ) {
     if ( n instanceof Block ) {
       // Push a new, empty set onto the stack.
-      setStack.push( new HashSet<Name>() );
+      setStack.push( CollectionFactory.<Name>newHashSet() );
     }
 
     if ( n instanceof LocalDecl ) {

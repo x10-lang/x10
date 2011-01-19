@@ -11,6 +11,7 @@ import java.util.*;
 
 import polyglot.main.Report;
 import polyglot.util.*;
+import x10.util.CollectionFactory;
 
 /**
  * A <code>CachingResolver</code> memoizes another Resolver
@@ -46,7 +47,7 @@ public class CachingResolver implements TopLevelResolver, Copy {
     public Object copy() {
         try {
             CachingResolver r = (CachingResolver) super.clone();
-            r.cache = new HashMap<QName, Object>(this.cache);
+            r.cache = CollectionFactory.newHashMap(this.cache);
             return r;
         }
         catch (CloneNotSupportedException e) {

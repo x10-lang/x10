@@ -4,13 +4,57 @@ import java.util.*;
 
 import polyglot.types.TypeSystem_c.TypeEquals;
 import polyglot.util.*;
+import x10.types.constraints.CConstraint;
+import x10.types.constraints.TypeConstraint;
+import x10.types.ClosureInstance;
+import x10.types.X10ProcedureInstance;
+import x10.types.MethodInstance;
 
-public class ProcedureInstance_c<T extends ProcedureDef> extends Use_c<T> implements ProcedureInstance<T> {
+public abstract class ProcedureInstance_c<T extends ProcedureDef> extends Use_c<T> implements X10ProcedureInstance<T> {
     private static final long serialVersionUID = -5028005051545234620L;
 
     protected ProcedureInstance_c(TypeSystem ts, Position pos, Ref<? extends T> def) {
         super(ts, pos, def);
     }
+
+    
+    protected CConstraint guard;
+    public CConstraint guard() {
+        if (guard == null)
+            return Types.get(def().guard());
+        return guard;
+    }
+
+    public ProcedureInstance_c guard(CConstraint guard) {
+        if (guard == this.guard) return this;
+        ProcedureInstance_c n = (ProcedureInstance_c) copy();
+        n.guard = guard;
+        return n;
+    }
+
+    protected boolean checkGuardAtRuntime = false;
+    public boolean checkGuardAtRuntime() { return checkGuardAtRuntime; }
+    public ProcedureInstance_c checkGuardAtRuntime(boolean check) {
+        if (check==checkGuardAtRuntime) return this;
+        ProcedureInstance_c n = (ProcedureInstance_c) copy();
+        n.checkGuardAtRuntime = check;
+        return n;
+    }
+
+    /** Constraint on type parameters. */
+    protected TypeConstraint typeGuard;
+    public TypeConstraint typeGuard() {
+        if (typeGuard == null)
+            return Types.get(def().typeGuard());
+        return typeGuard;
+    }
+    public ProcedureInstance_c typeGuard(TypeConstraint s) {
+        if (s == this.typeGuard) return this;
+        ProcedureInstance_c n = (ProcedureInstance_c) copy();
+        n.typeGuard = s;
+        return n;
+    }
+
 
     protected List<Type> formalTypes;
     protected List<Type> throwTypes;

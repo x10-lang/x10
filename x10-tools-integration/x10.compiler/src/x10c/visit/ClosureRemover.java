@@ -56,6 +56,7 @@ import polyglot.types.VarInstance;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.UniqueID;
+import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.ast.Closure;
@@ -82,8 +83,8 @@ import x10.types.constraints.TypeConstraint;
 
 public class ClosureRemover extends ContextVisitor {
     
-    public static final String STATIC_INNER_CLASS_BASE_NAME = "$Closure$";
-    private static final String STATIC_METHOD_BASE_NAME = "__$closure$apply$__";
+    public static final String STATIC_INNER_CLASS_BASE_NAME = "$Closure";
+    private static final String STATIC_METHOD_BASE_NAME = "$closure_apply";
     private static final Name OUTER_NAME = Name.make("out$$");
     
     private final TypeSystem xts;
@@ -141,7 +142,7 @@ public class ClosureRemover extends ContextVisitor {
 //                        System.out.println(capturedEnv);
                         
                         final List<NamedVariable> capturedVarsExThis = new ArrayList<NamedVariable>();
-                        Map<String, X10LocalDef> nameToLocalDef = new HashMap<String, X10LocalDef>();
+                        Map<String, X10LocalDef> nameToLocalDef = CollectionFactory.newHashMap();
                         
                         Block body = rewriteClosureBody(cl.body(), capturedEnv, capturedVarsExThis, nameToLocalDef, cl.formals());
 
@@ -191,7 +192,25 @@ public class ClosureRemover extends ContextVisitor {
                                 tps.add(xnf.TypeParamNode(pos, xnf.Id(pos, pt.name())).type(pt));
                             }
                         }
-    
+                        
+                        if (!(context.currentCode() instanceof X10ConstructorDef)) {
+                            List<ParameterType> codeParam = getCurrentCodeParameterType(context);
+                            for (ParameterType pt :codeParam) {
+                                boolean contains = false;
+                                for (ParameterType pt2: context.currentClassDef().typeParameters()) {
+                                    if (pt.def().equals(pt2.def())) {
+                                        contains = true;
+                                        break;
+                                    }
+                                }
+                                if (!contains) {
+                                    rts.add(pt);
+                                    tns.add(xnf.X10CanonicalTypeNode(pos, pt));
+                                    tps.add(xnf.TypeParamNode(pos, xnf.Id(pos, pt.name())).type(pt));
+                                }
+                            }
+                        }
+                        
                         X10MethodDef md = (X10MethodDef) xts.methodDef(pos, Types.ref(ct), flags, cl.returnType().typeRef(), name, argTypes);
                         md.setTypeParameters(rts);
                         
@@ -355,7 +374,7 @@ public class ClosureRemover extends ContextVisitor {
                     staticInnerClassDecl = staticInnerClassDecl.typeParameters(tpns);
                     
                     final List<NamedVariable> capturedVarsExThis = new ArrayList<NamedVariable>();
-                    Map<String, X10LocalDef> nameToLocalDef = new HashMap<String, X10LocalDef>();
+                    Map<String, X10LocalDef> nameToLocalDef = CollectionFactory.newHashMap();
                     
                     // rewrite closure method body
                     closureBody = rewriteClosureBody(closureBody, staticInnerClassDef, capturedEnv, capturedVarsExThis, nameToLocalDef, cl.formals());

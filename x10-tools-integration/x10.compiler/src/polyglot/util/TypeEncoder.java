@@ -15,6 +15,7 @@ import java.util.zip.GZIPOutputStream;
 import polyglot.frontend.SchedulerException;
 import polyglot.main.Report;
 import polyglot.types.*;
+import x10.util.CollectionFactory;
 
 /**
  * The <code>TypeEncoder</code> gives the ability to encode a polyglot 
@@ -140,14 +141,14 @@ public class TypeEncoder
         }
         
         Map<Object, Object> oldCache = placeHolderCache;
-        placeHolderCache = new HashMap<Object, Object>();
+        placeHolderCache = CollectionFactory.newHashMap();
         if (oldCache != null) {
             placeHolderCache.putAll(oldCache);
         }
 
         Map<Object, Object> oldDeps = dependencies;
         if (oldDeps == null) {
-            dependencies = new HashMap<Object, Object>(); 
+            dependencies = CollectionFactory.newHashMap();
         }
 
         if (Report.should_report(Report.serialize, 1))

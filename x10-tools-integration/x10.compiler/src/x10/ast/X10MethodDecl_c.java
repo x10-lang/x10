@@ -73,7 +73,7 @@ import polyglot.types.TypeObject;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.util.CodeWriter;
-import polyglot.util.CollectionUtil;
+import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import polyglot.util.ErrorInfo;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
@@ -596,7 +596,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 
 
 	public static void dupFormalCheck(List<TypeParamNode> typeParams, List<Formal> formals) throws SemanticException {
-		Set<Name> pnames = new HashSet<Name>();
+		Set<Name> pnames = CollectionFactory.newHashSet();
 		for (TypeParamNode p : typeParams) {
 			Name name = p.name().id();
 			if (pnames.contains(name))
@@ -608,7 +608,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 		// because we add all the formals into the scope before visiting a
 		// formal, so the lookup of a duplicate formal returns itself rather
 		// than the previous formal.
-		Set<Name> names = new HashSet<Name>();
+		Set<Name> names = CollectionFactory.newHashSet();
 		LinkedList<Formal> q = new LinkedList<Formal>();
 		q.addAll(formals);
 		while (! q.isEmpty()) {
@@ -850,7 +850,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 			return;
 
 		X10ClassDef cd = (X10ClassDef) tc.context().currentClassDef();
-		final Map<Name,ParameterType.Variance> vars = new HashMap<Name, ParameterType.Variance>();
+		final Map<Name,ParameterType.Variance> vars = CollectionFactory.newHashMap();
 		for (int i = 0; i < cd.typeParameters().size(); i++) {
 			ParameterType pt = cd.typeParameters().get(i);
 			ParameterType.Variance v = cd.variances().get(i);

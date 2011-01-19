@@ -20,7 +20,7 @@ import polyglot.visit.*;
  * A <code>Formal</code> represents a formal parameter for a procedure
  * or catch block.  It consists of a type and a variable identifier.
  */
-public class Formal_c extends Term_c implements Formal
+public abstract class Formal_c extends Term_c implements Formal
 {
     protected LocalDef li;
     protected FlagsNode flags;
@@ -43,9 +43,7 @@ public class Formal_c extends Term_c implements Formal
     }
 
     /** Get the type of the formal. */
-    public Type declType() {
-        return type.type();
-    }
+    public abstract Type declType();
 
     /** Get the flags of the formal. */
     public FlagsNode flags() {
@@ -117,9 +115,7 @@ public class Formal_c extends Term_c implements Formal
 	return reconstruct(flags, type, name);
     }
 
-    public void addDecls(Context c) {
-        c.addVariable(li.asInstance());
-    }
+    public abstract void addDecls(Context c);
 
     /** Write the formal to an output file. */
     public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
@@ -144,34 +140,7 @@ public class Formal_c extends Term_c implements Formal
     }
 
     /** Type check the formal. */
-    public Node typeCheck(ContextVisitor tc) throws SemanticException {
-        // Check if the variable is multiply defined.
-        Context c = tc.context();
-
-        LocalInstance outerLocal = null;
-
-        try {
-            outerLocal = c.findLocal(li.name());
-        }
-        catch (SemanticException e) {
-            // not found, so not multiply defined
-        }
-
-        if (outerLocal != null && ! li.equals(outerLocal.def()) && c.isLocal(li.name())) {
-            throw new SemanticException("Local variable \"" + name + "\" multiply defined. Previous definition at " + outerLocal.position() + ".",position());
-        }
-
-	TypeSystem ts = tc.typeSystem();
-
-	try {
-	    ts.checkLocalFlags(flags().flags());
-	}
-	catch (SemanticException e) {
-	    throw new SemanticException(e.getMessage(), position());
-	}
-
-	return this;
-    }
+    public abstract Node typeCheck(ContextVisitor tc) throws SemanticException;
 
     public Term firstChild() {
         return type;
@@ -198,8 +167,6 @@ public class Formal_c extends Term_c implements Formal
 	w.end();
     }
 
-    public String toString() {
-        return flags.flags().translate() + type + " " + name;
-    }
+    public abstract String toString();
 
 }

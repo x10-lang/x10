@@ -14,6 +14,7 @@ import polyglot.ast.NodeFactory;
 import polyglot.frontend.Job;
 import polyglot.types.*;
 import polyglot.util.*;
+import x10.util.CollectionFactory;
 
 /** Visitor which checks if exceptions are caught or declared properly. */
 public class ExceptionChecker extends ErrorHandlingVisitor
@@ -78,7 +79,7 @@ public class ExceptionChecker extends ErrorHandlingVisitor
     }
     public ExceptionChecker push(Collection<Type> catchableTypes) {
         ExceptionChecker ec = this.push();
-        ec.catchable = new HashSet<Type>(catchableTypes);
+        ec.catchable = CollectionFactory.newHashSet(catchableTypes);
         ec.throwsSet = new SubtypeSet(ts.Throwable());
         return ec;
     }
@@ -226,7 +227,7 @@ public class ExceptionChecker extends ErrorHandlingVisitor
         }
         void uncaughtType(Type t, Position pos) throws SemanticException {
         	SemanticException e = new SemanticException(codeType + " cannot throw a \"" + t + "\"; the exception must either be caught or declared to be thrown.", pos);
-            Map<String, Object> map = new HashMap<String, Object>();
+            Map<String, Object> map = CollectionFactory.newHashMap();
             map.put(CodedErrorInfo.ERROR_CODE_KEY, 1001);
             map.put("TYPE", t.toString());
             e.setAttributes(map);

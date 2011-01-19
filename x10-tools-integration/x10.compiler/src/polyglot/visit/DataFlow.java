@@ -18,6 +18,7 @@ import polyglot.types.*;
 import polyglot.util.*;
 import polyglot.visit.FlowGraph.*;
 import x10.errors.Errors;
+import x10.util.CollectionFactory;
 
 /**
  * Abstract dataflow Visitor, to allow simple dataflow equations to be easily
@@ -494,7 +495,7 @@ public abstract class DataFlow extends ErrorHandlingVisitor
 // First, topologically sort the nodes (put in postorder)
 	int n = 0;
 	LinkedList<Frame> stack = new LinkedList<Frame>();
-	Set<Peer> reachable = new HashSet<Peer>();
+	Set<Peer> reachable = CollectionFactory.newHashSet();
 	for (Peer peer : start) {
 	  if (!reachable.contains(peer)) {
 	    reachable.add(peer);
@@ -521,12 +522,12 @@ public abstract class DataFlow extends ErrorHandlingVisitor
 // appending it to "by_scc".
 	Peer[] by_scc = new Peer[n];
 	int[] scc_head = new int[n];
-	Set<Peer> visited = new HashSet<Peer>();
+	Set<Peer> visited = CollectionFactory.newHashSet();
 	int head = 0;
 	for (int i=n-1; i>=0; i--) {
 	    if (!visited.contains(sorted[i])) {
 		// First, find all the nodes in the SCC
-		Set<Peer> SCC = new HashSet<Peer>();
+		Set<Peer> SCC = CollectionFactory.newHashSet();
 		visited.add(sorted[i]);
 		stack.add(new Frame(sorted[i], false));
 		while (stack.size() != 0) {
@@ -547,7 +548,7 @@ public abstract class DataFlow extends ErrorHandlingVisitor
 		// Now, topologically sort the SCC (as much as possible)
 		// and place into by_scc[head..head+scc_size-1]
 		stack.add(new Frame(sorted[i], true));
-		Set<Peer> revisited = new HashSet<Peer>();
+		Set<Peer> revisited = CollectionFactory.newHashSet();
 		revisited.add(sorted[i]);
 		int scc_size = SCC.size();
 		int nsorted = 0;
@@ -773,7 +774,7 @@ public abstract class DataFlow extends ErrorHandlingVisitor
         }
         
         // Check the nodes in approximately flow order.
-        Set<Peer> uncheckedPeers = new HashSet<Peer>(graph.peers());
+        Set<Peer> uncheckedPeers = CollectionFactory.newHashSet(graph.peers());
         LinkedList<Peer> peersToCheck = new LinkedList<Peer>(graph.startPeers());
         while (!peersToCheck.isEmpty()) {
             Peer p = (Peer) peersToCheck.removeFirst();
@@ -838,7 +839,7 @@ public abstract class DataFlow extends ErrorHandlingVisitor
      *           <code>Item i</code>.
      */
     public static final Map<EdgeKey, Item> itemToMap(Item i, Set<EdgeKey> edgeKeys) {
-        Map<EdgeKey, Item> m = new HashMap<EdgeKey, Item>();
+        Map<EdgeKey, Item> m = CollectionFactory.newHashMap();
         for (EdgeKey o : edgeKeys) {
             m.put(o, i);
         }
@@ -873,7 +874,7 @@ public abstract class DataFlow extends ErrorHandlingVisitor
     protected static final Map<EdgeKey, Item>
     itemsToMap(Item trueItem, Item falseItem, Item remainingItem, Set<EdgeKey> edgeKeys)
     {
-        Map<EdgeKey, Item> m = new HashMap<EdgeKey, Item>();
+        Map<EdgeKey, Item> m = CollectionFactory.newHashMap();
         
         for (EdgeKey k : edgeKeys) {
             if (FlowGraph.EDGE_KEY_TRUE.equals(k)) {
@@ -1096,7 +1097,7 @@ public abstract class DataFlow extends ErrorHandlingVisitor
         
         BoolItem results = navigator.navigate(booleanCond, startingItem);
         
-        Map<EdgeKey, Item> m = new HashMap<EdgeKey, Item>();
+        Map<EdgeKey, Item> m = CollectionFactory.newHashMap();
         m.put(FlowGraph.EDGE_KEY_TRUE, results.trueItem);
         m.put(FlowGraph.EDGE_KEY_FALSE, results.falseItem);
         

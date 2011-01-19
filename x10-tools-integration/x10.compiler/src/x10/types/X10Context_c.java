@@ -73,7 +73,7 @@ import polyglot.types.TypeSystem_c;
 import polyglot.types.Types;
 import polyglot.types.VarDef;
 import polyglot.types.VarInstance;
-import polyglot.util.CollectionUtil;
+import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import x10.constraint.XFailure;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
@@ -142,7 +142,7 @@ public class X10Context_c extends Context_c {
 	
 
 	public CConstraint constraintProjection(CConstraint... cs) throws XFailure {
-		 HashMap<XTerm, CConstraint> m = new HashMap<XTerm, CConstraint>();
+		 HashMap<XTerm, CConstraint> m = CollectionFactory.newHashMap();
 
 		 // add in the real clause of the type of any var mentioned in the constraint list cs
 		 CConstraint r = null;

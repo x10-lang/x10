@@ -15,7 +15,5 @@ import java.util.List;
 
 import polyglot.types.CodeDef;
 
-public interface X10CodeDef extends CodeDef, X10Def {
-    List<ParameterType> typeParameters();
-    void setTypeParameters(List<ParameterType> typeParameters);
+public interface X10CodeDef extends CodeDef {
 }

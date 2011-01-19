@@ -31,6 +31,7 @@ import polyglot.types.Name;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.util.Position;
+import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import polyglot.visit.NodeVisitor;
 import x10.ast.AnnotationNode;
 import polyglot.types.Context;
@@ -87,7 +88,7 @@ public class CodeBlockSynth extends AbstractStateSynth implements IStmtSynth{
         super(xnf, xct, pos);
         this.containerSynth = containerSynth;
         stmtSythns = new ArrayList<IStmtSynth>();
-        localVarMap = new HashMap<String, Local>(); 
+        localVarMap = CollectionFactory.newHashMap();
     }
     
     /**

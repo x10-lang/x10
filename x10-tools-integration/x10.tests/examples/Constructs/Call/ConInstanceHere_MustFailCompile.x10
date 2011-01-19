@@ -11,6 +11,8 @@
 
 import harness.x10Test;
 
+// OPTIONS: -STATIC_CALLS
+
 /**
  * Check that a cast is created for an instance call with a simple clause.
   Changed for 2.1. 
@@ -21,8 +23,7 @@ public class ConInstanceHere_MustFailCompile extends x10Test {
 	def m() {}
 	def n() {
 		at (here.next()) {
-		  // This call will compile only if -strictCalls is not set.
-		  root().m(); // ShouldNotBeERR: should be a dynamic check: Semantic Error: Method or static constructor not found for given call.	 Call: root()
+		  root().m(); // ERR: Semantic Error: Method or static constructor not found for given call.	 Call: root()
 		}
 	}
 	

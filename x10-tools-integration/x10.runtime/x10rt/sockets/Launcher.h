@@ -10,24 +10,17 @@
  *
  *  This file was written by Ben Herta for IBM: bherta@us.ibm.com
  */
+
+#ifdef __CYGWIN__
+#undef __STRICT_ANSI__ // Strict ANSI mode is too strict in Cygwin
+#endif
+
 #include <stdlib.h>
 #include <stdarg.h>
 #include <limits.h>
 #include <sys/select.h>
 #include <stdint.h>
 #include <time.h>
-
-/* ************************************************************************ */
-/*            some explicit declarations for strict ANSI mode               */
-/* ************************************************************************ */
-#ifdef __CYGWIN__
-extern "C" int vsnprintf(char *, size_t, const char *, va_list); 
-extern "C" char *realpath (const char *, char *);
-extern "C" int setenv (const char *, const char *, int);
-extern "C" int unsetenv (const char *);
-extern "C" int fileno (FILE *__stream);
-extern "C" int strcasecmp(const char *, const char *);
-#endif
 
 #ifndef __sock_launcher_h__
 #define __sock_launcher_h__

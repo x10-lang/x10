@@ -36,7 +36,7 @@ import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.util.CodeWriter;
-import polyglot.util.CollectionUtil;
+import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import polyglot.util.Position;
 import polyglot.visit.AscriptionVisitor;
 import polyglot.visit.ContextVisitor;
@@ -274,7 +274,7 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
 
 
 	public String shortToString() {
-		return "<X10LocalDecl_c #" + hashCode() 
+		return "<X10LocalDecl_c #" + hashCode()  // todo: using hashCode leads to non-determinism in the output of the compiler
 		// + " flags= |" + flags + "|"
 		+(type() == null ? "" : " <TypeNode #" + type().hashCode()+"type=" + type().type() + ">")
 		+ " name=|" + name().id() + "|"

@@ -19,7 +19,7 @@ import polyglot.visit.*;
  * An <code>Instanceof</code> is an immutable representation of
  * the use of the <code>instanceof</code> operator.
  */
-public class Instanceof_c extends Expr_c implements Instanceof
+public abstract class Instanceof_c extends Expr_c implements Instanceof
 {
     protected Expr expr;
     protected TypeNode compareType;
@@ -80,19 +80,7 @@ public class Instanceof_c extends Expr_c implements Instanceof
     }
 
     /** Type check the expression. */
-    public Node typeCheck(ContextVisitor tc) throws SemanticException {
-        TypeSystem ts = tc.typeSystem();
-
-        if (! compareType.type().isReference()) {
-	    throw new SemanticException("Type operand " + compareType.type() + " must be a reference type.",compareType.position());
-	}
-
-	if (! ts.isCastValid(expr.type(), compareType.type(), tc.context())) {
-	    throw new SemanticException("Expression operand type " + expr.type() + " incompatible with type operand " + compareType.type() + ".",expr.position());
-	}
-
-	return type(ts.Boolean());
-    }
+    public abstract Node typeCheck(ContextVisitor tc) throws SemanticException;
 
     public Type childExpectedType(Expr child, AscriptionVisitor av) {
         TypeSystem ts = av.typeSystem();

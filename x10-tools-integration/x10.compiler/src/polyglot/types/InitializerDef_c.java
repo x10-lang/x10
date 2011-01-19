@@ -13,7 +13,7 @@ import polyglot.util.Position;
  * A <code>InitializerInstance</code> contains the type information for a
  * static or anonymous initializer.
  */
-public class InitializerDef_c extends MemberDef_c implements InitializerDef
+public abstract class InitializerDef_c extends MemberDef_c implements InitializerDef
 {
     private static final long serialVersionUID = -9122365198981873737L;
 
