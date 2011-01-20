@@ -10,6 +10,11 @@
  *
  *  This file was written by Ben Herta for IBM: bherta@us.ibm.com
  */
+
+#ifdef __CYGWIN__
+#undef __STRICT_ANSI__ // Strict ANSI mode is too strict in Cygwin
+#endif
+
 #include "TCP.h"
 
 #include <stdio.h>
@@ -24,10 +29,6 @@
 #include <errno.h>
 #include <assert.h>
 #include <unistd.h>
-
-#ifdef __CYGWIN__
-extern "C" int snprintf(char *, size_t, const char *, ...);
-#endif
 
 /* ****************************************************************** */
 /* ****************************************************************** */

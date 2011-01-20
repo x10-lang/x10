@@ -16,9 +16,6 @@
 #include <x10/lang/String.h>
 
 #include <strings.h>
-#ifdef __CYGWIN__
-extern "C" int strcasecmp(const char *, const char *);
-#endif
 
 using namespace x10::lang;
 using namespace std;

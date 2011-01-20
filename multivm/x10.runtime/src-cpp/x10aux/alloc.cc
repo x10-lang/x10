@@ -34,11 +34,6 @@
 
 using namespace x10aux;
 
-#ifdef __CYGWIN__
-extern "C" int vsnprintf(char *, size_t, const char *, va_list); 
-extern "C" unsigned long long strtoull(const char *, char **, int);
-#endif
-
 void x10aux::reportOOM(size_t size) {
     _M_("Out of memory allocating " << size << " bytes");
 #ifndef NO_EXCEPTIONS
