@@ -59,8 +59,11 @@ ifndef DISABLE_X10RT_PGAS
 endif
 
 ifndef ENABLE_CROSS_COMPILE_BGP
-   include standalone/standalone.mk
-   include sockets/sockets.mk
+  include standalone/standalone.mk
+  include sockets/sockets.mk
+  ifdef JNI_INCLUDES
+    include jni/jni.mk
+  endif
 endif
 
 install: $(LIBS) $(PROPERTIES)
