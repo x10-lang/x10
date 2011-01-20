@@ -14,6 +14,7 @@ import java.util.*;
 import java.util.Map;
 import java.util.Set;
 import java.util.Collection;
+import java.lang.reflect.Array;
 
 public class CollectionFactory
 {
@@ -47,6 +48,20 @@ public class CollectionFactory
     public static boolean equals(Object o1, Object o2) {
         return o1 == o2 ||
                 (o1!=null && o2!=null && o1.equals(o2));
+    }
+
+
+    // copyOf is only in Arrays since java 6.
+    public static <T> T[] copyOf(T[] original, int newLength) {
+        return (T[]) copyOf(original, newLength, original.getClass());
+    }
+    public static <T,U> T[] copyOf(U[] original, int newLength, Class<? extends T[]> newType) {
+        T[] copy = ((Object)newType == (Object)Object[].class)
+            ? (T[]) new Object[newLength]
+            : (T[]) Array.newInstance(newType.getComponentType(), newLength);
+        System.arraycopy(original, 0, copy, 0,
+                         Math.min(original.length, newLength));
+        return copy;
     }
 }
 
@@ -477,7 +492,7 @@ final class SmallSet<K> extends AbstractSet<K> {
     @Override
     public Object[] toArray() {
         if (overflow==null) {
-            return Arrays.copyOf(elems,curIndex);
+            return CollectionFactory.copyOf(elems,curIndex);
         }
         return super.toArray(); // uses an iterator
     }
@@ -489,7 +504,7 @@ final class SmallSet<K> extends AbstractSet<K> {
                 System.arraycopy(elems,0,a,0,curIndex);
                 return a;
             }
-            return (T[])Arrays.copyOf(elems,curIndex,a.getClass());
+            return (T[])CollectionFactory.copyOf(elems,curIndex,a.getClass());
         }
         return super.toArray(a); 
     }
