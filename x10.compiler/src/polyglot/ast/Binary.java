@@ -7,6 +7,9 @@
 
 package polyglot.ast;
 
+import x10.ast.X10Binary;
+import x10.types.MethodInstance;
+
 /**
  * A <code>Binary</code> represents a Java binary expression, an
  * immutable pair of expressions combined with an operator.
@@ -123,4 +126,9 @@ public interface Binary extends Expr
      * Set the precedence of the expression.
      */
     Binary precedence(Precedence precedence);
+    
+    boolean invert();
+    X10Binary invert(boolean invert);
+    MethodInstance methodInstance();
+    X10Binary methodInstance(MethodInstance mi);
 }

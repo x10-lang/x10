@@ -20,22 +20,5 @@ import polyglot.types.Type;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
 
-public interface X10ProcedureDef extends X10CodeDef, ProcedureDef, X10MemberDef {
-    Ref<? extends Type> returnType();
-    void setReturnType(Ref<? extends Type> rt);
-
-    /** Set a flag indicating we should infer the return type. */
-    boolean inferReturnType();
-    void inferReturnType(boolean r);
-
-    Ref<CConstraint> guard();
-    void setGuard(Ref<CConstraint> s);
-    
-    Ref<TypeConstraint> typeGuard();
-    void setTypeGuard(Ref<TypeConstraint> s);
-
-    List<LocalDef> formalNames();
-    void setFormalNames(List<LocalDef> formalNames);
-    
-    Ref<? extends Type> offerType();
+public interface X10ProcedureDef extends ProcedureDef  {
 }

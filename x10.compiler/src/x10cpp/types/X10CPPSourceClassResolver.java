@@ -61,7 +61,13 @@ public class X10CPPSourceClassResolver extends X10SourceClassResolver {
         final File cc = X10CPPTranslator.outputFile(ext.getOptions(), packageName, name.name().toString(), StreamWrapper.CC);
         final File h = X10CPPTranslator.outputFile(ext.getOptions(), packageName, name.name().toString(), StreamWrapper.Header);
 
-        if (cc.exists() && h.exists()) {
+        // DISABLE again due to XTENLANG-2326.
+        // To re-enable, the proper fix is in handleUpToDateTarget we need to schedule a subset of the compilation
+        // phases so that we will do sufficient processing of the class to be able to walk it's class decls
+        // correctly identify output files and process @NativeCPP directives (if any).
+        // Until the typechecker isn't the bottleneck in compilation, skipping the compilation isn't worth the hassle
+        // because we're going to include the .cc file in the post compilation command anyways.
+        if (false && cc.exists() && h.exists()) {
             final File oldest = oldestFile(new File[] {cc,h});
             return new Resource() {
                 public File file() {

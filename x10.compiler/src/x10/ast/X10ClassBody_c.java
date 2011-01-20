@@ -37,7 +37,7 @@ import java.util.ListIterator;
 import java.util.List;
 
 import polyglot.util.CodeWriter;
-import polyglot.util.CollectionUtil;
+import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import polyglot.util.Position;
 import polyglot.ast.ClassBody;
 import polyglot.ast.ClassMember;
@@ -86,10 +86,10 @@ public class X10ClassBody_c extends ClassBody_c {
     public Node conformanceCheck(ContextVisitor tc) {
         duplicateTypeDefCheck(tc);
         checkMethodCompatibility(tc);
-        return conformanceCheckAux(tc);
+        return superConformanceCheck(tc);
     }
     
-    private Node conformanceCheckAux(ContextVisitor tc) {
+    private Node superConformanceCheck(ContextVisitor tc) {
         duplicateFieldCheck(tc);
         duplicateConstructorCheck(tc);
         duplicateMethodCheck(tc);

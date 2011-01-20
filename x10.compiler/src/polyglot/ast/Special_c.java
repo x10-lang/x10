@@ -21,7 +21,7 @@ import polyglot.visit.*;
  * reference can be optionally qualified with a type such as 
  * <code>Foo.this</code>.
  */
-public class Special_c extends Expr_c implements Special
+public abstract class Special_c extends Expr_c implements Special
 {
     protected Special.Kind kind;
     protected TypeNode qualifier;
@@ -80,43 +80,7 @@ public class Special_c extends Expr_c implements Special
     }
 
     /** Type check the expression. */
-    public Node typeCheck(ContextVisitor tc) throws SemanticException {
-        TypeSystem ts = tc.typeSystem();
-        Context c = tc.context();
-
-        ClassType t = null;
-        
-        if (qualifier == null) {
-            // an unqualified "this" or "super"
-            t = c.currentClass();
-        }
-        else {
-            if (qualifier.type().isClass()) {
-                t = qualifier.type().toClass();
-                
-                if (!c.currentClass().hasEnclosingInstance(t)) {
-                    throw new SemanticException("The nested class \"" + c.currentClass() + "\" does not have an enclosing instance of type \"" +t + "\".", qualifier.position());
-                }
-            }
-            else {
-                throw new SemanticException("Invalid qualifier for \"this\" or \"super\".", qualifier.position());
-            }
-        }
-        
-        if (t == null || (c.inStaticContext() && ts.typeEquals(t, c.currentClass(), c))) {
-            // trying to access "this" or "super" from a static context.
-            throw new SemanticException("Cannot access a non-static member or refer to \"this\" or \"super\" from a static context.", this.position());
-        }
-        
-        if (kind == THIS) {
-            return type(t);
-        }
-        else if (kind == SUPER) {
-            return type(t.superClass());
-        }
-        
-        return this;
-    }
+    public abstract Node typeCheck(ContextVisitor tc) throws SemanticException;
 
     public Term firstChild() {
         if (qualifier != null) {

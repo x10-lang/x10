@@ -258,7 +258,7 @@ static ref<x10::array::Array<ref<String> > > split_all_chars(String* str) {
     size_t sz = (size_t)str->length();
     ref<x10::array::Array<ref<String> > > array = x10::array::Array<ref<String> >::_make(sz);
     for (size_t i = 0; i < sz; ++i) {
-        array->set(str->substring(i, i+1), i);
+        array->__set(str->substring(i, i+1), i);
     }
     return array;
 }
@@ -278,10 +278,10 @@ ref<x10::array::Array<ref<String> > > String::split(ref<String> pat) {
     int c = 0;
     int o = 0; // now fill in the array
     while ((i = indexOf(pat, o)) != -1) {
-        array->set(substring(o, i), c++);
+        array->__set(substring(o, i), c++);
         o = i+l;
     }
-    array->set(substring(o), c++);
+    array->__set(substring(o), c++);
     assert (c == sz);
     return array;
 }
@@ -296,7 +296,7 @@ ref<x10::array::Array<x10_char> > String::chars() {
     x10_int sz = length();
     ref<x10::array::Array<x10_char> > array = x10::array::Array<x10_char>::_make(sz);
     for (int i = 0; i < sz; ++i)
-        array->set((x10_char) FMGL(content)[i], i);
+        array->__set((x10_char) FMGL(content)[i], i);
     return array;
 }
 
@@ -304,7 +304,7 @@ ref<x10::array::Array<x10_byte> > String::bytes() {
     x10_int sz = length();
     ref<x10::array::Array<x10_byte> > array = x10::array::Array<x10_byte>::_make(sz);
     for (int i = 0; i < sz; ++i)
-        array->set(FMGL(content)[i], i); 
+        array->__set(FMGL(content)[i], i); 
     return array;
 }
 
@@ -502,8 +502,8 @@ void String::_deserialize_body(x10aux::deserialization_buffer &buf) {
     _S_("Deserialized string was: \""<<this<<"\"");
 }
 
-Fun_0_1<x10_int, x10_char>::itable<String> String::_itable_Fun_0_1(&String::__apply, 
-                                                                   &String::equals, &String::hashCode,
+Fun_0_1<x10_int, x10_char>::itable<String> String::_itable_Fun_0_1(&String::equals, &String::hashCode,
+                                                                   &String::__apply,                                                                    
                                                                    &String::toString, &String::typeName);
 Comparable<ref<String> >::itable<String> String::_itable_Comparable(&String::compareTo,
                                                                    &String::equals, &String::hashCode,

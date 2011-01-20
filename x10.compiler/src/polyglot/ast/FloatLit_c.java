@@ -17,7 +17,7 @@ import polyglot.visit.PrettyPrinter;
  * A <code>FloatLit</code> represents a literal in java of type
  * <code>float</code> or <code>double</code>.
  */
-public class FloatLit_c extends Lit_c implements FloatLit
+public abstract class FloatLit_c extends Lit_c implements FloatLit
 {
     protected FloatLit.Kind kind;
     protected double value;
@@ -54,18 +54,7 @@ public class FloatLit_c extends Lit_c implements FloatLit
     }
 
     /** Type check the expression. */
-    public Node typeCheck(ContextVisitor tc) throws SemanticException {
-	if (kind == FLOAT) {
-	    return type(tc.typeSystem().Float());
-	}
-	else if (kind == DOUBLE) {
-	    return type(tc.typeSystem().Double());
-	}
-	else {
-	    throw new InternalCompilerError("Unrecognized FloatLit kind " +
-		kind);
-	}
-    }  
+    public abstract Node typeCheck(ContextVisitor tc) throws SemanticException;
 
     public String toString() {
 	return Double.toString(value);

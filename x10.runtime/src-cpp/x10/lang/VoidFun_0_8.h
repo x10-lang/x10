@@ -38,15 +38,15 @@ namespace x10 {
             static void _initRTT();
 
             template <class I> struct itable {
-                itable(void(I::*__apply)(P1,P2,P3,P4,P5,P6,P7,P8),
-                       x10_boolean (I::*equals)(x10aux::ref<x10::lang::Any>),
+                itable(x10_boolean (I::*equals)(x10aux::ref<x10::lang::Any>),
                        x10_int (I::*hashCode)(),
+                       void(I::*__apply)(P1,P2,P3,P4,P5,P6,P7,P8),
                        x10aux::ref<x10::lang::String> (I::*toString)(),
                        x10aux::ref<x10::lang::String> (I::*typeName)()
-                    ) : __apply(__apply), equals(equals), hashCode(hashCode), toString(toString), typeName(typeName) {}
-                void (I::*__apply)(P1,P2,P3,P4,P5,P6,P7,P8);
+                    ) : equals(equals), hashCode(hashCode), __apply(__apply), toString(toString), typeName(typeName) {}
                 x10_boolean (I::*equals)(x10aux::ref<x10::lang::Any>);
                 x10_int (I::*hashCode)();
+                void (I::*__apply)(P1,P2,P3,P4,P5,P6,P7,P8);
                 x10aux::ref<x10::lang::String> (I::*toString)();
                 x10aux::ref<x10::lang::String> (I::*typeName)();
             };

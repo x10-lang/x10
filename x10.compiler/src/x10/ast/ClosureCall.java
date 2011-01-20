@@ -22,7 +22,7 @@ import x10.types.MethodInstance;
 public interface ClosureCall extends Expr, X10ProcedureCall {
 
     /** The name of the method to use for closure invocations */
-    public static final Name APPLY = Name.make("apply");
+    public static final Name APPLY = Name.make("operator()");
 
     /**
      * @return the target of this closure invocation, which should be an expression

@@ -48,6 +48,7 @@ import polyglot.types.Types;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Pair;
 import polyglot.util.Position;
+import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.ast.Closure;
@@ -76,7 +77,7 @@ public class RailInLoopOptimizer extends ContextVisitor {
     private final X10CTypeSystem_c xts;
     private final X10CNodeFactory_c xnf;
 
-    private final Map<Name,X10LocalDef> localdefs = new HashMap<Name,X10LocalDef>();
+    private final Map<Name,X10LocalDef> localdefs = CollectionFactory.newHashMap();
 
     private Type imc;
 
@@ -153,7 +154,7 @@ public class RailInLoopOptimizer extends ContextVisitor {
 
             // targets to privatize
             final List<Pair<BackingArray, Boolean>> targetAndIsFinals = new ArrayList<Pair<BackingArray, Boolean>>();
-            final Map<BackingArray, Id> backingArrayToId = new HashMap<BackingArray, Id>();
+            final Map<BackingArray, Id> backingArrayToId = CollectionFactory.newHashMap();
 
             // to merge privatization statement
             Stmt visited1 = (Stmt) loop.body().visit(new NodeVisitor() {

@@ -12,7 +12,7 @@ import java.util.*;
 import polyglot.ast.Node;
 import polyglot.ast.Term;
 import polyglot.types.Type;
-import polyglot.util.CollectionUtil;
+import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import polyglot.util.IdentityKey;
 
 public class FlowGraph {
@@ -51,7 +51,7 @@ public class FlowGraph {
     public FlowGraph(Term root, boolean forward) {
         this.root = root;
         this.forward = forward;
-        this.peerMap = new HashMap<IdentityKey, Map<PeerKey, Peer>>();
+        this.peerMap = CollectionFactory.newHashMap();
     }
 
     public Term root() {
@@ -149,7 +149,7 @@ public class FlowGraph {
         Map<PeerKey, Peer> pathMap = peerMap.get(k);
         
         if (pathMap == null) {
-            pathMap = new HashMap<PeerKey, Peer>();
+            pathMap = CollectionFactory.newHashMap();
             peerMap.put(k, pathMap);
         }
 
@@ -345,7 +345,7 @@ public class FlowGraph {
         if (this.succEdgeKeys == null) {
             // the successor edge keys have not yet been calculated. do it
             // now.
-            this.succEdgeKeys = new HashSet<EdgeKey>();
+            this.succEdgeKeys = CollectionFactory.newHashSet();
             for (Edge e : this.succs) {
                 this.succEdgeKeys.add(e.getKey());
             }
@@ -363,7 +363,7 @@ public class FlowGraph {
     /**
      * Class to be used for inserting Lists in hashtables using collection
      * equality (as defined in
-     * {@link polyglot.util.CollectionUtil CollectionUtil}).
+     * {@link x10.util.CollectionUtil CollectionUtil}).
      */
     protected static class PeerKey {
 
@@ -393,7 +393,7 @@ public class FlowGraph {
   public String toString() {
     
     StringBuffer sb = new StringBuffer();
-    Set<Peer> todo = new HashSet<Peer>(this.peers());
+    Set<Peer> todo = CollectionFactory.newHashSet(this.peers());
     LinkedList<Peer> queue = new LinkedList<Peer>(startPeers());
     
     while (!queue.isEmpty()) {

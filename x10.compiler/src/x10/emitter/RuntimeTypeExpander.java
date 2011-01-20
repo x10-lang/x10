@@ -49,7 +49,8 @@ final public class RuntimeTypeExpander extends Expander {
     }
 
     public String toString() {
-    	return "RuntimeTypeExpander{#" + hashCode() + ", " + at.toString() + "}";
+    	return "RuntimeTypeExpander{#" + hashCode() + // todo: using hashCode leads to non-determinism in the output of the compiler
+                ", " + at.toString() + "}";
     }
     public void expand(Translator tr) {
         String s = typeof(at);

@@ -1,5 +1,4 @@
-# TODO XTENLANG-2312
-MAIN_CLASS='Main'
+MAIN_CLASS='$Main'
 
 help=""
 time=""

@@ -40,7 +40,7 @@ import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.types.UpcastTransform;
-import polyglot.util.CollectionUtil;
+import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.Transformation;
@@ -177,33 +177,7 @@ public class MethodInstance_c extends FunctionInstance_c<MethodDef> implements M
   
    
 
-    /** Constraint on formal parameters. */
-    protected CConstraint guard;
-    public CConstraint guard() {
-        if (guard == null)
-            return Types.get(x10Def().guard());
-        return guard;
-    }
-    public MethodInstance guard(CConstraint s) {
-        if (s == this.guard) return this;
-        MethodInstance_c n = (MethodInstance_c) copy();
-        n.guard = s; 
-        return n;
-    }
-
-    /** Constraint on type parameters. */
-    protected TypeConstraint typeGuard;
-    public TypeConstraint typeGuard() {
-        if (typeGuard == null)
-            return Types.get(x10Def().typeGuard());
-        return typeGuard;
-    }
-    public MethodInstance typeGuard(TypeConstraint s) {
-        if (s == this.typeGuard) return this;
-        MethodInstance_c n = (MethodInstance_c) copy();
-        n.typeGuard = s; 
-        return n;
-    }
+    
 
     public List<Type> typeParameters;
 

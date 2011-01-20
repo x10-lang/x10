@@ -54,6 +54,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.Map;
 
 import polyglot.ast.AmbReceiver;
 import polyglot.ast.ArrayAccess_c;
@@ -139,7 +140,7 @@ import polyglot.types.Types;
 import polyglot.types.VarDef;
 import polyglot.types.VarInstance;
 import polyglot.util.CodeWriter;
-import polyglot.util.CollectionUtil;
+import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import polyglot.util.ErrorInfo;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
@@ -167,6 +168,7 @@ import x10.ast.Next_c;
 import x10.ast.ParExpr_c;
 import x10.ast.PropertyDecl;
 import x10.ast.PropertyDecl_c;
+import x10.ast.SettableAssign;
 import x10.ast.SettableAssign_c;
 import x10.ast.StmtExpr_c;
 import x10.ast.StmtSeq_c;
@@ -732,7 +734,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		    }
 
 		    ArrayList<ClassType> types = new ArrayList<ClassType>();
-		    Set<ClassType> dupes = new HashSet<ClassType>();
+		    Set<ClassType> dupes = CollectionFactory.newHashSet();
 		    dupes.add(ct);
 		    extractAllClassTypes(ct, types, dupes);
 		    for (ClassType t : types) {
@@ -755,7 +757,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		        allIncludes.add(ct);
 		    }
 		    ArrayList<ClassType> types = new ArrayList<ClassType>();
-		    Set<ClassType> dupes = new HashSet<ClassType>();
+		    Set<ClassType> dupes = CollectionFactory.newHashSet();
 		    dupes.add(ct);
 		    extractAllClassTypes(ct, types, dupes);
 		    for (ClassType t : types) {
@@ -770,8 +772,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		// If any instance fields are struct types, then include the .struct_h
 		List<FieldInstance> fields = def.asType().fields();
 		if (!fields.isEmpty()) {
-		    HashSet<Type> dupes = new HashSet<Type>();
-            Set<ClassType> dupes2 = new HashSet<ClassType>();
+		    Set<Type> dupes = CollectionFactory.newHashSet();
+            Set<ClassType> dupes2 = CollectionFactory.newHashSet();
 		    ClassifiedStream fh = isStruct ? sh : h;
 		    for (FieldInstance fi : fields) {
 		        if (!fi.flags().isStatic()) {
@@ -1008,7 +1010,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		X10SearchVisitor<Node> xTypes = new X10SearchVisitor<Node>(X10CanonicalTypeNode_c.class, Closure_c.class, Tuple_c.class);
 		n.visit(xTypes);
 		ArrayList<ClassType> types = new ArrayList<ClassType>();
-		Set<ClassType> dupes = new HashSet<ClassType>();
+		Set<ClassType> dupes = CollectionFactory.newHashSet();
 		dupes.add(def.asType());
 		if (xTypes.found()) {
 		    ArrayList<Node> typeNodesAndClosures = xTypes.getMatches();
@@ -1093,7 +1095,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
     }
 
 
-    private Type replaceType(Type type, HashMap<Type, Type> typeMap) {
+    private Type replaceType(Type type, Map<Type, Type> typeMap) {
         Type mapped = typeMap.get(type);
         if (mapped != null)
             return mapped;
@@ -1116,7 +1118,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
     private ArrayList<Name> getMethodNames(List<ClassMember> members) {
         ArrayList<Name> mnames = new ArrayList<Name>();
-        Set<Name> dupes = new HashSet<Name>();
+        Set<Name> dupes = CollectionFactory.newHashSet();
         for (ClassMember member : members) {
             if (!(member instanceof X10MethodDecl)) continue;
             X10MethodDecl mdcl = (X10MethodDecl) member;
@@ -1565,7 +1567,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				h.write("public: ");
 				List<Type> typeParameters = dropzone.typeParameters();
 				List<Type> newTypeParameters = new ArrayList<Type>();
-				HashMap<Type, Type> typeMap = new HashMap<Type, Type>();
+				Map<Type, Type> typeMap = CollectionFactory.newHashMap();
 				for (Type t : typeParameters) {
 					assert (t instanceof ParameterType);
 					Type dummy = new ParameterType(xts, t.position(), Name.makeFresh("T"), null);
@@ -3535,7 +3537,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         if (ext.initVals != null) {
             Set<LocalDef> asyncInits = context.findData(SharedVarsMethods.ASYNC_INIT_VALS_KEY);
             if (asyncInits == null) {
-                asyncInits = new HashSet<LocalDef>(ext.initVals);
+                asyncInits = CollectionFactory.newHashSet(ext.initVals);
                 context.addData(SharedVarsMethods.ASYNC_INIT_VALS_KEY, asyncInits);
             } else {
                 asyncInits.addAll(ext.initVals);
@@ -4146,9 +4148,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         // (an overridden member function will not be called from the itable, which is very non-intuitive).
         // As soon as XTENLANG-467 is fixed, take out the explicit qualifications and let C++ member lookup do its job...
         defn_s.write((in_template_closure ? "typename ": "")+superType+(in_template_closure ? "::template itable ": "::itable")+chevrons(cnamet)+
-        			cnamet+"::_itable(&"+cnamet+"::"+Emitter.mangled_method_name(ClosureCall.APPLY.toString())+", "+
-        			"&"+REFERENCE_TYPE+"::equals, &"+CLOSURE_TYPE+"::hashCode, &"
-        			+cnamet+"::toString, &"+CLOSURE_TYPE+"::typeName);");
+        			cnamet+"::_itable(&"+REFERENCE_TYPE+"::equals, &"+CLOSURE_TYPE+"::hashCode, &"+
+        			cnamet+"::"+Emitter.mangled_method_name(ClosureCall.APPLY.toString())+", &"+
+        			cnamet+"::toString, &"+CLOSURE_TYPE+"::typeName);");
 
         if (in_template_closure)
             emitter.printTemplateSignature(freeTypeParams, defn_s);
@@ -4870,7 +4872,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		sw.writeln("::_make("+c.arguments().size()+"));");
 		int count = 0;
 		for (Expr e : c.arguments()) {
-		    sw.write(tmp+"->set(");
+		    sw.write(tmp+"->"+Emitter.mangled_method_name(SettableAssign.SET.toString())+"(");
 		    boolean rhsNeedsCast = !xts.typeDeepBaseEquals(T, e.type(), context);
 		    if (rhsNeedsCast) {
 		        // Cast is needed to ensure conversion/autoboxing.

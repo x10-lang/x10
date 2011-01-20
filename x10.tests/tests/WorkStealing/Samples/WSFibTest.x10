@@ -9,16 +9,16 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-package WorkStealing.Samples;
+// package WorkStealing.Samples; - can't use Fib because it doesn't have a package!
 
-public class IntegrateTest {
+public class WSFibTest {
     public def run():boolean {
-        val res = Integrate.computeArea(0, 64);
-        return (res > 4196352.000 && res < 4196352.001);
+        val res = Fib.fib(20);
+        return (res == 10946);
     }
 
     public static def main(args:Array[String](1)) {
-        val r = new IntegrateTest().run();
+        val r = new WSFibTest().run();
         if(r){
              x10.io.Console.OUT.println("++++++Test succeeded.");
         }

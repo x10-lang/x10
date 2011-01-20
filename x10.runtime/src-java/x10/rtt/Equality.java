@@ -137,6 +137,9 @@ public class Equality {
         // Ref equality is pointer equality.
         // This also handles "null == null" and serves as a short cut for other types.
         if (a == b) return true;
+        
+        // Struct equality is value equality that implys non-null.
+        if (a == null || b == null) return false;
 
         // For boxed String object
         if (a instanceof x10.core.String) a = ((x10.core.String) a).$str;
@@ -144,9 +147,6 @@ public class Equality {
         if (a == b) return true;
 
         if (a instanceof RefI || b instanceof RefI) return false;
-
-        // Struct equality is value equality that implys non-null.
-        if (a == null || b == null) return false;
         
         // equality of structs are follows
         if (a instanceof Boolean && b instanceof Boolean)

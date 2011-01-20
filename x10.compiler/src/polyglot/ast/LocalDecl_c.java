@@ -22,7 +22,7 @@ import polyglot.visit.*;
  * A <code>LocalDecl</code> is an immutable representation of the declaration
  * of a local variable.
  */
-public class LocalDecl_c extends Stmt_c implements LocalDecl {
+public abstract class LocalDecl_c extends Stmt_c implements LocalDecl {
     protected FlagsNode flags;
     protected TypeNode type;
     protected Id name;
@@ -197,31 +197,7 @@ public class LocalDecl_c extends Stmt_c implements LocalDecl {
     }
 
     /** Type check the declaration. */
-    public Node typeCheck(ContextVisitor tc) throws SemanticException {
-        TypeSystem ts = tc.typeSystem();
-
-        try {
-            ts.checkLocalFlags(flags.flags());
-        }
-        catch (SemanticException e) {
-            throw new SemanticException(e.getMessage(), position());
-        }
-
-        if (init != null) {
-            if (init instanceof ArrayInit) {
-                ((ArrayInit) init).typeCheckElements(tc, type.type());
-            }
-            else {
-                if (! ts.isImplicitCastValid(init.type(), type.type(), tc.context()) &&
-                    ! ts.typeEquals(init.type(), type.type(), tc.context()) &&
-                    ! ts.numericConversionValid(type.type(), init.constantValue(), tc.context())) {
-                    throw new SemanticException("The type of the variable initializer \"" + init.type() + "\" does not match that of the declaration \"" + type.type() + "\".", init.position());
-                }
-            }
-        }
-
-        return this;
-    }
+    public abstract Node typeCheck(ContextVisitor tc) throws SemanticException;
 
     public Node checkConstants(ContextVisitor tc) throws SemanticException {
         if (init == null || ! init.isConstant() || ! li.flags().isFinal()) {
@@ -234,52 +210,11 @@ public class LocalDecl_c extends Stmt_c implements LocalDecl {
         return this;
     }
 
-    public Type childExpectedType(Expr child, AscriptionVisitor av) {
-        if (child == init) {
-            TypeSystem ts = av.typeSystem();
+    public abstract Type childExpectedType(Expr child, AscriptionVisitor av);
 
-            // If the RHS is an integral constant, we can relax the expected
-            // type to the type of the constant.
-            if (ts.numericConversionValid(type.type(), child.constantValue(), av.context())) {
-                return child.type();
-            }
-            else {
-                return type.type();
-            }
-        }
+    public abstract String toString();
 
-        return child.type();
-    }
-
-    public String toString() {
-        return flags.flags().translate() + type + " " + name +
-                (init != null ? " = " + init : "") + ";";
-    }
-
-    public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
-        boolean printSemi = tr.appendSemicolon(true);
-        boolean printType = tr.printType(true);
-
-        print(flags, w, tr);
-        if (printType) {
-            print(type, w, tr);
-            w.write(" ");
-        }
-        tr.print(this, name, w);
-
-        if (init != null) {
-            w.write(" =");
-            w.allowBreak(2, " ");
-            print(init, w, tr);
-        }
-
-        if (printSemi) {
-            w.write(";");
-        }
-
-        tr.printType(printType);
-        tr.appendSemicolon(printSemi);
-    }
+    public abstract void prettyPrint(CodeWriter w, PrettyPrinter tr);
 
     public void dump(CodeWriter w) {
         super.dump(w);

@@ -22,7 +22,7 @@ import polyglot.visit.*;
  * The class of the <code>Expr</code> returned by
  * <code>FieldAssign_c.left()</code>is guaranteed to be a <code>Field</code>.
  */
-public class FieldAssign_c extends Assign_c implements FieldAssign
+public abstract class FieldAssign_c extends Assign_c implements FieldAssign
 {
     boolean targetImplicit;
     Receiver target;

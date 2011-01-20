@@ -84,7 +84,7 @@ namespace x10 {
 
             GPUSAFE x10::util::IndexedMemoryChunk<T> indexedMemoryChunk();
 
-            GPUSAFE T set(T v, x10_int index) { 
+            GPUSAFE T __set(T v, x10_int index) { 
                 return (*this)[index] = v; 
             } 
 
@@ -181,7 +181,7 @@ namespace x10 {
 
         template <class T> typename Settable<x10_int, T>::template itable<Rail<T> > Rail<T>::_itable_settable(&Rail<T>::equals,
                                                                                                               &Rail<T>::hashCode,
-                                                                                                              &Rail<T>::set,
+                                                                                                              &Rail<T>::__set,
                                                                                                               &Rail<T>::toString,
                                                                                                               &Rail<T>::typeName);
         

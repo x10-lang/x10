@@ -18,7 +18,7 @@ import java.util.List;
 import polyglot.ast.*;
 import polyglot.ast.Assign.Operator;
 import polyglot.types.*;
-import polyglot.util.CollectionUtil;
+import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
 import x10.ExtensionInfo;
@@ -77,7 +77,7 @@ public class X10NodeFactory_c extends NodeFactory_c {
 	}
 
 	public AmbExpr AmbExpr(Position pos, Id name) {
-	    AmbExpr n = new X10AmbExpr_c(pos, name);
+	    AmbExpr n = new AmbExpr_c(pos, name);
 	    n = (AmbExpr)n.ext(extFactory().extAmbExpr());
 	    n = (AmbExpr)n.del(delFactory().delAmbExpr());
 	    return n;
@@ -662,7 +662,7 @@ public class X10NodeFactory_c extends NodeFactory_c {
 		return n;
 	}
 	public CharLit CharLit(Position pos, char value) {
-		CharLit n = new CharLit_c(pos, value);
+		CharLit n = new X10CharLit_c(pos, value);
 		n = (CharLit)n.ext(extFactory().extCharLit());
 		n = (CharLit)n.del(delFactory().delCharLit());
 		return n;

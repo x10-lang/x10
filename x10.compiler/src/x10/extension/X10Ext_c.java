@@ -25,6 +25,7 @@ import polyglot.ast.Ext_c;
 import x10.ast.AnnotationNode;
 import x10.types.X10ClassType;
 import polyglot.types.LocalDef;
+import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 
 public class X10Ext_c extends Ext_c implements X10Ext {
     /*
@@ -125,7 +126,7 @@ public class X10Ext_c extends Ext_c implements X10Ext {
 
     public Node asyncInitVal(Set<LocalDef> initVars) {
         X10Ext_c c = (X10Ext_c) copy();
-        c.initVals = (initVars == null) ? null : new HashSet<LocalDef>(initVars);
+        c.initVals = (initVars == null) ? null : CollectionFactory.newHashSet(initVars);
         return this.node().ext(c);
     }
 }

@@ -70,7 +70,7 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct {
         return type.getArray(value, i);
     }
 
-    public void set(T v, int i) {
+    public void $set(T v, int i) {
         type.setArray(value, i, v);
     }
 

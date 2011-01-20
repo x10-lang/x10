@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.Map;
 
 import polyglot.ast.Assign;
 import polyglot.ast.Binary;
@@ -59,6 +60,7 @@ import polyglot.types.Type;
 import polyglot.types.Types;
 import polyglot.util.Pair;
 import polyglot.util.Position;
+import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import polyglot.visit.NodeVisitor;
 import x10.ast.AnnotationNode;
 import x10.ast.Async;
@@ -134,7 +136,7 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
 
     final protected Block codeBlock; // store all code block
 
-    final protected HashSet<Name> fieldNames; //store names of all fields in current frame
+    final protected Set<Name> fieldNames; //store names of all fields in current frame
     final protected String className; //used for child to query, and form child's name
     final protected ClassSynth classSynth; //stateful synthesizer for class gen
     final protected int frameDepth; //the depth to parent;
@@ -167,7 +169,7 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
         classSynth.setFlags(flags);
         classSynth.setOuter(outer);
         
-        fieldNames = new HashSet<Name>(); //used to store all other fields' names
+        fieldNames = CollectionFactory.newHashSet(); //used to store all other fields' names
         
         this.frameDepth = frameDepth;
         
@@ -1087,7 +1089,7 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
      * @return
      */
     protected Term replaceLocalVarRefWithFieldAccess(Term s){
-        return replaceLocalVarRefWithFieldAccess(s, new HashSet<Name>());
+        return replaceLocalVarRefWithFieldAccess(s, CollectionFactory.<Name>newHashSet());
     }
     
     /**
@@ -1242,16 +1244,16 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
     //Map relationship
     // (1..n)field --> (1)frame --> (1)frameRef
     // (1)frameRef will has only one local decl
-    protected HashMap<Name, AbstractWSClassGen> localToFieldFrameMap;
-    protected HashMap<AbstractWSClassGen, Expr> fieldFrameToRefMap;
-    protected HashMap<Expr, Stmt> refToDeclMap ;
+    protected Map<Name, AbstractWSClassGen> localToFieldFrameMap;
+    protected Map<AbstractWSClassGen, Expr> fieldFrameToRefMap;
+    protected Map<Expr, Stmt> refToDeclMap ;
     
         
     /**
      * Return the whole local expr to local decl map
      * @return
      */
-    public HashMap<Expr, Stmt> getRefToDeclMap(){
+    public Map<Expr, Stmt> getRefToDeclMap(){
         return refToDeclMap;
     }
 
@@ -1411,9 +1413,9 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
      */
     public Expr getFieldContainerRef(Name fieldName, Type type) throws SemanticException{
         if(localToFieldFrameMap == null){ //first time initialize
-            localToFieldFrameMap = new HashMap<Name, AbstractWSClassGen>();
-            fieldFrameToRefMap = new HashMap<AbstractWSClassGen, Expr>();
-            refToDeclMap = new HashMap<Expr, Stmt>();
+            localToFieldFrameMap = CollectionFactory.newHashMap();
+            fieldFrameToRefMap = CollectionFactory.newHashMap();
+            refToDeclMap = CollectionFactory.newHashMap();
         }
         AbstractWSClassGen frame = localToFieldFrameMap.get(fieldName);     //use cache    
         if(frame != null){

@@ -135,7 +135,7 @@ public final class Rail<T> extends Ref implements AnyRail<T>, x10.lang.Settable<
         return type.getArray(value, i);
     }
     
-    protected T set$(T v, Integer i) {
+    protected T $set$(T v, Integer i) {
     	return type.setArray(value, i, v);
     }
     
@@ -161,11 +161,11 @@ public final class Rail<T> extends Ref implements AnyRail<T>, x10.lang.Settable<
         return sb.toString();
     }
 
-    public T set(T v, Type t1, Integer i, Type t2) {
-        return set$G(v, (int)i);
+    public T $set(T v, Type t1, Integer i, Type t2) {
+        return $set$G(v, (int)i);
     }
 
-    public T set$G(T v, int i) {
+    public T $set$G(T v, int i) {
         return type.setArray(value, i, v);
     }
 
@@ -175,7 +175,7 @@ public final class Rail<T> extends Ref implements AnyRail<T>, x10.lang.Settable<
 
     public void reset(Fun_0_1<Integer,T> v) {
         for (int i=0; i<length; i++) {
-            set$G(v.$apply(i, Types.INT), i);
+            $set$G(v.$apply(i, Types.INT), i);
         }
     }
 

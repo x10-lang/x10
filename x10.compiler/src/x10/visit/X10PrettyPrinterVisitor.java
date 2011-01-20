@@ -102,6 +102,7 @@ import polyglot.util.ErrorInfo;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.StringUtil;
+import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.InnerClassRemover;
 import polyglot.visit.NodeVisitor;
@@ -213,8 +214,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	public static final int NO_QUALIFIER = 8;
 
 	public static final String RETURN_PARAMETER_TYPE_SUFFIX = "$G";
-	// TODO XTENLANG-2312
-    public static final String MAIN_CLASS = "Main";
+    public static final String MAIN_CLASS = "$Main";
 
 	final public CodeWriter w;
 	final public Translator tr;
@@ -2441,9 +2441,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                         X10ClassDef def = ct.x10Def();
                         
                         // XTENLANG-1102
-                        Set<ClassDef> visited = new HashSet<ClassDef>();
+                        Set<ClassDef> visited = CollectionFactory.newHashSet();
                         
-                        visited = new HashSet<ClassDef>();
+                        visited = CollectionFactory.newHashSet();
                         visited.add(def);
                         if (!def.flags().isInterface()) {
                                 List<Type> types = new ArrayList<Type>();

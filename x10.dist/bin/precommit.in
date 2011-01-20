@@ -37,7 +37,7 @@ echo "Compiling PreCommit.x10 with x10c++"
 
 cd "$ROOT/x10.tests/examples/Misc"
 
-nice "$ROOT/x10.dist/bin/x10c++" -O \
+nice "$ROOT/x10.dist/bin/x10c++" -O -DEBUG \
  -sourcepath "$ROOT/x10.dist/samples/tutorial" \
  -sourcepath "$ROOT/x10.tests/examples/x10lib" \
 -d "$TMP_DIR" -o "$TMP_DIR/PreCommit" PreCommit.x10 || testFailed

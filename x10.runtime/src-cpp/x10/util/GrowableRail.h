@@ -63,7 +63,7 @@ namespace x10 {
 
             // No specialized serialization methods - not optimizing this final class
 
-            T set(T v, x10_int i);
+            T __set(T v, x10_int i);
 
             void add(T v);
             void insert(x10_int loc, x10aux::ref<x10::lang::Rail<T> > items);
@@ -118,7 +118,7 @@ namespace x10 {
 
         template<class T> inline x10_int GrowableRail<T>::length() { return _len; }
 
-        template<class T> inline T GrowableRail<T>::set(T v, x10_int i) {
+        template<class T> inline T GrowableRail<T>::__set(T v, x10_int i) {
             grow(i+1);
             return (*_array)[i] = v;
         }
@@ -181,7 +181,7 @@ namespace x10 {
         template<class T> x10aux::ref<x10::array::Array<T> > GrowableRail<T>::toArray() {
             x10aux::ref<x10::array::Array<T> > ans = x10::array::Array<T>::_make(_len);
             for (int i=0; i<_len; i++) {
-                ans->set((*_array)[i], i);
+                ans->__set((*_array)[i], i);
             }
             return ans;
         }
@@ -270,7 +270,7 @@ namespace x10 {
             x10_int railLen = buf.read<x10_int>();
             this->_array = x10::lang::Rail<void>::make<T>(railLen);
             for (int i=0; i<_len; i++) {
-                _array->set(buf.read<T>(), i);
+                _array->__set(buf.read<T>(), i);
             }
         }
 

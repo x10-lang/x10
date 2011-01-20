@@ -9,9 +9,9 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-package WorkStealing.Samples;
+// package WorkStealing.Samples; - can't use QuickSort because it doesn't have a package!
 
-public class QuickSortTest {
+public class WSQuickSortTest {
     public def run():boolean {
     	val N = 1000 * 1000;
     	val r = new x10.util.Random();
@@ -31,7 +31,7 @@ public class QuickSortTest {
     }
 
     public static def main(args:Array[String](1)) {
-        val r = new QuickSortTest().run();
+        val r = new WSQuickSortTest().run();
         if(r){
              x10.io.Console.OUT.println("++++++Test succeeded.");
         }

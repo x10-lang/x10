@@ -3851,6 +3851,37 @@ class MethodCollisionTests { // see also \x10.tests\examples\Constructs\Interfac
 		@ERR @ERR static abstract class C3_1 extends B3 implements A2 {}
 		@ERR @ERR static abstract class C3_2 extends A3 implements B2 {}
 	}
+
+	interface A {}
+	interface A2 extends A {}
+	interface B[T] {
+		def a():B[T];
+		def a2():B[T];
+		def b():Object;
+		def c():A2;
+		def c2():A;
+		def c3():A;
+		def d():Any;
+		def e():void;
+		def f():void;
+	}
+	interface C[T] {
+		def a():C[T];
+		def a2():C[T];
+		def b():String;
+		def c():A;
+		def c2():A2;
+		def c3():Object;
+		def d():void;
+		def e():A;
+		def f():void;
+
+	}
+	// see XTENLANG-2332
+	@ERR @ERR @ERR @ERR interface D extends B[D], C[A] { // a2, c3, d, e
+		def a():D;
+	}
+
 	// covariant return tests
 	/*
 	This compiles fine in Java:
@@ -4310,5 +4341,73 @@ class PropertyFieldTest42 { // XTENLANG-945
 	interface I(a:Int) {}
 	class B {
 		def m(i:I) = i.a;
+	}
+}
+
+class MethodGuardEntailsOverriden {
+	class A(i:Int) {
+	  def m() {i==1} {}
+	  def m2() {i!=0} {}
+	}
+	class B extends A {
+	  def this() { super(3); }
+	  def m() {i!=0} {}
+	  @ShouldBeErr def m2() {i==1} {} // guard can only be made stronger. see XTENLANG-2325
+	} 
+}
+
+
+class TestOperatorsWithoutGuards {
+	public operator - this:Int = 1;
+	public operator this * (g:TestOperatorsWithoutGuards) = 2;
+	public operator this(i:Int) = 3;
+	public operator this(i:Int) = (j:Int) = 4;
+
+	def test(g1:TestOperatorsWithoutGuards, g2:TestOperatorsWithoutGuards) {
+		val a = -g1;
+		val b = g1*g2;
+		val c = g1(42);
+		val d = g1(42)=43;
+	}
+}
+class XTENLANG_2329(x:Int) { // see XTENLANG_2329, but here we check with VERBOSE_CALLS (unlike in XTENLANG_2329.x10 where we check with STATIC_CALLS)
+	public operator this * (g:XTENLANG_2329) {x==0} = 2;
+	public operator this(i:Int) {x==0} = 3;
+	public operator this(i:Int) = (j:Int) {x==0}  = 4;
+
+	def test(g1:XTENLANG_2329, g2:XTENLANG_2329) {
+		@ERR val b = g1*g2;
+		@ERR val c = g1(42);
+		@ERR val d = g1(42)=43;
+	}
+	
+	def closureTest(c: (i:Int) {i==0} => Int , k:Int ) {
+		@ShouldBeErr val a = c(k);
+	}
+}
+
+class DynamicGuardCheck {
+	class A {
+		def this(q:Int) {q==0} {}
+	}
+	class B extends A {
+		def m1(i:Int{self==0}) {}
+		def m2(i:Int) {i==0} {}
+		def this(i:Int, j:Int) {i==0} {
+			super(j); // ERR: with VERBOSE:	Warning: Generated a dynamic check for the method guard.
+		}
+		def this(i1:Int) {
+			this(i1,4); // ERR: with VERBOSE:	Warning: Generated a dynamic check for the method guard.
+		}
+
+		def test(q:Int) {
+			m1(q); // ERR: Warning: Expression 'q' was cast to type x10.lang.Int{self==0}.
+			m2(q); // ERR: with VERBOSE:	Warning: Generated a dynamic check for the method guard.		with STATIC_CALLS: Method m2(i: x10.lang.Int){i==0}[]: void in Hello{self==Hello#this} cannot be called with arguments (x10.lang.Int{self==q}); Call invalid; calling environment does not entail the method guard.
+			new B(q,q); // ERR: with VERBOSE:	Warning: Generated a dynamic check for the method guard.
+		}
+
+		def closureTest(c: (i:Int) {i==0} => Int , k:Int ) {
+			@ShouldBeErr { c(k); }
+		}
 	}
 }
