@@ -18,7 +18,7 @@ public abstract class Task implements VoidFun_0_0, Serializable {
         return null;
     }
 
-    public void apply() {
+    public void $apply() {
         body();
     }
     
