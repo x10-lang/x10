@@ -84,16 +84,21 @@ int main(int ac, char** av) {
   args.version = JNI_VERSION_1_2;
   int c;
   int i;
+  int nomx = 1;
   for (c = 1; c < ac; c++) {
     if (!strcmp(av[c], "-classpath") || !strcmp(av[c], "-cp")) {
       c++;
       continue;
     }
+    if (!strncmp(av[c], "-Xmx", 4) || !strncmp(av[c], "-mx", 3)) {
+      nomx = 0;
+      continue;
+    }
     if (*av[c] != '-')
       break;
   }
-  args.nOptions = c - 1;
-  args.options = (JavaVMOption*) malloc((c - 1) * sizeof(JavaVMOption));
+  args.nOptions = c - 1 + nomx;
+  args.options = (JavaVMOption*) malloc((c - 1 + nomx) * sizeof(JavaVMOption));
   int j = 0;
   for (i = 1; i < c; i++, j++) {
     if (!strcmp(av[i], "-classpath") || !strcmp(av[i], "-cp")) {
@@ -114,6 +119,11 @@ int main(int ac, char** av) {
     }
     args.options[j].optionString = av[i];
     args.options[j].extraInfo = NULL;
+  }
+  if (nomx) {
+    args.options[j].optionString = strdup("-Xmx512m");
+    args.options[j].extraInfo = NULL;
+    ++j;
   }
   args.ignoreUnrecognized = JNI_TRUE;
   char* className = av[c];
