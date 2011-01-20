@@ -220,7 +220,7 @@ public class X10CPPTranslator extends Translator {
 		                        int cppEndLine = s.getStartLineOffset()+fixedEndLine;
 //		                        System.out.println("Adding line number entry: "+cppFile+":"+cppStartLine+"-"+cppEndLine+"->"+file+":"+line);
 		                        lineNumberMap.put(cppFile, cppStartLine, cppEndLine, file, line, column);
-		                        if (def != null) {
+		                        if (def != null && !def.position().isCompilerGenerated()) {
 		                            lineNumberMap.addMethodMapping(def, cppFile, cppStartLine, cppEndLine, lastX10Line);
 		                        }
 		                    }
