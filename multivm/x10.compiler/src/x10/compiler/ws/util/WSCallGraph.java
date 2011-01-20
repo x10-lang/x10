@@ -33,6 +33,7 @@ import polyglot.types.Ref;
 import polyglot.types.ContainerType;
 import polyglot.types.Type;
 import polyglot.visit.NodeVisitor;
+import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import x10.ast.Closure;
 import x10.ast.PlacedClosure;
 
@@ -102,7 +103,7 @@ public class WSCallGraph {
     protected List<WSCallGraphNode> initialParallelMethods;
     
     public WSCallGraph(){
-        def2NodeMap = new HashMap<ProcedureDef, WSCallGraphNode>();
+        def2NodeMap = CollectionFactory.newHashMap();
         initialParallelMethods = new ArrayList<WSCallGraphNode>();
     }
     

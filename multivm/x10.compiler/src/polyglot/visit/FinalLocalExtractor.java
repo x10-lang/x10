@@ -20,6 +20,7 @@ import polyglot.ast.*;
 import polyglot.frontend.Job;
 import polyglot.types.LocalDef;
 import polyglot.types.TypeSystem;
+import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 
 /**
  * This visitor converts non-final local variables into final local variables.
@@ -42,7 +43,7 @@ public class FinalLocalExtractor extends NodeVisitor {
     }
 
     public NodeVisitor begin() {
-        isFinal = new HashSet<LocalDef>();
+        isFinal = CollectionFactory.newHashSet();
         return super.begin();
     }
     

@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.HashSet;
+import java.util.Set;
 
 import polyglot.ast.Expr;
 import polyglot.types.ClassDef;
@@ -40,6 +41,7 @@ import polyglot.util.Position;
 import polyglot.util.Transformation;
 import polyglot.util.TransformingList;
 import polyglot.util.TypedList;
+import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import x10.constraint.XFailure;
 import x10.constraint.XVar;
 import x10.types.constraints.CConstraint;
@@ -65,8 +67,8 @@ implements X10ParsedClassType
     TypeParamSubst cacheSubst; // "subst" is just an auxiliary structure (cached to improve performance). It represents the typeArguments (thus it is nullified when assigning to typeArguments).
 
     // We ignore all constraints (we only handle generics)
-    private HashSet<X10ParsedClassType_c> cacheDirectSupertypes = null;
-    private HashSet<X10ParsedClassType_c> cacheAllSupertypes = null;
+    private Set<X10ParsedClassType_c> cacheDirectSupertypes = null;
+    private Set<X10ParsedClassType_c> cacheAllSupertypes = null;
 
     private void clearCache() {
         cacheSubst = null;
@@ -75,7 +77,7 @@ implements X10ParsedClassType
     }
     
     private void calcSuperTypes() {
-        cacheDirectSupertypes = new HashSet<X10ParsedClassType_c>();
+        cacheDirectSupertypes = CollectionFactory.newHashSet();
         final Type superClass_ = superClass();
         if (superClass_ !=null) {
             final X10ParsedClassType_c superBase = Types.myBaseType(superClass_);
@@ -86,15 +88,15 @@ implements X10ParsedClassType
             if (superInterfaceBase!=null) cacheDirectSupertypes.add(superInterfaceBase);
         }
         
-        cacheAllSupertypes = new HashSet<X10ParsedClassType_c>(cacheDirectSupertypes);
+        cacheAllSupertypes = CollectionFactory.newHashSet(cacheDirectSupertypes);
         for (X10ParsedClassType_c t : cacheDirectSupertypes)
             cacheAllSupertypes.addAll(t.allSuperTypes());
     }
-    public HashSet<X10ParsedClassType_c> directSuperTypes() {
+    public Set<X10ParsedClassType_c> directSuperTypes() {
         if (cacheDirectSupertypes==null) calcSuperTypes();
         return cacheDirectSupertypes;
     }
-    public HashSet<X10ParsedClassType_c> allSuperTypes() {
+    public Set<X10ParsedClassType_c> allSuperTypes() {
         if (cacheAllSupertypes==null) calcSuperTypes();
         final List<MethodInstance> list = methods();
         return cacheAllSupertypes;

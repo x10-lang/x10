@@ -22,7 +22,7 @@ final public class String extends x10.core.Ref implements
     public x10.rtt.RuntimeType<?> getRTT() {return _RTT;}
     
     public static String box(java.lang.String str) {
-        return new String(str);
+        return str == null ? null : new String(str);
     }
     
     public static java.lang.String unbox(Object obj) {

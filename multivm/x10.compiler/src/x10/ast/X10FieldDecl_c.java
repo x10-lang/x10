@@ -17,6 +17,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.HashSet;
+import java.util.Set;
 
 import polyglot.ast.Expr;
 import polyglot.ast.FieldDecl_c;
@@ -48,7 +49,7 @@ import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.types.VarDef_c.ConstantValue;
 import polyglot.util.CodeWriter;
-import polyglot.util.CollectionUtil;
+import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import polyglot.util.Position;
 import polyglot.visit.AscriptionVisitor;
 import polyglot.visit.ContextVisitor;
@@ -242,7 +243,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 	    cd = c.supertypeDeclarationType();
 	else
 	    cd = (X10ClassDef) c.currentClassDef();
-        final Map<Name,ParameterType.Variance> vars = new HashMap<Name, ParameterType.Variance>();
+        final Map<Name,ParameterType.Variance> vars = CollectionFactory.newHashMap();
         for (int i = 0; i < cd.typeParameters().size(); i++) {
     	ParameterType pt = cd.typeParameters().get(i);
     	ParameterType.Variance v = cd.variances().get(i);
@@ -492,7 +493,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
             final ContainerType containerType = fieldDef.container().get();
             X10ClassDef_c goalDef = Types.getDef(containerType);
             if (ts.isStruct(containerType)) {
-                HashSet<X10ClassDef_c> otherStructsUsed = new HashSet<X10ClassDef_c>();
+                Set<X10ClassDef_c> otherStructsUsed = CollectionFactory.newHashSet();
                 ArrayList<X10ParsedClassType> toExamine = new ArrayList<X10ParsedClassType>();
                 final X10ParsedClassType_c goal = Types.myBaseType(type);
                 if (goal!=null) {

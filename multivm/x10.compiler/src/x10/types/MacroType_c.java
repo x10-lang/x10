@@ -39,7 +39,7 @@ import polyglot.types.Types;
 import polyglot.types.UnknownType;
 import polyglot.types.UpcastTransform;
 import polyglot.types.TypeSystem_c.TypeEquals;
-import polyglot.util.CollectionUtil;
+import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.Transformation;
@@ -206,7 +206,8 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 	public MacroType newFormalTypes(List<Type> formalTypes) {
 	    return formalTypes(formalTypes);
 	}
-	
+
+    // todo: this guard&typeGuard is duplicated code similar to ProcedureInstance_c
 	public CConstraint guard() {
 		if (guard == null)
 			return Types.get(def().guard());
@@ -218,6 +219,11 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 		t.guard = guard;
 		return (MacroType) t;
 	}
+
+    public boolean checkGuardAtRuntime() { return false; }
+    public MacroType_c checkGuardAtRuntime(boolean check) {
+        throw new RuntimeException("The guard for a MacroType cannot be dynamically checked (at runtime)");
+    }
 	
 	    /** Constraint on type parameters. */
 	    protected TypeConstraint typeGuard;

@@ -6,6 +6,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import polyglot.ast.Import;
 import polyglot.types.ClassDef;
@@ -27,6 +28,7 @@ import x10.types.X10FieldDef;
 import x10.types.X10MethodDef;
 import x10.types.X10ParsedClassType;
 import polyglot.types.TypeSystem;
+import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import x10.util.HierarchyUtils;
 
 import com.sun.javadoc.ClassDoc;
@@ -38,12 +40,12 @@ import com.sun.javadoc.SourcePosition;
 import com.sun.javadoc.Type;
 
 public class X10RootDoc extends X10Doc implements RootDoc {
-	HashMap<String, X10ClassDoc> specClasses; // classes specified to x10cod on the command-line
-	HashMap<String, X10PackageDoc> specPackages; // x10doc does not, at present, handle packages specified on the
+	Map<String, X10ClassDoc> specClasses; // classes specified to x10cod on the command-line
+	Map<String, X10PackageDoc> specPackages; // x10doc does not, at present, handle packages specified on the
 	                                             // command-line; specPackages should be empty
-	HashMap<String, X10ClassDoc> otherClasses;
-	HashMap<String, X10PackageDoc> otherPackages;
-	HashMap<String, X10Type> primitiveTypes;
+	Map<String, X10ClassDoc> otherClasses;
+	Map<String, X10PackageDoc> otherPackages;
+	Map<String, X10Type> primitiveTypes;
     
 	X10ClassDoc[] includedClasses; 
 	private String outputDir;
@@ -87,11 +89,11 @@ public class X10RootDoc extends X10Doc implements RootDoc {
 
 	public X10RootDoc(String outputDir) {
 
-		this.specClasses = new HashMap<String, X10ClassDoc>();
-		this.specPackages = new HashMap<String, X10PackageDoc>();
-		this.otherClasses = new HashMap<String, X10ClassDoc>();
-		this.otherPackages = new HashMap<String, X10PackageDoc>();
-		this.primitiveTypes = new HashMap<String, X10Type>();
+		this.specClasses = CollectionFactory.newHashMap();
+		this.specPackages = CollectionFactory.newHashMap();
+		this.otherClasses = CollectionFactory.newHashMap();
+		this.otherPackages = CollectionFactory.newHashMap();
+		this.primitiveTypes = CollectionFactory.newHashMap();
 		this.outputDir = outputDir;
 		super.processComment("");
 	}

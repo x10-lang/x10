@@ -13,6 +13,7 @@ package x10.lang;
 
 import x10.compiler.Native;
 import x10.compiler.TempNoInline_1;
+import x10.compiler.CompilerFlags;
 
 /**
  * @author Christian Grothoff
@@ -90,7 +91,12 @@ public final struct Place(id: Int)  {
     public static NUM_ACCELS = ALL_PLACES - MAX_PLACES;
     public static FIRST_PLACE:Place(0) = Place(0);
 
-    public def this(id: Int):Place(id) { property(id); }
+    public def this(id: Int):Place(id) { 
+        property(id); 
+        if (CompilerFlags.checkPlace() && (id < 0 || id >= MAX_PLACES)) {
+            throw new IllegalArgumentException(id+" is not a valid Place id");
+        }
+    }
 
     public static def place(id: Int): Place(id) = Place(id);
     public def next(): Place = next(1);

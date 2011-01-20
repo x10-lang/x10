@@ -19,7 +19,7 @@ import polyglot.visit.PrettyPrinter;
  * A <code>StringLit</code> represents an immutable instance of a 
  * <code>String</code> which corresponds to a literal string in Java code.
  */
-public class StringLit_c extends Lit_c implements StringLit
+public abstract class StringLit_c extends Lit_c implements StringLit
 {
     protected String value;
 
@@ -42,9 +42,7 @@ public class StringLit_c extends Lit_c implements StringLit
     }
 
     /** Type check the expression. */
-    public Node typeCheck(ContextVisitor tc) throws SemanticException {
-        return type(tc.typeSystem().String());
-    }
+    public abstract Node typeCheck(ContextVisitor tc) throws SemanticException;
 
     public String toString() {
         if (StringUtil.unicodeEscape(value).length() > 11) {

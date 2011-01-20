@@ -180,7 +180,7 @@ template<class T> void x10::util::IndexedMemoryChunk<T>::_deserialize_body(x10au
     data = (x10_ulong)alignedMem;
 
     for (int i=0; i<len; i++) {
-        set(buf.read<T>(), i);
+        __set(buf.read<T>(), i);
     }
 }
 

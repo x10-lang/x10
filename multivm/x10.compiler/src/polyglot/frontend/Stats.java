@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 import polyglot.main.Report;
+import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 
 /**
  * Statistics collection and reporting object.
@@ -30,7 +31,7 @@ public class Stats
     protected ExtensionInfo ext;
 
     /** Map from Objects to pair of inclusive and exclusive times. */
-    protected Map<Object,Counts> counts = new HashMap<Object,Counts>();
+    protected Map<Object,Counts> counts = CollectionFactory.newHashMap();
 
     /**
      * List of Objects used as keys to passTimes.  We have an explicit

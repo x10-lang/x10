@@ -24,10 +24,10 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import polyglot.ast.Assert;
@@ -82,6 +82,7 @@ import polyglot.util.InternalCompilerError;
 import polyglot.util.SimpleCodeWriter;
 import polyglot.util.StdErrorQueue;
 import polyglot.util.StringUtil;
+import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import polyglot.visit.Translator;
 import x10.ast.ForLoop;
 import x10.ast.X10ClassDecl;
@@ -196,8 +197,8 @@ public class X10CPPTranslator extends Translator {
 		    final String cppFile = w.getStreamName(w.currentStream().ext);
 		    String key = w.getStreamName(StreamWrapper.CC);
 		    X10CPPContext_c c = (X10CPPContext_c) context;
-		    HashMap<String, LineNumberMap> fileToLineNumberMap =
-		        c.<HashMap<String, LineNumberMap>>findData(FILE_TO_LINE_NUMBER_MAP);
+		    Map<String, LineNumberMap> fileToLineNumberMap =
+		        c.<Map<String, LineNumberMap>>findData(FILE_TO_LINE_NUMBER_MAP);
 		    if (fileToLineNumberMap != null) {
 		        final LineNumberMap lineNumberMap = fileToLineNumberMap.get(key);
 		        // [DC] avoid NPE when writing to .cu files
@@ -219,7 +220,7 @@ public class X10CPPTranslator extends Translator {
 		                        int cppEndLine = s.getStartLineOffset()+fixedEndLine;
 //		                        System.out.println("Adding line number entry: "+cppFile+":"+cppStartLine+"-"+cppEndLine+"->"+file+":"+line);
 		                        lineNumberMap.put(cppFile, cppStartLine, cppEndLine, file, line, column);
-		                        if (def != null) {
+		                        if (def != null && !def.position().isCompilerGenerated()) {
 		                            lineNumberMap.addMethodMapping(def, cppFile, cppStartLine, cppEndLine, lastX10Line);
 		                        }
 		                    }
@@ -295,7 +296,7 @@ public class X10CPPTranslator extends Translator {
 			TypeSystem xts = typeSystem();
 
 			if (opts.x10_config.DEBUG)
-				c.addData(FILE_TO_LINE_NUMBER_MAP, new HashMap<String, LineNumberMap>());
+				c.addData(FILE_TO_LINE_NUMBER_MAP, CollectionFactory.newHashMap());
 
 			// Use the source file name as the basename for the output .cc file
 			String fname = sfn.source().name();
@@ -304,8 +305,8 @@ public class X10CPPTranslator extends Translator {
             WriterStreams fstreams = new WriterStreams(fname, pkg, job, tf);
 
             if (opts.x10_config.DEBUG) {
-                HashMap<String, LineNumberMap> fileToLineNumberMap =
-                    c.<HashMap<String, LineNumberMap>>getData(FILE_TO_LINE_NUMBER_MAP);
+                Map<String, LineNumberMap> fileToLineNumberMap =
+                    c.<Map<String, LineNumberMap>>getData(FILE_TO_LINE_NUMBER_MAP);
                 fileToLineNumberMap.put(fstreams.getStreamName(StreamWrapper.CC), new LineNumberMap());
             }
     
@@ -363,8 +364,8 @@ public class X10CPPTranslator extends Translator {
 				outputFiles.add(header);
 				
 				if (opts.x10_config.DEBUG) {
-					HashMap<String, LineNumberMap> fileToLineNumberMap =
-					    c.<HashMap<String, LineNumberMap>>getData(FILE_TO_LINE_NUMBER_MAP);
+					Map<String, LineNumberMap> fileToLineNumberMap =
+					    c.<Map<String, LineNumberMap>>getData(FILE_TO_LINE_NUMBER_MAP);
 					fileToLineNumberMap.put(header, new LineNumberMap());
 				}
 				
@@ -387,8 +388,8 @@ public class X10CPPTranslator extends Translator {
                 opts.compilationUnits().add(cc);
                 
                 if (opts.x10_config.DEBUG) {
-                    HashMap<String, LineNumberMap> fileToLineNumberMap =
-                        c.<HashMap<String, LineNumberMap>>getData(FILE_TO_LINE_NUMBER_MAP);
+                    Map<String, LineNumberMap> fileToLineNumberMap =
+                        c.<Map<String, LineNumberMap>>getData(FILE_TO_LINE_NUMBER_MAP);
                     ClassifiedStream debugStream = fstreams.getNewStream(StreamWrapper.CC, false);
                     printLineNumberMapForCPPDebugger(debugStream, fstreams.getStreamName(StreamWrapper.CC), fileToLineNumberMap);
                 }
@@ -405,7 +406,7 @@ public class X10CPPTranslator extends Translator {
 		}
 	}
 
-	private void printLineNumberMapForCPPDebugger(ClassifiedStream stream, String streamName, HashMap<String, LineNumberMap> fileToLineNumberMap) {
+	private void printLineNumberMapForCPPDebugger(ClassifiedStream stream, String streamName, Map<String, LineNumberMap> fileToLineNumberMap) {
 	    final LineNumberMap map = fileToLineNumberMap.get(streamName);
 	    stream.registerCommitListener(new ClassifiedStream.CommitListener() {
 	        public void run(ClassifiedStream s) {
@@ -417,7 +418,7 @@ public class X10CPPTranslator extends Translator {
 	    });
 	}
 
-	private void printLineNumberMap(StreamWrapper sw, String pkg, String className, final String ext, HashMap<String, LineNumberMap> fileToLineNumberMap) {
+	private void printLineNumberMap(StreamWrapper sw, String pkg, String className, final String ext, Map<String, LineNumberMap> fileToLineNumberMap) {
 		String fName = sw.getStreamName(ext);
 		final LineNumberMap map = fileToLineNumberMap.get(fName);
 		final String lnmName = Emitter.translate_mangled_FQN(pkg, "_")+"_"+Emitter.mangled_non_method_name(className);
@@ -481,7 +482,7 @@ public class X10CPPTranslator extends Translator {
 
 		if (options.post_compiler != null && !options.output_stdout) {
 			// use set to avoid duplicates
-			Set<String> compilationUnits = new HashSet<String>(options.compilationUnits());
+			Set<String> compilationUnits = CollectionFactory.newHashSet(options.compilationUnits());
 
 			try {
 			    final File file = outputFile(options, null, options.x10cpp_config.MAIN_STUB_NAME, "cc");

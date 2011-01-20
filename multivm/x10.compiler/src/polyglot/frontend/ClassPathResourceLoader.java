@@ -11,6 +11,7 @@ import java.io.File;
 import java.util.*;
 
 import polyglot.main.Report;
+import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 
 /**
  * We implement our own class loader. All this pain is so we can define the
@@ -77,7 +78,7 @@ public class ClassPathResourceLoader {
 	protected static Collection<String> verbose;
 
 	static {
-		verbose = new HashSet<String>();
+		verbose = CollectionFactory.newHashSet();
 		verbose.add("loader");
 	}
 }

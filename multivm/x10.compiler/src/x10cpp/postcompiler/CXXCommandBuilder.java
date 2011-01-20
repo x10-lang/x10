@@ -23,12 +23,14 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 
 import polyglot.main.Options;
 import polyglot.util.ErrorInfo;
 import polyglot.util.ErrorQueue;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.QuotedStringTokenizer;
+import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import x10.Configuration;
 import x10cpp.X10CPPCompilerOptions;
 
@@ -247,7 +249,7 @@ public class CXXCommandBuilder {
             addExecutablePath(cxxCmd);
         }
 
-        HashSet<String> exclude = new HashSet<String>();
+        Set<String> exclude = CollectionFactory.newHashSet();
         try {
             String manifest = options.x10_config.MANIFEST;
             if (manifest == null) {

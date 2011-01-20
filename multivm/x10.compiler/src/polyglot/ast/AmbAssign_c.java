@@ -19,91 +19,14 @@ import polyglot.visit.*;
  * A <code>AmbAssign</code> represents a Java assignment expression to
  * an as yet unknown expression.
  */
-public class AmbAssign_c extends Assign_c implements AmbAssign
-{
-  protected Expr left;
-  
-    
-  public AmbAssign_c(NodeFactory nf, Position pos, Expr left, Operator op, Expr right) {
-    super(nf, pos, op, right);
-    this.left = left;
-  }
-  
-  public Type leftType() {
-      return left.type();
-  }
-  
-  @Override
-  public Expr left() {
-      return left;
-  }
-
-  @Override
-  public Assign visitLeft(NodeVisitor v) {
-      Expr left = (Expr) visitChild(this.left, v);
-      if (left != this.left) {
-	  AmbAssign_c n = (AmbAssign_c) copy();
-	  n.left = left;
-	  return n;
-      }
-      return this;
-  }
-  
-  public Term firstChild() {
-      return left;
-  }
-  
-  protected void acceptCFGAssign(CFGBuilder v) {
-      v.visitCFG(left, right(), ENTRY);
-      v.visitCFG(right(), this, EXIT);
-  }
-  
-  protected void acceptCFGOpAssign(CFGBuilder v) {
-      v.visitCFG(left, right(), ENTRY);
-      v.visitCFG(right(), this, EXIT);
-  }
-  
-  public Node disambiguate(ContextVisitor ar) throws SemanticException {
-      AmbAssign_c n = (AmbAssign_c) super.disambiguate(ar);
-      
-      if (left instanceof Local) {
-          LocalAssign a = ar.nodeFactory().LocalAssign(n.position(), (Local)left, operator(), right());
-          return a;
-      }
-      else if (left instanceof Field) {
-          FieldAssign a = ar.nodeFactory().FieldAssign(n.position(), ((Field)left).target(), ((Field)left).name(), operator(), right());
-          a = a.targetImplicit(((Field) left).isTargetImplicit());
-          a = a.fieldInstance(((Field) left).fieldInstance());
-          return a;
-      } 
-      else if (left instanceof ArrayAccess) {
-          ArrayAccessAssign a = ar.nodeFactory().ArrayAccessAssign(n.position(), ((ArrayAccess)left).array(), ((ArrayAccess)left).index(), operator(), right());
-          return a;
-      }
-
-      // LHS is still ambiguous.  The pass should get rerun later.
-      return this;
-      // throw new SemanticException("Could not disambiguate left side of assignment!", n.position());
-  }
-  
-  public Assign typeCheckLeft(ContextVisitor tc) {
-      // Didn't finish disambiguation; just return.
-      return this;
-  }
-  public Node typeCheck(ContextVisitor tc) throws SemanticException {
-      // Didn't finish disambiguation; just return.
-      return this;
-  }
-  public String toString() {
-	    return left + " " + op + " " + right;
-	   }
-  public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
-	    printSubExpr(left, true, w, tr);
-	    w.write(" ");
-	    w.write(op.toString());
-	    w.allowBreak(2, 2, " ", 1); // miser mode
-	    w.begin(0);
-	    printSubExpr(right, false, w, tr);
-	    w.end();
-	  }
+public abstract class AmbAssign_c extends Assign_c implements AmbAssign
+{   
+	public AmbAssign_c(NodeFactory nf, Position pos, Expr left, Operator op, Expr right) {
+		super(nf, pos, op, right);
+	}
+	
+	@Override
+	public abstract Assign visitLeft(NodeVisitor v);
+	
+	//public abstract Node disambiguate(ContextVisitor ar) throws SemanticException;
 }

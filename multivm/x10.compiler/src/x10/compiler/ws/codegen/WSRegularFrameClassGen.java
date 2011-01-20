@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import polyglot.ast.Binary;
 import polyglot.ast.Block;
@@ -40,6 +41,7 @@ import polyglot.types.Name;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.util.Pair;
+import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import x10.ast.Async;
 import x10.ast.Finish;
 import x10.ast.ForLoop;
@@ -136,7 +138,7 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
         int prePcValue = 0; // The current pc value. Will increase every time an
                             // inner class is created
 
-        HashSet<Name> localDeclaredVar = new HashSet<Name>(); //all locals with these names will not be replaced
+        Set<Name> localDeclaredVar = CollectionFactory.newHashSet(); //all locals with these names will not be replaced
         
         while (bodyStmts.size() > 0) {
 

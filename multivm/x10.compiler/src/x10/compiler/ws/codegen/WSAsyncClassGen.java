@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import polyglot.ast.Block;
 import polyglot.ast.Call;
@@ -31,6 +32,7 @@ import polyglot.types.Name;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.util.Pair;
+import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import x10.ast.Async;
 import x10.compiler.ws.WSCodeGenerator;
 import x10.compiler.ws.util.AddIndirectLocalDeclareVisitor;
@@ -110,7 +112,7 @@ public class WSAsyncClassGen extends AbstractWSClassGen {
         
         
 
-        HashSet<Name> localDeclaredVar = new HashSet<Name>(); //all locals with these names will not be replaced
+        Set<Name> localDeclaredVar = CollectionFactory.newHashSet(); //all locals with these names will not be replaced
                 
         if(!inFrameTransform){
             //we create a new frame to transform the async's body

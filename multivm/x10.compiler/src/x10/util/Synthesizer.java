@@ -61,7 +61,7 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.Types;
 import polyglot.types.VarDef;
-import polyglot.util.CollectionUtil;
+import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import polyglot.util.Pair;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
@@ -1412,7 +1412,7 @@ public class Synthesizer {
     // For the purpose of InitChecker and CheckEscapingThis:
     // we need to extract from a constraint all the locals and fields of "this" and check they are definitely assigned.
     public static java.util.Set<VarDef> getLocals(TypeNode n) {
-        java.util.Set<VarDef> res = new java.util.HashSet<VarDef>();
+        java.util.Set<VarDef> res = CollectionFactory.newHashSet();
         CConstraint c = Types.xclause(n.type());
         if (c == null || c.valid()) {
             // nothing to check
@@ -1424,7 +1424,7 @@ public class Synthesizer {
         return res;
     }        
     private static java.util.Set<VarDef> getLocals(XTerm t) {
-        java.util.Set<VarDef> res = new java.util.HashSet<VarDef>();
+        java.util.Set<VarDef> res = CollectionFactory.newHashSet();
         // FieldDef
         if (t instanceof XField) {
             final XField field = (XField) t;

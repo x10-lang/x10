@@ -75,6 +75,7 @@ import polyglot.util.ErrorInfo;
 import polyglot.util.ErrorQueue;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
+import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import polyglot.visit.ConformanceChecker;
 import polyglot.visit.ConstructorCallChecker;
 import polyglot.visit.ContextVisitor;
@@ -143,7 +144,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 	public static final String XML_FILE_EXTENSION = "x10ml";
 	public static final String XML_FILE_DOT_EXTENSION = "." + XML_FILE_EXTENSION;
 
-//	private static HashMap<CallTableKey, LinkedList<CallTableVal>> calltable = new HashMap<CallTableKey, LinkedList<CallTableVal>>();
+//	private static HashMap<CallTableKey, LinkedList<CallTableVal>> calltable = CollectionFactory.newHashMap();
     public static String clock = "clock";
 
     static {
@@ -207,7 +208,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                 source.resource().getClass() == FileResource.class ?
                                 new X10Lexer(source.path()) :
                                 new X10Lexer(reader, source.toString());
-            X10SemanticRules x10_parser = new X10SemanticRules(x10_lexer.getILexStream(), ts, nf, source, eq); // Create the parser
+            X10SemanticRules x10_parser = new X10SemanticRules(x10_lexer, ts, nf, source, eq); // Create the parser
             x10_lexer.lexer(x10_parser.getIPrsStream());
             return x10_parser; // Parse the token stream to produce an AST
         } catch (IOException e) {
@@ -216,7 +217,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
         throw new IllegalStateException("Could not parse " + source.path());
     }
 
-    protected HashSet<String> manifest = new HashSet<String>();
+    protected Set<String> manifest = CollectionFactory.newHashSet();
     public boolean manifestContains(String path) {
         path = path.replace(File.separatorChar, '/');
         // FIXME: HACK! Try all prefixes
@@ -404,6 +405,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
        private void addValidateOnlyGoals(Job job, List<Goal> goals) {
            X10CompilerOptions opts = extensionInfo().getOptions();
            goals.add(Parsed(job));
+           if (opts.x10_config.CHECK_ERR_MARKERS) goals.add(ErrChecker(job)); // must be the first phase after parsing because later phases might fail and stop type checking (it shouldn't happen, but it does)
            goals.add(ImportTableInitialized(job));
            goals.add(TypesInitialized(job));
 
@@ -435,7 +437,6 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 //           goals.add(CheckNativeAnnotations(job));
            goals.add(CheckEscapingThis(job));
            goals.add(AnnotationChecker(job));
-           if (opts.x10_config.CHECK_ERR_MARKERS) goals.add(ErrChecker(job)); // must be the last phase that might add errors to the errorQueue
            goals.add(CheckASTForErrors(job));
 //           goals.add(TypeCheckBarrier());
 
@@ -1094,7 +1095,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     
 	public void addPlugin(QName pluginName, CompilerPlugin plugin) {
 		if (plugins == null) {
-			plugins = new HashMap<QName,CompilerPlugin>();
+			plugins = CollectionFactory.newHashMap();
 		}
 		plugins.put(pluginName, plugin);
 	}

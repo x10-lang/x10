@@ -10,7 +10,7 @@ package polyglot.types;
 import java.util.List;
 
 import polyglot.main.Report;
-import polyglot.util.CollectionUtil;
+import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import polyglot.util.Position;
 import x10.types.MethodInstance;
 
@@ -18,7 +18,7 @@ import x10.types.MethodInstance;
  * A <code>MethodInstance</code> represents the type information for a Java
  * method.
  */
-public class MethodDef_c extends ProcedureDef_c implements MethodDef
+public abstract class MethodDef_c extends ProcedureDef_c implements MethodDef
 {
     private static final long serialVersionUID = -4600875186109814395L;
 

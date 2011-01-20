@@ -14,6 +14,7 @@ import polyglot.frontend.*;
 
 import polyglot.types.*;
 import polyglot.util.*;
+import x10.util.CollectionFactory;
 
 /**
  * ClassFile represents a Java classfile as it is found on 
@@ -41,7 +42,7 @@ public class ClassFile {
     protected File classFileSource;
     protected ExtensionInfo extensionInfo;
     
-    protected Map<String, JLCInfo> jlcInfoCache = new HashMap<String, JLCInfo>();
+    protected Map<String, JLCInfo> jlcInfoCache = CollectionFactory.newHashMap();
    
     protected static Collection<String> verbose = ClassFileLoader.verbose;
   

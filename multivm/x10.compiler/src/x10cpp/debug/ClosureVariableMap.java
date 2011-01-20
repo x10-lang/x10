@@ -14,8 +14,10 @@ package x10cpp.debug;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.StringTokenizer;
+import java.util.Map;
 
 import polyglot.util.QuotedStringTokenizer;
+import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 
 /**
  * Map from captured variable name to type.
@@ -27,7 +29,7 @@ public class ClosureVariableMap extends StringTable {
 
 	public static final String VARIABLE_NAME = "CVMAP";
 
-	private HashMap<String, Integer> map = new HashMap<String, Integer>();
+	private Map<String, Integer> map = CollectionFactory.newHashMap();
 
 	/**
 	 * 

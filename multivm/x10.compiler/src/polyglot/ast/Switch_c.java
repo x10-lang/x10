@@ -13,6 +13,7 @@ import java.util.*;
 import polyglot.types.*;
 import polyglot.util.*;
 import polyglot.visit.*;
+import x10.util.CollectionFactory;
 
 /**
  * A <code>Switch</code> is an immutable representation of a Java
@@ -94,7 +95,7 @@ public class Switch_c extends Stmt_c implements Switch
     }
 
     public Node checkConstants(ContextVisitor tc) throws SemanticException {
-        Collection<Object> labels = new HashSet<Object>();
+        Collection<Object> labels = CollectionFactory.newHashSet();
 
         // Check for duplicate labels.
         for (Iterator<SwitchElement> i = elements.iterator(); i.hasNext();) {

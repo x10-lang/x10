@@ -47,8 +47,7 @@ import x10.io.SerialData;
         unlock();
     }
 
-    // todo SettableAssign: uncomment operator()= in the next line after we change it's name from set to $set
-    // public operator this()=(v:Int):void { set(v); }
+    public operator this()=(v:Int):void { set(v); }
     public def set(v:Int):void {
         lock();
         value = v;

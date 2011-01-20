@@ -14,6 +14,7 @@ package polyglot.util;
 import java.util.*;
 
 import polyglot.util.FilteringIterator;
+import x10.util.CollectionFactory;
 
 /**
  * A NestedMap is a map which, when it cannot find an element in itself,
@@ -35,7 +36,7 @@ public class NestedMap<K,V> extends AbstractMap<K,V> implements Map<K,V> {
    **/
   public NestedMap(Map<K,V> containing) {
     this.superMap = containing;
-    this.myMap = new HashMap<K,V>();
+    this.myMap = CollectionFactory.newHashMap();
     setView = new EntrySet();
     nShadowed = 0;
   }
@@ -156,7 +157,7 @@ public class NestedMap<K,V> extends AbstractMap<K,V> implements Map<K,V> {
     }
   }
  
-  private HashMap<K,V> myMap;
+  private Map<K,V> myMap;
   private int nShadowed;
   private Set<Map.Entry<K,V>> setView; // the set view of this.
   private Map<K,V> superMap;

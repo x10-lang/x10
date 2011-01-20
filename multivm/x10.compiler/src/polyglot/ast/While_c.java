@@ -20,7 +20,7 @@ import polyglot.visit.*;
  * statement.  It contains a statement to be executed and an expression
  * to be tested indicating whether to reexecute the statement.
  */ 
-public class While_c extends Loop_c implements While
+public abstract class While_c extends Loop_c implements While
 {
     protected Expr cond;
     protected Stmt body;
@@ -77,15 +77,7 @@ public class While_c extends Loop_c implements While
     }
 
     /** Type check the statement. */
-    public Node typeCheck(ContextVisitor tc) throws SemanticException {
-	TypeSystem ts = tc.typeSystem();
-	
-	if (! ts.typeEquals(cond.type(), ts.Boolean(), tc.context())) {
-	    throw new SemanticException("Condition of while statement must have boolean type.",cond.position());
-	}
-	
-	return this;
-    }
+    public abstract Node typeCheck(ContextVisitor tc) throws SemanticException;
 
     public Type childExpectedType(Expr child, AscriptionVisitor av) {
         TypeSystem ts = av.typeSystem();

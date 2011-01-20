@@ -59,8 +59,7 @@ public class ArrayList[T] extends AbstractCollection[T] implements List[T] {
         a(i) = v;
     }
 
-    // todo SettableAssign: uncomment operator()= in the next line after we change it's name from set to $set
-    //public operator this(i: int)=(v: T) : T = set(v,i);
+    public operator this(i: int)=(v: T) : T = set(v,i);
     
     public def set(v: T, i: int): T {
         a(i) = v;

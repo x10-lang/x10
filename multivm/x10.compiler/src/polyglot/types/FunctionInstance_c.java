@@ -4,7 +4,7 @@ import java.util.List;
 
 import polyglot.util.Position;
 
-public class FunctionInstance_c<T extends FunctionDef> extends ProcedureInstance_c<T> implements FunctionInstance<T> {
+public abstract class FunctionInstance_c<T extends FunctionDef> extends ProcedureInstance_c<T> implements FunctionInstance<T> {
     private static final long serialVersionUID = 7771092895217853763L;
 
     public FunctionInstance_c(TypeSystem ts, Position pos, Ref<? extends T> def) {

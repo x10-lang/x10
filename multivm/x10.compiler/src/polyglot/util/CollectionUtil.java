@@ -21,13 +21,13 @@ public class CollectionUtil
             }
             return list;
         }
-        
+
 	/** Append <code>o</code> to <code>l</code>, returning <code>l</code>. */
 	public static <T> List<T> add(List<T> l, T o) {
 		l.add(o);
 		return l;
 	}
-	
+
 	/**
 	 * Return true if the predicate is true for each pair of elements from <code>a</code> and <code>b</code>.
 	 */
@@ -35,28 +35,28 @@ public class CollectionUtil
 	    if (a == b) {
 	        return true;
 	    }
-	    
+
 	    // the case where both are null is handled in the previous if.
 	    if (a == null ^ b == null) {
 	        return false;
 	    }
-	    
+
 	    Iterator<? extends T> i = a.iterator();
 	    Iterator<? extends T> j = b.iterator();
-	    
+
 	    while (i.hasNext() && j.hasNext()) {
 	        T o = i.next();
 	        T p = j.next();
-	        
+
 	        if (! predicate.isTrue(o, p)) {
 	            return false;
 	        }
 	    }
-	    
+
 	    if (i.hasNext() || j.hasNext()) {
 	        return false;
 	    }
-	    
+
 	    return true;
 	}
 
@@ -69,12 +69,12 @@ public class CollectionUtil
 		if (a == b) {
 			return true;
 		}
-		
+
 		// the case where both are null is handled in the previous if.
 		if (a == null ^ b == null) {
 			return false;
 		}
-		
+
 		Iterator<? extends T> i = a.iterator();
 		Iterator<? extends T> j = b.iterator();
 
@@ -93,7 +93,7 @@ public class CollectionUtil
 
 		return true;
 	}
-	
+
 	public static <T> List<T> append(Collection<? extends T> l1, Collection<? extends T> l2) {
 		List<T> l = new ArrayList<T>();
 		l.addAll(l1);
@@ -105,7 +105,7 @@ public class CollectionUtil
 	public static <T> List<T> list() {
 		return Collections.<T>emptyList();
 	}
-	
+
 	/** Return a singleton list containing <code>o</code>. */
 	public static <T> List<T> list(T o) {
 		return Collections.<T>singletonList(o);
@@ -142,13 +142,13 @@ public class CollectionUtil
 
 	/**
 	 * Apply <code>t</code> to each element of <code>l</code>.
-	 * <code>l</code> is not modified.  
+	 * <code>l</code> is not modified.
 	 * @return A list containing the result of each transformation,
 	 * in the same order as the original elements.
 	 */
 	public static <S,T> List<T> map(List<S> l, Transformation<S,T> t) {
 		List<T> m = new ArrayList<T>(l.size());
-		for (Iterator<T> i = new TransformingIterator<S,T>(l.iterator(), t); 
+		for (Iterator<T> i = new TransformingIterator<S,T>(l.iterator(), t);
 			i.hasNext(); )
 		{
 			m.add(i.next());
@@ -158,7 +158,7 @@ public class CollectionUtil
 
 	/**
 	 * Return an empty non-null list if the argument list is null.
-	 * 
+	 *
 	 * @param l a possibly null list
 	 * @return a non-null list
 	 */
@@ -170,19 +170,19 @@ public class CollectionUtil
 
 	public static String listToString(List<?> l) {
 		StringBuffer sb = new StringBuffer();
-	
+
 		for (Iterator<?> i = l.iterator(); i.hasNext(); ) {
 			Object o = i.next();
 			if (o == null)
 				sb.append("null");
 			else
 				sb.append(o.toString());
-	
+
 			if (i.hasNext()) {
 				sb.append(", ");
 			}
 		}
-	
+
 		return sb.toString();
 	}
 }

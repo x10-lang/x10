@@ -9,16 +9,16 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-package WorkStealing.Samples;
+// package WorkStealing.Samples; - can't use Integrate because it doesn't have a package!
 
-public class FibTest {
+public class WSIntegrateTest {
     public def run():boolean {
-        val res = Fib.fib(20);
-        return (res == 10946);
+        val res = Integrate.computeArea(0, 64);
+        return (res > 4196352.000 && res < 4196352.001);
     }
 
     public static def main(args:Array[String](1)) {
-        val r = new FibTest().run();
+        val r = new WSIntegrateTest().run();
         if(r){
              x10.io.Console.OUT.println("++++++Test succeeded.");
         }
