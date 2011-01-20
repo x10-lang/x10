@@ -30,9 +30,9 @@ import static x10cpp.visit.SharedVarsMethods.make_ref;
 import static x10cpp.visit.SharedVarsMethods.make_captured_lval;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import polyglot.ast.Call_c;
 import polyglot.ast.ConstructorDecl_c;
@@ -969,7 +969,7 @@ public class Emitter {
 			if (((X10CPPCompilerOptions)tr.job().extensionInfo().getOptions()).x10_config.DEBUG)
 			{
 				String key = ((StreamWrapper)w).getStreamName(StreamWrapper.CC);
-				HashMap<String, LineNumberMap> fileToLineNumberMap = c.<HashMap<String, LineNumberMap>>findData(X10CPPTranslator.FILE_TO_LINE_NUMBER_MAP);
+				Map<String, LineNumberMap> fileToLineNumberMap = c.<Map<String, LineNumberMap>>findData(X10CPPTranslator.FILE_TO_LINE_NUMBER_MAP);
 			    if (fileToLineNumberMap != null) 
 			    {
 			        final LineNumberMap lineNumberMap = fileToLineNumberMap.get(key);
