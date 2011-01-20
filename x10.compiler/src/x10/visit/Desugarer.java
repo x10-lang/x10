@@ -35,6 +35,7 @@ import polyglot.ast.NodeFactory;
 import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
+import polyglot.ast.New;
 import polyglot.frontend.Job;
 import polyglot.types.Context;
 import polyglot.types.LocalDef;
@@ -63,6 +64,7 @@ import x10.ast.X10Cast;
 import x10.ast.X10Instanceof;
 import x10.ast.X10Special;
 import x10.ast.X10Unary_c;
+import x10.ast.X10New;
 import x10.constraint.XFailure;
 import x10.constraint.XVar;
 import x10.types.EnvironmentCapture;
@@ -119,6 +121,11 @@ public class Desugarer extends ContextVisitor {
             return visitCast((X10Cast) n);
         if (n instanceof X10Instanceof)
             return visitInstanceof((X10Instanceof) n);
+        if (n instanceof New)
+            return desugarNew((New) n,this);
+        if (n instanceof Call)
+            return desugarCall((Call) n,this);
+
         return n;
     }
 
@@ -346,6 +353,51 @@ public class Desugarer extends ContextVisitor {
 
     protected Expr visitFieldAssign(FieldAssign n) {
         return desugarFieldAssign(n, this);
+    }
+
+    // def n(a:T, b:S){EXPR(this,a,b)} { ... }
+    // def this(a:T, b:S){EXPR(a,b)} { ... }
+    // if the Call/New has a ProcedureInstance with checkGuardAtRuntime, then we do this transformation:
+    // e.n(e1, e2)     ->   ((r:C, a:T, b:S)=>{if (!(EXPR(r,a,b))) throw new ClassCastException(...); return r.n(a,b); })(e, e1, e2)
+    // (there are two special cases: if e is empty (so it's either "this" or nothing if the "n" is static)
+    // new X(e1, e2)  ->   ((a:T, b:S)=>{if (!(EXPR(a,b))) throw new ClassCastException(...); return new X(a,b); })(e1, e2)
+    // First step:      ((a:T, b:S)=> new X(a,b) )(e1, e2)
+
+    private static Expr desugarCall(Call n, ContextVisitor v) {
+        NodeFactory nf = v.nodeFactory();
+        TypeSystem ts = v.typeSystem();
+        Position pos = n.position();        
+
+        return n;
+    }
+    private static Expr desugarNew(New n, ContextVisitor v) {
+        final X10ConstructorInstance procInst = n.constructorInstance();
+        if (!procInst.checkGuardAtRuntime()) return n;
+        
+        NodeFactory nf = v.nodeFactory();
+        TypeSystem ts = v.typeSystem();
+        Position pos = n.position();
+
+
+        List<Formal> params = new ArrayList<Formal>();
+        final List<Expr> args = n.arguments();
+        final List<Expr> newArgs = new ArrayList<Expr>(args.size());
+        int i=0;
+        for (Expr arg : args) {
+            Name xn = Name.make("x"+(i++));
+            final Type type = arg.type();
+            LocalDef xDef = ts.localDef(pos, ts.Final(), Types.ref(type), xn);
+            Formal x = nf.Formal(pos, nf.FlagsNode(pos, ts.Final()),
+                    nf.CanonicalTypeNode(pos,type), nf.Id(pos, xn)).localDef(xDef);
+            params.add(x);
+            newArgs.add(nf.Local(pos, nf.Id(pos, xn)).localInstance(xDef.asInstance()).type(type));
+        }
+        final Expr newExpr = nf.X10New(pos, n.newOmitted(), n.qualifier(), n.objectType(), n.typeArguments(), newArgs, n.body()).constructorInstance(procInst).type(n.type());
+
+        Block body = nf.Block(pos, nf.Return(pos, newExpr));
+        Closure c = closure(pos, n.type(), params, body, v);
+        MethodInstance ci = c.closureDef().asType().applyMethod();
+        return nf.ClosureCall(pos, c, args).closureInstance(ci).type(n.type());
     }
 
     // T.f op=v -> T.f = T.f op v or e.f op=v -> ((x:E,y:T)=>x.f=x.f op y)(e,v)

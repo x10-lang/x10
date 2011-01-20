@@ -42,4 +42,6 @@ public interface ProcedureCall extends Term
      * @return a copy of this ProcedureCall with the new type object.
      */
     ProcedureCall procedureInstance(ProcedureInstance<? extends ProcedureDef> pi);
+                                       
+    List<TypeNode> typeArguments();
 }
