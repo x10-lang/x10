@@ -17,6 +17,7 @@ public class X10RT {
     private static State state = State.UNINITIALIZED;
     private static int here;
     private static int numPlaces;
+    static boolean forceSinglePlace = false;
 
     static final boolean REPORT_UNCAUGHT_USER_EXCEPTIONS = true;
     
@@ -40,32 +41,42 @@ public class X10RT {
       if (state != State.UNINITIALIZED) return;
 
       String libName = System.getProperty("X10RT_IMPL", "x10rt_sockets");
-      System.loadLibrary(libName);
+      try {
+          System.loadLibrary(libName);
+      } catch (UnsatisfiedLinkError e) {
+          System.err.println("Unable to load "+libName+". Forcing single place execution");
+          forceSinglePlace = true;
+      }
 
-      // TODO: For now we are not trying to plumb the command line arguments from
-      //       the program's main method into X10RT.  We really can't easily do this
-      //       until we change this code to be run via an explicit static method in
-      //       X10RT instead of doing it in the class initializer.  
+      if (forceSinglePlace) {
+          here = 0;
+          numPlaces = 1;
+      } else {
+          // TODO: For now we are not trying to plumb the command line arguments from
+          //       the program's main method into X10RT.  We really can't easily do this
+          //       until we change this code to be run via an explicit static method in
+          //       X10RT instead of doing it in the class initializer.  
 
-      x10rt_init(0, null);
+          x10rt_init(0, null);
 
-      MessageHandlers.initialize();
-      TeamSupport.initialize();
+          MessageHandlers.initialize();
+          TeamSupport.initialize();
 
-      here = x10rt_here();
-      numPlaces = x10rt_nplaces();
+          here = x10rt_here();
+          numPlaces = x10rt_nplaces();
 
-      // Add a shutdown hook to automatically teardown X10RT as part of JVM teardown
-      Runtime.getRuntime().addShutdownHook(new Thread(new Runnable(){
-        public void run() {
-          synchronized(X10RT.class) {
-            state = State.TEARING_DOWN;
-            x10rt_finalize();
-            state = State.TORN_DOWN;
-            System.err.flush();
-            System.out.flush();
-          }
-        }}));
+          // Add a shutdown hook to automatically teardown X10RT as part of JVM teardown
+          Runtime.getRuntime().addShutdownHook(new Thread(new Runnable(){
+              public void run() {
+                  synchronized(X10RT.class) {
+                      state = State.TEARING_DOWN;
+                      x10rt_finalize();
+                      state = State.TORN_DOWN;
+                      System.err.flush();
+                      System.out.flush();
+                  }
+              }}));
+      }
 
       state = State.BOOTED;
     }
@@ -76,7 +87,7 @@ public class X10RT {
      */
     public static void probe() {
         assert isBooted();
-        x10rt_probe();
+        if (!forceSinglePlace) x10rt_probe();
     }
 
     /**
