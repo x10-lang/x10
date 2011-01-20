@@ -373,6 +373,7 @@ static void apgas_test (void)
     std::cout << std::endl;
     std::cout << "----------------------" << std::endl;
     std::cout << "Explicit Team creation" << std::endl;
+    std::cout << " Also 2 thread test   " << std::endl;
     std::cout << "----------------------" << std::endl;
     std::cout << "Creating team...  " << std::endl;
     x10rt_place *memberv = new x10rt_place [2*x10rt_nplaces()];
@@ -437,14 +438,17 @@ int main (int argc, char **argv)
     if (getenv("NO_APGAS")==NULL) {
         if (0==x10rt_here()) {
             apgas_test();
-            apgas_test();
         } else {
-            time_to_quit = 2;
+            time_to_quit = 1;
             while (time_to_quit != 0) x10rt_probe();
         }
     }
 
+    int here = x10rt_here();
+
     x10rt_finalize();
+
+    fprintf(stderr,"Exiting successfully: %d\n", here);
 
     return EXIT_SUCCESS;
 }
