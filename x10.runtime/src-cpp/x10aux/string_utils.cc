@@ -23,10 +23,6 @@ using namespace x10::array;
 using namespace x10::lang;
 using namespace x10aux;
 
-#ifdef __CYGWIN__
-extern "C" char *strdup (const char *);
-#endif
-
 ref<Array<ref<String> > >x10aux::convert_args(int ac, char **av) {
     assert(ac>=1);
     x10_int x10_argc = ac  - 1;

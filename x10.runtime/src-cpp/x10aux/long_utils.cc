@@ -15,9 +15,6 @@
 #include <x10aux/basic_functions.h>
 
 #include <x10/lang/String.h>
-#if defined(__CYGWIN__) || defined(__FreeBSD__)
-extern "C" long long atoll(const char *);
-#endif
 
 using namespace x10::lang;
 using namespace std;

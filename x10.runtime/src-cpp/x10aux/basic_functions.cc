@@ -18,10 +18,6 @@
 using namespace x10aux;
 using namespace x10::lang;
 
-#ifdef __CYGWIN__
-extern "C" int snprintf(char *, size_t, const char *, ...);
-#endif
-
 #define TO_STRING(SZ,T,C,FMT) \
 ref<String> x10aux::to_string(T v) { \
     char buf[SZ]; \
