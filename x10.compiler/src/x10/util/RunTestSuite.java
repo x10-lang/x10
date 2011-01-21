@@ -143,6 +143,11 @@ public class RunTestSuite {
     public static boolean SHOW_RUNTIMES = getEnvVariable("SHOW_RUNTIMES");
     public static boolean QUIET = !SHOW_EXPECTED_ERRORS && getEnvVariable("QUIET");
 
+    public static String SOURCE_PATH_SEP = System.getenv("SOURCE_PATH_SEP");
+    static {
+        if (SOURCE_PATH_SEP==null) SOURCE_PATH_SEP = ";";
+    }
+
     private static void println(String s) {
         if (!QUIET) System.out.println(s);
     }
@@ -201,6 +206,9 @@ public class RunTestSuite {
     }
     private static final int MAX_FILES_NUM = Integer.MAX_VALUE; // Change it if you want to process only a small number of files
 
+    public static void Assert(boolean val, String msg) {
+        if (!val) throw new RuntimeException(msg);
+    }
     /**
      * Finds all *.x10 files in all sub-directories, and compiles them.
      * @param args
@@ -211,9 +219,9 @@ public class RunTestSuite {
      * @throws Throwable Can be a failed assertion or missing file.
      */
     public static void main(String[] args) throws Throwable {
-        assert args.length>0 : "The first command line argument must be an x10 filename or a comma separated list of the directories.\n"+
+        Assert(args.length>0, "The first command line argument must be an x10 filename or a comma separated list of the directories.\n"+
                     "E.g.,\n"+
-                    "C:\\cygwin\\home\\Yoav\\intellij\\sourceforge\\x10.tests,C:\\cygwin\\home\\Yoav\\intellij\\sourceforge\\x10.dist\\samples,C:\\cygwin\\home\\Yoav\\intellij\\sourceforge\\x10.runtime\\src-x10";
+                    "C:\\cygwin\\home\\Yoav\\intellij\\sourceforge\\x10.tests,C:\\cygwin\\home\\Yoav\\intellij\\sourceforge\\x10.dist\\samples,C:\\cygwin\\home\\Yoav\\intellij\\sourceforge\\x10.runtime\\src-x10");
 
         List<String> remainingArgs = new ArrayList<String>(Arrays.asList(args));
         remainingArgs.remove(0);
@@ -230,12 +238,12 @@ public class RunTestSuite {
         ArrayList<File> files = new ArrayList<File>(10);
         if (dirName.endsWith(".x10")) {
             final File dir = new File(dirName);
-            assert dir.isFile() : "File doesn't not exists: "+dirName;
+            Assert(dir.isFile(), "File doesn't not exists: "+dirName);
             files.add(getCanonicalFile(dir));
         } else {
             for (String dirStr : dirName.split(",")) {
                 File dir = new File(dirStr);
-                assert dir.isDirectory() : "The first command line argument must be the directory of x10.tests, and you passed: "+dir;
+                Assert(dir.isDirectory(), "The first command line argument must be the directory of x10.tests, and you passed: "+dir);
                 int before = files.size();
                 recurse(dir,files);
                 if (before==files.size()) println("Warning: Didn't find any .x10 files to compile in any subdirectory of "+dir);
@@ -266,7 +274,7 @@ public class RunTestSuite {
         }
         String dirs = "";
         for (String dir : directories)
-            dirs += ";"+dir;
+            dirs += SOURCE_PATH_SEP+dir;
         int argsNum = remainingArgs.size();
         boolean foundSourcePath = false;
         for (int i=1; i<argsNum; i++) {
@@ -279,7 +287,7 @@ public class RunTestSuite {
                 break;
             }
         }
-        assert foundSourcePath : "You must use an argument -sourcepath that includes '/x10.runtime/src-x10'";
+        Assert(foundSourcePath, "You must use an argument -sourcepath that includes '/x10.runtime/src-x10'");
 
         long start = System.currentTimeMillis();
         for (FileSummary f : summaries) {
@@ -331,7 +339,7 @@ public class RunTestSuite {
 
         if (SHOW_RUNTIMES) println("Compiler running time="+(System.currentTimeMillis()-start));
         final ArrayList<ErrorInfo> res = (ArrayList<ErrorInfo>) errQueue.getErrors();
-        assert res.size()<MAX_ERR_QUEUE : "We passed the maximum number of errors!";
+        Assert(res.size()<MAX_ERR_QUEUE, "We passed the maximum number of errors!");
         return res;
     }
 
