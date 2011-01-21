@@ -1,3 +1,14 @@
+/*
+ *  This file is part of the X10 project (http://x10-lang.org).
+ *
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ *  (C) Copyright IBM Corporation 2006-2010.
+ */
+
 #include <sys/types.h>
 #include <jni.h>
 #include <stdio.h>
@@ -98,7 +109,7 @@ int main(int ac, char** av) {
       break;
   }
   args.nOptions = c - 1 + nomx;
-  args.options = (JavaVMOption*) malloc((c - 1 + nomx) * sizeof(JavaVMOption));
+  args.options = (JavaVMOption*) malloc(args.nOptions * sizeof(JavaVMOption));
   int j = 0;
   for (i = 1; i < c; i++, j++) {
     if (!strcmp(av[i], "-classpath") || !strcmp(av[i], "-cp")) {
@@ -121,7 +132,7 @@ int main(int ac, char** av) {
     args.options[j].extraInfo = NULL;
   }
   if (nomx) {
-    args.options[j].optionString = strdup("-Xmx512m");
+    args.options[j].optionString = strdup("-Xmx512M");
     args.options[j].extraInfo = NULL;
     ++j;
   }
