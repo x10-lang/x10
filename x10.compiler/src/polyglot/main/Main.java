@@ -166,7 +166,11 @@ public class Main
 
   public static void main(String args[]) {
       try {
+          long time = - System.currentTimeMillis();
           new Main().start(args);
+          time += System.currentTimeMillis();
+          System.out.println(time + " ms");
+                             
       }
       catch (TerminationException te) {
           if (te.getMessage() != null)
