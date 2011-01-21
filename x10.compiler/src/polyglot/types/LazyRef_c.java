@@ -49,11 +49,7 @@ public class LazyRef_c<T> extends AbstractRef_c<T> implements LazyRef<T>, Serial
 			}
 
 			resolver.run();
-
-			if (! known()) {
-				// Should have already reported an error.
-			}
-			
+            resolver = null; // for garbage collection
 			known = true;
 		}
 
