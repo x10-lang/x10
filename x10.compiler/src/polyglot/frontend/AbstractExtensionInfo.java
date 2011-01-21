@@ -28,7 +28,6 @@ public abstract class AbstractExtensionInfo implements ExtensionInfo {
     protected NodeFactory nf = null;
     protected SourceLoader source_loader = null;
     protected TargetFactory target_factory = null;
-    protected Stats stats;
     protected Scheduler scheduler;
 
     public abstract String compilerName();
@@ -44,14 +43,6 @@ public abstract class AbstractExtensionInfo implements ExtensionInfo {
 
     protected Options createOptions() {
         return new Options(this);
-    }
-
-    /** Return a Stats object to accumulate and report statistics. */
-    public Stats getStats() {
-        if (this.stats == null) {
-            this.stats = new Stats(this);
-        }
-        return stats;
     }
 
     public Compiler compiler() {

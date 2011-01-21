@@ -12,6 +12,7 @@ import java.util.*;
 
 import polyglot.ast.*;
 import polyglot.frontend.Job;
+import polyglot.frontend.Compiler;
 import polyglot.types.*;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
@@ -778,7 +779,9 @@ public class InitChecker extends DataFlow
             dfIn = createInitDFI();
         }
 
-        long t = System.currentTimeMillis();
+        Compiler c = job().extensionInfo().compiler();
+        c.stats.incrFrequency("InitChecker.check", 1);
+        c.stats.startTiming("InitChecker.1","InitChecker.1");
 
         DataFlowItem dfOut;
         if (!entry && outItems != null && !outItems.isEmpty()) {
@@ -809,10 +812,7 @@ public class InitChecker extends DataFlow
             // probably a node in a finally block. Just ignore it.
         }
 
-        long t2 = System.currentTimeMillis();
-
-        job().extensionInfo().getStats().accumulate("InitChecker.check", 1);
-        job().extensionInfo().getStats().accumulate("InitChecker.1", (t2-t));
+        c.stats.stopTiming();
     }
 
 

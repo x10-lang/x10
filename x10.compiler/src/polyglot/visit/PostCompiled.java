@@ -48,21 +48,11 @@ public class PostCompiled extends AllBarrierGoal
     public final static String postcompile = "postcompile";
 
     public boolean runTask() {
-	Compiler compiler = ext.compiler();
+        Compiler compiler = ext.compiler();
 
-	if (Report.should_report(postcompile, 2))
-	    Report.report(2, "Output files: " + compiler.outputFiles());
+        if (Report.should_report(postcompile, 2)) Report.report(2, "Output files: " + compiler.outputFiles());
 
-	long start_time = System.currentTimeMillis();
-
-	try {
-	    return invokePostCompiler(ext.getOptions(), compiler, compiler.errorQueue());
-	}
-	finally {
-	    if (Report.should_report("time", 1))
-		Report.report(1, "Finished compiling Java output files. time=" +
-		              (System.currentTimeMillis() - start_time));
-	}
+        return invokePostCompiler(ext.getOptions(), compiler, compiler.errorQueue());
 
     }
 

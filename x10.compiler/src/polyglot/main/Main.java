@@ -18,6 +18,8 @@ import polyglot.util.QuotedStringTokenizer;
 import java.io.*;
 import java.util.*;
 
+import x10.ExtensionInfo;
+
 /** Main is the main program of the extensible compiler. It should not
  * need to be replaced.
  */
@@ -26,8 +28,6 @@ public class Main
 
   /** Source files specified on the command line */
   private Set<String> source;
-
-  public final static String verbose = "verbose";
 
   /* modifies args */
   protected ExtensionInfo getExtensionInfo(List<String> args) throws TerminationException {
@@ -113,19 +113,22 @@ public class Main
       Globals.initialize(compiler);
       return compiler;
   }
-  public void start(String[] argv, ExtensionInfo ext, ErrorQueue eq) throws TerminationException {
-      source = new LinkedHashSet<String>();
-      Compiler compiler = getCompiler(argv,ext, eq,source);
+  
+  public void start(String[] argv, ExtensionInfo ext, ErrorQueue eq)
+			throws TerminationException {
+        long startTime = System.nanoTime();
+        source = new LinkedHashSet<String>();
 
-      long time0 = System.currentTimeMillis();
+        Compiler compiler = getCompiler(argv, ext, eq, source);
+        compiler.stats.initialize(startTime);
+        boolean success = compiler.compileFiles(source);
 
-      if (!compiler.compileFiles(source)) {
-          throw new TerminationException(1);
-      }
+        compiler.stats.reportFrequency();
+        compiler.stats.reportTime();
 
-      if (Report.should_report(verbose, 1) || Report.should_report(Report.time, 1)) {
-          reportTime("Total time=" + (System.currentTimeMillis() - time0), 1);
-      }
+        if (!success) {
+            throw new TerminationException(1);
+        }
   }
 
   private List<String> explodeOptions(String[] args) throws TerminationException {
@@ -208,15 +211,6 @@ public class Main
       }
     }
     return null;
-  }
-
-  static private Collection<String> timeTopics = new ArrayList<String>(1);
-  static {
-      timeTopics.add("time");
-  }
-
-  static private void reportTime(String msg, int level) {
-      Report.report(level, msg);
   }
 
   /**

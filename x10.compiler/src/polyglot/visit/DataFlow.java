@@ -13,6 +13,7 @@ import java.util.*;
 import polyglot.ast.*;
 import polyglot.frontend.Globals;
 import polyglot.frontend.Job;
+import polyglot.frontend.Compiler;
 import polyglot.main.Report;
 import polyglot.types.*;
 import polyglot.util.*;
@@ -433,8 +434,8 @@ public abstract class DataFlow extends ErrorHandlingVisitor
                 // Build the control flow graph.
                 CFGBuilder v = createCFGBuilder(ts, g);
 
-                long t1 = System.currentTimeMillis();
-                
+                Compiler c = job().extensionInfo().compiler();
+                c.stats.startTiming("DataFlow.dataflow", "DataFlow.dataflow");
                 try {
                     hadCFG_Error = false;
                     v.visitGraph();
@@ -444,20 +445,17 @@ public abstract class DataFlow extends ErrorHandlingVisitor
                     if (reportCFG_Errors) reportError(e.getMessage(), e.position);
                     return;
                 }
-
-                long t2 = System.currentTimeMillis();
-                
+                finally {
+                    c.stats.stopTiming();
+                }
+                    
+                c.stats.startTiming("DataFlow.cfg.build", "DataFlow.cfg.build");
                 dataflow(g);
+                c.stats.stopTiming();
 
-                long t3 = System.currentTimeMillis();
-
+                c.stats.startTiming("DataFlow.post", "DataFlow.post");
                 post(g, cd);
-                
-                long t4 = System.currentTimeMillis();
-
-                job().extensionInfo().getStats().accumulate("DataFlow.cfg.build", (t2-t1));
-                job().extensionInfo().getStats().accumulate("DataFlow.dataflow", (t3-t2));
-                job().extensionInfo().getStats().accumulate("DataFlow.post", (t4-t3));
+                c.stats.stopTiming();
 
                 // push the CFG onto the stack if we are dataflowing on entry
                 if (dataflowOnEntry)

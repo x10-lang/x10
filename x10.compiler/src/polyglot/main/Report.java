@@ -60,6 +60,7 @@ public class Report {
   public final static String resolver = "resolver";
   public final static String serialize = "serialize";
   public final static String time = "time";
+  public final static String frequency = "frequency";
   public final static String types = "types";
   public final static String visit = "visit";
   public final static String verbose = "verbose";
@@ -78,6 +79,7 @@ public class Report {
     topics.add(resolver);
     topics.add(serialize);
     topics.add(time);
+    topics.add(frequency);
     topics.add(types);
     topics.add(visit);
     topics.add(verbose);
