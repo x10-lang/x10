@@ -376,6 +376,11 @@ public class LineNumberMap extends StringTable {
 	
 	public void addLocalVariableMapping(String name, String type, int startline, int endline, String file, boolean noMangle)
 	{
+		addLocalVariableMapping(name, type, startline, endline, file, noMangle, -1);
+	}
+	
+	public void addLocalVariableMapping(String name, String type, int startline, int endline, String file, boolean noMangle, int closureIndex)
+	{
 		if (name == null || name.startsWith(Context.MAGIC_VAR_PREFIX))
 			return; // skip variables with compiler-generated names.
 		
@@ -397,6 +402,8 @@ public class LineNumberMap extends StringTable {
 			else
 				v._x10typeIndex = stringId(Emitter.mangled_non_method_name(type.substring(0, b)));
 		}
+		else if (v._x10type == 100)
+			v._x10typeIndex = closureIndex;
 		else 
 			v._x10typeIndex = -1;
 		if (noMangle)
@@ -441,7 +448,7 @@ public class LineNumberMap extends StringTable {
 		ClosureMapInfo cm = closureMembers.get(containingClass);
 		if (cm == null)
 		{
-			addLocalVariableMapping("this", containingClass, startLine, endLine, file, true);
+			addLocalVariableMapping("this", containingClass, startLine, endLine, file, true, closureMembers.size());
 			cm = new ClosureMapInfo();			
 			cm.closureMembers = new ArrayList<LineNumberMap.MemberVariableMapInfo>();
 			cm._x10startLine = startLine;
