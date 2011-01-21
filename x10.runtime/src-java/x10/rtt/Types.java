@@ -272,7 +272,14 @@ public class Types {
     
     // FIXME this should be replaced by virtual method for user defined conversion
     public static Object conversion(Type<?> rtt, Object primOrTypeParam) {
-        if (primOrTypeParam == null && isStructType(rtt)) {nullIsCastedToStruct(rtt);}
+        if (primOrTypeParam == null) {
+            if (isStructType(rtt)) {
+                nullIsCastedToStruct(rtt);
+            }
+            else {
+                return null;
+            }
+        }
         
         if (rtt == BYTE) {
             if (primOrTypeParam instanceof java.lang.Byte) return primOrTypeParam;
@@ -324,6 +331,18 @@ public class Types {
             /*rtt == UBYTE || rtt == USHORT || rtt == UINT || rtt == ULONG ||*/
             rtt == FLOAT || rtt == DOUBLE || rtt == CHAR || rtt == BOOLEAN) return true;
         return false;
+    }
+
+    public static <T> T cast(final java.lang.Object self, x10.rtt.Type<?> rtt) {
+        if (self == null) return null;
+        if (rtt != null && !rtt.instanceof$(self)) throw new x10.lang.ClassCastException(rtt.typeName());
+        return (T) self;
+    }
+    
+    public static <T> T castConversion(final java.lang.Object self, x10.rtt.Type<?> rtt) {
+        if (self == null) return null;
+        if (rtt != null && !rtt.instanceof$(self)) throw new x10.lang.ClassCastException(rtt.typeName());
+        return (T) conversion(rtt, self);
     }
 
     // TODO haszero
