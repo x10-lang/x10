@@ -134,8 +134,13 @@ import x10.X10CompilerOptions;
 </ul>
  */
 public class RunTestSuite {
+    public static String getProp(String name) {
+        final String val = System.getProperty(name);
+        System.out.println("getProperty("+name+")="+val);
+        return val;
+    }
     public static boolean getEnvVariable(String name) {
-        final String val = System.getenv(name);
+        final String val = getProp(name);
         return val!=null && (val.equalsIgnoreCase("t") || val.equalsIgnoreCase("true"));
     }
     public static boolean SEPARATE_COMPILER = getEnvVariable("SEPARATE_COMPILER");
@@ -143,7 +148,7 @@ public class RunTestSuite {
     public static boolean SHOW_RUNTIMES = getEnvVariable("SHOW_RUNTIMES");
     public static boolean QUIET = !SHOW_EXPECTED_ERRORS && getEnvVariable("QUIET");
 
-    public static String SOURCE_PATH_SEP = System.getenv("SOURCE_PATH_SEP");
+    public static String SOURCE_PATH_SEP = getProp("SOURCE_PATH_SEP");
     static {
         if (SOURCE_PATH_SEP==null) SOURCE_PATH_SEP = ";";
     }
