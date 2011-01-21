@@ -393,19 +393,20 @@ void Launcher::handleRequestsLoop(bool onlyCheckForNewConnections)
 	/* --------------------------------------------- */
 	/* end of main loop. kill & wait every process   */
 	/* --------------------------------------------- */
-	//cleanup:
+
+	signal(SIGCHLD, SIG_DFL); // disable the SIGCHLD handler
 
 	// save the return code for place 0.
 	int exitcode = _returncode; // exitcode is here to cover up any issues with using a static variable for the exit code, which may happen on Windows (and AIX?).
-	while ((_myproc==0 || _myproc==0xFFFFFFFF) && _pidlst[_numchildren] != -1)
+	if ((_myproc==0 || _myproc==0xFFFFFFFF) && _pidlst[_numchildren] != -1)
 	{
 	    int status;
- 		if (waitpid(_pidlst[_numchildren], &status, WNOHANG) == _pidlst[_numchildren])
+ 		if (waitpid(_pidlst[_numchildren], &status, 0) == _pidlst[_numchildren])
 		{
-			if (WEXITSTATUS(status) != 0)
-				fprintf(stderr, "Launcher %d: Non-zero return code from local runtime (pid=%d), status=%d (previous stored status=%d)\n", _myproc, _pidlst[_numchildren], WEXITSTATUS(status), WEXITSTATUS(exitcode));
+ 			exitcode = WEXITSTATUS(status);
+			if (exitcode != 0)
+				fprintf(stderr, "Launcher %d: Non-zero return code from local runtime (pid=%d), status=%d (previous stored status=%d)\n", _myproc, _pidlst[_numchildren], exitcode, _returncode);
 			_pidlst[_numchildren] = -1;
-			exitcode = WEXITSTATUS(status);
 		}
 	}
 
