@@ -299,8 +299,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 	public void setResolver(Node parent, final TypeCheckPreparer v) {
 		X10MethodDef mi = (X10MethodDef) this.mi;
 		if (mi.body() instanceof LazyRef<?>) {
-            // todo: if the return type is void, let's skip this whole resolver stuff.
-			LazyRef<XTerm> r = (LazyRef<XTerm>) mi.body();
+            LazyRef<XTerm> r = (LazyRef<XTerm>) mi.body();
 			TypeChecker tc = new X10TypeChecker(v.job(), v.typeSystem(), v.nodeFactory(), v.getMemo());
 			tc = (TypeChecker) tc.context(v.context().freeze());
 			r.setResolver(new TypeCheckFragmentGoal<XTerm>(parent, this, tc, r, false));
@@ -477,6 +476,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 				final LazyRef<Type> r = (LazyRef<Type>) tn.typeRef();
 				TypeChecker tc = new X10TypeChecker(v.job(), v.typeSystem(), v.nodeFactory(), v.getMemo(), true);
 				tc = (TypeChecker) tc.context(tcp.context().freeze());
+                // todo: if the return type is void, let's skip this whole resolver stuff.
 				r.setResolver(new TypeCheckReturnTypeGoal(this, new Node[] { guard(), offerType() }, body(), tc, r));
 			}
 		}

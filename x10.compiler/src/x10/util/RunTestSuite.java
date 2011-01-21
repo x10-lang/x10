@@ -86,9 +86,7 @@ import x10.X10CompilerOptions;
  *
  * <p> The property flag <code>SHOW_RUNTIMES</code> prints runtime for the entire suite and for each file.
  *
- * <p> The property flag <code>SOURCE_PATH_SEP</code> should be ":" on MAC and ";" on PC.
- *
- *
+ * 
  * <p> Five kinds of error markers can be inserted in <code>*.x10</code> files:
  * <ul>
  *  <li><code>ERR</code>  - marks an error or warning
@@ -150,7 +148,7 @@ public class RunTestSuite {
     public static boolean SHOW_RUNTIMES = getBoolProp("SHOW_RUNTIMES");
     public static boolean QUIET = !SHOW_EXPECTED_ERRORS && getBoolProp("QUIET");
 
-    public static String SOURCE_PATH_SEP = getProp("SOURCE_PATH_SEP", ";"); // on MAC the separator is ":" and on windows it is ";"
+    public static String SOURCE_PATH_SEP = File.pathSeparator; // on MAC the separator is ":" and on windows it is ";"
 
     private static void println(String s) {
         if (!QUIET) System.out.println(s);
@@ -160,7 +158,7 @@ public class RunTestSuite {
     private static void err(String s) {
         EXIT_CODE = 1;
         System.err.println(s);
-        ALL_ERRORS.append(s).append("n");
+        ALL_ERRORS.append(s).append("\n");
     }
 
     //_MustFailCompile means the compilation should fail.
