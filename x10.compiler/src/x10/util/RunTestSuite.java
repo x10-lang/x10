@@ -176,6 +176,8 @@ public class RunTestSuite {
             "TypedefOverloading06_MustFailCompile.x10",
             "TypedefOverloading08_MustFailCompile.x10",
             "TypedefOverloading10_MustFailCompile.x10",
+            "TypedefNew11_MustFailCompile.x10",
+            "TypedefBasic2.x10",
 
             // LangSpec is auto-generated, so I can't fix those files to make a clean test suite
             "Classes250.x10","Classes160.x10","Classes170.x10",
