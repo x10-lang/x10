@@ -500,7 +500,7 @@ public class RunTestSuite {
         if (files.size()>=MAX_FILES_NUM) return;
         // sort the result, so the output is identical for diff purposes (see SHOW_EXPECTED_ERRORS)
         final File[] filesInDir = dir.listFiles();
-        Arrays.sort(filesInDir);
+        Arrays.sort(filesInDir); // todo: the sort is different on MAC and PC (on MAC: Array1DCodeGen.x10 < Array1b.x10, and on PC it's reverse) 
         for (File f : filesInDir) {
             String name = f.getName();
             final boolean isDir = f.isDirectory();

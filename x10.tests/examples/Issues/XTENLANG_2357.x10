@@ -34,6 +34,6 @@ class Bee2357 {
   public static operator (x:Int) as Bee2357 = new Bee2357();
   def example() {
     val b:Bee2357 = 2 as Bee2357;
-    assert (b as Int) == 1;
+    @ShouldNotBeERR { assert (b as Int) == 1; }
   }
 }
