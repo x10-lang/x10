@@ -65,22 +65,20 @@ public class CollectionFactory
     }
 }
 
+/*
 class WallaSmallMap<K,V> extends com.ibm.wala.util.collections.SmallMap<K,V> {
-    /*
-    java.lang.UnsupportedOperationException
-        at com.ibm.wala.util.collections.SmallMap.putAll(Unknown Source)
-     */
+//    java.lang.UnsupportedOperationException
+//        at com.ibm.wala.util.collections.SmallMap.putAll(Unknown Source)
     @Override
     public void putAll(Map<? extends K, ? extends V> map) throws UnsupportedOperationException {
-        /*
-        com.ibm.wala.util.debug.UnimplementedError: must implement entrySet
-            at com.ibm.wala.util.debug.Assertions.UNREACHABLE(Unknown Source)
-            at com.ibm.wala.util.collections.SmallMap.entrySet(Unknown Source)
-         */
+//        com.ibm.wala.util.debug.UnimplementedError: must implement entrySet
+//            at com.ibm.wala.util.debug.Assertions.UNREACHABLE(Unknown Source)
+//            at com.ibm.wala.util.collections.SmallMap.entrySet(Unknown Source)
         for (Map.Entry en : map.entrySet())
             put(en.getKey(),en.getValue());
     }
 }
+*/
 
 final class SmallMap<K,V> implements Map<K,V> {
     // we must support null key and values (TypeCheckFragmentGoal.runTask puts a null value)
