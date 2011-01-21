@@ -2,12 +2,10 @@ package x10.util;
 
 import polyglot.frontend.Compiler;
 import polyglot.types.Types;
-import polyglot.util.ErrorQueue;
 import polyglot.util.SilentErrorQueue;
 import polyglot.util.Position;
 import polyglot.util.ErrorInfo;
-import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
-import polyglot.main.Report;
+import x10.util.CollectionFactory;
 import polyglot.main.Main;
 
 import java.io.File;
@@ -15,15 +13,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.HashSet;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.lang.*;
 import java.lang.StringBuilder;
 
 import x10.parser.AutoGenSentences;
-import x10.Configuration;
 import x10.X10CompilerOptions;
 
 /**
@@ -71,22 +66,29 @@ import x10.X10CompilerOptions;
  * provided as the first argument.  From these directories it collects
  * all <code>*.x10</code> files.
  *
- * <p>The environment flag <code>SEPARATE_COMPILER</code> can be set
+ * Property flags are passed with:
+ * java -DFLAG=SOMETHING
+ *
+ * <p>The property flag <code>SEPARATE_COMPILER</code> can be set
  * to <code>false<code> to force <code>RunTestSuite</code> to use the same
  * compiler object for multiple tests. In general this runs the tests
  * much faster, but is still a bit brittle (may yield errors when
  * compiling each test with a separate compiler object would not).
  *
- * <p> The environment flag <code>QUIET</code> can be set to
+ * <p> The property flag <code>QUIET</code> can be set to
  * <code>true</code> to run in quiet mode. In this mode various
  * warnings and helpful messages are not printed out.
  *
- * <p> The environment flag <code>SHOW_EXPECTED_ERRORS</code> prints all
+ * <p> The property flag <code>SHOW_EXPECTED_ERRORS</code> prints all
  * the errors (even the expected errors).
  * This is useful if we want to diff the output of the compiler to make
  * sure the error messages are exactly the same.
  *
-
+ * <p> The property flag <code>SHOW_RUNTIMES</code> prints runtime for the entire suite and for each file.
+ *
+ * <p> The property flag <code>SOURCE_PATH_SEP</code> should be ":" on MAC and ";" on PC.
+ *
+ *
  * <p> Five kinds of error markers can be inserted in <code>*.x10</code> files:
  * <ul>
  *  <li><code>ERR</code>  - marks an error or warning
@@ -134,24 +136,21 @@ import x10.X10CompilerOptions;
 </ul>
  */
 public class RunTestSuite {
-    public static String getProp(String name) {
-        final String val = System.getProperty(name);
+    public static String getProp(String name, String defVal) {
+        final String val = System.getProperty(name); // I prefer System.getProperty over getenv because you see the properties on the command line for the java (it's not something you set on the outside)
         System.out.println("getProperty("+name+")="+val);
-        return val;
+        return val==null ? defVal : val;
     }
-    public static boolean getEnvVariable(String name) {
-        final String val = getProp(name);
+    public static boolean getBoolProp(String name) {
+        final String val = getProp(name,null);
         return val!=null && (val.equalsIgnoreCase("t") || val.equalsIgnoreCase("true"));
     }
-    public static boolean SEPARATE_COMPILER = getEnvVariable("SEPARATE_COMPILER");
-    public static boolean SHOW_EXPECTED_ERRORS = getEnvVariable("SHOW_EXPECTED_ERRORS");
-    public static boolean SHOW_RUNTIMES = getEnvVariable("SHOW_RUNTIMES");
-    public static boolean QUIET = !SHOW_EXPECTED_ERRORS && getEnvVariable("QUIET");
+    public static boolean SEPARATE_COMPILER = getBoolProp("SEPARATE_COMPILER");
+    public static boolean SHOW_EXPECTED_ERRORS = getBoolProp("SHOW_EXPECTED_ERRORS");
+    public static boolean SHOW_RUNTIMES = getBoolProp("SHOW_RUNTIMES");
+    public static boolean QUIET = !SHOW_EXPECTED_ERRORS && getBoolProp("QUIET");
 
-    public static String SOURCE_PATH_SEP = getProp("SOURCE_PATH_SEP");
-    static {
-        if (SOURCE_PATH_SEP==null) SOURCE_PATH_SEP = ";";
-    }
+    public static String SOURCE_PATH_SEP = getProp("SOURCE_PATH_SEP", ";"); // on MAC the separator is ":" and on windows it is ";"
 
     private static void println(String s) {
         if (!QUIET) System.out.println(s);
@@ -174,6 +173,12 @@ public class RunTestSuite {
             "NOT_WORKING", // to exclude some benchmarks: https://x10.svn.sourceforge.net/svnroot/x10/benchmarks/trunk
     };
     private static final String[] EXCLUDE_FILES = {
+            // difference on MAC and PC (on PC the compiler crashes, on MAC it outputs this error: Semantic Error: Type definition type static TypedefOverloading06_MustFailCompile.A = x10.lang.String has the same name as member class TypedefOverloading06_MustFailCompile.A.
+            "TypedefOverloading04_MustFailCompile.x10",
+            "TypedefOverloading06_MustFailCompile.x10",
+            "TypedefOverloading08_MustFailCompile.x10",
+            "TypedefOverloading10_MustFailCompile.x10",
+
             // LangSpec is auto-generated, so I can't fix those files to make a clean test suite
             "Classes250.x10","Classes160.x10","Classes170.x10",
             "InnerClasses5p9v.x10","Packages5t5g.x10","Stimulus.x10","Statements51.x10", "ClassCtor30_MustFailCompile.x10", "ThisEscapingViaAt_MustFailCompile.x10",
