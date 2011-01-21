@@ -179,7 +179,31 @@ public final class Array[T] (
         }
         raw = r;
     }
-
+    
+    
+    /**
+     * Construct an Array view of a backing IndexedMemoryChunk
+     * using the argument region to define how to map Points into
+     * offsets in the backingStorage.  The size of the IndexedMemoryChunk
+     * must be at least as large as the number of points in the boundingBox
+     * of the given Region.
+     * 
+     * @param reg The region over which to define the array.
+     * @param backingStore The backing storage for the array data.
+     */
+    public def this(reg:Region, backingStore:IndexedMemoryChunk[T])
+    {
+        property(reg, reg.rank, reg.rect, reg.zeroBased, reg.rail, reg.size());
+        
+        layout = RectLayout(reg);
+        val n = layout.size();
+        if (n > backingStore.length()) {
+            throw new IllegalArgumentException("backingStore too small");
+        }
+        raw = backingStore;
+    }
+    
+    
     /**
      * Construct Array over the region 0..(size-1) whose elements are zero-initialized.
      */
