@@ -77,6 +77,8 @@ public class XConstraint implements Cloneable {
     protected boolean consistent = true;
     protected boolean valid = true;
 
+    // A representation of the constraint suitable for copying the constraint.
+    protected List<XTerm> terms;
     public XConstraint() {}
     
     public HashMap<XTerm, XPromise> roots() {
@@ -238,7 +240,9 @@ public class XConstraint implements Cloneable {
 
         if (!consistent)
             return;
-        
+        if (terms == null)
+            terms = new ArrayList<XTerm>();
+        terms.add(XTerms.makeEquals(left, right));
         if (roots == null)
             roots = new LinkedHashMap<XTerm, XPromise>();
 
@@ -260,6 +264,9 @@ public class XConstraint implements Cloneable {
     	assert right !=null;
     	if (! consistent)
     		return;
+    	 if (terms == null)
+             terms = new ArrayList<XTerm>();
+         terms.add(XTerms.makeDisEquals(left, right));
     	if (roots == null)
     		roots = new LinkedHashMap<XTerm, XPromise>();
     	XPromise p1 = intern(left);
@@ -285,7 +292,9 @@ public class XConstraint implements Cloneable {
         
         if (roots == null)
             roots = new LinkedHashMap<XTerm, XPromise>();
-
+        if (terms == null)
+            terms = new ArrayList<XTerm>();
+        terms.add(t);
         XPromise p = lookup(t);
         
         if (p != null)

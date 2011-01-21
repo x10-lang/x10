@@ -72,9 +72,9 @@ public final class OptionsParser {
 
     public def filteredArgs() = filteredArgs.toRail();
 
-    public operator this (key:String) = set.containsKey(key) || map.containsKey(key);
+    public operator this (key:String):Boolean = set.containsKey(key) || map.containsKey(key);
 
-    public operator this (key:String, d:String) = map.getOrElse(key, d);
+    public operator this (key:String, d:String):String = map.getOrElse(key, d);
     /* Uncomment on resolution of XTENLANG-1413
     public operator this (key:String, d:UByte) { //throws Err {
         if (!map.containsKey(key)) return d;
@@ -86,7 +86,7 @@ public final class OptionsParser {
         }
     }
     */
-    public operator this (key:String, d:Byte) { // throws Err {
+    public operator this (key:String, d:Byte):Byte { // throws Err {
         if (!map.containsKey(key)) return d;
         val v = map.getOrElse(key, "???");
         try {
@@ -106,7 +106,7 @@ public final class OptionsParser {
         }
     }
     */
-    public operator this (key:String, d:Short) { //throws Err {
+    public operator this (key:String, d:Short):Short { //throws Err {
         if (!map.containsKey(key)) return d;
         val v = map.getOrElse(key, "???");
         try {
@@ -126,7 +126,7 @@ public final class OptionsParser {
         }
     }
     */
-    public operator this (key:String, d:Int) { //throws Err {
+    public operator this (key:String, d:Int):Int { //throws Err {
         if (!map.containsKey(key)) return d;
         val v = map.getOrElse(key, "???");
         try {
@@ -146,7 +146,7 @@ public final class OptionsParser {
         }
     }
     */
-    public operator this (key:String, d:Long) { //throws Err {
+    public operator this (key:String, d:Long):Long { //throws Err {
         if (!map.containsKey(key)) return d;
         val v = map.getOrElse(key, "???");
         try {
@@ -157,7 +157,7 @@ public final class OptionsParser {
     }
 
 
-    public operator this (key:String, d:Double) { //throws Err {
+    public operator this (key:String, d:Double):Double { //throws Err {
         if (!map.containsKey(key)) return d;
         val v = map.getOrElse(key, "???");
         try {
@@ -166,7 +166,7 @@ public final class OptionsParser {
             throw new Err("Expected Double, got: \""+v+"\"");
         }
     }
-    public operator this (key:String, d:Float) { //throws Err {
+    public operator this (key:String, d:Float):Float { //throws Err {
         if (!map.containsKey(key)) return d;
         val v = map.getOrElse(key, "???");
         try {

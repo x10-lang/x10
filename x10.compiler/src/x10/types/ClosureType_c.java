@@ -67,7 +67,12 @@ public class ClosureType_c extends X10ParsedClassType_c implements FunctionType 
     }
     
     public MethodInstance applyMethod() {
+        try {
         return (MethodInstance) methods().get(0);
+        } catch (Exception z) {
+            System.out.println("check.");
+            return null;
+        }
     }
     
     public Type returnType() {
@@ -94,6 +99,8 @@ public class ClosureType_c extends X10ParsedClassType_c implements FunctionType 
     @Override
     public String typeToString() {
         MethodInstance mi = applyMethod();
+        if (mi==null) // this could happen if the method is installed before the type is properly formed, e.g. in -report types=2 execution.
+            return "???"; 
         StringBuilder sb = new StringBuilder();
         List<LocalInstance> formals = mi.formalNames();
         for (int i=0; i < formals.size(); ++i) {

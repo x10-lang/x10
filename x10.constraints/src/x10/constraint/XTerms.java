@@ -126,9 +126,9 @@ public class XTerms {
 	 * any other name created before.
 	 * @param prefix
 	 * @return
-	 */
+	 */ 
 	public static final XName makeFreshName(String prefix) {
-	    return new XNameWrapper<Object>(new Object(), prefix + (nextId++));
+	    return new XName_c(prefix + (nextId++));
 	}
 	
 	/**

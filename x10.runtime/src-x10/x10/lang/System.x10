@@ -25,14 +25,14 @@ public class System {
      *
      * @return The current time in milliseconds.
      */
-    public static def currentTimeMillis() = Timer.milliTime();
+    public static def currentTimeMillis():Long = Timer.milliTime();
 
     /**
      * Provides the current time in nanoseconds, as precise as the system timers provide.
      *
      * @return The current time in nanoseconds.
      */
-    public static def nanoTime() = Timer.nanoTime();
+    public static def nanoTime():Long = Timer.nanoTime();
 
     /**
      * Terminates the application with a given exit code, as quickly as possible.
@@ -56,7 +56,7 @@ public class System {
      * @see #exit(Int)
      * @see #setExitCode(Int)
      */
-    static def exit() = exit(-1);
+    static def exit():void = exit(-1);
 
     /**
      * Sets the system exit code.
