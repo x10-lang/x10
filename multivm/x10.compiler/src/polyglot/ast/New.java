@@ -11,6 +11,10 @@ import java.util.List;
 
 import polyglot.types.ClassDef;
 import polyglot.types.ConstructorInstance;
+import x10.types.X10ClassDef;
+import x10.types.X10ConstructorInstance;
+import x10.ast.X10New;
+import x10.ast.X10ProcedureCall;
 
 /**
  * A <code>New</code> is an immutable representation of the use of the
@@ -19,19 +23,19 @@ import polyglot.types.ConstructorInstance;
  * list of arguments to be passed to the constructor of the object and an
  * optional <code>ClassBody</code> used to support anonymous classes.
  */
-public interface New extends Expr, ProcedureCall
+public interface New extends Expr, X10ProcedureCall
 {
     /** The type object for anonymous classes, or null. */
-    ClassDef anonType();
+    X10ClassDef anonType();
 
     /** Set the type object for anonymous classes. */
-    New anonType(ClassDef anonType);
+    X10New anonType(ClassDef anonType);
 
     /** The constructor invoked by this expression. */
-    ConstructorInstance constructorInstance();
+    X10ConstructorInstance constructorInstance();
 
     /** Set the constructor invoked by this expression. */
-    New constructorInstance(ConstructorInstance ci);
+    X10New constructorInstance(ConstructorInstance ci);
 
     /**
      * The qualifier expression for the type, or null. If non-null, this
@@ -40,13 +44,13 @@ public interface New extends Expr, ProcedureCall
     Expr qualifier();
 
     /** Set the qualifier expression for the type. */
-    New qualifier(Expr qualifier);
+    X10New qualifier(Expr qualifier);
 
     /** The type we are creating, possibly qualified by qualifier. */
     TypeNode objectType();
 
     /** Set the type we are creating. */
-    New objectType(TypeNode t);
+    X10New objectType(TypeNode t);
 
     /** Actual arguments to pass to the constructor.
      * @return A list of {@link polyglot.ast.Expr Expr}.
@@ -62,5 +66,12 @@ public interface New extends Expr, ProcedureCall
     ClassBody body();
 
     /** Set the class body for anonymous classes. */
-    New body(ClassBody b);
+    X10New body(ClassBody b);
+
+
+	X10New typeArguments(List<TypeNode> args);
+
+	boolean newOmitted();
+
+	X10New newOmitted(boolean val);
 }

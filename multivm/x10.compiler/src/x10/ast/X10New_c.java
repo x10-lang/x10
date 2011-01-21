@@ -115,15 +115,7 @@ public class X10New_c extends New_c implements X10New {
         return result;
     }
 
-    @Override
-    public X10ClassDef anonType() {
-        return (X10ClassDef) super.anonType();
-    }
 
-    @Override
-    public X10ConstructorInstance constructorInstance() {
-        return (X10ConstructorInstance) super.constructorInstance();
-    }
 
     @Override
     public X10New anonType(ClassDef anonType) {

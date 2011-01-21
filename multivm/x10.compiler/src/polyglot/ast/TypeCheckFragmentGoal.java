@@ -59,7 +59,7 @@ public class TypeCheckFragmentGoal<T> extends AbstractGoal_c implements SourceGo
     
     protected Node processPrereq(Node parent, Node n, TypeChecker v) {
         if (n != null) {
-            v = (TypeChecker) v.enter(parent, n);
+            v = (TypeChecker) v.enter(parent, n); // uses v.context
         }
         return parent.visitChild(n, v);
     }
