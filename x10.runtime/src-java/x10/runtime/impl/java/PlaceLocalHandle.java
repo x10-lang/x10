@@ -11,41 +11,46 @@
 
 package x10.runtime.impl.java;
 
+import java.util.HashMap;
+
 
 /**
  * Implementation of PlaceLocalHandle service for Java-based runtime.
  */
 public final class PlaceLocalHandle<T> implements java.io.Serializable {
-//  private final Object[] objects;
-    transient private final Object[] objects;
-    transient private final boolean[] init_stat;
+    private static final HashMap<Integer,Object> data = new HashMap<Integer,Object>();
     
-    // single process implementation
-    private static final java.util.ArrayList<PlaceLocalHandle<?>> handles = new java.util.ArrayList<PlaceLocalHandle<?>>(); // all place local handles in this process
-    private int id; // unique id of this place local handle
-    private Object writeReplace() {
-        if (this.id == 0) { 
-            synchronized (handles) {
-                if (this.id == 0) { // guard for multi thread
-                    handles.add(this);
-                    this.id = handles.size();
-                }
-            }
-        }
-        return this;
-    }
+	private static final int placeShift = 20;
+	private static int nextLocalId = 1;
+
+	transient private boolean initialized = false;
+	transient private Object myData = null;
+	private final int id;
+    
+	// TODO: The X10 code currently ensures that PlaceLocalHandle's are only
+	//       created at Place 0 by doing an at.  We've contemplated moving to
+	//       more of a SVD style implementation where each place would be able to
+	//       create place local handles by either encoding the place in the id like we
+	//       did here or by having the places get ids in "chunks" from the master id server
+	//       at place 0. 
+	//       Since we are thinking about making this change, I went ahead and did a poor-man's
+	//       version of it here instead of asserting nextId is only called at place 0 
+	//       (which would have been true currently).
+	private static synchronized int nextId() {
+	    int here = Thread.currentThread().home().id;
+	    int newId  = nextLocalId++;
+	    assert newId < (1<< placeShift);
+	    newId |= (here << placeShift);
+	    return newId;
+	}
+	
     private Object readResolve() {
-        synchronized (handles) {
-            assert this.id != 0;
-            PlaceLocalHandle<?> orig = handles.get(this.id - 1);
-            assert orig != null && orig.id == this.id;
-            return orig;
-        }
+    	initialized = false;
+    	return this;
     }
 
   public PlaceLocalHandle(x10.rtt.Type<T> T) {
-    objects = new Object[Runtime.MAX_PLACES];
-    init_stat = new boolean[Runtime.MAX_PLACES];
+	  id = nextId();
   }
 
   // TODO haszero
@@ -55,24 +60,21 @@ public final class PlaceLocalHandle<T> implements java.io.Serializable {
   }
 
   public T $apply$G() {
-    int here = Thread.currentThread().home().id;
-    Object data = objects[here];
-    assert init_stat[here] : "At "+here+": get called on uninitialized local object";
-    return (T)data;
+	  if (!initialized) {
+		  synchronized(data) {
+			  myData = data.get(id);
+			  initialized = true;
+		  }
+	  }
+	  return (T) myData;
   }
 
-  public void set_0_$$x10$lang$PlaceLocalHandle_T(T data) {
-    int here = Thread.currentThread().home().id;
-    assert !init_stat[here] : "At "+here+": set called on already initialized local object";
-    objects[here] = data;
-    init_stat[here] = true;
+  public void set_0_$$x10$lang$PlaceLocalHandle_T(T value) {
+	  synchronized(data) {
+		  Object old = data.put(id, value);
+		  assert old == null : "Set called on already initialized local object";
+	  }
   }
-
-  public void set_0_$$x10$lang$PlaceLocalHandle_T(int place, T data) {
-      assert !init_stat[place] : "At "+place+": set called on already initialized local object";
-      objects[place] = data;
-      init_stat[place] = true;
-    }
 
   @Override
   public String toString() {

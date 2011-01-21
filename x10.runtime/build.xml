@@ -322,8 +322,9 @@
                   <pathelement location="${build}"/>
               </path>
             </classpath>
+            <class name="x10.x10rt.MessageHandlers"/>
+            <class name="x10.x10rt.TeamSupport"/>
             <class name="x10.x10rt.X10RT"/>
-            <class name="x10.x10rt.ActiveMessage"/>
         </javah>
     </target>
 

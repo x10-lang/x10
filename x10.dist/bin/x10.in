@@ -87,15 +87,28 @@ java_args="-Djava.library.path=\"$externpath\" -ea -classpath \"$classpath\" ${j
 if [ -n "$mx" ]; then
    java_args="-Xmx$mx $java_args"
 fi
+
+if [ -n "$X10_NTHREADS" ]; then
+   java_args="-Dx10.INIT_THREADS=$X10_NTHREADS $java_args"
+fi
+
+if [ -n "$X10_STATIC_THREADS" ]; then
+   java_args="-Dx10.STATIC_THREADS=true $java_args"
+fi
+
 java_args="${java_args} ${defs}"
 
 # HACK: enforce normal compilation in preloading phase
 IBMJ9VM=`"$JAVA" -version 2>&1 | grep 'IBM J9 VM'`
 if [ -n "$IBMJ9VM" ]; then java_args="-Xjit:classLoadPhaseThreshold=10000 ${java_args}"; fi
 
+if [[ "$UNAME" = CYGWIN* ]]; then JAVA="$(cygpath -au "$TOP/bin/cyglaunch")"; fi
+
 command="\"$JAVA\" $java_args $config $args"
 
 [ -n "$verbose" ] && echo "$command"
-eval "$time$command"
+
+launcher="${TOP}${FILE_SEP}bin${FILE_SEP}X10Launcher"
+eval "$time$launcher $command"
 
 exit $?

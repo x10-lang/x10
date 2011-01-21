@@ -17,18 +17,38 @@ import x10.rtt.RuntimeType.Variance;
 import x10.rtt.Type;
 
 public final class RemoteIndexedMemoryChunk<T> extends x10.core.Struct {
+    private static final java.util.ArrayList<Object> objects = new java.util.ArrayList<Object>(); // all referenced objects in this place
+
     public final int length;
-    public final Object value;
+    public final int id; // place local id of referenced object
     public final Type<T> type;
     public final Place home;
 
     private RemoteIndexedMemoryChunk(Type<T> type, int length, Object value) {
         this.length = length;
         this.type = type;
-        this.value = value;
         this.home = x10.lang.Runtime.home();
+
+        int size;
+        synchronized (objects) {
+            size = objects.size();
+            for (int id = size - 1; id >= 0; --id) {
+                if (objects.get(id) == value) {
+                    this.id = id;
+                    return;
+                }
+            }
+            objects.add(value);
+        }
+        this.id = size;
     }
 
+    public static Object getValue(int id) {
+        synchronized (objects) {
+            return objects.get(id);
+        }
+    }
+    
     public static <T> RemoteIndexedMemoryChunk<T> wrap(IndexedMemoryChunk<T> chunk) {
         return new RemoteIndexedMemoryChunk<T>(chunk.type, chunk.length, chunk.value);
     }
@@ -37,7 +57,7 @@ public final class RemoteIndexedMemoryChunk<T> extends x10.core.Struct {
     public boolean _struct_equals(Object o) {
         if (!(o instanceof RemoteIndexedMemoryChunk<?>)) return false;
         RemoteIndexedMemoryChunk<?> that = (RemoteIndexedMemoryChunk<?>)o;
-        return this.value == that.value && this.home == that.home;
+        return this.id == that.id && this.home == that.home;
     }
 
     public static final RuntimeType<RemoteIndexedMemoryChunk<?>> _RTT = new RuntimeType<RemoteIndexedMemoryChunk<?>>(
@@ -59,68 +79,4 @@ public final class RemoteIndexedMemoryChunk<T> extends x10.core.Struct {
     public Type<?> getParam(int i) {
         return i == 0 ? type : null;
     }
-
-
-    // Methods to get the backing array.   May be called by generated code.
-    // Only useful in singleVM runtime.  
-    // Will be removed in multi-VM.
-    public Object getBackingArray() { return value; }
-
-    public boolean[] getBooleanArray() { return (boolean[]) value; }
-    public byte[] getByteArray() { return (byte[]) value; }
-    public short[] getShortArray() { return (short[]) value; }
-    public char[] getCharArray() { return (char[]) value; }
-    public int[] getIntArray() { return (int[]) value; }
-    public long[] getLongArray() { return (long[]) value; }
-    public float[] getFloatArray() { return (float[]) value; }
-    public double[] getDoubleArray() { return (double[]) value; }
-    public Object[] getObjectArray() { return (Object[]) value; }
-
-    // this is broken
-    /*
-    public Object[] getBoxedArray() {
-        if (value instanceof boolean[]) {
-            boolean[] a = (boolean[]) value;
-            Boolean[] b = new Boolean[a.length];
-            for (int i = 0; i < a.length; i++) b[i] = a[i];
-        }
-        if (value instanceof byte[]) {
-            byte[] a = (byte[]) value;
-            Byte[] b = new Byte[a.length];
-            for (int i = 0; i < a.length; i++) b[i] = a[i];
-        }
-        if (value instanceof char[]) {
-            char[] a = (char[]) value;
-            Character[] b = new Character[a.length];
-            for (int i = 0; i < a.length; i++) b[i] = a[i];
-        }
-        if (value instanceof short[]) {
-            short[] a = (short[]) value;
-            Short[] b = new Short[a.length];
-            for (int i = 0; i < a.length; i++) b[i] = a[i];
-        }
-        if (value instanceof int[]) {
-            int[] a = (int[]) value;
-            Integer[] b = new Integer[a.length];
-            for (int i = 0; i < a.length; i++) b[i] = a[i];
-        }
-        if (value instanceof long[]) {
-            long[] a = (long[]) value;
-            Long[] b = new Long[a.length];
-            for (int i = 0; i < a.length; i++) b[i] = a[i];
-        }
-        if (value instanceof float[]) {
-            float[] a = (float[]) value;
-            Float[] b = new Float[a.length];
-            for (int i = 0; i < a.length; i++) b[i] = a[i];
-        }
-        if (value instanceof double[]) {
-            double[] a = (double[]) value;
-            Double[] b = new Double[a.length];
-            for (int i = 0; i < a.length; i++) b[i] = a[i];
-        }
-        return (Object[]) value;
-    }
-    */
-
 }
