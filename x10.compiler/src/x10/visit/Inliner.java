@@ -138,7 +138,7 @@ public class Inliner extends ContextVisitor {
 //  private static final boolean DEBUG = true;
 
     private static final boolean VERBOSE = false;
-//  private static final boolean VERBOSE = INLINE_METHODS;
+//  private static final boolean VERBOSE = true;
 //  private static final boolean VERY_VERBOSE = VERBOSE && false;
     private static final boolean VERY_VERBOSE = VERBOSE && true;
 
@@ -147,8 +147,8 @@ public class Inliner extends ContextVisitor {
      * are to be inlined.
      */
 //  private static final int SMALL_METHOD_MAX_SIZE = -1;
-//  private static final int SMALL_METHOD_MAX_SIZE = 0;
-    private static final int SMALL_METHOD_MAX_SIZE = 1;
+    private static final int SMALL_METHOD_MAX_SIZE = 0;
+//  private static final int SMALL_METHOD_MAX_SIZE = 1;
 //  private static final int SMALL_METHOD_MAX_SIZE = 2;
 //  private static final int SMALL_METHOD_MAX_SIZE = 3;
 
@@ -171,7 +171,8 @@ public class Inliner extends ContextVisitor {
         INLINE_CONSTANTS = opts.x10_config.INLINE_CONSTANTS;
         INLINE_METHODS   = opts.x10_config.INLINE_METHODS;
         INLINE_CLOSURES  = opts.x10_config.INLINE_CLOSURES && opts.x10_config.ALLOW_STATEMENT_EXPRESSIONS;
-        INLINE_IMPLICIT  = opts.x10_config.INLINE_METHODS_IMPLICIT;
+//      INLINE_IMPLICIT  = opts.x10_config.INLINE_METHODS_IMPLICIT;
+        INLINE_IMPLICIT  = opts.x10_config.EXPERIMENTAL;
     }
 
     /**

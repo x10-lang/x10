@@ -16,6 +16,9 @@ import polyglot.types.*;
 import polyglot.util.*;
 import polyglot.visit.*;
 import x10.errors.Errors;
+import x10.ast.X10New;
+import x10.types.X10ClassDef;
+import x10.types.X10ConstructorInstance;
 
 /**
  * A <code>New</code> is an immutable representation of the use of the
@@ -24,7 +27,7 @@ import x10.errors.Errors;
  * list of arguments to be passed to the constructor of the object and an
  * optional <code>ClassBody</code> used to support anonymous classes.
  */
-public abstract class New_c extends Expr_c implements New
+public abstract class New_c extends Expr_c implements X10New
 {
     protected Expr qualifier;
     protected TypeNode tn;
@@ -55,7 +58,7 @@ public abstract class New_c extends Expr_c implements New
     }
 
     /** Set the qualifier expression of the allocation. */
-    public New qualifier(Expr qualifier) {
+    public X10New qualifier(Expr qualifier) {
         New_c n = (New_c) copy();
         n.qualifier = qualifier;
         return n;
@@ -67,17 +70,17 @@ public abstract class New_c extends Expr_c implements New
     }
 
     /** Set the type we are instantiating. */
-    public New objectType(TypeNode tn) {
+    public X10New objectType(TypeNode tn) {
         New_c n = (New_c) copy();
 	n.tn = tn;
 	return n;
     }
 
-    public ClassDef anonType() {
-	return this.anonType;
+    public X10ClassDef anonType() {
+	return (X10ClassDef) this.anonType;
     }
 
-    public New anonType(ClassDef anonType) {
+    public X10New anonType(ClassDef anonType) {
         if (anonType == this.anonType) return this;
 	New_c n = (New_c) copy();
 	n.anonType = anonType;
@@ -88,15 +91,15 @@ public abstract class New_c extends Expr_c implements New
 	return constructorInstance();
     }
 
-    public ConstructorInstance constructorInstance() {
-	return this.ci;
+    public X10ConstructorInstance constructorInstance() {
+	return (X10ConstructorInstance)this.ci;
     }
 
     public New procedureInstance(ProcedureInstance<? extends ProcedureDef> pi) {
         return constructorInstance((ConstructorInstance) pi);
     }
 
-    public New constructorInstance(ConstructorInstance ci) {
+    public X10New constructorInstance(ConstructorInstance ci) {
         if (ci == this.ci) return this;
 	New_c n = (New_c) copy();
 	n.ci = ci;
@@ -117,7 +120,7 @@ public abstract class New_c extends Expr_c implements New
 	return this.body;
     }
 
-    public New body(ClassBody body) {
+    public X10New body(ClassBody body) {
 	New_c n = (New_c) copy();
 	n.body = body;
 	return n;

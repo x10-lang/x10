@@ -4411,3 +4411,19 @@ class DynamicGuardCheck {
 		}
 	}
 }
+
+class XTENLANG_2346[T](x:Int) {
+	def m1() {x==1} {}
+	def m2() {T<:Int} {}
+	def m11(a:Int{x==1}) {}
+	def m22(a:Int{T<:Int}) {}
+
+	def test() {
+		m1(); // ERR:  Warning: Generated a dynamic check for the method guard.
+		m2(); // ERR: Semantic Error: Method m2(){}[T <: x10.lang.Int]: void in TestGuard{self==TestGuard#this} cannot be called with arguments (); Type guard [T <: x10.lang.Int] cannot be established; inconsistent in calling context.
+
+		m11(3); // ERR:  Warning: Expression '3' was cast to type x10.lang.Int{TestGuard#this.x==1}.
+		m22(3); // ShouldBeErr
+	}	
+}
+

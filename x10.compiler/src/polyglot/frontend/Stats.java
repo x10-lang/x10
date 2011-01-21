@@ -60,6 +60,7 @@ public class Stats
 
     /** Accumulate inclusive and exclusive times for a pass. */
     public void accumulate(Object key, long count) {
+        if (Report.should_report(Report.time, 1)) {
         Counts t = counts.get(key);
         if (t == null) {
             keys.add(key);
@@ -67,6 +68,7 @@ public class Stats
             counts.put(key, t);
         }
         t.count += count;
+        }
     }
 
     /** Report the stats. */
