@@ -39,7 +39,7 @@ endif
 endif
 
 sockets/X10Launcher: $(LAUNCHER_OBJS) sockets/main.cc
-	$(CXX) $(CXXFLAGS) sockets/main.cc $(LAUNCHER_OBJS) -o sockets/X10Launcher
+	$(CXX) $(CXXFLAGS) sockets/main.cc $(LAUNCHER_OBJS) -o sockets/X10Launcher $(LDFLAGS) $(SOLARIS_LDLIBS)
 
 etc/x10rt_sockets.properties:
 	@echo "CXX=$(CXX)" > $@
