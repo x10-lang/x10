@@ -60,6 +60,10 @@ public class Report {
   public final static String resolver = "resolver";
   public final static String serialize = "serialize";
   public final static String time = "time";
+  /** threshold specifies a percentage. Only report time that takes
+   *  more than the percent of total time specified by this threshold.
+   */
+  public final static String threshold = "threshold";
   public final static String frequency = "frequency";
   public final static String types = "types";
   public final static String visit = "visit";
@@ -79,6 +83,7 @@ public class Report {
     topics.add(resolver);
     topics.add(serialize);
     topics.add(time);
+    topics.add(threshold);
     topics.add(frequency);
     topics.add(types);
     topics.add(visit);
@@ -174,7 +179,7 @@ public class Report {
       Report.eq = eq;
   }
 
-  protected static int level(String name) {
+  public static int level(String name) {
       synchronized (reportTopics) {
 	  Object i = reportTopics.get(name);
 	  if (i == null) return 0;

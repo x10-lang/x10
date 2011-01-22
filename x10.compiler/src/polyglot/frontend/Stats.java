@@ -17,7 +17,8 @@ import java.util.Collections;
 import java.util.Stack;
 
 import polyglot.main.Report;
-import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
+import polyglot.util.CollectionUtil;
+import x10.util.CollectionFactory;
 
 /**
  * Statistics collection and reporting object. Extensions can override this to
@@ -55,7 +56,7 @@ public class Stats {
     }
 
     private Counter phase, site, freq;
-    private long startTime, totalTime;
+    private long startTime, totalTime, reportTimeThreshold;
     private int currDepth, maxDepth;
     private boolean t2;
 
@@ -76,9 +77,11 @@ public class Stats {
 
     private Stack<stackStruct> start;
 
-    /*** Initialize statistics if reporting is requested.
-     *   Subsequently, we just need to check for non-null pointers to see
-     *   if we need to do the statistic gathering work.
+    /***
+     * Initialize statistics if reporting is requested. Subsequently, we just
+     * need to check for non-null pointers to see if we need to do the statistic
+     * gathering work.
+     * 
      * @param startTime
      */
     public void initialize(long startTime) {
@@ -99,8 +102,9 @@ public class Stats {
         freq.accumulate(key, count);
     }
 
-    /*** Start timing a phase
-     *   This should be paired with stopTiming
+    /***
+     * Start timing a phase This should be paired with stopTiming
+     * 
      * @param phaseName
      * @param siteName
      */
@@ -127,8 +131,8 @@ public class Stats {
         maxDepth = (currDepth > maxDepth) ? currDepth : maxDepth;
     }
 
-    /*** Stop timing a phase.
-     *   This should be paired with startTiming.
+    /***
+     * Stop timing a phase. This should be paired with startTiming.
      */
     public void stopTiming() {
         if (phase == null) return;
@@ -156,6 +160,9 @@ public class Stats {
     /** Report the times. */
     public void reportTime() {
         totalTime = System.nanoTime() - startTime;
+        if (Report.should_report(Report.threshold, 1)) {
+            reportTimeThreshold = (Report.level(Report.threshold) * totalTime) / 100;
+        }
         if (phase != null) reportTiming();
 
         if (Report.should_report(Report.verbose, 1) || phase != null)
@@ -163,7 +170,7 @@ public class Stats {
     }
 
     /** Report the times. */
-    public void reportTiming() {
+    private void reportTiming() {
         if (currDepth != 0) Report.report(1, "\nWarning: mismatched start/stop times");
         t2 = Report.should_report(Report.time, 2);
 
@@ -191,7 +198,10 @@ public class Stats {
         for (Iterator<Object> i = sortByCount(site.counts).iterator(); i.hasNext();) {
             Object key = i.next();
             Counts t = site.counts.get(key);
-            Report.report(1, String.format("%9.3f", t.count / 1e9) + "  " + key.toString());
+            if (t.count > reportTimeThreshold) {
+                Report.report(1, String.format("%9.3f", t.count / 1e9) + "  " + key.toString());
+
+            }
         }
     }
 
@@ -203,18 +213,20 @@ public class Stats {
             indent += "   ";
         String pad = "   ";
         if (t2) {
-            for (d = depth; d < maxDepth-1; d++) {
+            for (d = depth; d < maxDepth - 1; d++) {
                 pad += "   ";
             }
         }
         for (Iterator<Object> i = sortByCount(c.counts).iterator(); i.hasNext();) {
             Object key = i.next();
             Counts t = c.counts.get(key);
-            Report.report(1,
-                          indent + String.format("%6.3f%%", (t.count * 100) / (double) totalTime) + pad
-                                  + String.format("%9.3f", t.count / 1e9) + "  " + key.toString());
-            if (t2 && t.counter != null) {
-                reportPhase(depth + 1, t.counter);
+            if (t.count > reportTimeThreshold) {
+                Report.report(1,
+                              indent + String.format("%6.3f%%", (t.count * 100) / (double) totalTime) + pad
+                                      + String.format("%9.3f", t.count / 1e9) + "  " + key.toString());
+                if (t2 && t.counter != null) {
+                    reportPhase(depth + 1, t.counter);
+                }
             }
         }
     }
