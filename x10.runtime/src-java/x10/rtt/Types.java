@@ -341,8 +341,9 @@ public class Types {
     
     public static <T> T castConversion(final java.lang.Object self, x10.rtt.Type<?> rtt) {
         if (self == null) return null;
-        if (rtt != null && !rtt.instanceof$(self)) throw new x10.lang.ClassCastException(rtt.typeName());
-        return (T) conversion(rtt, self);
+        T ret = (T) conversion(rtt, self);
+        if (rtt != null && !rtt.instanceof$(ret)) throw new x10.lang.ClassCastException(rtt.typeName());
+        return ret;
     }
 
     // TODO haszero
