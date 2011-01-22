@@ -206,11 +206,27 @@ interface XPromise extends Cloneable {
 
 	/**
 	 * Replace a reference to any descendant that is equal to x with a reference to y.
-	 * @param y
-	 * @param x
+	 * @param env: mapping from x to y
 	 */
-	XPromise cloneRecursively(HashMap<XPromise, XPromise> env);
+	XPromise cloneRecursively(Map<XPromise, XPromise> env);
 	
+	/**
+	 * Transfer the state of this to env(this). env(this) is guaranteed to be non-null.
+	 * If when transfering state, a promise p is encountered, check if p is in env.
+	 * If so, then stop and use env(p) as the transfered value of p. If not, then
+	 * create a new XPromise np through p.shallowCopy(), update env to point p to np,
+	 * and recursively call transfer on np with the updated env.
+	 * @param env
+	 */
+	void transfer(Map<XPromise, XPromise> env);
+	
+	/**
+	 * Return a shallow clone, no deep copying permitted. The clone must have
+	 * the same concrete type as this. The promise will be visited
+	 * subsequently (via transfer), to flesh out its data-structures
+	 * @return
+	 */
+	XPromise cloneShallow();
 	/**
 	 * The externally visible term (if any) that this term represents.
 	 * @return null -- if this promise is forwarded.

@@ -14,16 +14,18 @@ package x10.constraint;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
  * A representation of a literal. A literal is both an XVar and an XPromise.
  * 
+ * This class and its subclasses should not have mutable state.
  * @author vijay
  *
  */
 public class XLit extends XVar implements XPromise {
-	protected Object val;
+	final protected Object val;
 
 	public XLit(Object l) {
 		val = l;
@@ -188,8 +190,14 @@ public class XLit extends XVar implements XPromise {
 		return null;
 	}
 
-	public XPromise cloneRecursively(HashMap<XPromise, XPromise> env) {
+	public XPromise cloneRecursively(Map<XPromise, XPromise> env) {
 		return this;
+	}
+	public void transfer(Map<XPromise, XPromise> env) {
+	    
+	}
+	public XLit cloneShallow() {
+	    return this; // new XLit(this.val)
 	}
 
 	public void variables(List<XVar> result) {}

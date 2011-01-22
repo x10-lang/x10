@@ -107,6 +107,41 @@ class XPromise_c implements XPromise, Serializable {
             this.fields = new LinkedHashMap<XName, XPromise>(fields);
     }
 
+    public XPromise_c cloneShallow() {
+        return new XPromise_c(this.var);
+    }
+    /**
+     * Transfer data from this to redirects(this).
+     */
+    public void transfer(Map<XPromise, XPromise> redirects) {
+        XPromise_c newP = (XPromise_c) redirects.get(this);
+        assert newP != null;
+        if (fields != null) {
+            newP.fields = CollectionFactory.<XName, XPromise> newHashMap(fields.size());
+            for (Map.Entry<XName, XPromise> entry : fields.entrySet()) {
+                newP.fields.put(entry.getKey(), getOrClone(entry.getValue(), redirects));
+            }
+        }
+        if (value != null) {
+            newP.value = getOrClone(value, redirects);
+        }
+        if (disEquals != null) {
+            newP.disEquals = CollectionFactory.<XPromise> newHashSet(disEquals.size());
+            for (XPromise t : disEquals) {
+                newP.disEquals.add(getOrClone(t, redirects));
+            }
+        }
+        
+    }
+    private XPromise getOrClone(XPromise t, Map<XPromise, XPromise> redirects) {
+        XPromise newT = redirects.get(t);
+        if (newT == null) {
+            newT = t.cloneShallow();
+            redirects.put(t, newT);
+            t.transfer(redirects);
+        }
+        return newT;
+    }
     /*
      * (non-Javadoc)
      * 
@@ -163,7 +198,7 @@ class XPromise_c implements XPromise, Serializable {
         return result;
     }
 
-    public XPromise cloneRecursively(HashMap<XPromise, XPromise> env) {
+    public XPromise cloneRecursively(Map<XPromise, XPromise> env) {
         XPromise q = env.get(this);
         if (q != null)
             return q;

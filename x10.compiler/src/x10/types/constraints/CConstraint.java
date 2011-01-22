@@ -400,7 +400,7 @@ public class CConstraint extends XConstraint  implements ThisVar {
 	 * 
 	 */
 	@Override
-	public CConstraint substitute(HashMap<XVar, XTerm> subs) throws XFailure {
+	public CConstraint substitute(Map<XVar, XTerm> subs) throws XFailure {
 		CConstraint c = this;
 		for (Map.Entry<XVar,XTerm> e : subs.entrySet()) {
 			XVar x = e.getKey();

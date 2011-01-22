@@ -317,7 +317,7 @@ public class XTypeTranslator {
      * @author vijay
      *
      */
-    public static class XTypeLit extends XLit {
+    public final static class XTypeLit extends XLit {
         private static final long serialVersionUID = -1222245257474719757L;
 
         private XTypeLit(Type l) {
@@ -332,7 +332,7 @@ public class XTypeTranslator {
             return Types.hasVar(type(), v);
         }
 
-        public XTerm subst(XTerm y, XVar x, boolean propagate) {
+        public XTypeLit subst(XTerm y, XVar x, boolean propagate) {
             XTypeLit n = (XTypeLit) super.subst(y, x, propagate);
             Type newVal = n.type();
             try {
@@ -340,9 +340,10 @@ public class XTypeTranslator {
             } catch (SemanticException e) { }
             if (newVal == n.type())
                 return n;
-            if (n == this) n = (XTypeLit) clone();
-            n.val = newVal;
-            return n;
+            return new XTypeLit(newVal);
+            //if (n == this) n = (XTypeLit) clone();
+            //n.val = newVal;
+            //return n;
         }
     }
 

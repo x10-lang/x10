@@ -12,9 +12,10 @@
 package x10.constraint;
 
 import x10.util.CollectionFactory;
+import x10.util.SmallMap;
 
 import java.util.Collections;
-import java.util.HashMap;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.ArrayList;
@@ -73,13 +74,13 @@ import java.util.Set;
  *
  */
 public class XConstraint implements Cloneable {
-    protected HashMap<XTerm, XPromise> roots;
+    protected Map<XTerm, XPromise> roots;
     protected boolean consistent = true;
     protected boolean valid = true;
 
     public XConstraint() {}
     
-    public HashMap<XTerm, XPromise> roots() {
+    public Map<XTerm, XPromise> roots() {
         return roots;
     }
     
@@ -98,7 +99,7 @@ public class XConstraint implements Cloneable {
     }
 
     /**
-     * Return the set of terms occuring in this constraint.
+     * Return the set of terms occurring in this constraint.
      * @return
      */
     public Set<XTerm> rootTerms() {
@@ -139,7 +140,25 @@ public class XConstraint implements Cloneable {
      */
     public XConstraint copy() {
         XConstraint c = new XConstraint();
-        c.init(this);
+        c.consistent = consistent;
+        c.valid = valid;
+        if (roots !=null) {
+            c.roots = CollectionFactory.<XTerm, XPromise>newHashMap(roots.size());
+            Map<XPromise, XPromise> redirects =  CollectionFactory.<XPromise, XPromise>newHashMap(roots.size());
+            for (Map.Entry<XTerm, XPromise> entry : roots.entrySet()) {
+                XTerm xt = entry.getKey();
+                XPromise p = entry.getValue();
+                XPromise np = p.cloneShallow();
+                c.roots.put(xt, np);
+                redirects.put(p, np);
+            }
+            for (XPromise p : roots.values()) {
+                p.transfer(redirects);
+            }
+        }
+        //XConstraint c1 = new XConstraint();
+        //c1.init(this);
+        //assert (c.entails(c1) && c1.entails(c));
         return c;
     }
     
@@ -239,7 +258,7 @@ public class XConstraint implements Cloneable {
         if (!consistent)
             return;
         if (roots == null)
-            roots = new LinkedHashMap<XTerm, XPromise>();
+            roots = CollectionFactory.<XTerm, XPromise> newHashMap();
 
         XPromise p1 = intern(left);
         XPromise p2 = intern(right);
@@ -260,7 +279,7 @@ public class XConstraint implements Cloneable {
     	if (! consistent)
     		return;
     	if (roots == null)
-    		roots = new LinkedHashMap<XTerm, XPromise>();
+    		roots = CollectionFactory.<XTerm,XPromise> newHashMap();
     	XPromise p1 = intern(left);
     	XPromise p2 = intern(right);
     	if (p1.equals(p2)) {
@@ -283,7 +302,7 @@ public class XConstraint implements Cloneable {
             return;
         
         if (roots == null)
-            roots = new LinkedHashMap<XTerm, XPromise>();
+            roots = CollectionFactory.<XTerm,XPromise> newHashMap();
         XPromise p = lookup(t);
         
         if (p != null)
@@ -620,7 +639,7 @@ public class XConstraint implements Cloneable {
 	 * Perform substitute y for x for every binding x -> y in bindings.
 	 * 
 	 */
-    public XConstraint substitute(HashMap<XVar, XTerm> subs) throws XFailure {
+    public XConstraint substitute(Map<XVar, XTerm> subs) throws XFailure {
         XConstraint c = this;
         for (Map.Entry<XVar,XTerm> e : subs.entrySet()) {
             XVar x = e.getKey();
@@ -821,7 +840,7 @@ public class XConstraint implements Cloneable {
 
     XPromise internBaseVar(XVar baseVar, boolean replaceP, XPromise last) throws XFailure {
         if (roots == null)
-            roots = new LinkedHashMap<XTerm, XPromise>();
+            roots = CollectionFactory.<XTerm,XPromise> newHashMap();
         XPromise p = (XPromise) roots.get(baseVar);
         if (p == null) {
             p = (replaceP && last != null) ? last : new XPromise_c(baseVar);
@@ -832,7 +851,7 @@ public class XConstraint implements Cloneable {
     
     void addPromise(XTerm p, XPromise node) {
         if (roots == null)
-            roots = new LinkedHashMap<XTerm, XPromise>();
+            roots = CollectionFactory.<XTerm,XPromise> newHashMap();
         roots.put(p, node);
     }
 
@@ -917,7 +936,7 @@ public class XConstraint implements Cloneable {
             if (!consistent)
                 return this;
             if (roots == null)
-                roots = new LinkedHashMap<XTerm, XPromise>();
+                roots = CollectionFactory.<XTerm,XPromise> new HashMap()();
             XPromise p1 = intern(t1);
             boolean modified = p1.bind(p);
         }
@@ -950,7 +969,7 @@ public class XConstraint implements Cloneable {
 	 * @param y
 	 * @param x
 	 */
-    protected void applySubstitution(HashMap<XVar, XTerm> subs) throws XFailure {
+    protected void applySubstitution(Map<XVar, XTerm> subs) throws XFailure {
         for (Map.Entry<XVar, XTerm> e : subs.entrySet()) {
             XVar x = e.getKey();
             XTerm y = e.getValue();
@@ -1019,7 +1038,7 @@ public class XConstraint implements Cloneable {
 
             // Clone the root map, with the renaming map primed
             // with x -> v
-            HashMap<XPromise, XPromise> renaming = new LinkedHashMap<XPromise,XPromise>();
+            Map<XPromise, XPromise> renaming = new LinkedHashMap<XPromise,XPromise>();
             renaming.put(q, new XPromise_c(v));
 
             for (Map.Entry<XTerm, XPromise> m : roots.entrySet()) {
@@ -1066,6 +1085,7 @@ public class XConstraint implements Cloneable {
                     }
                 }
             }
+        }
 
             //		    if (fields != null) {
             //			for (Map.Entry<XName, XPromise> entry : fields.entrySet()) {
@@ -1081,13 +1101,13 @@ public class XConstraint implements Cloneable {
             //			}
             //		    }
         }
-    }
+    
 
     @SuppressWarnings("unchecked") // Casting to a generic type
     private Map<XTerm, XPromise> cloneRoots() {
-        return ((Map<XTerm,XPromise>) roots.clone());
+        return ((Map<XTerm,XPromise>) ((SmallMap<XTerm,XPromise>)roots).clone());
     }
-
+	
     static XTerm makeField(XTerm target, XName field) {
         XTerm t;
         if (target instanceof XVar) {
@@ -1106,7 +1126,7 @@ public class XConstraint implements Cloneable {
      * @param c TODO
      */
     private void replace(XPromise y, XPromise x) throws XFailure {
-        //		HashMap<XPromise, XPromise> renaming = new LinkedHashMap<XPromise,XPromise>();
+        //		Map<XPromise, XPromise> renaming = new LinkedHashMap<XPromise,XPromise>();
         //		renaming.put(x, y);
         //
         //		for (Map.Entry<XTerm, XPromise> m : roots.entrySet()) {
