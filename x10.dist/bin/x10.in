@@ -102,7 +102,8 @@ java_args="${java_args} ${defs}"
 IBMJ9VM=`"$JAVA" -version 2>&1 | grep 'IBM J9 VM'`
 if [ -n "$IBMJ9VM" ]; then java_args="-Xjit:classLoadPhaseThreshold=10000 ${java_args}"; fi
 
-if [[ "$UNAME" = CYGWIN* ]]; then JAVA="$(cygpath -au "$TOP/bin/cyglaunch")"; fi
+#TODO: Dave G. Disabled JNI launcher on cygwin 
+#if [[ "$UNAME" = CYGWIN* ]]; then JAVA="$(cygpath -au "$TOP/bin/cyglaunch")"; fi
 
 command="\"$JAVA\" $java_args $config $args"
 
