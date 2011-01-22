@@ -17,6 +17,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import x10.util.CollectionFactory;
+
 /**
  * This class formats and writes class data into JVM format.
  */
