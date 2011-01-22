@@ -270,7 +270,7 @@ public final class Array[T] (
         layout = RectLayout(region);
         val n = layout.size();
         val r  = IndexedMemoryChunk.allocate[T](n);
-	IndexedMemoryChunk.copy(init.raw, 0, r, 0, n);
+	    IndexedMemoryChunk.copy(init.raw, 0, r, 0, n);
         raw = r;
     }
 
@@ -281,7 +281,7 @@ public final class Array[T] (
      */    
     public def this(init:RemoteArray[T]{init.home==here})
     {
-        this(init.array());
+        this((init.array)());
     }
 
     /**

@@ -52,6 +52,15 @@ public final class RemoteIndexedMemoryChunk<T> extends x10.core.Struct {
     public static <T> RemoteIndexedMemoryChunk<T> wrap(IndexedMemoryChunk<T> chunk) {
         return new RemoteIndexedMemoryChunk<T>(chunk.type, chunk.length, chunk.value);
     }
+    
+    public final IndexedMemoryChunk<T> $apply$G() {
+        Object obj;
+        synchronized (objects) {
+            obj = objects.get(this.id);
+        }
+        return new IndexedMemoryChunk<T>(type, length, obj);
+    }
+
 
     @Override
     public boolean _struct_equals(Object o) {

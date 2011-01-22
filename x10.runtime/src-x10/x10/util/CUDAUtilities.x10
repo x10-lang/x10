@@ -53,18 +53,18 @@ public class CUDAUtilities {
             "x10_ulong addr = x10aux::remote_alloc(gpu.FMGL(id), ((size_t)numElements)*sizeof(FMGL(T)));\n"+
             "RemoteIndexedMemoryChunk<FMGL(T)> rimc(addr, numElements, gpu);\n"+
             "initCUDAArray<FMGL(T)>(init,rimc,numElements);\n"+
-            "return x10::array::RemoteArray<FMGL(T)>::_make(gpu, reg, rimc, numElements);\n"
+            "return x10::array::RemoteArray<FMGL(T)>::_make(reg, rimc);\n"
         ) { }
         throw new UnsupportedOperationException();
     }
 
     public static def makeRemoteArray[T] (place:Place, numElements:Int, init: Array[T](1){rail})
-        : RemoteArray[T]{self.rank==1, self.home==place}
+        : RemoteArray[T]{self.rank==1, self.array.home==place}
     {
         if (place.isCUDA()) {
             return makeCUDAArray(place, numElements, init.raw());
         } else {
-            return at (place) new RemoteArray(new Array[T](numElements, (p:Int)=>init(p)));
+            return (at (place) new RemoteArray(new Array[T](numElements, (p:Int)=>init(p)))) as RemoteArray[T]{self.rank==1, self.array.home==place};
         }
     }
 
@@ -76,7 +76,7 @@ public class CUDAUtilities {
             for ([i] in 0..(numElements-1)) chunk(i) = init;
             return makeCUDAArray(place, numElements, chunk);
         } else {
-            return at (place) new RemoteArray(new Array[T](numElements, init));
+            return (at (place) new RemoteArray(new Array[T](numElements, init))) as RemoteArray[T]{self.rank==1, self.home==place};
         }
     }
 
@@ -88,7 +88,7 @@ public class CUDAUtilities {
             for ([i] in 0..(numElements-1)) chunk(i) = init(i);
             return makeCUDAArray(place, numElements, chunk);
         } else {
-            return at (place) new RemoteArray(new Array[T](numElements, (p:Int)=>init(p)));
+            return (at (place) new RemoteArray(new Array[T](numElements, (p:Int)=>init(p)))) as RemoteArray[T]{self.rank==1, self.home==place};
         }
     }
 
