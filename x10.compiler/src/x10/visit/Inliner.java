@@ -255,7 +255,7 @@ public class Inliner extends ContextVisitor {
             NativeClassType = (Type) ts.systemResolver().find(NATIVE_CLASS_ANNOTATION);
         } catch (SemanticException e) {
             InternalCompilerError ice = new InternalCompilerError("Unable to find required Annotation Type");
-            SemanticException se = new SemanticException(ice);
+            SemanticException se = new SemanticException(ice);		//TODO: internal compiler error, should be removed
             Errors.issue(job, se);
             InlineType = null;
             throw ice; // annotation types are required!

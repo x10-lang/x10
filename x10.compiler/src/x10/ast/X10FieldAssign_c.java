@@ -83,13 +83,13 @@ public class X10FieldAssign_c extends FieldAssign_c {
         // check that a static field is never assigned
         final Flags flags = fd.flags();
         if (flags.isStatic()) {
-            Errors.issue(tc.job(), new SemanticException("Cannot assign to static field "+fd.name()), n);
+            Errors.issue(tc.job(), new Errors.CannotAssignToStaticField(fd, n.position));
         }
         // final instance fields can only be assigned via this in a ctor
         if (!flags.isStatic() && flags.isFinal()) {
             boolean isThis = target() instanceof Special && ((Special)target()).kind()==Special.THIS;
             if (!isThis || (((X10Context_c)tc.context()).getCtorIgnoringAsync()==null))
-                Errors.issue(tc.job(), new SemanticException("Cannot assign a value to final field " + fd.name()), n);
+				Errors.issue(tc.job(), new Errors.CannotAssignValueToFinalField(fd,n.position));
         }
 
         if (t == null)

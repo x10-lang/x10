@@ -83,7 +83,7 @@ public class SideEffectDetector extends ContextVisitor {
             PureType   = (Type) ts.systemResolver().find(NO_SIDE_EFFECTS_ANNOTATION);
         } catch (SemanticException e) {
             InternalCompilerError ice = new InternalCompilerError("Unable to find required Annotation Types");
-            SemanticException se = new SemanticException(ice);
+            SemanticException se = new SemanticException(ice); 	//TODO: Internal compiler error should be removed
             Errors.issue(job, se);
             PureType = null;
         }
