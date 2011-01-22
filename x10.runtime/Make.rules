@@ -70,8 +70,12 @@ ifdef JAVA_HOME
   ifeq ($(shell uname -s),Darwin)
     # TODO!!
   else
+  ifeq ($(shell uname -s),SunOS)
+    JNI_INCLUDES = -I"$(JAVA_HOME)"/include -I"$(JAVA_HOME)"/include/solaris
+  else
   ifeq ($(shell uname -s),FreeBSD)
     JNI_INCLUDES = -I"$(JAVA_HOME)"/include -I"$(JAVA_HOME)"/include/freebsd
+  endif
   endif
   endif
   endif
@@ -219,6 +223,9 @@ else
         export X10_STATIC_LIB=1
       endif
       export X10RT_PLATFORM=sunos
+      override CXXFLAGS_SHARED += -shared -fPIC
+      override LDFLAGS += -lresolv -lnsl -lsocket -lrt
+      override LDFLAGS_SHARED += -lresolv -lnsl -lsocket -lrt
       export X10RT_TEST_LDFLAGS = -lrt
     else
     ifeq ($(shell uname -s),FreeBSD)
