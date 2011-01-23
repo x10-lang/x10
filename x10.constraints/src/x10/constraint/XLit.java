@@ -190,11 +190,11 @@ public class XLit extends XVar implements XPromise {
 		return null;
 	}
 
-	public XPromise cloneRecursively(Map<XPromise, XPromise> env) {
+	/*public XPromise cloneRecursively(Map<XPromise, XPromise> env) {
 		return this;
-	}
+	}*/
 	public void transfer(Map<XPromise, XPromise> env) {
-	    
+	    // nothing to do.
 	}
 	public XLit cloneShallow() {
 	    return this; // new XLit(this.val)

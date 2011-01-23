@@ -208,7 +208,7 @@ interface XPromise extends Cloneable {
 	 * Replace a reference to any descendant that is equal to x with a reference to y.
 	 * @param env: mapping from x to y
 	 */
-	XPromise cloneRecursively(Map<XPromise, XPromise> env);
+	//XPromise cloneRecursively(Map<XPromise, XPromise> env);
 	
 	/**
 	 * Transfer the state of this to env(this). env(this) is guaranteed to be non-null.

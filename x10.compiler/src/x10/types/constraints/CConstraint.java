@@ -61,12 +61,13 @@ import x10.types.checker.PlaceChecker;
  * The compiler's notion of a constraint. 
  * 
  * <p> A CConstraint is an XConstraint, together with machinery to track two
- * special variables of interest to the compiler for this constraint, namely the self variable and the this variable.
+ * special variables of interest to the compiler for this constraint, namely 
+ * the self variable and the this variable.
  * 
- * <p>Further, the XTerms occurring in an XConstraint are created using static methods on 
- * the class XTerms. In particular they carry type information in their internal XName. 
- * This information is used to recursively materialize more constraints from the given 
- * constraint. 
+ * <p>Further, the XTerms occurring in an XConstraint are created using static 
+ * methods on the class XTerms. In particular they carry type information in 
+ * their internal XName. This information is used to recursively materialize 
+ * more constraints from the given constraint. 
  * 
  * @author vj
  *
@@ -123,12 +124,16 @@ public class CConstraint extends XConstraint  implements ThisVar {
 	 * Copying also the consistency, and validity status, and thisVar and self.
 	 * It is critical that the selfVar for the constraint's copy is the same
 	 * as the selfVar for the original constraint.
+	 * <p> Always returns a non-null constraint.
 	 */
-	public CConstraint copy() {
-		CConstraint c = new CConstraint();
-		c.init(this);
-		return c;
-	}
+	@Override
+	  public CConstraint copy() {
+	    CConstraint result = new CConstraint();
+	    result.self = this.self();
+	    result.thisVar = this.thisVar();
+	    return copyInto(result);
+	    }
+	
 
 	/**
 	 * Add constraint c into this, substituting this.self for c.self. Return this.
@@ -346,6 +351,8 @@ public class CConstraint extends XConstraint  implements ThisVar {
 
 	/** If other is not inconsistent, and this is consistent,
 	 * checks that each binding X=t in other also exists in this.
+	 * TODO: Improve performance by doing entailment in place
+	 * without getting other term's extConstraints.
 	 * @param other
 	 * @return
 	 */
@@ -376,7 +383,8 @@ public class CConstraint extends XConstraint  implements ThisVar {
 	 */
 	public XTerm bindingForSelfField(Field f) {
 		assert f != null;
-		return bindingForSelfField(XTerms.makeName(f.fieldInstance().def(), f.name().id().toString()));
+		return bindingForSelfField(XTerms.makeName(f.fieldInstance().def(), 
+		                                           f.name().id().toString()));
 	}
 	public XTerm bindingForSelfField(FieldInstance f) {
 		assert f != null;
@@ -390,7 +398,7 @@ public class CConstraint extends XConstraint  implements ThisVar {
 	 * @return
 	 */
 	public CConstraint leastUpperBound(CConstraint c2) {
-		return leastUpperBound1((CConstraint) c2);
+		return leastUpperBound1(c2);
 	}
 	
 	/**
@@ -399,7 +407,7 @@ public class CConstraint extends XConstraint  implements ThisVar {
 	 * 
 	 * 
 	 */
-	@Override
+	/*@Override
 	public CConstraint substitute(Map<XVar, XTerm> subs) throws XFailure {
 		CConstraint c = this;
 		for (Map.Entry<XVar,XTerm> e : subs.entrySet()) {
@@ -408,7 +416,7 @@ public class CConstraint extends XConstraint  implements ThisVar {
 			c = c.substitute(y, x);            
 		}
 		return c;
-	}
+	}*/
 	
 	/**
 	 * Check that the given constraint is entailed, under the given substitution
@@ -428,7 +436,8 @@ public class CConstraint extends XConstraint  implements ThisVar {
 		try {
 			if (query != null) { 
 				if (! ((TypeSystem) context.typeSystem()).consistent(query)) {
-					throw new SemanticException("Guard " + query + " cannot be established; inconsistent in calling context.");
+					throw new SemanticException("Guard " + query 
+					                            + " cannot be established; inconsistent in calling context.");
 				}
 				CConstraint query2 = xthis==null ? query : query.substitute(ythis, xthis);
 				query2.setThisVar(ythis);
@@ -448,7 +457,8 @@ public class CConstraint extends XConstraint  implements ThisVar {
 	}
 
 	/**
-	 * Return the constraint obtained by existentially quantifying out the variable v.
+	 * Return the constraint obtained by existentially quantifying out the 
+	 * Svariable v.
 	 * 
 	 * @param v
 	 * @return
@@ -474,32 +484,37 @@ public class CConstraint extends XConstraint  implements ThisVar {
 	 * @param m
 	 * @throws XFailure
 	 */
-	public void addSigma(CConstraint c, Map<XTerm, CConstraint> m) throws XFailure {
+	public void addSigma(CConstraint c, Map<XTerm, CConstraint> m) 
+	throws XFailure {
 		if (c != null && ! c.valid()) {
 			addIn(c);
 			addIn(c.constraintProjection(m));
 		}
 	}
-	public void addSigma(XConstrainedTerm ct, Map<XTerm, CConstraint> m) throws XFailure {
+	public void addSigma(XConstrainedTerm ct, Map<XTerm, CConstraint> m) 
+	throws XFailure {
 		if (ct != null) {
 			addSigma(ct.xconstraint(), m);
 		}
 	}
 
 	/**
-	 * Return the constraint r generated from this by adding all the constraints specified by
-	 * the types of the terms occurring in this. This is done recursively. That is, for each
-	 * constraint c added to r, we recursively add the constraints for the terms that occur in
-	 * c.
+	 * Return the constraint r generated from this by adding all the constraints
+	 * specified by the types of the terms occurring in this. This is done 
+	 * recursively. That is, for each constraint c added to r, we recursively 
+	 * add the constraints for the terms that occur in c.
 	 * @param m
 	 * @param old
 	 * @return
 	 * @throws XFailure -- if r becomes inconsistent.
 	 */
-	public CConstraint constraintProjection(Map<XTerm,CConstraint> m) throws XFailure {
+	public CConstraint constraintProjection(Map<XTerm,CConstraint> m) 
+	throws XFailure {
 		return constraintProjection(m, 0); // CollectionFactory.newHashSet());
 	}
-	public CConstraint constraintProjection(Map<XTerm,CConstraint> m, int depth /*Set<XTerm> ancestors*/) throws XFailure {
+	public CConstraint constraintProjection(Map<XTerm,CConstraint> m, 
+	                                        int depth /*Set<XTerm> ancestors*/) 
+	throws XFailure {
 		CConstraint r = new CConstraint();
 
 		for (XTerm t : constraints()) {
@@ -548,23 +563,7 @@ public class CConstraint extends XConstraint  implements ThisVar {
 		XTerm subst = term.subst(self(), self);
 		return entails(subst);
 	}
-	
-	protected void init(CConstraint from) {
-		thisVar = from.thisVar();
-		self = from.self();
-		super.init(from);
-	}
-	/**
-	 * Return the result of copying this into c. Assume that c will be 
-	 * the depclause of the same base type as this, hence it is ok to 
-	 * copy self-clauses as is. 
-	 * @param c
-	 * @return
-	 */
-	protected CConstraint copyInto(CConstraint c) throws XFailure {
-		c.addIn(this);
-		return c;
-	}
+
 	private static <T> boolean contains(Set<T> s, Set<T> c) {
 		for (T t: c) {
 			if (s.contains(t))

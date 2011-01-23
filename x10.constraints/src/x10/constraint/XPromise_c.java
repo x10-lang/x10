@@ -198,7 +198,7 @@ class XPromise_c implements XPromise, Serializable {
         return result;
     }
 
-    public XPromise cloneRecursively(Map<XPromise, XPromise> env) {
+  /*  public XPromise cloneRecursively(Map<XPromise, XPromise> env) {
         XPromise q = env.get(this);
         if (q != null)
             return q;
@@ -220,7 +220,7 @@ class XPromise_c implements XPromise, Serializable {
             clone.fields = cloneFields;
         }
         return clone;
-    }
+    }*/
 
     int lookupReturnValue;
 
