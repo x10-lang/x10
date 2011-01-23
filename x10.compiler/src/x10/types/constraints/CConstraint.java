@@ -42,6 +42,7 @@ import x10.constraint.XEquals;
 import x10.constraint.XFailure;
 import x10.constraint.XField;
 import x10.constraint.XFormula;
+import x10.constraint.XGraphVisitor;
 import x10.constraint.XLit;
 import x10.constraint.XLocal;
 import x10.constraint.XName;
@@ -349,6 +350,38 @@ public class CConstraint extends XConstraint  implements ThisVar {
 		return result;
 	}
 
+	  static class EntailsVisitor implements XGraphVisitor{
+	        CConstraint c1;
+	        XVar otherSelf;
+	        boolean result=true;
+	        EntailsVisitor(CConstraint c1, XVar otherSelf) {
+	            this.c1=c1;
+	        }
+	        public boolean visitAtomicFormula(XTerm t) {
+	            try {
+	                t = t.subst(c1.self(), otherSelf);
+	                result = c1.entails(t, otherSelf);
+	            } catch (XFailure z) {
+	                return false;
+	            }
+	            return result;
+	        }
+	        public boolean visitEquals(XTerm t1, XTerm t2) {
+	            t1 = t1.subst(c1.self(), otherSelf);
+	            t2 = t2.subst(c1.self(), otherSelf);
+	            result = c1.entails(t1, t2);
+	            return result;
+	        }
+	        public boolean visitDisEquals(XTerm t1, XTerm t2) {
+	            t1 = t1.subst(c1.self(), otherSelf);
+                t2 = t2.subst(c1.self(), otherSelf);
+	            result = c1.entails(t1, t2);
+	            return result;
+	        }
+	        public boolean result() {
+	            return result;
+	        }
+	    }
 	/** If other is not inconsistent, and this is consistent,
 	 * checks that each binding X=t in other also exists in this.
 	 * TODO: Improve performance by doing entailment in place
@@ -356,17 +389,32 @@ public class CConstraint extends XConstraint  implements ThisVar {
 	 * @param other
 	 * @return
 	 */
-	public boolean entails(CConstraint other, CConstraint sigma) throws XFailure {
+	public boolean entails(CConstraint other, CConstraint sigma)  {
 		if (!consistent())
 			return true;
 		if (other == null || other.valid())
 			return true;
 		//       if (other.toString().equals(toString()))
 		//       	return true;
-		List<XTerm> otherConstraints = other.extConstraints();
-		XVar otherSelf = other.self();
-		return entails(otherConstraints, otherSelf, sigma);
-	}
+        CConstraint me = this;
+        if (sigma != null) {
+            me = me.copy();
+            try {
+            me.addIn(sigma);
+            } catch (XFailure z) {
+                // Logically this should return true;
+                return false;
+            }
+            
+        }
+
+        if (! me.consistent()) {
+            return true;
+        }
+        CConstraint.EntailsVisitor ev = new CConstraint.EntailsVisitor(me, other.self());
+        other.visit(false,false, ev);
+        return ev.result();
+    }
 
 
 	public XTerm bindingForSelfField(XName varName)  {
@@ -429,7 +477,7 @@ public class CConstraint extends XConstraint  implements ThisVar {
 	 * @param context
 	 * @throws SemanticException
 	 */
-
+/*
 	public void checkQuery(CConstraint query, XVar ythis, XVar xthis, XVar[] y, XVar[] x, 
 			Context context) throws SemanticException {
 		// Check that the guard is entailed.
@@ -446,7 +494,7 @@ public class CConstraint extends XConstraint  implements ThisVar {
 				CConstraint query4 = query3.substitute(y, x);
 
 				if (! entails(query4, context.constraintProjection(this, query4))) {
-					throw new SemanticException("Call invalid; calling environment does not entail the method guard.");
+					throw new SemanticException("Call invalid; calling environment is inconsistent or does not entail the method guard.");
 				}
 			}
 		}
@@ -455,7 +503,7 @@ public class CConstraint extends XConstraint  implements ThisVar {
 			throw new SemanticException("Call invalid; calling environment is inconsistent.");
 		}
 	}
-
+*/
 	/**
 	 * Return the constraint obtained by existentially quantifying out the 
 	 * Svariable v.
@@ -709,24 +757,6 @@ public class CConstraint extends XConstraint  implements ThisVar {
 
 	
 
-	private boolean entails(List<XTerm> conjuncts, XVar self, final CConstraint sigma) throws XFailure {
-
-		CConstraint me = copy();
-		if (sigma != null) {
-			me.addIn(sigma);
-		}
-
-		if (! me.consistent()) {
-			return true;
-		}
-
-		for (XTerm term : conjuncts) {
-			if (! me.entails(term, self))
-				return false;
-		}
-
-		return true;
-	}
-
+	
 }
 

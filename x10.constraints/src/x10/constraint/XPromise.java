@@ -168,8 +168,8 @@ interface XPromise extends Cloneable {
 	 * @param result
 	 * @param oldSelf 
 	 */
-	void dump(XVar path, List<XTerm> result,  boolean dumpEQV, boolean hideFake);
-
+	//void dump(XVar path, List<XTerm> result,  boolean dumpEQV, boolean hideFake);
+	boolean visit(XVar path, boolean dumpEQV, boolean hideFake, XGraphVisitor xg);
 	/**
 	 * Return the term that labels this promise. This term is intended to be the canonical XTerm
 	 * labeling this promise, following the direct path from the root node.

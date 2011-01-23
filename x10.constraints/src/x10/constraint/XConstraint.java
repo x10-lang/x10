@@ -109,6 +109,8 @@ public class XConstraint implements Cloneable {
     public Set<XTerm> rootTerms() {
     	return roots == null ? Collections.<XTerm> emptySet() : roots.keySet();
     }
+   
+  
     /*
     private void addTerm(XTerm term, Set<XVar> result) {
         if (term==null)
@@ -302,15 +304,59 @@ public class XConstraint implements Cloneable {
 	 * @return
 	 */
     public boolean entails(XConstraint other)  {
+   //   boolean oldEntails=oldEntails(other);
+      boolean newEntails=newEntails(other);
+    /*  if (oldEntails != newEntails) {
+          System.out.println("Constraint mismatch: a " 
+                             + (oldEntails ? "does not now entail " : "now entails ") 
+                             + "b."
+                             + "\n\t a: " + this
+                             + "\n\t b: " + other);
+      }*/
+      return newEntails;
+    }
+    static class EntailsVisitor implements XGraphVisitor{
+        XConstraint c1;
+        boolean result=true;
+        EntailsVisitor(XConstraint c1) {
+            this.c1=c1;
+        }
+        public boolean visitAtomicFormula(XTerm t) {
+            result &= c1.entails(t);
+            return result;
+        }
+        public boolean visitEquals(XTerm t1, XTerm t2) {
+            result &= c1.entails(t1, t2);
+            return result;
+        }
+        public boolean visitDisEquals(XTerm t1, XTerm t2) {
+            result &= c1.disEntails(t1, t2);
+            return result;
+        }
+        public boolean result() {
+            return result;
+        }
+    }
+    public boolean newEntails(XConstraint other)  {
+        if (!consistent)
+            return true;
+        if (other == null || other.valid())
+            return true;
+        EntailsVisitor ev = new EntailsVisitor(this);
+        other.visit(false,false, ev);
+        return ev.result();
+    }
+    
+    public boolean oldEntails(XConstraint other)  {
         if (!consistent)
             return true;
         if (other == null || other.valid())
             return true;
         List<XTerm> otherConstraints = other.extConstraints();
         for (XTerm t : otherConstraints) {
-        	boolean result = entails(t);
-        	if (! result)
-        		return false;
+            boolean result = entails(t);
+            if (! result)
+                return false;
         }
         return true;
     }
@@ -394,17 +440,10 @@ public class XConstraint implements Cloneable {
 	 */
     protected List<XTerm> constraints(List<XTerm> result) {
         if (roots == null)
-            return result;
-        for (XPromise p : roots.values()) {
-        	// vj: To check if c entails exists X1...Xn.d
-        	// where exists X1...Xn. d is satisfiable, 
-        	// simply check that all the constraints in d
-        	// that do not involve X1,..., Xn are entailed by c.
-        	//if (p.term() ==null ||  p.term().isEQV())
-        	//	continue;
-        	p.dump(null, result,  true, false);
-        }
-        return result;
+            return new ArrayList<XTerm>(0);
+        ConstraintGenerator cg = new ConstraintGenerator();
+        visit(true, false, cg);
+        return cg.result();
     }
     
 
@@ -415,37 +454,51 @@ public class XConstraint implements Cloneable {
 	 * @return
 	 */
 
+    protected void visit(boolean dumpEQV, boolean hideFake, XGraphVisitor xg) {
+        if (roots == null)
+            return;
+        for (XPromise p : roots.values()) {
+            if (! p.visit(null, dumpEQV, hideFake, xg))
+                return;
+        }
+    }
+    
+    public static final class ConstraintGenerator implements XGraphVisitor {
+        public List<XTerm> result = new ArrayList<XTerm>(5);
+        public boolean visitAtomicFormula(XTerm t) {
+            result.add(t);
+            return true;
+        }
+        public boolean visitEquals(XTerm t1, XTerm t2) {
+            result.add( XTerms.makeEquals(t1, t2));
+            return true;
+        }
+        public boolean visitDisEquals(XTerm t1, XTerm t2) {
+            result.add(XTerms.makeDisEquals(t1, t2));
+            return true;
+        }
+        public List<XTerm> result() {
+            return result;
+        }
+    }
+    /**
+     * Return a list of bindings t1-> t2 equivalent to 
+     * the current constraint except that equalities involving EQV variables 
+     * are ignored.
+     * 
+     * @return
+     */
     public List<XTerm> extConstraints() {
-        return extConstraints(new ArrayList<XTerm>());
+        ConstraintGenerator cg = new ConstraintGenerator();
+        visit(false, false, cg);
+        return cg.result();
     }
     public List<XTerm> extConstraintsHideFake() {
-        return extConstraintsHideFake(new ArrayList<XTerm>());
+        ConstraintGenerator cg = new ConstraintGenerator();
+        visit(false, true, cg);
+        return cg.result();
     }
 
-    /**
-	 * Return (appended to result) a list of bindings t1-> t2 equivalent to 
-	 * the current constraint except that equalities involving EQV variables 
-	 * Sare ignored.
-	 * 
-	 * @return
-	 */
-
-    public List<XTerm> extConstraints(List<XTerm> result) {
-        if (roots == null)
-            return result;
-        for (XPromise p : roots.values()) {
-            p.dump(null, result, false, false);
-        }
-        return result;
-    }
-    public List<XTerm> extConstraintsHideFake(List<XTerm> result) {
-        if (roots == null)
-            return result;
-        for (XPromise p : roots.values()) {
-            p.dump(null, result, false, true);
-        }
-        return result;
-    }
 	/**
 	 * Does this entail a != b?
 	 * @param a

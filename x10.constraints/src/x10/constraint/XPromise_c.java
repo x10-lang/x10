@@ -293,7 +293,8 @@ class XPromise_c implements XPromise, Serializable {
         XPromise p = (XPromise) fields.get(s);
         if (p == null) {
             // no edge. Create a new promise and add this edge.
-            p = (index == vars.length - 1 && last != null) ? last : new XPromise_c(f);
+            p = (index == vars.length - 1 && last != null) 
+            ? last : new XPromise_c(f);
             fields.put(s, p);
         }
         // recursively, intern the rest of the path on the child.
@@ -305,7 +306,9 @@ class XPromise_c implements XPromise, Serializable {
             // Alternative is to fwd it blindly, that would be correct, but i
             // want to know
             // if this is happening. It should not happen.
-            throw new XFailure("The node " + this + " is forwarded to " + value + "; the " + s + " child, " + orphan + ", cannot be added to it.");
+            throw new XFailure("The node " + this + " is forwarded to " 
+                               + value + "; the " + s + " child, " + orphan 
+                               + ", cannot be added to it.");
         }
 
         if (fields == null)
@@ -339,7 +342,8 @@ class XPromise_c implements XPromise, Serializable {
           
         if (!(target.equals(value)) && !target.equals(var)) {
             if (forwarded())
-                throw new XFailure("The promise " + this + " is already bound to " + value 
+                throw new XFailure("The promise " + this + 
+                                   " is already bound to " + value 
                 		+ "; cannot bind it to " + target + ".");
             if (this == target) // nothing to do!
                 return false;
@@ -403,7 +407,62 @@ class XPromise_c implements XPromise, Serializable {
         return false;
     }
 
-    public void dump(XVar path, List<XTerm> result, boolean dumpEQV, boolean hideFake) {
+    public boolean visit(XVar path, boolean dumpEQV, boolean hideFake, XGraphVisitor xg) {
+        XTerm t1 = path == null? term() : path;
+        if (t1 == null)
+            return true;
+        if (t1.isAtomicFormula()) {
+            return xg.visitAtomicFormula(t1);
+        }
+
+        if (value != null) {
+                if (dumpEQV || ! t1.hasEQV()) {
+                    XTerm t2 = lookup().var();
+                    if (hideFake && t1 instanceof XField && ((XField) t1).isHidden())
+                        return true;
+                    if (hideFake && t2 instanceof XField && ((XField) t2).isHidden())
+                        return true;
+                    return xg.visitEquals(t1, t2);
+                }
+            return true;
+        }
+        
+        if (fields != null) 
+            if (dumpEQV || ! t1.hasEQV())  {
+                XVar v = t1 instanceof XVar ? (XVar) t1 : null;
+                // If t1 is not an XVar, it is an atomic formula, and the fields are its subterms.
+                // hence v shd be null.
+                for (Map.Entry<XName,XPromise> m : fields.entrySet()) {
+                    XName name = m.getKey();
+                    XPromise p = m.getValue();
+                    XTerm t = p.term();
+                    XVar path2 = null;
+//                  if (v != null && !(t instanceof XField && ((XField) t).receiver().equals(v))) {
+//                      assert false;
+////                        path2 = XTerms.makeField(v, name);
+//                  }
+//                  path2 = v == null ? null : (XVar) t;
+                    boolean hidden = t instanceof XField ? ((XField) t).isHidden() : false;
+                    path2 = v == null ? null :
+                        (hidden ? XTerms.makeFakeField(v, name) : XTerms.makeField(v, name));
+                    boolean result = p.visit(path2,dumpEQV, hideFake, xg);
+                    if (!result)
+                        return result;
+                }
+            }
+        if (disEquals != null) {
+            if (dumpEQV || ! t1.hasEQV())
+                for (XPromise i : disEquals) {
+                    boolean result = xg.visitDisEquals(t1, i.lookup().var());
+                    if (! result)
+                        return result;
+                }
+               
+        }
+        return true;
+    }
+    
+   /* public void dump(XVar path, List<XTerm> result, boolean dumpEQV, boolean hideFake) {
         XTerm t1 = path == null? term() : path;
         if (t1 == null)
             return;
@@ -450,7 +509,7 @@ class XPromise_c implements XPromise, Serializable {
         			result.add(XTerms.makeDisEquals(t1, i.lookup().var()));
         }
     }
-
+*/
     private boolean toStringMark = false;
     public String toString() {
         if (toStringMark)

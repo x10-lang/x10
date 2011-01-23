@@ -57,7 +57,7 @@ public class XTerms {
 	 * @return
 	 */
 	public static final XName makeFreshName() {
-	    return makeFreshName("_");
+	    return new XNameInt_c((nextId++));
 	}
 	/**
 	 * Make a fresh EQV with a system chosen name. 
@@ -127,8 +127,9 @@ public class XTerms {
 	 * @param prefix
 	 * @return
 	 */ 
-	public static final XName makeFreshName(String prefix) {
-	    return new XName_c(prefix + (nextId++));
+	public static final XName makeFreshName(String s) {
+	    return new XNameInt_c(s, (nextId++));
+	    
 	}
 	
 	/**

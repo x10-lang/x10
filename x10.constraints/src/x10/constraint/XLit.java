@@ -153,10 +153,10 @@ public class XLit extends XVar implements XPromise {
 	}
 
 
-	public void dump(XVar path, List<XTerm> result,  boolean dumpEQV, boolean hideFake) {
+	/*public void dump(XVar path, List<XTerm> result,  boolean dumpEQV, boolean hideFake) {
 		// nothing to dump.
 	}
-
+*/
 	public void addIn(XName s, XPromise orphan) throws XFailure {
 		throw new XFailure("Cannot add an " + s + " child " + orphan + " to a literal, " + this + ".");
 	}
@@ -190,9 +190,6 @@ public class XLit extends XVar implements XPromise {
 		return null;
 	}
 
-	/*public XPromise cloneRecursively(Map<XPromise, XPromise> env) {
-		return this;
-	}*/
 	public void transfer(Map<XPromise, XPromise> env) {
 	    // nothing to do.
 	}
@@ -222,4 +219,7 @@ public class XLit extends XVar implements XPromise {
 		}
 		return o.isDisBoundTo(this);
 	}
+	   public boolean visit(XVar path, boolean dumpEQV, boolean hideFake, XGraphVisitor xg) {
+	       return true;
+	   }
 }
