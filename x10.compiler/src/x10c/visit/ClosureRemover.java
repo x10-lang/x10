@@ -374,7 +374,7 @@ public class ClosureRemover extends ContextVisitor {
                     staticInnerClassDecl = staticInnerClassDecl.typeParameters(tpns);
                     
                     final List<NamedVariable> capturedVarsExThis = new ArrayList<NamedVariable>();
-                    Map<String, X10LocalDef> nameToLocalDef = CollectionFactory.newHashMap();
+                    Map<String, X10FieldDef> nameToLocalDef = CollectionFactory.newHashMap();
                     
                     // rewrite closure method body
                     closureBody = rewriteClosureBody(closureBody, staticInnerClassDef, capturedEnv, capturedVarsExThis, nameToLocalDef, cl.formals());
@@ -413,6 +413,7 @@ public class ClosureRemover extends ContextVisitor {
                             
                             FieldAssign fa = xnf.FieldAssign(pos, xnf.Special(pos, Kind.THIS).type(staticInnerClassDef.asType()), xnf.Id(pos, name), Assign.ASSIGN, xnf.Local(pos, xnf.Id(pos, name)).localInstance(li.asInstance()).type(vi.type())).fieldInstance(fi.asInstance());
                             body2 = body2.append(xnf.Eval(pos, fa));
+                            break;
                         }
                     }
                     
@@ -423,24 +424,30 @@ public class ClosureRemover extends ContextVisitor {
                             li = (X10LocalDef) vn.varInstance().def();
                         }
                         else {
-                            li = nameToLocalDef.get(name.toString());
+                            li = xts.localDef(pos, Flags.FINAL, Types.ref(vn.type()), vn.name().id());
                         }
                         X10Formal formal = xnf.Formal(pos, xnf.FlagsNode(pos, Flags.FINAL), xnf.X10CanonicalTypeNode(pos, Types.baseType(vn.type())), xnf.Id(pos, name)).localDef(li);
                         formals.add(formal);
                         argTypes.add(vn.varInstance().def().type());
                         args.add(vn);
                         
-                        Flags ff = Flags.FINAL.Private();
-                        if (vn.flags().isTransient()) {
-                            ff = ff.Transient();
+                        X10FieldDef fd;
+                        if (nameToLocalDef.containsKey(vn.name())) {
+                            fd = nameToLocalDef.get(vn.name());
                         }
-                        X10FieldDef fi = xts.fieldDef(pos, Types.ref(staticInnerClassDef.asType()), ff, Types.ref(vn.type()), name);
-                        staticInnerClassDef.addField(fi);
-
-                        FieldDecl fdcl = xnf.FieldDecl(pos, xnf.FlagsNode(pos, ff), xnf.X10CanonicalTypeNode(pos, vn.type()), xnf.Id(pos, name));
-                        cm.add(fdcl.fieldDef(fi));
+                        else {
+                            Flags ff = Flags.FINAL.Private();
+                            if (vn.flags().isTransient()) {
+                                ff = ff.Transient();
+                            }
+                            fd = xts.fieldDef(pos, Types.ref(staticInnerClassDef.asType()), ff, Types.ref(vn.type()), name);
+                        }
                         
-                        FieldAssign fa = xnf.FieldAssign(pos, xnf.Special(pos, Kind.THIS).type(staticInnerClassDef.asType()), xnf.Id(pos, name), Assign.ASSIGN, xnf.Local(pos, xnf.Id(pos, name)).localInstance(li.asInstance()).type(vn.type())).fieldInstance(fi.asInstance());
+                        staticInnerClassDef.addField(fd);
+                        FieldDecl fdcl = xnf.FieldDecl(pos, xnf.FlagsNode(pos, fd.flags()), xnf.X10CanonicalTypeNode(pos, vn.type()), xnf.Id(pos, name));
+                        cm.add(fdcl.fieldDef(fd));
+                        
+                        FieldAssign fa = xnf.FieldAssign(pos, xnf.Special(pos, Kind.THIS).type(staticInnerClassDef.asType()), xnf.Id(pos, name), Assign.ASSIGN, xnf.Local(pos, xnf.Id(pos, name)).localInstance(li.asInstance()).type(vn.type())).fieldInstance(fd.asInstance());
                         body2 = body2.append(xnf.Eval(pos, fa));
                     }
                     
@@ -474,7 +481,12 @@ public class ClosureRemover extends ContextVisitor {
             }
 
             private Block rewriteClosureBody(Block closureBody,
-                                             final X10ClassDef staticInnerClassDef, final List<VarInstance<? extends VarDef>> capturedEnv, final List<NamedVariable> capturedVarsExThis, final Map<String, X10LocalDef> nameToLocalDef, final List<Formal> formals) {
+                                             final X10ClassDef staticInnerClassDef,
+                                             final List<VarInstance<? extends VarDef>> capturedEnv,
+                                             final List<NamedVariable> capturedVarsExThis,
+                                             final Map<String, X10FieldDef> nameToFieldDef,
+                                             final List<Formal> formals
+            ) {
                 final Position pos = Position.COMPILER_GENERATED;
                 return (Block) closureBody.visit(new ContextVisitor(job, ts, nf){
                     protected Node leaveCall(Node parent, Node old, Node n, NodeVisitor v) throws SemanticException {
@@ -494,17 +506,20 @@ public class ClosureRemover extends ContextVisitor {
                                             }
                                         }
                                     }
-                                    
-                                    X10LocalDef li;
+
+                                    X10FieldDef fd;
                                     if (!contains(capturedVarsExThis, var.def())) {
                                         capturedVarsExThis.add((NamedVariable) old);
-                                        li = xts.localDef(pos, Flags.FINAL, Types.ref(var.type()), var.name());
-                                        nameToLocalDef.put(var.name().toString(), li);
+                                        Flags ff = Flags.FINAL.Private();
+                                        if (field.flags().isTransient()) {
+                                            ff = ff.Transient();
+                                        }
+                                        fd = xts.fieldDef(pos, Types.ref(staticInnerClassDef.asType()), ff, Types.ref(field.type()), field.name().id());
+                                        nameToFieldDef.put(var.name().toString(), fd);
                                     } else {
-                                        li = nameToLocalDef.get(var.name().toString());
+                                        fd = nameToFieldDef.get(var.name().toString());
                                     }
-                                    // TODO change to a field
-                                    return xnf.Local(pos, xnf.Id(pos, var.name())).localInstance(li.asInstance()).type(var.type());
+                                    return xnf.Field(pos, xnf.This(pos).type(staticInnerClassDef.asType()), xnf.Id(pos, fd.name())).fieldInstance(fd.asInstance()).type(var.type());
                                 }
                             }
                             return field.targetImplicit(false);
