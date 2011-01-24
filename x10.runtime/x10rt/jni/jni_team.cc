@@ -1,3 +1,7 @@
+#ifndef __int64
+#define __int64 __int64_t
+#endif
+
 #include <unistd.h>
 #include <sys/types.h>
 #include <assert.h>

@@ -9,6 +9,10 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
+#ifndef __int64
+#define __int64 __int64_t
+#endif
+
 #include <sys/types.h>
 #include <jni.h>
 #include <stdio.h>
