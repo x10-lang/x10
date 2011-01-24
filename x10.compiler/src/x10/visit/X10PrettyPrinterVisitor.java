@@ -2734,61 +2734,53 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	 */
 	public void visit(Field_c n) {
 		Receiver target = n.target();
-		Type t = target.type();
+		Type targetType = target.type();
 
-		TypeSystem xts = (TypeSystem) t.typeSystem();
+		TypeSystem xts = (TypeSystem) targetType.typeSystem();
 		Context context = (Context) tr.context();
 		X10FieldInstance fi = (X10FieldInstance) n.fieldInstance();
 
+		// print native field access
+		String pat = er.getJavaImplForDef(fi.x10Def());
+		if (pat != null) {
+		    Object[] components = new Object[] { target };
+		    er.dumpRegex("Native", components, tr, pat);
+		    return;
+		}
+
 		if (target instanceof TypeNode) {
 			TypeNode tn = (TypeNode) target;
-			if (t instanceof ParameterType) {
+			if (targetType instanceof ParameterType) {
 				// Rewrite to the class declaring the field.
 				FieldDef fd = fi.def();
-				t = Types.get(fd.container());
+				targetType = Types.get(fd.container());
 				target = tn.typeRef(fd.container());
 				n = (Field_c) n.target(target);
 			}
 		}
-		
-		String pat = er.getJavaImplForDef(fi.x10Def());
-		if (pat != null) {
-			Object[] components = new Object[] { target };
-			er.dumpRegex("Native", components, tr, pat);
-			return;
-		}
 
+		// static access
 		if (target instanceof TypeNode) {
-			er.printType(t, 0);
+			er.printType(targetType, 0);
 			w.write(".");
 			w.write(Emitter.mangleToJava(n.name().id()));
 		}
 		else {
-
-			boolean is_location_access = xts.isObjectOrInterfaceType(fi.container(), context) && fi.name().equals(xts.homeName());
+		    assert target instanceof Expr;
 		    w.begin(0);
 		    if (!n.isTargetImplicit()) {
-		        // explicit target.
-		        if (target instanceof Expr) {
-		            if (! (target instanceof Special || target instanceof New)) {
-		                if (xts.isParameterType(t) ||  hasParams(fi.container())) {
-		                    // TODO:CAST
-                            w.write("(");
-                            w.write("(");
-                            er.printType(t, PRINT_TYPE_PARAMS);
-                            w.write(")");
-		                    n.printSubExpr((Expr) target, w, tr);
-                            w.write(")");
-		                }
-		                else {
-		                    n.printSubExpr((Expr) target, w, tr);
-		                }
-		            }
-		            else {
-                        n.printSubExpr((Expr) target, w, tr);
-                    }
+		        if (!(target instanceof Special || target instanceof New) && (xts.isParameterType(targetType) || hasParams(fi.container()))) {
+		            // TODO:CAST
+		            w.write("(");
+		            w.write("(");
+		            er.printType(fi.container(), PRINT_TYPE_PARAMS);
+		            w.write(")");
+		            n.printSubExpr((Expr) target, w, tr);
+		            w.write(")");
 		        }
-		    
+		        else {
+		            n.printSubExpr((Expr) target, w, tr);
+		        }
 		        w.write(".");
 		        w.allowBreak(2, 3, "", 0);
 		    }
