@@ -129,19 +129,19 @@ public class WSMethodFrameClassGen extends WSRegularFrameClassGen {
     }
     
     /**
-     * Generate apply() method for non-void method's inner class
+     * Generate operator() method for non-void method's inner class
      * @param returnType
      * @throws SemanticException
      */
-    protected void genApplyMethod(Type returnType) throws SemanticException{
-        MethodSynth applyMSynth = classSynth.createMethod(compilerPos, "apply");
-        applyMSynth.setFlag(Flags.PUBLIC);
-        applyMSynth.setReturnType(returnType);
-        CodeBlockSynth applyMBSynth = applyMSynth.getMethodBodySynth(compilerPos);
+    protected void genOperatorMethod(Type returnType) throws SemanticException{
+        MethodSynth operatorMSynth = classSynth.createMethod(compilerPos, OPERATOR.toString());
+        operatorMSynth.setFlag(Flags.PUBLIC);
+        operatorMSynth.setReturnType(returnType);
+        CodeBlockSynth operatorMBSynth = operatorMSynth.getMethodBodySynth(compilerPos);
         //return result;
         
         Return r = xnf.Return(compilerPos, synth.makeFieldAccess(compilerPos, getThisRef(), returnFieldName, xct));
-        applyMBSynth.addStmt(r);
+        operatorMBSynth.addStmt(r);
     }
     
     protected void genMethodFormalAsFields(){ 
@@ -156,7 +156,7 @@ public class WSMethodFrameClassGen extends WSRegularFrameClassGen {
     public MethodDecl transform() throws SemanticException {
         Type returnType = methodDecl.methodDef().returnType().get();
         if (returnType != xts.Void()){
-            genApplyMethod(returnType);
+            genOperatorMethod(returnType);
         }
         
         genClass();

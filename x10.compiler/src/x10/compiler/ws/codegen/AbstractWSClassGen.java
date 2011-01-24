@@ -126,6 +126,7 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
     static final protected Name UP = Name.make("up");
     static final protected Name ASYNCS = Name.make("asyncs");
     static final protected Name REDO = Name.make("redo");
+    static final protected Name OPERATOR = Name.make("operator()");
 
     final protected Job job;
     final protected NodeFactory xnf;
@@ -782,7 +783,7 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
         }
         else{
             //non finish frame will have ff field as ff 
-            ffRef = synth.makeFieldAccess(compilerPos, getThisRef(), Name.make("ff"), xct);
+            ffRef = synth.makeFieldAccess(compilerPos, getThisRef(), FF, xct);
         }
             
         { // fast
@@ -856,8 +857,9 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
 //        System.out.println("-----------" + functionCall.closureInstance());
 //        functionCall.dump(System.out);
 //        functionCall.dump(System.out);
-        
-        InstanceCallSynth niSynth = new InstanceCallSynth(xnf, xct, compilerPos, castExp, "apply");
+
+        //FIXME: it should be a closure call. However, an instance call here is simpler.
+        InstanceCallSynth niSynth = new InstanceCallSynth(xnf, xct, compilerPos, castExp, OPERATOR.toString());
         
         
         
