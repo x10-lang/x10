@@ -170,12 +170,12 @@ public class DistArray[T] (
 
     /**
      * Create a DistArray that views the same backing data
-     * as the argument DistArray using a different distribution.
-     * An unchecked invariant is that a.dist.isSubdistribution(d);
-     * this invariant is enfocred by all the routines that call this 
-     * constructor.  If we were to make this consructor public, then
-     * the invariant would need to be explictly checked here and 
-     * an IllegalArgumentExcpetion thrown if it was violated.
+     * as the argument DistArray using a different distribution.</p>
+     * 
+     * An unchecked invariant for this to be correct is that for every 
+     * point p in d, <code>d.offset(p) == a.dist.offset(p)</code>.  
+     * This invariant is too expensive to be checked dynamically, so it simply must
+     * be respected by the DistArray code that calls this constructor.
      */
     protected def this(a:DistArray[T], d:Dist):DistArray[T]{self.dist==d} {
         property(d);
@@ -398,13 +398,15 @@ public class DistArray[T] (
      * as this array, but only over the Points in the argument
      * distribtion.</p>
      * 
-     * If it is not true that this.dist.isSubdistribution(d)
-     * then an IllegalArgumentException will be raised.
+     * For this operation to be semantically sound, it should
+     * be the case that for every point p in d, 
+     * <code>this.dist.offset(p) == d.offset</code>.
+     * This invariant is not statically or dynamically checked;
+     * but must be ensured by the caller's of this API. 
      * 
      * @param d the Dist to use as the restriction
      */
     public def restriction(d:Dist(rank)) {
-        if (!dist.isSubdistribution(d)) throw new IllegalArgumentException(d+"is not a subDistribution of "+dist);
         return new DistArray[T](this, d) as DistArray[T](rank);
     }
 
