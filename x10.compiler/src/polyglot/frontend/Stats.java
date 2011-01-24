@@ -17,20 +17,21 @@ import java.util.Collections;
 import java.util.Stack;
 
 import polyglot.main.Report;
-import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
+import polyglot.util.CollectionUtil;
+import x10.util.CollectionFactory;
 
 /**
  * Statistics collection and reporting object. Extensions can override this to
  * collect more stats or to change reporting.
  */
 public class Stats {
-    private static class Counts {
+    protected static class Counts {
         public long count;
         public Counter counter;
     }
 
     /*** Count accumulator for an object */
-    private static class Counter {
+    private class Counter {
         /** Map from Objects to counts for the Object */
         public Map<Object, Counts> counts;
 
@@ -54,13 +55,13 @@ public class Stats {
         }
     }
 
-    private static Counter phase, site, freq;
-    private static long startTime, totalTime, reportTimeThreshold;
-    private static int currDepth, maxDepth;
-    private static boolean t2;
+    private Counter phase, site, freq;
+    private long startTime, totalTime, reportTimeThreshold;
+    private int currDepth, maxDepth;
+    private boolean t2;
 
     /*** Stack of phase names for timing nested phases (goals) */
-    private static class stackStruct {
+    private class stackStruct {
         long startTime;
         Object phaseName;
         Object siteName;
@@ -74,7 +75,7 @@ public class Stats {
         }
     }
 
-    private static Stack<stackStruct> start;
+    private Stack<stackStruct> start;
 
     /***
      * Initialize statistics if reporting is requested. Subsequently, we just
@@ -83,8 +84,8 @@ public class Stats {
      * 
      * @param startTime
      */
-    public static void initialize(long startTime) {
-        Stats.startTime = startTime;
+    public void initialize(long startTime) {
+        this.startTime = startTime;
         if (Report.should_report(Report.time, 1)) {
             phase = new Counter();
             site = new Counter();
@@ -96,7 +97,7 @@ public class Stats {
     }
 
     /*** Increment frequency counter */
-    public static void incrFrequency(Object key, long count) {
+    public void incrFrequency(Object key, long count) {
         if (freq == null) return;
         freq.accumulate(key, count);
     }
@@ -107,7 +108,7 @@ public class Stats {
      * @param phaseName
      * @param siteName
      */
-    public static void startTiming(Object phaseName, Object siteName) {
+    public void startTiming(Object phaseName, Object siteName) {
         if (phase == null) return;
         Counter c;
         if (start.empty()) {
@@ -133,7 +134,7 @@ public class Stats {
     /***
      * Stop timing a phase. This should be paired with startTiming.
      */
-    public static void stopTiming() {
+    public void stopTiming() {
         if (phase == null) return;
         stackStruct s = start.pop();
         long elapsed = System.nanoTime() - s.startTime;
@@ -143,7 +144,7 @@ public class Stats {
     }
 
     /** Report the frequency counts. */
-    public static void reportFrequency() {
+    public void reportFrequency() {
         if (freq == null) return;
         Report.report(1, "\nFrequency Statistics for  X10c");
         Report.report(1, String.format("%16s", "Count") + " Name");
@@ -157,7 +158,7 @@ public class Stats {
     }
 
     /** Report the times. */
-    public static void reportTime() {
+    public void reportTime() {
         totalTime = System.nanoTime() - startTime;
         if (Report.should_report(Report.threshold, 1)) {
             reportTimeThreshold = (Report.level(Report.threshold) * totalTime) / 100;
@@ -169,7 +170,7 @@ public class Stats {
     }
 
     /** Report the times. */
-    private static void reportTiming() {
+    private void reportTiming() {
         if (currDepth != 0) Report.report(1, "\nWarning: mismatched start/stop times");
         t2 = Report.should_report(Report.time, 2);
 
@@ -205,7 +206,7 @@ public class Stats {
     }
 
     /*** This handles reporting nestedphases (goals) */
-    private static void reportPhase(int depth, Counter c) {
+    private void reportPhase(int depth, Counter c) {
         int d;
         String indent = "";
         for (d = 0; d < depth; d++)

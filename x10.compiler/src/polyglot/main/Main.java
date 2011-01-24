@@ -120,11 +120,11 @@ public class Main
         source = new LinkedHashSet<String>();
 
         Compiler compiler = getCompiler(argv, ext, eq, source);
-        Stats.initialize(startTime);
+        compiler.stats.initialize(startTime);
         boolean success = compiler.compileFiles(source);
 
-        Stats.reportFrequency();
-        Stats.reportTime();
+        compiler.stats.reportFrequency();
+        compiler.stats.reportTime();
 
         if (!success) {
             throw new TerminationException(1);

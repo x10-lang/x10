@@ -14,7 +14,6 @@ import polyglot.ast.*;
 import polyglot.frontend.Globals;
 import polyglot.frontend.Job;
 import polyglot.frontend.Compiler;
-import polyglot.frontend.Stats;
 import polyglot.main.Report;
 import polyglot.types.*;
 import polyglot.util.*;
@@ -435,7 +434,8 @@ public abstract class DataFlow extends ErrorHandlingVisitor
                 // Build the control flow graph.
                 CFGBuilder v = createCFGBuilder(ts, g);
 
-                Stats.startTiming("DataFlow.dataflow", "DataFlow.dataflow");
+                Compiler c = job().extensionInfo().compiler();
+                c.stats.startTiming("DataFlow.dataflow", "DataFlow.dataflow");
                 try {
                     hadCFG_Error = false;
                     v.visitGraph();
@@ -446,16 +446,16 @@ public abstract class DataFlow extends ErrorHandlingVisitor
                     return;
                 }
                 finally {
-                    Stats.stopTiming();
+                    c.stats.stopTiming();
                 }
                     
-                Stats.startTiming("DataFlow.cfg.build", "DataFlow.cfg.build");
+                c.stats.startTiming("DataFlow.cfg.build", "DataFlow.cfg.build");
                 dataflow(g);
-                Stats.stopTiming();
+                c.stats.stopTiming();
 
-                Stats.startTiming("DataFlow.post", "DataFlow.post");
+                c.stats.startTiming("DataFlow.post", "DataFlow.post");
                 post(g, cd);
-                Stats.stopTiming();
+                c.stats.stopTiming();
 
                 // push the CFG onto the stack if we are dataflowing on entry
                 if (dataflowOnEntry)
