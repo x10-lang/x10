@@ -26,8 +26,7 @@ LIBSFX=.dll
 
 .SUFFIXES: .java .class .o .c .h $(LIBSFX)
 
-#all: cyglaunch G.class H.class H.dll
-all: cyglaunch
+all: cyglaunch G.class H.class H.dll
 .PHONY: all
 
 $(LIBPFX)%$(LIBSFX):	%.o
@@ -45,6 +44,5 @@ $(LIBPFX)%$(LIBSFX):	%.o
 %.o:	%.cc %.h
 	$(CXX) $(CFLAGS) -c -o $@ $(filter %.cc,$^)
 
-#clean:;	$(RM) cyglaunch.exe G.class H.class H.dll H.h
-clean:;	$(RM) cyglaunch.exe
+clean:;	$(RM) cyglaunch.exe G.class H.class H.dll H.h
 .PHONY: clean
