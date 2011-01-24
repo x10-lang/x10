@@ -52,7 +52,6 @@ struct x10PAMIState
 	pami_client_t client; // the PAMI client instance used for this place
 	// TODO associate a context with each worker thread
 	pami_context_t context[1]; // PAMI context associated with the client (currently only 1 context is used)
-	pami_send_hint_t standardHints; // hints that apply to this session
 	volatile unsigned recv_active;
 } state;
 
@@ -250,7 +249,6 @@ static void local_put_dispatch (
 		pami_get_simple_t parameters;
 		memset(&parameters, 0, sizeof (parameters));
 		parameters.rma.dest    = origin;
-		parameters.rma.hints   = state.standardHints;
 		parameters.rma.bytes   = localParameters->data_len;
 		parameters.rma.cookie  = localParameters;
 		parameters.rma.done_fn = put_handler_complete;
@@ -290,7 +288,7 @@ static void get_handler_complete (pami_context_t   context,
 	parameters.send.data.iov_base   = NULL;
 	parameters.send.data.iov_len    = 0;
 	parameters.send.dest 			= header->dest_place;
-	parameters.send.hints			= state.standardHints;
+	memset(&parameters.send.hints, 0, sizeof(pami_send_hint_t));
 	parameters.events.cookie        = (void *) &send_active;
 	parameters.events.local_fn      = cookie_decrement;
 	parameters.events.remote_fn     = NULL;
@@ -358,7 +356,6 @@ static void local_get_dispatch (
 		pami_put_simple_t parameters;
 		memset(&parameters, 0, sizeof (parameters));
 		parameters.rma.dest    = origin;
-		parameters.rma.hints   = state.standardHints;
 		parameters.rma.bytes   = header->data_len;
 		parameters.rma.cookie  = localParameters;
 		parameters.rma.done_fn = get_handler_complete;
@@ -444,28 +441,29 @@ void x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter)
 		fprintf(stderr, "Hello from process %u of %u\n", state.myPlaceId, state.numPlaces); // TODO - deleteme
 	#endif
 	
-	memset(&state.standardHints, 0, sizeof(state.standardHints));
+	pami_send_hint_t hints;
+	memset(&hints, 0, sizeof(pami_send_hint_t));
 	state.recv_active = 1;
 
 	// set up our callback functions, which will convert PAMI messages to X10 callbacks
 	pami_dispatch_callback_function fn;
 	fn.p2p = local_msg_dispatch;
-	if ((status = PAMI_Dispatch_set(state.context[0], STANDARD, fn, (void *) &state.recv_active, state.standardHints)) != PAMI_SUCCESS)
+	if ((status = PAMI_Dispatch_set(state.context[0], STANDARD, fn, (void *) &state.recv_active, hints)) != PAMI_SUCCESS)
 		error("Unable to register standard dispatch handler");
 
 	pami_dispatch_callback_function fn2;
 	fn2.p2p = local_put_dispatch;
-	if ((status = PAMI_Dispatch_set(state.context[0], PUT, fn2, (void *) &state.recv_active, state.standardHints)) != PAMI_SUCCESS)
+	if ((status = PAMI_Dispatch_set(state.context[0], PUT, fn2, (void *) &state.recv_active, hints)) != PAMI_SUCCESS)
 		error("Unable to register put dispatch handler");
 
 	pami_dispatch_callback_function fn3;
 	fn3.p2p = local_get_dispatch;
-	if ((status = PAMI_Dispatch_set(state.context[0], GET, fn3, (void *) &state.recv_active, state.standardHints)) != PAMI_SUCCESS)
+	if ((status = PAMI_Dispatch_set(state.context[0], GET, fn3, (void *) &state.recv_active, hints)) != PAMI_SUCCESS)
 		error("Unable to register get dispatch handler");
 
 	pami_dispatch_callback_function fn4;
 	fn4.p2p = get_complete_dispatch;
-	if ((status = PAMI_Dispatch_set(state.context[0], GET_COMPLETE, fn4, (void *) &state.recv_active, state.standardHints)) != PAMI_SUCCESS)
+	if ((status = PAMI_Dispatch_set(state.context[0], GET_COMPLETE, fn4, (void *) &state.recv_active, hints)) != PAMI_SUCCESS)
 		error("Unable to register get_complete_dispatch handler");
 }
 
@@ -567,7 +565,8 @@ void x10rt_net_send_msg (x10rt_msg_params *p)
 	parameters.send.data.iov_base   = p->msg;
 	parameters.send.data.iov_len    = p->len;
 	parameters.send.dest 			= target;
-	parameters.send.hints			= state.standardHints;
+	memset(&parameters.send.hints, 0, sizeof(pami_send_hint_t));
+	//parameters.send.hints.buffer_registered = 1;
 	parameters.events.cookie        = (void *) &send_active;
 	parameters.events.local_fn      = cookie_decrement;
 	parameters.events.remote_fn     = NULL;
@@ -615,7 +614,7 @@ void x10rt_net_send_put (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
 	parameters.send.data.iov_base   = p->msg;
 	parameters.send.data.iov_len    = p->len;
 	parameters.send.dest 			= target;
-	parameters.send.hints			= state.standardHints;
+	memset(&parameters.send.hints, 0, sizeof(pami_send_hint_t));
 	parameters.events.cookie		= (void*)&put_active;
 	parameters.events.local_fn		= cookie_decrement;
 	parameters.events.remote_fn     = NULL;
@@ -672,7 +671,7 @@ void x10rt_net_send_get (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
 	parameters.send.data.iov_base   = p->msg;
 	parameters.send.data.iov_len    = p->len;
 	parameters.send.dest 			= target;
-	parameters.send.hints			= state.standardHints;
+	memset(&parameters.send.hints, 0, sizeof(pami_send_hint_t));
 	parameters.events.cookie        = (void*)&get_active;
 	parameters.events.local_fn      = cookie_decrement;
 	parameters.events.remote_fn     = NULL;
