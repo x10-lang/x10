@@ -105,7 +105,7 @@ public class DistArray[T] (
 
         val plsInit:()=>LocalState[T] = () => {
             val localRaw = IndexedMemoryChunk.allocate[T](dist.maxOffset()+1, true);
-	    return new LocalState(localRaw);
+            return new LocalState(localRaw);
         };
 
         localHandle = PlaceLocalHandle.make[LocalState[T]](dist, plsInit);
@@ -130,12 +130,10 @@ public class DistArray[T] (
 
         val plsInit:()=>LocalState[T] = () => {
             val localRaw = IndexedMemoryChunk.allocate[T](dist.maxOffset()+1);
-            val region = dist.get(here);
-
-            for (pt in region) {
-               localRaw(dist.offset(pt)) = init(pt as Point(dist.rank));
+            val reg = dist.get(here);
+            for (pt in reg) {
+               localRaw(dist.offset(pt)) = init(pt);
             }
-
             return new LocalState(localRaw);
         };
 
@@ -160,11 +158,10 @@ public class DistArray[T] (
 
         val plsInit:()=>LocalState[T] = () => {
             val localRaw = IndexedMemoryChunk.allocate[T](dist.maxOffset()+1);
-
-            for (var i:int = 0; i<localRaw.length(); i++) {
-                localRaw(i) = init;
+            val reg = dist.get(here);
+            for (pt in reg) {
+                localRaw(dist.offset(pt)) = init;
             }
-
             return new LocalState(localRaw);
         };
 
@@ -180,12 +177,21 @@ public class DistArray[T] (
      * the invariant would need to be explictly checked here and 
      * an IllegalArgumentExcpetion thrown if it was violated.
      */
-    def this(a:DistArray[T], d:Dist):DistArray[T]{self.dist==d} {
+    protected def this(a:DistArray[T], d:Dist):DistArray[T]{self.dist==d} {
         property(d);
         localHandle = PlaceLocalHandle.make[LocalState[T]](d, ()=>a.localHandle());
     }
 
-
+    /**
+     * Create a DistArray from a distribution and a PlaceLocalHandle[LocalState[T]]
+     * This constructor is intended for internal use only by operations such as 
+     * map to enable them to complete with only 1 collective operation instead of 2.
+     */
+    protected def this(d:Dist, pls:PlaceLocalHandle[LocalState[T]]) {
+        property(d);
+        localHandle = pls;
+    }
+    
     
     /**
      * Return the element of this array corresponding to the given point.
@@ -216,7 +222,7 @@ public class DistArray[T] (
      * @see #set(T, Int)
      */
     public final operator this(i0:int){rank==1}: T {
-	val offset = dist.offset(i0);
+        val offset = dist.offset(i0);
         return raw()(offset);
     }
 
@@ -273,7 +279,7 @@ public class DistArray[T] (
      * @see #set(T, Int, Int, Int, Int)
      */
     public final operator this(i0:int, i1:int, i2:int, i3:int){rank==4}: T {
-	val offset = dist.offset(i0, i1, i2, i3);
+        val offset = dist.offset(i0, i1, i2, i3);
         return raw()(offset);
     }
 
@@ -397,7 +403,7 @@ public class DistArray[T] (
      * 
      * @param d the Dist to use as the restriction
      */
-    public def restriction(d: Dist(rank)) {
+    public def restriction(d:Dist(rank)) {
         if (!dist.isSubdistribution(d)) throw new IllegalArgumentException(d+"is not a subDistribution of "+dist);
         return new DistArray[T](this, d) as DistArray[T](rank);
     }
@@ -451,45 +457,240 @@ public class DistArray[T] (
     // Bulk operations
     //
 
-    public def map(op:(T)=>T): DistArray[T](dist)
-        = make[T](dist, ((p:Point)=>op(this(p as Point(rank)))));
+    /**
+     * Fill all elements of the array to contain the argument value.
+     * 
+     * @param v the value with which to fill the array
+     */
+    public def fill(v:T) {
+        finish for (where in dist.places()) {
+            async at (where) {
+                val imc = raw();
+                val reg = dist.get(here);
+                for (pt in reg) {
+                    imc(dist.offset(pt)) = v;
+                }
+            }
+        }
+    }
+    
+    /**
+     * Map the function onto the elements of this array
+     * constructing a new result array such that for all points <code>p</code>
+     * in <code>this.dist</code>,
+     * <code>result(p) == op(this(p))</code>.<p>
+     * 
+     * @param op the function to apply to each element of the array
+     * @return a new array with the same distribution as this array where <code>result(p) == op(this(p))</code>
+     */
+    public final def map[U](op:(T)=>U):DistArray[U](this.dist) {
+        val plh = PlaceLocalHandle.make[LocalState[U]](dist, ()=> {
+            val srcImc = raw();
+            val newImc = IndexedMemoryChunk.allocate[U](dist.maxOffset()+1);
+            val reg = dist.get(here);
+            for (pt in reg) {
+                val offset = dist.offset(pt);
+                newImc(offset) = op(srcImc(offset));
+            }
+            return new LocalState[U](newImc);
+        });
+        return new DistArray[U](dist, plh);                       
+    }
 
-    public def map(r:Region(rank), op:(T)=>T): DistArray[T]
-        = make[T](dist | r, ((p:Point)=>op(this(p as Point(rank)))));
-
-
-    public def map(src:DistArray[T](this.dist), op:(T,T)=>T):DistArray[T](dist)
-        = make[T](dist, ((p:Point)=>op(this(p as Point(rank)), src(p as Point(rank)))));
-
-    public def map(src:DistArray[T](this.dist), r:Region(rank), op:(T,T)=>T):DistArray[T](rank)
-        = make[T]((dist | r) as Dist(rank), ((p:Point)=>op(this(p as Point(rank)), src(p as Point(rank)))));
-
-    public def reduce(op:(T,T)=>T, unit:T):T {
-        // scatter
-        // TODO: recode using Team collective APIs to improve scalability
-        // TODO: optimize scatter inner loop for locally rect regions
-        val results = Rail.make[T](dist.numPlaces(), (p:Int) => unit);
-	finish for (where in dist.places()) {
-	    async {
-                results(where.id) = at (where) {
-                    var localRes:T = unit;
-                    for (pt in dist(where)) {
-                        localRes = op(localRes, this(pt));
+    /**
+     * Map the given function onto the elements of this array
+     * storing the results in the dst array such that for all points <code>p</code>
+     * in <code>this.dist</code>,
+     * <code>dst(p) == op(this(p))</code>.<p>
+     * 
+     * @param dst the destination array for the results of the map operation
+     * @param op the function to apply to each element of the array
+     * @return dst after applying the map operation.
+     */
+    public final def map[U](dst:DistArray[U](this.dist), op:(T)=>U):DistArray[U](dist){self==dst} {
+        finish {
+            for (where in dist.places()) {
+                async at(where) {
+                    val reg = dist.get(here);
+                    val srcImc = raw();
+                    val dstImc = dst.raw();
+                    for (pt in reg) {
+                        val offset = dist.offset(pt);
+                        dstImc(offset) = op(srcImc(offset));
                     }
-                    localRes
+                }
+            }
+        }
+        return dst;
+    }
+    
+    /**
+     * Map the given function onto the elements of this array
+     * storing the results in the dst array for the subset of points included
+     * in the filter region such that for all points <code>p</code>
+     * in <code>filter</code>,
+     * <code>dst(p) == op(this(p))</code>.<p>
+     * 
+     * @param dst the destination array for the results of the map operation
+     * @param op the function to apply to each element of the array
+     * @param filter the region to use as a filter on the map operation
+     * @return dst after applying the map operation.
+     */
+    public final def map[U](dst:DistArray[U](this.dist), filter:Region(rank), op:(T)=>U):DistArray[U](dist){self==dst} {
+        finish {
+            for (where in dist.places()) {
+                async at(where) {
+                    val reg = dist.get(here);
+                    val freg = reg && filter;
+                    val srcImc = raw();
+                    val dstImc = dst.raw();
+                    for (pt in freg) {
+                        val offset = dist.offset(pt);
+                        dstImc(offset) = op(srcImc(offset));
+                    }
+                }
+            }
+        }
+        return dst;
+    }
+    
+    /**
+     * Map the given function onto the elements of this array
+     * and the other src array, storing the results in a new result array 
+     * such that for all points <code>p</code> in <code>this.dist</code>,
+     * <code>result(p) == op(this(p), src(p))</code>.<p>
+     * 
+     * @param src the other src array
+     * @param op the function to apply to each element of the array
+     * @return a new array with the same distribution as this array containing the result of the map
+     */
+    public final def map[S,U](src:DistArray[U](this.dist), op:(T,U)=>S):DistArray[S](dist) {
+        val plh = PlaceLocalHandle.make[LocalState[S]](dist, ()=> {
+            val src1Imc = raw();
+            val src2Imc = src.raw();
+            val newImc = IndexedMemoryChunk.allocate[S](dist.maxOffset()+1);
+            val reg = dist.get(here);
+            for (pt in reg) {
+                val offset = dist.offset(pt);
+                newImc(offset) = op(src1Imc(offset), src2Imc(offset));
+            }
+            return new LocalState[S](newImc);
+        });
+        return new DistArray[S](dist, plh);                       
+    }
+    
+    /**
+     * Map the given function onto the elements of this array
+     * and the other src array, storing the results in the given dst array 
+     * such that for all points <code>p</code> in <code>this.dist</code>,
+     * <code>dst(p) == op(this(p), src(p))</code>.<p>
+     * 
+     * @param dst the destination array for the map operation
+     * @param src the second source array for the map operation
+     * @param op the function to apply to each element of the array
+     * @return destination after applying the map operation.
+     */
+    public final def map[S,U](dst:DistArray[S](this.dist), src:DistArray[U](this.dist), op:(T,U)=>S):DistArray[S](dist) {
+        finish {
+            for (where in dist.places()) {
+                async at(where) {
+                    val reg = dist.get(here);
+                    val src1Imc = raw();
+                    val src2Imc = src.raw();
+                    val dstImc = dst.raw();
+                    for (pt in reg) {
+                        val offset = dist.offset(pt);
+                        dstImc(offset) = op(src1Imc(offset), src2Imc(offset));
+                    }
+                }
+            }
+        }
+        return dst;
+    }
+ 
+    /**
+     * Map the given function onto the elements of this array
+     * and the other src array, storing the results in the given dst array 
+     * such that for all points in the filter region <code>p</code> in <code>filter</code>,
+     * <code>dst(p) == op(this(p), src(p))</code>.<p>
+     * 
+     * @param dst the destination array for the map operation
+     * @param src the second source array for the map operation
+     * @param op the function to apply to each element of the array
+     * @param filter the region to use to select the subset of points to include in the map
+     * @return destination after applying the map operation.
+     */
+    public final def map[S,U](dst:DistArray[S](this.dist), src:DistArray[U](this.dist), filter:Region(rank), op:(T,U)=>S):DistArray[S](dist) {
+        finish {
+            for (where in dist.places()) {
+                async at(where) {
+                    val reg = dist.get(here);
+                    val freg = reg && filter;
+                    val src1Imc = raw();
+                    val src2Imc = src.raw();
+                    val dstImc = dst.raw();
+                    for (pt in freg) {
+                        val offset = dist.offset(pt);
+                        dstImc(offset) = op(src1Imc(offset), src2Imc(offset));
+                    }
+                }
+            }
+        }
+        return dst;
+    }
+
+    /**
+     * Reduce this array using the given function and the given initial value.
+     * Each element of the array will be given as an argument to the reduction
+     * function exactly once, but in an arbitrary order.  The reduction function
+     * may be applied concurrently to implement a parallel reduction.
+     * 
+     * @param op the reduction function
+     * @param unit the given initial value
+     * @return the final result of the reduction.
+     * @see #map((T)=>S)
+     * @see #reduce(U,T)=>U,(U,U)=>U,U)
+     */
+    public final def reduce(op:(T,T)=>T, unit:T):T  = reduce[T](op, op, unit);
+    
+    /**
+     * Reduce this array using the given function and the given initial value.
+     * Each element of the array will be given as an argument to the reduction
+     * function exactly once, but in an arbitrary order.  The reduction function
+     * may be applied concurrently to implement a parallel reduction.
+     * 
+     * @param lop the local reduction function
+     * @param gop the global reduction function
+     * @param unit the given initial value
+     * @return the final result of the reduction.
+     * @see #map((T)=>S)
+     */
+    public final def reduce[U](lop:(U,T)=>U, gop:(U,U)=>U, unit:U):U {
+        // Could use collecting finish after XTENLANG-2364 is resolved
+        // instead of building up an explicit result array
+        val results = new Array[U](Place.MAX_PLACES, unit);
+        finish {
+            for (where in dist.places()) {
+                async {
+                    results(where.id) = at (where) {
+                        val reg = dist.get(here);
+                        var localRes:U = unit;
+                        val imc = raw();
+                        for (pt in reg) {
+                           localRes = lop(localRes, imc(dist.offset(pt)));
+                        }
+                        localRes
+                    };
                 };
-            };
+            }
         }
 
-        // gather
-        var result: T = unit;
-        for (var i:int = 0; i<results.length; i++) {
-            result = op(result, results(i));
+        var result:U = results(0);
+        for ([i] in 1..(results.size()-1)) {
+            result = gop(result, results(i));
         }
-
         return result;
-    }            
-
+    }
 
     public def toString(): String {
         return "DistArray(" + dist + ")";
