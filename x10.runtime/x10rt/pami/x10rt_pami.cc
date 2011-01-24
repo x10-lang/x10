@@ -21,7 +21,7 @@
 #include <x10rt_net.h>
 #include <pami.h>
 
-#define DEBUG 1
+//#define DEBUG 1
 
 enum MSGTYPE {STANDARD=1, PUT, GET, PUT_COMPLETE, GET_COMPLETE}; // PAMI doesn't send messages with type=0... it just silently eats them.
 //mechanisms for the callback functions used in the register and probe methods
@@ -463,9 +463,9 @@ void x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter)
 	if ((status = PAMI_Dispatch_set(state.context[0], GET, fn3, (void *) &state.recv_active, state.standardHints)) != PAMI_SUCCESS)
 		error("Unable to register get dispatch handler");
 
-	pami_dispatch_callback_function fn5;
-	fn5.p2p = get_complete_dispatch;
-	if ((status = PAMI_Dispatch_set(state.context[0], GET_COMPLETE, fn5, (void *) &state.recv_active, state.standardHints)) != PAMI_SUCCESS)
+	pami_dispatch_callback_function fn4;
+	fn4.p2p = get_complete_dispatch;
+	if ((status = PAMI_Dispatch_set(state.context[0], GET_COMPLETE, fn4, (void *) &state.recv_active, state.standardHints)) != PAMI_SUCCESS)
 		error("Unable to register get_complete_dispatch handler");
 }
 
@@ -576,14 +576,14 @@ void x10rt_net_send_msg (x10rt_msg_params *p)
 		error("Unable to send a message from %u to %u: %i\n", state.myPlaceId, p->dest_place, status);
 
 	#ifdef DEBUG
-		fprintf(stderr, "(%zu) send_once() Before advance\n", state.myPlaceId);
+		fprintf(stderr, "(%zu) send_msg Before advance\n", state.myPlaceId);
 	#endif
 
 	// hold up this thread until the message buffers have been copied out by PAMI
 	while (send_active)
 		PAMI_Context_advance(state.context[0], 100);
 	#ifdef DEBUG
-		fprintf(stderr, "(%zu) send_once() After advance\n", state.myPlaceId);
+		fprintf(stderr, "(%zu) send_msg After advance\n", state.myPlaceId);
 	#endif
 }
 
