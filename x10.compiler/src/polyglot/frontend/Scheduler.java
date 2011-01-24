@@ -57,9 +57,8 @@ public abstract class Scheduler {
     // TODO: remove this, we only need to intern the goal status, not the goal itself.
     // Actually, the lazy ref to the goal status is the goal.  The run() method is the resolver for the lazy ref.
     public Goal intern(Goal goal) {
-        Compiler c = extInfo.compiler();
-        c.stats.incrFrequency("intern", 1);
-        c.stats.incrFrequency("intern:"
+        Stats.incrFrequency("intern", 1);
+        Stats.incrFrequency("intern:"
                 + (goal instanceof VisitorGoal ? ((VisitorGoal) goal).v.getClass().getName() : goal.getClass().getName()), 1);
         Goal g = internCache.get(goal);
         if (g == null) {
@@ -328,18 +327,17 @@ public abstract class Scheduler {
             Goal oldGoal = currentGoal;
             currentGoal = goal;
             String key = goal.toString();
-            Compiler c = extInfo.compiler();
-            c.stats.startTiming(goal.name(), key);
+            Stats.startTiming(goal.name(), key);
 
-            c.stats.incrFrequency(key + " attempts", 1);
-            c.stats.incrFrequency("total goal attempts", 1);
+            Stats.incrFrequency(key + " attempts", 1);
+            Stats.incrFrequency("total goal attempts", 1);
             
             try {
                 result = goal.runTask();
 
                 if (result && goal.getCached() == Goal.Status.RUNNING) {
-                    c.stats.incrFrequency(key + " reached", 1);
-                    c.stats.incrFrequency("total goal reached", 1);
+                    Stats.incrFrequency(key + " reached", 1);
+                    Stats.incrFrequency("total goal reached", 1);
 
                     goal.update(Status.SUCCESS);
 
@@ -347,8 +345,8 @@ public abstract class Scheduler {
                         Report.report(1, "Completed pass for " + goal);
                 }
                 else {
-                    c.stats.incrFrequency(key + " unreached", 1);
-                    c.stats.incrFrequency("total goal unreached", 1);
+                    Stats.incrFrequency(key + " unreached", 1);
+                    Stats.incrFrequency("total goal unreached", 1);
 
                     if (Report.should_report(Report.frontend, 1))
                         Report.report(1, "Completed (unreached) pass for " + goal);
@@ -369,7 +367,7 @@ public abstract class Scheduler {
 
                 Report.stop_reporting(goal.name());
 
-                c.stats.stopTiming();
+                Stats.stopTiming();
             }
 
             // pretty-print this pass if we need to.
