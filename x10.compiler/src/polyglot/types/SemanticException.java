@@ -30,11 +30,6 @@ public class SemanticException extends Exception {
         super(cause);
     }
 
-    public SemanticException(Position position) {
-	super();
-	this.position = position;
-    }
-
     public SemanticException(String m) {
         super(m);
     }

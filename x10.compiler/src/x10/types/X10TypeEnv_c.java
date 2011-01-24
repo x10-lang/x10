@@ -576,7 +576,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         Set<Type> visitedTypes = CollectionFactory.newHashSet();
 
         LinkedList<Type> typeQueue = new LinkedList<Type>();
-        HashSet<Type> preventInfiniteRecursion = CollectionFactory.newHashSet(); // e.g., class CircularityTests { property i() = 5; class R extends R {i()==5} {} }
+        Set<Type> preventInfiniteRecursion = CollectionFactory.newHashSet(); // e.g., class CircularityTests { property i() = 5; class R extends R {i()==5} {} }
 
         // Get the upper bound of the container.
         typeQueue.addAll(upperBounds(container, true));

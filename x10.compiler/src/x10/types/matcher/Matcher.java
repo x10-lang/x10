@@ -320,7 +320,10 @@ public class Matcher {
 		    Context context2 = context.pushAdditionalConstraint(returnEnv);
 		    CConstraint query = newMe.guard();
 		    try {
-		        if (! returnEnv.entails(query, context2.constraintProjection(returnEnv, query))) {
+		        CConstraint sigma = context2.constraintProjection(returnEnv, query);
+		        if (! returnEnv.copy().addIn(sigma).consistent())
+                    throw new SemanticException("Call invalid; calling environment is inconsistent.");
+		        if (! returnEnv.entails(query, sigma)) {
 		            X10CompilerOptions opts = (X10CompilerOptions) context.typeSystem().extensionInfo().getOptions();
                     if (!opts.x10_config.STATIC_CALLS &&
                             !(newMe instanceof MacroType)) // MacroType cannot have its guard checked at runtime

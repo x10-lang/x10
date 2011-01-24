@@ -24,6 +24,7 @@ package x10cpp.types;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import polyglot.ast.ClassMember;
 import polyglot.ast.Stmt;
@@ -61,7 +62,7 @@ public class X10CPPContext_c extends x10.types.X10Context_c implements Context {
      * To find the data in the current or ancestor context, use {@link #findData(String)}.
      * To add data to the current context, use {@link #addData(String, Object)}.
      */
-    protected HashMap<String, Object> data = CollectionFactory.newHashMap(1, 1.0f);
+    protected Map<String, Object> data = CollectionFactory.newHashMap(1, 1.0f);
 
     /** @see #data. */
     public <T> void addData(String key, T value) { data.put(key, value); }
@@ -167,7 +168,7 @@ public class X10CPPContext_c extends x10.types.X10Context_c implements Context {
     }
 
     
-    private final HashMap<X10ClassType, ITable> cachedITables = CollectionFactory.newHashMap();
+    private final Map<X10ClassType, ITable> cachedITables = CollectionFactory.newHashMap();
     /**
      * Find or construct the ITable instance for the argument X10 interface type.
      */

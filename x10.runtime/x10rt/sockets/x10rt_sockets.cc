@@ -35,6 +35,7 @@
 #include <alloca.h> // for alloca()
 
 #include <x10rt_net.h>
+#include <x10rt_internal.h>
 #include "Launcher.h"
 #include "TCP.h"
 
@@ -371,8 +372,8 @@ void x10rt_net_init (int * argc, char ***argv, x10rt_msg_type *counter)
 
 	state.nextSocketToCheck = 0;
 	pthread_mutex_init(&state.readLock, NULL);
-	state.socketLinks = new struct pollfd[state.numPlaces];
-	state.writeLocks = new pthread_mutex_t[state.numPlaces];
+	state.socketLinks = safe_malloc<pollfd>(state.numPlaces);
+	state.writeLocks = safe_malloc<pthread_mutex_t>(state.numPlaces);
 	for (unsigned int i=0; i<state.numPlaces; i++)
 	{
 		state.socketLinks[i].fd = -1;

@@ -13,6 +13,7 @@ package x10.lang;
 
 import x10.compiler.Native;
 import x10.compiler.TempNoInline_1;
+import x10.compiler.CompilerFlags;
 
 /**
  * @author Christian Grothoff
@@ -84,13 +85,18 @@ public final struct Place(id: Int)  {
         new Array[Array[Place](1)](ALL_PLACES,
                                    (p: Int) => new Array[Place](numChildren(p), (i:Int) => Place(child(p,i))));
 
-    private static places = new Array[Place](MAX_PLACES, ((id:Int) => Place(id)));
+    private static places:Array[Place](1) = new Array[Place](MAX_PLACES, ((id:Int) => Place(id)));
     public static def places():Sequence[Place]=places.sequence();
     public static children = childrenArray.values();
     public static NUM_ACCELS = ALL_PLACES - MAX_PLACES;
     public static FIRST_PLACE:Place(0) = Place(0);
 
-    public def this(id: Int):Place(id) { property(id); }
+    public def this(id: Int):Place(id) { 
+        property(id); 
+        if (CompilerFlags.checkPlace() && (id < 0 || id >= MAX_PLACES)) {
+            throw new IllegalArgumentException(id+" is not a valid Place id");
+        }
+    }
 
     public static def place(id: Int): Place(id) = Place(id);
     public def next(): Place = next(1);

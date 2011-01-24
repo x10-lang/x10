@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.HashSet;
+import java.util.Set;
 
 import polyglot.ast.Expr;
 import polyglot.types.ClassDef;
@@ -66,8 +67,8 @@ implements X10ParsedClassType
     TypeParamSubst cacheSubst; // "subst" is just an auxiliary structure (cached to improve performance). It represents the typeArguments (thus it is nullified when assigning to typeArguments).
 
     // We ignore all constraints (we only handle generics)
-    private HashSet<X10ParsedClassType_c> cacheDirectSupertypes = null;
-    private HashSet<X10ParsedClassType_c> cacheAllSupertypes = null;
+    private Set<X10ParsedClassType_c> cacheDirectSupertypes = null;
+    private Set<X10ParsedClassType_c> cacheAllSupertypes = null;
 
     private void clearCache() {
         cacheSubst = null;
@@ -91,11 +92,11 @@ implements X10ParsedClassType
         for (X10ParsedClassType_c t : cacheDirectSupertypes)
             cacheAllSupertypes.addAll(t.allSuperTypes());
     }
-    public HashSet<X10ParsedClassType_c> directSuperTypes() {
+    public Set<X10ParsedClassType_c> directSuperTypes() {
         if (cacheDirectSupertypes==null) calcSuperTypes();
         return cacheDirectSupertypes;
     }
-    public HashSet<X10ParsedClassType_c> allSuperTypes() {
+    public Set<X10ParsedClassType_c> allSuperTypes() {
         if (cacheAllSupertypes==null) calcSuperTypes();
         final List<MethodInstance> list = methods();
         return cacheAllSupertypes;

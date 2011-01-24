@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import polyglot.ast.Assign;
 import polyglot.ast.Block;
@@ -77,7 +78,7 @@ public class WSCodeGenUtility {
         return methodDef.name().toString();
     }
 
-    static HashMap<ClassType, HashMap<String, Integer>> container2MethodNameMap;
+    static Map<ClassType, Map<String, Integer>> container2MethodNameMap;
     //              classType         methodName, number
     
     public static String getMethodBodyClassName(MethodDef methodDef){
@@ -87,7 +88,7 @@ public class WSCodeGenUtility {
         String tempName = "_$" + getMethodName(methodDef);
         ClassType classType = (ClassType) methodDef.container().get();
        
-        HashMap<String, Integer> nameNumberMap = container2MethodNameMap.get(classType);
+        Map<String, Integer> nameNumberMap = container2MethodNameMap.get(classType);
         if(nameNumberMap == null){
             nameNumberMap = CollectionFactory.newHashMap();
             nameNumberMap.put(tempName, 1);

@@ -473,13 +473,13 @@ public class CheckEscapingThis extends NodeVisitor
     private final ArrayList<ProcedureDecl> dfsMethods = new ArrayList<ProcedureDecl>(); // to accelerate the fix-point alg
     // the set of all VAR and VAL fields (including one property representative), including those in the superclass because of super() call
     // (we need to check that VAL are read properly, and that VAR are written and read properly.)
-    private final HashSet<FieldDef> fields = CollectionFactory.newHashSet();
-    private final HashSet<FieldDef> superFields = CollectionFactory.newHashSet(); // after the "super()" call, these fields are initialized
+    private final Set<FieldDef> fields = CollectionFactory.newHashSet();
+    private final Set<FieldDef> superFields = CollectionFactory.newHashSet(); // after the "super()" call, these fields are initialized
     private final DataFlowItem INIT = new DataFlowItem();
     private final DataFlowItem CTOR_INIT = new DataFlowItem();
 
     private boolean wasChange = true, wasError = false; // for fixed point alg
-    private HashSet<FieldDef> globalRef = CollectionFactory.newHashSet();// There is one exception to the "this cannot escape" rule:  val root = GlobalRef[...](this)
+    private Set<FieldDef> globalRef = CollectionFactory.newHashSet();// There is one exception to the "this cannot escape" rule:  val root = GlobalRef[...](this)
 
     private void checkGlobalRef(Node n) {
         // you cannot access a globalRef field via this  (but you can assign to them)

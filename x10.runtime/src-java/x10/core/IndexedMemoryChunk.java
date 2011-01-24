@@ -11,10 +11,16 @@
 
 package x10.core;
 
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectOutputStream;
+
 import x10.core.fun.VoidFun_0_0;
+import x10.lang.FinishState;
+import x10.lang.UnsupportedOperationException;
 import x10.rtt.RuntimeType;
 import x10.rtt.RuntimeType.Variance;
 import x10.rtt.Type;
+import x10.x10rt.ActivityManagement;
 
 public final class IndexedMemoryChunk<T> extends x10.core.Struct {
     public final int length;
@@ -68,30 +74,97 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct {
         type.setArray(value, i, v);
     }
 
-    public static <T> void asyncCopy(IndexedMemoryChunk<T> src, int srcIndex, 
-                                     RemoteIndexedMemoryChunk<T> dst, int dstIndex,
-                                     int numElems) {
-        System.arraycopy(src.value, srcIndex, dst.value, dstIndex, numElems);
+    public static <T> void asyncCopy(IndexedMemoryChunk<T> src, final int srcIndex, 
+                                     final RemoteIndexedMemoryChunk<T> dst, final int dstIndex,
+                                     final int numElems) {
+        // extra copy here simplifies logic and allows us to do this entirely at the Java level.
+        // We'll eventually need to optimize this by writing custom native/JNI code instead of treating
+        // it as just another async to execute remotely.
+        final Object dataToCopy;
+        if (numElems == src.length) {
+            dataToCopy = src.getBackingArray();
+        } else {
+            dataToCopy = allocate(src.type, numElems, false).getBackingArray();
+            System.arraycopy(src.value, srcIndex, dataToCopy, 0, numElems);
+        }
+        
+        VoidFun_0_0 copyBody = new VoidFun_0_0() {
+            int dstId = dst.id;
+            Object srcData = dataToCopy;
+            
+            public RuntimeType<?> getRTT() { return VoidFun_0_0._RTT; }
+            public Type<?> getParam(int i) { return null; }
+            
+            public void $apply() {
+                Object dstData = RemoteIndexedMemoryChunk.getValue(dstId);
+                System.arraycopy(srcData, 0, dstData, dstIndex, numElems);
+            }
+        };
+        
+        x10.lang.Runtime.runAsync(dst.home, copyBody);
     }
 
     public static <T> void asyncCopy(IndexedMemoryChunk<T> src, int srcIndex, 
                                      RemoteIndexedMemoryChunk<T> dst, int dstIndex,
                                      int numElems, VoidFun_0_0 notifier) {
-        System.arraycopy(src.value, srcIndex, dst.value, dstIndex, numElems);
-        notifier.$apply();
+        throw new UnsupportedOperationException("asyncCopy with notifier not implemented for multivm");
+        // notifier.$apply();
     }
 
-    public static <T> void asyncCopy(RemoteIndexedMemoryChunk<T> src, int srcIndex, 
-                                     IndexedMemoryChunk<T> dst, int dstIndex,
-                                     int numElems) {
-        System.arraycopy(src.value, srcIndex, dst.value, dstIndex, numElems);
+    public static <T> void asyncCopy(final RemoteIndexedMemoryChunk<T> src, final int srcIndex, 
+                                     IndexedMemoryChunk<T> dst, final int dstIndex,
+                                     final int numElems) {
+        // A really bad implementation!  Leaks dst!!  Non-optimized copies! Extra distributed async/finish traffic!
+        final RemoteIndexedMemoryChunk<T> dstWrapper = RemoteIndexedMemoryChunk.wrap(dst);
+        final int srcId = src.id;
+        
+        VoidFun_0_0 copyBody1 = new VoidFun_0_0() {
+            
+            public RuntimeType<?> getRTT() { return VoidFun_0_0._RTT; }
+            public Type<?> getParam(int i) { return null; }
+            
+            public void $apply() {
+                // This body runs at src's home.  It accesses the data for src and then does
+                // another async back to dstWrapper's home to transfer the data.
+                Object srcData = RemoteIndexedMemoryChunk.getValue(srcId);
+                 
+                // extra copy here simplifies logic and allows us to do this entirely at the Java level.
+                // We'll eventually need to optimize this by writing custom native/JNI code instead of treating
+                // it as just another async to execute remotely.
+                final Object dataToCopy;
+                if (numElems == src.length) {
+                    dataToCopy = srcData;
+                } else {
+                    dataToCopy = allocate(src.type, numElems, false).getBackingArray();
+                    System.arraycopy(srcData, srcIndex, dataToCopy, 0, numElems);
+                }
+                
+                VoidFun_0_0 copyBody2 = new VoidFun_0_0() {
+                    int dstId = dstWrapper.id;
+                    Object srcData = dataToCopy;
+                    
+                    public RuntimeType<?> getRTT() { return VoidFun_0_0._RTT; }
+                    public Type<?> getParam(int i) { return null; }
+                    
+                    public void $apply() {
+                        // This body runs back at dst's home.  It does the actual assignment of values.
+                        Object dstData = RemoteIndexedMemoryChunk.getValue(dstId);
+                        System.arraycopy(srcData, 0, dstData, dstIndex, numElems);
+                    }
+                };
+                
+                x10.lang.Runtime.runAsync(dstWrapper.home, copyBody2);
+            }
+        };
+        
+        x10.lang.Runtime.runAsync(src.home, copyBody1);
     }
 
     public static <T> void asyncCopy(RemoteIndexedMemoryChunk<T> src, int srcIndex, 
                                      IndexedMemoryChunk<T> dst, int dstIndex,
                                      int numElems, VoidFun_0_0 notifier) {
-        System.arraycopy(src.value, srcIndex, dst.value, dstIndex, numElems);
-        notifier.$apply();
+        throw new UnsupportedOperationException("asyncCopy with notifier not implemented for multivm");
+        // notifier.$apply();
     }
 
     public static <T> void copy(IndexedMemoryChunk<T> src, int srcIndex, 

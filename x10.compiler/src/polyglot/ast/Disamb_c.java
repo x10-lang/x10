@@ -14,6 +14,7 @@ import polyglot.types.*;
 import polyglot.types.Package;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
+import x10.errors.Errors;
 import x10.extension.X10Ext;
 import x10.types.MethodInstance;
 import x10.ast.X10CanonicalTypeNode;
@@ -63,8 +64,7 @@ public abstract class Disamb_c implements Disamb
         c = v.context();
 
         if (prefix instanceof Ambiguous) {
-            throw new SemanticException(
-                "Cannot disambiguate node with ambiguous prefix.");
+            throw new Errors.CannotDisambiguateNodeWithAmbiguousPrefix(pos);
         }
 
         Node result = null;

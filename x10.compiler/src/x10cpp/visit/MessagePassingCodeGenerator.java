@@ -54,6 +54,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.Map;
 
 import polyglot.ast.AmbReceiver;
 import polyglot.ast.ArrayAccess_c;
@@ -771,7 +772,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		// If any instance fields are struct types, then include the .struct_h
 		List<FieldInstance> fields = def.asType().fields();
 		if (!fields.isEmpty()) {
-		    HashSet<Type> dupes = CollectionFactory.newHashSet();
+		    Set<Type> dupes = CollectionFactory.newHashSet();
             Set<ClassType> dupes2 = CollectionFactory.newHashSet();
 		    ClassifiedStream fh = isStruct ? sh : h;
 		    for (FieldInstance fi : fields) {
@@ -1094,7 +1095,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
     }
 
 
-    private Type replaceType(Type type, HashMap<Type, Type> typeMap) {
+    private Type replaceType(Type type, Map<Type, Type> typeMap) {
         Type mapped = typeMap.get(type);
         if (mapped != null)
             return mapped;
@@ -1566,7 +1567,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				h.write("public: ");
 				List<Type> typeParameters = dropzone.typeParameters();
 				List<Type> newTypeParameters = new ArrayList<Type>();
-				HashMap<Type, Type> typeMap = CollectionFactory.newHashMap();
+				Map<Type, Type> typeMap = CollectionFactory.newHashMap();
 				for (Type t : typeParameters) {
 					assert (t instanceof ParameterType);
 					Type dummy = new ParameterType(xts, t.position(), Name.makeFresh("T"), null);

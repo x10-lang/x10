@@ -100,23 +100,22 @@ import x10.util.Box;
     static native def deepCopy[T](o:T):T;
 
     /**
-     * Java: run body synchronously at place(id) in the same node as the current place.
+     * Java: run body. (no need for a native implementation)
      * C++: run body. (no need for a native implementation)
      */
-    @Native("java", "x10.runtime.impl.java.Runtime.runAtLocal(#1, #2)")
     @TempNoInline_1
     static def runAtLocal(id:Int, body:()=>void):void { body(); }
 
     /**
      * Return true if place(id) is in the current node.
      */
-    @Native("java", "x10.runtime.impl.java.Runtime.local(#1)")
     static def isLocal(id:Int):Boolean = id == here.id;
 
     /**
      * Process one incoming message if any (non-blocking).
      */
     @Native("c++", "x10aux::event_probe()")
+    @Native("java","x10.runtime.impl.java.Runtime.eventProbe()")
     static def event_probe():void {}
 
     // Accessors for native performance counters
@@ -609,7 +608,7 @@ import x10.util.Box;
         }
         dealloc(body);
     }
-
+    
     /**
      * Run async
      */
@@ -633,6 +632,10 @@ import x10.util.Box;
         state.notifySubActivitySpawn(here);
         execute(new Activity(body, state));
     }
+
+	public static def runFinish(body:()=>void):void {
+	    finish body();
+	}
 
     /**
      * Run @Uncounted async at

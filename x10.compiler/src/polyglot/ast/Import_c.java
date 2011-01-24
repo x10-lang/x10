@@ -13,6 +13,7 @@ import polyglot.types.*;
 import polyglot.util.*;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.PrettyPrinter;
+import x10.errors.Errors;
 
 /**
  * An <code>Import</code> is an immutable representation of a Java
@@ -87,7 +88,7 @@ public class Import_c extends Node_c implements Import
             n = ts.systemResolver().find(name);
         }
         catch (SemanticException e) {
-            throw new SemanticException("Package or class " + name + " not found.");
+            throw new Errors.PackageOrClassNameNotFound(name, position);
         }
 
         if (n instanceof Type) {
@@ -95,7 +96,7 @@ public class Import_c extends Node_c implements Import
             if (t.isClass()) {
         	ClassType ct = t.toClass();
         	if (! ts.classAccessibleFromPackage(ct.def(), tc.context().package_())) {
-        	    throw new SemanticException("Class " + ct + " is not accessible.");
+        	    throw new Errors.ClassNotAccessible(ct, position);
         	}
             }
         }

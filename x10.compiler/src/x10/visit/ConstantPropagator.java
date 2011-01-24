@@ -73,7 +73,7 @@ public class ConstantPropagator extends ContextVisitor {
     
     public ConstantPropagator(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf);
-        syn = new AltSynthesizer(job, ts, nf);
+        syn = new AltSynthesizer(ts, nf);
         this.job = job;
         this.xts = ts;
     }

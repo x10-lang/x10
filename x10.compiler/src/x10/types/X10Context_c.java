@@ -50,6 +50,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import polyglot.main.Report;
 import polyglot.types.ClassDef;
@@ -142,7 +143,7 @@ public class X10Context_c extends Context_c {
 	
 
 	public CConstraint constraintProjection(CConstraint... cs) throws XFailure {
-		 HashMap<XTerm, CConstraint> m = CollectionFactory.newHashMap();
+		 Map<XTerm, CConstraint> m = CollectionFactory.newHashMap();
 
 		 // add in the real clause of the type of any var mentioned in the constraint list cs
 		 CConstraint r = null;

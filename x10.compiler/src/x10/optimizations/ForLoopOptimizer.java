@@ -106,21 +106,7 @@ public class ForLoopOptimizer extends ContextVisitor {
     public ForLoopOptimizer(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf);
         xts = ts;
-        syn = new AltSynthesizer(job, ts, nf);
-    }
-
-    @Override
-    public NodeVisitor begin() {
-        syn.begin();
-        return super.begin();
-    }
-
-    @Override
-    public ContextVisitor context(Context c) {
-        ForLoopOptimizer res = (ForLoopOptimizer) super.context(c);
-        if (res != this)
-            res.syn = (AltSynthesizer) syn.context(c);
-        return res;
+        syn = new AltSynthesizer(ts, nf);
     }
 
     private Name label = null;
@@ -140,7 +126,6 @@ public class ForLoopOptimizer extends ContextVisitor {
         } else if (!(n instanceof ForLoop)) {
             res = res.label(null);
         }
-        res.syn = (AltSynthesizer) syn.enter(parent, n);
         return res;
     }
 
@@ -256,18 +241,26 @@ public class ForLoopOptimizer extends ContextVisitor {
             LocalDecl maxLDecl = syn.createLocalDecl(pos, Flags.FINAL, maxName, high);
             
             LocalDecl varLDecl = syn.createLocalDecl(pos, Flags.NONE, varName, xts.Int(), syn.createLocal(pos, minLDecl));
-            Expr cond = syn.createBinary(domain.position(), syn.createLocal(pos, varLDecl), Binary.LE, syn.createLocal(pos, maxLDecl));
-            Expr update = syn.createAssign(domain.position(), syn.createLocal(pos, varLDecl), Assign.ADD_ASSIGN, syn.createIntLit(1));
+            Expr cond = syn.createBinary( domain.position(),
+                                          syn.createLocal(pos, varLDecl),
+                                          Binary.LE,
+                                          syn.createLocal(pos, maxLDecl),
+                                          this );
+            Expr update = syn.createAssign( domain.position(),
+                                            syn.createLocal(pos, varLDecl),
+                                            Assign.ADD_ASSIGN,
+                                            syn.createIntLit(1),
+                                            this);
             
             List<Stmt> bodyStmts = new ArrayList<Stmt>();
             if (named) {
                 // declare the formal variable as a local and initialize it 
                 Expr formExpr = syn.createStaticCall(pos, formal.declType(), MAKE, syn.createLocal(pos, varLDecl));
-                LocalDecl formalLDecl = syn.transformFormalToLocalDecl(formal, formExpr);
+                LocalDecl formalLDecl = syn.createLocalDecl(formal, formExpr);
                 bodyStmts.add(formalLDecl);
             }
             if (null != formalVars && !formalVars.isEmpty()) {
-                bodyStmts.add(syn.transformFormalToLocalDecl((X10Formal) formalVars.get(0), syn.createLocal(pos, varLDecl)));
+                bodyStmts.add(syn.createLocalDecl((X10Formal) formalVars.get(0), syn.createLocal(pos, varLDecl)));
             }
             bodyStmts.add(body);
             body = syn.createBlock(loop.body().position(), bodyStmts);
@@ -320,8 +313,8 @@ public class ForLoopOptimizer extends ContextVisitor {
                 Name maxName  = Name.makeFresh(varName+ "max");
                 
                 // create an AST node for the calls to domain.min() and domain.max()
-                Expr minVal   = syn.createInstanceCall(pos, syn.createLocal(domain.position(), domLDecl), MIN, syn.createIntLit(r));
-                Expr maxVal   = syn.createInstanceCall(pos, syn.createLocal(domain.position(), domLDecl), MAX, syn.createIntLit(r));
+                Expr minVal   = syn.createInstanceCall(pos, syn.createLocal(domain.position(), domLDecl), MIN, context, syn.createIntLit(r));
+                Expr maxVal   = syn.createInstanceCall(pos, syn.createLocal(domain.position(), domLDecl), MAX, context, syn.createIntLit(r));
                 
                 // create an AST node for the declaration of the temporary locations for the r-th var, min, and max
                 LocalDecl minLDecl = syn.createLocalDecl(pos, Flags.FINAL, minName, minVal);
@@ -335,13 +328,21 @@ public class ForLoopOptimizer extends ContextVisitor {
                 stmts.add(maxLDecl);
                 
                 // create expressions for the second and third positions in the r-th for clause
-                Expr cond = syn.createBinary(domain.position(), syn.createLocal(pos, varLDecl), Binary.LE, syn.createLocal(pos, maxLDecl));
-                Expr update = syn.createAssign(domain.position(), syn.createLocal(pos, varLDecl), Assign.ADD_ASSIGN, syn.createIntLit(1));
+                Expr cond = syn.createBinary( domain.position(),
+                                              syn.createLocal(pos, varLDecl),
+                                              Binary.LE,
+                                              syn.createLocal(pos, maxLDecl),
+                                              this );
+                Expr update = syn.createAssign( domain.position(),
+                                                syn.createLocal(pos, varLDecl),
+                                                Assign.ADD_ASSIGN,
+                                                syn.createIntLit(1),
+                                                this );
                 
                 List<Stmt> bodyStmts = new ArrayList<Stmt>(); 
                 
                 if (null != formalVars && !formalVars.isEmpty()) {
-                    bodyStmts.add(syn.transformFormalToLocalDecl((X10Formal) formalVars.get(r), syn.createLocal(pos, varLDecl)));
+                    bodyStmts.add(syn.createLocalDecl((X10Formal) formalVars.get(r), syn.createLocal(pos, varLDecl)));
                 }
                 
                 // concoct declaration for formal, in case it might be referenced in the body
@@ -350,13 +351,14 @@ public class ForLoopOptimizer extends ContextVisitor {
                     Expr setExpr = syn.createInstanceCall( pos, 
                                                            syn.createLocal(pos, indexLDecl), 
                                                            SET, 
+                                                           context,
                                                            syn.createLocal(pos, varLDecl), 
                                                            syn.createIntLit(r) );
                     bodyStmts.addAll(syn.convertToStmtList(setExpr));
                     if (r+1 == rank) { // the innermost loop
                         // declare the formal variable as a local and initialize it to the index rail
                         Expr formExpr = syn.createStaticCall(pos, formal.declType(), MAKE, syn.createLocal(pos, indexLDecl));
-                        bodyStmts.add(syn.transformFormalToLocalDecl(formal, formExpr));
+                        bodyStmts.add(syn.createLocalDecl(formal, formExpr));
                     }
                 }
                 bodyStmts.add(body);
@@ -382,18 +384,18 @@ public class ForLoopOptimizer extends ContextVisitor {
 
         assert (xts.isSubtype(domainType, xts.Iterable(xts.Any()), context)); 
         Name iterName        = named ? Name.makeFresh(formal.name().id()) : Name.makeFresh();
-        Expr iterInit        = syn.createInstanceCall(pos, domain, ITERATOR);
+        Expr iterInit        = syn.createInstanceCall(pos, domain, ITERATOR, context);
         LocalDecl iterLDecl  = syn.createLocalDecl(pos, Flags.FINAL, iterName, iterInit);
-        Expr hasExpr         = syn.createInstanceCall(pos, syn.createLocal(pos, iterLDecl), HASNEXT);
-        Expr nextExpr        = syn.createInstanceCall(pos, syn.createLocal(pos, iterLDecl), NEXT);
+        Expr hasExpr         = syn.createInstanceCall(pos, syn.createLocal(pos, iterLDecl), HASNEXT, context);
+        Expr nextExpr        = syn.createInstanceCall(pos, syn.createLocal(pos, iterLDecl), NEXT, context);
         if (!xts.typeEquals(nextExpr.type(), formal.declType(), context)) {
-            Expr newNextExpr = syn.createCoercion(pos, nextExpr, formal.declType());
+            Expr newNextExpr = syn.createCoercion(pos, nextExpr, formal.declType(), this);
             if (null == newNextExpr)
                 throw new InternalCompilerError("Unable to cast "+nextExpr+" to the iterated type "+formal.declType(), pos);
             nextExpr = newNextExpr;
         }
         List<Stmt> bodyStmts = new ArrayList<Stmt>();
-        LocalDecl varLDecl   = syn.transformFormalToLocalDecl(formal, nextExpr);
+        LocalDecl varLDecl   = syn.createLocalDecl(formal, nextExpr);
         bodyStmts.add(varLDecl);
         if (null != formalVars && !formalVars.isEmpty()) try {
             bodyStmts.addAll(formal.explode(this));
@@ -444,8 +446,9 @@ public class ForLoopOptimizer extends ContextVisitor {
                                 return syn.createLocal(n.position(), indices[i]);
                             }
                             call = call.target(syn.createLocal(target.position(), rail));
-                            call = call.methodInstance(syn.createMethodInstance( rail.type().type(), 
-                                                                                 ClosureCall.APPLY, 
+                            call = call.methodInstance(syn.createMethodInstance( rail.type().type(),
+                                                                                 ClosureCall.APPLY,
+                                                                                 context, 
                                                                                  Collections.<Type>emptyList(),
                                                                                  call.methodInstance().formalTypes()));
                             return call;

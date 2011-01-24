@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import polyglot.ast.Binary;
 import polyglot.ast.Block;
@@ -137,7 +138,7 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
         int prePcValue = 0; // The current pc value. Will increase every time an
                             // inner class is created
 
-        HashSet<Name> localDeclaredVar = CollectionFactory.newHashSet(); //all locals with these names will not be replaced
+        Set<Name> localDeclaredVar = CollectionFactory.newHashSet(); //all locals with these names will not be replaced
         
         while (bodyStmts.size() > 0) {
 

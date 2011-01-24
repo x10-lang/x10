@@ -41,6 +41,14 @@ public struct RemoteIndexedMemoryChunk[T] {
     @Native("java", "x10.core.RemoteIndexedMemoryChunk.<#2>wrap(#4)")
     @Native("c++", "x10::util::RemoteIndexedMemoryChunk<#1 >((#4)->raw(), (#4)->length())")
     public static native def wrap[T](imc:IndexedMemoryChunk[T]):RemoteIndexedMemoryChunk[T];
+    
+    /** 
+     * Can only be invoked at the place at which the RemoteIndexedMemoryChunk was
+     * created. Returns the encapsulated IndexedMemoryChunk.
+     */
+    @Native("java", "(#0).$apply$G()")
+    @Native("c++", "x10::util::IndexedMemoryChunk<#1 >((#0)->raw(), (#0)->length())")
+    public native operator this(){here == this.home()}:IndexedMemoryChunk[T];
 
     /**
      * Return the size of the RemoteIndexedMemoryChunk (in elements)
@@ -56,8 +64,8 @@ public struct RemoteIndexedMemoryChunk[T] {
      * @return the home place of the RemoteIndexedMemoryChunk
      */
     @Native("java", "((#0).home)")
-    @Native("c++", "(#0)->home()")
-    public native def home():Place; 
+    @Native("c++", "(#0)->home")
+    public native property home():Place; 
          
 
    /*

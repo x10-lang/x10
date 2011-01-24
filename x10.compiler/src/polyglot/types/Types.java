@@ -409,7 +409,7 @@ public class Types {
 		 CConstraint c = Types.xclause(type);
 	        if (! ((c==null) || c.valid())) {
 	        	CConstraint env = c = c.copy().instantiateSelf(t);
-	        	if (! c.consistent()) {
+	        	if (false && ! c.consistent()) {
 	        		throw new InternalCompilerError("X10TypeMixin: Instantiating self on " + type + " with " + t + " is inconsistent.");
 	        	}
 	        	return Types.xclause(baseType(type), c);

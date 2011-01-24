@@ -14,16 +14,18 @@ package x10.constraint;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
  * A representation of a literal. A literal is both an XVar and an XPromise.
  * 
+ * This class and its subclasses should not have mutable state.
  * @author vijay
  *
  */
 public class XLit extends XVar implements XPromise {
-	protected Object val;
+	final protected Object val;
 
 	public XLit(Object l) {
 		val = l;
@@ -151,10 +153,10 @@ public class XLit extends XVar implements XPromise {
 	}
 
 
-	public void dump(XVar path, List<XTerm> result,  boolean dumpEQV, boolean hideFake) {
+	/*public void dump(XVar path, List<XTerm> result,  boolean dumpEQV, boolean hideFake) {
 		// nothing to dump.
 	}
-
+*/
 	public void addIn(XName s, XPromise orphan) throws XFailure {
 		throw new XFailure("Cannot add an " + s + " child " + orphan + " to a literal, " + this + ".");
 	}
@@ -188,8 +190,11 @@ public class XLit extends XVar implements XPromise {
 		return null;
 	}
 
-	public XPromise cloneRecursively(HashMap<XPromise, XPromise> env) {
-		return this;
+	public void transfer(Map<XPromise, XPromise> env) {
+	    // nothing to do.
+	}
+	public XLit cloneShallow() {
+	    return this; // new XLit(this.val)
 	}
 
 	public void variables(List<XVar> result) {}
@@ -214,4 +219,7 @@ public class XLit extends XVar implements XPromise {
 		}
 		return o.isDisBoundTo(this);
 	}
+	   public boolean visit(XVar path, boolean dumpEQV, boolean hideFake, XGraphVisitor xg) {
+	       return true;
+	   }
 }

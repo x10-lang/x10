@@ -32,6 +32,7 @@ import polyglot.types.FieldInstance;
 import polyglot.types.FunctionDef;
 import polyglot.types.ProcedureDef;
 import polyglot.types.ProcedureInstance;
+import polyglot.types.QName;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
@@ -352,14 +353,6 @@ public class Errors {
 					+ "\n\t ReturnType: " + t
 					+ "\n\t Invocation: " + me,
                     me.position());
-		}
-	}
-	public static class GlobalFieldIsVar extends EqualByTypeAndPosException {
-		private static final long serialVersionUID = 57613769584666608L;
-		public GlobalFieldIsVar(X10FieldDecl f) {
-			super("Global field cannot be var."
-					+ "\n\t Field: " + f.name(),
-					f.position());
 		}
 	}
 	public static class CannotAssignToProperty extends EqualByTypeAndPosException {
@@ -742,5 +735,37 @@ public class Errors {
 	        		+ "\n\t type: " + e.type()
 	        		+ "\n\t desired type: " + placeType, pos);
 	    }
+	}
+	
+	
+	
+
+	public static class CannotAssignValueToFinalField extends EqualByTypeAndPosException {
+		public CannotAssignValueToFinalField(X10FieldInstance fd, Position p) {
+			super("Cannot assign a value to final field " + fd.name(),
+					p);
+		}
+	}
+	
+	public static class CannotAssignToStaticField extends EqualByTypeAndPosException {
+		public CannotAssignToStaticField(X10FieldInstance fd, Position p) {
+			super("Cannot assign to static field " + fd.name(),
+					p);
+		}
+	}
+	public static class CannotDisambiguateNodeWithAmbiguousPrefix extends EqualByTypeAndPosException {
+		public CannotDisambiguateNodeWithAmbiguousPrefix( Position p) {
+			super("Cannot disambiguate node with ambiguous prefix.", p);
+		}
+	}
+	public static class PackageOrClassNameNotFound extends EqualByTypeAndPosException {
+		public PackageOrClassNameNotFound(QName name, Position p) {
+			super("Package or class " + name + " not found.", p);
+		}
+	}
+	public static class ClassNotAccessible extends EqualByTypeAndPosException {
+		public ClassNotAccessible(ClassType ct, Position p) {
+			super("Class " + ct + " is not accessible.", p);
+		}
 	}
 }

@@ -116,7 +116,7 @@ public class WorkList {
   protected LinkedList<Object> pending;
   // A map from all objects to their results.  Any object with no result
   // maps to NOT_CALCULATED.
-  protected HashMap<Object, Object> results;
+  protected Map<Object, Object> results;
   // The number of elements in pending.
   protected int size;
 

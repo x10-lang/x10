@@ -171,97 +171,284 @@ public class DistArray[T] (
         localHandle = PlaceLocalHandle.make[LocalState[T]](dist, plsInit);
     }
 
+    /**
+     * Create a DistArray that views the same backing data
+     * as the argument DistArray using a different distribution.
+     * An unchecked invariant is that a.dist.isSubdistribution(d);
+     * this invariant is enfocred by all the routines that call this 
+     * constructor.  If we were to make this consructor public, then
+     * the invariant would need to be explictly checked here and 
+     * an IllegalArgumentExcpetion thrown if it was violated.
+     */
+    def this(a:DistArray[T], d:Dist):DistArray[T]{self.dist==d} {
+        property(d);
+        localHandle = PlaceLocalHandle.make[LocalState[T]](d, ()=>a.localHandle());
+    }
 
 
+    
+    /**
+     * Return the element of this array corresponding to the given point.
+     * The rank of the given point has to be the same as the rank of this array.
+     * If the distribution does not map the given Point to the current place,
+     * then a BadPlaceException will be raised.
+     * 
+     * @param pt the given point
+     * @return the element of this array corresponding to the given point.
+     * @see #operator(Int)
+     * @see #set(T, Point)
+     */
     public final operator this(pt:Point(rank)): T {
         val offset = dist.offset(pt);
         return raw()(offset);
     }
 
-
-    final public operator this(i0:int){rank==1}: T {
+    /**
+     * Return the element of this array corresponding to the given index.
+     * Only applies to one-dimensional arrays.
+     * Functionally equivalent to indexing the array via a one-dimensional point.
+     * If the distribution does not map the specified index to the current place,
+     * then a BadPlaceException will be raised.
+     * 
+     * @param i0 the given index in the first dimension
+     * @return the element of this array corresponding to the given index.
+     * @see #operator(Point)
+     * @see #set(T, Int)
+     */
+    public final operator this(i0:int){rank==1}: T {
 	val offset = dist.offset(i0);
         return raw()(offset);
     }
 
-    final public operator this(i0:int, i1:int){rank==2}: T {
+    /**
+     * Return the element of this array corresponding to the given pair of indices.
+     * Only applies to two-dimensional arrays.
+     * Functionally equivalent to indexing the array via a two-dimensional point.
+     * If the distribution does not map the specified index to the current place,
+     * then a BadPlaceException will be raised.
+     * 
+     * @param i0 the given index in the first dimension
+     * @param i1 the given index in the second dimension
+     * @return the element of this array corresponding to the given pair of indices.
+     * @see #operator(Point)
+     * @see #set(T, Int, Int)
+     */
+    public final operator this(i0:int, i1:int){rank==2}: T {
         val offset = dist.offset(i0, i1);
         return raw()(offset);
     }
 
-    final public operator this(i0:int, i1:int, i2:int){rank==3}: T {
+    /**
+     * Return the element of this array corresponding to the given triple of indices.
+     * Only applies to three-dimensional arrays.
+     * Functionally equivalent to indexing the array via a three-dimensional point.
+     * If the distribution does not map the specified index to the current place,
+     * then a BadPlaceException will be raised.
+     *
+     * @param i0 the given index in the first dimension
+     * @param i1 the given index in the second dimension
+     * @param i2 the given index in the third dimension
+     * @return the element of this array corresponding to the given triple of indices.
+     * @see #operator(Point)
+     * @see #set(T, Int, Int, Int)
+     */
+    public final operator this(i0:int, i1:int, i2:int){rank==3}: T {
         val offset = dist.offset(i0, i1, i2);
         return raw()(offset);
     }
 
-    final public operator this(i0:int, i1:int, i2:int, i3:int){rank==4}: T {
+    /**
+     * Return the element of this array corresponding to the given quartet of indices.
+     * Only applies to four-dimensional arrays.
+     * Functionally equivalent to indexing the array via a four-dimensional point.
+     * If the distribution does not map the specified index to the current place,
+     * then a BadPlaceException will be raised.
+     * 
+     * @param i0 the given index in the first dimension
+     * @param i1 the given index in the second dimension
+     * @param i2 the given index in the third dimension
+     * @param i3 the given index in the fourth dimension
+     * @return the element of this array corresponding to the given quartet of indices.
+     * @see #operator(Point)
+     * @see #set(T, Int, Int, Int, Int)
+     */
+    public final operator this(i0:int, i1:int, i2:int, i3:int){rank==4}: T {
 	val offset = dist.offset(i0, i1, i2, i3);
         return raw()(offset);
     }
 
 
+    /**
+     * Set the element of this array corresponding to the given point to the given value.
+     * Return the new value of the element.
+     * The rank of the given point has to be the same as the rank of this array.
+     * If the distribution does not map the specified index to the current place,
+     * then a BadPlaceException will be raised.
+     * 
+     * @param v the given value
+     * @param pt the given point
+     * @return the new value of the element of this array corresponding to the given point.
+     * @see #operator(Point)
+     * @see #set(T, Int)
+     */    
     public final operator this(pt: Point(rank))=(v: T): T {
         val offset = dist.offset(pt);
         raw()(offset) = v;
         return v;
     }
 
-    final public operator this(i0: int)=(v: T){rank==1}: T {
+    /**
+     * Set the element of this array corresponding to the given index to the given value.
+     * Return the new value of the element.
+     * Only applies to one-dimensional arrays.
+     * Functionally equivalent to setting the array via a one-dimensional point.
+     * If the distribution does not map the specified index to the current place,
+     * then a BadPlaceException will be raised.
+     * 
+     * @param v the given value
+     * @param i0 the given index in the first dimension
+     * @return the new value of the element of this array corresponding to the given index.
+     * @see #operator(Int)
+     * @see #set(T, Point)
+     */    
+    public final operator this(i0: int)=(v: T){rank==1}: T {
         val offset = dist.offset(i0);
         raw()(offset) = v;
         return v;
     }
 
-    final public operator this(i0: int, i1: int)=(v: T){rank==2}: T {
+    /**
+     * Set the element of this array corresponding to the given pair of indices to the given value.
+     * Return the new value of the element.
+     * Only applies to two-dimensional arrays.
+     * Functionally equivalent to setting the array via a two-dimensional point.
+     * If the distribution does not map the specified index to the current place,
+     * then a BadPlaceException will be raised.
+     * 
+     * @param v the given value
+     * @param i0 the given index in the first dimension
+     * @param i1 the given index in the second dimension
+     * @return the new value of the element of this array corresponding to the given pair of indices.
+     * @see #operator(Int, Int)
+     * @see #set(T, Point)
+     */
+    public final operator this(i0: int, i1: int)=(v: T){rank==2}: T {
         val offset = dist.offset(i0, i1);
         raw()(offset) = v;
         return v;
     }
 
-    final public operator this(i0: int, i1: int, i2: int)=(v: T){rank==3}: T {
+    /**
+     * Set the element of this array corresponding to the given triple of indices to the given value.
+     * Return the new value of the element.
+     * Only applies to three-dimensional arrays.
+     * Functionally equivalent to setting the array via a three-dimensional point.
+     * If the distribution does not map the specified index to the current place,
+     * then a BadPlaceException will be raised.
+     * 
+     * @param v the given value
+     * @param i0 the given index in the first dimension
+     * @param i1 the given index in the second dimension
+     * @param i2 the given index in the third dimension
+     * @return the new value of the element of this array corresponding to the given triple of indices.
+     * @see #operator(Int, Int, Int)
+     * @see #set(T, Point)
+     */
+    public final operator this(i0: int, i1: int, i2: int)=(v: T){rank==3}: T {
         val offset = dist.offset(i0,i1,i2);
         raw()(offset) = v;
         return v;
     }
 
-    final public operator this(i0: int, i1: int, i2: int, i3: int)=(v: T){rank==4}: T {
+    /**
+     * Set the element of this array corresponding to the given quartet of indices to the given value.
+     * Return the new value of the element.
+     * Only applies to four-dimensional arrays.
+     * Functionally equivalent to setting the array via a four-dimensional point.     * If the distribution does not map the specified index to the current place,
+     * then a BadPlaceException will be raised.
+     * 
+     * 
+     * @param v the given value
+     * @param i0 the given index in the first dimension
+     * @param i1 the given index in the second dimension
+     * @param i2 the given index in the third dimension
+     * @param i3 the given index in the fourth dimension
+     * @return the new value of the element of this array corresponding to the given quartet of indices.
+     * @see #operator(Int, Int, Int, Int)
+     * @see #set(T, Point)
+     */
+    public final operator this(i0: int, i1: int, i2: int, i3: int)=(v: T){rank==4}: T {
         val offset = dist.offset(i0,i1,i2,i3);
         raw()(offset) = v;
         return v;
     }
 
-
     /*
      * restriction view
      */
 
+    /**
+     * Return a DistArray that access the same backing storage
+     * as this array, but only over the Points in the argument
+     * distribtion.</p>
+     * 
+     * If it is not true that this.dist.isSubdistribution(d)
+     * then an IllegalArgumentException will be raised.
+     * 
+     * @param d the Dist to use as the restriction
+     */
     public def restriction(d: Dist(rank)) {
+        if (!dist.isSubdistribution(d)) throw new IllegalArgumentException(d+"is not a subDistribution of "+dist);
         return new DistArray[T](this, d) as DistArray[T](rank);
     }
 
-    def this(a: DistArray[T], d: Dist):DistArray[T]{self.dist==d} {
-    	property(d);
-    	localHandle = PlaceLocalHandle.make[LocalState[T]](d, ()=>a.localHandle());
-    }
-
-
-///// TODO: BELOW HERE IS CODE PULLED IN FROM BaseArray.  Need to reorgzinze this.
-
-    //
-    // views
-    //
-
+    /**
+     * Return a DistArray that is defined over the same distribution
+     * and backing storage as this DistArray instance, but is 
+     * restricted to only allowing access to those points that are
+     * contained in the argument region r.
+     * 
+     * @param r the Region to which to restrict the array
+     */
     public def restriction(r: Region(rank)): DistArray[T](rank) {
         return restriction(dist.restriction(r) as Dist(rank));
     }
 
+    /**
+     * Return a DistArray that is defined over the same distribution
+     * and backing storage as this DistArray instance, but is 
+     * restricted to only allowing access to those points that are
+     * mapped by the defining distripution to the argument Place. 
+     * 
+     * @param p the Place to which to restrict the array
+     */
     public def restriction(p: Place): DistArray[T](rank) {
         return restriction(dist.restriction(p) as Dist(rank));
     }
 
+    /**
+     * Return a DistArray that is defined over the same distribution
+     * and backing storage as this DistArray instance, but is 
+     * restricted to only allowing access to those points that are
+     * contained in the argument region r.
+     * 
+     * @param r the Region to which to restrict the array
+     */
+    public operator this | (r: Region(rank)) = restriction(r);
+    
+    /**
+     * Return a DistArray that is defined over the same distribution
+     * and backing storage as this DistArray instance, but is 
+     * restricted to only allowing access to those points that are
+     * mapped by the defining distripution to the argument Place. 
+     * 
+     * @param p the Place to which to restrict the array
+     */
+    public operator this | (p: Place) = restriction(p);
+
 
     //
-    // operations
+    // Bulk operations
     //
 
     public def map(op:(T)=>T): DistArray[T](dist)
@@ -304,18 +491,9 @@ public class DistArray[T] (
     }            
 
 
-    //
-    // ops
-    //
-
-    public operator this | (r: Region(rank)) = restriction(r);
-    public operator this | (p: Place) = restriction(p);
-
-
     public def toString(): String {
         return "DistArray(" + dist + ")";
     }
-
 
     /**
      * Return an iterator over the points in the region of this array.
