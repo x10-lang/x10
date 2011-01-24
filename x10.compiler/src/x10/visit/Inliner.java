@@ -172,7 +172,7 @@ public class Inliner extends ContextVisitor {
         INLINE_METHODS   = opts.x10_config.INLINE_METHODS;
         INLINE_CLOSURES  = opts.x10_config.INLINE_CLOSURES && opts.x10_config.ALLOW_STATEMENT_EXPRESSIONS;
 //      INLINE_IMPLICIT  = opts.x10_config.INLINE_METHODS_IMPLICIT;
-        INLINE_IMPLICIT  = opts.x10_config.EXPERIMENTAL;
+        INLINE_IMPLICIT  = opts.x10_config.EXPERIMENTAL || opts.x10_config.INLINE_METHODS_IMPLICIT;
     }
 
     /**
