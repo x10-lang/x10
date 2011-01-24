@@ -550,6 +550,12 @@ public class Converter {
 						}
 					} catch (SemanticException z) {
 					}
+                    // yoav todo: we check 3 conditions:
+                    // toType.operator_as(fromType)
+                    // toType.implicit_operator_as(fromType)
+                    // fromType.implicit_operator_as(fromType)
+                    // but we should also check:
+                    // fromType.operator_as(fromType)
 				}
 			}
 

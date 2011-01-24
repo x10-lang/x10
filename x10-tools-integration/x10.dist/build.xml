@@ -343,6 +343,7 @@
             depends="bin-deps"
             unless="bin.up-to-date">
         <antcall target="setupX10"/>
+        <antcall target="apgas"/>
         <antcall target="x10"/>
         <antcall target="x10c"/>
         <antcall target="precommit"/>
@@ -368,6 +369,10 @@
             <srcfiles file="${ant.file}"/>
             <srcfiles file="${bin}/setupX10.in"/>
         </uptodate>
+        <uptodate property="apgas.up-to-date" targetfile="${bin}/apgas">
+            <srcfiles file="${ant.file}"/>
+            <srcfiles file="${bin}/apgas.in"/>
+        </uptodate>
         <uptodate property="x10.up-to-date" targetfile="${bin}/x10">
             <srcfiles file="${ant.file}"/>
             <srcfiles file="${bin}/x10.in"/>
@@ -387,6 +392,7 @@
         <condition property="bin.up-to-date">
             <and>
                 <isset property="setupX10.up-to-date"/>
+                <isset property="apgas.up-to-date"/>
                 <isset property="precommit.up-to-date"/>
                 <isset property="x10.up-to-date"/>
                 <isset property="x10c.up-to-date"/>
@@ -564,6 +570,22 @@ WALA4_URL='${wala4.jar.url}'
         </concat>
 
         <chmod perm="+x" file="${bin}/x10"/>
+
+        <delete file="${bin}/defs"/>
+    </target>
+
+    <target name="apgas" unless="apgas.up-to-date"
+            depends="executable-defs"
+            description="creates the executable script apgas">
+        <echo message="Creating ${bin}/apgas"/>
+        <concat destfile="${bin}/apgas" append="no">
+            <filelist dir="${bin}" files="defs"/>
+        </concat>
+        <concat destfile="${bin}/apgas" append="yes">
+            <filelist dir="${bin}" files="apgas.in"/>
+        </concat>
+
+        <chmod perm="+x" file="${bin}/apgas"/>
 
         <delete file="${bin}/defs"/>
     </target>

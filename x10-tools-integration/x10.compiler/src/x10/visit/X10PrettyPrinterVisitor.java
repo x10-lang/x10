@@ -1325,34 +1325,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                                 w.write(")");
                                 w.end();
                             }
-                            // e.g. i as T (T is parameterType)
-                            else if (xts.isParameterType(castType)) {
-                                // SYNOPSIS: (#0) #1 #0=param type #1=primitive or object #2=runtime type
-                                String regex =
-                                    "(new " + JAVA_IO_SERIALIZABLE + "() {" +
-                                        "final #0 cast(final java.lang.Object self) {" +
-                                            "x10.rtt.Type rtt = #2;" +
-                                            "#0 dep = (#0) x10.rtt.Types.conversion(rtt,self);" +
-                                            "if (self==null) return null;" +
-                                            "if (rtt != null && ! rtt.instanceof$(dep)) throw new x10.lang.ClassCastException(rtt.typeName());" +
-                                            "return dep;" +
-                                        "}" +
-                                    "}.cast(#1))";
-                                er.dumpRegex("cast_deptype_primitive_param", new Object[] { castTE, expr, castRE }, tr, regex);
-                            }
                             else {
                                 // SYNOPSIS: (#0) #1 #0=type #1=object #2=runtime type
-                                String regex =
-                                    "(new " + JAVA_IO_SERIALIZABLE + "() {" +
-                                        "final #0 cast(final java.lang.Object self) {" +
-                                            "final Object self2 = " + (isString(castType, tr.context()) ? X10_CORE_STRING + ".unbox(self)" : "self") + ";"+
-                                            "if (self2==null) return null;" +
-                                            "x10.rtt.Type rtt = #2;" +
-                                            "final Object self3 = " + (xts.isParameterType(exprType) ? X10_RTT_TYPES + ".conversion(rtt,self2)" : "self2") + ";" +
-                                            "if (rtt != null && ! rtt.instanceof$(self3)) throw new x10.lang.ClassCastException(rtt.typeName());" +
-                                            "return (#0) self3;" +
-                                        "}" +
-                                    "}.cast(#1))";
+                                String regex = X10_RTT_TYPES + ".<#0>cast" + (xts.isParameterType(exprType) || xts.isParameterType(castType) || isString(castType, tr.context()) ? "Conversion" : "") + "(#1,#2)";
                                 er.dumpRegex("cast_deptype", new Object[] { castTE, expr, castRE }, tr, regex);
                             }
                     }
@@ -2343,7 +2318,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		}
 		
 		w.write(") { ");
-		
+	
                 List<Stmt> statements = n.body().statements();
 //                boolean throwException = false;
 //                boolean throwThrowable = false;

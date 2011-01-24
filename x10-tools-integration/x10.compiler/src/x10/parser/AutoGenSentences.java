@@ -15,6 +15,8 @@ import java.util.HashSet;
 import java.util.Collections;
 import java.util.Random;
 import java.util.Collection;
+import java.util.Set;
+import java.util.Map;
 
 /*
 Not used:
@@ -63,7 +65,7 @@ public class AutoGenSentences {
         int lineNum = -1;
         try {
             boolean isTypes = false;
-            HashMap<String, ArrayList<Rule>> rules = null;
+            Map<String, ArrayList<Rule>> rules = null;
             boolean inJavaCode = false;
             for (String line : grammarFile) {
                 lineNum++;
@@ -181,14 +183,14 @@ public class AutoGenSentences {
 
         // removing unused symbols and types
         findUsedSymbols(CompilationUnit);
-        HashSet<String> unusedSymbols = CollectionFactory.newHashSet(grammar.keySet());
+        Set<String> unusedSymbols = CollectionFactory.newHashSet(grammar.keySet());
         unusedSymbols.removeAll(usedSymbols);
         if (unusedSymbols.size()>0) {
             System.out.println("Unused symbols are: "+unusedSymbols); 
             for (String s : unusedSymbols)
                 grammar.remove(s);
         }
-        HashSet<String> unusedTypes = CollectionFactory.newHashSet(types.keySet());
+        Set<String> unusedTypes = CollectionFactory.newHashSet(types.keySet());
         unusedTypes.removeAll(usedSymbols);
         if (unusedTypes.size()>0) {
             System.out.println("Unused types are: "+unusedTypes);
@@ -202,7 +204,7 @@ public class AutoGenSentences {
         System.out.println("Non-terminals are: "+ nonTerminals);
 
         // consistency checks
-        HashSet<String> nonTerminalsWithoutType = CollectionFactory.newHashSet(nonTerminals);
+        Set<String> nonTerminalsWithoutType = CollectionFactory.newHashSet(nonTerminals);
         nonTerminalsWithoutType.removeAll(types.keySet());
         assert nonTerminalsWithoutType.size()==0 : nonTerminalsWithoutType;
         assert grammar.keySet().containsAll(types.keySet());
@@ -249,7 +251,7 @@ public class AutoGenSentences {
         //x10.g root is CompilationUnit, but we want to generate many TypeDeclaration
         printGrammar(TypeDeclaration,CollectionFactory.<String>newHashSet());
 
-        final HashSet<String> res = gen(TypeDeclaration, MAX_DEPTH);
+        final Set<String> res = gen(TypeDeclaration, MAX_DEPTH);
         assert EMPTY_STR.size()==1 : EMPTY_STR;
 
         writeFile(output,res);
@@ -263,11 +265,11 @@ public class AutoGenSentences {
         return token;
     }
 
-    final HashMap<String, ArrayList<Rule>> grammar = CollectionFactory.newHashMap();
-    final HashMap<String, String> types = CollectionFactory.newHashMap();
+    final Map<String, ArrayList<Rule>> grammar = CollectionFactory.newHashMap();
+    final Map<String, String> types = CollectionFactory.newHashMap();
 
 
-    HashSet<String> EMPTY_STR = CollectionFactory.newHashSet(Collections.singleton(""));
+    Set<String> EMPTY_STR = CollectionFactory.newHashSet(Collections.singleton(""));
 
     String join(Collection<String> arr, String sep) {
         if (arr.size()==0) return "%Empty";
@@ -288,13 +290,13 @@ public class AutoGenSentences {
     }
 
 
-    HashMap<String,HashSet<String>> graph = CollectionFactory.newHashMap();
-    HashMap<String,Integer> visited = CollectionFactory.newHashMap();
+    Map<String,Set<String>> graph = CollectionFactory.newHashMap();
+    Map<String,Integer> visited = CollectionFactory.newHashMap();
     int currID = 0;
     void printSingletons() {
         // I want to make sure the singletons don't have cycles
         for (String symbol : grammar.keySet()) {
-            final HashSet<String> set = CollectionFactory.newHashSet();
+            final Set<String> set = CollectionFactory.newHashSet();
             for (ArrayList<String> prods : grammar.get(symbol)) {
                 if (prods.size()==1) {
                     final String other = prods.get(0);
@@ -322,7 +324,7 @@ public class AutoGenSentences {
         assert i==null || i.intValue()!=-1;
         if (i!=null) return; // already visited
         visited.put(v,-1);
-        final HashSet<String> children = graph.get(v);
+        final Set<String> children = graph.get(v);
         if (children==null) {
             //assert isLiteral(v); , e.g., DepNamedType
         } else {
@@ -332,7 +334,7 @@ public class AutoGenSentences {
         }
         visited.put(v,currID++);
     }
-    void printGrammar(String symbol, HashSet<String> alreadyPrinted) {
+    void printGrammar(String symbol, Set<String> alreadyPrinted) {
         if (alreadyPrinted.contains(symbol)) return;
         alreadyPrinted.add(symbol);
         ArrayList<Rule> prods = grammar.get(symbol);
@@ -350,13 +352,13 @@ public class AutoGenSentences {
                 printGrammar(s,alreadyPrinted);
     }
 
-    HashSet<String> genProd(ArrayList<String> prod, int depth) {
+    Set<String> genProd(ArrayList<String> prod, int depth) {
         final int prodNum = prod.size();
         if (prodNum==0) return EMPTY_STR;
-        ArrayList<HashSet<String>> acc = new ArrayList<HashSet<String>>(prodNum);
+        ArrayList<Set<String>> acc = new ArrayList<Set<String>>(prodNum);
         int size = 0;
         for (String s : prod) {
-            HashSet<String> set = gen(s,depth-1);
+            Set<String> set = gen(s,depth-1);
             if (set==null) return null;
             size += set.size();
             acc.add(set);
@@ -364,12 +366,12 @@ public class AutoGenSentences {
         if (prodNum ==1) return acc.get(0);
 
         ArrayList<String[]> acc2 = new ArrayList<String[]>(prodNum);
-        for (HashSet<String> s : acc)
+        for (Set<String> s : acc)
             acc2.add(s.toArray(new String[s.size()]));
 
         // should be the cartesian prod of all sets, but it is too big, so we sum the sets
         size *= 2;
-        HashSet<String> res = CollectionFactory.newHashSet(2*size);
+        Set<String> res = CollectionFactory.newHashSet(2*size);
         Random r = new Random();
         for (int i=0; i<size; i++) {
             StringBuilder s = new StringBuilder();
@@ -380,8 +382,8 @@ public class AutoGenSentences {
         }
         return res;
     }
-    HashSet<String> gen(String rule, int depth) {
-        HashSet<String> res = CollectionFactory.newHashSet();
+    Set<String> gen(String rule, int depth) {
+        Set<String> res = CollectionFactory.newHashSet();
         ArrayList<Rule> prods = grammar.get(rule);
         if (prods==null) {
             // literal
@@ -389,7 +391,7 @@ public class AutoGenSentences {
         } else {
             if (depth<=0) return null;
             for (ArrayList<String> prod : prods) {
-                HashSet<String> acc = genProd(prod,depth);
+                Set<String> acc = genProd(prod,depth);
                 if (acc!=null) {
                     assert acc.size()>0 : rule;
                     res.addAll(acc);
@@ -448,7 +450,7 @@ public class AutoGenSentences {
     }
 
 
-    HashSet<String> usedSymbols = CollectionFactory.newHashSet();
+    Set<String> usedSymbols = CollectionFactory.newHashSet();
     void findUsedSymbols(String v) {
         if (usedSymbols.contains(v)) return;
         usedSymbols.add(v);
@@ -459,8 +461,8 @@ public class AutoGenSentences {
                 findUsedSymbols(s);
     }
 
-    HashSet<String> findRoots() {
-        HashSet<String> res = CollectionFactory.newHashSet(grammar.keySet());
+    Set<String> findRoots() {
+        Set<String> res = CollectionFactory.newHashSet(grammar.keySet());
         for (ArrayList<Rule> products : grammar.values())
             for (ArrayList<String> prod : products)
                 for (String s : prod)
@@ -474,7 +476,7 @@ public class AutoGenSentences {
         return res;
     }
     ArrayList<String> getLiterals() {
-        HashSet<String> res = CollectionFactory.newHashSet();
+        Set<String> res = CollectionFactory.newHashSet();
         for (ArrayList<Rule> products : grammar.values())
             for (ArrayList<String> prod : products)
                 for (String s : prod)

@@ -11,11 +11,8 @@
 package x10.visit;
 
 import java.util.ArrayList;
-import java.util.EmptyStackException;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.Stack;
 
 import polyglot.ast.Assign;
 import polyglot.ast.Block;
@@ -48,12 +45,12 @@ import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
-import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.ast.Closure;
 import x10.errors.Warnings;
 import x10.util.AltSynthesizer;
+import x10.util.CollectionFactory;
 
 /**
  * @author Bowen Alpern
@@ -88,25 +85,8 @@ public class FinallyEliminator extends ContextVisitor {
     public FinallyEliminator(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf);
         this.ts  = ts;
-        this.syn = new AltSynthesizer(job, ts, nf);
+        this.syn = new AltSynthesizer(ts, nf);
         this.fes = new FinallyEliminatorState();
-    }
-
-    /* (non-Javadoc)
-     * @see polyglot.visit.ContextVisitor#begin()
-     */
-    @Override
-    public NodeVisitor begin() {
-        syn = (AltSynthesizer) syn.begin();
-        return super.begin();
-    }
-
-    @Override
-    public FinallyEliminator context(Context c) {
-        FinallyEliminator res = (FinallyEliminator) super.context(c);
-        if (res != this)
-            res.syn = (AltSynthesizer) syn.context(c);
-        return res;
     }
 
     /* (non-Javadoc)
@@ -127,7 +107,6 @@ public class FinallyEliminator extends ContextVisitor {
                 res = (TryVisitor) tv.context(context());
             }
         }
-        res.syn = (AltSynthesizer) syn.enter(parent, n);
         return res;
     }
 
@@ -186,7 +165,11 @@ public class FinallyEliminator extends ContextVisitor {
         LocalDecl throwDecl = syn.createLocalDecl(pos, Flags.NONE, name, throwableType, syn.createLiteral(pos, null));
         Block tryBody       = syn.createBlock(pos, s, syn.createStaticCall(pos, Finalization(), PLAUSIBLE_THROW));
         Formal f            = syn.createFormal(pos, throwableType);
-        Stmt assignment     = syn.createAssignment(pos, syn.createLocal(pos, throwDecl), Assign.ASSIGN, syn.createLocal(pos, f));
+        Stmt assignment     = syn.createAssignment( pos, 
+                                                    syn.createLocal(pos, throwDecl), 
+                                                    Assign.ASSIGN, 
+                                                    syn.createLocal(pos, f), 
+                                                    this );
         Block catchBody     = syn.createBlock(pos, assignment);
         Catch catchClause   = syn.createCatch(pos, f, catchBody);
         Try wrappedTry      = syn.createTry(pos, tryBody, catchClause);
@@ -209,7 +192,7 @@ public class FinallyEliminator extends ContextVisitor {
         List<Stmt> stmts  = new ArrayList<Stmt>();
         // handle throw
         ClassType Finalization = Finalization();
-        Expr cond         = syn.createNotInstanceof(pos, syn.createLocal(pos, throwDecl), Finalization);
+        Expr cond         = syn.createNotInstanceof(pos, syn.createLocal(pos, throwDecl), Finalization, this);
         Stmt cons         = syn.createThrow(pos, syn.createLocal(pos, throwDecl));
         Stmt stmt         = syn.createIf(pos, cond, cons, null);
         stmts.add(stmt);
@@ -238,7 +221,7 @@ public class FinallyEliminator extends ContextVisitor {
             cond              = syn.createFieldRef(pos, syn.createLocal(pos, finDecl), IS_BREAK);
             List<Stmt> ss     = new ArrayList<Stmt>();
             Field f           = syn.createFieldRef(pos, syn.createLocal(pos, finDecl), LABEL);
-            Expr cd           = syn.createIsNull(pos, f);
+            Expr cd           = syn.createIsNull(pos, f, this);
             Stmt cs           = syn.createBreak(pos);
             stmt              = syn.createIf(pos, cd, cs, null);
             ss.add(stmt);
@@ -246,7 +229,7 @@ public class FinallyEliminator extends ContextVisitor {
                 if (null == label)
                     continue;
                 f             = syn.createFieldRef(pos, syn.createLocal(pos, finDecl), LABEL);
-                cd            = syn.createInstanceCall(pos, syn.createStringLit(label), EQUALS, f);
+                cd            = syn.createInstanceCall(pos, syn.createStringLit(label), EQUALS, context(), f);
                 cs            = syn.createBreak(pos, label);
                 stmt          = syn.createIf(pos, cd, cs, null);
                 ss.add(stmt);
@@ -260,7 +243,7 @@ public class FinallyEliminator extends ContextVisitor {
             cond              = syn.createFieldRef(pos, syn.createLocal(pos, finDecl), IS_BREAK);
             List<Stmt> ss     = new ArrayList<Stmt>();
             Field f           = syn.createFieldRef(pos, syn.createLocal(pos, finDecl), LABEL);
-            Expr cd           = syn.createIsNull(pos, f);
+            Expr cd           = syn.createIsNull(pos, f, this);
             Stmt cs           = syn.createContinue(pos);
             stmt              = syn.createIf(pos, cd, cs, null);
             ss.add(stmt);
@@ -268,7 +251,7 @@ public class FinallyEliminator extends ContextVisitor {
                 if (null == label)
                     continue;
                 f             = syn.createFieldRef(pos, syn.createLocal(pos, finDecl), LABEL);
-                cd            = syn.createInstanceCall(pos, syn.createStringLit(label), EQUALS, f);
+                cd            = syn.createInstanceCall(pos, syn.createStringLit(label), EQUALS, context(), f);
                 cs            = syn.createContinue(pos, label);
                 stmt          = syn.createIf(pos, cd, cs, null);
                 ss.add(stmt);
@@ -284,7 +267,7 @@ public class FinallyEliminator extends ContextVisitor {
         //    2) the x10 programmer concocts and throws an x10.compiler.Finalization.
         //    Both, are in error.
         // handle abnormal exit (brining it all together)
-        cond              = syn.createNotNull(pos, syn.createLocal(pos, throwDecl));
+        cond              = syn.createNotNull(pos, syn.createLocal(pos, throwDecl), this);
         cons              = syn.createBlock(pos, stmts);
         stmt              = syn.createIf(pos, cond, cons, null);
         return stmt;

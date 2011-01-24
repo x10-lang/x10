@@ -16,6 +16,7 @@ package polyglot.frontend;
 import java.util.*;
 
 import polyglot.ast.Node;
+import polyglot.frontend.Compiler;
 import polyglot.frontend.Goal.Status;
 import polyglot.main.Report;
 import polyglot.types.*;
@@ -56,8 +57,10 @@ public abstract class Scheduler {
     // TODO: remove this, we only need to intern the goal status, not the goal itself.
     // Actually, the lazy ref to the goal status is the goal.  The run() method is the resolver for the lazy ref.
     public Goal intern(Goal goal) {
-        extInfo.getStats().accumulate("intern", 1);
-        extInfo.getStats().accumulate("intern:" + (goal instanceof VisitorGoal ? ((VisitorGoal) goal).v.getClass().getName() : goal.getClass().getName()), 1);
+        Compiler c = extInfo.compiler();
+        c.stats.incrFrequency("intern", 1);
+        c.stats.incrFrequency("intern:"
+                + (goal instanceof VisitorGoal ? ((VisitorGoal) goal).v.getClass().getName() : goal.getClass().getName()), 1);
         Goal g = internCache.get(goal);
         if (g == null) {
             g = goal;
@@ -324,19 +327,19 @@ public abstract class Scheduler {
             
             Goal oldGoal = currentGoal;
             currentGoal = goal;
-            
-            long t = System.nanoTime();
             String key = goal.toString();
+            Compiler c = extInfo.compiler();
+            c.stats.startTiming(goal.name(), key);
 
-            extInfo.getStats().accumulate(key + " attempts", 1);
-            extInfo.getStats().accumulate("total goal attempts", 1);
+            c.stats.incrFrequency(key + " attempts", 1);
+            c.stats.incrFrequency("total goal attempts", 1);
             
             try {
                 result = goal.runTask();
 
                 if (result && goal.getCached() == Goal.Status.RUNNING) {
-                    extInfo.getStats().accumulate(key + " reached", 1);
-                    extInfo.getStats().accumulate("total goal reached", 1);
+                    c.stats.incrFrequency(key + " reached", 1);
+                    c.stats.incrFrequency("total goal reached", 1);
 
                     goal.update(Status.SUCCESS);
 
@@ -344,18 +347,14 @@ public abstract class Scheduler {
                         Report.report(1, "Completed pass for " + goal);
                 }
                 else {
-                    extInfo.getStats().accumulate(key + " unreached", 1);
-                    extInfo.getStats().accumulate("total goal unreached", 1);
+                    c.stats.incrFrequency(key + " unreached", 1);
+                    c.stats.incrFrequency("total goal unreached", 1);
 
                     if (Report.should_report(Report.frontend, 1))
                         Report.report(1, "Completed (unreached) pass for " + goal);
                 }
             }
             finally {
-                t = System.nanoTime() - t;
-                extInfo.getStats().accumulate(key+" nanos", t);
-                extInfo.getStats().accumulate("Phase "+goal.name()+" nanos", t);
-
                 currentGoal = oldGoal;
                 
                 if (job != null) {
@@ -369,6 +368,8 @@ public abstract class Scheduler {
 				}
 
                 Report.stop_reporting(goal.name());
+
+                c.stats.stopTiming();
             }
 
             // pretty-print this pass if we need to.

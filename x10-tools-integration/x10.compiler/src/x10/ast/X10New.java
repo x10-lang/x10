@@ -22,21 +22,6 @@ import polyglot.types.ConstructorInstance;
 import x10.types.X10ClassDef;
 import x10.types.X10ConstructorInstance;
 
-public interface X10New extends New, X10ProcedureCall {
-	List<TypeNode> typeArguments();
+public interface X10New extends New {
 
-	X10New typeArguments(List<TypeNode> args);
-
-	boolean newOmitted();
-
-	X10New newOmitted(boolean val);
-
-	X10ClassDef anonType();
-	X10ConstructorInstance constructorInstance();
-
-	X10New anonType(ClassDef anonType);
-	X10New constructorInstance(ConstructorInstance ci);
-	X10New qualifier(Expr qualifier);
-	X10New objectType(TypeNode t);
-	X10New body(ClassBody b);
 }

@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import polyglot.ast.Block;
 import polyglot.ast.Expr;
@@ -64,7 +65,7 @@ public class AddIndirectLocalDeclareVisitor extends NodeVisitor{
             LocalExprFinder lef = new LocalExprFinder();
             block.visit(lef);//no replacement, just detect
             
-            HashSet<Stmt> localDecls = CollectionFactory.newHashSet(); //we need use set to only add one time
+            Set<Stmt> localDecls = CollectionFactory.newHashSet(); //we need use set to only add one time
             for(Local local : lef.getLocalList()){
                 Stmt s = refToDeclMap.get(local);
                 if(s != null){

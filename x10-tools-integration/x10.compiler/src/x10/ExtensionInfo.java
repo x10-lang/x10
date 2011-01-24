@@ -217,7 +217,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
         throw new IllegalStateException("Could not parse " + source.path());
     }
 
-    protected HashSet<String> manifest = CollectionFactory.newHashSet();
+    protected Set<String> manifest = CollectionFactory.newHashSet();
     public boolean manifestContains(String path) {
         path = path.replace(File.separatorChar, '/');
         // FIXME: HACK! Try all prefixes

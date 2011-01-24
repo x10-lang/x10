@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.Set;
 
 import polyglot.ast.Block;
 import polyglot.ast.Call;
@@ -112,13 +113,13 @@ public class WSTransformationContent {
 	//Note, the url has no header "file:" string, and the position is method body's position
 	//The String is method name, and [C] or [D]. C: contains concurrent, [D]: derived parallel
 	//             (src url   ->       ( method body's position, method name))
-	protected TreeMap<String, HashMap<WSSourcePosition, MethodAttribute>> conMethodMap;
+	protected TreeMap<String, Map<WSSourcePosition, MethodAttribute>> conMethodMap;
 
 	//Store all the call sites to concurrent methods
 	//Note, the url has no header "file:" string. and the position is call instruction's position
 	//The String is no clear usage now. Just store debug information now
 	//             (src url  ->      ( call inst's pos, debug info)
-	protected TreeMap<String, HashMap<WSSourcePosition, CallSiteAttribute>> callSiteMap;
+	protected TreeMap<String, Map<WSSourcePosition, CallSiteAttribute>> callSiteMap;
 	
 	//Record all dead methods's def. These methods are not in call graph.
 	//So we cannot get their call sites directly.
@@ -126,18 +127,18 @@ public class WSTransformationContent {
 	//In the pass, all methoddecl will be checked, if they are dead method decl (by source code line number)
 	//add the def in the set
 	//Then in the transformation pass, we check the call's method def', if it is in the deadMethoDefs, return matched call.
-	protected HashSet<MethodDef> deadMethodDefs;
+	protected Set<MethodDef> deadMethodDefs;
 	
 	public WSTransformationContent(){
-		conMethodMap = new TreeMap<String, HashMap<WSSourcePosition, MethodAttribute>>();
-		callSiteMap = new TreeMap<String, HashMap<WSSourcePosition, CallSiteAttribute>>();
+		conMethodMap = new TreeMap<String, Map<WSSourcePosition, MethodAttribute>>();
+		callSiteMap = new TreeMap<String, Map<WSSourcePosition, CallSiteAttribute>>();
 		deadMethodDefs = CollectionFactory.newHashSet();
 	}
 	
 	public void addConcurrentMethod(String url, int startLine, int startColumn, int endLine, int endColumn, String info){
 		WSSourcePosition wsPosition = new WSSourcePosition(url, startLine, startColumn, endLine, endColumn);
 		
-		HashMap<WSSourcePosition, MethodAttribute> innerMap;
+		Map<WSSourcePosition, MethodAttribute> innerMap;
 		if(conMethodMap.containsKey(url)){
 			innerMap = conMethodMap.get(url);
 		}
@@ -162,7 +163,7 @@ public class WSTransformationContent {
 	public MethodAttribute addImpactedMethod(String url, int startLine, int startColumn, int endLine, int endColumn, String info){
 		WSSourcePosition wsPosition = new WSSourcePosition(url, startLine, startColumn, endLine, endColumn);
 		
-		HashMap<WSSourcePosition, MethodAttribute> innerMap;
+		Map<WSSourcePosition, MethodAttribute> innerMap;
 		if(conMethodMap.containsKey(url)){
 			innerMap = conMethodMap.get(url);
 		}
@@ -184,7 +185,7 @@ public class WSTransformationContent {
 	public void addConcurrentCallSite(String url, int startLine, int startColumn, int endLine, int endColumn, String info){
 		WSSourcePosition wsPosition = new WSSourcePosition(url, startLine, startColumn, endLine, endColumn);
 		
-		HashMap<WSSourcePosition, CallSiteAttribute> innerMap;
+		Map<WSSourcePosition, CallSiteAttribute> innerMap;
 		if(callSiteMap.containsKey(url)){
 			innerMap = callSiteMap.get(url);
 		}
@@ -201,7 +202,7 @@ public class WSTransformationContent {
 	public void addMatchedCallSite(String url, int startLine, int startColumn, int endLine, int endColumn, String info){
 		WSSourcePosition wsPosition = new WSSourcePosition(url, startLine, startColumn, endLine, endColumn);
 		
-		HashMap<WSSourcePosition, CallSiteAttribute> innerMap;
+		Map<WSSourcePosition, CallSiteAttribute> innerMap;
 		if(callSiteMap.containsKey(url)){
 			innerMap = callSiteMap.get(url);
 		}
@@ -240,7 +241,7 @@ public class WSTransformationContent {
 		//System.out.printf("[MethodPos]%s: %s\n", mDecl, wsPos);
 		
 		if(conMethodMap.containsKey(wsPos.getUrl())){
-			HashMap<WSSourcePosition, MethodAttribute> innerMap = conMethodMap.get(wsPos.getUrl());
+			Map<WSSourcePosition, MethodAttribute> innerMap = conMethodMap.get(wsPos.getUrl());
 			if(innerMap.containsKey(wsPos)){
 				//DEBUG
 				//System.out.println(" Concurrent method info:" + innerMap.get(wsPos));
@@ -282,7 +283,7 @@ public class WSTransformationContent {
 		//System.out.printf("[CallSitePos]%s: %s\n", call, wsPos);
 		
 		if(callSiteMap.containsKey(wsPos.getUrl())){
-			HashMap<WSSourcePosition, CallSiteAttribute> innerMap = callSiteMap.get(wsPos.getUrl());
+			Map<WSSourcePosition, CallSiteAttribute> innerMap = callSiteMap.get(wsPos.getUrl());
 			if(innerMap.containsKey(wsPos)){
 				//DEBUG
 				//System.out.println(" Concurrent call site info:" + innerMap.get(wsPos));

@@ -6,6 +6,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import polyglot.ast.Import;
 import polyglot.types.ClassDef;
@@ -39,12 +40,12 @@ import com.sun.javadoc.SourcePosition;
 import com.sun.javadoc.Type;
 
 public class X10RootDoc extends X10Doc implements RootDoc {
-	HashMap<String, X10ClassDoc> specClasses; // classes specified to x10cod on the command-line
-	HashMap<String, X10PackageDoc> specPackages; // x10doc does not, at present, handle packages specified on the
+	Map<String, X10ClassDoc> specClasses; // classes specified to x10cod on the command-line
+	Map<String, X10PackageDoc> specPackages; // x10doc does not, at present, handle packages specified on the
 	                                             // command-line; specPackages should be empty
-	HashMap<String, X10ClassDoc> otherClasses;
-	HashMap<String, X10PackageDoc> otherPackages;
-	HashMap<String, X10Type> primitiveTypes;
+	Map<String, X10ClassDoc> otherClasses;
+	Map<String, X10PackageDoc> otherPackages;
+	Map<String, X10Type> primitiveTypes;
     
 	X10ClassDoc[] includedClasses; 
 	private String outputDir;

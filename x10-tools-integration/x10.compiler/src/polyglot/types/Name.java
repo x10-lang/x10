@@ -2,6 +2,7 @@ package polyglot.types;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.Map;
 
 import polyglot.util.StringUtil;
 import polyglot.util.UniqueID;
@@ -18,7 +19,7 @@ public class Name  implements Serializable {
         this.hash = hash;
     }
 
-    static HashMap<String,Name> internCache = CollectionFactory.newHashMap();
+    static Map<String,Name> internCache = CollectionFactory.newHashMap();
     static int count = 0;
     
     public static Name makeFresh() {

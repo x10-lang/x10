@@ -138,7 +138,7 @@ public class Inliner extends ContextVisitor {
 //  private static final boolean DEBUG = true;
 
     private static final boolean VERBOSE = false;
-//  private static final boolean VERBOSE = INLINE_METHODS;
+//  private static final boolean VERBOSE = true;
 //  private static final boolean VERY_VERBOSE = VERBOSE && false;
     private static final boolean VERY_VERBOSE = VERBOSE && true;
 
@@ -147,8 +147,8 @@ public class Inliner extends ContextVisitor {
      * are to be inlined.
      */
 //  private static final int SMALL_METHOD_MAX_SIZE = -1;
-//  private static final int SMALL_METHOD_MAX_SIZE = 0;
-    private static final int SMALL_METHOD_MAX_SIZE = 1;
+    private static final int SMALL_METHOD_MAX_SIZE = 0;
+//  private static final int SMALL_METHOD_MAX_SIZE = 1;
 //  private static final int SMALL_METHOD_MAX_SIZE = 2;
 //  private static final int SMALL_METHOD_MAX_SIZE = 3;
 
@@ -157,23 +157,22 @@ public class Inliner extends ContextVisitor {
      */
     private TypeSystem xts;
     private NodeFactory xnf;
-    // private Synthesizer syn;
-    private AltSynthesizer syn; // move functionality to Synthesizer
+    private AltSynthesizer syn;
     private InlineCostEstimator ice;
     private SoftReference<InlinerCache> inlinerCacheRef[] = (SoftReference<InlinerCache>[]) new SoftReference<?>[1];
 
     public Inliner(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf);
         xts = ts;
-        xnf = nf;
-        // syn = new Synthesizer(xnf, xts);
-        syn = new AltSynthesizer(job, ts, nf);
-        ice = new InlineCostEstimator(xts, xnf);
+        xnf = nf;;
+        syn = new AltSynthesizer(ts, nf);
+        ice = new InlineCostEstimator(ts, nf);
         X10CompilerOptions opts = (X10CompilerOptions) job.extensionInfo().getOptions();
         INLINE_CONSTANTS = opts.x10_config.INLINE_CONSTANTS;
         INLINE_METHODS   = opts.x10_config.INLINE_METHODS;
         INLINE_CLOSURES  = opts.x10_config.INLINE_CLOSURES && opts.x10_config.ALLOW_STATEMENT_EXPRESSIONS;
-        INLINE_IMPLICIT  = opts.x10_config.INLINE_METHODS_IMPLICIT;
+//      INLINE_IMPLICIT  = opts.x10_config.INLINE_METHODS_IMPLICIT;
+        INLINE_IMPLICIT  = opts.x10_config.EXPERIMENTAL;
     }
 
     /**
@@ -256,7 +255,7 @@ public class Inliner extends ContextVisitor {
             NativeClassType = (Type) ts.systemResolver().find(NATIVE_CLASS_ANNOTATION);
         } catch (SemanticException e) {
             InternalCompilerError ice = new InternalCompilerError("Unable to find required Annotation Type");
-            SemanticException se = new SemanticException(ice);
+            SemanticException se = new SemanticException(ice);		//TODO: internal compiler error, should be removed
             Errors.issue(job, se);
             InlineType = null;
             throw ice; // annotation types are required!
@@ -1091,7 +1090,7 @@ public class Inliner extends ContextVisitor {
 
         // TODO: move this up to TypeTransformer
         private Pair<XLocal[], XLocal[]> getLocalSubstitution() {
-            HashMap<X10LocalDef, X10LocalDef> map = vars;
+            Map<X10LocalDef, X10LocalDef> map = vars;
             XLocal[] X = new XLocal[map.keySet().size()];
             XLocal[] Y = new XLocal[X.length];
             int i = 0;
@@ -1344,7 +1343,7 @@ public class Inliner extends ContextVisitor {
             LocalDecl temp = temps[i];
             X10Formal formal = (X10Formal) formals.get(i);
             Expr value = createCast(temp.position(), syn.createLocal(temp.position(), temp), formal.type().type());
-            LocalDecl local = syn.transformFormalToLocalDecl(formal, value);
+            LocalDecl local = syn.createLocalDecl(formal, value);
             tieLocalDefToItself(local.localDef());
             tieLocalDef(local.localDef(), temp.localDef());
             declarations.add(local);
@@ -1403,8 +1402,7 @@ public class Inliner extends ContextVisitor {
             this.ths = ths;
       //    this.returnCount = 0;
       //    this.throwCount = 0;
-            this.syn = new AltSynthesizer(j, ts, nf);
-            this.syn.begin();
+            this.syn = new AltSynthesizer(ts, nf);
             if (body.size() == 1 && body.get(0) instanceof Return) {
                 // Closure already has the right properties; make return rewriting a no-op
                 this.ret = null;

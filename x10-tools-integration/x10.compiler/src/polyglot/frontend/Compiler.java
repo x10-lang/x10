@@ -70,12 +70,17 @@ public class Compiler
         this.extensionInfo = extensionInfo;
         this.eq = eq;
         this.allExtensions = new ArrayList<ExtensionInfo>(2);
+        stats = new Stats();
 
+        
         loader = new ClassFileLoader(extensionInfo);
 
         // This must be done last.
         extensionInfo.initCompiler(this);
     }
+
+    /*** Compiler statistics gatherer. */
+    public Stats stats;
 
     /** Return a set of output filenames resulting from a compilation. */
     public Collection<String> outputFiles() {
@@ -206,10 +211,6 @@ public class Compiler
 	}
 
 	eq.flush();
-
-        for (ExtensionInfo ext : allExtensions) {
-            ext.getStats().report();
-        }
 
 	return okay;
     }

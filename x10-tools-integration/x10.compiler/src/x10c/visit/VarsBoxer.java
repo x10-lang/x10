@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import polyglot.ast.Assign;
 import polyglot.ast.Block;
@@ -71,7 +72,7 @@ public class VarsBoxer extends ContextVisitor {
     
     private final TypeSystem xts;
     private final NodeFactory xnf;
-    private final HashMap<X10LocalDef,X10LocalDef> defToDef = CollectionFactory.newHashMap();
+    private final Map<X10LocalDef,X10LocalDef> defToDef = CollectionFactory.newHashMap();
     private X10ParsedClassType globalRefType;
     
     public VarsBoxer(Job job, TypeSystem ts, NodeFactory nf) {

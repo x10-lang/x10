@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import polyglot.ast.Block;
 import polyglot.ast.Call;
@@ -111,7 +112,7 @@ public class WSAsyncClassGen extends AbstractWSClassGen {
         
         
 
-        HashSet<Name> localDeclaredVar = CollectionFactory.newHashSet(); //all locals with these names will not be replaced
+        Set<Name> localDeclaredVar = CollectionFactory.newHashSet(); //all locals with these names will not be replaced
                 
         if(!inFrameTransform){
             //we create a new frame to transform the async's body

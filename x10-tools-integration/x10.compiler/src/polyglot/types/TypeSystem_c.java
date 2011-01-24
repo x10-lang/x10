@@ -1250,7 +1250,7 @@ public class TypeSystem_c implements TypeSystem
     // To prevent infinite recursion due to searching the field in the superclass/superinterface
     // e.g., class Q extends Q{i==1} {}
     public static abstract class BaseMatcher<T> implements Matcher<T> {
-        private HashSet<Type> visitedDefs;
+        private Set<Type> visitedDefs;
         public boolean visit(Type t) {
             if (visitedDefs==null) visitedDefs = CollectionFactory.newHashSet();
             final Type p = Types.baseType(t);
@@ -4075,12 +4075,12 @@ public class TypeSystem_c implements TypeSystem
     // User-defined structs and do they have zero (haszero)
     // This is not just a cache: we use this map to prevent infinite recursion such as in the case of:
     // struct U(u:U) {}
-    public HashMap<X10ClassDef_c, Boolean> structHaszero = CollectionFactory.newHashMap();
+    public Map<X10ClassDef_c, Boolean> structHaszero = CollectionFactory.newHashMap();
     
     public Boolean structHaszero(X10ClassDef x) {
         return structHaszero.get(x);
     }
-    public HashMap<X10ClassDef_c, Boolean> structHaszero() {
+    public Map<X10ClassDef_c, Boolean> structHaszero() {
         return structHaszero;
     }
     

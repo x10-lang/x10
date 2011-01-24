@@ -20,77 +20,143 @@ import x10.util.RemoteIndexedMemoryChunk;
  * A class that encapsulates sufficient information about a remote
  * array to enable DMA operations via Array.copyTo and Array.copyFrom
  * to be performed on the encapsulated Array.<p>
- *
- * Because copyTo and copyFrom are low-level interfaces that do not necessarily require
- * the source and destination arrays to have equivalent regions, the Region of the
- * array is not cached directly in the RemoteArray object (to minimize serialized bytes).
- * If the Region is actually needed, it can be retrieved by using the array GlobalRef
- * to return to the referenced array's home location and access its region.
+ * 
+ * The following relationships will always be true, but are not statically expressible
+ * due to limitations of the current implementations of constrained types in X10.
+ * <pre>
+ * this.region.equals(at (array.home) (this.array)().region)
+ * this.size == (at (array.home) (this.array)().size)
+ * rawData.home() == this.array.home;
+ * at (rawData.home()) { (this.rawData)() == (this.array)().raw() }
+ * </pre>
  */
-public class RemoteArray[T](home:Place, region:Region, size:Int) {} {
-    val array:GlobalRef[Array[T]{self.region==this.region, self.size==this.size}]{self.home==this.home};
+public class RemoteArray[T](
+        /**
+         * The Region of the remote array
+         */
+        region:Region, 
+        /**
+         * The size of the remote array.
+         */
+        size:Int, 
+        /**
+         * The GlobalRef to the remote array.
+         */
+        array:GlobalRef[Array[T]]) 
+        {
+    
+    /**
+     * Caches a remote reference to the backing storage for the remote array
+     * to enable DMA operations to be initiated remotely.  
+     */
     val rawData:RemoteIndexedMemoryChunk[T];
 
+    /**
+     * The rank of the RemoteArray is equal to region.rank
+     */
     public property rank:Int = region.rank;
+    
+    /**
+     * The home location of the RemoteArray is equal to array.home
+     */
+    public property home:Place = array.home;
 
-    public def this(a:Array[T])
-      : RemoteArray[T]{self.home==here, self.region==a.region, self.size==this.size} {
-        property(here, a.region, a.size);
-        // cast needed as type of 'this' does not include {a.region==this.region, a.size==this.size} even though this is established by property statement
-        val arr = a as Array[T]{self.region==this.region, self.size == this.size};
-        // cast needed as type of 'this' does not include {here==this.home} even though this is established by property statement
-        array = GlobalRef[Array[T]{self.region==this.region, self.size==this.size}](arr) as GlobalRef[Array[T]{self.region==this.region, self.size==this.size}]{self.home==this.home};
+    /**
+     * Create a RemoteArray wrapping the argument local Array.
+     * @param a The array object to make accessible remotely.
+     */
+    public def this(a:Array[T]) {
+        property(a.region, a.size, GlobalRef[Array[T]](a));
         rawData = RemoteIndexedMemoryChunk.wrap(a.raw());
     }
-
-    public def this (gpu:Place, reg:Region, raw:RemoteIndexedMemoryChunk[T], raw_len:Int)
-      : RemoteArray[T]{self.home==gpu, self.region==reg, self.size==reg.size()} {
-        property(gpu, reg, reg.size());
-        rawData = raw;
-        @Native("c++", "") {
-            array = (at (gpu) GlobalRef[Array[T]{self.region==this.region, self.size==this.size}](null)) as GlobalRef[Array[T]{self.region==this.region, self.size==this.size}]{self.home==this.home};
+    
+    /**
+     * Create a RemoteArray that uses the argument Region to specify how to
+     * view elements of the argument RemoteIndexedMemoryChunk.
+     * This constructor is semantically equivalent to the code sequence
+     * <pre>
+     * at (raw.home()) new RemoteArray[T](reg, raw())
+     * </pre>
+     * if <code>raw.home()</code> is a normal (non-CUDA) place. 
+     * If <code>raw.home().isCUDA()</code> is true, then this constructor
+     * simulates that semantics and provides an Array view on the chunk of
+     * GPU memory represented by raw.
+     */
+    public def this(reg:Region, raw:RemoteIndexedMemoryChunk[T]) {
+        val arr:GlobalRef[Array[T]];
+        if (raw.home().isCUDA()) @Native("c++", "{}") {
+            // This block will never be executed; only here to placate the X10-level typechecker
+            arr = GlobalRef[Array[T]](null);
+        } else {
+            arr = at (raw.home()) GlobalRef[Array[T]](new Array[T](reg, raw()) as Array[T]);
         }
+        property(reg, reg.size(), arr);
+        rawData = raw;
     }
 
-    public def equals(other:Any) {
-        if (!(other instanceof RemoteArray[T])) return false;
-        val oRA = other as RemoteArray[T];
-        return oRA.array.equals(array);
-    }
-
-    @Native("cuda", "(#0).raw[#2] = (#1)")
-    public operator this(i:Int)=(v:T) {here==home, rank==1} = array()(i)=v;
-
-    public operator this(p:Point{self.rank==this.rank})=(v:T) {here==home} = {
-        // todo: constraint bug! Cause: Method apply(i0: x10.lang.Int){x10.array.Array#this.rank==1}[]: T{x10.array.RemoteArray#this.array.home==x10.array.RemoteArray#this.home} in x10.array.Array[T{x10.array.RemoteArray#this.array.home==x10.array.RemoteArray#this.home}]{self.region==x10.array.RemoteArray#this.region, self.size==x10.array.RemoteArray#this.size, x10.array.RemoteArray#this.array.home==x10.array.RemoteArray#this.home} cannot be called with arguments (x10.array.Point{self.rank==arg4094461.rank}); Call invalid; calling environment does not entail the method guard.
-        // return array()(p)=v;
-        val arr = array();
-        return arr(p)=v;
-    }
-
+    /**
+     * Return the element of this array corresponding to the given index.
+     * Only applies to one-dimensional arrays.
+     * Can only  be called where <code>here == array.home</code>. 
+     * Functionally equivalent to indexing the array via a one-dimensional point.
+     * 
+     * @param i0 the given index in the first dimension
+     * @return the element of this array corresponding to the given index.
+     * @see #operator(Point)
+     * @see #set(T, Int)
+     */
     @Native("cuda", "(#0).raw[#1]")
-    public operator this(i:Int) {here==home, rank==1} = array()(i);
+    public operator this(i:Int) {here==array.home, rank==1} = this()(i);
 
-    public operator this(p:Point{self.rank==this.rank}) {here==home} = array()(p);
+    /**
+     * Return the element of this array corresponding to the given point.
+     * The rank of the given point has to be the same as the rank of this array.
+     * Can only  be called where <code>here == array.home</code>. 
+     * 
+     * @param pt the given point
+     * @return the element of this array corresponding to the given point.
+     * @see #operator(Int)
+     * @see #set(T, Point)
+     */
+    public operator this(p:Point{self.rank==this.rank}) {here==array.home} = this()(p);
 
-    public operator this() {here==home} = array();
+    /**
+     * Set the element of this array corresponding to the given index to the given value.
+     * Return the new value of the element.
+     * Only applies to one-dimensional arrays.
+     * Can only  be called where <code>here == array.home</code>. 
+     * Functionally equivalent to setting the array via a one-dimensional point.
+     * 
+     * @param v the given value
+     * @param i0 the given index in the first dimension
+     * @return the new value of the element of this array corresponding to the given index.
+     * @see #operator(Int)
+     * @see #set(T, Point)
+     */
+    @Native("cuda", "(#0).raw[#2] = (#1)")
+    public operator this(i:Int)=(v:T) {here==array.home, rank==1} = this()(i)=v;
 
-    public def hashCode() = array.hashCode();
-}
-
-/* This version is preferable, as it does not duplicate state from the global ref, but it does not work:
-x10/array/RemoteArray.x10:72: This or super cannot be used (implicitly or explicitly) in a property initializer.    
-Expr: new x10.lang.GlobalRef[x10.array.Array[T]{self.region==x10.array.RemoteArray#this.region, self.size==x10.array.RemoteArray#this.size}](...)
-
-public class RemoteArray[T](region:Region, size:Int, array:GlobalRef[Array[T]{self.region==this.region, self.size==this.size}]) {
-    val rawData:IndexedMemoryChunk[T];
-
-    public property rank:Int = region.rank;
-
-    public def this(a:Array[T]) : RemoteArray[T]{self.region==a.region, self.size==this.size, self.array.home == here} {
-        property(a.region, a.size, GlobalRef[Array[T]{self.region==this.region, self.size==this.size}](a as Array[T]{self.region==this.region, self.size == this.size}));
-        rawData = a.raw();
+    /**
+     * Set the element of this array corresponding to the given point to the given value.
+     * Return the new value of the element.
+     * The rank of the given point has to be the same as the rank of this array.
+     * Can only  be called where <code>here == array.home</code>. 
+     * 
+     * @param v the given value
+     * @param p the given point
+     * @return the new value of the element of this array corresponding to the given point.
+     * @see #operator(Point)
+     * @see #set(T, Int)
+     */
+    public operator this(p:Point{self.rank==this.rank})=(v:T) {here==home} = {
+        return this()(p)=v;
     }
+
+    /**
+     * Access the Array that is encapsulated by this RemoteArray. 
+     * Can only  be called where <code>here == array.home</code>. 
+     */
+    public operator this() {here==array.home} = (this.array)() as Array[T]{self.rank==this.rank};
 
     public def equals(other:Any) {
         if (!(other instanceof RemoteArray[T])) return false;
@@ -98,15 +164,5 @@ public class RemoteArray[T](region:Region, size:Int, array:GlobalRef[Array[T]{se
         return oRA.array.equals(array);
     }
 
-    public operator this(i:Int)=(v:T) {here==array.home, rank==1} = array()(i)=v;
-
-    public operator this(p:Point{self.rank==this.rank})=(v:T) {here==array.home} = array()(p)=v;
-
-    public operator this(i:Int) {here==array.home, rank==1} = array()(i);
-
-    public operator this(p:Point{self.rank==this.rank}) {here==array.home} = array()(p);
-
     public def hashCode() = array.hashCode();
 }
-*/
-

@@ -14,6 +14,7 @@ package x10.compiler.ws;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import polyglot.ast.Call;
 import polyglot.ast.ConstructorDecl;
@@ -84,8 +85,8 @@ public class WSCodeGenerator extends ContextVisitor {
     // Single static WSTransformState shared by all visitors (FIXME)
     public static WSTransformState wts; 
     
-    private final HashSet<X10MethodDecl> genMethodDecls;
-    private final HashSet<X10ClassDecl> genClassDecls;
+    private final Set<X10MethodDecl> genMethodDecls;
+    private final Set<X10ClassDecl> genClassDecls;
 
     /** 
      * @param job

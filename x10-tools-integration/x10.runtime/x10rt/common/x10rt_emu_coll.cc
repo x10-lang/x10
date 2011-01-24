@@ -17,6 +17,8 @@ _CRTIMP int __cdecl __MINGW_NOTHROW     vswprintf (wchar_t*, const wchar_t*, __V
 #include <x10rt_ser.h>
 #include <x10rt_cpp.h>
 
+#define BARRIER_TREE 1
+
 namespace {
 
     // note this cannot be a re-entrant lock because Preempt (below) will break
@@ -58,9 +60,17 @@ namespace {
         x10rt_team team;
         x10rt_team role;
         struct {
+            #if BARRIER_TREE == 1 
+            int childToReceive;
+            int parentToSend; // threadlocal
+            int parentToReceive;
+            x10rt_completion_handler *ch;
+            void *arg;
+            #else
             int wait;
             x10rt_completion_handler *ch;
             void *arg;
+            #endif
         } barrier; // other collectives use barrier so keep its state separate
         struct {
             x10rt_place root;
@@ -157,12 +167,7 @@ namespace {
         MemberObj *&operator[] (x10rt_place r) { return memberv[r]; }
     };
 
-    struct CollOp : FifoElement<CollOp> {
-        const x10rt_team team;
-        const x10rt_place role;
-        CollOp (x10rt_team team_, x10rt_place role_)
-          : team(team_), role(role_) { }
-    };
+    struct CollOp;
 
     // global team database: stores the teams currently in use
     struct TeamDB {
@@ -245,8 +250,6 @@ namespace {
 
     x10rt_msg_type TEAM_NEW_PLACE_ZERO_ID, TEAM_NEW_ID, TEAM_NEW_FINISHED_ID;
 
-    x10rt_msg_type BARRIER_UPDATE_ID;
-
     x10rt_msg_type SPLIT_ID;
 
     x10rt_msg_type SCATTER_COPY_ID;
@@ -260,11 +263,12 @@ namespace {
 // return role that acts as parent to a given role r
 static x10rt_place get_parent (x10rt_place r)
 {
-    return  (r - 1)/2;
+    return  (long(r) - 1)/2;
 }
 
 // given role r and size sz, provide the number of children under r and their identities
-static x10rt_place get_children (x10rt_place r, x10rt_place sz, x10rt_place &left, x10rt_place &right)
+static x10rt_place get_children (x10rt_place r, x10rt_place sz,
+                                 x10rt_place &left, x10rt_place &right)
 {
     assert(r<sz);
     left = r*2 + 1;
@@ -416,6 +420,188 @@ void x10rt_emu_team_del (x10rt_team team, x10rt_place role, x10rt_completion_han
     ch(arg);
 }
 
+namespace {
+    struct CollOp : FifoElement<CollOp> {
+        const x10rt_team team;
+        const x10rt_place role;
+        CollOp (x10rt_team team_, x10rt_place role_)
+          : team(team_), role(role_) { }
+        void progress (void);
+    };
+}
+
+/* Sometimes m.barrier.wait will be negative when barriers are used from multiple threads.
+ * To see why, consider the following sequence of events in a team of size 2,
+ * each role handled by a separate thread at the same place:
+ *
+ * role 0 enters x10rt_emu_barrier         (0,  0)
+ * role 0 increments own counter by 2      (2,  0)
+ * role 0 decrements role 0's counter by 1 (1,  0)
+ * role 0 decrements role 1's counter by 1 (1, -1)
+ * role 1 enters x10rt_emu_barrier         (1, -1)
+ * role 1 increments own counter by 2      (1,  1)
+ * role 1 decrements role 0's counter by 1 (0,  1)
+ * role 1 decrements role 1's counter by 1 (0,  0)
+ *
+ * This is benign, however an alternative sequence can present with a problem:
+ *
+ * role 0 enters x10rt_emu_barrier         (0,  0)
+ * role 0 increments own counter by 2      (2,  0)
+ * role 0 decrements role 0's counter by 1 (1,  0)
+ * role 0 decrements role 1's counter by 1 (1, -1)
+ * role 1 enters x10rt_emu_barrier         (1, -1)
+ * role 1 increments own counter by 2      (1,  1)
+ * role 1 decrements role 0's counter by 1 (0,  1) 
+ * (at this point role 0 is released and can enter the next barrier in the program)
+ * role 0 enters x10rt_emu_barrier         (0,  1)  ** new line
+ * role 0 increments own counter by 2      (2,  1)  ** new line
+ * role 0 decrements role 0's counter by 1 (1,  1)  ** new line
+ * role 0 decrements role 1's counter by 1 (1,  0)  ** new line
+ * role 1 decrements role 1's counter by 1 (0, -1)
+ *
+ * Now, role 0 is waiting for role 1 to decrement its counter, and role 1 is on -1.
+ * Role 1 has to realise that it should release control to the program, so we use
+ * the condition >0 rather than !=0 in the 'process' function above.
+ */
+
+#if BARRIER_TREE==1
+
+static x10rt_msg_type BARRIER_C_TO_P_UPDATE_ID; // child to parent
+
+static x10rt_msg_type BARRIER_P_TO_C_UPDATE_ID; // parent to child
+
+static void barrier_c_to_p_update_recv (const x10rt_msg_params *p)
+{
+    x10rt_deserbuf b;
+    x10rt_deserbuf_init(&b, p);
+    x10rt_team team; x10rt_deserbuf_read(&b, &team);
+    x10rt_place role; x10rt_deserbuf_read(&b, &role);
+
+    TeamObj &t = *gtdb[team];
+    MemberObj &m = *t[role];
+    
+    //fprintf(stderr, "%d: Decrementing child from %d to %d\n", (int)role, (int) m.barrier.wait, (int) m.barrier.wait-1);
+    SYNCHRONIZED (global_lock);
+    m.barrier.childToReceive--;
+}
+
+static void barrier_p_to_c_update_recv (const x10rt_msg_params *p)
+{
+    x10rt_deserbuf b;
+    x10rt_deserbuf_init(&b, p);
+    x10rt_team team; x10rt_deserbuf_read(&b, &team);
+    x10rt_place role; x10rt_deserbuf_read(&b, &role);
+
+    TeamObj &t = *gtdb[team];
+    MemberObj &m = *t[role];
+    
+    //fprintf(stderr, "%d: Decrementing parent from %d to %d\n", (int)role, (int) m.barrier.wait, (int) m.barrier.wait-1);
+    SYNCHRONIZED (global_lock);
+    m.barrier.parentToReceive--;
+}
+
+static void init_barrier (x10rt_msg_type *counter)
+{
+    x10rt_net_register_msg_receiver(BARRIER_C_TO_P_UPDATE_ID = (*counter)++, barrier_c_to_p_update_recv);
+    x10rt_net_register_msg_receiver(BARRIER_P_TO_C_UPDATE_ID = (*counter)++, barrier_p_to_c_update_recv);
+}
+
+void CollOp::progress (void)
+{
+    TeamObj &t = *gtdb[team];
+    MemberObj &m = *t[role];
+    if (m.barrier.childToReceive > 0) {
+        // still waiting for message from children, do nothing
+        gtdb.fifo_push_back(this);
+    } else if (m.barrier.parentToSend > 0) {
+        // received messages from children, will now send to parent
+        x10rt_place parent_role = get_parent(role);
+        x10rt_place parent_role_place = t.placev[parent_role];
+        if (parent_role_place==x10rt_net_here()) {
+            //decrement counter locally;
+            MemberObj *m2 = t.memberv[parent_role];
+            assert(m2!=NULL);
+            {
+                SYNCHRONIZED (global_lock);
+                //fprintf(stderr, "%d: Locally decrementing from %d to %d\n", (int)role, (int) m2->barrier.wait, (int) m2->barrier.wait-1);
+                m2->barrier.childToReceive--;
+            }
+        } else {
+            //send a message there to decrement the counter
+            x10rt_serbuf b;
+            x10rt_serbuf_init(&b, parent_role_place, BARRIER_C_TO_P_UPDATE_ID);
+            x10rt_serbuf_write(&b, &team);
+            x10rt_serbuf_write(&b, &parent_role);
+            //fprintf(stderr, "%d: Sending to %d\n", (int)role , (int)parent_role_place);
+            x10rt_net_send_msg(&b.p);
+            x10rt_serbuf_free(&b);
+        }
+        m.barrier.parentToSend--;
+        gtdb.fifo_push_back(this);
+    } else if (m.barrier.parentToReceive > 0) {
+        // still waiting for message from parent, do nothing
+        gtdb.fifo_push_back(this);
+    } else {
+        x10rt_place left, right;
+        x10rt_place num_children = get_children(role, t.memberc, left, right);
+        for (unsigned i=0 ; i<num_children ; ++i) {
+            x10rt_place child_role = i==0 ? left : right;
+            x10rt_place child_role_place = t.placev[child_role];
+            if (child_role_place==x10rt_net_here()) {
+                //decrement counter locally;
+                MemberObj *m2 = t.memberv[child_role];
+                assert(m2!=NULL);
+                {
+                    SYNCHRONIZED (global_lock);
+                    //fprintf(stderr, "%d: Locally decrementing from %d to %d\n", (int)role, (int) m2->barrier.wait, (int) m2->barrier.wait-1);
+                    m2->barrier.parentToReceive--;
+                }
+            } else {
+                //send a message there to decrement the counter
+                x10rt_serbuf b;
+                x10rt_serbuf_init(&b, child_role_place, BARRIER_P_TO_C_UPDATE_ID);
+                x10rt_serbuf_write(&b, &team);
+                x10rt_serbuf_write(&b, &child_role);
+                //fprintf(stderr, "%d: Sending to %d\n", (int)role , (int)child_role_place);
+                x10rt_net_send_msg(&b.p);
+                x10rt_serbuf_free(&b);
+            }
+        }
+        safe_free(this);
+        m.barrier.ch(m.barrier.arg);
+    }
+}
+
+void x10rt_emu_barrier (x10rt_team team, x10rt_place role, x10rt_completion_handler *ch, void *arg)
+{
+    TeamObj &t = *gtdb[team];
+    MemberObj &m = *t[role];
+    // role == 0: root
+    x10rt_place left, right;
+    x10rt_place num_children = get_children(role, t.memberc, left, right);
+    x10rt_place parent = get_parent(role);
+    {
+        SYNCHRONIZED (global_lock);
+        //fprintf(stderr, "%d: Incrementing from %d to %d\n", (int)role, m.barrier.wait, m.barrier.wait+t.memberc);
+        m.barrier.childToReceive += num_children;
+        if (parent!=role) m.barrier.parentToReceive++;
+    }
+
+    // send a message to parent if we have one and if childWait > 0
+    m.barrier.parentToSend = parent==role ? 0 : 1;
+    m.barrier.ch = ch;
+    m.barrier.arg = arg;
+
+    if (ch!=NULL) {
+        //if (x10rt_net_here()==0) fprintf(stderr,"before pushd\n");
+        gtdb.fifo_push_back(new (safe_malloc<CollOp>()) CollOp(team, role));
+    }
+}
+
+#else
+
+static x10rt_msg_type BARRIER_UPDATE_ID;
+
 static void barrier_update_recv (const x10rt_msg_params *p)
 {
     x10rt_deserbuf b;
@@ -426,18 +612,36 @@ static void barrier_update_recv (const x10rt_msg_params *p)
     TeamObj &t = *gtdb[team];
     MemberObj &m = *t[role];
     
-    //fprintf(stderr, "%d: Decrementing from %d to %d\n", x10rt_net_here(), (int) m.barrier.wait, (int) m.barrier.wait-1);
+    //fprintf(stderr, "%d: Decrementing from %d to %d\n", (int)role, (int) m.barrier.wait, (int) m.barrier.wait-1);
     SYNCHRONIZED (global_lock);
     m.barrier.wait--;
+}
+
+static void init_barrier (x10rt_msg_type *counter)
+{
+    x10rt_net_register_msg_receiver(BARRIER_UPDATE_ID = (*counter)++, barrier_update_recv);
+}
+
+void CollOp::progress (void)
+{
+    TeamObj &t = *gtdb[team];
+    MemberObj &m = *t[role];
+    if (m.barrier.wait > 0) { // cannot use != 0, see below
+        gtdb.fifo_push_back(this);
+    } else {
+        safe_free(this);
+        //if (x10rt_net_here()==0) fprintf(stderr,"before callback\n");
+        m.barrier.ch(m.barrier.arg);
+    }
 }
 
 void x10rt_emu_barrier (x10rt_team team, x10rt_place role, x10rt_completion_handler *ch, void *arg)
 {
     TeamObj &t = *gtdb[team];
     MemberObj &m = *t[role];
-    //fprintf(stderr, "%d: Incrementing from %d to %d\n", (int)x10rt_net_here(), m.barrier.wait, m.barrier.wait+t.memberc);
     {
         SYNCHRONIZED (global_lock);
+        //fprintf(stderr, "%d: Incrementing from %d to %d\n", (int)role, m.barrier.wait, m.barrier.wait+t.memberc);
         m.barrier.wait += t.memberc;
     }
     m.barrier.ch = ch;
@@ -448,9 +652,9 @@ void x10rt_emu_barrier (x10rt_team team, x10rt_place role, x10rt_completion_hand
             //decrement counter locally;
             MemberObj *m2 = t.memberv[i];
             assert(m2!=NULL);
-            //fprintf(stderr, "%d: Locally decrementing from %d to %d\n", (int)x10rt_net_here(), (int) m.barrier.wait, (int) m.barrier.wait-1);
             {
                 SYNCHRONIZED (global_lock);
+                //fprintf(stderr, "%d: Locally decrementing from %d to %d\n", (int)role, (int) m2->barrier.wait, (int) m2->barrier.wait-1);
                 m2->barrier.wait--;
             }
         } else {
@@ -459,7 +663,7 @@ void x10rt_emu_barrier (x10rt_team team, x10rt_place role, x10rt_completion_hand
             x10rt_serbuf_init(&b, role_place, BARRIER_UPDATE_ID);
             x10rt_serbuf_write(&b, &team);
             x10rt_serbuf_write(&b, &i);
-            //fprintf(stderr, "%d: Sending to %d\n", (int)x10rt_net_here() , (int)role_place);
+            //fprintf(stderr, "%d: Sending to %d\n", (int)role , (int)role_place);
             x10rt_net_send_msg(&b.p);
             x10rt_serbuf_free(&b);
         }
@@ -469,6 +673,7 @@ void x10rt_emu_barrier (x10rt_team team, x10rt_place role, x10rt_completion_hand
         gtdb.fifo_push_back(new (safe_malloc<CollOp>()) CollOp(team, role));
     }
 }
+#endif
 
 static void scatter_copy_recv (const x10rt_msg_params *p)
 {
@@ -1117,8 +1322,7 @@ void x10rt_emu_coll_init (x10rt_msg_type *counter)
     x10rt_net_register_msg_receiver(TEAM_NEW_FINISHED_ID = (*counter)++,
                                     team_new_finished_recv);
 
-    x10rt_net_register_msg_receiver(BARRIER_UPDATE_ID = (*counter)++,
-                                    barrier_update_recv);
+    init_barrier(counter);
 
     x10rt_net_register_msg_receiver(SCATTER_COPY_ID = (*counter)++,
                                     scatter_copy_recv);
@@ -1128,6 +1332,10 @@ void x10rt_emu_coll_init (x10rt_msg_type *counter)
 
     x10rt_net_register_msg_receiver(SPLIT_ID = (*counter)++,
                                     split_recv);
+
+    // sometimes these are not used due to #ifdef, this suppresses the warnings
+    (void) get_parent;
+    (void) get_children;
 }
 
 void x10rt_emu_coll_finalize (void)
@@ -1141,17 +1349,7 @@ void x10rt_emu_coll_probe (void)
     for (unsigned i=0 ; i<iterations ; ++i) {
         CollOp *op = gtdb.fifo_pop();
         if (op == NULL) break; // can happen if the queue shrinks while we're in the loop
-        TeamObj &t = *gtdb[op->team];
-        MemberObj &m = *t[op->role];
-        SYNCHRONIZED (global_lock);
-        if (m.barrier.wait > 0) {
-            PREEMPT (global_lock);
-            gtdb.fifo_push_back(op);
-        } else {
-            PREEMPT (global_lock);
-            safe_free(op);
-            //if (x10rt_net_here()==0) fprintf(stderr,"before callback\n");
-            m.barrier.ch(m.barrier.arg);
-        }
+        op->progress();
+
     }
 }
