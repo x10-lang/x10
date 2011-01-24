@@ -11,6 +11,8 @@
 
 import harness.x10Test;
 
+// SHOULD_NOT_PARSE: todo: X10 compiler still doesn't parse unicode correctly on all platforms (e.g., on serenity)
+
 /**
  *Test that ž is permiited in an X10 identifier. 
  */

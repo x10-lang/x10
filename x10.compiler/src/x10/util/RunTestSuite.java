@@ -253,7 +253,7 @@ public class RunTestSuite {
         } else {
             for (String dirStr : dirName.split(",")) {
                 File dir = new File(dirStr);
-                Assert(dir.isDirectory(), "The first command line argument must be the directory of x10.tests, and you passed: "+dir);
+                Assert(dir.isDirectory(), "The first command line argument must be a directory or x10 file, and you passed: "+dir);
                 int before = files.size();
                 recurse(dir,files);
                 if (before==files.size()) println("Warning: Didn't find any .x10 files to compile in any subdirectory of "+dir);
