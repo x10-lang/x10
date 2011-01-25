@@ -59,15 +59,20 @@ void* load_jvm_dll() {
     }
     return jvm_dll;
   }
+  int error = ERROR_MOD_NOT_FOUND;
   void* jvm_dll = try_load_jvm_dll(JAVA_HOME, JRE_SERVER_PATH);
   if (jvm_dll != NULL) return jvm_dll;
+  if (GetLastError() != ERROR_MOD_NOT_FOUND) error = GetLastError();
   jvm_dll = try_load_jvm_dll(JAVA_HOME, JRE_CLIENT_PATH);
   if (jvm_dll != NULL) return jvm_dll;
+  if (GetLastError() != ERROR_MOD_NOT_FOUND) error = GetLastError();
   jvm_dll = try_load_jvm_dll(JAVA_HOME, JRE_J9VM_PATH);
   if (jvm_dll != NULL) return jvm_dll;
+  if (GetLastError() != ERROR_MOD_NOT_FOUND) error = GetLastError();
   jvm_dll = try_load_jvm_dll(JAVA_HOME, JRE_CLASSIC_PATH);
   if (jvm_dll != NULL) return jvm_dll;
-  fprintf(stderr, "JAVA_HOME ('%s') may not point to a JRE.  Unable to load '%s': Error %d\n", JAVA_HOME, JVM_DLL, GetLastError());
+  if (GetLastError() != ERROR_MOD_NOT_FOUND) error = GetLastError();
+  fprintf(stderr, "JAVA_HOME ('%s') may not point to a JRE.  Unable to load '%s': Error %d\n", JAVA_HOME, JVM_DLL, error);
   exit(2);
 }
 void release_jvm_dll(void* jvm_dll) {
