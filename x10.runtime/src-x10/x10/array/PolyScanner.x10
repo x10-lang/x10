@@ -65,7 +65,7 @@ import x10.io.*;
  * The loop bounds for Xk are then obtained by computing mins and
  * maxes over the sum[k]/Ak for the halfspaces in elim[k].
  */
-final class PolyScanner(rank:Int)/*(C:PolyMat)*/ implements Region.Scanner {
+final class PolyScanner(rank:Int)/*(C:PolyMat)*/ {
 
      public val C: PolyMat;
 

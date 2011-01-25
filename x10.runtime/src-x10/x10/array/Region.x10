@@ -372,35 +372,6 @@ public abstract class Region(
     public abstract def iterator(): Iterator[Point(rank)];
 
 
-    /**
-     * The Scanner class supports efficient scanning. Usage:
-     *
-     *    for (s:Scanner in r.scanners()) {
-     *        int min0 = s.min(0);
-     *        int max0 = s.max(0);
-     *        for (var i0:int=min0; i0<=max0; i0++) {
-     *            s.set(0,i0);
-     *            int min1 = s.min(1);
-     *            int max1 = s.max(1);
-     *            for (var i1:int=min1; i1<=max1; i1++) {
-     *                ...
-     *            }
-     *        }
-     *    }
-     *
-     */
-
-    public static interface Scanner {
-        def set(axis: int, position: int): void;
-        def min(axis: int): int;
-        def max(axis: int): int;
-    }
-
-    public abstract def scanners(): Iterator[Scanner];
-
-    // public def scan() = new x10.array.PolyScanner(this);
-
-
     //
     // conversion
     //

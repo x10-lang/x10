@@ -70,10 +70,6 @@ final class FullRegion extends Region{rect} {
     public def toString() = "full(" + rank + ")";
 
 
-    public def scanners():Iterator[Region.Scanner] {
-        throw new UnboundedRegionException("scanners not supported");
-    }
-
     public def iterator():Iterator[Point(rank)] {
         throw new UnboundedRegionException("iterator not supported");
     }

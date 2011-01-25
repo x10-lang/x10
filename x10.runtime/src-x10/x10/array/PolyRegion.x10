@@ -65,45 +65,6 @@ class PolyRegion extends Region {
     }
 
 
-    //
-    // scanners
-    //
-
-    private class Scanners implements Iterator[Scanner] {
-
-        var hasNext: boolean = true;
-
-        public def hasNext(): boolean {
-            return hasNext;
-        }
-
-        public def next(): Region.Scanner {
-            if (hasNext) {
-                hasNext = false;
-                return scanner();
-            } else
-                throw new x10.util.NoSuchElementException("in scanner");
-        }
-
-        public def remove(): void {
-            throw new UnsupportedOperationException("remove");
-        }
-    }
-
-    public def scanners()=new Scanners();
-
-    protected def scanner(): Region.Scanner {
-	val scanner = PolyScanner.make(mat);
-        return scanner;
-    }
-
-
-   /* public def iterator(): Iterator[Point(rank)] {
-        //return new PointIt();
-        //return scanner().iterator();
-	val scanner = PolyScanner.make(mat).iterator();
-        return scanner;
-    }*/
     public def iterator():Iterator[Point(rank)]
           = PolyScanner.make(mat).iterator() as Iterator[Point(rank)];
   

@@ -11,7 +11,6 @@
 
 package x10.array;
 
-import x10.array.Region.Scanner;
 import x10.compiler.Inline;
 import x10.compiler.TempNoInline_1;
 

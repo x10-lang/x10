@@ -33,10 +33,6 @@ class PolyIntersection3 extends TestRegion {
         "isConvex() true\n"+
         "size() 9\n"+
         "region: [1..3,2..4]\n"+
-        "  poly\n"+
-        "    1  . . 2 3 4 . . . . . \n"+
-        "    2  . . 4 6 8 . . . . . \n"+
-        "    3  . . 6 9 2 . . . . . \n"+
         "  iterator\n"+
         "    1  . . 2 3 4 . . . . . \n"+
         "    2  . . 4 6 8 . . . . . \n"+

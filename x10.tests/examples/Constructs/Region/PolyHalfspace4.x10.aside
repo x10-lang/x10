@@ -62,13 +62,6 @@ class PolyHalfspace4 extends TestRegion {
         "isConvex() true\n"+
         "size() 36\n"+
         "region: [0..5,0..5]\n"+
-        "  poly\n"+
-        "    0  1 1 1 1 1 1 . . . . \n"+
-        "    1  1 1 1 1 1 1 . . . . \n"+
-        "    2  1 1 1 1 1 1 . . . . \n"+
-        "    3  1 1 1 1 1 1 . . . . \n"+
-        "    4  1 1 1 1 1 1 . . . . \n"+
-        "    5  1 1 1 1 1 1 . . . . \n"+
         "  iterator\n"+
         "    0  1 1 1 1 1 1 . . . . \n"+
         "    1  1 1 1 1 1 1 . . . . \n"+
@@ -84,11 +77,6 @@ class PolyHalfspace4 extends TestRegion {
         "isConvex() true\n"+
         "size() Incomplete method.\n"+
         "region: (x0+x1>=3 && x0-x1>=-1 && x0-x1<=1 && x0+x1<=7)\n"+
-        "  poly\n"+
-        "    1  . . 1 . . . . . . . \n"+
-        "    2  . 1 1 1 . . . . . . \n"+
-        "    3  . . 1 1 1 . . . . . \n"+
-        "    4  . . . 1 . . . . . . \n"+
         "  iterator\n"+
         "    1  . . 1 . . . . . . . \n"+
         "    2  . 1 1 1 . . . . . . \n"+
@@ -102,11 +90,6 @@ class PolyHalfspace4 extends TestRegion {
         "isConvex() true\n"+
         "size() Incomplete method.\n"+
         "region: (x0>=1 && x1<=4 && x0-x1<=0)\n"+
-        "  poly\n"+
-        "    1  . 1 1 1 1 . . . . . \n"+
-        "    2  . . 1 1 1 . . . . . \n"+
-        "    3  . . . 1 1 . . . . . \n"+
-        "    4  . . . . 1 . . . . . \n"+
         "  iterator\n"+
         "    1  . 1 1 1 1 . . . . . \n"+
         "    2  . . 1 1 1 . . . . . \n"+
@@ -129,16 +112,6 @@ class PolyHalfspace4 extends TestRegion {
         "isConvex() false\n"+
         "size() Incomplete method.\n"+
         "region: ((x0>=0 && x1>=0 && x0+x1<=2) || (x0+x1>=3 && x0>=0 && x1<=5 && x0-x1<=-2) || (x0+x1>=3 && x0-x1>=2 && x1>=0 && x0<=5) || (x0+x1>=8 && x0-x1>=-1 && x1<=5 && x0-x1<=1 && x0<=5))\n"+
-        "  poly\n"+
-        "  poly\n"+
-        "  poly\n"+
-        "  poly\n"+
-        "    0  1 1 1 1 1 1 . . . . \n"+
-        "    1  1 1 . 1 1 1 . . . . \n"+
-        "    2  1 . . . 1 1 . . . . \n"+
-        "    3  1 1 . . . 1 . . . . \n"+
-        "    4  1 1 1 . 1 1 . . . . \n"+
-        "    5  1 1 1 1 1 1 . . . . \n"+
         "  iterator\n"+
         "    0  1 1 1 1 1 1 . . . . \n"+
         "    1  1 1 . 1 1 1 . . . . \n"+
@@ -154,15 +127,6 @@ class PolyHalfspace4 extends TestRegion {
         "isConvex() false\n"+
         "size() Incomplete method.\n"+
         "region: ([0..0,0..5] || [1..5,5..5] || (x0-x1>=1 && x1>=0 && x0<=5))\n"+
-        "  poly\n"+
-        "  poly\n"+
-        "  poly\n"+
-        "    0  1 1 1 1 1 1 . . . . \n"+
-        "    1  1 . . . . 1 . . . . \n"+
-        "    2  1 1 . . . 1 . . . . \n"+
-        "    3  1 1 1 . . 1 . . . . \n"+
-        "    4  1 1 1 1 . 1 . . . . \n"+
-        "    5  1 1 1 1 1 1 . . . . \n"+
         "  iterator\n"+
         "    0  1 1 1 1 1 1 . . . . \n"+
         "    1  1 . . . . 1 . . . . \n"+
@@ -196,10 +160,6 @@ class PolyHalfspace4 extends TestRegion {
         "isConvex() true\n"+
         "size() Incomplete method.\n"+
         "region: (x0+x1>=3 && x0-x1>=1 && x0-x1<=1 && x0+x1<=7)\n"+
-        "  poly\n"+
-        "    2  . 1 . . . . . . . . \n"+
-        "    3  . . 1 . . . . . . . \n"+
-        "    4  . . . 1 . . . . . . \n"+
         "  iterator\n"+
         "    2  . 1 . . . . . . . . \n"+
         "    3  . . 1 . . . . . . . \n"+
@@ -222,13 +182,6 @@ class PolyHalfspace4 extends TestRegion {
         "isConvex() false\n"+
         "size() Incomplete method.\n"+
         "region: ((x0>=1 && x0-x1<=0 && x0+x1<=2) || (x0>=1 && x1<=4 && x0-x1<=-2) || (x0+x1>=8 && x1<=4 && x0-x1<=0))\n"+
-        "  poly\n"+
-        "  poly\n"+
-        "  poly\n"+
-        "    1  . 1 . 1 1 . . . . . \n"+
-        "    2  . . . . 1 . . . . . \n"+
-        "    3\n"+
-        "    4  . . . . 1 . . . . . \n"+
         "  iterator\n"+
         "    1  . 1 . 1 1 . . . . . \n"+
         "    2  . . . . 1 . . . . . \n"+

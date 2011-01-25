@@ -156,9 +156,6 @@ class PolyDistAlgebra1 extends TestDist {
         "isConvex() true\n"+
         "size() 16\n"+
         "region: [0..1,0..7]\n"+
-        "  poly\n"+
-        "    0  0 0 0 0 0 0 0 0 . . \n"+
-        "    1  0 1 2 3 4 5 6 7 . . \n"+
         "  iterator\n"+
         "    0  0 0 0 0 0 0 0 0 . . \n"+
         "    1  0 1 2 3 4 5 6 7 . . \n"+
@@ -170,9 +167,6 @@ class PolyDistAlgebra1 extends TestDist {
         "isConvex() true\n"+
         "size() 16\n"+
         "region: [4..5,0..7]\n"+
-        "  poly\n"+
-        "    4  0 4 8 2 6 0 4 8 . . \n"+
-        "    5  0 5 0 5 0 5 0 5 . . \n"+
         "  iterator\n"+
         "    4  0 4 8 2 6 0 4 8 . . \n"+
         "    5  0 5 0 5 0 5 0 5 . . \n"+
@@ -184,15 +178,6 @@ class PolyDistAlgebra1 extends TestDist {
         "isConvex() true\n"+
         "size() 16\n"+
         "region: [0..7,4..5]\n"+
-        "  poly\n"+
-        "    0  . . . . 0 0 . . . . \n"+
-        "    1  . . . . 4 5 . . . . \n"+
-        "    2  . . . . 8 0 . . . . \n"+
-        "    3  . . . . 2 5 . . . . \n"+
-        "    4  . . . . 6 0 . . . . \n"+
-        "    5  . . . . 0 5 . . . . \n"+
-        "    6  . . . . 4 0 . . . . \n"+
-        "    7  . . . . 8 5 . . . . \n"+
         "  iterator\n"+
         "    0  . . . . 0 0 . . . . \n"+
         "    1  . . . . 4 5 . . . . \n"+

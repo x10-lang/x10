@@ -42,13 +42,6 @@ class PolyRestriction1 extends TestArray {
         "isConvex() true\n"+
         "size() 36\n"+
         "region: [0..5,0..5]\n"+
-        "  poly\n"+
-        "    0  0 0 0 0 0 0 . . . . \n"+
-        "    1  0 1 2 3 4 5 . . . . \n"+
-        "    2  0 2 4 6 8 0 . . . . \n"+
-        "    3  0 3 6 9 2 5 . . . . \n"+
-        "    4  0 4 8 2 6 0 . . . . \n"+
-        "    5  0 5 0 5 0 5 . . . . \n"+
         "  iterator\n"+
         "    0  0 0 0 0 0 0 . . . . \n"+
         "    1  0 1 2 3 4 5 . . . . \n"+
@@ -64,10 +57,6 @@ class PolyRestriction1 extends TestArray {
         "isConvex() true\n"+
         "size() 9\n"+
         "region: [1..3,2..4]\n"+
-        "  poly\n"+
-        "    1  . . 2 3 4 . . . . . \n"+
-        "    2  . . 4 6 8 . . . . . \n"+
-        "    3  . . 6 9 2 . . . . . \n"+
         "  iterator\n"+
         "    1  . . 2 3 4 . . . . . \n"+
         "    2  . . 4 6 8 . . . . . \n"+
@@ -80,13 +69,6 @@ class PolyRestriction1 extends TestArray {
         "isConvex() true\n"+
         "size() 36\n"+
         "region: [0..5,0..5]\n"+
-        "  poly\n"+
-        "    0  0 0 0 0 0 0 . . . . \n"+
-        "    1  0 1 7 7 7 5 . . . . \n"+
-        "    2  0 2 7 7 7 0 . . . . \n"+
-        "    3  0 3 7 7 7 5 . . . . \n"+
-        "    4  0 4 8 2 6 0 . . . . \n"+
-        "    5  0 5 0 5 0 5 . . . . \n"+
         "  iterator\n"+
         "    0  0 0 0 0 0 0 . . . . \n"+
         "    1  0 1 7 7 7 5 . . . . \n"+
