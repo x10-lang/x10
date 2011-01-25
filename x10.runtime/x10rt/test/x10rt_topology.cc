@@ -15,8 +15,8 @@ const char *typestr(x10rt_place p) {
 
 int main(int argc, char **argv)
 {
-    std::cout << "Initialising x10rt..." << std::endl;
     x10rt_init(&argc, &argv);
+    std::cout << "Initialisation of x10rt complete." << std::endl;
     x10rt_registration_complete();
 
     sleep(x10rt_here());
