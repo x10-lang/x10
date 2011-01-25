@@ -54,7 +54,7 @@ void* load_jvm_dll() {
 #endif
     void* jvm_dll = LoadLibrary(JVM_DLL);
     if (jvm_dll == NULL) {
-      fprintf(stderr, "JAVA_HOME is not set.  Unable to load '%s': %s\n", JVM_DLL, dlerror());
+      fprintf(stderr, "JAVA_HOME is not set.  Unable to load '%s': Error %d\n", JVM_DLL, GetLastError());
       exit(2);
     }
     return jvm_dll;
@@ -67,19 +67,19 @@ void* load_jvm_dll() {
   if (jvm_dll != NULL) return jvm_dll;
   jvm_dll = try_load_jvm_dll(JAVA_HOME, JRE_CLASSIC_PATH);
   if (jvm_dll != NULL) return jvm_dll;
-  fprintf(stderr, "JAVA_HOME ('%s') may not point to a JRE.  Unable to load '%s': %s\n", JAVA_HOME, JVM_DLL, dlerror());
+  fprintf(stderr, "JAVA_HOME ('%s') may not point to a JRE.  Unable to load '%s': Error %d\n", JAVA_HOME, JVM_DLL, GetLastError());
   exit(2);
 }
 void release_jvm_dll(void* jvm_dll) {
   if (dlclose(jvm_dll) != 0) {
-    fprintf(stderr, "Unable to unload '%s': %s\n", JVM_DLL, dlerror());
+    fprintf(stderr, "Unable to unload '%s': Error %d\n", JVM_DLL, GetLastError());
     exit(2);
   }
 }
 void* load_jni_symbol(void* jvm_dll, const char* symbol) {
   void* ptr = dlsym(jvm_dll, symbol);
   if (ptr == NULL) {
-    fprintf(stderr, "Unable to load symbol %s from %s: %s\n", symbol, JVM_DLL, dlerror());
+    fprintf(stderr, "Unable to load symbol %s from %s: Error %d\n", symbol, JVM_DLL, GetLastError());
     exit(2);
   }
   return ptr;
