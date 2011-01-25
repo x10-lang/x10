@@ -110,7 +110,7 @@ if [[ "$UNAME" = CYGWIN* ]]; then
        launcher="${TOP}${FILE_SEP}bin${FILE_SEP}X10Launcher"
        eval "$time$launcher $command"
    else
-       command="\"$JAVA\" $java_args $config $args"
+       command="\"$JAVA\" -DX10RT_IMPL=disabled $java_args $config $args"
        [ -n "$verbose" ] && echo "$command"
        eval "$time $command"
    fi
