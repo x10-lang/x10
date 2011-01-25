@@ -39,30 +39,27 @@ public final class GlobalRef<T> extends x10.core.Struct {
     }
 
     private static class GlobalRefEntry {
-        private final int hash;
         private final Object t;
 
         GlobalRefEntry(Object t) {
-            if (t instanceof Ref) {
-                hash = ((Ref) t).$getObjectHashCode$();
-            } else if (t instanceof Struct) {
-                hash = ((Ref) t).$getObjectHashCode$();
-            } else {
-                hash = t.hashCode();
-            }
             this.t = t;
         }
 
         public int hashCode() {
-            return hash;
+            return System.identityHashCode(t);
         }
 
         public boolean equals(Object obj) {
-            if (this == obj) {
+            if (this == obj)
                 return true;
-            }
-            return obj instanceof GlobalRefEntry
-                    && ((GlobalRefEntry) obj).t == t;
+            if (!(obj instanceof GlobalRefEntry))
+                return false;
+            if (((GlobalRefEntry) obj).t == t)
+                return true;
+            if ((((GlobalRefEntry) obj).t instanceof Struct)
+                    && ((GlobalRefEntry) obj).t.equals(t))
+                return true;
+            return false;
         }
     }
 
