@@ -16,6 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 import x10.lang.Runtime.Mortal;
+import x10.rtt.Types;
 
 public final class GlobalRef<T> extends x10.core.Struct {
 
@@ -56,9 +57,10 @@ public final class GlobalRef<T> extends x10.core.Struct {
                 return false;
             if (((GlobalRefEntry) obj).t == t)
                 return true;
-            if ((((GlobalRefEntry) obj).t instanceof Struct)
-                    && ((GlobalRefEntry) obj).t.equals(t))
-                return true;
+            // Note: GlobalRef does not refer structs
+//            if (Types.isStruct(((GlobalRefEntry) obj).t)
+//        		&& ((GlobalRefEntry) obj).t.equals(t))
+//            	return true;
             return false;
         }
     }
