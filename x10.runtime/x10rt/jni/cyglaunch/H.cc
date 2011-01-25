@@ -8,7 +8,7 @@
 #include <sys/types.h>
 #include "H.h"
 #include <stdio.h>
-#include <x10rt.h>
+#include <x10rt_front.h>
 
 //#ifndef __WIN32__
 //#ifndef __stdcall
