@@ -30,6 +30,10 @@
 #include <sched.h>
 #include <errno.h>
 
+#ifdef __MACH__
+#include <crt_externs.h>
+#endif
+
 #include "Launcher.h"
 #include "TCP.h"
 
@@ -975,7 +979,11 @@ void Launcher::startSSHclient(uint32_t id, char* masterPort, char* remotehost)
     // on all OS that we care about
 
 	// find out how many environment variables there are
+#ifdef __MACH__
+    char** environ = *_NSGetEnviron();
+#else
     extern char **environ;
+#endif
     unsigned environ_sz = 0;
     while (environ[environ_sz]!=NULL) environ_sz++;
 

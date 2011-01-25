@@ -55,6 +55,12 @@ ifdef USE_BFD
   CXXFLAGS += -DUSE_BFD
 endif
 
+ifndef JAVA_HOME
+  ifeq ($(shell uname -s),Darwin)
+    JAVA_HOME=$(shell /usr/libexec/java_home)
+  endif
+endif
+
 ifdef JAVA_HOME
   ifeq ($(shell uname -s),AIX)
       JNI_INCLUDES = -I"$(JAVA_HOME)"/include -I"$(JAVA_HOME)"/include/aix
@@ -67,7 +73,7 @@ ifdef JAVA_HOME
     JNI_INCLUDES = -I"$(JAVA_CYGPATH)"/include -I"$(JAVA_CYGPATH)"/include/win32
   else
   ifeq ($(shell uname -s),Darwin)
-    # TODO!!
+    JNI_INCLUDES = -I"$(JAVA_HOME)"/include
   else
   ifeq ($(shell uname -s),SunOS)
     JNI_INCLUDES = -I"$(JAVA_HOME)"/include -I"$(JAVA_HOME)"/include/solaris

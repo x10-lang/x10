@@ -36,6 +36,12 @@ ifeq ($(X10RT_PLATFORM),aix_xlc)
 else
 	$(CXX) $(CXXFLAGS) $(CXXFLAGS_SHARED) $(LDFLAGS_SHARED) -o $@ $^
 endif
+ifeq ($(subst 64,,$(X10RT_PLATFORM)),darwin)
+  SOCKETS_JNILIB = lib/$(LIBPREFIX)x10rt_sockets.jnilib
+  LIBS += $(SOCKETS_JNILIB)
+$(SOCKETS_JNILIB): $(SOCKETS_DYNLIB)
+	$(CP) $(SOCKETS_DYNLIB) $(SOCKETS_JNILIB)
+endif
 endif
 
 sockets/X10Launcher: $(LAUNCHER_OBJS) sockets/main.cc

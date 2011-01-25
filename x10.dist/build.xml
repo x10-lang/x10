@@ -112,6 +112,7 @@
                 <include name="*.la"/>
                 <include name="*.so"/>
                 <include name="*.dylib"/>
+                <include name="*.jnilib"/>
                 <include name="*.dll"/>
                 <include name="*.mft"/>
             </fileset>
