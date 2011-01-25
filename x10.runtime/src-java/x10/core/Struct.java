@@ -29,6 +29,7 @@ public abstract class Struct implements Any {
     public static final RuntimeType<Struct> _RTT = new RuntimeType<Struct>(Struct.class);
     public RuntimeType<?> getRTT() {return _RTT;}
     public Type<?> getParam(int i) {return null;}
+    public int $getObjectHashCode$() {return super.hashCode();};
 
     @Override
     public java.lang.String toString() {

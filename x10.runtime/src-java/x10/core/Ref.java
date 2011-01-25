@@ -32,6 +32,7 @@ public class Ref implements RefI {
     };
     public RuntimeType<?> getRTT() {return _RTT;}
     public Type<?> getParam(int i) {return null;}
+    public int $getObjectHashCode$() {return super.hashCode();};
 
     @Override
     public java.lang.String toString() {

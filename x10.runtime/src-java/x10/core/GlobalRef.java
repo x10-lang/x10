@@ -10,16 +10,22 @@
  */
 package x10.core;
 
+import java.lang.ref.ReferenceQueue;
+import java.lang.ref.WeakReference;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
+
+import x10.lang.Runtime.Mortal;
+
 public final class GlobalRef<T> extends x10.core.Struct {
 
     public static final x10.rtt.RuntimeType<GlobalRef<?>> _RTT = new x10.rtt.RuntimeType<GlobalRef<?>>(
-        GlobalRef.class,
-        new x10.rtt.RuntimeType.Variance[] { x10.rtt.RuntimeType.Variance.INVARIANT }
-    ) {
+            GlobalRef.class,
+            new x10.rtt.RuntimeType.Variance[] { x10.rtt.RuntimeType.Variance.INVARIANT }) {
         @Override
         public java.lang.String typeName() {
             return "x10.lang.GlobalRef";
-        } 
+        }
     };
 
     public x10.rtt.RuntimeType<GlobalRef<?>> getRTT() {
@@ -27,47 +33,79 @@ public final class GlobalRef<T> extends x10.core.Struct {
     }
 
     public x10.rtt.Type<?> getParam(int i) {
-        if (i == 0) return T;
+        if (i == 0)
+            return T;
         return null;
     }
 
+    private static class GlobalRefEntry {
+        private final int hash;
+        private final Object t;
+
+        GlobalRefEntry(Object t) {
+            if (t instanceof Ref) {
+                hash = ((Ref) t).$getObjectHashCode$();
+            } else if (t instanceof Struct) {
+                hash = ((Ref) t).$getObjectHashCode$();
+            } else {
+                hash = t.hashCode();
+            }
+            this.t = t;
+        }
+
+        public int hashCode() {
+            return hash;
+        }
+
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            return obj instanceof GlobalRefEntry
+                    && ((GlobalRefEntry) obj).t == t;
+        }
+    }
+
+    private static AtomicLong lastId = new AtomicLong(0);
+    private static ConcurrentHashMap<Long, Object> id2Object = new ConcurrentHashMap<Long, Object>();
+    private static ConcurrentHashMap<GlobalRefEntry, Long> object2Id = new ConcurrentHashMap<GlobalRefEntry, Long>();
+
     private final x10.rtt.Type<?> T;
-
     final public x10.lang.Place home;
+    final private long id; // place local id of referenced object
 
-    private static final java.util.ArrayList<Object> objects = new java.util.ArrayList<Object>(); // all referenced objects in this place
-    final private int id; // place local id of referenced object
+    public GlobalRef(final x10.rtt.Type<?> T, final T t,
+            java.lang.Class<?> dummy$0) {
 
-    public GlobalRef(final x10.rtt.Type<?> T, final T t, java.lang.Class<?> dummy$0) {
         this.T = T;
         this.home = x10.lang.Runtime.home();
-        int size;
-        synchronized (objects) {
-            size = objects.size();
-            for (int id = size - 1; id >= 0; --id) {
-                if (objects.get(id) == t) {
-                    this.id = id;
-                    return;
-                }
-            }
-            objects.add(t);
+
+        Long tmpId = lastId.incrementAndGet();
+
+        id2Object.put(tmpId, t);//set id first.
+
+        GlobalRefEntry entry = new GlobalRefEntry(t);
+        Long existingId = object2Id.putIfAbsent(entry, tmpId);//set object second.
+        if (existingId != null) {
+            this.id = existingId;
+            id2Object.remove(tmpId);
+        } else {
+            this.id = tmpId;
         }
-        this.id = size;
     }
 
     final public T $apply$G() {
-        synchronized (objects) {
-            return (T) objects.get(this.id);
-        }
+        //always get object because each id is set first and its object is set second.
+        return (T) id2Object.get(id);
     }
 
-    // this is not an api. only for implementing local assign in at body.
-    final public T $set$G(T t) {
-        synchronized (objects) {
-            objects.set(this.id, t);
-        }
-        return t;
-    }
+    //this is not an api. only for implementing local assign in at body.
+    //final public T set$G(T t) {
+    //    synchronized (objects) {
+    //        objects.set(this.id, t);
+    //    }
+    //    return t;
+    //}
 
     final public x10.lang.Place home() {
         return this.home;
@@ -78,7 +116,7 @@ public final class GlobalRef<T> extends x10.core.Struct {
     }
 
     final public int hashCode() {
-        return (this.home.hashCode() << 18) + this.id;
+        return (this.home.hashCode() << 18) + (int) this.id;
     }
 
     final public boolean equals(java.lang.Object other) {
