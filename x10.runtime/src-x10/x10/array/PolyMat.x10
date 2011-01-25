@@ -23,7 +23,7 @@ import x10.io.Printer;
  * conjunction of the linear inequalities represented by each PolyRow
  * object.
  */
-public class PolyMat(rank: int) extends Mat[PolyRow] {
+class PolyMat(rank: int) extends Mat[PolyRow] {
 
     static type PolyMat(rank:Int) = PolyMat{self.rank==rank};
     static type PolyMatBuilder(rank:Int) = PolyMatBuilder{self.rank==rank};

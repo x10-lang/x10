@@ -13,7 +13,7 @@ package x10.array;
 
 import x10.util.ArrayList;
 
-public class MatBuilder {
+class MatBuilder {
     
     protected val mat: ArrayList[Row];
     protected val cols: int;

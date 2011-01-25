@@ -18,7 +18,7 @@ import x10.compiler.CompilerFlags;
  * A RectRegion is a finite dense rectangular region with a specified rank.
  * This class implements a specialization of PolyRegion.
  */
-public final class RectRegion extends Region{rect} {
+final class RectRegion extends Region{rect} {
 
     private val size:int;           /* Will be < 0 iff the true size of the region is not expressible as an int */
     private val mins:Array[int](1); /* will be null if rank<5 */
@@ -44,7 +44,7 @@ public final class RectRegion extends Region{rect} {
     /**
      * Create a rectangular region containing all points p such that min <= p and p <= max.
      */
-    def this(minArg:Array[int](1), maxArg:Array[int](1)):RectRegion(minArg.size) {
+    def this(minArg:Array[int](1), maxArg:Array[int](1)):RectRegion{self.rank==minArg.size} {
         super(minArg.size, true, allZeros(minArg));
 
 	if (minArg.size != maxArg.size) throw new IllegalArgumentException("size of min and max args are not equal");
@@ -101,7 +101,7 @@ public final class RectRegion extends Region{rect} {
     /**
      * Create a 1-dim region min..max.
      */
-    def this(min:int, max:int):RectRegion(1){
+    def this(min:int, max:int):RectRegion{self.rank==1} {
         super(1, true, min==0);
 
         size = max - min + 1;
@@ -222,7 +222,7 @@ public final class RectRegion extends Region{rect} {
     // region operations
     //
 
-    protected def computeBoundingBox():RectRegion(rank)=this; 
+    protected def computeBoundingBox():Region(rank)=this; 
     
     public @TempNoInline_1 def min():(int)=>int = (i:int)=> min(i);
     public @TempNoInline_1 def max():(int)=>int = (i:int)=> max(i);

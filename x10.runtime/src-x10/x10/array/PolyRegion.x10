@@ -24,7 +24,7 @@ import x10.compiler.TempNoInline_3;
  * and some methods such as region algebra that operate on
  * PolyMat objects.
  */
-public class PolyRegion extends Region {
+class PolyRegion extends Region {
 
     // XTENLANG-49
     static type PolyRegion(rank:Int) = PolyRegion{self.rank==rank};

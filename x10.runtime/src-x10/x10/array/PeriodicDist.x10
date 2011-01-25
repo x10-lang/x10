@@ -37,7 +37,7 @@ public final class PeriodicDist extends Dist {
     val delta2:Int;
     val delta3:Int;
 
-    public def this(base : Dist) : PeriodicDist{self.rank==base.rank} {
+   public def this(base : Dist) : PeriodicDist{self.rank==base.rank} {
         super(base.region);
         baseDist = base as Dist(rank); // TODO.  Should be able to do this without a cast.
         val reg = base.region;

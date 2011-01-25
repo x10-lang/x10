@@ -19,7 +19,7 @@ import x10.io.Printer;
  * Additional builder utility functions for Mats destined to become
  * PolyMats.
  */
-public class PolyMatBuilder(rank: int) extends MatBuilder {
+class PolyMatBuilder(rank: int) extends MatBuilder {
 
     // XTENLANG-49
     static type PolyMat(rank:Int) = PolyMat{self.rank==rank};
