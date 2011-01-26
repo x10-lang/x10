@@ -1038,6 +1038,23 @@ static char *alloc_env_always_assign(const char *var, const char *val)
     return alloc_printf("%s='%s'", var, escape_various_things2(val));
 }
 
+// check with the environment variable name contains characters that bash does not allow (e.g. '.')
+bool is_env_var_valid (const char *var)
+{
+    // [a-zA-Z_]([a-zA-Z0-9_]*)
+
+    // number as first character not allowed
+    if (*var >= '0' && *var <= '9') return false;
+    for (const char *v=var ; *v != '\0' ; ++v) {
+        if (*v >= '0' && *v <= '9') continue;
+        if (*v >= 'A' && *v <= 'Z') continue;
+        if (*v >= 'a' && *v <= 'z') continue;
+        if (*v == '_') continue;
+        return false;
+    }
+    return true;
+}
+
 void Launcher::startSSHclient(uint32_t id, char* masterPort, char* remotehost)
 {
 	char * cmd = (char *) _realpath;
@@ -1045,12 +1062,13 @@ void Launcher::startSSHclient(uint32_t id, char* masterPort, char* remotehost)
     // leak a bunch of memory, we're about to exec anyway and that will clean it up
     // on all OS that we care about
 
-	// find out how many environment variables there are
+    // get an array of environment variables in the form "VAR=val"
 #ifdef __MACH__
     char** environ = *_NSGetEnviron();
 #else
     extern char **environ;
 #endif
+	// find out how many environment variables there are
     unsigned environ_sz = 0;
     while (environ[environ_sz]!=NULL) environ_sz++;
 
@@ -1064,6 +1082,7 @@ void Launcher::startSSHclient(uint32_t id, char* masterPort, char* remotehost)
     // deal with the environment variables
     for (unsigned i=0 ; i<environ_sz ; ++i)
     {
+        if (!is_env_var_valid(environ[i])) continue;
         char *var = strdup(environ[i]);
         *strchr(var,'=') = '\0';
         if (strcmp(var,X10_HOSTFILE)==0) continue;
