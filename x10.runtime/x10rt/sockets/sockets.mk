@@ -11,8 +11,15 @@
 
 TESTS += $(patsubst test/%,test/%.sockets,$(BASE_TESTS))
 
-SOCKETS_DYNLIB = lib/$(LIBPREFIX)x10rt_sockets$(LIBSUFFIX)
-LIBS += $(SOCKETS_DYNLIB)
+LIB_FILE_SOCKETS = lib/$(LIBPREFIX)x10rt_sockets$(LIBSUFFIX)
+LIBS += $(LIB_FILE_SOCKETS)
+
+JNILIB_FILE_SOCKETS = lib/$(LIBPREFIX)x10rt_sockets.jnilib
+ifndef X10_STATIC_LIB
+ifeq ($(subst 64,,$(X10RT_PLATFORM)),darwin)
+  LIBS += $(JNILIB_FILE_SOCKETS)
+endif
+endif
 
 PROPERTIES += etc/x10rt_sockets.properties
 LAUNCHER_OBJS = sockets/Launcher_Init.o sockets/Launcher.o sockets/tcp.o
@@ -23,26 +30,34 @@ ifeq ($(X10RT_PLATFORM), sunos)
   SOLARIS_LDLIBS += -lresolv -lnsl -lsocket -lrt
 endif
 
-%.sockets: %.cc $(SOCKETS_DYNLIB)
-	$(CXX) $(CXXFLAGS) $< -o $@ $(LDFLAGS) -lx10rt_sockets $(SOLARIS_LDLIBS) $(X10RT_TEST_LDFLAGS)
+MOV_LDFLAGS_SOCKETS = $(MOV_LDLIBS) $(SOLARIS_LDLIBS)
+MOV_LDLIBS_SOCKETS = $(MOV_LDLIBS) $(SOLARIS_LDLIBS)
+SO_LDFLAGS_SOCKETS = $(SO_LDFLAGS)
+SO_LDLIBS_SOCKETS = $(SO_LDLIBS)
+APP_LDFLAGS_SOCKETS = $(APP_LDFLAGS)
+APP_LDLIBS_SOCKETS = $(APP_LDLIBS) -lx10rt_sockets
 
 ifdef X10_STATIC_LIB
-$(SOCKETS_DYNLIB): sockets/x10rt_sockets.o $(LAUNCHER_OBJS) $(COMMON_OBJS)
+  APP_LDFLAGS_SOCKETS += $(MOV_LDFLAGS_SOCKETS)
+  APP_LDLIBS_SOCKETS += $(MOV_LDLIBS_SOCKETS)
+else
+  SO_LDFLAGS_SOCKETS += $(MOV_LDFLAGS_SOCKETS)
+  SO_LDLIBS_SOCKETS += $(MOV_LDLIBS_SOCKETS)
+endif
+
+%.sockets: %.cc $(LIB_FILE_SOCKETS)
+	$(CXX) $(CXXFLAGS) $< -o $@ $(APP_LDFLAGS_SOCKETS) $(APP_LDLIBS_SOCKETS) $(X10RT_TEST_LDFLAGS)
+
+
+$(LIB_FILE_SOCKETS): sockets/x10rt_sockets.o $(LAUNCHER_OBJS) $(COMMON_OBJS)
+ifdef X10_STATIC_LIB
 	$(AR) $(ARFLAGS) $@ $^
 else
-$(SOCKETS_DYNLIB): sockets/x10rt_sockets.o $(LAUNCHER_OBJS) $(COMMON_OBJS) 
-ifeq ($(X10RT_PLATFORM),aix_xlc)
-	$(SHLINK) $(CXXFLAGS) $(CXXFLAGS_SHARED) $(LDFLAGS_SHARED) -o $@ $^
-else
-	$(CXX) $(CXXFLAGS) $(CXXFLAGS_SHARED) $(LDFLAGS_SHARED) -o $@ $^
+	$(LINKER_PROG) $(CXXFLAGS) $(CXXFLAGS_SHARED) $(SO_LDFLAGS_SOCKETS) $(SO_LDLIBS_SOCKETS) -o $@ $^
 endif
-ifeq ($(subst 64,,$(X10RT_PLATFORM)),darwin)
-  SOCKETS_JNILIB = lib/$(LIBPREFIX)x10rt_sockets.jnilib
-  LIBS += $(SOCKETS_JNILIB)
-$(SOCKETS_JNILIB): $(SOCKETS_DYNLIB)
-	$(CP) $(SOCKETS_DYNLIB) $(SOCKETS_JNILIB)
-endif
-endif
+
+$(JNILIB_FILE_SOCKETS): $(LIB_FILE_SOCKETS)
+	$(CP) $(LIB_FILE_SOCKETS) $(JNILIB_FILE_SOCKETS)
 
 sockets/X10Launcher: $(LAUNCHER_OBJS) sockets/main.cc
 	$(CXX) $(CXXFLAGS) sockets/main.cc $(LAUNCHER_OBJS) -o sockets/X10Launcher $(LDFLAGS) $(SOLARIS_LDLIBS)
@@ -51,8 +66,8 @@ etc/x10rt_sockets.properties:
 	@echo "PLATFORM=$(X10RT_PLATFORM)" > $@
 	@echo "CXX=$(CXX)" >> $@
 	@echo "CXXFLAGS=" >> $@
-	@echo "LDFLAGS=$(CUDA_LDFLAGS)" >> $@
-	@echo "LDLIBS=-lx10rt_sockets $(SOLARIS_LDLIBS) $(CUDA_LDLIBS)" >> $@
+	@echo "LDFLAGS=$(APP_LDFLAGS_SOCKETS)" >> $@
+	@echo "LDLIBS=$(APP_LDLIBS_SOCKETS)" >> $@
 
 .PRECIOUS: etc/x10rt_sockets.properties
 

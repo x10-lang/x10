@@ -9,78 +9,70 @@
 #  (C) Copyright IBM Corporation 2006-2010.
 #
 
-PAMI_LDFLAGS    = $(CUDA_LDFLAGS)
-PANE_LDFLAGS    = $(CUDA_LDFLAGS) -btextpsize:64K -bdatapsize:64K -bstackpsize:64K
-PAMI_LDLIBS     = -lx10rt_pami $(CUDA_LDLIBS)
-PANE_LDLIBS     = -lx10rt_pami_pane $(CUDA_LDLIBS)
+
+MOV_LDFLAGS_PAMI    = $(MOV_LDFLAGS)
+MOV_LDLIBS_PAMI     = $(MOV_LDLIBS)
+SO_LDFLAGS_PAMI    = $(SO_LDFLAGS)
+SO_LDLIBS_PAMI     = $(SO_LDLIBS)
+APP_LDFLAGS_PAMI    = $(APP_LDFLAGS)
+APP_LDLIBS_PAMI     = $(APP_LDLIBS) -lx10rt_pami
+
+ifdef X10_STATIC_LIB
+  APP_LDFLAGS_PAMI += $(MOV_LDFLAGS_PAMI)
+  APP_LDLIBS_PAMI += $(MOV_LDLIBS_PAMI)
+else
+  SO_LDFLAGS_PAMI += $(MOV_LDFLAGS_PAMI)
+  SO_LDLIBS_PAMI += $(MOV_LDLIBS_PAMI)
+endif
 
 ifeq ($(X10RT_PLATFORM), aix_xlc)
-  PAMI_LDFLAGS   += -Wl,-binitfini:poe_remote_main 
-  PAMI_LDDEPS    := -L/usr/lpp/ppe.poe/lib -lmpi_r -lvtd_r -lpami_r -lpthread -lm
-  PAMI_LDLIBS    += $(PAMI_LDDEPS)
-  WPLATFORM      := aix_xlc
+  MOV_LDFLAGS_PAMI     += -L/usr/lpp/ppe.poe/lib
+  MOV_LDLIBS_PAMI     += -lmpi_r -lvtd_r -lpami_r -lpthread -lm
+  APP_LDFLAGS_PAMI   += -Wl,-binitfini:poe_remote_main 
 endif
 ifeq ($(X10RT_PLATFORM), linux_x86_64)
-  WPLATFORM      := linux_x86_64_g++4
-  PAMI_LDLIBS    += $(PAMI_LDDEPS) -L/opt/ibmhpc/ppe.poe/lib -lpoe -lmpi_ibm -lpami
+  MOV_LDFLAGS_PAMI    += -L/opt/ibmhpc/ppe.poe/lib
+  MOV_LDLIBS_PAMI    += -lpoe -lmpi_ibm -lpami
 endif
 ifeq ($(X10RT_PLATFORM), linux_x86_32)
-  WPLATFORM      := linux_x86_g++4
-  PAMI_LDLIBS    += $(PAMI_LDDEPS) -L/opt/ibmhpc/ppe.poe/lib -lpoe -lmpi_ibm -lpami
+  MOV_LDFLAGS_PAMI    += -L/opt/ibmhpc/ppe.poe/lib
+  MOV_LDLIBS_PAMI    += -lpoe -lmpi_ibm -lpami
 endif
 ifeq ($(X10RT_PLATFORM), aix_gcc)
-  WPLATFORM      := aix_g++4
-  PAMI_LDFLAGS   += -Wl,-binitfini:poe_remote_main 
-  PAMI_LDDEPS    := -L/usr/lpp/ppe.poe/lib -lmpi_r -lvtd_r -lpami_r -lpthread -lm
-  PAMI_LDLIBS    += $(PAMI_LDDEPS)
-  PANE_LDFLAGS   += -Wl,-binitfini:poe_remote_main -L/usr/lpp/ppe.poe/lib
-  PANE_ARLIBS     = -lpami_r -lpthread -lm
-  PANE_LDLIBS    += -lmpi_r -lvtd_r $(PANE_ARLIBS)
+  MOV_LDFLAGS_PAMI     += -L/usr/lpp/ppe.poe/lib 
+  MOV_LDLIBS_PAMI     += -lmpi_r -lvtd_r -lpami_r -lpthread -lm
+  APP_LDFLAGS_PAMI   += -Wl,-binitfini:poe_remote_main 
 endif
 ifeq ($(X10RT_PLATFORM), linux_ppc_64_gcc)
-  WPLATFORM      := linux_ppc_64_g++4
-  PAMI_LDLIBS    += $(PAMI_LDDEPS) -L/opt/ibmhpc/ppe.poe/lib -lpoe -lmpi_ibm -lpami
-endif
-ifeq ($(X10RT_PLATFORM), linux_ppc_64_xlc)
-  WPLATFORM      := linux_ppc_64_xlc
-  LAPI_LDLIBS    += $(PAMI_LDDEPS) -L/opt/ibmhpc/ppe.poe/lib -lpoe -lmpi_ibm -lpami
-endif
-ifeq ($(X10RT_PLATFORM), bgp)
-  WPLATFORM      := bgp_g++4
-  BGP_LDFLAGS    += -L/bgsys/drivers/ppcfloor/comm/lib -L/bgsys/drivers/ppcfloor/runtime/SPI
-  BGP_LDLIBS     += -ldcmf.cnk -ldcmfcoll.cnk -lSPI.cna -lpthread -lrt -lm
+  MOV_LDFLAGS_PAMI    += -L/opt/ibmhpc/ppe.poe/lib
+  MOV_LDLIBS_PAMI    += -lpoe -lmpi_ibm -lpami
 endif
 
 TESTS += $(patsubst test/%,test/%.pami,$(BASE_TESTS))
-PAMI_DYNLIB = lib/$(LIBPREFIX)x10rt_pami$(LIBSUFFIX)
-LIBS += $(PAMI_DYNLIB)
+LIB_FILE_PAMI = lib/$(LIBPREFIX)x10rt_pami$(LIBSUFFIX)
+LIBS += $(LIB_FILE_PAMI)
 PROPERTIES += etc/x10rt_pami.properties
 
-%.pami: %.cc $(PAMI_DYNLIB)
-	$(CXX) $(CXXFLAGS) $< -o $@ $(LDFLAGS) $(PAMI_LDFLAGS) $(PAMI_LDLIBS) $(X10RT_TEST_LDFLAGS)
+%.pami: %.cc $(LIB_FILE_PAMI)
+	$(CXX) $(CXXFLAGS) $< -o $@ $(APP_LDFLAGS_PAMI) $(APP_LDLIBS_PAMI) $(X10RT_TEST_LDFLAGS)
 
 pami/x10rt_pami.o: pami/x10rt_pami.cc
 	$(CXX) $(CXXFLAGS) $(CXXFLAGS_SHARED) -c $< -o $@
 
+$(LIB_FILE_PAMI): pami/x10rt_pami.o $(COMMON_OBJS)
 ifdef X10_STATIC_LIB
-$(PAMI_DYNLIB): pami/x10rt_pami.o $(COMMON_OBJS)
 	$(CP) pami/x10rt_pami.o $@
 	$(AR) $(ARFLAGS) $@ $(COMMON_OBJS)
 else
-$(PAMI_DYNLIB): pami/x10rt_pami.o $(COMMON_OBJS)
-ifeq ($(X10RT_PLATFORM),aix_xlc)
-	$(SHLINK) $(CXXFLAGS) $(CXXFLAGS_SHARED) $(LDFLAGS_SHARED) $(PAMI_LDDEPS) -o $@ $^
-else
-	$(CXX) $(CXXFLAGS) $(CXXFLAGS_SHARED) $(LDFLAGS_SHARED) $(PAMI_LDDEPS) -o $@ $^
-endif
+	$(LINKER_PROG) $(CXXFLAGS) $(CXXFLAGS_SHARED) $(SO_LDFLAGS_PAMI) $(SO_LDLIBS_PAMI) -o $@ $^
 endif
 
 etc/x10rt_pami.properties:
 	@echo "PLATFORM=$(X10RT_PLATFORM)" > $@
 	@echo "CXX=$(CXX)" >> $@
 	@echo "CXXFLAGS=" >> $@
-	echo "LDFLAGS=$(PAMI_LDFLAGS)" >> $@
-	echo "LDLIBS=$(PAMI_LDLIBS)" >> $@
+	echo "LDFLAGS=$(APP_LDFLAGS_PAMI)" >> $@
+	echo "LDLIBS=$(APP_LDLIBS_PAMI)" >> $@
 
 .PRECIOUS: etc/x10rt_pami.properties
 

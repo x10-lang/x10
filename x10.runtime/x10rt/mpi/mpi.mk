@@ -11,31 +11,45 @@
 
 TESTS += $(patsubst test/%,test/%.mpi,$(BASE_TESTS))
 
-MPI_DYNLIB = lib/$(LIBPREFIX)x10rt_mpi$(LIBSUFFIX)
-LIBS += $(MPI_DYNLIB)
+LIB_FILE_MPI = lib/$(LIBPREFIX)x10rt_mpi$(LIBSUFFIX)
+LIBS += $(LIB_FILE_MPI)
 
 PROPERTIES += etc/x10rt_mpi.properties
 
-%.mpi: %.cc $(MPI_DYNLIB)
-	$(MPICXX) $(CXXFLAGS) $< -o $@ $(LDFLAGS) -lx10rt_mpi $(X10RT_TEST_LDFLAGS)
+MOV_LDFLAGS_MPI = $(MOV_LDFLAGS)
+MOV_LDLIBS_MPI = $(MOV_LDLIBS)
+SO_LDFLAGS_MPI = $(SO_LDFLAGS)
+SO_LDLIBS_MPI = $(SO_LDLIBS)
+APP_LDFLAGS_MPI = $(APP_LDFLAGS)
+APP_LDLIBS_MPI = $(APP_LDLIBS) -lx10rt_mpi
+
+ifdef X10_STATIC_LIB
+  APP_LDFLAGS_MPI += $(MOV_LDFLAGS_MPI)
+  APP_LDLIBS_MPI += $(MOV_LDLIBS_MPI)
+else
+  SO_LDFLAGS_MPI += $(MOV_LDFLAGS_MPI)
+  SO_LDLIBS_MPI += $(MOV_LDLIBS_MPI)
+endif
+
+%.mpi: %.cc $(LIB_FILE_MPI)
+	$(MPICXX) $(CXXFLAGS) $< -o $@ $(APP_LDFLAGS_MPI) $(APP_LDLIBS_MPI) $(X10RT_TEST_LDFLAGS)
 
 mpi/x10rt_mpi.o: mpi/x10rt_mpi.cc
 	$(MPICXX) $(CXXFLAGS) $(CXXFLAGS_SHARED) -c $< -o $@
 
+$(LIB_FILE_MPI): mpi/x10rt_mpi.o $(COMMON_OBJS)
 ifdef X10_STATIC_LIB
-$(MPI_DYNLIB): mpi/x10rt_mpi.o $(COMMON_OBJS)
 	$(AR) $(ARFLAGS) $@ $^
 else
-$(MPI_DYNLIB): mpi/x10rt_mpi.o $(COMMON_OBJS)
-	$(MPICXX) $(CXXFLAGS) $(CXXFLAGS_SHARED) $(LDFLAGS_SHARED) -o $@ $^
+	$(MPICXX) $(CXXFLAGS) $(CXXFLAGS_SHARED) $(SO_LDFLAGS_MPI) $(SO_LDLIBS_MPI) -o $@ $^
 endif
 
 etc/x10rt_mpi.properties:
 	@echo "PLATFORM=$(X10RT_PLATFORM)" > $@
 	@echo "CXX=$(MPICXX)" >> $@
 	@echo "CXXFLAGS=" >> $@
-	@echo "LDFLAGS=$(CUDA_LDFLAGS)" >> $@
-	@echo "LDLIBS=-lx10rt_mpi $(CUDA_LDLIBS)" >> $@
+	@echo "LDFLAGS=$(APP_LDFLAGS_MPI)" >> $@
+	@echo "LDLIBS=$(APP_LDLIBS_MPI)" >> $@
 
 .PRECIOUS: etc/x10rt_mpi.properties
 

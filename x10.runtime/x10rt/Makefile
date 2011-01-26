@@ -19,9 +19,6 @@ GZIP            ?= gzip
 override CXXFLAGS += -Iinclude -Icommon ${JNI_INCLUDES}
 override CXXFLAGS += ${CXX_WARNING_FLAGS}
 
-# these are used only for building tests
-override LDFLAGS         += -L"$(X10_HOME)"/x10.runtime/x10rt/lib -lpthread
-
 BASE_TESTS      = test/x10rt_basic test/x10rt_gups test/x10rt_topology test/x10rt_coll
 
 EXECUTABLES     =
@@ -39,10 +36,27 @@ endif
 
 ifdef ENABLE_X10RT_CUDA
 	override CXXFLAGS += -DENABLE_CUDA -isystem/usr/local/cuda/include
-	override CUDA_LDFLAGS = -L/usr/local/cuda/lib
-	override CUDA_LDLIBS = -lcuda
-	override LDFLAGS += $(CUDA_LDFLAGS) $(CUDA_LDLIBS)
+	override LDFLAGS += -L/usr/local/cuda/lib
+	override LDLIBS += -lcuda
 endif
+
+# It is worth separating the linker flags for building the shared object from
+# the linker flags that should be used by an application
+# The MOV_ are the params that should be part of either SO or APP depending on X10_STATIC_LIB
+MOV_LDLIBS := $(LDLIBS)
+MOV_LDFLAGS := $(LDFLAGS) -lpthread
+APP_LDLIBS := 
+APP_LDFLAGS := -L"$(X10_HOME)"/x10.runtime/x10rt/lib 
+SO_LDLIBS := 
+SO_LDFLAGS := $(LDFLAGS_SHARED)
+
+# avoid a lot of repetition in the */*.mk scripts
+ifeq ($(X10RT_PLATFORM),aix_xlc)
+        LINKER_PROG=$(SHLINK)
+else
+        LINKER_PROG=$(CXX)
+endif
+
 
 default: all
 
@@ -65,6 +79,7 @@ ifndef ENABLE_CROSS_COMPILE_BGP
     include jni/jni.mk
   endif
 endif
+
 
 install: $(LIBS) $(PROPERTIES)
 	(test -n "$(LIBS)" && $(CP) $(LIBS) "$(X10_HOME)"/x10.dist/lib) || true

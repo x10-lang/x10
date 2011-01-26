@@ -12,88 +12,159 @@
 #X10_VERSION=svn head
 X10_VERSION=2.1.1
 VERSION=20100916
-LAPI_TGZ = pgas-$(VERSION)-$(WPLATFORM)-lapi.tgz
-BGP_TGZ = pgas-$(VERSION)-$(WPLATFORM)-bgp.tgz
+
+#WPLATFORM is the string used to identify the platform in the web tarballs
+PGAS_SOCKETS_TGZ = pgas-$(VERSION)-$(WPLATFORM)-sockets.tgz
+PGAS_LAPI_TGZ = pgas-$(VERSION)-$(WPLATFORM)-lapi.tgz
+PGAS_BGP_TGZ = pgas-$(VERSION)-$(WPLATFORM)-bgp.tgz
 
 # defaults
-PLATFORM_SUPPORTS_PANE := no
-PLATFORM_SUPPORTS_LAPI := no
-PLATFORM_SUPPORTS_BGP := no
+PLATFORM_SUPPORTS_PGAS_SOCKETS := no
+PLATFORM_SUPPORTS_PGAS_PANE := no
+PLATFORM_SUPPORTS_PGAS_LAPI := no
+PLATFORM_SUPPORTS_PGAS_BGP := no
 
-LAPI_LDFLAGS    = $(CUDA_LDFLAGS)
-BGP_LDFLAGS     = $(CUDA_LDFLAGS)
-PANE_LDFLAGS    = $(CUDA_LDFLAGS) -btextpsize:64K -bdatapsize:64K -bstackpsize:64K
+# configuration common to all platforms
+MOV_LDFLAGS_PGAS_LAPI    = $(MOV_LDFLAGS)
+MOV_LDLIBS_PGAS_LAPI     = $(MOV_LDLIBS)
+SO_LDFLAGS_PGAS_LAPI    = $(SO_LDFLAGS)
+SO_LDLIBS_PGAS_LAPI     = $(SO_LDLIBS) 
+APP_LDFLAGS_PGAS_LAPI    = $(APP_LDFLAGS)
+APP_LDLIBS_PGAS_LAPI     = $(APP_LDLIBS) -lx10rt_pgas_lapi
+ifdef X10_STATIC_LIB
+  APP_LDFLAGS_PGAS_LAPI += $(MOV_LDFLAGS_PGAS_LAPI)
+  APP_LDLIBS_PGAS_LAPI += $(MOV_LDLIBS_PGAS_LAPI)
+else
+  SO_LDFLAGS_PGAS_LAPI += $(MOV_LDFLAGS_PGAS_LAPI)
+  SO_LDLIBS_PGAS_LAPI += $(MOV_LDLIBS_PGAS_LAPI)
+endif
 
-LAPI_LDLIBS     = -lx10rt_pgas_lapi $(CUDA_LDLIBS)
-BGP_LDLIBS      = -lx10rt_pgas_bgp $(CUDA_LDLIBS)
-PANE_LDLIBS     = -lx10rt_pgas_pane $(CUDA_LDLIBS)
+MOV_LDFLAGS_PGAS_BGP    = $(MOV_LDFLAGS)
+MOV_LDLIBS_PGAS_BGP     = $(MOV_LDLIBS)
+SO_LDFLAGS_PGAS_BGP     = $(SO_LDFLAGS)
+SO_LDLIBS_PGAS_BGP      = $(SO_LDLIBS) 
+APP_LDFLAGS_PGAS_BGP     = $(APP_LDFLAGS)
+APP_LDLIBS_PGAS_BGP      = $(APP_LDLIBS) -lx10rt_pgas_bgp
+ifdef X10_STATIC_LIB
+  APP_LDFLAGS_PGAS_BGP += $(MOV_LDFLAGS_PGAS_BGP)
+  APP_LDLIBS_PGAS_BGP += $(MOV_LDLIBS_PGAS_BGP)
+else
+  SO_LDFLAGS_PGAS_BGP += $(MOV_LDFLAGS_PGAS_BGP)
+  SO_LDLIBS_PGAS_BGP += $(MOV_LDLIBS_PGAS_BGP)
+endif
 
+MOV_LDFLAGS_PGAS_SOCKETS    = $(MOV_LDFLAGS)
+MOV_LDLIBS_PGAS_SOCKETS     = $(MOV_LDLIBS) -lpthread
+SO_LDFLAGS_PGAS_SOCKETS = $(SO_LDFLAGS)
+SO_LDLIBS_PGAS_SOCKETS  = $(SO_LDLIBS)
+APP_LDFLAGS_PGAS_SOCKETS = $(APP_LDFLAGS)
+APP_LDLIBS_PGAS_SOCKETS  = $(APP_LDLIBS) -lx10rt_pgas_sockets
+ifdef X10_STATIC_LIB
+  APP_LDFLAGS_PGAS_SOCKETS += $(MOV_LDFLAGS_PGAS_SOCKETS)
+  APP_LDLIBS_PGAS_SOCKETS += $(MOV_LDLIBS_PGAS_SOCKETS)
+else
+  SO_LDFLAGS_PGAS_SOCKETS += $(MOV_LDFLAGS_PGAS_SOCKETS)
+  SO_LDLIBS_PGAS_SOCKETS += $(MOV_LDLIBS_PGAS_SOCKETS)
+endif
+
+MOV_LDFLAGS_PGAS_PANE    = $(MOV_LDFLAGS)
+MOV_LDLIBS_PGAS_PANE     = $(MOV_LDLIBS)
+SO_LDFLAGS_PGAS_PANE    = $(SO_LDFLAGS)
+SO_LDLIBS_PGAS_PANE     = $(SO_LDLIBS) 
+APP_LDFLAGS_PGAS_PANE    = $(APP_LDFLAGS) -btextpsize:64K -bdatapsize:64K -bstackpsize:64K
+APP_LDLIBS_PGAS_PANE     = $(APP_LDLIBS) -lx10rt_pgas_pane
+ifdef X10_STATIC_LIB
+  APP_LDFLAGS_PGAS_PANE += $(MOV_LDFLAGS_PGAS_PANE)
+  APP_LDLIBS_PGAS_PANE += $(MOV_LDLIBS_PGAS_PANE)
+else
+  SO_LDFLAGS_PGAS_PANE += $(MOV_LDFLAGS_PGAS_PANE)
+  SO_LDLIBS_PGAS_PANE += $(MOV_LDLIBS_PGAS_PANE)
+endif
+
+
+#configuration specific to each platform
 ifeq ($(X10RT_PLATFORM), bgp)
   WPLATFORM      := bgp_g++4
-  PLATFORM_SUPPORTS_BGP        := yes
-  BGP_LDFLAGS    += -L/bgsys/drivers/ppcfloor/comm/lib -L/bgsys/drivers/ppcfloor/runtime/SPI
-  BGP_LDLIBS     += -ldcmf.cnk -ldcmfcoll.cnk -lSPI.cna -lpthread -lrt -lm
+  PLATFORM_SUPPORTS_PGAS_BGP        := yes
+  MOV_LDFLAGS_PGAS_BGP    += -L/bgsys/drivers/ppcfloor/comm/lib -L/bgsys/drivers/ppcfloor/runtime/SPI
+  MOV_LDLIBS_PGAS_BGP     += -ldcmf.cnk -ldcmfcoll.cnk -lSPI.cna -lpthread -lrt -lm
 endif
 ifeq ($(X10RT_PLATFORM), aix_xlc)
-  LAPI_LDFLAGS   += -Wl,-binitfini:poe_remote_main 
-  LAPI_LDDEPS    := -L/usr/lpp/ppe.poe/lib -lmpi_r -lvtd_r -llapi_r -lpthread -lm
-  LAPI_LDLIBS    += $(LAPI_LDDEPS)
-  PANE_LDFLAGS   += -Wl,-binitfini:poe_remote_main -L/usr/lpp/ppe.poe/lib
-  PANE_ARLIBS     = -llapi_r -lpthread -lm
-  PANE_LDLIBS    += -lmpi_r -lvtd_r $(PANE_ARLIBS)
   WPLATFORM      := aix_xlc
-  PLATFORM_SUPPORTS_LAPI       := yes
-  PLATFORM_SUPPORTS_PANE       := yes
+  PLATFORM_SUPPORTS_PGAS_LAPI       := yes
+  PLATFORM_SUPPORTS_PGAS_PANE       := yes
+  # PLATFORM_SUPPORTS_PGAS_SOCKETS    := yes
+  APP_LDFLAGS_PGAS_LAPI   += -Wl,-binitfini:poe_remote_main 
+  APP_LDFLAGS_PGAS_PANE   += -Wl,-binitfini:poe_remote_main
+  MOV_LDFLAGS_PGAS_LAPI   += -L/usr/lpp/ppe.poe/lib
+  MOV_LDFLAGS_PGAS_PANE   += -L/usr/lpp/ppe.poe/lib
+  MOV_LDLIBS_PGAS_LAPI    += -lmpi_r -lvtd_r -llapi_r -lpthread -lm
+  MOV_LDLIBS_PGAS_PANE    += -lmpi_r -lvtd_r -llapi_r -lpthread -lm
 endif
 ifeq ($(X10RT_PLATFORM), aix_gcc)
   WPLATFORM      := aix_g++4
-  PLATFORM_SUPPORTS_LAPI       := yes
-  LAPI_LDFLAGS   += -Wl,-binitfini:poe_remote_main 
-  LAPI_LDDEPS    := -L/usr/lpp/ppe.poe/lib -lmpi_r -lvtd_r -llapi_r -lpthread -lm
-  LAPI_LDLIBS    += $(LAPI_LDDEPS)
-  PANE_LDFLAGS   += -Wl,-binitfini:poe_remote_main -L/usr/lpp/ppe.poe/lib
-  PANE_ARLIBS     = -llapi_r -lpthread -lm
-  PANE_LDLIBS    += -lmpi_r -lvtd_r $(PANE_ARLIBS)
-  PLATFORM_SUPPORTS_PANE       := yes
+  PLATFORM_SUPPORTS_PGAS_LAPI       := yes
+  PLATFORM_SUPPORTS_PGAS_PANE       := yes
+  #PLATFORM_SUPPORTS_PGAS_SOCKETS    := yes
+  APP_LDFLAGS_PGAS_LAPI   += -Wl,-binitfini:poe_remote_main 
+  APP_LDFLAGS_PGAS_PANE   += -Wl,-binitfini:poe_remote_main 
+  MOV_LDFLAGS_PGAS_LAPI   += -L/usr/lpp/ppe.poe/lib
+  MOV_LDFLAGS_PGAS_PANE   += -L/usr/lpp/ppe.poe/lib
+  MOV_LDLIBS_PGAS_LAPI    += -lmpi_r -lvtd_r -llapi_r -lpthread -lm
+  MOV_LDLIBS_PGAS_PANE    += -lmpi_r -lvtd_r -llapi_r -lpthread -lm
 endif
 ifeq ($(X10RT_PLATFORM), linux_ppc_64_gcc)
   WPLATFORM      := linux_ppc_64_g++4
-  PLATFORM_SUPPORTS_LAPI       := yes
-  LAPI_LDDEPS    := 
-  LAPI_LDLIBS    += $(LAPI_LDDEPS) -L/opt/ibmhpc/ppe.poe/lib -lpoe -lmpi_ibm -llapi
+  PLATFORM_SUPPORTS_PGAS_LAPI       := yes
+  MOV_LDFLAGS_PGAS_LAPI   += -L/opt/ibmhpc/ppe.poe/lib 
+  MOV_LDLIBS_PGAS_LAPI    += -lpoe -lmpi_ibm -llapi
+  PLATFORM_SUPPORTS_PGAS_SOCKETS    := yes
 endif
 ifeq ($(X10RT_PLATFORM), linux_ppc_64_xlc)
   WPLATFORM      := linux_ppc_64_xlc
-  PLATFORM_SUPPORTS_LAPI       := yes
-  LAPI_LDDEPS    := 
-  LAPI_LDLIBS    += $(LAPI_LDDEPS) -L/opt/ibmhpc/ppe.poe/lib -lpoe -lmpi_ibm -llapi
+  PLATFORM_SUPPORTS_PGAS_LAPI       := yes
+  MOV_LDFLAGS_PGAS_LAPI    += -L/opt/ibmhpc/ppe.poe/lib 
+  MOV_LDLIBS_PGAS_LAPI     += -lpoe -lmpi_ibm -llapi
+  PLATFORM_SUPPORTS_PGAS_SOCKETS    := yes
 endif
 ifeq ($(X10RT_PLATFORM), linux_x86_64)
   WPLATFORM      := linux_x86_64_g++4
-  PLATFORM_SUPPORTS_LAPI       := yes
-  LAPI_LDDEPS    := 
-  LAPI_LDLIBS    += $(LAPI_LDDEPS) -L/opt/ibmhpc/ppe.poe/lib -lpoe -lmpi_ibm -llapi
+  PLATFORM_SUPPORTS_PGAS_LAPI       := yes
+  MOV_LDFLAGS_PGAS_LAPI   += -L/opt/ibmhpc/ppe.poe/lib 
+  MOV_LDLIBS_PGAS_LAPI    += -lpoe -lmpi_ibm -llapi
+  PLATFORM_SUPPORTS_PGAS_SOCKETS    := yes
 endif
 ifeq ($(X10RT_PLATFORM), linux_x86_32)
   WPLATFORM      := linux_x86_g++4
 # TODO: re-enable when we build the 32 bit lapi version of pgas and post it.
-#  PLATFORM_SUPPORTS_LAPI       := yes
-  LAPI_LDDEPS    := 
-  LAPI_LDLIBS    += $(LAPI_LDDEPS) -L/opt/ibmhpc/ppe.poe/lib -lpoe -lmpi_ibm -llapi
+#  PLATFORM_SUPPORTS_PGAS_LAPI       := yes
+  MOV_LDFLAGS_PGAS_LAPI   += -L/opt/ibmhpc/ppe.poe/lib 
+  MOV_LDLIBS_PGAS_LAPI    += -lpoe -lmpi_ibm -llapi
+  PLATFORM_SUPPORTS_PGAS_SOCKETS    := yes
 endif
 ifeq ($(X10RT_PLATFORM), cygwin)
   WPLATFORM      := cygwin_x86_g++4
+  PLATFORM_SUPPORTS_PGAS_SOCKETS    := yes
 endif
 ifeq ($(X10RT_PLATFORM), darwin)
   WPLATFORM      := macos_x86_g++4
+  PLATFORM_SUPPORTS_PGAS_SOCKETS    := yes
 endif
 ifeq ($(X10RT_PLATFORM), darwin64)
   WPLATFORM      := macos_x86_g++4
+  PLATFORM_SUPPORTS_PGAS_SOCKETS    := yes
 endif
 ifeq ($(X10RT_PLATFORM), sunos)
   WPLATFORM      := sunos_sparc_g++4
+  PLATFORM_SUPPORTS_PGAS_SOCKETS    := yes
+  MOV_LDLIBS_PGAS_SOCKETS += -lresolv -lnsl -lsocket -lrt
 endif
 
+#disable PGAS_SOCKETS
+PLATFORM_SUPPORTS_PGAS_SOCKETS    := no
+
+
+#{{{ Deciding what underlying PGAS builds are available
 ifdef CUSTOM_PGAS
 include/pgasrt.h: $(CUSTOM_PGAS)/include/pgasrt.h
 	$(CP) $(CUSTOM_PGAS)/include/*.h include
@@ -108,6 +179,11 @@ include/pgasrt.h: $(CUSTOM_PGAS)/include/pgasrt.h
   else
     XLPGAS_LAPI_EXISTS := no
   endif
+  ifeq ($(shell test -r $(CUSTOM_PGAS)/lib/libxlpgas_sockets.a && printf hi),hi)
+    XLPGAS_SOCKETS_EXISTS := yes
+  else
+    XLPGAS_SOCKETS_EXISTS := no
+  endif
   ifeq ($(shell test -r $(CUSTOM_PGAS)/lib/libxlpgas_bgp.a && printf hi),hi)
     XLPGAS_BGP_EXISTS := yes
   else
@@ -116,30 +192,85 @@ include/pgasrt.h: $(CUSTOM_PGAS)/include/pgasrt.h
 else
   # if the platform supports it, it can be found in the website tarball for that platform
   XLPGAS_PANE_EXISTS := no
-  XLPGAS_LAPI_EXISTS := $(PLATFORM_SUPPORTS_LAPI)
-  XLPGAS_BGP_EXISTS := $(PLATFORM_SUPPORTS_BGP)
+  XLPGAS_LAPI_EXISTS := $(PLATFORM_SUPPORTS_PGAS_LAPI)
+  XLPGAS_SOCKETS_EXISTS := $(PLATFORM_SUPPORTS_PGAS_SOCKETS)
+  XLPGAS_BGP_EXISTS := $(PLATFORM_SUPPORTS_PGAS_BGP)
 endif
+#}}}
 
-#Assume that if poe is installed then `which poe` will print its full path to
-#stdout.  Since we don't know what the full path is, we can't run it because it
-#will fail, and we can't trust the error messages or exit code of `which`, we
-#instead test if the path is an executable file.
-ifeq ($(shell test -x "`which poe 2>/dev/null`" && printf hi),hi)
-  POE_EXISTS := yes
+LIB_FILE_PGAS_SOCKETS = lib/$(LIBPREFIX)x10rt_pgas_sockets$(LIBSUFFIX)
+LIB_FILE_PGAS_PANE = lib/$(LIBPREFIX)x10rt_pgas_pane$(LIBSUFFIX)
+LIB_FILE_PGAS_LAPI = lib/$(LIBPREFIX)x10rt_pgas_lapi$(LIBSUFFIX)
+#LIB_FILE_PGAS_BGP = lib/$(LIBPREFIX)x10rt_pgas_bgp$(LIBSUFFIX) # dynamic linking not supported on BGP yet
+
+
+#{{{ Sockets
+ifeq ($(PLATFORM_SUPPORTS_PGAS_SOCKETS), yes)
+
+TESTS += $(patsubst test/%,test/%.pgas_sockets,$(BASE_TESTS))
+LIBS += $(LIB_FILE_PGAS_SOCKETS)
+PROPERTIES += etc/x10rt_pgas_sockets.properties
+PGAS_EXECUTABLES = bin/launcher bin/manager bin/daemon
+EXECUTABLES += $(PGAS_EXECUTABLES)
+
+%.pgas_sockets: %.cc $(LIB_FILE_PGAS_SOCKETS)
+	$(CXX) $(CXXFLAGS) $< -o $@ $(APP_LDFLAGS_PGAS_SOCKETS) $(APP_LDLIBS_PGAS_SOCKETS) $(X10RT_TEST_LDFLAGS)
+
+ifdef CUSTOM_PGAS
+lib/libxlpgas_sockets.a: $(COMMON_OBJS) $(CUSTOM_PGAS)/lib/libxlpgas_sockets.a include/pgasrt.h
+	$(CP) $(CUSTOM_PGAS)/lib/libxlpgas_sockets.a lib/libxlpgas_sockets.a
+
+$(PGAS_EXECUTABLES): $(PGAS_EXECUTABLES:%=$(CUSTOM_PGAS)/%)
+	-$(CP) $^ bin/
 else
-  POE_EXISTS := no
+$(PGAS_SOCKETS_TGZ).phony:
+	-$(WGET) -q -N  "http://dist.codehaus.org/x10/binaryReleases/$(X10_VERSION)/$(PGAS_SOCKETS_TGZ)"
+
+$(PGAS_SOCKETS_TGZ): $(PGAS_SOCKETS_TGZ).phony
+
+lib/libxlpgas_sockets.a: $(COMMON_OBJS) $(PGAS_SOCKETS_TGZ)
+	$(GZIP) -cd $(PGAS_SOCKETS_TGZ) | $(TAR) -xf -
 endif
 
-ifeq ($(PLATFORM_SUPPORTS_PANE),yes)
+ifdef X10_STATIC_LIB
+# On the Mac, AR=libtool, and the target library is overwritten, so the initial $(CP) is harmless.
+# However, we do need to link in the original archive.
+ifeq ($(subst 64,,$(X10RT_PLATFORM)),darwin)
+DARWIN_EXTRA_LIB:=lib/libxlpgas_sockets.a
+endif
+$(LIB_FILE_PGAS_SOCKETS): $(COMMON_OBJS) lib/libxlpgas_sockets.a
+	$(CP) lib/libxlpgas_sockets.a $@
+	$(AR) $(ARFLAGS) $@ $(DARWIN_EXTRA_LIB) $(COMMON_OBJS)
+else
+$(LIB_FILE_PGAS_SOCKETS): $(COMMON_OBJS) lib/libxlpgas_sockets.a
+	$(LINKER_PROG) $(CXXFLAGS) $(CXXFLAGS_SHARED) $(SO_LDFLAGS_PGAS_SOCKETS) $(SO_LDLIBS_PGAS_SOCKETS) -o $@ $^
+endif
+
+
+etc/x10rt_pgas_sockets.properties:
+	@echo "PLATFORM=$(X10RT_PLATFORM)" > $@
+	@echo "CXX=$(CXX)" > $@
+	@echo "LDFLAGS=$(APP_LDFLAGS_PGAS_SOCKETS)" >> $@
+	@echo "LDLIBS=$(APP_LDLIBS_PGAS_SOCKETS)" >> $@
+
+.PRECIOUS: etc/x10rt_pgas_sockets.properties
+.PHONY: $(PGAS_SOCKETS_TGZ).phony
+TGZ += $(PGAS_SOCKETS_TGZ).phony
+
+endif
+#}}}
+
+
+# {{{ PANE
+ifeq ($(PLATFORM_SUPPORTS_PGAS_PANE),yes)
 ifeq ($(XLPGAS_PANE_EXISTS),yes)
 TESTS += $(patsubst test/%,test/%.pgas_pane,$(BASE_TESTS))
 
-PGAS_DYNLIB_PANE = lib/$(LIBPREFIX)x10rt_pgas_pane$(LIBSUFFIX)
-LIBS += $(PGAS_DYNLIB_PANE)
+LIBS += $(LIB_FILE_PGAS_PANE)
 PROPERTIES += etc/x10rt_pgas_pane.properties
 
-%.pgas_pane: %.cc $(PGAS_DYNLIB_PANE)
-	$(CXX) $(CXXFLAGS) $< -o $@ $(LDFLAGS) -DX10RT_PANE_HACK $(PANE_LDFLAGS) $(PANE_LDLIBS) $(X10RT_TEST_LDFLAGS)
+%.pgas_pane: %.cc $(LIB_FILE_PGAS_PANE)
+	$(CXX) $(CXXFLAGS) $< -o $@ -DX10RT_PANE_HACK $(APP_LDFLAGS_PGAS_PANE) $(APP_LDLIBS_PGAS_PANE) $(X10RT_TEST_LDFLAGS)
 
 ifdef CUSTOM_PGAS
 lib/libxlpgas_pane.a: $(COMMON_OBJS) $(CUSTOM_PGAS)/lib/libxlpgas_pane.a include/pgasrt.h
@@ -149,106 +280,107 @@ HACK=$(shell echo "Your platform has no prebuilt PGAS available.  You must expor
 endif
 
 ifdef X10_STATIC_LIB
-$(PGAS_DYNLIB_PANE): $(COMMON_OBJS) lib/libxlpgas_pane.a
+$(LIB_FILE_PGAS_PANE): $(COMMON_OBJS) lib/libxlpgas_pane.a
 	$(CP) lib/libxlpgas_pane.a $@
 	$(AR) $(ARFLAGS) $@ $(COMMON_OBJS)
 else
-$(PGAS_DYNLIB_PANE): $(COMMON_OBJS) lib/libxlpgas_pane.a
-ifeq ($(X10RT_PLATFORM),aix_xlc)
-	$(SHLINK) $(CXXFLAGS) $(CXXFLAGS_SHARED) $(LDFLAGS_SHARED) $(PANE_ARLIBS) -o $@ $(COMMON_OBJS) -Wl,-bexpfull lib/libxlpgas_pane.a 
-else
-	$(CXX) $(CXXFLAGS) $(CXXFLAGS_SHARED) $(LDFLAGS_SHARED) $(PANE_ARLIBS) -o $@ $(COMMON_OBJS) -Wl,-bexpfull lib/libxlpgas_pane.a 
-endif
+$(LIB_FILE_PGAS_PANE): $(COMMON_OBJS) lib/libxlpgas_pane.a
+	$(LINKER_PROG) $(CXXFLAGS) $(CXXFLAGS_SHARED) $(SO_LDFLAGS_PGAS_PANE) $(SO_LDLIBS_PGAS_PANE) -o $@ $(COMMON_OBJS) -Wl,-bexpfull lib/libxlpgas_pane.a 
 endif
 
 etc/x10rt_pgas_pane.properties:
 	@echo "PLATFORM=$(X10RT_PLATFORM)" > $@
-	echo "CXX=$(CXX)" >> $@
-	echo "LDFLAGS=$(PANE_LDFLAGS)" >> $@
-	echo "LDLIBS=$(PANE_LDLIBS)" >> $@
+	@echo "CXX=$(CXX)" > $@
+	@echo "LDFLAGS=$(APP_LDFLAGS_PGAS_PANE)" >> $@
+	@echo "LDLIBS=$(APP_LDLIBS_PGAS_PANE)" >> $@
 
 .PRECIOUS: etc/x10rt_pgas_pane.properties
-.PHONY: $(PANE_TGZ).phony
-TGZ += $(PANE_TGZ).phony
+.PHONY: $(PGAS_PANE_TGZ).phony
+TGZ += $(PGAS_PANE_TGZ).phony
 
 endif #XLPGAS_PANE_EXISTS
-endif #PLATFORM_SUPPORTS_PANE
+endif #PLATFORM_SUPPORTS_PGAS_PANE
+#}}}
 
 
-ifeq ($(PLATFORM_SUPPORTS_LAPI),yes)
+# {{{ LAPI
+ifeq ($(PLATFORM_SUPPORTS_PGAS_LAPI),yes)
 ifeq ($(XLPGAS_LAPI_EXISTS),yes)
-ifeq ($(POE_EXISTS),yes)
+#If there is no poe then do not compile the tests.
+#Assume that if poe is installed then `which poe` will print its full path to
+#stdout.  Since we don't know what the full path is, we can't run it because it
+#will fail, and we can't trust the error messages or exit code of `which`, we
+#instead test if the path is an executable file.
+ifeq ($(shell test -x "`which poe 2>/dev/null`" && printf hi),hi)
 TESTS += $(patsubst test/%,test/%.pgas_lapi,$(BASE_TESTS))
 else
 HACK=$(shell echo "Your platform supports LAPI but we could not find the poe executable so not building LAPI tests">2)
 endif
 
-PGAS_DYNLIB_LAPI = lib/$(LIBPREFIX)x10rt_pgas_lapi$(LIBSUFFIX)
-LIBS += $(PGAS_DYNLIB_LAPI)
+LIBS += $(LIB_FILE_PGAS_LAPI)
 PROPERTIES += etc/x10rt_pgas_lapi.properties
 
-%.pgas_lapi: %.cc $(PGAS_DYNLIB_LAPI)
-	$(CXX) $(CXXFLAGS) $< -o $@ $(LDFLAGS) $(LAPI_LDFLAGS) $(LAPI_LDLIBS) $(X10RT_TEST_LDFLAGS)
+%.pgas_lapi: %.cc $(LIB_FILE_PGAS_LAPI)
+	$(CXX) $(CXXFLAGS) $< -o $@ $(APP_LDFLAGS_PGAS_LAPI) $(APP_LDLIBS_PGAS_LAPI) $(X10RT_TEST_LDFLAGS)
 
 ifdef CUSTOM_PGAS
 lib/libxlpgas_lapi.a: $(COMMON_OBJS) $(CUSTOM_PGAS)/lib/libxlpgas_lapi.a include/pgasrt.h
 	$(CP) $(CUSTOM_PGAS)/lib/libxlpgas_lapi.a lib/libxlpgas_lapi.a
 else
-$(LAPI_TGZ).phony:
-	-$(WGET) -q -N  "http://dist.codehaus.org/x10/binaryReleases/$(X10_VERSION)/$(LAPI_TGZ)"
+$(PGAS_LAPI_TGZ).phony:
+	-$(WGET) -q -N  "http://dist.codehaus.org/x10/binaryReleases/$(X10_VERSION)/$(PGAS_LAPI_TGZ)"
 
-$(LAPI_TGZ): $(LAPI_TGZ).phony
+$(PGAS_LAPI_TGZ): $(PGAS_LAPI_TGZ).phony
 
-lib/libxlpgas_lapi.a: $(COMMON_OBJS) $(LAPI_TGZ)
-	$(GZIP) -cd $(LAPI_TGZ) | $(TAR) -xf -
+lib/libxlpgas_lapi.a: $(COMMON_OBJS) $(PGAS_LAPI_TGZ)
+	$(GZIP) -cd $(PGAS_LAPI_TGZ) | $(TAR) -xf -
 endif
 
 ifdef X10_STATIC_LIB
-$(PGAS_DYNLIB_LAPI): $(COMMON_OBJS) lib/libxlpgas_lapi.a
+$(LIB_FILE_PGAS_LAPI): $(COMMON_OBJS) lib/libxlpgas_lapi.a
 	$(CP) lib/libxlpgas_lapi.a $@
 	$(AR) $(ARFLAGS) $@ $(COMMON_OBJS)
 else
-$(PGAS_DYNLIB_LAPI): $(COMMON_OBJS) lib/libxlpgas_lapi.a
-ifeq ($(X10RT_PLATFORM),aix_xlc)
-	$(SHLINK) $(CXXFLAGS) $(CXXFLAGS_SHARED) $(LDFLAGS_SHARED) $(LAPI_LDDEPS) -o $@ $^
-else
-	$(CXX) $(CXXFLAGS) $(CXXFLAGS_SHARED) $(LDFLAGS_SHARED) $(LAPI_LDDEPS) -o $@ $^
-endif
+$(LIB_FILE_PGAS_LAPI): $(COMMON_OBJS) lib/libxlpgas_lapi.a
+	$(LINKER_PROG) $(CXXFLAGS) $(CXXFLAGS_SHARED) $(SO_LDFLAGS_PGAS_LAPI) $(SO_LDLIBS_PGAS_LAPI) -o $@ $^
 endif
 
 etc/x10rt_pgas_lapi.properties:
-	echo "CXX=$(CXX)" > $@
-	echo "LDFLAGS=$(LAPI_LDFLAGS)" >> $@
-	echo "LDLIBS=$(LAPI_LDLIBS)" >> $@
+	@echo "PLATFORM=$(X10RT_PLATFORM)" > $@
+	@echo "CXX=$(CXX)" > $@
+	@echo "LDFLAGS=$(APP_LDFLAGS_PGAS_LAPI)" >> $@
+	@echo "LDLIBS=$(APP_LDLIBS_PGAS_LAPI)" >> $@
 
 .PRECIOUS: etc/x10rt_pgas_lapi.properties
-.PHONY: $(LAPI_TGZ).phony
-TGZ += $(LAPI_TGZ).phony
+.PHONY: $(PGAS_LAPI_TGZ).phony
+TGZ += $(PGAS_LAPI_TGZ).phony
 
 endif #XLPGAS_LAPI_EXISTS
-endif #PLATFORM_SUPPORTS_LAPI
+endif #PLATFORM_SUPPORTS_PGAS_LAPI
+#}}}
 
 
-ifeq ($(PLATFORM_SUPPORTS_BGP),yes)
+# {{{ BGP
+ifeq ($(PLATFORM_SUPPORTS_PGAS_BGP),yes)
 
 TESTS += $(patsubst test/%,test/%.pgas_bgp,$(BASE_TESTS))
 LIBS += lib/libx10rt_pgas_bgp.a
 PROPERTIES += etc/x10rt_pgas_bgp.properties
 
 %.pgas_bgp: %.cc lib/libx10rt_pgas_bgp.a
-	$(CXX) $(CXXFLAGS) $< -o $@ $(LDFLAGS) $(BGP_LDFLAGS) $(BGP_LDLIBS) $(X10RT_TEST_LDFLAGS)
+	$(CXX) $(CXXFLAGS) $< -o $@ $(APP_LDFLAGS_PGAS_BGP) $(APP_LDLIBS_PGAS_BGP) $(X10RT_TEST_LDFLAGS)
 
 ifdef CUSTOM_PGAS
 lib/libxlpgas_bgp.a: $(COMMON_OBJS) $(CUSTOM_PGAS)/lib/libxlpgas_bgp.a include/pgasrt.h
 	$(CP) $(CUSTOM_PGAS)/lib/libxlpgas_bgp.a lib/libxlpgas_bgp.a
 else
-$(BGP_TGZ).phony:
-	-$(WGET) -q -N  "http://dist.codehaus.org/x10/binaryReleases/$(X10_VERSION)/$(BGP_TGZ)"
+$(PGAS_BGP_TGZ).phony:
+	-$(WGET) -q -N  "http://dist.codehaus.org/x10/binaryReleases/$(X10_VERSION)/$(PGAS_BGP_TGZ)"
 
-$(BGP_TGZ): $(BGP_TGZ).phony
+$(PGAS_BGP_TGZ): $(PGAS_BGP_TGZ).phony
 
-lib/libxlpgas_bgp.a: $(COMMON_OBJS) $(BGP_TGZ)
-	$(GZIP) -cd $(BGP_TGZ) | $(TAR) -xf -
+lib/libxlpgas_bgp.a: $(COMMON_OBJS) $(PGAS_BGP_TGZ)
+	$(GZIP) -cd $(PGAS_BGP_TGZ) | $(TAR) -xf -
 endif
 
 lib/libx10rt_pgas_bgp.a: $(COMMON_OBJS) lib/libxlpgas_bgp.a
@@ -256,15 +388,17 @@ lib/libx10rt_pgas_bgp.a: $(COMMON_OBJS) lib/libxlpgas_bgp.a
 	$(AR) $(ARFLAGS) $@ $(COMMON_OBJS)
 
 etc/x10rt_pgas_bgp.properties:
+	@echo "PLATFORM=$(X10RT_PLATFORM)" > $@
 	@echo "CXX=$(CXX)" > $@
-	@echo "LDFLAGS=$(BGP_LDFLAGS)" >> $@
-	@echo "LDLIBS=$(BGP_LDLIBS)" >> $@
+	@echo "LDFLAGS=$(APP_LDFLAGS_PGAS_BGP)" >> $@
+	@echo "LDLIBS=$(APP_LDLIBS_PGAS_BGP)" >> $@
 
 .PRECIOUS: etc/x10rt_pgas_bgp.properties
-.PHONY: $(BGP_TGZ).phony
-TGZ += $(BGP_TGZ).phony
+.PHONY: $(PGAS_BGP_TGZ).phony
+TGZ += $(PGAS_BGP_TGZ).phony
 
 endif
+#}}}
 
 
 debug::
@@ -275,10 +409,12 @@ debug::
 	@echo pgas.mk DISABLE_X10RT_MPI = $(DISABLE_X10RT_MPI)
 	@echo pgas.mk ENABLE_X10RT_PGAS = $(ENABLE_X10RT_PGAS)
 	@echo pgas.mk DISABLE_X10RT_PGAS = $(DISABLE_X10RT_PGAS)
-	@echo pgas.mk PLATFORM_SUPPORTS_LAPI = $(PLATFORM_SUPPORTS_LAPI)
-	@echo pgas.mk PLATFORM_SUPPORTS_BGP = $(PLATFORM_SUPPORTS_BGP)
+	@echo pgas.mk PLATFORM_SUPPORTS_PGAS_LAPI = $(PLATFORM_SUPPORTS_PGAS_LAPI)
+	@echo pgas.mk PLATFORM_SUPPORTS_PGAS_SOCKETS = $(PLATFORM_SUPPORTS_PGAS_SOCKETS)
+	@echo pgas.mk PLATFORM_SUPPORTS_PGAS_BGP = $(PLATFORM_SUPPORTS_PGAS_BGP)
 	@echo pgas.mk CUSTOM_PGAS = $(CUSTOM_PGAS)
 	@echo pgas.mk XLPGAS_LAPI_EXISTS = $(XLPGAS_LAPI_EXISTS)
+	@echo pgas.mk XLPGAS_SOCKETS_EXISTS = $(XLPGAS_SOCKETS_EXISTS)
 	@echo pgas.mk XLPGAS_BGP_EXISTS = $(XLPGAS_BGP_EXISTS)
 	@echo pgas.mk LIBS = $(LIBS)
 	@echo pgas.mk PROPERTIES = $(PROPERTIES)
