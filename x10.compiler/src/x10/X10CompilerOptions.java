@@ -20,10 +20,10 @@ import x10.config.ConfigurationError;
 import x10.config.OptionError;
 
 public class X10CompilerOptions extends polyglot.main.Options {
-
+    
     public String executable_path = null;
     public Configuration x10_config;
-
+    
 	public X10CompilerOptions(ExtensionInfo extension) {
 		super(extension);
 		serialize_type_info = false; // turn off type info serialization for X10

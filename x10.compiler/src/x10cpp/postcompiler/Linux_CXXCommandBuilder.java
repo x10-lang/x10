@@ -26,12 +26,12 @@ public class Linux_CXXCommandBuilder extends CXXCommandBuilder {
     }
 
     protected String defaultPostCompiler() {
-        return USE_XLC ? "xlC_r" : super.defaultPostCompiler();
+        return useXLC() ? "xlC_r" : super.defaultPostCompiler();
     }
 
     protected void addPreArgs(ArrayList<String> cxxCmd) {
         super.addPreArgs(cxxCmd);
-        if (!USE_XLC) {
+        if (!useXLC()) {
             cxxCmd.add("-pthread");
             if (USE_X86) {
                 cxxCmd.add("-msse2");

@@ -21,13 +21,21 @@ import java.util.Set;
 import polyglot.frontend.ExtensionInfo;
 import polyglot.main.Main;
 import polyglot.main.UsageError;
-import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
+import polyglot.util.CollectionUtil;
+import x10.util.CollectionFactory;
 import x10.config.ConfigurationError;
 import x10.config.OptionError;
 
 public class X10CPPCompilerOptions extends x10.X10CompilerOptions {
 
+    public static enum WordSize { UNSPECIFIED, FORCE_32, FORCE_64 }
+    
+    public static enum CPPCompiler { UNSPECIFIED, GCC, XLC }
+
     public final Configuration x10cpp_config;
+    
+    public WordSize wordSize = WordSize.UNSPECIFIED;
+    public CPPCompiler cppCompiler = CPPCompiler.UNSPECIFIED;
 
     public X10CPPCompilerOptions(ExtensionInfo extension) {
         super(extension);
@@ -40,6 +48,25 @@ public class X10CPPCompilerOptions extends x10.X10CompilerOptions {
         int i = super.parseCommand(args, index, source);
         if (i != index) return i;
 
+        if (args[i].equals("-m32")) {
+            wordSize = WordSize.FORCE_32;
+            return ++index;
+        }
+        
+        if (args[i].equals("-m64")) {
+            wordSize = WordSize.FORCE_64;
+            return ++index;
+        }
+        
+        if (args[i].equals("-use-gcc")) {
+            cppCompiler = CPPCompiler.GCC;
+            return ++index;
+        }
+        
+        if (args[i].equals("-use-xlc")) {
+            cppCompiler = CPPCompiler.XLC;
+        }
+        
         // FIXME: [IP] allow overriding super's option processing
         try {
             x10cpp_config.parseArgument(args[index]);
@@ -62,6 +89,10 @@ public class X10CPPCompilerOptions extends x10.X10CompilerOptions {
 			String optdesc = optinfo[2]+"(default = "+optinfo[3]+")";
 			usageForFlag(out, optflag, optdesc);
 		}
+		usageForFlag(out, "-m32", "force 32-bit compilation mode");
+		usageForFlag(out, "-m64", "force 64-bit compilation mode");
+		usageForFlag(out, "-use-gcc", "override default settings and use gcc");
+        usageForFlag(out, "-use-xlc", "override default settings and use xlC");
 	}
 	
 	/**

@@ -61,7 +61,6 @@ public class CXXCommandBuilder {
             }
             String s = properties.getProperty("CXX");
             cxx = s==null ? "g++" : s; //fallback if CXX not given in properties file
-            String regex = " +";
             cxxFlags = split(properties.getProperty("CXXFLAGS"));
             libs     = split(properties.getProperty("LDLIBS"));
             ldFlags  = split(properties.getProperty("LDFLAGS"));
@@ -96,11 +95,7 @@ public class CXXCommandBuilder {
 
     protected static final String PLATFORM = System.getenv("X10_PLATFORM")==null?"unknown":System.getenv("X10_PLATFORM");
     public static final String X10_DIST = System.getenv("X10_DIST");
-    protected static final boolean USE_XLC = (PLATFORM.startsWith("aix_") && System.getenv("USE_GCC")==null) || System.getenv("USE_XLC")!=null;
-    //"mpCC_r -q64 -qrtti=all -qarch=pwr5 -O3 -qtune=pwr5 -qhot -qinline"
-    //"mpCC_r -q64 -qrtti=all"
     public static final String XLC_EXTRA_FLAGS = System.getenv("XLC_EXTRA_FLAGS");
-    public static final boolean USE_32BIT = System.getenv("USE_32BIT")!=null;
 
     protected static final boolean ENABLE_PROFLIB = System.getenv("X10_ENABLE_PROFLIB") != null;
 
@@ -108,7 +103,7 @@ public class CXXCommandBuilder {
     public static final String[] MANIFEST_LOCATIONS = new String[] { X10_DIST+"/lib" };
 
 
-    private final X10CPPCompilerOptions options;
+    protected final X10CPPCompilerOptions options;
 
     protected X10RTPostCompileOptions x10rtOpts;
 
@@ -138,6 +133,10 @@ public class CXXCommandBuilder {
     protected String defaultPostCompiler() {
 	    return x10rtOpts.cxx;
     }
+    
+    protected boolean useXLC() {
+        return options.cppCompiler.equals(X10CPPCompilerOptions.CPPCompiler.XLC);
+    }
 
     /** Add the arguments that go before the output files */
     protected void addPreArgs(ArrayList<String> cxxCmd) {
@@ -151,21 +150,25 @@ public class CXXCommandBuilder {
         cxxCmd.add("-I.");
 
         if (options.x10_config.OPTIMIZE) {
-            cxxCmd.add(USE_XLC ? "-O3" : "-O2");
-            cxxCmd.add(USE_XLC ? "-qinline" : "-finline-functions");
+            cxxCmd.add(useXLC() ? "-O3" : "-O2");
+            cxxCmd.add(useXLC() ? "-qinline" : "-finline-functions");
             cxxCmd.add("-DNO_TRACING");
-            if (USE_XLC) {
+            if (useXLC()) {
                 cxxCmd.add("-qhot");
                 cxxCmd.add("-qtune=auto");
                 cxxCmd.add("-qarch=auto");
             }
         }
 
-        if (USE_XLC) {
+        if (useXLC()) {
             cxxCmd.add("-qsuppress=1540-0809"    // Do not warn about empty sources
                                + ":1540-1101"    // Do not warn about non-void functions with no return
                                + ":1500-029");   // Do not warn about being unable to inline when optimizing
-            cxxCmd.add(USE_32BIT ? "-q32" : "-q64");
+            if (options.wordSize.equals(X10CPPCompilerOptions.WordSize.FORCE_32)) {
+                cxxCmd.add("-q32");
+            } else {
+                cxxCmd.add("-q64");
+            }
             if (XLC_EXTRA_FLAGS != null) {
                 cxxCmd.add(XLC_EXTRA_FLAGS);
             }
