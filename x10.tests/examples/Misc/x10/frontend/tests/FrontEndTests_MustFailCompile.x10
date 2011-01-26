@@ -4288,17 +4288,17 @@ class XTENLANG_2277 {
 }
 
 class TestSetAndApplyOperators {
-	static class OnlySet {
+	static class OnlyApply {
 		operator this(i:Int) = 0;
 	}
-	static class OnlyApply {
+	static class OnlySet {
 		operator this(i:Int)=(v:Int) = 1;
 	}
 	static class BothSetApply {
 		operator this(i:Int) = 2;
 		operator this(i:Int)=(v:Int):Int{self==v} = v;
 	}
-	def test(s:OnlySet, a:OnlyApply, sa:BothSetApply) {
+	def test(s:OnlyApply, a:OnlySet, sa:BothSetApply) {
 		s(2);
 		a(2); // ERR
 		sa(2);
@@ -4427,3 +4427,73 @@ class XTENLANG_2346[T](x:Int) {
 	}	
 }
 
+class XTENLANG_2376 {
+	class A {
+	  def test(b:Int) { 
+		val a = new A(b*3, b+5); // ERR: Warning: Generated a dynamic check for the method guard.
+	  }
+	  def this(i:Int, j:Int) {i==j} {}
+	  def this(i:Int) {
+		this(i*i, i*2); // ERR: The constructor guard was not satisfied.
+	  }
+	}
+	class B extends A {
+	  def this(m:Int) {
+		super(m*m, m*2); // ERR: The constructor guard was not satisfied.
+	  }
+	}
+}
+
+class TestInnerClassesThisQualifer {	
+	static class B {
+		static class B1 {
+			def BLA1() = B1.this;
+			def BLA2() = B.this; // ERR: The nested class "TestInnerClassesThisQualifer.A.B.B1" does not have an enclosing instance of type "TestInnerClassesThisQualifer.A.B".
+		}
+		class B2 {}
+	}
+	class A {
+		class C {
+			def BLA() = C.this;
+			static class C1 {} // ERR: Semantic Error: Inner classes cannot declare static member classes.
+			class C2 {}
+		}
+		class D extends C {
+			def BLA2() = C.this; // ERR: The nested class "TestInnerClassesThisQualifer.A.D" does not have an enclosing instance of type "TestInnerClassesThisQualifer.A.C".
+			def BLA3() = D.this;
+			def BLA4() = A.this;
+		}
+	}
+}
+
+class XTENLANG_2377 {
+class Outer {
+	class A[T] {
+		def this(b:A[T]) {
+		}
+		def test(i:A[Double], outer:Outer) {
+			val z1 = outer.new A(i); // works ok (infers the type arguments)
+			val z2 = new A[Double](i); // works ok
+
+
+			//Semantic Error: Constructor Outer.A.this(b: Outer.A[T]): Outer.A[T]
+			// cannot be invoked with arguments 
+			//(Outer.A[x10.lang.Double]{self==i}).
+			//Semantic Error: Type is missing parameters.
+			// Type: Outer.A
+			// Expected parameters: [T]			
+			val z3 = outer.new A[Double](i); // ShouldNotBeERR ShouldNotBeERR
+		}
+	}
+}
+}
+
+class XTENLANG_2379 {
+	class B(b:Int) {}
+	class C(c:Int) extends B {
+		def this(i1:Int, i2:Int) {i1!=i2} {
+			super(5);
+			property(6); // ShouldNotBeERR: Semantic Error: Instances created by this constructor do not satisfy return type	 Constraint satisfied: {X.C#this.b==5, X.C#this.c==6, i1!=i2}	 Constraint required: {X.C#this.b==5, X.C#this.c==6, i1!=i2}
+		}
+	}
+}

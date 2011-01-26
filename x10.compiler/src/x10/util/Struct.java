@@ -11,6 +11,9 @@
 
 package x10.util;
 
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.*;
 
 import polyglot.ast.*;
@@ -166,7 +169,7 @@ public class Struct {
            }
 
         final Flags flags = Flags.PUBLIC.Final();
-        final NodeFactory nf = (NodeFactory)tb.nodeFactory();
+        final NodeFactory nf = tb.nodeFactory();
         final TypeNode intTypeNode = nf.TypeNodeFromQualifiedName(pos,QName.make("x10.lang","Int"));
         final TypeNode boolTypeNode = nf.TypeNodeFromQualifiedName(pos,QName.make("x10.lang","Boolean"));
         final TypeNode placeTypeNode = nf.TypeNodeFromQualifiedName(pos,QName.make("x10.lang","Place"));
