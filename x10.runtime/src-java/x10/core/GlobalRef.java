@@ -99,12 +99,11 @@ public final class GlobalRef<T> extends x10.core.Struct {
     }
 
     //this is not an api. only for implementing local assign in at body.
-    //final public T set$G(T t) {
-    //    synchronized (objects) {
-    //        objects.set(this.id, t);
-    //    }
-    //    return t;
-    //}
+    final public T $set$G(T t) {
+        id2Object.put(this.id, t);
+        object2Id.put(new GlobalRefEntry(t), this.id);
+        return t;
+    }
 
     final public x10.lang.Place home() {
         return this.home;
