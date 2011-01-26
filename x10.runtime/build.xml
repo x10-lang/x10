@@ -207,6 +207,7 @@
             <fileset dir="${gen}" includes="${jar}"/>
         </copy>
     </target>
+    <target name="dist-java-x10rt" depends="dist-java,dist-x10rt"/>
     <target name="dist-cpp" depends="dist-x10rt,build-cpp,available-procs">
         <exec executable="${make.exe}" failonerror="true" dir="${basedir}/src-cpp">
             <arg value="-j${available.procs}" />
@@ -235,8 +236,7 @@
     </target>
     <target name="dist-par" depends="init,available-procs">
         <parallel>
-            <antcall target="dist-java"/>
-            <antcall target="dist-x10rt"/>
+            <antcall target="dist-java-x10rt"/>
             <antcall target="dist-cpp-no-x10rt"/>
         </parallel>
     </target>

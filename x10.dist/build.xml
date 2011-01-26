@@ -143,6 +143,7 @@
                 <include name="${bridge.jar}"/>
             </fileset>
         </delete>
+        <ant antfile="${x10.bridge.location}/build.xml" target="clean" inheritAll="false" dir="${x10.bridge.location}"/>
     </target>
 
     <target name="dist-java" depends="init,build,common-jar,constraints-jar,compiler-jar,runtime-java"/>
@@ -151,9 +152,13 @@
     <target name="dist-java-cpp" depends="init,build,common-jar,constraints-jar,compiler-jar">
         <ant antfile="${x10.runtime.location}/build.xml" target="dist-par" inheritAll="false" dir="${x10.runtime.location}"/>
     </target>
-    <target name="dist-par" depends="init,build,common-jar,constraints-jar,compiler-jar,dist-java-cpp,dist-bridge"/>
+    <target name="dist-par" depends="init,build,common-jar,constraints-jar,compiler-jar">
+        <parallel>
+            <antcall target="dist-java-cpp"/>
+            <antcall target="bridge-jar"/>
+        </parallel>
+    </target>
     <target name="dist-bridge" depends="dist-java,bridge-jar"/>
-
     <target name="check-jar-cache" depends="init">
         <available property="lpg.jar.present" file="${lib}/${lpg.jar}"/>
         <available property="ecj.jar.present" file="${lib}/${ecj.jar}"/>
