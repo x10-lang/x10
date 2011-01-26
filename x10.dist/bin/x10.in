@@ -75,6 +75,14 @@ if [ -n "$extra_cp" ]; then
 fi
 
 externpath="${LIB_DIR}${PATH_SEP}${TOP}${FILE_SEP}lib${FILE_SEP}${X10_PLATFORM}"
+if [ -n "$LD_LIBRARY_PATH" ] ; then
+    OLD_IFS="$IFS"
+    IFS=':'
+    for i in $LD_LIBRARY_PATH ; do
+       externpath="$i${PATH_SEP}$externpath"
+    done
+    IFS="$OLD_IFS"
+fi
 if [ -n "$extra_lib" ]; then
    externpath="$extra_lib${PATH_SEP}$externpath"
 fi
