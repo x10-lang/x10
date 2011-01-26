@@ -10,13 +10,8 @@
  */
 package x10.core;
 
-import java.lang.ref.ReferenceQueue;
-import java.lang.ref.WeakReference;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
-
-import x10.lang.Runtime.Mortal;
-import x10.rtt.Types;
 
 public final class GlobalRef<T> extends x10.core.Struct {
 
@@ -65,6 +60,14 @@ public final class GlobalRef<T> extends x10.core.Struct {
         }
     }
 
+    // a singleton which represents null value
+    private static final Object nullValue = new Object() {
+        @Override
+        public java.lang.String toString() {
+            return "<null>";
+        }
+    };
+
     private static AtomicLong lastId = new AtomicLong(0);
     private static ConcurrentHashMap<Long, Object> id2Object = new ConcurrentHashMap<Long, Object>();
     private static ConcurrentHashMap<GlobalRefEntry, Long> object2Id = new ConcurrentHashMap<GlobalRefEntry, Long>();
@@ -73,9 +76,11 @@ public final class GlobalRef<T> extends x10.core.Struct {
     final public x10.lang.Place home;
     final private long id; // place local id of referenced object
 
-    public GlobalRef(final x10.rtt.Type<?> T, final T t,
+    public GlobalRef(final x10.rtt.Type<?> T, T t,
             java.lang.Class<?> dummy$0) {
 
+        if (t == null) t = (T) nullValue;
+        
         this.T = T;
         this.home = x10.lang.Runtime.home();
 
@@ -95,11 +100,15 @@ public final class GlobalRef<T> extends x10.core.Struct {
 
     final public T $apply$G() {
         //always get object because each id is set first and its object is set second.
-        return (T) id2Object.get(id);
+        Object t = id2Object.get(id);
+        if (t == nullValue) t = null;
+        return (T) t;
     }
 
     //this is not an api. only for implementing local assign in at body.
     final public T $set$G(T t) {
+        if (t == null) t = (T) nullValue;
+        
         id2Object.put(this.id, t);
         object2Id.put(new GlobalRefEntry(t), this.id);
         return t;
