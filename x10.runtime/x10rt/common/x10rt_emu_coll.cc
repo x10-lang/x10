@@ -9,8 +9,6 @@ _CRTIMP int __cdecl __MINGW_NOTHROW     vswprintf (wchar_t*, const wchar_t*, __V
 #include <algorithm>
 #include <cfloat>
 
-#include <pthread.h>
-
 #include <x10rt_types.h>
 #include <x10rt_internal.h>
 #include <x10rt_net.h>
@@ -22,14 +20,6 @@ _CRTIMP int __cdecl __MINGW_NOTHROW     vswprintf (wchar_t*, const wchar_t*, __V
 namespace {
 
     // note this cannot be a re-entrant lock because Preempt (below) will break
-    struct Lock {
-        pthread_mutex_t lock;
-        Lock (void) { pthread_mutex_init(&lock, NULL); }
-        ~Lock (void) { pthread_mutex_destroy(&lock); }
-        void acquire (void) { pthread_mutex_lock(&lock); }
-        void release (void) { pthread_mutex_unlock(&lock); }
-    };
-
     Lock global_lock;
 
     // for scoped locks
