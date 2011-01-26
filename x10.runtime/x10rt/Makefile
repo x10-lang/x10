@@ -48,7 +48,7 @@ MOV_LDFLAGS := $(LDFLAGS) -lpthread
 APP_LDLIBS := 
 APP_LDFLAGS := -L"$(X10_HOME)"/x10.runtime/x10rt/lib 
 SO_LDLIBS := 
-SO_LDFLAGS := $(LDFLAGS_SHARED)
+SO_LDFLAGS = $(LDFLAGS_SHARED)
 
 # avoid a lot of repetition in the */*.mk scripts
 ifeq ($(X10RT_PLATFORM),aix_xlc)
