@@ -61,7 +61,7 @@ public final class GlobalRef<T> extends x10.core.Struct {
     }
 
     // a singleton which represents null value
-    private static final Object nullValue = new Object() {
+    private static final Object $null = new Object() {
         @Override
         public java.lang.String toString() {
             return "<null>";
@@ -76,10 +76,9 @@ public final class GlobalRef<T> extends x10.core.Struct {
     final public x10.lang.Place home;
     final private long id; // place local id of referenced object
 
-    public GlobalRef(final x10.rtt.Type<?> T, T t,
-            java.lang.Class<?> dummy$0) {
-
-        if (t == null) t = (T) nullValue;
+    public GlobalRef(final x10.rtt.Type<?> T, T t, java.lang.Class<?> dummy$0) {
+        
+        if (t == null) t = (T) $null;
         
         this.T = T;
         this.home = x10.lang.Runtime.home();
@@ -101,17 +100,17 @@ public final class GlobalRef<T> extends x10.core.Struct {
     final public T $apply$G() {
         //always get object because each id is set first and its object is set second.
         Object t = id2Object.get(id);
-        if (t == nullValue) t = null;
+        if (t == $null) t = null;
         return (T) t;
     }
 
     //this is not an api. only for implementing local assign in at body.
     final public T $set$G(T t) {
-        if (t == null) t = (T) nullValue;
-        
+        T t0 = t;
+        if (t == null) t = (T) $null;
         id2Object.put(this.id, t);
         object2Id.put(new GlobalRefEntry(t), this.id);
-        return t;
+        return t0;
     }
 
     final public x10.lang.Place home() {
