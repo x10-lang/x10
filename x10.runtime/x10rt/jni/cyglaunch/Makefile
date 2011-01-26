@@ -25,7 +25,7 @@ LIBSFX=.dll
 
 .SUFFIXES: .java .class .o .c .h $(LIBSFX)
 
-all: cyglaunch G.class H.class H.dll
+all: cyglaunch G.class H.class H.dll I.class
 .PHONY: all
 
 $(LIBPFX)%$(LIBSFX):	%.o
@@ -35,7 +35,7 @@ $(LIBPFX)%$(LIBSFX):	%.o
 	"${JAVA_HOME}/bin/javah" $(subst .class,,$^)
 
 %.class:	%.java
-	"${JAVA_HOME}/bin/javac" $^
+	"${JAVA_HOME}/bin/javac" -classpath "`cygpath -am "$(X10_HOME)/x10.runtime/classes"`" $^
 
 .PRECIOUS: %.class %.h
 

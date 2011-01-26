@@ -9,6 +9,8 @@
 
 #include <stdio.h>
 
+#undef __stdcall
+#define __stdcall
 #include "x10_x10rt_MessageHandlers.h"
 #include "x10rt_jni_helpers.h"
 

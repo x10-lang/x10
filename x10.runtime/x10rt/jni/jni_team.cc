@@ -8,6 +8,8 @@
 
 #include <stdio.h>
 
+#undef __stdcall
+#define __stdcall
 #include "x10rt_jni_helpers.h"
 #include "x10_x10rt_TeamSupport.h"
 

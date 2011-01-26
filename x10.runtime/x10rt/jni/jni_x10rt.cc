@@ -8,6 +8,12 @@
 
 #include <stdio.h>
 
+#ifdef __CYGWIN__
+#include <windows.h>
+#endif
+
+#undef __stdcall
+#define __stdcall
 #include "x10_x10rt_X10RT.h"
 #include "x10rt_jni_helpers.h"
 
@@ -22,8 +28,18 @@ JNIEXPORT jint JNICALL Java_x10_x10rt_X10RT_x10rt_1init(JNIEnv *env, jclass, jin
     initCachedJVM(env);
 
     assert(numArgs == 0);
-    int argc = 0;
-    char **argv = NULL;
+#ifdef __CYGWIN__
+    char exe[MAX_PATH];
+    long res = GetModuleFileName(NULL, exe, MAX_PATH);
+    if (res == 0 || res == MAX_PATH) {
+        strcpy(exe, "java");
+    }
+#else
+    char *exe = "java";
+#endif
+    char *argv_0[] = { exe, NULL };
+    int argc = 1;
+    char** argv = argv_0;
     x10rt_init(&argc, &argv);
     return 0;
 }

@@ -253,7 +253,7 @@ void Launcher::startChildren()
 							newargv[3] = (char*)"-e";
 							newargv[4] = (char*)"gdb";
 							newargv[5] = _argv[0];
-							newargv[6] = '\0';
+							newargv[6] = (char*)NULL;
 						}
 						else
 						{
@@ -271,7 +271,7 @@ void Launcher::startChildren()
 							newargv[1] = colon;
 							for (int i=0; i<numArgs; i++)
 								newargv[i+2] = _argv[i];
-							newargv[numArgs+2] = '\0';
+							newargv[numArgs+2] = (char*)NULL;
 						}
 						if (execvp(newargv[0], newargv))
 							// can't get here, if the exec succeeded

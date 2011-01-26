@@ -117,7 +117,7 @@ int main(int ac, char** av) {
     if (*av[c] != '-')
       break;
   }
-  args.nOptions = c - 1 + nomx;
+  args.nOptions = c - 1 + nomx + 1;
   args.options = (JavaVMOption*) malloc(args.nOptions * sizeof(JavaVMOption));
   int j = 0;
   for (i = 1; i < c; i++, j++) {
@@ -145,6 +145,9 @@ int main(int ac, char** av) {
     args.options[j].extraInfo = NULL;
     ++j;
   }
+  args.options[j].optionString = strdup("-D32");
+  args.options[j].extraInfo = NULL;
+  ++j;
   args.ignoreUnrecognized = JNI_TRUE;
   char* className = av[c];
   if (c == ac) {

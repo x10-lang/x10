@@ -29,27 +29,21 @@
 #define EXTERN
 #endif
 
-#ifdef __CYGWIN__
 static void init() {
+#ifdef __CYGWIN__
   char exe[MAX_PATH];
   long res = GetModuleFileName(NULL, exe, MAX_PATH);
   if (res == 0 || res == MAX_PATH) {
     strcpy(exe, "java");
   }
-  char* av_0 = exe;
-  int ac = 1;
-  char** av = &av_0;
-  x10rt_init(&ac, &av);
-}
 #else
-static void init() {
   char* exe = "java";
-  char* av_0 = exe;
+#endif
+  char* av_0[] = { exe, NULL };
   int ac = 1;
-  char **av = &av_0;
+  char** av = av_0;
   x10rt_init(&ac, &av);
 }
-#endif
 
 JNIEXPORT void JNICALL Java_H_nat(JNIEnv *e, jobject o) {
   printf("here2\n");
