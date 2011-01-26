@@ -3254,7 +3254,7 @@ class XTENLANG_967  {
 class XTENLANG_1574(v:Int) {v==1} {
 	static def m(a:XTENLANG_1574) {
 		val b:XTENLANG_1574{self.v==1} = a; 
-		@ShouldBeErr val b2:XTENLANG_1574{self.v==2} = a;
+		@ERR val b2:XTENLANG_1574{self.v==2} = a;
 	}
 }
 class TestMethodGuards[T](a:Int, p:Place) {
@@ -3585,13 +3585,13 @@ class BB(v:Int) {v==1} {
 static class A(v:Int) {v==1} {
 	static def m(a:A) {
 		val b:A{self.v==1} = a;
-		@ShouldBeErr val b2:A{self.v==2} = a;
+		@ERR val b2:A{self.v==2} = a;
 	}
 	def m2(a:A) {
 		val b1:A{self.v==1} = this;
 		val b2:A{this.v==1} = this;
 		val b3:A{self.v==1} = a;
-		@ShouldBeErr val b33:A{self.v==2} = a; 
+		@ERR val b33:A{self.v==2} = a; 
 		val b4:A{this.v==1} = a;
 	}
 }
