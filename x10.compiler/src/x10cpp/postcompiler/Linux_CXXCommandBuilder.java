@@ -17,12 +17,10 @@ import polyglot.main.Options;
 import polyglot.util.ErrorQueue;
 
 public class Linux_CXXCommandBuilder extends CXXCommandBuilder {
-    protected static final boolean USE_X86 = CXXCommandBuilder.PLATFORM.endsWith("_x86");
     protected static final boolean USE_BFD = System.getenv("USE_BFD")!=null;
 
-    public Linux_CXXCommandBuilder(Options options, ErrorQueue eq) {
+    Linux_CXXCommandBuilder(Options options, ErrorQueue eq) {
         super(options, eq);
-        assert (CXXCommandBuilder.PLATFORM.startsWith("linux_"));
     }
 
     protected String defaultPostCompiler() {
@@ -33,7 +31,7 @@ public class Linux_CXXCommandBuilder extends CXXCommandBuilder {
         super.addPreArgs(cxxCmd);
         if (!useXLC()) {
             cxxCmd.add("-pthread");
-            if (USE_X86) {
+            if (getPlatform().endsWith("_x86")) {
                 cxxCmd.add("-msse2");
                 cxxCmd.add("-mfpmath=sse");
             }

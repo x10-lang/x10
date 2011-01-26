@@ -31,7 +31,8 @@ $(MPI_DYNLIB): mpi/x10rt_mpi.o $(COMMON_OBJS)
 endif
 
 etc/x10rt_mpi.properties:
-	@echo "CXX=$(MPICXX)" > $@
+	@echo "PLATFORM=$(X10RT_PLATFORM)" > $@
+	@echo "CXX=$(MPICXX)" >> $@
 	@echo "CXXFLAGS=" >> $@
 	@echo "LDFLAGS=$(CUDA_LDFLAGS)" >> $@
 	@echo "LDLIBS=-lx10rt_mpi $(CUDA_LDLIBS)" >> $@

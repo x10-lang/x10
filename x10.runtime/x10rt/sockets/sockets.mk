@@ -48,7 +48,8 @@ sockets/X10Launcher: $(LAUNCHER_OBJS) sockets/main.cc
 	$(CXX) $(CXXFLAGS) sockets/main.cc $(LAUNCHER_OBJS) -o sockets/X10Launcher $(LDFLAGS) $(SOLARIS_LDLIBS)
 
 etc/x10rt_sockets.properties:
-	@echo "CXX=$(CXX)" > $@
+	@echo "PLATFORM=$(X10RT_PLATFORM)" > $@
+	@echo "CXX=$(CXX)" >> $@
 	@echo "CXXFLAGS=" >> $@
 	@echo "LDFLAGS=$(CUDA_LDFLAGS)" >> $@
 	@echo "LDLIBS=-lx10rt_sockets $(SOLARIS_LDLIBS) $(CUDA_LDLIBS)" >> $@

@@ -76,7 +76,8 @@ endif
 endif
 
 etc/x10rt_pami.properties:
-	@echo "CXX=$(CXX)" > $@
+	@echo "PLATFORM=$(X10RT_PLATFORM)" > $@
+	@echo "CXX=$(CXX)" >> $@
 	@echo "CXXFLAGS=" >> $@
 	echo "LDFLAGS=$(PAMI_LDFLAGS)" >> $@
 	echo "LDLIBS=$(PAMI_LDLIBS)" >> $@

@@ -238,7 +238,8 @@ endif
 endif
 
 etc/x10rt_pgas_pane.properties:
-	echo "CXX=$(CXX)" > $@
+	@echo "PLATFORM=$(X10RT_PLATFORM)" > $@
+	echo "CXX=$(CXX)" >> $@
 	echo "LDFLAGS=$(PANE_LDFLAGS)" >> $@
 	echo "LDLIBS=$(PANE_LDLIBS)" >> $@
 

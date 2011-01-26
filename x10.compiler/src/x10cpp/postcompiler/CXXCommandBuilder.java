@@ -35,65 +35,31 @@ import x10.Configuration;
 import x10cpp.X10CPPCompilerOptions;
 
 public class CXXCommandBuilder {
+    
+    private static String UNKNOWN = "unknown";
+    
+    protected static class PostCompileOptions {
+        public final Properties props;
+        public final Collection<String> cxxFlags;
+        public final Collection<String> libs;
+        public final Collection<String> ldFlags;
+        
+        PostCompileOptions(Properties p) {
+            props = p;
+            cxxFlags = split(p.getProperty("CXXFLAGS"));
+            libs     = split(p.getProperty("LDLIBS"));
+            ldFlags  = split(p.getProperty("LDFLAGS"));
+        }
 
-    protected class X10RTPostCompileOptions {
-        public final String cxx;
-        public final Collection<? extends String> cxxFlags;
-        public final Collection<? extends String> libs;
-        public final Collection<? extends String> ldFlags;
-
-        private Collection<? extends String> split(String s) {
+        protected Collection<String> split(String s) {
             ArrayList<String> l = new ArrayList<String>();
             if (s==null) return l;
             QuotedStringTokenizer q = new QuotedStringTokenizer(s);
             while (q.hasMoreTokens()) l.add(q.nextToken());
             return l;
         }
-
-        public X10RTPostCompileOptions(String filename) {
-            Properties properties = new Properties();
-            try {
-                properties.load(new FileInputStream(filename));
-            } catch(IOException e) {
-                // [DC] proceeding from here will just yield a load of incomprehensible postcompile errors
-                throw new InternalCompilerError(
-                        "Error finding X10RT properties file: "+ e.getMessage(), e);
-            }
-            String s = properties.getProperty("CXX");
-            cxx = s==null ? "g++" : s; //fallback if CXX not given in properties file
-            cxxFlags = split(properties.getProperty("CXXFLAGS"));
-            libs     = split(properties.getProperty("LDLIBS"));
-            ldFlags  = split(properties.getProperty("LDFLAGS"));
-        }
     }
 
-    protected class BDWGCPostCompileOptions {
-        public final Collection<? extends String> cxxFlags;
-        public final Collection<? extends String> libs;
-
-        private Collection<? extends String> split(String s) {
-            ArrayList<String> l = new ArrayList<String>();
-            if (s==null) return l;
-            QuotedStringTokenizer q = new QuotedStringTokenizer(s);
-            while (q.hasMoreTokens()) l.add(q.nextToken());
-            return l;
-        }
-
-        public BDWGCPostCompileOptions(String filename) {
-            Properties properties = new Properties();
-            try {
-                properties.load(new FileInputStream(filename));
-            } catch(IOException e) {
-                // [DC] proceeding from here will just yield a load of incomprehensible postcompile errors
-                throw new InternalCompilerError(
-                        "Error finding BDWGC property file: "+ e.getMessage(), e);
-            }
-            cxxFlags = split(properties.getProperty("CXXFLAGS"));
-            libs     = split(properties.getProperty("LDLIBS"));
-        }
-    }
-
-    protected static final String PLATFORM = System.getenv("X10_PLATFORM")==null?"unknown":System.getenv("X10_PLATFORM");
     public static final String X10_DIST = System.getenv("X10_DIST");
     public static final String XLC_EXTRA_FLAGS = System.getenv("XLC_EXTRA_FLAGS");
 
@@ -104,35 +70,53 @@ public class CXXCommandBuilder {
 
 
     protected final X10CPPCompilerOptions options;
-
-    protected X10RTPostCompileOptions x10rtOpts;
-
-    protected BDWGCPostCompileOptions bdwgcOpts;
-
-    public CXXCommandBuilder(Options options, ErrorQueue eq) {
-        assert (options != null);
-        assert (options.post_compiler != null);
+    
+    protected final Collection<PostCompileOptions> postCompileOptions = new ArrayList<PostCompileOptions>();
+    
+    protected CXXCommandBuilder(Options options, ErrorQueue eq) {
         this.options = (X10CPPCompilerOptions) options;
-        String rtimpl = System.getenv("X10RT_IMPL");
-        if (rtimpl == null) {
-            // assume pgas (default to old behavior)
-            if (PLATFORM.startsWith("aix_")) {
-                rtimpl = "pgas_lapi";
-            } else {
-                rtimpl = "sockets";
-            }
-        }
-        // allow the user to give an explicit path, otherwise look in etc
-        if (!rtimpl.endsWith(".properties")) {
-            rtimpl = X10_DIST + "/etc/x10rt_"+rtimpl+".properties";
-        }
-        x10rtOpts = new X10RTPostCompileOptions(rtimpl);
-        bdwgcOpts = new BDWGCPostCompileOptions(X10_DIST + "/etc/bdwgc.properties");
     }
 
+    private String cxxCompiler = UNKNOWN;
     protected String defaultPostCompiler() {
-	    return x10rtOpts.cxx;
+        String pc = null;
+        if (cxxCompiler.equals(UNKNOWN)) {
+            for (PostCompileOptions pco: postCompileOptions) {
+                String pc2 = pco.props.getProperty("CXX");
+                if (pc2 != null) {
+                    if (pc != null && !pc2.equals(pc)) {
+                        throw new InternalCompilerError("Conflicting postcompilers. Both "+pc+" and "+pc2+" requested");
+                    }
+                    pc = pc2;
+                } 
+            }
+            cxxCompiler = pc == null ? "g++" : pc;
+        }
+	    return cxxCompiler;
     }
+    
+    private String platform = UNKNOWN;
+    protected String getPlatform() {
+        String p1 = null;
+        if (platform.equals(UNKNOWN)) {
+            for (PostCompileOptions pco: postCompileOptions) {
+                String p2 = pco.props.getProperty("PLATFORM");
+                if (p2 != null) {
+                    if (p1 != null && !p2.equals(p1)) {
+                        throw new InternalCompilerError("Conflicting platforms. Both "+p1+" and "+p2+" specified");
+                    }
+                    p1 = p2;
+                } 
+            }
+            if (p1 == null) {
+                throw new InternalCompilerError("No platform specified by given property files");
+            }
+            platform = p1;
+        }
+        
+        return platform;        
+    }
+
     
     protected boolean useXLC() {
         return options.cppCompiler.equals(X10CPPCompilerOptions.CPPCompiler.XLC);
@@ -183,7 +167,9 @@ public class CXXCommandBuilder {
             cxxCmd.add("-DNO_CHECKS");
         }
 
-        cxxCmd.addAll(x10rtOpts.cxxFlags);
+        for (PostCompileOptions pco:postCompileOptions) {
+            cxxCmd.addAll(pco.cxxFlags);
+        }
     }
 
     /** Add the arguments that go after the output files */
@@ -192,11 +178,10 @@ public class CXXCommandBuilder {
         cxxCmd.add("-L"+X10_DIST+"/lib");
         cxxCmd.add("-lx10");
 
-        cxxCmd.addAll(bdwgcOpts.cxxFlags);
-        cxxCmd.addAll(bdwgcOpts.libs);
-
-        cxxCmd.addAll(x10rtOpts.ldFlags);
-        cxxCmd.addAll(x10rtOpts.libs);
+        for (PostCompileOptions pco:postCompileOptions) {
+            cxxCmd.addAll(pco.ldFlags);
+            cxxCmd.addAll(pco.libs);
+        }
 
         cxxCmd.add("-ldl");
         cxxCmd.add("-lm");
@@ -223,8 +208,9 @@ public class CXXCommandBuilder {
     /** Construct the C++ compilation command */
     public final String[] buildCXXCommandLine(Collection<String> outputFiles) {
         String post_compiler = options.post_compiler;
-        if (post_compiler.contains("javac"))
+        if (post_compiler.contains("javac")) {
             post_compiler = defaultPostCompiler();
+        }
 
         QuotedStringTokenizer st = new QuotedStringTokenizer(post_compiler);
         int pc_size = st.countTokens();
@@ -303,22 +289,68 @@ public class CXXCommandBuilder {
         return cxxCmd.toArray(new String[cxxCmd.size()]);
     }
 
+    private static Properties loadPropertyFile(String filename) {
+        Properties properties = new Properties();
+        try {
+            properties.load(new FileInputStream(filename));
+        } catch(IOException e) {
+            throw new InternalCompilerError("Unable to load property file "+filename+" "+ e.getMessage(), e);
+        }
+        return properties;
+    }
+    
+    /**
+     * Construct a CXXCommandBuilder for the given platform and options.
+     * 
+     * @param platform
+     * @param options
+     * @param eq
+     * @return
+     */
     public static CXXCommandBuilder getCXXCommandBuilder(Options options, ErrorQueue eq) {
-        if (PLATFORM.startsWith("win32_"))
-            return new Cygwin_CXXCommandBuilder(options, eq);
-        if (PLATFORM.startsWith("linux_"))
-            return new Linux_CXXCommandBuilder(options, eq);
-        if (PLATFORM.startsWith("aix_"))
-            return new AIX_CXXCommandBuilder(options, eq);
-        if (PLATFORM.startsWith("sunos_"))
-            return new SunOS_CXXCommandBuilder(options, eq);
-        if (PLATFORM.startsWith("macosx_"))
-            return new MacOSX_CXXCommandBuilder(options, eq);
-        if (PLATFORM.startsWith("freebsd_"))
-            return new FreeBSD_CXXCommandBuilder(options, eq);
-        eq.enqueue(ErrorInfo.WARNING,
-                "Unknown platform '"+PLATFORM+"'; using the default post-compiler (g++)");
-        return new CXXCommandBuilder(options, eq);
+        String platform = System.getenv("X10_PLATFORM")==null?"unknown":System.getenv("X10_PLATFORM");
+
+        String rtimpl = System.getenv("X10RT_IMPL");
+        if (rtimpl == null) {
+            // assume pgas (default to old behavior)
+            if (platform.startsWith("aix_")) {
+                rtimpl = "pgas_lapi";
+            } else {
+                rtimpl = "sockets";
+            }
+        }
+        // allow the user to give an explicit path, otherwise look in etc
+        if (!rtimpl.endsWith(".properties")) {
+            rtimpl = X10_DIST + "/etc/x10rt_"+rtimpl+".properties";
+        }
+        
+        Properties x10rtProps = loadPropertyFile(rtimpl);
+        Properties gcProps = loadPropertyFile(X10_DIST + "/etc/bdwgc.properties");
+        
+        CXXCommandBuilder ccb;
+        
+        if (platform.startsWith("win32_")) {
+            ccb = new Cygwin_CXXCommandBuilder(options, eq);
+        } else if (platform.startsWith("linux_")) {
+            ccb = new Linux_CXXCommandBuilder(options, eq);
+        } else if (platform.startsWith("aix_")) {
+            ccb =  new AIX_CXXCommandBuilder(options, eq);
+        } else if (platform.startsWith("sunos_")) {
+            ccb =  new SunOS_CXXCommandBuilder(options, eq);
+        } else if (platform.startsWith("macosx_")) {
+            ccb = new MacOSX_CXXCommandBuilder(options, eq);
+        } else if (platform.startsWith("freebsd_")) {
+            ccb =  new FreeBSD_CXXCommandBuilder(options, eq);
+        } else {   
+            eq.enqueue(ErrorInfo.WARNING,
+                       "Unknown platform '"+platform+"'; using the default post-compiler (g++)");
+            ccb = new CXXCommandBuilder(options, eq);
+        }
+        
+        ccb.postCompileOptions.add(new PostCompileOptions(x10rtProps));
+        ccb.postCompileOptions.add(new PostCompileOptions(gcProps));
+        
+        return ccb;
     }
 
 }

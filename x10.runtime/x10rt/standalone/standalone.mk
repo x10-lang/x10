@@ -32,7 +32,8 @@ endif
 endif
 
 etc/x10rt_standalone.properties:
-	@echo "CXX=$(CXX)" > $@
+	@echo "PLATFORM=$(X10RT_PLATFORM)" > $@
+	@echo "CXX=$(CXX)" >> $@
 	@echo "CXXFLAGS=" >> $@
 	@echo "LDFLAGS=$(CUDA_LDFLAGS)" >> $@
 	@echo "LDLIBS=-lx10rt_standalone $(CUDA_LDLIBS)" >> $@

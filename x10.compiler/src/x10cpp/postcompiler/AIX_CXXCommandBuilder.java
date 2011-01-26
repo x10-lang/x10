@@ -18,9 +18,9 @@ import polyglot.util.ErrorQueue;
 import x10cpp.X10CPPCompilerOptions;
 
 public class AIX_CXXCommandBuilder extends CXXCommandBuilder {
-    public AIX_CXXCommandBuilder(Options options, ErrorQueue eq) {
+    
+    AIX_CXXCommandBuilder(Options options, ErrorQueue eq) {
         super(options, eq);
-        assert (CXXCommandBuilder.PLATFORM.startsWith("aix_"));
     }
 
     protected boolean useXLC() {

@@ -17,18 +17,16 @@ import polyglot.main.Options;
 import polyglot.util.ErrorQueue;
 
 public class FreeBSD_CXXCommandBuilder extends CXXCommandBuilder {
-    protected static final boolean USE_X86 = CXXCommandBuilder.PLATFORM.endsWith("_x86");
-    protected static final boolean USE_BFD = System.getenv("USE_BFD")!=null;
+    protected final static boolean USE_BFD = System.getenv("USE_BFD")!=null;
 
-    public FreeBSD_CXXCommandBuilder(Options options, ErrorQueue eq) {
+    FreeBSD_CXXCommandBuilder(Options options, ErrorQueue eq) {
         super(options, eq);
-        assert (CXXCommandBuilder.PLATFORM.startsWith("freebsd_"));
     }
 
     protected void addPreArgs(ArrayList<String> cxxCmd) {
         super.addPreArgs(cxxCmd);
         cxxCmd.add("-pthread");
-        if (USE_X86) {
+        if (getPlatform().endsWith("_x86")) {
             cxxCmd.add("-msse2");
             cxxCmd.add("-mfpmath=sse");
         }

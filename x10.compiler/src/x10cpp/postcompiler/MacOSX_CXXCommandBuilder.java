@@ -15,23 +15,20 @@ import java.util.ArrayList;
 
 import polyglot.main.Options;
 import polyglot.util.ErrorQueue;
+import x10cpp.X10CPPCompilerOptions;
 
 public class MacOSX_CXXCommandBuilder extends CXXCommandBuilder {
-    public static final boolean USE_32BIT = System.getenv("USE_32BIT")!=null;
-    public static final boolean USE_64BIT = System.getenv("USE_64BIT")!=null;
 
-    public MacOSX_CXXCommandBuilder(Options options, ErrorQueue eq) {
+    MacOSX_CXXCommandBuilder(Options options, ErrorQueue eq) {
         super(options,eq);
-        assert (CXXCommandBuilder.PLATFORM.startsWith("macosx_"));
     }
 
     protected void addPreArgs(ArrayList<String> cxxCmd) {
         super.addPreArgs(cxxCmd);
-        if (USE_32BIT) {
+        if (options.wordSize.equals(X10CPPCompilerOptions.WordSize.FORCE_32)) {
             cxxCmd.add("-arch");
             cxxCmd.add("i386");
-        }
-        if (USE_64BIT) {
+        } else if (options.wordSize.equals(X10CPPCompilerOptions.WordSize.FORCE_64)) {
             cxxCmd.add("-arch");
             cxxCmd.add("x86_64");
         }
