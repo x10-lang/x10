@@ -324,8 +324,8 @@ public class CXXCommandBuilder {
             rtimpl = X10_DIST + "/etc/x10rt_"+rtimpl+".properties";
         }
         
-        Properties x10rtProps = loadPropertyFile(rtimpl);
-        Properties gcProps = loadPropertyFile(X10_DIST + "/etc/bdwgc.properties");
+        Properties x10rt = loadPropertyFile(rtimpl);
+        Properties stdlib = loadPropertyFile(X10_DIST + "/etc/libx10.properties");
         
         CXXCommandBuilder ccb;
         
@@ -347,8 +347,8 @@ public class CXXCommandBuilder {
             ccb = new CXXCommandBuilder(options, eq);
         }
         
-        ccb.postCompileOptions.add(new PostCompileOptions(x10rtProps));
-        ccb.postCompileOptions.add(new PostCompileOptions(gcProps));
+        ccb.postCompileOptions.add(new PostCompileOptions(x10rt));
+        ccb.postCompileOptions.add(new PostCompileOptions(stdlib));
         
         return ccb;
     }

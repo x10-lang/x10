@@ -9,13 +9,12 @@ XARGS ?= xargs
 
 INCLUDE_DIRS += -I. -I../x10rt/include
 
-BDWGC_PROPERTIES=bdwgc_off.properties
-
 ifdef ENABLE_GC
   override CXXFLAGS += -DX10_USE_BDWGC
   BDWGC_INCLUDE_DIR= ./bdwgc/install/include
   INCLUDE_DIRS += -I"$(BDWGC_INCLUDE_DIR)"
-  BDWGC_PROPERTIES=bdwgc_on.properties
+  XRX_PROPS_CXXFLAGS += -DX10_USE_BDWGC
+  XRX_PROPS_LDLIBS += -lgc
 endif
 
 override CXXFLAGS += $(INCLUDE_DIRS) -Igen
@@ -35,11 +34,12 @@ ifeq ($(X10RT_PLATFORM),cygwin)
   endif
 endif
 XRX_MANIFEST = libx10.mft
+XRX_PROPERTIES = libx10.properties
 
 # this builds everything
 xrx: $(XRX_ARCHIVE)
 
-.PHONY: xrx
+.PHONY: xrx $(XRX_PROPERTIES)
 
 export CXX
 export MPICXX
@@ -51,7 +51,7 @@ export ARFLAGS
 # Generated Files #
 ###################
 
-# First thing to do: compile x10 files to cc,h,inc
+# First thing to do: compile x10 files to cc,h
 
 
 # A list of all .x10 files (relative to the src-cpp dir) that we should build
@@ -65,7 +65,7 @@ XRXFILES  = $(shell $(FIND) ../src-x10 -name .svn -prune -o -name '*.x10' -print
 #enable asserts, do not look in jar for x10 files
 X10CPPFLAGS += -J-Xmx1024M -J-ea -rtdev -commandlineonly
 
-# Generate .cc .inc and .h files for all the X10 classes defined in the above
+# Generate .cc and .h files for all the X10 classes defined in the above
 # .x10 files.  Rebuilding occurs if the x10 backend is updated or if any of the
 # currently present x10 files are newer than the 'all-cpp-generated' file.
 # Note that nothing gets rebuilt if one of the .x10 files is deleted, however
@@ -187,6 +187,12 @@ endif
 endif
 
 
+$(XRX_PROPERTIES):
+	@echo "PLATFORM=$(X10RT_PLATFORM)" > $@
+	@echo "CXXFLAGS=$(XRX_PROPS_CXXFLAGS)" >> $@
+	@echo "LDFLAGS=$(XRX_PROPS_LDFLAGS)" >> $@
+	@echo "LDLIBS=$(XRX_PROPS_LDLIBS)" >> $@
+
 
 # The dummy files are needed to avoid rebuilds so must not be removed as
 # intermediate files usually are.
@@ -204,13 +210,11 @@ else
   INC_FLAG=-T -
 endif
 
-# FIXME: remove the part of the rule that copies the .inc files as soon as we get rid of them..
-install: $(XRCPP_ARCHIVE) $(XRX_ARCHIVE)
+install: $(XRCPP_ARCHIVE) $(XRX_ARCHIVE) $(XRX_PROPERTIES)
 	@echo "Installing into $(INSTDIR)"
 	@mkdir -p "$(INSTDIR)"/include "$(INSTDIR)"/lib
 	@(cd gen && $(FIND) . -name \*.h | tar cf - $(INC_FLAG)) | (cd "$(INSTDIR)"/include && tar xf -)
 	@(cd gen && $(FIND) . -name \*.struct_h | tar cf - $(INC_FLAG)) | (cd "$(INSTDIR)"/include && tar xf -)
-	@(cd gen && $(FIND) . -name \*.inc | tar cf - $(INC_FLAG)) | (cd "$(INSTDIR)"/include && tar xf -)
 	@$(FIND) x10 -name \*.h | tar cf - $(INC_FLAG) | (cd "$(INSTDIR)"/include && tar xf -)
 	@$(FIND) x10 -name \*.struct_h | tar cf - $(INC_FLAG) | (cd "$(INSTDIR)"/include && tar xf -)
 	@$(FIND) x10aux -name \*.h | tar cf - $(INC_FLAG) | (cd "$(INSTDIR)"/include && tar xf -)
@@ -218,7 +222,7 @@ install: $(XRCPP_ARCHIVE) $(XRX_ARCHIVE)
 	@cp -p x10rt.h "$(INSTDIR)"/include
 	@cp -p $(XRX_ARCHIVE) "$(INSTDIR)"/lib
 	@cp -p $(XRX_MANIFEST) "$(INSTDIR)"/lib
-	@cp -p $(BDWGC_PROPERTIES) "$(INSTDIR)"/etc/bdwgc.properties
+	@cp -p $(XRX_PROPERTIES) "$(INSTDIR)"/etc
 
 .PHONY: install
 
@@ -236,7 +240,7 @@ install: $(XRCPP_ARCHIVE) $(XRX_ARCHIVE)
 %:%.c
 %:%.cc
 
-# want to make sure the x10 code has been compiled to cc,h,inc since the
+# want to make sure the x10 code has been compiled to cc,h since the
 # manually written code may #include some of the generated headers
 
 %.o: %.cc gen/all-cpp-generated 
@@ -256,7 +260,7 @@ cleanobj:
 
 #nuke everything
 cleangen:
-	-$(RM) -r gen $(XRX_ARCHIVE) $(XRX_MANIFEST)
+	-$(RM) -r gen $(XRX_ARCHIVE) $(XRX_MANIFEST) $(XRX_PROPERTIES)
 
 clean: cleanobj cleangen
 
