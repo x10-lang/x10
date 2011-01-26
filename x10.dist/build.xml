@@ -76,7 +76,6 @@
             <fileset dir="${bin}">
                 <include name="defs"/>
                 <include name="setupX10"/>
-                <include name="java_x10rt"/>
                 <include name="x10"/>
                 <include name="x10c"/>
             </fileset>
@@ -348,7 +347,6 @@
         <antcall target="x10"/>
         <antcall target="x10c"/>
         <antcall target="precommit"/>
-        <antcall target="java_x10rt"/>
     </target>
 
     <target name="etc"
@@ -386,10 +384,6 @@
             <srcfiles file="${ant.file}"/>
             <srcfiles file="${bin}/precommit.in"/>
         </uptodate>
-        <uptodate property="java_x10rt.up-to-date" targetfile="${bin}/java_x10rt">
-            <srcfiles file="${ant.file}"/>
-            <srcfiles file="${bin}/java_x10rt.in"/>
-        </uptodate>
         <condition property="bin.up-to-date">
             <and>
                 <isset property="setupX10.up-to-date"/>
@@ -397,7 +391,6 @@
                 <isset property="precommit.up-to-date"/>
                 <isset property="x10.up-to-date"/>
                 <isset property="x10c.up-to-date"/>
-                <isset property="java_x10rt.up-to-date"/>
             </and>
         </condition>
     </target>
@@ -587,22 +580,6 @@ WALA4_URL='${wala4.jar.url}'
         </concat>
 
         <chmod perm="+x" file="${bin}/apgas"/>
-
-        <delete file="${bin}/defs"/>
-    </target>
-
-    <target name="java_x10rt" unless="java_x10rt.up-to-date"
-            depends="executable-defs"
-            description="creates the executable script java_x10rt">
-        <echo message="Creating ${bin}/java_x10rt"/>
-        <concat destfile="${bin}/java_x10rt" append="no">
-            <filelist dir="${bin}" files="defs"/>
-        </concat>
-        <concat destfile="${bin}/java_x10rt" append="yes">
-            <filelist dir="${bin}" files="java_x10rt.in"/>
-        </concat>
-
-        <chmod perm="+x" file="${bin}/java_x10rt"/>
 
         <delete file="${bin}/defs"/>
     </target>
