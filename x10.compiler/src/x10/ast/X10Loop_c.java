@@ -134,7 +134,7 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop {
 	    Formal formal = (Formal) this.visitChild(this.formal, tc1);
 	    
 	    NodeFactory nf = (NodeFactory) tc.nodeFactory();
-	    TypeSystem ts = (TypeSystem) tc.typeSystem();
+	    TypeSystem ts =  tc.typeSystem();
 	    
 //	    if (ts.isPoint(formal.type().type())) {
 //	        X10Type point = (X10Type) formal.type().type();
@@ -147,7 +147,7 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop {
 	/** Type check the statement. */
 	public Node typeCheck(ContextVisitor tc) {
 		NodeFactory nf = tc.nodeFactory();
-		TypeSystem ts = (TypeSystem) tc.typeSystem();
+		TypeSystem ts =  tc.typeSystem();
 		Type domainType = domainTypeRef.get();
 		if (domainType == null ) {
 			// aha, in this case the type inferencer did not run, since an explicit type was givem.
@@ -176,7 +176,8 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop {
 		        Expr newDomain = Converter.attemptCoercion(tc, domain, Region);
 		        if (newDomain != null && newDomain != domain) {
 		            domainTypeRef = Types.lazyRef(null);
-		            return this.domain(newDomain).del().typeCheck(tc);
+		            Node nn = this.domain(newDomain).del().typeCheck(tc);
+		            return nn;
 		        }
 		    }
 		    catch (SemanticException e) {

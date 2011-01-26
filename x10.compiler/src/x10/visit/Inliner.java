@@ -561,8 +561,8 @@ public class Inliner extends ContextVisitor {
                         y[i] = XTerms.makeLocal(XTerms.makeName(ld, m.toString()));
                         ++i;
                     }
-                    x[i] = XTerms.makeFreshLocal(); // to force substitution
-                    y[i] = XTerms.makeFreshLocal();
+                    x[i] = XTerms.makeUQV(); // to force substitution
+                    y[i] = XTerms.makeUQV();
                     type = Subst.subst(type, y, x);
                 } catch (SemanticException e) {
                     throw new InternalCompilerError("Cannot alpha-rename locals in type " + type, e);
@@ -1038,7 +1038,7 @@ public class Inliner extends ContextVisitor {
      * inlining calls of the form "super.foo()" (because the method instance has
      * already been resolved). (Java does not allow the bare keyword "super" to
      * occur where an expression is required. It does, of course, allow "this"
-     * to be so used. It just needs to be coersed to the right type.)
+     * to be so used. It just needs to be coerced to the right type.)
      */
     private Special rewriteSuperAsThis(Special special) {
         assert (special.kind() == Special.SUPER) : "Unexpected special kind: " +special;
@@ -1053,7 +1053,8 @@ public class Inliner extends ContextVisitor {
         TypeParamSubst typeMap = makeTypeMap(mi);
         Type thisType = typeMap.reinstantiate(mi.def().container().get());
         Expr expr = null == init ? null : createCast(init.position(), syn.createLocal(init.position(), init), thisType);
-        LocalDecl thisDecl = syn.createLocalDecl(mi.position(), Flags.FINAL, Name.make("this"), expr);
+        LocalDecl thisDecl = syn.createLocalDecl(mi.position(), Flags.FINAL, 
+                                                 Name.make("this"), expr);
         return thisDecl;
     }
 
@@ -1363,7 +1364,8 @@ public class Inliner extends ContextVisitor {
     private void tieLocalDef(LocalDef d, LocalDef o) {
         Type type = Types.get(d.type());
         try {
-            type = Types.addSelfBinding(type, XTerms.makeLocal(XTerms.makeName(o, o.name().toString())));
+            type = Types.addSelfBinding(type, 
+                                        XTerms.makeLocal(XTerms.makeName(o, o.name().toString())));
         } catch (XFailure e) {
         }
         ((Ref<Type>) d.type()).update(type);

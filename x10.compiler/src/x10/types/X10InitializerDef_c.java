@@ -26,6 +26,7 @@ import polyglot.util.Position;
 import polyglot.util.TypedList;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
+import x10.types.constraints.CTerms;
 import x10.types.constraints.TypeConstraint;
 
 public class X10InitializerDef_c extends InitializerDef_c implements X10InitializerDef {
@@ -38,7 +39,7 @@ public class X10InitializerDef_c extends InitializerDef_c implements X10Initiali
     public XVar thisVar() {
         if (this.thisDef != null)
             return this.thisDef.thisVar();
-        return XTerms.makeEQV("#this");
+        return CTerms.makeThis("#this"); // Why #this instead of this?
     }
 
     ThisDef thisDef;

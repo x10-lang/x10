@@ -146,7 +146,7 @@ interface XPromise extends Cloneable {
 	 * A node cannot both have disEquals bindings and be forwarded.
 	 * @return true iff this node has disEquals bindings.
 	 */
-	boolean hasDisBindings();
+	//boolean hasDisBindings();
 
 	/**
 	 * Is there a path from here to p? 

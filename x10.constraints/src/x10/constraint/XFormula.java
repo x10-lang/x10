@@ -21,32 +21,37 @@ import java.util.Map;
 /**
  * A representation of an atomic formula op(t1,..., tn).
  * 
- * @author vijay
+ * @author vj
  *
  */
 public class XFormula extends XTerm {
 	    public final XName op;
 	    public final XName asExprOp;
 	    public List<XTerm> arguments;
+	    public final boolean isAtomicFormula;
 
 	    /**
 	     * Create a formula with the given op and given list of arguments.
 	     * @param op
 	     * @param args
 	     */
-	    public XFormula(XName op, XName opAsExpr, List<XTerm> args) {
-
+	    public XFormula(XName op, XName opAsExpr, List<XTerm> args, boolean isAtomicFormula) {
 	    	  this.op = op;
 	    	  this.asExprOp = opAsExpr;
-	        this.arguments = args;
+	          this.arguments = args;
+	          this.isAtomicFormula = isAtomicFormula;
 	    }
-	    public XFormula(XName op, XName opAsExpr, XTerm... args) {
+	    public XFormula(XName op, XName opAsExpr, boolean isAtomicFormula, XTerm... args) {
 	        this.op = op;
 	        this.asExprOp = opAsExpr;
+	        this.isAtomicFormula = isAtomicFormula;
 	        this.arguments = new ArrayList<XTerm>(args.length);
 	        for (XTerm arg : args) {
 	            this.arguments.add(arg);
 	        }
+	    }
+	    public boolean isAtomicFormula() {
+	        return isAtomicFormula;
 	    }
 	    public XTermKind kind() { return XTermKind.FN_APPLICATION;}
 	    public List<XEQV> eqvs() {
@@ -109,14 +114,14 @@ public class XFormula extends XTerm {
 
 	    public List<XTerm> arguments() { return arguments; }
 
-	    public boolean hasVar(XVar v) {
+/*	    public boolean hasVar(XVar v) {
 	        for (XTerm arg : arguments) {
 	            if (arg.hasVar(v))
 	                return true;
 	        }
 	        return false;
 	    }
-
+*/
 	    public XPromise internIntoConstraint(XConstraint c, XPromise last) throws XFailure {
 	        assert last == null;
 	        // Evaluate left == right, if both are literals.

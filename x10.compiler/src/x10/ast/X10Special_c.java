@@ -42,6 +42,7 @@ import x10.types.XTypeTranslator;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint;
+import x10.types.constraints.CThis;
 import x10.types.constraints.XConstrainedTerm;
 
 public class X10Special_c extends Special_c implements X10Special {
@@ -122,7 +123,10 @@ public class X10Special_c extends Special_c implements X10Special {
                 t=ct;
                 if (!c.currentClass().hasEnclosingInstance(ct)) {
                     Errors.issue(tc.job(),
-                            new SemanticException("The nested class \"" +c.currentClass() + "\" does not have an enclosing instance of type \"" +ct + "\".", qualifier.position()),
+                            new SemanticException("The nested class \"" 
+                                                  +c.currentClass() 
+                                                  + "\" does not have an enclosing instance of type \"" 
+                                                  +ct + "\".", qualifier.position()),
                             this);
                 }
                 
@@ -152,6 +156,7 @@ public class X10Special_c extends Special_c implements X10Special {
             cc = cc == null ? new CConstraint() : cc.copy();
             try {
                 XVar var = (XVar) xts.xtypeTranslator().translate(cc, this, c);
+                assert var instanceof CThis;
                 if (var != null) {
                     cc.addSelfBinding(var);
                     cc.setThisVar(var);

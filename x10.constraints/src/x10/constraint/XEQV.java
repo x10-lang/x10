@@ -15,37 +15,62 @@ import java.util.Collections;
 import java.util.List;
 
 
+
+
 /**
  * A representation of logical variables. 
  * 
- * <p> EQVs (created with hidden = true) are existentially quantified
+ * <p> EQVs  are existentially quantified
  * in each constraint in which they occur.
 
-  * <p> UQVs (created with hidden=false) are free in the constraint 
- * and may occur in multiple constraints. 
+  * <p> UQVs  are free in the constraint and may occur in multiple constraints. 
  * @author vj
+ * @see XUQV
  *
  */
-public class XEQV extends XLocal  {
-	boolean hidden;
-
-
-	XEQV(XName name, boolean hidden) {
-		super(name);
-		this.hidden = hidden;
-	}
-
-	public boolean hasEQV() {
-		return hidden;
-	}
-	public boolean isEQV() {
-		return hidden;
-	}
-
-	public List<XEQV> eqvs() {
-		if (hasEQV())
+public class XEQV extends XVar  {
+	
+    public final int num;
+    public XEQV(int n) {
+        this.num=n;
+    }
+    
+    @Override
+    public XTermKind kind() { return XTermKind.LOCAL;}
+    @Override
+    public boolean prefersBeingBound() {
+        return true;
+    }
+    
+    @Override
+    public boolean hasEQV() {
+        return true;
+    }
+    @Override
+    public boolean isEQV() {
+        return true;
+    }
+    @Override
+    public List<XEQV> eqvs() {
 			return Collections.<XEQV>singletonList(this);
-		return Collections.<XEQV>emptyList();
 	}
 
+    @Override
+    public int hashCode() {
+        return num;
+    }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o instanceof XEQV) {
+            return num == ((XEQV) o).num;
+        }
+        return false;
+    }
+    
+    @Override
+    public String toString() {
+        return "eqv" + num;
+    }
 }

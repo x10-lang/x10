@@ -22,8 +22,9 @@ public class XField extends XVar {
 
     public XVar receiver;
     public XName field;
+    
     // used by XPromise_c to determine if this field should occur in the output
-    // representation of a constraint or not. 
+    // representation of a constraint or not. hidden true for fake fields.
     private boolean hidden;
 
     public XField(XVar receiver, XName field) {
@@ -66,11 +67,11 @@ public class XField extends XVar {
     public String name() {
         return field.toString();
     }
-
+/*
     public boolean hasVar(XVar v) {
         return equals(v) || receiver.hasVar(v);
     }
-
+*/
     public XVar receiver() {
         return receiver;
     }
@@ -120,7 +121,7 @@ public class XField extends XVar {
         return vars[0];
     }
 
-    public boolean prefixes(XTerm t) {
+  /*  public boolean prefixes(XTerm t) {
         if (equals(t))
             return true;
         if (!(t instanceof XVar))
@@ -132,7 +133,7 @@ public class XField extends XVar {
         }
         return result;
     }
-
+*/
     protected void initVars() {
         int count = 0;
         for (XVar source = this; source instanceof XField; source = ((XField) source).receiver())

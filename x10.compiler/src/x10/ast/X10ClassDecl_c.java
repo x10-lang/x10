@@ -967,7 +967,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     	Context context = (Context) tc.context();
     	
     	X10ClassDef cd = (X10ClassDef) classDef();
-        CConstraint c = cd.classInvariant().get();
+        CConstraint c = cd.getRootClause(); // cd.classInvariant().get();
         if (c != null && ! c.consistent()) {
             Errors.issue(tc.job(), new Errors.InconsistentInvariant(cd, position()));
         }
@@ -1280,7 +1280,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
 
         ConstructorDecl cd = xnf.X10ConstructorDecl(pos,
                 nf.FlagsNode(pos, Flags.PUBLIC),
-                nf.Id(pos, "this"), 
+                nf.Id(pos, TypeSystem.CONSTRUCTOR_NAME), 
                 returnType,
                 typeFormals,
                 formals,

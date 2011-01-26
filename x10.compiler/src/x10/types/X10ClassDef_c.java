@@ -53,6 +53,7 @@ import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint;
+import x10.types.constraints.CTerms;
 import x10.types.constraints.TypeConstraint;
 
 public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
@@ -95,7 +96,7 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
     public XVar thisVar() {
         if (this.thisDef != null)
             return this.thisDef.thisVar();
-        return XTerms.makeEQV("#this");
+        return CTerms.makeThis("#this"); // Why #this instead of this?
     }
 
     ThisDef thisDef;
@@ -205,7 +206,7 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
 
 			    CConstraint result = new CConstraint();
 			    
-			    XVar oldThis = xts.xtypeTranslator().translateThisWithoutTypeConstraint();
+			    XVar oldThis = thisVar(); // xts.xtypeTranslator().translateThisWithoutTypeConstraint();
 			    
 			    try {
 				    // Add in constraints from the supertypes.  This is
@@ -258,6 +259,7 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
 				    // Finally, add in the class invariant.
 				    // It is important to do this last since we need avoid type-checking constraints
 				    // until after the base type of the supertypes are resolved.
+				    XVar thisVar = thisVar();
 				    CConstraint ci = Types.get(classInvariant);
 				    if (ci != null) {
 					ci = ci.substitute(ci.self(), oldThis);

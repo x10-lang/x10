@@ -31,6 +31,7 @@ import x10.constraint.XName;
 import x10.constraint.XNameWrapper;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
+import x10.constraint.XUQV;
 import x10.constraint.XVar;
 import x10.errors.Errors;
 import x10.parser.X10ParsedName;
@@ -84,6 +85,8 @@ import x10.types.X10TypeEnv_c;
 import x10.types.XTypeTranslator;
 import x10.types.XTypeTranslator.XTypeLit;
 import x10.types.constraints.CConstraint;
+import x10.types.constraints.CTerms;
+import x10.types.constraints.ConstraintMaker;
 import x10.types.constraints.SubtypeConstraint;
 import x10.types.constraints.TypeConstraint;
 import x10.types.matcher.X10ConstructorMatcher;
@@ -424,7 +427,7 @@ public class TypeSystem_c implements TypeSystem
     public X10InitializerDef initializerDef(Position pos, Ref<? extends ClassType> container, Flags flags) {
         String fullNameWithThis = "<init>#this";
         XName thisName = new XNameWrapper<Object>(new Object(), fullNameWithThis);
-        XVar thisVar = XTerms.makeLocal(thisName);
+        XVar thisVar = CTerms.makeThis(fullNameWithThis); // XTerms.makeLocal(thisName);
 
         return initializerDef(pos, container, flags, thisVar);
     }
@@ -1084,6 +1087,7 @@ public class TypeSystem_c implements TypeSystem
 		return container;
 	}
 
+	public static String ConstructorName= "this";
 	public Name name() {
 	    return Name.make("this");
 	}
@@ -3187,8 +3191,6 @@ public class TypeSystem_c implements TypeSystem
    }
     public X10FieldInstance findField(Type container, TypeSystem_c.FieldMatcher matcher)
 	throws SemanticException {
-
-
 		Context context = matcher.context();
 
 		Collection<FieldInstance> fields = findFields(container, matcher);
@@ -3435,7 +3437,7 @@ public class TypeSystem_c implements TypeSystem
         o.setDefAnnotations(newATs);
     }
   
-    public boolean equivClause(Type me, Type other, Context context) {
+  /*  public boolean equivClause(Type me, Type other, Context context) {
         return entailsClause(me, other, context) && entailsClause(other, me, context);
     }
 
@@ -3456,6 +3458,7 @@ public class TypeSystem_c implements TypeSystem
             throw e;
         }
     }
+    */
 /*
     protected XLit hereConstraintLit; // Maybe this should be declared as C_Lit
                                       // instead of a concrete impl class?
@@ -3529,17 +3532,16 @@ public class TypeSystem_c implements TypeSystem
             NULL = XTypeTranslator.transNull();
         return NULL;
     }
-    public boolean entails(CConstraint c1, CConstraint c2, Context context, Type selfType) {
+   /* public boolean entails(final CConstraint c1, final CConstraint c2, final Context context, Type selfType) {
         if (c1 != null || c2 != null) {
             boolean result = true;
 
             if (c1 != null && c2 != null) {
-                try {
-                    result = c1.entails(c2, context.constraintProjection(c1, c2));
-                }
-                catch (XFailure e) {
-                    result = false;
-                }
+                    result = c1.entails(c2, new ConstraintMaker() { 
+                        public CConstraint make() throws XFailure {
+                            return context.constraintProjection(c1, c2);
+                        }
+                    });
             }
             else if (c2 != null) {
                 result = c2.valid();
@@ -3550,6 +3552,7 @@ public class TypeSystem_c implements TypeSystem
 
         return true;
     }
+    */
     public boolean isSigned(Type t) {
         return isByte(t) || isShort(t) || isInt(t) || isLong(t);
     }
@@ -4175,7 +4178,11 @@ public class TypeSystem_c implements TypeSystem
             return hasUnknownType(((XTypeLit) x).type());
         } else if (x instanceof XEQV) {
             return false;
-        } else if (x instanceof XLocal) {
+        } else if (x instanceof XUQV) {
+            return false;
+        }
+            else if (x instanceof XLocal) {
+        
             return hasUnknown(((XLocal) x).name());
         }
         return false;

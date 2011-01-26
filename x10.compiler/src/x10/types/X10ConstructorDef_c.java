@@ -32,6 +32,7 @@ import x10.constraint.XTerms;
 import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.types.constraints.CConstraint;
+import x10.types.constraints.CTerms;
 import x10.types.constraints.TypeConstraint;
 
 /**
@@ -119,7 +120,7 @@ public class X10ConstructorDef_c extends ConstructorDef_c implements X10Construc
     public XVar thisVar() {
         if (this.thisDef != null)
             return this.thisDef.thisVar();
-        return XTerms.makeEQV("#this");
+        return CTerms.makeThis("#this"); // Why #this instead of this?
     }
 
     ThisDef thisDef;
@@ -182,6 +183,6 @@ public class X10ConstructorDef_c extends ConstructorDef_c implements X10Construc
     }
 
     public String signature() {
-	    return "this" + "(" + CollectionUtil.listToString(formalTypes) + ")";
+	    return TypeSystem.CONSTRUCTOR_NAME + "(" + CollectionUtil.listToString(formalTypes) + ")";
     }
 }

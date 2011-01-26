@@ -13,6 +13,7 @@ package x10.constraint;
 
 /**
  * Represents the conjunction of two formulas.
+ * (Not treated as an atomic formula.)
  * @author njnystrom
  * @author vj
  *
@@ -21,7 +22,7 @@ package x10.constraint;
 public class XAnd extends XFormula {
 	
 	public XAnd(XTerm left, XTerm right) {
-		super(XTerms.andName, XTerms.asExprAndName, left, right);
+		super(XTerms.andName, XTerms.asExprAndName, false, left, right);
 	}
 	
 	public XPromise internIntoConstraint(XConstraint c, XPromise last) throws XFailure {

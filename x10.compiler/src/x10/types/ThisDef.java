@@ -11,6 +11,7 @@
 
 package x10.types;
 
+import polyglot.types.Name;
 import polyglot.types.VarDef;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
@@ -21,4 +22,5 @@ public interface ThisDef extends VarDef, X10Def {
     void setThisVar(XVar thisVar);
     XTerm placeTerm();
     void setPlaceTerm(XTerm xt);
+    public static final Name THIS = Name.make("this");
 }

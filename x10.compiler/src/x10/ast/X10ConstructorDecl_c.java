@@ -498,6 +498,8 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
     	Ref<? extends Type> ref = r.typeRef();
     	Type type = Types.get(ref);
     	X10ClassType container =  (X10ClassType) Types.instantiateTypeParametersExplicitly(tc.context().currentClass());
+    	CConstraint xclause = Types.xclause(container);
+    	
     	if (! tc.typeSystem().isSubtype(type, container, tc.context())) {
     	    Errors.issue(tc.job(),
     	            new Errors.ConstructorReturnTypeNotSubtypeOfContainer(type, container, position()));

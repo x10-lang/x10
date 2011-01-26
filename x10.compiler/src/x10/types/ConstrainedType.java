@@ -17,6 +17,7 @@ import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import x10.types.constraints.CConstraint;
+import x10.types.constraints.ConstraintMaker;
 import x10.types.constraints.XConstrainedTerm;
 
 import java.util.Collections;
@@ -186,6 +187,8 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, Name
 			if (rootClause == null)
 				assert rootClause != null;
 
+			if (!rootClause.consistent())
+			    return rootClause;
 			CConstraint depClause = Types.xclause(this);
 			if (depClause==null) {
 					depClause = new CConstraint();
@@ -740,18 +743,22 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, Name
 		    return typeSystem().THREE().equals(rank(context));
 		}
 		
-		 public  boolean amIProperty(Name propName, Context context) {
+		 public  boolean amIProperty(Name propName, final Context context) {
 			    TypeSystem xts = typeSystem();
-			    CConstraint r = realX();
+			    final CConstraint r = realX();
 			
 			    // first try self.p
 			    X10FieldInstance fi = Types.getProperty(this, propName);
 			    if (fi != null) {
 				    try {
-					    CConstraint c = new CConstraint();
+					    final CConstraint c = new CConstraint();
 					    XVar term = xts.xtypeTranslator().translate(c.self(), fi);
 					    c.addBinding(term, xts.xtypeTranslator().translate(true));
-			            return r.entails(c, context.constraintProjection(r, c));
+			            return r.entails(c, new ConstraintMaker() { 
+			                public CConstraint make() throws XFailure {
+			                    return context.constraintProjection(r, c);
+			                }
+			            });
 				    }
 				    catch (XFailure f) {
 					    return false;
@@ -762,10 +769,14 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, Name
 			            try {
 			                MethodInstance mi = xts.findMethod(this, xts.MethodMatcher(this, propName, Collections.<Type>emptyList(), xts.emptyContext()));
 			                XTerm body = mi.body();
-			                CConstraint c = new CConstraint();
+			                final CConstraint c = new CConstraint();
 			                body = body.subst(c.self(), mi.x10Def().thisVar());
 			                c.addTerm(body);
-			                return r.entails(c, context.constraintProjection(r, c));
+			                return r.entails(c, new ConstraintMaker() { 
+	                            public CConstraint make() throws XFailure {
+	                                return context.constraintProjection(r, c);
+	                            }
+	                        });
 			            }
 			            catch (XFailure f) {
 			                return false;

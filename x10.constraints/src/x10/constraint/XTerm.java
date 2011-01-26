@@ -12,11 +12,13 @@
 package x10.constraint;
 
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.List;
 
 /**
- * Constraints constrain XTerms. Thus XTerms are the basic building blocks of constraints.
- * This class is the root class of constraint terms.
+ * Constraints constrain XTerms. Thus XTerms are the basic building blocks 
+ * of constraints.This class is the root class of constraint terms.
+ * Class should not have any state.
  * 
  * @author njnystrom
  * @author vj
@@ -42,7 +44,7 @@ public abstract class XTerm implements  Serializable, Cloneable {
 	    return subst(y, x, true);
 	}
 
-	int nextId = 0;
+	// int nextId = 0;
 	
 	/**
 	 * Return the result of substituting y for x in this.
@@ -69,13 +71,9 @@ public abstract class XTerm implements  Serializable, Cloneable {
 		}
 	}
 
-	public boolean rootVarIsSelf() {
-		return false;
-	}
-
 	/**
 	 * Does this contain an existentially quantified variable?
-	 * 
+	 * Default no; should be overridden by subclasses representing eqvs.
 	 * @return true if it is, false if it isn't.
 	 */
 	public boolean hasEQV() {
@@ -84,23 +82,26 @@ public abstract class XTerm implements  Serializable, Cloneable {
 	
 	/**
 	 * Is this itself an EQV?
+	 * Default no; should be overridden by subclasses representing eqvs.
 	 * @return
 	 */
 	public boolean isEQV() {
 		return false;
 	}
 	
-	public abstract List<XEQV> eqvs();
+	public List<XEQV> eqvs() {
+	    return Collections.emptyList();
+	}
 
 	/**
-	 * Is <code>this</code> a prefix of <code>term</code>, i.e. is <code>term</code> of the form 
-	 * <code>this.f1...fn</code>?
-	 * 
+	 * Is <code>this</code> a prefix of <code>term</code>, i.e. is 
+	 * <code>term</code> of the form <code>this.f1...fn</code>?
+	 * Default no; should be overridden by subclasses.
 	 * @return
 	 */
-	public boolean prefixes(XTerm term) {
+	/*public boolean prefixes(XTerm term) {
 		return false;
-	}
+	}*/
 
 	/**
 	 * If true, bind this variable when processing this=t, for
@@ -110,10 +111,8 @@ public abstract class XTerm implements  Serializable, Cloneable {
 	 * @return true if this  prefers being bound in a constraint this==t.
 	 */
 	public boolean prefersBeingBound() {
-		return toString().startsWith("_self") || hasEQV();
+		return false;
 	}
-
-	protected boolean isAtomicFormula = false;
 
 	/**
 	 * Returns true if this term is an atomic formula.
@@ -122,11 +121,7 @@ public abstract class XTerm implements  Serializable, Cloneable {
 	 * @return true -- if this term represents an atomic formula
 	 */
 	public boolean isAtomicFormula() {
-		return isAtomicFormula;
-	}
-
-	public void markAsAtomicFormula() {
-		isAtomicFormula = true;
+	    return false;
 	}
 
 
@@ -135,7 +130,7 @@ public abstract class XTerm implements  Serializable, Cloneable {
 	 * @param v -- the variable being checked.
 	 * @return true if v occurs in this
 	 */
-	public abstract boolean hasVar(XVar v);
+	//public abstract boolean hasVar(XVar v);
 
 	/**
        Intern this term into constraint and return the promise

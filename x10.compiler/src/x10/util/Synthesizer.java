@@ -80,6 +80,7 @@ import x10.constraint.XName;
 import x10.constraint.XNot;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
+import x10.constraint.XUQV;
 import x10.constraint.XVar;
 import x10.constraint.XNameWrapper;
 import x10.extension.X10Del;
@@ -98,6 +99,8 @@ import x10.types.X10LocalDef;
 import x10.types.X10FieldDef;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
+import x10.types.constraints.CSelf;
+import x10.types.constraints.CThis;
 import x10.visit.X10TypeBuilder;
 import x10.visit.X10TypeChecker;
 
@@ -1471,8 +1474,14 @@ public class Synthesizer {
             return makeExpr((XEquals) t, pos);
         if (t instanceof XDisEquals)
             return makeExpr((XDisEquals) t, pos);
+        if (t instanceof CSelf)
+            return makeExpr((CSelf) t, pos); // this must occur before XLocal_c
+        if (t instanceof CThis)
+            return makeExpr((CThis) t, pos); // this must occur before XLocal_c
         if (t instanceof XEQV)
             return makeExpr((XEQV) t, pos); // this must occur before XLocal_c
+        if (t instanceof XUQV)
+            return makeExpr((XUQV) t, pos); // this must occur before XLocal_c
         if (t instanceof XLocal)
             return makeExpr((XLocal) t, pos);
         if (t instanceof XNot)
@@ -1516,6 +1525,25 @@ public class Synthesizer {
     }
 
     // FIXME: merge with makeExpr(XLocal, Position)
+    Expr makeExpr(CSelf t, Position pos) {
+        return xnf.Special(pos, X10Special.SELF);
+    }
+    Expr makeExpr(CThis t, Position pos) {
+        String str = t.toString();
+        //if (str.startsWith("_place"))
+        //  assert ! str.startsWith("_place") : "Place var: "+str;
+        int i = str.indexOf("#");
+        TypeNode tn = null;
+        if (i > 0) {
+            String typeName = str.substring(0, i);
+            tn = xnf.TypeNodeFromQualifiedName(pos,  QName.make(typeName));
+            str = str.substring(i+1);
+        }
+        X10Special.Kind kind = X10Special.THIS;
+        return tn == null ? xnf.Special(pos, kind) : xnf.Special(pos, kind, tn);
+     
+    }
+    // FIXME: merge with makeExpr(XLocal, Position)
     Expr makeExpr(XEQV t, Position pos) {
         String str = t.toString();
         //if (str.startsWith("_place"))
@@ -1527,9 +1555,18 @@ public class Synthesizer {
             tn = xnf.TypeNodeFromQualifiedName(pos,  QName.make(typeName));
             str = str.substring(i+1);
         }
-        if (str.equals("self") || str.equals("this")) {
-            X10Special.Kind kind = str.equals("self") ? X10Special.SELF : X10Special.THIS;
-            return tn == null ? xnf.Special(pos, kind) : xnf.Special(pos, kind, tn);
+        return xnf.AmbExpr(pos, xnf.Id(pos,Name.make(str)));
+    }
+    Expr makeExpr(XUQV t, Position pos) {
+        String str = t.toString();
+        //if (str.startsWith("_place"))
+        //  assert ! str.startsWith("_place") : "Place var: "+str;
+        int i = str.indexOf("#");
+        TypeNode tn = null;
+        if (i > 0) {
+            String typeName = str.substring(0, i);
+            tn = xnf.TypeNodeFromQualifiedName(pos,  QName.make(typeName));
+            str = str.substring(i+1);
         }
         return xnf.AmbExpr(pos, xnf.Id(pos,Name.make(str)));
     }
@@ -1547,10 +1584,6 @@ public class Synthesizer {
             String typeName = str.substring(0, i);
             tn = xnf.TypeNodeFromQualifiedName(pos,  QName.make(typeName));
             str = str.substring(i+1);
-        }
-        if (str.equals("self") || str.equals("this")) {
-            X10Special.Kind kind = str.equals("self") ? X10Special.SELF : X10Special.THIS;
-            return tn == null ? xnf.Special(pos, kind) : xnf.Special(pos, kind, tn);
         }
         return xnf.AmbExpr(pos, xnf.Id(pos,Name.make(str)));
     }

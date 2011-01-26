@@ -284,6 +284,8 @@ public class Types {
 	 * E.g., given "{self.home==here, self!=null}" it returns "{self.home==here}"
 	 * @param c a constraint "c" that doesn't allow null
 	 * @return a new constraint with all the constraints in "c" except {self!=null}
+	 * 
+	 * TODO: Rewrite to use an XGraphVisitor.
 	 */
 	public static CConstraint allowNull(CConstraint c) {
 	    final XVar self = c.self();
@@ -487,7 +489,7 @@ public class Types {
 		return null;
 	}
 
-	public static boolean hasVar(Type t, XVar x) {
+	/*public static boolean hasVar(Type t, XVar x) {
 	    if (t instanceof ConstrainedType) {
 		ConstrainedType ct = (ConstrainedType) t;
 		Type b = baseType(t);
@@ -504,7 +506,7 @@ public class Types {
 	    }
 	    return false;
 	}
-
+*/
 	
 
 	/**
