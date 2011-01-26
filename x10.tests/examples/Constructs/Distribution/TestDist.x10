@@ -179,6 +179,10 @@ abstract public class TestDist extends x10Test {
         prRegion(test, r);
 
         pr("  iterator");
+        prArray1(a, bump);
+    }
+
+    def prArray1(a: Array[double], bump: boolean): void = {
         var grid: Grid = new Grid();
         for (p:Point in a.region) {
             if (p.rank==1) {

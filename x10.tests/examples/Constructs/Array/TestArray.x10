@@ -199,6 +199,11 @@ abstract public class TestArray extends x10Test {
         prRegion(test, r);
 
         pr("  iterator");
+	prArray1(a, bump);
+    }
+
+
+    @Global def prArray1(a: DistArray[double], bump: boolean): void = {
         var grid: Grid = new Grid();
         for (p:Point in a.region) {
             //var v: double = a(p as Point(a.rank));
@@ -218,7 +223,6 @@ abstract public class TestArray extends x10Test {
         }
         grid.pr(a.rank);
     }
-
 
     @Global def prPoint(test: String, p: Point): void = {
         var sum: int = 0;
