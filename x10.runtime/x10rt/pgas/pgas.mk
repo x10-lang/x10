@@ -314,19 +314,18 @@ endif #PLATFORM_SUPPORTS_PGAS_PANE
 # {{{ LAPI
 ifeq ($(PLATFORM_SUPPORTS_PGAS_LAPI),yes)
 ifeq ($(XLPGAS_LAPI_EXISTS),yes)
-#If there is no poe then do not compile the tests.
+#If there is no poe then do not add any pgas_lapi targets. 
 #Assume that if poe is installed then `which poe` will print its full path to
 #stdout.  Since we don't know what the full path is, we can't run it because it
 #will fail, and we can't trust the error messages or exit code of `which`, we
 #instead test if the path is an executable file.
 ifeq ($(shell test -x "`which poe 2>/dev/null`" && printf hi),hi)
 TESTS += $(patsubst test/%,test/%.pgas_lapi,$(BASE_TESTS))
+LIBS += $(LIB_FILE_PGAS_LAPI)
+PROPERTIES += etc/x10rt_pgas_lapi.properties
 else
 HACK=$(shell echo "Your platform supports LAPI but we could not find the poe executable so not building LAPI tests">2)
 endif
-
-LIBS += $(LIB_FILE_PGAS_LAPI)
-PROPERTIES += etc/x10rt_pgas_lapi.properties
 
 %.pgas_lapi: %.cc $(LIB_FILE_PGAS_LAPI)
 	$(CXX) $(CXXFLAGS) $< -o $@ $(APP_LDFLAGS_PGAS_LAPI) $(APP_LDLIBS_PGAS_LAPI) $(X10RT_TEST_LDFLAGS)
