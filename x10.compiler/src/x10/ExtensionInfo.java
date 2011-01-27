@@ -397,14 +397,71 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            PrintWeakCallsCount = null;
        }
 
-       protected List<Goal> validateOnlyGoals(Job job) {
+       /**
+        * Create a list of goals for a given job that performs all operations through parsing.
+        * @return the created list of goals
+        */
+       protected List<Goal> parseSourceGoals(Job job) {
            List<Goal> goals = new ArrayList<Goal>();
-           addValidateOnlyGoals(job, goals);
+           addParseSourceGoals(job, goals);
            return goals;
        }
-       private void addValidateOnlyGoals(Job job, List<Goal> goals) {
-           X10CompilerOptions opts = extensionInfo().getOptions();
+       /**
+        * Create a list of goals for a given job that only performs parsing.
+        * @return the created list of goals
+        */
+       protected List<Goal> typecheckSourceGoals(Job job) {
+           List<Goal> goals = new ArrayList<Goal>();
+           addTypecheckSourceGoals(job, goals);
+           return goals;
+       }
+       /**
+        * Create a list of goals for a given job that only performs parsing.
+        * @return the created list of goals
+        */
+       protected List<Goal> semanticCheckSourceGoals(Job job) {
+           List<Goal> goals = new ArrayList<Goal>();
+           addSemanticCheckSourceGoals(job, goals);
+           return goals;
+       }
+       /**
+        * Given a list of goals and a job, append the goal that performs position checking
+        * to the end of that list.
+        * @return the new list of goals that includes all of the original goals plus the new one
+        */
+       protected List<Goal> appendPositionCheckGoal(Job job, List<Goal> goals) {
+    	   return appendPositionCheckGoal(job, goals, "PositionInvariantChecker");
+       }
+       /**
+        * Given a list of goals and a job, append the goal that performs position checking
+        * with a given name to the end of that list.  A unique name is required if there
+        * will be multiple such goals added.
+        * @param name the name of the position checker goal
+        * @return the new list of goals that includes all of the original goals plus the new one
+        */
+       protected List<Goal> appendPositionCheckGoal(Job job, List<Goal> goals, String name) {
+    	   List<Goal> newgoals = new ArrayList<Goal>(goals);
+    	   addPositionCheckGoal(name, job, newgoals);
+    	   return newgoals;
+       }
+       /**
+        * Given a list of goals and a job, append the goal that performs full invariant checking
+        * to the end of that list.
+        * @return the new list of goals that includes all of the original goals plus the new one
+        */
+       protected List<Goal> appendInvariantCheckGoal(Job job, List<Goal> goals) {
+           List<Goal> newgoals = new ArrayList<Goal>(goals);
+           addInvariantCheckGoal(job, newgoals);
+           return newgoals;
+       }
+
+       private void addParseSourceGoals(Job job, List<Goal> goals) {
            goals.add(Parsed(job));
+       }
+       private void addTypecheckSourceGoals(Job job, List<Goal> goals) {
+    	   addParseSourceGoals(job, goals);
+
+           X10CompilerOptions opts = extensionInfo().getOptions();
            if (opts.x10_config.CHECK_ERR_MARKERS) goals.add(ErrChecker(job)); // must be the first phase after parsing because later phases might fail and stop type checking (it shouldn't happen, but it does)
            goals.add(ImportTableInitialized(job));
            goals.add(TypesInitialized(job));
@@ -424,30 +481,48 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 
            goals.add(TypeChecked(job));
            goals.add(ReassembleAST(job));
-           
+       }
+       private void addSemanticCheckSourceGoals(Job job, List<Goal> goals) {
+    	   addTypecheckSourceGoals(job, goals);
+
            goals.add(ConformanceChecked(job));
 
            // Data-flow analyses
            goals.add(ReachabilityChecked(job)); // This must be the first dataflow analysis (see DataFlow.reportCFG_Errors)
-       //    goals.add(ExceptionsChecked(job));
+           //goals.add(ExceptionsChecked(job));
            goals.add(ExitPathsChecked(job));
            goals.add(InitializationsChecked(job));
            goals.add(ConstructorCallsChecked(job));
            goals.add(ForwardReferencesChecked(job));
-//           goals.add(CheckNativeAnnotations(job));
+           //goals.add(CheckNativeAnnotations(job));
            goals.add(CheckEscapingThis(job));
            goals.add(AnnotationChecker(job));
            goals.add(CheckASTForErrors(job));
-//           goals.add(TypeCheckBarrier());
-
+           //goals.add(TypeCheckBarrier());
 
            goals.add(End(job));
        }
+       private void addPositionCheckGoal(Job job, List<Goal> goals) {
+           addPositionCheckGoal("PositionInvariantChecker", job, goals);
+       }
+       private void addPositionCheckGoal(String name, Job job, List<Goal> goals) {
+    	   String current = "";
+    	   if (goals.size() > 0)
+    		   current = goals.get(goals.size() - 1).name();
+           addPositionCheckGoal(name, current, job, goals);
+       }
+       private void addPositionCheckGoal(String name, String previous, Job job, List<Goal> goals) {
+    	   goals.add(new ForgivingVisitorGoal(name, job, new PositionInvariantChecker(job, previous)).intern(this));
+       }
+       private void addInvariantCheckGoal(Job job, List<Goal> goals) {
+    	   goals.add(new ForgivingVisitorGoal("InstanceInvariantChecker", job, new InstanceInvariantChecker(job)).intern(this));
+       }
+
        public List<Goal> goals(Job job) {
            X10CompilerOptions opts = extensionInfo().getOptions();
            List<Goal> goals = new ArrayList<Goal>();
 
-           addValidateOnlyGoals(job, goals);
+           addSemanticCheckSourceGoals(job, goals);
            Goal endGoal = goals.remove(goals.size()-1);
 
            if (!opts.x10_config.ONLY_TYPE_CHECKING) {
@@ -544,10 +619,11 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                int ctr = 0;
                for (Goal g : goals) {
                    newGoals.add(g);
-                   if (!reachedTypeChecking)
-                       newGoals.add(new ForgivingVisitorGoal("PositionInvariantChecker"+(ctr++), job, new PositionInvariantChecker(job, g.name())).intern(this));
+                   if (!reachedTypeChecking) {
+                	   addPositionCheckGoal("PositionInvariantChecker"+(ctr++), g.name(), job, newGoals);
+                   }
                    if (g==TypeChecked(job)) {
-                       newGoals.add(new ForgivingVisitorGoal("InstanceInvariantChecker", job, new InstanceInvariantChecker(job)).intern(this));
+                       addInvariantCheckGoal(job, newGoals);
                        reachedTypeChecking = true;
                    }
                }
