@@ -34,6 +34,22 @@ public final class GlobalRef<T> extends x10.core.Struct {
         return null;
     }
 
+    // a singleton which represents null value
+    private static final Object $null = new Object() {
+        @Override
+        public java.lang.String toString() {
+            return "<null>";
+        }
+    };
+    private static final <T> T encodeNull(T t) {
+        if (t == null) t = (T) $null;
+        return t;
+    }
+    private static final <T> T decodeNull(T t) {
+        if (t == $null) t = null;
+        return t;
+    }
+
     private static class GlobalRefEntry {
         private final Object t;
 
@@ -59,15 +75,12 @@ public final class GlobalRef<T> extends x10.core.Struct {
             return false;
         }
     }
-
-    // a singleton which represents null value
-    private static final Object $null = new Object() {
-        @Override
-        public java.lang.String toString() {
-            return "<null>";
-        }
-    };
-
+    private static final GlobalRefEntry $nullEntry = new GlobalRefEntry($null);
+    private static final GlobalRefEntry wrapObject(Object t) {
+        if (t == $null) return $nullEntry;
+        return new GlobalRefEntry(t);
+    }
+    
     private static AtomicLong lastId = new AtomicLong(0);
     private static ConcurrentHashMap<Long, Object> id2Object = new ConcurrentHashMap<Long, Object>();
     private static ConcurrentHashMap<GlobalRefEntry, Long> object2Id = new ConcurrentHashMap<GlobalRefEntry, Long>();
@@ -78,7 +91,7 @@ public final class GlobalRef<T> extends x10.core.Struct {
 
     public GlobalRef(final x10.rtt.Type<?> T, T t, java.lang.Class<?> dummy$0) {
         
-        if (t == null) t = (T) $null;
+        t = encodeNull(t);
         
         this.T = T;
         this.home = x10.lang.Runtime.home();
@@ -87,8 +100,7 @@ public final class GlobalRef<T> extends x10.core.Struct {
 
         id2Object.put(tmpId, t);//set id first.
 
-        GlobalRefEntry entry = new GlobalRefEntry(t);
-        Long existingId = object2Id.putIfAbsent(entry, tmpId);//set object second.
+        Long existingId = object2Id.putIfAbsent(wrapObject(t), tmpId);//set object second.
         if (existingId != null) {
             this.id = existingId;
             id2Object.remove(tmpId);
@@ -99,17 +111,17 @@ public final class GlobalRef<T> extends x10.core.Struct {
 
     final public T $apply$G() {
         //always get object because each id is set first and its object is set second.
-        Object t = id2Object.get(id);
-        if (t == $null) t = null;
-        return (T) t;
+        T t = (T) id2Object.get(id);
+        t = decodeNull(t);
+        return t;
     }
 
     //this is not an api. only for implementing local assign in at body.
     final public T $set$G(T t) {
         T t0 = t;
-        if (t == null) t = (T) $null;
+        t = encodeNull(t);
         id2Object.put(this.id, t);
-        object2Id.put(new GlobalRefEntry(t), this.id);
+        object2Id.put(wrapObject(t), this.id);
         return t0;
     }
 
