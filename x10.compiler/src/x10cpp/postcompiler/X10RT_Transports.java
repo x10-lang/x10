@@ -12,27 +12,42 @@
 package x10cpp.postcompiler;
 
 /**
- * An enumeration of the x10rt transport implementations 
- * that are supported by NativeX10.
+ * An enumeration describing the key properties
+ * of the x10rt implementations supported by X10.
+ * Primarily intended for use by X10DT to encapsulate
+ * the mapping of human consumable 
  */
 public enum X10RT_Transports {
-    SOCKETS("Sockets", "x10rt_sockets.properties"),
-    STANDALONE("Standalone", "x10rt_standalone.properties"),
-    LAPI("LAPI", "x10rt_pgas_lapi.properties"),
-    BGP("Blue Gene/P", "x10rt_pgas_bgp.properties");
+    SOCKETS("Sockets", "x10rt_sockets.properties", 
+            "Connects places using TCP/IP sockets as the network transport. Uses ssh to connect spawn places on multiple hosts"),
+    STANDALONE("Standalone", "x10rt_standalone.properties", "Connects places using shared memory.  Only supports a single host."),
+    LAPI("LAPI", "x10rt_pgas_lapi.properties", "Uses IBM LAPI as the network transport and IBM POE for process creation."),
+    BGP("Blue Gene/P", "x10rt_pgas_bgp.properties", "Uses the BlueGene DCMF network transport and process creation mechanisms.");
+    
+    private final String displayName;
+    private final String propFileName;
+    private final String description;
     
     /**
      * Human readable name for display in UIs
      */
-    String displayName;
+    String displayName() { return displayName; }
+
+    /**
+     * Name of the x10rt property file that would be found
+     * in x10.dist/etc if this transport was supported by a 
+     * particular x10 distibution.
+     */
+    String propertyFileName() { return propFileName; }
     
     /**
-     * Name of the x10rt property file associated with this transport
+     * A brief description of the transport suitable for display in a UI as "help text"
      */
-    String propFileName;
+    String description() { return description; }
     
-    X10RT_Transports(String dn, String pfn) {
+    X10RT_Transports(String dn, String pfn, String desc) {
         displayName = dn;
         propFileName = pfn;
+        description = desc;
     }
 }
