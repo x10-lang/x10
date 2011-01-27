@@ -23,19 +23,12 @@ public class AIX_CXXCommandBuilder extends CXXCommandBuilder {
         super(options, eq);
     }
 
-    protected boolean useXLC() {
-        return !options.cppCompiler.equals(X10CPPCompilerOptions.CPPCompiler.GCC);
-    }
-
     protected void addPreArgs(ArrayList<String> cxxCmd) {
         super.addPreArgs(cxxCmd);
 
-        if (useXLC()) {
+        if (usingXLC()) {
             cxxCmd.add("-qrtti=all"); // AIX specific.
-            if (options.wordSize.equals(X10CPPCompilerOptions.WordSize.FORCE_32)) {
-                cxxCmd.add("-bmaxdata:0x80000000");
-            }
-            cxxCmd.add("-brtl"); // AIX specific.
+            cxxCmd.add("-brtl");      // AIX specific.
         } else {
             cxxCmd.add("-maix64"); // Assume 64-bit
             cxxCmd.add("-Wl,-brtl");
@@ -45,7 +38,7 @@ public class AIX_CXXCommandBuilder extends CXXCommandBuilder {
     protected void addPostArgs(ArrayList<String> cxxCmd) {
         super.addPostArgs(cxxCmd);
 
-        if (useXLC()) {
+        if (usingXLC()) {
             cxxCmd.add("-bbigtoc");
             cxxCmd.add("-lptools_ptr");
         } else {

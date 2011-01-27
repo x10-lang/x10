@@ -25,13 +25,6 @@ public class MacOSX_CXXCommandBuilder extends CXXCommandBuilder {
 
     protected void addPreArgs(ArrayList<String> cxxCmd) {
         super.addPreArgs(cxxCmd);
-        if (options.wordSize.equals(X10CPPCompilerOptions.WordSize.FORCE_32)) {
-            cxxCmd.add("-arch");
-            cxxCmd.add("i386");
-        } else if (options.wordSize.equals(X10CPPCompilerOptions.WordSize.FORCE_64)) {
-            cxxCmd.add("-arch");
-            cxxCmd.add("x86_64");
-        }
         cxxCmd.add("-msse2");
         cxxCmd.add("-mfpmath=sse");
     }

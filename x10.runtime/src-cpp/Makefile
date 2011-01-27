@@ -13,8 +13,8 @@ ifdef ENABLE_GC
   override CXXFLAGS += -DX10_USE_BDWGC
   BDWGC_INCLUDE_DIR= ./bdwgc/install/include
   INCLUDE_DIRS += -I"$(BDWGC_INCLUDE_DIR)"
-  XRX_PROPS_CXXFLAGS += -DX10_USE_BDWGC
-  XRX_PROPS_LDLIBS += -lgc
+  override XRX_PROPS_CXXFLAGS += -DX10_USE_BDWGC
+  override XRX_PROPS_LDLIBS += -lgc
 endif
 
 override CXXFLAGS += $(INCLUDE_DIRS) -Igen
@@ -189,6 +189,7 @@ endif
 
 $(XRX_PROPERTIES):
 	@echo "PLATFORM=$(X10RT_PLATFORM)" > $@
+	@echo "CXX=$(CXX)" >> $@
 	@echo "CXXFLAGS=$(XRX_PROPS_CXXFLAGS)" >> $@
 	@echo "LDFLAGS=$(XRX_PROPS_LDFLAGS)" >> $@
 	@echo "LDLIBS=$(XRX_PROPS_LDLIBS)" >> $@

@@ -118,8 +118,8 @@ public class CXXCommandBuilder {
     }
 
     
-    protected boolean useXLC() {
-        return options.cppCompiler.equals(X10CPPCompilerOptions.CPPCompiler.XLC);
+    protected final boolean usingXLC() {
+        return defaultPostCompiler().contains("xlC");
     }
 
     /** Add the arguments that go before the output files */
@@ -134,25 +134,21 @@ public class CXXCommandBuilder {
         cxxCmd.add("-I.");
 
         if (options.x10_config.OPTIMIZE) {
-            cxxCmd.add(useXLC() ? "-O3" : "-O2");
-            cxxCmd.add(useXLC() ? "-qinline" : "-finline-functions");
+            cxxCmd.add(usingXLC() ? "-O3" : "-O2");
+            cxxCmd.add(usingXLC() ? "-qinline" : "-finline-functions");
             cxxCmd.add("-DNO_TRACING");
-            if (useXLC()) {
+            if (usingXLC()) {
                 cxxCmd.add("-qhot");
                 cxxCmd.add("-qtune=auto");
                 cxxCmd.add("-qarch=auto");
             }
         }
 
-        if (useXLC()) {
+        if (usingXLC()) {
             cxxCmd.add("-qsuppress=1540-0809"    // Do not warn about empty sources
                                + ":1540-1101"    // Do not warn about non-void functions with no return
                                + ":1500-029");   // Do not warn about being unable to inline when optimizing
-            if (options.wordSize.equals(X10CPPCompilerOptions.WordSize.FORCE_32)) {
-                cxxCmd.add("-q32");
-            } else {
-                cxxCmd.add("-q64");
-            }
+
             if (XLC_EXTRA_FLAGS != null) {
                 cxxCmd.add(XLC_EXTRA_FLAGS);
             }

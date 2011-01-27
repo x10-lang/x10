@@ -139,8 +139,10 @@ else
     override CXXFLAGS -= -g
     ifndef USE_32BIT
       override CXXFLAGS += -q64
+      override XRX_PROPS_CXXFLAGS += -q64
     else
       override CXXFLAGS += -q32
+      override XRX_PROPS_CXXFLAGS += -q32 -bmaxdata:0x80000000
     endif
 
   endif
@@ -187,6 +189,7 @@ else
       endif
       ifdef USE_64BIT
         override CXXFLAGS += -m64
+        override XRX_PROPS_CXXFLAGS += -m64
       endif
       ifeq ($(shell uname -m),x86_64)
         export X10RT_PLATFORM=linux_x86_64
@@ -221,9 +224,11 @@ else
       export X10RT_TEST_LDFLAGS = -Wl,-rpath -Wl,"$(X10_HOME)"/x10.runtime/x10rt/lib -Wl,-rpath -Wl,"$(X10_HOME)"/x10.runtime/x10rt
       ifdef USE_32BIT
         override CXXFLAGS += -arch i386
+        override XRX_PROPS_CXXFLAGS += -arch i386
       endif
       ifdef USE_64BIT
         override CXXFLAGS += -arch x86_64
+        override XRX_PROPS_CXXFLAGS += -arch x86_64
       endif
       AR = libtool
       # Warning: Order matters!  The "-o" has to be at the end.
