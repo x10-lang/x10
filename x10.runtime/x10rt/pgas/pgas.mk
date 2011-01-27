@@ -24,6 +24,10 @@ PLATFORM_SUPPORTS_PGAS_PANE := no
 PLATFORM_SUPPORTS_PGAS_LAPI := no
 PLATFORM_SUPPORTS_PGAS_BGP := no
 
+# MOV: flags that are either used at app or so compile time depending on X10_STATIC_LIB
+# SO: flags that are always used at so compile time
+# APP: flags that are always used at app compile time
+
 # configuration common to all platforms
 MOV_LDFLAGS_PGAS_LAPI    = $(MOV_LDFLAGS)
 MOV_LDLIBS_PGAS_LAPI     = $(MOV_LDLIBS)

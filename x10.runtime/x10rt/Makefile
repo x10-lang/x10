@@ -43,10 +43,11 @@ endif
 # It is worth separating the linker flags for building the shared object from
 # the linker flags that should be used by an application
 # The MOV_ are the params that should be part of either SO or APP depending on X10_STATIC_LIB
-MOV_LDLIBS := $(LDLIBS)
-MOV_LDFLAGS := $(LDFLAGS) -lpthread
-APP_LDLIBS := 
-APP_LDFLAGS := -L"$(X10_HOME)"/x10.runtime/x10rt/lib 
+# Note that Make.rules gives us APP_LDFLAGS as LDFLAGS and SO_LDFLAGS as LDFLAGS_SHARED
+MOV_LDLIBS :=
+MOV_LDFLAGS := -lpthread
+APP_LDLIBS := $(LDLIBS) 
+APP_LDFLAGS := -L"$(X10_HOME)"/x10.runtime/x10rt/lib $(LDFLAGS) 
 SO_LDLIBS := 
 SO_LDFLAGS = $(LDFLAGS_SHARED)
 
