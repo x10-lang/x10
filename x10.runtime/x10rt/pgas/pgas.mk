@@ -94,24 +94,28 @@ ifeq ($(X10RT_PLATFORM), aix_xlc)
   PLATFORM_SUPPORTS_PGAS_LAPI       := yes
   PLATFORM_SUPPORTS_PGAS_PANE       := yes
   # PLATFORM_SUPPORTS_PGAS_SOCKETS    := yes
-  APP_LDFLAGS_PGAS_LAPI   += -Wl,-binitfini:poe_remote_main 
-  APP_LDFLAGS_PGAS_PANE   += -Wl,-binitfini:poe_remote_main
+  APP_LDFLAGS_PGAS_LAPI   += -Wl,-binitfini:poe_remote_main  -L/usr/lpp/ppe.poe/lib
+  APP_LDFLAGS_PGAS_PANE   += -Wl,-binitfini:poe_remote_main -L/usr/lpp/ppe.poe/lib
+  APP_LDLIBS_PGAS_LAPI    += -lmpi_r -lvtd_r
+  APP_LDLIBS_PGAS_PANE    += -lmpi_r -lvtd_r
   MOV_LDFLAGS_PGAS_LAPI   += -L/usr/lpp/ppe.poe/lib
   MOV_LDFLAGS_PGAS_PANE   += -L/usr/lpp/ppe.poe/lib
-  MOV_LDLIBS_PGAS_LAPI    += -lmpi_r -lvtd_r -llapi_r -lpthread -lm
-  MOV_LDLIBS_PGAS_PANE    += -lmpi_r -lvtd_r -llapi_r -lpthread -lm
+  MOV_LDLIBS_PGAS_LAPI    += -llapi_r -lpthread -lm
+  MOV_LDLIBS_PGAS_PANE    += -llapi_r -lpthread -lm
 endif
 ifeq ($(X10RT_PLATFORM), aix_gcc)
   WPLATFORM      := aix_g++4
   PLATFORM_SUPPORTS_PGAS_LAPI       := yes
   PLATFORM_SUPPORTS_PGAS_PANE       := yes
   #PLATFORM_SUPPORTS_PGAS_SOCKETS    := yes
-  APP_LDFLAGS_PGAS_LAPI   += -Wl,-binitfini:poe_remote_main 
-  APP_LDFLAGS_PGAS_PANE   += -Wl,-binitfini:poe_remote_main 
+  APP_LDFLAGS_PGAS_LAPI   += -Wl,-binitfini:poe_remote_main  -L/usr/lpp/ppe.poe/lib
+  APP_LDFLAGS_PGAS_PANE   += -Wl,-binitfini:poe_remote_main -L/usr/lpp/ppe.poe/lib
+  APP_LDLIBS_PGAS_LAPI    += -lmpi_r -lvtd_r
+  APP_LDLIBS_PGAS_PANE    += -lmpi_r -lvtd_r
   MOV_LDFLAGS_PGAS_LAPI   += -L/usr/lpp/ppe.poe/lib
   MOV_LDFLAGS_PGAS_PANE   += -L/usr/lpp/ppe.poe/lib
-  MOV_LDLIBS_PGAS_LAPI    += -lmpi_r -lvtd_r -llapi_r -lpthread -lm
-  MOV_LDLIBS_PGAS_PANE    += -lmpi_r -lvtd_r -llapi_r -lpthread -lm
+  MOV_LDLIBS_PGAS_LAPI    += -llapi_r -lpthread -lm
+  MOV_LDLIBS_PGAS_PANE    += -llapi_r -lpthread -lm
 endif
 ifeq ($(X10RT_PLATFORM), linux_ppc_64_gcc)
   WPLATFORM      := linux_ppc_64_g++4
